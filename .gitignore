@@ -1,0 +1,25 @@
+# Dependencies (root + sub-projects)
+node_modules/
+
+# Build output
+backend/target/
+frontend/dist/
+dist/
+
+# Logs
+*.log
+logs/
+
+# Editor / OS junk
+.DS_Store
+*.suo
+Thumbs.db
+.idea/
+.trae/
+
+# Editor temp / crash artifacts (do not commit)
+*.new
+frontend/src/views/admin/.!24184!DocManagement.vue
+
+# Local agent / workspace memory (contains private notes, do NOT publish)
+.workbuddy/
