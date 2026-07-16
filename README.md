@@ -91,6 +91,10 @@ git push github     # 推送到 GitHub（SSH）
 git push gitee      # 推送到 Gitee（HTTPS）
 ```
 
+## 部署
+
+生产环境部署（后端 jar / MySQL、前端构建 + Nginx 反代、Docker 一键部署、systemd 守护等）请见 [DEPLOY.md](./DEPLOY.md)。
+
 ## 说明
 
 - 根目录 `.gitignore` 已忽略 `node_modules/`、`backend/target/`、IDE 配置（`.idea/`、`.trae/`）、本地代理记忆（`.workbuddy/`）等，避免把依赖与编译产物提交到仓库。
