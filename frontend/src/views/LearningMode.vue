@@ -153,7 +153,7 @@ import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
 
 const router = useRouter()
-const selectedMode = ref('')
+const selectedMode = ref<string | null>(null)
 
 const settings = ref({
   duration: 30,

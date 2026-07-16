@@ -213,7 +213,7 @@ const editCard = (card: Flashcard) => {
   showAddModal.value = true
 }
 
-const deleteCard = (id: string) => {
+const deleteCard = (_id: string) => {
   if (confirm('确定要删除这张卡片吗？')) {
     alert('删除成功')
   }

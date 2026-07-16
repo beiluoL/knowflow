@@ -41,7 +41,7 @@ import { computed } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 
 interface Props {
-  variant?: 'primary' | 'secondary' | 'text'
+  variant?: 'primary' | 'secondary' | 'text' | 'ghost'
   size?: 'sm' | 'md' | 'lg'
   type?: 'button' | 'submit' | 'reset'
   disabled?: boolean
@@ -78,6 +78,7 @@ const variantClass = computed(() => {
     secondary:
       'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 active:bg-gray-100 shadow-sm',
     text: 'text-primary-500 hover:bg-primary-50 active:bg-primary-100',
+    ghost: 'bg-transparent text-primary-500 border border-primary-500 hover:bg-primary-50 active:bg-primary-100',
   }
   return variants[props.variant]
 })
