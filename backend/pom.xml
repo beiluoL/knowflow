@@ -11,10 +11,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.zhishiku</groupId>
-    <artifactId>zhishiku-backend</artifactId>
+    <groupId>com.knowflow</groupId>
+    <artifactId>knowflow-backend</artifactId>
     <version>1.0.0</version>
-    <name>zhishiku-backend</name>
+    <name>knowflow-backend</name>
     <description>Zhishiku Backend Project</description>
 
     <properties>

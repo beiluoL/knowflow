@@ -2,7 +2,7 @@
 
 一个面向学习场景的**知识库 + AI 学习平台**：用户可浏览 / 搜索 / 上传文档，借助 AI 对话答疑，并沿着系统化的学习路径（章节 + 闪卡 + 测验 + 写作 + 代码练习）持续学习，辅以等级、经验、能量、连续打卡等游戏化激励；管理员可在后台统一管理用户、文档、知识库与 AI 配置。
 
-> 仓库名 `learnbase`（learning + knowledge base）。原项目目录名为 `zhishiku`，代码中包名、表名等仍沿用 `zhishiku` 前缀，属历史命名，不影响使用。
+> 仓库名 `learnbase`（learning + knowledge base）。原项目目录名为 `knowflow`，代码中包名、表名等仍沿用 `knowflow` 前缀，属历史命名，不影响使用。
 
 ## 功能特性
 
@@ -24,9 +24,9 @@
 ## 目录结构
 
 ```
-zhishiku/
+knowflow/
 ├── backend/               # Spring Boot 后端（端口 8080）
-│   ├── src/main/java/com/zhishiku/   # 控制器 / 服务 / 实体 / 配置
+│   ├── src/main/java/com/knowflow/   # 控制器 / 服务 / 实体 / 配置
 │   ├── src/main/resources/           # application.yml、schema.sql、data.sql
 │   └── pom.xml
 ├── frontend/              # Vue 3 前端
@@ -58,7 +58,7 @@ cd backend
 - 默认端口：`8080`
 - 数据库：H2 内存库，启动时会自动执行 `schema.sql` 建表、`data.sql` 写入初始数据
 - API 文档（Swagger）：<http://localhost:8080/swagger-ui.html>
-- H2 控制台：<http://localhost:8080/h2-console>（JDBC URL：`jdbc:h2:mem:zhishiku`）
+- H2 控制台：<http://localhost:8080/h2-console>（JDBC URL：`jdbc:h2:mem:knowflow`）
 - 如需切换 MySQL：在 `backend/src/main/resources/application.yml` 中修改 `spring.datasource` 配置即可
 
 ### 2. 启动前端

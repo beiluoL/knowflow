@@ -1,4 +1,4 @@
-// 后端接口数据类型（与 com.zhishiku.vo / dto 对齐）
+// 后端接口数据类型（与 com.knowflow.vo / dto 对齐）
 
 export interface ApiResult<T = unknown> {
   code: number

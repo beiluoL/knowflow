@@ -16,14 +16,14 @@
 
 ```bash
 cd backend
-./mvnw clean package -DskipTests        # 生成 target/zhishiku-backend-1.0.0.jar
+./mvnw clean package -DskipTests        # 生成 target/knowflow-backend-1.0.0.jar
 # 或：mvn clean package -DskipTests
 ```
 
 ### 2.2 运行（默认 H2 内存库）
 
 ```bash
-java -jar target/zhishiku-backend-1.0.0.jar
+java -jar target/knowflow-backend-1.0.0.jar
 ```
 
 默认监听 `8080`。低权限/无外部数据库时可直接跑起来（数据在内存，重启即清空）。
@@ -36,7 +36,7 @@ java -jar target/zhishiku-backend-1.0.0.jar
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://<host>:3306/zhishiku?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://<host>:3306/knowflow?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: prod_user
     password: ******      # 改为强密码
   sql:
@@ -49,8 +49,8 @@ jwt:
 也可用命令行参数覆盖，避免把密码写进配置文件：
 
 ```bash
-java -jar target/zhishiku-backend-1.0.0.jar \
-  --spring.datasource.url=jdbc:mysql://<host>:3306/zhishiku \
+java -jar target/knowflow-backend-1.0.0.jar \
+  --spring.datasource.url=jdbc:mysql://<host>:3306/knowflow \
   --spring.datasource.username=prod_user \
   --spring.datasource.password='******' \
   --jwt.secret='******'
@@ -68,7 +68,7 @@ After=network.target
 [Service]
 User=app
 WorkingDirectory=/opt/learnbase/backend
-ExecStart=/usr/bin/java -jar /opt/learnbase/backend/target/zhishiku-backend-1.0.0.jar
+ExecStart=/usr/bin/java -jar /opt/learnbase/backend/target/knowflow-backend-1.0.0.jar
 SuccessExitStatus=143
 Restart=on-failure
 
@@ -139,7 +139,7 @@ RUN mvn -q clean package -DskipTests
 # ---- run ----
 FROM eclipse-temurin:17-jre
 WORKDIR /app
-COPY --from=build /app/target/zhishiku-backend-1.0.0.jar app.jar
+COPY --from=build /app/target/knowflow-backend-1.0.0.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
@@ -151,7 +151,7 @@ services:
   db:
     image: mysql:8
     environment:
-      MYSQL_DATABASE: zhishiku
+      MYSQL_DATABASE: knowflow
       MYSQL_ROOT_PASSWORD: change_me
     volumes:
       - db_data:/var/lib/mysql
@@ -168,7 +168,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/zhishiku?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/knowflow?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: change_me
       JWT_SECRET: change_me_to_a_long_random_secret

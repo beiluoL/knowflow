@@ -300,7 +300,7 @@ import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
 
 // 后端暂无对话配置独立接口，本页配置持久化到浏览器 localStorage
-const STORAGE_KEY = 'zhishiku_chat_config'
+const STORAGE_KEY = 'knowflow_chat_config'
 
 interface Model {
   id: string

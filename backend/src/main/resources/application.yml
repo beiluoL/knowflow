@@ -3,11 +3,11 @@ server:
 
 spring:
   application:
-    name: zhishiku-backend
+    name: knowflow-backend
 
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:zhishiku;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    url: jdbc:h2:mem:knowflow;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
     username: sa
     password:
     sql-script-encoding: UTF-8
@@ -47,12 +47,12 @@ springdoc:
     operations-sorter: alpha
 
 jwt:
-  secret: zhishiku-default-secret-key-1234567890-abcdefghij
+  secret: knowflow-default-secret-key-1234567890-abcdefghij
   expire: 86400000
 
 logging:
   level:
     root: info
-    com.zhishiku: debug
+    com.knowflow: debug
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
