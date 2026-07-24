@@ -1,4 +1,4 @@
-# 前端 · learnbase
+# 前端 · knowflow
 
 本项目的前端模块，基于 **Vue 3 + TypeScript + Vite** 构建。
 

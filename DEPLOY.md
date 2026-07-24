@@ -1,6 +1,6 @@
 # 部署指南 (Deployment)
 
-本文说明 `learnbase` 的生产环境部署方式：后端打 jar 运行（可切换 MySQL），前端构建后由 Nginx 托管，并给出 Docker 一键部署示例。
+本文说明 `knowflow` 的生产环境部署方式：后端打 jar 运行（可切换 MySQL），前端构建后由 Nginx 托管，并给出 Docker 一键部署示例。
 
 > 开发态启动方式见根目录 [README.md](./README.md)。本文聚焦生产部署。
 
@@ -58,17 +58,17 @@ java -jar target/knowflow-backend-1.0.0.jar \
 
 ### 2.4 进程守护（systemd 示例）
 
-`/etc/systemd/system/learnbase-backend.service`：
+`/etc/systemd/system/knowflow-backend.service`：
 
 ```ini
 [Unit]
-Description=learnbase backend
+Description=knowflow backend
 After=network.target
 
 [Service]
 User=app
-WorkingDirectory=/opt/learnbase/backend
-ExecStart=/usr/bin/java -jar /opt/learnbase/backend/target/knowflow-backend-1.0.0.jar
+WorkingDirectory=/opt/knowflow/backend
+ExecStart=/usr/bin/java -jar /opt/knowflow/backend/target/knowflow-backend-1.0.0.jar
 SuccessExitStatus=143
 Restart=on-failure
 
@@ -78,7 +78,7 @@ WantedBy=multi-user.target
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable --now learnbase-backend
+sudo systemctl enable --now knowflow-backend
 ```
 
 ## 3. 前端部署
@@ -95,7 +95,7 @@ npm run build            # 产物输出到 frontend/dist/
 
 ### 3.2 用 Nginx 托管静态文件
 
-将 `frontend/dist/` 放到服务器（如 `/opt/learnbase/frontend/dist`），并用下面的配置托管。
+将 `frontend/dist/` 放到服务器（如 `/opt/knowflow/frontend/dist`），并用下面的配置托管。
 
 ### 3.3 Nginx 配置示例
 
@@ -104,7 +104,7 @@ server {
     listen 80;
     server_name your-domain.com;
 
-    root /opt/learnbase/frontend/dist;
+    root /opt/knowflow/frontend/dist;
     index index.html;
 
     # SPA 路由：直接访问 /login 等子路由刷新时不报 404

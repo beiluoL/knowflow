@@ -1,8 +1,8 @@
-# learnbase · AI 知识库与学习平台
+# knowflow · AI 知识库与学习平台
 
 一个面向学习场景的**知识库 + AI 学习平台**：用户可浏览 / 搜索 / 上传文档，借助 AI 对话答疑，并沿着系统化的学习路径（章节 + 闪卡 + 测验 + 写作 + 代码练习）持续学习，辅以等级、经验、能量、连续打卡等游戏化激励；管理员可在后台统一管理用户、文档、知识库与 AI 配置。
 
-> 仓库名 `learnbase`（learning + knowledge base）。原项目目录名为 `knowflow`，代码中包名、表名等仍沿用 `knowflow` 前缀，属历史命名，不影响使用。
+> 仓库名 `knowflow`（knowledge + flow）。代码中包名、表名等沿用 `knowflow` 前缀，与仓库名一致。
 
 ## 功能特性
 
@@ -14,12 +14,12 @@
 
 ## 技术栈
 
-| 层 | 技术 |
-|---|---|
-| 前端 | Vue 3 + TypeScript + Vite + Pinia + Vue Router + Axios + TailwindCSS |
-| 后端 | Spring Boot 3.2 + MyBatis-Plus + Spring Security + JWT + SpringDoc（Swagger） |
-| 数据库 | 默认 H2 内存库（已预留 MySQL 驱动，可平滑切换） |
-| 构建 | Maven（后端）/ npm（前端） |
+| 层   | 技术                                                                          |
+| --- | --------------------------------------------------------------------------- |
+| 前端  | Vue 3 + TypeScript + Vite + Pinia + Vue Router + Axios + TailwindCSS        |
+| 后端  | Spring Boot 3.2 + MyBatis-Plus + Spring Security + JWT + SpringDoc（Swagger） |
+| 数据库 | 默认 H2 内存库（已预留 MySQL 驱动，可平滑切换）                                               |
+| 构建  | Maven（后端）/ npm（前端）                                                          |
 
 ## 目录结构
 
@@ -74,8 +74,8 @@ npm run dev                  # 开发服务器（默认 http://localhost:5173）
 
 数据库已预置测试账号（密码统一为 `admin123`）：
 
-| 用户名 | 密码 | 角色 |
-|---|---|---|
+| 用户名     | 密码         | 角色         |
+| ------- | ---------- | ---------- |
 | `admin` | `admin123` | 管理员（ADMIN） |
 | `user1` | `admin123` | 普通用户（USER） |
 | `user2` | `admin123` | 普通用户（USER） |
