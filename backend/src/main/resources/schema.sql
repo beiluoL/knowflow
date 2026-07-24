@@ -183,3 +183,51 @@ CREATE TABLE IF NOT EXISTS learning_task (
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0
 );
+
+-- ============================================================
+-- 表间关系说明（遵循《阿里巴巴 Java 开发手册》：不使用物理外键）
+-- ------------------------------------------------------------
+-- 【强制】不得使用外键与级联，一切外键概念必须在应用层解决。
+--   说明：以「学生-成绩」为例，student_id 是主键，那么成绩表中的
+--   student_id 是逻辑外键。物理外键会带来更新主表主键时的级联问题、
+--   增加数据库工作量、影响插入速度、易造成死锁，并使分库分表困难。
+-- 本库所有表间关联均为「逻辑外键」：仅存储关联列（如 category_id、
+--   user_id、path_id 等），关系的完整性由 Service 层业务代码保证，
+--   数据库不建立任何 FOREIGN KEY 约束。
+-- doc_category.parent_id 使用 0 作为顶级哨兵值（非 NULL），无自引用外键。
+-- ============================================================
+
+-- ============================================================
+-- 索引设计
+-- 目标：为逻辑外键关联列建立普通索引（阿里规范要求逻辑外键列必须有索引），
+--       并加速逻辑删除过滤、状态过滤与常用列表排序。
+-- ============================================================
+-- 用户
+CREATE INDEX idx_user_role    ON sys_user (role);
+CREATE INDEX idx_user_deleted ON sys_user (deleted);
+-- 文档
+CREATE INDEX idx_doc_category ON doc_document (category_id);
+CREATE INDEX idx_doc_status   ON doc_document (status);
+CREATE INDEX idx_doc_deleted  ON doc_document (deleted);
+CREATE INDEX idx_doc_ctime    ON doc_document (create_time);
+-- 分类
+CREATE INDEX idx_cat_parent   ON doc_category (parent_id);
+CREATE INDEX idx_cat_status   ON doc_category (status);
+-- 收藏 / 阅读进度
+CREATE INDEX idx_fav_user     ON doc_favorite (user_id);
+CREATE INDEX idx_fav_doc      ON doc_favorite (doc_id);
+CREATE INDEX idx_rp_user      ON doc_read_progress (user_id);
+CREATE INDEX idx_rp_doc       ON doc_read_progress (doc_id);
+-- 对话 / 消息
+CREATE INDEX idx_conv_user    ON chat_conversation (user_id);
+CREATE INDEX idx_conv_deleted ON chat_conversation (deleted);
+CREATE INDEX idx_msg_conv     ON chat_message (conversation_id);
+-- 学习路径 / 章节 / 进度 / 闪卡 / 任务
+CREATE INDEX idx_path_status  ON learning_path (status);
+CREATE INDEX idx_chap_path    ON learning_chapter (path_id);
+CREATE INDEX idx_up_user      ON learning_user_path (user_id);
+CREATE INDEX idx_up_path      ON learning_user_path (path_id);
+CREATE INDEX idx_fc_path      ON learning_flashcard (path_id);
+CREATE INDEX idx_fc_chap      ON learning_flashcard (chapter_id);
+CREATE INDEX idx_task_user    ON learning_task (user_id);
+CREATE INDEX idx_task_status  ON learning_task (status);

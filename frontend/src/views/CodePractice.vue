@@ -1,5 +1,4 @@
 <template>
-  <AppShell>
     <div class="space-y-6 animate-fade-in">
       <div class="flex items-center justify-between">
         <div>
@@ -141,8 +140,7 @@
             </template>
             <div class="space-y-2 max-h-96 overflow-y-auto">
               <button
-                v-for="(q, index) in questions"
-                :key="q.id"
+                v-for="(q, index) in questions" :key="q.id"
                 class="w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center gap-3"
                 :class="[
                   currentIndex === index ? 'bg-primary-50 text-primary-700' : 'hover:bg-gray-50',
@@ -159,13 +157,12 @@
         </div>
       </div>
     </div>
-  </AppShell>
 </template>
 
 <script setup lang="ts">
+import { notify } from '@/utils/toast'
 import { ref } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
-import AppShell from '@/components/layout/AppShell.vue'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
@@ -239,7 +236,7 @@ const runCode = () => {
 }
 
 const submitCode = () => {
-  alert('答案提交成功！')
+  notify('答案提交成功！', 'success')
   questions[currentIndex.value].status = 'completed'
   todayProgress.value.completed++
   todayProgress.value.correct++

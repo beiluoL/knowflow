@@ -6,7 +6,7 @@
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="搜索文档、标签、作者..."
+          placeholder="搜索文档、标签..."
           class="w-full pl-12 pr-4 py-3.5 text-base border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all duration-200 bg-white"
           @keyup.enter="handleSearch"
         />
@@ -40,8 +40,7 @@
           全部
         </button>
         <button
-          v-for="cat in categoryFilters"
-          :key="cat.id"
+          v-for="cat in categoryFilters" :key="cat.id"
           :class="[
             'px-3 py-1.5 text-sm rounded-full transition-all duration-200',
             activeCategory === cat.id
@@ -89,24 +88,17 @@
         >
           标签
         </button>
-        <button
-          :class="[
-            'px-3 py-1.5 text-sm rounded-full transition-all duration-200',
-            activeType === 'author'
-              ? 'bg-primary-100 text-primary-700'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
-          ]"
-          @click="activeType = 'author'"
-        >
-          作者
-        </button>
       </div>
     </div>
 
     <div v-if="!searchQuery" class="text-center py-16">
       <Icon name="search" :size="64" />
       <p class="text-gray-500 mb-2">输入关键词开始搜索</p>
-      <p class="text-sm text-gray-400">支持搜索文档标题、摘要、标签和作者</p>
+      <p class="text-sm text-gray-400">支持搜索文档标题、摘要、标签</p>
+    </div>
+
+    <div v-else-if="loading" class="text-center py-16 text-gray-400">
+      搜索中...
     </div>
 
     <div v-else-if="filteredResults.length === 0" class="text-center py-16">
@@ -117,8 +109,7 @@
 
     <div v-else class="space-y-4">
       <Card
-        v-for="doc in filteredResults"
-        :key="doc.id"
+        v-for="doc in filteredResults" :key="doc.id"
         hoverable
         class="cursor-pointer group"
         @click="goToDoc(doc.id)"
@@ -126,7 +117,7 @@
         <div class="flex items-start gap-2 mb-2">
           <Badge variant="primary">{{ doc.categoryName }}</Badge>
           <span class="text-xs text-gray-400 ml-auto">
-            {{ formatDate(doc.updatedAt) }}
+            {{ formatDate(doc.createTime) }}
           </span>
         </div>
         <h3
@@ -135,13 +126,12 @@
         ></h3>
         <p
           class="text-sm text-gray-600 mb-3 line-clamp-2 leading-relaxed"
-          v-html="highlightKeyword(doc.summary)"
+          v-html="highlightKeyword(doc.summary || '')"
         ></p>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2 flex-wrap">
             <Badge
-              v-for="tag in doc.tags.slice(0, 3)"
-              :key="tag"
+              v-for="tag in (doc.tags || '').split(',').filter(Boolean).slice(0, 3)" :key="tag"
               variant="default"
               class="text-xs"
               v-html="highlightKeyword(tag)"
@@ -149,12 +139,8 @@
           </div>
           <div class="flex items-center gap-4 text-xs text-gray-400">
             <div class="flex items-center gap-1">
-              <Icon name="user" :size="20" />
-              <span>{{ doc.author }}</span>
-            </div>
-            <div class="flex items-center gap-1">
               <Icon name="eye" :size="20" />
-              <span>{{ doc.viewCount }}</span>
+              <span>{{ doc.viewCount || 0 }}</span>
             </div>
           </div>
         </div>
@@ -169,46 +155,53 @@ import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import Badge from '@/components/ui/Badge.vue'
-import { docs } from '@/data/docs'
-import { categories } from '@/data/categories'
-import type { Doc } from '@/types'
+import { docsApi, categoriesApi } from '@/api'
+import type { CategoryVO, DocVO } from '@/api/types'
 
 const route = useRoute()
 const router = useRouter()
 
 const searchQuery = ref('')
-const activeCategory = ref('')
+const activeCategory = ref<number | string>('')
 const activeType = ref('')
+const loading = ref(false)
+const allResults = ref<DocVO[]>([])
+const categoryFilters = ref<CategoryVO[]>([])
 
-const categoryFilters = computed(() => {
-  const usedCategoryIds = new Set(docs.map((doc) => doc.categoryId))
-  return categories.filter((cat) => usedCategoryIds.has(cat.id))
-})
-
-const searchResults = computed<Doc[]>(() => {
-  if (!searchQuery.value.trim()) return []
-  const query = searchQuery.value.toLowerCase()
-  return docs.filter(
-    (doc) =>
-      doc.title.toLowerCase().includes(query) ||
-      doc.summary.toLowerCase().includes(query) ||
-      doc.tags.some((tag) => tag.toLowerCase().includes(query)) ||
-      doc.author.toLowerCase().includes(query)
-  )
-})
+const searchResults = computed<DocVO[]>(() => allResults.value)
 
 const filteredResults = computed(() => {
   let results = searchResults.value
-  if (activeCategory.value) {
-    results = results.filter((doc) => doc.categoryId === activeCategory.value)
+  if (activeCategory.value !== '') {
+    results = results.filter((doc) => doc.categoryId === Number(activeCategory.value))
+  }
+  if (activeType.value === 'tag' && searchQuery.value.trim()) {
+    const q = searchQuery.value.trim().toLowerCase()
+    results = results.filter((doc) => (doc.tags || '').toLowerCase().split(',').some((t) => t.trim().includes(q)))
   }
   return results
 })
 
 const highlightKeyword = (text: string) => {
-  if (!searchQuery.value.trim()) return text
+  if (!searchQuery.value.trim()) return text || ''
   const regex = new RegExp(`(${searchQuery.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
-  return text.replace(regex, '<mark class="bg-yellow-200 text-yellow-900 px-0.5 rounded">$1</mark>')
+  return (text || '').replace(regex, '<mark class="bg-yellow-200 text-yellow-900 px-0.5 rounded">$1</mark>')
+}
+
+const doSearch = async (keyword: string) => {
+  if (!keyword.trim()) {
+    allResults.value = []
+    return
+  }
+  loading.value = true
+  try {
+    const res = await docsApi.list({ keyword, pageSize: 100 })
+    allResults.value = res.records || []
+  } catch {
+    allResults.value = []
+  } finally {
+    loading.value = false
+  }
 }
 
 const handleSearch = () => {
@@ -221,14 +214,16 @@ const clearSearch = () => {
   searchQuery.value = ''
   activeCategory.value = ''
   activeType.value = ''
+  allResults.value = []
   router.push({ path: '/search' })
 }
 
-const goToDoc = (docId: string) => {
+const goToDoc = (docId: number) => {
   router.push(`/doc/${docId}`)
 }
 
-const formatDate = (dateStr: string) => {
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return ''
   const date = new Date(dateStr)
   return date.toLocaleDateString('zh-CN', {
     year: 'numeric',
@@ -237,10 +232,17 @@ const formatDate = (dateStr: string) => {
   })
 }
 
-onMounted(() => {
+onMounted(async () => {
+  try {
+    const tree = await categoriesApi.tree()
+    categoryFilters.value = tree.filter((c) => !c.parentId || c.parentId === 0)
+  } catch {
+    categoryFilters.value = []
+  }
   const query = route.query.q as string
   if (query) {
     searchQuery.value = query
+    await doSearch(query)
   }
 })
 
@@ -249,9 +251,14 @@ watch(
   (newQ) => {
     if (newQ && typeof newQ === 'string') {
       searchQuery.value = newQ
+      doSearch(newQ)
     }
   }
 )
+
+watch([activeCategory, activeType], () => {
+  /* 纯前端二次筛选，无需重新请求 */
+})
 </script>
 
 <style scoped>

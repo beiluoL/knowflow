@@ -1,4 +1,4 @@
--- 初始用户 (密码: 123456, 使用 BCrypt 加密)
+-- 初始用户 (密码: admin123, 使用 BCrypt 加密)
 INSERT INTO sys_user (username, email, password, nickname, avatar, role, total_study_hours, read_docs_count, streak_days, favorite_count, level, exp, energy) VALUES
 ('admin', 'admin@zhishiku.com', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '管理员', '', 'ADMIN', 10.5, 25, 7, 15, 5, 1200, 100),
 ('user1', 'user1@zhishiku.com', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '测试用户1', '', 'USER', 5.0, 10, 3, 5, 2, 300, 80),

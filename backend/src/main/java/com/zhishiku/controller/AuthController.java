@@ -36,6 +36,10 @@ public class AuthController {
     @Operation(summary = "获取当前用户信息")
     @GetMapping("/me")
     public Result<UserVO> me(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getPrincipal())) {
+            return Result.error(401, "未登录");
+        }
         Long userId = (Long) authentication.getPrincipal();
         return Result.success(userService.getCurrentUser(userId));
     }

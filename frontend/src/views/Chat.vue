@@ -2,9 +2,9 @@
   <div class="h-[calc(100vh-7rem)] -mx-6 -mt-6 flex">
     <div class="w-72 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
       <div class="p-4 border-b border-gray-100">
-        <Button block icon-name="plus" @click="createNewChat">新建对话</Button>
+        <Button block icon-name="plus" @click="createNewChat" :disabled="loading">新建对话</Button>
       </div>
-      
+
       <div class="p-3 border-b border-gray-100 space-y-3">
         <div class="relative">
           <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -15,7 +15,7 @@
             class="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all"
           />
         </div>
-        
+
         <div class="relative">
           <select
             v-model="selectedModel"
@@ -26,11 +26,10 @@
           <Icon name="chevron-down" :size="16" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
       </div>
-      
+
       <div class="flex-1 overflow-y-auto">
         <div
-          v-for="chat in filteredChats"
-          :key="chat.id"
+          v-for="chat in filteredChats" :key="chat.id"
           :class="[
             'p-3 border-b border-gray-50 cursor-pointer transition-all duration-200 group',
             activeChatId === chat.id ? 'bg-primary-50' : 'hover:bg-gray-50'
@@ -41,7 +40,7 @@
             <div class="flex-1 min-w-0">
               <h4 class="text-sm font-medium text-gray-800 truncate">{{ chat.title }}</h4>
               <p class="text-xs text-gray-500 mt-1 truncate">{{ chat.lastMessage }}</p>
-              <p class="text-xs text-gray-400 mt-1">{{ formatTime(chat.updatedAt) }}</p>
+              <p class="text-xs text-gray-400 mt-1">{{ formatTime(chat.updateTime || chat.createdAt) }}</p>
             </div>
             <button
               class="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-gray-200 transition-all"
@@ -51,9 +50,12 @@
             </button>
           </div>
         </div>
+        <div v-if="filteredChats.length === 0" class="p-4 text-center text-sm text-gray-400">
+          暂无对话
+        </div>
       </div>
     </div>
-    
+
     <div class="flex-1 flex flex-col bg-gray-50">
       <div v-if="activeChat" class="border-b border-gray-200 bg-white px-6 py-3 flex items-center justify-between">
         <div>
@@ -66,7 +68,7 @@
           </Button>
         </div>
       </div>
-      
+
       <div ref="messagesContainer" class="flex-1 overflow-y-auto p-6 space-y-6">
         <div v-if="!activeChat || messages.length === 0" class="h-full flex items-center justify-center">
           <div class="text-center">
@@ -77,11 +79,10 @@
             <p class="text-gray-500 max-w-md">基于知识库的 AI 问答，帮你快速找到答案</p>
           </div>
         </div>
-        
+
         <div v-else>
           <div
-            v-for="(message, index) in messages"
-            :key="message.id"
+            v-for="(message, index) in messages" :key="message.id"
             :class="[
               'flex gap-3 animate-fade-in',
               message.role === 'user' ? 'flex-row-reverse' : 'flex-row'
@@ -95,35 +96,34 @@
               <Icon v-if="message.role === 'user'" name="user" :size="16" class="text-white" />
               <Icon v-else name="bot" :size="16" class="text-gray-600" />
             </div>
-            
+
             <div :class="[
               'max-w-2xl',
               message.role === 'user' ? 'text-right' : 'text-left'
             ]">
               <div :class="[
                 'inline-block px-4 py-3 rounded-lg',
-                message.role === 'user' 
-                  ? 'bg-primary-500 text-white rounded-br-sm' 
+                message.role === 'user'
+                  ? 'bg-primary-500 text-white rounded-br-sm'
                   : 'bg-white shadow-sm rounded-bl-sm border border-gray-100'
               ]">
                 <div v-if="message.role === 'user'" class="text-sm">
                   {{ message.content }}
                 </div>
-                
+
                 <div v-else class="text-sm text-gray-700 prose prose-sm max-w-none">
                   <div v-html="renderMarkdown(displayedMessages[index] || '')"></div>
                 </div>
               </div>
-              
+
               <div v-if="message.role === 'assistant' && message.sources && message.sources.length > 0 && isMessageComplete(index)" class="mt-2">
                 <div class="text-xs text-gray-500 mb-1 flex items-center gap-1">
                   <Icon name="file-text" :size="12" />
                   参考来源
                 </div>
                 <div class="flex flex-wrap gap-2">
-                  <Badge 
-                    v-for="source in message.sources" 
-                    :key="source.id"
+                  <Badge
+                    v-for="source in message.sources" :key="source.id"
                     variant="default"
                     class="cursor-pointer hover:bg-gray-200 transition-colors"
                   >
@@ -131,13 +131,13 @@
                   </Badge>
                 </div>
               </div>
-              
+
               <div v-if="message.role === 'user'" class="text-xs text-gray-400 mt-1">
                 {{ formatTime(message.createdAt) }}
               </div>
             </div>
           </div>
-          
+
           <div v-if="isTyping" class="flex gap-3 animate-fade-in">
             <div class="w-8 h-8 rounded-full bg-gray-200 flex-shrink-0 flex items-center justify-center">
               <Icon name="bot" :size="16" class="text-gray-600" />
@@ -152,7 +152,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="border-t border-gray-200 bg-white p-4">
         <div class="max-w-4xl mx-auto">
           <div class="flex items-end gap-3">
@@ -167,18 +167,18 @@
                 @keydown.enter.exact.prevent="sendMessage"
               ></textarea>
             </div>
-            
+
             <div class="flex flex-col gap-2">
               <div class="flex items-center gap-2 text-sm">
                 <label class="flex items-center gap-2 cursor-pointer">
-                  <div 
+                  <div
                     :class="[
                       'relative w-10 h-5 rounded-full transition-colors duration-200',
                       useKnowledgeBase ? 'bg-primary-500' : 'bg-gray-300'
                     ]"
                     @click="useKnowledgeBase = !useKnowledgeBase"
                   >
-                    <div 
+                    <div
                       :class="[
                         'absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-200',
                         useKnowledgeBase ? 'translate-x-5' : 'translate-x-0.5'
@@ -188,8 +188,8 @@
                   <span class="text-gray-600 text-xs">关联知识库</span>
                 </label>
               </div>
-              
-              <Button icon-name="send" @click="sendMessage" :disabled="!inputMessage.trim() || isTyping">
+
+              <Button icon-name="send" @click="sendMessage" :disabled="!inputMessage.trim() || isTyping || loading">
                 发送
               </Button>
             </div>
@@ -201,26 +201,28 @@
 </template>
 
 <script setup lang="ts">
+import { notify } from '@/utils/toast'
 import { ref, computed, nextTick, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
-import { docs } from '@/data/docs'
+import { chatApi } from '@/api'
+import type { MessageVO } from '@/api/types'
 
 interface Chat {
-  id: string
+  id: number
   title: string
   lastMessage: string
   createdAt: string
-  updatedAt: string
+  updateTime?: string
 }
 
 interface Message {
-  id: string
+  id: number
   role: 'user' | 'assistant'
   content: string
   createdAt: string
-  sources?: { id: string; title: string }[]
+  sources?: { id: number; title: string }[]
 }
 
 interface Model {
@@ -230,9 +232,10 @@ interface Model {
 
 const searchQuery = ref('')
 const selectedModel = ref('gpt-4')
-const activeChatId = ref<string | null>(null)
+const activeChatId = ref<number | null>(null)
 const inputMessage = ref('')
 const isTyping = ref(false)
+const loading = ref(false)
 const useKnowledgeBase = ref(true)
 const messagesContainer = ref<HTMLElement | null>(null)
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
@@ -245,141 +248,87 @@ const models: Model[] = [
   { id: 'qwen', name: '通义千问' },
 ]
 
-const chats = ref<Chat[]>([
-  {
-    id: '1',
-    title: 'Vue 3 Composition API 问题',
-    lastMessage: '好的，我来为你详细解释 Composition API...',
-    createdAt: '2024-07-15T10:00:00Z',
-    updatedAt: '2024-07-15T10:30:00Z',
-  },
-  {
-    id: '2',
-    title: 'TypeScript 类型体操',
-    lastMessage: '这是一个很好的问题，让我们来看看...',
-    createdAt: '2024-07-14T14:00:00Z',
-    updatedAt: '2024-07-14T15:20:00Z',
-  },
-  {
-    id: '3',
-    title: 'Node.js 性能优化',
-    lastMessage: '关于性能优化，有几个关键点...',
-    createdAt: '2024-07-13T09:00:00Z',
-    updatedAt: '2024-07-13T10:15:00Z',
-  },
-])
+const chats = ref<Chat[]>([])
+const chatMessages = ref<Record<number, Message[]>>({})
 
-const chatMessages = ref<Record<string, Message[]>>({
-  '1': [
-    {
-      id: 'm1',
-      role: 'user',
-      content: 'Vue 3 的 Composition API 和 Options API 有什么区别？',
-      createdAt: '2024-07-15T10:00:00Z',
-    },
-    {
-      id: 'm2',
-      role: 'assistant',
-      content: `Vue 3 的 Composition API 与 Options API 主要有以下区别：
-
-## 1. 代码组织方式
-
-**Options API:**
-- 使用选项对象组织代码（data、methods、computed 等）
-- 相关逻辑分散在不同选项中
-- 适合初学者，结构清晰
-
-**Composition API:**
-- 使用组合函数组织代码
-- 相关逻辑可以放在一起
-- 更适合复杂组件和大型项目
-
-## 2. 代码复用
-
-\`\`\`javascript
-// Options API - 使用 mixins（容易冲突）
-export default {
-  mixins: [mouseMixin, fetchMixin],
-  // ...
-}
-
-// Composition API - 使用组合函数（更清晰）
-const { x, y } = useMouse()
-const { data, loading } = useFetch('/api/data')
-\`\`\`
-
-## 3. 类型推断
-
-Composition API 对 TypeScript 的支持更好，类型推断更准确。
-
-## 4. 适用场景
-
-- **简单组件**：Options API 更简洁
-- **复杂组件**：Composition API 更灵活
-- **需要复用逻辑**：Composition API 更适合
-
-两者可以在同一个项目中混用，根据实际情况选择。`,
-      createdAt: '2024-07-15T10:05:00Z',
-      sources: [
-        { id: '1', title: 'Vue 3 Composition API 完全指南' },
-        { id: '10', title: 'React Hooks 最佳实践' },
-      ],
-    },
-  ],
-})
+const mapMessages = (list: MessageVO[]): Message[] =>
+  list.map((m) => ({
+    id: m.id,
+    role: m.role === 'assistant' ? 'assistant' : 'user',
+    content: m.content,
+    createdAt: m.createTime || new Date().toISOString(),
+  }))
 
 const filteredChats = computed(() => {
   if (!searchQuery.value) return chats.value
   const query = searchQuery.value.toLowerCase()
-  return chats.value.filter(chat => 
-    chat.title.toLowerCase().includes(query) ||
-    chat.lastMessage.toLowerCase().includes(query)
+  return chats.value.filter(
+    (chat) => chat.title.toLowerCase().includes(query) || chat.lastMessage.toLowerCase().includes(query)
   )
 })
 
-const activeChat = computed(() => {
-  return chats.value.find(c => c.id === activeChatId.value) || null
-})
+const activeChat = computed(() => chats.value.find((c) => c.id === activeChatId.value) || null)
 
 const messages = computed(() => {
-  if (!activeChatId.value) return []
+  if (activeChatId.value == null) return []
   return chatMessages.value[activeChatId.value] || []
 })
 
-const currentModel = computed(() => {
-  return models.find(m => m.id === selectedModel.value)
-})
+const currentModel = computed(() => models.find((m) => m.id === selectedModel.value))
 
-const createNewChat = () => {
-  const newChat: Chat = {
-    id: Date.now().toString(),
-    title: '新对话',
-    lastMessage: '',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+const createNewChat = async () => {
+  loading.value = true
+  try {
+    const conv = await chatApi.createConversation('新对话')
+    chats.value.unshift({
+      id: conv.id,
+      title: conv.title || '新对话',
+      lastMessage: '',
+      createdAt: conv.createTime || new Date().toISOString(),
+      updateTime: conv.updateTime,
+    })
+    activeChatId.value = conv.id
+    chatMessages.value[conv.id] = []
+    displayedMessages.value = []
+    await nextTick()
+    scrollToBottom()
+  } catch {
+    notify('创建会话失败', 'error')
+  } finally {
+    loading.value = false
   }
-  chats.value.unshift(newChat)
-  activeChatId.value = newChat.id
-  chatMessages.value[newChat.id] = []
-  displayedMessages.value = []
 }
 
-const selectChat = (id: string) => {
+const selectChat = async (id: number) => {
   activeChatId.value = id
-  displayedMessages.value = (chatMessages.value[id] || []).map(m => m.content)
-  nextTick(() => scrollToBottom())
+  if (!chatMessages.value[id]) {
+    try {
+      chatMessages.value[id] = mapMessages(await chatApi.messages(id))
+    } catch {
+      chatMessages.value[id] = []
+    }
+  }
+  displayedMessages.value = (chatMessages.value[id] || []).map((m) => m.content)
+  await nextTick()
+  scrollToBottom()
 }
 
-const deleteChat = (id: string) => {
-  const index = chats.value.findIndex(c => c.id === id)
-  if (index > -1) {
-    chats.value.splice(index, 1)
-    delete chatMessages.value[id]
-    if (activeChatId.value === id) {
-      activeChatId.value = chats.value[0]?.id || null
-      if (activeChatId.value) {
-        displayedMessages.value = (chatMessages.value[activeChatId.value] || []).map(m => m.content)
-      }
+const deleteChat = async (id: number) => {
+  try {
+    await chatApi.deleteConversation(id)
+  } catch {
+    /* 忽略 */
+  }
+  const index = chats.value.findIndex((c) => c.id === id)
+  if (index > -1) chats.value.splice(index, 1)
+  delete chatMessages.value[id]
+  if (activeChatId.value === id) {
+    const next = chats.value[0]
+    activeChatId.value = next ? next.id : null
+    if (next) {
+      await selectChat(next.id)
+    } else {
+      displayedMessages.value = []
     }
   }
 }
@@ -392,79 +341,77 @@ const adjustTextareaHeight = () => {
 }
 
 const sendMessage = async () => {
-  if (!inputMessage.value.trim() || isTyping.value) return
-  
+  if (!inputMessage.value.trim() || isTyping.value || loading.value) return
+
   const content = inputMessage.value.trim()
   inputMessage.value = ''
-  
-  if (textareaRef.value) {
-    textareaRef.value.style.height = 'auto'
-  }
-  
-  if (!activeChatId.value) {
-    createNewChat()
+  if (textareaRef.value) textareaRef.value.style.height = 'auto'
+
+  let chatId = activeChatId.value
+  if (chatId == null) {
+    await createNewChat()
+    chatId = activeChatId.value
+    if (chatId == null) return
     await nextTick()
   }
-  
-  const chatId = activeChatId.value!
+
+  if (!chatMessages.value[chatId]) chatMessages.value[chatId] = []
   const userMessage: Message = {
-    id: Date.now().toString(),
+    id: Date.now(),
     role: 'user',
     content,
     createdAt: new Date().toISOString(),
   }
-  
-  if (!chatMessages.value[chatId]) {
-    chatMessages.value[chatId] = []
-  }
   chatMessages.value[chatId].push(userMessage)
   displayedMessages.value.push(userMessage.content)
-  
-  const chat = chats.value.find(c => c.id === chatId)
+
+  const chat = chats.value.find((c) => c.id === chatId)
   if (chat) {
-    if (chat.title === '新对话') {
+    if (chat.title === '新对话' || !chat.title.trim()) {
       chat.title = content.slice(0, 20) + (content.length > 20 ? '...' : '')
     }
     chat.lastMessage = content
-    chat.updatedAt = new Date().toISOString()
+    chat.updateTime = new Date().toISOString()
   }
-  
+
   await nextTick()
   scrollToBottom()
-  
+
   isTyping.value = true
-  
-  const mockResponse = generateMockResponse(content)
-  const assistantMessage: Message = {
-    id: (Date.now() + 1).toString(),
-    role: 'assistant',
-    content: mockResponse,
-    createdAt: new Date().toISOString(),
-    sources: useKnowledgeBase.value ? [
-      { id: docs[0].id, title: docs[0].title },
-      { id: docs[1].id, title: docs[1].title },
-    ] : undefined,
-  }
-  
-  setTimeout(() => {
-    isTyping.value = false
-    chatMessages.value[chatId].push(assistantMessage)
-    displayedMessages.value.push('')
-    
-    const messageIndex = displayedMessages.value.length - 1
-    typeText(mockResponse, messageIndex)
-    
-    if (chat) {
-      chat.lastMessage = mockResponse.slice(0, 30) + '...'
-      chat.updatedAt = new Date().toISOString()
+  try {
+    const resp = await chatApi.send({ conversationId: chatId, content })
+    const assistantMessage: Message = {
+      id: resp.id,
+      role: resp.role === 'assistant' ? 'assistant' : 'user',
+      content: resp.content,
+      createdAt: resp.createTime || new Date().toISOString(),
     }
-  }, 1000)
+    chatMessages.value[chatId].push(assistantMessage)
+    const messageIndex = displayedMessages.value.length
+    displayedMessages.value.push('')
+    typeText(assistantMessage.content, messageIndex)
+    if (chat) {
+      chat.lastMessage = assistantMessage.content.slice(0, 30) + (assistantMessage.content.length > 30 ? '...' : '')
+      chat.updateTime = new Date().toISOString()
+    }
+  } catch {
+    const messageIndex = displayedMessages.value.length
+    chatMessages.value[chatId].push({
+      id: Date.now() + 1,
+      role: 'assistant',
+      content: '抱歉，服务暂时不可用，请稍后再试。',
+      createdAt: new Date().toISOString(),
+    })
+    displayedMessages.value.push('')
+    typeText('抱歉，服务暂时不可用，请稍后再试。', messageIndex)
+  } finally {
+    isTyping.value = false
+  }
 }
 
 const typeText = (text: string, messageIndex: number) => {
   let currentIndex = 0
   const speed = 20
-  
   const type = () => {
     if (currentIndex < text.length) {
       displayedMessages.value[messageIndex] = text.substring(0, currentIndex + 1)
@@ -473,7 +420,6 @@ const typeText = (text: string, messageIndex: number) => {
       setTimeout(type, speed)
     }
   }
-  
   type()
 }
 
@@ -481,37 +427,8 @@ const isMessageComplete = (index: number) => {
   return displayedMessages.value[index] === messages.value[index]?.content
 }
 
-const generateMockResponse = (question: string): string => {
-  return `这是一个关于"${question}"的很好的问题！
-
-## 核心要点
-
-根据知识库中的内容，我为你整理了以下信息：
-
-1. **第一点**：这是问题的核心答案，包含了关键概念和解释。
-2. **第二点**：进一步的说明和补充，帮助你更好地理解。
-3. **第三点**：实际应用场景和最佳实践建议。
-
-## 代码示例
-
-\`\`\`typescript
-// 示例代码
-function example(input: string): string {
-  const result = input.toUpperCase()
-  return result
-}
-
-console.log(example('hello')) // HELLO
-\`\`\`
-
-## 总结
-
-希望这个回答对你有帮助！如果你还有其他问题，欢迎继续提问。`
-}
-
 const renderMarkdown = (text: string): string => {
   if (!text) return ''
-  
   let html = text
     .replace(/```(\w+)?\n([\s\S]*?)```/g, (_match, lang, code) => {
       return `<div class="my-3 rounded-lg overflow-hidden bg-gray-900">
@@ -531,7 +448,6 @@ const renderMarkdown = (text: string): string => {
     .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
     .replace(/\n/g, '<br/>')
-  
   return html
 }
 
@@ -549,29 +465,44 @@ const scrollToBottom = () => {
   })
 }
 
-const formatTime = (dateStr: string): string => {
+const formatTime = (dateStr?: string): string => {
+  if (!dateStr) return ''
   const date = new Date(dateStr)
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffMins = Math.floor(diffMs / 60000)
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
-  
+
   if (diffMins < 1) return '刚刚'
   if (diffMins < 60) return `${diffMins} 分钟前`
   if (diffHours < 24) return `${diffHours} 小时前`
   if (diffDays < 7) return `${diffDays} 天前`
-  
+
   return date.toLocaleDateString('zh-CN', {
     month: 'short',
     day: 'numeric',
   })
 }
 
-onMounted(() => {
-  if (chats.value.length > 0) {
-    activeChatId.value = chats.value[0].id
-    displayedMessages.value = (chatMessages.value[chats.value[0].id] || []).map(m => m.content)
+onMounted(async () => {
+  loading.value = true
+  try {
+    const list = await chatApi.conversations()
+    chats.value = list.map((c) => ({
+      id: c.id,
+      title: c.title || '新对话',
+      lastMessage: c.lastMessage || '',
+      createdAt: c.createTime || new Date().toISOString(),
+      updateTime: c.updateTime,
+    }))
+    if (chats.value.length > 0) {
+      await selectChat(chats.value[0].id)
+    }
+  } catch {
+    chats.value = []
+  } finally {
+    loading.value = false
   }
 })
 </script>

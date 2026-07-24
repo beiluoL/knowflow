@@ -13,14 +13,14 @@
           <div class="h-5 w-px bg-gray-200 flex-shrink-0" />
           <div class="min-w-0">
             <div class="flex items-center gap-2">
-              <span class="text-sm text-gray-500">{{ currentPath?.title }}</span>
+              <span class="text-sm text-gray-500">{{ currentPathTitle }}</span>
               <Icon name="chevron-right" :size="16" />
               <span class="text-sm font-medium text-gray-800 truncate">{{ currentChapter?.title }}</span>
             </div>
           </div>
         </div>
         <div class="flex items-center gap-3 flex-shrink-0">
-          <Badge variant="primary">第 {{ currentChapter?.order }} 章</Badge>
+          <Badge variant="primary">第 {{ currentChapter?.sortOrder }} 章</Badge>
         </div>
       </div>
     </div>
@@ -37,8 +37,7 @@
 
           <div class="space-y-1 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
             <div
-              v-for="chapter in pathChapters"
-              :key="chapter.id"
+              v-for="chapter in pathChapters" :key="chapter.id"
               :class="[
                 'flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200',
                 chapter.id === currentChapterId
@@ -58,7 +57,7 @@
                 ]"
               >
                 <Icon name="check" :size="20" v-if="chapter.completed" />
-                <span v-else>{{ chapter.order }}</span>
+                <span v-else>{{ chapter.sortOrder }}</span>
               </div>
               <span
                 :class="[
@@ -76,38 +75,8 @@
       <div class="lg:col-span-2 space-y-6">
         <Card hoverable>
           <div class="prose max-w-none">
-            <h1 class="text-2xl font-bold text-gray-800 mb-6">
-              {{ currentChapter?.content.title }}
-            </h1>
-
-            <div
-              v-for="(section, index) in currentChapter?.content.sections"
-              :key="index"
-              class="mb-8 last:mb-0"
-            >
-              <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <span class="w-1 h-6 bg-primary-500 rounded-full" />
-                {{ section.heading }}
-              </h2>
-              <p class="text-gray-600 leading-relaxed mb-4">
-                {{ section.content }}
-              </p>
-              <div
-                v-if="section.code"
-                class="relative group"
-              >
-                <div class="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    @click="copyCode(section.code!)"
-                    class="p-1.5 rounded-md bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
-                  >
-                    <Icon name="copy" :size="16" />
-                  </button>
-                </div>
-                <pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm leading-relaxed">
-<code>{{ section.code }}</code></pre>
-              </div>
-            </div>
+            <h1 class="text-2xl font-bold text-gray-800 mb-6">{{ currentChapter?.title }}</h1>
+            <div v-html="renderedContent"></div>
           </div>
         </Card>
 
@@ -128,10 +97,11 @@
 
           <button
             @click="markComplete"
-            class="px-6 py-2.5 bg-success-500 text-white rounded-lg hover:bg-success-600 transition-colors font-medium shadow-sm flex items-center gap-2"
+            :disabled="currentChapter?.completed"
+            class="px-6 py-2.5 bg-success-500 text-white rounded-lg hover:bg-success-600 transition-colors font-medium shadow-sm flex items-center gap-2 disabled:opacity-60"
           >
-            <Icon name="check" :size="20" Circle />
-            标记完成
+            <Icon name="check" :size="20" />
+            {{ currentChapter?.completed ? '已完成' : '标记完成' }}
           </button>
 
           <button
@@ -154,7 +124,7 @@
         <Card hoverable>
           <template #header>
             <div class="flex items-center gap-2">
-              <BarChart3 class="w-5 h-5 text-primary-500" />
+              <Icon name="trending-up" :size="20" />
               <h2 class="font-semibold text-gray-800">学习进度</h2>
             </div>
           </template>
@@ -163,12 +133,12 @@
             <div>
               <div class="flex justify-between text-sm mb-2">
                 <span class="text-gray-500">路径进度</span>
-                <span class="font-medium text-gray-700">{{ currentPath?.progress }}%</span>
+                <span class="font-medium text-gray-700">{{ pathProgress }}%</span>
               </div>
-              <Progress :percentage="currentPath?.progress || 0" variant="primary" />
+              <Progress :percentage="pathProgress" variant="primary" />
             </div>
             <div class="text-sm text-gray-500">
-              已完成 {{ completedChapterIndex }} / {{ pathChapters.length }} 章
+              已完成 {{ completedChapterCount }} / {{ pathChapters.length }} 章
             </div>
           </div>
         </Card>
@@ -177,26 +147,6 @@
           <template #header>
             <div class="flex items-center gap-2">
               <Icon name="lightbulb" :size="20" />
-              <h2 class="font-semibold text-gray-800">本章知识点</h2>
-            </div>
-          </template>
-
-          <div class="space-y-2">
-            <div
-              v-for="(point, index) in currentChapter?.content.knowledgePoints"
-              :key="index"
-              class="flex items-center gap-2 text-sm text-gray-600"
-            >
-              <div class="w-1.5 h-1.5 rounded-full bg-primary-400 flex-shrink-0" />
-              <span>{{ point }}</span>
-            </div>
-          </div>
-        </Card>
-
-        <Card hoverable>
-          <template #header>
-            <div class="flex items-center gap-2">
-              <Icon name="clock" :size="20" />
               <h2 class="font-semibold text-gray-800">本章信息</h2>
             </div>
           </template>
@@ -208,11 +158,11 @@
             </div>
             <div class="flex justify-between">
               <span class="text-gray-500">章节序号</span>
-              <span class="font-medium text-gray-700">第 {{ currentChapter?.order }} 章</span>
+              <span class="font-medium text-gray-700">第 {{ currentChapter?.sortOrder }} 章</span>
             </div>
             <div class="flex justify-between">
               <span class="text-gray-500">知识点数</span>
-              <span class="font-medium text-gray-700">{{ currentChapter?.content.knowledgePoints.length }} 个</span>
+              <span class="font-medium text-gray-700">{{ knowledgePointCount }} 个</span>
             </div>
           </div>
         </Card>
@@ -222,86 +172,130 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Progress from '@/components/ui/Progress.vue'
-import { learningPaths, chapters } from '@/data/learning'
+import { learningApi } from '@/api'
+import type { LearningChapterVO, LearningPathVO } from '@/api/types'
 
 const route = useRoute()
 const router = useRouter()
 
-const currentChapterId = computed(() => route.params.id as string)
+const currentChapterId = computed(() => Number(route.params.id))
+const currentChapter = ref<LearningChapterVO | null>(null)
+const pathChapters = ref<LearningChapterVO[]>([])
+const pathDetail = ref<LearningPathVO | null>(null)
 
-const currentChapter = computed(() => {
-  return chapters.find((c) => c.id === currentChapterId.value)
+const currentPathTitle = computed(() => pathDetail.value?.title || '')
+
+const renderedContent = computed(() => renderMarkdown(currentChapter.value?.content || ''))
+
+const knowledgePointCount = computed(
+  () => (currentChapter.value?.content?.match(/^##\s+/gm) || []).length
+)
+
+const completedChapterCount = computed(() => pathChapters.value.filter((c) => c.completed).length)
+const pathProgress = computed(() => {
+  const total = pathChapters.value.length
+  return total > 0 ? Math.round((completedChapterCount.value / total) * 100) : 0
 })
 
-const currentPath = computed(() => {
-  if (!currentChapter.value) return null
-  return learningPaths.find((p) => p.id === currentChapter.value?.pathId)
-})
-
-const pathChapters = computed(() => {
-  if (!currentChapter.value) return []
-  return chapters
-    .filter((c) => c.pathId === currentChapter.value?.pathId)
-    .sort((a, b) => a.order - b.order)
-})
-
-const currentChapterIndex = computed(() => {
-  return pathChapters.value.findIndex((c) => c.id === currentChapterId.value)
-})
-
-const completedChapterIndex = computed(() => {
-  return pathChapters.value.filter((c) => c.completed).length
-})
-
-const hasPrevChapter = computed(() => {
-  return currentChapterIndex.value > 0
-})
-
-const hasNextChapter = computed(() => {
-  return currentChapterIndex.value < pathChapters.value.length - 1
-})
+const currentChapterIndex = computed(() => pathChapters.value.findIndex((c) => c.id === currentChapterId.value))
+const hasPrevChapter = computed(() => currentChapterIndex.value > 0)
+const hasNextChapter = computed(() => currentChapterIndex.value < pathChapters.value.length - 1)
 
 const goBackToPath = () => {
-  if (currentPath.value) {
-    router.push(`/learning/path/${currentPath.value.id}`)
-  } else {
-    router.push('/learning/paths')
-  }
+  if (pathDetail.value) router.push(`/learning/path/${pathDetail.value.id}`)
+  else router.push('/learning/paths')
 }
 
-const goToChapter = (chapterId: string) => {
-  router.push(`/learning/chapter/${chapterId}`)
-}
-
+const goToChapter = (chapterId: number) => router.push(`/learning/chapter/${chapterId}`)
 const goToPrevChapter = () => {
   if (hasPrevChapter.value) {
-    const prevChapter = pathChapters.value[currentChapterIndex.value - 1]
-    router.push(`/learning/chapter/${prevChapter.id}`)
+    const prev = pathChapters.value[currentChapterIndex.value - 1]
+    router.push(`/learning/chapter/${prev.id}`)
   }
 }
-
 const goToNextChapter = () => {
   if (hasNextChapter.value) {
-    const nextChapter = pathChapters.value[currentChapterIndex.value + 1]
-    router.push(`/learning/chapter/${nextChapter.id}`)
+    const next = pathChapters.value[currentChapterIndex.value + 1]
+    router.push(`/learning/chapter/${next.id}`)
   }
 }
 
-const copyCode = (code: string) => {
-  navigator.clipboard.writeText(code)
-}
-
-const markComplete = () => {
-  if (currentChapter.value) {
-    currentChapter.value.completed = true
+const markComplete = async () => {
+  if (!currentChapter.value) return
+  try {
+    await learningApi.completeChapter(currentChapter.value.id)
+    await loadChapter(currentChapter.value.id)
+  } catch {
+    /* 忽略 */
   }
 }
+
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+const renderMarkdown = (md: string): string => {
+  if (!md) return '<p class="text-gray-400">本章暂无内容</p>'
+  let html = ''
+  let inCode = false
+  let codeBuf: string[] = []
+  for (const raw of md.split('\n')) {
+    const line = raw.trimEnd()
+    const fence = /^```(\w*)/.exec(line)
+    if (fence) {
+      if (!inCode) {
+        inCode = true
+        codeBuf = []
+      } else {
+        html += `<pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm leading-relaxed my-4"><code>${escapeHtml(codeBuf.join('\n'))}</code></pre>`
+        inCode = false
+      }
+      continue
+    }
+    if (inCode) {
+      codeBuf.push(line)
+      continue
+    }
+    const h = /^(#{1,3})\s+(.*)$/.exec(line)
+    if (h) {
+      const text = h[2].replace(/[*`]/g, '').trim()
+      html += `<h${h[1].length} class="font-bold text-gray-800 mt-6 mb-3">${escapeHtml(text)}</h${h[1].length}>`
+      continue
+    }
+    if (/^[-*]\s+/.test(line)) {
+      html += `<ul class="list-disc pl-6 my-3"><li>${escapeHtml(line.replace(/^[-*]\s+/, ''))}</li></ul>`
+      continue
+    }
+    if (line === '') continue
+    html += `<p class="text-gray-600 leading-relaxed mb-4">${escapeHtml(line)}</p>`
+  }
+  if (inCode) html += `<pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code>${escapeHtml(codeBuf.join('\n'))}</code></pre>`
+  return html.replace(/<\/ul><ul>/g, '')
+}
+
+const loadChapter = async (id: number) => {
+  try {
+    const c = await learningApi.chapterDetail(id)
+    currentChapter.value = c
+    if (c.pathId) {
+      const [chapters, detail] = await Promise.all([
+        learningApi.chapters(c.pathId),
+        learningApi.pathDetail(c.pathId).catch(() => null),
+      ])
+      pathChapters.value = chapters
+      pathDetail.value = detail
+    }
+  } catch {
+    /* 忽略 */
+  }
+}
+
+onMounted(() => loadChapter(currentChapterId.value))
 </script>
 
 <style scoped>

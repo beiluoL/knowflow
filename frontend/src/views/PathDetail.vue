@@ -52,23 +52,25 @@
           </div>
           <div class="bg-white/15 backdrop-blur-sm rounded-lg p-4">
             <div class="flex items-center gap-2 mb-1">
-              <Icon name="user" :size="16" s />
+              <Icon name="user" :size="16" />
               <span class="text-white/80 text-sm">学习进度</span>
             </div>
             <p class="text-2xl font-bold">{{ currentPath.progress }}%</p>
           </div>
           <div class="bg-white/15 backdrop-blur-sm rounded-lg p-4">
             <div class="flex items-center gap-2 mb-1">
-              <Icon name="target" :size="16" />
-              <span class="text-white/80 text-sm">适合人群</span>
+              <Icon name="users" :size="16" />
+              <span class="text-white/80 text-sm">报名人数</span>
             </div>
-            <p class="text-sm font-medium text-white/90 line-clamp-1">{{ currentPath.suitableFor }}</p>
+            <p class="text-2xl font-bold">{{ currentPath.enrolledCount }}</p>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div v-else class="text-center py-16 text-gray-400">加载中...</div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" v-if="currentPath">
       <div class="lg:col-span-2">
         <Card hoverable>
           <template #header>
@@ -85,12 +87,11 @@
 
           <div class="space-y-2">
             <div
-              v-for="chapter in pathChapters"
-              :key="chapter.id"
+              v-for="chapter in pathChapters" :key="chapter.id"
               :class="[
                 'flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all duration-200 group',
-                chapter.isCurrent
-                  ? 'bg-primary-50 ring-1 ring-primary-200'
+                chapter.completed
+                  ? 'bg-gray-50'
                   : 'hover:bg-gray-50',
               ]"
               @click="goToChapter(chapter.id)"
@@ -100,8 +101,6 @@
                   'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all',
                   chapter.completed
                     ? 'bg-success-500 text-white'
-                    : chapter.isCurrent
-                    ? 'bg-primary-500 text-white'
                     : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200',
                 ]"
               >
@@ -116,19 +115,11 @@
                       'font-medium truncate',
                       chapter.completed
                         ? 'text-gray-500 line-through'
-                        : chapter.isCurrent
-                        ? 'text-primary-700'
                         : 'text-gray-800',
                     ]"
                   >
                     {{ chapter.title }}
                   </h3>
-                  <span
-                    v-if="chapter.isCurrent"
-                    class="px-2 py-0.5 text-xs bg-primary-100 text-primary-600 rounded-full flex-shrink-0"
-                  >
-                    进行中
-                  </span>
                 </div>
               </div>
 
@@ -157,22 +148,11 @@
             <div class="text-center">
               <div class="relative w-28 h-28 mx-auto mb-3">
                 <svg class="w-28 h-28 transform -rotate-90" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="50" stroke="#E5E7EB" stroke-width="8" fill="none" />
                   <circle
-                    cx="60"
-                    cy="60"
-                    r="50"
-                    stroke="#E5E7EB"
-                    stroke-width="8"
-                    fill="none"
-                  />
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="50"
+                    cx="60" cy="60" r="50"
                     stroke="url(#detailProgressGradient)"
-                    stroke-width="8"
-                    fill="none"
-                    stroke-linecap="round"
+                    stroke-width="8" fill="none" stroke-linecap="round"
                     :stroke-dasharray="progressCircumference"
                     :stroke-dashoffset="progressDashoffset"
                     class="transition-all duration-1000 ease-out"
@@ -185,9 +165,7 @@
                   </defs>
                 </svg>
                 <div class="absolute inset-0 flex flex-col items-center justify-center">
-                  <span class="text-2xl font-bold text-primary-600">
-                    {{ currentPath?.progress || 0 }}%
-                  </span>
+                  <span class="text-2xl font-bold text-primary-600">{{ currentPath?.progress || 0 }}%</span>
                 </div>
               </div>
               <p class="text-sm text-gray-500">
@@ -195,9 +173,12 @@
               </p>
             </div>
 
-            <Button block size="lg" @click="continueLearning">
-              <Icon name="play" :size="20" Circle />
+            <Button block size="lg" @click="continueLearning" :loading="enrolling">
+              <Icon name="play" :size="20" />
               {{ hasStarted ? '继续学习' : '开始学习' }}
+            </Button>
+            <Button block variant="secondary" @click="enroll" :loading="enrolling" v-if="!hasStarted">
+              报名该路径
             </Button>
           </div>
         </Card>
@@ -237,98 +218,152 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Button from '@/components/ui/Button.vue'
-import { learningPaths, chapters } from '@/data/learning'
+import { learningApi } from '@/api'
+import type { LearningPathVO, LearningChapterVO } from '@/api/types'
+
 const route = useRoute()
 const router = useRouter()
 
-const pathId = computed(() => route.params.id as string)
+const gradients = [
+  'from-blue-500 to-indigo-600',
+  'from-emerald-500 to-teal-600',
+  'from-purple-500 to-fuchsia-600',
+  'from-orange-500 to-rose-600',
+]
+const icons = ['code', 'server', 'database', 'brain', 'layers', 'puzzle']
+
+const pathId = computed(() => Number(route.params.id))
+const pathDetail = ref<LearningPathVO | null>(null)
+const chapters = ref<LearningChapterVO[]>([])
+const enrolling = ref(false)
+
+const levelToDifficulty = (level?: string): 'beginner' | 'intermediate' | 'advanced' => {
+  const map: Record<string, 'beginner' | 'intermediate' | 'advanced'> = {
+    入门: 'beginner', 进阶: 'intermediate', 高级: 'advanced',
+    beginner: 'beginner', intermediate: 'intermediate', advanced: 'advanced',
+  }
+  return map[level || ''] || 'beginner'
+}
+
+interface ViewChapter {
+  id: number
+  title: string
+  duration: number
+  order: number
+  completed: boolean
+  isCurrent: boolean
+}
+
+const pathChapters = computed<ViewChapter[]>(() =>
+  chapters.value
+    .slice()
+    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+    .map((c) => ({
+      id: c.id,
+      title: c.title,
+      duration: c.duration || 0,
+      order: c.sortOrder || 0,
+      completed: !!c.completed,
+      isCurrent: false,
+    }))
+)
+
+const completedChaptersCount = computed(() => pathChapters.value.filter((c) => c.completed).length)
 
 const currentPath = computed(() => {
-  return learningPaths.find((p) => p.id === pathId.value)
+  if (!pathDetail.value) return null
+  const total = pathChapters.value.length
+  const progress = total > 0 ? Math.round((completedChaptersCount.value / total) * 100) : 0
+  return {
+    id: pathDetail.value.id,
+    title: pathDetail.value.title,
+    description: pathDetail.value.description,
+    coverGradient: gradients[pathDetail.value.id % gradients.length] || gradients[0],
+    icon: icons[pathDetail.value.id % icons.length] || 'code',
+    difficulty: levelToDifficulty(pathDetail.value.level),
+    chaptersCount: pathDetail.value.chapterCount || total,
+    totalDuration: pathDetail.value.totalDuration || 0,
+    progress,
+    enrolledCount: pathDetail.value.enrolledCount || 0,
+  }
 })
 
-const pathChapters = computed(() => {
-  return chapters.filter((c) => c.pathId === pathId.value).sort((a, b) => a.order - b.order)
-})
-
-const completedChaptersCount = computed(() => {
-  return pathChapters.value.filter((c) => c.completed).length
-})
-
-const hasStarted = computed(() => {
-  return (currentPath.value?.progress || 0) > 0
-})
+const hasStarted = computed(() => (currentPath.value?.progress || 0) > 0)
 
 const progressRadius = 50
 const progressCircumference = 2 * Math.PI * progressRadius
-
 const progressDashoffset = computed(() => {
   const progress = currentPath.value?.progress || 0
   return progressCircumference - (progress / 100) * progressCircumference
 })
 
-const iconNameMap: Record<string, string> = {
-  code: 'code',
-  fileCode: 'file-code',
-  brain: 'brain',
-  layers: 'layers',
-  server: 'server',
-  puzzle: 'puzzle',
-}
-
 const getPathIconName = (iconName: string): string => {
+  const iconNameMap: Record<string, string> = {
+    code: 'code', fileCode: 'file-code', brain: 'brain',
+    layers: 'layers', server: 'server', puzzle: 'puzzle',
+  }
   return iconNameMap[iconName] || 'code'
 }
 
 const getDifficultyLabel = (difficulty: string) => {
-  const labels: Record<string, string> = {
-    beginner: '入门',
-    intermediate: '进阶',
-    advanced: '高级',
-  }
+  const labels: Record<string, string> = { beginner: '入门', intermediate: '进阶', advanced: '高级' }
   return labels[difficulty] || difficulty
 }
 
 const getDifficultyBadgeVariant = (difficulty: string) => {
   const variants: Record<string, 'primary' | 'success' | 'warning' | 'danger' | 'default'> = {
-    beginner: 'success',
-    intermediate: 'primary',
-    advanced: 'danger',
+    beginner: 'success', intermediate: 'primary', advanced: 'danger',
   }
   return variants[difficulty] || 'default'
 }
 
 const formatDuration = (minutes: number) => {
-  if (minutes < 60) {
-    return `${minutes}分钟`
-  }
+  if (!minutes) return '0分钟'
+  if (minutes < 60) return `${minutes}分钟`
   const hours = Math.floor(minutes / 60)
   const mins = minutes % 60
-  return mins > 0 ? `${hours}h${mins}m` : `${hours}h`
+  return mins > 0 ? `${hours}小时${mins}分` : `${hours}小时`
 }
 
-const goBack = () => {
-  router.push('/learning/paths')
-}
+const goBack = () => router.push('/learning/paths')
 
-const goToChapter = (chapterId: string) => {
-  router.push(`/learning/chapter/${chapterId}`)
-}
+const goToChapter = (chapterId: number) => router.push(`/learning/chapter/${chapterId}`)
 
 const continueLearning = () => {
-  const currentChapter = pathChapters.value.find((c) => c.isCurrent)
   const firstIncomplete = pathChapters.value.find((c) => !c.completed)
-  const targetChapter = currentChapter || firstIncomplete || pathChapters.value[0]
-  if (targetChapter) {
-    router.push(`/learning/chapter/${targetChapter.id}`)
+  const target = firstIncomplete || pathChapters.value[0]
+  if (target) router.push(`/learning/chapter/${target.id}`)
+}
+
+const enroll = async () => {
+  enrolling.value = true
+  try {
+    await learningApi.enroll(pathId.value)
+  } catch {
+    /* 忽略 */
+  } finally {
+    enrolling.value = false
   }
 }
+
+onMounted(async () => {
+  try {
+    pathDetail.value = await learningApi.pathDetail(pathId.value)
+  } catch {
+    pathDetail.value = null
+  }
+  try {
+    chapters.value = await learningApi.chapters(pathId.value)
+  } catch {
+    chapters.value = []
+  }
+})
 </script>
 
 <style scoped>
@@ -345,13 +380,6 @@ const continueLearning = () => {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.line-clamp-1 {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 .bg-grid-white\/10 {

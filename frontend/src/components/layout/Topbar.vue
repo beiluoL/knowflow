@@ -37,38 +37,53 @@
 
       <div class="relative">
         <button
-          class="flex items-center gap-3 p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+          class="relative z-50 flex items-center gap-3 p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+          aria-haspopup="menu"
+          :aria-expanded="showUserMenu"
           @click="showUserMenu = !showUserMenu"
+          @keydown.esc="showUserMenu = false"
         >
-          <Avatar :name="user.nickname" size="sm" :status="'online'" show-status />
+          <Avatar :name="displayName" size="sm" :status="isLoggedIn ? 'online' : 'offline'" show-status />
           <div class="text-left hidden sm:block">
-            <div class="text-sm font-medium text-gray-800">{{ user.nickname }}</div>
-            <div class="text-xs text-gray-500">Lv.{{ user.stats.level }}</div>
+            <div class="text-sm font-medium text-gray-800">{{ displayName }}</div>
+            <div class="text-xs text-gray-500">Lv.{{ displayLevel }}</div>
           </div>
           <Icon name="chevron-down" :size="16" class="text-gray-400 hidden sm:block" />
         </button>
 
         <div
           v-if="showUserMenu"
+          class="fixed inset-0 z-40"
+          @click="showUserMenu = false"
+        />
+        <div
+          v-if="showUserMenu"
           class="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-100 rounded-lg shadow-lg py-2 z-50"
+          role="menu"
         >
           <div class="px-4 py-3 border-b border-gray-100">
-            <div class="font-medium text-gray-800">{{ user.nickname }}</div>
-            <div class="text-sm text-gray-500">{{ user.email }}</div>
+            <div class="font-medium text-gray-800">{{ displayName }}</div>
+            <div v-if="displayEmail" class="text-sm text-gray-500">{{ displayEmail }}</div>
           </div>
           <div class="py-1">
-            <a
-              v-for="item in userMenuItems"
-              :key="item.path"
-              :href="item.path"
-              class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            <button
+              v-for="item in userMenuItems" :key="item.path"
+              type="button"
+              role="menuitem"
+              class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              @click="goTo(item.path)"
             >
               <Icon :name="item.iconName" :size="16" class="text-gray-400" />
               {{ item.label }}
-            </a>
+            </button>
           </div>
           <div class="border-t border-gray-100 pt-1">
-            <button class="w-full flex items-center gap-3 px-4 py-2 text-sm text-danger-600 hover:bg-danger-50 transition-colors">
+            <button
+              type="button"
+              role="menuitem"
+              class="w-full flex items-center gap-3 px-4 py-2 text-sm text-danger-600 hover:bg-danger-50 transition-colors"
+              @click="handleLogout"
+            >
               <Icon name="log-out" :size="16" />
               退出登录
             </button>
@@ -87,8 +102,7 @@
       </div>
       <div class="max-h-96 overflow-y-auto">
         <div
-          v-for="notification in notifications"
-          :key="notification.id"
+          v-for="notification in notifications" :key="notification.id"
           class="px-4 py-3 hover:bg-gray-50 border-b border-gray-50 cursor-pointer transition-colors"
           :class="{ 'bg-primary-50/30': !notification.read }"
         >
@@ -116,9 +130,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Avatar from '@/components/ui/Avatar.vue'
-import { mockUser, mockNotifications } from '@/data/user'
+import { mockNotifications } from '@/data/user'
+import { useAuthStore } from '@/stores/auth'
+import { notify } from '@/utils/toast'
 import type { Notification } from '@/types'
 
 defineEmits<{
@@ -126,11 +143,25 @@ defineEmits<{
   search: [query: string]
 }>()
 
+const router = useRouter()
+const auth = useAuthStore()
+
 const searchQuery = ref('')
 const showNotifications = ref(false)
 const showUserMenu = ref(false)
-const user = ref(mockUser)
 const notifications = ref(mockNotifications)
+
+const isLoggedIn = computed(() => auth.isLoggedIn)
+const displayName = computed(() => {
+  const u = auth.user
+  if (!u) return '游客'
+  return u.nickname || u.username || '用户'
+})
+const displayEmail = computed(() => {
+  const u = auth.user
+  return u?.email || u?.username || ''
+})
+const displayLevel = computed(() => auth.user?.level ?? 1)
 
 const unreadCount = computed(() => notifications.value.filter(n => !n.read).length)
 
@@ -139,6 +170,18 @@ const userMenuItems = [
   { path: '/profile/collections', label: '我的收藏', iconName: 'book-marked' },
   { path: '/settings', label: '设置', iconName: 'settings' },
 ]
+
+function goTo(path: string) {
+  showUserMenu.value = false
+  router.push(path)
+}
+
+function handleLogout() {
+  showUserMenu.value = false
+  auth.logout()
+  notify('已退出登录', 'success')
+  router.push('/login')
+}
 
 const notificationIconName = (type: Notification['type']) => {
   const icons: Record<Notification['type'], string> = {

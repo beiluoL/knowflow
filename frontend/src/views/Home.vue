@@ -5,7 +5,7 @@
       <div class="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
       <div class="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
       <div class="relative z-10">
-        <h1 class="text-3xl font-bold mb-2">{{ greeting }}，张三 👋</h1>
+        <h1 class="text-3xl font-bold mb-2">{{ greeting }}，{{ userName }} 👋</h1>
         <p class="text-primary-100 mb-6">今天也要继续学习哦~</p>
         <div class="bg-white/15 backdrop-blur-sm rounded-lg p-4 max-w-xl">
           <div class="flex items-start gap-3">
@@ -28,8 +28,7 @@
       </div>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div
-          v-for="(category, index) in categories"
-          :key="category.id"
+          v-for="(category, index) in categories" :key="category.id"
           class="group cursor-pointer"
           :style="{ animationDelay: `${index * 50}ms` }"
           @click="goToCategory(category.id)"
@@ -63,7 +62,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-gray-500 text-sm">学习时长</p>
-              <p class="text-2xl font-bold text-gray-800 mt-1">{{ learningOverview.studyHours }}h</p>
+              <p class="text-2xl font-bold text-gray-800 mt-1">{{ overview.studyHours }}h</p>
               <p class="text-primary-500 text-xs mt-2">本周 +12h</p>
             </div>
             <div class="w-12 h-12 rounded-lg bg-primary-50 flex items-center justify-center">
@@ -76,7 +75,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-gray-500 text-sm">已读文档</p>
-              <p class="text-2xl font-bold text-gray-800 mt-1">{{ learningOverview.readDocs }} 篇</p>
+              <p class="text-2xl font-bold text-gray-800 mt-1">{{ overview.readDocs }} 篇</p>
               <p class="text-success-500 text-xs mt-2">本周 +5</p>
             </div>
             <div class="w-12 h-12 rounded-lg bg-success-50 flex items-center justify-center">
@@ -89,7 +88,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-gray-500 text-sm">连续学习</p>
-              <p class="text-2xl font-bold text-gray-800 mt-1">{{ learningOverview.streakDays }} 天</p>
+              <p class="text-2xl font-bold text-gray-800 mt-1">{{ overview.streakDays }} 天</p>
               <p class="text-warning-500 text-xs mt-2">继续加油！</p>
             </div>
             <div class="w-12 h-12 rounded-lg bg-warning-50 flex items-center justify-center">
@@ -102,7 +101,7 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-gray-500 text-sm">收藏数</p>
-              <p class="text-2xl font-bold text-gray-800 mt-1">{{ learningOverview.favorites }} 篇</p>
+              <p class="text-2xl font-bold text-gray-800 mt-1">{{ overview.favorites }} 篇</p>
               <p class="text-danger-500 text-xs mt-2">我的收藏</p>
             </div>
             <div class="w-12 h-12 rounded-lg bg-danger-50 flex items-center justify-center">
@@ -122,8 +121,7 @@
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card
-          v-for="doc in recentDocs.slice(0, 6)"
-          :key="doc.id"
+          v-for="doc in recentDocs.slice(0, 6)" :key="doc.id"
           hoverable
           class="cursor-pointer"
           @click="goToDoc(doc.id)"
@@ -134,15 +132,9 @@
             </div>
             <h3 class="font-medium text-gray-800 mb-2 line-clamp-2">{{ doc.title }}</h3>
             <p class="text-sm text-gray-500 mb-4 line-clamp-2 flex-1">{{ doc.summary }}</p>
-            <div class="mb-3">
-              <Progress :percentage="doc.readProgress" variant="primary" label="阅读进度" show-label />
-            </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <Avatar :name="doc.author" size="sm" />
-                <span class="text-xs text-gray-500">{{ doc.author }}</span>
-              </div>
-              <span class="text-xs text-gray-400">{{ formatLastRead(doc.lastReadAt) }}</span>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <span>{{ doc.viewCount || 0 }} 次浏览</span>
+              <span>{{ formatDate(doc.createTime) }}</span>
             </div>
           </div>
         </Card>
@@ -156,8 +148,7 @@
       </div>
       <div class="space-y-3">
         <Card
-          v-for="(doc, index) in recommendedDocs"
-          :key="doc.id"
+          v-for="(doc, index) in recommendedDocs" :key="doc.id"
           hoverable
           class="cursor-pointer"
           @click="goToDoc(doc.id)"
@@ -173,16 +164,15 @@
                 <Badge variant="primary">{{ doc.categoryName }}</Badge>
                 <div class="flex items-center gap-1">
                   <span
-                    v-for="tag in doc.tags.slice(0, 2)"
-                    :key="tag"
+                    v-for="tag in (doc.tags || '').split(',').slice(0, 2)" :key="tag"
                     class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded"
                   >
                     {{ tag }}
                   </span>
                 </div>
                 <div class="flex items-center gap-1 text-xs text-gray-400 ml-auto">
-                  <Icon name="clock" :size="14" />
-                  <span>{{ doc.readTime }} 分钟阅读</span>
+                  <Icon name="eye" :size="14" />
+                  <span>{{ doc.viewCount || 0 }} 次浏览</span>
                 </div>
               </div>
             </div>
@@ -194,17 +184,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import Badge from '@/components/ui/Badge.vue'
-import Progress from '@/components/ui/Progress.vue'
-import Avatar from '@/components/ui/Avatar.vue'
-import { categories } from '@/data/categories'
-import { dailyQuotes, learningOverview, recentDocs, recommendedDocs } from '@/data/home'
+import { categoriesApi, docsApi, userApi } from '@/api'
+import { dailyQuotes, recentDocs as recentMock, recommendedDocs as recommendMock } from '@/data/home'
+import { useAuthStore } from '@/stores/auth'
+import type { CategoryVO, DocVO } from '@/api/types'
 
 const router = useRouter()
+const auth = useAuthStore()
+
+const categories = ref<CategoryVO[]>([])
+const recentDocs = ref<DocVO[]>([])
+const recommendedDocs = ref<DocVO[]>([])
+const overview = ref({ studyHours: 0, readDocs: 0, streakDays: 0, favorites: 0 })
+
+const userName = computed(() => auth.user?.nickname || '学习者')
 
 const greeting = computed(() => {
   const hour = new Date().getHours()
@@ -234,26 +232,58 @@ const getCategoryIconName = (iconName: string): string => {
   return validIcons.includes(iconName) ? iconName : 'code'
 }
 
-const goToCategory = (categoryId: string) => {
+const goToCategory = (categoryId: number) => {
   router.push(`/categories?categoryId=${categoryId}`)
 }
 
-const goToDoc = (docId: string) => {
+const goToDoc = (docId: number) => {
   router.push(`/doc/${docId}`)
 }
 
-const formatLastRead = (dateStr: string) => {
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return ''
   const date = new Date(dateStr)
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-
   if (diffHours < 1) return '刚刚'
   if (diffHours < 24) return `${diffHours} 小时前`
   if (diffDays < 7) return `${diffDays} 天前`
   return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
 }
+
+onMounted(async () => {
+  try {
+    const tree = await categoriesApi.tree()
+    categories.value = tree.filter((c) => !c.parentId || c.parentId === 0)
+  } catch {
+    categories.value = []
+  }
+  try {
+    recentDocs.value = await docsApi.recent()
+  } catch {
+    recentDocs.value = recentMock as unknown as DocVO[]
+  }
+  try {
+    recommendedDocs.value = await docsApi.recommend()
+  } catch {
+    recommendedDocs.value = recommendMock as unknown as DocVO[]
+  }
+  if (auth.isLoggedIn) {
+    try {
+      const stats = await userApi.stats()
+      overview.value = {
+        studyHours: Number(stats.totalStudyHours || 0),
+        readDocs: stats.readDocsCount || 0,
+        streakDays: stats.streakDays || 0,
+        favorites: stats.favoriteCount || 0,
+      }
+    } catch {
+      /* 保留默认 0 */
+    }
+  }
+})
 </script>
 
 <style scoped>

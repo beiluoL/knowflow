@@ -47,22 +47,22 @@
             <h1 class="text-2xl font-bold text-gray-800 mb-4">{{ doc.title }}</h1>
             <div class="flex items-center gap-4 flex-wrap">
               <div class="flex items-center gap-2">
-                <Avatar :name="doc.author" size="sm" />
-                <span class="text-sm text-gray-600">{{ doc.author }}</span>
+                <Icon name="folder" :size="16" class="text-gray-400" />
+                <span class="text-sm text-gray-600">{{ doc.categoryName || '未分类' }}</span>
               </div>
-              <span class="text-sm text-gray-400">{{ formatDate(doc.createdAt) }}</span>
+              <span class="text-sm text-gray-400">{{ formatDate(doc.createTime) }}</span>
               <div class="flex items-center gap-1 text-sm text-gray-400">
                 <Icon name="eye" :size="16" />
                 <span>{{ doc.viewCount }}</span>
               </div>
               <div class="flex items-center gap-1 text-sm text-gray-400">
-                <Icon name="thumbs-up" :size="16" />
-                <span>{{ doc.likeCount }}</span>
+                <Icon name="heart" :size="16" />
+                <span>{{ doc.favoriteCount }}</span>
               </div>
             </div>
             <div class="flex items-center gap-2 mt-4 flex-wrap">
               <Badge variant="primary">{{ doc.categoryName }}</Badge>
-              <Badge v-for="tag in doc.tags" :key="tag" variant="default">
+              <Badge v-for="tag in (doc.tags || '').split(',')" :key="tag" variant="default">
                 {{ tag }}
               </Badge>
             </div>
@@ -71,7 +71,7 @@
           <div
             ref="contentRef"
             class="prose prose-gray max-w-none doc-content"
-            v-html="doc.content"
+            v-html="docContentHtml"
           ></div>
         </Card>
       </article>
@@ -124,14 +124,14 @@
                   <Icon name="clock" :size="16" />
                   阅读时长
                 </span>
-                <span class="text-gray-700 font-medium">{{ doc.readTime }} 分钟</span>
+                <span class="text-gray-700 font-medium">{{ readTimeMinutes }} 分钟</span>
               </div>
               <div class="flex items-center justify-between text-sm">
                 <span class="text-gray-500 flex items-center gap-2">
                   <Icon name="calendar" :size="16" />
                   创建时间
                 </span>
-                <span class="text-gray-700 font-medium">{{ formatDate(doc.createdAt) }}</span>
+                <span class="text-gray-700 font-medium">{{ formatDate(doc.createTime) }}</span>
               </div>
             </div>
           </Card>
@@ -160,8 +160,7 @@
             </template>
             <div class="space-y-3">
               <div
-                v-for="item in relatedDocs"
-                :key="item.id"
+                v-for="item in relatedDocs" :key="item.id"
                 class="cursor-pointer group"
                 @click="goToDoc(item.id)"
               >
@@ -182,108 +181,205 @@
 </template>
 
 <script setup lang="ts">
+import { notify } from '@/utils/toast'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Progress from '@/components/ui/Progress.vue'
-import Avatar from '@/components/ui/Avatar.vue'
-import { detailedDoc, docToc, relatedDocs } from '@/data/docDetail'
-import type { TocItem } from '@/types'
+import { docsApi } from '@/api'
+import { useAuthStore } from '@/stores/auth'
+import type { DocDetailVO, DocVO } from '@/api/types'
+
+interface TocItem {
+  id: string
+  text: string
+  level: number
+  children?: TocItem[]
+}
 
 const route = useRoute()
 const router = useRouter()
+const auth = useAuthStore()
 
-const doc = ref(detailedDoc)
+const placeholder: DocDetailVO = {
+  id: 0,
+  title: '',
+  content: '',
+  summary: '',
+  tags: '',
+  viewCount: 0,
+  readCount: 0,
+  favoriteCount: 0,
+  wordCount: 0,
+  categoryName: '',
+  favorite: false,
+  readProgress: 0,
+}
+
+const doc = ref<DocDetailVO>(placeholder)
 const isCollected = ref(false)
+const relatedDocs = ref<DocVO[]>([])
 const contentRef = ref<HTMLElement | null>(null)
 const activeTocId = ref('')
-const readProgress = ref(45)
+const readProgress = ref(0)
+const savingProgress = ref(false)
 
-const flatToc = computed(() => {
+const readTimeMinutes = computed(() => Math.max(1, Math.round((doc.value.wordCount || 0) / 300)))
+
+const slugify = (text: string) =>
+  text
+    .trim()
+    .toLowerCase()
+    .replace(/[^\w一-龥]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+const inline = (s: string) =>
+  escapeHtml(s).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>')
+
+const buildToc = (md: string): TocItem[] => {
   const items: TocItem[] = []
-  const flatten = (tocItems: TocItem[]) => {
-    tocItems.forEach((item) => {
-      items.push(item)
-      if (item.children && item.children.length > 0) {
-        flatten(item.children)
-      }
-    })
+  for (const line of (md || '').split('\n')) {
+    const m = /^(#{2,3})\s+(.*)$/.exec(line.trim())
+    if (m) {
+      const text = m[2].replace(/[*`]/g, '').trim()
+      items.push({
+        id: slugify(text) || `h-${items.length}`,
+        text,
+        level: m[1].length,
+      })
+    }
   }
-  flatten(docToc)
   return items
-})
-
-const goBack = () => {
-  router.back()
 }
 
-const toggleCollect = () => {
-  isCollected.value = !isCollected.value
+const renderMarkdown = (md: string): string => {
+  if (!md) return ''
+  let html = ''
+  let inCode = false
+  let codeBuf: string[] = []
+  for (const raw of md.split('\n')) {
+    const line = raw.trimEnd()
+    const fence = /^```(\w*)/.exec(line)
+    if (fence) {
+      if (!inCode) {
+        inCode = true
+        codeBuf = []
+      } else {
+        html += `<pre class="code-block"><code>${escapeHtml(codeBuf.join('\n'))}</code></pre>`
+        inCode = false
+      }
+      continue
+    }
+    if (inCode) {
+      codeBuf.push(line)
+      continue
+    }
+    const h = /^(#{1,3})\s+(.*)$/.exec(line)
+    if (h) {
+      const text = h[2].replace(/[*`]/g, '').trim()
+      const id = slugify(text) || `h-${activeTocId.value}`
+      html += `<h${h[1].length} id="${id}" class="doc-h">${inline(text)}</h${h[1].length}>`
+      continue
+    }
+    if (/^[-*]\s+/.test(line)) {
+      html += `<ul><li>${inline(line.replace(/^[-*]\s+/, ''))}</li></ul>`
+      continue
+    }
+    if (line === '') continue
+    html += `<p>${inline(line)}</p>`
+  }
+  if (inCode) html += `<pre class="code-block"><code>${escapeHtml(codeBuf.join('\n'))}</code></pre>`
+  return html.replace(/<\/ul><ul>/g, '')
 }
 
-const handleShare = () => {
-  alert('分享功能开发中')
+const docContentHtml = computed(() => renderMarkdown(doc.value.content || ''))
+const flatToc = computed(() => buildToc(doc.value.content || ''))
+
+const goBack = () => router.back()
+
+const toggleCollect = async () => {
+  const id = doc.value.id
+  if (!id) return
+  const next = !isCollected.value
+  isCollected.value = next
+  try {
+    await docsApi.toggleFavorite(id)
+  } catch {
+    isCollected.value = !next
+  }
 }
 
-const goToDoc = (docId: string) => {
-  router.push(`/doc/${docId}`)
-}
+const handleShare = () => notify('分享功能开发中', 'info')
 
-const formatDate = (dateStr: string) => {
+const goToDoc = (docId: number) => router.push(`/doc/${docId}`)
+
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return ''
   const date = new Date(dateStr)
-  return date.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+  return date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 const scrollToSection = (id: string, event: Event) => {
   event.preventDefault()
   const element = document.getElementById(id)
-  if (element) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
+  if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 const handleScroll = () => {
   if (!contentRef.value) return
-
   const headings = contentRef.value.querySelectorAll('h2[id], h3[id]')
   let currentId = ''
-
   headings.forEach((heading) => {
     const rect = heading.getBoundingClientRect()
-    if (rect.top <= 100) {
-      currentId = heading.id
-    }
+    if (rect.top <= 120) currentId = heading.id
   })
-
-  if (currentId && currentId !== activeTocId.value) {
-    activeTocId.value = currentId
-  }
-
+  if (currentId) activeTocId.value = currentId
   const scrollTop = window.scrollY
   const docHeight = document.documentElement.scrollHeight - window.innerHeight
-  if (docHeight > 0) {
-    readProgress.value = Math.min(100, Math.round((scrollTop / docHeight) * 100))
+  if (docHeight > 0) readProgress.value = Math.min(100, Math.round((scrollTop / docHeight) * 100))
+}
+
+const saveProgress = async () => {
+  if (!auth.isLoggedIn || !doc.value.id || savingProgress.value) return
+  savingProgress.value = true
+  try {
+    await docsApi.updateProgress({ docId: doc.value.id, progress: readProgress.value })
+  } catch {
+    /* ignore */
+  } finally {
+    savingProgress.value = false
   }
 }
 
-onMounted(() => {
-  const docId = route.params.id as string
-  if (docId) {
-    console.log('加载文档:', docId)
+onMounted(async () => {
+  const id = Number(route.params.id)
+  if (id) {
+    try {
+      const d = await docsApi.detail(id)
+      doc.value = d
+      isCollected.value = !!d.favorite
+      readProgress.value = Number(d.readProgress || 0)
+    } catch {
+      /* keep placeholder */
+    }
+    try {
+      relatedDocs.value = (await docsApi.recommend()).slice(0, 5)
+    } catch {
+      relatedDocs.value = []
+    }
   }
-
   window.addEventListener('scroll', handleScroll)
   handleScroll()
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  saveProgress()
 })
 </script>
 

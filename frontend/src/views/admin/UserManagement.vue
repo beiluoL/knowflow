@@ -1,5 +1,4 @@
 <template>
-  <AppShell>
     <div class="space-y-6 animate-fade-in">
       <div class="flex items-center justify-between">
         <div>
@@ -40,22 +39,21 @@
                     全部角色
                   </button>
                   <button
-                    v-for="role in roles"
-                    :key="role"
-                    @click="selectedRole = role; showRoleFilter = false"
+                    v-for="role in roles" :key="role.value"
+                    @click="selectedRole = role.value; showRoleFilter = false"
                     class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
-                    :class="{ 'bg-primary-50 text-primary-600': selectedRole === role }"
+                    :class="{ 'bg-primary-50 text-primary-600': selectedRole === role.value }"
                   >
-                    {{ role }}
+                    {{ role.label }}
                   </button>
                 </div>
               </div>
-              <Button icon-name="user-plus" @click="showAddModal = true">新增用户</Button>
+              <Button icon-name="user-plus" @click="openCreate">新增用户</Button>
             </div>
           </div>
         </div>
 
-        <div class="hidden md:block overflow-x-auto">
+        <div class="overflow-x-auto">
           <table class="w-full">
             <thead class="bg-gray-50">
               <tr>
@@ -65,28 +63,26 @@
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">等级</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学习时长</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">注册时间</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
                 <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
               <tr
-                v-for="user in filteredUsers"
-                :key="user.id"
+                v-for="user in pagedUsers" :key="user.id"
                 class="hover:bg-gray-50 transition-colors table-row"
               >
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-3">
-                    <Avatar :src="user.avatar" :name="user.username" size="md" :show-status="true" :status="user.online ? 'online' : 'offline'" />
+                    <Avatar :src="user.avatar" :name="user.username" size="md" />
                     <div>
                       <p class="text-sm font-medium text-gray-800">{{ user.username }}</p>
                       <p class="text-xs text-gray-400">ID: {{ user.id }}</p>
                     </div>
                   </div>
                 </td>
-                <td class="px-4 py-3 text-sm text-gray-600">{{ user.email }}</td>
+                <td class="px-4 py-3 text-sm text-gray-600">{{ user.email || '—' }}</td>
                 <td class="px-4 py-3">
-                  <Badge :variant="user.role === '管理员' ? 'primary' : 'default'">{{ user.role }}</Badge>
+                  <Badge :variant="user.role === 'ADMIN' ? 'primary' : 'default'">{{ user.role === 'ADMIN' ? '管理员' : '普通用户' }}</Badge>
                 </td>
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
@@ -104,78 +100,21 @@
                 </td>
                 <td class="px-4 py-3 text-sm text-gray-500">{{ user.registerTime }}</td>
                 <td class="px-4 py-3">
-                  <Badge :variant="user.status === '正常' ? 'success' : 'danger'">{{ user.status }}</Badge>
-                </td>
-                <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
-                    <button class="p-1 text-gray-400 hover:text-primary-500 transition-colors" title="编辑">
+                    <button class="p-1 text-gray-400 hover:text-primary-500 transition-colors" title="编辑" @click="openEdit(user)">
                       <Icon name="edit" :size="16" />
                     </button>
-                    <button
-                      class="p-1 text-gray-400 hover:text-warning-500 transition-colors"
-                      :title="user.status === '正常' ? '禁用' : '启用'"
-                    >
-                      <Icon :name="user.status === '正常' ? 'ban' : 'check-circle'" :size="16" />
-                    </button>
-                    <button class="p-1 text-gray-400 hover:text-danger-500 transition-colors" title="删除">
+                    <button class="p-1 text-gray-400 hover:text-danger-500 transition-colors" title="删除" @click="removeUser(user)">
                       <Icon name="trash-2" :size="16" />
                     </button>
                   </div>
                 </td>
               </tr>
+              <tr v-if="pagedUsers.length === 0">
+                <td colspan="7" class="px-4 py-12 text-center text-gray-400 text-sm">暂无用户数据</td>
+              </tr>
             </tbody>
           </table>
-        </div>
-
-        <div class="md:hidden divide-y divide-gray-100">
-          <div
-            v-for="user in filteredUsers"
-            :key="user.id"
-            class="p-4 hover:bg-gray-50 transition-colors mobile-card"
-          >
-            <div class="flex items-start gap-3">
-              <Avatar :src="user.avatar" :name="user.username" size="lg" :show-status="true" :status="user.online ? 'online' : 'offline'" />
-              <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between gap-2">
-                  <div>
-                    <h3 class="text-sm font-medium text-gray-800">{{ user.username }}</h3>
-                    <p class="text-xs text-gray-400">{{ user.email }}</p>
-                  </div>
-                  <Badge :variant="user.status === '正常' ? 'success' : 'danger'">{{ user.status }}</Badge>
-                </div>
-                <div class="flex items-center gap-3 mt-3 flex-wrap">
-                  <Badge :variant="user.role === '管理员' ? 'primary' : 'default'">{{ user.role }}</Badge>
-                  <div class="flex items-center gap-1">
-                    <div class="w-5 h-5 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
-                      <Icon name="star" :size="12" />
-                    </div>
-                    <span class="text-xs text-gray-600">Lv.{{ user.level }}</span>
-                  </div>
-                </div>
-                <div class="mt-3">
-                  <div class="flex items-center justify-between mb-1">
-                    <span class="text-xs text-gray-500">学习时长</span>
-                    <span class="text-xs text-gray-600">{{ user.studyHours }}h</span>
-                  </div>
-                  <Progress :percentage="user.studyProgress" :variant="user.level > 5 ? 'success' : 'primary'" />
-                </div>
-                <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                  <span class="text-xs text-gray-400">注册于 {{ user.registerTime }}</span>
-                  <div class="flex items-center gap-2">
-                    <button class="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded transition-colors">
-                      <Icon name="edit" :size="16" />
-                    </button>
-                    <button class="p-1.5 text-gray-400 hover:text-warning-500 hover:bg-warning-50 rounded transition-colors">
-                      <Icon :name="user.status === '正常' ? 'ban' : 'check-circle'" :size="16" />
-                    </button>
-                    <button class="p-1.5 text-gray-400 hover:text-danger-500 hover:bg-danger-50 rounded transition-colors">
-                      <Icon name="trash-2" :size="16" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div class="px-4 py-3 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -191,8 +130,7 @@
               <Icon name="chevron-left" :size="16" />
             </button>
             <button
-              v-for="page in visiblePages"
-              :key="page"
+              v-for="page in visiblePages" :key="page"
               @click="currentPage = page"
               :class="[
                 'w-8 h-8 text-sm rounded-sm transition-colors',
@@ -214,71 +152,118 @@
         </div>
       </Card>
     </div>
-  </AppShell>
+
+    <!-- 新增/编辑弹窗 -->
+    <div
+      v-if="showModal"
+      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+      @click.self="closeModal"
+    >
+      <div class="bg-white rounded-xl w-full max-w-md shadow-xl animate-dropdown">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h3 class="text-lg font-semibold text-gray-800">{{ editingId ? '编辑用户' : '新增用户' }}</h3>
+          <button class="p-1 hover:bg-gray-100 rounded transition-colors" @click="closeModal">
+            <Icon name="x" :size="20" />
+          </button>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">用户名</label>
+            <Input v-model="form.username" placeholder="请输入用户名" :disabled="!!editingId" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">邮箱</label>
+            <Input v-model="form.email" placeholder="请输入邮箱" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">昵称</label>
+            <Input v-model="form.nickname" placeholder="请输入昵称" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">角色</label>
+            <select v-model="form.role" class="w-full px-3 py-2 border border-gray-200 rounded-sm text-sm focus:outline-none focus:border-primary-500">
+              <option value="USER">普通用户</option>
+              <option value="ADMIN">管理员</option>
+            </select>
+          </div>
+          <div v-if="!editingId">
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">密码</label>
+            <Input v-model="form.password" type="password" placeholder="请输入初始密码" />
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
+          <Button variant="secondary" @click="closeModal">取消</Button>
+          <Button :disabled="saving" @click="save">{{ saving ? '保存中...' : '保存' }}</Button>
+        </div>
+      </div>
+    </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { confirmDialog, notify } from '@/utils/toast'
+import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
-import AppShell from '@/components/layout/AppShell.vue'
 import Card from '@/components/ui/Card.vue'
 import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Avatar from '@/components/ui/Avatar.vue'
 import Progress from '@/components/ui/Progress.vue'
+import { adminApi } from '@/api'
+import type { UserVO } from '@/api/types'
 
-const searchQuery = ref('')
-const selectedRole = ref('')
-const showRoleFilter = ref(false)
-const showAddModal = ref(false)
-const currentPage = ref(1)
-
-const roles = ['管理员', '编辑', '普通用户']
-
-interface User {
-  id: string
+interface UserRow {
+  id: number
   username: string
-  email: string
+  email?: string
   avatar?: string
   role: string
   level: number
   studyHours: number
   studyProgress: number
   registerTime: string
-  status: string
-  online: boolean
+  raw: UserVO
 }
 
-const allUsers: User[] = [
-  { id: 'U001', username: '张三', email: 'zhangsan@example.com', role: '管理员', level: 12, studyHours: 256, studyProgress: 75, registerTime: '2023-06-15', status: '正常', online: true },
-  { id: 'U002', username: '李四', email: 'lisi@example.com', role: '编辑', level: 8, studyHours: 168, studyProgress: 45, registerTime: '2023-08-20', status: '正常', online: false },
-  { id: 'U003', username: '王五', email: 'wangwu@example.com', role: '普通用户', level: 5, studyHours: 89, studyProgress: 30, registerTime: '2023-10-12', status: '正常', online: true },
-  { id: 'U004', username: '赵六', email: 'zhaoliu@example.com', role: '普通用户', level: 3, studyHours: 45, studyProgress: 20, registerTime: '2024-01-05', status: '正常', online: false },
-  { id: 'U005', username: '孙七', email: 'sunqi@example.com', role: '编辑', level: 10, studyHours: 198, studyProgress: 60, registerTime: '2023-07-18', status: '已禁用', online: false },
-  { id: 'U006', username: '周八', email: 'zhouba@example.com', role: '普通用户', level: 7, studyHours: 134, studyProgress: 55, registerTime: '2023-09-22', status: '正常', online: true },
-  { id: 'U007', username: '吴九', email: 'wujiu@example.com', role: '普通用户', level: 2, studyHours: 23, studyProgress: 15, registerTime: '2024-02-10', status: '正常', online: false },
-  { id: 'U008', username: '郑十', email: 'zhengshi@example.com', role: '管理员', level: 15, studyHours: 386, studyProgress: 85, registerTime: '2023-03-08', status: '正常', online: true },
+const searchQuery = ref('')
+const selectedRole = ref('')
+const showRoleFilter = ref(false)
+const currentPage = ref(1)
+const pageSize = 10
+
+const roles = [
+  { label: '管理员', value: 'ADMIN' },
+  { label: '普通用户', value: 'USER' },
 ]
 
+const allUsers = ref<UserRow[]>([])
+const loading = ref(false)
+
+const formatDate = (v?: string): string => {
+  if (!v) return '—'
+  return v.slice(0, 10)
+}
+
 const filteredUsers = computed(() => {
-  let result = [...allUsers]
+  let result = [...allUsers.value]
   if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
+    const q = searchQuery.value.toLowerCase()
     result = result.filter(
-      user =>
-        user.username.toLowerCase().includes(query) ||
-        user.email.toLowerCase().includes(query)
+      (u) => u.username.toLowerCase().includes(q) || (u.email ?? '').toLowerCase().includes(q)
     )
   }
   if (selectedRole.value) {
-    result = result.filter(user => user.role === selectedRole.value)
+    result = result.filter((u) => u.role === selectedRole.value)
   }
   return result
 })
 
 const totalUsers = computed(() => filteredUsers.value.length)
-const totalPages = computed(() => Math.ceil(totalUsers.value / 10))
+const totalPages = computed(() => Math.max(1, Math.ceil(totalUsers.value / pageSize)))
+const pagedUsers = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  return filteredUsers.value.slice(start, start + pageSize)
+})
 
 const visiblePages = computed(() => {
   const pages: number[] = []
@@ -287,17 +272,121 @@ const visiblePages = computed(() => {
   let start = Math.max(1, current - 2)
   let end = Math.min(total, current + 2)
   if (end - start + 1 < 5) {
-    if (start === 1) {
-      end = Math.min(5, total)
-    } else {
-      start = Math.max(1, total - 4)
-    }
+    if (start === 1) end = Math.min(5, total)
+    else start = Math.max(1, total - 4)
   }
-  for (let i = start; i <= end; i++) {
-    pages.push(i)
-  }
+  for (let i = start; i <= end; i++) pages.push(i)
   return pages
 })
+
+// ===== 弹窗 / 表单 =====
+const showModal = ref(false)
+const editingId = ref<number | null>(null)
+const saving = ref(false)
+const form = ref<{ username: string; email: string; nickname: string; role: string; password: string }>({
+  username: '',
+  email: '',
+  nickname: '',
+  role: 'USER',
+  password: '',
+})
+
+const openCreate = () => {
+  editingId.value = null
+  form.value = { username: '', email: '', nickname: '', role: 'USER', password: '' }
+  showModal.value = true
+}
+
+const openEdit = (user: UserRow) => {
+  editingId.value = user.id
+  form.value = {
+    username: user.username,
+    email: user.email ?? '',
+    nickname: user.raw.nickname ?? '',
+    role: user.role,
+    password: '',
+  }
+  showModal.value = true
+}
+
+const closeModal = () => {
+  showModal.value = false
+  editingId.value = null
+}
+
+const save = async () => {
+  if (!form.value.username.trim()) {
+    notify('请填写用户名', 'warning')
+    return
+  }
+  if (!editingId.value && !form.value.password.trim()) {
+    notify('请填写初始密码', 'warning')
+    return
+  }
+  saving.value = true
+  try {
+    if (editingId.value) {
+      await adminApi.updateUser(editingId.value, {
+        email: form.value.email,
+        nickname: form.value.nickname,
+        role: form.value.role,
+      })
+    } else {
+      await adminApi.createUser({
+        username: form.value.username,
+        email: form.value.email,
+        nickname: form.value.nickname,
+        role: form.value.role,
+        password: form.value.password,
+      })
+    }
+    notify(editingId.value ? '更新成功' : '创建成功', 'success')
+    closeModal()
+    await loadUsers()
+  } catch (e: any) {
+    notify('保存失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  } finally {
+    saving.value = false
+  }
+}
+
+const removeUser = async (user: UserRow) => {
+  if (!(await confirmDialog(`确定删除用户「${user.username}」吗？此操作不可恢复。`))) return
+  try {
+    await adminApi.removeUser(user.id)
+    notify('删除成功', 'success')
+    if (pagedUsers.value.length === 1 && currentPage.value > 1) currentPage.value -= 1
+    await loadUsers()
+  } catch (e: any) {
+    notify('删除失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  }
+}
+
+const loadUsers = async () => {
+  loading.value = true
+  try {
+    const page = await adminApi.users({ pageSize: 200 })
+    const records = (page.records ?? []) as UserVO[]
+    allUsers.value = records.map((u) => ({
+      id: u.id,
+      username: u.username,
+      email: u.email,
+      avatar: u.avatar,
+      role: u.role ?? 'USER',
+      level: u.level ?? 0,
+      studyHours: u.totalStudyHours ?? 0,
+      studyProgress: Math.min(100, (u.level ?? 0) * 7),
+      registerTime: formatDate(u.createTime),
+      raw: u,
+    }))
+  } catch (e: any) {
+    notify('加载用户失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(loadUsers)
 </script>
 
 <style scoped>
@@ -341,21 +430,6 @@ const visiblePages = computed(() => {
   }
   to {
     opacity: 1;
-  }
-}
-
-.mobile-card {
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
   }
 }
 </style>

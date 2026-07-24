@@ -22,3 +22,6 @@ Thumbs.db
 
 # Local agent / workspace memory (contains private notes, do NOT publish)
 .workbuddy/
+
+# Screenshots / captured artifacts (large binaries, keep local only)
+screenshots/

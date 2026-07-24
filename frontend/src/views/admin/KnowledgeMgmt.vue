@@ -1,5 +1,4 @@
 <template>
-  <AppShell>
     <div class="space-y-6 animate-fade-in">
       <div class="flex items-center justify-between">
         <div>
@@ -44,13 +43,12 @@
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="font-semibold text-gray-800">分类树</h3>
-              <Button size="sm" icon-name="plus" @click="showAddCategoryModal = true">新增</Button>
+              <Button size="sm" icon-name="plus" @click="openCreate">新增</Button>
             </div>
           </template>
           <div class="space-y-1">
             <div
-              v-for="category in categoryTree"
-              :key="category.id"
+              v-for="category in categoryTree" :key="category.id"
               class="tree-item"
             >
               <div
@@ -66,14 +64,14 @@
                   <Icon name="chevron-right" :size="16" />
                 </button>
                 <div v-else class="w-4 h-4"></div>
-                <Icon :name="getCategoryIconName(category.icon)" :size="16" />
+                <Icon :name="getCategoryIconName(category.icon ?? 'code')" :size="16" />
                 <span class="flex-1 text-sm">{{ category.name }}</span>
-                <span class="text-xs text-gray-400">{{ category.count }}</span>
+                <span class="text-xs text-gray-400">{{ category.docCount ?? 0 }}</span>
                 <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button class="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-primary-500 transition-colors">
+                  <button class="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-primary-500 transition-colors" @click.stop="selectedCategory = category">
                     <Icon name="edit" :size="20" />
                   </button>
-                  <button class="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-danger-500 transition-colors">
+                  <button class="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-danger-500 transition-colors" @click.stop="deleteCategory(category)">
                     <Icon name="trash-2" :size="20" />
                   </button>
                 </div>
@@ -83,27 +81,27 @@
                 class="ml-4 space-y-1 mt-1 children-container"
               >
                 <div
-                  v-for="child in category.children"
-                  :key="child.id"
+                  v-for="child in category.children" :key="child.id"
                   class="flex items-center gap-2 px-3 py-2 rounded-md cursor-pointer transition-colors group"
                   :class="{ 'bg-primary-50 text-primary-700': selectedCategory?.id === child.id }"
                   @click="selectedCategory = child"
                 >
                   <div class="w-4 h-4"></div>
-                  <Icon :name="getCategoryIconName(child.icon)" :size="16" />
+                  <Icon :name="getCategoryIconName(child.icon ?? 'code')" :size="16" />
                   <span class="flex-1 text-sm">{{ child.name }}</span>
-                  <span class="text-xs text-gray-400">{{ child.count }}</span>
+                  <span class="text-xs text-gray-400">{{ child.docCount ?? 0 }}</span>
                   <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button class="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-primary-500 transition-colors">
+                    <button class="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-primary-500 transition-colors" @click.stop="selectedCategory = child">
                       <Icon name="edit" :size="20" />
                     </button>
-                    <button class="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-danger-500 transition-colors">
+                    <button class="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-danger-500 transition-colors" @click.stop="deleteCategory(child)">
                       <Icon name="trash-2" :size="20" />
                     </button>
                   </div>
                 </div>
               </div>
             </div>
+            <p v-if="categoryTree.length === 0" class="text-sm text-gray-400 px-3 py-6 text-center">暂无分类</p>
           </div>
         </Card>
 
@@ -134,8 +132,7 @@
                   >
                     <div class="grid grid-cols-5 gap-2">
                       <button
-                        v-for="icon in iconOptions"
-                        :key="icon"
+                        v-for="icon in iconOptions" :key="icon"
                         @click="categoryForm.icon = icon; showIconPicker = false"
                         class="p-2 rounded hover:bg-gray-100 transition-colors flex items-center justify-center"
                         :class="{ 'bg-primary-50 text-primary-500': categoryForm.icon === icon }"
@@ -172,8 +169,7 @@
                       无（顶级分类）
                     </button>
                     <button
-                      v-for="cat in categoryTree"
-                      :key="cat.id"
+                      v-for="cat in categoryTree" :key="cat.id"
                       @click="categoryForm.parent = cat.name; showParentPicker = false"
                       class="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
                       :class="{ 'bg-primary-50 text-primary-600': categoryForm.parent === cat.name }"
@@ -186,12 +182,12 @@
             </div>
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
               <Button variant="secondary" @click="resetCategoryForm">重置</Button>
-              <Button @click="saveCategory">保存</Button>
+              <Button :disabled="saving" @click="saveCategory">{{ saving ? '保存中...' : '保存' }}</Button>
             </div>
           </div>
           <div v-else class="flex flex-col items-center justify-center py-16 text-gray-400">
             <Icon name="folder-tree" :size="64" />
-            <p class="text-sm">请在左侧选择一个分类</p>
+            <p class="text-sm">请在左侧选择一个分类，或点击「新增」创建分类</p>
           </div>
         </Card>
       </div>
@@ -206,8 +202,7 @@
           </template>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             <div
-              v-for="(tag, index) in tags"
-              :key="tag.id"
+              v-for="(tag, index) in tags" :key="tag.id"
               class="group relative p-4 border border-gray-200 rounded-lg hover:border-gray-300 hover:shadow-md transition-all cursor-pointer tag-card"
               :style="{ animationDelay: `${index * 50}ms` }"
             >
@@ -234,102 +229,31 @@
               </div>
             </div>
           </div>
+          <p class="text-xs text-gray-400 mt-4">标签由文档的 tags 字段自动聚合生成，此处为展示视图（后端无独立标签实体）。</p>
         </Card>
       </div>
     </div>
-  </AppShell>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue'
+import { confirmDialog, notify } from '@/utils/toast'
+import { ref, reactive, watch, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
-import AppShell from '@/components/layout/AppShell.vue'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
+import { categoriesApi, adminApi } from '@/api'
+import type { CategoryVO } from '@/api/types'
 
 const activeTab = ref<'categories' | 'tags'>('categories')
-const selectedCategory = ref<Category | null>(null)
-const expandedCategories = ref<string[]>(['1'])
-const showAddCategoryModal = ref(false)
+const selectedCategory = ref<CategoryVO | null>(null)
+const expandedCategories = ref<number[]>([])
 const showAddTagModal = ref(false)
 const showIconPicker = ref(false)
 const showParentPicker = ref(false)
+const saving = ref(false)
 
-interface Category {
-  id: string
-  name: string
-  icon: string
-  count: number
-  children?: Category[]
-}
-
-const categoryTree: Category[] = [
-  {
-    id: '1',
-    name: '前端开发',
-    icon: 'code',
-    count: 1256,
-    children: [
-      { id: '1-1', name: 'Vue', icon: 'code', count: 356 },
-      { id: '1-2', name: 'React', icon: 'code', count: 289 },
-      { id: '1-3', name: 'TypeScript', icon: 'code', count: 234 },
-      { id: '1-4', name: 'CSS', icon: 'code', count: 187 },
-      { id: '1-5', name: '工程化', icon: 'settings', count: 190 },
-    ],
-  },
-  {
-    id: '2',
-    name: '后端开发',
-    icon: 'server',
-    count: 986,
-    children: [
-      { id: '2-1', name: 'Node.js', icon: 'server', count: 267 },
-      { id: '2-2', name: 'Java', icon: 'server', count: 345 },
-      { id: '2-3', name: 'Python', icon: 'server', count: 213 },
-      { id: '2-4', name: 'Go', icon: 'server', count: 161 },
-    ],
-  },
-  {
-    id: '3',
-    name: '人工智能',
-    icon: 'brain',
-    count: 654,
-    children: [
-      { id: '3-1', name: '大语言模型', icon: 'brain', count: 198 },
-      { id: '3-2', name: '机器学习', icon: 'brain', count: 234 },
-      { id: '3-3', name: '深度学习', icon: 'brain', count: 222 },
-    ],
-  },
-  {
-    id: '4',
-    name: '数据库',
-    icon: 'database',
-    count: 486,
-    children: [
-      { id: '4-1', name: 'MySQL', icon: 'database', count: 178 },
-      { id: '4-2', name: 'Redis', icon: 'database', count: 156 },
-      { id: '4-3', name: 'MongoDB', icon: 'database', count: 152 },
-    ],
-  },
-  {
-    id: '5',
-    name: '运维',
-    icon: 'monitor',
-    count: 312,
-    children: [
-      { id: '5-1', name: 'Docker', icon: 'layers', count: 123 },
-      { id: '5-2', name: 'Kubernetes', icon: 'layers', count: 109 },
-      { id: '5-3', name: 'CI/CD', icon: 'settings', count: 80 },
-    ],
-  },
-  {
-    id: '6',
-    name: '产品设计',
-    icon: 'book-open',
-    count: 248,
-  },
-]
+const categoryTree = ref<CategoryVO[]>([])
 
 const iconOptions = ['code', 'server', 'database', 'brain', 'settings', 'monitor', 'wifi', 'layers', 'book-open']
 
@@ -344,16 +268,33 @@ const categoryForm = reactive({
   parent: '',
 })
 
+const flatList = (list: CategoryVO[]): CategoryVO[] => {
+  const out: CategoryVO[] = []
+  list.forEach((c) => {
+    out.push(c)
+    if (c.children) out.push(...flatList(c.children))
+  })
+  return out
+}
+
+const resolveParentId = (parentName: string): number | undefined => {
+  if (!parentName) return undefined
+  const found = flatList(categoryTree.value).find((c) => c.name === parentName)
+  return found?.id
+}
+
 watch(selectedCategory, (val) => {
   if (val) {
     categoryForm.name = val.name
-    categoryForm.icon = val.icon
-    categoryForm.sort = '0'
-    categoryForm.parent = ''
+    categoryForm.icon = val.icon ?? 'code'
+    categoryForm.sort = String(val.sortOrder ?? 0)
+    // 反查父级名称
+    const parent = flatList(categoryTree.value).find((c) => c.children?.some((ch) => ch.id === val.id))
+    categoryForm.parent = parent?.name ?? ''
   }
 })
 
-const toggleCategory = (id: string) => {
+const toggleCategory = (id: number) => {
   const index = expandedCategories.value.indexOf(id)
   if (index > -1) {
     expandedCategories.value.splice(index, 1)
@@ -362,17 +303,61 @@ const toggleCategory = (id: string) => {
   }
 }
 
+const openCreate = () => {
+  selectedCategory.value = null
+  categoryForm.name = ''
+  categoryForm.icon = 'code'
+  categoryForm.sort = '0'
+  categoryForm.parent = ''
+}
+
 const resetCategoryForm = () => {
   if (selectedCategory.value) {
     categoryForm.name = selectedCategory.value.name
-    categoryForm.icon = selectedCategory.value.icon
-    categoryForm.sort = '0'
-    categoryForm.parent = ''
+    categoryForm.icon = selectedCategory.value.icon ?? 'code'
+    categoryForm.sort = String(selectedCategory.value.sortOrder ?? 0)
   }
 }
 
-const saveCategory = () => {
-  alert('保存成功')
+const saveCategory = async () => {
+  if (!categoryForm.name.trim()) {
+    notify('请填写分类名称', 'warning')
+    return
+  }
+  saving.value = true
+  const payload = {
+    name: categoryForm.name,
+    icon: categoryForm.icon,
+    sortOrder: Number(categoryForm.sort) || 0,
+    parentId: resolveParentId(categoryForm.parent),
+  }
+  try {
+    if (selectedCategory.value?.id) {
+      await adminApi.updateCategory(selectedCategory.value.id, payload)
+      notify('分类已更新', 'success')
+    } else {
+      const created = await adminApi.createCategory(payload)
+      notify('分类已创建', 'success')
+      selectedCategory.value = created ?? null
+    }
+    await loadTree()
+  } catch (e: any) {
+    notify('保存失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  } finally {
+    saving.value = false
+  }
+}
+
+const deleteCategory = async (category: CategoryVO) => {
+  if (!(await confirmDialog(`确定删除分类「${category.name}」吗？其子分类将一并受影响。`))) return
+  try {
+    await adminApi.removeCategory(category.id)
+    notify('删除成功', 'success')
+    if (selectedCategory.value?.id === category.id) openCreate()
+    await loadTree()
+  } catch (e: any) {
+    notify('删除失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  }
 }
 
 interface Tag {
@@ -396,6 +381,16 @@ const tags: Tag[] = [
   { id: '11', name: '设计模式', color: '#8B5CF6', count: 87 },
   { id: '12', name: '性能优化', color: '#EF4444', count: 76 },
 ]
+
+const loadTree = async () => {
+  try {
+    categoryTree.value = await categoriesApi.tree()
+  } catch (e: any) {
+    notify('加载分类失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  }
+}
+
+onMounted(loadTree)
 </script>
 
 <style scoped>

@@ -1,5 +1,4 @@
 <template>
-  <AppShell>
     <div class="space-y-6 animate-fade-in">
       <div class="flex items-center justify-between">
         <div>
@@ -8,7 +7,7 @@
         </div>
         <div class="flex items-center gap-3">
           <Button variant="secondary" icon-name="upload" @click="showImportModal = true">批量导入</Button>
-          <Button icon-name="plus" @click="showAddModal = true">新增卡片</Button>
+          <Button icon-name="plus" @click="openCreate">新增卡片</Button>
         </div>
       </div>
 
@@ -92,8 +91,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
           <div
-            v-for="card in filteredCards"
-            :key="card.id"
+            v-for="card in filteredCards" :key="card.id"
             class="group border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-200 cursor-pointer"
             :class="{ 'border-primary-300 bg-primary-50': selectedCard?.id === card.id }"
             @click="selectedCard = card"
@@ -101,10 +99,10 @@
             <div class="flex items-start justify-between mb-3">
               <Badge :variant="getStatusVariant(card.status)">{{ getStatusText(card.status) }}</Badge>
               <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button class="p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-primary-500" @click.stop="editCard(card)">
+                <button class="p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-primary-500" @click.stop="openEdit(card)">
                   <Icon name="edit" :size="16" />
                 </button>
-                <button class="p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-danger-500" @click.stop="deleteCard(card.id)">
+                <button class="p-1 hover:bg-gray-100 rounded text-gray-400 hover:text-danger-500" @click.stop="deleteCard(card)">
                   <Icon name="trash-2" :size="16" />
                 </button>
               </div>
@@ -119,23 +117,69 @@
             </div>
             <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
               <span>复习 {{ card.reviewCount }} 次</span>
-              <span>正确率 {{ card.accuracy }}%</span>
+              <span>正确率 {{ card.accuracy != null ? card.accuracy + '%' : '—' }}</span>
             </div>
           </div>
+          <p v-if="filteredCards.length === 0" class="col-span-full text-center text-gray-400 text-sm py-12">暂无闪卡数据</p>
         </div>
       </Card>
     </div>
-  </AppShell>
+
+    <!-- 新增/编辑弹窗 -->
+    <div
+      v-if="showAddModal"
+      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+      @click.self="closeModal"
+    >
+      <div class="bg-white rounded-xl w-full max-w-2xl shadow-xl animate-dropdown">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h3 class="text-lg font-semibold text-gray-800">{{ editingId ? '编辑卡片' : '新增卡片' }}</h3>
+          <button class="p-1 hover:bg-gray-100 rounded transition-colors" @click="closeModal">
+            <Icon name="x" :size="20" />
+          </button>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">正面（问题）</label>
+            <textarea v-model="form.front" rows="3" placeholder="请输入问题" class="w-full px-3 py-2 border border-gray-200 rounded-sm text-sm focus:outline-none focus:border-primary-500 font-mono"></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">背面（答案）</label>
+            <textarea v-model="form.back" rows="3" placeholder="请输入答案" class="w-full px-3 py-2 border border-gray-200 rounded-sm text-sm focus:outline-none focus:border-primary-500 font-mono"></textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">分类</label>
+              <Input v-model="form.category" placeholder="如：JavaScript" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">难度</label>
+              <select v-model.number="form.difficulty" class="w-full px-3 py-2 border border-gray-200 rounded-sm text-sm focus:outline-none focus:border-primary-500">
+                <option :value="1">简单</option>
+                <option :value="2">中等</option>
+                <option :value="3">困难</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
+          <Button variant="secondary" @click="closeModal">取消</Button>
+          <Button :disabled="saving" @click="save">{{ saving ? '保存中...' : '保存' }}</Button>
+        </div>
+      </div>
+    </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { confirmDialog, notify } from '@/utils/toast'
+import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
-import AppShell from '@/components/layout/AppShell.vue'
 import Card from '@/components/ui/Card.vue'
 import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
+import { learningApi, adminApi } from '@/api'
+import type { FlashcardVO, FlashcardInput } from '@/api/types'
 
 const searchQuery = ref('')
 const filterCategory = ref('')
@@ -143,6 +187,8 @@ const filterStatus = ref('')
 const selectedCard = ref<Flashcard | null>(null)
 const showAddModal = ref(false)
 const showImportModal = ref(false)
+const editingId = ref<number | null>(null)
+const saving = ref(false)
 
 interface Flashcard {
   id: string
@@ -152,42 +198,42 @@ interface Flashcard {
   tags: string[]
   status: 'new' | 'learning' | 'mastered'
   reviewCount: number
-  accuracy: number
+  accuracy: number | null
 }
 
-const stats = ref({
-  total: 256,
-  mastered: 128,
-  learning: 89,
-  due: 39,
+const cards = ref<Flashcard[]>([])
+const loading = ref(false)
+
+const deriveStatus = (rc?: number): 'new' | 'learning' | 'mastered' => {
+  const n = rc ?? 0
+  if (n >= 10) return 'mastered'
+  if (n > 0) return 'learning'
+  return 'new'
+}
+
+const stats = computed(() => {
+  const list = cards.value
+  return {
+    total: list.length,
+    mastered: list.filter((c) => c.status === 'mastered').length,
+    learning: list.filter((c) => c.status === 'learning').length,
+    due: list.filter((c) => c.status === 'new').length,
+  }
 })
 
-const categories = ['前端开发', '后端开发', '人工智能', '数据库', '运维', '算法']
-
-const flashcards: Flashcard[] = [
-  { id: '1', front: 'Vue 3 的 Composition API 是什么？', back: 'Composition API 是 Vue 3 引入的一组 API，允许我们使用导入的函数而不是声明选项来编写 Vue 组件。', category: '前端开发', tags: ['Vue', 'JavaScript'], status: 'learning', reviewCount: 5, accuracy: 80 },
-  { id: '2', front: '什么是闭包（Closure）？', back: '闭包是指有权访问另一个函数作用域中的变量的函数。创建闭包的常见方式，就是在一个函数内部创建另一个函数。', category: '前端开发', tags: ['JavaScript', '基础'], status: 'mastered', reviewCount: 12, accuracy: 95 },
-  { id: '3', front: 'React 的 useEffect 钩子有什么作用？', back: 'useEffect 用于在函数组件中执行副作用操作，如数据获取、订阅或手动修改 DOM。', category: '前端开发', tags: ['React', 'Hooks'], status: 'new', reviewCount: 0, accuracy: 0 },
-  { id: '4', front: '什么是数据库索引？', back: '数据库索引是一种数据结构，用于快速查询数据库表中的数据。它类似于书籍的目录，可以加快数据检索速度。', category: '数据库', tags: ['MySQL', '基础'], status: 'learning', reviewCount: 3, accuracy: 70 },
-  { id: '5', front: 'Docker 容器和虚拟机的区别？', back: 'Docker 容器共享主机操作系统内核，启动快、资源占用少；虚拟机需要完整的操作系统，启动慢、资源占用多。', category: '运维', tags: ['Docker', 'DevOps'], status: 'mastered', reviewCount: 8, accuracy: 90 },
-  { id: '6', front: '什么是 RESTful API？', back: 'RESTful API 是一种基于 HTTP 协议的网络应用程序接口设计风格，使用 URL 定位资源，HTTP 方法定义操作。', category: '后端开发', tags: ['API', '架构'], status: 'learning', reviewCount: 4, accuracy: 75 },
-]
+const categories = computed(() => Array.from(new Set(cards.value.map((c) => c.category).filter(Boolean))))
 
 const filteredCards = computed(() => {
-  let result = [...flashcards]
+  let result = [...cards.value]
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
-    result = result.filter(card =>
-      card.front.toLowerCase().includes(query) ||
-      card.back.toLowerCase().includes(query) ||
-      card.tags.some(tag => tag.toLowerCase().includes(query))
-    )
+    result = result.filter((card) => card.front.toLowerCase().includes(query) || card.back.toLowerCase().includes(query))
   }
   if (filterCategory.value) {
-    result = result.filter(card => card.category === filterCategory.value)
+    result = result.filter((card) => card.category === filterCategory.value)
   }
   if (filterStatus.value) {
-    result = result.filter(card => card.status === filterStatus.value)
+    result = result.filter((card) => card.status === filterStatus.value)
   }
   return result
 })
@@ -208,16 +254,88 @@ const getStatusText = (status: string) => {
   }
 }
 
-const editCard = (card: Flashcard) => {
-  selectedCard.value = card
+const form = ref<FlashcardInput>({ front: '', back: '', category: '', difficulty: 1 })
+
+const openCreate = () => {
+  editingId.value = null
+  form.value = { front: '', back: '', category: '', difficulty: 1 }
   showAddModal.value = true
 }
 
-const deleteCard = (_id: string) => {
-  if (confirm('确定要删除这张卡片吗？')) {
-    alert('删除成功')
+const openEdit = (card: Flashcard) => {
+  editingId.value = Number(card.id)
+  const src = cards.value.find((c) => c.id === card.id)
+  form.value = {
+    front: src?.front ?? '',
+    back: src?.back ?? '',
+    category: src?.category ?? '',
+    difficulty: 1,
+  }
+  showAddModal.value = true
+}
+
+const closeModal = () => {
+  showAddModal.value = false
+  editingId.value = null
+}
+
+const save = async () => {
+  if (!form.value.front.trim() || !form.value.back.trim()) {
+    notify('请填写正面和背面内容', 'warning')
+    return
+  }
+  saving.value = true
+  try {
+    if (editingId.value) {
+      await adminApi.updateFlashcard(editingId.value, form.value)
+      notify('卡片已更新', 'success')
+    } else {
+      await adminApi.createFlashcard(form.value)
+      notify('卡片已创建', 'success')
+    }
+    closeModal()
+    await loadCards()
+  } catch (e: any) {
+    notify('保存失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  } finally {
+    saving.value = false
   }
 }
+
+const deleteCard = async (card: Flashcard) => {
+  if (!(await confirmDialog('确定要删除这张卡片吗？'))) return
+  try {
+    await adminApi.removeFlashcard(Number(card.id))
+    notify('删除成功', 'success')
+    selectedCard.value = null
+    await loadCards()
+  } catch (e: any) {
+    notify('删除失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  }
+}
+
+const loadCards = async () => {
+  loading.value = true
+  try {
+    const list = (await learningApi.flashcards()) as FlashcardVO[]
+    cards.value = list.map((f) => ({
+      id: String(f.id),
+      front: f.front ?? '',
+      back: f.back ?? '',
+      category: f.category ?? '',
+      tags: [],
+      status: deriveStatus(f.reviewCount),
+      reviewCount: f.reviewCount ?? 0,
+      accuracy: null,
+    }))
+  } catch (e: any) {
+    notify('加载闪卡失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(loadCards)
 </script>
 
 <style scoped>
@@ -227,6 +345,15 @@ const deleteCard = (_id: string) => {
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-dropdown {
+  animation: dropdown 0.2s ease-out;
+}
+
+@keyframes dropdown {
+  from { opacity: 0; transform: translateY(-5px); }
   to { opacity: 1; transform: translateY(0); }
 }
 

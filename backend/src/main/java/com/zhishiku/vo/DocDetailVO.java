@@ -35,7 +35,7 @@ public class DocDetailVO {
 
     private Integer status;
 
-    private Boolean isFavorite;
+    private Boolean favorite;
 
     private java.math.BigDecimal readProgress;
 

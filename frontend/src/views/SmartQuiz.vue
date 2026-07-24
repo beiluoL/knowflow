@@ -1,5 +1,4 @@
 <template>
-  <AppShell>
     <div class="space-y-6 animate-fade-in">
       <div class="flex items-center justify-between">
         <div>
@@ -27,8 +26,7 @@
                 <h3 class="text-lg font-medium text-gray-800 mb-4">{{ currentQuiz.question }}</h3>
                 <div class="space-y-3">
                   <button
-                    v-for="(option, index) in currentQuiz.options"
-                    :key="index"
+                    v-for="(option, index) in currentQuiz.options" :key="index"
                     class="w-full text-left px-4 py-3 rounded-lg border-2 transition-all"
                     :class="getOptionClass(index)"
                     :disabled="hasAnswered"
@@ -141,8 +139,7 @@
             </template>
             <div class="grid grid-cols-5 gap-2">
               <button
-                v-for="(quiz, index) in quizzes"
-                :key="quiz.id"
+                v-for="(quiz, index) in quizzes" :key="quiz.id"
                 class="w-10 h-10 rounded-lg text-sm font-medium transition-all"
                 :class="[
                   currentIndex === index ? 'bg-primary-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
@@ -157,13 +154,12 @@
         </div>
       </div>
     </div>
-  </AppShell>
 </template>
 
 <script setup lang="ts">
+import { notify } from '@/utils/toast'
 import { ref, computed } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
-import AppShell from '@/components/layout/AppShell.vue'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
@@ -265,7 +261,7 @@ const nextQuestion = () => {
 }
 
 const generateQuiz = () => {
-  alert('正在生成新的智能题目...')
+  notify('正在生成新的智能题目...', 'info')
   currentIndex.value = 0
   selectedAnswer.value = -1
   hasAnswered.value = false

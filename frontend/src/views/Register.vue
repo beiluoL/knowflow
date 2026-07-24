@@ -177,11 +177,14 @@
 </template>
 
 <script setup lang="ts">
+import { notify } from '@/utils/toast'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import Icon from '@/components/ui/Icon.vue'
 
 const router = useRouter()
+const auth = useAuthStore()
 const registerLoading = ref(false)
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
@@ -194,28 +197,38 @@ const registerForm = ref({
   agreeTerms: false,
 })
 
-const handleRegister = () => {
+const handleRegister = async () => {
   if (!registerForm.value.username || !registerForm.value.email || !registerForm.value.password) {
-    alert('请填写完整信息')
+    notify('请填写完整信息', 'warning')
     return
   }
 
   if (registerForm.value.password !== registerForm.value.confirmPassword) {
-    alert('两次输入的密码不一致')
+    notify('两次输入的密码不一致', 'warning')
     return
   }
 
   if (!registerForm.value.agreeTerms) {
-    alert('请同意服务条款和隐私政策')
+    notify('请同意服务条款和隐私政策', 'warning')
     return
   }
 
   registerLoading.value = true
-  setTimeout(() => {
+  try {
+    await auth.register({
+      username: registerForm.value.username,
+      email: registerForm.value.email,
+      password: registerForm.value.password,
+      nickname: registerForm.value.username,
+    })
+    notify('注册成功，已自动登录！', 'success')
+    router.push('/')
+  } catch (e: any) {
+    const msg = e?.response?.data?.message || '注册失败，请稍后再试'
+    notify(msg, 'info')
+  } finally {
     registerLoading.value = false
-    alert('注册成功！')
-    router.push('/login')
-  }, 1500)
+  }
 }
 </script>
 

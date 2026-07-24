@@ -274,11 +274,15 @@
 </template>
 
 <script setup lang="ts">
+import { notify } from '@/utils/toast'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import Icon from '@/components/ui/Icon.vue'
 
 const router = useRouter()
+const route = useRoute()
+const auth = useAuthStore()
 
 const isLogin = ref(true)
 const loginLoading = ref(false)
@@ -300,37 +304,55 @@ const registerForm = ref({
   confirmPassword: '',
 })
 
-const handleLogin = () => {
+const handleLogin = async () => {
   if (!loginForm.value.username || !loginForm.value.password) {
-    alert('请填写用户名和密码')
+    notify('请填写用户名和密码', 'warning')
     return
   }
 
   loginLoading.value = true
-  setTimeout(() => {
+  try {
+    await auth.login({
+      username: loginForm.value.username,
+      password: loginForm.value.password,
+    })
+    const redirect = (route.query.redirect as string) || '/'
+    router.push(redirect)
+  } catch (e: any) {
+    const msg = e?.response?.data?.message || '登录失败，请检查用户名或密码'
+    notify(msg, 'info')
+  } finally {
     loginLoading.value = false
-    alert('登录成功！')
-    router.push('/')
-  }, 1500)
+  }
 }
 
-const handleRegister = () => {
+const handleRegister = async () => {
   if (!registerForm.value.username || !registerForm.value.email || !registerForm.value.password) {
-    alert('请填写完整信息')
+    notify('请填写完整信息', 'warning')
     return
   }
 
   if (registerForm.value.password !== registerForm.value.confirmPassword) {
-    alert('两次输入的密码不一致')
+    notify('两次输入的密码不一致', 'warning')
     return
   }
 
   registerLoading.value = true
-  setTimeout(() => {
+  try {
+    await auth.register({
+      username: registerForm.value.username,
+      email: registerForm.value.email,
+      password: registerForm.value.password,
+      nickname: registerForm.value.username,
+    })
+    notify('注册成功，已自动登录！', 'success')
+    router.push('/')
+  } catch (e: any) {
+    const msg = e?.response?.data?.message || '注册失败，请稍后再试'
+    notify(msg, 'info')
+  } finally {
     registerLoading.value = false
-    alert('注册成功！')
-    isLogin.value = true
-  }, 1500)
+  }
 }
 </script>
 

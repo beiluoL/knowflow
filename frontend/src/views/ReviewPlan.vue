@@ -77,8 +77,7 @@
           <div class="space-y-2">
             <div class="grid grid-cols-7 gap-1 mb-2">
               <div
-                v-for="day in weekDays"
-                :key="day"
+                v-for="day in weekDays" :key="day"
                 class="text-center text-xs font-medium text-gray-400 py-2"
               >
                 {{ day }}
@@ -87,8 +86,7 @@
 
             <div class="grid grid-cols-7 gap-1">
               <div
-                v-for="(day, index) in calendarDays"
-                :key="index"
+                v-for="(day, index) in calendarDays" :key="index"
                 :class="[
                   'aspect-square flex flex-col items-center justify-center rounded-lg text-sm transition-all duration-200 cursor-pointer',
                   day.isCurrentMonth ? '' : 'opacity-40',
@@ -138,8 +136,7 @@
 
           <div v-if="selectedDayCards.length > 0" class="space-y-3">
             <div
-              v-for="card in selectedDayCards"
-              :key="card.id"
+              v-for="card in selectedDayCards" :key="card.id"
               class="p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
               @click="goToFlashCards"
             >
@@ -179,8 +176,7 @@
 
       <div class="space-y-4">
         <div
-          v-for="day in upcomingReviews"
-          :key="day.date"
+          v-for="day in upcomingReviews" :key="day.date"
           class="border-b border-gray-100 last:border-0 pb-4 last:pb-0"
         >
           <div class="flex items-center gap-3 mb-3">
@@ -195,8 +191,7 @@
           </div>
           <div class="flex flex-wrap gap-2 ml-13">
             <Badge
-              v-for="card in day.cards.slice(0, 3)"
-              :key="card.id"
+              v-for="card in day.cards.slice(0, 3)" :key="card.id"
               variant="default"
               class="cursor-pointer hover:bg-gray-200 transition-colors"
               @click="goToFlashCards"

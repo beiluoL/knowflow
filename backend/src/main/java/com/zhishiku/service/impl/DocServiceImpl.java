@@ -93,13 +93,13 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
             DocFavorite favorite = favoriteMapper.selectOne(new LambdaQueryWrapper<DocFavorite>()
                     .eq(DocFavorite::getUserId, userId)
                     .eq(DocFavorite::getDocId, id));
-            vo.setIsFavorite(favorite != null);
+            vo.setFavorite(favorite != null);
             DocReadProgress progress = readProgressMapper.selectOne(new LambdaQueryWrapper<DocReadProgress>()
                     .eq(DocReadProgress::getUserId, userId)
                     .eq(DocReadProgress::getDocId, id));
             vo.setReadProgress(progress != null ? progress.getProgress() : BigDecimal.ZERO);
         } else {
-            vo.setIsFavorite(false);
+            vo.setFavorite(false);
             vo.setReadProgress(BigDecimal.ZERO);
         }
         return vo;

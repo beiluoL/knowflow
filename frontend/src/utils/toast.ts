@@ -1,0 +1,54 @@
+import { reactive } from 'vue'
+
+export type ToastType = 'success' | 'error' | 'warning' | 'info'
+
+export interface ToastItem {
+  id: number
+  message: string
+  type: ToastType
+}
+
+export interface ConfirmItem {
+  id: number
+  message: string
+  resolve: (ok: boolean) => void
+}
+
+/**
+ * 全局轻量提示系统（替代浏览器原生 alert/confirm）。
+ * 配色沿用项目现有 primary 色板与语义状态色，不引入外部 UI 库、不改动主题色。
+ */
+export const toastState = reactive({
+  toasts: [] as ToastItem[],
+  confirms: [] as ConfirmItem[],
+})
+
+let seq = 0
+
+export function notify(message: string, type: ToastType = 'info', duration = 3000): void {
+  const id = ++seq
+  toastState.toasts.push({ id, message, type })
+  if (duration > 0) {
+    window.setTimeout(() => dismiss(id), duration)
+  }
+}
+
+export function dismiss(id: number): void {
+  const idx = toastState.toasts.findIndex((t) => t.id === id)
+  if (idx !== -1) toastState.toasts.splice(idx, 1)
+}
+
+export function confirmDialog(message: string): Promise<boolean> {
+  const id = ++seq
+  return new Promise<boolean>((resolve) => {
+    toastState.confirms.push({
+      id,
+      message,
+      resolve: (ok: boolean) => {
+        const idx = toastState.confirms.findIndex((c) => c.id === id)
+        if (idx !== -1) toastState.confirms.splice(idx, 1)
+        resolve(ok)
+      },
+    })
+  })
+}

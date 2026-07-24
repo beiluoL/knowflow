@@ -1,5 +1,4 @@
 <template>
-  <AppShell>
     <div class="space-y-6 animate-fade-in">
       <div class="flex items-center justify-between">
         <div>
@@ -70,8 +69,7 @@
               </div>
               <div class="space-y-2">
                 <div
-                  v-for="(suggestion, index) in aiFeedback.suggestions"
-                  :key="index"
+                  v-for="(suggestion, index) in aiFeedback.suggestions" :key="index"
                   class="flex items-start gap-2 p-3 bg-gray-50 rounded-lg"
                 >
                   <Icon name="lightbulb" :size="16" class="text-yellow-500 flex-shrink-0 mt-0.5" />
@@ -129,8 +127,7 @@
             </template>
             <div class="space-y-2 max-h-64 overflow-y-auto">
               <div
-                v-for="doc in history"
-                :key="doc.id"
+                v-for="doc in history" :key="doc.id"
                 class="p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
                 @click="loadDocument(doc)"
               >
@@ -142,13 +139,12 @@
         </div>
       </div>
     </div>
-  </AppShell>
 </template>
 
 <script setup lang="ts">
+import { confirmDialog, notify } from '@/utils/toast'
 import { ref, computed } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
-import AppShell from '@/components/layout/AppShell.vue'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 
@@ -178,7 +174,7 @@ const aiAssist = (type: string) => {
       content.value += '\n\n[AI 续写内容示例：在此基础上，我们可以进一步探讨...]'
       break
     case 'polish':
-      alert('正在润色优化...')
+      notify('正在润色优化...', 'info')
       break
     case 'outline':
       content.value = '## 大纲\n\n1. 引言\n2. 核心概念\n3. 实践应用\n4. 总结\n\n' + content.value
@@ -201,11 +197,11 @@ const aiAssist = (type: string) => {
 
 const copyContent = () => {
   navigator.clipboard.writeText(content.value)
-  alert('内容已复制到剪贴板')
+  notify('内容已复制到剪贴板', 'success')
 }
 
-const loadDocument = (doc: { title: string; wordCount: number }) => {
-  if (confirm(`加载文档「${doc.title}」？`)) {
+const loadDocument = async (doc: { title: string; wordCount: number }) => {
+  if (await confirmDialog(`加载文档「${doc.title}」？`)) {
     title.value = doc.title
     content.value = `这是「${doc.title}」的内容示例...`
     aiFeedback.value = null

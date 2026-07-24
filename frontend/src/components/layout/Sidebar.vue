@@ -43,6 +43,16 @@
         </li>
         <li>
           <router-link
+            to="/upload"
+            class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group"
+            :class="route.path.startsWith('/upload') ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
+          >
+            <Icon name="upload" :size="20" class="flex-shrink-0" />
+            <span v-if="!collapsed" class="whitespace-nowrap transition-opacity duration-200">上传文档</span>
+          </router-link>
+        </li>
+        <li>
+          <router-link
             to="/categories"
             class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group"
             :class="route.path.startsWith('/categories') ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
@@ -109,6 +119,52 @@
               <span class="whitespace-nowrap transition-opacity duration-200">复习计划</span>
             </router-link>
           </li>
+
+          <div class="mt-3 px-3">
+            <div class="text-xs font-medium text-gray-400 uppercase tracking-wider">
+              智能练习
+            </div>
+          </div>
+          <li>
+            <router-link
+              to="/learning/mode"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group"
+              :class="route.path.startsWith('/learning/mode') ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
+            >
+              <Icon name="book-open" :size="20" class="flex-shrink-0" />
+              <span class="whitespace-nowrap transition-opacity duration-200">学习模式</span>
+            </router-link>
+          </li>
+          <li>
+            <router-link
+              to="/learning/quiz"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group"
+              :class="route.path.startsWith('/learning/quiz') ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
+            >
+              <Icon name="help-circle" :size="20" class="flex-shrink-0" />
+              <span class="whitespace-nowrap transition-opacity duration-200">智能测验</span>
+            </router-link>
+          </li>
+          <li>
+            <router-link
+              to="/learning/writing"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group"
+              :class="route.path.startsWith('/learning/writing') ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
+            >
+              <Icon name="edit" :size="20" class="flex-shrink-0" />
+              <span class="whitespace-nowrap transition-opacity duration-200">智能写作</span>
+            </router-link>
+          </li>
+          <li>
+            <router-link
+              to="/learning/code-practice"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group"
+              :class="route.path.startsWith('/learning/code-practice') ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
+            >
+              <Icon name="code" :size="20" class="flex-shrink-0" />
+              <span class="whitespace-nowrap transition-opacity duration-200">代码练习</span>
+            </router-link>
+          </li>
           <li>
             <router-link
               to="/profile"
@@ -128,6 +184,58 @@
               <Icon name="settings" :size="20" class="flex-shrink-0" />
               <span class="whitespace-nowrap transition-opacity duration-200">管理后台</span>
             </router-link>
+            <ul v-if="!collapsed && isAdmin" class="mt-1 space-y-1 pl-6 border-l border-gray-100 ml-3">
+              <li>
+                <router-link
+                  to="/admin/docs"
+                  class="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-all duration-200 group"
+                  :class="route.path.startsWith('/admin/docs') ? 'bg-primary-50 text-primary-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'"
+                >
+                  <Icon name="file-text" :size="16" class="flex-shrink-0" />
+                  <span class="whitespace-nowrap">文档管理</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link
+                  to="/admin/knowledge"
+                  class="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-all duration-200 group"
+                  :class="route.path.startsWith('/admin/knowledge') ? 'bg-primary-50 text-primary-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'"
+                >
+                  <Icon name="database" :size="16" class="flex-shrink-0" />
+                  <span class="whitespace-nowrap">知识库管理</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link
+                  to="/admin/users"
+                  class="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-all duration-200 group"
+                  :class="route.path.startsWith('/admin/users') ? 'bg-primary-50 text-primary-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'"
+                >
+                  <Icon name="users" :size="16" class="flex-shrink-0" />
+                  <span class="whitespace-nowrap">用户管理</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link
+                  to="/admin/chat-config"
+                  class="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-all duration-200 group"
+                  :class="route.path.startsWith('/admin/chat-config') ? 'bg-primary-50 text-primary-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'"
+                >
+                  <Icon name="message-square" :size="16" class="flex-shrink-0" />
+                  <span class="whitespace-nowrap">对话配置</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link
+                  to="/admin/flashcards"
+                  class="flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-all duration-200 group"
+                  :class="route.path.startsWith('/admin/flashcards') ? 'bg-primary-50 text-primary-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'"
+                >
+                  <Icon name="layers" :size="16" class="flex-shrink-0" />
+                  <span class="whitespace-nowrap">闪卡管理</span>
+                </router-link>
+              </li>
+            </ul>
           </li>
         </ul>
       </div>
@@ -148,7 +256,9 @@
 
 <script setup lang="ts">
 import Icon from '@/components/ui/Icon.vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 defineProps<{
   collapsed: boolean
@@ -159,4 +269,6 @@ defineEmits<{
 }>()
 
 const route = useRoute()
+const auth = useAuthStore()
+const isAdmin = computed(() => auth.isAdmin)
 </script>

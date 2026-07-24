@@ -82,8 +82,7 @@
               </div>
               <div class="flex gap-1">
                 <button
-                  v-for="mode in pomodoroModes"
-                  :key="mode.value"
+                  v-for="mode in pomodoroModes" :key="mode.value"
                   @click="switchMode(mode.value)"
                   :class="[
                     'px-3 py-1 text-xs rounded-full transition-all duration-200',
@@ -169,8 +168,7 @@
               <span class="text-sm text-gray-500">今日番茄数：</span>
               <div class="flex gap-1">
                 <div
-                  v-for="i in 6"
-                  :key="i"
+                  v-for="i in 6" :key="i"
                   :class="[
                     'w-3 h-3 rounded-full transition-all duration-300',
                     i <= todayStudyData.pomodorosCompleted
@@ -199,8 +197,7 @@
 
           <div class="space-y-3">
             <div
-              v-for="task in tasks"
-              :key="task.id"
+              v-for="task in tasks" :key="task.id"
               :class="[
                 'flex items-center gap-3 p-3 rounded-lg transition-all duration-200 group',
                 task.completed ? 'bg-gray-50' : 'hover:bg-gray-50',
@@ -348,8 +345,7 @@
 
           <div class="space-y-3">
             <div
-              v-for="item in rankList"
-              :key="item.id"
+              v-for="item in rankList" :key="item.id"
               :class="[
                 'flex items-center gap-3 p-2 rounded-lg transition-all duration-200',
                 item.isCurrentUser ? 'bg-primary-50 ring-1 ring-primary-200' : 'hover:bg-gray-50',
@@ -394,15 +390,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
 import Avatar from '@/components/ui/Avatar.vue'
-import { todayStudyData, studyTasks, learningPet, weeklyRank } from '@/data/learning'
-import type { StudyTask } from '@/data/learning'
+import { todayStudyData, learningPet, weeklyRank } from '@/data/learning'
+import { learningApi } from '@/api'
+
+interface StudyTask {
+  id: number | string
+  title: string
+  duration: number
+  completed: boolean
+}
 
 const radius = 52
 const circumference = 2 * Math.PI * radius
@@ -499,21 +502,35 @@ const skipTimer = () => {
   switchMode(pomodoroModes[nextIndex].value)
 }
 
-const tasks = ref<StudyTask[]>([...studyTasks])
+const tasks = ref<StudyTask[]>([])
 const newTaskTitle = ref('')
+
+const loadTasks = async () => {
+  try {
+    const list = await learningApi.tasks()
+    tasks.value = list.map((t) => ({
+      id: t.id,
+      title: t.title,
+      duration: 25,
+      completed: false,
+    }))
+  } catch {
+    tasks.value = []
+  }
+}
 
 const completedTasksCount = computed(() => {
   return tasks.value.filter((t) => t.completed).length
 })
 
-const toggleTask = (id: string) => {
+const toggleTask = (id: string | number) => {
   const task = tasks.value.find((t) => t.id === id)
   if (task) {
     task.completed = !task.completed
   }
 }
 
-const deleteTask = (id: string) => {
+const deleteTask = (id: string | number) => {
   tasks.value = tasks.value.filter((t) => t.id !== id)
 }
 
@@ -551,6 +568,8 @@ const playWithPet = () => {
 }
 
 const rankList = weeklyRank
+
+onMounted(loadTasks)
 
 onUnmounted(() => {
   if (timerInterval) {
@@ -727,7 +746,7 @@ onUnmounted(() => {
 
 .owl-feet {
   display: flex;
-  gap: 15px;
+  gap: 16px;
   position: absolute;
   bottom: 2px;
   left: 50%;

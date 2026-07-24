@@ -1,5 +1,4 @@
 <template>
-  <AppShell>
     <div class="space-y-6 animate-fade-in">
       <div class="flex items-center justify-between">
         <div>
@@ -25,8 +24,7 @@
             <label class="block text-sm font-medium text-gray-700 mb-3">可用模型</label>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div
-                v-for="model in models"
-                :key="model.id"
+                v-for="model in models" :key="model.id"
                 class="p-4 border rounded-lg transition-all cursor-pointer model-card"
                 :class="[
                   model.enabled ? 'border-primary-200 bg-primary-50/30' : 'border-gray-200 opacity-60',
@@ -290,17 +288,19 @@
         <Button @click="saveConfig">保存配置</Button>
       </div>
     </div>
-  </AppShell>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { notify } from '@/utils/toast'
+import { ref, reactive, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
-import AppShell from '@/components/layout/AppShell.vue'
 import Card from '@/components/ui/Card.vue'
 import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
+
+// 后端暂无对话配置独立接口，本页配置持久化到浏览器 localStorage
+const STORAGE_KEY = 'zhishiku_chat_config'
 
 interface Model {
   id: string
@@ -361,6 +361,26 @@ const selectModel = (id: string) => {
   }
 }
 
+const loadConfig = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return
+    const data = JSON.parse(raw)
+    if (Array.isArray(data.models)) {
+      data.models.forEach((pm: { id: string; enabled: boolean }) => {
+        const m = models.value.find((x) => x.id === pm.id)
+        if (m) m.enabled = pm.enabled
+      })
+    }
+    if (data.defaultModel) defaultModel.value = data.defaultModel
+    if (data.modelConfig) Object.assign(modelConfig, data.modelConfig)
+    if (data.knowledgeConfig) Object.assign(knowledgeConfig, data.knowledgeConfig)
+    if (data.chatConfig) Object.assign(chatConfig, data.chatConfig)
+  } catch {
+    // 忽略损坏的本地配置
+  }
+}
+
 const resetConfig = () => {
   modelConfig.temperature = 0.7
   modelConfig.maxContext = 8192
@@ -373,11 +393,24 @@ const resetConfig = () => {
   chatConfig.maxMessages = '50'
   chatConfig.keepHistory = true
   chatConfig.showSources = true
+  models.value.forEach((m) => (m.enabled = true))
+  defaultModel.value = 'gpt-4'
+  localStorage.removeItem(STORAGE_KEY)
 }
 
 const saveConfig = () => {
-  alert('配置保存成功')
+  const payload = {
+    models: models.value.map((m) => ({ id: m.id, enabled: m.enabled })),
+    defaultModel: defaultModel.value,
+    modelConfig,
+    knowledgeConfig,
+    chatConfig,
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+  notify('配置已保存到本地', 'success')
 }
+
+onMounted(loadConfig)
 </script>
 
 <style scoped>

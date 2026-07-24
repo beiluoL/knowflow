@@ -9,8 +9,7 @@
 
     <div class="flex flex-wrap gap-2">
       <button
-        v-for="tag in filterTags"
-        :key="tag.value"
+        v-for="tag in filterTags" :key="tag.value"
         @click="currentFilter = tag.value"
         :class="[
           'px-4 py-2 rounded-full text-sm font-medium transition-all duration-200',
@@ -23,10 +22,11 @@
       </button>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div v-if="loading" class="text-center py-16 text-gray-400">加载中...</div>
+
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div
-        v-for="(path, index) in filteredPaths"
-        :key="path.id"
+        v-for="(path, index) in filteredPaths" :key="path.id"
         class="group cursor-pointer transform transition-all duration-300 hover:-translate-y-1"
         :style="{ animationDelay: `${index * 80}ms` }"
         @click="goToPathDetail(path.id)"
@@ -74,31 +74,88 @@
               </div>
 
               <Button
-                :variant="path.progress > 0 ? 'primary' : 'primary'"
+                variant="primary"
                 size="sm"
                 class="w-full"
               >
-                <Icon name="play" :size="16" Circle />
+                <Icon name="play" :size="16" />
                 {{ path.progress > 0 ? '继续学习' : '开始学习' }}
               </Button>
             </div>
           </div>
         </Card>
       </div>
+
+      <div v-if="!loading && filteredPaths.length === 0" class="col-span-full text-center py-16 text-gray-400">
+        暂无学习路径
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Progress from '@/components/ui/Progress.vue'
 import Button from '@/components/ui/Button.vue'
-import { learningPaths } from '@/data/learning'
+import { learningApi } from '@/api'
+import type { LearningPathVO } from '@/api/types'
+
 const router = useRouter()
+const loading = ref(false)
+
+interface ViewPath {
+  id: number
+  title: string
+  description?: string
+  coverGradient: string
+  icon: string
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  chaptersCount: number
+  totalDuration: number
+  progress: number
+}
+
+const gradients = [
+  'from-blue-500 to-indigo-600',
+  'from-emerald-500 to-teal-600',
+  'from-purple-500 to-fuchsia-600',
+  'from-orange-500 to-rose-600',
+  'from-cyan-500 to-blue-600',
+  'from-pink-500 to-rose-600',
+]
+const icons = ['code', 'server', 'database', 'brain', 'layers', 'puzzle']
+
+const levelToDifficulty = (level?: string): ViewPath['difficulty'] => {
+  const map: Record<string, ViewPath['difficulty']> = {
+    入门: 'beginner',
+    进阶: 'intermediate',
+    高级: 'advanced',
+    beginner: 'beginner',
+    intermediate: 'intermediate',
+    advanced: 'advanced',
+  }
+  return map[level || ''] || 'beginner'
+}
+
+const rawPaths = ref<LearningPathVO[]>([])
+
+const paths = computed<ViewPath[]>(() =>
+  rawPaths.value.map((p) => ({
+    id: p.id,
+    title: p.title,
+    description: p.description,
+    coverGradient: gradients[p.id % gradients.length] || gradients[0],
+    icon: icons[p.id % icons.length] || 'code',
+    difficulty: levelToDifficulty(p.level),
+    chaptersCount: p.chapterCount || 0,
+    totalDuration: p.totalDuration || 0,
+    progress: 0,
+  }))
+)
 
 const filterTags = [
   { value: 'all', label: '全部' },
@@ -110,22 +167,19 @@ const filterTags = [
 const currentFilter = ref('all')
 
 const filteredPaths = computed(() => {
-  if (currentFilter.value === 'all') {
-    return learningPaths
-  }
-  return learningPaths.filter((p) => p.difficulty === currentFilter.value)
+  if (currentFilter.value === 'all') return paths.value
+  return paths.value.filter((p) => p.difficulty === currentFilter.value)
 })
 
-const iconNameMap: Record<string, string> = {
-  code: 'code',
-  fileCode: 'file-code',
-  brain: 'brain',
-  layers: 'layers',
-  server: 'server',
-  puzzle: 'puzzle',
-}
-
 const getPathIconName = (iconName: string): string => {
+  const iconNameMap: Record<string, string> = {
+    code: 'code',
+    fileCode: 'file-code',
+    brain: 'brain',
+    layers: 'layers',
+    server: 'server',
+    puzzle: 'puzzle',
+  }
   return iconNameMap[iconName] || 'code'
 }
 
@@ -148,17 +202,27 @@ const getDifficultyBadgeVariant = (difficulty: string) => {
 }
 
 const formatDuration = (minutes: number) => {
-  if (minutes < 60) {
-    return `${minutes}分钟`
-  }
+  if (!minutes) return '0分钟'
+  if (minutes < 60) return `${minutes}分钟`
   const hours = Math.floor(minutes / 60)
   const mins = minutes % 60
   return mins > 0 ? `${hours}小时${mins}分` : `${hours}小时`
 }
 
-const goToPathDetail = (pathId: string) => {
+const goToPathDetail = (pathId: number) => {
   router.push(`/learning/path/${pathId}`)
 }
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    rawPaths.value = await learningApi.paths()
+  } catch {
+    rawPaths.value = []
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <style scoped>

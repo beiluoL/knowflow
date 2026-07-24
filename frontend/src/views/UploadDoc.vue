@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-3xl mx-auto">
+  <div class="space-y-6 animate-fade-in max-w-4xl">
     <div class="mb-6">
       <h1 class="text-2xl font-bold text-gray-800">上传文档</h1>
       <p class="text-gray-500 mt-1">支持 PDF、Word、Markdown、TXT 等格式</p>
@@ -9,8 +9,8 @@
       <div
         :class="[
           'border-2 border-dashed rounded-lg p-12 text-center transition-all duration-300 cursor-pointer',
-          isDragging 
-            ? 'border-primary-500 bg-primary-50 scale-[1.01]' 
+          isDragging
+            ? 'border-primary-500 bg-primary-50 scale-[1.01]'
             : 'border-gray-200 hover:border-primary-300 hover:bg-gray-50'
         ]"
         @dragover.prevent="isDragging = true"
@@ -25,7 +25,7 @@
           accept=".pdf,.doc,.docx,.md,.txt,.ppt,.pptx"
           @change="handleFileSelect"
         />
-        
+
         <div v-if="!selectedFile" class="animate-fade-in">
           <div :class="[
             'w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-colors',
@@ -92,7 +92,7 @@
                 v-model="formData.categoryId"
                 class="w-full px-3 py-2 text-sm border border-gray-200 rounded-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all appearance-none bg-white cursor-pointer"
               >
-                <option value="">请选择分类</option>
+                <option :value="''">请选择分类</option>
                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">
                   {{ cat.name }}
                 </option>
@@ -107,8 +107,7 @@
             </label>
             <div class="flex flex-wrap gap-2 mb-2">
               <Badge
-                v-for="(tag, index) in formData.tags"
-                :key="index"
+                v-for="(tag, index) in formData.tags" :key="index"
                 variant="primary"
                 class="flex items-center gap-1 py-1"
               >
@@ -146,18 +145,6 @@
               class="w-full px-3 py-2 text-sm border border-gray-200 rounded-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all resize-none"
             ></textarea>
           </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">
-              作者
-            </label>
-            <input
-              v-model="formData.author"
-              type="text"
-              placeholder="请输入作者名称"
-              class="w-full px-3 py-2 text-sm border border-gray-200 rounded-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all"
-            />
-          </div>
         </div>
       </Card>
 
@@ -174,14 +161,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { notify } from '@/utils/toast'
+import { ref, computed, watch, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import { useRouter } from 'vue-router'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
-import { categories } from '@/data/categories'
-import { mockUser } from '@/data/user'
+import { categoriesApi, docsApi } from '@/api'
+import type { CategoryVO } from '@/api/types'
 
 const router = useRouter()
 
@@ -191,18 +179,17 @@ const selectedFile = ref<File | null>(null)
 const isUploading = ref(false)
 const newTag = ref('')
 
+const categories = ref<CategoryVO[]>([])
+
 const formData = ref({
   title: '',
-  categoryId: '',
+  categoryId: '' as number | string,
   tags: [] as string[],
   description: '',
-  author: mockUser.nickname || '',
 })
 
 const canSubmit = computed(() => {
-  return selectedFile.value && 
-    formData.value.title.trim() && 
-    formData.value.categoryId
+  return selectedFile.value && formData.value.title.trim() && formData.value.categoryId !== ''
 })
 
 const triggerFileInput = () => {
@@ -279,7 +266,6 @@ const handleCancel = () => {
     categoryId: '',
     tags: [],
     description: '',
-    author: mockUser.nickname || '',
   }
   if (fileInputRef.value) {
     fileInputRef.value.value = ''
@@ -288,21 +274,59 @@ const handleCancel = () => {
 
 const handleUpload = async () => {
   if (!canSubmit.value || !selectedFile.value) return
-  
+
   isUploading.value = true
-  
-  await new Promise(resolve => setTimeout(resolve, 2000))
-  
-  isUploading.value = false
-  
-  alert('文档上传成功！')
-  router.push('/')
+  try {
+    const file = selectedFile.value
+    let content = formData.value.description
+    if (/\.(md|markdown|txt)$/i.test(file.name)) {
+      try {
+        content = await file.text()
+      } catch {
+        content = formData.value.description
+      }
+    }
+
+    await docsApi.create({
+      title: formData.value.title.trim(),
+      summary: formData.value.description,
+      content,
+      categoryId: Number(formData.value.categoryId),
+      tags: formData.value.tags.join(','),
+      status: 1,
+    })
+
+    notify('文档上传成功！', 'success')
+    router.push('/')
+  } catch (e: unknown) {
+    const message = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
+    notify('上传失败：' + (message || '请稍后再试'), 'error')
+  } finally {
+    isUploading.value = false
+  }
 }
 
 watch(selectedFile, (newFile) => {
   if (newFile && !formData.value.title) {
     const name = newFile.name
     formData.value.title = name.substring(0, name.lastIndexOf('.')) || name
+  }
+})
+
+onMounted(async () => {
+  try {
+    const tree = await categoriesApi.tree()
+    const flat: CategoryVO[] = []
+    const walk = (list: CategoryVO[]) => {
+      for (const c of list) {
+        flat.push(c)
+        if (c.children) walk(c.children)
+      }
+    }
+    walk(tree)
+    categories.value = flat
+  } catch {
+    categories.value = []
   }
 })
 </script>

@@ -88,6 +88,16 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
 
+/* 可访问性：保留键盘焦点可见环（替代全局 outline:none，不改动主题色） */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible,
+[role='button']:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
 /* Scrollbar styles */
 ::-webkit-scrollbar {
   width: 6px;

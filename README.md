@@ -72,13 +72,13 @@ npm run dev                  # 开发服务器（默认 http://localhost:5173）
 
 ## 默认账号
 
-数据库已预置测试账号（密码统一为 `123456`）：
+数据库已预置测试账号（密码统一为 `admin123`）：
 
 | 用户名 | 密码 | 角色 |
 |---|---|---|
-| `admin` | `123456` | 管理员（ADMIN） |
-| `user1` | `123456` | 普通用户（USER） |
-| `user2` | `123456` | 普通用户（USER） |
+| `admin` | `admin123` | 管理员（ADMIN） |
+| `user1` | `admin123` | 普通用户（USER） |
+| `user2` | `admin123` | 普通用户（USER） |
 
 > 生产环境请务必修改默认密码与 `application.yml` 中的 JWT 密钥。
 

@@ -11,14 +11,13 @@
           </template>
           <div class="py-2">
             <div
-              v-for="category in categoryTree"
-              :key="category.id"
+              v-for="category in categoryTree" :key="category.id"
               class="category-item"
             >
               <div
                 :class="[
                   'flex items-center gap-2 px-3 py-2 cursor-pointer rounded-md transition-all duration-200',
-                  activeCategoryId === category.id
+                  isActive(category.id)
                     ? 'bg-primary-50 text-primary-600'
                     : 'text-gray-700 hover:bg-gray-50',
                 ]"
@@ -37,21 +36,20 @@
                   class="flex-shrink-0"
                 />
                 <span class="text-sm flex-1 truncate">{{ category.name }}</span>
-                <span class="text-xs text-gray-400">{{ category.docCount }}</span>
+                <span class="text-xs text-gray-400">{{ category.docCount || 0 }}</span>
               </div>
               <div
                 v-if="category.children && category.children.length > 0 && expandedCategories.includes(category.id)"
                 class="ml-2 border-l border-gray-100 pl-2"
               >
                 <div
-                  v-for="child in category.children"
-                  :key="child.id"
+                  v-for="child in category.children" :key="child.id"
                   class="category-item"
                 >
                   <div
                     :class="[
                       'flex items-center gap-2 px-3 py-1.5 cursor-pointer rounded-md transition-all duration-200',
-                      activeCategoryId === child.id
+                      isActive(child.id)
                         ? 'bg-primary-50 text-primary-600'
                         : 'text-gray-600 hover:bg-gray-50',
                     ]"
@@ -66,18 +64,17 @@
                     />
                     <span v-else class="w-3.5 flex-shrink-0"></span>
                     <span class="text-sm flex-1 truncate">{{ child.name }}</span>
-                    <span class="text-xs text-gray-400">{{ child.docCount }}</span>
+                    <span class="text-xs text-gray-400">{{ child.docCount || 0 }}</span>
                   </div>
                   <div
                     v-if="child.children && child.children.length > 0 && expandedCategories.includes(child.id)"
                     class="ml-2 border-l border-gray-100 pl-2"
                   >
                     <div
-                      v-for="grandchild in child.children"
-                      :key="grandchild.id"
+                      v-for="grandchild in child.children" :key="grandchild.id"
                       :class="[
                         'flex items-center gap-2 px-3 py-1.5 cursor-pointer rounded-md transition-all duration-200',
-                        activeCategoryId === grandchild.id
+                        isActive(grandchild.id)
                           ? 'bg-primary-50 text-primary-600'
                           : 'text-gray-500 hover:bg-gray-50',
                       ]"
@@ -100,7 +97,10 @@
             <h1 class="text-2xl font-bold text-gray-800 mb-1">
               {{ currentCategoryName || '全部分类' }}
             </h1>
-            <p class="text-sm text-gray-500">共 {{ filteredDocs.length }} 篇文档</p>
+            <p class="text-sm text-gray-500">
+              <span v-if="loading">加载中...</span>
+              <span v-else>共 {{ sortedDocs.length }} 篇文档</span>
+            </p>
           </div>
           <div class="flex items-center gap-3">
             <div class="flex items-center bg-gray-100 rounded-md p-1">
@@ -130,15 +130,14 @@
           </div>
         </div>
 
-        <div v-if="filteredDocs.length === 0" class="text-center py-16">
+        <div v-if="!loading && sortedDocs.length === 0" class="text-center py-16">
           <Icon name="file-question" :size="64" />
           <p class="text-gray-500">暂无文档</p>
         </div>
 
         <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           <Card
-            v-for="doc in sortedDocs"
-            :key="doc.id"
+            v-for="doc in sortedDocs" :key="doc.id"
             hoverable
             class="cursor-pointer group"
             @click="goToDoc(doc.id)"
@@ -147,7 +146,7 @@
               <div class="flex items-center gap-2 mb-3">
                 <Badge variant="primary">{{ doc.categoryName }}</Badge>
                 <span class="text-xs text-gray-400 ml-auto">
-                  {{ formatDate(doc.updatedAt) }}
+                  {{ formatDate(doc.createTime) }}
                 </span>
               </div>
               <h3
@@ -159,23 +158,19 @@
                 {{ doc.summary }}
               </p>
               <div class="flex items-center gap-2 flex-wrap mb-3">
-                <Badge v-for="tag in doc.tags.slice(0, 3)" :key="tag" variant="default">
+                <Badge v-for="tag in (doc.tags || '').split(',').filter(Boolean).slice(0, 3)" :key="tag" variant="default">
                   {{ tag }}
                 </Badge>
               </div>
               <div class="flex items-center justify-between pt-3 border-t border-gray-50">
-                <div class="flex items-center gap-2">
-                  <Avatar :name="doc.author" size="sm" />
-                  <span class="text-xs text-gray-500">{{ doc.author }}</span>
+                <div class="flex items-center gap-1 text-xs text-gray-400">
+                  <Icon name="eye" :size="20" />
+                  <span>{{ doc.viewCount || 0 }}</span>
                 </div>
                 <div class="flex items-center gap-3 text-xs text-gray-400">
                   <span class="flex items-center gap-1">
-                    <Icon name="eye" :size="20" />
-                    {{ doc.viewCount }}
-                  </span>
-                  <span class="flex items-center gap-1">
                     <Icon name="heart" :size="20" />
-                    {{ doc.likeCount }}
+                    {{ doc.favoriteCount || 0 }}
                   </span>
                 </div>
               </div>
@@ -193,16 +188,17 @@ import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import Badge from '@/components/ui/Badge.vue'
-import Avatar from '@/components/ui/Avatar.vue'
-import { categoryTree } from '@/data/categoryTree'
-import { docs } from '@/data/docs'
-import type { Category } from '@/types'
+import { categoriesApi, docsApi } from '@/api'
+import type { CategoryVO, DocVO } from '@/api/types'
 
 const route = useRoute()
 const router = useRouter()
 
-const activeCategoryId = ref<string>('')
-const expandedCategories = ref<string[]>(['1', '2'])
+const categoryTree = ref<CategoryVO[]>([])
+const docs = ref<DocVO[]>([])
+const loading = ref(false)
+const activeCategoryId = ref<number | string>('')
+const expandedCategories = ref<(number | string)[]>([])
 const sortBy = ref<'latest' | 'hot'>('latest')
 
 const iconOptions = ['code', 'server', 'database', 'brain', 'settings', 'git-branch', 'monitor', 'wifi', 'folder']
@@ -211,11 +207,14 @@ const getCategoryIconName = (iconName: string): string => {
   return iconOptions.includes(iconName) ? iconName : 'folder'
 }
 
-const findCategoryById = (id: string, categories: Category[]): Category | null => {
+const isActive = (id: number) => activeCategoryId.value === id
+
+const findCategoryById = (id: number | string, categories: CategoryVO[]): CategoryVO | null => {
+  const target = Number(id)
   for (const cat of categories) {
-    if (cat.id === id) return cat
+    if (cat.id === target) return cat
     if (cat.children) {
-      const found = findCategoryById(id, cat.children)
+      const found = findCategoryById(target, cat.children)
       if (found) return found
     }
   }
@@ -224,13 +223,13 @@ const findCategoryById = (id: string, categories: Category[]): Category | null =
 
 const currentCategoryName = computed(() => {
   if (!activeCategoryId.value) return ''
-  const cat = findCategoryById(activeCategoryId.value, categoryTree)
+  const cat = findCategoryById(activeCategoryId.value, categoryTree.value)
   return cat?.name || ''
 })
 
-const getAllChildCategoryIds = (categoryId: string): string[] => {
-  const ids: string[] = [categoryId]
-  const category = findCategoryById(categoryId, categoryTree)
+const getAllChildCategoryIds = (categoryId: number | string): number[] => {
+  const ids: number[] = [Number(categoryId)]
+  const category = findCategoryById(categoryId, categoryTree.value)
   if (category?.children) {
     category.children.forEach((child) => {
       ids.push(...getAllChildCategoryIds(child.id))
@@ -239,23 +238,39 @@ const getAllChildCategoryIds = (categoryId: string): string[] => {
   return ids
 }
 
-const filteredDocs = computed(() => {
-  if (!activeCategoryId.value) return docs
-  const categoryIds = getAllChildCategoryIds(activeCategoryId.value)
-  return docs.filter((doc) => categoryIds.includes(doc.categoryId) || doc.categoryId === activeCategoryId.value)
-})
-
 const sortedDocs = computed(() => {
-  const result = [...filteredDocs.value]
+  const result = [...docs.value]
   if (sortBy.value === 'latest') {
     return result.sort(
-      (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      (a, b) => new Date(b.createTime || '').getTime() - new Date(a.createTime || '').getTime()
     )
   }
-  return result.sort((a, b) => b.viewCount - a.viewCount)
+  return result.sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))
 })
 
-const toggleCategory = (categoryId: string) => {
+const loadDocs = async () => {
+  loading.value = true
+  try {
+    if (!activeCategoryId.value) {
+      const res = await docsApi.list({ pageSize: 100 })
+      docs.value = res.records || []
+    } else {
+      const ids = getAllChildCategoryIds(activeCategoryId.value)
+      let merged: DocVO[] = []
+      for (const id of ids) {
+        const res = await docsApi.list({ categoryId: id, pageSize: 100 })
+        merged = merged.concat(res.records || [])
+      }
+      docs.value = [...new Map(merged.map((d) => [d.id, d])).values()]
+    }
+  } catch {
+    docs.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+const toggleCategory = (categoryId: number) => {
   const index = expandedCategories.value.indexOf(categoryId)
   if (index > -1) {
     expandedCategories.value.splice(index, 1)
@@ -265,16 +280,17 @@ const toggleCategory = (categoryId: string) => {
   selectCategory(categoryId)
 }
 
-const selectCategory = (categoryId: string) => {
+const selectCategory = (categoryId: number) => {
   activeCategoryId.value = categoryId
-  router.push({ path: '/categories', query: { categoryId } })
+  router.push({ path: '/categories', query: { categoryId: String(categoryId) } })
 }
 
-const goToDoc = (docId: string) => {
+const goToDoc = (docId: number) => {
   router.push(`/doc/${docId}`)
 }
 
-const formatDate = (dateStr: string) => {
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return ''
   const date = new Date(dateStr)
   return date.toLocaleDateString('zh-CN', {
     month: 'short',
@@ -282,27 +298,34 @@ const formatDate = (dateStr: string) => {
   })
 }
 
-onMounted(() => {
+onMounted(async () => {
+  try {
+    categoryTree.value = await categoriesApi.tree()
+  } catch {
+    categoryTree.value = []
+  }
   const categoryId = route.query.categoryId as string
   if (categoryId) {
-    activeCategoryId.value = categoryId
-    const cat = findCategoryById(categoryId, categoryTree)
+    activeCategoryId.value = Number(categoryId)
+    const cat = findCategoryById(categoryId, categoryTree.value)
     if (cat?.parentId) {
       if (!expandedCategories.value.includes(cat.parentId)) {
         expandedCategories.value.push(cat.parentId)
       }
     }
   }
+  await loadDocs()
 })
 
 watch(
   () => route.query.categoryId,
   (newCategoryId) => {
     if (newCategoryId && typeof newCategoryId === 'string') {
-      activeCategoryId.value = newCategoryId
+      activeCategoryId.value = Number(newCategoryId)
     } else {
       activeCategoryId.value = ''
     }
+    loadDocs()
   }
 )
 </script>

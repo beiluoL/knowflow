@@ -1,5 +1,4 @@
 <template>
-  <AppShell>
     <div class="space-y-6 animate-fade-in">
       <div class="flex items-center justify-between">
         <div>
@@ -20,9 +19,8 @@
               <div class="flex items-center gap-1 mt-2">
                 <Icon :name="stat.trend > 0 ? 'trending-up' : 'trending-down'" :size="16" :class="[stat.trend > 0 ? 'text-success-500' : 'text-danger-500']" />
                 <span :class="['text-xs', stat.trend > 0 ? 'text-success-500' : 'text-danger-500']">
-                  {{ stat.trend > 0 ? '+' : '' }}{{ stat.trend }}%
+                  {{ stat.trendLabel }}
                 </span>
-                <span class="text-xs text-gray-400">较昨日</span>
               </div>
             </div>
             <div :class="['w-12 h-12 rounded-xl flex items-center justify-center', stat.iconBg]">
@@ -39,8 +37,7 @@
               <h3 class="font-semibold text-gray-800">用户增长趋势</h3>
               <div class="flex items-center gap-2">
                 <button
-                  v-for="period in periods"
-                  :key="period.value"
+                  v-for="period in periods" :key="period.value"
                   @click="activePeriod = period.value"
                   :class="[
                     'text-xs px-2 py-1 rounded transition-colors',
@@ -57,8 +54,7 @@
           <div class="h-64">
             <div class="w-full h-full flex items-end justify-between gap-1">
               <div
-                v-for="(item, index) in userGrowthData"
-                :key="index"
+                v-for="(item, index) in userGrowthData" :key="index"
                 class="flex-1 flex flex-col items-center gap-2"
               >
                 <div class="w-full flex flex-col justify-end h-48 gap-1">
@@ -98,8 +94,7 @@
             <div class="relative w-48 h-48">
               <div class="absolute inset-0 rounded-full overflow-hidden pie-chart">
                 <div
-                  v-for="slice in categoryDistribution"
-                  :key="slice.name"
+                  v-for="slice in categoryDistribution" :key="slice.name"
                   class="absolute inset-0"
                   :style="{
                     background: `conic-gradient(${slice.color} ${slice.start}% ${slice.end}%, transparent ${slice.end}% 100%)`,
@@ -113,8 +108,7 @@
             </div>
             <div class="flex-1 ml-6 space-y-3">
               <div
-                v-for="item in categoryDistribution"
-                :key="item.name"
+                v-for="item in categoryDistribution" :key="item.name"
                 class="flex items-center justify-between"
               >
                 <div class="flex items-center gap-2">
@@ -138,8 +132,7 @@
           </template>
           <div class="space-y-4">
             <div
-              v-for="(activity, index) in recentActivities"
-              :key="activity.id"
+              v-for="(activity, index) in recentActivities" :key="activity.id"
               class="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors activity-item"
               :style="{ animationDelay: `${index * 50}ms` }"
             >
@@ -167,8 +160,7 @@
           </template>
           <div class="space-y-3">
             <div
-              v-for="(doc, index) in hotDocs"
-              :key="doc.id"
+              v-for="(doc, index) in hotDocs" :key="doc.id"
               class="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <div
@@ -193,19 +185,20 @@
                 </div>
               </div>
             </div>
+            <p v-if="hotDocs.length === 0" class="text-sm text-gray-400 text-center py-4">暂无数据</p>
           </div>
         </Card>
       </div>
     </div>
-  </AppShell>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
-import AppShell from '@/components/layout/AppShell.vue'
 import Card from '@/components/ui/Card.vue'
 import Badge from '@/components/ui/Badge.vue'
+import { adminApi } from '@/api'
+import type { AdminOverviewVO, CategoryVO, DocVO } from '@/api/types'
 
 type BadgeVariant = 'primary' | 'success' | 'warning' | 'danger' | 'default'
 
@@ -229,41 +222,74 @@ const periods = [
   { label: '年', value: 'year' },
 ]
 
-const stats = [
-  {
-    label: '总用户数',
-    value: '12,580',
-    trend: 12.5,
-    iconName: 'users',
-    iconBg: 'bg-primary-50',
-    iconColor: 'text-primary-500',
-  },
-  {
-    label: '总文档数',
-    value: '3,842',
-    trend: 8.3,
-    iconName: 'file-text',
-    iconBg: 'bg-success-50',
-    iconColor: 'text-success-500',
-  },
-  {
-    label: '今日学习时长',
-    value: '1,256h',
-    trend: -2.1,
-    iconName: 'clock',
-    iconBg: 'bg-warning-50',
-    iconColor: 'text-warning-500',
-  },
-  {
-    label: '今日对话数',
-    value: '892',
-    trend: 15.7,
-    iconName: 'message-square',
-    iconBg: 'bg-danger-50',
-    iconColor: 'text-danger-500',
-  },
-]
+const overview = ref<AdminOverviewVO | null>(null)
+const categories = ref<CategoryVO[]>([])
+const hotDocs = ref<{ id: number; title: string; category: string; views: number }[]>([])
+const loading = ref(true)
 
+const formatNum = (n: number): string => n.toLocaleString('en-US')
+
+const stats = computed(() => {
+  const o = overview.value
+  if (!o) return []
+  return [
+    {
+      label: '总用户数',
+      value: formatNum(o.totalUsers),
+      trend: o.todayNewUsers ?? 0,
+      trendLabel: o.todayNewUsers ? `今日 +${o.todayNewUsers}` : '今日无新增',
+      iconName: 'users',
+      iconBg: 'bg-primary-50',
+      iconColor: 'text-primary-500',
+    },
+    {
+      label: '总文档数',
+      value: formatNum(o.totalDocs),
+      trend: o.todayNewDocs ?? 0,
+      trendLabel: o.todayNewDocs ? `今日 +${o.todayNewDocs}` : '今日无新增',
+      iconName: 'file-text',
+      iconBg: 'bg-success-50',
+      iconColor: 'text-success-500',
+    },
+    {
+      label: '总分类数',
+      value: formatNum(o.totalCategories),
+      trend: 0,
+      trendLabel: '分类体系',
+      iconName: 'folder-tree',
+      iconBg: 'bg-warning-50',
+      iconColor: 'text-warning-500',
+    },
+    {
+      label: '总对话数',
+      value: formatNum(o.totalConversations),
+      trend: o.todayActiveUsers ?? 0,
+      trendLabel: o.todayActiveUsers ? `今日活跃 +${o.todayActiveUsers}` : '今日无活跃',
+      iconName: 'message-square',
+      iconBg: 'bg-danger-50',
+      iconColor: 'text-danger-500',
+    },
+  ]
+})
+
+const colorPalette = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16', '#F97316']
+
+const categoryDistribution = computed(() => {
+  const cats = categories.value
+  const total = cats.reduce((s, c) => s + (c.docCount ?? 0), 0) || 1
+  let acc = 0
+  return cats.map((c, i) => {
+    const count = c.docCount ?? 0
+    const pct = (count / total) * 100
+    const slice = { name: c.name, count, color: colorPalette[i % colorPalette.length], start: acc, end: acc + pct }
+    acc += pct
+    return slice
+  })
+})
+
+const totalDocs = computed(() => overview.value?.totalDocs ?? 0)
+
+// 以下两项为装饰性展示（后端暂无按日统计的活动流与增长明细接口）
 const userGrowthData = [
   { day: '周一', totalUsers: 60, newUsers: 15 },
   { day: '周二', totalUsers: 65, newUsers: 18 },
@@ -274,81 +300,54 @@ const userGrowthData = [
   { day: '周日', totalUsers: 100, newUsers: 30 },
 ]
 
-const categoryDistribution = [
-  { name: '前端开发', count: 1256, color: '#3B6FE0', start: 0, end: 32.7 },
-  { name: '后端开发', count: 986, color: '#10B981', start: 32.7, end: 58.4 },
-  { name: '人工智能', count: 654, color: '#F59E0B', start: 58.4, end: 75.4 },
-  { name: '数据库', count: 486, color: '#EF4444', start: 75.4, end: 88.0 },
-  { name: '其他', count: 460, color: '#6B7280', start: 88.0, end: 100 },
-]
-
-const totalDocs = 3842
-
 const recentActivities: Activity[] = [
-  {
-    id: 1,
-    user: '张三',
-    action: '注册了新账号',
-    time: '5 分钟前',
-    iconName: 'user-plus',
-    iconBg: 'bg-primary-50',
-    iconColor: 'text-primary-500',
-    badgeVariant: 'primary',
-    badgeText: '新用户',
-  },
-  {
-    id: 2,
-    user: '李四',
-    action: '上传了文档《Vue 3 组合式 API 详解》',
-    time: '12 分钟前',
-    iconName: 'upload',
-    iconBg: 'bg-success-50',
-    iconColor: 'text-success-500',
-    badgeVariant: 'success',
-    badgeText: '上传',
-  },
-  {
-    id: 3,
-    user: '王五',
-    action: '开始学习《React 入门指南》',
-    time: '25 分钟前',
-    iconName: 'book-open',
-    iconBg: 'bg-warning-50',
-    iconColor: 'text-warning-500',
-    badgeVariant: 'warning',
-    badgeText: '学习',
-  },
-  {
-    id: 4,
-    user: '赵六',
-    action: '发起了 AI 对话请求',
-    time: '38 分钟前',
-    iconName: 'message-circle',
-    iconBg: 'bg-danger-50',
-    iconColor: 'text-danger-500',
-    badgeVariant: 'danger',
-    badgeText: '对话',
-  },
-  {
-    id: 5,
-    user: '孙七',
-    action: '注册了新账号',
-    time: '1 小时前',
-    iconName: 'user-plus',
-    iconBg: 'bg-primary-50',
-    iconColor: 'text-primary-500',
-    badgeVariant: 'primary',
-    badgeText: '新用户',
-  },
+  { id: 1, user: '系统', action: '知识库初始化完成', time: '刚刚', iconName: 'check-circle', iconBg: 'bg-success-50', iconColor: 'text-success-500', badgeVariant: 'success', badgeText: '完成' },
+  { id: 2, user: '管理员', action: '登录了管理后台', time: '5 分钟前', iconName: 'user-plus', iconBg: 'bg-primary-50', iconColor: 'text-primary-500', badgeVariant: 'primary', badgeText: '登录' },
+  { id: 3, user: '管理员', action: '查看了文档管理', time: '12 分钟前', iconName: 'file-text', iconBg: 'bg-warning-50', iconColor: 'text-warning-500', badgeVariant: 'warning', badgeText: '查看' },
+  { id: 4, user: '管理员', action: '查看了用户管理', time: '25 分钟前', iconName: 'users', iconBg: 'bg-danger-50', iconColor: 'text-danger-500', badgeVariant: 'danger', badgeText: '查看' },
+  { id: 5, user: '系统', action: '数据同步任务执行成功', time: '1 小时前', iconName: 'refresh-cw', iconBg: 'bg-primary-50', iconColor: 'text-primary-500', badgeVariant: 'primary', badgeText: '同步' },
 ]
 
-const hotDocs = [
-  { id: 1, title: 'Vue 3 组合式 API 完全指南', category: '前端开发', views: 2580 },
-  { id: 2, title: 'TypeScript 高级类型详解', category: '前端开发', views: 2156 },
-  { id: 3, title: 'Node.js 性能优化实战', category: '后端开发', views: 1890 },
-  { id: 4, title: '大语言模型原理与应用', category: '人工智能', views: 1654 },
-  { id: 5, title: 'MySQL 索引优化深入理解', category: '数据库', views: 1432 },
-]
+const categoryMap = computed(() => {
+  const map = new Map<number, string>()
+  const build = (list: CategoryVO[]) => {
+    list.forEach((c) => {
+      map.set(c.id, c.name)
+      if (c.children) build(c.children)
+    })
+  }
+  build(categories.value)
+  return map
+})
+
+const loadData = async () => {
+  loading.value = true
+  try {
+    const [ov, cats, docPage] = await Promise.all([
+      adminApi.overview(),
+      adminApi.categories(),
+      adminApi.docs({ pageSize: 100 }),
+    ])
+    overview.value = ov
+    categories.value = cats
+    const records = (docPage.records ?? []) as DocVO[]
+    hotDocs.value = [...records]
+      .sort((a, b) => (b.viewCount ?? 0) - (a.viewCount ?? 0))
+      .slice(0, 5)
+      .map((d) => ({
+        id: d.id,
+        title: d.title,
+        category: categoryMap.value.get(d.categoryId ?? -1) ?? '未分类',
+        views: d.viewCount ?? 0,
+      }))
+  } catch {
+    overview.value = null
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(loadData)
 </script>
 
 <style scoped>

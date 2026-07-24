@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -141,6 +142,28 @@ const routes: RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+// 路由守卫：需要登录的页面未登录则跳转登录页
+const authRequired = ['/admin', '/profile', '/upload', '/chat']
+router.beforeEach(async (to) => {
+  const auth = useAuthStore()
+  const needsAuth = authRequired.some((p) => to.path === p || to.path.startsWith(p + '/'))
+  if (!needsAuth) return true
+
+  if (!auth.isLoggedIn) {
+    return { path: '/login', query: { redirect: to.fullPath } }
+  }
+  // token 存在但本地无用户信息时，拉取一次
+  if (!auth.user) {
+    try {
+      await auth.fetchMe()
+    } catch {
+      auth.logout()
+      return { path: '/login', query: { redirect: to.fullPath } }
+    }
+  }
+  return true
 })
 
 export default router

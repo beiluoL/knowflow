@@ -9,4 +9,12 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: `http://localhost:${process.env.SERVER__PORT || '8080'}`,
+        changeOrigin: true,
+      },
+    },
+  },
 })

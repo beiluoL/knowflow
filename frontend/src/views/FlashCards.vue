@@ -7,12 +7,11 @@
       </div>
     </div>
 
-    <div class="flex flex-wrap gap-4">
+    <div class="flex flex-wrap gap-4" v-if="!loading">
       <div class="flex flex-wrap gap-2">
         <span class="text-sm text-gray-500 py-1.5">分类：</span>
         <button
-          v-for="cat in categories"
-          :key="cat"
+          v-for="cat in categories" :key="cat"
           @click="selectedCategory = cat"
           :class="[
             'px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200',
@@ -27,8 +26,7 @@
       <div class="flex flex-wrap gap-2">
         <span class="text-sm text-gray-500 py-1.5">难度：</span>
         <button
-          v-for="diff in difficulties"
-          :key="diff"
+          v-for="diff in difficulties" :key="diff"
           @click="selectedDifficulty = diff"
           :class="[
             'px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200',
@@ -37,12 +35,14 @@
               : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200',
           ]"
         >
-          {{ getDifficultyLabel(diff) }}
+          {{ diff }}
         </button>
       </div>
     </div>
 
-    <div class="flex flex-col items-center py-8">
+    <div v-if="loading" class="text-center py-16 text-gray-400">加载中...</div>
+
+    <div v-else class="flex flex-col items-center py-8">
       <div class="text-sm text-gray-500 mb-6">
         <span class="font-medium text-primary-500">{{ currentIndex + 1 }}</span>
         <span> / {{ filteredCards.length }}</span>
@@ -155,60 +155,73 @@
         </button>
       </div>
     </div>
+
+    <div v-if="!loading && filteredCards.length === 0" class="text-center py-16 text-gray-400">
+      暂无闪卡
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import Badge from '@/components/ui/Badge.vue'
-import { flashCards, flashCardCategories, flashCardDifficulties } from '@/data/learning'
-import type { FlashCard } from '@/data/learning'
+import { learningApi } from '@/api'
+import type { FlashcardVO } from '@/api/types'
 
-const categories = flashCardCategories
-const difficulties = flashCardDifficulties
+interface FlashCard {
+  id: number
+  category: string
+  difficulty: number
+  question: string
+  answer: string
+}
+
+const loading = ref(false)
+const categories = ref<string[]>(['全部'])
+const difficulties = ['全部', '简单', '中等', '困难']
 
 const selectedCategory = ref('全部')
 const selectedDifficulty = ref('全部')
 const currentIndex = ref(0)
 const isFlipped = ref(false)
-const cards = ref<FlashCard[]>([...flashCards])
+const cards = ref<FlashCard[]>([])
+
+const mapCard = (f: FlashcardVO): FlashCard => ({
+  id: f.id,
+  category: f.category || '通用',
+  difficulty: f.difficulty || 1,
+  question: f.front || '',
+  answer: f.back || '',
+})
 
 const filteredCards = computed(() => {
   return cards.value.filter((card) => {
     const categoryMatch = selectedCategory.value === '全部' || card.category === selectedCategory.value
-    const difficultyMatch = selectedDifficulty.value === '全部' || card.difficulty === selectedDifficulty.value
+    const difficultyLabel = getDifficultyLabel(card.difficulty)
+    const difficultyMatch = selectedDifficulty.value === '全部' || difficultyLabel === selectedDifficulty.value
     return categoryMatch && difficultyMatch
   })
 })
 
-const currentCard = computed(() => {
-  return filteredCards.value[currentIndex.value] || null
-})
+const currentCard = computed(() => filteredCards.value[currentIndex.value] || null)
 
 watch([selectedCategory, selectedDifficulty], () => {
   currentIndex.value = 0
   isFlipped.value = false
 })
 
-const getDifficultyLabel = (difficulty?: string) => {
-  const labels: Record<string, string> = {
-    easy: '简单',
-    medium: '中等',
-    hard: '困难',
-    全部: '全部',
-  }
-  return labels[difficulty || ''] || difficulty
+const getDifficultyLabel = (difficulty?: number) => {
+  if (difficulty === 2) return '中等'
+  if (difficulty === 3) return '困难'
+  return '简单'
 }
 
-const getDifficultyBadgeVariant = (difficulty?: string) => {
-  const variants: Record<string, 'primary' | 'success' | 'warning' | 'danger' | 'default'> = {
-    easy: 'success',
-    medium: 'warning',
-    hard: 'danger',
-  }
-  return variants[difficulty || ''] || 'default'
+const getDifficultyBadgeVariant = (difficulty?: number) => {
+  if (difficulty === 2) return 'warning' as const
+  if (difficulty === 3) return 'danger' as const
+  return 'success' as const
 }
 
 const flipCard = () => {
@@ -247,14 +260,24 @@ const markAsKnown = () => {
 }
 
 const markAsUnknown = () => {
-  const card = currentCard.value
-  if (card) {
-    isFlipped.value = false
-    if (currentIndex.value < filteredCards.value.length - 1) {
-      nextCard()
-    }
+  if (currentIndex.value < filteredCards.value.length - 1) {
+    nextCard()
   }
 }
+
+onMounted(async () => {
+  loading.value = true
+  try {
+    const list = await learningApi.flashcards()
+    cards.value = list.map(mapCard)
+    const uniqueCats = Array.from(new Set(list.map((f) => f.category || '通用')))
+    categories.value = ['全部', ...uniqueCats]
+  } catch {
+    cards.value = []
+  } finally {
+    loading.value = false
+  }
+})
 </script>
 
 <style scoped>
