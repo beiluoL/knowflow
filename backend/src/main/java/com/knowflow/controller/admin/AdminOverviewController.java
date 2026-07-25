@@ -1,8 +1,7 @@
 package com.knowflow.controller.admin;
 
 import com.knowflow.common.Result;
-import com.knowflow.entity.*;
-import com.knowflow.mapper.*;
+import com.knowflow.service.AdminOverviewService;
 import com.knowflow.vo.AdminOverviewVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,24 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AdminOverviewController {
 
-    private final SysUserMapper userMapper;
-    private final DocDocumentMapper docMapper;
-    private final DocCategoryMapper categoryMapper;
-    private final ChatConversationMapper conversationMapper;
-    private final LearningPathMapper pathMapper;
+    private final AdminOverviewService adminOverviewService;
 
     @Operation(summary = "概览统计")
     @GetMapping
     public Result<AdminOverviewVO> overview() {
-        AdminOverviewVO vo = new AdminOverviewVO();
-        vo.setTotalUsers(userMapper.selectCount(null));
-        vo.setTotalDocs(docMapper.selectCount(null));
-        vo.setTotalCategories(categoryMapper.selectCount(null));
-        vo.setTotalConversations(conversationMapper.selectCount(null));
-        vo.setTotalLearningPaths(pathMapper.selectCount(null));
-        vo.setTodayActiveUsers(0L);
-        vo.setTodayNewUsers(0L);
-        vo.setTodayNewDocs(0L);
-        return Result.success(vo);
+        return Result.success(adminOverviewService.getOverview());
     }
 }

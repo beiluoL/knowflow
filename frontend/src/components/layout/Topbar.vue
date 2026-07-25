@@ -1,73 +1,76 @@
 <template>
-  <header class="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 sticky top-0 z-20">
-    <div class="flex items-center gap-4">
+  <header class="sticky top-0 z-30 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-8">
+    <div class="flex items-center gap-3">
       <button
+        type="button"
+        class="w-9 h-9 rounded-lg flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition-colors lg:hidden"
         @click="$emit('toggle-sidebar')"
-        class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors lg:hidden"
+        aria-label="切换侧边栏"
       >
-        <Icon name="menu" :size="20" />
+        <Icon name="menu" :size="18" class="text-gray-600" />
       </button>
 
-      <div class="relative w-96 max-w-md">
+      <div class="relative hidden sm:block">
         <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="搜索文档、分类、标签..."
-          class="w-full pl-10 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:border-primary-500 focus:bg-white focus:ring-2 focus:ring-primary-100 transition-all"
-          @keyup.enter="$emit('search', searchQuery)"
+          placeholder="搜索知识库、文档..."
+          class="w-56 lg:w-72 h-9 pl-9 pr-4 rounded-lg text-[13px] border border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all"
+          @keyup.enter="handleSearch"
+          aria-label="搜索"
         />
-        <kbd class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
-          ⌘K
-        </kbd>
       </div>
+
+      <button
+        type="button"
+        class="w-9 h-9 rounded-lg flex items-center justify-center border border-gray-200 bg-white hover:bg-gray-50 transition-colors sm:hidden"
+        @click="goTo('/search')"
+        aria-label="搜索"
+      >
+        <Icon name="search" :size="18" class="text-gray-500" />
+      </button>
     </div>
 
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-3 shrink-0">
       <button
-        class="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
-        @click="showNotifications = !showNotifications"
+        v-if="isLoggedIn"
+        type="button"
+        class="relative w-9 h-9 rounded-lg flex items-center justify-center border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+        @click="handleToggleNotifications"
+        :aria-label="`消息通知，${unreadCount} 条未读`"
+        :aria-expanded="showNotifications"
       >
-        <Icon name="bell" :size="20" />
-        <span
-          v-if="unreadCount > 0"
-          class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger-500 rounded-full"
-        />
+        <Icon name="bell" :size="18" class="text-gray-500" />
+        <span v-if="unreadCount > 0" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-danger-500" />
       </button>
 
       <div class="relative">
         <button
-          class="relative z-50 flex items-center gap-3 p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+          type="button"
+          class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-primary-500/15 text-primary-600 hover:bg-primary-500/25 transition-colors"
           aria-haspopup="menu"
           :aria-expanded="showUserMenu"
+          :aria-label="isLoggedIn ? '用户菜单' : '登录 / 注册'"
           @click="showUserMenu = !showUserMenu"
-          @keydown.esc="showUserMenu = false"
         >
-          <Avatar :name="displayName" size="sm" :status="isLoggedIn ? 'online' : 'offline'" show-status />
-          <div class="text-left hidden sm:block">
-            <div class="text-sm font-medium text-gray-800">{{ displayName }}</div>
-            <div class="text-xs text-gray-500">Lv.{{ displayLevel }}</div>
-          </div>
-          <Icon name="chevron-down" :size="16" class="text-gray-400 hidden sm:block" />
+          <Icon name="user" :size="18" />
         </button>
 
+        <div v-if="showUserMenu" class="fixed inset-0 z-40" @click="showUserMenu = false" />
         <div
           v-if="showUserMenu"
-          class="fixed inset-0 z-40"
-          @click="showUserMenu = false"
-        />
-        <div
-          v-if="showUserMenu"
-          class="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-100 rounded-lg shadow-lg py-2 z-50"
+          class="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50"
           role="menu"
         >
           <div class="px-4 py-3 border-b border-gray-100">
-            <div class="font-medium text-gray-800">{{ displayName }}</div>
-            <div v-if="displayEmail" class="text-sm text-gray-500">{{ displayEmail }}</div>
+            <div class="text-sm font-medium text-gray-800">{{ displayName }}</div>
+            <div v-if="displayEmail" class="text-xs text-gray-500 mt-0.5">{{ displayEmail }}</div>
           </div>
           <div class="py-1">
             <button
-              v-for="item in userMenuItems" :key="item.path"
+              v-for="item in userMenuItems"
+              :key="item.path"
               type="button"
               role="menuitem"
               class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
@@ -79,6 +82,7 @@
           </div>
           <div class="border-t border-gray-100 pt-1">
             <button
+              v-if="isLoggedIn"
               type="button"
               role="menuitem"
               class="w-full flex items-center gap-3 px-4 py-2 text-sm text-danger-600 hover:bg-danger-50 transition-colors"
@@ -87,69 +91,92 @@
               <Icon name="log-out" :size="16" />
               退出登录
             </button>
+            <button
+              v-else
+              type="button"
+              role="menuitem"
+              class="w-full flex items-center gap-3 px-4 py-2 text-sm text-primary-600 hover:bg-primary-50 transition-colors"
+              @click="goTo('/login')"
+            >
+              <Icon name="log-in" :size="16" />
+              登录 / 注册
+            </button>
           </div>
         </div>
       </div>
     </div>
 
+    <div v-if="isLoggedIn && showNotifications" class="fixed inset-0 z-40" @click="showNotifications = false" />
     <div
-      v-if="showNotifications"
-      class="fixed right-4 top-20 w-80 bg-white border border-gray-100 rounded-lg shadow-xl z-50"
+      v-if="isLoggedIn && showNotifications"
+      class="fixed right-2 left-2 sm:left-auto sm:right-4 top-16 sm:w-80 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
     >
       <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
         <h3 class="font-semibold text-gray-800">通知</h3>
-        <button class="text-sm text-primary-500 hover:text-primary-600">全部已读</button>
+        <button
+          v-if="unreadCount > 0"
+          class="text-sm text-primary-600 hover:underline"
+          @click="handleMarkAllRead"
+        >全部已读</button>
       </div>
       <div class="max-h-96 overflow-y-auto">
         <div
-          v-for="notification in notifications" :key="notification.id"
-          class="px-4 py-3 hover:bg-gray-50 border-b border-gray-50 cursor-pointer transition-colors"
-          :class="{ 'bg-primary-50/30': !notification.read }"
+          v-for="notification in notificationStore.unreadList.slice(0, 5)"
+          :key="notification.id"
+          class="px-4 py-3 hover:bg-gray-50 border-b border-gray-50 cursor-pointer transition-colors bg-primary-50/30"
+          @click="handleNotificationClick(notification.id)"
         >
           <div class="flex items-start gap-3">
-              <div
-                class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                :class="notificationIconBg(notification.type)"
-              >
-                <Icon :name="notificationIconName(notification.type)" :size="16" :class="notificationIconColor(notification.type)" />
-              </div>
+            <div
+              class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+              :class="getNotificationIconBg(notification.type)"
+            >
+              <Icon :name="getNotificationIcon(notification.type)" :size="16" :class="getNotificationIconColor(notification.type)" />
+            </div>
             <div class="flex-1 min-w-0">
               <div class="font-medium text-gray-800 text-sm">{{ notification.title }}</div>
               <div class="text-gray-500 text-xs mt-0.5 line-clamp-2">{{ notification.content }}</div>
-              <div class="text-gray-400 text-xs mt-1">{{ formatTime(notification.createdAt) }}</div>
+              <div class="text-gray-400 text-xs mt-1">{{ formatTime(notification.createTime) }}</div>
             </div>
           </div>
         </div>
+        <div
+          v-if="notificationStore.unreadList.length === 0"
+          class="px-4 py-8 text-center text-sm text-gray-400"
+        >
+          暂无未读通知
+        </div>
       </div>
-      <div class="px-4 py-3 border-t border-gray-100 text-center">
-        <a href="/notifications" class="text-sm text-primary-500 hover:text-primary-600">查看全部通知</a>
+      <div class="px-4 py-2 border-t border-gray-100">
+        <button
+          type="button"
+          class="w-full text-center text-sm text-primary-600 hover:underline"
+          @click="goTo('/notifications')"
+        >查看全部通知</button>
       </div>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
-import Avatar from '@/components/ui/Avatar.vue'
-import { mockNotifications } from '@/data/user'
 import { useAuthStore } from '@/stores/auth'
+import { useNotificationStore } from '@/stores/notification'
 import { notify } from '@/utils/toast'
-import type { Notification } from '@/types'
 
 defineEmits<{
   'toggle-sidebar': []
-  search: [query: string]
 }>()
 
 const router = useRouter()
 const auth = useAuthStore()
+const notificationStore = useNotificationStore()
 
 const searchQuery = ref('')
 const showNotifications = ref(false)
 const showUserMenu = ref(false)
-const notifications = ref(mockNotifications)
 
 const isLoggedIn = computed(() => auth.isLoggedIn)
 const displayName = computed(() => {
@@ -161,57 +188,107 @@ const displayEmail = computed(() => {
   const u = auth.user
   return u?.email || u?.username || ''
 })
-const displayLevel = computed(() => auth.user?.level ?? 1)
-
-const unreadCount = computed(() => notifications.value.filter(n => !n.read).length)
+const unreadCount = computed(() => notificationStore.unreadCount)
 
 const userMenuItems = [
   { path: '/profile', label: '个人中心', iconName: 'user' },
-  { path: '/profile/collections', label: '我的收藏', iconName: 'book-marked' },
-  { path: '/settings', label: '设置', iconName: 'settings' },
+  { path: '/learning/center', label: '学习中心', iconName: 'graduation-cap' },
+  { path: '/notifications', label: '消息中心', iconName: 'bell' },
+  { path: '/favorites', label: '我的收藏', iconName: 'heart' },
 ]
+
+function handleSearch() {
+  if (!searchQuery.value.trim()) return
+  router.push({ path: '/search', query: { q: searchQuery.value.trim() } })
+}
 
 function goTo(path: string) {
   showUserMenu.value = false
+  showNotifications.value = false
   router.push(path)
 }
 
 function handleLogout() {
   showUserMenu.value = false
+  notificationStore.reset()
   auth.logout()
   notify('已退出登录', 'success')
   router.push('/login')
 }
 
-const notificationIconName = (type: Notification['type']) => {
-  const icons: Record<Notification['type'], string> = {
-    system: 'alert-circle',
-    reminder: 'message-square',
-    achievement: 'trophy',
+async function handleToggleNotifications() {
+  showNotifications.value = !showNotifications.value
+  if (showNotifications.value && isLoggedIn.value) {
+    try {
+      await notificationStore.fetchList({ pageNum: 1, pageSize: 20 })
+    } catch (e) {
+      console.error(e)
+    }
   }
-  return icons[type]
 }
 
-const notificationIconBg = (type: Notification['type']) => {
-  const bgs = {
-    system: 'bg-primary-100',
-    reminder: 'bg-warning-100',
-    achievement: 'bg-success-100',
+async function handleMarkAllRead() {
+  try {
+    await notificationStore.markAllAsRead()
+    notify('已全部标为已读', 'success')
+  } catch (e) {
+    console.error(e)
+    notify('操作失败', 'error')
   }
-  return bgs[type]
 }
 
-const notificationIconColor = (type: Notification['type']) => {
-  const colors = {
-    system: 'text-primary-600',
-    reminder: 'text-warning-600',
-    achievement: 'text-success-600',
+async function handleNotificationClick(id: number) {
+  try {
+    await notificationStore.markAsRead(id)
+  } catch (e) {
+    console.error(e)
   }
-  return colors[type]
+  showNotifications.value = false
+  router.push('/notifications')
 }
 
-const formatTime = (dateStr: string) => {
-  const date = new Date(dateStr)
+function getNotificationIcon(type: string): string {
+  switch (type) {
+    case 'SYSTEM':
+      return 'info'
+    case 'LEARNING':
+      return 'bell'
+    case 'COMMUNITY':
+      return 'message-circle'
+    default:
+      return 'bell'
+  }
+}
+
+function getNotificationIconBg(type: string): string {
+  switch (type) {
+    case 'SYSTEM':
+      return 'bg-blue-50'
+    case 'LEARNING':
+      return 'bg-green-50'
+    case 'COMMUNITY':
+      return 'bg-purple-50'
+    default:
+      return 'bg-gray-100'
+  }
+}
+
+function getNotificationIconColor(type: string): string {
+  switch (type) {
+    case 'SYSTEM':
+      return 'text-primary-500'
+    case 'LEARNING':
+      return 'text-success-500'
+    case 'COMMUNITY':
+      return 'text-purple-500'
+    default:
+      return 'text-gray-500'
+  }
+}
+
+function formatTime(time?: string): string {
+  if (!time) return ''
+  const date = new Date(time)
   const now = new Date()
   const diff = now.getTime() - date.getTime()
   const minutes = Math.floor(diff / (1000 * 60))
@@ -224,4 +301,18 @@ const formatTime = (dateStr: string) => {
   if (days < 7) return `${days}天前`
   return date.toLocaleDateString('zh-CN')
 }
+
+watch(isLoggedIn, (loggedIn) => {
+  if (loggedIn) {
+    notificationStore.fetchUnreadCount()
+  } else {
+    notificationStore.reset()
+  }
+})
+
+onMounted(() => {
+  if (isLoggedIn.value) {
+    notificationStore.fetchUnreadCount()
+  }
+})
 </script>

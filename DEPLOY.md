@@ -199,8 +199,10 @@ docker compose up -d --build
 
 | 用户名 | 密码 | 角色 |
 |---|---|---|
-| `admin` | `123456` | 管理员 |
-| `user1` | `123456` | 普通用户 |
-| `user2` | `123456` | 普通用户 |
+| `admin` | `admin123` | 管理员 |
+| `user1` | `admin123` | 普通用户 |
+| `user2` | `admin123` | 普通用户 |
+
+> 密码统一为 `admin123`（BCrypt 加密），与 `backend/src/main/resources/data.sql` 中保持一致。
 
 生产环境请修改密码、更换 `jwt.secret`，并将 `spring.sql.init.mode` 改为 `never`。

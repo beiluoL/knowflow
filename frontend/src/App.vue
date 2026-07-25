@@ -1,6 +1,9 @@
 <template>
   <router-view v-slot="{ Component, route }">
-    <AppShell v-if="!noLayoutRoutes.includes(route.name as string)">
+    <CLayout v-if="route.meta.layout === 'c'">
+      <component :is="Component" />
+    </CLayout>
+    <AppShell v-else-if="route.meta.layout === 'b'">
       <component :is="Component" />
     </AppShell>
     <component v-else :is="Component" />
@@ -9,8 +12,18 @@
 </template>
 
 <script setup lang="ts">
-import AppShell from '@/components/layout/AppShell.vue'
-import ToastHost from '@/components/ui/ToastHost.vue'
+import { onMounted } from 'vue';
+import AppShell from '@/components/layout/AppShell.vue';
+import CLayout from '@/components/layout/CLayout.vue';
+import ToastHost from '@/components/ui/ToastHost.vue';
+import { useAuthStore } from '@/stores/auth';
 
-const noLayoutRoutes = ['NotFound', 'Login']
+const auth = useAuthStore();
+
+onMounted(() => {
+  // 启动时尝试恢复登录态（若本地存在 token）
+  if (auth.isLoggedIn && !auth.user) {
+    auth.fetchMe().catch(() => auth.logout());
+  }
+});
 </script>

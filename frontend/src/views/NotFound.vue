@@ -12,7 +12,7 @@
               <div class="w-24 h-24 md:w-32 md:h-32 mx-auto relative animate-spin-slow">
                 <div class="absolute inset-0 rounded-full border-4 border-dashed border-gray-300"></div>
                 <div class="absolute inset-4 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
-                  <Compass class="w-10 h-10 md:w-14 md:h-14 text-white animate-pulse" />
+                  <Icon name="compass" :size="32" class="text-white animate-pulse" />
                 </div>
               </div>
             </span>
@@ -52,12 +52,12 @@
           </div>
           <div class="animate-float" style="animation-delay: 0.4s">
             <div class="w-12 h-12 rounded-2xl bg-warning-100 flex items-center justify-center">
-              <Rocket class="w-6 h-6 text-warning-500" />
+              <Icon name="rocket" :size="24" class="text-warning-500" />
             </div>
           </div>
           <div class="animate-float" style="animation-delay: 0.6s">
             <div class="w-12 h-12 rounded-2xl bg-danger-100 flex items-center justify-center">
-              <Sparkles class="w-6 h-6 text-danger-500" />
+              <Icon name="sparkles" :size="24" class="text-danger-500" />
             </div>
           </div>
         </div>

@@ -1,8 +1,37 @@
 <template>
-  <div class="h-[calc(100vh-7rem)] -mx-6 -mt-6 flex">
-    <div class="w-72 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
-      <div class="p-4 border-b border-gray-100">
+  <div class="chat-container h-[calc(100vh-7rem)] -mx-6 -mt-6 flex relative">
+    <!-- 移动端会话列表切换按钮 -->
+    <button
+      type="button"
+      class="chat-sidebar-toggle"
+      @click="sidebarOpen = true"
+    >
+      <Icon name="menu" :size="18" />
+      <span class="text-sm font-medium">会话</span>
+    </button>
+
+    <!-- 移动端遮罩 -->
+    <div
+      v-if="sidebarOpen"
+      class="chat-overlay"
+      @click="sidebarOpen = false"
+    ></div>
+
+    <!-- 会话列表侧栏 -->
+    <div
+      class="chat-sidebar w-72 bg-white border-r border-gray-200 flex flex-col flex-shrink-0"
+      :class="{ open: sidebarOpen }"
+    >
+      <div class="p-4 border-b border-gray-100 flex items-center justify-between">
         <Button block icon-name="plus" @click="createNewChat" :disabled="loading">新建对话</Button>
+        <button
+          v-if="isMobile"
+          type="button"
+          class="chat-close-btn"
+          @click="sidebarOpen = false"
+        >
+          <Icon name="x" :size="18" />
+        </button>
       </div>
 
       <div class="p-3 border-b border-gray-100 space-y-3">
@@ -57,10 +86,20 @@
     </div>
 
     <div class="flex-1 flex flex-col bg-gray-50">
-      <div v-if="activeChat" class="border-b border-gray-200 bg-white px-6 py-3 flex items-center justify-between">
-        <div>
-          <h2 class="font-semibold text-gray-800">{{ activeChat.title }}</h2>
-          <p class="text-xs text-gray-500 mt-0.5">{{ models.find(m => m.id === selectedModel)?.name }}</p>
+      <div v-if="activeChat" class="border-b border-gray-200 bg-white px-4 sm:px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button
+            v-if="isMobile"
+            type="button"
+            class="chat-header-menu"
+            @click="sidebarOpen = true"
+          >
+            <Icon name="menu" :size="18" />
+          </button>
+          <div>
+            <h2 class="font-semibold text-gray-800">{{ activeChat.title }}</h2>
+            <p class="text-xs text-gray-500 mt-0.5">{{ models.find(m => m.id === selectedModel)?.name }}</p>
+          </div>
         </div>
         <div class="flex items-center gap-2">
           <Button variant="text" size="sm" icon-name="book-open">
@@ -202,7 +241,7 @@
 
 <script setup lang="ts">
 import { notify } from '@/utils/toast'
-import { ref, computed, nextTick, onMounted } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
@@ -240,6 +279,13 @@ const useKnowledgeBase = ref(true)
 const messagesContainer = ref<HTMLElement | null>(null)
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const displayedMessages = ref<string[]>([])
+const sidebarOpen = ref(false)
+const isMobile = ref(false)
+
+function checkMobile(): void {
+  isMobile.value = window.innerWidth < 768;
+}
+checkMobile();
 
 const models: Model[] = [
   { id: 'gpt-4', name: 'GPT-4' },
@@ -251,12 +297,26 @@ const models: Model[] = [
 const chats = ref<Chat[]>([])
 const chatMessages = ref<Record<number, Message[]>>({})
 
+const parseDocReferences = (refs?: string): { id: number; title: string }[] => {
+  if (!refs) return []
+  return refs.split('\n')
+    .map((line) => {
+      const match = line.match(/^\[(\d+)\]\s*(.+)$/)
+      if (match) {
+        return { id: parseInt(match[1]), title: match[2] }
+      }
+      return null
+    })
+    .filter((item): item is { id: number; title: string } => item !== null)
+}
+
 const mapMessages = (list: MessageVO[]): Message[] =>
   list.map((m) => ({
     id: m.id,
     role: m.role === 'assistant' ? 'assistant' : 'user',
     content: m.content,
     createdAt: m.createTime || new Date().toISOString(),
+    sources: parseDocReferences(m.docReferences),
   }))
 
 const filteredChats = computed(() => {
@@ -385,6 +445,7 @@ const sendMessage = async () => {
       role: resp.role === 'assistant' ? 'assistant' : 'user',
       content: resp.content,
       createdAt: resp.createTime || new Date().toISOString(),
+      sources: parseDocReferences(resp.docReferences),
     }
     chatMessages.value[chatId].push(assistantMessage)
     const messageIndex = displayedMessages.value.length
@@ -409,15 +470,18 @@ const sendMessage = async () => {
   }
 }
 
+let typingTimer: ReturnType<typeof setTimeout> | null = null
+
 const typeText = (text: string, messageIndex: number) => {
   let currentIndex = 0
   const speed = 20
+  if (typingTimer) clearTimeout(typingTimer)
   const type = () => {
     if (currentIndex < text.length) {
       displayedMessages.value[messageIndex] = text.substring(0, currentIndex + 1)
       currentIndex++
       scrollToBottom()
-      setTimeout(type, speed)
+      typingTimer = setTimeout(type, speed)
     }
   }
   type()
@@ -429,14 +493,14 @@ const isMessageComplete = (index: number) => {
 
 const renderMarkdown = (text: string): string => {
   if (!text) return ''
-  let html = text
+  let html = escapeHtml(text)
     .replace(/```(\w+)?\n([\s\S]*?)```/g, (_match, lang, code) => {
       return `<div class="my-3 rounded-lg overflow-hidden bg-gray-900">
         <div class="flex items-center justify-between px-3 py-1.5 bg-gray-800 text-xs text-gray-400">
           <span>${lang || 'code'}</span>
           <button class="copy-btn hover:text-white transition-colors" onclick="navigator.clipboard.writeText(this.parentElement.nextElementSibling.textContent)">复制</button>
         </div>
-        <pre class="p-3 overflow-x-auto text-sm text-gray-100"><code>${escapeHtml(code)}</code></pre>
+        <pre class="p-3 overflow-x-auto text-sm text-gray-100"><code>${code}</code></pre>
       </div>`
     })
     .replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 bg-gray-100 rounded text-primary-600 text-xs">$1</code>')
@@ -505,6 +569,10 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+onUnmounted(() => {
+  if (typingTimer) clearTimeout(typingTimer)
+})
 </script>
 
 <style scoped>
@@ -541,5 +609,101 @@ onMounted(async () => {
 
 :deep(.prose code) {
   font-family: 'SF Mono', Monaco, 'Cascadia Code', source-code-pro, Menlo, monospace;
+}
+
+.chat-sidebar-toggle {
+  display: none;
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  color: var(--kb-foreground);
+  cursor: pointer;
+}
+
+.chat-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 30;
+}
+
+.chat-sidebar {
+  transition: transform 0.3s ease;
+}
+
+.chat-close-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  color: var(--kb-muted-foreground);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  margin-left: 8px;
+}
+
+.chat-close-btn:hover {
+  background: var(--kb-muted);
+}
+
+.chat-header-menu {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  color: var(--kb-muted-foreground);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+}
+
+.chat-header-menu:hover {
+  background: var(--kb-muted);
+}
+
+@media (max-width: 768px) {
+  .chat-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    z-index: 40;
+    transform: translateX(-100%);
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .chat-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .chat-overlay {
+    display: block;
+  }
+
+  .chat-close-btn {
+    display: flex;
+  }
+
+  .chat-sidebar-toggle {
+    display: flex;
+  }
+
+  .chat-header-menu {
+    display: flex;
+  }
 }
 </style>

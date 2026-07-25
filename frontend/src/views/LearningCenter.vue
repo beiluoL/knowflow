@@ -2,7 +2,7 @@
   <div class="space-y-6 animate-fade-in">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-800">学习中心</h1>
+        <h1 class="text-2xl font-bold text-gray-800">番茄钟专注</h1>
         <p class="text-gray-500 mt-1">今天也要努力学习哦~</p>
       </div>
     </div>
@@ -49,7 +49,7 @@
             <div class="flex-1 grid grid-cols-3 gap-4">
               <div class="text-center">
                 <div class="flex items-center justify-center gap-1 mb-1">
-                  <Icon name="check" :size="20" Circle />
+                  <Icon name="check" :size="20" />
                   <span class="text-2xl font-bold text-gray-800">{{ todayStudyData.completedTasks }}</span>
                   <span class="text-gray-400">/{{ todayStudyData.totalTasks }}</span>
                 </div>
@@ -186,7 +186,7 @@
           <template #header>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <Icon name="list" :size="20" Todo />
+                <Icon name="list" :size="20" />
                 <h2 class="font-semibold text-gray-800">学习任务</h2>
               </div>
               <span class="text-sm text-gray-500">

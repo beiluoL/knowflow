@@ -3,6 +3,7 @@ package com.knowflow.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knowflow.common.PageResult;
@@ -12,10 +13,12 @@ import com.knowflow.entity.DocCategory;
 import com.knowflow.entity.DocDocument;
 import com.knowflow.entity.DocFavorite;
 import com.knowflow.entity.DocReadProgress;
+import com.knowflow.entity.SysUser;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.DocDocumentMapper;
 import com.knowflow.mapper.DocFavoriteMapper;
 import com.knowflow.mapper.DocReadProgressMapper;
+import com.knowflow.mapper.SysUserMapper;
 import com.knowflow.service.CategoryService;
 import com.knowflow.service.DocService;
 import com.knowflow.vo.DocDetailVO;
@@ -37,6 +40,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     private final DocFavoriteMapper favoriteMapper;
     private final DocReadProgressMapper readProgressMapper;
     private final CategoryService categoryService;
+    private final SysUserMapper userMapper;
 
     @Override
     public PageResult<DocVO> getDocPage(DocQueryDTO dto) {
@@ -79,11 +83,13 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     @Override
     public DocDetailVO getDocDetail(Long id, Long userId) {
         DocDocument doc = this.getById(id);
-        if (doc == null) {
+        if (doc == null || doc.getStatus() == null || doc.getStatus() != 1) {
             throw new BusinessException("文档不存在");
         }
+        this.update(new LambdaUpdateWrapper<DocDocument>()
+                .eq(DocDocument::getId, id)
+                .setSql("view_count = view_count + 1"));
         doc.setViewCount(doc.getViewCount() + 1);
-        this.updateById(doc);
         DocDetailVO vo = BeanUtil.copyProperties(doc, DocDetailVO.class);
         DocCategory category = categoryService.getById(doc.getCategoryId());
         if (category != null) {
@@ -117,15 +123,24 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
                 .eq(DocFavorite::getDocId, docId));
         if (favorite != null) {
             favoriteMapper.deleteById(favorite.getId());
-            doc.setFavoriteCount(Math.max(0, doc.getFavoriteCount() - 1));
+            this.update(new LambdaUpdateWrapper<DocDocument>()
+                    .eq(DocDocument::getId, docId)
+                    .setSql("favorite_count = GREATEST(0, favorite_count - 1)"));
+            userMapper.update(null, new LambdaUpdateWrapper<SysUser>()
+                    .eq(SysUser::getId, userId)
+                    .setSql("favorite_count = GREATEST(0, favorite_count - 1)"));
         } else {
             favorite = new DocFavorite();
             favorite.setUserId(userId);
             favorite.setDocId(docId);
             favoriteMapper.insert(favorite);
-            doc.setFavoriteCount(doc.getFavoriteCount() + 1);
+            this.update(new LambdaUpdateWrapper<DocDocument>()
+                    .eq(DocDocument::getId, docId)
+                    .setSql("favorite_count = favorite_count + 1"));
+            userMapper.update(null, new LambdaUpdateWrapper<SysUser>()
+                    .eq(SysUser::getId, userId)
+                    .setSql("favorite_count = favorite_count + 1"));
         }
-        this.updateById(doc);
     }
 
     @Override
@@ -194,8 +209,12 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
             readProgressMapper.updateById(progress);
         }
         if (dto.getProgress() != null && dto.getProgress().compareTo(new BigDecimal("100")) >= 0) {
-            doc.setReadCount(doc.getReadCount() + 1);
-            this.updateById(doc);
+            this.update(new LambdaUpdateWrapper<DocDocument>()
+                    .eq(DocDocument::getId, dto.getDocId())
+                    .setSql("read_count = read_count + 1"));
+            userMapper.update(null, new LambdaUpdateWrapper<SysUser>()
+                    .eq(SysUser::getId, userId)
+                    .setSql("read_docs_count = read_docs_count + 1"));
         }
     }
 }

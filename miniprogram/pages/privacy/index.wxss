@@ -1,0 +1,79 @@
+.page-container {
+  min-height: 100vh;
+  background-color: #F7F8FA;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background-color: #FFFFFF;
+  padding: 20rpx 30rpx;
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  border-bottom: 1rpx solid #E2E6EC;
+}
+
+.back-btn {
+  font-size: 48rpx;
+  color: #1A1D23;
+  font-weight: 300;
+  padding: 0 8rpx;
+}
+
+.header-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #1A1D23;
+}
+
+.content {
+  flex: 1;
+  padding: 30rpx;
+}
+
+.section {
+  margin-bottom: 36rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1A1D23;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.paragraph {
+  font-size: 28rpx;
+  color: #374151;
+  line-height: 1.8;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.list-item {
+  font-size: 28rpx;
+  color: #374151;
+  line-height: 1.8;
+  display: block;
+  padding-left: 16rpx;
+  margin-bottom: 8rpx;
+}
+
+.footer-note {
+  margin-top: 48rpx;
+  padding: 24rpx;
+  background-color: rgba(59, 111, 224, 0.06);
+  border-radius: 16rpx;
+  text-align: center;
+}
+
+.footer-note text {
+  font-size: 26rpx;
+  color: #6B7280;
+}
+
+.bottom-space {
+  height: 60rpx;
+}

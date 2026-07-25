@@ -1,0 +1,214 @@
+/* 学习闪卡页面样式 */
+.page-container {
+  min-height: 100vh;
+  background-color: #F7F8FA;
+  padding-bottom: 120rpx;
+}
+
+.header {
+  padding: 24rpx 30rpx;
+}
+
+.header-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1A1D23;
+}
+
+/* 卡片组标签 */
+.deck-tabs {
+  display: flex;
+  gap: 16rpx;
+  padding: 0 30rpx 24rpx;
+  overflow-x: auto;
+}
+
+.deck-tab {
+  padding: 16rpx 28rpx;
+  border-radius: 16rpx;
+  font-size: 26rpx;
+  color: #6B7280;
+  background-color: #FFFFFF;
+  border: 2rpx solid #E2E6EC;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.deck-tab.active {
+  background-color: #3B6FE0;
+  color: #FFFFFF;
+  border-color: #3B6FE0;
+}
+
+/* 进度区域 */
+.progress-section {
+  padding: 0 30rpx 30rpx;
+}
+
+.progress-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
+.progress-label {
+  font-size: 26rpx;
+  color: #6B7280;
+}
+
+.progress-count {
+  font-size: 24rpx;
+  color: #3B6FE0;
+  font-weight: 500;
+}
+
+.progress-bar {
+  height: 12rpx;
+  background-color: #E8ECF1;
+  border-radius: 999rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #3B6FE0;
+  border-radius: 999rpx;
+  transition: width 0.3s ease;
+}
+
+/* 卡片区域 */
+.card-area {
+  padding: 0 30rpx;
+  margin-bottom: 40rpx;
+}
+
+.card {
+  background-color: #FFFFFF;
+  border-radius: 32rpx;
+  min-height: 400rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx 40rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  position: relative;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6rpx;
+  background-color: #3B6FE0;
+  border-radius: 32rpx 32rpx 0 0;
+}
+
+.card-label {
+  font-size: 22rpx;
+  color: #3B6FE0;
+  font-weight: 500;
+  margin-bottom: 24rpx;
+  padding: 6rpx 20rpx;
+  background-color: rgba(59, 111, 224, 0.1);
+  border-radius: 12rpx;
+}
+
+.card-content {
+  font-size: 32rpx;
+  color: #1A1D23;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.6;
+  display: block;
+}
+
+.card-hint {
+  font-size: 24rpx;
+  color: #9CA3AF;
+  margin-top: 40rpx;
+  display: block;
+}
+
+/* 操作按钮 */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 60rpx;
+  padding: 0 30rpx;
+  margin-bottom: 40rpx;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.action-btn .btn-icon {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  border: 4rpx solid;
+  transition: all 0.2s;
+}
+
+.action-btn .btn-text {
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.action-btn.fail .btn-icon {
+  border-color: #EF4444;
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+.action-btn.fail .btn-text {
+  color: #EF4444;
+}
+
+.action-btn.success .btn-icon {
+  border-color: #10B981;
+  background-color: rgba(16, 185, 129, 0.08);
+}
+
+.action-btn.success .btn-text {
+  color: #10B981;
+}
+
+/* 统计区域 */
+.stats-section {
+  display: flex;
+  justify-content: space-around;
+  padding: 24rpx 30rpx;
+  background-color: #FFFFFF;
+  margin: 0 30rpx;
+  border-radius: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.stat-value {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1A1D23;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #6B7280;
+}

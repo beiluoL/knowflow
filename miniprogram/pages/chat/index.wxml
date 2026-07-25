@@ -1,0 +1,40 @@
+<view class="page-container">
+  <scroll-view class="message-list" scroll-y scroll-into-view="{{scrollToView}}" scroll-with-animation>
+    <view class="welcome-section" wx:if="{{messages.length === 0}}">
+      <view class="welcome-icon">🤖</view>
+      <text class="welcome-title">AI 学习助手</text>
+      <text class="welcome-desc">有什么技术问题想问我？</text>
+      <view class="quick-questions">
+        <view class="quick-item" data-question="{{item}}" bindtap="askQuick" wx:for="{{quickQuestions}}" wx:key="index">
+          <text>{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="message-item {{item.role}}" wx:for="{{messages}}" wx:key="id" id="msg-{{item.id}}">
+      <view class="message-avatar">
+        <text>{{item.role === 'user' ? '👤' : '🤖'}}</text>
+      </view>
+      <view class="message-content">
+        <text class="message-text">{{item.content}}</text>
+        <text class="message-time">{{item.time}}</text>
+      </view>
+    </view>
+    
+    <view class="typing-indicator" wx:if="{{isTyping}}">
+      <view class="typing-avatar">🤖</view>
+      <view class="typing-dots">
+        <view class="dot"></view>
+        <view class="dot"></view>
+        <view class="dot"></view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="input-area">
+    <input class="message-input" placeholder="输入你的问题..." value="{{inputText}}" bindinput="onInput" confirm-type="send" bindconfirm="sendMessage" />
+    <view class="send-btn {{inputText ? 'active' : ''}}" bindtap="sendMessage">
+      <text>{{inputText ? '➤' : '🎤'}}</text>
+    </view>
+  </view>
+</view>

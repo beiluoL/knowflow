@@ -1,11 +1,44 @@
 <template>
-    <div class="space-y-6 animate-fade-in">
+  <div class="space-y-6 animate-fade-in">
+    <div v-if="loading" class="quiz-state">
+      <div class="loading-spinner"></div>
+      <p class="text-gray-500 mt-3">加载题目中...</p>
+    </div>
+
+    <div v-else-if="generating" class="quiz-state">
+      <div class="loading-spinner"></div>
+      <p class="text-gray-500 mt-3">AI 正在智能生成题目...</p>
+    </div>
+
+    <div v-else-if="error" class="quiz-state">
+      <Icon name="alert-circle" :size="48" class="text-red-400" />
+      <p class="text-gray-700 font-medium mt-3">加载失败</p>
+      <p class="text-gray-500 text-sm mt-1">{{ error }}</p>
+      <Button variant="primary" size="sm" class="mt-4" @click="loadQuizzes">
+        <Icon name="refresh-cw" :size="14" class="mr-1" />
+        重新加载
+      </Button>
+    </div>
+
+    <div v-else-if="quizzes.length === 0" class="quiz-state">
+      <div class="empty-icon-box">
+        <Icon name="inbox" :size="48" class="text-gray-300" />
+      </div>
+      <p class="text-gray-700 font-medium mt-3">暂无题目</p>
+      <p class="text-gray-500 text-sm mt-1">点击右上角按钮生成新题目</p>
+      <Button variant="primary" size="sm" class="mt-4" @click="generateQuiz">
+        <Icon name="zap" :size="14" class="mr-1" />
+        生成题目
+      </Button>
+    </div>
+
+    <template v-else>
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-bold text-gray-800">智能出题</h1>
           <p class="text-gray-500 text-sm mt-1">AI 根据你的学习情况智能生成题目</p>
         </div>
-        <Button icon-name="zap" @click="generateQuiz">重新生成</Button>
+        <Button icon-name="zap" @click="generateQuiz" :disabled="generating">重新生成</Button>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -153,7 +186,8 @@
           </Card>
         </div>
       </div>
-    </div>
+    </template>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -167,6 +201,9 @@ import Badge from '@/components/ui/Badge.vue'
 const currentIndex = ref(0)
 const selectedAnswer = ref(-1)
 const hasAnswered = ref(false)
+const loading = ref(true)
+const generating = ref(false)
+const error = ref('')
 
 interface Quiz {
   id: string
@@ -178,7 +215,7 @@ interface Quiz {
   userAnswer?: number
 }
 
-const quizzes = ref<Quiz[]>([
+const mockQuizzes: Quiz[] = [
   {
     id: '1',
     question: '在 Vue 3 中，以下哪个选项是 Composition API 的核心函数？',
@@ -203,7 +240,26 @@ const quizzes = ref<Quiz[]>([
     category: '前端开发',
     explanation: 'display: flex 用于创建弹性容器，实现灵活的布局方案。',
   },
-])
+]
+
+const quizzes = ref<Quiz[]>([])
+
+async function loadQuizzes(): Promise<void> {
+  loading.value = true
+  error.value = ''
+  try {
+    await new Promise(resolve => setTimeout(resolve, 500))
+    quizzes.value = mockQuizzes.map(q => ({ ...q }))
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '加载失败'
+    error.value = `题目加载失败：${message}`
+    notify('题目加载失败', 'error')
+  } finally {
+    loading.value = false
+  }
+}
+
+loadQuizzes()
 
 const currentQuiz = computed(() => quizzes.value[currentIndex.value])
 const isCorrect = computed(() => selectedAnswer.value === currentQuiz.value?.correctAnswer)
@@ -260,12 +316,24 @@ const nextQuestion = () => {
   }
 }
 
-const generateQuiz = () => {
-  notify('正在生成新的智能题目...', 'info')
-  currentIndex.value = 0
-  selectedAnswer.value = -1
-  hasAnswered.value = false
-  quizzes.value.forEach(q => q.userAnswer = undefined)
+const generateQuiz = async () => {
+  generating.value = true
+  error.value = ''
+  try {
+    notify('正在生成新的智能题目...', 'info')
+    await new Promise(resolve => setTimeout(resolve, 1200))
+    quizzes.value = mockQuizzes.map(q => ({ ...q, userAnswer: undefined }))
+    currentIndex.value = 0
+    selectedAnswer.value = -1
+    hasAnswered.value = false
+    notify('题目生成成功！', 'success')
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '生成失败'
+    error.value = `题目生成失败：${message}`
+    notify('题目生成失败', 'error')
+  } finally {
+    generating.value = false
+  }
 }
 </script>
 
@@ -277,5 +345,37 @@ const generateQuiz = () => {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+.quiz-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty-icon-box {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

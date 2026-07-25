@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("learning_flashcard")
@@ -22,4 +24,10 @@ public class LearningFlashcard extends BaseEntity {
     private Integer difficulty;
 
     private Integer reviewCount;
+
+    private Integer reviewInterval;
+
+    private LocalDateTime nextReviewTime;
+
+    private LocalDateTime lastReviewTime;
 }

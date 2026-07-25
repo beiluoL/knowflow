@@ -1,0 +1,263 @@
+/* 知识库页面样式 */
+.page-container {
+  min-height: 100vh;
+  background-color: #F7F8FA;
+  padding-bottom: 120rpx;
+}
+
+/* 搜索栏 */
+.search-bar {
+  margin: 24rpx 30rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  background-color: #FFFFFF;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.search-icon {
+  font-size: 28rpx;
+}
+
+.search-placeholder {
+  font-size: 28rpx;
+  color: #9CA3AF;
+}
+
+/* 分类列表 */
+.category-list {
+  padding: 0 30rpx;
+}
+
+.category-item {
+  background-color: #FFFFFF;
+  border-radius: 24rpx;
+  margin-bottom: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 24rpx;
+}
+
+.category-left {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.category-icon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+}
+
+.category-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.category-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1A1D23;
+}
+
+.category-count {
+  font-size: 24rpx;
+  color: #6B7280;
+}
+
+.expand-icon {
+  font-size: 24rpx;
+  color: #6B7280;
+  padding: 8rpx;
+}
+
+/* 子分类列表 */
+.subcategory-list {
+  border-top: 1rpx solid #E2E6EC;
+}
+
+.subcategory-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx;
+  border-bottom: 1rpx solid #F2F3F5;
+}
+
+.subcategory-item:last-child {
+  border-bottom: none;
+}
+
+.subcategory-name {
+  font-size: 26rpx;
+  color: #374151;
+}
+
+.subcategory-arrow {
+  font-size: 28rpx;
+  color: #9CA3AF;
+}
+
+/* Section 区域 */
+.section {
+  margin-top: 30rpx;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1A1D23;
+}
+
+.section-more {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.more-text {
+  font-size: 26rpx;
+  color: #3B6FE0;
+}
+
+.more-icon {
+  font-size: 28rpx;
+  color: #3B6FE0;
+}
+
+/* 最近阅读 */
+.recent-list {
+  padding: 0 30rpx;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  background-color: #FFFFFF;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 12rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.recent-icon {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  flex-shrink: 0;
+}
+
+.recent-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  min-width: 0;
+}
+
+.recent-title {
+  font-size: 26rpx;
+  color: #1A1D23;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-meta {
+  font-size: 22rpx;
+  color: #6B7280;
+}
+
+.recent-progress {
+  flex-shrink: 0;
+}
+
+.progress-text {
+  font-size: 22rpx;
+  color: #3B6FE0;
+  font-weight: 500;
+}
+
+/* 推荐阅读 */
+.recommend-list {
+  padding: 0 30rpx;
+}
+
+.recommend-card {
+  background-color: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.recommend-header {
+  margin-bottom: 16rpx;
+}
+
+.recommend-tag {
+  display: inline-block;
+  padding: 6rpx 16rpx;
+  border-radius: 12rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+}
+
+.recommend-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1A1D23;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.recommend-desc {
+  font-size: 24rpx;
+  color: #6B7280;
+  line-height: 1.5;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.recommend-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.recommend-author {
+  font-size: 22rpx;
+  color: #3B6FE0;
+}
+
+.recommend-views {
+  font-size: 22rpx;
+  color: #9CA3AF;
+}

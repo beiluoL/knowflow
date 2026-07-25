@@ -200,7 +200,7 @@
 </template>
 
 <script setup lang="ts">
-import { confirmDialog, notify } from '@/utils/toast'
+import { confirmDialog, getApiError, notify } from '@/utils/toast'
 import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
@@ -343,8 +343,8 @@ const save = async () => {
     notify(editingId.value ? '更新成功' : '创建成功', 'success')
     closeModal()
     await loadUsers()
-  } catch (e: any) {
-    notify('保存失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  } catch (e: unknown) {
+    notify('保存失败：' + getApiError(e), 'error')
   } finally {
     saving.value = false
   }
@@ -357,8 +357,8 @@ const removeUser = async (user: UserRow) => {
     notify('删除成功', 'success')
     if (pagedUsers.value.length === 1 && currentPage.value > 1) currentPage.value -= 1
     await loadUsers()
-  } catch (e: any) {
-    notify('删除失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  } catch (e: unknown) {
+    notify('删除失败：' + getApiError(e), 'error')
   }
 }
 
@@ -379,8 +379,8 @@ const loadUsers = async () => {
       registerTime: formatDate(u.createTime),
       raw: u,
     }))
-  } catch (e: any) {
-    notify('加载用户失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  } catch (e: unknown) {
+    notify('加载用户失败：' + getApiError(e), 'error')
   } finally {
     loading.value = false
   }

@@ -1,74 +1,136 @@
 <template>
-  <div class="max-w-5xl mx-auto space-y-6">
-    <Card class="overflow-hidden">
-      <div class="bg-gradient-to-r from-primary-500 to-primary-600 h-32 -m-6 mb-0"></div>
-      <div class="px-6 pb-6 -mt-10">
-        <div class="flex flex-col md:flex-row md:items-end gap-4">
-          <Avatar
-            :name="user.nickname"
-            size="xl"
-            class="ring-4 ring-white shadow-lg"
-          />
-          <div class="flex-1">
-            <div class="flex items-center gap-2 flex-wrap">
-              <h1 class="text-2xl font-bold text-gray-800">{{ user.nickname }}</h1>
-              <Badge variant="primary" class="text-xs">Lv.{{ user.level }}</Badge>
-            </div>
-            <p class="text-gray-500 mt-1">@{{ user.username }}</p>
-            <p class="text-sm text-gray-400 mt-1">{{ user.role === 'admin' ? '管理员' : '注册用户' }}</p>
+  <div class="max-w-3xl mx-auto space-y-4 animate-fade-in">
+    <!-- Profile Header Card (设计稿：蓝紫渐变 + 居中头像 + 等级徽章 + 三栏统计) -->
+    <section
+      class="rounded-lg p-6"
+      style="background: linear-gradient(135deg, #3B6FE0 0%, #5B8FE8 100%)"
+    >
+      <div class="flex flex-col items-center gap-3">
+        <div
+          class="flex h-16 w-16 items-center justify-center rounded-full text-xl font-bold"
+          style="background: rgba(255,255,255,0.25); color: #FFFFFF;"
+        >
+          {{ (user.nickname || 'U').charAt(0).toUpperCase() }}
+        </div>
+        <div class="text-[18px] font-semibold text-white">{{ user.nickname || '探索者' }}</div>
+        <div
+          class="inline-flex items-center gap-1 rounded-md px-2.5 py-1"
+          style="background: rgba(255,255,255,0.2)"
+        >
+          <Icon name="award" :size="14" class="text-white" />
+          <span class="text-[12px] font-medium whitespace-nowrap text-white">
+            Lv.{{ user.level ?? 1 }} {{ levelTitle }}
+          </span>
+        </div>
+        <div class="mt-1 flex w-full items-center justify-around">
+          <div class="flex flex-col items-center gap-0.5">
+            <span class="text-[18px] font-bold text-white">{{ user.readDocsCount ?? 0 }}</span>
+            <span class="text-[11px]" style="color: rgba(255,255,255,0.75)">阅读</span>
           </div>
-          <div class="flex gap-2">
-            <Button variant="secondary" icon-name="settings" @click="activeTab = 'settings'">
-              编辑资料
-            </Button>
+          <div class="h-8 w-px" style="background: rgba(255,255,255,0.2)"></div>
+          <div class="flex flex-col items-center gap-0.5">
+            <span class="text-[18px] font-bold text-white">{{ user.totalStudyHours ?? 0 }}h</span>
+            <span class="text-[11px]" style="color: rgba(255,255,255,0.75)">学习时长</span>
+          </div>
+          <div class="h-8 w-px" style="background: rgba(255,255,255,0.2)"></div>
+          <div class="flex flex-col items-center gap-0.5">
+            <span class="text-[18px] font-bold text-white">{{ user.streakDays ?? 0 }} 天</span>
+            <span class="text-[11px]" style="color: rgba(255,255,255,0.75)">连续打卡</span>
           </div>
         </div>
+      </div>
+    </section>
 
-        <div class="mt-6">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-sm text-gray-600">经验值</span>
-            <span class="text-sm font-medium text-gray-700">{{ user.exp }} / {{ nextLevelExp }}</span>
+    <!-- Level Progress Card (设计稿：独立等级进度卡) -->
+    <Card padding="md">
+      <div class="flex items-center justify-between">
+        <span class="text-[15px] font-semibold text-gray-800">等级进度</span>
+        <span class="text-[12px] font-medium text-primary-600">
+          {{ user.exp ?? 0 }} / {{ nextLevelExp }} XP
+        </span>
+      </div>
+      <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-[#E8ECF1]">
+        <div
+          class="h-full rounded-full transition-all duration-500"
+          :style="{ width: `${expPercentage}%`, background: 'var(--kb-primary)' }"
+        ></div>
+      </div>
+      <div class="mt-2 flex items-center justify-between">
+        <span class="text-[12px] text-gray-500">Lv.{{ user.level ?? 1 }}</span>
+        <span class="text-[12px] text-gray-500">Lv.{{ (user.level ?? 1) + 1 }}</span>
+      </div>
+    </Card>
+
+    <!-- Achievement Badges (设计稿：横滚徽章) -->
+    <Card padding="md">
+      <template #header>
+        <div class="flex items-center justify-between">
+          <h3 class="font-semibold text-gray-800">成就徽章</h3>
+          <button class="flex items-center gap-1 text-sm text-primary-500 hover:text-primary-600 transition-colors">
+            全部
+            <Icon name="chevron-right" :size="14" />
+          </button>
+        </div>
+      </template>
+      <div v-if="badges.length === 0" class="badges-empty">
+        <Icon name="award" :size="32" class="text-gray-300" />
+        <p class="text-sm text-gray-500 mt-2">暂无徽章，继续努力吧！</p>
+      </div>
+      <div v-else class="flex flex-nowrap gap-4 overflow-x-auto no-scrollbar pb-1">
+        <div
+          v-for="badge in badges" :key="badge.id"
+          class="flex shrink-0 flex-col items-center gap-1.5"
+        >
+          <div
+            class="w-12 h-12 rounded-full flex items-center justify-center"
+            :style="badge.unlocked ? { background: badge.gradient } : { background: '#E8ECF1' }"
+          >
+            <Icon
+              :name="badge.icon"
+              :size="20"
+              :class="badge.unlocked ? 'text-white' : 'text-gray-400'"
+            />
           </div>
-          <Progress :percentage="expPercentage" variant="primary" />
-          <p class="text-xs text-gray-400 mt-1">距离下一级还需 {{ nextLevelExp - (user.exp ?? 0) }} 经验</p>
+          <span
+            class="text-[11px] text-center whitespace-nowrap"
+            :class="badge.unlocked ? 'text-gray-700' : 'text-gray-400'"
+          >{{ badge.label }}</span>
         </div>
       </div>
     </Card>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <Card hoverable class="text-center">
-        <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-primary-50 flex items-center justify-center">
-          <Icon name="clock" :size="24" />
+    <!-- Menu List (设计稿：菜单列表) -->
+    <Card padding="none">
+      <button
+        v-for="(item, idx) in menuItems"
+        :key="item.key"
+        type="button"
+        class="flex w-full items-center justify-between px-4 py-3.5 transition-colors hover:bg-gray-50"
+        :class="idx < menuItems.length - 1 ? 'border-b border-gray-100' : ''"
+        @click="handleMenuClick(item.key)"
+      >
+        <div class="flex items-center gap-3">
+          <div class="flex h-8 w-8 items-center justify-center rounded-md bg-[#E8ECF1]">
+            <Icon :name="item.icon" :size="16" class="text-gray-700" />
+          </div>
+          <span class="text-[14px] font-medium text-gray-800">{{ item.label }}</span>
         </div>
-        <p class="text-2xl font-bold text-gray-800">{{ user.readDocsCount }}</p>
-        <p class="text-sm text-gray-500 mt-1">已读文档</p>
-      </Card>
-
-      <Card hoverable class="text-center">
-        <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-success-50 flex items-center justify-center">
-          <Icon name="heart" :size="24" />
+        <div v-if="item.toggle" class="flex items-center">
+          <div
+            class="h-6 w-11 rounded-full p-0.5 transition-colors"
+            :class="darkMode ? 'bg-primary-500' : 'bg-[#E8ECF1]'"
+          >
+            <div
+              class="h-5 w-5 rounded-full bg-white transition-transform"
+              :class="darkMode ? 'translate-x-5' : 'translate-x-0'"
+            ></div>
+          </div>
         </div>
-        <p class="text-2xl font-bold text-gray-800">{{ favoriteDocs.length }}</p>
-        <p class="text-sm text-gray-500 mt-1">收藏数</p>
-      </Card>
+        <Icon v-else name="chevron-right" :size="16" class="text-gray-400" />
+      </button>
+    </Card>
 
-      <Card hoverable class="text-center">
-        <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-warning-50 flex items-center justify-center">
-          <Icon name="book-open" :size="24" />
-        </div>
-        <p class="text-2xl font-bold text-gray-800">{{ user.totalStudyHours }}h</p>
-        <p class="text-sm text-gray-500 mt-1">学习时长</p>
-      </Card>
-
-      <Card hoverable class="text-center">
-        <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-danger-50 flex items-center justify-center">
-          <Icon name="flame" :size="24" />
-        </div>
-        <p class="text-2xl font-bold text-gray-800">{{ user.streakDays }}</p>
-        <p class="text-sm text-gray-500 mt-1">连续天数</p>
-      </Card>
-    </div>
-
+    <!-- Tab Content Area -->
     <Card padding="none">
       <div class="border-b border-gray-100">
         <div class="flex">
@@ -215,8 +277,6 @@ import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
-import Avatar from '@/components/ui/Avatar.vue'
-import Progress from '@/components/ui/Progress.vue'
 import { userApi, docsApi } from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import type { UserVO, DocVO } from '@/api/types'
@@ -245,12 +305,78 @@ const tabs = [
   { key: 'settings', label: '账号设置', iconName: 'settings' },
 ]
 
+const darkMode = ref(false)
+
+const levelTitle = computed(() => {
+  const lv = user.value.level ?? 1
+  if (lv >= 15) return '知识大师'
+  if (lv >= 10) return '代码探索者'
+  if (lv >= 5) return '学习者'
+  return '新手'
+})
+
+interface MenuItem {
+  key: string
+  label: string
+  icon: string
+  toggle?: boolean
+}
+
+const menuItems: MenuItem[] = [
+  { key: 'stats', label: '学习统计', icon: 'bar-chart-2' },
+  { key: 'favorites', label: '我的收藏', icon: 'bookmark' },
+  { key: 'settings', label: '学习设置', icon: 'settings' },
+  { key: 'darkMode', label: '深色模式', icon: 'moon', toggle: true },
+  { key: 'about', label: '关于我们', icon: 'info' },
+]
+
+const handleMenuClick = (key: string) => {
+  if (key === 'darkMode') {
+    darkMode.value = !darkMode.value
+    notify(darkMode.value ? '已切换到深色模式' : '已切换到浅色模式', 'info')
+    return
+  }
+  if (key === 'stats') {
+    router.push('/learning/center')
+    return
+  }
+  if (key === 'favorites') {
+    activeTab.value = 'favorites'
+    return
+  }
+  if (key === 'settings') {
+    activeTab.value = 'settings'
+    return
+  }
+  if (key === 'about') {
+    notify('KnowFlow v1.0 - 一站式知识学习平台', 'info')
+  }
+}
+
 const nextLevelExp = computed(() => ((user.value.level ?? 1) + 1) * 500)
 const expPercentage = computed(() => Math.min(100, Math.round(((user.value.exp ?? 0) / nextLevelExp.value) * 100)))
 
 const favoriteDocs = ref<DocVO[]>([])
 const historyDocs = ref<DocVO[]>([])
 const saving = ref(false)
+
+interface Badge {
+  id: number
+  label: string
+  icon: string
+  gradient: string
+  unlocked: boolean
+}
+
+const badges = ref<Badge[]>([
+  { id: 1, label: '连续7天', icon: 'flame', gradient: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', unlocked: true },
+  { id: 2, label: '百篇阅读', icon: 'book-open', gradient: 'linear-gradient(135deg, #3B6FE0 0%, #5B8FE8 100%)', unlocked: true },
+  { id: 3, label: '代码达人', icon: 'code', gradient: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)', unlocked: true },
+  { id: 4, label: '学习先锋', icon: 'award', gradient: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)', unlocked: true },
+  { id: 5, label: '知识探索', icon: 'compass', gradient: 'linear-gradient(135deg, #06B6D4 0%, #22D3EE 100%)', unlocked: false },
+  { id: 6, label: '坚持大师', icon: 'star', gradient: 'linear-gradient(135deg, #EC4899 0%, #F472B6 100%)', unlocked: false },
+  { id: 7, label: '闪卡王者', icon: 'layers', gradient: 'linear-gradient(135deg, #F97316 0%, #FB923C 100%)', unlocked: false },
+])
 
 const settingsForm = reactive({
   nickname: '',
@@ -338,5 +464,23 @@ onMounted(async () => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.badges-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  text-align: center;
 }
 </style>

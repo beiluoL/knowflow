@@ -1,5 +1,29 @@
 <template>
-    <div class="space-y-6 animate-fade-in">
+  <div class="space-y-6 animate-fade-in">
+    <div v-if="loading" class="practice-loading">
+      <div class="loading-spinner"></div>
+      <p class="text-gray-500 mt-3">加载题目中...</p>
+    </div>
+
+    <div v-else-if="error" class="practice-error">
+      <Icon name="alert-circle" :size="48" class="text-red-400" />
+      <p class="text-gray-700 font-medium mt-3">加载失败</p>
+      <p class="text-gray-500 text-sm mt-1">{{ error }}</p>
+      <Button variant="primary" size="sm" class="mt-4" @click="loadQuestions">
+        <Icon name="refresh-cw" :size="14" class="mr-1" />
+        重新加载
+      </Button>
+    </div>
+
+    <div v-else-if="questions.length === 0" class="practice-empty">
+      <div class="empty-icon-box">
+        <Icon name="inbox" :size="48" class="text-gray-300" />
+      </div>
+      <p class="text-gray-700 font-medium mt-3">暂无练习题</p>
+      <p class="text-gray-500 text-sm mt-1">稍后再来看看吧～</p>
+    </div>
+
+    <template v-else>
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-bold text-gray-800">代码练习</h1>
@@ -19,10 +43,10 @@
             <template #header>
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <Badge :variant="currentQuestion.difficulty === 'easy' ? 'success' : currentQuestion.difficulty === 'medium' ? 'warning' : 'danger'">
-                    {{ currentQuestion.difficulty === 'easy' ? '简单' : currentQuestion.difficulty === 'medium' ? '中等' : '困难' }}
+                  <Badge :variant="currentQuestion?.difficulty === 'easy' ? 'success' : currentQuestion?.difficulty === 'medium' ? 'warning' : 'danger'">
+                    {{ currentQuestion?.difficulty === 'easy' ? '简单' : currentQuestion?.difficulty === 'medium' ? '中等' : '困难' }}
                   </Badge>
-                  <span class="text-sm text-gray-500">{{ currentQuestion.category }}</span>
+                  <span class="text-sm text-gray-500">{{ currentQuestion?.category }}</span>
                 </div>
                 <div class="flex items-center gap-2">
                   <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="上一题">
@@ -37,19 +61,19 @@
             </template>
 
             <div class="space-y-4">
-              <h3 class="text-lg font-medium text-gray-800">{{ currentQuestion.title }}</h3>
-              <p class="text-gray-600 leading-relaxed">{{ currentQuestion.description }}</p>
+              <h3 class="text-lg font-medium text-gray-800">{{ currentQuestion?.title }}</h3>
+              <p class="text-gray-600 leading-relaxed">{{ currentQuestion?.description }}</p>
 
               <div class="bg-gray-50 rounded-lg p-4">
                 <h4 class="text-sm font-medium text-gray-700 mb-2">示例</h4>
                 <div class="space-y-2">
                   <div class="text-sm">
                     <span class="text-gray-500">输入：</span>
-                    <code class="bg-gray-100 px-2 py-0.5 rounded">{{ currentQuestion.example.input }}</code>
+                    <code class="bg-gray-100 px-2 py-0.5 rounded">{{ currentQuestion?.example?.input }}</code>
                   </div>
                   <div class="text-sm">
                     <span class="text-gray-500">输出：</span>
-                    <code class="bg-gray-100 px-2 py-0.5 rounded">{{ currentQuestion.example.output }}</code>
+                    <code class="bg-gray-100 px-2 py-0.5 rounded">{{ currentQuestion?.example?.output }}</code>
                   </div>
                 </div>
               </div>
@@ -84,7 +108,7 @@
               <div v-if="showHint" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <div class="flex items-start gap-2">
                   <Icon name="lightbulb" :size="18" class="text-yellow-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-yellow-800">{{ currentQuestion.hint }}</p>
+                  <p class="text-sm text-yellow-800">{{ currentQuestion?.hint }}</p>
                 </div>
               </div>
 
@@ -156,7 +180,8 @@
           </Card>
         </div>
       </div>
-    </div>
+    </template>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -173,6 +198,8 @@ const selectedLanguage = ref('javascript')
 const userCode = ref('')
 const showHint = ref(false)
 const runResult = ref<{ success: boolean; output: string; time: number } | null>(null)
+const loading = ref(true)
+const error = ref('')
 
 const todayProgress = ref({
   completed: 3,
@@ -192,7 +219,7 @@ interface Question {
   status: 'pending' | 'completed'
 }
 
-const questions: Question[] = [
+const mockQuestions: Question[] = [
   {
     id: '1',
     title: '两数之和',
@@ -225,7 +252,26 @@ const questions: Question[] = [
   },
 ]
 
-const currentQuestion = ref(questions[0])
+const questions = ref<Question[]>([])
+const currentQuestion = ref<Question | null>(null)
+
+async function loadQuestions(): Promise<void> {
+  loading.value = true
+  error.value = ''
+  try {
+    await new Promise(resolve => setTimeout(resolve, 600))
+    questions.value = [...mockQuestions]
+    currentQuestion.value = questions.value[0] || null
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '加载失败'
+    error.value = `题目加载失败：${message}`
+    notify('题目加载失败', 'error')
+  } finally {
+    loading.value = false
+  }
+}
+
+loadQuestions()
 
 const runCode = () => {
   runResult.value = {
@@ -237,7 +283,9 @@ const runCode = () => {
 
 const submitCode = () => {
   notify('答案提交成功！', 'success')
-  questions[currentIndex.value].status = 'completed'
+  if (questions.value[currentIndex.value]) {
+    questions.value[currentIndex.value].status = 'completed'
+  }
   todayProgress.value.completed++
   todayProgress.value.correct++
 }
@@ -251,5 +299,39 @@ const submitCode = () => {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+.practice-loading,
+.practice-error,
+.practice-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty-icon-box {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

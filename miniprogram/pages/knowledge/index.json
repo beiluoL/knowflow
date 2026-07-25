@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "知识库",
+  "navigationBarBackgroundColor": "#3B6FE0",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#F7F8FA",
+  "enablePullDownRefresh": true
+}

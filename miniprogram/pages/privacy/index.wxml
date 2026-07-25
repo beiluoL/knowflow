@@ -1,0 +1,86 @@
+<view class="page-container">
+  <view class="header">
+    <text class="back-btn" bindtap="goBack">‹</text>
+    <text class="header-title">隐私政策</text>
+  </view>
+
+  <scroll-view class="content" scroll-y>
+    <view class="section">
+      <text class="section-title">一、引言</text>
+      <text class="paragraph">CodeLearn（以下简称"我们"或"本应用"）非常重视用户的隐私保护。本隐私政策向您说明我们如何收集、使用、存储和保护您的个人信息。请您在使用本应用之前，仔细阅读并充分理解本隐私政策的全部内容。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">二、我们收集的信息</text>
+      <text class="paragraph">我们可能收集以下类型的信息：</text>
+      <text class="list-item">1. 设备信息：设备型号、操作系统版本、唯一设备标识符</text>
+      <text class="list-item">2. 日志信息：使用时长、访问页面、操作记录</text>
+      <text class="list-item">3. 学习数据：学习进度、闪卡答题记录、收藏内容</text>
+      <text class="list-item">4. 搜索记录：搜索关键词（仅存储在本地）</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">三、信息的使用</text>
+      <text class="paragraph">我们使用收集的信息用于以下目的：</text>
+      <text class="list-item">1. 提供和改进本应用的服务</text>
+      <text class="list-item">2. 记录您的学习进度和偏好</text>
+      <text class="list-item">3. 优化推荐内容和用户体验</text>
+      <text class="list-item">4. 分析和改进产品功能</text>
+      <text class="list-item">5. 保障账户安全和服务稳定</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">四、信息的存储与保护</text>
+      <text class="paragraph">1. 您的学习数据主要存储在您的设备本地，我们不会上传至服务器。</text>
+      <text class="paragraph">2. 我们采用行业标准的安全措施保护您的信息，防止未经授权的访问、使用或泄露。</text>
+      <text class="paragraph">3. 尽管我们采取了合理的安全措施，但互联网传输无法保证绝对安全，请您理解。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">五、信息的共享</text>
+      <text class="paragraph">我们不会向任何第三方出售、出租或交换您的个人信息，除非：</text>
+      <text class="list-item">1. 获得您的明确同意</text>
+      <text class="list-item">2. 法律法规要求</text>
+      <text class="list-item">3. 保护我们的合法权益</text>
+      <text class="list-item">4. 合并、收购或资产转让时</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">六、Cookie 和本地存储</text>
+      <text class="paragraph">本应用使用微信小程序的本地存储（Storage）来保存您的学习记录和设置偏好。这些信息仅存储在您的设备上，不会传输到服务器。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">七、您的权利</text>
+      <text class="paragraph">您对您的个人信息享有以下权利：</text>
+      <text class="list-item">1. 访问权：您可以查看您的学习记录和设置</text>
+      <text class="list-item">2. 更正权：您可以修改您的学习设置</text>
+      <text class="list-item">3. 删除权：您可以清除本地存储的数据</text>
+      <text class="list-item">4. 撤回同意权：您可以随时停止使用本应用</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">八、未成年人保护</text>
+      <text class="paragraph">本应用主要面向成年用户。如果您是未成年人，请在监护人的指导下使用本应用。我们不会故意收集未成年人的个人信息。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">九、政策更新</text>
+      <text class="paragraph">我们可能会不时更新本隐私政策。更新后的政策将在本应用内公布，公布后即刻生效。您继续使用本应用即视为接受更新后的隐私政策。</text>
+    </view>
+
+    <view class="section">
+      <text class="section-title">十、联系我们</text>
+      <text class="paragraph">如您对本隐私政策有任何疑问或建议，请通过以下方式联系我们：</text>
+      <text class="list-item">邮箱：privacy@codelearn.com</text>
+      <text class="list-item">电话：400-123-4567</text>
+      <text class="list-item">地址：北京市海淀区中关村软件园</text>
+    </view>
+
+    <view class="footer-note">
+      <text>本隐私政策最后更新日期：2024年1月15日</text>
+    </view>
+
+    <view class="bottom-space"></view>
+  </scroll-view>
+</view>

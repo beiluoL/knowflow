@@ -274,7 +274,7 @@
 </template>
 
 <script setup lang="ts">
-import { notify } from '@/utils/toast'
+import { getApiError, notify } from '@/utils/toast'
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
@@ -318,8 +318,8 @@ const handleLogin = async () => {
     })
     const redirect = (route.query.redirect as string) || '/'
     router.push(redirect)
-  } catch (e: any) {
-    const msg = e?.response?.data?.message || '登录失败，请检查用户名或密码'
+  } catch (e: unknown) {
+    const msg = getApiError(e, '登录失败，请检查用户名或密码')
     notify(msg, 'info')
   } finally {
     loginLoading.value = false
@@ -347,8 +347,8 @@ const handleRegister = async () => {
     })
     notify('注册成功，已自动登录！', 'success')
     router.push('/')
-  } catch (e: any) {
-    const msg = e?.response?.data?.message || '注册失败，请稍后再试'
+  } catch (e: unknown) {
+    const msg = getApiError(e, '注册失败，请稍后再试')
     notify(msg, 'info')
   } finally {
     registerLoading.value = false

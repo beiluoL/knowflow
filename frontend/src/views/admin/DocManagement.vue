@@ -48,7 +48,8 @@
                   </button>
                 </div>
               </div>
-              <Button icon-name="plus" @click="openCreate">新增文档</Button>
+              <Button icon-name="upload" variant="secondary" @click="goToUpload">上传文档</Button>
+              <Button icon-name="plus" @click="goToCreate">新增文档</Button>
             </div>
           </div>
         </div>
@@ -199,8 +200,9 @@
 </template>
 
 <script setup lang="ts">
-import { confirmDialog, notify } from '@/utils/toast'
+import { confirmDialog, getApiError, notify } from '@/utils/toast'
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import Input from '@/components/ui/Input.vue'
@@ -208,6 +210,15 @@ import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
 import { adminApi } from '@/api'
 import type { CategoryVO, DocVO, DocInput } from '@/api/types'
+
+const router = useRouter()
+
+const goToCreate = () => {
+  router.push('/docs/new')
+}
+const goToUpload = () => {
+  router.push('/upload')
+}
 
 interface DocRow {
   id: number
@@ -284,12 +295,6 @@ const form = ref<DocInput & { content?: string }>({
   status: 1,
 })
 
-const openCreate = () => {
-  editingId.value = null
-  form.value = { title: '', summary: '', categoryId: 0, tags: '', content: '', status: 1 }
-  showModal.value = true
-}
-
 const openEdit = (doc: DocRow) => {
   editingId.value = doc.id
   form.value = {
@@ -331,8 +336,8 @@ const save = async () => {
     notify(editingId.value ? '更新成功' : '创建成功', 'success')
     closeModal()
     await loadDocs()
-  } catch (e: any) {
-    notify('保存失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  } catch (e: unknown) {
+    notify('保存失败：' + getApiError(e), 'error')
   } finally {
     saving.value = false
   }
@@ -347,8 +352,8 @@ const removeDoc = async (doc: DocRow) => {
       currentPage.value -= 1
     }
     await loadDocs()
-  } catch (e: any) {
-    notify('删除失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  } catch (e: unknown) {
+    notify('删除失败：' + getApiError(e), 'error')
   }
 }
 
@@ -370,8 +375,8 @@ const loadDocs = async () => {
       status: d.status,
       raw: d,
     }))
-  } catch (e: any) {
-    notify('加载文档失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  } catch (e: unknown) {
+    notify('加载文档失败：' + getApiError(e), 'error')
   } finally {
     loading.value = false
   }

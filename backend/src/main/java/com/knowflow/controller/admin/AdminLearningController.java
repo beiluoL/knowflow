@@ -1,6 +1,8 @@
 package com.knowflow.controller.admin;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.knowflow.common.PageResult;
 import com.knowflow.common.Result;
 import com.knowflow.entity.LearningChapter;
 import com.knowflow.entity.LearningFlashcard;
@@ -11,6 +13,7 @@ import com.knowflow.mapper.LearningPathMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin/learning")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminLearningController {
 
     private final LearningPathMapper pathMapper;
@@ -89,13 +93,18 @@ public class AdminLearningController {
     // ===== 闪卡 =====
     @Operation(summary = "闪卡列表")
     @GetMapping("/flashcards")
-    public Result<List<LearningFlashcard>> listFlashcards(
+    public Result<PageResult<LearningFlashcard>> listFlashcards(
             @RequestParam(required = false) Long pathId,
-            @RequestParam(required = false) Long chapterId) {
+            @RequestParam(required = false) Long chapterId,
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+        Page<LearningFlashcard> page = new Page<>(pageNum, Math.min(pageSize, 100));
         QueryWrapper<LearningFlashcard> wrapper = new QueryWrapper<>();
         if (pathId != null) wrapper.eq("path_id", pathId);
         if (chapterId != null) wrapper.eq("chapter_id", chapterId);
-        return Result.success(flashcardMapper.selectList(wrapper));
+        wrapper.orderByDesc("create_time");
+        Page<LearningFlashcard> result = flashcardMapper.selectPage(page, wrapper);
+        return Result.success(PageResult.of(result));
     }
 
     @Operation(summary = "新增闪卡")

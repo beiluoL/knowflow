@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心</title>
+    <style id="theme-vars">
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme inline {
+  --color-cl-background: #F7F8FA;
+  --color-cl-foreground: #1A1D23;
+  --color-cl-card: #FFFFFF;
+  --color-cl-card-foreground: #1A1D23;
+  --color-cl-popover: #FFFFFF;
+  --color-cl-popover-foreground: #1A1D23;
+  --color-cl-primary: #3B6FE0;
+  --color-cl-primary-foreground: #FFFFFF;
+  --color-cl-muted: #E8ECF1;
+  --color-cl-muted-foreground: #6B7280;
+  --color-cl-border: #E2E6EC;
+  --color-cl-input: #E2E6EC;
+  --color-cl-ring: #3B6FE0;
+  --color-cl-sidebar: #F0F2F5;
+  --color-cl-sidebar-foreground: #374151;
+  --color-cl-state-success: #10B981;
+  --color-cl-state-success-foreground: #FFFFFF;
+  --color-cl-state-error: #EF4444;
+  --color-cl-state-error-foreground: #FFFFFF;
+  --color-cl-state-warning: #F59E0B;
+  --color-cl-state-warning-foreground: #FFFFFF;
+  --color-cl-radius-sm: 8px;
+  --color-cl-radius-md: 12px;
+  --color-cl-radius-lg: 16px;
+}
+
+:root {
+  --cl-background: #F7F8FA;
+  --cl-foreground: #1A1D23;
+  --cl-card: #FFFFFF;
+  --cl-card-foreground: #1A1D23;
+  --cl-popover: #FFFFFF;
+  --cl-popover-foreground: #1A1D23;
+  --cl-primary: #3B6FE0;
+  --cl-primary-foreground: #FFFFFF;
+  --cl-muted: #E8ECF1;
+  --cl-muted-foreground: #6B7280;
+  --cl-border: #E2E6EC;
+  --cl-input: #E2E6EC;
+  --cl-ring: #3B6FE0;
+  --cl-sidebar: #F0F2F5;
+  --cl-sidebar-foreground: #374151;
+  --cl-state-success: #10B981;
+  --cl-state-success-foreground: #FFFFFF;
+  --cl-state-error: #EF4444;
+  --cl-state-error-foreground: #FFFFFF;
+  --cl-state-warning: #F59E0B;
+  --cl-state-warning-foreground: #FFFFFF;
+  --cl-radius-sm: 8px;
+  --cl-radius-md: 12px;
+  --cl-radius-lg: 16px;
+  --font-sans: 'Noto Sans SC', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+#semantic-token-fallback {
+  --background: var(--cl-background);
+  --foreground: var(--cl-foreground);
+  --card: var(--cl-card);
+  --card-foreground: var(--cl-card-foreground);
+  --popover: var(--cl-popover);
+  --popover-foreground: var(--cl-popover-foreground);
+  --primary: var(--cl-primary);
+  --primary-foreground: var(--cl-primary-foreground);
+  --muted: var(--cl-muted);
+  --muted-foreground: var(--cl-muted-foreground);
+  --border: var(--cl-border);
+  --input: var(--cl-input);
+  --ring: var(--cl-ring);
+  --radius-sm: var(--cl-radius-sm);
+  --radius-md: var(--cl-radius-md);
+  --radius-lg: var(--cl-radius-lg);
+}
+
+/* Typography scale */
+.cl-h1 {
+  font-family: var(--font-sans);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--cl-foreground);
+}
+
+.cl-h2 {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--cl-foreground);
+}
+
+.cl-h3 {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--cl-foreground);
+}
+
+.cl-body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--cl-card-foreground);
+}
+
+.cl-body-sm {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--cl-muted-foreground);
+}
+
+.cl-caption {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--cl-muted-foreground);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Mini program safe area simulation */
+.mp-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+.mp-status-bar {
+  height: 44px;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--cl-background);
+    --color-foreground: var(--cl-foreground);
+    --color-card: var(--cl-card);
+    --color-card-foreground: var(--cl-card-foreground);
+    --color-popover: var(--cl-popover);
+    --color-popover-foreground: var(--cl-popover-foreground);
+    --color-primary: var(--cl-primary);
+    --color-primary-foreground: var(--cl-primary-foreground);
+    --color-muted: var(--cl-muted);
+    --color-muted-foreground: var(--cl-muted-foreground);
+    --color-border: var(--cl-border);
+    --color-input: var(--cl-input);
+    --color-ring: var(--cl-ring);
+    --color-sidebar: var(--cl-sidebar);
+    --color-sidebar-foreground: var(--cl-sidebar-foreground);
+    --radius-sm: var(--cl-radius-sm);
+    --radius-md: var(--cl-radius-md);
+    --radius-lg: var(--cl-radius-lg);
+  }
+  @layer base {
+    body { background: var(--cl-background); color: var(--cl-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--cl-background); }
+      .text-background { color: var(--cl-background); }
+      .border-background { border-color: var(--cl-background); }
+      .ring-background { --tw-ring-color: var(--cl-background); }
+      .bg-foreground { background-color: var(--cl-foreground); }
+      .text-foreground { color: var(--cl-foreground); }
+      .border-foreground { border-color: var(--cl-foreground); }
+      .ring-foreground { --tw-ring-color: var(--cl-foreground); }
+      .bg-card { background-color: var(--cl-card); }
+      .text-card { color: var(--cl-card); }
+      .border-card { border-color: var(--cl-card); }
+      .ring-card { --tw-ring-color: var(--cl-card); }
+      .bg-card-foreground { background-color: var(--cl-card-foreground); }
+      .text-card-foreground { color: var(--cl-card-foreground); }
+      .border-card-foreground { border-color: var(--cl-card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--cl-card-foreground); }
+      .bg-popover { background-color: var(--cl-popover); }
+      .text-popover { color: var(--cl-popover); }
+      .border-popover { border-color: var(--cl-popover); }
+      .ring-popover { --tw-ring-color: var(--cl-popover); }
+      .bg-popover-foreground { background-color: var(--cl-popover-foreground); }
+      .text-popover-foreground { color: var(--cl-popover-foreground); }
+      .border-popover-foreground { border-color: var(--cl-popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--cl-popover-foreground); }
+      .bg-primary { background-color: var(--cl-primary); }
+      .text-primary { color: var(--cl-primary); }
+      .border-primary { border-color: var(--cl-primary); }
+      .ring-primary { --tw-ring-color: var(--cl-primary); }
+      .bg-primary-foreground { background-color: var(--cl-primary-foreground); }
+      .text-primary-foreground { color: var(--cl-primary-foreground); }
+      .border-primary-foreground { border-color: var(--cl-primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--cl-primary-foreground); }
+      .bg-muted { background-color: var(--cl-muted); }
+      .text-muted { color: var(--cl-muted); }
+      .border-muted { border-color: var(--cl-muted); }
+      .ring-muted { --tw-ring-color: var(--cl-muted); }
+      .bg-muted-foreground { background-color: var(--cl-muted-foreground); }
+      .text-muted-foreground { color: var(--cl-muted-foreground); }
+      .border-muted-foreground { border-color: var(--cl-muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--cl-muted-foreground); }
+      .bg-border { background-color: var(--cl-border); }
+      .text-border { color: var(--cl-border); }
+      .border-border { border-color: var(--cl-border); }
+      .ring-border { --tw-ring-color: var(--cl-border); }
+      .bg-input { background-color: var(--cl-input); }
+      .text-input { color: var(--cl-input); }
+      .border-input { border-color: var(--cl-input); }
+      .ring-input { --tw-ring-color: var(--cl-input); }
+      .bg-ring { background-color: var(--cl-ring); }
+      .text-ring { color: var(--cl-ring); }
+      .border-ring { border-color: var(--cl-ring); }
+      .ring-ring { --tw-ring-color: var(--cl-ring); }
+      .bg-sidebar { background-color: var(--cl-sidebar); }
+      .text-sidebar { color: var(--cl-sidebar); }
+      .border-sidebar { border-color: var(--cl-sidebar); }
+      .ring-sidebar { --tw-ring-color: var(--cl-sidebar); }
+      .bg-sidebar-foreground { background-color: var(--cl-sidebar-foreground); }
+      .text-sidebar-foreground { color: var(--cl-sidebar-foreground); }
+      .border-sidebar-foreground { border-color: var(--cl-sidebar-foreground); }
+      .ring-sidebar-foreground { --tw-ring-color: var(--cl-sidebar-foreground); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main class="pb-[84px]">
+
+        <!-- Status bar spacer -->
+        <div class="h-11 bg-transparent"></div>
+
+        <!-- WeChat navigation bar (tab page: no back button, centered title) -->
+        <header class="sticky top-0 z-30 border-b border-[var(--cl-border)] bg-[var(--cl-background)]/95 backdrop-blur">
+            <div class="flex h-11 items-center px-4">
+                <div class="flex w-[88px] items-center justify-start"></div>
+                <div class="min-w-0 flex-1 text-center text-[16px] font-semibold tracking-[-0.02em]" style="color:var(--cl-foreground)">个人中心</div>
+                <div class="flex h-8 w-[88px] items-center justify-center rounded-full border border-[var(--cl-border)] bg-[var(--cl-background)]/90" style="color:var(--cl-foreground)">
+                    <button class="flex h-full flex-1 items-center justify-center" aria-label="更多">
+                        <i data-lucide="more-horizontal" class="h-4 w-4"></i>
+                    </button>
+                    <span class="h-4 w-px bg-[var(--cl-border)]" aria-hidden="true"></span>
+                    <button class="flex h-full flex-1 items-center justify-center" aria-label="关闭">
+                        <i data-lucide="x" class="h-4 w-4"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex flex-col gap-3 px-4 pt-4">
+
+            <!-- ===== Profile Header Card ===== -->
+            <section class="rounded-lg p-5" style="background:linear-gradient(135deg, #3B6FE0 0%, #5B8FE8 100%)" id="profile-header">
+                <div class="flex flex-col items-center gap-3">
+                    <!-- Avatar circle -->
+                    <div class="flex h-14 w-14 items-center justify-center rounded-full text-xl font-bold" style="background:rgba(255,255,255,0.25);color:#FFFFFF">
+                        Z
+                    </div>
+                    <!-- Username -->
+                    <div class="text-[18px] font-semibold" style="color:#FFFFFF">张小明</div>
+                    <!-- Level badge -->
+                    <div class="inline-flex items-center gap-1 rounded-md px-2.5 py-1" style="background:rgba(255,255,255,0.2)">
+                        <i data-lucide="award" class="h-3.5 w-3.5" style="color:#FFFFFF"></i>
+                        <span class="text-[12px] font-medium whitespace-nowrap" style="color:#FFFFFF">Lv.12 代码探索者</span>
+                    </div>
+                    <!-- Stats row -->
+                    <div class="mt-1 flex w-full items-center justify-around">
+                        <div class="flex flex-col items-center gap-0.5">
+                            <span class="text-[18px] font-bold" style="color:#FFFFFF">128</span>
+                            <span class="text-[11px]" style="color:rgba(255,255,255,0.75)">阅读</span>
+                        </div>
+                        <div class="h-8 w-px" style="background:rgba(255,255,255,0.2)"></div>
+                        <div class="flex flex-col items-center gap-0.5">
+                            <span class="text-[18px] font-bold" style="color:#FFFFFF">456h</span>
+                            <span class="text-[11px]" style="color:rgba(255,255,255,0.75)">学习时长</span>
+                        </div>
+                        <div class="h-8 w-px" style="background:rgba(255,255,255,0.2)"></div>
+                        <div class="flex flex-col items-center gap-0.5">
+                            <span class="text-[18px] font-bold" style="color:#FFFFFF">7 天</span>
+                            <span class="text-[11px]" style="color:rgba(255,255,255,0.75)">连续打卡</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== Level Progress Section ===== -->
+            <section class="rounded-lg p-4" style="background:var(--cl-card)" id="level-progress">
+                <div class="flex items-center justify-between">
+                    <span class="text-[15px] font-semibold" style="color:var(--cl-foreground)">等级进度</span>
+                    <span class="text-[12px] font-medium" style="color:var(--cl-primary)">2450 / 3000 XP</span>
+                </div>
+                <!-- XP progress bar -->
+                <div class="mt-3 h-2 w-full overflow-hidden rounded-full" style="background:var(--cl-muted)">
+                    <div class="h-full rounded-full" style="width:81.7%;background:var(--cl-primary)"></div>
+                </div>
+                <div class="mt-2 flex items-center justify-between">
+                    <span class="text-[12px]" style="color:var(--cl-muted-foreground)">Lv.12</span>
+                    <span class="text-[12px]" style="color:var(--cl-muted-foreground)">Lv.13</span>
+                </div>
+            </section>
+
+            <!-- ===== Achievement Badges Section ===== -->
+            <section class="rounded-lg p-4" style="background:var(--cl-card)" id="achievements">
+                <div class="flex items-center justify-between">
+                    <span class="text-[15px] font-semibold" style="color:var(--cl-foreground)">成就徽章</span>
+                    <span class="flex items-center gap-0.5 text-[13px]" style="color:var(--cl-primary)">全部 <i data-lucide="chevron-right" class="h-3.5 w-3.5"></i></span>
+                </div>
+                <!-- Horizontal scroll badges -->
+                <div class="mt-3 flex flex-nowrap gap-4 overflow-x-auto no-scrollbar pb-1">
+                    <!-- Badge 1: Unlocked -->
+                    <div class="flex shrink-0 flex-col items-center gap-1.5">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-full" style="background:linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)">
+                            <i data-lucide="flame" class="h-5 w-5" style="color:#FFFFFF"></i>
+                        </div>
+                        <span class="text-[11px] whitespace-nowrap" style="color:var(--cl-foreground)">连续7天</span>
+                    </div>
+                    <!-- Badge 2: Unlocked -->
+                    <div class="flex shrink-0 flex-col items-center gap-1.5">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-full" style="background:linear-gradient(135deg, #3B6FE0 0%, #5B8FE8 100%)">
+                            <i data-lucide="book-open" class="h-5 w-5" style="color:#FFFFFF"></i>
+                        </div>
+                        <span class="text-[11px] whitespace-nowrap" style="color:var(--cl-foreground)">百篇阅读</span>
+                    </div>
+                    <!-- Badge 3: Unlocked -->
+                    <div class="flex shrink-0 flex-col items-center gap-1.5">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-full" style="background:linear-gradient(135deg, #10B981 0%, #34D399 100%)">
+                            <i data-lucide="code" class="h-5 w-5" style="color:#FFFFFF"></i>
+                        </div>
+                        <span class="text-[11px] whitespace-nowrap" style="color:var(--cl-foreground)">代码达人</span>
+                    </div>
+                    <!-- Badge 4: Locked -->
+                    <div class="flex shrink-0 flex-col items-center gap-1.5">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-full" style="background:var(--cl-muted)">
+                            <i data-lucide="book-open-check" class="h-5 w-5" style="color:var(--cl-muted-foreground)"></i>
+                        </div>
+                        <span class="text-[11px] whitespace-nowrap" style="color:var(--cl-muted-foreground)">千篇阅读</span>
+                    </div>
+                    <!-- Badge 5: Locked -->
+                    <div class="flex shrink-0 flex-col items-center gap-1.5">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-full" style="background:var(--cl-muted)">
+                            <i data-lucide="star" class="h-5 w-5" style="color:var(--cl-muted-foreground)"></i>
+                        </div>
+                        <span class="text-[11px] whitespace-nowrap" style="color:var(--cl-muted-foreground)">社区之星</span>
+                    </div>
+                    <!-- Badge 6: Locked -->
+                    <div class="flex shrink-0 flex-col items-center gap-1.5">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-full" style="background:var(--cl-muted)">
+                            <i data-lucide="graduation-cap" class="h-5 w-5" style="color:var(--cl-muted-foreground)"></i>
+                        </div>
+                        <span class="text-[11px] whitespace-nowrap" style="color:var(--cl-muted-foreground)">全能学者</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== Menu List ===== -->
+            <section class="rounded-lg overflow-hidden" style="background:var(--cl-card)" id="menu-list">
+                <!-- 学习统计 -->
+                <div class="flex items-center justify-between px-4 py-3.5">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-md" style="background:var(--cl-muted)">
+                            <i data-lucide="bar-chart-3" class="h-4 w-4" style="color:var(--cl-foreground)"></i>
+                        </div>
+                        <span class="text-[14px] font-medium" style="color:var(--cl-foreground)">学习统计</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="h-4 w-4" style="color:var(--cl-muted-foreground)"></i>
+                </div>
+                <div class="mx-4 h-px" style="background:var(--cl-border)"></div>
+                <!-- 我的收藏 -->
+                <div class="flex items-center justify-between px-4 py-3.5">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-md" style="background:var(--cl-muted)">
+                            <i data-lucide="bookmark" class="h-4 w-4" style="color:var(--cl-foreground)"></i>
+                        </div>
+                        <span class="text-[14px] font-medium" style="color:var(--cl-foreground)">我的收藏</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="h-4 w-4" style="color:var(--cl-muted-foreground)"></i>
+                </div>
+                <div class="mx-4 h-px" style="background:var(--cl-border)"></div>
+                <!-- 学习设置 -->
+                <div class="flex items-center justify-between px-4 py-3.5">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-md" style="background:var(--cl-muted)">
+                            <i data-lucide="settings" class="h-4 w-4" style="color:var(--cl-foreground)"></i>
+                        </div>
+                        <span class="text-[14px] font-medium" style="color:var(--cl-foreground)">学习设置</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="h-4 w-4" style="color:var(--cl-muted-foreground)"></i>
+                </div>
+                <div class="mx-4 h-px" style="background:var(--cl-border)"></div>
+                <!-- 深色模式 -->
+                <div class="flex items-center justify-between px-4 py-3.5">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-md" style="background:var(--cl-muted)">
+                            <i data-lucide="moon" class="h-4 w-4" style="color:var(--cl-foreground)"></i>
+                        </div>
+                        <span class="text-[14px] font-medium" style="color:var(--cl-foreground)">深色模式</span>
+                    </div>
+                    <!-- Toggle switch (off state) -->
+                    <div class="h-6 w-11 rounded-full p-0.5" style="background:var(--cl-muted)">
+                        <div class="h-5 w-5 rounded-full" style="background:var(--cl-card)"></div>
+                    </div>
+                </div>
+                <div class="mx-4 h-px" style="background:var(--cl-border)"></div>
+                <!-- 关于我们 -->
+                <div class="flex items-center justify-between px-4 py-3.5">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-md" style="background:var(--cl-muted)">
+                            <i data-lucide="info" class="h-4 w-4" style="color:var(--cl-foreground)"></i>
+                        </div>
+                        <span class="text-[14px] font-medium" style="color:var(--cl-foreground)">关于我们</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="h-4 w-4" style="color:var(--cl-muted-foreground)"></i>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- ===== Bottom Tab Bar (我的 tab highlighted) ===== -->
+        <nav class="fixed bottom-0 inset-x-0 z-30 border-t flex items-center justify-around" style="height:50px;background:var(--cl-card);border-color:var(--cl-border)" id="tab-bar">
+            <!-- 首页 -->
+            <div class="flex flex-col items-center justify-center gap-0.5">
+                <i data-lucide="home" class="h-5 w-5" style="color:var(--cl-muted-foreground)"></i>
+                <span class="text-[10px]" style="color:var(--cl-muted-foreground)">首页</span>
+            </div>
+            <!-- 课程 -->
+            <div class="flex flex-col items-center justify-center gap-0.5">
+                <i data-lucide="layout-grid" class="h-5 w-5" style="color:var(--cl-muted-foreground)"></i>
+                <span class="text-[10px]" style="color:var(--cl-muted-foreground)">课程</span>
+            </div>
+            <!-- 闪卡 -->
+            <div class="flex flex-col items-center justify-center gap-0.5">
+                <i data-lucide="layers" class="h-5 w-5" style="color:var(--cl-muted-foreground)"></i>
+                <span class="text-[10px]" style="color:var(--cl-muted-foreground)">闪卡</span>
+            </div>
+            <!-- 我的 (highlighted) -->
+            <div class="flex flex-col items-center justify-center gap-0.5">
+                <i data-lucide="user" class="h-5 w-5" style="color:var(--cl-primary)"></i>
+                <span class="text-[10px] font-medium" style="color:var(--cl-primary)">我的</span>
+            </div>
+        </nav>
+
+        <!-- Safe area bottom spacer -->
+        <div class="mp-safe-bottom"></div>
+
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

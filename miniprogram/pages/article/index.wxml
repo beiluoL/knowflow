@@ -1,0 +1,98 @@
+<view class="page-container">
+  <view class="article-header">
+    <text class="back-btn" bindtap="goBack">‹</text>
+    <text class="header-title">文章详情</text>
+    <view class="header-actions">
+      <text class="action-btn">📖</text>
+      <text class="action-btn">⋯</text>
+    </view>
+  </view>
+
+  <view class="article-content">
+    <text class="article-title">Java HashMap 扩容机制详解</text>
+    <view class="article-meta">
+      <text class="meta-item">📝 作者：技术小王</text>
+      <text class="meta-item">📅 2024-01-15</text>
+      <text class="meta-item">👁 1.2w</text>
+    </view>
+
+    <view class="article-body">
+      <view class="paragraph">
+        <text>HashMap 是 Java 中最常用的数据结构之一，理解其扩容机制对于优化性能至关重要。本文将深入剖析 HashMap 的扩容原理。</text>
+      </view>
+
+      <view class="heading">1. 什么是扩容</view>
+      <view class="paragraph">
+        <text>当 HashMap 中的元素数量达到一定阈值时，HashMap 会自动进行扩容操作。扩容的目的是为了减少哈希冲突，提高查询效率。</text>
+      </view>
+
+      <view class="heading">2. 扩容触发条件</view>
+      <view class="paragraph">
+        <text>HashMap 的扩容触发条件主要有两个：</text>
+      </view>
+      <view class="list-item">
+        <text>• 当元素数量大于等于阈值（capacity * loadFactor）时</text>
+      </view>
+      <view class="list-item">
+        <text>• 当链表长度大于等于 8 且数组长度小于等于 64 时</text>
+      </view>
+
+      <view class="heading">3. 扩容流程</view>
+      <view class="paragraph">
+        <text>扩容操作主要包括以下几个步骤：</text>
+      </view>
+      <view class="code-block">
+        <text class="code-line">// 1. 创建新的数组，容量翻倍</text>
+        <text class="code-line">Node&lt;K,V&gt;[] newTab = (Node&lt;K,V&gt;[])new Node[newCap];</text>
+        <text class="code-line">// 2. 将旧数组元素转移到新数组</text>
+        <text class="code-line">transfer(newTab);</text>
+        <text class="code-line">// 3. 更新容量和阈值</text>
+        <text class="code-line">table = newTab;</text>
+      </view>
+
+      <view class="heading">4. 元素迁移</view>
+      <view class="paragraph">
+        <text>在扩容过程中，每个元素需要重新计算哈希值并放置到新数组的对应位置。由于容量翻倍，元素要么保持原位，要么移动到原位置 + 旧容量的位置。</text>
+      </view>
+
+      <view class="heading">5. 注意事项</view>
+      <view class="list-item">
+        <text>• 扩容操作是一个耗时操作，应尽量避免频繁扩容</text>
+      </view>
+      <view class="list-item">
+        <text>• 在多线程环境下，扩容可能导致死循环，应使用 ConcurrentHashMap</text>
+      </view>
+      <view class="list-item">
+        <text>• 默认加载因子为 0.75，这是时间和空间的平衡点</text>
+      </view>
+
+      <view class="summary-box">
+        <text class="summary-title">📌 核心要点</text>
+        <text class="summary-content">HashMap 通过扩容来保证查询效率，扩容时容量翻倍，元素重新分配。理解扩容机制有助于更好地使用 HashMap。</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="article-footer-spacer"></view>
+<view class="article-footer">
+    <view class="footer-btn">
+      <text>👍</text>
+      <text>328</text>
+    </view>
+    <view class="footer-btn">
+      <text>💬</text>
+      <text>56</text>
+    </view>
+    <view class="footer-btn">
+      <text>⭐</text>
+      <text>收藏</text>
+    </view>
+    <view class="footer-btn">
+      <text>🔗</text>
+      <text>分享</text>
+    </view>
+    <view class="footer-action-btn">
+      <text>AI 问答</text>
+    </view>
+  </view>
+</view>

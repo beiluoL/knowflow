@@ -1,0 +1,56 @@
+<view class="page-container">
+  <view class="search-header">
+    <view class="search-box">
+      <text class="search-icon">🔍</text>
+      <input class="search-input" placeholder="搜索文章、知识点、问题..." value="{{searchText}}" bindinput="onSearchInput" confirm-type="search" bindconfirm="doSearch" />
+      <text class="clear-btn" wx:if="{{searchText}}" bindtap="clearSearch">✕</text>
+    </view>
+    <text class="cancel-btn" bindtap="goBack">取消</text>
+  </view>
+
+  <view class="search-content">
+    <view class="hot-section" wx:if="{{!searchText}}">
+      <view class="section-header">
+        <text class="section-title">🔥 热门搜索</text>
+        <text class="refresh-btn" bindtap="refreshHotTags">换一批</text>
+      </view>
+      <view class="hot-tags">
+        <view class="hot-tag" wx:for="{{hotTags}}" wx:key="index" data-keyword="{{item}}" bindtap="searchByTag">
+          {{item}}
+        </view>
+      </view>
+    </view>
+
+    <view class="history-section" wx:if="{{!searchText && history.length > 0}}">
+      <view class="section-header">
+        <text class="section-title">📜 搜索历史</text>
+        <text class="clear-btn" bindtap="clearHistory">清空</text>
+      </view>
+      <view class="history-tags">
+        <view class="history-tag" wx:for="{{history}}" wx:key="index" data-keyword="{{item}}" bindtap="searchByTag">
+          {{item}}
+        </view>
+      </view>
+    </view>
+
+    <view class="results-section" wx:if="{{searchText}}">
+      <text class="results-count">找到 {{results.length}} 条结果</text>
+      <view class="results-list">
+        <view class="result-item" wx:for="{{results}}" wx:key="id" data-id="{{item.id}}" bindtap="goToArticle">
+          <text class="result-title">{{item.title}}</text>
+          <text class="result-summary">{{item.summary}}</text>
+          <view class="result-meta">
+            <text class="result-category">{{item.category}}</text>
+            <text class="result-time">{{item.time}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:if="{{searchText && results.length === 0 && searched}}">
+      <text class="empty-icon">🔍</text>
+      <text class="empty-text">未找到相关内容</text>
+      <text class="empty-hint">试试其他关键词</text>
+    </view>
+  </view>
+</view>

@@ -18,16 +18,22 @@ request.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
-// 响应拦截器：解包 Result<T>，统一处理鉴权失效
+// 响应拦截器：解包 Result<T>，统一处理鉴权失效与业务错误
 request.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    const res = response.data as { code?: number; message?: string }
+    if (res && res.code !== undefined && res.code !== 200) {
+      return Promise.reject(new Error(res.message || '请求失败'))
+    }
+    return response.data
+  },
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-      const path = window.location.pathname
-      if (path !== '/login' && path !== '/register') {
-        window.location.href = '/login'
+      const currentPath = window.location.pathname + window.location.search
+      if (!currentPath.startsWith('/login') && !currentPath.startsWith('/register')) {
+        window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`
       }
     }
     return Promise.reject(error)

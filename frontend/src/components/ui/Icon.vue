@@ -261,6 +261,11 @@
       <line x1="12" y1="16" x2="12.01" y2="16" />
     </template>
 
+    <template v-else-if="name === 'inbox'">
+      <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+      <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+    </template>
+
     <template v-else-if="name === 'trophy'">
       <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
       <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
@@ -426,6 +431,26 @@
       <ellipse cx="12" cy="5" rx="9" ry="3" />
       <path d="M3 5V19A9 3 0 0 0 21 19V5" />
       <path d="M3 12A9 3 0 0 0 21 12" />
+    </template>
+
+    <template v-else-if="name === 'cpu'">
+      <rect width="16" height="16" x="4" y="4" rx="2" />
+      <rect width="6" height="6" x="9" y="9" rx="1" />
+      <path d="M15 2v2" /><path d="M15 20v2" /><path d="M2 15h2" /><path d="M2 9h2" />
+      <path d="M20 15h2" /><path d="M20 9h2" /><path d="M9 2v2" /><path d="M9 20v2" />
+    </template>
+
+    <template v-else-if="name === 'memory-stick'">
+      <path d="M6 19v-3" /><path d="M10 19v-3" /><path d="M14 19v-3" />
+      <path d="M18 19v-3" /><path d="M8 11V9" /><path d="M16 11V9" />
+      <path d="M12 11V9" /><path d="M2 15h20" />
+      <path d="M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1.1a2 2 0 0 0 0 3.837V17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-5.063a2 2 0 0 0 0-3.837Z" />
+    </template>
+
+    <template v-else-if="name === 'hard-drive'">
+      <line x1="22" x2="2" y1="12" y2="12" />
+      <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+      <line x1="6" x2="6.01" y1="16" y2="16" /><line x1="10" x2="10.01" y1="16" y2="16" />
     </template>
 
     <template v-else-if="name === 'brain'">
@@ -666,6 +691,116 @@
       <polygon points="12 2 13 6 17 6 14 9 15 13 12 11 9 13 10 9 7 6 11 6 12 2" />
       <polygon points="22 10 23 12 25 12 24 13 24 15 22 14 20 15 20 13 19 12 21 12 22 10" />
       <polygon points="2 10 3 12 5 12 4 13 4 15 2 14 0 15 0 13 -1 12 1 12 2 10" />
+    </template>
+
+    <template v-else-if="name === 'layout-dashboard'">
+      <rect width="7" height="9" x="3" y="3" rx="1" />
+      <rect width="7" height="5" x="14" y="3" rx="1" />
+      <rect width="7" height="9" x="14" y="12" rx="1" />
+      <rect width="7" height="5" x="3" y="16" rx="1" />
+    </template>
+
+    <template v-else-if="name === 'files'">
+      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+      <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+      <path d="M12 18v-6" />
+      <path d="m9 15 3-3 3 3" />
+    </template>
+
+    <template v-else-if="name === 'credit-card'">
+      <rect width="20" height="14" x="2" y="5" rx="2" />
+      <line x1="2" y1="10" x2="22" y2="10" />
+    </template>
+
+    <template v-else-if="name === 'book-check'">
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+      <path d="m9 9.5 2 2 4-4" />
+    </template>
+
+    <template v-else-if="name === 'book-open-check'">
+      <path d="M12 21v-7" />
+      <path d="M9 21V8a1 1 0 0 0-1-1H2v13h6a1 1 0 0 1 0 0" />
+      <path d="M15 21V8a1 1 0 0 1 1-1h6v13h-6a1 1 0 0 1 0 0" />
+      <path d="m16 11 2 2 4-4" />
+    </template>
+
+    <template v-else-if="name === 'map'">
+      <path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z" />
+      <path d="M15 5.764v15" />
+      <path d="M9 3.236v15" />
+    </template>
+
+    <template v-else-if="name === 'map-pin'">
+      <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+      <circle cx="12" cy="10" r="3" />
+    </template>
+
+    <template v-else-if="name === 'pen-tool'">
+      <path d="m12 19 7-7 3 3-7 7-3-3z" />
+      <path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+      <path d="m2 2 7.586 7.586" />
+      <circle cx="11" cy="11" r="2" />
+    </template>
+
+    <template v-else-if="name === 'external-link'">
+      <path d="M15 3h6v6" />
+      <path d="M10 14 21 3" />
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    </template>
+
+    <template v-else-if="name === 'check-square'">
+      <rect width="18" height="18" x="3" y="3" rx="2" />
+      <path d="m9 12 2 2 4-4" />
+    </template>
+
+    <template v-else-if="name === 'pen-line'">
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+      <path d="M2 21h6" />
+    </template>
+
+    <template v-else-if="name === 'check-check'">
+      <path d="M18 6 7 17l-5-5" />
+      <path d="m22 10-7.5 7.5L13 16" />
+    </template>
+
+    <template v-else-if="name === 'x-circle'">
+      <circle cx="12" cy="12" r="10" />
+      <path d="m15 9-6 6" />
+      <path d="m9 9 6 6" />
+    </template>
+
+    <template v-else-if="name === 'layout-grid'">
+      <rect width="7" height="7" x="3" y="3" rx="1" />
+      <rect width="7" height="7" x="14" y="3" rx="1" />
+      <rect width="7" height="7" x="14" y="14" rx="1" />
+      <rect width="7" height="7" x="3" y="14" rx="1" />
+    </template>
+
+    <template v-else-if="name === 'notebook-pen'">
+      <path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.6" />
+      <path d="M2 6h4" />
+      <path d="M2 10h4" />
+      <path d="M2 14h4" />
+      <path d="M2 18h4" />
+      <path d="M21.378 3.622a1 1 0 0 1 0 1.414l-6.51 6.51-2.828.707.707-2.828 6.51-6.51a1 1 0 0 1 1.414 0z" />
+    </template>
+
+    <template v-else-if="name === 'pin'">
+      <line x1="12" y1="17" x2="12" y2="22" />
+      <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" />
+    </template>
+
+    <template v-else-if="name === 'flag'">
+      <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+      <line x1="4" y1="22" x2="4" y2="15" />
+    </template>
+
+    <template v-else-if="name === 'hash'">
+      <line x1="4" y1="9" x2="20" y2="9" />
+      <line x1="4" y1="15" x2="20" y2="15" />
+      <line x1="10" y1="3" x2="8" y2="21" />
+      <line x1="16" y1="3" x2="14" y2="21" />
     </template>
   </svg>
 </template>

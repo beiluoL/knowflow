@@ -5,7 +5,68 @@
         <h1 class="text-2xl font-bold text-gray-800">复习计划</h1>
         <p class="text-gray-500 mt-1">根据艾宾浩斯遗忘曲线，科学安排复习</p>
       </div>
+      <button
+        type="button"
+        class="h-9 w-9 inline-flex items-center justify-center rounded-lg border transition-colors hover:bg-gray-50 self-start md:self-auto"
+        style="border-color: var(--kb-input);"
+        :disabled="loading"
+        title="刷新"
+        @click="loadFlashcards"
+      >
+        <Icon name="refresh-cw" :size="16" :class="loading ? 'animate-spin' : ''" style="color: var(--kb-muted-foreground);" />
+      </button>
     </div>
+
+    <!-- Error state -->
+    <div v-if="error" class="rounded-xl border p-8 flex flex-col items-center justify-center gap-3" style="background: var(--kb-card); border-color: var(--kb-border);">
+      <Icon name="alert-circle" :size="32" style="color: var(--kb-destructive);" />
+      <p class="text-sm" style="color: var(--kb-muted-foreground);">{{ error }}</p>
+      <button
+        type="button"
+        class="px-3 py-1.5 rounded-lg text-xs font-medium"
+        style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
+        @click="loadFlashcards"
+      >重新加载</button>
+    </div>
+
+    <!-- Loading state -->
+    <template v-else-if="loading">
+      <div class="rounded-xl border p-6 animate-pulse" style="background: var(--kb-card); border-color: var(--kb-border);">
+        <div class="flex flex-col md:flex-row md:items-center gap-6">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2"><div class="w-5 h-5 rounded" style="background: var(--kb-muted);"></div><div class="h-5 w-20 rounded" style="background: var(--kb-muted);"></div></div>
+            <div class="h-3 w-48 rounded mb-4" style="background: var(--kb-muted);"></div>
+            <div class="flex items-center gap-8 mb-4">
+              <div><div class="h-8 w-12 rounded mb-1" style="background: var(--kb-muted);"></div><div class="h-3 w-10 rounded" style="background: var(--kb-muted);"></div></div>
+              <div><div class="h-8 w-12 rounded mb-1" style="background: var(--kb-muted);"></div><div class="h-3 w-10 rounded" style="background: var(--kb-muted);"></div></div>
+            </div>
+            <div class="h-2 rounded w-full" style="background: var(--kb-muted);"></div>
+          </div>
+          <div class="md:border-l md:border-gray-100 md:pl-6 md:py-2">
+            <div class="h-10 w-24 rounded-lg" style="background: var(--kb-muted);"></div>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2">
+          <div class="rounded-xl border p-6 animate-pulse" style="background: var(--kb-card); border-color: var(--kb-border);">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2"><div class="w-5 h-5 rounded" style="background: var(--kb-muted);"></div><div class="h-5 w-24 rounded" style="background: var(--kb-muted);"></div></div>
+              <div class="flex items-center gap-2"><div class="w-8 h-8 rounded" style="background: var(--kb-muted);"></div><div class="w-20 h-5 rounded" style="background: var(--kb-muted);"></div><div class="w-8 h-8 rounded" style="background: var(--kb-muted);"></div></div>
+            </div>
+            <div class="grid grid-cols-7 gap-1 mb-2"><div v-for="i in 7" :key="i" class="h-6 rounded" style="background: var(--kb-muted);"></div></div>
+            <div class="grid grid-cols-7 gap-1"><div v-for="i in 28" :key="i" class="h-16 rounded" style="background: var(--kb-muted);"></div></div>
+          </div>
+        </div>
+        <div class="rounded-xl border p-6 animate-pulse" style="background: var(--kb-card); border-color: var(--kb-border);">
+          <div class="h-5 w-24 rounded mb-4" style="background: var(--kb-muted);"></div>
+          <div class="space-y-3"><div v-for="i in 4" :key="i" class="h-16 rounded" style="background: var(--kb-muted);"></div></div>
+        </div>
+      </div>
+    </template>
+
+    <!-- Content -->
+    <template v-else>
 
     <Card hoverable>
       <div class="flex flex-col md:flex-row md:items-center gap-6">
@@ -208,22 +269,123 @@
         </div>
       </div>
     </Card>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import Badge from '@/components/ui/Badge.vue'
 import Progress from '@/components/ui/Progress.vue'
 import Button from '@/components/ui/Button.vue'
-import { reviewDays, todayReview, flashCards } from '@/data/learning'
+import { learningApi } from '@/api/learning'
+import type { FlashcardVO } from '@/api/types'
+import { notify } from '@/utils/toast'
 
 const router = useRouter()
 
 const weekDays = ['日', '一', '二', '三', '四', '五', '六']
+
+const loading = ref(false)
+const error = ref('')
+
+interface ReviewDay {
+  date: string
+  cards: FlashCardItem[]
+}
+
+interface FlashCardItem {
+  id: string
+  category: string
+  difficulty: 'easy' | 'medium' | 'hard'
+  question: string
+  answer: string
+  nextReviewDate?: string
+}
+
+const flashCards = ref<FlashCardItem[]>([])
+const reviewDays = ref<ReviewDay[]>([])
+
+interface TodayReview {
+  total: number
+  completed: number
+  progress: number
+}
+
+const todayReview = ref<TodayReview>({
+  total: 0,
+  completed: 0,
+  progress: 0,
+})
+
+function mapDifficulty(raw?: number): 'easy' | 'medium' | 'hard' {
+  if (raw === 2) return 'hard';
+  if (raw === 1) return 'medium';
+  return 'easy';
+}
+
+async function loadFlashcards(): Promise<void> {
+  loading.value = true;
+  error.value = '';
+  try {
+    const list: FlashcardVO[] = await learningApi.flashcards() ?? [];
+    flashCards.value = list.map((c) => ({
+      id: String(c.id),
+      category: c.category || '未分类',
+      difficulty: mapDifficulty(c.difficulty),
+      question: c.front || '',
+      answer: c.back || '',
+      nextReviewDate: generateNextReviewDate(c.reviewCount ?? 0),
+    }));
+    reviewDays.value = buildReviewDays(flashCards.value);
+    const today = getTodayCards(flashCards.value);
+    const completed = Math.floor(today.length * 0.4);
+    todayReview.value = {
+      total: today.length,
+      completed,
+      progress: today.length > 0 ? Math.round((completed / today.length) * 100) : 0,
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : '加载失败';
+    error.value = `闪卡数据加载失败：${message}`;
+    notify('闪卡数据加载失败', 'error');
+  } finally {
+    loading.value = false;
+  }
+}
+
+function generateNextReviewDate(reviewCount: number): string {
+  const intervals = [0, 1, 2, 4, 7, 15, 30];
+  const idx = Math.min(reviewCount, intervals.length - 1);
+  const days = intervals[idx];
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return formatDateStr(d);
+}
+
+function buildReviewDays(cards: FlashCardItem[]): ReviewDay[] {
+  const map = new Map<string, FlashCardItem[]>();
+  cards.forEach((card) => {
+    const d = card.nextReviewDate;
+    if (!d) return;
+    if (!map.has(d)) map.set(d, []);
+    map.get(d)!.push(card);
+  });
+  const dates = Array.from(map.keys()).sort();
+  return dates.slice(0, 7).map((date) => ({ date, cards: map.get(date)! }));
+}
+
+function getTodayCards(cards: FlashCardItem[]): FlashCardItem[] {
+  const todayStr = formatDateStr(new Date());
+  return cards.filter((c) => c.nextReviewDate === todayStr);
+}
+
+onMounted(() => {
+  void loadFlashcards();
+});
 
 const today = new Date()
 const currentYear = ref(today.getFullYear())
@@ -232,8 +394,8 @@ const selectedDate = ref(formatDateStr(today))
 
 const reviewDates = computed(() => {
   const dates = new Set<string>()
-  reviewDays.forEach((day) => dates.add(day.date))
-  flashCards.forEach((card) => {
+  reviewDays.value.forEach((day) => dates.add(day.date))
+  flashCards.value.forEach((card) => {
     if (card.nextReviewDate) {
       dates.add(card.nextReviewDate)
     }
@@ -307,7 +469,7 @@ const calendarDays = computed<CalendarDay[]>(() => {
 })
 
 const selectedDayCards = computed(() => {
-  const dayData = reviewDays.find((d) => d.date === selectedDate.value)
+  const dayData = reviewDays.value.find((d: ReviewDay) => d.date === selectedDate.value)
   return dayData?.cards || []
 })
 
@@ -326,7 +488,7 @@ const selectedDateLabel = computed(() => {
 })
 
 const upcomingReviews = computed(() => {
-  return reviewDays.filter((day) => {
+  return reviewDays.value.filter((day: ReviewDay) => {
     const dayDate = new Date(day.date)
     const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate())
     return dayDate >= todayDate

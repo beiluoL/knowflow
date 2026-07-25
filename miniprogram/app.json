@@ -1,0 +1,51 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/knowledge/index",
+    "pages/chat/index",
+    "pages/flashcard/index",
+    "pages/profile/index",
+    "pages/statistics/index",
+    "pages/search/index",
+    "pages/article/index",
+    "pages/agreement/index",
+    "pages/privacy/index"
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "CodeLearn",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#F7F8FA",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#6B7280",
+    "selectedColor": "#3B6FE0",
+    "borderStyle": "white",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/knowledge/index",
+        "text": "知识库"
+      },
+      {
+        "pagePath": "pages/chat/index",
+        "text": "AI问答"
+      },
+      {
+        "pagePath": "pages/flashcard/index",
+        "text": "闪卡"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的"
+      }
+    ]
+  },
+  "usingComponents": {}
+}

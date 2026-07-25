@@ -171,7 +171,7 @@
 </template>
 
 <script setup lang="ts">
-import { confirmDialog, notify } from '@/utils/toast'
+import { confirmDialog, getApiError, notify } from '@/utils/toast'
 import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
@@ -295,8 +295,8 @@ const save = async () => {
     }
     closeModal()
     await loadCards()
-  } catch (e: any) {
-    notify('保存失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  } catch (e: unknown) {
+    notify('保存失败：' + getApiError(e), 'error')
   } finally {
     saving.value = false
   }
@@ -309,8 +309,8 @@ const deleteCard = async (card: Flashcard) => {
     notify('删除成功', 'success')
     selectedCard.value = null
     await loadCards()
-  } catch (e: any) {
-    notify('删除失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  } catch (e: unknown) {
+    notify('删除失败：' + getApiError(e), 'error')
   }
 }
 
@@ -328,8 +328,8 @@ const loadCards = async () => {
       reviewCount: f.reviewCount ?? 0,
       accuracy: null,
     }))
-  } catch (e: any) {
-    notify('加载闪卡失败：' + (e?.response?.data?.message || e?.message || '未知错误'), 'error')
+  } catch (e: unknown) {
+    notify('加载闪卡失败：' + getApiError(e), 'error')
   } finally {
     loading.value = false
   }

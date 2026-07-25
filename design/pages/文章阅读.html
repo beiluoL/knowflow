@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章阅读</title>
+    <style id="theme-vars">
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme inline {
+  --color-cl-background: #F7F8FA;
+  --color-cl-foreground: #1A1D23;
+  --color-cl-card: #FFFFFF;
+  --color-cl-card-foreground: #1A1D23;
+  --color-cl-popover: #FFFFFF;
+  --color-cl-popover-foreground: #1A1D23;
+  --color-cl-primary: #3B6FE0;
+  --color-cl-primary-foreground: #FFFFFF;
+  --color-cl-muted: #E8ECF1;
+  --color-cl-muted-foreground: #6B7280;
+  --color-cl-border: #E2E6EC;
+  --color-cl-input: #E2E6EC;
+  --color-cl-ring: #3B6FE0;
+  --color-cl-sidebar: #F0F2F5;
+  --color-cl-sidebar-foreground: #374151;
+  --color-cl-state-success: #10B981;
+  --color-cl-state-success-foreground: #FFFFFF;
+  --color-cl-state-error: #EF4444;
+  --color-cl-state-error-foreground: #FFFFFF;
+  --color-cl-state-warning: #F59E0B;
+  --color-cl-state-warning-foreground: #FFFFFF;
+  --color-cl-radius-sm: 8px;
+  --color-cl-radius-md: 12px;
+  --color-cl-radius-lg: 16px;
+}
+
+:root {
+  --cl-background: #F7F8FA;
+  --cl-foreground: #1A1D23;
+  --cl-card: #FFFFFF;
+  --cl-card-foreground: #1A1D23;
+  --cl-popover: #FFFFFF;
+  --cl-popover-foreground: #1A1D23;
+  --cl-primary: #3B6FE0;
+  --cl-primary-foreground: #FFFFFF;
+  --cl-muted: #E8ECF1;
+  --cl-muted-foreground: #6B7280;
+  --cl-border: #E2E6EC;
+  --cl-input: #E2E6EC;
+  --cl-ring: #3B6FE0;
+  --cl-sidebar: #F0F2F5;
+  --cl-sidebar-foreground: #374151;
+  --cl-state-success: #10B981;
+  --cl-state-success-foreground: #FFFFFF;
+  --cl-state-error: #EF4444;
+  --cl-state-error-foreground: #FFFFFF;
+  --cl-state-warning: #F59E0B;
+  --cl-state-warning-foreground: #FFFFFF;
+  --cl-radius-sm: 8px;
+  --cl-radius-md: 12px;
+  --cl-radius-lg: 16px;
+  --font-sans: 'Noto Sans SC', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+#semantic-token-fallback {
+  --background: var(--cl-background);
+  --foreground: var(--cl-foreground);
+  --card: var(--cl-card);
+  --card-foreground: var(--cl-card-foreground);
+  --popover: var(--cl-popover);
+  --popover-foreground: var(--cl-popover-foreground);
+  --primary: var(--cl-primary);
+  --primary-foreground: var(--cl-primary-foreground);
+  --muted: var(--cl-muted);
+  --muted-foreground: var(--cl-muted-foreground);
+  --border: var(--cl-border);
+  --input: var(--cl-input);
+  --ring: var(--cl-ring);
+  --radius-sm: var(--cl-radius-sm);
+  --radius-md: var(--cl-radius-md);
+  --radius-lg: var(--cl-radius-lg);
+}
+
+/* Typography scale */
+.cl-h1 {
+  font-family: var(--font-sans);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--cl-foreground);
+}
+
+.cl-h2 {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--cl-foreground);
+}
+
+.cl-h3 {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--cl-foreground);
+}
+
+.cl-body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--cl-card-foreground);
+}
+
+.cl-body-sm {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--cl-muted-foreground);
+}
+
+.cl-caption {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--cl-muted-foreground);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Mini program safe area simulation */
+.mp-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+.mp-status-bar {
+  height: 44px;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--cl-background);
+    --color-foreground: var(--cl-foreground);
+    --color-card: var(--cl-card);
+    --color-card-foreground: var(--cl-card-foreground);
+    --color-popover: var(--cl-popover);
+    --color-popover-foreground: var(--cl-popover-foreground);
+    --color-primary: var(--cl-primary);
+    --color-primary-foreground: var(--cl-primary-foreground);
+    --color-muted: var(--cl-muted);
+    --color-muted-foreground: var(--cl-muted-foreground);
+    --color-border: var(--cl-border);
+    --color-input: var(--cl-input);
+    --color-ring: var(--cl-ring);
+    --color-sidebar: var(--cl-sidebar);
+    --color-sidebar-foreground: var(--cl-sidebar-foreground);
+    --radius-sm: var(--cl-radius-sm);
+    --radius-md: var(--cl-radius-md);
+    --radius-lg: var(--cl-radius-lg);
+  }
+  @layer base {
+    body { background: var(--cl-background); color: var(--cl-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--cl-background); }
+      .text-background { color: var(--cl-background); }
+      .border-background { border-color: var(--cl-background); }
+      .ring-background { --tw-ring-color: var(--cl-background); }
+      .bg-foreground { background-color: var(--cl-foreground); }
+      .text-foreground { color: var(--cl-foreground); }
+      .border-foreground { border-color: var(--cl-foreground); }
+      .ring-foreground { --tw-ring-color: var(--cl-foreground); }
+      .bg-card { background-color: var(--cl-card); }
+      .text-card { color: var(--cl-card); }
+      .border-card { border-color: var(--cl-card); }
+      .ring-card { --tw-ring-color: var(--cl-card); }
+      .bg-card-foreground { background-color: var(--cl-card-foreground); }
+      .text-card-foreground { color: var(--cl-card-foreground); }
+      .border-card-foreground { border-color: var(--cl-card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--cl-card-foreground); }
+      .bg-popover { background-color: var(--cl-popover); }
+      .text-popover { color: var(--cl-popover); }
+      .border-popover { border-color: var(--cl-popover); }
+      .ring-popover { --tw-ring-color: var(--cl-popover); }
+      .bg-popover-foreground { background-color: var(--cl-popover-foreground); }
+      .text-popover-foreground { color: var(--cl-popover-foreground); }
+      .border-popover-foreground { border-color: var(--cl-popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--cl-popover-foreground); }
+      .bg-primary { background-color: var(--cl-primary); }
+      .text-primary { color: var(--cl-primary); }
+      .border-primary { border-color: var(--cl-primary); }
+      .ring-primary { --tw-ring-color: var(--cl-primary); }
+      .bg-primary-foreground { background-color: var(--cl-primary-foreground); }
+      .text-primary-foreground { color: var(--cl-primary-foreground); }
+      .border-primary-foreground { border-color: var(--cl-primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--cl-primary-foreground); }
+      .bg-muted { background-color: var(--cl-muted); }
+      .text-muted { color: var(--cl-muted); }
+      .border-muted { border-color: var(--cl-muted); }
+      .ring-muted { --tw-ring-color: var(--cl-muted); }
+      .bg-muted-foreground { background-color: var(--cl-muted-foreground); }
+      .text-muted-foreground { color: var(--cl-muted-foreground); }
+      .border-muted-foreground { border-color: var(--cl-muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--cl-muted-foreground); }
+      .bg-border { background-color: var(--cl-border); }
+      .text-border { color: var(--cl-border); }
+      .border-border { border-color: var(--cl-border); }
+      .ring-border { --tw-ring-color: var(--cl-border); }
+      .bg-input { background-color: var(--cl-input); }
+      .text-input { color: var(--cl-input); }
+      .border-input { border-color: var(--cl-input); }
+      .ring-input { --tw-ring-color: var(--cl-input); }
+      .bg-ring { background-color: var(--cl-ring); }
+      .text-ring { color: var(--cl-ring); }
+      .border-ring { border-color: var(--cl-ring); }
+      .ring-ring { --tw-ring-color: var(--cl-ring); }
+      .bg-sidebar { background-color: var(--cl-sidebar); }
+      .text-sidebar { color: var(--cl-sidebar); }
+      .border-sidebar { border-color: var(--cl-sidebar); }
+      .ring-sidebar { --tw-ring-color: var(--cl-sidebar); }
+      .bg-sidebar-foreground { background-color: var(--cl-sidebar-foreground); }
+      .text-sidebar-foreground { color: var(--cl-sidebar-foreground); }
+      .border-sidebar-foreground { border-color: var(--cl-sidebar-foreground); }
+      .ring-sidebar-foreground { --tw-ring-color: var(--cl-sidebar-foreground); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main class="min-h-screen" style="background: var(--cl-card);">
+
+      <!-- Status bar spacer -->
+      <div class="mp-status-bar" style="background: var(--cl-card);"></div>
+
+      <!-- ===== NAV BAR ===== -->
+      <header class="sticky top-0 z-30 border-b border-[var(--cl-border)]" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);">
+        <div class="flex h-11 items-center px-4">
+          <div class="flex w-[88px] items-center justify-start">
+            <button class="inline-flex h-8 w-8 items-center justify-center rounded-lg" style="border: 1px solid var(--cl-border); background: var(--cl-card);" aria-label="返回">
+              <i data-lucide="chevron-left" class="h-4 w-4" style="color: var(--cl-foreground);"></i>
+            </button>
+          </div>
+          <div class="min-w-0 flex-1 text-center text-[16px] font-semibold tracking-[-0.02em]" style="color: var(--cl-foreground);">文章详情</div>
+          <div class="flex w-[88px] items-center justify-center gap-1">
+            <button class="inline-flex h-8 w-8 items-center justify-center rounded-lg" aria-label="收藏">
+              <i data-lucide="bookmark" class="h-[18px] w-[18px]" style="color: var(--cl-foreground);"></i>
+            </button>
+            <button class="inline-flex h-8 w-8 items-center justify-center rounded-lg" aria-label="分享">
+              <i data-lucide="share-2" class="h-[18px] w-[18px]" style="color: var(--cl-foreground);"></i>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- ===== ARTICLE HEADER ===== -->
+      <section class="px-4 pt-5 pb-4">
+        <!-- Category tag -->
+        <span class="inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded-lg text-[12px] font-medium" style="background: rgba(59,111,224,0.1); color: var(--cl-primary);">Java 基础</span>
+
+        <!-- Title -->
+        <h1 class="cl-h1 mt-3" style="font-size: 24px; text-wrap: balance; word-break: keep-all; overflow-wrap: break-word;">HashMap 底层原理与源码解析</h1>
+
+        <!-- Author info row -->
+        <div class="mt-3 flex items-center gap-2.5">
+          <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[13px] font-medium" style="background: var(--cl-muted); color: var(--cl-primary);">张</div>
+          <div class="flex items-center gap-1.5 text-[12px]" style="color: var(--cl-muted-foreground);">
+            <span class="font-medium" style="color: var(--cl-foreground);">张三</span>
+            <span style="color: var(--cl-border);">·</span>
+            <span>2024-01-15</span>
+            <span style="color: var(--cl-border);">·</span>
+            <span>阅读 8 分钟</span>
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="mt-3 flex flex-nowrap gap-2 overflow-x-auto no-scrollbar">
+          <span class="shrink-0 inline-flex items-center whitespace-nowrap rounded-lg px-2.5 py-1 text-[12px]" style="background: var(--cl-muted); color: var(--cl-muted-foreground);">#HashMap</span>
+          <span class="shrink-0 inline-flex items-center whitespace-nowrap rounded-lg px-2.5 py-1 text-[12px]" style="background: var(--cl-muted); color: var(--cl-muted-foreground);">#源码</span>
+          <span class="shrink-0 inline-flex items-center whitespace-nowrap rounded-lg px-2.5 py-1 text-[12px]" style="background: var(--cl-muted); color: var(--cl-muted-foreground);">#数据结构</span>
+        </div>
+      </section>
+
+      <!-- Divider -->
+      <div class="mx-4 h-px" style="background: var(--cl-border);"></div>
+
+      <!-- ===== ARTICLE BODY ===== -->
+      <article class="px-4 pt-5 pb-32" style="line-height: 1.8; font-size: 14px; color: var(--cl-card-foreground);">
+
+        <p class="mb-4">HashMap 是 Java 开发中最常用的集合类之一，它基于哈希表实现，提供了高效的键值对存储和查找能力。在日常开发中，理解 HashMap 的底层实现原理，对于编写高性能代码和排查问题都有着重要的意义。</p>
+
+        <!-- Section heading -->
+        <h2 class="cl-h3 mb-3 mt-6" style="font-size: 17px;">1. HashMap 数据结构</h2>
+
+        <p class="mb-4">在 JDK 1.8 及之后的版本中，HashMap 采用了「数组 + 链表 + 红黑树」的复合数据结构。当链表长度超过阈值（默认为 8）且数组长度达到 64 时，链表会转换为红黑树，以提升查找效率。</p>
+
+        <p class="mb-4">这种设计兼顾了哈希冲突较少时的快速访问和冲突较多时的稳定性能。数组中的每个位置被称为一个「桶」（bucket），每个桶初始时为空，当发生哈希冲突时则以链表形式存储多个元素。</p>
+
+        <!-- Code block -->
+        <div class="mb-5 mt-4 overflow-hidden rounded-lg" style="background: #1E1E2E;">
+          <div class="flex items-center justify-between px-4 py-2">
+            <span class="text-[12px] font-medium" style="color: #89B4FA;">Java</span>
+            <button class="inline-flex items-center gap-1 rounded px-2 py-1 text-[12px]" style="color: #A6ADC8;" aria-label="复制代码">
+              <i data-lucide="copy" class="h-3.5 w-3.5"></i>
+              <span>复制</span>
+            </button>
+          </div>
+          <pre class="overflow-x-auto px-4 pb-4 text-[13px] leading-relaxed no-scrollbar" style="color: #CDD6F4; font-family: 'Menlo', 'Consolas', 'Monaco', monospace;"><code>public class HashMap&lt;K,V&gt; extends AbstractMap&lt;K,V&gt;
+    implements Map&lt;K,V&gt;, Cloneable, Serializable {
+
+    // 默认初始容量 16
+    static final int DEFAULT_INITIAL_CAPACITY = 1 &lt;&lt; 4;
+
+    // 负载因子 0.75
+    static final float DEFAULT_LOAD_FACTOR = 0.75f;
+
+    // 链表转红黑树的阈值
+    static final int TREEIFY_THRESHOLD = 8;
+
+    // 红黑树转链表的阈值
+    static final int UNTREEIFY_THRESHOLD = 6;
+
+    transient Node&lt;K,V&gt;[] table;
+}</code></pre>
+        </div>
+
+        <!-- Section heading 2 -->
+        <h2 class="cl-h3 mb-3 mt-6" style="font-size: 17px;">2. put 方法流程</h2>
+
+        <p class="mb-4">当我们调用 <code class="rounded px-1.5 py-0.5 text-[13px]" style="background: var(--cl-muted); color: var(--cl-primary);">map.put(key, value)</code> 时，HashMap 内部会执行以下关键步骤来完成数据的插入操作。</p>
+
+        <!-- Key concept highlight box -->
+        <div class="mb-4 mt-3 flex rounded-lg p-3.5" style="border-left: 3px solid var(--cl-primary); background: rgba(59,111,224,0.05);">
+          <div class="flex-1">
+            <div class="mb-1 text-[13px] font-semibold" style="color: var(--cl-primary);">核心要点</div>
+            <p class="text-[13px] leading-relaxed" style="color: var(--cl-card-foreground);">HashMap 通过 <code class="rounded px-1 py-0.5 text-[12px]" style="background: var(--cl-muted);">hash(key) &amp; (n - 1)</code> 计算数组下标，其中 n 必须是 2 的幂次方，这样可以利用位运算替代取模运算，提升计算效率。</p>
+          </div>
+        </div>
+
+        <!-- Numbered list -->
+        <ol class="mb-4 ml-4 list-decimal space-y-2.5 text-[14px]" style="line-height: 1.8;">
+          <li>首先计算 key 的 hash 值，并经过扰动函数（high-bit 参与运算）减少哈希碰撞。</li>
+          <li>通过 <code class="rounded px-1 py-0.5 text-[13px]" style="background: var(--cl-muted); color: var(--cl-primary);">hash &amp; (n - 1)</code> 定位到数组下标位置。</li>
+          <li>如果该位置为空，直接创建新节点插入；如果非空，遍历链表查找是否已存在相同 key。</li>
+          <li>找到相同 key 则覆盖旧值并返回；未找到则在链表尾部追加新节点。</li>
+          <li>插入后判断元素总数是否超过阈值（容量 x 负载因子），超过则触发扩容操作。</li>
+        </ol>
+
+        <!-- Image placeholder -->
+        <div class="mb-5 mt-4 flex h-48 items-center justify-center rounded-lg" style="background: var(--cl-muted);">
+          <div class="flex flex-col items-center gap-2">
+            <i data-lucide="image" class="h-8 w-8" style="color: var(--cl-muted-foreground);"></i>
+            <span class="text-[12px]" style="color: var(--cl-muted-foreground);">HashMap put 流程图</span>
+          </div>
+        </div>
+
+        <p class="mb-4">扩容机制是 HashMap 性能优化中的核心环节。当元素数量达到阈值时，HashMap 会创建一个容量为原来两倍的新数组，并将所有元素重新哈希分配到新的桶中。这个过程称为「rehash」。</p>
+
+        <p class="mb-4">在 JDK 1.8 中，rehash 过程做了优化：元素在新数组中的位置只有两种可能——原位置或原位置加旧数组长度。这大大减少了 rehash 时的计算量，提升了扩容效率。</p>
+
+        <p>理解这些底层原理后，我们就能更好地回答面试中关于 HashMap 的常见问题，也能在实际开发中做出更合理的技术选型和性能调优。</p>
+      </article>
+
+      <!-- ===== BOTTOM ACTION BAR ===== -->
+      <div class="fixed bottom-0 inset-x-0 z-30" style="background: var(--cl-card);">
+        <!-- Reading progress bar -->
+        <div class="h-[2px] w-full overflow-hidden" style="background: var(--cl-muted);">
+          <div class="h-full rounded-r-full" style="width: 35%; background: var(--cl-primary);"></div>
+        </div>
+        <!-- Action buttons row -->
+        <div class="flex items-center justify-around px-2 pt-2 mp-safe-bottom" style="height: 52px;">
+          <button class="flex flex-col items-center gap-0.5" aria-label="收藏">
+            <i data-lucide="bookmark" class="h-5 w-5" style="color: var(--cl-foreground);"></i>
+            <span class="text-[10px]" style="color: var(--cl-muted-foreground);">收藏</span>
+          </button>
+          <button class="flex flex-col items-center gap-0.5" aria-label="笔记">
+            <i data-lucide="pencil-line" class="h-5 w-5" style="color: var(--cl-foreground);"></i>
+            <span class="text-[10px]" style="color: var(--cl-muted-foreground);">笔记</span>
+          </button>
+          <button class="flex flex-col items-center gap-0.5" aria-label="AI 解答">
+            <i data-lucide="sparkles" class="h-5 w-5" style="color: var(--cl-primary);"></i>
+            <span class="text-[10px] font-medium" style="color: var(--cl-primary);">AI 解答</span>
+          </button>
+          <button class="flex flex-col items-center gap-0.5" aria-label="分享">
+            <i data-lucide="share-2" class="h-5 w-5" style="color: var(--cl-foreground);"></i>
+            <span class="text-[10px]" style="color: var(--cl-muted-foreground);">分享</span>
+          </button>
+        </div>
+      </div>
+
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

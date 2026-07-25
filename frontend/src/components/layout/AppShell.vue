@@ -1,24 +1,50 @@
 <template>
-  <div class="min-h-screen bg-background">
-    <Sidebar :collapsed="sidebarCollapsed" @toggle-collapse="sidebarCollapsed = !sidebarCollapsed" />
+  <div class="h-screen overflow-hidden flex" style="background: var(--kb-background);">
+    <Sidebar
+      :mobile-open="sidebarOpen"
+      :collapsed="sidebarCollapsed"
+      @close="sidebarOpen = false"
+      @toggle-collapse="toggleCollapse"
+    />
     <div
-      :class="[
-        'flex flex-col min-h-screen transition-all duration-300 ease-in-out',
-        sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64',
-      ]"
+      v-if="sidebarOpen"
+      class="fixed inset-0 z-40 bg-black/40 lg:hidden"
+      @click="sidebarOpen = false"
+    ></div>
+    <div
+      class="flex-1 flex flex-col min-h-0 transition-all duration-300 ease-in-out"
+      :class="sidebarCollapsed ? 'lg:ml-[64px]' : 'lg:ml-60'"
     >
-      <Topbar @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed" />
-      <main class="flex-1 p-6">
-        <slot />
+      <BTopbar @toggle-sidebar="sidebarOpen = !sidebarOpen" />
+      <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <div class="max-w-[1400px] mx-auto">
+          <slot />
+        </div>
       </main>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import Sidebar from './Sidebar.vue'
-import Topbar from './Topbar.vue'
+import { ref, onMounted, watch } from 'vue';
+import Sidebar from './Sidebar.vue';
+import BTopbar from './BTopbar.vue';
 
-const sidebarCollapsed = ref(false)
+const sidebarOpen = ref(false);
+const sidebarCollapsed = ref(false);
+
+function toggleCollapse() {
+  sidebarCollapsed.value = !sidebarCollapsed.value;
+}
+
+onMounted(() => {
+  const saved = localStorage.getItem('sidebar-collapsed');
+  if (saved !== null) {
+    sidebarCollapsed.value = saved === 'true';
+  }
+});
+
+watch(sidebarCollapsed, (val) => {
+  localStorage.setItem('sidebar-collapsed', String(val));
+});
 </script>

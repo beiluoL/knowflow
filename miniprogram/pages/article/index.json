@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "文章详情",
+  "navigationBarBackgroundColor": "#FFFFFF",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#F7F8FA",
+  "enablePullDownRefresh": false
+}

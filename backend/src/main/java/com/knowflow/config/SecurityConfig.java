@@ -1,9 +1,12 @@
 package com.knowflow.config;
 
 import com.knowflow.security.JwtAuthenticationFilter;
+import com.knowflow.security.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -15,10 +18,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -26,17 +31,31 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> {})
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/auth/**",
-                                "/api/public/**",
+                                "/api/auth/login",
+                                "/api/auth/register",
+                                "/api/public/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET,
                                 "/api/docs",
                                 "/api/docs/{id}",
-                                "/api/docs/recommend",
-                                "/api/categories/**",
+                                "/api/docs/recommend"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,
                                 "/api/learning/paths",
                                 "/api/learning/paths/{id}",
-                                "/api/learning/flashcards",
+                                "/api/learning/flashcards"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/community/posts",
+                                "/api/community/posts/{id}",
+                                "/api/community/posts/{id}/comments"
+                        ).permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers(
                                 "/h2-console/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",

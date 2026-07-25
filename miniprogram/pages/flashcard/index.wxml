@@ -1,0 +1,64 @@
+<view class="page-container">
+  <view class="header">
+    <text class="header-title">学习闪卡</text>
+  </view>
+
+  <view class="deck-tabs">
+    <view class="deck-tab {{currentDeck === index ? 'active' : ''}}" wx:for="{{decks}}" wx:key="index" data-index="{{index}}" bindtap="selectDeck">
+      <text>{{item.name}}</text>
+    </view>
+  </view>
+
+  <view class="progress-section">
+    <view class="progress-info">
+      <text class="progress-label">学习进度</text>
+      <text class="progress-count">{{currentIndex + 1}} / {{cards.length}}</text>
+    </view>
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{(currentIndex + 1) / cards.length * 100}}%;"></view>
+    </view>
+  </view>
+
+  <view class="card-area">
+    <view class="card {{isFlipped ? 'flipped' : ''}}" bindtap="flipCard">
+      <view class="card-inner">
+        <view class="card-front">
+          <text class="card-label">问题</text>
+          <text class="card-content">{{currentCard.question}}</text>
+          <text class="card-hint">👆 点击查看答案</text>
+        </view>
+        <view class="card-back">
+          <text class="card-label">答案</text>
+          <text class="card-content">{{currentCard.answer}}</text>
+          <text class="card-hint">👆 点击返回问题</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-buttons" wx:if="{{isFlipped}}">
+    <view class="action-btn fail" data-type="fail" bindtap="handleAnswer">
+      <text class="btn-icon">❌</text>
+      <text class="btn-text">忘记了</text>
+    </view>
+    <view class="action-btn success" data-type="success" bindtap="handleAnswer">
+      <text class="btn-icon">✅</text>
+      <text class="btn-text">记住了</text>
+    </view>
+  </view>
+
+  <view class="stats-section">
+    <view class="stat-item">
+      <text class="stat-value">{{stats.remembered}}</text>
+      <text class="stat-label">已记住</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-value">{{stats.forgotten}}</text>
+      <text class="stat-label">需复习</text>
+    </view>
+    <view class="stat-item">
+      <text class="stat-value">{{stats.remaining}}</text>
+      <text class="stat-label">待学习</text>
+    </view>
+  </view>
+</view>

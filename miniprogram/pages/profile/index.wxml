@@ -1,0 +1,108 @@
+<view class="page-container">
+  <view class="profile-header">
+    <view class="avatar">Z</view>
+    <text class="username">张小明</text>
+    <view class="level-badge">
+      <text>🏆</text>
+      <text>Lv.12 代码探索者</text>
+    </view>
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="stat-value">128</text>
+        <text class="stat-label">阅读</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value">456h</text>
+        <text class="stat-label">学习时长</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value">7 天</text>
+        <text class="stat-label">连续打卡</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="level-section">
+    <view class="level-header">
+      <text class="level-title">等级进度</text>
+      <text class="level-xp">2450 / 3000 XP</text>
+    </view>
+    <view class="level-progress-bar">
+      <view class="level-progress-fill"></view>
+    </view>
+    <view class="level-labels">
+      <text>Lv.12</text>
+      <text>Lv.13</text>
+    </view>
+  </view>
+
+  <view class="achievements-section">
+    <view class="achievements-header">
+      <text class="achievements-title">成就徽章</text>
+      <view class="achievements-more">
+        <text>全部</text>
+        <text class="more-icon">›</text>
+      </view>
+    </view>
+    <scroll-view class="badges-scroll" scroll-x>
+      <view class="badges-list">
+        <view class="badge-item" wx:for="{{badges}}" wx:key="name">
+          <view class="badge-icon" style="background: {{item.bg}};">
+            <text>{{item.icon}}</text>
+          </view>
+          <text class="badge-name" style="color: {{item.color}};">{{item.name}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="menu-section">
+    <view class="menu-item" bindtap="goToStatistics">
+      <view class="menu-icon">📊</view>
+      <text class="menu-text">学习统计</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-divider"></view>
+    <view class="menu-item">
+      <view class="menu-icon">📖</view>
+      <text class="menu-text">我的收藏</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-divider"></view>
+    <view class="menu-item">
+      <view class="menu-icon">⚙️</view>
+      <text class="menu-text">学习设置</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-divider"></view>
+    <view class="menu-item">
+      <view class="menu-icon">🌙</view>
+      <text class="menu-text">深色模式</text>
+      <view class="toggle-switch">
+        <view class="toggle-track">
+          <view class="toggle-thumb"></view>
+        </view>
+      </view>
+    </view>
+    <view class="menu-divider"></view>
+    <view class="menu-item">
+      <view class="menu-icon">ℹ️</view>
+      <text class="menu-text">关于我们</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-divider"></view>
+    <view class="menu-item" bindtap="goToAgreement">
+      <view class="menu-icon">📝</view>
+      <text class="menu-text">用户协议</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-divider"></view>
+    <view class="menu-item" bindtap="goToPrivacy">
+      <view class="menu-icon">🔒</view>
+      <text class="menu-text">隐私政策</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+</view>

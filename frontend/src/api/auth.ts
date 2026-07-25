@@ -5,4 +5,5 @@ export const authApi = {
   login: (data: LoginPayload) => apiPost<LoginResult>('/auth/login', data),
   register: (data: RegisterPayload) => apiPost<LoginResult>('/auth/register', data),
   me: () => apiGet<UserVO>('/auth/me'),
+  logout: () => apiPost<void>('/auth/logout'),
 }

@@ -177,7 +177,7 @@
 </template>
 
 <script setup lang="ts">
-import { notify } from '@/utils/toast'
+import { getApiError, notify } from '@/utils/toast'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
@@ -223,8 +223,8 @@ const handleRegister = async () => {
     })
     notify('注册成功，已自动登录！', 'success')
     router.push('/')
-  } catch (e: any) {
-    const msg = e?.response?.data?.message || '注册失败，请稍后再试'
+  } catch (e: unknown) {
+    const msg = getApiError(e, '注册失败，请稍后再试')
     notify(msg, 'info')
   } finally {
     registerLoading.value = false

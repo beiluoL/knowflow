@@ -7,24 +7,32 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knowflow.dto.ChatSendDTO;
 import com.knowflow.entity.ChatConversation;
 import com.knowflow.entity.ChatMessage;
+import com.knowflow.entity.DocDocument;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.ChatConversationMapper;
 import com.knowflow.mapper.ChatMessageMapper;
+import com.knowflow.mapper.DocDocumentMapper;
+import com.knowflow.service.AiService;
 import com.knowflow.service.ChatService;
 import com.knowflow.vo.ConversationVO;
 import com.knowflow.vo.MessageVO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatConversation> implements ChatService {
 
     private final ChatMessageMapper messageMapper;
+    private final AiService aiService;
+    private final DocDocumentMapper docMapper;
 
     @Override
     public List<ConversationVO> getConversationList(Long userId) {
@@ -69,13 +77,14 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
         userMessage.setContent(dto.getContent());
         userMessage.setTokenCount(dto.getContent().length());
         messageMapper.insert(userMessage);
-        String replyContent = generateMockReply(dto.getContent());
+        List<DocDocument> contextDocs = searchRelatedDocs(dto.getContent());
+        String replyContent = aiService.chat(dto.getContent(), contextDocs);
         ChatMessage assistantMessage = new ChatMessage();
         assistantMessage.setConversationId(conversation.getId());
         assistantMessage.setUserId(userId);
         assistantMessage.setRole("assistant");
         assistantMessage.setContent(replyContent);
-        assistantMessage.setDocReferences("[1] 相关文档示例");
+        assistantMessage.setDocReferences(buildDocReferences(contextDocs));
         assistantMessage.setTokenCount(replyContent.length());
         messageMapper.insert(assistantMessage);
         conversation.setMessageCount(conversation.getMessageCount() + 2);
@@ -112,8 +121,29 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
         this.removeById(conversationId);
     }
 
-    private String generateMockReply(String userMessage) {
-        return "这是一个模拟的 AI 回复。您的问题是：\"" + userMessage +
-                "\"。在实际项目中，这里会接入真实的 AI 服务来生成智能回答。";
+    private List<DocDocument> searchRelatedDocs(String query) {
+        if (StrUtil.isBlank(query)) {
+            return Collections.emptyList();
+        }
+        String keyword = query.length() > 50 ? query.substring(0, 50) : query;
+        return docMapper.selectList(new LambdaQueryWrapper<DocDocument>()
+                .eq(DocDocument::getStatus, 1)
+                .and(w -> w.like(DocDocument::getTitle, keyword)
+                        .or().like(DocDocument::getSummary, keyword))
+                .last("LIMIT 3"));
+    }
+
+    private String buildDocReferences(List<DocDocument> docs) {
+        if (docs == null || docs.isEmpty()) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < docs.size(); i++) {
+            if (i > 0) {
+                sb.append("\n");
+            }
+            sb.append(String.format("[%d] %s", i + 1, docs.get(i).getTitle()));
+        }
+        return sb.toString();
     }
 }

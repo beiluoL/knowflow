@@ -3,11 +3,14 @@ package com.knowflow.controller;
 import com.knowflow.common.Result;
 import com.knowflow.dto.LoginDTO;
 import com.knowflow.dto.RegisterDTO;
+import com.knowflow.security.TokenBlacklistService;
 import com.knowflow.service.UserService;
+import com.knowflow.utils.JwtUtils;
 import com.knowflow.vo.LoginVO;
 import com.knowflow.vo.UserVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -20,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final UserService userService;
+    private final JwtUtils jwtUtils;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Operation(summary = "登录")
     @PostMapping("/login")
@@ -42,5 +47,23 @@ public class AuthController {
         }
         Long userId = (Long) authentication.getPrincipal();
         return Result.success(userService.getCurrentUser(userId));
+    }
+
+    @Operation(summary = "登出（使当前 token 失效）")
+    @PostMapping("/logout")
+    public Result<Void> logout(HttpServletRequest request) {
+        String token = extractToken(request);
+        if (token != null) {
+            tokenBlacklistService.add(token, jwtUtils.getExpirationFromToken(token));
+        }
+        return Result.success();
+    }
+
+    private String extractToken(HttpServletRequest request) {
+        String bearer = request.getHeader("Authorization");
+        if (bearer != null && bearer.startsWith("Bearer ")) {
+            return bearer.substring(7);
+        }
+        return null;
     }
 }

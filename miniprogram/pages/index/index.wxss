@@ -1,0 +1,415 @@
+.page-container {
+  min-height: 100vh;
+  background-color: #F7F8FA;
+  padding-bottom: 120rpx;
+}
+
+.header {
+  background-color: #FFFFFF;
+  padding: 0 30rpx 20rpx;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.logo {
+  width: 64rpx;
+  height: 64rpx;
+  background-color: #3B6FE0;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-icon {
+  font-size: 32rpx;
+  color: #FFFFFF;
+  font-weight: bold;
+}
+
+.logo-text {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1A1D23;
+}
+
+.search-btn {
+  width: 72rpx;
+  height: 72rpx;
+  background-color: #E8ECF1;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-search {
+  font-size: 32rpx;
+}
+
+.greeting {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #1A1D23;
+  margin-top: 10rpx;
+  display: block;
+}
+
+.greeting-sub {
+  font-size: 28rpx;
+  color: #6B7280;
+  margin-top: 8rpx;
+  display: block;
+}
+
+.search-bar {
+  margin: 20rpx 30rpx;
+  background-color: #E8ECF1;
+  border-radius: 24rpx;
+  padding: 24rpx 28rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.search-icon {
+  font-size: 28rpx;
+}
+
+.search-placeholder {
+  font-size: 28rpx;
+  color: #6B7280;
+}
+
+.category-scroll {
+  white-space: nowrap;
+  margin: 20rpx 0;
+}
+
+.category-list {
+  display: flex;
+  padding: 0 30rpx;
+  gap: 32rpx;
+}
+
+.category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.category-icon {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-icon .icon {
+  font-size: 40rpx;
+}
+
+.category-name {
+  font-size: 24rpx;
+  color: #6B7280;
+  white-space: nowrap;
+}
+
+.banner {
+  margin: 0 30rpx;
+  background: linear-gradient(135deg, #3B6FE0, #5B8FE8);
+  border-radius: 32rpx;
+  padding: 40rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+.banner::after {
+  content: 'HashMap<K,V>\nput(key, val)\nget(key)';
+  position: absolute;
+  top: 16rpx;
+  right: 16rpx;
+  font-size: 16rpx;
+  color: rgba(255,255,255,0.1);
+  font-family: monospace;
+}
+
+.banner-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #FFFFFF;
+  display: block;
+}
+
+.banner-desc {
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.9);
+  margin-top: 10rpx;
+  display: block;
+}
+
+.banner-btn {
+  margin-top: 30rpx;
+  background-color: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 16rpx;
+  padding: 16rpx 32rpx;
+  display: inline-flex;
+}
+
+.banner-btn-text {
+  font-size: 24rpx;
+  color: #FFFFFF;
+}
+
+.section {
+  margin-top: 40rpx;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30rpx;
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #1A1D23;
+}
+
+.section-more {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.more-text {
+  font-size: 26rpx;
+  color: #6B7280;
+}
+
+.more-icon {
+  font-size: 28rpx;
+  color: #6B7280;
+}
+
+.interview-scroll {
+  white-space: nowrap;
+}
+
+.interview-list {
+  display: flex;
+  padding: 0 30rpx;
+  gap: 24rpx;
+}
+
+.interview-card {
+  width: 300rpx;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E6EC;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  flex-shrink: 0;
+}
+
+.interview-tag {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-bottom: 16rpx;
+}
+
+.tag-icon {
+  width: 40rpx;
+  height: 40rpx;
+  background-color: rgba(59,111,224,0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20rpx;
+}
+
+.tag-text {
+  font-size: 22rpx;
+  font-weight: 500;
+}
+
+.interview-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #1A1D23;
+  display: block;
+  margin-bottom: 16rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.interview-footer {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.difficulty {
+  font-size: 20rpx;
+  padding: 6rpx 12rpx;
+  border-radius: 8rpx;
+}
+
+.learn-count {
+  font-size: 22rpx;
+  color: #6B7280;
+}
+
+.path-list {
+  padding: 0 30rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.path-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E6EC;
+  border-radius: 24rpx;
+  padding: 32rpx;
+}
+
+.path-header {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.path-icon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-text {
+  font-size: 32rpx;
+}
+
+.path-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.path-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1A1D23;
+  display: block;
+}
+
+.path-meta {
+  font-size: 24rpx;
+  color: #6B7280;
+  margin-top: 6rpx;
+  display: block;
+}
+
+.path-progress {
+  font-size: 26rpx;
+  font-weight: 500;
+}
+
+.progress-bar {
+  height: 12rpx;
+  background-color: #E8ECF1;
+  border-radius: 999rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999rpx;
+  transition: width 0.3s ease;
+}
+
+.daily-challenge {
+  margin: 40rpx 30rpx;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E6EC;
+  border-radius: 24rpx;
+  padding: 32rpx;
+}
+
+.challenge-header {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.challenge-icon {
+  font-size: 32rpx;
+}
+
+.challenge-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1A1D23;
+}
+
+.challenge-name {
+  font-size: 28rpx;
+  color: #1A1D23;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.challenge-tags {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+}
+
+.challenge-tag {
+  font-size: 20rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+}
+
+.challenge-category {
+  font-size: 24rpx;
+  color: #6B7280;
+}
+
+.challenge-btn {
+  background-color: #3B6FE0;
+  border-radius: 16rpx;
+  padding: 20rpx 40rpx;
+  display: inline-flex;
+}
+
+.challenge-btn-text {
+  font-size: 28rpx;
+  color: #FFFFFF;
+  font-weight: 500;
+}

@@ -1,6 +1,7 @@
 package com.knowflow.controller;
 
 import com.knowflow.common.Result;
+import com.knowflow.entity.LearningTask;
 import com.knowflow.service.LearningService;
 import com.knowflow.vo.FlashcardVO;
 import com.knowflow.vo.LearningChapterVO;
@@ -71,10 +72,42 @@ public class LearningController {
         return Result.success(learningService.getFlashcardList(pathId, chapterId));
     }
 
+    @Operation(summary = "复习闪卡（SM-2 间隔重复）")
+    @PostMapping("/flashcards/{id}/review")
+    public Result<Void> reviewFlashcard(@PathVariable Long id, @RequestParam Integer quality, Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        learningService.reviewFlashcard(id, userId, quality);
+        return Result.success();
+    }
+
     @Operation(summary = "学习任务列表")
     @GetMapping("/tasks")
     public Result<List<LearningTaskVO>> tasks(Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         return Result.success(learningService.getTaskList(userId));
+    }
+
+    @Operation(summary = "创建学习任务")
+    @PostMapping("/tasks")
+    public Result<Void> createTask(@RequestBody LearningTask task, Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        learningService.createTask(task, userId);
+        return Result.success();
+    }
+
+    @Operation(summary = "更新任务状态")
+    @PutMapping("/tasks/{id}/status")
+    public Result<Void> updateTaskStatus(@PathVariable Long id, @RequestParam Integer status, Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        learningService.updateTaskStatus(id, userId, status);
+        return Result.success();
+    }
+
+    @Operation(summary = "删除学习任务")
+    @DeleteMapping("/tasks/{id}")
+    public Result<Void> deleteTask(@PathVariable Long id, Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        learningService.deleteTask(id, userId);
+        return Result.success();
     }
 }

@@ -37,7 +37,7 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new BusinessException("密码错误");
         }
-        String token = jwtUtils.generateToken(user.getId(), user.getUsername());
+        String token = jwtUtils.generateToken(user.getId(), user.getUsername(), user.getRole());
         LoginVO vo = new LoginVO();
         vo.setToken(token);
         vo.setUser(BeanUtil.copyProperties(user, UserVO.class));
@@ -65,7 +65,7 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         user.setExp(0);
         user.setEnergy(100);
         this.save(user);
-        String token = jwtUtils.generateToken(user.getId(), user.getUsername());
+        String token = jwtUtils.generateToken(user.getId(), user.getUsername(), user.getRole());
         LoginVO vo = new LoginVO();
         vo.setToken(token);
         vo.setUser(BeanUtil.copyProperties(user, UserVO.class));

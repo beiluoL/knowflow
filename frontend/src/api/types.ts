@@ -76,12 +76,14 @@ export interface DocVO {
   difficulty?: number
   status?: number
   createTime?: string
+  favoriteTime?: string
 }
 
 export interface DocDetailVO extends DocVO {
   content?: string
   favorite?: boolean
   readProgress?: number
+  author?: string
 }
 
 export interface DocPageResult {
@@ -129,6 +131,9 @@ export interface CategoryVO {
   description?: string
   sortOrder?: number
   docCount?: number
+  createTime?: string
+  memberCount?: number
+  storageSize?: string
   children?: CategoryVO[]
 }
 
@@ -244,6 +249,112 @@ export interface MessageVO {
 export interface ChatSendPayload {
   conversationId?: number
   content: string
+}
+
+// ===== 错题 =====
+export interface MistakeVO {
+  id: number
+  userId: number
+  question: string
+  wrongAnswer?: string
+  correctAnswer?: string
+  category?: string
+  difficulty?: number
+  reviewCount?: number
+  lastReviewTime?: string
+  mastered?: number
+  source?: string
+  createTime?: string
+}
+
+export interface MistakePageResult {
+  records: MistakeVO[]
+  total: number
+  pageNum: number
+  pageSize: number
+  pages: number
+}
+
+export interface MistakeStats {
+  total: number
+  mastered: number
+  pending: number
+}
+
+// ===== 社区 =====
+export interface PostVO {
+  id: number
+  userId: number
+  username?: string
+  nickname?: string
+  title: string
+  content?: string
+  category?: string
+  tags?: string
+  likeCount?: number
+  commentCount?: number
+  viewCount?: number
+  isEssence?: number
+  status?: number
+  createTime?: string
+}
+
+export interface PostPageResult {
+  records: PostVO[]
+  total: number
+  pageNum: number
+  pageSize: number
+  pages: number
+}
+
+// ===== 社区评论 =====
+export interface CommentVO {
+  id: number
+  postId?: number
+  userId?: number
+  content?: string
+  username?: string
+  nickname?: string
+  avatar?: string
+  createTime?: string
+}
+
+export interface CommentPageResult {
+  records: CommentVO[]
+  total: number
+  pageNum: number
+  pageSize: number
+  pages: number
+}
+
+// ===== 消息通知 =====
+export interface NotificationVO {
+  id: number
+  userId: number
+  type: string
+  title: string
+  content?: string
+  isRead?: number
+  relatedId?: number
+  relatedType?: string
+  createTime?: string
+}
+
+export interface NotificationPageResult {
+  records: NotificationVO[]
+  total: number
+  pageNum: number
+  pageSize: number
+  pages: number
+}
+
+// ===== 收藏 =====
+export interface FavoriteItem {
+  id: number
+  type: 'doc' | 'flashcard' | 'path' | 'note'
+  title: string
+  source?: string
+  favoriteTime?: string
 }
 
 // ===== 管理后台概览 =====

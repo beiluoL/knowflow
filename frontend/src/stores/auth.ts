@@ -41,11 +41,17 @@ export const useAuthStore = defineStore('auth', () => {
     return u
   }
 
-  function logout() {
-    token.value = ''
-    user.value = null
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(USER_KEY)
+  async function logout() {
+    try {
+      await authApi.logout()
+    } catch {
+      // 登出接口失败不影响本地清理
+    } finally {
+      token.value = ''
+      user.value = null
+      localStorage.removeItem(TOKEN_KEY)
+      localStorage.removeItem(USER_KEY)
+    }
   }
 
   return { token, user, isLoggedIn, isAdmin, setSession, login, register, fetchMe, logout }

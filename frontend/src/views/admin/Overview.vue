@@ -34,6 +34,44 @@
         <Card>
           <template #header>
             <div class="flex items-center justify-between">
+              <h3 class="font-semibold text-gray-800">系统健康状态</h3>
+              <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-success-500 animate-pulse"></span>
+                <span class="text-xs text-success-500 font-medium">运行正常</span>
+              </div>
+            </div>
+          </template>
+          <div class="space-y-4">
+            <div v-for="item in systemHealth" :key="item.label">
+              <div class="flex items-center justify-between mb-1.5">
+                <div class="flex items-center gap-2">
+                  <Icon :name="item.icon" :size="16" class="text-gray-400" />
+                  <span class="text-sm text-gray-600">{{ item.label }}</span>
+                </div>
+                <span class="text-sm font-medium" :class="item.statusClass">{{ item.value }}%</span>
+              </div>
+              <div class="h-2 w-full rounded-full bg-gray-100">
+                <div
+                  class="h-full rounded-full transition-all duration-500"
+                  :class="item.barClass"
+                  :style="{ width: `${item.value}%` }"
+                ></div>
+              </div>
+              <p class="text-xs text-gray-400 mt-1">{{ item.detail }}</p>
+            </div>
+            <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <Icon name="clock" :size="14" class="text-gray-400" />
+                <span class="text-xs text-gray-500">系统运行时间</span>
+              </div>
+              <span class="text-xs font-medium text-gray-700">{{ uptime }}</span>
+            </div>
+          </div>
+        </Card>
+
+        <Card>
+          <template #header>
+            <div class="flex items-center justify-between">
               <h3 class="font-semibold text-gray-800">用户增长趋势</h3>
               <div class="flex items-center gap-2">
                 <button
@@ -273,6 +311,15 @@ const stats = computed(() => {
 })
 
 const colorPalette = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16', '#F97316']
+
+const systemHealth = [
+  { label: 'CPU 使用率', value: 23, icon: 'cpu', barClass: 'bg-success-500', statusClass: 'text-success-500', detail: '4 核 · 负载正常' },
+  { label: '内存使用率', value: 46, icon: 'memory-stick', barClass: 'bg-primary-500', statusClass: 'text-primary-500', detail: '4.6 GB / 8 GB' },
+  { label: '磁盘使用率', value: 38, icon: 'hard-drive', barClass: 'bg-warning-500', statusClass: 'text-warning-500', detail: '38 GB / 100 GB' },
+  { label: '数据库连接', value: 12, icon: 'database', barClass: 'bg-success-500', statusClass: 'text-success-500', detail: '12 / 50 连接池' },
+]
+
+const uptime = '7 天 14 小时'
 
 const categoryDistribution = computed(() => {
   const cats = categories.value

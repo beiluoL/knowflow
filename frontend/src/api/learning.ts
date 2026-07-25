@@ -19,6 +19,9 @@ export const learningApi = {
   completeChapter: (id: number) => apiPost<void>(`/learning/chapters/${id}/complete`),
   flashcards: (pathId?: number, chapterId?: number) =>
     apiGet<FlashcardVO[]>('/learning/flashcards', { pathId, chapterId }),
+  // SM-2 间隔重复复习：quality ∈ [0,5]，<3 重置，3=有印象，5=完全掌握
+  reviewFlashcard: (id: number, quality: number) =>
+    apiPost<void>(`/learning/flashcards/${id}/review?quality=${quality}`),
   tasks: () => apiGet<LearningTaskVO[]>('/learning/tasks'),
 
   // 管理员写操作

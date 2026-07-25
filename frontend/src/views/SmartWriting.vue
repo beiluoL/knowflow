@@ -37,7 +37,20 @@
             </div>
           </Card>
 
-          <Card v-if="aiFeedback">
+          <Card v-if="feedbackLoading">
+            <template #header>
+              <div class="flex items-center gap-2">
+                <Icon name="bot" :size="20" class="text-primary-500" />
+                <h3 class="font-semibold text-gray-800">AI 批改建议</h3>
+              </div>
+            </template>
+            <div class="feedback-loading">
+              <div class="loading-spinner"></div>
+              <p class="text-gray-500 text-sm mt-3">AI 正在分析您的文章...</p>
+            </div>
+          </Card>
+
+          <Card v-else-if="aiFeedback">
             <template #header>
               <div class="flex items-center gap-2">
                 <Icon name="bot" :size="20" class="text-primary-500" />
@@ -151,6 +164,7 @@ import Button from '@/components/ui/Button.vue'
 const title = ref('')
 const content = ref('')
 const showTemplateModal = ref(false)
+const feedbackLoading = ref(false)
 const aiFeedback = ref<{
   score: number
   grammar: number
@@ -168,7 +182,7 @@ const history = [
   { id: '3', title: '数据库索引优化总结', date: '2024-01-13', wordCount: 2341 },
 ]
 
-const aiAssist = (type: string) => {
+const aiAssist = async (type: string) => {
   switch (type) {
     case 'continue':
       content.value += '\n\n[AI 续写内容示例：在此基础上，我们可以进一步探讨...]'
@@ -180,16 +194,27 @@ const aiAssist = (type: string) => {
       content.value = '## 大纲\n\n1. 引言\n2. 核心概念\n3. 实践应用\n4. 总结\n\n' + content.value
       break
     case 'check':
-      aiFeedback.value = {
-        score: 85,
-        grammar: 90,
-        structure: 80,
-        content: 85,
-        suggestions: [
-          '建议增加更多实际案例来支撑论点',
-          '部分段落可以进一步精简，提高可读性',
-          '注意检查专业术语的使用是否准确',
-        ],
+      if (!content.value.trim()) {
+        notify('请先输入内容再进行批改', 'warning')
+        return
+      }
+      feedbackLoading.value = true
+      aiFeedback.value = null
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        aiFeedback.value = {
+          score: 85,
+          grammar: 90,
+          structure: 80,
+          content: 85,
+          suggestions: [
+            '建议增加更多实际案例来支撑论点',
+            '部分段落可以进一步精简，提高可读性',
+            '注意检查专业术语的使用是否准确',
+          ],
+        }
+      } finally {
+        feedbackLoading.value = false
       }
       break
   }
@@ -217,5 +242,27 @@ const loadDocument = async (doc: { title: string; wordCount: number }) => {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+.feedback-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 </style>

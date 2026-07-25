@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识库</title>
+    <style id="theme-vars">
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme inline {
+  --color-cl-background: #F7F8FA;
+  --color-cl-foreground: #1A1D23;
+  --color-cl-card: #FFFFFF;
+  --color-cl-card-foreground: #1A1D23;
+  --color-cl-popover: #FFFFFF;
+  --color-cl-popover-foreground: #1A1D23;
+  --color-cl-primary: #3B6FE0;
+  --color-cl-primary-foreground: #FFFFFF;
+  --color-cl-muted: #E8ECF1;
+  --color-cl-muted-foreground: #6B7280;
+  --color-cl-border: #E2E6EC;
+  --color-cl-input: #E2E6EC;
+  --color-cl-ring: #3B6FE0;
+  --color-cl-sidebar: #F0F2F5;
+  --color-cl-sidebar-foreground: #374151;
+  --color-cl-state-success: #10B981;
+  --color-cl-state-success-foreground: #FFFFFF;
+  --color-cl-state-error: #EF4444;
+  --color-cl-state-error-foreground: #FFFFFF;
+  --color-cl-state-warning: #F59E0B;
+  --color-cl-state-warning-foreground: #FFFFFF;
+  --color-cl-radius-sm: 8px;
+  --color-cl-radius-md: 12px;
+  --color-cl-radius-lg: 16px;
+}
+
+:root {
+  --cl-background: #F7F8FA;
+  --cl-foreground: #1A1D23;
+  --cl-card: #FFFFFF;
+  --cl-card-foreground: #1A1D23;
+  --cl-popover: #FFFFFF;
+  --cl-popover-foreground: #1A1D23;
+  --cl-primary: #3B6FE0;
+  --cl-primary-foreground: #FFFFFF;
+  --cl-muted: #E8ECF1;
+  --cl-muted-foreground: #6B7280;
+  --cl-border: #E2E6EC;
+  --cl-input: #E2E6EC;
+  --cl-ring: #3B6FE0;
+  --cl-sidebar: #F0F2F5;
+  --cl-sidebar-foreground: #374151;
+  --cl-state-success: #10B981;
+  --cl-state-success-foreground: #FFFFFF;
+  --cl-state-error: #EF4444;
+  --cl-state-error-foreground: #FFFFFF;
+  --cl-state-warning: #F59E0B;
+  --cl-state-warning-foreground: #FFFFFF;
+  --cl-radius-sm: 8px;
+  --cl-radius-md: 12px;
+  --cl-radius-lg: 16px;
+  --font-sans: 'Noto Sans SC', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+#semantic-token-fallback {
+  --background: var(--cl-background);
+  --foreground: var(--cl-foreground);
+  --card: var(--cl-card);
+  --card-foreground: var(--cl-card-foreground);
+  --popover: var(--cl-popover);
+  --popover-foreground: var(--cl-popover-foreground);
+  --primary: var(--cl-primary);
+  --primary-foreground: var(--cl-primary-foreground);
+  --muted: var(--cl-muted);
+  --muted-foreground: var(--cl-muted-foreground);
+  --border: var(--cl-border);
+  --input: var(--cl-input);
+  --ring: var(--cl-ring);
+  --radius-sm: var(--cl-radius-sm);
+  --radius-md: var(--cl-radius-md);
+  --radius-lg: var(--cl-radius-lg);
+}
+
+/* Typography scale */
+.cl-h1 {
+  font-family: var(--font-sans);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--cl-foreground);
+}
+
+.cl-h2 {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--cl-foreground);
+}
+
+.cl-h3 {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--cl-foreground);
+}
+
+.cl-body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--cl-card-foreground);
+}
+
+.cl-body-sm {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--cl-muted-foreground);
+}
+
+.cl-caption {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--cl-muted-foreground);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Mini program safe area simulation */
+.mp-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+.mp-status-bar {
+  height: 44px;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--cl-background);
+    --color-foreground: var(--cl-foreground);
+    --color-card: var(--cl-card);
+    --color-card-foreground: var(--cl-card-foreground);
+    --color-popover: var(--cl-popover);
+    --color-popover-foreground: var(--cl-popover-foreground);
+    --color-primary: var(--cl-primary);
+    --color-primary-foreground: var(--cl-primary-foreground);
+    --color-muted: var(--cl-muted);
+    --color-muted-foreground: var(--cl-muted-foreground);
+    --color-border: var(--cl-border);
+    --color-input: var(--cl-input);
+    --color-ring: var(--cl-ring);
+    --color-sidebar: var(--cl-sidebar);
+    --color-sidebar-foreground: var(--cl-sidebar-foreground);
+    --radius-sm: var(--cl-radius-sm);
+    --radius-md: var(--cl-radius-md);
+    --radius-lg: var(--cl-radius-lg);
+  }
+  @layer base {
+    body { background: var(--cl-background); color: var(--cl-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--cl-background); }
+      .text-background { color: var(--cl-background); }
+      .border-background { border-color: var(--cl-background); }
+      .ring-background { --tw-ring-color: var(--cl-background); }
+      .bg-foreground { background-color: var(--cl-foreground); }
+      .text-foreground { color: var(--cl-foreground); }
+      .border-foreground { border-color: var(--cl-foreground); }
+      .ring-foreground { --tw-ring-color: var(--cl-foreground); }
+      .bg-card { background-color: var(--cl-card); }
+      .text-card { color: var(--cl-card); }
+      .border-card { border-color: var(--cl-card); }
+      .ring-card { --tw-ring-color: var(--cl-card); }
+      .bg-card-foreground { background-color: var(--cl-card-foreground); }
+      .text-card-foreground { color: var(--cl-card-foreground); }
+      .border-card-foreground { border-color: var(--cl-card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--cl-card-foreground); }
+      .bg-popover { background-color: var(--cl-popover); }
+      .text-popover { color: var(--cl-popover); }
+      .border-popover { border-color: var(--cl-popover); }
+      .ring-popover { --tw-ring-color: var(--cl-popover); }
+      .bg-popover-foreground { background-color: var(--cl-popover-foreground); }
+      .text-popover-foreground { color: var(--cl-popover-foreground); }
+      .border-popover-foreground { border-color: var(--cl-popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--cl-popover-foreground); }
+      .bg-primary { background-color: var(--cl-primary); }
+      .text-primary { color: var(--cl-primary); }
+      .border-primary { border-color: var(--cl-primary); }
+      .ring-primary { --tw-ring-color: var(--cl-primary); }
+      .bg-primary-foreground { background-color: var(--cl-primary-foreground); }
+      .text-primary-foreground { color: var(--cl-primary-foreground); }
+      .border-primary-foreground { border-color: var(--cl-primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--cl-primary-foreground); }
+      .bg-muted { background-color: var(--cl-muted); }
+      .text-muted { color: var(--cl-muted); }
+      .border-muted { border-color: var(--cl-muted); }
+      .ring-muted { --tw-ring-color: var(--cl-muted); }
+      .bg-muted-foreground { background-color: var(--cl-muted-foreground); }
+      .text-muted-foreground { color: var(--cl-muted-foreground); }
+      .border-muted-foreground { border-color: var(--cl-muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--cl-muted-foreground); }
+      .bg-border { background-color: var(--cl-border); }
+      .text-border { color: var(--cl-border); }
+      .border-border { border-color: var(--cl-border); }
+      .ring-border { --tw-ring-color: var(--cl-border); }
+      .bg-input { background-color: var(--cl-input); }
+      .text-input { color: var(--cl-input); }
+      .border-input { border-color: var(--cl-input); }
+      .ring-input { --tw-ring-color: var(--cl-input); }
+      .bg-ring { background-color: var(--cl-ring); }
+      .text-ring { color: var(--cl-ring); }
+      .border-ring { border-color: var(--cl-ring); }
+      .ring-ring { --tw-ring-color: var(--cl-ring); }
+      .bg-sidebar { background-color: var(--cl-sidebar); }
+      .text-sidebar { color: var(--cl-sidebar); }
+      .border-sidebar { border-color: var(--cl-sidebar); }
+      .ring-sidebar { --tw-ring-color: var(--cl-sidebar); }
+      .bg-sidebar-foreground { background-color: var(--cl-sidebar-foreground); }
+      .text-sidebar-foreground { color: var(--cl-sidebar-foreground); }
+      .border-sidebar-foreground { border-color: var(--cl-sidebar-foreground); }
+      .ring-sidebar-foreground { --tw-ring-color: var(--cl-sidebar-foreground); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main class="mx-auto max-w-[375px] min-h-screen pb-[84px]">
+
+        <!-- Status Bar Spacer -->
+        <div class="h-11"></div>
+
+        <!-- Header -->
+        <header class="sticky top-0 z-30 flex h-11 items-center justify-between border-b border-[var(--cl-border)] bg-[var(--cl-card)]/95 px-4 backdrop-blur">
+            <div class="flex w-[88px] items-center justify-start"></div>
+            <h1 class="min-w-0 flex-1 text-center text-[16px] font-semibold tracking-[-0.02em] text-[var(--cl-foreground)]" style="text-wrap:balance;word-break:keep-all;overflow-wrap:break-word;">知识库</h1>
+            <div class="flex w-[88px] items-center justify-end">
+                <button class="inline-flex h-8 w-8 items-center justify-center rounded-lg" aria-label="搜索">
+                    <i data-lucide="search" class="h-[18px] w-[18px] text-[var(--cl-foreground)]"></i>
+                </button>
+                <div class="ml-1 flex h-8 w-[52px] items-center justify-center rounded-full border border-[var(--cl-border)] bg-[var(--cl-card)]/90">
+                    <button class="flex h-full flex-1 items-center justify-center" aria-label="更多">
+                        <i data-lucide="more-horizontal" class="h-4 w-4 text-[var(--cl-foreground)]"></i>
+                    </button>
+                    <span class="h-4 w-px bg-[var(--cl-border)]" aria-hidden="true"></span>
+                    <button class="flex h-full flex-1 items-center justify-center" aria-label="关闭">
+                        <i data-lucide="x" class="h-3.5 w-3.5 text-[var(--cl-foreground)]"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Filter Tabs -->
+        <nav class="flex flex-nowrap gap-2 overflow-x-auto border-b border-[var(--cl-border)] bg-[var(--cl-card)] px-4 py-3 no-scrollbar" aria-label="分类筛选">
+            <button class="shrink-0 inline-flex items-center whitespace-nowrap rounded-lg px-3 py-1.5 text-[13px] font-medium text-[var(--cl-primary-foreground)] bg-[var(--cl-primary)]" aria-pressed="true">全部</button>
+            <button class="shrink-0 inline-flex items-center whitespace-nowrap rounded-lg border border-[var(--cl-border)] px-3 py-1.5 text-[13px] font-medium text-[var(--cl-muted-foreground)] bg-[var(--cl-card)]" aria-pressed="false">Java</button>
+            <button class="shrink-0 inline-flex items-center whitespace-nowrap rounded-lg border border-[var(--cl-border)] px-3 py-1.5 text-[13px] font-medium text-[var(--cl-muted-foreground)] bg-[var(--cl-card)]" aria-pressed="false">Python</button>
+            <button class="shrink-0 inline-flex items-center whitespace-nowrap rounded-lg border border-[var(--cl-border)] px-3 py-1.5 text-[13px] font-medium text-[var(--cl-muted-foreground)] bg-[var(--cl-card)]" aria-pressed="false">前端</button>
+            <button class="shrink-0 inline-flex items-center whitespace-nowrap rounded-lg border border-[var(--cl-border)] px-3 py-1.5 text-[13px] font-medium text-[var(--cl-muted-foreground)] bg-[var(--cl-card)]" aria-pressed="false">AI</button>
+            <button class="shrink-0 inline-flex items-center whitespace-nowrap rounded-lg border border-[var(--cl-border)] px-3 py-1.5 text-[13px] font-medium text-[var(--cl-muted-foreground)] bg-[var(--cl-card)]" aria-pressed="false">面试题</button>
+        </nav>
+
+        <!-- Knowledge Tree -->
+        <section class="px-4 pt-4">
+            <!-- Category: Java 基础 (expanded) -->
+            <div class="mb-2 overflow-hidden rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)]">
+                <button class="flex w-full items-center justify-between px-3 py-3" aria-expanded="true">
+                    <div class="flex items-center gap-2.5">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--cl-primary)]/10 text-[var(--cl-primary)]">
+                            <i data-lucide="coffee" class="h-4 w-4"></i>
+                        </span>
+                        <span class="text-[14px] font-semibold text-[var(--cl-foreground)] truncate">Java 基础</span>
+                        <span class="text-[12px] text-[var(--cl-muted-foreground)]">32 篇</span>
+                    </div>
+                    <i data-lucide="chevron-down" class="h-4 w-4 text-[var(--cl-muted-foreground)] shrink-0"></i>
+                </button>
+                <!-- Expanded children -->
+                <div class="border-t border-[var(--cl-border)]">
+                    <div class="flex items-center gap-2.5 px-3 py-2.5 border-b border-[var(--cl-border)]/50">
+                        <span class="flex h-6 w-6 items-center justify-center rounded bg-[var(--cl-muted)]/60">
+                            <i data-lucide="file-text" class="h-3.5 w-3.5 text-[var(--cl-muted-foreground)]"></i>
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <span class="block text-[13px] font-medium text-[var(--cl-foreground)] truncate">Java 集合框架详解</span>
+                            <span class="flex items-center gap-2 text-[11px] text-[var(--cl-muted-foreground)]">
+                                <span class="flex items-center gap-0.5"><i data-lucide="clock" class="h-3 w-3"></i>15 分钟</span>
+                                <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[var(--cl-state-success)]/10 text-[var(--cl-state-success)] whitespace-nowrap">入门</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2.5 px-3 py-2.5 border-b border-[var(--cl-border)]/50">
+                        <span class="flex h-6 w-6 items-center justify-center rounded bg-[var(--cl-muted)]/60">
+                            <i data-lucide="file-text" class="h-3.5 w-3.5 text-[var(--cl-muted-foreground)]"></i>
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <span class="block text-[13px] font-medium text-[var(--cl-foreground)] truncate">多线程与并发编程</span>
+                            <span class="flex items-center gap-2 text-[11px] text-[var(--cl-muted-foreground)]">
+                                <span class="flex items-center gap-0.5"><i data-lucide="clock" class="h-3 w-3"></i>25 分钟</span>
+                                <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[var(--cl-state-warning)]/10 text-[var(--cl-state-warning)] whitespace-nowrap">进阶</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2.5 px-3 py-2.5">
+                        <span class="flex h-6 w-6 items-center justify-center rounded bg-[var(--cl-muted)]/60">
+                            <i data-lucide="file-text" class="h-3.5 w-3.5 text-[var(--cl-muted-foreground)]"></i>
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <span class="block text-[13px] font-medium text-[var(--cl-foreground)] truncate">JVM 内存模型与垃圾回收</span>
+                            <span class="flex items-center gap-2 text-[11px] text-[var(--cl-muted-foreground)]">
+                                <span class="flex items-center gap-0.5"><i data-lucide="clock" class="h-3 w-3"></i>20 分钟</span>
+                                <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-[var(--cl-state-error)]/10 text-[var(--cl-state-error)] whitespace-nowrap">高级</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category: Python 进阶 (collapsed) -->
+            <div class="mb-2 overflow-hidden rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)]">
+                <button class="flex w-full items-center justify-between px-3 py-3" aria-expanded="false">
+                    <div class="flex items-center gap-2.5">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--cl-primary)]/10 text-[var(--cl-primary)]">
+                            <i data-lucide="terminal" class="h-4 w-4"></i>
+                        </span>
+                        <span class="text-[14px] font-semibold text-[var(--cl-foreground)] truncate">Python 进阶</span>
+                        <span class="text-[12px] text-[var(--cl-muted-foreground)]">28 篇</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="h-4 w-4 text-[var(--cl-muted-foreground)] shrink-0"></i>
+                </button>
+            </div>
+
+            <!-- Category: 前端框架 (collapsed) -->
+            <div class="mb-2 overflow-hidden rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)]">
+                <button class="flex w-full items-center justify-between px-3 py-3" aria-expanded="false">
+                    <div class="flex items-center gap-2.5">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--cl-primary)]/10 text-[var(--cl-primary)]">
+                            <i data-lucide="layout" class="h-4 w-4"></i>
+                        </span>
+                        <span class="text-[14px] font-semibold text-[var(--cl-foreground)] truncate">前端框架</span>
+                        <span class="text-[12px] text-[var(--cl-muted-foreground)]">24 篇</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="h-4 w-4 text-[var(--cl-muted-foreground)] shrink-0"></i>
+                </button>
+            </div>
+
+            <!-- Category: 算法与数据结构 (collapsed) -->
+            <div class="mb-2 overflow-hidden rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)]">
+                <button class="flex w-full items-center justify-between px-3 py-3" aria-expanded="false">
+                    <div class="flex items-center gap-2.5">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--cl-primary)]/10 text-[var(--cl-primary)]">
+                            <i data-lucide="binary" class="h-4 w-4"></i>
+                        </span>
+                        <span class="text-[14px] font-semibold text-[var(--cl-foreground)] truncate">算法与数据结构</span>
+                        <span class="text-[12px] text-[var(--cl-muted-foreground)]">18 篇</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="h-4 w-4 text-[var(--cl-muted-foreground)] shrink-0"></i>
+                </button>
+            </div>
+
+            <!-- Category: AI 与机器学习 (collapsed) -->
+            <div class="mb-2 overflow-hidden rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)]">
+                <button class="flex w-full items-center justify-between px-3 py-3" aria-expanded="false">
+                    <div class="flex items-center gap-2.5">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--cl-primary)]/10 text-[var(--cl-primary)]">
+                            <i data-lucide="brain" class="h-4 w-4"></i>
+                        </span>
+                        <span class="text-[14px] font-semibold text-[var(--cl-foreground)] truncate">AI 与机器学习</span>
+                        <span class="text-[12px] text-[var(--cl-muted-foreground)]">15 篇</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="h-4 w-4 text-[var(--cl-muted-foreground)] shrink-0"></i>
+                </button>
+            </div>
+
+            <!-- Category: 面试宝典 (collapsed) -->
+            <div class="mb-2 overflow-hidden rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)]">
+                <button class="flex w-full items-center justify-between px-3 py-3" aria-expanded="false">
+                    <div class="flex items-center gap-2.5">
+                        <span class="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--cl-primary)]/10 text-[var(--cl-primary)]">
+                            <i data-lucide="message-circle" class="h-4 w-4"></i>
+                        </span>
+                        <span class="text-[14px] font-semibold text-[var(--cl-foreground)] truncate">面试宝典</span>
+                        <span class="text-[12px] text-[var(--cl-muted-foreground)]">22 篇</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="h-4 w-4 text-[var(--cl-muted-foreground)] shrink-0"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Recently Viewed -->
+        <section class="px-4 pt-5 pb-4">
+            <h2 class="mb-3 text-[15px] font-semibold text-[var(--cl-foreground)]" style="text-wrap:balance;word-break:keep-all;overflow-wrap:break-word;">最近阅读</h2>
+            <div class="flex flex-nowrap gap-3 overflow-x-auto no-scrollbar">
+                <!-- Recent Item 1 -->
+                <div class="shrink-0 w-[200px] overflow-hidden rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)]">
+                    <div class="h-2 bg-[var(--cl-primary)]/70"></div>
+                    <div class="px-3 py-2.5">
+                        <span class="block text-[13px] font-medium text-[var(--cl-foreground)] truncate">Spring Boot 核心原理</span>
+                        <div class="mt-2 flex items-center gap-2">
+                            <div class="h-1 flex-1 overflow-hidden rounded-full bg-[var(--cl-muted)]">
+                                <div class="h-full rounded-full bg-[var(--cl-primary)]" style="width:65%"></div>
+                            </div>
+                            <span class="text-[11px] text-[var(--cl-muted-foreground)] whitespace-nowrap">65%</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Recent Item 2 -->
+                <div class="shrink-0 w-[200px] overflow-hidden rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)]">
+                    <div class="h-2 bg-[var(--cl-state-success)]/70"></div>
+                    <div class="px-3 py-2.5">
+                        <span class="block text-[13px] font-medium text-[var(--cl-foreground)] truncate">React Hooks 深入实践</span>
+                        <div class="mt-2 flex items-center gap-2">
+                            <div class="h-1 flex-1 overflow-hidden rounded-full bg-[var(--cl-muted)]">
+                                <div class="h-full rounded-full bg-[var(--cl-state-success)]" style="width:40%"></div>
+                            </div>
+                            <span class="text-[11px] text-[var(--cl-muted-foreground)] whitespace-nowrap">40%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom Tab Bar -->
+        <nav class="fixed bottom-0 left-1/2 z-40 flex h-[50px] w-full max-w-[375px] -translate-x-1/2 items-center justify-around border-t border-[var(--cl-border)] bg-[var(--cl-card)]" aria-label="底部导航">
+            <a href="#" class="flex flex-col items-center gap-0.5 text-[var(--cl-muted-foreground)]">
+                <i data-lucide="home" class="h-5 w-5"></i>
+                <span class="text-[10px]">首页</span>
+            </a>
+            <a href="#" class="flex flex-col items-center gap-0.5 text-[var(--cl-primary)]">
+                <i data-lucide="book-open" class="h-5 w-5"></i>
+                <span class="text-[10px] font-medium">知识库</span>
+            </a>
+            <a href="#" class="flex flex-col items-center gap-0.5 text-[var(--cl-muted-foreground)]">
+                <i data-lucide="brain" class="h-5 w-5"></i>
+                <span class="text-[10px]">AI 助手</span>
+            </a>
+            <a href="#" class="flex flex-col items-center gap-0.5 text-[var(--cl-muted-foreground)]">
+                <i data-lucide="user" class="h-5 w-5"></i>
+                <span class="text-[10px]">我的</span>
+            </a>
+        </nav>
+
+        <!-- Safe Area Bottom -->
+        <div class="h-[34px]"></div>
+
+    </main>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

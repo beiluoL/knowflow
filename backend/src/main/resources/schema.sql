@@ -218,6 +218,9 @@ CREATE INDEX idx_fav_user     ON doc_favorite (user_id);
 CREATE INDEX idx_fav_doc      ON doc_favorite (doc_id);
 CREATE INDEX idx_rp_user      ON doc_read_progress (user_id);
 CREATE INDEX idx_rp_doc       ON doc_read_progress (doc_id);
+-- 联合唯一约束：防止同一用户对同一文档重复收藏/重复进度记录（并发下先查后写会重复插入）
+ALTER TABLE doc_favorite ADD CONSTRAINT IF NOT EXISTS uk_fav_user_doc UNIQUE (user_id, doc_id);
+ALTER TABLE doc_read_progress ADD CONSTRAINT IF NOT EXISTS uk_rp_user_doc UNIQUE (user_id, doc_id);
 -- 对话 / 消息
 CREATE INDEX idx_conv_user    ON chat_conversation (user_id);
 CREATE INDEX idx_conv_deleted ON chat_conversation (deleted);
@@ -227,7 +230,112 @@ CREATE INDEX idx_path_status  ON learning_path (status);
 CREATE INDEX idx_chap_path    ON learning_chapter (path_id);
 CREATE INDEX idx_up_user      ON learning_user_path (user_id);
 CREATE INDEX idx_up_path      ON learning_user_path (path_id);
+-- 用户章节完成记录表（保证 completeChapter 幂等：同一用户对同一章节只计一次）
+CREATE TABLE IF NOT EXISTS learning_user_chapter (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    path_id BIGINT NOT NULL,
+    chapter_id BIGINT NOT NULL,
+    complete_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX idx_uc_user_chapter ON learning_user_chapter (user_id);
+CREATE INDEX idx_uc_chapter_id   ON learning_user_chapter (chapter_id);
+CREATE UNIQUE INDEX uk_uc_user_chapter ON learning_user_chapter (user_id, chapter_id);
 CREATE INDEX idx_fc_path      ON learning_flashcard (path_id);
 CREATE INDEX idx_fc_chap      ON learning_flashcard (chapter_id);
+-- SM-2 间隔重复算法所需字段
+ALTER TABLE learning_flashcard ADD COLUMN IF NOT EXISTS review_interval INT DEFAULT 0;
+ALTER TABLE learning_flashcard ADD COLUMN IF NOT EXISTS next_review_time TIMESTAMP;
+ALTER TABLE learning_flashcard ADD COLUMN IF NOT EXISTS last_review_time TIMESTAMP;
 CREATE INDEX idx_task_user    ON learning_task (user_id);
 CREATE INDEX idx_task_status  ON learning_task (status);
+
+-- 错题表
+CREATE TABLE IF NOT EXISTS learning_mistake (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    question TEXT NOT NULL,
+    wrong_answer TEXT,
+    correct_answer TEXT,
+    category VARCHAR(50),
+    difficulty INT DEFAULT 1,
+    review_count INT DEFAULT 0,
+    last_review_time TIMESTAMP,
+    mastered INT DEFAULT 0,
+    source VARCHAR(50),
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+
+-- 社区帖子表
+CREATE TABLE IF NOT EXISTS community_post (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    content TEXT,
+    category VARCHAR(50),
+    tags VARCHAR(500),
+    like_count INT DEFAULT 0,
+    comment_count INT DEFAULT 0,
+    view_count INT DEFAULT 0,
+    is_essence INT DEFAULT 0,
+    status INT DEFAULT 1,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+
+-- 社区评论表
+CREATE TABLE IF NOT EXISTS community_comment (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    post_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    content TEXT NOT NULL,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+
+-- 消息通知表
+CREATE TABLE IF NOT EXISTS sys_notification (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    type VARCHAR(30) NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    content VARCHAR(1000),
+    is_read INT DEFAULT 0,
+    related_id BIGINT,
+    related_type VARCHAR(30),
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+
+-- 错题索引
+CREATE INDEX idx_mistake_user    ON learning_mistake (user_id);
+CREATE INDEX idx_mistake_category ON learning_mistake (category);
+CREATE INDEX idx_mistake_mastered ON learning_mistake (mastered);
+CREATE INDEX idx_mistake_deleted  ON learning_mistake (deleted);
+
+-- 社区帖子索引
+CREATE INDEX idx_post_user     ON community_post (user_id);
+CREATE INDEX idx_post_category ON community_post (category);
+CREATE INDEX idx_post_status   ON community_post (status);
+CREATE INDEX idx_post_essence  ON community_post (is_essence);
+CREATE INDEX idx_post_ctime     ON community_post (create_time);
+CREATE INDEX idx_post_deleted   ON community_post (deleted);
+
+-- 社区评论索引
+CREATE INDEX idx_comment_post    ON community_comment (post_id);
+CREATE INDEX idx_comment_user    ON community_comment (user_id);
+CREATE INDEX idx_comment_deleted ON community_comment (deleted);
+
+-- 消息通知索引
+CREATE INDEX idx_notif_user   ON sys_notification (user_id);
+CREATE INDEX idx_notif_type   ON sys_notification (type);
+CREATE INDEX idx_notif_read   ON sys_notification (is_read);
+CREATE INDEX idx_notif_deleted ON sys_notification (deleted);

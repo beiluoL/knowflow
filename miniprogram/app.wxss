@@ -1,0 +1,227 @@
+/* 全局样式 */
+page {
+  --cl-primary: #3B6FE0;
+  --cl-primary-light: rgba(59, 111, 224, 0.1);
+  --cl-success: #10B981;
+  --cl-warning: #F59E0B;
+  --cl-danger: #EF4444;
+  --cl-text-primary: #1A1D23;
+  --cl-text-secondary: #6B7280;
+  --cl-text-tertiary: #9CA3AF;
+  --cl-bg: #F7F8FA;
+  --cl-bg-card: #FFFFFF;
+  --cl-border: #E2E6EC;
+  --cl-divider: #E8ECF1;
+  
+  background-color: var(--cl-bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 28rpx;
+  color: var(--cl-text-primary);
+  line-height: 1.5;
+}
+
+/* 全局容器 */
+.page-container {
+  min-height: 100vh;
+  background-color: var(--cl-bg);
+}
+
+/* 统一图标样式 - 使用emoji作为图标 */
+.icon {
+  font-size: 32rpx;
+}
+
+.icon-sm {
+  font-size: 24rpx;
+}
+
+.icon-lg {
+  font-size: 40rpx;
+}
+
+/* 按钮样式 */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20rpx 32rpx;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background-color: var(--cl-primary);
+  color: #FFFFFF;
+}
+
+.btn-secondary {
+  background-color: var(--cl-divider);
+  color: var(--cl-text-primary);
+}
+
+.btn-success {
+  background-color: var(--cl-success);
+  color: #FFFFFF;
+}
+
+.btn-warning {
+  background-color: var(--cl-warning);
+  color: #FFFFFF;
+}
+
+.btn-danger {
+  background-color: var(--cl-danger);
+  color: #FFFFFF;
+}
+
+/* 卡片样式 */
+.card {
+  background-color: var(--cl-bg-card);
+  border-radius: 24rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.02);
+}
+
+/* 标签样式 */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6rpx 16rpx;
+  border-radius: 12rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+}
+
+.tag-primary {
+  background-color: var(--cl-primary-light);
+  color: var(--cl-primary);
+}
+
+.tag-success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--cl-success);
+}
+
+.tag-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--cl-warning);
+}
+
+.tag-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--cl-danger);
+}
+
+/* 分割线 */
+.divider {
+  height: 1rpx;
+  background-color: var(--cl-border);
+  margin: 24rpx 0;
+}
+
+/* 进度条 */
+.progress-bar {
+  height: 12rpx;
+  background-color: var(--cl-divider);
+  border-radius: 999rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999rpx;
+  transition: width 0.3s ease;
+}
+
+/* 输入框 */
+.input {
+  width: 100%;
+  padding: 20rpx 24rpx;
+  background-color: var(--cl-divider);
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: var(--cl-text-primary);
+}
+
+.input::placeholder {
+  color: var(--cl-text-tertiary);
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  font-size: 30rpx;
+  color: var(--cl-text-secondary);
+  margin-bottom: 12rpx;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: var(--cl-text-tertiary);
+}
+
+/* 加载状态 */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+}
+
+.loading-text {
+  font-size: 26rpx;
+  color: var(--cl-text-tertiary);
+}
+
+/* 响应式间距 */
+.p-16 { padding: 16rpx; }
+.p-24 { padding: 24rpx; }
+.p-32 { padding: 32rpx; }
+.m-16 { margin: 16rpx; }
+.m-24 { margin: 24rpx; }
+.m-32 { margin: 32rpx; }
+.mt-16 { margin-top: 16rpx; }
+.mt-24 { margin-top: 24rpx; }
+.mb-16 { margin-bottom: 16rpx; }
+.mb-24 { margin-bottom: 24rpx; }
+
+/* Flex 布局 */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-center { align-items: center; justify-content: center; }
+.flex-between { align-items: center; justify-content: space-between; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-1 { flex: 1; }
+
+/* 文本样式 */
+.text-primary { color: var(--cl-text-primary); }
+.text-secondary { color: var(--cl-text-secondary); }
+.text-tertiary { color: var(--cl-text-tertiary); }
+.text-center { text-align: center; }
+.font-bold { font-weight: 600; }
+.font-medium { font-weight: 500; }
+
+/* 可点击效果 */
+.clickable {
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.clickable:active {
+  opacity: 0.7;
+}

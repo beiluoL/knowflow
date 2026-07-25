@@ -4,12 +4,12 @@ import com.knowflow.common.PageResult;
 import com.knowflow.common.Result;
 import com.knowflow.dto.DocQueryDTO;
 import com.knowflow.dto.ReadProgressDTO;
-import com.knowflow.entity.DocDocument;
 import com.knowflow.service.DocService;
 import com.knowflow.vo.DocDetailVO;
 import com.knowflow.vo.DocVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -71,34 +71,12 @@ public class DocController {
 
     @Operation(summary = "更新阅读进度")
     @PostMapping("/progress")
-    public Result<Void> updateProgress(@RequestBody ReadProgressDTO dto, Authentication authentication) {
+    public Result<Void> updateProgress(@RequestBody @Valid ReadProgressDTO dto, Authentication authentication) {
         if (authentication == null) {
             return Result.error(401, "请先登录");
         }
         Long userId = (Long) authentication.getPrincipal();
         docService.updateReadProgress(dto, userId);
-        return Result.success();
-    }
-
-    @Operation(summary = "新增文档")
-    @PostMapping
-    public Result<Void> create(@RequestBody DocDocument doc) {
-        docService.save(doc);
-        return Result.success();
-    }
-
-    @Operation(summary = "更新文档")
-    @PutMapping("/{id}")
-    public Result<Void> update(@PathVariable Long id, @RequestBody DocDocument doc) {
-        doc.setId(id);
-        docService.updateById(doc);
-        return Result.success();
-    }
-
-    @Operation(summary = "删除文档")
-    @DeleteMapping("/{id}")
-    public Result<Void> remove(@PathVariable Long id) {
-        docService.removeById(id);
         return Result.success();
     }
 }

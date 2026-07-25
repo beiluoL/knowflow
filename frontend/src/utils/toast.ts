@@ -52,3 +52,21 @@ export function confirmDialog(message: string): Promise<boolean> {
     })
   })
 }
+
+/**
+ * 从 unknown 类型的 catch 错误中提取可读消息。
+ * 兼容 Axios 错误结构 { response: { data: { message } } } 和普通 Error。
+ */
+export function getApiError(e: unknown, fallback = '未知错误'): string {
+  if (e && typeof e === 'object') {
+    const err = e as Record<string, unknown>
+    const response = err.response as Record<string, unknown> | undefined
+    const data = response?.data as Record<string, unknown> | undefined
+    const msg = data?.message
+    if (typeof msg === 'string' && msg) return msg
+    const message = err.message
+    if (typeof message === 'string' && message) return message
+  }
+  if (typeof e === 'string' && e) return e
+  return fallback
+}

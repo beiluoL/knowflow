@@ -1,0 +1,66 @@
+<view class="page-container">
+  <view class="period-tabs">
+    <view class="period-tab active">本周</view>
+    <view class="period-tab">本月</view>
+    <view class="period-tab">全部</view>
+  </view>
+
+  <view class="stats-grid">
+    <view class="stat-card" wx:for="{{stats}}" wx:key="label">
+      <view class="stat-icon" style="color: {{item.color}};">{{item.icon}}</view>
+      <text class="stat-label">{{item.label}}</text>
+      <view class="stat-value-row">
+        <text class="stat-value">{{item.value}}</text>
+        <text class="stat-unit">{{item.unit}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="heatmap-section">
+    <text class="section-title">学习热力图</text>
+    <view class="heatmap-grid">
+      <text class="week-label">一</text>
+      <text class="week-label">二</text>
+      <text class="week-label">三</text>
+      <text class="week-label">四</text>
+      <text class="week-label">五</text>
+      <text class="week-label">六</text>
+      <text class="week-label">日</text>
+      <view class="heat-cell heat-0" wx:for="{{heatmapData}}" wx:key="index"></view>
+    </view>
+    <view class="heatmap-legend">
+      <text class="legend-label">少</text>
+      <view class="legend-cell heat-0"></view>
+      <view class="legend-cell heat-1"></view>
+      <view class="legend-cell heat-2"></view>
+      <view class="legend-cell heat-3"></view>
+      <text class="legend-label">多</text>
+    </view>
+  </view>
+
+  <view class="subject-section">
+    <text class="section-title">各语言学习时长</text>
+    <view class="subject-list">
+      <view class="subject-item" wx:for="{{subjects}}" wx:key="name">
+        <view class="subject-header">
+          <text class="subject-name">{{item.name}}</text>
+          <text class="subject-time">{{item.time}}</text>
+        </view>
+        <view class="subject-progress-bar">
+          <view class="subject-progress-fill" style="width: {{item.percent}}%;"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="recent-section">
+    <text class="section-title">最近学习</text>
+    <view class="recent-list">
+      <view class="recent-item" wx:for="{{recentLogs}}" wx:key="id">
+        <view class="recent-icon">{{item.icon}}</view>
+        <text class="recent-content">{{item.content}}</text>
+        <text class="recent-time">{{item.time}}</text>
+      </view>
+    </view>
+  </view>
+</view>

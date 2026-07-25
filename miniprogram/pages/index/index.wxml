@@ -1,0 +1,114 @@
+<view class="page-container">
+  <view class="header">
+    <view class="header-top">
+      <view class="logo-section">
+        <view class="logo">
+          <text class="logo-icon">C</text>
+        </view>
+        <text class="logo-text">CodeLearn</text>
+      </view>
+      <view class="search-btn" bindtap="goToSearch">
+        <text class="icon-search">🔍</text>
+      </view>
+    </view>
+    <text class="greeting">早上好，开发者</text>
+    <text class="greeting-sub">今天想学什么？</text>
+  </view>
+
+  <view class="search-bar" bindtap="goToSearch">
+    <text class="search-icon">🔍</text>
+    <text class="search-placeholder">搜索课程、文章、面试题...</text>
+  </view>
+
+  <scroll-view class="category-scroll" scroll-x enable-flex>
+    <view class="category-list">
+      <view class="category-item" wx:for="{{categories}}" wx:key="id" data-id="{{item.id}}" data-name="{{item.name}}" bindtap="onCategoryTap">
+        <view class="category-icon" style="background-color: {{item.bgColor}};">
+          <text class="icon">{{item.icon}}</text>
+        </view>
+        <text class="category-name">{{item.name}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="banner" bindtap="onBannerTap">
+    <view class="banner-content">
+      <text class="banner-title">体系化学习路线</text>
+      <text class="banner-desc">从入门到进阶，从容应对技术面试</text>
+      <view class="banner-btn">
+        <text class="banner-btn-text">查看路径</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">热门面试题</text>
+      <view class="section-more" bindtap="goToMoreInterview">
+        <text class="more-text">更多</text>
+        <text class="more-icon">›</text>
+      </view>
+    </view>
+    <scroll-view class="interview-scroll" scroll-x>
+      <view class="interview-list">
+        <view class="interview-card" wx:for="{{interviewQuestions}}" wx:key="id" data-id="{{item.id}}" bindtap="onInterviewTap">
+          <view class="interview-tag" style="background-color: {{item.tagBg}};">
+            <text class="tag-icon">{{item.tagIcon}}</text>
+            <text class="tag-text" style="color: {{item.tagColor}};">{{item.tag}}</text>
+          </view>
+          <text class="interview-title">{{item.title}}</text>
+          <view class="interview-footer">
+            <view class="difficulty" style="background-color: {{item.diffBg}}; color: {{item.diffColor}};">
+              <text class="diff-text">{{item.difficulty}}</text>
+            </view>
+            <text class="learn-count">{{item.count}} 人学过</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">学习路线</text>
+      <view class="section-more" bindtap="goToLearningPaths">
+        <text class="more-text">全部</text>
+        <text class="more-icon">›</text>
+      </view>
+    </view>
+    <view class="path-list">
+      <view class="path-card" wx:for="{{learningPaths}}" wx:key="id" data-id="{{item.id}}" bindtap="onPathTap">
+        <view class="path-header">
+          <view class="path-icon" style="background-color: {{item.iconBg}};">
+            <text class="icon-text">{{item.icon}}</text>
+          </view>
+          <view class="path-info">
+            <text class="path-title">{{item.title}}</text>
+            <text class="path-meta">{{item.chapters}} 章节 · {{item.hours}} 课时</text>
+          </view>
+          <text class="path-progress" style="color: {{item.progress > 0 ? '#3B6FE0' : '#6B7280'}};">{{item.progress}}%</text>
+        </view>
+        <view class="progress-bar">
+          <view class="progress-fill" style="width: {{item.progress}}%; background-color: {{item.progressColor}};"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="daily-challenge">
+    <view class="challenge-header">
+      <text class="challenge-icon">⚡</text>
+      <text class="challenge-title">今日编程挑战</text>
+    </view>
+    <text class="challenge-name">用栈实现队列</text>
+    <view class="challenge-tags">
+      <view class="challenge-tag" style="background-color: #E8ECF1; color: #F59E0B;">
+        <text>中等</text>
+      </view>
+      <text class="challenge-category">数据结构</text>
+    </view>
+    <view class="challenge-btn" bindtap="startChallenge">
+      <text class="challenge-btn-text">开始挑战</text>
+    </view>
+  </view>
+</view>
