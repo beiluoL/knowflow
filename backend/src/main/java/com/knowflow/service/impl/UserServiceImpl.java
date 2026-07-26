@@ -7,8 +7,18 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knowflow.dto.LoginDTO;
 import com.knowflow.dto.RegisterDTO;
 import com.knowflow.dto.UpdateProfileDTO;
+import com.knowflow.entity.DocFavorite;
+import com.knowflow.entity.DocReadProgress;
+import com.knowflow.entity.LearningFlashcard;
+import com.knowflow.entity.LearningTask;
+import com.knowflow.entity.LearningUserPath;
 import com.knowflow.entity.SysUser;
 import com.knowflow.exception.BusinessException;
+import com.knowflow.mapper.DocFavoriteMapper;
+import com.knowflow.mapper.DocReadProgressMapper;
+import com.knowflow.mapper.LearningFlashcardMapper;
+import com.knowflow.mapper.LearningTaskMapper;
+import com.knowflow.mapper.LearningUserPathMapper;
 import com.knowflow.mapper.SysUserMapper;
 import com.knowflow.service.UserService;
 import com.knowflow.utils.JwtUtils;
@@ -20,6 +30,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /** 用户业务服务实现。 */
 @Service
@@ -28,6 +40,11 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
 
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
+    private final DocReadProgressMapper readProgressMapper;
+    private final DocFavoriteMapper favoriteMapper;
+    private final LearningUserPathMapper userPathMapper;
+    private final LearningFlashcardMapper flashcardMapper;
+    private final LearningTaskMapper taskMapper;
 
     /** 登录校验：用户名或密码错误统一返回 401，以防止用户名枚举。 */
     @Override
@@ -98,17 +115,47 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         if (user == null) {
             throw new BusinessException("用户不存在");
         }
+        // 所有统计均基于真实业务表实时聚合，避免存储字段漂移导致「死数据」
+        int readDocsCount = Math.toIntExact(readProgressMapper.selectCount(
+                new LambdaQueryWrapper<DocReadProgress>().eq(DocReadProgress::getUserId, userId)));
+        int favoriteCount = Math.toIntExact(favoriteMapper.selectCount(
+                new LambdaQueryWrapper<DocFavorite>().eq(DocFavorite::getUserId, userId)));
+        int completedPaths = Math.toIntExact(userPathMapper.selectCount(
+                new LambdaQueryWrapper<LearningUserPath>()
+                        .eq(LearningUserPath::getUserId, userId)
+                        .ge(LearningUserPath::getProgress, new BigDecimal(100))));
+
+        List<LearningUserPath> enrolled = userPathMapper.selectList(
+                new LambdaQueryWrapper<LearningUserPath>().eq(LearningUserPath::getUserId, userId));
+        long totalFlashcards;
+        if (enrolled.isEmpty()) {
+            totalFlashcards = 0;
+        } else {
+            List<Long> pathIds = enrolled.stream().map(LearningUserPath::getPathId).collect(Collectors.toList());
+            totalFlashcards = flashcardMapper.selectCount(
+                    new LambdaQueryWrapper<LearningFlashcard>().in(LearningFlashcard::getPathId, pathIds));
+        }
+
+        // 等级与经验由真实学习行为派生：阅读 +10/篇、完成路径 +50、收藏 +5
+        int exp = readDocsCount * 10 + completedPaths * 50 + favoriteCount * 5;
+        int level = exp / 100 + 1;
+        // 精力值：待完成任务越多消耗越多，下限 0 上限 100
+        long pendingTasks = taskMapper.selectCount(new LambdaQueryWrapper<LearningTask>()
+                .eq(LearningTask::getUserId, userId)
+                .eq(LearningTask::getStatus, 0));
+        int energy = Math.max(0, Math.min(100, 100 - (int) pendingTasks * 10));
+
         UserStatsVO stats = new UserStatsVO();
         stats.setUserId(userId);
         stats.setTotalStudyHours(user.getTotalStudyHours());
-        stats.setReadDocsCount(user.getReadDocsCount());
+        stats.setReadDocsCount(readDocsCount);
         stats.setStreakDays(user.getStreakDays());
-        stats.setFavoriteCount(user.getFavoriteCount());
-        stats.setLevel(user.getLevel());
-        stats.setExp(user.getExp());
-        stats.setEnergy(user.getEnergy());
-        stats.setCompletedPaths(0);
-        stats.setTotalFlashcards(0);
+        stats.setFavoriteCount(favoriteCount);
+        stats.setLevel(level);
+        stats.setExp(exp);
+        stats.setEnergy(energy);
+        stats.setCompletedPaths(completedPaths);
+        stats.setTotalFlashcards((int) totalFlashcards);
         return stats;
     }
 

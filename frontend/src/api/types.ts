@@ -362,6 +362,31 @@ export interface FavoriteItem {
 }
 
 // ===== 管理后台概览 =====
+/** 用户增长趋势单点。 */
+export interface UserGrowthPoint {
+  day: string
+  newUsers: number
+  totalUsers: number
+}
+
+/** 内容健康度指标。 */
+export interface HealthMetric {
+  label: string
+  value: number
+  level: 'good' | 'warn' | 'bad'
+  detail: string
+  icon: string
+}
+
+/** 最近活动流单条记录。 */
+export interface RecentActivity {
+  id: number
+  userName: string
+  action: string
+  time: string
+  type: string
+}
+
 export interface AdminOverviewVO {
   totalUsers: number
   totalDocs: number
@@ -371,4 +396,8 @@ export interface AdminOverviewVO {
   todayActiveUsers?: number
   todayNewUsers?: number
   todayNewDocs?: number
+  firstUserDate?: string
+  userGrowth?: UserGrowthPoint[]
+  healthMetrics?: HealthMetric[]
+  recentActivities?: RecentActivity[]
 }

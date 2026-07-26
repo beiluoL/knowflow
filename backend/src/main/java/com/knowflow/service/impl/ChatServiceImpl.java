@@ -128,11 +128,14 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
             return Collections.emptyList();
         }
         String keyword = query.length() > 50 ? query.substring(0, 50) : query;
+        // RAG 检索：标题 / 摘要 / 正文 / 标签任一命中即召回，取相关度最高的前 5 篇作为上下文
         return docMapper.selectList(new LambdaQueryWrapper<DocDocument>()
                 .eq(DocDocument::getStatus, 1)
                 .and(w -> w.like(DocDocument::getTitle, keyword)
-                        .or().like(DocDocument::getSummary, keyword))
-                .last("LIMIT 3"));
+                        .or().like(DocDocument::getSummary, keyword)
+                        .or().like(DocDocument::getContent, keyword)
+                        .or().like(DocDocument::getTags, keyword))
+                .last("LIMIT 5"));
     }
 
     private String buildDocReferences(List<DocDocument> docs) {

@@ -35,12 +35,11 @@
           <template #header>
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <h3 class="font-semibold text-gray-800">系统健康状态</h3>
-                  <Badge variant="default" class="text-[11px]">演示</Badge>
+                  <h3 class="font-semibold text-gray-800">内容健康状态</h3>
                 </div>
                 <div class="flex items-center gap-2">
                   <span class="w-2 h-2 rounded-full bg-success-500 animate-pulse"></span>
-                  <span class="text-xs text-success-500 font-medium">运行正常</span>
+                  <span class="text-xs text-success-500 font-medium">实时统计</span>
                 </div>
               </div>
           </template>
@@ -65,9 +64,9 @@
             <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <Icon name="clock" :size="14" class="text-gray-400" />
-                <span class="text-xs text-gray-500">系统运行时间</span>
+                <span class="text-xs text-gray-500">平台起始</span>
               </div>
-              <span class="text-xs font-medium text-gray-700">{{ uptime }}</span>
+              <span class="text-xs font-medium text-gray-700">{{ platformSince }}</span>
             </div>
           </div>
         </Card>
@@ -76,39 +75,24 @@
           <template #header>
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <h3 class="font-semibold text-gray-800">用户增长趋势</h3>
-                  <Badge variant="default" class="text-[11px]">演示</Badge>
+                  <h3 class="font-semibold text-gray-800">用户增长趋势（近 7 天）</h3>
                 </div>
-              <div class="flex items-center gap-2">
-                <button
-                  v-for="period in periods" :key="period.value"
-                  @click="activePeriod = period.value"
-                  :class="[
-                    'text-xs px-2 py-1 rounded transition-colors',
-                    activePeriod === period.value
-                      ? 'bg-primary-50 text-primary-600'
-                      : 'text-gray-500 hover:bg-gray-100'
-                  ]"
-                >
-                  {{ period.label }}
-                </button>
               </div>
-            </div>
           </template>
           <div class="h-64">
             <div class="w-full h-full flex items-end justify-between gap-1">
               <div
-                v-for="(item, index) in userGrowthData" :key="index"
+                v-for="(item, index) in userGrowth" :key="index"
                 class="flex-1 flex flex-col items-center gap-2"
               >
                 <div class="w-full flex flex-col justify-end h-48 gap-1">
                   <div
                     class="w-full bg-primary-100 rounded-t transition-all duration-500 ease-out"
-                    :style="{ height: `${item.newUsers * 0.8}%` }"
+                    :style="{ height: `${item.newPct}%` }"
                   ></div>
                   <div
                     class="w-full bg-primary-500 rounded-t transition-all duration-500 ease-out chart-bar"
-                    :style="{ height: `${item.totalUsers * 0.5}%` }"
+                    :style="{ height: `${item.totalPct}%` }"
                   ></div>
                 </div>
                 <span class="text-xs text-gray-400">{{ item.day }}</span>
@@ -117,11 +101,11 @@
             <div class="flex items-center justify-center gap-6 mt-4">
               <div class="flex items-center gap-2">
                 <div class="w-3 h-3 bg-primary-500 rounded-sm"></div>
-                <span class="text-xs text-gray-500">总用户数</span>
+                <span class="text-xs text-gray-500">累计用户</span>
               </div>
               <div class="flex items-center gap-2">
                 <div class="w-3 h-3 bg-primary-100 rounded-sm"></div>
-                <span class="text-xs text-gray-500">新增用户</span>
+                <span class="text-xs text-gray-500">当日新增</span>
               </div>
             </div>
           </div>
@@ -172,7 +156,6 @@
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <h3 class="font-semibold text-gray-800">最近活动</h3>
-                  <Badge variant="default" class="text-[11px]">演示</Badge>
                 </div>
                 <button class="text-sm text-primary-500 hover:text-primary-600 transition-colors">查看全部</button>
               </div>
@@ -195,6 +178,7 @@
               </div>
               <Badge :variant="activity.badgeVariant">{{ activity.badgeText }}</Badge>
             </div>
+            <p v-if="recentActivities.length === 0" class="text-sm text-gray-400 text-center py-4">暂无活动</p>
           </div>
         </Card>
 
@@ -240,17 +224,17 @@
 </template>
 
 <script setup lang="ts">
-// 管理后台-概览：展示平台核心统计数据、系统健康度、用户增长与分类分布等可视化面板。
+// 管理后台-概览：展示平台核心统计数据、内容健康度、用户增长与最近活动等真实看板。
 import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import Badge from '@/components/ui/Badge.vue'
 import { adminApi } from '@/api'
-import type { AdminOverviewVO, CategoryVO, DocVO } from '@/api/types'
+import type { AdminOverviewVO, CategoryVO, DocVO, HealthMetric } from '@/api/types'
 
 type BadgeVariant = 'primary' | 'success' | 'warning' | 'danger' | 'default'
 
-interface Activity {
+interface ActivityItem {
   id: number
   user: string
   action: string
@@ -261,14 +245,6 @@ interface Activity {
   badgeVariant: BadgeVariant
   badgeText: string
 }
-
-const activePeriod = ref('week')
-
-const periods = [
-  { label: '周', value: 'week' },
-  { label: '月', value: 'month' },
-  { label: '年', value: 'year' },
-]
 
 const overview = ref<AdminOverviewVO | null>(null)
 const categories = ref<CategoryVO[]>([])
@@ -297,7 +273,7 @@ const stats = computed(() => {
       trendLabel: o.todayNewDocs ? `今日 +${o.todayNewDocs}` : '今日无新增',
       iconName: 'file-text',
       iconBg: 'bg-success-50',
-      iconColor: 'text-success-500',
+      iconColor: 'text-primary-500',
     },
     {
       label: '总分类数',
@@ -322,14 +298,28 @@ const stats = computed(() => {
 
 const colorPalette = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16', '#F97316']
 
-const systemHealth = [
-  { label: 'CPU 使用率', value: 23, icon: 'cpu', barClass: 'bg-success-500', statusClass: 'text-success-500', detail: '4 核 · 负载正常' },
-  { label: '内存使用率', value: 46, icon: 'memory-stick', barClass: 'bg-primary-500', statusClass: 'text-primary-500', detail: '4.6 GB / 8 GB' },
-  { label: '磁盘使用率', value: 38, icon: 'hard-drive', barClass: 'bg-warning-500', statusClass: 'text-warning-500', detail: '38 GB / 100 GB' },
-  { label: '数据库连接', value: 12, icon: 'database', barClass: 'bg-success-500', statusClass: 'text-success-500', detail: '12 / 50 连接池' },
-]
+// 内容健康度：由后端基于真实业务数据计算，前端仅做颜色映射
+const systemHealth = computed(() => {
+  const metrics = (overview.value?.healthMetrics ?? []) as HealthMetric[]
+  const map: Record<string, { bar: string; text: string }> = {
+    good: { bar: 'bg-success-500', text: 'text-success-500' },
+    warn: { bar: 'bg-warning-500', text: 'text-warning-500' },
+    bad: { bar: 'bg-danger-500', text: 'text-danger-500' },
+  }
+  return metrics.map((m) => {
+    const cls = map[m.level] ?? map.good
+    return {
+      label: m.label,
+      value: m.value,
+      icon: m.icon,
+      barClass: cls.bar,
+      statusClass: cls.text,
+      detail: m.detail,
+    }
+  })
+})
 
-const uptime = '7 天 14 小时'
+const platformSince = computed(() => overview.value?.firstUserDate ?? '—')
 
 const categoryDistribution = computed(() => {
   const cats = categories.value
@@ -346,24 +336,41 @@ const categoryDistribution = computed(() => {
 
 const totalDocs = computed(() => overview.value?.totalDocs ?? 0)
 
-// 以下两项为装饰性展示（后端暂无按日统计的活动流与增长明细接口）
-const userGrowthData = [
-  { day: '周一', totalUsers: 60, newUsers: 15 },
-  { day: '周二', totalUsers: 65, newUsers: 18 },
-  { day: '周三', totalUsers: 72, newUsers: 22 },
-  { day: '周四', totalUsers: 78, newUsers: 20 },
-  { day: '周五', totalUsers: 85, newUsers: 25 },
-  { day: '周六', totalUsers: 92, newUsers: 28 },
-  { day: '周日', totalUsers: 100, newUsers: 30 },
-]
+// 用户增长：按后端返回的近 7 天数据渲染，柱状高度按最大值归一化
+const userGrowth = computed(() => {
+  const data = overview.value?.userGrowth ?? []
+  const maxTotal = data.reduce((m, d) => Math.max(m, d.totalUsers ?? 0), 0) || 1
+  return data.map((d) => ({
+    day: d.day,
+    newUsers: d.newUsers ?? 0,
+    totalUsers: d.totalUsers ?? 0,
+    totalPct: Math.round(((d.totalUsers ?? 0) / maxTotal) * 100),
+    newPct: Math.round(((d.newUsers ?? 0) / maxTotal) * 100),
+  }))
+})
 
-const recentActivities: Activity[] = [
-  { id: 1, user: '系统', action: '知识库初始化完成', time: '刚刚', iconName: 'check-circle', iconBg: 'bg-success-50', iconColor: 'text-success-500', badgeVariant: 'success', badgeText: '完成' },
-  { id: 2, user: '管理员', action: '登录了管理后台', time: '5 分钟前', iconName: 'user-plus', iconBg: 'bg-primary-50', iconColor: 'text-primary-500', badgeVariant: 'primary', badgeText: '登录' },
-  { id: 3, user: '管理员', action: '查看了文档管理', time: '12 分钟前', iconName: 'file-text', iconBg: 'bg-warning-50', iconColor: 'text-warning-500', badgeVariant: 'warning', badgeText: '查看' },
-  { id: 4, user: '管理员', action: '查看了用户管理', time: '25 分钟前', iconName: 'users', iconBg: 'bg-danger-50', iconColor: 'text-danger-500', badgeVariant: 'danger', badgeText: '查看' },
-  { id: 5, user: '系统', action: '数据同步任务执行成功', time: '1 小时前', iconName: 'refresh-cw', iconBg: 'bg-primary-50', iconColor: 'text-primary-500', badgeVariant: 'primary', badgeText: '同步' },
-]
+// 最近活动：由后端聚合社区发帖与用户注册，前端按类型映射图标
+const activityIconMap: Record<string, { icon: string; bg: string; color: string; badge: BadgeVariant; text: string }> = {
+  post: { icon: 'file-text', bg: 'bg-primary-50', color: 'text-primary-500', badge: 'primary', text: '发帖' },
+  register: { icon: 'user-plus', bg: 'bg-success-50', color: 'text-success-500', badge: 'success', text: '注册' },
+}
+const recentActivities = computed<ActivityItem[]>(() => {
+  const list = overview.value?.recentActivities ?? []
+  return list.map((a) => {
+    const cfg = activityIconMap[a.type] ?? activityIconMap.post
+    return {
+      id: a.id,
+      user: a.userName,
+      action: a.action,
+      time: a.time,
+      iconName: cfg.icon,
+      iconBg: cfg.bg,
+      iconColor: cfg.color,
+      badgeVariant: cfg.badge,
+      badgeText: cfg.text,
+    }
+  })
+})
 
 const categoryMap = computed(() => {
   const map = new Map<number, string>()
