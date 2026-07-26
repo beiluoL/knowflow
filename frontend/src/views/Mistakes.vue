@@ -35,7 +35,7 @@
           :style="{ backgroundColor: cat.color }"
         ></span>
         <span>{{ cat.label }}</span>
-        <span :class="selectedCategory === cat.value ? 'opacity-80' : 'text-gray-400'">{{ cat.count }}</span>
+        <span v-if="cat.count" :class="selectedCategory === cat.value ? 'opacity-80' : 'text-gray-400'">{{ cat.count }}</span>
       </button>
     </section>
 
@@ -100,10 +100,10 @@
         <div class="mt-3 space-y-1.5">
           <div class="flex items-center justify-between text-xs">
             <span class="text-gray-400">本周新增</span>
-            <span class="text-success-500 font-medium">+3 道</span>
+            <span class="text-success-500 font-medium">+{{ stats.weeklyNew }} 道</span>
           </div>
           <div class="h-1.5 rounded-full bg-gray-100 overflow-hidden">
-            <div class="h-full bg-success-500 rounded-full" style="width: 60%"></div>
+            <div class="h-full bg-success-500 rounded-full" :style="{ width: masteryPercent + '%' }"></div>
           </div>
         </div>
       </div>
@@ -119,7 +119,7 @@
         <div class="mt-3 space-y-1.5">
           <div class="flex items-center justify-between text-xs">
             <span class="text-gray-400">今日需复习</span>
-            <span class="text-warning-500 font-medium">2 道</span>
+            <span class="text-warning-500 font-medium">{{ stats.dueToday }} 道</span>
           </div>
           <div class="h-1.5 rounded-full bg-gray-100 overflow-hidden">
             <div class="h-full bg-warning-500 rounded-full" :style="{ width: todayReviewPercent + '%' }"></div>
@@ -229,7 +229,7 @@ function startPractice() {
 
 const loading = ref(false)
 const mistakeList = ref<MistakeVO[]>([])
-const stats = ref<MistakeStats>({ total: 0, mastered: 0, pending: 0 })
+const stats = ref<MistakeStats>({ total: 0, mastered: 0, pending: 0, weeklyNew: 0, dueToday: 0 })
 const selectedCategory = ref('all')
 const pageNum = ref(1)
 const pageSize = ref(5)
@@ -258,9 +258,8 @@ const dashOffset = computed(() => {
 
 const todayReviewPercent = computed(() => {
   if (stats.value.pending === 0) return 0
-  // 魔法数 2：今日需复习固定为 2 道（演示数据）
-  const today = 2
-  return Math.min(100, Math.round((today / stats.value.pending) * 100))
+  // 今日需复习占待复习比例（dueToday ≤ pending，真实数据）
+  return Math.min(100, Math.round((stats.value.dueToday / stats.value.pending) * 100))
 })
 
 async function fetchStats() {

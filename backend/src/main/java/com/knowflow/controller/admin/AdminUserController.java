@@ -58,7 +58,7 @@ public class AdminUserController {
     public Result<UserVO> detail(@PathVariable Long id) {
         SysUser user = userService.getById(id);
         if (user == null) {
-            throw new BusinessException("用户不存在");
+            throw new BusinessException(404, "用户不存在");
         }
         return Result.success(BeanUtil.copyProperties(user, UserVO.class));
     }
@@ -101,7 +101,7 @@ public class AdminUserController {
     public Result<Void> update(@PathVariable Long id, @RequestBody SysUser user) {
         SysUser exist = userService.getById(id);
         if (exist == null) {
-            throw new BusinessException("用户不存在");
+            throw new BusinessException(404, "用户不存在");
         }
         user.setId(id);
         user.setPassword(null);
@@ -117,7 +117,7 @@ public class AdminUserController {
     public Result<Void> resetPassword(@PathVariable Long id, @RequestBody java.util.Map<String, String> body) {
         SysUser exist = userService.getById(id);
         if (exist == null) {
-            throw new BusinessException("用户不存在");
+            throw new BusinessException(404, "用户不存在");
         }
         String newPassword = body.get("password");
         if (StrUtil.isBlank(newPassword) || newPassword.length() < 6) {
@@ -139,7 +139,7 @@ public class AdminUserController {
         }
         SysUser target = userService.getById(id);
         if (target == null) {
-            throw new BusinessException("用户不存在");
+            throw new BusinessException(404, "用户不存在");
         }
         if ("ADMIN".equals(target.getRole())) {
             throw new BusinessException("不能删除管理员账户");

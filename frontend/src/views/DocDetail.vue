@@ -292,11 +292,29 @@ const slugify = (text: string) =>
 const escapeHtml = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
+// 链接 URL 协议白名单：仅允许 http/https 与相对路径/锚点，拒绝 javascript:/data:/vbscript: 及含引号或空白的危险字符，防止 v-html 渲染时 XSS
+const sanitizeUrl = (url: string): string | null => {
+  const trimmed = url.trim()
+  if (/["'<>\\\s]/.test(trimmed)) {
+    return null
+  }
+  if (trimmed.startsWith('/') || trimmed.startsWith('#') || trimmed.startsWith('./') || trimmed.startsWith('../')) {
+    return trimmed
+  }
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed
+  }
+  return null
+}
+
 const inline = (s: string) =>
   escapeHtml(s)
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (text, url) => {
+      const safe = sanitizeUrl(url)
+      return safe ? `<a href="${safe}" target="_blank" rel="noopener noreferrer">${text}</a>` : text
+    })
     .replace(/  \n/g, '<br />')
 
 // 从 Markdown 文本提取二级/三级标题，生成目录树

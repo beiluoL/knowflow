@@ -104,7 +104,7 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
     public UserVO getCurrentUser(Long userId) {
         SysUser user = this.getById(userId);
         if (user == null) {
-            throw new BusinessException("用户不存在");
+            throw new BusinessException(404, "用户不存在");
         }
         return BeanUtil.copyProperties(user, UserVO.class);
     }
@@ -113,7 +113,7 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
     public UserStatsVO getUserStats(Long userId) {
         SysUser user = this.getById(userId);
         if (user == null) {
-            throw new BusinessException("用户不存在");
+            throw new BusinessException(404, "用户不存在");
         }
         // 所有统计均基于真实业务表实时聚合，避免存储字段漂移导致「死数据」
         int readDocsCount = Math.toIntExact(readProgressMapper.selectCount(
@@ -163,7 +163,7 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
     public UserVO updateProfile(Long userId, UpdateProfileDTO dto) {
         SysUser user = this.getById(userId);
         if (user == null) {
-            throw new BusinessException("用户不存在");
+            throw new BusinessException(404, "用户不存在");
         }
         if (dto.getNickname() != null) {
             user.setNickname(dto.getNickname());

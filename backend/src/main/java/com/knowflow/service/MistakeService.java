@@ -21,4 +21,10 @@ public interface MistakeService extends IService<LearningMistake> {
     int getMasteredCount(Long userId);
 
     int getPendingCount(Long userId);
+
+    /** 本周新增错题数（周一至今）。 */
+    int getWeeklyNewCount(Long userId);
+
+    /** 今日待复习数（未掌握且今日尚未复习）。 */
+    int getDueTodayCount(Long userId);
 }

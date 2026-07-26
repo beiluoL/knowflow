@@ -49,7 +49,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
     public List<MessageVO> getMessageList(Long conversationId, Long userId) {
         ChatConversation conversation = this.getById(conversationId);
         if (conversation == null || !conversation.getUserId().equals(userId)) {
-            throw new BusinessException("对话不存在");
+            throw new BusinessException(404, "对话不存在");
         }
         List<ChatMessage> messages = messageMapper.selectList(new LambdaQueryWrapper<ChatMessage>()
                 .eq(ChatMessage::getConversationId, conversationId)
@@ -69,7 +69,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
         } else {
             conversation = this.getById(dto.getConversationId());
             if (conversation == null || !conversation.getUserId().equals(userId)) {
-                throw new BusinessException("对话不存在");
+                throw new BusinessException(404, "对话不存在");
             }
         }
         ChatMessage userMessage = new ChatMessage();
@@ -80,7 +80,11 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
         userMessage.setTokenCount(dto.getContent().length());
         messageMapper.insert(userMessage);
         List<DocDocument> contextDocs = searchRelatedDocs(dto.getContent());
+        // AI 接口在 200 但 content 缺失时会返回 null，必须判空，否则下方 length()/setLastMessage 触发 NPE
         String replyContent = aiService.chat(dto.getContent(), contextDocs);
+        if (StrUtil.isBlank(replyContent)) {
+            replyContent = "（AI 暂时未返回内容，请稍后重试或检查 AI 配置。）";
+        }
         ChatMessage assistantMessage = new ChatMessage();
         assistantMessage.setConversationId(conversation.getId());
         assistantMessage.setUserId(userId);
@@ -116,7 +120,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
     public void deleteConversation(Long conversationId, Long userId) {
         ChatConversation conversation = this.getById(conversationId);
         if (conversation == null || !conversation.getUserId().equals(userId)) {
-            throw new BusinessException("对话不存在");
+            throw new BusinessException(404, "对话不存在");
         }
         messageMapper.delete(new LambdaQueryWrapper<ChatMessage>()
                 .eq(ChatMessage::getConversationId, conversationId));

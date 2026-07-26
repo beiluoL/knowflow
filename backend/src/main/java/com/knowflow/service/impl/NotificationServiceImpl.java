@@ -40,7 +40,7 @@ public class NotificationServiceImpl extends ServiceImpl<SysNotificationMapper, 
     public void markAsRead(Long id, Long userId) {
         SysNotification notification = this.getById(id);
         if (notification == null) {
-            throw new BusinessException("通知不存在");
+            throw new BusinessException(404, "通知不存在");
         }
         if (!java.util.Objects.equals(notification.getUserId(), userId)) {
             throw new BusinessException("无权操作该通知");

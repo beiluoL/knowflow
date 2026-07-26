@@ -368,6 +368,7 @@ const selectChat = async (id: number) => {
       chatMessages.value[id] = mapMessages(await chatApi.messages(id))
     } catch {
       chatMessages.value[id] = []
+      notify('加载对话消息失败', 'error')
     }
   }
   displayedMessages.value = (chatMessages.value[id] || []).map((m) => m.content)

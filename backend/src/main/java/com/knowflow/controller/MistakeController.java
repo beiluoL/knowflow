@@ -74,6 +74,8 @@ public class MistakeController {
         stats.put("total", mistakeService.getTotalCount(userId));
         stats.put("mastered", mistakeService.getMasteredCount(userId));
         stats.put("pending", mistakeService.getPendingCount(userId));
+        stats.put("weeklyNew", mistakeService.getWeeklyNewCount(userId));
+        stats.put("dueToday", mistakeService.getDueTodayCount(userId));
         return Result.success(stats);
     }
 }

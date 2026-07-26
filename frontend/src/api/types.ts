@@ -283,6 +283,10 @@ export interface MistakeStats {
   total: number
   mastered: number
   pending: number
+  /** 本周新增错题数（周一至今） */
+  weeklyNew: number
+  /** 今日待复习数（未掌握且今日尚未复习） */
+  dueToday: number
 }
 
 // ===== 社区 =====

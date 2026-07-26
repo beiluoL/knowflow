@@ -1,5 +1,5 @@
 <template>
-    <div class="space-y-6 animate-fade-in">
+    <div class="space-y-6 animate-fade-in no-print">
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-bold text-gray-800">智能写作</h1>
@@ -74,6 +74,18 @@
               </Button>
               <Button variant="secondary" class="w-full justify-start" icon-name="layout-grid" @click="showTemplateModal = true">
                 选择模板
+              </Button>
+              <Button variant="secondary" class="w-full justify-start" icon-name="eye" @click="showPreviewModal = true">
+                预览
+              </Button>
+              <Button variant="secondary" class="w-full justify-start" icon-name="download" @click="exportMarkdown">
+                导出 Markdown
+              </Button>
+              <Button variant="secondary" class="w-full justify-start" icon-name="printer" @click="printPdf">
+                导出 PDF
+              </Button>
+              <Button variant="secondary" class="w-full justify-start" icon-name="sparkles" @click="scoreWithAI">
+                AI 评分
               </Button>
             </div>
           </Card>
@@ -154,7 +166,50 @@
           </div>
         </div>
       </div>
+
+    <!-- Markdown 预览弹窗 -->
+    <div
+      v-if="showPreviewModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+      @click.self="showPreviewModal = false"
+    >
+      <div class="w-full max-w-3xl rounded-2xl bg-white p-6 shadow-xl max-h-[85vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-800">预览 · {{ title || '无标题' }}</h3>
+          <button class="text-gray-400 hover:text-gray-600" @click="showPreviewModal = false">
+            <Icon name="x" :size="20" />
+          </button>
+        </div>
+        <div class="prose-preview" v-html="renderedMarkdown"></div>
+      </div>
     </div>
+
+    <!-- AI 评分弹窗 -->
+    <div
+      v-if="showScoreModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+      @click.self="showScoreModal = false"
+    >
+      <div class="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <Icon name="sparkles" :size="18" class="text-primary-500" /> AI 写作评分
+          </h3>
+          <button class="text-gray-400 hover:text-gray-600" @click="showScoreModal = false">
+            <Icon name="x" :size="20" />
+          </button>
+        </div>
+        <div v-if="scoring" class="flex items-center gap-2 text-sm text-gray-500 py-6">
+          <span class="inline-block w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></span>
+          正在请 AI 评阅…
+        </div>
+        <div v-else class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{{ scoreResult }}</div>
+      </div>
+    </div>
+
+    <!-- 打印专用区域（仅导出 PDF 时可见） -->
+    <div id="print-area" class="print-only" v-html="renderedMarkdown"></div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -165,6 +220,7 @@ import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
+import { chatApi } from '@/api/chat'
 
 interface Draft {
   id: string
@@ -180,6 +236,10 @@ const DRAFTS_KEY = 'knowflow:writing:drafts'
 const title = ref('')
 const content = ref('')
 const showTemplateModal = ref(false)
+const showPreviewModal = ref(false)
+const showScoreModal = ref(false)
+const scoring = ref(false)
+const scoreResult = ref('')
 const autosaved = ref(false)
 let currentDraftId = ''
 let autosaveTimer: ReturnType<typeof setInterval> | undefined
@@ -300,6 +360,139 @@ onMounted(() => {
   }, 15000)
 })
 
+// ===== Markdown 预览 / 导出 / AI 评分（不引入新依赖，自写轻量渲染器） =====
+
+// 渲染后的 HTML（已对原文做 HTML 转义，避免 XSS；仅支持标题/列表/引用/代码/加粗/链接等常用语法）
+const renderedMarkdown = computed(() => renderMarkdown(content.value))
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+function mdInline(s: string): string {
+  return s
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+}
+
+// 轻量 Markdown → HTML 渲染（覆盖标题、有序/无序列表、引用、代码块、加粗、行内代码、链接）
+function renderMarkdown(src: string): string {
+  const lines = escapeHtml(src).split('\n')
+  let html = ''
+  let inList = false
+  let inCode = false
+  const codeBuf: string[] = []
+  const closeList = () => {
+    if (inList) {
+      html += '</ul>'
+      inList = false
+    }
+  }
+  for (const line of lines) {
+    if (line.startsWith('```')) {
+      if (!inCode) {
+        inCode = true
+        codeBuf.length = 0
+        continue
+      }
+      inCode = false
+      html += `<pre><code>${codeBuf.join('\n')}</code></pre>`
+      continue
+    }
+    if (inCode) {
+      codeBuf.push(line)
+      continue
+    }
+    const h = line.match(/^(#{1,6})\s+(.*)$/)
+    if (h) {
+      closeList()
+      const lvl = h[1].length
+      html += `<h${lvl}>${mdInline(h[2])}</h${lvl}>`
+      continue
+    }
+    if (/^\s*[-*]\s+/.test(line)) {
+      if (!inList) {
+        html += '<ul>'
+        inList = true
+      }
+      html += `<li>${mdInline(line.replace(/^\s*[-*]\s+/, ''))}</li>`
+      continue
+    }
+    if (/^\s*\d+\.\s+/.test(line)) {
+      if (!inList) {
+        html += '<ol>'
+        inList = true
+      }
+      html += `<li>${mdInline(line.replace(/^\s*\d+\.\s+/, ''))}</li>`
+      continue
+    }
+    if (/^>\s?/.test(line)) {
+      closeList()
+      html += `<blockquote>${mdInline(line.replace(/^>\s?/, ''))}</blockquote>`
+      continue
+    }
+    if (line.trim() === '') {
+      closeList()
+      continue
+    }
+    closeList()
+    html += `<p>${mdInline(line)}</p>`
+  }
+  closeList()
+  return html
+}
+
+// 导出 Markdown 文件（Blob 下载）
+function exportMarkdown(): void {
+  if (!content.value.trim()) {
+    notify('内容为空，无法导出', 'warning')
+    return
+  }
+  const md = `# ${title.value || '未命名'}\n\n${content.value}`
+  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${title.value || '未命名'}.md`
+  a.click()
+  URL.revokeObjectURL(url)
+  notify('已导出 Markdown 文件', 'success')
+}
+
+// 导出 PDF（调用浏览器打印，用户可在对话框选择「另存为 PDF」）
+function printPdf(): void {
+  if (!content.value.trim()) {
+    notify('内容为空，无法导出', 'warning')
+    return
+  }
+  notify('已打开打印，可在对话框选择「另存为 PDF」', 'info')
+  window.print()
+}
+
+// 调用 AI 对当前文章评分（容错：密钥/网络异常时给出友好提示，不阻断）
+async function scoreWithAI(): Promise<void> {
+  if (!content.value.trim()) {
+    notify('内容为空，无法评分', 'warning')
+    return
+  }
+  scoring.value = true
+  showScoreModal.value = true
+  scoreResult.value = ''
+  try {
+    const res = await chatApi.send({
+      content: `你是一位严格的中文写作老师，请对下面这篇文章评分（满分100）、指出优点与3个可改进点，语言简洁：\n\n题目：${title.value || '无标题'}\n\n${content.value}`,
+    } as never)
+    const contentText = res && (res as { content?: string }).content
+    scoreResult.value = contentText || '未能获取评分结果'
+  } catch {
+    scoreResult.value = 'AI 评分暂不可用（可能未配置模型密钥或网络异常），请稍后重试。'
+  } finally {
+    scoring.value = false
+  }
+}
+
 onUnmounted(() => {
   if (autosaveTimer) clearInterval(autosaveTimer)
   if (autosaveFlagReset) clearTimeout(autosaveFlagReset)
@@ -321,5 +514,34 @@ onUnmounted(() => {
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Markdown 预览渲染样式 */
+.prose-preview {
+  line-height: 1.7;
+  color: #1f2937;
+}
+.prose-preview h1 { font-size: 1.6rem; font-weight: 700; margin: 0.8em 0 0.4em; }
+.prose-preview h2 { font-size: 1.35rem; font-weight: 700; margin: 0.8em 0 0.4em; }
+.prose-preview h3 { font-size: 1.15rem; font-weight: 600; margin: 0.7em 0 0.3em; }
+.prose-preview p { margin: 0.5em 0; }
+.prose-preview ul, .prose-preview ol { margin: 0.5em 0; padding-left: 1.4em; }
+.prose-preview li { margin: 0.25em 0; }
+.prose-preview blockquote {
+  border-left: 3px solid #3B6FE0;
+  padding-left: 0.8em;
+  color: #4b5563;
+  margin: 0.6em 0;
+}
+.prose-preview code { background: #f3f4f6; padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.9em; }
+.prose-preview pre { background: #1f2937; color: #f9fafb; padding: 0.8em 1em; border-radius: 8px; overflow-x: auto; }
+.prose-preview pre code { background: transparent; padding: 0; }
+
+/* 打印（导出 PDF）仅显示正文区域 */
+.print-only { display: none; }
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; padding: 24px; max-width: 720px; margin: 0 auto; }
+  .prose-preview { color: #000; }
 }
 </style>

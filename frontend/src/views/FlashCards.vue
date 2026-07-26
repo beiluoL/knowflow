@@ -147,6 +147,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import { learningApi } from '@/api'
+import { mistakesApi } from '@/api/mistakes'
 import type { FlashcardVO } from '@/api/types'
 import { markReviewed, dateStr } from '@/utils/studySession'
 
@@ -256,6 +257,21 @@ const rateCard = async (rating: Rating) => {
     todayCount.value++
     if (rating === 'mastered' || rating === 'familiar') {
       correctCount.value++
+    }
+    // 未完全掌握（不熟悉 / 有印象）归集到错题本，便于后续针对性复习；后端幂等避免重复
+    if (rating !== 'mastered' && currentCard.value.question) {
+      mistakesApi
+        .add({
+          question: currentCard.value.question,
+          wrongAnswer: '未完全掌握该知识点',
+          correctAnswer: currentCard.value.answer,
+          category: currentCard.value.category,
+          difficulty: currentCard.value.difficulty,
+          source: 'flashcard',
+        })
+        .catch(() => {
+          /* 归集失败不阻断复习 */
+        })
     }
     if (rating === 'unknown') {
       showFeedback('已记录 · 明天再复习这张')

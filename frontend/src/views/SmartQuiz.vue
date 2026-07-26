@@ -199,6 +199,7 @@ import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
 import { learningApi } from '@/api'
+import { mistakesApi } from '@/api/mistakes'
 import type { FlashcardVO } from '@/api/types'
 
 const currentIndex = ref(0)
@@ -215,6 +216,7 @@ interface Quiz {
   correctAnswer: number
   category: string
   explanation: string
+  difficulty?: number
   userAnswer?: number
 }
 
@@ -251,6 +253,7 @@ function buildQuizFromCards(cards: FlashcardVO[], limit = 12): Quiz[] {
       correctAnswer: options.indexOf(correct),
       category: c.category || '未分类',
       explanation: correct,
+      difficulty: c.difficulty ?? 2,
       userAnswer: undefined,
     })
     if (result.length >= limit) break
@@ -334,6 +337,22 @@ const selectAnswer = (index: number) => {
 
 const submitAnswer = () => {
   hasAnswered.value = true
+  const q = currentQuiz.value
+  // 答错时自动归集到错题本（后端幂等：同题不重复建），打通「做题 → 错题 → 复习」闭环
+  if (q && selectedAnswer.value !== q.correctAnswer) {
+    mistakesApi
+      .add({
+        question: q.question,
+        wrongAnswer: q.options[selectedAnswer.value] ?? '',
+        correctAnswer: q.options[q.correctAnswer] ?? '',
+        category: q.category,
+        difficulty: q.difficulty ?? 2,
+        source: 'quiz',
+      })
+      .catch(() => {
+        /* 归集失败不阻断答题流程 */
+      })
+  }
   quizzes.value[currentIndex.value].userAnswer = selectedAnswer.value
 }
 

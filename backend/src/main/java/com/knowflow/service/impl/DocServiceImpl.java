@@ -108,7 +108,8 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         this.update(new LambdaUpdateWrapper<DocDocument>()
                 .eq(DocDocument::getId, id)
                 .setSql("view_count = view_count + 1"));
-        doc.setViewCount(doc.getViewCount() + 1);
+        // 计数器已原子自增，重新读取以保证返回值与 DB 一致（避免内存对象残留旧值导致并发下展示滞后）
+        doc = this.getById(id);
         DocDetailVO vo = BeanUtil.copyProperties(doc, DocDetailVO.class);
         DocCategory category = categoryService.getById(doc.getCategoryId());
         if (category != null) {
@@ -136,7 +137,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     public void toggleFavorite(Long docId, Long userId) {
         DocDocument doc = this.getById(docId);
         if (doc == null) {
-            throw new BusinessException("文档不存在");
+            throw new BusinessException(404, "文档不存在");
         }
         DocFavorite favorite = favoriteMapper.selectOne(new LambdaQueryWrapper<DocFavorite>()
                 .eq(DocFavorite::getUserId, userId)
@@ -205,7 +206,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     public void updateReadProgress(ReadProgressDTO dto, Long userId) {
         DocDocument doc = this.getById(dto.getDocId());
         if (doc == null) {
-            throw new BusinessException("文档不存在");
+            throw new BusinessException(404, "文档不存在");
         }
         DocReadProgress progress = readProgressMapper.selectOne(new LambdaQueryWrapper<DocReadProgress>()
                 .eq(DocReadProgress::getUserId, userId)

@@ -67,12 +67,13 @@ public class CommunityServiceImpl extends ServiceImpl<CommunityPostMapper, Commu
     public PostVO getPostDetail(Long id) {
         CommunityPost post = this.getById(id);
         if (post == null) {
-            throw new BusinessException("帖子不存在");
+            throw new BusinessException(404, "帖子不存在");
         }
         this.update(new LambdaUpdateWrapper<CommunityPost>()
                 .eq(CommunityPost::getId, id)
                 .setSql("view_count = view_count + 1"));
-        post.setViewCount(post.getViewCount() + 1);
+        // 计数器已原子自增，重新读取以保证返回 VO 的计数与 DB 一致（避免内存对象残留旧值导致并发下展示滞后）
+        post = this.getById(id);
         return convertToVO(post);
     }
 
@@ -135,7 +136,7 @@ public class CommunityServiceImpl extends ServiceImpl<CommunityPostMapper, Commu
     public void deletePost(Long id, Long userId) {
         CommunityPost post = this.getById(id);
         if (post == null) {
-            throw new BusinessException("帖子不存在");
+            throw new BusinessException(404, "帖子不存在");
         }
         if (!java.util.Objects.equals(post.getUserId(), userId)) {
             throw new BusinessException("无权删除他人帖子");
@@ -187,7 +188,7 @@ public class CommunityServiceImpl extends ServiceImpl<CommunityPostMapper, Commu
     public void deleteComment(Long id, Long userId) {
         CommunityComment comment = commentMapper.selectById(id);
         if (comment == null) {
-            throw new BusinessException("评论不存在");
+            throw new BusinessException(404, "评论不存在");
         }
         if (!java.util.Objects.equals(comment.getUserId(), userId)) {
             throw new BusinessException("无权删除他人评论");

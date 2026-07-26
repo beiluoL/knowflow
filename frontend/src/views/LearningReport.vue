@@ -139,6 +139,46 @@
         <p v-else class="text-sm" style="color: var(--kb-muted-foreground);">暂无闪卡数据</p>
       </section>
 
+      <!-- Mistake mastery card -->
+      <section class="rounded-lg border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
+        <h3 class="text-[15px] font-semibold mb-4" style="color: var(--kb-foreground);">错题掌握分布</h3>
+        <div class="flex items-center gap-5">
+          <div class="relative w-[72px] h-[72px]" :title="`掌握率 ${mistakeMastery}%`">
+            <svg viewBox="0 0 72 72" class="w-full h-full -rotate-90">
+              <circle cx="36" cy="36" r="30" fill="none" stroke="var(--kb-muted)" stroke-width="7" />
+              <circle
+                cx="36" cy="36" r="30" fill="none" stroke="var(--kb-accent)" stroke-width="7"
+                stroke-linecap="round" :stroke-dasharray="RING_CIRC" :stroke-dashoffset="ringOffset"
+                class="transition-all duration-700"
+              />
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center text-[13px] font-semibold" style="color: var(--kb-foreground);">{{ mistakeMastery }}%</div>
+          </div>
+          <div class="grid grid-cols-2 gap-x-6 gap-y-2 flex-1">
+            <div class="flex items-center justify-between text-sm">
+              <span style="color: var(--kb-muted-foreground);">总错题</span>
+              <span class="font-medium" style="color: var(--kb-foreground);">{{ mistakeStats.total }}</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span style="color: var(--kb-muted-foreground);">已掌握</span>
+              <span class="font-medium text-success-600">{{ mistakeStats.mastered }}</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span style="color: var(--kb-muted-foreground);">待复习</span>
+              <span class="font-medium text-warning-600">{{ mistakeStats.pending }}</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+              <span style="color: var(--kb-muted-foreground);">本周新增</span>
+              <span class="font-medium" style="color: var(--kb-foreground);">{{ mistakeStats.weeklyNew }}</span>
+            </div>
+            <div class="flex items-center justify-between text-sm col-span-2">
+              <span style="color: var(--kb-muted-foreground);">今日需复习</span>
+              <span class="font-medium text-danger-600">{{ mistakeStats.dueToday }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Recent learning log -->
       <section class="rounded-lg border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
         <h3 class="text-[15px] font-semibold mb-2" style="color: var(--kb-foreground);">最近学习</h3>
@@ -170,7 +210,8 @@ import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import { notify } from '@/utils/toast'
 import { userApi, learningApi } from '@/api'
-import type { UserStatsVO, LearningTaskVO, FlashcardVO } from '@/api/types'
+import { mistakesApi } from '@/api/mistakes'
+import type { UserStatsVO, LearningTaskVO, FlashcardVO, MistakeStats } from '@/api/types'
 import { loadSessions, heatmap } from '@/utils/studySession'
 
 const loading = ref(false)
@@ -199,6 +240,15 @@ interface Subject {
 }
 
 const subjectStats = ref<Subject[]>([])
+
+// 错题掌握分布：来自真实错题统计接口
+const mistakeStats = ref<MistakeStats>({ total: 0, mastered: 0, pending: 0, weeklyNew: 0, dueToday: 0 })
+const mistakeMastery = computed(() => {
+  if (mistakeStats.value.total === 0) return 0
+  return Math.round((mistakeStats.value.mastered / mistakeStats.value.total) * 100)
+})
+const RING_CIRC = 2 * Math.PI * 30
+const ringOffset = computed(() => RING_CIRC * (1 - mistakeMastery.value / 100))
 
 const colorPalette = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16', '#F97316']
 
@@ -257,11 +307,13 @@ async function loadData(): Promise<void> {
   loading.value = true
   error.value = ''
   try {
-    const [stats, tasks, cards] = await Promise.all([
+    const [stats, tasks, cards, mStats] = await Promise.all([
       userApi.stats(),
       learningApi.tasks().catch(() => [] as LearningTaskVO[]),
       learningApi.flashcards().catch(() => [] as FlashcardVO[]),
+      mistakesApi.stats().catch(() => ({ total: 0, mastered: 0, pending: 0, weeklyNew: 0, dueToday: 0 }) as MistakeStats),
     ])
+    mistakeStats.value = mStats
     const flashcardCount = cards.length
     overviewStats.value = [
       {

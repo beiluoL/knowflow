@@ -60,7 +60,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     public LearningPathVO getPathDetail(Long pathId) {
         LearningPath path = this.getById(pathId);
         if (path == null || path.getStatus() == null || path.getStatus() != 1) {
-            throw new BusinessException("学习路径不存在");
+            throw new BusinessException(404, "学习路径不存在");
         }
         return BeanUtil.copyProperties(path, LearningPathVO.class);
     }
@@ -83,7 +83,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     public LearningChapterVO getChapterDetail(Long chapterId, Long userId) {
         LearningChapter chapter = chapterMapper.selectById(chapterId);
         if (chapter == null) {
-            throw new BusinessException("章节不存在");
+            throw new BusinessException(404, "章节不存在");
         }
         LearningChapterVO vo = BeanUtil.copyProperties(chapter, LearningChapterVO.class);
         vo.setCompleted(false);
@@ -102,7 +102,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         if (effectivePathId != null) {
             LearningPath path = this.getById(effectivePathId);
             if (path == null || path.getStatus() == null || path.getStatus() != 1) {
-                throw new BusinessException("学习路径不存在或未发布");
+                throw new BusinessException(404, "学习路径不存在或未发布");
             }
         }
         LambdaQueryWrapper<LearningFlashcard> wrapper = new LambdaQueryWrapper<>();
@@ -150,7 +150,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     public void updateTaskStatus(Long taskId, Long userId, Integer status) {
         LearningTask task = taskMapper.selectById(taskId);
         if (task == null) {
-            throw new BusinessException("任务不存在");
+            throw new BusinessException(404, "任务不存在");
         }
         if (!java.util.Objects.equals(task.getUserId(), userId)) {
             throw new BusinessException("无权操作该任务");
@@ -163,7 +163,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     public void deleteTask(Long taskId, Long userId) {
         LearningTask task = taskMapper.selectById(taskId);
         if (task == null) {
-            throw new BusinessException("任务不存在");
+            throw new BusinessException(404, "任务不存在");
         }
         if (!java.util.Objects.equals(task.getUserId(), userId)) {
             throw new BusinessException("无权删除该任务");
@@ -176,7 +176,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     public void enrollPath(Long pathId, Long userId) {
         LearningPath path = this.getById(pathId);
         if (path == null) {
-            throw new BusinessException("学习路径不存在");
+            throw new BusinessException(404, "学习路径不存在");
         }
         LearningUserPath userPath = userPathMapper.selectOne(new LambdaQueryWrapper<LearningUserPath>()
                 .eq(LearningUserPath::getUserId, userId)
@@ -213,7 +213,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     public void completeChapter(Long chapterId, Long userId) {
         LearningChapter chapter = chapterMapper.selectById(chapterId);
         if (chapter == null) {
-            throw new BusinessException("章节不存在");
+            throw new BusinessException(404, "章节不存在");
         }
         LearningUserPath userPath = userPathMapper.selectOne(new LambdaQueryWrapper<LearningUserPath>()
                 .eq(LearningUserPath::getUserId, userId)
@@ -255,7 +255,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     public void reviewFlashcard(Long flashcardId, Long userId, Integer quality) {
         LearningFlashcard card = flashcardMapper.selectById(flashcardId);
         if (card == null) {
-            throw new BusinessException("闪卡不存在");
+            throw new BusinessException(404, "闪卡不存在");
         }
         int q = quality != null ? quality : 3;
         if (q < 0) q = 0;
