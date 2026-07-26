@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
+/** 用户业务服务实现。 */
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements UserService {
@@ -28,6 +29,7 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
 
+    /** 登录校验：用户名或密码错误统一返回 401，以防止用户名枚举。 */
     @Override
     public LoginVO login(LoginDTO dto) {
         SysUser user = this.getOne(new LambdaQueryWrapper<SysUser>()

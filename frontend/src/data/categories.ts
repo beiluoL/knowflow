@@ -1,3 +1,4 @@
+// 前端静态假数据（分类列表），用于演示与离线开发。
 import type { Category } from '@/types'
 
 export const categories: Category[] = [

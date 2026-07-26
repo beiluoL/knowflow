@@ -1,3 +1,4 @@
+// 前端静态假数据（分类树，含多级嵌套 children），用于演示与离线开发。
 import type { Category } from '@/types'
 
 export const categoryTree: Category[] = [

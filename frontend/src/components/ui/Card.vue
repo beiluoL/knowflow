@@ -18,6 +18,7 @@
 </template>
 
 <script setup lang="ts">
+// 通用 UI 组件：卡片容器，支持 header/footer 插槽与可选悬浮效果，按 padding 控制内边距。
 import { computed } from 'vue'
 
 interface Props {

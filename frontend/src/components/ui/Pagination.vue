@@ -45,6 +45,7 @@
 </template>
 
 <script setup lang="ts">
+// 通用 UI 组件：分页器，根据总条数与当前页计算可见页码并触发 change 事件。
 import { computed } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 

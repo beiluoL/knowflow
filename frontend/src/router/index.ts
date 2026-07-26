@@ -1,3 +1,4 @@
+// 前端路由表与登录守卫配置。
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 

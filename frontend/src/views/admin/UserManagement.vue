@@ -200,6 +200,7 @@
 </template>
 
 <script setup lang="ts">
+// 管理后台-用户管理：维护用户账号的增删改查、角色分配与分页检索。
 import { confirmDialog, getApiError, notify } from '@/utils/toast'
 import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
@@ -375,6 +376,7 @@ const loadUsers = async () => {
       role: u.role ?? 'USER',
       level: u.level ?? 0,
       studyHours: u.totalStudyHours ?? 0,
+      // 按等级粗略估算学习进度百分比（每级约 7%，上限 100）
       studyProgress: Math.min(100, (u.level ?? 0) * 7),
       registerTime: formatDate(u.createTime),
       raw: u,

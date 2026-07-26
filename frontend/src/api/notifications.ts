@@ -1,3 +1,4 @@
+// 消息通知模块请求层：封装通知列表、已读标记与未读数接口调用。
 import { apiGet, apiPut } from './request'
 import type { NotificationPageResult } from './types'
 

@@ -6,6 +6,9 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * 分页响应封装：将 MyBatis-Plus 的 IPage 转换为对外统一的分页结构。
+ */
 @Data
 public class PageResult<T> implements Serializable {
 

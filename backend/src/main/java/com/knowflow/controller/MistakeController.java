@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/** 错题本 REST 接口，提供错题的增删查、掌握标记与统计。 */
 @Tag(name = "错题本接口")
 @RestController
 @RequestMapping("/api/mistakes")

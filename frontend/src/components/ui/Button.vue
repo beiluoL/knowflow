@@ -37,6 +37,7 @@
 </template>
 
 <script setup lang="ts">
+// 通用 UI 组件：按钮，支持 variant/size/loading/block 等形态与图标。
 import { computed } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 

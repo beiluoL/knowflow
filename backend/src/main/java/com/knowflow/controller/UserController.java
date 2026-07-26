@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/** 用户中心 REST 接口，提供个人资料、资料更新与学习统计。 */
 @Tag(name = "用户接口")
 @RestController
 @RequestMapping("/api/user")

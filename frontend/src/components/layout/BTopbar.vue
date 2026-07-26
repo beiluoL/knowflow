@@ -109,6 +109,7 @@
 </template>
 
 <script setup lang="ts">
+// 布局组件：后台顶栏，负责管理员搜索、通知面板与用户信息区。
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';

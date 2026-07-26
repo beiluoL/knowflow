@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 
+/** 管理员用户管理 REST 接口（@PreAuthorize 限定 ADMIN 角色），提供用户增删改查与密码重置。 */
 @Tag(name = "管理员用户管理")
 @RestController
 @RequestMapping("/api/admin/users")
@@ -35,6 +36,7 @@ public class AdminUserController {
     @Operation(summary = "用户列表")
     @GetMapping
     public Result<PageResult<UserVO>> list(UserQueryDTO dto) {
+        // 限制单页最大 100 条，防止大分页拖垮数据库
         Page<SysUser> page = new Page<>(dto.getPageNum(), Math.min(dto.getPageSize(), 100));
         LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
         if (dto.getKeyword() != null && !dto.getKeyword().isEmpty()) {

@@ -1,3 +1,4 @@
+// 认证模块请求层：封装登录、注册、获取当前用户与登出接口调用。
 import { apiPost, apiGet } from './request'
 import type { LoginResult, LoginPayload, RegisterPayload, UserVO } from './types'
 

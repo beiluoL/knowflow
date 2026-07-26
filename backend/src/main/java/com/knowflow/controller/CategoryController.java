@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/** 分类管理 REST 接口，提供分类树查询。 */
 @Tag(name = "分类接口")
 @RestController
 @RequestMapping("/api/categories")

@@ -10,6 +10,7 @@
 </template>
 
 <script setup lang="ts">
+// 通用 UI 组件：状态徽标，按 variant 渲染不同语义配色。
 import { computed } from 'vue'
 
 interface Props {

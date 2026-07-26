@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * 分页查询参数封装：提供页码/页大小归一化，防止非法或过大的分页参数。
+ */
 @Data
 public class PageQuery implements Serializable {
 
@@ -15,6 +18,9 @@ public class PageQuery implements Serializable {
 
     private String orderDirection = "desc";
 
+    /**
+     * 页码归一化：为空或小于 1 时回退为第 1 页。
+     */
     public Integer getPageNum() {
         if (pageNum == null || pageNum < 1) {
             return 1;
@@ -22,6 +28,9 @@ public class PageQuery implements Serializable {
         return pageNum;
     }
 
+    /**
+     * 页大小归一化：为空或小于 1 时回退为 10，且上限封顶 100 防止一次拉取过多。
+     */
     public Integer getPageSize() {
         if (pageSize == null || pageSize < 1) {
             return 10;

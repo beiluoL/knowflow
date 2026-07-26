@@ -83,6 +83,7 @@
 </template>
 
 <script setup lang="ts">
+// 布局组件：后台侧边栏，渲染按角色过滤的导航分组，并支持折叠与移动端抽屉。
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
@@ -157,6 +158,7 @@ const visibleGroups = computed(() =>
     .filter((g) => g.items.length > 0),
 );
 
+// 高亮当前路由：精确匹配或以该路径为前缀的子路由均视为激活
 function isActive(path: string): boolean {
   if (path === '/') return route.path === '/';
   return route.path === path || route.path.startsWith(path + '/');

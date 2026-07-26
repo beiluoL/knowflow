@@ -305,6 +305,7 @@
 </template>
 
 <script setup lang="ts">
+// 布局组件：前台导航顶栏，含主导航、AI/个人下拉菜单、通知面板、用户菜单与移动端抽屉。
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
@@ -475,6 +476,7 @@ function formatTime(time?: string): string {
   return date.toLocaleDateString('zh-CN');
 }
 
+// 全局快捷键：Cmd/Ctrl + K 跳转到搜索页
 function onKeyDown(e: KeyboardEvent) {
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
     e.preventDefault();

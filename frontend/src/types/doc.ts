@@ -1,3 +1,4 @@
+// 文档领域类型定义：文档、目录、闪卡、学习路径等本地模型。
 export interface Category {
   id: string
   name: string

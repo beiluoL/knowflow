@@ -301,6 +301,7 @@
 </template>
 
 <script setup lang="ts">
+// 社区讨论页：帖子列表（最新/最热/精华）、分类筛选、分页、发帖与相对时间展示。
 import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
@@ -350,6 +351,7 @@ function getTags(tags?: string): string[] {
   return tags.split(',').filter((t) => t.trim())
 }
 
+// 根据用户 id 取模分配稳定的头像底色（同一用户始终同色）
 function getAvatarColor(userId?: number): string {
   const colors = [
     'rgba(59, 111, 224, 0.8)',
@@ -362,6 +364,7 @@ function getAvatarColor(userId?: number): string {
   return colors[idx]
 }
 
+// 将时间戳格式化为「刚刚 / x分钟前 / x小时前 / x天前 / x个月前」的相对时间
 function formatTime(time?: string): string {
   if (!time) return ''
   const date = new Date(time)
@@ -377,6 +380,7 @@ function formatTime(time?: string): string {
   return `${Math.floor(days / 30)}个月前`
 }
 
+// 浏览量超过 1000 时以「k」缩写展示，其余原样返回
 function formatViewCount(count?: number): string {
   if (!count) return '0'
   if (count >= 1000) return `${(count / 1000).toFixed(1)}k`

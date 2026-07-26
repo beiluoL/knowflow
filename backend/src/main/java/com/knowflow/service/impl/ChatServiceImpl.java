@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** 聊天业务服务实现。 */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -58,6 +59,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
                 .collect(Collectors.toList());
     }
 
+    /** 发送消息主流程：落库用户消息 → 检索相关文档 → 调用 AI → 落库助手消息并更新会话。 */
     @Override
     @Transactional
     public MessageVO sendMessage(ChatSendDTO dto, Long userId) {

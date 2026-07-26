@@ -159,6 +159,7 @@
 </template>
 
 <script setup lang="ts">
+// 布局组件：前台顶栏，负责搜索、用户菜单与通知面板的展示与交互。
 import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'

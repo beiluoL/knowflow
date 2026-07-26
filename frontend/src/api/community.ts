@@ -1,3 +1,4 @@
+// 社区模块请求层：封装帖子、点赞、评论等社区互动接口调用。
 import { apiGet, apiPost, apiDelete } from './request'
 import type { PostVO, PostPageResult, CommentPageResult } from './types'
 

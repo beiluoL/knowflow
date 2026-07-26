@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * 统一 API 响应封装：包含业务码 code、消息 message 与数据 data。
+ */
 @Data
 public class Result<T> implements Serializable {
 

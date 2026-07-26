@@ -194,6 +194,7 @@
 </template>
 
 <script setup lang="ts">
+// 笔记管理页：按标签/关键词筛选笔记，左侧列表、右侧详情的文档式阅读布局。
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
@@ -226,6 +227,7 @@ interface TagStyle {
   color: string;
 }
 
+// 按标签返回固定的主题色（背景/文字），用于笔记标签视觉区分
 function tagColor(tag: string): TagStyle {
   switch (tag) {
     case 'Python': return { bg: 'rgba(16,185,129,0.1)', color: '#10B981' };
@@ -359,6 +361,7 @@ onMounted(() => {
   }, 400);
 });
 
+// 按当前标签与搜索关键词过滤笔记，并映射为列表所需精简字段
 const filteredNotes = computed<NoteItem[]>(() =>
   allNotes
     .filter((n) => {
@@ -372,6 +375,7 @@ const filteredNotes = computed<NoteItem[]>(() =>
     .map((n) => ({ id: n.id, title: n.title, summary: n.summary, tag: n.tag, time: n.time })),
 );
 
+// 当前选中的笔记详情（依据 selectedId 在 allNotes 中查找）
 const current = computed<NoteDetail | null>(() =>
   allNotes.find((n) => n.id === selectedId.value) ?? null,
 );

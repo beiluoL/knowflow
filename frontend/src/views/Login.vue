@@ -274,6 +274,7 @@
 </template>
 
 <script setup lang="ts">
+// 登录/注册页：登录成功后跳转到路由 query.redirect 指定页面（默认首页）。
 import { getApiError, notify } from '@/utils/toast'
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
@@ -316,6 +317,7 @@ const handleLogin = async () => {
       username: loginForm.value.username,
       password: loginForm.value.password,
     })
+    // 优先跳回登录前拦截的页面，否则回首页
     const redirect = (route.query.redirect as string) || '/'
     router.push(redirect)
   } catch (e: unknown) {

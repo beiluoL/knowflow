@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/** 聊天会话 REST 接口，提供对话管理、消息查询与 AI 消息收发能力。 */
 @Tag(name = "聊天接口")
 @RestController
 @RequestMapping("/api/chat")

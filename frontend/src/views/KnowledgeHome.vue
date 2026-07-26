@@ -176,6 +176,7 @@
 </template>
 
 <script setup lang="ts">
+// 知识库首页（分类导航）：每日金句、分类入口、精选推荐、热门标签与学习统计。
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
@@ -211,6 +212,7 @@ const famousQuotes = [
   { text: '书山有路勤为径，学海无涯苦作舟。', author: '韩愈' },
 ]
 
+// 随机选取一条每日金句
 const quoteIndex = ref(Math.floor(Math.random() * famousQuotes.length))
 
 const currentQuote = computed(() => famousQuotes[quoteIndex.value])

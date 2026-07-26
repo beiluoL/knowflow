@@ -1,3 +1,4 @@
+// 学习模块请求层：封装学习路径、章节、闪卡与复习计划等接口调用。
 import { apiGet, apiPost, apiPut, apiDelete } from './request'
 import type {
   LearningPathVO,

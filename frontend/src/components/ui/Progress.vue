@@ -14,6 +14,7 @@
 </template>
 
 <script setup lang="ts">
+// 通用 UI 组件：进度条，按 percentage 控制宽度并支持显示标签与配色变体。
 import { computed } from 'vue'
 
 interface Props {

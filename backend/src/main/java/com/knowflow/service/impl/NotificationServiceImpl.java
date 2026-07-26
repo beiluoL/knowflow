@@ -13,6 +13,7 @@ import com.knowflow.vo.NotificationVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+/** 消息通知业务服务实现。 */
 @Service
 @RequiredArgsConstructor
 public class NotificationServiceImpl extends ServiceImpl<SysNotificationMapper, SysNotification> implements NotificationService {

@@ -1,3 +1,4 @@
+// 错题模块请求层：封装错题列表、详情、标记掌握与统计接口调用。
 import { apiGet, apiPut, apiPost } from './request'
 import type { MistakeVO, MistakePageResult, MistakeStats } from './types'
 

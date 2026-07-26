@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+/** 错题本业务服务实现。 */
 @Service
 @RequiredArgsConstructor
 public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, LearningMistake> implements MistakeService {

@@ -10,6 +10,7 @@ import com.knowflow.vo.LearningTaskVO;
 
 import java.util.List;
 
+/** 学习中心业务服务接口。 */
 public interface LearningService extends IService<LearningPath> {
 
     List<LearningPathVO> getPathList();
@@ -34,5 +35,6 @@ public interface LearningService extends IService<LearningPath> {
 
     void completeChapter(Long chapterId, Long userId);
 
+    /** 复习闪卡：依据评分 quality(0~5) 计算下次间隔（SM-2 算法）。 */
     void reviewFlashcard(Long flashcardId, Long userId, Integer quality);
 }

@@ -120,6 +120,7 @@
 </template>
 
 <script setup lang="ts">
+// 新增文档页：填写标题/分类/标签/内容，提供 Markdown 实时预览，提交创建。
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
@@ -141,6 +142,7 @@ const form = ref({
   content: '',
 })
 
+// 简易 Markdown 预览：标题/加粗/斜体/行内代码/换行的正则替换
 const renderedContent = computed(() => {
   let html = form.value.content
     .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>')

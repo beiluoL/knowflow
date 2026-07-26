@@ -1,3 +1,4 @@
+// 认证状态管理：保存当前登录用户与 token，提供登录/登出/权限判断。
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { authApi } from '@/api'
@@ -15,6 +16,11 @@ export const useAuthStore = defineStore('auth', () => {
   const isLoggedIn = computed(() => !!token.value)
   const isAdmin = computed(() => user.value?.role === 'ADMIN')
 
+  /**
+   * 写入并持久化登录会话（token + 用户信息）。
+   * @param t 后端下发的 JWT
+   * @param u 当前登录用户
+   */
   function setSession(t: string, u: UserVO) {
     token.value = t
     user.value = u

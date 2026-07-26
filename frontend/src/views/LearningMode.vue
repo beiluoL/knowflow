@@ -139,6 +139,7 @@
 </template>
 
 <script setup lang="ts">
+// 学习模式选择页：展示多种学习模式卡片并分发到对应学习路由。
 import { notify } from '@/utils/toast'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
@@ -248,6 +249,7 @@ const toggleCategory = (cat: string) => {
   }
 }
 
+// 按所选模式跳转到对应学习页面（仅代码实战/闪卡已实现专门路由）
 const startLearning = () => {
   notify(`开始${currentMode.value.name}！`, 'info')
   if (selectedMode.value === 'code') {

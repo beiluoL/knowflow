@@ -28,6 +28,7 @@
 </template>
 
 <script setup lang="ts">
+// 通用 UI 组件：头像，优先展示图片，加载失败时回退到图标/首字母，可附在线状态点。
 import { computed } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 

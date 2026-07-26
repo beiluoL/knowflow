@@ -26,6 +26,7 @@
 </template>
 
 <script setup lang="ts">
+// 布局组件：应用外壳布局，组合侧边栏与后台顶栏，提供主内容区插槽并持久化侧栏折叠状态。
 import { ref, onMounted, watch } from 'vue';
 import Sidebar from './Sidebar.vue';
 import BTopbar from './BTopbar.vue';

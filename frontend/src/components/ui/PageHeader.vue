@@ -38,6 +38,7 @@
 </template>
 
 <script setup lang="ts">
+// 通用 UI 组件：页面头部，支持面包屑、标题、数量徽标与右侧操作插槽。
 import Icon from '@/components/ui/Icon.vue'
 
 interface Crumb {

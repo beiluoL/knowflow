@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** 学习中心业务服务实现。 */
 @Service
 @RequiredArgsConstructor
 public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, LearningPath> implements LearningService {
@@ -249,6 +250,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         }
     }
 
+    /** 闪卡复习调度（SM-2 间隔重复算法）：按评分 quality(0~5) 计算下次复习间隔并保证边界。 */
     @Override
     public void reviewFlashcard(Long flashcardId, Long userId, Integer quality) {
         LearningFlashcard card = flashcardMapper.selectById(flashcardId);

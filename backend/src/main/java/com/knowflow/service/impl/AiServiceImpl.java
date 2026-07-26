@@ -22,6 +22,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @SuppressWarnings("unchecked")
+/** AI 问答业务服务实现，基于 OpenAI 兼容接口调用大模型，未配置时降级。 */
 public class AiServiceImpl implements AiService {
 
     private final AiConfig aiConfig;
@@ -36,6 +37,7 @@ public class AiServiceImpl implements AiService {
         return key != null && !key.isEmpty() && !key.startsWith("sk-placeholder");
     }
 
+    /** 调用大模型生成回复；未配置或调用失败时返回降级提示文案，不抛异常。 */
     @Override
     public String chat(String userMessage, List<DocDocument> contextDocs) {
         if (!isConfigured()) {

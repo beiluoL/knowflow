@@ -185,6 +185,7 @@
 </template>
 
 <script setup lang="ts">
+// 代码练习页：展示编程题并支持编写代码（运行/提交为前端模拟，无后端判题）。
 import { notify } from '@/utils/toast'
 import { ref } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
@@ -273,6 +274,7 @@ async function loadQuestions(): Promise<void> {
 
 loadQuestions()
 
+// 运行代码：前端模拟返回固定成功结果（无真实执行）
 const runCode = () => {
   runResult.value = {
     success: true,
@@ -281,6 +283,7 @@ const runCode = () => {
   }
 }
 
+// 提交答案：前端模拟，仅更新本地题目状态与今日进度计数
 const submitCode = () => {
   notify('答案提交成功！', 'success')
   if (questions.value[currentIndex.value]) {

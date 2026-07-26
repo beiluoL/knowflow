@@ -161,6 +161,7 @@
 </template>
 
 <script setup lang="ts">
+// 文档上传页：拖拽/选择文件，填写元信息后调用接口创建文档。
 import { notify } from '@/utils/toast'
 import { ref, computed, watch, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
@@ -237,6 +238,7 @@ const removeTag = (index: number) => {
   formData.value.tags.splice(index, 1)
 }
 
+// 以 1024 为底取对数，将字节数转换为带单位的文件大小
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 B'
   const k = 1024
@@ -279,6 +281,7 @@ const handleUpload = async () => {
   try {
     const file = selectedFile.value
     let content = formData.value.description
+    // Markdown/TXT 直接以 file.text() 提取正文作为文档内容
     if (/\.(md|markdown|txt)$/i.test(file.name)) {
       try {
         content = await file.text()

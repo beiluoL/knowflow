@@ -240,6 +240,7 @@
 </template>
 
 <script setup lang="ts">
+// 管理后台-概览：展示平台核心统计数据、系统健康度、用户增长与分类分布等可视化面板。
 import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'

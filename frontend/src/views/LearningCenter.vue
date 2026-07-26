@@ -391,6 +391,7 @@
 </template>
 
 <script setup lang="ts">
+// 学习中心页：今日目标环形进度、番茄钟计时、学习任务清单与养成宠物系统。
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
@@ -425,6 +426,7 @@ const circumference = 2 * Math.PI * radius
 // 今日学习数据：全部来自真实 API（任务）与本地番茄钟记录，不再使用 mock
 const GOAL_MINUTES = 120
 const sessionVersion = ref(0)
+// 聚合本机番茄钟会话与任务，得出今日学习时长/目标进度/连续天数等指标
 const studyData = computed(() => {
   sessionVersion.value // 依赖，使番茄钟记录后自动刷新
   const sessions = loadSessions()
@@ -495,6 +497,7 @@ const switchMode = (mode: PomodoroMode) => {
   timeLeft.value = modeData?.duration || 25 * 60
 }
 
+// 番茄钟开关：启动后每秒倒计时，专注阶段归零时记录一次本机学习会话
 const toggleTimer = () => {
   if (isRunning.value) {
     if (timerInterval) {
@@ -587,6 +590,7 @@ const addTask = () => {
 
 const pet = ref(loadPet(learningPet))
 
+// 喂食/陪玩宠物：增加经验值与能量；经验满级后升级，下一级上限按 1.5 倍递增
 const feedPet = () => {
   pet.value.energy = Math.min(100, pet.value.energy + 10)
   pet.value.exp = Math.min(pet.value.maxExp, pet.value.exp + 20)

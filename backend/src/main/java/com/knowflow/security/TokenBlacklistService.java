@@ -15,6 +15,10 @@ public class TokenBlacklistService {
 
     private final Map<String, Long> blacklist = new ConcurrentHashMap<>();
 
+    /**
+     * 将 token 加入黑名单。
+     * expireAtMillis 取 JWT 的过期时间(epoch millis)，供后续自动清理使用；空 token 直接忽略。
+     */
     public void add(String token, long expireAtMillis) {
         if (token == null || token.isBlank()) {
             return;
@@ -22,6 +26,10 @@ public class TokenBlacklistService {
         blacklist.put(token, expireAtMillis);
     }
 
+    /**
+     * 判断 token 是否仍在黑名单且未过期。
+     * 若已超过过期时间则自动移出黑名单并返回 false，避免黑名单无限增长。
+     */
     public boolean isBlacklisted(String token) {
         if (token == null) {
             return false;

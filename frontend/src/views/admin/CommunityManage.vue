@@ -301,6 +301,7 @@
 </template>
 
 <script setup lang="ts">
+// 管理后台-社区管理：审核帖子、管理话题与处理举报，含后端状态映射与本地时间格式化。
 import { ref, computed, onMounted } from 'vue';
 import Icon from '@/components/ui/Icon.vue';
 import { notify } from '@/utils/toast';

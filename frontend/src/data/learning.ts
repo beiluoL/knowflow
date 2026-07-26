@@ -1,3 +1,4 @@
+// 前端静态假数据（学习中心：任务、宠物、榜单、路径、章节、闪卡与复习计划）。
 export interface StudyTask {
   id: string
   title: string

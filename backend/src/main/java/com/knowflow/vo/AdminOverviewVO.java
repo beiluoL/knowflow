@@ -2,6 +2,9 @@ package com.knowflow.vo;
 
 import lombok.Data;
 
+/**
+ * 管理后台概览视图对象，聚合平台总量与当日新增统计数据。
+ */
 @Data
 public class AdminOverviewVO {
 

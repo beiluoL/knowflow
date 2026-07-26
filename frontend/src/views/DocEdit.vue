@@ -122,6 +122,7 @@
 </template>
 
 <script setup lang="ts">
+// 编辑文档页：根据路由 id 拉取文档并回填表单，支持 Markdown 预览与保存。
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
@@ -146,6 +147,7 @@ const form = ref({
   content: '',
 })
 
+// 简易 Markdown 预览：标题/加粗/斜体/行内代码/换行的正则替换
 const renderedContent = computed(() => {
   let html = form.value.content
     .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>')
@@ -167,6 +169,7 @@ async function fetchCategories() {
   }
 }
 
+// 按路由 id 拉取文档详情并回填表单
 async function fetchDoc() {
   const id = Number(route.params.id)
   if (!id) return

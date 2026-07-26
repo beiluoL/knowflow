@@ -26,6 +26,7 @@
 </template>
 
 <script setup lang="ts">
+// 通用重定向页：读取路由 query.to 参数，倒计时结束后自动跳转。
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
@@ -42,6 +43,7 @@ onMounted(() => {
   if (target) {
     message.value = `正在跳转到：${target}`
   }
+  // 每秒倒数，归零后清除定时器并跳转（无目标则回首页）
   timer = setInterval(() => {
     countdown.value -= 1
     if (countdown.value <= 0) {

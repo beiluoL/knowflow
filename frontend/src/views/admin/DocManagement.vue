@@ -200,6 +200,7 @@
 </template>
 
 <script setup lang="ts">
+// 管理后台-文档管理：维护知识库文档的增删改查与分类筛选、分页展示。
 import { confirmDialog, getApiError, notify } from '@/utils/toast'
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -246,6 +247,7 @@ const statusVariant = (s?: number): 'success' | 'warning' | 'danger' =>
 
 const formatDate = (v?: string): string => {
   if (!v) return '—'
+  // 统一截取前 10 位作为 yyyy-MM-dd（兼容含 T 的 ISO 与纯日期字符串）
   return v.includes('T') ? v.slice(0, 10) : v.slice(0, 10)
 }
 

@@ -1,3 +1,4 @@
+// 前端静态假数据（文档详情：正文、目录、相关文档）。
 import type { Doc, TocItem } from '@/types'
 
 export const docDetailContent = `

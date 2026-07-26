@@ -143,6 +143,7 @@
 </template>
 
 <script setup lang="ts">
+// 统一门户首页：聚合展示用户学习统计与快捷入口（C 端/管理端双视图）。
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
@@ -195,6 +196,7 @@ const quickStats = ref<QuickStat[]>([
   },
 ]);
 
+// 拉取用户学习统计数据并填充快捷指标卡片（文档数/时长/打卡/闪卡）
 async function loadStats(): Promise<void> {
   statsLoading.value = true;
   try {

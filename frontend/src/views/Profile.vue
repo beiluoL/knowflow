@@ -270,6 +270,7 @@
 </template>
 
 <script setup lang="ts">
+// 个人中心页：展示等级/成就徽章，并提供收藏、历史与账号设置。
 import { notify } from '@/utils/toast'
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -307,6 +308,7 @@ const tabs = [
 
 const darkMode = ref(false)
 
+// 根据等级返回称号（1-4 新手 / 5-9 学习者 / 10-14 代码探索者 / 15+ 知识大师）
 const levelTitle = computed(() => {
   const lv = user.value.level ?? 1
   if (lv >= 15) return '知识大师'
@@ -353,6 +355,7 @@ const handleMenuClick = (key: string) => {
   }
 }
 
+// 升到下一级所需经验：每级比当前等级多 500（(level+1)*500）
 const nextLevelExp = computed(() => ((user.value.level ?? 1) + 1) * 500)
 const expPercentage = computed(() => Math.min(100, Math.round(((user.value.exp ?? 0) / nextLevelExp.value) * 100)))
 
@@ -368,6 +371,7 @@ interface Badge {
   unlocked: boolean
 }
 
+// 成就徽章（前端模拟数据，含已解锁与未解锁状态）
 const badges = ref<Badge[]>([
   { id: 1, label: '连续7天', icon: 'flame', gradient: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', unlocked: true },
   { id: 2, label: '百篇阅读', icon: 'book-open', gradient: 'linear-gradient(135deg, #3B6FE0 0%, #5B8FE8 100%)', unlocked: true },
@@ -403,6 +407,7 @@ const resetSettings = () => {
   settingsForm.avatar = user.value.avatar || ''
 }
 
+// 保存个人资料：调更新接口并同步到 auth store 的会话信息
 const saveSettings = async () => {
   saving.value = true
   try {

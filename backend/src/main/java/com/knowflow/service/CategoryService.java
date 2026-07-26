@@ -6,6 +6,7 @@ import com.knowflow.vo.CategoryVO;
 
 import java.util.List;
 
+/** 分类业务服务接口。 */
 public interface CategoryService extends IService<DocCategory> {
 
     List<CategoryVO> getCategoryTree();

@@ -10,5 +10,6 @@
 </template>
 
 <script setup lang="ts">
+// 布局组件：前台基础布局，组合顶部导航与居中主内容区。
 import CTopNav from './CTopNav.vue';
 </script>

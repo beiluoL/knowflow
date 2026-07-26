@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/** 分类业务服务实现。 */
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl extends ServiceImpl<DocCategoryMapper, DocCategory> implements CategoryService {
@@ -57,6 +58,7 @@ public class CategoryServiceImpl extends ServiceImpl<DocCategoryMapper, DocCateg
                 .orderByAsc(DocCategory::getSortOrder));
     }
 
+    /** 删除分类：存在子分类或文档时禁止删除，避免脏数据。 */
     @Override
     public void removeCategory(Long id) {
         long childCount = this.count(new LambdaQueryWrapper<DocCategory>()

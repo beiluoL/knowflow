@@ -10,6 +10,7 @@ import com.knowflow.vo.DocVO;
 
 import java.util.List;
 
+/** 文档业务服务接口。 */
 public interface DocService extends IService<DocDocument> {
 
     PageResult<DocVO> getDocPage(DocQueryDTO dto);

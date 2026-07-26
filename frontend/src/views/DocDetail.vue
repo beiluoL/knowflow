@@ -228,6 +228,7 @@
 </template>
 
 <script setup lang="ts">
+// 文档详情页：Markdown 渲染、目录与阅读进度追踪、收藏/分享/AI 解答入口。
 import { notify } from '@/utils/toast'
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -280,6 +281,7 @@ const tagList = computed(() => {
   return (doc.value.tags || '').split(',').filter(Boolean)
 })
 
+// 将标题文本转为可用于锚点的 slug（保留中英文，其余字符替换为短横线）
 const slugify = (text: string) =>
   text
     .trim()
@@ -297,6 +299,7 @@ const inline = (s: string) =>
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
     .replace(/  \n/g, '<br />')
 
+// 从 Markdown 文本提取二级/三级标题，生成目录树
 const buildToc = (md: string): TocItem[] => {
   const items: TocItem[] = []
   const text = normalizeNewlines(md)
@@ -329,6 +332,7 @@ const renderCodeBlock = (lang: string, code: string): string => {
   </div>`
 }
 
+// 将各种换行符（\r\n、\r、转义后的 \\n）统一规范化为 \n
 const normalizeNewlines = (s: string): string => {
   if (!s) return ''
   return s
@@ -359,6 +363,7 @@ const renderTable = (rows: string[]): string => {
   return html
 }
 
+// 完整 Markdown 渲染器：支持标题/段落/列表/引用/代码块/表格
 const renderMarkdown = (md: string): string => {
   if (!md) return ''
   const text = normalizeNewlines(md)
@@ -544,6 +549,7 @@ const scrollToSection = (id: string, event: Event) => {
   if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
+// 滚动时：高亮当前所在标题（距顶部 <=120px），并按滚动比例计算阅读进度
 const handleScroll = () => {
   if (!contentRef.value) return
   const headings = contentRef.value.querySelectorAll('h2[id], h3[id]')
@@ -570,6 +576,7 @@ const saveProgress = async () => {
   }
 }
 
+// 代码块复制按钮：优先用 Clipboard API，失败则回退到 textarea + execCommand
 const handleCopyClick = async (e: MouseEvent) => {
   const target = e.target as HTMLElement
   const btn = target.closest('.code-copy-btn') as HTMLElement | null
@@ -580,6 +587,7 @@ const handleCopyClick = async (e: MouseEvent) => {
   try {
     await navigator.clipboard.writeText(code)
   } catch {
+    // 降级方案：临时 textarea + execCommand 兼容无 Clipboard 权限的环境
     const ta = document.createElement('textarea')
     ta.value = code
     ta.style.position = 'fixed'

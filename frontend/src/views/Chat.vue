@@ -240,6 +240,7 @@
 </template>
 
 <script setup lang="ts">
+// AI 智能问答页：会话列表管理、流式打字机效果渲染、Markdown 与参考来源展示。
 import { notify } from '@/utils/toast'
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
@@ -297,6 +298,7 @@ const models: Model[] = [
 const chats = ref<Chat[]>([])
 const chatMessages = ref<Record<number, Message[]>>({})
 
+// 将后端 "[id] 标题" 形式的文档引用文本解析为结构化数组
 const parseDocReferences = (refs?: string): { id: number; title: string }[] => {
   if (!refs) return []
   return refs.split('\n')
@@ -472,6 +474,7 @@ const sendMessage = async () => {
 
 let typingTimer: ReturnType<typeof setTimeout> | null = null
 
+// 逐字打字机效果：按 speed 毫秒逐字符填充 displayedMessages
 const typeText = (text: string, messageIndex: number) => {
   let currentIndex = 0
   const speed = 20
@@ -491,6 +494,7 @@ const isMessageComplete = (index: number) => {
   return displayedMessages.value[index] === messages.value[index]?.content
 }
 
+// 将 AI 回复的 Markdown 渲染为 HTML（代码块/标题/列表/加粗等）
 const renderMarkdown = (text: string): string => {
   if (!text) return ''
   let html = escapeHtml(text)

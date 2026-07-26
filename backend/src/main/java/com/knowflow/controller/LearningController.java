@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/** 学习中心 REST 接口，提供学习路径、章节、闪卡与任务能力。 */
 @Tag(name = "学习接口")
 @RestController
 @RequestMapping("/api/learning")

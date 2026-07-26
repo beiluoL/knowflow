@@ -158,6 +158,7 @@
 </template>
 
 <script setup lang="ts">
+// 智能写作页：Markdown 写作编辑器，支持模板、字数统计与本地草稿自动保存。
 import { notify } from '@/utils/toast'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
@@ -173,6 +174,7 @@ interface Draft {
   wordCount: number
 }
 
+// 草稿持久化使用的 localStorage 键名
 const DRAFTS_KEY = 'knowflow:writing:drafts'
 
 const title = ref('')
@@ -203,6 +205,7 @@ const templates = [
 
 const history = ref<Draft[]>(loadDrafts())
 
+// 从 localStorage 读取草稿列表，解析失败或为空时安全返回空数组
 function loadDrafts(): Draft[] {
   try {
     const raw = localStorage.getItem(DRAFTS_KEY)
@@ -214,6 +217,7 @@ function loadDrafts(): Draft[] {
   }
 }
 
+// 将当前草稿历史写入 localStorage，实现刷新/关闭后的草稿恢复
 function persistDrafts(): void {
   localStorage.setItem(DRAFTS_KEY, JSON.stringify(history.value))
 }

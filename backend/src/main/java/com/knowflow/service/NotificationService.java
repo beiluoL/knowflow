@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.knowflow.entity.SysNotification;
 import com.knowflow.vo.NotificationVO;
 
+/** 消息通知业务服务接口。 */
 public interface NotificationService extends IService<SysNotification> {
 
     IPage<NotificationVO> getNotificationPage(Long userId, String type, Integer isRead, Integer pageNum, Integer pageSize);

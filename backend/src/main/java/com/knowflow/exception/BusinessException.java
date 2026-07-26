@@ -2,6 +2,9 @@ package com.knowflow.exception;
 
 import lombok.Getter;
 
+/**
+ * 业务异常：携带业务码 code，供全局异常处理器映射为规范响应。
+ */
 @Getter
 public class BusinessException extends RuntimeException {
 

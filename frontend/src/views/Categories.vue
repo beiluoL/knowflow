@@ -363,6 +363,7 @@
 </template>
 
 <script setup lang="ts">
+// 分类浏览页：按分类树浏览文档，支持收藏/最近阅读筛选、列表/网格切换与阅读进度展示。
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
@@ -434,6 +435,7 @@ const currentCategoryName = computed(() => {
   return cat?.name || ''
 })
 
+// 在分类树中递归查找指定 id 的分类节点
 const findCategoryById = (id: number | string, categories: CategoryVO[]): CategoryVO | null => {
   const target = Number(id)
   for (const cat of categories) {
@@ -446,6 +448,7 @@ const findCategoryById = (id: number | string, categories: CategoryVO[]): Catego
   return null
 }
 
+// 递归收集从根到目标分类的路径链，用于面包屑展示
 const getCategoryPath = (id: number | string, categories: CategoryVO[], path: CategoryVO[] = []): CategoryVO[] => {
   const target = Number(id)
   for (const cat of categories) {
@@ -477,6 +480,7 @@ const getCategoryDescription = (): string => {
   return descMap[name] || '该分类下的优质技术文档与学习资源'
 }
 
+// 递归收集某分类自身及其所有后代子分类的 id 列表，用于按分类聚合文档
 const getAllChildCategoryIds = (categoryId: number | string): number[] => {
   const ids: number[] = [Number(categoryId)]
   const category = findCategoryById(categoryId, categoryTree.value)
@@ -488,6 +492,7 @@ const getAllChildCategoryIds = (categoryId: number | string): number[] => {
   return ids
 }
 
+// 按当前导航（全部/收藏/最近）与排序方式（最新/热门）筛选并排序文档列表
 const sortedDocs = computed(() => {
   let result = [...docs.value]
   if (activeNav.value === 'favorite') {
@@ -508,6 +513,7 @@ const tagList = (tags?: string): string[] => {
   return tags.split(',').filter(Boolean)
 }
 
+// 进度为前端模拟值：基于文档 id 的确定性伪随机（seed = id*17 % 100），保证同一文档进度稳定
 const getReadProgress = (doc: DocVO): number => {
   const seed = (doc.id * 17) % 100
   return seed < 10 ? seed + 15 : seed

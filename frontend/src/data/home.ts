@@ -1,3 +1,4 @@
+// 前端静态假数据（首页：每日名句、学习概览、最近阅读、推荐文档）。
 import type { DailyQuote, LearningOverview, RecentDoc } from '@/types'
 
 export const dailyQuotes: DailyQuote[] = [

@@ -19,6 +19,10 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * JWT 认证过滤器：每次请求解析并校验 token，校验通过后将用户信息写入 SecurityContext。
+ * 仅当 token 有效且未登出（不在黑名单）时建立认证，否则匿名放行交由后续鉴权处理。
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -27,6 +31,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtils jwtUtils;
     private final TokenBlacklistService tokenBlacklistService;
 
+    /**
+     * 核心过滤逻辑：提取请求 token，依次校验有效性、黑名单，
+     * 解析出 userId/username/role 构建认证信息写入 SecurityContext；解析异常仅告警不阻断。
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -50,6 +58,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * 从 Authorization 头提取 Bearer token；非 Bearer 格式或为空时返回 null。
+     * substring(7) 用于跳过 "Bearer "（含一个空格，共 7 个字符）。
+     */
     private String getTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {

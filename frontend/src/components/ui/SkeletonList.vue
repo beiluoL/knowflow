@@ -47,6 +47,7 @@
 </template>
 
 <script setup lang="ts">
+// 通用 UI 组件：骨架屏加载占位，支持列表/卡片/线条多种形态与行列数。
 interface Props {
   rows?: number
   type?: 'list' | 'card' | 'line'

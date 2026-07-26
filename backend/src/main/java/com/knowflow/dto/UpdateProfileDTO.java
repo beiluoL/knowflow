@@ -4,6 +4,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+/**
+ * 用户资料更新请求参数，封装昵称、邮箱与头像地址。
+ */
 @Data
 public class UpdateProfileDTO {
 

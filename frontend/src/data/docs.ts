@@ -1,3 +1,4 @@
+// 前端静态假数据（文档列表），用于演示与离线开发。
 import type { Doc } from '@/types'
 
 export const docs: Doc[] = [

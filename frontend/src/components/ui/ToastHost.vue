@@ -54,6 +54,7 @@
 </template>
 
 <script setup lang="ts">
+// 通用 UI 组件：全局消息宿主，渲染 toast 提示与确认弹窗，并从全局 toast 状态读取数据。
 import Icon from '@/components/ui/Icon.vue'
 import { dismiss, toastState, type ToastType } from '@/utils/toast'
 

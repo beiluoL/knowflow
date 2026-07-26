@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+/** 管理员文档管理 REST 接口，提供文档的增删改查。 */
 @Tag(name = "管理员文档管理")
 @RestController
 @RequestMapping("/api/admin/docs")

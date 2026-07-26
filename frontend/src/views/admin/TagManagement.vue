@@ -181,6 +181,7 @@
 </template>
 
 <script setup lang="ts">
+// 管理后台-标签管理：维护知识库标签与配色，支持检索、编辑与关联文档查看（演示数据）。
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { confirmDialog, getApiError, notify } from '@/utils/toast'

@@ -89,6 +89,7 @@
 </template>
 
 <script setup lang="ts">
+// 消息中心：按类型筛选通知、标记已读、分页展示，数据来自通知 store。
 import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
@@ -185,6 +186,7 @@ function getTypeIconStyle(type: string): string {
   }
 }
 
+// 将时间格式化为相对时间（刚刚 / x分钟前 / x小时前 / x天前 / x个月前）
 function formatTime(time?: string): string {
   if (!time) return ''
   const date = new Date(time)

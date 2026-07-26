@@ -275,6 +275,7 @@
 </template>
 
 <script setup lang="ts">
+// 复习计划页：基于艾宾浩斯遗忘曲线展示待复习闪卡、当日进度与月历复习分布。
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
@@ -323,6 +324,7 @@ const todayReview = ref<TodayReview>({
   progress: 0,
 })
 
+// 将后端难度数值映射为前端展示档位：2=难 / 1=中 / 其它=易
 function mapDifficulty(raw?: number): 'easy' | 'medium' | 'hard' {
   if (raw === 2) return 'hard';
   if (raw === 1) return 'medium';
@@ -338,6 +340,7 @@ function computeNextReviewDate(c: FlashcardVO): string {
     const d = new Date(c.nextReviewTime)
     if (!Number.isNaN(d.getTime())) return formatDateStr(d)
   }
+  // SM-2 间隔重复序列：复习次数越多，下次复习间隔越长（天）
   const intervals = [0, 1, 2, 4, 7, 15, 30]
   const idx = Math.min(c.reviewCount ?? 0, intervals.length - 1)
   const d = new Date()
@@ -377,6 +380,7 @@ async function loadFlashcards(): Promise<void> {
   }
 }
 
+// 按复习日期将闪卡分组，取最近 7 天用于日程列表展示
 function buildReviewDays(cards: FlashCardItem[]): ReviewDay[] {
   const map = new Map<string, FlashCardItem[]>();
   cards.forEach((card) => {
@@ -422,6 +426,7 @@ interface CalendarDay {
   hasReview: boolean
 }
 
+// 构建月历网格：用 42 格（6 行 ×7 列）铺满当月，并补齐上/下月相邻日期，标记有复习任务的日期
 const calendarDays = computed<CalendarDay[]>(() => {
   const year = currentYear.value
   const month = currentMonth.value - 1

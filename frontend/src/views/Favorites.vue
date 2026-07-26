@@ -95,6 +95,7 @@
 </template>
 
 <script setup lang="ts">
+// 收藏夹：按类型筛选、分页展示收藏文档，支持取消收藏（二次确认）。
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
@@ -159,6 +160,7 @@ function toggleBatchMode() {
   batchMode.value = !batchMode.value
 }
 
+// 收藏时间格式化为「今天 / x天前 / 具体日期」
 function formatTime(time?: string): string {
   if (!time) return '-'
   const date = new Date(time)

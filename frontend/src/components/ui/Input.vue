@@ -42,6 +42,7 @@
 </template>
 
 <script setup lang="ts">
+// 通用 UI 组件：文本输入框，支持前后置图标、label/错误态，通过 v-model 双向绑定。
 import Icon from '@/components/ui/Icon.vue'
 
 interface Props {

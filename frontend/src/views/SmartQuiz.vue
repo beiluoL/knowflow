@@ -191,6 +191,7 @@
 </template>
 
 <script setup lang="ts">
+// 智能测验页：从真实闪卡自动生成选择题，支持答题、即时反馈与解析。
 import { notify } from '@/utils/toast'
 import { ref, computed } from 'vue'
 import Icon from '@/components/ui/Icon.vue'

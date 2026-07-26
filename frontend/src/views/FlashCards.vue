@@ -143,6 +143,7 @@
 </template>
 
 <script setup lang="ts">
+// 学习闪卡页：按分类/难度筛选卡片，支持翻面查看与「不会/有印象/掌握」评分复习。
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import { learningApi } from '@/api'
@@ -176,6 +177,7 @@ const streakDays = ref(7)
 const todayCount = ref(0)
 const correctCount = ref(0)
 
+// 将后端 FlashcardVO 映射为本地展示用的闪卡结构（缺省字段兜底）
 const mapCard = (f: FlashcardVO): FlashCard => ({
   id: f.id,
   category: f.category || '通用',
@@ -184,6 +186,7 @@ const mapCard = (f: FlashcardVO): FlashCard => ({
   answer: f.back || '',
 })
 
+// 根据所选分类与难度档位过滤当前牌组
 const filteredCards = computed(() => {
   return cards.value.filter((card) => {
     const categoryMatch = selectedCategory.value === '全部' || card.category === selectedCategory.value
@@ -195,6 +198,7 @@ const filteredCards = computed(() => {
 
 const currentCard = computed(() => filteredCards.value[currentIndex.value] || null)
 
+// 复习进度：以当前卡片序号在牌组中的位置计算百分比
 const reviewProgress = computed(() => {
   if (filteredCards.value.length === 0) return 0
   return Math.round(((currentIndex.value + 1) / filteredCards.value.length) * 100)
@@ -242,6 +246,7 @@ const showFeedback = (msg: string) => {
   }, 1600)
 }
 
+// 提交评分：调用后端复习接口、本地标记已复习并更新连续/正确计数，随后推进到下一张
 const rateCard = async (rating: Rating) => {
   if (reviewing.value || !currentCard.value) return
   reviewing.value = true

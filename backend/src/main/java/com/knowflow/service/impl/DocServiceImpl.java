@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/** 文档业务服务实现。 */
 @Service
 @RequiredArgsConstructor
 public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> implements DocService {
@@ -129,6 +130,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         return vo;
     }
 
+    /** 收藏/取消收藏切换，并同步维护文档与用户的收藏计数（保证非负）。 */
     @Override
     @Transactional
     public void toggleFavorite(Long docId, Long userId) {

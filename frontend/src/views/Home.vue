@@ -208,6 +208,7 @@
 </template>
 
 <script setup lang="ts">
+// 知识库首页：展示统计概览、功能模块入口、最近学习与热门推荐。
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
@@ -285,6 +286,7 @@ const recommendColors = [
   { bg: 'rgba(79,70,229,0.1)', color: 'text-indigo-600' },
 ]
 
+// 按文档 id 取模循环分配推荐图标底色（含负数保护）
 function recommendIconBg(_doc: DocVO) {
   return recommendColors[Math.abs(_doc.id) % recommendColors.length].bg
 }
@@ -340,6 +342,7 @@ onMounted(async () => {
         readDocs: s.readDocsCount || 0,
         streakDays: s.streakDays || 0,
         favorites: s.favoriteCount || 0,
+        // 学习进度 = 已读文档数 / 总文档数，封顶 100%
         progress: s.readDocsCount && docCount.value ? Math.min(100, Math.round((s.readDocsCount / docCount.value) * 100)) : 0,
       }
     } catch {

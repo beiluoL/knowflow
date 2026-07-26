@@ -1,3 +1,4 @@
+// 前端静态假数据（当前用户与通知），用于演示与离线开发。
 import type { User, Notification } from '@/types'
 
 export const mockUser: User = {

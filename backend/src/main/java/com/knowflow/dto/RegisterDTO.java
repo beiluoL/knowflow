@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+/**
+ * 用户注册请求参数，封装账号、邮箱、密码与昵称。
+ */
 @Data
 public class RegisterDTO {
 

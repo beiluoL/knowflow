@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+/** 消息通知 REST 接口，提供通知列表、已读标记与未读计数。 */
 @Tag(name = "消息通知接口")
 @RestController
 @RequestMapping("/api/notifications")

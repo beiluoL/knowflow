@@ -1,3 +1,4 @@
+// 通用前后端类型：统一响应结构 ApiResponse、分页参数与结果类型。
 export * from './doc'
 export * from './user'
 

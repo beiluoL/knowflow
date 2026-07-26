@@ -21,6 +21,7 @@
 </template>
 
 <script setup lang="ts">
+// 通用 UI 组件：空状态占位，支持图标、标题、默认描述与操作插槽。
 import { computed } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 

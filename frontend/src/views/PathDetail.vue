@@ -218,6 +218,7 @@
 </template>
 
 <script setup lang="ts">
+// 学习路径详情页：展示路径概览、章节列表、环形进度与报名/继续学习入口。
 import { computed, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
@@ -243,6 +244,7 @@ const pathDetail = ref<LearningPathVO | null>(null)
 const chapters = ref<LearningChapterVO[]>([])
 const enrolling = ref(false)
 
+// 将后端返回的难度文案（入门/进阶/高级）映射为统一的枚举值
 const levelToDifficulty = (level?: string): 'beginner' | 'intermediate' | 'advanced' => {
   const map: Record<string, 'beginner' | 'intermediate' | 'advanced'> = {
     入门: 'beginner', 进阶: 'intermediate', 高级: 'advanced',
@@ -260,6 +262,7 @@ interface ViewChapter {
   isCurrent: boolean
 }
 
+// 将章节按 sortOrder 升序排序，并映射为视图模型
 const pathChapters = computed<ViewChapter[]>(() =>
   chapters.value
     .slice()
@@ -297,7 +300,9 @@ const currentPath = computed(() => {
 const hasStarted = computed(() => (currentPath.value?.progress || 0) > 0)
 
 const progressRadius = 50
+// 圆环周长，用于 SVG stroke-dasharray 绘制进度环
 const progressCircumference = 2 * Math.PI * progressRadius
+// 进度偏移：周长减去已进度对应的弧长，dashoffset 越大空白处越多
 const progressDashoffset = computed(() => {
   const progress = currentPath.value?.progress || 0
   return progressCircumference - (progress / 100) * progressCircumference
@@ -335,6 +340,7 @@ const goBack = () => router.push('/learning/paths')
 
 const goToChapter = (chapterId: number) => router.push(`/learning/chapter/${chapterId}`)
 
+// 跳转至第一个未完成章节（无则跳首章）
 const continueLearning = () => {
   const firstIncomplete = pathChapters.value.find((c) => !c.completed)
   const target = firstIncomplete || pathChapters.value[0]

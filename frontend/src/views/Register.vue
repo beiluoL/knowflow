@@ -177,6 +177,7 @@
 </template>
 
 <script setup lang="ts">
+// 注册页：校验完整信息与服务条款勾选后调用注册接口并自动登录。
 import { getApiError, notify } from '@/utils/toast'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -208,6 +209,7 @@ const handleRegister = async () => {
     return
   }
 
+  // 必须勾选同意服务条款与隐私政策方可注册
   if (!registerForm.value.agreeTerms) {
     notify('请同意服务条款和隐私政策', 'warning')
     return

@@ -1,3 +1,4 @@
+// 管理后台请求层：封装概览、文档/用户/分类/闪卡管理等接口调用。
 import { apiGet, apiPost, apiPut, apiDelete } from './request'
 import type {
   AdminOverviewVO,

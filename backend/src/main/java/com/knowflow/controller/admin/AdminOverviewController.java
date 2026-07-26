@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/** 管理员概览 REST 接口，提供后台看板统计数据。 */
 @Tag(name = "管理员概览")
 @RestController
 @RequestMapping("/api/admin/overview")

@@ -1,3 +1,4 @@
+// 用户模块请求层：封装个人资料、统计与资料更新接口调用。
 import { apiGet, apiPut } from './request'
 import type { UserVO, UserStatsVO, UpdateProfilePayload } from './types'
 

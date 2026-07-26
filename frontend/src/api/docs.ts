@@ -1,3 +1,4 @@
+// 文档模块请求层：封装文档列表、详情、收藏、阅读进度等后端接口调用。
 import { apiGet, apiPost, apiPut, apiDelete } from './request'
 import type {
   DocPageResult,

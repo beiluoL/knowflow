@@ -1,3 +1,4 @@
+// Axios 实例与拦截器：统一附加 JWT、解包 Result<T>、处理 401 跳转与业务错误。
 import axios, { type AxiosRequestConfig } from 'axios'
 import type { ApiResult } from './types'
 

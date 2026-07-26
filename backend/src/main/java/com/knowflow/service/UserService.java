@@ -9,6 +9,7 @@ import com.knowflow.vo.UserStatsVO;
 import com.knowflow.dto.UpdateProfileDTO;
 import com.knowflow.vo.UserVO;
 
+/** 用户业务服务接口。 */
 public interface UserService extends IService<SysUser> {
 
     LoginVO login(LoginDTO dto);

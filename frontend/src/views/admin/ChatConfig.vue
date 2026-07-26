@@ -291,6 +291,7 @@
 </template>
 
 <script setup lang="ts">
+// 管理后台-对话配置：管理 AI 模型开关与默认项、知识库检索参数与对话规则，配置持久化于本地。
 import { notify } from '@/utils/toast'
 import { ref, reactive, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'

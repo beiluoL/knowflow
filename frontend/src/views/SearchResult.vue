@@ -172,6 +172,7 @@
 </template>
 
 <script setup lang="ts">
+// 搜索结果页：按关键词检索文档/笔记，支持类型筛选、排序与关键词高亮（含 XSS 防护）。
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
@@ -208,6 +209,7 @@ const sortOptions = [
   { key: 'progress', label: '按阅读进度' },
 ]
 
+// 按当前标签（全部/文档/笔记/收藏）过滤，并按所选维度（相关度/时间/阅读量）排序
 const filteredResults = computed(() => {
   let results = [...allResults.value]
 
@@ -237,6 +239,7 @@ const escapeHtml = (str: string) =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;')
 
+// 先转义文本与关键词，再以正则包裹高亮 <span>；正则元字符已做转义避免注入
 const highlightKeyword = (text: string) => {
   const safe = escapeHtml(text)
   const kw = searchQuery.value.trim()
@@ -303,6 +306,7 @@ const getTypeStyle = (doc: DocVO) => {
   return 'bg-gray-100 text-gray-600'
 }
 
+// 阅读进度 = 已读字数 / 总字数（缺省按 1 防止除零，结果限制在 100% 以内）
 const getReadProgress = (doc: DocVO) => {
   const wordCount = doc.wordCount || 1
   const read = doc.readCount || 0

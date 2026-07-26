@@ -165,6 +165,7 @@
 </template>
 
 <script setup lang="ts">
+// 学习报告页：汇总学习概览、学科分布、近 5 周学习热力图与近期动态。
 import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import { notify } from '@/utils/toast'
@@ -209,6 +210,7 @@ interface RecentLog {
 
 const recentLogs = ref<RecentLog[]>([])
 
+// 按分类聚合闪卡数量，按最大值归一化为百分比（用于学科分布条形展示）
 function buildSubjects(cards: FlashcardVO[]): Subject[] {
   const counts = new Map<string, number>()
   cards.forEach((c) => {
@@ -225,6 +227,7 @@ function buildSubjects(cards: FlashcardVO[]): Subject[] {
   }))
 }
 
+// 综合用户统计、学习任务与闪卡数量，拼装「近期动态」时间线条目
 function buildLogs(
   stats: UserStatsVO,
   tasks: LearningTaskVO[],

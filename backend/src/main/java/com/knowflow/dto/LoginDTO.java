@@ -3,6 +3,9 @@ package com.knowflow.dto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+/**
+ * 登录请求参数，封装用户名与密码。
+ */
 @Data
 public class LoginDTO {
 

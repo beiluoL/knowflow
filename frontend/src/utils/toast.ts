@@ -1,3 +1,4 @@
+// 全局轻量提示（toast / confirm）与错误提取工具，替代原生弹窗。
 import { reactive } from 'vue'
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info'
@@ -25,6 +26,12 @@ export const toastState = reactive({
 
 let seq = 0
 
+/**
+ * 弹出一条轻量提示，duration 毫秒后自动消失（<=0 则不自动关闭）。
+ * @param message 提示文案
+ * @param type 提示类型：success / error / warning / info
+ * @param duration 自动关闭毫秒数，默认 3000
+ */
 export function notify(message: string, type: ToastType = 'info', duration = 3000): void {
   const id = ++seq
   toastState.toasts.push({ id, message, type })
@@ -38,6 +45,11 @@ export function dismiss(id: number): void {
   if (idx !== -1) toastState.toasts.splice(idx, 1)
 }
 
+/**
+ * 弹出确认对话框，返回 Promise，resolve(true) 表示用户确认。
+ * @param message 确认提示文案
+ * @returns 用户点击「确认」为 true，否则 false
+ */
 export function confirmDialog(message: string): Promise<boolean> {
   const id = ++seq
   return new Promise<boolean>((resolve) => {

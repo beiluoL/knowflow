@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/** 管理员分类管理 REST 接口，提供分类的增删改查。 */
 @Tag(name = "管理员分类管理")
 @RestController
 @RequestMapping("/api/admin/categories")

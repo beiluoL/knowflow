@@ -5,6 +5,9 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * 用户视图对象，返回用户基本资料及学习概况。
+ */
 @Data
 public class UserVO {
 
@@ -18,6 +21,7 @@ public class UserVO {
 
     private String avatar;
 
+    /** 角色编码，如 admin、user */
     private String role;
 
     private BigDecimal totalStudyHours;
@@ -28,10 +32,13 @@ public class UserVO {
 
     private Integer favoriteCount;
 
+    /** 用户等级 */
     private Integer level;
 
+    /** 经验值 */
     private Integer exp;
 
+    /** 精力值（能量） */
     private Integer energy;
 
     private LocalDateTime createTime;

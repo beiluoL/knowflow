@@ -210,6 +210,7 @@
 </template>
 
 <script setup lang="ts">
+// 错题本：按分类筛选错题、掌握率环形进度、标记已掌握与复习提醒。
 import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
@@ -247,14 +248,17 @@ const masteryPercent = computed(() => {
   return Math.round((stats.value.mastered / stats.value.total) * 100)
 })
 
+// 圆环周长（半径 28），用于 SVG 进度环
 const circumference = 2 * Math.PI * 28
 
+// 掌握率对应的虚线偏移：未掌握部分即为空白
 const dashOffset = computed(() => {
   return circumference * (1 - masteryPercent.value / 100)
 })
 
 const todayReviewPercent = computed(() => {
   if (stats.value.pending === 0) return 0
+  // 魔法数 2：今日需复习固定为 2 道（演示数据）
   const today = 2
   return Math.min(100, Math.round((today / stats.value.pending) * 100))
 })

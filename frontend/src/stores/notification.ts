@@ -1,3 +1,4 @@
+// 通知状态管理：维护通知列表、未读数与分页，提供标记已读等操作。
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { notificationsApi } from '@/api/notifications'

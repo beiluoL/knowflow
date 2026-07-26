@@ -1,3 +1,4 @@
+// 前端本地类型定义（用户/通知/鉴权），与后端 VO 区分的演示用模型。
 export interface User {
   id: string
   username: string

@@ -806,6 +806,7 @@
 </template>
 
 <script setup lang="ts">
+// 图标组件：内置常用 lucide 风格 SVG 路径集合，按 name 渲染对应图标，支持 size 与 class。
 import { computed } from 'vue'
 
 interface Props {

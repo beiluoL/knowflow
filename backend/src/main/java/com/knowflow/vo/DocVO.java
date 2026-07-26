@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * 文档列表视图对象，返回文档概要、分类与统计信息。
+ */
 @Data
 public class DocVO {
 
@@ -29,8 +32,10 @@ public class DocVO {
 
     private Integer wordCount;
 
+    /** 难度等级编码（具体以枚举为准） */
     private Integer difficulty;
 
+    /** 文档状态编码（具体以枚举为准） */
     private Integer status;
 
     private LocalDateTime createTime;

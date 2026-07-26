@@ -67,6 +67,7 @@
 </template>
 
 <script setup lang="ts">
+// 404 页面：页面不存在时的友好提示，支持返回首页或上一页。
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Button from '@/components/ui/Button.vue'

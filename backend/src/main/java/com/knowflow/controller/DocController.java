@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/** 文档管理 REST 接口，提供文档查询、收藏、阅读进度等能力（部分接口允许匿名访问）。 */
 @Tag(name = "文档接口")
 @RestController
 @RequestMapping("/api/docs")

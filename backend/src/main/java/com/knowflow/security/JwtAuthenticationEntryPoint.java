@@ -21,6 +21,9 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * 触发 401 未认证响应：写入统一 JSON 结构，便于前端识别未登录状态。
+     */
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException {

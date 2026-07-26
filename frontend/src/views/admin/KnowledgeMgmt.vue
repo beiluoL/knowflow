@@ -220,6 +220,7 @@
 </template>
 
 <script setup lang="ts">
+// 管理后台-知识库管理：维护知识库（分类）的增删改查与统计概览。
 import { confirmDialog, getApiError, notify } from '@/utils/toast'
 import { ref, reactive, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
@@ -278,6 +279,7 @@ const totalDocCount = computed(() => {
 
 const totalStorage = computed(() => {
   const kb = totalDocCount.value
+  // 按每篇约 15MB 估算总存储量（演示用）
   const mb = Math.round(kb * 15)
   if (mb >= 1024) {
     return (mb / 1024).toFixed(1) + ' GB'
@@ -291,10 +293,10 @@ const storagePercent = computed(() => {
   return Math.min(100, Math.round((mb / (10 * 1024)) * 100))
 })
 
-const memberCount = 8
+const memberCount = 8 // 演示数据：成员数固定为 8
 
 const getMemberCount = (_id: number): number => {
-  return 8
+  return 8 // 演示数据：与 memberCount 保持一致
 }
 
 const formatStorage = (docCount: number): string => {

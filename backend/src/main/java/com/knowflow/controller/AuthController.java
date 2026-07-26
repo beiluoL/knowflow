@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+/** 认证 REST 接口，提供登录、注册、获取当前用户与登出（token 失效）。 */
 @Tag(name = "认证接口")
 @RestController
 @RequestMapping("/api/auth")
@@ -49,6 +50,7 @@ public class AuthController {
         return Result.success(userService.getCurrentUser(userId));
     }
 
+    /** 登出：将当前 token 加入黑名单使其立即失效。 */
     @Operation(summary = "登出（使当前 token 失效）")
     @PostMapping("/logout")
     public Result<Void> logout(HttpServletRequest request) {
@@ -59,6 +61,7 @@ public class AuthController {
         return Result.success();
     }
 
+    /** 从 Authorization 请求头中解析 Bearer token，无则返回 null。 */
     private String extractToken(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
         if (bearer != null && bearer.startsWith("Bearer ")) {

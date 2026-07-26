@@ -191,6 +191,7 @@
 </template>
 
 <script setup lang="ts">
+// 知识库文档浏览页：分类树筛选、展开子分类文档、最近阅读与阅读进度。
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
@@ -218,6 +219,7 @@ const categoryTabs = computed(() => {
 
 const visibleCategories = computed(() => {
   if (activeTab.value === 0) return categories.value
+  // 在分类树中递归查找指定分类并保留其子树
   const find = (list: CategoryVO[]): CategoryVO[] => {
     const result: CategoryVO[] = []
     for (const c of list) {
@@ -243,6 +245,7 @@ const getCategoryIcon = (iconName?: string): string => {
   return valid.includes(iconName || '') ? iconName! : 'folder'
 }
 
+// 收集目标分类及其所有子分类 id，再筛选归属这些分类的文档
 const getCategoryDocs = (catId: number): DocVO[] => {
   const childIds = new Set<number>([catId])
   const collect = (list: CategoryVO[]) => {
@@ -274,6 +277,7 @@ const selectTab = (id: number) => {
 
 const estimateReadMinutes = (wordCount?: number): number => {
   if (!wordCount) return 5
+  // 按每分钟 300 字估算，最少 3 分钟
   return Math.max(3, Math.round(wordCount / 300))
 }
 
@@ -290,7 +294,7 @@ const difficultyStyle = (d?: number): Record<string, string> => {
 }
 
 const getRecentProgress = (doc: DocVO): number => {
-  // 没有进度字段时，根据 readCount 估算
+  // 后端无进度字段时，按是否读过给予固定估算值
   const progress = (doc as DocVO & { readProgress?: number }).readProgress
   if (typeof progress === 'number') return Math.min(100, Math.max(0, progress))
   if (doc.readCount && doc.readCount > 0) return 65

@@ -94,6 +94,7 @@
 </template>
 
 <script setup lang="ts">
+// 学习路径列表页：按难度筛选、卡片网格展示路径并支持跳转详情。
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
@@ -129,6 +130,7 @@ const gradients = [
 ]
 const icons = ['code', 'server', 'database', 'brain', 'layers', 'puzzle']
 
+// 将后端 level 文案映射为统一的难度枚举
 const levelToDifficulty = (level?: string): ViewPath['difficulty'] => {
   const map: Record<string, ViewPath['difficulty']> = {
     入门: 'beginner',
@@ -143,6 +145,7 @@ const levelToDifficulty = (level?: string): ViewPath['difficulty'] => {
 
 const rawPaths = ref<LearningPathVO[]>([])
 
+// 将后端 VO 映射为视图模型，并按 id 取模循环分配封面渐变与图标
 const paths = computed<ViewPath[]>(() =>
   rawPaths.value.map((p) => ({
     id: p.id,
@@ -201,6 +204,7 @@ const getDifficultyBadgeVariant = (difficulty: string) => {
   return variants[difficulty] || 'default'
 }
 
+// 将分钟数格式化为「x小时y分」或「x分钟」
 const formatDuration = (minutes: number) => {
   if (!minutes) return '0分钟'
   if (minutes < 60) return `${minutes}分钟`

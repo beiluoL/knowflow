@@ -171,6 +171,7 @@
 </template>
 
 <script setup lang="ts">
+// 管理后台-知识卡片：维护学习闪卡列表，支持检索筛选与新增/编辑/删除，按复习次数推导状态。
 import { confirmDialog, getApiError, notify } from '@/utils/toast'
 import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
@@ -204,6 +205,7 @@ interface Flashcard {
 const cards = ref<Flashcard[]>([])
 const loading = ref(false)
 
+// 按复习次数推导卡片状态：≥10 已掌握，>0 学习中，否则新卡片
 const deriveStatus = (rc?: number): 'new' | 'learning' | 'mastered' => {
   const n = rc ?? 0
   if (n >= 10) return 'mastered'

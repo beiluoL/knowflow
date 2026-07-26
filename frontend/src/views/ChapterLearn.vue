@@ -172,6 +172,7 @@
 </template>
 
 <script setup lang="ts">
+// 章节学习页：渲染章节 Markdown 正文、目录导航、上/下章切换与完成标记。
 import { computed, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
@@ -193,6 +194,7 @@ const currentPathTitle = computed(() => pathDetail.value?.title || '')
 
 const renderedContent = computed(() => renderMarkdown(currentChapter.value?.content || ''))
 
+// 以二级标题（## ）数量估算本章知识点个数
 const knowledgePointCount = computed(
   () => (currentChapter.value?.content?.match(/^##\s+/gm) || []).length
 )
@@ -236,9 +238,11 @@ const markComplete = async () => {
   }
 }
 
+// 转义 HTML 特殊字符，防止注入并正确显示代码内容
 const escapeHtml = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 
+// 轻量 Markdown 渲染器：支持代码块（```）、h1-h3、无序列表与普通段落
 const renderMarkdown = (md: string): string => {
   if (!md) return '<p class="text-gray-400">本章暂无内容</p>'
   let html = ''
