@@ -47,8 +47,25 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         Page<DocDocument> page = new Page<>(dto.getPageNum(), dto.getPageSize());
         LambdaQueryWrapper<DocDocument> wrapper = new LambdaQueryWrapper<>();
         if (StrUtil.isNotBlank(dto.getKeyword())) {
-            wrapper.and(w -> w.like(DocDocument::getTitle, dto.getKeyword())
-                    .or().like(DocDocument::getSummary, dto.getKeyword()));
+            // F-15 修复：搜索扩展至标签与分类名（分类名先查出命中的分类 id 再并入条件）
+            List<Long> matchedCategoryIds = categoryService.list(
+                            new LambdaQueryWrapper<DocCategory>().like(DocCategory::getName, dto.getKeyword()))
+                    .stream().map(DocCategory::getId).collect(Collectors.toList());
+            // 命中顶级分类时，其子分类下的文档也应命中（文档多挂在子分类）
+            if (!matchedCategoryIds.isEmpty()) {
+                List<Long> childIds = categoryService.list(
+                                new LambdaQueryWrapper<DocCategory>().in(DocCategory::getParentId, matchedCategoryIds))
+                        .stream().map(DocCategory::getId).collect(Collectors.toList());
+                matchedCategoryIds.addAll(childIds);
+            }
+            wrapper.and(w -> {
+                w.like(DocDocument::getTitle, dto.getKeyword())
+                        .or().like(DocDocument::getSummary, dto.getKeyword())
+                        .or().like(DocDocument::getTags, dto.getKeyword());
+                if (!matchedCategoryIds.isEmpty()) {
+                    w.or().in(DocDocument::getCategoryId, matchedCategoryIds);
+                }
+            });
         }
         if (dto.getCategoryId() != null) {
             wrapper.eq(DocDocument::getCategoryId, dto.getCategoryId());
@@ -84,7 +101,8 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     public DocDetailVO getDocDetail(Long id, Long userId) {
         DocDocument doc = this.getById(id);
         if (doc == null || doc.getStatus() == null || doc.getStatus() != 1) {
-            throw new BusinessException("文档不存在");
+            // F-14 修复：不存在的文档返回 404 语义
+            throw new BusinessException(404, "文档不存在");
         }
         this.update(new LambdaUpdateWrapper<DocDocument>()
                 .eq(DocDocument::getId, id)
@@ -216,5 +234,45 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
                     .eq(SysUser::getId, userId)
                     .setSql("read_docs_count = read_docs_count + 1"));
         }
+    }
+
+    @Override
+    @Transactional
+    public void saveDoc(DocDocument doc) {
+        doc.setWordCount(StrUtil.isNotBlank(doc.getContent()) ? doc.getContent().length() : 0);
+        this.save(doc);
+        if (doc.getCategoryId() != null) {
+            categoryService.incrementDocCount(doc.getCategoryId());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updateDoc(DocDocument doc) {
+        DocDocument old = this.getById(doc.getId());
+        doc.setWordCount(StrUtil.isNotBlank(doc.getContent()) ? doc.getContent().length() : 0);
+        this.updateById(doc);
+        if (old != null) {
+            Long oldCat = old.getCategoryId();
+            Long newCat = doc.getCategoryId();
+            if (oldCat != null && !oldCat.equals(newCat)) {
+                categoryService.decrementDocCount(oldCat);
+                if (newCat != null) {
+                    categoryService.incrementDocCount(newCat);
+                }
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void removeDoc(Long id) {
+        DocDocument doc = this.getById(id);
+        favoriteMapper.delete(new LambdaQueryWrapper<DocFavorite>().eq(DocFavorite::getDocId, id));
+        readProgressMapper.delete(new LambdaQueryWrapper<DocReadProgress>().eq(DocReadProgress::getDocId, id));
+        if (doc != null && doc.getCategoryId() != null) {
+            categoryService.decrementDocCount(doc.getCategoryId());
+        }
+        this.removeById(id);
     }
 }

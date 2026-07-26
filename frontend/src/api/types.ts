@@ -183,6 +183,10 @@ export interface FlashcardVO {
   category?: string
   difficulty?: number
   reviewCount?: number
+  // 后端实体存在，但当前 VO 不一定下发；前端用 reviewCount 在本地推算复习间隔
+  reviewInterval?: number
+  nextReviewTime?: string
+  lastReviewTime?: string
 }
 
 export interface LearningTaskVO {

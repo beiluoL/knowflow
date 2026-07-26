@@ -11,4 +11,10 @@ public interface CategoryService extends IService<DocCategory> {
     List<CategoryVO> getCategoryTree();
 
     List<DocCategory> getCategoryList(Long parentId);
+
+    void removeCategory(Long id);
+
+    void incrementDocCount(Long categoryId);
+
+    void decrementDocCount(Long categoryId);
 }

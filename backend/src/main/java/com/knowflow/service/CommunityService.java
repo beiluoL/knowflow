@@ -17,7 +17,10 @@ public interface CommunityService extends IService<CommunityPost> {
 
     void deletePost(Long id, Long userId);
 
-    void likePost(Long id, Long userId);
+    /**
+     * F-10：点赞切换（幂等）。已赞则取消并返回 false，未赞则点赞并返回 true。
+     */
+    boolean likePost(Long id, Long userId);
 
     IPage<CommentVO> getCommentPage(Long postId, Integer pageNum, Integer pageSize);
 

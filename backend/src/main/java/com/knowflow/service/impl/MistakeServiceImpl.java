@@ -33,7 +33,7 @@ public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, Learn
         }
         wrapper.orderByDesc(LearningMistake::getCreateTime);
 
-        Page<LearningMistake> page = this.page(new Page<>(pageNum, pageSize), wrapper);
+        Page<LearningMistake> page = this.page(new Page<>(com.knowflow.common.PageQuery.normalizePageNum(pageNum), com.knowflow.common.PageQuery.normalizePageSize(pageSize)), wrapper);
         return page.convert(m -> BeanUtil.copyProperties(m, MistakeVO.class));
     }
 

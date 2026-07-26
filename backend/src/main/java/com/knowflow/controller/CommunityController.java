@@ -61,15 +61,14 @@ public class CommunityController {
         return Result.success();
     }
 
-    @Operation(summary = "点赞帖子")
+    @Operation(summary = "点赞/取消点赞（幂等切换，返回当前是否已赞）")
     @PostMapping("/posts/{id}/like")
-    public Result<Void> like(@PathVariable Long id, Authentication authentication) {
+    public Result<Boolean> like(@PathVariable Long id, Authentication authentication) {
         if (authentication == null) {
             return Result.error(401, "请先登录");
         }
         Long userId = (Long) authentication.getPrincipal();
-        communityService.likePost(id, userId);
-        return Result.success();
+        return Result.success(communityService.likePost(id, userId));
     }
 
     @Operation(summary = "评论列表")

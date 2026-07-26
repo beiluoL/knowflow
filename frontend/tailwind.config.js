@@ -1,4 +1,7 @@
 /** @type {import('tailwindcss').Config} */
+// F-07 说明：颜色令牌的单一来源是 src/style.css :root 的 --kb-* 变量。
+// 本文件的 primary(#3B6FE0)/success/warning/danger 色板必须与其保持一致；
+// 修改主题请先改 style.css 再同步此处，防止两套令牌漂移。
 export default {
   content: [
     "./index.html",

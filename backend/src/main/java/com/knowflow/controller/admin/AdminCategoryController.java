@@ -42,7 +42,7 @@ public class AdminCategoryController {
     @Operation(summary = "删除分类")
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
-        categoryService.removeById(id);
+        categoryService.removeCategory(id);
         return Result.success();
     }
 }

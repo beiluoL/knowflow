@@ -74,8 +74,9 @@
           <div class="flex items-center gap-2 mb-2">
             <Icon name="calendar" :size="20" />
             <h2 class="font-semibold text-gray-800">今日复习</h2>
+            <Badge variant="default" class="text-[11px]">本地计划</Badge>
           </div>
-          <p class="text-sm text-gray-500 mb-4">完成今日复习任务，巩固记忆效果</p>
+          <p class="text-sm text-gray-500 mb-4">基于真实闪卡复习进度推算，「已复习」为本机记录</p>
 
           <div class="flex items-center gap-8 mb-4">
             <div class="text-center">
@@ -284,6 +285,7 @@ import Button from '@/components/ui/Button.vue'
 import { learningApi } from '@/api/learning'
 import type { FlashcardVO } from '@/api/types'
 import { notify } from '@/utils/toast'
+import { loadReviewedIds } from '@/utils/studySession'
 
 const router = useRouter()
 
@@ -327,6 +329,22 @@ function mapDifficulty(raw?: number): 'easy' | 'medium' | 'hard' {
   return 'easy';
 }
 
+// 本机记录的「已复习」卡片集合（按日期隔离），与闪卡复习页联动
+// 复用 studySession 中的 loadReviewedIds / markReviewed
+
+// 复习日期：优先使用后端下发的 nextReviewTime，否则按 reviewCount 在本地用 SM-2 间隔推算
+function computeNextReviewDate(c: FlashcardVO): string {
+  if (c.nextReviewTime) {
+    const d = new Date(c.nextReviewTime)
+    if (!Number.isNaN(d.getTime())) return formatDateStr(d)
+  }
+  const intervals = [0, 1, 2, 4, 7, 15, 30]
+  const idx = Math.min(c.reviewCount ?? 0, intervals.length - 1)
+  const d = new Date()
+  d.setDate(d.getDate() + intervals[idx])
+  return formatDateStr(d)
+}
+
 async function loadFlashcards(): Promise<void> {
   loading.value = true;
   error.value = '';
@@ -338,15 +356,17 @@ async function loadFlashcards(): Promise<void> {
       difficulty: mapDifficulty(c.difficulty),
       question: c.front || '',
       answer: c.back || '',
-      nextReviewDate: generateNextReviewDate(c.reviewCount ?? 0),
+      nextReviewDate: computeNextReviewDate(c),
     }));
     reviewDays.value = buildReviewDays(flashCards.value);
-    const today = getTodayCards(flashCards.value);
-    const completed = Math.floor(today.length * 0.4);
+    const todayStr = formatDateStr(new Date());
+    const reviewed = loadReviewedIds(todayStr);
+    const dueToday = getTodayCards(flashCards.value);
+    const completedCount = dueToday.filter((c) => reviewed.has(c.id)).length;
     todayReview.value = {
-      total: today.length,
-      completed,
-      progress: today.length > 0 ? Math.round((completed / today.length) * 100) : 0,
+      total: dueToday.length,
+      completed: completedCount,
+      progress: dueToday.length > 0 ? Math.round((completedCount / dueToday.length) * 100) : 0,
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : '加载失败';
@@ -355,15 +375,6 @@ async function loadFlashcards(): Promise<void> {
   } finally {
     loading.value = false;
   }
-}
-
-function generateNextReviewDate(reviewCount: number): string {
-  const intervals = [0, 1, 2, 4, 7, 15, 30];
-  const idx = Math.min(reviewCount, intervals.length - 1);
-  const days = intervals[idx];
-  const d = new Date();
-  d.setDate(d.getDate() + days);
-  return formatDateStr(d);
 }
 
 function buildReviewDays(cards: FlashCardItem[]): ReviewDay[] {

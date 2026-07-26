@@ -31,7 +31,7 @@ public class NotificationServiceImpl extends ServiceImpl<SysNotificationMapper, 
         }
         wrapper.orderByDesc(SysNotification::getCreateTime);
 
-        Page<SysNotification> page = this.page(new Page<>(pageNum, Math.min(pageSize, 100)), wrapper);
+        Page<SysNotification> page = this.page(new Page<>(com.knowflow.common.PageQuery.normalizePageNum(pageNum), com.knowflow.common.PageQuery.normalizePageSize(pageSize)), wrapper);
         return page.convert(n -> BeanUtil.copyProperties(n, NotificationVO.class));
     }
 

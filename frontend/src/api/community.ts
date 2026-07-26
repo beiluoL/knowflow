@@ -13,7 +13,8 @@ export const communityApi = {
 
   createPost: (data: Partial<PostVO>) => apiPost<void>('/community/posts', data),
 
-  likePost: (id: number) => apiPost<void>(`/community/posts/${id}/like`),
+  // F-10：点赞/取消点赞幂等切换，返回当前是否已赞
+  likePost: (id: number) => apiPost<boolean>(`/community/posts/${id}/like`),
 
   // 评论列表（按帖子分页）
   comments: (postId: number, params: { pageNum?: number; pageSize?: number } = {}) =>

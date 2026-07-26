@@ -78,10 +78,11 @@ const routes: RouteRecordRaw[] = [
     name: 'Learning',
     redirect: '/learning/center',
   },
+  // F-01 修复：/learning/center 指向真实学习总览页（LearningReport.vue，页面标题「学习中心」）
   {
     path: '/learning/center',
     name: 'LearningCenter',
-    component: () => import('@/views/LearningCenter.vue'),
+    component: () => import('@/views/LearningReport.vue'),
     meta: { layout: 'c', requiresAuth: true },
   },
   {
@@ -127,16 +128,18 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/LearningMode.vue'),
     meta: { layout: 'none', requiresAuth: true },
   },
+  // F-01 修复：旧的 /learning/report 重定向到学习中心，保持外链兼容
   {
     path: '/learning/report',
     name: 'LearningReport',
-    component: () => import('@/views/LearningReport.vue'),
-    meta: { layout: 'c', requiresAuth: true },
+    redirect: '/learning/center',
   },
+  // F-01 修复：番茄钟独立路由（LearningCenter.vue 实为番茄钟专注页）
   {
     path: '/learning/pomodoro',
     name: 'LearningPomodoro',
-    redirect: '/learning/center',
+    component: () => import('@/views/LearningCenter.vue'),
+    meta: { layout: 'c', requiresAuth: true },
   },
 
   // ===== C 端：AI 助手（共享工具页，C 端入口） =====

@@ -28,13 +28,21 @@ request.interceptors.response.use(
     return response.data
   },
   (error) => {
-    if (error.response?.status === 401) {
+    const requestUrl: string = error.config?.url || ''
+    // F-04 修复：登录/注册接口自身的 401 是"账密错误"，不清空会话、不跳转
+    const isAuthRequest = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/register')
+    if (error.response?.status === 401 && !isAuthRequest) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       const currentPath = window.location.pathname + window.location.search
       if (!currentPath.startsWith('/login') && !currentPath.startsWith('/register')) {
         window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`
       }
+    }
+    // 透传后端业务错误信息（如"用户名或密码错误"），避免展示 axios 原始英文报错
+    const bizMessage = error.response?.data?.message
+    if (bizMessage) {
+      return Promise.reject(new Error(bizMessage))
     }
     return Promise.reject(error)
   }

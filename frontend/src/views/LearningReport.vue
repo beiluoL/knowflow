@@ -6,17 +6,10 @@
         <h1 class="kb-h1">学习中心</h1>
         <p class="kb-body-sm mt-1">追踪你的学习进度，发现学习规律</p>
       </div>
-      <div class="flex items-center gap-1 p-1 rounded-lg" style="background: var(--kb-muted);">
-        <button
-          v-for="tab in timeTabs"
-          :key="tab"
-          type="button"
-          class="time-tab"
-          :class="activeTab === tab ? 'active' : ''"
-          :disabled="loading"
-          @click="switchTab(tab)"
-        >{{ tab }}</button>
-      </div>
+      <span
+        class="text-xs px-2 py-1 rounded"
+        style="background: var(--kb-muted); color: var(--kb-muted-foreground);"
+      >累计数据 · 来自学习统计接口</span>
     </div>
 
     <!-- Error -->
@@ -115,12 +108,15 @@
           <div class="h-2.5 w-2.5 rounded-sm heat-3"></div>
           <span class="text-[10px]" style="color: var(--kb-muted-foreground);">多</span>
         </div>
+        <p v-if="heatmapEmpty" class="text-xs mt-2" style="color: var(--kb-muted-foreground);">
+          暂无番茄钟记录，开始专注后会显示学习热力
+        </p>
       </section>
 
       <!-- Subject breakdown card -->
       <section class="rounded-lg border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
-        <h3 class="text-[15px] font-semibold mb-4" style="color: var(--kb-foreground);">各语言学习时长</h3>
-        <div class="space-y-3">
+        <h3 class="text-[15px] font-semibold mb-4" style="color: var(--kb-foreground);">各分类闪卡分布</h3>
+        <div v-if="subjectStats.length > 0" class="space-y-3">
           <div v-for="subject in subjectStats" :key="subject.name">
             <div class="flex justify-between items-center mb-1.5">
               <div class="flex items-center gap-2">
@@ -130,7 +126,7 @@
                 ></span>
                 <span class="text-sm" style="color: var(--kb-foreground);">{{ subject.name }}</span>
               </div>
-              <span class="text-xs font-medium" style="color: var(--kb-muted-foreground);">{{ subject.hours }}h</span>
+              <span class="text-xs font-medium" style="color: var(--kb-muted-foreground);">{{ subject.hours }} 张</span>
             </div>
             <div class="h-2 rounded-full overflow-hidden" style="background: var(--kb-muted);">
               <div
@@ -140,6 +136,7 @@
             </div>
           </div>
         </div>
+        <p v-else class="text-sm" style="color: var(--kb-muted-foreground);">暂无闪卡数据</p>
       </section>
 
       <!-- Recent learning log -->
@@ -168,12 +165,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import { notify } from '@/utils/toast'
-
-const timeTabs = ['本周', '本月', '全部']
-const activeTab = ref('本周')
+import { userApi, learningApi } from '@/api'
+import type { UserStatsVO, LearningTaskVO, FlashcardVO } from '@/api/types'
+import { loadSessions, heatmap } from '@/utils/studySession'
 
 const loading = ref(false)
 const error = ref('')
@@ -189,38 +186,9 @@ interface Stat {
 
 const overviewStats = ref<Stat[]>([])
 
-const weekStats: Stat[] = [
-  { label: '学习时长', value: '12.5', unit: '小时', icon: 'clock', iconColor: 'var(--kb-primary)', trendUp: true },
-  { label: '完成课程', value: '8', unit: '个', icon: 'book-open', iconColor: 'var(--kb-primary)' },
-  { label: '闪卡复习', value: '45', unit: '张', icon: 'layers', iconColor: 'var(--kb-primary)' },
-  { label: '正确率', value: '78', unit: '%', icon: 'target', iconColor: 'var(--kb-primary)', trendUp: true },
-]
-
-const monthStats: Stat[] = [
-  { label: '学习时长', value: '52.3', unit: '小时', icon: 'clock', iconColor: 'var(--kb-primary)', trendUp: true },
-  { label: '完成课程', value: '24', unit: '个', icon: 'book-open', iconColor: 'var(--kb-primary)' },
-  { label: '闪卡复习', value: '186', unit: '张', icon: 'layers', iconColor: 'var(--kb-primary)' },
-  { label: '正确率', value: '82', unit: '%', icon: 'target', iconColor: 'var(--kb-primary)', trendUp: true },
-]
-
-const allStats: Stat[] = [
-  { label: '学习时长', value: '482', unit: '小时', icon: 'clock', iconColor: 'var(--kb-primary)', trendUp: true },
-  { label: '完成课程', value: '128', unit: '个', icon: 'book-open', iconColor: 'var(--kb-primary)' },
-  { label: '闪卡复习', value: '1240', unit: '张', icon: 'layers', iconColor: 'var(--kb-primary)' },
-  { label: '正确率', value: '85', unit: '%', icon: 'target', iconColor: 'var(--kb-primary)', trendUp: true },
-]
-
-// 热力图：5周 x 7天 = 35 个格子，level 0-3
+// 热力图：5周 x 7天 = 35 个格子，level 0-3（来自本地番茄钟记录）
 const heatmapData = ref<number[]>([])
-
-// 默认热力图（模拟数据，按周分布，越近期越密集）
-const defaultHeatmap: number[] = [
-  0, 1, 2, 1, 3, 0, 0, // week 1
-  1, 2, 3, 2, 1, 1, 0, // week 2
-  0, 2, 1, 0, 2, 3, 1, // week 3
-  1, 3, 2, 3, 1, 0, 0, // week 4
-  0, 1, 1, 2, 0, 0, 0, // week 5 (本周)
-]
+const heatmapEmpty = computed(() => heatmapData.value.every((l) => l === 0))
 
 interface Subject {
   name: string
@@ -231,26 +199,7 @@ interface Subject {
 
 const subjectStats = ref<Subject[]>([])
 
-const weekSubjects: Subject[] = [
-  { name: 'Java', hours: 5.2, percent: 100, color: '#3B6FE0' },
-  { name: 'Python', hours: 3.8, percent: 73, color: '#10B981' },
-  { name: '前端', hours: 2.1, percent: 40, color: '#F59E0B' },
-  { name: '算法', hours: 1.4, percent: 27, color: '#8B5CF6' },
-]
-
-const monthSubjects: Subject[] = [
-  { name: 'Java', hours: 18.5, percent: 100, color: '#3B6FE0' },
-  { name: 'Python', hours: 14.2, percent: 77, color: '#10B981' },
-  { name: '前端', hours: 10.8, percent: 58, color: '#F59E0B' },
-  { name: '算法', hours: 8.8, percent: 48, color: '#8B5CF6' },
-]
-
-const allSubjects: Subject[] = [
-  { name: 'Java', hours: 152, percent: 100, color: '#3B6FE0' },
-  { name: 'Python', hours: 138, percent: 91, color: '#10B981' },
-  { name: '前端', hours: 105, percent: 69, color: '#F59E0B' },
-  { name: '算法', hours: 87, percent: 57, color: '#8B5CF6' },
-]
+const colorPalette = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#EC4899', '#84CC16', '#F97316']
 
 interface RecentLog {
   icon: string
@@ -260,36 +209,92 @@ interface RecentLog {
 
 const recentLogs = ref<RecentLog[]>([])
 
-const defaultLogs: RecentLog[] = [
-  { icon: 'check-circle', text: '完成了 Java HashMap 章节', time: '2小时前' },
-  { icon: 'rotate-ccw', text: '复习了 Python 基础语法闪卡', time: '5小时前' },
-  { icon: 'code', text: '学习了 CSS Flexbox 布局', time: '昨天' },
-  { icon: 'brain', text: '完成了排序算法练习', time: '昨天' },
-  { icon: 'layers', text: '复习了 Java 集合框架闪卡', time: '2天前' },
-]
+function buildSubjects(cards: FlashcardVO[]): Subject[] {
+  const counts = new Map<string, number>()
+  cards.forEach((c) => {
+    const key = c.category || '未分类'
+    counts.set(key, (counts.get(key) ?? 0) + 1)
+  })
+  const entries = Array.from(counts.entries())
+  const max = Math.max(1, ...entries.map(([, v]) => v))
+  return entries.map(([name, hours], i) => ({
+    name,
+    hours,
+    percent: Math.round((hours / max) * 100),
+    color: colorPalette[i % colorPalette.length],
+  }))
+}
+
+function buildLogs(
+  stats: UserStatsVO,
+  tasks: LearningTaskVO[],
+  flashcardCount: number,
+): RecentLog[] {
+  const logs: RecentLog[] = []
+  const totalFlash = stats.totalFlashcards ?? flashcardCount
+  if (tasks.length > 0) {
+    logs.push({ icon: 'list', text: `你有 ${tasks.length} 个学习任务`, time: '进行中' })
+  }
+  if (totalFlash > 0) {
+    logs.push({ icon: 'layers', text: `共 ${totalFlash} 张闪卡可复习`, time: '随时' })
+  }
+  if ((stats.completedPaths ?? 0) > 0) {
+    logs.push({ icon: 'book-open', text: `已完成 ${stats.completedPaths} 个学习路径`, time: '累计' })
+  }
+  if ((stats.streakDays ?? 0) > 0) {
+    logs.push({ icon: 'flame', text: `已连续学习 ${stats.streakDays} 天`, time: '持续中' })
+  }
+  if (logs.length === 0) {
+    logs.push({ icon: 'info', text: '暂无学习记录，去学习中心开始吧', time: '现在' })
+  }
+  return logs
+}
 
 async function loadData(): Promise<void> {
   loading.value = true
   error.value = ''
   try {
-    // 后端暂无学习统计接口，使用 mock 数据，模拟异步加载
-    await new Promise((resolve) => setTimeout(resolve, 300))
-
-    const statsMap: Record<string, Stat[]> = {
-      本周: weekStats,
-      本月: monthStats,
-      全部: allStats,
-    }
-    const subjectsMap: Record<string, Subject[]> = {
-      本周: weekSubjects,
-      本月: monthSubjects,
-      全部: allSubjects,
-    }
-
-    overviewStats.value = statsMap[activeTab.value] ?? weekStats
-    subjectStats.value = subjectsMap[activeTab.value] ?? weekSubjects
-    heatmapData.value = defaultHeatmap
-    recentLogs.value = defaultLogs
+    const [stats, tasks, cards] = await Promise.all([
+      userApi.stats(),
+      learningApi.tasks().catch(() => [] as LearningTaskVO[]),
+      learningApi.flashcards().catch(() => [] as FlashcardVO[]),
+    ])
+    const flashcardCount = cards.length
+    overviewStats.value = [
+      {
+        label: '学习时长',
+        value: String(stats.totalStudyHours ?? 0),
+        unit: '小时',
+        icon: 'clock',
+        iconColor: 'var(--kb-primary)',
+        trendUp: (stats.totalStudyHours ?? 0) > 0,
+      },
+      {
+        label: '完成课程',
+        value: String(stats.completedPaths ?? 0),
+        unit: '个',
+        icon: 'book-open',
+        iconColor: 'var(--kb-primary)',
+      },
+      {
+        label: '闪卡总数',
+        value: String(stats.totalFlashcards ?? flashcardCount),
+        unit: '张',
+        icon: 'layers',
+        iconColor: 'var(--kb-primary)',
+      },
+      {
+        label: '连续天数',
+        value: String(stats.streakDays ?? 0),
+        unit: '天',
+        icon: 'flame',
+        iconColor: 'var(--kb-primary)',
+        trendUp: (stats.streakDays ?? 0) > 0,
+      },
+    ]
+    heatmapData.value = heatmap(loadSessions())
+    subjectStats.value = buildSubjects(cards)
+    recentLogs.value = buildLogs(stats, tasks, flashcardCount)
   } catch (err) {
     const message = err instanceof Error ? err.message : '加载失败'
     error.value = `学习统计加载失败：${message}`
@@ -297,12 +302,6 @@ async function loadData(): Promise<void> {
   } finally {
     loading.value = false
   }
-}
-
-function switchTab(tab: string): void {
-  if (activeTab.value === tab || loading.value) return
-  activeTab.value = tab
-  void loadData()
 }
 
 onMounted(() => {

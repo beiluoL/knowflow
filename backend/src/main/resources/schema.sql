@@ -205,6 +205,8 @@ CREATE TABLE IF NOT EXISTS learning_task (
 -- 用户
 CREATE INDEX idx_user_role    ON sys_user (role);
 CREATE INDEX idx_user_deleted ON sys_user (deleted);
+-- 邮箱唯一（防止重复注册/改资料，与 Service 层查重双保险；种子 email 各异，无冲突）
+ALTER TABLE sys_user ADD CONSTRAINT IF NOT EXISTS uk_user_email UNIQUE (email);
 -- 文档
 CREATE INDEX idx_doc_category ON doc_document (category_id);
 CREATE INDEX idx_doc_status   ON doc_document (status);
@@ -289,6 +291,17 @@ CREATE TABLE IF NOT EXISTS community_post (
     deleted INT DEFAULT 0
 );
 
+-- 帖子点赞关系表（F-10：点赞幂等 + 可取消，用户-帖子联合唯一）
+CREATE TABLE IF NOT EXISTS community_post_like (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    post_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0,
+    CONSTRAINT uk_post_like UNIQUE (post_id, user_id)
+);
+
 -- 社区评论表
 CREATE TABLE IF NOT EXISTS community_comment (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -328,6 +341,9 @@ CREATE INDEX idx_post_status   ON community_post (status);
 CREATE INDEX idx_post_essence  ON community_post (is_essence);
 CREATE INDEX idx_post_ctime     ON community_post (create_time);
 CREATE INDEX idx_post_deleted   ON community_post (deleted);
+
+-- 帖子点赞索引（逻辑外键列建索引，阿里规约）
+CREATE INDEX idx_post_like_user ON community_post_like (user_id);
 
 -- 社区评论索引
 CREATE INDEX idx_comment_post    ON community_comment (post_id);

@@ -25,4 +25,10 @@ public interface DocService extends IService<DocDocument> {
     List<DocVO> getRecommendList(Long userId);
 
     void updateReadProgress(ReadProgressDTO dto, Long userId);
+
+    void saveDoc(DocDocument doc);
+
+    void updateDoc(DocDocument doc);
+
+    void removeDoc(Long id);
 }

@@ -147,6 +147,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import { learningApi } from '@/api'
 import type { FlashcardVO } from '@/api/types'
+import { markReviewed, dateStr } from '@/utils/studySession'
 
 interface FlashCard {
   id: number
@@ -246,6 +247,7 @@ const rateCard = async (rating: Rating) => {
   reviewing.value = true
   try {
     await learningApi.reviewFlashcard(currentCard.value.id, ratingToQuality(rating))
+    markReviewed(dateStr(new Date()), String(currentCard.value.id))
     todayCount.value++
     if (rating === 'mastered' || rating === 'familiar') {
       correctCount.value++

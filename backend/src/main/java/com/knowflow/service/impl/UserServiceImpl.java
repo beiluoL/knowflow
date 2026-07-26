@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knowflow.dto.LoginDTO;
 import com.knowflow.dto.RegisterDTO;
+import com.knowflow.dto.UpdateProfileDTO;
 import com.knowflow.entity.SysUser;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.SysUserMapper;
@@ -31,11 +32,12 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
     public LoginVO login(LoginDTO dto) {
         SysUser user = this.getOne(new LambdaQueryWrapper<SysUser>()
                 .eq(SysUser::getUsername, dto.getUsername()));
+        // F-04 修复：登录失败返回 HTTP 401；统一提示语防止用户名枚举
         if (user == null) {
-            throw new BusinessException("用户不存在");
+            throw new BusinessException(401, "用户名或密码错误");
         }
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new BusinessException("密码错误");
+            throw new BusinessException(401, "用户名或密码错误");
         }
         String token = jwtUtils.generateToken(user.getId(), user.getUsername(), user.getRole());
         LoginVO vo = new LoginVO();
@@ -50,6 +52,13 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
                 .eq(SysUser::getUsername, dto.getUsername()));
         if (existUser != null) {
             throw new BusinessException("用户名已存在");
+        }
+        if (StrUtil.isNotBlank(dto.getEmail())) {
+            SysUser existEmail = this.getOne(new LambdaQueryWrapper<SysUser>()
+                    .eq(SysUser::getEmail, dto.getEmail()));
+            if (existEmail != null) {
+                throw new BusinessException("邮箱已被注册");
+            }
         }
         SysUser user = new SysUser();
         user.setUsername(dto.getUsername());
@@ -99,5 +108,30 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         stats.setCompletedPaths(0);
         stats.setTotalFlashcards(0);
         return stats;
+    }
+
+    @Override
+    public UserVO updateProfile(Long userId, UpdateProfileDTO dto) {
+        SysUser user = this.getById(userId);
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        if (dto.getNickname() != null) {
+            user.setNickname(dto.getNickname());
+        }
+        if (dto.getEmail() != null) {
+            SysUser existEmail = this.getOne(new LambdaQueryWrapper<SysUser>()
+                    .eq(SysUser::getEmail, dto.getEmail())
+                    .ne(SysUser::getId, userId));
+            if (existEmail != null) {
+                throw new BusinessException("邮箱已被使用");
+            }
+            user.setEmail(dto.getEmail());
+        }
+        if (dto.getAvatar() != null) {
+            user.setAvatar(dto.getAvatar());
+        }
+        this.updateById(user);
+        return BeanUtil.copyProperties(user, UserVO.class);
     }
 }

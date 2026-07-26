@@ -6,6 +6,7 @@ import com.knowflow.dto.RegisterDTO;
 import com.knowflow.entity.SysUser;
 import com.knowflow.vo.LoginVO;
 import com.knowflow.vo.UserStatsVO;
+import com.knowflow.dto.UpdateProfileDTO;
 import com.knowflow.vo.UserVO;
 
 public interface UserService extends IService<SysUser> {
@@ -17,4 +18,6 @@ public interface UserService extends IService<SysUser> {
     UserVO getCurrentUser(Long userId);
 
     UserStatsVO getUserStats(Long userId);
+
+    UserVO updateProfile(Long userId, UpdateProfileDTO dto);
 }

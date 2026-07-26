@@ -33,13 +33,16 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="font-semibold text-gray-800">系统健康状态</h3>
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-success-500 animate-pulse"></span>
-                <span class="text-xs text-success-500 font-medium">运行正常</span>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-semibold text-gray-800">系统健康状态</h3>
+                  <Badge variant="default" class="text-[11px]">演示</Badge>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-success-500 animate-pulse"></span>
+                  <span class="text-xs text-success-500 font-medium">运行正常</span>
+                </div>
               </div>
-            </div>
           </template>
           <div class="space-y-4">
             <div v-for="item in systemHealth" :key="item.label">
@@ -71,8 +74,11 @@
 
         <Card>
           <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="font-semibold text-gray-800">用户增长趋势</h3>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-semibold text-gray-800">用户增长趋势</h3>
+                  <Badge variant="default" class="text-[11px]">演示</Badge>
+                </div>
               <div class="flex items-center gap-2">
                 <button
                   v-for="period in periods" :key="period.value"
@@ -163,10 +169,13 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card class="lg:col-span-2">
           <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="font-semibold text-gray-800">最近活动</h3>
-              <button class="text-sm text-primary-500 hover:text-primary-600 transition-colors">查看全部</button>
-            </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-semibold text-gray-800">最近活动</h3>
+                  <Badge variant="default" class="text-[11px]">演示</Badge>
+                </div>
+                <button class="text-sm text-primary-500 hover:text-primary-600 transition-colors">查看全部</button>
+              </div>
           </template>
           <div class="space-y-4">
             <div

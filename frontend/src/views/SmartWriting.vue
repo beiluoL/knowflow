@@ -3,9 +3,9 @@
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-bold text-gray-800">智能写作</h1>
-          <p class="text-gray-500 text-sm mt-1">AI 辅助写作，提升知识表达能力</p>
+          <p class="text-gray-500 text-sm mt-1">本地写作练习 · 内容仅保存在本机浏览器</p>
         </div>
-        <Button icon-name="zap" @click="showTemplateModal = true">选择模板</Button>
+        <Button icon-name="file-plus" @click="saveDraft">保存草稿</Button>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -15,7 +15,9 @@
               <div class="flex items-center justify-between">
                 <h3 class="font-semibold text-gray-800">写作区域</h3>
                 <div class="flex items-center gap-2">
-                  <span class="text-xs text-gray-400">{{ wordCount }} 字</span>
+                  <span class="text-xs" :class="autosaved ? 'text-success-500' : 'text-gray-400'">
+                    {{ autosaved ? '已自动保存' : `${wordCount} 字` }}
+                  </span>
                   <Button size="sm" variant="ghost" icon-name="copy" @click="copyContent">复制</Button>
                 </div>
               </div>
@@ -31,85 +33,47 @@
               <textarea
                 v-model="content"
                 rows="16"
-                placeholder="开始写作..."
+                placeholder="开始写作，内容会自动保存到本机..."
                 class="w-full px-4 py-3 border border-gray-200 rounded-lg resize-none focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 leading-relaxed"
               ></textarea>
             </div>
           </Card>
 
-          <Card v-if="feedbackLoading">
+          <Card>
             <template #header>
               <div class="flex items-center gap-2">
-                <Icon name="bot" :size="20" class="text-primary-500" />
-                <h3 class="font-semibold text-gray-800">AI 批改建议</h3>
+                <Icon name="info" :size="20" class="text-primary-500" />
+                <h3 class="font-semibold text-gray-800">本地练习</h3>
+                <Badge variant="default" class="text-[11px]">本地</Badge>
               </div>
             </template>
-            <div class="feedback-loading">
-              <div class="loading-spinner"></div>
-              <p class="text-gray-500 text-sm mt-3">AI 正在分析您的文章...</p>
-            </div>
-          </Card>
-
-          <Card v-else-if="aiFeedback">
-            <template #header>
-              <div class="flex items-center gap-2">
-                <Icon name="bot" :size="20" class="text-primary-500" />
-                <h3 class="font-semibold text-gray-800">AI 批改建议</h3>
-              </div>
-            </template>
-            <div class="space-y-4">
-              <div class="flex items-center gap-4">
-                <div class="text-center">
-                  <div class="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mb-1">
-                    <span class="text-xl font-bold text-primary-600">{{ aiFeedback.score }}</span>
-                  </div>
-                  <span class="text-xs text-gray-500">综合评分</span>
-                </div>
-                <div class="flex-1 grid grid-cols-3 gap-2">
-                  <div class="text-center p-2 bg-green-50 rounded-lg">
-                    <p class="text-lg font-bold text-green-600">{{ aiFeedback.grammar }}</p>
-                    <p class="text-xs text-gray-500">语法</p>
-                  </div>
-                  <div class="text-center p-2 bg-blue-50 rounded-lg">
-                    <p class="text-lg font-bold text-blue-600">{{ aiFeedback.structure }}</p>
-                    <p class="text-xs text-gray-500">结构</p>
-                  </div>
-                  <div class="text-center p-2 bg-purple-50 rounded-lg">
-                    <p class="text-lg font-bold text-purple-600">{{ aiFeedback.content }}</p>
-                    <p class="text-xs text-gray-500">内容</p>
-                  </div>
-                </div>
-              </div>
-              <div class="space-y-2">
-                <div
-                  v-for="(suggestion, index) in aiFeedback.suggestions" :key="index"
-                  class="flex items-start gap-2 p-3 bg-gray-50 rounded-lg"
-                >
-                  <Icon name="lightbulb" :size="16" class="text-yellow-500 flex-shrink-0 mt-0.5" />
-                  <p class="text-sm text-gray-700">{{ suggestion }}</p>
-                </div>
-              </div>
-            </div>
+            <p class="text-sm text-gray-600 leading-relaxed">
+              本页为纯本地写作练习，内容仅保存在你当前浏览器的本地存储中，不会上传服务器，也不提供 AI 自动评分。
+              你可以随时保存草稿、查看字数统计，或套用下方模板开始写作。
+            </p>
           </Card>
         </div>
 
         <div class="space-y-6">
           <Card>
             <template #header>
-              <h3 class="font-semibold text-gray-800">AI 助手</h3>
+              <h3 class="font-semibold text-gray-800">写作工具</h3>
             </template>
             <div class="space-y-3">
-              <Button variant="secondary" class="w-full justify-start" icon-name="sparkles" @click="aiAssist('continue')">
-                续写内容
-              </Button>
-              <Button variant="secondary" class="w-full justify-start" icon-name="edit" @click="aiAssist('polish')">
-                润色优化
-              </Button>
-              <Button variant="secondary" class="w-full justify-start" icon-name="list" @click="aiAssist('outline')">
+              <Button variant="secondary" class="w-full justify-start" icon-name="list" @click="insertOutline">
                 生成大纲
               </Button>
-              <Button variant="secondary" class="w-full justify-start" icon-name="check" @click="aiAssist('check')">
-                语法检查
+              <Button variant="secondary" class="w-full justify-start" icon-name="file-plus" @click="saveDraft">
+                保存草稿
+              </Button>
+              <Button variant="secondary" class="w-full justify-start" icon-name="copy" @click="copyContent">
+                复制全文
+              </Button>
+              <Button variant="secondary" class="w-full justify-start" icon-name="trash-2" @click="clearContent">
+                清空内容
+              </Button>
+              <Button variant="secondary" class="w-full justify-start" icon-name="layout-grid" @click="showTemplateModal = true">
+                选择模板
               </Button>
             </div>
           </Card>
@@ -136,102 +100,206 @@
 
           <Card>
             <template #header>
-              <h3 class="font-semibold text-gray-800">历史记录</h3>
+              <div class="flex items-center justify-between">
+                <h3 class="font-semibold text-gray-800">历史草稿</h3>
+                <span class="text-xs text-gray-400">{{ history.length }} 篇</span>
+              </div>
             </template>
-            <div class="space-y-2 max-h-64 overflow-y-auto">
+            <div v-if="history.length > 0" class="space-y-2 max-h-64 overflow-y-auto">
               <div
                 v-for="doc in history" :key="doc.id"
                 class="p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
                 @click="loadDocument(doc)"
               >
-                <h4 class="text-sm font-medium text-gray-800 truncate">{{ doc.title || '无标题' }}</h4>
+                <div class="flex items-center justify-between gap-2">
+                  <h4 class="text-sm font-medium text-gray-800 truncate flex-1">{{ doc.title || '无标题' }}</h4>
+                  <button
+                    class="text-gray-300 hover:text-red-500 transition-colors"
+                    title="删除草稿"
+                    @click.stop="deleteDocument(doc.id)"
+                  >
+                    <Icon name="trash-2" :size="14" />
+                  </button>
+                </div>
                 <p class="text-xs text-gray-400 mt-1">{{ doc.date }} · {{ doc.wordCount }} 字</p>
               </div>
             </div>
+            <p v-else class="text-sm text-gray-400 text-center py-4">暂无草稿，开始写作后会自动保存</p>
           </Card>
+        </div>
+      </div>
+
+      <!-- 模板选择弹窗 -->
+      <div
+        v-if="showTemplateModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+        @click.self="showTemplateModal = false"
+      >
+        <div class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">选择写作模板</h3>
+            <button class="text-gray-400 hover:text-gray-600" @click="showTemplateModal = false">
+              <Icon name="x" :size="20" />
+            </button>
+          </div>
+          <div class="space-y-3">
+            <button
+              v-for="tpl in templates" :key="tpl.name"
+              class="w-full text-left rounded-lg border border-gray-200 p-3 hover:border-primary-400 hover:bg-primary-50/40 transition-colors"
+              @click="applyTemplate(tpl)"
+            >
+              <p class="text-sm font-medium text-gray-800">{{ tpl.name }}</p>
+              <p class="text-xs text-gray-400 mt-0.5 line-clamp-1">{{ tpl.text.replace(/\n/g, ' ') }}</p>
+            </button>
+          </div>
         </div>
       </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { confirmDialog, notify } from '@/utils/toast'
-import { ref, computed } from 'vue'
+import { notify } from '@/utils/toast'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
+import Badge from '@/components/ui/Badge.vue'
+
+interface Draft {
+  id: string
+  title: string
+  content: string
+  date: string
+  wordCount: number
+}
+
+const DRAFTS_KEY = 'knowflow:writing:drafts'
 
 const title = ref('')
 const content = ref('')
 const showTemplateModal = ref(false)
-const feedbackLoading = ref(false)
-const aiFeedback = ref<{
-  score: number
-  grammar: number
-  structure: number
-  content: number
-  suggestions: string[]
-} | null>(null)
+const autosaved = ref(false)
+let currentDraftId = ''
+let autosaveTimer: ReturnType<typeof setInterval> | undefined
+let autosaveFlagReset: ReturnType<typeof setTimeout> | undefined
 
 const wordCount = computed(() => content.value.length)
-const paragraphCount = computed(() => content.value.split('\n').filter(p => p.trim()).length)
+const paragraphCount = computed(() => content.value.split('\n').filter((p) => p.trim()).length)
 
-const history = [
-  { id: '1', title: 'Vue 3 组合式 API 学习笔记', date: '2024-01-15', wordCount: 1200 },
-  { id: '2', title: 'JavaScript 闭包详解', date: '2024-01-14', wordCount: 856 },
-  { id: '3', title: '数据库索引优化总结', date: '2024-01-13', wordCount: 2341 },
+const templates = [
+  {
+    name: '学习笔记',
+    text: '## 学习笔记\n\n### 主题\n\n### 关键概念\n\n### 个人理解\n\n### 待解决问题\n',
+  },
+  {
+    name: '读书总结',
+    text: '## 读书总结\n\n### 书名 / 作者\n\n### 核心观点\n\n### 金句摘录\n\n### 我的收获\n',
+  },
+  {
+    name: '技术复盘',
+    text: '## 技术复盘\n\n### 背景\n\n### 问题\n\n### 解决方案\n\n### 经验沉淀\n',
+  },
 ]
 
-const aiAssist = async (type: string) => {
-  switch (type) {
-    case 'continue':
-      content.value += '\n\n[AI 续写内容示例：在此基础上，我们可以进一步探讨...]'
-      break
-    case 'polish':
-      notify('正在润色优化...', 'info')
-      break
-    case 'outline':
-      content.value = '## 大纲\n\n1. 引言\n2. 核心概念\n3. 实践应用\n4. 总结\n\n' + content.value
-      break
-    case 'check':
-      if (!content.value.trim()) {
-        notify('请先输入内容再进行批改', 'warning')
-        return
-      }
-      feedbackLoading.value = true
-      aiFeedback.value = null
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        aiFeedback.value = {
-          score: 85,
-          grammar: 90,
-          structure: 80,
-          content: 85,
-          suggestions: [
-            '建议增加更多实际案例来支撑论点',
-            '部分段落可以进一步精简，提高可读性',
-            '注意检查专业术语的使用是否准确',
-          ],
-        }
-      } finally {
-        feedbackLoading.value = false
-      }
-      break
+const history = ref<Draft[]>(loadDrafts())
+
+function loadDrafts(): Draft[] {
+  try {
+    const raw = localStorage.getItem(DRAFTS_KEY)
+    if (!raw) return []
+    const arr = JSON.parse(raw)
+    return Array.isArray(arr) ? (arr as Draft[]) : []
+  } catch {
+    return []
   }
 }
 
-const copyContent = () => {
+function persistDrafts(): void {
+  localStorage.setItem(DRAFTS_KEY, JSON.stringify(history.value))
+}
+
+function nowLabel(): string {
+  const d = new Date()
+  const p = (n: number) => n.toString().padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
+}
+
+function upsertDraft(notifyUser: boolean): void {
+  if (!content.value.trim()) {
+    if (notifyUser) notify('内容为空，无需保存', 'warning')
+    return
+  }
+  if (!currentDraftId) currentDraftId = Date.now().toString()
+  const draft: Draft = {
+    id: currentDraftId,
+    title: title.value.trim() || '无标题',
+    content: content.value,
+    date: nowLabel(),
+    wordCount: content.value.length,
+  }
+  const idx = history.value.findIndex((d) => d.id === currentDraftId)
+  if (idx >= 0) history.value[idx] = draft
+  else history.value.unshift(draft)
+  persistDrafts()
+  autosaved.value = true
+  if (autosaveFlagReset) clearTimeout(autosaveFlagReset)
+  autosaveFlagReset = setTimeout(() => {
+    autosaved.value = false
+  }, 2000)
+  if (notifyUser) notify('草稿已保存到本机', 'success')
+}
+
+const saveDraft = () => upsertDraft(true)
+
+function insertOutline(): void {
+  const outline = '## 大纲\n\n1. 引言\n2. 核心概念\n3. 实践应用\n4. 总结\n\n'
+  content.value = content.value.trim() ? outline + content.value : outline.trim()
+  notify('已插入大纲', 'info')
+}
+
+function clearContent(): void {
+  title.value = ''
+  content.value = ''
+  currentDraftId = ''
+  notify('已清空', 'info')
+}
+
+function copyContent(): void {
   navigator.clipboard.writeText(content.value)
   notify('内容已复制到剪贴板', 'success')
 }
 
-const loadDocument = async (doc: { title: string; wordCount: number }) => {
-  if (await confirmDialog(`加载文档「${doc.title}」？`)) {
-    title.value = doc.title
-    content.value = `这是「${doc.title}」的内容示例...`
-    aiFeedback.value = null
-  }
+function applyTemplate(tpl: { text: string }): void {
+  content.value = tpl.text + (content.value ? '\n' + content.value : '')
+  showTemplateModal.value = false
+  notify('已套用模板', 'info')
 }
+
+function loadDocument(doc: Draft): void {
+  title.value = doc.title
+  content.value = doc.content
+  currentDraftId = doc.id
+  notify('已载入草稿', 'info')
+}
+
+function deleteDocument(id: string): void {
+  history.value = history.value.filter((d) => d.id !== id)
+  persistDrafts()
+  if (currentDraftId === id) currentDraftId = ''
+  notify('草稿已删除', 'info')
+}
+
+// 每 15 秒自动保存一次本地草稿
+onMounted(() => {
+  autosaveTimer = setInterval(() => {
+    if (content.value.trim()) upsertDraft(false)
+  }, 15000)
+})
+
+onUnmounted(() => {
+  if (autosaveTimer) clearInterval(autosaveTimer)
+  if (autosaveFlagReset) clearTimeout(autosaveFlagReset)
+})
 </script>
 
 <style scoped>
@@ -244,25 +312,10 @@ const loadDocument = async (doc: { title: string; wordCount: number }) => {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.feedback-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
-  text-align: center;
-}
-
-.loading-spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid #e5e7eb;
-  border-top-color: #6366f1;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>

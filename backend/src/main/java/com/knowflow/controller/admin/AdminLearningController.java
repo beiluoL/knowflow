@@ -98,7 +98,7 @@ public class AdminLearningController {
             @RequestParam(required = false) Long chapterId,
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize) {
-        Page<LearningFlashcard> page = new Page<>(pageNum, Math.min(pageSize, 100));
+        Page<LearningFlashcard> page = new Page<>(com.knowflow.common.PageQuery.normalizePageNum(pageNum), com.knowflow.common.PageQuery.normalizePageSize(pageSize));
         QueryWrapper<LearningFlashcard> wrapper = new QueryWrapper<>();
         if (pathId != null) wrapper.eq("path_id", pathId);
         if (chapterId != null) wrapper.eq("chapter_id", chapterId);

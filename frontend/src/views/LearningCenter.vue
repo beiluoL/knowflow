@@ -41,7 +41,7 @@
                 </defs>
               </svg>
               <div class="absolute inset-0 flex flex-col items-center justify-center">
-                <span class="text-3xl font-bold text-primary-600">{{ todayStudyData.goalProgress }}%</span>
+                <span class="text-3xl font-bold text-primary-600">{{ studyData.goalProgress }}%</span>
                 <span class="text-xs text-gray-500">今日目标</span>
               </div>
             </div>
@@ -50,22 +50,22 @@
               <div class="text-center">
                 <div class="flex items-center justify-center gap-1 mb-1">
                   <Icon name="check" :size="20" />
-                  <span class="text-2xl font-bold text-gray-800">{{ todayStudyData.completedTasks }}</span>
-                  <span class="text-gray-400">/{{ todayStudyData.totalTasks }}</span>
+                  <span class="text-2xl font-bold text-gray-800">{{ studyData.completedTasks }}</span>
+                  <span class="text-gray-400">/{{ studyData.totalTasks }}</span>
                 </div>
                 <p class="text-sm text-gray-500">已完成任务</p>
               </div>
               <div class="text-center">
                 <div class="flex items-center justify-center gap-1 mb-1">
                   <Icon name="clock" :size="20" />
-                  <span class="text-2xl font-bold text-gray-800">{{ todayStudyData.studyMinutes }}</span>
+                  <span class="text-2xl font-bold text-gray-800">{{ studyData.studyMinutes }}</span>
                 </div>
                 <p class="text-sm text-gray-500">学习时长(分)</p>
               </div>
               <div class="text-center">
                 <div class="flex items-center justify-center gap-1 mb-1">
                   <Icon name="flame" :size="20" />
-                  <span class="text-2xl font-bold text-gray-800">{{ todayStudyData.streakDays }}</span>
+                  <span class="text-2xl font-bold text-gray-800">{{ studyData.streakDays }}</span>
                 </div>
                 <p class="text-sm text-gray-500">连续天数</p>
               </div>
@@ -171,13 +171,13 @@
                   v-for="i in 6" :key="i"
                   :class="[
                     'w-3 h-3 rounded-full transition-all duration-300',
-                    i <= todayStudyData.pomodorosCompleted
+                    i <= studyData.pomodorosCompleted
                       ? 'bg-red-400'
                       : 'bg-gray-200',
                   ]"
                 />
               </div>
-              <span class="text-sm font-medium text-gray-700">{{ todayStudyData.pomodorosCompleted }}/6</span>
+              <span class="text-sm font-medium text-gray-700">{{ studyData.pomodorosCompleted }}/6</span>
             </div>
           </div>
         </Card>
@@ -340,6 +340,7 @@
             <div class="flex items-center gap-2">
               <Icon name="trophy" :size="20" />
               <h2 class="font-semibold text-gray-800">本周排行榜</h2>
+              <Badge variant="default" class="text-[11px]">演示</Badge>
             </div>
           </template>
 
@@ -397,8 +398,19 @@ import Badge from '@/components/ui/Badge.vue'
 import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
 import Avatar from '@/components/ui/Avatar.vue'
-import { todayStudyData, learningPet, weeklyRank } from '@/data/learning'
+import { learningPet, weeklyRank } from '@/data/learning'
 import { learningApi } from '@/api'
+import { notify } from '@/utils/toast'
+import {
+  loadSessions,
+  addSession,
+  todayMinutes,
+  todayPomodoros,
+  streakDays as calcStreak,
+  loadPet,
+  savePet,
+  dateStr,
+} from '@/utils/studySession'
 
 interface StudyTask {
   id: number | string
@@ -409,8 +421,27 @@ interface StudyTask {
 
 const radius = 52
 const circumference = 2 * Math.PI * radius
+
+// 今日学习数据：全部来自真实 API（任务）与本地番茄钟记录，不再使用 mock
+const GOAL_MINUTES = 120
+const sessionVersion = ref(0)
+const studyData = computed(() => {
+  sessionVersion.value // 依赖，使番茄钟记录后自动刷新
+  const sessions = loadSessions()
+  const today = dateStr(new Date())
+  const minutes = todayMinutes(sessions, today)
+  return {
+    completedTasks: tasks.value.filter((t) => t.completed).length,
+    totalTasks: tasks.value.length,
+    studyMinutes: minutes,
+    streakDays: calcStreak(sessions),
+    goalProgress: Math.min(100, Math.round((minutes / GOAL_MINUTES) * 100)),
+    pomodorosCompleted: todayPomodoros(sessions, today),
+  }
+})
+
 const strokeDashoffset = computed(() => {
-  return circumference - (todayStudyData.goalProgress / 100) * circumference
+  return circumference - (studyData.value.goalProgress / 100) * circumference
 })
 
 const pomodoroRadius = 94
@@ -474,12 +505,21 @@ const toggleTimer = () => {
     timerInterval = window.setInterval(() => {
       if (timeLeft.value > 0) {
         timeLeft.value--
-      } else {
-        if (timerInterval) {
-          clearInterval(timerInterval)
-          timerInterval = null
+        if (timeLeft.value === 0) {
+          if (currentMode.value === 'focus') {
+            const focusMin = Math.round(
+              (pomodoroModes.find((m) => m.value === 'focus')?.duration ?? 1500) / 60,
+            )
+            addSession(dateStr(new Date()), focusMin)
+            sessionVersion.value++
+            notify('专注完成，已记录到本机', 'success')
+          }
+          if (timerInterval) {
+            clearInterval(timerInterval)
+            timerInterval = null
+          }
+          isRunning.value = false
         }
-        isRunning.value = false
       }
     }, 1000)
   }
@@ -545,7 +585,7 @@ const addTask = () => {
   newTaskTitle.value = ''
 }
 
-const pet = ref({ ...learningPet })
+const pet = ref(loadPet(learningPet))
 
 const feedPet = () => {
   pet.value.energy = Math.min(100, pet.value.energy + 10)
@@ -555,6 +595,7 @@ const feedPet = () => {
     pet.value.exp = 0
     pet.value.maxExp = Math.floor(pet.value.maxExp * 1.5)
   }
+  savePet(pet.value)
 }
 
 const playWithPet = () => {
@@ -565,6 +606,7 @@ const playWithPet = () => {
     pet.value.exp = 0
     pet.value.maxExp = Math.floor(pet.value.maxExp * 1.5)
   }
+  savePet(pet.value)
 }
 
 const rankList = weeklyRank

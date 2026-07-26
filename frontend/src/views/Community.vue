@@ -226,6 +226,21 @@
               class="inline-flex items-center px-2 py-0.5 rounded-md text-xs whitespace-nowrap bg-gray-100 text-gray-500"
             >{{ tag }}</span>
           </div>
+          <!-- F-10：点赞/取消点赞（幂等切换） -->
+          <div class="flex items-center gap-3 mt-3">
+            <button
+              @click="toggleLike"
+              :disabled="liking"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium border transition-colors disabled:opacity-50"
+              :class="likedByMe
+                ? 'text-primary-600 border-primary-300 bg-primary-50'
+                : 'text-gray-500 border-gray-200 hover:border-primary-300 hover:text-primary-600'"
+              :aria-pressed="likedByMe"
+            >
+              <Icon name="thumbs-up" :size="14" :fill="likedByMe" />
+              <span>{{ likedByMe ? '已赞' : '点赞' }} {{ selectedPost.likeCount ?? 0 }}</span>
+            </button>
+          </div>
         </div>
 
         <!-- 评论输入 -->
@@ -295,6 +310,7 @@ import SkeletonList from '@/components/ui/SkeletonList.vue'
 import { communityApi } from '@/api/community'
 import type { PostVO, CommentVO } from '@/api/types'
 import { useAuthStore } from '@/stores/auth'
+import { notify } from '@/utils/toast'
 
 const loading = ref(false)
 const postList = ref<PostVO[]>([])
@@ -415,8 +431,12 @@ async function handleSubmitPost() {
     })
     showPostModal.value = false
     postForm.value = { title: '', category: '', content: '' }
+    // F-02 修复：发帖成功给出明确反馈，并切回"最新"排序第一页让新帖可见
+    notify('发布成功', 'success')
+    currentSort.value = 'latest'
     pageNum.value = 1
     fetchList()
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   } catch {
     // 错误由拦截器处理
   } finally {
@@ -449,7 +469,33 @@ function openPost(post: PostVO) {
   selectedPost.value = post
   commentPageNum.value = 1
   commentInput.value = ''
+  likedByMe.value = false
   fetchComments()
+}
+
+// ===== F-10：点赞（幂等切换） =====
+const likedByMe = ref(false)
+const liking = ref(false)
+
+async function toggleLike() {
+  if (!selectedPost.value) return
+  if (!authStore.isLoggedIn) {
+    notify('请先登录后再点赞', 'warning')
+    return
+  }
+  liking.value = true
+  try {
+    const liked = await communityApi.likePost(selectedPost.value.id)
+    likedByMe.value = liked
+    if (selectedPost.value.likeCount != null) {
+      selectedPost.value.likeCount += liked ? 1 : -1
+      if (selectedPost.value.likeCount < 0) selectedPost.value.likeCount = 0
+    }
+  } catch {
+    // 拦截器已处理
+  } finally {
+    liking.value = false
+  }
 }
 
 function closePost() {

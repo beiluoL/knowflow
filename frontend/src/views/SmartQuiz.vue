@@ -7,7 +7,7 @@
 
     <div v-else-if="generating" class="quiz-state">
       <div class="loading-spinner"></div>
-      <p class="text-gray-500 mt-3">AI 正在智能生成题目...</p>
+      <p class="text-gray-500 mt-3">正在生成题目...</p>
     </div>
 
     <div v-else-if="error" class="quiz-state">
@@ -36,7 +36,7 @@
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl font-bold text-gray-800">智能出题</h1>
-          <p class="text-gray-500 text-sm mt-1">AI 根据你的学习情况智能生成题目</p>
+          <p class="text-gray-500 text-sm mt-1">基于真实闪卡内容本地生成，提交后即时判分</p>
         </div>
         <Button icon-name="zap" @click="generateQuiz" :disabled="generating">重新生成</Button>
       </div>
@@ -47,7 +47,7 @@
             <template #header>
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <Badge variant="primary">AI 生成</Badge>
+                  <Badge variant="primary">本地生成</Badge>
                   <span class="text-sm text-gray-500">{{ currentQuiz.category }}</span>
                 </div>
                 <span class="text-sm text-gray-400">{{ currentIndex + 1 }} / {{ quizzes.length }}</span>
@@ -197,6 +197,8 @@ import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
+import { learningApi } from '@/api'
+import type { FlashcardVO } from '@/api/types'
 
 const currentIndex = ref(0)
 const selectedAnswer = ref(-1)
@@ -215,41 +217,67 @@ interface Quiz {
   userAnswer?: number
 }
 
-const mockQuizzes: Quiz[] = [
-  {
-    id: '1',
-    question: '在 Vue 3 中，以下哪个选项是 Composition API 的核心函数？',
-    options: ['data()', 'setup()', 'methods()', 'computed()'],
-    correctAnswer: 1,
-    category: '前端开发',
-    explanation: 'setup() 是 Composition API 的入口函数，在组件创建之前执行，用于设置响应式数据和逻辑。',
-  },
-  {
-    id: '2',
-    question: 'JavaScript 中，以下哪种数据类型不是原始类型？',
-    options: ['String', 'Number', 'Object', 'Boolean'],
-    correctAnswer: 2,
-    category: '前端开发',
-    explanation: 'Object 是引用类型，而 String、Number、Boolean 都是原始类型。',
-  },
-  {
-    id: '3',
-    question: '在 CSS 中，以下哪个属性用于设置元素的弹性布局？',
-    options: ['display: block', 'display: flex', 'display: grid', 'display: inline'],
-    correctAnswer: 1,
-    category: '前端开发',
-    explanation: 'display: flex 用于创建弹性容器，实现灵活的布局方案。',
-  },
-]
+// Fisher-Yates 洗牌
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+// 从真实闪卡生成选择题：正确答案取卡片 back，干扰项取自其他卡片的 back
+function buildQuizFromCards(cards: FlashcardVO[], limit = 12): Quiz[] {
+  const pool = cards.filter((c) => c.front && c.back && c.back.trim().length > 0)
+  const result: Quiz[] = []
+  for (const c of pool) {
+    const correct = c.back!.trim()
+    const others = Array.from(
+      new Set(
+        pool
+          .filter((o) => o.id !== c.id && o.back && o.back!.trim() !== correct)
+          .map((o) => o.back!.trim()),
+      ),
+    )
+    // 干扰项不足 3 张时跳过该卡，保证题目有区分度
+    if (others.length < 3) continue
+    const options = shuffle([correct, ...shuffle(others).slice(0, 3)])
+    result.push({
+      id: String(c.id),
+      question: c.front!.trim(),
+      options,
+      correctAnswer: options.indexOf(correct),
+      category: c.category || '未分类',
+      explanation: correct,
+      userAnswer: undefined,
+    })
+    if (result.length >= limit) break
+  }
+  return result
+}
 
 const quizzes = ref<Quiz[]>([])
+
+async function fetchAndBuild(): Promise<Quiz[]> {
+  const cards = (await learningApi.flashcards()) ?? []
+  return buildQuizFromCards(cards)
+}
 
 async function loadQuizzes(): Promise<void> {
   loading.value = true
   error.value = ''
   try {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    quizzes.value = mockQuizzes.map(q => ({ ...q }))
+    const built = await fetchAndBuild()
+    if (built.length === 0) {
+      quizzes.value = []
+      error.value = '暂无足够闪卡用于生成题目（每张卡需要至少 3 张其他卡作为干扰项，可先去学习路径添加闪卡）'
+    } else {
+      quizzes.value = built
+      currentIndex.value = 0
+      selectedAnswer.value = -1
+      hasAnswered.value = false
+    }
   } catch (err) {
     const message = err instanceof Error ? err.message : '加载失败'
     error.value = `题目加载失败：${message}`
@@ -265,10 +293,10 @@ const currentQuiz = computed(() => quizzes.value[currentIndex.value])
 const isCorrect = computed(() => selectedAnswer.value === currentQuiz.value?.correctAnswer)
 
 const stats = computed(() => {
-  const answered = quizzes.value.filter(q => q.userAnswer !== undefined)
-  const correct = answered.filter(q => q.userAnswer === q.correctAnswer).length
+  const answered = quizzes.value.filter((q) => q.userAnswer !== undefined)
+  const correct = answered.filter((q) => q.userAnswer === q.correctAnswer).length
   return {
-    accuracy: answered.length > 0 ? Math.round(correct / answered.length * 100) : 0,
+    accuracy: answered.length > 0 ? Math.round((correct / answered.length) * 100) : 0,
     correct,
     wrong: answered.length - correct,
     remaining: quizzes.value.length - answered.length,
@@ -320,13 +348,19 @@ const generateQuiz = async () => {
   generating.value = true
   error.value = ''
   try {
-    notify('正在生成新的智能题目...', 'info')
-    await new Promise(resolve => setTimeout(resolve, 1200))
-    quizzes.value = mockQuizzes.map(q => ({ ...q, userAnswer: undefined }))
-    currentIndex.value = 0
-    selectedAnswer.value = -1
-    hasAnswered.value = false
-    notify('题目生成成功！', 'success')
+    notify('正在生成题目...', 'info')
+    const built = await fetchAndBuild()
+    if (built.length === 0) {
+      quizzes.value = []
+      error.value = '暂无足够闪卡用于生成题目（每张卡需要至少 3 张其他卡作为干扰项，可先去学习路径添加闪卡）'
+      notify('暂无可生成的题目', 'info')
+    } else {
+      quizzes.value = built
+      currentIndex.value = 0
+      selectedAnswer.value = -1
+      hasAnswered.value = false
+      notify(`已生成 ${built.length} 道题目`, 'success')
+    }
   } catch (err) {
     const message = err instanceof Error ? err.message : '生成失败'
     error.value = `题目生成失败：${message}`

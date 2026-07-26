@@ -2,12 +2,12 @@ package com.knowflow.controller;
 
 import com.knowflow.common.Result;
 import com.knowflow.dto.UpdateProfileDTO;
-import com.knowflow.entity.SysUser;
 import com.knowflow.service.UserService;
 import com.knowflow.vo.UserStatsVO;
 import com.knowflow.vo.UserVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,17 +33,9 @@ public class UserController {
 
     @Operation(summary = "更新个人资料")
     @PutMapping("/profile")
-    public Result<UserVO> updateProfile(@RequestBody UpdateProfileDTO dto, Authentication authentication) {
+    public Result<UserVO> updateProfile(@Valid @RequestBody UpdateProfileDTO dto, Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
-        SysUser user = userService.getById(userId);
-        if (user == null) {
-            return Result.error("用户不存在");
-        }
-        if (dto.getNickname() != null) user.setNickname(dto.getNickname());
-        if (dto.getEmail() != null) user.setEmail(dto.getEmail());
-        if (dto.getAvatar() != null) user.setAvatar(dto.getAvatar());
-        userService.updateById(user);
-        return Result.success(userService.getCurrentUser(userId));
+        return Result.success(userService.updateProfile(userId, dto));
     }
 
     @Operation(summary = "学习统计")

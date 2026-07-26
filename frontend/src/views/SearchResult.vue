@@ -228,10 +228,22 @@ const filteredResults = computed(() => {
   return results
 })
 
+/** F-03 修复：先做 HTML 转义再注入高亮标签，防止存储型/反射型 XSS */
+const escapeHtml = (str: string) =>
+  (str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+
 const highlightKeyword = (text: string) => {
-  if (!searchQuery.value.trim()) return text || ''
-  const regex = new RegExp(`(${searchQuery.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
-  return (text || '').replace(regex, '<span class="text-primary-600 font-semibold">$1</span>')
+  const safe = escapeHtml(text)
+  const kw = searchQuery.value.trim()
+  if (!kw) return safe
+  const safeKw = escapeHtml(kw)
+  const regex = new RegExp(`(${safeKw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
+  return safe.replace(regex, '<span class="text-primary-600 font-semibold">$1</span>')
 }
 
 const doSearch = async (keyword: string) => {

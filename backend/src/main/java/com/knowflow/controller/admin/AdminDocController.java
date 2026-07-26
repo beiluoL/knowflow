@@ -48,7 +48,7 @@ public class AdminDocController {
     @Operation(summary = "新增文档")
     @PostMapping
     public Result<Void> add(@RequestBody DocDocument doc) {
-        docService.save(doc);
+        docService.saveDoc(doc);
         return Result.success();
     }
 
@@ -56,14 +56,14 @@ public class AdminDocController {
     @PutMapping("/{id}")
     public Result<Void> update(@PathVariable Long id, @RequestBody DocDocument doc) {
         doc.setId(id);
-        docService.updateById(doc);
+        docService.updateDoc(doc);
         return Result.success();
     }
 
     @Operation(summary = "删除文档")
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
-        docService.removeById(id);
+        docService.removeDoc(id);
         return Result.success();
     }
 }
