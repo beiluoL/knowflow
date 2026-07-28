@@ -29,3 +29,7 @@ screenshots/
 # Design draft pages (large AI-generated previews, do not publish)
 design/pages/
 .design-spec/pages/
+
+# 报告/清单类过程文档（不发布到远程）
+knowflow_*.md
+*清单.md
