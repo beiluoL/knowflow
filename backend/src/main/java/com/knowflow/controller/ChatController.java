@@ -2,6 +2,7 @@ package com.knowflow.controller;
 
 import com.knowflow.common.Result;
 import com.knowflow.dto.ChatSendDTO;
+import com.knowflow.service.AiService;
 import com.knowflow.service.ChatService;
 import com.knowflow.vo.ConversationVO;
 import com.knowflow.vo.MessageVO;
@@ -22,6 +23,8 @@ import java.util.List;
 public class ChatController {
 
     private final ChatService chatService;
+
+    private final AiService aiService;
 
     @Operation(summary = "对话列表")
     @GetMapping("/conversations")
@@ -58,5 +61,11 @@ public class ChatController {
     public Result<MessageVO> send(@Valid @RequestBody ChatSendDTO dto, Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         return Result.success(chatService.sendMessage(dto, userId));
+    }
+
+    @Operation(summary = "可用模型列表")
+    @GetMapping("/models")
+    public Result<List<String>> models() {
+        return Result.success(aiService.getAvailableModels());
     }
 }

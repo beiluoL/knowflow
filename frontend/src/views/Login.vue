@@ -1,365 +1,889 @@
 <template>
-  <div class="min-h-screen flex bg-gray-50">
-    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-500 via-primary-600 to-primary-700 relative overflow-hidden">
-      <div class="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,white)]" />
-      <div class="absolute top-20 -left-20 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
-      <div class="absolute bottom-20 -right-20 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
-      <div class="relative z-10 flex flex-col justify-center p-12 text-white w-full">
-        <div class="mb-8">
-          <div class="flex items-center gap-3 mb-8">
-            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-              <Icon name="book-open" :size="28" />
-            </div>
-            <span class="text-2xl font-bold">知识库</span>
-          </div>
-          <h1 class="text-3xl font-bold mb-4">构建你的知识体系</h1>
-          <p class="text-primary-100 text-lg leading-relaxed">
-            一个现代化的知识管理平台，帮助你高效学习、系统整理、持续成长。
-          </p>
-        </div>
-
-        <div class="space-y-6">
-            <div class="flex items-start gap-4">
-              <div class="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
-                <Icon name="file-text" :size="20" />
-              </div>
-              <div>
-                <h3 class="font-semibold mb-1">文档管理</h3>
-                <p class="text-primary-100 text-sm">系统化整理你的知识库，支持多级分类和标签管理</p>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-4">
-              <div class="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
-                <Icon name="brain" :size="20" />
-              </div>
-              <div>
-                <h3 class="font-semibold mb-1">AI 智能问答</h3>
-                <p class="text-primary-100 text-sm">基于你的知识库，提供精准的智能问答服务</p>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-4">
-              <div class="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
-                <Icon name="layers" :size="20" />
-              </div>
-              <div>
-                <h3 class="font-semibold mb-1">闪卡记忆</h3>
-                <p class="text-primary-100 text-sm">科学的间隔重复算法，让记忆更高效持久</p>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-4">
-              <div class="w-10 h-10 rounded-lg bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
-                <Icon name="trending-up" :size="20" />
-              </div>
-              <div>
-                <h3 class="font-semibold mb-1">学习追踪</h3>
-                <p class="text-primary-100 text-sm">可视化学习数据，见证你的每一步成长</p>
-              </div>
-            </div>
-          </div>
+  <main class="auth-page">
+    <section class="brand-panel">
+      <div class="brand-grid">
+        <div class="grid-line grid-line-1"></div>
+        <div class="grid-line grid-line-2"></div>
+        <div class="grid-line grid-line-3"></div>
       </div>
-    </div>
-
-    <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12">
-      <div class="w-full max-w-md">
-        <div class="lg:hidden mb-8 text-center">
-            <div class="flex items-center justify-center gap-3 mb-4">
-              <div class="w-10 h-10 bg-primary-500 rounded-xl flex items-center justify-center">
-                <Icon name="book-open" :size="24" class="text-white" />
-              </div>
-              <span class="text-xl font-bold text-gray-800">知识库</span>
-            </div>
+      <div class="brand-decoration">
+        <div class="deco-shape deco-1"></div>
+        <div class="deco-shape deco-2"></div>
+        <div class="deco-shape deco-3"></div>
+      </div>
+      <div class="brand-content">
+        <div class="brand-icon-wrapper">
+          <Icon name="book-open" :size="48" />
+        </div>
+        <h1 class="brand-title">知识库</h1>
+        <div class="brand-divider"></div>
+        <p class="brand-slogan">构建你的知识体系<br>让学习更高效</p>
+        <div class="brand-features">
+          <div v-for="(feature, idx) in features" :key="feature" class="feature-item" :style="{ animationDelay: `${idx * 0.1}s` }">
+            <Icon name="check" :size="16" />
+            <span>{{ feature }}</span>
           </div>
-
-        <div class="bg-white rounded-2xl shadow-xl p-8">
-          <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">
-              {{ isLogin ? '欢迎回来' : '创建账号' }}
-            </h2>
-            <p class="text-gray-500">
-              {{ isLogin ? '登录后继续你的学习之旅' : '加入我们，开启知识管理新体验' }}
-            </p>
+        </div>
+      </div>
+      <p class="brand-copyright">© 2026 知识库. All rights reserved.</p>
+    </section>
+    <section class="form-panel">
+      <div class="form-wrapper">
+        <div class="mobile-brand">
+          <div class="mobile-brand-icon">
+            <Icon name="book-open" :size="28" />
           </div>
-
-          <form v-if="isLogin" @submit.prevent="handleLogin" class="space-y-5">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">用户名 / 邮箱</label>
+          <div class="mobile-brand-name">知识库</div>
+        </div>
+        <div class="tab-switch">
+          <button
+            class="tab-btn"
+            :class="{ active: isLogin }"
+            @click="isLogin = true"
+          >
+            登录
+          </button>
+          <button
+            class="tab-btn"
+            :class="{ active: !isLogin }"
+            @click="isLogin = false"
+          >
+            注册
+          </button>
+        </div>
+        <form v-if="isLogin" class="auth-form" @submit.prevent="handleLogin">
+          <div class="form-group">
+            <label class="form-label" for="login-username">邮箱或手机号</label>
+            <div class="input-group">
+              <span class="input-prefix">
+                <Icon name="mail" :size="16" />
+              </span>
               <input
+                id="login-username"
                 v-model="loginForm.username"
                 type="text"
-                placeholder="请输入用户名或邮箱"
-                class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all duration-200"
+                name="username"
+                autocomplete="username"
+                placeholder="请输入邮箱或手机号"
+                class="form-input"
               />
             </div>
-
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <label class="block text-sm font-medium text-gray-700">密码</label>
-                <a href="#" class="text-sm text-primary-500 hover:text-primary-600 transition-colors">
-                  忘记密码？
-                </a>
-              </div>
-              <div class="relative">
-                <input
-                  v-model="loginForm.password"
-                  :type="showLoginPassword ? 'text' : 'password'"
-                  placeholder="请输入密码"
-                  class="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all duration-200"
-                />
-                <button
-                  type="button"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                  @click="showLoginPassword = !showLoginPassword"
-                >
-                  <Icon v-if="!showLoginPassword" name="eye" :size="20" />
-                  <Icon v-else name="eye-off" :size="20" />
-                </button>
-              </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="login-password">密码</label>
+            <div class="input-group">
+              <span class="input-prefix">
+                <Icon name="lock" :size="16" />
+              </span>
+              <input
+                id="login-password"
+                v-model="loginForm.password"
+                :type="showLoginPassword ? 'text' : 'password'"
+                name="password"
+                autocomplete="current-password"
+                placeholder="请输入密码"
+                class="form-input"
+              />
+              <button
+                type="button"
+                class="input-suffix"
+                :aria-label="showLoginPassword ? '隐藏密码' : '显示密码'"
+                @click="showLoginPassword = !showLoginPassword"
+              >
+                <Icon :name="showLoginPassword ? 'eye' : 'eye-off'" :size="16" />
+              </button>
             </div>
-
-            <div class="flex items-center">
+          </div>
+          <div class="form-row">
+            <label class="checkbox-label">
               <input
                 v-model="loginForm.rememberMe"
                 type="checkbox"
-                id="remember"
-                class="w-4 h-4 text-primary-500 border-gray-300 rounded focus:ring-primary-500"
+                class="custom-checkbox"
               />
-              <label for="remember" class="ml-2 text-sm text-gray-600">记住我</label>
-            </div>
-
-            <button
-              type="submit"
-              :disabled="loginLoading"
-              class="w-full py-2.5 bg-primary-500 text-white font-medium rounded-lg hover:bg-primary-600 active:bg-primary-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              <svg
-                v-if="loginLoading"
-                class="animate-spin w-4 h-4"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              {{ loginLoading ? '登录中...' : '登 录' }}
+              <span>记住我</span>
+            </label>
+            <button type="button" class="link-text">忘记密码?</button>
+          </div>
+          <button
+            type="submit"
+            class="submit-btn"
+            :disabled="loginLoading"
+          >
+            <span v-if="loginLoading" class="btn-spinner"></span>
+            {{ loginLoading ? '登录中…' : '登录' }}
+          </button>
+          <div class="divider-section">
+            <div class="divider-line"></div>
+            <span class="divider-text">或使用以下方式登录</span>
+            <div class="divider-line"></div>
+          </div>
+          <div class="social-buttons">
+            <button type="button" class="social-btn" aria-label="使用微信登录" @click="loginWithWechat">
+              <Icon name="message-circle" :size="18" />
             </button>
-          </form>
-
-          <form v-else @submit.prevent="handleRegister" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">用户名</label>
+            <button type="button" class="social-btn" aria-label="使用 GitHub 登录" @click="loginWithGithub">
+              <Icon name="github" :size="18" />
+            </button>
+          </div>
+          <p class="switch-text">
+            还没有账号？<button type="button" class="link-btn" @click="isLogin = false">立即注册</button>
+          </p>
+        </form>
+        <form v-else class="auth-form" @submit.prevent="handleRegister">
+          <div class="form-group">
+            <label class="form-label" for="register-username">用户名</label>
+            <div class="input-group">
+              <span class="input-prefix">
+                <Icon name="user" :size="16" />
+              </span>
               <input
+                id="register-username"
                 v-model="registerForm.username"
                 type="text"
+                name="username"
+                autocomplete="username"
                 placeholder="请输入用户名"
-                class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all duration-200"
+                class="form-input"
               />
             </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">邮箱</label>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="register-email">邮箱</label>
+            <div class="input-group">
+              <span class="input-prefix">
+                <Icon name="mail" :size="16" />
+              </span>
               <input
+                id="register-email"
                 v-model="registerForm.email"
                 type="email"
-                placeholder="请输入邮箱"
-                class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all duration-200"
+                name="email"
+                autocomplete="email"
+                placeholder="请输入邮箱地址"
+                class="form-input"
               />
             </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">密码</label>
-              <div class="relative">
-                <input
-                  v-model="registerForm.password"
-                  :type="showRegisterPassword ? 'text' : 'password'"
-                  placeholder="请输入密码"
-                  class="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all duration-200"
-                />
-                <button
-                  type="button"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                  @click="showRegisterPassword = !showRegisterPassword"
-                >
-                  <Icon v-if="!showRegisterPassword" name="eye" :size="20" />
-                  <Icon v-else name="eye-off" :size="20" />
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">确认密码</label>
-              <div class="relative">
-                <input
-                  v-model="registerForm.confirmPassword"
-                  :type="showConfirmPassword ? 'text' : 'password'"
-                  placeholder="请再次输入密码"
-                  class="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all duration-200"
-                />
-                <button
-                  type="button"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                  @click="showConfirmPassword = !showConfirmPassword"
-                >
-                  <Icon v-if="!showConfirmPassword" name="eye" :size="20" />
-                  <Icon v-else name="eye-off" :size="20" />
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              :disabled="registerLoading"
-              class="w-full py-2.5 bg-primary-500 text-white font-medium rounded-lg hover:bg-primary-600 active:bg-primary-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              <svg
-                v-if="registerLoading"
-                class="animate-spin w-4 h-4"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              {{ registerLoading ? '注册中...' : '注 册' }}
-            </button>
-          </form>
-
-          <div class="mt-6 text-center">
-            <p class="text-sm text-gray-500">
-              {{ isLogin ? '还没有账号？' : '已有账号？' }}
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="register-password">密码</label>
+            <div class="input-group">
+              <span class="input-prefix">
+                <Icon name="lock" :size="16" />
+              </span>
+              <input
+                id="register-password"
+                v-model="registerForm.password"
+                :type="showRegisterPassword ? 'text' : 'password'"
+                name="new-password"
+                autocomplete="new-password"
+                placeholder="请设置密码（至少8位）"
+                class="form-input"
+              />
               <button
                 type="button"
-                class="text-primary-500 hover:text-primary-600 font-medium transition-colors"
-                @click="isLogin = !isLogin"
+                class="input-suffix"
+                :aria-label="showRegisterPassword ? '隐藏密码' : '显示密码'"
+                @click="showRegisterPassword = !showRegisterPassword"
               >
-                {{ isLogin ? '立即注册' : '立即登录' }}
-              </button>
-            </p>
-          </div>
-
-          <div class="mt-6">
-            <div class="relative">
-              <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-gray-200"></div>
-              </div>
-              <div class="relative flex justify-center text-sm">
-                <span class="px-4 bg-white text-gray-400">或者</span>
-              </div>
-            </div>
-
-            <div class="mt-6 grid grid-cols-3 gap-3">
-              <button class="w-full py-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
-                <Icon name="message-circle" :size="20" />
-              </button>
-              <button class="w-full py-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
-                <Icon name="github" :size="20" />
-              </button>
-              <button class="w-full py-2.5 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center">
-                <Icon name="mail" :size="20" />
+                <Icon :name="showRegisterPassword ? 'eye' : 'eye-off'" :size="16" />
               </button>
             </div>
           </div>
-        </div>
-
-        <p class="mt-8 text-center text-sm text-gray-400">
-          © 2024 知识库. 保留所有权利.
-        </p>
+          <div class="form-group">
+            <label class="form-label" for="register-confirm-password">确认密码</label>
+            <div class="input-group">
+              <span class="input-prefix">
+                <Icon name="lock" :size="16" />
+              </span>
+              <input
+                id="register-confirm-password"
+                v-model="registerForm.confirmPassword"
+                :type="showConfirmPassword ? 'text' : 'password'"
+                name="confirm-password"
+                autocomplete="new-password"
+                placeholder="请再次输入密码"
+                class="form-input"
+              />
+              <button
+                type="button"
+                class="input-suffix"
+                :aria-label="showConfirmPassword ? '隐藏密码' : '显示密码'"
+                @click="showConfirmPassword = !showConfirmPassword"
+              >
+                <Icon :name="showConfirmPassword ? 'eye' : 'eye-off'" :size="16" />
+              </button>
+            </div>
+          </div>
+          <label class="agreement-label">
+            <input
+              v-model="registerForm.agreed"
+              type="checkbox"
+              class="custom-checkbox"
+            />
+            <span>
+              我已阅读并同意
+              <button type="button" class="link-text">服务协议</button>
+              和
+              <button type="button" class="link-text">隐私政策</button>
+            </span>
+          </label>
+          <button
+            type="submit"
+            class="submit-btn"
+            :disabled="registerLoading"
+          >
+            <span v-if="registerLoading" class="btn-spinner"></span>
+            {{ registerLoading ? '注册中…' : '注册' }}
+          </button>
+          <p class="switch-text">
+            已有账号？<button type="button" class="link-btn" @click="isLogin = true">立即登录</button>
+          </p>
+        </form>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 </template>
 
 <script setup lang="ts">
-// 登录/注册页：登录成功后跳转到路由 query.redirect 指定页面（默认首页）。
-import { getApiError, notify } from '@/utils/toast'
-import { ref } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import Icon from '@/components/ui/Icon.vue'
+import { ref } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
+import Icon from '@/components/ui/Icon.vue';
+import { getApiError, notify } from '@/utils/toast';
 
-const router = useRouter()
-const route = useRoute()
-const auth = useAuthStore()
+const router = useRouter();
+const route = useRoute();
+const auth = useAuthStore();
 
-const isLogin = ref(true)
-const loginLoading = ref(false)
-const registerLoading = ref(false)
-const showLoginPassword = ref(false)
-const showRegisterPassword = ref(false)
-const showConfirmPassword = ref(false)
+const isLogin = ref(route.query.tab !== 'register');
+const loginLoading = ref(false);
+const registerLoading = ref(false);
+const showLoginPassword = ref(false);
+const showRegisterPassword = ref(false);
+const showConfirmPassword = ref(false);
+
+const features = ['AI 智能问答', '个性化学习路径', '间隔重复记忆'];
 
 const loginForm = ref({
   username: '',
   password: '',
   rememberMe: false,
-})
+});
 
 const registerForm = ref({
   username: '',
   email: '',
   password: '',
   confirmPassword: '',
-})
+  agreed: false,
+});
 
-const handleLogin = async () => {
+async function handleLogin(): Promise<void> {
   if (!loginForm.value.username || !loginForm.value.password) {
-    notify('请填写用户名和密码', 'warning')
-    return
+    notify('请填写用户名和密码', 'warning');
+    return;
   }
-
-  loginLoading.value = true
+  loginLoading.value = true;
   try {
     await auth.login({
       username: loginForm.value.username,
       password: loginForm.value.password,
-    })
-    // 优先跳回登录前拦截的页面，否则回首页
-    const redirect = (route.query.redirect as string) || '/'
-    router.push(redirect)
+    });
+    const redirect = (route.query.redirect as string) || '/';
+    router.push(redirect);
   } catch (e: unknown) {
-    const msg = getApiError(e, '登录失败，请检查用户名或密码')
-    notify(msg, 'info')
+    notify(getApiError(e, '登录失败，请检查用户名或密码'), 'info');
   } finally {
-    loginLoading.value = false
+    loginLoading.value = false;
   }
 }
 
-const handleRegister = async () => {
+function loginWithGithub(): void {
+  window.location.href = '/api/auth/oauth/github'
+}
+
+function loginWithWechat(): void {
+  window.location.href = '/api/auth/oauth/wechat'
+}
+
+async function handleRegister(): Promise<void> {
   if (!registerForm.value.username || !registerForm.value.email || !registerForm.value.password) {
-    notify('请填写完整信息', 'warning')
-    return
+    notify('请填写完整信息', 'warning');
+    return;
   }
-
   if (registerForm.value.password !== registerForm.value.confirmPassword) {
-    notify('两次输入的密码不一致', 'warning')
-    return
+    notify('两次输入的密码不一致', 'warning');
+    return;
   }
-
-  registerLoading.value = true
+  if (!registerForm.value.agreed) {
+    notify('请阅读并同意服务协议和隐私政策', 'warning');
+    return;
+  }
+  registerLoading.value = true;
   try {
     await auth.register({
       username: registerForm.value.username,
       email: registerForm.value.email,
       password: registerForm.value.password,
       nickname: registerForm.value.username,
-    })
-    notify('注册成功，已自动登录！', 'success')
-    router.push('/')
+    });
+    notify('注册成功，已自动登录！', 'success');
+    router.push('/');
   } catch (e: unknown) {
-    const msg = getApiError(e, '注册失败，请稍后再试')
-    notify(msg, 'info')
+    notify(getApiError(e, '注册失败，请稍后再试'), 'info');
   } finally {
-    registerLoading.value = false
+    registerLoading.value = false;
   }
 }
 </script>
 
 <style scoped>
-.bg-grid-white\/10 {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3e%3cg fill='none' fill-rule='evenodd'%3e%3cg fill='%23ffffff' fill-opacity='0.1'%3e%3cpath d='M0 0h32v32H0z'/%3e%3c/g%3e%3c/g%3e%3c/svg%3e");
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+}
+
+.brand-panel {
+  display: none;
+  position: relative;
+  width: 55%;
+  min-height: 100vh;
+  padding: 60px 80px;
+  background: linear-gradient(145deg, var(--kb-primary) 0%, #4A7DE8 50%, #3B6FE0 100%);
+  overflow: hidden;
+  animation: slideInLeft 0.8s ease-out;
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.brand-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.grid-line {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.grid-line-1 {
+  top: 20%;
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.grid-line-2 {
+  top: 40%;
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.grid-line-3 {
+  top: 60%;
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.brand-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.deco-shape {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.deco-1 {
+  top: -50px;
+  right: -50px;
+  width: 300px;
+  height: 300px;
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  animation: float 8s ease-in-out infinite;
+}
+
+.deco-2 {
+  bottom: -80px;
+  left: -80px;
+  width: 250px;
+  height: 250px;
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+.deco-3 {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+.brand-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.brand-icon-wrapper {
+  width: 88px;
+  height: 88px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  margin-bottom: 40px;
+  animation: fadeInUp 0.6s ease-out 0.1s both;
+}
+
+@keyframes fadeInUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.brand-title {
+  font-family: var(--font-serif);
+  font-size: 56px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin-bottom: 24px;
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+.brand-divider {
+  width: 60px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.8);
+  margin-bottom: 32px;
+  animation: fadeInUp 0.6s ease-out 0.3s both;
+}
+
+.brand-slogan {
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  margin-bottom: 56px;
+  animation: fadeInUp 0.6s ease-out 0.4s both;
+}
+
+.brand-features {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.9);
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+.feature-item svg {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.brand-copyright {
+  position: absolute;
+  bottom: 40px;
+  left: 80px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 32px;
+  background: var(--kb-card);
+  animation: slideInRight 0.8s ease-out;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(30px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.form-wrapper {
+  width: 100%;
+  max-width: 420px;
+}
+
+.mobile-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 48px;
+  animation: fadeInUp 0.5s ease-out 0.3s both;
+}
+
+.mobile-brand-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: var(--kb-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--kb-primary-foreground);
+  margin-bottom: 16px;
+}
+
+.mobile-brand-name {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--kb-foreground);
+}
+
+.tab-switch {
+  display: flex;
+  margin-bottom: 40px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--kb-border);
+  animation: fadeInUp 0.5s ease-out 0.4s both;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 8px 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--kb-muted-foreground);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+}
+
+.tab-btn:hover {
+  color: var(--kb-foreground);
+}
+
+.tab-btn.active {
+  color: var(--kb-primary);
+  font-weight: 600;
+}
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--kb-primary);
+  animation: slideInX 0.3s ease-out;
+}
+
+@keyframes slideInX {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-group {
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+.form-group:nth-child(1) { animation-delay: 0.5s; }
+.form-group:nth-child(2) { animation-delay: 0.55s; }
+.form-group:nth-child(3) { animation-delay: 0.6s; }
+.form-group:nth-child(4) { animation-delay: 0.65s; }
+.form-group:nth-child(5) { animation-delay: 0.7s; }
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--kb-foreground);
+  margin-bottom: 10px;
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-prefix {
+  position: absolute;
+  left: 16px;
+  color: var(--kb-muted-foreground);
+  pointer-events: none;
+}
+
+.form-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 48px;
+  font-size: 15px;
+  border-radius: var(--kb-radius-md);
+  background: var(--kb-background);
+  border: 1px solid var(--kb-border);
+  color: var(--kb-foreground);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
+}
+
+.form-input::placeholder {
+  color: var(--kb-muted-foreground);
+}
+
+.form-input:focus {
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.08);
+}
+
+.form-input:focus-visible {
+  outline: 2px solid var(--kb-primary);
+  outline-offset: 2px;
+}
+
+.input-suffix {
+  position: absolute;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: var(--kb-muted-foreground);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.input-suffix:hover {
+  color: var(--kb-foreground);
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: fadeInUp 0.5s ease-out 0.75s both;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--kb-muted-foreground);
+}
+
+.custom-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--kb-primary);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.link-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--kb-primary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+}
+
+.link-text:hover {
+  text-decoration: underline;
+}
+
+.link-text:focus-visible {
+  outline: 2px solid var(--kb-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.submit-btn {
+  width: 100%;
+  height: 48px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: var(--kb-radius-md);
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+  animation: fadeInUp 0.5s ease-out 0.8s both;
+}
+
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 111, 224, 0.3);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.divider-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 8px 0;
+  animation: fadeInUp 0.5s ease-out 0.85s both;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--kb-border);
+}
+
+.divider-text {
+  font-size: 13px;
+  color: var(--kb-muted-foreground);
+  white-space: nowrap;
+}
+
+.social-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  animation: fadeInUp 0.5s ease-out 0.9s both;
+}
+
+.social-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--kb-background);
+  border: 1px solid var(--kb-border);
+  color: var(--kb-foreground);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.social-btn:hover {
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  border-color: var(--kb-primary);
+  transform: translateY(-2px);
+}
+
+.switch-text {
+  text-align: center;
+  font-size: 14px;
+  color: var(--kb-muted-foreground);
+  margin-top: 8px;
+  animation: fadeInUp 0.5s ease-out 0.95s both;
+}
+
+.link-btn {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--kb-primary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+.agreement-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--kb-muted-foreground);
+  line-height: 1.6;
+  animation: fadeInUp 0.5s ease-out 0.75s both;
+}
+
+.agreement-label .custom-checkbox {
+  margin-top: 2px;
+}
+
+@media (min-width: 1024px) {
+  .brand-panel { display: flex; }
+  .mobile-brand { display: none; }
+}
+
+@media (max-width: 1023px) {
+  .brand-panel {
+    display: none;
+  }
+  .form-panel {
+    padding: 48px 24px;
+    min-height: 100vh;
+  }
 }
 </style>

@@ -7,36 +7,122 @@
     <router-link
       to="/"
       class="flex items-center gap-2 shrink-0"
+      style="color: var(--kb-primary);"
       @click="closeAll()"
     >
-      <Icon name="book-open" :size="20" class="text-primary-500" />
-      <span class="text-sm font-semibold text-primary-600 hidden sm:inline">知识库</span>
+      <Icon name="book-open" :size="20" />
+      <span class="text-base font-semibold hidden sm:inline">知识库</span>
     </router-link>
 
     <!-- Center: Navigation (desktop) -->
-    <nav class="hidden lg:flex flex-1 items-center justify-center gap-6">
+    <nav class="hidden lg:flex items-center gap-6 ml-8">
+      <!-- 首页 -->
       <router-link
-        v-for="item in navLinks"
-        :key="item.path"
-        :to="item.path"
-        class="flex items-center gap-1.5 text-sm font-medium transition-colors"
-        :class="isNavActive(item.path) ? 'text-primary-600 font-semibold' : 'text-gray-700 hover:text-primary-600'"
+        to="/"
+        class="flex items-center gap-2 text-sm font-medium transition-colors"
+        :class="isNavActive('/') ? 'font-semibold' : 'hover:opacity-80'"
+        :style="{ color: isNavActive('/') ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)' }"
       >
-        <Icon :name="item.icon" :size="16" />
-        {{ item.label }}
+        <Icon name="home" :size="16" />
+        <span>首页</span>
       </router-link>
 
-      <!-- AI Assistant Dropdown -->
+      <!-- 任务中心（下拉） -->
       <div class="relative">
         <button
           type="button"
-          class="flex items-center gap-1 text-sm font-medium transition-colors"
-          :class="openDropdown === 'ai' ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'"
+          class="flex items-center gap-2 text-sm font-medium transition-colors"
+          :style="{ color: openDropdown === 'task' ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)' }"
+          @click="toggleDropdown('task')"
+          aria-haspopup="menu"
+          :aria-expanded="openDropdown === 'task'"
+        >
+          <Icon name="target" :size="16" />
+          <span>任务中心</span>
+          <Icon name="chevron-down" :size="14" :class="openDropdown === 'task' ? 'rotate-180 transition-transform duration-200' : 'transition-transform duration-200'" />
+        </button>
+        <div class="nav-dropdown" :class="{ 'is-open': openDropdown === 'task' }" role="menu">
+          <router-link
+            v-for="it in taskMenu"
+            :key="it.path"
+            :to="it.path"
+            class="flex items-center gap-2 px-3 py-2 text-sm"
+            @click="openDropdown = ''"
+          >
+            <Icon :name="it.icon" :size="16" style="color: var(--kb-muted-foreground);" />
+            {{ it.label }}
+          </router-link>
+        </div>
+      </div>
+
+      <!-- 知识库（下拉） -->
+      <div class="relative">
+        <button
+          type="button"
+          class="flex items-center gap-2 text-sm font-medium transition-colors"
+          :style="{ color: openDropdown === 'knowledge' ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)' }"
+          @click="toggleDropdown('knowledge')"
+          aria-haspopup="menu"
+          :aria-expanded="openDropdown === 'knowledge'"
+        >
+          <Icon name="library" :size="16" />
+          <span>知识库</span>
+          <Icon name="chevron-down" :size="14" :class="openDropdown === 'knowledge' ? 'rotate-180 transition-transform duration-200' : 'transition-transform duration-200'" />
+        </button>
+        <div class="nav-dropdown" :class="{ 'is-open': openDropdown === 'knowledge' }" role="menu">
+          <router-link
+            v-for="it in knowledgeMenu"
+            :key="it.path"
+            :to="it.path"
+            class="flex items-center gap-2 px-3 py-2 text-sm"
+            @click="openDropdown = ''"
+          >
+            <Icon :name="it.icon" :size="16" style="color: var(--kb-muted-foreground);" />
+            {{ it.label }}
+          </router-link>
+        </div>
+      </div>
+
+      <!-- 学习中心（下拉） -->
+      <div class="relative">
+        <button
+          type="button"
+          class="flex items-center gap-2 text-sm font-medium transition-colors"
+          :style="{ color: openDropdown === 'learning' ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)' }"
+          @click="toggleDropdown('learning')"
+          aria-haspopup="menu"
+          :aria-expanded="openDropdown === 'learning'"
+        >
+          <Icon name="graduation-cap" :size="16" />
+          <span>学习中心</span>
+          <Icon name="chevron-down" :size="14" :class="openDropdown === 'learning' ? 'rotate-180 transition-transform duration-200' : 'transition-transform duration-200'" />
+        </button>
+        <div class="nav-dropdown" :class="{ 'is-open': openDropdown === 'learning' }" role="menu">
+          <router-link
+            v-for="it in learningMenu"
+            :key="it.path"
+            :to="it.path"
+            class="flex items-center gap-2 px-3 py-2 text-sm"
+            @click="openDropdown = ''"
+          >
+            <Icon :name="it.icon" :size="16" style="color: var(--kb-muted-foreground);" />
+            {{ it.label }}
+          </router-link>
+        </div>
+      </div>
+
+      <!-- AI 助手（下拉） -->
+      <div class="relative">
+        <button
+          type="button"
+          class="flex items-center gap-2 text-sm font-medium transition-colors"
+          :style="{ color: openDropdown === 'ai' ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)' }"
           @click="toggleDropdown('ai')"
           aria-haspopup="menu"
           :aria-expanded="openDropdown === 'ai'"
         >
-          AI 助手
+          <Icon name="sparkles" :size="16" />
+          <span>AI 助手</span>
           <Icon name="chevron-down" :size="14" :class="openDropdown === 'ai' ? 'rotate-180 transition-transform duration-200' : 'transition-transform duration-200'" />
         </button>
         <div class="nav-dropdown" :class="{ 'is-open': openDropdown === 'ai' }" role="menu">
@@ -44,27 +130,38 @@
             v-for="it in aiMenu"
             :key="it.path"
             :to="it.path"
-            class="nav-link"
+            class="flex items-center gap-2 px-3 py-2 text-sm"
             @click="openDropdown = ''"
           >
-            <Icon :name="it.icon" :size="16" class="text-gray-400" />
+            <Icon :name="it.icon" :size="16" style="color: var(--kb-muted-foreground);" />
             {{ it.label }}
           </router-link>
         </div>
       </div>
 
-      <!-- Personal Dropdown -->
+      <!-- 社区讨论 -->
+      <router-link
+        to="/community"
+        class="flex items-center gap-2 text-sm font-medium transition-colors"
+        :class="isNavActive('/community') ? 'font-semibold' : 'hover:opacity-80'"
+        :style="{ color: isNavActive('/community') ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)' }"
+      >
+        <Icon name="users" :size="16" />
+        <span>社区讨论</span>
+      </router-link>
+
+      <!-- 个人（下拉） -->
       <div class="relative">
         <button
           type="button"
-          class="flex items-center gap-1 text-sm font-medium transition-colors"
-          :class="openDropdown === 'personal' ? 'text-primary-600' : 'text-gray-700 hover:text-primary-600'"
+          class="flex items-center gap-2 text-sm font-medium transition-colors"
+          :style="{ color: openDropdown === 'personal' ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)' }"
           @click="toggleDropdown('personal')"
           aria-haspopup="menu"
           :aria-expanded="openDropdown === 'personal'"
         >
           <Icon name="user" :size="16" />
-          个人
+          <span>个人</span>
           <Icon name="chevron-down" :size="14" :class="openDropdown === 'personal' ? 'rotate-180 transition-transform duration-200' : 'transition-transform duration-200'" />
         </button>
         <div class="nav-dropdown" :class="{ 'is-open': openDropdown === 'personal' }" role="menu">
@@ -72,10 +169,10 @@
             v-for="it in personalMenu"
             :key="it.path"
             :to="it.path"
-            class="nav-link"
+            class="flex items-center gap-2 px-3 py-2 text-sm"
             @click="openDropdown = ''"
           >
-            <Icon :name="it.icon" :size="16" class="text-gray-400" />
+            <Icon :name="it.icon" :size="16" style="color: var(--kb-muted-foreground);" />
             {{ it.label }}
           </router-link>
         </div>
@@ -86,22 +183,23 @@
     <div v-if="openDropdown" class="fixed inset-0 z-40" @click="openDropdown = ''"></div>
 
     <!-- Right: Search + Notifications + Avatar -->
-    <div class="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto lg:ml-0">
+    <div class="flex items-center gap-3 shrink-0 ml-auto">
       <!-- Search (desktop) -->
-      <button
-        type="button"
-        class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border h-9 w-48 lg:w-64 transition-colors hover:border-primary-400"
-        style="background: var(--kb-background); border-color: var(--kb-border);"
-        @click="goTo('/search')"
-        aria-label="搜索"
-      >
-        <Icon name="search" :size="16" class="text-gray-400" />
-        <span class="text-sm text-gray-400 truncate">搜索知识库...</span>
+      <div class="relative hidden md:block w-48 lg:w-56">
+        <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--kb-muted-foreground);" />
+        <input
+          v-model="searchKw"
+          type="text"
+          placeholder="搜索知识库…"
+          class="w-full h-9 pl-9 pr-12 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
+          style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+          @keydown.enter="submitSearch"
+        />
         <span
-          class="ml-auto shrink-0 text-xs px-1.5 py-0.5 rounded"
+          class="absolute right-3 top-1/2 -translate-y-1/2 text-xs px-1.5 py-0.5 rounded"
           style="background: var(--kb-muted); color: var(--kb-muted-foreground);"
-        >Cmd+K</span>
-      </button>
+        >⌘K</span>
+      </div>
 
       <!-- Search (mobile icon) -->
       <button
@@ -111,19 +209,19 @@
         @click="goTo('/search')"
         aria-label="搜索"
       >
-        <Icon name="search" :size="18" class="text-gray-500" />
+        <Icon name="search" :size="18" style="color: var(--kb-muted-foreground);" />
       </button>
 
       <!-- Notifications -->
       <button
         v-if="isLoggedIn"
         type="button"
-        class="relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-gray-50"
-        style="color: var(--kb-sidebar-foreground);"
+        class="relative p-2 rounded-lg transition-colors hover:bg-gray-50"
+        style="color: var(--kb-muted-foreground);"
         @click="toggleNotifications"
         :aria-label="`消息通知，${unreadCount} 条未读`"
       >
-        <Icon name="bell" :size="18" />
+        <Icon name="bell" :size="20" />
         <span
           v-if="unreadCount > 0"
           class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
@@ -159,7 +257,7 @@
         @click="mobileOpen = !mobileOpen"
         aria-label="菜单"
       >
-        <Icon :name="mobileOpen ? 'x' : 'menu'" :size="20" class="text-gray-600" />
+        <Icon :name="mobileOpen ? 'x' : 'menu'" :size="20" style="color: var(--kb-sidebar-foreground);" />
       </button>
     </div>
 
@@ -175,11 +273,12 @@
       style="background: var(--kb-card); border-color: var(--kb-border);"
     >
       <div class="flex items-center justify-between px-4 py-3 border-b" style="border-color: var(--kb-border);">
-        <h3 class="font-semibold text-gray-800 text-sm">通知</h3>
+        <h3 class="font-semibold text-sm" style="color: var(--kb-foreground);">通知</h3>
         <button
           v-if="unreadCount > 0"
           type="button"
-          class="text-xs text-primary-600 hover:underline"
+          class="text-xs hover:underline"
+          style="color: var(--kb-primary);"
           @click="handleMarkAllRead"
         >全部已读</button>
       </div>
@@ -196,61 +295,66 @@
               <Icon :name="getNotifIcon(notification.type)" :size="16" :class="getNotifColor(notification.type)" />
             </div>
             <div class="flex-1 min-w-0">
-              <div class="font-medium text-gray-800 text-sm">{{ notification.title }}</div>
-              <div class="text-gray-500 text-xs mt-0.5 line-clamp-2">{{ notification.content }}</div>
-              <div class="text-gray-400 text-xs mt-1">{{ formatTime(notification.createTime) }}</div>
+              <div class="font-medium text-sm" style="color: var(--kb-foreground);">{{ notification.title }}</div>
+              <div class="text-xs mt-0.5 line-clamp-2" style="color: var(--kb-muted-foreground);">{{ notification.content }}</div>
+              <div class="text-xs mt-1" style="color: var(--kb-muted-foreground);">{{ formatTime(notification.createTime) }}</div>
             </div>
           </div>
         </div>
-        <div v-if="notificationStore.unreadList.length === 0" class="px-4 py-8 text-center text-sm text-gray-400">
+        <div v-if="notificationStore.unreadList.length === 0" class="px-4 py-8 text-center text-sm" style="color: var(--kb-muted-foreground);">
           暂无未读通知
         </div>
       </div>
       <div class="px-4 py-2 border-t" style="border-color: var(--kb-border);">
         <button
           type="button"
-          class="w-full text-center text-sm text-primary-600 hover:underline"
+          class="w-full text-center text-sm hover:underline"
+          style="color: var(--kb-primary);"
           @click="goTo('/notifications')"
         >查看全部通知</button>
       </div>
     </div>
 
-    <!-- User Menu -->
+    <!-- User Menu (avatar dropdown) -->
     <div v-if="showUserMenu" class="fixed inset-0 z-40" @click="showUserMenu = false"></div>
     <div
       v-if="showUserMenu"
-      class="absolute right-2 sm:right-6 top-16 w-56 rounded-lg shadow-lg py-2 z-50 border"
+      class="absolute right-2 sm:right-6 top-16 min-w-[180px] rounded-lg shadow-lg py-1 z-50 border"
       style="background: var(--kb-card); border-color: var(--kb-border);"
       role="menu"
     >
-      <div class="px-4 py-3 border-b" style="border-color: var(--kb-border);">
-        <div class="text-sm font-medium text-gray-800">{{ displayName }}</div>
-        <div class="text-xs text-gray-500 mt-0.5">{{ displayEmail }}</div>
-      </div>
-      <div class="py-1">
-        <button
-          v-for="item in userMenuItems"
-          :key="item.path"
-          type="button"
-          role="menuitem"
-          class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-          @click="goTo(item.path)"
-        >
-          <Icon :name="item.icon" :size="16" class="text-gray-400" />
-          {{ item.label }}
-        </button>
-      </div>
-      <div class="border-t pt-1" style="border-color: var(--kb-border);">
-        <button
-          type="button"
-          role="menuitem"
-          class="w-full flex items-center gap-3 px-4 py-2 text-sm text-danger-600 hover:bg-danger-50 transition-colors"
-          @click="handleLogout"
-        >
-          <Icon name="log-out" :size="16" />
-          退出登录
-        </button>
-      </div>
+      <button
+        type="button"
+        role="menuitem"
+        class="w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-gray-50"
+        style="color: var(--kb-foreground);"
+        @click="goTo('/profile')"
+      >
+        <Icon name="user-circle" :size="16" style="color: var(--kb-muted-foreground);" />
+        个人设置
+      </button>
+      <button
+        v-if="isAdmin"
+        type="button"
+        role="menuitem"
+        class="w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-gray-50"
+        style="color: var(--kb-primary);"
+        @click="goTo('/admin/overview')"
+      >
+        <Icon name="settings" :size="16" />
+        管理后台
+      </button>
+      <div class="border-t my-1" style="border-color: var(--kb-border);"></div>
+      <button
+        type="button"
+        role="menuitem"
+        class="w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-gray-50"
+        style="color: var(--kb-destructive);"
+        @click="handleLogout"
+      >
+        <Icon name="log-out" :size="16" />
+        退出登录
+      </button>
     </div>
 
     <!-- Mobile Nav Drawer -->
@@ -261,42 +365,45 @@
       :class="mobileOpen ? 'translate-x-0' : 'translate-x-full'"
     >
       <div class="flex items-center justify-between px-4 h-14 border-b" style="border-color: var(--kb-border);">
-        <span class="font-semibold text-gray-800">导航</span>
+        <span class="font-semibold" style="color: var(--kb-foreground);">导航</span>
         <button type="button" @click="mobileOpen = false" aria-label="关闭">
-          <Icon name="x" :size="20" class="text-gray-500" />
+          <Icon name="x" :size="20" style="color: var(--kb-muted-foreground);" />
         </button>
       </div>
       <nav class="p-3 space-y-1">
         <router-link
-          v-for="item in navLinks"
+          v-for="item in mobileLinks"
           :key="item.path"
           :to="item.path"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-gray-50"
+          style="color: var(--kb-foreground);"
           @click="mobileOpen = false"
         >
-          <Icon :name="item.icon" :size="18" class="text-gray-400" />
+          <Icon :name="item.icon" :size="18" style="color: var(--kb-muted-foreground);" />
           {{ item.label }}
         </router-link>
-        <div class="pt-2 pb-1 px-3 text-xs font-medium uppercase tracking-wider text-gray-400">AI 助手</div>
+        <div class="pt-2 pb-1 px-3 text-xs font-medium uppercase tracking-wider" style="color: var(--kb-muted-foreground);">学习中心</div>
         <router-link
-          v-for="it in aiMenu"
+          v-for="it in learningMenu"
           :key="it.path"
           :to="it.path"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-gray-50"
+          style="color: var(--kb-foreground);"
           @click="mobileOpen = false"
         >
-          <Icon :name="it.icon" :size="18" class="text-gray-400" />
+          <Icon :name="it.icon" :size="18" style="color: var(--kb-muted-foreground);" />
           {{ it.label }}
         </router-link>
-        <div class="pt-2 pb-1 px-3 text-xs font-medium uppercase tracking-wider text-gray-400">个人</div>
+        <div class="pt-2 pb-1 px-3 text-xs font-medium uppercase tracking-wider" style="color: var(--kb-muted-foreground);">个人</div>
         <router-link
           v-for="it in personalMenu"
           :key="it.path"
           :to="it.path"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          class="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-gray-50"
+          style="color: var(--kb-foreground);"
           @click="mobileOpen = false"
         >
-          <Icon :name="it.icon" :size="18" class="text-gray-400" />
+          <Icon :name="it.icon" :size="18" style="color: var(--kb-muted-foreground);" />
           {{ it.label }}
         </router-link>
       </nav>
@@ -305,7 +412,8 @@
 </template>
 
 <script setup lang="ts">
-// 布局组件：前台导航顶栏，含主导航、AI/个人下拉菜单、通知面板、用户菜单与移动端抽屉。
+// 布局组件：前台导航顶栏（与设计稿统一入口/首页导航结构对齐）。
+// 导航分组：首页 / 统一入口 / 知识库(下拉) / 学习中心(下拉) / AI助手(下拉) / 社区讨论 / 个人(下拉)
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
@@ -322,13 +430,14 @@ const openDropdown = ref('');
 const showNotifications = ref(false);
 const showUserMenu = ref(false);
 const mobileOpen = ref(false);
+const searchKw = ref('');
 
 const isLoggedIn = computed(() => auth.isLoggedIn);
+const isAdmin = computed(() => auth.isAdmin);
 const displayName = computed(() => {
   const u = auth.user;
   return u?.nickname || u?.username || '用户';
 });
-const displayEmail = computed(() => auth.user?.email || auth.user?.username || '');
 const initials = computed(() => {
   const name = auth.user?.nickname || auth.user?.username || 'U';
   return name.slice(0, 2).toUpperCase();
@@ -341,37 +450,60 @@ interface NavLink {
   icon: string;
 }
 
-const navLinks: NavLink[] = [
+const taskMenu: NavLink[] = [
+  { path: '/tasks', label: '任务中心', icon: 'target' },
+  { path: '/check-in', label: '每日打卡', icon: 'calendar-check' },
+  { path: '/achievements', label: '成就系统', icon: 'trophy' },
+  { path: '/kb-titles', label: '知识库称号', icon: 'award' },
+];
+
+const mobileLinks: NavLink[] = [
   { path: '/', label: '首页', icon: 'home' },
-  { path: '/knowledge', label: '知识库', icon: 'book-open' },
-  { path: '/learning/center', label: '学习中心', icon: 'graduation-cap' },
+  { path: '/tasks', label: '任务中心', icon: 'target' },
+  { path: '/check-in', label: '每日打卡', icon: 'calendar-check' },
+  { path: '/achievements', label: '成就系统', icon: 'trophy' },
+  { path: '/kb-titles', label: '知识库称号', icon: 'award' },
+  { path: '/notes', label: '笔记管理', icon: 'notebook-pen' },
+  { path: '/categories', label: '分类浏览', icon: 'folder-tree' },
+  { path: '/search', label: '搜索知识', icon: 'search' },
+  { path: '/learning/knowledge-graph', label: '知识图谱', icon: 'share-2' },
+  { path: '/community', label: '社区讨论', icon: 'users' },
+  { path: '/chat', label: '智能问答', icon: 'message-circle' },
+];
+
+const knowledgeMenu: NavLink[] = [
+  { path: '/categories', label: '分类浏览', icon: 'folder-tree' },
+  { path: '/search', label: '搜索知识', icon: 'search' },
+  { path: '/learning/knowledge-graph', label: '知识图谱', icon: 'share-2' },
+];
+
+const learningMenu: NavLink[] = [
+  { path: '/learning/center', label: '学习中心', icon: 'layout-grid' },
+  { path: '/learning/paths', label: '学习路径', icon: 'route' },
+  { path: '/learning/pomodoro', label: '番茄钟专注', icon: 'timer' },
+  { path: '/learning/code-practice', label: '代码练习', icon: 'code' },
+  { path: '/learning/flashcards', label: '学习闪卡', icon: 'layers' },
+  { path: '/learning/review', label: '复习计划', icon: 'calendar-check' },
+  { path: '/learning/mode', label: '沉浸学习', icon: 'moon' },
 ];
 
 const aiMenu: NavLink[] = [
   { path: '/chat', label: '智能问答', icon: 'message-circle' },
   { path: '/learning/writing', label: '智能写作', icon: 'pen-tool' },
-  { path: '/learning/quiz', label: '智能出题', icon: 'file-question' },
+  { path: '/learning/quiz', label: '智能测验', icon: 'help-circle' },
 ];
 
 const personalMenu: NavLink[] = [
-  { path: '/profile', label: '个人中心', icon: 'user' },
+  { path: '/profile', label: '个人中心', icon: 'user-circle' },
   { path: '/favorites', label: '收藏夹', icon: 'bookmark' },
   { path: '/notes', label: '笔记管理', icon: 'notebook-pen' },
   { path: '/mistakes', label: '错误本', icon: 'alert-circle' },
-  { path: '/learning/pomodoro', label: '番茄钟专注', icon: 'timer' },
-  { path: '/notifications', label: '消息中心', icon: 'bell' },
-  { path: '/community', label: '社区讨论', icon: 'users' },
-];
-
-const userMenuItems: NavLink[] = [
-  { path: '/profile', label: '个人中心', icon: 'user' },
-  { path: '/learning/center', label: '学习中心', icon: 'graduation-cap' },
-  { path: '/notifications', label: '消息中心', icon: 'bell' },
-  { path: '/favorites', label: '我的收藏', icon: 'heart' },
+  { path: '/learning/center', label: '学习报告', icon: 'bar-chart-2' },
 ];
 
 function isNavActive(path: string): boolean {
   if (path === '/') return route.path === '/';
+  if (path === '/tasks') return ['/tasks', '/check-in', '/achievements', '/kb-titles'].includes(route.path);
   return route.path === path || route.path.startsWith(path + '/');
 }
 
@@ -393,11 +525,19 @@ function goTo(path: string) {
   router.push(path);
 }
 
+function submitSearch() {
+  const kw = searchKw.value.trim();
+  router.push({ path: '/search', query: kw ? { q: kw } : {} });
+  searchKw.value = '';
+}
+
 function toggleNotifications() {
   showUserMenu.value = false;
   showNotifications.value = !showNotifications.value;
   if (showNotifications.value && isLoggedIn.value) {
-    notificationStore.fetchList({ pageNum: 1, pageSize: 20 }).catch((e) => console.error(e));
+    notificationStore.fetchList({ pageNum: 1, pageSize: 20 }).catch(() => {
+      // 通知列表加载失败静默处理，不打扰用户
+    });
   }
 }
 
@@ -410,8 +550,7 @@ async function handleMarkAllRead() {
   try {
     await notificationStore.markAllAsRead();
     notify('已全部标为已读', 'success');
-  } catch (e) {
-    console.error(e);
+  } catch {
     notify('操作失败', 'error');
   }
 }
@@ -419,8 +558,8 @@ async function handleMarkAllRead() {
 async function handleNotificationClick(id: number) {
   try {
     await notificationStore.markAsRead(id);
-  } catch (e) {
-    console.error(e);
+  } catch {
+    // 标记已读失败静默处理
   }
   showNotifications.value = false;
   goTo('/notifications');
@@ -508,3 +647,43 @@ onUnmounted(() => {
   window.removeEventListener('keydown', onKeyDown);
 });
 </script>
+
+<style scoped>
+.nav-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  min-width: 180px;
+  border-radius: var(--kb-radius-md);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  padding: 4px;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+}
+.nav-dropdown.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.nav-dropdown a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--kb-radius-sm);
+  font-size: 13px;
+  color: var(--kb-foreground);
+  text-decoration: none;
+  transition: background-color 0.15s, color 0.15s;
+}
+.nav-dropdown a:hover {
+  background: rgba(59, 111, 224, 0.08);
+  color: var(--kb-primary);
+}
+</style>

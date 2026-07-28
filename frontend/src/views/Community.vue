@@ -153,6 +153,35 @@
             </a>
           </div>
         </div>
+
+        <!-- 活跃用户（对齐设计稿） -->
+        <div class="border rounded-[10px] p-4 bg-white border-gray-200">
+          <h3 class="text-[18px] font-semibold mb-3 text-gray-800">活跃用户</h3>
+          <div class="flex flex-col gap-3">
+            <div
+              v-for="(user, index) in activeUsers"
+              :key="index"
+              class="flex items-center gap-3"
+            >
+              <div
+                class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 text-white"
+                :style="{ backgroundColor: user.color }"
+              >{{ user.name.charAt(0) }}</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium truncate text-gray-800">{{ user.name }}</p>
+                <p class="text-xs text-gray-400">{{ user.contribution }} 贡献值</p>
+              </div>
+              <button
+                type="button"
+                class="text-xs font-medium px-3 py-1 rounded-md border transition-colors"
+                :class="user.followed
+                  ? 'text-gray-400 border-gray-200 bg-gray-50'
+                  : 'text-primary-500 border-primary-500 hover:bg-primary-50'"
+                @click="toggleFollowUser(user)"
+              >{{ user.followed ? '已关注' : '关注' }}</button>
+            </div>
+          </div>
+        </div>
       </aside>
     </section>
 
@@ -345,6 +374,20 @@ const trendingTopics = [
   { title: 'Rust 入门最佳路径', discussions: 72 },
   { title: 'Docker 容器化部署实践', discussions: 65 },
 ]
+
+// 活跃用户：对齐设计稿，展示 5 位高贡献用户与关注按钮（本地状态切换）
+const activeUsers = ref([
+  { name: '张小明', contribution: '1,234', color: 'rgba(59, 111, 224, 0.9)', followed: false },
+  { name: '李华', contribution: '986', color: 'rgba(16, 185, 129, 0.9)', followed: false },
+  { name: '陈晨', contribution: '876', color: 'rgba(245, 158, 11, 0.9)', followed: false },
+  { name: '王芳', contribution: '743', color: 'rgba(239, 68, 68, 0.85)', followed: false },
+  { name: '孙强', contribution: '621', color: 'rgba(107, 114, 128, 0.9)', followed: false },
+])
+
+function toggleFollowUser(user: { name: string; followed: boolean }) {
+  user.followed = !user.followed
+  notify(user.followed ? `已关注 ${user.name}` : `已取消关注 ${user.name}`, 'info')
+}
 
 function getTags(tags?: string): string[] {
   if (!tags) return []

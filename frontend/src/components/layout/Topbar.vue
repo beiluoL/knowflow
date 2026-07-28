@@ -222,8 +222,8 @@ async function handleToggleNotifications() {
   if (showNotifications.value && isLoggedIn.value) {
     try {
       await notificationStore.fetchList({ pageNum: 1, pageSize: 20 })
-    } catch (e) {
-      console.error(e)
+    } catch {
+      // 通知列表加载失败静默处理
     }
   }
 }
@@ -232,8 +232,7 @@ async function handleMarkAllRead() {
   try {
     await notificationStore.markAllAsRead()
     notify('已全部标为已读', 'success')
-  } catch (e) {
-    console.error(e)
+  } catch {
     notify('操作失败', 'error')
   }
 }
@@ -241,8 +240,8 @@ async function handleMarkAllRead() {
 async function handleNotificationClick(id: number) {
   try {
     await notificationStore.markAsRead(id)
-  } catch (e) {
-    console.error(e)
+  } catch {
+    // 标记已读失败静默处理
   }
   showNotifications.value = false
   router.push('/notifications')

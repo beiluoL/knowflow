@@ -1,127 +1,255 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-    <div class="text-center relative">
-      <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-96 bg-primary-100 rounded-full blur-3xl opacity-30 animate-pulse"></div>
-      <div class="absolute -bottom-10 -left-10 w-64 h-64 bg-success-100 rounded-full blur-3xl opacity-30 animate-pulse" style="animation-delay: 0.5s"></div>
-      
-      <div class="relative z-10">
-        <div class="mb-8">
-          <h1 class="text-[150px] md:text-[200px] font-black leading-none">
-            <span class="text-primary-500 animate-bounce inline-block" style="animation-delay: 0s">4</span>
-            <span class="inline-block mx-2 relative">
-              <div class="w-24 h-24 md:w-32 md:h-32 mx-auto relative animate-spin-slow">
-                <div class="absolute inset-0 rounded-full border-4 border-dashed border-gray-300"></div>
-                <div class="absolute inset-4 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
-                  <Icon name="compass" :size="32" class="text-white animate-pulse" />
-                </div>
-              </div>
-            </span>
-            <span class="text-primary-500 animate-bounce inline-block" style="animation-delay: 0.3s">4</span>
-          </h1>
-        </div>
-        
-        <div class="animate-fade-in-up" style="animation-delay: 0.5s">
-          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-3">
-            哎呀，迷路了！
-          </h2>
-          <p class="text-gray-500 max-w-md mx-auto mb-8">
-            你访问的页面不存在，或者已经被移走了。<br/>
-            不如回到首页继续探索吧~
-          </p>
-          
-          <div class="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button variant="primary" size="lg" icon-name="home" @click="goHome">
-              返回首页
-            </Button>
-            <Button variant="secondary" size="lg" icon-name="arrow-left" @click="goBack">
-              返回上一页
-            </Button>
+  <!-- 404 页面：书本插画 + 问号 + 大号 404 数字 + 双按钮（返回首页 / 搜索知识库） -->
+  <main class="notfound-wrap">
+    <div class="notfound-inner">
+      <!-- CSS 书本插画 -->
+      <div class="book-illustration">
+        <!-- 书本主体 -->
+        <div class="book-body">
+          <!-- 书脊 -->
+          <div class="book-spine"></div>
+          <!-- 书页线条 -->
+          <div class="book-lines">
+            <div class="book-line w-full"></div>
+            <div class="book-line w-4-5"></div>
+            <div class="book-line w-full"></div>
+            <div class="book-line w-3-5"></div>
+            <div class="book-line w-full"></div>
           </div>
         </div>
-        
-        <div class="mt-16 flex justify-center gap-8">
-          <div class="animate-float" style="animation-delay: 0s">
-            <div class="w-12 h-12 rounded-2xl bg-primary-100 flex items-center justify-center">
-              <Icon name="book-open" :size="24" />
-            </div>
-          </div>
-          <div class="animate-float" style="animation-delay: 0.2s">
-            <div class="w-12 h-12 rounded-2xl bg-success-100 flex items-center justify-center">
-              <Icon name="lightbulb" :size="24" />
-            </div>
-          </div>
-          <div class="animate-float" style="animation-delay: 0.4s">
-            <div class="w-12 h-12 rounded-2xl bg-warning-100 flex items-center justify-center">
-              <Icon name="rocket" :size="24" class="text-warning-500" />
-            </div>
-          </div>
-          <div class="animate-float" style="animation-delay: 0.6s">
-            <div class="w-12 h-12 rounded-2xl bg-danger-100 flex items-center justify-center">
-              <Icon name="sparkles" :size="24" class="text-danger-500" />
-            </div>
-          </div>
+        <!-- 问号气泡 -->
+        <div class="question-mark">
+          <span>?</span>
         </div>
       </div>
+
+      <!-- 大号 404 数字 -->
+      <h1 class="notfound-number">404</h1>
+
+      <!-- 副标题 -->
+      <p class="notfound-title">抱歉，你访问的页面不存在</p>
+
+      <!-- 描述文字 -->
+      <p class="notfound-desc">可能是链接已失效，或者你输入了错误的地址</p>
+
+      <!-- 操作按钮 -->
+      <div class="notfound-actions">
+        <button class="btn-primary" @click="goHome">
+          <Icon name="home" :size="16" />
+          <span>返回首页</span>
+        </button>
+        <button class="btn-outline" @click="goSearch">
+          <Icon name="search" :size="16" />
+          <span>搜索知识库</span>
+        </button>
+      </div>
     </div>
-  </div>
+  </main>
 </template>
 
 <script setup lang="ts">
-// 404 页面：页面不存在时的友好提示，支持返回首页或上一页。
+// 404 页面：页面不存在时的友好提示，支持返回首页或前往搜索知识库。
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
-import Button from '@/components/ui/Button.vue'
 
 const router = useRouter()
 
+/** 返回首页 */
 const goHome = () => {
   router.push('/')
 }
 
-const goBack = () => {
-  router.back()
+/** 前往搜索页 */
+const goSearch = () => {
+  router.push('/search')
 }
 </script>
 
 <style scoped>
-@keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+/* 容器：全屏居中 */
+.notfound-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: var(--kb-background);
+}
+
+.notfound-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 480px;
+  width: 100%;
+}
+
+/* 书本插画区域 */
+.book-illustration {
+  position: relative;
+  margin-bottom: 32px;
+}
+
+/* 书本主体 */
+.book-body {
+  position: relative;
+  width: 96px;
+  height: 112px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--kb-muted);
+}
+
+/* 书脊（左侧蓝色竖条） */
+.book-spine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  background: var(--kb-primary);
+  opacity: 0.5;
+}
+
+/* 书页线条容器 */
+.book-lines {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 书页线条 */
+.book-line {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--kb-border);
+}
+
+.book-line.w-full {
+  width: 100%;
+}
+
+.book-line.w-4-5 {
+  width: 80%;
+}
+
+.book-line.w-3-5 {
+  width: 60%;
+}
+
+/* 问号气泡 */
+.question-mark {
+  position: absolute;
+  top: -12px;
+  right: -8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--kb-primary);
+  box-shadow: 0 4px 12px rgba(59, 111, 224, 0.3);
+}
+
+.question-mark span {
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* 大号 404 数字 */
+.notfound-number {
+  font-size: 120px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--kb-primary);
+  opacity: 0.18;
+  margin: 0;
+}
+
+/* 副标题 */
+.notfound-title {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--kb-foreground);
+  margin: 16px 0 0 0;
+}
+
+/* 描述文字 */
+.notfound-desc {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--kb-muted-foreground);
+  margin: 12px 0 0 0;
+}
+
+/* 按钮组 */
+.notfound-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 32px;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .notfound-actions {
+    flex-direction: row;
+    justify-content: center;
   }
 }
 
-.animate-spin-slow {
-  animation: spin-slow 20s linear infinite;
+/* 主按钮 */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
 }
 
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.btn-primary:hover {
+  opacity: 0.9;
 }
 
-.animate-fade-in-up {
-  animation: fade-in-up 0.6s ease-out forwards;
+/* 描边按钮 */
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  background: transparent;
+  color: var(--kb-foreground);
+  border: 1px solid var(--kb-border);
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-12px);
-  }
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
+.btn-outline:hover {
+  background: var(--kb-muted);
 }
 </style>

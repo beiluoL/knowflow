@@ -1,6 +1,7 @@
 // 前端路由表与登录守卫配置。
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { notify } from '@/utils/toast';
 
 /**
  * 布局约定（与设计稿对齐）：
@@ -10,11 +11,10 @@ import { useAuthStore } from '@/stores/auth';
  */
 const routes: RouteRecordRaw[] = [
   // ===== 通用系统页面（无布局） =====
+  // UnifiedPortal 已移除：/portal 重定向到任务中心（作为新的工作台首页）
   {
     path: '/portal',
-    name: 'UnifiedPortal',
-    component: () => import('@/views/UnifiedPortal.vue'),
-    meta: { layout: 'none' },
+    redirect: '/tasks',
   },
   {
     path: '/login',
@@ -24,14 +24,20 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/register',
-    name: 'Register',
-    component: () => import('@/views/Register.vue'),
-    meta: { layout: 'none' },
+    redirect: { path: '/login', query: { tab: 'register' } },
   },
   {
     path: '/redirect',
     name: 'Redirect',
     component: () => import('@/views/Redirect.vue'),
+    meta: { layout: 'none' },
+  },
+  // 第三方 OAuth 登录回调中转页：后端 /api/auth/oauth/{provider}/callback 完成后
+  // 带 ?token=xxx 或 ?error=xxx 重定向到此页，前端写入会话后跳回首页
+  {
+    path: '/oauth/callback',
+    name: 'OAuthCallback',
+    component: () => import('@/views/OAuthCallback.vue'),
     meta: { layout: 'none' },
   },
 
@@ -84,7 +90,7 @@ const routes: RouteRecordRaw[] = [
     path: '/learning/center',
     name: 'LearningCenter',
     component: () => import('@/views/LearningReport.vue'),
-    meta: { layout: 'c', requiresAuth: true },
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   {
     path: '/learning/paths',
@@ -102,25 +108,31 @@ const routes: RouteRecordRaw[] = [
     path: '/learning/chapter/:id',
     name: 'ChapterLearn',
     component: () => import('@/views/ChapterLearn.vue'),
-    meta: { layout: 'c', requiresAuth: true },
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   {
     path: '/learning/code-practice',
     name: 'CodePractice',
     component: () => import('@/views/CodePractice.vue'),
-    meta: { layout: 'c', requiresAuth: true },
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   {
     path: '/learning/flashcards',
     name: 'FlashCards',
     component: () => import('@/views/FlashCards.vue'),
-    meta: { layout: 'c' },
+    meta: { layout: 'c', fullscreen: true },
+  },
+  {
+    path: '/learning/knowledge-graph',
+    name: 'KnowledgeGraph',
+    component: () => import('@/views/KnowledgeGraph.vue'),
+    meta: { layout: 'c', fullscreen: true },
   },
   {
     path: '/learning/review',
     name: 'ReviewPlan',
     component: () => import('@/views/ReviewPlan.vue'),
-    meta: { layout: 'c', requiresAuth: true },
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   // 沉浸式学习模式：无顶栏
   {
@@ -140,7 +152,7 @@ const routes: RouteRecordRaw[] = [
     path: '/learning/pomodoro',
     name: 'LearningPomodoro',
     component: () => import('@/views/LearningCenter.vue'),
-    meta: { layout: 'c', requiresAuth: true },
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
 
   // ===== C 端：AI 助手（共享工具页，C 端入口） =====
@@ -148,22 +160,40 @@ const routes: RouteRecordRaw[] = [
     path: '/chat',
     name: 'Chat',
     component: () => import('@/views/Chat.vue'),
-    meta: { layout: 'c', requiresAuth: true },
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   {
     path: '/learning/quiz',
     name: 'SmartQuiz',
     component: () => import('@/views/SmartQuiz.vue'),
-    meta: { layout: 'c', requiresAuth: true },
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   {
     path: '/learning/writing',
     name: 'SmartWriting',
     component: () => import('@/views/SmartWriting.vue'),
-    meta: { layout: 'c', requiresAuth: true },
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
 
   // ===== C 端：个人空间 =====
+  {
+    path: '/tasks',
+    name: 'TaskCenter',
+    component: () => import('@/views/TaskCenter.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  {
+    path: '/achievements',
+    name: 'Achievement',
+    component: () => import('@/views/Achievement.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  {
+    path: '/kb-titles',
+    name: 'KBTitle',
+    component: () => import('@/views/KBTitle.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
   {
     path: '/profile',
     name: 'Profile',
@@ -180,6 +210,24 @@ const routes: RouteRecordRaw[] = [
     path: '/notes',
     name: 'NotesManage',
     component: () => import('@/views/NotesManage.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
+    path: '/notes/new',
+    name: 'NoteCreate',
+    component: () => import('@/views/NoteEdit.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
+    path: '/notes/:id/edit',
+    name: 'NoteEdit',
+    component: () => import('@/views/NoteEdit.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
+    path: '/check-in',
+    name: 'CheckIn',
+    component: () => import('@/views/CheckIn.vue'),
     meta: { layout: 'c', requiresAuth: true },
   },
   {
@@ -324,6 +372,7 @@ router.beforeEach(async (to) => {
   }
 
   if (to.meta.requiresAdmin && auth.user?.role !== 'ADMIN') {
+    notify('需要管理员权限才能访问', 'error');
     return { path: '/' };
   }
 

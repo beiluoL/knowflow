@@ -1,182 +1,213 @@
 <template>
-  <div class="animate-fade-in space-y-8">
-    <section class="rounded-xl overflow-hidden" style="background: linear-gradient(135deg, #3B6FE0 0%, rgba(59,111,224,0.8) 100%)">
-      <div class="relative p-6 lg:p-8">
-        <div class="absolute left-0 top-0 bottom-0 w-1 bg-white/30"></div>
-        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pl-2">
-          <div class="min-w-0">
-            <div class="flex items-center gap-2 mb-3">
-              <Icon name="quote" :size="20" class="text-white/60" />
-              <span class="text-[12px] font-medium text-white/70 tracking-wide">每日一句</span>
-            </div>
-            <p class="text-lg lg:text-xl font-medium text-white leading-relaxed" style="text-wrap: balance">
-              {{ currentQuote.text }}
-            </p>
-            <p class="mt-2 text-[13px] text-white/70">
-              —— {{ currentQuote.author }}
-            </p>
-          </div>
-          <div class="flex gap-3 shrink-0">
-            <router-link
-              to="/docs"
-              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-[14px] font-medium bg-white text-primary-600 hover:opacity-90 transition-opacity"
-            >
-              <Icon name="book-open" :size="16" />
-              浏览全部
-            </router-link>
-            <router-link
-              to="/categories"
-              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-[14px] font-medium bg-white/20 text-white border border-white/30 hover:bg-white/30 transition-colors"
-            >
-              <Icon name="folder-tree" :size="16" />
-              分类目录
-            </router-link>
-          </div>
+  <div class="animate-fade-in">
+    <!-- ========== Section 1: Hero 搜索区（居中） ========== -->
+    <section class="mb-10">
+      <div class="flex flex-col items-center text-center pt-6 pb-3">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-5" style="background: rgba(59,111,224,0.08);">
+          <Icon name="compass" :size="14" style="color: var(--kb-primary);" />
+          <span class="text-xs font-medium" style="color: var(--kb-primary);">知识库浏览中心</span>
+        </div>
+        <h1 class="kb-h1 mb-3" style="text-wrap: balance;">探索知识库</h1>
+        <p class="text-sm mb-7" style="color: var(--kb-muted-foreground);">
+          在 {{ topCategories.length }} 个知识库、{{ totalDocs }} 篇文档中找到你需要的内容
+        </p>
+
+        <!-- 大搜索框 -->
+        <div class="w-full max-w-2xl relative">
+          <Icon name="search" :size="20" class="absolute left-4 top-1/2 -translate-y-1/2" style="color: var(--kb-muted-foreground);" />
+          <input
+            v-model="searchKeyword"
+            type="text"
+            placeholder="搜索知识库、文档、标签..."
+            class="kb-search-input"
+            @keyup.enter="goSearch"
+          />
+          <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs px-2 py-1 rounded-md font-medium" style="background: var(--kb-muted); color: var(--kb-muted-foreground);">⌘K</span>
+        </div>
+
+        <!-- 热门标签 -->
+        <div class="flex items-center flex-wrap justify-center gap-2 mt-6">
+          <span class="text-xs mr-1" style="color: var(--kb-muted-foreground);">热门标签：</span>
+          <button
+            v-for="tag in hotTags"
+            :key="tag.name"
+            type="button"
+            class="kb-tag-chip"
+            @click="goSearch(tag.name)"
+          >
+            {{ tag.name }}
+          </button>
         </div>
       </div>
     </section>
 
-    <section>
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-gray-800">知识分类</h3>
-        <router-link to="/categories" class="text-sm text-primary-500 hover:text-primary-600 transition-colors flex items-center gap-1">
+    <!-- ========== Section 2: 知识库卡片网格（2x3） ========== -->
+    <section class="mb-10">
+      <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center gap-2">
+          <h2 class="kb-h3">全部知识库</h2>
+          <span class="text-xs px-2 py-0.5 rounded-md" style="background: var(--kb-muted); color: var(--kb-muted-foreground);">{{ topCategories.length }}</span>
+        </div>
+        <router-link to="/categories" class="text-sm font-medium hover:opacity-80 inline-flex items-center gap-1" style="color: var(--kb-primary);">
           查看全部
-          <Icon name="chevron-right" :size="14" />
+          <Icon name="arrow-right" :size="14" />
         </router-link>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-        <div
-          v-for="category in topCategories" :key="category.id"
-          class="bg-white border border-[#E2E6EC] rounded-lg p-4 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-all duration-200 group"
-          @click="goToCategory(category.id)"
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <a
+          v-for="(cat, idx) in topCategories"
+          :key="cat.id"
+          class="kb-card-item"
+          @click.prevent="goToCategory(cat.id)"
         >
-          <div
-            class="w-10 h-10 rounded-lg flex items-center justify-center mb-3"
-            :style="{ background: category.color + '20' }"
-          >
-            <Icon :name="getCategoryIcon(category.icon)" :size="20" :style="{ color: category.color }" />
+          <div :style="{ height: '4px', background: kbColors[idx % kbColors.length] }"></div>
+          <div class="p-5">
+            <div class="flex items-start gap-3 mb-3">
+              <div class="kb-card-icon" :style="{ background: `${kbColors[idx % kbColors.length]}1A` }">
+                <Icon :name="getCategoryIcon(cat.icon)" :size="20" :style="{ color: kbColors[idx % kbColors.length] }" />
+              </div>
+              <div class="min-w-0 flex-1">
+                <h3 class="text-sm font-semibold truncate" style="color: var(--kb-foreground);">{{ cat.name }}</h3>
+                <p class="text-xs mt-0.5 truncate" style="color: var(--kb-muted-foreground);">{{ cat.subtitle || kbSubtitles[idx % kbSubtitles.length] }}</p>
+              </div>
+            </div>
+            <p class="text-xs line-clamp-2 mb-4" style="color: var(--kb-muted-foreground);">{{ cat.description || `系统化学习${cat.name}相关知识，循序渐进掌握技能。` }}</p>
+            <div class="flex items-center justify-between pt-3" style="border-top: 1px solid var(--kb-border);">
+              <div class="flex items-center gap-3 text-xs" style="color: var(--kb-muted-foreground);">
+                <span class="inline-flex items-center gap-1"><Icon name="file-text" :size="12" />{{ cat.docCount || 0 }} 篇</span>
+                <span class="inline-flex items-center gap-1"><Icon name="bookmark" :size="12" />{{ cat.children?.length || 0 }} 章</span>
+              </div>
+              <span class="text-xs font-medium inline-flex items-center gap-0.5" style="color: var(--kb-primary);">进入<Icon name="chevron-right" :size="12" /></span>
+            </div>
           </div>
-          <h4 class="font-medium text-gray-800 mb-1 group-hover:text-primary-500 transition-colors">{{ category.name }}</h4>
-          <p class="text-xs text-gray-400">{{ category.docCount || 0 }} 篇文档</p>
+        </a>
+      </div>
+      <p v-if="!loading && topCategories.length === 0" class="text-center py-10 text-sm" style="color: var(--kb-muted-foreground);">
+        暂无知识库分类，请稍后再来
+      </p>
+    </section>
+
+    <!-- ========== Section 3: 按分类浏览 ========== -->
+    <section v-if="topCategories.length > 0" class="mb-10">
+      <h2 class="kb-h3 mb-5">按分类浏览</h2>
+      <div class="flex items-center flex-wrap gap-3">
+        <button class="cat-chip" @click="goToCategory()">
+          <Icon name="layout-grid" :size="16" style="color: var(--kb-primary);" />
+          <span class="text-sm font-medium" style="color: var(--kb-foreground);">全部</span>
+          <span class="cat-chip-count">{{ totalDocs }}</span>
+        </button>
+        <button
+          v-for="(cat, idx) in topCategories"
+          :key="cat.id"
+          class="cat-chip"
+          @click="goToCategory(cat.id)"
+        >
+          <Icon :name="getCategoryIcon(cat.icon)" :size="16" :style="{ color: kbColors[idx % kbColors.length] }" />
+          <span class="text-sm font-medium" style="color: var(--kb-foreground);">{{ cat.name }}</span>
+          <span class="cat-chip-count">{{ cat.docCount || 0 }}</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ========== Section 4: 精选文档（2列） ========== -->
+    <section class="mb-10">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- 精选推荐 -->
+        <div class="rounded-xl border overflow-hidden" style="background: var(--kb-card); border-color: var(--kb-border);">
+          <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid var(--kb-border);">
+            <div class="flex items-center gap-2">
+              <Icon name="star" :size="16" style="color: var(--kb-warning);" />
+              <h3 class="text-sm font-semibold" style="color: var(--kb-foreground);">精选推荐</h3>
+            </div>
+            <router-link to="/docs?sortBy=hot" class="text-xs font-medium hover:opacity-80" style="color: var(--kb-primary);">更多</router-link>
+          </div>
+          <div class="px-5">
+            <a
+              v-for="(doc, idx) in featuredDocs"
+              :key="doc.id"
+              class="doc-list-item"
+              @click.prevent="goToDoc(doc.id)"
+            >
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" :style="{ background: `${docIconColors[idx % docIconColors.length]}14` }">
+                <Icon name="file-text" :size="16" :style="{ color: docIconColors[idx % docIconColors.length] }" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <h4 class="doc-list-title text-sm font-semibold truncate" style="color: var(--kb-foreground);">{{ doc.title }}</h4>
+                <p class="text-xs line-clamp-1 mt-1" style="color: var(--kb-muted-foreground);">{{ doc.summary || '暂无摘要' }}</p>
+                <div class="flex items-center gap-2 mt-1.5">
+                  <span class="text-xs px-1.5 py-0.5 rounded" :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }">{{ doc.categoryName || '未分类' }}</span>
+                  <span style="color: var(--kb-border);">·</span>
+                  <span class="inline-flex items-center gap-0.5 text-xs" style="color: var(--kb-muted-foreground);"><Icon name="eye" :size="12" />{{ doc.viewCount || 0 }} 阅读</span>
+                </div>
+              </div>
+            </a>
+            <p v-if="!loading && featuredDocs.length === 0" class="py-8 text-center text-sm" style="color: var(--kb-muted-foreground);">暂无推荐文档</p>
+          </div>
+        </div>
+
+        <!-- 最新更新 -->
+        <div class="rounded-xl border overflow-hidden" style="background: var(--kb-card); border-color: var(--kb-border);">
+          <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid var(--kb-border);">
+            <div class="flex items-center gap-2">
+              <Icon name="clock" :size="16" style="color: var(--kb-primary);" />
+              <h3 class="text-sm font-semibold" style="color: var(--kb-foreground);">最新更新</h3>
+            </div>
+            <router-link to="/docs?sortBy=new" class="text-xs font-medium hover:opacity-80" style="color: var(--kb-primary);">更多</router-link>
+          </div>
+          <div class="px-5">
+            <a
+              v-for="(doc, idx) in latestDocs"
+              :key="doc.id"
+              class="doc-list-item"
+              @click.prevent="goToDoc(doc.id)"
+            >
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" :style="{ background: `${docIconColors[idx % docIconColors.length]}14` }">
+                <Icon name="file-text" :size="16" :style="{ color: docIconColors[idx % docIconColors.length] }" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <h4 class="doc-list-title text-sm font-semibold truncate" style="color: var(--kb-foreground);">{{ doc.title }}</h4>
+                <p class="text-xs line-clamp-1 mt-1" style="color: var(--kb-muted-foreground);">{{ doc.summary || '暂无摘要' }}</p>
+                <div class="flex items-center gap-2 mt-1.5">
+                  <span class="text-xs px-1.5 py-0.5 rounded" :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }">{{ doc.categoryName || '未分类' }}</span>
+                  <span style="color: var(--kb-border);">·</span>
+                  <span class="inline-flex items-center gap-0.5 text-xs" style="color: var(--kb-muted-foreground);"><Icon name="clock" :size="12" />{{ formatRelativeTime(doc.createTime) }}</span>
+                </div>
+              </div>
+            </a>
+            <p v-if="!loading && latestDocs.length === 0" class="py-8 text-center text-sm" style="color: var(--kb-muted-foreground);">暂无最新文档</p>
+          </div>
         </div>
       </div>
     </section>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <section class="lg:col-span-2">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-800">精选推荐</h3>
-          <router-link to="/docs" class="text-sm text-primary-500 hover:text-primary-600 transition-colors flex items-center gap-1">
-            更多
-            <Icon name="chevron-right" :size="14" />
+    <!-- ========== Section 5: 底部 CTA ========== -->
+    <section class="mb-6">
+      <div class="rounded-2xl border px-6 py-8 lg:px-8 lg:py-10 flex flex-col items-center text-center" style="background: var(--kb-card); border-color: var(--kb-border);">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style="background: rgba(59,111,224,0.08);">
+          <Icon name="help-circle" :size="24" style="color: var(--kb-primary);" />
+        </div>
+        <h3 class="kb-h3 mb-2">找不到需要的知识？</h3>
+        <p class="text-sm mb-6" style="color: var(--kb-muted-foreground);">
+          上传你的文档，或管理现有知识库，让团队的知识沉淀更有序
+        </p>
+        <div class="flex items-center gap-3 flex-wrap justify-center">
+          <router-link to="/admin/upload" class="btn-primary">
+            <Icon name="upload" :size="16" />
+            上传你的文档
+          </router-link>
+          <router-link to="/admin/knowledge" class="btn-secondary">
+            <Icon name="settings-2" :size="16" />
+            管理知识库
           </router-link>
         </div>
-        <div class="space-y-3">
-          <div
-            v-for="doc in featuredDocs" :key="doc.id"
-            class="bg-white border border-[#E2E6EC] rounded-lg p-4 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-all duration-200 group"
-            @click="goToDoc(doc.id)"
-          >
-            <div class="flex items-start gap-4">
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-2">
-                  <span class="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium" style="background:rgba(59,111,224,0.1);color:#3B6FE0">
-                    {{ doc.categoryName || '未分类' }}
-                  </span>
-                  <span
-                    v-for="tag in tagList(doc.tags).slice(0, 2)" :key="tag"
-                    class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-500"
-                  >
-                    {{ tag }}
-                  </span>
-                </div>
-                <h4 class="font-medium text-gray-800 mb-1 group-hover:text-primary-500 transition-colors">
-                  {{ doc.title }}
-                </h4>
-                <p class="text-sm text-gray-500 line-clamp-1">
-                  {{ doc.summary || '暂无摘要' }}
-                </p>
-              </div>
-              <div class="flex flex-col items-end gap-2 shrink-0">
-                <span class="text-xs text-gray-400">{{ formatDate(doc.createTime) }}</span>
-                <div class="flex items-center gap-3 text-xs text-gray-400">
-                  <span class="flex items-center gap-1">
-                    <Icon name="eye" :size="14" />
-                    {{ doc.viewCount || 0 }}
-                  </span>
-                  <span class="flex items-center gap-1">
-                    <Icon name="heart" :size="14" />
-                    {{ doc.favoriteCount || 0 }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <p v-if="featuredDocs.length === 0 && !loading" class="text-center py-12 text-gray-400">
-            暂无推荐文档
-          </p>
-        </div>
-      </section>
-
-      <section class="space-y-6">
-        <div class="bg-white border border-[#E2E6EC] rounded-lg p-5">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="font-semibold text-gray-800">热门标签</h3>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <span
-              v-for="tag in hotTags" :key="tag.name"
-              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[12px] cursor-pointer transition-colors hover:opacity-80"
-              :style="{ background: tag.color + '15', color: tag.color }"
-            >
-              <Icon name="tag" :size="12" />
-              {{ tag.name }}
-            </span>
-          </div>
-        </div>
-
-        <div class="bg-white border border-[#E2E6EC] rounded-lg p-5">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="font-semibold text-gray-800">学习统计</h3>
-          </div>
-          <div class="space-y-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <Icon name="book-open" :size="16" class="text-primary-500" />
-                <span class="text-sm text-gray-600">已阅读文档</span>
-              </div>
-              <span class="text-lg font-bold text-gray-800">{{ stats.readCount }}</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <Icon name="clock" :size="16" class="text-warning-500" />
-                <span class="text-sm text-gray-600">学习时长</span>
-              </div>
-              <span class="text-lg font-bold text-gray-800">{{ stats.studyHours }} 小时</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <Icon name="flame" :size="16" class="text-danger-500" />
-                <span class="text-sm text-gray-600">连续学习</span>
-              </div>
-              <span class="text-lg font-bold text-gray-800">{{ stats.streakDays }} 天</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <Icon name="star" :size="16" class="text-warning-500" />
-                <span class="text-sm text-gray-600">收藏文档</span>
-              </div>
-              <span class="text-lg font-bold text-gray-800">{{ stats.favoriteCount }}</span>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+      </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-// 知识库首页（分类导航）：每日金句、分类入口、精选推荐、热门标签与学习统计。
+// 知识库首页：Hero 搜索 + 知识库卡片网格 + 分类导航 + 双列精选文档 + 底部 CTA
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
@@ -186,128 +217,88 @@ import type { CategoryVO, DocVO } from '@/api/types'
 const router = useRouter()
 
 const loading = ref(false)
-const topCategories = ref<(CategoryVO & { color: string })[]>([])
+const searchKeyword = ref('')
+const topCategories = ref<CategoryVO[]>([])
 const featuredDocs = ref<DocVO[]>([])
+const latestDocs = ref<DocVO[]>([])
 
-const famousQuotes = [
-  { text: '学而不思则罔，思而不学则殆。', author: '孔子' },
-  { text: '知之者不如好之者，好之者不如乐之者。', author: '孔子' },
-  { text: '吾生也有涯，而知也无涯。', author: '庄子' },
-  { text: '读书破万卷，下笔如有神。', author: '杜甫' },
-  { text: '问渠那得清如许，为有源头活水来。', author: '朱熹' },
-  { text: '业精于勤，荒于嬉；行成于思，毁于随。', author: '韩愈' },
-  { text: '少壮不努力，老大徒伤悲。', author: '汉乐府' },
-  { text: '黑发不知勤学早，白首方悔读书迟。', author: '颜真卿' },
-  { text: '纸上得来终觉浅，绝知此事要躬行。', author: '陆游' },
-  { text: '古人学问无遗力，少壮工夫老始成。', author: '陆游' },
-  { text: '路漫漫其修远兮，吾将上下而求索。', author: '屈原' },
-  { text: '不积跬步，无以至千里；不积小流，无以成江海。', author: '荀子' },
-  { text: '锲而舍之，朽木不折；锲而不舍，金石可镂。', author: '荀子' },
-  { text: '敏而好学，不耻下问。', author: '孔子' },
-  { text: '三人行，必有我师焉。', author: '孔子' },
-  { text: '温故而知新，可以为师矣。', author: '孔子' },
-  { text: '知之为知之，不知为不知，是知也。', author: '孔子' },
-  { text: '学而时习之，不亦说乎。', author: '孔子' },
-  { text: '宝剑锋从磨砺出，梅花香自苦寒来。', author: '警世贤文' },
-  { text: '书山有路勤为径，学海无涯苦作舟。', author: '韩愈' },
+// 知识库主色板（与设计稿一致：蓝/绿/橙/红/紫/灰）
+const kbColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#6B7280']
+const kbSubtitles = [
+  '前端 / 框架 / 工程化',
+  '后端 / 服务 / 数据库',
+  '数据分析 / 可视化',
+  '机器学习 / 深度学习',
+  '设计系统 / UX / 交互',
+  '算法 / 操作系统 / 网络',
 ]
 
-// 随机选取一条每日金句
-const quoteIndex = ref(Math.floor(Math.random() * famousQuotes.length))
-
-const currentQuote = computed(() => famousQuotes[quoteIndex.value])
-
-const iconColors: Record<string, string> = {
-  code: '#3B6FE0',
-  server: '#10B981',
-  database: '#F59E0B',
-  brain: '#8B5CF6',
-  settings: '#06B6D4',
-  monitor: '#EC4899',
-  wifi: '#84CC16',
-  layers: '#F97316',
-  'book-open': '#3B6FE0',
-  folder: '#6B7280',
-  shield: '#EF4444',
-  'git-branch': '#F97316',
-  'message-square': '#0EA5E9',
-  target: '#14B8A6',
-  'bar-chart-2': '#F59E0B',
-  palette: '#EC4899',
-  briefcase: '#64748B',
-  cpu: '#8B5CF6',
-  bot: '#06B6D4',
-  lock: '#EF4444',
-}
-
-const getCategoryIcon = (iconName?: string): string => {
-  const valid = [
-    'code', 'server', 'database', 'brain', 'settings', 'monitor', 'wifi', 'layers',
-    'book-open', 'folder', 'shield', 'git-branch', 'message-square', 'target',
-    'bar-chart-2', 'palette', 'briefcase', 'cpu', 'bot', 'lock',
-  ]
-  return valid.includes(iconName || '') ? iconName! : 'folder'
-}
-
-const getCategoryColor = (iconName?: string): string => {
-  return iconColors[iconName || ''] || '#6B7280'
-}
+const docIconColors = ['#EF4444', '#3B6FE0', '#8B5CF6', '#10B981', '#F59E0B', '#6B7280']
 
 const hotTags = [
-  { name: 'Vue 3', color: '#3B6FE0' },
-  { name: 'React', color: '#10B981' },
-  { name: 'TypeScript', color: '#3178C6' },
-  { name: 'Python', color: '#FFD43B' },
-  { name: '算法', color: '#F59E0B' },
-  { name: '设计模式', color: '#8B5CF6' },
-  { name: 'MySQL', color: '#4479A1' },
-  { name: 'Docker', color: '#2496ED' },
+  { name: '前端开发' },
+  { name: '后端技术' },
+  { name: '数据科学' },
+  { name: '人工智能' },
+  { name: '产品设计' },
 ]
 
-const stats = ref({
-  readCount: 42,
-  studyHours: 68,
-  streakDays: 7,
-  favoriteCount: 15,
-})
+const totalDocs = computed(() => topCategories.value.reduce((sum, c) => sum + (c.docCount || 0), 0))
 
-const tagList = (tags?: string): string[] => {
-  if (!tags) return []
-  return tags.split(',').filter(Boolean)
+const validIcons = [
+  'code', 'server', 'database', 'brain', 'settings', 'monitor', 'wifi', 'layers',
+  'book-open', 'folder', 'shield', 'git-branch', 'message-square', 'target',
+  'bar-chart-2', 'palette', 'briefcase', 'cpu', 'bot', 'lock',
+  'layout', 'binary',
+]
+
+const getCategoryIcon = (iconName?: string): string => {
+  return validIcons.includes(iconName || '') ? iconName! : 'folder'
 }
 
-const goToCategory = (id: number) => {
-  router.push({ path: '/categories', query: { categoryId: String(id) } })
+const goSearch = (kw?: string) => {
+  router.push({ path: '/search', query: { q: kw || searchKeyword.value } })
+}
+
+const goToCategory = (id?: number) => {
+  if (id) {
+    router.push({ path: '/categories', query: { categoryId: String(id) } })
+  } else {
+    router.push('/categories')
+  }
 }
 
 const goToDoc = (id: number) => {
   router.push(`/doc/${id}`)
 }
 
-const formatDate = (dateStr?: string) => {
+const formatRelativeTime = (dateStr?: string) => {
   if (!dateStr) return ''
   const date = new Date(dateStr)
-  return date.toLocaleDateString('zh-CN', {
-    month: 'short',
-    day: 'numeric',
-  })
+  const now = new Date()
+  const diff = (now.getTime() - date.getTime()) / 1000
+  if (diff < 3600) return `${Math.max(1, Math.floor(diff / 60))} 分钟前`
+  if (diff < 86400) return `${Math.floor(diff / 3600)} 小时前`
+  if (diff < 172800) return '昨天'
+  if (diff < 604800) return `${Math.floor(diff / 86400)} 天前`
+  return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
 }
 
 const loadData = async () => {
   loading.value = true
   try {
-    const [cats, docs] = await Promise.all([
+    const [cats, hot, recent] = await Promise.all([
       categoriesApi.tree(),
       docsApi.list({ pageSize: 6, sortBy: 'hot' } as any).then((r) => r.records || []),
+      docsApi.list({ pageSize: 6, sortBy: 'new' } as any).then((r) => r.records || []),
     ])
-    topCategories.value = cats.slice(0, 6).map((c) => ({
-      ...c,
-      color: getCategoryColor(c.icon),
-    }))
-    featuredDocs.value = docs.slice(0, 5)
+    topCategories.value = cats.slice(0, 6)
+    featuredDocs.value = hot.slice(0, 5)
+    latestDocs.value = recent.slice(0, 5)
   } catch {
     topCategories.value = []
     featuredDocs.value = []
+    latestDocs.value = []
   } finally {
     loading.value = false
   }
@@ -322,14 +313,8 @@ onMounted(loadData)
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .line-clamp-1 {
@@ -338,4 +323,155 @@ onMounted(loadData)
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Hero search input */
+.kb-search-input {
+  width: 100%;
+  height: 52px;
+  padding-left: 48px;
+  padding-right: 80px;
+  border-radius: var(--kb-radius-lg);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  font-size: 15px;
+  color: var(--kb-foreground);
+  outline: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.kb-search-input::placeholder { color: var(--kb-muted-foreground); }
+.kb-search-input:focus {
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
+}
+
+/* Hot tag chip */
+.kb-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--kb-muted);
+  color: var(--kb-card-foreground);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+.kb-tag-chip:hover {
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+}
+
+/* KB card item */
+.kb-card-item {
+  display: block;
+  border-radius: var(--kb-radius-lg);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+}
+.kb-card-item:hover {
+  box-shadow: 0 8px 24px rgba(59, 111, 224, 0.12);
+  transform: translateY(-2px);
+  border-color: var(--kb-primary);
+}
+.kb-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--kb-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Category chip */
+.cat-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-radius: var(--kb-radius-md);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.cat-chip:hover {
+  border-color: var(--kb-primary);
+  box-shadow: 0 2px 8px rgba(59, 111, 224, 0.08);
+}
+.cat-chip-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--kb-muted);
+  color: var(--kb-muted-foreground);
+}
+
+/* Doc list item */
+.doc-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--kb-border);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.doc-list-item:last-child { border-bottom: none; }
+.doc-list-item:hover .doc-list-title { color: var(--kb-primary); }
+.doc-list-title { transition: color 0.15s; }
+
+/* Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: var(--kb-radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-primary:hover { opacity: 0.9; }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: var(--kb-radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--kb-card);
+  color: var(--kb-primary);
+  border: 1px solid var(--kb-border);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.btn-secondary:hover { background: var(--kb-muted); }
 </style>

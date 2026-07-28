@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -44,6 +45,7 @@
   --shadow-card: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
   --shadow-card-hover: 0 8px 24px 0 rgba(0, 0, 0, 0.08);
   --font-sans: 'Noto Sans SC', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Noto Serif SC', Georgia, 'Times New Roman', serif;
 
   /* ===== 旧版 --color-* 变量：全部引用 --kb-*，不再各自写死（F-07） ===== */
   --color-primary: var(--kb-primary);
@@ -83,6 +85,11 @@ body {
   background-color: var(--color-background);
   color: var(--color-text-primary);
   font-family: var(--font-sans);
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(59, 111, 224, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(59, 111, 224, 0.02) 0%, transparent 50%);
+  background-size: 100% 100%;
+  background-attachment: fixed;
 }
 
 #app {
@@ -186,26 +193,27 @@ button:focus-visible,
 
   /* ===== Design-system typography scale（与设计稿 .kb-* 对齐） ===== */
   .kb-h1 {
-    font-family: var(--font-sans);
-    font-size: 28px;
+    font-family: var(--font-serif);
+    font-size: 32px;
     font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+    color: var(--kb-foreground);
+  }
+  .kb-h2 {
+    font-family: var(--font-serif);
+    font-size: 24px;
+    font-weight: 600;
     line-height: 1.3;
     letter-spacing: -0.02em;
     color: var(--kb-foreground);
   }
-  .kb-h2 {
-    font-family: var(--font-sans);
-    font-size: 22px;
+  .kb-h3 {
+    font-family: var(--font-serif);
+    font-size: 20px;
     font-weight: 600;
     line-height: 1.35;
     letter-spacing: -0.01em;
-    color: var(--kb-foreground);
-  }
-  .kb-h3 {
-    font-family: var(--font-sans);
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1.4;
     color: var(--kb-foreground);
   }
   .kb-h4 {
@@ -362,5 +370,21 @@ button:focus-visible,
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+}
+
+/* =====================================================================
+ * 全局 prefers-reduced-motion 守护
+ * 用户系统设置了「减少动效」时，禁用所有动画与过渡，避免前庭不适。
+ * 覆盖各组件内分散的 animation/transition，无需逐个修改业务代码。
+ * ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

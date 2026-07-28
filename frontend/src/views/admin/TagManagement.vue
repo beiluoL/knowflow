@@ -1,179 +1,119 @@
 <template>
-  <div class="space-y-6 animate-fade-in">
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-800">标签管理</h1>
-        <p class="text-gray-500 text-sm mt-1">管理知识库标签，组织文档分类体系</p>
-      </div>
-      <Button icon-name="plus" @click="showAddModal = true">新增标签</Button>
+  <!-- 管理后台-标签管理：标签云 + 标签列表表格，支持新建/编辑/删除 -->
+  <div class="tag-mgmt-wrap">
+    <!-- 页面标题 -->
+    <div class="page-head">
+      <h1 class="kb-h1">标签管理</h1>
     </div>
 
-    <div class="flex items-center gap-4">
-      <div class="relative flex-1 max-w-sm">
-        <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="搜索标签..."
-          class="w-full h-9 pl-9 pr-4 rounded-lg text-[13px] border border-[#E2E6EC] bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all"
-        />
+    <!-- 标签云卡片 -->
+    <div class="cloud-card">
+      <div class="cloud-head">
+        <h3 class="kb-h3">标签云</h3>
+        <button class="btn-primary" @click="openCreate">
+          <Icon name="plus" :size="16" />
+          <span>新建标签</span>
+        </button>
       </div>
-      <div class="text-sm text-gray-500">
-        共 <span class="font-medium text-gray-800">{{ filteredTags.length }}</span> 个标签
-      </div>
-    </div>
-
-    <Card>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-        <div
-          v-for="(tag, index) in filteredTags" :key="tag.id"
-          class="group relative p-4 border border-[#E2E6EC] rounded-lg hover:border-primary-500/30 hover:shadow-md transition-all cursor-pointer tag-card"
-          :style="{ animationDelay: `${index * 30}ms` }"
+      <div class="cloud-body">
+        <span
+          v-for="tag in tags"
+          :key="tag.id"
+          class="cloud-tag"
+          :class="cloudSizeClass(tag.count)"
+          :style="cloudStyle(tag.color)"
           @click="selectTag(tag)"
         >
-          <div class="flex items-start justify-between mb-3">
-            <div
-              class="w-10 h-10 rounded-lg flex items-center justify-center"
-              :style="{ backgroundColor: tag.color + '20' }"
-            >
-              <Icon name="tag" :size="18" :style="{ color: tag.color }" />
-            </div>
-            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button
-                class="p-1.5 hover:bg-gray-100 rounded text-gray-400 hover:text-primary-500 transition-colors"
-                @click.stop="editTag(tag)"
-                title="编辑"
-              >
-                <Icon name="edit" :size="16" />
-              </button>
-              <button
-                class="p-1.5 hover:bg-gray-100 rounded text-gray-400 hover:text-danger-500 transition-colors"
-                @click.stop="deleteTag(tag)"
-                title="删除"
-              >
-                <Icon name="trash-2" :size="16" />
-              </button>
-            </div>
-          </div>
-          <h4 class="font-medium text-gray-800 mb-1 truncate">{{ tag.name }}</h4>
-          <div class="flex items-center justify-between">
-            <span class="text-xs text-gray-500">{{ tag.count }} 篇文档</span>
-            <div class="w-4 h-4 rounded-full shrink-0" :style="{ backgroundColor: tag.color }"></div>
-          </div>
-        </div>
+          {{ tag.name }}
+        </span>
+        <p v-if="tags.length === 0" class="cloud-empty">暂无标签</p>
       </div>
-      <p v-if="filteredTags.length === 0" class="text-center py-16 text-gray-400">
-        暂无标签
-      </p>
-      <p class="text-xs text-gray-400 mt-4 pt-4 border-t border-gray-50">
-        提示：标签颜色用于在文档列表中快速区分不同主题，建议为同一领域的标签选择相近色系。
-      </p>
-    </Card>
-
-    <div v-if="selectedTag" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <Card class="lg:col-span-2">
-        <template #header>
-          <div class="flex items-center justify-between">
-            <h3 class="font-semibold text-gray-800">标签详情：{{ selectedTag.name }}</h3>
-            <Button size="sm" variant="secondary" @click="selectedTag = null">关闭</Button>
-          </div>
-        </template>
-        <div class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">标签名称</label>
-              <Input v-model="tagForm.name" placeholder="请输入标签名称" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">标签颜色</label>
-              <div class="flex items-center gap-2">
-                <input
-                  type="color"
-                  v-model="tagForm.color"
-                  class="w-9 h-9 rounded border border-gray-200 cursor-pointer"
-                />
-                <Input v-model="tagForm.color" placeholder="#3B6FE0" />
-              </div>
-            </div>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">快速选色</label>
-            <div class="flex flex-wrap gap-2">
-              <button
-                v-for="color in colorPresets" :key="color"
-                type="button"
-                class="w-8 h-8 rounded-lg border-2 transition-all hover:scale-110"
-                :style="{ backgroundColor: color, borderColor: tagForm.color === color ? '#3B6FE0' : 'transparent' }"
-                @click="tagForm.color = color"
-              ></button>
-            </div>
-          </div>
-          <div class="flex items-center justify-between pt-2">
-            <span class="text-sm text-gray-500">关联文档数：{{ selectedTag.count }} 篇</span>
-            <div class="flex gap-2">
-              <Button variant="secondary" @click="resetTagForm">重置</Button>
-              <Button :disabled="saving" @click="saveTag">{{ saving ? '保存中...' : '保存' }}</Button>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      <Card>
-        <template #header>
-          <h3 class="font-semibold text-gray-800">关联文档</h3>
-        </template>
-        <div class="space-y-2">
-          <div
-            v-for="doc in tagDocs" :key="doc.id"
-            class="p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-            @click="goToDoc(doc.id)"
-          >
-            <h5 class="text-sm font-medium text-gray-800 mb-1 line-clamp-1">{{ doc.title }}</h5>
-            <div class="flex items-center gap-2 text-xs text-gray-400">
-              <span>{{ doc.categoryName }}</span>
-              <span>·</span>
-              <span>{{ formatDate(doc.createTime) }}</span>
-            </div>
-          </div>
-          <p v-if="tagDocs.length === 0" class="text-sm text-gray-400 text-center py-8">
-            暂无关联文档
-          </p>
-        </div>
-      </Card>
     </div>
 
-    <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="showAddModal = false">
-      <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-xl animate-modal-in">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">新增标签</h3>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">标签名称</label>
-            <Input v-model="newTagForm.name" placeholder="请输入标签名称" />
+    <!-- 标签列表表格 -->
+    <div class="table-card">
+      <!-- 表头 -->
+      <div class="table-row table-head">
+        <div class="col-name">标签名</div>
+        <div class="col-usage">使用次数</div>
+        <div class="col-creator">创建者</div>
+        <div class="col-actions">操作</div>
+      </div>
+      <!-- 表体 -->
+      <div
+        v-for="tag in tags"
+        :key="tag.id"
+        class="table-row table-body"
+      >
+        <div class="col-name">
+          <span class="tag-badge" :style="badgeStyle(tag.color)">{{ tag.name }}</span>
+        </div>
+        <div class="col-usage">{{ tag.count }} 次使用</div>
+        <div class="col-creator">{{ tag.creator }}</div>
+        <div class="col-actions">
+          <button class="icon-btn" title="编辑" @click="openEdit(tag)">
+            <Icon name="edit" :size="14" />
+          </button>
+          <button class="icon-btn" title="删除" @click="removeTag(tag)">
+            <Icon name="trash-2" :size="14" />
+          </button>
+        </div>
+      </div>
+      <p v-if="tags.length === 0" class="table-empty">暂无标签数据</p>
+    </div>
+
+    <!-- 新建/编辑弹窗 -->
+    <div v-if="showModal" class="modal-mask" @click.self="closeModal">
+      <div class="modal-card">
+        <div class="modal-head">
+          <h3 class="kb-h3">{{ editingId ? '编辑标签' : '新建标签' }}</h3>
+          <button class="icon-btn" title="关闭" @click="closeModal">
+            <Icon name="x" :size="18" />
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">标签名称</label>
+            <input
+              v-model="form.name"
+              type="text"
+              class="form-input"
+              placeholder="请输入标签名称"
+            />
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">标签颜色</label>
-            <div class="flex items-center gap-2 mb-2">
+          <div class="form-group">
+            <label class="form-label">标签颜色</label>
+            <div class="color-row">
               <input
+                v-model="form.color"
                 type="color"
-                v-model="newTagForm.color"
-                class="w-9 h-9 rounded border border-gray-200 cursor-pointer"
+                class="color-picker"
               />
-              <Input v-model="newTagForm.color" placeholder="#3B6FE0" />
+              <input
+                v-model="form.color"
+                type="text"
+                class="form-input"
+                placeholder="#3B6FE0"
+              />
             </div>
-            <div class="flex flex-wrap gap-2">
+            <div class="color-presets">
               <button
-                v-for="color in colorPresets" :key="color"
+                v-for="color in colorPresets"
+                :key="color"
                 type="button"
-                class="w-7 h-7 rounded-lg border-2 transition-all hover:scale-110"
-                :style="{ backgroundColor: color, borderColor: newTagForm.color === color ? '#3B6FE0' : 'transparent' }"
-                @click="newTagForm.color = color"
+                class="color-preset"
+                :class="{ active: form.color === color }"
+                :style="{ backgroundColor: color }"
+                @click="form.color = color"
               ></button>
             </div>
           </div>
         </div>
-        <div class="flex justify-end gap-2 mt-6">
-          <Button variant="secondary" @click="showAddModal = false">取消</Button>
-          <Button @click="createTag">创建</Button>
+        <div class="modal-foot">
+          <button class="btn-secondary" @click="closeModal">取消</button>
+          <button class="btn-primary" :disabled="saving" @click="save">
+            {{ saving ? '保存中...' : '保存' }}
+          </button>
         </div>
       </div>
     </div>
@@ -181,107 +121,142 @@
 </template>
 
 <script setup lang="ts">
-// 管理后台-标签管理：维护知识库标签与配色，支持检索、编辑与关联文档查看（演示数据）。
-import { ref, computed, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+// 管理后台-标签管理：维护知识库标签与配色，支持标签云展示、表格管理与新建/编辑/删除（演示数据）。
+import { ref, reactive } from 'vue'
 import { confirmDialog, getApiError, notify } from '@/utils/toast'
 import Icon from '@/components/ui/Icon.vue'
-import Card from '@/components/ui/Card.vue'
-import Button from '@/components/ui/Button.vue'
-import Input from '@/components/ui/Input.vue'
-import { docsApi } from '@/api'
-import type { DocVO } from '@/api/types'
-
-const router = useRouter()
 
 interface Tag {
   id: string
   name: string
   color: string
   count: number
+  creator: string
 }
 
+/** 标签列表（演示数据） */
 const tags = ref<Tag[]>([
-  { id: '1', name: 'Vue 3', color: '#3B6FE0', count: 234 },
-  { id: '2', name: 'React', color: '#10B981', count: 198 },
-  { id: '3', name: 'TypeScript', color: '#3178C6', count: 187 },
-  { id: '4', name: 'Node.js', color: '#68A063', count: 156 },
-  { id: '5', name: 'Python', color: '#FFD43B', count: 145 },
-  { id: '6', name: 'MySQL', color: '#4479A1', count: 134 },
-  { id: '7', name: 'Redis', color: '#DC382D', count: 123 },
-  { id: '8', name: 'Docker', color: '#2496ED', count: 112 },
-  { id: '9', name: 'GPT', color: '#10A37F', count: 101 },
-  { id: '10', name: '算法', color: '#F59E0B', count: 98 },
-  { id: '11', name: '设计模式', color: '#8B5CF6', count: 87 },
-  { id: '12', name: '性能优化', color: '#EF4444', count: 76 },
+  { id: '1', name: 'Python', color: '#3B6FE0', count: 45, creator: '张三' },
+  { id: '2', name: '机器学习', color: '#10B981', count: 38, creator: '李四' },
+  { id: '3', name: '前端开发', color: '#F59E0B', count: 32, creator: '王五' },
+  { id: '4', name: 'React', color: '#EF4444', count: 28, creator: '张三' },
+  { id: '5', name: 'Node.js', color: '#6B7280', count: 22, creator: '赵六' },
+  { id: '6', name: '数据分析', color: '#3B6FE0', count: 24, creator: '赵六' },
+  { id: '7', name: 'Vue', color: '#10B981', count: 19, creator: '王五' },
+  { id: '8', name: 'TypeScript', color: '#F59E0B', count: 17, creator: '张三' },
+  { id: '9', name: 'Docker', color: '#EF4444', count: 18, creator: '李四' },
+  { id: '10', name: 'API 设计', color: '#6B7280', count: 15, creator: '王五' },
+  { id: '11', name: '数据库', color: '#3B6FE0', count: 14, creator: '张三' },
+  { id: '12', name: '微服务', color: '#10B981', count: 12, creator: '张三' },
+  { id: '13', name: '产品需求', color: '#F59E0B', count: 10, creator: '王五' },
+  { id: '14', name: 'UI 设计', color: '#EF4444', count: 9, creator: '赵六' },
+  { id: '15', name: '性能优化', color: '#6B7280', count: 8, creator: '李四' },
+  { id: '16', name: '算法', color: '#3B6FE0', count: 7, creator: '张三' },
+  { id: '17', name: '深度学习', color: '#10B981', count: 6, creator: '赵六' },
+  { id: '18', name: 'Kubernetes', color: '#F59E0B', count: 5, creator: '王五' },
+  { id: '19', name: 'Go 语言', color: '#EF4444', count: 4, creator: '李四' },
+  { id: '20', name: '安全', color: '#6B7280', count: 3, creator: '张三' },
 ])
 
-const searchQuery = ref('')
-const selectedTag = ref<Tag | null>(null)
-const showAddModal = ref(false)
-const saving = ref(false)
-
+/** 预设颜色 */
 const colorPresets = [
-  '#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+  '#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#6B7280',
   '#06B6D4', '#EC4899', '#84CC16', '#F97316', '#6366F1',
-  '#14B8A6', '#F43F5E',
 ]
 
-const newTagForm = reactive({
+/** 弹窗状态 */
+const showModal = ref(false)
+const editingId = ref<string | null>(null)
+const saving = ref(false)
+const form = reactive({
   name: '',
   color: '#3B6FE0',
 })
 
-const tagForm = reactive({
-  name: '',
-  color: '#3B6FE0',
+/** 根据使用次数返回标签云尺寸类 */
+const cloudSizeClass = (count: number): string => {
+  if (count >= 35) return 'size-lg'
+  if (count >= 20) return 'size-md'
+  return 'size-sm'
+}
+
+/** 标签云样式：背景色透明度 0.08 + 文字色 */
+const cloudStyle = (color: string) => ({
+  backgroundColor: hexToRgba(color, 0.08),
+  color: color,
 })
 
-const filteredTags = computed(() => {
-  if (!searchQuery.value) return tags.value
-  const q = searchQuery.value.toLowerCase()
-  return tags.value.filter((t) => t.name.toLowerCase().includes(q))
+/** 表格徽标样式 */
+const badgeStyle = (color: string) => ({
+  backgroundColor: hexToRgba(color, 0.08),
+  color: color,
 })
 
-const tagDocs = ref<DocVO[]>([])
+/** hex 转 rgba */
+const hexToRgba = (hex: string, alpha: number): string => {
+  const h = hex.replace('#', '')
+  const r = parseInt(h.substring(0, 2), 16)
+  const g = parseInt(h.substring(2, 4), 16)
+  const b = parseInt(h.substring(4, 6), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
 
+/** 选中标签（仅展示，可扩展为查看关联文档） */
 const selectTag = (tag: Tag) => {
-  selectedTag.value = tag
-  tagForm.name = tag.name
-  tagForm.color = tag.color
-  loadTagDocs(tag)
+  openEdit(tag)
 }
 
-const loadTagDocs = async (_tag: Tag) => {
-  try {
-    const res = await docsApi.list({ pageSize: 5 })
-    tagDocs.value = res.records || []
-  } catch {
-    tagDocs.value = []
-  }
+/** 打开新建弹窗 */
+const openCreate = () => {
+  editingId.value = null
+  form.name = ''
+  form.color = '#3B6FE0'
+  showModal.value = true
 }
 
-const resetTagForm = () => {
-  if (selectedTag.value) {
-    tagForm.name = selectedTag.value.name
-    tagForm.color = selectedTag.value.color
-  }
+/** 打开编辑弹窗 */
+const openEdit = (tag: Tag) => {
+  editingId.value = tag.id
+  form.name = tag.name
+  form.color = tag.color
+  showModal.value = true
 }
 
-const saveTag = async () => {
-  if (!tagForm.name.trim()) {
+/** 关闭弹窗 */
+const closeModal = () => {
+  showModal.value = false
+  editingId.value = null
+}
+
+/** 保存（新建或编辑） */
+const save = async () => {
+  if (!form.name.trim()) {
     notify('请填写标签名称', 'warning')
     return
   }
-  if (!selectedTag.value) return
   saving.value = true
   try {
-    const target = tags.value.find((t) => t.id === selectedTag.value!.id)
-    if (target) {
-      target.name = tagForm.name
-      target.color = tagForm.color
+    if (editingId.value) {
+      // 编辑：更新已有标签
+      const target = tags.value.find((t) => t.id === editingId.value)
+      if (target) {
+        target.name = form.name
+        target.color = form.color
+      }
+      notify('标签已更新', 'success')
+    } else {
+      // 新建：插入到列表头部
+      const newTag: Tag = {
+        id: String(Date.now()),
+        name: form.name,
+        color: form.color,
+        count: 0,
+        creator: '管理员',
+      }
+      tags.value.unshift(newTag)
+      notify('标签已创建', 'success')
     }
-    notify('标签已更新', 'success')
+    closeModal()
   } catch (e: unknown) {
     notify('保存失败：' + getApiError(e), 'error')
   } finally {
@@ -289,70 +264,30 @@ const saveTag = async () => {
   }
 }
 
-const editTag = (tag: Tag) => {
-  selectTag(tag)
-  if (selectedTag.value) {
-    const el = document.querySelector('.lg\\:col-span-2')
-    el?.scrollIntoView({ behavior: 'smooth' })
-  }
-}
-
-const deleteTag = async (tag: Tag) => {
+/** 删除标签 */
+const removeTag = async (tag: Tag) => {
   if (!(await confirmDialog(`确定删除标签「${tag.name}」吗？`))) return
   try {
     const index = tags.value.findIndex((t) => t.id === tag.id)
     if (index > -1) tags.value.splice(index, 1)
-    if (selectedTag.value?.id === tag.id) selectedTag.value = null
     notify('删除成功', 'success')
   } catch (e: unknown) {
     notify('删除失败：' + getApiError(e), 'error')
   }
 }
-
-const createTag = () => {
-  if (!newTagForm.name.trim()) {
-    notify('请填写标签名称', 'warning')
-    return
-  }
-  const newTag: Tag = {
-    id: String(Date.now()),
-    name: newTagForm.name,
-    color: newTagForm.color,
-    count: 0,
-  }
-  tags.value.unshift(newTag)
-  showAddModal.value = false
-  newTagForm.name = ''
-  newTagForm.color = '#3B6FE0'
-  notify('标签已创建', 'success')
-}
-
-const goToDoc = (id: number) => {
-  router.push(`/doc/${id}`)
-}
-
-const formatDate = (dateStr?: string) => {
-  if (!dateStr) return ''
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('zh-CN', {
-    month: 'short',
-    day: 'numeric',
-  })
-}
-
-onMounted(() => {
-})
 </script>
 
 <style scoped>
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out;
+/* 页面容器 */
+.tag-mgmt-wrap {
+  padding: 24px 28px 40px;
+  animation: fadeIn 0.4s ease-out;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -360,14 +295,265 @@ onMounted(() => {
   }
 }
 
-.animate-modal-in {
-  animation: modalIn 0.25s ease-out;
+/* 页面标题 */
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.kb-h1 {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--kb-foreground);
+  margin: 0;
+}
+
+.kb-h3 {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--kb-foreground);
+  margin: 0;
+}
+
+/* 标签云卡片 */
+.cloud-card {
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.cloud-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.cloud-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* 标签云项 */
+.cloud-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.cloud-tag:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.cloud-tag.size-sm {
+  font-size: 13px;
+}
+
+.cloud-tag.size-md {
+  font-size: 15px;
+}
+
+.cloud-tag.size-lg {
+  font-size: 17px;
+}
+
+.cloud-empty {
+  width: 100%;
+  text-align: center;
+  color: var(--kb-muted-foreground);
+  padding: 24px 0;
+  margin: 0;
+}
+
+/* 表格卡片 */
+.table-card {
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* 表格行 */
+.table-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--kb-border);
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-head {
+  background: var(--kb-background);
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--kb-muted-foreground);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.table-body:hover {
+  background: var(--kb-background);
+}
+
+/* 表格列宽 */
+.col-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.col-usage {
+  width: 96px;
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--kb-muted-foreground);
+}
+
+.col-creator {
+  width: 80px;
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--kb-muted-foreground);
+}
+
+.col-actions {
+  width: 128px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* 表格中的标签徽标 */
+.tag-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 操作按钮 */
+.icon-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--kb-muted-foreground);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.icon-btn:hover {
+  background: var(--kb-muted);
+  color: var(--kb-primary);
+}
+
+/* 表格空态 */
+.table-empty {
+  text-align: center;
+  color: var(--kb-muted-foreground);
+  padding: 48px 0;
+  margin: 0;
+}
+
+/* 主按钮 */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 次要按钮 */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--kb-card);
+  color: var(--kb-sidebar-foreground);
+  border: 1px solid var(--kb-border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-secondary:hover {
+  background: var(--kb-muted);
+}
+
+/* 弹窗 */
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 16px;
+}
+
+.modal-card {
+  background: var(--kb-card);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: modalIn 0.2s ease-out;
 }
 
 @keyframes modalIn {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(10px);
+    transform: scale(0.95) translateY(8px);
   }
   to {
     opacity: 1;
@@ -375,25 +561,123 @@ onMounted(() => {
   }
 }
 
-.tag-card {
-  animation: scaleIn 0.3s ease-out both;
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--kb-border);
 }
 
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+.modal-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.line-clamp-1 {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--kb-border);
+}
+
+/* 表单 */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--kb-foreground);
+}
+
+.form-input {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.form-input:focus {
+  border-color: var(--kb-ring);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+}
+
+/* 颜色选择 */
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-picker {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--kb-border);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.color-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.color-preset {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.color-preset:hover {
+  transform: scale(1.1);
+}
+
+.color-preset.active {
+  border-color: var(--kb-primary);
+}
+
+/* 响应式：移动端 */
+@media (max-width: 640px) {
+  .tag-mgmt-wrap {
+    padding: 16px;
+  }
+
+  .table-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .col-name {
+    flex: 1 1 100%;
+  }
+
+  .col-usage,
+  .col-creator {
+    width: auto;
+    flex: 1;
+    text-align: left;
+  }
+
+  .col-actions {
+    width: auto;
+  }
 }
 </style>

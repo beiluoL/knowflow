@@ -183,4 +183,52 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         this.updateById(user);
         return BeanUtil.copyProperties(user, UserVO.class);
     }
+
+    /**
+     * 第三方 OAuth 登录：provider + providerUid 唯一确定一个社交账号。
+     * 首次登录自动注册：用户名格式「{provider}_{providerUid}」，密码留空（不可用于账号密码登录）。
+     */
+    @Override
+    public LoginVO oauthLogin(String provider, String providerUid, String nickname, String avatar, String email) {
+        SysUser user = this.getOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getProvider, provider)
+                .eq(SysUser::getProviderUid, providerUid));
+        if (user == null) {
+            // 自动注册新用户
+            user = new SysUser();
+            user.setUsername(provider + "_" + providerUid);
+            user.setPassword(""); // 社交登录用户无密码
+            user.setNickname(StrUtil.isNotBlank(nickname) ? nickname : user.getUsername());
+            user.setAvatar(avatar);
+            user.setEmail(email);
+            user.setProvider(provider);
+            user.setProviderUid(providerUid);
+            user.setRole("USER");
+            user.setTotalStudyHours(BigDecimal.ZERO);
+            user.setReadDocsCount(0);
+            user.setStreakDays(0);
+            user.setFavoriteCount(0);
+            user.setLevel(1);
+            user.setExp(0);
+            user.setEnergy(100);
+            this.save(user);
+        } else {
+            // 已存在则更新头像与昵称（社交平台信息可能变更）
+            boolean dirty = false;
+            if (StrUtil.isNotBlank(avatar) && !avatar.equals(user.getAvatar())) {
+                user.setAvatar(avatar);
+                dirty = true;
+            }
+            if (StrUtil.isNotBlank(nickname) && !nickname.equals(user.getNickname())) {
+                user.setNickname(nickname);
+                dirty = true;
+            }
+            if (dirty) this.updateById(user);
+        }
+        String token = jwtUtils.generateToken(user.getId(), user.getUsername(), user.getRole());
+        LoginVO vo = new LoginVO();
+        vo.setToken(token);
+        vo.setUser(BeanUtil.copyProperties(user, UserVO.class));
+        return vo;
+    }
 }

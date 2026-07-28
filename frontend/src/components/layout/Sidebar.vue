@@ -22,7 +22,7 @@
     >
       <router-link to="/" class="flex items-center gap-2.5 min-w-0" @click="$emit('close')">
         <Icon name="book-open" :size="22" class="text-primary-500 shrink-0" />
-        <span v-if="!collapsed" class="kb-h4 truncate">Knowledge Hub</span>
+        <span v-if="!collapsed" class="kb-h4 truncate">KnowFlow</span>
       </router-link>
     </div>
 

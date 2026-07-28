@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社区讨论 - 知识库学习平台</title>
+    <style id="theme-vars">
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme inline {
+  --color-kb-background: #F7F8FA; --color-kb-foreground: #1A1D23; --color-kb-card: #FFFFFF; --color-kb-card-foreground: #1A1D23;
+  --color-kb-popover: #FFFFFF; --color-kb-popover-foreground: #1A1D23; --color-kb-primary: #3B6FE0; --color-kb-primary-foreground: #FFFFFF;
+  --color-kb-muted: #E8ECF1; --color-kb-muted-foreground: #6B7280; --color-kb-border: #E2E6EC; --color-kb-input: #E2E6EC;
+  --color-kb-ring: #3B6FE0; --color-kb-sidebar: #F0F2F5; --color-kb-sidebar-foreground: #374151;
+  --color-kb-accent: #10B981; --color-kb-destructive: #EF4444; --color-kb-warning: #F59E0B;
+  --color-kb-radius-sm: 6px; --color-kb-radius-md: 10px; --color-kb-radius-lg: 16px;
+}
+
+:root {
+  --kb-background: #F7F8FA; --kb-foreground: #1A1D23; --kb-card: #FFFFFF; --kb-card-foreground: #1A1D23;
+  --kb-popover: #FFFFFF; --kb-popover-foreground: #1A1D23; --kb-primary: #3B6FE0; --kb-primary-foreground: #FFFFFF;
+  --kb-muted: #E8ECF1; --kb-muted-foreground: #6B7280; --kb-border: #E2E6EC; --kb-input: #E2E6EC;
+  --kb-ring: #3B6FE0; --kb-sidebar: #F0F2F5; --kb-sidebar-foreground: #374151;
+  --kb-accent: #10B981; --kb-destructive: #EF4444; --kb-warning: #F59E0B;
+  --kb-radius-sm: 6px; --kb-radius-md: 10px; --kb-radius-lg: 16px;
+  --font-sans: 'Noto Sans SC', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+#semantic-token-fallback {
+  --background: var(--kb-background); --foreground: var(--kb-foreground);
+  --card: var(--kb-card); --card-foreground: var(--kb-card-foreground);
+  --popover: var(--kb-popover); --popover-foreground: var(--kb-popover-foreground);
+  --primary: var(--kb-primary); --primary-foreground: var(--kb-primary-foreground);
+  --muted: var(--kb-muted); --muted-foreground: var(--kb-muted-foreground);
+  --border: var(--kb-border); --input: var(--kb-input); --ring: var(--kb-ring);
+  --sidebar: var(--kb-sidebar); --sidebar-foreground: var(--kb-sidebar-foreground);
+  --radius-sm: var(--kb-radius-sm); --radius-md: var(--kb-radius-md); --radius-lg: var(--kb-radius-lg);
+}
+
+.kb-h1{font-family:var(--font-sans);font-size:28px;font-weight:700;line-height:1.3;letter-spacing:-0.02em;color:var(--kb-foreground)}
+.kb-h3{font-family:var(--font-sans);font-size:18px;font-weight:600;line-height:1.4;color:var(--kb-foreground)}
+.kb-h4{font-family:var(--font-sans);font-size:15px;font-weight:600;line-height:1.45;color:var(--kb-foreground)}
+.kb-body{font-family:var(--font-sans);font-size:14px;font-weight:400;line-height:1.6;color:var(--kb-card-foreground)}
+.kb-body-sm{font-family:var(--font-sans);font-size:12px;font-weight:400;line-height:1.5;color:var(--kb-muted-foreground)}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--kb-background); --color-foreground: var(--kb-foreground);
+    --color-card: var(--kb-card); --color-card-foreground: var(--kb-card-foreground);
+    --color-popover: var(--kb-popover); --color-popover-foreground: var(--kb-popover-foreground);
+    --color-primary: var(--kb-primary); --color-primary-foreground: var(--kb-primary-foreground);
+    --color-muted: var(--kb-muted); --color-muted-foreground: var(--kb-muted-foreground);
+    --color-border: var(--kb-border); --color-input: var(--kb-input); --color-ring: var(--kb-ring);
+    --color-sidebar: var(--kb-sidebar); --color-sidebar-foreground: var(--kb-sidebar-foreground);
+    --radius-sm: var(--kb-radius-sm); --radius-md: var(--kb-radius-md); --radius-lg: var(--kb-radius-lg);
+  }
+  @layer base { body { background: var(--kb-background); color: var(--kb-foreground); } td,th { @apply break-words; word-break: break-all; } th { @apply whitespace-nowrap; } }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background{background-color:var(--kb-background)}.text-background{color:var(--kb-background)}.border-background{border-color:var(--kb-background)}
+      .bg-foreground{background-color:var(--kb-foreground)}.text-foreground{color:var(--kb-foreground)}.border-foreground{border-color:var(--kb-foreground)}
+      .bg-card{background-color:var(--kb-card)}.text-card{color:var(--kb-card)}.border-card{border-color:var(--kb-card)}
+      .bg-card-foreground{background-color:var(--kb-card-foreground)}.text-card-foreground{color:var(--kb-card-foreground)}.border-card-foreground{border-color:var(--kb-card-foreground)}
+      .bg-popover{background-color:var(--kb-popover)}.text-popover{color:var(--kb-popover)}.border-popover{border-color:var(--kb-popover)}
+      .bg-popover-foreground{background-color:var(--kb-popover-foreground)}.text-popover-foreground{color:var(--kb-popover-foreground)}.border-popover-foreground{border-color:var(--kb-popover-foreground)}
+      .bg-primary{background-color:var(--kb-primary)}.text-primary{color:var(--kb-primary)}.border-primary{border-color:var(--kb-primary)}
+      .bg-primary-foreground{background-color:var(--kb-primary-foreground)}.text-primary-foreground{color:var(--kb-primary-foreground)}.border-primary-foreground{border-color:var(--kb-primary-foreground)}
+      .bg-muted{background-color:var(--kb-muted)}.text-muted{color:var(--kb-muted)}.border-muted{border-color:var(--kb-muted)}
+      .bg-muted-foreground{background-color:var(--kb-muted-foreground)}.text-muted-foreground{color:var(--kb-muted-foreground)}.border-muted-foreground{border-color:var(--kb-muted-foreground)}
+      .bg-border{background-color:var(--kb-border)}.text-border{color:var(--kb-border)}.border-border{border-color:var(--kb-border)}
+      .bg-input{background-color:var(--kb-input)}.text-input{color:var(--kb-input)}.border-input{border-color:var(--kb-input)}
+      .bg-ring{background-color:var(--kb-ring)}.text-ring{color:var(--kb-ring)}.border-ring{border-color:var(--kb-ring)}
+      .bg-sidebar{background-color:var(--kb-sidebar)}.text-sidebar{color:var(--kb-sidebar)}.border-sidebar{border-color:var(--kb-sidebar)}
+      .bg-sidebar-foreground{background-color:var(--kb-sidebar-foreground)}.text-sidebar-foreground{color:var(--kb-sidebar-foreground)}.border-sidebar-foreground{border-color:var(--kb-sidebar-foreground)}
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+      .badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;white-space:nowrap}
+      .badge-primary{background:rgba(59,111,224,0.08);color:var(--kb-primary)}
+      .badge-success{background:rgba(16,185,129,0.08);color:var(--kb-accent)}
+      .badge-warning{background:rgba(245,158,11,0.08);color:var(--kb-warning)}
+      .badge-muted{background:var(--kb-muted);color:var(--kb-muted-foreground)}
+      .topic-chip{display:flex;align-items:center;gap:0.375rem;padding:0.5rem 1rem;border-radius:var(--kb-radius-lg);border:1px solid var(--kb-border);background:var(--kb-card);cursor:pointer;transition:all 0.15s;white-space:nowrap;flex-shrink:0}
+      .topic-chip:hover{border-color:var(--kb-primary);color:var(--kb-primary)}
+      .post-card{display:flex;gap:1rem;padding:1.25rem;border:1px solid var(--kb-border);border-radius:var(--kb-radius-md);background:var(--kb-card);transition:box-shadow 0.15s}
+      .post-card:hover{box-shadow:0 2px 12px rgba(59,111,224,0.06)}
+      .action-btn{display:inline-flex;align-items:center;gap:0.25rem;font-size:0.8125rem;color:var(--kb-muted-foreground);cursor:pointer;transition:color 0.15s;padding:0.25rem 0.5rem;border-radius:4px}
+      .action-btn:hover{color:var(--kb-primary);background:rgba(59,111,224,0.04)}
+    
+      /* Nav dropdown */
+      .nav-dropdown{position:absolute;top:100%;left:0;margin-top:4px;min-width:180px;border-radius:var(--kb-radius-md);border:1px solid var(--kb-border);background:var(--kb-card);box-shadow:0 4px 16px rgba(0,0,0,0.06);padding:4px;z-index:100;display:none}
+.nav-dropdown.show{display:block}
+.nav-dropdown a{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--kb-radius-sm);font-size:13px;color:var(--kb-foreground);text-decoration:none;transition:background-color 0.15s}
+.nav-dropdown a:hover{background-color:rgba(59,111,224,0.08);color:var(--kb-primary)}
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+
+<!-- ===== Top Navigation ===== -->
+<header class="fixed top-0 left-0 right-0 z-50 h-14 flex items-center px-6 border-b" style="background:var(--kb-card);border-color:var(--kb-border);">
+  <!-- Logo -->
+  <a href="knowledge-home.html" data-dom-id="nav-home" class="flex items-center gap-2 shrink-0" style="color:var(--kb-primary);">
+    <i data-lucide="book-open" class="w-5 h-5"></i>
+    <span class="text-base font-semibold">知识库</span>
+  </a>
+  <!-- Nav Links -->
+  <nav class="flex items-center gap-6 ml-8">
+    <a href="knowledge-home.html" data-dom-id="nav-home-link" class="flex items-center gap-1.5 text-sm font-medium" style="color:var(--kb-muted-foreground);"><i data-lucide="home" class="w-4 h-4"></i><span>首页</span></a>
+    <a href="task-center.html" data-dom-id="nav-unified-portal" class="flex items-center gap-1.5 text-sm font-medium" style="color:var(--kb-muted-foreground);"><i data-lucide="target" class="w-4 h-4"></i><span>任务中心</span></a>
+    <!-- 知识库（下拉） -->
+    <div class="relative" id="nav-knowledge-dropdown">
+      <button class="flex items-center gap-1 text-sm font-medium" style="color:var(--kb-muted-foreground);" onclick="toggleDropdown('nav-knowledge-dropdown')"><i data-lucide="library" class="w-4 h-4"></i><span>知识库</span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+      <div class="nav-dropdown" id="nav-knowledge-dropdown-menu">
+        <a href="category-browse.html" data-dom-id="nav-category-browse" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="folder-tree" class="w-4 h-4"></i>分类浏览</a>
+        <a href="search-results.html" data-dom-id="nav-search" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="search" class="w-4 h-4"></i>搜索知识</a>
+        <a href="knowledge-graph.html" data-dom-id="nav-knowledge-graph" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="share-2" class="w-4 h-4"></i>知识图谱</a>
+      </div>
+    </div>
+    <!-- 学习中心（下拉） -->
+    <div class="relative" id="nav-learning-dropdown">
+      <button class="flex items-center gap-1 text-sm font-medium" style="color:var(--kb-muted-foreground);" onclick="toggleDropdown('nav-learning-dropdown')"><i data-lucide="graduation-cap" class="w-4 h-4"></i><span>学习中心</span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+      <div class="nav-dropdown" id="nav-learning-dropdown-menu">
+        <a href="learning-center.html" data-dom-id="nav-learning-center" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="layout-grid" class="w-4 h-4"></i>学习中心</a>
+        <a href="path-list.html" data-dom-id="nav-path-list" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="route" class="w-4 h-4"></i>学习路径</a>
+        <a href="code-practice.html" data-dom-id="nav-code-practice" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="code" class="w-4 h-4"></i>代码练习</a>
+        <a href="flashcards.html" data-dom-id="nav-flashcards" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="layers" class="w-4 h-4"></i>学习闪卡</a>
+        <a href="review-plan.html" data-dom-id="nav-review-plan" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="calendar-check" class="w-4 h-4"></i>复习计划</a>
+        <a href="study-mode.html" data-dom-id="nav-study-mode" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="timer" class="w-4 h-4"></i>沉浸学习</a>
+      </div>
+    </div>
+    <!-- AI 助手（下拉） -->
+    <div class="relative" id="nav-ai-dropdown">
+      <button class="flex items-center gap-1 text-sm font-medium" style="color:var(--kb-muted-foreground);" onclick="toggleDropdown('nav-ai-dropdown')"><i data-lucide="sparkles" class="w-4 h-4"></i><span>AI 助手</span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+      <div class="nav-dropdown" id="nav-ai-dropdown-menu">
+        <a href="chat.html" data-dom-id="nav-chat" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="message-circle" class="w-4 h-4"></i>智能问答</a>
+      </div>
+    </div>
+    <!-- 社区讨论 -->
+    <a href="community.html" data-dom-id="nav-community" class="flex items-center gap-1.5 text-sm font-semibold" style="color:var(--kb-primary);"><i data-lucide="users" class="w-4 h-4"></i><span>社区讨论</span></a>
+    <!-- 个人（下拉） -->
+    <div class="relative" id="nav-personal-dropdown">
+      <button class="flex items-center gap-1 text-sm font-medium" style="color:var(--kb-muted-foreground);" onclick="toggleDropdown('nav-personal-dropdown')"><i data-lucide="user" class="w-4 h-4"></i><span>个人</span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+      <div class="nav-dropdown" id="nav-personal-dropdown-menu">
+        <a href="profile.html" data-dom-id="nav-profile-center" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="user-circle" class="w-4 h-4"></i>个人中心</a>
+        <a href="achievements.html" data-dom-id="nav-achievements" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="trophy" class="w-4 h-4"></i>成就系统</a>
+        <a href="kb-titles.html" data-dom-id="nav-kb-titles" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="award" class="w-4 h-4"></i>知识库称号</a>
+        <a href="favorites.html" data-dom-id="nav-favorites" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="bookmark" class="w-4 h-4"></i>收藏夹</a>
+        <a href="notes-manage.html" data-dom-id="nav-notes-manage" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="notebook-pen" class="w-4 h-4"></i>笔记管理</a>
+        <a href="mistake-book.html" data-dom-id="nav-mistake-book" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="alert-circle" class="w-4 h-4"></i>错误本</a>
+        <a href="learning-report.html" data-dom-id="nav-learning-report" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="bar-chart-2" class="w-4 h-4"></i>学习报告</a>
+      </div>
+    </div>
+  </nav>
+  <!-- Right -->
+  <div class="ml-auto flex items-center gap-3">
+    <div class="relative w-56"><i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color:var(--kb-muted-foreground);"></i><input type="text" placeholder="搜索知识库..." class="w-full h-9 pl-9 pr-12 rounded-lg text-sm border outline-none" style="background:var(--kb-background);border-color:var(--kb-border);color:var(--kb-foreground);"><span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs px-1.5 py-0.5 rounded" style="background:var(--kb-muted);color:var(--kb-muted-foreground);">⌘K</span></div>
+    <a href="notifications.html" data-dom-id="nav-notifications-bell" class="relative p-2 rounded-lg" style="color:var(--kb-muted-foreground);"><i data-lucide="bell" class="w-5 h-5"></i><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style="background:var(--kb-destructive);"></span></a>
+    <div class="relative" id="nav-avatar-dropdown"><a href="#" data-dom-id="nav-profile-avatar" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold cursor-pointer" style="background:var(--kb-primary);color:var(--kb-primary-foreground);" onclick="toggleDropdown('nav-avatar-dropdown')">YU</a><div class="nav-dropdown" id="nav-avatar-dropdown-menu" style="right:0;left:auto;min-width:180px;"><a href="profile.html" data-dom-id="nav-profile" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="user-circle" class="w-4 h-4"></i>个人设置</a><a href="system-overview.html" data-dom-id="nav-admin" class="flex items-center gap-2 px-3 py-2 text-sm" style="color:var(--kb-primary);"><i data-lucide="settings" class="w-4 h-4"></i>管理后台</a></div></div>
+  </div>
+</header>
+
+
+<main class="pt-14">
+<div class="max-w-7xl mx-auto px-6 py-6">
+
+      <!-- Page Header -->
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="kb-h1">社区讨论</h1>
+        <button class="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg text-sm font-medium" style="background:var(--kb-primary);color:var(--kb-primary-foreground);">
+          <i data-lucide="plus" class="w-4 h-4"></i><span>发帖</span>
+        </button>
+      </div>
+
+      <!-- Hot Topics Horizontal Scroll -->
+      <section class="mb-6">
+        <h3 class="kb-h3 mb-3">热门话题</h3>
+        <div class="flex gap-3 overflow-x-auto no-scrollbar pb-1">
+          <div class="topic-chip"><i data-lucide="flame" class="w-4 h-4" style="color:var(--kb-destructive);"></i><span class="text-sm font-medium" style="color:var(--kb-foreground);">Python 学习</span><span class="text-xs" style="color:var(--kb-muted-foreground);">328 讨论</span></div>
+          <div class="topic-chip"><i data-lucide="flame" class="w-4 h-4" style="color:var(--kb-warning);"></i><span class="text-sm font-medium" style="color:var(--kb-foreground);">机器学习入门</span><span class="text-xs" style="color:var(--kb-muted-foreground);">256 讨论</span></div>
+          <div class="topic-chip"><i data-lucide="hash" class="w-4 h-4" style="color:var(--kb-primary);"></i><span class="text-sm font-medium" style="color:var(--kb-foreground);">面试经验</span><span class="text-xs" style="color:var(--kb-muted-foreground);">189 讨论</span></div>
+          <div class="topic-chip"><i data-lucide="hash" class="w-4 h-4" style="color:var(--kb-accent);"></i><span class="text-sm font-medium" style="color:var(--kb-foreground);">项目实战</span><span class="text-xs" style="color:var(--kb-muted-foreground);">142 讨论</span></div>
+          <div class="topic-chip"><i data-lucide="hash" class="w-4 h-4" style="color:var(--kb-muted-foreground);"></i><span class="text-sm font-medium" style="color:var(--kb-foreground);">学习方法</span><span class="text-xs" style="color:var(--kb-muted-foreground);">98 讨论</span></div>
+          <div class="topic-chip"><i data-lucide="hash" class="w-4 h-4" style="color:var(--kb-muted-foreground);"></i><span class="text-sm font-medium" style="color:var(--kb-foreground);">前端开发</span><span class="text-xs" style="color:var(--kb-muted-foreground);">76 讨论</span></div>
+        </div>
+      </section>
+
+      <!-- Two Column Layout -->
+      <div class="flex gap-6" style="align-items:flex-start;">
+
+        <!-- Left: Post List -->
+        <div class="flex-1 flex flex-col gap-4">
+
+          <!-- Post 1 -->
+          <div class="post-card">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold shrink-0" style="background:var(--kb-primary);color:var(--kb-primary-foreground);">张</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-medium" style="color:var(--kb-foreground);">张小明</span>
+                <span class="badge badge-primary">学习经验</span>
+                <span class="kb-body-sm ml-auto">2 小时前</span>
+              </div>
+              <p class="text-sm font-semibold mb-1.5" style="color:var(--kb-foreground);">如何高效学习机器学习？分享我的三个月经验</p>
+              <p class="text-sm line-clamp-2 mb-3" style="color:var(--kb-muted-foreground);">从零基础到能独立完成 Kaggle 比赛，我总结了一套高效的学习路径。首先要打好数学基础，然后从 Scikit-learn 入手，逐步过渡到深度学习框架...</p>
+              <div class="flex items-center gap-4">
+                <span class="action-btn"><i data-lucide="heart" class="w-4 h-4"></i>156</span>
+                <span class="action-btn"><i data-lucide="message-circle" class="w-4 h-4"></i>42</span>
+                <span class="action-btn"><i data-lucide="bookmark" class="w-4 h-4"></i>收藏</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Post 2 -->
+          <div class="post-card">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold shrink-0" style="background:var(--kb-accent);color:var(--kb-primary-foreground);">李</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-medium" style="color:var(--kb-foreground);">李华</span>
+                <span class="badge badge-warning">技术讨论</span>
+                <span class="kb-body-sm ml-auto">5 小时前</span>
+              </div>
+              <p class="text-sm font-semibold mb-1.5" style="color:var(--kb-foreground);">React 18 新特性总结与实战踩坑记录</p>
+              <p class="text-sm line-clamp-2 mb-3" style="color:var(--kb-muted-foreground);">最近在项目中升级到了 React 18，遇到了一些 Concurrent Mode 相关的问题。Suspense 的行为变化比较大，特别是和 SSR 配合使用时...</p>
+              <div class="flex items-center gap-4">
+                <span class="action-btn"><i data-lucide="heart" class="w-4 h-4"></i>98</span>
+                <span class="action-btn"><i data-lucide="message-circle" class="w-4 h-4"></i>31</span>
+                <span class="action-btn"><i data-lucide="bookmark" class="w-4 h-4"></i>收藏</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Post 3 -->
+          <div class="post-card">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold shrink-0" style="background:var(--kb-warning);color:var(--kb-primary-foreground);">赵</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-medium" style="color:var(--kb-foreground);">赵磊</span>
+                <span class="badge badge-muted">求助问答</span>
+                <span class="kb-body-sm ml-auto">昨天</span>
+              </div>
+              <p class="text-sm font-semibold mb-1.5" style="color:var(--kb-foreground);">求推荐 Python 入门学习路线，有编程基础</p>
+              <p class="text-sm line-clamp-2 mb-3" style="color:var(--kb-muted-foreground);">有 C 语言基础，想转 Python 开发，希望大家能推荐一些学习路线和资源。目前看完了基础语法，接下来应该学什么？</p>
+              <div class="flex items-center gap-4">
+                <span class="action-btn"><i data-lucide="heart" class="w-4 h-4"></i>42</span>
+                <span class="action-btn"><i data-lucide="message-circle" class="w-4 h-4"></i>28</span>
+                <span class="action-btn"><i data-lucide="bookmark" class="w-4 h-4"></i>收藏</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Post 4 -->
+          <div class="post-card">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold shrink-0" style="background:var(--kb-primary);color:var(--kb-primary-foreground);">陈</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-medium" style="color:var(--kb-foreground);">陈晨</span>
+                <span class="badge badge-primary">技术讨论</span>
+                <span class="kb-body-sm ml-auto">昨天</span>
+              </div>
+              <p class="text-sm font-semibold mb-1.5" style="color:var(--kb-foreground);">Kubernetes Pod 调度策略详解</p>
+              <p class="text-sm line-clamp-2 mb-3" style="color:var(--kb-muted-foreground);">深入理解 K8s 中 Pod 的调度机制，包括 nodeSelector、nodeAffinity、podAffinity 等多种调度策略的使用场景和最佳实践...</p>
+              <div class="flex items-center gap-4">
+                <span class="action-btn"><i data-lucide="heart" class="w-4 h-4"></i>73</span>
+                <span class="action-btn"><i data-lucide="message-circle" class="w-4 h-4"></i>19</span>
+                <span class="action-btn"><i data-lucide="bookmark" class="w-4 h-4"></i>收藏</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Post 5 -->
+          <div class="post-card">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold shrink-0" style="background:var(--kb-destructive);color:var(--kb-primary-foreground);">王</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-medium" style="color:var(--kb-foreground);">王芳</span>
+                <span class="badge badge-success">学习经验</span>
+                <span class="kb-body-sm ml-auto">2 天前</span>
+              </div>
+              <p class="text-sm font-semibold mb-1.5" style="color:var(--kb-foreground);">我的数据分析学习笔记（持续更新中）</p>
+              <p class="text-sm line-clamp-2 mb-3" style="color:var(--kb-muted-foreground);">整理了 Pandas、NumPy、Matplotlib 的常用操作和踩坑记录，适合有一定 Python 基础的同学参考。会持续更新...</p>
+              <div class="flex items-center gap-4">
+                <span class="action-btn"><i data-lucide="heart" class="w-4 h-4"></i>89</span>
+                <span class="action-btn"><i data-lucide="message-circle" class="w-4 h-4"></i>15</span>
+                <span class="action-btn"><i data-lucide="bookmark" class="w-4 h-4"></i>收藏</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Post 6 -->
+          <div class="post-card">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold shrink-0" style="background:var(--kb-accent);color:var(--kb-primary-foreground);">孙</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-medium" style="color:var(--kb-foreground);">孙强</span>
+                <span class="badge badge-primary">技术讨论</span>
+                <span class="kb-body-sm ml-auto">3 天前</span>
+              </div>
+              <p class="text-sm font-semibold mb-1.5" style="color:var(--kb-foreground);">聊聊 Python 装饰器的高级用法</p>
+              <p class="text-sm line-clamp-2 mb-3" style="color:var(--kb-muted-foreground);">装饰器是 Python 中非常强大的特性，除了常见的 @staticmethod、@classmethod，还有很多高级用法，比如带参数的装饰器、类装饰器...</p>
+              <div class="flex items-center gap-4">
+                <span class="action-btn"><i data-lucide="heart" class="w-4 h-4"></i>67</span>
+                <span class="action-btn"><i data-lucide="message-circle" class="w-4 h-4"></i>23</span>
+                <span class="action-btn"><i data-lucide="bookmark" class="w-4 h-4"></i>收藏</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right: Hot Users Sidebar -->
+        <div style="flex:0 0 280px;">
+          <div class="rounded-xl border p-5" style="background:var(--kb-card);border-color:var(--kb-border);position:sticky;top:80px;">
+            <h3 class="kb-h3 mb-4">活跃用户</h3>
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold shrink-0" style="background:var(--kb-primary);color:var(--kb-primary-foreground);">张</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium truncate" style="color:var(--kb-foreground);">张小明</p>
+                  <p class="text-xs" style="color:var(--kb-muted-foreground);">1,234 贡献值</p>
+                </div>
+                <button class="text-xs font-medium px-3 py-1 rounded-md border" style="color:var(--kb-primary);border-color:var(--kb-primary);background:transparent;">关注</button>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold shrink-0" style="background:var(--kb-accent);color:var(--kb-primary-foreground);">李</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium truncate" style="color:var(--kb-foreground);">李华</p>
+                  <p class="text-xs" style="color:var(--kb-muted-foreground);">986 贡献值</p>
+                </div>
+                <button class="text-xs font-medium px-3 py-1 rounded-md border" style="color:var(--kb-primary);border-color:var(--kb-primary);background:transparent;">关注</button>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold shrink-0" style="background:var(--kb-warning);color:var(--kb-primary-foreground);">陈</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium truncate" style="color:var(--kb-foreground);">陈晨</p>
+                  <p class="text-xs" style="color:var(--kb-muted-foreground);">876 贡献值</p>
+                </div>
+                <button class="text-xs font-medium px-3 py-1 rounded-md border" style="color:var(--kb-primary);border-color:var(--kb-primary);background:transparent;">关注</button>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold shrink-0" style="background:var(--kb-destructive);color:var(--kb-primary-foreground);">王</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium truncate" style="color:var(--kb-foreground);">王芳</p>
+                  <p class="text-xs" style="color:var(--kb-muted-foreground);">743 贡献值</p>
+                </div>
+                <button class="text-xs font-medium px-3 py-1 rounded-md border" style="color:var(--kb-primary);border-color:var(--kb-primary);background:transparent;">关注</button>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold shrink-0" style="background:var(--kb-muted-foreground);color:var(--kb-primary-foreground);">孙</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium truncate" style="color:var(--kb-foreground);">孙强</p>
+                  <p class="text-xs" style="color:var(--kb-muted-foreground);">621 贡献值</p>
+                </div>
+                <button class="text-xs font-medium px-3 py-1 rounded-md border" style="color:var(--kb-primary);border-color:var(--kb-primary);background:transparent;">关注</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+</div>
+</main>
+<script>lucide.createIcons();</script>
+<script>
+    function toggleDropdown(id){const el=document.getElementById(id+'-menu');if(el)el.classList.toggle('show');}
+document.addEventListener('click',e=>{document.querySelectorAll('.nav-dropdown.show').forEach(d=>{const parent=d.parentElement;const btn=parent.querySelector('button');if(btn&&!btn.contains(e.target)&&!d.contains(e.target))d.classList.remove('show')})});
+  </script>
+  </body>
+</html>

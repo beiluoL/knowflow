@@ -1,394 +1,711 @@
 <template>
-  <div class="space-y-6 animate-fade-in">
-    <button
-      @click="goBack"
-      class="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary-500 transition-colors"
-    >
-      <Icon name="arrow-left" :size="16" />
-      返回学习路径
-    </button>
+  <!-- 学习路径详情页：面包屑 + 路径头卡片 + 章节列表 -->
+  <div class="path-detail-page animate-fade-in">
+    <!-- ===== 面包屑 ===== -->
+    <nav class="breadcrumb">
+      <router-link to="/learning/center" class="crumb-link">学习中心</router-link>
+      <Icon name="chevron-right" :size="14" class="crumb-sep" />
+      <router-link to="/learning/paths" class="crumb-link">学习路径</router-link>
+      <Icon name="chevron-right" :size="14" class="crumb-sep" />
+      <span class="crumb-current">{{ currentPath?.title || '加载中...' }}</span>
+    </nav>
 
-    <div
-      v-if="currentPath"
-      :class="[
-        'relative overflow-hidden rounded-xl p-8 text-white bg-gradient-to-br',
-        currentPath.coverGradient,
-      ]"
-    >
-      <div class="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,white)]" />
-      <div class="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
-      <div class="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl" />
-
-      <div class="relative z-10">
-        <div class="flex items-start justify-between gap-6">
-          <div class="flex-1">
-            <div class="flex items-center gap-2 mb-3">
-              <Badge :variant="getDifficultyBadgeVariant(currentPath.difficulty)">
-                {{ getDifficultyLabel(currentPath.difficulty) }}
-              </Badge>
-            </div>
-            <h1 class="text-2xl md:text-3xl font-bold mb-3">{{ currentPath.title }}</h1>
-            <p class="text-white/80 max-w-2xl">{{ currentPath.description }}</p>
-          </div>
-          <div class="hidden md:block">
-            <Icon :name="getPathIconName(currentPath.icon)" :size="96" class="text-white/80 drop-shadow-lg" />
-          </div>
+    <!-- ===== 路径头卡片 ===== -->
+    <div v-if="currentPath" class="path-header-card">
+      <div class="path-header-body">
+        <!-- 左侧：图标盒 -->
+        <div class="path-icon-box" :style="getIconBoxStyle(currentPath.id)">
+          <Icon :name="getPathIconName(currentPath.icon)" :size="40" :style="{ color: getThemeColor(currentPath.id) }" />
         </div>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-          <div class="bg-white/15 backdrop-blur-sm rounded-lg p-4">
-            <div class="flex items-center gap-2 mb-1">
-              <Icon name="book-open" :size="16" />
-              <span class="text-white/80 text-sm">章节数</span>
-            </div>
-            <p class="text-2xl font-bold">{{ currentPath.chaptersCount }}</p>
+        <!-- 右侧：信息区 -->
+        <div class="path-info">
+          <!-- 标签行 -->
+          <div class="tag-row">
+            <span class="tag tag-difficulty" :style="getDifficultyTagStyle(currentPath.difficulty)">
+              {{ getDifficultyLabel(currentPath.difficulty) }}
+            </span>
+            <span v-if="hasStarted" class="tag tag-status-learning">学习中</span>
+            <span v-else class="tag tag-status-not-started">未开始</span>
           </div>
-          <div class="bg-white/15 backdrop-blur-sm rounded-lg p-4">
-            <div class="flex items-center gap-2 mb-1">
-              <Icon name="clock" :size="16" />
-              <span class="text-white/80 text-sm">总时长</span>
-            </div>
-            <p class="text-2xl font-bold">{{ formatDuration(currentPath.totalDuration) }}</p>
+          <!-- 标题 -->
+          <h1 class="path-title">{{ currentPath.title }}</h1>
+          <!-- 描述 -->
+          <p class="path-desc">{{ currentPath.description || '暂无描述' }}</p>
+          <!-- 统计行 -->
+          <div class="path-stats">
+            <span class="stat-item">
+              <Icon name="book-open" :size="14" />
+              <span>{{ currentPath.chaptersCount }} 章节</span>
+            </span>
+            <span class="stat-item">
+              <Icon name="clock" :size="14" />
+              <span>{{ formatDuration(currentPath.totalDuration) }}</span>
+            </span>
+            <span class="stat-item">
+              <Icon name="users" :size="14" />
+              <span>{{ formatCount(currentPath.enrolledCount) }} 人学习</span>
+            </span>
+            <span class="stat-item stat-rating">
+              <Icon name="star" :size="14" :fill="true" />
+              <span>{{ getRating(currentPath.id) }} 评分</span>
+            </span>
           </div>
-          <div class="bg-white/15 backdrop-blur-sm rounded-lg p-4">
-            <div class="flex items-center gap-2 mb-1">
-              <Icon name="user" :size="16" />
-              <span class="text-white/80 text-sm">学习进度</span>
+          <!-- 进度条 + 继续学习按钮 -->
+          <div class="path-action-row">
+            <div class="progress-block">
+              <div class="progress-meta">
+                <span class="progress-label">学习进度</span>
+                <span class="progress-value" :style="{ color: getThemeColor(currentPath.id) }">
+                  {{ completedChaptersCount }}/{{ currentPath.chaptersCount }} 章 ({{ currentPath.progress }}%)
+                </span>
+              </div>
+              <div class="progress-track">
+                <div
+                  class="progress-fill"
+                  :style="{ width: `${currentPath.progress}%`, background: getThemeColor(currentPath.id) }"
+                ></div>
+              </div>
             </div>
-            <p class="text-2xl font-bold">{{ currentPath.progress }}%</p>
-          </div>
-          <div class="bg-white/15 backdrop-blur-sm rounded-lg p-4">
-            <div class="flex items-center gap-2 mb-1">
-              <Icon name="users" :size="16" />
-              <span class="text-white/80 text-sm">报名人数</span>
-            </div>
-            <p class="text-2xl font-bold">{{ currentPath.enrolledCount }}</p>
+            <button class="primary-btn" @click="continueLearning">
+              <Icon name="play" :size="14" />
+              <span>{{ hasStarted ? '继续学习' : '开始学习' }}</span>
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <div v-else class="text-center py-16 text-gray-400">加载中...</div>
+    <!-- 加载态 -->
+    <div v-else class="state-area">
+      <div class="loading-spinner"></div>
+      <p class="state-text">加载中...</p>
+    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" v-if="currentPath">
-      <div class="lg:col-span-2">
-        <Card hoverable>
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <Icon name="list" :size="20" />
-                <h2 class="font-semibold text-gray-800">章节列表</h2>
-              </div>
-              <span class="text-sm text-gray-500">
-                {{ completedChaptersCount }}/{{ pathChapters.length }} 已完成
-              </span>
-            </div>
-          </template>
-
-          <div class="space-y-2">
-            <div
-              v-for="chapter in pathChapters" :key="chapter.id"
-              :class="[
-                'flex items-center gap-4 p-4 rounded-lg cursor-pointer transition-all duration-200 group',
-                chapter.completed
-                  ? 'bg-gray-50'
-                  : 'hover:bg-gray-50',
-              ]"
-              @click="goToChapter(chapter.id)"
-            >
-              <div
-                :class="[
-                  'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all',
-                  chapter.completed
-                    ? 'bg-success-500 text-white'
-                    : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200',
-                ]"
-              >
-                <Icon name="check" :size="20" v-if="chapter.completed" />
-                <span v-else class="text-sm font-medium">{{ chapter.order }}</span>
-              </div>
-
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2">
-                  <h3
-                    :class="[
-                      'font-medium truncate',
-                      chapter.completed
-                        ? 'text-gray-500 line-through'
-                        : 'text-gray-800',
-                    ]"
-                  >
-                    {{ chapter.title }}
-                  </h3>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-2 flex-shrink-0">
-                <div class="flex items-center gap-1 text-sm text-gray-400">
-                  <Icon name="clock" :size="16" />
-                  <span>{{ chapter.duration }}分钟</span>
-                </div>
-                <Icon name="chevron-right" :size="20" />
-              </div>
-            </div>
-          </div>
-        </Card>
+    <!-- ===== 章节列表 ===== -->
+    <div v-if="currentPath" class="chapter-card">
+      <!-- 卡片头 -->
+      <div class="chapter-card-header">
+        <h2 class="chapter-card-title">章节列表</h2>
+        <span class="chapter-card-meta">已完成 {{ completedChaptersCount }} / {{ pathChapters.length }} 章</span>
       </div>
-
-      <div class="space-y-6">
-        <Card hoverable>
-          <template #header>
-            <div class="flex items-center gap-2">
-              <Icon name="trending-up" :size="20" />
-              <h2 class="font-semibold text-gray-800">学习进度</h2>
-            </div>
-          </template>
-
-          <div class="space-y-4">
-            <div class="text-center">
-              <div class="relative w-28 h-28 mx-auto mb-3">
-                <svg class="w-28 h-28 transform -rotate-90" viewBox="0 0 120 120">
-                  <circle cx="60" cy="60" r="50" stroke="#E5E7EB" stroke-width="8" fill="none" />
-                  <circle
-                    cx="60" cy="60" r="50"
-                    stroke="url(#detailProgressGradient)"
-                    stroke-width="8" fill="none" stroke-linecap="round"
-                    :stroke-dasharray="progressCircumference"
-                    :stroke-dashoffset="progressDashoffset"
-                    class="transition-all duration-1000 ease-out"
-                  />
-                  <defs>
-                    <linearGradient id="detailProgressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" style="stop-color:#3B6FE0" />
-                      <stop offset="100%" style="stop-color:#6F9AF2" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <div class="absolute inset-0 flex flex-col items-center justify-center">
-                  <span class="text-2xl font-bold text-primary-600">{{ currentPath?.progress || 0 }}%</span>
-                </div>
-              </div>
-              <p class="text-sm text-gray-500">
-                已完成 {{ completedChaptersCount }} / {{ pathChapters.length }} 章
-              </p>
-            </div>
-
-            <Button block size="lg" @click="continueLearning" :loading="enrolling">
-              <Icon name="play" :size="20" />
-              {{ hasStarted ? '继续学习' : '开始学习' }}
-            </Button>
-            <Button block variant="secondary" @click="enroll" :loading="enrolling" v-if="!hasStarted">
-              报名该路径
-            </Button>
+      <!-- 章节项 -->
+      <div class="chapter-list">
+        <div
+          v-for="chapter in pathChapters"
+          :key="chapter.id"
+          class="chapter-item"
+          :class="{
+            completed: chapter.completed,
+            current: chapter.isCurrent,
+            locked: !chapter.completed && !chapter.isCurrent && !chapter.unlocked,
+          }"
+          @click="handleChapterClick(chapter)"
+        >
+          <!-- 左侧圆形状态图标 -->
+          <div class="chapter-status-icon" :class="getChapterStatusClass(chapter)">
+            <Icon v-if="chapter.completed" name="check" :size="16" />
+            <Icon v-else-if="chapter.isCurrent" name="play" :size="14" />
+            <span v-else class="chapter-order">{{ chapter.order }}</span>
           </div>
-        </Card>
-
-        <Card hoverable>
-          <template #header>
-            <div class="flex items-center gap-2">
-              <Icon name="lightbulb" :size="20" />
-              <h2 class="font-semibold text-gray-800">学习建议</h2>
+          <!-- 中间：标题与描述 -->
+          <div class="chapter-info">
+            <div class="chapter-title-row">
+              <span class="chapter-order-label">第 {{ pad(chapter.order) }} 章</span>
+              <h4 class="chapter-title">{{ chapter.title }}</h4>
+              <span v-if="chapter.isCurrent" class="current-badge">当前章节</span>
             </div>
-          </template>
-
-          <div class="space-y-3">
-            <div class="flex items-start gap-3">
-              <div class="w-6 h-6 rounded-full bg-primary-50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span class="text-xs font-medium text-primary-500">1</span>
-              </div>
-              <p class="text-sm text-gray-600">建议每天学习 1-2 个章节，保持学习节奏</p>
-            </div>
-            <div class="flex items-start gap-3">
-              <div class="w-6 h-6 rounded-full bg-primary-50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span class="text-xs font-medium text-primary-500">2</span>
-              </div>
-              <p class="text-sm text-gray-600">学完每章后完成配套练习，巩固知识点</p>
-            </div>
-            <div class="flex items-start gap-3">
-              <div class="w-6 h-6 rounded-full bg-primary-50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span class="text-xs font-medium text-primary-500">3</span>
-              </div>
-              <p class="text-sm text-gray-600">使用闪卡功能复习重要概念，加深记忆</p>
-            </div>
+            <p v-if="chapter.description" class="chapter-desc">{{ chapter.description }}</p>
           </div>
-        </Card>
+          <!-- 右侧：时长 + 状态图标 -->
+          <span class="chapter-duration">
+            <Icon name="clock" :size="14" />
+            <span>{{ formatChapterDuration(chapter.duration) }}</span>
+          </span>
+          <Icon
+            :name="isChapterLocked(chapter) ? 'lock' : 'chevron-right'"
+            :size="16"
+            class="chapter-arrow"
+          />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// 学习路径详情页：展示路径概览、章节列表、环形进度与报名/继续学习入口。
-import { computed, ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import Icon from '@/components/ui/Icon.vue'
-import Card from '@/components/ui/Card.vue'
-import Badge from '@/components/ui/Badge.vue'
-import Button from '@/components/ui/Button.vue'
-import { learningApi } from '@/api'
-import type { LearningPathVO, LearningChapterVO } from '@/api/types'
+// 学习路径详情页：路径头卡片（图标盒 + 标签 + 标题 + 描述 + 统计 + 进度 + 按钮）+ 章节列表（三态）。
+import { computed, ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import Icon from '@/components/ui/Icon.vue';
+import { learningApi } from '@/api';
+import { getApiError } from '@/utils/toast';
+import type { LearningPathVO, LearningChapterVO } from '@/api/types';
 
-const route = useRoute()
-const router = useRouter()
+const route = useRoute();
+const router = useRouter();
 
-const gradients = [
-  'from-blue-500 to-indigo-600',
-  'from-emerald-500 to-teal-600',
-  'from-purple-500 to-fuchsia-600',
-  'from-orange-500 to-rose-600',
-]
-const icons = ['code', 'server', 'database', 'brain', 'layers', 'puzzle']
+const pathId = computed(() => Number(route.params.id));
+const pathDetail = ref<LearningPathVO | null>(null);
+const chapters = ref<LearningChapterVO[]>([]);
 
-const pathId = computed(() => Number(route.params.id))
-const pathDetail = ref<LearningPathVO | null>(null)
-const chapters = ref<LearningChapterVO[]>([])
-const enrolling = ref(false)
-
-// 将后端返回的难度文案（入门/进阶/高级）映射为统一的枚举值
-const levelToDifficulty = (level?: string): 'beginner' | 'intermediate' | 'advanced' => {
+// 后端 level 文案 → 统一难度枚举
+function levelToDifficulty(level?: string): 'beginner' | 'intermediate' | 'advanced' {
   const map: Record<string, 'beginner' | 'intermediate' | 'advanced'> = {
-    入门: 'beginner', 进阶: 'intermediate', 高级: 'advanced',
-    beginner: 'beginner', intermediate: 'intermediate', advanced: 'advanced',
-  }
-  return map[level || ''] || 'beginner'
+    入门: 'beginner',
+    进阶: 'intermediate',
+    高级: 'advanced',
+    beginner: 'beginner',
+    intermediate: 'intermediate',
+    advanced: 'advanced',
+  };
+  return map[level || ''] || 'beginner';
 }
 
+// ===== 视图模型 =====
 interface ViewChapter {
-  id: number
-  title: string
-  duration: number
-  order: number
-  completed: boolean
-  isCurrent: boolean
+  id: number;
+  title: string;
+  description?: string;
+  duration: number;
+  order: number;
+  completed: boolean;
+  isCurrent: boolean;
+  unlocked: boolean;
 }
 
-// 将章节按 sortOrder 升序排序，并映射为视图模型
-const pathChapters = computed<ViewChapter[]>(() =>
-  chapters.value
-    .slice()
-    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
-    .map((c) => ({
-      id: c.id,
-      title: c.title,
-      duration: c.duration || 0,
-      order: c.sortOrder || 0,
-      completed: !!c.completed,
-      isCurrent: false,
-    }))
-)
+// 章节按 sortOrder 升序排序，并映射为视图模型
+const pathChapters = computed<ViewChapter[]>(() => {
+  // 找到第一个未完成章节作为「当前章节」
+  const sorted = chapters.value.slice().sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+  const firstIncompleteIdx = sorted.findIndex((c) => !c.completed);
+  return sorted.map((c, idx) => ({
+    id: c.id,
+    title: c.title,
+    description: c.description,
+    duration: c.duration || 0,
+    order: c.sortOrder || idx + 1,
+    completed: !!c.completed,
+    isCurrent: idx === firstIncompleteIdx,
+    // 已完成或当前章节或之前的章节都视为已解锁
+    unlocked: idx <= (firstIncompleteIdx === -1 ? sorted.length - 1 : firstIncompleteIdx),
+  }));
+});
 
-const completedChaptersCount = computed(() => pathChapters.value.filter((c) => c.completed).length)
+const completedChaptersCount = computed(() => pathChapters.value.filter((c) => c.completed).length);
 
 const currentPath = computed(() => {
-  if (!pathDetail.value) return null
-  const total = pathChapters.value.length
-  const progress = total > 0 ? Math.round((completedChaptersCount.value / total) * 100) : 0
+  if (!pathDetail.value) return null;
+  const total = pathChapters.value.length;
+  const progress = total > 0 ? Math.round((completedChaptersCount.value / total) * 100) : 0;
   return {
     id: pathDetail.value.id,
     title: pathDetail.value.title,
     description: pathDetail.value.description,
-    coverGradient: gradients[pathDetail.value.id % gradients.length] || gradients[0],
-    icon: icons[pathDetail.value.id % icons.length] || 'code',
+    icon: pickIcon(pathDetail.value.id),
     difficulty: levelToDifficulty(pathDetail.value.level),
     chaptersCount: pathDetail.value.chapterCount || total,
     totalDuration: pathDetail.value.totalDuration || 0,
     progress,
     enrolledCount: pathDetail.value.enrolledCount || 0,
+  };
+});
+
+const hasStarted = computed(() => (currentPath.value?.progress || 0) > 0);
+
+// ===== 图标分配 =====
+function pickIcon(id: number): string {
+  const icons = ['layout', 'server', 'brain', 'database', 'cloud', 'smartphone'];
+  return icons[id % icons.length] || 'code';
+}
+
+function getPathIconName(iconName: string): string {
+  const map: Record<string, string> = {
+    code: 'code',
+    fileCode: 'file-code',
+    brain: 'brain',
+    layers: 'layers',
+    server: 'server',
+    puzzle: 'puzzle',
+    layout: 'layout',
+    database: 'database',
+    cloud: 'cloud',
+    smartphone: 'smartphone',
+  };
+  return map[iconName] || 'code';
+}
+
+// ===== 主题色与渐变（与 LearningPaths 保持一致） =====
+const themeColors = [
+  'var(--kb-primary)',
+  'var(--kb-accent)',
+  '#A855F7',
+  'var(--kb-warning)',
+  'var(--kb-destructive)',
+  '#0EA5E9',
+];
+function getThemeColor(id: number): string {
+  return themeColors[id % themeColors.length] || themeColors[0];
+}
+
+const iconBoxGradients = [
+  'linear-gradient(135deg, rgba(59,111,224,0.12), rgba(59,111,224,0.04))',
+  'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.04))',
+  'linear-gradient(135deg, rgba(168,85,247,0.12), rgba(168,85,247,0.04))',
+  'linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.04))',
+  'linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.04))',
+  'linear-gradient(135deg, rgba(14,165,233,0.12), rgba(14,165,233,0.04))',
+];
+function getIconBoxStyle(id: number): Record<string, string> {
+  return { background: iconBoxGradients[id % iconBoxGradients.length] || iconBoxGradients[0] };
+}
+
+// ===== 难度相关 =====
+function getDifficultyLabel(difficulty: string): string {
+  const labels: Record<string, string> = {
+    beginner: '入门',
+    intermediate: '进阶',
+    advanced: '高级',
+  };
+  return labels[difficulty] || difficulty;
+}
+
+function getDifficultyTagStyle(difficulty: string): Record<string, string> {
+  switch (difficulty) {
+    case 'beginner':
+      return { background: 'rgba(16,185,129,0.08)', color: 'var(--kb-accent)' };
+    case 'intermediate':
+      return { background: 'rgba(59,111,224,0.08)', color: 'var(--kb-primary)' };
+    case 'advanced':
+      return { background: 'rgba(239,68,68,0.08)', color: 'var(--kb-destructive)' };
+    default:
+      return { background: 'var(--kb-muted)', color: 'var(--kb-muted-foreground)' };
   }
-})
-
-const hasStarted = computed(() => (currentPath.value?.progress || 0) > 0)
-
-const progressRadius = 50
-// 圆环周长，用于 SVG stroke-dasharray 绘制进度环
-const progressCircumference = 2 * Math.PI * progressRadius
-// 进度偏移：周长减去已进度对应的弧长，dashoffset 越大空白处越多
-const progressDashoffset = computed(() => {
-  const progress = currentPath.value?.progress || 0
-  return progressCircumference - (progress / 100) * progressCircumference
-})
-
-const getPathIconName = (iconName: string): string => {
-  const iconNameMap: Record<string, string> = {
-    code: 'code', fileCode: 'file-code', brain: 'brain',
-    layers: 'layers', server: 'server', puzzle: 'puzzle',
-  }
-  return iconNameMap[iconName] || 'code'
 }
 
-const getDifficultyLabel = (difficulty: string) => {
-  const labels: Record<string, string> = { beginner: '入门', intermediate: '进阶', advanced: '高级' }
-  return labels[difficulty] || difficulty
+// ===== 章节状态辅助 =====
+function getChapterStatusClass(chapter: ViewChapter): string {
+  if (chapter.completed) return 'status-completed';
+  if (chapter.isCurrent) return 'status-current';
+  return 'status-pending';
 }
 
-const getDifficultyBadgeVariant = (difficulty: string) => {
-  const variants: Record<string, 'primary' | 'success' | 'warning' | 'danger' | 'default'> = {
-    beginner: 'success', intermediate: 'primary', advanced: 'danger',
-  }
-  return variants[difficulty] || 'default'
+function isChapterLocked(chapter: ViewChapter): boolean {
+  return !chapter.completed && !chapter.isCurrent && !chapter.unlocked;
 }
 
-const formatDuration = (minutes: number) => {
-  if (!minutes) return '0分钟'
-  if (minutes < 60) return `${minutes}分钟`
-  const hours = Math.floor(minutes / 60)
-  const mins = minutes % 60
-  return mins > 0 ? `${hours}小时${mins}分` : `${hours}小时`
+function handleChapterClick(chapter: ViewChapter): void {
+  if (isChapterLocked(chapter)) return;
+  router.push(`/learning/chapter/${chapter.id}`);
 }
 
-const goBack = () => router.push('/learning/paths')
+// ===== 格式化 =====
+function formatDuration(minutes: number): string {
+  if (!minutes) return '0 小时';
+  if (minutes < 60) return `${minutes} 分钟`;
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return mins > 0 ? `${hours} 小时${mins} 分` : `${hours} 小时`;
+}
 
-const goToChapter = (chapterId: number) => router.push(`/learning/chapter/${chapterId}`)
+function formatChapterDuration(minutes: number): string {
+  if (!minutes) return '-';
+  if (minutes < 60) return `${minutes}分钟`;
+  const hours = minutes / 60;
+  return `${hours % 1 === 0 ? hours : hours.toFixed(1)}h`;
+}
 
+function formatCount(n: number): string {
+  if (!n) return '0';
+  return n.toLocaleString('en-US');
+}
+
+// 评分（后端无字段，使用基于 id 的稳定值 4.5-4.9）
+function getRating(id: number): string {
+  const ratings = [4.9, 4.8, 4.9, 4.7, 4.6, 4.5];
+  return ratings[id % ratings.length].toFixed(1);
+}
+
+// 数字补零（1 → "01"）
+function pad(n: number): string {
+  return n < 10 ? `0${n}` : String(n);
+}
+
+// ===== 跳转 =====
 // 跳转至第一个未完成章节（无则跳首章）
-const continueLearning = () => {
-  const firstIncomplete = pathChapters.value.find((c) => !c.completed)
-  const target = firstIncomplete || pathChapters.value[0]
-  if (target) router.push(`/learning/chapter/${target.id}`)
+function continueLearning(): void {
+  const firstIncomplete = pathChapters.value.find((c) => !c.completed);
+  const target = firstIncomplete || pathChapters.value[0];
+  if (target) router.push(`/learning/chapter/${target.id}`);
 }
 
-const enroll = async () => {
-  enrolling.value = true
-  try {
-    await learningApi.enroll(pathId.value)
-  } catch {
-    /* 忽略 */
-  } finally {
-    enrolling.value = false
-  }
-}
-
+// ===== 数据加载 =====
 onMounted(async () => {
   try {
-    pathDetail.value = await learningApi.pathDetail(pathId.value)
-  } catch {
-    pathDetail.value = null
+    pathDetail.value = await learningApi.pathDetail(pathId.value);
+  } catch (e) {
+    console.warn(getApiError(e, '路径加载失败'));
+    pathDetail.value = null;
   }
   try {
-    chapters.value = await learningApi.chapters(pathId.value)
-  } catch {
-    chapters.value = []
+    chapters.value = await learningApi.chapters(pathId.value);
+  } catch (e) {
+    console.warn(getApiError(e, '章节加载失败'));
+    chapters.value = [];
   }
-})
+});
 </script>
 
 <style scoped>
+/* ===== 页面容器 ===== */
+.path-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
 .animate-fade-in {
-  animation: fadeIn 0.5s ease-out;
+  animation: fadeIn 0.4s ease-out;
 }
-
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== 面包屑 ===== */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.crumb-link {
+  font-weight: 500;
+  color: var(--kb-muted-foreground);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.crumb-link:hover { color: var(--kb-primary); }
+.crumb-sep { color: var(--kb-muted-foreground); }
+.crumb-current {
+  font-weight: 500;
+  color: var(--kb-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 400px;
+}
+
+/* ===== 路径头卡片 ===== */
+.path-header-card {
+  border-radius: var(--kb-radius-lg);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  overflow: hidden;
+}
+.path-header-body {
+  display: flex;
+  gap: 24px;
+  padding: 24px;
+}
+@media (max-width: 768px) {
+  .path-header-body {
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
   }
 }
 
-.bg-grid-white\/10 {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3e%3cg fill='none' fill-rule='evenodd'%3e%3cg fill='%23ffffff' fill-opacity='0.1'%3e%3cpath d='M0 0h32v32H0z'/%3e%3c/g%3e%3c/g%3e%3c/svg%3e");
+/* 左侧图标盒 */
+.path-icon-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--kb-radius-lg);
+  flex-shrink: 0;
+}
+@media (max-width: 768px) {
+  .path-icon-box { width: 56px; height: 56px; }
+}
+
+/* 右侧信息 */
+.path-info {
+  flex: 1;
+  min-width: 0;
+}
+.tag-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.tag {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.tag-status-learning {
+  background: rgba(16, 185, 129, 0.08);
+  color: var(--kb-accent);
+}
+.tag-status-not-started {
+  background: var(--kb-muted);
+  color: var(--kb-muted-foreground);
+}
+
+.path-title {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--kb-foreground);
+  margin-bottom: 8px;
+}
+.path-desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--kb-muted-foreground);
+  margin-bottom: 12px;
+}
+
+/* 统计行 */
+.path-stats {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.stat-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--kb-muted-foreground);
+}
+.stat-rating { color: var(--kb-warning); }
+
+/* 进度 + 按钮 行 */
+.path-action-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.progress-block {
+  flex: 1;
+  min-width: 240px;
+  max-width: 480px;
+}
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.progress-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--kb-foreground);
+}
+.progress-value {
+  font-size: 12px;
+  font-weight: 600;
+}
+.progress-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--kb-muted);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* 主按钮 */
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: var(--kb-radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.primary-btn:hover { opacity: 0.9; }
+
+/* ===== 加载 / 空态 ===== */
+.state-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  gap: 12px;
+}
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--kb-muted);
+  border-top-color: var(--kb-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.state-text {
+  font-size: 13px;
+  color: var(--kb-muted-foreground);
+}
+
+/* ===== 章节列表卡片 ===== */
+.chapter-card {
+  border-radius: var(--kb-radius-lg);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  overflow: hidden;
+}
+.chapter-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--kb-border);
+}
+.chapter-card-title {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--kb-foreground);
+}
+.chapter-card-meta {
+  font-size: 12px;
+  color: var(--kb-muted-foreground);
+}
+
+/* 章节项 */
+.chapter-list { display: flex; flex-direction: column; }
+.chapter-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--kb-border);
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+.chapter-item:last-child { border-bottom: none; }
+.chapter-item:hover:not(.locked) { background: rgba(59, 111, 224, 0.02); }
+.chapter-item.current { background: rgba(59, 111, 224, 0.04); }
+.chapter-item.locked { cursor: not-allowed; opacity: 0.75; }
+
+/* 状态图标 */
+.chapter-status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  color: #fff;
+}
+.chapter-status-icon.status-completed {
+  background: var(--kb-accent);
+}
+.chapter-status-icon.status-current {
+  background: var(--kb-primary);
+}
+.chapter-status-icon.status-pending {
+  background: var(--kb-muted);
+  color: var(--kb-muted-foreground);
+}
+.chapter-order {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 章节信息 */
+.chapter-info {
+  flex: 1;
+  min-width: 0;
+}
+.chapter-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.chapter-order-label {
+  font-size: 12px;
+  color: var(--kb-muted-foreground);
+}
+.chapter-title {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--kb-foreground);
+}
+.chapter-item.current .chapter-title { color: var(--kb-primary); }
+.chapter-item.current .chapter-order-label { color: var(--kb-primary); font-weight: 500; }
+.current-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(59, 111, 224, 0.08);
+  color: var(--kb-primary);
+}
+.chapter-desc {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--kb-muted-foreground);
+  margin-top: 4px;
+}
+
+/* 章节右侧 */
+.chapter-duration {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--kb-muted-foreground);
+  flex-shrink: 0;
+}
+.chapter-arrow {
+  color: var(--kb-muted-foreground);
+  flex-shrink: 0;
+}
+.chapter-item.current .chapter-arrow { color: var(--kb-primary); }
+
+/* ===== 移动端适配 ===== */
+@media (max-width: 640px) {
+  .chapter-item {
+    padding: 12px 16px;
+    gap: 12px;
+  }
+  .chapter-card-header {
+    padding: 12px 16px;
+  }
+  .chapter-card-title { font-size: 18px; }
+  .path-title { font-size: 22px; }
+  .path-stats { gap: 12px; }
+  .stat-item { font-size: 13px; }
+  .path-action-row { flex-direction: column; align-items: stretch; }
+  .progress-block { max-width: 100%; }
+  .primary-btn { justify-content: center; }
 }
 </style>

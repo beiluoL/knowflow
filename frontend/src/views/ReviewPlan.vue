@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6 animate-fade-in">
+  <div class="space-y-4 animate-fade-in">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
         <h1 class="text-2xl font-bold text-gray-800">复习计划</h1>
@@ -7,7 +7,7 @@
       </div>
       <button
         type="button"
-        class="h-9 w-9 inline-flex items-center justify-center rounded-lg border transition-colors hover:bg-gray-50 self-start md:self-auto"
+        class="h-9 w-9 inline-flex items-center justify-center rounded-lg border transition-colors hover:bg-gray-50 self-start md:self-auto focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
         style="border-color: var(--kb-input);"
         :disabled="loading"
         title="刷新"
@@ -18,12 +18,12 @@
     </div>
 
     <!-- Error state -->
-    <div v-if="error" class="rounded-xl border p-8 flex flex-col items-center justify-center gap-3" style="background: var(--kb-card); border-color: var(--kb-border);">
+    <div v-if="error" class="rounded-xl border p-6 flex flex-col items-center justify-center gap-3" style="background: var(--kb-card); border-color: var(--kb-border);">
       <Icon name="alert-circle" :size="32" style="color: var(--kb-destructive);" />
       <p class="text-sm" style="color: var(--kb-muted-foreground);">{{ error }}</p>
       <button
         type="button"
-        class="px-3 py-1.5 rounded-lg text-xs font-medium"
+        class="px-3 py-1.5 rounded-lg text-sm font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
         style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
         @click="loadFlashcards"
       >重新加载</button>
@@ -72,26 +72,26 @@
       <div class="flex flex-col md:flex-row md:items-center gap-6">
         <div class="flex-1">
           <div class="flex items-center gap-2 mb-2">
-            <Icon name="calendar" :size="20" />
+            <Icon name="calendar" :size="22" />
             <h2 class="font-semibold text-gray-800">今日复习</h2>
-            <Badge variant="default" class="text-[11px]">本地计划</Badge>
+            <Badge variant="default" class="text-xs">本地计划</Badge>
           </div>
           <p class="text-sm text-gray-500 mb-4">基于真实闪卡复习进度推算，「已复习」为本机记录</p>
 
-          <div class="flex items-center gap-8 mb-4">
+          <div class="flex items-center gap-6 mb-4">
             <div class="text-center">
               <div class="flex items-baseline gap-1">
-                <span class="text-3xl font-bold text-danger-500">{{ todayReview.total }}</span>
+                <span class="text-3xl font-bold text-danger-500 tabular-nums">{{ todayReview.total }}</span>
                 <span class="text-gray-400">张</span>
               </div>
-              <p class="text-xs text-gray-500 mt-1">待复习</p>
+              <p class="text-[13px] text-gray-500 mt-1">待复习</p>
             </div>
             <div class="text-center">
               <div class="flex items-baseline gap-1">
-                <span class="text-3xl font-bold text-success-500">{{ todayReview.completed }}</span>
+                <span class="text-3xl font-bold text-success-500 tabular-nums">{{ todayReview.completed }}</span>
                 <span class="text-gray-400">张</span>
               </div>
-              <p class="text-xs text-gray-500 mt-1">已复习</p>
+              <p class="text-[13px] text-gray-500 mt-1">已复习</p>
             </div>
           </div>
 
@@ -107,7 +107,7 @@
       </div>
     </Card>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <div class="lg:col-span-2">
         <Card hoverable>
           <template #header>
@@ -119,16 +119,16 @@
               <div class="flex items-center gap-2">
                 <button
                   @click="prevMonth"
-                  class="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                  class="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
                 >
                   <Icon name="chevron-left" :size="20" />
                 </button>
-                <span class="text-sm font-medium text-gray-700 w-24 text-center">
+                <span class="text-sm font-medium text-gray-700 w-24 text-center tabular-nums">
                   {{ currentYear }}年{{ currentMonth }}月
                 </span>
                 <button
                   @click="nextMonth"
-                  class="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                  class="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
                 >
                   <Icon name="chevron-right" :size="20" />
                 </button>
@@ -140,7 +140,7 @@
             <div class="grid grid-cols-7 gap-1 mb-2">
               <div
                 v-for="day in weekDays" :key="day"
-                class="text-center text-xs font-medium text-gray-400 py-2"
+                class="text-center text-[13px] font-medium text-gray-400 py-2"
               >
                 {{ day }}
               </div>
@@ -150,7 +150,7 @@
               <div
                 v-for="(day, index) in calendarDays" :key="index"
                 :class="[
-                  'aspect-square flex flex-col items-center justify-center rounded-lg text-sm transition-all duration-200 cursor-pointer',
+                  'aspect-square flex flex-col items-center justify-center rounded-lg text-sm transition-[background-color,box-shadow] duration-200 cursor-pointer',
                   day.isCurrentMonth ? '' : 'opacity-40',
                   day.isToday ? 'bg-primary-500 text-white font-semibold' : '',
                   day.hasReview && !day.isToday ? 'hover:bg-primary-50' : '',
@@ -172,14 +172,14 @@
             </div>
           </div>
 
-          <div class="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-gray-50">
+          <div class="flex items-center justify-center gap-4 mt-4 pt-4 border-t border-gray-50">
             <div class="flex items-center gap-2">
               <div class="w-2 h-2 rounded-full bg-primary-500" />
-              <span class="text-xs text-gray-500">有复习任务</span>
+              <span class="text-[13px] text-gray-500">有复习任务</span>
             </div>
             <div class="flex items-center gap-2">
               <div class="w-2 h-2 rounded-full bg-primary-500 ring-2 ring-primary-200" />
-              <span class="text-xs text-gray-500">今天</span>
+              <span class="text-[13px] text-gray-500">今天</span>
             </div>
           </div>
         </Card>
@@ -204,7 +204,7 @@
             >
               <div class="flex items-center gap-2 mb-2">
                 <Badge variant="primary" class="text-xs">{{ card.category }}</Badge>
-                <Badge :variant="getDifficultyBadgeVariant(card.difficulty)" class="text-xs">
+                <Badge :variant="getDifficultyBadgeVariant(card.difficulty)" class="text-[13px]">
                   {{ getDifficultyLabel(card.difficulty) }}
                 </Badge>
               </div>
@@ -222,7 +222,7 @@
               <Icon name="check" :size="32" Circle />
             </div>
             <p class="text-sm text-gray-500">暂无复习任务</p>
-            <p class="text-xs text-gray-400 mt-1">去学习新内容吧~</p>
+            <p class="text-[13px] text-gray-400 mt-1">去学习新内容吧~</p>
           </div>
         </Card>
       </div>
@@ -243,12 +243,12 @@
         >
           <div class="flex items-center gap-3 mb-3">
             <div class="w-10 h-10 rounded-lg bg-primary-50 flex flex-col items-center justify-center flex-shrink-0">
-              <span class="text-xs text-primary-400">{{ getMonth(day.date) }}月</span>
-              <span class="text-sm font-bold text-primary-600">{{ getDay(day.date) }}</span>
+              <span class="text-[13px] text-primary-400 tabular-nums">{{ getMonth(day.date) }}月</span>
+              <span class="text-sm font-bold text-primary-600 tabular-nums">{{ getDay(day.date) }}</span>
             </div>
             <div>
               <p class="text-sm font-medium text-gray-800">{{ formatDateLabel(day.date) }}</p>
-              <p class="text-xs text-gray-500">{{ day.cards.length }} 张闪卡待复习</p>
+              <p class="text-[13px] text-gray-500 tabular-nums">{{ day.cards.length }} 张闪卡待复习</p>
             </div>
           </div>
           <div class="flex flex-wrap gap-2 ml-13">
@@ -262,11 +262,64 @@
             </Badge>
             <span
               v-if="day.cards.length > 3"
-              class="text-xs text-gray-400 py-0.5"
+              class="text-[13px] text-gray-400 py-0.5 tabular-nums"
             >
               +{{ day.cards.length - 3 }} 更多
             </span>
           </div>
+        </div>
+      </div>
+    </Card>
+
+    <!-- 艾宾浩斯遗忘曲线（对齐设计稿） -->
+    <Card hoverable>
+      <template #header>
+        <div class="flex items-center gap-2">
+          <div
+            class="w-8 h-8 rounded-lg flex items-center justify-center"
+            style="background: rgba(59,111,224,0.08);"
+          >
+            <Icon name="brain" :size="18" style="color: var(--kb-primary);" />
+          </div>
+          <h2 class="font-semibold text-gray-800">艾宾浩斯遗忘曲线</h2>
+        </div>
+      </template>
+
+      <!-- 简化曲线示意 -->
+      <div class="mb-4 p-4 rounded-lg" style="background: var(--kb-background);">
+        <svg viewBox="0 0 300 100" class="w-full" style="height: 80px;" preserveAspectRatio="none">
+          <!-- 曲线主体 -->
+          <path
+            d="M 10 10 Q 60 60 100 70 Q 150 82 200 85 Q 250 90 290 92"
+            fill="none"
+            stroke="var(--kb-primary)"
+            stroke-width="2.5"
+            stroke-linecap="round"
+          />
+          <!-- 上下参考虚线 -->
+          <line x1="10" y1="10" x2="290" y2="10" stroke="var(--kb-muted)" stroke-width="0.5" stroke-dasharray="4 4" />
+          <line x1="10" y1="92" x2="290" y2="92" stroke="var(--kb-muted)" stroke-width="0.5" stroke-dasharray="4 4" />
+          <!-- 复习节点 -->
+          <circle cx="10" cy="10" r="4" fill="var(--kb-state-success)" />
+          <circle cx="60" cy="50" r="4" fill="var(--kb-state-success)" />
+          <circle cx="100" cy="70" r="4" fill="var(--kb-state-warning)" />
+          <circle cx="160" cy="82" r="4" fill="var(--kb-state-warning)" />
+          <circle cx="230" cy="89" r="4" fill="var(--kb-state-error)" />
+        </svg>
+      </div>
+
+      <!-- 复习节点时间表 -->
+      <div class="space-y-2">
+        <div
+          v-for="node in ebbinghausNodes"
+          :key="node.label"
+          class="flex items-center justify-between text-[13px]"
+        >
+          <span style="color: var(--kb-muted-foreground);">{{ node.label }}</span>
+          <span
+            class="px-2 py-0.5 rounded"
+            :style="{ background: node.bg, color: node.color }"
+          >{{ node.status }}</span>
         </div>
       </div>
     </Card>
@@ -588,6 +641,15 @@ const startReview = () => {
 const goToFlashCards = () => {
   router.push('/learning/flashcards')
 }
+
+// 艾宾浩斯遗忘曲线复习节点：对齐设计稿，展示 5 个时间节点的复习状态
+const ebbinghausNodes = [
+  { label: '学习后 20 分钟', status: '已复习', bg: 'rgba(16,185,129,0.08)', color: 'var(--kb-state-success)' },
+  { label: '学习后 1 小时', status: '已复习', bg: 'rgba(16,185,129,0.08)', color: 'var(--kb-state-success)' },
+  { label: '学习后 1 天', status: '今日待复习', bg: 'rgba(245,158,11,0.08)', color: 'var(--kb-state-warning)' },
+  { label: '学习后 2 天', status: '即将到期', bg: 'rgba(245,158,11,0.08)', color: 'var(--kb-state-warning)' },
+  { label: '学习后 7 天', status: '即将到期', bg: 'rgba(239,68,68,0.08)', color: 'var(--kb-state-error)' },
+]
 </script>
 
 <style scoped>

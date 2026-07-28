@@ -13,28 +13,36 @@ import com.knowflow.entity.DocCategory;
 import com.knowflow.entity.DocDocument;
 import com.knowflow.entity.DocFavorite;
 import com.knowflow.entity.DocReadProgress;
+import com.knowflow.entity.LearningFlashcard;
 import com.knowflow.entity.SysUser;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.DocDocumentMapper;
 import com.knowflow.mapper.DocFavoriteMapper;
 import com.knowflow.mapper.DocReadProgressMapper;
+import com.knowflow.mapper.LearningFlashcardMapper;
 import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.service.AiService;
 import com.knowflow.service.CategoryService;
 import com.knowflow.service.DocService;
 import com.knowflow.vo.DocDetailVO;
 import com.knowflow.vo.DocVO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /** 文档业务服务实现。 */
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> implements DocService {
 
@@ -42,6 +50,9 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     private final DocReadProgressMapper readProgressMapper;
     private final CategoryService categoryService;
     private final SysUserMapper userMapper;
+    private final LearningFlashcardMapper flashcardMapper;
+    private final AiService aiService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public PageResult<DocVO> getDocPage(DocQueryDTO dto) {
@@ -277,5 +288,108 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
             categoryService.decrementDocCount(doc.getCategoryId());
         }
         this.removeById(id);
+    }
+
+    /** B③ AI 生成文档摘要：截断正文后调用大模型，回填 doc.summary 并返回。 */
+    @Override
+    public String generateAISummary(Long docId) {
+        DocDocument doc = this.getById(docId);
+        if (doc == null || doc.getStatus() == null || doc.getStatus() != 1) {
+            throw new BusinessException(404, "文档不存在");
+        }
+        String content = doc.getContent() != null ? doc.getContent() : "";
+        if (content.length() > 4000) {
+            content = content.substring(0, 4000);
+        }
+        String userPrompt = "请为以下文章生成一个简洁的中文摘要（不超过150字），概括核心内容与要点，"
+                + "只输出摘要正文，不要使用 Markdown 或多余解释：\n\n标题：" + doc.getTitle()
+                + "\n\n正文：\n" + content;
+        String summary = aiService.complete(
+                "你是一个擅长提炼要点的写作助手。", userPrompt);
+        if (summary != null) {
+            summary = summary.trim();
+        }
+        doc.setSummary(summary);
+        this.updateById(doc);
+        return summary;
+    }
+
+    /** B③ AI 基于文档生成复习闪卡：解析大模型返回的 JSON，批量落库后返回。 */
+    @Override
+    @Transactional
+    public List<LearningFlashcard> generateFlashcards(Long docId, Long pathId, Long chapterId) {
+        DocDocument doc = this.getById(docId);
+        if (doc == null || doc.getStatus() == null || doc.getStatus() != 1) {
+            throw new BusinessException(404, "文档不存在");
+        }
+        String content = doc.getContent() != null ? doc.getContent() : "";
+        if (content.length() > 4000) {
+            content = content.substring(0, 4000);
+        }
+        String userPrompt = "基于以下文章，生成 5 张复习闪卡，每张卡为一个「问答对」。\n"
+                + "返回严格 JSON 数组，元素格式：{\"front\":\"问题\",\"back\":\"答案\",\"difficulty\":1}\n"
+                + "difficulty 取值 1(简单)/2(中等)/3(困难)。不要输出 JSON 以外的任何文字。\n\n"
+                + "标题：" + doc.getTitle() + "\n\n正文：\n" + content;
+        String raw = aiService.complete("你是知识卡片生成助手，只输出符合要求的 JSON。", userPrompt);
+        List<LearningFlashcard> cards = parseFlashcards(raw, doc, pathId, chapterId);
+        if (cards.isEmpty()) {
+            throw new BusinessException("AI 未返回有效闪卡，请重试或调整文档内容");
+        }
+        for (LearningFlashcard card : cards) {
+            flashcardMapper.insert(card);
+        }
+        return cards;
+    }
+
+    /** 解析大模型返回的闪卡 JSON（兼容 ```json 围栏），构建闪卡实体列表。 */
+    private List<LearningFlashcard> parseFlashcards(String raw, DocDocument doc, Long pathId, Long chapterId) {
+        List<LearningFlashcard> result = new ArrayList<>();
+        if (raw == null) {
+            return result;
+        }
+        String json = raw.trim();
+        int start = json.indexOf('[');
+        int end = json.lastIndexOf(']');
+        if (start < 0 || end <= start) {
+            return result;
+        }
+        json = json.substring(start, end + 1);
+        try {
+            List<Map<String, Object>> list = objectMapper.readValue(json, List.class);
+            String category = null;
+            if (doc.getCategoryId() != null) {
+                DocCategory cat = categoryService.getById(doc.getCategoryId());
+                if (cat != null) {
+                    category = cat.getName();
+                }
+            }
+            for (Map<String, Object> item : list) {
+                Object front = item.get("front");
+                Object back = item.get("back");
+                if (front == null || back == null) {
+                    continue;
+                }
+                LearningFlashcard card = new LearningFlashcard();
+                card.setFront(String.valueOf(front));
+                card.setBack(String.valueOf(back));
+                int d = 1;
+                Object diff = item.get("difficulty");
+                if (diff instanceof Number) {
+                    d = ((Number) diff).intValue();
+                }
+                if (d < 1 || d > 3) {
+                    d = 1;
+                }
+                card.setDifficulty(d);
+                card.setCategory(category);
+                card.setPathId(pathId);
+                card.setChapterId(chapterId);
+                card.setReviewCount(0);
+                result.add(card);
+            }
+        } catch (Exception e) {
+            log.error("解析闪卡 JSON 失败: {}", e.getMessage());
+        }
+        return result;
     }
 }

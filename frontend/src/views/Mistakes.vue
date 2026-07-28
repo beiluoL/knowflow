@@ -220,6 +220,7 @@ import SkeletonList from '@/components/ui/SkeletonList.vue'
 import { mistakesApi } from '@/api/mistakes'
 import type { MistakeVO, MistakeStats } from '@/api/types'
 import { useRouter } from 'vue-router'
+import { notify, getApiError } from '@/utils/toast'
 
 const router = useRouter()
 
@@ -265,8 +266,8 @@ const todayReviewPercent = computed(() => {
 async function fetchStats() {
   try {
     stats.value = await mistakesApi.stats()
-  } catch (e) {
-    console.error(e)
+  } catch {
+    // 统计加载失败静默处理，不影响列表展示
   }
 }
 
@@ -281,7 +282,7 @@ async function fetchList() {
     mistakeList.value = res.records
     total.value = res.total
   } catch (e) {
-    console.error(e)
+    notify(getApiError(e, '错题列表加载失败'), 'error')
   } finally {
     loading.value = false
   }

@@ -152,7 +152,9 @@ function goTo(path: string) {
 function toggleNotifications() {
   showNotifications.value = !showNotifications.value;
   if (showNotifications.value) {
-    notificationStore.fetchList({ pageNum: 1, pageSize: 20 }).catch((e) => console.error(e));
+    notificationStore.fetchList({ pageNum: 1, pageSize: 20 }).catch(() => {
+      // 通知列表加载失败静默处理
+    });
   }
 }
 

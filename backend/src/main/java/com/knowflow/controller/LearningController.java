@@ -3,10 +3,12 @@ package com.knowflow.controller;
 import com.knowflow.common.Result;
 import com.knowflow.entity.LearningTask;
 import com.knowflow.service.LearningService;
+import com.knowflow.vo.DailyActivityVO;
 import com.knowflow.vo.FlashcardVO;
 import com.knowflow.vo.LearningChapterVO;
 import com.knowflow.vo.LearningPathVO;
 import com.knowflow.vo.LearningTaskVO;
+import com.knowflow.vo.MasteryDistributionVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -110,5 +112,20 @@ public class LearningController {
         Long userId = (Long) authentication.getPrincipal();
         learningService.deleteTask(id, userId);
         return Result.success();
+    }
+
+    @Operation(summary = "学习活跃度热力图（按日期聚合）")
+    @GetMapping("/stats/daily-activity")
+    public Result<List<DailyActivityVO>> dailyActivity(@RequestParam(defaultValue = "120") int days,
+                                                      Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return Result.success(learningService.getDailyActivity(userId, days));
+    }
+
+    @Operation(summary = "掌握分布看板")
+    @GetMapping("/stats/mastery")
+    public Result<MasteryDistributionVO> mastery(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return Result.success(learningService.getMasteryDistribution(userId));
     }
 }

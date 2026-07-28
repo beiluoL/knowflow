@@ -8,6 +8,8 @@ import type {
   LearningPathInput,
   ChapterInput,
   FlashcardInput,
+  DailyActivityVO,
+  MasteryDistributionVO,
 } from './types'
 
 export const learningApi = {
@@ -20,6 +22,10 @@ export const learningApi = {
   completeChapter: (id: number) => apiPost<void>(`/learning/chapters/${id}/complete`),
   flashcards: (pathId?: number, chapterId?: number) =>
     apiGet<FlashcardVO[]>('/learning/flashcards', { pathId, chapterId }),
+  // C① 学习活跃度热力图（按日期聚合）
+  dailyActivity: (days = 120) => apiGet<DailyActivityVO[]>('/learning/stats/daily-activity', { days }),
+  // C① 掌握分布看板
+  mastery: () => apiGet<MasteryDistributionVO>('/learning/stats/mastery'),
   // SM-2 间隔重复复习：quality ∈ [0,5]，<3 重置，3=有印象，5=完全掌握
   reviewFlashcard: (id: number, quality: number) =>
     apiPost<void>(`/learning/flashcards/${id}/review?quality=${quality}`),

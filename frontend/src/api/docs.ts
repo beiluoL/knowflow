@@ -7,6 +7,7 @@ import type {
   ReadProgressPayload,
   DocInput,
   DocQuery,
+  LearningFlashcard,
 } from './types'
 
 export const docsApi = {
@@ -20,4 +21,11 @@ export const docsApi = {
   create: (data: DocInput) => apiPost<DocVO>('/docs', data),
   update: (id: number, data: DocInput) => apiPut<void>(`/docs/${id}`, data),
   remove: (id: number) => apiDelete<void>(`/docs/${id}`),
+  // B③ AI 生成文档摘要并回填
+  generateSummary: (id: number) => apiPost<string>(`/docs/${id}/ai-summary`),
+  // B③ AI 基于文档内容生成复习闪卡并落库（可指定归属路径/章节）
+  generateFlashcards: (id: number, pathId?: number, chapterId?: number) =>
+    apiPost<LearningFlashcard[]>(`/docs/${id}/ai-flashcards`, null, {
+      params: { pathId, chapterId },
+    }),
 }

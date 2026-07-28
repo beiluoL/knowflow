@@ -1,365 +1,818 @@
 <template>
-  <div class="space-y-6 animate-fade-in max-w-4xl">
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">上传文档</h1>
-      <p class="text-gray-500 mt-1">支持 PDF、Word、Markdown、TXT 等格式</p>
-    </div>
+  <!-- 上传文档页：左侧拖拽上传区 + 已上传文件列表（含进度条），右侧上传设置表单 -->
+  <div class="upload-doc-page animate-fade-in">
+    <h1 class="kb-h1 page-title">上传文档</h1>
 
-    <Card>
-      <div
-        :class="[
-          'border-2 border-dashed rounded-lg p-12 text-center transition-all duration-300 cursor-pointer',
-          isDragging
-            ? 'border-primary-500 bg-primary-50 scale-[1.01]'
-            : 'border-gray-200 hover:border-primary-300 hover:bg-gray-50'
-        ]"
-        @dragover.prevent="isDragging = true"
-        @dragleave.prevent="isDragging = false"
-        @drop.prevent="handleDrop"
-        @click="triggerFileInput"
-      >
-        <input
-          ref="fileInputRef"
-          type="file"
-          class="hidden"
-          accept=".pdf,.doc,.docx,.md,.txt,.ppt,.pptx"
-          @change="handleFileSelect"
-        />
-
-        <div v-if="!selectedFile" class="animate-fade-in">
-          <div :class="[
-            'w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center transition-colors',
-            isDragging ? 'bg-primary-100' : 'bg-gray-100'
-          ]">
-            <Icon name="upload" :size="32" />
+    <div class="upload-layout">
+      <!-- ===== 左侧：上传区 + 文件列表 ===== -->
+      <div class="upload-left">
+        <!-- 拖拽上传区 -->
+        <div
+          class="upload-zone"
+          :class="{ dragging: isDragging, hasfiles: files.length > 0 }"
+          @dragover.prevent="isDragging = true"
+          @dragleave.prevent="isDragging = false"
+          @drop.prevent="handleDrop"
+          @click="triggerFileInput"
+        >
+          <input
+            ref="fileInputRef"
+            type="file"
+            class="hidden-file-input"
+            accept=".pdf,.doc,.docx,.md,.markdown,.txt,.ppt,.pptx"
+            multiple
+            @change="handleFileSelect"
+          />
+          <div class="upload-zone-icon">
+            <Icon name="upload" :size="28" />
           </div>
-          <h3 class="text-lg font-medium text-gray-800 mb-2">
-            {{ isDragging ? '释放文件以上传' : '拖拽文件到此处' }}
-          </h3>
-          <p class="text-sm text-gray-500 mb-4">或者点击选择文件</p>
-          <Button variant="secondary" icon-name="file-up">
-            选择文件
-          </Button>
-          <p class="text-xs text-gray-400 mt-4">
-            支持 PDF、Word、PPT、Markdown、TXT 格式，单个文件不超过 50MB
+          <p class="upload-zone-title">
+            {{ isDragging ? '释放文件以上传' : '拖拽文件到此处，或点击选择文件' }}
           </p>
+          <p class="upload-zone-hint">支持 PDF、Markdown、Word、TXT 等格式，单个文件最大 50 MB</p>
         </div>
 
-        <div v-else class="animate-fade-in">
-          <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary-100 flex items-center justify-center">
-            <Icon name="file-text" :size="32" />
+        <!-- 已上传文件列表（含进度条） -->
+        <div v-if="files.length > 0" class="file-list-card">
+          <div class="file-list-header">
+            <h3 class="kb-h3">已上传文件</h3>
+            <span class="file-list-count">{{ files.length }} 个文件</span>
           </div>
-          <h3 class="text-lg font-medium text-gray-800 mb-1">{{ selectedFile.name }}</h3>
-          <p class="text-sm text-gray-500 mb-2">
-            {{ formatFileSize(selectedFile.size) }} · {{ getFileType(selectedFile.name) }}
-          </p>
-          <button
-            class="text-sm text-danger-500 hover:text-danger-600 flex items-center gap-1 mx-auto"
-            @click.stop="removeFile"
-          >
-            <Icon name="x" :size="16" />
-            移除文件
-          </button>
+          <div class="file-list-body">
+            <div
+              v-for="(file, idx) in files"
+              :key="file.id"
+              class="file-item"
+            >
+              <!-- 文件图标（按类型着色） -->
+              <div class="file-icon" :class="getFileTypeColorClass(file.name)">
+                <Icon :name="getFileTypeIcon(file.name)" :size="16" />
+              </div>
+              <!-- 文件信息：名称 + 大小 -->
+              <div class="file-info">
+                <p class="file-name">{{ file.name }}</p>
+                <p class="file-size">{{ formatFileSize(file.size) }}</p>
+              </div>
+              <!-- 进度条 -->
+              <div class="file-progress">
+                <div class="upload-bar">
+                  <div
+                    class="upload-bar-fill"
+                    :class="getProgressStatusClass(file)"
+                    :style="{ width: `${file.progress}%` }"
+                  ></div>
+                </div>
+              </div>
+              <!-- 状态文字 -->
+              <span class="file-status" :class="getStatusTextClass(file)">
+                {{ getStatusLabel(file) }}
+              </span>
+              <!-- 删除按钮 -->
+              <button
+                class="file-remove-btn"
+                title="移除"
+                @click.stop="removeFile(idx)"
+              >
+                <Icon name="trash-2" :size="14" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    </Card>
 
-    <div v-if="selectedFile" class="mt-6 animate-slide-up">
-      <Card>
-        <template #header>
-          <h2 class="text-lg font-semibold text-gray-800">文档信息</h2>
-        </template>
-
-        <div class="space-y-5">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">
-              文档标题 <span class="text-danger-500">*</span>
+      <!-- ===== 右侧：上传设置表单 ===== -->
+      <aside class="upload-right">
+        <h3 class="kb-h3 form-title">上传设置</h3>
+        <div class="form-body">
+          <!-- 文档标题 -->
+          <div class="form-row">
+            <label class="form-label">
+              文档标题 <span class="required-mark">*</span>
             </label>
             <input
               v-model="formData.title"
               type="text"
               placeholder="请输入文档标题"
-              class="w-full px-3 py-2 text-sm border border-gray-200 rounded-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all"
+              class="form-input"
             />
+            <p class="form-hint">默认取第一个文件名，可手动修改</p>
           </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">
-              分类 <span class="text-danger-500">*</span>
+          <!-- 目标知识库 -->
+          <div class="form-row">
+            <label class="form-label">
+              目标知识库 <span class="required-mark">*</span>
             </label>
-            <div class="relative">
-              <select
-                v-model="formData.categoryId"
-                class="w-full px-3 py-2 text-sm border border-gray-200 rounded-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all appearance-none bg-white cursor-pointer"
-              >
-                <option :value="''">请选择分类</option>
-                <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-                  {{ cat.name }}
-                </option>
-              </select>
-              <Icon name="chevron-down" :size="16" />
-            </div>
+            <select v-model="formData.kbId" class="form-select">
+              <option value="">请选择知识库</option>
+              <option v-for="kb in topCategories" :key="kb.id" :value="kb.id">
+                {{ kb.name }}
+              </option>
+            </select>
           </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">
-              标签
+          <!-- 分类 -->
+          <div class="form-row">
+            <label class="form-label">
+              分类 <span class="required-mark">*</span>
             </label>
-            <div class="flex flex-wrap gap-2 mb-2">
-              <Badge
-                v-for="(tag, index) in formData.tags" :key="index"
-                variant="primary"
-                class="flex items-center gap-1 py-1"
+            <select v-model="formData.categoryId" class="form-select">
+              <option value="">请选择分类</option>
+              <option v-for="cat in flatCategories" :key="cat.id" :value="cat.id">
+                {{ cat.name }}
+              </option>
+            </select>
+          </div>
+          <!-- 标签 -->
+          <div class="form-row">
+            <label class="form-label">标签</label>
+            <div class="tags-input">
+              <span
+                v-for="(tag, idx) in formData.tags"
+                :key="idx"
+                class="tag-chip"
               >
                 {{ tag }}
                 <button
-                  class="ml-1 hover:text-primary-800 transition-colors"
-                  @click="removeTag(index)"
+                  type="button"
+                  class="tag-remove"
+                  @click="removeTag(idx)"
+                  :title="`移除 ${tag}`"
                 >
                   <Icon name="x" :size="12" />
                 </button>
-              </Badge>
-            </div>
-            <div class="flex gap-2">
+              </span>
               <input
-                v-model="newTag"
+                v-model="tagInput"
                 type="text"
-                placeholder="输入标签后按回车添加"
-                class="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all"
+                placeholder="添加标签后回车"
+                class="tag-text-input"
                 @keydown.enter.prevent="addTag"
               />
-              <Button variant="secondary" @click="addTag" :disabled="!newTag.trim()">
-                添加
-              </Button>
             </div>
           </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">
-              描述
-            </label>
+          <!-- 描述 -->
+          <div class="form-row">
+            <label class="form-label">描述</label>
             <textarea
               v-model="formData.description"
-              rows="4"
+              rows="3"
               placeholder="请输入文档描述..."
-              class="w-full px-3 py-2 text-sm border border-gray-200 rounded-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all resize-none"
+              class="form-textarea"
             ></textarea>
           </div>
         </div>
-      </Card>
-
-      <div class="flex justify-end gap-3 mt-6">
-        <Button variant="secondary" @click="handleCancel">
-          取消
-        </Button>
-        <Button icon-name="upload" :loading="isUploading" @click="handleUpload" :disabled="!canSubmit">
-          {{ isUploading ? '上传中...' : '上传文档' }}
-        </Button>
-      </div>
+        <!-- 底部操作按钮 -->
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" @click="handleCancel">
+            <span>取消</span>
+          </button>
+          <button
+            type="button"
+            class="btn-primary"
+            :disabled="!canSubmit || uploading"
+            @click="handleUpload"
+          >
+            <Icon name="upload" :size="14" />
+            <span>{{ uploading ? '上传中...' : '开始上传' }}</span>
+          </button>
+        </div>
+      </aside>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// 文档上传页：拖拽/选择文件，填写元信息后调用接口创建文档。
-import { notify } from '@/utils/toast'
-import { ref, computed, watch, onMounted } from 'vue'
-import Icon from '@/components/ui/Icon.vue'
-import { useRouter } from 'vue-router'
-import Card from '@/components/ui/Card.vue'
-import Button from '@/components/ui/Button.vue'
-import Badge from '@/components/ui/Badge.vue'
-import { categoriesApi, docsApi } from '@/api'
-import type { CategoryVO } from '@/api/types'
+// 文档上传页：支持多文件拖拽上传 + 实时进度条 + 元信息表单（标题/知识库/分类/标签/描述）。
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import Icon from '@/components/ui/Icon.vue';
+import { categoriesApi, docsApi } from '@/api';
+import type { CategoryVO } from '@/api/types';
+import { notify, getApiError } from '@/utils/toast';
 
-const router = useRouter()
+const router = useRouter();
 
-const fileInputRef = ref<HTMLInputElement | null>(null)
-const isDragging = ref(false)
-const selectedFile = ref<File | null>(null)
-const isUploading = ref(false)
-const newTag = ref('')
+// ===== 类型定义 =====
+interface UploadFile {
+  id: string;
+  file: File;
+  name: string;
+  size: number;
+  progress: number; // 0-100
+  status: 'pending' | 'uploading' | 'done' | 'error';
+}
 
-const categories = ref<CategoryVO[]>([])
+// ===== 状态 =====
+const fileInputRef = ref<HTMLInputElement | null>(null);
+const isDragging = ref(false);
+const files = ref<UploadFile[]>([]);
+const uploading = ref(false);
+const tagInput = ref('');
+const allCategories = ref<CategoryVO[]>([]);
 
 const formData = ref({
   title: '',
+  kbId: '' as number | string,
   categoryId: '' as number | string,
   tags: [] as string[],
   description: '',
-})
+});
 
+// ===== 计算属性 =====
+// 顶层分类（作为"目标知识库"选项）
+const topCategories = computed(() => allCategories.value);
+
+// 扁平化分类（包含子分类，作为"分类"选项）
+const flatCategories = computed(() => {
+  const flat: CategoryVO[] = [];
+  const walk = (list: CategoryVO[]) => {
+    for (const c of list) {
+      flat.push(c);
+      if (c.children) walk(c.children);
+    }
+  };
+  walk(allCategories.value);
+  return flat;
+});
+
+// 是否可提交：至少 1 个文件 + 标题 + 知识库 + 分类
 const canSubmit = computed(() => {
-  return selectedFile.value && formData.value.title.trim() && formData.value.categoryId !== ''
-})
+  return (
+    files.value.length > 0 &&
+    formData.value.title.trim() !== '' &&
+    formData.value.kbId !== '' &&
+    formData.value.categoryId !== ''
+  );
+});
 
-const triggerFileInput = () => {
-  fileInputRef.value?.click()
+// ===== 文件选择/拖拽 =====
+function triggerFileInput(): void {
+  fileInputRef.value?.click();
 }
 
-const handleFileSelect = (e: Event) => {
-  const target = e.target as HTMLInputElement
+function handleFileSelect(e: Event): void {
+  const target = e.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
-    selectedFile.value = target.files[0]
-    if (!formData.value.title) {
-      const name = target.files[0].name
-      formData.value.title = name.substring(0, name.lastIndexOf('.')) || name
-    }
+    appendFiles(Array.from(target.files));
+    // 重置 input value 允许重复选择同一文件
+    target.value = '';
   }
 }
 
-const handleDrop = (e: DragEvent) => {
-  isDragging.value = false
+function handleDrop(e: DragEvent): void {
+  isDragging.value = false;
   if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
-    selectedFile.value = e.dataTransfer.files[0]
-    if (!formData.value.title) {
-      const name = e.dataTransfer.files[0].name
-      formData.value.title = name.substring(0, name.lastIndexOf('.')) || name
+    appendFiles(Array.from(e.dataTransfer.files));
+  }
+}
+
+// 添加文件到列表（去重 + 大小校验），首文件自动填充标题
+function appendFiles(fileList: File[]): void {
+  const MAX_SIZE = 50 * 1024 * 1024; // 50 MB
+  for (const f of fileList) {
+    if (f.size > MAX_SIZE) {
+      notify(`${f.name} 超过 50 MB 限制`, 'warning');
+      continue;
     }
+    // 同名文件去重
+    if (files.value.some((x) => x.name === f.name && x.size === f.size)) {
+      continue;
+    }
+    files.value.push({
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      file: f,
+      name: f.name,
+      size: f.size,
+      progress: 0,
+      status: 'pending',
+    });
+  }
+  // 首个文件自动填充标题（若标题为空）
+  if (!formData.value.title && files.value.length > 0) {
+    const firstName = files.value[0].name;
+    formData.value.title = firstName.substring(0, firstName.lastIndexOf('.')) || firstName;
   }
 }
 
-const removeFile = () => {
-  selectedFile.value = null
-  if (fileInputRef.value) {
-    fileInputRef.value.value = ''
+function removeFile(idx: number): void {
+  files.value.splice(idx, 1);
+  // 若所有文件移除完毕，清空标题（避免残留）
+  if (files.value.length === 0) {
+    formData.value.title = '';
   }
 }
 
-const addTag = () => {
-  const tag = newTag.value.trim()
+// ===== 标签管理 =====
+function addTag(): void {
+  const tag = tagInput.value.trim();
   if (tag && !formData.value.tags.includes(tag)) {
-    formData.value.tags.push(tag)
+    formData.value.tags.push(tag);
   }
-  newTag.value = ''
+  tagInput.value = '';
 }
 
-const removeTag = (index: number) => {
-  formData.value.tags.splice(index, 1)
+function removeTag(idx: number): void {
+  formData.value.tags.splice(idx, 1);
 }
 
+// ===== 文件类型辅助 =====
+function getFileTypeIcon(filename: string): string {
+  const ext = filename.split('.').pop()?.toLowerCase();
+  if (ext === 'pdf') return 'file-text';
+  if (ext === 'doc' || ext === 'docx') return 'file-text';
+  if (ext === 'md' || ext === 'markdown') return 'file-text';
+  if (ext === 'txt') return 'file-text';
+  if (ext === 'ppt' || ext === 'pptx') return 'file-text';
+  return 'file';
+}
+
+function getFileTypeColorClass(filename: string): string {
+  const ext = filename.split('.').pop()?.toLowerCase();
+  if (ext === 'pdf') return 'type-pdf';
+  if (ext === 'md' || ext === 'markdown') return 'type-md';
+  if (ext === 'doc' || ext === 'docx') return 'type-doc';
+  if (ext === 'ppt' || ext === 'pptx') return 'type-ppt';
+  return 'type-default';
+}
+
+// ===== 进度/状态辅助 =====
+function getProgressStatusClass(file: UploadFile): string {
+  if (file.status === 'done') return 'fill-success';
+  if (file.status === 'error') return 'fill-error';
+  return 'fill-primary';
+}
+
+function getStatusLabel(file: UploadFile): string {
+  if (file.status === 'done') return '完成';
+  if (file.status === 'error') return '失败';
+  if (file.status === 'uploading') return `${file.progress}%`;
+  return '等待中';
+}
+
+function getStatusTextClass(file: UploadFile): string {
+  if (file.status === 'done') return 'status-success';
+  if (file.status === 'error') return 'status-error';
+  return 'status-muted';
+}
+
+// ===== 文件大小格式化 =====
 // 以 1024 为底取对数，将字节数转换为带单位的文件大小
-const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
-const getFileType = (filename: string): string => {
-  const ext = filename.split('.').pop()?.toLowerCase()
-  const typeMap: Record<string, string> = {
-    pdf: 'PDF',
-    doc: 'Word',
-    docx: 'Word',
-    md: 'Markdown',
-    txt: 'TXT',
-    ppt: 'PPT',
-    pptx: 'PPT',
+// ===== 上传逻辑 =====
+async function handleUpload(): Promise<void> {
+  if (!canSubmit.value || uploading.value) return;
+  uploading.value = true;
+
+  try {
+    // 逐个文件上传（更新进度条），Markdown/TXT 直接读取文本作为 content
+    for (const uploadFile of files.value) {
+      uploadFile.status = 'uploading';
+      uploadFile.progress = 10;
+
+      let content = formData.value.description;
+      // Markdown/TXT 直接以 file.text() 提取正文
+      if (/\.(md|markdown|txt)$/i.test(uploadFile.name)) {
+        try {
+          content = await uploadFile.file.text();
+        } catch {
+          content = formData.value.description;
+        }
+      }
+
+      // 模拟进度更新（接口暂不支持 onUploadProgress，使用步进模拟）
+      uploadFile.progress = 50;
+
+      try {
+        // 标题：单文件用 formData.title，多文件用各文件名（去扩展名）
+        const titleForThis = files.value.length === 1
+          ? formData.value.title.trim()
+          : (uploadFile.name.substring(0, uploadFile.name.lastIndexOf('.')) || uploadFile.name);
+
+        await docsApi.create({
+          title: titleForThis,
+          summary: formData.value.description,
+          content,
+          categoryId: Number(formData.value.categoryId),
+          tags: formData.value.tags.join(','),
+          status: 1,
+        });
+
+        uploadFile.progress = 100;
+        uploadFile.status = 'done';
+      } catch (e) {
+        uploadFile.status = 'error';
+        uploadFile.progress = 100;
+        notify(`${uploadFile.name} 上传失败：${getApiError(e, '请稍后再试')}`, 'error');
+      }
+    }
+
+    // 全部成功则跳转
+    const hasError = files.value.some((f) => f.status === 'error');
+    if (!hasError) {
+      notify('文档上传成功！', 'success');
+      router.push('/');
+    } else {
+      notify('部分文件上传失败，请重试', 'warning');
+    }
+  } finally {
+    uploading.value = false;
   }
-  return typeMap[ext || ''] || ext?.toUpperCase() || '未知'
 }
 
-const handleCancel = () => {
-  selectedFile.value = null
+function handleCancel(): void {
+  files.value = [];
   formData.value = {
     title: '',
+    kbId: '',
     categoryId: '',
     tags: [],
     description: '',
-  }
+  };
   if (fileInputRef.value) {
-    fileInputRef.value.value = ''
+    fileInputRef.value.value = '';
   }
 }
 
-const handleUpload = async () => {
-  if (!canSubmit.value || !selectedFile.value) return
-
-  isUploading.value = true
-  try {
-    const file = selectedFile.value
-    let content = formData.value.description
-    // Markdown/TXT 直接以 file.text() 提取正文作为文档内容
-    if (/\.(md|markdown|txt)$/i.test(file.name)) {
-      try {
-        content = await file.text()
-      } catch {
-        content = formData.value.description
-      }
-    }
-
-    await docsApi.create({
-      title: formData.value.title.trim(),
-      summary: formData.value.description,
-      content,
-      categoryId: Number(formData.value.categoryId),
-      tags: formData.value.tags.join(','),
-      status: 1,
-    })
-
-    notify('文档上传成功！', 'success')
-    router.push('/')
-  } catch (e: unknown) {
-    const message = (e as { response?: { data?: { message?: string } } })?.response?.data?.message
-    notify('上传失败：' + (message || '请稍后再试'), 'error')
-  } finally {
-    isUploading.value = false
-  }
-}
-
-watch(selectedFile, (newFile) => {
-  if (newFile && !formData.value.title) {
-    const name = newFile.name
-    formData.value.title = name.substring(0, name.lastIndexOf('.')) || name
-  }
-})
-
+// ===== 生命周期 =====
 onMounted(async () => {
   try {
-    const tree = await categoriesApi.tree()
-    const flat: CategoryVO[] = []
-    const walk = (list: CategoryVO[]) => {
-      for (const c of list) {
-        flat.push(c)
-        if (c.children) walk(c.children)
-      }
-    }
-    walk(tree)
-    categories.value = flat
-  } catch {
-    categories.value = []
+    const tree = await categoriesApi.tree();
+    allCategories.value = tree || [];
+  } catch (e) {
+    console.warn(getApiError(e, '分类加载失败'));
+    allCategories.value = [];
   }
-})
+});
 </script>
 
 <style scoped>
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* ===== 页面容器 ===== */
+.upload-doc-page {
+  display: flex;
+  flex-direction: column;
 }
 
 .animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+  animation: fadeIn 0.4s ease-out;
 }
 
-.animate-slide-up {
-  animation: slide-up 0.4s ease-out;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-title {
+  margin-bottom: 24px;
+}
+
+/* ===== 双栏布局（设计稿：1fr 360px） ===== */
+.upload-layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 24px;
+  align-items: flex-start;
+}
+@media (max-width: 1024px) {
+  .upload-layout { grid-template-columns: 1fr; }
+}
+
+.upload-left {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ===== 拖拽上传区（设计稿 upload-zone） ===== */
+.upload-zone {
+  border: 2px dashed var(--kb-border);
+  border-radius: var(--kb-radius-lg);
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.upload-zone:hover {
+  border-color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.03);
+}
+.upload-zone.dragging {
+  border-color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.06);
+  transform: scale(1.01);
+}
+.upload-zone-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--kb-radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  background: rgba(59, 111, 224, 0.08);
+  color: var(--kb-primary);
+}
+.upload-zone-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--kb-foreground);
+  margin-bottom: 4px;
+}
+.upload-zone-hint {
+  font-size: 13px;
+  color: var(--kb-muted-foreground);
+}
+
+.hidden-file-input {
+  display: none;
+}
+
+/* ===== 已上传文件列表（含进度条） ===== */
+.file-list-card {
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  overflow: hidden;
+}
+.file-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--kb-border);
+}
+.file-list-count {
+  font-size: 12px;
+  color: var(--kb-muted-foreground);
+}
+.file-list-body {
+  display: flex;
+  flex-direction: column;
+}
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--kb-border);
+}
+.file-item:last-child { border-bottom: none; }
+
+/* 文件类型图标 */
+.file-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--kb-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.type-pdf { background: rgba(239, 68, 68, 0.1); color: var(--kb-state-error); }
+.type-md { background: rgba(16, 185, 129, 0.1); color: var(--kb-state-success); }
+.type-doc { background: rgba(59, 111, 224, 0.08); color: var(--kb-primary); }
+.type-ppt { background: rgba(245, 158, 11, 0.1); color: var(--kb-state-warning); }
+.type-default { background: rgba(59, 111, 224, 0.08); color: var(--kb-primary); }
+
+/* 文件信息 */
+.file-info {
+  flex: 1;
+  min-width: 0;
+}
+.file-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--kb-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.file-size {
+  font-size: 12px;
+  color: var(--kb-muted-foreground);
+  margin-top: 2px;
+}
+
+/* 进度条 */
+.file-progress {
+  width: 128px;
+  flex-shrink: 0;
+}
+.upload-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--kb-muted);
+  overflow: hidden;
+}
+.upload-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+.fill-primary { background: var(--kb-primary); }
+.fill-success { background: var(--kb-state-success); }
+.fill-error { background: var(--kb-state-error); }
+
+/* 状态文字 */
+.file-status {
+  font-size: 12px;
+  flex-shrink: 0;
+  min-width: 48px;
+  text-align: right;
+}
+.status-success { color: var(--kb-state-success); }
+.status-error { color: var(--kb-state-error); }
+.status-muted { color: var(--kb-muted-foreground); }
+
+/* 删除按钮 */
+.file-remove-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--kb-muted-foreground);
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.file-remove-btn:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--kb-state-error);
+}
+
+/* ===== 右侧：上传设置表单 ===== */
+.upload-right {
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  padding: 20px;
+  position: sticky;
+  top: 80px;
+}
+.form-title {
+  margin-bottom: 20px;
+}
+.form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.form-row {
+  display: flex;
+  flex-direction: column;
+}
+.form-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--kb-foreground);
+  margin-bottom: 6px;
+}
+.required-mark {
+  color: var(--kb-state-error);
+}
+.form-hint {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--kb-muted-foreground);
+}
+.form-input,
+.form-select {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: var(--kb-radius-sm);
+  font-size: 13px;
+  background: var(--kb-background);
+  color: var(--kb-foreground);
+  border: 1px solid var(--kb-border);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.form-select {
+  padding-right: 32px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+.form-input:focus,
+.form-select:focus { border-color: var(--kb-ring); }
+
+.form-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--kb-radius-sm);
+  font-size: 13px;
+  background: var(--kb-background);
+  color: var(--kb-foreground);
+  border: 1px solid var(--kb-border);
+  outline: none;
+  resize: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+.form-textarea:focus { border-color: var(--kb-ring); }
+
+/* 标签输入 */
+.tags-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 10px;
+  border-radius: var(--kb-radius-sm);
+  background: var(--kb-background);
+  border: 1px solid var(--kb-border);
+  min-height: 36px;
+}
+.tags-input:focus-within { border-color: var(--kb-ring); }
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--kb-radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(59, 111, 224, 0.08);
+  color: var(--kb-primary);
+}
+.tag-remove {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--kb-primary);
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+.tag-remove:hover { opacity: 1; }
+.tag-text-input {
+  flex: 1;
+  min-width: 80px;
+  height: 24px;
+  font-size: 13px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--kb-foreground);
+}
+.tag-text-input::placeholder { color: var(--kb-muted-foreground); }
+
+/* 底部操作按钮 */
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--kb-radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-primary {
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  border: none;
+}
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-secondary {
+  background: var(--kb-card);
+  color: var(--kb-sidebar-foreground);
+  border: 1px solid var(--kb-border);
+}
+.btn-secondary:hover { background: var(--kb-muted); }
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .file-item { flex-wrap: wrap; }
+  .file-progress { width: 100%; order: 3; }
+  .file-status { order: 4; min-width: auto; }
+  .file-remove-btn { order: 5; }
 }
 </style>

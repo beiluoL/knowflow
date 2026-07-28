@@ -41,4 +41,10 @@ public class SysUser extends BaseEntity {
 
     /** 精力值。 */
     private Integer energy;
+
+    /** 第三方登录提供方：github / wechat / null（账号密码注册）。 */
+    private String provider;
+
+    /** 第三方登录返回的用户唯一 ID。 */
+    private String providerUid;
 }

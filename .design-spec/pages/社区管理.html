@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>社区管理</title>
+    <style id="theme-vars">
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme inline {
+  --color-kb-background: #F7F8FA;
+  --color-kb-foreground: #1A1D23;
+  --color-kb-card: #FFFFFF;
+  --color-kb-card-foreground: #1A1D23;
+  --color-kb-popover: #FFFFFF;
+  --color-kb-popover-foreground: #1A1D23;
+  --color-kb-primary: #3B6FE0;
+  --color-kb-primary-foreground: #FFFFFF;
+  --color-kb-muted: #E8ECF1;
+  --color-kb-muted-foreground: #6B7280;
+  --color-kb-border: #E2E6EC;
+  --color-kb-input: #E2E6EC;
+  --color-kb-ring: #3B6FE0;
+  --color-kb-sidebar: #F0F2F5;
+  --color-kb-sidebar-foreground: #374151;
+  --color-kb-state-success: #10B981;
+  --color-kb-state-success-foreground: #FFFFFF;
+  --color-kb-state-error: #EF4444;
+  --color-kb-state-error-foreground: #FFFFFF;
+  --color-kb-state-warning: #F59E0B;
+  --color-kb-state-warning-foreground: #FFFFFF;
+  --color-kb-radius-sm: 6px;
+  --color-kb-radius-md: 10px;
+  --color-kb-radius-lg: 16px;
+}
+
+:root {
+  --kb-background: #F7F8FA;
+  --kb-foreground: #1A1D23;
+  --kb-card: #FFFFFF;
+  --kb-card-foreground: #1A1D23;
+  --kb-popover: #FFFFFF;
+  --kb-popover-foreground: #1A1D23;
+  --kb-primary: #3B6FE0;
+  --kb-primary-foreground: #FFFFFF;
+  --kb-muted: #E8ECF1;
+  --kb-muted-foreground: #6B7280;
+  --kb-border: #E2E6EC;
+  --kb-input: #E2E6EC;
+  --kb-ring: #3B6FE0;
+  --kb-sidebar: #F0F2F5;
+  --kb-sidebar-foreground: #374151;
+  --kb-state-success: #10B981;
+  --kb-state-success-foreground: #FFFFFF;
+  --kb-state-error: #EF4444;
+  --kb-state-error-foreground: #FFFFFF;
+  --kb-state-warning: #F59E0B;
+  --kb-state-warning-foreground: #FFFFFF;
+  --kb-radius-sm: 6px;
+  --kb-radius-md: 10px;
+  --kb-radius-lg: 16px;
+  --font-sans: 'Noto Sans SC', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/* Semantic token fallback */
+#semantic-token-fallback {
+  --background: var(--kb-background);
+  --foreground: var(--kb-foreground);
+  --card: var(--kb-card);
+  --card-foreground: var(--kb-card-foreground);
+  --popover: var(--kb-popover);
+  --popover-foreground: var(--kb-popover-foreground);
+  --primary: var(--kb-primary);
+  --primary-foreground: var(--kb-primary-foreground);
+  --muted: var(--kb-muted);
+  --muted-foreground: var(--kb-muted-foreground);
+  --border: var(--kb-border);
+  --input: var(--kb-input);
+  --ring: var(--kb-ring);
+  --sidebar: var(--kb-sidebar);
+  --sidebar-foreground: var(--kb-sidebar-foreground);
+  --radius-sm: var(--kb-radius-sm);
+  --radius-md: var(--kb-radius-md);
+  --radius-lg: var(--kb-radius-lg);
+}
+
+/* Typography scale */
+.kb-h1 {
+  font-family: var(--font-sans);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--kb-foreground);
+}
+
+.kb-h2 {
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--kb-foreground);
+}
+
+.kb-h3 {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--kb-foreground);
+}
+
+.kb-h4 {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--kb-foreground);
+}
+
+.kb-body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--kb-card-foreground);
+}
+
+.kb-body-sm {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--kb-muted-foreground);
+}
+
+.kb-caption {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--kb-muted-foreground);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--kb-background);
+    --color-foreground: var(--kb-foreground);
+    --color-card: var(--kb-card);
+    --color-card-foreground: var(--kb-card-foreground);
+    --color-popover: var(--kb-popover);
+    --color-popover-foreground: var(--kb-popover-foreground);
+    --color-primary: var(--kb-primary);
+    --color-primary-foreground: var(--kb-primary-foreground);
+    --color-muted: var(--kb-muted);
+    --color-muted-foreground: var(--kb-muted-foreground);
+    --color-border: var(--kb-border);
+    --color-input: var(--kb-input);
+    --color-ring: var(--kb-ring);
+    --color-sidebar: var(--kb-sidebar);
+    --color-sidebar-foreground: var(--kb-sidebar-foreground);
+    --radius-sm: var(--kb-radius-sm);
+    --radius-md: var(--kb-radius-md);
+    --radius-lg: var(--kb-radius-lg);
+  }
+  @layer base {
+    body { background: var(--kb-background); color: var(--kb-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--kb-background); }
+      .text-background { color: var(--kb-background); }
+      .border-background { border-color: var(--kb-background); }
+      .ring-background { --tw-ring-color: var(--kb-background); }
+      .bg-foreground { background-color: var(--kb-foreground); }
+      .text-foreground { color: var(--kb-foreground); }
+      .border-foreground { border-color: var(--kb-foreground); }
+      .ring-foreground { --tw-ring-color: var(--kb-foreground); }
+      .bg-card { background-color: var(--kb-card); }
+      .text-card { color: var(--kb-card); }
+      .border-card { border-color: var(--kb-card); }
+      .ring-card { --tw-ring-color: var(--kb-card); }
+      .bg-card-foreground { background-color: var(--kb-card-foreground); }
+      .text-card-foreground { color: var(--kb-card-foreground); }
+      .border-card-foreground { border-color: var(--kb-card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--kb-card-foreground); }
+      .bg-popover { background-color: var(--kb-popover); }
+      .text-popover { color: var(--kb-popover); }
+      .border-popover { border-color: var(--kb-popover); }
+      .ring-popover { --tw-ring-color: var(--kb-popover); }
+      .bg-popover-foreground { background-color: var(--kb-popover-foreground); }
+      .text-popover-foreground { color: var(--kb-popover-foreground); }
+      .border-popover-foreground { border-color: var(--kb-popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--kb-popover-foreground); }
+      .bg-primary { background-color: var(--kb-primary); }
+      .text-primary { color: var(--kb-primary); }
+      .border-primary { border-color: var(--kb-primary); }
+      .ring-primary { --tw-ring-color: var(--kb-primary); }
+      .bg-primary-foreground { background-color: var(--kb-primary-foreground); }
+      .text-primary-foreground { color: var(--kb-primary-foreground); }
+      .border-primary-foreground { border-color: var(--kb-primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--kb-primary-foreground); }
+      .bg-muted { background-color: var(--kb-muted); }
+      .text-muted { color: var(--kb-muted); }
+      .border-muted { border-color: var(--kb-muted); }
+      .ring-muted { --tw-ring-color: var(--kb-muted); }
+      .bg-muted-foreground { background-color: var(--kb-muted-foreground); }
+      .text-muted-foreground { color: var(--kb-muted-foreground); }
+      .border-muted-foreground { border-color: var(--kb-muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--kb-muted-foreground); }
+      .bg-border { background-color: var(--kb-border); }
+      .text-border { color: var(--kb-border); }
+      .border-border { border-color: var(--kb-border); }
+      .ring-border { --tw-ring-color: var(--kb-border); }
+      .bg-input { background-color: var(--kb-input); }
+      .text-input { color: var(--kb-input); }
+      .border-input { border-color: var(--kb-input); }
+      .ring-input { --tw-ring-color: var(--kb-input); }
+      .bg-ring { background-color: var(--kb-ring); }
+      .text-ring { color: var(--kb-ring); }
+      .border-ring { border-color: var(--kb-ring); }
+      .ring-ring { --tw-ring-color: var(--kb-ring); }
+      .bg-sidebar { background-color: var(--kb-sidebar); }
+      .text-sidebar { color: var(--kb-sidebar); }
+      .border-sidebar { border-color: var(--kb-sidebar); }
+      .ring-sidebar { --tw-ring-color: var(--kb-sidebar); }
+      .bg-sidebar-foreground { background-color: var(--kb-sidebar-foreground); }
+      .text-sidebar-foreground { color: var(--kb-sidebar-foreground); }
+      .border-sidebar-foreground { border-color: var(--kb-sidebar-foreground); }
+      .ring-sidebar-foreground { --tw-ring-color: var(--kb-sidebar-foreground); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+
+      /* Sidebar styles */
+      .sidebar-group-label {
+        font-family: var(--font-sans);
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.4;
+        color: var(--kb-muted-foreground);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        padding: 0 12px;
+        margin-top: 16px;
+        margin-bottom: 4px;
+      }
+      .sidebar-group-label:first-child {
+        margin-top: 0;
+      }
+
+      .sidebar-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 7px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 400;
+        color: var(--kb-sidebar-foreground);
+        text-decoration: none;
+        transition: background-color 0.15s, color 0.15s;
+      }
+      .sidebar-nav-item:hover {
+        background: rgba(59,111,224,0.08);
+        color: var(--kb-primary);
+      }
+      /* Active state: primary text + translucent primary background (per B-end spec) */
+      .sidebar-nav-item.active{color:var(--kb-primary);background:rgba(59,111,224,0.08);font-weight:600}
+      .sidebar-nav-item.active:hover{color:var(--kb-primary)}
+
+      /* Metric card */
+      .metric-card {
+        background: var(--kb-card);
+        border: 1px solid var(--kb-border);
+        border-radius: var(--kb-radius-md);
+        padding: 20px;
+        transition: box-shadow 0.2s;
+      }
+      .metric-card:hover {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+      }
+
+      /* Content panel */
+      .content-panel {
+        background: var(--kb-card);
+        border: 1px solid var(--kb-border);
+        border-radius: var(--kb-radius-md);
+      }
+
+      /* Tabs */
+      .tab-bar {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        border-bottom: 1px solid var(--kb-border);
+      }
+      .tab-btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 16px 12px;
+        font-family: var(--font-sans);
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--kb-muted-foreground);
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        transition: color 0.15s;
+        white-space: nowrap;
+      }
+      .tab-btn:hover {
+        color: var(--kb-foreground);
+      }
+      .tab-btn.active {
+        color: var(--kb-primary);
+      }
+      .tab-btn.active::after {
+        content: "";
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: -1px;
+        height: 2px;
+        background: var(--kb-primary);
+        border-radius: 2px 2px 0 0;
+      }
+      .tab-panel { display: none; }
+      .tab-panel.active { display: block; }
+
+      /* Buttons */
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 34px;
+        padding: 0 14px;
+        border-radius: var(--kb-radius-sm);
+        font-size: 13px;
+        font-weight: 500;
+        background: var(--kb-primary);
+        color: var(--kb-primary-foreground);
+        border: none;
+        cursor: pointer;
+        transition: opacity 0.15s;
+      }
+      .btn-primary:hover { opacity: 0.9; }
+
+      .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 34px;
+        padding: 0 14px;
+        border-radius: var(--kb-radius-sm);
+        font-size: 13px;
+        font-weight: 500;
+        background: var(--kb-card);
+        color: var(--kb-sidebar-foreground);
+        border: 1px solid var(--kb-border);
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .btn-secondary:hover {
+        background: var(--kb-muted);
+      }
+
+      .btn-sm {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 28px;
+        padding: 0 12px;
+        border-radius: var(--kb-radius-sm);
+        font-size: 12px;
+        font-weight: 500;
+        background: var(--kb-primary);
+        color: var(--kb-primary-foreground);
+        border: none;
+        cursor: pointer;
+        transition: opacity 0.15s;
+      }
+      .btn-sm:hover { opacity: 0.85; }
+
+      /* Topbar search */
+      .topbar-search {
+        width: 100%;
+        height: 34px;
+        padding: 0 12px 0 36px;
+        border-radius: var(--kb-radius-sm);
+        font-size: 13px;
+        background: var(--kb-muted);
+        color: var(--kb-foreground);
+        border: 1px solid transparent;
+        outline: none;
+        transition: border-color 0.15s, background 0.15s;
+      }
+      .topbar-search::placeholder {
+        color: var(--kb-muted-foreground);
+      }
+      .topbar-search:focus {
+        border-color: var(--kb-ring);
+        background: var(--kb-card);
+      }
+
+      /* Table */
+      .kb-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      .kb-table thead th {
+        text-align: left;
+        font-family: var(--font-sans);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--kb-muted-foreground);
+        padding: 10px 14px;
+        background: var(--kb-muted);
+        border-bottom: 1px solid var(--kb-border);
+        white-space: nowrap;
+      }
+      .kb-table thead th:first-child { border-top-left-radius: var(--kb-radius-sm); }
+      .kb-table thead th:last-child { border-top-right-radius: var(--kb-radius-sm); }
+      .kb-table tbody td {
+        font-family: var(--font-sans);
+        font-size: 13px;
+        color: var(--kb-foreground);
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--kb-border);
+        vertical-align: middle;
+      }
+      .kb-table tbody tr:last-child td { border-bottom: none; }
+      .kb-table tbody tr:hover td { background: rgba(59,111,224,0.03); }
+
+      /* Status badges */
+      .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 4px;
+        white-space: nowrap;
+      }
+      .status-published {
+        background: rgba(16,185,129,0.1);
+        color: var(--kb-state-success);
+      }
+      .status-pending {
+        background: rgba(245,158,11,0.1);
+        color: var(--kb-state-warning);
+      }
+      .status-deleted {
+        background: rgba(239,68,68,0.1);
+        color: var(--kb-state-error);
+      }
+      .status-active {
+        background: rgba(59,111,224,0.1);
+        color: var(--kb-primary);
+      }
+
+      /* Row action buttons */
+      .row-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: var(--kb-radius-sm);
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+      }
+      .row-action-primary {
+        color: var(--kb-primary);
+      }
+      .row-action-primary:hover {
+        background: rgba(59,111,224,0.08);
+      }
+      .row-action-danger {
+        color: var(--kb-state-error);
+      }
+      .row-action-danger:hover {
+        background: rgba(239,68,68,0.08);
+      }
+      .row-action-muted {
+        color: var(--kb-muted-foreground);
+      }
+      .row-action-muted:hover {
+        background: var(--kb-muted);
+        color: var(--kb-foreground);
+      }
+
+      /* Filter select */
+      .filter-select {
+        height: 34px;
+        padding: 0 32px 0 12px;
+        border-radius: var(--kb-radius-sm);
+        font-size: 13px;
+        background: var(--kb-card);
+        color: var(--kb-foreground);
+        border: 1px solid var(--kb-border);
+        outline: none;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        transition: border-color 0.15s;
+      }
+      .filter-select:focus {
+        border-color: var(--kb-ring);
+      }
+
+      /* Table toolbar search */
+      .table-search {
+        width: 100%;
+        height: 34px;
+        padding: 0 12px 0 36px;
+        border-radius: var(--kb-radius-sm);
+        font-size: 13px;
+        background: var(--kb-card);
+        color: var(--kb-foreground);
+        border: 1px solid var(--kb-border);
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .table-search::placeholder {
+        color: var(--kb-muted-foreground);
+      }
+      .table-search:focus {
+        border-color: var(--kb-ring);
+      }
+
+      /* Report card */
+      .report-card {
+        background: var(--kb-card);
+        border: 1px solid var(--kb-border);
+        border-radius: var(--kb-radius-md);
+        padding: 18px 20px;
+        transition: box-shadow 0.2s;
+      }
+      .report-card:hover {
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+      }
+
+      /* Avatar */
+      .avatar-sm {
+        width: 24px;
+        height: 24px;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+    </style>
+</head>
+<body class="h-screen overflow-hidden font-sans antialiased">
+    <div data-viewport-mode="app-shell" class="h-screen overflow-hidden min-h-0 flex">
+        <!-- Sidebar -->
+        <aside class="w-60 shrink-0 flex flex-col border-r" style="border-color:var(--kb-border);background:var(--kb-sidebar);">
+  <!-- Logo -->
+  <div class="h-14 flex items-center px-5 border-b" style="border-color:var(--kb-border);">
+    <a href="#" data-dom-id="admin-back-frontend" class="flex items-center gap-2.5 min-w-0">
+      <i data-lucide="book-open" class="w-6 h-6 shrink-0" style="color:var(--kb-primary);"></i>
+      <span class="kb-h4 truncate">Knowledge Hub</span>
+    </a>
+  </div>
+  <!-- Navigation -->
+  <nav class="flex-1 overflow-y-auto py-4 px-3 no-scrollbar">
+    <!-- Group 1: 数据与概览 -->
+    <div class="sidebar-group-label">数据与概览</div>
+    <ul class="flex flex-col gap-0.5 mb-1">
+      <li><a href="#" data-dom-id="admin-nav-system-overview" class="sidebar-nav-item"><i data-lucide="layout-dashboard" class="w-4 h-4 shrink-0"></i><span class="truncate">系统概览</span></a></li>
+    </ul>
+    <!-- Group 2: 内容管理 -->
+    <div class="sidebar-group-label">内容管理</div>
+    <ul class="flex flex-col gap-0.5 mb-1">
+      <li><a href="#" data-dom-id="admin-nav-kb-manage" class="sidebar-nav-item"><i data-lucide="database" class="w-4 h-4 shrink-0"></i><span class="truncate">知识库管理</span></a></li>
+      <li><a href="#" data-dom-id="admin-nav-doc-manage" class="sidebar-nav-item"><i data-lucide="files" class="w-4 h-4 shrink-0"></i><span class="truncate">文档管理</span></a></li>
+      <li><a href="#" data-dom-id="admin-nav-card-manage" class="sidebar-nav-item"><i data-lucide="credit-card" class="w-4 h-4 shrink-0"></i><span class="truncate">知识卡片管理</span></a></li>
+      <li><a href="#" data-dom-id="admin-nav-tags-manage" class="sidebar-nav-item"><i data-lucide="tags" class="w-4 h-4 shrink-0"></i><span class="truncate">标签管理</span></a></li>
+    </ul>
+    <!-- Group 3: AI 与生成 -->
+    <div class="sidebar-group-label">AI 与生成</div>
+    <ul class="flex flex-col gap-0.5 mb-1">
+      <li><a href="#" data-dom-id="admin-nav-smart-write" class="sidebar-nav-item"><i data-lucide="pen-tool" class="w-4 h-4 shrink-0"></i><span class="truncate">智能写作</span></a></li>
+      <li><a href="#" data-dom-id="admin-nav-quiz-gen" class="sidebar-nav-item"><i data-lucide="file-question" class="w-4 h-4 shrink-0"></i><span class="truncate">智能出题</span></a></li>
+      <li><a href="#" data-dom-id="admin-nav-chat-config" class="sidebar-nav-item"><i data-lucide="settings" class="w-4 h-4 shrink-0"></i><span class="truncate">对话配置</span></a></li>
+    </ul>
+    <!-- Group 4: 用户与运营 -->
+    <div class="sidebar-group-label">用户与运营</div>
+    <ul class="flex flex-col gap-0.5 mb-1">
+      <li><a href="#" data-dom-id="admin-nav-user-manage" class="sidebar-nav-item"><i data-lucide="users" class="w-4 h-4 shrink-0"></i><span class="truncate">用户管理</span></a></li>
+      <li><a href="#" data-dom-id="admin-nav-community-admin" class="sidebar-nav-item active"><i data-lucide="message-square" class="w-4 h-4 shrink-0"></i><span class="truncate">社区管理</span></a></li>
+    </ul>
+  </nav>
+  <!-- Bottom: 返回前台 -->
+  <div class="px-5 py-3 border-t" style="border-color:var(--kb-border);">
+    <a href="#" data-dom-id="admin-back-frontend-bottom" class="flex items-center gap-2 text-xs" style="color:var(--kb-muted-foreground);text-decoration:none;">
+      <i data-lucide="external-link" class="w-3.5 h-3.5 shrink-0"></i>
+      <span>返回前台</span>
+    </a>
+  </div>
+</aside>
+
+        <!-- Main area -->
+        <div class="flex-1 flex flex-col min-h-0">
+            <!-- Topbar -->
+            <header class="h-14 shrink-0 flex items-center justify-between px-6 border-b" style="border-color:var(--kb-border);background:var(--kb-card);">
+                <!-- Search -->
+                <div class="flex-1 max-w-md min-w-0">
+                    <div class="relative">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style="color:var(--kb-muted-foreground);"></i>
+                        <input type="text" placeholder="搜索功能、文档或用户..." class="topbar-search">
+                    </div>
+                </div>
+                <!-- Right actions -->
+                <div class="flex items-center gap-4 shrink-0 ml-6">
+                    <!-- Notifications -->
+                    <button class="relative p-2 rounded-lg transition-colors" style="color:var(--kb-sidebar-foreground);">
+                        <i data-lucide="bell" class="w-5 h-5"></i>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style="background:var(--kb-state-error);"></span>
+                    </button>
+                    <!-- Admin info -->
+                    <div class="flex items-center gap-2.5 pl-4 border-l" style="border-color:var(--kb-border);">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold" style="background:var(--kb-primary);color:var(--kb-primary-foreground);">A</div>
+                        <span class="text-sm font-medium truncate" style="color:var(--kb-foreground);">管理员</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4" style="color:var(--kb-muted-foreground);"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Scrollable content -->
+            <main data-scroll-region="primary" class="flex-1 min-h-0 overflow-y-auto" style="padding:24px 28px 40px;">
+
+                <!-- Page title + stats overview -->
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <h1 class="kb-h1">社区管理</h1>
+                        <span class="text-xs px-2 py-0.5 rounded" style="background:rgba(59,111,224,0.08);color:var(--kb-primary);font-weight:500;">B 端管理</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button class="btn-secondary">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            <span>刷新</span>
+                        </button>
+                        <button class="btn-primary">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>导出数据</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats overview -->
+                <div class="grid grid-cols-4 gap-4 mb-6">
+                    <div class="metric-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="kb-body-sm">帖子总数</span>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(59,111,224,0.08);">
+                                <i data-lucide="file-text" class="w-4 h-4" style="color:var(--kb-primary);"></i>
+                            </div>
+                        </div>
+                        <div class="text-2xl font-bold mb-1" style="color:var(--kb-foreground);">1,234</div>
+                        <div class="flex items-center gap-1">
+                            <i data-lucide="trending-up" class="w-3 h-3" style="color:var(--kb-state-success);"></i>
+                            <span class="text-xs font-medium" style="color:var(--kb-state-success);">+8%</span>
+                            <span class="text-xs" style="color:var(--kb-muted-foreground);">本周</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="kb-body-sm">评论总数</span>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(59,111,224,0.08);">
+                                <i data-lucide="message-circle" class="w-4 h-4" style="color:var(--kb-primary);"></i>
+                            </div>
+                        </div>
+                        <div class="text-2xl font-bold mb-1" style="color:var(--kb-foreground);">8,456</div>
+                        <div class="flex items-center gap-1">
+                            <i data-lucide="trending-up" class="w-3 h-3" style="color:var(--kb-state-success);"></i>
+                            <span class="text-xs font-medium" style="color:var(--kb-state-success);">+15%</span>
+                            <span class="text-xs" style="color:var(--kb-muted-foreground);">本周</span>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="kb-body-sm">活跃用户</span>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(16,185,129,0.08);">
+                                <i data-lucide="users" class="w-4 h-4" style="color:var(--kb-state-success);"></i>
+                            </div>
+                        </div>
+                        <div class="text-2xl font-bold mb-1" style="color:var(--kb-foreground);">89</div>
+                        <span class="text-xs" style="color:var(--kb-muted-foreground);">近 7 天活跃</span>
+                    </div>
+                    <div class="metric-card">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="kb-body-sm">待审核</span>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(245,158,11,0.08);">
+                                <i data-lucide="clock" class="w-4 h-4" style="color:var(--kb-state-warning);"></i>
+                            </div>
+                        </div>
+                        <div class="text-2xl font-bold mb-1" style="color:var(--kb-foreground);">5</div>
+                        <span class="text-xs" style="color:var(--kb-state-warning);">需尽快处理</span>
+                    </div>
+                </div>
+
+                <!-- Tabs + panels -->
+                <div class="content-panel">
+                    <!-- Tab bar -->
+                    <div class="px-4">
+                        <div class="tab-bar">
+                            <button class="tab-btn active" data-tab="posts">
+                                <i data-lucide="file-text" class="w-4 h-4"></i>
+                                <span>帖子管理</span>
+                            </button>
+                            <button class="tab-btn" data-tab="topics">
+                                <i data-lucide="hash" class="w-4 h-4"></i>
+                                <span>话题管理</span>
+                            </button>
+                            <button class="tab-btn" data-tab="reports">
+                                <i data-lucide="flag" class="w-4 h-4"></i>
+                                <span>举报处理</span>
+                                <span class="text-xs px-1.5 rounded" style="background:rgba(239,68,68,0.1);color:var(--kb-state-error);font-weight:600;">3</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tab Panel 1: Posts -->
+                    <div class="tab-panel active" data-panel="posts">
+                        <!-- Toolbar -->
+                        <div class="flex items-center justify-between gap-4 p-4 border-b" style="border-color:var(--kb-border);">
+                            <div class="flex items-center gap-3">
+                                <select class="filter-select">
+                                    <option value="">全部状态</option>
+                                    <option value="published">已发布</option>
+                                    <option value="pending">待审核</option>
+                                    <option value="deleted">已删除</option>
+                                </select>
+                                <select class="filter-select">
+                                    <option value="">全部话题</option>
+                                    <option>技术讨论</option>
+                                    <option>学习笔记</option>
+                                    <option>问答求助</option>
+                                </select>
+                            </div>
+                            <div class="relative w-72">
+                                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style="color:var(--kb-muted-foreground);"></i>
+                                <input type="text" placeholder="搜索帖子标题或作者..." class="table-search">
+                            </div>
+                        </div>
+
+                        <!-- Posts table -->
+                        <div class="overflow-x-auto">
+                            <table class="kb-table">
+                                <thead>
+                                    <tr>
+                                        <th>帖子标题</th>
+                                        <th>作者</th>
+                                        <th>话题</th>
+                                        <th>发布时间</th>
+                                        <th>点赞</th>
+                                        <th>评论</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <i data-lucide="pin" class="w-3.5 h-3.5 shrink-0" style="color:var(--kb-primary);"></i>
+                                                <span class="font-medium">React 18 并发渲染深度解析</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="avatar-sm" style="background:rgba(59,111,224,0.1);color:var(--kb-primary);">张</div>
+                                                <span>张小明</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="text-xs px-2 py-0.5 rounded" style="background:var(--kb-muted);color:var(--kb-sidebar-foreground);">技术讨论</span></td>
+                                        <td><span style="color:var(--kb-muted-foreground);">2026-07-25 14:32</span></td>
+                                        <td><span style="color:var(--kb-foreground);font-weight:500;">128</span></td>
+                                        <td><span style="color:var(--kb-foreground);font-weight:500;">45</span></td>
+                                        <td><span class="status-badge status-published"><i data-lucide="check-circle" class="w-3 h-3"></i>已发布</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-1">
+                                                <button class="row-action row-action-muted"><i data-lucide="check" class="w-3.5 h-3.5"></i>审核</button>
+                                                <button class="row-action row-action-primary"><i data-lucide="pin" class="w-3.5 h-3.5"></i>置顶</button>
+                                                <button class="row-action row-action-danger"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i>删除</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="font-medium">机器学习入门学习路径分享</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="avatar-sm" style="background:rgba(16,185,129,0.1);color:var(--kb-state-success);">李</div>
+                                                <span>李华</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="text-xs px-2 py-0.5 rounded" style="background:var(--kb-muted);color:var(--kb-sidebar-foreground);">学习笔记</span></td>
+                                        <td><span style="color:var(--kb-muted-foreground);">2026-07-25 10:15</span></td>
+                                        <td><span style="color:var(--kb-foreground);font-weight:500;">86</span></td>
+                                        <td><span style="color:var(--kb-foreground);font-weight:500;">32</span></td>
+                                        <td><span class="status-badge status-published"><i data-lucide="check-circle" class="w-3 h-3"></i>已发布</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-1">
+                                                <button class="row-action row-action-muted"><i data-lucide="check" class="w-3.5 h-3.5"></i>审核</button>
+                                                <button class="row-action row-action-primary"><i data-lucide="pin" class="w-3.5 h-3.5"></i>置顶</button>
+                                                <button class="row-action row-action-danger"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i>删除</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="font-medium">关于 Kubernetes 集群部署的最佳实践</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="avatar-sm" style="background:rgba(245,158,11,0.1);color:var(--kb-state-warning);">王</div>
+                                                <span>王芳</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="text-xs px-2 py-0.5 rounded" style="background:var(--kb-muted);color:var(--kb-sidebar-foreground);">问答求助</span></td>
+                                        <td><span style="color:var(--kb-muted-foreground);">2026-07-24 18:48</span></td>
+                                        <td><span style="color:var(--kb-foreground);font-weight:500;">54</span></td>
+                                        <td><span style="color:var(--kb-foreground);font-weight:500;">23</span></td>
+                                        <td><span class="status-badge status-pending"><i data-lucide="clock" class="w-3 h-3"></i>待审核</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-1">
+                                                <button class="row-action row-action-primary"><i data-lucide="check" class="w-3.5 h-3.5"></i>审核</button>
+                                                <button class="row-action row-action-muted"><i data-lucide="pin" class="w-3.5 h-3.5"></i>置顶</button>
+                                                <button class="row-action row-action-danger"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i>删除</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="font-medium">TypeScript 类型体操进阶技巧</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="avatar-sm" style="background:rgba(59,111,224,0.1);color:var(--kb-primary);">赵</div>
+                                                <span>赵磊</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="text-xs px-2 py-0.5 rounded" style="background:var(--kb-muted);color:var(--kb-sidebar-foreground);">技术讨论</span></td>
+                                        <td><span style="color:var(--kb-muted-foreground);">2026-07-24 09:22</span></td>
+                                        <td><span style="color:var(--kb-foreground);font-weight:500;">213</span></td>
+                                        <td><span style="color:var(--kb-foreground);font-weight:500;">67</span></td>
+                                        <td><span class="status-badge status-published"><i data-lucide="check-circle" class="w-3 h-3"></i>已发布</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-1">
+                                                <button class="row-action row-action-muted"><i data-lucide="check" class="w-3.5 h-3.5"></i>审核</button>
+                                                <button class="row-action row-action-primary"><i data-lucide="pin" class="w-3.5 h-3.5"></i>置顶</button>
+                                                <button class="row-action row-action-danger"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i>删除</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="font-medium" style="color:var(--kb-muted-foreground);">关于前端框架选择的讨论</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="avatar-sm" style="background:rgba(239,68,68,0.1);color:var(--kb-state-error);">陈</div>
+                                                <span>陈晨</span>
+                                            </div>
+                                        </td>
+                                        <td><span class="text-xs px-2 py-0.5 rounded" style="background:var(--kb-muted);color:var(--kb-sidebar-foreground);">技术讨论</span></td>
+                                        <td><span style="color:var(--kb-muted-foreground);">2026-07-23 16:05</span></td>
+                                        <td><span style="color:var(--kb-foreground);font-weight:500;">12</span></td>
+                                        <td><span style="color:var(--kb-foreground);font-weight:500;">5</span></td>
+                                        <td><span class="status-badge status-deleted"><i data-lucide="x-circle" class="w-3 h-3"></i>已删除</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-1">
+                                                <button class="row-action row-action-muted"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>恢复</button>
+                                                <button class="row-action row-action-muted"><i data-lucide="pin" class="w-3.5 h-3.5"></i>置顶</button>
+                                                <button class="row-action row-action-danger"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i>彻底删除</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="flex items-center justify-between px-4 py-3 border-t" style="border-color:var(--kb-border);">
+                            <span class="text-xs" style="color:var(--kb-muted-foreground);">共 1,234 条记录，第 1-5 条</span>
+                            <div class="flex items-center gap-1">
+                                <button class="btn-secondary" style="height:28px;padding:0 10px;" disabled>
+                                    <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <button class="btn-sm" style="background:var(--kb-primary);">1</button>
+                                <button class="btn-secondary" style="height:28px;padding:0 10px;">2</button>
+                                <button class="btn-secondary" style="height:28px;padding:0 10px;">3</button>
+                                <span class="text-xs px-1" style="color:var(--kb-muted-foreground);">...</span>
+                                <button class="btn-secondary" style="height:28px;padding:0 10px;">247</button>
+                                <button class="btn-secondary" style="height:28px;padding:0 10px;">
+                                    <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Panel 2: Topics -->
+                    <div class="tab-panel" data-panel="topics">
+                        <!-- Toolbar -->
+                        <div class="flex items-center justify-between gap-4 p-4 border-b" style="border-color:var(--kb-border);">
+                            <div class="flex items-center gap-3">
+                                <select class="filter-select">
+                                    <option value="">全部状态</option>
+                                    <option value="active">启用</option>
+                                    <option value="inactive">停用</option>
+                                </select>
+                            </div>
+                            <button class="btn-primary">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                <span>新建话题</span>
+                            </button>
+                        </div>
+
+                        <!-- Topics table -->
+                        <div class="overflow-x-auto">
+                            <table class="kb-table">
+                                <thead>
+                                    <tr>
+                                        <th>话题名称</th>
+                                        <th>帖子数</th>
+                                        <th>创建者</th>
+                                        <th>创建时间</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-7 h-7 rounded-md flex items-center justify-center" style="background:rgba(59,111,224,0.08);">
+                                                    <i data-lucide="hash" class="w-3.5 h-3.5" style="color:var(--kb-primary);"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="font-medium">技术讨论</div>
+                                                    <div class="text-xs" style="color:var(--kb-muted-foreground);">前后端、架构、工程化</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span style="color:var(--kb-foreground);font-weight:500;">456</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="avatar-sm" style="background:rgba(59,111,224,0.1);color:var(--kb-primary);">管</div>
+                                                <span>管理员</span>
+                                            </div>
+                                        </td>
+                                        <td><span style="color:var(--kb-muted-foreground);">2026-06-01 09:00</span></td>
+                                        <td><span class="status-badge status-active"><i data-lucide="check-circle" class="w-3 h-3"></i>启用</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-1">
+                                                <button class="row-action row-action-primary"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i>编辑</button>
+                                                <button class="row-action row-action-danger"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i>删除</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-7 h-7 rounded-md flex items-center justify-center" style="background:rgba(16,185,129,0.08);">
+                                                    <i data-lucide="hash" class="w-3.5 h-3.5" style="color:var(--kb-state-success);"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="font-medium">学习笔记</div>
+                                                    <div class="text-xs" style="color:var(--kb-muted-foreground);">学习心得与知识整理</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span style="color:var(--kb-foreground);font-weight:500;">328</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="avatar-sm" style="background:rgba(16,185,129,0.1);color:var(--kb-state-success);">李</div>
+                                                <span>李华</span>
+                                            </div>
+                                        </td>
+                                        <td><span style="color:var(--kb-muted-foreground);">2026-06-05 11:20</span></td>
+                                        <td><span class="status-badge status-active"><i data-lucide="check-circle" class="w-3 h-3"></i>启用</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-1">
+                                                <button class="row-action row-action-primary"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i>编辑</button>
+                                                <button class="row-action row-action-danger"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i>删除</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-7 h-7 rounded-md flex items-center justify-center" style="background:rgba(245,158,11,0.08);">
+                                                    <i data-lucide="hash" class="w-3.5 h-3.5" style="color:var(--kb-state-warning);"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="font-medium">问答求助</div>
+                                                    <div class="text-xs" style="color:var(--kb-muted-foreground);">技术问题与解答</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span style="color:var(--kb-foreground);font-weight:500;">214</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="avatar-sm" style="background:rgba(245,158,11,0.1);color:var(--kb-state-warning);">王</div>
+                                                <span>王芳</span>
+                                            </div>
+                                        </td>
+                                        <td><span style="color:var(--kb-muted-foreground);">2026-06-10 14:45</span></td>
+                                        <td><span class="status-badge status-active"><i data-lucide="check-circle" class="w-3 h-3"></i>启用</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-1">
+                                                <button class="row-action row-action-primary"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i>编辑</button>
+                                                <button class="row-action row-action-danger"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i>删除</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-7 h-7 rounded-md flex items-center justify-center" style="background:rgba(239,68,68,0.08);">
+                                                    <i data-lucide="hash" class="w-3.5 h-3.5" style="color:var(--kb-state-error);"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="font-medium">资源分享</div>
+                                                    <div class="text-xs" style="color:var(--kb-muted-foreground);">工具、书籍、课程推荐</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span style="color:var(--kb-foreground);font-weight:500;">152</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="avatar-sm" style="background:rgba(59,111,224,0.1);color:var(--kb-primary);">赵</div>
+                                                <span>赵磊</span>
+                                            </div>
+                                        </td>
+                                        <td><span style="color:var(--kb-muted-foreground);">2026-06-15 10:30</span></td>
+                                        <td><span class="status-badge status-active"><i data-lucide="check-circle" class="w-3 h-3"></i>启用</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-1">
+                                                <button class="row-action row-action-primary"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i>编辑</button>
+                                                <button class="row-action row-action-danger"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i>删除</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-7 h-7 rounded-md flex items-center justify-center" style="background:var(--kb-muted);">
+                                                    <i data-lucide="hash" class="w-3.5 h-3.5" style="color:var(--kb-muted-foreground);"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="font-medium" style="color:var(--kb-muted-foreground);">招聘内推</div>
+                                                    <div class="text-xs" style="color:var(--kb-muted-foreground);">岗位推荐与内推信息</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span style="color:var(--kb-muted-foreground);font-weight:500;">84</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-2">
+                                                <div class="avatar-sm" style="background:rgba(239,68,68,0.1);color:var(--kb-state-error);">陈</div>
+                                                <span>陈晨</span>
+                                            </div>
+                                        </td>
+                                        <td><span style="color:var(--kb-muted-foreground);">2026-06-20 16:12</span></td>
+                                        <td><span class="status-badge status-deleted"><i data-lucide="pause-circle" class="w-3 h-3"></i>停用</span></td>
+                                        <td>
+                                            <div class="flex items-center gap-1">
+                                                <button class="row-action row-action-primary"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i>编辑</button>
+                                                <button class="row-action row-action-danger"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i>删除</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="flex items-center justify-between px-4 py-3 border-t" style="border-color:var(--kb-border);">
+                            <span class="text-xs" style="color:var(--kb-muted-foreground);">共 5 条记录</span>
+                            <div class="flex items-center gap-1">
+                                <button class="btn-secondary" style="height:28px;padding:0 10px;" disabled>
+                                    <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <button class="btn-sm" style="background:var(--kb-primary);">1</button>
+                                <button class="btn-secondary" style="height:28px;padding:0 10px;">
+                                    <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab Panel 3: Reports -->
+                    <div class="tab-panel" data-panel="reports">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="flag" class="w-4 h-4" style="color:var(--kb-state-error);"></i>
+                                    <span class="text-sm font-medium" style="color:var(--kb-foreground);">待处理举报</span>
+                                    <span class="text-xs px-1.5 rounded" style="background:rgba(239,68,68,0.1);color:var(--kb-state-error);font-weight:600;">3</span>
+                                </div>
+                                <select class="filter-select">
+                                    <option value="">全部原因</option>
+                                    <option>垃圾广告</option>
+                                    <option>违规内容</option>
+                                    <option>人身攻击</option>
+                                </select>
+                            </div>
+
+                            <!-- Report card 1 -->
+                            <div class="report-card mb-3">
+                                <div class="flex items-start justify-between gap-4 mb-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="status-badge status-pending"><i data-lucide="alert-triangle" class="w-3 h-3"></i>待处理</span>
+                                            <span class="text-xs px-2 py-0.5 rounded" style="background:rgba(239,68,68,0.08);color:var(--kb-state-error);font-weight:500;">垃圾广告</span>
+                                        </div>
+                                        <p class="text-sm font-medium mb-1" style="color:var(--kb-foreground);">「关于前端框架选择的讨论」</p>
+                                        <p class="text-xs leading-relaxed" style="color:var(--kb-muted-foreground);">该帖子内容包含大量推广第三方培训机构课程的链接，与社区主题无关，疑似营销垃圾内容。</p>
+                                    </div>
+                                    <div class="shrink-0 text-right">
+                                        <div class="text-xs" style="color:var(--kb-muted-foreground);">举报时间</div>
+                                        <div class="text-sm font-medium" style="color:var(--kb-foreground);">2026-07-25 15:30</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between pt-3 border-t" style="border-color:var(--kb-border);">
+                                    <div class="flex items-center gap-2">
+                                        <div class="avatar-sm" style="background:rgba(59,111,224,0.1);color:var(--kb-primary);">孙</div>
+                                        <span class="text-xs" style="color:var(--kb-foreground);">举报人：孙强</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button class="btn-secondary" style="height:30px;padding:0 12px;font-size:12px;">
+                                            <i data-lucide="x" class="w-3.5 h-3.5"></i>忽略
+                                        </button>
+                                        <button class="btn-primary" style="height:30px;padding:0 12px;font-size:12px;background:var(--kb-state-warning);">
+                                            <i data-lucide="check" class="w-3.5 h-3.5"></i>处理
+                                        </button>
+                                        <button class="btn-primary" style="height:30px;padding:0 12px;font-size:12px;background:var(--kb-state-error);">
+                                            <i data-lucide="ban" class="w-3.5 h-3.5"></i>封禁用户
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Report card 2 -->
+                            <div class="report-card mb-3">
+                                <div class="flex items-start justify-between gap-4 mb-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="status-badge status-pending"><i data-lucide="alert-triangle" class="w-3 h-3"></i>待处理</span>
+                                            <span class="text-xs px-2 py-0.5 rounded" style="background:rgba(245,158,11,0.08);color:var(--kb-state-warning);font-weight:500;">违规内容</span>
+                                        </div>
+                                        <p class="text-sm font-medium mb-1" style="color:var(--kb-foreground);">「TypeScript 类型体操进阶技巧」中的评论</p>
+                                        <p class="text-xs leading-relaxed" style="color:var(--kb-muted-foreground);">用户在评论区发布涉及敏感政治话题的不当言论，违反社区内容规范，需要尽快处理。</p>
+                                    </div>
+                                    <div class="shrink-0 text-right">
+                                        <div class="text-xs" style="color:var(--kb-muted-foreground);">举报时间</div>
+                                        <div class="text-sm font-medium" style="color:var(--kb-foreground);">2026-07-25 11:42</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between pt-3 border-t" style="border-color:var(--kb-border);">
+                                    <div class="flex items-center gap-2">
+                                        <div class="avatar-sm" style="background:rgba(16,185,129,0.1);color:var(--kb-state-success);">周</div>
+                                        <span class="text-xs" style="color:var(--kb-foreground);">举报人：周婷</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button class="btn-secondary" style="height:30px;padding:0 12px;font-size:12px;">
+                                            <i data-lucide="x" class="w-3.5 h-3.5"></i>忽略
+                                        </button>
+                                        <button class="btn-primary" style="height:30px;padding:0 12px;font-size:12px;background:var(--kb-state-warning);">
+                                            <i data-lucide="check" class="w-3.5 h-3.5"></i>处理
+                                        </button>
+                                        <button class="btn-primary" style="height:30px;padding:0 12px;font-size:12px;background:var(--kb-state-error);">
+                                            <i data-lucide="ban" class="w-3.5 h-3.5"></i>封禁用户
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Report card 3 -->
+                            <div class="report-card">
+                                <div class="flex items-start justify-between gap-4 mb-3">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="status-badge status-pending"><i data-lucide="alert-triangle" class="w-3 h-3"></i>待处理</span>
+                                            <span class="text-xs px-2 py-0.5 rounded" style="background:rgba(239,68,68,0.08);color:var(--kb-state-error);font-weight:500;">人身攻击</span>
+                                        </div>
+                                        <p class="text-sm font-medium mb-1" style="color:var(--kb-foreground);">「Kubernetes 集群部署的最佳实践」中的回复</p>
+                                        <p class="text-xs leading-relaxed" style="color:var(--kb-muted-foreground);">回复内容对提问者使用侮辱性语言，构成人身攻击，严重影响社区讨论氛围。</p>
+                                    </div>
+                                    <div class="shrink-0 text-right">
+                                        <div class="text-xs" style="color:var(--kb-muted-foreground);">举报时间</div>
+                                        <div class="text-sm font-medium" style="color:var(--kb-foreground);">2026-07-24 20:18</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between pt-3 border-t" style="border-color:var(--kb-border);">
+                                    <div class="flex items-center gap-2">
+                                        <div class="avatar-sm" style="background:rgba(245,158,11,0.1);color:var(--kb-state-warning);">吴</div>
+                                        <span class="text-xs" style="color:var(--kb-foreground);">举报人：吴敏</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button class="btn-secondary" style="height:30px;padding:0 12px;font-size:12px;">
+                                            <i data-lucide="x" class="w-3.5 h-3.5"></i>忽略
+                                        </button>
+                                        <button class="btn-primary" style="height:30px;padding:0 12px;font-size:12px;background:var(--kb-state-warning);">
+                                            <i data-lucide="check" class="w-3.5 h-3.5"></i>处理
+                                        </button>
+                                        <button class="btn-primary" style="height:30px;padding:0 12px;font-size:12px;background:var(--kb-state-error);">
+                                            <i data-lucide="ban" class="w-3.5 h-3.5"></i>封禁用户
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        (function () {
+            var tabBtns = document.querySelectorAll('.tab-btn');
+            var panels = document.querySelectorAll('.tab-panel');
+            tabBtns.forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var target = btn.getAttribute('data-tab');
+                    tabBtns.forEach(function (b) { b.classList.remove('active'); });
+                    panels.forEach(function (p) { p.classList.remove('active'); });
+                    btn.classList.add('active');
+                    var panel = document.querySelector('.tab-panel[data-panel="' + target + '"]');
+                    if (panel) panel.classList.add('active');
+                });
+            });
+        })();
+    </script>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

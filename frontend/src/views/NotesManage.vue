@@ -21,7 +21,7 @@
           type="button"
           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90"
           style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
-          @click="notify('新建笔记功能开发中', 'info')"
+          @click="router.push('/notes/new')"
         >
           <Icon name="plus" :size="16" />
           新建笔记
@@ -32,7 +32,7 @@
     <!-- Two-panel layout -->
     <div
       class="flex rounded-xl border overflow-hidden relative"
-      style="background: var(--kb-card); border-color: var(--kb-border); height: calc(100vh - 13rem);"
+      style="background: var(--kb-card); border-color: var(--kb-border); height: calc(100vh - 9rem);"
     >
       <!-- Left: Note List -->
       <div
@@ -47,8 +47,8 @@
             <input
               v-model="searchKeyword"
               type="text"
-              placeholder="搜索笔记..."
-              class="w-full h-8 pl-8 pr-3 rounded-md text-xs border outline-none focus:ring-1"
+              placeholder="搜索笔记…"
+              class="w-full h-8 pl-8 pr-3 rounded-md text-[13px] border outline-none focus:ring-1 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
               style="background: var(--kb-background); border-color: var(--kb-input); color: var(--kb-foreground);"
             />
           </div>
@@ -58,7 +58,7 @@
               v-for="tag in tags"
               :key="tag"
               type="button"
-              class="text-xs px-2 py-1 rounded-md font-medium transition-colors"
+              class="text-[13px] px-2 py-1 rounded-md font-medium transition-colors"
               :style="activeTag === tag
                 ? 'background: var(--kb-primary); color: var(--kb-primary-foreground);'
                 : 'background: var(--kb-muted); color: var(--kb-muted-foreground);'"
@@ -86,7 +86,7 @@
           <!-- Empty -->
           <div v-else-if="filteredNotes.length === 0" class="p-6 flex flex-col items-center justify-center text-center gap-2">
             <Icon name="inbox" :size="28" style="color: var(--kb-muted-foreground);" />
-            <p class="text-xs" style="color: var(--kb-muted-foreground);">
+            <p class="text-[13px]" style="color: var(--kb-muted-foreground);">
               {{ searchKeyword || activeTag !== '全部' ? '没有匹配的笔记' : '暂无笔记' }}
             </p>
           </div>
@@ -97,19 +97,18 @@
               v-for="note in filteredNotes"
               :key="note.id"
               type="button"
-              class="w-full text-left px-4 py-3 border-b transition-colors"
-              :class="selectedId === note.id ? 'bg-primary-50' : 'hover:bg-gray-50'"
-              style="border-color: var(--kb-muted);"
+              class="note-item w-full text-left px-4 py-3 border-b transition-colors"
+              :class="{ active: selectedId === note.id }"
               @click="selectNote(note.id)"
             >
-              <h4 class="text-sm font-medium mb-1 truncate text-gray-800">{{ note.title }}</h4>
-              <p class="text-xs mb-2 truncate text-gray-500">{{ note.summary }}</p>
+              <h4 class="text-sm font-medium mb-1 truncate" style="color: var(--kb-foreground);">{{ note.title }}</h4>
+              <p class="text-[13px] mb-2 truncate" style="color: var(--kb-muted-foreground);">{{ note.summary }}</p>
               <div class="flex items-center justify-between">
                 <span
-                  class="text-xs px-1.5 py-0.5 rounded"
+                  class="text-[13px] px-1.5 py-0.5 rounded"
                   :style="`background: ${tagColor(note.tag).bg}; color: ${tagColor(note.tag).color};`"
                 >{{ note.tag }}</span>
-                <span class="text-xs text-gray-500">{{ note.time }}</span>
+                <span class="text-[13px]" style="color: var(--kb-muted-foreground);">{{ note.time }}</span>
               </div>
             </button>
           </template>
@@ -132,58 +131,63 @@
           <p class="text-sm" style="color: var(--kb-muted-foreground);">请从左侧选择一篇笔记查看</p>
         </div>
 
-        <div v-else class="max-w-[700px] mx-auto px-6 sm:px-8 py-8">
-          <div class="mb-6">
-            <div class="flex items-center gap-2 mb-3">
-              <span
-                v-for="t in current.tags"
-                :key="t"
-                class="text-xs px-2 py-0.5 rounded font-medium"
-                style="background: rgba(59,111,224,0.1); color: var(--kb-primary);"
-              >{{ t }}</span>
+        <div v-else class="w-full px-5 py-5">
+          <div class="mb-4 flex justify-between items-start gap-4 flex-wrap">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 mb-3">
+                <span
+                  v-for="t in current.tags"
+                  :key="t"
+                  class="text-[13px] px-2 py-0.5 rounded font-medium"
+                  style="background: rgba(59,111,224,0.1); color: var(--kb-primary);"
+                >{{ t }}</span>
+              </div>
+              <h1 class="kb-h1 mb-2">{{ current.title }}</h1>
+              <div class="flex items-center gap-4 flex-wrap">
+                <span class="text-[13px] flex items-center gap-2" style="color: var(--kb-muted-foreground);">
+                  <Icon name="clock" :size="14" /> 修改于{{ current.time }}
+                </span>
+                <span class="text-[13px] flex items-center gap-2" style="color: var(--kb-muted-foreground);">
+                  <Icon name="edit" :size="14" /> {{ current.words }} 字
+                </span>
+              </div>
             </div>
-            <h1 class="kb-h1 mb-2">{{ current.title }}</h1>
-            <div class="flex items-center gap-4 flex-wrap">
-              <span class="text-xs flex items-center gap-1.5 text-gray-500">
-                <Icon name="clock" :size="14" /> 修改于{{ current.time }}
-              </span>
-              <span class="text-xs flex items-center gap-1.5 text-gray-500">
-                <Icon name="edit" :size="14" /> {{ current.words }} 字
-              </span>
-            </div>
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium shrink-0"
+              style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
+              @click="router.push(`/notes/${current.id}/edit`)"
+            >
+              <Icon name="edit" :size="14" />
+              编辑
+            </button>
           </div>
 
-          <article class="rounded-xl border p-6 mb-6" style="background: var(--kb-card); border-color: var(--kb-border);">
-            <h2 class="kb-h3 mb-3">{{ current.sectionTitle }}</h2>
-            <p class="kb-body mb-4">{{ current.intro }}</p>
-            <div class="rounded-lg p-4 mb-4" style="background: var(--kb-background);">
-              <code class="text-sm" style="color: var(--kb-primary);">{{ current.formula }}</code>
-            </div>
-            <h3 class="kb-h4 mb-2 mt-5">关键步骤</h3>
-            <ol class="flex flex-col gap-2 pl-5 list-decimal">
-              <li v-for="(step, idx) in current.steps" :key="idx" class="kb-body">{{ step }}</li>
-            </ol>
-          </article>
+          <article
+            class="rounded-xl border p-5 mb-4 kb-md-body"
+            style="background: var(--kb-card); border-color: var(--kb-border);"
+            v-html="renderedContent"
+          ></article>
 
-          <div class="rounded-xl border p-6" style="background: var(--kb-card); border-color: var(--kb-border);">
+          <div class="rounded-xl border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
             <h3 class="kb-h4 mb-4">关联文档</h3>
             <div class="flex flex-col gap-3">
               <a
                 v-for="(rel, idx) in current.related"
                 :key="idx"
                 href="#"
-                class="flex items-center gap-3 p-3 rounded-lg border transition-colors hover:border-primary-400"
+                class="rel-link flex items-center gap-3 p-3 rounded-lg border transition-colors"
                 style="border-color: var(--kb-border);"
                 @click.prevent="goTo('/knowledge')"
               >
                 <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background: rgba(59,111,224,0.1);">
-                  <Icon name="file-text" :size="16" class="text-primary-500" />
+                  <Icon name="file-text" :size="16" style="color: var(--kb-primary);" />
                 </div>
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium truncate text-gray-800">{{ rel.title }}</p>
-                  <p class="text-xs text-gray-500">{{ rel.category }}</p>
+                  <p class="text-sm font-medium truncate" style="color: var(--kb-foreground);">{{ rel.title }}</p>
+                  <p class="text-[13px]" style="color: var(--kb-muted-foreground);">{{ rel.category }}</p>
                 </div>
-                <Icon name="external-link" :size="16" class="text-gray-400 shrink-0" />
+                <Icon name="external-link" :size="16" class="shrink-0" style="color: var(--kb-muted-foreground);" />
               </a>
             </div>
           </div>
@@ -195,10 +199,11 @@
 
 <script setup lang="ts">
 // 笔记管理页：按标签/关键词筛选笔记，左侧列表、右侧详情的文档式阅读布局。
+// 笔记数据源：localStorage('note-list')（与 NoteEdit.vue 保存的数据打通）；为空时回退到示例笔记。
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
-import { notify } from '@/utils/toast';
+import { renderMarkdown } from '@/utils/markdown';
 
 const router = useRouter();
 
@@ -213,10 +218,7 @@ interface NoteItem {
 interface NoteDetail extends NoteItem {
   tags: string[];
   words: number;
-  sectionTitle: string;
-  intro: string;
-  formula: string;
-  steps: string[];
+  content: string;
   related: { title: string; category: string }[];
 }
 
@@ -238,134 +240,90 @@ function tagColor(tag: string): TagStyle {
   }
 }
 
-// 后端暂无笔记接口，使用本地 mock 数据
-const allNotes: NoteDetail[] = [
+// 后端暂无笔记接口，使用本地示例数据作为兜底；用户在 NoteEdit 保存的笔记会从 localStorage 加载并合并
+const sampleNotes: NoteDetail[] = [
   {
     id: 1,
     title: 'Transformer 注意力机制详解',
-    summary: 'Multi-Head Attention 的计算流程和代码实现...',
+    summary: 'Multi-Head Attention 的计算流程和代码实现…',
     tag: 'AI',
-    time: '今天 10:30',
+    time: '示例',
     tags: ['AI', '深度学习'],
-    words: 1280,
-    sectionTitle: 'Multi-Head Attention 核心原理',
-    intro: '自注意力机制（Self-Attention）是 Transformer 的核心组件。它允许模型在处理每个位置时，直接关注输入序列中的所有位置，从而捕捉长距离依赖关系。',
-    formula: 'Attention(Q, K, V) = softmax(QK^T / sqrt(d_k)) * V',
-    steps: [
-      '将输入 X 通过三个线性变换得到 Q、K、V 矩阵',
-      '计算 Q 和 K 的点积，除以 sqrt(d_k) 进行缩放',
-      '对结果应用 softmax 获得注意力权重',
-      '用注意力权重对 V 加权求和得到输出',
-      '多头并行计算后拼接并通过线性层融合',
-    ],
+    words: 320,
+    content: `## Multi-Head Attention 核心原理
+
+自注意力机制（Self-Attention）是 Transformer 的核心组件。它允许模型在处理每个位置时，直接关注输入序列中的所有位置，从而捕捉长距离依赖关系。
+
+\`Attention(Q, K, V) = softmax(QK^T / sqrt(d_k)) * V\`
+
+### 关键步骤
+
+1. 将输入 X 通过三个线性变换得到 Q、K、V 矩阵
+2. 计算 Q 和 K 的点积，除以 sqrt(d_k) 进行缩放
+3. 对结果应用 softmax 获得注意力权重
+4. 用注意力权重对 V 加权求和得到输出
+5. 多头并行计算后拼接并通过线性层融合
+
+> 这是一篇示例笔记，点击右上角「编辑」可进入编辑页修改内容。`,
     related: [
       { title: 'Transformer 架构详解与代码实现', category: '人工智能 / 深度学习' },
       { title: 'BERT 模型原理与应用', category: '人工智能 / NLP' },
     ],
   },
-  {
-    id: 2,
-    title: 'Python 装饰器模式总结',
-    summary: '函数装饰器、类装饰器和常见应用场景...',
-    tag: 'Python',
-    time: '昨天 16:20',
-    tags: ['Python', '设计模式'],
-    words: 860,
-    sectionTitle: '装饰器核心原理',
-    intro: '装饰器是 Python 中一种用于修改函数或类行为的语法糖，本质上是一个接收函数并返回新函数的高阶函数。',
-    formula: '@decorator\ndef func(): ...  # 等价于 func = decorator(func)',
-    steps: [
-      '定义一个外层函数接收被装饰函数',
-      '在内层函数中调用原函数并附加逻辑',
-      '返回内层函数作为新函数',
-      '使用 @ 语法糖应用到目标函数',
-    ],
-    related: [
-      { title: 'Python 高级特性详解', category: '编程语言 / Python' },
-    ],
-  },
-  {
-    id: 3,
-    title: 'React Hooks 学习笔记',
-    summary: 'useState、useEffect 和 useContext 的核心用法...',
-    tag: '前端',
-    time: '昨天 14:10',
-    tags: ['前端', 'React'],
-    words: 1020,
-    sectionTitle: 'Hooks 核心用法',
-    intro: 'Hooks 是 React 16.8 引入的特性，允许在函数组件中使用状态和生命周期等特性。',
-    formula: 'const [state, setState] = useState(initialValue);',
-    steps: [
-      'useState 管理组件内部状态',
-      'useEffect 处理副作用与订阅',
-      'useContext 跨组件共享状态',
-      '自定义 Hooks 复用状态逻辑',
-    ],
-    related: [
-      { title: 'React 官方文档', category: '前端 / React' },
-    ],
-  },
-  {
-    id: 4,
-    title: '快速排序算法实现与优化',
-    summary: '递归实现、三路快排和随机化优化策略...',
-    tag: '算法',
-    time: '3 天前',
-    tags: ['算法', '排序'],
-    words: 740,
-    sectionTitle: '快速排序原理',
-    intro: '快速排序是一种基于分治思想的排序算法，通过选取基准元素将数组分为两部分递归排序。',
-    formula: 'partition(arr, lo, hi) → pivot index',
-    steps: [
-      '选取基准元素 pivot',
-      '将小于 pivot 的元素移到左侧',
-      '将大于 pivot 的元素移到右侧',
-      '对左右子数组递归排序',
-    ],
-    related: [
-      { title: '常见排序算法对比', category: '算法 / 排序' },
-    ],
-  },
-  {
-    id: 5,
-    title: '损失函数对比分析',
-    summary: 'CrossEntropy、MSE、Focal Loss 各自的适用场景...',
-    tag: 'AI',
-    time: '4 天前',
-    tags: ['AI', '深度学习'],
-    words: 980,
-    sectionTitle: '常见损失函数',
-    intro: '损失函数衡量模型预测与真实标签的差异，选择合适的损失函数对模型训练至关重要。',
-    formula: 'L = -Σ y_i · log(p_i)  (CrossEntropy)',
-    steps: [
-      'MSE 适用于回归任务',
-      'CrossEntropy 适用于分类任务',
-      'Focal Loss 解决类别不平衡问题',
-    ],
-    related: [
-      { title: '深度学习损失函数综述', category: 'AI / 深度学习' },
-    ],
-  },
 ];
 
+const allNotes = ref<NoteDetail[]>([]);
 const loading = ref(true);
 const activeTag = ref('全部');
 const searchKeyword = ref('');
-const selectedId = ref(1);
+const selectedId = ref<number | null>(null);
 const mobileListOpen = ref(false);
 
 onMounted(() => {
-  // 模拟加载延迟，展示骨架屏
+  // 从 localStorage 加载用户保存的笔记，与示例笔记合并
   setTimeout(() => {
+    const listRaw = localStorage.getItem('note-list');
+    const userNotes: NoteDetail[] = [];
+    if (listRaw) {
+      try {
+        const parsed = JSON.parse(listRaw) as Array<{
+          id: number;
+          title: string;
+          summary?: string;
+          tag?: string;
+          tags?: string[];
+          time: string;
+          words?: number;
+          content?: string;
+        }>;
+        for (const n of parsed) {
+          userNotes.push({
+            id: n.id,
+            title: n.title,
+            summary: n.summary || (n.content ? n.content.slice(0, 80) : ''),
+            tag: n.tag || n.tags?.[0] || '未分类',
+            time: n.time,
+            tags: n.tags || (n.tag ? [n.tag] : []),
+            words: n.words ?? (n.content?.length ?? 0),
+            content: n.content || '',
+            related: [],
+          });
+        }
+      } catch {
+        // ignore
+      }
+    }
+    allNotes.value = [...userNotes, ...sampleNotes];
+    selectedId.value = allNotes.value[0]?.id ?? null;
     loading.value = false;
-  }, 400);
+  }, 300);
 });
 
 // 按当前标签与搜索关键词过滤笔记，并映射为列表所需精简字段
 const filteredNotes = computed<NoteItem[]>(() =>
-  allNotes
+  allNotes.value
     .filter((n) => {
-      const matchTag = activeTag.value === '全部' || n.tag === activeTag.value;
+      const matchTag = activeTag.value === '全部' || n.tag === activeTag.value || n.tags.includes(activeTag.value);
       const kw = searchKeyword.value.trim().toLowerCase();
       const matchKw = !kw
         || n.title.toLowerCase().includes(kw)
@@ -377,8 +335,11 @@ const filteredNotes = computed<NoteItem[]>(() =>
 
 // 当前选中的笔记详情（依据 selectedId 在 allNotes 中查找）
 const current = computed<NoteDetail | null>(() =>
-  allNotes.find((n) => n.id === selectedId.value) ?? null,
+  allNotes.value.find((n) => n.id === selectedId.value) ?? null,
 );
+
+// 将当前笔记的 Markdown 正文渲染为 HTML
+const renderedContent = computed(() => renderMarkdown(current.value?.content || ''));
 
 function selectNote(id: number): void {
   selectedId.value = id;
@@ -389,3 +350,110 @@ function goTo(path: string): void {
   router.push(path);
 }
 </script>
+
+<style scoped>
+/* 笔记列表项 hover/active 态 */
+.note-item {
+  border-color: var(--kb-muted);
+}
+.note-item:hover {
+  background: var(--kb-muted);
+}
+.note-item.active {
+  background: rgba(59, 111, 224, 0.06);
+  border-color: var(--kb-border);
+}
+
+/* 关联文档 hover */
+.rel-link:hover {
+  border-color: var(--kb-primary) !important;
+}
+
+/* Markdown 正文渲染样式 */
+.kb-md-body :deep(h1) {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 16px 0 12px;
+  color: var(--kb-foreground);
+}
+.kb-md-body :deep(h2) {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 18px 0 10px;
+  color: var(--kb-foreground);
+}
+.kb-md-body :deep(h3) {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 14px 0 8px;
+  color: var(--kb-foreground);
+}
+.kb-md-body :deep(p) {
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 8px 0;
+  color: var(--kb-foreground);
+}
+.kb-md-body :deep(ul),
+.kb-md-body :deep(ol) {
+  padding-left: 22px;
+  margin: 8px 0;
+  color: var(--kb-foreground);
+}
+.kb-md-body :deep(li) {
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 4px 0;
+}
+.kb-md-body :deep(code) {
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(59, 111, 224, 0.08);
+  color: var(--kb-primary);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+.kb-md-body :deep(pre) {
+  margin: 12px 0;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: var(--kb-background);
+  border: 1px solid var(--kb-border);
+  overflow-x: auto;
+}
+.kb-md-body :deep(pre code) {
+  padding: 0;
+  background: transparent;
+  color: var(--kb-foreground);
+  font-size: 14px;
+}
+.kb-md-body :deep(blockquote) {
+  margin: 12px 0;
+  padding: 8px 14px;
+  border-left: 3px solid var(--kb-primary);
+  background: rgba(59, 111, 224, 0.04);
+  color: var(--kb-muted-foreground);
+  font-size: 14px;
+  border-radius: 0 6px 6px 0;
+}
+.kb-md-body :deep(blockquote p) {
+  margin: 4px 0;
+  color: var(--kb-muted-foreground);
+}
+.kb-md-body :deep(hr) {
+  border: none;
+  border-top: 1px solid var(--kb-border);
+  margin: 18px 0;
+}
+.kb-md-body :deep(a) {
+  color: var(--kb-primary);
+  text-decoration: none;
+}
+.kb-md-body :deep(a:hover) {
+  text-decoration: underline;
+}
+.kb-md-body :deep(strong) {
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+</style>

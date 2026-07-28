@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS sys_user (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(100),
-    password VARCHAR(255) NOT NULL,
+    password VARCHAR(255) DEFAULT '',
     nickname VARCHAR(50),
     avatar VARCHAR(255),
     role VARCHAR(20) DEFAULT 'USER',
@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS sys_user (
     level INT DEFAULT 1,
     exp INT DEFAULT 0,
     energy INT DEFAULT 100,
+    provider VARCHAR(20),
+    provider_uid VARCHAR(100),
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0
@@ -86,7 +88,7 @@ CREATE TABLE IF NOT EXISTS chat_conversation (
     user_id BIGINT NOT NULL,
     title VARCHAR(200),
     message_count INT DEFAULT 0,
-    last_message VARCHAR(500),
+    last_message VARCHAR(4000),
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0
@@ -355,3 +357,18 @@ CREATE INDEX idx_notif_user   ON sys_notification (user_id);
 CREATE INDEX idx_notif_type   ON sys_notification (type);
 CREATE INDEX idx_notif_read   ON sys_notification (is_read);
 CREATE INDEX idx_notif_deleted ON sys_notification (deleted);
+
+-- 用户 AI 配置表
+CREATE TABLE IF NOT EXISTS sys_user_ai_config (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    provider VARCHAR(50) NOT NULL COMMENT '模型提供商: deepseek / siliconflow / openai / custom',
+    api_key VARCHAR(500) NOT NULL COMMENT '用户自己的 API Key',
+    base_url VARCHAR(255) COMMENT '自定义 API 地址（留空用默认）',
+    model VARCHAR(100) COMMENT '默认模型名',
+    is_active INT DEFAULT 1 COMMENT '是否启用: 1 启用 / 0 禁用',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX uk_user_ai_config_user ON sys_user_ai_config (user_id, deleted);

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>笔记管理 - 知识库学习平台</title>
+    <style id="theme-vars">
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme inline {
+  --color-kb-background: #F7F8FA; --color-kb-foreground: #1A1D23; --color-kb-card: #FFFFFF; --color-kb-card-foreground: #1A1D23;
+  --color-kb-popover: #FFFFFF; --color-kb-popover-foreground: #1A1D23; --color-kb-primary: #3B6FE0; --color-kb-primary-foreground: #FFFFFF;
+  --color-kb-muted: #E8ECF1; --color-kb-muted-foreground: #6B7280; --color-kb-border: #E2E6EC; --color-kb-input: #E2E6EC;
+  --color-kb-ring: #3B6FE0; --color-kb-sidebar: #F0F2F5; --color-kb-sidebar-foreground: #374151;
+  --color-kb-accent: #10B981; --color-kb-destructive: #EF4444; --color-kb-warning: #F59E0B;
+  --color-kb-radius-sm: 6px; --color-kb-radius-md: 10px; --color-kb-radius-lg: 16px;
+}
+
+:root {
+  --kb-background: #F7F8FA; --kb-foreground: #1A1D23; --kb-card: #FFFFFF; --kb-card-foreground: #1A1D23;
+  --kb-popover: #FFFFFF; --kb-popover-foreground: #1A1D23; --kb-primary: #3B6FE0; --kb-primary-foreground: #FFFFFF;
+  --kb-muted: #E8ECF1; --kb-muted-foreground: #6B7280; --kb-border: #E2E6EC; --kb-input: #E2E6EC;
+  --kb-ring: #3B6FE0; --kb-sidebar: #F0F2F5; --kb-sidebar-foreground: #374151;
+  --kb-accent: #10B981; --kb-destructive: #EF4444; --kb-warning: #F59E0B;
+  --kb-radius-sm: 6px; --kb-radius-md: 10px; --kb-radius-lg: 16px;
+  --font-sans: 'Noto Sans SC', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+#semantic-token-fallback {
+  --background: var(--kb-background); --foreground: var(--kb-foreground);
+  --card: var(--kb-card); --card-foreground: var(--kb-card-foreground);
+  --popover: var(--kb-popover); --popover-foreground: var(--kb-popover-foreground);
+  --primary: var(--kb-primary); --primary-foreground: var(--kb-primary-foreground);
+  --muted: var(--kb-muted); --muted-foreground: var(--kb-muted-foreground);
+  --border: var(--kb-border); --input: var(--kb-input); --ring: var(--kb-ring);
+  --sidebar: var(--kb-sidebar); --sidebar-foreground: var(--kb-sidebar-foreground);
+  --radius-sm: var(--kb-radius-sm); --radius-md: var(--kb-radius-md); --radius-lg: var(--kb-radius-lg);
+}
+
+.kb-h1{font-family:var(--font-sans);font-size:28px;font-weight:700;line-height:1.3;letter-spacing:-0.02em;color:var(--kb-foreground)}
+.kb-h2{font-family:var(--font-sans);font-size:22px;font-weight:600;line-height:1.35;letter-spacing:-0.01em;color:var(--kb-foreground)}
+.kb-h3{font-family:var(--font-sans);font-size:18px;font-weight:600;line-height:1.4;color:var(--kb-foreground)}
+.kb-h4{font-family:var(--font-sans);font-size:15px;font-weight:600;line-height:1.45;color:var(--kb-foreground)}
+.kb-body{font-family:var(--font-sans);font-size:14px;font-weight:400;line-height:1.6;color:var(--kb-card-foreground)}
+.kb-body-sm{font-family:var(--font-sans);font-size:12px;font-weight:400;line-height:1.5;color:var(--kb-muted-foreground)}
+.kb-caption{font-family:var(--font-sans);font-size:11px;font-weight:500;line-height:1.4;color:var(--kb-muted-foreground);letter-spacing:0.04em;text-transform:uppercase}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--kb-background); --color-foreground: var(--kb-foreground);
+    --color-card: var(--kb-card); --color-card-foreground: var(--kb-card-foreground);
+    --color-popover: var(--kb-popover); --color-popover-foreground: var(--kb-popover-foreground);
+    --color-primary: var(--kb-primary); --color-primary-foreground: var(--kb-primary-foreground);
+    --color-muted: var(--kb-muted); --color-muted-foreground: var(--kb-muted-foreground);
+    --color-border: var(--kb-border); --color-input: var(--kb-input); --color-ring: var(--kb-ring);
+    --color-sidebar: var(--kb-sidebar); --color-sidebar-foreground: var(--kb-sidebar-foreground);
+    --radius-sm: var(--kb-radius-sm); --radius-md: var(--kb-radius-md); --radius-lg: var(--kb-radius-lg);
+  }
+  @layer base { body { background: var(--kb-background); color: var(--kb-foreground); } td,th { @apply break-words; word-break: break-all; } th { @apply whitespace-nowrap; } }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background{background-color:var(--kb-background)}.text-background{color:var(--kb-background)}.border-background{border-color:var(--kb-background)}
+      .bg-foreground{background-color:var(--kb-foreground)}.text-foreground{color:var(--kb-foreground)}.border-foreground{border-color:var(--kb-foreground)}
+      .bg-card{background-color:var(--kb-card)}.text-card{color:var(--kb-card)}.border-card{border-color:var(--kb-card)}
+      .bg-card-foreground{background-color:var(--kb-card-foreground)}.text-card-foreground{color:var(--kb-card-foreground)}.border-card-foreground{border-color:var(--kb-card-foreground)}
+      .bg-popover{background-color:var(--kb-popover)}.text-popover{color:var(--kb-popover)}.border-popover{border-color:var(--kb-popover)}
+      .bg-popover-foreground{background-color:var(--kb-popover-foreground)}.text-popover-foreground{color:var(--kb-popover-foreground)}.border-popover-foreground{border-color:var(--kb-popover-foreground)}
+      .bg-primary{background-color:var(--kb-primary)}.text-primary{color:var(--kb-primary)}.border-primary{border-color:var(--kb-primary)}
+      .bg-primary-foreground{background-color:var(--kb-primary-foreground)}.text-primary-foreground{color:var(--kb-primary-foreground)}.border-primary-foreground{border-color:var(--kb-primary-foreground)}
+      .bg-muted{background-color:var(--kb-muted)}.text-muted{color:var(--kb-muted)}.border-muted{border-color:var(--kb-muted)}
+      .bg-muted-foreground{background-color:var(--kb-muted-foreground)}.text-muted-foreground{color:var(--kb-muted-foreground)}.border-muted-foreground{border-color:var(--kb-muted-foreground)}
+      .bg-border{background-color:var(--kb-border)}.text-border{color:var(--kb-border)}.border-border{border-color:var(--kb-border)}
+      .bg-input{background-color:var(--kb-input)}.text-input{color:var(--kb-input)}.border-input{border-color:var(--kb-input)}
+      .bg-ring{background-color:var(--kb-ring)}.text-ring{color:var(--kb-ring)}.border-ring{border-color:var(--kb-ring)}
+      .bg-sidebar{background-color:var(--kb-sidebar)}.text-sidebar{color:var(--kb-sidebar)}.border-sidebar{border-color:var(--kb-sidebar)}
+      .bg-sidebar-foreground{background-color:var(--kb-sidebar-foreground)}.text-sidebar-foreground{color:var(--kb-sidebar-foreground)}.border-sidebar-foreground{border-color:var(--kb-sidebar-foreground)}
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+      .note-item{padding:0.875rem 1rem;cursor:pointer;transition:background 0.15s;border-bottom:1px solid var(--kb-border)}
+      .note-item:hover{background:rgba(59,111,224,0.04)}
+      .note-item.active{background:rgba(59,111,224,0.08);border-left:3px solid var(--kb-primary)}
+    
+      /* Nav dropdown */
+      .nav-dropdown{position:absolute;top:100%;left:0;margin-top:4px;min-width:180px;border-radius:var(--kb-radius-md);border:1px solid var(--kb-border);background:var(--kb-card);box-shadow:0 4px 16px rgba(0,0,0,0.06);padding:4px;z-index:100;display:none}
+.nav-dropdown.show{display:block}
+.nav-dropdown a{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--kb-radius-sm);font-size:13px;color:var(--kb-foreground);text-decoration:none;transition:background-color 0.15s}
+.nav-dropdown a:hover{background-color:rgba(59,111,224,0.08);color:var(--kb-primary)}
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+
+<!-- ===== Top Navigation ===== -->
+<header class="fixed top-0 left-0 right-0 z-50 h-14 flex items-center px-6 border-b" style="background:var(--kb-card);border-color:var(--kb-border);">
+  <!-- Logo -->
+  <a href="knowledge-home.html" data-dom-id="nav-home" class="flex items-center gap-2 shrink-0" style="color:var(--kb-primary);">
+    <i data-lucide="book-open" class="w-5 h-5"></i>
+    <span class="text-base font-semibold">知识库</span>
+  </a>
+  <!-- Nav Links -->
+  <nav class="flex items-center gap-6 ml-8">
+    <!-- 首页（直接跳转） -->
+    <a href="knowledge-home.html" data-dom-id="nav-home-link" class="flex items-center gap-1.5 text-sm font-medium" style="color:var(--kb-muted-foreground);"><i data-lucide="home" class="w-4 h-4"></i><span>首页</span></a>
+    <a href="task-center.html" data-dom-id="nav-unified-portal" class="flex items-center gap-1.5 text-sm font-medium" style="color:var(--kb-muted-foreground);"><i data-lucide="target" class="w-4 h-4"></i><span>任务中心</span></a>
+    <!-- 知识库（下拉） -->
+    <div class="relative" id="nav-knowledge-dropdown">
+      <button class="flex items-center gap-1 text-sm font-medium" style="color:var(--kb-muted-foreground);" onclick="toggleDropdown('nav-knowledge-dropdown')"><i data-lucide="library" class="w-4 h-4"></i><span>知识库</span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+      <div class="nav-dropdown" id="nav-knowledge-dropdown-menu">
+        <a href="category-browse.html" data-dom-id="nav-category-browse" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="folder-tree" class="w-4 h-4"></i>分类浏览</a>
+        <a href="search-results.html" data-dom-id="nav-search" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="search" class="w-4 h-4"></i>搜索知识</a>
+        <a href="knowledge-graph.html" data-dom-id="nav-knowledge-graph" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="share-2" class="w-4 h-4"></i>知识图谱</a>
+      </div>
+    </div>
+    <!-- 学习中心（下拉） -->
+    <div class="relative" id="nav-learning-dropdown">
+      <button class="flex items-center gap-1 text-sm font-medium" style="color:var(--kb-muted-foreground);" onclick="toggleDropdown('nav-learning-dropdown')"><i data-lucide="graduation-cap" class="w-4 h-4"></i><span>学习中心</span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+      <div class="nav-dropdown" id="nav-learning-dropdown-menu">
+        <a href="learning-center.html" data-dom-id="nav-learning-center" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="layout-grid" class="w-4 h-4"></i>学习中心</a>
+        <a href="path-list.html" data-dom-id="nav-path-list" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="route" class="w-4 h-4"></i>学习路径</a>
+        <a href="code-practice.html" data-dom-id="nav-code-practice" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="code" class="w-4 h-4"></i>代码练习</a>
+        <a href="flashcards.html" data-dom-id="nav-flashcards" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="layers" class="w-4 h-4"></i>学习闪卡</a>
+        <a href="review-plan.html" data-dom-id="nav-review-plan" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="calendar-check" class="w-4 h-4"></i>复习计划</a>
+        <a href="study-mode.html" data-dom-id="nav-study-mode" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="timer" class="w-4 h-4"></i>沉浸学习</a>
+      </div>
+    </div>
+    <!-- AI 助手（下拉，仅智能问答） -->
+    <div class="relative" id="nav-ai-dropdown">
+      <button class="flex items-center gap-1 text-sm font-medium" style="color:var(--kb-muted-foreground);" onclick="toggleDropdown('nav-ai-dropdown')"><i data-lucide="sparkles" class="w-4 h-4"></i><span>AI 助手</span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+      <div class="nav-dropdown" id="nav-ai-dropdown-menu">
+        <a href="chat.html" data-dom-id="nav-chat" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="message-circle" class="w-4 h-4"></i>智能问答</a>
+      </div>
+    </div>
+    <!-- 个人（下拉） -->
+    <a href="community.html" data-dom-id="nav-community" class="flex items-center gap-1.5 text-sm font-medium" style="color:var(--kb-muted-foreground);"><i data-lucide="users" class="w-4 h-4"></i><span>社区讨论</span></a>
+    <div class="relative" id="nav-personal-dropdown">
+      <button class="flex items-center gap-1 text-sm font-semibold" style="color:var(--kb-primary);" onclick="toggleDropdown('nav-personal-dropdown')"><i data-lucide="user" class="w-4 h-4"></i><span>个人</span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+      <div class="nav-dropdown" id="nav-personal-dropdown-menu">
+        <a href="profile.html" data-dom-id="nav-profile-center" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="user-circle" class="w-4 h-4"></i>个人中心</a>
+        <a href="achievements.html" data-dom-id="nav-achievements" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="trophy" class="w-4 h-4"></i>成就系统</a>
+        <a href="kb-titles.html" data-dom-id="nav-kb-titles" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="award" class="w-4 h-4"></i>知识库称号</a>
+        <a href="favorites.html" data-dom-id="nav-favorites" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="bookmark" class="w-4 h-4"></i>收藏夹</a>
+        <a href="notes-manage.html" data-dom-id="nav-notes-manage" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="notebook-pen" class="w-4 h-4"></i>笔记管理</a>
+        <a href="mistake-book.html" data-dom-id="nav-mistake-book" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="alert-circle" class="w-4 h-4"></i>错误本</a>
+        <a href="learning-report.html" data-dom-id="nav-learning-report" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="bar-chart-2" class="w-4 h-4"></i>学习报告</a>
+      </div>
+    </div>
+  </nav>
+  <!-- Right -->
+  <div class="ml-auto flex items-center gap-3">
+    <div class="relative w-56"><i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color:var(--kb-muted-foreground);"></i><input type="text" placeholder="搜索知识库..." class="w-full h-9 pl-9 pr-12 rounded-lg text-sm border outline-none" style="background:var(--kb-background);border-color:var(--kb-border);color:var(--kb-foreground);"><span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs px-1.5 py-0.5 rounded" style="background:var(--kb-muted);color:var(--kb-muted-foreground);">⌘K</span></div>
+    <a href="notifications.html" data-dom-id="nav-notifications-bell" class="relative p-2 rounded-lg" style="color:var(--kb-muted-foreground);"><i data-lucide="bell" class="w-5 h-5"></i><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style="background:var(--kb-destructive);"></span></a>
+    <div class="relative" id="nav-avatar-dropdown"><a href="#" data-dom-id="nav-profile-avatar" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold cursor-pointer" style="background:var(--kb-primary);color:var(--kb-primary-foreground);" onclick="toggleDropdown('nav-avatar-dropdown')">YU</a><div class="nav-dropdown" id="nav-avatar-dropdown-menu" style="right:0;left:auto;min-width:180px;"><a href="profile.html" data-dom-id="nav-profile" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="user-circle" class="w-4 h-4"></i>个人设置</a><a href="system-overview.html" data-dom-id="nav-admin" class="flex items-center gap-2 px-3 py-2 text-sm" style="color:var(--kb-primary);"><i data-lucide="settings" class="w-4 h-4"></i>管理后台</a></div></div>
+  </div>
+</header>
+
+
+<main class="pt-14">
+  <!-- Title Bar -->
+  <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color:var(--kb-border);background:var(--kb-card);">
+    <h1 class="kb-h1">笔记管理</h1>
+    <button data-dom-id="btn-new-note" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium" style="background:var(--kb-primary);color:var(--kb-primary-foreground);">
+      <i data-lucide="plus" class="w-4 h-4"></i>新建笔记
+    </button>
+  </div>
+
+  <!-- Content: Two-panel layout -->
+  <div class="flex" style="height:calc(100vh - 14rem);">
+    <!-- Left: Note List -->
+    <div class="w-64 shrink-0 border-r overflow-y-auto no-scrollbar flex flex-col" style="background:var(--kb-card);border-color:var(--kb-border)">
+      <!-- Tag Filter -->
+      <div class="p-3 border-b" style="border-color:var(--kb-border)">
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <button class="text-xs px-2 py-1 rounded-md font-medium" style="background:var(--kb-primary);color:var(--kb-primary-foreground)">全部</button>
+          <button class="text-xs px-2 py-1 rounded-md" style="background:var(--kb-muted);color:var(--kb-muted-foreground)">Python</button>
+          <button class="text-xs px-2 py-1 rounded-md" style="background:var(--kb-muted);color:var(--kb-muted-foreground)">AI</button>
+          <button class="text-xs px-2 py-1 rounded-md" style="background:var(--kb-muted);color:var(--kb-muted-foreground)">前端</button>
+          <button class="text-xs px-2 py-1 rounded-md" style="background:var(--kb-muted);color:var(--kb-muted-foreground)">算法</button>
+        </div>
+      </div>
+      <!-- Note Items -->
+      <div class="flex-1 overflow-y-auto no-scrollbar">
+        <div class="note-item active">
+          <h4 class="text-sm font-medium mb-1 truncate" style="color:var(--kb-foreground)">Transformer 注意力机制详解</h4>
+          <p class="text-xs mb-2 truncate" style="color:var(--kb-muted-foreground)">Multi-Head Attention 的计算流程和代码实现...</p>
+          <div class="flex items-center justify-between">
+            <span class="text-xs px-1.5 py-0.5 rounded" style="background:rgba(59,111,224,0.1);color:var(--kb-primary)">AI</span>
+            <span class="text-xs" style="color:var(--kb-muted-foreground)">今天 10:30</span>
+          </div>
+        </div>
+        <div class="note-item">
+          <h4 class="text-sm font-medium mb-1 truncate" style="color:var(--kb-foreground)">Python 装饰器模式总结</h4>
+          <p class="text-xs mb-2 truncate" style="color:var(--kb-muted-foreground)">函数装饰器、类装饰器和常见应用场景...</p>
+          <div class="flex items-center justify-between">
+            <span class="text-xs px-1.5 py-0.5 rounded" style="background:rgba(16,185,129,0.1);color:var(--kb-accent)">Python</span>
+            <span class="text-xs" style="color:var(--kb-muted-foreground)">昨天 16:20</span>
+          </div>
+        </div>
+        <div class="note-item">
+          <h4 class="text-sm font-medium mb-1 truncate" style="color:var(--kb-foreground)">React Hooks 学习笔记</h4>
+          <p class="text-xs mb-2 truncate" style="color:var(--kb-muted-foreground)">useState、useEffect 和 useContext 的核心用法...</p>
+          <div class="flex items-center justify-between">
+            <span class="text-xs px-1.5 py-0.5 rounded" style="background:rgba(245,158,11,0.1);color:var(--kb-warning)">前端</span>
+            <span class="text-xs" style="color:var(--kb-muted-foreground)">昨天 14:10</span>
+          </div>
+        </div>
+        <div class="note-item">
+          <h4 class="text-sm font-medium mb-1 truncate" style="color:var(--kb-foreground)">快速排序算法实现与优化</h4>
+          <p class="text-xs mb-2 truncate" style="color:var(--kb-muted-foreground)">递归实现、三路快排和随机化优化策略...</p>
+          <div class="flex items-center justify-between">
+            <span class="text-xs px-1.5 py-0.5 rounded" style="background:rgba(239,68,68,0.1);color:var(--kb-destructive)">算法</span>
+            <span class="text-xs" style="color:var(--kb-muted-foreground)">3 天前</span>
+          </div>
+        </div>
+        <div class="note-item">
+          <h4 class="text-sm font-medium mb-1 truncate" style="color:var(--kb-foreground)">损失函数对比分析</h4>
+          <p class="text-xs mb-2 truncate" style="color:var(--kb-muted-foreground)">CrossEntropy、MSE、Focal Loss 各自的适用场景...</p>
+          <div class="flex items-center justify-between">
+            <span class="text-xs px-1.5 py-0.5 rounded" style="background:rgba(59,111,224,0.1);color:var(--kb-primary)">AI</span>
+            <span class="text-xs" style="color:var(--kb-muted-foreground)">4 天前</span>
+          </div>
+        </div>
+        <div class="note-item">
+          <h4 class="text-sm font-medium mb-1 truncate" style="color:var(--kb-foreground)">CSS Flexbox vs Grid 对比</h4>
+          <p class="text-xs mb-2 truncate" style="color:var(--kb-muted-foreground)">两种布局方式的差异和最佳使用场景...</p>
+          <div class="flex items-center justify-between">
+            <span class="text-xs px-1.5 py-0.5 rounded" style="background:rgba(245,158,11,0.1);color:var(--kb-warning)">前端</span>
+            <span class="text-xs" style="color:var(--kb-muted-foreground)">5 天前</span>
+          </div>
+        </div>
+        <div class="note-item">
+          <h4 class="text-sm font-medium mb-1 truncate" style="color:var(--kb-foreground)">Python 生成器与迭代器</h4>
+          <p class="text-xs mb-2 truncate" style="color:var(--kb-muted-foreground)">yield 关键字、生成器表达式和惰性求值...</p>
+          <div class="flex items-center justify-between">
+            <span class="text-xs px-1.5 py-0.5 rounded" style="background:rgba(16,185,129,0.1);color:var(--kb-accent)">Python</span>
+            <span class="text-xs" style="color:var(--kb-muted-foreground)">1 周前</span>
+          </div>
+        </div>
+        <div class="note-item">
+          <h4 class="text-sm font-medium mb-1 truncate" style="color:var(--kb-foreground)">二叉树遍历算法汇总</h4>
+          <p class="text-xs mb-2 truncate" style="color:var(--kb-muted-foreground)">前序、中序、后序和层序遍历的递归与迭代实现...</p>
+          <div class="flex items-center justify-between">
+            <span class="text-xs px-1.5 py-0.5 rounded" style="background:rgba(239,68,68,0.1);color:var(--kb-destructive)">算法</span>
+            <span class="text-xs" style="color:var(--kb-muted-foreground)">1 周前</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Note Preview -->
+    <div class="flex-1 overflow-y-auto" style="background:var(--kb-background)">
+      <div class="max-w-[700px] mx-auto px-8 py-8">
+        <div class="mb-6">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-xs px-2 py-0.5 rounded font-medium" style="background:rgba(59,111,224,0.1);color:var(--kb-primary)">AI</span>
+            <span class="text-xs px-2 py-0.5 rounded" style="background:rgba(59,111,224,0.1);color:var(--kb-primary)">深度学习</span>
+          </div>
+          <h1 class="kb-h1 mb-2">Transformer 注意力机制详解</h1>
+          <div class="flex items-center gap-4">
+            <span class="text-xs flex items-center gap-1.5" style="color:var(--kb-muted-foreground);"><i data-lucide="clock" class="w-3.5 h-3.5"></i>修改于今天 10:30</span>
+            <span class="text-xs flex items-center gap-1.5" style="color:var(--kb-muted-foreground);"><i data-lucide="type" class="w-3.5 h-3.5"></i>1,280 字</span>
+          </div>
+        </div>
+        <article class="rounded-xl border p-6 mb-6" style="background:var(--kb-card);border-color:var(--kb-border)">
+          <h2 class="kb-h3 mb-3">Multi-Head Attention 核心原理</h2>
+          <p class="kb-body mb-4">自注意力机制（Self-Attention）是 Transformer 的核心组件。它允许模型在处理每个位置时，直接关注输入序列中的所有位置，从而捕捉长距离依赖关系。</p>
+          <p class="kb-body mb-4">多头注意力通过将 Q、K、V 投影到不同的子空间，让模型同时关注不同位置的不同表示子空间信息：</p>
+          <div class="rounded-lg p-4 mb-4" style="background:var(--kb-background)">
+            <code class="text-sm" style="color:var(--kb-primary)">Attention(Q, K, V) = softmax(QK^T / sqrt(d_k)) * V</code>
+          </div>
+          <h3 class="kb-h4 mb-2 mt-5">关键步骤</h3>
+          <ol class="flex flex-col gap-2 pl-5 list-decimal">
+            <li class="kb-body">将输入 X 通过三个线性变换得到 Q、K、V 矩阵</li>
+            <li class="kb-body">计算 Q 和 K 的点积，除以 sqrt(d_k) 进行缩放</li>
+            <li class="kb-body">对结果应用 softmax 获得注意力权重</li>
+            <li class="kb-body">用注意力权重对 V 加权求和得到输出</li>
+            <li class="kb-body">多头并行计算后拼接并通过线性层融合</li>
+          </ol>
+        </article>
+        <div class="rounded-xl border p-6" style="background:var(--kb-card);border-color:var(--kb-border)">
+          <h3 class="kb-h4 mb-4">关联文档</h3>
+          <div class="flex flex-col gap-3">
+            <a href="#" class="flex items-center gap-3 p-3 rounded-lg border transition-colors hover:border-[var(--kb-primary)]" style="border-color:var(--kb-border);text-decoration:none">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(59,111,224,0.1)"><i data-lucide="file-text" class="w-4 h-4" style="color:var(--kb-primary)"></i></div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium truncate" style="color:var(--kb-foreground)">Transformer 架构详解与代码实现</p>
+                <p class="text-xs" style="color:var(--kb-muted-foreground)">人工智能 / 深度学习</p>
+              </div>
+              <i data-lucide="external-link" class="w-4 h-4 shrink-0" style="color:var(--kb-muted-foreground)"></i>
+            </a>
+            <a href="#" class="flex items-center gap-3 p-3 rounded-lg border transition-colors hover:border-[var(--kb-primary)]" style="border-color:var(--kb-border);text-decoration:none">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(59,111,224,0.1)"><i data-lucide="file-text" class="w-4 h-4" style="color:var(--kb-primary)"></i></div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium truncate" style="color:var(--kb-foreground)">BERT 模型原理与应用</p>
+                <p class="text-xs" style="color:var(--kb-muted-foreground)">人工智能 / NLP</p>
+              </div>
+              <i data-lucide="external-link" class="w-4 h-4 shrink-0" style="color:var(--kb-muted-foreground)"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<script>lucide.createIcons();</script>
+<script>
+    function toggleDropdown(id){const el=document.getElementById(id+'-menu');if(el)el.classList.toggle('show');}
+document.addEventListener('click',e=>{document.querySelectorAll('.nav-dropdown.show').forEach(d=>{const parent=d.parentElement;const btn=parent.querySelector('button');if(btn&&!btn.contains(e.target)&&!d.contains(e.target))d.classList.remove('show')})});
+  </script>
+  </body>
+</html>

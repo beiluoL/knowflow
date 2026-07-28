@@ -110,6 +110,28 @@
                   <span>AI 解答</span>
                 </button>
                 <button
+                  v-if="auth.isLoggedIn"
+                  type="button"
+                  class="action-btn"
+                  :class="generatingSummary ? 'opacity-60' : ''"
+                  :disabled="generatingSummary"
+                  @click="genSummary"
+                >
+                  <Icon name="sparkles" :size="16" />
+                  <span>{{ generatingSummary ? '生成中…' : 'AI 摘要' }}</span>
+                </button>
+                <button
+                  v-if="auth.isLoggedIn"
+                  type="button"
+                  class="action-btn"
+                  :class="generatingCards ? 'opacity-60' : ''"
+                  :disabled="generatingCards"
+                  @click="genFlashcards"
+                >
+                  <Icon name="layers" :size="16" />
+                  <span>{{ generatingCards ? '生成中…' : 'AI 闪卡' }}</span>
+                </button>
+                <button
                   type="button"
                   class="action-btn"
                   @click="handleShare"
@@ -123,106 +145,101 @@
         </Card>
       </article>
 
-      <aside class="hidden lg:block w-72 flex-shrink-0">
-        <div class="sticky top-6 space-y-4">
-          <Card>
-            <template #header>
-              <h3 class="font-medium text-gray-800 flex items-center gap-2">
-                <Icon name="list" :size="16" />
-                目录
-              </h3>
-            </template>
-            <nav class="space-y-1 max-h-80 overflow-y-auto">
-              <template v-for="item in flatToc" :key="item.id">
-                <a
-                  :href="`#${item.id}`"
-                  :class="[
-                    'block text-sm transition-all duration-200 rounded-md',
-                    item.level === 2 ? 'py-1.5 px-3' : 'py-1 px-3 pl-6',
-                    activeTocId === item.id
-                      ? 'text-primary-600 bg-primary-50 font-medium'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50',
-                  ]"
-                  @click="scrollToSection(item.id, $event)"
-                >
-                  {{ item.text }}
-                </a>
-              </template>
-            </nav>
-          </Card>
-
-          <Card>
-            <template #header>
-              <h3 class="font-medium text-gray-800 flex items-center gap-2">
-                <Icon name="info" :size="16" />
-                文档信息
-              </h3>
-            </template>
-            <div class="space-y-3">
-              <div class="flex items-center justify-between text-sm">
-                <span class="text-gray-500 flex items-center gap-2">
-                  <Icon name="file-text" :size="16" />
-                  字数
-                </span>
-                <span class="text-gray-700 font-medium">{{ doc.wordCount?.toLocaleString() }} 字</span>
-              </div>
-              <div class="flex items-center justify-between text-sm">
-                <span class="text-gray-500 flex items-center gap-2">
-                  <Icon name="clock" :size="16" />
-                  阅读时长
-                </span>
-                <span class="text-gray-700 font-medium">{{ readTimeMinutes }} 分钟</span>
-              </div>
-              <div class="flex items-center justify-between text-sm">
-                <span class="text-gray-500 flex items-center gap-2">
-                  <Icon name="calendar" :size="16" />
-                  创建时间
-                </span>
-                <span class="text-gray-700 font-medium">{{ formatDate(doc.createTime) }}</span>
-              </div>
+      <aside class="hidden lg:block w-56 flex-shrink-0">
+        <div class="sticky top-20 rounded-xl border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
+          <h3 class="kb-h4 mb-4" style="font-size: 13px;">目录</h3>
+          <nav class="flex flex-col gap-1 max-h-[60vh] overflow-y-auto no-scrollbar">
+            <a
+              v-for="item in flatToc"
+              :key="item.id"
+              :href="`#${item.id}`"
+              class="toc-link"
+              :class="{ active: activeTocId === item.id }"
+              :style="item.level === 3 ? { paddingLeft: '24px', fontSize: '11px' } : {}"
+              @click="scrollToSection(item.id, $event)"
+            >{{ item.text }}</a>
+            <p v-if="flatToc.length === 0" class="text-xs" style="color: var(--kb-muted-foreground);">暂无目录</p>
+          </nav>
+          <!-- 文档信息紧凑展示 -->
+          <div class="mt-4 pt-4 space-y-2 text-xs" style="border-top: 1px solid var(--kb-border); color: var(--kb-muted-foreground);">
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-1.5"><Icon name="file-text" :size="12" />字数</span>
+              <span style="color: var(--kb-foreground);">{{ doc.wordCount?.toLocaleString() }}</span>
             </div>
-          </Card>
-
-          <Card>
-            <template #header>
-              <h3 class="font-medium text-gray-800 flex items-center gap-2">
-                <Icon name="bar-chart-2" :size="16" />
-                阅读进度
-              </h3>
-            </template>
-            <div class="space-y-3">
-              <Progress :percentage="readProgress" variant="primary" label="已读" show-label />
-              <p class="text-xs text-gray-500">
-                已阅读 {{ Math.floor((doc.wordCount || 0) * readProgress / 100).toLocaleString() }} 字
-              </p>
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-1.5"><Icon name="clock" :size="12" />阅读</span>
+              <span style="color: var(--kb-foreground);">{{ readTimeMinutes }} 分钟</span>
             </div>
-          </Card>
-
-          <Card>
-            <template #header>
-              <h3 class="font-medium text-gray-800 flex items-center gap-2">
-                <Icon name="lightbulb" :size="16" />
-                相关推荐
-              </h3>
-            </template>
-            <div class="space-y-3">
-              <div
-                v-for="item in relatedDocs" :key="item.id"
-                class="cursor-pointer group"
-                @click="goToDoc(item.id)"
-              >
-                <h4 class="text-sm font-medium text-gray-700 group-hover:text-primary-500 transition-colors line-clamp-2 mb-1">
-                  {{ item.title }}
-                </h4>
-                <div class="flex items-center gap-2 text-xs text-gray-400">
-                  <Badge variant="primary" class="text-xs">{{ item.categoryName }}</Badge>
-                  <span>{{ item.viewCount }} 阅读</span>
-                </div>
-              </div>
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-1.5"><Icon name="bar-chart-2" :size="12" />进度</span>
+              <span style="color: var(--kb-primary);">{{ readProgress }}%</span>
             </div>
-          </Card>
+          </div>
         </div>
       </aside>
+    </div>
+
+    <!-- 相关推荐（底部 3 列网格，对齐设计稿） -->
+    <section v-if="relatedDocs.length > 0" class="mb-6 mt-10">
+      <h2 class="kb-h4 mb-4">相关推荐</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <a
+          v-for="(item, idx) in relatedDocs"
+          :key="item.id"
+          href="#"
+          class="flex flex-col px-5 py-5 rounded-xl border hover:opacity-90 transition-opacity"
+          style="background: var(--kb-card); border-color: var(--kb-border);"
+          @click.prevent="goToDoc(item.id)"
+        >
+          <span
+            class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-md font-medium w-fit mb-3"
+            :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }"
+          >{{ getDocTypeLabel(item) }}</span>
+          <h3 class="text-sm font-semibold mb-1.5" style="color: var(--kb-foreground);">{{ item.title }}</h3>
+          <p class="text-xs line-clamp-2" style="color: var(--kb-muted-foreground);">{{ item.summary || '暂无摘要' }}</p>
+          <div class="flex items-center gap-1.5 mt-3 pt-3" style="border-top: 1px solid var(--kb-border);">
+            <Icon name="folder" :size="12" style="color: var(--kb-muted-foreground);" />
+            <span class="text-xs" style="color: var(--kb-muted-foreground);">{{ item.categoryName || '未分类' }}</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- B③ AI 增强结果区：摘要与自动生成的复习闪卡 -->
+    <div v-if="auth.isLoggedIn && (aiSummary || aiFlashcards.length > 0)" class="mt-6 space-y-4 animate-fade-in">
+      <Card v-if="aiSummary">
+        <template #header>
+          <h3 class="font-medium text-gray-800 flex items-center gap-2">
+            <Icon name="sparkles" :size="16" class="text-primary-600" />
+            AI 内容摘要
+          </h3>
+        </template>
+        <p class="text-sm text-gray-700 leading-relaxed">{{ aiSummary }}</p>
+      </Card>
+
+      <Card v-if="aiFlashcards.length > 0">
+        <template #header>
+          <h3 class="font-medium text-gray-800 flex items-center gap-2">
+            <Icon name="layers" :size="16" class="text-primary-600" />
+            AI 生成的复习闪卡（{{ aiFlashcards.length }} 张）
+          </h3>
+        </template>
+        <div class="space-y-3">
+          <div
+            v-for="(card, idx) in aiFlashcards"
+            :key="idx"
+            class="rounded-lg border border-gray-100 p-3"
+          >
+            <p class="text-sm font-medium text-gray-800">Q：{{ card.front }}</p>
+            <p class="text-sm text-gray-600 mt-1">A：{{ card.back }}</p>
+            <span
+              v-if="card.difficulty"
+              class="inline-block mt-2 text-[11px] px-2 py-0.5 rounded"
+              :class="difficultyClass(card.difficulty)"
+            >{{ difficultyLabel(card.difficulty) }}</span>
+          </div>
+        </div>
+      </Card>
     </div>
   </div>
 </template>
@@ -234,11 +251,20 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
-import Badge from '@/components/ui/Badge.vue'
-import Progress from '@/components/ui/Progress.vue'
 import { docsApi } from '@/api'
 import { useAuthStore } from '@/stores/auth'
-import type { DocDetailVO, DocVO } from '@/api/types'
+import type { DocDetailVO, DocVO, LearningFlashcard } from '@/api/types'
+
+// 文档类型标签色板（与设计稿对齐）
+const docIconColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
+
+const getDocTypeLabel = (doc: DocVO): string => {
+  const tags = (doc.tags || '').toLowerCase()
+  if (tags.includes('pdf')) return 'PDF'
+  if (tags.includes('markdown') || tags.includes('md')) return 'MD'
+  if (tags.includes('笔记') || tags.includes('note')) return 'Note'
+  return 'DOC'
+}
 
 interface TocItem {
   id: string
@@ -548,9 +574,72 @@ const toggleCollect = async () => {
 }
 
 const handleShare = () => notify('分享功能开发中', 'info')
-const handleNote = () => notify('笔记功能开发中，敬请期待', 'info')
+const handleNote = () => {
+  if (!doc.value.id) return
+  const id = doc.value.id
+  // 将当前文档信息暂存到 localStorage，跳转到笔记编辑页自动预填
+  const draft = {
+    fromDocId: id,
+    fromDocTitle: doc.value.title,
+    fromDocCategory: doc.value.categoryName,
+    tags: doc.value.tags ? doc.value.tags.split(',').map((t) => t.trim()).filter(Boolean) : [],
+    content: `> 来源文档：[${doc.value.title}](/knowledge/doc/${id})\n\n## 笔记\n\n在此记录你的学习心得、重点摘要和思考...\n\n## 关键内容摘录\n\n> ${doc.value.summary || '（点击"AI 解析"生成摘要后，可在此处粘贴关键内容）'}\n`,
+  }
+  localStorage.setItem('note-from-doc', JSON.stringify(draft))
+  router.push('/notes/new')
+}
 const handleAIExplain = () => {
   router.push({ path: '/chat', query: { q: `请帮我解析这篇文章：${doc.value.title}` } })
+}
+
+// B③ AI 增强：生成摘要与复习闪卡（需登录；未配置 AI 密钥时给出友好提示）
+const aiSummary = ref('')
+const aiFlashcards = ref<LearningFlashcard[]>([])
+const generatingSummary = ref(false)
+const generatingCards = ref(false)
+
+const genSummary = async () => {
+  const id = doc.value.id
+  if (!id || generatingSummary.value) return
+  generatingSummary.value = true
+  try {
+    const summary = await docsApi.generateSummary(id)
+    aiSummary.value = summary
+    notify('摘要已生成', 'success')
+  } catch (err) {
+    notify(err instanceof Error ? err.message : '摘要生成失败', 'error')
+  } finally {
+    generatingSummary.value = false
+  }
+}
+
+const genFlashcards = async () => {
+  const id = doc.value.id
+  if (!id || generatingCards.value) return
+  generatingCards.value = true
+  try {
+    const cards = await docsApi.generateFlashcards(id)
+    aiFlashcards.value = cards
+    notify(`已生成 ${cards.length} 张闪卡`, 'success')
+  } catch (err) {
+    notify(err instanceof Error ? err.message : '闪卡生成失败', 'error')
+  } finally {
+    generatingCards.value = false
+  }
+}
+
+const difficultyLabel = (d?: number) => {
+  if (d === 1) return '简单'
+  if (d === 2) return '中等'
+  if (d === 3) return '困难'
+  return '未知'
+}
+
+const difficultyClass = (d?: number) => {
+  if (d === 1) return 'bg-green-50 text-green-600'
+  if (d === 2) return 'bg-amber-50 text-amber-600'
+  if (d === 3) return 'bg-red-50 text-red-600'
+  return 'bg-gray-100 text-gray-500'
 }
 
 const goToDoc = (docId: number) => router.push(`/doc/${docId}`)
@@ -661,6 +750,27 @@ onUnmounted(() => {
 <style scoped>
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out;
+}
+
+/* 目录链接：与设计稿 .toc-link 对齐（左侧边框高亮） */
+.toc-link {
+  display: block;
+  padding: 4px 12px;
+  border-left: 2px solid transparent;
+  font-size: 12px;
+  color: var(--kb-muted-foreground);
+  text-decoration: none;
+  line-height: 1.6;
+  transition: all 0.15s;
+}
+.toc-link:hover {
+  color: var(--kb-primary);
+  border-left-color: var(--kb-primary);
+}
+.toc-link.active {
+  color: var(--kb-primary);
+  border-left-color: var(--kb-primary);
+  font-weight: 600;
 }
 
 /* 文章底部操作按钮 */

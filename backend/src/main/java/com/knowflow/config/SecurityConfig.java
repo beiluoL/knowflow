@@ -41,6 +41,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/login",
                                 "/api/auth/register",
+                                // 第三方 OAuth 登录与回调：未登录态可访问，回调后会签发 JWT
+                                "/api/auth/oauth/**",
                                 "/api/public/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
@@ -58,6 +60,9 @@ public class SecurityConfig {
                                 "/api/community/posts",
                                 "/api/community/posts/{id}",
                                 "/api/community/posts/{id}/comments"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/knowledge/graph"
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(

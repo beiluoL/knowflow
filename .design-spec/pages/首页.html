@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>知识库 - 首页</title>
+    <style id="theme-vars">
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme inline {
+  --color-kb-background: #F7F8FA;
+  --color-kb-foreground: #1A1D23;
+  --color-kb-card: #FFFFFF;
+  --color-kb-card-foreground: #1A1D23;
+  --color-kb-popover: #FFFFFF;
+  --color-kb-popover-foreground: #1A1D23;
+  --color-kb-primary: #3B6FE0;
+  --color-kb-primary-foreground: #FFFFFF;
+  --color-kb-muted: #E8ECF1;
+  --color-kb-muted-foreground: #6B7280;
+  --color-kb-border: #E2E6EC;
+  --color-kb-input: #E2E6EC;
+  --color-kb-ring: #3B6FE0;
+  --color-kb-sidebar: #F0F2F5;
+  --color-kb-sidebar-foreground: #374151;
+  --color-kb-accent: #10B981;
+  --color-kb-accent-foreground: #FFFFFF;
+  --color-kb-destructive: #EF4444;
+  --color-kb-destructive-foreground: #FFFFFF;
+  --color-kb-warning: #F59E0B;
+  --color-kb-warning-foreground: #FFFFFF;
+  --color-kb-radius-sm: 6px;
+  --color-kb-radius-md: 10px;
+  --color-kb-radius-lg: 16px;
+}
+
+:root {
+  --kb-background: #F7F8FA;
+  --kb-foreground: #1A1D23;
+  --kb-card: #FFFFFF;
+  --kb-card-foreground: #1A1D23;
+  --kb-popover: #FFFFFF;
+  --kb-popover-foreground: #1A1D23;
+  --kb-primary: #3B6FE0;
+  --kb-primary-foreground: #FFFFFF;
+  --kb-muted: #E8ECF1;
+  --kb-muted-foreground: #6B7280;
+  --kb-border: #E2E6EC;
+  --kb-input: #E2E6EC;
+  --kb-ring: #3B6FE0;
+  --kb-sidebar: #F0F2F5;
+  --kb-sidebar-foreground: #374151;
+  --kb-accent: #10B981;
+  --kb-accent-foreground: #FFFFFF;
+  --kb-destructive: #EF4444;
+  --kb-destructive-foreground: #FFFFFF;
+  --kb-warning: #F59E0B;
+  --kb-warning-foreground: #FFFFFF;
+  --kb-radius-sm: 6px;
+  --kb-radius-md: 10px;
+  --kb-radius-lg: 16px;
+  --font-sans: 'Noto Sans SC', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/* Semantic token fallback */
+#semantic-token-fallback {
+  --background: var(--kb-background);
+  --foreground: var(--kb-foreground);
+  --card: var(--kb-card);
+  --card-foreground: var(--kb-card-foreground);
+  --popover: var(--kb-popover);
+  --popover-foreground: var(--kb-popover-foreground);
+  --primary: var(--kb-primary);
+  --primary-foreground: var(--kb-primary-foreground);
+  --muted: var(--kb-muted);
+  --muted-foreground: var(--kb-muted-foreground);
+  --border: var(--kb-border);
+  --input: var(--kb-input);
+  --ring: var(--kb-ring);
+  --sidebar: var(--kb-sidebar);
+  --sidebar-foreground: var(--kb-sidebar-foreground);
+  --radius-sm: var(--kb-radius-sm);
+  --radius-md: var(--kb-radius-md);
+  --radius-lg: var(--kb-radius-lg);
+}
+
+/* Typography scale */
+.kb-h1 {
+  font-family: var(--font-sans);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--kb-foreground);
+}
+
+.kb-h2 {
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--kb-foreground);
+}
+
+.kb-h3 {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--kb-foreground);
+}
+
+.kb-h4 {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--kb-foreground);
+}
+
+.kb-body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--kb-card-foreground);
+}
+
+.kb-body-sm {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--kb-muted-foreground);
+}
+
+.kb-caption {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--kb-muted-foreground);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--kb-background);
+    --color-foreground: var(--kb-foreground);
+    --color-card: var(--kb-card);
+    --color-card-foreground: var(--kb-card-foreground);
+    --color-popover: var(--kb-popover);
+    --color-popover-foreground: var(--kb-popover-foreground);
+    --color-primary: var(--kb-primary);
+    --color-primary-foreground: var(--kb-primary-foreground);
+    --color-muted: var(--kb-muted);
+    --color-muted-foreground: var(--kb-muted-foreground);
+    --color-accent: var(--kb-accent);
+    --color-accent-foreground: var(--kb-accent-foreground);
+    --color-destructive: var(--kb-destructive);
+    --color-destructive-foreground: var(--kb-destructive-foreground);
+    --color-warning: var(--kb-warning);
+    --color-warning-foreground: var(--kb-warning-foreground);
+    --color-border: var(--kb-border);
+    --color-input: var(--kb-input);
+    --color-ring: var(--kb-ring);
+    --color-sidebar: var(--kb-sidebar);
+    --color-sidebar-foreground: var(--kb-sidebar-foreground);
+    --radius-sm: var(--kb-radius-sm);
+    --radius-md: var(--kb-radius-md);
+    --radius-lg: var(--kb-radius-lg);
+  }
+  @layer base {
+    body { background: var(--kb-background); color: var(--kb-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--kb-background); }
+      .text-background { color: var(--kb-background); }
+      .border-background { border-color: var(--kb-background); }
+      .ring-background { --tw-ring-color: var(--kb-background); }
+      .bg-foreground { background-color: var(--kb-foreground); }
+      .text-foreground { color: var(--kb-foreground); }
+      .border-foreground { border-color: var(--kb-foreground); }
+      .ring-foreground { --tw-ring-color: var(--kb-foreground); }
+      .bg-card { background-color: var(--kb-card); }
+      .text-card { color: var(--kb-card); }
+      .border-card { border-color: var(--kb-card); }
+      .ring-card { --tw-ring-color: var(--kb-card); }
+      .bg-card-foreground { background-color: var(--kb-card-foreground); }
+      .text-card-foreground { color: var(--kb-card-foreground); }
+      .border-card-foreground { border-color: var(--kb-card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--kb-card-foreground); }
+      .bg-popover { background-color: var(--kb-popover); }
+      .text-popover { color: var(--kb-popover); }
+      .border-popover { border-color: var(--kb-popover); }
+      .ring-popover { --tw-ring-color: var(--kb-popover); }
+      .bg-popover-foreground { background-color: var(--kb-popover-foreground); }
+      .text-popover-foreground { color: var(--kb-popover-foreground); }
+      .border-popover-foreground { border-color: var(--kb-popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--kb-popover-foreground); }
+      .bg-primary { background-color: var(--kb-primary); }
+      .text-primary { color: var(--kb-primary); }
+      .border-primary { border-color: var(--kb-primary); }
+      .ring-primary { --tw-ring-color: var(--kb-primary); }
+      .bg-primary-foreground { background-color: var(--kb-primary-foreground); }
+      .text-primary-foreground { color: var(--kb-primary-foreground); }
+      .border-primary-foreground { border-color: var(--kb-primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--kb-primary-foreground); }
+      .bg-muted { background-color: var(--kb-muted); }
+      .text-muted { color: var(--kb-muted); }
+      .border-muted { border-color: var(--kb-muted); }
+      .ring-muted { --tw-ring-color: var(--kb-muted); }
+      .bg-muted-foreground { background-color: var(--kb-muted-foreground); }
+      .text-muted-foreground { color: var(--kb-muted-foreground); }
+      .border-muted-foreground { border-color: var(--kb-muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--kb-muted-foreground); }
+      .bg-accent { background-color: var(--kb-accent); }
+      .text-accent { color: var(--kb-accent); }
+      .border-accent { border-color: var(--kb-accent); }
+      .ring-accent { --tw-ring-color: var(--kb-accent); }
+      .bg-accent-foreground { background-color: var(--kb-accent-foreground); }
+      .text-accent-foreground { color: var(--kb-accent-foreground); }
+      .border-accent-foreground { border-color: var(--kb-accent-foreground); }
+      .ring-accent-foreground { --tw-ring-color: var(--kb-accent-foreground); }
+      .bg-destructive { background-color: var(--kb-destructive); }
+      .text-destructive { color: var(--kb-destructive); }
+      .border-destructive { border-color: var(--kb-destructive); }
+      .ring-destructive { --tw-ring-color: var(--kb-destructive); }
+      .bg-destructive-foreground { background-color: var(--kb-destructive-foreground); }
+      .text-destructive-foreground { color: var(--kb-destructive-foreground); }
+      .border-destructive-foreground { border-color: var(--kb-destructive-foreground); }
+      .ring-destructive-foreground { --tw-ring-color: var(--kb-destructive-foreground); }
+      .bg-border { background-color: var(--kb-border); }
+      .text-border { color: var(--kb-border); }
+      .border-border { border-color: var(--kb-border); }
+      .ring-border { --tw-ring-color: var(--kb-border); }
+      .bg-input { background-color: var(--kb-input); }
+      .text-input { color: var(--kb-input); }
+      .border-input { border-color: var(--kb-input); }
+      .ring-input { --tw-ring-color: var(--kb-input); }
+      .bg-ring { background-color: var(--kb-ring); }
+      .text-ring { color: var(--kb-ring); }
+      .border-ring { border-color: var(--kb-ring); }
+      .ring-ring { --tw-ring-color: var(--kb-ring); }
+      .bg-sidebar { background-color: var(--kb-sidebar); }
+      .text-sidebar { color: var(--kb-sidebar); }
+      .border-sidebar { border-color: var(--kb-sidebar); }
+      .ring-sidebar { --tw-ring-color: var(--kb-sidebar); }
+      .bg-sidebar-foreground { background-color: var(--kb-sidebar-foreground); }
+      .text-sidebar-foreground { color: var(--kb-sidebar-foreground); }
+      .border-sidebar-foreground { border-color: var(--kb-sidebar-foreground); }
+      .ring-sidebar-foreground { --tw-ring-color: var(--kb-sidebar-foreground); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+      /* Nav dropdown */
+      .nav-dropdown { position:absolute; top:100%; left:0; min-width:200px; background:var(--kb-card); border:1px solid var(--kb-border); border-radius:var(--kb-radius-md); box-shadow:0 4px 16px rgba(0,0,0,0.08); padding:6px; opacity:0; visibility:hidden; transform:translateY(-4px); transition:all 0.15s; z-index:60; }
+      .nav-dropdown.show { opacity:1; visibility:visible; transform:translateY(0); }
+      .nav-dropdown a { display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:var(--kb-radius-sm); font-size:13px; color:var(--kb-card-foreground); text-decoration:none; transition:background-color 0.15s, color 0.15s; }
+      .nav-dropdown a:hover { background:var(--kb-muted); }
+
+      /* Circular progress ring */
+      .progress-ring { transform: rotate(-90deg); }
+      .progress-ring__circle-bg { fill: none; stroke: var(--kb-muted); stroke-width: 5; }
+      .progress-ring__circle { fill: none; stroke: var(--kb-primary); stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
+
+      /* Streak dot */
+      .streak-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+      .streak-dot.active { background: var(--kb-accent); }
+      .streak-dot.inactive { background: var(--kb-muted); }
+      .streak-dot.today { box-shadow: 0 0 0 3px rgba(16,185,129,0.22); width: 12px; height: 12px; }
+
+      /* Learning path card */
+      .path-card { flex-shrink: 0; width: 280px; border-radius: var(--kb-radius-lg); padding: 20px; border: 1px solid var(--kb-border); background: var(--kb-card); transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s; text-decoration: none; display: flex; flex-direction: column; }
+      .path-card:hover { box-shadow: 0 6px 20px rgba(59,111,224,0.1); border-color: var(--kb-primary); transform: translateY(-2px); }
+      .cover-block { height: 80px; border-radius: var(--kb-radius-md); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+
+      /* Doc thumbnail block */
+      .thumb-block { width: 40px; height: 40px; border-radius: var(--kb-radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+      /* AI recommendation item */
+      .ai-rec-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: var(--kb-radius-md); transition: background-color 0.15s; }
+      .ai-rec-item:hover { background-color: rgba(59,111,224,0.04); }
+
+      /* Todo item */
+      .todo-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--kb-radius-sm); transition: background-color 0.15s; }
+      .todo-item:hover { background-color: var(--kb-muted); }
+      .todo-check { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--kb-border); flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; background: var(--kb-card); }
+      .todo-item.done .todo-check { background: var(--kb-accent); border-color: var(--kb-accent); }
+      .todo-item.done .todo-label { text-decoration: line-through; color: var(--kb-muted-foreground); }
+
+      /* Btn primary */
+      .btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: var(--kb-radius-sm); font-size: 13px; font-weight: 600; background: var(--kb-primary); color: var(--kb-primary-foreground); text-decoration: none; transition: opacity 0.15s; border: none; cursor: pointer; }
+      .btn-primary:hover { opacity: 0.9; }
+
+      /* Btn secondary */
+      .btn-secondary { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: var(--kb-radius-sm); font-size: 13px; font-weight: 600; background: var(--kb-card); color: var(--kb-primary); border: 1px solid var(--kb-border); text-decoration: none; transition: background-color 0.15s, opacity 0.15s; cursor: pointer; }
+      .btn-secondary:hover { background: var(--kb-muted); opacity: 0.9; }
+
+      /* Badge variants */
+      .badge-beginner { background: rgba(16,185,129,0.1); color: var(--kb-accent); }
+      .badge-intermediate { background: rgba(59,111,224,0.1); color: var(--kb-primary); }
+      .badge-advanced { background: rgba(245,158,11,0.1); color: var(--kb-warning); }
+      .badge-beginner, .badge-intermediate, .badge-advanced { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; display: inline-flex; align-items: center; }
+
+      /* Hero search input (shared design-system token, not used on dashboard hero) */
+      .kb-search-input { width: 100%; height: 48px; padding-left: 44px; padding-right: 72px; border-radius: var(--kb-radius-lg); border: 1px solid var(--kb-border); background: var(--kb-card); color: var(--kb-foreground); font-size: 15px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+      .kb-search-input::placeholder { color: var(--kb-muted-foreground); }
+      .kb-search-input:focus { border-color: var(--kb-primary); box-shadow: 0 0 0 3px rgba(59,111,224,0.12); }
+
+      /* Hero tag chip (shared design-system token) */
+      .kb-tag-chip { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 9999px; font-size: 13px; font-weight: 500; background: var(--kb-card); color: var(--kb-muted-foreground); border: 1px solid var(--kb-border); text-decoration: none; transition: all 0.15s; cursor: pointer; }
+      .kb-tag-chip:hover { background: rgba(59,111,224,0.08); color: var(--kb-primary); border-color: var(--kb-primary); }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+
+  <!-- ========== Fixed Top Navigation ========== -->
+  <header class="fixed top-0 left-0 right-0 z-50 h-14 flex items-center px-6 border-b" style="background:var(--kb-card);border-color:var(--kb-border);">
+  <!-- Logo -->
+  <a href="knowledge-home.html" data-dom-id="nav-home" class="flex items-center gap-2 shrink-0" style="color:var(--kb-primary);">
+    <i data-lucide="book-open" class="w-5 h-5"></i>
+    <span class="text-base font-semibold">知识库</span>
+  </a>
+  <!-- Nav Links -->
+  <nav class="flex items-center gap-6 ml-8">
+    <a href="knowledge-home.html" data-dom-id="nav-home-link" class="flex items-center gap-1.5 text-sm font-semibold" style="color:var(--kb-primary);"><i data-lucide="home" class="w-4 h-4"></i><span>首页</span></a>
+    <a href="task-center.html" data-dom-id="nav-unified-portal" class="flex items-center gap-1.5 text-sm font-medium" style="color:var(--kb-muted-foreground);"><i data-lucide="target" class="w-4 h-4"></i><span>任务中心</span></a>
+    <!-- 知识库（下拉） -->
+    <div class="relative" id="nav-knowledge-dropdown">
+      <button class="flex items-center gap-1 text-sm font-medium" style="color:var(--kb-muted-foreground);" onclick="toggleDropdown('nav-knowledge-dropdown')"><i data-lucide="library" class="w-4 h-4"></i><span>知识库</span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+      <div class="nav-dropdown" id="nav-knowledge-dropdown-menu">
+        <a href="category-browse.html" data-dom-id="nav-category-browse" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="folder-tree" class="w-4 h-4"></i>分类浏览</a>
+        <a href="search-results.html" data-dom-id="nav-search" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="search" class="w-4 h-4"></i>搜索知识</a>
+        <a href="knowledge-graph.html" data-dom-id="nav-knowledge-graph" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="share-2" class="w-4 h-4"></i>知识图谱</a>
+      </div>
+    </div>
+    <!-- 学习中心（下拉） -->
+    <div class="relative" id="nav-learning-dropdown">
+      <button class="flex items-center gap-1 text-sm font-medium" style="color:var(--kb-muted-foreground);" onclick="toggleDropdown('nav-learning-dropdown')"><i data-lucide="graduation-cap" class="w-4 h-4"></i><span>学习中心</span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+      <div class="nav-dropdown" id="nav-learning-dropdown-menu">
+        <a href="learning-center.html" data-dom-id="nav-learning-center" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="layout-grid" class="w-4 h-4"></i>学习中心</a>
+        <a href="path-list.html" data-dom-id="nav-path-list" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="route" class="w-4 h-4"></i>学习路径</a>
+        <a href="code-practice.html" data-dom-id="nav-code-practice" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="code" class="w-4 h-4"></i>代码练习</a>
+        <a href="flashcards.html" data-dom-id="nav-flashcards" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="layers" class="w-4 h-4"></i>学习闪卡</a>
+        <a href="review-plan.html" data-dom-id="nav-review-plan" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="calendar-check" class="w-4 h-4"></i>复习计划</a>
+        <a href="study-mode.html" data-dom-id="nav-study-mode" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="timer" class="w-4 h-4"></i>沉浸学习</a>
+      </div>
+    </div>
+    <!-- AI 助手（下拉） -->
+    <div class="relative" id="nav-ai-dropdown">
+      <button class="flex items-center gap-1 text-sm font-medium" style="color:var(--kb-muted-foreground);" onclick="toggleDropdown('nav-ai-dropdown')"><i data-lucide="sparkles" class="w-4 h-4"></i><span>AI 助手</span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+      <div class="nav-dropdown" id="nav-ai-dropdown-menu">
+        <a href="chat.html" data-dom-id="nav-chat" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="message-circle" class="w-4 h-4"></i>智能问答</a>
+      </div>
+    </div>
+    <!-- 社区讨论 -->
+    <a href="community.html" data-dom-id="nav-community" class="flex items-center gap-1.5 text-sm font-medium" style="color:var(--kb-muted-foreground);"><i data-lucide="users" class="w-4 h-4"></i><span>社区讨论</span></a>
+    <!-- 个人（下拉） -->
+    <div class="relative" id="nav-personal-dropdown">
+      <button class="flex items-center gap-1 text-sm font-medium" style="color:var(--kb-muted-foreground);" onclick="toggleDropdown('nav-personal-dropdown')"><i data-lucide="user" class="w-4 h-4"></i><span>个人</span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+      <div class="nav-dropdown" id="nav-personal-dropdown-menu">
+        <a href="profile.html" data-dom-id="nav-profile-center" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="user-circle" class="w-4 h-4"></i>个人中心</a>
+        <a href="achievements.html" data-dom-id="nav-achievements" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="trophy" class="w-4 h-4"></i>成就系统</a>
+        <a href="kb-titles.html" data-dom-id="nav-kb-titles" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="award" class="w-4 h-4"></i>知识库称号</a>
+        <a href="favorites.html" data-dom-id="nav-favorites" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="bookmark" class="w-4 h-4"></i>收藏夹</a>
+        <a href="notes-manage.html" data-dom-id="nav-notes-manage" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="notebook-pen" class="w-4 h-4"></i>笔记管理</a>
+        <a href="mistake-book.html" data-dom-id="nav-mistake-book" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="alert-circle" class="w-4 h-4"></i>错误本</a>
+        <a href="learning-report.html" data-dom-id="nav-learning-report" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="bar-chart-2" class="w-4 h-4"></i>学习报告</a>
+      </div>
+    </div>
+  </nav>
+  <!-- Right -->
+  <div class="ml-auto flex items-center gap-3">
+    <div class="relative w-56"><i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color:var(--kb-muted-foreground);"></i><input type="text" placeholder="搜索知识库..." class="w-full h-9 pl-9 pr-12 rounded-lg text-sm border outline-none" style="background:var(--kb-background);border-color:var(--kb-border);color:var(--kb-foreground);"><span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs px-1.5 py-0.5 rounded" style="background:var(--kb-muted);color:var(--kb-muted-foreground);">⌘K</span></div>
+    <a href="notifications.html" data-dom-id="nav-notifications-bell" class="relative p-2 rounded-lg" style="color:var(--kb-muted-foreground);"><i data-lucide="bell" class="w-5 h-5"></i><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style="background:var(--kb-destructive);"></span></a>
+    <div class="relative" id="nav-avatar-dropdown"><a href="#" data-dom-id="nav-profile-avatar" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold cursor-pointer" style="background:var(--kb-primary);color:var(--kb-primary-foreground);" onclick="toggleDropdown('nav-avatar-dropdown')">YU</a><div class="nav-dropdown" id="nav-avatar-dropdown-menu" style="right:0;left:auto;min-width:180px;"><a href="profile.html" data-dom-id="nav-profile" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="user-circle" class="w-4 h-4"></i>个人设置</a><a href="system-overview.html" data-dom-id="nav-admin" class="flex items-center gap-2 px-3 py-2 text-sm" style="color:var(--kb-primary);"><i data-lucide="settings" class="w-4 h-4"></i>管理后台</a></div></div>
+  </div>
+</header>
+
+  <!-- ========== Main Content ========== -->
+  <main class="pt-14">
+    <div class="max-w-7xl mx-auto px-6 py-6">
+
+      <!-- ========== Section 1: Welcome Banner (Gradient) ========== -->
+      <section class="mb-7">
+        <div class="relative overflow-hidden rounded-xl px-7 py-7" style="background: linear-gradient(135deg, var(--kb-primary) 0%, rgba(59,111,224,0.82) 100%);">
+          <!-- decorative circles -->
+          <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full" style="background: rgba(255,255,255,0.08);"></div>
+          <div class="absolute right-20 top-12 w-24 h-24 rounded-full" style="background: rgba(255,255,255,0.06);"></div>
+          <div class="relative flex items-center justify-between gap-6 flex-wrap">
+            <div class="min-w-0">
+              <p class="text-xs font-medium mb-1.5 inline-flex items-center gap-1.5" style="color: rgba(255,255,255,0.85);">
+                <i data-lucide="sun" class="w-3.5 h-3.5"></i>
+                2026年7月26日 · 周日
+              </p>
+              <h1 class="kb-h2 mb-2" style="color: var(--kb-primary-foreground);">下午好，小宇！</h1>
+              <p class="text-sm flex items-center gap-3 flex-wrap" style="color: rgba(255,255,255,0.9);">
+                <span class="inline-flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5"></i>今日已学习 2 小时 15 分钟</span>
+                <span style="color: rgba(255,255,255,0.4);">·</span>
+                <span class="inline-flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i>距日目标还差 30 分钟</span>
+              </p>
+            </div>
+            <div class="flex items-center gap-3 shrink-0">
+              <a href="#" data-dom-id="btn-continue-learning" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-opacity hover:opacity-90" style="background: var(--kb-primary-foreground); color: var(--kb-primary);">
+                <i data-lucide="play" class="w-4 h-4"></i>继续学习
+              </a>
+              <a href="#" data-dom-id="btn-create-note" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold border transition-colors" style="background: rgba(255,255,255,0.12); color: var(--kb-primary-foreground); border-color: rgba(255,255,255,0.35);">
+                <i data-lucide="plus" class="w-4 h-4"></i>创建笔记
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== Section 2: Today's Learning Progress (3 cols) ========== -->
+      <section class="mb-7">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="kb-h4">今日学习进度</h2>
+          <span class="text-xs inline-flex items-center gap-1" style="color:var(--kb-muted-foreground);"><i data-lucide="trending-up" class="w-3.5 h-3.5"></i>较昨日 +12%</span>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+
+          <!-- Card: Current Course Progress (68%, React 18) -->
+          <div class="px-5 py-5 rounded-xl border" style="background:var(--kb-card);border-color:var(--kb-border);">
+            <div class="flex items-center gap-2 mb-4">
+              <i data-lucide="book-open" class="w-4 h-4" style="color:var(--kb-primary);"></i>
+              <p class="text-xs font-medium" style="color:var(--kb-muted-foreground);">当前课程进度</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="relative shrink-0">
+                <svg class="progress-ring" width="72" height="72">
+                  <circle class="progress-ring__circle-bg" cx="36" cy="36" r="30"></circle>
+                  <circle class="progress-ring__circle" cx="36" cy="36" r="30" stroke-dasharray="188.50" stroke-dashoffset="60.32"></circle>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="text-base font-bold" style="color:var(--kb-primary);">68%</span>
+                </div>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-semibold truncate" style="color:var(--kb-foreground);">React 18 新特性</p>
+                <p class="text-xs mt-1 truncate" style="color:var(--kb-muted-foreground);">第 8/12 章 · 并发渲染</p>
+                <p class="text-xs mt-1.5 inline-flex items-center gap-1" style="color:var(--kb-primary);"><i data-lucide="clock" class="w-3 h-3"></i>预计 1h 完成</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card: Streak Days (23 days, today highlighted) -->
+          <div class="px-5 py-5 rounded-xl border" style="background:var(--kb-card);border-color:var(--kb-border);">
+            <div class="flex items-center gap-2 mb-4">
+              <i data-lucide="flame" class="w-4 h-4" style="color:var(--kb-warning);"></i>
+              <p class="text-xs font-medium" style="color:var(--kb-muted-foreground);">连续学习天数</p>
+            </div>
+            <div class="flex items-end gap-2 mb-4">
+              <span class="text-3xl font-bold leading-none" style="color:var(--kb-foreground);">23</span>
+              <span class="text-sm mb-0.5" style="color:var(--kb-muted-foreground);">天</span>
+              <span class="text-xs mb-1 ml-auto inline-flex items-center gap-1" style="color:var(--kb-accent);"><i data-lucide="trending-up" class="w-3 h-3"></i>较上周 +3</span>
+            </div>
+            <div class="flex items-center justify-between gap-1">
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="streak-dot active"></div>
+                <span class="text-[10px]" style="color:var(--kb-muted-foreground);">一</span>
+              </div>
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="streak-dot active"></div>
+                <span class="text-[10px]" style="color:var(--kb-muted-foreground);">二</span>
+              </div>
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="streak-dot active"></div>
+                <span class="text-[10px]" style="color:var(--kb-muted-foreground);">三</span>
+              </div>
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="streak-dot active"></div>
+                <span class="text-[10px]" style="color:var(--kb-muted-foreground);">四</span>
+              </div>
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="streak-dot active"></div>
+                <span class="text-[10px]" style="color:var(--kb-muted-foreground);">五</span>
+              </div>
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="streak-dot active"></div>
+                <span class="text-[10px]" style="color:var(--kb-muted-foreground);">六</span>
+              </div>
+              <div class="flex flex-col items-center gap-1.5">
+                <div class="streak-dot active today"></div>
+                <span class="text-[10px] font-semibold" style="color:var(--kb-primary);">日</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card: Knowledge Mastery (142 points) -->
+          <div class="px-5 py-5 rounded-xl border" style="background:var(--kb-card);border-color:var(--kb-border);">
+            <div class="flex items-center gap-2 mb-4">
+              <i data-lucide="brain" class="w-4 h-4" style="color:var(--kb-primary);"></i>
+              <p class="text-xs font-medium" style="color:var(--kb-muted-foreground);">知识掌握度</p>
+            </div>
+            <div class="flex items-end gap-2 mb-1">
+              <span class="text-3xl font-bold leading-none" style="color:var(--kb-foreground);">142</span>
+              <span class="text-sm mb-0.5" style="color:var(--kb-muted-foreground);">个知识点</span>
+            </div>
+            <p class="text-xs mb-3" style="color:var(--kb-accent);">较上月 +18 个</p>
+            <div class="w-full h-2 rounded-full overflow-hidden" style="background:var(--kb-muted);">
+              <div class="h-full rounded-full" style="width:71%;background:linear-gradient(90deg, var(--kb-primary), var(--kb-accent));"></div>
+            </div>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-xs" style="color:var(--kb-muted-foreground);">已掌握 71%</span>
+              <span class="text-xs" style="color:var(--kb-muted-foreground);">目标 200</span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ========== Section 3: Today's Todos & Weekly Goal ========== -->
+      <section class="mb-7">
+        <div class="grid grid-cols-3 gap-4">
+
+          <!-- Todos (col-span-2) -->
+          <div class="col-span-2 px-5 py-5 rounded-xl border" style="background:var(--kb-card);border-color:var(--kb-border);">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <i data-lucide="list-checks" class="w-4 h-4" style="color:var(--kb-primary);"></i>
+                <h2 class="kb-h4">今日待办与计划</h2>
+              </div>
+              <span class="text-xs px-2 py-0.5 rounded-md font-medium" style="background:rgba(59,111,224,0.1);color:var(--kb-primary);">已完成 2 / 4</span>
+            </div>
+            <div class="space-y-1">
+
+              <!-- Todo 1 (done) -->
+              <div class="todo-item done">
+                <span class="todo-check"><i data-lucide="check" class="w-3 h-3" style="color:var(--kb-primary-foreground);"></i></span>
+                <div class="flex-1 min-w-0">
+                  <p class="todo-label text-sm font-medium truncate" style="color:var(--kb-foreground);">完成 React Hooks 章节学习</p>
+                  <p class="text-xs mt-0.5 truncate" style="color:var(--kb-muted-foreground);">React 18 新特性 · 第 8 章</p>
+                </div>
+                <span class="text-xs whitespace-nowrap inline-flex items-center gap-1" style="color:var(--kb-accent);"><i data-lucide="check-circle-2" class="w-3 h-3"></i>已完成</span>
+              </div>
+
+              <!-- Todo 2 (done) -->
+              <div class="todo-item done">
+                <span class="todo-check"><i data-lucide="check" class="w-3 h-3" style="color:var(--kb-primary-foreground);"></i></span>
+                <div class="flex-1 min-w-0">
+                  <p class="todo-label text-sm font-medium truncate" style="color:var(--kb-foreground);">复习 Python 列表推导式</p>
+                  <p class="text-xs mt-0.5 truncate" style="color:var(--kb-muted-foreground);">数据科学复习计划</p>
+                </div>
+                <span class="text-xs whitespace-nowrap inline-flex items-center gap-1" style="color:var(--kb-accent);"><i data-lucide="check-circle-2" class="w-3 h-3"></i>已完成</span>
+              </div>
+
+              <!-- Todo 3 (pending, urgent) -->
+              <div class="todo-item">
+                <span class="todo-check"></span>
+                <div class="flex-1 min-w-0">
+                  <p class="todo-label text-sm font-medium truncate" style="color:var(--kb-foreground);">阅读 Transformer 文档</p>
+                  <p class="text-xs mt-0.5 truncate" style="color:var(--kb-muted-foreground);">人工智能 · 深度学习</p>
+                </div>
+                <span class="text-xs whitespace-nowrap inline-flex items-center gap-1" style="color:var(--kb-warning);"><i data-lucide="clock" class="w-3 h-3"></i>今日 18:00</span>
+              </div>
+
+              <!-- Todo 4 (pending) -->
+              <div class="todo-item">
+                <span class="todo-check"></span>
+                <div class="flex-1 min-w-0">
+                  <p class="todo-label text-sm font-medium truncate" style="color:var(--kb-foreground);">完成 React 练习测验</p>
+                  <p class="text-xs mt-0.5 truncate" style="color:var(--kb-muted-foreground);">代码练习 · 10 道题</p>
+                </div>
+                <span class="text-xs whitespace-nowrap inline-flex items-center gap-1" style="color:var(--kb-muted-foreground);"><i data-lucide="clock" class="w-3 h-3"></i>明天</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Weekly Goal (col-span-1) -->
+          <div class="px-5 py-5 rounded-xl border flex flex-col" style="background:var(--kb-card);border-color:var(--kb-border);">
+            <div class="flex items-center gap-2 mb-4">
+              <i data-lucide="target" class="w-4 h-4" style="color:var(--kb-accent);"></i>
+              <p class="text-xs font-medium" style="color:var(--kb-muted-foreground);">本周学习目标</p>
+            </div>
+            <div class="flex items-center justify-center mb-4">
+              <div class="relative">
+                <svg class="progress-ring" width="96" height="96">
+                  <circle class="progress-ring__circle-bg" cx="48" cy="48" r="40" stroke-width="6"></circle>
+                  <circle class="progress-ring__circle" cx="48" cy="48" r="40" stroke-width="6" stroke-dasharray="251.33" stroke-dashoffset="75.40" style="stroke:var(--kb-accent);"></circle>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span class="text-xl font-bold" style="color:var(--kb-foreground);">70%</span>
+                  <span class="text-[10px]" style="color:var(--kb-muted-foreground);">10 / 14h</span>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-2 mt-auto">
+              <div class="flex items-center justify-between text-xs">
+                <span style="color:var(--kb-muted-foreground);">已完成</span>
+                <span class="font-medium" style="color:var(--kb-accent);">10 小时</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span style="color:var(--kb-muted-foreground);">剩余目标</span>
+                <span class="font-medium" style="color:var(--kb-foreground);">4 小时</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ========== Section 4: Recommended Learning Paths (Horizontal Scroll) ========== -->
+      <section class="mb-7">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="kb-h4">为你推荐</h2>
+          <a href="#" class="text-sm font-medium inline-flex items-center gap-1 hover:opacity-80" style="color:var(--kb-primary);">查看更多<i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+        </div>
+        <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+
+          <!-- Path Card 1 -->
+          <a href="#" class="path-card">
+            <div class="cover-block" style="background:linear-gradient(135deg, var(--kb-primary), rgba(59,111,224,0.6));">
+              <i data-lucide="route" class="w-6 h-6" style="color:var(--kb-primary-foreground);"></i>
+            </div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="badge-intermediate">进阶</span>
+              <span class="text-xs" style="color:var(--kb-muted-foreground);">12 章 · 36h</span>
+            </div>
+            <h3 class="text-sm font-semibold mb-1.5 truncate" style="color:var(--kb-foreground);">React 高级实战之路</h3>
+            <p class="text-xs line-clamp-2 mb-3" style="color:var(--kb-muted-foreground);">深入 Hooks、状态管理与大型项目架构设计。</p>
+            <div class="mt-auto">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span style="color:var(--kb-muted-foreground);">学习进度</span>
+                <span class="font-medium" style="color:var(--kb-primary);">45%</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full overflow-hidden" style="background:var(--kb-muted);">
+                <div class="h-full rounded-full" style="width:45%;background:var(--kb-primary);"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Path Card 2 -->
+          <a href="#" class="path-card">
+            <div class="cover-block" style="background:linear-gradient(135deg, var(--kb-accent), rgba(16,185,129,0.6));">
+              <i data-lucide="bar-chart-2" class="w-6 h-6" style="color:var(--kb-accent-foreground);"></i>
+            </div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="badge-beginner">入门</span>
+              <span class="text-xs" style="color:var(--kb-muted-foreground);">10 章 · 28h</span>
+            </div>
+            <h3 class="text-sm font-semibold mb-1.5 truncate" style="color:var(--kb-foreground);">Python 数据分析之路</h3>
+            <p class="text-xs line-clamp-2 mb-3" style="color:var(--kb-muted-foreground);">从 Pandas 到可视化，掌握数据分析全流程。</p>
+            <div class="mt-auto">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span style="color:var(--kb-muted-foreground);">学习进度</span>
+                <span class="font-medium" style="color:var(--kb-primary);">60%</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full overflow-hidden" style="background:var(--kb-muted);">
+                <div class="h-full rounded-full" style="width:60%;background:var(--kb-primary);"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Path Card 3 -->
+          <a href="#" class="path-card">
+            <div class="cover-block" style="background:linear-gradient(135deg, var(--kb-warning), rgba(245,158,11,0.6));">
+              <i data-lucide="brain" class="w-6 h-6" style="color:var(--kb-warning-foreground);"></i>
+            </div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="badge-advanced">高级</span>
+              <span class="text-xs" style="color:var(--kb-muted-foreground);">8 章 · 32h</span>
+            </div>
+            <h3 class="text-sm font-semibold mb-1.5 truncate" style="color:var(--kb-foreground);">Transformer 深度解析</h3>
+            <p class="text-xs line-clamp-2 mb-3" style="color:var(--kb-muted-foreground);">从注意力机制到大模型架构的完整推演。</p>
+            <div class="mt-auto">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span style="color:var(--kb-muted-foreground);">学习进度</span>
+                <span class="font-medium" style="color:var(--kb-primary);">20%</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full overflow-hidden" style="background:var(--kb-muted);">
+                <div class="h-full rounded-full" style="width:20%;background:var(--kb-primary);"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Path Card 4 -->
+          <a href="#" class="path-card">
+            <div class="cover-block" style="background:linear-gradient(135deg, var(--kb-primary), rgba(16,185,129,0.7));">
+              <i data-lucide="layers" class="w-6 h-6" style="color:var(--kb-primary-foreground);"></i>
+            </div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="badge-intermediate">进阶</span>
+              <span class="text-xs" style="color:var(--kb-muted-foreground);">14 章 · 40h</span>
+            </div>
+            <h3 class="text-sm font-semibold mb-1.5 truncate" style="color:var(--kb-foreground);">全栈工程师进阶</h3>
+            <p class="text-xs line-clamp-2 mb-3" style="color:var(--kb-muted-foreground);">前后端协同、部署运维与工程化最佳实践。</p>
+            <div class="mt-auto">
+              <div class="flex items-center justify-between text-xs mb-1.5">
+                <span style="color:var(--kb-muted-foreground);">学习进度</span>
+                <span class="font-medium" style="color:var(--kb-primary);">35%</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full overflow-hidden" style="background:var(--kb-muted);">
+                <div class="h-full rounded-full" style="width:35%;background:var(--kb-primary);"></div>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+      <!-- ========== Section 5: Continue Learning (3x2 Doc Grid) ========== -->
+      <section class="mb-7">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="kb-h4">继续学习</h2>
+          <a href="#" class="text-sm font-medium inline-flex items-center gap-1 hover:opacity-80" style="color:var(--kb-primary);">查看全部<i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+
+          <!-- Doc Card 1 -->
+          <a href="#" class="flex flex-col px-4 py-4 rounded-xl border transition-shadow hover:shadow-md" style="background:var(--kb-card);border-color:var(--kb-border);">
+            <div class="flex items-start gap-3 mb-3">
+              <div class="thumb-block" style="background:rgba(59,111,224,0.1);">
+                <i data-lucide="file-text" class="w-5 h-5" style="color:var(--kb-primary);"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <h3 class="text-sm font-semibold truncate mb-1" style="color:var(--kb-foreground);">Transformer 架构详解</h3>
+                <div class="flex items-center gap-1.5 text-xs" style="color:var(--kb-muted-foreground);">
+                  <i data-lucide="folder" class="w-3 h-3"></i>
+                  <span class="truncate">人工智能 / 深度学习</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-auto">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs inline-flex items-center gap-1" style="color:var(--kb-muted-foreground);"><i data-lucide="clock" class="w-3 h-3"></i>3 小时前</span>
+                <span class="text-xs font-medium" style="color:var(--kb-primary);">72%</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full overflow-hidden" style="background:var(--kb-muted);">
+                <div class="h-full rounded-full" style="width:72%;background:var(--kb-primary);"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Doc Card 2 -->
+          <a href="#" class="flex flex-col px-4 py-4 rounded-xl border transition-shadow hover:shadow-md" style="background:var(--kb-card);border-color:var(--kb-border);">
+            <div class="flex items-start gap-3 mb-3">
+              <div class="thumb-block" style="background:rgba(16,185,129,0.1);">
+                <i data-lucide="file-text" class="w-5 h-5" style="color:var(--kb-accent);"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <h3 class="text-sm font-semibold truncate mb-1" style="color:var(--kb-foreground);">React 18 新特性总结</h3>
+                <div class="flex items-center gap-1.5 text-xs" style="color:var(--kb-muted-foreground);">
+                  <i data-lucide="folder" class="w-3 h-3"></i>
+                  <span class="truncate">前端开发 / React</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-auto">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs inline-flex items-center gap-1" style="color:var(--kb-muted-foreground);"><i data-lucide="clock" class="w-3 h-3"></i>昨天</span>
+                <span class="text-xs font-medium" style="color:var(--kb-primary);">45%</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full overflow-hidden" style="background:var(--kb-muted);">
+                <div class="h-full rounded-full" style="width:45%;background:var(--kb-primary);"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Doc Card 3 -->
+          <a href="#" class="flex flex-col px-4 py-4 rounded-xl border transition-shadow hover:shadow-md" style="background:var(--kb-card);border-color:var(--kb-border);">
+            <div class="flex items-start gap-3 mb-3">
+              <div class="thumb-block" style="background:rgba(245,158,11,0.1);">
+                <i data-lucide="notebook-pen" class="w-5 h-5" style="color:var(--kb-warning);"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <h3 class="text-sm font-semibold truncate mb-1" style="color:var(--kb-foreground);">Python 数据分析实战笔记</h3>
+                <div class="flex items-center gap-1.5 text-xs" style="color:var(--kb-muted-foreground);">
+                  <i data-lucide="folder" class="w-3 h-3"></i>
+                  <span class="truncate">数据科学</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-auto">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs inline-flex items-center gap-1" style="color:var(--kb-muted-foreground);"><i data-lucide="clock" class="w-3 h-3"></i>2 天前</span>
+                <span class="text-xs font-medium" style="color:var(--kb-accent);">100%</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full overflow-hidden" style="background:var(--kb-muted);">
+                <div class="h-full rounded-full" style="width:100%;background:var(--kb-accent);"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Doc Card 4 -->
+          <a href="#" class="flex flex-col px-4 py-4 rounded-xl border transition-shadow hover:shadow-md" style="background:var(--kb-card);border-color:var(--kb-border);">
+            <div class="flex items-start gap-3 mb-3">
+              <div class="thumb-block" style="background:rgba(59,111,224,0.1);">
+                <i data-lucide="file-text" class="w-5 h-5" style="color:var(--kb-primary);"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <h3 class="text-sm font-semibold truncate mb-1" style="color:var(--kb-foreground);">设计系统构建方法论</h3>
+                <div class="flex items-center gap-1.5 text-xs" style="color:var(--kb-muted-foreground);">
+                  <i data-lucide="folder" class="w-3 h-3"></i>
+                  <span class="truncate">产品设计</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-auto">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs inline-flex items-center gap-1" style="color:var(--kb-muted-foreground);"><i data-lucide="clock" class="w-3 h-3"></i>3 天前</span>
+                <span class="text-xs font-medium" style="color:var(--kb-primary);">28%</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full overflow-hidden" style="background:var(--kb-muted);">
+                <div class="h-full rounded-full" style="width:28%;background:var(--kb-primary);"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Doc Card 5 -->
+          <a href="#" class="flex flex-col px-4 py-4 rounded-xl border transition-shadow hover:shadow-md" style="background:var(--kb-card);border-color:var(--kb-border);">
+            <div class="flex items-start gap-3 mb-3">
+              <div class="thumb-block" style="background:rgba(16,185,129,0.1);">
+                <i data-lucide="file-text" class="w-5 h-5" style="color:var(--kb-accent);"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <h3 class="text-sm font-semibold truncate mb-1" style="color:var(--kb-foreground);">Node.js 微服务架构</h3>
+                <div class="flex items-center gap-1.5 text-xs" style="color:var(--kb-muted-foreground);">
+                  <i data-lucide="folder" class="w-3 h-3"></i>
+                  <span class="truncate">后端技术 / Node.js</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-auto">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs inline-flex items-center gap-1" style="color:var(--kb-muted-foreground);"><i data-lucide="clock" class="w-3 h-3"></i>4 天前</span>
+                <span class="text-xs font-medium" style="color:var(--kb-primary);">60%</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full overflow-hidden" style="background:var(--kb-muted);">
+                <div class="h-full rounded-full" style="width:60%;background:var(--kb-primary);"></div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Doc Card 6 -->
+          <a href="#" class="flex flex-col px-4 py-4 rounded-xl border transition-shadow hover:shadow-md" style="background:var(--kb-card);border-color:var(--kb-border);">
+            <div class="flex items-start gap-3 mb-3">
+              <div class="thumb-block" style="background:rgba(245,158,11,0.1);">
+                <i data-lucide="notebook-pen" class="w-5 h-5" style="color:var(--kb-warning);"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <h3 class="text-sm font-semibold truncate mb-1" style="color:var(--kb-foreground);">CSS Grid 高级布局技巧</h3>
+                <div class="flex items-center gap-1.5 text-xs" style="color:var(--kb-muted-foreground);">
+                  <i data-lucide="folder" class="w-3 h-3"></i>
+                  <span class="truncate">前端开发 / CSS</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-auto">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs inline-flex items-center gap-1" style="color:var(--kb-muted-foreground);"><i data-lucide="clock" class="w-3 h-3"></i>5 天前</span>
+                <span class="text-xs font-medium" style="color:var(--kb-primary);">88%</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full overflow-hidden" style="background:var(--kb-muted);">
+                <div class="h-full rounded-full" style="width:88%;background:var(--kb-primary);"></div>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+      <!-- ========== Section 6: AI Learning Suggestions ========== -->
+      <section class="mb-7">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <h2 class="kb-h4">AI 学习建议</h2>
+            <i data-lucide="sparkles" class="w-4 h-4" style="color:var(--kb-primary);"></i>
+          </div>
+          <span class="text-xs" style="color:var(--kb-muted-foreground);">基于你的学习行为智能生成</span>
+        </div>
+        <div class="rounded-xl border overflow-hidden" style="background:var(--kb-card);border-color:var(--kb-border);">
+
+          <!-- AI Rec 1 -->
+          <div class="ai-rec-item border-b" style="border-color:var(--kb-border);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(59,111,224,0.08);">
+              <i data-lucide="refresh-cw" class="w-4 h-4" style="color:var(--kb-primary);"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-semibold truncate" style="color:var(--kb-foreground);">复习 Pandas 基础</h4>
+              <p class="text-xs line-clamp-1 mt-0.5" style="color:var(--kb-muted-foreground);">你上次学习已过 3 天，建议复习巩固 DataFrame 操作</p>
+            </div>
+            <a href="#" data-dom-id="ai-rec-review-pandas" class="btn-primary shrink-0">
+              开始
+            </a>
+          </div>
+
+          <!-- AI Rec 2 -->
+          <div class="ai-rec-item border-b" style="border-color:var(--kb-border);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(16,185,129,0.1);">
+              <i data-lucide="code" class="w-4 h-4" style="color:var(--kb-accent);"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-semibold truncate" style="color:var(--kb-foreground);">尝试练习：列表推导式</h4>
+              <p class="text-xs line-clamp-1 mt-0.5" style="color:var(--kb-muted-foreground);">根据你的学习路径，建议完成此知识点练习</p>
+            </div>
+            <a href="#" data-dom-id="ai-rec-list-comp" class="btn-primary shrink-0">
+              开始
+            </a>
+          </div>
+
+          <!-- AI Rec 3 -->
+          <div class="ai-rec-item border-b" style="border-color:var(--kb-border);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(245,158,11,0.1);">
+              <i data-lucide="book-open" class="w-4 h-4" style="color:var(--kb-warning);"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-semibold truncate" style="color:var(--kb-foreground);">阅读 Transformer 新文档</h4>
+              <p class="text-xs line-clamp-1 mt-0.5" style="color:var(--kb-muted-foreground);">与你最近学习的 NLP 内容相关，推荐延伸阅读</p>
+            </div>
+            <a href="#" data-dom-id="ai-rec-transformer-doc" class="btn-primary shrink-0">
+              开始
+            </a>
+          </div>
+
+          <!-- AI Rec 4 -->
+          <div class="ai-rec-item">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(59,111,224,0.08);">
+              <i data-lucide="target" class="w-4 h-4" style="color:var(--kb-primary);"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-semibold truncate" style="color:var(--kb-foreground);">完成 React 练习测验</h4>
+              <p class="text-xs line-clamp-1 mt-0.5" style="color:var(--kb-muted-foreground);">React 18 课程还有 32% 未完成，建议继续推进</p>
+            </div>
+            <a href="#" data-dom-id="ai-rec-react-quiz" class="btn-primary shrink-0">
+              开始
+            </a>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ========== Bottom: Full Report Link ========== -->
+      <section class="mb-6 flex justify-center">
+        <a href="#" data-dom-id="btn-full-report" class="btn-secondary">
+          <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+          查看完整学习报告
+        </a>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    function toggleDropdown(id) {
+      const menu = document.getElementById(id + '-menu');
+      menu.classList.toggle('show');
+    }
+    document.addEventListener('click', function(e) {
+      document.querySelectorAll('.nav-dropdown.show').forEach(function(menu) {
+        const container = menu.parentElement;
+        if (!container.contains(e.target)) {
+          menu.classList.remove('show');
+        }
+      });
+    });
+    lucide.createIcons();
+  </script>
+</body>
+</html>

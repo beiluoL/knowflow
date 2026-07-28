@@ -4,6 +4,7 @@ import com.knowflow.common.PageResult;
 import com.knowflow.common.Result;
 import com.knowflow.dto.DocQueryDTO;
 import com.knowflow.dto.ReadProgressDTO;
+import com.knowflow.entity.LearningFlashcard;
 import com.knowflow.service.DocService;
 import com.knowflow.vo.DocDetailVO;
 import com.knowflow.vo.DocVO;
@@ -79,5 +80,22 @@ public class DocController {
         Long userId = (Long) authentication.getPrincipal();
         docService.updateReadProgress(dto, userId);
         return Result.success();
+    }
+
+    @Operation(summary = "AI 生成文档摘要")
+    @PostMapping("/{id}/ai-summary")
+    public Result<String> generateSummary(@PathVariable Long id, Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return Result.success(docService.generateAISummary(id));
+    }
+
+    @Operation(summary = "AI 基于文档生成闪卡")
+    @PostMapping("/{id}/ai-flashcards")
+    public Result<List<LearningFlashcard>> generateFlashcards(@PathVariable Long id,
+                                                              @RequestParam(required = false) Long pathId,
+                                                              @RequestParam(required = false) Long chapterId,
+                                                              Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return Result.success(docService.generateFlashcards(id, pathId, chapterId));
     }
 }

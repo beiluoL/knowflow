@@ -81,7 +81,8 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
         messageMapper.insert(userMessage);
         List<DocDocument> contextDocs = searchRelatedDocs(dto.getContent());
         // AI 接口在 200 但 content 缺失时会返回 null，必须判空，否则下方 length()/setLastMessage 触发 NPE
-        String replyContent = aiService.chat(dto.getContent(), contextDocs);
+        // B② 多模型切换：将前端传入的 model 透传给 AI 服务（null 时回退默认模型）
+        String replyContent = aiService.chat(dto.getContent(), contextDocs, dto.getModel(), userId);
         if (StrUtil.isBlank(replyContent)) {
             replyContent = "（AI 暂时未返回内容，请稍后重试或检查 AI 配置。）";
         }
@@ -94,7 +95,9 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
         assistantMessage.setTokenCount(replyContent.length());
         messageMapper.insert(assistantMessage);
         conversation.setMessageCount(conversation.getMessageCount() + 2);
-        conversation.setLastMessage(replyContent);
+        // 截断 last_message 防止超出数据库列长度（列宽 4000，这里留余量）
+        String lastMsg = replyContent.length() > 3900 ? replyContent.substring(0, 3900) : replyContent;
+        conversation.setLastMessage(lastMsg);
         this.updateById(conversation);
         return BeanUtil.copyProperties(assistantMessage, MessageVO.class);
     }

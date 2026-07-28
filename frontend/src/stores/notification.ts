@@ -24,12 +24,12 @@ export const useNotificationStore = defineStore('notification', () => {
   async function fetchUnreadCount() {
     try {
       unreadCount.value = await notificationsApi.unreadCount()
-    } catch (e) {
-      console.error('Failed to fetch unread count', e)
+    } catch {
+      // 未读数获取失败静默处理，不影响主流程
     }
   }
 
-  async function fetchList(params: FetchParams = {}) {
+  async function fetchList(params: FetchParams = {}, append = false) {
     const page = params.pageNum ?? pageNum.value
     const size = params.pageSize ?? pageSize.value
     try {
@@ -39,14 +39,15 @@ export const useNotificationStore = defineStore('notification', () => {
         pageNum: page,
         pageSize: size,
       })
-      list.value = res.records
+      // append=true 时累加到现有列表（用于「加载更多」），否则替换
+      list.value = append ? [...list.value, ...res.records] : res.records
       total.value = res.total
       pageNum.value = page
       pageSize.value = size
       loaded.value = true
       await fetchUnreadCount()
     } catch (e) {
-      console.error('Failed to fetch notifications', e)
+      // 错误向上抛由调用方决定如何提示用户
       throw e
     }
   }
@@ -62,7 +63,7 @@ export const useNotificationStore = defineStore('notification', () => {
         unreadCount.value--
       }
     } catch (e) {
-      console.error('Failed to mark notification as read', e)
+      // 错误向上抛由调用方决定如何提示用户
       throw e
     }
   }
@@ -73,7 +74,7 @@ export const useNotificationStore = defineStore('notification', () => {
       list.value = list.value.map((n) => ({ ...n, isRead: 1 }))
       unreadCount.value = 0
     } catch (e) {
-      console.error('Failed to mark all notifications as read', e)
+      // 错误向上抛由调用方决定如何提示用户
       throw e
     }
   }

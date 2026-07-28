@@ -253,6 +253,60 @@ export interface MessageVO {
 export interface ChatSendPayload {
   conversationId?: number
   content: string
+  /** 指定对话模型（覆盖默认模型），由 /api/chat/models 下发 */
+  model?: string
+}
+
+// ===== AI 文档增强 =====
+/** 文档 AI 生成的复习闪卡（与后端 LearningFlashcard 实体对齐）。 */
+export interface LearningFlashcard {
+  id: number
+  pathId?: number
+  chapterId?: number
+  front?: string
+  back?: string
+  category?: string
+  difficulty?: number
+  reviewCount?: number
+  createdTime?: string
+}
+
+// ===== 学习可视化 =====
+/** 单日学习活跃度（热力图单格）。 */
+export interface DailyActivityVO {
+  date: string
+  count: number
+}
+
+/** 掌握分布看板数据。 */
+export interface MasteryDistributionVO {
+  flashcardTotal: number
+  flashcardDiffEasy: number
+  flashcardDiffMedium: number
+  flashcardDiffHard: number
+  flashcardDue: number
+  flashcardReviewed: number
+  mistakeMastered: number
+  mistakePending: number
+}
+
+// ===== 知识图谱 =====
+export interface GraphNodeVO {
+  id: string
+  label: string
+  type: 'category' | 'doc'
+  value: number
+}
+
+export interface GraphEdgeVO {
+  source: string
+  target: string
+  relation: 'parent' | 'contains'
+}
+
+export interface KnowledgeGraphVO {
+  nodes: GraphNodeVO[]
+  edges: GraphEdgeVO[]
 }
 
 // ===== 错题 =====
@@ -404,4 +458,31 @@ export interface AdminOverviewVO {
   userGrowth?: UserGrowthPoint[]
   healthMetrics?: HealthMetric[]
   recentActivities?: RecentActivity[]
+}
+
+// ===== 用户 AI 配置 =====
+export interface UserAiConfigVO {
+  id?: number
+  provider?: string
+  apiKeyMasked?: string
+  baseUrl?: string
+  model?: string
+  isActive?: number
+}
+
+export interface UserAiConfigPayload {
+  provider: string
+  apiKey: string
+  baseUrl?: string
+  model?: string
+  isActive?: number
+}
+
+export interface PlatformModelVO {
+  provider: string
+  label: string
+  baseUrl: string
+  model: string
+  subscriptionRequired: boolean
+  priceInfo: string
 }

@@ -14,4 +14,7 @@ public class ChatSendDTO {
 
     @NotBlank(message = "消息内容不能为空")
     private String content;
+
+    /** 可选模型标识，为 null 时回退到服务配置默认模型（用于对话多模型切换）。 */
+    private String model;
 }

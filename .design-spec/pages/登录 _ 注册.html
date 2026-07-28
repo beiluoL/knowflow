@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录</title>
+    <style id="theme-vars">
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme inline {
+  --color-kb-background: #F7F8FA;
+  --color-kb-foreground: #1A1D23;
+  --color-kb-card: #FFFFFF;
+  --color-kb-card-foreground: #1A1D23;
+  --color-kb-popover: #FFFFFF;
+  --color-kb-popover-foreground: #1A1D23;
+  --color-kb-primary: #3B6FE0;
+  --color-kb-primary-foreground: #FFFFFF;
+  --color-kb-muted: #E8ECF1;
+  --color-kb-muted-foreground: #6B7280;
+  --color-kb-border: #E2E6EC;
+  --color-kb-input: #E2E6EC;
+  --color-kb-ring: #3B6FE0;
+  --color-kb-sidebar: #F0F2F5;
+  --color-kb-sidebar-foreground: #374151;
+  --color-kb-state-success: #10B981;
+  --color-kb-state-success-foreground: #FFFFFF;
+  --color-kb-state-error: #EF4444;
+  --color-kb-state-error-foreground: #FFFFFF;
+  --color-kb-state-warning: #F59E0B;
+  --color-kb-state-warning-foreground: #FFFFFF;
+  --color-kb-radius-sm: 6px;
+  --color-kb-radius-md: 10px;
+  --color-kb-radius-lg: 16px;
+}
+
+:root {
+  --kb-background: #F7F8FA;
+  --kb-foreground: #1A1D23;
+  --kb-card: #FFFFFF;
+  --kb-card-foreground: #1A1D23;
+  --kb-popover: #FFFFFF;
+  --kb-popover-foreground: #1A1D23;
+  --kb-primary: #3B6FE0;
+  --kb-primary-foreground: #FFFFFF;
+  --kb-muted: #E8ECF1;
+  --kb-muted-foreground: #6B7280;
+  --kb-border: #E2E6EC;
+  --kb-input: #E2E6EC;
+  --kb-ring: #3B6FE0;
+  --kb-sidebar: #F0F2F5;
+  --kb-sidebar-foreground: #374151;
+  --kb-state-success: #10B981;
+  --kb-state-success-foreground: #FFFFFF;
+  --kb-state-error: #EF4444;
+  --kb-state-error-foreground: #FFFFFF;
+  --kb-state-warning: #F59E0B;
+  --kb-state-warning-foreground: #FFFFFF;
+  --kb-radius-sm: 6px;
+  --kb-radius-md: 10px;
+  --kb-radius-lg: 16px;
+  --font-sans: 'Noto Sans SC', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/* Semantic token fallback */
+#semantic-token-fallback {
+  --background: var(--kb-background);
+  --foreground: var(--kb-foreground);
+  --card: var(--kb-card);
+  --card-foreground: var(--kb-card-foreground);
+  --popover: var(--kb-popover);
+  --popover-foreground: var(--kb-popover-foreground);
+  --primary: var(--kb-primary);
+  --primary-foreground: var(--kb-primary-foreground);
+  --muted: var(--kb-muted);
+  --muted-foreground: var(--kb-muted-foreground);
+  --border: var(--kb-border);
+  --input: var(--kb-input);
+  --ring: var(--kb-ring);
+  --sidebar: var(--kb-sidebar);
+  --sidebar-foreground: var(--kb-sidebar-foreground);
+  --radius-sm: var(--kb-radius-sm);
+  --radius-md: var(--kb-radius-md);
+  --radius-lg: var(--kb-radius-lg);
+}
+
+/* Typography scale */
+.kb-h1 {
+  font-family: var(--font-sans);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--kb-foreground);
+}
+
+.kb-h2 {
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--kb-foreground);
+}
+
+.kb-h3 {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--kb-foreground);
+}
+
+.kb-h4 {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--kb-foreground);
+}
+
+.kb-body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--kb-card-foreground);
+}
+
+.kb-body-sm {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--kb-muted-foreground);
+}
+
+.kb-caption {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--kb-muted-foreground);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--kb-background);
+    --color-foreground: var(--kb-foreground);
+    --color-card: var(--kb-card);
+    --color-card-foreground: var(--kb-card-foreground);
+    --color-popover: var(--kb-popover);
+    --color-popover-foreground: var(--kb-popover-foreground);
+    --color-primary: var(--kb-primary);
+    --color-primary-foreground: var(--kb-primary-foreground);
+    --color-muted: var(--kb-muted);
+    --color-muted-foreground: var(--kb-muted-foreground);
+    --color-border: var(--kb-border);
+    --color-input: var(--kb-input);
+    --color-ring: var(--kb-ring);
+    --color-sidebar: var(--kb-sidebar);
+    --color-sidebar-foreground: var(--kb-sidebar-foreground);
+    --radius-sm: var(--kb-radius-sm);
+    --radius-md: var(--kb-radius-md);
+    --radius-lg: var(--kb-radius-lg);
+  }
+  @layer base {
+    body { background: var(--kb-background); color: var(--kb-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--kb-background); }
+      .text-background { color: var(--kb-background); }
+      .border-background { border-color: var(--kb-background); }
+      .ring-background { --tw-ring-color: var(--kb-background); }
+      .bg-foreground { background-color: var(--kb-foreground); }
+      .text-foreground { color: var(--kb-foreground); }
+      .border-foreground { border-color: var(--kb-foreground); }
+      .ring-foreground { --tw-ring-color: var(--kb-foreground); }
+      .bg-card { background-color: var(--kb-card); }
+      .text-card { color: var(--kb-card); }
+      .border-card { border-color: var(--kb-card); }
+      .ring-card { --tw-ring-color: var(--kb-card); }
+      .bg-card-foreground { background-color: var(--kb-card-foreground); }
+      .text-card-foreground { color: var(--kb-card-foreground); }
+      .border-card-foreground { border-color: var(--kb-card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--kb-card-foreground); }
+      .bg-popover { background-color: var(--kb-popover); }
+      .text-popover { color: var(--kb-popover); }
+      .border-popover { border-color: var(--kb-popover); }
+      .ring-popover { --tw-ring-color: var(--kb-popover); }
+      .bg-popover-foreground { background-color: var(--kb-popover-foreground); }
+      .text-popover-foreground { color: var(--kb-popover-foreground); }
+      .border-popover-foreground { border-color: var(--kb-popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--kb-popover-foreground); }
+      .bg-primary { background-color: var(--kb-primary); }
+      .text-primary { color: var(--kb-primary); }
+      .border-primary { border-color: var(--kb-primary); }
+      .ring-primary { --tw-ring-color: var(--kb-primary); }
+      .bg-primary-foreground { background-color: var(--kb-primary-foreground); }
+      .text-primary-foreground { color: var(--kb-primary-foreground); }
+      .border-primary-foreground { border-color: var(--kb-primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--kb-primary-foreground); }
+      .bg-muted { background-color: var(--kb-muted); }
+      .text-muted { color: var(--kb-muted); }
+      .border-muted { border-color: var(--kb-muted); }
+      .ring-muted { --tw-ring-color: var(--kb-muted); }
+      .bg-muted-foreground { background-color: var(--kb-muted-foreground); }
+      .text-muted-foreground { color: var(--kb-muted-foreground); }
+      .border-muted-foreground { border-color: var(--kb-muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--kb-muted-foreground); }
+      .bg-border { background-color: var(--kb-border); }
+      .text-border { color: var(--kb-border); }
+      .border-border { border-color: var(--kb-border); }
+      .ring-border { --tw-ring-color: var(--kb-border); }
+      .bg-input { background-color: var(--kb-input); }
+      .text-input { color: var(--kb-input); }
+      .border-input { border-color: var(--kb-input); }
+      .ring-input { --tw-ring-color: var(--kb-input); }
+      .bg-ring { background-color: var(--kb-ring); }
+      .text-ring { color: var(--kb-ring); }
+      .border-ring { border-color: var(--kb-ring); }
+      .ring-ring { --tw-ring-color: var(--kb-ring); }
+      .bg-sidebar { background-color: var(--kb-sidebar); }
+      .text-sidebar { color: var(--kb-sidebar); }
+      .border-sidebar { border-color: var(--kb-sidebar); }
+      .ring-sidebar { --tw-ring-color: var(--kb-sidebar); }
+      .bg-sidebar-foreground { background-color: var(--kb-sidebar-foreground); }
+      .text-sidebar-foreground { color: var(--kb-sidebar-foreground); }
+      .border-sidebar-foreground { border-color: var(--kb-sidebar-foreground); }
+      .ring-sidebar-foreground { --tw-ring-color: var(--kb-sidebar-foreground); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+    <main class="min-h-screen flex">
+      <!-- Left: Brand Panel (55%) -->
+      <section class="hidden lg:flex lg:w-[55%] flex-col justify-between relative overflow-hidden" style="background: linear-gradient(135deg, var(--kb-primary) 0%, #5B8FE8 100%); min-height: 100vh;">
+        <!-- Decorative circles -->
+        <div class="absolute top-[-80px] right-[-80px] w-64 h-64 rounded-full opacity-10" style="background: #FFFFFF;"></div>
+        <div class="absolute bottom-[-120px] left-[-60px] w-80 h-80 rounded-full opacity-10" style="background: #FFFFFF;"></div>
+
+        <!-- Top spacer -->
+        <div class="flex-1 flex flex-col items-center justify-center px-12">
+          <!-- Book icon -->
+          <div class="flex items-center justify-center w-20 h-20 rounded-2xl mb-8" style="background: rgba(255,255,255,0.15);">
+            <i data-lucide="book-open" class="w-10 h-10" style="color: #FFFFFF;"></i>
+          </div>
+          <!-- Brand name -->
+          <h1 class="text-white text-4xl font-bold tracking-tight mb-4" style="font-family: var(--font-sans); text-wrap: balance;">知识库</h1>
+          <!-- Tagline -->
+          <p class="text-white/80 text-lg text-center max-w-sm" style="font-family: var(--font-sans);">构建你的知识体系，让学习更高效</p>
+
+          <!-- Feature bullets -->
+          <div class="mt-12 space-y-4">
+            <div class="flex items-center gap-3">
+              <div class="flex items-center justify-center w-6 h-6 rounded-full" style="background: rgba(255,255,255,0.2);">
+                <i data-lucide="check" class="w-3.5 h-3.5" style="color: #FFFFFF;"></i>
+              </div>
+              <span class="text-white/90 text-sm" style="font-family: var(--font-sans);">AI 智能问答</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center justify-center w-6 h-6 rounded-full" style="background: rgba(255,255,255,0.2);">
+                <i data-lucide="check" class="w-3.5 h-3.5" style="color: #FFFFFF;"></i>
+              </div>
+              <span class="text-white/90 text-sm" style="font-family: var(--font-sans);">个性化学习路径</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center justify-center w-6 h-6 rounded-full" style="background: rgba(255,255,255,0.2);">
+                <i data-lucide="check" class="w-3.5 h-3.5" style="color: #FFFFFF;"></i>
+              </div>
+              <span class="text-white/90 text-sm" style="font-family: var(--font-sans);">间隔重复记忆</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Copyright -->
+        <div class="px-12 pb-8">
+          <p class="text-white/50 text-xs" style="font-family: var(--font-sans);">&copy; 2026 知识库. All rights reserved.</p>
+        </div>
+      </section>
+
+      <!-- Right: Form Panel (45%) -->
+      <section class="flex-1 flex items-center justify-center px-6 sm:px-12 lg:px-16 py-12" style="background: var(--kb-card);">
+        <div class="w-full max-w-md">
+          <!-- Mobile brand (visible only on mobile) -->
+          <div class="lg:hidden flex flex-col items-center mb-10">
+            <div class="flex items-center justify-center w-14 h-14 rounded-2xl mb-4" style="background: var(--kb-primary);">
+              <i data-lucide="book-open" class="w-7 h-7" style="color: var(--kb-primary-foreground);"></i>
+            </div>
+            <h1 class="text-2xl font-bold" style="color: var(--kb-foreground); font-family: var(--font-sans);">知识库</h1>
+          </div>
+
+          <!-- Toggle Tabs -->
+          <div class="flex border-b mb-8" style="border-color: var(--kb-border);">
+            <button id="tab-login" class="flex-1 pb-3 text-center text-sm font-semibold transition-colors" style="color: var(--kb-primary); border-bottom: 2px solid var(--kb-primary); font-family: var(--font-sans);" onclick="switchTab('login')">登录</button>
+            <button id="tab-register" class="flex-1 pb-3 text-center text-sm font-medium transition-colors" style="color: var(--kb-muted-foreground); border-bottom: 2px solid transparent; font-family: var(--font-sans);" onclick="switchTab('register')">注册</button>
+          </div>
+
+          <!-- Login Form -->
+          <div id="form-login">
+            <form class="space-y-5" onsubmit="return false;">
+              <!-- Email/Phone -->
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground); font-family: var(--font-sans);">邮箱或手机号</label>
+                <div class="relative">
+                  <div class="absolute left-3.5 top-1/2 -translate-y-1/2">
+                    <i data-lucide="mail" class="w-4.5 h-4.5" style="color: var(--kb-muted-foreground);"></i>
+                  </div>
+                  <input type="text" placeholder="请输入邮箱或手机号" class="w-full h-11 pl-11 pr-4 text-sm rounded-md outline-none transition-colors" style="background: var(--kb-background); border: 1px solid var(--kb-border); color: var(--kb-foreground); font-family: var(--font-sans);" onfocus="this.style.borderColor='var(--kb-ring)'" onblur="this.style.borderColor='var(--kb-border)'">
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground); font-family: var(--font-sans);">密码</label>
+                <div class="relative">
+                  <div class="absolute left-3.5 top-1/2 -translate-y-1/2">
+                    <i data-lucide="lock" class="w-4.5 h-4.5" style="color: var(--kb-muted-foreground);"></i>
+                  </div>
+                  <input id="login-password" type="password" placeholder="请输入密码" class="w-full h-11 pl-11 pr-11 text-sm rounded-md outline-none transition-colors" style="background: var(--kb-background); border: 1px solid var(--kb-border); color: var(--kb-foreground); font-family: var(--font-sans);" onfocus="this.style.borderColor='var(--kb-ring)'" onblur="this.style.borderColor='var(--kb-border)'">
+                  <button type="button" class="absolute right-3.5 top-1/2 -translate-y-1/2" onclick="togglePassword('login-password', this)">
+                    <i data-lucide="eye-off" class="w-4.5 h-4.5" style="color: var(--kb-muted-foreground);"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Remember + Forgot -->
+              <div class="flex items-center justify-between">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="w-4 h-4 rounded" style="accent-color: var(--kb-primary);">
+                  <span class="text-sm" style="color: var(--kb-muted-foreground); font-family: var(--font-sans);">记住我</span>
+                </label>
+                <a href="#" class="text-sm font-medium hover:underline" style="color: var(--kb-primary); font-family: var(--font-sans);">忘记密码?</a>
+              </div>
+
+              <!-- Login Button -->
+              <button type="submit" class="w-full h-11 text-sm font-semibold rounded-md transition-opacity hover:opacity-90" style="background: var(--kb-primary); color: var(--kb-primary-foreground); font-family: var(--font-sans);">登录</button>
+            </form>
+
+            <!-- Divider -->
+            <div class="flex items-center gap-4 my-6">
+              <div class="flex-1 h-px" style="background: var(--kb-border);"></div>
+              <span class="text-xs whitespace-nowrap" style="color: var(--kb-muted-foreground); font-family: var(--font-sans);">或使用以下方式登录</span>
+              <div class="flex-1 h-px" style="background: var(--kb-border);"></div>
+            </div>
+
+            <!-- Social Login -->
+            <div class="flex justify-center gap-4">
+              <button class="flex items-center justify-center w-11 h-11 rounded-md transition-colors" style="border: 1px solid var(--kb-border); background: var(--kb-card);" title="微信">
+                <i data-lucide="message-circle" class="w-5 h-5" style="color: var(--kb-foreground);"></i>
+              </button>
+              <button class="flex items-center justify-center w-11 h-11 rounded-md transition-colors" style="border: 1px solid var(--kb-border); background: var(--kb-card);" title="GitHub">
+                <i data-lucide="github" class="w-5 h-5" style="color: var(--kb-foreground);"></i>
+              </button>
+              <button class="flex items-center justify-center w-11 h-11 rounded-md transition-colors" style="border: 1px solid var(--kb-border); background: var(--kb-card);" title="Google">
+                <i data-lucide="chrome" class="w-5 h-5" style="color: var(--kb-foreground);"></i>
+              </button>
+            </div>
+
+            <!-- Bottom text -->
+            <p class="text-center text-sm mt-8" style="color: var(--kb-muted-foreground); font-family: var(--font-sans);">
+              还没有账号？<a href="#" class="font-medium hover:underline" style="color: var(--kb-primary);" onclick="switchTab('register')">立即注册</a>
+            </p>
+          </div>
+
+          <!-- Register Form (hidden by default) -->
+          <div id="form-register" class="hidden">
+            <form class="space-y-5" onsubmit="return false;">
+              <!-- Username -->
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground); font-family: var(--font-sans);">用户名</label>
+                <div class="relative">
+                  <div class="absolute left-3.5 top-1/2 -translate-y-1/2">
+                    <i data-lucide="user" class="w-4.5 h-4.5" style="color: var(--kb-muted-foreground);"></i>
+                  </div>
+                  <input type="text" placeholder="请输入用户名" class="w-full h-11 pl-11 pr-4 text-sm rounded-md outline-none transition-colors" style="background: var(--kb-background); border: 1px solid var(--kb-border); color: var(--kb-foreground); font-family: var(--font-sans);" onfocus="this.style.borderColor='var(--kb-ring)'" onblur="this.style.borderColor='var(--kb-border)'">
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground); font-family: var(--font-sans);">邮箱</label>
+                <div class="relative">
+                  <div class="absolute left-3.5 top-1/2 -translate-y-1/2">
+                    <i data-lucide="mail" class="w-4.5 h-4.5" style="color: var(--kb-muted-foreground);"></i>
+                  </div>
+                  <input type="email" placeholder="请输入邮箱地址" class="w-full h-11 pl-11 pr-4 text-sm rounded-md outline-none transition-colors" style="background: var(--kb-background); border: 1px solid var(--kb-border); color: var(--kb-foreground); font-family: var(--font-sans);" onfocus="this.style.borderColor='var(--kb-ring)'" onblur="this.style.borderColor='var(--kb-border)'">
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground); font-family: var(--font-sans);">密码</label>
+                <div class="relative">
+                  <div class="absolute left-3.5 top-1/2 -translate-y-1/2">
+                    <i data-lucide="lock" class="w-4.5 h-4.5" style="color: var(--kb-muted-foreground);"></i>
+                  </div>
+                  <input id="reg-password" type="password" placeholder="请设置密码（至少8位）" class="w-full h-11 pl-11 pr-11 text-sm rounded-md outline-none transition-colors" style="background: var(--kb-background); border: 1px solid var(--kb-border); color: var(--kb-foreground); font-family: var(--font-sans);" onfocus="this.style.borderColor='var(--kb-ring)'" onblur="this.style.borderColor='var(--kb-border)'">
+                  <button type="button" class="absolute right-3.5 top-1/2 -translate-y-1/2" onclick="togglePassword('reg-password', this)">
+                    <i data-lucide="eye-off" class="w-4.5 h-4.5" style="color: var(--kb-muted-foreground);"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Confirm Password -->
+              <div>
+                <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground); font-family: var(--font-sans);">确认密码</label>
+                <div class="relative">
+                  <div class="absolute left-3.5 top-1/2 -translate-y-1/2">
+                    <i data-lucide="lock" class="w-4.5 h-4.5" style="color: var(--kb-muted-foreground);"></i>
+                  </div>
+                  <input id="reg-confirm-password" type="password" placeholder="请再次输入密码" class="w-full h-11 pl-11 pr-11 text-sm rounded-md outline-none transition-colors" style="background: var(--kb-background); border: 1px solid var(--kb-border); color: var(--kb-foreground); font-family: var(--font-sans);" onfocus="this.style.borderColor='var(--kb-ring)'" onblur="this.style.borderColor='var(--kb-border)'">
+                  <button type="button" class="absolute right-3.5 top-1/2 -translate-y-1/2" onclick="togglePassword('reg-confirm-password', this)">
+                    <i data-lucide="eye-off" class="w-4.5 h-4.5" style="color: var(--kb-muted-foreground);"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Agreement -->
+              <label class="flex items-start gap-2 cursor-pointer">
+                <input type="checkbox" class="w-4 h-4 rounded mt-0.5" style="accent-color: var(--kb-primary);">
+                <span class="text-sm" style="color: var(--kb-muted-foreground); font-family: var(--font-sans);">我已阅读并同意 <a href="#" class="font-medium hover:underline" style="color: var(--kb-primary);">服务协议</a> 和 <a href="#" class="font-medium hover:underline" style="color: var(--kb-primary);">隐私政策</a></span>
+              </label>
+
+              <!-- Register Button -->
+              <button type="submit" class="w-full h-11 text-sm font-semibold rounded-md transition-opacity hover:opacity-90" style="background: var(--kb-primary); color: var(--kb-primary-foreground); font-family: var(--font-sans);">注册</button>
+            </form>
+
+            <!-- Bottom text -->
+            <p class="text-center text-sm mt-8" style="color: var(--kb-muted-foreground); font-family: var(--font-sans);">
+              已有账号？<a href="#" class="font-medium hover:underline" style="color: var(--kb-primary);" onclick="switchTab('login')">立即登录</a>
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <style>
+      /* Tab switching logic */
+      function switchTab(tab) {
+        var loginForm = document.getElementById('form-login');
+        var registerForm = document.getElementById('form-register');
+        var loginTab = document.getElementById('tab-login');
+        var registerTab = document.getElementById('tab-register');
+
+        if (tab === 'login') {
+          loginForm.classList.remove('hidden');
+          registerForm.classList.add('hidden');
+          loginTab.style.color = 'var(--kb-primary)';
+          loginTab.style.borderBottom = '2px solid var(--kb-primary)';
+          loginTab.style.fontWeight = '600';
+          registerTab.style.color = 'var(--kb-muted-foreground)';
+          registerTab.style.borderBottom = '2px solid transparent';
+          registerTab.style.fontWeight = '500';
+        } else {
+          loginForm.classList.add('hidden');
+          registerForm.classList.remove('hidden');
+          registerTab.style.color = 'var(--kb-primary)';
+          registerTab.style.borderBottom = '2px solid var(--kb-primary)';
+          registerTab.style.fontWeight = '600';
+          loginTab.style.color = 'var(--kb-muted-foreground)';
+          loginTab.style.borderBottom = '2px solid transparent';
+          loginTab.style.fontWeight = '500';
+        }
+      }
+
+      /* Password visibility toggle */
+      function togglePassword(inputId, btn) {
+        var input = document.getElementById(inputId);
+        var icon = btn.querySelector('i');
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.setAttribute('data-lucide', 'eye');
+        } else {
+          input.type = 'password';
+          icon.setAttribute('data-lucide', 'eye-off');
+        }
+        lucide.createIcons();
+      }
+    </style>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

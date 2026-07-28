@@ -2,15 +2,15 @@
   <div class="space-y-6 animate-fade-in">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-800">番茄钟专注</h1>
-        <p class="text-gray-500 mt-1">今天也要努力学习哦~</p>
+        <h1 class="text-2xl font-bold" style="color: var(--kb-foreground);">番茄钟专注</h1>
+        <p class="mt-1" style="color: var(--kb-muted-foreground);">今天也要努力学习哦~</p>
       </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="lg:col-span-2 space-y-6">
         <Card hoverable>
-          <div class="flex items-center gap-8">
+          <div class="flex items-center gap-6">
             <div class="relative w-32 h-32 flex-shrink-0">
               <svg class="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
                 <circle
@@ -31,7 +31,7 @@
                   stroke-linecap="round"
                   :stroke-dasharray="circumference"
                   :stroke-dashoffset="strokeDashoffset"
-                  class="transition-all duration-1000 ease-out"
+                  class="transition-[stroke-dashoffset] duration-1000 ease-out"
                 />
                 <defs>
                   <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -41,14 +41,14 @@
                 </defs>
               </svg>
               <div class="absolute inset-0 flex flex-col items-center justify-center">
-                <span class="text-3xl font-bold text-primary-600">{{ studyData.goalProgress }}%</span>
-                <span class="text-xs text-gray-500">今日目标</span>
+                <span class="text-3xl font-bold" style="color: var(--kb-primary);">{{ studyData.goalProgress }}%</span>
+                <span class="text-[13px]" style="color: var(--kb-muted-foreground);">今日目标</span>
               </div>
             </div>
 
             <div class="flex-1 grid grid-cols-3 gap-4">
               <div class="text-center">
-                <div class="flex items-center justify-center gap-1 mb-1">
+                <div class="flex items-center justify-center gap-2 mb-1">
                   <Icon name="check" :size="20" />
                   <span class="text-2xl font-bold text-gray-800">{{ studyData.completedTasks }}</span>
                   <span class="text-gray-400">/{{ studyData.totalTasks }}</span>
@@ -56,14 +56,14 @@
                 <p class="text-sm text-gray-500">已完成任务</p>
               </div>
               <div class="text-center">
-                <div class="flex items-center justify-center gap-1 mb-1">
+                <div class="flex items-center justify-center gap-2 mb-1">
                   <Icon name="clock" :size="20" />
                   <span class="text-2xl font-bold text-gray-800">{{ studyData.studyMinutes }}</span>
                 </div>
                 <p class="text-sm text-gray-500">学习时长(分)</p>
               </div>
               <div class="text-center">
-                <div class="flex items-center justify-center gap-1 mb-1">
+                <div class="flex items-center justify-center gap-2 mb-1">
                   <Icon name="flame" :size="20" />
                   <span class="text-2xl font-bold text-gray-800">{{ studyData.streakDays }}</span>
                 </div>
@@ -85,7 +85,7 @@
                   v-for="mode in pomodoroModes" :key="mode.value"
                   @click="switchMode(mode.value)"
                   :class="[
-                    'px-3 py-1 text-xs rounded-full transition-all duration-200',
+                    'px-3 py-1 text-[13px] rounded-full transition-colors duration-200',
                     currentMode === mode.value
                       ? 'bg-primary-500 text-white'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
@@ -100,16 +100,16 @@
           <div class="flex flex-col items-center py-6">
             <div
               :class="[
-                'relative w-48 h-48 rounded-full flex items-center justify-center mb-6 transition-all duration-500',
+                'relative w-48 h-48 rounded-full flex items-center justify-center mb-6 transition-colors duration-500',
                 modeColors[currentMode].bg,
               ]"
             >
               <div class="absolute inset-2 rounded-full bg-white shadow-inner" />
               <div class="relative z-10 text-center">
-                <div class="text-5xl font-bold text-gray-800 font-mono">
+                <div class="text-5xl font-bold font-mono" style="color: var(--kb-foreground);">
                   {{ formatTime(timeLeft) }}
                 </div>
-                <div class="text-sm text-gray-500 mt-1">
+                <div class="text-sm mt-1" style="color: var(--kb-muted-foreground);">
                   {{ modeLabels[currentMode] }}
                 </div>
               </div>
@@ -132,7 +132,7 @@
                   stroke-linecap="round"
                   :stroke-dasharray="pomodoroCircumference"
                   :stroke-dashoffset="pomodoroDashoffset"
-                  class="transition-all duration-1000 ease-linear"
+                  class="transition-[stroke-dashoffset] duration-1000 ease-linear"
                 />
               </svg>
             </div>
@@ -147,7 +147,7 @@
               <button
                 @click="toggleTimer"
                 :class="[
-                  'w-16 h-16 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg',
+                  'w-16 h-16 rounded-full flex items-center justify-center transition-colors duration-200 shadow-lg',
                   isRunning
                     ? 'bg-warning-500 hover:bg-warning-600 text-white'
                     : 'bg-primary-500 hover:bg-primary-600 text-white',
@@ -170,7 +170,7 @@
                 <div
                   v-for="i in 6" :key="i"
                   :class="[
-                    'w-3 h-3 rounded-full transition-all duration-300',
+                    'w-3 h-3 rounded-full transition-colors duration-300',
                     i <= studyData.pomodorosCompleted
                       ? 'bg-red-400'
                       : 'bg-gray-200',
@@ -199,14 +199,14 @@
             <div
               v-for="task in tasks" :key="task.id"
               :class="[
-                'flex items-center gap-3 p-3 rounded-lg transition-all duration-200 group',
+                'flex items-center gap-3 p-3 rounded-lg transition-colors duration-200 group',
                 task.completed ? 'bg-gray-50' : 'hover:bg-gray-50',
               ]"
             >
               <button
                 @click="toggleTask(task.id)"
                 :class="[
-                  'w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200',
+                  'w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors duration-200',
                   task.completed
                     ? 'bg-primary-500 border-primary-500'
                     : 'border-gray-300 hover:border-primary-400',
@@ -217,7 +217,7 @@
               <div class="flex-1 min-w-0">
                 <p
                   :class="[
-                    'text-sm transition-all duration-200',
+                    'text-sm transition-colors duration-200',
                     task.completed ? 'text-gray-400 line-through' : 'text-gray-700',
                   ]"
                 >
@@ -225,13 +225,13 @@
                 </p>
               </div>
               <div class="flex items-center gap-2 flex-shrink-0">
-                <div class="flex items-center gap-1 text-xs text-gray-400">
-                  <Icon name="clock" :size="20" />
+                <div class="flex items-center gap-2 text-[13px] text-gray-400">
+                  <Icon name="clock" :size="16" />
                   <span>{{ task.duration }}分钟</span>
                 </div>
                 <button
                   @click="deleteTask(task.id)"
-                  class="opacity-0 group-hover:opacity-100 p-1.5 rounded hover:bg-red-50 transition-all"
+                  class="opacity-0 group-hover:opacity-100 p-1.5 rounded hover:bg-red-50 transition-[opacity,background-color]"
                 >
                   <Icon name="trash-2" :size="16" />
                 </button>
@@ -241,7 +241,7 @@
             <div class="flex gap-2 pt-2">
               <Input
                 v-model="newTaskTitle"
-                placeholder="添加新任务..."
+                placeholder="添加新任务…"
                 class="flex-1"
                 @keyup.enter="addTask"
               />
@@ -297,25 +297,25 @@
 
             <div class="w-full space-y-3">
               <div>
-                <div class="flex justify-between text-xs mb-1">
+                <div class="flex justify-between text-[13px] mb-1">
                   <span class="text-gray-500">体力值</span>
                   <span class="text-gray-700 font-medium">{{ pet.energy }}%</span>
                 </div>
                 <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div
-                    class="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full transition-all duration-500"
+                    class="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full transition-[width] duration-500"
                     :style="{ width: `${pet.energy}%` }"
                   />
                 </div>
               </div>
               <div>
-                <div class="flex justify-between text-xs mb-1">
+                <div class="flex justify-between text-[13px] mb-1">
                   <span class="text-gray-500">经验值</span>
                   <span class="text-gray-700 font-medium">{{ pet.exp }}/{{ pet.maxExp }}</span>
                 </div>
                 <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div
-                    class="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full transition-all duration-500"
+                    class="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full transition-[width] duration-500"
                     :style="{ width: `${(pet.exp / pet.maxExp) * 100}%` }"
                   />
                 </div>
@@ -340,7 +340,7 @@
             <div class="flex items-center gap-2">
               <Icon name="trophy" :size="20" />
               <h2 class="font-semibold text-gray-800">本周排行榜</h2>
-              <Badge variant="default" class="text-[11px]">演示</Badge>
+              <Badge variant="default" class="text-[12px]">演示</Badge>
             </div>
           </template>
 
@@ -348,7 +348,7 @@
             <div
               v-for="item in rankList" :key="item.id"
               :class="[
-                'flex items-center gap-3 p-2 rounded-lg transition-all duration-200',
+                'flex items-center gap-3 p-2 rounded-lg transition-[background-color,box-shadow] duration-200',
                 item.isCurrentUser ? 'bg-primary-50 ring-1 ring-primary-200' : 'hover:bg-gray-50',
               ]"
             >
@@ -375,11 +375,11 @@
                   ]"
                 >
                   {{ item.name }}
-                  <span v-if="item.isCurrentUser" class="text-xs text-primary-500">(我)</span>
+                  <span v-if="item.isCurrentUser" class="text-[13px] text-primary-500">(我)</span>
                 </p>
               </div>
-              <div class="flex items-center gap-1 text-sm">
-                <Icon name="clock" :size="20" />
+              <div class="flex items-center gap-2 text-sm">
+                <Icon name="clock" :size="16" />
                 <span class="font-medium text-gray-700">{{ item.studyHours }}h</span>
               </div>
             </div>
@@ -391,7 +391,8 @@
 </template>
 
 <script setup lang="ts">
-// 学习中心页：今日目标环形进度、番茄钟计时、学习任务清单与养成宠物系统。
+// 番茄钟专注页：今日目标环形进度、番茄钟计时、学习任务清单与养成宠物系统。
+// 路由 /learning/pomodoro，与 LearningReport.vue（/learning/center）区分。
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'

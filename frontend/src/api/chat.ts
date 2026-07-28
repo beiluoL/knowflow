@@ -10,4 +10,6 @@ export const chatApi = {
   deleteConversation: (id: number) => apiDelete<void>(`/chat/conversations/${id}`),
   messages: (id: number) => apiGet<MessageVO[]>(`/chat/conversations/${id}/messages`),
   send: (data: ChatSendPayload) => apiPost<MessageVO>('/chat/send', data),
+  // 可用对话模型列表（多模型切换）
+  models: () => apiGet<string[]>('/chat/models'),
 }

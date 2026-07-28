@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>沉浸学习 - 知识库</title>
+    <style id="theme-vars">
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme inline {
+  --color-kb-background: #F7F8FA;
+  --color-kb-foreground: #1A1D23;
+  --color-kb-card: #FFFFFF;
+  --color-kb-card-foreground: #1A1D23;
+  --color-kb-popover: #FFFFFF;
+  --color-kb-popover-foreground: #1A1D23;
+  --color-kb-primary: #3B6FE0;
+  --color-kb-primary-foreground: #FFFFFF;
+  --color-kb-muted: #E8ECF1;
+  --color-kb-muted-foreground: #6B7280;
+  --color-kb-border: #E2E6EC;
+  --color-kb-input: #E2E6EC;
+  --color-kb-ring: #3B6FE0;
+  --color-kb-sidebar: #F0F2F5;
+  --color-kb-sidebar-foreground: #374151;
+  --color-kb-state-success: #10B981;
+  --color-kb-state-success-foreground: #FFFFFF;
+  --color-kb-state-error: #EF4444;
+  --color-kb-state-error-foreground: #FFFFFF;
+  --color-kb-state-warning: #F59E0B;
+  --color-kb-state-warning-foreground: #FFFFFF;
+  --color-kb-radius-sm: 6px;
+  --color-kb-radius-md: 10px;
+  --color-kb-radius-lg: 16px;
+}
+
+:root {
+  --kb-background: #F7F8FA;
+  --kb-foreground: #1A1D23;
+  --kb-card: #FFFFFF;
+  --kb-card-foreground: #1A1D23;
+  --kb-popover: #FFFFFF;
+  --kb-popover-foreground: #1A1D23;
+  --kb-primary: #3B6FE0;
+  --kb-primary-foreground: #FFFFFF;
+  --kb-muted: #E8ECF1;
+  --kb-muted-foreground: #6B7280;
+  --kb-border: #E2E6EC;
+  --kb-input: #E2E6EC;
+  --kb-ring: #3B6FE0;
+  --kb-sidebar: #F0F2F5;
+  --kb-sidebar-foreground: #374151;
+  --kb-state-success: #10B981;
+  --kb-state-success-foreground: #FFFFFF;
+  --kb-state-error: #EF4444;
+  --kb-state-error-foreground: #FFFFFF;
+  --kb-state-warning: #F59E0B;
+  --kb-state-warning-foreground: #FFFFFF;
+  --kb-radius-sm: 6px;
+  --kb-radius-md: 10px;
+  --kb-radius-lg: 16px;
+  --font-sans: 'Noto Sans SC', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+/* Semantic token fallback */
+#semantic-token-fallback {
+  --background: var(--kb-background);
+  --foreground: var(--kb-foreground);
+  --card: var(--kb-card);
+  --card-foreground: var(--kb-card-foreground);
+  --popover: var(--kb-popover);
+  --popover-foreground: var(--kb-popover-foreground);
+  --primary: var(--kb-primary);
+  --primary-foreground: var(--kb-primary-foreground);
+  --muted: var(--kb-muted);
+  --muted-foreground: var(--kb-muted-foreground);
+  --border: var(--kb-border);
+  --input: var(--kb-input);
+  --ring: var(--kb-ring);
+  --sidebar: var(--kb-sidebar);
+  --sidebar-foreground: var(--kb-sidebar-foreground);
+  --radius-sm: var(--kb-radius-sm);
+  --radius-md: var(--kb-radius-md);
+  --radius-lg: var(--kb-radius-lg);
+}
+
+/* Typography scale */
+.kb-h1 {
+  font-family: var(--font-sans);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--kb-foreground);
+}
+
+.kb-h2 {
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--kb-foreground);
+}
+
+.kb-h3 {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--kb-foreground);
+}
+
+.kb-h4 {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--kb-foreground);
+}
+
+.kb-body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--kb-card-foreground);
+}
+
+.kb-body-sm {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--kb-muted-foreground);
+}
+
+.kb-caption {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--kb-muted-foreground);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--kb-background);
+    --color-foreground: var(--kb-foreground);
+    --color-card: var(--kb-card);
+    --color-card-foreground: var(--kb-card-foreground);
+    --color-popover: var(--kb-popover);
+    --color-popover-foreground: var(--kb-popover-foreground);
+    --color-primary: var(--kb-primary);
+    --color-primary-foreground: var(--kb-primary-foreground);
+    --color-muted: var(--kb-muted);
+    --color-muted-foreground: var(--kb-muted-foreground);
+    --color-border: var(--kb-border);
+    --color-input: var(--kb-input);
+    --color-ring: var(--kb-ring);
+    --color-sidebar: var(--kb-sidebar);
+    --color-sidebar-foreground: var(--kb-sidebar-foreground);
+    --radius-sm: var(--kb-radius-sm);
+    --radius-md: var(--kb-radius-md);
+    --radius-lg: var(--kb-radius-lg);
+  }
+  @layer base {
+    body { background: var(--kb-background); color: var(--kb-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--kb-background); }
+      .text-background { color: var(--kb-background); }
+      .border-background { border-color: var(--kb-background); }
+      .ring-background { --tw-ring-color: var(--kb-background); }
+      .bg-foreground { background-color: var(--kb-foreground); }
+      .text-foreground { color: var(--kb-foreground); }
+      .border-foreground { border-color: var(--kb-foreground); }
+      .ring-foreground { --tw-ring-color: var(--kb-foreground); }
+      .bg-card { background-color: var(--kb-card); }
+      .text-card { color: var(--kb-card); }
+      .border-card { border-color: var(--kb-card); }
+      .ring-card { --tw-ring-color: var(--kb-card); }
+      .bg-card-foreground { background-color: var(--kb-card-foreground); }
+      .text-card-foreground { color: var(--kb-card-foreground); }
+      .border-card-foreground { border-color: var(--kb-card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--kb-card-foreground); }
+      .bg-popover { background-color: var(--kb-popover); }
+      .text-popover { color: var(--kb-popover); }
+      .border-popover { border-color: var(--kb-popover); }
+      .ring-popover { --tw-ring-color: var(--kb-popover); }
+      .bg-popover-foreground { background-color: var(--kb-popover-foreground); }
+      .text-popover-foreground { color: var(--kb-popover-foreground); }
+      .border-popover-foreground { border-color: var(--kb-popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--kb-popover-foreground); }
+      .bg-primary { background-color: var(--kb-primary); }
+      .text-primary { color: var(--kb-primary); }
+      .border-primary { border-color: var(--kb-primary); }
+      .ring-primary { --tw-ring-color: var(--kb-primary); }
+      .bg-primary-foreground { background-color: var(--kb-primary-foreground); }
+      .text-primary-foreground { color: var(--kb-primary-foreground); }
+      .border-primary-foreground { border-color: var(--kb-primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--kb-primary-foreground); }
+      .bg-muted { background-color: var(--kb-muted); }
+      .text-muted { color: var(--kb-muted); }
+      .border-muted { border-color: var(--kb-muted); }
+      .ring-muted { --tw-ring-color: var(--kb-muted); }
+      .bg-muted-foreground { background-color: var(--kb-muted-foreground); }
+      .text-muted-foreground { color: var(--kb-muted-foreground); }
+      .border-muted-foreground { border-color: var(--kb-muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--kb-muted-foreground); }
+      .bg-border { background-color: var(--kb-border); }
+      .text-border { color: var(--kb-border); }
+      .border-border { border-color: var(--kb-border); }
+      .ring-border { --tw-ring-color: var(--kb-border); }
+      .bg-input { background-color: var(--kb-input); }
+      .text-input { color: var(--kb-input); }
+      .border-input { border-color: var(--kb-input); }
+      .ring-input { --tw-ring-color: var(--kb-input); }
+      .bg-ring { background-color: var(--kb-ring); }
+      .text-ring { color: var(--kb-ring); }
+      .border-ring { border-color: var(--kb-ring); }
+      .ring-ring { --tw-ring-color: var(--kb-ring); }
+      .bg-sidebar { background-color: var(--kb-sidebar); }
+      .text-sidebar { color: var(--kb-sidebar); }
+      .border-sidebar { border-color: var(--kb-sidebar); }
+      .ring-sidebar { --tw-ring-color: var(--kb-sidebar); }
+      .bg-sidebar-foreground { background-color: var(--kb-sidebar-foreground); }
+      .text-sidebar-foreground { color: var(--kb-sidebar-foreground); }
+      .border-sidebar-foreground { border-color: var(--kb-sidebar-foreground); }
+      .ring-sidebar-foreground { --tw-ring-color: var(--kb-sidebar-foreground); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-color: currentColor;
+      }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col" style="background:var(--kb-background);font-family:var(--font-sans);">
+
+<!-- 精简顶部栏 -->
+<div class="h-14 flex items-center justify-between px-6 shrink-0" style="background:var(--kb-card);border-bottom:1px solid var(--kb-border);">
+  <a href="#" class="flex items-center gap-2 text-sm font-medium" style="color:var(--kb-muted-foreground);">
+    <i data-lucide="arrow-left" class="w-4 h-4"></i><span>返回</span>
+  </a>
+  <div class="flex items-center gap-4">
+    <span class="text-sm" style="color:var(--kb-muted-foreground);">前端开发基础</span>
+    <span class="px-2 py-0.5 rounded text-xs" style="background:rgba(59,111,224,0.08);color:var(--kb-primary);">第 8/32 题</span>
+  </div>
+  <div class="flex items-center gap-3">
+    <button id="pauseBtn" class="flex items-center gap-1.5 h-8 px-3 rounded-lg text-sm border" style="border-color:var(--kb-border);color:var(--kb-foreground);background:var(--kb-card);">
+      <i data-lucide="pause" class="w-3.5 h-3.5"></i>暂停
+    </button>
+    <button class="p-2 rounded-lg" style="color:var(--kb-muted-foreground);">
+      <i data-lucide="settings" class="w-4 h-4"></i>
+    </button>
+  </div>
+</div>
+
+<!-- 主内容区 -->
+<div class="flex-1 flex flex-col items-center justify-center px-6 relative">
+
+  <!-- 计时器 -->
+  <div class="mb-8 text-center">
+    <div class="relative inline-flex items-center justify-center mb-4">
+      <svg class="w-56 h-56 -rotate-90" viewBox="0 0 200 200">
+        <circle cx="100" cy="100" r="90" fill="none" stroke="var(--kb-muted)" stroke-width="4"/>
+        <circle class="progress-ring" cx="100" cy="100" r="90" fill="none" stroke="var(--kb-primary)" stroke-width="4" stroke-linecap="round"
+          stroke-dasharray="565.48" stroke-dashoffset="141.37"/>
+      </svg>
+      <div class="absolute inset-0 flex flex-col items-center justify-center">
+        <div class="timer-display" style="color:var(--kb-foreground);" id="timerDisplay">25:00</div>
+        <div class="text-sm mt-1" style="color:var(--kb-muted-foreground);">专注时间</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 当前题目 / 背诵内容 -->
+  <div class="w-full max-w-3xl mb-10">
+    <div class="p-8 rounded-2xl border" style="background:var(--kb-card);border-color:var(--kb-border);">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="px-2.5 py-1 rounded-full text-xs font-medium" style="background:rgba(59,111,224,0.08);color:var(--kb-primary);">JavaScript</span>
+        <span class="px-2.5 py-1 rounded-full text-xs font-medium" style="background:rgba(16,185,129,0.08);color:var(--kb-accent);">核心概念</span>
+        <span class="px-2.5 py-1 rounded-full text-xs font-medium" style="background:rgba(245,158,11,0.08);color:var(--kb-warning);">重要</span>
+      </div>
+      <h2 class="text-2xl font-bold mb-4" style="color:var(--kb-foreground);">请解释 JavaScript 中事件循环（Event Loop）的工作机制</h2>
+      <p class="leading-relaxed" style="color:var(--kb-muted-foreground);font-size:15px;">
+        请在脑海中组织答案，回想以下关键点：调用栈、任务队列、微任务队列、宏任务与微任务的执行顺序，以及 setTimeout 与 Promise 的区别。准备好后点击下方按钮。
+      </p>
+      <div class="mt-5 p-4 rounded-lg" style="background:var(--kb-background);">
+        <div class="flex items-center gap-2 mb-2">
+          <i data-lucide="lightbulb" class="w-4 h-4" style="color:var(--kb-warning);"></i>
+          <span class="text-xs font-medium" style="color:var(--kb-warning);">提示</span>
+        </div>
+        <p class="text-sm" style="color:var(--kb-muted-foreground);">提示：思考同步代码优先执行，然后是微任务（Promise.then），最后才是宏任务（setTimeout）</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 大按钮 -->
+  <div class="flex items-center gap-6 mb-8">
+    <button id="reviewBtn" class="flex items-center gap-3 h-16 px-12 rounded-2xl text-lg font-semibold border-2 transition-all hover:scale-[1.02]" style="border-color:var(--kb-warning);color:var(--kb-warning);background:transparent;">
+      <i data-lucide="eye" class="w-6 h-6"></i>再看看
+    </button>
+    <button id="memorizedBtn" class="flex items-center gap-3 h-16 px-12 rounded-2xl text-lg font-semibold transition-all hover:scale-[1.02]" style="background:var(--kb-accent);color:var(--kb-accent-foreground);">
+      <i data-lucide="check-circle" class="w-6 h-6"></i>我记住了
+    </button>
+  </div>
+
+  <!-- 底部进度 -->
+  <div class="w-full max-w-xl">
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-sm" style="color:var(--kb-muted-foreground);">学习进度</span>
+      <span class="text-sm font-medium" style="color:var(--kb-primary);">8 / 32</span>
+    </div>
+    <div class="h-2 rounded-full overflow-hidden" style="background:var(--kb-muted);">
+      <div class="h-full rounded-full transition-all" style="width:25%;background:var(--kb-primary);"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 右下角设置浮动面板 -->
+<div class="fixed bottom-6 right-6">
+  <div id="settingsPanel" class="hidden mb-3 p-5 rounded-xl border shadow-xl w-72" style="background:var(--kb-card);border-color:var(--kb-border);">
+    <h4 class="text-sm font-semibold mb-4" style="color:var(--kb-foreground);">学习设置</h4>
+    <div class="space-y-4">
+      <div>
+        <label class="text-xs font-medium mb-1.5 block" style="color:var(--kb-muted-foreground);">学习目标</label>
+        <div class="flex items-center gap-2">
+          <button class="flex-1 h-8 rounded-lg text-xs font-medium border" style="border-color:var(--kb-primary);color:var(--kb-primary);background:rgba(59,111,224,0.08);">20 分钟</button>
+          <button class="flex-1 h-8 rounded-lg text-xs font-medium border" style="border-color:var(--kb-border);color:var(--kb-muted-foreground);background:var(--kb-card);">25 分钟</button>
+          <button class="flex-1 h-8 rounded-lg text-xs font-medium border" style="border-color:var(--kb-border);color:var(--kb-muted-foreground);background:var(--kb-card);">45 分钟</button>
+        </div>
+      </div>
+      <div>
+        <label class="text-xs font-medium mb-1.5 block" style="color:var(--kb-muted-foreground);">题目数量</label>
+        <select class="w-full h-9 rounded-lg border text-sm outline-none" style="background:var(--kb-background);border-color:var(--kb-border);color:var(--kb-foreground);">
+          <option>10 题</option>
+          <option>20 题</option>
+          <option selected>32 题（全部）</option>
+          <option>50 题</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs font-medium mb-1.5 block" style="color:var(--kb-muted-foreground);">自动翻页间隔</label>
+        <select class="w-full h-9 rounded-lg border text-sm outline-none" style="background:var(--kb-background);border-color:var(--kb-border);color:var(--kb-foreground);">
+          <option>不自动翻页</option>
+          <option>15 秒</option>
+          <option>30 秒</option>
+          <option>60 秒</option>
+        </select>
+      </div>
+      <div class="pt-2 flex gap-2">
+        <button class="flex-1 h-9 rounded-lg text-sm font-medium border" style="border-color:var(--kb-border);color:var(--kb-foreground);background:var(--kb-card);">暂停</button>
+        <button class="flex-1 h-9 rounded-lg text-sm font-medium" style="background:var(--kb-destructive);color:var(--kb-primary-foreground);">退出学习</button>
+      </div>
+    </div>
+  </div>
+  <button id="settingsBtn" class="w-12 h-12 rounded-full flex items-center justify-center shadow-lg border" style="background:var(--kb-card);border-color:var(--kb-border);color:var(--kb-muted-foreground);">
+    <i data-lucide="settings" class="w-5 h-5"></i>
+  </button>
+</div>
+
+<script>
+lucide.createIcons();
+
+// 设置面板 toggle
+const settingsBtn = document.getElementById('settingsBtn');
+const settingsPanel = document.getElementById('settingsPanel');
+settingsBtn.addEventListener('click', () => {
+  settingsPanel.classList.toggle('hidden');
+});
+
+// 暂停按钮
+const pauseBtn = document.getElementById('pauseBtn');
+let isPaused = false;
+pauseBtn.addEventListener('click', () => {
+  isPaused = !isPaused;
+  pauseBtn.innerHTML = isPaused
+    ? '<i data-lucide="play" class="w-3.5 h-3.5"></i>继续'
+    : '<i data-lucide="pause" class="w-3.5 h-3.5"></i>暂停';
+  lucide.createIcons();
+});
+
+// 简单计时器倒计时
+let seconds = 25 * 60;
+const timerDisplay = document.getElementById('timerDisplay');
+setInterval(() => {
+  if (!isPaused && seconds > 0) {
+    seconds--;
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    timerDisplay.textContent = m + ':' + s;
+  }
+}, 1000);
+</script>
+
+    <style>
+.timer-display { font-family: 'Inter', monospace; font-size: 96px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; }
+.progress-ring { transition: stroke-dashoffset 0.5s ease; }
+@keyframes pulse-glow { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+.pulse-active { animation: pulse-glow 2s ease-in-out infinite; }
+    </style>
+</body>
+</html>

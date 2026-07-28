@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="light" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文档详情 - Transformer 架构详解</title>
+    <style id="theme-vars">
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@theme inline {
+  --color-kb-background: #F7F8FA;
+  --color-kb-foreground: #1A1D23;
+  --color-kb-card: #FFFFFF;
+  --color-kb-card-foreground: #1A1D23;
+  --color-kb-popover: #FFFFFF;
+  --color-kb-popover-foreground: #1A1D23;
+  --color-kb-primary: #3B6FE0;
+  --color-kb-primary-foreground: #FFFFFF;
+  --color-kb-muted: #E8ECF1;
+  --color-kb-muted-foreground: #6B7280;
+  --color-kb-border: #E2E6EC;
+  --color-kb-input: #E2E6EC;
+  --color-kb-ring: #3B6FE0;
+  --color-kb-sidebar: #F0F2F5;
+  --color-kb-sidebar-foreground: #374151;
+  --color-kb-accent: #10B981;
+  --color-kb-accent-foreground: #FFFFFF;
+  --color-kb-destructive: #EF4444;
+  --color-kb-destructive-foreground: #FFFFFF;
+  --color-kb-warning: #F59E0B;
+  --color-kb-warning-foreground: #FFFFFF;
+  --color-kb-radius-sm: 6px;
+  --color-kb-radius-md: 10px;
+  --color-kb-radius-lg: 16px;
+}
+
+:root {
+  --kb-background: #F7F8FA;
+  --kb-foreground: #1A1D23;
+  --kb-card: #FFFFFF;
+  --kb-card-foreground: #1A1D23;
+  --kb-popover: #FFFFFF;
+  --kb-popover-foreground: #1A1D23;
+  --kb-primary: #3B6FE0;
+  --kb-primary-foreground: #FFFFFF;
+  --kb-muted: #E8ECF1;
+  --kb-muted-foreground: #6B7280;
+  --kb-border: #E2E6EC;
+  --kb-input: #E2E6EC;
+  --kb-ring: #3B6FE0;
+  --kb-sidebar: #F0F2F5;
+  --kb-sidebar-foreground: #374151;
+  --kb-accent: #10B981;
+  --kb-accent-foreground: #FFFFFF;
+  --kb-destructive: #EF4444;
+  --kb-destructive-foreground: #FFFFFF;
+  --kb-warning: #F59E0B;
+  --kb-warning-foreground: #FFFFFF;
+  --kb-radius-sm: 6px;
+  --kb-radius-md: 10px;
+  --kb-radius-lg: 16px;
+  --font-sans: 'Noto Sans SC', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+#semantic-token-fallback {
+  --background: var(--kb-background);
+  --foreground: var(--kb-foreground);
+  --card: var(--kb-card);
+  --card-foreground: var(--kb-card-foreground);
+  --popover: var(--kb-popover);
+  --popover-foreground: var(--kb-popover-foreground);
+  --primary: var(--kb-primary);
+  --primary-foreground: var(--kb-primary-foreground);
+  --muted: var(--kb-muted);
+  --muted-foreground: var(--kb-muted-foreground);
+  --border: var(--kb-border);
+  --input: var(--kb-input);
+  --ring: var(--kb-ring);
+  --sidebar: var(--kb-sidebar);
+  --sidebar-foreground: var(--kb-sidebar-foreground);
+  --radius-sm: var(--kb-radius-sm);
+  --radius-md: var(--kb-radius-md);
+  --radius-lg: var(--kb-radius-lg);
+}
+
+.kb-h1 { font-family: var(--font-sans); font-size: 28px; font-weight: 700; line-height: 1.3; letter-spacing: -0.02em; color: var(--kb-foreground); }
+.kb-h2 { font-family: var(--font-sans); font-size: 22px; font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; color: var(--kb-foreground); }
+.kb-h3 { font-family: var(--font-sans); font-size: 18px; font-weight: 600; line-height: 1.4; color: var(--kb-foreground); }
+.kb-h4 { font-family: var(--font-sans); font-size: 15px; font-weight: 600; line-height: 1.45; color: var(--kb-foreground); }
+.kb-body { font-family: var(--font-sans); font-size: 14px; font-weight: 400; line-height: 1.6; color: var(--kb-card-foreground); }
+.kb-body-sm { font-family: var(--font-sans); font-size: 12px; font-weight: 400; line-height: 1.5; color: var(--kb-muted-foreground); }
+.kb-caption { font-family: var(--font-sans); font-size: 11px; font-weight: 500; line-height: 1.4; color: var(--kb-muted-foreground); letter-spacing: 0.04em; text-transform: uppercase; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.1/dist/index.global.js"></script>
+    <script src="https://unpkg.com/lucide@1.8.0/dist/umd/lucide.min.js"></script>
+    <style type="text/tailwindcss">
+  @theme inline {
+    --color-background: var(--kb-background);
+    --color-foreground: var(--kb-foreground);
+    --color-card: var(--kb-card);
+    --color-card-foreground: var(--kb-card-foreground);
+    --color-popover: var(--kb-popover);
+    --color-popover-foreground: var(--kb-popover-foreground);
+    --color-primary: var(--kb-primary);
+    --color-primary-foreground: var(--kb-primary-foreground);
+    --color-muted: var(--kb-muted);
+    --color-muted-foreground: var(--kb-muted-foreground);
+    --color-accent: var(--kb-accent);
+    --color-accent-foreground: var(--kb-accent-foreground);
+    --color-destructive: var(--kb-destructive);
+    --color-destructive-foreground: var(--kb-destructive-foreground);
+    --color-warning: var(--kb-warning);
+    --color-warning-foreground: var(--kb-warning-foreground);
+    --color-border: var(--kb-border);
+    --color-input: var(--kb-input);
+    --color-ring: var(--kb-ring);
+    --color-sidebar: var(--kb-sidebar);
+    --color-sidebar-foreground: var(--kb-sidebar-foreground);
+    --radius-sm: var(--kb-radius-sm);
+    --radius-md: var(--kb-radius-md);
+    --radius-lg: var(--kb-radius-lg);
+  }
+  @layer base {
+    body { background: var(--kb-background); color: var(--kb-foreground); }
+    td, th { @apply break-words; word-break: break-all; word-break: auto-phrase; }
+    th { @apply whitespace-nowrap; }
+  }
+    </style>
+    <style id="semantic-token-fallback">
+      .bg-background { background-color: var(--kb-background); }
+      .text-background { color: var(--kb-background); }
+      .border-background { border-color: var(--kb-background); }
+      .ring-background { --tw-ring-color: var(--kb-background); }
+      .bg-foreground { background-color: var(--kb-foreground); }
+      .text-foreground { color: var(--kb-foreground); }
+      .border-foreground { border-color: var(--kb-foreground); }
+      .ring-foreground { --tw-ring-color: var(--kb-foreground); }
+      .bg-card { background-color: var(--kb-card); }
+      .text-card { color: var(--kb-card); }
+      .border-card { border-color: var(--kb-card); }
+      .ring-card { --tw-ring-color: var(--kb-card); }
+      .bg-card-foreground { background-color: var(--kb-card-foreground); }
+      .text-card-foreground { color: var(--kb-card-foreground); }
+      .border-card-foreground { border-color: var(--kb-card-foreground); }
+      .ring-card-foreground { --tw-ring-color: var(--kb-card-foreground); }
+      .bg-popover { background-color: var(--kb-popover); }
+      .text-popover { color: var(--kb-popover); }
+      .border-popover { border-color: var(--kb-popover); }
+      .ring-popover { --tw-ring-color: var(--kb-popover); }
+      .bg-popover-foreground { background-color: var(--kb-popover-foreground); }
+      .text-popover-foreground { color: var(--kb-popover-foreground); }
+      .border-popover-foreground { border-color: var(--kb-popover-foreground); }
+      .ring-popover-foreground { --tw-ring-color: var(--kb-popover-foreground); }
+      .bg-primary { background-color: var(--kb-primary); }
+      .text-primary { color: var(--kb-primary); }
+      .border-primary { border-color: var(--kb-primary); }
+      .ring-primary { --tw-ring-color: var(--kb-primary); }
+      .bg-primary-foreground { background-color: var(--kb-primary-foreground); }
+      .text-primary-foreground { color: var(--kb-primary-foreground); }
+      .border-primary-foreground { border-color: var(--kb-primary-foreground); }
+      .ring-primary-foreground { --tw-ring-color: var(--kb-primary-foreground); }
+      .bg-muted { background-color: var(--kb-muted); }
+      .text-muted { color: var(--kb-muted); }
+      .border-muted { border-color: var(--kb-muted); }
+      .ring-muted { --tw-ring-color: var(--kb-muted); }
+      .bg-muted-foreground { background-color: var(--kb-muted-foreground); }
+      .text-muted-foreground { color: var(--kb-muted-foreground); }
+      .border-muted-foreground { border-color: var(--kb-muted-foreground); }
+      .ring-muted-foreground { --tw-ring-color: var(--kb-muted-foreground); }
+      .bg-accent { background-color: var(--kb-accent); }
+      .text-accent { color: var(--kb-accent); }
+      .border-accent { border-color: var(--kb-accent); }
+      .ring-accent { --tw-ring-color: var(--kb-accent); }
+      .bg-accent-foreground { background-color: var(--kb-accent-foreground); }
+      .text-accent-foreground { color: var(--kb-accent-foreground); }
+      .border-accent-foreground { border-color: var(--kb-accent-foreground); }
+      .ring-accent-foreground { --tw-ring-color: var(--kb-accent-foreground); }
+      .bg-destructive { background-color: var(--kb-destructive); }
+      .text-destructive { color: var(--kb-destructive); }
+      .border-destructive { border-color: var(--kb-destructive); }
+      .ring-destructive { --tw-ring-color: var(--kb-destructive); }
+      .bg-destructive-foreground { background-color: var(--kb-destructive-foreground); }
+      .text-destructive-foreground { color: var(--kb-destructive-foreground); }
+      .border-destructive-foreground { border-color: var(--kb-destructive-foreground); }
+      .ring-destructive-foreground { --tw-ring-color: var(--kb-destructive-foreground); }
+      .bg-border { background-color: var(--kb-border); }
+      .text-border { color: var(--kb-border); }
+      .border-border { border-color: var(--kb-border); }
+      .ring-border { --tw-ring-color: var(--kb-border); }
+      .bg-input { background-color: var(--kb-input); }
+      .text-input { color: var(--kb-input); }
+      .border-input { border-color: var(--kb-input); }
+      .ring-input { --tw-ring-color: var(--kb-input); }
+      .bg-ring { background-color: var(--kb-ring); }
+      .text-ring { color: var(--kb-ring); }
+      .border-ring { border-color: var(--kb-ring); }
+      .ring-ring { --tw-ring-color: var(--kb-ring); }
+      .bg-sidebar { background-color: var(--kb-sidebar); }
+      .text-sidebar { color: var(--kb-sidebar); }
+      .border-sidebar { border-color: var(--kb-sidebar); }
+      .ring-sidebar { --tw-ring-color: var(--kb-sidebar); }
+      .bg-sidebar-foreground { background-color: var(--kb-sidebar-foreground); }
+      .text-sidebar-foreground { color: var(--kb-sidebar-foreground); }
+      .border-sidebar-foreground { border-color: var(--kb-sidebar-foreground); }
+      .ring-sidebar-foreground { --tw-ring-color: var(--kb-sidebar-foreground); }
+    </style>
+    <style>
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      [data-icon] { display: inline-flex; align-items: center; justify-content: center; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; background-color: currentColor; }
+
+      .btn-primary { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: var(--kb-radius-sm); font-size: 13px; font-weight: 600; background: var(--kb-primary); color: var(--kb-primary-foreground); text-decoration: none; transition: opacity 0.15s; border: none; cursor: pointer; }
+      .btn-primary:hover { opacity: 0.9; }
+      .btn-secondary { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: var(--kb-radius-sm); font-size: 13px; font-weight: 600; background: var(--kb-card); color: var(--kb-primary); border: 1px solid var(--kb-border); text-decoration: none; transition: background-color 0.15s, opacity 0.15s; cursor: pointer; }
+      .btn-secondary:hover { background: var(--kb-muted); opacity: 0.9; }
+      .btn-icon { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 14px; border-radius: var(--kb-radius-sm); font-size: 13px; font-weight: 500; background: var(--kb-card); color: var(--kb-foreground); border: 1px solid var(--kb-border); text-decoration: none; transition: all 0.15s; cursor: pointer; }
+      .btn-icon:hover { background: var(--kb-muted); border-color: var(--kb-primary); color: var(--kb-primary); }
+
+      /* Nav dropdown */
+      .nav-dropdown{position:absolute;top:100%;left:0;margin-top:4px;min-width:180px;border-radius:var(--kb-radius-md);border:1px solid var(--kb-border);background:var(--kb-card);box-shadow:0 4px 16px rgba(0,0,0,0.06);padding:4px;z-index:100;display:none}
+.nav-dropdown.show{display:block}
+.nav-dropdown a{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--kb-radius-sm);font-size:13px;color:var(--kb-foreground);text-decoration:none;transition:background-color 0.15s}
+.nav-dropdown a:hover{background-color:rgba(59,111,224,0.08);color:var(--kb-primary)}
+
+      /* Article content styles */
+      .article-content h1 { font-size: 22px; font-weight: 700; margin: 28px 0 14px 0; color: var(--kb-foreground); line-height: 1.35; letter-spacing: -0.01em; }
+      .article-content h2 { font-size: 18px; font-weight: 600; margin: 24px 0 12px 0; color: var(--kb-foreground); line-height: 1.4; }
+      .article-content p { font-size: 14px; line-height: 1.8; color: var(--kb-card-foreground); margin: 0 0 14px 0; }
+      .article-content pre { background: #1e293b; color: #e2e8f0; padding: 16px 20px; border-radius: var(--kb-radius-md); overflow-x: auto; margin: 16px 0; font-size: 13px; line-height: 1.6; }
+      .article-content code { font-family: 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 13px; }
+      .article-content p code { background: var(--kb-muted); color: var(--kb-foreground); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+      .article-content blockquote { border-left: 3px solid var(--kb-primary); padding: 12px 16px; margin: 16px 0; background: rgba(59,111,224,0.08); border-radius: 0 var(--kb-radius-sm) var(--kb-radius-sm) 0; }
+      .article-content blockquote p { margin: 0; color: var(--kb-foreground); }
+      .article-content ul, .article-content ol { padding-left: 24px; margin: 12px 0; }
+      .article-content li { font-size: 14px; line-height: 1.8; color: var(--kb-card-foreground); margin-bottom: 6px; }
+      .article-content strong { font-weight: 600; color: var(--kb-foreground); }
+
+      /* TOC styles */
+      .toc-link { display: block; padding: 4px 12px; border-left: 2px solid transparent; font-size: 12px; color: var(--kb-muted-foreground); text-decoration: none; line-height: 1.6; transition: all 0.15s; }
+      .toc-link:hover { color: var(--kb-primary); border-left-color: var(--kb-primary); }
+      .toc-link.active { color: var(--kb-primary); border-left-color: var(--kb-primary); font-weight: 600; }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+
+  <!-- ========== Fixed Top Navigation ========== -->
+  <header class="fixed top-0 left-0 right-0 z-50 h-14 flex items-center px-6 border-b" style="background:var(--kb-card);border-color:var(--kb-border);">
+  <!-- Logo -->
+  <a href="knowledge-home.html" data-dom-id="nav-home" class="flex items-center gap-2 shrink-0" style="color:var(--kb-primary);">
+    <i data-lucide="book-open" class="w-5 h-5"></i>
+    <span class="text-base font-semibold">知识库</span>
+  </a>
+  <!-- Nav Links -->
+  <nav class="flex items-center gap-6 ml-8">
+    <a href="knowledge-home.html" data-dom-id="nav-home-link" class="flex items-center gap-1.5 text-sm font-medium" style="color:var(--kb-muted-foreground);"><i data-lucide="home" class="w-4 h-4"></i><span>首页</span></a>
+    <a href="task-center.html" data-dom-id="nav-unified-portal" class="flex items-center gap-1.5 text-sm font-medium" style="color:var(--kb-muted-foreground);"><i data-lucide="target" class="w-4 h-4"></i><span>任务中心</span></a>
+    <!-- 知识库（下拉） -->
+    <div class="relative" id="nav-knowledge-dropdown">
+      <button class="flex items-center gap-1 text-sm font-semibold" style="color:var(--kb-primary);" onclick="toggleDropdown('nav-knowledge-dropdown')"><i data-lucide="library" class="w-4 h-4"></i><span>知识库</span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+      <div class="nav-dropdown" id="nav-knowledge-dropdown-menu">
+        <a href="category-browse.html" data-dom-id="nav-category-browse" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="folder-tree" class="w-4 h-4"></i>分类浏览</a>
+        <a href="search-results.html" data-dom-id="nav-search" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="search" class="w-4 h-4"></i>搜索知识</a>
+        <a href="knowledge-graph.html" data-dom-id="nav-knowledge-graph" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="share-2" class="w-4 h-4"></i>知识图谱</a>
+      </div>
+    </div>
+    <!-- 学习中心（下拉） -->
+    <div class="relative" id="nav-learning-dropdown">
+      <button class="flex items-center gap-1 text-sm font-medium" style="color:var(--kb-muted-foreground);" onclick="toggleDropdown('nav-learning-dropdown')"><i data-lucide="graduation-cap" class="w-4 h-4"></i><span>学习中心</span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+      <div class="nav-dropdown" id="nav-learning-dropdown-menu">
+        <a href="learning-center.html" data-dom-id="nav-learning-center" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="layout-grid" class="w-4 h-4"></i>学习中心</a>
+        <a href="path-list.html" data-dom-id="nav-path-list" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="route" class="w-4 h-4"></i>学习路径</a>
+        <a href="code-practice.html" data-dom-id="nav-code-practice" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="code" class="w-4 h-4"></i>代码练习</a>
+        <a href="flashcards.html" data-dom-id="nav-flashcards" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="layers" class="w-4 h-4"></i>学习闪卡</a>
+        <a href="review-plan.html" data-dom-id="nav-review-plan" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="calendar-check" class="w-4 h-4"></i>复习计划</a>
+        <a href="study-mode.html" data-dom-id="nav-study-mode" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="timer" class="w-4 h-4"></i>沉浸学习</a>
+      </div>
+    </div>
+    <!-- AI 助手（下拉） -->
+    <div class="relative" id="nav-ai-dropdown">
+      <button class="flex items-center gap-1 text-sm font-medium" style="color:var(--kb-muted-foreground);" onclick="toggleDropdown('nav-ai-dropdown')"><i data-lucide="sparkles" class="w-4 h-4"></i><span>AI 助手</span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+      <div class="nav-dropdown" id="nav-ai-dropdown-menu">
+        <a href="chat.html" data-dom-id="nav-chat" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="message-circle" class="w-4 h-4"></i>智能问答</a>
+      </div>
+    </div>
+    <!-- 社区讨论 -->
+    <a href="community.html" data-dom-id="nav-community" class="flex items-center gap-1.5 text-sm font-medium" style="color:var(--kb-muted-foreground);"><i data-lucide="users" class="w-4 h-4"></i><span>社区讨论</span></a>
+    <!-- 个人（下拉） -->
+    <div class="relative" id="nav-personal-dropdown">
+      <button class="flex items-center gap-1 text-sm font-medium" style="color:var(--kb-muted-foreground);" onclick="toggleDropdown('nav-personal-dropdown')"><i data-lucide="user" class="w-4 h-4"></i><span>个人</span><i data-lucide="chevron-down" class="w-3.5 h-3.5"></i></button>
+      <div class="nav-dropdown" id="nav-personal-dropdown-menu">
+        <a href="profile.html" data-dom-id="nav-profile-center" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="user-circle" class="w-4 h-4"></i>个人中心</a>
+        <a href="achievements.html" data-dom-id="nav-achievements" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="trophy" class="w-4 h-4"></i>成就系统</a>
+        <a href="kb-titles.html" data-dom-id="nav-kb-titles" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="award" class="w-4 h-4"></i>知识库称号</a>
+        <a href="favorites.html" data-dom-id="nav-favorites" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="bookmark" class="w-4 h-4"></i>收藏夹</a>
+        <a href="notes-manage.html" data-dom-id="nav-notes-manage" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="notebook-pen" class="w-4 h-4"></i>笔记管理</a>
+        <a href="mistake-book.html" data-dom-id="nav-mistake-book" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="alert-circle" class="w-4 h-4"></i>错误本</a>
+        <a href="learning-report.html" data-dom-id="nav-learning-report" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="bar-chart-2" class="w-4 h-4"></i>学习报告</a>
+      </div>
+    </div>
+  </nav>
+  <!-- Right -->
+  <div class="ml-auto flex items-center gap-3">
+    <div class="relative w-56"><i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color:var(--kb-muted-foreground);"></i><input type="text" placeholder="搜索知识库..." class="w-full h-9 pl-9 pr-12 rounded-lg text-sm border outline-none" style="background:var(--kb-background);border-color:var(--kb-border);color:var(--kb-foreground);"><span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs px-1.5 py-0.5 rounded" style="background:var(--kb-muted);color:var(--kb-muted-foreground);">⌘K</span></div>
+    <a href="notifications.html" data-dom-id="nav-notifications-bell" class="relative p-2 rounded-lg" style="color:var(--kb-muted-foreground);"><i data-lucide="bell" class="w-5 h-5"></i><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style="background:var(--kb-destructive);"></span></a>
+    <div class="relative" id="nav-avatar-dropdown"><a href="#" data-dom-id="nav-profile-avatar" class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold cursor-pointer" style="background:var(--kb-primary);color:var(--kb-primary-foreground);" onclick="toggleDropdown('nav-avatar-dropdown')">YU</a><div class="nav-dropdown" id="nav-avatar-dropdown-menu" style="right:0;left:auto;min-width:180px;"><a href="profile.html" data-dom-id="nav-profile" class="flex items-center gap-2 px-3 py-2 text-sm"><i data-lucide="user-circle" class="w-4 h-4"></i>个人设置</a><a href="system-overview.html" data-dom-id="nav-admin" class="flex items-center gap-2 px-3 py-2 text-sm" style="color:var(--kb-primary);"><i data-lucide="settings" class="w-4 h-4"></i>管理后台</a></div></div>
+  </div>
+</header>
+
+  <!-- ========== Main Content ========== -->
+  <main class="pt-14">
+    <div class="max-w-7xl mx-auto px-6 py-6">
+
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-sm mb-6">
+        <a href="knowledge-home.html" class="hover:opacity-80" style="color: var(--kb-primary);">首页</a>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5" style="color: var(--kb-muted-foreground);"></i>
+        <a href="#" class="hover:opacity-80" style="color: var(--kb-primary);">深度学习</a>
+        <i data-lucide="chevron-right" class="w-3.5 h-3.5" style="color: var(--kb-muted-foreground);"></i>
+        <span style="color: var(--kb-muted-foreground);">Transformer 架构详解</span>
+      </nav>
+
+      <!-- Doc Title + Actions -->
+      <div class="mb-6">
+        <h1 class="kb-h1 mb-4">Transformer 架构详解</h1>
+        <!-- Meta info -->
+        <div class="flex items-center gap-4 flex-wrap mb-5" style="color: var(--kb-muted-foreground); font-size: 13px;">
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="user-circle" class="w-4 h-4"></i>
+            <span>张明教授</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+            <span>2025-12-15</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="tag" class="w-4 h-4"></i>
+            <span>Transformer, 深度学习, NLP, 注意力机制</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+            <span>12,845 次阅读</span>
+          </div>
+        </div>
+        <!-- Action buttons -->
+        <div class="flex items-center gap-3">
+          <button class="btn-icon">
+            <i data-lucide="bookmark" class="w-4 h-4"></i>
+            收藏
+          </button>
+          <button class="btn-icon">
+            <i data-lucide="share-2" class="w-4 h-4"></i>
+            分享
+          </button>
+          <button class="btn-icon">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            下载
+          </button>
+        </div>
+      </div>
+
+      <!-- Article Body: Content + TOC -->
+      <div class="flex gap-8 mb-10">
+
+        <!-- Left: Article Content -->
+        <div class="flex-1 min-w-0">
+          <article class="article-content rounded-xl border p-8" style="background: var(--kb-card); border-color: var(--kb-border);">
+
+            <h1 id="overview">概述</h1>
+            <p>Transformer 是由 Google Brain 团队在 2017 年论文《Attention Is All You Need》中提出的一种全新的深度学习架构。与传统的循环神经网络（RNN）和长短期记忆网络（LSTM）不同，Transformer 完全基于<strong>自注意力机制（Self-Attention）</strong>来处理序列数据，彻底抛弃了递归结构。这一革新性设计使其在自然语言处理、计算机视觉等多个领域取得了突破性进展，成为当前大语言模型（如 GPT、BERT）的基础架构。</p>
+
+            <h1 id="self-attention">自注意力机制</h1>
+            <p>自注意力机制是 Transformer 的核心组件。它的核心思想是让序列中的每个位置都能够直接关注到序列中的所有其他位置，从而捕获长距离的依赖关系。在传统的 RNN 中，信息需要经过逐步传递才能到达远端位置，而自注意力机制通过并行计算所有位置之间的关联度，大幅提高了计算效率。</p>
+            <p>自注意力的计算过程可以概括为以下三个步骤：</p>
+            <ol>
+              <li><strong>计算 Query、Key、Value</strong>：对于输入序列中的每个 token，通过三个不同的线性变换生成对应的 Query (Q)、Key (K) 和 Value (V) 向量。</li>
+              <li><strong>注意力分数计算</strong>：使用 Q 和 K 的点积来计算注意力分数，然后通过 softmax 函数归一化，得到每个位置对其他位置的注意力权重。</li>
+              <li><strong>加权求和</strong>：使用注意力权重对 V 进行加权求和，得到最终的注意力输出。</li>
+            </ol>
+            <blockquote>
+              <p>自注意力的关键优势在于它可以直接建模任意两个位置之间的关系，不受距离限制。这使得 Transformer 能够更好地处理长序列和复杂依赖。</p>
+            </blockquote>
+
+            <h2 id="multi-head">多头注意力</h2>
+            <p>多头注意力（Multi-Head Attention）是对自注意力机制的扩展。它通过将注意力空间划分为多个"头"，让模型能够同时关注不同位置的不同表示子空间中的信息。每个头独立计算注意力，然后将所有头的输出拼接起来，再通过一个线性变换得到最终结果。</p>
+            <pre><code>class MultiHeadAttention(nn.Module):
+    def __init__(self, d_model, n_heads):
+        super().__init__()
+        self.d_k = d_model // n_heads
+        self.n_heads = n_heads
+        self.W_q = nn.Linear(d_model, d_model)
+        self.W_k = nn.Linear(d_model, d_model)
+        self.W_v = nn.Linear(d_model, d_model)
+        self.W_o = nn.Linear(d_model, d_model)
+
+    def forward(self, q, k, v, mask=None):
+        B, N, _ = q.shape
+        q = self.W_q(q).view(B, N, self.n_heads, self.d_k).transpose(1, 2)
+        k = self.W_k(k).view(B, N, self.n_heads, self.d_k).transpose(1, 2)
+        v = self.W_v(v).view(B, N, self.n_heads, self.d_k).transpose(1, 2)
+        attn = (q @ k.transpose(-2, -1)) / math.sqrt(self.d_k)
+        if mask is not None:
+            attn = attn.masked_fill(mask == 0, float('-inf'))
+        attn = F.softmax(attn, dim=-1)
+        out = (attn @ v).transpose(1, 2).reshape(B, N, -1)
+        return self.W_o(out)</code></pre>
+            <p>多头注意力的优势在于不同的头可以学习到不同类型的关系模式。例如，有的头可能专注于语法关系，有的头可能专注于语义相似性，还有的头可能捕捉位置关系。这种多样化的注意力模式使模型能够更全面地理解输入序列。</p>
+
+            <h2 id="positional-encoding">位置编码</h2>
+            <p>由于 Transformer 不包含递归或卷积结构，模型本身无法感知输入序列中 token 的位置顺序。为了解决这个问题，Transformer 引入了<strong>位置编码（Positional Encoding）</strong>，将位置信息注入到输入嵌入中。原始 Transformer 使用正弦和余弦函数来生成位置编码：</p>
+            <pre><code># 位置编码公式
+PE(pos, 2i)   = sin(pos / 10000^(2i/d_model))
+PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
+
+# 其中 pos 表示位置，i 表示维度</code></pre>
+            <p>这种编码方式有几个重要特点：每个位置的编码是唯一的，不同位置之间的距离可以通过向量运算来表示，而且模型可以轻松泛化到比训练序列更长的序列上。后续的研究也探索了可学习的位置编码（如在 GPT 和 BERT 中使用的方法），以及相对位置编码等变体。</p>
+
+            <h1 id="architecture">Transformer 整体架构</h1>
+            <p>完整的 Transformer 由<strong>编码器（Encoder）</strong>和<strong>解码器（Decoder）</strong>两部分组成。编码器负责将输入序列映射为连续的表示，解码器则基于编码器的输出逐步生成目标序列。</p>
+            <ul>
+              <li><strong>编码器</strong>：由 N 个相同的层堆叠而成（原论文中 N=6）。每层包含一个多头自注意力子层和一个前馈神经网络子层，每个子层都使用残差连接和层归一化。</li>
+              <li><strong>解码器</strong>：同样由 N 个相同的层堆叠而成。与编码器不同，解码器额外包含一个编码器-解码器注意力子层，用于关注编码器的输出。此外，解码器的自注意力子层使用了因果掩码（causal mask），确保每个位置只能关注到它之前的位置。</li>
+              <li><strong>前馈网络</strong>：每层中的位置全连接前馈网络由两个线性变换和一个 ReLU 激活函数组成。虽然结构简单，但它为模型提供了非线性变换能力。</li>
+            </ul>
+            <blockquote>
+              <p>Transformer 架构的一个关键设计原则是残差连接。每个子层的输出都被加上子层的输入，然后再进行层归一化。这种设计不仅有助于梯度传播，还使得深层网络的训练变得更加稳定。</p>
+            </blockquote>
+
+            <h1 id="applications">应用与发展</h1>
+            <p>Transformer 架构的出现彻底改变了深度学习的格局。基于 Transformer 的预训练语言模型如 BERT、GPT 系列已经在各类 NLP 任务上取得了卓越表现。近年来，Transformer 的应用范围还在不断扩大，已经延伸到计算机视觉（Vision Transformer）、语音识别、蛋白质结构预测等众多领域。</p>
+            <p>展望未来，Transformer 的研究方向包括：如何更高效地处理超长序列（如 Linear Attention、Ring Attention）、如何降低计算复杂度、以及如何更好地与结构化知识结合等。这些研究方向将推动 Transformer 在更多领域的应用，进一步释放其巨大的潜力。</p>
+
+          </article>
+        </div>
+
+        <!-- Right: Sticky TOC -->
+        <aside class="w-56 shrink-0">
+          <div class="sticky top-20 rounded-xl border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
+            <h3 class="kb-h4 mb-4" style="font-size: 13px;">目录</h3>
+            <nav class="flex flex-col gap-1">
+              <a href="#overview" class="toc-link active">概述</a>
+              <a href="#self-attention" class="toc-link">自注意力机制</a>
+              <a href="#multi-head" class="toc-link pl-4" style="font-size: 11px;">多头注意力</a>
+              <a href="#positional-encoding" class="toc-link pl-4" style="font-size: 11px;">位置编码</a>
+              <a href="#architecture" class="toc-link">整体架构</a>
+              <a href="#applications" class="toc-link">应用与发展</a>
+            </nav>
+          </div>
+        </aside>
+
+      </div>
+
+      <!-- Related Recommendations -->
+      <section class="mb-6">
+        <h2 class="kb-h4 mb-4">相关推荐</h2>
+        <div class="grid grid-cols-3 gap-4">
+
+          <a href="#" class="flex flex-col px-5 py-5 rounded-xl border hover:opacity-90" style="background: var(--kb-card); border-color: var(--kb-border);">
+            <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-md font-medium w-fit mb-3" style="background: rgba(59,111,224,0.1); color: var(--kb-primary);">PDF</span>
+            <h3 class="text-sm font-semibold mb-1.5" style="color: var(--kb-foreground);">BERT 预训练模型详解</h3>
+            <p class="text-xs line-clamp-2" style="color: var(--kb-muted-foreground);">深入理解 BERT 的掩码语言模型（MLM）和下一句预测（NSP）预训练任务。</p>
+            <div class="flex items-center gap-1.5 mt-3 pt-3 border-t" style="border-color: var(--kb-border);">
+              <i data-lucide="folder" class="w-3 h-3" style="color: var(--kb-muted-foreground);"></i>
+              <span class="text-xs" style="color: var(--kb-muted-foreground);">人工智能 / NLP</span>
+            </div>
+          </a>
+
+          <a href="#" class="flex flex-col px-5 py-5 rounded-xl border hover:opacity-90" style="background: var(--kb-card); border-color: var(--kb-border);">
+            <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-md font-medium w-fit mb-3" style="background: rgba(16,185,129,0.1); color: var(--kb-accent);">MD</span>
+            <h3 class="text-sm font-semibold mb-1.5" style="color: var(--kb-foreground);">GPT 系列模型演进</h3>
+            <p class="text-xs line-clamp-2" style="color: var(--kb-muted-foreground);">从 GPT-1 到 GPT-4，OpenAI 大语言模型的技术路线与训练策略演变。</p>
+            <div class="flex items-center gap-1.5 mt-3 pt-3 border-t" style="border-color: var(--kb-border);">
+              <i data-lucide="folder" class="w-3 h-3" style="color: var(--kb-muted-foreground);"></i>
+              <span class="text-xs" style="color: var(--kb-muted-foreground);">人工智能 / LLM</span>
+            </div>
+          </a>
+
+          <a href="#" class="flex flex-col px-5 py-5 rounded-xl border hover:opacity-90" style="background: var(--kb-card); border-color: var(--kb-border);">
+            <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-md font-medium w-fit mb-3" style="background: rgba(245,158,11,0.1); color: var(--kb-warning);">Note</span>
+            <h3 class="text-sm font-semibold mb-1.5" style="color: var(--kb-foreground);">注意力机制的前世今生</h3>
+            <p class="text-xs line-clamp-2" style="color: var(--kb-muted-foreground);">从 Seq2Seq 中的 Bahdanau 注意力到 Transformer 的全面对比分析。</p>
+            <div class="flex items-center gap-1.5 mt-3 pt-3 border-t" style="border-color: var(--kb-border);">
+              <i data-lucide="folder" class="w-3 h-3" style="color: var(--kb-muted-foreground);"></i>
+              <span class="text-xs" style="color: var(--kb-muted-foreground);">人工智能 / 深度学习</span>
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    function toggleDropdown(id) {
+      var menu = document.getElementById(id + '-menu');
+      menu.classList.toggle('show');
+    }
+    document.addEventListener('click', function(e) {
+      document.querySelectorAll('.nav-dropdown.show').forEach(function(menu) {
+        var container = menu.parentElement;
+        if (!container.contains(e.target)) {
+          menu.classList.remove('show');
+        }
+      });
+    });
+    lucide.createIcons();
+  </script>
+</body>
+</html>

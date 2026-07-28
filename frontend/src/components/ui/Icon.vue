@@ -10,6 +10,10 @@
     stroke-linecap="round"
     stroke-linejoin="round"
     :class="iconClass"
+    :aria-hidden="decorative ? 'true' : undefined"
+    :aria-label="decorative ? undefined : ariaLabel"
+    :role="decorative ? undefined : (ariaLabel ? 'img' : undefined)"
+    focusable="false"
   >
     <template v-if="name === 'home'">
       <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -295,6 +299,13 @@
       <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
     </template>
 
+    <template v-else-if="name === 'arrow-up-down'">
+      <path d="m21 16-4 4-4-4" />
+      <path d="M17 20V4" />
+      <path d="m3 8 4-4 4 4" />
+      <path d="M7 4v16" />
+    </template>
+
     <template v-else-if="name === 'sort'">
       <path d="m3 6 3-3 3 3" />
       <path d="M6 3v12" />
@@ -340,6 +351,14 @@
       <circle cx="12" cy="12" r="2" />
     </template>
 
+    <!-- 礼物/奖励 -->
+    <template v-else-if="name === 'gift'">
+      <rect x="3" y="8" width="18" height="4" rx="1" />
+      <path d="M12 8v13" />
+      <path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7" />
+      <path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5" />
+    </template>
+
     <template v-else-if="name === 'book-open'">
       <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
       <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
@@ -350,8 +369,22 @@
       <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
     </template>
 
+    <!-- 盾牌勾选：用于安全提醒类通知 -->
+    <template v-else-if="name === 'shield-check'">
+      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+      <path d="m9 12 2 2 4-4" />
+    </template>
+
     <template v-else-if="name === 'flame'">
       <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+    </template>
+
+    <!-- 循环/复习：用于需复习统计 -->
+    <template v-else-if="name === 'repeat'">
+      <path d="m17 2 4 4-4 4" />
+      <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+      <path d="m7 22-4-4 4-4" />
+      <path d="M21 13v1a4 4 0 0 1-4 4H3" />
     </template>
 
     <template v-else-if="name === 'coffee'">
@@ -433,6 +466,11 @@
       <path d="M3 12A9 3 0 0 0 21 12" />
     </template>
 
+    <!-- 云图标：用于运维部署分类 -->
+    <template v-else-if="name === 'cloud'">
+      <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+    </template>
+
     <template v-else-if="name === 'cpu'">
       <rect width="16" height="16" x="4" y="4" rx="2" />
       <rect width="6" height="6" x="9" y="9" rx="1" />
@@ -510,6 +548,17 @@
     <template v-else-if="name === 'thumbs-up'">
       <path d="M7 10v12" />
       <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" />
+    </template>
+
+    <template v-else-if="name === 'thumbs-down'">
+      <path d="M17 14V2" />
+      <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z" />
+    </template>
+
+    <template v-else-if="name === 'mic'">
+      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+      <line x1="12" y1="19" x2="12" y2="22" />
     </template>
 
     <template v-else-if="name === 'info'">
@@ -610,6 +659,15 @@
     <template v-else-if="name === 'mail'">
       <rect width="20" height="16" x="2" y="4" rx="2" />
       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </template>
+
+    <!-- Chrome 浏览器图标：用于第三方 Google 登录入口 -->
+    <template v-else-if="name === 'chrome'">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="4" />
+      <line x1="21.17" y1="8" x2="12" y2="8" />
+      <line x1="3.95" y1="6.06" x2="8.54" y2="14" />
+      <line x1="10.88" y1="21.94" x2="15.46" y2="14" />
     </template>
 
     <template v-else-if="name === 'git-branch'">
@@ -802,6 +860,352 @@
       <line x1="10" y1="3" x2="8" y2="21" />
       <line x1="16" y1="3" x2="14" y2="21" />
     </template>
+
+    <template v-else-if="name === 'layout'">
+      <rect width="7" height="7" x="3" y="3" rx="1" />
+      <rect width="7" height="7" x="14" y="3" rx="1" />
+      <rect width="7" height="7" x="14" y="14" rx="1" />
+      <rect width="7" height="7" x="3" y="14" rx="1" />
+    </template>
+
+    <template v-else-if="name === 'smartphone'">
+      <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+      <path d="M12 18h.01" />
+    </template>
+
+    <template v-else-if="name === 'container'">
+      <path d="M22 7.7c0-.7-.5-1.4-1.2-1.6l-9-3.4c-.5-.2-1.1-.2-1.6 0l-9 3.4C.5 6.3 0 7 0 7.7v8.6c0 .7.5 1.4 1.2 1.6l9 3.4c.5.2 1.1.2 1.6 0l9-3.4c.7-.2 1.2-.9 1.2-1.6Z" />
+      <path d="M10 21.9V14L0 10" />
+      <path d="M22 10 12 14v7.9" />
+      <path d="M11 4.2v8.6" />
+    </template>
+
+    <template v-else-if="name === 'binary'">
+      <rect x="14" y="14" width="4" height="6" rx="2" />
+      <rect x="6" y="4" width="4" height="6" rx="2" />
+      <path d="M6 20h4" />
+      <path d="M14 20h4" />
+      <path d="M12 14V4" />
+      <path d="M9 14v-2" />
+      <path d="M15 14v-2" />
+    </template>
+
+    <template v-else-if="name === 'palette'">
+      <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
+      <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
+      <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
+      <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
+      <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
+    </template>
+
+    <template v-else-if="name === 'kanban'">
+      <path d="M6 5V11" />
+      <path d="M10 5V19" />
+      <path d="M14 5V14" />
+      <path d="M18 5V9" />
+      <path d="M3 3h18v18H3z" />
+    </template>
+
+    <template v-else-if="name === 'camera'">
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+      <circle cx="12" cy="13" r="3" />
+    </template>
+
+    <template v-else-if="name === 'pencil'">
+      <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+      <path d="m15 5 4 4" />
+    </template>
+
+    <template v-else-if="name === 'key-round'">
+      <path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" />
+      <circle cx="16.5" cy="7.5" r=".5" fill="currentColor" />
+    </template>
+
+    <template v-else-if="name === 'user-circle'">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="10" r="3" />
+      <path d="M6.5 19a6.5 6.5 0 0 1 11 0" />
+    </template>
+
+    <template v-else-if="name === 'calendar-check'">
+      <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+      <path d="m9 16 2 2 4-4" />
+    </template>
+
+    <template v-else-if="name === 'code-2'">
+      <path d="m18 16 4-4-4-4" />
+      <path d="m6 8-4 4 4 4" />
+      <path d="m14.5 4-5 16" />
+    </template>
+
+    <template v-else-if="name === 'book'">
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />
+    </template>
+
+    <template v-else-if="name === 'settings-2'">
+      <path d="M20 7h-9" />
+      <path d="M14 17H5" />
+      <circle cx="17" cy="17" r="3" />
+      <circle cx="7" cy="7" r="3" />
+    </template>
+
+    <template v-else-if="name === 'briefcase'">
+      <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+      <rect width="20" height="14" x="2" y="6" rx="2" />
+    </template>
+
+    <template v-else-if="name === 'sticky-note'">
+      <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h11l6-6V5a2 2 0 0 0-2-2z" />
+      <path d="M15 21v-5a1 1 0 0 1 1-1h5" />
+    </template>
+
+    <template v-else-if="name === 'loader'">
+      <line x1="12" y1="2" x2="12" y2="6" />
+      <line x1="12" y1="18" x2="12" y2="22" />
+      <line x1="4.93" y1="4.93" x2="7.76" y2="7.76" />
+      <line x1="16.24" y1="16.24" x2="19.07" y2="19.07" />
+      <line x1="2" y1="12" x2="6" y2="12" />
+      <line x1="18" y1="12" x2="22" y2="12" />
+      <line x1="4.93" y1="19.07" x2="7.76" y2="16.24" />
+      <line x1="16.24" y1="7.76" x2="19.07" y2="4.93" />
+    </template>
+
+    <!-- 删除线 -->
+    <template v-else-if="name === 'strikethrough'">
+      <path d="M16 4c-.5-1.5-2-2.5-4-2.5-2.5 0-4 1.5-4 3.5 0 1.2.6 2 1.5 2.5" />
+      <path d="M3 8h18" />
+      <path d="M16 20c.5-1.5 2-2.5 4-2.5 2.5 0 4 1.5 4 3.5 0 1.2-.6 2-1.5 2.5" />
+    </template>
+
+    <!-- 有序列表 -->
+    <template v-else-if="name === 'list-ordered'">
+      <line x1="10" y1="6" x2="21" y2="6" />
+      <line x1="10" y1="12" x2="21" y2="12" />
+      <line x1="10" y1="18" x2="21" y2="18" />
+      <path d="M4 6h1v4" />
+      <path d="M4 10h2" />
+      <path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />
+    </template>
+
+    <!-- 表格 -->
+    <template v-else-if="name === 'table'">
+      <rect width="18" height="18" x="3" y="3" rx="2" />
+      <path d="M3 9h18" />
+      <path d="M3 15h18" />
+      <path d="M9 3v18" />
+      <path d="M15 3v18" />
+    </template>
+
+    <!-- 撤销 -->
+    <template v-else-if="name === 'undo'">
+      <path d="M3 7v6h6" />
+      <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+    </template>
+
+    <!-- 重做 -->
+    <template v-else-if="name === 'redo'">
+      <path d="M21 7v6h-6" />
+      <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
+    </template>
+
+    <!-- 魔法棒（AI 写作） -->
+    <template v-else-if="name === 'wand-2'">
+      <path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z" />
+      <path d="m14 7 3 3" />
+      <path d="M5 6v4" />
+      <path d="M19 14v4" />
+      <path d="M10 2v2" />
+      <path d="M7 8H3" />
+      <path d="M21 16h-4" />
+      <path d="M11 3H9" />
+    </template>
+
+    <!-- 列表树（生成大纲） -->
+    <template v-else-if="name === 'list-tree'">
+      <path d="M21 12h-9" />
+      <path d="M21 6H8" />
+      <path d="M21 18H8" />
+      <path d="M3 6v4c0 1.1.9 2 2 2h3" />
+      <path d="M3 10v6c0 1.1.9 2 2 2h3" />
+    </template>
+
+    <!-- 加粗 -->
+    <template v-else-if="name === 'bold'">
+      <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
+      <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
+    </template>
+
+    <!-- 斜体 -->
+    <template v-else-if="name === 'italic'">
+      <line x1="19" y1="4" x2="10" y2="4" />
+      <line x1="14" y1="20" x2="5" y2="20" />
+      <line x1="15" y1="4" x2="9" y2="20" />
+    </template>
+
+    <!-- 下划线 -->
+    <template v-else-if="name === 'underline'">
+      <path d="M6 4v6a6 6 0 0 0 12 0V4" />
+      <line x1="4" y1="20" x2="20" y2="20" />
+    </template>
+
+    <!-- 标题（H） -->
+    <template v-else-if="name === 'heading'">
+      <path d="M6 12h12" />
+      <path d="M6 4v16" />
+      <path d="M18 4v16" />
+    </template>
+
+    <!-- 保存（软盘） -->
+    <template v-else-if="name === 'save'">
+      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+      <polyline points="17 21 17 13 7 13 7 21" />
+      <polyline points="7 3 7 8 15 8" />
+    </template>
+
+    <!-- 链接 -->
+    <template v-else-if="name === 'link'">
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </template>
+
+    <!-- 文件（通用） -->
+    <template v-else-if="name === 'file'">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+    </template>
+
+    <!-- 打印机 -->
+    <template v-else-if="name === 'printer'">
+      <polyline points="6 9 6 2 18 2 18 9" />
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+      <rect x="6" y="14" width="12" height="8" />
+    </template>
+
+    <!-- 任务列表（带勾选） -->
+    <template v-else-if="name === 'list-checks'">
+      <path d="m3 17 2 2 4-4" />
+      <path d="m3 7 2 2 4-4" />
+      <path d="M13 6h8" />
+      <path d="M13 12h8" />
+      <path d="M13 18h8" />
+    </template>
+
+    <!-- 放大 -->
+    <template v-else-if="name === 'zoom-in'">
+      <line x1="11" y1="8" x2="11" y2="14" />
+      <line x1="8" y1="11" x2="14" y2="11" />
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </template>
+
+    <!-- 缩小 -->
+    <template v-else-if="name === 'zoom-out'">
+      <line x1="8" y1="11" x2="14" y2="11" />
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </template>
+
+    <!-- 最大化（全屏视图） -->
+    <template v-else-if="name === 'maximize'">
+      <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+      <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+      <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+      <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+    </template>
+
+    <!-- 鼠标指针 -->
+    <template v-else-if="name === 'mouse-pointer'">
+      <path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />
+      <path d="m13 13 6 6" />
+    </template>
+
+    <!-- 移动（拖拽） -->
+    <template v-else-if="name === 'move'">
+      <polyline points="5 9 2 12 5 15" />
+      <polyline points="9 5 12 2 15 5" />
+      <polyline points="15 19 12 22 9 19" />
+      <polyline points="19 9 22 12 19 15" />
+      <line x1="2" y1="12" x2="22" y2="12" />
+      <line x1="12" y1="2" x2="12" y2="22" />
+    </template>
+
+    <!-- 饼图 -->
+    <template v-else-if="name === 'pie-chart'">
+      <path d="M21.21 15.89A10 10 0 1 1 8 2.83" />
+      <path d="M22 12A10 10 0 0 0 12 2v10z" />
+    </template>
+
+    <!-- 奖牌/勋章 -->
+    <template v-else-if="name === 'medal'">
+      <path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15" />
+      <path d="M11 12 5.12 2.2" />
+      <path d="m13 12 5.88-9.8" />
+      <path d="M8 7h8" />
+      <circle cx="12" cy="17" r="5" />
+      <path d="M12 18v-2h-.5" />
+    </template>
+
+    <!-- 皇冠 -->
+    <template v-else-if="name === 'crown'">
+      <path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" />
+      <path d="M5 21h14" />
+    </template>
+
+    <!-- 笔记本（带笔） -->
+    <template v-else-if="name === 'notebook-pen'">
+      <path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h5.6" />
+      <path d="M14 19.5V22h2.5l6-6L20 13.5z" />
+      <path d="m15.5 13.5 5 5" />
+      <path d="M9 2v20" />
+    </template>
+
+    <!-- 用户圆圈（个人中心专用） -->
+    <template v-else-if="name === 'user-circle'">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="10" r="3" />
+      <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662" />
+    </template>
+
+    <!-- 嫩芽（成长起步） -->
+    <template v-else-if="name === 'sprout'">
+      <path d="M7 20h10" />
+      <path d="M10 20c5.5-2.5.8-6.4 3-10" />
+      <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z" />
+      <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z" />
+    </template>
+
+    <!-- 组件 -->
+    <template v-else-if="name === 'component'">
+      <path d="M5.5 8.5 9 12l-3.5 3.5L2 12l3.5-3.5Z" />
+      <path d="m12 2 3.5 3.5L12 9 8.5 5.5 12 2Z" />
+      <path d="M18.5 8.5 22 12l-3.5 3.5L15 12l3.5-3.5Z" />
+      <path d="M12 15l3.5 3.5L12 22l-3.5-3.5L12 15Z" />
+    </template>
+
+    <!-- 3x3 网格 -->
+    <template v-else-if="name === 'grid-3x3'">
+      <rect width="18" height="18" x="3" y="3" rx="2" />
+      <path d="M9 3v18" />
+      <path d="M15 3v18" />
+      <path d="M3 9h18" />
+      <path d="M3 15h18" />
+    </template>
+
+    <!-- 终端 -->
+    <template v-else-if="name === 'terminal'">
+      <polyline points="4 17 10 11 4 5" />
+      <line x1="12" y1="19" x2="20" y2="19" />
+    </template>
+
+    <!-- 大脑电路（AI） -->
+    <template v-else-if="name === 'brain-circuit'">
+      <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z" />
+      <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z" />
+      <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4" />
+    </template>
   </svg>
 </template>
 
@@ -813,11 +1217,17 @@ interface Props {
   name: string
   size?: number | string
   class?: string | string[]
+  /** 是否为装饰性图标（默认 true）。装饰图标对屏幕阅读器隐藏；设为 false 时需提供 ariaLabel。 */
+  decorative?: boolean
+  /** 非装饰图标的可访问标签，decorative=false 时必填。 */
+  ariaLabel?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   size: 24,
   class: '',
+  decorative: true,
+  ariaLabel: '',
 })
 
 const iconClass = computed(() => {

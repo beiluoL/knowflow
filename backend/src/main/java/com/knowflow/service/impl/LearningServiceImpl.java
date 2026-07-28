@@ -6,32 +6,42 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knowflow.entity.LearningChapter;
 import com.knowflow.entity.LearningFlashcard;
+import com.knowflow.entity.LearningMistake;
 import com.knowflow.entity.LearningPath;
 import com.knowflow.entity.LearningTask;
 import com.knowflow.entity.LearningUserChapter;
 import com.knowflow.entity.LearningUserPath;
+import com.knowflow.entity.DocReadProgress;
 import com.knowflow.exception.BusinessException;
+import com.knowflow.mapper.DocReadProgressMapper;
 import com.knowflow.mapper.LearningChapterMapper;
 import com.knowflow.mapper.LearningFlashcardMapper;
+import com.knowflow.mapper.LearningMistakeMapper;
 import com.knowflow.mapper.LearningPathMapper;
 import com.knowflow.mapper.LearningTaskMapper;
 import com.knowflow.mapper.LearningUserChapterMapper;
 import com.knowflow.mapper.LearningUserPathMapper;
 import com.knowflow.service.LearningService;
 import com.knowflow.service.NotificationService;
+import com.knowflow.vo.DailyActivityVO;
 import com.knowflow.vo.FlashcardVO;
 import com.knowflow.vo.LearningChapterVO;
 import com.knowflow.vo.LearningPathVO;
 import com.knowflow.vo.LearningTaskVO;
+import com.knowflow.vo.MasteryDistributionVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /** 学习中心业务服务实现。 */
@@ -44,6 +54,8 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     private final LearningTaskMapper taskMapper;
     private final LearningUserPathMapper userPathMapper;
     private final LearningUserChapterMapper userChapterMapper;
+    private final LearningMistakeMapper mistakeMapper;
+    private final DocReadProgressMapper readProgressMapper;
     private final NotificationService notificationService;
 
     @Override
@@ -290,5 +302,81 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         card.setLastReviewTime(now);
         card.setNextReviewTime(nextReview);
         flashcardMapper.updateById(card);
+    }
+
+    /** C① 学习热力图：聚合用户阅读/完成章节/复习错题事件，返回最近 days 天每日计数。 */
+    @Override
+    public List<DailyActivityVO> getDailyActivity(Long userId, int days) {
+        int d = days <= 0 ? 120 : Math.min(days, 365);
+        LocalDate end = LocalDate.now();
+        LocalDate start = end.minusDays(d - 1);
+        Map<LocalDate, Integer> counts = new HashMap<>();
+
+        List<DocReadProgress> reads = readProgressMapper.selectList(
+                new LambdaQueryWrapper<DocReadProgress>().eq(DocReadProgress::getUserId, userId));
+        for (DocReadProgress r : reads) {
+            if (r.getLastReadTime() != null) {
+                counts.merge(r.getLastReadTime().toLocalDate(), 1, Integer::sum);
+            }
+        }
+        List<LearningUserChapter> chapters = userChapterMapper.selectList(
+                new LambdaQueryWrapper<LearningUserChapter>().eq(LearningUserChapter::getUserId, userId));
+        for (LearningUserChapter c : chapters) {
+            if (c.getCompleteTime() != null) {
+                counts.merge(c.getCompleteTime().toLocalDate(), 1, Integer::sum);
+            }
+        }
+        List<LearningMistake> mistakes = mistakeMapper.selectList(
+                new LambdaQueryWrapper<LearningMistake>().eq(LearningMistake::getUserId, userId)
+                        .isNotNull(LearningMistake::getLastReviewTime));
+        for (LearningMistake m : mistakes) {
+            if (m.getLastReviewTime() != null) {
+                counts.merge(m.getLastReviewTime().toLocalDate(), 1, Integer::sum);
+            }
+        }
+
+        List<DailyActivityVO> result = new ArrayList<>();
+        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+            DailyActivityVO vo = new DailyActivityVO();
+            vo.setDate(date.toString());
+            vo.setCount(counts.getOrDefault(date, 0));
+            result.add(vo);
+        }
+        return result;
+    }
+
+    /** C① 掌握分布看板：闪卡难度分布、待复习/已复习与错题掌握情况。 */
+    @Override
+    public MasteryDistributionVO getMasteryDistribution(Long userId) {
+        MasteryDistributionVO vo = new MasteryDistributionVO();
+        List<LearningFlashcard> cards = flashcardMapper.selectList(new LambdaQueryWrapper<>());
+        int total = cards.size();
+        int easy = 0;
+        int medium = 0;
+        int hard = 0;
+        int due = 0;
+        int reviewed = 0;
+        LocalDateTime now = LocalDateTime.now();
+        for (LearningFlashcard c : cards) {
+            int diff = c.getDifficulty() != null ? c.getDifficulty() : 1;
+            if (diff == 1) easy++;
+            else if (diff == 2) medium++;
+            else hard++;
+            if (c.getReviewCount() != null && c.getReviewCount() > 0) reviewed++;
+            if (c.getNextReviewTime() == null || !c.getNextReviewTime().isAfter(now)) due++;
+        }
+        vo.setFlashcardTotal(total);
+        vo.setFlashcardDiffEasy(easy);
+        vo.setFlashcardDiffMedium(medium);
+        vo.setFlashcardDiffHard(hard);
+        vo.setFlashcardDue(due);
+        vo.setFlashcardReviewed(reviewed);
+        int mastered = Math.toIntExact(mistakeMapper.selectCount(new LambdaQueryWrapper<LearningMistake>()
+                .eq(LearningMistake::getUserId, userId).eq(LearningMistake::getMastered, 1)));
+        int pending = Math.toIntExact(mistakeMapper.selectCount(new LambdaQueryWrapper<LearningMistake>()
+                .eq(LearningMistake::getUserId, userId).eq(LearningMistake::getMastered, 0)));
+        vo.setMistakeMastered(mastered);
+        vo.setMistakePending(pending);
+        return vo;
     }
 }
