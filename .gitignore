@@ -25,3 +25,7 @@ Thumbs.db
 
 # Screenshots / captured artifacts (large binaries, keep local only)
 screenshots/
+
+# Design draft pages (large AI-generated previews, do not publish)
+design/pages/
+.design-spec/pages/
