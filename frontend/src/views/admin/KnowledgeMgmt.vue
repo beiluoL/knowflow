@@ -82,8 +82,9 @@
           <div class="grid grid-cols-12 gap-4 items-center">
             <div class="col-span-4 flex items-center gap-3">
               <div
-                class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 cursor-pointer"
                 :style="{ backgroundColor: getKbColor(kb.icon) + '15' }"
+                @click="goToKbDetail(kb)"
               >
                 <Icon
                   :name="getCategoryIconName(kb.icon || 'folder')"
@@ -91,16 +92,16 @@
                   :style="{ color: getKbColor(kb.icon) }"
                 />
               </div>
-              <div class="min-w-0">
-                <p class="font-medium text-gray-800 truncate">{{ kb.name }}</p>
+              <div class="min-w-0 cursor-pointer" @click="goToKbDetail(kb)">
+                <p class="font-medium text-gray-800 truncate hover:text-primary-500 transition-colors">{{ kb.name }}</p>
                 <p class="text-xs text-gray-400 truncate">{{ kb.description || '暂无描述' }}</p>
               </div>
             </div>
             <div class="col-span-2 text-center">
-              <span class="text-sm text-gray-700 font-medium">{{ kb.docCount || 0 }} 篇</span>
+              <span class="text-sm text-gray-700 font-medium">{{ getDocCount(kb) }} 篇</span>
             </div>
             <div class="col-span-2 text-center">
-              <span class="text-sm text-gray-700">{{ formatStorage(kb.docCount || 0) }}</span>
+              <span class="text-sm text-gray-700">{{ formatStorage(getDocCount(kb), kb.id) }}</span>
             </div>
             <div class="col-span-2 text-center">
               <span class="text-sm text-gray-500">{{ formatDate(kb.createTime) }}</span>
@@ -223,16 +224,34 @@
 // 管理后台-知识库管理：维护知识库（分类）的增删改查与统计概览。
 import { confirmDialog, getApiError, notify } from '@/utils/toast'
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import { categoriesApi, adminApi } from '@/api'
 import type { CategoryVO } from '@/api/types'
 
+const router = useRouter()
+
+/** 点击知识库跳转到文档管理（按知识库筛选） */
+const goToKbDetail = (kb: CategoryVO) => {
+  router.push(`/admin/docs?categoryId=${kb.id}`)
+}
+
 const knowledgeBases = ref<CategoryVO[]>([])
 const showModal = ref(false)
 const editingKb = ref<CategoryVO | null>(null)
 const saving = ref(false)
+
+/** 真实统计数据：从后端 overview 接口获取 */
+const realTotalDocs = ref(0)
+const realTotalUsers = ref(0)
+/** 所有文档的 wordCount 总和（用于真实存储量计算） */
+const totalWordCount = ref(0)
+/** 按分类汇总的 wordCount（用于列表存储占用显示） */
+const categoryWordCounts = ref<Map<number, number>>(new Map())
+/** 按分类实时统计的文档数量（避免 doc_count 字段维护不一致） */
+const categoryDocCounts = ref<Map<number, number>>(new Map())
 
 const iconOptions = ['code', 'server', 'database', 'brain', 'layout', 'settings', 'book-open', 'folder', 'layers', 'message-circle']
 
@@ -265,46 +284,51 @@ const getKbColor = (iconName?: string): string => {
 
 const totalKbCount = computed(() => knowledgeBases.value.length)
 
-const totalDocCount = computed(() => {
-  let total = 0
-  const walk = (list: CategoryVO[]) => {
-    list.forEach((c) => {
-      total += c.docCount || 0
-      if (c.children) walk(c.children)
-    })
-  }
-  walk(knowledgeBases.value)
-  return total
-})
+/** 文档总数：使用后端 overview 真实数据 */
+const totalDocCount = computed(() => realTotalDocs.value)
 
+/** 总存储量：基于所有文档的真实 wordCount 计算（1 字符 ≈ 2 字节） */
 const totalStorage = computed(() => {
-  const kb = totalDocCount.value
-  // 按每篇约 15MB 估算总存储量（演示用）
-  const mb = Math.round(kb * 15)
-  if (mb >= 1024) {
-    return (mb / 1024).toFixed(1) + ' GB'
-  }
-  return mb + ' MB'
+  const bytes = totalWordCount.value * 2
+  if (bytes < 1024) return bytes + ' B'
+  const kb = bytes / 1024
+  if (kb < 1024) return kb.toFixed(1) + ' KB'
+  const mb = kb / 1024
+  if (mb < 1024) return mb.toFixed(1) + ' MB'
+  return (mb / 1024).toFixed(1) + ' GB'
 })
 
 const storagePercent = computed(() => {
-  const kb = totalDocCount.value
-  const mb = kb * 15
+  const bytes = totalWordCount.value * 2
+  const mb = bytes / (1024 * 1024)
   return Math.min(100, Math.round((mb / (10 * 1024)) * 100))
 })
 
-const memberCount = 8 // 演示数据：成员数固定为 8
+/** 团队成员数：使用后端真实用户数 */
+const memberCount = computed(() => realTotalUsers.value)
 
-const getMemberCount = (_id: number): number => {
-  return 8 // 演示数据：与 memberCount 保持一致
+/** 知识库级别的成员数：后端暂不支持，显示全平台成员数 */
+const getMemberCount = (_id: number): string => {
+  return String(realTotalUsers.value)
 }
 
-const formatStorage = (docCount: number): string => {
-  const kb = docCount * 15
-  if (kb >= 1024) {
-    return (kb / 1024).toFixed(1) + ' GB'
-  }
-  return kb + ' MB'
+/** 获取分类的真实文档数量（优先使用实时统计，回退到 docCount 字段） */
+const getDocCount = (kb: CategoryVO): number => {
+  const realCount = categoryDocCounts.value.get(kb.id) ?? 0
+  return realCount > 0 ? realCount : (kb.docCount ?? 0)
+}
+
+/** 按分类的真实 wordCount 计算存储占用 */
+const formatStorage = (docCount: number, categoryId?: number): string => {
+  // 优先使用该分类的真实 wordCount 总和
+  const wordCount = categoryId ? (categoryWordCounts.value.get(categoryId) ?? 0) : 0
+  const bytes = wordCount > 0 ? wordCount * 2 : docCount * 2000
+  if (bytes < 1024) return bytes + ' B'
+  const kb = bytes / 1024
+  if (kb < 1024) return kb.toFixed(1) + ' KB'
+  const mb = kb / 1024
+  if (mb < 1024) return mb.toFixed(1) + ' MB'
+  return (mb / 1024).toFixed(1) + ' GB'
 }
 
 const formatDate = (dateStr?: string): string => {
@@ -386,7 +410,43 @@ const loadKbs = async () => {
   }
 }
 
-onMounted(loadKbs)
+/** 加载真实统计数据：overview + 用户数 + 所有文档（用于 wordCount 计算） */
+const loadStats = async () => {
+  try {
+    const [overview, users, docPage] = await Promise.all([
+      adminApi.overview(),
+      adminApi.users({ pageSize: 1 }),
+      adminApi.docs({ pageSize: 1000 }),
+    ])
+    realTotalDocs.value = overview.totalDocs ?? 0
+    realTotalUsers.value = users.total ?? 0
+
+    // 计算所有文档的 wordCount 总和，并按分类汇总
+    const records = (docPage.records ?? []) as Array<{ wordCount?: number; categoryId?: number }>
+    let totalWc = 0
+    const catWcMap = new Map<number, number>()
+    const catDocMap = new Map<number, number>()
+    records.forEach((d) => {
+      const wc = d.wordCount ?? 0
+      totalWc += wc
+      if (d.categoryId) {
+        catWcMap.set(d.categoryId, (catWcMap.get(d.categoryId) ?? 0) + wc)
+        catDocMap.set(d.categoryId, (catDocMap.get(d.categoryId) ?? 0) + 1)
+      }
+    })
+    totalWordCount.value = totalWc
+    categoryWordCounts.value = catWcMap
+    categoryDocCounts.value = catDocMap
+  } catch (e: unknown) {
+    // 统计数据加载失败不影响主流程
+    console.error('加载统计数据失败:', e)
+  }
+}
+
+onMounted(() => {
+  loadKbs()
+  loadStats()
+})
 </script>
 
 <style scoped>

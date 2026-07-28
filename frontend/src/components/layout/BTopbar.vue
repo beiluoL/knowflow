@@ -101,7 +101,7 @@
         <button
           type="button"
           class="w-full text-center text-sm text-primary-600 hover:underline"
-          @click="goTo('/notifications')"
+          @click="goTo('/admin/overview')"
         >查看全部通知</button>
       </div>
     </div>
@@ -141,7 +141,8 @@ const unreadCount = computed(() => notificationStore.unreadCount);
 
 function handleSearch() {
   if (!searchQuery.value.trim()) return;
-  router.push({ path: '/search', query: { q: searchQuery.value.trim() } });
+  // B端搜索：在文档管理中搜索，保持在后台布局内
+  router.push({ path: '/admin/docs', query: { keyword: searchQuery.value.trim() } });
 }
 
 function goTo(path: string) {
@@ -175,7 +176,8 @@ async function handleNotificationClick(id: number) {
     console.error(e);
   }
   showNotifications.value = false;
-  goTo('/notifications');
+  // 保持在B端，跳转到系统概览
+  goTo('/admin/overview');
 }
 
 function getNotifIcon(type: string): string {

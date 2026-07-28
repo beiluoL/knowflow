@@ -1,5 +1,40 @@
 <template>
+  <!-- 自定义图标 - 图片类型（data URI 或 URL）：渲染为 img -->
+  <img
+    v-if="isImageIcon"
+    :src="name"
+    :width="size"
+    :height="size"
+    :class="iconClass"
+    :aria-hidden="decorative ? 'true' : undefined"
+    :aria-label="decorative ? undefined : ariaLabel"
+    :role="decorative ? undefined : (ariaLabel ? 'img' : undefined)"
+    style="object-fit: contain;"
+  />
+  <!-- 自定义图标 - iconfont Unicode code：渲染为 <i> 标签 -->
+  <i
+    v-else-if="isIconfontIcon"
+    class="iconfont"
+    :class="iconClass"
+    :style="{ fontSize: typeof size === 'number' ? size + 'px' : size, color: color || undefined }"
+    :aria-hidden="decorative ? 'true' : undefined"
+    :aria-label="decorative ? undefined : ariaLabel"
+    :role="decorative ? undefined : (ariaLabel ? 'img' : undefined)"
+    v-html="iconfontChar"
+  />
+  <!-- 自定义图标 - SVG 代码：渲染为 div v-html -->
+  <div
+    v-else-if="isSvgCodeIcon"
+    :class="iconClass"
+    :style="{ width: typeof size === 'number' ? size + 'px' : size, height: typeof size === 'number' ? size + 'px' : size, color: color || undefined, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }"
+    :aria-hidden="decorative ? 'true' : undefined"
+    :aria-label="decorative ? undefined : ariaLabel"
+    :role="decorative ? undefined : (ariaLabel ? 'img' : undefined)"
+    v-html="sanitizedSvg"
+  />
+  <!-- 系统图标：渲染为 SVG -->
   <svg
+    v-else
     xmlns="http://www.w3.org/2000/svg"
     :width="size"
     :height="size"
@@ -10,6 +45,7 @@
     stroke-linecap="round"
     stroke-linejoin="round"
     :class="iconClass"
+    :style="{ color: color || undefined }"
     :aria-hidden="decorative ? 'true' : undefined"
     :aria-label="decorative ? undefined : ariaLabel"
     :role="decorative ? undefined : (ariaLabel ? 'img' : undefined)"
@@ -123,6 +159,17 @@
     <template v-else-if="name === 'edit'">
       <path d="M12 20h9" />
       <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+    </template>
+
+    <template v-else-if="name === 'edit-2'">
+      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+      <path d="m15 5 4 4" />
+    </template>
+
+    <template v-else-if="name === 'archive'">
+      <rect width="20" height="5" x="2" y="3" rx="1" />
+      <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
+      <path d="M10 12h4" />
     </template>
 
     <template v-else-if="name === 'trash-2'">
@@ -604,6 +651,18 @@
     <template v-else-if="name === 'rotate-ccw'">
       <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
       <path d="M3 3v5h5" />
+    </template>
+
+    <template v-else-if="name === 'align-left'">
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="3" y1="12" x2="15" y2="12" />
+      <line x1="3" y1="18" x2="18" y2="18" />
+    </template>
+
+    <template v-else-if="name === 'type'">
+      <polyline points="4 7 4 4 20 4 20 7" />
+      <line x1="9" y1="20" x2="15" y2="20" />
+      <line x1="12" y1="4" x2="12" y2="20" />
     </template>
 
     <template v-else-if="name === 'list-todo'">
@@ -1211,12 +1270,18 @@
 
 <script setup lang="ts">
 // 图标组件：内置常用 lucide 风格 SVG 路径集合，按 name 渲染对应图标，支持 size 与 class。
+// 自定义图标支持三种格式：
+//   1. 图片（data URI / URL）：name 以 data: / http:// / https:// 开头
+//   2. iconfont Unicode code：name 以 iconfont: 开头（如 iconfont:e601）
+//   3. SVG 代码：name 以 <svg 开头
 import { computed } from 'vue'
 
 interface Props {
   name: string
   size?: number | string
   class?: string | string[]
+  /** 图标颜色（用于 iconfont / SVG 代码 / 系统图标，通过 CSS color 应用） */
+  color?: string
   /** 是否为装饰性图标（默认 true）。装饰图标对屏幕阅读器隐藏；设为 false 时需提供 ariaLabel。 */
   decorative?: boolean
   /** 非装饰图标的可访问标签，decorative=false 时必填。 */
@@ -1226,11 +1291,57 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   size: 24,
   class: '',
+  color: '',
   decorative: true,
   ariaLabel: '',
 })
 
 const iconClass = computed(() => {
   return props.class
+})
+
+/** 图片类型图标：data URI 或 URL */
+const isImageIcon = computed(() => {
+  const n = props.name
+  return n && (n.startsWith('data:') || n.startsWith('http://') || n.startsWith('https://'))
+})
+
+/** iconfont 类型图标：name 以 iconfont: 开头 */
+const isIconfontIcon = computed(() => {
+  const n = props.name
+  return n && n.startsWith('iconfont:')
+})
+
+/** SVG 代码类型图标：name 以 <svg 开头 */
+const isSvgCodeIcon = computed(() => {
+  const n = props.name
+  return n && n.trimStart().startsWith('<svg')
+})
+
+/** 解析 iconfont code 为 HTML 实体字符（如 iconfont:e601 → &#xe601;） */
+const iconfontChar = computed(() => {
+  const code = props.name.replace('iconfont:', '').trim()
+  // 支持 e601、&#xe601;、&#58881; 三种输入格式
+  if (code.startsWith('&#') && code.endsWith(';')) {
+    return code
+  }
+  // 纯十六进制码点
+  return `&#x${code};`
+})
+
+/**
+ * SVG 代码渲染：将 SVG 代码中的 width/height 替换为 100% 以适配容器，
+ * 并将 fill/stroke 中的固定颜色替换为 currentColor 以支持 color 着色。
+ */
+const sanitizedSvg = computed(() => {
+  let svg = props.name.trim()
+  // 替换宽高为 100%，让外层容器控制尺寸
+  svg = svg.replace(/(<svg[^>]*?)\s+width\s*=\s*["'][^"']*["']/gi, '$1')
+  svg = svg.replace(/(<svg[^>]*?)\s+height\s*=\s*["'][^"']*["']/gi, '$1')
+  svg = svg.replace(/<svg/i, '<svg width="100%" height="100%"')
+  // 将固定黑色填充/描边替换为 currentColor（仅替换纯黑/深色，保留彩色图标）
+  svg = svg.replace(/fill\s*=\s*["']#000(?:000)?["']/gi, 'fill="currentColor"')
+  svg = svg.replace(/stroke\s*=\s*["']#000(?:000)?["']/gi, 'stroke="currentColor"')
+  return svg
 })
 </script>

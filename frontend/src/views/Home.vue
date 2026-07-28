@@ -124,7 +124,7 @@
       <div class="todos-grid">
         <div class="todos-list">
           <div v-for="task in tasks.slice(0, 5)" :key="task.id" class="todo-item" :class="{ done: task.status === 1 }">
-            <button class="todo-check" :aria-label="task.status === 1 ? '标记为未完成' : '标记为已完成'">
+            <button class="todo-check" :aria-label="task.status === 1 ? '标记为未完成' : '标记为已完成'" @click="toggleTaskStatus(task)">
               <Icon v-if="task.status === 1" name="check" :size="12" />
             </button>
             <div class="todo-content">
@@ -139,7 +139,7 @@
           </div>
           <div v-if="tasks.length === 0" class="empty-state">
             <Icon name="list-checks" :size="24" />
-            <p>暂无待办，去学习中心添加计划吧</p>
+            <router-link to="/learning/center" class="empty-state-link">暂无待办，去学习中心添加计划吧</router-link>
           </div>
         </div>
 
@@ -291,6 +291,7 @@ import { ref, computed, onMounted } from 'vue';
 import Icon from '@/components/ui/Icon.vue';
 import { useAuthStore } from '@/stores/auth';
 import { docsApi, learningApi, userApi } from '@/api';
+import { notify, getApiError } from '@/utils/toast';
 import type { DocVO, LearningPathVO, LearningTaskVO, UserStatsVO } from '@/api/types';
 
 const auth = useAuthStore();
@@ -457,6 +458,17 @@ function getStatusText(task: LearningTaskVO) {
   if (task.status === 1) return '已完成';
   if (task.deadline) return formatDeadline(task.deadline);
   return '待完成';
+}
+
+async function toggleTaskStatus(task: LearningTaskVO) {
+  const newStatus = task.status === 1 ? 0 : 1;
+  try {
+    await learningApi.updateTaskStatus(task.id, newStatus);
+    task.status = newStatus;
+    if (newStatus === 1) notify('任务已完成', 'success');
+  } catch (e: unknown) {
+    notify('操作失败：' + getApiError(e), 'error');
+  }
 }
 
 onMounted(async () => {
@@ -1449,5 +1461,16 @@ onMounted(async () => {
 
 .empty-state svg {
   opacity: 0.5;
+}
+
+.empty-state-link {
+  font-size: 14px;
+  color: var(--kb-primary);
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+.empty-state-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
 }
 </style>

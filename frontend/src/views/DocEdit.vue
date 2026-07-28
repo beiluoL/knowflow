@@ -1,13 +1,13 @@
 <template>
   <div class="doc-edit-page">
-    <!-- ===== 固定页头条（sticky，位于顶部导航下方） ===== -->
-    <div class="sticky top-14 z-30 h-14 flex items-center justify-between px-6 page-header">
+    <!-- ===== 固定页头条（sticky，贴顶于 main 滚动容器顶部，即 BTopbar 下方） ===== -->
+    <div class="sticky top-0 z-30 h-14 flex items-center justify-between px-6 page-header">
       <div class="flex items-center gap-3 min-w-0">
         <button type="button" class="back-btn" title="返回" @click="handleCancel">
           <Icon name="arrow-left" :size="20" />
         </button>
         <div class="flex items-center gap-1.5 text-sm header-breadcrumb">
-          <router-link to="/" class="crumb-link">知识库</router-link>
+          <router-link to="/admin/knowledge" class="crumb-link">知识库</router-link>
           <Icon name="chevron-right" :size="14" class="crumb-sep" />
           <router-link to="/admin/docs" class="crumb-link">文档管理</router-link>
           <Icon name="chevron-right" :size="14" class="crumb-sep" />
@@ -142,6 +142,52 @@
               <option :value="null">未分类</option>
               <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
             </select>
+          </div>
+          <div class="prop-row">
+            <span class="prop-label">图标</span>
+            <div class="icon-picker-area">
+              <div class="icon-preview" :class="{ active: form.icon }">
+                <Icon v-if="form.icon" :name="form.icon" :size="20" />
+                <Icon v-else name="image" :size="20" class="text-gray-300" />
+              </div>
+              <button type="button" class="icon-pick-btn" @click="showIconPicker = !showIconPicker">
+                {{ form.icon ? '更换' : '选择' }}
+              </button>
+              <button v-if="form.icon" type="button" class="icon-clear-btn" @click="form.icon = ''">
+                清除
+              </button>
+            </div>
+          </div>
+          <!-- 图标选择面板 -->
+          <div v-if="showIconPicker" class="icon-picker-panel">
+            <p class="icon-picker-label">系统图标</p>
+            <div class="icon-grid-picker">
+              <button
+                v-for="name in systemIconOptions"
+                :key="name"
+                type="button"
+                class="icon-grid-item"
+                :class="{ selected: form.icon === name }"
+                @click="selectIcon(name)"
+              >
+                <Icon :name="name" :size="18" />
+              </button>
+            </div>
+            <template v-if="customIcons.length > 0">
+              <p class="icon-picker-label mt-3">自定义图标</p>
+              <div class="icon-grid-picker">
+                <button
+                  v-for="ic in customIcons"
+                  :key="ic.id"
+                  type="button"
+                  class="icon-grid-item"
+                  :class="{ selected: isCustomIconName(form.icon) && form.icon === (ic.type === 'iconfont' ? `iconfont:${ic.content}` : ic.content) }"
+                  @click="selectCustomIcon(ic)"
+                >
+                  <Icon :name="ic.type === 'iconfont' ? `iconfont:${ic.content}` : ic.content" :size="18" :color="ic.color || undefined" />
+                </button>
+              </div>
+            </template>
           </div>
           <div class="prop-row">
             <span class="prop-label">可见性</span>
@@ -283,6 +329,7 @@ import Icon from '@/components/ui/Icon.vue';
 import { docsApi } from '@/api/docs';
 import { categoriesApi } from '@/api/categories';
 import { chatApi } from '@/api/chat';
+import { adminApi, type IconVO } from '@/api';
 import { notify, confirmDialog, getApiError } from '@/utils/toast';
 import type { CategoryVO, DocDetailVO } from '@/api/types';
 
@@ -302,6 +349,7 @@ const form = ref({
   summary: '',
   keywords: '',
   content: '',
+  icon: '',
   visibility: 'public' as 'public' | 'member' | 'private',
   status: 1 as number,
 });
@@ -546,6 +594,43 @@ async function fetchCategories() {
   }
 }
 
+/** 系统预设图标 */
+const systemIconOptions = [
+  'file-text', 'file-code', 'book-open', 'pencil', 'code', 'brain',
+  'layout', 'database', 'server', 'lightbulb', 'graduation-cap',
+  'rocket', 'flame', 'sparkles', 'layers', 'route',
+]
+
+/** 自定义图标列表 */
+const customIcons = ref<IconVO[]>([])
+const showIconPicker = ref(false)
+
+/** 加载自定义图标 */
+async function fetchCustomIcons() {
+  try {
+    const list = await adminApi.icons()
+    customIcons.value = Array.isArray(list) ? list : []
+  } catch {
+    // 图标加载失败不影响编辑
+  }
+}
+
+/** 选择图标 */
+const selectIcon = (iconName: string) => {
+  form.value.icon = form.value.icon === iconName ? '' : iconName
+}
+
+/** 选择自定义图标（data URI / iconfont / svg） */
+const selectCustomIcon = (icon: IconVO) => {
+  const iconName = icon.type === 'iconfont' ? `iconfont:${icon.content}` : icon.content
+  form.value.icon = form.value.icon === iconName ? '' : iconName
+}
+
+/** 判断是否为自定义图标 */
+const isCustomIconName = (name: string): boolean => {
+  return !!(name && (name.startsWith('data:') || name.startsWith('http') || name.startsWith('iconfont:') || name.trimStart().startsWith('<svg')))
+}
+
 // 按路由 id 拉取文档详情并回填表单
 async function fetchDoc() {
   const id = Number(route.params.id);
@@ -563,6 +648,7 @@ async function fetchDoc() {
       summary: data.summary || '',
       keywords: '',
       content: (data as DocDetailVO & { content?: string }).content || '',
+      icon: data.icon || '',
       visibility: 'public',
       status: data.status ?? 1,
     };
@@ -597,6 +683,7 @@ async function handleSubmit() {
       tags: tagList.value.join(','),
       summary: form.value.summary,
       content: form.value.content,
+      icon: form.value.icon,
       status: form.value.status,
     });
     notify('保存成功', 'success');
@@ -642,6 +729,7 @@ function handleCancel() {
 onMounted(() => {
   fetchCategories();
   fetchDoc();
+  fetchCustomIcons();
   startAutoSave();
   // 点击页面其他位置关闭更多菜单
   document.addEventListener('click', closeMoreMenu);
@@ -658,18 +746,11 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 页头条 */
+/* 页头条：fullscreen 模式下直接贴顶，无需负 margin */
 .page-header {
   background: var(--kb-card);
   border-bottom: 1px solid var(--kb-border);
-  margin: -24px -24px 24px;
   border-radius: 0;
-}
-@media (max-width: 768px) {
-  .page-header {
-    margin: -16px -16px 16px;
-    padding: 0 16px;
-  }
 }
 
 .back-btn {
@@ -959,6 +1040,102 @@ onUnmounted(() => {
   background: var(--kb-card);
   color: var(--kb-foreground);
   outline: none;
+}
+
+/* 图标选择器 */
+.icon-picker-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.icon-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--kb-radius-sm);
+  border: 1px dashed var(--kb-border);
+  background: var(--kb-background);
+  color: var(--kb-muted-foreground);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.icon-preview.active {
+  border-style: solid;
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.06);
+}
+.icon-pick-btn {
+  height: 28px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.icon-pick-btn:hover {
+  background: var(--kb-muted);
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+}
+.icon-clear-btn {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  border-radius: var(--kb-radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--kb-muted-foreground);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.icon-clear-btn:hover {
+  color: var(--kb-destructive);
+}
+.icon-picker-panel {
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: var(--kb-radius-md);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-background);
+}
+.icon-picker-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--kb-muted-foreground);
+  margin-bottom: 8px;
+}
+.icon-grid-picker {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+}
+.icon-grid-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-muted-foreground);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.icon-grid-item:hover {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.06);
+}
+.icon-grid-item.selected {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.1);
 }
 
 /* 标签管理 */

@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS doc_document (
     content TEXT,
     summary VARCHAR(500),
     cover VARCHAR(255),
+    icon VARCHAR(255),
     category_id BIGINT,
     category_path VARCHAR(500),
     tags VARCHAR(500),
@@ -248,6 +249,21 @@ CREATE TABLE IF NOT EXISTS learning_user_chapter (
 CREATE INDEX idx_uc_user_chapter ON learning_user_chapter (user_id);
 CREATE INDEX idx_uc_chapter_id   ON learning_user_chapter (chapter_id);
 CREATE UNIQUE INDEX uk_uc_user_chapter ON learning_user_chapter (user_id, chapter_id);
+
+-- 自定义图标表
+CREATE TABLE IF NOT EXISTS sys_icon (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    type VARCHAR(20) DEFAULT 'custom',
+    content TEXT NOT NULL,
+    color VARCHAR(20),
+    user_id BIGINT,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX idx_icon_user ON sys_icon (user_id);
+CREATE INDEX idx_icon_type ON sys_icon (type);
 CREATE INDEX idx_fc_path      ON learning_flashcard (path_id);
 CREATE INDEX idx_fc_chap      ON learning_flashcard (chapter_id);
 -- SM-2 间隔重复算法所需字段
@@ -372,3 +388,31 @@ CREATE TABLE IF NOT EXISTS sys_user_ai_config (
     deleted INT DEFAULT 0
 );
 CREATE UNIQUE INDEX uk_user_ai_config_user ON sys_user_ai_config (user_id, deleted);
+
+-- 代码练习题目表（B 端题库管理 + C 端代码练习共用）
+CREATE TABLE IF NOT EXISTS code_question (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL COMMENT '题目标题',
+    description TEXT NOT NULL COMMENT '题目描述（多行文本）',
+    difficulty INT DEFAULT 0 COMMENT '难度：0 简单 / 1 中等 / 2 困难',
+    language VARCHAR(20) DEFAULT 'javascript' COMMENT '主语言：javascript/typescript/python/java/sql',
+    tags VARCHAR(500) COMMENT '题目标签，逗号分隔',
+    hint TEXT COMMENT '题目提示',
+    example_input TEXT COMMENT '输入示例',
+    example_output TEXT COMMENT '输出示例',
+    code_template TEXT COMMENT '函数签名模板（编辑器初始内容）',
+    test_cases TEXT COMMENT '测试用例 JSON 数组：[{input, expected}]',
+    solution_hint TEXT COMMENT '预期解法关键词，用于 AI 回答提示',
+    duration INT DEFAULT 30 COMMENT '建议做题时长（分钟）',
+    sort_order INT DEFAULT 0 COMMENT '排序值，越小越靠前',
+    status INT DEFAULT 1 COMMENT '状态：0 草稿 / 1 已发布',
+    pass_count INT DEFAULT 0 COMMENT '通过次数',
+    submit_count INT DEFAULT 0 COMMENT '提交次数',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX idx_cq_status    ON code_question (status);
+CREATE INDEX idx_cq_difficulty ON code_question (difficulty);
+CREATE INDEX idx_cq_language  ON code_question (language);
+CREATE INDEX idx_cq_sort      ON code_question (sort_order);

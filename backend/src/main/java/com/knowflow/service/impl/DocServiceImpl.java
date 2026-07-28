@@ -264,7 +264,12 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     @Transactional
     public void updateDoc(DocDocument doc) {
         DocDocument old = this.getById(doc.getId());
-        doc.setWordCount(StrUtil.isNotBlank(doc.getContent()) ? doc.getContent().length() : 0);
+        // 仅当传入 content 时才重算 wordCount，避免仅更新状态时把 wordCount 重置为 0
+        if (StrUtil.isNotBlank(doc.getContent())) {
+            doc.setWordCount(doc.getContent().length());
+        } else {
+            doc.setWordCount(null);
+        }
         this.updateById(doc);
         if (old != null) {
             Long oldCat = old.getCategoryId();

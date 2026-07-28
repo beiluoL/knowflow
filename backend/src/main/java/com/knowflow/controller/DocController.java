@@ -4,6 +4,7 @@ import com.knowflow.common.PageResult;
 import com.knowflow.common.Result;
 import com.knowflow.dto.DocQueryDTO;
 import com.knowflow.dto.ReadProgressDTO;
+import com.knowflow.entity.DocDocument;
 import com.knowflow.entity.LearningFlashcard;
 import com.knowflow.service.DocService;
 import com.knowflow.vo.DocDetailVO;
@@ -80,6 +81,16 @@ public class DocController {
         Long userId = (Long) authentication.getPrincipal();
         docService.updateReadProgress(dto, userId);
         return Result.success();
+    }
+
+    @Operation(summary = "上传/创建文档")
+    @PostMapping
+    public Result<DocDetailVO> create(@RequestBody DocDocument doc, Authentication authentication) {
+        if (authentication == null) {
+            return Result.error(401, "请先登录");
+        }
+        docService.saveDoc(doc);
+        return Result.success(docService.getDocDetail(doc.getId(), (Long) authentication.getPrincipal()));
     }
 
     @Operation(summary = "AI 生成文档摘要")

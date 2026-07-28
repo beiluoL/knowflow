@@ -33,3 +33,9 @@ design/pages/
 # 报告/清单类过程文档（不发布到远程）
 knowflow_*.md
 *清单.md
+
+# 本地敏感配置（含个人 API Key，切勿提交）
+backend/src/main/resources/application-local.yml
+backend/src/main/resources/application-prod.yml
+.env
+.env.local

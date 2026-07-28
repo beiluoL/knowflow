@@ -5,6 +5,7 @@ import type {
   LearningChapterVO,
   FlashcardVO,
   LearningTaskVO,
+  LearningTaskInput,
   LearningPathInput,
   ChapterInput,
   FlashcardInput,
@@ -30,6 +31,10 @@ export const learningApi = {
   reviewFlashcard: (id: number, quality: number) =>
     apiPost<void>(`/learning/flashcards/${id}/review?quality=${quality}`),
   tasks: () => apiGet<LearningTaskVO[]>('/learning/tasks'),
+  createTask: (data: LearningTaskInput) => apiPost<void>('/learning/tasks', data),
+  updateTaskStatus: (id: number, status: number) =>
+    apiPut<void>(`/learning/tasks/${id}/status?status=${status}`),
+  deleteTask: (id: number) => apiDelete<void>(`/learning/tasks/${id}`),
 
   // 管理员写操作
   createPath: (data: LearningPathInput) => apiPost<LearningPathVO>('/admin/learning/paths', data),

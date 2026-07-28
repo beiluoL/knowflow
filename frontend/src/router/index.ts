@@ -117,6 +117,12 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   {
+    path: '/learning/code-practice/:id',
+    name: 'CodePlayground',
+    component: () => import('@/views/CodePlayground.vue'),
+    meta: { layout: 'none', requiresAuth: true },
+  },
+  {
     path: '/learning/flashcards',
     name: 'FlashCards',
     component: () => import('@/views/FlashCards.vue'),
@@ -278,7 +284,7 @@ const routes: RouteRecordRaw[] = [
     path: '/admin/docs/:id/edit',
     name: 'AdminDocEdit',
     component: () => import('@/views/DocEdit.vue'),
-    meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
+    meta: { layout: 'b', requiresAuth: true, requiresAdmin: true, fullscreen: true },
   },
   {
     path: '/admin/upload',
@@ -299,6 +305,24 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
   },
   {
+    path: '/admin/learning-paths',
+    name: 'AdminLearningPaths',
+    component: () => import('@/views/admin/LearningPathMgmt.vue'),
+    meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/learning/chapters/new',
+    name: 'AdminChapterCreate',
+    component: () => import('@/views/admin/ChapterEdit.vue'),
+    meta: { layout: 'b', requiresAuth: true, requiresAdmin: true, fullscreen: true },
+  },
+  {
+    path: '/admin/learning/chapters/:id/edit',
+    name: 'AdminChapterEdit',
+    component: () => import('@/views/admin/ChapterEdit.vue'),
+    meta: { layout: 'b', requiresAuth: true, requiresAdmin: true, fullscreen: true },
+  },
+  {
     path: '/admin/quiz',
     name: 'AdminQuiz',
     component: () => import('@/views/SmartQuiz.vue'),
@@ -314,6 +338,18 @@ const routes: RouteRecordRaw[] = [
     path: '/admin/chat-config',
     name: 'AdminChatConfig',
     component: () => import('@/views/admin/ChatConfig.vue'),
+    meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/icons',
+    name: 'AdminIcons',
+    component: () => import('@/views/admin/IconManagement.vue'),
+    meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/code-questions',
+    name: 'AdminCodeQuestions',
+    component: () => import('@/views/admin/CodeQuestionMgmt.vue'),
     meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
   },
   {

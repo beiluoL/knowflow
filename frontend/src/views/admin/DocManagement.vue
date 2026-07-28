@@ -1,5 +1,5 @@
 <template>
-  <!-- 管理后台-文档管理：标题+操作组、视图切换、文件类型筛选、表格（含阅读进度）、分页 -->
+  <!-- 管理后台-文档管理：标题+操作组、视图切换、知识库筛选、文件类型筛选、表格/网格（含阅读进度）、分页 -->
   <div class="doc-mgmt-wrap">
     <!-- 页面标题 + 操作按钮 -->
     <div class="page-head">
@@ -45,6 +45,23 @@
 
     <!-- 筛选条 -->
     <div class="filter-bar">
+      <!-- 知识库（分类）筛选 -->
+      <div class="filter-category">
+        <select v-model="selectedCategoryId" class="category-select" @change="onFilterChange">
+          <option :value="undefined">全部分类</option>
+          <option v-for="cat in categoryOptions" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+        </select>
+      </div>
+      <!-- 状态筛选（后端查询） -->
+      <div class="filter-category">
+        <select v-model="selectedStatus" class="category-select" @change="onFilterChange">
+          <option :value="undefined">全部状态</option>
+          <option :value="0">草稿</option>
+          <option :value="1">已发布</option>
+          <option :value="2">已禁用</option>
+          <option :value="3">已废弃</option>
+        </select>
+      </div>
       <div class="filter-types">
         <button
           v-for="t in fileTypes"
@@ -70,15 +87,22 @@
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="搜索..."
+            placeholder="搜索标题..."
             class="search-input"
+            @keyup.enter="onFilterChange"
           />
+          <button class="search-btn" @click="onFilterChange">搜索</button>
         </div>
       </div>
     </div>
 
-    <!-- 文档表格 -->
-    <div class="table-card">
+    <!-- 文档表格（列表视图） -->
+    <div v-if="viewMode === 'list'" class="table-card">
+      <!-- 加载态 -->
+      <div v-if="loading" class="table-loading">
+        <div class="loading-spinner"></div>
+        <span>加载中...</span>
+      </div>
       <!-- 表头 -->
       <div class="table-row table-head">
         <label v-if="batchMode" class="checkbox-cell">
@@ -94,6 +118,7 @@
         <div class="col-size">大小</div>
         <div class="col-modified">修改时间</div>
         <div class="col-owner">所有者</div>
+        <div class="col-status">状态</div>
         <div class="col-progress">阅读进度</div>
         <div class="col-actions">操作</div>
       </div>
@@ -117,7 +142,7 @@
             <div class="file-icon" :style="{ background: doc.iconBg }">
               <Icon :name="doc.icon" :size="16" :style="{ color: doc.iconColor }" />
             </div>
-            <span class="file-name-text" :title="doc.title">{{ doc.title }}</span>
+            <span class="file-name-text" :title="doc.title" @click="goToDetail(doc)">{{ doc.title }}</span>
           </div>
         </div>
         <div class="col-category">
@@ -126,6 +151,11 @@
         <div class="col-size">{{ doc.size }}</div>
         <div class="col-modified">{{ doc.modified }}</div>
         <div class="col-owner">{{ doc.owner }}</div>
+        <div class="col-status">
+          <span class="status-tag" :style="{ color: statusLabel(doc.raw.status).color, background: statusLabel(doc.raw.status).color + '15' }">
+            {{ statusLabel(doc.raw.status).text }}
+          </span>
+        </div>
         <div class="col-progress">
           <div class="progress-bar">
             <div
@@ -149,6 +179,45 @@
       </div>
 
       <!-- 空态 -->
+      <p v-if="pagedDocs.length === 0" class="table-empty">暂无文档数据</p>
+    </div>
+
+    <!-- 网格视图 -->
+    <div v-if="viewMode === 'grid'" class="doc-grid">
+      <div
+        v-for="doc in pagedDocs"
+        :key="doc.id"
+        class="doc-card"
+      >
+        <div class="card-head">
+          <div class="card-icon" :style="{ background: doc.iconBg }">
+            <Icon :name="doc.icon" :size="20" :style="{ color: doc.iconColor }" />
+          </div>
+          <div class="card-actions">
+            <button class="icon-btn" title="编辑" @click="openEdit(doc)">
+              <Icon name="edit" :size="14" />
+            </button>
+            <button class="icon-btn" title="删除" @click="removeDoc(doc)">
+              <Icon name="trash-2" :size="14" />
+            </button>
+          </div>
+        </div>
+        <div class="card-title" :title="doc.title" @click="goToDetail(doc)">{{ doc.title }}</div>
+        <div class="card-meta">
+          <span class="category-badge" :style="categoryStyle(doc.categoryColor)">{{ doc.category }}</span>
+          <span class="card-date">{{ doc.modified }}</span>
+        </div>
+        <div class="card-footer">
+          <span class="card-stat" title="浏览量">
+            <Icon name="eye" :size="12" />
+            {{ doc.raw.viewCount ?? 0 }}
+          </span>
+          <span class="card-stat" title="阅读量">
+            <Icon name="book-open" :size="12" />
+            {{ doc.raw.readCount ?? 0 }}
+          </span>
+        </div>
+      </div>
       <p v-if="pagedDocs.length === 0" class="table-empty">暂无文档数据</p>
     </div>
 
@@ -203,7 +272,19 @@
       <div class="menu-popover" @click.stop>
         <button class="menu-item" @click="openEdit(menuDoc); menuDoc = null">
           <Icon name="edit" :size="14" />
-          <span>编辑</span>
+          <span>修订</span>
+        </button>
+        <button v-if="menuDoc.raw.status !== 1" class="menu-item" @click="publishDoc(menuDoc); menuDoc = null">
+          <Icon name="check-circle" :size="14" />
+          <span>发布</span>
+        </button>
+        <button v-if="menuDoc.raw.status !== 0" class="menu-item" @click="draftDoc(menuDoc); menuDoc = null">
+          <Icon name="edit-2" :size="14" />
+          <span>转为草稿</span>
+        </button>
+        <button v-if="menuDoc.raw.status !== 3" class="menu-item" @click="deprecateDoc(menuDoc); menuDoc = null">
+          <Icon name="archive" :size="14" />
+          <span>废弃</span>
         </button>
         <button class="menu-item danger" @click="removeDoc(menuDoc); menuDoc = null">
           <Icon name="trash-2" :size="14" />
@@ -211,76 +292,28 @@
         </button>
       </div>
     </div>
-
-    <!-- 编辑弹窗 -->
-    <div
-      v-if="showModal"
-      class="modal-mask"
-      @click.self="closeModal"
-    >
-      <div class="modal-card">
-        <div class="modal-head">
-          <h3 class="kb-h3">编辑文档</h3>
-          <button class="icon-btn" title="关闭" @click="closeModal">
-            <Icon name="x" :size="18" />
-          </button>
-        </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label class="form-label">标题</label>
-            <input v-model="form.title" type="text" class="form-input" placeholder="请输入文档标题" />
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">分类</label>
-              <select v-model.number="form.categoryId" class="form-input">
-                <option :value="0">未分类</option>
-                <option v-for="cat in categoryOptions" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">状态</label>
-              <select v-model.number="form.status" class="form-input">
-                <option :value="1">已发布</option>
-                <option :value="0">草稿</option>
-                <option :value="2">已禁用</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">摘要</label>
-            <input v-model="form.summary" type="text" class="form-input" placeholder="请输入文档摘要" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">标签（逗号分隔）</label>
-            <input v-model="form.tags" type="text" class="form-input" placeholder="如：Vue,前端,框架" />
-          </div>
-        </div>
-        <div class="modal-foot">
-          <button class="btn-secondary" @click="closeModal">取消</button>
-          <button class="btn-primary" :disabled="saving" @click="save">
-            {{ saving ? '保存中...' : '保存' }}
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// 管理后台-文档管理：文档列表展示、类型筛选、排序、分页、批量选择、编辑/删除。
-// 注：文件大小/所有者/阅读进度字段后端暂未提供，使用 mock 数据展示。
+// 管理后台-文档管理：文档列表/网格展示、知识库筛选、类型筛选、排序、分页、批量选择、编辑/删除/下载。
 import { confirmDialog, getApiError, notify } from '@/utils/toast'
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
-import { adminApi } from '@/api'
-import type { CategoryVO, DocVO, DocInput } from '@/api/types'
+import { adminApi, docsApi } from '@/api'
+import type { CategoryVO, DocVO } from '@/api/types'
 
 const router = useRouter()
+const route = useRoute()
 
 const goToCreate = () => router.push('/docs/new')
 const goToUpload = () => router.push('/upload')
+
+/** 跳转文档编辑页（B端二级页面） */
+const goToDetail = (doc: DocRow) => {
+  router.push('/admin/docs/' + doc.id + '/edit')
+}
 
 /** 文档行数据结构 */
 interface DocRow {
@@ -292,7 +325,7 @@ interface DocRow {
   modified: string
   owner: string
   progress: number
-  icon: string
+  icon?: string
   iconBg: string
   iconColor: string
   raw: DocVO
@@ -309,6 +342,8 @@ const fileTypes = [
 
 const viewMode = ref<'list' | 'grid'>('list')
 const selectedType = ref('all')
+const selectedCategoryId = ref<number | undefined>(undefined)
+const selectedStatus = ref<number | undefined>(undefined)
 const sortBy = ref('modified')
 const searchQuery = ref('')
 const batchMode = ref(false)
@@ -316,31 +351,45 @@ const checkedIds = ref<number[]>([])
 const currentPage = ref(1)
 const pageSize = ref(10)
 
+/** 搜索输入的防抖值（实际发给后端的 keyword） */
+const searchKeyword = ref('')
+
 const categoryOptions = ref<CategoryVO[]>([])
 const allDocs = ref<DocRow[]>([])
 const loading = ref(false)
 
+/** 图标选项与颜色映射 */
+const iconOptions = ['file-text', 'file-code', 'book-open', 'pencil', 'code', 'brain', 'layout', 'database', 'server', 'lightbulb']
+
+const iconColors: Record<string, string> = {
+  'file-text': '#3B6FE0',
+  'file-code': '#10B981',
+  'book-open': '#8B5CF6',
+  'pencil': '#F59E0B',
+  'code': '#3B6FE0',
+  'brain': '#8B5CF6',
+  'layout': '#EC4899',
+  'database': '#F59E0B',
+  'server': '#10B981',
+  'lightbulb': '#F59E0B',
+}
+
 /** 更多操作菜单 */
 const menuDoc = ref<DocRow | null>(null)
-
-/** 编辑弹窗 */
-const showModal = ref(false)
-const editingId = ref<number | null>(null)
-const saving = ref(false)
-const form = ref<DocInput & { content?: string }>({
-  title: '',
-  summary: '',
-  categoryId: 0,
-  tags: '',
-  content: '',
-  status: 1,
-})
 
 /** 颜色池：用于分类徽标 */
 const categoryColors = ['#F59E0B', '#3B6FE0', '#10B981', '#EF4444', '#6B7280']
 
-/** 根据文档标题推断文件类型图标与颜色 */
-const inferIcon = (title: string): { icon: string; bg: string; color: string } => {
+/** 根据文档标题推断文件类型图标与颜色；若设置过自定义图标则优先使用 */
+const inferIcon = (title: string, customIcon?: string): { icon: string; bg: string; color: string } => {
+  if (customIcon && iconOptions.includes(customIcon)) {
+    const color = iconColors[customIcon] || '#6B7280'
+    return {
+      icon: customIcon,
+      bg: hexToRgba(color, 0.1),
+      color,
+    }
+  }
   const lower = title.toLowerCase()
   if (lower.endsWith('.pdf')) {
     return { icon: 'file-text', bg: 'rgba(239,68,68,0.1)', color: '#EF4444' }
@@ -355,7 +404,17 @@ const inferIcon = (title: string): { icon: string; bg: string; color: string } =
   return { icon: 'pencil', bg: 'var(--kb-muted)', color: 'var(--kb-muted-foreground)' }
 }
 
-/** 根据文件类型筛选 */
+/** 根据字数计算文件大小显示（1 字符 ≈ 2 字节） */
+const formatSize = (wordCount?: number): string => {
+  if (!wordCount || wordCount <= 0) return '—'
+  const bytes = wordCount * 2
+  if (bytes < 1024) return bytes + ' B'
+  const kb = bytes / 1024
+  if (kb < 1024) return kb.toFixed(1) + ' KB'
+  return (kb / 1024).toFixed(1) + ' MB'
+}
+
+/** 根据文件类型筛选（前端过滤，基于标题后缀） */
 const filteredByType = computed(() => {
   if (selectedType.value === 'all') return allDocs.value
   return allDocs.value.filter((d) => {
@@ -368,20 +427,16 @@ const filteredByType = computed(() => {
   })
 })
 
-/** 搜索 + 排序后的列表 */
+/** 排序后的列表（categoryId/keyword/status 已在后端查询，前端仅做文件类型过滤和排序） */
 const filteredDocs = computed(() => {
   let result = [...filteredByType.value]
-  if (searchQuery.value) {
-    const q = searchQuery.value.toLowerCase()
-    result = result.filter((d) => d.title.toLowerCase().includes(q))
-  }
-  // 排序
+  // 排序（后端不支持排序参数，前端处理）
   if (sortBy.value === 'name') {
     result.sort((a, b) => a.title.localeCompare(b.title))
   } else if (sortBy.value === 'size') {
-    result.sort((a, b) => parseFloat(b.size) - parseFloat(a.size))
+    result.sort((a, b) => (b.raw.wordCount ?? 0) - (a.raw.wordCount ?? 0))
   } else {
-    // 修改时间倒序
+    // 修改时间倒序（后端已按 createTime DESC 排序，这里保持）
     result.sort((a, b) => b.modified.localeCompare(a.modified))
   }
   return result
@@ -427,12 +482,10 @@ const allChecked = computed(
 
 const toggleAll = () => {
   if (allChecked.value) {
-    // 取消当前页选中
     checkedIds.value = checkedIds.value.filter(
       (id) => !pagedDocs.value.some((d) => d.id === id),
     )
   } else {
-    // 选中当前页
     pagedDocs.value.forEach((d) => {
       if (!checkedIds.value.includes(d.id)) checkedIds.value.push(d.id)
     })
@@ -476,50 +529,50 @@ const openMenu = (doc: DocRow) => {
   menuDoc.value = doc
 }
 
-/** 打开编辑弹窗 */
+/** 跳转到文档编辑页面 */
 const openEdit = (doc: DocRow) => {
-  editingId.value = doc.id
-  form.value = {
-    title: doc.raw.title ?? '',
-    summary: doc.raw.summary ?? '',
-    categoryId: doc.raw.categoryId ?? 0,
-    tags: doc.raw.tags ?? '',
-    content: (doc.raw as Record<string, unknown>).content ?? '',
-    status: doc.raw.status ?? 1,
-  }
-  showModal.value = true
+  router.push(`/admin/docs/${doc.id}/edit`)
 }
 
-const closeModal = () => {
-  showModal.value = false
-  editingId.value = null
-}
-
-const save = async () => {
-  if (!form.value.title.trim()) {
-    notify('请填写文档标题', 'warning')
-    return
-  }
-  saving.value = true
+/** 文档状态操作：发布/废弃/修订 */
+const publishDoc = async (doc: DocRow) => {
   try {
-    const payload: DocInput = {
-      title: form.value.title,
-      summary: form.value.summary,
-      categoryId: form.value.categoryId || undefined,
-      tags: form.value.tags,
-      content: form.value.content,
-      status: form.value.status,
-    }
-    if (editingId.value) {
-      await adminApi.updateDoc(editingId.value, payload)
-    }
-    notify('更新成功', 'success')
-    closeModal()
+    await adminApi.publishDoc(doc.id)
+    notify('文档已发布', 'success')
     await loadDocs()
   } catch (e: unknown) {
-    notify('保存失败：' + getApiError(e), 'error')
-  } finally {
-    saving.value = false
+    notify('发布失败：' + getApiError(e), 'error')
+  }
+}
+
+const deprecateDoc = async (doc: DocRow) => {
+  if (!(await confirmDialog(`确定废弃文档《${doc.title}》吗？`))) return
+  try {
+    await adminApi.deprecateDoc(doc.id)
+    notify('文档已废弃', 'success')
+    await loadDocs()
+  } catch (e: unknown) {
+    notify('操作失败：' + getApiError(e), 'error')
+  }
+}
+
+const draftDoc = async (doc: DocRow) => {
+  try {
+    await adminApi.draftDoc(doc.id)
+    notify('文档已转为草稿', 'success')
+    await loadDocs()
+  } catch (e: unknown) {
+    notify('操作失败：' + getApiError(e), 'error')
+  }
+}
+
+/** 获取文档状态标签 */
+const statusLabel = (status?: number): { text: string; color: string } => {
+  switch (status) {
+    case 1: return { text: '已发布', color: '#10B981' }
+    case 2: return { text: '已禁用', color: '#EF4444' }
+    case 3: return { text: '已废弃', color: '#6B7280' }
+    default: return { text: '草稿', color: '#F59E0B' }
   }
 }
 
@@ -541,16 +594,45 @@ const shareDoc = (_doc: DocRow) => {
   notify('分享链接已复制（演示）', 'success')
 }
 
-const downloadDoc = (_doc: DocRow) => {
-  notify('开始下载（演示）', 'success')
+/** 下载文档：获取文档详情后导出为 Markdown 文件 */
+const downloadDoc = async (doc: DocRow) => {
+  try {
+    const detail = await docsApi.detail(doc.id)
+    const content = detail.content ?? ''
+    const title = doc.title || `document-${doc.id}`
+    const filename = title.endsWith('.md') ? title : title + '.md'
+    const blob = new Blob([`# ${title}\n\n${content}`], { type: 'text/markdown;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    notify(`已下载：${filename}`, 'success')
+  } catch (e: unknown) {
+    notify('下载失败：' + getApiError(e), 'error')
+  }
 }
 
-/** 加载文档列表 */
+/** 加载文档列表（后端按 categoryId/keyword/status 筛选） */
 const loadDocs = async () => {
   loading.value = true
   try {
+    const params: Record<string, unknown> = { pageSize: 200 }
+    if (selectedCategoryId.value !== undefined) {
+      params.categoryId = selectedCategoryId.value
+    }
+    if (searchKeyword.value.trim()) {
+      params.keyword = searchKeyword.value.trim()
+    }
+    if (selectedStatus.value !== undefined) {
+      params.status = selectedStatus.value
+    }
+
     const [docPage, cats] = await Promise.all([
-      adminApi.docs({ pageSize: 200 }),
+      adminApi.docs(params),
       adminApi.categories(),
     ])
     categoryOptions.value = cats
@@ -563,21 +645,18 @@ const loadDocs = async () => {
     })
 
     const records = (docPage.records ?? []) as DocVO[]
-    // 注：size/owner/progress 为 mock 字段，后端暂未提供
-    const mockSizes = ['2.4 MB', '56 KB', '1.8 MB', '12 KB', '5.1 MB', '128 KB', '890 KB', '8 KB', '3.7 MB', '72 KB']
-    const mockOwners = ['张三', '李四', '王五', '赵六']
-    allDocs.value = records.map((d, idx) => {
+    allDocs.value = records.map((d) => {
       const cat = catMap.get(d.categoryId ?? -1) ?? { name: '未分类', color: '#6B7280' }
-      const iconInfo = inferIcon(d.title ?? '')
+      const iconInfo = inferIcon(d.title ?? '', d.icon)
       return {
         id: d.id,
         title: d.title ?? '',
         category: cat.name,
         categoryColor: cat.color,
-        size: mockSizes[idx % mockSizes.length],
+        size: formatSize(d.wordCount),
         modified: formatDate(d.createTime),
-        owner: mockOwners[idx % mockOwners.length],
-        progress: [85, 62, 100, 30, 45, 78, 50, 15, 90, 55][idx % 10],
+        owner: (d as DocVO & { author?: string }).author || '—',
+        progress: 0,
         icon: iconInfo.icon,
         iconBg: iconInfo.bg,
         iconColor: iconInfo.color,
@@ -591,7 +670,46 @@ const loadDocs = async () => {
   }
 }
 
-onMounted(loadDocs)
+/** 筛选条件变化时触发后端查询（分类/状态/搜索） */
+const onFilterChange = () => {
+  searchKeyword.value = searchQuery.value
+  currentPage.value = 1
+  loadDocs()
+}
+
+/** 监听路由 query 变化（从知识库管理跳转过来时 categoryId 会变） */
+watch(
+  () => route.query.categoryId,
+  (val) => {
+    const num = val !== undefined && val !== null && val !== '' ? Number(val) : NaN
+    if (!Number.isNaN(num)) {
+      if (selectedCategoryId.value !== num) {
+        selectedCategoryId.value = num
+        currentPage.value = 1
+        loadDocs()
+      }
+    } else {
+      // 没有 categoryId 参数时，清除筛选
+      if (selectedCategoryId.value !== undefined) {
+        selectedCategoryId.value = undefined
+        currentPage.value = 1
+        loadDocs()
+      }
+    }
+  },
+)
+
+onMounted(() => {
+  // 从路由 query 读取知识库筛选
+  const catIdFromRoute = route.query.categoryId
+  if (catIdFromRoute !== undefined && catIdFromRoute !== null && catIdFromRoute !== '') {
+    const num = Number(catIdFromRoute)
+    if (!Number.isNaN(num)) {
+      selectedCategoryId.value = num
+    }
+  }
+  loadDocs()
+})
 </script>
 
 <style scoped>
@@ -706,6 +824,30 @@ onMounted(loadDocs)
   flex-wrap: wrap;
 }
 
+/* 知识库筛选下拉 */
+.filter-category {
+  display: flex;
+  align-items: center;
+}
+
+.category-select {
+  height: 32px;
+  padding: 0 28px 0 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  border: 1px solid var(--kb-border);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  min-width: 140px;
+}
+
+.category-select:focus {
+  border-color: var(--kb-ring);
+}
+
 .filter-types {
   display: flex;
   align-items: center;
@@ -791,6 +933,46 @@ onMounted(loadDocs)
 
 .search-input:focus {
   border-color: var(--kb-ring);
+}
+
+.search-btn {
+  height: 32px;
+  padding: 0 12px;
+  margin-left: 6px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.search-btn:hover {
+  opacity: 0.9;
+}
+
+/* 表格加载态 */
+.table-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 0;
+  color: var(--kb-muted-foreground);
+  font-size: 13px;
+}
+.loading-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--kb-muted);
+  border-top-color: var(--kb-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* 表格卡片 */
@@ -879,6 +1061,21 @@ onMounted(loadDocs)
   white-space: nowrap;
 }
 
+.col-status {
+  width: 72px;
+  flex-shrink: 0;
+}
+
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
 .col-progress {
   width: 96px;
   flex-shrink: 0;
@@ -920,6 +1117,12 @@ onMounted(loadDocs)
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.file-name-text:hover {
+  color: var(--kb-primary);
 }
 
 /* 分类徽标 */
@@ -980,6 +1183,105 @@ onMounted(loadDocs)
   color: var(--kb-muted-foreground);
   padding: 48px 0;
   margin: 0;
+}
+
+/* ===== 网格视图 ===== */
+.doc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.doc-card {
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.doc-card:hover {
+  border-color: var(--kb-ring);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-actions {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.doc-card:hover .card-actions {
+  opacity: 1;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--kb-foreground);
+  line-height: 1.4;
+  cursor: pointer;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 39px;
+  transition: color 0.15s;
+}
+
+.card-title:hover {
+  color: var(--kb-primary);
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.card-date {
+  font-size: 12px;
+  color: var(--kb-muted-foreground);
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--kb-border);
+}
+
+.card-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--kb-muted-foreground);
 }
 
 /* 分页 */
@@ -1130,7 +1432,7 @@ onMounted(loadDocs)
   background: var(--kb-card);
   border-radius: 12px;
   width: 100%;
-  max-width: 560px;
+  max-width: 720px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
@@ -1204,6 +1506,57 @@ onMounted(loadDocs)
 }
 
 .form-input:focus {
+  border-color: var(--kb-ring);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+}
+
+/* 图标选择器 */
+.icon-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.icon-option {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.icon-option:hover {
+  border-color: var(--kb-muted-foreground);
+}
+
+.icon-option.active {
+  border-color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.08);
+}
+
+/* 内容文本域 */
+.form-textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  font-size: 13px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  line-height: 1.6;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+
+.form-textarea:focus {
   border-color: var(--kb-ring);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
@@ -1294,6 +1647,11 @@ onMounted(loadDocs)
 
   .pagination {
     justify-content: center;
+  }
+
+  .doc-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
   }
 }
 </style>

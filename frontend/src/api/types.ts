@@ -66,6 +66,7 @@ export interface DocVO {
   title: string
   summary?: string
   cover?: string
+  icon?: string
   categoryId?: number
   categoryName?: string
   tags?: string
@@ -114,6 +115,7 @@ export interface DocInput {
   content?: string
   summary?: string
   cover?: string
+  icon?: string
   categoryId?: number
   categoryPath?: string
   tags?: string
@@ -199,6 +201,13 @@ export interface LearningTaskVO {
   energyCost?: number
   deadline?: string
   status?: number
+}
+
+export interface LearningTaskInput {
+  title: string
+  description?: string
+  type?: string
+  deadline?: string
 }
 
 export interface LearningPathInput {
@@ -485,4 +494,79 @@ export interface PlatformModelVO {
   model: string
   subscriptionRequired: boolean
   priceInfo: string
+}
+
+// ===== 代码题库 =====
+/** 单条测试用例（与后端 code_question.test_cases JSON 数组项对齐） */
+export interface CodeTestCase {
+  input: string
+  expected: string
+}
+
+/** 代码题目 VO（与 com.knowflow.entity.CodeQuestion 对齐） */
+export interface CodeQuestionVO {
+  id: number
+  title: string
+  description?: string
+  /** 难度：0 简单 / 1 中等 / 2 困难 */
+  difficulty?: number
+  /** 主语言：javascript / typescript / python / java / sql */
+  language?: string
+  tags?: string
+  hint?: string
+  exampleInput?: string
+  exampleOutput?: string
+  codeTemplate?: string
+  /** 测试用例 JSON 字符串：[{input, expected}] */
+  testCases?: string
+  solutionHint?: string
+  duration?: number
+  sortOrder?: number
+  /** 状态：0 草稿 / 1 已发布 */
+  status?: number
+  passCount?: number
+  submitCount?: number
+  createTime?: string
+  updateTime?: string
+}
+
+/** 单条测试用例运行结果 */
+export interface CodeTestCaseResult {
+  passed: boolean
+  input: string
+  expected: string
+  actual: string
+  error?: string | null
+}
+
+/** 提交答案验证结果 */
+export interface CodeSubmitResultVO {
+  passed: boolean
+  total: number
+  passCount: number
+  /** 累计提交次数 */
+  submitCount?: number
+  /** 累计通过次数 */
+  passTotal?: number
+  results?: CodeTestCaseResult[]
+  /** 运行耗时（毫秒） */
+  elapsed?: number
+}
+
+/** 题库管理：新增/编辑表单 */
+export interface CodeQuestionInput {
+  title: string
+  description?: string
+  difficulty?: number
+  language?: string
+  tags?: string
+  hint?: string
+  exampleInput?: string
+  exampleOutput?: string
+  codeTemplate?: string
+  testCases?: string
+  solutionHint?: string
+  duration?: number
+  sortOrder?: number
+  status?: number
 }

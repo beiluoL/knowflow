@@ -20,7 +20,7 @@
       :class="collapsed ? 'justify-center px-0' : 'px-5'"
       style="border-color: var(--kb-border);"
     >
-      <router-link to="/" class="flex items-center gap-2.5 min-w-0" @click="$emit('close')">
+      <router-link to="/admin/overview" class="flex items-center gap-2.5 min-w-0" @click="$emit('close')">
         <Icon name="book-open" :size="22" class="text-primary-500 shrink-0" />
         <span v-if="!collapsed" class="kb-h4 truncate">KnowFlow</span>
       </router-link>
@@ -129,7 +129,10 @@ const allGroups: NavGroup[] = [
       { path: '/admin/docs', label: '文档管理', icon: 'files', adminOnly: true },
       { path: '/admin/upload', label: '上传文档', icon: 'upload', adminOnly: true },
       { path: '/admin/tags', label: '知识库与标签', icon: 'tags', adminOnly: true },
+      { path: '/admin/learning-paths', label: '学习路径管理', icon: 'route', adminOnly: true },
       { path: '/admin/flashcards', label: '知识卡片管理', icon: 'credit-card', adminOnly: true },
+      { path: '/admin/code-questions', label: '代码题库管理', icon: 'code', adminOnly: true },
+      { path: '/admin/icons', label: '图标管理', icon: 'palette', adminOnly: true },
     ],
   },
   {

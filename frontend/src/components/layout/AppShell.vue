@@ -16,7 +16,12 @@
       :class="sidebarCollapsed ? 'lg:ml-[64px]' : 'lg:ml-60'"
     >
       <BTopbar @toggle-sidebar="sidebarOpen = !sidebarOpen" />
-      <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+      <!-- fullscreen 模式：移除 padding 和 max-width，让编辑页面等全宽贴顶 -->
+      <main v-if="isFullscreen" class="flex-1 overflow-y-auto">
+        <slot />
+      </main>
+      <!-- 默认模式：带 padding 和最大宽度限制 -->
+      <main v-else class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
         <div class="max-w-[1400px] mx-auto">
           <slot />
         </div>
@@ -27,12 +32,17 @@
 
 <script setup lang="ts">
 // 布局组件：应用外壳布局，组合侧边栏与后台顶栏，提供主内容区插槽并持久化侧栏折叠状态。
-import { ref, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import Sidebar from './Sidebar.vue';
 import BTopbar from './BTopbar.vue';
 
+const route = useRoute();
 const sidebarOpen = ref(false);
 const sidebarCollapsed = ref(false);
+
+/** fullscreen 模式：路由 meta.fullscreen 为 true 时，main 移除 padding 和 max-width */
+const isFullscreen = computed(() => route.meta.fullscreen === true);
 
 function toggleCollapse() {
   sidebarCollapsed.value = !sidebarCollapsed.value;

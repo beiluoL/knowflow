@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: knowflow-backend
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
 
   datasource:
     driver-class-name: org.h2.Driver

@@ -337,9 +337,15 @@ const inline = (s: string) =>
   escapeHtml(s)
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (text, url) => {
+    // Markdown links: [text](url)
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, url) => {
       const safe = sanitizeUrl(url)
-      return safe ? `<a href="${safe}" target="_blank" rel="noopener noreferrer">${text}</a>` : text
+      return safe ? `<a href="${safe}" target="_blank" rel="noopener noreferrer">${text}</a>` : _
+    })
+    // Bare URLs: https://... or http://... (skip URLs already inside href=" attributes)
+    .replace(/(?<!href=")(https?:\/\/[^\s<"]+)/g, (url) => {
+      const safe = sanitizeUrl(url)
+      return safe ? `<a href="${safe}" target="_blank" rel="noopener noreferrer">${url}</a>` : url
     })
     .replace(/  \n/g, '<br />')
 

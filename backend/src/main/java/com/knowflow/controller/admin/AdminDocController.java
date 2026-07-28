@@ -67,4 +67,34 @@ public class AdminDocController {
         docService.removeDoc(id);
         return Result.success();
     }
+
+    @Operation(summary = "发布文档")
+    @PutMapping("/{id}/publish")
+    public Result<Void> publish(@PathVariable Long id) {
+        DocDocument doc = new DocDocument();
+        doc.setId(id);
+        doc.setStatus(1);
+        docService.updateDoc(doc);
+        return Result.success();
+    }
+
+    @Operation(summary = "转为草稿")
+    @PutMapping("/{id}/draft")
+    public Result<Void> draft(@PathVariable Long id) {
+        DocDocument doc = new DocDocument();
+        doc.setId(id);
+        doc.setStatus(0);
+        docService.updateDoc(doc);
+        return Result.success();
+    }
+
+    @Operation(summary = "废弃文档")
+    @PutMapping("/{id}/deprecate")
+    public Result<Void> deprecate(@PathVariable Long id) {
+        DocDocument doc = new DocDocument();
+        doc.setId(id);
+        doc.setStatus(3);
+        docService.updateDoc(doc);
+        return Result.success();
+    }
 }

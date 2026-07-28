@@ -18,6 +18,9 @@ public class DocDocument extends BaseEntity {
 
     private String cover;
 
+    /** 文档图标名称，用于前端展示。 */
+    private String icon;
+
     private Long categoryId;
 
     /** 分类层级路径，逗号分隔的分类 ID 链。 */

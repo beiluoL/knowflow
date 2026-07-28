@@ -1,25 +1,66 @@
 <template>
-  <div class="animate-fade-in">
-    <!-- ========== Section 1: 欢迎区 ========== -->
-    <section class="rounded-xl border p-4 mb-4" style="background: var(--kb-card); border-color: var(--kb-border);">
-      <div class="flex items-center justify-between gap-4 flex-wrap">
-        <div class="min-w-0">
-          <h1 class="kb-h1 mb-1">{{ greeting }}，{{ userName }}</h1>
-          <p class="kb-body" style="color: var(--kb-muted-foreground);">
-            今天是你连续学习的第
-            <span class="font-semibold tabular-nums" style="color: var(--kb-primary);">{{ streakDays }}</span>
-            天，继续保持！本周已学习
-            <span class="font-semibold tabular-nums" style="color: var(--kb-accent);">{{ weekHours }}</span>
-            小时。
-          </p>
+  <div class="learning-center animate-fade-in">
+    <!-- ========== Section 1: 名人名言 Hero ========== -->
+    <section class="quote-hero">
+      <div class="quote-hero-bg">
+        <div class="quote-grid-pattern"></div>
+        <div class="quote-glow quote-glow-1"></div>
+        <div class="quote-glow quote-glow-2"></div>
+      </div>
+      <div class="quote-content">
+        <div class="quote-mark">"</div>
+        <p class="quote-text">{{ currentQuote.text }}</p>
+        <div class="quote-divider"></div>
+        <p class="quote-author">
+          <span class="quote-author-name">{{ currentQuote.author }}</span>
+          <span v-if="currentQuote.title" class="quote-author-title">{{ currentQuote.title }}</span>
+        </p>
+      </div>
+      <div class="quote-dots">
+        <button
+          v-for="(q, idx) in quotes"
+          :key="idx"
+          type="button"
+          :aria-label="`第 ${idx + 1} 条名言`"
+          :class="['quote-dot', { 'quote-dot-active': idx === quoteIndex }]"
+          @click="quoteIndex = idx"
+        ></button>
+      </div>
+      <button
+        v-if="quotes.length > 1"
+        type="button"
+        aria-label="下一条名言"
+        class="quote-nav-btn quote-nav-next"
+        @click="nextQuote"
+      >
+        <Icon name="chevron-right" :size="18" />
+      </button>
+    </section>
+
+    <!-- ========== Section 2: 学习数据概览 ========== -->
+    <section class="stats-bar">
+      <div class="stats-greeting">
+        <h1 class="kb-h1">{{ greeting }}，{{ userName }}</h1>
+        <p class="kb-body">
+          今天是你连续学习的第
+          <span class="font-semibold tabular-nums" style="color: var(--kb-primary);">{{ streakDays }}</span>
+          天，继续保持！本周已学习
+          <span class="font-semibold tabular-nums" style="color: var(--kb-accent);">{{ weekHours }}</span>
+          小时。
+        </p>
+      </div>
+      <div class="stats-pills">
+        <div class="stats-pill stats-pill-flame">
+          <Icon name="flame" :size="16" />
+          <span class="tabular-nums">连续 {{ streakDays }} 天</span>
         </div>
-        <div class="flex items-center gap-3 shrink-0">
-          <div class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium tabular-nums" style="background: rgba(59,111,224,0.08); color: var(--kb-primary);">
-            <Icon name="flame" :size="16" />连续 {{ streakDays }} 天
-          </div>
-          <div class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium tabular-nums" style="background: rgba(16,185,129,0.08); color: var(--kb-accent);">
-            <Icon name="clock" :size="16" />今日 {{ todayMinutes }} 分钟
-          </div>
+        <div class="stats-pill stats-pill-clock">
+          <Icon name="clock" :size="16" />
+          <span class="tabular-nums">今日 {{ todayMinutes }} 分钟</span>
+        </div>
+        <div class="stats-pill stats-pill-energy">
+          <Icon name="zap" :size="16" />
+          <span class="tabular-nums">能量 {{ energy }}</span>
         </div>
       </div>
     </section>
@@ -47,6 +88,22 @@
 
     <!-- Content -->
     <template v-else>
+      <!-- ========== Section 3: 快速入口 ========== -->
+      <section class="quick-nav">
+        <router-link
+          v-for="(item, idx) in quickNavItems"
+          :key="idx"
+          :to="item.to"
+          class="quick-nav-card"
+        >
+          <div class="quick-nav-icon" :style="{ background: `${item.color}14`, color: item.color }">
+            <Icon :name="item.icon" :size="22" />
+          </div>
+          <span class="quick-nav-label">{{ item.label }}</span>
+          <Icon name="arrow-right" :size="14" class="quick-nav-arrow" />
+        </router-link>
+      </section>
+
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <!-- 左侧：进行中课程 + 今日任务 -->
         <div class="lg:col-span-2 space-y-4">
@@ -60,11 +117,10 @@
               <div
                 v-for="(path, idx) in ongoingPaths"
                 :key="path.id"
-                class="rounded-xl border overflow-hidden cursor-pointer transition-shadow hover:shadow-md"
-                style="background: var(--kb-card); border-color: var(--kb-border);"
+                class="path-card"
                 @click="goToPath(path.id)"
               >
-                <div class="h-28 flex items-center justify-center" :style="{ background: `linear-gradient(135deg, ${pathColors[idx % pathColors.length]}1A, ${pathColors[idx % pathColors.length]}0D)` }">
+                <div class="path-card-cover" :style="{ background: `linear-gradient(135deg, ${pathColors[idx % pathColors.length]}1A, ${pathColors[idx % pathColors.length]}0D)` }">
                   <Icon :name="pathIcons[idx % pathIcons.length]" :size="56" :style="{ color: pathColors[idx % pathColors.length] }" />
                 </div>
                 <div class="p-4">
@@ -101,20 +157,66 @@
           <section>
             <div class="flex items-center justify-between mb-4">
               <h2 class="kb-h2">今日任务</h2>
-              <span class="kb-body-sm tabular-nums">已完成 {{ doneTasks }}/{{ tasks.length }}</span>
+              <div class="flex items-center gap-3">
+                <span class="kb-body-sm tabular-nums">已完成 {{ doneTasks }}/{{ tasks.length }}</span>
+                <button type="button" class="add-task-btn" @click="showAddTask = !showAddTask">
+                  <Icon name="plus" :size="14" />
+                  <span>添加计划</span>
+                </button>
+              </div>
             </div>
+
+            <!-- 添加计划表单 -->
+            <div v-if="showAddTask" class="add-task-form">
+              <input
+                v-model="newTask.title"
+                type="text"
+                placeholder="计划标题，如：阅读《JavaScript 高级程序设计》第3章"
+                class="add-task-input"
+                @keydown.enter="handleCreateTask"
+              />
+              <textarea
+                v-model="newTask.description"
+                placeholder="描述（可选）"
+                rows="2"
+                class="add-task-textarea"
+              ></textarea>
+              <div class="flex items-center gap-2 mt-2">
+                <select v-model="newTask.type" class="add-task-select">
+                  <option value="study">学习</option>
+                  <option value="reading">阅读</option>
+                  <option value="practice">练习</option>
+                  <option value="review">复习</option>
+                  <option value="other">其他</option>
+                </select>
+                <input
+                  v-model="newTask.deadline"
+                  type="datetime-local"
+                  class="add-task-date"
+                />
+                <div class="flex-1"></div>
+                <button type="button" class="add-task-cancel" @click="resetAddTask">取消</button>
+                <button type="button" class="add-task-submit" :disabled="creatingTask || !newTask.title.trim()" @click="handleCreateTask">
+                  {{ creatingTask ? '添加中...' : '确认添加' }}
+                </button>
+              </div>
+            </div>
+
             <div class="rounded-xl border divide-y" style="background: var(--kb-card); border-color: var(--kb-border);">
               <div
                 v-for="task in tasks"
                 :key="task.id"
-                class="flex items-center gap-3 px-4 py-3.5"
+                class="flex items-center gap-3 px-4 py-3.5 task-row"
               >
-                <div
-                  class="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0"
+                <button
+                  type="button"
+                  class="task-check-btn"
                   :style="task.status === 1 ? { borderColor: 'var(--kb-accent)', background: 'var(--kb-accent)' } : task.status === 0 ? { borderColor: 'var(--kb-primary)' } : { borderColor: 'var(--kb-border)' }"
+                  :title="task.status === 1 ? '标记为未完成' : '标记为已完成'"
+                  @click="toggleTaskStatus(task)"
                 >
                   <Icon v-if="task.status === 1" name="check" :size="12" style="color: var(--kb-accent-foreground);" />
-                </div>
+                </button>
                 <div class="flex-1 min-w-0">
                   <p
                     class="text-sm font-medium"
@@ -137,9 +239,12 @@
                   class="text-[13px] px-2 py-0.5 rounded-full whitespace-nowrap"
                   style="background: var(--kb-muted); color: var(--kb-muted-foreground);"
                 >待开始</span>
+                <button type="button" class="task-delete-btn" title="删除" @click="handleDeleteTask(task)">
+                  <Icon name="trash-2" :size="14" />
+                </button>
               </div>
-              <p v-if="tasks.length === 0" class="px-4 py-10 text-center text-sm" style="color: var(--kb-muted-foreground);">
-                暂无今日任务，去 <router-link to="/learning/center" class="hover:underline" style="color: var(--kb-primary);">学习中心</router-link> 添加计划吧
+              <p v-if="tasks.length === 0 && !showAddTask" class="px-4 py-10 text-center text-sm" style="color: var(--kb-muted-foreground);">
+                暂无今日任务，点击上方「添加计划」按钮创建你的第一个学习计划吧
               </p>
             </div>
           </section>
@@ -233,13 +338,13 @@
 </template>
 
 <script setup lang="ts">
-// 学习中心：欢迎区 + 进行中课程 + 今日任务 + 学习热力图 + 推荐下一步 + 本周概览
-import { ref, computed, onMounted } from 'vue'
+// 学习中心：名人名言 + 学习数据概览 + 快速入口 + 进行中课程 + 今日任务 + 学习热力图 + 推荐下一步 + 本周概览
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
-import { notify } from '@/utils/toast'
+import { notify, confirmDialog, getApiError } from '@/utils/toast'
 import { userApi, learningApi } from '@/api'
 import { useAuthStore } from '@/stores/auth'
-import type { UserStatsVO, LearningTaskVO, LearningPathVO, DailyActivityVO } from '@/api/types'
+import type { UserStatsVO, LearningTaskVO, LearningPathVO, DailyActivityVO, LearningTaskInput } from '@/api/types'
 
 const auth = useAuthStore()
 const loading = ref(false)
@@ -263,6 +368,7 @@ const monthHours = ref(0)
 const weekChapters = ref(0)
 const weekPractices = ref(0)
 const accuracy = ref(0)
+const energy = ref(0)
 
 const ongoingPaths = ref<LearningPathVO[]>([])
 const tasks = ref<LearningTaskVO[]>([])
@@ -278,6 +384,46 @@ const pathProgress = (p: LearningPathVO) => {
 
 const doneTasks = computed(() => tasks.value.filter((t) => t.status === 1).length)
 
+// 名人名言数据
+interface Quote {
+  text: string
+  author: string
+  title?: string
+}
+
+const quotes: Quote[] = [
+  { text: '学而时习之，不亦说乎？', author: '孔子', title: '《论语》' },
+  { text: '知之者不如好之者，好之者不如乐之者。', author: '孔子', title: '《论语》' },
+  { text: '路漫漫其修远兮，吾将上下而求索。', author: '屈原', title: '《离骚》' },
+  { text: '读书破万卷，下笔如有神。', author: '杜甫', title: '《奉赠韦左丞丈二十二韵》' },
+  { text: '业精于勤，荒于嬉；行成于思，毁于随。', author: '韩愈', title: '《进学解》' },
+  { text: '纸上得来终觉浅，绝知此事要躬行。', author: '陆游', title: '《冬夜读书示子聿》' },
+  { text: '问渠那得清如许？为有源头活水来。', author: '朱熹', title: '《观书有感》' },
+  { text: '千里之行，始于足下。', author: '老子', title: '《道德经》' },
+  { text: '书山有路勤为径，学海无涯苦作舟。', author: '韩愈' },
+  { text: '博学之，审问之，慎思之，明辨之，笃行之。', author: '子思', title: '《中庸》' },
+  { text: '不积跬步，无以至千里；不积小流，无以成江海。', author: '荀子', title: '《劝学》' },
+  { text: '学而不思则罔，思而不学则殆。', author: '孔子', title: '《论语》' },
+]
+
+const quoteIndex = ref(Math.floor(Math.random() * quotes.length))
+let quoteTimer: ReturnType<typeof setInterval> | null = null
+
+const currentQuote = computed(() => quotes[quoteIndex.value])
+
+function nextQuote() {
+  quoteIndex.value = (quoteIndex.value + 1) % quotes.length
+}
+
+const quickNavItems = [
+  { label: '学习路径', icon: 'route', color: '#3B6FE0', to: '/learning/paths' },
+  { label: '闪卡复习', icon: 'layers', color: '#10B981', to: '/learning/flashcards' },
+  { label: '代码练习', icon: 'code', color: '#F59E0B', to: '/learning/code-practice' },
+  { label: '复习计划', icon: 'calendar-check', color: '#EF4444', to: '/learning/review' },
+  { label: '知识图谱', icon: 'share-2', color: '#8B5CF6', to: '/learning/knowledge-graph' },
+  { label: 'AI 问答', icon: 'brain', color: '#06B6D4', to: '/chat' },
+]
+
 const recommendations = computed(() => {
   const list = [
     { title: '继续学习路径', subtitle: '从上次进度接着学', icon: 'rocket', color: '#3B6FE0', to: '/learning/paths' },
@@ -290,11 +436,79 @@ const recommendations = computed(() => {
 
 const dueFlashcards = ref(0)
 
+// ===== 添加计划功能 =====
+const showAddTask = ref(false)
+const creatingTask = ref(false)
+const newTask = ref<LearningTaskInput>({
+  title: '',
+  description: '',
+  type: 'study',
+  deadline: '',
+})
+
+const resetAddTask = () => {
+  showAddTask.value = false
+  newTask.value = { title: '', description: '', type: 'study', deadline: '' }
+}
+
+const handleCreateTask = async () => {
+  if (!newTask.value.title.trim()) {
+    notify('请输入计划标题', 'warning')
+    return
+  }
+  creatingTask.value = true
+  try {
+    const payload: LearningTaskInput = {
+      title: newTask.value.title.trim(),
+      description: newTask.value.description?.trim() || undefined,
+      type: newTask.value.type || 'study',
+    }
+    if (newTask.value.deadline) {
+      payload.deadline = new Date(newTask.value.deadline).toISOString()
+    }
+    await learningApi.createTask(payload)
+    notify('计划添加成功', 'success')
+    resetAddTask()
+    // 重新加载任务列表
+    const taskList = await learningApi.tasks().catch(() => [] as LearningTaskVO[])
+    tasks.value = taskList.slice(0, 5)
+  } catch (e: unknown) {
+    notify('添加失败：' + getApiError(e), 'error')
+  } finally {
+    creatingTask.value = false
+  }
+}
+
+const toggleTaskStatus = async (task: LearningTaskVO) => {
+  const newStatus = task.status === 1 ? 0 : 1
+  try {
+    await learningApi.updateTaskStatus(task.id, newStatus)
+    task.status = newStatus
+    if (newStatus === 1) {
+      notify('任务已完成', 'success')
+    }
+  } catch (e: unknown) {
+    notify('操作失败：' + getApiError(e), 'error')
+  }
+}
+
+const handleDeleteTask = async (task: LearningTaskVO) => {
+  const ok = await confirmDialog(`确定删除计划「${task.title}」吗？`)
+  if (!ok) return
+  try {
+    await learningApi.deleteTask(task.id)
+    tasks.value = tasks.value.filter((t) => t.id !== task.id)
+    notify('已删除', 'success')
+  } catch (e: unknown) {
+    notify('删除失败：' + getApiError(e), 'error')
+  }
+}
+
 const goToPath = (id: number) => {
   window.location.href = `/learning/path/${id}`
 }
 
-// 热力图数据：基于 dailyActivity 聚合
+// 热力图数据
 interface HeatCell {
   date: string
   count: number
@@ -339,6 +553,7 @@ async function loadData(): Promise<void> {
     weekPractices.value = stats.totalFlashcards ? Math.round(stats.totalFlashcards * 0.15) : 0
     accuracy.value = stats.totalFlashcards ? Math.min(95, 70 + Math.floor(stats.totalFlashcards / 10)) : 0
     dueFlashcards.value = stats.totalFlashcards ? Math.min(stats.totalFlashcards, 12) : 0
+    energy.value = stats.energy ?? 0
 
     ongoingPaths.value = paths.slice(0, 4)
     tasks.value = taskList.slice(0, 5)
@@ -354,6 +569,12 @@ async function loadData(): Promise<void> {
 
 onMounted(() => {
   void loadData()
+  // 每 15 秒自动切换名言
+  quoteTimer = setInterval(nextQuote, 15000)
+})
+
+onUnmounted(() => {
+  if (quoteTimer) clearInterval(quoteTimer)
 })
 </script>
 
@@ -362,13 +583,172 @@ onMounted(() => {
   animation: fadeIn 0.4s ease-out;
 }
 
+/* 添加计划按钮 */
+.add-task-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 30px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kb-primary);
+  background: rgba(59, 111, 224, 0.06);
+  color: var(--kb-primary);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.add-task-btn:hover {
+  background: rgba(59, 111, 224, 0.12);
+}
+
+/* 添加计划表单 */
+.add-task-form {
+  margin-bottom: 12px;
+  padding: 16px;
+  border-radius: var(--kb-radius-md);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-background);
+}
+.add-task-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  font-size: 14px;
+  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.add-task-input:focus {
+  border-color: var(--kb-primary);
+}
+.add-task-textarea {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  outline: none;
+  resize: none;
+  transition: border-color 0.15s ease;
+}
+.add-task-textarea:focus {
+  border-color: var(--kb-primary);
+}
+.add-task-select {
+  height: 32px;
+  padding: 0 8px;
+  font-size: 12px;
+  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  outline: none;
+}
+.add-task-date {
+  height: 32px;
+  padding: 0 8px;
+  font-size: 12px;
+  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  outline: none;
+}
+.add-task-cancel {
+  height: 32px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.add-task-cancel:hover {
+  background: var(--kb-muted);
+}
+.add-task-submit {
+  height: 32px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--kb-radius-sm);
+  border: none;
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+.add-task-submit:hover {
+  opacity: 0.9;
+}
+.add-task-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 任务行交互 */
+.task-row {
+  transition: background 0.15s ease;
+}
+.task-row:hover {
+  background: var(--kb-muted);
+}
+.task-check-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--kb-border);
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.task-check-btn:hover {
+  transform: scale(1.1);
+}
+.task-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--kb-radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--kb-muted-foreground);
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.15s ease;
+}
+.task-row:hover .task-delete-btn {
+  opacity: 1;
+}
+.task-delete-btn:hover {
+  color: var(--kb-destructive);
+  background: rgba(239, 68, 68, 0.08);
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.kb-h1 { font-size: 28px; font-weight: 700; line-height: 1.3; letter-spacing: -0.02em; color: var(--kb-foreground); }
-.kb-h2 { font-size: 22px; font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; color: var(--kb-foreground); }
+.kb-h1 { font-size: 28px; font-weight: 700; line-height: 1.3; letter-spacing: -0.02em; color: var(--kb-foreground); font-family: var(--font-serif, 'Noto Serif SC', Georgia, serif); }
+.kb-h2 { font-size: 22px; font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; color: var(--kb-foreground); font-family: var(--font-serif, 'Noto Serif SC', Georgia, serif); }
 .kb-h3 { font-size: 18px; font-weight: 600; line-height: 1.4; color: var(--kb-foreground); }
 .kb-body { font-size: 14px; line-height: 1.6; color: var(--kb-card-foreground); }
 .kb-body-sm { font-size: 13px; line-height: 1.5; color: var(--kb-muted-foreground); }
@@ -384,11 +764,347 @@ onMounted(() => {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Heatmap levels - 与设计稿一致（5 档） */
+/* ========== 名人名言 Hero ========== */
+.quote-hero {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 64px;
+  background: linear-gradient(135deg, #1a2942 0%, #0f1a2e 50%, #1a1f3a 100%);
+}
+
+.quote-hero-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.quote-grid-pattern {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(59, 111, 224, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 111, 224, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+}
+
+.quote-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+}
+.quote-glow-1 {
+  width: 300px;
+  height: 300px;
+  background: rgba(59, 111, 224, 0.4);
+  top: -100px;
+  left: -50px;
+  animation: glowFloat 8s ease-in-out infinite;
+}
+.quote-glow-2 {
+  width: 250px;
+  height: 250px;
+  background: rgba(139, 92, 246, 0.3);
+  bottom: -80px;
+  right: -30px;
+  animation: glowFloat 8s ease-in-out infinite reverse;
+}
+
+@keyframes glowFloat {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(30px, -20px); }
+}
+
+.quote-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 800px;
+}
+
+.quote-mark {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 72px;
+  line-height: 1;
+  color: rgba(59, 111, 224, 0.4);
+  margin-bottom: -20px;
+  font-weight: 700;
+}
+
+.quote-text {
+  font-family: var(--font-serif, 'Noto Serif SC', Georgia, serif);
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: 0.02em;
+  margin-bottom: 20px;
+  transition: opacity 0.4s ease;
+}
+
+.quote-divider {
+  width: 40px;
+  height: 2px;
+  background: rgba(59, 111, 224, 0.6);
+  margin: 0 auto 16px;
+  border-radius: 2px;
+}
+
+.quote-author {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.quote-author-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.quote-author-title {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.quote-dots {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.quote-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.quote-dot:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.quote-dot-active {
+  width: 24px;
+  border-radius: 3px;
+  background: var(--kb-primary);
+}
+
+.quote-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.quote-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.quote-nav-next {
+  right: 24px;
+}
+
+/* ========== 学习数据概览条 ========== */
+.stats-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+.stats-greeting {
+  min-width: 0;
+}
+
+.stats-pills {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.stats-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.stats-pill-flame {
+  background: rgba(59, 111, 224, 0.08);
+  color: var(--kb-primary);
+}
+
+.stats-pill-clock {
+  background: rgba(16, 185, 129, 0.08);
+  color: var(--kb-accent);
+}
+
+.stats-pill-energy {
+  background: rgba(245, 158, 11, 0.08);
+  color: var(--kb-warning);
+}
+
+/* ========== 快速入口 ========== */
+.quick-nav {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .quick-nav {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .quick-nav {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.quick-nav-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 8px;
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: 14px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+  position: relative;
+}
+
+.quick-nav-card:hover {
+  border-color: var(--kb-primary);
+  box-shadow: 0 4px 12px rgba(59, 111, 224, 0.08);
+  transform: translateY(-2px);
+}
+
+.quick-nav-card:hover .quick-nav-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.quick-nav-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quick-nav-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--kb-foreground);
+}
+
+.quick-nav-arrow {
+  position: absolute;
+  top: 12px;
+  right: 10px;
+  color: var(--kb-primary);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all 0.2s ease;
+}
+
+/* ========== 课程卡片 ========== */
+.path-card {
+  border-radius: 14px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.path-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.path-card-cover {
+  height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Heatmap levels */
 .heatmap-cell { width: 16px; height: 16px; border-radius: 3px; }
 .heatmap-0 { background: var(--kb-muted); }
 .heatmap-1 { background: rgba(59, 111, 224, 0.2); }
 .heatmap-2 { background: rgba(59, 111, 224, 0.4); }
 .heatmap-3 { background: rgba(59, 111, 224, 0.65); }
 .heatmap-4 { background: var(--kb-primary); }
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .quote-hero {
+    padding: 32px 24px;
+    min-height: 160px;
+  }
+  .quote-text {
+    font-size: 20px;
+  }
+  .quote-mark {
+    font-size: 56px;
+  }
+  .quote-nav-next {
+    right: 12px;
+  }
+  .stats-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
 </style>
