@@ -43,14 +43,35 @@
       </button>
     </div>
 
+    <!-- 批量操作工具栏 -->
+    <div v-if="batchMode" class="batch-toolbar">
+      <div class="batch-info">
+        <Icon name="check-square" :size="16" />
+        <span>已选择 <strong>{{ checkedIds.length }}</strong> 个文档</span>
+        <button v-if="checkedIds.length > 0" class="link-btn" @click="checkedIds = []">取消选择</button>
+      </div>
+      <div class="batch-actions">
+        <button class="btn-danger" :disabled="!checkedIds.length" @click="batchDelete">
+          <Icon name="trash-2" :size="14" />
+          <span>批量删除</span>
+        </button>
+        <button class="btn-secondary" :disabled="!checkedIds.length" @click="openMoveModal">
+          <Icon name="move" :size="14" />
+          <span>批量移动</span>
+        </button>
+      </div>
+    </div>
+
     <!-- 筛选条 -->
     <div class="filter-bar">
       <!-- 知识库（分类）筛选 -->
       <div class="filter-category">
-        <select v-model="selectedCategoryId" class="category-select" @change="onFilterChange">
-          <option :value="undefined">全部分类</option>
-          <option v-for="cat in categoryOptions" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-        </select>
+        <CategoryTreeSelect
+          v-model="selectedCategoryId"
+          :categories="categoryTreeOptions"
+          placeholder="全部分类"
+          empty-label="全部分类"
+        />
       </div>
       <!-- 状态筛选（后端查询） -->
       <div class="filter-category">
@@ -188,8 +209,17 @@
         v-for="doc in pagedDocs"
         :key="doc.id"
         class="doc-card"
+        :class="{ 'card-checked': batchMode && checkedIds.includes(doc.id) }"
       >
         <div class="card-head">
+          <label v-if="batchMode" class="card-checkbox">
+            <input
+              type="checkbox"
+              v-model="checkedIds"
+              :value="doc.id"
+              class="checkbox"
+            />
+          </label>
           <div class="card-icon" :style="{ background: doc.iconBg }">
             <Icon :name="doc.icon" :size="20" :style="{ color: doc.iconColor }" />
           </div>
@@ -292,6 +322,51 @@
         </button>
       </div>
     </div>
+
+    <!-- 移动文档到知识库 弹窗 -->
+    <div v-if="showMoveModal" class="modal-overlay" @click="showMoveModal = false">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>移动文档到知识库</h3>
+          <button class="modal-close" @click="showMoveModal = false">
+            <Icon name="x" :size="18" />
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-tip">
+            <Icon name="info" :size="14" />
+            <span>将选中的 <strong>{{ checkedIds.length }}</strong> 个文档移动到以下知识库：</span>
+          </p>
+          <div class="kb-list">
+            <label
+              v-for="cat in categoryOptions"
+              :key="cat.id"
+              class="kb-item"
+              :class="{ active: targetCategoryId === cat.id }"
+            >
+              <input
+                type="radio"
+                v-model="targetCategoryId"
+                :value="cat.id"
+                class="radio-input"
+              />
+              <Icon name="folder" :size="18" />
+              <div class="kb-info">
+                <div class="kb-name">{{ cat.name }}</div>
+                <div class="kb-desc">{{ cat.description || '暂无描述' }}</div>
+              </div>
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" @click="showMoveModal = false">取消</button>
+          <button class="btn-primary" :disabled="!targetCategoryId || moving" @click="batchMove">
+            <Icon name="check" :size="14" />
+            <span>{{ moving ? '移动中...' : '确认移动' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -301,8 +376,10 @@ import { confirmDialog, getApiError, notify } from '@/utils/toast'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import CategoryTreeSelect from '@/components/ui/CategoryTreeSelect.vue'
 import { adminApi, docsApi } from '@/api'
 import type { CategoryVO, DocVO } from '@/api/types'
+import { getIconByKey, parseIconValue, resolveIconForRender } from '@/utils/presetIcons'
 
 const router = useRouter()
 const route = useRoute()
@@ -348,6 +425,9 @@ const sortBy = ref('modified')
 const searchQuery = ref('')
 const batchMode = ref(false)
 const checkedIds = ref<number[]>([])
+const showMoveModal = ref(false)
+const targetCategoryId = ref<number | undefined>(undefined)
+const moving = ref(false)
 const currentPage = ref(1)
 const pageSize = ref(10)
 
@@ -355,6 +435,7 @@ const pageSize = ref(10)
 const searchKeyword = ref('')
 
 const categoryOptions = ref<CategoryVO[]>([])
+const categoryTreeOptions = ref<CategoryVO[]>([])
 const allDocs = ref<DocRow[]>([])
 const loading = ref(false)
 
@@ -382,14 +463,24 @@ const categoryColors = ['#F59E0B', '#3B6FE0', '#10B981', '#EF4444', '#6B7280']
 
 /** 根据文档标题推断文件类型图标与颜色；若设置过自定义图标则优先使用 */
 const inferIcon = (title: string, customIcon?: string): { icon: string; bg: string; color: string } => {
-  if (customIcon && iconOptions.includes(customIcon)) {
-    const color = iconColors[customIcon] || '#6B7280'
-    return {
-      icon: customIcon,
-      bg: hexToRgba(color, 0.1),
-      color,
+  // 1. 优先匹配预置图标（存储格式 `iconKey` 或 `iconKey|colorHex`）
+  if (customIcon) {
+    const { name, color } = resolveIconForRender(customIcon)
+    if (name && getIconByKey(parseIconValue(customIcon).key)) {
+      const finalColor = color || '#6B7280'
+      return {
+        icon: name,
+        bg: hexToRgba(finalColor, 0.1),
+        color: finalColor,
+      }
+    }
+    // 2. 旧版系统图标名
+    if (iconOptions.includes(customIcon)) {
+      const c = iconColors[customIcon] || '#6B7280'
+      return { icon: customIcon, bg: hexToRgba(c, 0.1), color: c }
     }
   }
+  // 3. 根据标题推断
   const lower = title.toLowerCase()
   if (lower.endsWith('.pdf')) {
     return { icon: 'file-text', bg: 'rgba(239,68,68,0.1)', color: '#EF4444' }
@@ -495,6 +586,63 @@ const toggleAll = () => {
 const toggleBatch = () => {
   batchMode.value = !batchMode.value
   if (!batchMode.value) checkedIds.value = []
+}
+
+/** 批量删除文档 */
+const batchDelete = async () => {
+  if (!checkedIds.value.length) {
+    notify('请选择要删除的文档', 'warning')
+    return
+  }
+  if (!(await confirmDialog(`确定删除选中的 ${checkedIds.value.length} 个文档吗？此操作不可恢复。`))) return
+  try {
+    await adminApi.batchDeleteDocs(checkedIds.value)
+    notify(`已删除 ${checkedIds.value.length} 个文档`, 'success')
+    checkedIds.value = []
+    batchMode.value = false
+    await loadDocs()
+  } catch (e: unknown) {
+    notify('批量删除失败：' + getApiError(e), 'error')
+  }
+}
+
+/** 打开批量移动弹窗 */
+const openMoveModal = () => {
+  if (!checkedIds.value.length) {
+    notify('请选择要移动的文档', 'warning')
+    return
+  }
+  // 默认不选，让用户主动选择目标
+  targetCategoryId.value = undefined
+  showMoveModal.value = true
+}
+
+/** 批量移动文档到目标知识库 */
+const batchMove = async () => {
+  if (!targetCategoryId.value) {
+    notify('请选择目标知识库', 'warning')
+    return
+  }
+  if (!checkedIds.value.length) {
+    notify('请选择要移动的文档', 'warning')
+    return
+  }
+  moving.value = true
+  try {
+    await adminApi.batchMoveDocs({
+      docIds: checkedIds.value,
+      categoryId: targetCategoryId.value,
+    })
+    notify(`已移动 ${checkedIds.value.length} 个文档`, 'success')
+    showMoveModal.value = false
+    checkedIds.value = []
+    batchMode.value = false
+    await loadDocs()
+  } catch (e: unknown) {
+    notify('批量移动失败：' + getApiError(e), 'error')
+  } finally {
+    moving.value = false
+  }
 }
 
 /** 分类徽标样式 */
@@ -631,11 +779,13 @@ const loadDocs = async () => {
       params.status = selectedStatus.value
     }
 
-    const [docPage, cats] = await Promise.all([
+    const [docPage, cats, catTree] = await Promise.all([
       adminApi.docs(params),
       adminApi.categories(),
+      adminApi.categoryTree(),
     ])
     categoryOptions.value = cats
+    categoryTreeOptions.value = catTree
     const catMap = new Map<number, { name: string; color: string }>()
     cats.forEach((c, idx) => {
       catMap.set(c.id, {
@@ -698,6 +848,12 @@ watch(
     }
   },
 )
+
+/** 监听分类筛选变化（CategoryTreeSelect 触发） */
+watch(selectedCategoryId, () => {
+  currentPage.value = 1
+  loadDocs()
+})
 
 onMounted(() => {
   // 从路由 query 读取知识库筛选
@@ -1605,6 +1761,269 @@ onMounted(() => {
 
 .btn-secondary:hover {
   background: var(--kb-muted);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  background: #EF4444;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-danger:hover {
+  opacity: 0.9;
+}
+
+.btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 批量操作工具栏 */
+.batch-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  background: var(--kb-primary);
+  color: #fff;
+  border-radius: 8px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.batch-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.batch-info strong {
+  font-weight: 600;
+  color: #fff;
+  margin: 0 2px;
+}
+
+.link-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  margin-left: 8px;
+}
+
+.link-btn:hover {
+  color: #fff;
+}
+
+.batch-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.batch-actions .btn-secondary {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.batch-actions .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.batch-actions .btn-secondary:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* 复选框样式 */
+.checkbox-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--kb-primary);
+}
+
+/* 网格视图复选框 */
+.card-checkbox {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.card-checkbox .checkbox {
+  width: 18px;
+  height: 18px;
+}
+
+.doc-card.card-checked {
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 2px rgba(59, 111, 224, 0.15);
+}
+
+/* 移动文档弹窗 */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  background: var(--kb-card);
+  border-radius: 10px;
+  width: 90%;
+  max-width: 560px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--kb-border);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--kb-muted-foreground);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  background: var(--kb-muted);
+  color: var(--kb-foreground);
+}
+
+.modal-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+}
+
+.modal-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--kb-muted-foreground);
+  margin: 0 0 12px;
+}
+
+.modal-tip strong {
+  color: var(--kb-primary);
+  margin: 0 2px;
+}
+
+.kb-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.kb-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--kb-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.kb-item:hover {
+  background: var(--kb-muted);
+}
+
+.kb-item.active {
+  border-color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.05);
+}
+
+.radio-input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--kb-primary);
+  flex-shrink: 0;
+}
+
+.kb-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.kb-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--kb-foreground);
+  margin-bottom: 2px;
+}
+
+.kb-desc {
+  font-size: 12px;
+  color: var(--kb-muted-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--kb-border);
 }
 
 /* 响应式：移动端 */

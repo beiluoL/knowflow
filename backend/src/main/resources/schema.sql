@@ -416,3 +416,58 @@ CREATE INDEX idx_cq_status    ON code_question (status);
 CREATE INDEX idx_cq_difficulty ON code_question (difficulty);
 CREATE INDEX idx_cq_language  ON code_question (language);
 CREATE INDEX idx_cq_sort      ON code_question (sort_order);
+
+-- ============ 知识库成员与权限 ============
+
+-- 分类（知识库）增加 owner_id 字段（逻辑外键 → sys_user.id），用于标识创建者/拥有者
+ALTER TABLE doc_category ADD COLUMN IF NOT EXISTS owner_id BIGINT COMMENT '知识库所有者用户ID（逻辑外键sys_user.id）';
+CREATE INDEX IF NOT EXISTS idx_cat_owner ON doc_category (owner_id);
+
+-- 知识库成员表：多对多关联，每个成员持有角色与权限
+CREATE TABLE IF NOT EXISTS kb_member (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    category_id BIGINT NOT NULL COMMENT '知识库ID（逻辑外键doc_category.id）',
+    user_id BIGINT COMMENT '用户ID（逻辑外键sys_user.id）；邮箱邀请未注册时为 NULL',
+    role VARCHAR(20) NOT NULL DEFAULT 'READER' COMMENT '成员角色：OWNER / EDITOR / READER',
+    invite_code VARCHAR(50) COMMENT '邀请码（可选，用于未注册邮箱邀请）',
+    invite_email VARCHAR(100) COMMENT '邀请目标邮箱（未注册用户邀请时记录）',
+    status INT DEFAULT 1 COMMENT '状态：0 已移除 / 1 生效',
+    join_time TIMESTAMP COMMENT '加入时间',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+-- 联合唯一：一个已注册用户在一个知识库中只能有一条有效成员记录（user_id 为 NULL 不参与唯一冲突）
+CREATE UNIQUE INDEX IF NOT EXISTS uk_kb_member_cat_user ON kb_member (category_id, user_id, deleted);
+CREATE INDEX IF NOT EXISTS idx_kb_member_category ON kb_member (category_id);
+CREATE INDEX IF NOT EXISTS idx_kb_member_user ON kb_member (user_id);
+CREATE INDEX IF NOT EXISTS idx_kb_member_role ON kb_member (role);
+CREATE INDEX IF NOT EXISTS idx_kb_member_status ON kb_member (status);
+CREATE INDEX IF NOT EXISTS idx_kb_member_invite_email ON kb_member (invite_email);
+
+-- ========== 题库管理：支持多题型的智能出题 ==========
+CREATE TABLE IF NOT EXISTS quiz_question (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    title VARCHAR(500) NOT NULL COMMENT '题目标题',
+    content TEXT NOT NULL COMMENT '题干内容（支持 Markdown）',
+    question_type VARCHAR(20) NOT NULL DEFAULT 'SINGLE_CHOICE' COMMENT '题型：SINGLE_CHOICE 单选 / MULTIPLE_CHOICE 多选 / FILL_BLANK 填空 / TRUE_FALSE 判断 / SHORT_ANSWER 简答',
+    options TEXT COMMENT '选项 JSON 数组（选择题用），如 ["选项A","选项B","选项C","选项D"]',
+    answer TEXT NOT NULL COMMENT '正确答案：选择题填选项索引(如 "0" 或 "0,2")，填空题填答案文本，判断题填 true/false',
+    explanation TEXT COMMENT '答案解析',
+    difficulty INT DEFAULT 1 COMMENT '难度：1 简单 / 2 中等 / 3 困难',
+    category_id BIGINT COMMENT '关联知识库ID（逻辑外键 doc_category.id）',
+    doc_id BIGINT COMMENT '关联文档ID（逻辑外键 doc_document.id）',
+    tags VARCHAR(500) COMMENT '标签，逗号分隔',
+    source VARCHAR(20) DEFAULT 'MANUAL' COMMENT '来源：AI 生成 / MANUAL 手动新增',
+    status INT DEFAULT 1 COMMENT '状态：0 草稿 / 1 已发布',
+    sort_order INT DEFAULT 0 COMMENT '排序值',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_qq_type ON quiz_question (question_type);
+CREATE INDEX IF NOT EXISTS idx_qq_difficulty ON quiz_question (difficulty);
+CREATE INDEX IF NOT EXISTS idx_qq_status ON quiz_question (status);
+CREATE INDEX IF NOT EXISTS idx_qq_source ON quiz_question (source);
+CREATE INDEX IF NOT EXISTS idx_qq_category ON quiz_question (category_id);
+CREATE INDEX IF NOT EXISTS idx_qq_doc ON quiz_question (doc_id);

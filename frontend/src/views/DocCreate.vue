@@ -33,13 +33,12 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium mb-1.5 field-label">分类</label>
-                <select
+                <CategoryTreeSelect
                   v-model="form.categoryId"
-                  class="w-full h-10 px-3 rounded-lg text-sm border field-input"
-                >
-                  <option :value="null">请选择分类</option>
-                  <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-                </select>
+                  :categories="categories"
+                  placeholder="请选择分类"
+                  empty-label="请选择分类"
+                />
               </div>
               <div>
                 <label class="block text-sm font-medium mb-1.5 field-label">文档类型</label>
@@ -198,9 +197,11 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
+import CategoryTreeSelect from '@/components/ui/CategoryTreeSelect.vue';
 import { docsApi } from '@/api/docs';
 import { categoriesApi } from '@/api/categories';
 import { notify } from '@/utils/toast';
+import { renderMarkdown } from '@/utils/markdown';
 import type { CategoryVO } from '@/api/types';
 
 const router = useRouter();
@@ -292,22 +293,14 @@ const insertMarkdown = (prefix: string, suffix: string) => {
   });
 };
 
-// 简易 Markdown 预览：标题/加粗/斜体/行内代码/换行的正则替换
+// 使用统一的 Markdown 渲染工具，正确处理转义字符（\n, \t 等）和保留空格
 const renderedContent = computed(() => {
-  let html = form.value.content
-    .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>')
-    .replace(/^## (.*$)/gm, '<h2 class="text-xl font-bold mt-5 mb-3">$1</h2>')
-    .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold mt-6 mb-4">$1</h1>')
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/`([^`]+)`/g, '<code class="px-1 rounded text-sm" style="background:var(--kb-muted);">$1</code>')
-    .replace(/\n/g, '<br />');
-  return html || '<p style="color:var(--kb-muted-foreground);">暂无内容</p>';
+  return renderMarkdown(form.value.content) || '<p style="color:var(--kb-muted-foreground);">暂无内容</p>';
 });
 
 async function fetchCategories() {
   try {
-    const data = await categoriesApi.list();
+    const data = await categoriesApi.adminTree();
     categories.value = data;
   } catch (e) {
     console.error(e);
@@ -608,5 +601,8 @@ onMounted(() => {
 /* prose 预览样式 */
 .prose {
   line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+  tab-size: 4;
 }
 </style>

@@ -126,6 +126,7 @@ const allGroups: NavGroup[] = [
     title: '内容管理',
     items: [
       { path: '/admin/knowledge', label: '知识库管理', icon: 'database', adminOnly: true },
+      { path: '/admin/categories', label: '分类管理', icon: 'folder-tree', adminOnly: true },
       { path: '/admin/docs', label: '文档管理', icon: 'files', adminOnly: true },
       { path: '/admin/upload', label: '上传文档', icon: 'upload', adminOnly: true },
       { path: '/admin/tags', label: '知识库与标签', icon: 'tags', adminOnly: true },

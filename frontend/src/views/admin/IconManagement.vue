@@ -10,6 +10,43 @@
       </button>
     </div>
 
+    <!-- 预置图标库（按分类） -->
+    <div class="section-card">
+      <div class="section-head">
+        <h3 class="kb-h3">预置图标库（共 {{ presetIcons.length }} 个）</h3>
+        <span class="section-tip">编程语言 / 框架 / AI / 数据库 / 文件格式 / 开发工具，点击可复制图标 key</span>
+      </div>
+      <!-- 分类标签页 -->
+      <div class="preset-tab-bar">
+        <button
+          v-for="cat in presetIconCategories"
+          :key="cat.key"
+          class="preset-tab-btn"
+          :class="{ active: activeCategory === cat.key }"
+          @click="activeCategory = cat.key"
+        >
+          {{ cat.label }}
+          <span class="preset-tab-count">{{ getCategoryCount(cat.key) }}</span>
+        </button>
+      </div>
+      <!-- 图标网格 -->
+      <div class="icon-grid preset-grid">
+        <div
+          v-for="icon in filteredPresetIcons"
+          :key="icon.key"
+          class="icon-cell preset-cell"
+          :title="`${icon.name}（${icon.key}）点击复制`"
+          @click="copyPresetIcon(icon)"
+        >
+          <div class="icon-glyph preset-glyph">
+            <Icon :name="icon.svg" :size="28" />
+          </div>
+          <span class="icon-name">{{ icon.name }}</span>
+          <span class="icon-key-badge">{{ icon.key }}</span>
+        </div>
+      </div>
+    </div>
+
     <!-- 系统图标 -->
     <div class="section-card">
       <div class="section-head">
@@ -202,6 +239,29 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { adminApi, type IconVO } from '@/api'
 import { notify, confirmDialog, getApiError } from '@/utils/toast'
 import Icon from '@/components/ui/Icon.vue'
+import { presetIcons, presetIconCategories, type PresetIcon } from '@/utils/presetIcons'
+
+/** 预置图标：当前激活分类 */
+const activeCategory = ref<PresetIcon['category']>('language')
+
+/** 按当前分类过滤的预置图标 */
+const filteredPresetIcons = computed(() =>
+  presetIcons.filter(icon => icon.category === activeCategory.value)
+)
+
+/** 获取分类下的图标数量 */
+const getCategoryCount = (cat: PresetIcon['category']): number =>
+  presetIcons.filter(icon => icon.category === cat).length
+
+/** 复制预置图标 key 到剪贴板 */
+const copyPresetIcon = async (icon: PresetIcon) => {
+  try {
+    await navigator.clipboard.writeText(icon.key)
+    notify(`已复制图标 key：${icon.key}（${icon.name}）`, 'success')
+  } catch {
+    notify('复制失败，请手动选择复制', 'error')
+  }
+}
 
 /** 系统图标名称集合（与 Icon.vue 内置路径一一对应） */
 const systemIcons = [
@@ -884,5 +944,111 @@ onMounted(() => {
   .icon-mgmt-wrap { padding: 16px; }
   .tab-btn span { display: none; }
   .tab-btn { gap: 0; }
+}
+
+/* ===== 预置图标库：分类标签页 ===== */
+.preset-tab-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--kb-border, #E8ECF1);
+}
+
+.preset-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--kb-muted-foreground, #6B7280);
+  background: var(--kb-card, #F8FAFC);
+  border: 1px solid var(--kb-border, #E8ECF1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.preset-tab-btn:hover {
+  color: var(--kb-primary, #3B6FE0);
+  border-color: var(--kb-primary, #3B6FE0);
+  background: rgba(59, 111, 224, 0.06);
+}
+
+.preset-tab-btn.active {
+  color: #fff;
+  background: var(--kb-primary, #3B6FE0);
+  border-color: var(--kb-primary, #3B6FE0);
+  box-shadow: 0 2px 6px rgba(59, 111, 224, 0.25);
+}
+
+.preset-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 9px;
+  background: rgba(0, 0, 0, 0.08);
+  color: inherit;
+}
+
+.preset-tab-btn.active .preset-tab-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+/* 预置图标网格 */
+.preset-grid {
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.preset-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px;
+  border: 1px solid var(--kb-border, #E8ECF1);
+  border-radius: 10px;
+  background: var(--kb-card, #FFFFFF);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.preset-cell:hover {
+  border-color: var(--kb-primary, #3B6FE0);
+  background: rgba(59, 111, 224, 0.04);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 111, 224, 0.12);
+}
+
+.preset-glyph {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: var(--kb-muted, #F1F5F9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-key-badge {
+  font-size: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: var(--kb-muted-foreground, #94A3B8);
+  background: var(--kb-muted, #F1F5F9);
+  padding: 2px 6px;
+  border-radius: 4px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

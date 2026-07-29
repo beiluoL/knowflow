@@ -53,10 +53,12 @@
           <!-- 目标知识库 -->
           <div>
             <label class="form-label">目标知识库</label>
-            <select v-model="config.kb" class="form-select">
-              <option value="">请选择知识库</option>
-              <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-            </select>
+            <CategoryTreeSelect
+              v-model="config.kb"
+              :categories="categories"
+              placeholder="请选择知识库"
+              empty-label="请选择知识库"
+            />
           </div>
           <!-- 写作风格 -->
           <div>
@@ -312,6 +314,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { notify, getApiError } from '@/utils/toast';
 import Icon from '@/components/ui/Icon.vue';
+import CategoryTreeSelect from '@/components/ui/CategoryTreeSelect.vue';
 import { categoriesApi } from '@/api/categories';
 import { chatApi } from '@/api/chat';
 import type { CategoryVO } from '@/api/types';
@@ -458,7 +461,7 @@ onMounted(async () => {
   // 加载分类列表
   try {
     const res = await categoriesApi.tree();
-    categories.value = res.data || [];
+    categories.value = res || [];
   } catch (e) {
     // 分类加载失败不阻塞页面，仅记录
     console.warn(getApiError(e, '分类加载失败'));

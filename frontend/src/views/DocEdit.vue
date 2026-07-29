@@ -138,40 +138,87 @@
           </div>
           <div class="prop-row">
             <span class="prop-label">分类</span>
-            <select v-model="form.categoryId" class="prop-select">
-              <option :value="null">未分类</option>
-              <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-            </select>
+            <CategoryTreeSelect
+              v-model="form.categoryId"
+              :categories="categories"
+              placeholder="未分类"
+              empty-label="未分类"
+            />
           </div>
           <div class="prop-row">
             <span class="prop-label">图标</span>
             <div class="icon-picker-area">
               <div class="icon-preview" :class="{ active: form.icon }">
-                <Icon v-if="form.icon" :name="form.icon" :size="20" />
+                <Icon
+                  v-if="form.icon"
+                  :name="resolveIconForRender(form.icon).name"
+                  :size="20"
+                  :color="resolveIconForRender(form.icon).color || undefined"
+                />
                 <Icon v-else name="image" :size="20" class="text-gray-300" />
               </div>
               <button type="button" class="icon-pick-btn" @click="showIconPicker = !showIconPicker">
                 {{ form.icon ? '更换' : '选择' }}
               </button>
-              <button v-if="form.icon" type="button" class="icon-clear-btn" @click="form.icon = ''">
+              <button v-if="form.icon" type="button" class="icon-clear-btn" @click="clearDocIcon">
                 清除
               </button>
             </div>
           </div>
           <!-- 图标选择面板 -->
           <div v-if="showIconPicker" class="icon-picker-panel">
-            <p class="icon-picker-label">系统图标</p>
+            <!-- 预置图标分类 -->
+            <p class="icon-picker-label">预置图标库</p>
+            <div class="preset-cat-bar">
+              <button
+                v-for="cat in presetIconCategories"
+                :key="cat.key"
+                type="button"
+                class="preset-cat-btn"
+                :class="{ active: docIconCategory === cat.key }"
+                @click="docIconCategory = cat.key"
+              >{{ cat.label }}</button>
+            </div>
             <div class="icon-grid-picker">
               <button
-                v-for="name in systemIconOptions"
-                :key="name"
+                v-for="icon in docFilteredPresetIcons"
+                :key="icon.key"
                 type="button"
                 class="icon-grid-item"
-                :class="{ selected: form.icon === name }"
-                @click="selectIcon(name)"
+                :class="{ selected: docSelectedIconKey === icon.key }"
+                :title="`${icon.name}（${icon.key}）`"
+                @click="selectPresetDocIcon(icon.key)"
               >
-                <Icon :name="name" :size="18" />
+                <Icon :name="icon.svg" :size="18" />
               </button>
+            </div>
+            <!-- 颜色选择行 -->
+            <div v-if="docSelectedIconKey" class="doc-icon-color-row">
+              <span class="doc-color-label">颜色：</span>
+              <button
+                v-for="c in iconColorPresets"
+                :key="c"
+                type="button"
+                class="doc-color-swatch"
+                :class="{ active: docSelectedIconColor === c }"
+                :style="{ backgroundColor: c }"
+                :title="c"
+                @click="selectDocIconColor(c)"
+              />
+              <label class="doc-color-custom" title="自定义颜色">
+                <input
+                  :value="docSelectedIconColor"
+                  type="color"
+                  class="doc-color-native"
+                  @input="selectDocIconColor(($event.target as HTMLInputElement).value)"
+                />
+              </label>
+              <button
+                v-if="docSelectedIconColor"
+                type="button"
+                class="doc-color-clear"
+                @click="selectDocIconColor('')"
+              >清除</button>
             </div>
             <template v-if="customIcons.length > 0">
               <p class="icon-picker-label mt-3">自定义图标</p>
@@ -326,12 +373,19 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
+import CategoryTreeSelect from '@/components/ui/CategoryTreeSelect.vue';
 import { docsApi } from '@/api/docs';
 import { categoriesApi } from '@/api/categories';
 import { chatApi } from '@/api/chat';
 import { adminApi, type IconVO } from '@/api';
 import { notify, confirmDialog, getApiError } from '@/utils/toast';
+import { renderMarkdown } from '@/utils/markdown';
 import type { CategoryVO, DocDetailVO } from '@/api/types';
+import {
+  presetIcons, presetIconCategories, getIconByKey, iconColorPresets,
+  parseIconValue, buildIconValue, resolveIconForRender,
+  type PresetIcon,
+} from '@/utils/presetIcons';
 
 const route = useRoute();
 const router = useRouter();
@@ -449,18 +503,10 @@ const handleRedo = () => {
   form.value.content = redoStack.value.pop() as string;
 };
 
-// 简易 Markdown 预览
+// Markdown 预览：调用通用渲染器，支持标题/列表/引用/代码块/表格/图片/分隔线，兼容 HTML 富文本
 const renderedContent = computed(() => {
-  let html = form.value.content
-    .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>')
-    .replace(/^## (.*$)/gm, '<h2 class="text-xl font-bold mt-5 mb-3">$1</h2>')
-    .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold mt-6 mb-4">$1</h1>')
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/~~(.*?)~~/g, '<del>$1</del>')
-    .replace(/`([^`]+)`/g, '<code class="px-1 rounded text-sm" style="background:var(--kb-muted);">$1</code>')
-    .replace(/\n/g, '<br />');
-  return html || '<p style="color:var(--kb-muted-foreground);">暂无内容</p>';
+  const html = renderMarkdown(form.value.content || '')
+  return html || '<p style="color:var(--kb-muted-foreground);">暂无内容，请切换到编辑模式开始编写</p>'
 });
 
 // 字数统计
@@ -587,19 +633,42 @@ const handleAiAction = async (action: AiAction) => {
 
 async function fetchCategories() {
   try {
-    const data = await categoriesApi.list();
+    const data = await categoriesApi.adminTree();
     categories.value = data;
   } catch (e) {
     console.error(e);
   }
 }
 
-/** 系统预设图标 */
-const systemIconOptions = [
-  'file-text', 'file-code', 'book-open', 'pencil', 'code', 'brain',
-  'layout', 'database', 'server', 'lightbulb', 'graduation-cap',
-  'rocket', 'flame', 'sparkles', 'layers', 'route',
-]
+/** 预置图标：当前激活分类 */
+const docIconCategory = ref<PresetIcon['category']>('format')
+
+/** 按当前分类过滤的预置图标 */
+const docFilteredPresetIcons = computed(() =>
+  presetIcons.filter(icon => icon.category === docIconCategory.value)
+)
+
+/** 当前选中的图标 key（从 form.icon 拆分） */
+const docSelectedIconKey = computed(() => parseIconValue(form.value.icon).key)
+
+/** 当前选中的颜色（从 form.icon 拆分） */
+const docSelectedIconColor = computed(() => parseIconValue(form.value.icon).color)
+
+/** 选择预置图标：保留已选颜色 */
+const selectPresetDocIcon = (key: string) => {
+  const keepColor = docSelectedIconColor.value
+  form.value.icon = buildIconValue(key, keepColor)
+}
+
+/** 选择/清除颜色 */
+const selectDocIconColor = (color: string) => {
+  form.value.icon = buildIconValue(docSelectedIconKey.value, color)
+}
+
+/** 清除图标 */
+const clearDocIcon = () => {
+  form.value.icon = ''
+}
 
 /** 自定义图标列表 */
 const customIcons = ref<IconVO[]>([])
@@ -613,11 +682,6 @@ async function fetchCustomIcons() {
   } catch {
     // 图标加载失败不影响编辑
   }
-}
-
-/** 选择图标 */
-const selectIcon = (iconName: string) => {
-  form.value.icon = form.value.icon === iconName ? '' : iconName
 }
 
 /** 选择自定义图标（data URI / iconfont / svg） */
@@ -692,7 +756,7 @@ async function handleSubmit() {
     localStorage.removeItem(`doc-edit-${id}`);
   } catch (e) {
     console.error(e);
-    notify('保存失败，请重试', 'error');
+    notify('保存失败：' + getApiError(e), 'error');
   } finally {
     submitting.value = false;
   }
@@ -1341,5 +1405,192 @@ onUnmounted(() => {
 /* prose 预览样式 */
 .prose {
   line-height: 1.7;
+  /* 关键：保留空格和换行，防止内容格式错乱 */
+  white-space: pre-wrap;
+  word-break: break-word;
+  tab-size: 4;
+}
+.prose :deep(h1) {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1.2rem 0 0.8rem;
+  color: var(--kb-foreground);
+}
+.prose :deep(h2) {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 1rem 0 0.6rem;
+  color: var(--kb-foreground);
+}
+.prose :deep(h3) {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0.8rem 0 0.5rem;
+  color: var(--kb-foreground);
+}
+.prose :deep(p) {
+  margin: 0.5rem 0;
+  color: var(--kb-foreground);
+}
+.prose :deep(ul),
+.prose :deep(ol) {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  color: var(--kb-foreground);
+}
+.prose :deep(ul) {
+  list-style: disc;
+}
+.prose :deep(ol) {
+  list-style: decimal;
+}
+.prose :deep(li) {
+  margin: 0.2rem 0;
+}
+.prose :deep(blockquote) {
+  margin: 0.8rem 0;
+  padding: 0.5rem 1rem;
+  border-left: 3px solid var(--kb-primary);
+  background: var(--kb-muted);
+  color: var(--kb-muted-foreground);
+  border-radius: 0 var(--kb-radius-sm) var(--kb-radius-sm) 0;
+}
+.prose :deep(blockquote p) {
+  margin: 0;
+  color: var(--kb-foreground);
+}
+.prose :deep(code) {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.875em;
+  background: var(--kb-muted);
+  color: var(--kb-primary);
+  font-family: 'Menlo', 'Consolas', 'Monaco', monospace;
+}
+.prose :deep(pre) {
+  margin: 0;
+}
+.prose :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.8rem 0;
+  font-size: 0.875rem;
+}
+.prose :deep(th),
+.prose :deep(td) {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--kb-border);
+  text-align: left;
+}
+.prose :deep(th) {
+  background: var(--kb-muted);
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+.prose :deep(td) {
+  color: var(--kb-foreground);
+}
+.prose :deep(hr) {
+  border: none;
+  border-top: 1px solid var(--kb-border);
+  margin: 1rem 0;
+}
+.prose :deep(a) {
+  color: var(--kb-primary);
+  text-decoration: underline;
+}
+.prose :deep(img) {
+  max-width: 100%;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+}
+
+/* ===== 预置图标分类条 + 颜色选择行 ===== */
+.preset-cat-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.preset-cat-btn {
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--kb-muted-foreground);
+  background: var(--kb-background);
+  border: 1px solid var(--kb-border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.preset-cat-btn:hover {
+  color: var(--kb-primary);
+  border-color: var(--kb-primary);
+}
+.preset-cat-btn.active {
+  color: #fff;
+  background: var(--kb-primary);
+  border-color: var(--kb-primary);
+}
+
+.doc-icon-color-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--kb-border);
+}
+.doc-color-label {
+  font-size: 11px;
+  color: var(--kb-muted-foreground);
+}
+.doc-color-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px var(--kb-border);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.doc-color-swatch:hover {
+  transform: scale(1.15);
+}
+.doc-color-swatch.active {
+  border-color: var(--kb-foreground);
+  transform: scale(1.15);
+}
+.doc-color-custom {
+  display: inline-flex;
+  cursor: pointer;
+}
+.doc-color-native {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--kb-border);
+  border-radius: 4px;
+  cursor: pointer;
+  background: none;
+}
+.doc-color-native::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+.doc-color-native::-webkit-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+.doc-color-clear {
+  font-size: 11px;
+  color: var(--kb-muted-foreground);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 4px;
+}
+.doc-color-clear:hover {
+  color: var(--kb-danger, #ef4444);
 }
 </style>

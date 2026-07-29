@@ -12,6 +12,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 /** 管理员文档管理 REST 接口，提供文档的增删改查。 */
 @Tag(name = "管理员文档管理")
 @RestController
@@ -95,6 +98,30 @@ public class AdminDocController {
         doc.setId(id);
         doc.setStatus(3);
         docService.updateDoc(doc);
+        return Result.success();
+    }
+
+    @Operation(summary = "批量删除文档")
+    @DeleteMapping("/batch")
+    public Result<Void> batchDelete(@RequestBody List<Long> ids) {
+        docService.batchDeleteDocs(ids);
+        return Result.success();
+    }
+
+    @Operation(summary = "批量移动文档到指定知识库")
+    @PutMapping("/batch/move")
+    public Result<Void> batchMove(@RequestBody Map<String, Object> params) {
+        Object docIdsObj = params.get("docIds");
+        Object categoryIdObj = params.get("categoryId");
+        if (docIdsObj == null || categoryIdObj == null) {
+            return Result.error(400, "docIds 与 categoryId 不能为空");
+        }
+        @SuppressWarnings("unchecked")
+        List<Long> docIds = ((List<Object>) docIdsObj).stream()
+                .map(o -> Long.valueOf(o.toString()))
+                .collect(java.util.stream.Collectors.toList());
+        Long categoryId = Long.valueOf(categoryIdObj.toString());
+        docService.batchMoveDocs(docIds, categoryId);
         return Result.success();
     }
 }

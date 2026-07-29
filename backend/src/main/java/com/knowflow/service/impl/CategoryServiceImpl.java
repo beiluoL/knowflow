@@ -31,6 +31,19 @@ public class CategoryServiceImpl extends ServiceImpl<DocCategoryMapper, DocCateg
         List<DocCategory> allCategories = this.list(new LambdaQueryWrapper<DocCategory>()
                 .eq(DocCategory::getStatus, 1)
                 .orderByAsc(DocCategory::getSortOrder));
+        return buildTree(allCategories);
+    }
+
+    @Override
+    public List<CategoryVO> getCategoryTreeForAdmin() {
+        // 管理端返回全部（含已禁用），便于维护时看到完整结构
+        List<DocCategory> allCategories = this.list(new LambdaQueryWrapper<DocCategory>()
+                .orderByAsc(DocCategory::getSortOrder));
+        return buildTree(allCategories);
+    }
+
+    /** 把扁平 List<DocCategory> 组装为树结构。 */
+    private List<CategoryVO> buildTree(List<DocCategory> allCategories) {
         List<CategoryVO> allVOs = allCategories.stream()
                 .map(cat -> BeanUtil.copyProperties(cat, CategoryVO.class))
                 .collect(Collectors.toList());
@@ -48,6 +61,42 @@ public class CategoryServiceImpl extends ServiceImpl<DocCategoryMapper, DocCateg
             }
         }
         return roots;
+    }
+
+    @Override
+    public void validateParentId(Long currentId, Long parentId) {
+        // parentId 为 null 或 0 表示顶级分类
+        if (parentId == null || parentId == 0) {
+            return;
+        }
+        // 自环校验
+        if (currentId != null && currentId.equals(parentId)) {
+            throw new BusinessException("父分类不能是自身");
+        }
+        DocCategory parent = this.getById(parentId);
+        if (parent == null) {
+            throw new BusinessException("指定的父分类不存在");
+        }
+        // 层级深度校验：从 parent 往上数祖先，最多 2 层（parent 算第 1 层，新建/更新后是第 2 层）
+        // 即允许：顶级 → 一级子分类 → 二级子分类（共 3 级）
+        int depth = 1;
+        Long ancestorId = parent.getParentId();
+        java.util.Set<Long> visited = new java.util.HashSet<>();
+        visited.add(parentId);
+        while (ancestorId != null && ancestorId != 0) {
+            if (!visited.add(ancestorId)) {
+                throw new BusinessException("分类层级存在环，请检查父分类设置");
+            }
+            depth++;
+            if (depth > 2) {
+                throw new BusinessException("分类层级最多支持 3 级，无法继续创建子分类");
+            }
+            DocCategory ancestor = this.getById(ancestorId);
+            if (ancestor == null) {
+                break;
+            }
+            ancestorId = ancestor.getParentId();
+        }
     }
 
     @Override

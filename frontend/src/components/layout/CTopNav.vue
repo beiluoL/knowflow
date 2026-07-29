@@ -459,6 +459,7 @@ const taskMenu: NavLink[] = [
 
 const mobileLinks: NavLink[] = [
   { path: '/', label: '首页', icon: 'home' },
+  { path: '/knowledge', label: '知识库', icon: 'library' },
   { path: '/tasks', label: '任务中心', icon: 'target' },
   { path: '/check-in', label: '每日打卡', icon: 'calendar-check' },
   { path: '/achievements', label: '成就系统', icon: 'trophy' },
@@ -472,6 +473,7 @@ const mobileLinks: NavLink[] = [
 ];
 
 const knowledgeMenu: NavLink[] = [
+  { path: '/knowledge', label: '知识库', icon: 'library' },
   { path: '/categories', label: '分类浏览', icon: 'folder-tree' },
   { path: '/search', label: '搜索知识', icon: 'search' },
   { path: '/learning/knowledge-graph', label: '知识图谱', icon: 'share-2' },

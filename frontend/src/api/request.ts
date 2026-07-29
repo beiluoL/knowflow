@@ -65,8 +65,8 @@ export async function apiPut<T>(url: string, data?: unknown, config?: AxiosReque
   return (res as unknown as ApiResult<T>).data
 }
 
-export async function apiDelete<T>(url: string, params?: object): Promise<T> {
-  const res = await request.delete(url, { params })
+export async function apiDelete<T>(url: string, params?: object, config?: AxiosRequestConfig): Promise<T> {
+  const res = await request.delete(url, { params, ...config })
   return (res as unknown as ApiResult<T>).data
 }
 

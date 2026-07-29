@@ -254,6 +254,8 @@ import Card from '@/components/ui/Card.vue'
 import { docsApi } from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import type { DocDetailVO, DocVO, LearningFlashcard } from '@/api/types'
+// 统一的 Markdown 渲染与工具函数（解决 \n 换行不生效、空格丢失等问题）
+import { renderMarkdown as renderMarkdownGlobal, normalizeEscapes, slugify } from '@/utils/markdown'
 
 // 文档类型标签色板（与设计稿对齐）
 const docIconColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
@@ -349,10 +351,10 @@ const inline = (s: string) =>
     })
     .replace(/  \n/g, '<br />')
 
-// 从 Markdown 文本提取二级/三级标题，生成目录树
+// 从 Markdown 文本提取二级/三级标题，生成目录树（使用全局工具处理转义字符）
 const buildToc = (md: string): TocItem[] => {
   const items: TocItem[] = []
-  const text = normalizeNewlines(md)
+  const text = normalizeEscapes(md)
   for (const line of text.split('\n')) {
     const m = /^(#{2,3})\s+(.*)$/.exec(line.trim())
     if (m) {
@@ -367,202 +369,7 @@ const buildToc = (md: string): TocItem[] => {
   return items
 }
 
-const renderCodeBlock = (lang: string, code: string): string => {
-  const language = lang || 'text'
-  const encoded = encodeURIComponent(code)
-  return `<div class="code-block-wrapper rounded-lg overflow-hidden my-4" style="background:#1E1E2E">
-    <div class="flex items-center justify-between px-4 py-2">
-      <span class="text-[12px] font-medium" style="color:#89B4FA">${language}</span>
-      <button type="button" class="code-copy-btn inline-flex items-center gap-1 rounded px-2 py-1 text-[12px] transition-colors hover:bg-white/10" style="color:#A6ADC8" data-code="${encoded}" aria-label="复制代码">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-        <span class="copy-label">复制</span>
-      </button>
-    </div>
-    <pre class="overflow-x-auto px-4 pb-4 text-[13px] leading-relaxed no-scrollbar" style="color:#CDD6F4;font-family:'Menlo','Consolas','Monaco',monospace"><code>${escapeHtml(code)}</code></pre>
-  </div>`
-}
-
-// 将各种换行符（\r\n、\r、转义后的 \\n）统一规范化为 \n
-const normalizeNewlines = (s: string): string => {
-  if (!s) return ''
-  return s
-    .replace(/\\r\\n/g, '\n')
-    .replace(/\\r/g, '\n')
-    .replace(/\\n/g, '\n')
-    .replace(/\r\n/g, '\n')
-    .replace(/\r/g, '\n')
-}
-
-const isTableLine = (line: string) => /^\|.*\|$/.test(line.trim())
-
-const renderTable = (rows: string[]): string => {
-  if (rows.length < 2) return ''
-  const headerCells = rows[0].trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim())
-  const bodyRows = rows.slice(2).map(r =>
-    r.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim())
-  )
-  let html = '<table><thead><tr>'
-  headerCells.forEach(c => { html += `<th>${inline(c)}</th>` })
-  html += '</tr></thead><tbody>'
-  bodyRows.forEach(row => {
-    html += '<tr>'
-    row.forEach(c => { html += `<td>${inline(c)}</td>` })
-    html += '</tr>'
-  })
-  html += '</tbody></table>'
-  return html
-}
-
-// 完整 Markdown 渲染器：支持标题/段落/列表/引用/代码块/表格
-const renderMarkdown = (md: string): string => {
-  if (!md) return ''
-  const text = normalizeNewlines(md)
-  const lines = text.split('\n')
-  let html = ''
-  let inCode = false
-  let codeBuf: string[] = []
-  let codeLang = ''
-  let paragraphBuf: string[] = []
-  let inBlockquote = false
-  let blockquoteBuf: string[] = []
-  let tableBuf: string[] = []
-  let inTable = false
-  let listBuf: string[] = []
-  let listType: 'ul' | 'ol' | null = null
-
-  const flushParagraph = () => {
-    if (paragraphBuf.length > 0) {
-      html += `<p>${inline(paragraphBuf.join(' '))}</p>`
-      paragraphBuf = []
-    }
-  }
-
-  const flushBlockquote = () => {
-    if (inBlockquote && blockquoteBuf.length > 0) {
-      html += `<blockquote><p>${inline(blockquoteBuf.join(' '))}</p></blockquote>`
-      blockquoteBuf = []
-      inBlockquote = false
-    }
-  }
-
-  const flushList = () => {
-    if (listType && listBuf.length > 0) {
-      html += `<${listType}>${listBuf.map(item => `<li>${inline(item)}</li>`).join('')}</${listType}>`
-      listBuf = []
-      listType = null
-    }
-  }
-
-  const flushTable = () => {
-    if (inTable && tableBuf.length >= 2) {
-      html += renderTable(tableBuf)
-      tableBuf = []
-      inTable = false
-    }
-  }
-
-  const flushAll = () => {
-    flushParagraph()
-    flushBlockquote()
-    flushList()
-    flushTable()
-  }
-
-  for (let i = 0; i < lines.length; i++) {
-    const raw = lines[i]
-    const line = raw.trimEnd()
-
-    const fence = /^```(\w*)/.exec(line)
-    if (fence) {
-      flushAll()
-      if (!inCode) {
-        inCode = true
-        codeBuf = []
-        codeLang = fence[1] || ''
-      } else {
-        html += renderCodeBlock(codeLang, codeBuf.join('\n'))
-        inCode = false
-      }
-      continue
-    }
-    if (inCode) {
-      codeBuf.push(raw)
-      continue
-    }
-
-    if (isTableLine(line)) {
-      flushParagraph()
-      flushBlockquote()
-      flushList()
-      if (!inTable) {
-        inTable = true
-        tableBuf = []
-      }
-      tableBuf.push(line)
-      continue
-    } else if (inTable) {
-      flushTable()
-    }
-
-    if (/^>\s?/.test(line)) {
-      flushParagraph()
-      flushList()
-      inBlockquote = true
-      blockquoteBuf.push(line.replace(/^>\s?/, ''))
-      continue
-    } else if (inBlockquote) {
-      flushBlockquote()
-    }
-
-    const ulMatch = /^[-*]\s+(.*)$/.exec(line)
-    const olMatch = /^\d+\.\s+(.*)$/.exec(line)
-    if (ulMatch) {
-      flushParagraph()
-      flushBlockquote()
-      if (listType !== 'ul') {
-        flushList()
-        listType = 'ul'
-      }
-      listBuf.push(ulMatch[1])
-      continue
-    }
-    if (olMatch) {
-      flushParagraph()
-      flushBlockquote()
-      if (listType !== 'ol') {
-        flushList()
-        listType = 'ol'
-      }
-      listBuf.push(olMatch[1])
-      continue
-    } else if (listType) {
-      flushList()
-    }
-
-    const h = /^(#{1,3})\s+(.*)$/.exec(line)
-    if (h) {
-      flushAll()
-      const text = h[2].replace(/[*`]/g, '').trim()
-      const id = slugify(text) || `h-${i}`
-      html += `<h${h[1].length} id="${id}" class="doc-h">${inline(text)}</h${h[1].length}>`
-      continue
-    }
-
-    if (line.trim() === '') {
-      flushAll()
-      continue
-    }
-
-    paragraphBuf.push(line.trim())
-  }
-
-  if (inCode) html += renderCodeBlock(codeLang, codeBuf.join('\n'))
-  flushAll()
-
-  return html
-}
-
-const docContentHtml = computed(() => renderMarkdown(doc.value.content || ''))
+const docContentHtml = computed(() => renderMarkdownGlobal(doc.value.content || ''))
 const flatToc = computed(() => buildToc(doc.value.content || ''))
 
 const goBack = () => router.back()

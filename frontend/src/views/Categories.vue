@@ -1,138 +1,160 @@
 <template>
-  <div class="animate-fade-in">
-    <!-- 页面头部 -->
-    <section class="flex items-center justify-between mb-6 gap-4 flex-wrap">
-      <h1 class="kb-h2">分类浏览</h1>
-      <div class="flex items-center gap-2 px-3 py-2 rounded-lg border w-full sm:w-72" style="background: var(--kb-card); border-color: var(--kb-border);">
-        <Icon name="search" :size="16" class="shrink-0" style="color: var(--kb-muted-foreground);" />
-        <input
-          v-model="searchKeyword"
-          type="text"
-          placeholder="搜索分类..."
-          class="flex-1 text-sm outline-none bg-transparent"
-          style="color: var(--kb-foreground);"
-        />
-      </div>
-    </section>
+  <div class="knowledge-layout">
+    <!-- 左侧边栏 -->
+    <KnowledgeSidebar
+      mode="categories"
+      :active-category-id="activeCategoryIdForSidebar"
+      @navigate="onSidebarNavigate"
+    />
 
-    <!-- 主体：左侧分类网格 + 右侧标签云 -->
-    <div class="flex gap-6">
-      <!-- 左侧 -->
-      <div class="flex-1 min-w-0">
-        <!-- 分类网格（4 列） -->
-        <div v-if="!selectedCategory" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-          <a
+    <!-- 主内容区 -->
+    <main class="knowledge-main">
+      <!-- 顶部面包屑 + 搜索 -->
+      <div class="top-bar">
+        <div class="breadcrumb">
+          <Icon name="folder-tree" :size="14" />
+          <span>分类浏览</span>
+          <template v-if="selectedCategory">
+            <Icon name="chevron-right" :size="12" class="sep" />
+            <span class="current" style="color: var(--kb-primary);">{{ selectedCategory.name }}</span>
+          </template>
+        </div>
+
+        <div class="search-box">
+          <Icon name="search" :size="16" class="search-icon" />
+          <input
+            v-model="searchKeyword"
+            type="text"
+            placeholder="搜索分类..."
+            class="search-input"
+          />
+        </div>
+      </div>
+
+      <!-- 左侧分类网格（未选中分类时） -->
+      <section v-if="!selectedCategory" class="content-section">
+        <div class="section-header">
+          <h1 class="page-title">全部分类</h1>
+          <span class="section-subtitle">共 {{ filteredCategories.length }} 个分类</span>
+        </div>
+
+        <div v-if="filteredCategories.length > 0" class="category-grid">
+          <div
             v-for="(cat, idx) in filteredCategories"
             :key="cat.id"
-            href="#"
             class="category-card"
-            @click.prevent="selectCategory(cat)"
+            @click="selectCategory(cat)"
           >
             <div class="cat-icon" :style="{ background: `${categoryColors[idx % categoryColors.length]}14` }">
-              <Icon :name="getCategoryIcon(cat.icon, idx)" :size="24" :style="{ color: categoryColors[idx % categoryColors.length] }" />
+              <Icon :name="getCategoryIcon(cat.icon, idx)" :size="22" :style="{ color: categoryColors[idx % categoryColors.length] }" />
             </div>
-            <h3 class="text-sm font-semibold mb-1" style="color: var(--kb-foreground);">{{ cat.name }}</h3>
-            <p class="text-xs mb-2" style="color: var(--kb-muted-foreground);">{{ cat.docCount || 0 }} 篇文档</p>
-            <p class="text-[11px] line-clamp-2" style="color: var(--kb-muted-foreground);">{{ cat.subtitle || getCategoryDescription(cat.name) }}</p>
-          </a>
+            <div class="cat-info">
+              <h3 class="cat-name">{{ cat.name }}</h3>
+              <p class="cat-meta">
+                <span class="cat-count">{{ cat.docCount || 0 }} 篇文档</span>
+                <span class="cat-desc">{{ getCategoryDescription(cat.name) }}</span>
+              </p>
+            </div>
+            <Icon name="arrow-right" :size="16" class="cat-arrow" />
+          </div>
         </div>
 
-        <!-- 分类文档列表（点击分类后显示） -->
-        <div v-else>
-          <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
-            <div class="flex items-center gap-3 min-w-0">
-              <button
-                type="button"
-                class="text-sm font-medium hover:opacity-80 inline-flex items-center gap-1 shrink-0"
-                style="color: var(--kb-primary);"
-                @click="backToCategories"
-              >
-                <Icon name="arrow-left" :size="14" />
-                <span>返回分类</span>
-              </button>
-              <h2 class="kb-h4 truncate">{{ selectedCategory.name }} - 文档列表</h2>
-            </div>
-            <div class="flex items-center gap-3">
-              <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border" style="background: var(--kb-card); border-color: var(--kb-border);">
-                <Icon name="search" :size="14" class="shrink-0" style="color: var(--kb-muted-foreground);" />
-                <input
-                  v-model="docSearchKeyword"
-                  type="text"
-                  placeholder="搜索文档..."
-                  class="text-xs outline-none bg-transparent w-32 sm:w-40"
-                  style="color: var(--kb-foreground);"
-                />
-              </div>
-              <select
-                v-model="sortBy"
-                class="text-xs px-2 py-1.5 rounded-lg border outline-none cursor-pointer"
-                style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-muted-foreground);"
-              >
-                <option value="latest">按时间排序</option>
-                <option value="hot">按热度排序</option>
-                <option value="name">按名称排序</option>
-              </select>
-            </div>
-          </div>
+        <div v-else class="empty-state">
+          <Icon name="folder-question" :size="48" class="empty-icon" />
+          <p>暂无分类</p>
+        </div>
+      </section>
 
-          <!-- 加载中 -->
-          <div v-if="loading" class="rounded-xl border p-10 text-center" style="background: var(--kb-card); border-color: var(--kb-border);">
-            <Icon name="loader" :size="28" class="spin inline-block" style="color: var(--kb-muted-foreground);" />
-            <p class="text-sm mt-2" style="color: var(--kb-muted-foreground);">加载中...</p>
-          </div>
-
-          <!-- 空态 -->
-          <div v-else-if="filteredDocs.length === 0" class="rounded-xl border p-10 text-center" style="background: var(--kb-card); border-color: var(--kb-border);">
-            <Icon name="file-question" :size="40" style="color: var(--kb-muted-foreground);" />
-            <p class="text-sm mt-2" style="color: var(--kb-muted-foreground);">暂无文档</p>
-          </div>
-
-          <!-- 文档列表 -->
-          <div v-else class="rounded-xl border overflow-hidden" style="background: var(--kb-card); border-color: var(--kb-border);">
-            <a
-              v-for="(doc, idx) in filteredDocs"
-              :key="doc.id"
-              href="#"
-              class="cat-doc-item"
-              @click.prevent="goToDoc(doc.id)"
+      <!-- 右侧分类文档列表（选中分类后） -->
+      <section v-else class="content-section">
+        <div class="section-header">
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              class="back-btn"
+              @click="backToCategories"
             >
-              <span
-                class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-md font-medium shrink-0 mt-0.5"
-                :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }"
-              >{{ getDocType(doc) }}</span>
-              <div class="flex-1 min-w-0">
-                <h4 class="text-sm font-semibold mb-1" style="color: var(--kb-foreground);">{{ doc.title }}</h4>
-                <p class="text-xs line-clamp-1" style="color: var(--kb-muted-foreground);">{{ doc.summary || '暂无摘要' }}</p>
-              </div>
-              <span class="text-xs shrink-0" style="color: var(--kb-muted-foreground);">{{ formatRelativeTime(doc.createTime) }}</span>
-            </a>
+              <Icon name="arrow-left" :size="14" />
+              <span>返回分类</span>
+            </button>
+            <h1 class="page-title">
+              <Icon :name="getCategoryIcon(selectedCategory.icon, 0)" :size="20" class="cat-title-icon" />
+              {{ selectedCategory.name }}
+            </h1>
+            <span class="count-pill">{{ filteredDocs.length }} 篇文档</span>
+          </div>
+          <div class="actions">
+            <div class="search-box small">
+              <Icon name="search" :size="14" class="search-icon" />
+              <input
+                v-model="docSearchKeyword"
+                type="text"
+                placeholder="搜索文档..."
+                class="search-input"
+              />
+            </div>
+            <select
+              v-model="sortBy"
+              class="sort-select"
+            >
+              <option value="latest">按时间排序</option>
+              <option value="hot">按热度排序</option>
+              <option value="name">按名称排序</option>
+            </select>
           </div>
         </div>
-      </div>
 
-      <!-- 右侧：标签云 -->
-      <aside class="w-56 shrink-0 hidden lg:block">
-        <div class="rounded-xl border p-5 sticky top-20" style="background: var(--kb-card); border-color: var(--kb-border);">
-          <h3 class="kb-h4 mb-4" style="font-size: 13px;">热门标签</h3>
-          <div class="flex flex-wrap gap-2">
-            <span
-              v-for="tag in hotTags"
-              :key="tag"
-              class="tag-item"
-              @click="goToSearch(tag)"
-            >{{ tag }}</span>
+        <!-- 加载中 -->
+        <div v-if="loading" class="loading-card">
+          <Icon name="loader" :size="24" class="spin" />
+          <p>加载中...</p>
+        </div>
+
+        <!-- 空态 -->
+        <div v-else-if="filteredDocs.length === 0" class="empty-state">
+          <Icon name="file-question" :size="48" class="empty-icon" />
+          <p>该分类下暂无文档</p>
+        </div>
+
+        <!-- 文档列表 -->
+        <div v-else class="doc-list">
+          <div
+            v-for="(doc, idx) in filteredDocs"
+            :key="doc.id"
+            class="doc-item"
+            @click="goToDoc(doc.id)"
+          >
+            <div
+              class="doc-icon"
+              :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }"
+            >
+              <Icon name="file-text" :size="18" />
+            </div>
+            <div class="doc-main">
+              <h4 class="doc-title">{{ doc.title }}</h4>
+              <p class="doc-summary">{{ doc.summary || '暂无摘要' }}</p>
+              <div class="doc-meta">
+                <span
+                  class="doc-type"
+                  :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }"
+                >{{ getDocType(doc) }}</span>
+                <span class="doc-time">{{ formatRelativeTime(doc.createTime) }}</span>
+                <span class="doc-views"><Icon name="eye" :size="12" /> {{ doc.viewCount || 0 }}</span>
+              </div>
+            </div>
+            <Icon name="arrow-right" :size="16" class="doc-arrow" />
           </div>
         </div>
-      </aside>
-    </div>
+      </section>
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
-// 分类浏览页：顶部分类网格 + 文档列表 + 标签云
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import KnowledgeSidebar from '@/components/layout/KnowledgeSidebar.vue'
 import { categoriesApi, docsApi } from '@/api'
 import type { CategoryVO, DocVO } from '@/api/types'
 
@@ -147,63 +169,35 @@ const docSearchKeyword = ref('')
 const sortBy = ref<'latest' | 'hot' | 'name'>('latest')
 const selectedCategoryId = ref<number | string>('')
 
-// 分类主色板：与设计稿对齐（蓝/绿/黄/红/紫）
 const categoryColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
 const docIconColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
 
-// 热门标签（从文档标签聚合或使用默认列表）
-const hotTags = ref<string[]>([
-  'Python', 'React', '深度学习', 'CSS', 'Docker', 'NLP',
-  '微服务', 'TypeScript', '算法', 'GPT', 'Kubernetes', 'Vue',
-  '数据可视化', 'Git', '设计系统', 'Rust', 'GraphQL', 'SQL'
-])
-
-// icon 映射：将后端 icon 字段或分类名映射到 lucide 图标
 const iconOptions = ['code', 'server', 'database', 'brain', 'settings', 'git-branch', 'monitor', 'wifi', 'folder', 'layers', 'book-open', 'cpu', 'palette', 'briefcase', 'shield', 'message-square', 'target', 'bar-chart-2', 'bot', 'lock', 'layout', 'smartphone', 'container', 'binary', 'kanban', 'file-code']
-
-const categoryNameIconMap: Record<string, string> = {
-  '人工智能': 'brain',
-  '前端开发': 'layout',
-  '后端技术': 'server',
-  '数据科学': 'bar-chart-2',
-  '移动开发': 'smartphone',
-  '数据库': 'database',
-  'DevOps': 'container',
-  '网络安全': 'shield',
-  '算法与数据结构': 'binary',
-  '产品设计': 'palette',
-  '编程语言': 'file-code',
-  '项目管理': 'kanban',
-  '编程开发': 'code',
-  '默认': 'folder'
-}
 
 const getCategoryIcon = (iconName: string | undefined, idx: number): string => {
   if (iconName && iconOptions.includes(iconName)) return iconName
-  // 默认按索引轮换使用一组常用图标
   const fallback = ['brain', 'layout', 'server', 'bar-chart-2', 'smartphone', 'database', 'container', 'shield', 'binary', 'palette', 'file-code', 'kanban']
   return fallback[idx % fallback.length]
 }
 
-// 顶层分类列表（按设计稿展开为扁平网格）
-const topLevelCategories = computed<CategoryVO[]>(() => {
-  return categoryTree.value
-})
+const topLevelCategories = computed<CategoryVO[]>(() => categoryTree.value)
 
-// 按搜索关键字过滤分类
 const filteredCategories = computed(() => {
   if (!searchKeyword.value.trim()) return topLevelCategories.value
   const kw = searchKeyword.value.toLowerCase()
   return topLevelCategories.value.filter(c => (c.name || '').toLowerCase().includes(kw))
 })
 
-// 当前选中的分类对象
 const selectedCategory = computed(() => {
   if (!selectedCategoryId.value) return null
   return topLevelCategories.value.find(c => c.id === Number(selectedCategoryId.value)) || null
 })
 
-// 递归收集某分类自身及其所有后代子分类的 id 列表
+const activeCategoryIdForSidebar = computed(() => {
+  if (selectedCategoryId.value) return Number(selectedCategoryId.value)
+  return null
+})
+
 const getAllChildCategoryIds = (categoryId: number | string, categories: CategoryVO[]): number[] => {
   const ids: number[] = [Number(categoryId)]
   for (const cat of categories) {
@@ -216,7 +210,6 @@ const getAllChildCategoryIds = (categoryId: number | string, categories: Categor
   return ids
 }
 
-// 过滤并排序文档列表
 const filteredDocs = computed(() => {
   let result = [...allDocs.value]
   if (docSearchKeyword.value.trim()) {
@@ -287,7 +280,6 @@ const loadCategoryDocs = async (categoryId: number | string) => {
       const res = await docsApi.list({ categoryId: id, pageSize: 100 })
       merged = merged.concat(res.records || [])
     }
-    // 去重
     allDocs.value = [...new Map(merged.map((d) => [d.id, d])).values()]
   } catch {
     allDocs.value = []
@@ -312,8 +304,8 @@ const goToDoc = (docId: number) => {
   router.push(`/doc/${docId}`)
 }
 
-const goToSearch = (tag: string) => {
-  router.push({ path: '/search', query: { q: tag } })
+const onSidebarNavigate = () => {
+  // 侧边栏导航会通过路由变化自动触发
 }
 
 onMounted(async () => {
@@ -344,85 +336,404 @@ watch(
 </script>
 
 <style scoped>
-/* 分类卡片：与设计稿 .category-card 对齐 */
-.category-card {
+/* 全屏布局：抵消 CLayout 的 px-4 sm:px-6 py-6 内边距 */
+.knowledge-layout {
   display: flex;
-  flex-direction: column;
+  margin: -24px -24px 0;
+  min-height: calc(100vh - 56px);
+}
+
+.knowledge-main {
+  flex: 1;
+  min-width: 0;
+  padding: 24px 32px 40px;
+  overflow-y: auto;
+  height: calc(100vh - 56px);
+}
+
+/* 顶部条 */
+.top-bar {
+  display: flex;
   align-items: center;
-  text-align: center;
-  padding: 24px 16px;
-  border-radius: var(--kb-radius-lg);
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--kb-muted-foreground);
+}
+
+.breadcrumb .sep {
+  color: var(--kb-muted-foreground);
+  opacity: 0.6;
+}
+
+.breadcrumb .current {
+  font-weight: 500;
+}
+
+.search-box {
+  position: relative;
+  width: 240px;
+}
+
+.search-box.small {
+  width: 180px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--kb-muted-foreground);
+}
+
+.search-input {
+  width: 100%;
+  height: 36px;
+  padding-left: 34px;
+  padding-right: 14px;
+  border-radius: 8px;
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
-  transition: all 0.2s;
-  cursor: pointer;
-  text-decoration: none;
+  font-size: 13px;
+  color: var(--kb-foreground);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.category-card:hover {
-  box-shadow: 0 4px 16px rgba(59, 111, 224, 0.1);
+
+.search-input:focus {
   border-color: var(--kb-primary);
-  transform: translateY(-2px);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
-.category-card .cat-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--kb-radius-md);
+
+/* 内容区 */
+.content-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--kb-foreground);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cat-title-icon {
+  color: var(--kb-primary);
+}
+
+.section-subtitle {
+  font-size: 13px;
+  color: var(--kb-muted-foreground);
+  margin-left: 10px;
+}
+
+.count-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(59, 111, 224, 0.1);
+  color: var(--kb-primary);
+  margin-left: 10px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sort-select {
+  height: 36px;
+  padding: 0 28px 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  font-size: 13px;
+  color: var(--kb-foreground);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.sort-select:focus {
+  border-color: var(--kb-primary);
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.08);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.back-btn:hover {
+  background: rgba(59, 111, 224, 0.15);
+}
+
+/* 分类网格 */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.category-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.category-card:hover {
+  border-color: var(--kb-primary);
+  box-shadow: 0 4px 16px rgba(59, 111, 224, 0.08);
+  transform: translateY(-1px);
+}
+
+.cat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
-/* 标签云 */
-.tag-item {
-  display: inline-flex;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
-  text-decoration: none;
-  transition: all 0.15s;
-  cursor: pointer;
-  user-select: none;
-}
-.tag-item:hover {
-  background: rgba(59, 111, 224, 0.08);
-  color: var(--kb-primary);
-  border-color: var(--kb-primary);
+.cat-info {
+  flex: 1;
+  min-width: 0;
 }
 
-/* 分类下的文档列表项 */
-.cat-doc-item {
+.cat-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--kb-foreground);
+  margin-bottom: 4px;
+}
+
+.cat-meta {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--kb-muted-foreground);
+}
+
+.cat-count {
+  font-weight: 600;
+}
+
+.cat-desc {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cat-arrow {
+  color: var(--kb-muted-foreground);
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.category-card:hover .cat-arrow {
+  opacity: 1;
+  color: var(--kb-primary);
+}
+
+/* 文档列表 */
+.doc-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--kb-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--kb-card);
+}
+
+.doc-item {
+  display: flex;
+  align-items: center;
   gap: 14px;
-  padding: 14px 16px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--kb-border);
-  transition: background-color 0.15s;
-  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
 }
-.cat-doc-item:hover {
-  background-color: rgba(59, 111, 224, 0.02);
-}
-.cat-doc-item:last-child {
+
+.doc-item:last-child {
   border-bottom: none;
+}
+
+.doc-item:hover {
+  background: rgba(59, 111, 224, 0.03);
+}
+
+.doc-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.doc-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.doc-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--kb-foreground);
+  margin-bottom: 4px;
+}
+
+.doc-summary {
+  font-size: 12.5px;
+  color: var(--kb-muted-foreground);
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doc-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.doc-type {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.doc-time {
+  color: var(--kb-muted-foreground);
+}
+
+.doc-views {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--kb-muted-foreground);
+}
+
+.doc-arrow {
+  color: var(--kb-muted-foreground);
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.doc-item:hover .doc-arrow {
+  opacity: 1;
+  color: var(--kb-primary);
+}
+
+/* 空态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: var(--kb-muted-foreground);
+  font-size: 14px;
+  background: var(--kb-card);
+  border: 1px dashed var(--kb-border);
+  border-radius: 12px;
+}
+
+.empty-icon {
+  color: var(--kb-muted-foreground);
+  opacity: 0.6;
+}
+
+.loading-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: var(--kb-muted-foreground);
+  font-size: 14px;
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: 12px;
 }
 
 .spin {
   animation: spin 1s linear infinite;
 }
+
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+@media (max-width: 768px) {
+  .knowledge-layout {
+    margin: -16px -16px 0;
+  }
+  .knowledge-main {
+    padding: 16px;
+  }
+  .top-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .search-box,
+  .search-box.small {
+    width: 100%;
+  }
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

@@ -52,7 +52,7 @@ const routes: RouteRecordRaw[] = [
     path: '/knowledge',
     name: 'KnowledgeHome',
     component: () => import('@/views/KnowledgeHome.vue'),
-    meta: { layout: 'c' },
+    meta: { layout: 'c', fullscreen: true },
   },
   {
     path: '/doc/:id',
@@ -64,7 +64,7 @@ const routes: RouteRecordRaw[] = [
     path: '/categories',
     name: 'Categories',
     component: () => import('@/views/Categories.vue'),
-    meta: { layout: 'c' },
+    meta: { layout: 'c', fullscreen: true },
   },
   {
     path: '/search',
@@ -269,6 +269,12 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
   },
   {
+    path: '/admin/categories',
+    name: 'AdminCategories',
+    component: () => import('@/views/admin/CategoryMgmt.vue'),
+    meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
+  },
+  {
     path: '/admin/docs',
     name: 'AdminDocs',
     component: () => import('@/views/admin/DocManagement.vue'),
@@ -323,12 +329,6 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'b', requiresAuth: true, requiresAdmin: true, fullscreen: true },
   },
   {
-    path: '/admin/quiz',
-    name: 'AdminQuiz',
-    component: () => import('@/views/SmartQuiz.vue'),
-    meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
-  },
-  {
     path: '/admin/writing',
     name: 'AdminWriting',
     component: () => import('@/views/SmartWriting.vue'),
@@ -350,6 +350,12 @@ const routes: RouteRecordRaw[] = [
     path: '/admin/code-questions',
     name: 'AdminCodeQuestions',
     component: () => import('@/views/admin/CodeQuestionMgmt.vue'),
+    meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/quiz',
+    name: 'AdminQuiz',
+    component: () => import('@/views/admin/QuizMgmt.vue'),
     meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
   },
   {

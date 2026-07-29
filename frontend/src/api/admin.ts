@@ -17,6 +17,43 @@ import type {
   CodeQuestionInput,
 } from './types'
 
+/** 智能题库题目 VO */
+export interface QuizQuestionVO {
+  id: number
+  title: string
+  content: string
+  questionType: 'SINGLE_CHOICE' | 'MULTIPLE_CHOICE' | 'FILL_BLANK' | 'TRUE_FALSE' | 'SHORT_ANSWER'
+  options?: string | null
+  answer: string
+  explanation?: string
+  difficulty: number
+  categoryId?: number
+  docId?: number
+  tags?: string
+  source: 'AI' | 'MANUAL'
+  status: number
+  sortOrder?: number
+  createTime?: string
+  updateTime?: string
+}
+
+/** 智能题库题目输入 */
+export interface QuizQuestionInput {
+  title: string
+  content: string
+  questionType: string
+  options?: string | null
+  answer: string
+  explanation?: string
+  difficulty?: number
+  categoryId?: number
+  docId?: number
+  tags?: string
+  source?: string
+  status?: number
+  sortOrder?: number
+}
+
 export interface IconVO {
   id: number
   name: string
@@ -44,6 +81,41 @@ export interface AiGeneratePathPayload {
   categoryId?: number
 }
 
+/** 知识库成员 VO（与后端 AdminKbMemberController.MemberVO 对齐） */
+export interface KbMemberVO {
+  id: number
+  categoryId: number
+  userId?: number
+  username?: string
+  nickname?: string
+  email?: string
+  avatar?: string
+  role: 'OWNER' | 'EDITOR' | 'READER'
+  inviteCode?: string
+  inviteEmail?: string
+  status: number
+  joinTime?: string
+  createTime?: string
+}
+
+/** 新增/邀请知识库成员请求体 */
+export interface AddKbMemberReq {
+  categoryId: number
+  userId?: number
+  keyword?: string
+  email?: string
+  role?: 'OWNER' | 'EDITOR' | 'READER'
+}
+
+/** 批量导入结果 VO */
+export interface ImportResultVO {
+  total: number
+  success: number
+  failed: number
+  successNames: string[]
+  failedNames: string[]
+}
+
 export const adminApi = {
   overview: () => apiGet<AdminOverviewVO>('/admin/overview'),
 
@@ -55,6 +127,11 @@ export const adminApi = {
   publishDoc: (id: number) => apiPut<void>(`/admin/docs/${id}/publish`),
   draftDoc: (id: number) => apiPut<void>(`/admin/docs/${id}/draft`),
   deprecateDoc: (id: number) => apiPut<void>(`/admin/docs/${id}/deprecate`),
+  // 批量操作
+  batchDeleteDocs: (ids: number[]) =>
+    apiDelete<void>('/admin/docs/batch', undefined, { data: ids }),
+  batchMoveDocs: (data: { docIds: number[]; categoryId: number }) =>
+    apiPut<void>('/admin/docs/batch/move', data),
 
   // 用户管理
   users: (params: PageQuery = {}) => apiGet<{ records: UserVO[]; total: number }>('/admin/users', params),
@@ -64,6 +141,7 @@ export const adminApi = {
 
   // 分类管理
   categories: () => apiGet<CategoryVO[]>('/admin/categories'),
+  categoryTree: () => apiGet<CategoryVO[]>('/admin/categories/tree'),
   createCategory: (data: CategoryInput) => apiPost<CategoryVO>('/admin/categories', data),
   updateCategory: (id: number, data: CategoryInput) => apiPut<void>(`/admin/categories/${id}`, data),
   removeCategory: (id: number) => apiDelete<void>(`/admin/categories/${id}`),
@@ -97,6 +175,9 @@ export const adminApi = {
     apiPost<LearningChapterVO>(`/admin/learning/chapters/${id}/ai-generate-content`, docIds ? { docIds } : undefined),
   aiGenerateFlashcards: (pathId: number) =>
     apiPost<LearningFlashcard[]>(`/admin/learning/paths/${pathId}/ai-generate-flashcards`),
+  // AI 从知识库/文档生成知识卡片（不依赖学习路径）
+  aiGenerateFlashcardsFromKb: (data: { categoryId?: number; docId?: number; count?: number }) =>
+    apiPost<LearningFlashcard[]>('/admin/learning/flashcards/ai-generate', data),
 
   // 知识库与文档（用于AI生成时选择）
   learningCategories: () => apiGet<CategoryVO[]>('/admin/learning/categories'),
@@ -117,4 +198,44 @@ export const adminApi = {
   removeCodeQuestion: (id: number) => apiDelete<void>(`/admin/code-questions/${id}`),
   publishCodeQuestion: (id: number) => apiPut<void>(`/admin/code-questions/${id}/publish`),
   unpublishCodeQuestion: (id: number) => apiPut<void>(`/admin/code-questions/${id}/unpublish`),
+
+  // ========== 知识库成员与权限 ==========
+  kbMembers: (categoryId: number) => apiGet<KbMemberVO[]>(`/admin/kb-members/category/${categoryId}`),
+  searchKbMembers: (categoryId: number, keyword: string) =>
+    apiGet<KbMemberVO[]>(`/admin/kb-members/search-users`, { categoryId, keyword }),
+  addKbMember: (data: AddKbMemberReq) => apiPost<KbMemberVO>('/admin/kb-members', data),
+  changeKbMemberRole: (memberId: number, role: string) =>
+    apiPut<void>(`/admin/kb-members/${memberId}/role`, { role }),
+  removeKbMember: (memberId: number) => apiDelete<void>(`/admin/kb-members/${memberId}`),
+
+  // ========== 知识库：批量导入 / 导出 ==========
+  importKbDocs: (categoryId: number, file: File) => {
+    const fd = new FormData()
+    fd.append('file', file)
+    return apiPost<ImportResultVO>(`/admin/categories/${categoryId}/import-docs`, fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 120000,
+    })
+  },
+  exportKb: (categoryId: number, format: 'zip' = 'zip') => {
+    const url = `/api/admin/categories/${categoryId}/export?format=${format}`
+    const token = localStorage.getItem('token')
+    return fetch(url, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+  },
+
+  // ========== 智能题库管理 ==========
+  quizQuestions: (params: {
+    page?: number; pageSize?: number; keyword?: string;
+    questionType?: string; difficulty?: number; source?: string; status?: number; categoryId?: number
+  } = {}) => apiGet<{ records: QuizQuestionVO[]; total: number }>('/admin/quiz-questions', params),
+  quizQuestionDetail: (id: number) => apiGet<QuizQuestionVO>(`/admin/quiz-questions/${id}`),
+  createQuizQuestion: (data: QuizQuestionInput) => apiPost<QuizQuestionVO>('/admin/quiz-questions', data),
+  updateQuizQuestion: (id: number, data: QuizQuestionInput) => apiPut<void>(`/admin/quiz-questions/${id}`, data),
+  removeQuizQuestion: (id: number) => apiDelete<void>(`/admin/quiz-questions/${id}`),
+  publishQuizQuestion: (id: number) => apiPut<void>(`/admin/quiz-questions/${id}/publish`),
+  unpublishQuizQuestion: (id: number) => apiPut<void>(`/admin/quiz-questions/${id}/unpublish`),
+  aiGenerateQuizQuestions: (data: { categoryId?: number; docId?: number; questionType?: string; count?: number }) =>
+    apiPost<QuizQuestionVO[]>('/admin/quiz-questions/ai-generate', data, { timeout: 120000 }),
 }

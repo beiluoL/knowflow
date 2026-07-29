@@ -102,24 +102,24 @@
             <label class="form-label">
               目标知识库 <span class="required-mark">*</span>
             </label>
-            <select v-model="formData.kbId" class="form-select">
-              <option value="">请选择知识库</option>
-              <option v-for="kb in topCategories" :key="kb.id" :value="kb.id">
-                {{ kb.name }}
-              </option>
-            </select>
+            <CategoryTreeSelect
+              v-model="formData.kbId"
+              :categories="allCategories"
+              placeholder="请选择知识库"
+              empty-label="请选择知识库"
+            />
           </div>
           <!-- 分类 -->
           <div class="form-row">
             <label class="form-label">
               分类 <span class="required-mark">*</span>
             </label>
-            <select v-model="formData.categoryId" class="form-select">
-              <option value="">请选择分类</option>
-              <option v-for="cat in flatCategories" :key="cat.id" :value="cat.id">
-                {{ cat.name }}
-              </option>
-            </select>
+            <CategoryTreeSelect
+              v-model="formData.categoryId"
+              :categories="allCategories"
+              placeholder="请选择分类"
+              empty-label="请选择分类"
+            />
           </div>
           <!-- 标签 -->
           <div class="form-row">
@@ -185,6 +185,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
+import CategoryTreeSelect from '@/components/ui/CategoryTreeSelect.vue';
 import { categoriesApi, docsApi } from '@/api';
 import type { CategoryVO } from '@/api/types';
 import { notify, getApiError } from '@/utils/toast';
@@ -218,22 +219,6 @@ const formData = ref({
 });
 
 // ===== 计算属性 =====
-// 顶层分类（作为"目标知识库"选项）
-const topCategories = computed(() => allCategories.value);
-
-// 扁平化分类（包含子分类，作为"分类"选项）
-const flatCategories = computed(() => {
-  const flat: CategoryVO[] = [];
-  const walk = (list: CategoryVO[]) => {
-    for (const c of list) {
-      flat.push(c);
-      if (c.children) walk(c.children);
-    }
-  };
-  walk(allCategories.value);
-  return flat;
-});
-
 // 是否可提交：至少 1 个文件 + 标题 + 知识库 + 分类
 const canSubmit = computed(() => {
   return (

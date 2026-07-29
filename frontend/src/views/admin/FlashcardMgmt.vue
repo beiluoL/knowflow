@@ -7,6 +7,7 @@
         </div>
         <div class="flex items-center gap-3">
           <Button variant="secondary" icon-name="upload" @click="showImportModal = true">批量导入</Button>
+          <Button variant="secondary" icon-name="sparkles" @click="openAiModal">AI 生成卡片</Button>
           <Button icon-name="plus" @click="openCreate">新增卡片</Button>
         </div>
       </div>
@@ -168,6 +169,79 @@
         </div>
       </div>
     </div>
+
+    <!-- AI 生成卡片弹窗 -->
+    <div
+      v-if="showAiModal"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
+      @click.self="closeAiModal"
+    >
+      <div class="bg-white rounded-xl w-full max-w-md shadow-xl animate-dropdown">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h3 class="text-lg font-semibold text-gray-800">AI 生成知识卡片</h3>
+          <button class="p-1 hover:bg-gray-100 rounded transition-colors" @click="closeAiModal">
+            <Icon name="x" :size="20" />
+          </button>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">生成来源</label>
+            <div class="flex items-center gap-4">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" v-model="aiSource" value="kb" class="text-primary-500" @change="onAiSourceChange" />
+                <span class="text-sm text-gray-700">按知识库</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" v-model="aiSource" value="doc" class="text-primary-500" @change="onAiSourceChange" />
+                <span class="text-sm text-gray-700">按文档</span>
+              </label>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">知识库</label>
+            <select
+              v-model="aiCategoryId"
+              class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary-500"
+              @change="onAiCategoryChange"
+            >
+              <option :value="null">请选择知识库</option>
+              <option v-for="cat in aiCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+            </select>
+          </div>
+          <div v-if="aiSource === 'doc'">
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">文档</label>
+            <select
+              v-model="aiDocId"
+              class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary-500"
+              :disabled="!aiCategoryId"
+            >
+              <option :value="null">{{ aiLoadingDocs ? '文档加载中...' : '请选择文档' }}</option>
+              <option v-for="doc in aiDocs" :key="doc.id" :value="doc.id">{{ doc.title }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">生成数量（3-30）</label>
+            <input
+              v-model.number="aiCount"
+              type="number"
+              min="3"
+              max="30"
+              placeholder="请输入生成数量"
+              class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary-500"
+            />
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
+          <Button variant="secondary" @click="closeAiModal">取消</Button>
+          <Button
+            :disabled="aiGenerating || !aiCategoryId || (aiSource === 'doc' && !aiDocId)"
+            @click="doAiGenerate"
+          >
+            {{ aiGenerating ? 'AI 生成中...' : '开始生成' }}
+          </Button>
+        </div>
+      </div>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -180,7 +254,7 @@ import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
 import { learningApi, adminApi } from '@/api'
-import type { FlashcardVO, FlashcardInput } from '@/api/types'
+import type { FlashcardVO, FlashcardInput, CategoryVO, DocVO } from '@/api/types'
 
 const searchQuery = ref('')
 const filterCategory = ref('')
@@ -190,6 +264,17 @@ const showAddModal = ref(false)
 const showImportModal = ref(false)
 const editingId = ref<number | null>(null)
 const saving = ref(false)
+
+// AI 生成卡片
+const showAiModal = ref(false)
+const aiSource = ref<'kb' | 'doc'>('kb')
+const aiCategoryId = ref<number | null>(null)
+const aiDocId = ref<number | null>(null)
+const aiCount = ref(10)
+const aiCategories = ref<CategoryVO[]>([])
+const aiDocs = ref<DocVO[]>([])
+const aiLoadingDocs = ref(false)
+const aiGenerating = ref(false)
 
 interface Flashcard {
   id: string
@@ -334,6 +419,81 @@ const loadCards = async () => {
     notify('加载闪卡失败：' + getApiError(e), 'error')
   } finally {
     loading.value = false
+  }
+}
+
+// ========== AI 生成卡片 ==========
+const openAiModal = async () => {
+  aiSource.value = 'kb'
+  aiCategoryId.value = null
+  aiDocId.value = null
+  aiCount.value = 10
+  aiDocs.value = []
+  showAiModal.value = true
+  if (aiCategories.value.length === 0) {
+    try {
+      aiCategories.value = await adminApi.learningCategories()
+    } catch (e: unknown) {
+      notify('加载知识库失败：' + getApiError(e), 'error')
+    }
+  }
+}
+
+const closeAiModal = () => {
+  showAiModal.value = false
+}
+
+const loadAiDocs = async (categoryId: number) => {
+  aiLoadingDocs.value = true
+  aiDocs.value = []
+  aiDocId.value = null
+  try {
+    aiDocs.value = await adminApi.learningDocs(categoryId)
+  } catch (e: unknown) {
+    notify('加载文档失败：' + getApiError(e), 'error')
+  } finally {
+    aiLoadingDocs.value = false
+  }
+}
+
+const onAiCategoryChange = () => {
+  aiDocId.value = null
+  aiDocs.value = []
+  if (aiSource.value === 'doc' && aiCategoryId.value) {
+    loadAiDocs(aiCategoryId.value)
+  }
+}
+
+const onAiSourceChange = () => {
+  if (aiSource.value === 'doc' && aiCategoryId.value && aiDocs.value.length === 0) {
+    loadAiDocs(aiCategoryId.value)
+  }
+}
+
+const doAiGenerate = async () => {
+  if (!aiCategoryId.value) {
+    notify('请选择知识库', 'warning')
+    return
+  }
+  if (aiSource.value === 'doc' && !aiDocId.value) {
+    notify('请选择文档', 'warning')
+    return
+  }
+  const count = Math.min(30, Math.max(3, Number(aiCount.value) || 10))
+  aiGenerating.value = true
+  try {
+    const res = await adminApi.aiGenerateFlashcardsFromKb({
+      categoryId: aiCategoryId.value ?? undefined,
+      docId: aiSource.value === 'doc' ? aiDocId.value ?? undefined : undefined,
+      count,
+    })
+    notify(`成功生成 ${res?.length ?? count} 张卡片`, 'success')
+    closeAiModal()
+    await loadCards()
+  } catch (e: unknown) {
+    notify('AI 生成失败：' + getApiError(e), 'error')
+  } finally {
+    aiGenerating.value = false
   }
 }
 

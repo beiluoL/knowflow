@@ -28,4 +28,7 @@ public class DocCategory extends BaseEntity {
 
     /** 状态位，如 0 禁用 / 1 启用。 */
     private Integer status;
+
+    /** 知识库所有者用户 ID（逻辑外键 → sys_user.id）。 */
+    private Long ownerId;
 }

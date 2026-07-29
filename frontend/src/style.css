@@ -388,3 +388,32 @@ button:focus-visible,
     scroll-behavior: auto !important;
   }
 }
+
+/* =====================================================================
+ * 全局 Markdown / Prose 样式：保留空格、换行、制表符
+ * 所有使用 .prose 类的容器都会自动获得正确的格式保留行为
+ * （解决内容中 \n\n 换行不生效、空格丢失等问题）
+ * ===================================================================== */
+.prose,
+.prose * {
+  /* 关键：保留空格和换行 */
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.prose {
+  line-height: 1.7;
+  tab-size: 4;
+}
+.prose p {
+  margin: 0.5rem 0;
+}
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  white-space: normal;
+}
+.prose code,
+.prose pre {
+  white-space: pre;
+}

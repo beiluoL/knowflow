@@ -93,6 +93,17 @@ public class DocController {
         return Result.success(docService.getDocDetail(doc.getId(), (Long) authentication.getPrincipal()));
     }
 
+    @Operation(summary = "更新文档")
+    @PutMapping("/{id}")
+    public Result<DocDetailVO> update(@PathVariable Long id, @RequestBody DocDocument doc, Authentication authentication) {
+        if (authentication == null) {
+            return Result.error(401, "请先登录");
+        }
+        doc.setId(id);
+        docService.updateDoc(doc);
+        return Result.success(docService.getDocDetail(id, (Long) authentication.getPrincipal()));
+    }
+
     @Operation(summary = "AI 生成文档摘要")
     @PostMapping("/{id}/ai-summary")
     public Result<String> generateSummary(@PathVariable Long id, Authentication authentication) {

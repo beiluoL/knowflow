@@ -478,6 +478,94 @@ public class AdminLearningController {
         }
     }
 
+    @Operation(summary = "AI 根据知识库/文档生成知识卡片（不依赖学习路径）")
+    @PostMapping("/flashcards/ai-generate")
+    public Result<List<LearningFlashcard>> aiGenerateFlashcardsFromKb(@RequestBody Map<String, Object> body) {
+        Long categoryId = body.get("categoryId") != null ? ((Number) body.get("categoryId")).longValue() : null;
+        Long docId = body.get("docId") != null ? ((Number) body.get("docId")).longValue() : null;
+        int count = body.get("count") != null ? ((Number) body.get("count")).intValue() : 10;
+
+        if (categoryId == null && docId == null) {
+            return Result.error("请选择知识库或文档");
+        }
+
+        // 收集文档内容
+        StringBuilder context = new StringBuilder();
+        String sourceName = "";
+        if (docId != null) {
+            DocDocument doc = docMapper.selectById(docId);
+            if (doc == null) return Result.error("文档不存在");
+            sourceName = doc.getTitle();
+            String content = doc.getContent();
+            if (content != null && content.length() > 6000) content = content.substring(0, 6000);
+            context.append("文档标题：").append(doc.getTitle()).append("\n\n").append(content);
+        } else {
+            DocCategory cat = categoryMapper.selectById(categoryId);
+            if (cat == null) return Result.error("知识库不存在");
+            sourceName = cat.getName();
+            QueryWrapper<DocDocument> dw = new QueryWrapper<>();
+            dw.eq("category_id", categoryId).eq("status", 1).orderByAsc("sort_order").last("LIMIT 10");
+            List<DocDocument> docs = docMapper.selectList(dw);
+            for (DocDocument doc : docs) {
+                String c = doc.getContent();
+                if (c != null && c.length() > 2000) c = c.substring(0, 2000);
+                context.append("### ").append(doc.getTitle()).append("\n").append(c).append("\n\n");
+            }
+        }
+
+        if (context.length() == 0) {
+            return Result.error("所选内容为空，无法生成卡片");
+        }
+
+        String systemPrompt = "你是 KnowFlow 学习平台的知识卡片专家。请根据提供的知识内容，生成高质量的学习闪卡。\n"
+                + "输出要求：\n"
+                + "1. 必须输出合法 JSON 数组，不要包含 markdown 代码块标记\n"
+                + "2. 生成 " + count + " 张闪卡\n"
+                + "3. JSON 格式：\n"
+                + "[\n"
+                + "  {\n"
+                + "    \"front\": \"问题（正面）\",\n"
+                + "    \"back\": \"答案（背面）\",\n"
+                + "    \"difficulty\": 2,\n"
+                + "    \"category\": \"分类名\"\n"
+                + "  }\n"
+                + "]\n"
+                + "4. difficulty: 1简单/2中等/3困难\n"
+                + "5. 闪卡应覆盖核心知识点，正面是问题，背面是简洁清晰的答案\n";
+
+        String userPrompt = "知识来源：" + sourceName + "\n\n知识内容：\n" + context;
+
+        Long userId = getCurrentUserId();
+        try {
+            String aiResponse = aiService.complete(systemPrompt, userPrompt, null, userId);
+            String json = aiResponse.trim();
+            if (json.startsWith("```json")) json = json.substring(7);
+            if (json.startsWith("```")) json = json.substring(3);
+            if (json.endsWith("```")) json = json.substring(0, json.length() - 3);
+            json = json.trim();
+
+            List<Map<String, Object>> cards = objectMapper.readValue(json, new TypeReference<List<Map<String, Object>>>() {});
+            List<LearningFlashcard> created = new ArrayList<>();
+
+            for (Map<String, Object> card : cards) {
+                LearningFlashcard flashcard = new LearningFlashcard();
+                flashcard.setFront((String) card.getOrDefault("front", ""));
+                flashcard.setBack((String) card.getOrDefault("back", ""));
+                flashcard.setCategory(card.get("category") != null ? (String) card.get("category") : sourceName);
+                flashcard.setDifficulty(card.get("difficulty") != null ? ((Number) card.get("difficulty")).intValue() : 2);
+                flashcard.setReviewCount(0);
+                flashcard.setReviewInterval(0);
+                flashcardMapper.insert(flashcard);
+                created.add(flashcard);
+            }
+
+            return Result.success(created);
+        } catch (Exception e) {
+            log.error("AI 生成知识卡片失败: {}", e.getMessage(), e);
+            return Result.error("AI 生成失败：" + e.getMessage());
+        }
+    }
+
     @Operation(summary = "发布学习路径")
     @PutMapping("/paths/{id}/publish")
     public Result<Void> publishPath(@PathVariable Long id) {

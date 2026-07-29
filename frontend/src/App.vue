@@ -1,12 +1,12 @@
 <template>
   <router-view v-slot="{ Component, route }">
     <CLayout v-if="route.meta.layout === 'c'">
-      <component :is="Component" />
+      <component :is="Component" :key="route.path" />
     </CLayout>
     <AppShell v-else-if="route.meta.layout === 'b'">
-      <component :is="Component" />
+      <component :is="Component" :key="route.path" />
     </AppShell>
-    <component v-else :is="Component" />
+    <component v-else :is="Component" :key="route.path" />
   </router-view>
   <ToastHost />
 </template>

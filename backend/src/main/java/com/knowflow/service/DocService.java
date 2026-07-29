@@ -34,9 +34,18 @@ public interface DocService extends IService<DocDocument> {
 
     void removeDoc(Long id);
 
+    /** 批量删除文档（同步维护分类文档数与关联数据） */
+    void batchDeleteDocs(List<Long> ids);
+
+    /** 批量移动文档到目标知识库（更新 categoryId 并维护分类文档数） */
+    void batchMoveDocs(List<Long> ids, Long categoryId);
+
     /** AI 生成文档摘要并回填 doc.summary，返回摘要内容。要求已配置 AI 服务。 */
     String generateAISummary(Long docId);
 
     /** AI 基于文档内容生成复习闪卡并落库，返回生成的闪卡列表（可指定归属路径/章节）。 */
     List<LearningFlashcard> generateFlashcards(Long docId, Long pathId, Long chapterId);
+
+    /** 查询指定分类（知识库）下的全部有效文档，按 sortOrder 升序，createTime 倒序。 */
+    List<DocDocument> listByCategory(Long categoryId);
 }

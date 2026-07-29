@@ -295,6 +295,65 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         this.removeById(id);
     }
 
+    @Override
+    @Transactional
+    public void batchDeleteDocs(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+        // 查询所有待删除文档（用于维护分类文档数）
+        List<DocDocument> docs = this.listByIds(ids);
+        // 删除关联的收藏与阅读进度
+        favoriteMapper.delete(new LambdaQueryWrapper<DocFavorite>().in(DocFavorite::getDocId, ids));
+        readProgressMapper.delete(new LambdaQueryWrapper<DocReadProgress>().in(DocReadProgress::getDocId, ids));
+        // 按分类分组统计并扣减文档数
+        Map<Long, Long> catCountMap = docs.stream()
+                .filter(d -> d.getCategoryId() != null)
+                .collect(Collectors.groupingBy(DocDocument::getCategoryId, Collectors.counting()));
+        catCountMap.forEach((catId, cnt) -> {
+            for (long i = 0; i < cnt; i++) {
+                categoryService.decrementDocCount(catId);
+            }
+        });
+        this.removeByIds(ids);
+    }
+
+    @Override
+    @Transactional
+    public void batchMoveDocs(List<Long> ids, Long categoryId) {
+        if (ids == null || ids.isEmpty() || categoryId == null) {
+            throw new BusinessException(400, "参数不能为空");
+        }
+        // 校验目标分类存在
+        DocCategory target = categoryService.getById(categoryId);
+        if (target == null) {
+            throw new BusinessException(404, "目标知识库不存在");
+        }
+        // 查询所有文档，统计各原分类需要扣减的数量
+        List<DocDocument> docs = this.listByIds(ids);
+        // 只统计目标分类之外的（同分类不扣减）
+        Map<Long, Long> sourceCatCountMap = docs.stream()
+                .filter(d -> d.getCategoryId() != null && !categoryId.equals(d.getCategoryId()))
+                .collect(Collectors.groupingBy(DocDocument::getCategoryId, Collectors.counting()));
+        // 批量更新 categoryId
+        this.update(new LambdaUpdateWrapper<DocDocument>()
+                .in(DocDocument::getId, ids)
+                .set(DocDocument::getCategoryId, categoryId));
+        // 扣减源分类文档数
+        sourceCatCountMap.forEach((catId, cnt) -> {
+            for (long i = 0; i < cnt; i++) {
+                categoryService.decrementDocCount(catId);
+            }
+        });
+        // 增加目标分类文档数
+        long movedCount = docs.stream()
+                .filter(d -> !categoryId.equals(d.getCategoryId()))
+                .count();
+        for (long i = 0; i < movedCount; i++) {
+            categoryService.incrementDocCount(categoryId);
+        }
+    }
+
     /** B③ AI 生成文档摘要：截断正文后调用大模型，回填 doc.summary 并返回。 */
     @Override
     public String generateAISummary(Long docId) {
@@ -396,5 +455,17 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
             log.error("解析闪卡 JSON 失败: {}", e.getMessage());
         }
         return result;
+    }
+
+    @Override
+    public List<DocDocument> listByCategory(Long categoryId) {
+        if (categoryId == null) {
+            return List.of();
+        }
+        return this.list(new LambdaQueryWrapper<DocDocument>()
+                .eq(DocDocument::getCategoryId, categoryId)
+                .eq(DocDocument::getStatus, 1)
+                .orderByAsc(DocDocument::getSortOrder)
+                .orderByDesc(DocDocument::getCreateTime));
     }
 }
