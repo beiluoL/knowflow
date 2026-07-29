@@ -1,6 +1,6 @@
 # 数据库设计文档（knowflow 知识库）
 
-本文档说明知识库学习平台的数据库表结构、字段定义、表间关系（逻辑外键）与索引设计。
+本文档说明知识库学习平台的数据库表结构（共 **23 张表**）、字段定义、表间关系（逻辑外键）与索引设计。
 脚本位置：`backend/src/main/resources/schema.sql`（表结构 + 索引）、`data.sql`（种子数据）。
 
 > **设计规范**：遵循《阿里巴巴 Java 开发手册》——【强制】不得使用物理外键与级联，
@@ -30,6 +30,20 @@ erDiagram
     learning_path ||--o{ learning_user_path : "用户报名"
     learning_path ||--o{ learning_flashcard : "关联闪卡"
     learning_chapter ||--o{ learning_flashcard : "关联闪卡"
+    sys_user ||--o{ learning_user_chapter : "章节完成记录"
+    sys_user ||--o{ learning_mistake : "错题"
+    sys_user ||--o{ community_post : "发帖"
+    sys_user ||--o{ community_comment : "评论"
+    sys_user ||--o{ community_post_like : "点赞"
+    community_post ||--o{ community_comment : "包含评论"
+    community_post ||--o{ community_post_like : "被点赞"
+    sys_user ||--o{ sys_notification : "接收通知"
+    sys_user ||--|| sys_user_ai_config : "AI配置"
+    sys_user ||--o{ sys_icon : "自定义图标"
+    doc_category ||--o{ kb_member : "知识库成员"
+    sys_user ||--o{ kb_member : "加入知识库"
+    doc_category ||--o{ quiz_question : "题库归属"
+    doc_document ||--o{ quiz_question : "题目关联文档"
 ```
 
 ### 表间关系表（逻辑外键，非物理约束）
@@ -52,8 +66,19 @@ erDiagram
 | learning_flashcard | path_id | learning_path(id) | idx_fc_path | 是 |
 | learning_flashcard | chapter_id | learning_chapter(id) | idx_fc_chap | 是 |
 | learning_task | user_id | sys_user(id) | idx_task_user | 否 |
+| learning_user_chapter | user_id / path_id / chapter_id | sys_user / learning_path / learning_chapter | idx_uc_user_chapter 等 + uk(user_id,chapter_id) | 否 |
+| learning_mistake | user_id | sys_user(id) | idx_mistake_user | 否 |
+| community_post | user_id | sys_user(id) | idx_post_user | 否 |
+| community_post_like | post_id / user_id | community_post / sys_user | uk_post_like(post_id,user_id) | 否 |
+| community_comment | post_id / user_id | community_post / sys_user | idx_comment_post / idx_comment_user | 否 |
+| sys_notification | user_id | sys_user(id) | idx_notif_user | 否 |
+| sys_user_ai_config | user_id | sys_user(id) | uk_user_ai_config_user(user_id,deleted) | 否 |
+| sys_icon | user_id | sys_user(id) | idx_icon_user | 是 |
+| doc_category | owner_id | sys_user(id) | idx_cat_owner | 是 |
+| kb_member | category_id / user_id | doc_category / sys_user | uk_kb_member_cat_user + idx 若干 | user_id 可空（邮箱邀请） |
+| quiz_question | category_id / doc_id | doc_category / doc_document | idx_qq_category / idx_qq_doc | 是 |
 
-> 说明：`doc_category.parent_id` 用 `0` 表示顶级分类（哨兵值）；所有逻辑删除列 `deleted` 不参与关联。以上均为逻辑外键，物理层无约束 约束。
+> 说明：`doc_category.parent_id` 用 `0` 表示顶级分类（哨兵值）；所有逻辑删除列 `deleted` 不参与关联。以上均为逻辑外键，物理层无 FOREIGN KEY 约束。
 
 ---
 
@@ -76,9 +101,11 @@ erDiagram
 | level | INT | 等级 | 默认 1 |
 | exp | INT | 经验值 | 默认 0 |
 | energy | INT | 能量值 | 默认 100 |
+| provider | VARCHAR(20) | OAuth 提供方（github/wechat） | 可空 |
+| provider_uid | VARCHAR(100) | OAuth 第三方唯一 ID | 可空 |
 | create_time / update_time | TIMESTAMP | 创建/更新时间 | |
 | deleted | INT | 逻辑删除（0/1） | 默认 0 |
-- 索引：`idx_user_role(role)`、`idx_user_deleted(deleted)`
+- 索引：`idx_user_role(role)`、`idx_user_deleted(deleted)`、`uk_user_email(email)` 唯一
 
 ### 2. doc_document（文档表）
 | 字段 | 类型 | 说明 | 约束 |
@@ -114,9 +141,10 @@ erDiagram
 | sort_order | INT | 排序 | 默认 0 |
 | doc_count | INT | 文档数 | 默认 0 |
 | status | INT | 状态 | 默认 1 |
+| owner_id | BIGINT | 知识库所有者 | 逻辑关联 → sys_user（可空） |
 | create_time / update_time | TIMESTAMP | | |
 | deleted | INT | 逻辑删除 | 默认 0 |
-- 索引：`idx_cat_parent(parent_id)`、`idx_cat_status(status)`
+- 索引：`idx_cat_parent(parent_id)`、`idx_cat_status(status)`、`idx_cat_owner(owner_id)`
 
 ### 4. doc_favorite（收藏表）
 | 字段 | 类型 | 说明 | 约束 |
@@ -126,7 +154,7 @@ erDiagram
 | doc_id | BIGINT | 文档 | 逻辑关联 → doc_document |
 | create_time / update_time | TIMESTAMP | | |
 | deleted | INT | 逻辑删除 | 默认 0 |
-- 索引：`idx_fav_user(user_id)`、`idx_fav_doc(doc_id)`；唯一建议 `(user_id, doc_id)`
+- 索引：`idx_fav_user(user_id)`、`idx_fav_doc(doc_id)`；联合唯一 `uk_fav_user_doc(user_id, doc_id)` 防并发重复收藏
 
 ### 5. doc_read_progress（阅读进度表）
 | 字段 | 类型 | 说明 | 约束 |
@@ -139,7 +167,7 @@ erDiagram
 | last_read_time | TIMESTAMP | 上次阅读时间 | |
 | create_time / update_time | TIMESTAMP | | |
 | deleted | INT | 逻辑删除 | 默认 0 |
-- 索引：`idx_rp_user(user_id)`、`idx_rp_doc(doc_id)`
+- 索引：`idx_rp_user(user_id)`、`idx_rp_doc(doc_id)`；联合唯一 `uk_rp_user_doc(user_id, doc_id)` 防重复进度记录
 
 ### 6. chat_conversation（对话表）
 | 字段 | 类型 | 说明 | 约束 |
@@ -224,6 +252,9 @@ erDiagram
 | category | VARCHAR(50) | 分类 | |
 | difficulty | INT | 难度 | 默认 1 |
 | review_count | INT | 复习次数 | 默认 0 |
+| review_interval | INT | SM-2 复习间隔（天） | 默认 0 |
+| next_review_time | TIMESTAMP | SM-2 下次复习时间 | |
+| last_review_time | TIMESTAMP | SM-2 上次复习时间 | |
 | create_time / update_time | TIMESTAMP | | |
 | deleted | INT | 逻辑删除 | 默认 0 |
 - 索引：`idx_fc_path(path_id)`、`idx_fc_chap(chapter_id)`
@@ -244,6 +275,184 @@ erDiagram
 | create_time / update_time | TIMESTAMP | | |
 | deleted | INT | 逻辑删除 | 默认 0 |
 - 索引：`idx_task_user(user_id)`、`idx_task_status(status)`
+
+### 13. learning_user_chapter（用户章节完成记录表）
+> 保证「完成章节」幂等：同一用户对同一章节只计一次进度。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| user_id | BIGINT | 用户 | 逻辑关联 → sys_user |
+| path_id | BIGINT | 路径 | 逻辑关联 → learning_path |
+| chapter_id | BIGINT | 章节 | 逻辑关联 → learning_chapter |
+| complete_time | TIMESTAMP | 完成时间 | 默认当前时间 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_uc_user_chapter(user_id)`、`idx_uc_chapter_id(chapter_id)`、唯一 `uk_uc_user_chapter(user_id, chapter_id)`
+
+### 14. learning_mistake（错题表）
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| user_id | BIGINT | 用户 | 逻辑关联 → sys_user |
+| question | TEXT | 题目内容 | 非空 |
+| wrong_answer | TEXT | 用户错误答案 | |
+| correct_answer | TEXT | 正确答案 | |
+| category | VARCHAR(50) | 分类 | |
+| difficulty | INT | 难度 | 默认 1 |
+| review_count | INT | 复习次数 | 默认 0 |
+| last_review_time | TIMESTAMP | 上次复习时间 | |
+| mastered | INT | 是否已掌握（0/1） | 默认 0 |
+| source | VARCHAR(50) | 来源（测验/闪卡等） | |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_mistake_user(user_id)`、`idx_mistake_category(category)`、`idx_mistake_mastered(mastered)`、`idx_mistake_deleted(deleted)`
+- 业务约定：同用户同 question 幂等去重（Service 层保证，重复归集时 review_count+1 并重置 mastered）
+
+### 15. community_post（社区帖子表）
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| user_id | BIGINT | 作者 | 逻辑关联 → sys_user |
+| title | VARCHAR(200) | 标题 | 非空 |
+| content | TEXT | 内容 | |
+| category | VARCHAR(50) | 分类 | |
+| tags | VARCHAR(500) | 标签（逗号分隔） | |
+| like_count | INT | 点赞数 | 默认 0 |
+| comment_count | INT | 评论数 | 默认 0 |
+| view_count | INT | 浏览数 | 默认 0 |
+| is_essence | INT | 是否精华（0/1） | 默认 0 |
+| status | INT | 状态 | 默认 1 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_post_user`、`idx_post_category`、`idx_post_status`、`idx_post_essence`、`idx_post_ctime`、`idx_post_deleted`
+
+### 16. community_post_like（帖子点赞关系表）
+> 点赞幂等 + 可取消，用户-帖子联合唯一。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| post_id | BIGINT | 帖子 | 逻辑关联 → community_post |
+| user_id | BIGINT | 用户 | 逻辑关联 → sys_user |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 约束：唯一 `uk_post_like(post_id, user_id)`；索引 `idx_post_like_user(user_id)`
+
+### 17. community_comment（社区评论表）
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| post_id | BIGINT | 帖子 | 逻辑关联 → community_post |
+| user_id | BIGINT | 评论者 | 逻辑关联 → sys_user |
+| content | TEXT | 评论内容 | 非空 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_comment_post(post_id)`、`idx_comment_user(user_id)`、`idx_comment_deleted(deleted)`
+
+### 18. sys_notification（消息通知表）
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| user_id | BIGINT | 接收用户 | 逻辑关联 → sys_user |
+| type | VARCHAR(30) | 通知类型 | 非空 |
+| title | VARCHAR(200) | 标题 | 非空 |
+| content | VARCHAR(1000) | 内容 | |
+| is_read | INT | 是否已读（0/1） | 默认 0 |
+| related_id | BIGINT | 关联业务 ID | |
+| related_type | VARCHAR(30) | 关联业务类型 | |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_notif_user`、`idx_notif_type`、`idx_notif_read`、`idx_notif_deleted`
+
+### 19. sys_user_ai_config（用户 AI 配置表）
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| user_id | BIGINT | 用户 | 逻辑关联 → sys_user |
+| provider | VARCHAR(50) | 提供商（deepseek/siliconflow/openai/custom 等） | 非空 |
+| api_key | VARCHAR(500) | 用户自己的 API Key（接口返回时脱敏） | 非空 |
+| base_url | VARCHAR(255) | 自定义 API 地址（留空用默认） | |
+| model | VARCHAR(100) | 默认模型名 | |
+| is_active | INT | 是否启用（1/0） | 默认 1 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 约束：唯一 `uk_user_ai_config_user(user_id, deleted)`（一人一条有效配置）
+
+### 20. sys_icon（自定义图标表）
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| name | VARCHAR(100) | 图标名 | 非空 |
+| type | VARCHAR(20) | 类型 | 默认 custom |
+| content | TEXT | 图标内容（SVG/base64） | 非空 |
+| color | VARCHAR(20) | 颜色 | |
+| user_id | BIGINT | 上传用户 | 逻辑关联 → sys_user（可空） |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_icon_user(user_id)`、`idx_icon_type(type)`
+
+### 21. code_question（代码练习题目表）
+> B 端题库管理 + C 端代码练习共用；代码执行在前端沙箱完成，后端仅统计。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| title | VARCHAR(200) | 题目标题 | 非空 |
+| description | TEXT | 题目描述 | 非空 |
+| difficulty | INT | 难度（0 简单/1 中等/2 困难） | 默认 0 |
+| language | VARCHAR(20) | 主语言（javascript/typescript/python/java/sql） | 默认 javascript |
+| tags | VARCHAR(500) | 标签（逗号分隔） | |
+| hint | TEXT | 提示 | |
+| example_input / example_output | TEXT | 输入 / 输出示例 | |
+| code_template | TEXT | 编辑器初始模板 | |
+| test_cases | TEXT | 测试用例 JSON 数组 `[{input, expected}]` | |
+| solution_hint | TEXT | 预期解法关键词（AI 提示用） | |
+| duration | INT | 建议时长（分钟） | 默认 30 |
+| sort_order | INT | 排序 | 默认 0 |
+| status | INT | 状态（0 草稿/1 已发布） | 默认 1 |
+| pass_count / submit_count | INT | 通过 / 提交次数 | 默认 0 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_cq_status`、`idx_cq_difficulty`、`idx_cq_language`、`idx_cq_sort`
+
+### 22. kb_member（知识库成员与权限表）
+> 知识库（doc_category）↔ 用户 多对多；另 `doc_category` 增加 `owner_id` 列（逻辑外键 → sys_user，索引 `idx_cat_owner`）标识拥有者。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| category_id | BIGINT | 知识库 | 逻辑关联 → doc_category |
+| user_id | BIGINT | 用户（邮箱邀请未注册时为 NULL） | 逻辑关联 → sys_user，可空 |
+| role | VARCHAR(20) | 角色：OWNER / EDITOR / READER | 默认 READER |
+| invite_code | VARCHAR(50) | 邀请码 | |
+| invite_email | VARCHAR(100) | 邀请目标邮箱 | |
+| status | INT | 状态（0 已移除/1 生效） | 默认 1 |
+| join_time | TIMESTAMP | 加入时间 | |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 约束：唯一 `uk_kb_member_cat_user(category_id, user_id, deleted)`；索引 `idx_kb_member_category` / `_user` / `_role` / `_status` / `_invite_email`
+
+### 23. quiz_question（智能测验题库表）
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| title | VARCHAR(500) | 题目标题 | 非空 |
+| content | TEXT | 题干（支持 Markdown） | 非空 |
+| question_type | VARCHAR(20) | 题型：SINGLE_CHOICE/MULTIPLE_CHOICE/FILL_BLANK/TRUE_FALSE/SHORT_ANSWER | 默认 SINGLE_CHOICE |
+| options | TEXT | 选项 JSON 数组（选择题用） | |
+| answer | TEXT | 正确答案（选择题填索引，判断题 true/false） | 非空 |
+| explanation | TEXT | 答案解析 | |
+| difficulty | INT | 难度（1/2/3） | 默认 1 |
+| category_id | BIGINT | 关联知识库 | 逻辑关联 → doc_category，可空 |
+| doc_id | BIGINT | 关联文档 | 逻辑关联 → doc_document，可空 |
+| tags | VARCHAR(500) | 标签 | |
+| source | VARCHAR(20) | 来源：AI 生成 / MANUAL 手动 | 默认 MANUAL |
+| status | INT | 状态（0 草稿/1 已发布） | 默认 1 |
+| sort_order | INT | 排序 | 默认 0 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_qq_type`、`idx_qq_difficulty`、`idx_qq_status`、`idx_qq_source`、`idx_qq_category`、`idx_qq_doc`
 
 ---
 
