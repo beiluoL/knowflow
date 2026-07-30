@@ -1223,13 +1223,6 @@ function formatDate(time?: string): string {
   return new Date(time).toLocaleDateString('zh-CN')
 }
 
-function formatFileSize(size?: number): string {
-  if (!size) return ''
-  if (size < 1024) return `${size} B`
-  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`
-  return `${(size / 1024 / 1024).toFixed(1)} MB`
-}
-
 function renderContent(msg: GroupMessageVO): string {
   if (!msg.content) return ''
   // 处理 @提及
@@ -1300,7 +1293,7 @@ onUnmounted(() => {
 })
 
 // 监听小组切换
-watch(activeGroupId, (newId, oldId) => {
+watch(activeGroupId, (_, oldId) => {
   if (oldId) {
     sendWsMessage('leave', { groupId: oldId })
   }

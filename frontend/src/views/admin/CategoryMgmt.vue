@@ -324,7 +324,6 @@ import Input from '@/components/ui/Input.vue'
 import CategoryTreeSelect from '@/components/ui/CategoryTreeSelect.vue'
 import { notify, confirmDialog, getApiError } from '@/utils/toast'
 import { adminApi } from '@/api'
-import { categoriesApi } from '@/api/categories'
 import type { CategoryVO, CategoryInput } from '@/api/types'
 import {
   presetIcons, presetIconCategories, getIconByKey, iconColorPresets,

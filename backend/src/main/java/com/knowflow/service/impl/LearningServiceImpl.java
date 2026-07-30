@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.jdbc.core.JdbcTemplate;
 import com.knowflow.dto.FlashcardGenerateDTO;
 import com.knowflow.dto.FlashcardSaveDTO;
 import com.knowflow.entity.AiPersonalizedPath;
@@ -35,6 +36,7 @@ import com.knowflow.mapper.LearningUserPathMapper;
 import com.knowflow.service.AiService;
 import com.knowflow.service.LearningService;
 import com.knowflow.service.NotificationService;
+import com.knowflow.vo.CategoryMasteryVO;
 import com.knowflow.vo.DailyActivityVO;
 import com.knowflow.vo.FlashcardVO;
 import com.knowflow.vo.LearningChapterVO;
@@ -79,7 +81,11 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     private final AiPersonalizedPathMapper personalizedPathMapper;
     private final NotificationService notificationService;
     private final AiService aiService;
+    private final JdbcTemplate jdbcTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    /** 分类掌握度薄弱阈值：正确率低于此值标记为薄弱项 */
+    private static final int WEAK_THRESHOLD = 60;
 
     @Override
     public List<LearningPathVO> getPathList() {
@@ -107,10 +113,30 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         List<LearningChapter> chapters = chapterMapper.selectList(new LambdaQueryWrapper<LearningChapter>()
                 .eq(LearningChapter::getPathId, pathId)
                 .orderByAsc(LearningChapter::getSortOrder));
+        // 查询已完成的章节ID集
+        List<LearningUserChapter> doneList = userChapterMapper.selectList(
+                new LambdaQueryWrapper<LearningUserChapter>().eq(LearningUserChapter::getUserId, userId));
+        Set<Long> completedIds = doneList.stream()
+                .map(LearningUserChapter::getChapterId).collect(Collectors.toSet());
         return chapters.stream()
                 .map(c -> {
                     LearningChapterVO vo = BeanUtil.copyProperties(c, LearningChapterVO.class);
-                    vo.setCompleted(false);
+                    vo.setCompleted(completedIds.contains(c.getId()));
+                    // L-PATH 前置解锁：前置章节未全部完成时 locked=true
+                    String prereqStr = c.getPrerequisiteChapterIds();
+                    boolean locked = false;
+                    if (StrUtil.isNotBlank(prereqStr)) {
+                        for (String pid : prereqStr.split(",")) {
+                            try {
+                                if (!completedIds.contains(Long.parseLong(pid.trim()))) {
+                                    locked = true;
+                                    break;
+                                }
+                            } catch (NumberFormatException ignored) { }
+                        }
+                    }
+                    vo.setLocked(locked && !completedIds.contains(c.getId()));
+                    vo.setPrerequisiteChapterIds(prereqStr);
                     return vo;
                 })
                 .collect(Collectors.toList());
@@ -123,7 +149,27 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
             throw new BusinessException(404, "章节不存在");
         }
         LearningChapterVO vo = BeanUtil.copyProperties(chapter, LearningChapterVO.class);
-        vo.setCompleted(false);
+        boolean completed = userChapterMapper.selectCount(new LambdaQueryWrapper<LearningUserChapter>()
+                .eq(LearningUserChapter::getUserId, userId)
+                .eq(LearningUserChapter::getChapterId, chapterId)) > 0;
+        vo.setCompleted(completed);
+        // 前置解锁检查
+        String prereqStr = chapter.getPrerequisiteChapterIds();
+        boolean locked = false;
+        if (StrUtil.isNotBlank(prereqStr)) {
+            for (String pid : prereqStr.split(",")) {
+                try {
+                    if (userChapterMapper.selectCount(new LambdaQueryWrapper<LearningUserChapter>()
+                            .eq(LearningUserChapter::getUserId, userId)
+                            .eq(LearningUserChapter::getChapterId, Long.parseLong(pid.trim()))) == 0) {
+                        locked = true;
+                        break;
+                    }
+                } catch (NumberFormatException ignored) { }
+            }
+        }
+        vo.setLocked(locked && !completed);
+        vo.setPrerequisiteChapterIds(prereqStr);
         return vo;
     }
 
@@ -251,6 +297,21 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         LearningChapter chapter = chapterMapper.selectById(chapterId);
         if (chapter == null) {
             throw new BusinessException(404, "章节不存在");
+        }
+        // L-PATH-02 前置解锁检查：若有前置章节尚未完成，则不允许完成当前章节
+        String prereqStr = chapter.getPrerequisiteChapterIds();
+        if (StrUtil.isNotBlank(prereqStr)) {
+            for (String pid : prereqStr.split(",")) {
+                Long prevId = Long.parseLong(pid.trim());
+                long count = userChapterMapper.selectCount(new LambdaQueryWrapper<LearningUserChapter>()
+                        .eq(LearningUserChapter::getUserId, userId)
+                        .eq(LearningUserChapter::getChapterId, prevId));
+                if (count == 0) {
+                    LearningChapter prev = chapterMapper.selectById(prevId);
+                    String title = prev != null ? prev.getTitle() : String.valueOf(prevId);
+                    throw new BusinessException("请先完成前置章节：「" + title + "」");
+                }
+            }
         }
         LearningUserPath userPath = userPathMapper.selectOne(new LambdaQueryWrapper<LearningUserPath>()
                 .eq(LearningUserPath::getUserId, userId)
@@ -404,6 +465,35 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         vo.setMistakeMastered(mastered);
         vo.setMistakePending(pending);
         return vo;
+    }
+
+    @Override
+    public List<CategoryMasteryVO> getCategoryMastery(Long userId) {
+        String sql = """
+                SELECT q.category,
+                       COUNT(*) AS total,
+                       SUM(CASE WHEN r.is_correct = 1 THEN 1 ELSE 0 END) AS correct
+                FROM quiz_answer_record r
+                JOIN quiz_question q ON r.question_id = q.id
+                WHERE r.user_id = ? AND r.deleted = 0 AND q.deleted = 0
+                GROUP BY q.category
+                ORDER BY CAST(SUM(CASE WHEN r.is_correct = 1 THEN 1 ELSE 0 END) AS DOUBLE) / COUNT(*) ASC
+                """;
+        try {
+            return jdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) -> {
+                CategoryMasteryVO vo = new CategoryMasteryVO();
+                vo.setCategory(rs.getString("category"));
+                vo.setTotal(rs.getInt("total"));
+                vo.setCorrect(rs.getInt("correct"));
+                int rate = vo.getTotal() > 0 ? vo.getCorrect() * 100 / vo.getTotal() : 0;
+                vo.setRate(rate);
+                vo.setWeak(rate < WEAK_THRESHOLD);
+                return vo;
+            });
+        } catch (Exception e) {
+            log.warn("分类掌握度查询失败: {}", e.getMessage());
+            return List.of();
+        }
     }
 
     // ============================================================

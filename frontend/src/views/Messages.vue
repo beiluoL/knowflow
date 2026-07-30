@@ -232,7 +232,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import { imApi, studyGroupApi } from '@/api'
@@ -249,6 +249,10 @@ import type {
 
 const router = useRouter()
 const authStore = useAuthStore()
+
+function openGroup(_group: StudyGroupVO) {
+  router.push('/study-group')
+}
 
 // 状态
 const searchKeyword = ref('')
@@ -423,10 +427,6 @@ function selectPrivateConv(conv: PrivateConversationVO) {
   loadMessages(conv.id)
 }
 
-function openGroup(group: StudyGroupVO) {
-  router.push('/study-group')
-}
-
 async function sendMessage() {
   const content = messageInput.value.trim()
   if (!content || !activeConvId.value) return
@@ -587,13 +587,6 @@ function formatTime(time?: string): string {
   if (diff < 3600000) return `${Math.floor(diff / 60000)} 分钟前`
   if (diff < 86400000) return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
   return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
-}
-
-function formatFileSize(size?: number): string {
-  if (!size) return ''
-  if (size < 1024) return `${size} B`
-  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`
-  return `${(size / 1024 / 1024).toFixed(1)} MB`
 }
 
 function previewImage(url?: string) {

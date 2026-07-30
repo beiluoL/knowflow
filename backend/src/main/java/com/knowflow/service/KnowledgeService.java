@@ -3,19 +3,26 @@ package com.knowflow.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.knowflow.config.AiConfig;
 import com.knowflow.entity.AiConceptDiagram;
 import com.knowflow.entity.DocCategory;
 import com.knowflow.entity.DocDocument;
+import com.knowflow.entity.KgEntity;
+import com.knowflow.entity.KgRelation;
+import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.AiConceptDiagramMapper;
 import com.knowflow.mapper.DocCategoryMapper;
 import com.knowflow.mapper.DocDocumentMapper;
+import com.knowflow.mapper.KgEntityMapper;
+import com.knowflow.mapper.KgRelationMapper;
 import com.knowflow.vo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,6 +32,7 @@ import java.util.stream.Collectors;
  * 1. 分类-文档层级图谱（已有）
  * 2. 技术栈依赖图谱（AI 生成）
  * 3. 概念可视化图解（AI 生成 Mermaid）
+ * 4. 实体关系知识图谱（A-RAG-04：AI 从文档抽取实体+关系，构建真正知识图谱）
  */
 @Slf4j
 @Service
@@ -36,6 +44,8 @@ public class KnowledgeService {
     private final AiConceptDiagramMapper conceptDiagramMapper;
     private final AiService aiService;
     private final AiConfig aiConfig;
+    private final KgEntityMapper kgEntityMapper;
+    private final KgRelationMapper kgRelationMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // ===== 1. 分类-文档层级图谱 =====
@@ -508,6 +518,300 @@ public class KnowledgeService {
         return vo;
     }
 
+    // ===== 4. 实体关系知识图谱（A-RAG-04：AI 抽取文档实体+关系） =====
+
+    /**
+     * 查询实体关系知识图谱。
+     * @param categoryId 可选：按分类过滤实体（关系仅保留两端均属该分类者）
+     * @param docId      可选：仅返回该文档抽取出的关系，并补全其端点实体
+     */
+    public EntityGraphVO getEntityGraph(Long categoryId, Long docId) {
+        List<KgEntity> entities = kgEntityMapper.selectList(new LambdaQueryWrapper<>());
+        List<KgRelation> relations = kgRelationMapper.selectList(new LambdaQueryWrapper<>());
+
+        // 过滤实体：按分类或不过滤
+        Map<Long, KgEntity> entityMap = new HashMap<>();
+        List<KgEntity> filteredEntities = new ArrayList<>();
+        if (categoryId != null) {
+            for (KgEntity e : entities) {
+                if (categoryId.equals(e.getCategoryId())) {
+                    filteredEntities.add(e);
+                    entityMap.put(e.getId(), e);
+                }
+            }
+        } else {
+            filteredEntities = entities;
+            for (KgEntity e : entities) entityMap.put(e.getId(), e);
+        }
+
+        // 过滤关系：按文档 / 按分类（两端均属该分类）/ 或不过滤
+        List<KgRelation> filteredRelations = new ArrayList<>();
+        if (docId != null) {
+            for (KgRelation r : relations) {
+                if (docId.equals(r.getDocId())) filteredRelations.add(r);
+            }
+            // docId 维度下，补充关系端点实体（可能属其他分类）以确保图连通
+            for (KgRelation r : filteredRelations) {
+                if (!entityMap.containsKey(r.getSourceEntityId())) {
+                    KgEntity e = findEntity(entities, r.getSourceEntityId());
+                    if (e != null) { filteredEntities.add(e); entityMap.put(e.getId(), e); }
+                }
+                if (!entityMap.containsKey(r.getTargetEntityId())) {
+                    KgEntity e = findEntity(entities, r.getTargetEntityId());
+                    if (e != null) { filteredEntities.add(e); entityMap.put(e.getId(), e); }
+                }
+            }
+        } else if (categoryId != null) {
+            for (KgRelation r : relations) {
+                if (entityMap.containsKey(r.getSourceEntityId()) && entityMap.containsKey(r.getTargetEntityId())) {
+                    filteredRelations.add(r);
+                }
+            }
+        } else {
+            filteredRelations = relations;
+        }
+
+        List<EntityNodeVO> nodes = new ArrayList<>();
+        for (KgEntity e : filteredEntities) {
+            EntityNodeVO n = new EntityNodeVO();
+            n.setId(e.getId());
+            n.setName(e.getName());
+            n.setType(e.getType());
+            n.setDescription(e.getDescription());
+            n.setCategoryId(e.getCategoryId());
+            n.setWeight(e.getWeight());
+            if (e.getCategoryId() != null) {
+                DocCategory c = categoryMapper.selectById(e.getCategoryId());
+                n.setCategoryName(c != null ? c.getName() : null);
+            }
+            nodes.add(n);
+        }
+        List<EntityEdgeVO> edges = new ArrayList<>();
+        for (KgRelation r : filteredRelations) {
+            EntityEdgeVO ed = new EntityEdgeVO();
+            ed.setId(r.getId());
+            ed.setSource(r.getSourceEntityId());
+            ed.setTarget(r.getTargetEntityId());
+            ed.setRelation(r.getRelation());
+            ed.setDescription(r.getDescription());
+            ed.setDocId(r.getDocId());
+            edges.add(ed);
+        }
+        EntityGraphVO vo = new EntityGraphVO();
+        vo.setNodes(nodes);
+        vo.setEdges(edges);
+        vo.setGeneratedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        return vo;
+    }
+
+    private KgEntity findEntity(List<KgEntity> entities, Long id) {
+        for (KgEntity e : entities) if (id.equals(e.getId())) return e;
+        return null;
+    }
+
+    /**
+     * 抽取单篇文档的实体与关系并写入图谱（同名实体按名称合并）。
+     * @throws BusinessException 文档不存在或 AI 不可用时抛出
+     */
+    public ExtractResultVO extractDoc(Long docId) {
+        DocDocument doc = docMapper.selectById(docId);
+        if (doc == null) throw new BusinessException(404, "文档不存在");
+        ExtractResultVO result = new ExtractResultVO();
+        result.setDocCount(1);
+        if (doc.getContent() == null || doc.getContent().isBlank()) {
+            result.setMessage("文档无正文，跳过实体抽取");
+            return result;
+        }
+        String raw;
+        try {
+            raw = aiService.complete(buildExtractionSystem(), buildExtractionUser(doc));
+        } catch (Exception e) {
+            throw new BusinessException("AI 实体抽取失败：" + e.getMessage());
+        }
+        ExtractionResult parsed = parseExtraction(raw);
+        if (parsed == null) {
+            result.setMessage("AI 未返回有效结构，跳过");
+            return result;
+        }
+        int entityAdded = 0;
+        int relationAdded = 0;
+        Map<String, Long> nameToId = new HashMap<>();
+        for (ExtractedEntity en : parsed.entities) {
+            if (en.name == null || en.name.isBlank()) continue;
+            Long id = upsertEntity(en, doc);
+            if (id != null) { nameToId.put(normalize(en.name), id); entityAdded++; }
+        }
+        for (ExtractedRelation rel : parsed.relations) {
+            Long s = nameToId.get(normalize(rel.source));
+            Long t = nameToId.get(normalize(rel.target));
+            if (s == null || t == null || s.equals(t)) continue;
+            if (insertRelation(rel, s, t, docId)) relationAdded++;
+        }
+        result.setEntityCount(entityAdded);
+        result.setRelationCount(relationAdded);
+        result.setMessage(String.format("抽取完成：实体 %d、关系 %d", entityAdded, relationAdded));
+        return result;
+    }
+
+    /**
+     * 批量抽取：指定分类下全部已发布文档（categoryId 为空则全库，上限 200 篇）。
+     * 逐篇 best-effort，单篇失败不影响整体。
+     */
+    public ExtractResultVO extractByCategory(Long categoryId) {
+        LambdaQueryWrapper<DocDocument> w = new LambdaQueryWrapper<DocDocument>()
+                .eq(DocDocument::getStatus, 1)
+                .last("LIMIT 200");
+        if (categoryId != null) w.eq(DocDocument::getCategoryId, categoryId);
+        List<DocDocument> docs = docMapper.selectList(w);
+
+        int docsDone = 0, ents = 0, rels = 0;
+        for (DocDocument d : docs) {
+            try {
+                ExtractResultVO r = extractDoc(d.getId());
+                docsDone++;
+                ents += r.getEntityCount() != null ? r.getEntityCount() : 0;
+                rels += r.getRelationCount() != null ? r.getRelationCount() : 0;
+            } catch (Exception e) {
+                log.warn("文档实体抽取失败（跳过）docId={}: {}", d.getId(), e.getMessage());
+            }
+        }
+        ExtractResultVO total = new ExtractResultVO();
+        total.setDocCount(docsDone);
+        total.setEntityCount(ents);
+        total.setRelationCount(rels);
+        total.setMessage(String.format("已处理文档 %d 篇，累计抽取实体 %d、关系 %d", docsDone, ents, rels));
+        return total;
+    }
+
+    /** 实体按名称去重合并：已存在则累加重要度，否则新建。返回实体ID。 */
+    private Long upsertEntity(ExtractedEntity en, DocDocument doc) {
+        KgEntity existing = kgEntityMapper.selectOne(
+                new LambdaQueryWrapper<KgEntity>().eq(KgEntity::getName, en.name).last("LIMIT 1"));
+        if (existing != null) {
+            int next = (existing.getWeight() != null ? existing.getWeight() : 1) + 1;
+            kgEntityMapper.update(null, new LambdaUpdateWrapper<KgEntity>()
+                    .eq(KgEntity::getId, existing.getId())
+                    .set(KgEntity::getWeight, next));
+            return existing.getId();
+        }
+        KgEntity e = new KgEntity();
+        e.setDocId(doc.getId());
+        e.setCategoryId(doc.getCategoryId());
+        e.setName(en.name.trim());
+        e.setType(normalizeType(en.type));
+        e.setDescription(en.description);
+        e.setWeight(1);
+        kgEntityMapper.insert(e);
+        return e.getId();
+    }
+
+    /** 写入关系（按 源/目标/关系/文档 去重，避免重复抽取产生冗余边）。返回是否新增。 */
+    private boolean insertRelation(ExtractedRelation rel, Long source, Long target, Long docId) {
+        Long count = kgRelationMapper.selectCount(new LambdaQueryWrapper<KgRelation>()
+                .eq(KgRelation::getSourceEntityId, source)
+                .eq(KgRelation::getTargetEntityId, target)
+                .eq(KgRelation::getRelation, normalizeRelation(rel.relation))
+                .eq(KgRelation::getDocId, docId));
+        if (count != null && count > 0) return false;
+        KgRelation r = new KgRelation();
+        r.setSourceEntityId(source);
+        r.setTargetEntityId(target);
+        r.setRelation(normalizeRelation(rel.relation));
+        r.setDescription(rel.description);
+        r.setDocId(docId);
+        kgRelationMapper.insert(r);
+        return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    private ExtractionResult parseExtraction(String raw) {
+        try {
+            String json = extractJson(raw);
+            if (json == null) return null;
+            Map<String, Object> map = objectMapper.readValue(json, new TypeReference<>() {});
+            ExtractionResult res = new ExtractionResult();
+            Object el = map.get("entities");
+            if (el instanceof List) {
+                for (Object o : (List<Object>) el) {
+                    if (!(o instanceof Map)) continue;
+                    Map<String, Object> m = (Map<String, Object>) o;
+                    ExtractedEntity e = new ExtractedEntity();
+                    e.name = (String) m.getOrDefault("name", "");
+                    e.type = (String) m.getOrDefault("type", "CONCEPT");
+                    e.description = (String) m.getOrDefault("description", "");
+                    res.entities.add(e);
+                }
+            }
+            Object rl = map.get("relations");
+            if (rl instanceof List) {
+                for (Object o : (List<Object>) rl) {
+                    if (!(o instanceof Map)) continue;
+                    Map<String, Object> m = (Map<String, Object>) o;
+                    ExtractedRelation r = new ExtractedRelation();
+                    r.source = (String) m.getOrDefault("source", "");
+                    r.target = (String) m.getOrDefault("target", "");
+                    r.relation = (String) m.getOrDefault("relation", "RELATED_TO");
+                    r.description = (String) m.getOrDefault("description", "");
+                    res.relations.add(r);
+                }
+            }
+            return res;
+        } catch (Exception e) {
+            log.warn("实体抽取 JSON 解析失败: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    private String buildExtractionUser(DocDocument doc) {
+        StringBuilder sb = new StringBuilder();
+        if (doc.getTitle() != null) sb.append("标题：").append(doc.getTitle()).append("\n");
+        if (doc.getSummary() != null) sb.append("摘要：").append(doc.getSummary()).append("\n");
+        String c = doc.getContent() != null ? doc.getContent() : "";
+        int max = 6000;
+        if (c.length() > max) c = c.substring(0, max);
+        sb.append("正文：\n").append(c).append("\n\n");
+        sb.append("请抽取文档中的知识实体与关系，严格按以下 JSON 输出（不要输出其他文字）：\n");
+        sb.append("```json\n{\n");
+        sb.append("  \"entities\": [{\"name\":\"实体名\",\"type\":\"CONCEPT|TECHNIQUE|TERM|PRINCIPLE|TOOL|OTHER\",\"description\":\"一句话说明\"}],\n");
+        sb.append("  \"relations\": [{\"source\":\"源实体名\",\"target\":\"目标实体名\",\"relation\":\"RELATED_TO|PREREQUISITE|IS_A|PART_OF|USES|CONTRASTS\",\"description\":\"关系说明\"}]\n");
+        sb.append("}\n```\n\n");
+        sb.append("要求：\n1. 实体为文档中的核心概念、技术、术语、原理、工具等，3-15 个；\n");
+        sb.append("2. 关系须基于文档内容，避免臆造；\n3. 实体 name 须与文档表述一致；\n4. 同名实体只出现一次。");
+        return sb.toString();
+    }
+
+    private String buildExtractionSystem() {
+        return "你是知识图谱构建助手。请从给定文档中抽取关键知识实体及其关系，用于构建知识图谱。只输出 JSON，不要输出其他文字。";
+    }
+
+    private static String normalize(String s) {
+        return s == null ? "" : s.trim().toLowerCase();
+    }
+
+    private static String normalizeType(String type) {
+        if (type == null) return "CONCEPT";
+        return switch (type.toUpperCase()) {
+            case "TECHNIQUE", "TECH" -> "TECHNIQUE";
+            case "TERM" -> "TERM";
+            case "PRINCIPLE" -> "PRINCIPLE";
+            case "TOOL" -> "TOOL";
+            case "OTHER" -> "OTHER";
+            default -> "CONCEPT";
+        };
+    }
+
+    private static String normalizeRelation(String relation) {
+        if (relation == null) return "RELATED_TO";
+        return switch (relation.toUpperCase()) {
+            case "PREREQUISITE" -> "PREREQUISITE";
+            case "IS_A", "ISA", "IS-A" -> "IS_A";
+            case "PART_OF", "PARTOF", "PART-OF" -> "PART_OF";
+            case "USES", "USE" -> "USES";
+            case "CONTRASTS", "CONTRAST" -> "CONTRASTS";
+            default -> "RELATED_TO";
+        };
+    }
+
     // ===== 预设数据 =====
 
     private List<TechNodeVO> buildJavaPresetNodes() {
@@ -678,5 +982,26 @@ public class KnowledgeService {
         edge.setStrength(strength);
         edge.setDescription(desc);
         edges.add(edge);
+    }
+
+    /** AI 实体抽取结果中间结构（解析用）。 */
+    private static class ExtractionResult {
+        List<ExtractedEntity> entities = new ArrayList<>();
+        List<ExtractedRelation> relations = new ArrayList<>();
+    }
+
+    /** AI 抽取的单个实体。 */
+    private static class ExtractedEntity {
+        String name;
+        String type;
+        String description;
+    }
+
+    /** AI 抽取的单个关系。 */
+    private static class ExtractedRelation {
+        String source;
+        String target;
+        String relation;
+        String description;
     }
 }

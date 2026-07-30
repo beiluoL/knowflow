@@ -214,7 +214,7 @@ export interface FlashcardVO {
   category?: string
   difficulty?: number
   tags?: string
-  sourceType?: 'MANUAL' | 'AI_DOC' | 'AI_KB' | 'IMPORT' | string
+  sourceType?: 'MANUAL' | 'AI_DOC' | 'AI_KB' | 'IMPORT'
   reviewCount?: number
   reviewInterval?: number
   nextReviewTime?: string
@@ -305,9 +305,12 @@ export interface MessageVO {
 
 export interface ChatSendPayload {
   conversationId?: number
+  /** 消息文本（与 images 至少提供一个） */
   content: string
   /** 指定对话模型（覆盖默认模型），由 /api/chat/models 下发 */
   model?: string
+  /** 多模态图片 base64 数组（不含 data:image 前缀），后端支持 vision 模型识别 */
+  images?: string[]
 }
 
 // ===== AI 文档增强 =====
@@ -397,6 +400,42 @@ export interface ConceptDiagramVO {
   keyPoints?: string[]
   relatedConcepts?: string[]
   codeExample?: string
+}
+
+// ===== 实体关系知识图谱（A-RAG-04：AI 从文档抽取实体+关系） =====
+export type KgEntityType = 'CONCEPT' | 'TECHNIQUE' | 'TERM' | 'PRINCIPLE' | 'TOOL' | 'OTHER'
+export type KgRelationType = 'RELATED_TO' | 'PREREQUISITE' | 'IS_A' | 'PART_OF' | 'USES' | 'CONTRASTS'
+
+export interface EntityNodeVO {
+  id: number
+  name: string
+  type: KgEntityType
+  description?: string
+  categoryId?: number
+  categoryName?: string
+  weight?: number
+}
+
+export interface EntityEdgeVO {
+  id: number
+  source: number
+  target: number
+  relation: KgRelationType
+  description?: string
+  docId?: number
+}
+
+export interface EntityGraphVO {
+  nodes: EntityNodeVO[]
+  edges: EntityEdgeVO[]
+  generatedAt?: string
+}
+
+export interface ExtractResultVO {
+  docCount?: number
+  entityCount?: number
+  relationCount?: number
+  message?: string
 }
 
 // ===== 个性化学习路径 =====
@@ -673,6 +712,60 @@ export interface CodeQuestionInput {
   duration?: number
   sortOrder?: number
   status?: number
+}
+
+// ===== 成就/勋章系统 =====
+
+/** 成就列表项（含用户解锁状态与进度） */
+export interface AchievementItemVO {
+  id: number
+  code: string
+  name: string
+  description?: string
+  icon: string
+  category: string
+  unlocked: boolean
+  exp: number
+  current: number
+  target: number
+  percent: number
+  unlockedTime?: string | null
+  rewardExp: number
+}
+
+/** 成就页整体数据（列表 + 统计 + 时间线） */
+export interface AchievementPageVO {
+  achievements: AchievementItemVO[]
+  unlockedCount: number
+  totalCount: number
+  totalPercent: number
+  totalAchievementExp: number
+  recentUnlocks: RecentUnlockVO[]
+}
+
+/** 最近解锁时间线条目 */
+export interface RecentUnlockVO {
+  achievementId: number
+  name: string
+  description?: string
+  icon: string
+  category: string
+  exp: number
+  timeAgo: string
+}
+
+// ===== 全局排行榜 =====
+
+/** 排行榜条目 */
+export interface RankUserVO {
+  rank: number
+  userId: number
+  nickname: string
+  avatar?: string
+  level?: number
+  exp?: number
+  streakDays?: number
+  readDocsCount?: number
 }
 
 // ===== 编程挑战（闯关游戏化） =====

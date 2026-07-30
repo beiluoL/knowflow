@@ -22,7 +22,6 @@ const props = defineProps<{
   id?: string
 }>()
 
-const containerRef = ref<HTMLElement | null>(null)
 const renderedHtml = ref('')
 const loading = ref(false)
 const error = ref('')
@@ -118,7 +117,7 @@ watch(() => props.code, render)
   max-width: 100%;
   height: auto;
 }
-.mermaid-container :div {
+.mermaid-container div {
   word-break: normal;
   white-space: normal;
 }

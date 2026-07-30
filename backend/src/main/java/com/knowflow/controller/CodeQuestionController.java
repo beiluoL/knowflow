@@ -2,16 +2,23 @@ package com.knowflow.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.knowflow.common.Result;
+import cn.hutool.core.util.StrUtil;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.entity.CodeQuestion;
+import com.knowflow.entity.CodeSubmitRecord;
 import com.knowflow.mapper.CodeQuestionMapper;
+import com.knowflow.mapper.CodeSubmitRecordMapper;
+import com.knowflow.vo.CodeSubmitRecordVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 前台-代码题库接口：面向所有登录用户，仅返回已发布的题目。
@@ -24,6 +31,10 @@ import java.util.List;
 public class CodeQuestionController {
 
     private final CodeQuestionMapper questionMapper;
+    private final CodeSubmitRecordMapper submitRecordMapper;
+
+    /** 默认编程语言 */
+    private static final String DEFAULT_LANG = "javascript";
 
     @Operation(summary = "已发布题目列表（支持按难度/语言/关键词筛选）")
     @GetMapping
@@ -65,6 +76,7 @@ public class CodeQuestionController {
      */
     @Operation(summary = "提交答案：记录提交与通过统计")
     @PostMapping("/{id}/submit")
+    @Transactional(rollbackFor = Exception.class)
     public Result<SubmitResultVO> submit(@PathVariable Long id, @RequestBody SubmitPayload payload) {
         CodeQuestion q = questionMapper.selectById(id);
         if (q == null || q.getStatus() == null || q.getStatus() != 1) {
@@ -82,6 +94,23 @@ public class CodeQuestionController {
         update.setSubmitCount(newSubmit);
         update.setPassCount(newPass);
         questionMapper.updateById(update);
+
+        // P-CODE-03 提交记录持久化
+        if (StrUtil.isNotBlank(payload.getCode())) {
+            try {
+                CodeSubmitRecord record = new CodeSubmitRecord();
+                record.setUserId(SecurityUtils.getCurrentUserId());
+                record.setQuestionId(id);
+                record.setCode(payload.getCode());
+                record.setLanguage(payload.getLanguage() != null ? payload.getLanguage() : DEFAULT_LANG);
+                record.setTotal(total);
+                record.setPassCount(pass);
+                record.setPassed(allPassed ? 1 : 0);
+                submitRecordMapper.insert(record);
+            } catch (Exception e) {
+                log.warn("提交记录写入失败(不影响): {}", e.getMessage());
+            }
+        }
 
         SubmitResultVO vo = new SubmitResultVO();
         vo.setPassed(allPassed);
@@ -103,6 +132,32 @@ public class CodeQuestionController {
         private Integer total;
         /** 通过用例数 */
         private Integer passCount;
+    }
+
+    @Operation(summary = "我的提交记录（按题目ID筛选）")
+    @GetMapping("/{id}/submissions")
+    public Result<List<CodeSubmitRecordVO>> submissions(@PathVariable Long id) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        List<CodeSubmitRecord> list = submitRecordMapper.selectList(
+                new LambdaQueryWrapper<CodeSubmitRecord>()
+                        .eq(CodeSubmitRecord::getUserId, userId)
+                        .eq(CodeSubmitRecord::getQuestionId, id)
+                        .orderByDesc(CodeSubmitRecord::getCreateTime)
+                        .last("LIMIT 50"));
+        List<CodeSubmitRecordVO> result = list.stream().map(r -> {
+            CodeSubmitRecordVO vo = new CodeSubmitRecordVO();
+            vo.setId(r.getId());
+            vo.setQuestionId(r.getQuestionId());
+            vo.setCode(r.getCode());
+            vo.setLanguage(r.getLanguage());
+            vo.setTotal(r.getTotal());
+            vo.setPassCount(r.getPassCount());
+            vo.setPassed(r.getPassed() != null && r.getPassed() == 1);
+            vo.setErrorMsg(r.getErrorMsg());
+            vo.setCreateTime(r.getCreateTime() != null ? r.getCreateTime().toString() : null);
+            return vo;
+        }).collect(Collectors.toList());
+        return Result.success(result);
     }
 
     /** 提交结果：返回最新统计便于前端展示通过率。 */

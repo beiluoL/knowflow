@@ -104,7 +104,7 @@ export async function apiUpload<T>(
     // 上传型文档含服务端 Tika 解析（最多 60s）+ 网络传输，统一给 5 分钟宽松上限，
     // 避免大文件上传 + 后端解析时被全局 15s 默认超时截断。
     timeout: 5 * 60 * 1000,
-    onUploadProgress: (e: ProgressEvent) => {
+    onUploadProgress: (e) => {
       if (onProgress && e.total) {
         onProgress(Math.round((e.loaded / e.total) * 100))
       }

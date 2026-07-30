@@ -1016,8 +1016,6 @@ const messages = computed(() => {
   return chatMessages.value[activeChatId.value] || []
 })
 
-const currentModel = computed(() => models.value.find((m) => m.id === selectedModel.value))
-
 const createNewChat = async () => {
   loading.value = true
   try {
@@ -1271,11 +1269,16 @@ const sendMessage = async () => {
 
   isTyping.value = true
   try {
-    // 发给后端的内容：如果有图片，在文字前补充图片数量描述（后端暂不支持多模态时也能理解上下文）
+    // A-CHAT-01 多模态：有图片时同时发送 base64 数据，后端使用 vision 模型识别
     const sendContent = hasImages
-      ? `[发送了 ${images.length} 张图片]${content ? '\n' + content : '请描述这张图片的内容'}`
+      ? (content || '请描述这些图片')
       : content
-    const resp = await chatApi.send({ conversationId: chatId, content: sendContent, model: selectedModel.value })
+    const resp = await chatApi.send({
+      conversationId: chatId,
+      content: sendContent,
+      model: selectedModel.value,
+      images: hasImages ? images : undefined,
+    })
     const assistantMessage: Message = {
       id: resp.id,
       role: resp.role === 'assistant' ? 'assistant' : 'user',
@@ -1328,8 +1331,7 @@ const isMessageComplete = (index: number) => {
   return displayedMessages.value[index] === messages.value[index]?.content
 }
 
-// AI 消息操作：点赞/踩反馈 + 复制内容
-const feedbackMessage = (messageId: number, type: 'up' | 'down') => {
+const feedbackMessage = (_messageId: number, type: 'up' | 'down') => {
   notify(type === 'up' ? '感谢反馈，已记录' : '感谢反馈，我们会持续改进', 'info')
 }
 

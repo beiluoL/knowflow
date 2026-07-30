@@ -621,7 +621,7 @@ const saveQuestion = async () => {
     notify('请填写题目标题', 'warning')
     return
   }
-  if (!form.description.trim()) {
+  if (!form.description?.trim()) {
     notify('请填写题目描述', 'warning')
     return
   }

@@ -1279,7 +1279,7 @@ import { computed } from 'vue'
 interface Props {
   name: string
   size?: number | string
-  class?: string | string[]
+  class?: string | string[] | Record<string, boolean>
   /** 图标颜色（用于 iconfont / SVG 代码 / 系统图标，通过 CSS color 应用） */
   color?: string
   /** 是否为装饰性图标（默认 true）。装饰图标对屏幕阅读器隐藏；设为 false 时需提供 ariaLabel。 */

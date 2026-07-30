@@ -382,7 +382,7 @@ import { notify, confirmDialog, getApiError } from '@/utils/toast';
 import { renderMarkdown } from '@/utils/markdown';
 import type { CategoryVO, DocDetailVO } from '@/api/types';
 import {
-  presetIcons, presetIconCategories, getIconByKey, iconColorPresets,
+  presetIcons, presetIconCategories, iconColorPresets,
   parseIconValue, buildIconValue, resolveIconForRender,
   type PresetIcon,
 } from '@/utils/presetIcons';

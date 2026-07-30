@@ -31,4 +31,7 @@ public class AiConfig {
 
     /** 单条消息最大字符数限制，超出时提示用户（约 1 万汉字）。 */
     private int maxContentChars = 20000;
+
+    /** 视觉模型名称（如 gpt-4o、claude-3-5-sonnet、qwen-vl-plus），用于多模态图片识别。 */
+    private String visionModel = "gpt-4o";
 }

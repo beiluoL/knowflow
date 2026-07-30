@@ -387,7 +387,6 @@ import DocTypeBadge from '@/components/doc/DocTypeBadge.vue'
 
 const router = useRouter()
 const route = useRoute()
-const sidebarRef = ref<InstanceType<typeof KnowledgeSidebar> | null>(null)
 
 const searchKeyword = ref('')
 const allCategories = ref<CategoryVO[]>([])

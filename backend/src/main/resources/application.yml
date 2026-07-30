@@ -66,6 +66,7 @@ ai:
   api-key: ${AI_API_KEY:sk-placeholder-replace-with-your-key}
   base-url: ${AI_BASE_URL:https://api.deepseek.com/v1}
   model: ${AI_MODEL:deepseek-chat}
+  embedding-model: ${AI_EMBEDDING_MODEL:text-embedding-3-small}
   max-tokens: ${AI_MAX_TOKENS:8000}
   timeout-seconds: ${AI_TIMEOUT_SECONDS:180}
   max-content-chars: ${AI_MAX_CONTENT_CHARS:20000}

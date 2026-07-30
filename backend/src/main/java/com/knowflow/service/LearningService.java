@@ -11,6 +11,7 @@ import com.knowflow.vo.FlashcardVO;
 import com.knowflow.vo.LearningChapterVO;
 import com.knowflow.vo.LearningPathVO;
 import com.knowflow.vo.LearningTaskVO;
+import com.knowflow.vo.CategoryMasteryVO;
 import com.knowflow.vo.MasteryDistributionVO;
 import com.knowflow.vo.PersonalizedPathVO;
 
@@ -49,6 +50,12 @@ public interface LearningService extends IService<LearningPath> {
 
     /** 掌握分布看板：闪卡难度分布与错题掌握情况。 */
     MasteryDistributionVO getMasteryDistribution(Long userId);
+
+    /**
+     * 分类维度掌握度画像：统计各分类答题的正确率，标记薄弱项。
+     * 按正确率升序排列（薄弱项在前），正确率 < 60% 自动标记 weak=true。
+     */
+    List<CategoryMasteryVO> getCategoryMastery(Long userId);
 
     // ========== 用户级「我的闪卡」新增能力 ==========
 

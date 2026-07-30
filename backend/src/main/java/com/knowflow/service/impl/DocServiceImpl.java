@@ -24,8 +24,10 @@ import com.knowflow.mapper.LearningFlashcardMapper;
 import com.knowflow.mapper.SysUserMapper;
 import com.knowflow.service.AiService;
 import com.knowflow.service.CategoryService;
+import com.knowflow.service.DocChunkService;
 import com.knowflow.service.DocService;
 import com.knowflow.service.DocumentTextExtractor;
+import com.knowflow.service.KnowledgeService;
 import com.knowflow.util.UploadHelper;
 import com.knowflow.vo.DocDetailVO;
 import com.knowflow.vo.DocVO;
@@ -59,7 +61,9 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     private final SysUserMapper userMapper;
     private final LearningFlashcardMapper flashcardMapper;
     private final AiService aiService;
+    private final DocChunkService docChunkService;
     private final DocumentTextExtractor documentTextExtractor;
+    private final KnowledgeService knowledgeService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /** 文件上传根目录（与 WebMvcConfig 静态资源映射保持一致）。 */
@@ -207,6 +211,20 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         doc.setDifficulty(meta.getDifficulty());
         doc.setWordCount(words);
         this.save(doc);
+        // A-RAG：文档保存后自动分块并生成 embedding 索引
+        if (StrUtil.isNotBlank(doc.getContent())) {
+            try {
+                docChunkService.indexDocument(doc.getId(), doc.getContent());
+            } catch (Exception e) {
+                log.warn("文档分块索引失败（不影响文档上传）: docId={}, {}", doc.getId(), e.getMessage());
+            }
+            // A-RAG-04：文档保存后抽取实体+关系，构建知识图谱（best-effort，失败不影响上传）
+            try {
+                knowledgeService.extractDoc(doc.getId());
+            } catch (Exception e) {
+                log.warn("文档实体关系抽取失败（不影响文档上传）: docId={}, {}", doc.getId(), e.getMessage());
+            }
+        }
         if (doc.getCategoryId() != null) {
             categoryService.incrementDocCount(doc.getCategoryId());
         }

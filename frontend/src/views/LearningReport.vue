@@ -18,7 +18,7 @@
       </div>
       <div class="quote-dots">
         <button
-          v-for="(q, idx) in quotes"
+          v-for="(_, idx) in quotes"
           :key="idx"
           type="button"
           :aria-label="`第 ${idx + 1} 条名言`"
@@ -344,7 +344,7 @@ import Icon from '@/components/ui/Icon.vue'
 import { notify, confirmDialog, getApiError } from '@/utils/toast'
 import { userApi, learningApi } from '@/api'
 import { useAuthStore } from '@/stores/auth'
-import type { UserStatsVO, LearningTaskVO, LearningPathVO, DailyActivityVO, LearningTaskInput } from '@/api/types'
+import type { LearningTaskVO, LearningPathVO, DailyActivityVO, LearningTaskInput } from '@/api/types'
 
 const auth = useAuthStore()
 const loading = ref(false)

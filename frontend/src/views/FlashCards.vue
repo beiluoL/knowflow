@@ -241,7 +241,6 @@ const currentIndex = ref(0)
 const isFlipped = ref(false)
 const cards = ref<FlashCard[]>([])
 
-const streakDays = ref(7)
 const todayCount = ref(0)
 const correctCount = ref(0)
 // 已记住 / 需复习 / 待学习 计数
@@ -273,7 +272,7 @@ const currentCard = computed(() => filteredCards.value[currentIndex.value] || nu
 // 复习进度：以当前卡片序号在牌组中的位置计算百分比
 const reviewProgress = computed(() => {
   if (filteredCards.value.length === 0) return 0
-  return Math.round(((currentIndex.value + 1) / filteredCards.length) * 100)
+  return Math.round(((currentIndex.value + 1) / filteredCards.value.length) * 100)
 })
 
 const accuracy = computed(() => {

@@ -102,14 +102,14 @@
               :class="{ active: selectedId === note.id }"
               @click="selectNote(note.id)"
             >
-              <div class="note-item-icon" :style="{ background: tagColor(note.tag).bg }">
+              <div class="note-item-icon" :style="{ background: tagColor(note.tag).backgroundColor }">
                 <Icon :name="getTagIcon(note.tag)" :size="13" :style="{ color: tagColor(note.tag).color }" />
               </div>
               <div class="note-item-main">
                 <h4 class="note-item-title">{{ note.title || '无标题笔记' }}</h4>
                 <p class="note-item-summary">{{ note.summary || '暂无内容...' }}</p>
                 <div class="note-item-meta">
-                  <span class="note-item-tag" :style="tagColor(note.tag)">{{ note.tag }}</span>
+                  <span class="note-item-tag" :style="{ backgroundColor: tagColor(note.tag).backgroundColor, color: tagColor(note.tag).color }">{{ note.tag }}</span>
                   <span class="note-item-time">{{ note.time }}</span>
                 </div>
               </div>
@@ -303,18 +303,18 @@ interface NoteDetail extends NoteItem {
 const tags = ['全部', 'Python', 'AI', '前端', '算法'];
 
 interface TagStyle {
-  bg: string;
+  backgroundColor: string;
   color: string;
 }
 
 function tagColor(tag: string): TagStyle {
   switch (tag) {
-    case 'Python': return { bg: 'rgba(16,185,129,0.12)', color: '#10B981' };
-    case 'AI': return { bg: 'rgba(59,111,224,0.12)', color: '#3B6FE0' };
-    case '前端': return { bg: 'rgba(245,158,11,0.12)', color: '#F59E0B' };
-    case '算法': return { bg: 'rgba(239,68,68,0.12)', color: '#EF4444' };
-    case '全部': return { bg: 'rgba(107,114,128,0.1)', color: '#6B7280' };
-    default: return { bg: 'rgba(107,114,128,0.1)', color: '#6B7280' };
+    case 'Python': return { backgroundColor: 'rgba(16,185,129,0.12)', color: '#10B981' };
+    case 'AI': return { backgroundColor: 'rgba(59,111,224,0.12)', color: '#3B6FE0' };
+    case '前端': return { backgroundColor: 'rgba(245,158,11,0.12)', color: '#F59E0B' };
+    case '算法': return { backgroundColor: 'rgba(239,68,68,0.12)', color: '#EF4444' };
+    case '全部': return { backgroundColor: 'rgba(107,114,128,0.1)', color: '#6B7280' };
+    default: return { backgroundColor: 'rgba(107,114,128,0.1)', color: '#6B7280' };
   }
 }
 

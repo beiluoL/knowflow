@@ -17,6 +17,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -210,5 +211,102 @@ public class AiServiceImpl implements AiService {
                 + "\"。\n\n请管理员在 application.yml 中配置有效的 AI API Key（ai.api-key）以启用智能问答功能。\n"
                 + "当前支持 OpenAI 兼容接口（DeepSeek / 通义千问 / OpenAI 等），配置示例：\n"
                 + "```\nai:\n  api-key: 你的API密钥\n  base-url: https://api.deepseek.com/v1\n  model: deepseek-chat\n```";
+    }
+
+    @Override
+    public String chatWithImages(String text, List<String> images, List<DocDocument> contextDocs, String model, Long userId) {
+        if (images == null || images.isEmpty()) {
+            return chat(text, contextDocs, model, userId);
+        }
+        if (text == null || text.isBlank()) {
+            text = "请描述这些图片的内容";
+        }
+        String systemPrompt = buildSystemPrompt(contextDocs);
+        String userMessage = systemPrompt + "\n\n用户问题：" + text;
+        return callVisionModel(userMessage, images, model, userId);
+    }
+
+    @Override
+    public String gradeEssay(String question, String userAnswer, String correctAnswer) {
+        String sysPrompt = "你是一个严格的评卷老师。请对以下主观题答案进行评分（0-100分），"
+                + "并给出简短评语。请只返回 JSON 格式：{\"score\": 分数, \"feedback\": \"评语\"}";
+        String userPrompt = "题目：" + question + "\n"
+                + "参考答案：" + correctAnswer + "\n"
+                + "学生答案：" + userAnswer;
+        try {
+            return callModel(sysPrompt, userPrompt, 0.3, null, null);
+        } catch (Exception e) {
+            log.warn("AI 评分失败，返回默认结果: {}", e.getMessage());
+            // 降级：简单字符串包含判定
+            boolean match = userAnswer.toLowerCase().contains(correctAnswer.toLowerCase())
+                    || correctAnswer.toLowerCase().contains(userAnswer.toLowerCase());
+            return "{\"score\": " + (match ? 85 : 40) + ", \"feedback\": \""
+                    + (match ? "基本正确，建议完善细节" : "与参考答案差异较大，建议重新理解题目") + "\"}";
+        }
+    }
+
+    /**
+     * 视觉模型调用：将用户消息和图片组装为多模态 content 数组发送。
+     * 图片格式必须为 base64 编码，不含 data:image... 前缀。
+     */
+    private String callVisionModel(String userMessage, List<String> images, String model, Long userId) {
+        var effective = resolveEffectiveConfig(userId);
+        // 视觉模型名优先使用传入的 model，其次 visionModel 配置，再次 model 配置
+        String visionModel = (model != null && !model.isBlank()) ? model
+                : (aiConfig.getVisionModel() != null ? aiConfig.getVisionModel() : aiConfig.getModel());
+
+        if (!isConfigured()) {
+            return generateFallbackReply(userMessage);
+        }
+
+        try {
+            // 构建多模态 content 数组
+            List<Map<String, Object>> multimodalContent = new ArrayList<>();
+            multimodalContent.add(Map.of("type", "text", "text", userMessage));
+            for (String img : images) {
+                String dataUrl = img.startsWith("data:") ? img : "data:image/png;base64," + img;
+                multimodalContent.add(Map.of(
+                        "type", "image_url",
+                        "image_url", Map.of("url", dataUrl)
+                ));
+            }
+
+            Map<String, Object> requestBody = new LinkedHashMap<>();
+            requestBody.put("model", visionModel);
+            requestBody.put("messages", Arrays.asList(
+                    Map.of("role", "system", "content", "你是 KnowFlow AI 知识库助手，可以根据图片内容进行识别和分析。"),
+                    Map.of("role", "user", "content", multimodalContent)
+            ));
+            requestBody.put("max_tokens", aiConfig.getMaxTokens());
+            requestBody.put("temperature", 0.7);
+
+            String jsonBody = objectMapper.writeValueAsString(requestBody);
+            log.debug("Vision request: model={}, images={}, msgLen={}", visionModel, images.size(), userMessage.length());
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(effective.baseUrl() + "/chat/completions"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + effective.apiKey())
+                    .timeout(Duration.ofSeconds(aiConfig.getTimeoutSeconds()))
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .build();
+
+            HttpResponse<String> resp = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            if (resp.statusCode() == 200) {
+                Map<String, Object> responseMap = objectMapper.readValue(resp.body(), Map.class);
+                List<Map<String, Object>> choices = (List<Map<String, Object>>) responseMap.get("choices");
+                if (choices != null && !choices.isEmpty()) {
+                    Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
+                    String content = (String) message.get("content");
+                    if (content == null) content = choices.get(0).get("text") != null ? (String) choices.get(0).get("text") : "（AI 未返回有效内容）";
+                    return content;
+                }
+            }
+            log.error("Vision API 调用失败: status={}", resp.statusCode());
+            return "抱歉，图像分析失败（状态码 " + resp.statusCode() + "）";
+        } catch (Exception e) {
+            log.error("视觉模型调用失败: {}", e.getMessage());
+            return "抱歉，图像分析失败：" + e.getMessage();
+        }
     }
 }

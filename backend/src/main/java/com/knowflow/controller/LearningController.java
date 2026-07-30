@@ -5,6 +5,7 @@ import com.knowflow.dto.FlashcardGenerateDTO;
 import com.knowflow.dto.FlashcardSaveDTO;
 import com.knowflow.entity.LearningTask;
 import com.knowflow.service.LearningService;
+import com.knowflow.vo.CategoryMasteryVO;
 import com.knowflow.vo.DailyActivityVO;
 import com.knowflow.vo.FlashcardVO;
 import com.knowflow.vo.LearningChapterVO;
@@ -261,5 +262,12 @@ public class LearningController {
         Long userId = (Long) authentication.getPrincipal();
         learningService.deletePersonalizedPath(userId, id);
         return Result.success();
+    }
+
+    @Operation(summary = "分类维度掌握度画像（含薄弱项标记）")
+    @GetMapping("/category-mastery")
+    public Result<List<CategoryMasteryVO>> categoryMastery(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return Result.success(learningService.getCategoryMastery(userId));
     }
 }

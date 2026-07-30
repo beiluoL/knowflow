@@ -287,7 +287,7 @@ async function handleCreate(): Promise<void> {
       description: formData.value.description.trim(),
     }
     
-    const result = await categoriesApi.create(data)
+    await categoriesApi.create(data)
     notify(`知识库「${formData.value.name}」创建成功！`, 'success')
     
     // 如果有邀请成员，这里可以调用后端邀请接口

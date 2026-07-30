@@ -14,6 +14,7 @@ import com.knowflow.mapper.ChatMessageMapper;
 import com.knowflow.mapper.DocDocumentMapper;
 import com.knowflow.service.AiService;
 import com.knowflow.service.ChatService;
+import com.knowflow.service.DocChunkService;
 import com.knowflow.vo.ConversationVO;
 import com.knowflow.vo.MessageVO;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +36,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
     private final ChatMessageMapper messageMapper;
     private final AiService aiService;
     private final DocDocumentMapper docMapper;
+    private final DocChunkService docChunkService;
 
     @Override
     public List<ConversationVO> getConversationList(Long userId) {
@@ -80,9 +83,16 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
         userMessage.setTokenCount(dto.getContent().length());
         messageMapper.insert(userMessage);
         List<DocDocument> contextDocs = searchRelatedDocs(dto.getContent());
-        // AI 接口在 200 但 content 缺失时会返回 null，必须判空，否则下方 length()/setLastMessage 触发 NPE
-        // B② 多模型切换：将前端传入的 model 透传给 AI 服务（null 时回退默认模型）
-        String replyContent = aiService.chat(dto.getContent(), contextDocs, dto.getModel(), userId);
+        // A-RAG + A-CHAT：有图片时使用视觉模型，否则使用文本模型
+        List<String> images = dto.getImages();
+        String replyContent;
+        if (images != null && !images.isEmpty()) {
+            replyContent = aiService.chatWithImages(
+                    dto.getContent() != null ? dto.getContent() : "",
+                    images, contextDocs, dto.getModel(), userId);
+        } else {
+            replyContent = aiService.chat(dto.getContent(), contextDocs, dto.getModel(), userId);
+        }
         if (StrUtil.isBlank(replyContent)) {
             replyContent = "（AI 暂时未返回内容，请稍后重试或检查 AI 配置。）";
         }
@@ -134,8 +144,27 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
         if (StrUtil.isBlank(query)) {
             return Collections.emptyList();
         }
+        // A-RAG：优先使用向量相似度检索，降级为 LIKE 关键词匹配
+        try {
+            List<String> chunks = docChunkService.searchSimilar(query, 5);
+            if (!chunks.isEmpty()) {
+                // 从分块内容反查归属文档（取文档标题作为上下文指示）
+                List<DocDocument> results = new ArrayList<>();
+                for (String chunk : chunks) {
+                    // 默认只取前 5 个字符作为文档展示，实际 content 在后端 AI 拼接
+                    DocDocument d = new DocDocument();
+                    d.setTitle("相关文档片段");
+                    d.setContent(chunk);
+                    d.setSummary(chunk.length() > 200 ? chunk.substring(0, 200) + "..." : chunk);
+                    results.add(d);
+                }
+                return results;
+            }
+        } catch (Exception e) {
+            log.warn("向量检索失败，降级为 LIKE 检索: {}", e.getMessage());
+        }
+        // 降级：LIKE 关键词匹配
         String keyword = query.length() > 50 ? query.substring(0, 50) : query;
-        // RAG 检索：标题 / 摘要 / 正文 / 标签任一命中即召回，取相关度最高的前 5 篇作为上下文
         return docMapper.selectList(new LambdaQueryWrapper<DocDocument>()
                 .eq(DocDocument::getStatus, 1)
                 .and(w -> w.like(DocDocument::getTitle, keyword)

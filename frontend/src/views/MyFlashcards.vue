@@ -887,7 +887,7 @@ const doExport = async () => {
     const blob = new Blob([json], { type: 'application/json;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    const stamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14)
+    const stamp = new Date().toISOString().replace(/-/g, '').replace(/:/g, '').replace(/T/g, '').slice(0, 14)
     a.href = url
     a.download = `my-flashcards-${stamp}.json`
     document.body.appendChild(a)

@@ -212,10 +212,11 @@ const allCategories = ref<CategoryVO[]>([]);
 
 const formData = ref({
   title: '',
-  kbId: '' as number | string,
-  categoryId: '' as number | string,
+  kbId: null as number | null,
+  categoryId: null as number | null,
   tags: [] as string[],
   description: '',
+  difficulty: null as number | null,
 });
 
 // ===== 计算属性 =====
@@ -224,8 +225,8 @@ const canSubmit = computed(() => {
   return (
     files.value.length > 0 &&
     formData.value.title.trim() !== '' &&
-    formData.value.kbId !== '' &&
-    formData.value.categoryId !== ''
+    formData.value.kbId !== null &&
+    formData.value.categoryId !== null
   );
 });
 
@@ -428,10 +429,11 @@ function handleCancel(): void {
   files.value = [];
   formData.value = {
     title: '',
-    kbId: '',
-    categoryId: '',
+    kbId: null,
+    categoryId: null,
     tags: [],
     description: '',
+    difficulty: null,
   };
   if (fileInputRef.value) {
     fileInputRef.value.value = '';

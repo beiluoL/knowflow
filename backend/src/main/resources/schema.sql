@@ -743,6 +743,39 @@ CREATE TABLE IF NOT EXISTS code_challenge_record (
 CREATE INDEX IF NOT EXISTS idx_ccr_user      ON code_challenge_record (user_id);
 CREATE INDEX IF NOT EXISTS idx_ccr_user_ch   ON code_challenge_record (user_id, challenge_id);
 
+-- ========== 成就/勋章系统（G-ACHIEVE-01/02） ==========
+
+-- 成就定义表：预定义的成就模板（编码唯一，管理端可增删）
+CREATE TABLE IF NOT EXISTS achievement (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50) NOT NULL COMMENT '成就编码（英文标识，如 READ_1ST_DOC）',
+    name VARCHAR(100) NOT NULL COMMENT '成就名称',
+    description VARCHAR(500) COMMENT '成就描述',
+    icon VARCHAR(50) DEFAULT 'trophy' COMMENT '成就图标名（Icon.vue 图标名）',
+    category VARCHAR(20) NOT NULL COMMENT '分类：LEARNING/EXPLORATION/COMMUNITY/PERSISTENCE/SPECIAL',
+    condition_type VARCHAR(30) NOT NULL COMMENT '条件类型：READ_DOCS/COMPLETE_PATH/REVIEW_FLASHCARD/CODE_EXERCISE/FAVORITE_DOC/NOTE_CREATED/MISTAKE_CLEARED/STREAK_DAYS/CATEGORY_ALL/CHECKIN_DAYS',
+    condition_value INT NOT NULL COMMENT '条件阈值（达标所需数量）',
+    sort_order INT DEFAULT 0 COMMENT '排序值，越小越靠前',
+    reward_exp INT DEFAULT 0 COMMENT '达成奖励经验值',
+    status INT DEFAULT 1 COMMENT '状态：0 禁用 / 1 启用',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_ach_category ON achievement (category);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ach_code ON achievement (code);
+
+-- 用户成就解锁记录表：用户与成就多对多关系，同成就仅能解锁一次
+CREATE TABLE IF NOT EXISTS user_achievement (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键sys_user.id）',
+    achievement_id BIGINT NOT NULL COMMENT '成就ID（逻辑外键achievement.id）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ua_user_ach ON user_achievement (user_id, achievement_id);
+CREATE INDEX IF NOT EXISTS idx_ua_user ON user_achievement (user_id);
+
 -- 用户关卡通关记录表：记录某用户单个关卡的通关结果、星级与获得积分
 CREATE TABLE IF NOT EXISTS code_challenge_level_record (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -762,3 +795,76 @@ CREATE TABLE IF NOT EXISTS code_challenge_level_record (
 );
 CREATE INDEX IF NOT EXISTS idx_cclr_user     ON code_challenge_level_record (user_id);
 CREATE INDEX IF NOT EXISTS idx_cclr_user_lvl ON code_challenge_level_record (user_id, level_id);
+
+-- ========== 文档分块与向量索引（A-RAG 文档向量检索）==========
+
+-- 文档分块表：存储文档切分后的片段与 embedding 向量
+CREATE TABLE IF NOT EXISTS doc_chunk (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    doc_id BIGINT NOT NULL COMMENT '归属文档ID（逻辑外键 doc_document.id）',
+    chunk_index INT NOT NULL COMMENT '分块序号（从 0 开始）',
+    content TEXT NOT NULL COMMENT '分块文本内容',
+    char_count INT DEFAULT 0 COMMENT '字符数',
+    embedding TEXT COMMENT 'embedding 向量：逗号分隔的浮点数组（如 "0.123,-0.456,..."）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_dc_doc ON doc_chunk (doc_id);
+CREATE INDEX IF NOT EXISTS idx_dc_doc_order ON doc_chunk (doc_id, chunk_index);
+
+-- L-PATH-01 章节前置依赖：在 learning_chapter 表添加前置章节ID列表
+ALTER TABLE learning_chapter ADD COLUMN IF NOT EXISTS prerequisite_chapter_ids VARCHAR(500) DEFAULT NULL COMMENT '前置章节ID列表，逗号分隔（如 "1,3,5"），全部完成后该章节才可学习';
+
+-- ========== 代码提交记录（P-CODE-03 代码判题记录持久化）==========
+CREATE TABLE IF NOT EXISTS code_submit_record (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    question_id BIGINT NOT NULL COMMENT '题目ID（逻辑外键 code_question.id）',
+    code TEXT NOT NULL COMMENT '提交的代码',
+    language VARCHAR(20) DEFAULT 'javascript' COMMENT '编程语言',
+    total INT DEFAULT 0 COMMENT '总测试用例数',
+    pass_count INT DEFAULT 0 COMMENT '通过用例数',
+    passed INT DEFAULT 0 COMMENT '是否完全通过：0 未通过 / 1 已通过',
+    error_msg TEXT COMMENT '运行时错误信息',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_csr_user ON code_submit_record (user_id);
+CREATE INDEX IF NOT EXISTS idx_csr_question ON code_submit_record (question_id);
+CREATE INDEX IF NOT EXISTS idx_csr_user_q ON code_submit_record (user_id, question_id);
+
+-- ========== 知识图谱实体关系（A-RAG-04：AI 从文档抽取实体+关系，构建真正知识图谱）==========
+
+-- 知识实体表：AI 从文档正文抽取的知识实体（概念/技术/术语/原理/工具），按名称全局去重合并
+CREATE TABLE IF NOT EXISTS kg_entity (
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    doc_id       BIGINT NOT NULL COMMENT '首次抽取来源文档ID（逻辑外键 doc_document.id）',
+    category_id  BIGINT COMMENT '所属分类ID（逻辑外键 doc_category.id），取首次抽取文档的分类',
+    name         VARCHAR(200) NOT NULL COMMENT '实体名称（全局唯一，合并同名实体）',
+    type         VARCHAR(30)  DEFAULT 'CONCEPT' COMMENT '实体类型：CONCEPT/TECHNIQUE/TERM/PRINCIPLE/TOOL/OTHER',
+    description  VARCHAR(1000) COMMENT '实体说明',
+    weight       INT          DEFAULT 1 COMMENT '重要度/被抽取次数，用于前端节点大小',
+    create_time  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time  TIMESTAMP    DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted      INT          DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_kg_entity_doc ON kg_entity (doc_id);
+CREATE INDEX IF NOT EXISTS idx_kg_entity_category ON kg_entity (category_id);
+CREATE INDEX IF NOT EXISTS idx_kg_entity_name ON kg_entity (name);
+
+-- 实体关系表：知识实体之间的语义关系，记录抽取来源文档以支持溯源
+CREATE TABLE IF NOT EXISTS kg_relation (
+    id               BIGINT AUTO_INCREMENT PRIMARY KEY,
+    source_entity_id BIGINT NOT NULL COMMENT '源实体ID（逻辑外键 kg_entity.id）',
+    target_entity_id BIGINT NOT NULL COMMENT '目标实体ID（逻辑外键 kg_entity.id）',
+    relation         VARCHAR(30) NOT NULL COMMENT '关系类型：RELATED_TO/PREREQUISITE/IS_A/PART_OF/USES/CONTRASTS',
+    description      VARCHAR(500) COMMENT '关系说明',
+    doc_id           BIGINT COMMENT '抽取来源文档ID（逻辑外键 doc_document.id）',
+    create_time      TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time      TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted          INT       DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_kg_rel_source ON kg_relation (source_entity_id);
+CREATE INDEX IF NOT EXISTS idx_kg_rel_target ON kg_relation (target_entity_id);
+CREATE INDEX IF NOT EXISTS idx_kg_rel_doc ON kg_relation (doc_id);

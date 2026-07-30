@@ -12,7 +12,7 @@
         <p class="text-gray-500 text-sm mt-1">创建、编辑和管理你的知识库集合</p>
       </div>
       <div class="flex items-center gap-3">
-        <Button variant="secondary" icon-name="upload" @click="openImport">批量导入</Button>
+        <Button variant="secondary" icon-name="upload" @click="openImport()">批量导入</Button>
         <Button icon-name="plus" @click="openCreate">新建知识库</Button>
       </div>
     </div>
@@ -287,7 +287,7 @@
     <div>
       <h3 class="text-base font-semibold text-gray-800 mb-4">快捷操作</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white border border-[#E2E6EC] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-all" @click="openImport">
+        <div class="bg-white border border-[#E2E6EC] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-all" @click="openImport()">
           <div class="flex items-start gap-4">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-primary-50 flex-shrink-0">
               <Icon name="upload" :size="22" class="text-primary-500" />

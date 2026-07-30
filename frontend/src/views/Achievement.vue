@@ -73,27 +73,26 @@
               </span>
             </div>
             <div class="kb-h4 mb-1">{{ ach.name }}</div>
-            <p class="kb-body-sm mb-3">{{ ach.desc }}</p>
+            <p class="kb-body-sm mb-3">{{ ach.description }}</p>
 
             <!-- 进度条（未解锁时显示） -->
-            <template v-if="!ach.unlocked && ach.progress">
+            <template v-if="!ach.unlocked && ach.target > 0">
               <div class="ach-progress-track mb-1.5">
-                <div class="ach-progress-fill" :style="{ width: `${ach.progress.percent}%` }"></div>
+                <div class="ach-progress-fill" :style="{ width: `${ach.percent}%` }"></div>
               </div>
               <div class="flex items-center justify-between mb-3">
-                <span class="kb-body-sm">{{ ach.progress.current }} / {{ ach.progress.target }} {{ ach.progress.unit }}</span>
-                <span class="kb-body-sm">{{ ach.progress.percent }}%</span>
+                <span class="kb-body-sm">{{ ach.current }} / {{ ach.target }}</span>
+                <span class="kb-body-sm">{{ ach.percent }}%</span>
               </div>
             </template>
 
             <div class="flex items-center justify-between pt-3 border-t reward-row" style="border-color: var(--kb-border);">
               <span class="kb-body-sm flex items-center gap-1">
                 <Icon name="zap" :size="14" style="color: var(--kb-accent);" />
-                +{{ ach.exp }} EXP
+                +{{ ach.rewardExp }} EXP
               </span>
-              <span v-if="ach.badge" class="ach-badge" :class="ach.badgeType || 'normal'">
-                <Icon :name="ach.badgeIcon || 'medal'" :size="12" />
-                {{ ach.badge }}
+              <span v-if="ach.unlocked && ach.rewardExp > 0" class="ach-badge unlocked">
+                <Icon name="check" :size="12" />已获得
               </span>
             </div>
           </div>
@@ -142,88 +141,67 @@
 
 <script setup lang="ts">
 // 成就系统页：展示玩家已解锁/未解锁成就，按分类筛选，右侧显示最近解锁时间线。
-// 后端暂无成就接口，使用 mock 数据。
-import { ref, computed } from 'vue'
+// 真实后端数据：GET /api/achievements 自动计算进度与解锁。
+import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
+import { achievementApi } from '@/api/achievement'
+import { notify, getApiError } from '@/utils/toast'
+import type { AchievementPageVO } from '@/api/types'
 
 // ===== 分类 =====
 const categories = [
   { value: 'all', label: '全部' },
-  { value: 'learning', label: '学习达人' },
-  { value: 'exploration', label: '知识探索' },
-  { value: 'community', label: '社区贡献' },
-  { value: 'persistence', label: '坚持打卡' },
-  { value: 'special', label: '特殊成就' },
+  { value: 'LEARNING', label: '学习达人' },
+  { value: 'EXPLORATION', label: '知识探索' },
+  { value: 'COMMUNITY', label: '社区贡献' },
+  { value: 'PERSISTENCE', label: '坚持打卡' },
+  { value: 'SPECIAL', label: '特殊成就' },
 ]
 const currentCategory = ref('all')
 
-// ===== 成就数据 =====
-interface Achievement {
-  id: string
-  name: string
-  desc: string
-  exp: number
-  icon: string
-  category: string
-  unlocked: boolean
-  badge?: string
-  badgeIcon?: string
-  badgeType?: 'unlocked' | 'locked' | 'epic' | 'normal'
-  progress?: { current: number; target: number; unit: string; percent: number }
-}
+const pageData = ref<AchievementPageVO | null>(null)
+const loading = ref(true)
 
-const achievements = ref<Achievement[]>([
-  // 学习达人
-  { id: 'a1', name: '初学者', desc: '完成首篇文档学习', exp: 100, icon: 'sparkles', category: 'learning', unlocked: true },
-  { id: 'a2', name: '阅读达人', desc: '累计阅读 50 篇文档', exp: 500, icon: 'book-open', category: 'learning', unlocked: true, badge: '徽章', badgeIcon: 'medal', badgeType: 'normal' },
-  { id: 'a3', name: '闪卡大师', desc: '完成 500 张闪卡复习', exp: 800, icon: 'layers', category: 'learning', unlocked: true, badge: '徽章', badgeIcon: 'medal', badgeType: 'normal' },
-  { id: 'a4', name: '代码战士', desc: '完成 50 次代码练习', exp: 600, icon: 'code', category: 'learning', unlocked: true },
-  { id: 'a5', name: '笔记达人', desc: '创建 30 篇笔记', exp: 400, icon: 'notebook-pen', category: 'learning', unlocked: true },
-  { id: 'a6', name: '学习路径完成者', desc: '完成 3 条学习路径', exp: 1500, icon: 'route', category: 'learning', unlocked: false, badge: '徽章', badgeIcon: 'medal', badgeType: 'normal', progress: { current: 1, target: 3, unit: '路径', percent: 33 } },
-
-  // 知识探索
-  { id: 'b1', name: '知识收藏家', desc: '收藏 100 个知识点', exp: 300, icon: 'bookmark', category: 'exploration', unlocked: true },
-  { id: 'b2', name: '知识图谱构建者', desc: '完善 10 个知识图谱节点', exp: 600, icon: 'share-2', category: 'exploration', unlocked: false, progress: { current: 8, target: 10, unit: '节点', percent: 80 } },
-  { id: 'b3', name: '错题终结者', desc: '消灭 20 个错题', exp: 400, icon: 'alert-circle', category: 'exploration', unlocked: false, progress: { current: 15, target: 20, unit: '错题', percent: 75 } },
-
-  // 社区贡献
-  { id: 'c1', name: '社区新星', desc: '回答 20 个社区问题', exp: 500, icon: 'users', category: 'community', unlocked: true },
-
-  // 坚持打卡
-  { id: 'd1', name: '百日坚持', desc: '连续打卡 100 天', exp: 1000, icon: 'flame', category: 'persistence', unlocked: false, badge: '限定徽章', badgeIcon: 'medal', badgeType: 'epic', progress: { current: 42, target: 100, unit: '天', percent: 42 } },
-
-  // 特殊成就
-  { id: 'e1', name: '全能学者', desc: '获得全部 7 类成就徽章', exp: 2000, icon: 'crown', category: 'special', unlocked: false, badge: '传奇徽章', badgeIcon: 'crown', badgeType: 'epic', progress: { current: 3, target: 7, unit: '类', percent: 43 } },
-])
-
+// ===== 成就列表（按分类筛选） =====
+const achievements = computed(() => pageData.value?.achievements || [])
 const filteredAchievements = computed(() => {
   if (currentCategory.value === 'all') return achievements.value
   return achievements.value.filter((a) => a.category === currentCategory.value)
 })
 
 // ===== 概览统计 =====
-const unlockedCount = computed(() => achievements.value.filter((a) => a.unlocked).length)
-const totalPercent = computed(() => {
-  return achievements.value.length > 0
-    ? Math.round((unlockedCount.value / achievements.value.length) * 100)
-    : 0
-})
-
-const overviewStats = [
-  { label: '已解锁成就', value: '24', icon: 'trophy', bg: 'rgba(59,111,224,0.1)', color: 'var(--kb-primary)' },
-  { label: '总经验值', value: '12,450', icon: 'zap', bg: 'rgba(16,185,129,0.12)', color: 'var(--kb-accent)' },
-  { label: '获得徽章', value: '18', icon: 'medal', bg: 'rgba(245,158,11,0.14)', color: 'var(--kb-warning)' },
-  { label: '连续打卡', value: '42 天', icon: 'flame', bg: 'rgba(239,68,68,0.12)', color: 'var(--kb-destructive)' },
-]
+const unlockedCount = computed(() => pageData.value?.unlockedCount || 0)
+const totalPercent = computed(() => pageData.value?.totalPercent || 0)
+const overviewStats = computed(() => [
+  { label: '已解锁成就', value: String(unlockedCount.value), icon: 'trophy', bg: 'rgba(59,111,224,0.1)', color: 'var(--kb-primary)' },
+  { label: '成就经验值', value: String(pageData.value?.totalAchievementExp || 0), icon: 'zap', bg: 'rgba(16,185,129,0.12)', color: 'var(--kb-accent)' },
+  { label: '成就总数', value: String(pageData.value?.totalCount || 0), icon: 'medal', bg: 'rgba(245,158,11,0.14)', color: 'var(--kb-warning)' },
+  { label: '尚未解锁', value: String((pageData.value?.totalCount || 0) - unlockedCount.value), icon: 'lock', bg: 'rgba(239,68,68,0.12)', color: 'var(--kb-destructive)' },
+])
 
 // ===== 最近解锁时间线 =====
-const recentUnlocked = [
-  { name: '社区新星', desc: '回答 20 个社区问题', time: '2 小时前', exp: 500, icon: 'users', bg: 'rgba(59,111,224,0.1)', color: 'var(--kb-primary)' },
-  { name: '笔记达人', desc: '创建 30 篇笔记', time: '昨天', exp: 400, icon: 'notebook-pen', bg: 'rgba(59,111,224,0.1)', color: 'var(--kb-primary)' },
-  { name: '代码战士', desc: '完成 50 次代码练习', time: '3 天前', exp: 600, icon: 'code', bg: 'rgba(59,111,224,0.1)', color: 'var(--kb-primary)' },
-  { name: '闪卡大师', desc: '完成 500 张闪卡复习', time: '5 天前', exp: 800, icon: 'layers', bg: 'rgba(59,111,224,0.1)', color: 'var(--kb-primary)' },
-  { name: '知识收藏家', desc: '收藏 100 个知识点', time: '1 周前', exp: 300, icon: 'bookmark', bg: 'rgba(59,111,224,0.1)', color: 'var(--kb-primary)' },
-]
+const recentUnlocked = computed(() => pageData.value?.recentUnlocks.map((r) => ({
+  name: r.name,
+  desc: r.description || '',
+  time: r.timeAgo,
+  exp: r.exp,
+  icon: r.icon,
+  bg: 'rgba(59,111,224,0.1)',
+  color: 'var(--kb-primary)',
+})) || [])
+
+const loadAchievements = async () => {
+  loading.value = true
+  try {
+    pageData.value = await achievementApi.myAchievements()
+  } catch (e: unknown) {
+    notify('加载成就数据失败：' + getApiError(e), 'error')
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(loadAchievements)
 </script>
 
 <style scoped>

@@ -2,6 +2,7 @@ package com.knowflow.service;
 
 import com.knowflow.entity.DocDocument;
 
+import java.util.Collections;
 import java.util.List;
 
 /** AI 问答业务服务接口。 */
@@ -29,4 +30,34 @@ public interface AiService {
     List<String> getAvailableModels();
 
     boolean isConfigured();
+
+    /**
+     * 简答题/主观题 AI 评分：将题目、学生答案、参考答案发给大模型，返回打分（0-100）与评语。
+     *
+     * @param question  题目文本
+     * @param userAnswer 用户作答
+     * @param correctAnswer 参考答案
+     * @return JSON 格式：{"score": 85, "feedback": "基本正确，缺少细节说明"}
+     */
+    String gradeEssay(String question, String userAnswer, String correctAnswer);
+
+    /**
+     * 带图片的多模态对话：发送文本+图片到视觉模型，返回生成回复。
+     * images 为 base64 编码的图片数据列表（不含 data:image/...;base64, 前缀）。
+     *
+     * @param text     用户文本输入
+     * @param images   base64 图片列表
+     * @param contextDocs 检索到的文档上下文
+     * @param model    模型名称（应使用视觉模型，如 gpt-4o）
+     * @param userId   用户ID
+     * @return AI 回复文本
+     */
+    String chatWithImages(String text, List<String> images, List<DocDocument> contextDocs, String model, Long userId);
+
+    /**
+     * 带图片的对话（无用户 Key 的简化版本）。
+     */
+    default String chatWithImages(String text, List<String> images, List<DocDocument> contextDocs, String model) {
+        return chatWithImages(text, images, contextDocs, model, null);
+    }
 }

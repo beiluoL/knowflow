@@ -256,7 +256,7 @@
  * 左侧：标题输入、标签栏、工具栏（分组+分隔符）、文本区、底部状态栏。
  * 右侧：笔记信息卡、关联知识库卡、AI辅助卡、笔记大纲卡（自动提取H2/H3）。
  */
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
 import { notify, confirmDialog, getApiError } from '@/utils/toast';

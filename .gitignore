@@ -42,3 +42,6 @@ backend/src/main/resources/application-prod.yml
 
 # 代码沙箱运行时工作区（用户持久文件，非源码）
 code-workspaces/
+
+# CodeBuddy project data (do NOT commit)
+.codebuddy/

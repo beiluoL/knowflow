@@ -15,7 +15,7 @@
 - **错题本**：测验答错 / 闪卡「不认识」自动归集（同题幂等去重），支持标记掌握、分类筛选与统计（本周新增 / 今日待复习）。
 - **代码练习**：内置代码题库（JavaScript/TypeScript/Python/Java/SQL），在线 Playground 做题、测试用例校验、提交/通过统计；管理端题库 CRUD 与发布/下架。
 - **智能测验与写作**：多题型题库（单选/多选/填空/判断/简答）+ **AI 按知识库/文档出题**；智能写作含 AI 评分反馈、实时预览、导出 PDF / Markdown。
-- **数据可视化**：学习热力图（GitHub 式按日活跃度）、掌握分布看板（闪卡/错题掌握度）、**知识图谱**（分类/文档节点与关联边的 SVG 可视化）。
+- **数据可视化**：学习热力图（GitHub 式按日活跃度）、掌握分布看板（闪卡/错题掌握度）、**知识图谱**（分类/文档层级图、技术栈依赖图、概念图解、**AI 抽取的实体关系图**等多视图 SVG 可视化）。
 - **社区与消息**：帖子 / 评论 / 点赞（幂等切换）、精华帖；消息通知中心（未读数 / 单条已读 / 一键全部已读）；即时通讯（学习小组群聊 + 单聊私信，含 @提及 / 撤回 / 已读游标，详见 `消息功能技术方案.md`）。
 - **管理后台**：概览看板（真实统计：用户增长/健康度/活动流）、用户管理、文档管理（发布/草稿/废弃、批量删除/移动）、知识库与成员管理、学习路径与章节管理（**AI 生成路径/章节内容**）、闪卡管理（**AI 批量生成**）、代码题库、测验题库（**AI 出题**）、自定义图标（SVG 上传）、对话配置、社区管理。
 
@@ -72,6 +72,9 @@
 |  | 打卡 | `/check-in` |
 |  | 消息中心 | `/notifications` |
 |  | 社区讨论 | `/community` |
+| **挑战与互动** | 编程挑战（闯关赛道 / 关卡） | `/challenge` `/challenge/:id` |
+|  | 学习小组（IM 群聊 / 资料 / 公告） | `/study-group` |
+|  | 私信（单聊会话 / 已读游标 / 撤回） | `/messages` |
 
 ### B 端管理后台（19 个路由，需 ADMIN）
 
@@ -104,11 +107,11 @@
 | 统一入口 | `/portal`（重定向至 `/tasks`） | 登录后工作台 |
 | 重定向 / 404 | `/redirect` `*` | 路由过渡页 / 错误页 |
 
-## 后端接口总览（21 个控制器）
+## 后端接口总览（31 个控制器）
 
 统一前缀 `/api`，完整接口文档见 Swagger（`/swagger-ui.html`）。
 
-### 面向用户（12 个）
+### 面向用户（22 个）
 
 | 控制器 | 根路径 | 能力 |
 |---|---|---|
@@ -123,7 +126,17 @@
 | MistakeController | `/api/mistakes` | 错题列表 / 标记掌握 / 幂等添加 / 统计 |
 | CommunityController | `/api/community` | 帖子 / 评论 / 点赞（幂等切换） |
 | NotificationController | `/api/notifications` | 消息列表 / 已读 / 未读数 |
-| KnowledgeController | `/api/knowledge` | 知识图谱数据（节点 + 边） |
+| KnowledgeController | `/api/knowledge` | 知识图谱数据（分类图/技术栈图/概念图解/实体关系图；`/entity-graph` 查询、`/extract` 触发 AI 抽取） |
+| QuizController | `/api/quiz` | 智能测验：按知识库/文档出题、提交判分、答题记录、错题同步 |
+| CheckInController | `/api/checkin` | 每日打卡（签到 / 补卡 / 连续天数与奖励） |
+| AchievementController | `/api/achievements` | 成就列表与解锁、用户成就进度 |
+| RankController | `/api/ranking` | 积分 / 经验排行榜 |
+| CodeChallengeController | `/api/challenges` | 编程挑战赛道与关卡、提交判题、排行榜、个人战绩（榜单/详情匿名可读，提交与战绩需登录） |
+| StudyGroupController | `/api/study-groups` | 学习小组 CRUD、成员管理、群公告、邀请 |
+| PrivateMessageController | `/api/im/private` | 私信会话与消息、已读游标、撤回 |
+| CodeWorkspaceController | `/api/code/workspace` | 代码工作区（多文件 / 沙箱运行） |
+| CodeRunController | `/api/code` | 单文件代码在线运行（沙箱执行） |
+| UserSearchController | `/api/users` | 用户搜索（按昵称/邮箱，用于小组邀请等） |
 
 ### 管理后台（9 个，ADMIN / 知识库 Owner 鉴权）
 
@@ -253,7 +266,7 @@ git push gitee      # 推送到 Gitee（HTTPS）
 
 ## 相关文档
 
-- [DATABASE.md](./DATABASE.md) — 数据库表结构（33 张表）、字段定义、索引设计（遵循《阿里巴巴 Java 开发手册》）
+- [DATABASE.md](./DATABASE.md) — 数据库表结构（41 张表）、字段定义、索引设计（遵循《阿里巴巴 Java 开发手册》）
 - [DEPLOY.md](./DEPLOY.md) — 生产环境部署指南（jar / Nginx / Docker / systemd）
 - [OAUTH.md](./OAUTH.md) — GitHub / 微信 第三方 OAuth 登录接入指南
 - [消息功能技术方案.md](./消息功能技术方案.md) — IM（学习小组群聊 / 单聊私信）权威技术文档

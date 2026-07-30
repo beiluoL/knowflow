@@ -11,8 +11,10 @@ import com.knowflow.entity.QuizAnswerRecord;
 import com.knowflow.entity.QuizQuestion;
 import com.knowflow.mapper.QuizAnswerRecordMapper;
 import com.knowflow.mapper.QuizQuestionMapper;
+import com.knowflow.mapper.LearningMistakeMapper;
 import com.knowflow.service.MistakeService;
 import com.knowflow.service.QuizService;
+import com.knowflow.vo.QuizMistakeVO;
 import com.knowflow.vo.QuizPracticeVO;
 import com.knowflow.vo.QuizStatsVO;
 import com.knowflow.vo.QuizSubmitResultVO;
@@ -37,6 +39,7 @@ public class QuizServiceImpl extends ServiceImpl<QuizAnswerRecordMapper, QuizAns
 
     private final QuizQuestionMapper quizQuestionMapper;
     private final MistakeService mistakeService;
+    private final LearningMistakeMapper learningMistakeMapper;
     private final ObjectMapper objectMapper;
 
     private static final String MISTAKE_SOURCE = "QUIZ";
@@ -62,6 +65,7 @@ public class QuizServiceImpl extends ServiceImpl<QuizAnswerRecordMapper, QuizAns
         return questions.stream().map(this::toPracticeVO).collect(Collectors.toList());
     }
 
+    /** 将题库实体转为练习 VO（隐藏正确答案外的全部字段）。 */
     private QuizPracticeVO toPracticeVO(QuizQuestion q) {
         QuizPracticeVO vo = new QuizPracticeVO();
         vo.setId(q.getId());
@@ -240,7 +244,7 @@ public class QuizServiceImpl extends ServiceImpl<QuizAnswerRecordMapper, QuizAns
         return content.isEmpty() ? title : content;
     }
 
-    /** 解析 options JSON 数组，异常或空时返回空列表。 */
+    /** 解析 options JSON 数组为字符串列表，异常或空时返回空列表。 */
     private List<String> parseOptions(String optionsJson) {
         if (optionsJson == null || optionsJson.isBlank()) {
             return Collections.emptyList();
@@ -263,5 +267,46 @@ public class QuizServiceImpl extends ServiceImpl<QuizAnswerRecordMapper, QuizAns
             log.warn("解析题目选项失败: {}", e.getMessage());
             return Collections.emptyList();
         }
+    }
+
+    @Override
+    public List<QuizMistakeVO> listMistakePractice(Long userId, Integer count) {
+        int limit = (count == null || count <= 0) ? 10 : Math.min(count, 50);
+        List<LearningMistake> mistakes = learningMistakeMapper.selectList(
+                new LambdaQueryWrapper<LearningMistake>()
+                        .eq(LearningMistake::getUserId, userId)
+                        .eq(LearningMistake::getMastered, 0)
+                        .orderByAsc(LearningMistake::getUpdateTime)
+                        .last("LIMIT " + limit));
+        List<QuizMistakeVO> result = new ArrayList<>();
+        for (LearningMistake m : mistakes) {
+            QuizMistakeVO vo = new QuizMistakeVO();
+            vo.setId(m.getId());
+            vo.setQuestion(m.getQuestion());
+            vo.setWrongAnswer(m.getWrongAnswer());
+            vo.setCorrectAnswer(m.getCorrectAnswer());
+            vo.setCategory(m.getCategory());
+            vo.setDifficulty(m.getDifficulty());
+            vo.setReviewCount(m.getReviewCount() != null ? m.getReviewCount() : 0);
+            vo.setMastered(false);
+            result.add(vo);
+        }
+        return result;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean reviewMistake(Long mistakeId, Boolean isCorrect, Long userId) {
+        LearningMistake mistake = learningMistakeMapper.selectById(mistakeId);
+        if (mistake == null || !mistake.getUserId().equals(userId)) {
+            throw new com.knowflow.exception.BusinessException("错题记录不存在");
+        }
+        mistake.setReviewCount(mistake.getReviewCount() != null ? mistake.getReviewCount() + 1 : 1);
+        mistake.setUpdateTime(java.time.LocalDateTime.now());
+        if (Boolean.TRUE.equals(isCorrect)) {
+            mistake.setMastered(1);
+        }
+        learningMistakeMapper.updateById(mistake);
+        return mistake.getMastered() == 1;
     }
 }

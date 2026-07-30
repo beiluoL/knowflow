@@ -160,8 +160,8 @@
         </label>
         <div class="col-name">
           <div class="file-name-cell">
-            <div class="file-icon" :style="{ background: doc.iconBg }">
-              <Icon :name="doc.icon" :size="16" :style="{ color: doc.iconColor }" />
+            <div class="file-icon" :style="{ background: doc.iconBg || '' }">
+              <Icon :name="doc.icon || ''" :size="16" :style="{ color: doc.iconColor || '' }" />
             </div>
             <span class="file-name-text" :title="doc.title" @click="goToDetail(doc)">{{ doc.title }}</span>
           </div>
@@ -220,8 +220,8 @@
               class="checkbox"
             />
           </label>
-          <div class="card-icon" :style="{ background: doc.iconBg }">
-            <Icon :name="doc.icon" :size="20" :style="{ color: doc.iconColor }" />
+          <div class="card-icon" :style="{ background: doc.iconBg || '' }">
+            <Icon :name="doc.icon || ''" :size="20" :style="{ color: doc.iconColor || '' }" />
           </div>
           <div class="card-actions">
             <button class="icon-btn" title="编辑" @click="openEdit(doc)">
@@ -808,8 +808,8 @@ const loadDocs = async () => {
         owner: (d as DocVO & { author?: string }).author || '—',
         progress: 0,
         icon: iconInfo.icon,
-        iconBg: iconInfo.bg,
-        iconColor: iconInfo.color,
+        iconBg: iconInfo.bg ?? '',
+        iconColor: iconInfo.color ?? '',
         raw: d,
       }
     })

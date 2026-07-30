@@ -169,14 +169,14 @@
         <div class="flex items-center justify-between mb-2">
           <span class="kb-body font-semibold">下一级进度</span>
           <span class="kb-body-sm" style="color: var(--kb-primary); font-weight: 600;">
-            {{ formatExp(nextTitle.progress.current) }} / {{ formatExp(nextTitle.progress.target) }} EXP · {{ nextTitle.progress.percent }}%
+            {{ formatExp(nextTitle.progress?.current ?? 0) }} / {{ formatExp(nextTitle.progress?.target ?? 0) }} EXP · {{ nextTitle.progress?.percent ?? 0 }}%
           </span>
         </div>
         <div class="mini-progress-track mb-2">
-          <div class="mini-progress-fill" :style="{ width: `${nextTitle.progress.percent}%` }"></div>
+          <div class="mini-progress-fill" :style="{ width: `${nextTitle.progress?.percent ?? 0}%` }"></div>
         </div>
         <div class="flex items-center justify-between">
-          <span class="kb-body-sm">距离下一级还需 <span style="color: var(--kb-primary); font-weight: 600;">{{ formatExp(nextTitle.progress.target - nextTitle.progress.current) }} EXP</span></span>
+          <span class="kb-body-sm">距离下一级还需 <span style="color: var(--kb-primary); font-weight: 600;">{{ formatExp((nextTitle.progress?.target ?? 0) - (nextTitle.progress?.current ?? 0)) }} EXP</span></span>
         </div>
       </div>
 
@@ -405,10 +405,11 @@ const currentTitleData = computed(() =>
 
 const nextTitle = computed(() => {
   const currentLevel = currentTitleData.value.level
+  const titles = currentKbData.value.titles
   return (
-    currentKbData.value.titles.find((t) => t.level === currentLevel + 1) ||
-    currentKbData.value.titles[currentKbData.value.titles.length - 1]
-  )
+    titles.find((t) => t.level === currentLevel + 1) ||
+    titles[titles.length - 1]
+  )!
 })
 
 // ===== 其他知识库（除当前外）=====

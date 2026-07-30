@@ -1,6 +1,6 @@
 # 数据库设计文档（knowflow 知识库）
 
-本文档说明知识库学习平台的数据库表结构（共 **33 张表**）、字段定义、表间关系（逻辑外键）与索引设计。
+本文档说明知识库学习平台的数据库表结构（共 **43 张表**）、字段定义、表间关系（逻辑外键）与索引设计。
 脚本位置：`backend/src/main/resources/schema.sql`（表结构 + 索引）、`data.sql`（种子数据）。
 
 > **IM（学习小组 / 单聊私信）相关表**（`study_group*`、`private_*`）以 **`消息功能技术方案.md`** 为唯一权威文档，
@@ -59,6 +59,16 @@ erDiagram
     study_group ||--o{ study_group_message : "小组消息"
     sys_user ||--o{ private_conversation : "私聊会话"
     private_conversation ||--o{ private_message : "私聊消息"
+    doc_document ||--o{ doc_chunk : "分块向量(RAG)"
+    code_challenge ||--o{ code_challenge_level : "关卡"
+    sys_user ||--o{ code_challenge_record : "挑战进度"
+    code_challenge ||--o{ code_challenge_record : "进度"
+    sys_user ||--o{ user_achievement : "成就解锁"
+    achievement ||--o{ user_achievement : "解锁记录"
+    sys_user ||--o{ code_submit_record : "代码提交"
+    kg_entity ||--o{ kg_relation : "关系源/目标"
+    doc_category ||--o{ kg_entity : "实体所属分类"
+    doc_document ||--o{ kg_entity : "实体抽取来源"
 ```
 
 ### 表间关系表（逻辑外键，非物理约束）
@@ -103,6 +113,14 @@ erDiagram
 | private_conversation | user_a_id / user_b_id | sys_user(id) | idx_pc_user_a/_b + uk(user_a_id,user_b_id,deleted) | 否 |
 | private_conversation_read | conversation_id / user_id | private_conversation / sys_user | idx_pcr_user + uk(conversation_id,user_id,deleted) | 否 |
 | private_message | conversation_id / sender_id | private_conversation / sys_user | idx_pm_conv / idx_pm_sender | 否 |
+| doc_chunk | doc_id | doc_document(id) | idx_dc_doc | 否 |
+| code_challenge_level | challenge_id | code_challenge(id) | idx_ccl_challenge | 否 |
+| code_challenge_record | user_id / challenge_id | sys_user / code_challenge | idx_ccr_user / idx_ccr_user_ch | 否 |
+| user_achievement | user_id / achievement_id | sys_user / achievement | idx_ua_user + uk(user_id,achievement_id) | 否 |
+| code_challenge_level_record | user_id / challenge_id / level_id | sys_user / code_challenge / code_challenge_level | idx_cclr_user / idx_cclr_user_lvl | 否 |
+| code_submit_record | user_id / question_id | sys_user / code_question | idx_csr_user / idx_csr_question | 否 |
+| kg_entity | doc_id / category_id | doc_document / doc_category | idx_kg_entity_doc / idx_kg_entity_category + idx_kg_entity_name | doc_id 否 / category_id 可空 |
+| kg_relation | source_entity_id / target_entity_id / doc_id | kg_entity / kg_entity / doc_document | idx_kg_rel_source / idx_kg_rel_target / idx_kg_rel_doc | 否 |
 
 > 说明：`doc_category.parent_id` 用 `0` 表示顶级分类（哨兵值）；所有逻辑删除列 `deleted` 不参与关联。以上均为逻辑外键，物理层无 FOREIGN KEY 约束。
 
@@ -141,6 +159,10 @@ erDiagram
 | content | TEXT | 正文 | |
 | summary | VARCHAR(500) | 摘要 | |
 | cover | VARCHAR(255) | 封面 | |
+| icon | VARCHAR(255) | 图标名（lucide 图标） | |
+| file_name | VARCHAR(500) | 原始文件名（上传时保留，含扩展名） | |
+| file_url | VARCHAR(500) | 原始文件访问路径（/uploads/...），用于原文下载/预览 | |
+| file_size | BIGINT | 原始文件字节大小 | |
 | category_id | BIGINT | 分类 ID | 逻辑关联 → doc_category |
 | category_path | VARCHAR(500) | 分类路径 | |
 | tags | VARCHAR(500) | 标签（逗号分隔） | |
@@ -272,11 +294,16 @@ erDiagram
 | 字段 | 类型 | 说明 | 约束 |
 |---|---|---|---|
 | id | BIGINT | 主键 | PK |
+| user_id | BIGINT | 所属用户 | 逻辑关联 → sys_user |
 | path_id | BIGINT | 所属路径 | 逻辑关联 → learning_path（可空） |
+| category_id | BIGINT | 关联知识库/分类 | 逻辑关联 → doc_category（可空） |
+| doc_id | BIGINT | 来源文档 | 逻辑关联 → doc_document（可空） |
 | chapter_id | BIGINT | 所属章节 | 逻辑关联 → learning_chapter（可空） |
 | front | TEXT | 正面 | |
 | back | TEXT | 背面 | |
-| category | VARCHAR(50) | 分类 | |
+| category | VARCHAR(50) | 用户自定义分类标签 | |
+| tags | VARCHAR(500) | 逗号分隔的自定义标签 | |
+| source_type | VARCHAR(20) | 来源 MANUAL/AI_DOC/AI_KB/IMPORT | 默认 MANUAL |
 | difficulty | INT | 难度 | 默认 1 |
 | review_count | INT | 复习次数 | 默认 0 |
 | review_interval | INT | SM-2 复习间隔（天） | 默认 0 |
@@ -567,6 +594,184 @@ erDiagram
 | 31 | private_conversation | 私聊会话 | user_a_id、user_b_id（小 ID 在前）、last_message_id | uk_pc_users(user_a_id,user_b_id,deleted) |
 | 32 | private_conversation_read | 私聊已读游标 | conversation_id、user_id、last_read_message_id | uk_pcr_conv_user(conversation_id,user_id,deleted) |
 | 33 | private_message | 私聊消息 | conversation_id、sender_id、message_type、content、recalled | idx_pm_conv / idx_pm_sender / idx_pm_ctime |
+
+### 34. code_challenge（编程挑战赛道表）
+> 编程闯关（挑战）模块主表；赛道自包含，关卡内嵌于 `code_challenge_level`，判题在前端沙箱执行，后端统计积分/星级。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| title | VARCHAR(200) | 挑战标题 | 非空 |
+| description | TEXT | 挑战简介 | |
+| language | VARCHAR(20) | 主语言 javascript/typescript/python/java/sql | 默认 javascript |
+| difficulty | INT | 难度 0 简单/1 中等/2 困难 | 默认 0 |
+| icon | VARCHAR(50) | 图标名（lucide 图标） | 默认 trophy |
+| theme_color | VARCHAR(20) | 主题色（十六进制） | 默认 #3B6FE0 |
+| tags | VARCHAR(500) | 标签（逗号分隔） | |
+| level_count | INT | 关卡总数 | 默认 0 |
+| total_points | INT | 满分积分（各关卡积分之和） | 默认 0 |
+| sort_order | INT | 排序值，越小越靠前 | 默认 0 |
+| status | INT | 状态 0 草稿/1 已发布 | 默认 1 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_cc_status(status)`、`idx_cc_sort(sort_order)`
+
+### 35. code_challenge_level（挑战关卡表）
+> 内嵌题目信息，使赛道自包含（不依赖 code_question）；`test_cases` 为 `[{input, expected}]` JSON。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| challenge_id | BIGINT | 所属挑战（逻辑外键 code_challenge.id） | 非空 |
+| level_no | INT | 关卡序号，从 1 开始递增 | 非空 |
+| title | VARCHAR(200) | 关卡标题 | 非空 |
+| description | TEXT | 题目描述（多行文本） | |
+| difficulty | INT | 难度 0/1/2 | 默认 0 |
+| language | VARCHAR(20) | 语言标识 | 默认 javascript |
+| hint | TEXT | 关卡提示 | |
+| example_input / example_output | TEXT | 输入 / 输出示例 | |
+| code_template | TEXT | 代码模板（编辑器初始内容） | |
+| test_cases | TEXT | 测试用例 JSON 数组 `[{input, expected}]` | |
+| points | INT | 通关积分 | 默认 10 |
+| status | INT | 状态 0 草稿/1 已发布 | 默认 1 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_ccl_challenge(challenge_id)`、`idx_ccl_no(challenge_id, level_no)`
+
+### 36. code_challenge_record（用户挑战进度表）
+> 记录某用户在某赛道的整体进度（不建含 deleted 的唯一索引，避免逻辑删除重复覆盖冲突）。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| user_id | BIGINT | 用户（逻辑外键 sys_user.id） | 非空 |
+| challenge_id | BIGINT | 挑战（逻辑外键 code_challenge.id） | 非空 |
+| cleared_levels | INT | 已通关关卡数 | 默认 0 |
+| current_level | INT | 当前解锁到的关卡序号 | 默认 1 |
+| total_points | INT | 本赛道累计获得积分 | 默认 0 |
+| total_stars | INT | 本赛道累计星星数 | 默认 0 |
+| status | INT | 状态 0 进行中/1 已通关 | 默认 0 |
+| start_time | TIMESTAMP | 开始时间 | 默认当前时间 |
+| finish_time | TIMESTAMP | 通关时间 | 可空 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_ccr_user(user_id)`、`idx_ccr_user_ch(user_id, challenge_id)`
+
+### 37. achievement（成就定义表）
+> 预定义的成就模板（编码唯一，管理端可增删）；条件类型驱动自动解锁。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| code | VARCHAR(50) | 成就编码（英文标识，如 READ_1ST_DOC） | 非空 |
+| name | VARCHAR(100) | 成就名称 | 非空 |
+| description | VARCHAR(500) | 成就描述 | |
+| icon | VARCHAR(50) | 成就图标名（Icon.vue 图标名） | 默认 trophy |
+| category | VARCHAR(20) | 分类 LEARNING/EXPLORATION/COMMUNITY/PERSISTENCE/SPECIAL | 非空 |
+| condition_type | VARCHAR(30) | 条件类型 READ_DOCS/COMPLETE_PATH/REVIEW_FLASHCARD/CODE_EXERCISE/FAVORITE_DOC/NOTE_CREATED/MISTAKE_CLEARED/STREAK_DAYS/CATEGORY_ALL/CHECKIN_DAYS | 非空 |
+| condition_value | INT | 条件阈值（达标所需数量） | 非空 |
+| sort_order | INT | 排序值，越小越靠前 | 默认 0 |
+| reward_exp | INT | 达成奖励经验值 | 默认 0 |
+| status | INT | 状态 0 禁用/1 启用 | 默认 1 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_ach_category(category)`；唯一 `idx_ach_code(code)`
+
+### 38. user_achievement（用户成就解锁记录表）
+> 用户与成就多对多关系，同成就仅能解锁一次。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| user_id | BIGINT | 用户（逻辑外键 sys_user.id） | 非空 |
+| achievement_id | BIGINT | 成就（逻辑外键 achievement.id） | 非空 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 约束：唯一 `idx_ua_user_ach(user_id, achievement_id)`；索引 `idx_ua_user(user_id)`
+
+### 39. code_challenge_level_record（用户关卡通关记录表）
+> 记录某用户单个关卡的通关结果、星级与获得积分。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| user_id | BIGINT | 用户（逻辑外键 sys_user.id） | 非空 |
+| challenge_id | BIGINT | 挑战（逻辑外键 code_challenge.id） | 非空 |
+| level_id | BIGINT | 关卡（逻辑外键 code_challenge_level.id） | 非空 |
+| level_no | INT | 关卡序号 | 非空 |
+| passed | INT | 是否通关 0 未通关/1 已通关 | 默认 0 |
+| stars | INT | 获得星级 1-3 | 默认 0 |
+| attempts | INT | 提交次数 | 默认 0 |
+| points_earned | INT | 本关获得积分 | 默认 0 |
+| last_code | TEXT | 最近一次提交的代码 | |
+| finish_time | TIMESTAMP | 通关时间 | 可空 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_cclr_user(user_id)`、`idx_cclr_user_lvl(user_id, level_id)`
+
+### 40. doc_chunk（文档分块与向量索引表）
+> 文档切分后的片段与 embedding 向量；支撑 RAG 向量检索（`A-RAG 文档向量检索`）。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| doc_id | BIGINT | 归属文档（逻辑外键 doc_document.id） | 非空 |
+| chunk_index | INT | 分块序号（从 0 开始） | 非空 |
+| content | TEXT | 分块文本内容 | 非空 |
+| char_count | INT | 字符数 | 默认 0 |
+| embedding | TEXT | embedding 向量：逗号分隔的浮点数组（如 "0.123,-0.456,..."） | |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_dc_doc(doc_id)`、`idx_dc_doc_order(doc_id, chunk_index)`
+
+### 41. code_submit_record（代码提交记录表）
+> 代码判题记录持久化（P-CODE-03）；每次提交入库，支撑提交历史与统计。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| user_id | BIGINT | 用户（逻辑外键 sys_user.id） | 非空 |
+| question_id | BIGINT | 题目（逻辑外键 code_question.id） | 非空 |
+| code | TEXT | 提交的代码 | 非空 |
+| language | VARCHAR(20) | 编程语言 | 默认 javascript |
+| total | INT | 总测试用例数 | 默认 0 |
+| pass_count | INT | 通过用例数 | 默认 0 |
+| passed | INT | 是否完全通过 0 未通过/1 已通过 | 默认 0 |
+| error_msg | TEXT | 运行时错误信息 | |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_csr_user(user_id)`、`idx_csr_question(question_id)`、`idx_csr_user_q(user_id, question_id)`
+
+### 42. kg_entity（知识实体表）
+> AI 从文档正文抽取的知识实体（概念/技术/术语/原理/工具），按名称全局去重合并；支撑「真正知识图谱」（`A-RAG-04`）。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键，自增 | PK |
+| doc_id | BIGINT | 首次抽取来源文档（逻辑外键 doc_document.id） | 非空 |
+| category_id | BIGINT | 所属分类（逻辑外键 doc_category.id） | 可空 |
+| name | VARCHAR(200) | 实体名称（全局唯一，合并同名实体） | 非空 |
+| type | VARCHAR(30) | 实体类型 CONCEPT/TECHNIQUE/TERM/PRINCIPLE/TOOL/OTHER | 默认 CONCEPT |
+| description | VARCHAR(1000) | 实体说明 | 可空 |
+| weight | INT | 重要度/被抽取次数（前端节点大小） | 默认 1 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_kg_entity_doc(doc_id)`、`idx_kg_entity_category(category_id)`、`idx_kg_entity_name(name)`
+
+### 43. kg_relation（实体关系表）
+> 知识实体之间的语义关系，记录抽取来源文档以支持溯源（`A-RAG-04`）。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键，自增 | PK |
+| source_entity_id | BIGINT | 源实体（逻辑外键 kg_entity.id） | 非空 |
+| target_entity_id | BIGINT | 目标实体（逻辑外键 kg_entity.id） | 非空 |
+| relation | VARCHAR(30) | 关系类型 RELATED_TO/PREREQUISITE/IS_A/PART_OF/USES/CONTRASTS | 非空 |
+| description | VARCHAR(500) | 关系说明 | 可空 |
+| doc_id | BIGINT | 抽取来源文档（逻辑外键 doc_document.id） | 可空 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_kg_rel_source(source_entity_id)`、`idx_kg_rel_target(target_entity_id)`、`idx_kg_rel_doc(doc_id)`
 
 ---
 

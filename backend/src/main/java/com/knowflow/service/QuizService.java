@@ -3,6 +3,7 @@ package com.knowflow.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.knowflow.dto.QuizSubmitDTO;
 import com.knowflow.entity.QuizAnswerRecord;
+import com.knowflow.vo.QuizMistakeVO;
 import com.knowflow.vo.QuizPracticeVO;
 import com.knowflow.vo.QuizStatsVO;
 import com.knowflow.vo.QuizSubmitResultVO;
@@ -29,4 +30,19 @@ public interface QuizService extends IService<QuizAnswerRecord> {
 
     /** 用户累计答题统计。 */
     QuizStatsVO getStats(Long userId);
+
+    /**
+     * 错题重练：获取当前用户未掌握的错题（按默认时间倒序），支持取指定数量。
+     */
+    List<QuizMistakeVO> listMistakePractice(Long userId, Integer count);
+
+    /**
+     * 复习错题：提交复习作答，若答案正确则标记为已掌握，否则累计复习次数。
+     *
+     * @param mistakeId  错题本 ID
+     * @param isCorrect  用户本次是否答对
+     * @param userId     用户 ID
+     * @return true 表示已达到掌握
+     */
+    boolean reviewMistake(Long mistakeId, Boolean isCorrect, Long userId);
 }

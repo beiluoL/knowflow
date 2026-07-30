@@ -4,6 +4,7 @@ import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
 import com.knowflow.dto.QuizSubmitDTO;
 import com.knowflow.service.QuizService;
+import com.knowflow.vo.QuizMistakeVO;
 import com.knowflow.vo.QuizPracticeVO;
 import com.knowflow.vo.QuizStatsVO;
 import com.knowflow.vo.QuizSubmitResultVO;
@@ -45,5 +46,22 @@ public class QuizController {
     public Result<QuizStatsVO> stats() {
         Long userId = SecurityUtils.getCurrentUserId();
         return Result.success(quizService.getStats(userId));
+    }
+
+    @Operation(summary = "错题重练：获取未掌握的错题")
+    @GetMapping("/mistake-practice")
+    public Result<List<QuizMistakeVO>> mistakePractice(
+            @RequestParam(defaultValue = "10") Integer count) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        return Result.success(quizService.listMistakePractice(userId, count));
+    }
+
+    @Operation(summary = "复习错题：提交复习结果并自动更新掌握状态")
+    @PostMapping("/mistake-review")
+    public Result<Boolean> reviewMistake(
+            @RequestParam Long mistakeId,
+            @RequestParam Boolean correct) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        return Result.success(quizService.reviewMistake(mistakeId, correct, userId));
     }
 }

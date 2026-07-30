@@ -267,7 +267,7 @@
 import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import { adminApi } from '@/api'
-import type { AdminOverviewVO, CategoryVO, DocVO, HealthMetric } from '@/api/types'
+import type { AdminOverviewVO, CategoryVO, HealthMetric } from '@/api/types'
 
 const overview = ref<AdminOverviewVO | null>(null)
 const categories = ref<CategoryVO[]>([])

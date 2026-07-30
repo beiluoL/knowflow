@@ -507,7 +507,7 @@ import { normalizeNewlines } from '@/utils/string'
 import { chatApi } from '@/api/chat'
 import { codeQuestionApi } from '@/api/codeQuestion'
 import { codeRunApi } from '@/api/codeRun'
-import type { CodeMistakeRelatedDocDTO, CodeAssessResultDTO, CodeDebugResultDTO } from '@/api/codeRun'
+import type { CodeAssessResultDTO, CodeDebugResultDTO, CodeMistakeCollectResultDTO } from '@/api/codeRun'
 import { codeWorkspaceApi } from '@/api/codeWorkspace'
 import type { CodeWorkspaceFileDTO } from '@/api/codeWorkspace'
 import { runSql } from '@/utils/sqlSimulator'
@@ -516,7 +516,7 @@ import type { CodeQuestionVO, CodeTestCase } from '@/api/types'
 const route = useRoute()
 const router = useRouter()
 
-const question = ref<CodeQuestionVO>({})
+const question = ref<CodeQuestionVO>({} as CodeQuestionVO)
 const selectedLanguage = ref('javascript')
 const userCode = ref('')
 const showHint = ref(false)
@@ -893,14 +893,14 @@ const submitCode = async () => {
       const actual = result.output.trim()
       const expected = (tc.expected || '').trim()
       // 通过条件：实际输出与期望完全一致，或包含期望
-      const passed = !result.error && (actual === expected || (expected && actual.includes(expected)))
+      const passed = !result.error && (actual === expected || Boolean(expected && actual.includes(expected)))
       results.push({ passed, actual: result.error ? result.error : actual })
     } else if (selectedLanguage.value === 'sql') {
       // SQL 题目：用例的 input 即为要执行的 SQL；执行后比较 output
       const result = runSql(tc.input || userCode.value)
       const actual = result.output.trim()
       const expected = (tc.expected || '').trim()
-      const passed = !result.error && (actual === expected || (expected && actual.includes(expected)))
+      const passed = !result.error && (actual === expected || Boolean(expected && actual.includes(expected)))
       results.push({ passed, actual: result.error ? result.error : actual })
     } else {
       results.push({ passed: false, actual: '(暂不支持该语言在线评测)' })

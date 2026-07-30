@@ -668,7 +668,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Button from '@/components/ui/Button.vue'
-import { adminApi, type AiGeneratePathPayload } from '@/api'
+import { adminApi } from '@/api'
+import type { AiGeneratePathPayload } from '@/api/admin'
 import type {
   LearningPathVO,
   LearningChapterVO,
@@ -981,13 +982,7 @@ const removeSelectedDoc = (docId: number) => {
   if (idx >= 0) selectedDocs.value.splice(idx, 1)
 }
 
-const resetDocPicker = () => {
-  showDocPicker.value = false
-  docPickerCategoryId.value = undefined
-  docPickerKeyword.value = ''
-  pickerDocs.value = []
-  selectedDocs.value = []
-}
+
 
 const openCreateChapter = () => {
   if (!currentPath.value) return

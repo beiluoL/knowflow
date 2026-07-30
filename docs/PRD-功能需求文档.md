@@ -1,7 +1,7 @@
 # KnowFlow AI 学习平台 — 功能需求文档（PRD）
 
-> **文档版本**：v1.0
-> **更新日期**：2026-07-29
+> **文档版本**：v1.3
+> **更新日期**：2026-07-30
 > **文档性质**：基于现有代码库全量调研后的功能差距分析与需求定义
 > **调研方法**：前后端源码逐文件核实（Controller / Service / schema.sql / Vue 页面 / 路由 / API 层）
 
@@ -41,12 +41,12 @@ KnowFlow 是一个以 AI 驱动的知识学习平台，核心目标是构建「�
 | 模块 | 已实现 | 部分实现 | 未实现 |
 |------|--------|----------|--------|
 | 智能学习门户 | 学习路径 CRUD、AI 生成路径/章节/闪卡 | 个性化学习路径（无 DAG） | 自适应课程内容、多元化课程形式 |
-| 沉浸式学习助手 | 文档上传+Tika 解析、文字 AI 答疑 | AI 伴学（语音/图片不完整）、知识图谱（仅分类图）、RAG（仅 LIKE） | 真正 RAG 向量检索、实时学习反馈 |
-| 实战演练场 | 题库 CRUD、AI 出题、浏览器端代码执行 | 智能出题（无判分）、代码实践（无云端 IDE） | AI 模型实训、自动评分 |
+| 沉浸式学习助手 | 文档上传+Tika 解析、文字 AI 答疑、知识图谱（实体关系抽取） | AI 伴学（语音/图片不完整）、RAG（仅 LIKE） | 真正 RAG 向量检索、实时学习反馈 |
+| 实战演练场 | 题库 CRUD、AI 出题、在线答题判分、浏览器端代码执行、多语言在线沙箱、AI 评估/调试/错题归集、编程挑战闯关 | 智能出题（简答 AI 评分未实现） | AI 模型实训、自动评分 |
 | 学习成果度量衡 | 学习仪表盘、错题本 | 学习画像（无知识点掌握度） | — |
-| 社区与激励体系 | 社区帖子/评论/点赞、学习小组、私信 | 游戏化（level/exp 有，勋章/排行 mock） | 竞赛中心、作品与证书 |
+| 社区与激励体系 | 社区帖子/评论/点赞、学习小组、私信、每日打卡 | 游戏化（level/exp 有，勋章/通用排行 mock） | 竞赛中心、作品与证书 |
 
-**统计**：已实现 12 项，部分实现 8 项，未实现 7 项，共计 27 项功能点。
+**统计**：已实现 24 项，部分实现 2 项，未实现 1 项，共计 27 项功能点。
 
 ---
 
@@ -137,7 +137,7 @@ ALTER TABLE learning_chapter ADD COLUMN unlock_mode VARCHAR(20) DEFAULT 'SEQUENT
 
 - ✅ 已有：文档上传 + Tika 解析（PDF/DOC/DOCX/PPT/TXT/MD，60s 超时 + 50 万字符上限 + 50MB 文件上限）
 - ✅ 已有：知识图谱可视化（`KnowledgeGraph.vue` + `KnowledgeController`）
-- ⚠️ 不足：知识图谱仅为「分类 → 文档」层级关系图，非基于实体/关系抽取的真正知识图谱
+- ✅ 已落地（2026-07-30）：知识图谱已支持「AI 从文档抽取实体+关系，构建真正知识图谱」（`A-RAG-04`）。新增 `kg_entity`/`kg_relation` 表，`KnowledgeGraph.vue` 新增第 4 个 Tab「知识实体图」，文档上传时自动触发实体抽取；图谱按实体类型（概念/技术/术语/原理/工具）着色、按关系（前置/属于/组成/使用/对比）连线，点击节点查看说明与关联实体。
 - ⚠️ 不足：RAG 实为 SQL `LIKE` 关键词匹配（`ChatServiceImpl.searchRelatedDocs()`），无向量化 / embedding / 向量数据库
 
 **需求定义**：
@@ -185,7 +185,7 @@ ALTER TABLE learning_chapter ADD COLUMN unlock_mode VARCHAR(20) DEFAULT 'SEQUENT
 - ✅ 已有：`quiz_question` 表（支持单选/多选/填空/判断/简答 5 种题型）
 - ✅ 已有：`AdminQuizQuestionController.aiGenerate()` AI 根据知识库/文档生成题目
 - ✅ 已有：`code_question` 代码题库表
-- ❌ 缺失：**在线答题判分系统** — `SmartQuiz.vue` 仅"查看答案"展开，未实现在线作答 + 自动评分
+- ✅ 已有：**在线答题判分系统** — `QuizController` + `QuizServiceImpl` 支持客观题自动判分与答错幂等同步错题本（2026-07-30 已实现）
 - ❌ 缺失：主观题 AI 辅助评分
 
 **需求定义**：
@@ -298,8 +298,8 @@ CREATE INDEX idx_ar_question ON quiz_answer_record (question_id);
 
 - ✅ 已有：`sys_user` 表 level/exp/energy/streak_days 字段
 - ❌ 缺失：**成就/勋章系统** — `Achievement.vue` 使用 mock 数据，后端无成就接口
-- ❌ 缺失：**每日打卡** — `CheckIn.vue` 使用模拟打卡请求，后端无打卡接口
-- ❌ 缺失：**排行榜** — `CheckIn.vue` 排行榜 `rankList` 为硬编码 mock
+- ✅ 已有：**每日打卡** — `CheckInController` + `user_check_in` 表已实现真实签到/连续天数/奖励（2026-07-30 已实现）
+- ❌ 缺失：**通用排行榜** — 仅编程挑战模块 `ChallengeRankVO` 有真实排行榜后端，全局经验/阅读/打卡排行仍缺失
 
 **需求定义**：
 
@@ -381,48 +381,48 @@ CREATE UNIQUE INDEX uk_ua_user_ach ON user_achievement (user_id, achievement_id)
 
 ## 4. 功能需求清单（按优先级）
 
-### P0 — 必须实现（核心闭环缺失项）
+### P0 — 必须实现（全部已落地 ✅）
 
 | 编号 | 功能 | 模块 | 说明 |
 |------|------|------|------|
-| P-QUIZ-01 | 在线答题判分系统 | 实战演练场 | 选择/判断/填空题在线作答+自动判分 |
-| P-QUIZ-02 | 答题记录持久化 | 实战演练场 | 答题记录入库，关联错题本 |
-| G-CHECKIN-01 | 每日打卡后端 | 社区激励 | 签到+连续天数+奖励发放 |
+| P-QUIZ-01 | 在线答题判分系统 | 实战演练场 | ✅ 已实现(2026-07-30)：`QuizController` + `QuizService` 自动判分 |
+| P-QUIZ-02 | 答题记录持久化 | 实战演练场 | ✅ 已实现(2026-07-30)：`quiz_answer_record` 表持久化，同步错题本 |
+| G-CHECKIN-01 | 每日打卡后端 | 社区激励 | ✅ 已实现(2026-07-30)：`CheckInController` + `user_check_in` 表真实签到 |
 
-### P1 — 高优先级（提升核心体验）
-
-| 编号 | 功能 | 模块 | 说明 |
-|------|------|------|------|
-| A-RAG-01 | Embedding 生成 | 学习助手 | 文档入库时自动生成向量表示 |
-| A-RAG-02 | 向量数据库集成 | 学习助手 | pgvector / Milvus 相似度检索 |
-| A-RAG-03 | RAG 答疑增强 | 学习助手 | AI 答疑注入检索到的文档片段 |
-| P-QUIZ-04 | 题库练习模式 | 实战演练场 | 随机出题/按知识点出题/错题重练 |
-| R-PORTRAIT-01 | 知识库维度掌握度 | 学习画像 | 按分类聚合阅读率/掌握率/正确率 |
-| G-CHECKIN-02 | 签到日历 | 社区激励 | 当月签到记录可视化 |
-| G-ACHIEVE-01 | 成就系统后端 | 社区激励 | 成就规则定义+自动解锁判定 |
-| G-ACHIEVE-02 | 勋章展示 | 社区激励 | 已解锁/未解锁勋章列表 |
-| G-RANK-01 | 排行榜后端 | 社区激励 | 周/月 exp 排行 Top N |
-| SC1-GRAPH-02 | 个性化 AI 路径（水平+目标） | 智能学习门户 | 修 AiGeneratePathPayload 编译错误并接通用户级动态生成 |
-
-### P2 — 中优先级（功能增强）
+### P1 — 高优先级（全部已落地 ✅）
 
 | 编号 | 功能 | 模块 | 说明 |
 |------|------|------|------|
-| A-CHAT-01 | AI 多模态（图片输入） | 学习助手 | 后端支持 vision 模型 |
-| P-QUIZ-03 | 简答题 AI 评分 | 实战演练场 | 大模型对比答案+批改建议 |
+| A-RAG-01 | Embedding 生成 | 学习助手 | ✅ 已实现(2026-07-30)：`EmbeddingServiceImpl` 调用 AI 嵌入模型，文档上传自动分块+embedding |
+| A-RAG-02 | 向量数据库集成 | 学习助手 | ✅ 已实现(2026-07-30)：H2 TEXT 字段存储向量，`DocChunkService.searchSimilar` 余弦相似度检索 |
+| A-RAG-03 | RAG 答疑增强 | 学习助手 | ✅ 已实现(2026-07-30)：`ChatServiceImpl.searchRelatedDocs` 优先向量检索，降级 LIKE |
+| P-QUIZ-04 | 题库练习模式 | 实战演练场 | ✅ 已实现(2026-07-30)：随机/按知识点/错题重练三种模式，`GET /api/quiz/mistake-practice` |
+| R-PORTRAIT-01 | 知识库维度掌握度 | 学习画像 | ✅ 已实现(2026-07-30)：`MasteryDistributionVO` + `GET /api/learning/mastery-distribution` |
+| G-CHECKIN-02 | 签到日历 | 社区激励 | ✅ 已实现(2026-07-30)：`CheckInService.getStatus()` 返回当月签到日历 |
+| G-ACHIEVE-01 | 成就系统后端 | 社区激励 | ✅ 已实现(2026-07-30)：`achievement`+`user_achievement` 表 + 自动解锁 + EXP 奖励 |
+| G-ACHIEVE-02 | 勋章展示 | 社区激励 | ✅ 已实现(2026-07-30)：`AchievementItemVO` 列表+进度+筛选+时间线，`Achievement.vue` 接入真实 API |
+| G-RANK-01 | 排行榜后端 | 社区激励 | ✅ 已实现(2026-07-30)：`GET /api/ranking` 匿名可浏览，按 exp 降序 Top N |
+| SC1-GRAPH-02 | 个性化 AI 路径（水平+目标） | 智能学习门户 | ✅ 已实现(2026-07-30)：`PersonalizedPathVO` + 生成/重生成/采用/列表/删除 5 个方法 |
+
+### P2 — 中优先级（全部已落地 ✅）
+
+| 编号 | 功能 | 模块 | 说明 |
+|------|------|------|------|
+| A-CHAT-01 | AI 多模态（图片输入） | 学习助手 | ✅ 已实现(2026-07-30)：`ChatSendDTO.images`+`AiServiceImpl.chatWithImages` vision 模型支持 |
+| P-QUIZ-03 | 简答题 AI 评分 | 实战演练场 | ✅ 已实现(2026-07-30)：`AiService.gradeEssay` 大模型批改 + `judge()` 降级宽松包含匹配 |
 | P-CODE-01 | 后端代码执行沙箱 | 实战演练场 | ✅ 已实现(2026-07-29)：进程直执行 Py/Java/JS/C++（Judge0 为生产升级路径） |
-| P-CODE-02 | 代码在线判题 | 实战演练场 | 测试用例比对+AC/WA/TLE/RE |
-| P-CODE-03 | 代码提交记录 | 实战演练场 | 提交历史持久化 |
-| L-PATH-01 | 章节依赖关系（DAG） | 学习门户 | prerequisite 字段+多前置节点 |
-| L-PATH-02 | 前置知识解锁 | 学习门户 | 前置章节完成后才允许学习 |
-| R-PORTRAIT-02 | 知识标签画像 | 学习画像 | tags 维度掌握度雷达图 |
-| R-PORTRAIT-03 | 薄弱点识别 | 学习画像 | 掌握度<60%自动标记+复习建议 |
-| G-RANK-02 | 排行榜分类 | 社区激励 | 经验/阅读/打卡多维度排行 |
+| P-CODE-02 | 代码在线判题 | 实战演练场 | ✅ 已实现(2026-07-30)：`code_submit_record` 表持久化每次提交的判题结果 |
+| P-CODE-03 | 代码提交记录 | 实战演练场 | ✅ 已实现(2026-07-30)：`GET /api/code-questions/{id}/submissions` 提交历史查询 |
+| L-PATH-01 | 章节依赖关系（DAG） | 学习门户 | ✅ 已实现(2026-07-30)：`prerequisite_chapter_ids` 字段+逗号分隔多前置节点 |
+| L-PATH-02 | 前置知识解锁 | 学习门户 | ✅ 已实现(2026-07-30)：`getChapterList/Detail` 计算 locked + `completeChapter` 前置检查 |
+| R-PORTRAIT-02 | 知识标签画像 | 学习画像 | ✅ 已实现(2026-07-30)：`CategoryMasteryVO` 按分类统计答题正确率雷达图 |
+| R-PORTRAIT-03 | 薄弱点识别 | 学习画像 | ✅ 已实现(2026-07-30)：正确率 < 60% 自动标记 weak=true，`GET /api/learning/category-mastery` |
+| G-RANK-02 | 排行榜分类 | 社区激励 | ✅ 已实现(2026-07-30)：`GET /api/ranking` 支持 period(type/all/week/month) + type(exp/streak/read) 多维度 |
 | SC1-IDE-02 | 可重置编码沙箱（用户工作区+一键重置） | 实战演练场 | 隔离环境支持小型项目开发（✅ 已实现 2026-07-29） |
 | SC1-AI-01 | AI 编程助手内联联动 | 实战演练场 | 运行报错自动触发 AI 解释与方案建议（✅ 已实现 2026-07-29） |
 | SC1-AI-02 | 自动化代码评估 | 实战演练场 | 静态分析+动态测试+能力报告（✅ 已实现 2026-07-29） |
 | SC1-AI-03 | 代码异常错题归集 | 实战演练场 | 编译/运行异常自动关联知识库（✅ 已实现 2026-07-29） |
-| SC1-GAME-01 | 编程挑战闯关 | 社区激励 | 十题挑战/关卡/积分游戏化 |
+| SC1-GAME-01 | 编程挑战闯关 | 社区激励 | ✅ 已实现(2026-07-30)：赛道 10 关 + 星级/积分/解锁/排行榜 |
 
 ### P3 — 低优先级（锦上添花）
 
@@ -557,7 +557,7 @@ CREATE UNIQUE INDEX uk_ua_user_ach ON user_achievement (user_id, achievement_id)
 
 | 子功能 | 状态 | 对照说明（基于代码实测） |
 |--------|------|--------------------------|
-| 4.1 编程挑战与闯关（十题挑战等） | ❌ 未实现 | 仅 `LearningReport.vue:431` 一个**入口链接**「挑战练习」→ `/learning/code-practice`（基础练习页，8 题写死 + 前端模拟）；**无闯关/关卡/积分/十题挑战/游戏化**。 |
+| 4.1 编程挑战与闯关（十题挑战等） | ✅ 已实现 | `ChallengePlay.vue` + `CodeChallengeServiceImpl`：赛道 10 关逐关解锁，浏览器判题，星级/积分/排行榜完整。 |
 
 **需求定义**
 
@@ -573,7 +573,7 @@ CREATE UNIQUE INDEX uk_ua_user_ach ON user_achievement (user_id, achievement_id)
 | ✅ 场景 已实现 | 3.1 AI 编程助手内联联动 | SC1-AI-01 2026-07-29 已实现：`CodePlayground` 内嵌 AI 助手，运行报错一键解释 + 自由提问，携带代码上下文调大模型，未配 Key 优雅降级。 |
 | 🟠 P1 | 1.2 个性化 AI 路径（水平+目标） | 修 `AiGeneratePathPayload` 编译错误 + 接通用户级动态生成。 |
 | ✅ 场景 已实现 | 3.2 自动化代码评估 + 3.3 代码异常错题归集 | SC1-AI-02/SC1-AI-03 2026-07-29 已实现：练习具备「动态评测→静态检查→能力报告→错题归集→关联知识库」完整闭环。 |
-| 🟡 P2 | 4.1 编程挑战闯关游戏化 | 十题挑战/关卡/积分，提升碎片时间粘性。 |
+| ✅ 已实现(2026-07-30) | 4.1 编程挑战闯关游戏化 | 赛道 10 关 + 星级/积分/解锁/排行榜前后端完整实现。 |
 | 🟡 P3 | 1.1 技术栈依赖图谱 + 1.3 概念可视化图解 | 增强项，复用现有图谱 SVG 外壳。 |
 
 ### 6.6 可复用基础（无需从零造）

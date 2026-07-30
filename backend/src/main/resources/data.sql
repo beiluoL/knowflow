@@ -242,3 +242,19 @@ INSERT INTO code_challenge_level (challenge_id, level_no, title, description, di
 (1, 9, '数组去重', '实现函数 unique(arr)，返回去重后的新数组（保持原有顺序）。', 2, 'javascript', '可用 Set，或用对象/Map 记录已出现的元素。', 'unique([1, 2, 2, 3])', '[1, 2, 3]', STRINGDECODE('function unique(arr) {\n  // TODO: 返回去重后的新数组（保持顺序）\n}'), '[{"input":"console.log(unique([1, 2, 2, 3]).join('',''))","expected":"1,2,3"},{"input":"console.log(unique([5, 5, 5]).join('',''))","expected":"5"},{"input":"console.log(unique([1, 2, 3]).join('',''))","expected":"1,2,3"}]', 20, 1),
 (1, 10, 'FizzBuzz', '实现函数 fizzbuzz(n)：能同时被 3 和 5 整除返回 ''FizzBuzz''，仅被 3 整除返回 ''Fizz''，仅被 5 整除返回 ''Buzz''，否则返回 n 本身。', 2, 'javascript', '先判断能否被 15 整除，再判断 3 与 5，顺序很关键。', 'fizzbuzz(15)', 'FizzBuzz', STRINGDECODE('function fizzbuzz(n) {\n  // TODO: 3和5整除→FizzBuzz；3→Fizz；5→Buzz；否则返回 n\n}'), '[{"input":"console.log(fizzbuzz(15))","expected":"FizzBuzz"},{"input":"console.log(fizzbuzz(3))","expected":"Fizz"},{"input":"console.log(fizzbuzz(5))","expected":"Buzz"},{"input":"console.log(fizzbuzz(7))","expected":"7"}]', 25, 1);
 
+-- ========== 成就定义预设数据（G-ACHIEVE-01）==========
+-- 成就编码唯一，条件类型对应 AchievementServiceImpl.computeCurrent() 中的 switch 分支
+INSERT INTO achievement (code, name, description, icon, category, condition_type, condition_value, sort_order, reward_exp) VALUES
+('READ_1ST_DOC', '初学者', '完成首篇文档阅读', 'book-open', 'LEARNING', 'READ_DOCS', 1, 1, 50),
+('READ_50_DOCS', '阅读达人', '累计阅读 50 篇文档', 'book-open', 'LEARNING', 'READ_DOCS', 50, 2, 300),
+('STREAK_7_DAYS', '一周坚持', '连续打卡 7 天', 'flame', 'PERSISTENCE', 'STREAK_DAYS', 7, 10, 200),
+('STREAK_30_DAYS', '月度坚持', '连续打卡 30 天', 'flame', 'PERSISTENCE', 'STREAK_DAYS', 30, 11, 500),
+('STREAK_100_DAYS', '百日坚持', '连续打卡 100 天', 'flame', 'PERSISTENCE', 'STREAK_DAYS', 100, 12, 1500),
+('CHECKIN_30', '签到达人', '累计签到 30 次', 'calendar-check', 'PERSISTENCE', 'CHECKIN_DAYS', 30, 13, 300),
+('FAVORITE_10_DOCS', '收藏新手', '收藏 10 篇文档', 'bookmark', 'EXPLORATION', 'FAVORITE_DOC', 10, 20, 100),
+('FAVORITE_50_DOCS', '知识收藏家', '收藏 50 篇文档', 'bookmark', 'EXPLORATION', 'FAVORITE_DOC', 50, 21, 300),
+('COMPLETE_1_PATH', '路径初完成', '完成 1 条学习路径', 'route', 'LEARNING', 'COMPLETE_PATH', 1, 3, 500),
+('REVIEW_50_FLASHCARD', '闪卡新手', '复习 50 张闪卡', 'layers', 'LEARNING', 'REVIEW_FLASHCARD', 50, 4, 200),
+('REVIEW_500_FLASHCARD', '闪卡大师', '累计复习 500 张闪卡', 'layers', 'LEARNING', 'REVIEW_FLASHCARD', 500, 5, 600),
+('MISTAKE_10_MASTERED', '错题猎手', '掌握 10 个错题', 'alert-circle', 'EXPLORATION', 'MISTAKE_MASTERED', 10, 22, 200),
+('MISTAKE_50_MASTERED', '错题终结者', '掌握 50 个错题', 'alert-circle', 'EXPLORATION', 'MISTAKE_MASTERED', 50, 23, 500);

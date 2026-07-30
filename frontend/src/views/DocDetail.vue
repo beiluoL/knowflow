@@ -266,7 +266,7 @@ import { docsApi } from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import type { DocDetailVO, DocVO, LearningFlashcard } from '@/api/types'
 // 统一的 Markdown 渲染与工具函数（解决 \n 换行不生效、空格丢失等问题）
-import { renderMarkdown as renderMarkdownGlobal, normalizeEscapes, slugify } from '@/utils/markdown'
+import { renderMarkdown as renderMarkdownGlobal, normalizeEscapes } from '@/utils/markdown'
 
 // 文档类型标签色板（与设计稿对齐）
 const docIconColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
@@ -327,40 +327,6 @@ const slugify = (text: string) =>
     .toLowerCase()
     .replace(/[^\w一-龥]+/g, '-')
     .replace(/^-+|-+$/g, '')
-
-const escapeHtml = (s: string) =>
-  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-
-// 链接 URL 协议白名单：仅允许 http/https 与相对路径/锚点，拒绝 javascript:/data:/vbscript: 及含引号或空白的危险字符，防止 v-html 渲染时 XSS
-const sanitizeUrl = (url: string): string | null => {
-  const trimmed = url.trim()
-  if (/["'<>\\\s]/.test(trimmed)) {
-    return null
-  }
-  if (trimmed.startsWith('/') || trimmed.startsWith('#') || trimmed.startsWith('./') || trimmed.startsWith('../')) {
-    return trimmed
-  }
-  if (/^https?:\/\//i.test(trimmed)) {
-    return trimmed
-  }
-  return null
-}
-
-const inline = (s: string) =>
-  escapeHtml(s)
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    // Markdown links: [text](url)
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, url) => {
-      const safe = sanitizeUrl(url)
-      return safe ? `<a href="${safe}" target="_blank" rel="noopener noreferrer">${text}</a>` : _
-    })
-    // Bare URLs: https://... or http://... (skip URLs already inside href=" attributes)
-    .replace(/(?<!href=")(https?:\/\/[^\s<"]+)/g, (url) => {
-      const safe = sanitizeUrl(url)
-      return safe ? `<a href="${safe}" target="_blank" rel="noopener noreferrer">${url}</a>` : url
-    })
-    .replace(/  \n/g, '<br />')
 
 // 从 Markdown 文本提取二级/三级标题，生成目录树（使用全局工具处理转义字符）
 const buildToc = (md: string): TocItem[] => {

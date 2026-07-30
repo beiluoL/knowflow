@@ -214,7 +214,7 @@
         <!-- 技术节点详情 -->
         <div v-if="techSelectedNode" class="rounded-lg border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
           <div class="flex items-center gap-3 mb-3">
-            <span class="inline-block w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white" :style="{ background: getTechCategoryColor(techSelectedNode.category) }">{{ techSelectedNode.name.slice(0, 2) }}</span>
+            <span class="inline-block w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white" :style="{ background: getTechCategoryColor(techSelectedNode.category).bg }">{{ techSelectedNode.name.slice(0, 2) }}</span>
             <div>
               <h3 class="kb-h3">{{ techSelectedNode.name }}</h3>
               <span class="text-xs" style="color: var(--kb-muted-foreground);">{{ techSelectedNode.categoryLabel }} · 难度 {{ '★'.repeat(techSelectedNode.difficulty || 1) }}</span>
@@ -249,7 +249,7 @@
     </template>
 
     <!-- ===== Tab3: 概念可视化图解 ===== -->
-    <template v-else>
+    <template v-else-if="currentView === 'concept'">
       <div class="rounded-lg p-4 mb-4 border" style="background: var(--kb-card); border-color: var(--kb-border);">
         <div class="flex items-center gap-3 flex-wrap">
           <input v-model="conceptInput" type="text" placeholder="输入编程/AI 概念，如：变量、面向对象、RAG、快速排序" class="flex-1 min-w-[260px] h-10 px-3 rounded-lg text-sm border outline-none kb-input" @keyup.enter="loadConceptDiagram" />
@@ -348,6 +348,83 @@
         </div>
       </template>
     </template>
+
+    <!-- ===== Tab4: 实体关系知识图谱（A-RAG-04：AI 从文档抽取实体+关系） ===== -->
+    <template v-else>
+      <div class="rounded-lg p-4 mb-4 border" style="background: var(--kb-card); border-color: var(--kb-border);">
+        <div class="flex items-center gap-3 flex-wrap">
+          <select v-model="entityCategoryId" class="h-10 px-3 rounded-lg text-sm border kb-select">
+            <option :value="null">全部分类</option>
+            <option v-for="cat in graphCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+          </select>
+          <button type="button" class="h-10 px-5 rounded-lg text-sm font-medium flex items-center gap-1.5" style="background: var(--kb-primary); color: var(--kb-primary-foreground);" @click="buildEntityGraph" :disabled="entityBuilding">
+            <Icon v-if="!entityBuilding" name="sparkles" :size="14" />
+            <span>{{ entityBuilding ? '构建中…' : '构建知识图谱' }}</span>
+          </button>
+          <button type="button" class="h-10 px-4 rounded-lg text-sm border flex items-center gap-1.5 header-btn" @click="fetchEntityGraph" :disabled="entityLoading">
+            <Icon name="refresh-cw" :size="14" :class="entityLoading ? 'animate-spin' : ''" />
+            <span>刷新</span>
+          </button>
+          <span class="text-xs" style="color: var(--kb-muted-foreground);">AI 从文档抽取实体与关系，构建真正知识图谱</span>
+        </div>
+        <p v-if="entityGraph?.generatedAt" class="text-xs mt-2" style="color: var(--kb-muted-foreground);">
+          生成于 {{ entityGraph.generatedAt }} · 共 {{ entityGraph.nodes.length }} 个实体 · {{ entityGraph.edges.length }} 条关系
+        </p>
+      </div>
+
+      <div v-if="entityLoading" class="rounded-lg border p-12 flex flex-col items-center justify-center gap-3" style="background: var(--kb-card); border-color: var(--kb-border);">
+        <span class="inline-block w-6 h-6 border-2 rounded-full animate-spin" style="border-color: var(--kb-primary); border-top-color: transparent;" />
+        <p class="text-sm" style="color: var(--kb-muted-foreground);">正在加载实体关系知识图谱…</p>
+      </div>
+
+      <template v-else-if="entityGraph && entityGraph.nodes.length">
+        <div class="rounded-lg border p-4 mb-4" style="background: var(--kb-card); border-color: var(--kb-border);">
+          <svg width="100%" height="520" :viewBox="entityViewBox" xmlns="http://www.w3.org/2000/svg" class="tech-svg">
+            <g v-for="(edge, i) in entityEdges" :key="'ee' + i">
+              <line :x1="edge.x1" :y1="edge.y1" :x2="edge.x2" :y2="edge.y2" :stroke="edge.color" stroke-width="1.5" :opacity="edge.opacity" class="transition-opacity duration-300" />
+              <text :x="edge.mx" :y="edge.my" text-anchor="middle" font-size="9" :fill="edge.color">{{ relationLabel(edge.relation) }}</text>
+            </g>
+            <g v-for="node in entityRenderNodes" :key="node.id" class="cursor-pointer" @click="selectEntityNode(node)">
+              <circle :cx="node.x" :cy="node.y" :r="node.r" :fill="node.bgColor" :stroke="node.strokeColor" stroke-width="2" :opacity="entitySelectedNode && entitySelectedNode.id !== node.id && !isEntityNodeConnected(node.id) ? 0.25 : 1" class="transition-opacity duration-300" />
+              <text :x="node.x" :y="node.y" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="600" :fill="node.textColor">{{ node.name }}</text>
+            </g>
+          </svg>
+          <div class="flex items-center gap-3 mt-3 flex-wrap text-xs" style="color: var(--kb-muted-foreground);">
+            <span v-for="(color, type) in entityTypeLegend" :key="type" class="flex items-center gap-1">
+              <span class="inline-block w-3 h-3 rounded-full" :style="{ background: color.stroke }" /> {{ entityTypeName(type) }}
+            </span>
+          </div>
+        </div>
+
+        <div v-if="entitySelectedNode" class="rounded-lg border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="inline-block w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white" :style="{ background: entityTypeColor(entitySelectedNode.type).stroke }">{{ entitySelectedNode.name.slice(0, 2) }}</span>
+            <div>
+              <h3 class="kb-h3">{{ entitySelectedNode.name }}</h3>
+              <span class="text-xs" style="color: var(--kb-muted-foreground);">{{ entityTypeName(entitySelectedNode.type) }} · {{ entitySelectedNode.categoryName || '未分类' }}</span>
+            </div>
+          </div>
+          <p v-if="entitySelectedNode.description" class="text-sm mb-3" style="color: var(--kb-foreground);">{{ entitySelectedNode.description }}</p>
+          <div class="rounded p-3 mb-3 text-sm" style="background: var(--kb-muted);">
+            <div class="text-xs mb-1" style="color: var(--kb-muted-foreground);">关联关系</div>
+            <div class="font-semibold">{{ countEntityRelations(entitySelectedNode.id) }} 条 · 重要度 {{ entitySelectedNode.weight || 1 }}</div>
+          </div>
+          <div v-if="getEntityNeighbors(entitySelectedNode.id).length" class="mb-2">
+            <h4 class="text-xs font-semibold mb-1" style="color: var(--kb-muted-foreground);">关联实体</h4>
+            <div class="flex flex-wrap gap-1.5">
+              <button v-for="nb in getEntityNeighbors(entitySelectedNode.id)" :key="nb.id" type="button" class="px-2 py-0.5 rounded text-xs border transition-colors hover:opacity-80" style="border-color: var(--kb-border);" @click="selectEntityById(nb.id)">{{ nb.name }} <span class="opacity-60">· {{ relationLabel(nb.relation) }}</span></button>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template v-else>
+        <div class="rounded-lg border p-12 flex flex-col items-center justify-center gap-3" style="background: var(--kb-card); border-color: var(--kb-border);">
+          <Icon name="link" :size="32" style="color: var(--kb-muted-foreground);" />
+          <p class="text-sm" style="color: var(--kb-muted-foreground);">知识图谱尚未构建，点击「构建知识图谱」让 AI 从文档抽取实体与关系</p>
+        </div>
+      </template>
+    </template>
   </div>
 </template>
 
@@ -357,24 +434,57 @@ import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import MermaidDiagram from '@/components/Knowledge/MermaidDiagram.vue'
 import { notify, getApiError } from '@/utils/toast'
-import { knowledgeApi } from '@/api'
+import { knowledgeApi, categoriesApi } from '@/api'
 import type {
   KnowledgeGraphVO, GraphNodeVO,
   TechGraphVO, TechNodeVO, TechEdgeVO,
   ConceptDiagramVO,
+  EntityNodeVO, EntityEdgeVO, EntityGraphVO, CategoryVO,
 } from '@/api/types'
 
 const router = useRouter()
 
 // ===== 视图切换 =====
-type ViewTab = 'category' | 'tech' | 'concept'
+type ViewTab = 'category' | 'tech' | 'concept' | 'entity'
 const currentView = ref<ViewTab>('category')
 const viewTabs = [
   { value: 'category' as const, label: '分类图谱', icon: 'share-2' },
   { value: 'tech' as const, label: '技术依赖图', icon: 'git-branch' },
   { value: 'concept' as const, label: '概念图解', icon: 'image' },
+  { value: 'entity' as const, label: '知识实体图', icon: 'link' },
 ]
-const switchView = (v: ViewTab) => { currentView.value = v }
+
+// 提前声明 fetchEntityGraph / buildEntityGraph，供 switchView 在切换 Tab 时调用
+async function fetchEntityGraph() {
+  entityLoading.value = true
+  entitySelectedNode.value = null
+  try {
+    entityGraph.value = await knowledgeApi.entityGraph(entityCategoryId.value || undefined)
+  } catch (e: unknown) {
+    notify(getApiError(e, '实体图谱加载失败'), 'error')
+  } finally {
+    entityLoading.value = false
+  }
+}
+
+async function buildEntityGraph() {
+  if (entityBuilding.value) return
+  entityBuilding.value = true
+  try {
+    const res = await knowledgeApi.buildEntityGraph(entityCategoryId.value || undefined)
+    notify(res.message || '知识图谱构建完成', 'success')
+    await fetchEntityGraph()
+  } catch (e: unknown) {
+    notify(getApiError(e, '构建失败'), 'error')
+  } finally {
+    entityBuilding.value = false
+  }
+}
+
+const switchView = (v: ViewTab) => {
+  currentView.value = v
+  if (v === 'entity') void fetchEntityGraph()
+}
 
 // ===== Tab1: 分类图谱（原逻辑保留） =====
 const loading = ref(false)
@@ -450,11 +560,6 @@ const renderEdges = computed(() => {
   return result
 })
 
-const countRelation = (nodeId: string) => graph.value.edges.filter(e => e.source === nodeId || e.target === nodeId).length
-const findDocsByCategory = (catId: string) => {
-  const docIds = graph.value.edges.filter(e => e.source === catId || e.target === catId).map(e => e.source === catId ? e.target : e.source)
-  return graph.value.nodes.filter(n => docIds.includes(n.id) && n.type === 'doc')
-}
 const isNodeConnected = (nodeId: string) => {
   if (!selectedNode.value) return true
   return graph.value.edges.some(e => (e.source === selectedNode.value!.id && e.target === nodeId) || (e.target === selectedNode.value!.id && e.source === nodeId))
@@ -654,9 +759,117 @@ async function regenerateConceptDiagram() {
   }
 }
 
+// ===== Tab4: 实体关系知识图谱（A-RAG-04：AI 从文档抽取实体+关系） =====
+const graphCategories = ref<CategoryVO[]>([])
+const entityLoading = ref(false)
+const entityBuilding = ref(false)
+const entityGraph = ref<EntityGraphVO | null>(null)
+const entitySelectedNode = ref<EntityNodeVO | null>(null)
+const entityCategoryId = ref<number | null>(null)
+
+const ENTITY_TYPE_COLORS: Record<string, { bg: string; stroke: string; text: string }> = {
+  CONCEPT:    { bg: 'rgba(59,111,224,0.15)', stroke: '#3b6fe0', text: '#3b6fe0' },
+  TECHNIQUE: { bg: 'rgba(16,185,129,0.15)', stroke: '#10b981', text: '#10b981' },
+  TERM:      { bg: 'rgba(245,158,11,0.15)', stroke: '#f59e0b', text: '#f59e0b' },
+  PRINCIPLE: { bg: 'rgba(139,92,246,0.15)', stroke: '#8b5cf6', text: '#8b5cf6' },
+  TOOL:      { bg: 'rgba(6,182,212,0.15)', stroke: '#06b6d4', text: '#06b6d4' },
+  OTHER:     { bg: 'rgba(100,116,139,0.15)', stroke: '#64748b', text: '#64748b' },
+}
+const ENTITY_TYPE_LABELS: Record<string, string> = {
+  CONCEPT: '概念', TECHNIQUE: '技术', TERM: '术语', PRINCIPLE: '原理', TOOL: '工具', OTHER: '其他',
+}
+const RELATION_LABELS: Record<string, string> = {
+  RELATED_TO: '相关', PREREQUISITE: '前置', IS_A: '属于', PART_OF: '组成', USES: '使用', CONTRASTS: '对比',
+}
+const RELATION_COLORS: Record<string, string> = {
+  RELATED_TO: '#94a3b8', PREREQUISITE: '#3b6fe0', IS_A: '#8b5cf6', PART_OF: '#10b981', USES: '#06b6d4', CONTRASTS: '#ef4444',
+}
+const entityTypeLegend = computed(() => ENTITY_TYPE_COLORS)
+
+const entityTypeName = (t?: string) => ENTITY_TYPE_LABELS[t || 'OTHER'] || '其他'
+const entityTypeColor = (t?: string) => ENTITY_TYPE_COLORS[t || 'OTHER'] || ENTITY_TYPE_COLORS.OTHER
+const relationLabel = (r?: string) => RELATION_LABELS[r || 'RELATED_TO'] || '相关'
+
+const entityViewBox = computed(() => {
+  const count = entityGraph.value?.nodes.length || 0
+  const cols = Math.max(3, Math.ceil(Math.sqrt(count)))
+  const width = Math.max(700, cols * 160)
+  return `0 0 ${width} 520`
+})
+
+interface EntityRenderNode extends EntityNodeVO { x: number; y: number; r: number; bgColor: string; strokeColor: string; textColor: string }
+interface EntityRenderEdge extends EntityEdgeVO { x1: number; y1: number; x2: number; y2: number; color: string; opacity: number; mx: number; my: number }
+
+const entityRenderNodes = computed<EntityRenderNode[]>(() => {
+  if (!entityGraph.value) return []
+  const nodes = entityGraph.value.nodes
+  const count = nodes.length
+  const cx = 400, cy = 260
+  const radius = Math.min(220, 70 + count * 5)
+  return nodes.map((n, i) => {
+    const angle = (i / Math.max(count, 1)) * Math.PI * 2 - Math.PI / 2
+    const x = cx + Math.cos(angle) * radius
+    const y = cy + Math.sin(angle) * radius
+    const w = n.weight || 1
+    const r = Math.max(15, Math.min(34, 13 + w))
+    const colors = ENTITY_TYPE_COLORS[n.type] || ENTITY_TYPE_COLORS.OTHER
+    return { ...n, x, y, r, bgColor: colors.bg, strokeColor: colors.stroke, textColor: colors.text }
+  })
+})
+
+const entityEdges = computed<EntityRenderEdge[]>(() => {
+  if (!entityGraph.value) return []
+  const map = new Map<number, EntityRenderNode>()
+  entityRenderNodes.value.forEach((n) => map.set(n.id, n))
+  const result: EntityRenderEdge[] = []
+  for (const e of entityGraph.value.edges) {
+    const s = map.get(e.source); const t = map.get(e.target)
+    if (!s || !t) continue
+    const dx = t.x - s.x, dy = t.y - s.y
+    const len = Math.sqrt(dx * dx + dy * dy) || 1
+    const ux = dx / len, uy = dy / len
+    const x1 = s.x + ux * s.r, y1 = s.y + uy * s.r
+    const x2 = t.x - ux * t.r, y2 = t.y - uy * t.r
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2
+    const color = RELATION_COLORS[e.relation] || '#94a3b8'
+    const opacity = entitySelectedNode.value ? (e.source === entitySelectedNode.value.id || e.target === entitySelectedNode.value.id ? 1 : 0.15) : 0.7
+    result.push({ ...e, x1, y1, x2, y2, color, opacity, mx, my })
+  }
+  return result
+})
+
+const selectEntityNode = (node: EntityNodeVO) => {
+  entitySelectedNode.value = entitySelectedNode.value?.id === node.id ? null : node
+}
+const selectEntityById = (id: number) => {
+  entitySelectedNode.value = entityGraph.value?.nodes.find((n) => n.id === id) || null
+}
+const isEntityNodeConnected = (nodeId: number) => {
+  if (!entitySelectedNode.value) return true
+  return entityEdges.value.some((e) => (e.source === entitySelectedNode.value!.id && e.target === nodeId) || (e.target === entitySelectedNode.value!.id && e.source === nodeId))
+}
+const countEntityRelations = (id: number) => entityGraph.value?.edges.filter((e) => e.source === id || e.target === id).length || 0
+interface EntityNeighbor { id: number; name: string; relation: string }
+const getEntityNeighbors = (id: number): EntityNeighbor[] => {
+  if (!entityGraph.value) return []
+  const result: EntityNeighbor[] = []
+  for (const e of entityGraph.value.edges) {
+    if (e.source === id) {
+      const t = entityGraph.value.nodes.find((n) => n.id === e.target)
+      if (t) result.push({ id: t.id, name: t.name, relation: e.relation })
+    } else if (e.target === id) {
+      const s = entityGraph.value.nodes.find((n) => n.id === e.source)
+      if (s) result.push({ id: s.id, name: s.name, relation: e.relation })
+    }
+  }
+  return result
+}
+
 // ===== 初始化 =====
 onMounted(() => {
   void loadGraph()
+  // 预加载分类列表，供实体图谱按分类筛选
+  categoriesApi.tree().then((list) => { graphCategories.value = list }).catch(() => {})
 })
 </script>
 

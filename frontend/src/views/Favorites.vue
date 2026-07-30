@@ -152,7 +152,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
 import { docsApi } from '@/api/docs';
-import { confirmDialog, getApiError } from '@/utils/toast';
+import { confirmDialog, getApiError, notify } from '@/utils/toast';
 import type { DocVO } from '@/api/types';
 
 const router = useRouter();

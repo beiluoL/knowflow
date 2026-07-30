@@ -64,13 +64,18 @@ public class SecurityConfig {
                                 "/api/community/posts/{id}/comments"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
-                                "/api/knowledge/graph"
+                                "/api/knowledge/graph",
+                                "/api/knowledge/entity-graph"
                         ).permitAll()
                         // 编程挑战只读接口：匿名可浏览赛道与排行榜，提交/个人统计仍需登录
                         .requestMatchers(HttpMethod.GET,
                                 "/api/challenges",
                                 "/api/challenges/{id}",
                                 "/api/challenges/leaderboard"
+                        ).permitAll()
+                        // 全局排行榜匿名可浏览
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/ranking"
                         ).permitAll()
                         // WebSocket 握手由 WebSocketAuthInterceptor 用 token 参数鉴权
                         .requestMatchers("/ws/**").permitAll()

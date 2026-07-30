@@ -412,7 +412,7 @@ const contentRef = ref<HTMLTextAreaElement | null>(null);
 
 // 写作配置
 const config = ref({
-  kb: '' as string | number,
+  kb: null as number | null,
   style: 'professional',
   language: 'zh',
   targetWords: 2000,
