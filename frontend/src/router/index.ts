@@ -55,6 +55,30 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'c', fullscreen: true },
   },
   {
+    path: '/knowledge/upload',
+    name: 'KnowledgeUpload',
+    component: () => import('@/views/KnowledgeUpload.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  {
+    path: '/knowledge/new',
+    name: 'KnowledgeCreate',
+    component: () => import('@/views/KnowledgeCreate.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  {
+    path: '/study-group',
+    name: 'StudyGroup',
+    component: () => import('@/views/StudyGroup.vue'),
+    meta: { layout: 'c', fullscreen: true, requiresAuth: true },
+  },
+  {
+    path: '/messages',
+    name: 'Messages',
+    component: () => import('@/views/Messages.vue'),
+    meta: { layout: 'c', fullscreen: true, requiresAuth: true },
+  },
+  {
     path: '/doc/:id',
     name: 'DocDetail',
     component: () => import('@/views/DocDetail.vue'),
@@ -123,10 +147,28 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'none', requiresAuth: true },
   },
   {
+    path: '/challenge',
+    name: 'Challenge',
+    component: () => import('@/views/Challenge.vue'),
+    meta: { layout: 'c', fullscreen: true },
+  },
+  {
+    path: '/challenge/:id',
+    name: 'ChallengePlay',
+    component: () => import('@/views/ChallengePlay.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
     path: '/learning/flashcards',
     name: 'FlashCards',
     component: () => import('@/views/FlashCards.vue'),
     meta: { layout: 'c', fullscreen: true },
+  },
+  {
+    path: '/learning/my-flashcards',
+    name: 'MyFlashcards',
+    component: () => import('@/views/MyFlashcards.vue'),
+    meta: { layout: 'c', fullscreen: true, requiresAuth: true },
   },
   {
     path: '/learning/knowledge-graph',

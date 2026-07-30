@@ -1,10 +1,183 @@
 <template>
   <!-- 学习路径列表页：分类筛选 + 排序 + 2 列卡片网格 -->
   <div class="paths-page animate-fade-in">
-    <!-- ===== 页头：标题 + 描述 ===== -->
+    <!-- ===== 页头：标题 + 描述 + AI 入口 ===== -->
     <div class="page-header">
-      <h1 class="kb-h1">学习路径</h1>
-      <p class="page-subtitle">系统化的学习路线，从入门到精通，循序渐进掌握完整技能栈。</p>
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 class="kb-h1">学习路径</h1>
+          <p class="page-subtitle">系统化的学习路线，从入门到精通，循序渐进掌握完整技能栈。</p>
+        </div>
+        <button class="ai-path-btn" @click="showPersonalizedDialog = true">
+          <Icon name="sparkles" :size="16" />
+          <span>AI 个性化学习路径</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== AI 个性化路径生成弹窗 ===== -->
+    <div v-if="showPersonalizedDialog" class="modal-overlay" @click.self="showPersonalizedDialog = false">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">
+            <Icon name="sparkles" :size="18" />
+            AI 生成个性化学习路径
+          </h3>
+          <button class="modal-close" @click="showPersonalizedDialog = false">
+            <Icon name="x" :size="18" />
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- 输入表单 -->
+          <div v-if="!personalizedPath && !personalizedLoading" class="space-y-4">
+            <div>
+              <label class="form-label">学习目标</label>
+              <input v-model="pathGoal" type="text" class="form-input" placeholder="如：掌握 Spring Boot 后端开发、学习 Python 数据分析…" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="form-label">当前水平</label>
+                <select v-model="pathLevel" class="form-input">
+                  <option value="入门">入门 — 零基础或刚接触</option>
+                  <option value="进阶">进阶 — 有一定基础</option>
+                  <option value="高级">高级 — 熟练使用想深入</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">每日学习时间</label>
+                <select v-model="pathDailyMinutes" class="form-input">
+                  <option :value="15">15 分钟</option>
+                  <option :value="30">30 分钟</option>
+                  <option :value="60">1 小时</option>
+                  <option :value="120">2 小时</option>
+                </select>
+              </div>
+            </div>
+            <button class="generate-btn" @click="generatePersonalizedPath">
+              <Icon name="sparkles" :size="16" />
+              <span>生成我的学习路径</span>
+            </button>
+            <!-- 我的个性化路径历史：可查看 / 去学习 / 删除已生成的记录 -->
+            <div v-if="personalizedHistory.length" class="history-section">
+              <h5 class="history-title">我的个性化路径</h5>
+              <div class="history-list">
+                <div v-for="item in personalizedHistory" :key="item.id" class="history-item">
+                  <div class="history-info" @click="viewHistoryPath(item)">
+                    <span class="history-name">{{ item.title }}</span>
+                    <span class="history-meta">{{ item.level }} · {{ item.chapters.length }} 章节 · {{ formatDuration(item.totalDuration) }}</span>
+                  </div>
+                  <div class="history-actions">
+                    <button
+                      v-if="item.relatedPathId"
+                      class="history-icon-btn go"
+                      title="去学习"
+                      @click.stop="goToPathDetail(item.relatedPathId)"
+                    >
+                      <Icon name="arrow-right" :size="14" />
+                    </button>
+                    <button class="history-icon-btn" title="查看" @click.stop="viewHistoryPath(item)">
+                      <Icon name="eye" :size="14" />
+                    </button>
+                    <button class="history-icon-btn danger" title="删除" @click.stop="removeHistoryPath(item)">
+                      <Icon name="trash-2" :size="14" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 加载态 -->
+          <div v-else-if="personalizedLoading" class="loading-area">
+            <div class="loading-spinner"></div>
+            <p class="state-text">AI 正在分析您的学习数据并生成个性化路径…</p>
+          </div>
+          <!-- 生成结果 -->
+          <div v-else-if="personalizedPath" class="personalized-result">
+            <div class="result-header">
+              <div>
+                <h4 class="result-title">{{ personalizedPath.title }}</h4>
+                <p class="result-reason">{{ personalizedPath.reason }}</p>
+              </div>
+              <span class="result-badge">{{ personalizedPath.level }}</span>
+            </div>
+            <!-- 统计 -->
+            <div class="result-stats">
+              <div class="result-stat">
+                <Icon name="book-open" :size="14" />
+                <span>{{ personalizedPath.chapters.length }} 章节</span>
+              </div>
+              <div class="result-stat">
+                <Icon name="clock" :size="14" />
+                <span>{{ formatDuration(personalizedPath.totalDuration) }}</span>
+              </div>
+              <div class="result-stat">
+                <Icon name="calendar" :size="14" />
+                <span>每日 {{ personalizedPath.dailyDuration }} 分钟</span>
+              </div>
+            </div>
+            <!-- 学习目标 -->
+            <div v-if="personalizedPath.goals.length" class="result-section">
+              <h5 class="result-section-title">学习目标</h5>
+              <div class="goals-list">
+                <span v-for="g in personalizedPath.goals" :key="g" class="goal-tag">{{ g }}</span>
+              </div>
+            </div>
+            <!-- 章节列表 -->
+            <div class="result-section">
+              <h5 class="result-section-title">章节规划</h5>
+              <div class="chapter-timeline">
+                <div v-for="ch in personalizedPath.chapters" :key="ch.sortOrder" class="chapter-item">
+                  <div class="chapter-dot">{{ ch.sortOrder }}</div>
+                  <div class="chapter-info">
+                    <div class="chapter-header">
+                      <span class="chapter-title">{{ ch.title }}</span>
+                      <span class="chapter-duration">{{ ch.duration }} 分钟</span>
+                    </div>
+                    <p class="chapter-content">{{ ch.content }}</p>
+                    <p v-if="ch.focus" class="chapter-focus">
+                      <Icon name="target" :size="12" />
+                      <span>重点：{{ ch.focus }}</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- 学习建议 -->
+            <div v-if="personalizedPath.advice" class="result-section">
+              <h5 class="result-section-title">AI 学习建议</h5>
+              <p class="result-advice">{{ personalizedPath.advice }}</p>
+            </div>
+            <!-- 操作按钮 -->
+            <div class="result-actions">
+              <!-- 已采用：直接去学习；未采用：落地为真实路径并报名 -->
+              <button
+                v-if="personalizedPath.relatedPathId"
+                class="adopt-btn"
+                @click="goToPathDetail(personalizedPath.relatedPathId)"
+              >
+                <Icon name="arrow-right" :size="14" />
+                <span>去学习</span>
+              </button>
+              <button
+                v-else
+                class="adopt-btn"
+                :disabled="adopting || !personalizedPath.id"
+                @click="adoptCurrentPath"
+              >
+                <Icon name="check" :size="14" />
+                <span>{{ adopting ? '采用中…' : '采用此路径' }}</span>
+              </button>
+              <button class="regenerate-btn" :disabled="personalizedLoading" @click="regeneratePersonalizedPath">
+                <Icon name="rotate-ccw" :size="14" :class="personalizedLoading ? 'animate-spin' : ''" />
+                <span>{{ personalizedLoading ? '生成中…' : '重新生成' }}</span>
+              </button>
+              <button class="close-btn" @click="showPersonalizedDialog = false; personalizedPath = null">
+                关闭
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ===== 筛选栏：分类按钮组 + 排序按钮 ===== -->
@@ -112,11 +285,12 @@
 
 <script setup lang="ts">
 // 学习路径列表页：按难度筛选、按发布/受欢迎排序，2 列卡片网格展示。
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
 import { learningApi } from '@/api';
-import type { LearningPathVO } from '@/api/types';
+import { notify, getApiError } from '@/utils/toast';
+import type { LearningPathVO, PersonalizedPathVO } from '@/api/types';
 
 const router = useRouter();
 const loading = ref(false);
@@ -278,9 +452,108 @@ function getRating(id: number): string {
   return ratings[id % ratings.length].toFixed(1);
 }
 
+// ===== AI 个性化学习路径 =====
+const showPersonalizedDialog = ref(false);
+const personalizedLoading = ref(false);
+const personalizedPath = ref<PersonalizedPathVO | null>(null);
+const pathGoal = ref('');
+const pathLevel = ref('入门');
+const pathDailyMinutes = ref(30);
+// 我的个性化路径历史（AI 生成后持久化的记录，可查看 / 采用 / 删除）
+const personalizedHistory = ref<PersonalizedPathVO[]>([]);
+const adopting = ref(false);
+
+async function generatePersonalizedPath() {
+  if (!pathGoal.value.trim()) {
+    notify('请输入学习目标', 'error');
+    return;
+  }
+  personalizedLoading.value = true;
+  try {
+    personalizedPath.value = await learningApi.personalizedPath({
+      goal: pathGoal.value.trim(),
+      level: pathLevel.value,
+      dailyMinutes: pathDailyMinutes.value,
+    });
+  } catch (e: unknown) {
+    notify(getApiError(e, '个性化路径生成失败'), 'error');
+  } finally {
+    personalizedLoading.value = false;
+  }
+}
+
+/** 重新生成个性化路径：删除旧缓存，AI 重新生成并持久化 */
+async function regeneratePersonalizedPath() {
+  if (personalizedLoading.value) return;
+  personalizedLoading.value = true;
+  try {
+    personalizedPath.value = await learningApi.regeneratePersonalizedPath({
+      goal: pathGoal.value.trim(),
+      level: pathLevel.value,
+      dailyMinutes: pathDailyMinutes.value,
+    });
+    notify('学习路径已重新生成', 'success');
+  } catch (e: unknown) {
+    notify(getApiError(e, '重新生成失败'), 'error');
+  } finally {
+    personalizedLoading.value = false;
+  }
+}
+
 function goToPathDetail(pathId: number): void {
   router.push(`/learning/path/${pathId}`);
 }
+
+/** 加载我的个性化路径历史（按创建时间倒序，用于弹窗内回显与管理） */
+async function loadPersonalizedHistory(): Promise<void> {
+  try {
+    personalizedHistory.value = await learningApi.personalizedPaths();
+  } catch {
+    personalizedHistory.value = [];
+  }
+}
+
+/** 采用当前展示的路径：落地为真实学习路径并自动报名，成功后跳转详情页开始学习 */
+async function adoptCurrentPath(): Promise<void> {
+  const target = personalizedPath.value;
+  if (!target?.id || adopting.value) return;
+  adopting.value = true;
+  try {
+    const res = await learningApi.adoptPersonalizedPath(target.id);
+    notify('已采用该路径，开始学习吧！', 'success');
+    showPersonalizedDialog.value = false;
+    personalizedPath.value = null;
+    goToPathDetail(res.pathId);
+  } catch (e: unknown) {
+    notify(getApiError(e, '采用路径失败'), 'error');
+  } finally {
+    adopting.value = false;
+  }
+}
+
+/** 查看历史记录：回显到结果区，并同步输入条件便于「重新生成」 */
+function viewHistoryPath(item: PersonalizedPathVO): void {
+  personalizedPath.value = item;
+  pathGoal.value = item.goals?.[0] || pathGoal.value;
+  pathLevel.value = item.level || pathLevel.value;
+}
+
+/** 删除一条历史记录（物理删除缓存推荐，不影响已采用落地的学习路径） */
+async function removeHistoryPath(item: PersonalizedPathVO): Promise<void> {
+  if (!item.id) return;
+  try {
+    await learningApi.deletePersonalizedPath(item.id);
+    personalizedHistory.value = personalizedHistory.value.filter((p) => p.id !== item.id);
+    notify('已删除', 'success');
+  } catch (e: unknown) {
+    notify(getApiError(e, '删除失败'), 'error');
+  }
+}
+
+// 打开弹窗时自动拉取历史记录，便于用户快速回显 / 采用最近生成的路径
+watch(showPersonalizedDialog, (open) => {
+  if (open) loadPersonalizedHistory();
+});
 
 // ===== 数据加载 =====
 onMounted(async () => {
@@ -550,4 +823,301 @@ onMounted(async () => {
   transition: opacity 0.15s;
 }
 .start-btn:hover { opacity: 0.9; }
+
+/* ===== AI 个性化路径按钮 ===== */
+.ai-path-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #3b6fe0, #6366f1);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+.ai-path-btn:hover { opacity: 0.9; }
+
+/* ===== 弹窗 ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 16px;
+}
+.modal-content {
+  background: var(--kb-card);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--kb-border);
+}
+.modal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--kb-muted-foreground);
+  padding: 4px;
+  border-radius: 6px;
+}
+.modal-close:hover { background: var(--kb-muted); }
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* 表单 */
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--kb-foreground);
+  margin-bottom: 6px;
+}
+.form-input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  font-size: 14px;
+  outline: none;
+}
+.form-input:focus { border-color: var(--kb-primary); }
+.generate-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.generate-btn:hover { opacity: 0.9; }
+
+/* 加载 */
+.loading-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 16px;
+  gap: 16px;
+}
+
+/* 结果 */
+.personalized-result { display: flex; flex-direction: column; gap: 20px; }
+.result-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.result-title { font-size: 18px; font-weight: 600; color: var(--kb-foreground); margin-bottom: 4px; }
+.result-reason { font-size: 13px; color: var(--kb-muted-foreground); line-height: 1.6; }
+.result-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(59, 111, 224, 0.12);
+  color: var(--kb-primary);
+  white-space: nowrap;
+}
+.result-stats { display: flex; gap: 16px; flex-wrap: wrap; }
+.result-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--kb-muted-foreground);
+}
+.result-section { display: flex; flex-direction: column; gap: 8px; }
+.result-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+.goals-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.goal-tag {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: var(--kb-muted);
+  color: var(--kb-foreground);
+}
+
+/* 时间线 */
+.chapter-timeline { display: flex; flex-direction: column; gap: 0; }
+.chapter-item {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 16px;
+  position: relative;
+}
+.chapter-item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 24px;
+  bottom: 0;
+  width: 2px;
+  background: var(--kb-border);
+}
+.chapter-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  z-index: 1;
+}
+.chapter-info { flex: 1; min-width: 0; }
+.chapter-header { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.chapter-title { font-size: 14px; font-weight: 500; color: var(--kb-foreground); }
+.chapter-duration { font-size: 12px; color: var(--kb-muted-foreground); white-space: nowrap; }
+.chapter-content { font-size: 13px; color: var(--kb-muted-foreground); line-height: 1.5; margin-bottom: 4px; }
+.chapter-focus {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--kb-primary);
+}
+.result-advice {
+  font-size: 13px;
+  color: var(--kb-muted-foreground);
+  line-height: 1.6;
+  padding: 12px;
+  background: var(--kb-muted);
+  border-radius: 8px;
+}
+.result-actions { display: flex; gap: 8px; justify-content: flex-end; }
+/* 采用此路径：主行动按钮，靠左占位与其余按钮区分 */
+.adopt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  border: none;
+  cursor: pointer;
+  margin-right: auto;
+}
+.adopt-btn:hover { opacity: 0.9; }
+.adopt-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.regenerate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  border: 1px solid var(--kb-border);
+  cursor: pointer;
+}
+.regenerate-btn:hover { background: var(--kb-muted); }
+.close-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  border: none;
+  cursor: pointer;
+}
+.close-btn:hover { opacity: 0.9; }
+
+/* ===== 我的个性化路径历史 ===== */
+.history-section { margin-top: 20px; border-top: 1px solid var(--kb-border); padding-top: 16px; }
+.history-title { font-size: 13px; font-weight: 600; color: var(--kb-foreground); margin-bottom: 10px; }
+.history-list { display: flex; flex-direction: column; gap: 8px; }
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+}
+.history-item:hover { border-color: var(--kb-primary); }
+.history-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; cursor: pointer; flex: 1; }
+.history-name { font-size: 13px; font-weight: 500; color: var(--kb-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history-meta { font-size: 12px; color: var(--kb-muted-foreground); }
+.history-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.history-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-muted-foreground);
+  cursor: pointer;
+}
+.history-icon-btn:hover { background: var(--kb-muted); color: var(--kb-foreground); }
+.history-icon-btn.go:hover { color: var(--kb-primary); border-color: var(--kb-primary); }
+.history-icon-btn.danger:hover { color: var(--kb-destructive); border-color: var(--kb-destructive); }
+
+/* 工具类 */
+.space-y-4 > * + * { margin-top: 16px; }
+.grid { display: grid; }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.gap-3 { gap: 12px; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.flex-wrap { flex-wrap: wrap; }
+.gap-3 { gap: 12px; }
 </style>

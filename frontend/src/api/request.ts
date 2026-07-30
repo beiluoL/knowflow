@@ -70,4 +70,47 @@ export async function apiDelete<T>(url: string, params?: object, config?: AxiosR
   return (res as unknown as ApiResult<T>).data
 }
 
+/** 带 body 的 DELETE 调用（用于批量删除等需要 JSON 负载的场景） */
+export async function apiDeleteWithBody<T>(
+  url: string,
+  data?: unknown,
+  config?: AxiosRequestConfig,
+): Promise<T> {
+  const res = await request.request({
+    url,
+    method: 'DELETE',
+    data,
+    ...config,
+  })
+  return (res as unknown as ApiResult<T>).data
+}
+
+/**
+ * multipart/form-data 上传（文件 + JSON 元信息），支持上传进度回调。
+ * 注意：不手动设置 Content-Type，交由 axios 自动附加 boundary，
+ * 否则缺失 boundary 会导致 Spring 无法解析 multipart 请求。
+ */
+export async function apiUpload<T>(
+  url: string,
+  file: File,
+  meta: object,
+  onProgress?: (percent: number) => void,
+): Promise<T> {
+  const form = new FormData()
+  form.append('file', file)
+  // meta 以字符串形式提交，后端 @RequestPart("meta") String 直接读取 JSON 文本
+  form.append('meta', JSON.stringify(meta))
+  const res = await request.post(url, form, {
+    // 上传型文档含服务端 Tika 解析（最多 60s）+ 网络传输，统一给 5 分钟宽松上限，
+    // 避免大文件上传 + 后端解析时被全局 15s 默认超时截断。
+    timeout: 5 * 60 * 1000,
+    onUploadProgress: (e: ProgressEvent) => {
+      if (onProgress && e.total) {
+        onProgress(Math.round((e.loaded / e.total) * 100))
+      }
+    },
+  })
+  return (res as unknown as ApiResult<T>).data
+}
+
 export default request

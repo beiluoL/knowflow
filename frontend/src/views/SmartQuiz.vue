@@ -3,12 +3,171 @@
     <!-- ===== 顶部：标题 + 操作 ===== -->
     <div class="flex items-center justify-between mb-6 page-header">
       <h1 class="kb-h1">智能出题</h1>
-      <button type="button" class="btn-primary header-action" @click="generateQuiz" :disabled="generating">
+      <button v-if="mode === 'generate'" type="button" class="btn-primary header-action" @click="generateQuiz" :disabled="generating">
         <Icon name="sparkles" :size="16" />
         <span>{{ generating ? '生成中…' : '新建题目' }}</span>
       </button>
     </div>
 
+    <!-- ===== 模式切换：AI 生成 / 题库答题 ===== -->
+    <div class="mode-tabs mb-6">
+      <button type="button" class="mode-tab" :class="{ active: mode === 'generate' }" @click="mode = 'generate'">
+        <Icon name="sparkles" :size="16" />
+        <span>AI 生成练习</span>
+      </button>
+      <button type="button" class="mode-tab" :class="{ active: mode === 'online' }" @click="mode = 'online'">
+        <Icon name="edit" :size="16" />
+        <span>题库在线答题</span>
+      </button>
+    </div>
+
+    <!-- ===== 题库在线答题（真实题库 + 自动判分 + 错题同步） ===== -->
+    <div v-show="mode === 'online'" class="online-quiz">
+      <!-- 答题配置 -->
+      <div class="config-card mb-6">
+        <h3 class="kb-h3 mb-4">答题配置</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div>
+            <label class="form-label">题型</label>
+            <select v-model="onlineConfig.questionType" class="form-select">
+              <option v-for="t in onlineTypes" :key="t.value" :value="t.value">{{ t.label }}</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">难度</label>
+            <select v-model.number="onlineConfig.difficulty" class="form-select">
+              <option :value="0">混合难度</option>
+              <option :value="1">简单</option>
+              <option :value="2">中等</option>
+              <option :value="3">困难</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">题目数量</label>
+            <input v-model.number="onlineConfig.count" type="number" min="1" max="50" class="form-input" />
+          </div>
+          <div class="flex items-end">
+            <button type="button" class="btn-primary generate-btn w-full" @click="startOnlineQuiz" :disabled="onlineLoading">
+              <Icon name="play" :size="16" />
+              <span>{{ onlineLoading ? '加载中…' : '开始答题' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 判分总览 -->
+      <div v-if="onlineResult" class="result-banner mb-4">
+        <Icon name="award" :size="18" />
+        <span class="tabular-nums">本次得分 {{ onlineResult.accuracy }}% · 答对 {{ onlineResult.correct }}/{{ onlineResult.total }} · 已同步错题 {{ onlineResult.syncedMistakes }}</span>
+      </div>
+
+      <!-- 状态区 -->
+      <div v-if="onlineLoading" class="state-area">
+        <div class="loading-spinner"></div>
+        <p class="state-text mt-3">加载题目中…</p>
+      </div>
+      <div v-else-if="onlineError" class="state-area">
+        <Icon name="alert-circle" :size="48" class="state-error-icon" />
+        <p class="state-text mt-2">{{ onlineError }}</p>
+      </div>
+      <div v-else-if="onlineQuestions.length === 0" class="state-area">
+        <div class="empty-icon-box"><Icon name="inbox" :size="48" class="empty-icon" /></div>
+        <p class="state-title mt-3">选择配置后点击「开始答题」</p>
+      </div>
+
+      <!-- 题目列表 -->
+      <div v-else class="flex flex-col gap-3">
+        <div v-for="(q, idx) in onlineQuestions" :key="q.id" class="question-card">
+          <div class="flex items-start justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <span class="badge badge-primary">{{ onlineTypeLabel(q.questionType) }}</span>
+              <span class="badge" :class="getDifficultyBadgeClass(q.difficulty)">{{ getDifficultyLabel(q.difficulty) }}</span>
+              <span class="q-index">#{{ idx + 1 }}</span>
+              <span v-if="resultOf(q.id)" class="badge" :class="resultOf(q.id)!.correct ? 'badge-success' : 'badge-error'">
+                {{ resultOf(q.id)!.correct ? '答对' : '答错' }}
+              </span>
+            </div>
+            <button type="button" class="btn-ghost" @click="toggleOnlineAnswer(q.id)">
+              <Icon name="eye" :size="14" />
+              <span>{{ onlineRevealed[q.id] ? '隐藏答案' : '看答案' }}</span>
+            </button>
+          </div>
+          <p class="q-stem mb-3">{{ q.content }}</p>
+
+          <!-- 选择题 -->
+          <div v-if="isChoice(q)" class="q-options mb-3">
+            <label
+              v-for="(opt, oi) in q.options"
+              :key="oi"
+              class="q-option option-clickable"
+              :class="{ selected: q.questionType === 'SINGLE_CHOICE' ? onlineAnswers[q.id] === String(oi) : isMultiSelected(q.id, String(oi)) }"
+            >
+              <input
+                v-if="q.questionType === 'SINGLE_CHOICE'"
+                type="radio"
+                :name="'oq' + q.id"
+                :value="String(oi)"
+                v-model="onlineAnswers[q.id]"
+                :disabled="!!onlineResult"
+              />
+              <input
+                v-else
+                type="checkbox"
+                :checked="isMultiSelected(q.id, String(oi))"
+                :disabled="!!onlineResult"
+                @change="toggleMulti(q.id, String(oi))"
+              />
+              <span class="q-option-label">{{ String.fromCharCode(65 + oi) }}</span>
+              <span>{{ opt }}</span>
+            </label>
+          </div>
+
+          <!-- 判断题 -->
+          <div v-else-if="q.questionType === 'TRUE_FALSE'" class="q-options mb-3">
+            <label
+              v-for="jo in judgeOptions"
+              :key="jo.value"
+              class="q-option option-clickable"
+              :class="{ selected: onlineAnswers[q.id] === jo.value }"
+            >
+              <input type="radio" :name="'oq' + q.id" :value="jo.value" v-model="onlineAnswers[q.id]" :disabled="!!onlineResult" />
+              <span>{{ jo.label }}</span>
+            </label>
+          </div>
+
+          <!-- 填空 / 简答 -->
+          <div v-else class="mb-3">
+            <textarea
+              v-model="onlineAnswers[q.id]"
+              class="form-input"
+              rows="2"
+              :disabled="!!onlineResult"
+              placeholder="请输入你的答案"
+            ></textarea>
+          </div>
+
+          <!-- 看答案 / 判分结果 -->
+          <div v-if="onlineRevealed[q.id] || resultOf(q.id)" class="q-answer">
+            <div>
+              <span class="q-answer-label">正确答案：</span>
+              <span class="q-answer-text">{{ resultOf(q.id)?.correctAnswer || formatAnswer(q) }}</span>
+            </div>
+            <div v-if="q.explanation" class="mt-1 text-xs" style="color: var(--kb-muted-foreground);">解析：{{ q.explanation }}</div>
+          </div>
+        </div>
+
+        <!-- 提交判分 -->
+        <div class="flex justify-end mt-2">
+          <button type="button" class="btn-primary generate-btn" @click="submitOnlineQuiz" :disabled="submitting || !!onlineResult">
+            <Icon name="check-circle" :size="16" />
+            <span>{{ onlineResult ? '已提交' : (submitting ? '判分中…' : '提交判分') }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== AI 生成练习（原有闪卡生成器） ===== -->
+    <div v-show="mode === 'generate'">
     <!-- ===== 题目配置面板 ===== -->
     <div class="config-card mb-6">
       <h3 class="kb-h3 mb-4">题目配置</h3>
@@ -246,6 +405,7 @@
         </div>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
@@ -259,8 +419,12 @@
 import { ref, computed, reactive } from 'vue';
 import Icon from '@/components/ui/Icon.vue';
 import { notify } from '@/utils/toast';
-import { learningApi } from '@/api';
+import { learningApi, quizApi } from '@/api';
+import type { QuizPracticeVO, QuizSubmitResult } from '@/api';
 import type { FlashcardVO } from '@/api/types';
+
+// ===== 页面模式：AI 生成（闪卡）/ 题库在线答题（真实 quiz_question） =====
+const mode = ref<'generate' | 'online'>('generate');
 
 // 题目类型选项
 const questionTypes = [
@@ -510,6 +674,158 @@ async function loadCategories() {
 // 初始加载
 loadCategories();
 loadQuizzes();
+
+// ============================================================
+// 题库在线答题（真实 quiz_question + 自动判分 + 错题同步）
+// ============================================================
+const onlineTypes = [
+  { label: '不限', value: '' },
+  { label: '单选', value: 'SINGLE_CHOICE' },
+  { label: '多选', value: 'MULTIPLE_CHOICE' },
+  { label: '判断', value: 'TRUE_FALSE' },
+  { label: '填空', value: 'FILL_BLANK' },
+  { label: '简答', value: 'SHORT_ANSWER' },
+];
+
+const onlineConfig = reactive({
+  difficulty: 0 as number,
+  questionType: '' as string,
+  count: 10,
+});
+
+const onlineLoading = ref(false);
+const onlineError = ref('');
+const onlineQuestions = ref<QuizPracticeVO[]>([]);
+// 用户作答：单选/判断/填空/简答为 string，多选为 string[]
+const onlineAnswers = ref<Record<number, string | string[]>>({});
+const onlineRevealed = ref<Record<number, boolean>>({});
+const onlineResult = ref<QuizSubmitResult | null>(null);
+const submitting = ref(false);
+
+// 拉取真实题目
+async function startOnlineQuiz() {
+  onlineLoading.value = true;
+  onlineError.value = '';
+  onlineResult.value = null;
+  try {
+    const list = await quizApi.questions({
+      difficulty: onlineConfig.difficulty || undefined,
+      questionType: onlineConfig.questionType || undefined,
+      count: onlineConfig.count,
+    });
+    onlineQuestions.value = list ?? [];
+    onlineAnswers.value = {};
+    onlineRevealed.value = {};
+    if (onlineQuestions.value.length === 0) {
+      onlineError.value = '题库暂无已发布题目，请先在后台「题库管理」生成或新增题目';
+    } else {
+      notify(`已加载 ${onlineQuestions.value.length} 道题目`, 'success');
+    }
+  } catch (err) {
+    onlineError.value = err instanceof Error ? err.message : '题目加载失败';
+    notify('题目加载失败', 'error');
+  } finally {
+    onlineLoading.value = false;
+  }
+}
+
+// 判断题选项（固定为正确/错误）
+const judgeOptions = [
+  { label: '正确', value: 'true' },
+  { label: '错误', value: 'false' },
+];
+
+function isChoice(q: QuizPracticeVO) {
+  return q.questionType === 'SINGLE_CHOICE' || q.questionType === 'MULTIPLE_CHOICE';
+}
+
+// 多选切换
+function toggleMulti(qId: number, idx: string) {
+  const cur = onlineAnswers.value[qId];
+  const arr = Array.isArray(cur) ? [...cur] : [];
+  const i = arr.indexOf(idx);
+  if (i >= 0) arr.splice(i, 1);
+  else arr.push(idx);
+  onlineAnswers.value[qId] = arr;
+}
+
+function isMultiSelected(qId: number, idx: string) {
+  const cur = onlineAnswers.value[qId];
+  return Array.isArray(cur) && cur.includes(idx);
+}
+
+// 将作答归一化为提交字符串
+function encodeAnswer(q: QuizPracticeVO): string {
+  const cur = onlineAnswers.value[q.id];
+  if (q.questionType === 'MULTIPLE_CHOICE') {
+    const arr = Array.isArray(cur) ? [...cur] : [];
+    return arr.map((x) => Number(x)).sort((a, b) => a - b).join(',');
+  }
+  return typeof cur === 'string' ? cur : '';
+}
+
+// 客户端格式化正确答案（用于提交前“看答案”）
+function formatAnswer(q: QuizPracticeVO): string {
+  const a = (q.answer ?? '').trim();
+  if (!a) return '';
+  if (q.questionType === 'SINGLE_CHOICE') return optionLabel(q, a);
+  if (q.questionType === 'MULTIPLE_CHOICE') {
+    return a.split(',').map((x) => optionLabel(q, x.trim())).join('；');
+  }
+  if (q.questionType === 'TRUE_FALSE') return a.toLowerCase() === 'true' ? '正确' : '错误';
+  return a;
+}
+
+function optionLabel(q: QuizPracticeVO, idxStr: string): string {
+  const idx = Number(idxStr);
+  if (!Number.isNaN(idx) && q.options && idx >= 0 && idx < q.options.length) {
+    return `${String.fromCharCode(65 + idx)}. ${q.options[idx]}`;
+  }
+  return idxStr;
+}
+
+function toggleOnlineAnswer(qId: number) {
+  onlineRevealed.value[qId] = !onlineRevealed.value[qId];
+}
+
+const onlineTypeLabel = (t: string) =>
+  ({
+    SINGLE_CHOICE: '单选题',
+    MULTIPLE_CHOICE: '多选题',
+    TRUE_FALSE: '判断题',
+    FILL_BLANK: '填空题',
+    SHORT_ANSWER: '简答题',
+  }[t] || '题目');
+
+// 每题判分结果（提交后）
+function resultOf(qId: number) {
+  return onlineResult.value?.items.find((it) => it.questionId === qId) ?? null;
+}
+
+// 提交判分
+async function submitOnlineQuiz() {
+  if (submitting.value) return;
+  const answers = onlineQuestions.value
+    .map((q) => ({ questionId: q.id, userAnswer: encodeAnswer(q) }))
+    .filter((a) => a.userAnswer !== '');
+  if (answers.length === 0) {
+    notify('请先作答至少一道题', 'warning');
+    return;
+  }
+  submitting.value = true;
+  try {
+    const res = await quizApi.submit(answers);
+    onlineResult.value = res;
+    const tip = res.syncedMistakes > 0
+      ? `得分 ${res.accuracy}%，${res.syncedMistakes} 道错题已入错题本`
+      : `得分 ${res.accuracy}%，全部答对！`;
+    notify(tip, res.wrong > 0 ? 'info' : 'success');
+  } catch (err) {
+    notify(err instanceof Error ? err.message : '提交失败', 'error');
+  } finally {
+    submitting.value = false;
+  }
+}
 </script>
 
 <style scoped>
@@ -528,6 +844,66 @@ loadQuizzes();
   border: 1px solid var(--kb-border);
   border-radius: var(--kb-radius-md);
   padding: 20px 24px;
+}
+
+/* 模式切换 tabs */
+.mode-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--kb-radius-md);
+  background: var(--kb-muted);
+}
+.mode-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 16px;
+  border-radius: var(--kb-radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  background: transparent;
+  color: var(--kb-muted-foreground);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.mode-tab:hover {
+  color: var(--kb-primary);
+}
+.mode-tab.active {
+  background: var(--kb-card);
+  color: var(--kb-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* 在线答题：判分总览横幅 */
+.result-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: var(--kb-radius-md);
+  background: rgba(59, 111, 224, 0.08);
+  color: var(--kb-primary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* 在线答题：可点击选项 */
+.option-clickable {
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.option-clickable:hover {
+  background: rgba(59, 111, 224, 0.06);
+}
+.q-option.selected {
+  background: rgba(59, 111, 224, 0.1);
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+  font-weight: 500;
 }
 
 /* 表单元素 */

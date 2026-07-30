@@ -3,20 +3,27 @@ package com.knowflow.exception;
 import com.knowflow.common.Result;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.util.unit.DataSize;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /** 上传文件大小上限（与 spring.servlet.multipart.max-file-size 保持一致，用于友好提示）。 */
+    @Value("${spring.servlet.multipart.max-file-size:50MB}")
+    private String maxFileSize;
 
     /**
      * F-04/F-14 修复：业务异常若携带 4xx 错误码，则同步映射为对应 HTTP 状态码，
@@ -86,6 +93,24 @@ public class GlobalExceptionHandler {
     public Result<Void> handleConstraintViolationException(ConstraintViolationException e) {
         log.warn("约束违反异常: {}", e.getMessage());
         return Result.error(400, e.getMessage());
+    }
+
+    /**
+     * 上传文件超过大小限制：给出友好提示，避免被兜底 Exception 处理成"系统内部错误"。
+     * 限制本身由 spring.servlet.multipart.max-*-size 在 Servlet 层拦截。
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<Void> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
+        long maxBytes;
+        try {
+            maxBytes = DataSize.parse(maxFileSize).toBytes();
+        } catch (Exception ex) {
+            maxBytes = 0;
+        }
+        String limit = maxBytes > 0 ? DataSize.ofBytes(maxBytes).toMegabytes() + "MB" : "系统限制";
+        log.warn("上传文件超过大小限制: {}", limit);
+        return Result.error(400, "文件大小超过限制（最大 " + limit + "），请压缩或分批发送");
     }
 
     @ExceptionHandler(Exception.class)

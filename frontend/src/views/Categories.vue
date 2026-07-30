@@ -124,12 +124,7 @@
             class="doc-item"
             @click="goToDoc(doc.id)"
           >
-            <div
-              class="doc-icon"
-              :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }"
-            >
-              <Icon name="file-text" :size="18" />
-            </div>
+            <DocTypeBadge :file-url="doc.fileUrl" :content="doc.content" :size="40" />
             <div class="doc-main">
               <h4 class="doc-title">{{ doc.title }}</h4>
               <p class="doc-summary">{{ doc.summary || '暂无摘要' }}</p>
@@ -157,6 +152,8 @@ import Icon from '@/components/ui/Icon.vue'
 import KnowledgeSidebar from '@/components/layout/KnowledgeSidebar.vue'
 import { categoriesApi, docsApi } from '@/api'
 import type { CategoryVO, DocVO } from '@/api/types'
+import DocTypeBadge from '@/components/doc/DocTypeBadge.vue'
+import { resolveDocType } from '@/utils/docType'
 
 const route = useRoute()
 const router = useRouter()
@@ -228,13 +225,7 @@ const filteredDocs = computed(() => {
   return result.sort((a, b) => (a.title || '').localeCompare(b.title || ''))
 })
 
-const getDocType = (doc: DocVO): string => {
-  const tags = (doc.tags || '').toLowerCase()
-  if (tags.includes('pdf')) return 'PDF'
-  if (tags.includes('markdown') || tags.includes('md')) return 'MD'
-  if (tags.includes('笔记') || tags.includes('note')) return 'Note'
-  return 'DOC'
-}
+const getDocType = (doc: DocVO): string => resolveDocType(doc.fileUrl, doc.content).label
 
 const getCategoryDescription = (name: string): string => {
   const descMap: Record<string, string> = {
@@ -271,27 +262,32 @@ const formatRelativeTime = (dateStr?: string) => {
   return `${Math.floor(days / 30)}月前`
 }
 
+let categoryLoadToken = 0
 const loadCategoryDocs = async (categoryId: number | string) => {
+  const token = ++categoryLoadToken
   loading.value = true
   try {
     const ids = getAllChildCategoryIds(categoryId, categoryTree.value)
     let merged: DocVO[] = []
     for (const id of ids) {
       const res = await docsApi.list({ categoryId: id, pageSize: 100 })
+      if (token !== categoryLoadToken) return // 过期请求：已被更新的点击取代，丢弃结果
       merged = merged.concat(res.records || [])
     }
+    if (token !== categoryLoadToken) return
     allDocs.value = [...new Map(merged.map((d) => [d.id, d])).values()]
   } catch {
+    if (token !== categoryLoadToken) return
     allDocs.value = []
   } finally {
-    loading.value = false
+    if (token === categoryLoadToken) loading.value = false
   }
 }
 
 const selectCategory = (cat: CategoryVO) => {
   selectedCategoryId.value = cat.id
   router.push({ path: '/categories', query: { categoryId: String(cat.id) } })
-  loadCategoryDocs(cat.id)
+  // 实际加载由 watch(route.query.categoryId) 统一驱动，避免重复请求与竞态
 }
 
 const backToCategories = () => {

@@ -13,6 +13,7 @@ export interface UserVO {
   email?: string
   nickname?: string
   avatar?: string
+  bio?: string
   role?: string
   totalStudyHours?: number
   readDocsCount?: number
@@ -26,6 +27,7 @@ export interface UserVO {
 
 export interface UserStatsVO {
   userId: number
+  displayName?: string
   totalStudyHours?: number
   readDocsCount?: number
   streakDays?: number
@@ -65,10 +67,18 @@ export interface DocVO {
   id: number
   title: string
   summary?: string
+  content?: string
   cover?: string
+  /** 原始文件名（上传型文档有值，含扩展名）。 */
+  fileName?: string
+  /** 原文件访问地址（上传型文档有值，纯文本创建型为 undefined）。用于前端判断文档类型。 */
+  fileUrl?: string
+  /** 原始文件字节大小（上传型文档有值）。 */
+  fileSize?: number
   icon?: string
   categoryId?: number
   categoryName?: string
+  author?: string
   tags?: string
   viewCount?: number
   readCount?: number
@@ -85,6 +95,8 @@ export interface DocDetailVO extends DocVO {
   favorite?: boolean
   readProgress?: number
   author?: string
+  /** 原始文件访问路径（/uploads/...），可空；用于原文下载/预览。 */
+  fileUrl?: string
 }
 
 export interface DocPageResult {
@@ -123,6 +135,16 @@ export interface DocInput {
   status?: number
 }
 
+/** 文件型文档上传的元信息（与原始文件一同通过 multipart 提交）。 */
+export interface DocUploadMeta {
+  title: string
+  summary?: string
+  tags?: string
+  categoryId?: number
+  difficulty?: number
+  status?: number
+}
+
 // ===== 分类 =====
 export interface CategoryVO {
   id: number
@@ -156,6 +178,9 @@ export interface LearningPathVO {
   description?: string
   cover?: string
   level?: string
+  categoryName?: string
+  completedChapters?: number
+  estimatedHours?: number
   chapterCount?: number
   totalDuration?: number
   enrolledCount?: number
@@ -169,6 +194,7 @@ export interface LearningChapterVO {
   pathId: number
   title: string
   content?: string
+  description?: string
   sortOrder?: number
   duration?: number
   docIds?: string
@@ -178,17 +204,25 @@ export interface LearningChapterVO {
 
 export interface FlashcardVO {
   id: number
+  userId?: number
   pathId?: number
   chapterId?: number
+  categoryId?: number
+  docId?: number
   front?: string
   back?: string
   category?: string
   difficulty?: number
+  tags?: string
+  sourceType?: 'MANUAL' | 'AI_DOC' | 'AI_KB' | 'IMPORT' | string
   reviewCount?: number
-  // 后端实体存在，但当前 VO 不一定下发；前端用 reviewCount 在本地推算复习间隔
   reviewInterval?: number
   nextReviewTime?: string
   lastReviewTime?: string
+  createTime?: string
+  updateTime?: string
+  categoryName?: string
+  docTitle?: string
 }
 
 export interface LearningTaskVO {
@@ -234,10 +268,20 @@ export interface ChapterInput {
 export interface FlashcardInput {
   pathId?: number
   chapterId?: number
+  categoryId?: number
+  docId?: number
   front: string
   back: string
   category?: string
   difficulty?: number
+  tags?: string
+}
+
+export interface FlashcardGenerateInput {
+  categoryId?: number
+  docId?: number
+  count?: number
+  difficultyPreference?: number
 }
 
 // ===== 对话 / 消息 =====
@@ -316,6 +360,66 @@ export interface GraphEdgeVO {
 export interface KnowledgeGraphVO {
   nodes: GraphNodeVO[]
   edges: GraphEdgeVO[]
+}
+
+export interface TechNodeVO {
+  id: string
+  name: string
+  category: 'LANGUAGE' | 'FRAMEWORK' | 'TOOL' | 'DATABASE' | 'ALGORITHM' | 'PLATFORM'
+  categoryLabel: string
+  description?: string
+  difficulty?: number
+  docCount?: number
+}
+
+export interface TechEdgeVO {
+  source: string
+  target: string
+  relation: 'PREREQUISITE' | 'COMPONENT' | 'DEPENDS'
+  strength?: number
+  description?: string
+}
+
+export interface TechGraphVO {
+  topic: string
+  generatedAt: string
+  nodes: TechNodeVO[]
+  edges: TechEdgeVO[]
+}
+
+export interface ConceptDiagramVO {
+  concept: string
+  diagramType: 'FLOWCHART' | 'SEQUENCE' | 'CLASS' | 'ER' | 'PIE'
+  mermaidCode: string
+  description: string
+  explanation: string
+  difficulty?: number
+  keyPoints?: string[]
+  relatedConcepts?: string[]
+  codeExample?: string
+}
+
+// ===== 个性化学习路径 =====
+export interface RecommendChapter {
+  title: string
+  content: string
+  duration: number
+  sortOrder: number
+  focus: string
+}
+
+export interface PersonalizedPathVO {
+  id?: number
+  title: string
+  reason: string
+  level: string
+  totalDuration: number
+  dailyDuration: number
+  goals: string[]
+  chapters: RecommendChapter[]
+  advice: string
+  relatedPathId?: number
+  createTime?: string
 }
 
 // ===== 错题 =====
@@ -569,4 +673,277 @@ export interface CodeQuestionInput {
   duration?: number
   sortOrder?: number
   status?: number
+}
+
+// ===== 编程挑战（闯关游戏化） =====
+
+/** 挑战赛道列表项（含我的进度） */
+export interface ChallengeVO {
+  id: number
+  title: string
+  description?: string
+  /** 主语言：javascript / typescript / python / java / sql */
+  language?: string
+  /** 难度：0 简单 / 1 中等 / 2 困难 */
+  difficulty?: number
+  /** 图标名（lucide） */
+  icon?: string
+  /** 主题色 */
+  themeColor?: string
+  tags?: string
+  levelCount: number
+  totalPoints: number
+  playerCount?: number
+  joined?: boolean
+  clearedLevels: number
+  earnedPoints: number
+  earnedStars: number
+  completed?: boolean
+  /** 进度百分比 0-100 */
+  progressPercent: number
+}
+
+/** 挑战关卡（含我的状态） */
+export interface ChallengeLevelVO {
+  id: number
+  levelNo: number
+  title: string
+  description?: string
+  difficulty?: number
+  language?: string
+  hint?: string
+  exampleInput?: string
+  exampleOutput?: string
+  codeTemplate?: string
+  /** 测试用例 JSON 字符串：[{input, expected}] */
+  testCases?: string
+  points: number
+  locked: boolean
+  passed: boolean
+  /** 已获星级 0-3 */
+  stars: number
+  attempts: number
+  pointsEarned: number
+  /** 最近一次提交代码（恢复编辑器） */
+  lastCode?: string
+}
+
+/** 挑战详情（含关卡地图） */
+export interface ChallengeDetailVO {
+  id: number
+  title: string
+  description?: string
+  language?: string
+  difficulty?: number
+  icon?: string
+  themeColor?: string
+  tags?: string
+  levelCount: number
+  totalPoints: number
+  joined?: boolean
+  clearedLevels: number
+  currentLevel: number
+  earnedPoints: number
+  earnedStars: number
+  completed?: boolean
+  levels: ChallengeLevelVO[]
+}
+
+/** 关卡提交结果 */
+export interface ChallengeSubmitResultVO {
+  passed: boolean
+  firstPass: boolean
+  /** 本关星级 0-3 */
+  stars: number
+  pointsEarned: number
+  attempts: number
+  passCount: number
+  total: number
+  totalStars: number
+  totalPoints: number
+  clearedLevels: number
+  unlockedNext: boolean
+  nextLevelNo?: number | null
+  challengeCompleted: boolean
+}
+
+/** 排行榜条目 */
+export interface ChallengeRankVO {
+  rank: number
+  userId: number
+  nickname: string
+  avatar?: string
+  totalPoints: number
+  totalStars: number
+  clearedLevels: number
+}
+
+/** 我的挑战统计 */
+export interface ChallengeStatsVO {
+  joinedChallenges: number
+  completedChallenges: number
+  clearedLevels: number
+  totalPoints: number
+  totalStars: number
+  myRank?: number | null
+}
+
+// ===== 学习小组 =====
+
+/** 学习小组 VO */
+export interface StudyGroupVO {
+  id: number
+  name: string
+  description?: string
+  icon?: string
+  color?: string
+  type: 'PUBLIC' | 'PRIVATE'
+  ownerId: number
+  ownerName?: string
+  memberCount?: number
+  announcement?: string
+  learningPlanId?: number
+  createTime?: string
+  unreadCount?: number
+  userRole?: 'OWNER' | 'ADMIN' | 'MEMBER'
+}
+
+/** 学习小组成员 VO */
+export interface StudyGroupMemberVO {
+  id: number
+  groupId: number
+  userId: number
+  userName?: string
+  userEmail?: string
+  userAvatar?: string
+  role: 'OWNER' | 'ADMIN' | 'MEMBER'
+  invitedByName?: string
+  joinTime?: string
+}
+
+/** 学习小组消息 VO */
+export interface GroupMessageVO {
+  id: number
+  groupId: number
+  senderId: number
+  senderName?: string
+  senderAvatar?: string
+  messageType: 'TEXT' | 'IMAGE' | 'FILE' | 'CODE'
+  content?: string
+  fileUrl?: string
+  fileName?: string
+  fileSize?: number
+  codeLanguage?: string
+  mentionUsers?: MentionedUser[]
+  createTime?: string
+  recalled?: boolean
+  isMine?: boolean
+  /** 对方是否已读（仅我发出的消息有意义） */
+  read?: boolean
+  /** 前端乐观发送状态（仅本地使用，服务端不返回） */
+  sendStatus?: 'pending' | 'success' | 'error'
+  /** 前端生成的临时 ID，用于乐观更新与去重（仅本地使用） */
+  tempId?: string
+  /** 发送失败时缓存的错误信息（仅本地使用） */
+  errorMsg?: string
+}
+
+export interface MentionedUser {
+  id: number
+  name?: string
+}
+
+/** 创建小组请求 */
+export interface StudyGroupCreatePayload {
+  name: string
+  description?: string
+  icon?: string
+  color?: string
+  type?: 'PUBLIC' | 'PRIVATE'
+  learningPlanId?: number
+}
+
+/** 发送消息请求 */
+export interface GroupMessageSendPayload {
+  groupId: number
+  messageType?: 'TEXT' | 'IMAGE' | 'FILE' | 'CODE'
+  content: string
+  fileUrl?: string
+  fileName?: string
+  fileSize?: number
+  codeLanguage?: string
+  mentionUserIds?: number[]
+}
+
+/** 邀请成员请求 */
+export interface GroupInvitePayload {
+  groupId: number
+  email?: string
+  userId?: number
+  role?: 'ADMIN' | 'MEMBER'
+}
+
+/** 分页消息结果 */
+export interface GroupMessagePageResult {
+  records: GroupMessageVO[]
+  total: number
+  current: number
+  size: number
+  pages: number
+}
+
+// ===== 单聊私信 =====
+
+/** 私聊消息 VO */
+export interface PrivateMessageVO {
+  id: number
+  conversationId: number
+  senderId: number
+  senderName?: string
+  senderAvatar?: string
+  messageType: 'TEXT' | 'IMAGE' | 'FILE' | 'CODE'
+  content?: string
+  fileUrl?: string
+  fileName?: string
+  fileSize?: number
+  codeLanguage?: string
+  createTime?: string
+  recalled?: boolean
+  isMine?: boolean
+  /** 对方是否已读（仅我发出的消息有意义） */
+  read?: boolean
+}
+
+/** 私聊会话 VO（面向当前用户，含对方信息） */
+export interface PrivateConversationVO {
+  id: number
+  targetUserId: number
+  targetUserName?: string
+  targetUserAvatar?: string
+  lastMessageId?: number
+  lastMessageContent?: string
+  lastMessageType?: string
+  lastMessageTime?: string
+  unreadCount?: number
+  createTime?: string
+}
+
+/** 发送私聊消息请求 */
+export interface PrivateMessageSendPayload {
+  conversationId: number
+  messageType?: 'TEXT' | 'IMAGE' | 'FILE' | 'CODE'
+  content: string
+  fileUrl?: string
+  fileName?: string
+  fileSize?: number
+  codeLanguage?: string
+}
+
+/** 私聊分页消息结果 */
+export interface PrivateMessagePageResult {
+  records: PrivateMessageVO[]
+  total: number
+  current: number
+  size: number
+  pages: number
 }

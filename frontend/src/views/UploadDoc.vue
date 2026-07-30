@@ -355,39 +355,41 @@ async function handleUpload(): Promise<void> {
   uploading.value = true;
 
   try {
-    // 逐个文件上传（更新进度条），Markdown/TXT 直接读取文本作为 content
+    let okCount = 0;
+    let totalWords = 0;
+    let warnEmpty = 0;
+
+    // 逐个文件上传（更新进度条），正文抽取交由后端 Tika 处理（PDF/DOC/DOCX/PPT 全覆盖）
     for (const uploadFile of files.value) {
       uploadFile.status = 'uploading';
       uploadFile.progress = 10;
 
-      let content = formData.value.description;
-      // Markdown/TXT 直接以 file.text() 提取正文
-      if (/\.(md|markdown|txt)$/i.test(uploadFile.name)) {
-        try {
-          content = await uploadFile.file.text();
-        } catch {
-          content = formData.value.description;
-        }
-      }
-
-      // 模拟进度更新（接口暂不支持 onUploadProgress，使用步进模拟）
-      uploadFile.progress = 50;
+      // 标题：单文件用 formData.title，多文件用各文件名（去扩展名）
+      const titleForThis = files.value.length === 1
+        ? formData.value.title.trim()
+        : (uploadFile.name.substring(0, uploadFile.name.lastIndexOf('.')) || uploadFile.name);
 
       try {
-        // 标题：单文件用 formData.title，多文件用各文件名（去扩展名）
-        const titleForThis = files.value.length === 1
-          ? formData.value.title.trim()
-          : (uploadFile.name.substring(0, uploadFile.name.lastIndexOf('.')) || uploadFile.name);
+        const created = await docsApi.upload(
+          uploadFile.file,
+          {
+            title: titleForThis,
+            summary: formData.value.description,
+            categoryId: Number(formData.value.categoryId),
+            tags: formData.value.tags.join(','),
+            difficulty: Number(formData.value.difficulty) || undefined,
+            status: 1,
+          },
+          (percent) => {
+            // 进度映射：10% ~ 100%（已包含真实上传进度 + 后端解析等待）
+            uploadFile.progress = 10 + Math.round((percent / 100) * 90);
+          }
+        );
 
-        await docsApi.create({
-          title: titleForThis,
-          summary: formData.value.description,
-          content,
-          categoryId: Number(formData.value.categoryId),
-          tags: formData.value.tags.join(','),
-          status: 1,
-        });
-
+        const words = (created as any)?.wordCount ?? 0;
+        totalWords += words;
+        if (words === 0) warnEmpty++;
+        okCount++;
         uploadFile.progress = 100;
         uploadFile.status = 'done';
       } catch (e) {
@@ -397,11 +399,23 @@ async function handleUpload(): Promise<void> {
       }
     }
 
-    // 全部成功则跳转
     const hasError = files.value.some((f) => f.status === 'error');
     if (!hasError) {
-      notify('文档上传成功！', 'success');
-      router.push('/');
+      // 给出解析结果反馈：总字数 + 可能的扫描件/纯图片 PDF 警告
+      const parts: string[] = [`成功上传 ${okCount} 个文档`];
+      parts.push(`共抽取正文 ${totalWords.toLocaleString()} 字`);
+      const extraMsg = parts.join(' · ');
+      notify(extraMsg, 'success', 4000);
+      if (warnEmpty > 0) {
+        setTimeout(() => {
+          notify(
+            `有 ${warnEmpty} 个文档未抽到正文，可能是扫描件或纯图片 PDF。建议先使用 OCR 转可编辑文本后再上传。`,
+            'warning',
+            6000,
+          );
+        }, 1200);
+      }
+      setTimeout(() => router.push('/'), 1800);
     } else {
       notify('部分文件上传失败，请重试', 'warning');
     }

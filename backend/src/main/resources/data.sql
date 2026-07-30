@@ -72,14 +72,14 @@ INSERT INTO learning_chapter (path_id, title, content, sort_order, duration, doc
 (4, '需求分析与管理', '需求收集和分析...', 3, 150, '15', ''),
 (4, '产品设计实战', '从 0 到 1 设计产品...', 4, 150, '', '');
 
--- 闪卡
-INSERT INTO learning_flashcard (path_id, chapter_id, front, back, category, difficulty, review_count) VALUES
-(1, 2, 'JavaScript 中有哪些数据类型？', '基本类型：string、number、boolean、null、undefined、symbol、bigint\n引用类型：object', 'JavaScript', 1, 120),
-(1, 2, 'let、const、var 的区别？', '1. var 是函数作用域，存在变量提升\n2. let 和 const 是块级作用域\n3. const 声明的变量不能重新赋值', 'JavaScript', 1, 95),
-(1, 4, 'React 中 useState 的作用是什么？', 'useState 是 React Hook，用于在函数组件中添加状态管理。返回一个状态值和更新该状态的函数。', 'React', 2, 80),
-(3, 4, '什么是梯度下降？', '梯度下降是一种优化算法，通过沿损失函数梯度的反方向迭代更新参数，以最小化损失函数。', '深度学习', 2, 65),
-(3, 3, '监督学习和无监督学习的区别？', '监督学习：有标签数据，学习输入到输出的映射\n无监督学习：无标签数据，发现数据内在结构', '机器学习', 1, 110),
-(3, 6, 'Transformer 的核心机制是什么？', '自注意力机制（Self-Attention），允许模型在处理序列时关注所有位置，而不仅限于局部窗口。', 'NLP', 3, 45);
+-- 闪卡（默认归属用户 user_id=1：admin/初始演示用户）
+INSERT INTO learning_flashcard (user_id, path_id, chapter_id, front, back, category, difficulty, review_count, source_type) VALUES
+(1, 1, 2, 'JavaScript 中有哪些数据类型？', '基本类型：string、number、boolean、null、undefined、symbol、bigint\n引用类型：object', 'JavaScript', 1, 120, 'MANUAL'),
+(1, 1, 2, 'let、const、var 的区别？', '1. var 是函数作用域，存在变量提升\n2. let 和 const 是块级作用域\n3. const 声明的变量不能重新赋值', 'JavaScript', 1, 95, 'MANUAL'),
+(1, 1, 4, 'React 中 useState 的作用是什么？', 'useState 是 React Hook，用于在函数组件中添加状态管理。返回一个状态值和更新该状态的函数。', 'React', 2, 80, 'MANUAL'),
+(1, 3, 4, '什么是梯度下降？', '梯度下降是一种优化算法，通过沿损失函数梯度的反方向迭代更新参数，以最小化损失函数。', '深度学习', 2, 65, 'MANUAL'),
+(1, 3, 3, '监督学习和无监督学习的区别？', '监督学习：有标签数据，学习输入到输出的映射\n无监督学习：无标签数据，发现数据内在结构', '机器学习', 1, 110, 'MANUAL'),
+(1, 3, 6, 'Transformer 的核心机制是什么？', '自注意力机制（Self-Attention），允许模型在处理序列时关注所有位置，而不仅限于局部窗口。', 'NLP', 3, 45, 'MANUAL');
 
 -- 学习任务
 INSERT INTO learning_task (user_id, title, description, type, target_id, exp_reward, energy_cost, deadline, status) VALUES
@@ -203,3 +203,42 @@ INSERT INTO code_question (title, description, difficulty, language, tags, hint,
 ('实现防抖函数', '请实现一个防抖函数 debounce。\n\n功能：在连续触发的事件停止后，延迟 wait 毫秒才执行 fn；若在 wait 时间内再次触发，则重新计时。\n\n应用场景：搜索框输入、窗口 resize 事件等。\n\n示例：\nconst debounced = debounce(() => console.log(''执行''), 100);\ndebounced(); debounced(); // 100ms 后只输出一次 "执行"\n\n提示：使用 setTimeout + clearTimeout 实现。', 1, 'javascript', '函数,闭包,定时器,手写实现', '闭包保存 timerId，每次调用先 clearTimeout 再重新 setTimeout。', 'debounce(fn, 100)', '100ms 后执行一次', '// 实现 debounce 函数\nfunction debounce(fn, wait) {\n  // TODO: 在此实现你的代码\n}\n\n// 测试\nconst debounced = debounce((msg) => console.log(msg || ''执行''), 100);\ndebounced();\ndebounced();\n// 100ms 后应只输出一次 "执行"',
 '[{"input":"const d = debounce((m) => console.log(m || ''执行''), 50); d(); d(); setTimeout(() => {}, 80)","expected":"执行"}]',
 '闭包保存 timerId，clearTimeout 清除上次定时', 25, 10, 1, 89, 220);
+
+-- ========== 学习小组预设数据 ==========
+-- 预设公开小组（系统自动推荐）
+INSERT INTO study_group (name, description, icon, color, type, owner_id, member_count, announcement) VALUES
+('AI 大模型学习营', '一起学习大语言模型、Prompt 工程、RAG、Agent 开发等 AI 前沿技术', 'brain', '#3B6FE0', 'PUBLIC', 1, 128, '欢迎加入 AI 大模型学习营！每周分享最新论文和实践经验，周二晚 8 点线上分享会。'),
+('Java 后端进阶', 'Spring Boot、微服务、JVM 调优、高并发、分布式等 Java 后端深度技术交流', 'server', '#10B981', 'PUBLIC', 1, 95, '本组专注 Java 后端技术进阶，每周会发布一道高频面试题，欢迎大家一起讨论。'),
+('前端工程化实战', 'Vue3、React、Vite、TypeScript、性能优化、组件设计等前端工程化最佳实践', 'code', '#8B5CF6', 'PUBLIC', 2, 76, '前端工程化学习小组，每月一个主题，本月主题：Monorepo 架构实践。'),
+('Python 数据科学', '从零开始学习 Python 数据分析、爬虫、机器学习、数据可视化', 'database', '#F59E0B', 'PUBLIC', 2, 64, ' Python 数据科学入门到精通，每周更新一个实战项目。'),
+('算法刷题小组', 'LeetCode 高频题打卡，每日一题，周赛模拟，一起拿 offer', 'target', '#EF4444', 'PUBLIC', 3, 152, '每日一题打卡中！完成本周 5 道题可获得「刷题达人」称号。'),
+('数据库设计与优化', 'MySQL、Redis、MongoDB、PostgreSQL 等数据库设计与性能优化交流', 'database', '#06B6D4', 'PUBLIC', 3, 58, '本组专注数据库领域，分享索引优化、SQL 调优、分库分表等实战经验。'),
+('全栈开发者联盟', '前后端通吃，全栈技术交流，项目协作，技术分享', 'git-branch', '#EC4899', 'PUBLIC', 1, 110, '全栈开发者聚集地，每月组织一次线上技术分享会，欢迎参与。');
+
+-- 为预设小组添加创建者成员记录
+INSERT INTO study_group_member (group_id, user_id, role, invited_by) VALUES
+(1, 1, 'OWNER', 1),
+(2, 1, 'OWNER', 1),
+(3, 2, 'OWNER', 2),
+(4, 2, 'OWNER', 2),
+(5, 3, 'OWNER', 3),
+(6, 3, 'OWNER', 3),
+(7, 1, 'OWNER', 1);
+
+-- ========== 编程挑战预设数据（JavaScript 十题闯关，10 关卡，满分 160 分）==========
+INSERT INTO code_challenge (title, description, language, difficulty, icon, theme_color, tags, level_count, total_points, sort_order, status) VALUES
+('JavaScript 十题闯关', '从基础语法到经典算法，10 道循序渐进的关卡带你系统巩固 JavaScript 核心能力。逐关解锁，通关得分，冲击积分排行榜！', 'javascript', 0, 'trophy', '#3B6FE0', 'JavaScript,基础,算法,闯关', 10, 160, 1, 1);
+
+-- 10 个关卡（challenge_id 默认为 1；关卡内嵌题目，前端调用在线沙箱真实运行 JS 判题）
+INSERT INTO code_challenge_level (challenge_id, level_no, title, description, difficulty, language, hint, example_input, example_output, code_template, test_cases, points, status) VALUES
+(1, 1, '两数之和', STRINGDECODE('实现函数 sum(a, b)，返回两个数字相加的结果。\n\n这是最基础的一关，用于熟悉答题与运行流程。'), 0, 'javascript', '直接使用 + 运算符返回 a + b 即可。', 'sum(2, 3)', '5', STRINGDECODE('function sum(a, b) {\n  // TODO: 返回两数之和\n}'), '[{"input":"console.log(sum(2, 3))","expected":"5"},{"input":"console.log(sum(-1, 1))","expected":"0"},{"input":"console.log(sum(100, 250))","expected":"350"}]', 10, 1),
+(1, 2, '判断偶数', '实现函数 isEven(n)，当 n 为偶数时返回 true，否则返回 false。', 0, 'javascript', '使用取余运算符 %：n % 2 === 0 即为偶数。', 'isEven(4)', 'true', STRINGDECODE('function isEven(n) {\n  // TODO: n 为偶数返回 true，否则返回 false\n}'), '[{"input":"console.log(isEven(4))","expected":"true"},{"input":"console.log(isEven(7))","expected":"false"},{"input":"console.log(isEven(0))","expected":"true"}]', 10, 1),
+(1, 3, '数组最大值', '实现函数 maxOf(arr)，返回数组中的最大值。数组至少包含一个元素。', 0, 'javascript', '可用 Math.max(...arr)，或遍历比较。', 'maxOf([3, 7, 2])', '7', STRINGDECODE('function maxOf(arr) {\n  // TODO: 返回数组中的最大值\n}'), '[{"input":"console.log(maxOf([3, 7, 2]))","expected":"7"},{"input":"console.log(maxOf([-5, -2, -9]))","expected":"-2"},{"input":"console.log(maxOf([42]))","expected":"42"}]', 10, 1),
+(1, 4, '反转字符串', '实现函数 reverse(s)，返回字符串反转后的结果。', 1, 'javascript', '可将字符串 split 成数组、reverse 后再 join，或用双指针。', 'reverse(''hello'')', 'olleh', STRINGDECODE('function reverse(s) {\n  // TODO: 返回反转后的字符串\n}'), '[{"input":"console.log(reverse(''hello''))","expected":"olleh"},{"input":"console.log(reverse(''abc''))","expected":"cba"},{"input":"console.log(reverse(''x''))","expected":"x"}]', 15, 1),
+(1, 5, '阶乘计算', '实现函数 factorial(n)，返回 n 的阶乘。约定 0! = 1。', 1, 'javascript', '可用循环累乘，也可用递归：factorial(n) = n * factorial(n-1)。', 'factorial(5)', '120', STRINGDECODE('function factorial(n) {\n  // TODO: 返回 n 的阶乘（0! = 1）\n}'), '[{"input":"console.log(factorial(5))","expected":"120"},{"input":"console.log(factorial(0))","expected":"1"},{"input":"console.log(factorial(6))","expected":"720"}]', 15, 1),
+(1, 6, '斐波那契数', '实现函数 fib(n)，返回第 n 个斐波那契数。约定 fib(0)=0，fib(1)=1。', 1, 'javascript', '从 0、1 开始迭代累加，避免朴素递归的重复计算。', 'fib(10)', '55', STRINGDECODE('function fib(n) {\n  // TODO: 返回第 n 个斐波那契数（fib(0)=0, fib(1)=1）\n}'), '[{"input":"console.log(fib(10))","expected":"55"},{"input":"console.log(fib(1))","expected":"1"},{"input":"console.log(fib(7))","expected":"13"}]', 15, 1),
+(1, 7, '数组求和', '实现函数 sumArr(arr)，返回数组所有元素之和。空数组返回 0。', 1, 'javascript', '可用 reduce 累加，注意初始值设为 0。', 'sumArr([1, 2, 3, 4])', '10', STRINGDECODE('function sumArr(arr) {\n  // TODO: 返回数组所有元素之和（空数组返回 0）\n}'), '[{"input":"console.log(sumArr([1, 2, 3, 4]))","expected":"10"},{"input":"console.log(sumArr([]))","expected":"0"},{"input":"console.log(sumArr([10, -5]))","expected":"5"}]', 20, 1),
+(1, 8, '回文判断', '实现函数 isPalindrome(s)，判断字符串是否为回文（正读反读一致），返回 true 或 false。', 2, 'javascript', '将字符串反转后与原串比较，或使用双指针从两端向中间比较。', 'isPalindrome(''abcba'')', 'true', STRINGDECODE('function isPalindrome(s) {\n  // TODO: 判断字符串是否为回文\n}'), '[{"input":"console.log(isPalindrome(''abcba''))","expected":"true"},{"input":"console.log(isPalindrome(''abc''))","expected":"false"},{"input":"console.log(isPalindrome(''a''))","expected":"true"}]', 20, 1),
+(1, 9, '数组去重', '实现函数 unique(arr)，返回去重后的新数组（保持原有顺序）。', 2, 'javascript', '可用 Set，或用对象/Map 记录已出现的元素。', 'unique([1, 2, 2, 3])', '[1, 2, 3]', STRINGDECODE('function unique(arr) {\n  // TODO: 返回去重后的新数组（保持顺序）\n}'), '[{"input":"console.log(unique([1, 2, 2, 3]).join('',''))","expected":"1,2,3"},{"input":"console.log(unique([5, 5, 5]).join('',''))","expected":"5"},{"input":"console.log(unique([1, 2, 3]).join('',''))","expected":"1,2,3"}]', 20, 1),
+(1, 10, 'FizzBuzz', '实现函数 fizzbuzz(n)：能同时被 3 和 5 整除返回 ''FizzBuzz''，仅被 3 整除返回 ''Fizz''，仅被 5 整除返回 ''Buzz''，否则返回 n 本身。', 2, 'javascript', '先判断能否被 15 整除，再判断 3 与 5，顺序很关键。', 'fizzbuzz(15)', 'FizzBuzz', STRINGDECODE('function fizzbuzz(n) {\n  // TODO: 3和5整除→FizzBuzz；3→Fizz；5→Buzz；否则返回 n\n}'), '[{"input":"console.log(fizzbuzz(15))","expected":"FizzBuzz"},{"input":"console.log(fizzbuzz(3))","expected":"Fizz"},{"input":"console.log(fizzbuzz(5))","expected":"Buzz"},{"input":"console.log(fizzbuzz(7))","expected":"7"}]', 25, 1);
+

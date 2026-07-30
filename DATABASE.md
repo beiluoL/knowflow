@@ -1,7 +1,10 @@
 # 数据库设计文档（knowflow 知识库）
 
-本文档说明知识库学习平台的数据库表结构（共 **23 张表**）、字段定义、表间关系（逻辑外键）与索引设计。
+本文档说明知识库学习平台的数据库表结构（共 **33 张表**）、字段定义、表间关系（逻辑外键）与索引设计。
 脚本位置：`backend/src/main/resources/schema.sql`（表结构 + 索引）、`data.sql`（种子数据）。
+
+> **IM（学习小组 / 单聊私信）相关表**（`study_group*`、`private_*`）以 **`消息功能技术方案.md`** 为唯一权威文档，
+> 本文仅列出其结构概要，字段/协议以该文档为准。
 
 > **设计规范**：遵循《阿里巴巴 Java 开发手册》——【强制】不得使用物理外键与级联，
 > 一切外键概念必须在应用层（Service）解决。本库所有表间关联均为「逻辑外键」，
@@ -44,6 +47,18 @@ erDiagram
     sys_user ||--o{ kb_member : "加入知识库"
     doc_category ||--o{ quiz_question : "题库归属"
     doc_document ||--o{ quiz_question : "题目关联文档"
+    quiz_question ||--o{ quiz_answer_record : "答题记录"
+    sys_user ||--o{ quiz_answer_record : "作答"
+    sys_user ||--o{ user_check_in : "每日打卡"
+    sys_user ||--o{ learning_path : "采用私有路径(owner_user_id)"
+    sys_user ||--o{ ai_personalized_path : "个性化路径缓存"
+    ai_personalized_path |o--o| learning_path : "采用落地(related_path_id)"
+    sys_user ||--o{ ai_concept_diagram : "概念图解缓存"
+    sys_user ||--o{ study_group : "创建小组"
+    study_group ||--o{ study_group_member : "小组成员"
+    study_group ||--o{ study_group_message : "小组消息"
+    sys_user ||--o{ private_conversation : "私聊会话"
+    private_conversation ||--o{ private_message : "私聊消息"
 ```
 
 ### 表间关系表（逻辑外键，非物理约束）
@@ -77,6 +92,17 @@ erDiagram
 | doc_category | owner_id | sys_user(id) | idx_cat_owner | 是 |
 | kb_member | category_id / user_id | doc_category / sys_user | uk_kb_member_cat_user + idx 若干 | user_id 可空（邮箱邀请） |
 | quiz_question | category_id / doc_id | doc_category / doc_document | idx_qq_category / idx_qq_doc | 是 |
+| quiz_answer_record | user_id / question_id | sys_user / quiz_question | idx_qar_user / idx_qar_question | 否 |
+| user_check_in | user_id | sys_user(id) | idx_uci_user + uk(user_id,check_date) | 否 |
+| learning_path | owner_user_id | sys_user(id)；0=平台公开路径 | idx_lp_owner | 否（默认 0） |
+| ai_personalized_path | user_id / related_path_id | sys_user / learning_path | idx_app_user + uk(user_id,goal,level,daily_minutes,deleted) | related_path_id 可空 |
+| ai_concept_diagram | user_id | sys_user(id) | idx_acd_user + uk(user_id,concept,deleted) | 否 |
+| study_group | owner_id | sys_user(id) | idx_sg_owner | 否 |
+| study_group_member | group_id / user_id | study_group / sys_user | idx_sgm_user + uk(group_id,user_id,deleted) | 否 |
+| study_group_message | group_id / sender_id | study_group / sys_user | idx_sgm_group / idx_sgm_sender | 否 |
+| private_conversation | user_a_id / user_b_id | sys_user(id) | idx_pc_user_a/_b + uk(user_a_id,user_b_id,deleted) | 否 |
+| private_conversation_read | conversation_id / user_id | private_conversation / sys_user | idx_pcr_user + uk(conversation_id,user_id,deleted) | 否 |
+| private_message | conversation_id / sender_id | private_conversation / sys_user | idx_pm_conv / idx_pm_sender | 否 |
 
 > 说明：`doc_category.parent_id` 用 `0` 表示顶级分类（哨兵值）；所有逻辑删除列 `deleted` 不参与关联。以上均为逻辑外键，物理层无 FOREIGN KEY 约束。
 
@@ -208,9 +234,10 @@ erDiagram
 | enrolled_count | INT | 报名人数 | 默认 0 |
 | sort_order | INT | 排序 | 默认 0 |
 | status | INT | 状态 | 默认 1 |
+| owner_user_id | BIGINT | 归属用户：0=平台公开路径；非 0=用户「采用 AI 个性化路径」落地的私有路径 | 逻辑关联 → sys_user，默认 0 |
 | create_time / update_time | TIMESTAMP | | |
 | deleted | INT | 逻辑删除 | 默认 0 |
-- 索引：`idx_path_status(status)`
+- 索引：`idx_path_status(status)`、`idx_lp_owner(owner_user_id)`
 
 ### 9. learning_chapter（章节表）
 | 字段 | 类型 | 说明 | 约束 |
@@ -453,6 +480,93 @@ erDiagram
 | create_time / update_time | TIMESTAMP | | |
 | deleted | INT | 逻辑删除 | 默认 0 |
 - 索引：`idx_qq_type`、`idx_qq_difficulty`、`idx_qq_status`、`idx_qq_source`、`idx_qq_category`、`idx_qq_doc`
+
+### 24. quiz_answer_record（测验答题记录表）
+> 在线答题判分落地：每次作答入库，错题自动同步 `learning_mistake`（错题本）。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| user_id | BIGINT | 作答用户 | 逻辑关联 → sys_user |
+| question_id | BIGINT | 题目 | 逻辑关联 → quiz_question |
+| user_answer | TEXT | 用户提交的答案 | |
+| is_correct | INT | 是否答对（0 错误/1 正确） | 默认 0 |
+| score | INT | 本题得分（0-100） | 默认 0 |
+| time_cost | INT | 答题耗时（秒） | 默认 0 |
+| ai_feedback | TEXT | AI 评语（简答题等主观题预留） | |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_qar_user(user_id)`、`idx_qar_question(question_id)`、`idx_qar_correct(is_correct)`
+
+### 25. user_check_in（每日打卡表）
+> 连续打卡天数与奖励记录；同用户同自然日仅一条（幂等）。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| user_id | BIGINT | 用户 | 逻辑关联 → sys_user |
+| check_date | DATE | 打卡日期（自然日） | 非空 |
+| continuous_days | INT | 当日累计连续打卡天数 | 默认 1 |
+| reward_exp | INT | 本次打卡奖励经验值 | 默认 0 |
+| reward_energy | INT | 本次打卡奖励精力值 | 默认 0 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 约束：唯一 `uk_uci_user_date(user_id, check_date)`；索引 `idx_uci_user(user_id)`
+
+### 26. ai_concept_diagram（概念图解缓存表）
+> AI 概念可视化结果缓存，按「用户 + 概念名」维度缓存，避免重复调用 AI。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| user_id | BIGINT | 所属用户 | 逻辑关联 → sys_user |
+| concept | VARCHAR(100) | 概念名称 | 非空 |
+| diagram_type | VARCHAR(20) | 图解类型 FLOWCHART/SEQUENCE/CLASS/ER/PIE | 默认 FLOWCHART |
+| mermaid_code | TEXT | Mermaid 语法源码 | |
+| description | VARCHAR(1000) | 概念简要说明 | |
+| explanation | TEXT | AI 详细解释 | |
+| difficulty | INT | 难度（1 入门/2 中等/3 进阶） | 默认 1 |
+| key_points | TEXT | 关键知识点列表（JSON 数组字符串） | |
+| related_concepts | TEXT | 关联概念列表（JSON 数组字符串） | |
+| code_example | TEXT | 代码示例（可空） | |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 约束：唯一 `uk_acd_user_concept(user_id, concept, deleted)`；索引 `idx_acd_user(user_id)`
+
+### 27. ai_personalized_path（个性化学习路径缓存表）
+> AI 生成的个性化路径**推荐缓存**，按「用户 + 目标 + 水平 + 每日时长」维度缓存。
+> 用户点击「采用此路径」后，会落地为真实 `learning_path`(owner_user_id=用户) + `learning_chapter` 并自动报名，落地路径 ID 回填 `related_path_id`。
+> 注意：因唯一索引含 `deleted` 列，重新生成 / 删除历史采用**物理删除**（绕过逻辑删除），避免同键值残留冲突。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| user_id | BIGINT | 所属用户 | 逻辑关联 → sys_user |
+| goal | VARCHAR(200) | 学习目标 | 非空 |
+| level | VARCHAR(20) | 当前水平（入门/进阶/高级） | 默认 入门 |
+| daily_minutes | INT | 每日学习时长（分钟） | 默认 30 |
+| title | VARCHAR(200) | 推荐路径标题 | |
+| reason | VARCHAR(1000) | 推荐理由 | |
+| total_duration | INT | 预计总时长（分钟） | 默认 0 |
+| goals_text | TEXT | 学习目标列表（JSON 数组字符串） | |
+| chapters_text | TEXT | 章节规划（JSON 数组字符串） | |
+| advice | TEXT | AI 学习建议 | |
+| related_path_id | BIGINT | 采用后关联的真实路径 ID（可空） | 逻辑关联 → learning_path |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 约束：唯一 `uk_app_user_goal(user_id, goal, level, daily_minutes, deleted)`；索引 `idx_app_user(user_id)`
+
+### 28–33. IM 消息相关表（结构概要）
+> **权威文档：`消息功能技术方案.md`**。以下仅列结构与关键约束，字段/WS 协议以该文档为准。
+
+| # | 表名 | 用途 | 关键字段 | 关键约束/索引 |
+|---|---|---|---|---|
+| 28 | study_group | 学习小组 | name、type(PUBLIC/PRIVATE)、owner_id、member_count、announcement | idx_sg_owner / idx_sg_type |
+| 29 | study_group_member | 小组成员 | group_id、user_id、role(OWNER/ADMIN/MEMBER)、last_read_message_id | uk_sgm_group_user(group_id,user_id,deleted) |
+| 30 | study_group_message | 小组消息 | group_id、sender_id、message_type(TEXT/IMAGE/FILE/CODE)、content、mention_user_ids、recalled | idx_sgm_group / idx_sgm_sender / idx_sgm_ctime |
+| 31 | private_conversation | 私聊会话 | user_a_id、user_b_id（小 ID 在前）、last_message_id | uk_pc_users(user_a_id,user_b_id,deleted) |
+| 32 | private_conversation_read | 私聊已读游标 | conversation_id、user_id、last_read_message_id | uk_pcr_conv_user(conversation_id,user_id,deleted) |
+| 33 | private_message | 私聊消息 | conversation_id、sender_id、message_type、content、recalled | idx_pm_conv / idx_pm_sender / idx_pm_ctime |
 
 ---
 

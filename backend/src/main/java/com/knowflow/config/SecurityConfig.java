@@ -43,7 +43,9 @@ public class SecurityConfig {
                                 "/api/auth/register",
                                 // 第三方 OAuth 登录与回调：未登录态可访问，回调后会签发 JWT
                                 "/api/auth/oauth/**",
-                                "/api/public/**"
+                                "/api/public/**",
+                                // 上传文件静态资源
+                                "/uploads/**"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/docs",
@@ -64,14 +66,23 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/knowledge/graph"
                         ).permitAll()
+                        // 编程挑战只读接口：匿名可浏览赛道与排行榜，提交/个人统计仍需登录
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/challenges",
+                                "/api/challenges/{id}",
+                                "/api/challenges/leaderboard"
+                        ).permitAll()
+                        // WebSocket 握手由 WebSocketAuthInterceptor 用 token 参数鉴权
+                        .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // H2 控制台与 API 文档仅限管理员（生产已关闭 H2 控制台，本地开发由 ADMIN 账号访问）
                         .requestMatchers(
                                 "/h2-console/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/api-docs/**",
                                 "/v3/api-docs/**"
-                        ).permitAll()
+                        ).hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));

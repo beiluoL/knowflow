@@ -21,6 +21,15 @@ public class DocDocument extends BaseEntity {
     /** 文档图标名称，用于前端展示。 */
     private String icon;
 
+    /** 原始文件名（上传时保留，含扩展名）；纯文本创建型文档为 null。 */
+    private String fileName;
+
+    /** 原始文件访问路径（/uploads/...），上传型文档用于原文下载/预览。 */
+    private String fileUrl;
+
+    /** 原始文件字节大小；纯文本创建型文档为 null。 */
+    private Long fileSize;
+
     private Long categoryId;
 
     /** 分类层级路径，逗号分隔的分类 ID 链。 */

@@ -233,14 +233,17 @@ public class AdminLearningController {
                 + "      \"title\": \"章节标题\",\n"
                 + "      \"content\": \"章节内容描述（100-200字）\",\n"
                 + "      \"duration\": 30,\n"
-                + "      \"sortOrder\": 1\n"
+                + "      \"sortOrder\": 1,\n"
+                + "      \"focus\": \"本章学习重点\"\n"
                 + "    }\n"
                 + "  ]\n"
                 + "}\n"
                 + "3. 章节数量为 " + chapterCount + " 个\n"
-                + "4. 章节应循序渐进，从基础到进阶\n"
+                + "4. 章节应循序渐进，从基础到进阶，难度逐步递进\n"
                 + "5. 每个章节的 duration 单位为分钟\n"
-                + "6. 章节内容描述应涵盖对应主题的核心知识点\n";
+                + "6. 章节内容描述应涵盖对应主题的核心知识点\n"
+                + "7. 每个章节需标注学习重点（focus），帮助学生快速把握核心\n"
+                + "8. 前 30% 章节侧重基础概念，中间 40% 侧重核心技能，后 30% 侧重实战应用\n";
 
         String userPrompt = "学习主题：" + topic + "\n";
         if (!description.isEmpty()) {

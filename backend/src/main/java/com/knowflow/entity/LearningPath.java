@@ -29,4 +29,7 @@ public class LearningPath extends BaseEntity {
 
     /** 状态位，如 0 下架 / 1 已发布。 */
     private Integer status;
+
+    /** 归属用户ID：0 表示平台公开路径；非 0 表示某用户「采用 AI 个性化路径」落地的私有路径（逻辑外键 sys_user.id）。 */
+    private Long ownerUserId;
 }

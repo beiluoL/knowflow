@@ -22,17 +22,26 @@ spring:
 
   h2:
     console:
-      enabled: true
+      # 生产默认关闭；仅本地开发由 application-local.yml 开启
+      enabled: false
       path: /h2-console
 
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 100MB
+      file-size-threshold: 2KB
+
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 生产使用 slf4j 以免 stdout 刷屏；本地由 application-local.yml 覆盖为 StdOutImpl
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
   global-config:
     db-config:
       id-type: auto
@@ -49,7 +58,8 @@ springdoc:
     operations-sorter: alpha
 
 jwt:
-  secret: ${JWT_SECRET:knowflow-dev-secret-key-please-change-in-production-32bytes}
+  # 必须显式配置；未设置 JWT_SECRET 时启动失败（fail-fast），避免被伪造令牌
+  secret: ${JWT_SECRET}
   expire: 86400000
 
 ai:
@@ -60,6 +70,25 @@ ai:
   timeout-seconds: ${AI_TIMEOUT_SECONDS:180}
   max-content-chars: ${AI_MAX_CONTENT_CHARS:20000}
   models: ${AI_MODELS:deepseek-chat,gpt-4o,claude-3-5-sonnet,qwen-plus}
+
+# 代码在线运行沙箱（SC1-IDE-01）：后端进程直执行 Python/Java/JS/C++
+# 生产环境建议替换为 Judge0 / Docker 隔离执行，此直执行方案仅作地基（超时 + 独立临时目录 + 并发信号量）。
+code:
+  execution:
+    # 单次执行超时（毫秒），超时强制 kill
+    time-limit-ms: 10000
+    # 标准输出/错误截断上限（字节）
+    output-limit-bytes: 1048576
+    # 最大并发执行数（信号量控制，防资源耗尽）
+    max-concurrency: 8
+    # 各语言可执行文件（PATH 中名称或绝对路径，生产可在容器内固定）
+    python-bin: python3
+    node-bin: node
+    java-bin: java
+    javac-bin: javac
+    gpp-bin: g++
+    # 用户工作区根目录（SC1-IDE-02 可重置实验沙箱）：按 userId 隔离为 {root}/{userId}/
+    workspace-root: ./code-workspaces
 
 # 第三方 OAuth 登录配置
 # GitHub: https://github.com/settings/developers 创建 OAuth App 获取

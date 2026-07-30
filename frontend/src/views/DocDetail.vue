@@ -62,6 +62,17 @@
               </div>
             </div>
 
+            <a
+              v-if="doc.fileUrl"
+              :href="doc.fileUrl"
+              target="_blank"
+              rel="noopener"
+              class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] px-3 py-1.5 text-[12px] font-medium text-gray-600 hover:bg-gray-50"
+            >
+              <Icon name="download" :size="14" />
+              下载原文
+            </a>
+
             <div class="mt-3 flex flex-nowrap gap-2 overflow-x-auto no-scrollbar">
               <span
                 v-for="tag in tagList"

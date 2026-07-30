@@ -150,6 +150,28 @@
         <span>社区讨论</span>
       </router-link>
 
+      <!-- 学习小组 -->
+      <router-link
+        to="/study-group"
+        class="flex items-center gap-2 text-sm font-medium transition-colors"
+        :class="isNavActive('/study-group') ? 'font-semibold' : 'hover:opacity-80'"
+        :style="{ color: isNavActive('/study-group') ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)' }"
+      >
+        <Icon name="message-circle" :size="16" />
+        <span>学习小组</span>
+      </router-link>
+
+      <!-- 消息（单聊） -->
+      <router-link
+        to="/messages"
+        class="flex items-center gap-2 text-sm font-medium transition-colors"
+        :class="isNavActive('/messages') ? 'font-semibold' : 'hover:opacity-80'"
+        :style="{ color: isNavActive('/messages') ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)' }"
+      >
+        <Icon name="message-square" :size="16" />
+        <span>消息</span>
+      </router-link>
+
       <!-- 个人（下拉） -->
       <div class="relative">
         <button
@@ -468,7 +490,10 @@ const mobileLinks: NavLink[] = [
   { path: '/categories', label: '分类浏览', icon: 'folder-tree' },
   { path: '/search', label: '搜索知识', icon: 'search' },
   { path: '/learning/knowledge-graph', label: '知识图谱', icon: 'share-2' },
+  { path: '/challenge', label: '编程挑战', icon: 'rocket' },
   { path: '/community', label: '社区讨论', icon: 'users' },
+  { path: '/study-group', label: '学习小组', icon: 'message-circle' },
+  { path: '/messages', label: '消息', icon: 'message-square' },
   { path: '/chat', label: '智能问答', icon: 'message-circle' },
 ];
 
@@ -484,7 +509,9 @@ const learningMenu: NavLink[] = [
   { path: '/learning/paths', label: '学习路径', icon: 'route' },
   { path: '/learning/pomodoro', label: '番茄钟专注', icon: 'timer' },
   { path: '/learning/code-practice', label: '代码练习', icon: 'code' },
+  { path: '/challenge', label: '编程挑战', icon: 'rocket' },
   { path: '/learning/flashcards', label: '学习闪卡', icon: 'layers' },
+  { path: '/learning/my-flashcards', label: '我的闪卡', icon: 'bookmark' },
   { path: '/learning/review', label: '复习计划', icon: 'calendar-check' },
   { path: '/learning/mode', label: '沉浸学习', icon: 'moon' },
 ];
@@ -506,6 +533,7 @@ const personalMenu: NavLink[] = [
 function isNavActive(path: string): boolean {
   if (path === '/') return route.path === '/';
   if (path === '/tasks') return ['/tasks', '/check-in', '/achievements', '/kb-titles'].includes(route.path);
+  if (path === '/study-group') return route.path === '/study-group';
   return route.path === path || route.path.startsWith(path + '/');
 }
 

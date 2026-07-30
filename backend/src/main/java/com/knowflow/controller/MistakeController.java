@@ -3,6 +3,8 @@ package com.knowflow.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.knowflow.common.PageResult;
 import com.knowflow.common.Result;
+import com.knowflow.dto.CodeMistakeCollectRequest;
+import com.knowflow.dto.CodeMistakeCollectResult;
 import com.knowflow.entity.LearningMistake;
 import com.knowflow.service.MistakeService;
 import com.knowflow.vo.MistakeVO;
@@ -59,11 +61,22 @@ public class MistakeController {
     @PostMapping
     public Result<Void> add(@RequestBody LearningMistake mistake, Authentication authentication) {
         if (authentication == null) {
-            return Result.error(401, "请先登录");
+            return Result.error(401, "请先确保已登录");
         }
         Long userId = (Long) authentication.getPrincipal();
         mistakeService.addMistake(mistake, userId);
         return Result.success();
+    }
+
+    @Operation(summary = "代码运行异常自动归集到错题本（SC1-AI-03）：提取错误类型并关联知识库")
+    @PostMapping("/collect-code")
+    public Result<CodeMistakeCollectResult> collectCode(
+            @RequestBody CodeMistakeCollectRequest req, Authentication authentication) {
+        Long userId = authentication != null ? (Long) authentication.getPrincipal() : null;
+        if (userId == null) {
+            return Result.error(401, "请先登录");
+        }
+        return Result.success(mistakeService.collectCodeMistake(req, userId));
     }
 
     @Operation(summary = "错题统计")

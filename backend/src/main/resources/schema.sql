@@ -29,6 +29,9 @@ CREATE TABLE IF NOT EXISTS doc_document (
     summary VARCHAR(500),
     cover VARCHAR(255),
     icon VARCHAR(255),
+    file_name VARCHAR(500) COMMENT '原始文件名（上传时保留，含扩展名）',
+    file_url VARCHAR(500) COMMENT '原始文件访问路径（/uploads/...），用于原文下载/预览',
+    file_size BIGINT COMMENT '原始文件字节大小',
     category_id BIGINT,
     category_path VARCHAR(500),
     tags VARCHAR(500),
@@ -121,10 +124,12 @@ CREATE TABLE IF NOT EXISTS learning_path (
     enrolled_count INT DEFAULT 0,
     sort_order INT DEFAULT 0,
     status INT DEFAULT 1,
+    owner_user_id BIGINT DEFAULT 0,
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0
 );
+CREATE INDEX IF NOT EXISTS idx_lp_owner ON learning_path (owner_user_id);
 
 -- 章节表
 CREATE TABLE IF NOT EXISTS learning_chapter (
@@ -155,16 +160,24 @@ CREATE TABLE IF NOT EXISTS learning_user_path (
     deleted INT DEFAULT 0
 );
 
--- 闪卡表
+-- 闪卡表（用户维度隔离，支持关联知识库/文档来源、间隔重复复习算法）
 CREATE TABLE IF NOT EXISTS learning_flashcard (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    path_id BIGINT,
-    chapter_id BIGINT,
-    front TEXT,
-    back TEXT,
-    category VARCHAR(50),
-    difficulty INT DEFAULT 1,
-    review_count INT DEFAULT 0,
+    user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键sys_user.id）',
+    path_id BIGINT COMMENT '归属学习路径ID（逻辑外键learning_path.id，可为空）',
+    chapter_id BIGINT COMMENT '归属章节ID（逻辑外键learning_chapter.id，可为空）',
+    category_id BIGINT COMMENT '关联知识库/分类ID（逻辑外键doc_category.id）',
+    doc_id BIGINT COMMENT '来源文档ID（逻辑外键doc_document.id）',
+    front TEXT NOT NULL COMMENT '正面：问题/概念',
+    back TEXT NOT NULL COMMENT '背面：答案/解释',
+    category VARCHAR(50) COMMENT '用户自定义分类标签',
+    difficulty INT DEFAULT 1 COMMENT '难度：1简单 2中等 3困难',
+    tags VARCHAR(500) COMMENT '逗号分隔的自定义标签',
+    source_type VARCHAR(20) DEFAULT 'MANUAL' COMMENT '来源：MANUAL/AI_DOC/AI_KB/IMPORT',
+    review_count INT DEFAULT 0 COMMENT '已复习次数',
+    review_interval INT DEFAULT 0 COMMENT '当前复习间隔（天，间隔重复算法）',
+    next_review_time TIMESTAMP COMMENT '下次应复习时间',
+    last_review_time TIMESTAMP COMMENT '上次复习时间',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0
@@ -264,12 +277,14 @@ CREATE TABLE IF NOT EXISTS sys_icon (
 );
 CREATE INDEX idx_icon_user ON sys_icon (user_id);
 CREATE INDEX idx_icon_type ON sys_icon (type);
-CREATE INDEX idx_fc_path      ON learning_flashcard (path_id);
-CREATE INDEX idx_fc_chap      ON learning_flashcard (chapter_id);
--- SM-2 间隔重复算法所需字段
-ALTER TABLE learning_flashcard ADD COLUMN IF NOT EXISTS review_interval INT DEFAULT 0;
-ALTER TABLE learning_flashcard ADD COLUMN IF NOT EXISTS next_review_time TIMESTAMP;
-ALTER TABLE learning_flashcard ADD COLUMN IF NOT EXISTS last_review_time TIMESTAMP;
+-- 闪卡索引（遵循阿里规范：所有逻辑外键列必须建索引）
+CREATE INDEX IF NOT EXISTS idx_fc_user        ON learning_flashcard (user_id);
+CREATE INDEX IF NOT EXISTS idx_fc_path        ON learning_flashcard (path_id);
+CREATE INDEX IF NOT EXISTS idx_fc_chap        ON learning_flashcard (chapter_id);
+CREATE INDEX IF NOT EXISTS idx_fc_category    ON learning_flashcard (category_id);
+CREATE INDEX IF NOT EXISTS idx_fc_doc         ON learning_flashcard (doc_id);
+CREATE INDEX IF NOT EXISTS idx_fc_next_review ON learning_flashcard (next_review_time);
+CREATE INDEX IF NOT EXISTS idx_fc_deleted     ON learning_flashcard (deleted);
 CREATE INDEX idx_task_user    ON learning_task (user_id);
 CREATE INDEX idx_task_status  ON learning_task (status);
 
@@ -471,3 +486,279 @@ CREATE INDEX IF NOT EXISTS idx_qq_status ON quiz_question (status);
 CREATE INDEX IF NOT EXISTS idx_qq_source ON quiz_question (source);
 CREATE INDEX IF NOT EXISTS idx_qq_category ON quiz_question (category_id);
 CREATE INDEX IF NOT EXISTS idx_qq_doc ON quiz_question (doc_id);
+
+-- ========== 在线答题记录：用户作答历史与判分结果 ==========
+CREATE TABLE IF NOT EXISTS quiz_answer_record (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    question_id BIGINT NOT NULL COMMENT '题目ID（逻辑外键 quiz_question.id）',
+    user_answer TEXT COMMENT '用户提交的答案',
+    is_correct INT DEFAULT 0 COMMENT '是否答对：0 错误 / 1 正确',
+    score INT DEFAULT 0 COMMENT '本题得分（0-100）',
+    time_cost INT DEFAULT 0 COMMENT '答题耗时（秒）',
+    ai_feedback TEXT COMMENT 'AI 评语（简答题等主观题预留）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_qar_user ON quiz_answer_record (user_id);
+CREATE INDEX IF NOT EXISTS idx_qar_question ON quiz_answer_record (question_id);
+CREATE INDEX IF NOT EXISTS idx_qar_correct ON quiz_answer_record (is_correct);
+
+-- ========== 每日打卡：连续天数与奖励记录 ==========
+CREATE TABLE IF NOT EXISTS user_check_in (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    check_date DATE NOT NULL COMMENT '打卡日期（自然日）',
+    continuous_days INT DEFAULT 1 COMMENT '当日累计的连续打卡天数',
+    reward_exp INT DEFAULT 0 COMMENT '本次打卡奖励经验值',
+    reward_energy INT DEFAULT 0 COMMENT '本次打卡奖励精力值',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+-- 同一用户同一自然日仅允许一条打卡记录（幂等约束）
+CREATE UNIQUE INDEX IF NOT EXISTS uk_uci_user_date ON user_check_in (user_id, check_date);
+CREATE INDEX IF NOT EXISTS idx_uci_user ON user_check_in (user_id);
+
+-- ========== 学习小组 ==========
+
+-- 学习小组表
+CREATE TABLE IF NOT EXISTS study_group (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    name VARCHAR(100) NOT NULL COMMENT '小组名称',
+    description VARCHAR(500) COMMENT '小组描述',
+    icon VARCHAR(50) COMMENT '小组图标',
+    color VARCHAR(20) COMMENT '小组颜色',
+    type VARCHAR(20) DEFAULT 'PUBLIC' COMMENT '小组类型：PUBLIC 公开 / PRIVATE 私有',
+    owner_id BIGINT NOT NULL COMMENT '创建者ID',
+    member_count INT DEFAULT 0 COMMENT '成员数量',
+    announcement VARCHAR(1000) COMMENT '小组公告',
+    learning_plan_id BIGINT COMMENT '关联的学习计划ID',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_sg_owner ON study_group (owner_id);
+CREATE INDEX IF NOT EXISTS idx_sg_type ON study_group (type);
+CREATE INDEX IF NOT EXISTS idx_sg_deleted ON study_group (deleted);
+
+-- 学习小组成员表
+CREATE TABLE IF NOT EXISTS study_group_member (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    group_id BIGINT NOT NULL COMMENT '小组ID',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    role VARCHAR(20) NOT NULL DEFAULT 'MEMBER' COMMENT '成员角色：OWNER 创建者 / ADMIN 管理员 / MEMBER 普通成员',
+    invited_by BIGINT COMMENT '邀请人ID',
+    last_read_message_id BIGINT COMMENT '最后已读消息ID',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_sgm_group_user ON study_group_member (group_id, user_id, deleted);
+CREATE INDEX IF NOT EXISTS idx_sgm_user ON study_group_member (user_id);
+CREATE INDEX IF NOT EXISTS idx_sgm_role ON study_group_member (role);
+
+-- 学习小组消息表
+CREATE TABLE IF NOT EXISTS study_group_message (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    group_id BIGINT NOT NULL COMMENT '小组ID',
+    sender_id BIGINT NOT NULL COMMENT '发送者ID',
+    message_type VARCHAR(20) DEFAULT 'TEXT' COMMENT '消息类型：TEXT 文本 / IMAGE 图片 / FILE 文件 / CODE 代码块',
+    content TEXT COMMENT '消息内容',
+    file_url VARCHAR(500) COMMENT '文件URL',
+    file_name VARCHAR(200) COMMENT '文件名',
+    file_size BIGINT COMMENT '文件大小（字节）',
+    code_language VARCHAR(20) COMMENT '代码语言',
+    mention_user_ids VARCHAR(500) COMMENT '@提及的用户ID列表，逗号分隔',
+    recalled INT DEFAULT 0 COMMENT '是否已撤回：0 否 / 1 是',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_sgm_group ON study_group_message (group_id);
+CREATE INDEX IF NOT EXISTS idx_sgm_sender ON study_group_message (sender_id);
+CREATE INDEX IF NOT EXISTS idx_sgm_type ON study_group_message (message_type);
+CREATE INDEX IF NOT EXISTS idx_sgm_ctime ON study_group_message (create_time);
+
+-- ========== 单聊私信 ==========
+
+-- 私聊会话表
+CREATE TABLE IF NOT EXISTS private_conversation (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_a_id BIGINT NOT NULL COMMENT '用户A ID（较小的一方）',
+    user_b_id BIGINT NOT NULL COMMENT '用户B ID（较大的一方）',
+    last_message_id BIGINT COMMENT '最后一条消息ID',
+    last_message_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '最后消息时间',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_pc_users ON private_conversation (user_a_id, user_b_id, deleted);
+CREATE INDEX IF NOT EXISTS idx_pc_user_a ON private_conversation (user_a_id);
+CREATE INDEX IF NOT EXISTS idx_pc_user_b ON private_conversation (user_b_id);
+
+-- 私聊已读游标表
+CREATE TABLE IF NOT EXISTS private_conversation_read (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    conversation_id BIGINT NOT NULL COMMENT '会话ID',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    last_read_message_id BIGINT COMMENT '最后已读消息ID',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_pcr_conv_user ON private_conversation_read (conversation_id, user_id, deleted);
+CREATE INDEX IF NOT EXISTS idx_pcr_user ON private_conversation_read (user_id);
+
+-- 私聊消息表
+CREATE TABLE IF NOT EXISTS private_message (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    conversation_id BIGINT NOT NULL COMMENT '会话ID',
+    sender_id BIGINT NOT NULL COMMENT '发送者ID',
+    message_type VARCHAR(20) DEFAULT 'TEXT' COMMENT '消息类型：TEXT 文本 / IMAGE 图片 / FILE 文件 / CODE 代码块',
+    content TEXT COMMENT '消息内容',
+    file_url VARCHAR(500) COMMENT '文件URL',
+    file_name VARCHAR(200) COMMENT '文件名',
+    file_size BIGINT COMMENT '文件大小（字节）',
+    code_language VARCHAR(20) COMMENT '代码语言',
+    recalled INT DEFAULT 0 COMMENT '是否已撤回：0 否 / 1 是',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_pm_conv ON private_message (conversation_id);
+CREATE INDEX IF NOT EXISTS idx_pm_sender ON private_message (sender_id);
+CREATE INDEX IF NOT EXISTS idx_pm_ctime ON private_message (create_time);
+
+-- ============================================================
+-- AI 生成结果缓存表
+-- ============================================================
+
+-- 概念可视化图解缓存表（按用户+概念名维度缓存，避免重复调用 AI）
+CREATE TABLE IF NOT EXISTS ai_concept_diagram (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键sys_user.id）',
+    concept VARCHAR(100) NOT NULL COMMENT '概念名称',
+    diagram_type VARCHAR(20) DEFAULT 'FLOWCHART' COMMENT '图解类型：FLOWCHART/SEQUENCE/CLASS/ER/PIE',
+    mermaid_code TEXT COMMENT 'Mermaid 语法源码',
+    description VARCHAR(1000) COMMENT '概念简要说明',
+    explanation TEXT COMMENT 'AI 详细解释',
+    difficulty INT DEFAULT 1 COMMENT '难度：1 入门 / 2 中等 / 3 进阶',
+    key_points TEXT COMMENT '关键知识点列表（JSON 数组字符串）',
+    related_concepts TEXT COMMENT '关联概念列表（JSON 数组字符串）',
+    code_example TEXT COMMENT '代码示例（可为空）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_acd_user_concept ON ai_concept_diagram (user_id, concept, deleted);
+CREATE INDEX IF NOT EXISTS idx_acd_user ON ai_concept_diagram (user_id);
+
+-- 个性化学习路径缓存表（按用户+目标+水平+每日时长维度缓存）
+CREATE TABLE IF NOT EXISTS ai_personalized_path (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键sys_user.id）',
+    goal VARCHAR(200) NOT NULL COMMENT '学习目标',
+    level VARCHAR(20) DEFAULT '入门' COMMENT '当前水平：入门/进阶/高级',
+    daily_minutes INT DEFAULT 30 COMMENT '每日学习时长（分钟）',
+    title VARCHAR(200) COMMENT '推荐路径标题',
+    reason VARCHAR(1000) COMMENT '推荐理由',
+    total_duration INT DEFAULT 0 COMMENT '预计总时长（分钟）',
+    goals_text TEXT COMMENT '学习目标列表（JSON 数组字符串）',
+    chapters_text TEXT COMMENT '章节规划（JSON 数组字符串）',
+    advice TEXT COMMENT 'AI 学习建议',
+    related_path_id BIGINT COMMENT '关联已有路径ID（可为空）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_app_user_goal ON ai_personalized_path (user_id, goal, level, daily_minutes, deleted);
+CREATE INDEX IF NOT EXISTS idx_app_user ON ai_personalized_path (user_id);
+
+-- ============================================================
+-- 编程挑战（编程闯关：赛道 / 关卡 / 用户进度 / 关卡记录，游戏化积分）
+-- ============================================================
+
+-- 挑战赛道表：一个赛道由若干关卡组成（如「JavaScript 十题闯关」）
+CREATE TABLE IF NOT EXISTS code_challenge (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL COMMENT '挑战标题',
+    description TEXT COMMENT '挑战简介',
+    language VARCHAR(20) DEFAULT 'javascript' COMMENT '主语言：javascript/typescript/python/java/sql',
+    difficulty INT DEFAULT 0 COMMENT '难度：0 简单 / 1 中等 / 2 困难',
+    icon VARCHAR(50) DEFAULT 'trophy' COMMENT '图标名（lucide 图标）',
+    theme_color VARCHAR(20) DEFAULT '#3B6FE0' COMMENT '主题色（十六进制）',
+    tags VARCHAR(500) COMMENT '标签，逗号分隔',
+    level_count INT DEFAULT 0 COMMENT '关卡总数',
+    total_points INT DEFAULT 0 COMMENT '满分积分（各关卡积分之和）',
+    sort_order INT DEFAULT 0 COMMENT '排序值，越小越靠前',
+    status INT DEFAULT 1 COMMENT '状态：0 草稿 / 1 已发布',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_cc_status ON code_challenge (status);
+CREATE INDEX IF NOT EXISTS idx_cc_sort   ON code_challenge (sort_order);
+
+-- 挑战关卡表：内嵌题目信息，使赛道自包含（不依赖 code_question）
+CREATE TABLE IF NOT EXISTS code_challenge_level (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    challenge_id BIGINT NOT NULL COMMENT '所属挑战ID（逻辑外键code_challenge.id）',
+    level_no INT NOT NULL COMMENT '关卡序号，从 1 开始递增',
+    title VARCHAR(200) NOT NULL COMMENT '关卡标题',
+    description TEXT COMMENT '题目描述（多行文本）',
+    difficulty INT DEFAULT 0 COMMENT '难度：0 简单 / 1 中等 / 2 困难',
+    language VARCHAR(20) DEFAULT 'javascript' COMMENT '语言标识',
+    hint TEXT COMMENT '关卡提示',
+    example_input TEXT COMMENT '输入示例',
+    example_output TEXT COMMENT '输出示例',
+    code_template TEXT COMMENT '代码模板（编辑器初始内容）',
+    test_cases TEXT COMMENT '测试用例 JSON 数组：[{input, expected}]',
+    points INT DEFAULT 10 COMMENT '通关积分',
+    status INT DEFAULT 1 COMMENT '状态：0 草稿 / 1 已发布',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_ccl_challenge ON code_challenge_level (challenge_id);
+CREATE INDEX IF NOT EXISTS idx_ccl_no        ON code_challenge_level (challenge_id, level_no);
+
+-- 用户挑战进度表：记录某用户在某赛道的整体进度（不建含 deleted 的唯一索引，避免逻辑删除重复覆盖冲突）
+CREATE TABLE IF NOT EXISTS code_challenge_record (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键sys_user.id）',
+    challenge_id BIGINT NOT NULL COMMENT '挑战ID（逻辑外键code_challenge.id）',
+    cleared_levels INT DEFAULT 0 COMMENT '已通关关卡数',
+    current_level INT DEFAULT 1 COMMENT '当前解锁到的关卡序号',
+    total_points INT DEFAULT 0 COMMENT '本赛道累计获得积分',
+    total_stars INT DEFAULT 0 COMMENT '本赛道累计星星数',
+    status INT DEFAULT 0 COMMENT '状态：0 进行中 / 1 已通关',
+    start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '开始时间',
+    finish_time TIMESTAMP COMMENT '通关时间',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_ccr_user      ON code_challenge_record (user_id);
+CREATE INDEX IF NOT EXISTS idx_ccr_user_ch   ON code_challenge_record (user_id, challenge_id);
+
+-- 用户关卡通关记录表：记录某用户单个关卡的通关结果、星级与获得积分
+CREATE TABLE IF NOT EXISTS code_challenge_level_record (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键sys_user.id）',
+    challenge_id BIGINT NOT NULL COMMENT '挑战ID（逻辑外键code_challenge.id）',
+    level_id BIGINT NOT NULL COMMENT '关卡ID（逻辑外键code_challenge_level.id）',
+    level_no INT NOT NULL COMMENT '关卡序号',
+    passed INT DEFAULT 0 COMMENT '是否通关：0 未通关 / 1 已通关',
+    stars INT DEFAULT 0 COMMENT '获得星级：1-3',
+    attempts INT DEFAULT 0 COMMENT '提交次数',
+    points_earned INT DEFAULT 0 COMMENT '本关获得积分',
+    last_code TEXT COMMENT '最近一次提交的代码',
+    finish_time TIMESTAMP COMMENT '通关时间',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_cclr_user     ON code_challenge_level_record (user_id);
+CREATE INDEX IF NOT EXISTS idx_cclr_user_lvl ON code_challenge_level_record (user_id, level_id);

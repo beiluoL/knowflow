@@ -18,6 +18,15 @@ public class DocVO {
 
     private String cover;
 
+    /** 原始文件名（上传型文档有值，含扩展名）。 */
+    private String fileName;
+
+    /** 原文件访问地址（上传型文档有值，纯文本创建型为 null）。列表页用于前端判断文档类型。 */
+    private String fileUrl;
+
+    /** 原始文件字节大小（上传型文档有值）。 */
+    private Long fileSize;
+
     private Long categoryId;
 
     private String categoryName;

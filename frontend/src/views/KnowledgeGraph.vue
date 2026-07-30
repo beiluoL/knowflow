@@ -4,345 +4,347 @@
     <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
       <div>
         <h1 class="kb-h1">知识图谱</h1>
-        <p class="kb-body-sm mt-1">可视化知识关联，发现学习路径</p>
-      </div>
-      <div class="flex items-center gap-2">
-        <button
-          type="button"
-          class="flex items-center gap-1.5 h-9 px-4 rounded-lg text-sm font-medium border header-btn"
-          @click="handleExport"
-        >
-          <Icon name="download" :size="16" />
-          <span>导出图谱</span>
-        </button>
-        <button
-          type="button"
-          class="flex items-center gap-1.5 h-9 px-4 rounded-lg text-sm font-medium border header-btn"
-          @click="loadGraph"
-        >
-          <Icon name="refresh-cw" :size="16" />
-          <span>刷新</span>
-        </button>
+        <p class="kb-body-sm mt-1">可视化技术栈依赖，图解编程概念</p>
       </div>
     </div>
 
-    <!-- 错误态 -->
-    <div
-      v-if="error"
-      class="rounded-lg border p-6 flex flex-col items-center justify-center gap-3 mb-4"
-      style="background: var(--kb-card); border-color: var(--kb-border);"
-    >
-      <Icon name="alert-circle" :size="32" style="color: var(--kb-destructive);" />
-      <p class="text-sm" style="color: var(--kb-muted-foreground);">{{ error }}</p>
+    <!-- ===== 视图切换 Tab ===== -->
+    <div class="flex items-center gap-1 p-1 rounded-lg segmented mb-4" style="background: var(--kb-muted);">
       <button
+        v-for="tab in viewTabs"
+        :key="tab.value"
         type="button"
-        class="px-3 py-1.5 rounded-lg text-xs font-medium"
-        style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
-        @click="loadGraph"
-      >重新加载</button>
+        class="flex items-center gap-1.5 h-8 px-4 rounded-md text-sm font-medium seg-btn"
+        :class="{ active: currentView === tab.value }"
+        @click="switchView(tab.value)"
+      >
+        <Icon :name="tab.icon" :size="14" />
+        <span>{{ tab.label }}</span>
+      </button>
     </div>
 
-    <template v-else>
-      <!-- ===== 工具栏卡片 ===== -->
+    <!-- ===== Tab1: 分类-文档图谱（原功能） ===== -->
+    <template v-if="currentView === 'category'">
+      <!-- 工具栏 -->
       <div class="rounded-lg p-4 mb-4 border toolbar-card" style="background: var(--kb-card); border-color: var(--kb-border);">
         <div class="flex items-center justify-between flex-wrap gap-3">
-          <!-- 左侧：知识库选择 + 搜索 -->
           <div class="flex items-center gap-3 flex-wrap">
-            <select
-              v-model="selectedKb"
-              class="h-9 px-3 rounded-lg text-sm border outline-none cursor-pointer kb-select"
-            >
+            <select v-model="selectedKb" class="h-9 px-3 rounded-lg text-sm border outline-none cursor-pointer kb-select">
               <option value="all">全部知识库</option>
               <option v-for="kb in kbList" :key="kb" :value="kb">{{ kb }}</option>
             </select>
             <div class="relative w-72">
               <Icon name="search" :size="16" class="search-icon" />
-              <input
-                v-model="searchKeyword"
-                type="text"
-                placeholder="搜索节点…"
-                class="w-full h-9 pl-9 pr-3 rounded-lg text-sm border outline-none kb-input"
-              />
+              <input v-model="searchKeyword" type="text" placeholder="搜索节点…" class="w-full h-9 pl-9 pr-3 rounded-lg text-sm border outline-none kb-input" />
             </div>
           </div>
-          <!-- 右侧：布局切换 + 缩放 -->
-          <div class="flex items-center gap-3 flex-wrap">
-            <div class="flex items-center p-1 rounded-lg segmented" style="background: var(--kb-muted);">
-              <button
-                v-for="item in layoutOptions"
-                :key="item.value"
-                type="button"
-                class="flex items-center justify-center w-8 h-7 rounded-md seg-btn"
-                :class="{ active: currentLayout === item.value }"
-                :title="item.title"
-                @click="currentLayout = item.value"
-              >
-                <Icon :name="item.icon" :size="16" />
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1 p-1 rounded-lg border" style="border-color: var(--kb-border);">
+              <button type="button" class="w-7 h-7 rounded-md" @click="zoom = Math.max(0.5, zoom - 0.1)">
+                <Icon name="zoom-out" :size="14" />
+              </button>
+              <span class="text-sm font-medium px-1 min-w-[36px] text-center tabular-nums">{{ Math.round(zoom * 100) }}%</span>
+              <button type="button" class="w-7 h-7 rounded-md" @click="zoom = Math.min(2, zoom + 0.1)">
+                <Icon name="zoom-in" :size="14" />
               </button>
             </div>
-            <div class="flex items-center gap-1 p-1 rounded-lg border zoom-control" style="border-color: var(--kb-border);">
-              <button
-                type="button"
-                class="flex items-center justify-center w-7 h-7 rounded-md zoom-btn"
-                title="缩小"
-                @click="zoom = Math.max(0.5, zoom - 0.1)"
-              >
-                <Icon name="zoom-out" :size="16" />
-              </button>
-              <span class="text-sm font-medium px-1 min-w-[36px] text-center tabular-nums" style="color: var(--kb-foreground);">{{ Math.round(zoom * 100) }}%</span>
-              <button
-                type="button"
-                class="flex items-center justify-center w-7 h-7 rounded-md zoom-btn"
-                title="放大"
-                @click="zoom = Math.min(2, zoom + 0.1)"
-              >
-                <Icon name="zoom-in" :size="16" />
-              </button>
-            </div>
+            <button type="button" class="h-9 px-4 rounded-lg text-sm font-medium border header-btn" @click="handleExport">
+              <Icon name="download" :size="14" />
+              <span>导出</span>
+            </button>
+            <button type="button" class="h-9 px-4 rounded-lg text-sm font-medium border header-btn" @click="loadGraph">
+              <Icon name="refresh-cw" :size="14" />
+              <span>刷新</span>
+            </button>
           </div>
         </div>
       </div>
 
       <!-- 加载态 -->
-      <div
-        v-if="loading"
-        class="rounded-lg border p-6 flex items-center justify-center mb-4"
-        style="background: var(--kb-card); border-color: var(--kb-border);"
-      >
-        <span class="inline-block w-5 h-5 border-2 rounded-full animate-spin" style="border-color: var(--kb-primary); border-top-color: transparent;"></span>
+      <div v-if="loading" class="rounded-lg border p-6 flex items-center justify-center mb-4" style="background: var(--kb-card); border-color: var(--kb-border);">
+        <span class="inline-block w-5 h-5 border-2 rounded-full animate-spin" style="border-color: var(--kb-primary); border-top-color: transparent;" />
         <span class="ml-2 text-sm" style="color: var(--kb-muted-foreground);">图谱加载中…</span>
       </div>
 
       <template v-else>
-        <!-- ===== 主内容区：图谱 + 详情面板 ===== -->
-        <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-4 mb-4">
-          <!-- 左侧图谱区域 -->
-          <div class="rounded-lg border relative graph-area" style="background: var(--kb-card); border-color: var(--kb-border); min-height: 600px;">
-            <svg
-              width="100%"
-              height="520"
-              viewBox="0 0 800 520"
-              xmlns="http://www.w3.org/2000/svg"
-              :style="{ transform: `scale(${zoom})`, transformOrigin: 'center center' }"
-              class="transition-transform duration-200"
-            >
-              <!-- 网格背景 -->
+        <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
+          <div class="rounded-lg border relative" style="background: var(--kb-card); border-color: var(--kb-border); min-height: 560px;">
+            <svg width="100%" height="520" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" :style="{ transform: `scale(${zoom})`, transformOrigin: 'center center' }" class="transition-transform duration-200">
               <defs>
                 <pattern id="kb-grid" width="20" height="20" patternUnits="userSpaceOnUse">
                   <path d="M 20 0 L 0 0 0 20" fill="none" stroke="var(--kb-border)" stroke-width="0.5" opacity="0.5" />
                 </pattern>
               </defs>
               <rect width="800" height="520" fill="url(#kb-grid)" />
-
-              <!-- 连线层 -->
               <g v-for="(edge, i) in renderEdges" :key="'e' + i">
-                <line
-                  :x1="edge.x1"
-                  :y1="edge.y1"
-                  :x2="edge.x2"
-                  :y2="edge.y2"
-                  :stroke="selectedNode && !isEdgeConnected(edge) ? 'var(--kb-border)' : 'var(--kb-border)'"
-                  stroke-width="1.5"
-                  :opacity="selectedNode && !isEdgeConnected(edge) ? 0.3 : 1"
-                  class="transition-opacity duration-300"
-                />
+                <line :x1="edge.x1" :y1="edge.y1" :x2="edge.x2" :y2="edge.y2" stroke="var(--kb-border)" stroke-width="1.5" :opacity="selectedNode && !isEdgeConnected(edge) ? 0.3 : 1" />
               </g>
-
-              <!-- 二级节点（r=20） -->
-              <g
-                v-for="node in level2Nodes"
-                :key="node.id"
-                class="cursor-pointer"
-                @click="selectNode(node)"
-              >
-                <circle
-                  :cx="node.x"
-                  :cy="node.y"
-                  r="20"
-                  :fill="selectedNode && selectedNode.id !== node.id && !isNodeConnected(node.id) ? 'var(--kb-muted)' : 'var(--kb-card)'"
-                  stroke="var(--kb-border)"
-                  stroke-width="1.5"
-                  :opacity="selectedNode && selectedNode.id !== node.id && !isNodeConnected(node.id) ? 0.4 : 1"
-                  class="transition-[fill,opacity] duration-300"
-                />
-                <text
-                  :x="node.x"
-                  :y="node.y"
-                  text-anchor="middle"
-                  dominant-baseline="central"
-                  font-size="13"
-                  :fill="selectedNode && selectedNode.id !== node.id && !isNodeConnected(node.id) ? 'var(--kb-muted-foreground)' : 'var(--kb-card-foreground)'"
-                >{{ node.label }}</text>
+              <g v-for="node in level2Nodes" :key="node.id" class="cursor-pointer" @click="selectNode(node)">
+                <circle :cx="node.x" :cy="node.y" r="18" :fill="selectedNode && selectedNode.id !== node.id && !isNodeConnected(node.id) ? 'var(--kb-muted)' : 'var(--kb-card)'" stroke="var(--kb-border)" stroke-width="1.5" :opacity="selectedNode && selectedNode.id !== node.id && !isNodeConnected(node.id) ? 0.4 : 1" />
+                <text :x="node.x" :y="node.y" text-anchor="middle" dominant-baseline="central" font-size="11" :fill="selectedNode && selectedNode.id !== node.id && !isNodeConnected(node.id) ? 'var(--kb-muted-foreground)' : 'var(--kb-card-foreground)'" >{{ node.label.length > 6 ? node.label.slice(0, 6) + '…' : node.label }}</text>
               </g>
-
-              <!-- 一级节点（r=28） -->
-              <g
-                v-for="node in level1Nodes"
-                :key="node.id"
-                class="cursor-pointer"
-                @click="selectNode(node)"
-              >
-                <circle
-                  :cx="node.x"
-                  :cy="node.y"
-                  r="28"
-                  fill="rgba(59,111,224,0.12)"
-                  stroke="var(--kb-primary)"
-                  stroke-width="1.5"
-                  :opacity="selectedNode && selectedNode.id !== node.id && !isNodeConnected(node.id) ? 0.4 : 1"
-                  class="transition-opacity duration-300"
-                />
-                <text
-                  :x="node.x"
-                  :y="node.y"
-                  text-anchor="middle"
-                  dominant-baseline="central"
-                  font-size="14"
-                  font-weight="600"
-                  :fill="selectedNode && selectedNode.id !== node.id && !isNodeConnected(node.id) ? 'var(--kb-muted-foreground)' : 'var(--kb-primary)'"
-                >{{ node.label }}</text>
+              <g v-for="node in level1Nodes" :key="node.id" class="cursor-pointer" @click="selectNode(node)">
+                <circle :cx="node.x" :cy="node.y" r="24" fill="rgba(59,111,224,0.12)" stroke="var(--kb-primary)" stroke-width="1.5" :opacity="selectedNode && selectedNode.id !== node.id && !isNodeConnected(node.id) ? 0.4 : 1" />
+                <text :x="node.x" :y="node.y" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="600" :fill="selectedNode && selectedNode.id !== node.id && !isNodeConnected(node.id) ? 'var(--kb-muted-foreground)' : 'var(--kb-primary)'" >{{ node.label.length > 4 ? node.label.slice(0, 4) : node.label }}</text>
               </g>
-
-              <!-- 中心节点（r=40） -->
-              <g
-                v-for="node in centerNodes"
-                :key="node.id"
-                class="cursor-pointer"
-                @click="selectNode(node)"
-              >
-                <circle
-                  :cx="node.x"
-                  :cy="node.y"
-                  r="40"
-                  fill="var(--kb-primary)"
-                  :opacity="selectedNode && selectedNode.id !== node.id ? 0.5 : 1"
-                  class="transition-opacity duration-300"
-                />
-                <text
-                  :x="node.x"
-                  :y="node.y"
-                  text-anchor="middle"
-                  dominant-baseline="central"
-                  font-size="15"
-                  font-weight="600"
-                  fill="var(--kb-primary-foreground)"
-                >{{ node.label }}</text>
+              <g v-for="node in centerNodes" :key="node.id" class="cursor-pointer" @click="selectNode(node)">
+                <circle :cx="node.x" :cy="node.y" r="36" fill="var(--kb-primary)" :opacity="selectedNode && selectedNode.id !== node.id ? 0.5 : 1" />
+                <text :x="node.x" :y="node.y" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="var(--kb-primary-foreground)" >{{ node.label }}</text>
               </g>
-
-              <!-- 图例 -->
-              <g transform="translate(620, 478)">
-                <rect x="0" y="0" width="170" height="32" rx="6" fill="var(--kb-card)" stroke="var(--kb-border)" stroke-width="1" />
-                <circle cx="16" cy="16" r="6" fill="var(--kb-primary)" />
-                <text x="26" y="16" dominant-baseline="central" font-size="11" fill="var(--kb-muted-foreground)">中心</text>
-                <circle cx="62" cy="16" r="6" fill="rgba(59,111,224,0.12)" stroke="var(--kb-primary)" stroke-width="1.5" />
-                <text x="72" y="16" dominant-baseline="central" font-size="11" fill="var(--kb-muted-foreground)">一级</text>
-                <circle cx="108" cy="16" r="6" fill="var(--kb-card)" stroke="var(--kb-border)" stroke-width="1.5" />
-                <text x="118" y="16" dominant-baseline="central" font-size="11" fill="var(--kb-muted-foreground)">二级</text>
+              <g transform="translate(610, 478)">
+                <rect x="0" y="0" width="180" height="32" rx="6" fill="var(--kb-card)" stroke="var(--kb-border)" stroke-width="1" />
+                <circle cx="14" cy="16" r="5" fill="var(--kb-primary)" />
+                <text x="22" y="16" dominant-baseline="central" font-size="10" fill="var(--kb-muted-foreground)">核心</text>
+                <circle cx="54" cy="16" r="5" fill="rgba(59,111,224,0.12)" stroke="var(--kb-primary)" stroke-width="1" />
+                <text x="62" y="16" dominant-baseline="central" font-size="10" fill="var(--kb-muted-foreground)">分类</text>
+                <circle cx="98" cy="16" r="5" fill="var(--kb-card)" stroke="var(--kb-border)" stroke-width="1" />
+                <text x="106" y="16" dominant-baseline="central" font-size="10" fill="var(--kb-muted-foreground)">文档</text>
               </g>
             </svg>
-
-            <!-- 空态 -->
             <div v-if="!centerNodes.length" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <Icon name="share-2" :size="40" style="color: var(--kb-muted-foreground);" />
               <p class="text-sm mt-2" style="color: var(--kb-muted-foreground);">暂无图谱数据</p>
             </div>
           </div>
-
-          <!-- 右侧详情面板 -->
-          <div class="rounded-lg border p-5 detail-panel" style="background: var(--kb-card); border-color: var(--kb-border); align-self: start; position: sticky; top: 5rem;">
+          <!-- 详情面板 -->
+          <div class="rounded-lg border p-5 detail-panel" style="background: var(--kb-card); border-color: var(--kb-border); align-self: start;">
             <template v-if="selectedNode">
-              <div class="flex items-center gap-2 mb-1">
-                <h3 class="kb-h3">{{ selectedNode.label }}</h3>
-                <span class="text-sm font-semibold px-2 py-0.5 rounded-md badge-tag" :class="`badge-${selectedNode.level}`">
-                  {{ levelLabel(selectedNode.level) }}
-                </span>
+              <h3 class="kb-h3">{{ selectedNode.label }}</h3>
+              <div class="my-3 h-px" style="background: var(--kb-border);" />
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between"><span style="color: var(--kb-muted-foreground);">类型</span><span>{{ levelLabel(selectedNode.level) }}</span></div>
+                <div class="flex justify-between"><span style="color: var(--kb-muted-foreground);">关联文档</span><span class="font-semibold">{{ selectedNode.docCount }}</span></div>
+                <div class="flex justify-between"><span style="color: var(--kb-muted-foreground);">关联节点</span><span class="font-semibold">{{ selectedNode.relationCount }}</span></div>
               </div>
-              <div class="my-4 h-px divider"></div>
-              <div class="space-y-2.5">
-                <div class="flex items-center justify-between text-sm">
-                  <span style="color: var(--kb-muted-foreground);">关联文档</span>
-                  <span class="font-semibold" style="color: var(--kb-foreground);">{{ selectedNode.docCount }} 篇</span>
-                </div>
-                <div class="flex items-center justify-between text-sm">
-                  <span style="color: var(--kb-muted-foreground);">关联节点</span>
-                  <span class="font-semibold" style="color: var(--kb-foreground);">{{ selectedNode.relationCount }} 个</span>
-                </div>
-                <div class="flex items-center justify-between text-sm">
-                  <span style="color: var(--kb-muted-foreground);">创建时间</span>
-                  <span class="font-semibold" style="color: var(--kb-foreground);">{{ selectedNode.createTime }}</span>
-                </div>
-                <div class="flex items-center justify-between text-sm">
-                  <span style="color: var(--kb-muted-foreground);">最后更新</span>
-                  <span class="font-semibold" style="color: var(--kb-accent);">{{ selectedNode.updateTime }}</span>
-                </div>
-              </div>
-              <div class="my-4 h-px divider"></div>
-              <h4 class="kb-h4 mb-2">关联文档</h4>
-              <div class="space-y-1">
-                <a
-                  v-for="doc in selectedNode.docs"
-                  :key="doc.id"
-                  href="#"
-                  class="flex items-center gap-2 p-3 rounded-lg transition-colors doc-link"
-                  @click.prevent="goToDoc(doc.id)"
-                >
-                  <Icon name="file-text" :size="16" class="shrink-0" style="color: var(--kb-muted-foreground);" />
-                  <span class="text-sm flex-1 truncate" style="color: var(--kb-foreground);">{{ doc.title }}</span>
-                  <span class="text-[13px] px-1.5 py-0.5 rounded shrink-0 doc-tag">{{ doc.tag }}</span>
+              <div class="my-3 h-px" style="background: var(--kb-border);" />
+              <h4 class="kb-h4 mb-2 text-sm">关联文档</h4>
+              <div class="space-y-1 max-h-48 overflow-y-auto">
+                <a v-for="doc in selectedNode.docs" :key="doc.id" href="#" class="flex items-center gap-2 p-2 rounded-lg transition-colors" style="text-decoration: none;" @click.prevent="goToDoc(doc.id)">
+                  <Icon name="file-text" :size="14" style="color: var(--kb-muted-foreground);" />
+                  <span class="text-xs flex-1 truncate">{{ doc.title }}</span>
                 </a>
               </div>
-              <a
-                href="#"
-                class="flex items-center justify-center gap-2 mt-3 py-2 text-sm font-medium view-all"
-                @click.prevent="viewAllDocs"
-              >
-                <span>查看全部文档</span>
-                <Icon name="arrow-right" :size="16" />
-              </a>
             </template>
-
             <template v-else>
-              <div class="flex items-center gap-2 mb-3">
-                <Icon name="info" :size="18" style="color: var(--kb-muted-foreground);" />
-                <h3 class="kb-h4">操作提示</h3>
-              </div>
-              <p class="text-[13px] mb-4" style="color: var(--kb-muted-foreground);">点击图谱节点查看详细信息，包括关联文档与节点统计。</p>
-              <div class="space-y-2 text-[13px]" style="color: var(--kb-muted-foreground);">
-                <div class="flex items-center gap-2">
-                  <Icon name="mouse-pointer" :size="12" />
-                  <span>点击节点查看详情</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <Icon name="zoom-in" :size="12" />
-                  <span>使用缩放控件调整视图</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <Icon name="search" :size="12" />
-                  <span>搜索节点快速定位</span>
-                </div>
-              </div>
+              <div class="text-xs" style="color: var(--kb-muted-foreground);">点击图谱节点查看详情</div>
             </template>
           </div>
         </div>
+      </template>
+    </template>
 
-        <!-- ===== 底部统计栏 ===== -->
-        <div class="rounded-lg border p-4 grid grid-cols-2 lg:grid-cols-4 gap-4 stats-bar" style="background: var(--kb-card); border-color: var(--kb-border);">
-          <div
-            v-for="stat in statsList"
-            :key="stat.label"
-            class="flex items-center gap-3"
-          >
-            <div
-              class="flex items-center justify-center w-10 h-10 rounded-lg shrink-0"
-              :style="`background: ${stat.bg};`"
-            >
-              <Icon :name="stat.icon" :size="20" :style="`color: ${stat.color};`" />
-            </div>
-            <div class="min-w-0">
-              <div class="text-[20px] font-bold leading-tight truncate tabular-nums" style="color: var(--kb-foreground);">{{ stat.value }}</div>
-              <div class="kb-body-sm">{{ stat.label }}</div>
+    <!-- ===== Tab2: 技术栈依赖图谱 ===== -->
+    <template v-else-if="currentView === 'tech'">
+      <div class="rounded-lg p-4 mb-4 border" style="background: var(--kb-card); border-color: var(--kb-border);">
+        <div class="flex items-center gap-3 flex-wrap">
+          <input v-model="techTopic" type="text" placeholder="输入技术主题，如：Spring Boot、Python AI、前端开发" class="flex-1 min-w-[260px] h-10 px-3 rounded-lg text-sm border outline-none kb-input" @keyup.enter="loadTechGraph" />
+          <select v-model="techCategoryId" class="h-10 px-3 rounded-lg text-sm border outline-none cursor-pointer kb-select">
+            <option :value="null">通用</option>
+            <option v-for="cat in kbCategoryList" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+          </select>
+          <button type="button" class="h-10 px-5 rounded-lg text-sm font-medium" style="background: var(--kb-primary); color: var(--kb-primary-foreground);" @click="loadTechGraph" :disabled="techLoading">
+            <Icon v-if="!techLoading" name="sparkles" :size="14" />
+            <span>{{ techLoading ? '生成中…' : 'AI 生成技术图谱' }}</span>
+          </button>
+          <button type="button" class="h-10 px-4 rounded-lg text-sm font-medium border header-btn" @click="resetTechGraph">
+            <Icon name="rotate-ccw" :size="14" />
+            <span>重置</span>
+          </button>
+        </div>
+        <p v-if="techGraph?.generatedAt" class="text-xs mt-2" style="color: var(--kb-muted-foreground);">
+          生成于 {{ techGraph.generatedAt }} · 共 {{ techGraph.nodes.length }} 个技术 · {{ techGraph.edges.length }} 条依赖
+        </p>
+      </div>
+
+      <div v-if="techLoading" class="rounded-lg border p-12 flex flex-col items-center justify-center gap-3" style="background: var(--kb-card); border-color: var(--kb-border);">
+        <span class="inline-block w-6 h-6 border-2 rounded-full animate-spin" style="border-color: var(--kb-primary); border-top-color: transparent;" />
+        <p class="text-sm" style="color: var(--kb-muted-foreground);">AI 正在分析技术栈依赖关系…</p>
+      </div>
+
+      <template v-else-if="techGraph && techGraph.nodes.length">
+        <!-- 技术图谱 SVG -->
+        <div class="rounded-lg border p-4 mb-4" style="background: var(--kb-card); border-color: var(--kb-border);">
+          <svg width="100%" height="520" :viewBox="techViewBox" xmlns="http://www.w3.org/2000/svg" class="tech-svg">
+            <!-- 连线 -->
+            <g v-for="(edge, i) in techEdges" :key="'te' + i">
+              <line :x1="edge.x1" :y1="edge.y1" :x2="edge.x2" :y2="edge.y2"
+                :stroke="edge.color"
+                :stroke-width="edge.width"
+                :stroke-dasharray="edge.relation === 'PREREQUISITE' ? 'none' : '6,3'"
+                :opacity="edge.opacity"
+                class="transition-opacity duration-300"
+              />
+              <!-- 箭头 -->
+              <polygon
+                v-if="edge.relation === 'PREREQUISITE'"
+                :points="edge.arrowPoints"
+                :fill="edge.color"
+              />
+            </g>
+            <!-- 节点 -->
+            <g v-for="node in techRenderNodes" :key="node.id" class="cursor-pointer" @click="selectTechNode(node)">
+              <circle :cx="node.x" :cy="node.y" :r="node.r"
+                :fill="node.bgColor"
+                :stroke="node.strokeColor"
+                stroke-width="2"
+                :opacity="techSelectedNode && techSelectedNode.id !== node.id && !isTechNodeConnected(node.id) ? 0.25 : 1"
+                class="transition-opacity duration-300"
+              />
+              <text :x="node.x" :y="node.y" text-anchor="middle" dominant-baseline="central"
+                :font-size="node.fontSize"
+                :font-weight="node.difficulty === 3 ? '700' : '500'"
+                :fill="node.textColor"
+              >{{ node.name }}</text>
+              <text :x="node.x" :y="node.y + node.r + 14" text-anchor="middle" font-size="10" :fill="node.strokeColor">{{ node.categoryLabel }}</text>
+            </g>
+          </svg>
+          <!-- 图例 -->
+          <div class="flex items-center gap-4 mt-3 flex-wrap text-xs" style="color: var(--kb-muted-foreground);">
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background: #3b6fe0;"/> 编程语言</span>
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background: #10b981;"/> 框架</span>
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background: #8b5cf6;"/> 工具</span>
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background: #f59e0b;"/> 数据库</span>
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background: #ef4444;"/> 算法</span>
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background: #06b6d4;"/> 平台</span>
+            <span class="flex items-center gap-1 ml-2">— 前置依赖</span>
+            <span class="flex items-center gap-1">╌ 组件/包含</span>
+          </div>
+        </div>
+
+        <!-- 技术节点详情 -->
+        <div v-if="techSelectedNode" class="rounded-lg border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="inline-block w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white" :style="{ background: getTechCategoryColor(techSelectedNode.category) }">{{ techSelectedNode.name.slice(0, 2) }}</span>
+            <div>
+              <h3 class="kb-h3">{{ techSelectedNode.name }}</h3>
+              <span class="text-xs" style="color: var(--kb-muted-foreground);">{{ techSelectedNode.categoryLabel }} · 难度 {{ '★'.repeat(techSelectedNode.difficulty || 1) }}</span>
             </div>
           </div>
+          <div class="grid grid-cols-2 gap-3 mb-3 text-sm">
+            <div class="rounded p-3" style="background: var(--kb-muted);">
+              <div class="text-xs mb-1" style="color: var(--kb-muted-foreground);">知识库文档</div>
+              <div class="font-semibold">{{ techSelectedNode.docCount || 0 }} 篇</div>
+            </div>
+            <div class="rounded p-3" style="background: var(--kb-muted);">
+              <div class="text-xs mb-1" style="color: var(--kb-muted-foreground);">依赖关系</div>
+              <div class="font-semibold">{{ countTechRelations(techSelectedNode.id) }} 条</div>
+            </div>
+          </div>
+          <p v-if="techSelectedNode.description" class="text-sm mb-3" style="color: var(--kb-foreground);">{{ techSelectedNode.description }}</p>
+          <div v-if="getTechPrerequisites(techSelectedNode.id).length" class="mb-3">
+            <h4 class="text-xs font-semibold mb-1" style="color: var(--kb-muted-foreground);">前置知识</h4>
+            <div class="flex flex-wrap gap-1">
+              <span v-for="pre in getTechPrerequisites(techSelectedNode.id)" :key="pre" class="px-2 py-0.5 rounded text-xs" style="background: var(--kb-muted); color: var(--kb-foreground);">{{ pre }}</span>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template v-else>
+        <div class="rounded-lg border p-12 flex flex-col items-center justify-center gap-3" style="background: var(--kb-card); border-color: var(--kb-border);">
+          <Icon name="search" :size="32" style="color: var(--kb-muted-foreground);" />
+          <p class="text-sm" style="color: var(--kb-muted-foreground);">输入技术主题，AI 将生成技术栈依赖图谱</p>
+        </div>
+      </template>
+    </template>
+
+    <!-- ===== Tab3: 概念可视化图解 ===== -->
+    <template v-else>
+      <div class="rounded-lg p-4 mb-4 border" style="background: var(--kb-card); border-color: var(--kb-border);">
+        <div class="flex items-center gap-3 flex-wrap">
+          <input v-model="conceptInput" type="text" placeholder="输入编程/AI 概念，如：变量、面向对象、RAG、快速排序" class="flex-1 min-w-[260px] h-10 px-3 rounded-lg text-sm border outline-none kb-input" @keyup.enter="loadConceptDiagram" />
+          <button type="button" class="h-10 px-5 rounded-lg text-sm font-medium" style="background: var(--kb-primary); color: var(--kb-primary-foreground);" @click="loadConceptDiagram" :disabled="conceptLoading">
+            <Icon v-if="!conceptLoading" name="sparkles" :size="14" />
+            <span>{{ conceptLoading ? '生成中…' : 'AI 生成图解' }}</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-2 mt-3 flex-wrap">
+          <span class="text-xs" style="color: var(--kb-muted-foreground);">快速尝试：</span>
+          <button v-for="c in quickConcepts" :key="c" type="button" class="px-2 py-0.5 rounded text-xs border hover:opacity-80" style="border-color: var(--kb-border);" @click="conceptInput = c; loadConceptDiagram()">{{ c }}</button>
+        </div>
+        <!-- 最近浏览 -->
+        <div v-if="conceptHistory.length" class="flex items-center gap-2 mt-2 flex-wrap">
+          <span class="text-xs" style="color: var(--kb-muted-foreground);">最近浏览：</span>
+          <button v-for="h in conceptHistory" :key="h" type="button" class="px-2 py-0.5 rounded text-xs" style="background: var(--kb-muted); color: var(--kb-foreground);" @click="conceptInput = h; loadConceptDiagram()">{{ h }}</button>
+        </div>
+      </div>
+
+      <div v-if="conceptLoading" class="rounded-lg border p-12 flex flex-col items-center justify-center gap-3" style="background: var(--kb-card); border-color: var(--kb-border);">
+        <span class="inline-block w-6 h-6 border-2 rounded-full animate-spin" style="border-color: var(--kb-primary); border-top-color: transparent;" />
+        <p class="text-sm" style="color: var(--kb-muted-foreground);">{{ conceptRegenerating ? 'AI 正在重新生成图解…' : 'AI 正在绘制概念图解…' }}</p>
+      </div>
+
+      <template v-else-if="conceptDiagram">
+        <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-4">
+          <!-- 左栏：图解 + 代码示例 -->
+          <div class="space-y-4">
+            <div class="rounded-lg border p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <h3 class="kb-h3">{{ conceptDiagram.concept }}</h3>
+                  <span v-if="conceptDiagram.difficulty" class="px-2 py-0.5 rounded text-xs font-medium" :style="{ background: difficultyBg(conceptDiagram.difficulty), color: difficultyColor(conceptDiagram.difficulty) }">
+                    {{ difficultyLabel(conceptDiagram.difficulty) }}
+                  </span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded text-xs" style="background: var(--kb-muted); color: var(--kb-muted-foreground);">{{ conceptDiagram.diagramType }}</span>
+                  <button type="button" class="flex items-center gap-1 px-2 py-1 rounded-lg text-xs border transition-colors hover:opacity-80" style="border-color: var(--kb-border); color: var(--kb-muted-foreground);" :disabled="conceptRegenerating" @click="regenerateConceptDiagram">
+                    <Icon name="rotate-ccw" :size="12" :class="conceptRegenerating ? 'animate-spin' : ''" />
+                    <span>{{ conceptRegenerating ? '生成中…' : '重新生成' }}</span>
+                  </button>
+                </div>
+              </div>
+              <MermaidDiagram :code="conceptDiagram.mermaidCode" :id="'concept-' + conceptDiagram.concept" />
+            </div>
+            <!-- 代码示例 -->
+            <div v-if="conceptDiagram.codeExample" class="rounded-lg border p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
+              <div class="flex items-center gap-2 mb-2">
+                <Icon name="code" :size="14" style="color: var(--kb-primary);" />
+                <h4 class="kb-h4 text-sm">代码示例</h4>
+              </div>
+              <pre class="rounded-lg p-3 text-xs overflow-x-auto" style="background: #1e293b; color: #e2e8f0;"><code>{{ conceptDiagram.codeExample }}</code></pre>
+            </div>
+          </div>
+          <!-- 右栏：学习信息 -->
+          <div class="rounded-lg border p-5 space-y-4" style="background: var(--kb-card); border-color: var(--kb-border); align-self: start;">
+            <!-- 概念说明 -->
+            <div>
+              <h4 class="kb-h4 mb-2 text-sm">概念说明</h4>
+              <p class="text-sm" style="color: var(--kb-foreground);">{{ conceptDiagram.description }}</p>
+            </div>
+            <!-- 关键知识点 -->
+            <div v-if="conceptDiagram.keyPoints?.length">
+              <div class="my-3 h-px" style="background: var(--kb-border);" />
+              <h4 class="kb-h4 mb-2 text-sm">关键知识点</h4>
+              <ul class="space-y-1.5">
+                <li v-for="(point, i) in conceptDiagram.keyPoints" :key="i" class="flex items-start gap-2 text-sm">
+                  <span class="inline-block w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style="background: rgba(59,111,224,0.12); color: var(--kb-primary);">{{ i + 1 }}</span>
+                  <span style="color: var(--kb-foreground);">{{ point }}</span>
+                </li>
+              </ul>
+            </div>
+            <!-- 关联概念 -->
+            <div v-if="conceptDiagram.relatedConcepts?.length">
+              <div class="my-3 h-px" style="background: var(--kb-border);" />
+              <h4 class="kb-h4 mb-2 text-sm">关联概念</h4>
+              <div class="flex flex-wrap gap-1.5">
+                <button v-for="rc in conceptDiagram.relatedConcepts" :key="rc" type="button" class="px-2.5 py-1 rounded-lg text-xs border transition-colors hover:opacity-80" style="border-color: var(--kb-primary); color: var(--kb-primary); background: rgba(59,111,224,0.05);" @click="conceptInput = rc; loadConceptDiagram()">{{ rc }}</button>
+              </div>
+            </div>
+            <!-- AI 详细解释 -->
+            <div>
+              <div class="my-3 h-px" style="background: var(--kb-border);" />
+              <h4 class="kb-h4 mb-2 text-sm">AI 详细解释</h4>
+              <p class="text-sm leading-relaxed" style="color: var(--kb-muted-foreground);">{{ conceptDiagram.explanation }}</p>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template v-else>
+        <div class="rounded-lg border p-12 flex flex-col items-center justify-center gap-3" style="background: var(--kb-card); border-color: var(--kb-border);">
+          <Icon name="image" :size="32" style="color: var(--kb-muted-foreground);" />
+          <p class="text-sm" style="color: var(--kb-muted-foreground);">输入概念名称，AI 将生成可视化图解</p>
         </div>
       </template>
     </template>
@@ -350,486 +352,327 @@
 </template>
 
 <script setup lang="ts">
-// 知识图谱页：拉取分类/文档节点与关系边，按「中心-一级-二级」层级用 SVG 呈现。
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import MermaidDiagram from '@/components/Knowledge/MermaidDiagram.vue'
 import { notify, getApiError } from '@/utils/toast'
 import { knowledgeApi } from '@/api'
-import type { KnowledgeGraphVO, GraphNodeVO } from '@/api/types'
+import type {
+  KnowledgeGraphVO, GraphNodeVO,
+  TechGraphVO, TechNodeVO, TechEdgeVO,
+  ConceptDiagramVO,
+} from '@/api/types'
 
 const router = useRouter()
 
-// ===== 数据状态 =====
+// ===== 视图切换 =====
+type ViewTab = 'category' | 'tech' | 'concept'
+const currentView = ref<ViewTab>('category')
+const viewTabs = [
+  { value: 'category' as const, label: '分类图谱', icon: 'share-2' },
+  { value: 'tech' as const, label: '技术依赖图', icon: 'git-branch' },
+  { value: 'concept' as const, label: '概念图解', icon: 'image' },
+]
+const switchView = (v: ViewTab) => { currentView.value = v }
+
+// ===== Tab1: 分类图谱（原逻辑保留） =====
 const loading = ref(false)
-const error = ref('')
 const graph = ref<KnowledgeGraphVO>({ nodes: [], edges: [] })
 const zoom = ref(1)
 const selectedNode = ref<RenderNode | null>(null)
-
-// ===== 工具栏状态 =====
 const selectedKb = ref('all')
 const searchKeyword = ref('')
-const currentLayout = ref<'force' | 'tree' | 'grid'>('force')
+
+interface RenderNode {
+  id: string; label: string; level: string; type: string;
+  x: number; y: number; docCount: number; relationCount: number;
+  docs: { id: string; title: string; tag: string }[];
+}
 
 const kbList = computed(() => {
   const list = new Set<string>()
-  graph.value.nodes.forEach((n) => {
-    if (n.type === 'category' && n.label) list.add(n.label)
-  })
+  graph.value.nodes.forEach((n) => { if (n.type === 'category' && n.label) list.add(n.label) })
   return Array.from(list).slice(0, 10)
 })
 
-const layoutOptions = [
-  { value: 'force' as const, title: '力导向图', icon: 'share-2' },
-  { value: 'tree' as const, title: '树状图', icon: 'list' },
-  { value: 'grid' as const, title: '网格图', icon: 'grid' },
-]
-
-// ===== 节点类型 =====
-interface RenderNode {
-  id: string
-  label: string
-  level: 'center' | 'level1' | 'level2'
-  type: string
-  x: number
-  y: number
-  docCount: number
-  relationCount: number
-  createTime: string
-  updateTime: string
-  docs: { id: string; title: string; tag: string }[]
-}
-
-// ===== 数据转换：将 API 返回的扁平节点按 category(中心) → category 子节点(一级) → doc(二级) 三层布局 =====
 const renderNodes = computed<RenderNode[]>(() => {
   const categories = graph.value.nodes.filter((n) => n.type === 'category')
   const docs = graph.value.nodes.filter((n) => n.type === 'doc')
-
-  // 关键词过滤
   const kw = searchKeyword.value.trim().toLowerCase()
   const filterFn = (n: GraphNodeVO) => !kw || n.label.toLowerCase().includes(kw)
-
-  // 中心节点：取第一个 category 作为中心（无则用「知识库」占位）
   const center = categories[0]
   const centerId = center?.id || 'center'
   const centerLabel = center?.label || '知识库'
-
-  // 一级节点：除中心外的其他 category
-  const level1 = categories.slice(1).filter(filterFn)
-
-  // 二级节点：所有 doc
-  const level2 = docs.filter(filterFn)
-
-  // 布局坐标
   const nodes: RenderNode[] = []
 
-  // 中心
-  nodes.push({
-    id: centerId,
-    label: centerLabel,
-    level: 'center',
-    type: 'category',
-    x: 400,
-    y: 260,
-    docCount: docs.length,
-    relationCount: level1.length + level2.length,
-    createTime: '2026-01-15',
-    updateTime: '今天',
-    docs: docs.slice(0, 4).map((d) => ({
-      id: d.id,
-      title: d.label,
-      tag: d.type === 'doc' ? '文档' : '其他',
-    })),
+  nodes.push({ id: centerId, label: centerLabel, level: 'center', type: 'category', x: 400, y: 260, docCount: docs.length, relationCount: categories.length + docs.length, docs: docs.slice(0, 4).map(d => ({ id: d.id, title: d.label, tag: '文档' })) })
+
+  const l1 = categories.slice(1).filter(filterFn)
+  l1.forEach((n, i) => {
+    const angle = (i / Math.max(l1.length, 1)) * Math.PI * 2 - Math.PI / 2
+    nodes.push({ id: n.id, label: n.label, level: 'level1', type: n.type, x: 400 + Math.cos(angle) * 160, y: 260 + Math.sin(angle) * 160, docCount: 0, relationCount: 0, docs: [] })
   })
 
-  // 一级节点：围绕中心呈圆形分布
-  const l1Count = level1.length
-  level1.forEach((n, i) => {
-    const angle = (i / Math.max(l1Count, 1)) * Math.PI * 2 - Math.PI / 2
-    const r = 180
-    nodes.push({
-      id: n.id,
-      label: n.label,
-      level: 'level1',
-      type: n.type,
-      x: 400 + Math.cos(angle) * r,
-      y: 260 + Math.sin(angle) * r,
-      docCount: countDocByCategory(n.id),
-      relationCount: countRelation(n.id),
-      createTime: '2026-01-15',
-      updateTime: '今天',
-      docs: findDocsByCategory(n.id).slice(0, 4).map((d) => ({
-        id: d.id,
-        title: d.label,
-        tag: n.label,
-      })),
-    })
+  const l2 = docs.filter(filterFn)
+  l2.forEach((n, i) => {
+    const angle = (i / Math.max(l2.length, 1)) * Math.PI * 2 - Math.PI / 2
+    nodes.push({ id: n.id, label: n.label, level: 'level2', type: n.type, x: 400 + Math.cos(angle) * 240, y: 260 + Math.sin(angle) * 240, docCount: 0, relationCount: 1, docs: [{ id: n.id, title: n.label, tag: '文档' }] })
   })
 
-  // 二级节点：呈外圈分布
-  const l2Count = level2.length
-  level2.forEach((n, i) => {
-    const angle = (i / Math.max(l2Count, 1)) * Math.PI * 2 - Math.PI / 2
-    const r = 260
-    nodes.push({
-      id: n.id,
-      label: n.label,
-      level: 'level2',
-      type: n.type,
-      x: 400 + Math.cos(angle) * r,
-      y: 260 + Math.sin(angle) * r,
-      docCount: 0,
-      relationCount: 1,
-      createTime: '2026-02-10',
-      updateTime: '昨天',
-      docs: [{
-        id: n.id,
-        title: n.label,
-        tag: '文档',
-      }],
-    })
-  })
-
-  // 搜索时高亮：未匹配的节点隐藏
-  if (kw) {
-    return nodes.filter((n) =>
-      n.label.toLowerCase().includes(kw) || n.level === 'center'
-    )
-  }
-
+  if (kw) return nodes.filter(n => n.label.toLowerCase().includes(kw) || n.level === 'center')
   return nodes
 })
 
-const centerNodes = computed(() => renderNodes.value.filter((n) => n.level === 'center'))
-const level1Nodes = computed(() => renderNodes.value.filter((n) => n.level === 'level1'))
-const level2Nodes = computed(() => renderNodes.value.filter((n) => n.level === 'level2'))
+const centerNodes = computed(() => renderNodes.value.filter(n => n.level === 'center'))
+const level1Nodes = computed(() => renderNodes.value.filter(n => n.level === 'level1'))
+const level2Nodes = computed(() => renderNodes.value.filter(n => n.level === 'level2'))
 
-// ===== 边视图 =====
 const renderEdges = computed(() => {
   const map = new Map<string, { x: number; y: number }>()
-  renderNodes.value.forEach((n) => map.set(n.id, { x: n.x, y: n.y }))
+  renderNodes.value.forEach(n => map.set(n.id, { x: n.x, y: n.y }))
   const result: { x1: number; y1: number; x2: number; y2: number; source: string; target: string }[] = []
   for (const e of graph.value.edges) {
-    const s = map.get(e.source)
-    const t = map.get(e.target)
-    if (s && t) {
-      result.push({ x1: s.x, y1: s.y, x2: t.x, y2: t.y, source: e.source, target: e.target })
-    }
+    const s = map.get(e.source); const t = map.get(e.target)
+    if (s && t) result.push({ x1: s.x, y1: s.y, x2: t.x, y2: t.y, source: e.source, target: e.target })
   }
-  // 若 API 无边数据，根据层级关系自动连线
   if (result.length === 0 && renderNodes.value.length > 1) {
     const center = centerNodes.value[0]
     if (center) {
-      level1Nodes.value.forEach((n) => {
-        result.push({ x1: center.x, y1: center.y, x2: n.x, y2: n.y, source: center.id, target: n.id })
-      })
-      level2Nodes.value.forEach((n) => {
-        // 二级节点连最近的一级节点
+      level1Nodes.value.forEach(n => result.push({ x1: center.x, y1: center.y, x2: n.x, y2: n.y, source: center.id, target: n.id }))
+      level2Nodes.value.forEach(n => {
         const nearest = level1Nodes.value[0]
-        if (nearest) {
-          result.push({ x1: nearest.x, y1: nearest.y, x2: n.x, y2: n.y, source: nearest.id, target: n.id })
-        } else if (center) {
-          result.push({ x1: center.x, y1: center.y, x2: n.x, y2: n.y, source: center.id, target: n.id })
-        }
+        if (nearest) result.push({ x1: nearest.x, y1: nearest.y, x2: n.x, y2: n.y, source: nearest.id, target: n.id })
+        else result.push({ x1: center.x, y1: center.y, x2: n.x, y2: n.y, source: center.id, target: n.id })
       })
     }
   }
   return result
 })
 
-// ===== 统计辅助 =====
-const countDocByCategory = (catId: string): number => {
-  return graph.value.edges.filter((e) => e.source === catId || e.target === catId).length
+const countRelation = (nodeId: string) => graph.value.edges.filter(e => e.source === nodeId || e.target === nodeId).length
+const findDocsByCategory = (catId: string) => {
+  const docIds = graph.value.edges.filter(e => e.source === catId || e.target === catId).map(e => e.source === catId ? e.target : e.source)
+  return graph.value.nodes.filter(n => docIds.includes(n.id) && n.type === 'doc')
 }
-
-const countRelation = (nodeId: string): number => {
-  return graph.value.edges.filter((e) => e.source === nodeId || e.target === nodeId).length
-}
-
-const findDocsByCategory = (catId: string): GraphNodeVO[] => {
-  const docIds = graph.value.edges
-    .filter((e) => e.source === catId || e.target === catId)
-    .map((e) => (e.source === catId ? e.target : e.source))
-  return graph.value.nodes.filter((n) => docIds.includes(n.id) && n.type === 'doc')
-}
-
-const isNodeConnected = (nodeId: string): boolean => {
+const isNodeConnected = (nodeId: string) => {
   if (!selectedNode.value) return true
-  return graph.value.edges.some(
-    (e) =>
-      (e.source === selectedNode.value!.id && e.target === nodeId) ||
-      (e.target === selectedNode.value!.id && e.source === nodeId)
-  )
+  return graph.value.edges.some(e => (e.source === selectedNode.value!.id && e.target === nodeId) || (e.target === selectedNode.value!.id && e.source === nodeId))
 }
-
-const isEdgeConnected = (edge: { source: string; target: string }): boolean => {
+const isEdgeConnected = (edge: { source: string; target: string }) => {
   if (!selectedNode.value) return true
   return edge.source === selectedNode.value.id || edge.target === selectedNode.value.id
 }
+const selectNode = (node: RenderNode) => { selectedNode.value = selectedNode.value?.id === node.id ? null : node }
+const levelLabel = (level: string) => level === 'center' ? '核心主题' : level === 'level1' ? '分类' : '文档'
+const goToDoc = (nodeId: string) => { const docId = parseInt(nodeId.split('_')[1] || nodeId); if (!isNaN(docId)) router.push(`/doc/${docId}`) }
 
-// ===== 交互 =====
-const selectNode = (node: RenderNode) => {
-  if (selectedNode.value?.id === node.id) {
-    selectedNode.value = null
-  } else {
-    selectedNode.value = node
-  }
-}
-
-const goToDoc = (nodeId: string) => {
-  const docId = parseInt(nodeId.split('_')[1] || nodeId)
-  if (!isNaN(docId)) {
-    router.push(`/doc/${docId}`)
-  } else {
-    notify('文档 ID 无效', 'error')
-  }
-}
-
-// 查看全部文档：用当前节点名称跳转到搜索结果页
-const viewAllDocs = () => {
-  if (!selectedNode.value) return
-  const kw = encodeURIComponent(selectedNode.value.label)
-  router.push(`/search?q=${kw}`)
-}
-
-// 图谱导出：生成 JSON 文件下载
 const handleExport = () => {
-  const data = {
-    title: '知识图谱导出',
-    exportedAt: new Date().toISOString(),
-    nodes: nodes.value.map((n) => ({
-      id: n.id,
-      label: n.label,
-      level: n.level,
-      docCount: n.docCount || 0,
-    })),
-    edges: edges.value.map((e) => ({
-      source: e.source,
-      target: e.target,
-    })),
-  }
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `knowledge-graph-${Date.now()}.json`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
-  notify('图谱已导出为 JSON 文件', 'success')
+  const blob = new Blob([JSON.stringify({ nodes: renderNodes.value.map(n => ({ id: n.id, label: n.label, level: n.level })), edges: renderEdges.value.map(e => ({ source: e.source, target: e.target })) }, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `knowledge-graph-${Date.now()}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url)
+  notify('图谱已导出', 'success')
 }
 
-const levelLabel = (level: string): string => {
-  switch (level) {
-    case 'center': return '核心主题'
-    case 'level1': return '一级分类'
-    case 'level2': return '二级节点'
-    default: return '节点'
-  }
+async function loadGraph() {
+  loading.value = true
+  try { graph.value = await knowledgeApi.graph() }
+  catch (e: unknown) { notify(getApiError(e, '图谱加载失败'), 'error') }
+  finally { loading.value = false }
 }
 
-// ===== 统计栏 =====
-const statsList = computed(() => {
-  const total = renderNodes.value.length
-  const edges = renderEdges.value.length
-  const coverage = total > 0 ? Math.min(100, Math.round((edges / Math.max(total * 2, 1)) * 100)) : 0
-  // 最强关联：取关联数最多的非中心节点
-  const strongest = renderNodes.value
-    .filter((n) => n.level !== 'center')
-    .sort((a, b) => b.relationCount - a.relationCount)[0]
-  return [
-    {
-      label: '节点总数',
-      value: total,
-      icon: 'share-2',
-      color: 'var(--kb-primary)',
-      bg: 'rgba(59,111,224,0.1)',
-    },
-    {
-      label: '连线数',
-      value: edges,
-      icon: 'git-branch',
-      color: 'var(--kb-accent)',
-      bg: 'rgba(16,185,129,0.1)',
-    },
-    {
-      label: '知识库覆盖度',
-      value: `${coverage}%`,
-      icon: 'pie-chart',
-      color: 'var(--kb-warning)',
-      bg: 'rgba(245,158,11,0.1)',
-    },
-    {
-      label: '最强关联',
-      value: strongest?.label || '—',
-      icon: 'trending-up',
-      color: 'var(--kb-primary)',
-      bg: 'rgba(59,111,224,0.1)',
-    },
-  ]
+// ===== Tab2: 技术栈依赖图谱 =====
+const techLoading = ref(false)
+const techGraph = ref<TechGraphVO | null>(null)
+const techTopic = ref('Spring Boot')
+const techCategoryId = ref<number | null>(null)
+const techSelectedNode = ref<TechNodeVO | null>(null)
+
+const kbCategoryList = computed(() => {
+  const cats = new Set<string>()
+  graph.value.nodes.forEach(n => { if (n.type === 'category') cats.add(n.id) })
+  return graph.value.nodes.filter(n => n.type === 'category').map(n => ({ id: n.id, name: n.label }))
 })
 
-// ===== 数据加载 =====
-async function loadGraph(): Promise<void> {
-  loading.value = true
-  error.value = ''
-  selectedNode.value = null
+interface TechRenderNode extends TechNodeVO {
+  x: number; y: number; r: number; bgColor: string; strokeColor: string; textColor: string; fontSize: number
+}
+interface TechRenderEdge extends TechEdgeVO {
+  x1: number; y1: number; x2: number; y2: number; color: string; width: number; opacity: number; arrowPoints: string
+}
+
+const CATEGORY_COLORS: Record<string, { bg: string; stroke: string; text: string }> = {
+  LANGUAGE:   { bg: 'rgba(59,111,224,0.15)', stroke: '#3b6fe0', text: '#3b6fe0' },
+  FRAMEWORK:  { bg: 'rgba(16,185,129,0.15)', stroke: '#10b981', text: '#10b981' },
+  TOOL:       { bg: 'rgba(139,92,246,0.15)', stroke: '#8b5cf6', text: '#8b5cf6' },
+  DATABASE:   { bg: 'rgba(245,158,11,0.15)', stroke: '#f59e0b', text: '#f59e0b' },
+  ALGORITHM:  { bg: 'rgba(239,68,68,0.15)', stroke: '#ef4444', text: '#ef4444' },
+  PLATFORM:   { bg: 'rgba(6,182,212,0.15)', stroke: '#06b6d4', text: '#06b6d4' },
+}
+
+const getTechCategoryColor = (cat: string) => CATEGORY_COLORS[cat] || CATEGORY_COLORS.TOOL
+
+const techViewBox = computed(() => {
+  const count = techGraph.value?.nodes.length || 0
+  const cols = Math.max(3, Math.ceil(Math.sqrt(count)))
+  const width = Math.max(600, cols * 180)
+  return `0 0 ${width} 520`
+})
+
+const techRenderNodes = computed<TechRenderNode[]>(() => {
+  if (!techGraph.value || !techGraph.value.nodes.length) return []
+  const nodes = techGraph.value.nodes
+  const count = nodes.length
+  const cols = Math.max(3, Math.ceil(Math.sqrt(count)))
+  const rows = Math.ceil(count / cols)
+  const colWidth = Math.max(140, 600 / cols)
+  const rowHeight = Math.max(80, 480 / rows)
+  const offsetX = Math.max(30, (600 - cols * colWidth) / 2)
+  const offsetY = Math.max(40, (500 - rows * rowHeight) / 2)
+
+  return nodes.map((n, i) => {
+    const col = i % cols
+    const row = Math.floor(i / cols)
+    const x = offsetX + col * colWidth + colWidth / 2
+    const y = offsetY + row * rowHeight + rowHeight / 2
+    const colors = CATEGORY_COLORS[n.category] || CATEGORY_COLORS.TOOL
+    const r = n.difficulty === 3 ? 28 : n.difficulty === 2 ? 24 : 20
+    const fontSize = n.difficulty === 3 ? 12 : 11
+    return { ...n, x, y, r, bgColor: colors.bg, strokeColor: colors.stroke, textColor: colors.text, fontSize }
+  })
+})
+
+const techEdges = computed<TechRenderEdge[]>(() => {
+  if (!techGraph.value) return []
+  const map = new Map<string, TechRenderNode>()
+  techRenderNodes.value.forEach(n => map.set(n.id, n))
+  const result: TechRenderEdge[] = []
+  for (const e of techGraph.value.edges) {
+    const s = map.get(e.source); const t = map.get(e.target)
+    if (!s || !t) continue
+    const dx = t.x - s.x, dy = t.y - s.y
+    const len = Math.sqrt(dx * dx + dy * dy) || 1
+    const ux = dx / len, uy = dy / len
+    const x1 = s.x + ux * s.r, y1 = s.y + uy * s.r
+    const x2 = t.x - ux * (t.r + 4), y2 = t.y - uy * (t.r + 4)
+    const color = e.relation === 'PREREQUISITE' ? '#3b6fe0' : e.relation === 'COMPONENT' ? '#10b981' : '#8b5cf6'
+    const width = (e.strength || 1) * 0.6 + 0.6
+    const opacity = techSelectedNode.value ? (e.source === techSelectedNode.value.id || e.target === techSelectedNode.value.id ? 1 : 0.15) : 0.8
+    // 箭头
+    const arrowSize = 6
+    const arrowX = t.x - ux * t.r
+    const arrowY = t.y - uy * t.r
+    const perpX = -uy, perpY = ux
+    const arrowPoints = `${arrowX},${arrowY} ${arrowX - ux * arrowSize + perpX * arrowSize * 0.6},${arrowY - uy * arrowSize + perpY * arrowSize * 0.6} ${arrowX - ux * arrowSize - perpX * arrowSize * 0.6},${arrowY - uy * arrowSize - perpY * arrowSize * 0.6}`
+    result.push({ ...e, x1, y1, x2, y2, color, width, opacity, arrowPoints })
+  }
+  return result
+})
+
+const selectTechNode = (node: TechNodeVO) => {
+  techSelectedNode.value = techSelectedNode.value?.id === node.id ? null : node
+}
+const isTechNodeConnected = (nodeId: string) => {
+  if (!techSelectedNode.value) return true
+  return techEdges.value.some(e => (e.source === techSelectedNode.value!.id && e.target === nodeId) || (e.target === techSelectedNode.value!.id && e.source === nodeId))
+}
+const countTechRelations = (id: string) => techGraph.value?.edges.filter(e => e.source === id || e.target === id).length || 0
+const getTechPrerequisites = (id: string) => {
+  if (!techGraph.value) return []
+  const prereqIds = techGraph.value.edges.filter(e => e.target === id && e.relation === 'PREREQUISITE').map(e => e.source)
+  return techGraph.value.nodes.filter(n => prereqIds.includes(n.id)).map(n => n.name)
+}
+
+async function loadTechGraph() {
+  if (!techTopic.value.trim()) return
+  techLoading.value = true
+  techSelectedNode.value = null
   try {
-    graph.value = await knowledgeApi.graph()
+    techGraph.value = await knowledgeApi.techGraph(techTopic.value.trim(), techCategoryId.value || undefined)
   } catch (e: unknown) {
-    error.value = getApiError(e, '图谱加载失败')
-    notify('知识图谱加载失败', 'error')
+    notify(getApiError(e, '技术图谱生成失败'), 'error')
   } finally {
-    loading.value = false
+    techLoading.value = false
   }
 }
 
+function resetTechGraph() {
+  techTopic.value = 'Spring Boot'
+  techGraph.value = null
+  techSelectedNode.value = null
+}
+
+// ===== Tab3: 概念可视化图解 =====
+const conceptLoading = ref(false)
+const conceptRegenerating = ref(false)
+const conceptDiagram = ref<ConceptDiagramVO | null>(null)
+const conceptInput = ref('变量')
+const quickConcepts = ['变量', '循环', '面向对象', '递归', 'RAG', '快速排序', 'React Hooks']
+const conceptHistory = ref<string[]>([])
+
+function difficultyLabel(d: number) {
+  return d === 3 ? '进阶' : d === 2 ? '中等' : '入门'
+}
+function difficultyColor(d: number) {
+  return d === 3 ? '#ef4444' : d === 2 ? '#f59e0b' : '#10b981'
+}
+function difficultyBg(d: number) {
+  return d === 3 ? 'rgba(239,68,68,0.12)' : d === 2 ? 'rgba(245,158,11,0.12)' : 'rgba(16,185,129,0.12)'
+}
+
+async function loadConceptDiagram() {
+  if (!conceptInput.value.trim()) return
+  conceptLoading.value = true
+  try {
+    const concept = conceptInput.value.trim()
+    conceptDiagram.value = await knowledgeApi.conceptDiagram(concept)
+    // 记录浏览历史
+    if (!conceptHistory.value.includes(concept)) {
+      conceptHistory.value.unshift(concept)
+      if (conceptHistory.value.length > 6) conceptHistory.value.pop()
+    }
+  } catch (e: unknown) {
+    notify(getApiError(e, '图解生成失败'), 'error')
+  } finally {
+    conceptLoading.value = false
+  }
+}
+
+/** 重新生成概念图解：删除旧缓存并让 AI 重新生成 */
+async function regenerateConceptDiagram() {
+  if (!conceptInput.value.trim() || conceptRegenerating.value) return
+  conceptRegenerating.value = true
+  conceptLoading.value = true
+  try {
+    const concept = conceptInput.value.trim()
+    conceptDiagram.value = await knowledgeApi.regenerateConceptDiagram(concept)
+    notify('图解已重新生成', 'success')
+  } catch (e: unknown) {
+    notify(getApiError(e, '重新生成失败'), 'error')
+  } finally {
+    conceptRegenerating.value = false
+    conceptLoading.value = false
+  }
+}
+
+// ===== 初始化 =====
 onMounted(() => {
   void loadGraph()
 })
 </script>
 
 <style scoped>
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+.animate-fade-in { animation: fadeIn 0.4s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ===== 工具栏按钮 ===== */
-.header-btn {
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  border-color: var(--kb-border);
-  transition: background-color 0.15s;
-}
-.header-btn:hover {
-  background: var(--kb-muted);
-}
-.header-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
-  outline-offset: 2px;
-}
-
-.kb-select {
-  background: var(--kb-card);
-  border-color: var(--kb-border);
-  color: var(--kb-foreground);
-}
-
-.kb-input {
-  background: var(--kb-background);
-  border-color: var(--kb-border);
-  color: var(--kb-foreground);
-}
-.kb-input:focus {
-  border-color: var(--kb-primary);
-  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
-}
-
-.search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--kb-muted-foreground);
-  pointer-events: none;
-}
-
-/* ===== 分段控件 ===== */
-.seg-btn {
-  background: transparent;
-  color: var(--kb-muted-foreground);
-  border: none;
-  cursor: pointer;
-  transition: color 0.15s, background-color 0.15s, box-shadow 0.15s;
-}
-.seg-btn:hover {
-  color: var(--kb-foreground);
-}
-.seg-btn.active {
-  background: var(--kb-card);
-  color: var(--kb-primary);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-.seg-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
-  outline-offset: 2px;
-}
-
-.zoom-btn {
-  background: transparent;
-  color: var(--kb-muted-foreground);
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.15s;
-}
-.zoom-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
-}
-.zoom-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
-  outline-offset: 2px;
-}
-
-/* ===== 详情面板 ===== */
-.divider {
-  background: var(--kb-border);
-}
-
-.badge-tag {
-  color: var(--kb-primary-foreground);
-  background: var(--kb-primary);
-}
-.badge-center { background: var(--kb-primary); }
-.badge-level1 { background: var(--kb-accent); }
-.badge-level2 { background: var(--kb-muted-foreground); }
-
-.doc-link {
-  text-decoration: none;
-  transition: background-color 0.15s;
-}
-.doc-link:hover {
-  background: var(--kb-muted);
-}
-.doc-link:focus-visible {
-  outline: 2px solid var(--kb-ring);
-  outline-offset: 2px;
-}
-.doc-tag {
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
-}
-
-.view-all {
-  color: var(--kb-primary);
-  text-decoration: none;
-  transition: opacity 0.15s;
-}
-.view-all:hover {
-  opacity: 0.85;
-}
-
-/* ===== 响应式 ===== */
-@media (max-width: 1024px) {
-  .detail-panel {
-    position: static !important;
-  }
-}
-
-@media (max-width: 768px) {
-  .toolbar-card :deep(.flex) {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .toolbar-card .kb-select,
-  .toolbar-card .kb-input {
-    width: 100%;
-  }
-}
+.seg-btn { background: transparent; color: var(--kb-muted-foreground); border: none; cursor: pointer; transition: all 0.15s; }
+.seg-btn:hover { color: var(--kb-foreground); }
+.seg-btn.active { background: var(--kb-card); color: var(--kb-primary); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.header-btn { background: var(--kb-card); color: var(--kb-foreground); border-color: var(--kb-border); }
+.header-btn:hover { background: var(--kb-muted); }
+.kb-select, .kb-input { background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground); }
+.kb-input:focus { border-color: var(--kb-primary); box-shadow: 0 0 0 3px rgba(59,111,224,0.1); }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--kb-muted-foreground); pointer-events: none; }
+.detail-panel { position: sticky; top: 5rem; }
+.tech-svg { display: block; }
+@media (max-width: 1024px) { .detail-panel { position: static !important; } }
 </style>

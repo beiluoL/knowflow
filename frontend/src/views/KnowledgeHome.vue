@@ -122,9 +122,7 @@
               class="recent-card"
               @click="goToDoc(doc.id)"
             >
-              <div class="recent-icon" :style="{ background: `${docIconColors[idx % docIconColors.length]}14` }">
-                <Icon name="file-text" :size="18" :style="{ color: docIconColors[idx % docIconColors.length] }" />
-              </div>
+              <DocTypeBadge :file-url="doc.fileUrl" :content="doc.content" :size="36" />
               <div class="recent-info">
                 <h4 class="recent-title">{{ doc.title }}</h4>
                 <p class="recent-meta">
@@ -217,9 +215,7 @@
                 class="doc-row"
                 @click="goToDoc(doc.id)"
               >
-                <div class="doc-row-icon" :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }">
-                  <Icon name="file-text" :size="16" />
-                </div>
+                <DocTypeBadge :file-url="doc.fileUrl" :content="doc.content" :size="36" />
                 <div class="doc-row-info">
                   <h4 class="doc-row-title">{{ doc.title }}</h4>
                   <p class="doc-row-meta">
@@ -267,10 +263,16 @@
                 <p class="leaf-desc">{{ currentCategory.description || `浏览 ${currentCategory.name} 分类下的所有文档` }}</p>
               </div>
             </div>
-            <button class="upload-btn small" @click="goUpload">
-              <Icon name="upload" :size="14" />
-              <span>上传文档</span>
-            </button>
+            <div class="leaf-actions">
+              <button class="btn-ghost small" @click="openInviteDialog">
+                <Icon name="user-plus" :size="14" />
+                <span>邀请成员</span>
+              </button>
+              <button class="upload-btn small" @click="goUpload">
+                <Icon name="upload" :size="14" />
+                <span>上传文档</span>
+              </button>
+            </div>
           </div>
 
           <!-- 加载中 -->
@@ -318,6 +320,60 @@
       </template>
     </main>
   </div>
+
+  <!-- 邀请成员对话框 -->
+  <Teleport to="body">
+    <div v-if="inviteDialogVisible" class="invite-dialog-overlay" @click.self="closeInviteDialog">
+      <div class="invite-dialog">
+        <div class="invite-dialog-header">
+          <h3>邀请成员加入知识库</h3>
+          <button class="invite-close" @click="closeInviteDialog">
+            <Icon name="x" :size="18" />
+          </button>
+        </div>
+        <div class="invite-dialog-body">
+          <p class="invite-desc">
+            邀请成员加入「{{ currentCategory?.name }}」知识库，共同协作编辑和管理文档
+          </p>
+          
+          <div class="invite-form-group">
+            <label>成员邮箱</label>
+            <input
+              v-model="inviteForm.email"
+              type="email"
+              placeholder="请输入成员的邮箱地址"
+              class="form-input"
+            />
+          </div>
+          
+          <div class="invite-form-group">
+            <label>成员角色</label>
+            <div class="role-options">
+              <label 
+                v-for="role in roleOptions" 
+                :key="role.value"
+                class="role-option"
+                :class="{ active: inviteForm.role === role.value }"
+              >
+                <input type="radio" :value="role.value" v-model="inviteForm.role" />
+                <div class="role-info">
+                  <span class="role-name">{{ role.label }}</span>
+                  <span class="role-desc">{{ role.description }}</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="invite-dialog-footer">
+          <button class="btn-secondary" @click="closeInviteDialog">取消</button>
+          <button class="btn-primary" @click="handleInvite">
+            <Icon name="send" :size="14" />
+            <span>发送邀请</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -327,6 +383,7 @@ import Icon from '@/components/ui/Icon.vue'
 import KnowledgeSidebar from '@/components/layout/KnowledgeSidebar.vue'
 import { categoriesApi, docsApi } from '@/api'
 import type { CategoryVO, DocVO } from '@/api/types'
+import DocTypeBadge from '@/components/doc/DocTypeBadge.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -445,15 +502,19 @@ function getSubDescription(name: string): string {
   return map[name] || `${name}相关内容`
 }
 
+let categoryLoadToken = 0
 async function loadCategoryDocs(categoryId: number) {
+  const token = ++categoryLoadToken
   loading.value = true
   try {
     const ids = getAllChildIds(categoryId)
     let merged: DocVO[] = []
     for (const id of ids) {
       const res = await docsApi.list({ categoryId: id, pageSize: 50 } as any)
+      if (token !== categoryLoadToken) return // 过期请求：已被更新的点击取代，丢弃结果
       merged = merged.concat(res.records || [])
     }
+    if (token !== categoryLoadToken) return
     // 去重
     const seen = new Set<number>()
     categoryDocs.value = merged.filter(d => {
@@ -462,9 +523,10 @@ async function loadCategoryDocs(categoryId: number) {
       return true
     })
   } catch {
+    if (token !== categoryLoadToken) return
     categoryDocs.value = []
   } finally {
-    loading.value = false
+    if (token === categoryLoadToken) loading.value = false
   }
 }
 
@@ -482,15 +544,13 @@ function getAllChildIds(id: number): number[] {
 function onCategoryClick(cat: CategoryVO) {
   activeCategoryId.value = cat.id
   activeKey.value = 'all'
-  loadCategoryDocs(cat.id)
-  // 同步路由
+  // 同步路由；实际加载由 watch(activeCategoryId) 统一驱动（含竞态保护）
   router.replace({ path: '/knowledge', query: { categoryId: String(cat.id) } })
 }
 
 function onAllClick() {
   activeCategoryId.value = null
   activeKey.value = 'all'
-  categoryDocs.value = []
   router.replace({ path: '/knowledge' })
 }
 
@@ -503,7 +563,7 @@ const goToDoc = (id: number) => {
 }
 
 const goUpload = () => {
-  router.push('/admin/upload')
+  router.push('/knowledge/upload')
 }
 
 const formatRelativeTime = (dateStr?: string) => {
@@ -528,12 +588,10 @@ const loadData = async () => {
     topCategories.value = cats.slice(0, 6)
     latestDocs.value = recent.slice(0, 4)
 
-    // 如果 URL 有 categoryId，选中对应分类
+    // 如果 URL 有 categoryId，选中对应分类（由 watch(activeCategoryId) 自动加载）
     const catId = route.query.categoryId
     if (catId && typeof catId === 'string') {
-      const id = Number(catId)
-      activeCategoryId.value = id
-      loadCategoryDocs(id)
+      activeCategoryId.value = Number(catId)
     }
   } catch {
     topCategories.value = []
@@ -542,6 +600,7 @@ const loadData = async () => {
   }
 }
 
+// 路由 categoryId 变化时，仅同步选中状态；实际加载交给 watch(activeCategoryId)
 watch(
   () => route.query.categoryId,
   (newId) => {
@@ -549,11 +608,83 @@ watch(
       const id = Number(newId)
       if (activeCategoryId.value !== id) {
         activeCategoryId.value = id
-        loadCategoryDocs(id)
       }
+    } else if (activeCategoryId.value !== null) {
+      activeCategoryId.value = null
     }
   }
 )
+
+// 选中分类变化 → 统一加载文档；配合 categoryLoadToken，只有最新一次点击的结果会被采用
+watch(activeCategoryId, (id) => {
+  if (id) {
+    loadCategoryDocs(id)
+  } else {
+    categoryDocs.value = []
+  }
+})
+
+// ===== 邀请成员功能 =====
+const inviteDialogVisible = ref(false)
+const inviteForm = ref({
+  email: '',
+  role: 'READER',
+})
+
+const roleOptions = [
+  {
+    value: 'READER',
+    label: '阅读者',
+    description: '只能查看和搜索文档',
+  },
+  {
+    value: 'EDITOR',
+    label: '编辑者',
+    description: '可以编辑和创建文档',
+  },
+  {
+    value: 'OWNER',
+    label: '管理员',
+    description: '拥有完整管理权限',
+  },
+]
+
+function openInviteDialog() {
+  if (!activeCategoryId.value) {
+    alert('请先选择一个知识库')
+    return
+  }
+  inviteForm.value = { email: '', role: 'READER' }
+  inviteDialogVisible.value = true
+}
+
+function closeInviteDialog() {
+  inviteDialogVisible.value = false
+}
+
+async function handleInvite() {
+  const email = inviteForm.value.email.trim()
+  if (!email) {
+    alert('请输入成员邮箱')
+    return
+  }
+  if (!email.includes('@')) {
+    alert('请输入有效的邮箱地址')
+    return
+  }
+  
+  try {
+    // TODO: 调用后端邀请接口
+    // await adminApi.addKbMember(currentCategoryId.value!, {
+    //   email,
+    //   role: inviteForm.value.role,
+    // })
+    alert(`已邀请 ${email} 加入知识库，角色：${roleOptions.find(r => r.value === inviteForm.value.role)?.label}`)
+    closeInviteDialog()
+  } catch (e) {
+    alert('邀请失败，请稍后再试')
+  }
+}
 
 onMounted(loadData)
 </script>
@@ -1338,6 +1469,229 @@ onMounted(loadData)
   .category-hero {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+/* ===== 邀请成员对话框 ===== */
+.invite-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.invite-dialog {
+  width: 100%;
+  max-width: 480px;
+  background: var(--kb-card);
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.invite-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--kb-border);
+}
+
+.invite-dialog-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+
+.invite-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--kb-muted-foreground);
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+
+.invite-close:hover {
+  background: var(--kb-muted);
+  color: var(--kb-foreground);
+}
+
+.invite-dialog-body {
+  padding: 24px;
+}
+
+.invite-desc {
+  color: var(--kb-muted-foreground);
+  font-size: 14px;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.invite-form-group {
+  margin-bottom: 20px;
+}
+
+.invite-form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--kb-foreground);
+  margin-bottom: 8px;
+}
+
+.invite-form-group .form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  background: var(--kb-background);
+  color: var(--kb-foreground);
+  border: 1px solid var(--kb-border);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+}
+
+.invite-form-group .form-input:focus {
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
+}
+
+.role-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.role-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--kb-border);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.role-option:hover {
+  border-color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.04);
+}
+
+.role-option.active {
+  border-color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.08);
+}
+
+.role-option input[type="radio"] {
+  margin: 0;
+  accent-color: var(--kb-primary);
+  margin-top: 3px;
+}
+
+.role-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.role-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--kb-foreground);
+}
+
+.role-desc {
+  font-size: 12px;
+  color: var(--kb-muted-foreground);
+}
+
+.invite-dialog-footer {
+  display: flex;
+  gap: 12px;
+  padding: 20px 24px;
+  border-top: 1px solid var(--kb-border);
+}
+
+.invite-dialog-footer .btn-secondary,
+.invite-dialog-footer .btn-primary {
+  flex: 1;
+  height: 40px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.invite-dialog-footer .btn-secondary {
+  background: var(--kb-background);
+  color: var(--kb-foreground);
+  border: 1px solid var(--kb-border);
+}
+
+.invite-dialog-footer .btn-secondary:hover {
+  background: var(--kb-muted);
+}
+
+.invite-dialog-footer .btn-primary {
+  background: var(--kb-primary);
+  color: white;
+}
+
+.invite-dialog-footer .btn-primary:hover {
+  opacity: 0.9;
+}
+
+/* leaf-header 操作区 */
+.leaf-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-ghost.small {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  border: 1px solid var(--kb-border);
+  transition: all 0.15s;
+}
+
+.btn-ghost.small:hover {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+}
+
+@media (max-width: 640px) {
+  .leaf-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .btn-ghost.small,
+  .upload-btn.small {
+    width: 100%;
+    justify-content: center;
   }
 }
 </style>

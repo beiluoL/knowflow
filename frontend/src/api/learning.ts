@@ -1,5 +1,5 @@
 // 学习模块请求层：封装学习路径、章节、闪卡与复习计划等接口调用。
-import { apiGet, apiPost, apiPut, apiDelete } from './request'
+import { apiGet, apiPost, apiPut, apiDelete, apiDeleteWithBody } from './request'
 import type {
   LearningPathVO,
   LearningChapterVO,
@@ -9,8 +9,10 @@ import type {
   LearningPathInput,
   ChapterInput,
   FlashcardInput,
+  FlashcardGenerateInput,
   DailyActivityVO,
   MasteryDistributionVO,
+  PersonalizedPathVO,
 } from './types'
 
 export const learningApi = {
@@ -46,4 +48,43 @@ export const learningApi = {
   createFlashcard: (data: FlashcardInput) => apiPost<FlashcardVO>('/admin/learning/flashcards', data),
   updateFlashcard: (id: number, data: FlashcardInput) => apiPut<void>(`/admin/learning/flashcards/${id}`, data),
   removeFlashcard: (id: number) => apiDelete<void>(`/admin/learning/flashcards/${id}`),
+
+  // ============================================================
+  // 用户级「我的闪卡」
+  // ============================================================
+  myFlashcards: (params?: {
+    keyword?: string
+    category?: string
+    difficulty?: number
+    categoryId?: number
+    sourceType?: string
+  }) => apiGet<FlashcardVO[]>('/learning/my/flashcards', params),
+  myFlashcardDetail: (id: number) => apiGet<FlashcardVO>(`/learning/my/flashcards/${id}`),
+  createMyFlashcard: (data: FlashcardInput) => apiPost<FlashcardVO>('/learning/my/flashcards', data),
+  updateMyFlashcard: (id: number, data: FlashcardInput) => apiPut<void>(`/learning/my/flashcards/${id}`, data),
+  deleteMyFlashcard: (id: number) => apiDelete<void>(`/learning/my/flashcards/${id}`),
+  deleteMyFlashcards: (ids: number[]) =>
+    apiDeleteWithBody<void>('/learning/my/flashcards', { ids }),
+  generateMyFlashcards: (data: FlashcardGenerateInput) =>
+    apiPost<FlashcardVO[]>('/learning/my/flashcards/generate', data),
+  importMyFlashcards: (cards: FlashcardInput[]) =>
+    apiPost<{ inserted: number }>('/learning/my/flashcards/import', cards),
+  exportMyFlashcards: () => apiGet<FlashcardVO[]>('/learning/my/flashcards/export'),
+
+  // ============================================================
+  // 个性化学习路径
+  // ============================================================
+  personalizedPath: (data: { goal: string; level?: string; dailyMinutes?: number }) =>
+    apiPost<PersonalizedPathVO>('/learning/personalized-path', data),
+  /** 重新生成个性化学习路径（删除旧缓存，AI 重新生成并持久化） */
+  regeneratePersonalizedPath: (data: { goal: string; level?: string; dailyMinutes?: number }) =>
+    apiPost<PersonalizedPathVO>('/learning/personalized-path/regenerate', data),
+  /** 我的个性化路径历史（按创建时间倒序） */
+  personalizedPaths: () => apiGet<PersonalizedPathVO[]>('/learning/personalized-paths'),
+  /** 采用个性化路径：落地为真实学习路径并自动报名，返回落地路径 ID */
+  adoptPersonalizedPath: (id: number) =>
+    apiPost<{ pathId: number }>(`/learning/personalized-path/${id}/adopt`),
+  /** 删除我的一条个性化路径推荐 */
+  deletePersonalizedPath: (id: number) =>
+    apiDelete<void>(`/learning/personalized-path/${id}`),
 }

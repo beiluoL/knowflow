@@ -3,11 +3,14 @@ package com.knowflow.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.knowflow.common.PageResult;
 import com.knowflow.dto.DocQueryDTO;
+import com.knowflow.dto.DocUploadMetaDTO;
 import com.knowflow.dto.ReadProgressDTO;
 import com.knowflow.entity.DocDocument;
 import com.knowflow.entity.LearningFlashcard;
 import com.knowflow.vo.DocDetailVO;
 import com.knowflow.vo.DocVO;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,6 +20,16 @@ public interface DocService extends IService<DocDocument> {
     PageResult<DocVO> getDocPage(DocQueryDTO dto);
 
     DocDetailVO getDocDetail(Long id, Long userId);
+
+    /**
+     * 文件型文档上传：服务端抽取正文并入库，返回详情 VO。
+     *
+     * @param file 原始文件（PDF/Word/PPT 等）
+     * @param meta 元信息（标题/分类/标签等）
+     * @param userId 当前登录用户 ID
+     * @return 上传后的文档详情
+     */
+    DocDetailVO uploadDoc(MultipartFile file, DocUploadMetaDTO meta, Long userId);
 
     void toggleFavorite(Long docId, Long userId);
 

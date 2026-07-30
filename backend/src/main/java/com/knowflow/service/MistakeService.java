@@ -2,6 +2,8 @@ package com.knowflow.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.knowflow.dto.CodeMistakeCollectRequest;
+import com.knowflow.dto.CodeMistakeCollectResult;
 import com.knowflow.entity.LearningMistake;
 import com.knowflow.vo.MistakeVO;
 
@@ -15,6 +17,9 @@ public interface MistakeService extends IService<LearningMistake> {
     void markMastered(Long id, Long userId);
 
     void addMistake(LearningMistake mistake, Long userId);
+
+    /** 代码运行异常自动归集（SC1-AI-03）：提取错误类型、关联知识库、幂等保存 */
+    CodeMistakeCollectResult collectCodeMistake(CodeMistakeCollectRequest req, Long userId);
 
     int getTotalCount(Long userId);
 

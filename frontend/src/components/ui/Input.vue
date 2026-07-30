@@ -46,7 +46,7 @@
 import Icon from '@/components/ui/Icon.vue'
 
 interface Props {
-  modelValue?: string
+  modelValue?: string | number
   type?: string
   placeholder?: string
   label?: string
@@ -66,7 +66,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string]
+  'update:modelValue': [value: string | number]
   blur: [e: FocusEvent]
   focus: [e: FocusEvent]
 }>()

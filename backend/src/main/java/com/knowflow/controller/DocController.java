@@ -3,18 +3,22 @@ package com.knowflow.controller;
 import com.knowflow.common.PageResult;
 import com.knowflow.common.Result;
 import com.knowflow.dto.DocQueryDTO;
+import com.knowflow.dto.DocUploadMetaDTO;
 import com.knowflow.dto.ReadProgressDTO;
 import com.knowflow.entity.DocDocument;
 import com.knowflow.entity.LearningFlashcard;
 import com.knowflow.service.DocService;
 import com.knowflow.vo.DocDetailVO;
 import com.knowflow.vo.DocVO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,6 +30,8 @@ import java.util.List;
 public class DocController {
 
     private final DocService docService;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Operation(summary = "文档列表")
     @GetMapping
@@ -91,6 +97,26 @@ public class DocController {
         }
         docService.saveDoc(doc);
         return Result.success(docService.getDocDetail(doc.getId(), (Long) authentication.getPrincipal()));
+    }
+
+    @Operation(summary = "上传文件型文档（PDF/Word/PPT 等），服务端抽取正文入库并支持原文下载")
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Result<DocDetailVO> upload(
+            @RequestPart("file") MultipartFile file,
+            @RequestPart("meta") String metaJson,
+            Authentication authentication) {
+        if (authentication == null) {
+            return Result.error(401, "请先登录");
+        }
+        DocUploadMetaDTO meta;
+        try {
+            meta = objectMapper.readValue(metaJson, DocUploadMetaDTO.class);
+        } catch (Exception e) {
+            return Result.error(400, "文档元信息格式错误");
+        }
+        Long userId = (Long) authentication.getPrincipal();
+        DocDetailVO vo = docService.uploadDoc(file, meta, userId);
+        return Result.success(vo);
     }
 
     @Operation(summary = "更新文档")

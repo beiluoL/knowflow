@@ -116,12 +116,7 @@
             }"
             @click="goTo(`/doc/${doc.id}`)"
           >
-            <span
-              class="flex h-6 w-6 items-center justify-center rounded shrink-0"
-              style="background: var(--kb-muted);"
-            >
-              <Icon name="file-text" :size="13" style="color: var(--kb-muted-foreground);" />
-            </span>
+            <DocTypeBadge :file-url="doc.fileUrl" :content="doc.content" :size="24" />
             <div class="min-w-0 flex-1">
               <span class="block text-[13px] font-medium truncate" style="color: var(--kb-foreground);">
                 {{ doc.title }}
@@ -136,6 +131,15 @@
                   :style="difficultyStyle(doc.difficulty)"
                 >
                   {{ difficultyLabel(doc.difficulty) }}
+                </span>
+                <span
+                  v-if="doc.fileUrl"
+                  class="inline-flex items-center gap-0.5 text-[10px] whitespace-nowrap"
+                  style="color: var(--kb-muted-foreground);"
+                  :title="doc.fileName || '原文件'"
+                >
+                  <Icon name="paperclip" :size="10" />
+                  原文件
                 </span>
               </span>
             </div>
@@ -195,6 +199,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import DocTypeBadge from '@/components/doc/DocTypeBadge.vue'
 import { categoriesApi, docsApi } from '@/api'
 import type { CategoryVO, DocVO } from '@/api/types'
 

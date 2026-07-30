@@ -169,16 +169,16 @@
 import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import { notify, getApiError } from '@/utils/toast'
-import { userApi } from '@/api'
+import { userApi, checkinApi } from '@/api'
 
-// ===== 用户状态（mock 数据；后端无该接口，注释说明） =====
+// ===== 用户状态（等级/经验来自 userApi.stats 实时派生，连续天数以打卡接口为准） =====
 const user = ref({
-  displayName: '探索者 YU',
-  level: 12,
+  displayName: '学习者',
+  level: 1,
   title: '知识追寻者',
-  exp: 2450,
-  maxExp: 3500,
-  streakDays: 42,
+  exp: 0,
+  maxExp: 100,
+  streakDays: 0,
 })
 
 const expPercent = computed(() => {
@@ -197,15 +197,23 @@ const doCheckin = async () => {
   if (checkinDone.value || checkinLoading.value) return
   checkinLoading.value = true
   try {
-    // 模拟打卡请求（后端无打卡接口）
-    await new Promise((resolve) => setTimeout(resolve, 800))
+    const res = await checkinApi.checkIn()
     checkinDone.value = true
     const now = new Date()
     checkinTime.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
-    checkinExp.value = 60
-    user.value.streakDays += 1
-    user.value.exp = Math.min(user.value.maxExp, user.value.exp + 60)
-    notify(`打卡成功！获得 +60 EXP`, 'success')
+    if (res.alreadyChecked) {
+      user.value.streakDays = res.continuousDays
+      notify('今日已打卡', 'info')
+      return
+    }
+    checkinExp.value = res.rewardExp
+    user.value.streakDays = res.continuousDays
+    user.value.exp = Math.min(user.value.maxExp, user.value.exp + res.rewardExp)
+    // 将今日标记进本月打卡日历
+    if (!monthCheckedDays.value.includes(now.getDate())) {
+      monthCheckedDays.value = [...monthCheckedDays.value, now.getDate()]
+    }
+    notify(`打卡成功！获得 +${res.rewardExp} EXP`, 'success')
   } catch (e: unknown) {
     notify(getApiError(e, '打卡失败，请稍后重试'), 'error')
   } finally {
@@ -239,7 +247,9 @@ const currentMonthText = computed(() => {
 // ===== 日期工具 =====
 const weekdayLabels = ['一', '二', '三', '四', '五', '六', '日']
 
-// ===== 本月打卡日历 =====
+// ===== 本月打卡日历（基于后端返回的 monthCheckedDays） =====
+const monthCheckedDays = ref<number[]>([])
+
 const monthCalendar = computed(() => {
   const today = new Date()
   const year = today.getFullYear()
@@ -257,8 +267,7 @@ const monthCalendar = computed(() => {
   for (let d = 1; d <= totalDays; d++) {
     const isToday = d === todayDate
     const isFuture = d > todayDate
-    // mock: 已打卡的天数（跳过 10 号模拟缺勤）
-    const checked = !isFuture && d !== 10 && d <= todayDate
+    const checked = monthCheckedDays.value.includes(d)
     cells.push({ date: d, isToday, future: isFuture, checked })
   }
   // 末尾补齐 7 的倍数
@@ -278,21 +287,44 @@ const rankList = [
   { rank: 5, initial: 'CX', name: '陈雪', streakDays: 38, bg: 'rgba(16,185,129,0.12)', color: 'var(--kb-accent)', isSelf: false },
 ]
 
-// ===== 拉取用户信息 =====
+// ===== 拉取用户信息与打卡状态 =====
 async function loadUser(): Promise<void> {
   try {
     const stats = await userApi.stats()
     if (stats) {
-      // 后端字段可能不同，做容错处理
       if (stats.displayName) user.value.displayName = stats.displayName
+      if (stats.level) user.value.level = stats.level
+      // 等级内进度：level = exp/100 + 1，当前段进度 = exp - (level-1)*100，满格 100
+      if (typeof stats.exp === 'number' && stats.level) {
+        user.value.exp = Math.max(0, Math.min(100, stats.exp - (stats.level - 1) * 100))
+        user.value.maxExp = 100
+      }
     }
   } catch {
-    // 后端无接口时静默使用 mock 数据
+    // 后端异常时静默使用默认值
+  }
+}
+
+async function loadCheckinStatus(): Promise<void> {
+  try {
+    const status = await checkinApi.status()
+    if (status) {
+      checkinDone.value = status.checkedToday
+      user.value.streakDays = status.continuousDays
+      monthCheckedDays.value = status.monthCheckedDays || []
+      if (status.checkedToday) {
+        const now = new Date()
+        checkinTime.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+      }
+    }
+  } catch {
+    // 静默处理，不阻断页面
   }
 }
 
 onMounted(() => {
   void loadUser()
+  void loadCheckinStatus()
 })
 </script>
 

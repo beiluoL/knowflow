@@ -6,6 +6,7 @@ import type {
   CategoryInput,
   DocPageResult,
   DocInput,
+  DocVO,
   UserVO,
   LearningPathVO,
   LearningPathInput,

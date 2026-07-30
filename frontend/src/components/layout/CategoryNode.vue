@@ -44,17 +44,47 @@
         :level="level + 1"
         :expanded-ids="expandedIds"
         :active-category-id="activeCategoryId"
-        @toggle="(id: number) => emit('toggle', id)"
-        @select="(cat: CategoryVO) => emit('select', cat)"
+        @toggle="handleToggle"
+        @select="handleSelect"
       />
     </template>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, computed } from 'vue'
+<script setup lang="ts">
+import { computed } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import type { CategoryVO } from '@/api/types'
+
+const props = defineProps<{
+  category: CategoryVO
+  level: number
+  expandedIds: Set<number>
+  activeCategoryId: number | null
+}>()
+
+const emit = defineEmits<{
+  toggle: [id: number]
+  select: [category: CategoryVO]
+}>()
+
+const hasChildren = computed(() => (props.category.children?.length ?? 0) > 0)
+const isExpanded = computed(() => props.expandedIds.has(props.category.id))
+const isCurrentActive = computed(() => props.activeCategoryId === props.category.id)
+
+const onClick = () => {
+  if (hasChildren.value) {
+    emit('toggle', props.category.id)
+  }
+  emit('select', props.category)
+}
+
+const onToggle = () => {
+  emit('toggle', props.category.id)
+}
+
+const handleToggle = (id: number) => emit('toggle', id)
+const handleSelect = (cat: CategoryVO) => emit('select', cat)
 
 const validIcons = [
   'code', 'server', 'database', 'brain', 'layout', 'palette',
@@ -105,44 +135,6 @@ function getIconColor(icon?: string): string {
   }
   return '#3B6FE0'
 }
-
-export default defineComponent({
-  name: 'CategoryNode',
-  components: { Icon },
-  props: {
-    category: { type: Object as () => CategoryVO, required: true },
-    level: { type: Number, default: 0 },
-    expandedIds: { type: Object as () => Set<number>, required: true },
-    activeCategoryId: { type: Number, default: null },
-  },
-  emits: ['toggle', 'select'],
-  setup(props, { emit }) {
-    const hasChildren = computed(() => (props.category.children?.length ?? 0) > 0)
-    const isExpanded = computed(() => props.expandedIds.has(props.category.id))
-    const isCurrentActive = computed(() => props.activeCategoryId === props.category.id)
-
-    const onClick = () => {
-      if (hasChildren.value) {
-        emit('toggle', props.category.id)
-      }
-      emit('select', props.category)
-    }
-
-    const onToggle = () => {
-      emit('toggle', props.category.id)
-    }
-
-    return {
-      hasChildren,
-      isExpanded,
-      isCurrentActive,
-      onClick,
-      onToggle,
-      getIconName,
-      getIconColor,
-    }
-  },
-})
 </script>
 
 <style scoped>
@@ -175,7 +167,6 @@ export default defineComponent({
   font-weight: 500;
 }
 
-/* 子分类样式 */
 .sidebar-item.sub-item {
   padding-left: 26px;
   font-size: 12.5px;
@@ -186,7 +177,6 @@ export default defineComponent({
   font-size: 12px;
 }
 
-/* 展开图标 */
 .expand-icon {
   flex-shrink: 0;
   color: var(--kb-muted-foreground);
@@ -199,19 +189,16 @@ export default defineComponent({
   width: 12px;
 }
 
-/* 分类图标 */
 .category-icon {
   flex-shrink: 0;
 }
 
-/* 分类名称 */
 .category-name {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* 文档数量 */
 .category-count {
   flex-shrink: 0;
   font-size: 11px;

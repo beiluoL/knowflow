@@ -20,6 +20,15 @@ public class DocDetailVO {
 
     private String cover;
 
+    /** 原始文件名（上传型文档有值，含扩展名）。 */
+    private String fileName;
+
+    /** 原始文件访问路径（/uploads/...），可空；用于原文下载/预览。 */
+    private String fileUrl;
+
+    /** 原始文件字节大小（上传型文档有值）。 */
+    private Long fileSize;
+
     private Long categoryId;
 
     private String categoryName;

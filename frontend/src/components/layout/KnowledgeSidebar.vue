@@ -11,8 +11,9 @@
         :class="{ active: activeKey === 'all' && !activeCategoryId }"
         @click="onAllClick"
       >
-        <Icon name="file-text" :size="16" class="shrink-0" />
-        <span class="flex-1 truncate">全部文档</span>
+        <span class="expand-placeholder"></span>
+        <Icon name="file-text" :size="16" class="category-icon" />
+        <span class="category-name">全部文档</span>
         <span class="sidebar-badge">{{ totalDocs }}</span>
       </div>
 
@@ -31,7 +32,7 @@
 
     <!-- 底部：新建知识库 -->
     <div class="sidebar-footer">
-      <router-link to="/admin/knowledge" class="sidebar-new-btn" @click="$emit('navigate')">
+      <router-link to="/knowledge/new" class="sidebar-new-btn">
         <Icon name="plus" :size="14" />
         <span>新建知识库</span>
       </router-link>
@@ -173,6 +174,7 @@ defineExpose({ categories })
   padding: 8px 10px 6px;
 }
 
+/* 侧边栏项目基础样式 */
 .sidebar-item {
   display: flex;
   align-items: center;
@@ -181,10 +183,10 @@ defineExpose({ categories })
   border-radius: 8px;
   font-size: 13px;
   color: var(--kb-foreground);
-  text-decoration: none;
   cursor: pointer;
   transition: background-color 0.15s, color 0.15s;
   user-select: none;
+  white-space: nowrap;
 }
 
 .sidebar-item:hover {
@@ -198,18 +200,19 @@ defineExpose({ categories })
   font-weight: 500;
 }
 
-.sidebar-item.sub-item {
-  padding-left: 22px;
-  font-size: 12.5px;
+.expand-placeholder {
+  flex-shrink: 0;
+  width: 12px;
 }
 
-.sidebar-item.sub-sub-item {
-  padding-left: 38px;
-  font-size: 12px;
+.category-icon {
+  flex-shrink: 0;
 }
 
-.sidebar-item.category-item {
-  font-weight: 500;
+.category-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar-badge {
@@ -224,12 +227,7 @@ defineExpose({ categories })
   font-weight: 600;
   background: var(--kb-muted);
   color: var(--kb-muted-foreground);
-}
-
-.sidebar-count {
-  font-size: 11px;
-  color: var(--kb-muted-foreground);
-  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .sidebar-footer {

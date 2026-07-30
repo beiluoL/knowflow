@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knowflow.common.PageResult;
 import com.knowflow.dto.DocQueryDTO;
+import com.knowflow.dto.DocUploadMetaDTO;
 import com.knowflow.dto.ReadProgressDTO;
 import com.knowflow.entity.DocCategory;
 import com.knowflow.entity.DocDocument;
@@ -24,20 +25,26 @@ import com.knowflow.mapper.SysUserMapper;
 import com.knowflow.service.AiService;
 import com.knowflow.service.CategoryService;
 import com.knowflow.service.DocService;
+import com.knowflow.service.DocumentTextExtractor;
+import com.knowflow.util.UploadHelper;
 import com.knowflow.vo.DocDetailVO;
 import com.knowflow.vo.DocVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /** 文档业务服务实现。 */
@@ -52,7 +59,12 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     private final SysUserMapper userMapper;
     private final LearningFlashcardMapper flashcardMapper;
     private final AiService aiService;
+    private final DocumentTextExtractor documentTextExtractor;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    /** 文件上传根目录（与 WebMvcConfig 静态资源映射保持一致）。 */
+    @Value("${app.upload.dir:${user.home}/knowflow/uploads}")
+    private String uploadDir;
 
     @Override
     public PageResult<DocVO> getDocPage(DocQueryDTO dto) {
@@ -121,6 +133,11 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
                 .setSql("view_count = view_count + 1"));
         // 计数器已原子自增，重新读取以保证返回值与 DB 一致（避免内存对象残留旧值导致并发下展示滞后）
         doc = this.getById(id);
+        return buildDetailVO(doc, userId);
+    }
+
+    /** 组装文档详情 VO（不含阅读量自增，供详情查询与上传复用）。 */
+    private DocDetailVO buildDetailVO(DocDocument doc, Long userId) {
         DocDetailVO vo = BeanUtil.copyProperties(doc, DocDetailVO.class);
         DocCategory category = categoryService.getById(doc.getCategoryId());
         if (category != null) {
@@ -129,17 +146,80 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         if (userId != null) {
             DocFavorite favorite = favoriteMapper.selectOne(new LambdaQueryWrapper<DocFavorite>()
                     .eq(DocFavorite::getUserId, userId)
-                    .eq(DocFavorite::getDocId, id));
+                    .eq(DocFavorite::getDocId, doc.getId()));
             vo.setFavorite(favorite != null);
             DocReadProgress progress = readProgressMapper.selectOne(new LambdaQueryWrapper<DocReadProgress>()
                     .eq(DocReadProgress::getUserId, userId)
-                    .eq(DocReadProgress::getDocId, id));
+                    .eq(DocReadProgress::getDocId, doc.getId()));
             vo.setReadProgress(progress != null ? progress.getProgress() : BigDecimal.ZERO);
         } else {
             vo.setFavorite(false);
             vo.setReadProgress(BigDecimal.ZERO);
         }
         return vo;
+    }
+
+    /** 上传文件大小上限：50MB，与 application.yml spring.servlet.multipart.max-file-size 保持一致。 */
+    private static final long MAX_UPLOAD_BYTES = 50L * 1024 * 1024;
+
+    @Override
+    @Transactional
+    public DocDetailVO uploadDoc(MultipartFile file, DocUploadMetaDTO meta, Long userId) {
+        if (file == null || file.isEmpty()) {
+            throw new BusinessException(400, "上传文件不能为空");
+        }
+        // 应用层大小校验：即使 Spring multipart 已拦截，这里给出更友好的业务错误文案
+        long size = file.getSize();
+        if (size > MAX_UPLOAD_BYTES) {
+            long mb = MAX_UPLOAD_BYTES / (1024 * 1024);
+            throw new BusinessException(413,
+                    "文件过大（" + formatMB(size) + "MB），最大支持 " + mb + "MB");
+        }
+        String originalName = file.getOriginalFilename();
+        // 1. 原文落盘（支持后续原文下载/预览）；落盘失败不阻断正文抽取与入库
+        String fileUrl = null;
+        try {
+            Map<String, Object> saved = UploadHelper.save(file, uploadDir);
+            fileUrl = (String) saved.get("fileUrl");
+        } catch (IOException e) {
+            log.warn("文档原文落盘失败：{}", originalName, e);
+        }
+        // 2. 抽取正文（基于内容自动探测类型，PDF/DOC/DOCX/PPT 等统一处理；内置 60s 超时兜底）
+        long extractStart = System.nanoTime();
+        String content = documentTextExtractor.extractText(file);
+        long extractMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - extractStart);
+        int words = StrUtil.isNotBlank(content) ? content.length() : 0;
+        log.info("文档解析完成：name={}, size={}B, words={}, cost={}ms",
+                originalName, size, words, extractMs);
+        // 3. 组装并入库
+        DocDocument doc = new DocDocument();
+        doc.setFileName(originalName);
+        doc.setFileSize(size);
+        doc.setTitle(StrUtil.isNotBlank(meta.getTitle())
+                ? meta.getTitle().trim()
+                : (originalName != null ? originalName : "未命名文档"));
+        doc.setSummary(meta.getSummary());
+        doc.setTags(meta.getTags());
+        doc.setCategoryId(meta.getCategoryId());
+        doc.setContent(content);
+        doc.setFileUrl(fileUrl);
+        doc.setStatus(meta.getStatus() != null ? meta.getStatus() : 1);
+        doc.setDifficulty(meta.getDifficulty());
+        doc.setWordCount(words);
+        this.save(doc);
+        if (doc.getCategoryId() != null) {
+            categoryService.incrementDocCount(doc.getCategoryId());
+        }
+        return buildDetailVO(doc, userId);
+    }
+
+    private static String formatMB(long bytes) {
+        long mb = bytes / (1024 * 1024);
+        long rem = (bytes % (1024 * 1024)) / (100 * 1024); // 保留 1 位小数的整数形式
+        if (mb <= 0) {
+            return String.valueOf(bytes / 1024) + "KB / ~";
+        }
+        return mb + "." + (rem / 10);
     }
 
     /** 收藏/取消收藏切换，并同步维护文档与用户的收藏计数（保证非负）。 */

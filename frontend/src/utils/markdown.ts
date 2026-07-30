@@ -1,9 +1,10 @@
 /**
  * 通用 Markdown 渲染工具
  * 支持：标题、段落、有序/无序列表、引用、代码块（含复制按钮）、表格、链接、图片、分隔线
- * 兼容：纯 Markdown、含 HTML 富文本的内容（HTML 片段原样保留渲染）
- * 安全：对非 HTML 内容进行 XSS 防护（escapeHtml + sanitizeUrl）
+ * 兼容：纯 Markdown、含 HTML 富文本的内容（HTML 片段经 DOMPurify 清洗后渲染）
+ * 安全：对非 HTML 内容进行 XSS 防护（escapeHtml + sanitizeUrl）；对 HTML 富文本用 DOMPurify 白名单清洗，杜绝存储型 XSS
  */
+import DOMPurify from 'dompurify'
 
 /** 将各种转义字符（\n、\t、\"、\\ 等）和换行符统一解析为真实字符，防止格式错乱 */
 export const normalizeEscapes = (s: string): string => {
@@ -27,9 +28,10 @@ export const normalizeEscapes = (s: string): string => {
     .replace(/\\\\/g, '\\')
 }
 
-/** HTML 转义，防止 XSS */
+/** HTML 转义，防止 XSS（含引号转义，避免属性上下文注入） */
 export const escapeHtml = (s: string): string =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 
 /**
  * 链接 URL 协议白名单：仅允许 http/https 与相对路径/锚点，
@@ -48,6 +50,24 @@ export const sanitizeUrl = (url: string): string | null => {
   }
   return null
 }
+
+/**
+ * 清洗用户提供的 HTML 富文本：仅保留安全的标签/属性，
+ * 剥离 <script>、事件处理器（onerror/onclick…）、javascript: 协议等，杜绝存储型 XSS。
+ */
+DOMPurify.addHook('afterSanitizeAttributes', (node: Element) => {
+  // 强制所有链接新窗口打开并加 rel，防止 reverse tabnabbing
+  if (node.tagName === 'A' && node.getAttribute('href')) {
+    node.setAttribute('target', '_blank')
+    node.setAttribute('rel', 'noopener noreferrer')
+  }
+})
+
+const sanitizeHtmlContent = (s: string): string =>
+  DOMPurify.sanitize(s, {
+    USE_PROFILES: { html: true },
+    ADD_ATTR: ['target', 'rel'],
+  })
 
 /** 将标题文本转为可用于锚点的 slug（保留中英文） */
 export const slugify = (text: string): string =>
@@ -137,9 +157,9 @@ export const renderMarkdown = (md: string): string => {
   // 1. 先完整解析所有转义字符（\n, \t, \\ 等）
   const text = normalizeEscapes(md)
 
-  // 富文本 HTML：直接返回原内容（保留 HTML 标签结构）
+  // 富文本 HTML：经 DOMPurify 白名单清洗后返回（防止存储型 XSS）
   if (containsHtml(text)) {
-    return text
+    return sanitizeHtmlContent(text)
   }
 
   const lines = text.split('\n')
