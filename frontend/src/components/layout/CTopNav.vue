@@ -27,41 +27,12 @@
         <span>首页</span>
       </router-link>
 
-      <!-- 任务中心（下拉） -->
-      <div class="relative">
-        <button
-          type="button"
-          class="flex items-center gap-2 transition-colors"
-          :style="{ color: openDropdown === 'task' ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)', fontSize: 'var(--kb-nav-text-fs)', fontWeight: 'var(--kb-nav-text-fw)' }"
-          @click="toggleDropdown('task')"
-          aria-haspopup="menu"
-          :aria-expanded="openDropdown === 'task'"
-        >
-          <Icon name="target" size="md" />
-          <span>任务中心</span>
-          <Icon name="chevron-down" size="sm" :class="openDropdown === 'task' ? 'rotate-180 transition-transform duration-200' : 'transition-transform duration-200'" />
-        </button>
-        <div class="nav-dropdown" :class="{ 'is-open': openDropdown === 'task' }" role="menu">
-          <router-link
-            v-for="it in taskMenu"
-            :key="it.path"
-            :to="it.path"
-            class="flex items-center gap-2 px-3 py-2"
-            :style="{ fontSize: 'var(--kb-dropdown-text-fs)' }"
-            @click="openDropdown = ''"
-          >
-            <Icon :name="it.icon" size="md" style="color: var(--kb-muted-foreground);" />
-            {{ it.label }}
-          </router-link>
-        </div>
-      </div>
-
       <!-- 知识库（下拉） -->
       <div class="relative">
         <button
           type="button"
           class="flex items-center gap-2 transition-colors"
-          :style="{ color: openDropdown === 'knowledge' ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)', fontSize: 'var(--kb-nav-text-fs)', fontWeight: 'var(--kb-nav-text-fw)' }"
+          :style="{ color: isDropdownActive('knowledge') ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)', fontSize: 'var(--kb-nav-text-fs)', fontWeight: isDropdownActive('knowledge') ? 600 : 'var(--kb-nav-text-fw)' }"
           @click="toggleDropdown('knowledge')"
           aria-haspopup="menu"
           :aria-expanded="openDropdown === 'knowledge'"
@@ -85,18 +56,18 @@
         </div>
       </div>
 
-      <!-- 学习中心（下拉） -->
+      <!-- 学习（下拉，分三组：学习活动 / 学习辅助 / AI 工具） -->
       <div class="relative">
         <button
           type="button"
           class="flex items-center gap-2 transition-colors"
-          :style="{ color: openDropdown === 'learning' ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)', fontSize: 'var(--kb-nav-text-fs)', fontWeight: 'var(--kb-nav-text-fw)' }"
+          :style="{ color: isDropdownActive('learning') ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)', fontSize: 'var(--kb-nav-text-fs)', fontWeight: isDropdownActive('learning') ? 600 : 'var(--kb-nav-text-fw)' }"
           @click="toggleDropdown('learning')"
           aria-haspopup="menu"
           :aria-expanded="openDropdown === 'learning'"
         >
           <Icon name="graduation-cap" size="md" />
-          <span>学习中心</span>
+          <span>学习</span>
           <Icon name="chevron-down" size="sm" :class="openDropdown === 'learning' ? 'rotate-180 transition-transform duration-200' : 'transition-transform duration-200'" />
         </button>
         <div class="nav-dropdown" :class="{ 'is-open': openDropdown === 'learning' }" role="menu">
@@ -114,12 +85,41 @@
         </div>
       </div>
 
+      <!-- 社区（下拉） -->
+      <div class="relative">
+        <button
+          type="button"
+          class="flex items-center gap-2 transition-colors"
+          :style="{ color: isDropdownActive('community') ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)', fontSize: 'var(--kb-nav-text-fs)', fontWeight: isDropdownActive('community') ? 600 : 'var(--kb-nav-text-fw)' }"
+          @click="toggleDropdown('community')"
+          aria-haspopup="menu"
+          :aria-expanded="openDropdown === 'community'"
+        >
+          <Icon name="users" size="md" />
+          <span>社区</span>
+          <Icon name="chevron-down" size="sm" :class="openDropdown === 'community' ? 'rotate-180 transition-transform duration-200' : 'transition-transform duration-200'" />
+        </button>
+        <div class="nav-dropdown" :class="{ 'is-open': openDropdown === 'community' }" role="menu">
+          <router-link
+            v-for="it in communityMenu"
+            :key="it.path"
+            :to="it.path"
+            class="flex items-center gap-2 px-3 py-2"
+            :style="{ fontSize: 'var(--kb-dropdown-text-fs)' }"
+            @click="openDropdown = ''"
+          >
+            <Icon :name="it.icon" size="md" style="color: var(--kb-muted-foreground);" />
+            {{ it.label }}
+          </router-link>
+        </div>
+      </div>
+
       <!-- AI 助手（下拉） -->
       <div class="relative">
         <button
           type="button"
           class="flex items-center gap-2 transition-colors"
-          :style="{ color: openDropdown === 'ai' ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)', fontSize: 'var(--kb-nav-text-fs)', fontWeight: 'var(--kb-nav-text-fw)' }"
+          :style="{ color: isDropdownActive('ai') ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)', fontSize: 'var(--kb-nav-text-fs)', fontWeight: isDropdownActive('ai') ? 600 : 'var(--kb-nav-text-fw)' }"
           @click="toggleDropdown('ai')"
           aria-haspopup="menu"
           :aria-expanded="openDropdown === 'ai'"
@@ -143,51 +143,47 @@
         </div>
       </div>
 
-      <!-- 社区讨论 -->
-      <router-link
-        to="/community"
-        class="flex items-center gap-2 transition-colors"
-        :class="isNavActive('/community') ? '' : 'hover:opacity-80'"
-        :style="{ color: isNavActive('/community') ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)', fontSize: 'var(--kb-nav-text-fs)', fontWeight: isNavActive('/community') ? 600 : 'var(--kb-nav-text-fw)' }"
-      >
-        <Icon name="users" size="md" />
-        <span>社区讨论</span>
-      </router-link>
-
-      <!-- 学习小组 -->
-      <router-link
-        to="/study-group"
-        class="flex items-center gap-2 transition-colors"
-        :class="isNavActive('/study-group') ? '' : 'hover:opacity-80'"
-        :style="{ color: isNavActive('/study-group') ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)', fontSize: 'var(--kb-nav-text-fs)', fontWeight: isNavActive('/study-group') ? 600 : 'var(--kb-nav-text-fw)' }"
-      >
-        <Icon name="message-circle" size="md" />
-        <span>学习小组</span>
-      </router-link>
-
-      <!-- 消息（单聊） -->
-      <router-link
-        to="/messages"
-        class="flex items-center gap-2 transition-colors"
-        :class="isNavActive('/messages') ? '' : 'hover:opacity-80'"
-        :style="{ color: isNavActive('/messages') ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)', fontSize: 'var(--kb-nav-text-fs)', fontWeight: isNavActive('/messages') ? 600 : 'var(--kb-nav-text-fw)' }"
-      >
-        <Icon name="message-square" size="md" />
-        <span>消息</span>
-      </router-link>
-
-      <!-- 个人（下拉） -->
+      <!-- 成长（下拉） -->
       <div class="relative">
         <button
           type="button"
           class="flex items-center gap-2 transition-colors"
-          :style="{ color: openDropdown === 'personal' ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)', fontSize: 'var(--kb-nav-text-fs)', fontWeight: 'var(--kb-nav-text-fw)' }"
+          :style="{ color: isDropdownActive('growth') ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)', fontSize: 'var(--kb-nav-text-fs)', fontWeight: isDropdownActive('growth') ? 600 : 'var(--kb-nav-text-fw)' }"
+          @click="toggleDropdown('growth')"
+          aria-haspopup="menu"
+          :aria-expanded="openDropdown === 'growth'"
+        >
+          <Icon name="trending-up" size="md" />
+          <span>成长</span>
+          <Icon name="chevron-down" size="sm" :class="openDropdown === 'growth' ? 'rotate-180 transition-transform duration-200' : 'transition-transform duration-200'" />
+        </button>
+        <div class="nav-dropdown" :class="{ 'is-open': openDropdown === 'growth' }" role="menu">
+          <router-link
+            v-for="it in growthMenu"
+            :key="it.path"
+            :to="it.path"
+            class="flex items-center gap-2 px-3 py-2"
+            :style="{ fontSize: 'var(--kb-dropdown-text-fs)' }"
+            @click="openDropdown = ''"
+          >
+            <Icon :name="it.icon" size="md" style="color: var(--kb-muted-foreground);" />
+            {{ it.label }}
+          </router-link>
+        </div>
+      </div>
+
+      <!-- 我的（下拉） -->
+      <div class="relative">
+        <button
+          type="button"
+          class="flex items-center gap-2 transition-colors"
+          :style="{ color: isDropdownActive('personal') ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)', fontSize: 'var(--kb-nav-text-fs)', fontWeight: isDropdownActive('personal') ? 600 : 'var(--kb-nav-text-fw)' }"
           @click="toggleDropdown('personal')"
           aria-haspopup="menu"
           :aria-expanded="openDropdown === 'personal'"
         >
           <Icon name="user" size="md" />
-          <span>个人</span>
+          <span>我的</span>
           <Icon name="chevron-down" size="sm" :class="openDropdown === 'personal' ? 'rotate-180 transition-transform duration-200' : 'transition-transform duration-200'" />
         </button>
         <div class="nav-dropdown" :class="{ 'is-open': openDropdown === 'personal' }" role="menu">
@@ -401,6 +397,7 @@
         </button>
       </div>
       <nav class="p-3 space-y-1">
+        <!-- 首页 + 知识库 -->
         <router-link
           v-for="item in mobileLinks"
           :key="item.path"
@@ -412,7 +409,8 @@
           <Icon :name="item.icon" size="lg" style="color: var(--kb-muted-foreground);" />
           {{ item.label }}
         </router-link>
-        <div class="pt-2 pb-1 px-3" style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption); font-weight: var(--kb-fw-caption); text-transform: uppercase; letter-spacing: 0.05em;">学习中心</div>
+        <!-- 学习 -->
+        <div class="mobile-group-title">学习</div>
         <router-link
           v-for="it in learningMenu"
           :key="it.path"
@@ -424,7 +422,47 @@
           <Icon :name="it.icon" size="lg" style="color: var(--kb-muted-foreground);" />
           {{ it.label }}
         </router-link>
-        <div class="pt-2 pb-1 px-3" style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption); font-weight: var(--kb-fw-caption); text-transform: uppercase; letter-spacing: 0.05em;">个人</div>
+        <!-- 社区 -->
+        <div class="mobile-group-title">社区</div>
+        <router-link
+          v-for="it in communityMenu"
+          :key="it.path"
+          :to="it.path"
+          class="flex items-center px-3 py-2.5 rounded-lg transition-colors hover:bg-gray-50"
+          style="color: var(--kb-foreground); font-size: var(--kb-fs-body-md); gap: var(--kb-nav-gap);"
+          @click="mobileOpen = false"
+        >
+          <Icon :name="it.icon" size="lg" style="color: var(--kb-muted-foreground);" />
+          {{ it.label }}
+        </router-link>
+        <!-- AI 助手 -->
+        <div class="mobile-group-title">AI 助手</div>
+        <router-link
+          v-for="it in aiMenu"
+          :key="it.path"
+          :to="it.path"
+          class="flex items-center px-3 py-2.5 rounded-lg transition-colors hover:bg-gray-50"
+          style="color: var(--kb-foreground); font-size: var(--kb-fs-body-md); gap: var(--kb-nav-gap);"
+          @click="mobileOpen = false"
+        >
+          <Icon :name="it.icon" size="lg" style="color: var(--kb-muted-foreground);" />
+          {{ it.label }}
+        </router-link>
+        <!-- 成长 -->
+        <div class="mobile-group-title">成长</div>
+        <router-link
+          v-for="it in growthMenu"
+          :key="it.path"
+          :to="it.path"
+          class="flex items-center px-3 py-2.5 rounded-lg transition-colors hover:bg-gray-50"
+          style="color: var(--kb-foreground); font-size: var(--kb-fs-body-md); gap: var(--kb-nav-gap);"
+          @click="mobileOpen = false"
+        >
+          <Icon :name="it.icon" size="lg" style="color: var(--kb-muted-foreground);" />
+          {{ it.label }}
+        </router-link>
+        <!-- 我的 -->
+        <div class="mobile-group-title">我的</div>
         <router-link
           v-for="it in personalMenu"
           :key="it.path"
@@ -442,8 +480,8 @@
 </template>
 
 <script setup lang="ts">
-// 布局组件：前台导航顶栏（与设计稿统一入口/首页导航结构对齐）。
-// 导航分组：首页 / 统一入口 / 知识库(下拉) / 学习中心(下拉) / AI助手(下拉) / 社区讨论 / 个人(下拉)
+// 布局组件：前台导航顶栏。
+// 导航分组：首页 / 知识库(下拉) / 学习(下拉) / 社区(下拉) / AI助手(下拉) / 成长(下拉) / 我的(下拉) + 顶栏工具区(搜索/通知/头像)
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
@@ -481,50 +519,48 @@ interface NavLink {
   icon: string;
 }
 
-const taskMenu: NavLink[] = [
-  { path: '/tasks', label: '任务中心', icon: 'target' },
-  { path: '/check-in', label: '每日打卡', icon: 'calendar-check' },
-  { path: '/achievements', label: '成就系统', icon: 'trophy' },
-  { path: '/kb-titles', label: '知识库称号', icon: 'award' },
-];
-
 const mobileLinks: NavLink[] = [
   { path: '/', label: '首页', icon: 'home' },
   { path: '/knowledge', label: '知识库', icon: 'icon-AIbeikezhushou' },
-  { path: '/tasks', label: '任务中心', icon: 'target' },
-  { path: '/check-in', label: '每日打卡', icon: 'calendar-check' },
-  { path: '/achievements', label: '成就系统', icon: 'trophy' },
-  { path: '/kb-titles', label: '知识库称号', icon: 'award' },
-  { path: '/notes', label: '笔记管理', icon: 'notebook-pen' },
   { path: '/categories', label: '分类浏览', icon: 'folder-tree' },
   { path: '/search', label: '搜索知识', icon: 'search' },
-  { path: '/learning/knowledge-graph', label: '知识图谱', icon: 'icon-zhishitupubaocun' },
-  { path: '/community', label: '社区讨论', icon: 'users' },
-  { path: '/study-group', label: '学习小组', icon: 'message-circle' },
-  { path: '/messages', label: '消息', icon: 'message-square' },
-  { path: '/chat', label: '智能问答', icon: 'icon-rengongzhineng1' },
+  { path: '/docs', label: '文档库', icon: 'file-text' },
 ];
 
 const knowledgeMenu: NavLink[] = [
   { path: '/knowledge', label: '知识库', icon: 'icon-AIbeikezhushou' },
   { path: '/categories', label: '分类浏览', icon: 'folder-tree' },
   { path: '/search', label: '搜索知识', icon: 'icon-wendangsousuo' },
+  { path: '/docs', label: '文档库', icon: 'file-text' },
   { path: '/learning/knowledge-graph', label: '知识图谱', icon: 'icon-zhishitupubaocun' },
 ];
 
+// 学习下拉：学习活动
 const learningMenu: NavLink[] = [
   { path: '/learning/center', label: '学习中心', icon: 'icon-xuexizhongxin' },
   { path: '/learning/paths', label: '学习路径', icon: 'route' },
   { path: '/learning/code-practice', label: '代码练习', icon: 'code' },
   { path: '/learning/flashcards', label: '闪卡大厅', icon: 'layers' },
   { path: '/learning/review', label: '复习计划', icon: 'calendar-check' },
-  { path: '/learning/mode', label: '沉浸学习', icon: 'moon' },
+];
+
+const communityMenu: NavLink[] = [
+  { path: '/community', label: '社区讨论', icon: 'users' },
+  { path: '/study-group', label: '学习小组', icon: 'message-circle' },
+  { path: '/messages', label: '私信', icon: 'message-square' },
 ];
 
 const aiMenu: NavLink[] = [
   { path: '/chat', label: '智能问答', icon: 'icon-rengongzhineng1' },
-  { path: '/learning/writing', label: '智能写作', icon: 'wand-2' },
   { path: '/learning/quiz', label: '智能测验', icon: 'icon-kaoshi' },
+  { path: '/learning/writing', label: '智能写作', icon: 'wand-2' },
+];
+
+const growthMenu: NavLink[] = [
+  { path: '/tasks', label: '任务中心', icon: 'target' },
+  { path: '/check-in', label: '每日打卡', icon: 'calendar-check' },
+  { path: '/achievements', label: '成就系统', icon: 'trophy' },
+  { path: '/kb-titles', label: '知识库称号', icon: 'award' },
 ];
 
 const personalMenu: NavLink[] = [
@@ -532,13 +568,27 @@ const personalMenu: NavLink[] = [
   { path: '/favorites', label: '收藏夹', icon: 'bookmark' },
   { path: '/notes', label: '笔记管理', icon: 'notebook-pen' },
   { path: '/mistakes', label: '错误本', icon: 'alert-circle' },
-  { path: '/learning/report', label: '学习报告', icon: 'bar-chart-2' },
 ];
+
+// 当前路由所属的下拉分组 key，用于下拉按钮在子页面时保持高亮
+const activeDropdownKey = computed<string>(() => {
+  const p = route.path;
+  // AI 助手优先匹配（/learning/quiz、/learning/writing 路由虽以 /learning 开头但归 AI 助手）
+  if (['/chat', '/learning/quiz', '/learning/writing'].includes(p)) return 'ai';
+  if (['/knowledge', '/categories', '/search', '/docs', '/learning/knowledge-graph'].some(s => p === s || p.startsWith(s + '/'))) return 'knowledge';
+  if (p.startsWith('/learning')) return 'learning';
+  if (['/community', '/study-group', '/messages'].some(s => p === s || p.startsWith(s + '/'))) return 'community';
+  if (['/tasks', '/check-in', '/achievements', '/kb-titles'].includes(p)) return 'growth';
+  if (['/profile', '/favorites', '/notes', '/mistakes'].some(s => p === s || p.startsWith(s + '/'))) return 'personal';
+  return '';
+});
+
+function isDropdownActive(key: string): boolean {
+  return openDropdown.value === key || activeDropdownKey.value === key;
+}
 
 function isNavActive(path: string): boolean {
   if (path === '/') return route.path === '/';
-  if (path === '/tasks') return ['/tasks', '/check-in', '/achievements', '/kb-titles'].includes(route.path);
-  if (path === '/study-group') return route.path === '/study-group';
   return route.path === path || route.path.startsWith(path + '/');
 }
 
@@ -701,6 +751,9 @@ onUnmounted(() => {
   transform: translateY(-4px);
   transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
 }
+.nav-dropdown-wide {
+  min-width: 200px;
+}
 .nav-dropdown.is-open {
   opacity: 1;
   visibility: visible;
@@ -720,5 +773,18 @@ onUnmounted(() => {
 .nav-dropdown a:hover {
   background: rgba(59, 111, 224, 0.08);
   color: var(--kb-primary);
+}
+.nav-dropdown-divider {
+  height: 1px;
+  margin: 4px 8px;
+  background: var(--kb-border);
+}
+.mobile-group-title {
+  padding: 12px 12px 4px;
+  color: var(--kb-muted-foreground);
+  font-size: var(--kb-fs-caption);
+  font-weight: var(--kb-fw-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 </style>

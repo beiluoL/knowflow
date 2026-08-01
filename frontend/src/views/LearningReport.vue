@@ -62,6 +62,10 @@
           <Icon name="zap" :size="16" />
           <span class="tabular-nums">能量 {{ energy }}</span>
         </div>
+        <router-link to="/learning/mode" class="stats-pill stats-pill-focus" title="进入沉浸学习模式">
+          <Icon name="moon" :size="16" />
+          <span>沉浸模式</span>
+        </router-link>
       </div>
     </section>
 
@@ -987,6 +991,17 @@ onUnmounted(() => {
 .stats-pill-energy {
   background: rgba(245, 158, 11, 0.08);
   color: var(--kb-warning);
+}
+
+.stats-pill-focus {
+  background: rgba(99, 102, 241, 0.1);
+  color: #6366f1;
+  text-decoration: none;
+  transition: background 0.15s, transform 0.15s;
+}
+.stats-pill-focus:hover {
+  background: rgba(99, 102, 241, 0.18);
+  transform: translateY(-1px);
 }
 
 /* ========== 快速入口 ========== */
