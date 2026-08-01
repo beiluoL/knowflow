@@ -889,3 +889,22 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_cert_no ON learning_certificate (cert_no);
 CREATE INDEX IF NOT EXISTS idx_cert_user ON learning_certificate (user_id);
 CREATE INDEX IF NOT EXISTS idx_cert_path ON learning_certificate (path_id);
 CREATE UNIQUE INDEX IF NOT EXISTS uk_cert_user_path ON learning_certificate (user_id, path_id, deleted);
+
+-- ========== 专注会话（P0 专注模块核心表）==========
+CREATE TABLE IF NOT EXISTS focus_session (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  mode VARCHAR(20) DEFAULT 'POMODORO',
+  start_time TIMESTAMP,
+  end_time TIMESTAMP,
+  duration_min INT DEFAULT 0,
+  distraction_count INT DEFAULT 0,
+  completed_pomodoros INT DEFAULT 0,
+  associated_task_id BIGINT,
+  quality_rating INT,
+  note VARCHAR(500),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted INT DEFAULT 0,
+  KEY idx_user_time (user_id, start_time)
+);

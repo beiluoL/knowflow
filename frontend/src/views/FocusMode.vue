@@ -1,227 +1,246 @@
 <template>
-  <!--
-    P3-5 深度学习模式（FocusMode）
-    全屏沉浸式学习页面：整合番茄钟、白噪音、夜间主题、隐藏所有导航干扰。
-    meta.layout='none' → 无顶栏无侧栏。
-  -->
-  <div class="focus-root">
-    <!-- 顶部栏：退出 + 品牌 -->
-    <header class="focus-topbar">
-      <button type="button" class="exit-btn" @click="exitFocus">
-        <Icon name="log-out" :size="16" />
-        <span>退出专注</span>
-      </button>
-      <div class="brand">
-        <Icon name="moon" :size="16" />
-        <span>KnowFlow · 深度学习</span>
+  <div class="immersive-root">
+    <header class="immersive-topbar">
+      <div class="topbar-left">
+        <button type="button" class="exit-btn" @click="handleExit">
+          <Icon name="arrow-left" :size="16" />
+          <span>退出</span>
+        </button>
+        <div class="mode-info">
+          <span class="mode-subtitle">沉浸工作台</span>
+          <select v-model="selectedMode" class="mode-select" aria-label="模式选择">
+            <option value="pomodoro">番茄专注</option>
+          </select>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button
+          type="button"
+          class="icon-btn"
+          :class="{ active: noiseVisible }"
+          title="白噪音"
+          @click="toggleNoiseVisible"
+        >
+          <Icon name="volume-2" :size="18" />
+        </button>
+        <button
+          type="button"
+          class="icon-btn"
+          title="主题切换"
+          @click="handleThemeToggle"
+        >
+          <Icon name="palette" :size="18" />
+        </button>
+        <button
+          type="button"
+          class="icon-btn"
+          title="设置"
+          @click="openSettings"
+        >
+          <Icon name="settings" :size="18" />
+        </button>
       </div>
     </header>
 
-    <!-- 主体 -->
-    <main class="focus-main">
-      <!-- 番茄钟进度环 + 时间 -->
-      <section class="timer-section">
-        <div class="ring-wrap">
-          <svg class="ring-svg" viewBox="0 0 200 200" aria-hidden="true">
-            <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="6" />
-            <circle
-              cx="100"
-              cy="100"
-              r="90"
-              fill="none"
-              :stroke="pomodoroStore.modeColor.stroke"
-              stroke-width="6"
-              stroke-linecap="round"
-              :stroke-dasharray="ringCircumference"
-              :stroke-dashoffset="ringDashoffset"
-              class="ring-progress"
-            />
-          </svg>
-          <div class="ring-center">
-            <div class="time-display">{{ pomodoroStore.timeFormatted }}</div>
-            <div class="mode-label">{{ pomodoroStore.modeLabel }}</div>
-          </div>
+    <aside class="left-drawer" :class="{ expanded: drawerExpanded }">
+      <button type="button" class="drawer-toggle" @click="drawerExpanded = !drawerExpanded">
+        <Icon :name="drawerExpanded ? 'chevron-left' : 'chevron-right'" :size="16" />
+      </button>
+      <div v-if="drawerExpanded" class="drawer-content">
+        <div class="drawer-item placeholder">
+          <Icon name="git-branch" :size="16" />
+          <span>章节DAG</span>
         </div>
-
-        <!-- 控制按钮 -->
-        <div class="controls">
-          <button type="button" class="ctrl-btn primary" @click="pomodoroStore.toggle()">
-            <Icon :name="pomodoroStore.runtime.isRunning ? 'pause' : 'play'" :size="18" />
-            <span>{{ pomodoroStore.runtime.isRunning ? '暂停' : '开始' }}</span>
-          </button>
-          <button type="button" class="ctrl-btn" @click="pomodoroStore.skip()">
-            <Icon name="skip-forward" :size="16" />
-            <span>跳过</span>
-          </button>
-          <button type="button" class="ctrl-btn" @click="pomodoroStore.resetCurrentMode()">
-            <Icon name="rotate-ccw" :size="16" />
-            <span>重置</span>
-          </button>
+        <div class="drawer-item placeholder">
+          <Icon name="users" :size="16" />
+          <span>伙伴动态</span>
         </div>
+      </div>
+    </aside>
 
-        <!-- 模式切换提示 -->
-        <div class="mode-hint">
-          第 {{ Math.min(pomodoroStore.runtime.roundsCompleted + 1, pomodoroStore.settings.roundsPerSet) }}
-          / {{ pomodoroStore.settings.roundsPerSet }} 个番茄
-        </div>
-      </section>
-
-      <!-- 白噪音播放器（嵌入式，组件自身浮动定位） -->
-      <WhiteNoisePlayer />
-
-      <!-- 今日任务 -->
-      <section class="tasks-section">
-        <h3 class="section-title">
-          <Icon name="check-circle" :size="16" />
-          <span>今日任务</span>
-          <span v-if="tasks.length" class="task-count">{{ completedCount }}/{{ tasks.length }}</span>
-        </h3>
-        <div v-if="taskLoading" class="task-empty">加载中…</div>
-        <ul v-else-if="tasks.length" class="task-list">
-          <li
-            v-for="task in tasks"
-            :key="task.id"
-            class="task-item"
-            :class="{ done: task.status === 1 }"
-          >
-            <label class="task-check">
-              <input
-                type="checkbox"
-                :checked="task.status === 1"
-                @change="toggleTask(task)"
-              />
-              <span class="task-title">{{ task.title }}</span>
-            </label>
-          </li>
-        </ul>
-        <div v-else class="task-empty">暂无今日任务，专注当下吧 ✨</div>
-      </section>
-
-      <!-- 激励文案 -->
-      <footer class="quote-bar">
-        <p class="quote-text">“{{ currentQuote }}”</p>
-      </footer>
+    <main class="immersive-main">
+      <PomodoroMode @toggle-noise="toggleNoiseVisible" />
     </main>
+
+    <footer class="immersive-toolbar">
+      <button type="button" class="tool-btn" @click="handleNote">
+        <Icon name="file-text" :size="16" />
+        <span>笔记</span>
+      </button>
+      <button type="button" class="tool-btn" @click="handleHighlight">
+        <Icon name="highlighter" :size="16" />
+        <span>重点</span>
+      </button>
+      <button type="button" class="tool-btn" @click="handleReadAloud">
+        <Icon name="mic" :size="16" />
+        <span>朗读</span>
+      </button>
+      <button type="button" class="tool-btn" @click="handleGraph">
+        <Icon name="network" :size="16" />
+        <span>知识图谱</span>
+      </button>
+      <button type="button" class="tool-btn" @click="handleAi">
+        <Icon name="bot" :size="16" />
+        <span>AI助手</span>
+      </button>
+      <button type="button" class="tool-btn" @click="toggleNoiseVisible">
+        <Icon name="music" :size="16" />
+        <span>白噪音</span>
+      </button>
+    </footer>
+
+    <transition name="wn-fade">
+      <WhiteNoisePlayer v-if="noiseVisible" />
+    </transition>
+
+    <transition name="note-fade">
+      <div v-if="notePanelOpen" class="note-panel-overlay" @click.self="notePanelOpen = false">
+        <div class="note-panel">
+          <header class="note-panel-head">
+            <span class="note-panel-title">快速笔记</span>
+            <button type="button" class="icon-btn-sm" @click="notePanelOpen = false">
+              <Icon name="x" :size="14" />
+            </button>
+          </header>
+          <textarea
+            v-model="noteText"
+            class="note-input"
+            placeholder="在这里记录你的专注心得…"
+            rows="8"
+          />
+          <footer class="note-panel-foot">
+            <button type="button" class="save-btn" @click="saveNote">保存</button>
+          </footer>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup lang="ts">
-/**
- * 深度学习模式：进入时切换深色主题，退出时恢复。
- * 番茄钟状态读取全局 usePomodoroStore；任务列表来自 learningApi.tasks()。
- */
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
 import WhiteNoisePlayer from '@/components/WhiteNoisePlayer.vue';
-import { learningApi } from '@/api';
-import { usePomodoroStore } from '@/stores/pomodoro';
+import PomodoroMode from '@/components/immersive/PomodoroMode.vue';
 import { useTheme } from '@/composables/useTheme';
-import { notify, getApiError } from '@/utils/toast';
-import type { LearningTaskVO } from '@/api/types';
+import { notify, confirmDialog, getApiError } from '@/utils/toast';
+import { useFocusSession } from '@/composables/useFocusSession';
 
 const router = useRouter();
-const pomodoroStore = usePomodoroStore();
 const { theme, setTheme } = useTheme();
+const { isActive, end } = useFocusSession();
 
-// 进入前记录原主题，退出时恢复
-const originalTheme = theme.value;
+const originalTheme = ref<string>(theme.value);
+const selectedMode = ref<'pomodoro'>('pomodoro');
+const drawerExpanded = ref(false);
+const noiseVisible = ref(true);
+const notePanelOpen = ref(false);
+const noteText = ref('');
 
-// ===== 番茄钟进度环 =====
-const ringRadius = 90;
-const ringCircumference = 2 * Math.PI * ringRadius;
-const ringDashoffset = computed(() => ringCircumference * (1 - pomodoroStore.progress));
-
-// ===== 今日任务 =====
-const tasks = ref<LearningTaskVO[]>([]);
-const taskLoading = ref(false);
-
-const completedCount = computed(() => tasks.value.filter((t) => t.status === 1).length);
-
-const loadTasks = async () => {
-  taskLoading.value = true;
-  try {
-    tasks.value = await learningApi.tasks();
-  } catch (e: unknown) {
-    notify(getApiError(e, '加载任务失败'), 'warning');
-    tasks.value = [];
-  } finally {
-    taskLoading.value = false;
-  }
+const toggleNoiseVisible = () => {
+  noiseVisible.value = !noiseVisible.value;
 };
 
-const toggleTask = async (task: LearningTaskVO) => {
-  const next = task.status === 1 ? 0 : 1;
-  const prev = task.status;
-  task.status = next; // 乐观更新
-  try {
-    await learningApi.updateTaskStatus(task.id, next);
-  } catch (e: unknown) {
-    task.status = prev; // 回滚
-    notify(getApiError(e, '更新任务失败'), 'error');
-  }
+const handleThemeToggle = () => {
+  notify('主题切换功能即将上线', 'info');
 };
 
-// ===== 激励文案 =====
-const QUOTES = [
-  '保持专注，未来可期。',
-  '每一分钟的专注，都是未来的礼物。',
-  '慢一点没关系，停下来才可惜。',
-  '深度工作，是稀缺的超能力。',
-  '此刻的努力，是未来的底气。',
-  '心无旁骛，方能行远。',
-  '今天的番茄，明天的成就。',
-  '专注当下，水到渠成。',
-];
-const currentQuote = ref(QUOTES[0]);
+const openSettings = () => {
+  notify('设置面板即将上线', 'info');
+};
 
-// ===== 退出 =====
-const exitFocus = () => {
-  router.push('/learning/center');
+const handleNote = () => {
+  notePanelOpen.value = true;
+};
+
+const saveNote = () => {
+  notePanelOpen.value = false;
+  notify('笔记已保存', 'success');
+  noteText.value = '';
+};
+
+const handleHighlight = () => {
+  notify('请先选中文字后再使用高亮功能', 'info');
+};
+
+const handleReadAloud = () => {
+  notify('朗读功能即将上线', 'info');
+};
+
+const handleGraph = () => {
+  notify('知识图谱功能即将上线', 'info');
+};
+
+const handleAi = () => {
+  notify('AI助手即将上线', 'info');
+};
+
+const handleExit = async () => {
+  const ok = await confirmDialog('确认退出沉浸模式？专注进度将自动保存');
+  if (!ok) return;
+  if (isActive()) {
+    try {
+      await end();
+    } catch (e: unknown) {
+      notify(getApiError(e, '保存专注进度失败'), 'warning');
+    }
+  }
+  void router.push('/learning/center');
 };
 
 onMounted(() => {
-  // 切换深色主题
+  originalTheme.value = theme.value;
   setTheme('dark');
-  // 确保番茄钟已启动（绑定全局事件监听）
-  pomodoroStore.init();
-  // 随机激励语
-  currentQuote.value = QUOTES[Math.floor(Math.random() * QUOTES.length)];
-  // 加载任务
-  void loadTasks();
 });
 
 onUnmounted(() => {
-  // 恢复原主题
-  setTheme(originalTheme);
+  setTheme(originalTheme.value as 'light' | 'dark');
 });
 </script>
 
 <style scoped>
-.focus-root {
+.immersive-root {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f172a, #1e293b);
-  color: #f8fafc;
+  background: linear-gradient(135deg, #0f172a, #1e293b 60%, #0f172a);
+  color: var(--kb-foreground);
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
 }
 
-/* 顶部栏 */
-.focus-topbar {
+.immersive-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 28px;
+  padding: 0 24px;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.topbar-left,
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 .exit-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   height: 36px;
-  padding: 0 16px;
+  padding: 0 14px;
   font-size: 13px;
   font-weight: 600;
-  color: #f8fafc;
+  color: var(--kb-foreground);
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
@@ -231,205 +250,279 @@ onUnmounted(() => {
 .exit-btn:hover {
   background: rgba(255, 255, 255, 0.1);
 }
-.brand {
+.mode-info {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
+  margin-left: 4px;
+}
+.mode-subtitle {
   font-size: 13px;
-  font-weight: 600;
-  color: #94a3b8;
+  color: var(--kb-muted-foreground);
+  font-weight: 500;
   letter-spacing: 0.02em;
 }
-
-/* 主体 */
-.focus-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 36px;
-  padding: 12px 28px 48px;
+.mode-select {
+  height: 32px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--kb-foreground);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
 }
-
-/* 番茄钟 */
-.timer-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
+.mode-select:focus {
+  border-color: var(--kb-primary);
 }
-.ring-wrap {
-  position: relative;
-  width: 240px;
-  height: 240px;
+.icon-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 38px;
+  height: 38px;
+  color: var(--kb-muted-foreground);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
 }
-.ring-svg {
-  width: 240px;
-  height: 240px;
-  transform: rotate(-90deg);
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--kb-foreground);
 }
-.ring-progress {
-  transition: stroke-dashoffset 1s linear, stroke 0.3s ease;
-}
-.ring-center {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-.time-display {
-  font-size: 56px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-  color: #f8fafc;
-  line-height: 1;
-}
-.mode-label {
-  font-size: 14px;
-  color: #94a3b8;
-  letter-spacing: 0.04em;
+.icon-btn.active {
+  color: var(--kb-primary);
+  background: color-mix(in srgb, var(--kb-primary) 14%, transparent);
+  border-color: color-mix(in srgb, var(--kb-primary) 30%, rgba(255, 255, 255, 0.06));
 }
 
-/* 控制按钮 */
-.controls {
+.left-drawer {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  bottom: 64px;
+  z-index: 40;
+  width: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  transition: width 0.25s ease;
+  overflow: hidden;
+}
+.left-drawer.expanded {
+  width: 160px;
+}
+.drawer-toggle {
+  position: absolute;
+  top: 12px;
+  right: -16px;
+  width: 28px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--kb-muted-foreground);
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: none;
+  border-radius: 0 10px 10px 0;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.drawer-toggle:hover {
+  color: var(--kb-foreground);
+}
+.drawer-content {
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.drawer-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.15s ease;
+}
+.drawer-item.placeholder {
+  color: var(--kb-muted-foreground);
+  background: rgba(255, 255, 255, 0.03);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.immersive-main {
+  flex: 1;
+  display: flex;
+  min-height: 100vh;
+  padding-top: 0;
+}
+
+.immersive-toolbar {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  z-index: 45;
   display: flex;
   align-items: center;
   gap: 12px;
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
 }
-.ctrl-btn {
+.tool-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 40px;
-  padding: 0 18px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #f8fafc;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  height: 36px;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--kb-muted-foreground);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
-.ctrl-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-.ctrl-btn.primary {
-  background: #3b6fe0;
-  border-color: #3b6fe0;
-  color: #fff;
-}
-.ctrl-btn.primary:hover {
-  background: #2f5fc7;
-}
-.mode-hint {
-  font-size: 12px;
-  color: #94a3b8;
-  letter-spacing: 0.04em;
+.tool-btn:hover {
+  background: color-mix(in srgb, var(--kb-primary) 12%, transparent);
+  color: var(--kb-primary);
+  border-color: color-mix(in srgb, var(--kb-primary) 25%, rgba(255, 255, 255, 0.05));
 }
 
-/* 任务区 */
-.tasks-section {
-  width: 100%;
-  max-width: 520px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 18px 20px;
-}
-.section-title {
+.note-panel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  padding: 24px;
+}
+.note-panel {
+  width: 100%;
+  max-width: 480px;
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+}
+.note-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--kb-border);
+}
+.note-panel-title {
   font-size: 14px;
   font-weight: 600;
-  color: #f8fafc;
-  margin-bottom: 12px;
+  color: var(--kb-card-foreground);
 }
-.section-title .task-count {
-  margin-left: auto;
-  font-size: 12px;
-  font-weight: 500;
-  color: #94a3b8;
-  font-variant-numeric: tabular-nums;
-}
-.task-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.task-item {
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  transition: background 0.15s ease;
-}
-.task-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-}
-.task-item.done .task-title {
-  color: #94a3b8;
-  text-decoration: line-through;
-}
-.task-check {
-  display: flex;
+.icon-btn-sm {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--kb-muted-foreground);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
 }
-.task-check input[type='checkbox'] {
-  width: 16px;
-  height: 16px;
-  accent-color: #3b6fe0;
-  cursor: pointer;
+.icon-btn-sm:hover {
+  background: var(--kb-muted);
+  color: var(--kb-card-foreground);
 }
-.task-title {
+.note-input {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
   font-size: 14px;
-  color: #f8fafc;
-  line-height: 1.4;
+  line-height: 1.6;
+  color: var(--kb-card-foreground);
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: inherit;
 }
-.task-empty {
+.note-panel-foot {
+  padding: 12px 16px 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+.save-btn {
+  height: 34px;
+  padding: 0 18px;
   font-size: 13px;
-  color: #94a3b8;
-  padding: 4px 2px;
+  font-weight: 600;
+  color: var(--kb-primary-foreground);
+  background: var(--kb-primary);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+.save-btn:hover {
+  filter: brightness(1.05);
 }
 
-/* 激励文案 */
-.quote-bar {
-  text-align: center;
+.note-fade-enter-active,
+.note-fade-leave-active {
+  transition: opacity 0.2s ease;
 }
-.quote-text {
-  font-size: 15px;
-  color: #94a3b8;
-  letter-spacing: 0.02em;
-  font-style: italic;
+.note-fade-enter-from,
+.note-fade-leave-to {
+  opacity: 0;
+}
+.wn-fade-enter-active,
+.wn-fade-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.wn-fade-enter-from,
+.wn-fade-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
 }
 
-/* 响应式 */
-@media (max-width: 640px) {
-  .ring-wrap,
-  .ring-svg {
-    width: 200px;
-    height: 200px;
+@media (max-width: 768px) {
+  .immersive-topbar {
+    padding: 0 16px;
   }
-  .time-display {
-    font-size: 44px;
+  .immersive-toolbar {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    transform: none;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  .ctrl-btn {
-    height: 36px;
-    padding: 0 14px;
-    font-size: 13px;
+  .tool-btn {
+    flex-shrink: 0;
+  }
+  .mode-subtitle {
+    display: none;
   }
 }
 </style>

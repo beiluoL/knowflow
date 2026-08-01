@@ -1094,3 +1094,43 @@ export interface PrivateMessagePageResult {
   size: number
   pages: number
 }
+
+// ===== 专注会话（沉浸工作台） =====
+export type FocusModeType = 'POMODORO' | 'FLOW' | 'DEEP' | 'SPACED' | 'BUDDY'
+
+export interface FocusSessionVO {
+  id: number
+  userId?: number
+  mode?: FocusModeType
+  startTime?: string
+  endTime?: string
+  durationMin?: number
+  distractionCount?: number
+  completedPomodoros?: number
+  associatedTaskId?: number
+  qualityRating?: number
+  note?: string
+  createTime?: string
+  updateTime?: string
+}
+
+export interface FocusStatsVO {
+  todayMinutes: number
+  todayPomodoros: number
+  todaySessions: number
+  weekMinutes: number
+  avgQuality: number
+  modeBreakdown: Record<string, number>
+  hourlyHeatmap: number[]
+  recentList: FocusSessionVO[]
+}
+
+export interface FocusSessionEndInput {
+  id?: number
+  durationMin: number
+  distractionCount?: number
+  completedPomodoros?: number
+  associatedTaskId?: number
+  qualityRating?: number
+  note?: string
+}
