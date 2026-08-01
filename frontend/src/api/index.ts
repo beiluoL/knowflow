@@ -17,4 +17,5 @@ export type { QuizPracticeVO, QuizAnswerItem, QuizResultItem, QuizSubmitResult, 
 export { checkinApi } from './checkin'
 export type { CheckInResult, CheckInStatus } from './checkin'
 export { focusSessionApi } from './focusSession'
+export { achievementApi } from './achievement'
 export { default as request, apiGet, apiPost, apiPut, apiDelete } from './request'

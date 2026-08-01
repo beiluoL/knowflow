@@ -12,4 +12,9 @@ public interface AchievementService {
      * 自动检查未解锁成就的进度，满足条件时自动解锁并发放经验奖励。
      */
     AchievementPageVO getMyAchievements(Long userId);
+
+    /**
+     * 轻量触发成就检查（不返回页面数据），适用于前端页面级触发刷新进度。
+     */
+    void triggerAchievementCheck(Long userId);
 }

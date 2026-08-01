@@ -39,6 +39,8 @@ export const learningApi = {
   // SM-2 间隔重复复习：quality ∈ [0,5]，<3 重置，3=有印象，5=完全掌握
   reviewFlashcard: (id: number, quality: number) =>
     apiPost<void>(`/learning/flashcards/${id}/review?quality=${quality}`),
+  // 今日到期复习闪卡（若后端未提供该接口则前端会自动 fallback 到 flashcards()）
+  dueFlashcards: () => apiGet<FlashcardVO[]>('/learning/flashcards/due'),
   tasks: () => apiGet<LearningTaskVO[]>('/learning/tasks'),
   createTask: (data: LearningTaskInput) => apiPost<void>('/learning/tasks', data),
   updateTaskStatus: (id: number, status: number) =>

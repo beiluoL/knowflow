@@ -13,7 +13,9 @@
         <div class="mode-info">
           <span class="mode-subtitle">沉浸工作台</span>
           <select v-model="selectedMode" class="mode-select" aria-label="模式选择">
-            <option value="pomodoro">番茄专注</option>
+            <option value="pomodoro">番茄专注 POMODORO</option>
+            <option value="spaced">间隔复习 SPACED</option>
+            <option value="flow">流时间 FLOW</option>
           </select>
         </div>
       </div>
@@ -65,7 +67,9 @@
     </aside>
 
     <main class="immersive-main">
-      <PomodoroMode @toggle-noise="toggleNoiseVisible" />
+      <PomodoroMode v-if="selectedMode === 'pomodoro'" @toggle-noise="toggleNoiseVisible" />
+      <SpacedMode v-else-if="selectedMode === 'spaced'" />
+      <FlowMode v-else-if="selectedMode === 'flow'" />
     </main>
 
     <footer class="immersive-toolbar">
@@ -140,6 +144,8 @@
         @dismiss="dismissBreakGuide"
       />
     </transition>
+
+    <AchievementToast :events="unlockEvents" :all-defs="allDefs" />
   </div>
 </template>
 
@@ -149,6 +155,9 @@ import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
 import WhiteNoisePlayer from '@/components/WhiteNoisePlayer.vue';
 import PomodoroMode from '@/components/immersive/PomodoroMode.vue';
+import SpacedMode from '@/components/immersive/SpacedMode.vue';
+import FlowMode from '@/components/immersive/FlowMode.vue';
+import AchievementToast from '@/components/immersive/AchievementToast.vue';
 import ThemePanel from '@/components/immersive/ThemePanel.vue';
 import SettingsPanel from '@/components/immersive/SettingsPanel.vue';
 import BreakGuide from '@/components/immersive/BreakGuide.vue';
@@ -160,6 +169,7 @@ import {
 import { usePomodoroStore, type PomodoroMode } from '@/stores/pomodoro';
 import { notify, confirmDialog, getApiError } from '@/utils/toast';
 import { useFocusSession } from '@/composables/useFocusSession';
+import { useMicroAchievements } from '@/composables/useMicroAchievements';
 
 const router = useRouter();
 const { theme, setTheme } = useTheme();
@@ -170,9 +180,10 @@ const {
   resetThemeOnExit,
 } = useImmersiveTheme();
 const pomodoroStore = usePomodoroStore();
+const { unlockEvents, allDefs } = useMicroAchievements();
 
 const originalTheme = ref<string>(theme.value);
-const selectedMode = ref<'pomodoro'>('pomodoro');
+const selectedMode = ref<'pomodoro' | 'spaced' | 'flow'>('pomodoro');
 const drawerExpanded = ref(false);
 const noiseVisible = ref(true);
 const notePanelOpen = ref(false);

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,5 +28,13 @@ public class AchievementController {
     public Result<AchievementPageVO> myAchievements() {
         Long userId = SecurityUtils.getCurrentUserId();
         return Result.success(achievementService.getMyAchievements(userId));
+    }
+
+    @Operation(summary = "触发成就检查刷新（轻量版，无返回页面数据）")
+    @PostMapping("/trigger")
+    public Result<Void> trigger() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        achievementService.triggerAchievementCheck(userId);
+        return Result.success(null);
     }
 }

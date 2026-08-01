@@ -137,6 +137,16 @@ public class AchievementServiceImpl implements AchievementService {
         return vo;
     }
 
+    @Override
+    public void triggerAchievementCheck(Long userId) {
+        if (userId == null) return;
+        try {
+            getMyAchievements(userId);
+        } catch (Exception e) {
+            log.warn("triggerAchievementCheck failed, userId={}", userId, e);
+        }
+    }
+
     private AchievementItemVO buildItem(Achievement def) {
         AchievementItemVO item = new AchievementItemVO();
         item.setId(def.getId());
