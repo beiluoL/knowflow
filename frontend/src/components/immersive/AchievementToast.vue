@@ -23,14 +23,19 @@ import { ref, watch, onMounted } from 'vue';
 import Icon from '@/components/ui/Icon.vue';
 import type { MicroAchievementId, MicroAchievementDef } from '@/composables/useMicroAchievements';
 
+interface UnlockEvent {
+  id: MicroAchievementId;
+  at: number;
+}
+
 interface Props {
-  events: Ref<Array<{ id: MicroAchievementId; at: number }>>;
-  allDefs?: Ref<MicroAchievementDef[]>;
+  events: UnlockEvent[];
+  allDefs?: MicroAchievementDef[];
 }
 
 const props = defineProps<Props>();
 
-type InternalEvent = { id: MicroAchievementId; at: number };
+type InternalEvent = UnlockEvent;
 
 const shown = new Set<string>();
 const visibleEvents = ref<InternalEvent[]>([]);
@@ -50,8 +55,8 @@ const iconBgMap: Partial<Record<MicroAchievementId, string>> = {
 };
 
 function syncDefs() {
-  if (props.allDefs?.value) {
-    props.allDefs.value.forEach((d) => defsMap.set(d.id, d));
+  if (props.allDefs) {
+    props.allDefs.forEach((d) => defsMap.set(d.id, d));
   }
 }
 
@@ -65,7 +70,7 @@ function getName(id: MicroAchievementId): string {
 
 function processEvents() {
   syncDefs();
-  const list = props.events.value;
+  const list = props.events;
   if (!list || list.length === 0) return;
   list.forEach((ev) => {
     const key = `${ev.id}_${ev.at}`;
@@ -85,7 +90,7 @@ onMounted(() => {
 });
 
 watch(
-  () => props.events.value.length,
+  () => props.events?.length ?? 0,
   () => {
     processEvents();
   },

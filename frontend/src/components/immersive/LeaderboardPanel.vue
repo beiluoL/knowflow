@@ -29,10 +29,8 @@
 
     <div class="lb-content">
       <transition name="lb-fade" mode="out-in">
-        <template v-if="activeTab === 'week'" key="week">
-          <template v-if="weekLoading">
-            <LoadingSkeleton :rows="8" />
-          </template>
+        <div v-if="activeTab === 'week'" key="week" class="lb-tab-pane">
+          <LoadingSkeleton v-if="weekLoading" :rows="8" />
           <template v-else>
             <Podium :users="weekTop3" type="user" />
             <RankList
@@ -41,12 +39,10 @@
               type="user"
             />
           </template>
-        </template>
+        </div>
 
-        <template v-else-if="activeTab === 'duration'" key="duration">
-          <template v-if="durationLoading">
-            <LoadingSkeleton :rows="8" />
-          </template>
+        <div v-else-if="activeTab === 'duration'" key="duration" class="lb-tab-pane">
+          <LoadingSkeleton v-if="durationLoading" :rows="8" />
           <template v-else>
             <Podium :users="durationTop3" type="user" variant="time" />
             <RankList
@@ -56,17 +52,15 @@
               variant="time"
             />
           </template>
-        </template>
+        </div>
 
-        <template v-else key="group">
-          <template v-if="groupLoading">
-            <LoadingSkeleton :rows="8" />
-          </template>
+        <div v-else key="group" class="lb-tab-pane">
+          <LoadingSkeleton v-if="groupLoading" :rows="8" />
           <template v-else>
             <Podium :groups="groupTop3" type="group" />
             <RankList :items="groupRankList" type="group" />
           </template>
-        </template>
+        </div>
       </transition>
     </div>
   </div>

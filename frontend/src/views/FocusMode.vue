@@ -239,7 +239,8 @@ import {
   applyImmersiveThemeTo,
   IMMERSIVE_THEMES,
 } from '@/composables/useImmersiveTheme';
-import { usePomodoroStore, type PomodoroMode } from '@/stores/pomodoro';
+import { usePomodoroStore } from '@/stores/pomodoro';
+import type { PomodoroMode as PomodoroPhase } from '@/stores/pomodoro';
 import { notify, confirmDialog, getApiError } from '@/utils/toast';
 import { useFocusSession } from '@/composables/useFocusSession';
 import { useMicroAchievements } from '@/composables/useMicroAchievements';
@@ -281,7 +282,7 @@ const rootRef = ref<HTMLElement | null>(null);
 const breakGuideVisible = ref(false);
 const breakGuideType = ref<'shortBreak' | 'longBreak' | null>(null);
 const breakGuideDuration = ref(0);
-let lastBreakMode: PomodoroMode = 'focus';
+let lastBreakMode: PomodoroPhase = 'focus';
 
 const focusStats = ref<FocusStatsVO | null>(null);
 const statsLoading = ref(false);
