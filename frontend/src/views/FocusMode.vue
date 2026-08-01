@@ -17,10 +17,28 @@
             <option value="spaced">间隔复习 SPACED</option>
             <option value="flow">流时间 FLOW</option>
             <option value="deep">主题深潜 DEEP</option>
+            <option value="buddy">社交伴学 BUDDY</option>
           </select>
         </div>
       </div>
       <div class="topbar-right">
+        <button
+          type="button"
+          class="icon-btn"
+          :class="{ active: drawerExpanded && leftDrawerTab === 'rank' }"
+          title="排行榜"
+          @click="handleToggleLeaderboard"
+        >
+          <Icon name="trophy" :size="18" />
+        </button>
+        <button
+          type="button"
+          class="icon-btn"
+          title="生成分享卡"
+          @click="shareCardVisible = true"
+        >
+          <Icon name="share-2" :size="18" />
+        </button>
         <button
           type="button"
           class="icon-btn"
@@ -65,13 +83,39 @@
         <Icon :name="drawerExpanded ? 'chevron-left' : 'chevron-right'" :size="16" />
       </button>
       <div v-if="drawerExpanded" class="drawer-content">
-        <div class="drawer-item placeholder">
-          <Icon name="git-branch" :size="16" />
-          <span>章节DAG</span>
+        <div class="drawer-tabs">
+          <button
+            type="button"
+            class="dtab"
+            :class="{ active: leftDrawerTab === 'nav' }"
+            @click="leftDrawerTab = 'nav'"
+          >
+            <Icon name="compass" :size="14" />
+            导航
+          </button>
+          <button
+            type="button"
+            class="dtab"
+            :class="{ active: leftDrawerTab === 'rank' }"
+            @click="leftDrawerTab = 'rank'"
+          >
+            <Icon name="trophy" :size="14" />
+            排行榜
+          </button>
         </div>
-        <div class="drawer-item placeholder">
-          <Icon name="users" :size="16" />
-          <span>伙伴动态</span>
+
+        <template v-if="leftDrawerTab === 'nav'">
+          <div class="drawer-item placeholder">
+            <Icon name="git-branch" :size="16" />
+            <span>章节DAG</span>
+          </div>
+          <div class="drawer-item placeholder">
+            <Icon name="users" :size="16" />
+            <span>伙伴动态</span>
+          </div>
+        </template>
+        <div v-else class="rank-tab-panel">
+          <LeaderboardPanel />
         </div>
       </div>
     </aside>
@@ -84,6 +128,10 @@
         v-else-if="selectedMode === 'deep'"
         @toggle-graph="graphVisible = !graphVisible"
         @toggle-copilot="copilotVisible = !copilotVisible"
+      />
+      <BuddyMode
+        v-else-if="selectedMode === 'buddy'"
+        @toggle-leaderboard="handleToggleLeaderboard"
       />
     </main>
 
@@ -163,11 +211,12 @@
     <GraphSidebar :visible="graphVisible" @close="graphVisible = false" />
     <MiniChatCopilot v-model:visible="copilotVisible" />
     <AchievementToast :events="unlockEvents" :all-defs="allDefs" />
+    <ShareCard v-model:visible="shareCardVisible" :data="shareCardData" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
 import WhiteNoisePlayer from '@/components/WhiteNoisePlayer.vue';
@@ -175,6 +224,9 @@ import PomodoroMode from '@/components/immersive/PomodoroMode.vue';
 import SpacedMode from '@/components/immersive/SpacedMode.vue';
 import FlowMode from '@/components/immersive/FlowMode.vue';
 import DeepMode from '@/components/immersive/DeepMode.vue';
+import BuddyMode from '@/components/immersive/BuddyMode.vue';
+import LeaderboardPanel from '@/components/immersive/LeaderboardPanel.vue';
+import ShareCard from '@/components/immersive/ShareCard.vue';
 import GraphSidebar from '@/components/immersive/GraphSidebar.vue';
 import MiniChatCopilot from '@/components/immersive/MiniChatCopilot.vue';
 import AchievementToast from '@/components/immersive/AchievementToast.vue';
@@ -185,12 +237,16 @@ import { useTheme } from '@/composables/useTheme';
 import {
   useImmersiveTheme,
   applyImmersiveThemeTo,
+  IMMERSIVE_THEMES,
 } from '@/composables/useImmersiveTheme';
 import { usePomodoroStore, type PomodoroMode } from '@/stores/pomodoro';
 import { notify, confirmDialog, getApiError } from '@/utils/toast';
 import { useFocusSession } from '@/composables/useFocusSession';
 import { useMicroAchievements } from '@/composables/useMicroAchievements';
 import { useTextToSpeech } from '@/composables/useTextToSpeech';
+import { focusSessionApi } from '@/api';
+import type { FocusStatsVO } from '@/api/types';
+import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();
 const { theme, setTheme } = useTheme();
@@ -201,12 +257,17 @@ const {
   resetThemeOnExit,
 } = useImmersiveTheme();
 const pomodoroStore = usePomodoroStore();
-const { unlockEvents, allDefs } = useMicroAchievements();
+const microAch = useMicroAchievements();
+const { unlockEvents, allDefs } = microAch;
 const { speak } = useTextToSpeech();
+const authStore = useAuthStore();
 
 const originalTheme = ref<string>(theme.value);
-const selectedMode = ref<'pomodoro' | 'spaced' | 'flow' | 'deep'>('pomodoro');
+type ModeKey = 'pomodoro' | 'spaced' | 'flow' | 'deep' | 'buddy';
+const selectedMode = ref<ModeKey>('pomodoro');
 const drawerExpanded = ref(false);
+type DrawerTab = 'nav' | 'rank';
+const leftDrawerTab = ref<DrawerTab>('nav');
 const noiseVisible = ref(true);
 const notePanelOpen = ref(false);
 const noteText = ref('');
@@ -214,12 +275,83 @@ const themePanelVisible = ref(false);
 const settingsPanelVisible = ref(false);
 const graphVisible = ref(false);
 const copilotVisible = ref(false);
+const shareCardVisible = ref(false);
 const rootRef = ref<HTMLElement | null>(null);
 
 const breakGuideVisible = ref(false);
 const breakGuideType = ref<'shortBreak' | 'longBreak' | null>(null);
 const breakGuideDuration = ref(0);
 let lastBreakMode: PomodoroMode = 'focus';
+
+const focusStats = ref<FocusStatsVO | null>(null);
+const statsLoading = ref(false);
+
+const MODE_LABELS: Record<ModeKey, string> = {
+  pomodoro: '番茄专注',
+  spaced: '间隔复习',
+  flow: '流时间',
+  deep: '主题深潜',
+  buddy: '社交伴学',
+};
+
+const shareCardData = computed(() => {
+  const stats = focusStats.value;
+  const userName = authStore.user?.nickname || authStore.user?.username || '知流学习者';
+  const minutes = stats?.todayMinutes ?? pomodoroStore.runtime.totalPomodorosToday * 25;
+  const pomodoros = stats?.todayPomodoros ?? pomodoroStore.runtime.totalPomodorosToday;
+  const unlockedList = (microAch.unlockedList?.value as unknown[]) || [];
+  const microUnlocked = unlockedList.length;
+  const achievementsSample = (unlockedList.slice(0, 3) as Array<{ name: string; icon: string }>).map(
+    (a) => ({ name: a.name || '微成就', icon: a.icon || 'star' }),
+  );
+  const primaryColor =
+    document.documentElement.style.getPropertyValue('--kb-primary').trim() || '#3B82F6';
+  const themeDef = IMMERSIVE_THEMES.find((t) => t.id === currentTheme.value);
+  const bg1 = themeDef?.tokens['--kb-bg-1'] || '#1e293b';
+  const bg2 = themeDef?.tokens['--kb-bg-0'] || '#0f172a';
+  const dailyRank = Math.max(1, 999 - Math.floor(minutes * 2));
+  const dateStr = new Date().toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+
+  return {
+    mode: selectedMode.value.toUpperCase(),
+    modeLabel: MODE_LABELS[selectedMode.value],
+    minutes,
+    pomodoros,
+    achievements: achievementsSample,
+    themeColors: {
+      primary: primaryColor,
+      bg1,
+      bg2,
+    },
+    userName,
+    dateStr,
+    dailyRank,
+    streak: authStore.user?.streakDays ?? 3,
+    microAchievementsUnlocked: microUnlocked,
+  };
+});
+
+const handleToggleLeaderboard = () => {
+  if (!drawerExpanded.value) {
+    drawerExpanded.value = true;
+  }
+  leftDrawerTab.value = 'rank';
+};
+
+const loadFocusStats = async () => {
+  statsLoading.value = true;
+  try {
+    focusStats.value = await focusSessionApi.stats(7);
+  } catch (e: unknown) {
+    focusStats.value = null;
+  } finally {
+    statsLoading.value = false;
+  }
+};
 
 const toggleNoiseVisible = () => {
   noiseVisible.value = !noiseVisible.value;
@@ -338,6 +470,7 @@ onMounted(() => {
   if (!pomodoroStore.runtime.isRunning) {
     lastBreakMode = 'focus';
   }
+  void loadFocusStats();
 });
 
 onUnmounted(() => {
@@ -466,7 +599,7 @@ onUnmounted(() => {
   overflow: hidden;
 }
 .left-drawer.expanded {
-  width: 160px;
+  width: 320px;
 }
 .drawer-toggle {
   position: absolute;
@@ -485,21 +618,64 @@ onUnmounted(() => {
   border-radius: 0 10px 10px 0;
   cursor: pointer;
   transition: color 0.15s ease;
+  z-index: 2;
 }
 .drawer-toggle:hover {
   color: var(--kb-foreground);
 }
 .drawer-content {
-  padding: 16px 12px;
+  height: 100%;
+  padding: 12px 12px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  box-sizing: border-box;
+  min-height: 0;
+}
+.drawer-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.dtab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--kb-muted-foreground);
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.dtab:hover {
+  color: var(--kb-foreground);
+}
+.dtab.active {
+  background: var(--kb-primary);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--kb-primary) 30%, transparent);
+}
+.rank-tab-panel {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding-top: 4px;
 }
 .drawer-item {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  height: 36px;
+  height: 40px;
   padding: 0 12px;
   border-radius: 8px;
   font-size: 13px;
