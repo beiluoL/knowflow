@@ -42,6 +42,10 @@
               <Icon :name="dynamicCta.secondary.icon" :size="16" />
               <span>{{ dynamicCta.secondary.text }}</span>
             </router-link>
+            <router-link to="/learning/focus" class="action-btn focus">
+              <Icon name="zap" :size="16" />
+              <span>沉浸工作台</span>
+            </router-link>
           </div>
         </div>
       </div>
@@ -753,6 +757,18 @@ onMounted(async () => {
 
 .action-btn.secondary:hover {
   background: rgba(255,255,255,0.25);
+}
+
+.action-btn.focus {
+  background: rgba(255,255,255,0.08);
+  color: #a5b4fc;
+  border: 1px solid rgba(165,180,252,0.35);
+}
+
+.action-btn.focus:hover {
+  background: rgba(165,180,252,0.18);
+  border-color: rgba(165,180,252,0.6);
+  transform: translateY(-1px);
 }
 
 .section-header {

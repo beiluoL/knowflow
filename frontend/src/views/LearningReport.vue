@@ -66,6 +66,10 @@
           <Icon name="moon" :size="16" />
           <span>沉浸模式</span>
         </router-link>
+        <router-link to="/learning/focus" class="stats-pill stats-pill-focus" title="进入沉浸工作台">
+          <Icon name="zap" :size="16" />
+          <span>沉浸工作台</span>
+        </router-link>
       </div>
     </section>
 

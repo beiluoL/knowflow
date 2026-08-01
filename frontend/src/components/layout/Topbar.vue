@@ -210,6 +210,7 @@ const unreadCount = computed(() => notificationStore.unreadCount)
 const userMenuItems = [
   { path: '/profile', label: '个人中心', iconName: 'user' },
   { path: '/learning/center', label: '学习中心', iconName: 'graduation-cap' },
+  { path: '/learning/focus', label: '沉浸工作台', iconName: 'zap' },
   { path: '/notifications', label: '消息中心', iconName: 'bell' },
   { path: '/favorites', label: '我的收藏', iconName: 'heart' },
 ]
