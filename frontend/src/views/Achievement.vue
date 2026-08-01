@@ -60,12 +60,18 @@
           <div
             v-for="ach in filteredAchievements"
             :key="ach.id"
-            class="ach-card"
-            :class="{ unlocked: ach.unlocked, locked: !ach.unlocked }"
+            class="ach-card reveal-item"
+            :class="{
+              unlocked: ach.unlocked,
+              locked: !ach.unlocked,
+              'particle-burst': ach.unlocked,
+              'is-bursting': ach.unlocked && burstSet.has(ach.id),
+            }"
+            :style="{ '--reveal-index': filteredAchievements.indexOf(ach) % 6 }"
           >
             <div class="flex items-start justify-between mb-3">
-              <div class="ach-icon-wrap" :class="ach.unlocked ? 'unlocked' : 'locked'">
-                <Icon :name="ach.unlocked ? ach.icon : 'lock'" :size="28" />
+              <div class="ach-icon-wrap" :class="ach.unlocked ? 'unlocked' : 'locked silhouette'">
+                <Icon :name="ach.unlocked ? ach.icon : ach.icon" :size="28" />
               </div>
               <span class="ach-badge" :class="ach.unlocked ? 'unlocked' : 'locked'">
                 <Icon :name="ach.unlocked ? 'check' : 'lock'" :size="12" />
@@ -75,14 +81,18 @@
             <div class="kb-h4 mb-1">{{ ach.name }}</div>
             <p class="kb-body-sm mb-3">{{ ach.description }}</p>
 
-            <!-- 进度条（未解锁时显示） -->
+            <!-- 进度条（未解锁时显示，用 highlight 色暗示「接近解锁」） -->
             <template v-if="!ach.unlocked && ach.target > 0">
               <div class="ach-progress-track mb-1.5">
-                <div class="ach-progress-fill" :style="{ width: `${ach.percent}%` }"></div>
+                <div class="ach-progress-fill highlight-fill" :style="{ width: `${ach.percent}%` }"></div>
               </div>
               <div class="flex items-center justify-between mb-3">
-                <span class="kb-body-sm">{{ ach.current }} / {{ ach.target }}</span>
-                <span class="kb-body-sm">{{ ach.percent }}%</span>
+                <!-- 正面表述：还差多少就解锁，而非「你才完成多少」 -->
+                <span class="kb-body-sm highlight-text">
+                  <Icon name="zap" :size="11" />
+                  再努力 {{ Math.max(0, ach.target - ach.current) }} 即可解锁
+                </span>
+                <span class="kb-body-sm tabular-nums">{{ ach.percent }}%</span>
               </div>
             </template>
 
@@ -142,7 +152,7 @@
 <script setup lang="ts">
 // 成就系统页：展示玩家已解锁/未解锁成就，按分类筛选，右侧显示最近解锁时间线。
 // 真实后端数据：GET /api/achievements 自动计算进度与解锁。
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, reactive } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import { achievementApi } from '@/api/achievement'
 import { notify, getApiError } from '@/utils/toast'
@@ -161,6 +171,11 @@ const currentCategory = ref('all')
 
 const pageData = ref<AchievementPageVO | null>(null)
 const loading = ref(true)
+
+// P1-2：新解锁成就的粒子爆开动效触发集合
+// 当某成就从「未解锁」变为「已解锁」时，加入 burstSet 触发 0.8s 粒子动画，动画结束后移除。
+const burstSet = reactive(new Set<number>())
+const prevUnlockedIds = new Set<number>()
 
 // ===== 成就列表（按分类筛选） =====
 const achievements = computed(() => pageData.value?.achievements || [])
@@ -193,7 +208,25 @@ const recentUnlocked = computed(() => pageData.value?.recentUnlocks.map((r) => (
 const loadAchievements = async () => {
   loading.value = true
   try {
-    pageData.value = await achievementApi.myAchievements()
+    const data = await achievementApi.myAchievements()
+    pageData.value = data
+
+    // P1-2：检测本次加载中「新解锁」的成就，触发粒子动效
+    const currentUnlockedIds = new Set(
+      (data.achievements || []).filter((a) => a.unlocked).map((a) => a.id),
+    )
+    // 仅在已有上一次记录时才比对（避免首次加载全部触发）
+    if (prevUnlockedIds.size > 0) {
+      currentUnlockedIds.forEach((id) => {
+        if (!prevUnlockedIds.has(id)) {
+          burstSet.add(id)
+          // 动画结束后清除
+          window.setTimeout(() => burstSet.delete(id), 1200)
+        }
+      })
+    }
+    prevUnlockedIds.clear()
+    currentUnlockedIds.forEach((id) => prevUnlockedIds.add(id))
   } catch (e: unknown) {
     notify('加载成就数据失败：' + getApiError(e), 'error')
   } finally {
@@ -281,8 +314,8 @@ onMounted(loadAchievements)
   border: 1.5px solid var(--kb-primary);
 }
 .ach-card.locked {
-  border: 1px solid var(--kb-border);
-  opacity: 0.85;
+  border: 1px dashed var(--kb-border);
+  /* 不再用全局 opacity 压暗，改用剪影效果保留可读性 */
 }
 .ach-card:hover {
   transform: translateY(-2px);
@@ -304,6 +337,41 @@ onMounted(loadAchievements)
 .ach-icon-wrap.locked {
   background: var(--kb-muted);
   color: var(--kb-muted-foreground);
+}
+
+/* P1-2：未解锁剪影效果 —— 保留图标但降饱和度 + 轻模糊，比纯 lock 更有期待感 */
+.ach-icon-wrap.silhouette {
+  background: var(--kb-muted);
+  color: var(--kb-muted-foreground);
+  filter: saturate(0.4) blur(0.3px);
+  opacity: 0.6;
+  position: relative;
+}
+/* 剪影右上角加一个小锁角标，暗示「未解锁」状态 */
+.ach-icon-wrap.silhouette::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--kb-muted-foreground);
+  border: 2px solid var(--kb-card);
+}
+
+/* P1-2：未解锁进度条用 highlight 色，暗示「接近解锁」的期待感 */
+.ach-progress-fill.highlight-fill {
+  background: linear-gradient(90deg, var(--kb-highlight), #FF9A59);
+}
+
+/* 高光文字（再努力 X 即可解锁） */
+.highlight-text {
+  color: var(--kb-highlight);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 500;
 }
 
 .ach-badge {

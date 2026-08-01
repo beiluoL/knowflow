@@ -1,5 +1,5 @@
 // 学习模块请求层：封装学习路径、章节、闪卡与复习计划等接口调用。
-import { apiGet, apiPost, apiPut, apiDelete, apiDeleteWithBody } from './request'
+import { apiGet, apiPost, apiPut, apiDelete, apiDeleteWithBody, apiUpload } from './request'
 import type {
   LearningPathVO,
   LearningChapterVO,
@@ -13,6 +13,9 @@ import type {
   DailyActivityVO,
   MasteryDistributionVO,
   PersonalizedPathVO,
+  ChapterDagVO,
+  LearningCertificateVO,
+  LearningReportData,
 } from './types'
 
 export const learningApi = {
@@ -23,12 +26,20 @@ export const learningApi = {
   chapters: (pathId: number) => apiGet<LearningChapterVO[]>(`/learning/paths/${pathId}/chapters`),
   chapterDetail: (id: number) => apiGet<LearningChapterVO>(`/learning/chapters/${id}`),
   completeChapter: (id: number) => apiPost<void>(`/learning/chapters/${id}/complete`),
+  // L-FORM-01 章节嵌入视频：上报观看进度（0-100），返回当前累计进度
+  updateVideoProgress: (id: number, progress: number) =>
+    apiPost<number>(`/learning/chapters/${id}/video-progress?progress=${progress}`),
+  // L-PATH-03 DAG 可视化：章节依赖关系图
+  dag: (pathId: number) => apiGet<ChapterDagVO>(`/learning/paths/${pathId}/dag`),
   flashcards: (pathId?: number, chapterId?: number) =>
     apiGet<FlashcardVO[]>('/learning/flashcards', { pathId, chapterId }),
   // C① 学习活跃度热力图（按日期聚合）
   dailyActivity: (days = 120) => apiGet<DailyActivityVO[]>('/learning/stats/daily-activity', { days }),
   // C① 掌握分布看板
   mastery: () => apiGet<MasteryDistributionVO>('/learning/stats/mastery'),
+  // 学习报告（周期：week 本周 / month 本月 / all 全部）
+  getReport: (period: 'week' | 'month' | 'all') =>
+    apiGet<LearningReportData>('/learning/report', { period }),
   // SM-2 间隔重复复习：quality ∈ [0,5]，<3 重置，3=有印象，5=完全掌握
   reviewFlashcard: (id: number, quality: number) =>
     apiPost<void>(`/learning/flashcards/${id}/review?quality=${quality}`),
@@ -69,6 +80,18 @@ export const learningApi = {
     apiPost<FlashcardVO[]>('/learning/my/flashcards/generate', data),
   importMyFlashcards: (cards: FlashcardInput[]) =>
     apiPost<{ inserted: number }>('/learning/my/flashcards/import', cards),
+  /**
+   * 导入 Anki .apkg 文件
+   * @param file .apkg 文件
+   * @param onProgress 上传进度回调（0-100）
+   */
+  importApkg: (file: File, onProgress?: (percent: number) => void) =>
+    apiUpload<{ inserted: number; total: number }>(
+      '/learning/my/flashcards/import-apkg',
+      file,
+      {},
+      onProgress,
+    ),
   exportMyFlashcards: () => apiGet<FlashcardVO[]>('/learning/my/flashcards/export'),
 
   // ============================================================
@@ -87,4 +110,15 @@ export const learningApi = {
   /** 删除我的一条个性化路径推荐 */
   deletePersonalizedPath: (id: number) =>
     apiDelete<void>(`/learning/personalized-path/${id}`),
+
+  // ============================================================
+  // 数字证书（G-CERT-01）
+  // ============================================================
+  /** 我的数字证书列表 */
+  certificates: () => apiGet<LearningCertificateVO[]>('/learning/certificates'),
+  /** 数字证书详情 */
+  certificateDetail: (id: number) => apiGet<LearningCertificateVO>(`/learning/certificates/${id}`),
+  /** 按验证码验证证书（可匿名核验真伪） */
+  verifyCertificate: (certNo: string) =>
+    apiGet<LearningCertificateVO>(`/learning/certificates/verify?certNo=${encodeURIComponent(certNo)}`),
 }

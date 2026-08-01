@@ -59,9 +59,12 @@
             </button>
             <!-- 我的个性化路径历史：可查看 / 去学习 / 删除已生成的记录 -->
             <div v-if="personalizedHistory.length" class="history-section">
-              <h5 class="history-title">我的个性化路径</h5>
+              <h5 class="history-title">
+                <Icon name="sparkles" :size="14" class="highlight-text" />
+                我的个性化路径
+              </h5>
               <div class="history-list">
-                <div v-for="item in personalizedHistory" :key="item.id" class="history-item">
+                <div v-for="item in personalizedHistory" :key="item.id" class="history-item ai-path-item">
                   <div class="history-info" @click="viewHistoryPath(item)">
                     <span class="history-name">{{ item.title }}</span>
                     <span class="history-meta">{{ item.level }} · {{ item.chapters.length }} 章节 · {{ formatDuration(item.totalDuration) }}</span>
@@ -137,6 +140,11 @@
                     <p v-if="ch.focus" class="chapter-focus">
                       <Icon name="target" :size="12" />
                       <span>重点：{{ ch.focus }}</span>
+                    </p>
+                    <!-- AI 推断的章节前置依赖，采用路径后将生成依赖图谱 -->
+                    <p v-if="ch.prerequisiteSortOrders?.length" class="chapter-prereq">
+                      <Icon name="git-branch" :size="12" />
+                      <span>前置：{{ formatPrerequisites(ch.prerequisiteSortOrders) }}</span>
                     </p>
                   </div>
                 </div>
@@ -261,20 +269,36 @@
             </span>
           </div>
 
-          <!-- 进度行：进度条 + 百分比 + 状态/按钮 -->
+          <!-- 进度行：进度条 + 百分比 + 状态/按钮（报名前→报名学习；报名后→开始学习/学习中） -->
           <div class="path-progress-row">
-            <template v-if="path.progress > 0">
-              <div class="progress-wrap">
-                <div class="progress-track">
-                  <div class="progress-fill" :style="{ width: `${path.progress}%`, background: getThemeColor(path.id) }"></div>
+            <template v-if="path.enrolled">
+              <!-- 已报名且已有进度：进度条 + 学习中 -->
+              <template v-if="path.progress > 0">
+                <div class="progress-wrap">
+                  <div class="progress-track">
+                    <div class="progress-fill" :style="{ width: `${path.progress}%`, background: getThemeColor(path.id) }"></div>
+                  </div>
+                  <span class="progress-text" :style="{ color: getThemeColor(path.id) }">{{ path.progress }}%</span>
                 </div>
-                <span class="progress-text" :style="{ color: getThemeColor(path.id) }">{{ path.progress }}%</span>
-              </div>
-              <span class="status-learning">学习中</span>
+                <span class="status-learning">学习中</span>
+              </template>
+              <!-- 已报名但未开始：进入详情开始学习 -->
+              <template v-else>
+                <span class="status-not-started">未开始</span>
+                <button class="start-btn" @click.stop="goToPathDetail(path.id)">开始学习</button>
+              </template>
             </template>
+            <!-- 未报名：列表内直接报名 -->
             <template v-else>
-              <span class="status-not-started">未开始</span>
-              <button class="start-btn" @click.stop="goToPathDetail(path.id)">开始学习</button>
+              <span class="status-not-started">未报名</span>
+              <button
+                class="enroll-btn"
+                :disabled="enrollLoadingIds.has(path.id)"
+                @click.stop="enrollPath(path)"
+              >
+                <Icon v-if="enrollLoadingIds.has(path.id)" name="loader" :size="14" class="spin" />
+                {{ enrollLoadingIds.has(path.id) ? '报名中…' : '报名学习' }}
+              </button>
             </template>
           </div>
         </div>
@@ -305,6 +329,9 @@ interface ViewPath {
   chaptersCount: number;
   totalDuration: number;
   enrolledCount: number;
+  /** 当前登录用户是否已报名 */
+  enrolled: boolean;
+  /** 当前登录用户的学习进度百分比（0~100）；未报名时为 0 */
   progress: number;
 }
 
@@ -334,7 +361,8 @@ const paths = computed<ViewPath[]>(() =>
     chaptersCount: p.chapterCount || 0,
     totalDuration: p.totalDuration || 0,
     enrolledCount: p.enrolledCount || 0,
-    progress: 0,
+    enrolled: p.enrolled ?? false,
+    progress: p.progress || 0,
   }))
 );
 
@@ -431,6 +459,11 @@ function getCoverStyle(path: ViewPath): Record<string, string> {
   return { background: gradients[path.id % 6] || gradients[0], '--theme-color': color };
 }
 
+// AI 推断的前置章节序号 → 「第 1 章、第 2 章」
+function formatPrerequisites(sortOrders: number[]): string {
+  return sortOrders.map((order) => `第 ${order} 章`).join('、');
+}
+
 // 分钟数格式化为「x小时y分」或「x分钟」
 function formatDuration(minutes: number): string {
   if (!minutes) return '0 小时';
@@ -497,6 +530,31 @@ async function regeneratePersonalizedPath() {
     notify(getApiError(e, '重新生成失败'), 'error');
   } finally {
     personalizedLoading.value = false;
+  }
+}
+
+/** 正在报名中的路径 id 集合，用于禁用对应按钮、防止重复点击。 */
+const enrollLoadingIds = ref<Set<number>>(new Set());
+
+/** 列表内直接报名：成功后原地把 enrolled 置为 true，按钮变为「开始学习」。 */
+async function enrollPath(path: ViewPath): Promise<void> {
+  if (enrollLoadingIds.value.has(path.id)) return;
+  enrollLoadingIds.value = new Set(enrollLoadingIds.value).add(path.id);
+  try {
+    await learningApi.enroll(path.id);
+    // 报名成功：更新本地视图，按钮原地切换为「开始学习」
+    const target = rawPaths.value.find((p) => p.id === path.id);
+    if (target) {
+      target.enrolled = true;
+      if (target.progress === undefined) target.progress = 0;
+    }
+    notify('报名成功，开始学习吧！', 'success');
+  } catch (e: unknown) {
+    notify(getApiError(e, '报名失败'), 'error');
+  } finally {
+    const next = new Set(enrollLoadingIds.value);
+    next.delete(path.id);
+    enrollLoadingIds.value = next;
   }
 }
 
@@ -824,6 +882,27 @@ onMounted(async () => {
 }
 .start-btn:hover { opacity: 0.9; }
 
+/* 列表内「报名学习」按钮：强调色区分于「开始学习」 */
+.enroll-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: var(--kb-radius-sm);
+  background: var(--kb-accent);
+  color: var(--kb-accent-foreground);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.enroll-btn:hover:not(:disabled) { opacity: 0.9; }
+.enroll-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* 图标旋转（报名加载中） */
+.spin { animation: spin 0.8s linear infinite; display: inline-block; }
+
 /* ===== AI 个性化路径按钮 ===== */
 .ai-path-btn {
   display: inline-flex;
@@ -833,14 +912,35 @@ onMounted(async () => {
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
-  background: linear-gradient(135deg, #3b6fe0, #6366f1);
+  /* P1-4：AI 入口用主色 + highlight 暖橘双色渐变，区别于普通操作按钮 */
+  background: linear-gradient(135deg, var(--kb-primary), var(--kb-highlight));
   color: #fff;
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   white-space: nowrap;
+  position: relative;
+  overflow: hidden;
 }
-.ai-path-btn:hover { opacity: 0.9; }
+/* 渐变光晕扫过动效，暗示「AI 智能」感 */
+.ai-path-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  animation: shimmer 3s infinite;
+}
+@keyframes shimmer {
+  0% { left: -100%; }
+  50%, 100% { left: 100%; }
+}
+.ai-path-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(255, 107, 53, 0.3);
+}
 
 /* ===== 弹窗 ===== */
 .modal-overlay {
@@ -1023,6 +1123,14 @@ onMounted(async () => {
   font-size: 12px;
   color: var(--kb-primary);
 }
+.chapter-prereq {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--kb-muted-foreground);
+}
 .result-advice {
   font-size: 13px;
   color: var(--kb-muted-foreground);
@@ -1090,6 +1198,26 @@ onMounted(async () => {
   background: var(--kb-card);
 }
 .history-item:hover { border-color: var(--kb-primary); }
+
+/* P1-4：AI 个性化路径卡片差异化 —— highlight 边框 + 暖橘色背景，视觉上与普通路径明显区分 */
+.history-item.ai-path-item {
+  border: 1px solid var(--kb-highlight-border);
+  background: linear-gradient(135deg, var(--kb-card), var(--kb-highlight-soft));
+  position: relative;
+}
+.history-item.ai-path-item::before {
+  content: '✨';
+  position: absolute;
+  top: -6px;
+  right: 8px;
+  font-size: 12px;
+  filter: drop-shadow(0 1px 2px rgba(255, 107, 53, 0.3));
+}
+.history-item.ai-path-item:hover {
+  border-color: var(--kb-highlight);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.15);
+}
 .history-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; cursor: pointer; flex: 1; }
 .history-name { font-size: 13px; font-weight: 500; color: var(--kb-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .history-meta { font-size: 12px; color: var(--kb-muted-foreground); }

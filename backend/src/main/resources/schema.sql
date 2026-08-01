@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS learning_flashcard (
     category VARCHAR(50) COMMENT '用户自定义分类标签',
     difficulty INT DEFAULT 1 COMMENT '难度：1简单 2中等 3困难',
     tags VARCHAR(500) COMMENT '逗号分隔的自定义标签',
-    source_type VARCHAR(20) DEFAULT 'MANUAL' COMMENT '来源：MANUAL/AI_DOC/AI_KB/IMPORT',
+    source_type VARCHAR(20) DEFAULT 'MANUAL' COMMENT '来源：MANUAL/AI_DOC/AI_KB/IMPORT/ANKI',
     review_count INT DEFAULT 0 COMMENT '已复习次数',
     review_interval INT DEFAULT 0 COMMENT '当前复习间隔（天，间隔重复算法）',
     next_review_time TIMESTAMP COMMENT '下次应复习时间',
@@ -816,6 +816,9 @@ CREATE INDEX IF NOT EXISTS idx_dc_doc_order ON doc_chunk (doc_id, chunk_index);
 -- L-PATH-01 章节前置依赖：在 learning_chapter 表添加前置章节ID列表
 ALTER TABLE learning_chapter ADD COLUMN IF NOT EXISTS prerequisite_chapter_ids VARCHAR(500) DEFAULT NULL COMMENT '前置章节ID列表，逗号分隔（如 "1,3,5"），全部完成后该章节才可学习';
 
+-- L-FORM-01 章节嵌入视频进度追踪：在用户章节进度表添加视频观看进度（0-100）
+ALTER TABLE learning_user_chapter ADD COLUMN IF NOT EXISTS video_progress DECIMAL(5,2) DEFAULT 0 COMMENT '视频观看进度百分比(0-100)，达标后允许完成章节';
+
 -- ========== 代码提交记录（P-CODE-03 代码判题记录持久化）==========
 CREATE TABLE IF NOT EXISTS code_submit_record (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -868,3 +871,21 @@ CREATE TABLE IF NOT EXISTS kg_relation (
 CREATE INDEX IF NOT EXISTS idx_kg_rel_source ON kg_relation (source_entity_id);
 CREATE INDEX IF NOT EXISTS idx_kg_rel_target ON kg_relation (target_entity_id);
 CREATE INDEX IF NOT EXISTS idx_kg_rel_doc ON kg_relation (doc_id);
+
+-- ========== 数字证书（G-CERT-01：路径完成后自动颁发）==========
+CREATE TABLE IF NOT EXISTS learning_certificate (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '持证用户ID（逻辑外键 sys_user.id）',
+    path_id BIGINT NOT NULL COMMENT '完成的学习路径ID（逻辑外键 learning_path.id）',
+    cert_no VARCHAR(64) NOT NULL COMMENT '唯一证书验证码（可公开验证）',
+    path_title VARCHAR(200) NOT NULL COMMENT '路径标题快照（颁发时固化，避免路径改名影响证书）',
+    user_name VARCHAR(50) NOT NULL COMMENT '持证用户名快照',
+    issue_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '颁发时间',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_cert_no ON learning_certificate (cert_no);
+CREATE INDEX IF NOT EXISTS idx_cert_user ON learning_certificate (user_id);
+CREATE INDEX IF NOT EXISTS idx_cert_path ON learning_certificate (path_id);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_cert_user_path ON learning_certificate (user_id, path_id, deleted);

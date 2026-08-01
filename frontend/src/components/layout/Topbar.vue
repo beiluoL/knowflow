@@ -1,5 +1,5 @@
 <template>
-  <header class="sticky top-0 z-30 h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-8">
+  <header class="sticky top-0 z-30 h-14 kb-region-topbar flex items-center justify-between px-4 lg:px-8">
     <div class="flex items-center gap-3">
       <button
         type="button"
@@ -33,6 +33,17 @@
     </div>
 
     <div class="flex items-center gap-3 shrink-0">
+      <!-- P3-1：主题切换 -->
+      <button
+        type="button"
+        class="w-9 h-9 rounded-lg flex items-center justify-center border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+        :aria-label="isDark ? '切换到浅色模式' : '切换到深色模式'"
+        :title="isDark ? '切换到浅色模式' : '切换到深色模式'"
+        @click="toggleTheme"
+      >
+        <Icon :name="isDark ? 'sun' : 'moon'" :size="18" class="text-gray-500" />
+      </button>
+
       <button
         v-if="isLoggedIn"
         type="button"
@@ -166,6 +177,7 @@ import Icon from '@/components/ui/Icon.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notification'
 import { notify } from '@/utils/toast'
+import { useTheme } from '@/composables/useTheme'
 
 defineEmits<{
   'toggle-sidebar': []
@@ -174,6 +186,10 @@ defineEmits<{
 const router = useRouter()
 const auth = useAuthStore()
 const notificationStore = useNotificationStore()
+
+// P3-1：主题切换
+const { theme, toggleTheme } = useTheme()
+const isDark = computed(() => theme.value === 'dark')
 
 const searchQuery = ref('')
 const showNotifications = ref(false)

@@ -61,4 +61,39 @@ public final class UploadHelper {
         result.put("fileType", file.getContentType());
         return result;
     }
+
+    /**
+     * 保存字节数组为文件（用于 Anki .apkg 解压后的媒体文件落盘）。
+     *
+     * @param data             文件字节数组
+     * @param originalFilename 原始文件名（用于推断扩展名）
+     * @param uploadDir        上传根目录
+     * @return 可访问的 URL（如 /uploads/anki/2026/08/01/uuid.png）
+     * @throws IOException 写入失败时抛出
+     */
+    public static String saveBytes(byte[] data, String originalFilename, String uploadDir) throws IOException {
+        if (data == null || data.length == 0) {
+            throw new IOException("文件内容为空");
+        }
+        // Anki 媒体统一放在 anki 子目录下，与其他上传文件隔离
+        Path baseDir = Paths.get(uploadDir, "anki").toAbsolutePath().normalize();
+        String dateDir = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        Path uploadPath = baseDir.resolve(dateDir);
+        Files.createDirectories(uploadPath);
+
+        // 从原始文件名取扩展名
+        String extension = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+        if (extension.length() > 20) {
+            extension = "";
+        }
+        String newFilename = UUID.randomUUID().toString() + extension;
+        Path filePath = uploadPath.resolve(newFilename);
+
+        Files.copy(new java.io.ByteArrayInputStream(data), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return "/uploads/anki/" + dateDir + "/" + newFilename;
+    }
 }

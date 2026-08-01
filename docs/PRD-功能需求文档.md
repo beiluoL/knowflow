@@ -40,13 +40,13 @@ KnowFlow 是一个以 AI 驱动的知识学习平台，核心目标是构建「�
 
 | 模块 | 已实现 | 部分实现 | 未实现 |
 |------|--------|----------|--------|
-| 智能学习门户 | 学习路径 CRUD、AI 生成路径/章节/闪卡 | 个性化学习路径（无 DAG） | 自适应课程内容、多元化课程形式 |
+| 智能学习门户 | 学习路径 CRUD、AI 生成路径/章节/闪卡、**DAG 依赖图可视化** | 自适应课程内容、嵌入视频/互动讲义 | 多元化课程形式 |
 | 沉浸式学习助手 | 文档上传+Tika 解析、文字 AI 答疑、知识图谱（实体关系抽取） | AI 伴学（语音/图片不完整）、RAG（仅 LIKE） | 真正 RAG 向量检索、实时学习反馈 |
 | 实战演练场 | 题库 CRUD、AI 出题、在线答题判分、浏览器端代码执行、多语言在线沙箱、AI 评估/调试/错题归集、编程挑战闯关 | 智能出题（简答 AI 评分未实现） | AI 模型实训、自动评分 |
-| 学习成果度量衡 | 学习仪表盘、错题本 | 学习画像（无知识点掌握度） | — |
-| 社区与激励体系 | 社区帖子/评论/点赞、学习小组、私信、每日打卡 | 游戏化（level/exp 有，勋章/通用排行 mock） | 竞赛中心、作品与证书 |
+| 学习成果度量衡 | 学习仪表盘、错题本、知识画像（知识点掌握度）、数字证书 | 学习画像（部分分类掌握度） | 全局学习成果汇总 |
+| 社区与激励体系 | 社区帖子/评论/点赞、学习小组、私信、每日打卡、成就/勋章、排行榜 | 游戏化（通用分类排行未全落地） | 竞赛中心、作品展示 |
 
-**统计**：已实现 24 项，部分实现 2 项，未实现 1 项，共计 27 项功能点。
+**统计**：已实现 29 项，部分实现 2 项，未实现 1 项，共计 32 项功能点（较 2026-07-30 新增学习门户增强 L-FORM-01/02、A-FB-01/02 与数字证书 G-CERT-01）。
 
 ---
 
@@ -61,8 +61,9 @@ KnowFlow 是一个以 AI 驱动的知识学习平台，核心目标是构建「�
 - ✅ 已有：`learning_path` / `learning_chapter` / `learning_user_path` / `learning_user_chapter` 四张表
 - ✅ 已有：`AdminLearningController.aiGeneratePath()` 支持 AI 基于主题+知识库文档自动生成学习路径及章节
 - ✅ 已有：用户报名路径、章节逐个完成、进度百分比追踪
-- ❌ 缺失：**知识依赖图（DAG）** — 章节仅线性 `sortOrder` 排序，无 `prerequisite` 字段，无法表达"A 必须先于 B 完成"的依赖关系
-- ❌ 缺失：**前置知识解锁机制** — 用户无法被强制要求掌握前置知识后才能解锁后续内容
+- ✅ 已实现：**知识依赖图（DAG）** — `learning_chapter.prerequisite_chapter_ids` 支持多前置节点（L-PATH-01），前端路径详情页用 dagre 布局 + 自绘 SVG 渲染交互式依赖图谱（拖拽/缩放/悬停高亮/全屏，按完成/可学/锁定三态着色），后端 `GET /api/learning/paths/{pathId}/dag` 返回节点+边
+- ✅ 已实现：**AI 自动推断章节依赖（L-PATH-04）** — 个性化路径生成时 AI 输出 `prerequisiteSortOrders`，采用路径时解析为真实章节 ID 写入 `prerequisite_chapter_ids`（过滤自引用与后向依赖保证无环）
+- ✅ 已实现：**前置知识解锁机制** — `getChapterList/Detail` 计算 `locked`，`completeChapter` 强制前置校验（L-PATH-02）
 
 **需求定义**：
 
@@ -70,8 +71,8 @@ KnowFlow 是一个以 AI 驱动的知识学习平台，核心目标是构建「�
 |---------|---------|--------|
 | L-PATH-01 | 学习路径章节增加前置依赖关系（DAG），支持多前置节点 | P2 |
 | L-PATH-02 | 章节解锁逻辑：前置章节全部完成后才允许学习当前章节 | P2 |
-| L-PATH-03 | 路径可视化展示 DAG 图（前端 dagre/d3 渲染） | P3 |
-| L-PATH-04 | AI 生成路径时自动推断章节依赖关系 | P3 |
+| L-PATH-03 | 路径可视化展示 DAG 图（前端 dagre 布局 + 自绘 SVG 交互式渲染章节依赖关系）✅ 已实现(2026-07-31) | P3 |
+| L-PATH-04 | AI 生成路径时自动推断章节依赖关系 ✅ 已实现(2026-07-31) | P3 |
 
 **数据模型变更建议**：
 ```sql
@@ -297,9 +298,9 @@ CREATE INDEX idx_ar_question ON quiz_answer_record (question_id);
 **现状**：🟡 部分实现
 
 - ✅ 已有：`sys_user` 表 level/exp/energy/streak_days 字段
-- ❌ 缺失：**成就/勋章系统** — `Achievement.vue` 使用 mock 数据，后端无成就接口
+- ✅ 已有：**成就/勋章系统**（2026-07-30 已实现）— `achievement` + `user_achievement` 表，`Achievement.vue` 已接入真实 API（列表/进度/筛选/解锁时间线），路径完成/阅读/打卡等事件自动解锁
 - ✅ 已有：**每日打卡** — `CheckInController` + `user_check_in` 表已实现真实签到/连续天数/奖励（2026-07-30 已实现）
-- ❌ 缺失：**通用排行榜** — 仅编程挑战模块 `ChallengeRankVO` 有真实排行榜后端，全局经验/阅读/打卡排行仍缺失
+- ❌ 缺失：**通用排行榜** — 仅编程挑战模块 `ChallengeRankVO` 有真实排行榜后端，全局经验/阅读/打卡排行仍缺失（G-RANK-01 已实现按 exp 降序 Top N，分类排行仍缺失）
 
 **需求定义**：
 
@@ -367,7 +368,7 @@ CREATE UNIQUE INDEX uk_ua_user_ach ON user_achievement (user_id, achievement_id)
 
 #### 3.5.3 作品与证书
 
-**现状**：❌ 未实现
+**现状**：🟡 部分实现（数字证书 G-CERT-01 已实现，作品展示 G-WORK-01 未实现）
 
 **需求定义**：
 
@@ -428,21 +429,21 @@ CREATE UNIQUE INDEX uk_ua_user_ach ON user_achievement (user_id, achievement_id)
 
 | 编号 | 功能 | 模块 | 说明 |
 |------|------|------|------|
-| L-PATH-03 | DAG 可视化 | 学习门户 | dagre/d3 渲染依赖图 |
-| L-PATH-04 | AI 推断依赖关系 | 学习门户 | AI 生成路径时自动推断 DAG |
+| L-PATH-03 | DAG 可视化 | 学习门户 | ✅ 已实现(2026-07-31)：`GET /api/learning/paths/{pathId}/dag` 返回节点+边，前端 `DagGraph.vue`（dagre 分层布局 + 自绘 SVG）交互式渲染，支持拖拽 / 缩放 / 悬停高亮 / 全屏，按完成/可学/锁定三态着色 |
+| L-PATH-04 | AI 推断依赖关系 | 学习门户 | ✅ 已实现(2026-07-31)：AI 输出 `prerequisiteSortOrders`，采用路径时两阶段落地为 `prerequisite_chapter_ids`，过滤自引用与后向依赖保证无环 |
 | L-ADAPT-01 | 内容难度分级 | 学习门户 | 按掌握度展示对应难度 |
 | L-ADAPT-02 | 低正确率推荐复习 | 学习门户 | 自动推荐闪卡/前置章节 |
 | L-ADAPT-03 | 章节末尾补充练习 | 学习门户 | 动态生成练习题 |
-| L-FORM-01 | 嵌入视频 | 学习门户 | 外链 iframe+进度追踪 |
-| L-FORM-02 | 互动讲义 | 学习门户 | Markdown+内嵌代码+内嵌测验 |
-| A-RAG-04 | 知识图谱升级 | 学习助手 | AI 实体关系抽取 |
-| A-FB-01 | 相关概念推荐 | 学习助手 | 章节右侧推荐 |
-| A-FB-02 | 章节内嵌测验 | 学习助手 | 每节结束弹出测验 |
+| L-FORM-01 | 嵌入视频 | 学习门户 | ✅ 已实现(2026-07-31)：`learning_user_chapter.video_progress` 字段 + `POST /api/learning/chapters/{id}/video-progress` 进度上报，正文 `[video](url)` 约定语法渲染外链 iframe，达标自动提示完成章节 |
+| L-FORM-02 | 互动讲义 | 学习门户 | ✅ 已实现(2026-07-31)：正文 ` ```js-run ` 代码块浏览器端执行输出、` ```quiz-run ` 代码块即时判分测验 |
+| A-RAG-04 | 知识图谱升级 | 学习助手 | ✅ 已实现(2026-07-30)：`kg_entity`/`kg_relation` 表 + AI 实体关系抽取（正文 3.2.2 已注明落地） |
+| A-FB-01 | 相关概念推荐 | 学习助手 | ✅ 已实现(2026-07-31)：章节学习页右侧「相关概念」标签 +「相关文档」列表（按章节标题关键词检索） |
+| A-FB-02 | 章节内嵌测验 | 学习助手 | ✅ 已实现(2026-07-31)：` ```quiz-run ` 约定语法在每节末尾内嵌即时测验，提交后即时判分+解析反馈 |
 | G-COMP-01 | 竞赛管理 | 社区激励 | 竞赛创建+规则设定 |
 | G-COMP-02 | 竞赛答题+排名 | 社区激励 | 在线答题+实时排名 |
 | G-COMP-03 | 竞赛成绩公示 | 社区激励 | 结束后公示+奖励 |
 | G-WORK-01 | 作品展示 | 社区激励 | 项目截图+描述 |
-| G-CERT-01 | 数字证书 | 社区激励 | 路径完成自动颁发 |
+| G-CERT-01 | 数字证书 | 社区激励 | ✅ 已实现(2026-07-31)：`learning_certificate` 表 + 路径完成自动颁发（唯一验证码 KC-xxx）+ `GET /api/learning/certificates` 列表/详情 + `verify` 匿名核验 + 前端 `Certificate.vue` canvas 生成证书图可下载 |
 | SC1-GRAPH-01 | 技术栈依赖图谱 | 智能学习门户 | 语言/框架/库依赖关系网（复用图谱外壳） |
 | SC1-GRAPH-03 | 概念可视化图解 | 智能学习门户 | 变量/条件判断/数据模型等图解讲解 |
 
@@ -613,8 +614,8 @@ CREATE UNIQUE INDEX uk_ua_user_ach ON user_achievement (user_id, achievement_id)
 | 代码练习 | `frontend/src/views/CodePlayground.vue` |
 | 知识图谱 | `frontend/src/views/KnowledgeGraph.vue` |
 | 错题本 | `frontend/src/views/Mistakes.vue` |
-| 成就（mock） | `frontend/src/views/Achievement.vue` |
-| 打卡（mock） | `frontend/src/views/CheckIn.vue` |
+| 成就 | `frontend/src/views/Achievement.vue`（已接入真实 API） |
+| 打卡 | `frontend/src/views/CheckIn.vue`（已接入真实 API） |
 | 文档详情 | `frontend/src/views/DocDetail.vue` |
 | 我的闪卡 | `frontend/src/views/MyFlashcards.vue` |
 

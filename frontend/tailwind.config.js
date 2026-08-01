@@ -43,6 +43,19 @@ export default {
           600: '#DC2626',
           700: '#B91C1C',
         },
+        // Signature highlight：高光时刻标识色（成就/打卡火焰/AI 推荐）
+        // 与 style.css --kb-* 保持一致，禁止色值漂移
+        highlight: {
+          50: '#FFF4EE',
+          100: '#FFE6D5',
+          200: '#FFCDA8',
+          300: '#FFB380',
+          400: '#FF9A59',
+          500: '#FF6B35',
+          600: '#E85420',
+          700: '#BF4214',
+          soft: 'rgba(255, 107, 53, 0.10)',
+        },
         gray: {
           50: '#F9FAFB',
           100: '#F3F4F6',
@@ -84,6 +97,29 @@ export default {
           '"Helvetica Neue"',
           'Arial',
           'sans-serif',
+        ],
+        // 展示标题：杂志感衬线，用于 H1/H2/H3（配合 font-serif class 或 kb-h* 工具类）
+        serif: [
+          '"Noto Serif SC"',
+          'Georgia',
+          '"Times New Roman"',
+          'serif',
+        ],
+        // Hero 大标题专用：比 serif 更重更紧（900 字重），用于首页 Hero、登录页标题
+        display: [
+          '"Noto Serif SC"',
+          'Georgia',
+          '"Times New Roman"',
+          'serif',
+        ],
+        // 代码与数字列：等宽带连字
+        mono: [
+          '"JetBrains Mono"',
+          '"Fira Code"',
+          '"SF Mono"',
+          'Menlo',
+          'Consolas',
+          'monospace',
         ],
       },
     },

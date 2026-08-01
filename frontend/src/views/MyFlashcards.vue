@@ -50,6 +50,7 @@
           <option value="AI_DOC">AI · 文档</option>
           <option value="AI_KB">AI · 知识库</option>
           <option value="IMPORT">批量导入</option>
+          <option value="ANKI">Anki 导入</option>
         </select>
         <select v-model="filters.categoryId" class="kb-select" @change="reload">
           <option :value="undefined">全部知识库</option>
@@ -176,7 +177,7 @@
               </td>
               <td class="tabular-nums text-muted">{{ idx + 1 }}</td>
               <td>
-                <div class="cell-front" :title="c.front">
+                <div class="cell-front" :title="plainText(c.front)">
                   <span v-if="c.tags" class="mini-tags">
                     <span
                       v-for="t in splitTags(c.tags).slice(0, 2)"
@@ -184,11 +185,11 @@
                       class="mini-tag"
                     >#{{ t }}</span>
                   </span>
-                  {{ truncate(c.front || '', 60) }}
+                  {{ truncate(plainText(c.front), 60) }}
                 </div>
               </td>
               <td>
-                <div class="cell-back" :title="c.back">{{ truncate(c.back || '', 70) }}</div>
+                <div class="cell-back" :title="plainText(c.back)">{{ truncate(plainText(c.back), 70) }}</div>
               </td>
               <td>
                 <span class="diff-badge" :class="diffClass(c.difficulty)">{{ diffLabel(c.difficulty) }}</span>
@@ -256,7 +257,7 @@
                   </button>
                 </div>
               </div>
-              <h3 class="fc-front-title">{{ c.front }}</h3>
+              <h3 class="fc-front-title" v-html="sanitize(c.front)"></h3>
               <div class="fc-face-bottom">
                 <div class="fc-tags">
                   <span v-for="t in splitTags(c.tags || '')" :key="t" class="fc-tag">#{{ t }}</span>
@@ -281,7 +282,7 @@
                   </button>
                 </div>
               </div>
-              <div class="fc-back-content">{{ c.back }}</div>
+              <div class="fc-back-content" v-html="sanitize(c.back)"></div>
               <div class="fc-face-bottom">
                 <div class="fc-meta">
                   <Icon name="calendar" :size="12" />
@@ -477,27 +478,97 @@
           </button>
         </header>
         <div class="modal-body">
-          <div class="import-hint">
-            <p><b>支持 JSON 数组格式</b>，每张卡必填 <code>front</code>（正面）和 <code>back</code>（背面）；可选字段：<code>difficulty</code>(1/2/3)、<code>category</code>、<code>tags</code>（逗号分隔）。</p>
-            <p><b>示例：</b></p>
+          <!-- 模式切换 Tab -->
+          <div class="seg-group import-tabs" role="tablist" aria-label="导入方式切换">
+            <button
+              type="button"
+              class="seg-btn"
+              :class="{ active: importDialog.mode === 'json' }"
+              role="tab"
+              @click="switchImportMode('json')"
+            >JSON 文本</button>
+            <button
+              type="button"
+              class="seg-btn"
+              :class="{ active: importDialog.mode === 'apkg' }"
+              role="tab"
+              @click="switchImportMode('apkg')"
+            >Anki .apkg</button>
+          </div>
+
+          <!-- JSON 文本模式 -->
+          <template v-if="importDialog.mode === 'json'">
+            <div class="import-hint">
+              <p><b>支持 JSON 数组格式</b>，每张卡必填 <code>front</code>（正面）和 <code>back</code>（背面）；可选字段：<code>difficulty</code>(1/2/3)、<code>category</code>、<code>tags</code>（逗号分隔）。</p>
+              <p><b>示例：</b></p>
 <pre class="sample-block">[
   { "front": "Q1", "back": "A1", "difficulty": 2, "tags": "标签1,标签2" },
   { "front": "Q2", "back": "A2", "category": "前端" }
 ]</pre>
-          </div>
-          <textarea
-            v-model="importDialog.jsonText"
-            rows="14"
-            class="kb-textarea"
-            placeholder="粘贴 JSON 数组…"
-          ></textarea>
+            </div>
+            <textarea
+              v-model="importDialog.jsonText"
+              rows="14"
+              class="kb-textarea"
+              placeholder="粘贴 JSON 数组…"
+            ></textarea>
+          </template>
+
+          <!-- Anki .apkg 模式 -->
+          <template v-else>
+            <div class="import-hint">
+              <p><b>支持 Anki 导出的 .apkg 文件</b>，自动解析牌组、字段与标签，支持图片与音频媒体，自动落盘并改写引用。</p>
+              <p>卡片中的 <code>&lt;img&gt;</code> 和 <code>[sound:]</code> 引用会自动改写为可访问 URL；<code>分类</code> 取自 Anki 牌组名，<code>标签</code> 取自 Anki 标签。</p>
+            </div>
+            <div class="apkg-upload">
+              <input
+                ref="apkgFileInput"
+                type="file"
+                accept=".apkg"
+                class="apkg-file-hidden"
+                @change="onApkgFileChange"
+              />
+              <button
+                type="button"
+                class="btn-secondary"
+                @click="apkgFileInput?.click()"
+              >
+                <Icon name="file-up" :size="14" />
+                <span>选择 .apkg 文件</span>
+              </button>
+              <div v-if="importDialog.apkgFile" class="apkg-file-info">
+                <Icon name="file-text" :size="14" />
+                <span class="apkg-file-name" :title="importDialog.apkgFile.name">{{ importDialog.apkgFile.name }}</span>
+                <span class="apkg-file-size">{{ formatFileSize(importDialog.apkgFile.size) }}</span>
+                <button
+                  type="button"
+                  class="icon-btn danger"
+                  title="移除"
+                  @click="clearApkgFile"
+                >
+                  <Icon name="x" :size="13" />
+                </button>
+              </div>
+            </div>
+            <!-- 上传进度条 -->
+            <div v-if="importDialog.apkgProgress > 0 && importing" class="apkg-progress">
+              <div class="apkg-progress-bar" :style="{ width: importDialog.apkgProgress + '%' }"></div>
+              <span class="apkg-progress-text">{{ importDialog.apkgProgress }}%</span>
+            </div>
+          </template>
+
           <p v-if="importDialog.parseError" class="parse-error">
             <Icon name="alert-circle" :size="14" /> {{ importDialog.parseError }}
           </p>
         </div>
         <footer class="modal-footer">
           <button type="button" class="btn-ghost" @click="closeImport">取消</button>
-          <button type="button" class="btn-primary" :disabled="importing" @click="doImport">
+          <button
+            type="button"
+            class="btn-primary"
+            :disabled="importing || (importDialog.mode === 'apkg' && !importDialog.apkgFile)"
+            @click="doImport"
+          >
             <Icon name="upload" :size="14" />
             <span>{{ importing ? '导入中…' : '确认导入' }}</span>
           </button>
@@ -520,6 +591,7 @@ import Icon from '@/components/ui/Icon.vue'
 import { learningApi } from '@/api/learning'
 import { categoriesApi } from '@/api/categories'
 import { docsApi } from '@/api'
+import { useSanitize } from '@/composables/useSanitize'
 import type { FlashcardVO, FlashcardInput, CategoryVO, DocVO } from '@/api/types'
 
 const router = useRouter()
@@ -584,9 +656,15 @@ const genDialog = reactive<{
 }>({ visible: false, source: 'kb', count: 10, difficultyPreference: 0 })
 const importDialog = reactive<{
   visible: boolean
+  mode: 'json' | 'apkg'
   jsonText: string
   parseError: string
-}>({ visible: false, jsonText: '', parseError: '' })
+  apkgFile: File | null
+  apkgProgress: number
+}>({ visible: false, mode: 'json', jsonText: '', parseError: '', apkgFile: null, apkgProgress: 0 })
+
+// Anki .apkg 文件 input 引用（用于触发文件选择对话框）
+const apkgFileInput = ref<HTMLInputElement | null>(null)
 const formData = reactive<FlashcardInput>({
   front: '',
   back: '',
@@ -824,13 +902,80 @@ const doGenerate = async () => {
 // ===================== Import / Export =====================
 const openImport = () => {
   importDialog.visible = true
+  importDialog.mode = 'json'
   importDialog.jsonText = ''
   importDialog.parseError = ''
+  importDialog.apkgFile = null
+  importDialog.apkgProgress = 0
 }
 const closeImport = () => {
   importDialog.visible = false
+  importDialog.apkgFile = null
+  importDialog.apkgProgress = 0
+  importDialog.parseError = ''
 }
+
+/** 切换导入模式时清空错误与对应输入 */
+const switchImportMode = (mode: 'json' | 'apkg') => {
+  importDialog.mode = mode
+  importDialog.parseError = ''
+  // 切换到 apkg 时不立即清空 jsonText，保留用户输入；切换到 json 时不清空已选文件
+}
+
+/** 选择 .apkg 文件 */
+const onApkgFileChange = (e: Event) => {
+  const input = e.target as HTMLInputElement
+  const file = input.files && input.files[0]
+  if (!file) return
+  if (!file.name.toLowerCase().endsWith('.apkg')) {
+    importDialog.parseError = '请选择 .apkg 格式的文件'
+    input.value = ''
+    return
+  }
+  importDialog.apkgFile = file
+  importDialog.parseError = ''
+}
+
+/** 移除已选 .apkg 文件 */
+const clearApkgFile = () => {
+  importDialog.apkgFile = null
+  importDialog.apkgProgress = 0
+  if (apkgFileInput.value) apkgFileInput.value.value = ''
+}
+
+/** 友好显示文件大小 */
+const formatFileSize = (bytes: number): string => {
+  if (bytes < 1024) return bytes + ' B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+}
+
 const doImport = async () => {
+  // Anki .apkg 模式
+  if (importDialog.mode === 'apkg') {
+    if (!importDialog.apkgFile) {
+      importDialog.parseError = '请先选择 .apkg 文件'
+      return
+    }
+    importing.value = true
+    importDialog.parseError = ''
+    importDialog.apkgProgress = 0
+    try {
+      const r = await learningApi.importApkg(importDialog.apkgFile, (p) => {
+        importDialog.apkgProgress = p
+      })
+      showToast(`成功导入 ${r.inserted} 张（共解析 ${r.total} 张）`)
+      closeImport()
+      reload()
+    } catch (e: unknown) {
+      showToast(getError(e, 'Anki 导入失败'), 'error')
+    } finally {
+      importing.value = false
+    }
+    return
+  }
+
+  // JSON 文本模式
   let arr: any[]
   try {
     if (!importDialog.jsonText.trim()) throw new Error('请粘贴 JSON 数组')
@@ -902,6 +1047,11 @@ const doExport = async () => {
 
 // ===================== Helpers =====================
 const truncate = (s: string, n = 40) => (s && s.length > n ? s.slice(0, n) + '…' : s)
+
+// Anki 卡片富文本净化（v-html 渲染用）+ 纯文本提取（列表预览用）
+const { sanitize } = useSanitize()
+const plainText = (html: string | undefined): string =>
+  (html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
 const splitTags = (s?: string) => (s ? s.split(/[,，]/).map(x => x.trim()).filter(Boolean) : [])
 const diffLabel = (d?: number) => (d === 1 ? '简单' : d === 2 ? '中等' : d === 3 ? '困难' : '中等')
 const diffClass = (d?: number) =>
@@ -915,7 +1065,9 @@ const sourceLabel = (s?: string) =>
         ? 'AI·知识库'
         : s === 'IMPORT'
           ? '导入'
-          : '未知'
+          : s === 'ANKI'
+            ? 'Anki'
+            : '未知'
 const sourceIcon = (s?: string) =>
   s === 'MANUAL'
     ? 'pencil'
@@ -923,7 +1075,9 @@ const sourceIcon = (s?: string) =>
       ? 'sparkles'
       : s === 'IMPORT'
         ? 'upload'
-        : 'help-circle'
+        : s === 'ANKI'
+          ? 'layers'
+          : 'help-circle'
 const sourceClass = (s?: string) =>
   s === 'MANUAL'
     ? 'src-manual'
@@ -931,7 +1085,9 @@ const sourceClass = (s?: string) =>
       ? 'src-ai'
       : s === 'IMPORT'
         ? 'src-imp'
-        : ''
+        : s === 'ANKI'
+          ? 'src-anki'
+          : ''
 const formatTime = (t?: string) => {
   if (!t) return '—'
   const d = new Date(t)
@@ -1232,6 +1388,7 @@ const getError = (e: any, fallback: string) => {
 .src-manual { color: #0f766e; border-color: rgba(15,118,110,0.25); background: rgba(20,184,166,0.08); }
 .src-ai { color: #7c3aed; border-color: rgba(124,58,237,0.25); background: rgba(139,92,246,0.1); }
 .src-imp { color: #b45309; border-color: rgba(180,83,9,0.25); background: rgba(217,119,6,0.08); }
+.src-anki { color: #1d4ed8; border-color: rgba(29,78,216,0.25); background: rgba(59,130,246,0.1); }
 
 .cell-relate { display: flex; flex-direction: column; gap: 4px; }
 .kb-chip, .doc-chip {
@@ -1343,6 +1500,19 @@ const getError = (e: any, fallback: string) => {
   white-space: pre-wrap;
   word-break: break-word;
   overflow: auto;
+}
+/* Anki 媒体内容渲染样式 */
+.fc-front-title img,
+.fc-back-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 4px 0;
+}
+.fc-front-title audio,
+.fc-back-content audio {
+  width: 100%;
+  margin: 8px 0;
 }
 .fc-tags { display: flex; flex-wrap: wrap; gap: 5px; }
 .fc-tag {
@@ -1577,6 +1747,80 @@ const getError = (e: any, fallback: string) => {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+}
+
+/* Anki .apkg 导入 */
+.import-tabs {
+  margin-bottom: 14px;
+}
+.apkg-upload {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 16px;
+  border: 1px dashed var(--kb-border);
+  border-radius: 12px;
+  background: var(--kb-background);
+}
+.apkg-file-hidden {
+  /* 隐藏原生 input，通过按钮触发 */
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.apkg-file-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  font-size: 13px;
+  color: var(--kb-foreground);
+  max-width: 100%;
+}
+.apkg-file-name {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.apkg-file-size {
+  color: var(--kb-muted-foreground);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.apkg-progress {
+  position: relative;
+  margin-top: 12px;
+  height: 24px;
+  border-radius: 10px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-background);
+  overflow: hidden;
+}
+.apkg-progress-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, rgba(79, 134, 249, 0.35), rgba(79, 134, 249, 0.65));
+  transition: width .2s ease;
+}
+.apkg-progress-text {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--kb-foreground);
 }
 
 /* Toast */

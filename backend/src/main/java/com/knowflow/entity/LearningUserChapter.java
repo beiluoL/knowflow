@@ -19,4 +19,7 @@ public class LearningUserChapter extends BaseEntity {
     private Long chapterId;
 
     private LocalDateTime completeTime;
+
+    /** 视频观看进度百分比（0-100），L-FORM-01 达标后允许完成章节 */
+    private java.math.BigDecimal videoProgress;
 }

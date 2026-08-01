@@ -85,6 +85,12 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'c' },
   },
   {
+    path: '/certificate/:id',
+    name: 'CertificateDetail',
+    component: () => import('@/views/Certificate.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  {
     path: '/categories',
     name: 'Categories',
     component: () => import('@/views/Categories.vue'),
@@ -189,11 +195,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/LearningMode.vue'),
     meta: { layout: 'none', requiresAuth: true },
   },
-  // F-01 修复：旧的 /learning/report 重定向到学习中心，保持外链兼容
+  // 学习报告：聚合签到/闪卡/错题/代码/阅读/测验数据的多维度报告页
   {
     path: '/learning/report',
-    name: 'LearningReport',
-    redirect: '/learning/center',
+    name: 'LearningReportView',
+    component: () => import('@/views/LearningReportView.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true, title: '学习报告' },
   },
   // F-01 修复：番茄钟独立路由（LearningCenter.vue 实为番茄钟专注页）
   {
@@ -294,6 +301,18 @@ const routes: RouteRecordRaw[] = [
     path: '/community',
     name: 'Community',
     component: () => import('@/views/Community.vue'),
+    meta: { layout: 'c' },
+  },
+  {
+    path: '/community/post/new',
+    name: 'PostCreate',
+    component: () => import('@/views/PostEdit.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  {
+    path: '/community/post/:id',
+    name: 'PostDetail',
+    component: () => import('@/views/PostDetail.vue'),
     meta: { layout: 'c' },
   },
 

@@ -13,6 +13,7 @@ import com.knowflow.dto.FlashcardSaveDTO;
 import com.knowflow.entity.AiPersonalizedPath;
 import com.knowflow.entity.DocCategory;
 import com.knowflow.entity.DocDocument;
+import com.knowflow.entity.LearningCertificate;
 import com.knowflow.entity.LearningChapter;
 import com.knowflow.entity.LearningFlashcard;
 import com.knowflow.entity.LearningMistake;
@@ -21,11 +22,13 @@ import com.knowflow.entity.LearningTask;
 import com.knowflow.entity.LearningUserChapter;
 import com.knowflow.entity.LearningUserPath;
 import com.knowflow.entity.DocReadProgress;
+import com.knowflow.entity.SysUser;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.AiPersonalizedPathMapper;
 import com.knowflow.mapper.DocCategoryMapper;
 import com.knowflow.mapper.DocDocumentMapper;
 import com.knowflow.mapper.DocReadProgressMapper;
+import com.knowflow.mapper.LearningCertificateMapper;
 import com.knowflow.mapper.LearningChapterMapper;
 import com.knowflow.mapper.LearningFlashcardMapper;
 import com.knowflow.mapper.LearningMistakeMapper;
@@ -33,12 +36,17 @@ import com.knowflow.mapper.LearningPathMapper;
 import com.knowflow.mapper.LearningTaskMapper;
 import com.knowflow.mapper.LearningUserChapterMapper;
 import com.knowflow.mapper.LearningUserPathMapper;
+import com.knowflow.mapper.SysUserMapper;
 import com.knowflow.service.AiService;
 import com.knowflow.service.LearningService;
 import com.knowflow.service.NotificationService;
 import com.knowflow.vo.CategoryMasteryVO;
+import com.knowflow.vo.ChapterDagVO;
+import com.knowflow.vo.ChapterEdgeVO;
+import com.knowflow.vo.ChapterNodeVO;
 import com.knowflow.vo.DailyActivityVO;
 import com.knowflow.vo.FlashcardVO;
+import com.knowflow.vo.LearningCertificateVO;
 import com.knowflow.vo.LearningChapterVO;
 import com.knowflow.vo.LearningPathVO;
 import com.knowflow.vo.LearningTaskVO;
@@ -53,10 +61,13 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -74,6 +85,8 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     private final LearningTaskMapper taskMapper;
     private final LearningUserPathMapper userPathMapper;
     private final LearningUserChapterMapper userChapterMapper;
+    private final LearningCertificateMapper certificateMapper;
+    private final SysUserMapper sysUserMapper;
     private final LearningMistakeMapper mistakeMapper;
     private final DocReadProgressMapper readProgressMapper;
     private final DocDocumentMapper docMapper;
@@ -88,24 +101,52 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     private static final int WEAK_THRESHOLD = 60;
 
     @Override
-    public List<LearningPathVO> getPathList() {
+    public List<LearningPathVO> getPathList(Long userId) {
         // 仅返回平台公开路径（owner_user_id=0），避免用户采用落地的私有个性化路径污染公共列表。
         List<LearningPath> paths = this.list(new LambdaQueryWrapper<LearningPath>()
                 .eq(LearningPath::getStatus, 1)
                 .eq(LearningPath::getOwnerUserId, 0L)
                 .orderByAsc(LearningPath::getSortOrder));
-        return paths.stream()
+        List<LearningPathVO> vos = paths.stream()
                 .map(p -> BeanUtil.copyProperties(p, LearningPathVO.class))
                 .collect(Collectors.toList());
+        if (userId == null || vos.isEmpty()) {
+            return vos;
+        }
+        // 已登录：批量查询当前用户报名过的路径，填充 enrolled 与学习进度（learning_user_path）。
+        Set<Long> enrolledPathIds = new HashSet<>();
+        Map<Long, BigDecimal> progressByPath = new HashMap<>();
+        userPathMapper.selectList(new LambdaQueryWrapper<LearningUserPath>()
+                        .eq(LearningUserPath::getUserId, userId))
+                .forEach(up -> {
+                    enrolledPathIds.add(up.getPathId());
+                    if (up.getProgress() != null) {
+                        progressByPath.put(up.getPathId(), up.getProgress());
+                    }
+                });
+        for (LearningPathVO vo : vos) {
+            boolean enrolled = enrolledPathIds.contains(vo.getId());
+            vo.setEnrolled(enrolled);
+            if (enrolled) {
+                vo.setProgress(progressByPath.getOrDefault(vo.getId(), BigDecimal.ZERO));
+            }
+        }
+        return vos;
     }
 
     @Override
-    public LearningPathVO getPathDetail(Long pathId) {
+    public LearningPathVO getPathDetail(Long pathId, Long userId) {
         LearningPath path = this.getById(pathId);
         if (path == null || path.getStatus() == null || path.getStatus() != 1) {
             throw new BusinessException(404, "学习路径不存在");
         }
-        return BeanUtil.copyProperties(path, LearningPathVO.class);
+        LearningPathVO vo = BeanUtil.copyProperties(path, LearningPathVO.class);
+        // 查询当前用户是否已报名（learning_user_path 有记录即视为已报名）
+        Long enrolled = userId == null ? 0L : userPathMapper.selectCount(new LambdaQueryWrapper<LearningUserPath>()
+                .eq(LearningUserPath::getUserId, userId)
+                .eq(LearningUserPath::getPathId, pathId));
+        vo.setEnrolled(enrolled != null && enrolled > 0L);
+        return vo;
     }
 
     @Override
@@ -143,16 +184,100 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     }
 
     @Override
+    public ChapterDagVO getChapterDag(Long pathId, Long userId) {
+        List<LearningChapter> chapters = chapterMapper.selectList(new LambdaQueryWrapper<LearningChapter>()
+                .eq(LearningChapter::getPathId, pathId)
+                .orderByAsc(LearningChapter::getSortOrder));
+        // 已完成的章节 ID 集，用于判定 locked / completed 状态
+        Set<Long> completedIds = userChapterMapper.selectList(
+                        new LambdaQueryWrapper<LearningUserChapter>().eq(LearningUserChapter::getUserId, userId))
+                .stream().map(LearningUserChapter::getChapterId).collect(Collectors.toSet());
+
+        List<ChapterNodeVO> nodes = new ArrayList<>();
+        for (LearningChapter c : chapters) {
+            ChapterNodeVO node = new ChapterNodeVO();
+            node.setId(c.getId());
+            node.setTitle(c.getTitle());
+            node.setSortOrder(c.getSortOrder());
+            node.setDuration(c.getDuration());
+            node.setPrerequisiteChapterIds(c.getPrerequisiteChapterIds());
+            // 复用前置解锁规则：前置未全部完成则锁定
+            boolean locked = false;
+            String prereqStr = c.getPrerequisiteChapterIds();
+            if (StrUtil.isNotBlank(prereqStr)) {
+                for (String pid : prereqStr.split(",")) {
+                    try {
+                        if (!completedIds.contains(Long.parseLong(pid.trim()))) {
+                            locked = true;
+                            break;
+                        }
+                    } catch (NumberFormatException ignored) {
+                        // 非法 ID 忽略，不参与解锁判定
+                    }
+                }
+            }
+            String status;
+            if (completedIds.contains(c.getId())) {
+                status = "completed";
+            } else if (locked) {
+                status = "locked";
+            } else {
+                status = "available";
+            }
+            node.setStatus(status);
+            nodes.add(node);
+        }
+
+        // 仅保留本路径内的依赖边，过滤指向路径外章节的悬空边
+        Set<Long> nodeIds = nodes.stream().map(ChapterNodeVO::getId).collect(Collectors.toSet());
+        List<ChapterEdgeVO> edges = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        for (LearningChapter c : chapters) {
+            String prereqStr = c.getPrerequisiteChapterIds();
+            if (StrUtil.isBlank(prereqStr)) {
+                continue;
+            }
+            for (String pid : prereqStr.split(",")) {
+                try {
+                    Long src = Long.parseLong(pid.trim());
+                    if (!nodeIds.contains(src)) {
+                        continue;
+                    }
+                    String key = src + "->" + c.getId();
+                    if (seen.add(key)) {
+                        ChapterEdgeVO edge = new ChapterEdgeVO();
+                        edge.setSource(src);
+                        edge.setTarget(c.getId());
+                        edges.add(edge);
+                    }
+                } catch (NumberFormatException ignored) {
+                    // 非法 ID 忽略
+                }
+            }
+        }
+
+        ChapterDagVO vo = new ChapterDagVO();
+        vo.setNodes(nodes);
+        vo.setEdges(edges);
+        return vo;
+    }
+
+    @Override
     public LearningChapterVO getChapterDetail(Long chapterId, Long userId) {
         LearningChapter chapter = chapterMapper.selectById(chapterId);
         if (chapter == null) {
             throw new BusinessException(404, "章节不存在");
         }
         LearningChapterVO vo = BeanUtil.copyProperties(chapter, LearningChapterVO.class);
-        boolean completed = userChapterMapper.selectCount(new LambdaQueryWrapper<LearningUserChapter>()
+        LearningUserChapter userChapter = userChapterMapper.selectOne(new LambdaQueryWrapper<LearningUserChapter>()
                 .eq(LearningUserChapter::getUserId, userId)
-                .eq(LearningUserChapter::getChapterId, chapterId)) > 0;
+                .eq(LearningUserChapter::getChapterId, chapterId));
+        boolean completed = userChapter != null;
         vo.setCompleted(completed);
+        // L-FORM-01：带出当前用户视频观看进度，用于前端恢复播放位置
+        if (userChapter != null && userChapter.getVideoProgress() != null) {
+            vo.setVideoProgress(userChapter.getVideoProgress());
+        }
         // 前置解锁检查
         String prereqStr = chapter.getPrerequisiteChapterIds();
         boolean locked = false;
@@ -345,7 +470,141 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
             userPathMapper.update(new LambdaUpdateWrapper<LearningUserPath>()
                     .eq(LearningUserPath::getId, userPath.getId())
                     .set(LearningUserPath::getProgress, progress));
+            // G-CERT-01：路径全部章节完成时自动颁发证书
+            if (updated.getCompletedChapters() >= allChapters.size()) {
+                issueCertificate(userId, chapter.getPathId());
+            }
         }
+    }
+
+    /**
+     * 为完成某路径的用户自动颁发数字证书（幂等：同用户同路径只发一次）。
+     */
+    private void issueCertificate(Long userId, Long pathId) {
+        Long existed = certificateMapper.selectCount(new LambdaQueryWrapper<LearningCertificate>()
+                .eq(LearningCertificate::getUserId, userId)
+                .eq(LearningCertificate::getPathId, pathId));
+        if (existed != null && existed > 0) {
+            return;
+        }
+        LearningPath path = this.getById(pathId);
+        if (path == null) {
+            return;
+        }
+        SysUser user = sysUserMapper.selectById(userId);
+        String userName = user != null && StrUtil.isNotBlank(user.getNickname())
+                ? user.getNickname() : (user != null ? user.getUsername() : "学员");
+        LearningCertificate cert = new LearningCertificate();
+        cert.setUserId(userId);
+        cert.setPathId(pathId);
+        cert.setPathTitle(path.getTitle());
+        cert.setUserName(userName);
+        cert.setCertNo(generateCertNo(userId, pathId));
+        cert.setIssueDate(LocalDateTime.now());
+        certificateMapper.insert(cert);
+        // 颁发后发送站内通知
+        notificationService.createNotification(userId, "LEARNING", "获得数字证书",
+                "恭喜你完成了学习路径《" + path.getTitle() + "》，已为你颁发数字证书！", cert.getId(), "CERTIFICATE");
+    }
+
+    /** 生成唯一证书验证码：KC-日期6位-随机4位，冲突时重试。 */
+    private String generateCertNo(Long userId, Long pathId) {
+        for (int i = 0; i < 5; i++) {
+            String datePart = LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+            String rand = String.valueOf(ThreadLocalRandom.current().nextInt(1000, 10000));
+            String no = "KC-" + datePart + "-" + rand;
+            long count = certificateMapper.selectCount(new LambdaQueryWrapper<LearningCertificate>()
+                    .eq(LearningCertificate::getCertNo, no));
+            if (count == 0) {
+                return no;
+            }
+        }
+        // 极端冲突时用时间戳兜底
+        return "KC-" + System.currentTimeMillis() + "-" + userId + pathId;
+    }
+
+    /** 视频观看进度达标阈值（百分比），达到后前端提示可完成章节。 */
+    private static final BigDecimal VIDEO_PROGRESS_THRESHOLD = new BigDecimal("90");
+
+    @Override
+    @Transactional
+    public BigDecimal updateVideoProgress(Long chapterId, Long userId, BigDecimal progress) {
+        LearningChapter chapter = chapterMapper.selectById(chapterId);
+        if (chapter == null) {
+            throw new BusinessException(404, "章节不存在");
+        }
+        if (progress == null || progress.compareTo(BigDecimal.ZERO) < 0) {
+            progress = BigDecimal.ZERO;
+        }
+        if (progress.compareTo(new BigDecimal("100")) > 0) {
+            progress = new BigDecimal("100");
+        }
+        LearningUserChapter record = userChapterMapper.selectOne(new LambdaQueryWrapper<LearningUserChapter>()
+                .eq(LearningUserChapter::getUserId, userId)
+                .eq(LearningUserChapter::getChapterId, chapterId));
+        if (record == null) {
+            // 首次观看：创建进度记录（未完成章节，仅记录视频进度）
+            LearningUserChapter uc = new LearningUserChapter();
+            uc.setUserId(userId);
+            uc.setPathId(chapter.getPathId());
+            uc.setChapterId(chapterId);
+            uc.setVideoProgress(progress);
+            userChapterMapper.insert(uc);
+            return progress;
+        }
+        // 已存在记录：取较大值，保证进度单调不减
+        BigDecimal current = record.getVideoProgress() != null ? record.getVideoProgress() : BigDecimal.ZERO;
+        if (progress.compareTo(current) > 0) {
+            userChapterMapper.update(new LambdaUpdateWrapper<LearningUserChapter>()
+                    .eq(LearningUserChapter::getId, record.getId())
+                    .set(LearningUserChapter::getVideoProgress, progress));
+        }
+        return current.max(progress);
+    }
+
+    // ========== 数字证书（G-CERT-01） ==========
+
+    @Override
+    public List<LearningCertificateVO> listMyCertificates(Long userId) {
+        List<LearningCertificate> certs = certificateMapper.selectList(
+                new LambdaQueryWrapper<LearningCertificate>()
+                        .eq(LearningCertificate::getUserId, userId)
+                        .orderByDesc(LearningCertificate::getIssueDate));
+        if (certs.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return certs.stream().map(c -> {
+            LearningCertificateVO vo = BeanUtil.copyProperties(c, LearningCertificateVO.class);
+            vo.setMine(true);
+            return vo;
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public LearningCertificateVO getCertificateDetail(Long certificateId, Long userId) {
+        LearningCertificate cert = certificateMapper.selectById(certificateId);
+        if (cert == null) {
+            throw new BusinessException(404, "证书不存在");
+        }
+        LearningCertificateVO vo = BeanUtil.copyProperties(cert, LearningCertificateVO.class);
+        // 本人可见完整信息并可用于下载；他人仅返回可公开的展示字段（隐藏 certNo 中段？不，验证码可公开用于核验）
+        vo.setMine(cert.getUserId().equals(userId));
+        return vo;
+    }
+
+    @Override
+    public LearningCertificateVO verifyCertificate(String certNo) {
+        if (StrUtil.isBlank(certNo)) {
+            throw new BusinessException("请输入证书验证码");
+        }
+        LearningCertificate cert = certificateMapper.selectOne(
+                new LambdaQueryWrapper<LearningCertificate>().eq(LearningCertificate::getCertNo, certNo.trim()));
+        if (cert == null) {
+            throw new BusinessException(404, "未找到该证书，请核对验证码");
+        }
+        LearningCertificateVO vo = BeanUtil.copyProperties(cert, LearningCertificateVO.class);
+        vo.setMine(false);
+        return vo;
     }
 
     /** 闪卡复习调度（SM-2 间隔重复算法）：按评分 quality(0~5) 计算下次复习间隔并保证边界。 */
@@ -760,7 +1019,8 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
             if (d < 1 || d > 3) d = 1;
             c.setDifficulty(d);
             c.setTags(StrUtil.trim(dto.getTags()));
-            c.setSourceType("IMPORT");
+            // 调用方可通过 dto.sourceType 指定来源（如 ANKI）；未指定时回退为 IMPORT
+            c.setSourceType(StrUtil.isBlank(dto.getSourceType()) ? "IMPORT" : dto.getSourceType());
             c.setReviewCount(0);
             c.setReviewInterval(0);
             flashcardMapper.insert(c);
@@ -856,8 +1116,12 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         path.setStatus(1);
         path.setOwnerUserId(userId);
         this.save(path);
-        // 2. 落地章节
-        for (PersonalizedPathVO.RecommendChapter rc : chapters) {
+        // 2. 落地章节（先插入取得自增主键，再回填依赖关系）
+        List<LearningChapter> savedChapters = new ArrayList<>(chapters.size());
+        // 章节序号 → 真实章节 ID，用于把 AI 推断的依赖序号翻译为逻辑外键
+        Map<Integer, Long> sortOrderToId = new LinkedHashMap<>();
+        for (int i = 0; i < chapters.size(); i++) {
+            PersonalizedPathVO.RecommendChapter rc = chapters.get(i);
             LearningChapter ch = new LearningChapter();
             ch.setPathId(path.getId());
             ch.setTitle(rc.getTitle());
@@ -867,9 +1131,21 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
                 content = content + (content.isBlank() ? "" : "\n\n") + "学习重点：" + rc.getFocus();
             }
             ch.setContent(content);
-            ch.setSortOrder(rc.getSortOrder() != null ? rc.getSortOrder() : 0);
+            ch.setSortOrder(rc.getSortOrder() != null ? rc.getSortOrder() : i + 1);
             ch.setDuration(rc.getDuration());
             chapterMapper.insert(ch);
+            savedChapters.add(ch);
+            sortOrderToId.putIfAbsent(ch.getSortOrder(), ch.getId());
+        }
+        // 2.1 回填 AI 推断的章节依赖，形成可视化 DAG
+        for (int i = 0; i < chapters.size(); i++) {
+            LearningChapter ch = savedChapters.get(i);
+            String prerequisiteIds = resolvePrerequisiteIds(
+                    chapters.get(i).getPrerequisiteSortOrders(), ch.getSortOrder(), sortOrderToId);
+            if (StrUtil.isNotBlank(prerequisiteIds)) {
+                ch.setPrerequisiteChapterIds(prerequisiteIds);
+                chapterMapper.updateById(ch);
+            }
         }
         // 3. 自动报名
         enrollPath(path.getId(), userId);
@@ -887,6 +1163,34 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         }
         // 物理删除推荐记录（不影响已采用落地的 learning_path）
         personalizedPathMapper.physicalDeleteByIdAndUser(personalizedId, userId);
+    }
+
+    /**
+     * 将 AI 推断的前置章节序号翻译为真实章节 ID 串（逗号分隔）。
+     * 只接受序号严格小于当前章节的前置项，从而在拓扑上保证依赖图无环。
+     *
+     * @param prerequisiteSortOrders AI 给出的前置章节序号
+     * @param selfSortOrder          当前章节序号
+     * @param sortOrderToId          章节序号到真实 ID 的映射
+     * @return 逗号分隔的章节 ID 串，无有效依赖时返回 null
+     */
+    private String resolvePrerequisiteIds(List<Integer> prerequisiteSortOrders, Integer selfSortOrder,
+                                          Map<Integer, Long> sortOrderToId) {
+        if (prerequisiteSortOrders == null || prerequisiteSortOrders.isEmpty() || selfSortOrder == null) {
+            return null;
+        }
+        Set<String> ids = new LinkedHashSet<>();
+        for (Integer order : prerequisiteSortOrders) {
+            // 过滤自引用与后向依赖，避免生成环
+            if (order == null || order.intValue() >= selfSortOrder.intValue()) {
+                continue;
+            }
+            Long chapterId = sortOrderToId.get(order);
+            if (chapterId != null) {
+                ids.add(String.valueOf(chapterId));
+            }
+        }
+        return ids.isEmpty() ? null : String.join(",", ids);
     }
 
     /** 若用户尚未报名目标路径则自动报名（采用幂等场景复用）。 */
@@ -977,7 +1281,8 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         // 2. 构建 prompt（level 和 dailyMinutes 已在调用前归一化）
         String systemPrompt = "你是 KnowFlow 学习平台的 AI 学习规划师。" +
                 "请根据用户的学习数据和目标，生成一份个性化的学习路径推荐。" +
-                "路径应循序渐进、难度递进，每个章节都要有明确的学习重点。";
+                "路径应循序渐进、难度递进，每个章节都要有明确的学习重点，" +
+                "并需要推断章节之间真实的知识前置依赖关系（有向无环图 DAG）。";
 
         StringBuilder userPrompt = new StringBuilder();
         userPrompt.append("请为用户生成个性化学习路径。\n\n");
@@ -992,7 +1297,14 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         userPrompt.append("3. 每个章节时长建议在 20-60 分钟之间\n");
         userPrompt.append("4. 每个章节标注学习重点（focus）\n");
         userPrompt.append("5. 总时长应合理，适合用户每日投入时间\n");
-        userPrompt.append("6. 给出个性化学习建议（advice）\n\n");
+        userPrompt.append("6. 给出个性化学习建议（advice）\n");
+        // DAG 依赖推断：用于前端渲染章节依赖关系图与解锁判定
+        userPrompt.append("7. 为每个章节推断真实的知识前置依赖 prerequisiteSortOrders："
+                + "填写学习本章前必须先掌握的章节 sortOrder 数组\n");
+        userPrompt.append("8. prerequisiteSortOrders 只能引用比本章 sortOrder 更小的章节；"
+                + "第 1 章必须为空数组 []\n");
+        userPrompt.append("9. 依赖应体现真实知识结构而非简单顺序：互不依赖的并列主题可共享同一前置，"
+                + "形成分支；综合实战类章节可同时依赖多个前置章节\n\n");
 
         userPrompt.append("请严格按以下 JSON 格式输出（不要输出其他文字）：\n");
         userPrompt.append("```json\n");
@@ -1004,7 +1316,10 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         userPrompt.append("  \"dailyDuration\": 30,\n");
         userPrompt.append("  \"goals\": [\"目标1\", \"目标2\"],\n");
         userPrompt.append("  \"chapters\": [\n");
-        userPrompt.append("    {\"title\": \"章节标题\", \"content\": \"内容描述\", \"duration\": 30, \"sortOrder\": 1, \"focus\": \"学习重点\"}\n");
+        userPrompt.append("    {\"title\": \"章节标题\", \"content\": \"内容描述\", \"duration\": 30, \"sortOrder\": 1,"
+                + " \"focus\": \"学习重点\", \"prerequisiteSortOrders\": []},\n");
+        userPrompt.append("    {\"title\": \"章节标题\", \"content\": \"内容描述\", \"duration\": 30, \"sortOrder\": 2,"
+                + " \"focus\": \"学习重点\", \"prerequisiteSortOrders\": [1]}\n");
         userPrompt.append("  ],\n");
         userPrompt.append("  \"advice\": \"个性化学习建议（100-200字）\"\n");
         userPrompt.append("}\n");
@@ -1063,10 +1378,13 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
                         Object so = ch.get("sortOrder");
                         chapter.setSortOrder(so instanceof Number ? ((Number) so).intValue() : chapters.size() + 1);
                         chapter.setFocus((String) ch.getOrDefault("focus", ""));
+                        chapter.setPrerequisiteSortOrders(parsePrerequisiteSortOrders(ch.get("prerequisiteSortOrders")));
                         chapters.add(chapter);
                     }
                 }
             }
+            // AI 未给出依赖时退化为线性依赖，保证图谱始终可用
+            fillLinearPrerequisitesIfAbsent(chapters);
             vo.setChapters(chapters);
             vo.setAdvice((String) map.getOrDefault("advice", ""));
 
@@ -1074,6 +1392,43 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         } catch (Exception e) {
             log.warn("个性化路径 JSON 解析失败: {}", e.getMessage());
             return buildDefaultPersonalizedPath(goal, level, dailyMinutes);
+        }
+    }
+
+    /** 解析 AI 返回的 prerequisiteSortOrders 字段（容忍字符串型数字与非法元素）。 */
+    private List<Integer> parsePrerequisiteSortOrders(Object raw) {
+        if (!(raw instanceof List)) {
+            return Collections.emptyList();
+        }
+        List<Integer> orders = new ArrayList<>();
+        for (Object item : (List<?>) raw) {
+            if (item instanceof Number) {
+                orders.add(((Number) item).intValue());
+            } else if (item instanceof String) {
+                try {
+                    orders.add(Integer.valueOf(((String) item).trim()));
+                } catch (NumberFormatException ignored) {
+                    // 非数字元素忽略，不参与依赖构建
+                }
+            }
+        }
+        return orders;
+    }
+
+    /**
+     * 若 AI 未推断出任何依赖关系，则按章节顺序补全为线性链（第 N 章依赖第 N-1 章），
+     * 保证采用后的路径图谱不会退化为一堆孤立节点。
+     */
+    private void fillLinearPrerequisitesIfAbsent(List<PersonalizedPathVO.RecommendChapter> chapters) {
+        boolean anyDependency = chapters.stream()
+                .anyMatch(c -> c.getPrerequisiteSortOrders() != null && !c.getPrerequisiteSortOrders().isEmpty());
+        if (anyDependency) {
+            return;
+        }
+        for (int i = 1; i < chapters.size(); i++) {
+            Integer previousOrder = chapters.get(i - 1).getSortOrder();
+            chapters.get(i).setPrerequisiteSortOrders(
+                    previousOrder == null ? Collections.emptyList() : List.of(previousOrder));
         }
     }
 
@@ -1096,6 +1451,8 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
             ch.setDuration(dailyMinutes);
             ch.setSortOrder(i + 1);
             ch.setFocus(focuses[i]);
+            // 兜底路径为线性依赖：第 N 章依赖第 N-1 章
+            ch.setPrerequisiteSortOrders(i == 0 ? Collections.emptyList() : List.of(i));
             chapters.add(ch);
         }
         vo.setChapters(chapters);

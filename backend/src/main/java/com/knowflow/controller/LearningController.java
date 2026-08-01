@@ -1,13 +1,18 @@
 package com.knowflow.controller;
 
 import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.dto.FlashcardGenerateDTO;
 import com.knowflow.dto.FlashcardSaveDTO;
 import com.knowflow.entity.LearningTask;
+import com.knowflow.exception.BusinessException;
 import com.knowflow.service.LearningService;
+import com.knowflow.util.AnkiApkgParser;
 import com.knowflow.vo.CategoryMasteryVO;
+import com.knowflow.vo.ChapterDagVO;
 import com.knowflow.vo.DailyActivityVO;
 import com.knowflow.vo.FlashcardVO;
+import com.knowflow.vo.LearningCertificateVO;
 import com.knowflow.vo.LearningChapterVO;
 import com.knowflow.vo.LearningPathVO;
 import com.knowflow.vo.LearningTaskVO;
@@ -16,9 +21,12 @@ import com.knowflow.vo.PersonalizedPathVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,16 +39,22 @@ public class LearningController {
 
     private final LearningService learningService;
 
+    /** 上传文件根目录，用于 Anki .apkg 媒体文件落盘 */
+    @Value("${app.upload.dir:${user.home}/knowflow/uploads}")
+    private String uploadDir;
+
     @Operation(summary = "学习路径列表")
     @GetMapping("/paths")
     public Result<List<LearningPathVO>> paths() {
-        return Result.success(learningService.getPathList());
+        // 列表可匿名访问；已登录则带出报名状态与学习进度
+        return Result.success(learningService.getPathList(SecurityUtils.getCurrentUserIdNullable()));
     }
 
     @Operation(summary = "学习路径详情")
     @GetMapping("/paths/{id}")
-    public Result<LearningPathVO> pathDetail(@PathVariable Long id) {
-        return Result.success(learningService.getPathDetail(id));
+    public Result<LearningPathVO> pathDetail(@PathVariable Long id, Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return Result.success(learningService.getPathDetail(id, userId));
     }
 
     @Operation(summary = "报名学习路径")
@@ -58,6 +72,13 @@ public class LearningController {
         return Result.success(learningService.getChapterList(pathId, userId));
     }
 
+    @Operation(summary = "章节依赖关系图(DAG)")
+    @GetMapping("/paths/{pathId}/dag")
+    public Result<ChapterDagVO> chapterDag(@PathVariable Long pathId, Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return Result.success(learningService.getChapterDag(pathId, userId));
+    }
+
     @Operation(summary = "章节详情")
     @GetMapping("/chapters/{id}")
     public Result<LearningChapterVO> chapterDetail(@PathVariable Long id, Authentication authentication) {
@@ -71,6 +92,15 @@ public class LearningController {
         Long userId = (Long) authentication.getPrincipal();
         learningService.completeChapter(id, userId);
         return Result.success();
+    }
+
+    @Operation(summary = "上报章节视频观看进度（L-FORM-01），返回当前累计进度")
+    @PostMapping("/chapters/{id}/video-progress")
+    public Result<java.math.BigDecimal> updateVideoProgress(@PathVariable Long id,
+                                                            @RequestParam java.math.BigDecimal progress,
+                                                            Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return Result.success(learningService.updateVideoProgress(id, userId, progress));
     }
 
     @Operation(summary = "闪卡列表")
@@ -206,6 +236,42 @@ public class LearningController {
         return Result.success(Map.of("inserted", inserted));
     }
 
+    @Operation(summary = "导入 Anki .apkg 文件")
+    @PostMapping("/my/flashcards/import-apkg")
+    public Result<Map<String, Integer>> importApkg(@RequestPart("file") MultipartFile file,
+                                                    Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        // 1. 校验文件非空 + 文件名以 .apkg 结尾
+        if (file == null || file.isEmpty()) {
+            throw new BusinessException("Anki 导入失败：文件为空");
+        }
+        String filename = file.getOriginalFilename();
+        if (filename == null || !filename.toLowerCase().endsWith(".apkg")) {
+            throw new BusinessException("Anki 导入失败：仅支持 .apkg 文件");
+        }
+        // 2. 解析 .apkg
+        List<FlashcardSaveDTO> cards;
+        try {
+            cards = AnkiApkgParser.parse(file.getBytes(), uploadDir);
+        } catch (Exception e) {
+            throw new BusinessException("Anki 导入失败：" + (e.getMessage() != null ? e.getMessage() : "解析异常"));
+        }
+        if (cards.isEmpty()) {
+            throw new BusinessException("Anki 导入失败：未从文件中解析到任何闪卡");
+        }
+        // 3. 标记来源类型为 ANKI
+        for (FlashcardSaveDTO dto : cards) {
+            dto.setSourceType("ANKI");
+        }
+        // 4. 复用现有导入逻辑落库
+        int inserted = learningService.importMyFlashcards(userId, cards);
+        // 5. 返回 inserted/total
+        Map<String, Integer> result = new HashMap<>();
+        result.put("inserted", inserted);
+        result.put("total", cards.size());
+        return Result.success(result);
+    }
+
     @Operation(summary = "导出全部闪卡")
     @GetMapping("/my/flashcards/export")
     public Result<List<FlashcardVO>> exportMyFlashcards(Authentication authentication) {
@@ -269,5 +335,29 @@ public class LearningController {
     public Result<List<CategoryMasteryVO>> categoryMastery(Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         return Result.success(learningService.getCategoryMastery(userId));
+    }
+
+    // ============================================================
+    // 数字证书（G-CERT-01：路径完成后自动颁发）
+    // ============================================================
+
+    @Operation(summary = "我的数字证书列表")
+    @GetMapping("/certificates")
+    public Result<List<LearningCertificateVO>> certificates(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return Result.success(learningService.listMyCertificates(userId));
+    }
+
+    @Operation(summary = "数字证书详情")
+    @GetMapping("/certificates/{id}")
+    public Result<LearningCertificateVO> certificateDetail(@PathVariable Long id, Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return Result.success(learningService.getCertificateDetail(id, userId));
+    }
+
+    @Operation(summary = "验证数字证书（按验证码核验真伪，可匿名）")
+    @GetMapping("/certificates/verify")
+    public Result<LearningCertificateVO> verifyCertificate(@RequestParam String certNo) {
+        return Result.success(learningService.verifyCertificate(certNo));
     }
 }

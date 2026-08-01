@@ -6,7 +6,7 @@
     >
       <template #actions>
         <button
-          @click="showPostModal = true"
+          @click="goCreate"
           class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 transition-colors"
           aria-label="发布新帖子"
         >
@@ -49,9 +49,11 @@
             <div
               v-for="post in postList"
               :key="post.id"
-              @click="openPost(post)"
-              class="border rounded-[10px] p-5 bg-white border-gray-200 hover:shadow-sm transition-shadow cursor-pointer"
+              @click="goPost(post)"
+              class="post-card border rounded-[10px] p-5 bg-white border-gray-200 hover:shadow-sm transition-shadow cursor-pointer"
+              :class="{ 'is-essence': post.isEssence === 1 }"
             >
+              <!-- 作者行：头像 + 昵称 + 时间（精简） -->
               <div class="flex items-center gap-2.5 mb-3">
                 <div
                   class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0"
@@ -59,19 +61,13 @@
                 >{{ (post.nickname || post.username || '用').charAt(0) }}</div>
                 <div class="flex items-center gap-2 min-w-0">
                   <span class="text-sm truncate text-gray-800">{{ post.nickname || post.username }}</span>
-                  <span class="text-sm shrink-0 text-gray-400">{{ formatTime(post.createTime) }}</span>
-                  <span
-                    v-if="post.isEssence === 1"
-                    class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-md text-xs whitespace-nowrap bg-yellow-50 text-warning-500"
-                  >精华</span>
-                  <span
-                    v-if="post.commentCount && post.commentCount > 20"
-                    class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-md text-xs whitespace-nowrap bg-yellow-50 text-warning-500"
-                  >{{ post.commentCount }} 讨论</span>
+                  <span class="text-xs shrink-0 text-gray-400">{{ formatTime(post.createTime) }}</span>
                 </div>
               </div>
-              <p class="text-[15px] font-semibold mb-2 text-gray-800">{{ post.title }}</p>
-              <p class="text-sm line-clamp-2 mb-3 text-gray-500">{{ post.content }}</p>
+              <!-- P2-3：标题放大加粗至 17px，提升扫读权重 -->
+              <p class="post-title text-[17px] font-bold mb-1.5 text-gray-900">{{ post.title }}</p>
+              <!-- P2-3：内容预览弱化为 13px 灰色，避免与标题权重均等 -->
+              <p class="text-[13px] line-clamp-2 mb-3 text-gray-400 leading-relaxed">{{ post.content }}</p>
               <div class="flex items-center gap-1.5 mb-3 flex-wrap">
                 <span
                   v-for="tag in getTags(post.tags)"
@@ -79,19 +75,20 @@
                   class="inline-flex items-center px-2 py-0.5 rounded-md text-xs whitespace-nowrap bg-gray-100 text-gray-500"
                 >{{ tag }}</span>
               </div>
-              <div class="flex items-center gap-4">
-                <div class="flex items-center gap-1">
-                  <Icon name="heart" :size="14" class="text-gray-400" />
-                  <span class="text-xs text-gray-500">{{ post.likeCount }}</span>
-                </div>
-                <div class="flex items-center gap-1">
-                  <Icon name="message-circle" :size="14" class="text-gray-400" />
-                  <span class="text-xs text-gray-500">{{ post.commentCount }}</span>
-                </div>
-                <div class="flex items-center gap-1">
-                  <Icon name="eye" :size="14" class="text-gray-400" />
-                  <span class="text-xs text-gray-500">{{ formatViewCount(post.viewCount) }}</span>
-                </div>
+              <!-- P2-3：互动数移至右下角，图标+数字紧凑形式 -->
+              <div class="flex items-center justify-end gap-3 text-gray-400">
+                <span class="inline-flex items-center gap-1">
+                  <Icon name="heart" :size="13" />
+                  <span class="text-xs tabular-nums">{{ post.likeCount }}</span>
+                </span>
+                <span class="inline-flex items-center gap-1">
+                  <Icon name="message-circle" :size="13" />
+                  <span class="text-xs tabular-nums">{{ post.commentCount }}</span>
+                </span>
+                <span class="inline-flex items-center gap-1">
+                  <Icon name="eye" :size="13" />
+                  <span class="text-xs tabular-nums">{{ formatViewCount(post.viewCount) }}</span>
+                </span>
               </div>
             </div>
           </div>
@@ -184,163 +181,23 @@
         </div>
       </aside>
     </section>
-
-    <div v-if="showPostModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="showPostModal = false">
-      <div class="w-full max-w-lg mx-4 bg-white rounded-xl shadow-xl">
-        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h3 class="text-base font-semibold text-gray-800">发布新帖子</h3>
-          <button @click="showPostModal = false" class="text-gray-400 hover:text-gray-600">
-            <Icon name="x" :size="20" />
-          </button>
-        </div>
-        <div class="p-5 space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">标题</label>
-            <input v-model="postForm.title" type="text" placeholder="请输入帖子标题" class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-primary-400" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
-            <select v-model="postForm.category" class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-primary-400">
-              <option value="">请选择分类</option>
-              <option v-for="cat in categoryList" :key="cat.value" :value="cat.value">{{ cat.label }}</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">内容</label>
-            <textarea v-model="postForm.content" rows="5" placeholder="请输入帖子内容..." class="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-primary-400 resize-none"></textarea>
-          </div>
-        </div>
-        <div class="flex items-center justify-end gap-2 px-5 py-4 border-t border-gray-100">
-          <button @click="showPostModal = false" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">取消</button>
-          <button @click="handleSubmitPost" :disabled="submitting" class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 transition-colors disabled:opacity-50">
-            {{ submitting ? '发布中...' : '发布' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 帖子详情 + 评论抽屉 -->
-    <div
-      v-if="selectedPost"
-      class="fixed inset-0 z-50 flex items-start justify-center bg-black/50 overflow-y-auto py-10"
-      @click.self="closePost()"
-    >
-      <div class="w-full max-w-2xl mx-4 bg-white rounded-xl shadow-xl">
-        <!-- 头部 -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h3 class="text-base font-semibold text-gray-800">帖子详情</h3>
-          <button @click="closePost()" class="text-gray-400 hover:text-gray-600" aria-label="关闭">
-            <Icon name="x" :size="20" />
-          </button>
-        </div>
-
-        <!-- 帖子内容 -->
-        <div class="px-5 py-4 border-b border-gray-100">
-          <div class="flex items-center gap-2.5 mb-3">
-            <div
-              class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0"
-              :style="{ backgroundColor: getAvatarColor(selectedPost.userId) }"
-            >{{ (selectedPost.nickname || selectedPost.username || '用').charAt(0) }}</div>
-            <div class="flex items-center gap-2 min-w-0">
-              <span class="text-sm truncate text-gray-800">{{ selectedPost.nickname || selectedPost.username }}</span>
-              <span class="text-sm shrink-0 text-gray-400">{{ formatTime(selectedPost.createTime) }}</span>
-            </div>
-          </div>
-          <p class="text-[16px] font-semibold mb-2 text-gray-800">{{ selectedPost.title }}</p>
-          <p class="text-sm whitespace-pre-line text-gray-600 leading-relaxed">{{ selectedPost.content }}</p>
-          <div class="flex items-center gap-1.5 mt-3 flex-wrap">
-            <span
-              v-for="tag in getTags(selectedPost.tags)"
-              :key="tag"
-              class="inline-flex items-center px-2 py-0.5 rounded-md text-xs whitespace-nowrap bg-gray-100 text-gray-500"
-            >{{ tag }}</span>
-          </div>
-          <!-- F-10：点赞/取消点赞（幂等切换） -->
-          <div class="flex items-center gap-3 mt-3">
-            <button
-              @click="toggleLike"
-              :disabled="liking"
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium border transition-colors disabled:opacity-50"
-              :class="likedByMe
-                ? 'text-primary-600 border-primary-300 bg-primary-50'
-                : 'text-gray-500 border-gray-200 hover:border-primary-300 hover:text-primary-600'"
-              :aria-pressed="likedByMe"
-            >
-              <Icon name="thumbs-up" :size="14" :fill="likedByMe" />
-              <span>{{ likedByMe ? '已赞' : '点赞' }} {{ selectedPost.likeCount ?? 0 }}</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- 评论输入 -->
-        <div class="px-5 py-4 border-b border-gray-100">
-          <div class="flex items-start gap-2">
-            <textarea
-              v-model="commentInput"
-              rows="2"
-              placeholder="写下你的评论..."
-              class="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-primary-400 resize-none"
-            ></textarea>
-            <button
-              @click="submitComment"
-              :disabled="submittingComment || !commentInput.trim()"
-              class="shrink-0 self-end px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 transition-colors disabled:opacity-50"
-            >发送</button>
-          </div>
-        </div>
-
-        <!-- 评论列表 -->
-        <div class="px-5 py-4 max-h-[40vh] overflow-y-auto">
-          <p class="text-[13px] font-medium text-gray-500 mb-3">全部评论 {{ commentTotal }}</p>
-          <SkeletonList v-if="commentLoading" :rows="3" type="list" />
-          <EmptyState v-else-if="commentList.length === 0" icon="message-circle" title="还没有评论">
-            <p class="text-sm text-gray-500">来抢沙发吧</p>
-          </EmptyState>
-          <ul v-else class="flex flex-col gap-4">
-            <li v-for="c in commentList" :key="c.id" class="flex gap-2.5">
-              <div
-                class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0"
-                :style="{ backgroundColor: getAvatarColor(c.userId) }"
-              >{{ (c.nickname || c.username || '用').charAt(0) }}</div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="text-[13px] font-medium text-gray-800">{{ c.nickname || c.username }}</span>
-                  <span class="text-[12px] text-gray-400">{{ formatTime(c.createTime) }}</span>
-                </div>
-                <p class="text-sm text-gray-600 mt-0.5 whitespace-pre-line break-words">{{ c.content }}</p>
-              </div>
-              <button
-                v-if="canDeleteComment(c)"
-                @click="removeComment(c)"
-                class="shrink-0 text-[12px] text-gray-400 hover:text-danger-500 transition-colors"
-              >删除</button>
-            </li>
-          </ul>
-          <Pagination
-            v-if="commentTotal > commentPageSize"
-            :page-num="commentPageNum"
-            :page-size="commentPageSize"
-            :total="commentTotal"
-            @change="handleCommentPageChange"
-          />
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 // 社区讨论页：帖子列表（最新/最热/精华）、分类筛选、分页、发帖与相对时间展示。
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import Pagination from '@/components/ui/Pagination.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import SkeletonList from '@/components/ui/SkeletonList.vue'
 import { communityApi } from '@/api/community'
-import type { PostVO, CommentVO } from '@/api/types'
-import { useAuthStore } from '@/stores/auth'
+import type { PostVO } from '@/api/types'
 import { notify } from '@/utils/toast'
+
+const router = useRouter()
 
 const loading = ref(false)
 const postList = ref<PostVO[]>([])
@@ -349,9 +206,14 @@ const selectedCategory = ref('all')
 const pageNum = ref(1)
 const pageSize = ref(5)
 const total = ref(0)
-const showPostModal = ref(false)
-const submitting = ref(false)
-const postForm = ref({ title: '', category: '', content: '' })
+
+// 帖子列表项跳转详情页，发布按钮跳转发布页（替代原弹窗）
+function goPost(post: PostVO) {
+  router.push(`/community/post/${post.id}`)
+}
+function goCreate() {
+  router.push('/community/post/new')
+}
 
 const sortOptions = [
   { value: 'latest', label: '最新' },
@@ -465,160 +327,9 @@ function handlePageChange(page: number) {
   fetchList()
 }
 
-async function handleSubmitPost() {
-  if (!postForm.value.title.trim()) {
-    return
-  }
-  submitting.value = true
-  try {
-    await communityApi.createPost({
-      title: postForm.value.title,
-      content: postForm.value.content,
-      category: postForm.value.category,
-    })
-    showPostModal.value = false
-    postForm.value = { title: '', category: '', content: '' }
-    // F-02 修复：发帖成功给出明确反馈，并切回"最新"排序第一页让新帖可见
-    notify('发布成功', 'success')
-    currentSort.value = 'latest'
-    pageNum.value = 1
-    fetchList()
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  } catch {
-    // 错误由拦截器处理
-  } finally {
-    submitting.value = false
-  }
-}
-
 onMounted(() => {
   fetchList()
 })
-
-// ===== 帖子详情 + 评论 =====
-const authStore = useAuthStore()
-const currentUserId = computed(() => authStore.user?.id)
-
-const selectedPost = ref<PostVO | null>(null)
-const commentList = ref<CommentVO[]>([])
-const commentTotal = ref(0)
-const commentPageNum = ref(1)
-const commentPageSize = ref(20)
-const commentLoading = ref(false)
-const commentInput = ref('')
-const submittingComment = ref(false)
-
-function canDeleteComment(c: CommentVO): boolean {
-  return !!currentUserId.value && currentUserId.value === c.userId
-}
-
-function openPost(post: PostVO) {
-  selectedPost.value = post
-  commentPageNum.value = 1
-  commentInput.value = ''
-  likedByMe.value = false
-  fetchComments()
-}
-
-// ===== F-10：点赞（幂等切换） =====
-const likedByMe = ref(false)
-const liking = ref(false)
-
-async function toggleLike() {
-  if (!selectedPost.value) return
-  if (!authStore.isLoggedIn) {
-    notify('请先登录后再点赞', 'warning')
-    return
-  }
-  liking.value = true
-  try {
-    const liked = await communityApi.likePost(selectedPost.value.id)
-    likedByMe.value = liked
-    if (selectedPost.value.likeCount != null) {
-      selectedPost.value.likeCount += liked ? 1 : -1
-      if (selectedPost.value.likeCount < 0) selectedPost.value.likeCount = 0
-    }
-  } catch {
-    // 拦截器已处理
-  } finally {
-    liking.value = false
-  }
-}
-
-function closePost() {
-  selectedPost.value = null
-  commentList.value = []
-}
-
-async function fetchComments() {
-  if (!selectedPost.value) return
-  commentLoading.value = true
-  try {
-    const res = await communityApi.comments(selectedPost.value.id, {
-      pageNum: commentPageNum.value,
-      pageSize: commentPageSize.value,
-    })
-    commentList.value = res.records
-    commentTotal.value = res.total
-  } catch {
-    commentList.value = []
-  } finally {
-    commentLoading.value = false
-  }
-}
-
-function handleCommentPageChange(page: number) {
-  commentPageNum.value = page
-  fetchComments()
-}
-
-async function submitComment() {
-  if (!selectedPost.value) return
-  const content = commentInput.value.trim()
-  if (!content) return
-  submittingComment.value = true
-  try {
-    await communityApi.addComment(selectedPost.value.id, { content })
-    commentInput.value = ''
-    // 乐观更新：本地插入并 +1 计数
-    commentList.value.unshift({
-      id: -Date.now(),
-      postId: selectedPost.value.id,
-      userId: currentUserId.value,
-      content,
-      username: authStore.user?.username,
-      nickname: authStore.user?.nickname,
-      createTime: new Date().toISOString().slice(0, 19),
-    })
-    commentTotal.value++
-    if (selectedPost.value.commentCount != null) {
-      selectedPost.value.commentCount++
-    }
-  } catch {
-    // 拦截器已处理
-  } finally {
-    submittingComment.value = false
-  }
-}
-
-async function removeComment(comment: CommentVO) {
-  if (!comment.id) return
-  // 乐观插入的临时项（负 id）仅本地移除
-  if (comment.id < 0) {
-    commentList.value = commentList.value.filter((c) => c.id !== comment.id)
-    commentTotal.value = Math.max(0, commentTotal.value - 1)
-    if (selectedPost.value?.commentCount != null) selectedPost.value.commentCount--
-    return
-  }
-  try {
-    await communityApi.deleteComment(comment.id)
-    commentList.value = commentList.value.filter((c) => c.id !== comment.id)
-    commentTotal.value = Math.max(0, commentTotal.value - 1)
-    if (selectedPost.value?.commentCount != null) selectedPost.value.commentCount--
-  } catch {
-    // 拦截器已处理
-  }
-}
 </script>
 
 <style scoped>
@@ -641,5 +352,25 @@ async function removeComment(comment: CommentVO) {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* P2-3：帖子卡片信息层级重组 —— 精华帖用左侧黄色竖条，比角标更醒目 */
+.post-card {
+  position: relative;
+  overflow: hidden;
+}
+.post-card.is-essence {
+  border-left: 3px solid var(--kb-warning);
+  padding-left: calc(1.25rem - 3px + 8px); /* 补偿色条占位 + 增加左侧呼吸空间 */
+}
+/* 精华帖标题用衬线字体，强化「精选文章」感 */
+.post-card.is-essence .post-title {
+  font-family: var(--font-serif);
+}
+
+/* 帖子标题统一用衬线字体，提升杂志感 */
+.post-title {
+  font-family: var(--font-serif);
+  letter-spacing: -0.01em;
 }
 </style>

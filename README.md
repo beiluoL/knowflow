@@ -11,7 +11,7 @@
 - **知识库协作**：知识库支持 **OWNER / EDITOR / READER 三级成员权限**、搜索邀请已注册用户或邮箱邀请；支持批量导入文档（.zip/.md/.txt/.json）与导出知识库为 ZIP。
 - **AI 对话**：多轮会话管理、RAG 检索增强（回答附带文档引用可溯源）、**多模型切换**；Markdown 渲染（表格/代码块/引用块）。
 - **用户自配大模型**：用户可在 AI 设置中输入自己的 API Key（支持 DeepSeek/硅基流动/OpenAI/通义千问/阿里云百炼/智谱AI/月之暗面/字节豆包/腾讯混元/百度文心/Anthropic/自定义），也可使用平台订阅模型；配置持久化（`sys_user_ai_config`），Key 返回时脱敏。
-- **学习中心**：学习路径与章节（可挂载文档与闪卡，完成章节幂等计数）、闪卡复习（**SM-2 间隔重复算法**）、学习任务（经验奖励 / 能量消耗）、复习计划、沉浸式学习模式、番茄钟；**AI 个性化学习路径**（按目标/水平/时长生成并持久化缓存，可「采用」落地为真实路径 + 章节并自动报名跟踪进度）。
+- **学习中心**：学习路径与章节（可挂载文档与闪卡，完成章节幂等计数）、闪卡复习（**SM-2 间隔重复算法**）、学习任务（经验奖励 / 能量消耗）、复习计划、沉浸式学习模式、番茄钟；**AI 个性化学习路径**（按目标/水平/时长生成并持久化缓存，**自动推断章节前置依赖**，可「采用」落地为真实路径 + 章节 + 依赖关系并自动报名跟踪进度）；**学习路径章节依赖 DAG 可视化**（dagre 分层布局 + 自绘 SVG 交互式图谱，支持拖拽平移 / 滚轮缩放 / 悬停高亮链路 / 全屏查看，按完成 / 可学 / 锁定三态着色）。
 - **错题本**：测验答错 / 闪卡「不认识」自动归集（同题幂等去重），支持标记掌握、分类筛选与统计（本周新增 / 今日待复习）。
 - **代码练习**：内置代码题库（JavaScript/TypeScript/Python/Java/SQL），在线 Playground 做题、测试用例校验、提交/通过统计；管理端题库 CRUD 与发布/下架。
 - **智能测验与写作**：多题型题库（单选/多选/填空/判断/简答）+ **AI 按知识库/文档出题**；智能写作含 AI 评分反馈、实时预览、导出 PDF / Markdown。
@@ -49,9 +49,9 @@
 |  | 分类浏览 | `/categories` |
 |  | 搜索结果 | `/search` |
 | **学习中心** | 学习中心（报告/热力图/掌握分布） | `/learning/center` |
-|  | 学习路径列表 | `/learning/paths` |
-|  | 路径详情 | `/learning/path/:id` |
-|  | 章节学习 | `/learning/chapter/:id` |
+|  | 学习路径列表（**列表内一键报名**，报名后原地切换为「开始学习」，已学习显示进度条+「学习中」） | `/learning/paths` |
+|  | 路径详情（显式报名 / 报名后解锁章节 / 环形进度 / DAG 图谱 / 证书入口） | `/learning/path/:id` |
+|  | 章节学习（Markdown 讲义 / 嵌入视频 / 内嵌可运行代码 / 即时测验 / 相关文档推荐 / 底部栏完成按钮 / **完成全部章节弹出证书庆祝弹窗**） | `/learning/chapter/:id` |
 |  | 代码练习列表 | `/learning/code-practice` |
 |  | 代码 Playground（在线做题） | `/learning/code-practice/:id` |
 |  | 学习闪卡 | `/learning/flashcards` |
@@ -70,6 +70,7 @@
 |  | 成就 | `/achievements` |
 |  | 知识库称号 | `/kb-titles` |
 |  | 打卡 | `/check-in` |
+|  | 我的证书 / 证书详情 | `/certificate/:id` |
 |  | 消息中心 | `/notifications` |
 |  | 社区讨论 | `/community` |
 | **挑战与互动** | 编程挑战（闯关赛道 / 关卡） | `/challenge` `/challenge/:id` |
@@ -121,7 +122,7 @@
 | DocController | `/api/docs` | 文档列表 / 详情 / 收藏 / 进度 / 推荐 / **AI 摘要** / **AI 生成闪卡** |
 | CategoryController | `/api/categories` | 分类树 |
 | ChatController | `/api/chat` | 会话 CRUD、发送消息（RAG + 大模型）、**可用模型列表** |
-| LearningController | `/api/learning` | 路径 / 章节 / 报名 / 闪卡 SM-2 复习 / 任务 / **热力图**（`/stats/daily-activity`）/ **掌握分布**（`/stats/mastery`） |
+| LearningController | `/api/learning` | 路径 / 章节 / 报名 / 闪卡 SM-2 复习 / 任务 / **热力图**（`/stats/daily-activity`）/ **掌握分布**（`/stats/mastery`）/ **章节依赖图(DAG)**（`/paths/{pathId}/dag`）/ **视频进度**（`/chapters/{id}/video-progress`）/ **数字证书**（`/certificates` 列表/详情/`verify` 验证） |
 | CodeQuestionController | `/api/code-questions` | 已发布代码题列表 / 详情 / 提交统计 |
 | MistakeController | `/api/mistakes` | 错题列表 / 标记掌握 / 幂等添加 / 统计 |
 | CommunityController | `/api/community` | 帖子 / 评论 / 点赞（幂等切换） |

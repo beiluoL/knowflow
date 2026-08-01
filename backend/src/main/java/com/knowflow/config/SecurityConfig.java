@@ -56,7 +56,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/learning/paths",
                                 "/api/learning/paths/{id}",
-                                "/api/learning/flashcards"
+                                "/api/learning/flashcards",
+                                // G-CERT-01 数字证书：验证码核验可匿名（列表/详情仍需登录）
+                                "/api/learning/certificates/verify"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/community/posts",

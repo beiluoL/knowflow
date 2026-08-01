@@ -20,9 +20,18 @@
       :class="collapsed ? 'justify-center px-0' : 'px-5'"
       style="border-color: var(--kb-border);"
     >
-      <router-link to="/admin/overview" class="flex items-center gap-2.5 min-w-0" @click="$emit('close')">
-        <Icon name="book-open" :size="22" class="text-primary-500 shrink-0" />
-        <span v-if="!collapsed" class="kb-h4 truncate">KnowFlow</span>
+      <router-link
+        to="/admin/overview"
+        class="flex items-center min-w-0"
+        :style="{ gap: 'var(--kb-nav-gap)' }"
+        @click="$emit('close')"
+      >
+        <Icon name="icon-AIbeikezhushou" size="xl" class="text-primary-500 shrink-0" />
+        <span
+          v-if="!collapsed"
+          class="truncate"
+          :style="{ fontSize: 'var(--kb-logo-text-fs)', fontWeight: 'var(--kb-logo-text-fw)' }"
+        >KnowFlow</span>
       </router-link>
     </div>
 
@@ -45,7 +54,7 @@
               :title="collapsed ? item.label : ''"
               @click="$emit('close')"
             >
-              <Icon :name="item.icon" :size="16" class="shrink-0" />
+              <Icon :name="item.icon" size="md" class="shrink-0" />
               <span v-if="!collapsed" class="truncate">{{ item.label }}</span>
             </router-link>
           </li>
@@ -57,25 +66,33 @@
     <div class="shrink-0 border-t" style="border-color: var(--kb-border);">
       <router-link
         to="/"
-        class="flex items-center gap-2 px-5 py-3 text-xs transition-colors hover:bg-gray-100"
+        class="flex items-center px-5 py-3 transition-colors hover:bg-gray-100"
         :class="collapsed ? 'justify-center px-0' : ''"
-        style="color: var(--kb-muted-foreground);"
+        :style="{
+          gap: 'var(--kb-sidebar-gap)',
+          color: 'var(--kb-muted-foreground)',
+          fontSize: 'var(--kb-sidebar-bottom-fs)',
+        }"
         :title="collapsed ? '返回前台' : ''"
         @click="$emit('close')"
       >
-        <Icon name="external-link" :size="14" class="shrink-0" />
+        <Icon name="external-link" size="sm" class="shrink-0" />
         <span v-if="!collapsed">返回前台</span>
       </router-link>
 
       <button
         type="button"
-        class="w-full flex items-center gap-2 py-2.5 text-[13px] text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors border-t"
+        class="w-full flex items-center py-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors border-t"
         :class="collapsed ? 'justify-center' : 'px-4'"
-        style="border-color: var(--kb-border);"
+        :style="{
+          gap: 'var(--kb-sidebar-gap)',
+          borderColor: 'var(--kb-border)',
+          fontSize: 'var(--kb-sidebar-bottom-fs)',
+        }"
         :title="collapsed ? '展开菜单' : '收起菜单'"
         @click="$emit('toggle-collapse')"
       >
-        <Icon :name="collapsed ? 'chevron-right' : 'chevron-left'" :size="16" />
+        <Icon :name="collapsed ? 'chevron-right' : 'chevron-left'" size="md" />
         <span v-if="!collapsed">收起菜单</span>
       </button>
     </div>

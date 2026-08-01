@@ -1,0 +1,870 @@
+{
+  "id": "4013715",
+  "name": "my-icon",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "我的一些图标",
+  "glyphs": [
+    {
+      "icon_id": "77156",
+      "name": "微信",
+      "font_class": "weixin",
+      "unicode": "e620",
+      "unicode_decimal": 58912
+    },
+    {
+      "icon_id": "846528",
+      "name": "选词助手 查找",
+      "font_class": "xuancizhushouchazhao",
+      "unicode": "e890",
+      "unicode_decimal": 59536
+    },
+    {
+      "icon_id": "1106888",
+      "name": "天气助手",
+      "font_class": "tianqizhushou",
+      "unicode": "e62e",
+      "unicode_decimal": 58926
+    },
+    {
+      "icon_id": "1167129",
+      "name": "帮助手册",
+      "font_class": "bangzhushouce",
+      "unicode": "e621",
+      "unicode_decimal": 58913
+    },
+    {
+      "icon_id": "1284626",
+      "name": "支付宝支付",
+      "font_class": "zhifubaozhifu",
+      "unicode": "e64f",
+      "unicode_decimal": 58959
+    },
+    {
+      "icon_id": "4936955",
+      "name": "alipay",
+      "font_class": "alipay",
+      "unicode": "e87c",
+      "unicode_decimal": 59516
+    },
+    {
+      "icon_id": "5580740",
+      "name": "agent",
+      "font_class": "agent",
+      "unicode": "e622",
+      "unicode_decimal": 58914
+    },
+    {
+      "icon_id": "6096631",
+      "name": "医疗知识库",
+      "font_class": "yishengzhushou",
+      "unicode": "e627",
+      "unicode_decimal": 58919
+    },
+    {
+      "icon_id": "8135232",
+      "name": "AI及算法",
+      "font_class": "zu",
+      "unicode": "e623",
+      "unicode_decimal": 58915
+    },
+    {
+      "icon_id": "8135239",
+      "name": "计算机平台/云",
+      "font_class": "zu1",
+      "unicode": "e624",
+      "unicode_decimal": 58916
+    },
+    {
+      "icon_id": "8875676",
+      "name": "微信",
+      "font_class": "weixin1",
+      "unicode": "e662",
+      "unicode_decimal": 58978
+    },
+    {
+      "icon_id": "11466921",
+      "name": "mg-workagent",
+      "font_class": "mg-workagent",
+      "unicode": "e625",
+      "unicode_decimal": 58917
+    },
+    {
+      "icon_id": "11799115",
+      "name": "知识库管理",
+      "font_class": "zhishikuguanli",
+      "unicode": "e667",
+      "unicode_decimal": 58983
+    },
+    {
+      "icon_id": "15203369",
+      "name": "切词",
+      "font_class": "qieci",
+      "unicode": "e64d",
+      "unicode_decimal": 58957
+    },
+    {
+      "icon_id": "15203370",
+      "name": "短文本相似",
+      "font_class": "duanwenbenxiangsi",
+      "unicode": "e64e",
+      "unicode_decimal": 58958
+    },
+    {
+      "icon_id": "15203374",
+      "name": "文本摘要",
+      "font_class": "wenbenzhaiyao",
+      "unicode": "e650",
+      "unicode_decimal": 58960
+    },
+    {
+      "icon_id": "15203375",
+      "name": "CRF识别",
+      "font_class": "CRFshibie",
+      "unicode": "e652",
+      "unicode_decimal": 58962
+    },
+    {
+      "icon_id": "15203378",
+      "name": "长文本相似",
+      "font_class": "changwenbenxiangsi",
+      "unicode": "e653",
+      "unicode_decimal": 58963
+    },
+    {
+      "icon_id": "15208882",
+      "name": "pmml模型",
+      "font_class": "pmmlmoxing",
+      "unicode": "e654",
+      "unicode_decimal": 58964
+    },
+    {
+      "icon_id": "15222470",
+      "name": "文本数据源",
+      "font_class": "wenbenshujuyuan",
+      "unicode": "e656",
+      "unicode_decimal": 58966
+    },
+    {
+      "icon_id": "15222472",
+      "name": "关联",
+      "font_class": "guanlian",
+      "unicode": "e657",
+      "unicode_decimal": 58967
+    },
+    {
+      "icon_id": "15243412",
+      "name": "pmml模型保存",
+      "font_class": "pmmlmoxingbaocun",
+      "unicode": "e658",
+      "unicode_decimal": 58968
+    },
+    {
+      "icon_id": "15243413",
+      "name": "知识图谱保存",
+      "font_class": "zhishitupubaocun",
+      "unicode": "e659",
+      "unicode_decimal": 58969
+    },
+    {
+      "icon_id": "16336185",
+      "name": "icon",
+      "font_class": "zuzhi",
+      "unicode": "e6a2",
+      "unicode_decimal": 59042
+    },
+    {
+      "icon_id": "17593403",
+      "name": "帮助手册",
+      "font_class": "bangzhushouce1",
+      "unicode": "e6fe",
+      "unicode_decimal": 59134
+    },
+    {
+      "icon_id": "19494220",
+      "name": "建档助手",
+      "font_class": "jiandangzhushou",
+      "unicode": "e626",
+      "unicode_decimal": 58918
+    },
+    {
+      "icon_id": "22773558",
+      "name": "文件配置",
+      "font_class": "wenjianpeizhi",
+      "unicode": "e65f",
+      "unicode_decimal": 58975
+    },
+    {
+      "icon_id": "23558458",
+      "name": "数据目录",
+      "font_class": "shujumulu",
+      "unicode": "e660",
+      "unicode_decimal": 58976
+    },
+    {
+      "icon_id": "23569676",
+      "name": "文档搜索",
+      "font_class": "wendangsousuo",
+      "unicode": "e661",
+      "unicode_decimal": 58977
+    },
+    {
+      "icon_id": "27253681",
+      "name": "知识库",
+      "font_class": "zhishiku2",
+      "unicode": "e628",
+      "unicode_decimal": 58920
+    },
+    {
+      "icon_id": "45167308",
+      "name": "AI备课助手",
+      "font_class": "AIbeikezhushou",
+      "unicode": "e62a",
+      "unicode_decimal": 58922
+    },
+    {
+      "icon_id": "14151860",
+      "name": "图标管理",
+      "font_class": "tubiaoguanli",
+      "unicode": "e636",
+      "unicode_decimal": 58934
+    },
+    {
+      "icon_id": "15053872",
+      "name": "ai",
+      "font_class": "24px2x",
+      "unicode": "e610",
+      "unicode_decimal": 58896
+    },
+    {
+      "icon_id": "15813839",
+      "name": "绩效考核_线",
+      "font_class": "jixiaokaohe_xian",
+      "unicode": "e655",
+      "unicode_decimal": 58965
+    },
+    {
+      "icon_id": "15838516",
+      "name": "pdf",
+      "font_class": "pdf3",
+      "unicode": "e67a",
+      "unicode_decimal": 59002
+    },
+    {
+      "icon_id": "17581499",
+      "name": "导出为python",
+      "font_class": "daochuweipython",
+      "unicode": "ec4e",
+      "unicode_decimal": 60494
+    },
+    {
+      "icon_id": "17811005",
+      "name": "txt",
+      "font_class": "txt1",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "17811016",
+      "name": "js",
+      "font_class": "js2",
+      "unicode": "e606",
+      "unicode_decimal": 58886
+    },
+    {
+      "icon_id": "17812729",
+      "name": "数据科学",
+      "font_class": "shujukexue2",
+      "unicode": "e8f3",
+      "unicode_decimal": 59635
+    },
+    {
+      "icon_id": "19035879",
+      "name": "md",
+      "font_class": "md1",
+      "unicode": "e61a",
+      "unicode_decimal": 58906
+    },
+    {
+      "icon_id": "19035884",
+      "name": "JSON",
+      "font_class": "JSON1",
+      "unicode": "e61b",
+      "unicode_decimal": 58907
+    },
+    {
+      "icon_id": "20592001",
+      "name": "学习等级",
+      "font_class": "shucheng",
+      "unicode": "e6a1",
+      "unicode_decimal": 59041
+    },
+    {
+      "icon_id": "20704988",
+      "name": "学习等级",
+      "font_class": "xuexidengji",
+      "unicode": "e6a8",
+      "unicode_decimal": 59048
+    },
+    {
+      "icon_id": "21800720",
+      "name": "学习",
+      "font_class": "xuexi3",
+      "unicode": "e61c",
+      "unicode_decimal": 58908
+    },
+    {
+      "icon_id": "23023323",
+      "name": "python",
+      "font_class": "python",
+      "unicode": "e637",
+      "unicode_decimal": 58935
+    },
+    {
+      "icon_id": "26815646",
+      "name": "txt",
+      "font_class": "txt2",
+      "unicode": "e6e2",
+      "unicode_decimal": 59106
+    },
+    {
+      "icon_id": "27365140",
+      "name": "java",
+      "font_class": "java3",
+      "unicode": "ec0a",
+      "unicode_decimal": 60426
+    },
+    {
+      "icon_id": "27909445",
+      "name": "icon-test",
+      "font_class": "a-8_3qianduankaifa",
+      "unicode": "e611",
+      "unicode_decimal": 58897
+    },
+    {
+      "icon_id": "28257646",
+      "name": "学习中心",
+      "font_class": "xuexizhongxin1-copy-copy",
+      "unicode": "e6bb",
+      "unicode_decimal": 59067
+    },
+    {
+      "icon_id": "31242909",
+      "name": "学习中心",
+      "font_class": "xuexizhongxin3",
+      "unicode": "e632",
+      "unicode_decimal": 58930
+    },
+    {
+      "icon_id": "35959049",
+      "name": "java",
+      "font_class": "java4",
+      "unicode": "e7b4",
+      "unicode_decimal": 59316
+    },
+    {
+      "icon_id": "37258323",
+      "name": "图标管理",
+      "font_class": "tubiaoguanli1",
+      "unicode": "e6aa",
+      "unicode_decimal": 59050
+    },
+    {
+      "icon_id": "40200919",
+      "name": "数据科学",
+      "font_class": "shujukexue3",
+      "unicode": "e65e",
+      "unicode_decimal": 58974
+    },
+    {
+      "icon_id": "40775010",
+      "name": "图标管理-copy",
+      "font_class": "tubiaoguanli2",
+      "unicode": "e614",
+      "unicode_decimal": 58900
+    },
+    {
+      "icon_id": "43206260",
+      "name": "任务中心",
+      "font_class": "renwuzhongxin2",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "45871637",
+      "name": "Knowledge,知识,学习中心",
+      "font_class": "a-Knowledgezhishixuexizhongxin",
+      "unicode": "e923",
+      "unicode_decimal": 59683
+    },
+    {
+      "icon_id": "48075789",
+      "name": "JS",
+      "font_class": "JS",
+      "unicode": "e616",
+      "unicode_decimal": 58902
+    },
+    {
+      "icon_id": "48075791",
+      "name": "CSS",
+      "font_class": "CSS1",
+      "unicode": "e617",
+      "unicode_decimal": 58903
+    },
+    {
+      "icon_id": "48075800",
+      "name": "MD",
+      "font_class": "MD",
+      "unicode": "e61f",
+      "unicode_decimal": 58911
+    },
+    {
+      "icon_id": "417389",
+      "name": "会员等级",
+      "font_class": "huiyuandengji",
+      "unicode": "e64a",
+      "unicode_decimal": 58954
+    },
+    {
+      "icon_id": "508909",
+      "name": "等级",
+      "font_class": "dengji",
+      "unicode": "e629",
+      "unicode_decimal": 58921
+    },
+    {
+      "icon_id": "526006",
+      "name": "等级",
+      "font_class": "dengji1",
+      "unicode": "e61d",
+      "unicode_decimal": 58909
+    },
+    {
+      "icon_id": "622431",
+      "name": "pdf",
+      "font_class": "pdf",
+      "unicode": "e740",
+      "unicode_decimal": 59200
+    },
+    {
+      "icon_id": "841853",
+      "name": "会员等级 等级 钻石",
+      "font_class": "huiyuandengjidengjizuanshi",
+      "unicode": "e6b0",
+      "unicode_decimal": 59056
+    },
+    {
+      "icon_id": "869802",
+      "name": "java",
+      "font_class": "java",
+      "unicode": "e746",
+      "unicode_decimal": 59206
+    },
+    {
+      "icon_id": "1004139",
+      "name": "html",
+      "font_class": "html",
+      "unicode": "e68c",
+      "unicode_decimal": 59020
+    },
+    {
+      "icon_id": "1079509",
+      "name": "学习",
+      "font_class": "xuexi",
+      "unicode": "e635",
+      "unicode_decimal": 58933
+    },
+    {
+      "icon_id": "1132598",
+      "name": "知识库",
+      "font_class": "zhishiku",
+      "unicode": "e647",
+      "unicode_decimal": 58951
+    },
+    {
+      "icon_id": "1160125",
+      "name": "css",
+      "font_class": "css",
+      "unicode": "e63b",
+      "unicode_decimal": 58939
+    },
+    {
+      "icon_id": "1160159",
+      "name": "js",
+      "font_class": "js",
+      "unicode": "e65d",
+      "unicode_decimal": 58973
+    },
+    {
+      "icon_id": "1210593",
+      "name": "任务中心",
+      "font_class": "renwuzhongxin",
+      "unicode": "e686",
+      "unicode_decimal": 59014
+    },
+    {
+      "icon_id": "1312068",
+      "name": "知识库",
+      "font_class": "zhishiku1",
+      "unicode": "e61e",
+      "unicode_decimal": 58910
+    },
+    {
+      "icon_id": "1447797",
+      "name": "学习分析",
+      "font_class": "xuexifenxi",
+      "unicode": "e631",
+      "unicode_decimal": 58929
+    },
+    {
+      "icon_id": "1453447",
+      "name": "html",
+      "font_class": "html1",
+      "unicode": "e608",
+      "unicode_decimal": 58888
+    },
+    {
+      "icon_id": "1790071",
+      "name": "TXT",
+      "font_class": "TXT",
+      "unicode": "e6e1",
+      "unicode_decimal": 59105
+    },
+    {
+      "icon_id": "2029536",
+      "name": "学习",
+      "font_class": "xuexi1",
+      "unicode": "e63c",
+      "unicode_decimal": 58940
+    },
+    {
+      "icon_id": "2180848",
+      "name": "学习中心,笔",
+      "font_class": "xuexizhongxin",
+      "unicode": "e619",
+      "unicode_decimal": 58905
+    },
+    {
+      "icon_id": "2794637",
+      "name": "pdf",
+      "font_class": "pdf1",
+      "unicode": "e8e8",
+      "unicode_decimal": 59624
+    },
+    {
+      "icon_id": "3010860",
+      "name": "能源管理库-7菜单图标-管理",
+      "font_class": "nengyuanguanliku-caidantubiao-guanli",
+      "unicode": "e706",
+      "unicode_decimal": 59142
+    },
+    {
+      "icon_id": "3756561",
+      "name": "学习计划",
+      "font_class": "xuexijihua-",
+      "unicode": "e65a",
+      "unicode_decimal": 58970
+    },
+    {
+      "icon_id": "3851348",
+      "name": "等级01",
+      "font_class": "dengji2",
+      "unicode": "e65b",
+      "unicode_decimal": 58971
+    },
+    {
+      "icon_id": "3851350",
+      "name": "等级02",
+      "font_class": "dengji3",
+      "unicode": "e65c",
+      "unicode_decimal": 58972
+    },
+    {
+      "icon_id": "3904564",
+      "name": "人工智能",
+      "font_class": "rengongzhineng",
+      "unicode": "e692",
+      "unicode_decimal": 59026
+    },
+    {
+      "icon_id": "4657687",
+      "name": "学习",
+      "font_class": "xuexi-",
+      "unicode": "e609",
+      "unicode_decimal": 58889
+    },
+    {
+      "icon_id": "4766472",
+      "name": "file-pdf",
+      "font_class": "file-pdf",
+      "unicode": "e7b8",
+      "unicode_decimal": 59320
+    },
+    {
+      "icon_id": "4770748",
+      "name": "学习中心",
+      "font_class": "xuexizhongxin1",
+      "unicode": "e63d",
+      "unicode_decimal": 58941
+    },
+    {
+      "icon_id": "4807117",
+      "name": "人工智能",
+      "font_class": "rengongzhineng1",
+      "unicode": "e651",
+      "unicode_decimal": 58961
+    },
+    {
+      "icon_id": "4893192",
+      "name": "DOC",
+      "font_class": "DOC",
+      "unicode": "ec17",
+      "unicode_decimal": 60439
+    },
+    {
+      "icon_id": "4918027",
+      "name": "等级-C",
+      "font_class": "dengji-C",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "4918028",
+      "name": "等级-B",
+      "font_class": "dengji-B",
+      "unicode": "e602",
+      "unicode_decimal": 58882
+    },
+    {
+      "icon_id": "4918029",
+      "name": "等级-D",
+      "font_class": "dengji-D",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    },
+    {
+      "icon_id": "4918030",
+      "name": "等级-A",
+      "font_class": "dengji-A",
+      "unicode": "e604",
+      "unicode_decimal": 58884
+    },
+    {
+      "icon_id": "5387552",
+      "name": "任务中心",
+      "font_class": "renwuzhongxin1",
+      "unicode": "eafd",
+      "unicode_decimal": 60157
+    },
+    {
+      "icon_id": "5598322",
+      "name": "java-iocn",
+      "font_class": "java-iocn",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    },
+    {
+      "icon_id": "5703786",
+      "name": "jsx",
+      "font_class": "jsx",
+      "unicode": "e60a",
+      "unicode_decimal": 58890
+    },
+    {
+      "icon_id": "5729484",
+      "name": "css",
+      "font_class": "css1",
+      "unicode": "e60b",
+      "unicode_decimal": 58891
+    },
+    {
+      "icon_id": "6216059",
+      "name": "标签",
+      "font_class": "biaoqian",
+      "unicode": "e605",
+      "unicode_decimal": 58885
+    },
+    {
+      "icon_id": "6294486",
+      "name": "TXT",
+      "font_class": "TXT1",
+      "unicode": "e64b",
+      "unicode_decimal": 58955
+    },
+    {
+      "icon_id": "6347331",
+      "name": "txt",
+      "font_class": "txt",
+      "unicode": "e666",
+      "unicode_decimal": 58982
+    },
+    {
+      "icon_id": "6472244",
+      "name": "doc",
+      "font_class": "doc",
+      "unicode": "e735",
+      "unicode_decimal": 59189
+    },
+    {
+      "icon_id": "6486527",
+      "name": "学习",
+      "font_class": "xuexi2",
+      "unicode": "e607",
+      "unicode_decimal": 58887
+    },
+    {
+      "icon_id": "7008920",
+      "name": "document",
+      "font_class": "document",
+      "unicode": "e6f3",
+      "unicode_decimal": 59123
+    },
+    {
+      "icon_id": "7201585",
+      "name": "数据科学",
+      "font_class": "shujukexue",
+      "unicode": "e6c5",
+      "unicode_decimal": 59077
+    },
+    {
+      "icon_id": "7319076",
+      "name": "知识库",
+      "font_class": "zhishi",
+      "unicode": "e618",
+      "unicode_decimal": 58904
+    },
+    {
+      "icon_id": "8288819",
+      "name": "Word",
+      "font_class": "Word",
+      "unicode": "e83e",
+      "unicode_decimal": 59454
+    },
+    {
+      "icon_id": "8615673",
+      "name": "数据科学",
+      "font_class": "shujukexue1",
+      "unicode": "e6fd",
+      "unicode_decimal": 59133
+    },
+    {
+      "icon_id": "8765263",
+      "name": "word",
+      "font_class": "word",
+      "unicode": "e640",
+      "unicode_decimal": 58944
+    },
+    {
+      "icon_id": "8827732",
+      "name": "学习中心管理",
+      "font_class": "xuexizhongxinguanli",
+      "unicode": "e725",
+      "unicode_decimal": 59173
+    },
+    {
+      "icon_id": "9748081",
+      "name": "前端开发",
+      "font_class": "qianduankaifa",
+      "unicode": "e643",
+      "unicode_decimal": 58947
+    },
+    {
+      "icon_id": "9748122",
+      "name": "后端开发",
+      "font_class": "houduankaifa",
+      "unicode": "e64c",
+      "unicode_decimal": 58956
+    },
+    {
+      "icon_id": "9766333",
+      "name": "考试",
+      "font_class": "kaoshi",
+      "unicode": "e60f",
+      "unicode_decimal": 58895
+    },
+    {
+      "icon_id": "9968235",
+      "name": "pdf",
+      "font_class": "pdf2",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
+    },
+    {
+      "icon_id": "9968240",
+      "name": "word",
+      "font_class": "word1",
+      "unicode": "e60e",
+      "unicode_decimal": 58894
+    },
+    {
+      "icon_id": "10056215",
+      "name": "等级",
+      "font_class": "dengji4",
+      "unicode": "e6f7",
+      "unicode_decimal": 59127
+    },
+    {
+      "icon_id": "10135244",
+      "name": "md",
+      "font_class": "md",
+      "unicode": "e8b4",
+      "unicode_decimal": 59572
+    },
+    {
+      "icon_id": "10217185",
+      "name": "学习中心",
+      "font_class": "xuexizhongxin2",
+      "unicode": "e644",
+      "unicode_decimal": 58948
+    },
+    {
+      "icon_id": "11992918",
+      "name": "java",
+      "font_class": "java1",
+      "unicode": "e6e0",
+      "unicode_decimal": 59104
+    },
+    {
+      "icon_id": "12600749",
+      "name": "java",
+      "font_class": "java2",
+      "unicode": "e639",
+      "unicode_decimal": 58937
+    },
+    {
+      "icon_id": "12600754",
+      "name": "jsp",
+      "font_class": "jsp",
+      "unicode": "e63a",
+      "unicode_decimal": 58938
+    },
+    {
+      "icon_id": "12600760",
+      "name": "js",
+      "font_class": "js1",
+      "unicode": "e63e",
+      "unicode_decimal": 58942
+    },
+    {
+      "icon_id": "12600761",
+      "name": "jsx",
+      "font_class": "jsx1",
+      "unicode": "e63f",
+      "unicode_decimal": 58943
+    },
+    {
+      "icon_id": "12904097",
+      "name": "CSS",
+      "font_class": "CSS",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
+      "icon_id": "12904101",
+      "name": "JSON",
+      "font_class": "JSON",
+      "unicode": "e613",
+      "unicode_decimal": 58899
+    }
+  ]
+}

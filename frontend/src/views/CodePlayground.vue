@@ -30,19 +30,53 @@
           <Icon name="sparkles" :size="14" />
           <span>{{ aiAnswering ? 'AI 思考中...' : 'AI 回答' }}</span>
         </button>
-        <button type="button" class="header-btn hint-btn" @click="showHint = !showHint">
-          <Icon name="lightbulb" :size="14" />
-          <span>提示</span>
-        </button>
-        <button
-          type="button"
-          class="header-btn ws-toggle-btn"
-          :class="{ active: workspaceMode }"
-          @click="toggleWorkspace"
-        >
-          <Icon name="folder" :size="14" />
-          <span>沙箱模式</span>
-        </button>
+        <!-- P2-4：次要操作收纳到「更多」下拉菜单 -->
+        <div class="more-menu-wrapper">
+          <button
+            type="button"
+            class="header-btn more-btn"
+            :class="{ active: moreMenuOpen }"
+            :aria-expanded="moreMenuOpen"
+            aria-haspopup="menu"
+            title="更多操作"
+            @click.stop="moreMenuOpen = !moreMenuOpen"
+          >
+            <Icon name="more-horizontal" :size="14" />
+            <span>更多</span>
+          </button>
+          <transition name="more-menu">
+            <div v-if="moreMenuOpen" class="more-dropdown" role="menu">
+              <button
+                type="button"
+                class="dropdown-item"
+                :class="{ active: showHint }"
+                role="menuitem"
+                @click="showHint = !showHint; moreMenuOpen = false"
+              >
+                <Icon name="lightbulb" :size="14" />
+                <span>{{ showHint ? '隐藏提示' : '查看提示' }}</span>
+                <span v-if="showHint" class="dropdown-indicator">
+                  <Icon name="check" :size="12" />
+                </span>
+              </button>
+              <button
+                type="button"
+                class="dropdown-item"
+                :class="{ active: workspaceMode }"
+                role="menuitem"
+                @click="toggleWorkspace(); moreMenuOpen = false"
+              >
+                <Icon name="folder" :size="14" />
+                <span>沙箱模式</span>
+                <span v-if="workspaceMode" class="dropdown-indicator">
+                  <Icon name="check" :size="12" />
+                </span>
+              </button>
+            </div>
+          </transition>
+        </div>
+        <!-- 透明遮罩：点击外部关闭下拉 -->
+        <div v-if="moreMenuOpen" class="more-menu-overlay" @click="moreMenuOpen = false"></div>
       </div>
     </div>
 
@@ -534,6 +568,9 @@ const workspaceMode = ref(false)
 const workspaceFiles = ref<CodeWorkspaceFileDTO[]>([])
 const activeWsFile = ref('')
 const wsLoading = ref(false)
+
+// P2-4：顶部「更多」下拉菜单展开状态
+const moreMenuOpen = ref(false)
 
 // ===== AI 编程助手内联（SC1-AI-01） =====
 const aiQuestion = ref('')
@@ -1950,18 +1987,69 @@ onUnmounted(() => {
     border-bottom: 1px solid var(--kb-border);
   }
 }
-/* ===== 沙箱模式切换按钮（头部） ===== */
-.ws-toggle-btn {
-  border-color: var(--kb-border);
+/* ===== P2-4：顶部「更多」下拉菜单 ===== */
+.more-menu-wrapper {
+  position: relative;
+}
+.more-btn {
   color: var(--kb-muted-foreground);
 }
-.ws-toggle-btn.active {
+.more-btn.active {
   border-color: var(--kb-primary);
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kb-muted);
   color: var(--kb-primary);
 }
-.ws-toggle-btn:hover:not(.active) {
+.more-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 180px;
+  padding: 4px;
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-sm);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+}
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--kb-foreground);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+.dropdown-item:hover {
   background: var(--kb-muted);
+}
+.dropdown-item.active {
+  color: var(--kb-primary);
+}
+.dropdown-indicator {
+  margin-left: auto;
+  color: var(--kb-primary);
+}
+.more-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+}
+/* 下拉展开/收起过渡 */
+.more-menu-enter-active,
+.more-menu-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.more-menu-enter-from,
+.more-menu-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 
 /* ===== 工作区面板（SC1-IDE-02） ===== */

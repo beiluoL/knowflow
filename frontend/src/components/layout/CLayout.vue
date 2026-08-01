@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen" style="background: var(--kb-background);">
     <CTopNav />
-    <main class="pt-14">
+    <main class="pt-14 kb-region-content">
       <!-- 全屏页（笔记/写作/代码/聊天/仪表盘等）：取消 max-w-7xl 居中限制，由业务页自管宽度 -->
       <div v-if="route.meta.fullscreen" class="w-full px-4 sm:px-6 py-6">
         <slot />

@@ -56,5 +56,11 @@ public class PersonalizedPathVO {
         private Integer sortOrder;
         /** 章节学习重点。 */
         private String focus;
+        /**
+         * AI 推断的前置章节序号列表（对应本次规划中其它章节的 sortOrder）。
+         * 采用路径时会解析为真实的 learning_chapter.id，写入 prerequisite_chapter_ids 构成 DAG。
+         * 仅允许引用序号更小的章节，以保证依赖图无环。
+         */
+        private List<Integer> prerequisiteSortOrders;
     }
 }

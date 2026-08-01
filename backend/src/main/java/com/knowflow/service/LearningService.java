@@ -8,10 +8,12 @@ import com.knowflow.entity.LearningPath;
 import com.knowflow.entity.LearningTask;
 import com.knowflow.vo.DailyActivityVO;
 import com.knowflow.vo.FlashcardVO;
+import com.knowflow.vo.LearningCertificateVO;
 import com.knowflow.vo.LearningChapterVO;
 import com.knowflow.vo.LearningPathVO;
 import com.knowflow.vo.LearningTaskVO;
 import com.knowflow.vo.CategoryMasteryVO;
+import com.knowflow.vo.ChapterDagVO;
 import com.knowflow.vo.MasteryDistributionVO;
 import com.knowflow.vo.PersonalizedPathVO;
 
@@ -20,11 +22,18 @@ import java.util.List;
 /** 学习中心业务服务接口。 */
 public interface LearningService extends IService<LearningPath> {
 
-    List<LearningPathVO> getPathList();
+    /**
+     * 学习路径列表（含当前用户报名状态与学习进度）。
+     * @param userId 当前用户 ID；匿名访问时传 null，enrolled/progress 均为空。
+     */
+    List<LearningPathVO> getPathList(Long userId);
 
-    LearningPathVO getPathDetail(Long pathId);
+    LearningPathVO getPathDetail(Long pathId, Long userId);
 
     List<LearningChapterVO> getChapterList(Long pathId, Long userId);
+
+    /** 构建章节依赖关系图（DAG）：节点为章节，边为前置依赖，状态复用前置解锁规则。 */
+    ChapterDagVO getChapterDag(Long pathId, Long userId);
 
     LearningChapterVO getChapterDetail(Long chapterId, Long userId);
 
@@ -41,6 +50,24 @@ public interface LearningService extends IService<LearningPath> {
     void enrollPath(Long pathId, Long userId);
 
     void completeChapter(Long chapterId, Long userId);
+
+    /**
+     * 上报章节视频观看进度（L-FORM-01）：不存在记录则创建，已存在则更新。
+     * @param progress 观看进度百分比（0-100）
+     * @return 当前累计观看进度（百分比）
+     */
+    java.math.BigDecimal updateVideoProgress(Long chapterId, Long userId, java.math.BigDecimal progress);
+
+    // ========== 数字证书（G-CERT-01） ==========
+
+    /** 查询当前用户的所有证书（按颁发时间倒序）。 */
+    List<LearningCertificateVO> listMyCertificates(Long userId);
+
+    /** 查询证书详情（本人可见全部字段；他人仅可见可公开的展示信息）。 */
+    LearningCertificateVO getCertificateDetail(Long certificateId, Long userId);
+
+    /** 按验证码验证证书，返回证书公开信息（供任意用户/访客核验真伪）。 */
+    LearningCertificateVO verifyCertificate(String certNo);
 
     /** 复习闪卡：依据评分 quality(0~5) 计算下次间隔（SM-2 算法）。 */
     void reviewFlashcard(Long flashcardId, Long userId, Integer quality);

@@ -1,5 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap');
+/* 字体加载：合并为单次请求（Noto Sans SC 正文 + Noto Serif SC 展示标题 + JetBrains Mono 代码）
+ * index.html 已 preconnect fonts.googleapis.com / fonts.gstatic.com，此处仅 @import css2 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@500;600;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -36,6 +37,18 @@
   --kb-destructive-foreground: #FFFFFF;
   --kb-warning: #F59E0B;
   --kb-warning-foreground: #FFFFFF;
+
+  /* ===== Signature Highlight（高光时刻标识色） =====
+   * 暖橘 #FF6B35 是 KnowFlow 的 signature accent，区别于主蓝，
+   * 专门用于「成就解锁 / 连续打卡火焰 / AI 推荐 / 升级庆祝」等高光时刻，
+   * 与主色 #3B6FE0 形成 80/20 主辅关系，制造视觉惊喜与记忆点。
+   * 使用建议：不大面积铺色，仅用于徽章、图标、动效高光、强调数字。
+   */
+  --kb-highlight: #FF6B35;
+  --kb-highlight-foreground: #FFFFFF;
+  --kb-highlight-soft: rgba(255, 107, 53, 0.10); /* 软背景：徽章底色、卡片高光 */
+  --kb-highlight-border: rgba(255, 107, 53, 0.30);
+
   --kb-radius-sm: 6px;
   --kb-radius-md: 10px;
   --kb-radius-lg: 16px;
@@ -44,8 +57,103 @@
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-card: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
   --shadow-card-hover: 0 8px 24px 0 rgba(0, 0, 0, 0.08);
+
+  /* ===== 字体系统 =====
+   * --font-sans   正文（Noto Sans SC，功能性）
+   * --font-serif  展示标题 H1/H2/H3（Noto Serif SC，杂志感）
+   * --font-display Hero 大标题专用，比 serif 更重更紧（900 字重）
+   * --font-mono   代码块/数字列（JetBrains Mono，等宽带连字）
+   */
   --font-sans: 'Noto Sans SC', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-serif: 'Noto Serif SC', Georgia, 'Times New Roman', serif;
+  --font-display: 'Noto Serif SC', Georgia, 'Times New Roman', serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Consolas, monospace;
+
+  /* =====================================================================
+   * Typography 字号阶梯（企业级 8px 基线网格对齐）
+   * h1 -> display-xl  40px / 1.2  (Hero 大标题)
+   * h2 -> display-lg  32px / 1.25 (页面主标题)
+   * h3 -> display-md  24px / 1.3  (区块标题)
+   * h4 -> display-sm  20px / 1.4  (卡片标题)
+   * body-lg -> 16px  (正文大)
+   * body-md -> 14px  (正文默认 / 导航菜单)
+   * body-sm -> 13px  (辅助正文 / 下拉菜单)
+   * caption   -> 12px (标签 / 说明 / 分组标题)
+   * xs        -> 11px (角标 / 时间)
+   * ===================================================================== */
+  --kb-fs-h1: 40px;  --kb-lh-h1: 1.2;  --kb-fw-h1: 700;
+  --kb-fs-h2: 32px;  --kb-lh-h2: 1.25; --kb-fw-h2: 700;
+  --kb-fs-h3: 24px;  --kb-lh-h3: 1.3;  --kb-fw-h3: 600;
+  --kb-fs-h4: 20px;  --kb-lh-h4: 1.4;  --kb-fw-h4: 600;
+  --kb-fs-body-lg: 16px;  --kb-lh-body-lg: 1.6; --kb-fw-body-lg: 400;
+  --kb-fs-body-md: 14px;  --kb-lh-body-md: 1.6; --kb-fw-body-md: 400;
+  --kb-fs-body-sm: 13px;  --kb-lh-body-sm: 1.5; --kb-fw-body-sm: 400;
+  --kb-fs-caption:  12px;  --kb-lh-caption:  1.5; --kb-fw-caption:  500;
+  --kb-fs-xs:       11px;  --kb-lh-xs:       1.4; --kb-fw-xs:       500;
+
+  /* =====================================================================
+   * Icon 图标尺寸阶梯（偶数 + 语义化，避免魔法数字）
+   * xxs  10px  超小（列表内点 / 角标图标）
+   * xs   12px  特小（面包屑 / tag 标签）
+   * sm   14px  小（下拉箭头 / 辅助图标）
+   * md   16px  中（导航菜单 / 表单输入框 / 默认）
+   * lg   18px  大（移动端菜单 / 按钮图标）
+   * xl   20px  特大（Logo / 通知铃铛 / 顶部操作）
+   * 2xl  24px  超大（卡片 / Hero 区域）
+   * 3xl  32px  巨大（空状态 / 节日插画）
+   * ===================================================================== */
+  --kb-icon-xxs: 10px;
+  --kb-icon-xs:  12px;
+  --kb-icon-sm:  14px;
+  --kb-icon-md:  16px;   /* 默认 */
+  --kb-icon-lg:  18px;
+  --kb-icon-xl:  20px;
+  --kb-icon-2xl: 24px;
+  --kb-icon-3xl: 32px;
+
+  /* =====================================================================
+   * Spacing 间距阶梯（基于 4px 网格，统一 gap / padding / margin）
+   * 0  0px | 1  4px | 2  8px | 3  12px | 4  16px
+   * 5  20px | 6  24px | 8  32px | 10 40px | 12 48px
+   * ===================================================================== */
+  --kb-space-1: 4px;
+  --kb-space-2: 8px;
+  --kb-space-3: 12px;
+  --kb-space-4: 16px;
+  --kb-space-5: 20px;
+  --kb-space-6: 24px;
+  --kb-space-8: 32px;
+
+  /* =====================================================================
+   * Layout 布局专用语义化尺寸
+   * 顶栏高度 h-14 = 56px；侧边栏 Logo 高度同样 56px；
+   * 导航菜单默认：图标 md(16px) + 文字 body-md(14px/500) + 间距 gap-2(8px)
+   * 下拉菜单项：图标 md(16px) + 文字 body-sm(13px) + 间距 gap-2(8px)
+   * 移动端菜单项：图标 lg(18px) + 文字 body-md(14px) + 间距 gap-2(8px)
+   * ===================================================================== */
+  --kb-nav-height: 56px;
+  --kb-nav-icon: var(--kb-icon-md);        /* 桌面导航图标 */
+  --kb-nav-chevron: var(--kb-icon-sm);     /* 下拉箭头 */
+  --kb-nav-text-fs: var(--kb-fs-body-md);  /* 桌面导航文字 14px */
+  --kb-nav-text-fw: 500;                   /* 导航文字字重 Medium */
+  --kb-nav-gap: var(--kb-space-2);         /* 图标 ↔ 文字间距 8px */
+  --kb-dropdown-icon: var(--kb-icon-md);   /* 下拉菜单图标 */
+  --kb-dropdown-text-fs: var(--kb-fs-body-sm); /* 下拉菜单文字 13px */
+  --kb-mobile-icon: var(--kb-icon-lg);     /* 移动端菜单图标 18px */
+  --kb-logo-icon: var(--kb-icon-xl);       /* Logo 图标 20px */
+  --kb-logo-text-fs: var(--kb-fs-h4);      /* Logo 文字 20px */
+  --kb-logo-text-fw: 600;                  /* Logo 文字字重 */
+
+  /* 侧边栏（管理后台 Sidebar）专用语义化尺寸 */
+  --kb-sidebar-icon: var(--kb-icon-md);       /* 侧边栏导航项图标 16px */
+  --kb-sidebar-text-fs: var(--kb-fs-body-sm); /* 侧边栏导航文字 13px */
+  --kb-sidebar-text-fw: 500;                  /* 侧边栏导航字重 */
+  --kb-sidebar-gap: var(--kb-space-3);        /* 侧边栏图标↔文字间距 12px */
+  --kb-sidebar-label-fs: var(--kb-fs-xs);     /* 侧边栏分组标题 11px */
+  --kb-sidebar-label-fw: 500;                 /* 侧边栏分组标题字重 */
+  --kb-sidebar-chevron: var(--kb-icon-md);    /* 侧边栏折叠/展开箭头 16px */
+  --kb-sidebar-bottom-icon: var(--kb-icon-sm);/* 侧边栏底部辅助图标 14px */
+  --kb-sidebar-bottom-fs: var(--kb-fs-caption); /* 侧边栏底部文字 12px */
 
   /* ===== 旧版 --color-* 变量：全部引用 --kb-*，不再各自写死（F-07） ===== */
   --color-primary: var(--kb-primary);
@@ -65,6 +173,128 @@
   --radius-lg: var(--kb-radius-lg);
 }
 
+/* =====================================================================
+ * P3-1：深色模式（data-theme="dark"）
+ * 策略：重写 --kb-* 令牌为深色色板，所有引用 var(--kb-*) 的组件自动响应；
+ * 同时对高频 Tailwind 工具类（.bg-white/.text-gray-800/.border-gray-200 等）
+ * 做全局兜底映射，使未改造的页面也能瞬间变深色。
+ * 主色保持 #3B6FE0 家族，仅在深底下提亮以保证对比度。
+ * ===================================================================== */
+:root[data-theme='dark'] {
+  --kb-background: #0F1115;
+  --kb-foreground: #E6E8EC;
+  --kb-card: #1A1D23;
+  --kb-card-foreground: #E6E8EC;
+  --kb-popover: #1A1D23;
+  --kb-popover-foreground: #E6E8EC;
+  --kb-primary: #4F86F9;
+  --kb-primary-foreground: #0F1115;
+  --kb-muted: #252932;
+  --kb-muted-foreground: #9AA1AC;
+  --kb-border: #2A2F38;
+  --kb-input: #2A2F38;
+  --kb-ring: #4F86F9;
+  --kb-sidebar: #15171C;
+  --kb-sidebar-foreground: #C5CAD3;
+  --kb-accent: #34D399;
+  --kb-accent-foreground: #0F1115;
+  --kb-destructive: #F8716E;
+  --kb-destructive-foreground: #0F1115;
+  --kb-warning: #FBBF24;
+  --kb-warning-foreground: #0F1115;
+
+  --kb-highlight: #FF8556;
+  --kb-highlight-foreground: #0F1115;
+  --kb-highlight-soft: rgba(255, 133, 86, 0.16);
+  --kb-highlight-border: rgba(255, 133, 86, 0.40);
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 2px 8px 0 rgba(0, 0, 0, 0.3);
+  --shadow-card-hover: 0 8px 24px 0 rgba(0, 0, 0, 0.45);
+
+  --color-primary-light: #7BA3F5;
+  --color-primary-dark: #3B6FE0;
+  --color-border: #2A2F38;
+  --color-border-light: #252932;
+}
+
+/* 全局兜底：将高频 Tailwind 工具类映射到深色令牌，
+ * 让未显式使用 var(--kb-*) 的旧组件也能在深色模式下基本可用。 */
+:root[data-theme='dark'] .bg-white { background-color: var(--kb-card) !important; }
+:root[data-theme='dark'] .bg-gray-50,
+:root[data-theme='dark'] .bg-gray-100 { background-color: var(--kb-muted) !important; }
+:root[data-theme='dark'] .bg-gray-50\/30 { background-color: rgba(37, 41, 50, 0.5) !important; }
+
+:root[data-theme='dark'] .text-gray-900 { color: var(--kb-foreground) !important; }
+:root[data-theme='dark'] .text-gray-800 { color: var(--kb-foreground) !important; }
+:root[data-theme='dark'] .text-gray-700 { color: #C5CAD3 !important; }
+:root[data-theme='dark'] .text-gray-600 { color: var(--kb-muted-foreground) !important; }
+:root[data-theme='dark'] .text-gray-500 { color: var(--kb-muted-foreground) !important; }
+:root[data-theme='dark'] .text-gray-400 { color: #6B7280 !important; }
+
+:root[data-theme='dark'] .border-gray-200,
+:root[data-theme='dark'] .border-gray-300 { border-color: var(--kb-border) !important; }
+:root[data-theme='dark'] .border-gray-100,
+:root[data-theme='dark'] .border-gray-50 { border-color: var(--kb-muted) !important; }
+
+:root[data-theme='dark'] .hover\:bg-gray-50:hover { background-color: var(--kb-muted) !important; }
+:root[data-theme='dark'] .hover\:bg-gray-100:hover { background-color: #2A2F38 !important; }
+:root[data-theme='dark'] .hover\:text-gray-700:hover { color: var(--kb-foreground) !important; }
+
+/* 输入框深色化 */
+:root[data-theme='dark'] input,
+:root[data-theme='dark'] textarea,
+:root[data-theme='dark'] select {
+  background-color: var(--kb-card);
+  color: var(--kb-foreground);
+  border-color: var(--kb-border);
+}
+:root[data-theme='dark'] input::placeholder,
+:root[data-theme='dark'] textarea::placeholder {
+  color: #6B7280;
+}
+
+/* =====================================================================
+ * P3-2：功能区背景色调差异化（语义化区域背景）
+ * 通过为不同功能区分配差异化的背景色调，打破「全白/全灰一片」的扁平感，
+ * 建立侧栏 → 顶栏 → 内容区 → 强调区 的视觉层次。
+ * 所有类都基于 --kb-* 令牌，深色模式下自动响应。
+ * ===================================================================== */
+/* 顶栏：与卡片同色，靠底部边线与内容区区分 */
+.kb-region-topbar {
+  background: var(--kb-card);
+  border-bottom: 1px solid var(--kb-border);
+}
+/* 侧栏：比内容区略深/略浅，制造「抽屉」感 */
+.kb-region-sidebar {
+  background: var(--kb-sidebar);
+  border-right: 1px solid var(--kb-border);
+}
+/* 主内容区：纵向微妙渐变，顶部稍亮、底部稍沉，制造空间纵深 */
+.kb-region-content {
+  background:
+    linear-gradient(180deg, var(--kb-card) 0%, var(--kb-background) 280px);
+}
+/* 强调区：主色调氛围背景，用于 Hero、AI 对话等 signature 区域 */
+.kb-region-accent {
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(59, 111, 224, 0.08) 0%, transparent 60%),
+    radial-gradient(100% 60% at 100% 0%, rgba(255, 107, 53, 0.06) 0%, transparent 50%),
+    var(--kb-card);
+}
+:root[data-theme='dark'] .kb-region-content {
+  background:
+    linear-gradient(180deg, var(--kb-card) 0%, var(--kb-background) 320px);
+}
+:root[data-theme='dark'] .kb-region-accent {
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(79, 134, 249, 0.12) 0%, transparent 60%),
+    radial-gradient(100% 60% at 100% 0%, rgba(255, 133, 86, 0.08) 0%, transparent 50%),
+    var(--kb-card);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -75,9 +305,26 @@ html {
   font-family: var(--font-sans);
   font-size: 14px;
   line-height: 1.5;
+  /* 开启字体光学尺寸自动调整（变体字体特性，让大字号更紧凑、小字号更舒展） */
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+/* 代码块、pre、kbd 统一使用 mono 字体（带连字更美观） */
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--font-mono);
+  font-variant-ligatures: contextual; /* 连字仅在语义合理时启用 */
+}
+
+/* 数字密集场景：表格数字列、统计数字、进度数字
+ * 直接在元素加 class="tabular-nums" 或 style="font-variant-numeric: tabular-nums" */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 body {
@@ -191,7 +438,20 @@ button:focus-visible,
     overflow: hidden;
   }
 
-  /* ===== Design-system typography scale（与设计稿 .kb-* 对齐） ===== */
+  /* ===== Design-system typography scale（杂志感衬线展示标题） =====
+   * H1/H2/H3 用 Noto Serif SC，配合紧字距 + 重字重 + 光学尺寸，
+   * 让大字号在中文场景下呈现「杂志大标题」的精致感，而非默认松散状态。
+   * 正文与 H4 保持 Noto Sans SC，兼顾功能性与阅读舒适度。
+   */
+  .kb-display {
+    font-family: var(--font-display);
+    font-size: 44px;
+    font-weight: 900;
+    line-height: 1.15;
+    letter-spacing: -0.04em;
+    color: var(--kb-foreground);
+    text-wrap: balance; /* 标题自动平衡换行，避免孤行 */
+  }
   .kb-h1 {
     font-family: var(--font-serif);
     font-size: 32px;
@@ -199,6 +459,7 @@ button:focus-visible,
     line-height: 1.25;
     letter-spacing: -0.03em;
     color: var(--kb-foreground);
+    text-wrap: balance;
   }
   .kb-h2 {
     font-family: var(--font-serif);
@@ -207,6 +468,7 @@ button:focus-visible,
     line-height: 1.3;
     letter-spacing: -0.02em;
     color: var(--kb-foreground);
+    text-wrap: balance;
   }
   .kb-h3 {
     font-family: var(--font-serif);
@@ -215,33 +477,34 @@ button:focus-visible,
     line-height: 1.35;
     letter-spacing: -0.01em;
     color: var(--kb-foreground);
+    text-wrap: pretty; /* 三级标题用 pretty 避免孤行 */
   }
   .kb-h4 {
     font-family: var(--font-sans);
-    font-size: 15px;
-    font-weight: 600;
-    line-height: 1.45;
+    font-size: var(--kb-fs-h4);
+    font-weight: var(--kb-fw-h4);
+    line-height: var(--kb-lh-h4);
     color: var(--kb-foreground);
   }
   .kb-body {
     font-family: var(--font-sans);
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 1.6;
+    font-size: var(--kb-fs-body-md);
+    font-weight: var(--kb-fw-body-md);
+    line-height: var(--kb-lh-body-md);
     color: var(--kb-card-foreground);
   }
   .kb-body-sm {
     font-family: var(--font-sans);
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 1.5;
+    font-size: var(--kb-fs-body-sm);
+    font-weight: var(--kb-fw-body-sm);
+    line-height: var(--kb-lh-body-sm);
     color: var(--kb-muted-foreground);
   }
   .kb-caption {
     font-family: var(--font-sans);
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 1.4;
+    font-size: var(--kb-fs-caption);
+    font-weight: var(--kb-fw-caption);
+    line-height: var(--kb-lh-caption);
     color: var(--kb-muted-foreground);
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -262,6 +525,30 @@ button:focus-visible,
   }
   .btn-primary:hover {
     opacity: 0.9;
+  }
+
+  /* ===== Signature highlight 工具类（高光时刻专用） =====
+   * 用于成就徽章、连续打卡火焰、AI 推荐标识、升级庆祝数字等，
+   * 保持 signature accent 的应用一致性，避免各页面自行写色值。
+   */
+  .highlight-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--kb-highlight);
+    background: var(--kb-highlight-soft);
+    border: 1px solid var(--kb-highlight-border);
+  }
+  .highlight-text {
+    color: var(--kb-highlight);
+  }
+  .highlight-glow {
+    /* 高光阴影：用于解锁动效、强调数字 */
+    box-shadow: 0 0 0 4px var(--kb-highlight-soft);
   }
   .btn-secondary {
     display: inline-flex;
@@ -308,10 +595,10 @@ button:focus-visible,
   .nav-dropdown a {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--kb-nav-gap);
     padding: 8px 10px;
     border-radius: var(--kb-radius-sm);
-    font-size: 13px;
+    font-size: var(--kb-dropdown-text-fs);
     color: var(--kb-foreground);
     transition: background 0.15s ease;
   }
@@ -322,8 +609,8 @@ button:focus-visible,
   /* B-end sidebar nav item */
   .sidebar-group-label {
     padding: 10px 12px 6px;
-    font-size: 11px;
-    font-weight: 500;
+    font-size: var(--kb-sidebar-label-fs);
+    font-weight: var(--kb-sidebar-label-fw);
     color: var(--kb-muted-foreground);
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -331,10 +618,11 @@ button:focus-visible,
   .sidebar-nav-item {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--kb-sidebar-gap);
     padding: 8px 12px;
     border-radius: var(--kb-radius-sm);
-    font-size: 13px;
+    font-size: var(--kb-sidebar-text-fs);
+    font-weight: var(--kb-sidebar-text-fw);
     color: var(--kb-sidebar-foreground);
     transition: background 0.15s ease, color 0.15s ease;
   }
@@ -386,6 +674,106 @@ button:focus-visible,
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* =====================================================================
+ * Staggered Reveal 入场动效（P2-1）
+ * 页面卡片/列表项按顺序延迟淡入上滑，制造节奏感。
+ * 用法：父容器加 class="reveal-stagger"，子项自动按 --reveal-index 顺序入场。
+ *       或单独使用 .reveal-item 并内联 style="--reveal-index: 0/1/2..."
+ * 动画仅在元素首次进入时执行一次（animation-fill-mode: both）。
+ * ===================================================================== */
+.reveal-item {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: revealFadeUp 0.5s ease-out forwards;
+  animation-delay: calc(var(--reveal-index, 0) * 60ms);
+}
+
+@keyframes revealFadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =====================================================================
+ * 解锁粒子爆开动效（P1-2 成就解锁瞬间）
+ * 用于成就解锁、里程碑达成等高光时刻，CSS-only 实现。
+ * 用法：父容器加 class="particle-burst"，会生成 8 个方向的粒子扩散。
+ * ===================================================================== */
+.particle-burst {
+  position: relative;
+}
+
+.particle-burst::before,
+.particle-burst::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kb-highlight);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.particle-burst.is-bursting::before {
+  animation: particleExplode 0.8s ease-out forwards;
+}
+
+.particle-burst.is-bursting::after {
+  animation: particleExplode 0.8s ease-out 0.1s forwards;
+}
+
+@keyframes particleExplode {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow:
+      0 0 0 0 var(--kb-highlight),
+      12px 0 0 0 var(--kb-highlight),
+      -12px 0 0 0 var(--kb-highlight),
+      0 12px 0 0 var(--kb-highlight),
+      0 -12px 0 0 var(--kb-highlight),
+      9px 9px 0 0 var(--kb-highlight),
+      -9px 9px 0 0 var(--kb-highlight),
+      9px -9px 0 0 var(--kb-highlight),
+      -9px -9px 0 0 var(--kb-highlight);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.5);
+    box-shadow:
+      0 0 0 2px transparent,
+      32px 0 0 2px transparent,
+      -32px 0 0 2px transparent,
+      0 32px 0 2px transparent,
+      0 -32px 0 2px transparent,
+      24px 24px 0 2px transparent,
+      -24px 24px 0 2px transparent,
+      24px -24px 0 2px transparent,
+      -24px -24px 0 2px transparent;
+  }
+}
+
+/* 高光脉冲：用于强调数字、徽章解锁瞬间 */
+.highlight-pulse {
+  animation: highlightPulse 1.2s ease-out;
+}
+
+@keyframes highlightPulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--kb-highlight-soft);
+  }
+  50% {
+    box-shadow: 0 0 0 12px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
   }
 }
 

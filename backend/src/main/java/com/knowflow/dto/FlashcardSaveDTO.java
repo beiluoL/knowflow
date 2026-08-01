@@ -33,4 +33,7 @@ public class FlashcardSaveDTO {
 
     /** 逗号分隔的自定义标签 */
     private String tags;
+
+    /** 来源类型：导入时由调用方指定（如 ANKI），不传则默认 IMPORT */
+    private String sourceType;
 }

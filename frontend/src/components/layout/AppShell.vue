@@ -17,11 +17,11 @@
     >
       <BTopbar @toggle-sidebar="sidebarOpen = !sidebarOpen" />
       <!-- fullscreen 模式：移除 padding 和 max-width，让编辑页面等全宽贴顶 -->
-      <main v-if="isFullscreen" class="flex-1 overflow-y-auto">
+      <main v-if="isFullscreen" class="flex-1 overflow-y-auto kb-region-content">
         <slot />
       </main>
       <!-- 默认模式：带 padding 和最大宽度限制 -->
-      <main v-else class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+      <main v-else class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 kb-region-content">
         <div class="max-w-[1400px] mx-auto">
           <slot />
         </div>

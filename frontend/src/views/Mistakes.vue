@@ -45,11 +45,12 @@
           <div>
             <div class="flex items-center gap-2 mb-1">
               <Icon name="book-open" :size="16" class="text-primary-500" />
-              <span class="text-sm text-gray-500">总错题</span>
+              <span class="text-sm text-gray-500">错题攻克</span>
             </div>
             <div class="flex items-baseline gap-2 mt-2">
-              <span class="text-[28px] font-bold text-gray-800">{{ stats.total }}</span>
-              <span class="text-xs text-gray-400">道</span>
+              <!-- P2-2：正面表述「已消灭」而非「总错题」，减少挫败感 -->
+              <span class="text-[28px] font-bold text-gray-800">{{ stats.mastered }}</span>
+              <span class="text-xs text-gray-400">/ {{ stats.total }} 道已攻克</span>
             </div>
           </div>
           <div class="relative w-[64px] h-[64px]" :title="`掌握率 ${masteryPercent}%`">
@@ -86,7 +87,11 @@
             </div>
           </div>
         </div>
-        <p class="text-xs text-gray-400 mt-3">掌握进度 · 已掌握 {{ stats.mastered }} / {{ stats.total }}</p>
+        <!-- P2-2：正面鼓励文案 -->
+        <p class="text-xs text-gray-400 mt-3">
+          <span v-if="stats.mastered > 0" class="text-success-500">✓ 已消灭 {{ stats.mastered }} 道错题，继续保持！</span>
+          <span v-else>开始攻克第一道错题吧</span>
+        </p>
       </div>
       <div class="border rounded-[10px] p-4 bg-white border-gray-200">
         <div class="flex items-center gap-2 mb-2">
@@ -144,7 +149,8 @@
         <div
           v-for="mistake in mistakeList"
           :key="mistake.id"
-          class="border rounded-[10px] p-5 bg-white border-gray-200"
+          class="mistake-card border rounded-[10px] p-5 bg-white border-gray-200"
+          :style="{ '--category-color': getCategoryColor(mistake.category) }"
         >
           <div class="flex items-center justify-between gap-4 mb-3">
             <p class="text-[15px] font-semibold truncate min-w-0 text-gray-800">{{ mistake.question }}</p>
@@ -320,6 +326,14 @@ function getDifficultyStyle(diff?: number): string {
   return 'bg-gray-100 text-gray-500'
 }
 
+// P2-2：按分类获取色条颜色，与 categoryFilters 的颜色保持一致
+// 视觉上让用户一眼区分错题类型：AI=紫、前端=蓝、算法=橙、后端=绿
+function getCategoryColor(category?: string): string {
+  if (!category) return 'var(--kb-muted-foreground)'
+  const found = categoryFilters.value.find((c) => c.value === category || category.includes(c.value))
+  return found?.color || 'var(--kb-muted-foreground)'
+}
+
 function formatTime(time?: string): string {
   if (!time) return ''
   const date = new Date(time)
@@ -353,5 +367,26 @@ onMounted(() => {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* P2-2：错题卡片左侧色条，按分类着色，便于视觉分类扫读 */
+.mistake-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.mistake-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--category-color, var(--kb-muted-foreground));
+  border-radius: 4px 0 0 4px;
+}
+.mistake-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 </style>

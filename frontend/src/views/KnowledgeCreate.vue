@@ -176,7 +176,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
-import { categoriesApi } from '@/api'
+import { categoriesApi, adminApi } from '@/api'
 import type { CategoryInput } from '@/api/types'
 import { notify, getApiError } from '@/utils/toast'
 import { useAuthStore } from '@/stores/auth'
@@ -287,13 +287,23 @@ async function handleCreate(): Promise<void> {
       description: formData.value.description.trim(),
     }
     
-    await categoriesApi.create(data)
+    const created = await categoriesApi.create(data)
     notify(`知识库「${formData.value.name}」创建成功！`, 'success')
     
-    // 如果有邀请成员，这里可以调用后端邀请接口
-    if (members.value.length > 0) {
-      // TODO: 调用后端邀请接口邀请成员加入知识库
-      // 遍历 members.value，跳过 isOwner 的成员
+    // 若有邀请成员（编辑者），创建成功后调用后端邀请接口逐个绑定。
+    // 跳过 isOwner 的成员（创建者已由后端自动绑定为 OWNER）。
+    const toInvite = members.value.filter(m => !m.isOwner && m.email)
+    if (created?.id && toInvite.length > 0) {
+      for (const m of toInvite) {
+        // 前端 role 为中文「编辑者」，后端只认 EDITOR/OWNER/READER，需映射
+        const role = m.role === '编辑者' ? 'EDITOR' : 'READER'
+        await adminApi.addKbMember({
+          categoryId: created.id,
+          email: m.email,
+          role,
+        })
+      }
+      notify(`已邀请 ${toInvite.length} 位成员加入知识库`, 'success')
     }
     
     setTimeout(() => {

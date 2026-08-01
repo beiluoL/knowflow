@@ -2,6 +2,7 @@ package com.knowflow.vo;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -27,6 +28,12 @@ public class LearningPathVO {
     private Integer totalDuration;
 
     private Integer enrolledCount;
+
+    /** 当前登录用户是否已报名该路径（用于详情页报名按钮状态）。 */
+    private Boolean enrolled;
+
+    /** 当前登录用户的学习进度比例（0~1）；未报名时为 null。 */
+    private BigDecimal progress;
 
     private Integer sortOrder;
 

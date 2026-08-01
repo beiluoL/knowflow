@@ -40,4 +40,7 @@ public class LearningChapterVO {
 
     /** 前置章节ID列表（逗号分隔） */
     private String prerequisiteChapterIds;
+
+    /** 当前用户视频观看进度百分比（0-100），L-FORM-01 用于恢复播放位置 */
+    private java.math.BigDecimal videoProgress;
 }

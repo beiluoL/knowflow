@@ -4,6 +4,7 @@
       <div class="banner-bg">
         <div class="banner-grid"></div>
         <div class="banner-blur"></div>
+        <div class="banner-blur-warm"></div>
       </div>
       <div class="banner-content">
         <div class="banner-header">
@@ -13,35 +14,40 @@
               {{ todayStr }}
             </span>
             <h1 class="welcome-title">{{ greeting }}，{{ userName }}！</h1>
-            <p class="welcome-stats">
-              <span class="stat-item">
+            <p class="welcome-tagline">{{ dynamicTagline }}</p>
+            <div class="welcome-stats">
+              <div class="stat-pill">
                 <Icon name="clock" :size="14" />
-                <span class="stat-value tabular-nums">{{ studyHours }}</span>
+                <span class="stat-value tabular-nums">{{ studyHoursDisplay }}</span>
                 <span class="stat-unit">小时</span>
-              </span>
-              <span class="stat-divider"></span>
-              <span class="stat-item">
+              </div>
+              <div class="stat-pill">
                 <Icon name="target" :size="14" />
-                <span class="stat-value tabular-nums">{{ readDocs }}</span>
+                <span class="stat-value tabular-nums">{{ readDocsDisplay }}</span>
                 <span class="stat-unit">篇文档</span>
-              </span>
-            </p>
+              </div>
+              <div v-if="streakDays > 0" class="stat-pill highlight-badge">
+                <Icon name="flame" :size="14" />
+                <span class="stat-value tabular-nums">{{ streakDaysDisplay }}</span>
+                <span class="stat-unit">天连击</span>
+              </div>
+            </div>
           </div>
-          <div class="banner-actions">
-            <router-link to="/learning/center" class="action-btn primary">
-              <Icon name="play" :size="16" />
-              <span>继续学习</span>
+          <div class="banner-cta">
+            <router-link :to="dynamicCta.primary.path" class="action-btn primary">
+              <Icon :name="dynamicCta.primary.icon" :size="16" />
+              <span>{{ dynamicCta.primary.text }}</span>
             </router-link>
-            <router-link to="/notes" class="action-btn secondary">
-              <Icon name="plus" :size="16" />
-              <span>创建笔记</span>
+            <router-link :to="dynamicCta.secondary.path" class="action-btn secondary">
+              <Icon :name="dynamicCta.secondary.icon" :size="16" />
+              <span>{{ dynamicCta.secondary.text }}</span>
             </router-link>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="progress-section">
+    <section class="progress-section reveal-item" style="--reveal-index: 1;">
       <div class="section-header">
         <h2 class="section-title">今日学习进度</h2>
         <span class="section-tag">
@@ -50,7 +56,7 @@
         </span>
       </div>
       <div class="progress-cards">
-        <div class="progress-card course-progress">
+        <div class="progress-card course-progress reveal-item" style="--reveal-index: 2;">
           <div class="card-header">
             <Icon name="book-open" :size="14" />
             <span class="card-label">当前课程进度</span>
@@ -74,7 +80,7 @@
           </div>
         </div>
 
-        <div class="progress-card streak-progress">
+        <div class="progress-card streak-progress reveal-item" style="--reveal-index: 3;">
           <div class="card-header">
             <Icon name="flame" :size="14" />
             <span class="card-label">连续学习天数</span>
@@ -95,7 +101,7 @@
           </div>
         </div>
 
-        <div class="progress-card mastery-progress">
+        <div class="progress-card mastery-progress reveal-item" style="--reveal-index: 4;">
           <div class="card-header">
             <Icon name="brain" :size="14" />
             <span class="card-label">知识掌握度</span>
@@ -116,7 +122,7 @@
       </div>
     </section>
 
-    <section class="todos-section">
+    <section class="todos-section reveal-item" style="--reveal-index: 5;">
       <div class="section-header">
         <h2 class="section-title">今日待办与计划</h2>
         <span class="section-badge">已完成 {{ doneTasks }} / {{ tasks.length }}</span>
@@ -172,7 +178,7 @@
       </div>
     </section>
 
-    <section class="paths-section">
+    <section class="paths-section reveal-item" style="--reveal-index: 6;">
       <div class="section-header">
         <h2 class="section-title">为你推荐</h2>
         <router-link to="/learning/paths" class="section-link">
@@ -292,6 +298,7 @@ import Icon from '@/components/ui/Icon.vue';
 import { useAuthStore } from '@/stores/auth';
 import { docsApi, learningApi, userApi } from '@/api';
 import { notify, getApiError } from '@/utils/toast';
+import { useCountUp } from '@/composables/useCountUp';
 import type { DocVO, LearningPathVO, LearningTaskVO, UserStatsVO } from '@/api/types';
 
 const auth = useAuthStore();
@@ -321,6 +328,42 @@ const todayStr = computed(() => {
 const studyHours = computed(() => userStats.value?.totalStudyHours ?? 0);
 const readDocs = computed(() => userStats.value?.readDocsCount ?? 0);
 const streakDays = computed(() => userStats.value?.streakDays ?? 0);
+
+// P1-3：数字 count-up 动画
+const { display: studyHoursDisplay } = useCountUp(studyHours);
+const { display: readDocsDisplay } = useCountUp(readDocs);
+const { display: streakDaysDisplay } = useCountUp(streakDays);
+
+// P1-1：动态 CTA —— 基于用户学习状态给出最相关的下一步动作
+const dynamicTagline = computed(() => {
+  if (!auth.isLoggedIn) return '登录后开启你的智能学习之旅';
+  if (studyHours.value === 0) return '从第一篇文档开始，构建你的知识图谱';
+  if (continueDocs.value.length > 0) return '继续上次的进度，保持学习节奏';
+  if (streakDays.value >= 7) return '坚持就是胜利，你已连续学习一周';
+  return '今天的知识点，正在等你探索';
+});
+
+const dynamicCta = computed(() => {
+  // 未登录 / 新用户 → 引导创建第一条路径
+  if (!auth.isLoggedIn || studyHours.value === 0) {
+    return {
+      primary: { text: '探索学习路径', icon: 'route', path: '/learning/paths' },
+      secondary: { text: '浏览知识库', icon: 'book-open', path: '/categories' },
+    };
+  }
+  // 有未完成文档 → 继续上次
+  if (continueDocs.value.length > 0) {
+    return {
+      primary: { text: '继续上次学习', icon: 'play', path: `/doc/${continueDocs.value[0].id}` },
+      secondary: { text: '查看待办', icon: 'list', path: '/learning/center' },
+    };
+  }
+  // 默认 → 学习中心
+  return {
+    primary: { text: '进入学习中心', icon: 'play', path: '/learning/center' },
+    secondary: { text: '创建笔记', icon: 'plus', path: '/notes' },
+  };
+});
 
 const weekdays = computed(() => {
   const labels = ['一', '二', '三', '四', '五', '六', '日'];
@@ -530,7 +573,8 @@ onMounted(async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, var(--kb-primary) 0%, rgba(59,111,224,0.85) 100%);
+  /* 不对称渐变：主色偏左上，右下留出暖橘呼吸空间 */
+  background: linear-gradient(135deg, var(--kb-primary) 0%, rgba(59,111,224,0.92) 55%, rgba(59,111,224,0.85) 100%);
 }
 
 .banner-grid {
@@ -539,10 +583,13 @@ onMounted(async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: 
+  background-image:
     linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
   background-size: 40px 40px;
+  /* 网格不对称偏移，打破规整感 */
+  mask-image: linear-gradient(135deg, black 30%, transparent 80%);
+  -webkit-mask-image: linear-gradient(135deg, black 30%, transparent 80%);
 }
 
 .banner-blur {
@@ -555,18 +602,35 @@ onMounted(async () => {
   border-radius: 50%;
 }
 
+/* 暖橘色光晕：signature accent 在 Hero 区的呼吸点 */
+.banner-blur-warm {
+  position: absolute;
+  bottom: -80px;
+  left: 20%;
+  width: 240px;
+  height: 240px;
+  background: radial-gradient(circle, rgba(255,107,53,0.18) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
 .banner-content {
   position: relative;
   z-index: 1;
-  padding: 32px;
+  padding: 36px 32px;
 }
 
 .banner-header {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: flex-end;
   gap: 24px;
+}
+
+.welcome-info {
+  flex: 1 1 320px;
+  min-width: 0;
 }
 
 .welcome-badge {
@@ -580,50 +644,83 @@ onMounted(async () => {
   font-size: 13px;
   font-weight: 500;
   margin-bottom: 16px;
+  backdrop-filter: blur(8px);
 }
 
 .welcome-title {
-  font-family: var(--font-serif);
-  font-size: 28px;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 900;
   color: #ffffff;
-  letter-spacing: -0.02em;
-  margin-bottom: 16px;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 8px;
+  text-wrap: balance;
+}
+
+/* Hero 副标题：杂志感引文风格 */
+.welcome-tagline {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.78);
+  margin-bottom: 20px;
+  line-height: 1.5;
+  max-width: 420px;
 }
 
 .welcome-stats {
   display: flex;
-  align-items: center;
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.stat-item {
-  display: flex;
+/* 统计 pill：胶囊式浮动卡片，替代原来的平铺文字 */
+.stat-pill {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
   color: rgba(255,255,255,0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.stat-pill:hover {
+  background: rgba(255,255,255,0.18);
+  transform: translateY(-1px);
+}
+
+/* 连击 pill 使用 signature highlight 色 */
+.stat-pill.highlight-badge {
+  background: var(--kb-highlight-soft);
+  color: var(--kb-highlight);
+  border-color: var(--kb-highlight-border);
 }
 
 .stat-value {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: #ffffff;
 }
 
+.stat-pill.highlight-badge .stat-value {
+  color: var(--kb-highlight);
+}
+
 .stat-unit {
-  font-size: 13px;
+  font-size: 12px;
+  opacity: 0.85;
 }
 
-.stat-divider {
-  width: 1px;
-  height: 24px;
-  background: rgba(255,255,255,0.3);
-}
-
-.banner-actions {
+.banner-cta {
   display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .action-btn {

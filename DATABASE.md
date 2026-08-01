@@ -1,6 +1,6 @@
 # 数据库设计文档（knowflow 知识库）
 
-本文档说明知识库学习平台的数据库表结构（共 **43 张表**）、字段定义、表间关系（逻辑外键）与索引设计。
+本文档说明知识库学习平台的数据库表结构（共 **44 张表**）、字段定义、表间关系（逻辑外键）与索引设计。
 脚本位置：`backend/src/main/resources/schema.sql`（表结构 + 索引）、`data.sql`（种子数据）。
 
 > **IM（学习小组 / 单聊私信）相关表**（`study_group*`、`private_*`）以 **`消息功能技术方案.md`** 为唯一权威文档，
@@ -34,6 +34,8 @@ erDiagram
     learning_path ||--o{ learning_flashcard : "关联闪卡"
     learning_chapter ||--o{ learning_flashcard : "关联闪卡"
     sys_user ||--o{ learning_user_chapter : "章节完成记录"
+    sys_user ||--o{ learning_certificate : "获得证书"
+    learning_path ||--o{ learning_certificate : "颁发证书"
     sys_user ||--o{ learning_mistake : "错题"
     sys_user ||--o{ community_post : "发帖"
     sys_user ||--o{ community_comment : "评论"
@@ -92,6 +94,7 @@ erDiagram
 | learning_flashcard | chapter_id | learning_chapter(id) | idx_fc_chap | 是 |
 | learning_task | user_id | sys_user(id) | idx_task_user | 否 |
 | learning_user_chapter | user_id / path_id / chapter_id | sys_user / learning_path / learning_chapter | idx_uc_user_chapter 等 + uk(user_id,chapter_id) | 否 |
+| learning_certificate | user_id / path_id | sys_user / learning_path | idx_cert_user / idx_cert_path + uk_cert_user_path | 否 |
 | learning_mistake | user_id | sys_user(id) | idx_mistake_user | 否 |
 | community_post | user_id | sys_user(id) | idx_post_user | 否 |
 | community_post_like | post_id / user_id | community_post / sys_user | uk_post_like(post_id,user_id) | 否 |
@@ -330,8 +333,8 @@ erDiagram
 | deleted | INT | 逻辑删除 | 默认 0 |
 - 索引：`idx_task_user(user_id)`、`idx_task_status(status)`
 
-### 13. learning_user_chapter（用户章节完成记录表）
-> 保证「完成章节」幂等：同一用户对同一章节只计一次进度。
+### 13. learning_user_chapter（用户章节进度记录表）
+> 保证「完成章节」幂等：同一用户对同一章节只计一次完成记录；同时记录章节内嵌视频的观看进度（L-FORM-01）。
 
 | 字段 | 类型 | 说明 | 约束 |
 |---|---|---|---|
@@ -340,6 +343,7 @@ erDiagram
 | path_id | BIGINT | 路径 | 逻辑关联 → learning_path |
 | chapter_id | BIGINT | 章节 | 逻辑关联 → learning_chapter |
 | complete_time | TIMESTAMP | 完成时间 | 默认当前时间 |
+| video_progress | DECIMAL(5,2) | 章节视频观看进度百分比(0-100)，单调不减，达标后提示完成章节 | 默认 0 |
 | create_time / update_time | TIMESTAMP | | |
 | deleted | INT | 逻辑删除 | 默认 0 |
 - 索引：`idx_uc_user_chapter(user_id)`、`idx_uc_chapter_id(chapter_id)`、唯一 `uk_uc_user_chapter(user_id, chapter_id)`
@@ -772,6 +776,22 @@ erDiagram
 | create_time / update_time | TIMESTAMP | | |
 | deleted | INT | 逻辑删除 | 默认 0 |
 - 索引：`idx_kg_rel_source(source_entity_id)`、`idx_kg_rel_target(target_entity_id)`、`idx_kg_rel_doc(doc_id)`
+
+### 44. learning_certificate（数字证书表）
+> 学习路径完成后自动颁发（`G-CERT-01`）；`cert_no` 为唯一验证码，可公开核验真伪；路径标题/用户名为颁发时快照，避免后续改名影响证书展示。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键，自增 | PK |
+| user_id | BIGINT | 持证用户（逻辑外键 sys_user.id） | 非空 |
+| path_id | BIGINT | 完成路径（逻辑外键 learning_path.id） | 非空 |
+| cert_no | VARCHAR(64) | 唯一证书验证码（如 KC-20260731-1234） | 唯一 `uk_cert_no` |
+| path_title | VARCHAR(200) | 路径标题快照 | 非空 |
+| user_name | VARCHAR(50) | 持证用户名快照 | 非空 |
+| issue_date | TIMESTAMP | 颁发时间 | 默认当前时间 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：唯一 `uk_cert_no(cert_no)`、`idx_cert_user(user_id)`、`idx_cert_path(path_id)`、联合唯一 `uk_cert_user_path(user_id, path_id, deleted)`（幂等：同用户同路径只发一次）
 
 ---
 

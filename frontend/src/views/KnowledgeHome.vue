@@ -381,7 +381,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import KnowledgeSidebar from '@/components/layout/KnowledgeSidebar.vue'
-import { categoriesApi, docsApi } from '@/api'
+import { categoriesApi, docsApi, adminApi } from '@/api'
 import type { CategoryVO, DocVO } from '@/api/types'
 import DocTypeBadge from '@/components/doc/DocTypeBadge.vue'
 
@@ -673,11 +673,12 @@ async function handleInvite() {
   }
   
   try {
-    // TODO: 调用后端邀请接口
-    // await adminApi.addKbMember(currentCategoryId.value!, {
-    //   email,
-    //   role: inviteForm.value.role,
-    // })
+    // 真实调用后端邀请接口（需先选中一个知识库）
+    await adminApi.addKbMember({
+      categoryId: activeCategoryId.value!,
+      email,
+      role: inviteForm.value.role,
+    })
     alert(`已邀请 ${email} 加入知识库，角色：${roleOptions.find(r => r.value === inviteForm.value.role)?.label}`)
     closeInviteDialog()
   } catch (e) {

@@ -184,6 +184,10 @@ export interface LearningPathVO {
   chapterCount?: number
   totalDuration?: number
   enrolledCount?: number
+  /** 当前登录用户是否已报名该路径（详情页报名按钮状态用）。 */
+  enrolled?: boolean
+  /** 当前登录用户的学习进度百分比（0~100）；未报名时为 undefined。 */
+  progress?: number
   sortOrder?: number
   status?: number
   createTime?: string
@@ -200,6 +204,54 @@ export interface LearningChapterVO {
   docIds?: string
   flashcardIds?: string
   completed?: boolean
+  /** 是否锁定：存在未完成的前置章节时为 true（L-PATH 前置解锁）。 */
+  locked?: boolean
+  /** 前置章节 ID 列表，逗号分隔。 */
+  prerequisiteChapterIds?: string
+  /** L-FORM-01 视频观看进度百分比（0-100），用于恢复播放位置。 */
+  videoProgress?: number
+}
+
+/** G-CERT-01 数字证书：路径完成后自动颁发的证书信息。 */
+export interface LearningCertificateVO {
+  id: number
+  userId?: number
+  pathId?: number
+  /** 唯一证书验证码（可公开验证）。 */
+  certNo?: string
+  /** 路径标题快照。 */
+  pathTitle?: string
+  /** 持证用户名快照。 */
+  userName?: string
+  /** 颁发时间。 */
+  issueDate?: string
+  /** 是否当前用户本人持有。 */
+  mine?: boolean
+}
+
+// ===== 学习路径 DAG（章节依赖关系图） =====
+/** 节点状态：completed=已完成 / available=可学 / locked=未解锁。 */
+export type ChapterNodeStatus = 'completed' | 'available' | 'locked'
+
+export interface ChapterNodeVO {
+  id: number
+  title: string
+  sortOrder?: number
+  duration?: number
+  status: ChapterNodeStatus
+  prerequisiteChapterIds?: string
+}
+
+export interface ChapterEdgeVO {
+  /** 前置章节 ID。 */
+  source: number
+  /** 依赖该前置的章节 ID。 */
+  target: number
+}
+
+export interface ChapterDagVO {
+  nodes: ChapterNodeVO[]
+  edges: ChapterEdgeVO[]
 }
 
 export interface FlashcardVO {
@@ -214,7 +266,7 @@ export interface FlashcardVO {
   category?: string
   difficulty?: number
   tags?: string
-  sourceType?: 'MANUAL' | 'AI_DOC' | 'AI_KB' | 'IMPORT'
+  sourceType?: 'MANUAL' | 'AI_DOC' | 'AI_KB' | 'IMPORT' | 'ANKI'
   reviewCount?: number
   reviewInterval?: number
   nextReviewTime?: string
@@ -346,6 +398,51 @@ export interface MasteryDistributionVO {
   mistakePending: number
 }
 
+// ===== 学习报告 =====
+/** 学习报告每日活跃度项（柱状图）。 */
+export interface LearningReportDailyItem {
+  date: string
+  minutes: number
+  count: number
+}
+
+/** 学习报告知识库掌握度项（Top 5）。 */
+export interface LearningReportCategoryItem {
+  categoryName: string
+  total: number
+  mastered: number
+  percent: number
+}
+
+/** 学习报告周趋势项。 */
+export interface LearningReportWeeklyItem {
+  weekStart: string
+  studyMinutes: number
+  checkinDays: number
+}
+
+/** 学习报告聚合数据（周期：week/month/all）。 */
+export interface LearningReportData {
+  period: string
+  startDate: string
+  endDate: string
+  checkinDays: number
+  continuousDays: number
+  flashcardReviewed: number
+  flashcardMastered: number
+  mistakeCount: number
+  mistakeMastered: number
+  codeSubmissions: number
+  codePassed: number
+  docsRead: number
+  quizAnswered: number
+  quizCorrect: number
+  studyMinutes: number
+  dailyActivity: LearningReportDailyItem[]
+  categoryMastery: LearningReportCategoryItem[]
+  weeklyTrend: LearningReportWeeklyItem[]
+}
+
 // ===== 知识图谱 =====
 export interface GraphNodeVO {
   id: string
@@ -445,6 +542,8 @@ export interface RecommendChapter {
   duration: number
   sortOrder: number
   focus: string
+  /** AI 推断的前置章节序号（引用同一规划中其它章节的 sortOrder），采用后落地为章节依赖 DAG */
+  prerequisiteSortOrders?: number[]
 }
 
 export interface PersonalizedPathVO {

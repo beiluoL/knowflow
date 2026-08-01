@@ -267,6 +267,36 @@
       </div>
     </section>
 
+    <!-- ===== My Certificates (G-CERT-01) ===== -->
+    <section class="rounded-xl border p-6 mb-6" style="background: var(--kb-card); border-color: var(--kb-border);">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="kb-h3">我的证书</h2>
+        <span class="text-sm" style="color: var(--kb-muted-foreground);">完成学习路径即可获得</span>
+      </div>
+      <div v-if="certificates.length === 0" class="py-8 text-center">
+        <Icon name="medal" :size="32" style="color: var(--kb-muted-foreground);" />
+        <p class="text-sm mt-2" style="color: var(--kb-muted-foreground);">暂无证书，完成学习路径后自动颁发</p>
+      </div>
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <router-link
+          v-for="c in certificates"
+          :key="c.id"
+          :to="`/certificate/${c.id}`"
+          class="flex items-center gap-3 p-4 rounded-lg border hover:bg-[var(--kb-muted)] transition-colors"
+          style="border-color: var(--kb-border);"
+        >
+          <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background: rgba(245, 185, 64, 0.15);">
+            <Icon name="award" :size="22" style="color: #f5b940;" />
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-medium truncate" style="color: var(--kb-foreground);">{{ c.pathTitle }}</p>
+            <p class="text-xs mt-0.5 truncate" style="color: var(--kb-muted-foreground);">{{ formatCertDate(c.issueDate) }} · {{ c.certNo }}</p>
+          </div>
+          <Icon name="chevron-right" :size="14" class="ml-auto shrink-0" style="color: var(--kb-muted-foreground);" />
+        </router-link>
+      </div>
+    </section>
+
     <!-- ===== Recent Activity Timeline ===== -->
     <section class="rounded-xl border p-6 mb-6" style="background: var(--kb-card); border-color: var(--kb-border);">
       <div class="flex items-center justify-between mb-5">
@@ -369,9 +399,9 @@
 import { ref, computed, reactive, onMounted, onUnmounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import { notify } from '@/utils/toast'
-import { userApi } from '@/api'
+import { userApi, learningApi } from '@/api'
 import { useAuthStore } from '@/stores/auth'
-import type { UserVO, UserStatsVO } from '@/api/types'
+import type { UserVO, UserStatsVO, LearningCertificateVO } from '@/api/types'
 
 const auth = useAuthStore()
 
@@ -521,6 +551,16 @@ const badges = ref<Badge[]>([
   { id: 4, label: '知识大师', icon: 'lock', gradient: '', unlocked: false, date: '' },
 ])
 
+// G-CERT-01 我的数字证书列表
+const certificates = ref<LearningCertificateVO[]>([])
+
+const formatCertDate = (d?: string) => {
+  if (!d) return ''
+  const date = new Date(d)
+  if (Number.isNaN(date.getTime())) return d
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+
 interface Activity {
   icon: string
   text: string
@@ -628,6 +668,12 @@ onMounted(async () => {
     activities.value = buildActivities(stats)
   } catch {
     /* 静默 */
+  }
+  // G-CERT-01 加载我的数字证书
+  try {
+    certificates.value = await learningApi.certificates()
+  } catch {
+    certificates.value = []
   }
 })
 </script>

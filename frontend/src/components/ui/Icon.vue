@@ -3,20 +3,20 @@
   <img
     v-if="isImageIcon"
     :src="name"
-    :width="size"
-    :height="size"
+    :width="iconSizePx"
+    :height="iconSizePx"
     :class="iconClass"
     :aria-hidden="decorative ? 'true' : undefined"
     :aria-label="decorative ? undefined : ariaLabel"
     :role="decorative ? undefined : (ariaLabel ? 'img' : undefined)"
     style="object-fit: contain;"
   />
-  <!-- 自定义图标 - iconfont Unicode code：渲染为 <i> 标签 -->
+  <!-- 自定义图标 - iconfont Unicode code 或 iconfont class 名：渲染为 <i> 标签 -->
   <i
     v-else-if="isIconfontIcon"
     class="iconfont"
-    :class="iconClass"
-    :style="{ fontSize: typeof size === 'number' ? size + 'px' : size, color: color || undefined }"
+    :class="[iconfontClassName, iconClass]"
+    :style="{ fontSize: iconSizeCss, color: color || undefined }"
     :aria-hidden="decorative ? 'true' : undefined"
     :aria-label="decorative ? undefined : ariaLabel"
     :role="decorative ? undefined : (ariaLabel ? 'img' : undefined)"
@@ -26,7 +26,7 @@
   <div
     v-else-if="isSvgCodeIcon"
     :class="iconClass"
-    :style="{ width: typeof size === 'number' ? size + 'px' : size, height: typeof size === 'number' ? size + 'px' : size, color: color || undefined, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }"
+    :style="{ width: iconSizeCss, height: iconSizeCss, color: color || undefined, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }"
     :aria-hidden="decorative ? 'true' : undefined"
     :aria-label="decorative ? undefined : ariaLabel"
     :role="decorative ? undefined : (ariaLabel ? 'img' : undefined)"
@@ -36,8 +36,8 @@
   <svg
     v-else
     xmlns="http://www.w3.org/2000/svg"
-    :width="size"
-    :height="size"
+    :width="iconSizePx"
+    :height="iconSizePx"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -1265,6 +1265,87 @@
       <path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z" />
       <path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4" />
     </template>
+
+    <!-- AI 聊天气泡（ChatGPT 风格） -->
+    <template v-else-if="name === 'ai-chat'">
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+      <path d="m10 11 2 2 4-4" />
+    </template>
+
+    <!-- AI 星星闪光（Gemini 风格） -->
+    <template v-else-if="name === 'ai-sparkle'">
+      <path d="M12 3v3" />
+      <path d="M12 18v3" />
+      <path d="M3 12h3" />
+      <path d="M18 12h3" />
+      <path d="m5.6 5.6 2.1 2.1" />
+      <path d="m16.3 16.3 2.1 2.1" />
+      <path d="m5.6 18.4 2.1-2.1" />
+      <path d="m16.3 7.7 2.1-2.1" />
+      <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" />
+    </template>
+
+    <!-- AI 助手（对话+闪光组合） -->
+    <template v-else-if="name === 'ai-assistant'">
+      <path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z" />
+      <path d="M10 14h.01" />
+      <path d="M14 14h.01" />
+      <path d="M9 18c.83.83 2.17 1.33 3 1.33s2.17-.5 3-1.33" />
+      <path d="m17 4 1 1" />
+      <path d="m20 5-1 1" />
+      <path d="M7 4 6 5" />
+      <path d="m4 5 1 1" />
+    </template>
+
+    <!-- AI 轨道（环绕星球风格） -->
+    <template v-else-if="name === 'ai-orbit'">
+      <circle cx="12" cy="12" r="3" />
+      <circle cx="19" cy="6" r="1.5" />
+      <circle cx="5" cy="18" r="1.5" />
+      <path d="M20 12a8 8 0 0 1-15.5 2.8" />
+      <path d="M4 12a8 8 0 0 1 15.5-2.8" />
+      <path d="M6.5 6.5a12 12 0 0 0 11 11" />
+      <path d="M17.5 17.5a12 12 0 0 0-11-11" />
+    </template>
+
+    <!-- 音量（开启） -->
+    <template v-else-if="name === 'volume-2'">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+    </template>
+
+    <!-- 音量（静音） -->
+    <template v-else-if="name === 'volume-x'">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <line x1="23" y1="9" x2="17" y2="15" />
+      <line x1="17" y1="9" x2="23" y2="15" />
+    </template>
+
+    <!-- 窗口缩放到角落（右上角，用于悬浮→角落） -->
+    <template v-else-if="name === 'minimize-2'">
+      <polyline points="4 14 10 14 10 20" />
+      <polyline points="20 10 14 10 14 4" />
+      <line x1="14" y1="10" x2="21" y2="3" />
+      <line x1="3" y1="21" x2="10" y2="14" />
+    </template>
+
+    <!-- 窗口从角落展开（用于角落→全宽顶部） -->
+    <template v-else-if="name === 'maximize-2'">
+      <polyline points="15 3 21 3 21 9" />
+      <polyline points="9 21 3 21 3 15" />
+      <line x1="21" y1="3" x2="14" y2="10" />
+      <line x1="3" y1="21" x2="10" y2="14" />
+    </template>
+
+    <!-- 咖啡杯 2（长休，带茶包） -->
+    <template v-else-if="name === 'coffee-2'">
+      <path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+      <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
+      <line x1="6" y1="2" x2="6" y2="4" />
+      <line x1="10" y1="2" x2="10" y2="4" />
+      <line x1="14" y1="2" x2="14" y2="4" />
+    </template>
   </svg>
 </template>
 
@@ -1289,7 +1370,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  size: 24,
+  size: 'md',
   class: '',
   color: '',
   decorative: true,
@@ -1300,16 +1381,82 @@ const iconClass = computed(() => {
   return props.class
 })
 
+/* ======================================================================
+ * 语义化 size 映射（企业级 2x 网格）
+ * - size 为语义化关键词（'xxs'/'xs'/'sm'/'md'/'lg'/'xl'/'2xl'/'3xl'）时，
+ *   映射到对应的 --kb-icon-xxx CSS 变量与实际像素值；
+ * - size 为数字或其他字符串（如 '24px'/'1.5rem'）时，保持原样向后兼容。
+ * ====================================================================== */
+const SEMANTIC_PX: Record<string, number> = {
+  xxs: 10,
+  xs:  12,
+  sm:  14,
+  md:  16,
+  lg:  18,
+  xl:  20,
+  '2xl': 24,
+  '3xl': 32,
+}
+const SEMANTIC_CSS_VAR: Record<string, string> = {
+  xxs: 'var(--kb-icon-xxs)',
+  xs:  'var(--kb-icon-xs)',
+  sm:  'var(--kb-icon-sm)',
+  md:  'var(--kb-icon-md)',
+  lg:  'var(--kb-icon-lg)',
+  xl:  'var(--kb-icon-xl)',
+  '2xl': 'var(--kb-icon-2xl)',
+  '3xl': 'var(--kb-icon-3xl)',
+}
+
+/** 用于 SVG / img 的 width/height 属性（需要纯数字，不能是 var()） */
+const iconSizePx = computed<number>(() => {
+  const s = props.size
+  if (typeof s === 'number') return s
+  if (typeof s === 'string') {
+    if (SEMANTIC_PX[s] != null) return SEMANTIC_PX[s]
+    // '24px' / '1.5rem' → 尽量解析数字；解析失败给默认 16
+    const num = Number(String(s).replace(/[^0-9.]/g, ''))
+    return Number.isFinite(num) && num > 0 ? num : 16
+  }
+  return 16
+})
+
+/** 用于 font-size / 容器 width/height（支持 var() 以响应主题切换） */
+const iconSizeCss = computed<string>(() => {
+  const s = props.size
+  if (typeof s === 'number') return s + 'px'
+  if (typeof s === 'string') {
+    if (SEMANTIC_CSS_VAR[s] != null) return SEMANTIC_CSS_VAR[s]
+    return s
+  }
+  return 'var(--kb-icon-md)'
+})
+
 /** 图片类型图标：data URI 或 URL */
 const isImageIcon = computed(() => {
   const n = props.name
   return n && (n.startsWith('data:') || n.startsWith('http://') || n.startsWith('https://'))
 })
 
-/** iconfont 类型图标：name 以 iconfont: 开头 */
+/**
+ * iconfont 类型图标：两种形式
+ *   1. Unicode code：name 以 iconfont: 开头（如 iconfont:e601）
+ *   2. Class 名：name 以 icon- 开头，匹配 iconfont.css 中定义的类（如 icon-python）
+ */
 const isIconfontIcon = computed(() => {
   const n = props.name
-  return n && n.startsWith('iconfont:')
+  return n && (n.startsWith('iconfont:') || n.startsWith('icon-'))
+})
+
+/** 是否为基于 class 的 iconfont（而非 Unicode code） */
+const isIconfontClassBased = computed(() => {
+  const n = props.name
+  return n && n.startsWith('icon-')
+})
+
+/** iconfont 类名（仅用于 class 方式时） */
+const iconfontClassName = computed(() => {
+  return isIconfontClassBased.value ? props.name : ''
 })
 
 /** SVG 代码类型图标：name 以 <svg 开头 */
@@ -1318,8 +1465,11 @@ const isSvgCodeIcon = computed(() => {
   return n && n.trimStart().startsWith('<svg')
 })
 
-/** 解析 iconfont code 为 HTML 实体字符（如 iconfont:e601 → &#xe601;） */
+/** 解析 iconfont code 为 HTML 实体字符；class 方式时返回空字符串 */
 const iconfontChar = computed(() => {
+  if (isIconfontClassBased.value) {
+    return ''
+  }
   const code = props.name.replace('iconfont:', '').trim()
   // 支持 e601、&#xe601;、&#58881; 三种输入格式
   if (code.startsWith('&#') && code.endsWith(';')) {

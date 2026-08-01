@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>KnowFlow Iconfont 图标预览</title>
+<link rel="stylesheet" href="./src/assets/iconfont/iconfont.css" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #f5f7fb 0%, #eef2ff 100%);
+    min-height: 100vh;
+    padding: 40px 32px 80px;
+    color: #1f2937;
+  }
+  .header {
+    max-width: 1400px;
+    margin: 0 auto 40px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .header p {
+    color: #6b7280;
+    font-size: 14px;
+  }
+  .search-box {
+    max-width: 1400px;
+    margin: 0 auto 32px;
+  }
+  .search-box input {
+    width: 100%;
+    max-width: 480px;
+    padding: 12px 20px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 14px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    outline: none;
+    transition: all .2s;
+  }
+  .search-box input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+  }
+  .section {
+    max-width: 1400px;
+    margin: 0 auto 48px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 16px;
+    padding-left: 12px;
+    border-left: 4px solid #6366f1;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+  }
+  .icon-card {
+    background: #fff;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    padding: 20px 12px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s ease;
+    position: relative;
+  }
+  .icon-card:hover {
+    transform: translateY(-2px);
+    border-color: #c7d2fe;
+    box-shadow: 0 8px 24px rgba(99,102,241,0.12);
+  }
+  .icon-card.active {
+    border-color: #6366f1;
+    background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  }
+  .icon-card .icon {
+    font-size: 36px;
+    color: #4f46e5;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .icon-card .name {
+    font-size: 12px;
+    color: #6b7280;
+    word-break: break-all;
+    line-height: 1.4;
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  .icon-card .copied {
+    position: absolute;
+    top: 8px; right: 8px;
+    font-size: 10px;
+    color: #10b981;
+    background: #ecfdf5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .icon-card.copied-anim .copied {
+    opacity: 1;
+  }
+  .tip {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-80px);
+    background: #1f2937;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    z-index: 1000;
+    transition: transform .3s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  .tip.show {
+    transform: translateX(-50%) translateY(0);
+  }
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+    font-size: 14px;
+  }
+  /* 规范说明样式 */
+  .spec-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    margin-bottom: 24px;
+  }
+  .spec-table th {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 12px 16px;
+    text-align: left;
+  }
+  .spec-table td {
+    padding: 10px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #374151;
+  }
+  .spec-table tr:last-child td { border-bottom: none; }
+  .spec-table tr:hover td { background: #f8fafc; }
+  .spec-table .token {
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    color: #4f46e5;
+    background: #eef2ff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  .spec-table .value {
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    color: #059669;
+    font-weight: 500;
+  }
+  .spec-table .icon-demo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #eef2ff;
+    color: #4f46e5;
+    border-radius: 6px;
+  }
+  .size-preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .spec-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .spec-tag-nav { background: #dbeafe; color: #1d4ed8; }
+  .spec-tag-sidebar { background: #fef3c7; color: #b45309; }
+  .spec-tag-logo { background: #fce7f3; color: #be185d; }
+  .spec-tag-mobile { background: #d1fae5; color: #047857; }
+  .spec-tag-dropdown { background: #e0e7ff; color: #3730a3; }
+  .two-col-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 900px) {
+    .two-col-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="tip" id="tip">已复制类名 ✅</div>
+
+  <div class="header">
+    <h1>🎨 KnowFlow Iconfont 图标预览</h1>
+    <p>点击图标卡片即可复制类名 · 输入关键词筛选</p>
+  </div>
+
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="🔍 搜索图标类名，例如：zhishiku、AI、xuexi..." />
+  </div>
+
+  <!-- 企业级尺寸规范说明 -->
+  <div class="section" id="spec-section"></div>
+
+  <div id="app"></div>
+
+<script>
+  // 全部图标（类别 + 类名）
+  const ICONS = [
+    {
+      title: "🤖 AI / 智能 / 助手类",
+      list: [
+        "icon-rengongzhineng",
+        "icon-rengongzhineng1",
+        "icon-AIbeikezhushou",
+        "icon-agent",
+        "icon-mg-workagent",
+        "icon-tianqizhushou",
+        "icon-yishengzhushou",
+        "icon-jiandangzhushou",
+        "icon-xuancizhushouchazhao",
+        "icon-bangzhushouce",
+        "icon-bangzhushouce1",
+      ],
+    },
+    {
+      title: "📚 知识库 / 学习类",
+      list: [
+        "icon-zhishiku",
+        "icon-zhishiku1",
+        "icon-zhishiku2",
+        "icon-zhishikuguanli",
+        "icon-zhishi",
+        "icon-a-Knowledgezhishixuexizhongxin",
+        "icon-zhishitupubaocun",
+        "icon-xuexi",
+        "icon-xuexi1",
+        "icon-xuexi2",
+        "icon-xuexi3",
+        "icon-xuexi-",
+        "icon-xuexizhongxin",
+        "icon-xuexizhongxin1",
+        "icon-xuexizhongxin2",
+        "icon-xuexizhongxin3",
+        "icon-xuexizhongxin1-copy-copy",
+        "icon-xuexizhongxinguanli",
+        "icon-xuexifenxi",
+        "icon-xuexijihua-",
+        "icon-xuexidengji",
+        "icon-wendangsousuo",
+        "icon-shucheng",
+        "icon-kaoshi",
+      ],
+    },
+    {
+      title: "💻 编程语言类",
+      list: [
+        "icon-python",
+        "icon-daochuweipython",
+        "icon-java",
+        "icon-java1",
+        "icon-java2",
+        "icon-java3",
+        "icon-java4",
+        "icon-java-iocn",
+        "icon-jsp",
+        "icon-html",
+        "icon-html1",
+        "icon-css",
+        "icon-css1",
+        "icon-CSS",
+        "icon-CSS1",
+        "icon-js",
+        "icon-js1",
+        "icon-js2",
+        "icon-JS",
+        "icon-jsx",
+        "icon-jsx1",
+        "icon-md",
+        "icon-md1",
+        "icon-MD",
+        "icon-JSON",
+        "icon-JSON1",
+        "icon-a-8_3qianduankaifa",
+        "icon-qianduankaifa",
+        "icon-houduankaifa",
+        "icon-shujukexue",
+        "icon-shujukexue1",
+        "icon-shujukexue2",
+        "icon-shujukexue3",
+      ],
+    },
+    {
+      title: "📄 文件类型",
+      list: [
+        "icon-pdf",
+        "icon-pdf1",
+        "icon-pdf2",
+        "icon-pdf3",
+        "icon-file-pdf",
+        "icon-txt",
+        "icon-txt1",
+        "icon-txt2",
+        "icon-TXT",
+        "icon-TXT1",
+        "icon-doc",
+        "icon-DOC",
+        "icon-word",
+        "icon-word1",
+        "icon-Word",
+        "icon-document",
+      ],
+    },
+    {
+      title: "🏆 等级 / 任务 / 管理类",
+      list: [
+        "icon-dengji",
+        "icon-dengji1",
+        "icon-dengji2",
+        "icon-dengji3",
+        "icon-dengji4",
+        "icon-dengji-A",
+        "icon-dengji-B",
+        "icon-dengji-C",
+        "icon-dengji-D",
+        "icon-huiyuandengji",
+        "icon-huiyuandengjidengjizuanshi",
+        "icon-renwuzhongxin",
+        "icon-renwuzhongxin1",
+        "icon-renwuzhongxin2",
+        "icon-zuzhi",
+        "icon-guanlian",
+        "icon-zu",
+        "icon-zu1",
+        "icon-tubiaoguanli",
+        "icon-tubiaoguanli1",
+        "icon-tubiaoguanli2",
+        "icon-nengyuanguanliku-caidantubiao-guanli",
+        "icon-wenjianpeizhi",
+        "icon-shujumulu",
+        "icon-wenbenshujuyuan",
+        "icon-biaoqian",
+        "icon-24px2x",
+      ],
+    },
+    {
+      title: "💬 社交 / 支付类",
+      list: [
+        "icon-weixin",
+        "icon-weixin1",
+        "icon-alipay",
+        "icon-zhifubaozhifu",
+      ],
+    },
+    {
+      title: "🔬 AI 模型 / NLP 类",
+      list: [
+        "icon-pmmlmoxing",
+        "icon-pmmlmoxingbaocun",
+        "icon-CRFshibie",
+        "icon-wenbenzhaiyao",
+        "icon-duanwenbenxiangsi",
+        "icon-changwenbenxiangsi",
+        "icon-qieci",
+        "icon-jixiaokaohe_xian",
+      ],
+    },
+  ];
+
+  // 当前选中（正在使用的）图标高亮
+  const ACTIVE = new Set([
+    "icon-AIbeikezhushou",// 知识库
+    "icon-agent",         // AI 助手
+    "icon-wendangsousuo", // 搜索知识
+    "icon-zhishitupubaocun", // 知识图谱
+    "icon-xuexizhongxin", // 学习中心
+    "icon-kaoshi",        // 智能测验
+    "icon-rengongzhineng1", // 智能问答
+  ]);
+
+  const app = document.getElementById("app");
+  const searchInput = document.getElementById("searchInput");
+  const tip = document.getElementById("tip");
+
+  function showTip(text) {
+    tip.textContent = text;
+    tip.classList.add("show");
+    setTimeout(() => tip.classList.remove("show"), 1500);
+  }
+
+  function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      showTip(`已复制: ${text} ✅`);
+    }).catch(() => {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      showTip(`已复制: ${text} ✅`);
+    });
+  }
+
+  function render(keyword = "") {
+    const kw = keyword.trim().toLowerCase();
+    app.innerHTML = "";
+    let totalShown = 0;
+
+    ICONS.forEach((group) => {
+      const filteredList = group.list.filter((name) =>
+        !kw || name.toLowerCase().includes(kw)
+      );
+      if (filteredList.length === 0) return;
+
+      const section = document.createElement("div");
+      section.className = "section";
+      section.innerHTML = `<h2 class="section-title">${group.title}</h2>`;
+
+      const grid = document.createElement("div");
+      grid.className = "grid";
+
+      filteredList.forEach((name) => {
+        const card = document.createElement("div");
+        card.className = "icon-card" + (ACTIVE.has(name) ? " active" : "");
+        card.innerHTML = `
+          <i class="icon iconfont ${name}"></i>
+          <div class="name">${name}</div>
+          <div class="copied">已复制</div>
+        `;
+        card.addEventListener("click", () => {
+          copyText(name);
+          card.classList.add("copied-anim");
+          setTimeout(() => card.classList.remove("copied-anim"), 1200);
+        });
+        grid.appendChild(card);
+        totalShown++;
+      });
+
+      section.appendChild(grid);
+      app.appendChild(section);
+    });
+
+    if (totalShown === 0) {
+      app.innerHTML = `<div class="empty">😕 没有匹配的图标，换个关键词试试~</div>`;
+    }
+  }
+
+  // 渲染企业级尺寸规范
+  function renderSpec() {
+    const section = document.getElementById("spec-section");
+    const icon = "icon-AIbeikezhushou";
+
+    section.innerHTML = `
+      <h2 class="section-title">📏 KnowFlow 企业级尺寸规范（Design Tokens）</h2>
+      <div class="two-col-grid">
+        <!-- 左：图标尺寸阶梯 -->
+        <div>
+          <h3 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:12px;">一、Icon 图标尺寸阶梯（偶数语义化）</h3>
+          <table class="spec-table">
+            <thead>
+              <tr><th>语义 size</th><th>CSS 变量</th><th>值</th><th style="width:80px">预览</th><th>使用场景</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>xxs</td><td class="token">--kb-icon-xxs</td><td class="value">10px</td><td><span class="icon-demo icon iconfont ${icon}" style="width:22px;height:22px;font-size:10px"></span></td><td>列表内点 / 角标图标</td></tr>
+              <tr><td>xs</td><td class="token">--kb-icon-xs</td><td class="value">12px</td><td><span class="icon-demo icon iconfont ${icon}" style="width:24px;height:24px;font-size:12px"></span></td><td>面包屑 / Tag 标签</td></tr>
+              <tr><td>sm</td><td class="token">--kb-icon-sm</td><td class="value">14px</td><td><span class="icon-demo icon iconfont ${icon}" style="width:26px;height:26px;font-size:14px"></span></td><td>下拉箭头 / 辅助图标</td></tr>
+              <tr><td><b>md</b> ⭐</td><td class="token">--kb-icon-md</td><td class="value">16px</td><td><span class="icon-demo icon iconfont ${icon}" style="width:28px;height:28px;font-size:16px"></span></td><td>导航菜单 / 表单输入 / <b>默认值</b></td></tr>
+              <tr><td>lg</td><td class="token">--kb-icon-lg</td><td class="value">18px</td><td><span class="icon-demo icon iconfont ${icon}" style="width:30px;height:30px;font-size:18px"></span></td><td>移动端菜单 / 按钮图标</td></tr>
+              <tr><td>xl</td><td class="token">--kb-icon-xl</td><td class="value">20px</td><td><span class="icon-demo icon iconfont ${icon}" style="width:32px;height:32px;font-size:20px"></span></td><td>Logo / 通知铃铛 / 顶部操作</td></tr>
+              <tr><td>2xl</td><td class="token">--kb-icon-2xl</td><td class="value">24px</td><td><span class="icon-demo icon iconfont ${icon}" style="width:36px;height:36px;font-size:24px"></span></td><td>卡片 / Hero 区域</td></tr>
+              <tr><td>3xl</td><td class="token">--kb-icon-3xl</td><td class="value">32px</td><td><span class="icon-demo icon iconfont ${icon}" style="width:44px;height:44px;font-size:32px"></span></td><td>空状态 / 节日插画</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 右：Typography 字号阶梯 -->
+        <div>
+          <h3 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:12px;">二、Typography 字号阶梯</h3>
+          <table class="spec-table">
+            <thead>
+              <tr><th>层级</th><th>CSS 变量</th><th>字号 / 行高 / 字重</th><th>预览</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>H1</td><td class="token">--kb-fs-h1</td><td class="value">40px / 1.2 / 700</td><td style="font-size:40px;font-weight:700;line-height:1.2;">Aa</td></tr>
+              <tr><td>H2</td><td class="token">--kb-fs-h2</td><td class="value">32px / 1.25 / 700</td><td style="font-size:32px;font-weight:700;line-height:1.25;">Aa</td></tr>
+              <tr><td>H3</td><td class="token">--kb-fs-h3</td><td class="value">24px / 1.3 / 600</td><td style="font-size:24px;font-weight:600;line-height:1.3;">Aa</td></tr>
+              <tr><td><b>H4</b></td><td class="token">--kb-fs-h4</td><td class="value">20px / 1.4 / 600</td><td style="font-size:20px;font-weight:600;line-height:1.4;">Aa</td></tr>
+              <tr><td>body-lg</td><td class="token">--kb-fs-body-lg</td><td class="value">16px / 1.6 / 400</td><td style="font-size:16px;font-weight:400;line-height:1.6;">正文大</td></tr>
+              <tr><td><b>body-md</b> ⭐</td><td class="token">--kb-fs-body-md</td><td class="value">14px / 1.6 / 400</td><td style="font-size:14px;font-weight:400;line-height:1.6;">正文默认</td></tr>
+              <tr><td>body-sm</td><td class="token">--kb-fs-body-sm</td><td class="value">13px / 1.5 / 400</td><td style="font-size:13px;font-weight:400;line-height:1.5;">辅助正文</td></tr>
+              <tr><td>caption</td><td class="token">--kb-fs-caption</td><td class="value">12px / 1.5 / 500</td><td style="font-size:12px;font-weight:500;line-height:1.5;">标签说明</td></tr>
+              <tr><td>xs</td><td class="token">--kb-fs-xs</td><td class="value">11px / 1.4 / 500</td><td style="font-size:11px;font-weight:500;line-height:1.4;">角标时间</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 布局专用语义化尺寸 -->
+      <h3 style="font-size:14px;font-weight:600;color:#374151;margin:8px 0 12px;">三、Layout 布局专用语义化尺寸（推荐直接使用）</h3>
+      <table class="spec-table">
+        <thead>
+          <tr><th>场景</th><th>CSS 变量</th><th>实际值</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="spec-tag spec-tag-logo">Logo 区</span></td>
+            <td class="token">--kb-logo-icon</td>
+            <td class="value">20px (xl)</td>
+            <td>顶栏 / 侧边栏 Logo 图标</td>
+          </tr>
+          <tr>
+            <td><span class="spec-tag spec-tag-logo">Logo 区</span></td>
+            <td class="token">--kb-logo-text-fs / --kb-logo-text-fw</td>
+            <td class="value">20px / 600</td>
+            <td>Logo 文字字号与字重</td>
+          </tr>
+          <tr>
+            <td><span class="spec-tag spec-tag-nav">顶栏导航</span></td>
+            <td class="token">--kb-nav-icon</td>
+            <td class="value">16px (md)</td>
+            <td>桌面端顶栏菜单图标</td>
+          </tr>
+          <tr>
+            <td><span class="spec-tag spec-tag-nav">顶栏导航</span></td>
+            <td class="token">--kb-nav-text-fs / --kb-nav-text-fw</td>
+            <td class="value">14px / 500</td>
+            <td>顶栏菜单文字（Medium 字重）</td>
+          </tr>
+          <tr>
+            <td><span class="spec-tag spec-tag-nav">顶栏导航</span></td>
+            <td class="token">--kb-nav-chevron</td>
+            <td class="value">14px (sm)</td>
+            <td>下拉箭头图标</td>
+          </tr>
+          <tr>
+            <td><span class="spec-tag spec-tag-nav">顶栏导航</span></td>
+            <td class="token">--kb-nav-gap</td>
+            <td class="value">8px (space-2)</td>
+            <td>图标 ↔ 文字间距</td>
+          </tr>
+          <tr>
+            <td><span class="spec-tag spec-tag-dropdown">下拉菜单</span></td>
+            <td class="token">--kb-dropdown-icon / --kb-dropdown-text-fs</td>
+            <td class="value">16px / 13px</td>
+            <td>下拉菜单项图标和文字</td>
+          </tr>
+          <tr>
+            <td><span class="spec-tag spec-tag-sidebar">侧边栏</span></td>
+            <td class="token">--kb-sidebar-icon</td>
+            <td class="value">16px (md)</td>
+            <td>侧边栏导航项图标</td>
+          </tr>
+          <tr>
+            <td><span class="spec-tag spec-tag-sidebar">侧边栏</span></td>
+            <td class="token">--kb-sidebar-text-fs / --kb-sidebar-text-fw</td>
+            <td class="value">13px / 500</td>
+            <td>侧边栏导航项文字</td>
+          </tr>
+          <tr>
+            <td><span class="spec-tag spec-tag-sidebar">侧边栏</span></td>
+            <td class="token">--kb-sidebar-gap</td>
+            <td class="value">12px (space-3)</td>
+            <td>侧边栏图标 ↔ 文字间距</td>
+          </tr>
+          <tr>
+            <td><span class="spec-tag spec-tag-sidebar">侧边栏</span></td>
+            <td class="token">--kb-sidebar-label-fs / --kb-sidebar-label-fw</td>
+            <td class="value">11px / 500</td>
+            <td>侧边栏分组标题（全大写 + 字距）</td>
+          </tr>
+          <tr>
+            <td><span class="spec-tag spec-tag-sidebar">侧边栏</span></td>
+            <td class="token">--kb-sidebar-bottom-icon / --kb-sidebar-bottom-fs</td>
+            <td class="value">14px (sm) / 12px</td>
+            <td>侧边栏底部辅助区（返回前台 / 收起按钮）</td>
+          </tr>
+          <tr>
+            <td><span class="spec-tag spec-tag-mobile">移动端</span></td>
+            <td class="token">--kb-mobile-icon</td>
+            <td class="value">18px (lg)</td>
+            <td>移动端菜单图标</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 使用指南 -->
+      <h3 style="font-size:14px;font-weight:600;color:#374151;margin:8px 0 12px;">四、Icon 组件使用指南</h3>
+      <table class="spec-table">
+        <thead>
+          <tr><th>写法</th><th>示例</th><th>说明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="token">语义化 size（推荐 ✅）</td><td><code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:12px;"><Icon name="icon-AIbeikezhushou" size="md" /></code></td><td>自动映射 <span class="token">--kb-icon-md</span>，支持主题响应</td></tr>
+          <tr><td class="token">数字像素值</td><td><code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:12px;"><Icon name="icon-AIbeikezhushou" :size="16" /></code></td><td>设置固定像素，不推荐（优先用语义化）</td></tr>
+          <tr><td class="token">布局专用变量</td><td><code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:12px;">:style="{ gap: 'var(--kb-nav-gap)' }"</code></td><td>布局间距/字号统一用语义化布局变量</td></tr>
+        </tbody>
+      </table>
+    `;
+  }
+
+  searchInput.addEventListener("input", (e) => render(e.target.value));
+  renderSpec();
+  render();
+</script>
+</body>
+</html>
