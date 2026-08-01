@@ -6,17 +6,57 @@ import { notify } from '@/utils/toast';
 
 export type PomodoroMode = 'focus' | 'shortBreak' | 'longBreak';
 export type PomodoroPosition = 'top' | 'bottom-right';
+export type RhythmPreset = 'standard' | 'study-hard' | 'relaxed' | 'creative';
 
 const SETTINGS_KEY = 'knowflow:pomodoro:settings';
 const RUNTIME_KEY = 'knowflow:pomodoro:runtime';
 
-interface PomodoroSettings {
+export interface PomodoroSettings {
   focusMinutes: number;
   shortBreakMinutes: number;
   longBreakMinutes: number;
   roundsPerSet: number; // 一组工作次数：完成 N 次专注后进入长休息
   soundEnabled: boolean;
   autoNext: boolean; // 一个阶段结束后是否自动进入下一阶段
+}
+
+export const RHYTHM_PRESETS: Record<RhythmPreset, PomodoroSettings> = {
+  standard: {
+    focusMinutes: 25,
+    shortBreakMinutes: 5,
+    longBreakMinutes: 15,
+    roundsPerSet: 4,
+    soundEnabled: true,
+    autoNext: false,
+  },
+  'study-hard': {
+    focusMinutes: 50,
+    shortBreakMinutes: 10,
+    longBreakMinutes: 30,
+    roundsPerSet: 4,
+    soundEnabled: true,
+    autoNext: false,
+  },
+  relaxed: {
+    focusMinutes: 15,
+    shortBreakMinutes: 3,
+    longBreakMinutes: 10,
+    roundsPerSet: 3,
+    soundEnabled: true,
+    autoNext: false,
+  },
+  creative: {
+    focusMinutes: 40,
+    shortBreakMinutes: 10,
+    longBreakMinutes: 20,
+    roundsPerSet: 3,
+    soundEnabled: true,
+    autoNext: false,
+  },
+};
+
+export function applyPomodoroPreset(preset: RhythmPreset): PomodoroSettings {
+  return { ...RHYTHM_PRESETS[preset] };
 }
 
 interface PomodoroRuntime {
@@ -232,6 +272,20 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
   );
 
   // ===== 核心动作 =====
+  function applyPreset(preset: RhythmPreset) {
+    const presetSettings = applyPomodoroPreset(preset);
+    const oldFocus = settings.value.focusMinutes;
+    settings.value = { ...settings.value, ...presetSettings };
+    if (
+      !runtime.value.isRunning &&
+      runtime.value.currentMode === 'focus' &&
+      Math.abs(runtime.value.timeLeft - oldFocus * 60) <= 1
+    ) {
+      runtime.value.timeLeft = durationFor('focus', settings.value);
+    }
+    notify('节奏模板已应用', 'success');
+  }
+
   function saveSettings(patch: Partial<PomodoroSettings>) {
     const oldFocus = settings.value.focusMinutes;
     settings.value = { ...settings.value, ...patch };
@@ -413,6 +467,7 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
     timeFormatted,
     setProgress,
     // actions
+    applyPreset,
     saveSettings,
     resetCurrentMode,
     switchMode,

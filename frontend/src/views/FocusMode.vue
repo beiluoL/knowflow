@@ -1,5 +1,9 @@
 <template>
-  <div class="immersive-root">
+  <div
+    ref="rootRef"
+    class="immersive-root"
+    :data-immersive-theme="currentTheme"
+  >
     <header class="immersive-topbar">
       <div class="topbar-left">
         <button type="button" class="exit-btn" @click="handleExit">
@@ -26,6 +30,7 @@
         <button
           type="button"
           class="icon-btn"
+          :class="{ active: themePanelVisible }"
           title="主题切换"
           @click="handleThemeToggle"
         >
@@ -34,6 +39,7 @@
         <button
           type="button"
           class="icon-btn"
+          :class="{ active: settingsPanelVisible }"
           title="设置"
           @click="openSettings"
         >
@@ -114,22 +120,56 @@
         </div>
       </div>
     </transition>
+
+    <ThemePanel
+      :visible="themePanelVisible"
+      :root-el="rootRef"
+      @close="themePanelVisible = false"
+    />
+
+    <SettingsPanel
+      :visible="settingsPanelVisible"
+      @close="settingsPanelVisible = false"
+    />
+
+    <transition name="break-fade">
+      <BreakGuide
+        v-if="breakGuideVisible && breakGuideType"
+        :break-type="breakGuideType"
+        :duration-sec="breakGuideDuration"
+        @dismiss="dismissBreakGuide"
+      />
+    </transition>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
 import WhiteNoisePlayer from '@/components/WhiteNoisePlayer.vue';
 import PomodoroMode from '@/components/immersive/PomodoroMode.vue';
+import ThemePanel from '@/components/immersive/ThemePanel.vue';
+import SettingsPanel from '@/components/immersive/SettingsPanel.vue';
+import BreakGuide from '@/components/immersive/BreakGuide.vue';
 import { useTheme } from '@/composables/useTheme';
+import {
+  useImmersiveTheme,
+  applyImmersiveThemeTo,
+} from '@/composables/useImmersiveTheme';
+import { usePomodoroStore, type PomodoroMode } from '@/stores/pomodoro';
 import { notify, confirmDialog, getApiError } from '@/utils/toast';
 import { useFocusSession } from '@/composables/useFocusSession';
 
 const router = useRouter();
 const { theme, setTheme } = useTheme();
 const { isActive, end } = useFocusSession();
+const {
+  currentTheme,
+  breakGuideEnabled,
+  resetThemeOnExit,
+} = useImmersiveTheme();
+const pomodoroStore = usePomodoroStore();
 
 const originalTheme = ref<string>(theme.value);
 const selectedMode = ref<'pomodoro'>('pomodoro');
@@ -137,17 +177,31 @@ const drawerExpanded = ref(false);
 const noiseVisible = ref(true);
 const notePanelOpen = ref(false);
 const noteText = ref('');
+const themePanelVisible = ref(false);
+const settingsPanelVisible = ref(false);
+const rootRef = ref<HTMLElement | null>(null);
+
+const breakGuideVisible = ref(false);
+const breakGuideType = ref<'shortBreak' | 'longBreak' | null>(null);
+const breakGuideDuration = ref(0);
+let lastBreakMode: PomodoroMode = 'focus';
 
 const toggleNoiseVisible = () => {
   noiseVisible.value = !noiseVisible.value;
 };
 
 const handleThemeToggle = () => {
-  notify('主题切换功能即将上线', 'info');
+  themePanelVisible.value = !themePanelVisible.value;
+  if (themePanelVisible.value) {
+    settingsPanelVisible.value = false;
+  }
 };
 
 const openSettings = () => {
-  notify('设置面板即将上线', 'info');
+  settingsPanelVisible.value = !settingsPanelVisible.value;
+  if (settingsPanelVisible.value) {
+    themePanelVisible.value = false;
+  }
 };
 
 const handleNote = () => {
@@ -186,12 +240,59 @@ const handleExit = async () => {
       notify(getApiError(e, '保存专注进度失败'), 'warning');
     }
   }
+  if (resetThemeOnExit.value) {
+    setTheme(originalTheme.value as 'light' | 'dark');
+    try {
+      document.documentElement.style.removeProperty('--kb-primary');
+      document.documentElement.style.removeProperty('--kb-base-font-size');
+    } catch {
+      // ignore
+    }
+  }
   void router.push('/learning/center');
 };
+
+const dismissBreakGuide = () => {
+  breakGuideVisible.value = false;
+  breakGuideType.value = null;
+};
+
+watch(
+  () => pomodoroStore.runtime.currentMode,
+  (newMode) => {
+    if (
+      breakGuideEnabled.value &&
+      (newMode === 'shortBreak' || newMode === 'longBreak') &&
+      lastBreakMode === 'focus' &&
+      !breakGuideVisible.value
+    ) {
+      breakGuideType.value = newMode;
+      breakGuideDuration.value =
+        newMode === 'shortBreak'
+          ? pomodoroStore.settings.shortBreakMinutes * 60
+          : pomodoroStore.settings.longBreakMinutes * 60;
+      breakGuideVisible.value = true;
+    }
+    lastBreakMode = newMode;
+  },
+);
+
+watch(currentTheme, (themeId) => {
+  nextTick(() => {
+    applyImmersiveThemeTo(rootRef.value, themeId);
+  });
+});
 
 onMounted(() => {
   originalTheme.value = theme.value;
   setTheme('dark');
+  void nextTick(() => {
+    applyImmersiveThemeTo(rootRef.value, currentTheme.value);
+  });
+  lastBreakMode = pomodoroStore.runtime.currentMode;
+  if (!pomodoroStore.runtime.isRunning) {
+    lastBreakMode = 'focus';
+  }
 });
 
 onUnmounted(() => {
@@ -202,12 +303,18 @@ onUnmounted(() => {
 <style scoped>
 .immersive-root {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f172a, #1e293b 60%, #0f172a);
+  background: linear-gradient(
+    135deg,
+    var(--kb-bg-0, #0f172a) 0%,
+    var(--kb-bg-1, #1e293b) 60%,
+    var(--kb-bg-0, #0f172a) 100%
+  );
   color: var(--kb-foreground);
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  font-size: var(--kb-base-font-size, 14px);
 }
 
 .immersive-topbar {
@@ -221,10 +328,10 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  background: rgba(15, 23, 42, 0.55);
+  background: var(--kb-bg-2, rgba(15, 23, 42, 0.55));
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
 }
 .topbar-left,
 .topbar-right {
@@ -242,7 +349,7 @@ onUnmounted(() => {
   font-weight: 600;
   color: var(--kb-foreground);
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   cursor: pointer;
   transition: background 0.15s ease;
@@ -269,7 +376,7 @@ onUnmounted(() => {
   font-weight: 600;
   color: var(--kb-foreground);
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 8px;
   cursor: pointer;
   outline: none;
@@ -285,7 +392,7 @@ onUnmounted(() => {
   height: 38px;
   color: var(--kb-muted-foreground);
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
   border-radius: 10px;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
@@ -307,9 +414,9 @@ onUnmounted(() => {
   bottom: 64px;
   z-index: 40;
   width: 0;
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--kb-bg-2, rgba(15, 23, 42, 0.6));
   backdrop-filter: blur(12px);
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.05));
   transition: width 0.25s ease;
   overflow: hidden;
 }
@@ -326,9 +433,9 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   color: var(--kb-muted-foreground);
-  background: rgba(15, 23, 42, 0.7);
+  background: var(--kb-bg-2, rgba(15, 23, 42, 0.7));
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
   border-left: none;
   border-radius: 0 10px 10px 0;
   cursor: pointer;
@@ -378,10 +485,10 @@ onUnmounted(() => {
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--kb-bg-2, rgba(15, 23, 42, 0.6));
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 14px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
 }
@@ -395,7 +502,7 @@ onUnmounted(() => {
   font-weight: 500;
   color: var(--kb-muted-foreground);
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.05));
   border-radius: 10px;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
@@ -419,8 +526,8 @@ onUnmounted(() => {
 .note-panel {
   width: 100%;
   max-width: 480px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kb-bg-1, #1e293b);
+  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.1));
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
@@ -430,12 +537,12 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.1));
 }
 .note-panel-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-card-foreground);
+  color: var(--kb-foreground);
 }
 .icon-btn-sm {
   display: inline-flex;
@@ -451,8 +558,8 @@ onUnmounted(() => {
   transition: background 0.15s ease, color 0.15s ease;
 }
 .icon-btn-sm:hover {
-  background: var(--kb-muted);
-  color: var(--kb-card-foreground);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--kb-foreground);
 }
 .note-input {
   display: block;
@@ -460,7 +567,7 @@ onUnmounted(() => {
   padding: 14px 16px;
   font-size: 14px;
   line-height: 1.6;
-  color: var(--kb-card-foreground);
+  color: var(--kb-foreground);
   background: transparent;
   border: none;
   outline: none;
@@ -477,7 +584,7 @@ onUnmounted(() => {
   padding: 0 18px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-primary-foreground);
+  color: #fff;
   background: var(--kb-primary);
   border: none;
   border-radius: 8px;
@@ -489,11 +596,15 @@ onUnmounted(() => {
 }
 
 .note-fade-enter-active,
-.note-fade-leave-active {
+.note-fade-leave-active,
+.break-fade-enter-active,
+.break-fade-leave-active {
   transition: opacity 0.2s ease;
 }
 .note-fade-enter-from,
-.note-fade-leave-to {
+.note-fade-leave-to,
+.break-fade-enter-from,
+.break-fade-leave-to {
   opacity: 0;
 }
 .wn-fade-enter-active,
