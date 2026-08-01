@@ -164,17 +164,22 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/ChallengePlay.vue'),
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
+  // 闪卡大厅：整合「学习闪卡」与「我的闪卡」为统一入口
   {
     path: '/learning/flashcards',
-    name: 'FlashCards',
-    component: () => import('@/views/FlashCards.vue'),
-    meta: { layout: 'c', fullscreen: true },
+    name: 'FlashCardsHub',
+    component: () => import('@/views/FlashCardsHub.vue'),
+    meta: { layout: 'c', fullscreen: true, requiresAuth: true },
   },
+  // 旧入口兼容重定向到统一大厅
   {
     path: '/learning/my-flashcards',
-    name: 'MyFlashcards',
-    component: () => import('@/views/MyFlashcards.vue'),
-    meta: { layout: 'c', fullscreen: true, requiresAuth: true },
+    redirect: '/learning/flashcards',
+  },
+  // 兼容旧组件命名（如外部链接直接指向 FlashCards 名称）
+  {
+    path: '/learning/flashcards-old',
+    redirect: '/learning/flashcards',
   },
   {
     path: '/learning/knowledge-graph',
