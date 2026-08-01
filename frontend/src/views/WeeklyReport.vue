@@ -1,8 +1,9 @@
 <template>
   <!--
-    学习周报页（P4-5）：
+    学习周报页（P4-5 + P5 升级）：
     展示当前周报（含 summary / achievements / suggestions / 统计）与历史周报列表。
     支持手动生成本周周报，历史周报可展开查看详情。
+    P5 升级：模式分布、AI 洞见、分享、热力图徽标、PDF 下载、历史 miniStats
   -->
   <div class="weekly-report-page animate-fade-in">
     <!-- 页头 -->
@@ -12,16 +13,47 @@
           <Icon name="arrow-left" :size="18" />
         </button>
         <h1 class="wr-title">学习周报</h1>
+        <!-- D. 本周热力图小圆徽标 -->
+        <div class="wr-heat-badge" title="本周7天学习活跃度">
+          <div
+            v-for="(v, i) in weekHeatMini"
+            :key="i"
+            class="wr-heat-dot"
+            :style="{ background: miniHeatColor(v) }"
+          />
+        </div>
       </div>
-      <button
-        type="button"
-        class="wr-generate-btn"
-        :disabled="generating"
-        @click="handleGenerate"
-      >
-        <Icon name="sparkles" :size="16" />
-        <span>{{ generating ? '生成中…' : '生成本周周报' }}</span>
-      </button>
+      <div class="wr-header-actions">
+        <button
+          type="button"
+          class="wr-generate-btn"
+          :disabled="generating"
+          @click="handleGenerate"
+        >
+          <Icon name="sparkles" :size="16" />
+          <span>{{ generating ? '生成中…' : '生成本周周报' }}</span>
+        </button>
+        <!-- F. 下载周报PDF按钮 -->
+        <button
+          type="button"
+          class="wr-secondary-btn"
+          :disabled="!currentReport"
+          @click="handleDownloadPdf"
+        >
+          <Icon name="download" :size="16" />
+          <span>下载PDF</span>
+        </button>
+        <!-- C. 分享按钮 -->
+        <button
+          type="button"
+          class="wr-secondary-btn"
+          :disabled="!currentReport && !metrics"
+          @click="handleShare"
+        >
+          <Icon name="share-2" :size="16" />
+          <span>分享</span>
+        </button>
+      </div>
     </div>
 
     <!-- 错误态 -->
@@ -79,6 +111,39 @@
             </div>
           </div>
 
+          <!-- A. 本周专注模式分布（stacked bar） -->
+          <div class="wr-block">
+            <h3 class="wr-block-title">
+              <Icon name="pie-chart" :size="16" />
+              <span>本周专注模式分布</span>
+              <span v-if="metrics?.focusStats?.weekMinutes" class="wr-week-minutes tabular-nums">
+                共 {{ metrics.focusStats.weekMinutes }} 分钟
+              </span>
+            </h3>
+            <template v-if="metricsLoading">
+              <div class="wr-stacked-skeleton" />
+            </template>
+            <template v-else-if="modeSegments.length">
+              <div class="wr-stacked-bar">
+                <div
+                  v-for="seg in modeSegments"
+                  :key="seg.mode"
+                  class="wr-stacked-seg"
+                  :style="{ width: seg.percent + '%', background: seg.color }"
+                  :title="`${seg.label} ${seg.minutes}分钟 (${seg.percent.toFixed(1)}%)`"
+                />
+              </div>
+              <div class="wr-stacked-legend">
+                <div v-for="seg in modeSegments" :key="seg.mode" class="wr-legend-item">
+                  <span class="wr-legend-dot" :style="{ background: seg.color }" />
+                  <span class="wr-legend-label">{{ seg.label }}</span>
+                  <span class="wr-legend-pct tabular-nums">{{ seg.percent.toFixed(0) }}%</span>
+                </div>
+              </div>
+            </template>
+            <div v-else class="wr-empty-mini">暂无模式数据</div>
+          </div>
+
           <!-- 总结 -->
           <div v-if="currentReport.summary" class="wr-block">
             <h3 class="wr-block-title">
@@ -114,6 +179,39 @@
                 <span>{{ item }}</span>
               </li>
             </ul>
+          </div>
+
+          <!-- B. AI 深度洞见 -->
+          <div class="wr-block">
+            <h3 class="wr-block-title">
+              <Icon name="sparkles" :size="16" />
+              <span>AI 深度洞见</span>
+            </h3>
+            <template v-if="metricsLoading && aiInsights.length === 0">
+              <div class="wr-insight-skeleton">
+                <div class="wr-insight-sk-card" />
+                <div class="wr-insight-sk-card" />
+                <div class="wr-insight-sk-card" />
+              </div>
+            </template>
+            <template v-else>
+              <div class="wr-insight-grid">
+                <div
+                  v-for="(it, idx) in aiInsights"
+                  :key="idx"
+                  class="wr-insight-card"
+                  :class="it.tone"
+                >
+                  <div class="wr-insight-icon">
+                    <Icon :name="it.icon" :size="18" />
+                  </div>
+                  <div class="wr-insight-body">
+                    <div class="wr-insight-title">{{ it.title }}</div>
+                    <div class="wr-insight-content">{{ it.content }}</div>
+                  </div>
+                </div>
+              </div>
+            </template>
           </div>
         </div>
 
@@ -170,6 +268,24 @@
               </div>
             </button>
 
+            <!-- E. 历史周报 miniStats 横条 -->
+            <div class="wr-history-mini-stats">
+              <span class="wr-mini-stat">
+                <Icon name="clock" :size="11" />
+                <span class="tabular-nums">学习 {{ report.studyMinutes ?? 0 }} 分钟</span>
+              </span>
+              <span class="wr-mini-stat-sep" />
+              <span class="wr-mini-stat">
+                <Icon name="calendar-check" :size="11" />
+                <span class="tabular-nums">打卡 {{ report.checkinDays ?? 0 }} 天</span>
+              </span>
+              <span class="wr-mini-stat-sep" />
+              <span class="wr-mini-stat">
+                <Icon name="layers" :size="11" />
+                <span class="tabular-nums">闪卡 {{ report.flashcardReviewed ?? 0 }}</span>
+              </span>
+            </div>
+
             <transition name="wr-collapse">
               <div v-if="expandedId === report.id" class="wr-history-body">
                 <div v-if="report.summary" class="wr-block">
@@ -209,18 +325,32 @@
         </div>
       </section>
     </template>
+
+    <!-- 分享 fallback textbox -->
+    <textarea
+      ref="shareTaRef"
+      class="wr-share-fallback-ta"
+      readonly
+      aria-hidden="true"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-// 学习周报页：加载当前周报与历史周报，支持手动生成本周周报。
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
 import { learningApi } from '@/api';
 import { notify, getApiError } from '@/utils/toast';
 import { renderMarkdown } from '@/utils/markdown';
 import type { WeeklyReportVO } from '@/api/types';
+import {
+  aggregateWeeklyMetrics,
+  generateAiInsights,
+  generateShareableText,
+  type AggregatedMetrics,
+  type AiInsight,
+} from '@/composables/useWeeklyReportEnhancer';
 
 const router = useRouter();
 
@@ -231,13 +361,93 @@ const currentReport = ref<WeeklyReportVO | null>(null);
 const historyReports = ref<WeeklyReportVO[]>([]);
 const expandedId = ref<number | null>(null);
 
+const metricsLoading = ref(false);
+const metrics = ref<AggregatedMetrics | null>(null);
+
+const shareTaRef = ref<HTMLTextAreaElement | null>(null);
+
 const renderedSummary = computed(() =>
   currentReport.value?.summary ? renderMarkdown(currentReport.value.summary) : '',
 );
 
+const MODE_COLORS: Record<string, string> = {
+  POMODORO: '#EF4444',
+  FLOW: '#06B6D4',
+  DEEP: '#8B5CF6',
+  SPACED: '#10B981',
+  BUDDY: '#F59E0B',
+};
+const MODE_LABELS: Record<string, string> = {
+  POMODORO: '番茄',
+  FLOW: '流',
+  DEEP: '深度',
+  SPACED: '间隔',
+  BUDDY: '伙伴',
+};
+
+const modeSegments = computed(() => {
+  const breakdown = metrics.value?.focusStats?.modeBreakdown ?? {};
+  const total = Object.values(breakdown).reduce((s, n) => s + (n || 0), 0);
+  const modes: Array<keyof typeof MODE_COLORS> = ['POMODORO', 'FLOW', 'DEEP', 'SPACED', 'BUDDY'];
+  return modes
+    .map((m) => ({
+      mode: m,
+      label: MODE_LABELS[m] ?? m,
+      color: MODE_COLORS[m],
+      minutes: breakdown[m] ?? 0,
+      percent: total > 0 ? ((breakdown[m] ?? 0) / total) * 100 : 0,
+    }))
+    .filter((s) => s.percent > 0.1 || s.minutes > 0);
+});
+
+const weekHeatMini = computed<number[]>(() => {
+  const days = metrics.value?.daily ?? [];
+  if (!days || days.length === 0) return [0, 0, 0, 0, 0, 0, 0];
+  const today = new Date();
+  const result: number[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const dateStr = d.toISOString().slice(0, 10);
+    const match = days.find((x) => x.date === dateStr);
+    result.push(match?.count ?? 0);
+  }
+  return result;
+});
+
+function miniHeatColor(minutes: number): string {
+  const clamped = Math.max(0, Math.min(120, minutes));
+  const t = clamped / 120;
+  if (t <= 0) return 'var(--kb-muted)';
+  const alpha = 0.2 + t * 0.8;
+  return `color-mix(in srgb, var(--kb-primary) ${alpha * 100}%, transparent)`;
+}
+
+const aiInsights = computed<AiInsight[]>(() => {
+  return generateAiInsights(currentReport.value, metrics.value ?? {
+    focusStats: null,
+    daily: [],
+    mastery: null,
+    mistakes: null,
+    user: null,
+  });
+});
+
 function toggleExpand(id?: number): void {
   if (id == null) return;
   expandedId.value = expandedId.value === id ? null : id;
+}
+
+async function loadMetrics(): Promise<void> {
+  metricsLoading.value = true;
+  try {
+    metrics.value = await aggregateWeeklyMetrics();
+  } catch (e: unknown) {
+    notify('增强数据加载失败：' + getApiError(e, '网络异常'), 'warning');
+    metrics.value = null;
+  } finally {
+    metricsLoading.value = false;
+  }
 }
 
 async function loadAll(): Promise<void> {
@@ -249,11 +459,9 @@ async function loadAll(): Promise<void> {
       learningApi.listWeeklyReports().catch(() => [] as WeeklyReportVO[]),
     ]);
     currentReport.value = current;
-    // 历史周报按 weekStart 倒序
     historyReports.value = [...history].sort((a, b) =>
       (b.weekStart || '').localeCompare(a.weekStart || ''),
     );
-    // 默认展开第一条历史
     if (historyReports.value.length > 0 && historyReports.value[0].id != null) {
       expandedId.value = historyReports.value[0].id!;
     }
@@ -271,15 +479,16 @@ async function handleGenerate(): Promise<void> {
   try {
     const report = await learningApi.generateWeeklyReport();
     currentReport.value = report;
-    // 刷新历史列表
     try {
       const history = await learningApi.listWeeklyReports();
       historyReports.value = [...history].sort((a, b) =>
         (b.weekStart || '').localeCompare(a.weekStart || ''),
       );
     } catch {
-      // 历史刷新失败不影响主流程
+      // ignore
     }
+    // 生成完刷新增强数据
+    void loadMetrics();
     notify('本周周报已生成', 'success');
   } catch (e: unknown) {
     notify('生成周报失败：' + getApiError(e), 'error');
@@ -288,8 +497,189 @@ async function handleGenerate(): Promise<void> {
   }
 }
 
+async function handleShare(): Promise<void> {
+  try {
+    const text = generateShareableText(currentReport.value, metrics.value ?? {
+      focusStats: null,
+      daily: [],
+      mastery: null,
+      mistakes: null,
+      user: null,
+    });
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else if (shareTaRef.value) {
+        const ta = shareTaRef.value;
+        ta.value = text;
+        ta.select();
+        document.execCommand('copy');
+        ta.value = '';
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      notify('周报分享文案已复制到剪贴板，快去分享吧！', 'success');
+    } catch (e: unknown) {
+      notify(getApiError(e, '复制失败，请截图保存周报分享'), 'warning');
+    }
+  } catch (e: unknown) {
+    notify('生成分享文案失败：' + getApiError(e), 'warning');
+  }
+}
+
+function escapeXml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+function triggerDownload(href: string, filename: string): void {
+  const a = document.createElement('a');
+  a.href = href;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+async function handleDownloadPdf(): Promise<void> {
+  try {
+    await nextTick();
+    const r = currentReport.value;
+    const m = metrics.value;
+    if (!r && !m) {
+      notify('暂无数据可导出', 'warning');
+      return;
+    }
+    const minutes = r?.studyMinutes ?? m?.focusStats?.weekMinutes ?? 0;
+    const days = r?.checkinDays ?? m?.user?.streakDays ?? 0;
+    const cards = r?.flashcardReviewed ?? m?.mastery?.flashcardReviewed ?? 0;
+    const title = 'KnowFlow 学习周报';
+    const subtitle = `${r?.weekStart ?? '本周'} ~ ${r?.weekEnd ?? ''}`;
+    const insights = aiInsights.value;
+
+    const w = 720;
+    const h = 980;
+    const insightsHtml = insights
+      .map((it, i) => {
+        const y = 520 + i * 110;
+        const toneColor = it.tone === 'positive' ? '#10B981' : it.tone === 'warning' ? '#F59E0B' : '#3B6FE0';
+        const toneBg = it.tone === 'positive' ? 'rgba(16,185,129,0.08)' : it.tone === 'warning' ? 'rgba(245,158,11,0.08)' : 'rgba(59,111,224,0.08)';
+        const contentLines = splitText(it.content, 32);
+        const contentText = contentLines
+          .slice(0, 2)
+          .map((line, li) => `<text x="92" y="${y + 46 + li * 20}" font-size="13" fill="#4B5563" font-family="Noto Sans SC, -apple-system, sans-serif">${escapeXml(line)}</text>`)
+          .join('\n');
+        return `<rect x="40" y="${y}" width="${w - 80}" height="96" rx="12" fill="${toneBg}" stroke="${toneColor}22" stroke-width="1" />
+<circle cx="66" cy="${y + 30}" r="18" fill="${toneColor}18" />
+<text x="66" y="${y + 36}" text-anchor="middle" font-size="18" fill="${toneColor}" font-family="Noto Sans SC, sans-serif">★</text>
+<text x="92" y="${y + 28}" font-size="14" font-weight="600" fill="#1A1D23" font-family="Noto Sans SC, -apple-system, sans-serif">${escapeXml(it.title)}</text>
+${contentText}`;
+      })
+      .join('\n');
+
+    const achievements = r?.achievements?.slice(0, 3) ?? [];
+    const achHtml = achievements
+      .map((a, i) => {
+        const y = 380 + i * 32;
+        return `<circle cx="58" cy="${y}" r="8" fill="rgba(245,158,11,0.18)" />
+<text x="58" y="${y + 4}" text-anchor="middle" font-size="11" fill="#F59E0B">★</text>
+<text x="78" y="${y + 4}" font-size="13" fill="#374151" font-family="Noto Sans SC, -apple-system, sans-serif">${escapeXml(a)}</text>`;
+      })
+      .join('\n');
+
+    const svgMarkup = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F0F4FF"/>
+    </linearGradient>
+    <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3B6FE0"/>
+      <stop offset="100%" stop-color="#6F9AF2"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="${w}" height="${h}" rx="0" fill="url(#bgGrad)"/>
+
+  <rect x="0" y="0" width="${w}" height="170" rx="0" fill="url(#heroGrad)"/>
+  <circle cx="${w - 60}" cy="40" r="60" fill="rgba(255,255,255,0.08)"/>
+  <circle cx="${w - 160}" cy="110" r="30" fill="rgba(255,255,255,0.06)"/>
+
+  <text x="40" y="58" font-size="14" font-weight="600" fill="rgba(255,255,255,0.85)" font-family="Noto Sans SC, -apple-system, sans-serif">KnowFlow · 沉浸工作台</text>
+  <text x="40" y="98" font-size="32" font-weight="700" fill="#FFFFFF" font-family="Noto Serif SC, Georgia, serif">${escapeXml(title)}</text>
+  <text x="40" y="128" font-size="14" fill="rgba(255,255,255,0.8)" font-family="Noto Sans SC, sans-serif">${escapeXml(subtitle)}</text>
+
+  <rect x="40" y="190" width="${w - 80}" height="140" rx="16" fill="#FFFFFF" stroke="rgba(59,111,224,0.1)" stroke-width="1"/>
+  <rect x="76" y="220" width="${(w - 80 - 80) / 3 - 12}" height="80" rx="12" fill="rgba(59,111,224,0.06)"/>
+  <text x="${76 + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="#6B7280" font-family="Noto Sans SC, sans-serif">学习分钟</text>
+  <text x="${76 + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="#1A1D23" font-family="Noto Sans SC, sans-serif">${minutes}</text>
+
+  <rect x="${76 + (w - 80 - 80) / 3}" y="220" width="${(w - 80 - 80) / 3 - 12}" height="80" rx="12" fill="rgba(16,185,129,0.06)"/>
+  <text x="${76 + (w - 80 - 80) / 3 + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="#6B7280" font-family="Noto Sans SC, sans-serif">打卡天数</text>
+  <text x="${76 + (w - 80 - 80) / 3 + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="#1A1D23" font-family="Noto Sans SC, sans-serif">${days}</text>
+
+  <rect x="${76 + 2 * ((w - 80 - 80) / 3)}" y="220" width="${(w - 80 - 80) / 3 - 12}" height="80" rx="12" fill="rgba(245,158,11,0.06)"/>
+  <text x="${76 + 2 * ((w - 80 - 80) / 3) + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="#6B7280" font-family="Noto Sans SC, sans-serif">复习闪卡</text>
+  <text x="${76 + 2 * ((w - 80 - 80) / 3) + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="#1A1D23" font-family="Noto Sans SC, sans-serif">${cards}</text>
+
+  ${achievements.length ? `<text x="40" y="360" font-size="16" font-weight="600" fill="#1A1D23" font-family="Noto Sans SC, sans-serif">🏆 本周成就</text>\n${achHtml}` : ''}
+
+  <text x="40" y="500" font-size="16" font-weight="600" fill="#1A1D23" font-family="Noto Sans SC, sans-serif">✨ AI 深度洞见</text>
+  ${insightsHtml}
+
+  <text x="${w / 2}" y="${h - 32}" text-anchor="middle" font-size="12" font-weight="600" fill="#9AA1AC" letter-spacing="2" font-family="Noto Sans SC, sans-serif">knowflow.cn</text>
+</svg>`;
+
+    const encoded = encodeURIComponent(svgMarkup)
+      .replace(/'/g, '%27')
+      .replace(/"/g, '%22');
+    const dataUrl = `data:image/svg+xml;charset=utf-8,${encoded}`;
+
+    const filename = r?.weekStart
+      ? `KnowFlow周报_${r.weekStart}_${r.weekEnd ?? ''}.svg`
+      : 'KnowFlow周报.svg';
+    triggerDownload(dataUrl, filename);
+    notify('周报已导出，如需 PDF 请用浏览器打开后另存为', 'success');
+  } catch (e: unknown) {
+    notify(getApiError(e, '导出失败，请截图保存周报'), 'warning');
+  }
+}
+
+function splitText(text: string, maxLen: number): string[] {
+  const result: string[] = [];
+  let remaining = text;
+  while (remaining.length > maxLen) {
+    result.push(remaining.slice(0, maxLen));
+    remaining = remaining.slice(maxLen);
+  }
+  if (remaining) result.push(remaining);
+  return result;
+}
+
+watch(
+  currentReport,
+  () => {
+    if (currentReport.value && !metrics.value && !metricsLoading.value) {
+      void loadMetrics();
+    }
+  },
+);
+
 onMounted(() => {
   void loadAll();
+  void loadMetrics();
 });
 </script>
 
@@ -326,6 +716,13 @@ onMounted(() => {
   gap: 12px;
 }
 
+.wr-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .wr-back-btn {
   display: flex;
   align-items: center;
@@ -352,6 +749,25 @@ onMounted(() => {
   margin: 0;
 }
 
+/* D. 热力图小圆徽标 */
+.wr-heat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 18px;
+  padding: 2px 4px;
+  border-radius: 5px;
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+}
+.wr-heat-dot {
+  width: 6px;
+  height: 10px;
+  border-radius: 2px;
+  flex: 1;
+  min-width: 6px;
+}
+
 .wr-generate-btn {
   display: inline-flex;
   align-items: center;
@@ -374,6 +790,31 @@ onMounted(() => {
 
 .wr-generate-btn:disabled {
   opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.wr-secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: var(--kb-radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  border: 1px solid var(--kb-border);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.wr-secondary-btn:hover:not(:disabled) {
+  background: var(--kb-muted);
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+}
+.wr-secondary-btn:disabled {
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
@@ -515,6 +956,76 @@ onMounted(() => {
   color: var(--kb-primary);
 }
 
+.wr-week-minutes {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--kb-muted-foreground);
+}
+
+/* A. 模式分布 stacked bar */
+.wr-stacked-skeleton {
+  height: 52px;
+  border-radius: 10px;
+  background: linear-gradient(
+    90deg,
+    var(--kb-muted) 0%,
+    color-mix(in srgb, var(--kb-muted) 60%, transparent) 50%,
+    var(--kb-muted) 100%
+  );
+  background-size: 200% 100%;
+  animation: wr-pulse 1.4s ease-in-out infinite;
+}
+
+.wr-stacked-bar {
+  display: flex;
+  width: 100%;
+  height: 18px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--kb-muted);
+  margin-bottom: 12px;
+}
+.wr-stacked-seg {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+.wr-stacked-seg:first-child { border-radius: 999px 0 0 999px; }
+.wr-stacked-seg:last-child { border-radius: 0 999px 999px 0; }
+
+.wr-stacked-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+.wr-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--kb-foreground);
+}
+.wr-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.wr-legend-label {
+  font-weight: 500;
+}
+.wr-legend-pct {
+  color: var(--kb-muted-foreground);
+  font-weight: 500;
+}
+
+.wr-empty-mini {
+  padding: 16px 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--kb-muted-foreground);
+}
+
+/* ========== 总结 / 列表 ========== */
 .wr-summary {
   font-size: 14px;
   line-height: 1.7;
@@ -571,6 +1082,96 @@ onMounted(() => {
   color: var(--kb-primary);
   flex-shrink: 0;
   margin-top: 2px;
+}
+
+/* B. AI 洞见 */
+.wr-insight-skeleton {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.wr-insight-sk-card {
+  height: 108px;
+  border-radius: 12px;
+  background: linear-gradient(
+    90deg,
+    var(--kb-muted) 0%,
+    color-mix(in srgb, var(--kb-muted) 60%, transparent) 50%,
+    var(--kb-muted) 100%
+  );
+  background-size: 200% 100%;
+  animation: wr-pulse 1.4s ease-in-out infinite;
+}
+@media (max-width: 640px) {
+  .wr-insight-skeleton {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wr-insight-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 640px) {
+  .wr-insight-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.wr-insight-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--kb-background);
+  border: 1px solid var(--kb-border);
+}
+.wr-insight-card.positive {
+  border-color: rgba(16, 185, 129, 0.22);
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.06), rgba(16, 185, 129, 0.02));
+}
+.wr-insight-card.warning {
+  border-color: rgba(245, 158, 11, 0.22);
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.06), rgba(245, 158, 11, 0.02));
+}
+.wr-insight-card.info {
+  border-color: rgba(59, 111, 224, 0.22);
+  background: linear-gradient(180deg, rgba(59, 111, 224, 0.06), rgba(59, 111, 224, 0.02));
+}
+.wr-insight-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(59, 111, 224, 0.12);
+  color: var(--kb-primary);
+}
+.wr-insight-card.positive .wr-insight-icon {
+  color: var(--kb-accent);
+  background: rgba(16, 185, 129, 0.14);
+}
+.wr-insight-card.warning .wr-insight-icon {
+  color: var(--kb-warning);
+  background: rgba(245, 158, 11, 0.14);
+}
+.wr-insight-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+.wr-insight-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.wr-insight-content {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--kb-muted-foreground);
 }
 
 /* ========== 空态 / 错误 ========== */
@@ -731,6 +1332,34 @@ onMounted(() => {
   transform: rotate(180deg);
 }
 
+/* E. 历史 miniStats */
+.wr-history-mini-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 18px 12px;
+  font-size: 11px;
+  color: var(--kb-muted-foreground);
+  flex-wrap: wrap;
+}
+.wr-mini-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--kb-background);
+  font-weight: 500;
+}
+.wr-mini-stat svg {
+  opacity: 0.8;
+}
+.wr-mini-stat-sep {
+  width: 1px;
+  height: 12px;
+  background: var(--kb-border);
+}
+
 .wr-history-body {
   padding: 4px 18px 18px;
   border-top: 1px solid var(--kb-border);
@@ -752,5 +1381,20 @@ onMounted(() => {
 .wr-collapse-leave-to {
   opacity: 0;
   max-height: 0;
+}
+
+/* 分享 textarea fallback */
+.wr-share-fallback-ta {
+  position: fixed;
+  left: -99999px;
+  top: -99999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 </style>
