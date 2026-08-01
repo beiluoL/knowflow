@@ -200,6 +200,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/LearningMode.vue'),
     meta: { layout: 'none', requiresAuth: true },
   },
+  // P7 沉浸工作台：5 种专注模式 + 个性化 + 洞察
+  {
+    path: '/learning/focus',
+    name: 'FocusMode',
+    component: () => import('@/views/FocusMode.vue'),
+    meta: { layout: 'none', requiresAuth: true },
+  },
   // F-01 修复：旧的 /learning/report 重定向到学习中心，保持外链兼容
   {
     path: '/learning/report',
