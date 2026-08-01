@@ -195,12 +195,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/LearningMode.vue'),
     meta: { layout: 'none', requiresAuth: true },
   },
-  // 学习报告：聚合签到/闪卡/错题/代码/阅读/测验数据的多维度报告页
+  // F-01 修复：旧的 /learning/report 重定向到学习中心，保持外链兼容
   {
     path: '/learning/report',
-    name: 'LearningReportView',
-    component: () => import('@/views/LearningReportView.vue'),
-    meta: { layout: 'c', requiresAuth: true, fullscreen: true, title: '学习报告' },
+    name: 'LearningReport',
+    redirect: '/learning/center',
   },
   // F-01 修复：番茄钟独立路由（LearningCenter.vue 实为番茄钟专注页）
   {

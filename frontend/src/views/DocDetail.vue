@@ -112,6 +112,37 @@
                   <Icon name="edit-3" :size="16" />
                   <span>记笔记</span>
                 </button>
+                <!-- 进入章节学习：反查文档关联的章节，单个直接跳转，多个弹出选择 -->
+                <div v-if="auth.isLoggedIn" class="relative kb-dropdown">
+                  <button
+                    type="button"
+                    class="action-btn"
+                    :class="loadingChapters ? 'opacity-60' : ''"
+                    :disabled="loadingChapters"
+                    @click="handleEnterChapter"
+                  >
+                    <Icon name="book-open" :size="16" />
+                    <span>{{ loadingChapters ? '查询中…' : '进入章节学习' }}</span>
+                  </button>
+                  <!-- 多章节下拉选择面板 -->
+                  <div
+                    v-if="showChapterDropdown"
+                    class="kb-dropdown-panel kb-dropdown-wide chapter-dropdown"
+                  >
+                    <div class="chapter-dropdown-header">该文档关联以下章节</div>
+                    <button
+                      v-for="ch in relatedChapters"
+                      :key="ch.id"
+                      type="button"
+                      class="kb-dropdown-item"
+                      @click="goToChapter(ch.id)"
+                    >
+                      <Icon name="play" :size="14" class="shrink-0" />
+                      <span class="truncate">{{ ch.title }}</span>
+                      <Icon v-if="ch.completed" name="check-circle" :size="14" class="shrink-0 text-green-500" />
+                    </button>
+                  </div>
+                </div>
                 <button
                   type="button"
                   class="action-btn action-btn-primary"
@@ -257,16 +288,18 @@
 
 <script setup lang="ts">
 // 文档详情页：Markdown 渲染、目录与阅读进度追踪、收藏/分享/AI 解答入口。
-import { notify } from '@/utils/toast'
+import { notify, getApiError } from '@/utils/toast'
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
-import { docsApi } from '@/api'
+import { docsApi, learningApi } from '@/api'
 import { useAuthStore } from '@/stores/auth'
-import type { DocDetailVO, DocVO, LearningFlashcard } from '@/api/types'
+import type { DocDetailVO, DocVO, LearningFlashcard, LearningChapterVO } from '@/api/types'
 // 统一的 Markdown 渲染与工具函数（解决 \n 换行不生效、空格丢失等问题）
 import { renderMarkdown as renderMarkdownGlobal, normalizeEscapes } from '@/utils/markdown'
+// highlight.js 深色主题（与代码块深色背景配合）
+import 'highlight.js/styles/github-dark.css'
 
 // 文档类型标签色板（与设计稿对齐）
 const docIconColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
@@ -328,25 +361,49 @@ const slugify = (text: string) =>
     .replace(/[^\w一-龥]+/g, '-')
     .replace(/^-+|-+$/g, '')
 
-// 从 Markdown 文本提取二级/三级标题，生成目录树（使用全局工具处理转义字符）
+/**
+ * 还原 Markdown 文本中的字面量换行符（\n / \r\n / \t）为真实控制字符。
+ * 后端 doc.content 字段有时会将真实 LF 存成反斜杠+n 的字面量字符串，
+ * 导致 markdown-it 无法解析段落分隔与块级语法。
+ */
+const normalizeNewlines = (src: string): string => {
+  if (!src) return '';
+  const hasRealLF = src.includes('\n');
+  const hasLiteralBackslashN = src.includes('\\n');
+  if (hasLiteralBackslashN && !hasRealLF) {
+    src = src
+      .replace(/\\r\\n/g, '\r\n')
+      .replace(/\\n/g, '\n')
+      .replace(/\\t/g, '\t');
+  }
+  return src;
+};
+
+// 从 Markdown 文本提取二级/三级标题，生成目录树
+// 注意：h2/h3 的锚点 id 采用与全局 markdown 渲染一致的约定（heading-1, heading-2…），
+// 即每遇到一个 h2 或 h3 按出现顺序递增计数，确保与 markdown.ts 注入的 id 完全对齐。
 const buildToc = (md: string): TocItem[] => {
-  const items: TocItem[] = []
-  const text = normalizeEscapes(md)
+  const items: TocItem[] = [];
+  let headingSeq = 0;
+  const text = normalizeEscapes(normalizeNewlines(md));
   for (const line of text.split('\n')) {
-    const m = /^(#{2,3})\s+(.*)$/.exec(line.trim())
+    const m = /^(#{2,3})\s+(.*)$/.exec(line.trim());
     if (m) {
-      const text = m[2].replace(/[*`]/g, '').trim()
+      headingSeq++;
+      const title = m[2].replace(/[*`]/g, '').trim();
       items.push({
-        id: slugify(text) || `h-${items.length}`,
-        text,
+        id: `heading-${headingSeq}`,
+        text: title,
         level: m[1].length,
-      })
+      });
     }
   }
-  return items
-}
+  return items;
+};
 
-const docContentHtml = computed(() => renderMarkdownGlobal(doc.value.content || ''))
+const docContentHtml = computed(() =>
+  renderMarkdownGlobal(normalizeNewlines(doc.value.content || ''))
+);
 const flatToc = computed(() => buildToc(doc.value.content || ''))
 
 const goBack = () => router.back()
@@ -380,6 +437,53 @@ const handleNote = () => {
 }
 const handleAIExplain = () => {
   router.push({ path: '/chat', query: { q: `请帮我解析这篇文章：${doc.value.title}` } })
+}
+
+// 进入章节学习：根据文档 ID 反查关联章节，单个直接跳转，多个弹出下拉选择
+const loadingChapters = ref(false)
+const relatedChapters = ref<LearningChapterVO[]>([])
+const showChapterDropdown = ref(false)
+
+const goToChapter = (chapterId: number) => {
+  showChapterDropdown.value = false
+  router.push(`/learning/chapter/${chapterId}`)
+}
+
+const handleEnterChapter = async () => {
+  const id = doc.value.id
+  if (!id || loadingChapters.value) return
+  // 二次点击时切换下拉面板显隐
+  if (relatedChapters.value.length > 0) {
+    showChapterDropdown.value = !showChapterDropdown.value
+    return
+  }
+  loadingChapters.value = true
+  try {
+    const chapters = await learningApi.chaptersByDoc(id)
+    if (chapters.length === 0) {
+      notify('该文档暂未关联学习章节', 'info')
+      return
+    }
+    if (chapters.length === 1) {
+      router.push(`/learning/chapter/${chapters[0].id}`)
+      return
+    }
+    relatedChapters.value = chapters
+    showChapterDropdown.value = true
+  } catch (e: unknown) {
+    notify(getApiError(e), 'error')
+  } finally {
+    loadingChapters.value = false
+  }
+}
+
+// 点击下拉面板外部时关闭
+const handleDocumentClick = (e: MouseEvent) => {
+  if (!showChapterDropdown.value) return
+  const target = e.target as HTMLElement
+  if (!target.closest('.chapter-dropdown') && !target.closest('.action-btn')) {
+    showChapterDropdown.value = false
+  }
 }
 
 // B③ AI 增强：生成摘要与复习闪卡（需登录；未配置 AI 密钥时给出友好提示）
@@ -527,11 +631,13 @@ onMounted(async () => {
     contentRef.value?.addEventListener('click', handleCopyClick)
   })
   window.addEventListener('scroll', handleScroll)
+  document.addEventListener('click', handleDocumentClick)
   handleScroll()
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  document.removeEventListener('click', handleDocumentClick)
   contentRef.value?.removeEventListener('click', handleCopyClick)
   saveProgress()
 })
@@ -604,6 +710,16 @@ onUnmounted(() => {
   color: #EF4444;
 }
 
+/* 章节选择下拉面板 */
+.chapter-dropdown-header {
+  padding: 6px 10px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--kb-muted-foreground);
+  border-bottom: 1px solid var(--kb-border);
+  margin-bottom: 4px;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -622,88 +738,278 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
+/* ===== 正文 Markdown 排版（对齐设计令牌系统） ===== */
+
 :deep(.doc-content) {
-  color: #1A1D23;
+  font-family: var(--font-sans);
+  font-size: 15px;
   line-height: 1.8;
-  font-size: 14px;
+  color: var(--kb-card-foreground);
+  word-break: break-word;
+}
+
+/* 标题层级：H1/H2 用衬线体，H3/H4 用无衬线体 */
+:deep(.doc-content h1) {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  margin: 8px 0 20px;
+  color: var(--kb-foreground);
+  text-wrap: balance;
 }
 
 :deep(.doc-content h2) {
-  font-size: 17px;
+  font-family: var(--font-serif);
+  font-size: 22px;
   font-weight: 600;
-  color: #1A1D23;
-  margin-top: 24px;
-  margin-bottom: 12px;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  margin: 32px 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--kb-border);
+  color: var(--kb-foreground);
   scroll-margin-top: 80px;
+  text-wrap: balance;
 }
 
 :deep(.doc-content h3) {
-  font-size: 15px;
+  font-family: var(--font-sans);
+  font-size: 18px;
   font-weight: 600;
-  color: #1A1D23;
-  margin-top: 20px;
-  margin-bottom: 10px;
+  line-height: 1.4;
+  margin: 24px 0 12px;
+  color: var(--kb-foreground);
   scroll-margin-top: 80px;
 }
 
+:deep(.doc-content h4) {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.45;
+  margin: 20px 0 10px;
+  color: var(--kb-foreground);
+}
+
+/* 正文段落 */
 :deep(.doc-content p) {
-  margin-bottom: 16px;
+  margin: 12px 0;
+  line-height: 1.8;
+  color: var(--kb-card-foreground);
 }
 
-:deep(.doc-content ul) {
-  list-style-type: disc;
-  padding-left: 20px;
-  margin-bottom: 16px;
-}
-
+/* 列表 */
+:deep(.doc-content ul),
 :deep(.doc-content ol) {
-  list-style-type: decimal;
-  padding-left: 20px;
-  margin-bottom: 16px;
+  padding-left: 24px;
+  margin: 12px 0;
 }
 
 :deep(.doc-content li) {
-  margin-bottom: 10px;
-  line-height: 1.8;
+  margin: 6px 0;
+  line-height: 1.7;
+  color: var(--kb-card-foreground);
 }
 
+:deep(.doc-content li::marker) {
+  color: var(--kb-primary);
+}
+
+/* 引用块 */
 :deep(.doc-content blockquote) {
-  border-left: 3px solid #3B6FE0;
-  background: rgba(59,111,224,0.05);
-  padding: 14px 16px;
-  margin: 16px 0;
+  border-left: 4px solid var(--kb-primary);
+  background: color-mix(in srgb, var(--kb-primary) 5%, var(--kb-card));
+  padding: 14px 20px;
+  margin: 20px 0;
   border-radius: 0 8px 8px 0;
-  color: #1A1D23;
+  color: var(--kb-card-foreground);
 }
 
 :deep(.doc-content blockquote p) {
-  margin-bottom: 0;
+  margin: 4px 0;
+}
+
+/* 行内代码 */
+:deep(.doc-content :not(pre) > code) {
+  background: var(--kb-muted);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  color: var(--kb-primary);
+  font-weight: 500;
+}
+
+/* 代码块包装器 */
+:deep(.doc-content .code-block-wrapper) {
+  margin: 20px 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--kb-border);
+  background: #1a1d23;
+  white-space: normal;
+}
+
+:deep(.doc-content .code-block-header) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: normal;
+}
+
+:deep(.doc-content .code-lang) {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: var(--font-mono);
+}
+
+:deep(.doc-content .code-copy-btn) {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--font-sans);
+}
+
+:deep(.doc-content .code-copy-btn:hover) {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+:deep(.doc-content .code-copy-btn .copy-label) {
+  line-height: 1;
 }
 
 :deep(.doc-content pre) {
   margin: 0;
-  font-size: 13px;
+  padding: 16px 20px;
+  background: #1a1d23;
+  overflow-x: auto;
+  font-size: 13.5px;
   line-height: 1.6;
 }
 
-:deep(.doc-content code) {
-  background: #E8ECF1;
-  color: #3B6FE0;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 13px;
-  font-family: 'Menlo', 'Consolas', 'Monaco', monospace;
-}
-
 :deep(.doc-content pre code) {
-  background: transparent;
-  color: inherit;
+  background: none;
   padding: 0;
-  font-size: inherit;
+  color: #e6e8ec;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.6;
 }
 
-:deep(.doc-content .code-block-wrapper pre code) {
-  color: #CDD6F4;
+/* highlight.js 覆盖：让 github-dark 主题背景透明，使用我们的深色背景 */
+:deep(.doc-content pre code.hljs) {
+  background: transparent;
+  padding: 0;
+}
+
+/* 表格 */
+:deep(.doc-content table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--kb-border);
+}
+
+:deep(.doc-content th) {
+  background: var(--kb-muted);
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 16px;
+  border-bottom: 2px solid var(--kb-border);
+  color: var(--kb-foreground);
+  white-space: normal;
+}
+
+:deep(.doc-content td) {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--kb-border);
+  color: var(--kb-card-foreground);
+  white-space: normal;
+}
+
+:deep(.doc-content tr:last-child td) {
+  border-bottom: none;
+}
+
+:deep(.doc-content tr:hover td) {
+  background: color-mix(in srgb, var(--kb-primary) 4%, var(--kb-card));
+}
+
+/* 链接 */
+:deep(.doc-content a) {
+  color: var(--kb-primary);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+:deep(.doc-content a:hover) {
+  opacity: 0.85;
+  text-decoration: underline;
+}
+
+/* 分隔线 */
+:deep(.doc-content hr) {
+  border: none;
+  border-top: 1px solid var(--kb-border);
+  margin: 24px 0;
+}
+
+/* 图片 */
+:deep(.doc-content img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 12px 0;
+}
+
+/* 强调文本 */
+:deep(.doc-content strong) {
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+
+/* 响应式：小屏适配 */
+@media (max-width: 640px) {
+  :deep(.doc-content) {
+    font-size: 14px;
+  }
+  :deep(.doc-content h1) {
+    font-size: 22px;
+  }
+  :deep(.doc-content h2) {
+    font-size: 19px;
+    margin: 24px 0 12px;
+  }
+  :deep(.doc-content h3) {
+    font-size: 16px;
+    margin: 20px 0 10px;
+  }
+  :deep(.doc-content pre) {
+    padding: 12px 14px;
+    font-size: 12.5px;
+  }
+  :deep(.doc-content .code-block-header) {
+    padding: 6px 12px;
+  }
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -713,29 +1019,5 @@ onUnmounted(() => {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-
-:deep(.doc-content table) {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1rem 0;
-  font-size: 14px;
-}
-
-:deep(.doc-content th) {
-  background: #f9fafb;
-  font-weight: 600;
-  text-align: left;
-  padding: 0.75rem 1rem;
-  border-bottom: 2px solid #e5e7eb;
-}
-
-:deep(.doc-content td) {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-:deep(.doc-content tr:hover td) {
-  background: #f9fafb;
 }
 </style>

@@ -417,9 +417,11 @@ function nextQuote() {
 
 const quickNavItems = [
   { label: '学习路径', icon: 'route', color: '#3B6FE0', to: '/learning/paths' },
-  { label: '闪卡复习', icon: 'layers', color: '#10B981', to: '/learning/flashcards' },
+  { label: '番茄钟专注', icon: 'timer', color: '#EF4444', to: '/learning/pomodoro' },
   { label: '代码练习', icon: 'code', color: '#F59E0B', to: '/learning/code-practice' },
-  { label: '复习计划', icon: 'calendar-check', color: '#EF4444', to: '/learning/review' },
+  { label: '编程挑战', icon: 'rocket', color: '#8B5CF6', to: '/challenge' },
+  { label: '闪卡复习', icon: 'layers', color: '#10B981', to: '/learning/flashcards' },
+  { label: '复习计划', icon: 'calendar-check', color: '#F59E0B', to: '/learning/review' },
   { label: '知识图谱', icon: 'share-2', color: '#8B5CF6', to: '/learning/knowledge-graph' },
   { label: 'AI 问答', icon: 'brain', color: '#06B6D4', to: '/chat' },
 ]
@@ -990,7 +992,7 @@ onUnmounted(() => {
 /* ========== 快速入口 ========== */
 .quick-nav {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin-bottom: 20px;
 }

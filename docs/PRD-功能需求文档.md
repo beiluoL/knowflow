@@ -435,7 +435,7 @@ CREATE UNIQUE INDEX uk_ua_user_ach ON user_achievement (user_id, achievement_id)
 | L-ADAPT-02 | 低正确率推荐复习 | 学习门户 | 自动推荐闪卡/前置章节 |
 | L-ADAPT-03 | 章节末尾补充练习 | 学习门户 | 动态生成练习题 |
 | L-FORM-01 | 嵌入视频 | 学习门户 | ✅ 已实现(2026-07-31)：`learning_user_chapter.video_progress` 字段 + `POST /api/learning/chapters/{id}/video-progress` 进度上报，正文 `[video](url)` 约定语法渲染外链 iframe，达标自动提示完成章节 |
-| L-FORM-02 | 互动讲义 | 学习门户 | ✅ 已实现(2026-07-31)：正文 ` ```js-run ` 代码块浏览器端执行输出、` ```quiz-run ` 代码块即时判分测验 |
+| L-FORM-02 | 互动讲义 | 学习门户 | ✅ 已实现(2026-07-31，2026-08-01 升级)：正文 ` ```js-run ` 代码块**对接后端多语言沙箱**（Python/Java/C++/JS 真实运行，JS 降级浏览器端）、` ```quiz-run ` 代码块即时判分测验，**题型扩展支持单选/多选/填空/拖拽排序四种** |
 | A-RAG-04 | 知识图谱升级 | 学习助手 | ✅ 已实现(2026-07-30)：`kg_entity`/`kg_relation` 表 + AI 实体关系抽取（正文 3.2.2 已注明落地） |
 | A-FB-01 | 相关概念推荐 | 学习助手 | ✅ 已实现(2026-07-31)：章节学习页右侧「相关概念」标签 +「相关文档」列表（按章节标题关键词检索） |
 | A-FB-02 | 章节内嵌测验 | 学习助手 | ✅ 已实现(2026-07-31)：` ```quiz-run ` 约定语法在每节末尾内嵌即时测验，提交后即时判分+解析反馈 |
@@ -457,6 +457,28 @@ CREATE UNIQUE INDEX uk_ua_user_ach ON user_achievement (user_id, achievement_id)
 | P-ML-02 | 数据标注中心 | 实战演练场 | 在线标注工具 |
 | P-ML-03 | 模型训练 | 实战演练场 | 训练任务+日志 |
 | G-CERT-02 | 证书验证 | 社区激励 | 验证码查询 |
+
+---
+
+### P3 扩展 — 社交扩展（2026-08-01 实现）
+
+| 编号 | 功能 | 模块 | 说明 |
+|------|------|------|------|
+| P3-PET | 宠物后端持久化 | 社交激励 | ✅ 已实现：`user_pet` 表 + `UserPetController`（GET 自动创建默认宠物 / POST feed 喂食 / POST play 玩耍 / POST focus-gain 专注获经验 / PUT 更新名称头像），升级逻辑 exp≥maxExp→level+1+maxExp×1.5，前端 `LearningCenter.vue` 对接 API 替代 localStorage |
+| P3-GROUP | 学习小组 | 社交激励 | ✅ 已实现(此前完成)：`study_group`/`study_group_member`/`study_group_message` 三表 + WebSocket 实时通信 + 邮箱邀请 + 角色 MEMBER/ADMIN |
+| P3-SHARE | 进度分享卡片生成 | 社交激励 | ✅ 已实现：`ShareCard.vue` 组件（Canvas 375×600 绘制渐变背景+统计数字+二维码占位+激励文案），`toBlob` 下载为图片，挂载于学习中心「分享进度」按钮 |
+| P3-PUSH | 学习提醒 Service Worker Push | 学习门户 | ✅ 已实现：`vite-plugin-pwa` PWA 配置（manifest+workbox+devOptions）+ `useStudyReminder` composable（Notification API 定时提醒 + 持久化 + 推送订阅预留）+ `LearningPrefs.vue` 提醒设置面板 |
+| P3-FOCUS | 主题深度学习模式 | 学习门户 | ✅ 已实现：`FocusMode.vue` 全屏沉浸页面（深色渐变背景 + SVG 进度环 + 番茄钟整合 + 白噪音播放器 + 今日任务 + 激励文案），进入自动切深色主题、退出恢复，路由 `/learning/focus` |
+
+### P4 扩展 — 持续迭代（2026-08-01 实现）
+
+| 编号 | 功能 | 模块 | 说明 |
+|------|------|------|------|
+| P4-SANDBOX | 代码运行对接后端多语言沙箱 | 学习门户 | ✅ 已实现：`ChapterLearn.vue` 的 `bindInteractiveCode` 改为调用 `codeRunApi.run`（POST /code/run），支持 Python/Java/C++/JS 四语言真实运行，JS 降级浏览器端执行 |
+| P4-QUIZ | 互动练习题型扩展 | 学习门户 | ✅ 已实现：`parseQuiz` 扩展支持四种题型——单选（`答案: A`）/ 多选（`类型: 多选` + `答案: ABC`）/ 填空（`Q:` 含 `___` + `答案: 文本`）/ 拖拽排序（`类型: 拖拽` + 选项原始顺序即答案），`bindInteractiveQuiz` 按类型渲染 checkbox/input/原生 draggable UI |
+| P4-AI-SUGGEST | AI 智能学习建议 | 学习助手 | ✅ 已实现：`ai_learning_suggestion` 表 + `AiLearningSuggestionController`（GET 缓存查询 / POST regenerate），AI 生成 4 条 JSON 建议 [{title,desc,icon,path}] 并缓存，降级返回静态建议，前端 `Home.vue` 的 AI 卡片改为动态加载 |
+| P4-NOISE | 白噪音背景音 | 学习门户 | ✅ 已实现：`WhiteNoisePlayer.vue` 组件（Web Audio API 程序化生成——rain 白噪音+lowpass / cafe 粉红噪音+bandpass / wave 白噪音+lowpass+LFO 调制），音量调节 + 最小化悬浮，挂载于番茄钟页和深度学习模式 |
+| P4-WEEKLY | 学习报告周报自动生成 | 学习成果度量 | ✅ 已实现：`weekly_report` 表 + `WeeklyReportController`（GET 本周自动生成 / GET list 最近 8 周 / POST generate 手动生成），AI 生成 summary+achievements+suggestions 注入统计数据，降级模板拼接，前端 `WeeklyReport.vue` 页面展示 |
 
 ---
 

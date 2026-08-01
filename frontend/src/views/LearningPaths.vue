@@ -59,12 +59,9 @@
             </button>
             <!-- 我的个性化路径历史：可查看 / 去学习 / 删除已生成的记录 -->
             <div v-if="personalizedHistory.length" class="history-section">
-              <h5 class="history-title">
-                <Icon name="sparkles" :size="14" class="highlight-text" />
-                我的个性化路径
-              </h5>
+              <h5 class="history-title">我的个性化路径</h5>
               <div class="history-list">
-                <div v-for="item in personalizedHistory" :key="item.id" class="history-item ai-path-item">
+                <div v-for="item in personalizedHistory" :key="item.id" class="history-item">
                   <div class="history-info" @click="viewHistoryPath(item)">
                     <span class="history-name">{{ item.title }}</span>
                     <span class="history-meta">{{ item.level }} · {{ item.chapters.length }} 章节 · {{ formatDuration(item.totalDuration) }}</span>
@@ -912,35 +909,14 @@ onMounted(async () => {
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
-  /* P1-4：AI 入口用主色 + highlight 暖橘双色渐变，区别于普通操作按钮 */
-  background: linear-gradient(135deg, var(--kb-primary), var(--kb-highlight));
+  background: linear-gradient(135deg, #3b6fe0, #6366f1);
   color: #fff;
   border: none;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: opacity 0.15s;
   white-space: nowrap;
-  position: relative;
-  overflow: hidden;
 }
-/* 渐变光晕扫过动效，暗示「AI 智能」感 */
-.ai-path-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-  animation: shimmer 3s infinite;
-}
-@keyframes shimmer {
-  0% { left: -100%; }
-  50%, 100% { left: 100%; }
-}
-.ai-path-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(255, 107, 53, 0.3);
-}
+.ai-path-btn:hover { opacity: 0.9; }
 
 /* ===== 弹窗 ===== */
 .modal-overlay {
@@ -1198,26 +1174,6 @@ onMounted(async () => {
   background: var(--kb-card);
 }
 .history-item:hover { border-color: var(--kb-primary); }
-
-/* P1-4：AI 个性化路径卡片差异化 —— highlight 边框 + 暖橘色背景，视觉上与普通路径明显区分 */
-.history-item.ai-path-item {
-  border: 1px solid var(--kb-highlight-border);
-  background: linear-gradient(135deg, var(--kb-card), var(--kb-highlight-soft));
-  position: relative;
-}
-.history-item.ai-path-item::before {
-  content: '✨';
-  position: absolute;
-  top: -6px;
-  right: 8px;
-  font-size: 12px;
-  filter: drop-shadow(0 1px 2px rgba(255, 107, 53, 0.3));
-}
-.history-item.ai-path-item:hover {
-  border-color: var(--kb-highlight);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.15);
-}
 .history-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; cursor: pointer; flex: 1; }
 .history-name { font-size: 13px; font-weight: 500; color: var(--kb-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .history-meta { font-size: 12px; color: var(--kb-muted-foreground); }

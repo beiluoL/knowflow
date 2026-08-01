@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS learning_flashcard (
     category VARCHAR(50) COMMENT '用户自定义分类标签',
     difficulty INT DEFAULT 1 COMMENT '难度：1简单 2中等 3困难',
     tags VARCHAR(500) COMMENT '逗号分隔的自定义标签',
-    source_type VARCHAR(20) DEFAULT 'MANUAL' COMMENT '来源：MANUAL/AI_DOC/AI_KB/IMPORT/ANKI',
+    source_type VARCHAR(20) DEFAULT 'MANUAL' COMMENT '来源：MANUAL/AI_DOC/AI_KB/IMPORT',
     review_count INT DEFAULT 0 COMMENT '已复习次数',
     review_interval INT DEFAULT 0 COMMENT '当前复习间隔（天，间隔重复算法）',
     next_review_time TIMESTAMP COMMENT '下次应复习时间',

@@ -499,7 +499,6 @@ const mobileLinks: NavLink[] = [
   { path: '/categories', label: '分类浏览', icon: 'folder-tree' },
   { path: '/search', label: '搜索知识', icon: 'search' },
   { path: '/learning/knowledge-graph', label: '知识图谱', icon: 'icon-zhishitupubaocun' },
-  { path: '/challenge', label: '编程挑战', icon: 'rocket' },
   { path: '/community', label: '社区讨论', icon: 'users' },
   { path: '/study-group', label: '学习小组', icon: 'message-circle' },
   { path: '/messages', label: '消息', icon: 'message-square' },
@@ -516,11 +515,8 @@ const knowledgeMenu: NavLink[] = [
 const learningMenu: NavLink[] = [
   { path: '/learning/center', label: '学习中心', icon: 'icon-xuexizhongxin' },
   { path: '/learning/paths', label: '学习路径', icon: 'route' },
-  { path: '/learning/pomodoro', label: '番茄钟专注', icon: 'timer' },
   { path: '/learning/code-practice', label: '代码练习', icon: 'code' },
-  { path: '/challenge', label: '编程挑战', icon: 'rocket' },
-  { path: '/learning/flashcards', label: '学习闪卡', icon: 'layers' },
-  { path: '/learning/my-flashcards', label: '我的闪卡', icon: 'bookmark' },
+  { path: '/learning/flashcards', label: '闪卡大厅', icon: 'layers' },
   { path: '/learning/review', label: '复习计划', icon: 'calendar-check' },
   { path: '/learning/mode', label: '沉浸学习', icon: 'moon' },
 ];

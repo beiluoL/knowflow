@@ -567,6 +567,224 @@ button:focus-visible,
     background: var(--kb-muted);
   }
 
+  /* =====================================================================
+   * 统一下拉选择器 .kb-select（原生 <select> 美化）
+   * 全项目所有筛选/表单下拉统一使用此类，保证视觉与交互一致。
+   * - 移除浏览器默认外观，统一箭头图标（SVG 内联，无额外资源请求）
+   * - 38px 高度 / 10px 圆角 / --kb-border 边框 / focus 主色高亮环
+   * - min-width 140px 防止选中值被截断；option 文本浏览器自动撑宽
+   * - 深色模式自动响应（所有色值均引用 --kb-* 令牌）
+   * ===================================================================== */
+  .kb-select {
+    display: inline-block;
+    height: 38px;
+    padding: 0 32px 0 12px;
+    border-radius: var(--kb-radius-md);
+    border: 1px solid var(--kb-border);
+    background-color: var(--kb-card);
+    color: var(--kb-foreground);
+    font-size: var(--kb-fs-body-md);
+    font-family: inherit;
+    line-height: var(--kb-lh-body-md);
+    min-width: 140px;
+    max-width: 100%;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    /* 内联 SVG 箭头：使用 currentColor 自动跟随文字色，深色模式自适应 */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 14px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .kb-select:hover {
+    border-color: var(--kb-primary);
+  }
+  .kb-select:focus {
+    border-color: var(--kb-primary);
+    box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+  }
+  .kb-select:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background-color: var(--kb-muted);
+  }
+  /* 选项文本：确保完整可读，浏览器会自动按最长 option 撑宽面板 */
+  .kb-select option {
+    padding: 8px 12px;
+    color: var(--kb-foreground);
+    background-color: var(--kb-card);
+    font-size: var(--kb-fs-body-md);
+    line-height: var(--kb-lh-body-md);
+    word-break: break-word;
+  }
+  /* 紧凑变体：用于空间受限的工具栏 */
+  .kb-select.kb-select-sm {
+    height: 32px;
+    padding: 0 28px 0 10px;
+    font-size: var(--kb-fs-body-sm);
+    min-width: 110px;
+  }
+
+  /* =====================================================================
+   * 统一筛选按钮组 .kb-filter-btn / .kb-filter-group
+   * 用于分类筛选、排序切换、视图切换等分段控件。
+   * - 默认态：白底灰字灰边；悬停/激活：主色软背景 + 主色字 + 主色边
+   * - 12px 字号 / 6px 14px 内边距 / 6px 圆角，紧凑适合工具栏
+   * - .kb-filter-group 容器提供统一间距与换行
+   * ===================================================================== */
+  .kb-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--kb-space-2);
+  }
+  .kb-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: var(--kb-radius-sm);
+    font-size: var(--kb-fs-body-sm);
+    font-weight: 500;
+    line-height: var(--kb-lh-body-sm);
+    border: 1px solid var(--kb-border);
+    background: var(--kb-card);
+    color: var(--kb-muted-foreground);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+  .kb-filter-btn:hover {
+    border-color: var(--kb-primary);
+    color: var(--kb-primary);
+  }
+  .kb-filter-btn.active {
+    background: rgba(59, 111, 224, 0.08);
+    color: var(--kb-primary);
+    border-color: var(--kb-primary);
+  }
+  .kb-filter-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  /* 计数徽章：筛选按钮内的小数字 */
+  .kb-filter-btn .filter-count {
+    font-size: 11px;
+    opacity: 0.7;
+    font-variant-numeric: tabular-nums;
+  }
+  .kb-filter-btn.active .filter-count {
+    opacity: 0.9;
+  }
+
+  /* =====================================================================
+   * 统一自定义下拉面板 .kb-dropdown（非原生 <select> 的弹出选择）
+   * 用于章节下拉、排序下拉、角色筛选等需要自定义渲染的场景。
+   * - trigger 复用 .kb-select 视觉（38px 高、主色高亮环）
+   * - panel：max-height 320px + overflow-y auto 防止选项过多溢出
+   * - item：white-space: normal 允许长文本换行，确保完整可读
+   * - 键盘导航：聚焦项有主色软背景高亮
+   * ===================================================================== */
+  .kb-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  .kb-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--kb-space-2);
+    height: 38px;
+    padding: 0 12px;
+    border-radius: var(--kb-radius-md);
+    border: 1px solid var(--kb-border);
+    background: var(--kb-card);
+    color: var(--kb-foreground);
+    font-size: var(--kb-fs-body-md);
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    min-width: 140px;
+  }
+  .kb-dropdown-trigger:hover {
+    border-color: var(--kb-primary);
+  }
+  .kb-dropdown-trigger.active {
+    border-color: var(--kb-primary);
+    box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+  }
+  .kb-dropdown-trigger.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .kb-dropdown-trigger .trigger-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+  .kb-dropdown-trigger .trigger-placeholder {
+    color: var(--kb-muted-foreground);
+  }
+  .kb-dropdown-trigger .trigger-arrow {
+    color: var(--kb-muted-foreground);
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+  .kb-dropdown-trigger.active .trigger-arrow {
+    transform: rotate(180deg);
+  }
+  .kb-dropdown-panel {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 100%;
+    z-index: 50;
+    max-height: 320px;
+    overflow-y: auto;
+    border: 1px solid var(--kb-border);
+    border-radius: var(--kb-radius-md);
+    background: var(--kb-popover);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    padding: 4px;
+  }
+  /* 面板宽度自适应内容：确保长文本选项完整显示 */
+  .kb-dropdown-panel.kb-dropdown-wide {
+    width: max-content;
+    max-width: 360px;
+  }
+  .kb-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: var(--kb-space-2);
+    padding: 8px 12px;
+    border-radius: var(--kb-radius-sm);
+    font-size: var(--kb-fs-body-sm);
+    color: var(--kb-foreground);
+    cursor: pointer;
+    transition: background 0.12s ease;
+    /* 关键：允许长文本换行，避免截断 */
+    white-space: normal;
+    word-break: break-word;
+  }
+  .kb-dropdown-item:hover,
+  .kb-dropdown-item.focused {
+    background: var(--kb-muted);
+  }
+  .kb-dropdown-item.selected {
+    color: var(--kb-primary);
+    font-weight: 500;
+    background: rgba(59, 111, 224, 0.06);
+  }
+  .kb-dropdown-item.disabled {
+    color: var(--kb-muted-foreground);
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
   /* C-end top nav dropdown */
   .nav-dropdown {
     position: absolute;

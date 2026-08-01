@@ -93,7 +93,7 @@
               <span class="face-tag tag-category">{{ currentCard?.category }}</span>
               <span class="face-tag tag-sub">{{ getDifficultyLabel(currentCard?.difficulty) }}</span>
             </div>
-            <h2 class="face-question" v-html="sanitize(currentCard?.question)"></h2>
+            <h2 class="face-question">{{ currentCard?.question }}</h2>
             <p class="face-hint">请点击卡片查看答案</p>
             <div class="flip-pill">
               <Icon name="rotate-ccw" :size="16" />
@@ -107,8 +107,8 @@
               <span class="back-label">答案</span>
             </div>
             <div class="back-body">
-              <h3 class="back-title" v-html="sanitize(currentCard?.question)"></h3>
-              <p class="back-text" v-html="sanitize(currentCard?.answer)"></p>
+              <h3 class="back-title">{{ currentCard?.question }}</h3>
+              <p class="back-text">{{ currentCard?.answer }}</p>
               <div v-if="currentCard?.category" class="back-tags">
                 <span class="back-tag">{{ currentCard.category }}</span>
                 <span class="back-tag">{{ getDifficultyLabel(currentCard.difficulty) }}</span>
@@ -214,12 +214,8 @@ import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import { learningApi } from '@/api'
 import { mistakesApi } from '@/api/mistakes'
-import { useSanitize } from '@/composables/useSanitize'
 import type { FlashcardVO } from '@/api/types'
 import { markReviewed, dateStr } from '@/utils/studySession'
-
-// Anki 卡片富文本净化（v-html 渲染用）
-const { sanitize } = useSanitize()
 
 interface FlashCard {
   id: number
@@ -753,19 +749,6 @@ onMounted(async () => {
   color: var(--kb-foreground);
   margin: 0 0 16px 0;
   white-space: pre-line;
-}
-/* Anki 媒体内容渲染样式 */
-.face-question img,
-.back-text img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 6px;
-  margin: 4px 0;
-}
-.face-question audio,
-.back-text audio {
-  width: 100%;
-  margin: 8px 0;
 }
 .back-tags {
   display: flex;

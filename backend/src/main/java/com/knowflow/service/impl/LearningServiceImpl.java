@@ -1019,8 +1019,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
             if (d < 1 || d > 3) d = 1;
             c.setDifficulty(d);
             c.setTags(StrUtil.trim(dto.getTags()));
-            // 调用方可通过 dto.sourceType 指定来源（如 ANKI）；未指定时回退为 IMPORT
-            c.setSourceType(StrUtil.isBlank(dto.getSourceType()) ? "IMPORT" : dto.getSourceType());
+            c.setSourceType("IMPORT");
             c.setReviewCount(0);
             c.setReviewInterval(0);
             flashcardMapper.insert(c);

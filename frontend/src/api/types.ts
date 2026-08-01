@@ -266,7 +266,7 @@ export interface FlashcardVO {
   category?: string
   difficulty?: number
   tags?: string
-  sourceType?: 'MANUAL' | 'AI_DOC' | 'AI_KB' | 'IMPORT' | 'ANKI'
+  sourceType?: 'MANUAL' | 'AI_DOC' | 'AI_KB' | 'IMPORT'
   reviewCount?: number
   reviewInterval?: number
   nextReviewTime?: string
@@ -396,51 +396,6 @@ export interface MasteryDistributionVO {
   flashcardReviewed: number
   mistakeMastered: number
   mistakePending: number
-}
-
-// ===== 学习报告 =====
-/** 学习报告每日活跃度项（柱状图）。 */
-export interface LearningReportDailyItem {
-  date: string
-  minutes: number
-  count: number
-}
-
-/** 学习报告知识库掌握度项（Top 5）。 */
-export interface LearningReportCategoryItem {
-  categoryName: string
-  total: number
-  mastered: number
-  percent: number
-}
-
-/** 学习报告周趋势项。 */
-export interface LearningReportWeeklyItem {
-  weekStart: string
-  studyMinutes: number
-  checkinDays: number
-}
-
-/** 学习报告聚合数据（周期：week/month/all）。 */
-export interface LearningReportData {
-  period: string
-  startDate: string
-  endDate: string
-  checkinDays: number
-  continuousDays: number
-  flashcardReviewed: number
-  flashcardMastered: number
-  mistakeCount: number
-  mistakeMastered: number
-  codeSubmissions: number
-  codePassed: number
-  docsRead: number
-  quizAnswered: number
-  quizCorrect: number
-  studyMinutes: number
-  dailyActivity: LearningReportDailyItem[]
-  categoryMastery: LearningReportCategoryItem[]
-  weeklyTrend: LearningReportWeeklyItem[]
 }
 
 // ===== 知识图谱 =====

@@ -50,10 +50,8 @@
               v-for="post in postList"
               :key="post.id"
               @click="goPost(post)"
-              class="post-card border rounded-[10px] p-5 bg-white border-gray-200 hover:shadow-sm transition-shadow cursor-pointer"
-              :class="{ 'is-essence': post.isEssence === 1 }"
+              class="border rounded-[10px] p-5 bg-white border-gray-200 hover:shadow-sm transition-shadow cursor-pointer"
             >
-              <!-- 作者行：头像 + 昵称 + 时间（精简） -->
               <div class="flex items-center gap-2.5 mb-3">
                 <div
                   class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0"
@@ -61,13 +59,19 @@
                 >{{ (post.nickname || post.username || '用').charAt(0) }}</div>
                 <div class="flex items-center gap-2 min-w-0">
                   <span class="text-sm truncate text-gray-800">{{ post.nickname || post.username }}</span>
-                  <span class="text-xs shrink-0 text-gray-400">{{ formatTime(post.createTime) }}</span>
+                  <span class="text-sm shrink-0 text-gray-400">{{ formatTime(post.createTime) }}</span>
+                  <span
+                    v-if="post.isEssence === 1"
+                    class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-md text-xs whitespace-nowrap bg-yellow-50 text-warning-500"
+                  >精华</span>
+                  <span
+                    v-if="post.commentCount && post.commentCount > 20"
+                    class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-md text-xs whitespace-nowrap bg-yellow-50 text-warning-500"
+                  >{{ post.commentCount }} 讨论</span>
                 </div>
               </div>
-              <!-- P2-3：标题放大加粗至 17px，提升扫读权重 -->
-              <p class="post-title text-[17px] font-bold mb-1.5 text-gray-900">{{ post.title }}</p>
-              <!-- P2-3：内容预览弱化为 13px 灰色，避免与标题权重均等 -->
-              <p class="text-[13px] line-clamp-2 mb-3 text-gray-400 leading-relaxed">{{ post.content }}</p>
+              <p class="text-[15px] font-semibold mb-2 text-gray-800">{{ post.title }}</p>
+              <p class="text-sm line-clamp-2 mb-3 text-gray-500">{{ post.content }}</p>
               <div class="flex items-center gap-1.5 mb-3 flex-wrap">
                 <span
                   v-for="tag in getTags(post.tags)"
@@ -75,20 +79,19 @@
                   class="inline-flex items-center px-2 py-0.5 rounded-md text-xs whitespace-nowrap bg-gray-100 text-gray-500"
                 >{{ tag }}</span>
               </div>
-              <!-- P2-3：互动数移至右下角，图标+数字紧凑形式 -->
-              <div class="flex items-center justify-end gap-3 text-gray-400">
-                <span class="inline-flex items-center gap-1">
-                  <Icon name="heart" :size="13" />
-                  <span class="text-xs tabular-nums">{{ post.likeCount }}</span>
-                </span>
-                <span class="inline-flex items-center gap-1">
-                  <Icon name="message-circle" :size="13" />
-                  <span class="text-xs tabular-nums">{{ post.commentCount }}</span>
-                </span>
-                <span class="inline-flex items-center gap-1">
-                  <Icon name="eye" :size="13" />
-                  <span class="text-xs tabular-nums">{{ formatViewCount(post.viewCount) }}</span>
-                </span>
+              <div class="flex items-center gap-4">
+                <div class="flex items-center gap-1">
+                  <Icon name="heart" :size="14" class="text-gray-400" />
+                  <span class="text-xs text-gray-500">{{ post.likeCount }}</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <Icon name="message-circle" :size="14" class="text-gray-400" />
+                  <span class="text-xs text-gray-500">{{ post.commentCount }}</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <Icon name="eye" :size="14" class="text-gray-400" />
+                  <span class="text-xs text-gray-500">{{ formatViewCount(post.viewCount) }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -352,25 +355,5 @@ onMounted(() => {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-
-/* P2-3：帖子卡片信息层级重组 —— 精华帖用左侧黄色竖条，比角标更醒目 */
-.post-card {
-  position: relative;
-  overflow: hidden;
-}
-.post-card.is-essence {
-  border-left: 3px solid var(--kb-warning);
-  padding-left: calc(1.25rem - 3px + 8px); /* 补偿色条占位 + 增加左侧呼吸空间 */
-}
-/* 精华帖标题用衬线字体，强化「精选文章」感 */
-.post-card.is-essence .post-title {
-  font-family: var(--font-serif);
-}
-
-/* 帖子标题统一用衬线字体，提升杂志感 */
-.post-title {
-  font-family: var(--font-serif);
-  letter-spacing: -0.01em;
 }
 </style>
