@@ -16,10 +16,20 @@
             <option value="pomodoro">番茄专注 POMODORO</option>
             <option value="spaced">间隔复习 SPACED</option>
             <option value="flow">流时间 FLOW</option>
+            <option value="deep">主题深潜 DEEP</option>
           </select>
         </div>
       </div>
       <div class="topbar-right">
+        <button
+          type="button"
+          class="icon-btn"
+          :class="{ active: graphVisible }"
+          title="知识图谱"
+          @click="graphVisible = !graphVisible"
+        >
+          <Icon name="network" :size="18" />
+        </button>
         <button
           type="button"
           class="icon-btn"
@@ -70,6 +80,11 @@
       <PomodoroMode v-if="selectedMode === 'pomodoro'" @toggle-noise="toggleNoiseVisible" />
       <SpacedMode v-else-if="selectedMode === 'spaced'" />
       <FlowMode v-else-if="selectedMode === 'flow'" />
+      <DeepMode
+        v-else-if="selectedMode === 'deep'"
+        @toggle-graph="graphVisible = !graphVisible"
+        @toggle-copilot="copilotVisible = !copilotVisible"
+      />
     </main>
 
     <footer class="immersive-toolbar">
@@ -145,6 +160,8 @@
       />
     </transition>
 
+    <GraphSidebar :visible="graphVisible" @close="graphVisible = false" />
+    <MiniChatCopilot v-model:visible="copilotVisible" />
     <AchievementToast :events="unlockEvents" :all-defs="allDefs" />
   </div>
 </template>
@@ -157,6 +174,9 @@ import WhiteNoisePlayer from '@/components/WhiteNoisePlayer.vue';
 import PomodoroMode from '@/components/immersive/PomodoroMode.vue';
 import SpacedMode from '@/components/immersive/SpacedMode.vue';
 import FlowMode from '@/components/immersive/FlowMode.vue';
+import DeepMode from '@/components/immersive/DeepMode.vue';
+import GraphSidebar from '@/components/immersive/GraphSidebar.vue';
+import MiniChatCopilot from '@/components/immersive/MiniChatCopilot.vue';
 import AchievementToast from '@/components/immersive/AchievementToast.vue';
 import ThemePanel from '@/components/immersive/ThemePanel.vue';
 import SettingsPanel from '@/components/immersive/SettingsPanel.vue';
@@ -170,6 +190,7 @@ import { usePomodoroStore, type PomodoroMode } from '@/stores/pomodoro';
 import { notify, confirmDialog, getApiError } from '@/utils/toast';
 import { useFocusSession } from '@/composables/useFocusSession';
 import { useMicroAchievements } from '@/composables/useMicroAchievements';
+import { useTextToSpeech } from '@/composables/useTextToSpeech';
 
 const router = useRouter();
 const { theme, setTheme } = useTheme();
@@ -181,15 +202,18 @@ const {
 } = useImmersiveTheme();
 const pomodoroStore = usePomodoroStore();
 const { unlockEvents, allDefs } = useMicroAchievements();
+const { speak } = useTextToSpeech();
 
 const originalTheme = ref<string>(theme.value);
-const selectedMode = ref<'pomodoro' | 'spaced' | 'flow'>('pomodoro');
+const selectedMode = ref<'pomodoro' | 'spaced' | 'flow' | 'deep'>('pomodoro');
 const drawerExpanded = ref(false);
 const noiseVisible = ref(true);
 const notePanelOpen = ref(false);
 const noteText = ref('');
 const themePanelVisible = ref(false);
 const settingsPanelVisible = ref(false);
+const graphVisible = ref(false);
+const copilotVisible = ref(false);
 const rootRef = ref<HTMLElement | null>(null);
 
 const breakGuideVisible = ref(false);
@@ -226,19 +250,29 @@ const saveNote = () => {
 };
 
 const handleHighlight = () => {
-  notify('请先选中文字后再使用高亮功能', 'info');
+  if (typeof window === 'undefined') return;
+  const sel = window.getSelection?.();
+  const text = sel?.toString?.() ?? '';
+  if (!text.trim()) {
+    notify('请先选中文字，选中内容将被朗读', 'info');
+    return;
+  }
+  speak(text).catch((e: unknown) => {
+    notify(getApiError(e, '朗读失败'), 'warning');
+  });
+  notify('已朗读选中文本', 'success');
 };
 
 const handleReadAloud = () => {
-  notify('朗读功能即将上线', 'info');
+  notify('请使用深潜 / 间隔模式内的朗读控件进行精细控制', 'info');
 };
 
 const handleGraph = () => {
-  notify('知识图谱功能即将上线', 'info');
+  graphVisible.value = !graphVisible.value;
 };
 
 const handleAi = () => {
-  notify('AI助手即将上线', 'info');
+  copilotVisible.value = !copilotVisible.value;
 };
 
 const handleExit = async () => {
