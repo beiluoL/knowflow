@@ -17,7 +17,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * 本地阅读器服务：通过后端代理读取本地文件系统，支持按路径加载目录与文件。
@@ -25,16 +24,42 @@ import java.util.stream.Stream;
  * 浏览器沙箱限制下无法通过路径字符串直接读取本地文件，故由后端统一读取。
  * <ul>
  *   <li>路径校验：有效性、可读性、是否为目录/文件</li>
- *   <li>目录扫描：递归遍历目录树，仅返回 Markdown 文档与子目录</li>
- *   <li>文件读取：读取 Markdown 文本内容</li>
+ *   <li>目录扫描：递归遍历目录树，返回 Markdown 文档、代码文件与子目录</li>
+ *   <li>文件读取：读取文本内容（Markdown 渲染 / 代码文件语法高亮由前端处理）</li>
  *   <li>图片读取：返回图片字节数组（Controller 层包装为响应流）</li>
  * </ul>
  */
 @Service
 public class LocalReaderService {
 
-    /** 支持的 Markdown 文档扩展名 */
-    private static final Set<String> DOC_EXTS = new HashSet<>(Arrays.asList("md", "markdown", "txt"));
+    /**
+     * 支持的文档扩展名集合（Markdown + 纯文本）。
+     * 新增文档类型时直接在此集合中追加，无需改动其他逻辑。
+     */
+    private static final Set<String> DOC_EXTS = new HashSet<>(Arrays.asList(
+            "md", "markdown", "txt"
+    ));
+
+    /**
+     * 支持的代码文件扩展名集合。
+     * <p>
+     * 前端依据扩展名映射到 highlight.js 语言标识符进行语法高亮。
+     * 新增代码类型时直接在此集合中追加，并在前端 EXT_LANG_MAP 同步添加映射即可。
+     */
+    private static final Set<String> CODE_EXTS = new HashSet<>(Arrays.asList(
+            "java", "py", "css", "vue", "js", "ts", "html", "xml", "yml", "yaml",
+            "json", "sql", "sh", "bash", "go", "rs", "c", "cpp", "h", "hpp",
+            "kt", "swift", "rb", "php", "scss", "less", "toml", "ini", "conf",
+            "jsx", "tsx", "dart"
+    ));
+
+    /** 文档 + 代码 扩展名并集（用于目录扫描与文件读取校验） */
+    private static final Set<String> ALL_TEXT_EXTS;
+    static {
+        ALL_TEXT_EXTS = new HashSet<>(DOC_EXTS);
+        ALL_TEXT_EXTS.addAll(CODE_EXTS);
+    }
+
     /** 支持的图片扩展名 */
     private static final Set<String> IMAGE_EXTS = new HashSet<>(
             Arrays.asList("jpg", "jpeg", "png", "gif", "webp", "svg", "bmp", "ico"));
@@ -154,7 +179,7 @@ public class LocalReaderService {
                 }
             } else if (child.isFile()) {
                 String ext = getExtension(child.getName());
-                if (!DOC_EXTS.contains(ext)) continue;
+                if (!ALL_TEXT_EXTS.contains(ext)) continue;
                 LocalReaderScanVO.TreeNode docNode = new LocalReaderScanVO.TreeNode();
                 docNode.setName(child.getName());
                 docNode.setPath(relativePath);
@@ -178,7 +203,10 @@ public class LocalReaderService {
     }
 
     /**
-     * 读取 Markdown 文件文本内容。
+     * 读取文本文件内容（Markdown / 代码文件 / 纯文本）。
+     * <p>
+     * 扩展名校验使用 {@link #ALL_TEXT_EXTS}，覆盖文档与代码文件两类。
+     * 文本内容统一以 UTF-8 读取，前端根据扩展名决定渲染方式。
      *
      * @param rootAbsolutePath 根目录绝对路径
      * @param relativePath      文档相对路径
@@ -190,7 +218,7 @@ public class LocalReaderService {
             throw new BusinessException("不是文件：" + relativePath);
         }
         String ext = getExtension(file.getName());
-        if (!DOC_EXTS.contains(ext)) {
+        if (!ALL_TEXT_EXTS.contains(ext)) {
             throw new BusinessException("不支持的文件类型：" + ext);
         }
         try {

@@ -68,7 +68,7 @@
         </div>
         <h2 class="empty-title">本地阅读器</h2>
         <p class="empty-desc">
-          支持 Obsidian 仓库或任意包含 Markdown 文件的本地文件夹
+          支持 Obsidian 仓库或任意本地文件夹，可阅读 Markdown 文档与代码文件（Java/Python/JS/TS/Vue/HTML 等）
         </p>
 
         <!-- 加载方式切换 Tab -->
@@ -152,7 +152,11 @@
           </div>
           <div class="tip-item">
             <Icon name="check-circle" :size="14" />
-            <span>支持 Markdown 完整渲染（代码块、表格、图片）</span>
+            <span>Markdown 完整渲染（代码块、表格、图片）</span>
+          </div>
+          <div class="tip-item">
+            <Icon name="check-circle" :size="14" />
+            <span>代码文件语法高亮（Java/Python/JS/TS/Vue/HTML/XML/YAML 等）</span>
           </div>
           <div class="tip-item">
             <Icon name="check-circle" :size="14" />
@@ -183,13 +187,32 @@
               <Icon name="folder-tree" :size="16" />
               <span>目录</span>
             </span>
-            <button
-              v-if="currentDoc"
-              class="collapse-btn"
-              @click="sidebarCollapsed = !sidebarCollapsed"
-            >
-              <Icon :name="sidebarCollapsed ? 'chevron-right' : 'chevron-left'" :size="16" />
-            </button>
+            <div class="sidebar-actions">
+              <button
+                v-if="!sidebarCollapsed || !currentDoc"
+                class="action-btn"
+                title="展开全部目录"
+                @click="expandAllDirs"
+              >
+                <Icon name="chevron-down" :size="14" />
+              </button>
+              <button
+                v-if="!sidebarCollapsed || !currentDoc"
+                class="action-btn"
+                title="折叠全部目录"
+                @click="collapseAllDirs"
+              >
+                <Icon name="chevron-right" :size="14" />
+              </button>
+              <button
+                v-if="currentDoc"
+                class="action-btn"
+                :title="sidebarCollapsed ? '展开侧栏' : '收起侧栏'"
+                @click="sidebarCollapsed = !sidebarCollapsed"
+              >
+                <Icon :name="sidebarCollapsed ? 'chevron-right' : 'chevron-left'" :size="14" />
+              </button>
+            </div>
           </div>
           <div v-show="!sidebarCollapsed || !currentDoc" class="sidebar-tree">
             <FileTreeNode
@@ -292,7 +315,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch, provide, type InjectionKey, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import { renderMarkdown } from '@/utils/markdown'
@@ -314,10 +337,106 @@ const allFiles = ref<File[]>([])
 const loading = ref(false)
 const rootDirName = ref('')
 
-/** 支持的文档扩展名 */
+/** 支持的 Markdown 文档扩展名 */
 const DOC_EXTS = ['md', 'markdown', 'txt']
 /** 图片扩展名 */
 const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico']
+
+/**
+ * 支持的代码文件扩展名。
+ * 与后端 LocalReaderService.CODE_EXTS 保持一致，新增类型时同步两端即可。
+ */
+const CODE_EXTS = [
+  'java', 'py', 'css', 'vue', 'js', 'ts', 'html', 'xml', 'yml', 'yaml',
+  'json', 'sql', 'sh', 'bash', 'go', 'rs', 'c', 'cpp', 'h', 'hpp',
+  'kt', 'swift', 'rb', 'php', 'scss', 'less', 'toml', 'ini', 'conf',
+  'jsx', 'tsx', 'dart',
+]
+
+/** 全部可加载的文本文件扩展名（文档 + 代码） */
+const ALL_TEXT_EXTS = [...DOC_EXTS, ...CODE_EXTS]
+
+/**
+ * 扩展名 → highlight.js 语言标识符映射表。
+ * markdown-it 的 highlight 函数会据此调用 hljs.getLanguage(lang)。
+ * 未在此映射中的扩展名将退化为 'text'（纯文本，不高亮）。
+ * 新增代码类型时只需在此映射追加一行即可。
+ */
+const EXT_LANG_MAP: Record<string, string> = {
+  md: 'markdown',
+  markdown: 'markdown',
+  txt: 'text',
+  java: 'java',
+  py: 'python',
+  css: 'css',
+  vue: 'xml',       // Vue SFC 结构接近 XML/HTML，hljs 以 xml 高亮
+  js: 'javascript',
+  ts: 'typescript',
+  jsx: 'javascript',
+  tsx: 'typescript',
+  html: 'xml',      // hljs 用 xml 语言覆盖 html
+  xml: 'xml',
+  yml: 'yaml',
+  yaml: 'yaml',
+  json: 'json',
+  sql: 'sql',
+  sh: 'bash',
+  bash: 'bash',
+  go: 'go',
+  rs: 'rust',
+  c: 'c',
+  cpp: 'cpp',
+  h: 'c',
+  hpp: 'cpp',
+  kt: 'kotlin',
+  swift: 'swift',
+  rb: 'ruby',
+  php: 'php',
+  scss: 'scss',
+  less: 'less',
+  toml: 'ini',
+  ini: 'ini',
+  conf: 'ini',
+  dart: 'dart',
+}
+
+/**
+ * 根据文件名获取 highlight.js 语言标识符。
+ * @returns 语言标识符；未映射的扩展名返回 'text'
+ */
+const getLangByExt = (fileName: string): string => {
+  const dot = fileName.lastIndexOf('.')
+  const ext = dot > 0 ? fileName.substring(dot + 1).toLowerCase() : ''
+  return EXT_LANG_MAP[ext] || 'text'
+}
+
+/**
+ * 判断文件是否为 Markdown 文档（含 .md / .markdown）。
+ * .txt 归类为纯文本，按代码文件流程渲染（包裹 ```text 代码块）。
+ */
+const isMarkdownFile = (fileName: string): boolean => {
+  const dot = fileName.lastIndexOf('.')
+  const ext = dot > 0 ? fileName.substring(dot + 1).toLowerCase() : ''
+  return ext === 'md' || ext === 'markdown'
+}
+
+/* ========== 目录树展开/折叠控制（provide -> FileTreeNode inject） ========== */
+type DirExpandAction = 'expand-all' | 'collapse-all' | null
+interface DirExpandSignal {
+  action: DirExpandAction
+  ts: number
+}
+const DIR_EXPAND_KEY: InjectionKey<{ signal: Ref<DirExpandSignal> }> = Symbol('dir-expand-signal')
+
+const dirExpandSignal = ref<DirExpandSignal>({ action: null, ts: 0 })
+provide(DIR_EXPAND_KEY, { signal: dirExpandSignal })
+
+const expandAllDirs = () => {
+  dirExpandSignal.value = { action: 'expand-all', ts: Date.now() }
+}
+const collapseAllDirs = () => {
+  dirExpandSignal.value = { action: 'collapse-all', ts: Date.now() }
+}
 
 /**
  * 统一文档抽象：同时支持本地文件选择（local）和后端路径加载（remote）两种来源。
@@ -382,7 +501,7 @@ const handleDirSelect = async (e: Event) => {
     for (const file of files) {
       const rp = (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name
       const ext = getExt(rp)
-      if (DOC_EXTS.includes(ext)) {
+      if (ALL_TEXT_EXTS.includes(ext)) {
         docs.push({
           source: 'local',
           file,
@@ -655,22 +774,36 @@ const loadArticle = async (doc: DocFile) => {
     } else {
       throw new Error('文档数据不完整')
     }
-    // 处理图片：将本地图片引用替换为可访问的 URL
-    let processedContent = await processImages(text, doc)
-    // 处理 Obsidian 特有语法（#标签、文档嵌入 ![[note]]）
-    processedContent = processObsidianSyntax(processedContent, doc)
-    // WikiLink 占位：将 [[path|name]] 转为占位符，避免被 markdown-it 转义
-    const { content: withPlaceholders, placeholders } = wikiLinkToPlaceholder(processedContent, doc)
-    // 渲染 Markdown
-    const normalized = normalizeNewlines(withPlaceholders)
-    let html = renderMarkdown(normalized)
-    // 渲染后替换占位符为真实 <a> 标签
-    html = replaceWikiLinkPlaceholders(html, placeholders)
-    // 替换文档嵌入占位符
-    html = replaceEmbedPlaceholders(html)
-    // 处理 #标签（在渲染后的 HTML 文本中替换）
-    html = renderTagsAfterMarkdown(html)
-    articleHtml.value = html
+
+    // 按文件类型分流渲染：
+    // - Markdown 文档：走原有流程（图片处理、Obsidian 语法、WikiLink、标签）
+    // - 代码/纯文本文件：整段包裹为 fenced code block，由 markdown-it 的 highlight 语法高亮
+    if (isMarkdownFile(doc.name)) {
+      // 处理图片：将本地图片引用替换为可访问的 URL
+      let processedContent = await processImages(text, doc)
+      // 处理 Obsidian 特有语法（#标签、文档嵌入 ![[note]]）
+      processedContent = processObsidianSyntax(processedContent, doc)
+      // WikiLink 占位：将 [[path|name]] 转为占位符，避免被 markdown-it 转义
+      const { content: withPlaceholders, placeholders } = wikiLinkToPlaceholder(processedContent, doc)
+      // 渲染 Markdown
+      const normalized = normalizeNewlines(withPlaceholders)
+      let html = renderMarkdown(normalized)
+      // 渲染后替换占位符为真实 <a> 标签
+      html = replaceWikiLinkPlaceholders(html, placeholders)
+      // 替换文档嵌入占位符
+      html = replaceEmbedPlaceholders(html)
+      // 处理 #标签（在渲染后的 HTML 文本中替换）
+      html = renderTagsAfterMarkdown(html)
+      articleHtml.value = html
+    } else {
+      // 代码文件：包裹为 fenced code block，扩展名映射为 hljs 语言标识符
+      const lang = getLangByExt(doc.name)
+      const normalized = normalizeNewlines(text)
+      // 移除内容末尾多余换行，避免代码块尾部空行
+      const trimmed = normalized.replace(/\n+$/, '')
+      const wrapped = '```' + lang + '\n' + trimmed + '\n```'
+      articleHtml.value = renderMarkdown(wrapped)
+    }
     // 绑定事件 + 提取大纲
     nextTick(() => {
       bindContentEvents()
@@ -1716,22 +1849,34 @@ watch(currentDoc, () => {
   display: none;
 }
 
-.collapse-btn {
+/* ===== 侧边栏头部操作按钮组 ===== */
+.sidebar-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.action-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border: none;
   border-radius: 6px;
   background: transparent;
   color: var(--kb-muted-foreground, #6b7280);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.12s ease, color 0.12s ease;
 }
 
-.collapse-btn:hover {
+.action-btn:hover {
   background: var(--kb-muted, #f0f2f5);
+  color: var(--kb-primary, #3b6fe0);
+}
+
+.sidebar.collapsed .sidebar-actions {
+  flex-direction: column;
 }
 
 .sidebar-tree {
