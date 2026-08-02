@@ -1,33 +1,78 @@
 <template>
   <div class="knowledge-layout">
+    <!-- 移动端遮罩层 -->
+    <div
+      v-if="sidebarOpen"
+      class="sidebar-overlay"
+      @click="sidebarOpen = false"
+    ></div>
+
     <!-- 左侧边栏 -->
     <KnowledgeSidebar
       ref="sidebarRef"
       mode="home"
       :active-key="activeKey"
       :active-category-id="activeCategoryId"
+      :mobile-open="sidebarOpen"
       @category-click="onCategoryClick"
       @all-click="onAllClick"
+      @close-mobile="sidebarOpen = false"
     />
 
     <!-- 主内容区 -->
     <main class="knowledge-main">
       <!-- 顶部搜索栏 -->
       <div class="top-bar">
+        <!-- 移动端菜单按钮 -->
+        <button class="mobile-menu-btn" @click="sidebarOpen = true">
+          <Icon name="menu" :size="20" />
+        </button>
         <div class="search-box">
           <Icon name="search" :size="18" class="search-icon" />
           <input
+            ref="searchInputRef"
             v-model="searchKeyword"
             type="text"
             placeholder="搜索知识文档..."
             class="search-input"
             @keyup.enter="goSearch"
+            @focus="showSearchHistory = true"
+            @blur="hideSearchHistory"
           />
           <span class="search-shortcut">⌘K</span>
+          <!-- 搜索历史下拉 -->
+          <div
+            v-if="showSearchHistory && searchHistory.length > 0 && !searchKeyword"
+            class="search-history-dropdown"
+          >
+            <div class="history-header">
+              <span class="history-title">搜索历史</span>
+              <button class="history-clear" @click="clearSearchHistory">清除</button>
+            </div>
+            <div class="history-items">
+              <button
+                v-for="item in searchHistory"
+                :key="item"
+                class="history-item"
+                @click="searchFromHistory(item)"
+              >
+                <Icon name="clock" :size="12" class="history-icon" />
+                <span>{{ item }}</span>
+              </button>
+            </div>
+          </div>
         </div>
         <button class="upload-btn" @click="goUpload">
           <Icon name="upload" :size="16" />
           <span>上传文档</span>
+        </button>
+        <button class="import-btn" @click="goImport">
+          <Icon name="download" :size="16" />
+          <span>导入知识库</span>
+        </button>
+        <button class="import-btn" @click="goReader">
+          <Icon name="book-open" :size="16" />
+          <span>本地阅读</span>
         </button>
       </div>
 
@@ -75,7 +120,7 @@
                 <Icon name="clock" :size="20" />
               </div>
               <div class="stat-info">
-                <span class="stat-value">12.5h</span>
+                <span class="stat-value">{{ userStats?.totalStudyHours != null ? userStats.totalStudyHours + 'h' : '—' }}</span>
                 <span class="stat-label">本周学习时长</span>
               </div>
             </div>
@@ -84,7 +129,7 @@
                 <Icon name="file-text" :size="20" />
               </div>
               <div class="stat-info">
-                <span class="stat-value">48 篇</span>
+                <span class="stat-value">{{ userStats?.readDocsCount != null ? userStats.readDocsCount + ' 篇' : '—' }}</span>
                 <span class="stat-label">已阅读文档</span>
               </div>
             </div>
@@ -93,7 +138,7 @@
                 <Icon name="flame" :size="20" />
               </div>
               <div class="stat-info">
-                <span class="stat-value">7 天</span>
+                <span class="stat-value">{{ userStats?.streakDays != null ? userStats.streakDays + ' 天' : '—' }}</span>
                 <span class="stat-label">连续学习</span>
               </div>
             </div>
@@ -102,7 +147,7 @@
                 <Icon name="star" :size="20" />
               </div>
               <div class="stat-info">
-                <span class="stat-value">23 个</span>
+                <span class="stat-value">{{ userStats?.favoriteCount != null ? userStats.favoriteCount + ' 个' : '—' }}</span>
                 <span class="stat-label">知识收藏</span>
               </div>
             </div>
@@ -124,7 +169,7 @@
             >
               <DocTypeBadge :file-url="doc.fileUrl" :content="doc.content" :size="36" />
               <div class="recent-info">
-                <h4 class="recent-title">{{ doc.title }}</h4>
+                <h4 class="recent-title" :title="doc.title">{{ doc.title }}</h4>
                 <p class="recent-meta">
                   <span class="recent-tag" :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }">{{ doc.categoryName || '未分类' }}</span>
                   <span class="recent-time">{{ formatRelativeTime(doc.createTime) }}</span>
@@ -217,7 +262,7 @@
               >
                 <DocTypeBadge :file-url="doc.fileUrl" :content="doc.content" :size="36" />
                 <div class="doc-row-info">
-                  <h4 class="doc-row-title">{{ doc.title }}</h4>
+                  <h4 class="doc-row-title" :title="doc.title">{{ doc.title }}</h4>
                   <p class="doc-row-meta">
                     <span class="doc-row-tag" :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }">{{ doc.categoryName || currentCategory.name }}</span>
                     <span class="doc-row-time">{{ formatRelativeTime(doc.createTime) }}</span>
@@ -275,6 +320,26 @@
             </div>
           </div>
 
+          <!-- 标签筛选 -->
+          <div v-if="categoryTags.length > 0 && !loading" class="tag-filter-bar">
+            <button
+              class="tag-filter-btn"
+              :class="{ active: !selectedTag }"
+              @click="selectedTag = null"
+            >
+              全部
+            </button>
+            <button
+              v-for="tag in categoryTags"
+              :key="tag"
+              class="tag-filter-btn"
+              :class="{ active: selectedTag === tag }"
+              @click="selectedTag = selectedTag === tag ? null : tag"
+            >
+              {{ tag }}
+            </button>
+          </div>
+
           <!-- 加载中 -->
           <div v-if="loading" class="docs-loading">
             <div v-for="i in 5" :key="i" class="loading-row">
@@ -305,8 +370,8 @@
                 <Icon name="file-text" :size="16" />
               </div>
               <div class="doc-row-info">
-                <h4 class="doc-row-title">{{ doc.title }}</h4>
-                <p class="doc-row-summary">{{ doc.summary || '暂无摘要...' }}</p>
+                  <h4 class="doc-row-title" :title="doc.title">{{ doc.title }}</h4>
+                  <p class="doc-row-summary">{{ doc.summary || '暂无摘要...' }}</p>
                 <p class="doc-row-meta">
                   <span class="doc-row-tag" :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }">{{ doc.categoryName || currentCategory.name }}</span>
                   <span class="doc-row-time">{{ formatRelativeTime(doc.createTime) }}</span>
@@ -315,6 +380,25 @@
               </div>
               <Icon name="arrow-right" :size="14" class="doc-row-arrow" />
             </div>
+          </div>
+
+          <!-- 分页 -->
+          <div v-if="!loading && categoryTotal > categoryPageSize" class="docs-pagination">
+            <button
+              class="page-btn"
+              :disabled="categoryPage <= 1"
+              @click="changePage(categoryPage - 1)"
+            >
+              <Icon name="chevron-left" :size="14" />
+            </button>
+            <span class="page-info">{{ categoryPage }} / {{ categoryTotalPages }}</span>
+            <button
+              class="page-btn"
+              :disabled="categoryPage >= categoryTotalPages"
+              @click="changePage(categoryPage + 1)"
+            >
+              <Icon name="chevron-right" :size="14" />
+            </button>
           </div>
         </section>
       </template>
@@ -377,13 +461,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import KnowledgeSidebar from '@/components/layout/KnowledgeSidebar.vue'
-import { categoriesApi, docsApi, adminApi } from '@/api'
-import type { CategoryVO, DocVO } from '@/api/types'
+import { categoriesApi, docsApi, adminApi, userApi } from '@/api'
+import type { CategoryVO, DocVO, UserStatsVO } from '@/api/types'
 import DocTypeBadge from '@/components/doc/DocTypeBadge.vue'
+import { notify, getApiError } from '@/utils/toast'
+import { useKnowledgeStore } from '@/stores/knowledge'
+
+const knowledgeStore = useKnowledgeStore()
 
 const router = useRouter()
 const route = useRoute()
@@ -394,6 +482,28 @@ const topCategories = ref<CategoryVO[]>([])
 const latestDocs = ref<DocVO[]>([])
 const categoryDocs = ref<DocVO[]>([])
 const loading = ref(false)
+
+// 移动端抽屉
+const sidebarOpen = ref(false)
+
+// 搜索框 ref（⌘K 快捷键聚焦）
+const searchInputRef = ref<HTMLInputElement | null>(null)
+
+// 搜索历史
+const searchHistory = ref<string[]>([])
+const showSearchHistory = ref(false)
+
+// 标签筛选
+const selectedTag = ref<string | null>(null)
+
+// 学习概览统计数据
+const userStats = ref<UserStatsVO | null>(null)
+
+// 分页
+const categoryPage = ref(1)
+const categoryPageSize = 10
+const categoryTotal = ref(0)
+const categoryTotalPages = computed(() => Math.ceil(categoryTotal.value / categoryPageSize) || 1)
 
 const activeKey = ref<'all'>('all')
 const activeCategoryId = ref<number | null>(null)
@@ -422,8 +532,31 @@ const currentParentCategory = computed<CategoryVO | null>(() => {
   return findParentCategory(allCategories.value, activeCategoryId.value)
 })
 
+// 从当前分类文档中提取所有标签
+const categoryTags = computed(() => {
+  const tagSet = new Set<string>()
+  categoryDocs.value.forEach(doc => {
+    if (doc.tags) {
+      doc.tags.split(',').forEach(t => {
+        const trimmed = t.trim()
+        if (trimmed) tagSet.add(trimmed)
+      })
+    }
+  })
+  return Array.from(tagSet).slice(0, 12)
+})
+
 const sortedCategoryDocs = computed(() => {
-  return [...categoryDocs.value].sort((a, b) =>
+  let docs = [...categoryDocs.value]
+  // 标签筛选
+  if (selectedTag.value) {
+    docs = docs.filter(d => {
+      if (!d.tags) return false
+      return d.tags.split(',').map(t => t.trim()).includes(selectedTag.value!)
+    })
+  }
+  // 按时间排序
+  return docs.sort((a, b) =>
     new Date(b.createTime || '').getTime() - new Date(a.createTime || '').getTime()
   )
 })
@@ -506,26 +639,52 @@ async function loadCategoryDocs(categoryId: number) {
   const token = ++categoryLoadToken
   loading.value = true
   try {
-    const ids = getAllChildIds(categoryId)
-    let merged: DocVO[] = []
-    for (const id of ids) {
-      const res = await docsApi.list({ categoryId: id, pageSize: 50 } as any)
-      if (token !== categoryLoadToken) return // 过期请求：已被更新的点击取代，丢弃结果
-      merged = merged.concat(res.records || [])
+    const cat = findCategoryById(allCategories.value, categoryId)
+    const hasChildren = cat && (cat.children?.length ?? 0) > 0
+
+    if (hasChildren) {
+      // 父分类：加载所有子分类的前几条用于预览（不分页）
+      const ids = getAllChildIds(categoryId)
+      let merged: DocVO[] = []
+      for (const id of ids) {
+        const res = await docsApi.list({ categoryId: id, pageSize: 50 } as any)
+        if (token !== categoryLoadToken) return
+        merged = merged.concat(res.records || [])
+      }
+      if (token !== categoryLoadToken) return
+      const seen = new Set<number>()
+      categoryDocs.value = merged.filter(d => {
+        if (seen.has(d.id)) return false
+        seen.add(d.id)
+        return true
+      })
+      categoryTotal.value = categoryDocs.value.length
+    } else {
+      // 叶子分类：后端分页
+      const res = await docsApi.list({
+        categoryId,
+        pageNum: categoryPage.value,
+        pageSize: categoryPageSize,
+      } as any)
+      if (token !== categoryLoadToken) return
+      categoryDocs.value = res.records || []
+      categoryTotal.value = res.total || 0
     }
-    if (token !== categoryLoadToken) return
-    // 去重
-    const seen = new Set<number>()
-    categoryDocs.value = merged.filter(d => {
-      if (seen.has(d.id)) return false
-      seen.add(d.id)
-      return true
-    })
-  } catch {
+  } catch (e: unknown) {
     if (token !== categoryLoadToken) return
     categoryDocs.value = []
+    categoryTotal.value = 0
+    notify(getApiError(e, '加载文档失败'), 'error')
   } finally {
     if (token === categoryLoadToken) loading.value = false
+  }
+}
+
+function changePage(page: number) {
+  if (page < 1 || page > categoryTotalPages.value) return
+  categoryPage.value = page
+  if (activeCategoryId.value) {
+    loadCategoryDocs(activeCategoryId.value)
   }
 }
 
@@ -543,18 +702,63 @@ function getAllChildIds(id: number): number[] {
 function onCategoryClick(cat: CategoryVO) {
   activeCategoryId.value = cat.id
   activeKey.value = 'all'
-  // 同步路由；实际加载由 watch(activeCategoryId) 统一驱动（含竞态保护）
+  categoryPage.value = 1
+  sidebarOpen.value = false
   router.replace({ path: '/knowledge', query: { categoryId: String(cat.id) } })
 }
 
 function onAllClick() {
   activeCategoryId.value = null
   activeKey.value = 'all'
+  categoryPage.value = 1
+  sidebarOpen.value = false
   router.replace({ path: '/knowledge' })
 }
 
 const goSearch = () => {
+  const kw = searchKeyword.value.trim()
+  if (kw) {
+    saveSearchHistory(kw)
+  }
+  showSearchHistory.value = false
   router.push({ path: '/search', query: { q: searchKeyword.value } })
+}
+
+// ===== 搜索历史 =====
+function loadSearchHistory() {
+  try {
+    const stored = localStorage.getItem('kb_search_history')
+    if (stored) {
+      searchHistory.value = JSON.parse(stored)
+    }
+  } catch {
+    searchHistory.value = []
+  }
+}
+
+function saveSearchHistory(keyword: string) {
+  const updated = [keyword, ...searchHistory.value.filter(k => k !== keyword)].slice(0, 10)
+  searchHistory.value = updated
+  try {
+    localStorage.setItem('kb_search_history', JSON.stringify(updated))
+  } catch {
+    // localStorage 不可用时静默失败
+  }
+}
+
+function clearSearchHistory() {
+  searchHistory.value = []
+  localStorage.removeItem('kb_search_history')
+}
+
+function searchFromHistory(keyword: string) {
+  searchKeyword.value = keyword
+  showSearchHistory.value = false
+  goSearch()
+}
+
+function hideSearchHistory() {
+  setTimeout(() => { showSearchHistory.value = false }, 200)
 }
 
 const goToDoc = (id: number) => {
@@ -563,6 +767,14 @@ const goToDoc = (id: number) => {
 
 const goUpload = () => {
   router.push('/knowledge/upload')
+}
+
+const goImport = () => {
+  router.push('/knowledge/import')
+}
+
+const goReader = () => {
+  router.push('/knowledge/reader')
 }
 
 const formatRelativeTime = (dateStr?: string) => {
@@ -579,23 +791,26 @@ const formatRelativeTime = (dateStr?: string) => {
 
 const loadData = async () => {
   try {
-    const [cats, recent] = await Promise.all([
-      categoriesApi.tree(),
+    const [cats, recent, stats] = await Promise.all([
+      knowledgeStore.fetchTree(),
       docsApi.list({ pageSize: 6, sortBy: 'new' } as any).then((r) => r.records || []),
+      userApi.stats().catch(() => null),
     ])
     allCategories.value = cats
     topCategories.value = cats.slice(0, 6)
     latestDocs.value = recent.slice(0, 4)
+    userStats.value = stats
 
     // 如果 URL 有 categoryId，选中对应分类（由 watch(activeCategoryId) 自动加载）
     const catId = route.query.categoryId
     if (catId && typeof catId === 'string') {
       activeCategoryId.value = Number(catId)
     }
-  } catch {
+  } catch (e: unknown) {
     topCategories.value = []
     latestDocs.value = []
     allCategories.value = []
+    notify(getApiError(e, '加载知识库数据失败'), 'error')
   }
 }
 
@@ -616,10 +831,13 @@ watch(
 
 // 选中分类变化 → 统一加载文档；配合 categoryLoadToken，只有最新一次点击的结果会被采用
 watch(activeCategoryId, (id) => {
+  categoryPage.value = 1
+  selectedTag.value = null
   if (id) {
     loadCategoryDocs(id)
   } else {
     categoryDocs.value = []
+    categoryTotal.value = 0
   }
 })
 
@@ -650,7 +868,7 @@ const roleOptions = [
 
 function openInviteDialog() {
   if (!activeCategoryId.value) {
-    alert('请先选择一个知识库')
+    notify('请先选择一个知识库', 'warning')
     return
   }
   inviteForm.value = { email: '', role: 'READER' }
@@ -664,29 +882,46 @@ function closeInviteDialog() {
 async function handleInvite() {
   const email = inviteForm.value.email.trim()
   if (!email) {
-    alert('请输入成员邮箱')
+    notify('请输入成员邮箱', 'warning')
     return
   }
   if (!email.includes('@')) {
-    alert('请输入有效的邮箱地址')
+    notify('请输入有效的邮箱地址', 'warning')
     return
   }
-  
+
   try {
-    // 真实调用后端邀请接口（需先选中一个知识库）
     await adminApi.addKbMember({
       categoryId: activeCategoryId.value!,
       email,
       role: inviteForm.value.role,
     })
-    alert(`已邀请 ${email} 加入知识库，角色：${roleOptions.find(r => r.value === inviteForm.value.role)?.label}`)
+    const roleLabel = roleOptions.find(r => r.value === inviteForm.value.role)?.label
+    notify(`已邀请 ${email} 加入知识库，角色：${roleLabel}`, 'success')
     closeInviteDialog()
-  } catch (e) {
-    alert('邀请失败，请稍后再试')
+  } catch (e: unknown) {
+    notify(getApiError(e, '邀请失败，请稍后再试'), 'error')
   }
 }
 
-onMounted(loadData)
+// ⌘K / Ctrl+K 快捷键聚焦搜索框
+function handleShortcut(e: KeyboardEvent) {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault()
+    searchInputRef.value?.focus()
+    searchInputRef.value?.select()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleShortcut)
+  loadSearchHistory()
+  loadData()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleShortcut)
+})
 </script>
 
 <style scoped>
@@ -784,6 +1019,28 @@ onMounted(loadData)
   height: 36px;
   padding: 0 14px;
   font-size: 13px;
+}
+
+.import-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.import-btn:hover {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
 }
 
 /* 问候语 */
@@ -1687,11 +1944,197 @@ onMounted(loadData)
     flex-direction: column;
     width: 100%;
   }
-  
+
   .btn-ghost.small,
   .upload-btn.small {
     width: 100%;
     justify-content: center;
   }
+}
+
+/* ===== 移动端侧边栏抽屉 ===== */
+.sidebar-overlay {
+  display: none;
+}
+
+.mobile-menu-btn {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+  }
+
+  .mobile-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--kb-border);
+    background: var(--kb-card);
+    color: var(--kb-foreground);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border-color 0.15s;
+  }
+
+  .mobile-menu-btn:hover {
+    border-color: var(--kb-primary);
+    color: var(--kb-primary);
+  }
+}
+
+/* ===== 分页 ===== */
+.docs-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px 0;
+}
+
+.page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--kb-muted-foreground);
+  min-width: 60px;
+  text-align: center;
+}
+
+/* ===== 搜索历史下拉 ===== */
+.search-history-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 6px;
+}
+
+.history-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--kb-muted-foreground);
+}
+
+.history-clear {
+  background: transparent;
+  border: none;
+  font-size: 11px;
+  color: var(--kb-primary);
+  cursor: pointer;
+  padding: 0;
+}
+
+.history-clear:hover {
+  text-decoration: underline;
+}
+
+.history-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 4px 14px 12px;
+}
+
+.history-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: var(--kb-muted);
+  color: var(--kb-foreground);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.history-item:hover {
+  background: rgba(59, 111, 224, 0.08);
+  color: var(--kb-primary);
+  border-color: var(--kb-primary);
+}
+
+.history-icon {
+  color: var(--kb-muted-foreground);
+}
+
+/* ===== 标签筛选栏 ===== */
+.tag-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.tag-filter-btn {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--kb-card);
+  color: var(--kb-muted-foreground);
+  border: 1px solid var(--kb-border);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tag-filter-btn:hover {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+}
+
+.tag-filter-btn.active {
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  border-color: var(--kb-primary);
 }
 </style>

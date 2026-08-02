@@ -1203,14 +1203,21 @@ const openExport = async (kb: CategoryVO) => {
 onMounted(async () => {
   await loadKbs()
   await loadStats()
-  // 并行加载每个知识库的成员数（控制并发避免冲击后端）
+  // 并行加载每个知识库的成员数（并发限制 5，避免冲击后端）
   const kbs = knowledgeBases.value.slice()
   const counts = new Map<number, number>()
-  for (const kb of kbs) {
-    try {
-      const list = await adminApi.kbMembers(kb.id)
-      counts.set(kb.id, list.length)
-    } catch {}
+  const CONCURRENCY = 5
+  for (let i = 0; i < kbs.length; i += CONCURRENCY) {
+    const batch = kbs.slice(i, i + CONCURRENCY)
+    const results = await Promise.allSettled(
+      batch.map(kb => adminApi.kbMembers(kb.id))
+    )
+    batch.forEach((kb, idx) => {
+      const r = results[idx]
+      if (r.status === 'fulfilled') {
+        counts.set(kb.id, r.value.length)
+      }
+    })
   }
   categoryMemberCounts.value = counts
 })

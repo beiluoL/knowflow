@@ -1023,3 +1023,196 @@ button:focus-visible,
 .prose pre {
   white-space: pre;
 }
+
+/* ========================================================================
+ * 代码块全局样式（DocDetail / DocEdit / DocCreate / Chat 等共享）
+ * 深色主题 + 语法高亮 + 行号 + 复制按钮
+ * ======================================================================== */
+
+/* 代码块包装器 */
+.code-block-wrapper {
+  margin: 16px 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #1a1d23;
+}
+
+/* 代码块头部栏：语言标签 + 复制按钮 */
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.code-lang {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.45);
+  font-family: var(--font-mono);
+}
+
+/* 复制按钮 */
+.code-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--font-sans);
+}
+
+.code-copy-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.code-copy-btn.copied {
+  color: #10B981 !important;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.code-copy-btn .copy-label {
+  line-height: 1;
+}
+
+/* 代码块主体：行号 + 代码 */
+.code-block-body {
+  display: flex;
+  overflow-x: auto;
+}
+
+/* 行号列 */
+.code-line-numbers {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0;
+  min-width: 48px;
+  text-align: right;
+  background: rgba(0, 0, 0, 0.18);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.code-line-num {
+  display: block;
+  padding: 0 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.25);
+  font-family: var(--font-mono);
+}
+
+/* 代码区域 */
+.code-block-body pre {
+  margin: 0;
+  padding: 16px 20px;
+  background: #1a1d23;
+  overflow-x: auto;
+  flex: 1;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.code-block-body pre code {
+  background: none;
+  padding: 0;
+  color: #e6e8ec;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+/* highlight.js 覆盖：让 github-dark 主题背景透明 */
+.code-block-body pre code.hljs {
+  background: transparent;
+  padding: 0;
+}
+
+/* 行内代码（非代码块） */
+.prose :not(pre) > code {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.875em;
+  background: var(--kb-muted);
+  color: var(--kb-primary);
+  font-family: var(--font-mono);
+}
+
+/* ========================================================================
+ * 图片预览样式 + 点击放大 Lightbox（DocDetail / DocEdit / DocCreate 共享）
+ * ======================================================================== */
+
+/* Markdown 图片：圆角、阴影、hover 交互、cursor 提示可点击 */
+.prose img,
+.md-image-zoom {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+  cursor: zoom-in;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.prose img:hover,
+.md-image-zoom:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* 图片放大遮罩层 */
+.image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  cursor: zoom-out;
+  animation: lightbox-fade-in 0.2s ease-out;
+}
+.image-lightbox img {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 4px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  cursor: default;
+}
+.image-lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+.image-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+@keyframes lightbox-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

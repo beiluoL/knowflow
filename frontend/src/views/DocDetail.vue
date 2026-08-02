@@ -298,6 +298,9 @@ import { useAuthStore } from '@/stores/auth'
 import type { DocDetailVO, DocVO, LearningFlashcard, LearningChapterVO } from '@/api/types'
 // 统一的 Markdown 渲染与工具函数（解决 \n 换行不生效、空格丢失等问题）
 import { renderMarkdown as renderMarkdownGlobal, normalizeEscapes } from '@/utils/markdown'
+import { normalizeNewlines } from '@/utils/string'
+import { handleCodeCopyClick } from '@/utils/codeCopy'
+import { handleImageLightboxClick } from '@/utils/imageLightbox'
 // highlight.js 深色主题（与代码块深色背景配合）
 import 'highlight.js/styles/github-dark.css'
 
@@ -360,24 +363,6 @@ const slugify = (text: string) =>
     .toLowerCase()
     .replace(/[^\w一-龥]+/g, '-')
     .replace(/^-+|-+$/g, '')
-
-/**
- * 还原 Markdown 文本中的字面量换行符（\n / \r\n / \t）为真实控制字符。
- * 后端 doc.content 字段有时会将真实 LF 存成反斜杠+n 的字面量字符串，
- * 导致 markdown-it 无法解析段落分隔与块级语法。
- */
-const normalizeNewlines = (src: string): string => {
-  if (!src) return '';
-  const hasRealLF = src.includes('\n');
-  const hasLiteralBackslashN = src.includes('\\n');
-  if (hasLiteralBackslashN && !hasRealLF) {
-    src = src
-      .replace(/\\r\\n/g, '\r\n')
-      .replace(/\\n/g, '\n')
-      .replace(/\\t/g, '\t');
-  }
-  return src;
-};
 
 // 从 Markdown 文本提取二级/三级标题，生成目录树
 // 注意：h2/h3 的锚点 id 采用与全局 markdown 渲染一致的约定（heading-1, heading-2…），
@@ -577,38 +562,8 @@ const saveProgress = async () => {
   }
 }
 
-// 代码块复制按钮：优先用 Clipboard API，失败则回退到 textarea + execCommand
-const handleCopyClick = async (e: MouseEvent) => {
-  const target = e.target as HTMLElement
-  const btn = target.closest('.code-copy-btn') as HTMLElement | null
-  if (!btn) return
-  e.preventDefault()
-  const raw = btn.getAttribute('data-code') || ''
-  const code = decodeURIComponent(raw)
-  try {
-    await navigator.clipboard.writeText(code)
-  } catch {
-    // 降级方案：临时 textarea + execCommand 兼容无 Clipboard 权限的环境
-    const ta = document.createElement('textarea')
-    ta.value = code
-    ta.style.position = 'fixed'
-    ta.style.opacity = '0'
-    document.body.appendChild(ta)
-    ta.select()
-    document.execCommand('copy')
-    document.body.removeChild(ta)
-  }
-  const label = btn.querySelector('.copy-label')
-  if (label) {
-    const original = label.textContent
-    label.textContent = '已复制'
-    btn.style.color = '#10B981'
-    setTimeout(() => {
-      label.textContent = original
-      btn.style.color = '#A6ADC8'
-    }, 2000)
-  }
-}
+// 代码块复制按钮：使用全局事件委托
+// handleCodeCopyClick 已从 @/utils/codeCopy 导入
 
 onMounted(async () => {
   const id = Number(route.params.id)
@@ -628,7 +583,8 @@ onMounted(async () => {
     }
   }
   nextTick(() => {
-    contentRef.value?.addEventListener('click', handleCopyClick)
+    contentRef.value?.addEventListener('click', handleCodeCopyClick)
+    contentRef.value?.addEventListener('click', handleImageLightboxClick)
   })
   window.addEventListener('scroll', handleScroll)
   document.addEventListener('click', handleDocumentClick)
@@ -638,7 +594,8 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
   document.removeEventListener('click', handleDocumentClick)
-  contentRef.value?.removeEventListener('click', handleCopyClick)
+  contentRef.value?.removeEventListener('click', handleCodeCopyClick)
+  contentRef.value?.removeEventListener('click', handleImageLightboxClick)
   saveProgress()
 })
 </script>

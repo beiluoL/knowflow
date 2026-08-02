@@ -52,4 +52,10 @@ public class DocDocument extends BaseEntity {
 
     /** 文档状态，如 0 草稿 / 1 已发布。 */
     private Integer status;
+
+    /** 导入来源相对路径（Obsidian/本地目录相对路径），用于增量去重；手动创建/单文件上传时为 null。 */
+    private String sourcePath;
+
+    /** 内容哈希（SHA-256），用于增量去重。 */
+    private String contentHash;
 }

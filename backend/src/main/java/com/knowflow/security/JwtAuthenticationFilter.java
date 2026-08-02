@@ -61,11 +61,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     /**
      * 从 Authorization 头提取 Bearer token；非 Bearer 格式或为空时返回 null。
      * substring(7) 用于跳过 "Bearer "（含一个空格，共 7 个字符）。
+     * <p>
+     * 兼容查询参数 token：当 Header 缺失时，尝试从 query 参数 token 中读取，
+     * 用于图片/文件下载等无法附加 Authorization 头的场景（如 &lt;img src&gt;）。
      */
     private String getTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
+        }
+        // 查询参数 token（图片等场景）
+        String queryToken = request.getParameter("token");
+        if (StringUtils.hasText(queryToken)) {
+            return queryToken;
         }
         return null;
     }

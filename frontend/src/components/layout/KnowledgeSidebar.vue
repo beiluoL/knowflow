@@ -1,5 +1,12 @@
 <template>
-  <aside class="knowledge-sidebar">
+  <aside class="knowledge-sidebar" :class="{ 'mobile-open': mobileOpen }">
+    <!-- 移动端抽屉头部 -->
+    <div class="mobile-drawer-header">
+      <span class="mobile-drawer-title">知识库导航</span>
+      <button class="mobile-close-btn" @click="$emit('closeMobile')">
+        <Icon name="x" :size="18" />
+      </button>
+    </div>
     <!-- 我的知识库 -->
     <div class="sidebar-section">
       <p class="sidebar-section-label">我的知识库</p>
@@ -43,26 +50,32 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
-import { categoriesApi } from '@/api'
+import { useKnowledgeStore } from '@/stores/knowledge'
 import type { CategoryVO } from '@/api/types'
+import { notify, getApiError } from '@/utils/toast'
 import CategoryNode from './CategoryNode.vue'
+
+const knowledgeStore = useKnowledgeStore()
 
 interface Props {
   mode?: 'home' | 'categories'
   activeKey?: string
   activeCategoryId?: number | null
+  mobileOpen?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   mode: 'home',
   activeKey: '',
   activeCategoryId: null,
+  mobileOpen: false,
 })
 
 const emit = defineEmits<{
   navigate: []
   categoryClick: [category: CategoryVO]
   allClick: []
+  closeMobile: []
 }>()
 
 const categories = ref<CategoryVO[]>([])
@@ -129,14 +142,15 @@ function findAncestors(cats: CategoryVO[], targetId: number, path: number[] = []
 
 const loadCategories = async () => {
   try {
-    const data = await categoriesApi.tree()
+    const data = await knowledgeStore.fetchTree()
     categories.value = data
     // 默认展开第一个分类
     if (data.length > 0) {
       expandedIds.value.add(data[0].id)
     }
-  } catch {
+  } catch (e: unknown) {
     categories.value = []
+    notify(getApiError(e, '加载分类失败'), 'error')
   }
 }
 
@@ -256,9 +270,55 @@ defineExpose({ categories })
   opacity: 0.9;
 }
 
+/* 移动端抽屉头部（仅小屏可见） */
+.mobile-drawer-header {
+  display: none;
+}
+
 @media (max-width: 1024px) {
   .knowledge-sidebar {
-    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 1001;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .knowledge-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .mobile-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid var(--kb-border);
+  }
+
+  .mobile-drawer-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--kb-foreground);
+  }
+
+  .mobile-close-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--kb-muted-foreground);
+    padding: 4px;
+    border-radius: 6px;
+    transition: all 0.15s;
+  }
+
+  .mobile-close-btn:hover {
+    background: var(--kb-muted);
+    color: var(--kb-foreground);
   }
 }
 </style>

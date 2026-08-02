@@ -9,12 +9,12 @@ import com.knowflow.service.PrivateMessageService;
 import com.knowflow.vo.PrivateConversationVO;
 import com.knowflow.vo.PrivateMessageVO;
 import com.knowflow.util.UploadHelper;
+import com.knowflow.config.UploadConfigProperties;
 import com.knowflow.websocket.ImWebSocketHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -35,9 +35,7 @@ public class PrivateMessageController {
     private final PrivateMessageService privateMessageService;
     private final ImWebSocketHandler imWebSocketHandler;
     private final PrivateMessageMapper messageMapper;
-
-    @Value("${app.upload.dir:${user.home}/knowflow/uploads}")
-    private String uploadDir;
+    private final UploadConfigProperties uploadConfig;
 
     @Operation(summary = "获取或创建与用户的私聊会话")
     @PostMapping("/conversations")
@@ -113,7 +111,7 @@ public class PrivateMessageController {
         }
 
         try {
-            Map<String, Object> result = UploadHelper.save(file, uploadDir);
+            Map<String, Object> result = UploadHelper.save(file, uploadConfig.getDir());
             return Result.success(result);
         } catch (IOException e) {
             return Result.error("文件上传失败：" + e.getMessage());

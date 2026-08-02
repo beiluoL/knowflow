@@ -68,8 +68,20 @@
 
       <template v-else>
         <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
-          <div class="rounded-lg border relative" style="background: var(--kb-card); border-color: var(--kb-border); min-height: 560px;">
-            <svg width="100%" height="520" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" :style="{ transform: `scale(${zoom})`, transformOrigin: 'center center' }" class="transition-transform duration-200">
+          <div
+            class="rounded-lg border relative"
+            style="background: var(--kb-card); border-color: var(--kb-border); min-height: 560px; touch-action: none;"
+            @touchstart="onTouchStart"
+            @touchmove="onTouchMove"
+            @touchend="onTouchEnd"
+          >
+            <button
+              type="button"
+              class="absolute top-2 right-2 z-10 px-2 py-1 rounded-md text-xs border"
+              style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-muted-foreground);"
+              @click="resetView"
+            >重置视图</button>
+            <svg width="100%" height="520" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" :style="{ transform: `translate(${panX}px, ${panY}px) scale(${zoom})`, transformOrigin: 'center center' }" class="transition-transform duration-200">
               <defs>
                 <pattern id="kb-grid" width="20" height="20" patternUnits="userSpaceOnUse">
                   <path d="M 20 0 L 0 0 0 20" fill="none" stroke="var(--kb-border)" stroke-width="0.5" opacity="0.5" />
@@ -490,6 +502,49 @@ const switchView = (v: ViewTab) => {
 const loading = ref(false)
 const graph = ref<KnowledgeGraphVO>({ nodes: [], edges: [] })
 const zoom = ref(1)
+const panX = ref(0)
+const panY = ref(0)
+
+// 触摸手势状态
+let touchState: { mode: 'none' | 'pan' | 'pinch'; startX: number; startY: number; startPanX: number; startPanY: number; startDist: number; startZoom: number } = {
+  mode: 'none', startX: 0, startY: 0, startPanX: 0, startPanY: 0, startDist: 0, startZoom: 1,
+}
+
+function onTouchStart(e: TouchEvent) {
+  if (e.touches.length === 1) {
+    touchState = { mode: 'pan', startX: e.touches[0].clientX, startY: e.touches[0].clientY, startPanX: panX.value, startPanY: panY.value, startDist: 0, startZoom: 1 }
+  } else if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX
+    const dy = e.touches[0].clientY - e.touches[1].clientY
+    touchState = { mode: 'pinch', startX: 0, startY: 0, startPanX: 0, startPanY: 0, startDist: Math.hypot(dx, dy), startZoom: zoom.value }
+  }
+}
+
+function onTouchMove(e: TouchEvent) {
+  e.preventDefault()
+  if (touchState.mode === 'pan' && e.touches.length === 1) {
+    panX.value = touchState.startPanX + (e.touches[0].clientX - touchState.startX)
+    panY.value = touchState.startPanY + (e.touches[0].clientY - touchState.startY)
+  } else if (touchState.mode === 'pinch' && e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX
+    const dy = e.touches[0].clientY - e.touches[1].clientY
+    const dist = Math.hypot(dx, dy)
+    if (touchState.startDist > 0) {
+      const ratio = dist / touchState.startDist
+      zoom.value = Math.max(0.5, Math.min(2, touchState.startZoom * ratio))
+    }
+  }
+}
+
+function onTouchEnd() {
+  touchState.mode = 'none'
+}
+
+function resetView() {
+  zoom.value = 1
+  panX.value = 0
+  panY.value = 0
+}
 const selectedNode = ref<RenderNode | null>(null)
 const selectedKb = ref('all')
 const searchKeyword = ref('')

@@ -13,11 +13,11 @@ import com.knowflow.vo.GroupMessageVO;
 import com.knowflow.vo.StudyGroupMemberVO;
 import com.knowflow.vo.StudyGroupVO;
 import com.knowflow.util.UploadHelper;
+import com.knowflow.config.UploadConfigProperties;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -38,9 +38,7 @@ public class StudyGroupController {
     private final StudyGroupService studyGroupService;
     private final GroupWebSocketHandler groupWebSocketHandler;
     private final StudyGroupMessageMapper studyGroupMessageMapper;
-
-    @Value("${app.upload.dir:${user.home}/knowflow/uploads}")
-    private String uploadDir;
+    private final UploadConfigProperties uploadConfig;
 
     @Operation(summary = "我加入的小组列表")
     @GetMapping("/my")
@@ -242,7 +240,7 @@ public class StudyGroupController {
         }
 
         try {
-            Map<String, Object> result = UploadHelper.save(file, uploadDir);
+            Map<String, Object> result = UploadHelper.save(file, uploadConfig.getDir());
             return Result.success(result);
         } catch (IOException e) {
             return Result.error("文件上传失败: " + e.getMessage());

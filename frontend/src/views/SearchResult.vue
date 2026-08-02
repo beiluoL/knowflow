@@ -215,7 +215,7 @@ import Icon from '@/components/ui/Icon.vue';
 import { docsApi } from '@/api';
 import type { DocVO } from '@/api/types';
 import { useAuthStore } from '@/stores/auth';
-import { notify } from '@/utils/toast';
+import { notify, getApiError } from '@/utils/toast';
 
 const route = useRoute();
 const router = useRouter();
@@ -234,6 +234,12 @@ const favoritedIds = ref<Set<number>>(new Set());
 // 分页状态
 const pageNum = ref(1);
 const pageSize = ref(10);
+// 后端返回的总数（无筛选时用）
+const serverTotal = ref(0);
+// 是否有前端筛选条件
+const hasFilters = computed(() =>
+  activeTab.value !== 'all' || activeTime.value !== 'all' || activeSort.value !== 'relevance',
+);
 
 // 热门搜索词
 const hotTags = ['Vue 3', 'TypeScript', 'React Hooks', '前端性能优化', '设计模式', '算法入门'];
@@ -295,17 +301,28 @@ const filteredResults = computed(() => {
   return results;
 });
 
-// 总条数（用于显示，未过滤时为全部，已过滤时为过滤后数量）
-const totalCount = computed(() => filteredResults.value.length);
+// 总条数
+const totalCount = computed(() =>
+  hasFilters.value ? filteredResults.value.length : serverTotal.value,
+);
 
 // 当前页数据
 const pagedResults = computed(() => {
-  const start = (pageNum.value - 1) * pageSize.value;
-  return filteredResults.value.slice(start, start + pageSize.value);
+  if (hasFilters.value) {
+    const start = (pageNum.value - 1) * pageSize.value;
+    return filteredResults.value.slice(start, start + pageSize.value);
+  }
+  // 无筛选：后端已分页，直接用 allResults
+  return filteredResults.value;
 });
 
 // 总页数
-const totalPages = computed(() => Math.max(1, Math.ceil(filteredResults.value.length / pageSize.value)));
+const totalPages = computed(() => {
+  if (hasFilters.value) {
+    return Math.max(1, Math.ceil(filteredResults.value.length / pageSize.value));
+  }
+  return Math.max(1, Math.ceil(serverTotal.value / pageSize.value));
+});
 
 // 可见页码（带省略号，最多展示 5 个数字按钮）
 const visiblePages = computed(() => {
@@ -330,7 +347,10 @@ const visiblePages = computed(() => {
 function goToPage(p: number): void {
   if (p < 1 || p > totalPages.value || p === -1) return;
   pageNum.value = p;
-  // 滚动到页面顶部，便于查看新一页结果
+  // 无筛选时：后端分页，需重新请求
+  if (!hasFilters.value && searchQuery.value.trim()) {
+    fetchPage(p);
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -363,16 +383,49 @@ async function doSearch(keyword: string): Promise<void> {
   }
   loading.value = true;
   hasSearched.value = true;
+  pageNum.value = 1;
   try {
-    const res = await docsApi.list({ keyword, pageSize: 100 });
-    allResults.value = res.records || [];
+    if (hasFilters.value) {
+      // 有筛选：拉取较多数据做前端筛选
+      const res = await docsApi.list({ keyword, pageSize: 100 });
+      allResults.value = res.records || [];
+      serverTotal.value = res.total || 0;
+    } else {
+      // 无筛选：后端分页
+      const res = await docsApi.list({ keyword, pageNum: 1, pageSize: pageSize.value });
+      allResults.value = res.records || [];
+      serverTotal.value = res.total || 0;
+    }
     favoritedIds.value = new Set(
       allResults.value.filter((d) => d.favoriteCount && d.favoriteCount > 0).map((d) => d.id),
     );
-    pageNum.value = 1;
     router.replace({ path: '/search', query: { q: keyword } });
-  } catch {
+  } catch (e: unknown) {
     allResults.value = [];
+    serverTotal.value = 0;
+    notify(getApiError(e, '搜索失败，请稍后再试'), 'error');
+  } finally {
+    loading.value = false;
+  }
+}
+
+// 后端分页：翻页时请求新数据
+async function fetchPage(page: number): Promise<void> {
+  if (!searchQuery.value.trim()) return;
+  loading.value = true;
+  try {
+    const res = await docsApi.list({
+      keyword: searchQuery.value,
+      pageNum: page,
+      pageSize: pageSize.value,
+    });
+    allResults.value = res.records || [];
+    serverTotal.value = res.total || 0;
+    favoritedIds.value = new Set(
+      allResults.value.filter((d) => d.favoriteCount && d.favoriteCount > 0).map((d) => d.id),
+    );
+  } catch (e: unknown) {
+    notify(getApiError(e, '加载失败'), 'error');
   } finally {
     loading.value = false;
   }
@@ -461,6 +514,14 @@ watch(
     }
   },
 );
+
+// 筛选条件变化时重置分页并重新搜索（切换数据拉取策略）
+watch([activeTab, activeTime, activeSort], () => {
+  if (hasSearched.value && searchQuery.value.trim()) {
+    pageNum.value = 1;
+    doSearch(searchQuery.value);
+  }
+});
 </script>
 
 <style scoped>

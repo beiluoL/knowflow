@@ -29,12 +29,12 @@ import com.knowflow.service.DocService;
 import com.knowflow.service.DocumentTextExtractor;
 import com.knowflow.service.KnowledgeService;
 import com.knowflow.util.UploadHelper;
+import com.knowflow.config.UploadConfigProperties;
 import com.knowflow.vo.DocDetailVO;
 import com.knowflow.vo.DocVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,11 +64,8 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     private final DocChunkService docChunkService;
     private final DocumentTextExtractor documentTextExtractor;
     private final KnowledgeService knowledgeService;
+    private final UploadConfigProperties uploadConfig;
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    /** 文件上传根目录（与 WebMvcConfig 静态资源映射保持一致）。 */
-    @Value("${app.upload.dir:${user.home}/knowflow/uploads}")
-    private String uploadDir;
 
     @Override
     public PageResult<DocVO> getDocPage(DocQueryDTO dto) {
@@ -183,7 +180,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         // 1. 原文落盘（支持后续原文下载/预览）；落盘失败不阻断正文抽取与入库
         String fileUrl = null;
         try {
-            Map<String, Object> saved = UploadHelper.save(file, uploadDir);
+            Map<String, Object> saved = UploadHelper.save(file, uploadConfig.getDir());
             fileUrl = (String) saved.get("fileUrl");
         } catch (IOException e) {
             log.warn("文档原文落盘失败：{}", originalName, e);

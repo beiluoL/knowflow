@@ -151,6 +151,7 @@ const allGroups: NavGroup[] = [
       { path: '/admin/flashcards', label: '知识卡片管理', icon: 'credit-card', adminOnly: true },
       { path: '/admin/code-questions', label: '代码题库管理', icon: 'code', adminOnly: true },
       { path: '/admin/icons', label: '图标管理', icon: 'palette', adminOnly: true },
+      { path: '/admin/files', label: '文件管理', icon: 'folder', adminOnly: true },
     ],
   },
   {

@@ -890,6 +890,13 @@ CREATE INDEX IF NOT EXISTS idx_cert_user ON learning_certificate (user_id);
 CREATE INDEX IF NOT EXISTS idx_cert_path ON learning_certificate (path_id);
 CREATE UNIQUE INDEX IF NOT EXISTS uk_cert_user_path ON learning_certificate (user_id, path_id, deleted);
 
+-- ========== 知识库批量导入：来源追踪与增量去重 ==========
+-- 在 doc_document 上追加来源路径与内容哈希列，支持 Obsidian/本地目录导入时的增量去重
+ALTER TABLE doc_document ADD COLUMN IF NOT EXISTS source_path VARCHAR(500) COMMENT '导入来源相对路径（Obsidian/本地目录相对路径），用于增量去重';
+ALTER TABLE doc_document ADD COLUMN IF NOT EXISTS content_hash VARCHAR(64) COMMENT '内容哈希（SHA-256），用于增量去重';
+CREATE INDEX IF NOT EXISTS idx_doc_source_path ON doc_document (source_path);
+CREATE INDEX IF NOT EXISTS idx_doc_content_hash ON doc_document (content_hash);
+
 -- ========== 专注会话（P0 专注模块核心表）==========
 CREATE TABLE IF NOT EXISTS focus_session (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,

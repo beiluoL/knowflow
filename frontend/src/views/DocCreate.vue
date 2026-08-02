@@ -83,7 +83,13 @@
             <!-- 内容编辑器（工具栏 + 文本域） -->
             <div>
               <label class="block text-sm font-medium mb-1.5 field-label">内容</label>
-              <div class="rounded-lg border overflow-hidden content-editor">
+              <div
+                class="rounded-lg border overflow-hidden content-editor"
+                :class="{ 'drag-over': isDragOver }"
+                @dragover.prevent="onDragOver"
+                @dragleave.prevent="onDragLeave"
+                @drop.prevent="onDrop"
+              >
                 <!-- 工具栏 -->
                 <div class="flex items-center gap-1 px-2 py-1.5 border-b toolbar">
                   <button
@@ -92,22 +98,36 @@
                     type="button"
                     class="w-7 h-7 flex items-center justify-center rounded toolbar-btn"
                     :title="tool.title"
-                    @click="insertMarkdown(tool.prefix, tool.suffix)"
+                    @click="tool.name === 'image' ? handleImagePick() : insertMarkdown(tool.prefix, tool.suffix)"
                   >
                     <Icon :name="tool.icon" :size="16" />
                   </button>
                 </div>
                 <!-- 编辑/预览切换 -->
-                <textarea
-                  v-show="!isPreview"
-                  ref="contentRef"
-                  v-model="form.content"
-                  rows="16"
-                  placeholder="开始编写文档内容..."
-                  class="w-full p-4 text-sm outline-none border-none resize-none content-textarea"
-                ></textarea>
+                <div class="relative">
+                  <!-- 拖拽提示遮罩 -->
+                  <div v-if="isDragOver" class="drag-hint">
+                    <Icon name="upload" :size="36" />
+                    <p>松开鼠标上传图片</p>
+                    <p class="drag-hint-sub">支持 JPG / PNG / GIF / WEBP / SVG</p>
+                  </div>
+                  <textarea
+                    v-show="!isPreview"
+                    ref="contentRef"
+                    v-model="form.content"
+                    rows="16"
+                    placeholder="开始编写文档内容，支持拖拽或粘贴图片..."
+                    class="w-full p-4 text-sm outline-none border-none resize-none content-textarea"
+                    @paste="onPaste"
+                  ></textarea>
+                </div>
                 <div v-show="isPreview" class="p-4 min-h-[384px] preview-area">
-                  <div class="prose prose-sm max-w-none" v-html="renderedContent"></div>
+                  <div ref="previewRef" class="prose prose-sm max-w-none" v-html="renderedContent"></div>
+                </div>
+                <!-- 上传中提示 -->
+                <div v-if="uploadingCount > 0" class="upload-status-bar">
+                  <div class="w-4 h-4 rounded-full border-2 animate-spin upload-spinner"></div>
+                  <span class="text-xs">正在上传 {{ uploadingCount }} 张图片...</span>
                 </div>
               </div>
               <!-- 预览切换按钮 -->
@@ -194,7 +214,7 @@
  * 左侧含标题、分类/类型、标签 chips、内容工具栏、摘要、保存草稿/取消/创建按钮。
  * 右侧含 AI 写作入口与写作提示清单。
  */
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
 import CategoryTreeSelect from '@/components/ui/CategoryTreeSelect.vue';
@@ -202,6 +222,15 @@ import { docsApi } from '@/api/docs';
 import { categoriesApi } from '@/api/categories';
 import { notify } from '@/utils/toast';
 import { renderMarkdown } from '@/utils/markdown';
+import { normalizeNewlines } from '@/utils/string';
+import { handleCodeCopyClick } from '@/utils/codeCopy';
+import { handleImageLightboxClick } from '@/utils/imageLightbox';
+import {
+  handleImageDrop,
+  handleImagePaste,
+  pickAndUploadImages,
+  isImageFile,
+} from '@/utils/editorImage';
 import type { CategoryVO } from '@/api/types';
 
 const router = useRouter();
@@ -271,6 +300,61 @@ const popTag = () => {
 
 // 内容编辑器引用，用于在光标处插入 Markdown 标记
 const contentRef = ref<HTMLTextAreaElement | null>(null);
+const previewRef = ref<HTMLElement | null>(null);
+
+// ===== 拖拽 & 粘贴图片上传 =====
+const isDragOver = ref(false);
+const uploadingCount = ref(0);
+
+const onNotify = (msg: string, type: 'info' | 'success' | 'error') => {
+  if (type === 'success') notify(msg, 'success');
+  else if (type === 'error') notify(msg, 'error');
+};
+
+const onDragOver = (e: DragEvent) => {
+  const hasFile = Array.from(e.dataTransfer?.types || []).includes('Files');
+  if (hasFile) isDragOver.value = true;
+};
+const onDragLeave = (e: DragEvent) => {
+  const rt = e.relatedTarget as Node | null;
+  if (!rt || !(e.currentTarget as HTMLElement).contains(rt)) {
+    isDragOver.value = false;
+  }
+};
+
+const onDrop = async (e: DragEvent) => {
+  isDragOver.value = false;
+  if (!contentRef.value) return;
+  const files = Array.from(e.dataTransfer?.files || []);
+  const imageFiles = files.filter(isImageFile);
+  if (imageFiles.length === 0) return;
+  e.preventDefault();
+  uploadingCount.value += imageFiles.length;
+  try {
+    await handleImageDrop(e, contentRef.value, onNotify);
+  } finally {
+    uploadingCount.value = Math.max(0, uploadingCount.value - imageFiles.length);
+  }
+};
+
+const onPaste = async (e: ClipboardEvent) => {
+  if (!contentRef.value) return;
+  const items = Array.from(e.clipboardData?.items || []);
+  const hasImage = items.some((item) => item.kind === 'file' && item.type.startsWith('image/'));
+  const hasHtml = items.some((item) => item.kind === 'string' && item.type === 'text/html');
+  if (!hasImage && !hasHtml) return;
+  if (hasImage) uploadingCount.value += 1;
+  try {
+    await handleImagePaste(e, contentRef.value, onNotify);
+  } finally {
+    if (hasImage) uploadingCount.value = Math.max(0, uploadingCount.value - 1);
+  }
+};
+
+const handleImagePick = async () => {
+  if (!contentRef.value) return;
+  await pickAndUploadImages(contentRef.value, onNotify);
+};
 
 const insertMarkdown = (prefix: string, suffix: string) => {
   const el = contentRef.value;
@@ -293,9 +377,9 @@ const insertMarkdown = (prefix: string, suffix: string) => {
   });
 };
 
-// 使用统一的 Markdown 渲染工具，正确处理转义字符（\n, \t 等）和保留空格
+// Markdown 预览：先归一化字面换行符，再调用通用渲染器
 const renderedContent = computed(() => {
-  return renderMarkdown(form.value.content) || '<p style="color:var(--kb-muted-foreground);">暂无内容</p>';
+  return renderMarkdown(normalizeNewlines(form.value.content || '')) || '<p style="color:var(--kb-muted-foreground);">暂无内容</p>';
 });
 
 async function fetchCategories() {
@@ -377,6 +461,16 @@ onMounted(() => {
       // 草稿解析失败时忽略
     }
   }
+  // 代码块复制按钮 + 图片点击放大事件委托
+  nextTick(() => {
+    previewRef.value?.addEventListener('click', handleCodeCopyClick);
+    previewRef.value?.addEventListener('click', handleImageLightboxClick);
+  });
+});
+
+onUnmounted(() => {
+  previewRef.value?.removeEventListener('click', handleCodeCopyClick);
+  previewRef.value?.removeEventListener('click', handleImageLightboxClick);
 });
 </script>
 
@@ -481,6 +575,10 @@ onMounted(() => {
 .content-editor {
   border-color: var(--kb-border);
 }
+.content-editor.drag-over {
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 2px rgba(59, 111, 224, 0.15);
+}
 .toolbar {
   background: var(--kb-background);
   border-color: var(--kb-border);
@@ -504,6 +602,46 @@ onMounted(() => {
 }
 .preview-area {
   background: var(--kb-card);
+}
+/* 拖拽提示遮罩 */
+.drag-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(2px);
+  color: var(--kb-primary);
+  pointer-events: none;
+  z-index: 10;
+}
+.drag-hint p {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--kb-primary);
+}
+.drag-hint .drag-hint-sub {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--kb-muted-foreground);
+}
+/* 上传状态条 */
+.upload-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(59, 111, 224, 0.06);
+  border-top: 1px solid var(--kb-border);
+  color: var(--kb-primary);
+}
+.upload-spinner {
+  border-color: rgba(59, 111, 224, 0.2);
+  border-top-color: var(--kb-primary);
 }
 .preview-toggle {
   color: var(--kb-muted-foreground);

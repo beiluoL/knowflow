@@ -61,6 +61,18 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'c', requiresAuth: true },
   },
   {
+    path: '/knowledge/import',
+    name: 'KnowledgeImport',
+    component: () => import('@/views/KnowledgeImport.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  {
+    path: '/knowledge/reader',
+    name: 'LocalReader',
+    component: () => import('@/views/LocalReader.vue'),
+    meta: { layout: 'none', requiresAuth: true },
+  },
+  {
     path: '/knowledge/new',
     name: 'KnowledgeCreate',
     component: () => import('@/views/KnowledgeCreate.vue'),
@@ -416,6 +428,12 @@ const routes: RouteRecordRaw[] = [
     path: '/admin/icons',
     name: 'AdminIcons',
     component: () => import('@/views/admin/IconManagement.vue'),
+    meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/files',
+    name: 'AdminFiles',
+    component: () => import('@/views/admin/FileMgmt.vue'),
     meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
   },
   {

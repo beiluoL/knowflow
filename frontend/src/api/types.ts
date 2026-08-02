@@ -1134,3 +1134,49 @@ export interface FocusSessionEndInput {
   qualityRating?: number
   note?: string
 }
+
+// ===== 知识库导入 =====
+
+/** 知识库目录批量导入选项 */
+export interface KnowledgeImportOptions {
+  /** 目标知识库 ID */
+  targetCategoryId: number
+  /** 是否按目录层级创建子分类（默认 true） */
+  createSubCategories?: boolean
+  /** 是否自动生成标签（默认 true） */
+  autoTags?: boolean
+  /** 是否启用 AI 智能打标（默认 false） */
+  aiTags?: boolean
+  /** 是否启用增量去重（默认 true） */
+  incremental?: boolean
+  /** 单篇正文上限（默认 50000） */
+  maxContentChars?: number
+}
+
+/** 导入结果明细日志 */
+export interface ImportItemLog {
+  /** 相对路径 */
+  path: string
+  /** 文档标题 */
+  title: string
+  /** 归属分类 ID */
+  categoryId?: number
+  /** 归属分类名称 */
+  categoryName?: string
+  /** 说明 */
+  message: string
+}
+
+/** 知识库目录批量导入结果 */
+export interface KnowledgeImportResultVO {
+  targetCategoryId: number
+  totalDocs: number
+  successCount: number
+  skippedCount: number
+  failedCount: number
+  imageCount: number
+  createdCategories: string[]
+  successItems: ImportItemLog[]
+  skippedItems: ImportItemLog[]
+  failedItems: ImportItemLog[]
+}
