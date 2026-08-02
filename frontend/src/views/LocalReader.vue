@@ -1952,101 +1952,115 @@ watch(currentDoc, () => {
 
 /* ===== 文章正文（Markdown 渲染样式，阅读体验优化） ===== */
 .article-content {
-  font-size: 16px;
-  line-height: 1.85;
+  font-size: 15px;
+  line-height: 1.75;
   color: var(--kb-foreground, #1a1d23);
   letter-spacing: 0.01em;
   word-break: break-word;
+  /* 覆盖全局 .prose * { white-space: pre-wrap }：
+     渲染后的 HTML 块级元素之间的源码换行不应被渲染为额外空白行 */
+  white-space: normal;
 }
 
 .article-content :deep(h1) {
-  font-size: 30px;
+  font-size: 26px;
   font-weight: 700;
-  margin: 40px 0 20px;
-  line-height: 1.25;
+  margin: 8px 0 14px;
+  line-height: 1.35;
   color: var(--kb-foreground, #1a1d23);
   letter-spacing: -0.01em;
+  white-space: normal;
 }
 
 .article-content :deep(h2) {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 600;
-  margin: 36px 0 16px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid var(--kb-border, #e8ecf1);
+  margin: 24px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--kb-border, #e8ecf1);
   line-height: 1.35;
   color: var(--kb-foreground, #1a1d23);
   scroll-margin-top: 80px;
+  white-space: normal;
 }
 
 .article-content :deep(h3) {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
-  margin: 28px 0 14px;
+  margin: 18px 0 8px;
   line-height: 1.4;
   color: var(--kb-foreground, #1a1d23);
   scroll-margin-top: 80px;
+  white-space: normal;
 }
 
 .article-content :deep(h4) {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 600;
-  margin: 24px 0 12px;
+  margin: 14px 0 6px;
   line-height: 1.45;
   color: var(--kb-foreground, #1a1d23);
   scroll-margin-top: 80px;
+  white-space: normal;
 }
 
 .article-content :deep(h5) {
   font-size: 15px;
   font-weight: 600;
-  margin: 20px 0 10px;
+  margin: 12px 0 6px;
   color: var(--kb-foreground, #1a1d23);
   scroll-margin-top: 80px;
+  white-space: normal;
 }
 
 .article-content :deep(h6) {
   font-size: 14px;
   font-weight: 600;
-  margin: 18px 0 10px;
+  margin: 10px 0 6px;
   color: var(--kb-muted-foreground, #6b7280);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   scroll-margin-top: 80px;
+  white-space: normal;
 }
 
 .article-content :deep(p) {
-  margin: 16px 0;
+  margin: 10px 0;
+  white-space: normal;
 }
 
 .article-content :deep(ul),
 .article-content :deep(ol) {
-  margin: 16px 0;
-  padding-left: 28px;
+  margin: 8px 0;
+  padding-left: 24px;
+  white-space: normal;
 }
 
 .article-content :deep(li) {
-  margin: 8px 0;
-  line-height: 1.8;
+  margin: 3px 0;
+  line-height: 1.65;
+  white-space: normal;
 }
 
 .article-content :deep(li > ul),
 .article-content :deep(li > ol) {
-  margin: 8px 0 0;
+  margin: 4px 0 0;
 }
 
 .article-content :deep(blockquote) {
-  margin: 20px 0;
-  padding: 14px 24px;
+  margin: 12px 0;
+  padding: 10px 16px;
   border-left: 4px solid var(--kb-primary, #3b6fe0);
   background: rgba(59, 111, 224, 0.04);
   border-radius: 0 8px 8px 0;
   color: var(--kb-muted-foreground, #6b7280);
   font-style: normal;
+  white-space: normal;
 }
 
 .article-content :deep(blockquote p) {
-  margin: 6px 0;
+  margin: 2px 0;
+  white-space: normal;
 }
 
 .article-content :deep(a) {
@@ -2154,15 +2168,15 @@ watch(currentDoc, () => {
 .article-content :deep(img) {
   max-width: 100%;
   border-radius: 8px;
-  margin: 20px 0;
+  margin: 8px 0;
   cursor: zoom-in;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .article-content :deep(hr) {
   border: none;
-  border-top: 2px solid var(--kb-border, #e8ecf1);
-  margin: 36px 0;
+  border-top: 1px solid var(--kb-border, #e8ecf1);
+  margin: 16px 0;
 }
 
 /* 代码块样式（深色背景 #1a1d23，与 DocDetail.vue 一致） */
@@ -2170,7 +2184,7 @@ watch(currentDoc, () => {
   background: #1a1d23;
   border-radius: 10px;
   overflow: hidden;
-  margin: 20px 0;
+  margin: 12px 0;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
@@ -2254,7 +2268,7 @@ watch(currentDoc, () => {
 .article-content :deep(table) {
   width: 100%;
   border-collapse: collapse;
-  margin: 20px 0;
+  margin: 12px 0;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--kb-border, #e8ecf1);
@@ -2266,20 +2280,21 @@ watch(currentDoc, () => {
 }
 
 .article-content :deep(th) {
-  padding: 12px 18px;
+  padding: 8px 14px;
   text-align: left;
   font-weight: 600;
   font-size: 13px;
   color: var(--kb-foreground, #1a1d23);
   border-bottom: 2px solid var(--kb-border, #e8ecf1);
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .article-content :deep(td) {
-  padding: 11px 18px;
+  padding: 8px 14px;
   border-bottom: 1px solid var(--kb-border, #e8ecf1);
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.6;
+  white-space: normal;
 }
 
 .article-content :deep(tbody tr:last-child td) {

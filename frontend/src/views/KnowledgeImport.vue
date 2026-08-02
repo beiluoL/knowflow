@@ -45,6 +45,8 @@
                 <ul>
                   <li><strong>Obsidian 仓库</strong>：直接选择 Obsidian 仓库根目录，自动解析 <code>.md</code> 文件及引用的图片</li>
                   <li><strong>本地 Markdown 目录</strong>：选择任意包含 <code>.md</code> / <code>.markdown</code> / <code>.txt</code> 文件的目录</li>
+                  <li><strong>代码文件</strong>：支持 <code>.java</code> / <code>.py</code> / <code>.vue</code> / <code>.js</code> / <code>.ts</code> / <code>.css</code> / <code>.html</code> / <code>.xml</code> / <code>.yml</code> / <code>.json</code> / <code>.sql</code> / <code>.go</code> 等常见代码文件，导入后自动按对应语言语法高亮渲染</li>
+                  <li><strong>富文档</strong>：支持 <code>.pdf</code> / <code>.doc</code> / <code>.docx</code> / <code>.ppt</code> / <code>.pptx</code> / <code>.rtf</code>，自动提取文本内容</li>
                   <li>目录层级将自动映射为知识库的分类树（最多 3 级，超出部分转为标签）</li>
                 </ul>
               </div>
@@ -92,8 +94,9 @@
               </div>
             </div>
             <p v-if="kbCategories.length === 0" class="empty-hint">
-              暂无知识库，请先
+              暂无可导入的知识库。导入需具备知识库的 Owner 或 Editor 权限，请先
               <router-link to="/knowledge/new" class="link-btn">新建知识库</router-link>
+              或联系知识库所有者添加您为 Editor。
             </p>
           </div>
 
@@ -114,8 +117,28 @@
       <!-- ===== Step 1: 选择目录 + 预览结构 ===== -->
       <template v-if="currentStep === 1">
         <div class="step-panel">
-          <!-- 目录选择区 -->
-          <div class="dir-select-zone" @click="triggerDirInput">
+          <!-- 导入方式 Tab 切换：目录选择 / 路径输入 -->
+          <div class="import-mode-tabs">
+            <button
+              class="mode-tab"
+              :class="{ active: importMode === 'directory' }"
+              @click="switchImportMode('directory')"
+            >
+              <Icon name="folder" :size="16" />
+              <span>目录选择</span>
+            </button>
+            <button
+              class="mode-tab"
+              :class="{ active: importMode === 'path' }"
+              @click="switchImportMode('path')"
+            >
+              <Icon name="terminal" :size="16" />
+              <span>路径输入</span>
+            </button>
+          </div>
+
+          <!-- 模式 A：目录选择（webkitdirectory） -->
+          <div v-if="importMode === 'directory'" class="dir-select-zone" @click="triggerDirInput">
             <input
               ref="dirInputRef"
               type="file"
@@ -136,8 +159,31 @@
             </p>
           </div>
 
-          <!-- 目录结构预览 -->
-          <div v-if="previewTree.length > 0" class="preview-card">
+          <!-- 模式 B：路径输入（绝对/相对路径） -->
+          <div v-if="importMode === 'path'" class="path-input-zone">
+            <div class="path-input-row">
+              <div class="path-input-icon">
+                <Icon name="terminal" :size="20" />
+              </div>
+              <input
+                v-model="pathInput"
+                type="text"
+                class="path-input"
+                placeholder="输入绝对路径（如 /Users/xxx/docs）或相对路径（如 ./src）"
+                @keyup.enter="scanPath"
+              />
+              <button class="btn-scan" :disabled="pathScanning || !pathInput.trim()" @click="scanPath">
+                <Icon :name="pathScanning ? 'loader' : 'search'" :size="14" :class="{ 'spin-icon': pathScanning }" />
+                <span>{{ pathScanning ? '扫描中...' : '扫描' }}</span>
+              </button>
+            </div>
+            <p class="path-input-hint">
+              支持目录路径（导入整个目录）或单文件路径（导入单个文件），需先扫描确认文件列表后再导入
+            </p>
+          </div>
+
+          <!-- 目录选择模式：目录结构预览树 -->
+          <div v-if="importMode === 'directory' && previewTree.length > 0" class="preview-card">
             <div class="preview-header">
               <h3 class="card-title">目录结构预览</h3>
               <div class="preview-stats">
@@ -156,6 +202,40 @@
             </div>
           </div>
 
+          <!-- 路径输入模式：扫描结果预览 -->
+          <div v-if="importMode === 'path' && pathScanResult" class="preview-card">
+            <div class="preview-header">
+              <h3 class="card-title">
+                扫描结果
+                <span class="scan-mode-tag">{{ pathScanResult.isFile ? '单文件' : '目录' }}</span>
+              </h3>
+              <div class="preview-stats">
+                <span class="stat-badge doc">{{ pathScanResult.docCount }} 文档</span>
+                <span class="stat-badge img" v-if="pathScanResult.imageCount > 0">{{ pathScanResult.imageCount }} 图片</span>
+                <span class="stat-badge dir" v-if="pathScanResult.dirCount > 0">{{ pathScanResult.dirCount }} 目录</span>
+              </div>
+            </div>
+            <div class="path-files-list">
+              <div
+                v-for="file in pathScanResult.files.slice(0, 200)"
+                :key="file.path"
+                class="path-file-item"
+                :class="file.type"
+              >
+                <Icon
+                  :name="getFileIcon(file.ext, file.type)"
+                  :size="14"
+                  class="file-ext-icon"
+                />
+                <span class="file-path-text" :title="file.path">{{ file.path }}</span>
+                <span class="file-size">{{ formatFileSize(file.size) }}</span>
+              </div>
+              <p v-if="pathScanResult.files.length > 200" class="more-files-hint">
+                仅显示前 200 个文件，共 {{ pathScanResult.files.length }} 个
+              </p>
+            </div>
+          </div>
+
           <div class="step-actions">
             <button class="btn-secondary" @click="goToStep(0)">
               <Icon name="chevron-left" :size="14" />
@@ -163,7 +243,7 @@
             </button>
             <button
               class="btn-primary"
-              :disabled="docFileCount === 0"
+              :disabled="!canGoToStep2"
               @click="goToStep(2)"
             >
               <span>下一步：导入设置</span>
@@ -226,12 +306,16 @@
                 <span class="summary-value">{{ selectedKbName }}</span>
               </div>
               <div class="summary-item">
+                <span class="summary-label">导入方式</span>
+                <span class="summary-value">{{ importMode === 'directory' ? '目录选择' : '路径输入' }}</span>
+              </div>
+              <div class="summary-item">
                 <span class="summary-label">文档数量</span>
-                <span class="summary-value">{{ docFileCount }} 篇</span>
+                <span class="summary-value">{{ summaryDocCount }} 篇</span>
               </div>
               <div class="summary-item">
                 <span class="summary-label">图片数量</span>
-                <span class="summary-value">{{ imageFileCount }} 个</span>
+                <span class="summary-value">{{ summaryImageCount }} 个</span>
               </div>
               <div class="summary-item">
                 <span class="summary-label">创建子分类</span>
@@ -260,15 +344,62 @@
       <!-- ===== Step 3: 导入进度 + 结果 ===== -->
       <template v-if="currentStep === 3">
         <div class="step-panel">
-          <!-- 导入中 -->
+          <!-- 导入中：进度条 + 当前文件 + 单文件列表 + 取消按钮 -->
           <div v-if="importing" class="progress-card">
-            <div class="progress-spinner">
-              <Icon name="loader" :size="32" class="spin-icon" />
+            <div class="progress-header">
+              <div class="progress-spinner">
+                <Icon name="loader" :size="24" class="spin-icon" />
+              </div>
+              <div class="progress-info">
+                <h3 class="progress-title">正在导入...</h3>
+                <p class="progress-hint">
+                  {{ progressCurrent > 0 ? `处理 ${progressCurrent} / ${progressTotal}` : '准备中...' }}
+                  <span v-if="progressCurrentFile" class="current-file" :title="progressCurrentFile">
+                    · {{ truncatePath(progressCurrentFile) }}
+                  </span>
+                </p>
+              </div>
+              <button class="btn-cancel" @click="cancelImport" :disabled="cancelling">
+                <Icon name="x" :size="14" />
+                <span>{{ cancelling ? '取消中...' : '取消导入' }}</span>
+              </button>
             </div>
-            <h3 class="progress-title">正在导入...</h3>
-            <p class="progress-hint">正在处理 {{ docFileCount }} 个文档，请耐心等待</p>
+
+            <!-- 整体进度条 -->
             <div class="progress-bar-container">
-              <div class="progress-bar-fill" style="width: 100%"></div>
+              <div
+                class="progress-bar-fill"
+                :style="{ width: progressPercent + '%' }"
+              ></div>
+            </div>
+            <div class="progress-stats-row">
+              <span class="progress-percent">{{ progressPercent }}%</span>
+              <span class="progress-counts">
+                <span class="cnt-success">成功 {{ progressSuccess }}</span>
+                <span class="cnt-skipped">跳过 {{ progressSkipped }}</span>
+                <span class="cnt-failed">失败 {{ progressFailed }}</span>
+              </span>
+            </div>
+
+            <!-- 单文件处理列表（最近 8 项） -->
+            <div v-if="fileProgressList.length > 0" class="file-progress-list">
+              <div class="file-progress-header">处理明细</div>
+              <div class="file-progress-body">
+                <div
+                  v-for="item in fileProgressList.slice(-8).reverse()"
+                  :key="item.index"
+                  class="file-progress-item"
+                  :class="item.status"
+                >
+                  <Icon
+                    :name="getFileStatusIcon(item.status)"
+                    :size="14"
+                    class="file-status-icon"
+                  />
+                  <span class="file-path" :title="item.path">{{ truncatePath(item.path) }}</span>
+                  <span class="file-message">{{ item.message }}</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -368,10 +499,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
-import { categoriesApi } from '@/api/categories'
 import { knowledgeImportApi } from '@/api/knowledgeImport'
 import { notify, getApiError } from '@/utils/toast'
-import type { CategoryVO, KnowledgeImportResultVO } from '@/api/types'
+import type { CategoryVO, KnowledgeImportResultVO, PathImportScanVO } from '@/api/types'
 import PreviewTreeNode from '@/components/Knowledge/PreviewTreeNode.vue'
 
 const router = useRouter()
@@ -405,9 +535,88 @@ const getCategoryIcon = (icon?: string) => {
   return 'book-open'
 }
 
-// ===== Step 1: 目录选择 =====
+// ===== Step 1: 目录选择 / 路径输入 =====
+type ImportMode = 'directory' | 'path'
+const importMode = ref<ImportMode>('directory')
 const dirInputRef = ref<HTMLInputElement | null>(null)
 const selectedFiles = ref<File[]>([])
+
+// 路径输入相关状态
+const pathInput = ref('')
+const pathScanning = ref(false)
+const pathScanResult = ref<PathImportScanVO | null>(null)
+
+/** 切换导入方式时清理对方模式的状态，避免残留数据干扰 */
+const switchImportMode = (mode: ImportMode) => {
+  if (importMode.value === mode) return
+  importMode.value = mode
+  if (mode === 'directory') {
+    pathScanResult.value = null
+    pathInput.value = ''
+  } else {
+    selectedFiles.value = []
+  }
+}
+
+/** 路径扫描：调用后端 /path/scan 校验路径并返回文件列表 */
+const scanPath = async () => {
+  const p = pathInput.value.trim()
+  if (!p) {
+    notify('请输入路径', 'warning')
+    return
+  }
+  pathScanning.value = true
+  try {
+    const result = await knowledgeImportApi.scanPath(p)
+    pathScanResult.value = result
+    if (result.files.length === 0) {
+      notify('路径下未找到可导入的文件', 'warning')
+    } else {
+      notify(`扫描完成：${result.docCount} 个文档，${result.imageCount} 个图片`, 'success')
+    }
+  } catch (e: unknown) {
+    notify(getApiError(e, '路径扫描失败'), 'error')
+    pathScanResult.value = null
+  } finally {
+    pathScanning.value = false
+  }
+}
+
+/** 文件大小格式化 */
+const formatFileSize = (bytes: number) => {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+/** 根据扩展名返回文件图标 */
+const getFileIcon = (ext: string, type: string) => {
+  if (type === 'image') return 'image'
+  const codeExts = ['java', 'py', 'js', 'ts', 'vue', 'css', 'html', 'xml', 'yml', 'yaml', 'json', 'sql', 'go', 'c', 'cpp']
+  if (codeExts.includes(ext)) return 'code'
+  if (['pdf'].includes(ext)) return 'file-text'
+  if (['doc', 'docx'].includes(ext)) return 'file-text'
+  if (['ppt', 'pptx'].includes(ext)) return 'file-text'
+  return 'file'
+}
+
+/** Step 2 启用条件：两种模式任一有可导入文件即可 */
+const canGoToStep2 = computed(() => {
+  if (importMode.value === 'directory') return docFileCount.value > 0
+  return pathScanResult.value !== null && pathScanResult.value.docCount > 0
+})
+
+/** 摘要：文档数（适配两种导入模式） */
+const summaryDocCount = computed(() => {
+  if (importMode.value === 'path') return pathScanResult.value?.docCount ?? 0
+  return docFileCount.value
+})
+
+/** 摘要：图片数（适配两种导入模式） */
+const summaryImageCount = computed(() => {
+  if (importMode.value === 'path') return pathScanResult.value?.imageCount ?? 0
+  return imageFileCount.value
+})
 
 const triggerDirInput = () => {
   dirInputRef.value?.click()
@@ -419,7 +628,16 @@ const handleDirSelect = (e: Event) => {
   selectedFiles.value = Array.from(input.files)
 }
 
-const DOC_EXTS = ['md', 'markdown', 'txt']
+// 与后端 KnowledgeImportServiceImpl.DOC_EXTS 保持一致
+// 含 Markdown/富文档/代码文件，代码文件导入时会自动包装为 Markdown 代码块以启用语法高亮
+const DOC_EXTS = [
+  'md', 'markdown', 'txt', 'pdf', 'doc', 'docx', 'ppt', 'pptx', 'rtf', 'html', 'htm',
+  // 代码文件
+  'java', 'py', 'css', 'vue', 'js', 'ts', 'xml', 'yml', 'yaml',
+  'json', 'sql', 'sh', 'bash', 'go', 'rs', 'c', 'cpp', 'h', 'hpp',
+  'kt', 'swift', 'rb', 'php', 'scss', 'less', 'toml', 'ini', 'conf',
+  'jsx', 'tsx', 'dart'
+]
 const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico']
 
 const docFileCount = computed(() =>
@@ -507,10 +725,57 @@ const importOptions = ref({
   incremental: true,
 })
 
-// ===== Step 3: 导入执行 =====
+// ===== Step 3: 导入执行（SSE 流式进度） =====
 const importing = ref(false)
+const cancelling = ref(false)
 const importResult = ref<KnowledgeImportResultVO | null>(null)
 const activeLogTab = ref<'success' | 'skipped' | 'failed'>('success')
+
+// 进度状态
+const progressTotal = ref(0)
+const progressCurrent = ref(0)
+const progressCurrentFile = ref('')
+const progressSuccess = ref(0)
+const progressSkipped = ref(0)
+const progressFailed = ref(0)
+interface FileProgressItem {
+  index: number
+  path: string
+  status: 'success' | 'skipped' | 'failed'
+  message: string
+}
+const fileProgressList = ref<FileProgressItem[]>([])
+
+// 当前导入的取消函数（由 importDirectoryStream 返回）
+let importCancelFn: (() => Promise<void>) | null = null
+
+const progressPercent = computed(() => {
+  if (progressTotal.value === 0) return 0
+  return Math.round((progressCurrent.value / progressTotal.value) * 100)
+})
+
+const truncatePath = (path: string, maxLen = 50) => {
+  if (!path) return ''
+  if (path.length <= maxLen) return path
+  return '...' + path.slice(path.length - maxLen + 3)
+}
+
+const getFileStatusIcon = (status: string) => {
+  if (status === 'success') return 'check-circle'
+  if (status === 'skipped') return 'skip-forward'
+  return 'x-circle'
+}
+
+const resetProgress = () => {
+  progressTotal.value = 0
+  progressCurrent.value = 0
+  progressCurrentFile.value = ''
+  progressSuccess.value = 0
+  progressSkipped.value = 0
+  progressFailed.value = 0
+  fileProgressList.value = []
+  cancelling.value = false
+}
 
 const logTabs = computed(() => [
   { key: 'success' as const, label: '成功', count: importResult.value?.successItems.length ?? 0 },
@@ -531,20 +796,40 @@ const getLogItemIcon = (tab: string) => {
   return 'x-circle'
 }
 
-const startImport = async () => {
+const startImport = () => {
   if (!selectedKbId.value) {
     notify('请先选择目标知识库', 'error')
     return
   }
-  if (docFileCount.value === 0) {
+  if (importMode.value === 'directory' && docFileCount.value === 0) {
     notify('未找到可导入的文档文件', 'error')
     return
   }
+  if (importMode.value === 'path' && (!pathScanResult.value || pathScanResult.value.docCount === 0)) {
+    notify('请先扫描路径确认有可导入的文件', 'error')
+    return
+  }
 
+  // 重置进度状态
+  resetProgress()
   importing.value = true
   currentStep.value = 3
 
-  try {
+  // 构造统一的 SSE 回调（目录导入与路径导入共用）
+  const callbacks = buildImportCallbacks()
+
+  if (importMode.value === 'path') {
+    // 路径导入：调用 /path/stream，由后端直接读取本地文件
+    importCancelFn = knowledgeImportApi.importPathStream({
+      path: pathScanResult.value!.absolutePath,
+      targetCategoryId: selectedKbId.value,
+      createSubCategories: importOptions.value.createSubCategories,
+      autoTags: importOptions.value.autoTags,
+      aiTags: importOptions.value.aiTags,
+      incremental: importOptions.value.incremental,
+    }, callbacks)
+  } else {
+    // 目录导入：通过 multipart 上传文件
     const formData = new FormData()
     for (const file of selectedFiles.value) {
       const relPath = (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name
@@ -556,22 +841,73 @@ const startImport = async () => {
     formData.append('autoTags', String(importOptions.value.autoTags))
     formData.append('aiTags', String(importOptions.value.aiTags))
     formData.append('incremental', String(importOptions.value.incremental))
+    importCancelFn = knowledgeImportApi.importDirectoryStream(formData, callbacks)
+  }
+}
 
-    const result = await knowledgeImportApi.importDirectory(formData)
+/**
+ * 构造导入 SSE 回调（目录导入与路径导入共用）。
+ */
+const buildImportCallbacks = () => ({
+  onStart: (data: { batchId: string; total: number }) => {
+    progressTotal.value = data.total
+  },
+  onFileStart: (data: { index: number; total: number; path: string }) => {
+    progressCurrent.value = data.index
+    progressCurrentFile.value = data.path
+  },
+  onFileDone: (data: { index: number; total: number; path: string; status: string; message: string }) => {
+    if (data.status === 'success') progressSuccess.value++
+    else if (data.status === 'skipped') progressSkipped.value++
+    else if (data.status === 'failed') progressFailed.value++
+    fileProgressList.value.push({
+      index: data.index,
+      path: data.path,
+      status: data.status as FileProgressItem['status'],
+      message: data.message,
+    })
+  },
+  onComplete: (result: KnowledgeImportResultVO) => {
     importResult.value = result
     activeLogTab.value = result.failedCount > 0 ? 'failed' : 'success'
+    importing.value = false
+    importCancelFn = null
     notify(
       `导入完成：成功 ${result.successCount} 篇，跳过 ${result.skippedCount} 篇，失败 ${result.failedCount} 篇`,
       result.failedCount > 0 ? 'warning' : 'success',
     )
-  } catch (e: unknown) {
-    notify(getApiError(e, '导入失败'), 'error')
+  },
+  onCancel: (data: { reason: string }) => {
+    importing.value = false
+    importCancelFn = null
+    notify(`导入已取消：${data.reason}`, 'warning')
     importResult.value = {
       targetCategoryId: selectedKbId.value,
-      totalDocs: docFileCount.value,
-      successCount: 0,
-      skippedCount: 0,
-      failedCount: docFileCount.value,
+      totalDocs: progressTotal.value,
+      successCount: progressSuccess.value,
+      skippedCount: progressSkipped.value,
+      failedCount: progressFailed.value,
+      imageCount: 0,
+      createdCategories: [],
+      successItems: [],
+      skippedItems: [],
+      failedItems: [],
+    }
+    activeLogTab.value = 'success'
+  },
+  onError: (error: string) => {
+    importing.value = false
+    importCancelFn = null
+    notify(getApiError(new Error(error), '导入失败'), 'error')
+    const total = importMode.value === 'path'
+      ? (pathScanResult.value?.docCount ?? 0)
+      : docFileCount.value
+    importResult.value = {
+      targetCategoryId: selectedKbId.value,
+      totalDocs: total,
+      successCount: progressSuccess.value,
+      skippedCount: progressSkipped.value,
+      failedCount: total - progressSuccess.value - progressSkipped.value,
       imageCount: 0,
       createdCategories: [],
       successItems: [],
@@ -579,12 +915,24 @@ const startImport = async () => {
       failedItems: [{
         path: '',
         title: '',
-        message: getApiError(e, '导入失败'),
+        message: error,
       }],
     }
     activeLogTab.value = 'failed'
-  } finally {
-    importing.value = false
+  },
+})
+
+/**
+ * 取消正在进行的导入：调用前端取消函数（会向后端发送取消请求并终止流读取）。
+ */
+const cancelImport = async () => {
+  if (!importCancelFn || cancelling.value) return
+  cancelling.value = true
+  try {
+    await importCancelFn()
+    // 实际状态更新由 onCancel 回调处理
+  } catch {
+    cancelling.value = false
   }
 }
 
@@ -593,6 +941,7 @@ const resetWizard = () => {
   selectedFiles.value = []
   importResult.value = null
   importing.value = false
+  resetProgress()
   if (dirInputRef.value) dirInputRef.value.value = ''
 }
 
@@ -607,9 +956,9 @@ const goBack = () => {
 // ===== 初始化 =====
 const loadCategories = async () => {
   try {
-    const tree = await categoriesApi.tree()
-    // 只显示顶级分类（知识库）
-    kbCategories.value = tree
+    // 仅加载当前用户有编辑权限（OWNER/EDITOR，含系统 ADMIN）的知识库
+    const list = await knowledgeImportApi.listEditableKbs()
+    kbCategories.value = list || []
   } catch (e: unknown) {
     notify(getApiError(e, '加载知识库列表失败'), 'error')
   }
@@ -941,6 +1290,190 @@ onMounted(loadCategories)
   color: var(--kb-muted-foreground);
 }
 
+/* ===== 导入方式 Tab 切换 ===== */
+.import-mode-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--kb-muted, #f1f5f9);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.mode-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: var(--kb-muted-foreground, #64748b);
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.mode-tab:hover {
+  color: var(--kb-foreground);
+}
+
+.mode-tab.active {
+  background: var(--kb-card, #fff);
+  color: var(--kb-primary, #3b6fe0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== 路径输入区 ===== */
+.path-input-zone {
+  margin-bottom: 16px;
+}
+
+.path-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  background: var(--kb-card, #fff);
+  border: 2px solid var(--kb-border, #e2e8f0);
+  border-radius: 10px;
+  transition: border-color 0.15s;
+}
+
+.path-input-row:focus-within {
+  border-color: var(--kb-primary, #3b6fe0);
+}
+
+.path-input-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--kb-muted-foreground, #64748b);
+  flex-shrink: 0;
+}
+
+.path-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--kb-foreground, #1e293b);
+  font-family: 'JetBrains Mono', 'Source Han Serif SC', monospace;
+  padding: 8px 4px;
+}
+
+.path-input::placeholder {
+  color: var(--kb-muted-foreground, #94a3b8);
+}
+
+.btn-scan {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  background: var(--kb-primary, #3b6fe0);
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-scan:hover:not(:disabled) {
+  background: var(--kb-primary-dark, #2c5dd8);
+}
+
+.btn-scan:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.path-input-hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--kb-muted-foreground, #64748b);
+  line-height: 1.5;
+}
+
+/* ===== 扫描结果文件列表 ===== */
+.scan-mode-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.1));
+  color: var(--kb-primary, #3b6fe0);
+  border-radius: 4px;
+}
+
+.path-files-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.path-file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--kb-border, #f1f5f9);
+}
+
+.path-file-item:hover {
+  background: var(--kb-muted, #f8fafc);
+}
+
+.path-file-item.image .file-ext-icon {
+  color: #f59e0b;
+}
+
+.path-file-item .file-ext-icon {
+  color: var(--kb-primary, #3b6fe0);
+  flex-shrink: 0;
+}
+
+.file-path-text {
+  flex: 1;
+  color: var(--kb-foreground, #1e293b);
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-size {
+  color: var(--kb-muted-foreground, #94a3b8);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.more-files-hint {
+  padding: 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--kb-muted-foreground, #64748b);
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ===== 预览卡片 ===== */
 .preview-header {
   display: flex;
@@ -1104,16 +1637,22 @@ onMounted(loadCategories)
 .progress-card {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 48px 20px;
+  padding: 24px 20px;
   background: var(--kb-card);
   border: 1px solid var(--kb-border);
   border-radius: 12px;
+  gap: 16px;
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
 .progress-spinner {
   color: var(--kb-primary);
-  margin-bottom: 16px;
+  flex-shrink: 0;
 }
 
 .spin-icon {
@@ -1125,23 +1664,61 @@ onMounted(loadCategories)
   to { transform: rotate(360deg); }
 }
 
+.progress-info {
+  flex: 1;
+  min-width: 0;
+}
+
 .progress-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--kb-foreground);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .progress-hint {
   font-size: 13px;
   color: var(--kb-muted-foreground);
-  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.progress-hint .current-file {
+  color: var(--kb-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+
+.btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.btn-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .progress-bar-container {
   width: 100%;
-  max-width: 300px;
-  height: 6px;
+  height: 8px;
   background: var(--kb-muted);
   border-radius: 999px;
   overflow: hidden;
@@ -1151,7 +1728,86 @@ onMounted(loadCategories)
   height: 100%;
   background: var(--kb-primary);
   border-radius: 999px;
-  animation: progress-pulse 1.5s ease-in-out infinite;
+  transition: width 0.3s ease;
+}
+
+.progress-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.progress-percent {
+  font-weight: 600;
+  color: var(--kb-primary);
+  font-size: 15px;
+}
+
+.progress-counts {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+}
+
+.progress-counts .cnt-success { color: #10b981; }
+.progress-counts .cnt-skipped { color: #f59e0b; }
+.progress-counts .cnt-failed { color: #ef4444; }
+
+.file-progress-list {
+  border: 1px solid var(--kb-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.file-progress-header {
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--kb-muted-foreground);
+  background: var(--kb-muted);
+  border-bottom: 1px solid var(--kb-border);
+}
+
+.file-progress-body {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.file-progress-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--kb-border);
+}
+
+.file-progress-item:last-child {
+  border-bottom: none;
+}
+
+.file-progress-item.success .file-status-icon { color: #10b981; }
+.file-progress-item.skipped .file-status-icon { color: #f59e0b; }
+.file-progress-item.failed .file-status-icon { color: #ef4444; }
+
+.file-progress-item .file-path {
+  flex: 1;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--kb-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-progress-item .file-message {
+  color: var(--kb-muted-foreground);
+  font-size: 11px;
+  flex-shrink: 0;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @keyframes progress-pulse {

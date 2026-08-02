@@ -15,65 +15,199 @@
     <div class="upload-layout">
       <!-- ===== 左侧：上传区 + 文件列表 ===== -->
       <div class="upload-left">
-        <!-- 拖拽上传区 -->
+        <!-- 整体导入进度条（在路径导入模式下显示） -->
         <div
-          class="upload-zone"
-          :class="{ dragging: isDragging, hasfiles: files.length > 0 }"
-          @dragover.prevent="isDragging = true"
-          @dragleave.prevent="isDragging = false"
-          @drop.prevent="handleDrop"
-          @click="triggerFileInput"
+          v-if="importMode === 'path' && (pathImporting || pathScanResult) && progressTotal > 0"
+          class="global-progress-card"
         >
-          <input
-            ref="fileInputRef"
-            type="file"
-            class="hidden-file-input"
-            accept=".pdf,.doc,.docx,.md,.markdown,.txt,.ppt,.pptx"
-            multiple
-            @change="handleFileSelect"
-          />
-          <div class="upload-zone-icon">
-            <Icon name="upload" :size="28" />
+          <div class="global-progress-header">
+            <span class="global-progress-title">
+              <Icon name="database-import" :size="14" />
+              导入进度
+            </span>
+            <span class="global-progress-count">
+              {{ progressCurrent }} / {{ progressTotal }}（{{ overallProgressPercent }}%）
+            </span>
           </div>
-          <p class="upload-zone-title">
-            {{ isDragging ? '释放文件以上传' : '拖拽文件到此处，或点击选择文件' }}
+          <div class="global-progress-bar">
+            <div
+              class="global-progress-fill"
+              :style="{ width: overallProgressPercent + '%' }"
+            ></div>
+          </div>
+          <p v-if="progressCurrentFile" class="global-progress-file">
+            正在处理：{{ progressCurrentFile }}
           </p>
-          <p class="upload-zone-hint">支持 PDF、Markdown、Word、TXT 等格式，单个文件最大 50 MB</p>
         </div>
 
-        <!-- 已上传文件列表 -->
-        <div v-if="files.length > 0" class="file-list-card">
-          <div class="file-list-header">
-            <h3 class="list-title">已上传文件</h3>
-            <span class="file-list-count">{{ files.length }} 个文件</span>
+        <!-- 导入方式 Tab：上传文件 / 路径导入 -->
+        <div class="import-mode-tabs">
+          <button
+            class="mode-tab"
+            :class="{ active: importMode === 'file' }"
+            :disabled="uploading || pathImporting"
+            @click="switchImportMode('file')"
+          >
+            <Icon name="upload" :size="16" />
+            <span>上传文件</span>
+          </button>
+          <button
+            class="mode-tab"
+            :class="{ active: importMode === 'path' }"
+            :disabled="uploading || pathImporting"
+            @click="switchImportMode('path')"
+          >
+            <Icon name="terminal" :size="16" />
+            <span>路径导入</span>
+          </button>
+        </div>
+
+        <!-- 模式 A：上传文件（拖拽 / 选择） -->
+        <template v-if="importMode === 'file'">
+          <div
+            class="upload-zone"
+            :class="{ dragging: isDragging, hasfiles: files.length > 0 }"
+            @dragover.prevent="isDragging = true"
+            @dragleave.prevent="isDragging = false"
+            @drop.prevent="handleDrop"
+            @click="triggerFileInput"
+          >
+            <input
+              ref="fileInputRef"
+              type="file"
+              class="hidden-file-input"
+              :accept="UPLOAD_ACCEPT"
+              multiple
+              @change="handleFileSelect"
+            />
+            <div class="upload-zone-icon">
+              <Icon name="upload" :size="28" />
+            </div>
+            <p class="upload-zone-title">
+              {{ isDragging ? '释放文件以上传' : '拖拽文件到此处，或点击选择文件' }}
+            </p>
+            <p class="upload-zone-hint">
+              支持 PDF、Markdown、Word、代码文件（.java/.py/.vue/.js 等），单个文件最大 50 MB
+            </p>
           </div>
-          <div class="file-list-body">
-            <div v-for="(file, idx) in files" :key="file.id" class="file-item">
-              <div class="file-icon" :class="getFileTypeColorClass(file.name)">
-                <Icon :name="getFileTypeIcon(file.name)" :size="16" />
-              </div>
-              <div class="file-info">
-                <p class="file-name">{{ file.name }}</p>
-                <p class="file-size">{{ formatFileSize(file.size) }}</p>
-              </div>
-              <div class="file-progress">
-                <div class="upload-bar">
-                  <div
-                    class="upload-bar-fill"
-                    :class="getProgressStatusClass(file)"
-                    :style="{ width: `${file.progress}%` }"
-                  ></div>
+
+          <!-- 单文件模式的文件列表 -->
+          <div v-if="files.length > 0" class="file-list-card">
+            <div class="file-list-header">
+              <h3 class="list-title">待上传文件</h3>
+              <span class="file-list-count">{{ files.length }} 个文件</span>
+            </div>
+            <div class="file-list-body">
+              <div v-for="(file, idx) in files" :key="file.id" class="file-item">
+                <div class="file-icon" :class="getFileTypeColorClass(file.name)">
+                  <Icon :name="getFileTypeIcon(file.name)" :size="16" />
                 </div>
+                <div class="file-info">
+                  <p class="file-name">{{ file.name }}</p>
+                  <p class="file-size">{{ formatFileSize(file.size) }}</p>
+                </div>
+                <div class="file-progress">
+                  <div class="upload-bar">
+                    <div
+                      class="upload-bar-fill"
+                      :class="getProgressStatusClass(file)"
+                      :style="{ width: `${file.progress}%` }"
+                    ></div>
+                  </div>
+                </div>
+                <span class="file-status" :class="getStatusTextClass(file)">
+                  {{ getStatusLabel(file) }}
+                </span>
+                <button class="file-remove-btn" title="移除" @click.stop="removeFile(idx)">
+                  <Icon name="trash-2" :size="14" />
+                </button>
               </div>
-              <span class="file-status" :class="getStatusTextClass(file)">
-                {{ getStatusLabel(file) }}
-              </span>
-              <button class="file-remove-btn" title="移除" @click.stop="removeFile(idx)">
-                <Icon name="trash-2" :size="14" />
-              </button>
             </div>
           </div>
-        </div>
+        </template>
+
+        <!-- 模式 B：路径输入（绝对路径 / 相对路径 / 单文件） -->
+        <template v-if="importMode === 'path'">
+          <div class="path-input-zone">
+            <div class="path-input-row" :class="{ scanning: pathScanning }">
+              <div class="path-input-icon">
+                <Icon name="terminal" :size="20" />
+              </div>
+              <input
+                v-model="pathInput"
+                type="text"
+                class="path-input"
+                placeholder="输入绝对路径（如 /Users/xxx/docs）或相对路径（如 ./src），也可指定单个文件"
+                :disabled="pathImporting"
+                @keyup.enter="scanPath"
+              />
+              <button
+                class="btn-scan"
+                :disabled="pathScanning || !pathInput.trim() || pathImporting"
+                @click="scanPath"
+              >
+                <Icon :name="pathScanning ? 'loader' : 'search'" :size="14" :class="{ 'spin-icon': pathScanning }" />
+                <span>{{ pathScanning ? '扫描中...' : '扫描' }}</span>
+              </button>
+            </div>
+            <p class="path-input-hint">
+              校验路径有效性并展示文件列表（含文件名、大小、类型），确认无误后再导入。
+              支持目录导入或单文件导入。
+            </p>
+          </div>
+
+          <!-- 扫描结果文件列表 -->
+          <div v-if="pathScanResult" class="file-list-card">
+            <div class="file-list-header">
+              <h3 class="list-title">
+                扫描结果
+                <span class="scan-mode-tag">
+                  {{ pathScanResult.isFile ? '单文件' : '目录' }}
+                </span>
+              </h3>
+              <span class="file-list-count">
+                {{ pathScanResult.docCount }} 文档 /
+                {{ pathScanResult.imageCount }} 图片 /
+                {{ pathScanResult.dirCount }} 目录
+              </span>
+            </div>
+            <div class="file-list-body path-file-list">
+              <div
+                v-for="(entry, idx) in displayPathFiles"
+                :key="entry.path"
+                class="file-item"
+              >
+                <div
+                  class="file-icon"
+                  :class="entry.type === 'doc' ? 'type-md' : 'type-default'"
+                >
+                  <Icon :name="getFileIconByExt(entry.ext, entry.type)" :size="16" />
+                </div>
+                <div class="file-info">
+                  <p class="file-name" :title="entry.path">{{ entry.name }}</p>
+                  <p class="file-size">
+                    {{ entry.path }} · {{ formatFileSize(entry.size) }}
+                  </p>
+                </div>
+                <div class="file-progress">
+                  <div class="upload-bar">
+                    <div
+                      class="upload-bar-fill"
+                      :class="getPathFileProgressClass(entry, idx)"
+                      :style="{ width: getPathFileProgress(entry) + '%' }"
+                    ></div>
+                  </div>
+                </div>
+                <span class="file-status" :class="getPathFileStatusClass(entry, idx)">
+                  {{ getPathFileStatusLabel(entry, idx) }}
+                </span>
+              </div>
+              <p v-if="pathScanResult.files.length > 200" class="more-files-hint">
+                仅显示前 200 个文件，共 {{ pathScanResult.files.length }} 个
+              </p>
+            </div>
+          </div>
+        </template>
       </div>
 
       <!-- ===== 右侧：上传设置表单 ===== -->
@@ -94,17 +228,34 @@
             <p class="form-hint">默认取第一个文件名，可手动修改</p>
           </div>
 
-          <!-- 目标知识库 -->
-          <div class="form-row">
+          <!-- 目标知识库：卡片选择（与 KnowledgeImport 保持一致） -->
+          <div class="form-row kb-select-wrap">
             <label class="form-label">
               目标知识库 <span class="required-mark">*</span>
             </label>
-            <select v-model="formData.kbId" class="form-select">
-              <option value="" disabled>请选择知识库</option>
-              <option v-for="cat in kbCategories" :key="cat.id" :value="cat.id">
-                {{ cat.name }}
-              </option>
-            </select>
+            <div v-if="kbCategories.length > 0" class="kb-select-grid">
+              <div
+                v-for="cat in kbCategories"
+                :key="cat.id"
+                class="kb-select-item"
+                :class="{ selected: Number(formData.kbId) === cat.id }"
+                @click="selectKb(cat.id)"
+              >
+                <div class="kb-select-icon" :style="{ background: getKbColor(cat.id) }">
+                  <Icon :name="getCategoryIcon(cat.icon)" :size="20" />
+                </div>
+                <div class="kb-select-info">
+                  <p class="kb-name">{{ cat.name }}</p>
+                  <p class="kb-count">{{ (cat as any).docCount || 0 }} 篇文档</p>
+                </div>
+                <Icon v-if="Number(formData.kbId) === cat.id" name="check-circle" :size="20" class="check-icon" />
+              </div>
+            </div>
+            <p v-else class="empty-hint">
+              暂无可管理的知识库，请先
+              <router-link to="/knowledge/new" class="link-btn">新建知识库</router-link>
+              或联系知识库所有者添加您为 Editor。
+            </p>
           </div>
 
           <!-- 分类 -->
@@ -164,11 +315,11 @@
           <button
             type="button"
             class="btn-primary"
-            :disabled="!canSubmit || uploading"
+            :disabled="!canSubmit || (importMode === 'file' ? uploading : pathImporting)"
             @click="handleUpload"
           >
             <Icon name="upload" :size="14" />
-            <span>{{ uploading ? '上传中...' : '开始上传' }}</span>
+            <span>{{ submitLabel }}</span>
           </button>
         </div>
       </aside>
@@ -209,11 +360,29 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
-import { categoriesApi, docsApi } from '@/api'
-import type { CategoryVO } from '@/api/types'
+import { categoriesApi, docsApi, knowledgeImportApi } from '@/api'
+import type { CategoryVO, PathImportFileEntry, PathImportScanVO } from '@/api/types'
 import { notify, getApiError } from '@/utils/toast'
 
 const router = useRouter()
+
+// ==================== 常量 ====================
+
+const UPLOAD_ACCEPT =
+  '.pdf,.doc,.docx,.md,.markdown,.txt,.ppt,.pptx,.rtf,' +
+  '.java,.py,.css,.vue,.js,.ts,.html,.xml,.yml,.yaml,.json,.sql,.go,.c,.cpp,' +
+  '.rs,.kt,.swift,.rb,.php,.scss,.less,.jsx,.tsx,.dart'
+
+const CODE_EXTS = new Set([
+  'java', 'py', 'css', 'vue', 'js', 'ts', 'xml', 'yml', 'yaml',
+  'json', 'sql', 'sh', 'bash', 'go', 'rs', 'c', 'cpp', 'h', 'hpp',
+  'kt', 'swift', 'rb', 'php', 'scss', 'less', 'toml', 'ini', 'conf',
+  'jsx', 'tsx', 'dart', 'html', 'htm'
+])
+
+// ==================== 类型 ====================
+
+type ImportMode = 'file' | 'path'
 
 interface UploadFile {
   id: string
@@ -224,12 +393,35 @@ interface UploadFile {
   status: 'pending' | 'uploading' | 'done' | 'error'
 }
 
+type FileProgressStatus = 'pending' | 'processing' | 'done' | 'skipped' | 'failed'
+
+interface PathFileProgress {
+  status: FileProgressStatus
+  message?: string
+}
+
+// ==================== 基础状态 ====================
+
 const fileInputRef = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
 const files = ref<UploadFile[]>([])
 const uploading = ref(false)
 const tagInput = ref('')
 const kbCategories = ref<CategoryVO[]>([])
+
+// 路径导入相关状态
+const importMode = ref<ImportMode>('file')
+const pathInput = ref('')
+const pathScanning = ref(false)
+const pathScanResult = ref<PathImportScanVO | null>(null)
+const pathImporting = ref(false)
+const pathCancelFn = ref<{ cancel: () => Promise<void> } | null>(null)
+const pathFileProgressMap = ref<Map<string, PathFileProgress>>(new Map())
+
+// 整体进度
+const progressTotal = ref(0)
+const progressCurrent = ref(0)
+const progressCurrentFile = ref('')
 
 const formData = ref({
   title: '',
@@ -250,9 +442,29 @@ const availableIcons = [
   'target', 'bar-chart-2', 'briefcase', 'layers', 'file-code',
 ]
 
+// ==================== 计算属性 ====================
+
+const submitLabel = computed(() => {
+  const busy = importMode.value === 'file' ? uploading.value : pathImporting.value
+  if (!busy) return importMode.value === 'file' ? '开始上传' : '开始导入'
+  return importMode.value === 'file' ? '上传中...' : '导入中...'
+})
+
+const overallProgressPercent = computed(() => {
+  if (progressTotal.value === 0) return 0
+  return Math.round((progressCurrent.value / progressTotal.value) * 100)
+})
+
+const displayPathFiles = computed(() =>
+  (pathScanResult.value?.files ?? []).slice(0, 200),
+)
+
 const canSubmit = computed(() => {
+  const hasFile = importMode.value === 'file'
+    ? files.value.length > 0
+    : (pathScanResult.value?.docCount ?? 0) > 0
   return (
-    files.value.length > 0 &&
+    hasFile &&
     formData.value.title.trim() !== '' &&
     formData.value.kbId !== '' &&
     formData.value.categoryId !== ''
@@ -264,6 +476,28 @@ const filteredSubCategories = computed(() => {
   const kb = kbCategories.value.find(c => c.id === Number(formData.value.kbId))
   return kb?.children || []
 })
+
+// ==================== 模式切换 ====================
+
+function switchImportMode(mode: ImportMode) {
+  if (importMode.value === mode) return
+  importMode.value = mode
+  if (mode === 'path') {
+    // 清空文件上传模式状态
+    files.value = []
+  } else {
+    // 清空路径模式状态
+    pathInput.value = ''
+    pathScanResult.value = null
+    pathFileProgressMap.value.clear()
+  }
+  // 重置整体进度
+  progressTotal.value = 0
+  progressCurrent.value = 0
+  progressCurrentFile.value = ''
+}
+
+// ==================== 文件选择 / 拖拽 ====================
 
 function triggerFileInput() {
   fileInputRef.value?.click()
@@ -316,6 +550,40 @@ function removeFile(idx: number) {
   }
 }
 
+// ==================== 路径扫描 ====================
+
+async function scanPath() {
+  const p = pathInput.value.trim()
+  if (!p) {
+    notify('请输入路径', 'warning')
+    return
+  }
+  pathScanning.value = true
+  try {
+    const result = await knowledgeImportApi.scanPath(p)
+    pathScanResult.value = result
+    pathFileProgressMap.value.clear()
+    if (result.files.length === 0) {
+      notify('路径下未找到可导入的文件', 'warning')
+    } else {
+      notify(
+        `扫描完成：${result.docCount} 个文档${result.imageCount ? `，${result.imageCount} 个图片` : ''}`,
+        'success',
+      )
+    }
+    if (!formData.value.title && result.docCount > 0) {
+      formData.value.title = result.rootName
+    }
+  } catch (e: unknown) {
+    notify(getApiError(e, '路径扫描失败'), 'error')
+    pathScanResult.value = null
+  } finally {
+    pathScanning.value = false
+  }
+}
+
+// ==================== 标签 ====================
+
 function addTag() {
   const tag = tagInput.value.trim()
   if (tag && !formData.value.tags.includes(tag)) {
@@ -328,13 +596,15 @@ function removeTag(idx: number) {
   formData.value.tags.splice(idx, 1)
 }
 
+// ==================== 图标 / 文件类型辅助 ====================
+
 function getFileTypeIcon(filename: string): string {
-  const ext = filename.split('.').pop()?.toLowerCase()
+  const ext = filename.split('.').pop()?.toLowerCase() ?? ''
   if (ext === 'pdf') return 'file-text'
   if (ext === 'doc' || ext === 'docx') return 'file-text'
-  if (ext === 'md' || ext === 'markdown') return 'file-text'
-  if (ext === 'txt') return 'file-text'
   if (ext === 'ppt' || ext === 'pptx') return 'file-text'
+  if (CODE_EXTS.has(ext)) return 'code'
+  if (ext === 'md' || ext === 'markdown' || ext === 'txt') return 'file-text'
   return 'file'
 }
 
@@ -344,7 +614,16 @@ function getFileTypeColorClass(filename: string): string {
   if (ext === 'md' || ext === 'markdown') return 'type-md'
   if (ext === 'doc' || ext === 'docx') return 'type-doc'
   if (ext === 'ppt' || ext === 'pptx') return 'type-ppt'
+  if (CODE_EXTS.has(ext ?? '')) return 'type-md'
   return 'type-default'
+}
+
+function getFileIconByExt(ext: string, type: string): string {
+  if (type === 'image') return 'image'
+  if (CODE_EXTS.has(ext)) return 'code'
+  if (ext === 'pdf' || ext === 'doc' || ext === 'docx' || ext === 'ppt' || ext === 'pptx') return 'file-text'
+  if (ext === 'md' || ext === 'markdown' || ext === 'txt') return 'file-text'
+  return 'file'
 }
 
 function getProgressStatusClass(file: UploadFile): string {
@@ -366,6 +645,50 @@ function getStatusTextClass(file: UploadFile): string {
   return 'status-muted'
 }
 
+// 路径文件进度：每个条目根据 index 推断进度
+function getPathFileProgress(entry: PathImportFileEntry): number {
+  const mapEntry = pathFileProgressMap.value.get(entry.path)
+  if (!mapEntry) {
+    // 尚未处理：按比例返回 0~10 的占位显示
+    return progressCurrent.value > 0 ? Math.min(10, overallProgressPercent.value) : 0
+  }
+  switch (mapEntry.status) {
+    case 'done': return 100
+    case 'skipped': return 100
+    case 'failed': return 100
+    case 'processing': return 50
+    default: return 0
+  }
+}
+
+function getPathFileProgressClass(entry: PathImportFileEntry, _idx: number): string {
+  const s = pathFileProgressMap.value.get(entry.path)?.status
+  if (s === 'done' || s === 'skipped') return 'fill-success'
+  if (s === 'failed') return 'fill-error'
+  if (s === 'processing') return 'fill-primary'
+  return 'fill-primary'
+}
+
+function getPathFileStatusLabel(entry: PathImportFileEntry, _idx: number): string {
+  const item = pathFileProgressMap.value.get(entry.path)
+  if (!item) return '等待中'
+  switch (item.status) {
+    case 'done': return '成功'
+    case 'skipped': return '跳过'
+    case 'failed': return '失败'
+    case 'processing': return '处理中'
+    default: return '等待中'
+  }
+}
+
+function getPathFileStatusClass(entry: PathImportFileEntry, _idx: number): string {
+  const s = pathFileProgressMap.value.get(entry.path)?.status
+  if (s === 'done' || s === 'skipped') return 'status-success'
+  if (s === 'failed') return 'status-error'
+  if (s === 'processing') return 'status-muted'
+  return 'status-muted'
+}
+
 function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 B'
   const k = 1024
@@ -374,14 +697,29 @@ function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
 }
 
+// ==================== 上传 / 导入核心逻辑 ====================
+
 async function handleUpload(): Promise<void> {
-  if (!canSubmit.value || uploading.value) return
+  if (!canSubmit.value) return
+  if (importMode.value === 'file') {
+    await handleFileUpload()
+  } else {
+    await handlePathImport()
+  }
+}
+
+/** 模式 A：逐个上传文件，带真实上传进度回调（axios onUploadProgress） */
+async function handleFileUpload(): Promise<void> {
+  if (uploading.value) return
   uploading.value = true
+  progressTotal.value = files.value.length
+  progressCurrent.value = 0
 
   try {
     for (const uploadFile of files.value) {
       uploadFile.status = 'uploading'
       uploadFile.progress = 10
+      progressCurrentFile.value = uploadFile.name
 
       const titleForThis = files.value.length === 1
         ? formData.value.title.trim()
@@ -398,35 +736,115 @@ async function handleUpload(): Promise<void> {
             status: 1,
           },
           (percent) => {
-            uploadFile.progress = 10 + Math.round((percent / 100) * 90)
-          }
+            // 使用真实的上传进度（percent：0~100）
+            uploadFile.progress = percent
+          },
         )
 
         uploadFile.progress = 100
         uploadFile.status = 'done'
-      } catch (e) {
+      } catch (e: unknown) {
         uploadFile.status = 'error'
         uploadFile.progress = 100
         notify(`${uploadFile.name} 上传失败：${getApiError(e, '请稍后再试')}`, 'error')
       }
+      progressCurrent.value++
     }
 
     const hasError = files.value.some((f) => f.status === 'error')
     if (!hasError) {
       notify('文档上传成功！', 'success')
-      setTimeout(() => {
-        router.push('/knowledge')
-      }, 1500)
+      setTimeout(() => { router.push('/knowledge') }, 1500)
     } else {
       notify('部分文件上传失败，请重试', 'warning')
     }
   } finally {
     uploading.value = false
+    progressCurrentFile.value = ''
   }
 }
 
+/** 模式 B：路径导入（复用 knowledgeImportApi.importPathStream SSE 能力） */
+async function handlePathImport(): Promise<void> {
+  if (pathImporting.value || !pathScanResult.value) return
+  pathImporting.value = true
+  pathFileProgressMap.value.clear()
+  progressTotal.value = pathScanResult.value.docCount
+  progressCurrent.value = 0
+  progressCurrentFile.value = ''
+
+  let finishedWithError = false
+
+  pathCancelFn.value = knowledgeImportApi.importPathStream(
+    {
+      path: pathScanResult.value.absolutePath,
+      targetCategoryId: Number(formData.value.categoryId),
+      createSubCategories: false, // 上传页面默认不创建子分类
+      autoTags: false,
+      aiTags: false,
+      incremental: false,
+    },
+    {
+      onStart: () => {},
+      onFileStart: (d) => {
+        progressCurrentFile.value = d.path
+        pathFileProgressMap.value.set(d.path, { status: 'processing' })
+      },
+      onFileDone: (d) => {
+        let status: FileProgressStatus = 'done'
+        if (d.status === 'skipped') status = 'skipped'
+        else if (d.status === 'failed') status = 'failed'
+        else if (d.status === 'success') status = 'done'
+        pathFileProgressMap.value.set(d.path, { status, message: d.message })
+        progressCurrent.value = d.index
+      },
+      onComplete: (res) => {
+        progressCurrent.value = res.totalDocs
+        pathImporting.value = false
+        pathCancelFn.value = null
+        if (res.failedCount > 0) {
+          notify(`导入完成：成功 ${res.successCount}，跳过 ${res.skippedCount}，失败 ${res.failedCount}`, 'warning')
+          finishedWithError = true
+        } else {
+          notify(`导入成功：${res.successCount} 篇文档`, 'success')
+        }
+      },
+      onCancel: () => {
+        pathImporting.value = false
+        pathCancelFn.value = null
+        notify('导入已取消', 'warning')
+        finishedWithError = true
+      },
+      onError: (err) => {
+        pathImporting.value = false
+        pathCancelFn.value = null
+        notify(getApiError(new Error(err), '导入失败'), 'error')
+        finishedWithError = true
+      },
+    },
+  )
+
+  // 监听导入结束，未报错则跳转
+  const poll = setInterval(() => {
+    if (!pathImporting.value) {
+      clearInterval(poll)
+      if (!finishedWithError) {
+        setTimeout(() => { router.push('/knowledge') }, 1500)
+      }
+    }
+  }, 500)
+}
+
+// ==================== 取消 / 返回 ====================
+
 function handleCancel(): void {
   files.value = []
+  pathInput.value = ''
+  pathScanResult.value = null
+  pathFileProgressMap.value.clear()
+  progressTotal.value = 0
+  progressCurrent.value = 0
+  progressCurrentFile.value = ''
   formData.value = { title: '', kbId: '', categoryId: '', tags: [], description: '' }
   if (fileInputRef.value) {
     fileInputRef.value.value = ''
@@ -437,6 +855,8 @@ function handleCancel(): void {
 function goBack(): void {
   router.push('/knowledge')
 }
+
+// ==================== 分类管理 ====================
 
 async function createSubCategory(): Promise<void> {
   newCategoryName.value = ''
@@ -458,23 +878,41 @@ async function confirmCreateCategory(): Promise<void> {
     })
     notify('分类创建成功', 'success')
     showCategoryModal.value = false
-    
+
     // 重新加载分类列表
     await loadCategories()
     formData.value.categoryId = newCat.id
-  } catch (e) {
+  } catch (e: unknown) {
     notify(`创建失败：${getApiError(e, '请稍后再试')}`, 'error')
   }
 }
 
 async function loadCategories(): Promise<void> {
   try {
-    const tree = await categoriesApi.tree()
-    kbCategories.value = tree || []
-  } catch (e) {
+    // 仅加载当前用户可编辑的知识库（与导入知识库功能保持一致）
+    const list = await knowledgeImportApi.listEditableKbs()
+    kbCategories.value = list || []
+  } catch (e: unknown) {
     notify(`加载分类失败：${getApiError(e)}`, 'error')
     kbCategories.value = []
   }
+}
+
+// ===== 知识库卡片选择 =====
+function selectKb(id: number) {
+  formData.value.kbId = id
+  // 切换知识库时清空分类选择
+  formData.value.categoryId = undefined
+}
+
+const kbColors = ['#3B6FE0', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16']
+function getKbColor(id: number) {
+  const idx = (id - 1) % kbColors.length
+  return `${kbColors[Math.max(0, idx)]}1A`
+}
+function getCategoryIcon(icon?: string) {
+  if (icon && icon.trim()) return icon
+  return 'book-open'
 }
 
 onMounted(loadCategories)
@@ -485,6 +923,104 @@ onMounted(loadCategories)
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px 40px;
+}
+
+/* ===== 整体导入进度条 ===== */
+.global-progress-card {
+  background: var(--kb-card, #fff);
+  border: 1px solid var(--kb-border, #e2e8f0);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.global-progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.global-progress-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--kb-foreground, #1e293b);
+}
+
+.global-progress-count {
+  font-size: 12px;
+  color: var(--kb-primary, #3b6fe0);
+  font-weight: 600;
+}
+
+.global-progress-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--kb-muted, #f1f5f9);
+  overflow: hidden;
+}
+
+.global-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b6fe0, #6366f1);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.global-progress-file {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--kb-muted-foreground, #64748b);
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== 导入方式 Tab 切换 ===== */
+.import-mode-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--kb-muted, #f1f5f9);
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.mode-tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  color: var(--kb-muted-foreground, #64748b);
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.mode-tab:hover:not(:disabled) {
+  color: var(--kb-foreground, #1e293b);
+}
+
+.mode-tab:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mode-tab.active {
+  background: var(--kb-card, #fff);
+  color: var(--kb-primary, #3b6fe0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .page-header {
@@ -1040,5 +1576,217 @@ onMounted(loadCategories)
   .header-right {
     width: auto;
   }
+}
+
+/* ===== 路径输入区 ===== */
+.path-input-zone {
+  margin-bottom: 16px;
+}
+
+.path-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--kb-card, #fff);
+  border: 2px solid var(--kb-border, #e2e8f0);
+  border-radius: 14px;
+  transition: all 0.15s;
+}
+
+.path-input-row:focus-within,
+.path-input-row.scanning {
+  border-color: var(--kb-primary, #3b6fe0);
+}
+
+.path-input-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--kb-muted-foreground, #64748b);
+  flex-shrink: 0;
+}
+
+.path-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--kb-foreground, #1e293b);
+  font-family: 'JetBrains Mono', monospace;
+  padding: 8px 4px;
+}
+
+.path-input::placeholder {
+  color: var(--kb-muted-foreground, #94a3b8);
+}
+
+.path-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-scan {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border: none;
+  background: var(--kb-primary, #3b6fe0);
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+
+.btn-scan:hover:not(:disabled) {
+  background: var(--kb-primary-dark, #2c5dd8);
+}
+
+.btn-scan:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.path-input-hint {
+  margin: 10px 2px 0;
+  font-size: 12px;
+  color: var(--kb-muted-foreground, #64748b);
+  line-height: 1.6;
+}
+
+/* ===== 扫描结果：文件列表辅助 ===== */
+.scan-mode-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.1));
+  color: var(--kb-primary, #3b6fe0);
+  border-radius: 4px;
+}
+
+.path-file-list .file-name {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.path-file-list .file-size {
+  color: var(--kb-muted-foreground, #94a3b8);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+
+.more-files-hint {
+  padding: 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--kb-muted-foreground, #64748b);
+  border-top: 1px solid var(--kb-border, #f1f5f9);
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== 知识库卡片选择（与 KnowledgeImport 保持一致） ===== */
+.kb-select-wrap {
+  display: block;
+}
+
+.kb-select-wrap .form-label {
+  margin-bottom: 10px;
+  display: block;
+}
+
+.kb-select-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.kb-select-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 2px solid var(--kb-border, #e2e8f0);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+
+.kb-select-item:hover {
+  border-color: rgba(59, 111, 224, 0.4);
+}
+
+.kb-select-item.selected {
+  border-color: var(--kb-primary, #3b6fe0);
+  background: rgba(59, 111, 224, 0.04);
+}
+
+.kb-select-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  color: var(--kb-primary, #3b6fe0);
+}
+
+.kb-select-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.kb-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--kb-foreground, #1e293b);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.kb-count {
+  font-size: 12px;
+  color: var(--kb-muted-foreground, #64748b);
+  margin: 2px 0 0;
+}
+
+.check-icon {
+  color: var(--kb-primary, #3b6fe0);
+  flex-shrink: 0;
+}
+
+.empty-hint {
+  font-size: 14px;
+  color: var(--kb-muted-foreground, #64748b);
+  padding: 16px;
+  border: 1px dashed var(--kb-border, #e2e8f0);
+  border-radius: 10px;
+  text-align: center;
+  margin: 0;
+}
+
+.link-btn {
+  color: var(--kb-primary, #3b6fe0);
+  text-decoration: underline;
 }
 </style>

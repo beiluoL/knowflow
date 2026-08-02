@@ -1561,39 +1561,60 @@ onUnmounted(() => {
 
 /* prose 预览样式 */
 .prose {
-  line-height: 1.7;
-  /* 关键：保留空格和换行，防止内容格式错乱 */
-  white-space: pre-wrap;
+  font-size: 15px;
+  line-height: 1.75;
+  /* 覆盖全局 .prose * { white-space: pre-wrap }：
+     渲染后的 HTML 块级元素之间的源码换行不应被渲染为额外空白行 */
+  white-space: normal;
   word-break: break-word;
   tab-size: 4;
 }
 .prose :deep(h1) {
-  font-size: 1.5rem;
+  font-size: 26px;
   font-weight: 700;
-  margin: 1.2rem 0 0.8rem;
+  line-height: 1.35;
+  margin: 8px 0 14px;
   color: var(--kb-foreground);
+  white-space: normal;
 }
 .prose :deep(h2) {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin: 1rem 0 0.6rem;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 24px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--kb-border);
   color: var(--kb-foreground);
+  white-space: normal;
 }
 .prose :deep(h3) {
-  font-size: 1.1rem;
+  font-size: 18px;
   font-weight: 600;
-  margin: 0.8rem 0 0.5rem;
+  line-height: 1.4;
+  margin: 18px 0 8px;
   color: var(--kb-foreground);
+  white-space: normal;
+}
+.prose :deep(h4) {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.45;
+  margin: 14px 0 6px;
+  color: var(--kb-foreground);
+  white-space: normal;
 }
 .prose :deep(p) {
-  margin: 0.5rem 0;
+  margin: 10px 0;
+  line-height: 1.75;
   color: var(--kb-foreground);
+  white-space: normal;
 }
 .prose :deep(ul),
 .prose :deep(ol) {
-  margin: 0.5rem 0;
-  padding-left: 1.5rem;
+  margin: 8px 0;
+  padding-left: 24px;
   color: var(--kb-foreground);
+  white-space: normal;
 }
 .prose :deep(ul) {
   list-style: disc;
@@ -1602,19 +1623,23 @@ onUnmounted(() => {
   list-style: decimal;
 }
 .prose :deep(li) {
-  margin: 0.2rem 0;
+  margin: 3px 0;
+  line-height: 1.65;
+  white-space: normal;
 }
 .prose :deep(blockquote) {
-  margin: 0.8rem 0;
-  padding: 0.5rem 1rem;
-  border-left: 3px solid var(--kb-primary);
+  margin: 12px 0;
+  padding: 10px 16px;
+  border-left: 4px solid var(--kb-primary);
   background: var(--kb-muted);
   color: var(--kb-muted-foreground);
   border-radius: 0 var(--kb-radius-sm) var(--kb-radius-sm) 0;
+  white-space: normal;
 }
 .prose :deep(blockquote p) {
-  margin: 0;
+  margin: 2px 0;
   color: var(--kb-foreground);
+  white-space: normal;
 }
 .prose :deep(code) {
   padding: 2px 6px;
@@ -1630,14 +1655,15 @@ onUnmounted(() => {
 .prose :deep(table) {
   width: 100%;
   border-collapse: collapse;
-  margin: 0.8rem 0;
-  font-size: 0.875rem;
+  margin: 12px 0;
+  font-size: 14px;
 }
 .prose :deep(th),
 .prose :deep(td) {
-  padding: 0.5rem 0.75rem;
+  padding: 8px 14px;
   border: 1px solid var(--kb-border);
   text-align: left;
+  white-space: normal;
 }
 .prose :deep(th) {
   background: var(--kb-muted);
@@ -1650,7 +1676,7 @@ onUnmounted(() => {
 .prose :deep(hr) {
   border: none;
   border-top: 1px solid var(--kb-border);
-  margin: 1rem 0;
+  margin: 16px 0;
 }
 .prose :deep(a) {
   color: var(--kb-primary);
@@ -1659,7 +1685,7 @@ onUnmounted(() => {
 .prose :deep(img) {
   max-width: 100%;
   border-radius: 8px;
-  margin: 0.5rem 0;
+  margin: 8px 0;
 }
 
 /* ===== 预置图标分类条 + 颜色选择行 ===== */

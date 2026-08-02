@@ -68,7 +68,7 @@ public class KbMemberServiceImpl extends ServiceImpl<KbMemberMapper, KbMember> i
 
     @Override
     public boolean isOwner(Long categoryId, Long currentUserId) {
-        if (SecurityUtils.isAdmin()) {
+        if (isAdminUser(currentUserId)) {
             return true;
         }
         KbMember member = getMember(categoryId, currentUserId);
@@ -77,7 +77,7 @@ public class KbMemberServiceImpl extends ServiceImpl<KbMemberMapper, KbMember> i
 
     @Override
     public boolean canEditDocs(Long categoryId, Long currentUserId) {
-        if (SecurityUtils.isAdmin()) {
+        if (isAdminUser(currentUserId)) {
             return true;
         }
         KbMember member = getMember(categoryId, currentUserId);
@@ -88,10 +88,33 @@ public class KbMemberServiceImpl extends ServiceImpl<KbMemberMapper, KbMember> i
 
     @Override
     public boolean canView(Long categoryId, Long currentUserId) {
-        if (SecurityUtils.isAdmin()) {
+        if (isAdminUser(currentUserId)) {
             return true;
         }
         return getMember(categoryId, currentUserId) != null;
+    }
+
+    /**
+     * 判断指定用户是否为系统管理员。
+     * <p>
+     * 优先通过 userId 查询 sys_user.role 判断，避免依赖 {@link SecurityContextHolder}。
+     * 因为 SSE 等异步场景中 {@link SecurityContextHolder} 默认使用 ThreadLocal，
+     * 主线程的安全上下文不会传递到异步线程，导致 {@link SecurityUtils#isAdmin()} 失效。
+     *
+     * @param currentUserId 当前用户 ID（可为 null）
+     * @return 如果用户角色为 ADMIN 则返回 true
+     */
+    private boolean isAdminUser(Long currentUserId) {
+        // 兜底：主线程场景下优先使用 SecurityContext（避免额外查库）
+        if (SecurityUtils.isAdmin()) {
+            return true;
+        }
+        // 异步线程场景：通过 userId 查询 sys_user.role
+        if (currentUserId != null) {
+            SysUser user = sysUserMapper.selectById(currentUserId);
+            return user != null && "ADMIN".equalsIgnoreCase(user.getRole());
+        }
+        return false;
     }
 
     @Override

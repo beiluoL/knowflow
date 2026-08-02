@@ -12,6 +12,9 @@ import com.knowflow.mapper.DocDocumentMapper;
 import com.knowflow.service.AiService;
 import com.knowflow.service.CategoryService;
 import com.knowflow.service.DocChunkService;
+import com.knowflow.service.DocumentTextExtractor;
+import com.knowflow.service.ImportCancelService;
+import com.knowflow.service.ImportProgressListener;
 import com.knowflow.service.KbMemberService;
 import com.knowflow.service.KnowledgeImportService;
 import com.knowflow.service.KnowledgeService;
@@ -66,9 +69,78 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
     private final DocChunkService docChunkService;
     private final KnowledgeService knowledgeService;
     private final UploadConfigProperties uploadConfig;
+    private final DocumentTextExtractor documentTextExtractor;
+    private final ImportCancelService importCancelService;
 
-    /** 支持的文档扩展名 */
-    private static final Set<String> DOC_EXTS = Set.of("md", "markdown", "txt");
+    /**
+     * 支持的文档扩展名。
+     * <p>除 Markdown/纯文本外，新增 PDF/DOC/DOCX/PPT/PPTX/RTF/HTML 等富文档格式，
+     * 这些二进制文档通过 {@link DocumentTextExtractor}（基于 Apache Tika）提取纯文本，
+     * 避免直接按 UTF-8 解码二进制字节导致的乱码。
+     * <p>同时支持常见代码文件（.java/.py/.vue/.js/.ts/.css/.xml/.yml 等），
+     * 导入时自动包装为 Markdown 代码块（```lang\n代码\n```），
+     * 详情页 Markdown 渲染器会按语言高亮显示。
+     */
+    private static final Set<String> DOC_EXTS = Set.of(
+            "md", "markdown", "txt",
+            "pdf", "doc", "docx", "ppt", "pptx", "rtf", "html", "htm",
+            // 代码文件（导入时包装为 Markdown 代码块）
+            "java", "py", "css", "vue", "js", "ts", "xml", "yml", "yaml",
+            "json", "sql", "sh", "bash", "go", "rs", "c", "cpp", "h", "hpp",
+            "kt", "swift", "rb", "php", "scss", "less", "toml", "ini", "conf",
+            "jsx", "tsx", "dart"
+    );
+
+    /**
+     * 二进制富文档扩展名集合（需走 Tika 解析）。
+     * 用于在 {@link #readContent} 中区分文本/二进制读取路径。
+     */
+    private static final Set<String> BINARY_DOC_EXTS = Set.of(
+            "pdf", "doc", "docx", "ppt", "pptx", "rtf"
+    );
+
+    /**
+     * 代码文件扩展名集合（导入时包装为 Markdown 代码块以启用语法高亮）。
+     * 与 {@link #DOC_EXTS} 中的代码部分保持一致，单独抽出用于 {@link #wrapCodeAsMarkdown} 判断。
+     * <p>注意：{@code html}/{@code htm} 既在 {@link #DOC_EXTS} 中（作为可导入格式），
+     * 也在本集合中（作为代码文件包装为代码块展示源码）；
+     * 而 {@link #BINARY_DOC_EXTS} 中的 pdf/doc/docx 等走 Tika 提取纯文本，不在此集合。
+     */
+    private static final Set<String> CODE_EXTS = Set.of(
+            "java", "py", "css", "vue", "js", "ts", "xml", "yml", "yaml",
+            "json", "sql", "sh", "bash", "go", "rs", "c", "cpp", "h", "hpp",
+            "kt", "swift", "rb", "php", "scss", "less", "toml", "ini", "conf",
+            "jsx", "tsx", "dart", "html", "htm"
+    );
+
+    /**
+     * 代码文件扩展名 → Markdown 代码块语言标识符映射。
+     * 用于在 {@link #wrapCodeAsMarkdown} 中生成 ```lang 语法块。
+     * 未配置的扩展名回退为空字符串（plain code block）。
+     */
+    private static final Map<String, String> EXT_TO_LANG;
+    static {
+        Map<String, String> m = new HashMap<>();
+        m.put("java", "java");       m.put("py", "python");
+        m.put("css", "css");         m.put("vue", "vue");
+        m.put("js", "javascript");   m.put("ts", "typescript");
+        m.put("xml", "xml");         m.put("html", "html");
+        m.put("htm", "html");        m.put("yml", "yaml");
+        m.put("yaml", "yaml");       m.put("json", "json");
+        m.put("sql", "sql");         m.put("sh", "bash");
+        m.put("bash", "bash");       m.put("go", "go");
+        m.put("rs", "rust");         m.put("c", "c");
+        m.put("cpp", "cpp");         m.put("h", "c");
+        m.put("hpp", "cpp");         m.put("kt", "kotlin");
+        m.put("swift", "swift");     m.put("rb", "ruby");
+        m.put("php", "php");         m.put("scss", "scss");
+        m.put("less", "less");       m.put("toml", "toml");
+        m.put("ini", "ini");         m.put("conf", "ini");
+        m.put("jsx", "jsx");         m.put("tsx", "tsx");
+        m.put("dart", "dart");
+        EXT_TO_LANG = java.util.Collections.unmodifiableMap(m);
+    }
+
     /** 图片扩展名集合 */
     private static final Set<String> IMAGE_EXTS = Set.of(
             "jpg", "jpeg", "png", "gif", "webp", "svg", "bmp", "ico"
@@ -96,10 +168,19 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
             "(?ms)^---\\n.*?tags:\\s*\\[(.+?)\\].*?^---\\n");
 
     @Override
-    @Transactional
     public KnowledgeImportResultVO importDirectory(MultipartFile[] files,
                                                     KnowledgeImportOptionsDTO options,
                                                     Long userId) {
+        // 委托给带进度的版本，不传监听器（退化为同步执行）
+        return importDirectoryWithProgress(files, options, userId, null, null);
+    }
+
+    @Override
+    public KnowledgeImportResultVO importDirectoryWithProgress(MultipartFile[] files,
+                                                                KnowledgeImportOptionsDTO options,
+                                                                Long userId,
+                                                                String batchId,
+                                                                ImportProgressListener listener) {
         if (files == null || files.length == 0) {
             throw new BusinessException(400, "未选择任何文件");
         }
@@ -123,11 +204,13 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
             throw new BusinessException(403, "无权向该知识库导入文档（需 Owner 或 Editor 权限）");
         }
 
+        // 生成导入批次 ID（用于图片存储子目录 + 取消控制）
+        final String effectiveBatchId = (batchId == null || batchId.isBlank())
+                ? UUID.randomUUID().toString().replace("-", "").substring(0, 12)
+                : batchId;
+
         KnowledgeImportResultVO result = new KnowledgeImportResultVO();
         result.setTargetCategoryId(targetCategoryId);
-
-        // 生成导入批次 ID（用于图片存储子目录）
-        String batchId = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
 
         // 1. 分离文档与图片，构建图片名→MultipartFile 映射
         List<MultipartFile> docFiles = new ArrayList<>();
@@ -146,35 +229,105 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
             }
             // 其他类型文件暂不处理
         }
-        result.setTotalDocs(docFiles.size());
+        int totalDocs = docFiles.size();
+        result.setTotalDocs(totalDocs);
+
+        // 通知开始
+        safeCallback(() -> listener.onStart(effectiveBatchId, totalDocs), listener);
 
         // 2. 目录→分类映射缓存（避免同一目录重复查库/重复创建）
         Map<String, Long> dirCategoryCache = new HashMap<>();
         dirCategoryCache.put("", targetCategoryId); // 根目录 = 目标知识库
         Set<String> createdCategoryNames = new LinkedHashSet<>();
 
-        // 3. 逐个处理文档
-        for (MultipartFile docFile : docFiles) {
+        // 3. 逐个处理文档（带进度回调 + 取消检查）
+        boolean cancelled = false;
+        for (int i = 0; i < docFiles.size(); i++) {
+            MultipartFile docFile = docFiles.get(i);
             String relPath = docFile.getOriginalFilename();
+            int index = i + 1;
+
+            // 取消检查
+            if (importCancelService.isCancelled(effectiveBatchId)) {
+                cancelled = true;
+                log.info("导入已取消: batchId={}, 已处理 {}/{}", effectiveBatchId, i, totalDocs);
+                safeCallback(() -> listener.onCancel("用户取消导入"), listener);
+                break;
+            }
+
+            // 通知单文件开始
+            final int idx = index;
+            final int total = totalDocs;
+            final String path = relPath;
+            safeCallback(() -> listener.onFileStart(idx, total, path), listener);
+
+            String status;
+            String message;
+            // 记录处理前的计数，用于推断本文件状态
+            int prevSuccess = result.getSuccessCount();
+            int prevSkipped = result.getSkippedCount();
+            int prevFailed = result.getFailedCount();
             try {
-                processOneDoc(docFile, relPath, options, userId, batchId,
+                processOneDoc(docFile, relPath, options, userId, effectiveBatchId,
                         createSubCats, autoTags, aiTags, incremental, maxChars,
                         targetCategoryId, imageMap, dirCategoryCache, createdCategoryNames, result);
+                // processOneDoc 内部会更新 success/skipped/failed 计数，根据增量判断状态
+                if (result.getSkippedCount() > prevSkipped) {
+                    status = "skipped";
+                    message = "文件未变更，增量跳过";
+                } else if (result.getFailedCount() > prevFailed) {
+                    status = "failed";
+                    message = "文档内容为空或解析失败";
+                } else if (result.getSuccessCount() > prevSuccess) {
+                    status = "success";
+                    message = "导入成功";
+                } else {
+                    status = "success";
+                    message = "处理完成";
+                }
             } catch (Exception e) {
                 log.warn("导入文档失败: path={}, error={}", relPath, e.getMessage());
                 result.setFailedCount(result.getFailedCount() + 1);
                 result.getFailedItems().add(ItemLog.of(
                         relPath, extractTitleFromPath(relPath), null, null,
                         "导入失败：" + e.getMessage()));
+                status = "failed";
+                message = "导入失败：" + e.getMessage();
             }
+
+            // 通知单文件完成
+            final String doneStatus = status;
+            final String doneMsg = message;
+            safeCallback(() -> listener.onFileDone(idx, total, path, doneStatus, doneMsg), listener);
         }
 
         // 4. 汇总新建分类
         result.setCreatedCategories(new ArrayList<>(createdCategoryNames));
-        log.info("目录导入完成: total={}, success={}, skipped={}, failed={}, images={}",
+        log.info("目录导入{}: batchId={}, total={}, success={}, skipped={}, failed={}, images={}",
+                cancelled ? "已取消" : "完成", effectiveBatchId,
                 result.getTotalDocs(), result.getSuccessCount(), result.getSkippedCount(),
                 result.getFailedCount(), result.getImageCount());
+
+        // 清理取消标志
+        importCancelService.cleanup(effectiveBatchId);
+
+        // 通知完成（取消时不重复回调 onComplete）
+        if (!cancelled) {
+            safeCallback(() -> listener.onComplete(result), listener);
+        }
         return result;
+    }
+
+    /**
+     * 安全回调：best-effort，回调失败不影响主流程。
+     */
+    private void safeCallback(Runnable action, ImportProgressListener listener) {
+        if (listener == null) return;
+        try {
+            action.run();
+        } catch (Exception e) {
+            log.warn("进度回调失败: {}", e.getMessage());
+        }
     }
 
     /**
@@ -299,6 +452,8 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
                                                         String batchId,
                                                         Map<String, MultipartFile> imageMap) {
         ImageRewriteResult result = new ImageRewriteResult();
+        // 兜底初始化 content，避免无图片时返回 null 导致后续 NPE
+        result.content = content;
         if (imageMap.isEmpty()) {
             return result;
         }
@@ -697,11 +852,63 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
     // ==================== 工具方法 ====================
 
     /**
-     * 读取文件内容（UTF-8）。
+     * 读取文件文本内容。
+     * <p>按扩展名分流：
+     * <ul>
+     *   <li>二进制富文档（pdf/doc/docx/ppt/pptx/rtf）：调用 {@link DocumentTextExtractor}
+     *       基于 Apache Tika 提取纯文本，避免按 UTF-8 解码二进制字节导致乱码</li>
+     *   <li>文本类（md/markdown/txt/html/htm）：直接 UTF-8 解码</li>
+     * </ul>
+     * Tika 内部会自动探测 MIME、解析编码、清理控制字符，兼容中英文及特殊字符。
+     * 解析失败（损坏/加密/不支持）兜底返回空串，由上层判空逻辑标记为失败项。
      */
     private String readContent(MultipartFile file) throws IOException {
+        String ext = getExtension(file.getOriginalFilename());
+        if (BINARY_DOC_EXTS.contains(ext)) {
+            // 二进制富文档：走 Tika 提取，带超时与 OOM 防护
+            String text = documentTextExtractor.extractText(file);
+            if (text == null) {
+                log.warn("文档文本提取返回 null（可能损坏或加密）：{}", file.getOriginalFilename());
+                return "";
+            }
+            return text;
+        }
+        // 纯文本类：UTF-8 解码
         byte[] bytes = file.getBytes();
-        return new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+        String content = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+        // 代码文件：包装为 Markdown 代码块，详情页渲染时自动启用语法高亮
+        if (CODE_EXTS.contains(ext)) {
+            return wrapCodeAsMarkdown(content, ext);
+        }
+        return content;
+    }
+
+    /**
+     * 将代码文件内容包装为 Markdown 代码块。
+     * <p>包装格式：
+     * <pre>
+     * ```lang
+     * 原始代码内容
+     * ```
+     * </pre>
+     * 这样文档详情页的 Markdown 渲染器（如 markdown-it + highlight.js）会
+     * 自动识别语言并应用对应语法高亮，避免代码以纯文本方式展示。
+     *
+     * @param code 原始代码内容
+     * @param ext  文件扩展名（小写，不含点）
+     * @return 包装后的 Markdown 文本
+     */
+    private String wrapCodeAsMarkdown(String code, String ext) {
+        String lang = EXT_TO_LANG.getOrDefault(ext, "");
+        StringBuilder sb = new StringBuilder(code.length() + 16);
+        sb.append("```").append(lang).append('\n');
+        sb.append(code);
+        // 确保代码末尾有换行，避免 ``` 与代码同行导致渲染异常
+        if (code.isEmpty() || code.charAt(code.length() - 1) != '\n') {
+            sb.append('\n');
+        }
+        sb.append("```");
+        return sb.toString();
     }
 
     /**

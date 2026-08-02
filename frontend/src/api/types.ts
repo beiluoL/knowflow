@@ -1180,3 +1180,33 @@ export interface KnowledgeImportResultVO {
   skippedItems: ImportItemLog[]
   failedItems: ImportItemLog[]
 }
+
+/**
+ * 路径导入：扫描结果。
+ * 用户输入路径后，后端扫描该路径下所有可导入文件，返回此结构供前端预览确认。
+ */
+export interface PathImportScanVO {
+  /** 解析后的绝对路径 */
+  absolutePath: string
+  /** 根目录/文件名 */
+  rootName: string
+  /** 是否为单文件模式 */
+  isFile: boolean
+  /** 文档数量（Markdown + 代码 + 富文档） */
+  docCount: number
+  /** 图片数量 */
+  imageCount: number
+  /** 目录数量 */
+  dirCount: number
+  /** 待导入文件列表 */
+  files: PathImportFileEntry[]
+}
+
+/** 路径导入：文件条目 */
+export interface PathImportFileEntry {
+  name: string
+  path: string
+  type: 'doc' | 'image'
+  ext: string
+  size: number
+}

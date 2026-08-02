@@ -700,9 +700,12 @@ onUnmounted(() => {
 :deep(.doc-content) {
   font-family: var(--font-sans);
   font-size: 15px;
-  line-height: 1.8;
+  line-height: 1.75;
   color: var(--kb-card-foreground);
   word-break: break-word;
+  /* 覆盖全局 .prose * { white-space: pre-wrap }：
+     渲染后的 HTML 块级元素之间的源码换行不应被渲染为额外空白行 */
+  white-space: normal;
 }
 
 /* 标题层级：H1/H2 用衬线体，H3/H4 用无衬线体 */
@@ -712,9 +715,10 @@ onUnmounted(() => {
   font-weight: 700;
   line-height: 1.35;
   letter-spacing: -0.02em;
-  margin: 8px 0 20px;
+  margin: 8px 0 14px;
   color: var(--kb-foreground);
   text-wrap: balance;
+  white-space: normal;
 }
 
 :deep(.doc-content h2) {
@@ -723,12 +727,13 @@ onUnmounted(() => {
   font-weight: 600;
   line-height: 1.35;
   letter-spacing: -0.01em;
-  margin: 32px 0 16px;
-  padding-bottom: 10px;
+  margin: 24px 0 12px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--kb-border);
   color: var(--kb-foreground);
   scroll-margin-top: 80px;
   text-wrap: balance;
+  white-space: normal;
 }
 
 :deep(.doc-content h3) {
@@ -736,37 +741,42 @@ onUnmounted(() => {
   font-size: 18px;
   font-weight: 600;
   line-height: 1.4;
-  margin: 24px 0 12px;
+  margin: 18px 0 8px;
   color: var(--kb-foreground);
   scroll-margin-top: 80px;
+  white-space: normal;
 }
 
 :deep(.doc-content h4) {
   font-size: 16px;
   font-weight: 600;
   line-height: 1.45;
-  margin: 20px 0 10px;
+  margin: 14px 0 6px;
   color: var(--kb-foreground);
+  white-space: normal;
 }
 
 /* 正文段落 */
 :deep(.doc-content p) {
-  margin: 12px 0;
-  line-height: 1.8;
+  margin: 10px 0;
+  line-height: 1.75;
   color: var(--kb-card-foreground);
+  white-space: normal;
 }
 
 /* 列表 */
 :deep(.doc-content ul),
 :deep(.doc-content ol) {
   padding-left: 24px;
-  margin: 12px 0;
+  margin: 8px 0;
+  white-space: normal;
 }
 
 :deep(.doc-content li) {
-  margin: 6px 0;
-  line-height: 1.7;
+  margin: 3px 0;
+  line-height: 1.65;
   color: var(--kb-card-foreground);
+  white-space: normal;
 }
 
 :deep(.doc-content li::marker) {
@@ -777,14 +787,16 @@ onUnmounted(() => {
 :deep(.doc-content blockquote) {
   border-left: 4px solid var(--kb-primary);
   background: color-mix(in srgb, var(--kb-primary) 5%, var(--kb-card));
-  padding: 14px 20px;
-  margin: 20px 0;
+  padding: 10px 16px;
+  margin: 12px 0;
   border-radius: 0 8px 8px 0;
   color: var(--kb-card-foreground);
+  white-space: normal;
 }
 
 :deep(.doc-content blockquote p) {
-  margin: 4px 0;
+  margin: 2px 0;
+  white-space: normal;
 }
 
 /* 行内代码 */
@@ -800,7 +812,7 @@ onUnmounted(() => {
 
 /* 代码块包装器 */
 :deep(.doc-content .code-block-wrapper) {
-  margin: 20px 0;
+  margin: 12px 0;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid var(--kb-border);
@@ -879,7 +891,7 @@ onUnmounted(() => {
 :deep(.doc-content table) {
   width: 100%;
   border-collapse: collapse;
-  margin: 20px 0;
+  margin: 12px 0;
   font-size: 14px;
   border-radius: 8px;
   overflow: hidden;
@@ -890,14 +902,14 @@ onUnmounted(() => {
   background: var(--kb-muted);
   font-weight: 600;
   text-align: left;
-  padding: 10px 16px;
+  padding: 8px 14px;
   border-bottom: 2px solid var(--kb-border);
   color: var(--kb-foreground);
   white-space: normal;
 }
 
 :deep(.doc-content td) {
-  padding: 10px 16px;
+  padding: 8px 14px;
   border-bottom: 1px solid var(--kb-border);
   color: var(--kb-card-foreground);
   white-space: normal;
@@ -927,7 +939,7 @@ onUnmounted(() => {
 :deep(.doc-content hr) {
   border: none;
   border-top: 1px solid var(--kb-border);
-  margin: 24px 0;
+  margin: 16px 0;
 }
 
 /* 图片 */
@@ -935,7 +947,7 @@ onUnmounted(() => {
   max-width: 100%;
   height: auto;
   border-radius: 8px;
-  margin: 12px 0;
+  margin: 8px 0;
 }
 
 /* 强调文本 */

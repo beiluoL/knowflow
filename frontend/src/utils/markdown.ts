@@ -6,9 +6,12 @@
  *  - [video](url) / [视频](url) → 视频占位符（.chapter-video）
  *  - h2/h3 锚点 id 与外部大纲数组对齐（heading-1, heading-2 …）
  *  - 常规代码块：highlight.js 语法高亮 + 语言标签 + 复制按钮
+ *  - [x] / [ ] 任务列表 (GFM Task Lists)
+ *  - [变量名] 模板占位符（自定义语法）
  */
 import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js/lib/common';
+import taskLists from 'markdown-it-task-lists';
 
 const md = new MarkdownIt({
   html: false,
@@ -29,6 +32,83 @@ const md = new MarkdownIt({
     }
   },
 });
+
+// 应用任务列表插件 (GFM Task Lists: [x] / [ ])
+md.use(taskLists);
+
+/**
+ * 自定义模板占位符插件：解析 [变量名] 语法
+ * 
+ * 【关键设计】
+ * 1. 插入位置：放在 `link` 规则之前（`before('link', ...)`）。
+ * 2. 执行顺序：variable → link → text。
+ *    - 如果匹配到合法变量名且后面不跟 `(`，则识别为模板变量。
+ *    - 如果后面跟着 `(`，则识别失败（返回 false），交由 link 规则处理为标准链接。
+ * 3. 变量名规则：字母/下划线开头，包含字母、数字、下划线（可按需扩展）。
+ * 4. 上下文感知：排除列表项开头的 [ ] / [x]（任务列表），让 task-lists 插件处理。
+ * 5. 渲染输出：<span class="template-variable" data-variable="...">...</span>
+ */
+function variablePlugin(md: MarkdownIt) {
+  md.inline.ruler.before('link', 'variable', (state, silent) => {
+    const pos = state.pos;
+    const ch = state.src.charCodeAt(pos);
+    if (ch !== 0x5B /* [ */) {
+      return false;
+    }
+
+    // 【上下文检查】：排除列表项开头的 [ ] / [x] (任务列表)
+    // 列表项模式：换行符 + 空白 + (- | * | + | 数字.) + 空白
+    // 如果当前 [ 前面的文本匹配列表项模式，则跳过，交由 task-lists 插件处理
+    const beforeText = state.src.substring(Math.max(0, pos - 20), pos);
+    if (/[\r\n]\s*(?:[-*+]|\d+\.)\s+$/.test(beforeText)) {
+      return false;
+    }
+
+    // 寻找匹配的 ]
+    let end = state.src.indexOf(']', pos + 1);
+    if (end === -1) return false;
+
+    // 提取内容
+    const content = state.src.substring(pos + 1, end);
+    
+    // 验证是否为合法变量名：
+    // - 必须是字母或下划线开头
+    // - 只能包含字母、数字、下划线
+    // - 长度至少为 1
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(content)) {
+      return false;
+    }
+
+    // 【关键检查】确保后面没有跟 '('
+    // 如果后面跟 '(', 则它是链接语法 (e.g., [text](url))，
+    // variable 规则必须返回 false，让后续的 link 规则去处理。
+    const nextChar = state.src.charCodeAt(end + 1);
+    if (nextChar === 0x28 /* ( */) {
+      return false;
+    }
+
+    // 匹配成功
+    if (!silent) {
+      const token = state.push('variable', '', 0);
+      token.content = content;
+      token.map = [pos, end + 1];
+    }
+    
+    state.pos = end + 1;
+    return true;
+  });
+
+  // 注册 variable token 的渲染规则
+  md.renderer.rules.variable = (tokens, idx, options, env, self) => {
+    const token = tokens[idx];
+    const varName = token.content;
+    // 生成带有特定类名和属性的 HTML，便于前端识别和后续模板替换
+    return `<span class="template-variable" data-variable="${md.utils.escapeHtml(varName)}">${md.utils.escapeHtml(varName)}</span>`;
+  };
+}
+
+// 应用模板占位符插件
+md.use(variablePlugin);
 
 // 自定义 fence 渲染：拦截 -run 语法，常规代码块带高亮 + 行号 + 包装器
 md.renderer.rules.fence = (tokens, idx) => {
