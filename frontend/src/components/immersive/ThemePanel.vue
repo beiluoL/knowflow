@@ -80,6 +80,13 @@
         </button>
       </div>
     </div>
+
+    <div class="panel-section reset-section">
+      <button type="button" class="reset-btn" @click="handleReset">
+        <Icon name="rotate-ccw" :size="14" />
+        <span>还原默认主题</span>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -96,11 +103,13 @@ import {
   setAccent,
   setFontSize,
   setRhythmPreset,
+  resetImmersiveTheme,
   type ImmersiveThemeId,
   type AccentId,
   type FontSizeId,
   type RhythmPreset,
 } from '@/composables/useImmersiveTheme';
+import { notify } from '@/utils/toast';
 
 const props = defineProps<{
   visible: boolean;
@@ -129,6 +138,11 @@ function handleSelectFontSize(id: FontSizeId) {
 
 function handleSelectRhythm(id: RhythmPreset) {
   setRhythmPreset(id);
+}
+
+function handleReset() {
+  resetImmersiveTheme(props.rootEl ?? null);
+  notify('已还原为默认主题', 'success');
 }
 
 function onDocClick(e: MouseEvent) {
@@ -398,6 +412,32 @@ onUnmounted(() => {
   font-size: 11px;
   line-height: 1.5;
   color: var(--kb-muted-foreground, #94a3b8);
+}
+
+.reset-section {
+  padding-top: 14px;
+  border-top: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+}
+.reset-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--kb-muted-foreground, #94a3b8);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.reset-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--kb-foreground, #f8fafc);
+  border-color: var(--kb-primary, #3b82f6);
 }
 
 @media (max-width: 480px) {

@@ -131,6 +131,31 @@
       <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
       <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
     </template>
+    <!-- 响铃状态的铃铛：用于白噪音播放中 -->
+    <template v-else-if="name === 'bell-ring'">
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+      <path d="M18 1.2l-.2.3" stroke-width="1" />
+      <path d="M18.8 3l-.6.6" stroke-width="1" />
+    </template>
+    <!-- 关闭的铃铛：用于白噪音已停止 -->
+    <template v-else-if="name === 'bell-off'">
+      <path d="M13.7 21a1.94 1.94 0 0 1-3.4 0" />
+      <path d="M18.4 13.6c.3 1.5.9 2.7 1.6 3.6-1.5 0-3.4-.3-5-1.3" />
+      <path d="M4 4l16 16" />
+      <path d="M6 8a6 6 0 0 1 .2-1.4M18 8a6 6 0 0 0-.2-1.5" />
+    </template>
+    <!-- 音符：用于白噪音播放中（与喇叭形态完全不同，视觉差异最大） -->
+    <template v-else-if="name === 'music'">
+      <path d="M9 18V5l12-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="18" cy="16" r="3" />
+    </template>
+    <!-- 播放圆圈：用于白噪音播放中（备选） -->
+    <template v-else-if="name === 'play-circle'">
+      <circle cx="12" cy="12" r="10" />
+      <polygon points="10 8 16 12 10 16 10 8" />
+    </template>
 
     <template v-else-if="name === 'menu'">
       <line x1="4" y1="12" x2="20" y2="12" />
@@ -516,6 +541,19 @@
     <!-- 云图标：用于运维部署分类 -->
     <template v-else-if="name === 'cloud'">
       <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+    </template>
+
+    <!-- 风图标：用于白噪音风声 -->
+    <template v-else-if="name === 'wind'">
+      <path d="M12.8 19.6a2 2 0 1 0 2.8-2.8L4 5" />
+      <path d="M17.5 11.5a2.5 2.5 0 1 1 3.5-3.5L4 15" />
+      <path d="M8 9a3 3 0 1 1 3-3" />
+    </template>
+
+    <!-- 海浪图标：用于白噪音海浪 -->
+    <template v-else-if="name === 'wave'">
+      <path d="M2 6c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2" />
+      <path d="M2 14c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2" />
     </template>
 
     <template v-else-if="name === 'cpu'">
@@ -1308,14 +1346,14 @@
       <path d="M17.5 17.5a12 12 0 0 0-11-11" />
     </template>
 
-    <!-- 音量（开启） -->
+    <!-- 音量（开启）：喇叭 + 加号（横竖短线交叉，与静音的"叉"形成最大视觉差异） -->
     <template v-else-if="name === 'volume-2'">
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+      <line x1="15" y1="12" x2="21" y2="12" />
+      <line x1="18" y1="9" x2="18" y2="15" />
     </template>
 
-    <!-- 音量（静音） -->
+    <!-- 音量（静音）：喇叭 + 叉（两条交叉斜线） -->
     <template v-else-if="name === 'volume-x'">
       <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
       <line x1="23" y1="9" x2="17" y2="15" />

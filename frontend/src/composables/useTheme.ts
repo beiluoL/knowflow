@@ -17,6 +17,16 @@ function applyTheme(mode: ThemeMode) {
   root.style.colorScheme = mode
 }
 
+/** 模块级 setTheme，供其他 composable（如沉浸主题还原）直接调用 */
+export function setTheme(mode: ThemeMode) {
+  theme.value = mode
+}
+
+/** 模块级 toggleTheme */
+export function toggleTheme() {
+  theme.value = theme.value === 'dark' ? 'light' : 'dark'
+}
+
 export function useTheme() {
   onMounted(() => {
     // 首次挂载时同步状态（main.ts 已在更早时机应用过一次，这里做兜底）
@@ -34,14 +44,6 @@ export function useTheme() {
       // localStorage 不可用时静默降级
     }
   })
-
-  function toggleTheme() {
-    theme.value = theme.value === 'dark' ? 'light' : 'dark'
-  }
-
-  function setTheme(mode: ThemeMode) {
-    theme.value = mode
-  }
 
   return {
     theme,

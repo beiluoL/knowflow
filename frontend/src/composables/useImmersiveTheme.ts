@@ -1,5 +1,6 @@
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, nextTick } from 'vue';
 import { usePomodoroStore, type RhythmPreset } from '@/stores/pomodoro';
+import { setTheme } from '@/composables/useTheme';
 
 export type ImmersiveThemeId = 'midnight' | 'library' | 'ocean' | 'forest' | 'coffee' | 'sunset';
 
@@ -246,6 +247,47 @@ export function setRhythmPreset(preset: RhythmPreset) {
   currentRhythm.value = preset;
 }
 
+/** 白色（light）主题对应的沉浸变量值，用于还原到系统默认白色主题 */
+const LIGHT_THEME_TOKENS: Record<string, string> = {
+  '--kb-bg-0': '#F7F8FA',
+  '--kb-bg-1': '#FFFFFF',
+  '--kb-bg-2': 'rgba(255, 255, 255, 0.8)',
+  '--kb-elev-border': '#E2E6EC',
+  '--kb-foreground': '#1A1D23',
+  '--kb-muted-foreground': '#6B7280',
+};
+
+/** 还原所有主题偏好为系统默认白色主题并即时生效 */
+export function resetImmersiveTheme(rootEl: HTMLElement | null) {
+  // 重置沉浸主题偏好为默认值（localStorage 会被 watch 持久化）
+  currentTheme.value = 'midnight';
+  currentAccent.value = 'blue';
+  currentFontSize.value = 'normal';
+  currentRhythm.value = 'standard';
+  breakGuideEnabled.value = true;
+
+  // 切换全局主题为白色（light），退出沉浸模式的深色主题
+  setTheme('light');
+
+  // 清除 documentElement 上被自定义修改的行内样式，回到 :root 默认值（--kb-primary: #3B6FE0）
+  document.documentElement.style.removeProperty('--kb-primary');
+  document.documentElement.style.removeProperty('--kb-base-font-size');
+
+  // 覆盖 rootEl 上的沉浸主题变量为白色主题值
+  // watch(currentTheme) 会先应用 midnight 深色变量，此处用 nextTick 确保最终呈现为白色主题
+  if (rootEl) {
+    nextTick(() => {
+      rootEl.removeAttribute('data-immersive-theme');
+      const style = rootEl.style;
+      Object.entries(LIGHT_THEME_TOKENS).forEach(([k, v]) => style.setProperty(k, v));
+    });
+  }
+
+  // 重置节奏模板为标准
+  const pomodoro = usePomodoroStore();
+  pomodoro.applyPreset('standard');
+}
+
 watch(currentTheme, (v) => safeSet(THEME_STORAGE, v));
 watch(currentAccent, (v) => safeSet(ACCENT_STORAGE, v));
 watch(currentFontSize, (v) => safeSet(FONT_SIZE_STORAGE, v));
@@ -297,5 +339,6 @@ export function useImmersiveTheme() {
     setAccent,
     setFontSize,
     setRhythmPreset,
+    resetImmersiveTheme,
   };
 }

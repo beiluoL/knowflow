@@ -68,13 +68,17 @@
 
     <div class="setting-row">
       <div class="setting-info">
-        <span class="setting-title">声音提醒</span>
+        <span class="setting-title-with-icon">
+          <Icon :name="pomodoroStore.settings.soundEnabled ? 'volume-2' : 'volume-x'" :size="14" />
+          <span class="setting-title">声音提醒</span>
+        </span>
         <span class="setting-desc">阶段结束时播放提示音</span>
       </div>
       <button
         type="button"
         class="toggle-switch"
         :class="{ on: pomodoroStore.settings.soundEnabled }"
+        :title="pomodoroStore.settings.soundEnabled ? '点击关闭：阶段结束不播放提示音' : '点击开启：阶段结束播放提示音'"
         :aria-pressed="pomodoroStore.settings.soundEnabled"
         @click="toggleSoundEnabled"
       >
@@ -372,6 +376,11 @@ onUnmounted(() => {
   font-size: 13px;
   font-weight: 600;
   color: var(--kb-foreground, #f8fafc);
+}
+.setting-title-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 .setting-desc {
   font-size: 11px;

@@ -8,6 +8,9 @@ export type PomodoroMode = 'focus' | 'shortBreak' | 'longBreak';
 export type PomodoroPosition = 'top' | 'bottom-right';
 export type RhythmPreset = 'standard' | 'study-hard' | 'relaxed' | 'creative';
 
+/** 白噪音类型：雨声 / 海浪 / 风声 / 咖啡馆 */
+export type NoiseType = 'rain' | 'wave' | 'wind' | 'cafe';
+
 const SETTINGS_KEY = 'knowflow:pomodoro:settings';
 const RUNTIME_KEY = 'knowflow:pomodoro:runtime';
 
@@ -18,6 +21,11 @@ export interface PomodoroSettings {
   roundsPerSet: number; // 一组工作次数：完成 N 次专注后进入长休息
   soundEnabled: boolean;
   autoNext: boolean; // 一个阶段结束后是否自动进入下一阶段
+  // ===== 白噪音音效设置 =====
+  noiseType: NoiseType | null; // 选中的白噪音类型，null 表示未选
+  noiseVolume: number; // 音量 0-100
+  noiseAutoPlayOnFocus: boolean; // 专注时段自动播放
+  noiseAutoStopOnBreak: boolean; // 休息时段自动停止
 }
 
 export const RHYTHM_PRESETS: Record<RhythmPreset, PomodoroSettings> = {
@@ -28,6 +36,10 @@ export const RHYTHM_PRESETS: Record<RhythmPreset, PomodoroSettings> = {
     roundsPerSet: 4,
     soundEnabled: true,
     autoNext: false,
+    noiseType: null,
+    noiseVolume: 50,
+    noiseAutoPlayOnFocus: false,
+    noiseAutoStopOnBreak: true,
   },
   'study-hard': {
     focusMinutes: 50,
@@ -36,6 +48,10 @@ export const RHYTHM_PRESETS: Record<RhythmPreset, PomodoroSettings> = {
     roundsPerSet: 4,
     soundEnabled: true,
     autoNext: false,
+    noiseType: null,
+    noiseVolume: 50,
+    noiseAutoPlayOnFocus: false,
+    noiseAutoStopOnBreak: true,
   },
   relaxed: {
     focusMinutes: 15,
@@ -44,6 +60,10 @@ export const RHYTHM_PRESETS: Record<RhythmPreset, PomodoroSettings> = {
     roundsPerSet: 3,
     soundEnabled: true,
     autoNext: false,
+    noiseType: null,
+    noiseVolume: 50,
+    noiseAutoPlayOnFocus: false,
+    noiseAutoStopOnBreak: true,
   },
   creative: {
     focusMinutes: 40,
@@ -52,6 +72,10 @@ export const RHYTHM_PRESETS: Record<RhythmPreset, PomodoroSettings> = {
     roundsPerSet: 3,
     soundEnabled: true,
     autoNext: false,
+    noiseType: null,
+    noiseVolume: 50,
+    noiseAutoPlayOnFocus: false,
+    noiseAutoStopOnBreak: true,
   },
 };
 
@@ -78,6 +102,10 @@ const DEFAULT_SETTINGS: PomodoroSettings = {
   roundsPerSet: 4,
   soundEnabled: true,
   autoNext: false,
+  noiseType: null,
+  noiseVolume: 50,
+  noiseAutoPlayOnFocus: false,
+  noiseAutoStopOnBreak: true,
 };
 
 const DEFAULT_RUNTIME: PomodoroRuntime = {
@@ -304,6 +332,16 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
     notify('番茄钟设置已保存', 'success');
   }
 
+  /** 静默更新白噪音设置（不弹 toast、不关闭设置面板，供音量滑块/类型选择即时生效） */
+  function updateNoiseSettings(patch: Partial<Pick<PomodoroSettings, 'noiseType' | 'noiseVolume' | 'noiseAutoPlayOnFocus' | 'noiseAutoStopOnBreak'>>) {
+    settings.value = { ...settings.value, ...patch };
+  }
+
+  /** 快捷切换声音提醒开关（不弹 toast、不关闭设置面板，供头部快捷按钮使用） */
+  function toggleSoundEnabled() {
+    settings.value.soundEnabled = !settings.value.soundEnabled;
+  }
+
   function resetCurrentMode() {
     stopTicking();
     runtime.value.timeLeft = durationFor(runtime.value.currentMode, settings.value);
@@ -469,6 +507,8 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
     // actions
     applyPreset,
     saveSettings,
+    updateNoiseSettings,
+    toggleSoundEnabled,
     resetCurrentMode,
     switchMode,
     toggle,

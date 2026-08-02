@@ -22,20 +22,22 @@
         </button>
       </div>
       <div class="pmd-actions">
+        <!-- 声音总开关：同时控制提示音 + 白噪音播放/停止 -->
         <button
           type="button"
           class="pmd-icon-btn"
           :class="{ 'is-on': store.settings.soundEnabled }"
-          :title="store.settings.soundEnabled ? '关闭提示音' : '开启提示音'"
-          @click="store.saveSettings({ soundEnabled: !store.settings.soundEnabled })"
+          :title="soundBtnTitle"
+          @click="handleSoundToggle"
         >
           <Icon :name="store.settings.soundEnabled ? 'volume-2' : 'volume-x'" size="sm" />
         </button>
+        <!-- 齿轮 → 打开音效设置面板（提示音开关 + 白噪音音效全部设置） -->
         <button
           type="button"
           class="pmd-icon-btn"
           :class="{ 'is-on': store.runtime.settingsOpen }"
-          title="番茄钟设置"
+          :title="'音效设置（提示音 / 白噪音）'"
           @click="store.toggleSettings()"
         >
           <Icon name="settings" size="sm" />
@@ -140,11 +142,15 @@
             <input type="number" min="1" max="12" :value="form.roundsPerSet" @input="onField('roundsPerSet', $event)" />
           </label>
           <label class="pmd-field pmd-switch-row">
-            <span>声音提醒</span>
+            <span class="pmd-field-label-with-icon">
+              <Icon :name="form.soundEnabled ? 'volume-2' : 'volume-x'" size="xs" />
+              <span>声音提醒</span>
+            </span>
             <button
               type="button"
               class="pmd-switch"
               :class="{ on: form.soundEnabled }"
+              :title="form.soundEnabled ? '点击关闭：阶段结束不播放提示音' : '点击开启：阶段结束播放提示音'"
               @click="form.soundEnabled = !form.soundEnabled"
               :aria-pressed="form.soundEnabled"
             >
@@ -164,6 +170,80 @@
             </button>
           </label>
         </div>
+
+        <!-- 白噪音音效设置 -->
+        <div class="pmd-noise-section">
+          <div class="pmd-noise-head">
+            <span>白噪音音效</span>
+            <button
+              type="button"
+              class="pmd-switch"
+              :class="{ on: form.noiseType !== null }"
+              :aria-pressed="form.noiseType !== null"
+              :title="form.noiseType !== null ? '关闭白噪音' : '开启白噪音'"
+              @click="toggleNoiseEnabled"
+            >
+              <span class="pmd-switch-thumb" />
+            </button>
+          </div>
+
+          <div v-if="form.noiseType !== null" class="pmd-noise-body">
+            <div class="pmd-noise-types">
+              <button
+                v-for="t in NOISE_TYPES"
+                :key="t.id"
+                type="button"
+                class="pmd-noise-type"
+                :class="{ active: form.noiseType === t.id }"
+                @click="selectNoiseType(t.id)"
+              >
+                <Icon :name="t.icon" size="xs" />
+                <span>{{ t.label }}</span>
+              </button>
+            </div>
+
+            <div class="pmd-noise-volume">
+              <Icon :name="form.noiseVolume === 0 ? 'volume-x' : 'volume-2'" size="xs" />
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="1"
+                :value="form.noiseVolume"
+                class="pmd-noise-slider"
+                aria-label="白噪音音量"
+                @input="onVolumeInput"
+              />
+              <span class="pmd-noise-vol-num">{{ form.noiseVolume }}</span>
+            </div>
+
+            <label class="pmd-field pmd-switch-row pmd-noise-toggle">
+              <span>专注时段自动播放</span>
+              <button
+                type="button"
+                class="pmd-switch"
+                :class="{ on: form.noiseAutoPlayOnFocus }"
+                @click="toggleAutoPlay"
+                :aria-pressed="form.noiseAutoPlayOnFocus"
+              >
+                <span class="pmd-switch-thumb" />
+              </button>
+            </label>
+            <label class="pmd-field pmd-switch-row pmd-noise-toggle">
+              <span>休息时段自动停止</span>
+              <button
+                type="button"
+                class="pmd-switch"
+                :class="{ on: form.noiseAutoStopOnBreak }"
+                @click="toggleAutoStop"
+                :aria-pressed="form.noiseAutoStopOnBreak"
+              >
+                <span class="pmd-switch-thumb" />
+              </button>
+            </label>
+          </div>
+        </div>
+
         <div class="pmd-settings-actions">
           <button type="button" class="pmd-btn pmd-btn-ghost" @click="resetForm()">恢复默认</button>
           <button type="button" class="pmd-btn pmd-btn-primary" @click="submitForm()">保存</button>
@@ -174,11 +254,69 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, watch } from 'vue';
+import { computed, reactive, ref, watch, onMounted, onUnmounted } from 'vue';
 import Icon from '@/components/ui/Icon.vue';
-import { usePomodoroStore, type PomodoroMode } from '@/stores/pomodoro';
+import { usePomodoroStore, type PomodoroMode, type NoiseType } from '@/stores/pomodoro';
+import {
+  NOISE_TYPES,
+  playNoise,
+  playNoiseManual,
+  stopNoise,
+  setNoiseVolume,
+  isNoisePlaying,
+} from '@/composables/useNoiseAudio';
 
 const store = usePomodoroStore();
+
+/** 白噪音播放状态（轮询保持同步，因为 useNoiseAudio 内部为非响应式单例） */
+const noisePlayingState = ref(false);
+let noisePollTimer: number | null = null;
+function startNoisePolling() {
+  noisePlayingState.value = isNoisePlaying();
+  noisePollTimer = window.setInterval(() => {
+    noisePlayingState.value = isNoisePlaying();
+  }, 150);
+}
+function stopNoisePolling() {
+  if (noisePollTimer != null) {
+    clearInterval(noisePollTimer);
+    noisePollTimer = null;
+  }
+}
+onMounted(startNoisePolling);
+onUnmounted(stopNoisePolling);
+
+/** 声音总按钮的 tooltip 文案 */
+const soundBtnTitle = computed(() => {
+  if (store.settings.soundEnabled) {
+    const meta = store.settings.noiseType != null
+      ? NOISE_TYPES.find((n) => n.id === store.settings.noiseType)?.label
+      : '';
+    return `声音已开启${meta ? '（白噪音·' + meta + '）' : ''}，点击关闭`;
+  }
+  return '声音已关闭，点击开启（提示音 + 白噪音）';
+});
+
+/** 声音总按钮：同时切换提示音开关 + 白噪音播放/停止 */
+function handleSoundToggle() {
+  if (store.settings.soundEnabled) {
+    // 关闭：停止白噪音 + 关闭提示音
+    stopNoise();
+    noisePlayingState.value = false;
+    store.toggleSoundEnabled();
+  } else {
+    // 开启：开启提示音 + 播放白噪音
+    store.toggleSoundEnabled();
+    // 未选择类型：先默认开雨声 + 更新 store
+    if (store.settings.noiseType == null) {
+      store.updateNoiseSettings({ noiseType: 'rain' });
+    }
+    const t: NoiseType = (store.settings.noiseType as NoiseType | null) ?? 'rain';
+    setNoiseVolume(store.settings.noiseVolume);
+    playNoiseManual(t);
+    noisePlayingState.value = true;
+  }
+}
 
 const MODES: { value: PomodoroMode; label: string; icon: string; color: string; softBg: string }[] = [
   { value: 'focus', label: '专注', icon: 'target', color: '#EF4444', softBg: 'rgba(239,68,68,0.10)' },
@@ -198,6 +336,10 @@ const form = reactive({
   roundsPerSet: store.settings.roundsPerSet,
   soundEnabled: store.settings.soundEnabled,
   autoNext: store.settings.autoNext,
+  noiseType: store.settings.noiseType as NoiseType | null,
+  noiseVolume: store.settings.noiseVolume,
+  noiseAutoPlayOnFocus: store.settings.noiseAutoPlayOnFocus,
+  noiseAutoStopOnBreak: store.settings.noiseAutoStopOnBreak,
 });
 
 watch(
@@ -210,6 +352,10 @@ watch(
       form.roundsPerSet = store.settings.roundsPerSet;
       form.soundEnabled = store.settings.soundEnabled;
       form.autoNext = store.settings.autoNext;
+      form.noiseType = store.settings.noiseType as NoiseType | null;
+      form.noiseVolume = store.settings.noiseVolume;
+      form.noiseAutoPlayOnFocus = store.settings.noiseAutoPlayOnFocus;
+      form.noiseAutoStopOnBreak = store.settings.noiseAutoStopOnBreak;
     }
   },
 );
@@ -228,6 +374,10 @@ function resetForm() {
   form.roundsPerSet = 4;
   form.soundEnabled = true;
   form.autoNext = false;
+  form.noiseType = null;
+  form.noiseVolume = 50;
+  form.noiseAutoPlayOnFocus = false;
+  form.noiseAutoStopOnBreak = true;
 }
 
 function submitForm() {
@@ -238,7 +388,56 @@ function submitForm() {
     roundsPerSet: clampInt(form.roundsPerSet, 1, 12),
     soundEnabled: form.soundEnabled,
     autoNext: form.autoNext,
+    noiseType: form.noiseType,
+    noiseVolume: clampInt(form.noiseVolume, 0, 100),
+    noiseAutoPlayOnFocus: form.noiseAutoPlayOnFocus,
+    noiseAutoStopOnBreak: form.noiseAutoStopOnBreak,
   });
+}
+
+/** 白噪音总开关：开启时默认选中雨声，关闭时清空并停止 */
+function toggleNoiseEnabled() {
+  if (form.noiseType !== null) {
+    form.noiseType = null;
+    store.updateNoiseSettings({ noiseType: null });
+    stopNoise();
+  } else {
+    form.noiseType = 'rain';
+    store.updateNoiseSettings({ noiseType: 'rain' });
+    // 试听：立即播放当前选中的类型
+    setNoiseVolume(form.noiseVolume);
+    playNoise('rain');
+  }
+}
+
+/** 选择白噪音类型：即时更新 store 并试听 */
+function selectNoiseType(t: NoiseType) {
+  form.noiseType = t;
+  store.updateNoiseSettings({ noiseType: t });
+  // 试听：立即播放选中的类型
+  setNoiseVolume(form.noiseVolume);
+  playNoise(t);
+}
+
+/** 音量滑块输入：即时更新 store 与音频引擎 */
+function onVolumeInput(e: Event) {
+  const target = e.target as HTMLInputElement;
+  const val = Number(target.value);
+  form.noiseVolume = val;
+  store.updateNoiseSettings({ noiseVolume: val });
+  setNoiseVolume(val);
+}
+
+/** 切换专注自动播放开关 */
+function toggleAutoPlay() {
+  form.noiseAutoPlayOnFocus = !form.noiseAutoPlayOnFocus;
+  store.updateNoiseSettings({ noiseAutoPlayOnFocus: form.noiseAutoPlayOnFocus });
+}
+
+/** 切换休息自动停止开关 */
+function toggleAutoStop() {
+  form.noiseAutoStopOnBreak = !form.noiseAutoStopOnBreak;
+  store.updateNoiseSettings({ noiseAutoStopOnBreak: form.noiseAutoStopOnBreak });
 }
 
 function clampInt(n: number, min: number, max: number): number {
@@ -251,6 +450,20 @@ function clampInt(n: number, min: number, max: number): number {
 .pmd-main {
   width: 100%;
   color: var(--kb-foreground);
+  max-height: calc(100vh - 100px); /* 与 popover 同步上限 */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.pmd-main::-webkit-scrollbar {
+  width: 6px;
+}
+.pmd-main::-webkit-scrollbar-thumb {
+  background: var(--kb-muted);
+  border-radius: 3px;
+}
+.pmd-main::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* 头部 */
@@ -478,6 +691,11 @@ function clampInt(n: number, min: number, max: number): number {
   color: var(--kb-muted-foreground);
   font-weight: 500;
 }
+.pmd-field-label-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
 .pmd-field > input {
   height: 30px;
   border: 1px solid var(--kb-border);
@@ -562,6 +780,102 @@ function clampInt(n: number, min: number, max: number): number {
   color: var(--kb-foreground);
 }
 
+/* 白噪音音效设置区块 */
+.pmd-noise-section {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--kb-border);
+  border-radius: 8px;
+  background: var(--kb-card);
+}
+.pmd-noise-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+.pmd-noise-body {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pmd-noise-types {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.pmd-noise-type {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 2px;
+  border: 1px solid var(--kb-border);
+  border-radius: 6px;
+  background: var(--kb-card);
+  color: var(--kb-muted-foreground);
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.pmd-noise-type:hover {
+  background: var(--kb-muted);
+  color: var(--kb-foreground);
+}
+.pmd-noise-type.active {
+  background: var(--kb-primary);
+  border-color: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+}
+.pmd-noise-volume {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--kb-muted-foreground);
+}
+.pmd-noise-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1 1 auto;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--kb-muted);
+  outline: none;
+  cursor: pointer;
+}
+.pmd-noise-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--kb-primary);
+  border: 2px solid var(--kb-card);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
+}
+.pmd-noise-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--kb-primary);
+  border: 2px solid var(--kb-card);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
+}
+.pmd-noise-vol-num {
+  min-width: 24px;
+  text-align: right;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--kb-muted-foreground);
+}
+.pmd-noise-toggle {
+  margin-bottom: 0;
+}
+
 /* 过渡 */
 .pmd-slide-enter-active,
 .pmd-slide-leave-active {
@@ -579,6 +893,6 @@ function clampInt(n: number, min: number, max: number): number {
 .pmd-slide-enter-to,
 .pmd-slide-leave-from {
   opacity: 1;
-  max-height: 340px;
+  max-height: 640px;
 }
 </style>

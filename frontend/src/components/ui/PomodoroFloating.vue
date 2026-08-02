@@ -61,6 +61,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { usePomodoroStore } from '@/stores/pomodoro';
+import { setupNoiseSync } from '@/composables/useNoiseAudio';
 import PomodoroMain from './PomodoroMain.vue';
 
 const store = usePomodoroStore();
@@ -68,6 +69,9 @@ const showPanel = ref(false);
 const wrapRef = ref<HTMLElement | null>(null);
 
 const navRingCircum = 2 * Math.PI * 13.5;
+
+// 初始化白噪音与番茄钟联动（内部有守卫，仅生效一次）
+setupNoiseSync();
 
 function togglePanel() {
   showPanel.value = !showPanel.value;
@@ -173,7 +177,7 @@ onUnmounted(() => {
   50% { opacity: 1; transform: scale(1.15); }
 }
 
-/* popover 面板 */
+/* popover 面板：保留圆角阴影裁剪，把滚动交给内层 .pmd-main */
 .pmd-popover {
   position: absolute;
   top: calc(100% + 10px);
@@ -181,6 +185,7 @@ onUnmounted(() => {
   z-index: 60;
   width: 340px;
   max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 100px); /* 留出顶部导航栏与下边距 */
   background: var(--kb-card);
   border: 1px solid var(--kb-border);
   border-radius: 16px;
@@ -188,7 +193,9 @@ onUnmounted(() => {
     0 12px 40px rgba(15, 23, 42, 0.16),
     0 4px 12px rgba(15, 23, 42, 0.08),
     0 0 0 1px rgba(0, 0, 0, 0.02);
-  overflow: hidden;
+  overflow: hidden; /* 维持圆角裁剪，内层滚动 */
+  display: flex;
+  flex-direction: column;
   animation: pmd-pop-in 0.18s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .pmd-pop-arrow {

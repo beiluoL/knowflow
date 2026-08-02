@@ -106,8 +106,14 @@
         </p>
       </div>
 
-      <button type="button" class="noise-btn" @click="toggleNoise">
-        <Icon name="volume-2" :size="16" />
+      <button
+        type="button"
+        class="noise-btn"
+        :class="{ 'is-on': noisePlayingState.value }"
+        :title="noiseBtnTitle"
+        @click="toggleNoise"
+      >
+        <Icon :name="noisePlayingState.value ? 'music' : 'bell-off'" :size="16" />
         <span>白噪音</span>
       </button>
     </section>
@@ -118,11 +124,18 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import Icon from '@/components/ui/Icon.vue';
 import DualRingProgress from './DualRingProgress.vue';
-import { usePomodoroStore } from '@/stores/pomodoro';
+import { usePomodoroStore, type NoiseType } from '@/stores/pomodoro';
 import { useFocusSession } from '@/composables/useFocusSession';
 import { learningApi } from '@/api';
 import { notify, getApiError } from '@/utils/toast';
 import type { LearningTaskVO } from '@/api/types';
+import {
+  NOISE_TYPES,
+  playNoiseManual,
+  stopNoise,
+  setNoiseVolume,
+  isNoisePlaying,
+} from '@/composables/useNoiseAudio';
 
 const store = usePomodoroStore();
 const { isActive, start, end } = useFocusSession();
@@ -135,6 +148,36 @@ const tasks = ref<LearningTaskVO[]>([]);
 const taskLoading = ref(false);
 const distractionCount = ref(0);
 const sessionStartTs = ref<number>(0);
+
+/** 白噪音播放状态（轮询保持同步，因为 useNoiseAudio 内部为非响应式单例） */
+const noisePlayingState = ref(false);
+let noisePollTimer: number | null = null;
+function startNoisePolling() {
+  noisePlayingState.value = isNoisePlaying();
+  noisePollTimer = window.setInterval(() => {
+    noisePlayingState.value = isNoisePlaying();
+  }, 150);
+}
+function stopNoisePolling() {
+  if (noisePollTimer != null) {
+    clearInterval(noisePollTimer);
+    noisePollTimer = null;
+  }
+}
+
+/** 白噪音按钮 tooltip 文案 */
+const noiseBtnTitle = computed(() => {
+  if (noisePlayingState.value) {
+    const t = store.settings.noiseType;
+    const meta = t != null ? NOISE_TYPES.find((n) => n.id === t)?.label : '';
+    return `停止白噪音${meta ? '（' + meta + '）' : ''}`;
+  }
+  if (store.settings.noiseType != null) {
+    const meta = NOISE_TYPES.find((n) => n.id === store.settings.noiseType as NoiseType);
+    return `播放白噪音${meta ? '（' + meta.label + '）' : ''}`;
+  }
+  return '播放白噪音（默认雨声）';
+});
 
 const completedCount = computed(() => tasks.value.filter((t) => t.status === 1).length);
 
@@ -195,6 +238,19 @@ const recordDistraction = () => {
 };
 
 const toggleNoise = () => {
+  if (noisePlayingState.value) {
+    stopNoise();
+    noisePlayingState.value = false;
+  } else {
+    // 未选择类型：先默认开雨声 + 更新 store
+    if (store.settings.noiseType == null) {
+      store.updateNoiseSettings({ noiseType: 'rain' });
+    }
+    const t: NoiseType = (store.settings.noiseType as NoiseType | null) ?? 'rain';
+    setNoiseVolume(store.settings.noiseVolume);
+    playNoiseManual(t);
+    noisePlayingState.value = true;
+  }
   emit('toggle-noise');
 };
 
@@ -212,6 +268,7 @@ let tickTimer: number | null = null;
 onMounted(() => {
   store.init();
   void loadTasks();
+  startNoisePolling();
   tickTimer = window.setInterval(() => {
     if (isActive()) {
       /* 触发 computed 重新计算 */
@@ -221,6 +278,7 @@ onMounted(() => {
 });
 
 onUnmounted(async () => {
+  stopNoisePolling();
   if (tickTimer) {
     clearInterval(tickTimer);
     tickTimer = null;
@@ -488,6 +546,10 @@ onUnmounted(async () => {
 }
 .noise-btn:hover {
   filter: brightness(1.05);
+}
+.noise-btn.is-on {
+  background: var(--kb-highlight, #FF6B35);
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
 }
 
 .tabular-nums {
