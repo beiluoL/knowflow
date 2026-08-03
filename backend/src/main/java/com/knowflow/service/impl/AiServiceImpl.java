@@ -2,6 +2,7 @@ package com.knowflow.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.config.AiConfig;
+import com.knowflow.config.AiProviderRegistry;
 import com.knowflow.entity.DocDocument;
 import com.knowflow.entity.UserAiConfig;
 import com.knowflow.exception.BusinessException;
@@ -11,7 +12,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -33,6 +36,7 @@ public class AiServiceImpl implements AiService {
 
     private final AiConfig aiConfig;
     private final UserAiConfigMapper userAiConfigMapper;
+    private final AiProviderRegistry providerRegistry;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
@@ -171,13 +175,8 @@ public class AiServiceImpl implements AiService {
     }
 
     private String getProviderDefaultBaseUrl(String provider) {
-        switch (provider) {
-            case "deepseek": return "https://api.deepseek.com/v1";
-            case "siliconflow": return "https://api.siliconflow.cn/v1";
-            case "openai": return "https://api.openai.com/v1";
-            case "qwen": return "https://dashscope.aliyuncs.com/compatible-mode/v1";
-            default: return aiConfig.getBaseUrl();
-        }
+        String url = providerRegistry.defaultBaseUrl(provider);
+        return url != null ? url : aiConfig.getBaseUrl();
     }
 
     /** 内部持有解析后的 AI 配置。 */
@@ -308,5 +307,221 @@ public class AiServiceImpl implements AiService {
             log.error("视觉模型调用失败: {}", e.getMessage());
             return "抱歉，图像分析失败：" + e.getMessage();
         }
+    }
+
+    // ==================== 编程 Agent 扩展：流式对话与健康检查 ====================
+
+    /**
+     * 按 configId 解析用户配置；configId 为 null 时回退到 active 配置或全局配置。
+     * 编程 Agent 场景下用户可从全部配置中自由选择，因此显式按 id 查询。
+     */
+    private EffectiveAiConfig resolveConfigById(Long userId, Long configId) {
+        if (configId != null && userId != null) {
+            UserAiConfig cfg = userAiConfigMapper.selectById(configId);
+            if (cfg != null && cfg.getUserId().equals(userId)
+                    && cfg.getApiKey() != null && !cfg.getApiKey().isEmpty()) {
+                String baseUrl = (cfg.getBaseUrl() != null && !cfg.getBaseUrl().isEmpty())
+                        ? cfg.getBaseUrl() : getProviderDefaultBaseUrl(cfg.getProvider());
+                String model = (cfg.getModel() != null && !cfg.getModel().isEmpty())
+                        ? cfg.getModel()
+                        : (providerRegistry.defaultModel(cfg.getProvider()) != null
+                            ? providerRegistry.defaultModel(cfg.getProvider()) : aiConfig.getModel());
+                return new EffectiveAiConfig(cfg.getApiKey(), baseUrl, model);
+            }
+        }
+        return resolveEffectiveConfig(userId);
+    }
+
+    /**
+     * 流式对话：发起 OpenAI 兼容 {@code stream:true} 请求，逐 token 通过 SSE 推送给前端。
+     * <p>
+     * 实现：使用 {@link HttpResponse.BodyHandlers#ofLines()} 接收行流，逐行解析 {@code data:} 前缀，
+     * 提取 {@code choices[0].delta.content} 增量推送 {@code delta} 事件，结束时推送 {@code done}。
+     * <p>
+     * 注意：{@code httpClient.send} 仍为阻塞调用，但 ofLines 返回的 Stream 在 forEach 消费时
+     * 才逐行读取，可在调用线程同步处理；为避免长时间占用 Servlet 线程，Controller 层应在异步线程中调用本方法。
+     */
+    @Override
+    public void streamChat(String systemPrompt, String userPrompt, Long userId, Long configId, SseEmitter emitter) {
+        streamChat(systemPrompt, userPrompt, userId, configId, emitter, null);
+    }
+
+    /**
+     * 带完成回调的流式对话实现。
+     * <p>
+     * 无论成功或失败，都会在流结束时调用 callback（如果非 null）：
+     * <ul>
+     *   <li>成功：onComplete(fullContent, true)</li>
+     *   <li>失败：onComplete(errorMsg, false)</li>
+     * </ul>
+     */
+    @Override
+    public void streamChat(String systemPrompt, String userPrompt, Long userId, Long configId,
+                           SseEmitter emitter, com.knowflow.service.AiService.StreamCompletionCallback callback) {
+        streamChat(systemPrompt, userPrompt, userId, configId, emitter, callback, null, null, null);
+    }
+
+    /**
+     * 带运行时参数的流式对话实现：temperature / maxTokens / topP 为 null 时回退到默认值。
+     */
+    @Override
+    public void streamChat(String systemPrompt, String userPrompt, Long userId, Long configId,
+                           SseEmitter emitter, com.knowflow.service.AiService.StreamCompletionCallback callback,
+                           Double temperature, Integer maxTokens, Double topP) {
+        EffectiveAiConfig effective = resolveConfigById(userId, configId);
+        if (effective.apiKey() == null || effective.apiKey().isEmpty()
+                || (!"local".equals(effective.apiKey()) && effective.apiKey().startsWith("sk-placeholder"))) {
+            String errMsg = "AI 服务未配置，请先在设置中添加模型配置";
+            sendSseEvent(emitter, "error", Map.of("error", errMsg));
+            completeSse(emitter);
+            if (callback != null) callback.onComplete(errMsg, false);
+            return;
+        }
+        try {
+            Map<String, Object> requestBody = new LinkedHashMap<>();
+            requestBody.put("model", effective.model());
+            requestBody.put("messages", Arrays.asList(
+                    Map.of("role", "system", "content", systemPrompt),
+                    Map.of("role", "user", "content", userPrompt)
+            ));
+            requestBody.put("max_tokens", maxTokens != null ? maxTokens : aiConfig.getMaxTokens());
+            requestBody.put("temperature", temperature != null ? temperature : 0.7);
+            if (topP != null) {
+                requestBody.put("top_p", topP);
+            }
+            requestBody.put("stream", true);
+
+            String jsonBody = objectMapper.writeValueAsString(requestBody);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(effective.baseUrl() + "/chat/completions"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + effective.apiKey())
+                    .header("Accept", "text/event-stream")
+                    .timeout(Duration.ofSeconds(aiConfig.getTimeoutSeconds()))
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .build();
+
+            HttpResponse<java.util.stream.Stream<String>> response =
+                    httpClient.send(request, HttpResponse.BodyHandlers.ofLines());
+
+            if (response.statusCode() != 200) {
+                String errBody = response.body() != null
+                        ? response.body().reduce("", (a, b) -> a + b) : "";
+                String errMsg = "模型服务返回 " + response.statusCode() + "：" + truncate(errBody, 500);
+                sendSseEvent(emitter, "error", Map.of("error", errMsg));
+                completeSse(emitter);
+                if (callback != null) callback.onComplete(errMsg, false);
+                return;
+            }
+
+            StringBuilder full = new StringBuilder();
+            // SSE 行格式：空行 / "data: {...}" / "data: [DONE]"
+            response.body().forEach(line -> {
+                if (line == null) return;
+                String trimmed = line.trim();
+                if (trimmed.isEmpty() || !trimmed.startsWith("data:")) return;
+                String payload = trimmed.substring(5).trim();
+                if ("[DONE]".equals(payload)) return;
+                try {
+                    Map<String, Object> chunk = objectMapper.readValue(payload, Map.class);
+                    List<Map<String, Object>> choices = (List<Map<String, Object>>) chunk.get("choices");
+                    if (choices != null && !choices.isEmpty()) {
+                        Map<String, Object> delta = (Map<String, Object>) choices.get(0).get("delta");
+                        if (delta != null) {
+                            Object content = delta.get("content");
+                            if (content != null && !content.toString().isEmpty()) {
+                                String token = content.toString();
+                                full.append(token);
+                                sendSseEvent(emitter, "delta", Map.of("content", token));
+                            }
+                        }
+                    }
+                } catch (Exception parseEx) {
+                    log.debug("跳过无法解析的 SSE 行: {}", payload);
+                }
+            });
+            sendSseEvent(emitter, "done", Map.of("content", full.toString()));
+            if (callback != null) callback.onComplete(full.toString(), true);
+        } catch (java.net.ConnectException | java.net.http.HttpConnectTimeoutException e) {
+            log.error("流式对话连接失败: userId={}, configId={}, err={}", userId, configId, e.getMessage());
+            boolean isLocal = "local".equals(effective.apiKey());
+            String errMsg = isLocal
+                    ? "本地模型服务连接失败（请确认 Ollama/vLLM 已启动且端口正确）：" + e.getMessage()
+                    : "模型服务连接超时：" + e.getMessage();
+            sendSseEvent(emitter, "error", Map.of("error", errMsg));
+            if (callback != null) callback.onComplete(errMsg, false);
+        } catch (Exception e) {
+            log.error("流式对话异常: userId={}, configId={}, err={}", userId, configId, e.getMessage(), e);
+            String errMsg = "AI 流式调用失败：" + e.getMessage();
+            sendSseEvent(emitter, "error", Map.of("error", errMsg));
+            if (callback != null) callback.onComplete(errMsg, false);
+        } finally {
+            completeSse(emitter);
+        }
+    }
+
+    /** 模型可用性检测：发送一个极短请求，验证配置是否可用并测量延迟。 */
+    @Override
+    public String healthCheck(Long userId, Long configId) {
+        EffectiveAiConfig effective = resolveConfigById(userId, configId);
+        if (effective.apiKey() == null || effective.apiKey().isEmpty()
+                || (!"local".equals(effective.apiKey()) && effective.apiKey().startsWith("sk-placeholder"))) {
+            return "{\"ok\":false,\"error\":\"未配置有效的 API Key\"}";
+        }
+        long start = System.currentTimeMillis();
+        try {
+            Map<String, Object> requestBody = new LinkedHashMap<>();
+            requestBody.put("model", effective.model());
+            requestBody.put("messages", List.of(Map.of("role", "user", "content", "hi")));
+            requestBody.put("max_tokens", 5);
+            String jsonBody = objectMapper.writeValueAsString(requestBody);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(effective.baseUrl() + "/chat/completions"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + effective.apiKey())
+                    .timeout(Duration.ofSeconds(15))
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .build();
+            HttpResponse<String> resp = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            long latency = System.currentTimeMillis() - start;
+            if (resp.statusCode() == 200) {
+                return "{\"ok\":true,\"latencyMs\":" + latency + "}";
+            }
+            return "{\"ok\":false,\"latencyMs\":" + latency
+                    + ",\"error\":\"HTTP " + resp.statusCode() + ": "
+                    + escapeJson(truncate(resp.body(), 200)) + "\"}";
+        } catch (Exception e) {
+            long latency = System.currentTimeMillis() - start;
+            return "{\"ok\":false,\"latencyMs\":" + latency
+                    + ",\"error\":\"" + escapeJson(e.getMessage()) + "\"}";
+        }
+    }
+
+    /** 推送 SSE 事件（data 字段为 JSON 字符串）。 */
+    private void sendSseEvent(SseEmitter emitter, String eventName, Object data) {
+        try {
+            String json = objectMapper.writeValueAsString(data);
+            emitter.send(SseEmitter.event().name(eventName).data(json));
+        } catch (IOException | IllegalStateException e) {
+            log.debug("SSE 发送失败（客户端可能已断开）: event={}, err={}", eventName, e.getMessage());
+        }
+    }
+
+    private void completeSse(SseEmitter emitter) {
+        try {
+            emitter.complete();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private String truncate(String s, int max) {
+        if (s == null) return "";
+        return s.length() <= max ? s : s.substring(0, max) + "...";
+    }
+
+    private String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\").replace("\"", "\\\"")
+                .replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
     }
 }

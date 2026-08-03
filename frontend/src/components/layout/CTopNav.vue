@@ -577,6 +577,7 @@ const communityMenu: NavLink[] = [
 
 const aiMenu: NavLink[] = [
   { path: '/chat', label: '智能问答', icon: 'icon-rengongzhineng1' },
+  { path: '/coding/agent', label: '编程 Agent', icon: 'code' },
   { path: '/learning/quiz', label: '智能测验', icon: 'icon-kaoshi' },
   { path: '/learning/writing', label: '智能写作', icon: 'wand-2' },
 ];
@@ -599,7 +600,7 @@ const personalMenu: NavLink[] = [
 const activeDropdownKey = computed<string>(() => {
   const p = route.path;
   // AI 助手优先匹配（/learning/quiz、/learning/writing 路由虽以 /learning 开头但归 AI 助手）
-  if (['/chat', '/learning/quiz', '/learning/writing'].includes(p)) return 'ai';
+  if (['/chat', '/coding/agent', '/learning/quiz', '/learning/writing'].includes(p)) return 'ai';
   if (['/knowledge', '/categories', '/search', '/docs', '/learning/knowledge-graph'].some(s => p === s || p.startsWith(s + '/'))) return 'knowledge';
   if (p.startsWith('/learning')) return 'learning';
   if (['/community', '/study-group', '/messages'].some(s => p === s || p.startsWith(s + '/'))) return 'community';

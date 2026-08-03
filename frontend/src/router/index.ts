@@ -242,6 +242,12 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   {
+    path: '/coding/agent',
+    name: 'CodeAgent',
+    component: () => import('@/views/CodeAgent.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
     path: '/learning/quiz',
     name: 'SmartQuiz',
     component: () => import('@/views/SmartQuiz.vue'),

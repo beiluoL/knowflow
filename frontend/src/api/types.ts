@@ -674,6 +674,15 @@ export interface UserAiConfigVO {
   baseUrl?: string
   model?: string
   isActive?: number
+  /** CLOUD / LOCAL */
+  providerType?: string
+  /** LIGHT / STANDARD / POWERFUL */
+  capability?: string
+  displayName?: string
+  /** 提供商中文标签（由 Registry 回填） */
+  providerLabel?: string
+  /** 是否本地部署 */
+  isLocal?: boolean
 }
 
 export interface UserAiConfigPayload {
@@ -682,6 +691,13 @@ export interface UserAiConfigPayload {
   baseUrl?: string
   model?: string
   isActive?: number
+  /** CLOUD / LOCAL */
+  providerType?: string
+  /** LIGHT / STANDARD / POWERFUL */
+  capability?: string
+  displayName?: string
+  /** 编辑现有配置时传入 */
+  id?: number
 }
 
 export interface PlatformModelVO {
@@ -691,6 +707,121 @@ export interface PlatformModelVO {
   model: string
   subscriptionRequired: boolean
   priceInfo: string
+  /** CLOUD / LOCAL */
+  providerType?: string
+  /** LIGHT / STANDARD / POWERFUL */
+  capability?: string
+  /** 默认推荐模型 */
+  defaultModel?: string
+}
+
+// ===== 编程 Agent =====
+export interface AgentChatMessage {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
+
+export interface AgentChatPayload {
+  messages: AgentChatMessage[]
+  configId?: number | null
+  fileContext?: string
+  filePath?: string
+  /** 会话ID，传入则追加到该会话；不传则后端自动创建新会话 */
+  sessionId?: number | null
+  /** 新会话标题（仅 sessionId 为空时生效） */
+  title?: string
+  /** 可选：采样温度（0~2），覆盖模型默认参数 */
+  temperature?: number | null
+  /** 可选：最大输出 token 数 */
+  maxTokens?: number | null
+  /** 可选：核采样概率阈值（0~1） */
+  topP?: number | null
+}
+
+/** Agent 会话列表项 */
+export interface AgentSessionVO {
+  id: number
+  userId?: number
+  title: string
+  configId?: number | null
+  configLabel?: string
+  projectDir?: string
+  messageCount?: number
+  lastMessage?: string
+  createTime?: string
+  updateTime?: string
+}
+
+/** Agent 历史消息 */
+export interface AgentMessageVO {
+  id: number
+  sessionId: number
+  role: 'system' | 'user' | 'assistant'
+  content: string
+  filePath?: string
+  tokenCount?: number
+  latencyMs?: number
+  isError?: number
+  createTime?: string
+}
+
+/** 模型监测统计数据 */
+export interface AgentStatsVO {
+  /** 汇总：totalCalls, successCalls, errorCalls, avgLatency, modelCount */
+  summary: Record<string, number | null> | null
+  /** 按模型分组：configId, provider, totalCalls, successCalls, avgLatency, maxLatency, totalTokens */
+  byModel: Array<Record<string, number | string | null>>
+  /** 按小时分组：hour, calls, successCalls, errorCalls, avgLatency */
+  hourly: Array<Record<string, number | string | null>>
+  rangeHours: number
+}
+
+export interface AgentModelsResult {
+  userModels: UserAiConfigVO[]
+  platformModels: PlatformModelVO[]
+}
+
+// ===== Ollama 本地模型管理 =====
+
+/** Ollama 配置（持久化） */
+export interface OllamaConfigVO {
+  id?: number
+  userId?: number
+  baseUrl?: string
+  defaultModel?: string
+  temperature?: number
+  topP?: number
+  maxTokens?: number
+  timeoutSeconds?: number
+}
+
+/** Ollama 已安装模型信息（对应 /api/tags 返回） */
+export interface OllamaModelVO {
+  name: string
+  digest?: string
+  size?: number
+  format?: string
+  family?: string
+  parameterSize?: string
+  quantizationLevel?: string
+  modifiedAt?: string
+  sizeReadable?: string
+}
+
+/** 连接测试结果 */
+export interface OllamaTestResult {
+  ok: boolean
+  latencyMs?: number
+  modelCount?: number
+  error?: string
+}
+
+/** 加载/卸载/删除操作结果 */
+export interface OllamaOpResult {
+  ok: boolean
+  action?: string
+  model?: string
+  error?: string
 }
 
 // ===== 代码题库 =====

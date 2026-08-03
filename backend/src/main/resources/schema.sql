@@ -393,16 +393,86 @@ CREATE INDEX idx_notif_deleted ON sys_notification (deleted);
 CREATE TABLE IF NOT EXISTS sys_user_ai_config (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    provider VARCHAR(50) NOT NULL COMMENT '模型提供商: deepseek / siliconflow / openai / custom',
-    api_key VARCHAR(500) NOT NULL COMMENT '用户自己的 API Key',
+    provider VARCHAR(50) NOT NULL COMMENT '模型提供商: deepseek / siliconflow / openai / ollama / vllm / localai / custom 等',
+    api_key VARCHAR(500) NOT NULL COMMENT '用户自己的 API Key；本地模型约定填 local',
     base_url VARCHAR(255) COMMENT '自定义 API 地址（留空用默认）',
     model VARCHAR(100) COMMENT '默认模型名',
-    is_active INT DEFAULT 1 COMMENT '是否启用: 1 启用 / 0 禁用',
+    is_active INT DEFAULT 1 COMMENT '是否启用（通用 Chat 使用）: 1 启用 / 0 禁用',
+    provider_type VARCHAR(16) DEFAULT 'CLOUD' COMMENT '提供商类型: CLOUD / LOCAL',
+    capability VARCHAR(16) DEFAULT 'STANDARD' COMMENT '能力等级: LIGHT / STANDARD / POWERFUL',
+    display_name VARCHAR(100) COMMENT '用户自定义显示名（如 我的本地 Llama3）',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0
 );
-CREATE UNIQUE INDEX uk_user_ai_config_user ON sys_user_ai_config (user_id, deleted);
+-- 编程 Agent 场景下同一用户可有多条配置，故不再对 user_id 设唯一约束；
+-- 通用 Chat 通过 is_active=1 标记当前使用的唯一配置，由应用层 clearOtherActive 保证。
+CREATE INDEX idx_user_ai_config_user ON sys_user_ai_config (user_id, deleted);
+
+-- ===== 编程 Agent 多会话与调用日志 =====
+CREATE TABLE IF NOT EXISTS agent_session (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '所属用户',
+    title VARCHAR(200) NOT NULL COMMENT '会话标题（取首条问题前 30 字）',
+    config_id BIGINT COMMENT '使用的模型配置ID（可空，表示用默认）',
+    project_dir VARCHAR(500) COMMENT '项目目录名（File System Access 句柄名，仅展示用）',
+    message_count INT DEFAULT 0 COMMENT '消息条数（冗余字段，便于列表展示）',
+    last_message VARCHAR(500) COMMENT '最后一条消息摘要',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX idx_agent_session_user ON agent_session (user_id, deleted);
+
+CREATE TABLE IF NOT EXISTS agent_message (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    session_id BIGINT NOT NULL COMMENT '所属会话',
+    user_id BIGINT NOT NULL COMMENT '冗余用户ID，便于查询',
+    role VARCHAR(20) NOT NULL COMMENT 'system / user / assistant',
+    content MEDIUMTEXT COMMENT '消息内容',
+    file_path VARCHAR(500) COMMENT '附带的文件路径（user 消息可选）',
+    token_count INT DEFAULT 0 COMMENT '预估 token 数',
+    latency_ms INT COMMENT 'assistant 消息的响应耗时（毫秒）',
+    is_error INT DEFAULT 0 COMMENT '是否为错误消息: 0 否 / 1 是',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX idx_agent_message_session ON agent_message (session_id, create_time);
+CREATE INDEX idx_agent_message_user ON agent_message (user_id, deleted);
+
+-- 模型调用日志：用于监测仪表盘（响应时间、调用次数、错误率）
+CREATE TABLE IF NOT EXISTS agent_call_log (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    config_id BIGINT COMMENT '模型配置ID',
+    provider VARCHAR(50) COMMENT '提供商（冗余，便于按提供商聚合）',
+    session_id BIGINT COMMENT '所属会话',
+    success INT NOT NULL DEFAULT 1 COMMENT '调用是否成功: 1 成功 / 0 失败',
+    latency_ms INT COMMENT '响应耗时（毫秒）',
+    token_in INT DEFAULT 0 COMMENT '输入 token 数',
+    token_out INT DEFAULT 0 COMMENT '输出 token 数',
+    error_msg VARCHAR(1000) COMMENT '失败时的错误信息',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_agent_call_log_user ON agent_call_log (user_id, create_time);
+CREATE INDEX idx_agent_call_log_config ON agent_call_log (config_id, create_time);
+
+-- Ollama 本地模型配置表（持久化服务地址、默认模型、参数预设）
+CREATE TABLE IF NOT EXISTS ollama_config (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '所属用户',
+    base_url VARCHAR(255) DEFAULT 'http://localhost:11434' COMMENT 'Ollama 服务地址',
+    default_model VARCHAR(100) COMMENT '默认模型名',
+    temperature DOUBLE DEFAULT 0.7 COMMENT '温度预设',
+    top_p DOUBLE DEFAULT 0.9 COMMENT 'Top-P 预设',
+    max_tokens INT DEFAULT 4000 COMMENT '最大 Token 预设',
+    timeout_seconds INT DEFAULT 60 COMMENT '连接超时（秒）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX idx_ollama_config_user ON ollama_config (user_id, deleted);
 
 -- 代码练习题目表（B 端题库管理 + C 端代码练习共用）
 CREATE TABLE IF NOT EXISTS code_question (

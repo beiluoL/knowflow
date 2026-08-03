@@ -1,6 +1,7 @@
 package com.knowflow.service;
 
 import com.knowflow.entity.DocDocument;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.Collections;
 import java.util.List;
@@ -60,4 +61,61 @@ public interface AiService {
     default String chatWithImages(String text, List<String> images, List<DocDocument> contextDocs, String model) {
         return chatWithImages(text, images, contextDocs, model, null);
     }
+
+    /**
+     * 流式对话（编程 Agent 专用）：通过 SSE 逐 token 推送模型输出。
+     * <p>
+     * 推送事件：
+     * <ul>
+     *   <li>{@code delta}：{ content: "token" }</li>
+     *   <li>{@code done}：{ content: "完整文本" }</li>
+     *   <li>{@code error}：{ error: "错误信息" }</li>
+     * </ul>
+     *
+     * @param systemPrompt 系统提示词
+     * @param userPrompt   用户输入
+     * @param userId       用户 ID（用于解析其个人配置）
+     * @param configId     指定使用哪条用户配置；为 null 时回退到 active 配置或全局配置
+     * @param emitter      SSE 推送器
+     */
+    void streamChat(String systemPrompt, String userPrompt, Long userId, Long configId, SseEmitter emitter);
+
+    /**
+     * 流式对话（带完成回调）：在流结束时回调通知调用方完整内容与成功/失败状态，
+     * 便于 Controller 持久化 assistant 消息与调用日志。
+     *
+     * @param callback 流结束时的回调；success 为 true 时 content 为完整回复，为 false 时 content 为错误信息
+     */
+    void streamChat(String systemPrompt, String userPrompt, Long userId, Long configId,
+                    SseEmitter emitter, StreamCompletionCallback callback);
+
+    /**
+     * 带运行时参数的流式对话：允许前端按模型自定义 temperature / maxTokens / topP。
+     * 任意参数为 null 时回退到默认值。
+     *
+     * @param temperature 采样温度（0~2），null 则用默认 0.7
+     * @param maxTokens   最大输出 token 数，null 则用全局配置
+     * @param topP        核采样阈值（0~1），null 则不传
+     */
+    void streamChat(String systemPrompt, String userPrompt, Long userId, Long configId,
+                    SseEmitter emitter, StreamCompletionCallback callback,
+                    Double temperature, Integer maxTokens, Double topP);
+
+    /**
+     * 流式对话完成回调函数式接口。
+     */
+    @FunctionalInterface
+    interface StreamCompletionCallback {
+        /**
+         * @param content 成功时为完整回复文本；失败时为错误信息
+         * @param success 是否成功
+         */
+        void onComplete(String content, boolean success);
+    }
+
+    /**
+     * 模型可用性检测：发起一个轻量请求验证配置是否可用。
+     * 返回 { ok: true/false, latencyMs: n, error: "..." }。
+     */
+    String healthCheck(Long userId, Long configId);
 }
