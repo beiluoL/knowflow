@@ -1,6 +1,6 @@
 /* 字体加载：合并为单次请求（Noto Sans SC 正文 + Noto Serif SC 展示标题 + JetBrains Mono 代码）
- * index.html 已 preconnect fonts.googleapis.com / fonts.gstatic.com，此处仅 @import css2 */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@500;600;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+ * 使用国内镜像 fonts.loli.net 替换 Google Fonts，避免国内访问失败 */
+@import url('https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@500;600;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;

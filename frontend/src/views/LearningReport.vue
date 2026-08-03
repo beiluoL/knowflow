@@ -1,40 +1,38 @@
 <template>
   <div class="learning-center animate-fade-in">
-    <!-- ========== Section 1: 名人名言 Hero ========== -->
-    <section class="quote-hero">
-      <div class="quote-hero-bg">
-        <div class="quote-grid-pattern"></div>
-        <div class="quote-glow quote-glow-1"></div>
-        <div class="quote-glow quote-glow-2"></div>
+    <!-- ========== Section 1: 每日名言卡片 ========== -->
+    <section class="quote-card">
+      <div class="quote-card-accent"></div>
+      <div class="quote-card-body">
+        <div class="quote-card-header">
+          <span class="quote-card-badge">
+            <Icon name="quote" :size="14" />
+            每日一言
+          </span>
+          <button
+            type="button"
+            class="quote-refresh-btn"
+            :disabled="quoteSwitching"
+            title="换一条"
+            @click="refreshQuote"
+          >
+            <Icon name="refresh-cw" :size="15" :class="{ 'spin': quoteSwitching }" />
+            <span>换一条</span>
+          </button>
+        </div>
+        <Transition name="quote-fade" mode="out-in">
+          <blockquote :key="currentQuote.text" class="quote-card-text">
+            {{ currentQuote.text }}
+          </blockquote>
+        </Transition>
+        <div class="quote-card-footer">
+          <span class="quote-card-line"></span>
+          <cite class="quote-card-author">
+            <span class="author-name">{{ currentQuote.author }}</span>
+            <span v-if="currentQuote.title" class="author-title">{{ currentQuote.title }}</span>
+          </cite>
+        </div>
       </div>
-      <div class="quote-content">
-        <div class="quote-mark">"</div>
-        <p class="quote-text">{{ currentQuote.text }}</p>
-        <div class="quote-divider"></div>
-        <p class="quote-author">
-          <span class="quote-author-name">{{ currentQuote.author }}</span>
-          <span v-if="currentQuote.title" class="quote-author-title">{{ currentQuote.title }}</span>
-        </p>
-      </div>
-      <div class="quote-dots">
-        <button
-          v-for="(_, idx) in quotes"
-          :key="idx"
-          type="button"
-          :aria-label="`第 ${idx + 1} 条名言`"
-          :class="['quote-dot', { 'quote-dot-active': idx === quoteIndex }]"
-          @click="quoteIndex = idx"
-        ></button>
-      </div>
-      <button
-        v-if="quotes.length > 1"
-        type="button"
-        aria-label="下一条名言"
-        class="quote-nav-btn quote-nav-next"
-        @click="nextQuote"
-      >
-        <Icon name="chevron-right" :size="18" />
-      </button>
     </section>
 
     <!-- ========== Section 2: 学习数据概览 ========== -->
@@ -347,7 +345,7 @@
 
 <script setup lang="ts">
 // 学习中心：名人名言 + 学习数据概览 + 快速入口 + 进行中课程 + 今日任务 + 学习热力图 + 推荐下一步 + 本周概览
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import { notify, confirmDialog, getApiError } from '@/utils/toast'
 import { userApi, learningApi } from '@/api'
@@ -392,7 +390,7 @@ const pathProgress = (p: LearningPathVO) => {
 
 const doneTasks = computed(() => tasks.value.filter((t) => t.status === 1).length)
 
-// 名人名言数据
+// 名人名言数据池
 interface Quote {
   text: string
   author: string
@@ -412,15 +410,29 @@ const quotes: Quote[] = [
   { text: '博学之，审问之，慎思之，明辨之，笃行之。', author: '子思', title: '《中庸》' },
   { text: '不积跬步，无以至千里；不积小流，无以成江海。', author: '荀子', title: '《劝学》' },
   { text: '学而不思则罔，思而不学则殆。', author: '孔子', title: '《论语》' },
+  { text: '天行健，君子以自强不息。', author: '佚名', title: '《周易》' },
+  { text: '三更灯火五更鸡，正是男儿读书时。', author: '颜真卿', title: '《劝学》' },
+  { text: '黑发不知勤学早，白首方悔读书迟。', author: '颜真卿', title: '《劝学》' },
+  { text: '少壮不努力，老大徒伤悲。', author: '佚名', title: '《汉乐府》' },
+  { text: '玉不琢，不成器；人不学，不知道。', author: '佚名', title: '《礼记》' },
+  { text: '敏而好学，不耻下问。', author: '孔子', title: '《论语》' },
+  { text: '读万卷书，行万里路。', author: '刘彝', title: '《画旨》' },
+  { text: '锲而舍之，朽木不折；锲而不舍，金石可镂。', author: '荀子', title: '《劝学》' },
 ]
 
-const quoteIndex = ref(Math.floor(Math.random() * quotes.length))
-let quoteTimer: ReturnType<typeof setInterval> | null = null
+// 随机选取一条名言（避免与当前重复）
+const currentQuote = ref<Quote>(quotes[Math.floor(Math.random() * quotes.length)])
+const quoteSwitching = ref(false)
 
-const currentQuote = computed(() => quotes[quoteIndex.value])
-
-function nextQuote() {
-  quoteIndex.value = (quoteIndex.value + 1) % quotes.length
+function refreshQuote() {
+  if (quoteSwitching.value || quotes.length <= 1) return
+  quoteSwitching.value = true
+  let next: Quote
+  do {
+    next = quotes[Math.floor(Math.random() * quotes.length)]
+  } while (next.text === currentQuote.value.text)
+  currentQuote.value = next
+  setTimeout(() => { quoteSwitching.value = false }, 400)
 }
 
 const quickNavItems = [
@@ -579,12 +591,6 @@ async function loadData(): Promise<void> {
 
 onMounted(() => {
   void loadData()
-  // 每 15 秒自动切换名言
-  quoteTimer = setInterval(nextQuote, 15000)
-})
-
-onUnmounted(() => {
-  if (quoteTimer) clearInterval(quoteTimer)
 })
 </script>
 
@@ -774,176 +780,147 @@ onUnmounted(() => {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ========== 名人名言 Hero ========== */
-.quote-hero {
+/* ========== 每日名言卡片 ========== */
+.quote-card {
   position: relative;
-  border-radius: 20px;
+  display: flex;
+  border-radius: 16px;
   overflow: hidden;
   margin-bottom: 20px;
-  min-height: 200px;
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  transition: box-shadow 0.2s ease;
+}
+.quote-card:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+}
+
+.quote-card-accent {
+  width: 5px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--kb-primary) 0%, #8B5CF6 100%);
+}
+
+.quote-card-body {
+  flex: 1;
+  padding: 24px 28px;
   display: flex;
   flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.quote-card-header {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 48px 64px;
-  background: linear-gradient(135deg, #1a2942 0%, #0f1a2e 50%, #1a1f3a 100%);
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.quote-hero-bg {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
+.quote-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(59, 111, 224, 0.08);
+  color: var(--kb-primary);
 }
 
-.quote-grid-pattern {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(59, 111, 224, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59, 111, 224, 0.06) 1px, transparent 1px);
-  background-size: 40px 40px;
-  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+.quote-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-background);
+  color: var(--kb-muted-foreground);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.quote-refresh-btn:hover:not(:disabled) {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.05);
+}
+.quote-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.quote-refresh-btn .spin {
+  animation: spin 0.6s linear;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.quote-glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
+.quote-card-text {
+  font-family: var(--font-serif, 'Noto Serif SC', Georgia, serif);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.7;
+  color: var(--kb-foreground);
+  letter-spacing: 0.01em;
+  margin: 0;
+  quotes: none;
+  text-align: left;
+}
+.quote-card-text::before {
+  content: none;
+}
+.quote-card-text::after {
+  content: none;
+}
+
+.quote-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.quote-card-line {
+  width: 32px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--kb-primary);
+  flex-shrink: 0;
   opacity: 0.5;
 }
-.quote-glow-1 {
-  width: 300px;
-  height: 300px;
-  background: rgba(59, 111, 224, 0.4);
-  top: -100px;
-  left: -50px;
-  animation: glowFloat 8s ease-in-out infinite;
-}
-.quote-glow-2 {
-  width: 250px;
-  height: 250px;
-  background: rgba(139, 92, 246, 0.3);
-  bottom: -80px;
-  right: -30px;
-  animation: glowFloat 8s ease-in-out infinite reverse;
-}
-
-@keyframes glowFloat {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(30px, -20px); }
-}
-
-.quote-content {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  max-width: 800px;
-}
-
-.quote-mark {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 72px;
-  line-height: 1;
-  color: rgba(59, 111, 224, 0.4);
-  margin-bottom: -20px;
-  font-weight: 700;
-}
-
-.quote-text {
-  font-family: var(--font-serif, 'Noto Serif SC', Georgia, serif);
-  font-size: 26px;
-  font-weight: 500;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.95);
-  letter-spacing: 0.02em;
-  margin-bottom: 20px;
-  transition: opacity 0.4s ease;
-}
-
-.quote-divider {
-  width: 40px;
-  height: 2px;
-  background: rgba(59, 111, 224, 0.6);
-  margin: 0 auto 16px;
-  border-radius: 2px;
-}
-
-.quote-author {
+.quote-card-author {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 6px;
+  font-style: normal;
 }
-
-.quote-author-name {
-  font-size: 15px;
+.author-name {
+  font-size: 14px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--kb-foreground);
 }
-
-.quote-author-title {
+.author-title {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--kb-muted-foreground);
 }
 
-.quote-dots {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  gap: 8px;
-  margin-top: 24px;
+/* 名言切换过渡动画 */
+.quote-fade-enter-active,
+.quote-fade-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
-
-.quote-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.2);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 0;
+.quote-fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
 }
-
-.quote-dot:hover {
-  background: rgba(255, 255, 255, 0.4);
-}
-
-.quote-dot-active {
-  width: 24px;
-  border-radius: 3px;
-  background: var(--kb-primary);
-}
-
-.quote-nav-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 1;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(8px);
-}
-
-.quote-nav-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.95);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.quote-nav-next {
-  right: 24px;
+.quote-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
 }
 
 /* ========== 学习数据概览条 ========== */
@@ -1110,18 +1087,18 @@ onUnmounted(() => {
 
 /* 移动端适配 */
 @media (max-width: 768px) {
-  .quote-hero {
-    padding: 32px 24px;
-    min-height: 160px;
+  .quote-card-body {
+    padding: 18px 20px;
+    gap: 12px;
   }
-  .quote-text {
-    font-size: 20px;
+  .quote-card-text {
+    font-size: 17px;
   }
-  .quote-mark {
-    font-size: 56px;
+  .quote-refresh-btn span {
+    display: none;
   }
-  .quote-nav-next {
-    right: 12px;
+  .quote-refresh-btn {
+    padding: 6px 8px;
   }
   .stats-bar {
     flex-direction: column;

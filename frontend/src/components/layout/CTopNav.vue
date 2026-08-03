@@ -360,6 +360,16 @@
         个人设置
       </button>
       <button
+        type="button"
+        role="menuitem"
+        class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-gray-50"
+        style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);"
+        @click="goTo('/settings/background')"
+      >
+        <Icon name="image" size="md" style="color: var(--kb-muted-foreground);" />
+        背景设置
+      </button>
+      <button
         v-if="isAdmin"
         type="button"
         role="menuitem"

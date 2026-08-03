@@ -218,6 +218,7 @@
 <script setup lang="ts">
 // 学习报告页：按周期聚合签到/闪卡/错题/代码/阅读/测验数据，含活跃度柱状图、掌握度进度条、周趋势。
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import Icon from '@/components/ui/Icon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -234,7 +235,16 @@ const periodOptions: { value: Period; label: string }[] = [
   { value: 'all', label: '全部' },
 ]
 
-const period = ref<Period>('month')
+const route = useRoute()
+
+// 从路由参数读取 period，保持用户跳转上下文
+function resolveInitialPeriod(): Period {
+  const p = route.query.period as string
+  if (p === 'week' || p === 'month' || p === 'all') return p
+  return 'month'
+}
+
+const period = ref<Period>(resolveInitialPeriod())
 const loading = ref(false)
 const error = ref('')
 const report = ref<LearningReportData | null>(null)

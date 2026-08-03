@@ -109,7 +109,7 @@
                   class="action-btn"
                   @click="handleNote"
                 >
-                  <Icon name="edit-3" :size="16" />
+                  <Icon name="notebook-pen" :size="16" />
                   <span>记笔记</span>
                 </button>
                 <!-- 进入章节学习：反查文档关联的章节，单个直接跳转，多个弹出选择 -->

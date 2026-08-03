@@ -287,7 +287,16 @@
     </section>
 
     <section class="report-section">
-      <router-link to="/learning/center" class="report-btn">
+      <router-link
+        :to="{
+          path: '/learning/report',
+          query: {
+            period: userStats?.studyDaysThisWeek >= 7 ? 'week' : 'month',
+            source: 'home'
+          }
+        }"
+        class="report-btn"
+      >
         <Icon name="bar-chart-2" :size="16" />
         <span>查看完整学习报告</span>
         <Icon name="arrow-right" :size="14" />

@@ -219,11 +219,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/FocusMode.vue'),
     meta: { layout: 'none', requiresAuth: true },
   },
-  // F-01 修复：旧的 /learning/report 重定向到学习中心，保持外链兼容
+  // 学习报告独立页面
   {
     path: '/learning/report',
     name: 'LearningReport',
-    redirect: '/learning/center',
+    component: () => import('@/views/LearningReportView.vue'),
+    meta: { layout: 'c', requiresAuth: true },
   },
   // F-01 修复：番茄钟独立路由（LearningCenter.vue 实为番茄钟专注页）
   {
@@ -276,6 +277,12 @@ const routes: RouteRecordRaw[] = [
     path: '/profile',
     name: 'Profile',
     component: () => import('@/views/Profile.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  {
+    path: '/settings/background',
+    name: 'BackgroundSettings',
+    component: () => import('@/views/BackgroundSettings.vue'),
     meta: { layout: 'c', requiresAuth: true },
   },
   {

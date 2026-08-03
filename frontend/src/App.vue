@@ -1,4 +1,5 @@
 <template>
+  <GlobalBackground />
   <router-view v-slot="{ Component, route }">
     <CLayout v-if="route.meta.layout === 'c'">
       <component :is="Component" :key="route.path" />
@@ -13,10 +14,11 @@
 </template>
 
 <script setup lang="ts">
-// 应用根组件：按路由 meta 挂载对应布局（前台/后台/默认），并渲染全局消息宿主与庆祝弹窗宿主。
+// 应用根组件：按路由 meta 挂载对应布局（前台/后台/默认），并渲染全局背景层、消息宿主与庆祝弹窗宿主。
 import { onMounted } from 'vue';
 import AppShell from '@/components/layout/AppShell.vue';
 import CLayout from '@/components/layout/CLayout.vue';
+import GlobalBackground from '@/components/GlobalBackground.vue';
 import ToastHost from '@/components/ui/ToastHost.vue';
 import Celebration from '@/components/ui/Celebration.vue';
 import { useAuthStore } from '@/stores/auth';
