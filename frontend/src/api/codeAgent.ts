@@ -58,6 +58,8 @@ export interface AgentStreamCallbacks {
   onToolEnd?: (event: AgentToolEndEvent) => void
   /** 高危工具待用户二次确认，需调用 confirmTool 回传结果 */
   onToolConfirm?: (event: AgentToolEvent) => void
+  /** 运行期提示信息（如模型不支持工具、自动退化为普通对话） */
+  onInfo?: (message: string) => void
   /** 异常 */
   onError?: (error: string) => void
 }
@@ -296,6 +298,7 @@ function parseAgentSseFrame(frame: string, callbacks: AgentStreamCallbacks) {
     success?: boolean
     output?: string
     latencyMs?: number
+    message?: string
   }
 
   let data: SseData
@@ -352,6 +355,9 @@ function parseAgentSseFrame(frame: string, callbacks: AgentStreamCallbacks) {
       break
     case 'error':
       callbacks.onError?.(data.error || '对话失败')
+      break
+    case 'info':
+      if (data.message) callbacks.onInfo?.(data.message)
       break
   }
 }

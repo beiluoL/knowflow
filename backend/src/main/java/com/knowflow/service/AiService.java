@@ -135,6 +135,13 @@ public interface AiService {
             Long userId, Long configId);
 
     /**
+     * 判断指定配置对应的模型是否支持 tools（Function Calling）。
+     * 不支持时（如 Ollama 上的 deepseek-coder:6.7b），Agent 应跳过 ReAct 工具循环，退化为普通对话，
+     * 避免向模型下发 tools 参数触发 400。
+     */
+    boolean supportsTools(Long userId, Long configId);
+
+    /**
      * 编程 Agent 流式多轮通道：逐 token 回调 onToken，结束时回调 onDone（含 toolCalls）。
      */
     void streamMulti(

@@ -415,6 +415,11 @@ public class CodeAgentController {
                             }
 
                             @Override
+                            public void onInfo(String message) {
+                                sendEvent(emitter, "info", Map.of("message", message));
+                            }
+
+                            @Override
                             public void onToolStart(String callId, String toolName, String argsJson,
                                                     ToolPermission permission) {
                                 Map<String, Object> data = new HashMap<>();

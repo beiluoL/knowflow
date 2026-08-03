@@ -58,6 +58,9 @@ public class AgentRuntimeService {
         /** 工具执行完成 */
         default void onToolEnd(String callId, String toolName, ToolResult result) {}
 
+        /** 运行期提示信息（如模型不支持工具时退化为普通对话的通知） */
+        default void onInfo(String message) {}
+
         /**
          * 高危工具二次确认：返回 true 表示允许执行。
          * 默认拒绝，保证未接入确认通道的调用方不会误触发高危操作。
@@ -103,7 +106,23 @@ public class AgentRuntimeService {
         // 2. 构造工具声明（仅注入该用户已启用的工具）
         List<ModelAdapter.ToolSpec> toolSpecs = buildToolSpecs(userId);
 
-        // 3. ReAct 循环
+        // 3. 能力检测：若当前模型不支持 tools（如 Ollama 上的 deepseek-coder:6.7b），
+        //    直接退化为「普通对话」，不再走 ReAct 工具循环，避免向模型下发 tools 触发 400。
+        //    同时告知用户当前模型不具备工具调用能力。
+        if (!aiService.supportsTools(userId, configId)) {
+            ln.onInfo("当前模型不支持工具调用（Function Calling），已自动退化为普通对话模式，"
+                    + "文件读写/命令执行等工具均不可用。如需使用 Agent 工具能力，请切换到支持 tools 的模型（如 qwen-plus、gpt-4o 等）。");
+            ln.onThinking(1);
+            ModelAdapter.ChatResult result = aiService.chatMulti(messages, null, userId, configId);
+            String text = result != null && result.content != null ? result.content : "";
+            if (!text.isEmpty()) {
+                ln.onDelta(text);
+            }
+            persistMessage(sessionId, userId, "assistant", text, "normal", null, null);
+            return text;
+        }
+
+        // 4. ReAct 循环
         int iter = 0;
         while (iter < MAX_ITER) {
             iter++;

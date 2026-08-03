@@ -68,18 +68,25 @@ public class AiProviderRegistry {
 
         // ===== 本地 4 类（OpenAI 兼容协议）=====
         register("ollama", "Ollama（本地）", "http://localhost:11434/v1", "llama3.1",
-                ProviderType.LOCAL, Capability.LIGHT, Protocol.OPENAI, false, "本地部署，免费");
+                ProviderType.LOCAL, Capability.LIGHT, Protocol.OPENAI, false, "本地部署，免费", false);
         register("vllm", "vLLM（本地）", "http://localhost:8000/v1", "Qwen/Qwen2.5-7B-Instruct",
-                ProviderType.LOCAL, Capability.STANDARD, Protocol.OPENAI, false, "本地部署，免费");
+                ProviderType.LOCAL, Capability.STANDARD, Protocol.OPENAI, false, "本地部署，免费", false);
         register("localai", "LocalAI（本地）", "http://localhost:8080/v1", "gpt-3.5-turbo",
-                ProviderType.LOCAL, Capability.LIGHT, Protocol.OPENAI, false, "本地部署，免费");
+                ProviderType.LOCAL, Capability.LIGHT, Protocol.OPENAI, false, "本地部署，免费", false);
         register("custom-local", "自定义（本地）", "", "",
-                ProviderType.LOCAL, Capability.STANDARD, Protocol.OPENAI, false, "用户自定义本地接口地址");
+                ProviderType.LOCAL, Capability.STANDARD, Protocol.OPENAI, false, "用户自定义本地接口地址", false);
     }
 
     private void register(String id, String label, String baseUrl, String defaultModel,
                           ProviderType type, Capability capability, Protocol protocol,
                           boolean subscriptionRequired, String priceInfo) {
+        register(id, label, baseUrl, defaultModel, type, capability, protocol,
+                subscriptionRequired, priceInfo, true);
+    }
+
+    private void register(String id, String label, String baseUrl, String defaultModel,
+                          ProviderType type, Capability capability, Protocol protocol,
+                          boolean subscriptionRequired, String priceInfo, boolean supportsTools) {
         ProviderInfo info = new ProviderInfo();
         info.setProvider(id);
         info.setLabel(label);
@@ -90,6 +97,7 @@ public class AiProviderRegistry {
         info.setProtocol(protocol);
         info.setSubscriptionRequired(subscriptionRequired);
         info.setPriceInfo(priceInfo);
+        info.setSupportsTools(supportsTools);
         builtins.add(info);
         index.put(id, info);
     }
@@ -158,5 +166,23 @@ public class AiProviderRegistry {
         private Protocol protocol;
         private boolean subscriptionRequired;
         private String priceInfo;
+        /**
+         * 是否支持 Function Calling / tools 参数。
+         * 本地推理服务默认 false（具体模型是否支持取决于模型本身，如 deepseek-coder:6.7b 不支持，
+         * 直接下发 tools 会触发 400 Bad Request），云端 OpenAI 兼容厂商默认 true。
+         */
+        private boolean supportsTools = true;
+    }
+
+    /**
+     * 判断指定 provider 是否支持 tools（Function Calling）。
+     * 未知 provider 默认按云端兼容处理（支持 tools）。
+     */
+    public boolean supportsTools(String provider) {
+        if (provider == null) {
+            return true;
+        }
+        ProviderInfo info = index.get(provider.toLowerCase());
+        return info == null || info.isSupportsTools();
     }
 }

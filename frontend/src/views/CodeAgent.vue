@@ -1627,6 +1627,10 @@ async function runAgentChat(text: string) {
         // 刷新调用链面板，保证与本轮执行结果一致
         callChainRef.value?.loadChain()
       },
+      onInfo: (message) => {
+        // 模型不支持工具、自动退化为普通对话时给出明确提示
+        notify(message, 'info')
+      },
       onError: (err) => {
         messages.value.push({ role: 'assistant', content: `**Agent 执行失败**：${err}`, error: true })
         streamingContent.value = ''

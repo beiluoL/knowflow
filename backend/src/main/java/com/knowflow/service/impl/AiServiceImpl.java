@@ -482,7 +482,9 @@ public class AiServiceImpl implements AiService {
         req.apiSecret = effective.apiSecret();
         req.baseUrl = effective.baseUrl();
         req.messages = messages;
-        req.tools = tools;
+        // 不支持 tools 的模型（如 Ollama 上的 deepseek-coder:6.7b）直接下发 tools 会 400，必须跳过
+        boolean supportTools = providerRegistry.supportsTools(effective.provider());
+        req.tools = supportTools ? tools : null;
         req.temperature = 0.3;
         req.maxTokens = aiConfig.getMaxTokens();
         try {
@@ -514,7 +516,9 @@ public class AiServiceImpl implements AiService {
         req.apiSecret = effective.apiSecret();
         req.baseUrl = effective.baseUrl();
         req.messages = messages;
-        req.tools = tools;
+        // 不支持 tools 的模型（如 Ollama 上的 deepseek-coder:6.7b）直接下发 tools 会 400，必须跳过
+        boolean supportTools = providerRegistry.supportsTools(effective.provider());
+        req.tools = supportTools ? tools : null;
         req.temperature = temperature != null ? temperature : 0.3;
         req.maxTokens = maxTokens != null ? maxTokens : aiConfig.getMaxTokens();
         req.topP = topP;
@@ -524,6 +528,17 @@ public class AiServiceImpl implements AiService {
             throw new BusinessException("AI 流式调用失败：" + e.getMessage());
         } catch (Exception e) {
             throw new BusinessException("AI 流式调用异常：" + e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean supportsTools(Long userId, Long configId) {
+        try {
+            EffectiveAiConfig effective = resolveConfigById(userId, configId);
+            return providerRegistry.supportsTools(effective.provider());
+        } catch (Exception e) {
+            // 解析失败时保守地认为支持，让上层按正常路径走（失败再降级）
+            return true;
         }
     }
 
