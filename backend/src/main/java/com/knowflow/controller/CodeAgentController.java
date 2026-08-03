@@ -68,6 +68,7 @@ public class CodeAgentController {
     private final AgentSessionMapper agentSessionMapper;
     private final AgentMessageMapper agentMessageMapper;
     private final AgentCallLogMapper agentCallLogMapper;
+    private final com.knowflow.agent.AgentRuntimeService agentRuntimeService;
 
     /** 异步执行流式对话，避免阻塞 Servlet 线程。 */
     private final ExecutorService agentExecutor = Executors.newCachedThreadPool(r -> {
@@ -253,6 +254,59 @@ public class CodeAgentController {
         });
 
         return emitter;
+    }
+
+    /**
+     * 编程 Agent 同步对话（ReAct 工具编排）。
+     * 在当前会话上下文基础上，加载启用工具并执行「模型→工具→回灌」循环，直到模型给出终态文本。
+     * 适用于需要在后端完整跑通工具链的场景（前端可在后续阶段接入流式 tool-call 事件）。
+     */
+    @Operation(summary = "编程 Agent 同步对话（含工具调用编排）")
+    @PostMapping("/chat")
+    public Result<Map<String, Object>> chat(@RequestBody Map<String, Object> body) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        String userContent = body.get("content") != null ? body.get("content").toString() : null;
+        if (userContent == null || userContent.isBlank()) {
+            return Result.error("对话内容不能为空");
+        }
+        Long sessionId = body.get("sessionId") != null ? Long.valueOf(body.get("sessionId").toString()) : null;
+        Long configId = body.get("configId") != null ? Long.valueOf(body.get("configId").toString()) : null;
+
+        // 会话获取/创建（复用既有逻辑）
+        if (sessionId == null) {
+            AgentSession session = new AgentSession();
+            session.setUserId(userId);
+            session.setConfigId(configId);
+            session.setTitle(truncate(userContent, 30));
+            session.setMessageCount(0);
+            session.setLastMessage(truncate(userContent, 200));
+            agentSessionMapper.insert(session);
+            sessionId = session.getId();
+        } else {
+            AgentSession existing = agentSessionMapper.selectById(sessionId);
+            if (existing == null || !existing.getUserId().equals(userId)) {
+                return Result.error("会话不存在或无权访问");
+            }
+        }
+
+        // 保存 user 消息
+        AgentMessage userMsg = new AgentMessage();
+        userMsg.setSessionId(sessionId);
+        userMsg.setUserId(userId);
+        userMsg.setRole("user");
+        userMsg.setContent(userContent);
+        userMsg.setMessageType("normal");
+        userMsg.setTokenCount(estimateTokens(userContent));
+        agentMessageMapper.insert(userMsg);
+        updateSessionStats(sessionId, userContent);
+
+        // 运行 ReAct 编排（含工具调用）
+        String reply = agentRuntimeService.run(sessionId, userContent, userId, configId);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("sessionId", sessionId);
+        result.put("content", reply);
+        return Result.success(result);
     }
 
     // ==================== 会话管理 ====================

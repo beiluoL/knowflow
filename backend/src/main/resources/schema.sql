@@ -418,6 +418,8 @@ CREATE TABLE IF NOT EXISTS agent_session (
     project_dir VARCHAR(500) COMMENT '项目目录名（File System Access 句柄名，仅展示用）',
     message_count INT DEFAULT 0 COMMENT '消息条数（冗余字段，便于列表展示）',
     last_message VARCHAR(500) COMMENT '最后一条消息摘要',
+    context_window INT DEFAULT 6000 COMMENT '上下文窗口上限（token），用于摘要压缩阈值',
+    agent_mode VARCHAR(20) DEFAULT 'chat' COMMENT '会话模式 chat / agent',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0
@@ -428,9 +430,13 @@ CREATE TABLE IF NOT EXISTS agent_message (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     session_id BIGINT NOT NULL COMMENT '所属会话',
     user_id BIGINT NOT NULL COMMENT '冗余用户ID，便于查询',
-    role VARCHAR(20) NOT NULL COMMENT 'system / user / assistant',
+    role VARCHAR(20) NOT NULL COMMENT 'system / user / assistant / tool',
     content MEDIUMTEXT COMMENT '消息内容',
     file_path VARCHAR(500) COMMENT '附带的文件路径（user 消息可选）',
+    message_type VARCHAR(20) DEFAULT 'normal' COMMENT 'normal / tool_call / tool_result / summary',
+    tool_call_id VARCHAR(40) COMMENT '工具调用ID（tool 角色回灌时关联）',
+    tool_name VARCHAR(40) COMMENT '触发的工具名（可视化用）',
+    parent_id BIGINT COMMENT '父消息ID（多轮/工具循环溯源）',
     token_count INT DEFAULT 0 COMMENT '预估 token 数',
     latency_ms INT COMMENT 'assistant 消息的响应耗时（毫秒）',
     is_error INT DEFAULT 0 COMMENT '是否为错误消息: 0 否 / 1 是',
@@ -460,6 +466,34 @@ CREATE TABLE IF NOT EXISTS agent_call_log (
 CREATE INDEX idx_agent_call_log_user ON agent_call_log (user_id, create_time);
 CREATE INDEX idx_agent_call_log_config ON agent_call_log (config_id, create_time);
 CREATE INDEX idx_agent_call_log_intent ON agent_call_log (intent, create_time);
+
+-- 工具启用配置：每个用户对各内置工具的启用状态与写授权
+CREATE TABLE IF NOT EXISTS agent_tool_config (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '所属用户',
+    tool_name VARCHAR(40) NOT NULL COMMENT '工具名（逻辑外键 agent_tool.name）',
+    enabled INT DEFAULT 1 COMMENT '是否启用: 0 禁用 / 1 启用',
+    allow_write INT DEFAULT 0 COMMENT '是否允许写操作（WRITE 工具需 true 才执行）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX uk_agent_tool_config_user_tool ON agent_tool_config (user_id, tool_name, deleted);
+
+-- 工具调用链明细：每次工具调用的入参/结果/状态/耗时，用于调用链路可视化
+CREATE TABLE IF NOT EXISTS agent_tool_call (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    session_id BIGINT NOT NULL COMMENT '所属会话（逻辑外键 agent_session.id）',
+    message_id BIGINT COMMENT '关联消息（逻辑外键 agent_message.id）',
+    tool_name VARCHAR(40) NOT NULL COMMENT '工具名',
+    permission VARCHAR(20) COMMENT '权限等级 SAFE/WRITE/DANGEROUS',
+    args_json MEDIUMTEXT COMMENT '入参 JSON',
+    result_json MEDIUMTEXT COMMENT '出参/错误 JSON',
+    status VARCHAR(20) COMMENT 'success / failed / cancelled',
+    latency_ms BIGINT COMMENT '耗时（毫秒）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_agent_tool_call_session ON agent_tool_call (session_id, create_time);
 
 -- Ollama 本地模型配置表（持久化服务地址、默认模型、参数预设）
 CREATE TABLE IF NOT EXISTS ollama_config (

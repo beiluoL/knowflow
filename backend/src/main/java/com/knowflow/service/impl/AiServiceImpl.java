@@ -5,6 +5,9 @@ import com.knowflow.config.AiConfig;
 import com.knowflow.config.AiProviderRegistry;
 import com.knowflow.entity.DocDocument;
 import com.knowflow.entity.UserAiConfig;
+import com.knowflow.ai.AiException;
+import com.knowflow.ai.ModelAdapter;
+import com.knowflow.ai.ModelAdapterFactory;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.UserAiConfigMapper;
 import com.knowflow.service.AiService;
@@ -37,6 +40,7 @@ public class AiServiceImpl implements AiService {
     private final AiConfig aiConfig;
     private final UserAiConfigMapper userAiConfigMapper;
     private final AiProviderRegistry providerRegistry;
+    private final ModelAdapterFactory adapterFactory;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
@@ -176,10 +180,10 @@ public class AiServiceImpl implements AiService {
                         ? userConfig.getBaseUrl() : getProviderDefaultBaseUrl(userConfig.getProvider());
                 String model = (userConfig.getModel() != null && !userConfig.getModel().isEmpty())
                         ? userConfig.getModel() : aiConfig.getModel();
-                return new EffectiveAiConfig(userConfig.getApiKey(), baseUrl, model);
+                return new EffectiveAiConfig(userConfig.getApiKey(), baseUrl, model, userConfig.getProvider(), userConfig.getApiSecret());
             }
         }
-        return new EffectiveAiConfig(aiConfig.getApiKey(), aiConfig.getBaseUrl(), aiConfig.getModel());
+        return new EffectiveAiConfig(aiConfig.getApiKey(), aiConfig.getBaseUrl(), aiConfig.getModel(), null, null);
     }
 
     private String getProviderDefaultBaseUrl(String provider) {
@@ -187,8 +191,12 @@ public class AiServiceImpl implements AiService {
         return url != null ? url : aiConfig.getBaseUrl();
     }
 
-    /** 内部持有解析后的 AI 配置。 */
-    private record EffectiveAiConfig(String apiKey, String baseUrl, String model) {}
+    /** 内部持有解析后的 AI 配置（provider 用于选择协议适配器，apiSecret 供文心鉴权）。 */
+    private record EffectiveAiConfig(String apiKey, String baseUrl, String model, String provider, String apiSecret) {
+        EffectiveAiConfig(String apiKey, String baseUrl, String model) {
+            this(apiKey, baseUrl, model, null, null);
+        }
+    }
 
     /** 判断是否因达到 max_tokens 限制而截断输出。 */
     private boolean isFinishReasonLength(Map<String, Object> choice) {
@@ -334,7 +342,7 @@ public class AiServiceImpl implements AiService {
                         ? cfg.getModel()
                         : (providerRegistry.defaultModel(cfg.getProvider()) != null
                             ? providerRegistry.defaultModel(cfg.getProvider()) : aiConfig.getModel());
-                return new EffectiveAiConfig(cfg.getApiKey(), baseUrl, model);
+                return new EffectiveAiConfig(cfg.getApiKey(), baseUrl, model, cfg.getProvider(), cfg.getApiSecret());
             }
         }
         return resolveEffectiveConfig(userId);
@@ -386,76 +394,35 @@ public class AiServiceImpl implements AiService {
             return;
         }
         try {
-            Map<String, Object> requestBody = new LinkedHashMap<>();
-            requestBody.put("model", effective.model());
-            requestBody.put("messages", Arrays.asList(
-                    Map.of("role", "system", "content", systemPrompt),
-                    Map.of("role", "user", "content", userPrompt)
-            ));
-            requestBody.put("max_tokens", maxTokens != null ? maxTokens : aiConfig.getMaxTokens());
-            requestBody.put("temperature", temperature != null ? temperature : 0.7);
-            if (topP != null) {
-                requestBody.put("top_p", topP);
-            }
-            requestBody.put("stream", true);
-
-            String jsonBody = objectMapper.writeValueAsString(requestBody);
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(effective.baseUrl() + "/chat/completions"))
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + effective.apiKey())
-                    .header("Accept", "text/event-stream")
-                    .timeout(Duration.ofSeconds(aiConfig.getTimeoutSeconds()))
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                    .build();
-
-            HttpResponse<java.util.stream.Stream<String>> response =
-                    httpClient.send(request, HttpResponse.BodyHandlers.ofLines());
-
-            if (response.statusCode() != 200) {
-                String errBody = response.body() != null
-                        ? response.body().reduce("", (a, b) -> a + b) : "";
-                String errMsg = "模型服务返回 " + response.statusCode() + "：" + truncate(errBody, 500);
-                sendSseEvent(emitter, "error", Map.of("error", errMsg));
-                completeSse(emitter);
-                if (callback != null) callback.onComplete(errMsg, false);
-                return;
-            }
+            ModelAdapter adapter = adapterFactory.getAdapter(effective.provider());
+            ModelAdapter.ChatRequest req = new ModelAdapter.ChatRequest();
+            req.model = effective.model();
+            req.apiKey = effective.apiKey();
+            req.apiSecret = effective.apiSecret();
+            req.baseUrl = effective.baseUrl();
+            req.temperature = temperature != null ? temperature : 0.7;
+            req.maxTokens = maxTokens != null ? maxTokens : aiConfig.getMaxTokens();
+            req.topP = topP;
+            ModelAdapter.ChatMessage sysMsg = new ModelAdapter.ChatMessage("system", systemPrompt);
+            ModelAdapter.ChatMessage usrMsg = new ModelAdapter.ChatMessage("user", userPrompt);
+            req.messages = Arrays.asList(sysMsg, usrMsg);
 
             StringBuilder full = new StringBuilder();
-            // SSE 行格式：空行 / "data: {...}" / "data: [DONE]"
-            response.body().forEach(line -> {
-                if (line == null) return;
-                String trimmed = line.trim();
-                if (trimmed.isEmpty() || !trimmed.startsWith("data:")) return;
-                String payload = trimmed.substring(5).trim();
-                if ("[DONE]".equals(payload)) return;
-                try {
-                    Map<String, Object> chunk = objectMapper.readValue(payload, Map.class);
-                    List<Map<String, Object>> choices = (List<Map<String, Object>>) chunk.get("choices");
-                    if (choices != null && !choices.isEmpty()) {
-                        Map<String, Object> delta = (Map<String, Object>) choices.get(0).get("delta");
-                        if (delta != null) {
-                            Object content = delta.get("content");
-                            if (content != null && !content.toString().isEmpty()) {
-                                String token = content.toString();
-                                full.append(token);
-                                sendSseEvent(emitter, "delta", Map.of("content", token));
-                            }
+            adapter.streamChat(req,
+                    delta -> {
+                        if (delta.delta != null && !delta.delta.isEmpty()) {
+                            full.append(delta.delta);
+                            sendSseEvent(emitter, "delta", Map.of("content", delta.delta));
                         }
-                    }
-                } catch (Exception parseEx) {
-                    log.debug("跳过无法解析的 SSE 行: {}", payload);
-                }
-            });
-            sendSseEvent(emitter, "done", Map.of("content", full.toString()));
-            if (callback != null) callback.onComplete(full.toString(), true);
-        } catch (java.net.ConnectException | java.net.http.HttpConnectTimeoutException e) {
-            log.error("流式对话连接失败: userId={}, configId={}, err={}", userId, configId, e.getMessage());
-            boolean isLocal = "local".equals(effective.apiKey());
-            String errMsg = isLocal
-                    ? "本地模型服务连接失败（请确认 Ollama/vLLM 已启动且端口正确）：" + e.getMessage()
-                    : "模型服务连接超时：" + e.getMessage();
+                    },
+                    done -> {
+                        sendSseEvent(emitter, "done", Map.of("content", done.content));
+                        if (callback != null) callback.onComplete(done.content, true);
+                    });
+        } catch (AiException e) {
+            log.error("流式对话模型异常: userId={}, configId={}, provider={}, err={}",
+                    userId, configId, effective.provider(), e.getMessage());
+            String errMsg = "AI 流式调用失败：" + e.getMessage();
             sendSseEvent(emitter, "error", Map.of("error", errMsg));
             if (callback != null) callback.onComplete(errMsg, false);
         } catch (Exception e) {
@@ -478,30 +445,85 @@ public class AiServiceImpl implements AiService {
         }
         long start = System.currentTimeMillis();
         try {
-            Map<String, Object> requestBody = new LinkedHashMap<>();
-            requestBody.put("model", effective.model());
-            requestBody.put("messages", List.of(Map.of("role", "user", "content", "hi")));
-            requestBody.put("max_tokens", 5);
-            String jsonBody = objectMapper.writeValueAsString(requestBody);
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(effective.baseUrl() + "/chat/completions"))
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + effective.apiKey())
-                    .timeout(Duration.ofSeconds(15))
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                    .build();
-            HttpResponse<String> resp = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            ModelAdapter adapter = adapterFactory.getAdapter(effective.provider());
+            ModelAdapter.ChatRequest req = new ModelAdapter.ChatRequest();
+            req.model = effective.model();
+            req.apiKey = effective.apiKey();
+            req.apiSecret = effective.apiSecret();
+            req.baseUrl = effective.baseUrl();
+            req.maxTokens = 5;
+            req.messages = List.of(new ModelAdapter.ChatMessage("user", "hi"));
+            ModelAdapter.ChatResult r = adapter.chat(req);
             long latency = System.currentTimeMillis() - start;
-            if (resp.statusCode() == 200) {
-                return "{\"ok\":true,\"latencyMs\":" + latency + "}";
-            }
-            return "{\"ok\":false,\"latencyMs\":" + latency
-                    + ",\"error\":\"HTTP " + resp.statusCode() + ": "
-                    + escapeJson(truncate(resp.body(), 200)) + "\"}";
+            return "{\"ok\":true,\"latencyMs\":" + latency + "}";
         } catch (Exception e) {
             long latency = System.currentTimeMillis() - start;
             return "{\"ok\":false,\"latencyMs\":" + latency
                     + ",\"error\":\"" + escapeJson(e.getMessage()) + "\"}";
+        }
+    }
+
+    // ==================== 编程 Agent 多轮 + 工具调用通道 ====================
+
+    @Override
+    public com.knowflow.ai.ModelAdapter.ChatResult chatMulti(
+            List<com.knowflow.ai.ModelAdapter.ChatMessage> messages,
+            List<com.knowflow.ai.ModelAdapter.ToolSpec> tools,
+            Long userId, Long configId) {
+        EffectiveAiConfig effective = resolveConfigById(userId, configId);
+        if (effective.apiKey() == null || effective.apiKey().isEmpty()
+                || (!"local".equals(effective.apiKey()) && effective.apiKey().startsWith("sk-placeholder"))) {
+            throw new BusinessException("AI 服务未配置，请先在设置中添加模型配置");
+        }
+        ModelAdapter adapter = adapterFactory.getAdapter(effective.provider());
+        ModelAdapter.ChatRequest req = new ModelAdapter.ChatRequest();
+        req.model = effective.model();
+        req.apiKey = effective.apiKey();
+        req.apiSecret = effective.apiSecret();
+        req.baseUrl = effective.baseUrl();
+        req.messages = messages;
+        req.tools = tools;
+        req.temperature = 0.3;
+        req.maxTokens = aiConfig.getMaxTokens();
+        try {
+            return adapter.chat(req);
+        } catch (AiException e) {
+            throw new BusinessException("AI 调用失败：" + e.getMessage());
+        } catch (Exception e) {
+            throw new BusinessException("AI 调用异常：" + e.getMessage());
+        }
+    }
+
+    @Override
+    public void streamMulti(
+            List<com.knowflow.ai.ModelAdapter.ChatMessage> messages,
+            List<com.knowflow.ai.ModelAdapter.ToolSpec> tools,
+            Long userId, Long configId,
+            java.util.function.Consumer<com.knowflow.ai.ModelAdapter.TokenDelta> onToken,
+            java.util.function.Consumer<com.knowflow.ai.ModelAdapter.StreamDone> onDone,
+            Double temperature, Integer maxTokens, Double topP) {
+        EffectiveAiConfig effective = resolveConfigById(userId, configId);
+        if (effective.apiKey() == null || effective.apiKey().isEmpty()
+                || (!"local".equals(effective.apiKey()) && effective.apiKey().startsWith("sk-placeholder"))) {
+            throw new BusinessException("AI 服务未配置，请先在设置中添加模型配置");
+        }
+        ModelAdapter adapter = adapterFactory.getAdapter(effective.provider());
+        ModelAdapter.ChatRequest req = new ModelAdapter.ChatRequest();
+        req.model = effective.model();
+        req.apiKey = effective.apiKey();
+        req.apiSecret = effective.apiSecret();
+        req.baseUrl = effective.baseUrl();
+        req.messages = messages;
+        req.tools = tools;
+        req.temperature = temperature != null ? temperature : 0.3;
+        req.maxTokens = maxTokens != null ? maxTokens : aiConfig.getMaxTokens();
+        req.topP = topP;
+        try {
+            adapter.streamChat(req, onToken, onDone);
+        } catch (AiException e) {
+            throw new BusinessException("AI 流式调用失败：" + e.getMessage());
+        } catch (Exception e) {
+            throw new BusinessException("AI 流式调用异常：" + e.getMessage());
         }
     }
 

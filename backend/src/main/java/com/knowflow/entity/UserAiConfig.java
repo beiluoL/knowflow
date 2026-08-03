@@ -25,6 +25,8 @@ public class UserAiConfig extends BaseEntity {
     private Long userId;
     private String provider;
     private String apiKey;
+    /** 文心/千fan 等需要 secret 换取 access_token 的厂商鉴权密钥。 */
+    private String apiSecret;
     private String baseUrl;
     private String model;
     private Integer isActive;

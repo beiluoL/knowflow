@@ -118,4 +118,30 @@ public interface AiService {
      * 返回 { ok: true/false, latencyMs: n, error: "..." }。
      */
     String healthCheck(Long userId, Long configId);
+
+    /**
+     * 编程 Agent 多轮 + 工具调用通道：返回模型输出，可能携带 toolCalls 供上层 ReAct 编排。
+     * 供 AgentRuntimeService 在工具循环中使用，屏蔽各 Provider 协议差异。
+     *
+     * @param messages  完整多轮对话（含 system/user/assistant/tool 角色）
+     * @param tools     当前可用的工具声明（JSON Schema）
+     * @param userId    用户 ID
+     * @param configId  指定模型配置
+     * @return 模型结果（content + toolCalls）
+     */
+    com.knowflow.ai.ModelAdapter.ChatResult chatMulti(
+            List<com.knowflow.ai.ModelAdapter.ChatMessage> messages,
+            List<com.knowflow.ai.ModelAdapter.ToolSpec> tools,
+            Long userId, Long configId);
+
+    /**
+     * 编程 Agent 流式多轮通道：逐 token 回调 onToken，结束时回调 onDone（含 toolCalls）。
+     */
+    void streamMulti(
+            List<com.knowflow.ai.ModelAdapter.ChatMessage> messages,
+            List<com.knowflow.ai.ModelAdapter.ToolSpec> tools,
+            Long userId, Long configId,
+            java.util.function.Consumer<com.knowflow.ai.ModelAdapter.TokenDelta> onToken,
+            java.util.function.Consumer<com.knowflow.ai.ModelAdapter.StreamDone> onDone,
+            Double temperature, Integer maxTokens, Double topP);
 }

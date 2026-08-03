@@ -39,6 +39,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(Result.error(code, e.getMessage()));
     }
 
+    /** 编程 Agent 模型/工具调用异常：映射为统一的 AI 业务码，便于前端识别。 */
+    @ExceptionHandler(com.knowflow.ai.AiException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Result<Void> handleAiException(com.knowflow.ai.AiException e) {
+        log.warn("AI 调用异常: {}", e.getMessage());
+        return Result.error(e.getCode(), e.getMessage());
+    }
+
     /**
      * F-11 修复：方法级 @PreAuthorize 抛出的越权异常返回 403（避免被兜底 Exception 处理成 500）。
      */

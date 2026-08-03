@@ -42,42 +42,43 @@ public class AiProviderRegistry {
     @PostConstruct
     void init() {
         // ===== 云端 11 个（与 Chat.vue 原 aiProviders 保持一致）=====
+        // protocol：anthropic/wenxin 走原生协议，其余 OpenAI 兼容
         register("deepseek", "DeepSeek", "https://api.deepseek.com/v1", "deepseek-chat",
-                ProviderType.CLOUD, Capability.STANDARD, false, "免费体验额度，超出需订阅");
+                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "免费体验额度，超出需订阅");
         register("siliconflow", "硅基流动", "https://api.siliconflow.cn/v1", "Qwen/Qwen2.5-7B-Instruct",
-                ProviderType.CLOUD, Capability.LIGHT, false, "免费额度，超出需订阅");
+                ProviderType.CLOUD, Capability.LIGHT, Protocol.OPENAI, false, "免费额度，超出需订阅");
         register("bailian", "阿里云百炼", "https://dashscope.aliyuncs.com/compatible-mode/v1", "qwen-plus",
-                ProviderType.CLOUD, Capability.STANDARD, false, "免费额度，超出需订阅");
+                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "免费额度，超出需订阅");
         register("zhipu", "智谱AI", "https://open.bigmodel.cn/api/paas/v4", "glm-4",
-                ProviderType.CLOUD, Capability.STANDARD, false, "免费额度，超出需订阅");
+                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "免费额度，超出需订阅");
         register("moonshot", "月之暗面", "https://api.moonshot.cn/v1", "moonshot-v1-8k",
-                ProviderType.CLOUD, Capability.STANDARD, false, "需付费");
+                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "需付费");
         register("doubao", "字节豆包", "https://ark.cn-beijing.volces.com/api/v3", "doubao-pro-32k",
-                ProviderType.CLOUD, Capability.STANDARD, false, "需付费");
+                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "需付费");
         register("hunyuan", "腾讯混元", "https://api.hunyuan.cloud.tencent.com/v1", "hunyuan-pro",
-                ProviderType.CLOUD, Capability.STANDARD, false, "需付费");
+                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "需付费");
         register("wenxin", "百度文心", "https://qianfan.baidubce.com/v2", "ernie-4.0-8k",
-                ProviderType.CLOUD, Capability.STANDARD, false, "需付费");
+                ProviderType.CLOUD, Capability.STANDARD, Protocol.QIANFAN, false, "需付费");
         register("openai", "OpenAI", "https://api.openai.com/v1", "gpt-4o",
-                ProviderType.CLOUD, Capability.POWERFUL, true, "需要订阅，按量计费");
+                ProviderType.CLOUD, Capability.POWERFUL, Protocol.OPENAI, true, "需要订阅，按量计费");
         register("anthropic", "Anthropic", "https://api.anthropic.com/v1", "claude-3-5-sonnet-20241022",
-                ProviderType.CLOUD, Capability.POWERFUL, true, "需要订阅，按量计费");
+                ProviderType.CLOUD, Capability.POWERFUL, Protocol.ANTHROPIC, true, "需要订阅，按量计费");
         register("custom", "自定义（云端）", "", "",
-                ProviderType.CLOUD, Capability.STANDARD, false, "用户自定义接口地址");
+                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "用户自定义接口地址");
 
         // ===== 本地 4 类（OpenAI 兼容协议）=====
         register("ollama", "Ollama（本地）", "http://localhost:11434/v1", "llama3.1",
-                ProviderType.LOCAL, Capability.LIGHT, false, "本地部署，免费");
+                ProviderType.LOCAL, Capability.LIGHT, Protocol.OPENAI, false, "本地部署，免费");
         register("vllm", "vLLM（本地）", "http://localhost:8000/v1", "Qwen/Qwen2.5-7B-Instruct",
-                ProviderType.LOCAL, Capability.STANDARD, false, "本地部署，免费");
+                ProviderType.LOCAL, Capability.STANDARD, Protocol.OPENAI, false, "本地部署，免费");
         register("localai", "LocalAI（本地）", "http://localhost:8080/v1", "gpt-3.5-turbo",
-                ProviderType.LOCAL, Capability.LIGHT, false, "本地部署，免费");
+                ProviderType.LOCAL, Capability.LIGHT, Protocol.OPENAI, false, "本地部署，免费");
         register("custom-local", "自定义（本地）", "", "",
-                ProviderType.LOCAL, Capability.STANDARD, false, "用户自定义本地接口地址");
+                ProviderType.LOCAL, Capability.STANDARD, Protocol.OPENAI, false, "用户自定义本地接口地址");
     }
 
     private void register(String id, String label, String baseUrl, String defaultModel,
-                          ProviderType type, Capability capability,
+                          ProviderType type, Capability capability, Protocol protocol,
                           boolean subscriptionRequired, String priceInfo) {
         ProviderInfo info = new ProviderInfo();
         info.setProvider(id);
@@ -86,6 +87,7 @@ public class AiProviderRegistry {
         info.setDefaultModel(defaultModel);
         info.setType(type);
         info.setCapability(capability);
+        info.setProtocol(protocol);
         info.setSubscriptionRequired(subscriptionRequired);
         info.setPriceInfo(priceInfo);
         builtins.add(info);
@@ -135,6 +137,16 @@ public class AiProviderRegistry {
 
     public enum Capability { LIGHT, STANDARD, POWERFUL }
 
+    /** 模型对接协议：决定底层使用哪种 API 适配实现。 */
+    public enum Protocol {
+        /** OpenAI / DeepSeek / 通义 / Ollama 等兼容 /v1/chat/completions 的接口 */
+        OPENAI,
+        /** Anthropic Claude，使用 /v1/messages + x-api-key 鉴权 */
+        ANTHROPIC,
+        /** 百度文心一言，使用千帆 qianfan 鉴权 + functions 工具调用 */
+        QIANFAN
+    }
+
     @Data
     public static class ProviderInfo {
         private String provider;
@@ -143,6 +155,7 @@ public class AiProviderRegistry {
         private String defaultModel;
         private ProviderType type;
         private Capability capability;
+        private Protocol protocol;
         private boolean subscriptionRequired;
         private String priceInfo;
     }

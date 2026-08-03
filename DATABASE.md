@@ -1,6 +1,6 @@
 # 数据库设计文档（knowflow 知识库）
 
-本文档说明知识库学习平台的数据库表结构（共 **45 张表**）、字段定义、表间关系（逻辑外键）与索引设计。
+本文档说明知识库学习平台的数据库表结构（共 **47 张表**）、字段定义、表间关系（逻辑外键）与索引设计。
 脚本位置：`backend/src/main/resources/schema.sql`（表结构 + 索引）、`data.sql`（种子数据）。
 
 > **IM（学习小组 / 单聊私信）相关表**（`study_group*`、`private_*`）以 **`消息功能技术方案.md`** 为唯一权威文档，
@@ -798,7 +798,7 @@ erDiagram
 ## 二·补、编程 Agent 评估日志表 `agent_call_log`
 
 > 该表为编程 Agent 意图识别与答案生成优化（方案 P1~P3）新增，记录每次模型调用与准确率评估，
-> 用于模型监测仪表盘统计与 P3 评估闭环复盘。计入后全库共 **45 张表**。
+> 用于模型监测仪表盘统计与 P3 评估闭环复盘。计入后全库共 **45 张表**（新增工具表后共 **47 张表**）。
 > 该表**不使用逻辑删除**（直接物理保留作为历史日志），未并入上方主 ER 图。
 
 | 字段 | 类型 | 说明 | 约束 |
@@ -818,6 +818,45 @@ erDiagram
 
 - 索引：`idx_agent_call_log_user(user_id, create_time)`、`idx_agent_call_log_config(config_id, create_time)`、`idx_agent_call_log_intent(intent, create_time)`（2026-08-03 新增，支撑按意图聚合评估得分）。
 - 落库位置：`IntentService.evaluate(...)` 末尾 `saveEvalLog(...)` 把 `matchScore` 回写 `score`，并写入 `intent`/`session_id`，供运营复盘与知识库反哺。
+
+## 二·补·二、工具启用配置表 `agent_tool_config`
+
+> 编程 Agent「工具调用引擎」（2026-08-04 P1）新增。记录每个用户对各内置工具（code_run / fs_read / fs_write / db_query）的启用与写授权状态。
+> 逻辑外键 `user_id`（→ sys_user.id）、`tool_name`（→ 内置工具注册名）。计入后全库共 **47 张表**。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | 自增 |
+| user_id | BIGINT | 所属用户 | 非空 |
+| tool_name | VARCHAR(40) | 工具名（逻辑外键，对应 AgentTool.name） | 非空 |
+| enabled | INT | 是否启用：1 启用 / 0 禁用 | 默认 1 |
+| allow_write | INT | 是否允许写操作（WRITE/DANGEROUS 工具需 true 才执行） | 默认 0 |
+| create_time / update_time | TIMESTAMP | 创建 / 更新时间 | 默认当前时间 |
+| deleted | INT | 逻辑删除 | 默认 0 |
+
+- 唯一索引：`uk_agent_tool_config_user_tool(user_id, tool_name, deleted)`。
+- 权限等级（见 AgentTool.permission）：SAFE 只读执行/文件读（默认启用即可执行）；WRITE 写文件（需 allow_write=1）；DANGEROUS 数据库查询等高危（需显式 allow_write=1）。
+
+## 二·补·三、工具调用链明细表 `agent_tool_call`
+
+> 编程 Agent「工具调用引擎」（2026-08-04 P1）新增。每次工具调用的入参/结果/状态/耗时，用于会话级调用链路可视化与排查。
+> 逻辑外键 `session_id`（→ agent_session.id）、`message_id`（→ agent_message.id）。计入后全库共 **47 张表**。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | 自增 |
+| session_id | BIGINT | 所属会话 | 非空 |
+| message_id | BIGINT | 关联消息 | 可空 |
+| tool_name | VARCHAR(40) | 工具名 | 非空 |
+| permission | VARCHAR(20) | 权限等级 SAFE/WRITE/DANGEROUS | 可空 |
+| args_json | MEDIUMTEXT | 入参 JSON | 可空 |
+| result_json | MEDIUMTEXT | 出参/错误 JSON | 可空 |
+| status | VARCHAR(20) | success / failed / cancelled | 可空 |
+| latency_ms | BIGINT | 耗时（毫秒） | 可空 |
+| create_time | TIMESTAMP | 创建时间 | 默认当前时间 |
+
+- 索引：`idx_agent_tool_call_session(session_id, create_time)`。
+- 落库位置：`ToolRegistry.invoke(...)` 每次调用均插入一条记录（无论成功/失败/取消）。
 
 ---
 
