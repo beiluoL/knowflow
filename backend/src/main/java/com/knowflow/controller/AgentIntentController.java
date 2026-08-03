@@ -48,7 +48,7 @@ public class AgentIntentController {
         Long userId = SecurityUtils.getCurrentUserIdNullable();
         IntentService.EvalInput input = new IntentService.EvalInput(
                 req.intent, req.slots, req.agentOutput, req.userFeedback,
-                req.fromFeedback != null && req.fromFeedback);
+                req.fromFeedback != null && req.fromFeedback, req.sessionId);
         return Result.success(intentService.evaluate(input, userId));
     }
 
@@ -58,6 +58,7 @@ public class AgentIntentController {
             Map<String, String> slots,
             String agentOutput,
             String userFeedback,
-            Boolean fromFeedback) {
+            Boolean fromFeedback,
+            Long sessionId) {
     }
 }

@@ -918,6 +918,7 @@ async function runCodeGeneration(text: string, intent?: AgentIntentResult) {
       .map((f) => `- \`${f.fileName}\`（${f.language}，${formatBytes(f.size)}）`)
       .join('\n')
     const genMessage: ChatMessage = {
+      id: genMsgId(),
       role: 'assistant',
       content:
         `**${isModify ? '代码修改完成' : '代码生成完成'}** ${elapsed ? `· 耗时 ${elapsed}` : ''}\n\n` +
@@ -947,6 +948,7 @@ async function runCodeGeneration(text: string, intent?: AgentIntentResult) {
         intent: intent?.intent ?? 'generate',
         slots: intent?.slots,
         agentOutput: result.rawContent ?? result.files.map((f) => f.content).join('\n'),
+        sessionId: currentSessionId.value ?? undefined,
       })
       if (typeof evalRes.matchScore === 'number') genMessage.evalScore = evalRes.matchScore
     } catch {
@@ -1159,6 +1161,22 @@ function evalScoreClass(score: number): string {
   return 'low'
 }
 
+/** 生成消息唯一 id（多轮硬指代 parentId 定位用） */
+function genMsgId(): string {
+  return typeof crypto !== 'undefined' && 'randomUUID' in crypto
+    ? crypto.randomUUID()
+    : `m_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+}
+
+/** 找最近一条带产物的 assistant 消息 id（供 modify 类指令回填 parentId） */
+function findLastGeneratedId(): string | undefined {
+  for (let i = messages.value.length - 1; i >= 0; i--) {
+    const m = messages.value[i]
+    if (m.role === 'assistant' && m.files && m.files.length) return m.id
+  }
+  return undefined
+}
+
 /**
  * 组装意图识别请求（P1）：取近 6 轮非错误、非系统消息作为历史，
  * 挂载项目目录时附带目录快照（供后端结构探针做歧义检测）。
@@ -1169,10 +1187,12 @@ function buildIntentRequest(text: string, structuralOnly = false): AgentIntentRe
     .filter((m) => !m.error && m.role !== 'system')
     .slice(-6)
     .map((m) => ({
+      id: m.id,
       role: m.role === 'assistant' ? 'assistant' : 'user',
       content: m.content,
       intent: m.intent,
       slots: m.slots,
+      parentId: m.parentId,
     }))
   const projectSnapshot: ProjectSnapshotItem[] | undefined = rootHandle.value
     ? flattenFileTree(fileTree.value).map((n) => ({ path: n.path, type: n.kind }))
@@ -1222,11 +1242,16 @@ async function skipClarify() {
 /** 根据意图识别结果把用户输入路由到对应处理链路 */
 async function routeByIntent(text: string, intent: AgentIntentResult) {
   lastIntent.value = intent
+  // 多轮硬指代：modify 类指令把 parentId 指向最近一条带产物的 assistant 消息（方案 P1.1）
+  const refParentId =
+    intent.intent === 'modify' ? findLastGeneratedId() : undefined
   messages.value.push({
+    id: genMsgId(),
     role: 'user',
     content: text,
     intent: intent.intent,
     slots: intent.slots,
+    parentId: refParentId,
   })
   input.value = ''
   await scrollToBottom()
@@ -1324,6 +1349,7 @@ async function runChat(text: string) {
     },
     onDone: async (full) => {
       const assistantMsg: ChatMessage = {
+        id: genMsgId(),
         role: 'assistant',
         content: full || streamingContent.value,
         intent: lastIntent.value?.intent ?? 'chat',
@@ -1341,6 +1367,7 @@ async function runChat(text: string) {
             intent: lastIntent.value.intent,
             slots: lastIntent.value.slots,
             agentOutput: assistantMsg.content,
+            sessionId: currentSessionId.value ?? undefined,
           })
           if (typeof evalRes.matchScore === 'number') assistantMsg.evalScore = evalRes.matchScore
         } catch {

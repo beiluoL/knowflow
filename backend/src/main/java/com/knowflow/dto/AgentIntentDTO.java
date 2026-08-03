@@ -22,10 +22,14 @@ public class AgentIntentDTO {
 
     @Data
     public static class HistoryItem {
+        /** 消息ID（用于多轮硬指代解析 parentId 定位） */
+        private String id;
         private String role;
         private String content;
         private String intent;
         private Map<String, String> slots;
+        /** 指代目标：指向上一轮被引用消息的 id（如「它」「这个」指向的对象） */
+        private String parentId;
     }
 
     @Data

@@ -1,6 +1,6 @@
 # 数据库设计文档（knowflow 知识库）
 
-本文档说明知识库学习平台的数据库表结构（共 **44 张表**）、字段定义、表间关系（逻辑外键）与索引设计。
+本文档说明知识库学习平台的数据库表结构（共 **45 张表**）、字段定义、表间关系（逻辑外键）与索引设计。
 脚本位置：`backend/src/main/resources/schema.sql`（表结构 + 索引）、`data.sql`（种子数据）。
 
 > **IM（学习小组 / 单聊私信）相关表**（`study_group*`、`private_*`）以 **`消息功能技术方案.md`** 为唯一权威文档，
@@ -792,6 +792,32 @@ erDiagram
 | create_time / update_time | TIMESTAMP | | |
 | deleted | INT | 逻辑删除 | 默认 0 |
 - 索引：唯一 `uk_cert_no(cert_no)`、`idx_cert_user(user_id)`、`idx_cert_path(path_id)`、联合唯一 `uk_cert_user_path(user_id, path_id, deleted)`（幂等：同用户同路径只发一次）
+
+---
+
+## 二·补、编程 Agent 评估日志表 `agent_call_log`
+
+> 该表为编程 Agent 意图识别与答案生成优化（方案 P1~P3）新增，记录每次模型调用与准确率评估，
+> 用于模型监测仪表盘统计与 P3 评估闭环复盘。计入后全库共 **45 张表**。
+> 该表**不使用逻辑删除**（直接物理保留作为历史日志），未并入上方主 ER 图。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | 自增 |
+| user_id | BIGINT | 用户（逻辑外键 sys_user.id） | 非空 |
+| config_id | BIGINT | 模型配置 ID（逻辑外键 ollama_config.id） | 可空 |
+| provider | VARCHAR(50) | 提供商（冗余，便于按提供商聚合） | 可空 |
+| session_id | BIGINT | 所属会话（逻辑外键 agent_session.id） | 可空 |
+| success | INT | 调用是否成功：1 成功 / 0 失败 | 默认 1 |
+| latency_ms | INT | 响应耗时（毫秒） | 可空 |
+| token_in / token_out | INT | 输入 / 输出 token 数 | 默认 0 |
+| error_msg | VARCHAR(1000) | 失败时的错误信息 | 可空 |
+| score | DOUBLE | 输出准确率评估得分 0~1（P3 评估闭环写入，可空） | 可空 |
+| intent | VARCHAR(20) | 评估关联的意图类型（generate/modify/explain/debug/chat，P3 评估闭环写入，可空） | 可空 |
+| create_time | TIMESTAMP | 创建时间 | 默认当前时间 |
+
+- 索引：`idx_agent_call_log_user(user_id, create_time)`、`idx_agent_call_log_config(config_id, create_time)`、`idx_agent_call_log_intent(intent, create_time)`（2026-08-03 新增，支撑按意图聚合评估得分）。
+- 落库位置：`IntentService.evaluate(...)` 末尾 `saveEvalLog(...)` 把 `matchScore` 回写 `score`，并写入 `intent`/`session_id`，供运营复盘与知识库反哺。
 
 ---
 

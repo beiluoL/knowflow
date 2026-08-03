@@ -454,10 +454,12 @@ CREATE TABLE IF NOT EXISTS agent_call_log (
     token_out INT DEFAULT 0 COMMENT '输出 token 数',
     error_msg VARCHAR(1000) COMMENT '失败时的错误信息',
     score DOUBLE COMMENT '输出准确率评估得分 0~1（P3 评估闭环写入，可空）',
+    intent VARCHAR(20) COMMENT '评估关联的意图类型 generate/modify/explain/debug/chat（P3 评估闭环写入，可空）',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_agent_call_log_user ON agent_call_log (user_id, create_time);
 CREATE INDEX idx_agent_call_log_config ON agent_call_log (config_id, create_time);
+CREATE INDEX idx_agent_call_log_intent ON agent_call_log (intent, create_time);
 
 -- Ollama 本地模型配置表（持久化服务地址、默认模型、参数预设）
 CREATE TABLE IF NOT EXISTS ollama_config (

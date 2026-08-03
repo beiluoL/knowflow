@@ -2,7 +2,9 @@ package com.knowflow.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.dto.AgentIntentDTO;
+import com.knowflow.entity.AgentCallLog;
 import com.knowflow.exception.BusinessException;
+import com.knowflow.mapper.AgentCallLogMapper;
 import com.knowflow.service.impl.AiServiceImpl;
 import com.knowflow.vo.AgentEvalVO;
 import com.knowflow.vo.AgentIntentVO;
@@ -37,6 +39,7 @@ import java.util.stream.Collectors;
 public class IntentService {
 
     private final AiServiceImpl aiService;
+    private final AgentCallLogMapper agentCallLogMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /** 意图分类低置信度阈值：低于此值强制澄清 */
@@ -69,7 +72,12 @@ public class IntentService {
                     clarifications: needsClarify 为 true 时给出 1~3 个澄清问题，每项含 field/question/options(可选项)
                     """ + "\n\n领域知识（用于消歧，可引用其约定给出澄清选项）：\n" + knowledgeText;
 
+            // 多轮硬指代解析（方案 P1.1 parentId）：当前输入含指代代词且给出 parentId 时，
+            // 把目标轮次内容摘要注入 prompt，避免「它/这个」被软消解误判
+            String refText = resolveParentRef(dto);
+
             String user = "项目结构：\n" + projectText + "\n历史对话：\n" + historyText +
+                    (refText != null ? "\n\n【多轮指代目标】用户当前输入中的「它/这个/上面」指代的是：\n" + refText : "") +
                     "\n当前输入：\n" + dto.getCurrentInput() +
                     "\n\n请输出 JSON：{\"intent\":..,\"confidence\":..,\"slots\":{..},\"needsClarify\":..,\"clarifications\":[..]}";
 
@@ -124,10 +132,16 @@ public class IntentService {
         boolean hasAppJs = files.stream().anyMatch(f -> "app.js".equals(f.getPath()));
 
         String text = dto.getCurrentInput().toLowerCase();
-        // 修改不存在的文件
-        for (AgentIntentDTO.ProjectFile f : files) {
-            if (text.contains(f.getPath().toLowerCase()) && f.getType().equals("file")) {
-                // 命中引用，无需标记
+        // 修改不存在的文件：解析「修改/编辑 X 文件」模式，引用文件名不在快照中则标记
+        java.util.regex.Matcher mFile = Pattern.compile("(修改|编辑|改下|更新|修复|调整)\\s*[「『]?([\\w./-]+\\.\\w+)").matcher(text);
+        while (mFile.find()) {
+            String referenced = mFile.group(2).toLowerCase();
+            boolean exists = files.stream().anyMatch(f -> f.getPath().toLowerCase().equals(referenced)
+                    || f.getPath().toLowerCase().endsWith("/" + referenced));
+            if (!exists) {
+                list.add(ambiguity("missing-file", "指令要修改的文件不存在：" + mFile.group(2),
+                        "项目快照中未找到该文件，可能是文件名拼写错误或尚未创建",
+                        "请确认文件名；若意图为「新建」请明确说「创建」而非「修改」"));
             }
         }
         // 要求加路由但无前端框架
@@ -180,7 +194,8 @@ public class IntentService {
             Map<String, String> slots,
             String agentOutput,
             String userFeedback,
-            boolean fromFeedback) {
+            boolean fromFeedback,
+            Long sessionId) {
     }
 
     public AgentEvalVO evaluate(EvalInput input, Long userId) {
@@ -200,6 +215,7 @@ public class IntentService {
             AgentEvalVO parsed = parseEval(raw);
             if (parsed != null) {
                 parsed.setFromFeedback(input.fromFeedback());
+                saveEvalLog(input, userId, parsed.getMatchScore());
                 return parsed;
             }
         } catch (Exception e) {
@@ -211,7 +227,23 @@ public class IntentService {
         vo.setMisses(new ArrayList<>());
         vo.setSuggestions(List.of("本次评估通道不可用，已用默认评分；建议补充用户反馈以提高准确性"));
         vo.setFromFeedback(input.fromFeedback());
+        saveEvalLog(input, userId, vo.getMatchScore());
         return vo;
+    }
+
+    /** P3 评估闭环落库：把 matchScore 回写 agent_call_log，供运营复盘与知识库反哺 */
+    private void saveEvalLog(EvalInput input, Long userId, Double score) {
+        try {
+            AgentCallLog log = new AgentCallLog();
+            log.setUserId(userId);
+            log.setSessionId(input.sessionId());
+            log.setIntent(input.intent());
+            log.setScore(score != null ? java.math.BigDecimal.valueOf(score) : null);
+            log.setSuccess(1);
+            agentCallLogMapper.insert(log);
+        } catch (Exception e) {
+            log.warn("评估日志落库失败（不影响主流程）: {}", e.getMessage());
+        }
     }
 
     // ============================================================
@@ -225,6 +257,32 @@ public class IntentService {
         return history.subList(start, history.size()).stream()
                 .map(h -> "[" + (h.getRole() == null ? "?" : h.getRole()) + "] " + (h.getContent() == null ? "" : h.getContent()))
                 .collect(Collectors.joining("\n"));
+    }
+
+    /** 多轮指代代词 */
+    private static final Pattern ANAPHORA = Pattern.compile("(它|这个|那个|上面|刚才|之前|前面|上一步|前述)");
+
+    /**
+     * 硬指代解析：若当前输入含指代代词且历史中某条带 parentId 指向更早一条，
+     * 返回目标轮次的内容摘要（取最近 200 字），供模型精确消解而非软猜。
+     */
+    private String resolveParentRef(AgentIntentDTO dto) {
+        String input = dto.getCurrentInput();
+        if (input == null || !ANAPHORA.matcher(input).find()) return null;
+        List<AgentIntentDTO.HistoryItem> history = dto.getHistory();
+        if (history == null || history.isEmpty()) return null;
+        // 找到 parentId 指向的目标轮次（在最近 6 轮窗口内定位）
+        String targetId = history.stream()
+                .filter(h -> h.getParentId() != null && !h.getParentId().isBlank())
+                .reduce((a, b) -> b) // 取最后一条带 parentId 的作为指代目标
+                .map(AgentIntentDTO.HistoryItem::getParentId)
+                .orElse(null);
+        if (targetId == null) return null;
+        return history.stream()
+                .filter(h -> targetId.equals(h.getId()))
+                .findFirst()
+                .map(h -> clip(h.getContent(), 200))
+                .orElse(null);
     }
 
     private String buildProjectText(List<AgentIntentDTO.ProjectFile> snapshot) {

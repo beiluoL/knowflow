@@ -42,6 +42,8 @@ public class AgentCallLog implements Serializable {
     private String errorMsg;
     /** 输出准确率评估得分 0~1（P3 评估闭环写入，可空） */
     private java.math.BigDecimal score;
+    /** 评估关联的意图类型（generate/modify/explain/debug/chat），P3 评估闭环写入，可空 */
+    private String intent;
 
     @TableField(fill = com.baomidou.mybatisplus.annotation.FieldFill.INSERT)
     private LocalDateTime createTime;

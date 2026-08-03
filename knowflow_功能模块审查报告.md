@@ -318,10 +318,10 @@ sys_user ──┬── doc_favorite ──── doc_document ──── doc
 - P2 结构/语义歧义检测：生成后调 `detectAmbiguities`，基于挂载目录快照做缺文件/框架不匹配/语言冲突探测，产物区 `--kb-warning` 高亮标签。
 - P3 准确率评估闭环：生成/回答后调 `evaluate` 回填 `evalScore`，展示匹配度徽标，回写 `AgentCallLog.score`。
 
-**遗留与建议（择机优化）**
-- `IntentService.structuralProbe` 的 `missing-file` 分支当前为空，未真正标记「修改不存在的文件」，建议补齐以闭环 P2 结构探针。
-- 多轮硬指代（`parentId`）解析：后端目前依赖历史文本让 LLM 软消解，未实现 `parentId` 显式查 `history` 定位；如需「再加个暗色主题」式精确指代，需前端回传引用 + 后端定位。
-- `evaluate` 结果写入 `AgentCallLog.score` 的落库调用尚未接，建议在生成后补一条日志写入以支撑 P3 反哺。
+**遗留与建议（已闭环，2026-08-03 补强）**
+- ~~`IntentService.structuralProbe` 的 `missing-file` 分支为空~~ → 已实现：正则解析「修改/编辑 X 文件」，引用文件不在快照即标记 `missing-file`，闭环 P2 结构探针。
+- ~~多轮硬指代（`parentId`）仅 LLM 软消解~~ → 已实现：前端每轮消息生成 `id` 且 `modify` 回填 `parentId` 指向最近产物；后端 `classify` 的 `resolveParentRef` 据 `parentId` 注入目标轮次摘要，实现精确指代（「再加个暗色主题」式）。
+- ~~`evaluate` 未落库 `AgentCallLog.score`~~ → 已实现：`AgentCallLog` 加 `intent` 列，`IntentService` 注入 `AgentCallLogMapper`，`evaluate` 末尾 `saveEvalLog` 写入 `score`/`intent`/`session_id`；`EvalRequest`/`AgentEvalRequest` 加 `sessionId` 传参。
 
 ---
 

@@ -927,6 +927,8 @@ export interface AgentEvalRequest {
   agentOutput: string
   userFeedback?: string
   fromFeedback?: boolean
+  /** 关联会话 ID，便于评估日志落库后按会话复盘（P3 闭环） */
+  sessionId?: number
 }
 export interface AgentEvalResult {
   matchScore: number
