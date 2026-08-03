@@ -1,0 +1,54 @@
+name: knowflow_mobile
+description: "KnowFlow AI 学习平台移动端"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: any
+
+  flutter_riverpod: any
+  go_router: any
+  dio: any
+  web_socket_channel: any
+  isar: any
+  isar_flutter_libs: any
+  shared_preferences: any
+  flutter_secure_storage: any
+  path_provider: any
+  json_annotation: any
+  cached_network_image: any
+  flutter_svg: any
+  easy_refresh: any
+  flutter_staggered_animations: any
+  flutter_markdown: any
+  flutter_highlight: any
+  highlight: any
+  flutter_local_notifications: any
+  timezone: any
+  intl: any
+  logger: any
+  uuid: any
+  collection: any
+  meta: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: any
+  integration_test:
+    sdk: flutter
+  build_runner: any
+  json_serializable: any
+  riverpod_generator: any
+  isar_generator: any
+  mocktail: any
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/

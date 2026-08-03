@@ -308,6 +308,23 @@ sys_user ──┬── doc_favorite ──── doc_document ──── doc
 
 ---
 
+## 编程 Agent 意图识别与答案生成优化（方案 P1~P3，2026-08-03 落地）
+
+**模块现状**：后端已先行落地 `IntentService`（多轮 LLM 意图分类 + 结构/语义歧义检测 + 准确率评估）、`IntentKnowledge`（语言/框架/场景规则表）、`AgentIntentController`（`/api/agent/intent`、`/ambiguities`、`/evaluate`）与 `AgentCallLog.score` 字段；前端 `CodeAgent.vue` 完成了链路打通。
+
+**新增能力**
+- P1 多轮上下文动态意图识别：前端 `send()` 调 `detectIntent` 融合近 6 轮历史 + 目录快照做 LLM 分类（generate/modify/explain/debug/chat），取代旧正则二分类；异常降级为正则兜底。
+- P2 显式意图确认：低置信度/参数缺失时后端返回 `needsClarify` + 结构化澄清问题，前端冻结输入展示澄清卡片，作答后重进识别；推理步骤链新增「澄清意图」节点。
+- P2 结构/语义歧义检测：生成后调 `detectAmbiguities`，基于挂载目录快照做缺文件/框架不匹配/语言冲突探测，产物区 `--kb-warning` 高亮标签。
+- P3 准确率评估闭环：生成/回答后调 `evaluate` 回填 `evalScore`，展示匹配度徽标，回写 `AgentCallLog.score`。
+
+**遗留与建议（择机优化）**
+- `IntentService.structuralProbe` 的 `missing-file` 分支当前为空，未真正标记「修改不存在的文件」，建议补齐以闭环 P2 结构探针。
+- 多轮硬指代（`parentId`）解析：后端目前依赖历史文本让 LLM 软消解，未实现 `parentId` 显式查 `history` 定位；如需「再加个暗色主题」式精确指代，需前端回传引用 + 后端定位。
+- `evaluate` 结果写入 `AgentCallLog.score` 的落库调用尚未接，建议在生成后补一条日志写入以支撑 P3 反哺。
+
+---
+
 ## 八、模块健康度评分
 
 | 模块 | 功能完整度 | 安全性 | 数据一致性 | 前后端契约 | 综合评分 |

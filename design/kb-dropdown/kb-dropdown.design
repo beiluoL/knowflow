@@ -1,0 +1,32 @@
+{
+  "data": [
+    {
+      "id": "page-index",
+      "title": "知识库下拉组件",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1754035200000,
+      "canvasData": {
+        "x": 0,
+        "y": 0,
+        "group": 0,
+        "layoutSnapshot": {
+          "version": 1,
+          "contentHeight": 1269,
+          "viewportWidth": 1440,
+          "sourceHash": "fnv1a-b7e0019e",
+          "measuredAt": 1785586225959
+        }
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/index.html",
+        "interactions": []
+      }
+    }
+  ],
+  "config": {
+    "autoLayout": true,
+    "deviceType": "desktop",
+    "projectName": "知识库下拉组件"
+  }
+}

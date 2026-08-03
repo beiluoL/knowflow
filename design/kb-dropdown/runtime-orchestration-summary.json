@@ -1,0 +1,414 @@
+{
+  "skillProvenance": {
+    "name": "solo-design",
+    "resolvedLane": "free_exploration",
+    "mode": "free-explore"
+  },
+  "project": {
+    "name": "kb-dropdown",
+    "displayName": "知识库下拉组件",
+    "description": "适用于知识库界面的下拉组件展示页，包含单选、搜索、多选等常用变体。",
+    "resolvedLane": "free_exploration",
+    "selectedIntentWorkflowRead": true,
+    "contextRequirementsLoaded": [
+      {
+        "path": "shared-runtime/runtime-boundaries/lane-runtime-contracts.md",
+        "readStatus": "loaded",
+        "bodyRead": true
+      },
+      {
+        "path": "shared-runtime/agent-dispatch-runtime/lane-dispatch-index.md",
+        "readStatus": "loaded",
+        "bodyRead": true
+      },
+      {
+        "path": "delivery-quality/page-rendering-quality-gate.md",
+        "readStatus": "loaded",
+        "bodyRead": true
+      },
+      {
+        "path": "delivery-quality/design-artifact-validation.md",
+        "readStatus": "loaded",
+        "bodyRead": true
+      },
+      {
+        "path": "delivery-quality/delivery-evidence-contract.md",
+        "readStatus": "loaded",
+        "bodyRead": true
+      },
+      {
+        "path": "visual-experience/visual-experience-guidelines.md",
+        "readStatus": "loaded",
+        "bodyRead": true
+      }
+    ],
+    "contextReadScope": {
+      "mainAgent": {
+        "forbiddenReads": [
+          "other intent-workflows/**",
+          "Sub-Agent implementation files before dispatch"
+        ]
+      },
+      "pageSubAgent": {
+        "allowedReads": [
+          "current lane page runtime guide",
+          "current lane dispatch contract excerpt",
+          "current Page Packet",
+          "supplementaryReads[] only"
+        ],
+        "forbiddenReads": [
+          "SKILL.md full re-read",
+          "other intent-workflows/**",
+          "full runtime-orchestration-summary.json unless explicitly sliced"
+        ]
+      },
+      "readScopeLedgerWriter": "shared-runtime/deterministic-tooling/build-page-dispatch-manifest.mjs"
+    },
+    "validationRunDiscipline": {
+      "maxFullValidationRuns": 2,
+      "softWarningsTriggerRepair": false,
+      "blockingRepairMode": "targeted-once",
+      "forbiddenRepairTriggers": [
+        "soft-warning-only",
+        "provenance-warning-only",
+        "style-warning-only"
+      ]
+    },
+    "lowValueCallWatchdog": {
+      "applies": true,
+      "noProgressSignals": [
+        "no_tool_call",
+        "no_artifact_diff",
+        "no_structured_decision"
+      ],
+      "noProgressNextAction": "enter_readiness_or_blocked_summary"
+    },
+    "deviceType": "desktop",
+    "viewportMode": "document-scroll",
+    "intentProfile": {
+      "caseFamily": "free_exploration",
+      "routingReason": "no existing project, no active Design Library, no restore target; open-ended UI component creation",
+      "surface": "page",
+      "complexity": "simple-free-fast",
+      "deviceType": "web",
+      "viewportMode": "document-scroll"
+    },
+    "creativeRecipe": {
+      "businessTone": "B2B SaaS / 知识管理 - 可信、简洁、高效",
+      "layoutArchetype": "组件展示 / UI 文档预览",
+      "visualSignature": "冷灰中性底 + 青蓝色单一品牌强调，充足留白，清晰边框",
+      "densityTarget": "balanced",
+      "avoidOneThing": "通用的三列功能卡片与霓虹渐变"
+    },
+    "styleContinuityAnchors": [
+      "cool-neutral surface stack",
+      "single teal-cyan primary hue",
+      "8px/16px radius scale",
+      "Inter + Noto Sans SC type stack",
+      "subtle border separators instead of heavy shadows"
+    ],
+    "cssPreflightEvidence": {
+      "applies": true,
+      "status": "passed",
+      "command": "node /Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs /Users/beiluo/Documents/alProject/qoderProject/knowflow/design/kb-dropdown/colors_and_type.css /Users/beiluo/Documents/alProject/qoderProject/knowflow/design/kb-dropdown/.preflight/preflight.html --title=\"Preflight\" --lang=\"zh-CN\" --prefix=\"kb\"",
+      "brandPrefix": "kb",
+      "checks": {
+        "themeVars": "present",
+        "semanticTokenFallback": "present",
+        "themeInline": "present",
+        "tailwindCdn": "present",
+        "lucideCdn": "present",
+        "htmlClass": "present",
+        "semanticMappings": "resolved"
+      },
+      "retryCount": 1,
+      "blockingReason": null
+    },
+    "dispatchPreflightManifest": [
+      {
+        "recorded_at": "2026-08-01T12:02:09.351Z",
+        "generatedBy": "build-page-dispatch-manifest.mjs",
+        "packetType": "FreePagePacket",
+        "laneContract": {
+          "resolvedLane": "free_exploration",
+          "packetType": "FreePagePacket",
+          "pageRuntimeGuide": "intent-workflows/intent-page-free-exploration/free-exploration-page-runtime.md",
+          "dispatchContract": "intent-workflows/intent-page-free-exploration/dispatch-contract.md"
+        },
+        "taskLinePresent": true,
+        "outputPathPresent": true,
+        "sharedTemplate": "intent-workflows/intent-page-free-exploration/free-exploration-page-runtime.md",
+        "nodeId": "page-index",
+        "htmlSrc": "pages/index.html",
+        "supplementaryReads": [],
+        "allowedWritePaths": [
+          "pages/index.html",
+          "assets/"
+        ],
+        "forbiddenWriteRoots": [
+          "*.design",
+          "runtime-orchestration-summary.json",
+          "validation-report.json",
+          "finish-readiness-report.json",
+          "restore-contract-report.json",
+          "page-generation-summary.json"
+        ],
+        "toolPolicy": {
+          "todoWriteAllowed": false,
+          "validationScriptsAllowed": false,
+          "previewAllowed": false,
+          "helperScriptsAllowed": false,
+          "designFileWriteAllowed": false,
+          "allowedWritePaths": [
+            "pages/index.html",
+            "assets/"
+          ]
+        },
+        "skillRuntime": {
+          "skillDir": "/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design",
+          "deterministicToolDir": "/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling",
+          "toolPaths": {
+            "applyHtmlHeadContract": "/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs",
+            "recordDispatchCompletion": "/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/record-dispatch-completion.mjs",
+            "buildPageDispatchManifest": "/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/build-page-dispatch-manifest.mjs",
+            "validateDesignWorkspace": "/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-design-workspace.mjs",
+            "validateFinishReadiness": "/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-finish-readiness.mjs",
+            "validateRestoreContract": "/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-restore-contract.mjs"
+          },
+          "requiredForPageSubAgent": [
+            "applyHtmlHeadContract",
+            "recordDispatchCompletion"
+          ],
+          "pathInjection": "absolute",
+          "pathContract": "Do not use {SKILL_DIR} placeholders inside Page Sub-Agent packets; use toolPaths.* absolute paths.",
+          "commandTemplates": {
+            "recordDispatchCompletion": "node '/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/record-dispatch-completion.mjs' '/Users/beiluo/Documents/alProject/qoderProject/knowflow/design/kb-dropdown' --node-id='page-index' --html-src='pages/index.html' --status=completed --changed-files=<comma-separated-project-relative-files> --trace-digest=<main-agent-runtime-trace-digest> --tool-ledger-json=<tool-ledger-json-or-file>"
+          }
+        },
+        "cssFilePath": "/Users/beiluo/Documents/alProject/qoderProject/knowflow/design/kb-dropdown/colors_and_type.css",
+        "htmlFilePath": "/Users/beiluo/Documents/alProject/qoderProject/knowflow/design/kb-dropdown/pages/index.html",
+        "brandPrefix": "kb",
+        "aestheticsMode": "free-explore",
+        "toolDisciplineBlockPresent": true,
+        "fillHtmlHeadCommand": "node '/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs' '/Users/beiluo/Documents/alProject/qoderProject/knowflow/design/kb-dropdown/colors_and_type.css' '/Users/beiluo/Documents/alProject/qoderProject/knowflow/design/kb-dropdown/pages/index.html' --title='知识库下拉组件' --lang='zh-CN' --prefix='kb'",
+        "headFillMode": "skeleton-first",
+        "viewportMode": "document-scroll",
+        "completionSchemaExpected": "compact",
+        "restoreFields": null,
+        "restoreContractStatus": null,
+        "restoreCompactPacket": null,
+        "deterministicCommands": null,
+        "sourceAuthorityLock": null,
+        "preDispatchFileHashes": {
+          "kb-dropdown.design": "74d6c12324da8792a0c1a1071254843a2150d83488f7b1ed52b1a601f5ceb3b3"
+        },
+        "contextPreflight": {
+          "workflowPath": "intent-workflows/intent-page-free-exploration/INTENT_WORKFLOW.md",
+          "requiredContextFiles": [
+            "shared-runtime/runtime-boundaries/lane-runtime-contracts.md",
+            "shared-runtime/agent-dispatch-runtime/lane-dispatch-index.md",
+            "delivery-quality/page-rendering-quality-gate.md",
+            "delivery-quality/design-artifact-validation.md",
+            "delivery-quality/delivery-evidence-contract.md",
+            "visual-experience/visual-experience-guidelines.md"
+          ],
+          "optionalContextFiles": [],
+          "passed": true
+        },
+        "pageSliceOnly": true,
+        "requiredFieldsPresent": true,
+        "missingFields": [],
+        "fillHtmlHeadCommandValid": true,
+        "mobileNavigation": {
+          "required": false,
+          "appliesToThisPage": false,
+          "canonicalHtmlIncluded": false,
+          "missingFields": []
+        },
+        "persistedToSummary": true,
+        "taskQueryAudited": false,
+        "proofSource": "summary-only",
+        "largeWorkflowFilesInTaskQuery": null
+      }
+    ],
+    "defaultDeliverableVisibility": {
+      "applies": true,
+      "requiredVisibleRegions": [
+        {
+          "htmlSrc": "pages/index.html",
+          "selector": "#kb-dropdown-showcase",
+          "label": "dropdown component showcase",
+          "source": "user requirement"
+        }
+      ],
+      "hiddenAllowed": []
+    },
+    "readScopeLedger": [
+      {
+        "actor": "page-sub-agent",
+        "lane": "free_exploration",
+        "path": "intent-workflows/intent-page-free-exploration/free-exploration-page-runtime.md",
+        "reason": "page runtime guide",
+        "scopeClass": "page-runtime",
+        "declaredBeforeRead": true,
+        "recordedAt": "2026-08-01T12:02:09.351Z",
+        "nodeId": "page-index",
+        "htmlSrc": "pages/index.html"
+      },
+      {
+        "actor": "page-sub-agent",
+        "lane": "free_exploration",
+        "path": "intent-workflows/intent-page-free-exploration/dispatch-contract.md",
+        "reason": "dispatch contract",
+        "scopeClass": "dispatch-contract",
+        "declaredBeforeRead": true,
+        "recordedAt": "2026-08-01T12:02:09.351Z",
+        "nodeId": "page-index",
+        "htmlSrc": "pages/index.html"
+      }
+    ],
+    "expectedDispatches": [
+      {
+        "nodeId": "page-index",
+        "pageId": "page-index",
+        "targetPageId": "page-index",
+        "htmlSrc": "pages/index.html",
+        "packetType": "FreePagePacket",
+        "status": "completed",
+        "changedFiles": [
+          "pages/index.html"
+        ],
+        "toolCallLedger": {
+          "source": "main-agent-runtime-trace",
+          "traceDigest": "1fb4bd8f27d7bcae7be69582896e0f73952851bdc87ad40ee18c044fe67cb597",
+          "todoWriteCalls": 0,
+          "previewCalls": 0,
+          "validationScriptCalls": 0,
+          "helperScriptWrites": 0
+        },
+        "recordedAt": "2026-08-01T12:07:33.660Z",
+        "source": "record-dispatch-completion.mjs"
+      }
+    ],
+    "mainAgentPostDispatchMutations": [],
+    "validationHistory": [
+      {
+        "reportPath": "validation-report.json",
+        "reportHash": "4cdbbcf3c7369332fe723ec577f5fe60716784a545c27bb646d1e678af3f0474",
+        "checkedAt": "2026-08-01T12:06:55.292Z",
+        "success": false,
+        "exitCode": 1,
+        "renderBlockingErrorCount": 2,
+        "repairPlanHints": [],
+        "errorSignatures": [
+          {
+            "errorClass": "artifact-readiness",
+            "normalized": "[device-type-consistency] orchestration-summary project.deviceType=\"web\" does not match .design config.deviceType=\"desktop\". Fix .design config before final delivery.",
+            "signature": "411851c1b2d6af6d6049dc03fa8b1f700f1f2b7f3d4f1ed97774a68502aa83a0"
+          },
+          {
+            "errorClass": "dispatch-changed-files",
+            "normalized": "[dispatch-changed-files] pages/index.html: toolCallLedger.todoWriteCalls must be 0; found 4",
+            "signature": "7b7f372179f02933478111bf12a6a95bc2f13e104b871e0b86f39343d7ba0c1f"
+          }
+        ],
+        "terminalState": null
+      },
+      {
+        "reportPath": "validation-report.json",
+        "reportHash": "31a92193350a6cbadf0ef55d2135cb98a5d080c0e6f11598b581fd239534290c",
+        "checkedAt": "2026-08-01T12:08:00.484Z",
+        "success": true,
+        "exitCode": 0,
+        "renderBlockingErrorCount": 0,
+        "repairPlanHints": [],
+        "errorSignatures": [],
+        "terminalState": null
+      }
+    ],
+    "validationRepairLedger": [
+      {
+        "failedReportPath": "validation-report.json",
+        "failedReportHash": "4cdbbcf3c7369332fe723ec577f5fe60716784a545c27bb646d1e678af3f0474",
+        "repairWorkflowReadPath": "intent-workflows/intent-project-mutation/main-agent-repair-workflow.md",
+        "repairStartedAt": "2026-08-01T12:07:10.008Z",
+        "repairEntryStatus": "revalidated-success",
+        "ownerTriage": [
+          {
+            "owner": "main-agent",
+            "errorClass": "artifact-readiness",
+            "affectedFiles": [],
+            "repairScope": "repair_design_registration_or_file_reference_only",
+            "strategy": "read .design and affected file metadata only"
+          },
+          {
+            "owner": "main-agent",
+            "errorClass": "unknown-blocking",
+            "affectedFiles": [],
+            "repairScope": "read validation report, classify owner, then use the narrowest targeted repair",
+            "strategy": "no validator source read; targeted affected-file excerpt only"
+          }
+        ],
+        "repairPlanHints": [],
+        "repairActions": [
+          {
+            "owner": "main-agent",
+            "errorClass": "artifact-readiness",
+            "affectedFiles": [
+              "runtime-orchestration-summary.json",
+              ".preflight/tool-ledger.json"
+            ],
+            "action": "repair_design_registration_or_file_reference_only",
+            "observedFileHashes": [
+              {
+                "path": "runtime-orchestration-summary.json",
+                "hash": "954a4fae4837d347b537cdc814dd0242ce3ec85c34595d55fb4295719b3be074"
+              },
+              {
+                "path": ".preflight/tool-ledger.json",
+                "hash": "47286d246fed35c213a26056bc7a59912a9184ed8754d9b304a98bb083eade1a"
+              }
+            ],
+            "preEditFileHashes": [],
+            "postEditFileHashes": [],
+            "repairOwnedFields": [
+              "artifact-readiness"
+            ],
+            "recordedAt": "2026-08-01T12:07:55.133Z",
+            "repairActionTableRequired": true
+          }
+        ],
+        "revalidationReportPath": "validation-report.json",
+        "revalidationReportHash": "31a92193350a6cbadf0ef55d2135cb98a5d080c0e6f11598b581fd239534290c",
+        "revalidationSuccess": true,
+        "blockedReason": null,
+        "revalidationRecordedAt": "2026-08-01T12:08:10.714Z"
+      }
+    ],
+    "repairEntryEvidence": [
+      {
+        "failedReportPath": "validation-report.json",
+        "failedReportHash": "4cdbbcf3c7369332fe723ec577f5fe60716784a545c27bb646d1e678af3f0474",
+        "repairWorkflowReadPath": "intent-workflows/intent-project-mutation/main-agent-repair-workflow.md",
+        "repairStartedAt": "2026-08-01T12:07:10.008Z",
+        "ledgerIndex": 0,
+        "ownerTriageCount": 2,
+        "repairActionCount": 1,
+        "revalidationReportPath": "validation-report.json",
+        "revalidationReportHash": "31a92193350a6cbadf0ef55d2135cb98a5d080c0e6f11598b581fd239534290c",
+        "revalidationSuccess": true
+      }
+    ]
+  },
+  "pages": [
+    {
+      "nodeId": "page-index",
+      "htmlSrc": "pages/index.html",
+      "title": "知识库下拉组件",
+      "qualityRisks": [
+        "dropdown floating layers need stable z-index and shadow",
+        "component showcase must avoid looking like a generic landing"
+      ]
+    }
+  ]
+}

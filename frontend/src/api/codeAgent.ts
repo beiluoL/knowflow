@@ -7,6 +7,11 @@ import type {
   AgentSessionVO,
   AgentMessageVO,
   AgentStatsVO,
+  AgentIntentRequest,
+  AgentIntentResult,
+  Ambiguity,
+  AgentEvalRequest,
+  AgentEvalResult,
 } from './types'
 import type { CodeRunPayload, CodeRunResultDTO } from './codeRun'
 
@@ -77,6 +82,20 @@ export const codeAgentApi = {
   /** 获取模型监测统计数据（用于仪表盘） */
   getStats: (rangeHours = 24) =>
     apiGet<AgentStatsVO>('/agent/stats', { rangeHours } as any),
+
+  // ==================== 意图识别与答案生成优化（P1~P3）====================
+
+  /** P1 多轮上下文意图分类（含歧义点） */
+  detectIntent: (payload: AgentIntentRequest) =>
+    apiPost<AgentIntentResult>('/agent/intent', payload),
+
+  /** P2 结构探针 + 语义歧义检测 */
+  detectAmbiguities: (payload: AgentIntentRequest) =>
+    apiPost<Ambiguity[]>('/agent/ambiguities', payload),
+
+  /** P3 输出准确率评估闭环 */
+  evaluate: (payload: AgentEvalRequest) =>
+    apiPost<AgentEvalResult>('/agent/evaluate', payload),
 }
 
 /**

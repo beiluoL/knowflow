@@ -1,0 +1,122 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-01T12:02:09.354Z",
+  "source": "build-page-dispatch-manifest.mjs",
+  "mode": "free-fast",
+  "summary_path": "runtime-orchestration-summary.json",
+  "skillProvenance": {
+    "name": "solo-design",
+    "resolvedLane": "free_exploration",
+    "mode": "free-explore"
+  },
+  "dispatchPreflightManifest": [
+    {
+      "recorded_at": "2026-08-01T12:02:09.351Z",
+      "generatedBy": "build-page-dispatch-manifest.mjs",
+      "packetType": "FreePagePacket",
+      "laneContract": {
+        "resolvedLane": "free_exploration",
+        "packetType": "FreePagePacket",
+        "pageRuntimeGuide": "intent-workflows/intent-page-free-exploration/free-exploration-page-runtime.md",
+        "dispatchContract": "intent-workflows/intent-page-free-exploration/dispatch-contract.md"
+      },
+      "taskLinePresent": true,
+      "outputPathPresent": true,
+      "sharedTemplate": "intent-workflows/intent-page-free-exploration/free-exploration-page-runtime.md",
+      "nodeId": "page-index",
+      "htmlSrc": "pages/index.html",
+      "supplementaryReads": [],
+      "allowedWritePaths": [
+        "pages/index.html",
+        "assets/"
+      ],
+      "forbiddenWriteRoots": [
+        "*.design",
+        "runtime-orchestration-summary.json",
+        "validation-report.json",
+        "finish-readiness-report.json",
+        "restore-contract-report.json",
+        "page-generation-summary.json"
+      ],
+      "toolPolicy": {
+        "todoWriteAllowed": false,
+        "validationScriptsAllowed": false,
+        "previewAllowed": false,
+        "helperScriptsAllowed": false,
+        "designFileWriteAllowed": false,
+        "allowedWritePaths": [
+          "pages/index.html",
+          "assets/"
+        ]
+      },
+      "skillRuntime": {
+        "skillDir": "/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design",
+        "deterministicToolDir": "/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling",
+        "toolPaths": {
+          "applyHtmlHeadContract": "/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs",
+          "recordDispatchCompletion": "/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/record-dispatch-completion.mjs",
+          "buildPageDispatchManifest": "/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/build-page-dispatch-manifest.mjs",
+          "validateDesignWorkspace": "/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-design-workspace.mjs",
+          "validateFinishReadiness": "/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-finish-readiness.mjs",
+          "validateRestoreContract": "/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-restore-contract.mjs"
+        },
+        "requiredForPageSubAgent": [
+          "applyHtmlHeadContract",
+          "recordDispatchCompletion"
+        ],
+        "pathInjection": "absolute",
+        "pathContract": "Do not use {SKILL_DIR} placeholders inside Page Sub-Agent packets; use toolPaths.* absolute paths.",
+        "commandTemplates": {
+          "recordDispatchCompletion": "node '/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/record-dispatch-completion.mjs' '/Users/beiluo/Documents/alProject/qoderProject/knowflow/design/kb-dropdown' --node-id='page-index' --html-src='pages/index.html' --status=completed --changed-files=<comma-separated-project-relative-files> --trace-digest=<main-agent-runtime-trace-digest> --tool-ledger-json=<tool-ledger-json-or-file>"
+        }
+      },
+      "cssFilePath": "/Users/beiluo/Documents/alProject/qoderProject/knowflow/design/kb-dropdown/colors_and_type.css",
+      "htmlFilePath": "/Users/beiluo/Documents/alProject/qoderProject/knowflow/design/kb-dropdown/pages/index.html",
+      "brandPrefix": "kb",
+      "aestheticsMode": "free-explore",
+      "toolDisciplineBlockPresent": true,
+      "fillHtmlHeadCommand": "node '/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/apply-html-head-contract.mjs' '/Users/beiluo/Documents/alProject/qoderProject/knowflow/design/kb-dropdown/colors_and_type.css' '/Users/beiluo/Documents/alProject/qoderProject/knowflow/design/kb-dropdown/pages/index.html' --title='知识库下拉组件' --lang='zh-CN' --prefix='kb'",
+      "headFillMode": "skeleton-first",
+      "viewportMode": "document-scroll",
+      "completionSchemaExpected": "compact",
+      "restoreFields": null,
+      "restoreContractStatus": null,
+      "restoreCompactPacket": null,
+      "deterministicCommands": null,
+      "sourceAuthorityLock": null,
+      "preDispatchFileHashes": {
+        "kb-dropdown.design": "74d6c12324da8792a0c1a1071254843a2150d83488f7b1ed52b1a601f5ceb3b3"
+      },
+      "contextPreflight": {
+        "workflowPath": "intent-workflows/intent-page-free-exploration/INTENT_WORKFLOW.md",
+        "requiredContextFiles": [
+          "shared-runtime/runtime-boundaries/lane-runtime-contracts.md",
+          "shared-runtime/agent-dispatch-runtime/lane-dispatch-index.md",
+          "delivery-quality/page-rendering-quality-gate.md",
+          "delivery-quality/design-artifact-validation.md",
+          "delivery-quality/delivery-evidence-contract.md",
+          "visual-experience/visual-experience-guidelines.md"
+        ],
+        "optionalContextFiles": [],
+        "passed": true
+      },
+      "pageSliceOnly": true,
+      "requiredFieldsPresent": true,
+      "missingFields": [],
+      "fillHtmlHeadCommandValid": true,
+      "mobileNavigation": {
+        "required": false,
+        "appliesToThisPage": false,
+        "canonicalHtmlIncluded": false,
+        "missingFields": []
+      },
+      "persistedToSummary": true,
+      "taskQueryAudited": false,
+      "proofSource": "summary-only",
+      "largeWorkflowFilesInTaskQuery": null
+    }
+  ],
+  "deterministicCommandsByPage": {
+    "pages/index.html": {}
+  }
+}

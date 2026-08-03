@@ -1,0 +1,78 @@
+:root {
+  --kb-background: #f8fafc;
+  --kb-foreground: #0f172a;
+  --kb-card: #ffffff;
+  --kb-card-foreground: #0f172a;
+  --kb-popover: #ffffff;
+  --kb-popover-foreground: #0f172a;
+  --kb-primary: #0d9488;
+  --kb-primary-foreground: #ffffff;
+  --kb-muted: #f1f5f9;
+  --kb-muted-foreground: #64748b;
+  --kb-border: #e2e8f0;
+  --kb-input: #e2e8f0;
+  --kb-ring: #0d9488;
+  --kb-radius-sm: 4px;
+  --kb-radius-md: 8px;
+  --kb-radius-lg: 16px;
+
+  --bg: var(--kb-background);
+  --surface: var(--kb-card);
+  --surface-2: var(--kb-muted);
+  --ink: var(--kb-foreground);
+  --ink-2: var(--kb-muted-foreground);
+  --ink-3: #94a3b8;
+  --line: var(--kb-border);
+  --brand: var(--kb-primary);
+  --brand-ink: var(--kb-primary-foreground);
+
+  --state-success: #10b981;
+  --state-warning: #f59e0b;
+  --state-error: #ef4444;
+  --state-info: #3b82f6;
+
+  --r-xs: 2px;
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+
+  --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.05), 0 1px 1px rgba(15, 23, 42, 0.03);
+  --shadow-2: 0 8px 24px -8px rgba(15, 23, 42, 0.18);
+  --shadow-3: 0 24px 60px -20px rgba(15, 23, 42, 0.30);
+
+  --font-sans: Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "SF Mono", "Fira Code", "Noto Sans Mono SC", monospace;
+}
+
+html.dark {
+  --kb-background: #0b0f14;
+  --kb-foreground: #f1f5f9;
+  --kb-card: #111827;
+  --kb-card-foreground: #f1f5f9;
+  --kb-popover: #111827;
+  --kb-popover-foreground: #f1f5f9;
+  --kb-primary: #14b8a6;
+  --kb-primary-foreground: #020617;
+  --kb-muted: #1e293b;
+  --kb-muted-foreground: #94a3b8;
+  --kb-border: #1e293b;
+  --kb-input: #1e293b;
+  --kb-ring: #14b8a6;
+
+  --bg: var(--kb-background);
+  --surface: var(--kb-card);
+  --surface-2: var(--kb-muted);
+  --ink: var(--kb-foreground);
+  --ink-2: var(--kb-muted-foreground);
+  --ink-3: #64748b;
+  --line: var(--kb-border);
+  --brand: var(--kb-primary);
+  --brand-ink: var(--kb-primary-foreground);
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--ink);
+}

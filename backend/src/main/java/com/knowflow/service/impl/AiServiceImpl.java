@@ -155,6 +155,14 @@ public class AiServiceImpl implements AiService {
         }
     }
 
+    /**
+     * 对外暴露的大模型调用入口（供 IntentService 等内部服务复用的统一通道）。
+     * model 传 null 时使用生效配置中的默认模型。
+     */
+    public String complete(String systemPrompt, String userPrompt, double temperature, Long userId) {
+        return callModel(systemPrompt, userPrompt, temperature, null, userId);
+    }
+
     /** 解析用户级 AI 配置，优先使用用户自带的 Key，否则回退到全局配置。 */
     private EffectiveAiConfig resolveEffectiveConfig(Long userId) {
         if (userId != null) {

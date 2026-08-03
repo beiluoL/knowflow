@@ -824,6 +824,118 @@ export interface OllamaOpResult {
   error?: string
 }
 
+// ===== 本地代码生成（Ollama + deepseek-coder）=====
+
+/** 生成请求参数（与后端 CodeGenDTO 对齐） */
+export interface CodeGenRequest {
+  /** 自然语言指令，如「替我写一个 html demo 案例」 */
+  prompt: string
+  /** 可选：覆盖 Ollama 服务地址 */
+  baseUrl?: string
+  /** 可选：覆盖生成模型，默认 deepseek-coder:6.7b */
+  model?: string
+  /** 可选：采样温度 */
+  temperature?: number
+}
+
+/** 单个待落盘文件（与后端 GeneratedFileVO 对齐） */
+export interface GeneratedFile {
+  fileName: string
+  language: string
+  content: string
+  size: number
+}
+
+/** 生成结果（与后端 CodeGenResultVO 对齐） */
+export interface CodeGenResult {
+  model: string
+  files: GeneratedFile[]
+  /** 代码块之外的说明文字 */
+  explanation?: string
+  /** 模型原始输出，解析失败时兜底展示 */
+  rawContent?: string
+  elapsedMs?: number
+}
+
+/** 生成前环境自检结果（与后端 /code-gen/health 对齐） */
+export interface CodeGenHealth {
+  baseUrl: string
+  targetModel: string
+  serviceOk: boolean
+  modelInstalled: boolean
+  installedModels?: string[]
+  error?: string
+  /** 可操作的修复建议，如 ollama pull xxx */
+  hint?: string
+}
+
+// ===== 编程 Agent 意图识别与答案生成优化（方案 P1~P3）=====
+
+export type AgentIntentType = 'generate' | 'modify' | 'explain' | 'debug' | 'chat'
+
+/** 意图识别：历史项（多轮上下文） */
+export interface IntentHistoryItem {
+  role: 'user' | 'assistant' | 'system'
+  content: string
+  intent?: AgentIntentType
+  slots?: Record<string, string>
+}
+
+/** 意图识别：项目结构快照项 */
+export interface ProjectSnapshotItem {
+  path: string
+  type: 'file' | 'directory'
+}
+
+/** 意图识别请求（与后端 AgentIntentDTO 对齐） */
+export interface AgentIntentRequest {
+  currentInput: string
+  history?: IntentHistoryItem[]
+  projectSnapshot?: ProjectSnapshotItem[]
+  structuralOnly?: boolean
+}
+
+/** 澄清问题（显式确认机制，P2） */
+export interface ClarifyQuestion {
+  field: string
+  question: string
+  options?: string[]
+}
+
+/** 歧义点（P2 结构/语义检测） */
+export interface Ambiguity {
+  kind: 'missing-file' | 'framework-mismatch' | 'lang-mismatch' | 'underspecified' | 'semantical' | string
+  point: string
+  reason: string
+  suggestion: string
+}
+
+/** 意图识别结果（与后端 AgentIntentVO 对齐） */
+export interface AgentIntentResult {
+  intent: AgentIntentType
+  confidence: number
+  slots?: Record<string, string>
+  needsClarify: boolean
+  clarifications?: ClarifyQuestion[]
+  ambiguities?: Ambiguity[]
+}
+
+/** 准确率评估（P3） */
+export interface AgentEvalRequest {
+  intent: AgentIntentType
+  slots?: Record<string, string>
+  agentOutput: string
+  userFeedback?: string
+  fromFeedback?: boolean
+}
+export interface AgentEvalResult {
+  matchScore: number
+  dimensions: Record<string, number>
+  misses: string[]
+  suggestions: string[]
+  fromFeedback?: boolean
+}
+
 // ===== 代码题库 =====
 /** 单条测试用例（与后端 code_question.test_cases JSON 数组项对齐） */
 export interface CodeTestCase {

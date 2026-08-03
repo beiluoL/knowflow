@@ -1,0 +1,105 @@
+{
+  "success": true,
+  "outcome": "passed",
+  "repairable": true,
+  "terminalViolations": [],
+  "terminalBlockingSummary": null,
+  "skillProvenance": {
+    "name": "solo-design",
+    "version": null,
+    "version_source": "unknown",
+    "runtime_skill_dir": null,
+    "recorded_at": null,
+    "expected_version": "2026.07.22.00.00.00",
+    "status": "observed_unknown",
+    "read_status": "unknown"
+  },
+  "operatingMode": "free-explore",
+  "renderBlockingErrorCount": 0,
+  "softWarningCount": 6,
+  "renderBlockingErrors": [],
+  "errorSignatures": [],
+  "softWarnings": [
+    "[orchestration-summary] runtime-orchestration-summary.json is missing skillProvenance.name/version/version_source. Version provenance will be reported as observed_unknown by external evaluators.",
+    "[repair-ledger] validationRepairLedger[0].repairActions[0].preEditFileHashes[] is missing (legacy optional evidence)",
+    "[repair-ledger] validationRepairLedger[0].repairActions[0].postEditFileHashes[] is missing (legacy optional evidence)",
+    "[repair-ledger] validationRepairLedger[0].revalidationReportPath is missing",
+    "[repair-ledger] validationRepairLedger[0].revalidationReportHash is missing",
+    "[repair-ledger] validationRepairLedger[0].revalidationSuccess should be a boolean"
+  ],
+  "repairPlanHints": [],
+  "repairActionTable": [],
+  "errorCount": 0,
+  "warningCount": 6,
+  "errors": [],
+  "warnings": [
+    "[orchestration-summary] runtime-orchestration-summary.json is missing skillProvenance.name/version/version_source. Version provenance will be reported as observed_unknown by external evaluators.",
+    "[repair-ledger] validationRepairLedger[0].repairActions[0].preEditFileHashes[] is missing (legacy optional evidence)",
+    "[repair-ledger] validationRepairLedger[0].repairActions[0].postEditFileHashes[] is missing (legacy optional evidence)",
+    "[repair-ledger] validationRepairLedger[0].revalidationReportPath is missing",
+    "[repair-ledger] validationRepairLedger[0].revalidationReportHash is missing",
+    "[repair-ledger] validationRepairLedger[0].revalidationSuccess should be a boolean"
+  ],
+  "validationRunDisciplineStatus": {
+    "declared": true,
+    "restoreMode": false,
+    "maxFullValidationRuns": 2,
+    "validationHistoryCount": 1,
+    "repairLedgerCount": 1,
+    "softWarningsTriggerRepair": false,
+    "terminalState": null,
+    "nextAction": null,
+    "violations": [],
+    "success": true
+  },
+  "terminalState": null,
+  "nextCheck": {
+    "type": "finish-readiness",
+    "command": "node '/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-finish-readiness.mjs' '/Users/beiluo/Documents/alProject/qoderProject/knowflow/design/kb-dropdown' --check=all",
+    "fullValidationAllowed": false,
+    "reason": "workspace validation passed; run complete finish readiness before final delivery"
+  },
+  "repairBatch": [],
+  "repairContextPacket": {
+    "schema_version": "1.0",
+    "purpose": "small-context repair packet; read this before full validation-report.json",
+    "success": true,
+    "terminalState": null,
+    "skillProvenance": {
+      "name": "solo-design",
+      "version": null,
+      "version_source": "unknown",
+      "runtime_skill_dir": null,
+      "recorded_at": null,
+      "expected_version": "2026.07.22.00.00.00",
+      "status": "observed_unknown",
+      "read_status": "unknown"
+    },
+    "renderBlockingErrorCount": 0,
+    "softWarningCount": 6,
+    "renderBlockingErrors": [],
+    "repairActionTable": [],
+    "nextCheck": {
+      "type": "finish-readiness",
+      "command": "node '/Users/beiluo/.trae-cn/builtin/design/default/skills/solo-design/shared-runtime/deterministic-tooling/validate-finish-readiness.mjs' '/Users/beiluo/Documents/alProject/qoderProject/knowflow/design/kb-dropdown' --check=all",
+      "fullValidationAllowed": false,
+      "reason": "workspace validation passed; run complete finish readiness before final delivery"
+    },
+    "forbidden": [
+      "do not read validator source",
+      "do not rerun full validation when nextCheck.fullValidationAllowed=false",
+      "do not start preview/browser unless user explicitly asks",
+      "do not hand-edit repair ledger fields"
+    ]
+  },
+  "projectFileHashes": {
+    "kb-dropdown.design": "74d6c12324da8792a0c1a1071254843a2150d83488f7b1ed52b1a601f5ceb3b3",
+    "colors_and_type.css": "b8aa14a35dc9ad7a2d64501c0c71af16a9c0cfab7cd8dde107862ba313edd511",
+    "runtime-orchestration-summary.json": "e3eca28b63838033bb420e6abc9f0b3cb3911a54c861dc065c1a4e43f68e68aa",
+    "pages/index.html": "b67ae4963ac89dc481631a9f0290c06ffb88d80fe574e6c697793a934692fbcd"
+  },
+  "designDir": "/Users/beiluo/Documents/alProject/qoderProject/knowflow/design/kb-dropdown",
+  "expectedPages": 1,
+  "requireInteractions": null,
+  "checkedAt": "2026-08-01T12:08:00.484Z"
+}

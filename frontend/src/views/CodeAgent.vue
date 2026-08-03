@@ -15,6 +15,7 @@ import Icon from '@/components/ui/Icon.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
 import { codeAgentApi, aiConfigApi, ollamaApi, msg } from '@/api'
+import { codeGenApi } from '@/api/codeGen'
 import type {
   AgentChatMessage,
   UserAiConfigVO,
@@ -24,9 +25,30 @@ import type {
   OllamaConfigVO,
   OllamaModelVO,
   OllamaTestResult,
+  GeneratedFile,
+  OllamaConfigVO,
+  OllamaModelVO,
+  OllamaTestResult,
+  GeneratedFile,
+  AgentIntentType,
+  AgentIntentRequest,
+  AgentIntentResult,
+  Ambiguity,
+  ClarifyQuestion,
+  AgentEvalResult,
 } from '@/api/types'
 import { renderMarkdown } from '@/utils/markdown'
 import { notify, confirmDialog, promptDialog, getApiError } from '@/utils/toast'
+import {
+  saveFilesToDirectory,
+  supportsDirectoryPicker,
+  UserCancelledError,
+  getRememberedDirectory,
+  clearRememberedDirectory,
+  rememberDirectory,
+  pickDirectory,
+  type FileSystemDirectoryHandleLike,
+} from '@/utils/fileSaver'
 
 // ==================== 标签页 ====================
 type TabKey = 'chat' | 'sessions' | 'monitor' | 'models' | 'ollama'
@@ -450,7 +472,7 @@ const supportsFsAccess = computed(() => typeof (window as any).showDirectoryPick
 
 const IGNORED_DIRS = new Set(['node_modules', '.git', '.idea', '.vscode', 'dist', 'build', 'target', '__pycache__', '.next', '.nuxt', 'out'])
 
-async function pickDirectory() {
+async function pickProjectDirectory() {
   if (!supportsFsAccess.value) {
     notify('当前浏览器不支持 File System Access API，请使用 Chrome/Edge 86+ 浏览器', 'error')
     return
@@ -527,6 +549,114 @@ async function selectFile(node: FileNode) {
   }
 }
 
+// ==================== 文件树自动刷新（生成后同步目录结构）====================
+
+/** 是否在代码生成完成后自动刷新文件树（反映新增/修改/删除） */
+const autoRefreshTree = ref(true)
+/** 自动刷新延迟（毫秒）：合并生成多文件时的多次触发，避免频繁更新 */
+const refreshDelay = ref(800)
+/** 是否开启目录监听（轮询式，用于捕捉生成之外的外部变更，默认关闭以避免常驻开销） */
+const watchTree = ref(false)
+
+let refreshTimer: ReturnType<typeof setTimeout> | null = null
+let watchTimer: ReturnType<typeof setInterval> | null = null
+
+/**
+ * 全量重建文件树，并保留原树中已展开目录的展开状态，使新增的文件夹/文件立即可见，
+ * 同时兼容任意项目类型与目录层级（沿用 IGNORED_DIRS 过滤）。
+ * @returns 是否成功（未挂载目录时返回 false）
+ */
+async function refreshFileTree(): Promise<boolean> {
+  if (!rootHandle.value) return false
+  const oldTree = fileTree.value
+  try {
+    const next = await readDirectory(rootHandle.value, '', 0)
+    // 递归：对原树中已展开的目录，按 path 在新树里匹配并重新读取其内容，保持展开
+    await applyExpandedState(oldTree, next)
+    fileTree.value = next
+    return true
+  } catch (e: unknown) {
+    notify(getApiError(e, '刷新目录失败'), 'error')
+    return false
+  }
+}
+
+/** 将旧树中展开目录的状态同步到新树（按 path 匹配，递归子级） */
+async function applyExpandedState(oldNodes: FileNode[], newNodes: FileNode[]) {
+  const oldByPath = new Map(oldNodes.map((n) => [n.path, n]))
+  for (const node of newNodes) {
+    if (node.kind !== 'directory') continue
+    const old = oldByPath.get(node.path)
+    if (old?.expanded) {
+      try {
+        node.children = await readDirectory(node.handle, node.path, node.depth + 1)
+        node.expanded = true
+        if (node.children && old.children) {
+          await applyExpandedState(old.children, node.children)
+        }
+      } catch {
+        node.expanded = false
+      }
+    }
+  }
+}
+
+/** 防抖触发刷新：生成多个文件时合并为一次更新，降低开销 */
+function scheduleRefresh() {
+  if (!autoRefreshTree.value) return
+  if (refreshTimer) clearTimeout(refreshTimer)
+  refreshTimer = setTimeout(() => {
+    refreshTimer = null
+    refreshFileTree()
+  }, refreshDelay.value)
+}
+
+/**
+ * 目录监听（轮询式）：周期性对比根目录条目，捕捉生成之外的外部增删改。
+ * 浏览器 File System Access API 暂无稳定跨浏览器的 fs 变更事件，故以轻量轮询模拟 watch；
+ * 仅比较条目名称，不读取内容，开销极低。间隔取刷新延迟与 1.5s 的较大值。
+ */
+async function tickWatch(): Promise<void> {
+  if (!rootHandle.value) return
+  try {
+    const fresh = await readDirectory(rootHandle.value, '', 0)
+    if (!isSameStructure(fileTree.value, fresh)) {
+      await refreshFileTree()
+    }
+  } catch {
+    /* 监听失败静默，不阻断主流程 */
+  }
+}
+
+/** 仅比较目录结构（名称/类型），用于判断是否需要刷新 */
+function isSameStructure(a: FileNode[], b: FileNode[]): boolean {
+  if (a.length !== b.length) return false
+  const mapB = new Map(b.map((n) => [n.path + n.kind, n]))
+  return a.every((n) => mapB.has(n.path + n.kind))
+}
+
+function startWatch() {
+  stopWatch()
+  const interval = Math.max(refreshDelay.value, 1500)
+  watchTimer = setInterval(tickWatch, interval)
+}
+function stopWatch() {
+  if (watchTimer) {
+    clearInterval(watchTimer)
+    watchTimer = null
+  }
+}
+
+// 挂载目录时若开启了监听则启动；卸载（无 rootHandle）时停止
+watch(rootHandle, (h) => {
+  if (h && watchTree.value) startWatch()
+  else stopWatch()
+})
+watch(watchTree, (on) => {
+  if (on && rootHandle.value) startWatch()
+  else stopWatch()
+})
+
 function detectLang(filename: string): string {
   const ext = filename.slice(filename.lastIndexOf('.')).toLowerCase()
   const map: Record<string, string> = {
@@ -543,6 +673,22 @@ interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
   content: string
   error?: boolean
+  /** 本条消息附带的可落盘代码文件（本地代码生成产物） */
+  files?: GeneratedFile[]
+  /** 产物是否已保存，避免重复落盘后仍提示「待保存」 */
+  saved?: boolean
+  /** 结构化意图（P1 多轮识别结果回填） */
+  intent?: AgentIntentType
+  /** 抽取的结构化参数 */
+  slots?: Record<string, string>
+  /** 歧义点（P2 标记） */
+  ambiguity?: Ambiguity[]
+  /** 多轮指代：指向上一条被引用消息的 id */
+  parentId?: string
+  /** 本地临时 id，用于 parentId 关联 */
+  id?: string
+  /** 准确率评估得分 0~1（P3，生成后回填） */
+  evalScore?: number
 }
 
 const messages = ref<ChatMessage[]>([
@@ -559,10 +705,580 @@ const messagesEl = ref<HTMLElement | null>(null)
 
 const includeFileContext = ref(true)
 
+// ==================== 本地代码生成（Ollama + deepseek-coder）====================
+
+/** 是否启用「生成即落盘」模式：命中生成意图时走本地 deepseek-coder 并弹目录选择 */
+const localCodeGenEnabled = ref(true)
+/** 生成中的阶段提示文案，用于在对话区展示进度（保留用于底部轻量提示） */
+const genPhase = ref('')
+const generating = ref(false)
+/** 保存进度：已写入文件数 / 总数 */
+const saveProgress = ref<{ done: number; total: number } | null>(null)
+
+/**
+ * 推理过程结构化步骤，类似主流智能编程工具的「思考链」展示：
+ * 从意图理解 → 目录选择/复用记忆 → 代码生成 → 文件保存，每一步可呈现状态与细节。
+ */
+type StepStatus = 'pending' | 'active' | 'done' | 'error'
+interface ReasoningStep {
+  key: string
+  icon: string
+  title: string
+  status: StepStatus
+  detail?: string
+}
+const reasoningSteps = ref<ReasoningStep[]>([])
+function setStep(key: string, patch: Partial<ReasoningStep>) {
+  const step = reasoningSteps.value.find((s) => s.key === key)
+  if (step) Object.assign(step, patch)
+}
+function resetSteps() {
+  reasoningSteps.value = [
+    { key: 'intent', icon: 'lightbulb', title: '理解你的意图', status: 'pending' },
+    { key: 'clarify', icon: 'help-circle', title: '澄清意图（如需）', status: 'pending' },
+    { key: 'dir', icon: 'folder', title: '确定保存目录', status: 'pending' },
+    { key: 'gen', icon: 'cpu', title: '调用模型生成代码', status: 'pending' },
+    { key: 'save', icon: 'save', title: '写入文件到磁盘', status: 'pending' },
+  ]
+}
+
+/** 已记住的默认保存目录名（来自 IndexedDB 持久化的句柄），用于输入区与产物区展示 */
+const rememberedDirName = ref<string | null>(null)
+/** 当前会话持有的记忆目录句柄，避免每次都读 IndexedDB */
+let cachedDirHandle: FileSystemDirectoryHandleLike | null = null
+
+/** 启动时恢复记忆目录（仅读名称用于展示，句柄在保存时惰性重授权） */
+onMounted(async () => {
+  try {
+    const remembered = await getRememberedDirectory()
+    if (remembered) {
+      rememberedDirName.value = remembered.name
+      cachedDirHandle = remembered.handle
+    }
+  } catch {
+    /* 恢复失败不阻断主流程 */
+  }
+})
+
+/** 清空记忆目录，下次生成会重新弹框选择 */
+async function changeSaveDirectory() {
+  await clearRememberedDirectory().catch(() => undefined)
+  rememberedDirName.value = null
+  cachedDirHandle = null
+  notify('已清除记忆目录，下次生成将重新选择', 'info')
+}
+
+// ==================== 设置面板（可预先配置默认保存目录）====================
+const showSettings = ref(false)
+
+/**
+ * 在设置中预先选择默认保存目录并持久化。
+ * 配置后，后续所有生成都会默认写入该目录，无需任何弹框，实现「一句话全自动落盘」。
+ */
+async function pickDefaultDirectory() {
+  if (!supportsDirectoryPicker()) {
+    notify('当前浏览器不支持目录选择，请使用 Chrome/Edge 浏览器', 'error')
+    return
+  }
+  try {
+    const handle = await pickDirectory()
+    cachedDirHandle = handle
+    rememberedDirName.value = handle.name
+    await rememberDirectory(handle).catch(() => undefined)
+    notify(`已设置默认保存目录：${handle.name}`, 'success')
+  } catch (e) {
+    if (e instanceof UserCancelledError) {
+      notify('已取消选择', 'info')
+      return
+    }
+    notify(getApiError(e, '选择默认目录失败'), 'error')
+  }
+}
+
+/**
+ * 识别「让 Agent 写代码并保存成文件」的意图。
+ *
+ * 采用「动作词 + 产物词」双命中策略：单独出现「HTML」可能只是提问，
+ * 必须同时出现「写/生成/做一个」这类动作词才判定为生成意图，降低误触发。
+ */
+const GEN_ACTION_RE = /(替我|帮我|给我|请)?\s*(写|生成|创建|做|建|来)(一个|一份|个|份)?/
+const GEN_ARTIFACT_RE = /(html|页面|网页|demo|案例|示例|代码|脚本|组件|项目|文件|css|js|javascript|python|前端)/i
+/** 显式要求保存到目录的表述，命中后即使动作词不明显也按生成处理 */
+const GEN_SAVE_RE = /(保存|存到|写入|输出到|下载)(到)?.*(目录|文件夹|本地|磁盘)/
+
+function detectCodeGenIntent(text: string): boolean {
+  if (!localCodeGenEnabled.value) return false
+  const normalized = text.trim()
+  if (normalized.length < 4) return false
+  if (GEN_SAVE_RE.test(normalized)) return true
+  return GEN_ACTION_RE.test(normalized) && GEN_ARTIFACT_RE.test(normalized)
+}
+
+/**
+ * 执行本地代码生成全流程：环境自检 → 调用模型 → 解析产物 → 弹目录选择 → 落盘 → 反馈。
+ *
+ * 每个阶段都有独立的异常兜底，确保任何一步失败都能给出可操作的提示，而不是静默卡住。
+ */
+/**
+ * 本地代码生成（取代旧链路：由 P1 意图识别结果驱动）。
+ * @param intent 后端识别出的结构化意图（generate/modify）；modify 时把上一轮产物作为上下文重生成。
+ */
+async function runCodeGeneration(text: string, intent?: AgentIntentResult) {
+  const isModify = intent?.intent === 'modify'
+  generating.value = true
+  genPhase.value = '正在理解你的需求…'
+  resetSteps()
+  await scrollToBottom()
+
+  try {
+    // 步骤一：意图理解 —— 优先展示后端结构化识别结果（intent+slots），降级用正则
+    setStep('intent', { status: 'active' })
+    await scrollToBottom()
+    const intentDetail = intent
+      ? buildIntentDetailFromResult(text, intent)
+      : buildIntentDetail(text)
+    setStep('intent', { status: 'done', detail: intentDetail })
+    await scrollToBottom()
+
+    // 步骤一·五：显式澄清（P2）—— 若后端要求澄清，先标记待确认，不盲目执行落盘
+    if (intent?.needsClarify && intent.clarifications?.length) {
+      pendingClarify.value = { base: intent, questions: intent.clarifications }
+    }
+
+    // 步骤二：确定保存目录 —— 有设置的默认目录则直接复用（全自动），否则准备弹框
+    setStep('dir', { status: 'active' })
+    if (cachedDirHandle || rememberedDirName.value) {
+      setStep('dir', {
+        status: 'done',
+        detail: `已使用设置的默认保存目录「${rememberedDirName.value ?? '已记忆目录'}」，全程无需手动选择`,
+      })
+    } else {
+      setStep('dir', {
+        status: 'active',
+        detail: supportsDirectoryPicker()
+          ? '尚未设置默认目录，将弹出系统目录选择框（可在设置中预先配置以跳过此步）'
+          : '当前浏览器不支持目录选择，将下载到默认下载目录',
+      })
+    }
+    await scrollToBottom()
+
+    // 阶段一：环境自检，把「服务没启动 / 模型没安装」提前暴露为可执行的修复建议
+    setStep('gen', { status: 'active' })
+    genPhase.value = '正在检查本地 Ollama 服务…'
+    const health = await codeGenApi.health()
+    if (!health.serviceOk) {
+      setStep('gen', { status: 'error', detail: `无法连接本地 Ollama（${health.baseUrl}）` })
+      throw new Error(
+        `无法连接本地 Ollama 服务（${health.baseUrl}）。${health.hint || '请先执行 ollama serve 启动服务'}`,
+      )
+    }
+    if (!health.modelInstalled) {
+      setStep('gen', { status: 'error', detail: `未安装模型 ${health.targetModel}` })
+      throw new Error(
+        `本地未安装代码模型 ${health.targetModel}。${health.hint || `请先执行：ollama pull ${health.targetModel}`}`,
+      )
+    }
+
+    // modify：把上一轮生成产物的文件名/内容拼入 prompt，实现「在它基础上改」
+    const prevFiles = isModify
+      ? collectLastGeneratedFiles()
+      : []
+    const promptText = isModify && prevFiles.length
+      ? `${text}\n\n【上一版产物，请在此基础上修改】\n` +
+        prevFiles.map((f) => `// ${f.fileName}\n${f.content}`).join('\n\n')
+      : text
+
+    // 阶段二：调用模型生成，本地推理较慢，用阶段文案安抚等待
+    genPhase.value = `正在使用 ${health.targetModel} 生成代码，本地推理可能需要 1-3 分钟…`
+    await scrollToBottom()
+    const result = await codeGenApi.generate({ prompt: promptText })
+
+    // 阶段三：解析结果校验。模型有可能只输出说明文字而没有代码块
+    if (!result.files || result.files.length === 0) {
+      setStep('gen', { status: 'error', detail: '未解析出有效代码块' })
+      messages.value.push({
+        role: 'assistant',
+        content:
+          '**未能从模型输出中解析出有效代码**\n\n可能是模型未按要求的格式返回。以下是原始输出，你可以手动复制：\n\n' +
+          (result.rawContent ? '```\n' + result.rawContent.slice(0, 2000) + '\n```' : '（无内容）') +
+          '\n\n建议：换一种更明确的说法重试，例如「写一个 HTML 页面，包含一个计数器按钮」。',
+        error: true,
+      })
+      notify('模型未返回可用代码，请调整描述后重试', 'warning')
+      return
+    }
+    setStep('gen', {
+      status: 'done',
+      detail: `模型 ${result.model} 生成 ${result.files.length} 个文件${result.elapsedMs ? `，耗时 ${(result.elapsedMs / 1000).toFixed(1)}s` : ''}`,
+    })
+    await scrollToBottom()
+
+    const elapsed = result.elapsedMs ? `${(result.elapsedMs / 1000).toFixed(1)}s` : ''
+    const fileList = result.files
+      .map((f) => `- \`${f.fileName}\`（${f.language}，${formatBytes(f.size)}）`)
+      .join('\n')
+    const genMessage: ChatMessage = {
+      role: 'assistant',
+      content:
+        `**${isModify ? '代码修改完成' : '代码生成完成'}** ${elapsed ? `· 耗时 ${elapsed}` : ''}\n\n` +
+        `模型：\`${result.model}\`\n\n共生成 ${result.files.length} 个文件：\n\n${fileList}\n\n` +
+        (result.explanation ? `\n${result.explanation}\n` : '') +
+        (cachedDirHandle || rememberedDirName.value
+          ? `\n将直接保存到复用的目录「${rememberedDirName.value}」。`
+          : `\n请在弹出的对话框中选择保存目录。`),
+      files: result.files,
+      intent: intent?.intent ?? 'generate',
+      slots: intent?.slots,
+    }
+    messages.value.push(genMessage)
+    await scrollToBottom()
+
+    // P2：结构/语义歧义检测（基于挂载目录快照），标注到消息供产物区展示
+    try {
+      const ambiguities = await codeAgentApi.detectAmbiguities(buildIntentRequest(text))
+      if (ambiguities && ambiguities.length > 0) genMessage.ambiguity = ambiguities
+    } catch {
+      /* 歧义检测失败不阻断主流程 */
+    }
+
+    // P3：准确率评估闭环 —— 生成完成后找模型自评匹配度，回填 evalScore
+    try {
+      const evalRes = await codeAgentApi.evaluate({
+        intent: intent?.intent ?? 'generate',
+        slots: intent?.slots,
+        agentOutput: result.rawContent ?? result.files.map((f) => f.content).join('\n'),
+      })
+      if (typeof evalRes.matchScore === 'number') genMessage.evalScore = evalRes.matchScore
+    } catch {
+      /* 评估失败不阻断主流程 */
+    }
+
+    // 步骤四：写入文件到磁盘（自动复用记忆目录，用户取消后可手动重选）
+    setStep('save', { status: 'active' })
+    await saveGeneratedFiles(genMessage)
+  } catch (e) {
+    const message = getApiError(e)
+    // 标记当前活动步骤为失败，便于从推理链定位断点
+    const active = reasoningSteps.value.find((s) => s.status === 'active')
+    if (active) setStep(active.key, { status: 'error', detail: message })
+    messages.value.push({
+      role: 'assistant',
+      content: `**代码生成失败**：${message}`,
+      error: true,
+    })
+    notify(message, 'error')
+  } finally {
+    generating.value = false
+    genPhase.value = ''
+    saveProgress.value = null
+    await scrollToBottom()
+  }
+}
+
+/** 收集最近一条 assistant 生成产物的文件，用于 modify 上下文 */
+function collectLastGeneratedFiles(): GeneratedFile[] {
+  for (let i = messages.value.length - 1; i >= 0; i--) {
+    const m = messages.value[i]
+    if (m.role === 'assistant' && m.files && m.files.length) return m.files
+  }
+  return []
+}
+
+/** 基于后端结构化意图结果构建「理解意图」步骤细节 */
+function buildIntentDetailFromResult(text: string, intent: AgentIntentResult): string {
+  const labelMap: Record<AgentIntentType, string> = {
+    generate: '生成并保存代码文件',
+    modify: '在已有产物基础上修改',
+    explain: '解释代码',
+    debug: '调试错误',
+    chat: '对话咨询',
+  }
+  const parts = [`动作：${labelMap[intent.intent] ?? intent.intent}`]
+  if (intent.slots) {
+    for (const [k, v] of Object.entries(intent.slots)) parts.push(`${k}：${v}`)
+  }
+  if (intent.confidence != null) parts.push(`置信度：${Math.round(intent.confidence * 100)}%`)
+  if (cachedDirHandle || rememberedDirName.value) parts.push(`目标目录：复用「${rememberedDirName.value}」`)
+  return parts.join('；')
+}
+
+/** 根据用户输入推断意图摘要，用于推理步骤「理解你的意图」的细节展示 */
+function buildIntentDetail(text: string): string {
+  const action = GEN_ACTION_RE.test(text) ? '生成并保存代码文件' : '生成代码'
+  const saveIntent = GEN_SAVE_RE.test(text)
+  const artifact = (text.match(GEN_ARTIFACT_RE) || [])[0] || '代码'
+  const parts = [`动作：${action}`, `产物类型：${artifact}`]
+  if (saveIntent) parts.push('已明确要求保存到本地目录')
+  if (cachedDirHandle || rememberedDirName.value) parts.push(`目标目录：复用「${rememberedDirName.value}」`)
+  return parts.join('；')
+}
+
+/**
+ * 把某条消息携带的生成产物写入用户选定目录。
+ * <p>
+ * 单独抽出是为了支持「取消后再次点击保存」，无需重新生成一遍代码。
+ */
+async function saveGeneratedFiles(target: ChatMessage) {
+  if (!target.files || target.files.length === 0) return
+
+  const files = target.files.map((f) => ({ fileName: f.fileName, content: f.content }))
+  saveProgress.value = { done: 0, total: files.length }
+  genPhase.value = cachedDirHandle || rememberedDirName.value ? '正在写入记忆目录…' : '等待选择保存目录…'
+
+  try {
+    // 传入记忆目录句柄：命中则跳过弹框直接写；并记录本次选择供后续复用
+    const result = await saveFilesToDirectory(
+      files,
+      { preferDir: cachedDirHandle ?? undefined, remember: true },
+      (done, total) => {
+        saveProgress.value = { done, total }
+      },
+    )
+
+    // 保存成功后同步记忆状态，使后续生成默认复用该目录
+    if (result.mode === 'directory') {
+      rememberedDirName.value = result.directoryName ?? rememberedDirName.value
+    }
+
+    if (result.mode === 'download') {
+      setStep('save', { status: 'done', detail: `已下载 ${result.saved.length} 个文件到默认下载目录` })
+      target.saved = true
+      messages.value.push({
+        role: 'assistant',
+        content:
+          `**已通过浏览器下载保存** ${result.saved.length} 个文件\n\n` +
+          `当前浏览器不支持目录选择，文件已下载到默认下载目录。\n` +
+          `如需直接保存到指定目录，请使用 Chrome 或 Edge 浏览器。`,
+      })
+      notify(`已下载 ${result.saved.length} 个文件`, 'success')
+      return
+    }
+
+    // 汇总成功与失败，部分失败也要如实反馈而不是笼统报成功
+    if (result.failed.length === 0) {
+      const reuseNote = result.reusedMemory ? '（已复用记忆目录，无需再次选择）' : ''
+      setStep('save', {
+        status: 'done',
+        detail: `已写入 ${result.saved.length} 个文件到「${result.directoryName}」${reuseNote}`,
+      })
+      target.saved = true
+      messages.value.push({
+        role: 'assistant',
+        content:
+          `**保存成功** · 目录 \`${result.directoryName}\`\n\n` +
+          result.saved.map((n) => `- ${n}`).join('\n') +
+          `\n\n共 ${result.saved.length} 个文件已写入本地磁盘。${reuseNote}` +
+          (result.saved.some((n) => n.endsWith('.html'))
+            ? '\n\n提示：双击 HTML 文件即可在浏览器中查看效果。'
+            : ''),
+      })
+      notify(`已保存 ${result.saved.length} 个文件到 ${result.directoryName}`, 'success')
+      // 若已将默认保存目录设为挂载的项目目录，生成后自动同步文件树
+      if (rootHandle.value) {
+        const sameDir = rootHandle.value.name === result.directoryName
+        scheduleRefresh()
+        if (sameDir) {
+          setStep('save', {
+            status: 'done',
+            detail: `已写入 ${result.saved.length} 个文件到「${result.directoryName}」${reuseNote}，文件树将在 ${refreshDelay.value}ms 后自动刷新`,
+          })
+        }
+      }
+    } else {
+      setStep('save', {
+        status: 'error',
+        detail: `${result.saved.length} 个成功，${result.failed.length} 个失败`,
+      })
+      target.saved = result.saved.length > 0
+      messages.value.push({
+        role: 'assistant',
+        content:
+          `**部分文件保存失败** · 目录 \`${result.directoryName}\`\n\n` +
+          `成功 ${result.saved.length} 个：\n${result.saved.map((n) => `- ${n}`).join('\n') || '（无）'}\n\n` +
+          `失败 ${result.failed.length} 个：\n` +
+          result.failed.map((f) => `- ${f.fileName}：${f.reason}`).join('\n'),
+        error: true,
+      })
+      notify(`${result.failed.length} 个文件保存失败`, 'warning')
+    }
+  } catch (e) {
+    // 用户取消不是错误，给出温和提示并保留产物供再次保存
+    if (e instanceof UserCancelledError) {
+      setStep('save', { status: 'pending', detail: '已取消目录选择，可重新保存' })
+      messages.value.push({
+        role: 'assistant',
+        content: '已取消目录选择，生成的代码仍保留在上方，可点击「保存到目录」按钮重新保存。',
+      })
+      notify('已取消保存', 'info')
+      return
+    }
+    const message = e instanceof Error ? e.message : String(e)
+    setStep('save', { status: 'error', detail: message })
+    messages.value.push({
+      role: 'assistant',
+      content: `**保存失败**：${message}`,
+      error: true,
+    })
+    notify(message, 'error')
+  } finally {
+    saveProgress.value = null
+    genPhase.value = ''
+    await scrollToBottom()
+  }
+}
+
+/**
+ * 把生成的文件内容载入右侧编辑器预览。
+ * <p>
+ * handle 置空表示这是尚未落盘的内存文件，保存按钮据此走「另存到目录」而非覆盖原文件。
+ */
+function previewGeneratedFile(file: GeneratedFile) {
+  currentFileContent.value = file.content
+  currentFile.value = {
+    name: file.fileName.split('/').pop() || file.fileName,
+    path: file.fileName,
+    kind: 'file',
+    handle: null,
+    depth: 0,
+  }
+  notify(`已在编辑器中打开 ${file.fileName}`, 'info')
+}
+
+/** 字节数格式化 */
+function formatBytes(bytes: number): string {
+  if (!bytes) return '0 B'
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`
+}
+
+/** P3 匹配度徽标配色：高/中/低分三档 */
+function evalScoreClass(score: number): string {
+  if (score >= 0.8) return 'high'
+  if (score >= 0.5) return 'mid'
+  return 'low'
+}
+
+/**
+ * 组装意图识别请求（P1）：取近 6 轮非错误、非系统消息作为历史，
+ * 挂载项目目录时附带目录快照（供后端结构探针做歧义检测）。
+ */
+function buildIntentRequest(text: string, structuralOnly = false): AgentIntentRequest {
+  const history: IntentHistoryItem[] = messages.value
+    .slice(1) // 排除欢迎语
+    .filter((m) => !m.error && m.role !== 'system')
+    .slice(-6)
+    .map((m) => ({
+      role: m.role === 'assistant' ? 'assistant' : 'user',
+      content: m.content,
+      intent: m.intent,
+      slots: m.slots,
+    }))
+  const projectSnapshot: ProjectSnapshotItem[] | undefined = rootHandle.value
+    ? flattenFileTree(fileTree.value).map((n) => ({ path: n.path, type: n.kind }))
+    : undefined
+  return { currentInput: text, history, projectSnapshot, structuralOnly }
+}
+
+/** 把树形文件树拍平为路径列表（用于 projectSnapshot 上报） */
+function flattenFileTree(nodes: FileNode[]): FileNode[] {
+  const out: FileNode[] = []
+  for (const n of nodes) {
+    out.push(n)
+    if (n.children && n.children.length) out.push(...flattenFileTree(n.children))
+  }
+  return out
+}
+
+/**
+ * 显式澄清（P2）：需要用户确认意图/参数时，冻结输入、展示结构化澄清卡片，
+ * 用户作答后以带意图的 user 消息重进识别流程。
+ */
+const pendingClarify = ref<{ base: AgentIntentResult; questions: ClarifyQuestion[] } | null>(null)
+
+/** 最近一次路由的意图结果，供 runChat 生成后做 P3 评估回填 */
+const lastIntent = ref<AgentIntentResult | null>(null)
+
+/** 澄清卡片中的自由输入文本 */
+const clarifyText = ref('')
+
+async function confirmClarify(choiceText: string) {
+  const pending = pendingClarify.value
+  pendingClarify.value = null
+  if (!pending) return
+  // 把用户作答作为新输入，带上已识别的意图/参数回填，重新进入识别
+  const answeredText = choiceText.trim()
+  await routeByIntent(answeredText, { ...pending.base })
+}
+
+async function skipClarify() {
+  const pending = pendingClarify.value
+  pendingClarify.value = null
+  if (!pending) return
+  // 用户选择直接执行：沿用已识别意图（可能参数不完整，由后续歧义检测兜底）
+  await routeByIntent(pending.base.currentInput ?? '', { ...pending.base })
+}
+
+/** 根据意图识别结果把用户输入路由到对应处理链路 */
+async function routeByIntent(text: string, intent: AgentIntentResult) {
+  lastIntent.value = intent
+  messages.value.push({
+    role: 'user',
+    content: text,
+    intent: intent.intent,
+    slots: intent.slots,
+  })
+  input.value = ''
+  await scrollToBottom()
+
+  // 落盘类高风险且仍需澄清：展示结构化澄清卡片，冻结后续输入
+  if (intent.needsClarify && intent.clarifications && intent.clarifications.length > 0) {
+    setStep('clarify', { status: 'active', detail: intent.clarifications.map((c) => c.question).join('；') })
+    pendingClarify.value = { base: intent, questions: intent.clarifications }
+    return
+  }
+  setStep('clarify', { status: 'done', detail: '意图明确，无需澄清' })
+
+  // 代码生成 / 修改类走本地 deepseek-coder 落盘流程（modify 会带历史重生成）
+  if (intent.intent === 'generate' || intent.intent === 'modify') {
+    await runCodeGeneration(text, intent)
+    return
+  }
+
+  // 其余（explain/debug/chat）走 SSE 对话
+  await runChat(text)
+}
+
 async function send() {
   const text = input.value.trim()
-  if (!text || streaming.value) return
+  if (!text || streaming.value || generating.value) return
 
+  // 澄清进行中：冻结输入，避免上下文错乱
+  if (pendingClarify.value) return
+
+  // P1：先调后端多轮意图分类（含上下文融合），再据意图路由，取代旧的正则二分类
+  generating.value = true
+  genPhase.value = '正在理解你的意图…'
+  try {
+    const result = await codeAgentApi.detectIntent(buildIntentRequest(text))
+    // 回填意图供下一轮上下文消解；codes 入口走 routeByIntent
+    await routeByIntent(text, result)
+  } catch {
+    // 意图服务不可用时降级为正则兜底，保证基础对话/生成仍可用
+    const fallback: AgentIntentResult = {
+      intent: detectCodeGenIntent(text) ? 'generate' : 'chat',
+      confidence: 0,
+      needsClarify: false,
+    }
+    await routeByIntent(text, fallback)
+  } finally {
+    generating.value = false
+    genPhase.value = ''
+  }
+}
+
+/** SSE 对话链路（原 send 中 explain/debug/chat 分支） */
+async function runChat(text: string) {
   if (selectedConfigId.value == null) {
     notify('请先选择或添加一个模型配置', 'warning')
     activeTab.value = 'models'
@@ -574,9 +1290,6 @@ async function send() {
     .filter((m, i) => i > 0 && !m.error && m.role !== 'system')
     .map((m) => msg(m.role === 'assistant' ? 'assistant' : 'user', m.content))
 
-  // 当前用户消息
-  messages.value.push({ role: 'user', content: text })
-  input.value = ''
   streaming.value = true
   streamingContent.value = ''
 
@@ -609,12 +1322,31 @@ async function send() {
       streamingContent.value += token
       scrollToBottom()
     },
-    onDone: (full) => {
-      messages.value.push({ role: 'assistant', content: full || streamingContent.value })
+    onDone: async (full) => {
+      const assistantMsg: ChatMessage = {
+        role: 'assistant',
+        content: full || streamingContent.value,
+        intent: lastIntent.value?.intent ?? 'chat',
+        slots: lastIntent.value?.slots,
+      }
+      messages.value.push(assistantMsg)
       streamingContent.value = ''
       streaming.value = false
       cancelFn = null
       scrollToBottom()
+      // P3：准确率评估闭环 —— 回答完成后找模型自评匹配度，回填 evalScore
+      if (lastIntent.value) {
+        try {
+          const evalRes = await codeAgentApi.evaluate({
+            intent: lastIntent.value.intent,
+            slots: lastIntent.value.slots,
+            agentOutput: assistantMsg.content,
+          })
+          if (typeof evalRes.matchScore === 'number') assistantMsg.evalScore = evalRes.matchScore
+        } catch {
+          /* 评估失败不阻断主流程 */
+        }
+      }
       // 刷新会话列表以更新最后消息摘要
       loadSessions()
     },
@@ -655,10 +1387,76 @@ function onInputKeydown(e: KeyboardEvent) {
 }
 
 // ==================== 代码执行 ====================
-const runResult = ref<{ status: string; output: string; error: string; timeUsedMs?: number } | null>(null)
+const runResult = ref<{ status: string; output: string; error: string; timeUsedMs?: number; previewHtml?: string; previewMode?: boolean } | null>(null)
 const running = ref(false)
 const saving = ref(false)
 const originalContent = ref('')
+
+/** Web 预览型文件类型（浏览器渲染，不走后端沙箱） */
+const WEB_PREVIEW_LANGS = new Set(['html', 'css', 'vue', 'markdown', 'json', 'xml', 'svg'])
+
+/** 构建 HTML 预览文档 */
+function buildPreviewDoc(lang: string, code: string): string {
+  if (lang === 'html' || lang === 'svg') {
+    return code
+  }
+  if (lang === 'css') {
+    return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>${code}</style></head>
+<body><div style="padding:16px;font-family:sans-serif;color:#333">
+  <h3>CSS 预览</h3>
+  <div class="preview-demo">
+    <p>段落文本示例 Paragraph</p>
+    <button>按钮</button>
+    <a href="#">链接</a>
+    <ul><li>列表项 1</li><li>列表项 2</li></ul>
+    <input placeholder="输入框" />
+  </div>
+</div></body></html>`
+  }
+  if (lang === 'vue') {
+    // 提取 template / style / script
+    const tplMatch = code.match(/<template>([\s\S]*?)<\/template>/)
+    const styleMatch = code.match(/<style[^>]*>([\s\S]*?)<\/style>/)
+    const scriptMatch = code.match(/<script[^>]*>([\s\S]*?)<\/script>/)
+    const tpl = tplMatch ? tplMatch[1].trim() : '<!-- 未找到 &lt;template&gt; 块 -->'
+    const style = styleMatch ? styleMatch[1] : ''
+    const scriptNote = scriptMatch
+      ? '<!-- script 块需构建工具编译，预览仅渲染模板与样式 -->'
+      : ''
+    return `<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>${style}</style>
+</head><body>${tpl}
+<div style="margin-top:20px;padding:8px 12px;background:#fff3cd;border:1px solid #ffe69c;border-radius:6px;font-size:12px;color:#856404">
+  ${scriptNote}Vue SFC 预览（template + style 渲染，script 需构建工具支持）
+</div></body></html>`
+  }
+  if (lang === 'markdown') {
+    const html = renderMarkdown(code)
+    return `<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>body{font-family:sans-serif;max-width:760px;margin:0 auto;padding:20px;color:#333;line-height:1.7}
+pre{background:#f5f5f5;padding:12px;border-radius:6px;overflow:auto}code{background:#f5f5f5;padding:2px 6px;border-radius:3px}
+table{border-collapse:collapse}th,td{border:1px solid #ddd;padding:6px 12px}blockquote{border-left:4px solid #3B6FE0;margin:0;padding-left:16px;color:#666}</style>
+</head><body>${html}</body></html>`
+  }
+  if (lang === 'json') {
+    let pretty = code
+    try {
+      pretty = JSON.stringify(JSON.parse(code), null, 2)
+    } catch {
+      return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:monospace;padding:16px;color:#dc2626}</style></head>
+<body>JSON 解析失败：格式不正确</body></html>`
+    }
+    return `<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>body{font-family:'JetBrains Mono',monospace;padding:16px;white-space:pre;color:#333;background:#fafafa}</style>
+</head><body>${pretty.replace(/</g, '&lt;')}</body></html>`
+  }
+  if (lang === 'xml') {
+    return `<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>body{font-family:monospace;padding:16px;white-space:pre;color:#333;background:#fafafa}</style>
+</head><body>${code.replace(/</g, '&lt;')}</body></html>`
+  }
+  return code
+}
 
 const hasUnsavedChanges = computed(() => currentFileContent.value !== originalContent.value)
 
@@ -703,6 +1501,34 @@ async function runCode() {
     return
   }
   const lang = currentFile.value ? detectLang(currentFile.value.name) : 'python'
+
+  // ===== Web 预览型文件（HTML/CSS/Vue/Markdown/JSON 等）：浏览器渲染 =====
+  if (WEB_PREVIEW_LANGS.has(lang)) {
+    running.value = true
+    runResult.value = null
+    try {
+      const previewHtml = buildPreviewDoc(lang, currentFileContent.value)
+      runResult.value = {
+        status: 'PREVIEW',
+        output: '',
+        error: '',
+        previewHtml,
+        previewMode: true,
+      }
+      notify(`${lang.toUpperCase()} 已渲染预览`, 'success')
+    } catch (e: unknown) {
+      runResult.value = {
+        status: 'ERROR',
+        output: '',
+        error: getApiError(e, '预览渲染失败'),
+      }
+    } finally {
+      running.value = false
+    }
+    return
+  }
+
+  // ===== 可执行语言（python/java/javascript/cpp）：后端沙箱执行 =====
   running.value = true
   runResult.value = null
   try {
@@ -1056,6 +1882,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   cancelFn?.()
+  if (refreshTimer) clearTimeout(refreshTimer)
+  stopWatch()
 })
 
 // 切换到监测标签时自动加载数据
@@ -1109,10 +1937,18 @@ watch(activeTab, (tab) => {
         <!-- 左栏：文件树 -->
         <aside class="agent-sidebar">
           <div class="sidebar-header">
-            <Button size="sm" variant="primary" @click="pickDirectory" :disabled="!supportsFsAccess || loadingDir" :loading="loadingDir">
+            <Button size="sm" variant="primary" @click="pickProjectDirectory" :disabled="!supportsFsAccess || loadingDir" :loading="loadingDir">
               <Icon name="folder" size="xs" /> 选择目录
             </Button>
             <span v-if="rootHandle" class="root-name">{{ rootHandle.name }}</span>
+            <button
+              v-if="rootHandle"
+              class="sidebar-refresh"
+              title="刷新目录结构"
+              @click="refreshFileTree"
+            >
+              <Icon name="refresh-cw" size="xxs" />
+            </button>
           </div>
           <div v-if="!supportsFsAccess" class="fs-warning">
             <Icon name="alert-triangle" size="xs" />
@@ -1192,6 +2028,67 @@ watch(activeTab, (tab) => {
               </div>
               <div class="message-body">
                 <div class="message-content" v-html="renderMarkdown(msg.content)"></div>
+
+                <!-- 本地代码生成产物：可预览、可重新落盘 -->
+                <div v-if="msg.files && msg.files.length" class="gen-files">
+                  <div class="gen-files-head">
+                    <Icon name="folder" size="xxs" />
+                    <span>生成产物（{{ msg.files.length }} 个文件）</span>
+                    <span v-if="msg.saved" class="gen-saved-tag">
+                      <Icon name="check" size="xxs" /> 已保存
+                    </span>
+                  </div>
+                  <ul class="gen-file-list">
+                    <li v-for="file in msg.files" :key="file.fileName">
+                      <button class="gen-file-btn" @click="previewGeneratedFile(file)">
+                        <Icon name="file" size="xxs" />
+                        <span class="gen-file-name">{{ file.fileName }}</span>
+                        <span class="gen-file-meta">{{ formatBytes(file.size) }}</span>
+                      </button>
+                    </li>
+                  </ul>
+                  <div class="gen-files-actions">
+                    <Button size="sm" variant="primary" :disabled="!!saveProgress" @click="saveGeneratedFiles(msg)">
+                      <Icon name="download" size="xxs" />
+                      {{ msg.saved ? '重新保存到目录' : '保存到目录' }}
+                    </Button>
+                    <Button
+                      v-if="rememberedDirName"
+                      size="sm"
+                      variant="ghost"
+                      :disabled="!!saveProgress"
+                      @click="changeSaveDirectory"
+                      title="清除记忆目录，下次生成会重新选择"
+                    >
+                      <Icon name="folder-open" size="xxs" />
+                      更换目录
+                    </Button>
+                    <span v-if="rememberedDirName" class="gen-tip">
+                      默认目录：{{ rememberedDirName }}
+                    </span>
+                    <span v-else-if="!supportsDirectoryPicker()" class="gen-tip">
+                      当前浏览器不支持目录选择，将下载到默认目录
+                    </span>
+                  </div>
+                </div>
+
+                <!-- P2 歧义标签：结构/语义歧义高亮提示（复用 --kb-warning 色变量） -->
+                <div v-if="msg.ambiguity && msg.ambiguity.length" class="ambig-tags">
+                  <span class="ambig-tag" v-for="(a, i) in msg.ambiguity" :key="i" :title="a.reason">
+                    <Icon name="alert-triangle" size="xxs" />
+                    {{ a.kind }}：{{ a.point }}
+                  </span>
+                  <span class="ambig-suggest" v-if="msg.ambiguity[0].suggestion">
+                    建议：{{ msg.ambiguity[0].suggestion }}
+                  </span>
+                </div>
+
+                <!-- P3 匹配度徽标：让用户可见本次生成/回答与意图的匹配程度（复用 --kb-accent） -->
+                <div v-if="msg.evalScore != null" class="eval-badge" :class="evalScoreClass(msg.evalScore)">
+                  <Icon name="target" size="xxs" />
+                  匹配度 {{ Math.round(msg.evalScore * 100) }}%
+                </div>
+
                 <div v-if="msg.role === 'assistant' && !msg.error" class="message-actions">
                   <button class="link-btn" @click="loadCodeFromMessage(msg.content)">
                     <Icon name="play" size="xxs" /> 提取代码
@@ -1207,27 +2104,141 @@ watch(activeTab, (tab) => {
                 <div class="message-content streaming" v-html="renderMarkdown(streamingContent || '思考中...')"></div>
               </div>
             </div>
+
+            <!-- 本地代码生成推理过程（结构化步骤链） -->
+            <div v-if="generating || saveProgress" class="message assistant">
+              <div class="message-avatar">
+                <Icon name="robot" size="sm" />
+              </div>
+              <div class="message-body">
+                <div class="reasoning">
+                  <div class="reasoning-head">
+                    <Icon name="brain" size="xxs" />
+                    <span>推理过程</span>
+                  </div>
+                  <ul class="reasoning-steps">
+                    <li
+                      v-for="step in reasoningSteps"
+                      :key="step.key"
+                      class="reasoning-step"
+                      :class="step.status"
+                    >
+                      <span class="reasoning-step-icon">
+                        <Icon :name="step.icon" size="xxs" />
+                      </span>
+                      <span class="reasoning-step-body">
+                        <span class="reasoning-step-title">{{ step.title }}</span>
+                        <span v-if="step.detail" class="reasoning-step-detail">{{ step.detail }}</span>
+                      </span>
+                      <span class="reasoning-step-state">
+                        <Icon
+                          v-if="step.status === 'done'"
+                          name="check-circle"
+                          size="xxs"
+                        />
+                        <Icon
+                          v-else-if="step.status === 'error'"
+                          name="alert-circle"
+                          size="xxs"
+                        />
+                        <span v-else-if="step.status === 'active'" class="reasoning-dot"></span>
+                        <span v-else class="reasoning-dot pending"></span>
+                      </span>
+                    </li>
+                  </ul>
+                  <div v-if="saveProgress" class="reasoning-save">
+                    <span class="gen-spinner"></span>
+                    正在写入文件（{{ saveProgress.done }}/{{ saveProgress.total }}）
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+
+          <!-- P2 显式澄清卡片：后端认为意图模糊时展示，用户作答后重进识别 -->
+          <div v-if="pendingClarify" class="clarify-card">
+            <div class="clarify-head">
+              <Icon name="help-circle" size="xxs" />
+              <span>需要确认意图</span>
+            </div>
+            <div
+              v-for="(q, qi) in pendingClarify.questions"
+              :key="qi"
+              class="clarify-question"
+            >
+              <div class="clarify-q-text">{{ q.question }}</div>
+              <div v-if="q.options && q.options.length" class="clarify-options">
+                <button
+                  v-for="opt in q.options"
+                  :key="opt"
+                  class="clarify-opt"
+                  @click="confirmClarify(opt)"
+                >
+                  {{ opt }}
+                </button>
+              </div>
+            </div>
+            <div class="clarify-input-row">
+              <input
+                v-model="clarifyText"
+                class="clarify-input"
+                placeholder="或直接输入你的补充说明…"
+                @keyup.enter="confirmClarify(clarifyText)"
+              />
+              <Button size="sm" variant="primary" @click="confirmClarify(clarifyText)">确认</Button>
+              <Button size="sm" variant="ghost" @click="skipClarify">直接执行</Button>
+            </div>
+          </div>
+
           <div class="input-area">
             <div class="input-toolbar">
               <label class="ctx-toggle">
                 <input type="checkbox" v-model="includeFileContext" />
                 <span>附带文件上下文</span>
               </label>
+              <label class="ctx-toggle" title="开启后，「帮我写一个 HTML demo」这类指令将调用本地 deepseek-coder 生成代码并保存到你选择的目录">
+                <input type="checkbox" v-model="localCodeGenEnabled" />
+                <span>本地生成并保存文件</span>
+              </label>
+              <span
+                v-if="localCodeGenEnabled && rememberedDirName"
+                class="ctx-file"
+                :title="`默认保存目录：${rememberedDirName}，点击可更换`"
+              >
+                <Icon name="folder" size="xxs" /> {{ rememberedDirName }}
+                <button class="ctx-clear" @click="changeSaveDirectory" title="更换保存目录">✕</button>
+              </span>
+              <span v-else-if="localCodeGenEnabled" class="ctx-file hint">
+                <Icon name="folder-open" size="xxs" /> 未选择默认目录
+              </span>
               <span v-if="currentFile" class="ctx-file">
                 <Icon name="file" size="xxs" /> {{ currentFile.path }}
               </span>
+              <button
+                class="toolbar-settings"
+                :class="{ active: showSettings }"
+                title="设置：配置默认保存目录等"
+                @click="showSettings = !showSettings"
+              >
+                <Icon name="settings" size="xxs" />
+                <span>设置</span>
+              </button>
             </div>
             <div class="input-row">
               <textarea
                 v-model="input"
-                :disabled="streaming"
-                placeholder="输入编程问题... (Enter 发送, Shift+Enter 换行)"
+                :disabled="streaming || generating"
+                placeholder="输入编程问题，或让我生成代码，例如：替我写一个 html demo 案例 (Enter 发送, Shift+Enter 换行)"
                 @keydown="onInputKeydown"
                 rows="3"
               ></textarea>
-              <Button v-if="!streaming" variant="primary" @click="send" :disabled="!input.trim()">
-                <Icon name="send" size="xs" /> 发送
+              <Button
+                v-if="!streaming"
+                variant="primary"
+                @click="send"
+                :disabled="!input.trim() || generating"
+              >
+                <Icon name="send" size="xs" /> {{ generating ? '生成中' : '发送' }}
               </Button>
               <Button v-else variant="secondary" @click="cancelStream">
                 <Icon name="square" size="xs" /> 停止
@@ -1235,6 +2246,88 @@ watch(activeTab, (tab) => {
             </div>
           </div>
         </main>
+
+        <!-- 设置抽屉：预先配置默认保存目录，实现「一句话全自动落盘」 -->
+        <transition name="drawer">
+          <aside v-if="showSettings" class="settings-drawer">
+            <div class="settings-header">
+              <span class="settings-title">
+                <Icon name="settings" size="xs" /> 设置
+              </span>
+              <button class="settings-close" @click="showSettings = false" title="关闭">✕</button>
+            </div>
+            <div class="settings-body">
+              <section class="settings-section">
+                <h4 class="settings-section-title">默认保存目录</h4>
+                <p class="settings-desc">
+                  预先选择本地目录后，生成代码将<strong>自动保存到该目录，无需任何弹框</strong>。
+                  一句自然语言指令即可完成「生成 → 落盘」全部步骤。
+                </p>
+                <div class="settings-dir-row">
+                  <span class="settings-dir-name">
+                    <Icon name="folder" size="xxs" />
+                    {{ rememberedDirName || '未设置（首次生成时会弹框选择）' }}
+                  </span>
+                </div>
+                <div class="settings-dir-actions">
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    :disabled="!supportsDirectoryPicker()"
+                    @click="pickDefaultDirectory"
+                  >
+                    <Icon name="folder-open" size="xxs" /> 选择默认目录
+                  </Button>
+                  <Button
+                    v-if="rememberedDirName"
+                    size="sm"
+                    variant="ghost"
+                    @click="changeSaveDirectory"
+                  >
+                    清除
+                  </Button>
+                </div>
+                <p v-if="!supportsDirectoryPicker()" class="settings-tip">
+                  当前浏览器不支持目录选择（需 Chrome / Edge 86+），无法配置默认目录。
+                </p>
+              </section>
+
+              <section class="settings-section">
+                <h4 class="settings-section-title">自动生成与保存</h4>
+                <label class="settings-switch">
+                  <input type="checkbox" v-model="localCodeGenEnabled" />
+                  <span>开启后，识别到「写/生成代码」类指令即自动调用本地模型并落盘</span>
+                </label>
+              </section>
+
+              <section class="settings-section">
+                <h4 class="settings-section-title">文件树自动刷新</h4>
+                <label class="settings-switch">
+                  <input type="checkbox" v-model="autoRefreshTree" />
+                  <span>代码生成并保存后，自动刷新项目目录结构（新增/修改/删除立即可见）</span>
+                </label>
+                <label class="settings-switch">
+                  <input type="checkbox" v-model="watchTree" />
+                  <span>持续监听目录变化（轮询式，捕捉生成之外的外部改动；会占用少量资源）</span>
+                </label>
+                <div class="settings-delay">
+                  <span>刷新延迟</span>
+                  <input
+                    type="range"
+                    min="200"
+                    max="3000"
+                    step="100"
+                    v-model.number="refreshDelay"
+                  />
+                  <span class="settings-delay-val">{{ refreshDelay }} ms</span>
+                </div>
+                <p class="settings-tip">
+                  延迟用于合并生成多个文件时的多次触发，避免频繁更新；将默认保存目录设为已挂载的项目目录，即可在保存后看到文件树自动同步。
+                </p>
+              </section>
+            </div>
+          </aside>
+        </transition>
 
         <!-- 右栏：代码编辑/执行区 -->
         <aside class="agent-code">
@@ -1267,12 +2360,18 @@ watch(activeTab, (tab) => {
             spellcheck="false"
             @keydown="onCodeKeydown"
           ></textarea>
-          <div v-if="runResult" class="run-result" :class="{ 'result-error': runResult.error }">
+          <div v-if="runResult" class="run-result" :class="{ 'result-error': runResult.error, 'result-preview': runResult.previewMode }">
             <div class="result-header">
-              <Icon :name="runResult.status === 'SUCCESS' ? 'check-circle' : 'x-circle'" size="xs" />
-              <span>{{ runResult.status }}</span>
+              <Icon :name="runResult.previewMode ? 'eye' : (runResult.status === 'SUCCESS' ? 'check-circle' : 'x-circle')" size="xs" />
+              <span>{{ runResult.previewMode ? '浏览器预览' : runResult.status }}</span>
               <span v-if="runResult.timeUsedMs" class="time">{{ runResult.timeUsedMs }}ms</span>
             </div>
+            <iframe
+              v-if="runResult.previewHtml"
+              class="result-preview-iframe"
+              :srcdoc="runResult.previewHtml"
+              sandbox="allow-same-origin"
+            ></iframe>
             <pre v-if="runResult.output" class="result-output">{{ runResult.output }}</pre>
             <pre v-if="runResult.error" class="result-error-msg">{{ runResult.error }}</pre>
           </div>
@@ -2107,6 +3206,7 @@ watch(activeTab, (tab) => {
   flex-direction: column;
   background: var(--kb-background);
   overflow: hidden;
+  position: relative;
 }
 .messages {
   flex: 1;
@@ -2165,6 +3265,412 @@ watch(activeTab, (tab) => {
   display: flex;
   gap: 8px;
 }
+
+/* ===== 本地代码生成产物 ===== */
+.gen-files {
+  margin-top: 10px;
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-sm);
+  background: var(--kb-background);
+  overflow: hidden;
+}
+.gen-files-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  font-size: var(--kb-fs-caption);
+  font-weight: 600;
+  color: var(--kb-foreground);
+  background: var(--kb-card);
+  border-bottom: 1px solid var(--kb-border);
+}
+.gen-saved-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: var(--kb-fs-xs);
+  font-weight: 500;
+  color: var(--kb-accent);
+  background: color-mix(in srgb, var(--kb-accent) 12%, transparent);
+}
+.gen-file-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+}
+.gen-file-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 5px 8px;
+  border: none;
+  background: transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-foreground);
+  text-align: left;
+  transition: background 0.1s;
+}
+.gen-file-btn:hover {
+  background: var(--kb-muted);
+}
+.gen-file-name {
+  font-family: 'JetBrains Mono', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.gen-file-meta {
+  margin-left: auto;
+  font-size: var(--kb-fs-xs);
+  color: var(--kb-muted-foreground);
+  flex-shrink: 0;
+}
+.gen-files-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--kb-border);
+  flex-wrap: wrap;
+}
+.gen-tip {
+  font-size: var(--kb-fs-xs);
+  color: var(--kb-muted-foreground);
+}
+
+/* ===== 生成进度 ===== */
+.gen-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-sm);
+  background: var(--kb-card);
+  font-size: var(--kb-fs-body-sm);
+  color: var(--kb-muted-foreground);
+}
+.gen-spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid var(--kb-border);
+  border-top-color: var(--kb-primary);
+  border-radius: 50%;
+  animation: gen-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes gen-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* 尊重用户的减少动效偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .gen-spinner {
+    animation: none;
+  }
+}
+
+/* ===== 推理过程步骤链 ===== */
+.reasoning {
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-sm);
+  background: var(--kb-card);
+  overflow: hidden;
+}
+.reasoning-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: var(--kb-fs-caption);
+  font-weight: 600;
+  color: var(--kb-foreground);
+  background: var(--kb-background);
+  border-bottom: 1px solid var(--kb-border);
+}
+.reasoning-steps {
+  list-style: none;
+  margin: 0;
+  padding: 6px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.reasoning-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-muted-foreground);
+}
+.reasoning-step-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--kb-muted-foreground);
+  background: var(--kb-muted);
+}
+.reasoning-step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.reasoning-step-title {
+  color: var(--kb-foreground);
+  font-weight: 500;
+}
+.reasoning-step-detail {
+  color: var(--kb-muted-foreground);
+  font-size: var(--kb-fs-xs);
+  line-height: 1.4;
+  word-break: break-word;
+}
+.reasoning-step-state {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--kb-muted-foreground);
+}
+/* 状态着色 */
+.reasoning-step.active .reasoning-step-icon {
+  color: var(--kb-primary);
+  background: color-mix(in srgb, var(--kb-primary) 14%, transparent);
+}
+.reasoning-step.active .reasoning-step-title {
+  color: var(--kb-primary);
+}
+.reasoning-step.done .reasoning-step-icon {
+  color: var(--kb-accent);
+  background: color-mix(in srgb, var(--kb-accent) 14%, transparent);
+}
+.reasoning-step.done .reasoning-step-state {
+  color: var(--kb-accent);
+}
+.reasoning-step.error .reasoning-step-icon {
+  color: var(--kb-destructive);
+  background: color-mix(in srgb, var(--kb-destructive) 14%, transparent);
+}
+.reasoning-step.error .reasoning-step-title,
+.reasoning-step.error .reasoning-step-state {
+  color: var(--kb-destructive);
+}
+.reasoning-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--kb-primary);
+  animation: reasoning-pulse 1s ease-in-out infinite;
+}
+.reasoning-dot.pending {
+  background: var(--kb-border);
+  animation: none;
+}
+@keyframes reasoning-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+.reasoning-save {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--kb-border);
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-muted-foreground);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reasoning-dot {
+    animation: none;
+  }
+}
+
+/* ===== 工具栏设置按钮 ===== */
+.toolbar-settings {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-sm);
+  background: transparent;
+  color: var(--kb-muted-foreground);
+  font-size: var(--kb-fs-caption);
+  cursor: pointer;
+}
+.toolbar-settings:hover,
+.toolbar-settings.active {
+  color: var(--kb-primary);
+  border-color: var(--kb-primary);
+  background: color-mix(in srgb, var(--kb-primary) 10%, transparent);
+}
+
+/* 文件树手动刷新按钮 */
+.sidebar-refresh {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-sm);
+  background: transparent;
+  color: var(--kb-muted-foreground);
+  cursor: pointer;
+}
+.sidebar-refresh:hover {
+  color: var(--kb-primary);
+  border-color: var(--kb-primary);
+}
+
+/* 设置：刷新延迟滑块 */
+.settings-delay {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 4px;
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-foreground);
+}
+.settings-delay input[type='range'] {
+  flex: 1;
+  accent-color: var(--kb-primary);
+}
+.settings-delay-val {
+  min-width: 56px;
+  text-align: right;
+  color: var(--kb-muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== 设置抽屉 ===== */
+.settings-drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 340px;
+  max-width: 86vw;
+  background: var(--kb-card);
+  border-left: 1px solid var(--kb-border);
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  z-index: 20;
+}
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--kb-border);
+}
+.settings-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--kb-foreground);
+  font-size: var(--kb-fs-body);
+}
+.settings-close {
+  border: none;
+  background: transparent;
+  color: var(--kb-muted-foreground);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+.settings-close:hover {
+  color: var(--kb-destructive);
+}
+.settings-body {
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.settings-section-title {
+  margin: 0 0 8px;
+  font-size: var(--kb-fs-body);
+  color: var(--kb-foreground);
+}
+.settings-desc {
+  margin: 0 0 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: 1.6;
+  color: var(--kb-muted-foreground);
+}
+.settings-dir-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-sm);
+  background: var(--kb-background);
+  margin-bottom: 10px;
+}
+.settings-dir-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-foreground);
+  word-break: break-all;
+}
+.settings-dir-actions {
+  display: flex;
+  gap: 8px;
+}
+.settings-tip {
+  margin: 10px 0 0;
+  font-size: var(--kb-fs-xs);
+  color: var(--kb-muted-foreground);
+}
+.settings-switch {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-muted-foreground);
+  line-height: 1.5;
+  cursor: pointer;
+}
+/* 抽屉过渡 */
+.drawer-enter-active,
+.drawer-leave-active {
+  transition: transform 0.22s ease, opacity 0.22s ease;
+}
+.drawer-enter-from,
+.drawer-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .drawer-enter-active,
+  .drawer-leave-active {
+    transition: none;
+  }
+}
+
 .input-area {
   border-top: 1px solid var(--kb-border);
   padding: 12px;
@@ -2190,6 +3696,23 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 4px;
   color: var(--kb-primary);
+}
+.ctx-file.hint {
+  color: var(--kb-muted-foreground);
+}
+.ctx-clear {
+  border: none;
+  background: transparent;
+  color: var(--kb-muted-foreground);
+  cursor: pointer;
+  font-size: 10px;
+  line-height: 1;
+  padding: 1px 3px;
+  border-radius: 4px;
+}
+.ctx-clear:hover {
+  color: var(--kb-destructive);
+  background: color-mix(in srgb, var(--kb-destructive) 12%, transparent);
 }
 .input-row {
   display: flex;
@@ -2270,6 +3793,9 @@ watch(activeTab, (tab) => {
   overflow-y: auto;
   flex-shrink: 0;
 }
+.run-result.result-preview {
+  max-height: 400px;
+}
 .result-header {
   display: flex;
   align-items: center;
@@ -2289,6 +3815,13 @@ watch(activeTab, (tab) => {
 }
 .result-error-msg {
   color: var(--kb-destructive);
+}
+.result-preview-iframe {
+  width: 100%;
+  min-height: 240px;
+  border: 1px solid var(--kb-border);
+  border-radius: 6px;
+  background: #fff;
 }
 
 /* ===== 通用标签页样式 ===== */
@@ -3291,5 +4824,115 @@ watch(activeTab, (tab) => {
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 12px;
+}
+
+/* P2 显式澄清卡片 */
+.clarify-card {
+  margin: 0 auto 10px;
+  max-width: 820px;
+  width: calc(100% - 32px);
+  background: var(--kb-card);
+  border: 1px solid var(--kb-warning, #f59e0b);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+.clarify-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--kb-warning, #f59e0b);
+  margin-bottom: 10px;
+}
+.clarify-question {
+  margin-bottom: 10px;
+}
+.clarify-q-text {
+  font-size: 13px;
+  color: var(--kb-text, #1e293b);
+  margin-bottom: 6px;
+}
+.clarify-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.clarify-opt {
+  border: 1px solid var(--kb-border);
+  background: var(--kb-bg, #fff);
+  color: var(--kb-text, #1e293b);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.clarify-opt:hover {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+}
+.clarify-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+}
+.clarify-input {
+  flex: 1;
+  border: 1px solid var(--kb-border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 13px;
+  background: var(--kb-bg, #fff);
+  color: var(--kb-text, #1e293b);
+}
+
+/* P2 歧义标签（复用 --kb-warning 色变量） */
+.ambig-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 8px 0 2px;
+}
+.ambig-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--kb-warning, #f59e0b);
+  background: color-mix(in srgb, var(--kb-warning, #f59e0b) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kb-warning, #f59e0b) 40%, transparent);
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+.ambig-suggest {
+  font-size: 12px;
+  color: var(--kb-muted, #64748b);
+}
+
+/* P3 匹配度徽标（复用 --kb-accent 色变量） */
+.eval-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 2px 10px;
+  margin-top: 6px;
+}
+.eval-badge.high {
+  color: var(--kb-accent, #10b981);
+  background: color-mix(in srgb, var(--kb-accent, #10b981) 12%, transparent);
+}
+.eval-badge.mid {
+  color: var(--kb-warning, #f59e0b);
+  background: color-mix(in srgb, var(--kb-warning, #f59e0b) 12%, transparent);
+}
+.eval-badge.low {
+  color: var(--kb-danger, #ef4444);
+  background: color-mix(in srgb, var(--kb-danger, #ef4444) 12%, transparent);
 }
 </style>
