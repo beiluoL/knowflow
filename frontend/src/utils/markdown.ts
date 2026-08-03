@@ -40,50 +40,60 @@ md.use(taskLists);
  * 自定义模板占位符插件：解析 [变量名] 语法
  * 
  * 【关键设计】
- * 1. 插入位置：放在 `link` 规则之前（`before('link', ...)`）。
- * 2. 执行顺序：variable → link → text。
- *    - 如果匹配到合法变量名且后面不跟 `(`，则识别为模板变量。
- *    - 如果后面跟着 `(`，则识别失败（返回 false），交由 link 规则处理为标准链接。
- * 3. 变量名规则：字母/下划线开头，包含字母、数字、下划线（可按需扩展）。
- * 4. 上下文感知：排除列表项开头的 [ ] / [x]（任务列表），让 task-lists 插件处理。
+ * 1. 插入位置：放在 `backticks` 规则之前（`before('backticks', ...)`），确保最高优先级。
+ * 2. 执行顺序：variable → backticks → image → link → text。
+ *    - variable 规则优先检查方括号内容，符合变量名规则则立即解析。
+ *    - 如果后面直接跟 `(`，则跳过（交给 link 规则处理为链接）。
+ * 3. 变量名规则：字母/下划线开头，包含字母、数字、下划线。
+ * 4. 上下文感知：排除行首的 [ ] / [x] 后跟空格（任务列表），让 task-lists 插件处理。
  * 5. 渲染输出：<span class="template-variable" data-variable="...">...</span>
+ * 
+ * 【解析优先级】
+ * 1. 任务列表标记：[ ] / [x] 在行首（列表项开头）后跟空格
+ * 2. 链接语法：[text](url) - 方括号后跟 (
+ * 3. 模板变量：[variable_name] - 合法变量名且不跟 (
  */
 function variablePlugin(md: MarkdownIt) {
-  md.inline.ruler.before('link', 'variable', (state, silent) => {
+  md.inline.ruler.before('backticks', 'variable', (state, silent) => {
     const pos = state.pos;
     const ch = state.src.charCodeAt(pos);
     if (ch !== 0x5B /* [ */) {
       return false;
     }
 
-    // 【上下文检查】：排除列表项开头的 [ ] / [x] (任务列表)
-    // 列表项模式：换行符 + 空白 + (- | * | + | 数字.) + 空白
-    // 如果当前 [ 前面的文本匹配列表项模式，则跳过，交由 task-lists 插件处理
-    const beforeText = state.src.substring(Math.max(0, pos - 20), pos);
-    if (/[\r\n]\s*(?:[-*+]|\d+\.)\s+$/.test(beforeText)) {
-      return false;
-    }
-
-    // 寻找匹配的 ]
+    // 查找配对的 ]
     let end = state.src.indexOf(']', pos + 1);
     if (end === -1) return false;
-
-    // 提取内容
     const content = state.src.substring(pos + 1, end);
     
-    // 验证是否为合法变量名：
-    // - 必须是字母或下划线开头
-    // - 只能包含字母、数字、下划线
-    // - 长度至少为 1
-    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(content)) {
+    // 检查 ] 后面的字符
+    const nextChar = state.src.charCodeAt(end + 1);
+    const nextChar2 = end + 2 < state.src.length ? state.src.charCodeAt(end + 2) : -1;
+
+    // 【规则1】：如果后面跟 '('，这是链接语法，跳过（交给 link 规则）
+    if (nextChar === 0x28 /* ( */) {
       return false;
     }
 
-    // 【关键检查】确保后面没有跟 '('
-    // 如果后面跟 '(', 则它是链接语法 (e.g., [text](url))，
-    // variable 规则必须返回 false，让后续的 link 规则去处理。
-    const nextChar = state.src.charCodeAt(end + 1);
-    if (nextChar === 0x28 /* ( */) {
+    // 【规则2】：检查是否是任务列表标记 [x] 或 [ ]
+    // 任务列表标记必须满足：行首位置，且后跟空格或换行
+    if (content === 'x' || content === ' ') {
+      const beforeText = state.src.substring(Math.max(0, pos - 30), pos);
+      const isAtLineStart = /^[\r\n\s]*$/.test(beforeText) || /[\r\n][\s]*$/.test(beforeText);
+      const followedBySpace = nextChar === 0x20 || nextChar === 0x0A || nextChar === 0x0D || nextChar === 0x09;
+      
+      if (isAtLineStart && followedBySpace) {
+        // 这是任务列表标记，跳过让 task-lists 插件处理
+        return false;
+      }
+      
+      // [x] 在非行首位置且后面跟空格（不是换行），视为文本的一部分
+      // 不识别为变量（因为 'x' 不符合变量命名规则）
+      return false;
+    }
+
+    // 【规则3】：验证是否为合法变量名
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(content)) {
       return false;
     }
 
@@ -103,7 +113,7 @@ function variablePlugin(md: MarkdownIt) {
     const token = tokens[idx];
     const varName = token.content;
     // 生成带有特定类名和属性的 HTML，便于前端识别和后续模板替换
-    return `<span class="template-variable" data-variable="${md.utils.escapeHtml(varName)}">${md.utils.escapeHtml(varName)}</span>`;
+    return `<span class="template-variable" data-variable="${md.utils.escapeHtml(varName)}" title="模板变量: ${md.utils.escapeHtml(varName)}">${md.utils.escapeHtml(varName)}</span>`;
   };
 }
 

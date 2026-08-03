@@ -1,4 +1,4 @@
-// 全局轻量提示（toast / confirm）与错误提取工具，替代原生弹窗。
+// 全局轻量提示（toast / confirm / prompt）与错误提取工具，替代原生弹窗。
 import { reactive } from 'vue'
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info'
@@ -12,7 +12,12 @@ export interface ToastItem {
 export interface ConfirmItem {
   id: number
   message: string
-  resolve: (ok: boolean) => void
+  resolve: (ok: boolean, inputValue?: string) => void
+  // 可选配置：prompt 输入框配置
+  prompt?: {
+    placeholder?: string
+    defaultValue?: string
+  }
 }
 
 /**
@@ -60,6 +65,34 @@ export function confirmDialog(message: string): Promise<boolean> {
         const idx = toastState.confirms.findIndex((c) => c.id === id)
         if (idx !== -1) toastState.confirms.splice(idx, 1)
         resolve(ok)
+      },
+    })
+  })
+}
+
+/**
+ * 弹出带输入框的确认对话框，返回 Promise，resolve(输入内容) 表示用户确认，resolve(null) 表示取消。
+ * @param message 确认提示文案
+ * @param options 输入框配置（placeholder、defaultValue）
+ * @returns 用户点击「确认」返回输入字符串，否则返回 null
+ */
+export function promptDialog(
+  message: string,
+  options: { placeholder?: string; defaultValue?: string } = {}
+): Promise<string | null> {
+  const id = ++seq
+  return new Promise<string | null>((resolve) => {
+    toastState.confirms.push({
+      id,
+      message,
+      prompt: {
+        placeholder: options.placeholder,
+        defaultValue: options.defaultValue,
+      },
+      resolve: (ok: boolean, inputValue?: string) => {
+        const idx = toastState.confirms.findIndex((c) => c.id === id)
+        if (idx !== -1) toastState.confirms.splice(idx, 1)
+        resolve(ok ? (inputValue ?? '') : null)
       },
     })
   })

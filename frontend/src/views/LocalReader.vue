@@ -311,6 +311,67 @@
       multiple
       @change="handleDirSelect"
     />
+
+    <!-- ===== 目录选择确认弹窗 ===== -->
+    <Transition name="dir-confirm">
+      <div
+        v-if="showDirConfirm && pendingDirInfo"
+        class="dir-confirm-overlay"
+        role="alertdialog"
+        aria-modal="true"
+        @click.self="cancelDirLoad"
+      >
+        <div class="dir-confirm-modal">
+          <!-- 头部图标 -->
+          <div class="confirm-icon-wrapper">
+            <Icon name="folder-open" :size="32" class="confirm-icon" />
+          </div>
+          <!-- 标题 -->
+          <h3 class="confirm-title">确认加载目录</h3>
+          <!-- 根目录名 -->
+          <p class="confirm-subtitle">
+            <Icon name="folder" :size="14" />
+            <span>{{ pendingDirInfo.rootName }}</span>
+          </p>
+          <!-- 文件统计 -->
+          <div class="confirm-stats">
+            <div class="stat-item stat-total">
+              <span class="stat-value">{{ pendingDirInfo.total }}</span>
+              <span class="stat-label">总文件</span>
+            </div>
+            <div class="stat-item stat-docs">
+              <span class="stat-value">{{ pendingDirInfo.docs }}</span>
+              <span class="stat-label">文档/代码</span>
+            </div>
+            <div class="stat-item stat-images">
+              <span class="stat-value">{{ pendingDirInfo.images }}</span>
+              <span class="stat-label">图片</span>
+            </div>
+            <div class="stat-item stat-others">
+              <span class="stat-value">{{ pendingDirInfo.others }}</span>
+              <span class="stat-label">其他</span>
+            </div>
+          </div>
+          <!-- 提示信息 -->
+          <p class="confirm-hint" v-if="pendingDirInfo.docs === 0">
+            未检测到可阅读的文档或代码文件，加载后可能无法显示内容
+          </p>
+          <p class="confirm-hint" v-else>
+            将加载 {{ pendingDirInfo.docs }} 篇可阅读文档，图片将自动关联显示
+          </p>
+          <!-- 按钮组 -->
+          <div class="confirm-actions">
+            <button class="confirm-btn cancel-btn" @click="cancelDirLoad">
+              取消
+            </button>
+            <button class="confirm-btn ok-btn" @click="confirmDirLoad">
+              <Icon name="upload" :size="16" />
+              <span>确认上传</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -336,6 +397,20 @@ const dirInputRef = ref<HTMLInputElement | null>(null)
 const allFiles = ref<File[]>([])
 const loading = ref(false)
 const rootDirName = ref('')
+
+// ===== 目录选择确认弹窗 =====
+/** 待确认的文件分类信息 */
+interface PendingDirInfo {
+  total: number
+  docs: number
+  images: number
+  others: number
+  rootName: string
+}
+const showDirConfirm = ref(false)
+const pendingDirInfo = ref<PendingDirInfo | null>(null)
+/** 暂存待处理的文件列表，确认后交给正式加载流程 */
+const pendingFiles = ref<File[]>([])
 
 /** 支持的 Markdown 文档扩展名 */
 const DOC_EXTS = ['md', 'markdown', 'txt']
@@ -482,17 +557,57 @@ const handleDirSelect = async (e: Event) => {
   const input = e.target as HTMLInputElement
   if (!input.files || input.files.length === 0) return
 
+  const files = Array.from(input.files)
+
+  // 提取根目录名
+  const firstFile = files[0] as File & { webkitRelativePath?: string }
+  const relPath = firstFile.webkitRelativePath || firstFile.name
+  const firstSeg = relPath.split('/')[0]
+
+  // 分类统计文件数量
+  let docCount = 0
+  let imageCount = 0
+  let otherCount = 0
+  for (const file of files) {
+    const rp = (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name
+    const ext = getExt(rp)
+    if (ALL_TEXT_EXTS.includes(ext)) {
+      docCount++
+    } else if (IMAGE_EXTS.includes(ext)) {
+      imageCount++
+    } else {
+      otherCount++
+    }
+  }
+
+  // 弹出自定义确认弹窗，等待用户确认后再加载
+  pendingFiles.value = files
+  pendingDirInfo.value = {
+    total: files.length,
+    docs: docCount,
+    images: imageCount,
+    others: otherCount,
+    rootName: firstSeg || '本地目录',
+  }
+  showDirConfirm.value = true
+}
+
+/**
+ * 确认加载目录：用户点击「确认上传」后执行实际的文件解析与加载流程。
+ */
+const confirmDirLoad = async () => {
+  if (!pendingDirInfo.value || pendingFiles.value.length === 0) {
+    showDirConfirm.value = false
+    return
+  }
+
+  showDirConfirm.value = false
   loading.value = true
   try {
-    const files = Array.from(input.files)
+    const files = pendingFiles.value
     allFiles.value = files
     loadMode.value = 'local'
-
-    // 提取根目录名
-    const firstFile = files[0] as File & { webkitRelativePath?: string }
-    const relPath = firstFile.webkitRelativePath || firstFile.name
-    const firstSeg = relPath.split('/')[0]
-    rootDirName.value = firstSeg || '本地目录'
+    rootDirName.value = pendingDirInfo.value.rootName
 
     // 分类文件
     const docs: DocFile[] = []
@@ -527,6 +642,25 @@ const handleDirSelect = async (e: Event) => {
     notify('目录解析失败：' + (err as Error).message, 'error')
   } finally {
     loading.value = false
+    pendingFiles.value = []
+    pendingDirInfo.value = null
+    // 清空 input value，允许重复选择同一目录
+    if (dirInputRef.value) {
+      dirInputRef.value.value = ''
+    }
+  }
+}
+
+/**
+ * 取消加载目录：关闭弹窗并清理暂存状态。
+ */
+const cancelDirLoad = () => {
+  showDirConfirm.value = false
+  pendingFiles.value = []
+  pendingDirInfo.value = null
+  // 清空 input value，允许重新选择
+  if (dirInputRef.value) {
+    dirInputRef.value.value = ''
   }
 }
 
@@ -1334,6 +1468,12 @@ const onArticleScroll = () => {
 
 // ===== 键盘快捷键 =====
 const onKeydown = (e: KeyboardEvent) => {
+  // 确认弹窗打开时，ESC 关闭弹窗（优先级最高）
+  if (showDirConfirm.value && e.key === 'Escape') {
+    e.preventDefault()
+    cancelDirLoad()
+    return
+  }
   if (!currentDoc.value) return
   // 忽略输入框中的按键
   const target = e.target as HTMLElement
@@ -2510,5 +2650,186 @@ watch(currentDoc, () => {
   .nav-btn.next {
     margin-left: 0;
   }
+}
+
+/* ===== 目录选择确认弹窗 ===== */
+.dir-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  padding: 20px;
+}
+
+.dir-confirm-modal {
+  width: 100%;
+  max-width: 420px;
+  background: var(--kb-card, #fff);
+  border-radius: 16px;
+  padding: 32px 28px 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.confirm-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.1));
+  margin-bottom: 16px;
+}
+
+.confirm-icon {
+  color: var(--kb-primary, #3b6fe0);
+}
+
+.confirm-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--kb-foreground, #1a1d23);
+  margin-bottom: 8px;
+}
+
+.confirm-subtitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  background: var(--kb-muted, #f0f2f5);
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--kb-muted-foreground, #6b7280);
+  max-width: 100%;
+  margin-bottom: 20px;
+}
+
+.confirm-subtitle > span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+.confirm-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 4px;
+  border-radius: 10px;
+  background: var(--kb-muted, #f0f2f5);
+  transition: transform 0.15s;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--kb-muted-foreground, #6b7280);
+  font-weight: 500;
+}
+
+.stat-total .stat-value { color: var(--kb-foreground, #1a1d23); }
+.stat-docs .stat-value { color: var(--kb-primary, #3b6fe0); }
+.stat-images .stat-value { color: #10b981; }
+.stat-others .stat-value { color: var(--kb-muted-foreground, #9ca3af); }
+
+.confirm-hint {
+  font-size: 13px;
+  color: var(--kb-muted-foreground, #6b7280);
+  line-height: 1.5;
+  margin-bottom: 24px;
+  padding: 0 12px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.confirm-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cancel-btn {
+  background: var(--kb-muted, #f0f2f5);
+  color: var(--kb-muted-foreground, #6b7280);
+}
+
+.cancel-btn:hover {
+  background: #e4e7ec;
+  color: var(--kb-foreground, #1a1d23);
+}
+
+.ok-btn {
+  background: var(--kb-primary, #3b6fe0);
+  color: #fff;
+}
+
+.ok-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 111, 224, 0.3);
+}
+
+/* 弹窗过渡动画 */
+.dir-confirm-enter-active,
+.dir-confirm-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.dir-confirm-enter-active .dir-confirm-modal,
+.dir-confirm-leave-active .dir-confirm-modal {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+}
+
+.dir-confirm-enter-from,
+.dir-confirm-leave-to {
+  opacity: 0;
+}
+
+.dir-confirm-enter-from .dir-confirm-modal,
+.dir-confirm-leave-to .dir-confirm-modal {
+  transform: scale(0.92) translateY(-10px);
+  opacity: 0;
 }
 </style>

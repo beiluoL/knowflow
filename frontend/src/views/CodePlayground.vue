@@ -502,7 +502,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
-import { notify, getApiError } from '@/utils/toast'
+import { notify, getApiError, confirmDialog, promptDialog } from '@/utils/toast'
 import { normalizeNewlines } from '@/utils/string'
 import { chatApi } from '@/api/chat'
 import { codeQuestionApi } from '@/api/codeQuestion'
@@ -1036,7 +1036,9 @@ const openWsFile = async (path: string) => {
 
 /** 新建工作区文件（弹窗输入文件名，按扩展名给起步模板） */
 const createWsFilePrompt = async () => {
-  const name = window.prompt('请输入文件名（如 main.py / Main.java / app.js / main.cpp）：')
+  const name = await promptDialog('请输入文件名（如 main.py / Main.java / app.js / main.cpp）：', {
+    placeholder: 'main.py',
+  })
   if (!name) return
   const ext = (name.split('.').pop() || '').toLowerCase()
   const tmpl: Record<string, string> = {
@@ -1060,7 +1062,7 @@ const createWsFilePrompt = async () => {
 
 /** 删除工作区文件 */
 const deleteWsFile = async (path: string) => {
-  if (!window.confirm('确定删除文件 ' + path + ' ？')) return
+  if (!(await confirmDialog('确定删除文件 ' + path + ' ？'))) return
   try {
     await codeWorkspaceApi.remove(path)
     if (activeWsFile.value === path) activeWsFile.value = ''
@@ -1074,7 +1076,7 @@ const deleteWsFile = async (path: string) => {
 
 /** 重置工作区：清空全部文件 */
 const resetWorkspace = async () => {
-  if (!window.confirm('确定重置工作区？将清空你保存的全部文件（不可恢复）。')) return
+  if (!(await confirmDialog('确定重置工作区？将清空你保存的全部文件（不可恢复）。'))) return
   try {
     await codeWorkspaceApi.reset()
     workspaceFiles.value = []
