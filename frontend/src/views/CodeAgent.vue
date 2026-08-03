@@ -14,18 +14,19 @@ import { ref, computed, onMounted, nextTick, onUnmounted, watch } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
+import AgentToolPanel from '@/components/agent/AgentToolPanel.vue'
+import AgentCallChain from '@/components/agent/AgentCallChain.vue'
+import AgentToolConfirm from '@/components/agent/AgentToolConfirm.vue'
 import { codeAgentApi, aiConfigApi, ollamaApi, msg } from '@/api'
+import type { AgentToolEvent, AgentToolEndEvent } from '@/api/codeAgent'
 import { codeGenApi } from '@/api/codeGen'
 import type {
   AgentChatMessage,
   UserAiConfigVO,
   PlatformModelVO,
   AgentSessionVO,
+  AgentMessageVO,
   AgentStatsVO,
-  OllamaConfigVO,
-  OllamaModelVO,
-  OllamaTestResult,
-  GeneratedFile,
   OllamaConfigVO,
   OllamaModelVO,
   OllamaTestResult,
@@ -51,12 +52,13 @@ import {
 } from '@/utils/fileSaver'
 
 // ==================== 标签页 ====================
-type TabKey = 'chat' | 'sessions' | 'monitor' | 'models' | 'ollama'
+type TabKey = 'chat' | 'sessions' | 'tools' | 'monitor' | 'models' | 'ollama'
 const activeTab = ref<TabKey>('chat')
 
 const tabs: Array<{ key: TabKey; label: string; icon: string }> = [
   { key: 'chat', label: '对话', icon: 'message-square' },
   { key: 'sessions', label: '会话', icon: 'list' },
+  { key: 'tools', label: '工具', icon: 'settings' },
   { key: 'monitor', label: '监测', icon: 'activity' },
   { key: 'models', label: '模型', icon: 'cpu' },
   { key: 'ollama', label: 'Ollama', icon: 'hard-drive' },
@@ -347,20 +349,69 @@ async function deleteConfig(id: number) {
   }
 }
 
-// ==================== 会话管理 ====================
+// ==================== 会话管理（分页加载） ====================
 const sessions = ref<AgentSessionVO[]>([])
 const currentSessionId = ref<number | null>(null)
 const loadingSessions = ref(false)
+/** 会话分页状态 */
+const sessionPage = ref(1)
+const SESSION_PAGE_SIZE = 20
+const sessionTotal = ref(0)
+const sessionKeyword = ref('')
+const loadingMoreSessions = ref(false)
+/** 是否还有更多会话可加载 */
+const hasMoreSessions = computed(() => sessions.value.length < sessionTotal.value)
 
+/**
+ * 加载会话列表第一页（重置分页状态）。
+ * 保持函数名不变，供既有调用点（对话完成后刷新）复用。
+ */
 async function loadSessions() {
   loadingSessions.value = true
   try {
-    sessions.value = await codeAgentApi.listSessions()
+    const page = await codeAgentApi.pageSessions({
+      current: 1,
+      size: SESSION_PAGE_SIZE,
+      keyword: sessionKeyword.value.trim() || undefined,
+    })
+    sessions.value = page.records
+    sessionTotal.value = page.total
+    sessionPage.value = 1
   } catch (e: unknown) {
     notify(getApiError(e, '加载会话列表失败'), 'error')
   } finally {
     loadingSessions.value = false
   }
+}
+
+/** 追加加载下一页会话 */
+async function loadMoreSessions() {
+  if (loadingMoreSessions.value || !hasMoreSessions.value) return
+  loadingMoreSessions.value = true
+  try {
+    const next = sessionPage.value + 1
+    const page = await codeAgentApi.pageSessions({
+      current: next,
+      size: SESSION_PAGE_SIZE,
+      keyword: sessionKeyword.value.trim() || undefined,
+    })
+    sessions.value = [...sessions.value, ...page.records]
+    sessionTotal.value = page.total
+    sessionPage.value = next
+  } catch (e: unknown) {
+    notify(getApiError(e, '加载更多会话失败'), 'error')
+  } finally {
+    loadingMoreSessions.value = false
+  }
+}
+
+/** 关键字搜索会话（防抖由用户输入节奏自然控制，此处直接重载首页） */
+let searchTimer: ReturnType<typeof setTimeout> | null = null
+function onSessionSearch() {
+  if (searchTimer) clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => {
+    loadSessions()
+  }, 300)
 }
 
 async function createNewSession() {
@@ -384,20 +435,49 @@ async function createNewSession() {
   }
 }
 
+/** 历史消息分页游标：指向当前已加载的最早一条消息 ID */
+const messageCursor = ref<number | null>(null)
+/** 是否还有更早的历史消息 */
+const hasMoreMessages = ref(false)
+const loadingMoreMessages = ref(false)
+const MESSAGE_PAGE_SIZE = 30
+
+/** 后端消息 VO → 前端对话消息，tool_call/tool_result 渲染为工具卡片 */
+function mapHistoryMessage(m: AgentMessageVO): ChatMessage {
+  if (m.messageType === 'tool_call' || m.messageType === 'tool_result') {
+    return {
+      role: 'assistant',
+      content: m.content,
+      toolCall: {
+        callId: m.toolCallId || String(m.id),
+        tool: m.toolName || '未知工具',
+        args: m.messageType === 'tool_call' ? m.content : '',
+        status: m.messageType === 'tool_call' ? 'running' : m.isError === 1 ? 'failed' : 'success',
+        output: m.messageType === 'tool_result' ? m.content : '',
+        latencyMs: m.latencyMs,
+      },
+    }
+  }
+  return {
+    role: m.role === 'tool' ? 'assistant' : (m.role as 'user' | 'assistant' | 'system'),
+    content: m.content,
+    error: m.isError === 1,
+    summary: m.messageType === 'summary',
+  }
+}
+
 async function selectSession(s: AgentSessionVO) {
   if (streaming.value) {
     notify('请先停止当前对话', 'warning')
     return
   }
   currentSessionId.value = s.id
-  // 加载历史消息
+  // 分页加载最新一页历史消息，更早的消息按需向上加载
   try {
-    const msgs = await codeAgentApi.getMessages(s.id)
-    messages.value = msgs.map((m) => ({
-      role: m.role as 'user' | 'assistant' | 'system',
-      content: m.content,
-      error: m.isError === 1,
-    }))
+    const page = await codeAgentApi.pageMessages(s.id, { size: MESSAGE_PAGE_SIZE })
+    messages.value = page.records.map(mapHistoryMessage)
+    hasMoreMessages.value = page.hasMore
+    messageCursor.value = page.nextCursor
     if (messages.value.length === 0) {
       messages.value = [{ role: 'assistant', content: '该会话暂无消息。' }]
     }
@@ -406,6 +486,31 @@ async function selectSession(s: AgentSessionVO) {
     await scrollToBottom()
   } catch (e: unknown) {
     notify(getApiError(e, '加载历史消息失败'), 'error')
+  }
+}
+
+/** 向上加载更早的历史消息，保持当前滚动位置不跳动 */
+async function loadEarlierMessages() {
+  if (currentSessionId.value == null || loadingMoreMessages.value || !hasMoreMessages.value) return
+  loadingMoreMessages.value = true
+  const prevHeight = messagesEl.value?.scrollHeight ?? 0
+  try {
+    const page = await codeAgentApi.pageMessages(currentSessionId.value, {
+      size: MESSAGE_PAGE_SIZE,
+      beforeId: messageCursor.value,
+    })
+    messages.value = [...page.records.map(mapHistoryMessage), ...messages.value]
+    hasMoreMessages.value = page.hasMore
+    messageCursor.value = page.nextCursor
+    await nextTick()
+    // 补偿新增内容高度，避免视口跳到顶部
+    if (messagesEl.value) {
+      messagesEl.value.scrollTop = messagesEl.value.scrollHeight - prevHeight
+    }
+  } catch (e: unknown) {
+    notify(getApiError(e, '加载更早消息失败'), 'error')
+  } finally {
+    loadingMoreMessages.value = false
   }
 }
 
@@ -689,6 +794,23 @@ interface ChatMessage {
   id?: string
   /** 准确率评估得分 0~1（P3，生成后回填） */
   evalScore?: number
+  /** 工具调用卡片（P4）：存在时以工具执行卡片形式渲染 */
+  toolCall?: ToolCallCard
+  /** 是否为历史摘要消息（上下文压缩产物） */
+  summary?: boolean
+}
+
+/** 对话流中的工具执行卡片状态 */
+interface ToolCallCard {
+  callId: string
+  tool: string
+  /** 入参 JSON 字符串 */
+  args: string
+  status: 'running' | 'success' | 'failed'
+  output?: string
+  latencyMs?: number
+  /** 详情是否展开 */
+  expanded?: boolean
 }
 
 const messages = ref<ChatMessage[]>([
@@ -698,6 +820,8 @@ const messages = ref<ChatMessage[]>([
   },
 ])
 const input = ref('')
+/** 输入法组合态：true 表示正处于拼音/候选字组合中，此时回车仅确认候选、不触发发送 */
+const isComposing = ref(false)
 const streaming = ref(false)
 const streamingContent = ref('')
 let cancelFn: (() => void) | null = null
@@ -1253,7 +1377,8 @@ async function routeByIntent(text: string, intent: AgentIntentResult) {
     slots: intent.slots,
     parentId: refParentId,
   })
-  input.value = ''
+  // 不在输入法组合态下清空主输入框：避免打断用户正在组合的未确认文字
+  if (!isComposing.value) input.value = ''
   await scrollToBottom()
 
   // 落盘类高风险且仍需澄清：展示结构化澄清卡片，冻结后续输入
@@ -1280,6 +1405,14 @@ async function send() {
 
   // 澄清进行中：冻结输入，避免上下文错乱
   if (pendingClarify.value) return
+
+  // Agent 工具模式：跳过意图路由，直接交由后端 ReAct 编排（模型自行决定是否调工具）
+  if (agentToolMode.value) {
+    messages.value.push({ id: genMsgId(), role: 'user', content: text })
+    if (!isComposing.value) input.value = ''
+    await runAgentChat(text)
+    return
+  }
 
   // P1：先调后端多轮意图分类（含上下文融合），再据意图路由，取代旧的正则二分类
   generating.value = true
@@ -1389,6 +1522,125 @@ async function runChat(text: string) {
   cancelFn = handle.cancel
 }
 
+// ==================== Agent 工具模式（P4） ====================
+
+/** 是否启用 Agent 工具模式：开启后走 ReAct 编排，模型可自主调用工具 */
+const agentToolMode = ref(false)
+/** 当前待用户确认的高危工具事件 */
+const pendingToolConfirm = ref<AgentToolEvent | null>(null)
+/** ReAct 当前推理轮次，用于对话区状态提示 */
+const agentIter = ref(0)
+/** 调用链面板是否展开（对话页右侧） */
+const showCallChain = ref(false)
+const callChainRef = ref<InstanceType<typeof AgentCallChain> | null>(null)
+
+/** 展开/收起某条工具卡片详情 */
+function toggleToolCard(m: ChatMessage) {
+  if (m.toolCall) m.toolCall.expanded = !m.toolCall.expanded
+}
+
+/** 用户对高危工具的确认结果回传后端 */
+async function resolveToolConfirm(payload: { callId: string; approved: boolean }) {
+  pendingToolConfirm.value = null
+  try {
+    await codeAgentApi.confirmTool(payload.callId, payload.approved)
+  } catch (e: unknown) {
+    // 超时后后端已自动拒绝，此处仅提示，不阻断对话
+    notify(getApiError(e, '提交确认结果失败'), 'warning')
+  }
+}
+
+/**
+ * Agent 工具模式对话链路：走 /chat/agent-stream，
+ * 过程中把 thinking / tool-start / tool-end 事件实时渲染成对话流中的卡片。
+ */
+async function runAgentChat(text: string) {
+  if (selectedConfigId.value == null) {
+    notify('请先选择或添加一个模型配置', 'warning')
+    activeTab.value = 'models'
+    return
+  }
+
+  streaming.value = true
+  streamingContent.value = ''
+  agentIter.value = 0
+  await scrollToBottom()
+
+  const handle = codeAgentApi.agentStream(
+    {
+      content: text,
+      sessionId: currentSessionId.value,
+      configId: selectedConfigId.value,
+    },
+    {
+      onSession: (sid) => {
+        if (currentSessionId.value == null) {
+          currentSessionId.value = sid
+          loadSessions()
+        }
+      },
+      onThinking: (iter) => {
+        agentIter.value = iter
+        scrollToBottom()
+      },
+      onToolStart: (ev) => {
+        messages.value.push({
+          id: genMsgId(),
+          role: 'assistant',
+          content: '',
+          toolCall: {
+            callId: ev.callId,
+            tool: ev.tool,
+            args: ev.args,
+            status: 'running',
+          },
+        })
+        scrollToBottom()
+      },
+      onToolEnd: (ev: AgentToolEndEvent) => {
+        const card = messages.value.find((m) => m.toolCall?.callId === ev.callId)?.toolCall
+        if (card) {
+          card.status = ev.success ? 'success' : 'failed'
+          card.output = ev.output
+          card.latencyMs = ev.latencyMs
+        }
+        scrollToBottom()
+      },
+      onToolConfirm: (ev) => {
+        pendingToolConfirm.value = ev
+      },
+      onDelta: (token) => {
+        streamingContent.value += token
+        scrollToBottom()
+      },
+      onDone: (full) => {
+        const content = full || streamingContent.value
+        if (content) {
+          messages.value.push({ id: genMsgId(), role: 'assistant', content })
+        }
+        streamingContent.value = ''
+        streaming.value = false
+        agentIter.value = 0
+        cancelFn = null
+        scrollToBottom()
+        loadSessions()
+        // 刷新调用链面板，保证与本轮执行结果一致
+        callChainRef.value?.loadChain()
+      },
+      onError: (err) => {
+        messages.value.push({ role: 'assistant', content: `**Agent 执行失败**：${err}`, error: true })
+        streamingContent.value = ''
+        streaming.value = false
+        agentIter.value = 0
+        pendingToolConfirm.value = null
+        cancelFn = null
+        notify(err, 'error')
+      },
+    },
+  )
+  cancelFn = handle.cancel
+}
+
 function cancelStream() {
   cancelFn?.()
   if (streamingContent.value) {
@@ -1396,6 +1648,8 @@ function cancelStream() {
   }
   streamingContent.value = ''
   streaming.value = false
+  agentIter.value = 0
+  pendingToolConfirm.value = null
   cancelFn = null
 }
 
@@ -1407,9 +1661,30 @@ async function scrollToBottom() {
 }
 
 function onInputKeydown(e: KeyboardEvent) {
+  // 输入法组合中：回车仅用于确认候选字，交由浏览器默认行为，不拦截、不发送
+  if (isComposing.value) return
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault()
     send()
+  }
+}
+
+/** 输入法组合开始：标记组合态，避免回车误触发发送 */
+function onInputCompositionStart() {
+  isComposing.value = true
+}
+
+/** 输入法组合结束：恢复常态，并把残留回车事件补发一次发送判断 */
+function onInputCompositionEnd() {
+  isComposing.value = false
+}
+
+/** 澄清输入框回车：输入法组合中仅确认候选字，不触发澄清确认 */
+function onClarifyKeydown(e: KeyboardEvent) {
+  if (e.isComposing || isComposing.value) return
+  if (e.key === 'Enter') {
+    e.preventDefault()
+    confirmClarify(clarifyText.value)
   }
 }
 
@@ -2044,6 +2319,19 @@ watch(activeTab, (tab) => {
         <!-- 中栏：对话区 -->
         <main class="agent-chat">
           <div class="messages" ref="messagesEl">
+            <!-- 历史消息分页：向上加载更早的消息 -->
+            <div v-if="hasMoreMessages" class="load-earlier">
+              <button
+                type="button"
+                class="load-earlier-btn"
+                :disabled="loadingMoreMessages"
+                @click="loadEarlierMessages"
+              >
+                <Icon name="chevron-up" size="xxs" />
+                {{ loadingMoreMessages ? '加载中...' : '加载更早的消息' }}
+              </button>
+            </div>
+
             <div
               v-for="(msg, idx) in messages"
               :key="idx"
@@ -2054,7 +2342,51 @@ watch(activeTab, (tab) => {
                 <Icon :name="msg.role === 'user' ? 'user' : 'robot'" size="sm" />
               </div>
               <div class="message-body">
-                <div class="message-content" v-html="renderMarkdown(msg.content)"></div>
+                <!-- 工具执行卡片（Agent 工具模式） -->
+                <div v-if="msg.toolCall" class="tool-card" :class="msg.toolCall.status">
+                  <button type="button" class="tool-card-head" @click="toggleToolCard(msg)">
+                    <Icon
+                      :name="
+                        msg.toolCall.status === 'running'
+                          ? 'loader'
+                          : msg.toolCall.status === 'success'
+                            ? 'check-circle'
+                            : 'alert-circle'
+                      "
+                      size="xxs"
+                    />
+                    <span class="tool-card-name">{{ msg.toolCall.tool }}</span>
+                    <span class="tool-card-status">
+                      {{
+                        msg.toolCall.status === 'running'
+                          ? '执行中'
+                          : msg.toolCall.status === 'success'
+                            ? '成功'
+                            : '失败'
+                      }}
+                    </span>
+                    <span v-if="msg.toolCall.latencyMs != null" class="tool-card-latency">
+                      {{ msg.toolCall.latencyMs }} ms
+                    </span>
+                    <Icon :name="msg.toolCall.expanded ? 'chevron-up' : 'chevron-down'" size="xxs" />
+                  </button>
+                  <div v-if="msg.toolCall.expanded" class="tool-card-detail">
+                    <div class="tool-card-block">
+                      <span class="tool-card-label">入参</span>
+                      <pre class="tool-card-code">{{ msg.toolCall.args || '—' }}</pre>
+                    </div>
+                    <div v-if="msg.toolCall.output" class="tool-card-block">
+                      <span class="tool-card-label">输出</span>
+                      <pre class="tool-card-code">{{ msg.toolCall.output }}</pre>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-else class="bubble" :class="{ 'is-summary': msg.summary }">
+                  <div v-if="msg.summary" class="summary-tag">
+                    <Icon name="layers" size="xxs" /> 历史摘要（上下文压缩）
+                  </div>
+                  <div class="message-content" v-html="renderMarkdown(msg.content)"></div>
 
                 <!-- 本地代码生成产物：可预览、可重新落盘 -->
                 <div v-if="msg.files && msg.files.length" class="gen-files">
@@ -2121,6 +2453,7 @@ watch(activeTab, (tab) => {
                     <Icon name="play" size="xxs" /> 提取代码
                   </button>
                 </div>
+                </div>
               </div>
             </div>
             <div v-if="streaming" class="message assistant">
@@ -2128,7 +2461,17 @@ watch(activeTab, (tab) => {
                 <Icon name="robot" size="sm" />
               </div>
               <div class="message-body">
-                <div class="message-content streaming" v-html="renderMarkdown(streamingContent || '思考中...')"></div>
+                <div class="bubble">
+                  <div
+                    class="message-content streaming"
+                    v-html="
+                      renderMarkdown(
+                        streamingContent ||
+                          (agentIter > 0 ? `第 ${agentIter} 轮推理中...` : '思考中...'),
+                      )
+                    "
+                  ></div>
+                </div>
               </div>
             </div>
 
@@ -2138,44 +2481,46 @@ watch(activeTab, (tab) => {
                 <Icon name="robot" size="sm" />
               </div>
               <div class="message-body">
-                <div class="reasoning">
-                  <div class="reasoning-head">
-                    <Icon name="brain" size="xxs" />
-                    <span>推理过程</span>
-                  </div>
-                  <ul class="reasoning-steps">
-                    <li
-                      v-for="step in reasoningSteps"
-                      :key="step.key"
-                      class="reasoning-step"
-                      :class="step.status"
-                    >
-                      <span class="reasoning-step-icon">
-                        <Icon :name="step.icon" size="xxs" />
-                      </span>
-                      <span class="reasoning-step-body">
-                        <span class="reasoning-step-title">{{ step.title }}</span>
-                        <span v-if="step.detail" class="reasoning-step-detail">{{ step.detail }}</span>
-                      </span>
-                      <span class="reasoning-step-state">
-                        <Icon
-                          v-if="step.status === 'done'"
-                          name="check-circle"
-                          size="xxs"
-                        />
-                        <Icon
-                          v-else-if="step.status === 'error'"
-                          name="alert-circle"
-                          size="xxs"
-                        />
-                        <span v-else-if="step.status === 'active'" class="reasoning-dot"></span>
-                        <span v-else class="reasoning-dot pending"></span>
-                      </span>
-                    </li>
-                  </ul>
-                  <div v-if="saveProgress" class="reasoning-save">
-                    <span class="gen-spinner"></span>
-                    正在写入文件（{{ saveProgress.done }}/{{ saveProgress.total }}）
+                <div class="bubble">
+                  <div class="reasoning">
+                    <div class="reasoning-head">
+                      <Icon name="brain" size="xxs" />
+                      <span>推理过程</span>
+                    </div>
+                    <ul class="reasoning-steps">
+                      <li
+                        v-for="step in reasoningSteps"
+                        :key="step.key"
+                        class="reasoning-step"
+                        :class="step.status"
+                      >
+                        <span class="reasoning-step-icon">
+                          <Icon :name="step.icon" size="xxs" />
+                        </span>
+                        <span class="reasoning-step-body">
+                          <span class="reasoning-step-title">{{ step.title }}</span>
+                          <span v-if="step.detail" class="reasoning-step-detail">{{ step.detail }}</span>
+                        </span>
+                        <span class="reasoning-step-state">
+                          <Icon
+                            v-if="step.status === 'done'"
+                            name="check-circle"
+                            size="xxs"
+                          />
+                          <Icon
+                            v-else-if="step.status === 'error'"
+                            name="alert-circle"
+                            size="xxs"
+                          />
+                          <span v-else-if="step.status === 'active'" class="reasoning-dot"></span>
+                          <span v-else class="reasoning-dot pending"></span>
+                        </span>
+                      </li>
+                    </ul>
+                    <div v-if="saveProgress" class="reasoning-save">
+                      <span class="gen-spinner"></span>
+                      正在写入文件（{{ saveProgress.done }}/{{ saveProgress.total }}）
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2210,7 +2555,9 @@ watch(activeTab, (tab) => {
                 v-model="clarifyText"
                 class="clarify-input"
                 placeholder="或直接输入你的补充说明…"
-                @keyup.enter="confirmClarify(clarifyText)"
+                @keydown.enter="onClarifyKeydown"
+                @compositionstart="onInputCompositionStart"
+                @compositionend="onInputCompositionEnd"
               />
               <Button size="sm" variant="primary" @click="confirmClarify(clarifyText)">确认</Button>
               <Button size="sm" variant="ghost" @click="skipClarify">直接执行</Button>
@@ -2241,6 +2588,22 @@ watch(activeTab, (tab) => {
               <span v-if="currentFile" class="ctx-file">
                 <Icon name="file" size="xxs" /> {{ currentFile.path }}
               </span>
+              <label
+                class="ctx-toggle"
+                title="开启后由模型自主决定调用工具（代码执行/文件读写/数据查询），高危工具需二次确认"
+              >
+                <input type="checkbox" v-model="agentToolMode" :disabled="streaming" />
+                <span>Agent 工具模式</span>
+              </label>
+              <button
+                class="toolbar-settings"
+                :class="{ active: showCallChain }"
+                title="查看本会话的工具调用链"
+                @click="showCallChain = !showCallChain"
+              >
+                <Icon name="git-branch" size="xxs" />
+                <span>调用链</span>
+              </button>
               <button
                 class="toolbar-settings"
                 :class="{ active: showSettings }"
@@ -2251,12 +2614,19 @@ watch(activeTab, (tab) => {
                 <span>设置</span>
               </button>
             </div>
+
+            <!-- 调用链抽屉：展示本会话工具执行时间轴与聚合统计 -->
+            <div v-if="showCallChain" class="call-chain-drawer">
+              <AgentCallChain ref="callChainRef" :session-id="currentSessionId" />
+            </div>
             <div class="input-row">
               <textarea
                 v-model="input"
                 :disabled="streaming || generating"
                 placeholder="输入编程问题，或让我生成代码，例如：替我写一个 html demo 案例 (Enter 发送, Shift+Enter 换行)"
                 @keydown="onInputKeydown"
+                @compositionstart="onInputCompositionStart"
+                @compositionend="onInputCompositionEnd"
                 rows="3"
               ></textarea>
               <Button
@@ -2410,9 +2780,18 @@ watch(activeTab, (tab) => {
     <div v-show="activeTab === 'sessions'" class="sessions-tab">
       <div class="tab-toolbar">
         <h2>会话管理</h2>
-        <Button variant="primary" @click="createNewSession">
-          <Icon name="plus" size="xs" /> 新建会话
-        </Button>
+        <div class="toolbar-right">
+          <input
+            v-model="sessionKeyword"
+            class="kb-input kb-input-sm session-search"
+            type="search"
+            placeholder="搜索会话标题..."
+            @input="onSessionSearch"
+          />
+          <Button variant="primary" @click="createNewSession">
+            <Icon name="plus" size="xs" /> 新建会话
+          </Button>
+        </div>
       </div>
       <div v-if="loadingSessions" class="loading-state">加载中...</div>
       <div v-else-if="sessions.length === 0" class="empty-state">
@@ -2450,6 +2829,34 @@ watch(activeTab, (tab) => {
             </button>
           </div>
         </div>
+      </div>
+      <!-- 会话分页：按需加载更多 -->
+      <div v-if="!loadingSessions && sessions.length" class="session-more">
+        <span class="session-count">已显示 {{ sessions.length }} / {{ sessionTotal }}</span>
+        <Button
+          v-if="hasMoreSessions"
+          size="sm"
+          variant="ghost"
+          :loading="loadingMoreSessions"
+          @click="loadMoreSessions"
+        >
+          <Icon name="chevron-down" size="xxs" /> 加载更多
+        </Button>
+      </div>
+    </div>
+
+    <!-- ==================== 工具管理标签 ==================== -->
+    <div v-show="activeTab === 'tools'" class="tools-tab">
+      <div class="tab-toolbar">
+        <h2>工具与调用链</h2>
+      </div>
+      <div class="tools-layout">
+        <section class="tools-col">
+          <AgentToolPanel />
+        </section>
+        <section class="tools-col">
+          <AgentCallChain :session-id="currentSessionId" />
+        </section>
       </div>
     </div>
 
@@ -3008,6 +3415,9 @@ watch(activeTab, (tab) => {
         </div>
       </div>
     </div>
+
+    <!-- 高危工具二次确认弹窗 -->
+    <AgentToolConfirm :event="pendingToolConfirm" @resolve="resolveToolConfirm" />
   </div>
 </template>
 
@@ -3017,6 +3427,202 @@ watch(activeTab, (tab) => {
   flex-direction: column;
   height: calc(100vh - 56px);
   background: var(--kb-background);
+}
+
+/* ===== P4：历史消息分页 ===== */
+.load-earlier {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 8px;
+}
+
+.load-earlier-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border: 1px solid var(--kb-border);
+  border-radius: 999px;
+  background: var(--kb-card);
+  color: var(--kb-text-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.load-earlier-btn:hover:not(:disabled) {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+}
+
+.load-earlier-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ===== P4：对话流中的工具执行卡片 ===== */
+.tool-card {
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  background: var(--kb-card);
+  overflow: hidden;
+}
+
+.tool-card.running {
+  border-color: var(--kb-primary);
+}
+
+.tool-card.success {
+  border-color: var(--kb-success, #22c55e);
+}
+
+.tool-card.failed {
+  border-color: var(--kb-danger, #ef4444);
+}
+
+.tool-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-size: 12px;
+  color: var(--kb-text);
+}
+
+.tool-card-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--kb-font-mono, monospace);
+  font-weight: 600;
+}
+
+.tool-card-status,
+.tool-card-latency {
+  font-size: 11px;
+  color: var(--kb-text-muted);
+}
+
+.tool-card.success .tool-card-status {
+  color: var(--kb-success, #22c55e);
+}
+
+.tool-card.failed .tool-card-status {
+  color: var(--kb-danger, #ef4444);
+}
+
+.tool-card-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 10px 10px;
+}
+
+.tool-card-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tool-card-label {
+  font-size: 11px;
+  color: var(--kb-text-muted);
+}
+
+.tool-card-code {
+  margin: 0;
+  padding: 8px 10px;
+  max-height: 220px;
+  overflow: auto;
+  border-radius: var(--kb-radius-sm);
+  background: var(--kb-background);
+  font-family: var(--kb-font-mono, monospace);
+  font-size: 11px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* 历史摘要气泡：弱化显示，与真实对话区分 */
+.bubble.is-summary {
+  border-style: dashed;
+  opacity: 0.85;
+}
+
+.summary-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+  font-size: 11px;
+  color: var(--kb-text-muted);
+}
+
+/* ===== P4：调用链抽屉 ===== */
+.call-chain-drawer {
+  margin: 8px 16px 0;
+  padding: 12px;
+  max-height: 320px;
+  overflow: auto;
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  background: var(--kb-card);
+}
+
+/* ===== P4：工具管理标签页 ===== */
+.tools-tab {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+}
+
+.tools-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.tools-col {
+  padding: 14px;
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  background: var(--kb-card);
+}
+
+@media (max-width: 960px) {
+  .tools-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ===== P4：会话分页与搜索 ===== */
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.session-search {
+  width: 200px;
+}
+
+.session-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.session-count {
+  font-size: 12px;
+  color: var(--kb-text-muted);
 }
 
 /* ===== 顶部标签栏 ===== */
@@ -3239,11 +3845,18 @@ watch(activeTab, (tab) => {
   flex: 1;
   overflow-y: auto;
   padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 .message {
   display: flex;
   gap: 12px;
-  margin-bottom: 16px;
+  align-items: flex-start;
+}
+/* 用户消息：头像与气泡靠右排列，气泡使用强调色 */
+.message.user {
+  flex-direction: row-reverse;
 }
 .message-avatar {
   width: 32px;
@@ -3263,12 +3876,38 @@ watch(activeTab, (tab) => {
 .message-body {
   flex: 1;
   min-width: 0;
+  max-width: 78%;
+  display: flex;
+  flex-direction: column;
+}
+/* 用户消息内容靠右对齐 */
+.message.user .message-body {
+  align-items: flex-end;
+}
+/* 气泡容器：带背景与圆角，区分发送者 */
+.bubble {
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  padding: 10px 14px;
+  box-shadow: var(--kb-shadow-sm);
+  min-width: 0;
+  width: fit-content;
+  max-width: 100%;
+}
+.message.user .bubble {
+  background: var(--kb-accent);
+  border-color: transparent;
+  color: var(--kb-accent-foreground);
 }
 .message-content {
   font-size: 14px;
   line-height: 1.6;
   color: var(--kb-foreground);
   word-break: break-word;
+}
+.message.user .message-content {
+  color: var(--kb-accent-foreground);
 }
 .message-content :deep(pre) {
   background: #1a1d23;
@@ -3403,6 +4042,25 @@ watch(activeTab, (tab) => {
   .gen-spinner {
     animation: none;
   }
+}
+
+/* 气泡内的卡片区块融入气泡背景，避免双重边框/背景 */
+.bubble > .gen-files,
+.bubble > .gen-progress,
+.bubble > .reasoning,
+.bubble > .clarify-card {
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+}
+.bubble > .reasoning .reasoning-head {
+  background: color-mix(in srgb, var(--kb-foreground) 6%, transparent);
+  border-radius: var(--kb-radius-sm) var(--kb-radius-sm) 0 0;
+}
+.bubble .gen-files-actions {
+  border-top: 1px solid var(--kb-border);
+  padding: 8px 0 0;
 }
 
 /* ===== 推理过程步骤链 ===== */

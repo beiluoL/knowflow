@@ -395,6 +395,7 @@ CREATE TABLE IF NOT EXISTS sys_user_ai_config (
     user_id BIGINT NOT NULL,
     provider VARCHAR(50) NOT NULL COMMENT '模型提供商: deepseek / siliconflow / openai / ollama / vllm / localai / custom 等',
     api_key VARCHAR(500) NOT NULL COMMENT '用户自己的 API Key；本地模型约定填 local',
+    api_secret VARCHAR(500) COMMENT 'API Secret，仅文心 qianfan 等双密钥协议需要',
     base_url VARCHAR(255) COMMENT '自定义 API 地址（留空用默认）',
     model VARCHAR(100) COMMENT '默认模型名',
     is_active INT DEFAULT 1 COMMENT '是否启用（通用 Chat 使用）: 1 启用 / 0 禁用',
@@ -491,7 +492,9 @@ CREATE TABLE IF NOT EXISTS agent_tool_call (
     result_json MEDIUMTEXT COMMENT '出参/错误 JSON',
     status VARCHAR(20) COMMENT 'success / failed / cancelled',
     latency_ms BIGINT COMMENT '耗时（毫秒）',
-    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
 );
 CREATE INDEX idx_agent_tool_call_session ON agent_tool_call (session_id, create_time);
 

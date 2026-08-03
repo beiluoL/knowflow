@@ -20,4 +20,8 @@ public class AgentSession extends BaseEntity {
     private String projectDir;
     private Integer messageCount;
     private String lastMessage;
+    /** 上下文窗口上限（预估 token），超出后触发历史摘要压缩 */
+    private Integer contextWindow;
+    /** 会话模式：chat（纯对话）/ agent（允许工具调用） */
+    private String agentMode;
 }

@@ -748,21 +748,89 @@ export interface AgentSessionVO {
   projectDir?: string
   messageCount?: number
   lastMessage?: string
+  /** 上下文窗口上限（预估 token） */
+  contextWindow?: number
+  /** 会话模式：chat 纯对话 / agent 允许工具调用 */
+  agentMode?: AgentMode
   createTime?: string
   updateTime?: string
 }
+
+/** Agent 会话运行模式 */
+export type AgentMode = 'chat' | 'agent'
+
+/** Agent 消息类型：普通对话 / 工具调用意图 / 工具执行结果 / 历史摘要 */
+export type AgentMessageType = 'normal' | 'tool_call' | 'tool_result' | 'summary'
 
 /** Agent 历史消息 */
 export interface AgentMessageVO {
   id: number
   sessionId: number
-  role: 'system' | 'user' | 'assistant'
+  role: 'system' | 'user' | 'assistant' | 'tool'
   content: string
   filePath?: string
+  messageType?: AgentMessageType
+  /** 工具调用 ID，用于把 tool_call 与 tool_result 配对 */
+  toolCallId?: string
+  toolName?: string
   tokenCount?: number
   latencyMs?: number
   isError?: number
   createTime?: string
+}
+
+/** Agent 会话分页结果 */
+export interface AgentSessionPageResult {
+  records: AgentSessionVO[]
+  total: number
+  current: number
+  size: number
+  pages: number
+}
+
+/** Agent 消息分页结果（游标分页，向上加载更早消息） */
+export interface AgentMessagePage {
+  records: AgentMessageVO[]
+  hasMore: boolean
+  /** 下一页游标：当前页最早一条消息的 ID */
+  nextCursor: number | null
+}
+
+/** 工具权限等级：安全 / 写入 / 高危 */
+export type ToolPermission = 'SAFE' | 'WRITE' | 'DANGEROUS'
+
+/** Agent 工具元信息 */
+export interface AgentToolVO {
+  name: string
+  description: string
+  permission: ToolPermission
+  enabled: boolean
+  /** 参数 JSON Schema */
+  parameters?: Record<string, unknown>
+}
+
+/** 工具调用链节点 */
+export interface AgentToolCallVO {
+  id: number
+  sessionId: number
+  messageId?: number
+  toolName: string
+  permission: ToolPermission
+  argsJson?: string
+  resultJson?: string
+  /** success / failed / cancelled */
+  status: string
+  latencyMs?: number
+  createTime?: string
+}
+
+/** 工具调用聚合统计 */
+export interface AgentToolStatVO {
+  tool: string
+  total: number
+  success: number
+  failed: number
+  avgLatencyMs: number
 }
 
 /** 模型监测统计数据 */

@@ -20,6 +20,10 @@ public class AgentSessionVO {
     private String projectDir;
     private Integer messageCount;
     private String lastMessage;
+    /** 上下文窗口上限（预估 token） */
+    private Integer contextWindow;
+    /** 会话模式：chat / agent */
+    private String agentMode;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

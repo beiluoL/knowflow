@@ -854,9 +854,30 @@ erDiagram
 | status | VARCHAR(20) | success / failed / cancelled | 可空 |
 | latency_ms | BIGINT | 耗时（毫秒） | 可空 |
 | create_time | TIMESTAMP | 创建时间 | 默认当前时间 |
+| update_time | TIMESTAMP | 更新时间 | 默认当前时间 |
+| deleted | INT | 逻辑删除 0/1 | 默认 0 |
 
 - 索引：`idx_agent_tool_call_session(session_id, create_time)`。
 - 落库位置：`ToolRegistry.invoke(...)` 每次调用均插入一条记录（无论成功/失败/取消）。
+- 消费方：`GET /api/agent/tools/sessions/{id}/call-chain`（时间轴明细）与 `/call-stats`（按工具聚合次数、成功率、平均耗时）。
+
+---
+
+## 二·补·四、2026-08-04 P2/P3 相关字段补充
+
+编程 Agent 上下文管理（P2）与 REST 补全（P3）涉及的既有表字段增补，**未新增表**，全库仍为 **47 张表**：
+
+| 表 | 字段 | 类型 | 说明 |
+|---|---|---|---|
+| `sys_user_ai_config` | api_secret | VARCHAR(500) | API Secret，仅文心 qianfan 等双密钥协议需要（补齐 P0 遗漏列） |
+| `agent_session` | context_window | INT | 上下文窗口上限（预估 token），默认 6000，超出触发摘要压缩 |
+| `agent_session` | agent_mode | VARCHAR(20) | 会话模式 `chat`（纯对话）/ `agent`（允许工具调用），默认 chat |
+| `agent_message` | message_type | VARCHAR(20) | `normal` / `tool_call` / `tool_result` / `summary`，前端据此渲染不同气泡 |
+| `agent_message` | tool_call_id | VARCHAR(40) | 工具调用 ID，用于 tool_call 与 tool_result 配对 |
+| `agent_message` | tool_name | VARCHAR(40) | 触发的工具名 |
+| `agent_message` | parent_id | BIGINT | 父消息 ID（多轮 / 工具循环溯源） |
+
+**上下文压缩的数据影响**：`AgentContextManager` 在被截断的旧消息达到阈值（6 条）时，会生成一条 `message_type='summary'` 的 system 消息落库，并把被覆盖的旧消息置 `deleted=1`（逻辑删除），避免重复压缩。因此会话消息分页查询必须带 `deleted = 0` 条件。
 
 ---
 

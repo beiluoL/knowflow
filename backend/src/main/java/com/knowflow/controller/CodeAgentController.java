@@ -1,5 +1,8 @@
 package com.knowflow.controller;
 
+import com.knowflow.agent.AgentRuntimeService;
+import com.knowflow.agent.tool.ToolPermission;
+import com.knowflow.agent.tool.ToolResult;
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
 import com.knowflow.config.AiProviderRegistry;
@@ -14,6 +17,7 @@ import com.knowflow.mapper.AgentCallLogMapper;
 import com.knowflow.mapper.AgentMessageMapper;
 import com.knowflow.mapper.AgentSessionMapper;
 import com.knowflow.mapper.UserAiConfigMapper;
+import com.knowflow.exception.BusinessException;
 import com.knowflow.service.AiService;
 import com.knowflow.service.CodeExecutionService;
 import com.knowflow.vo.AgentMessageVO;
@@ -22,6 +26,8 @@ import com.knowflow.vo.AgentStatsVO;
 import com.knowflow.vo.PlatformModelVO;
 import com.knowflow.vo.UserAiConfigVO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -36,8 +42,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -61,6 +71,22 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CodeAgentController {
 
+    /** 分页单页最大条数，防止前端传入超大 size 拖垮查询。 */
+    private static final long MAX_PAGE_SIZE = 100L;
+
+    /** 上下文窗口允许的最小 / 最大值（预估 token）。 */
+    private static final int MIN_CONTEXT_WINDOW = 1000;
+    private static final int MAX_CONTEXT_WINDOW = 128000;
+
+    /** 高危工具二次确认的等待超时（秒）：超时视为拒绝。 */
+    private static final int TOOL_CONFIRM_TIMEOUT_SECONDS = 60;
+
+    /**
+     * 待确认的工具调用：callId → 确认结果队列。
+     * SSE 线程阻塞等待，前端通过 {@code POST /api/agent/tool-confirm} 投递结果。
+     */
+    private final Map<String, SynchronousQueue<Boolean>> pendingConfirms = new ConcurrentHashMap<>();
+
     private final AiService aiService;
     private final CodeExecutionService codeExecutionService;
     private final AiProviderRegistry providerRegistry;
@@ -68,7 +94,7 @@ public class CodeAgentController {
     private final AgentSessionMapper agentSessionMapper;
     private final AgentMessageMapper agentMessageMapper;
     private final AgentCallLogMapper agentCallLogMapper;
-    private final com.knowflow.agent.AgentRuntimeService agentRuntimeService;
+    private final AgentRuntimeService agentRuntimeService;
 
     /** 异步执行流式对话，避免阻塞 Servlet 线程。 */
     private final ExecutorService agentExecutor = Executors.newCachedThreadPool(r -> {
@@ -309,9 +335,210 @@ public class CodeAgentController {
         return Result.success(result);
     }
 
+    /**
+     * 编程 Agent 流式对话（含工具调用编排，P4）。
+     * <p>
+     * 在原有 {@code delta/done/error} 之外扩展以下事件：
+     * <ul>
+     *   <li>{@code session}：{ sessionId }</li>
+     *   <li>{@code thinking}：{ iter } — 第 N 轮模型推理开始</li>
+     *   <li>{@code tool-confirm}：{ callId, tool, args, permission } — 高危工具待确认，前端需回调确认接口</li>
+     *   <li>{@code tool-start}：{ callId, tool, args, permission } — 工具开始执行</li>
+     *   <li>{@code tool-end}：{ callId, tool, success, output, latencyMs } — 工具执行完成</li>
+     *   <li>{@code done}：{ content, sessionId }</li>
+     * </ul>
+     */
+    @Operation(summary = "编程 Agent 流式对话（含工具调用编排）")
+    @PostMapping(value = "/chat/agent-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter agentStream(@RequestBody Map<String, Object> body) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        SseEmitter emitter = new SseEmitter(10 * 60 * 1000L);
+
+        String userContent = body.get("content") != null ? body.get("content").toString() : null;
+        if (userContent == null || userContent.isBlank()) {
+            sendEvent(emitter, "error", Map.of("error", "对话内容不能为空"));
+            complete(emitter);
+            return emitter;
+        }
+        Long configId = body.get("configId") != null ? Long.valueOf(body.get("configId").toString()) : null;
+        Long sessionId = body.get("sessionId") != null ? Long.valueOf(body.get("sessionId").toString()) : null;
+
+        // 主线程完成会话解析与 user 消息落库，避免异步线程中 SecurityContext 丢失
+        if (sessionId == null) {
+            AgentSession session = new AgentSession();
+            session.setUserId(userId);
+            session.setConfigId(configId);
+            session.setTitle(truncate(userContent, 30));
+            session.setMessageCount(0);
+            session.setLastMessage(truncate(userContent, 200));
+            session.setAgentMode("agent");
+            agentSessionMapper.insert(session);
+            sessionId = session.getId();
+        } else {
+            AgentSession existing = agentSessionMapper.selectById(sessionId);
+            if (existing == null || !existing.getUserId().equals(userId)) {
+                sendEvent(emitter, "error", Map.of("error", "会话不存在或无权访问"));
+                complete(emitter);
+                return emitter;
+            }
+        }
+
+        AgentMessage userMsg = new AgentMessage();
+        userMsg.setSessionId(sessionId);
+        userMsg.setUserId(userId);
+        userMsg.setRole("user");
+        userMsg.setContent(userContent);
+        userMsg.setMessageType("normal");
+        userMsg.setTokenCount(estimateTokens(userContent));
+        agentMessageMapper.insert(userMsg);
+        updateSessionStats(sessionId, userContent);
+        sendEvent(emitter, "session", Map.of("sessionId", sessionId));
+
+        final Long finalSessionId = sessionId;
+        final long startMs = System.currentTimeMillis();
+        final String provider = resolveProviderName(userId, configId);
+        // 本次流关联的所有待确认 callId，用于流结束时清理，避免内存泄漏
+        final List<String> confirmKeys = new CopyOnWriteArrayList<>();
+
+        agentExecutor.submit(() -> {
+            try {
+                String reply = agentRuntimeService.run(finalSessionId, userContent, userId, configId,
+                        new AgentRuntimeService.AgentEventListener() {
+                            @Override
+                            public void onThinking(int iter) {
+                                sendEvent(emitter, "thinking", Map.of("iter", iter));
+                            }
+
+                            @Override
+                            public void onDelta(String delta) {
+                                sendEvent(emitter, "delta", Map.of("content", delta));
+                            }
+
+                            @Override
+                            public void onToolStart(String callId, String toolName, String argsJson,
+                                                    ToolPermission permission) {
+                                Map<String, Object> data = new HashMap<>();
+                                data.put("callId", callId);
+                                data.put("tool", toolName);
+                                data.put("args", argsJson);
+                                data.put("permission", permission.name());
+                                sendEvent(emitter, "tool-start", data);
+                            }
+
+                            @Override
+                            public void onToolEnd(String callId, String toolName, ToolResult result) {
+                                Map<String, Object> data = new HashMap<>();
+                                data.put("callId", callId);
+                                data.put("tool", toolName);
+                                data.put("success", result.isSuccess());
+                                data.put("output", truncate(result.isSuccess()
+                                        ? result.getOutput() : result.getError(), 4000));
+                                data.put("latencyMs", result.getLatencyMs());
+                                sendEvent(emitter, "tool-end", data);
+                            }
+
+                            @Override
+                            public boolean confirmTool(String callId, String toolName, String argsJson,
+                                                       ToolPermission permission) {
+                                return awaitToolConfirm(emitter, confirmKeys, callId, toolName, argsJson, permission);
+                            }
+                        });
+
+                long latency = System.currentTimeMillis() - startMs;
+                updateSessionStats(finalSessionId, truncate(reply, 200));
+
+                AgentCallLog callLog = new AgentCallLog();
+                callLog.setUserId(userId);
+                callLog.setConfigId(configId);
+                callLog.setProvider(provider);
+                callLog.setSessionId(finalSessionId);
+                callLog.setSuccess(1);
+                callLog.setLatencyMs((int) latency);
+                callLog.setTokenIn(estimateTokens(userContent));
+                callLog.setTokenOut(estimateTokens(reply));
+                agentCallLogMapper.insert(callLog);
+
+                Map<String, Object> done = new HashMap<>();
+                done.put("content", reply);
+                done.put("sessionId", finalSessionId);
+                sendEvent(emitter, "done", done);
+            } catch (Exception e) {
+                log.error("Agent 工具流式对话异常: userId={}, err={}", userId, e.getMessage(), e);
+                sendEvent(emitter, "error", Map.of("error", "对话失败：" + e.getMessage()));
+            } finally {
+                confirmKeys.forEach(pendingConfirms::remove);
+                complete(emitter);
+            }
+        });
+
+        emitter.onTimeout(() -> {
+            confirmKeys.forEach(pendingConfirms::remove);
+            complete(emitter);
+        });
+        emitter.onError(t -> {
+            confirmKeys.forEach(pendingConfirms::remove);
+            complete(emitter);
+        });
+        return emitter;
+    }
+
+    /**
+     * 推送 tool-confirm 事件并阻塞等待前端确认。
+     *
+     * @return true 表示用户允许执行；超时或异常一律视为拒绝
+     */
+    private boolean awaitToolConfirm(SseEmitter emitter, List<String> confirmKeys, String callId,
+                                     String toolName, String argsJson, ToolPermission permission) {
+        SynchronousQueue<Boolean> queue = new SynchronousQueue<>();
+        pendingConfirms.put(callId, queue);
+        confirmKeys.add(callId);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("callId", callId);
+        data.put("tool", toolName);
+        data.put("args", argsJson);
+        data.put("permission", permission.name());
+        data.put("timeoutSeconds", TOOL_CONFIRM_TIMEOUT_SECONDS);
+        sendEvent(emitter, "tool-confirm", data);
+
+        try {
+            Boolean approved = queue.poll(TOOL_CONFIRM_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            return Boolean.TRUE.equals(approved);
+        } catch (InterruptedException e) {
+            // 恢复中断标记，交由上层结束流程
+            Thread.currentThread().interrupt();
+            return false;
+        } finally {
+            pendingConfirms.remove(callId);
+        }
+    }
+
+    /**
+     * 高危工具二次确认回调（P4）：前端收到 tool-confirm 事件后调用本接口放行或拒绝。
+     */
+    @Operation(summary = "确认/拒绝高危工具调用")
+    @PostMapping("/tool-confirm")
+    public Result<Void> toolConfirm(@RequestBody Map<String, Object> body) {
+        String callId = body.get("callId") != null ? body.get("callId").toString() : null;
+        boolean approved = Boolean.parseBoolean(String.valueOf(body.get("approved")));
+        if (callId == null || callId.isBlank()) {
+            throw new BusinessException("callId 不能为空");
+        }
+        SynchronousQueue<Boolean> queue = pendingConfirms.get(callId);
+        if (queue == null) {
+            throw new BusinessException("该工具调用已超时或不存在");
+        }
+        // offer 而非 put：即便等待线程已退出也不会阻塞当前请求
+        boolean delivered = queue.offer(approved);
+        if (!delivered) {
+            throw new BusinessException("确认失败，请求已结束");
+        }
+        return Result.success(null);
+    }
+
     // ==================== 会话管理 ====================
 
-    @Operation(summary = "列出当前用户的会话")
+    @Operation(summary = "列出当前用户的会话（全量，兼容旧前端）")
     @GetMapping("/sessions")
     public Result<List<AgentSessionVO>> listSessions() {
         Long userId = SecurityUtils.getCurrentUserId();
@@ -319,27 +546,51 @@ public class CodeAgentController {
                 new LambdaQueryWrapper<AgentSession>()
                         .eq(AgentSession::getUserId, userId)
                         .orderByDesc(AgentSession::getUpdateTime));
-        List<AgentSessionVO> voList = sessions.stream().map(s -> {
-            AgentSessionVO vo = new AgentSessionVO();
-            vo.setId(s.getId());
-            vo.setUserId(s.getUserId());
-            vo.setTitle(s.getTitle());
-            vo.setConfigId(s.getConfigId());
-            vo.setProjectDir(s.getProjectDir());
-            vo.setMessageCount(s.getMessageCount());
-            vo.setLastMessage(s.getLastMessage());
-            vo.setCreateTime(s.getCreateTime());
-            vo.setUpdateTime(s.getUpdateTime());
-            // 回填模型显示名
-            if (s.getConfigId() != null) {
-                UserAiConfig cfg = userAiConfigMapper.selectById(s.getConfigId());
-                if (cfg != null) {
-                    vo.setConfigLabel(cfg.getDisplayName() != null ? cfg.getDisplayName() : cfg.getProvider());
-                }
+        return Result.success(sessions.stream().map(this::toSessionVO).collect(Collectors.toList()));
+    }
+
+    /**
+     * 会话分页列表（P3）：支持标题关键字过滤，供前端侧边栏「加载更多」。
+     */
+    @Operation(summary = "分页列出会话")
+    @GetMapping("/sessions/page")
+    public Result<IPage<AgentSessionVO>> pageSessions(
+            @RequestParam(defaultValue = "1") long current,
+            @RequestParam(defaultValue = "20") long size,
+            @RequestParam(required = false) String keyword) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        LambdaQueryWrapper<AgentSession> wrapper = new LambdaQueryWrapper<AgentSession>()
+                .eq(AgentSession::getUserId, userId)
+                .orderByDesc(AgentSession::getUpdateTime);
+        if (keyword != null && !keyword.isBlank()) {
+            wrapper.like(AgentSession::getTitle, keyword.trim());
+        }
+        Page<AgentSession> page = agentSessionMapper.selectPage(
+                new Page<>(current, Math.min(size, MAX_PAGE_SIZE)), wrapper);
+        return Result.success(page.convert(this::toSessionVO));
+    }
+
+    /** 会话实体 → VO，并回填模型显示名。 */
+    private AgentSessionVO toSessionVO(AgentSession s) {
+        AgentSessionVO vo = new AgentSessionVO();
+        vo.setId(s.getId());
+        vo.setUserId(s.getUserId());
+        vo.setTitle(s.getTitle());
+        vo.setConfigId(s.getConfigId());
+        vo.setProjectDir(s.getProjectDir());
+        vo.setMessageCount(s.getMessageCount());
+        vo.setLastMessage(s.getLastMessage());
+        vo.setContextWindow(s.getContextWindow());
+        vo.setAgentMode(s.getAgentMode());
+        vo.setCreateTime(s.getCreateTime());
+        vo.setUpdateTime(s.getUpdateTime());
+        if (s.getConfigId() != null) {
+            UserAiConfig cfg = userAiConfigMapper.selectById(s.getConfigId());
+            if (cfg != null) {
+                vo.setConfigLabel(cfg.getDisplayName() != null ? cfg.getDisplayName() : cfg.getProvider());
             }
-            return vo;
-        }).collect(Collectors.toList());
-        return Result.success(voList);
+        }
+        return vo;
     }
 
     @Operation(summary = "创建会话")
@@ -371,20 +622,41 @@ public class CodeAgentController {
         return Result.success(vo);
     }
 
-    @Operation(summary = "重命名会话")
+    /**
+     * 更新会话配置（P3）：支持重命名，同时可调整模型、项目目录、上下文窗口与运行模式。
+     * 仅更新请求体中出现的字段，未出现的保持原值。
+     */
+    @Operation(summary = "更新会话（重命名 / 模型 / 上下文窗口 / 模式）")
     @PutMapping("/sessions/{id}")
-    public Result<Void> renameSession(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    public Result<AgentSessionVO> updateSession(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         Long userId = SecurityUtils.getCurrentUserId();
         AgentSession session = agentSessionMapper.selectById(id);
         if (session == null || !session.getUserId().equals(userId)) {
-            return Result.error("会话不存在或无权访问");
+            throw new BusinessException("会话不存在或无权访问");
         }
-        String title = body.get("title");
-        if (title != null && !title.isBlank()) {
-            session.setTitle(title);
-            agentSessionMapper.updateById(session);
+        Object title = body.get("title");
+        if (title != null && !title.toString().isBlank()) {
+            session.setTitle(truncate(title.toString(), 100));
         }
-        return Result.success(null);
+        if (body.containsKey("configId")) {
+            Object cfg = body.get("configId");
+            session.setConfigId(cfg != null ? Long.valueOf(cfg.toString()) : null);
+        }
+        if (body.containsKey("projectDir")) {
+            Object dir = body.get("projectDir");
+            session.setProjectDir(dir != null ? dir.toString() : null);
+        }
+        if (body.get("contextWindow") != null) {
+            int cw = Integer.parseInt(body.get("contextWindow").toString());
+            // 约束在合理区间，避免上下文过短导致对话不连贯或过长击穿模型上限
+            session.setContextWindow(Math.max(MIN_CONTEXT_WINDOW, Math.min(MAX_CONTEXT_WINDOW, cw)));
+        }
+        Object mode = body.get("agentMode");
+        if (mode != null && ("chat".equals(mode.toString()) || "agent".equals(mode.toString()))) {
+            session.setAgentMode(mode.toString());
+        }
+        agentSessionMapper.updateById(session);
+        return Result.success(toSessionVO(agentSessionMapper.selectById(id)));
     }
 
     @Operation(summary = "删除会话（逻辑删除，连同消息一并标记）")
@@ -402,33 +674,86 @@ public class CodeAgentController {
         return Result.success(null);
     }
 
-    @Operation(summary = "获取会话的历史消息")
+    @Operation(summary = "获取会话的历史消息（全量，兼容旧前端）")
     @GetMapping("/sessions/{id}/messages")
     public Result<List<AgentMessageVO>> getMessages(@PathVariable Long id) {
         Long userId = SecurityUtils.getCurrentUserId();
-        // 校验会话归属
-        AgentSession session = agentSessionMapper.selectById(id);
-        if (session == null || !session.getUserId().equals(userId)) {
-            return Result.error("会话不存在或无权访问");
-        }
+        requireOwnedSession(id, userId);
         List<AgentMessage> msgs = agentMessageMapper.selectList(
                 new LambdaQueryWrapper<AgentMessage>()
                         .eq(AgentMessage::getSessionId, id)
                         .orderByAsc(AgentMessage::getCreateTime));
-        List<AgentMessageVO> voList = msgs.stream().map(m -> {
-            AgentMessageVO vo = new AgentMessageVO();
-            vo.setId(m.getId());
-            vo.setSessionId(m.getSessionId());
-            vo.setRole(m.getRole());
-            vo.setContent(m.getContent());
-            vo.setFilePath(m.getFilePath());
-            vo.setTokenCount(m.getTokenCount());
-            vo.setLatencyMs(m.getLatencyMs());
-            vo.setIsError(m.getIsError());
-            vo.setCreateTime(m.getCreateTime());
-            return vo;
-        }).collect(Collectors.toList());
-        return Result.success(voList);
+        return Result.success(msgs.stream().map(this::toMessageVO).collect(Collectors.toList()));
+    }
+
+    /**
+     * 会话消息分页（P2/P3）：按 ID 倒序分页，返回时再翻转为时间正序，
+     * 便于前端「向上滚动加载更早消息」。第 1 页即最新消息。
+     *
+     * @param beforeId 可选游标，仅返回 ID 小于该值的消息（比 offset 分页更稳定）
+     */
+    @Operation(summary = "分页获取会话历史消息")
+    @GetMapping("/sessions/{id}/messages/page")
+    public Result<Map<String, Object>> pageMessages(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "30") long size,
+            @RequestParam(required = false) Long beforeId) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        requireOwnedSession(id, userId);
+
+        long limit = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
+        LambdaQueryWrapper<AgentMessage> wrapper = new LambdaQueryWrapper<AgentMessage>()
+                .eq(AgentMessage::getSessionId, id)
+                .orderByDesc(AgentMessage::getId)
+                // 多取一条用于判断是否还有更早的消息
+                .last("LIMIT " + (limit + 1));
+        if (beforeId != null) {
+            wrapper.lt(AgentMessage::getId, beforeId);
+        }
+        List<AgentMessage> rows = agentMessageMapper.selectList(wrapper);
+
+        boolean hasMore = rows.size() > limit;
+        if (hasMore) {
+            rows = rows.subList(0, (int) limit);
+        }
+        List<AgentMessageVO> voList = new ArrayList<>(rows.size());
+        for (int i = rows.size() - 1; i >= 0; i--) {
+            voList.add(toMessageVO(rows.get(i)));
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("records", voList);
+        data.put("hasMore", hasMore);
+        // 下一页游标：当前页最早一条消息的 ID
+        data.put("nextCursor", voList.isEmpty() ? null : voList.get(0).getId());
+        return Result.success(data);
+    }
+
+    /** 消息实体 → VO。 */
+    private AgentMessageVO toMessageVO(AgentMessage m) {
+        AgentMessageVO vo = new AgentMessageVO();
+        vo.setId(m.getId());
+        vo.setSessionId(m.getSessionId());
+        vo.setRole(m.getRole());
+        vo.setContent(m.getContent());
+        vo.setFilePath(m.getFilePath());
+        vo.setMessageType(m.getMessageType());
+        vo.setToolCallId(m.getToolCallId());
+        vo.setToolName(m.getToolName());
+        vo.setTokenCount(m.getTokenCount());
+        vo.setLatencyMs(m.getLatencyMs());
+        vo.setIsError(m.getIsError());
+        vo.setCreateTime(m.getCreateTime());
+        return vo;
+    }
+
+    /** 校验会话存在且属于当前用户，否则抛出统一业务异常。 */
+    private AgentSession requireOwnedSession(Long sessionId, Long userId) {
+        AgentSession session = agentSessionMapper.selectById(sessionId);
+        if (session == null || !session.getUserId().equals(userId)) {
+            throw new BusinessException("会话不存在或无权访问");
+        }
+        return session;
     }
 
     // ==================== 模型监测 ====================

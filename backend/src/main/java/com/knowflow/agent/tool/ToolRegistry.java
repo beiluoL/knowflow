@@ -63,6 +63,12 @@ public class ToolRegistry {
         return result;
     }
 
+    /** 查询工具的权限等级；工具不存在时按 DANGEROUS 处理（保守策略）。 */
+    public ToolPermission permissionOf(String toolName) {
+        AgentTool tool = index().get(toolName);
+        return tool != null ? tool.permission() : ToolPermission.DANGEROUS;
+    }
+
     /** 判断某工具对用户是否可用（启用且授权）。 */
     public boolean isEnabled(AgentTool tool, Long userId) {
         AgentToolConfig cfg = findConfig(tool.name(), userId);
