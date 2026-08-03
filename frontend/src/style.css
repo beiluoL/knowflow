@@ -288,6 +288,15 @@
   background:
     linear-gradient(180deg, var(--kb-card) 0%, var(--kb-background) 320px);
 }
+
+/* 全局背景激活时：布局容器透明，让 z-index:-1 的背景层可见 */
+html.has-global-bg body {
+  background-color: transparent;
+  background-image: none;
+}
+html.has-global-bg .kb-region-content {
+  background: transparent;
+}
 :root[data-theme='dark'] .kb-region-accent {
   background:
     radial-gradient(120% 80% at 0% 0%, rgba(79, 134, 249, 0.12) 0%, transparent 60%),

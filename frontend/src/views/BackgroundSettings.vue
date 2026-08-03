@@ -168,7 +168,7 @@
           <h3 class="card-title">预设主题</h3>
           <div class="preset-grid">
             <button
-              v-for="preset in bg.presets"
+              v-for="preset in bg.allPresets"
               :key="preset.id"
               type="button"
               class="preset-card"
@@ -177,7 +177,61 @@
             >
               <div class="preset-thumb" :style="{ background: preset.thumbnail }"></div>
               <span class="preset-name">{{ preset.name }}</span>
+              <span
+                v-if="preset.id.startsWith('custom-')"
+                class="preset-badge"
+              >自定义</span>
             </button>
+          </div>
+        </section>
+
+        <!-- 自定义预设管理 -->
+        <section class="settings-card">
+          <div class="custom-preset-header">
+            <h3 class="card-title">我的预设库</h3>
+            <button
+              v-if="bg.isActive && (bg.type === 'color' || bg.type === 'gradient' || bg.type === 'preset')"
+              type="button"
+              class="save-preset-btn"
+              @click="showSaveDialog = true"
+            >
+              <Icon name="bookmark-plus" :size="15" />
+              <span>保存当前配置</span>
+            </button>
+          </div>
+
+          <!-- 加载中 -->
+          <div v-if="bg.userPresetsLoading" class="custom-preset-empty">
+            <Icon name="loader" :size="24" class="spin-icon" />
+            <span>加载中...</span>
+          </div>
+
+          <!-- 空状态 -->
+          <div v-else-if="bg.userPresets.length === 0" class="custom-preset-empty">
+            <Icon name="bookmark" :size="28" class="empty-icon" />
+            <p>还没有自定义预设</p>
+            <p class="empty-hint">配置纯色/渐变/预设后，点击「保存当前配置」即可收藏</p>
+          </div>
+
+          <!-- 预设列表 -->
+          <div v-else class="custom-preset-list">
+            <div
+              v-for="preset in bg.userPresets"
+              :key="preset.id"
+              class="custom-preset-item"
+            >
+              <div class="custom-preset-thumb" :style="{ background: preset.thumbnail }"></div>
+              <div class="custom-preset-info">
+                <span class="custom-preset-name">{{ preset.name }}</span>
+                <span class="custom-preset-type">{{ preset.bgType }}</span>
+              </div>
+              <div class="custom-preset-actions">
+                <button type="button" class="apply-btn" @click="bg.applyUserPreset(preset)">应用</button>
+                <button type="button" class="delete-btn" @click="handleDeletePreset(preset.id, preset.name)">
+                  <Icon name="trash-2" :size="14" />
+                </button>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -246,11 +300,33 @@
         </section>
       </div>
     </div>
+
+    <!-- 保存预设弹窗 -->
+    <div v-if="showSaveDialog" class="save-dialog-mask" @click.self="showSaveDialog = false">
+      <div class="save-dialog">
+        <h4 class="save-dialog-title">保存为自定义预设</h4>
+        <input
+          ref="presetNameInput"
+          v-model="presetName"
+          type="text"
+          class="save-dialog-input"
+          placeholder="输入预设名称（如：我的深海蓝）"
+          maxlength="20"
+          @keyup.enter="handleSavePreset"
+        />
+        <div class="save-dialog-actions">
+          <button type="button" class="cancel-btn" @click="showSaveDialog = false">取消</button>
+          <button type="button" class="confirm-btn" :disabled="!presetName.trim() || saving" @click="handleSavePreset">
+            {{ saving ? '保存中...' : '保存' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import Icon from '@/components/ui/Icon.vue'
 import { useBackgroundStore } from '@/stores/background'
@@ -261,6 +337,12 @@ const bg = useBackgroundStore()
 const imageInput = ref<HTMLInputElement | null>(null)
 const videoInput = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
+
+// 自定义预设相关状态
+const showSaveDialog = ref(false)
+const presetName = ref('')
+const saving = ref(false)
+const presetNameInput = ref<HTMLInputElement | null>(null)
 
 const typeOptions = [
   { value: 'none' as const, label: '无背景', icon: 'ban' },
@@ -392,6 +474,78 @@ async function handleClear() {
   bg.clearBackground()
   notify('背景已清除', 'success')
 }
+
+// 构建当前背景配置的缩略图 CSS
+function buildThumbnail(): string {
+  switch (bg.type) {
+    case 'color':
+      return bg.color
+    case 'gradient':
+      return `linear-gradient(${bg.gradient.angle}deg, ${bg.gradient.from}, ${bg.gradient.to})`
+    case 'preset':
+      return bg.currentPreset?.thumbnail || ''
+    default:
+      return ''
+  }
+}
+
+// 构建当前背景配置的值
+function buildBgValue(): string {
+  switch (bg.type) {
+    case 'color':
+      return bg.color
+    case 'gradient':
+      return `linear-gradient(${bg.gradient.angle}deg, ${bg.gradient.from}, ${bg.gradient.to})`
+    case 'preset':
+      return bg.currentPreset?.value || ''
+    default:
+      return ''
+  }
+}
+
+async function handleSavePreset() {
+  const name = presetName.value.trim()
+  if (!name) return
+  saving.value = true
+  try {
+    await bg.saveUserPreset({
+      name,
+      bgType: bg.type === 'preset' ? (bg.currentPreset?.type || 'gradient') : bg.type,
+      bgValue: buildBgValue(),
+      thumbnail: buildThumbnail(),
+    })
+    notify('预设已保存', 'success')
+    showSaveDialog.value = false
+    presetName.value = ''
+  } catch (e: unknown) {
+    notify('保存失败：' + (e as Error).message, 'error')
+  } finally {
+    saving.value = false
+  }
+}
+
+async function handleDeletePreset(id: number, name: string) {
+  const ok = await confirmDialog(`确定删除预设「${name}」吗？`)
+  if (!ok) return
+  try {
+    await bg.removeUserPreset(id)
+    notify('预设已删除', 'success')
+  } catch (e: unknown) {
+    notify('删除失败：' + (e as Error).message, 'error')
+  }
+}
+
+onMounted(() => {
+  bg.loadUserPresets()
+})
+
+// 弹窗打开时自动聚焦输入框
+import { watch as vueWatch } from 'vue'
+vueWatch(showSaveDialog, (val) => {
+  if (val) {
+    nextTick(() => presetNameInput.value?.focus())
+  }
+})
 </script>
 
 <style scoped>
@@ -840,5 +994,233 @@ async function handleClear() {
   font-size: 13px;
   font-weight: 500;
   color: var(--kb-foreground);
+}
+
+/* 自定义预设管理 */
+.custom-preset-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.custom-preset-header .card-title {
+  margin-bottom: 0;
+}
+.save-preset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kb-primary);
+  background: rgba(59, 111, 224, 0.06);
+  color: var(--kb-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.save-preset-btn:hover {
+  background: rgba(59, 111, 224, 0.12);
+}
+.preset-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(59, 111, 224, 0.1);
+  color: var(--kb-primary);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.custom-preset-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 0;
+  color: var(--kb-muted-foreground);
+  font-size: 13px;
+}
+.empty-icon, .spin-icon {
+  opacity: 0.4;
+}
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.empty-hint {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.custom-preset-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.custom-preset-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-background);
+  transition: border-color 0.15s ease;
+}
+.custom-preset-item:hover {
+  border-color: var(--kb-primary);
+}
+.custom-preset-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  border: 1px solid var(--kb-border);
+}
+.custom-preset-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.custom-preset-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--kb-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.custom-preset-type {
+  font-size: 11px;
+  color: var(--kb-muted-foreground);
+  text-transform: uppercase;
+}
+.custom-preset-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.apply-btn {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--kb-primary);
+  background: rgba(59, 111, 224, 0.06);
+  color: var(--kb-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.apply-btn:hover {
+  background: rgba(59, 111, 224, 0.12);
+}
+.delete-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-background);
+  color: var(--kb-muted-foreground);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.delete-btn:hover {
+  border-color: var(--kb-destructive);
+  color: var(--kb-destructive);
+}
+
+/* 保存预设弹窗 */
+.save-dialog-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+.save-dialog {
+  background: var(--kb-card);
+  border-radius: 14px;
+  padding: 24px;
+  width: 360px;
+  max-width: 90vw;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  animation: scaleIn 0.2s ease;
+}
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.save-dialog-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--kb-foreground);
+  margin-bottom: 16px;
+}
+.save-dialog-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  font-size: 14px;
+  border: 1px solid var(--kb-border);
+  border-radius: 8px;
+  background: var(--kb-background);
+  color: var(--kb-foreground);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.save-dialog-input:focus {
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+}
+.save-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+.cancel-btn {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-background);
+  color: var(--kb-foreground);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.cancel-btn:hover {
+  background: var(--kb-muted);
+}
+.confirm-btn {
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  background: var(--kb-primary);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.confirm-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+.confirm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>

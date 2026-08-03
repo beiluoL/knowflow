@@ -1,7 +1,7 @@
 <template>
   <header
     class="h-14 shrink-0 flex items-center justify-between px-4 sm:px-6 border-b"
-    style="background: var(--kb-card); border-color: var(--kb-border);"
+    :style="topbarStyle"
   >
     <!-- Left: mobile toggle + search -->
     <div class="flex items-center gap-3 flex-1 min-w-0 max-w-md">
@@ -115,11 +115,27 @@ import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useNotificationStore } from '@/stores/notification';
+import { useBackgroundStore } from '@/stores/background';
 import { notify } from '@/utils/toast';
 
 defineEmits<{
   'toggle-sidebar': [];
 }>();
+
+const bgStore = useBackgroundStore();
+
+// 背景激活时顶栏切换为毛玻璃效果
+const topbarStyle = computed(() => {
+  if (bgStore.isActive) {
+    return {
+      background: 'rgba(255, 255, 255, 0.72)',
+      borderColor: 'rgba(255, 255, 255, 0.3)',
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
+    }
+  }
+  return { background: 'var(--kb-card)', borderColor: 'var(--kb-border)' }
+})
 
 const router = useRouter();
 const auth = useAuthStore();

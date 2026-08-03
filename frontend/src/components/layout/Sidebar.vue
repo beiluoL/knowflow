@@ -12,7 +12,7 @@
       mobileOpen ? 'translate-x-0' : '-translate-x-full',
       collapsed ? 'w-[64px]' : 'w-60',
     ]"
-    style="background: var(--kb-sidebar); border-right: 1px solid var(--kb-border);"
+    :style="sidebarStyle"
   >
     <!-- Logo -->
     <div
@@ -105,11 +105,27 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
 import { useAuthStore } from '@/stores/auth';
+import { useBackgroundStore } from '@/stores/background';
 
 defineProps<{
   mobileOpen: boolean;
   collapsed: boolean;
 }>();
+
+const bgStore = useBackgroundStore();
+
+// 背景激活时侧边栏切换为毛玻璃效果
+const sidebarStyle = computed(() => {
+  if (bgStore.isActive) {
+    return {
+      background: 'rgba(255, 255, 255, 0.78)',
+      borderRight: '1px solid rgba(255, 255, 255, 0.3)',
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
+    }
+  }
+  return { background: 'var(--kb-sidebar)', borderRight: '1px solid var(--kb-border)' }
+})
 
 defineEmits<{
   close: [];

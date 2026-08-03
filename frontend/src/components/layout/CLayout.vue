@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen" style="background: var(--kb-background);">
+  <div class="min-h-screen" :style="rootStyle">
     <CTopNav />
     <main class="pt-14 kb-region-content">
       <!-- 全屏页（笔记/写作/代码/聊天/仪表盘等）：取消 max-w-7xl 居中限制，由业务页自管宽度 -->
@@ -17,8 +17,16 @@
 <script setup lang="ts">
 // 布局组件：前台基础布局，组合顶部导航与内容区。
 // 路由 meta.fullscreen = true 时取消 max-w-7xl 居中限制，由业务页自管宽度。
+// 全局背景激活时根容器透明，让 z-index:-1 的背景层可见。
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import CTopNav from './CTopNav.vue';
+import { useBackgroundStore } from '@/stores/background';
 
 const route = useRoute();
+const bg = useBackgroundStore();
+
+const rootStyle = computed(() => ({
+  background: bg.isActive ? 'transparent' : 'var(--kb-background)',
+}));
 </script>

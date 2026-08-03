@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen overflow-hidden flex" style="background: var(--kb-background);">
+  <div class="h-screen overflow-hidden flex" :style="rootStyle">
     <Sidebar
       :mobile-open="sidebarOpen"
       :collapsed="sidebarCollapsed"
@@ -32,14 +32,21 @@
 
 <script setup lang="ts">
 // 布局组件：应用外壳布局，组合侧边栏与后台顶栏，提供主内容区插槽并持久化侧栏折叠状态。
+// 全局背景激活时根容器透明，让 z-index:-1 的背景层可见。
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import Sidebar from './Sidebar.vue';
 import BTopbar from './BTopbar.vue';
+import { useBackgroundStore } from '@/stores/background';
 
 const route = useRoute();
+const bg = useBackgroundStore();
 const sidebarOpen = ref(false);
 const sidebarCollapsed = ref(false);
+
+const rootStyle = computed(() => ({
+  background: bg.isActive ? 'transparent' : 'var(--kb-background)',
+}));
 
 /** fullscreen 模式：路由 meta.fullscreen 为 true 时，main 移除 padding 和 max-width */
 const isFullscreen = computed(() => route.meta.fullscreen === true);

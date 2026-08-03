@@ -20,7 +20,7 @@ const routes: RouteRecordRaw[] = [
     path: '/login',
     name: 'Login',
     component: () => import('@/views/Login.vue'),
-    meta: { layout: 'none' },
+    meta: { layout: 'none', backgroundOverride: 'none' },
   },
   {
     path: '/register',
@@ -30,7 +30,7 @@ const routes: RouteRecordRaw[] = [
     path: '/redirect',
     name: 'Redirect',
     component: () => import('@/views/Redirect.vue'),
-    meta: { layout: 'none' },
+    meta: { layout: 'none', backgroundOverride: 'none' },
   },
   // 第三方 OAuth 登录回调中转页：后端 /api/auth/oauth/{provider}/callback 完成后
   // 带 ?token=xxx 或 ?error=xxx 重定向到此页，前端写入会话后跳回首页
@@ -38,7 +38,7 @@ const routes: RouteRecordRaw[] = [
     path: '/oauth/callback',
     name: 'OAuthCallback',
     component: () => import('@/views/OAuthCallback.vue'),
-    meta: { layout: 'none' },
+    meta: { layout: 'none', backgroundOverride: 'none' },
   },
 
   // ===== C 端：发现与浏览 =====
@@ -70,7 +70,7 @@ const routes: RouteRecordRaw[] = [
     path: '/knowledge/reader',
     name: 'LocalReader',
     component: () => import('@/views/LocalReader.vue'),
-    meta: { layout: 'none', requiresAuth: true },
+    meta: { layout: 'none', requiresAuth: true, backgroundOverride: 'none' },
   },
   {
     path: '/knowledge/new',
@@ -162,7 +162,7 @@ const routes: RouteRecordRaw[] = [
     path: '/learning/code-practice/:id',
     name: 'CodePlayground',
     component: () => import('@/views/CodePlayground.vue'),
-    meta: { layout: 'none', requiresAuth: true },
+    meta: { layout: 'none', requiresAuth: true, backgroundOverride: 'none' },
   },
   {
     path: '/challenge',
@@ -210,14 +210,14 @@ const routes: RouteRecordRaw[] = [
     path: '/learning/mode',
     name: 'LearningMode',
     component: () => import('@/views/LearningMode.vue'),
-    meta: { layout: 'none', requiresAuth: true },
+    meta: { layout: 'none', requiresAuth: true, backgroundOverride: 'none' },
   },
   // P7 沉浸工作台：5 种专注模式 + 个性化 + 洞察
   {
     path: '/learning/focus',
     name: 'FocusMode',
     component: () => import('@/views/FocusMode.vue'),
-    meta: { layout: 'none', requiresAuth: true },
+    meta: { layout: 'none', requiresAuth: true, backgroundOverride: 'none' },
   },
   // 学习报告独立页面
   {
@@ -478,7 +478,7 @@ const routes: RouteRecordRaw[] = [
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/views/NotFound.vue'),
-    meta: { layout: 'none' },
+    meta: { layout: 'none', backgroundOverride: 'none' },
   },
 ];
 

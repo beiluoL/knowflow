@@ -1,7 +1,7 @@
 <template>
   <header
     class="fixed top-0 left-0 right-0 z-50 h-14 flex items-center px-4 sm:px-6 border-b"
-    style="background: var(--kb-card); border-color: var(--kb-border);"
+    :style="navStyle"
   >
     <!-- Left: Logo -->
     <router-link
@@ -498,12 +498,27 @@ import Icon from '@/components/ui/Icon.vue';
 import PomodoroFloating from '@/components/ui/PomodoroFloating.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useNotificationStore } from '@/stores/notification';
+import { useBackgroundStore } from '@/stores/background';
 import { notify } from '@/utils/toast';
 
 const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
 const notificationStore = useNotificationStore();
+const bgStore = useBackgroundStore();
+
+// 背景激活时顶栏切换为毛玻璃效果
+const navStyle = computed(() => {
+  if (bgStore.isActive) {
+    return {
+      background: 'rgba(255, 255, 255, 0.72)',
+      borderColor: 'rgba(255, 255, 255, 0.3)',
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
+    }
+  }
+  return { background: 'var(--kb-card)', borderColor: 'var(--kb-border)' }
+})
 
 const openDropdown = ref('');
 const showNotifications = ref(false);

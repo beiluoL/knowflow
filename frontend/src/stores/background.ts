@@ -1,6 +1,7 @@
 // 全局背景设置 Store：管理背景类型、图片/视频数据、颜色、渐变、预设、透明度等，持久化到 localStorage
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
+import { listPresets, savePreset, deletePreset, type UserBackgroundPresetVO, type PresetSaveDTO } from '@/api/backgroundPreset'
 
 export type BackgroundType = 'none' | 'image' | 'video' | 'color' | 'gradient' | 'preset'
 export type SizeMode = 'cover' | 'contain' | 'repeat' | 'center'
@@ -29,6 +30,21 @@ export interface BackgroundState {
   opacity: number
   blur: number
   sizeMode: SizeMode
+}
+
+/**
+ * 页面级背景覆盖：路由 meta.backgroundOverride 使用此类型。
+ * - 'none' 表示该页面强制关闭背景
+ * - 对象形式可部分覆盖全局设置的任意字段
+ */
+export type BackgroundOverride = 'none' | {
+  type?: BackgroundType
+  color?: string
+  gradient?: Partial<GradientConfig>
+  presetId?: string
+  opacity?: number
+  blur?: number
+  sizeMode?: SizeMode
 }
 
 const STORAGE_KEY = 'knowflow_background'
@@ -81,7 +97,23 @@ export const useBackgroundStore = defineStore('background', () => {
 
   const presets = PRESET_THEMES
 
-  const currentPreset = computed(() => presets.find((p) => p.id === presetId.value) || null)
+  // 用户自定义预设（从后端加载）
+  const userPresets = ref<UserBackgroundPresetVO[]>([])
+  const userPresetsLoading = ref(false)
+
+  // 合并内置预设和用户自定义预设
+  const allPresets = computed<PresetTheme[]>(() => {
+    const custom: PresetTheme[] = userPresets.value.map((p) => ({
+      id: `custom-${p.id}`,
+      name: p.name,
+      type: p.bgType as 'gradient' | 'color',
+      value: p.bgValue,
+      thumbnail: p.thumbnail,
+    }))
+    return [...PRESET_THEMES, ...custom]
+  })
+
+  const currentPreset = computed(() => allPresets.value.find((p) => p.id === presetId.value) || null)
 
   const isActive = computed(() => type.value !== 'none')
 
@@ -154,6 +186,45 @@ export const useBackgroundStore = defineStore('background', () => {
     videoData.value = ''
   }
 
+  // ===== 用户自定义预设管理 =====
+
+  /** 从后端加载用户自定义预设 */
+  async function loadUserPresets() {
+    userPresetsLoading.value = true
+    try {
+      userPresets.value = await listPresets()
+    } catch {
+      // 静默失败，不影响基本使用
+    } finally {
+      userPresetsLoading.value = false
+    }
+  }
+
+  /** 保存当前配置为自定义预设 */
+  async function saveUserPreset(dto: PresetSaveDTO) {
+    const saved = await savePreset(dto)
+    // 更新本地列表（同名替换）
+    const idx = userPresets.value.findIndex((p) => p.name === dto.name)
+    if (idx >= 0) {
+      userPresets.value[idx] = saved
+    } else {
+      userPresets.value.unshift(saved)
+    }
+    return saved
+  }
+
+  /** 删除自定义预设 */
+  async function removeUserPreset(id: number) {
+    await deletePreset(id)
+    userPresets.value = userPresets.value.filter((p) => p.id !== id)
+  }
+
+  /** 应用自定义预设 */
+  function applyUserPreset(preset: UserBackgroundPresetVO) {
+    presetId.value = `custom-${preset.id}`
+    type.value = 'preset'
+  }
+
   // 持久化（排除大体积的 media 数据时单独处理）
   function persist() {
     const state: BackgroundState = {
@@ -193,6 +264,9 @@ export const useBackgroundStore = defineStore('background', () => {
     blur,
     sizeMode,
     presets,
+    allPresets,
+    userPresets,
+    userPresetsLoading,
     currentPreset,
     isActive,
     backgroundStyle,
@@ -207,5 +281,9 @@ export const useBackgroundStore = defineStore('background', () => {
     setSizeMode,
     clearBackground,
     clearMedia,
+    loadUserPresets,
+    saveUserPreset,
+    removeUserPreset,
+    applyUserPreset,
   }
 })

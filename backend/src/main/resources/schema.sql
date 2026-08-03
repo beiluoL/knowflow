@@ -915,3 +915,17 @@ CREATE TABLE IF NOT EXISTS focus_session (
   deleted INT DEFAULT 0,
   KEY idx_user_time (user_id, start_time)
 );
+
+-- 用户自定义背景预设
+CREATE TABLE IF NOT EXISTS user_background_preset (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  user_id BIGINT NOT NULL,
+  name VARCHAR(50) NOT NULL,
+  bg_type VARCHAR(20) NOT NULL,
+  bg_value VARCHAR(1000),
+  thumbnail VARCHAR(500),
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted INT DEFAULT 0,
+  UNIQUE KEY uk_ubp_user_name (user_id, name)
+);
