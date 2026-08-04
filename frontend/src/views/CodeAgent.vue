@@ -966,6 +966,8 @@ async function runCodeGeneration(text: string, intent?: AgentIntentResult) {
 
     // 步骤一·五：显式澄清（P2）—— 若后端要求澄清，先标记待确认，不盲目执行落盘
     if (intent?.needsClarify && intent.clarifications?.length) {
+      selectedClarifyOptions.value = {}
+      clarifyText.value = ''
       pendingClarify.value = { base: intent, questions: intent.clarifications }
     }
 
@@ -1346,21 +1348,52 @@ const lastIntent = ref<AgentIntentResult | null>(null)
 /** 澄清卡片中的自由输入文本 */
 const clarifyText = ref('')
 
-async function confirmClarify(choiceText: string) {
+/** 用户在澄清卡片中按问题索引选中的选项（单选，仅记录选择，不触发提交；需点「确认」才执行） */
+const selectedClarifyOptions = ref<Record<number, string>>({})
+
+/** 点击澄清选项：仅选中该选项（同一问题内单选，自动取消同问题其它选项），不回填输入框 */
+function selectClarifyOption(qi: number, opt: string) {
+  selectedClarifyOptions.value = { ...selectedClarifyOptions.value, [qi]: opt }
+}
+
+/** 是否已作出有效选择（至少选中一个选项，或填写了自由文本） */
+function hasClarifyAnswer(): boolean {
+  const hasOption = Object.values(selectedClarifyOptions.value).some((v) => !!v)
+  return hasOption || !!clarifyText.value.trim()
+}
+
+/** 提交澄清：按问题聚合选中的选项（自由文本优先于选项），输出到对话中重新进入意图识别 */
+async function confirmClarify() {
   const pending = pendingClarify.value
-  pendingClarify.value = null
   if (!pending) return
-  // 把用户作答作为新输入，带上已识别的意图/参数回填，重新进入识别
-  const answeredText = choiceText.trim()
-  await routeByIntent(answeredText, { ...pending.base })
+  if (!hasClarifyAnswer()) return
+  // 构造「问题→答案」文本，便于后续识别链路理解用户意图；自由文本优先覆盖
+  const freeText = clarifyText.value.trim()
+  const answeredParts: string[] = []
+  pending.questions.forEach((q, qi) => {
+    const chosen = selectedClarifyOptions.value[qi]
+    const answer = freeText || chosen
+    if (answer) answeredParts.push(`${q.question}：${answer}`)
+  })
+  const answeredText = freeText || answeredParts.join('；')
+  pendingClarify.value = null
+  selectedClarifyOptions.value = {}
+  clarifyText.value = ''
+  // 关键：将 needsClarify 置为 false，避免 routeByIntent 再次展示澄清卡片导致死循环
+  const resolvedIntent = { ...pending.base, needsClarify: false }
+  await routeByIntent(answeredText, resolvedIntent)
 }
 
 async function skipClarify() {
   const pending = pendingClarify.value
   pendingClarify.value = null
+  selectedClarifyOptions.value = {}
+  clarifyText.value = ''
   if (!pending) return
   // 用户选择直接执行：沿用已识别意图（可能参数不完整，由后续歧义检测兜底）
-  await routeByIntent(pending.base.currentInput ?? '', { ...pending.base })
+  // 同样需要置 needsClarify=false 防止 routeByIntent 重新弹出澄清卡片
+  const resolvedIntent = { ...pending.base, needsClarify: false }
+  await routeByIntent(pending.base.currentInput ?? '', resolvedIntent)
 }
 
 /** 根据意图识别结果把用户输入路由到对应处理链路 */
@@ -1384,6 +1417,8 @@ async function routeByIntent(text: string, intent: AgentIntentResult) {
   // 落盘类高风险且仍需澄清：展示结构化澄清卡片，冻结后续输入
   if (intent.needsClarify && intent.clarifications && intent.clarifications.length > 0) {
     setStep('clarify', { status: 'active', detail: intent.clarifications.map((c) => c.question).join('；') })
+    selectedClarifyOptions.value = {}
+    clarifyText.value = ''
     pendingClarify.value = { base: intent, questions: intent.clarifications }
     return
   }
@@ -1688,7 +1723,7 @@ function onClarifyKeydown(e: KeyboardEvent) {
   if (e.isComposing || isComposing.value) return
   if (e.key === 'Enter') {
     e.preventDefault()
-    confirmClarify(clarifyText.value)
+    confirmClarify()
   }
 }
 
@@ -2548,7 +2583,8 @@ watch(activeTab, (tab) => {
                   v-for="opt in q.options"
                   :key="opt"
                   class="clarify-opt"
-                  @click="confirmClarify(opt)"
+                  :class="{ selected: selectedClarifyOptions[qi] === opt }"
+                  @click="selectClarifyOption(qi, opt)"
                 >
                   {{ opt }}
                 </button>
@@ -2563,7 +2599,7 @@ watch(activeTab, (tab) => {
                 @compositionstart="onInputCompositionStart"
                 @compositionend="onInputCompositionEnd"
               />
-              <Button size="sm" variant="primary" @click="confirmClarify(clarifyText)">确认</Button>
+              <Button size="sm" variant="primary" :disabled="!hasClarifyAnswer()" @click="confirmClarify()">确定</Button>
               <Button size="sm" variant="ghost" @click="skipClarify">直接执行</Button>
             </div>
           </div>
@@ -5560,6 +5596,11 @@ watch(activeTab, (tab) => {
 .clarify-opt:hover {
   border-color: var(--kb-primary);
   color: var(--kb-primary);
+}
+.clarify-opt.selected {
+  border-color: var(--kb-primary);
+  background: var(--kb-primary, #2563eb);
+  color: #fff;
 }
 .clarify-input-row {
   display: flex;
