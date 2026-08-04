@@ -67,6 +67,18 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'c', requiresAuth: true },
   },
   {
+    path: '/obsidian/import',
+    name: 'ObsidianImport',
+    component: () => import('@/views/ObsidianImport.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  {
+    path: '/import-templates',
+    name: 'ImportTemplates',
+    component: () => import('@/views/ImportTemplates.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  {
     path: '/knowledge/reader',
     name: 'LocalReader',
     component: () => import('@/views/LocalReader.vue'),
@@ -465,6 +477,12 @@ const routes: RouteRecordRaw[] = [
     path: '/admin/users',
     name: 'AdminUsers',
     component: () => import('@/views/admin/UserManagement.vue'),
+    meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/database',
+    name: 'AdminDatabase',
+    component: () => import('@/views/admin/DatabaseSettings.vue'),
     meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
   },
   {

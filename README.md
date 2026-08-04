@@ -9,6 +9,7 @@
 - **用户与鉴权**：注册 / 登录（JWT + 登出令牌黑名单）、GitHub/微信 OAuth 第三方登录、个人资料；成长体系含等级、经验、能量、连续打卡天数（均基于真实数据聚合）。
 - **文档与知识库**：文档浏览 / 详情 / 多级分类 / 全文搜索 / 上传；收藏与阅读进度（百分比 / 时长 / 上次阅读时间）；文档支持 **AI 生成摘要** 与 **AI 一键生成闪卡**（落库可复习）。
 - **知识库协作**：知识库支持 **OWNER / EDITOR / READER 三级成员权限**、搜索邀请已注册用户或邮箱邀请；支持批量导入文档（.zip/.md/.txt/.json）与导出知识库为 ZIP。
+- **Obsidian 目录一键导入（四合一）**：在「导入知识库」页点「目录一键四模块导入」，可输入本地目录绝对/相对路径或选择文件夹，系统自动扫描 Markdown 结构，按所选模块（知识库 / 学习路径 / 闪卡 / 题库，支持单选或全选）一键生成四个模块；自动将 Obsidian `![[图片]]` 引用重写为可渲染路径并迁移图片，确保课程章节中图片正确显示。内容提炼为离线规则模板，不依赖 AI 服务。
 - **AI 对话**：多轮会话管理、RAG 检索增强（回答附带文档引用可溯源）、**多模型切换**；Markdown 渲染（表格/代码块/引用块）。
 - **用户自配大模型**：用户可在 AI 设置中输入自己的 API Key（支持 DeepSeek/硅基流动/OpenAI/通义千问/阿里云百炼/智谱AI/月之暗面/字节豆包/腾讯混元/百度文心/Anthropic/自定义），也可使用平台订阅模型；配置持久化（`sys_user_ai_config`），Key 返回时脱敏。
 - **学习中心**：学习路径与章节（可挂载文档与闪卡，完成章节幂等计数）、闪卡复习（**SM-2 间隔重复算法**）、学习任务（经验奖励 / 能量消耗）、复习计划、沉浸式学习模式、番茄钟；**AI 个性化学习路径**（按目标/水平/时长生成并持久化缓存，**自动推断章节前置依赖**，可「采用」落地为真实路径 + 章节 + 依赖关系并自动报名跟踪进度）；**学习路径章节依赖 DAG 可视化**（dagre 分层布局 + 自绘 SVG 交互式图谱，支持拖拽平移 / 滚轮缩放 / 悬停高亮链路 / 全屏查看，按完成 / 可学 / 锁定三态着色）。
@@ -28,7 +29,7 @@
 | --- | --------------------------------------------------------------------------- |
 | 前端  | Vue 3 + TypeScript + Vite + Pinia + Vue Router + Axios + TailwindCSS        |
 | 后端  | Spring Boot 3.2 + MyBatis-Plus + Spring Security + JWT + SpringDoc（Swagger） |
-| 数据库 | 默认 H2 内存库（已预留 MySQL 驱动，可平滑切换）                                               |
+| 数据库 | H2（开发测试）/ MySQL（生产），配置化切换 + 后台运行时热切换，双方言脚本自动适配             |
 | 构建  | Maven（后端）/ npm（前端）                                                          |
 
 ## 页面架构（约 50 页）
@@ -161,6 +162,8 @@
 | AdminCodeQuestionController | `/api/admin/code-questions` | 代码题库 CRUD、发布 / 下架 |
 | AdminQuizQuestionController | `/api/admin/quiz-questions` | 多题型题库 CRUD、发布 / 下架、**AI 出题** |
 | AdminIconController | `/api/admin/icons` | 自定义 SVG 图标上传 / 删除 |
+| ObsidianImportController | `/api/obsidian/import` | **Obsidian 目录一键导入（四合一）**：`GET /scan` 扫描本地目录预览 Markdown 结构；`POST /generate` 按所选模块（knowledge/path/flashcard/quiz 单选或全选）自动生成知识库、学习路径（按目录层级建章节）、闪卡、题库；自动将 Obsidian `![[图片]]` 语法预处理为标准 Markdown 并迁移图片到 `/uploads`，保证四模块图片正确渲染。内容提炼采用离线规则模板，不依赖 AI；生成时可指定 `flashcardTemplateId` / `quizTemplateId` 应用自定义规则模板。 |
+| ImportTemplateController | `/api/import-templates` | **导入规则模板管理**：为 Obsidian 一键导入的闪卡/题库提供可自定义的规则模板。`GET` 列表（按类型/启用状态过滤，返回可见范围）、`GET /{id}` 详情、`POST` 创建、`PUT /{id}` 更新、`DELETE /{id}` 删除（预设不可删）、`POST /{id}/toggle` 启用停用、`POST /{id}/default` 设默认（同类型唯一）。模板内容为 JSON（字段结构/抽取规则/校验/展示样式/数据源绑定），预设模板由 data.sql 幂等写入，前端页面 `/import-templates` 支持创建、编辑、删除、预览、启用停用与设默认。 |
 
 ## 设计系统
 
@@ -177,7 +180,7 @@
 knowflow/
 ├── backend/               # Spring Boot 后端（端口 8080）
 │   ├── src/main/java/com/knowflow/   # 控制器 / 服务 / 实体 / 配置
-│   ├── src/main/resources/           # application.yml、schema.sql、data.sql
+│   ├── src/main/resources/           # application.yml、db/h2/*.sql、db/mysql/*.sql
 │   └── pom.xml
 ├── frontend/              # Vue 3 前端（端口 5173）
 │   ├── src/
@@ -216,10 +219,12 @@ cd backend
 ```
 
 - 默认端口：`8080`
-- 数据库：H2 内存库，启动时会自动执行 `schema.sql` 建表、`data.sql` 写入初始数据
+- 数据库：默认 H2 内存库，启动时自动执行 `db/h2/schema.sql` 建表、`db/h2/data.sql` 写入初始数据
 - API 文档（Swagger）：<http://localhost:8080/swagger-ui.html>
 - H2 控制台：<http://localhost:8080/h2-console>（JDBC URL：`jdbc:h2:mem:knowflow`，用户名 `sa`，密码空）
-- 如需切换 MySQL：在 `backend/src/main/resources/application.yml` 中修改 `spring.datasource` 配置即可
+- **切换 MySQL**：把 `application.yml` 中 `knowflow.datasource.type` 改为 `mysql`（或启动时加 `DB_TYPE=mysql`），
+  系统会自动加载 MySQL 驱动与 `db/mysql/` 方言脚本，**无需改动任何代码**；
+  也可登录后台「系统设置 → 数据库设置」在运行时热切换。详见 [DATABASE.md 第五章](./DATABASE.md#五双数据库支持h2--mysql-切换)
 - **AI 功能配置**：复制 `backend/src/main/resources/application-local.example.yml` 为 `application-local.yml`（已被 gitignore，不会提交），填入真实 `ai.api-key` / `ai.base-url` / `ai.model`（也支持环境变量 `AI_API_KEY` 等覆盖）。未配置时 AI 对话 / 摘要 / 出题等功能不可用；用户也可在前端「AI 设置」中自行填入个人 Key
 
 ### 2. 启动前端

@@ -1,7 +1,15 @@
 # 数据库设计文档（knowflow 知识库）
 
-本文档说明知识库学习平台的数据库表结构（共 **47 张表**）、字段定义、表间关系（逻辑外键）与索引设计。
-脚本位置：`backend/src/main/resources/schema.sql`（表结构 + 索引）、`data.sql`（种子数据）。
+本文档说明知识库学习平台的数据库表结构（共 **54 张表**）、字段定义、表间关系（逻辑外键）与索引设计。
+
+**脚本位置（按方言拆分）**：
+
+| 数据库 | 建表脚本 | 数据脚本 | 用途 |
+|--------|----------|----------|------|
+| H2 | `backend/src/main/resources/db/h2/schema.sql` | `db/h2/data.sql` | 开发 / 测试 |
+| MySQL 8 | `backend/src/main/resources/db/mysql/schema.sql` | `db/mysql/data.sql` | 生产 |
+
+> MySQL 版脚本由 H2 版转换而来，两者表结构一致，仅方言语法不同，详见「九、双数据库支持」。
 
 > **IM（学习小组 / 单聊私信）相关表**（`study_group*`、`private_*`）以 **`消息功能技术方案.md`** 为唯一权威文档，
 > 本文仅列出其结构概要，字段/协议以该文档为准。
@@ -10,7 +18,8 @@
 > 一切外键概念必须在应用层（Service）解决。本库所有表间关联均为「逻辑外键」，
 > 仅存关联列 + 建普通索引，关系完整性由业务代码保证。
 
-> 开发环境使用 H2 内存库（`jdbc:h2:mem:knowflow;MODE=MySQL`），生产可平滑切换为 MySQL（DDL 语法已兼容）。
+> 开发环境使用 H2 内存库（`jdbc:h2:mem:knowflow;MODE=MySQL`），生产使用 MySQL。
+> 两者通过配置项 `knowflow.datasource.type` 切换，亦可在后台「数据库设置」页运行时热切换，详见「九、双数据库支持」。
 
 ---
 
@@ -49,6 +58,7 @@ erDiagram
     sys_user ||--o{ kb_member : "加入知识库"
     doc_category ||--o{ quiz_question : "题库归属"
     doc_document ||--o{ quiz_question : "题目关联文档"
+    sys_user ||--o{ import_template : "创建导入模板"
     quiz_question ||--o{ quiz_answer_record : "答题记录"
     sys_user ||--o{ quiz_answer_record : "作答"
     sys_user ||--o{ user_check_in : "每日打卡"
@@ -273,8 +283,8 @@ erDiagram
 | content | TEXT | 内容 | |
 | sort_order | INT | 排序 | 默认 0 |
 | duration | INT | 时长(分) | 默认 0 |
-| doc_ids | VARCHAR(500) | 关联文档 ID | |
-| flashcard_ids | VARCHAR(500) | 关联闪卡 ID | |
+| doc_ids | TEXT | 关联文档 ID（逗号分隔，H2 为 TEXT、MySQL 为 LONGTEXT） | |
+| flashcard_ids | TEXT | 关联闪卡 ID（逗号分隔，H2 为 TEXT、MySQL 为 LONGTEXT） | |
 | create_time / update_time | TIMESTAMP | | |
 | deleted | INT | 逻辑删除 | 默认 0 |
 - 索引：`idx_chap_path(path_id)`
@@ -598,6 +608,7 @@ erDiagram
 | 31 | private_conversation | 私聊会话 | user_a_id、user_b_id（小 ID 在前）、last_message_id | uk_pc_users(user_a_id,user_b_id,deleted) |
 | 32 | private_conversation_read | 私聊已读游标 | conversation_id、user_id、last_read_message_id | uk_pcr_conv_user(conversation_id,user_id,deleted) |
 | 33 | private_message | 私聊消息 | conversation_id、sender_id、message_type、content、recalled | idx_pm_conv / idx_pm_sender / idx_pm_ctime |
+| 34 | import_template | 导入规则模板 | user_id、type(FLASHCARD/QUIZ/PATH)、content(JSON)、enabled、is_default、is_preset | idx_it_user / idx_it_type / idx_it_default / idx_it_deleted |
 
 ### 34. code_challenge（编程挑战赛道表）
 > 编程闯关（挑战）模块主表；赛道自包含，关卡内嵌于 `code_challenge_level`，判题在前端沙箱执行，后端统计积分/星级。
@@ -895,3 +906,124 @@ erDiagram
 - 金额/进度等精确数值使用 `DECIMAL`，避免浮点误差。
 - 表名、字段名全部小写下划线命名（`snake_case`），禁止大写与驼峰。
 - 多对多关系（文档↔标签、章节↔文档）采用逗号分隔 `VARCHAR` 存储 ID，简化模型（适合中小规模）。
+
+---
+
+## 五、双数据库支持（H2 / MySQL 切换）
+
+### 5.1 设计目标
+
+同一套代码同时支持 **H2（开发测试）** 与 **MySQL（生产）**，切换只改配置、不改代码。
+
+### 5.2 配置方式
+
+在 `backend/src/main/resources/application.yml` 中修改 `knowflow.datasource.type`：
+
+```yaml
+knowflow:
+  datasource:
+    type: h2            # 可选值：h2 / mysql，支持环境变量 ${DB_TYPE}
+    allow-runtime-switch: true              # 是否允许后台页面热切换
+    config-file: ./config/datasource.json   # 热切换结果持久化位置
+    h2:
+      url: jdbc:h2:mem:knowflow;DB_CLOSE_DELAY=-1;MODE=MySQL
+      schema-location: classpath:db/h2/schema.sql
+      data-location: classpath:db/h2/data.sql
+      init-mode: always     # 内存库每次启动重建
+    mysql:
+      url: jdbc:mysql://localhost:3306/knowflow?characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai
+      username: root
+      password: ""
+      schema-location: classpath:db/mysql/schema.sql
+      data-location: classpath:db/mysql/data.sql
+      init-mode: auto       # 库中无业务表时才建表，避免重启清空生产数据
+```
+
+也可用环境变量覆盖，无需改文件：
+
+```bash
+DB_TYPE=mysql MYSQL_URL="jdbc:mysql://host:3306/knowflow?characterEncoding=utf8mb4" \
+MYSQL_USERNAME=root MYSQL_PASSWORD=secret java -jar knowflow.jar
+```
+
+**配置优先级**：外置 `config/datasource.json`（后台热切换写入） > `application.yml`。
+
+### 5.3 初始化模式 `init-mode`
+
+| 取值 | 行为 | 适用场景 |
+|------|------|----------|
+| `always` | 每次启动都执行 schema + data | H2 内存库 |
+| `auto` | 仅当库中无业务表时执行一次 | **MySQL 生产（推荐）** |
+| `never` | 从不执行，表结构由 DBA / 迁移工具管理 | 严格管控的生产环境 |
+
+### 5.4 运行时热切换
+
+后台路径：**管理后台 → 系统设置 → 数据库设置**（`/admin/database`，仅 ADMIN 可见）。
+
+支持查看当前库状态（版本 / 表数量 / 连接池指标）、测试目标库连通性、热切换、执行初始化脚本。
+
+切换流程遵循「**先验证、后替换**」，任一步失败都不会影响当前正在运行的数据库：
+
+1. 用独立探针连接目标库，失败即中止；
+2. 构建新 Hikari 连接池；
+3. 按需执行方言初始化脚本（失败则回收新池）；
+4. 原子替换 `DynamicRoutingDataSource` 内部引用，并同步 MyBatis-Plus 分页方言；
+5. 持久化配置到 `config/datasource.json`，保证重启后仍生效；
+6. **延迟 30 秒**释放旧连接池，给进行中的事务留出收尾时间。
+
+> ⚠️ 切换是「整库级」操作：切换瞬间已在执行的事务仍属于旧库，不会迁移到新库。
+> 生产环境建议在低峰期操作，或设置 `allow-runtime-switch: false` 禁用该能力。
+
+### 5.5 两种数据库的 SQL 语法差异处理
+
+MySQL 版脚本由 H2 版转换生成，已处理以下差异（均在真实 MySQL 实例验证通过：54 张表 + 237 个索引全部建成）：
+
+| 差异点 | H2 写法 | MySQL 写法 | 数量 |
+|--------|---------|------------|------|
+| 索引幂等 | `CREATE INDEX IF NOT EXISTS` | 不支持，去掉并按「表名+索引名」去重 | 77 |
+| 唯一约束 | `ADD CONSTRAINT IF NOT EXISTS ... UNIQUE` | 转为 `CREATE UNIQUE INDEX` | 3 |
+| 增列 | `ADD COLUMN IF NOT EXISTS` | 不支持，合并进 `CREATE TABLE` | 8 |
+| 建表选项 | 无 | 追加 `ENGINE=InnoDB DEFAULT CHARSET=utf8mb4` | 53 |
+| 长文本 | `TEXT` / `MEDIUMTEXT` | 提升为 `LONGTEXT`，避免 64KB 截断 | 全量 |
+| 可空时间 | 裸 `TIMESTAMP` | 显式 `TIMESTAMP NULL DEFAULT NULL`（否则严格模式报 1067） | 12 |
+| 转义字符串 | `STRINGDECODE('...\n...')` | 直接用字面量，MySQL 原生解析 `\n` | 11 |
+
+**分页方言**：MyBatis-Plus 的 `PaginationInnerInterceptor` 不再写死 `DbType.MYSQL`，
+而是跟随当前数据源类型自动选择，切库后 `LIMIT` 语法由框架按方言生成。
+
+### 5.6 数据迁移（H2 → MySQL）
+
+H2 为内存库，数据不落盘，因此「迁移」等价于**在 MySQL 中重建结构并灌入种子数据**：
+
+1. 创建库：`CREATE DATABASE knowflow DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;`
+2. 配置 `DB_TYPE=mysql` 与连接串后启动，`init-mode=auto` 会自动建表并写入演示数据；
+3. 或在后台「数据库设置」页勾选「切换后执行初始化脚本」完成同样操作。
+
+若已有真实业务数据需迁移，建议用 `mysqldump` / DataX 等工具在库间同步，
+并将 `init-mode` 设为 `never`，避免脚本覆盖既有数据。
+
+---
+
+### 41. import_template（导入规则模板表）
+> 驱动「Obsidian 目录一键导入」中**闪卡 / 题库**抽取的自定义规则模板。
+> 模板内容为 JSON（字段结构 fieldSchema / 抽取规则 rules / 校验 validation / 展示样式 style / 数据源绑定 sourceBinding），
+> 前端规则模板编辑器生成，后端 `ObsidianImportServiceImpl.resolveTemplate` 解析后应用。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| user_id | BIGINT | 创建者（逻辑外键 sys_user.id）；预设模板为 1 | 非空 |
+| name | VARCHAR(100) | 模板名称 | 非空 |
+| type | VARCHAR(20) | 模板类型 FLASHCARD / QUIZ / PATH | 非空 |
+| description | VARCHAR(500) | 模板描述 | |
+| content | TEXT | 模板内容（JSON 字符串） | 非空 |
+| enabled | INT | 是否启用 1/0 | 默认 1 |
+| is_default | INT | 是否默认（同 type 唯一） | 默认 0 |
+| is_preset | INT | 是否系统预设 1/0 | 默认 0 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_it_user(user_id)`、`idx_it_type(type)`、`idx_it_default(type, is_default)`、`idx_it_deleted(deleted)`
+- 可见范围：预设模板（`is_preset=1`）对全部用户可见；用户自定义模板仅创建者可见。
+- 预设模板（data.sql 中 `MERGE` 幂等写入）：`标准闪卡模板`(id=1,默认)、`细粒度闪卡模板`(id=2)、`标准题库模板`(id=3,默认)、`判断题模板`(id=4)。
+- 设置默认：`setDefault` 会取消同 type 的其余模板默认标记，保证唯一。
+- 模板生效：前端 `/obsidian/import` 在选择「闪卡/题库」模块后可分别指定规则模板，缺省用内置默认规则（按二级标题抽取）。
