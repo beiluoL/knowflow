@@ -179,6 +179,22 @@ export const codeAgentApi = {
   getCallStats: (sessionId: number) =>
     apiGet<AgentToolStatVO[]>(`/agent/tools/sessions/${sessionId}/call-stats`),
 
+  // ==================== 自定义工作流 ====================
+
+  /** 工作流列表（当前用户） */
+  listWorkflows: () => apiGet<AgentWorkflowVO[]>('/agent/workflows'),
+
+  /** 创建工作流 */
+  createWorkflow: (data: AgentWorkflowPayload) =>
+    apiPost<AgentWorkflowVO>('/agent/workflows', data),
+
+  /** 更新工作流 */
+  updateWorkflow: (id: number, data: AgentWorkflowPayload) =>
+    apiPut<AgentWorkflowVO>(`/agent/workflows/${id}`, data),
+
+  /** 删除工作流 */
+  deleteWorkflow: (id: number) => apiDelete<void>(`/agent/workflows/${id}`),
+
   // ==================== 模型监测 ====================
 
   /** 获取模型监测统计数据（用于仪表盘） */

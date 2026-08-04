@@ -17,6 +17,7 @@ import Badge from '@/components/ui/Badge.vue'
 import AgentToolPanel from '@/components/agent/AgentToolPanel.vue'
 import AgentCallChain from '@/components/agent/AgentCallChain.vue'
 import AgentToolConfirm from '@/components/agent/AgentToolConfirm.vue'
+import AgentWorkflowPanel from '@/components/agent/AgentWorkflowPanel.vue'
 import { codeAgentApi, aiConfigApi, ollamaApi, msg } from '@/api'
 import type { AgentToolEvent, AgentToolEndEvent } from '@/api/codeAgent'
 import { codeGenApi } from '@/api/codeGen'
@@ -45,14 +46,15 @@ import {
   supportsDirectoryPicker,
   UserCancelledError,
   getRememberedDirectory,
-  clearRememberedDirectory,
   rememberDirectory,
   pickDirectory,
+  readFileFromDirectory,
   type FileSystemDirectoryHandleLike,
 } from '@/utils/fileSaver'
+import { diffLines, type LineDiff } from '@/utils/diff'
 
 // ==================== 标签页 ====================
-type TabKey = 'chat' | 'sessions' | 'tools' | 'monitor' | 'models' | 'ollama'
+type TabKey = 'chat' | 'sessions' | 'tools' | 'monitor' | 'models' | 'ollama' | 'workflows'
 const activeTab = ref<TabKey>('chat')
 
 const tabs: Array<{ key: TabKey; label: string; icon: string }> = [
@@ -60,6 +62,7 @@ const tabs: Array<{ key: TabKey; label: string; icon: string }> = [
   { key: 'sessions', label: '会话', icon: 'list' },
   { key: 'tools', label: '工具', icon: 'settings' },
   { key: 'monitor', label: '监测', icon: 'activity' },
+  { key: 'workflows', label: '工作流', icon: 'git-branch' },
   { key: 'models', label: '模型', icon: 'cpu' },
   { key: 'ollama', label: 'Ollama', icon: 'hard-drive' },
 ]
@@ -68,6 +71,13 @@ const tabs: Array<{ key: TabKey; label: string; icon: string }> = [
 const userModels = ref<UserAiConfigVO[]>([])
 const platformModels = ref<PlatformModelVO[]>([])
 const selectedConfigId = ref<number | null>(null)
+/** 当前选中模型的可读名称（用于会话头展示） */
+const selectedConfigName = computed(() => {
+  const id = selectedConfigId.value
+  if (id == null) return ''
+  const m = userModels.value.find((x) => x.id === id)
+  return m ? modelLabel(m) : ''
+})
 const showConfigModal = ref(false)
 const healthChecking = ref(false)
 const healthStatus = ref<{ ok: boolean; latencyMs?: number; error?: string } | null>(null)
@@ -352,6 +362,13 @@ async function deleteConfig(id: number) {
 // ==================== 会话管理（分页加载） ====================
 const sessions = ref<AgentSessionVO[]>([])
 const currentSessionId = ref<number | null>(null)
+/** 当前会话名称（用于对话区顶部标题展示） */
+const currentSessionName = computed(() => {
+  const id = currentSessionId.value
+  if (id == null) return '新对话'
+  const s = sessions.value.find((x) => x.id === id)
+  return s?.title || '新对话'
+})
 const loadingSessions = ref(false)
 /** 会话分页状态 */
 const sessionPage = ref(1)
@@ -361,6 +378,31 @@ const sessionKeyword = ref('')
 const loadingMoreSessions = ref(false)
 /** 是否还有更多会话可加载 */
 const hasMoreSessions = computed(() => sessions.value.length < sessionTotal.value)
+
+/** 最近使用的前 5 个会话（快捷入口） */
+const recentSessions = computed(() => sessions.value.slice(0, 5))
+
+/** 按更新时间将会话分组：今天 / 本周 / 更早（无搜索关键字时启用分组） */
+const sessionGroups = computed<{ key: string; label: string; items: AgentSessionVO[] }[]>(() => {
+  if (sessionKeyword.value.trim()) return []
+  const now = new Date()
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+  const startOfWeek = startOfToday - (now.getDay() === 0 ? 6 : now.getDay() - 1) * 86400000
+  const today: AgentSessionVO[] = []
+  const week: AgentSessionVO[] = []
+  const older: AgentSessionVO[] = []
+  for (const s of sessions.value) {
+    const t = s.updateTime ? new Date(s.updateTime).getTime() : 0
+    if (t >= startOfToday) today.push(s)
+    else if (t >= startOfWeek) week.push(s)
+    else older.push(s)
+  }
+  const groups = []
+  if (today.length) groups.push({ key: 'today', label: '今天', items: today })
+  if (week.length) groups.push({ key: 'week', label: '本周', items: week })
+  if (older.length) groups.push({ key: 'older', label: '更早', items: older })
+  return groups
+})
 
 /**
  * 加载会话列表第一页（重置分页状态）。
@@ -433,6 +475,13 @@ async function createNewSession() {
   } catch (e: unknown) {
     notify(getApiError(e, '创建会话失败'), 'error')
   }
+}
+
+/** 清空当前会话的展示消息（仅前端清空，不删除会话记录）；会话为空时禁用 */
+function clearCurrentSession() {
+  if (!messages.value.length) return
+  messages.value = []
+  notify('已清空当前对话', 'info')
 }
 
 /** 历史消息分页游标：指向当前已加载的最早一条消息 ID */
@@ -840,6 +889,25 @@ const generating = ref(false)
 const saveProgress = ref<{ done: number; total: number } | null>(null)
 
 /**
+ * 行级 diff 缓存：key 为 fileName，value 为 old→new 的差异模型。
+ * 仅在项目目录已挂载、且磁盘上存在同名旧文件时计算，用于「生成结果」区呈现红绿增删对比。
+ */
+const fileDiffs = ref<Record<string, LineDiff>>({})
+/** 旧文件原始内容缓存（撤销时用来还原磁盘文件） */
+const fileOldContent = ref<Record<string, string>>({})
+/** 每个文件是否已采纳（写入新内容）；撤销后回到 false。新文件默认 true */
+const fileAdopted = ref<Record<string, boolean>>({})
+/** 是否进入 diff 审阅模式：存在至少一个可对比的已有文件时开启 */
+const reviewMode = ref(false)
+/** 最近一条携带生成产物的消息（审阅模式仅作用于该消息） */
+const lastGeneratedMessage = computed<ChatMessage | null>(() => {
+  for (let i = messages.value.length - 1; i >= 0; i--) {
+    if (messages.value[i].files && messages.value[i].files.length) return messages.value[i]
+  }
+  return null
+})
+
+/**
  * 推理过程结构化步骤，类似主流智能编程工具的「思考链」展示：
  * 从意图理解 → 目录选择/复用记忆 → 代码生成 → 文件保存，每一步可呈现状态与细节。
  */
@@ -885,11 +953,25 @@ onMounted(async () => {
 })
 
 /** 清空记忆目录，下次生成会重新弹框选择 */
+/** 更换默认保存目录：直接重新选择并记忆，一步到位（无需先清除再生成时弹框） */
 async function changeSaveDirectory() {
-  await clearRememberedDirectory().catch(() => undefined)
-  rememberedDirName.value = null
-  cachedDirHandle = null
-  notify('已清除记忆目录，下次生成将重新选择', 'info')
+  if (!supportsDirectoryPicker()) {
+    notify('当前浏览器不支持目录选择，请使用 Chrome/Edge 浏览器', 'error')
+    return
+  }
+  try {
+    const handle = await pickDirectory()
+    cachedDirHandle = handle
+    rememberedDirName.value = handle.name
+    await rememberDirectory(handle).catch(() => undefined)
+    notify(`已更换默认保存目录：${handle.name}`, 'success')
+  } catch (e) {
+    if (e instanceof UserCancelledError) {
+      notify('已取消选择', 'info')
+      return
+    }
+    notify(getApiError(e, '更换目录失败'), 'error')
+  }
 }
 
 // ==================== 设置面板（可预先配置默认保存目录）====================
@@ -1060,6 +1142,10 @@ async function runCodeGeneration(text: string, intent?: AgentIntentResult) {
     messages.value.push(genMessage)
     await scrollToBottom()
 
+    // 计算行级 diff：仅当已挂载项目目录且磁盘上存在同名旧文件时，对比 old→new
+    // 用于「生成结果」区呈现红绿增删，并进入审阅模式让用户逐文件采纳/撤销
+    await buildFileDiffs(result.files)
+
     // P2：结构/语义歧义检测（基于挂载目录快照），标注到消息供产物区展示
     try {
       const ambiguities = await codeAgentApi.detectAmbiguities(buildIntentRequest(text))
@@ -1081,9 +1167,18 @@ async function runCodeGeneration(text: string, intent?: AgentIntentResult) {
       /* 评估失败不阻断主流程 */
     }
 
-    // 步骤四：写入文件到磁盘（自动复用记忆目录，用户取消后可手动重选）
+    // 步骤四：写入文件到磁盘。
+    // - 审阅模式（存在可对比的已有文件）：不自动落盘，交由用户逐文件「采纳/撤销」或「全部采纳」
+    // - 其余情况（全新文件 / 无挂载目录需下载）：自动保存，保持原有体验
     setStep('save', { status: 'active' })
-    await saveGeneratedFiles(genMessage)
+    if (reviewMode.value) {
+      setStep('save', {
+        status: 'done',
+        detail: `已生成 ${result.files.length} 个文件，请在下方逐文件审阅并采纳`,
+      })
+    } else {
+      await saveGeneratedFiles(genMessage)
+    }
   } catch (e) {
     const message = getApiError(e)
     // 标记当前活动步骤为失败，便于从推理链定位断点
@@ -1139,6 +1234,104 @@ function buildIntentDetail(text: string): string {
   if (saveIntent) parts.push('已明确要求保存到本地目录')
   if (cachedDirHandle || rememberedDirName.value) parts.push(`目标目录：复用「${rememberedDirName.value}」`)
   return parts.join('；')
+}
+
+/**
+ * 为生成的每个文件计算 old→new 行级 diff。
+ * 仅当项目目录已挂载（cachedDirHandle 或记忆目录句柄可用）且磁盘上存在同名旧文件时，
+ * 才读取旧内容并生成对比；否则视为全新文件，无 diff 可比对。
+ */
+async function buildFileDiffs(files: Array<{ fileName: string; content: string }>) {
+  fileDiffs.value = {}
+  fileOldContent.value = {}
+  fileAdopted.value = {}
+  reviewMode.value = false
+
+  const dirHandle = cachedDirHandle
+  // 没有挂载目录则无法读取旧文件，跳过 diff（保持原有下载/另存体验）
+  if (!dirHandle) return
+
+  let hasComparable = false
+  for (const file of files) {
+    let oldText: string | null = null
+    try {
+      oldText = await readFileFromDirectory(dirHandle, file.fileName)
+    } catch {
+      oldText = null
+    }
+    // 新文件：默认视为已采纳（保存时直接写入）；不进入对比视图
+    if (oldText === null) {
+      fileAdopted.value[file.fileName] = true
+      continue
+    }
+    fileOldContent.value[file.fileName] = oldText
+    fileDiffs.value[file.fileName] = diffLines(oldText, file.content)
+    // 完全一致的文件无需审阅，默认采纳
+    fileAdopted.value[file.fileName] = fileDiffs.value[file.fileName].unchanged
+    if (!fileDiffs.value[file.fileName].unchanged) hasComparable = true
+  }
+  reviewMode.value = hasComparable
+}
+
+/** 单个文件「采纳」：将新内容写入磁盘（覆盖旧文件）并记录已采纳状态 */
+async function adoptFile(file: GeneratedFile) {
+  if (!cachedDirHandle) {
+    notify('请先挂载项目目录再采纳', 'warning')
+    return
+  }
+  try {
+    await saveFilesToDirectory([{ fileName: file.fileName, content: file.content }], {
+      preferDir: cachedDirHandle,
+      remember: true,
+    })
+    fileAdopted.value[file.fileName] = true
+    notify(`已采纳：${file.fileName}`, 'success')
+  } catch (e: unknown) {
+    notify(getApiError(e), 'error')
+  }
+}
+
+/** 单个文件「撤销」：将磁盘文件还原为旧内容，不采纳新生成结果 */
+async function revertFile(fileName: string) {
+  const oldText = fileOldContent.value[fileName]
+  if (oldText === undefined) return
+  if (!cachedDirHandle) {
+    notify('请先挂载项目目录再撤销', 'warning')
+    return
+  }
+  try {
+    await saveFilesToDirectory([{ fileName, content: oldText }], {
+      preferDir: cachedDirHandle,
+      remember: true,
+    })
+    fileAdopted.value[fileName] = false
+    notify(`已撤销：${fileName}（保留原文件）`, 'info')
+  } catch (e: unknown) {
+    notify(getApiError(e), 'error')
+  }
+}
+
+/** 审阅模式下一键采纳全部文件（写入新内容） */
+async function adoptAllFiles(target: ChatMessage) {
+  if (!target.files) return
+  if (!cachedDirHandle) {
+    notify('请先挂载项目目录再采纳', 'warning')
+    return
+  }
+  const pending = target.files.filter((f) => fileDiffs.value[f.fileName] && !fileDiffs.value[f.fileName].unchanged)
+  const newFiles = target.files.filter((f) => !fileDiffs.value[f.fileName])
+  const all = [...pending, ...newFiles]
+  if (all.length === 0) return
+  try {
+    await saveFilesToDirectory(
+      all.map((f) => ({ fileName: f.fileName, content: f.content })),
+      { preferDir: cachedDirHandle, remember: true },
+    )
+    all.forEach((f) => (fileAdopted.value[f.fileName] = true))
+    notify(`已采纳全部 ${all.length} 个文件`, 'success')
+  } catch (e: unknown) {
+    notify(getApiError(e), 'error')
+  }
 }
 
 /**
@@ -2260,15 +2453,13 @@ watch(activeTab, (tab) => {
         </div>
       </div>
       <div class="tabs-right">
-        <select v-model="selectedConfigId" class="kb-select kb-select-sm">
+        <Icon name="cpu" size="xs" class="model-icon" />
+        <select v-model="selectedConfigId" class="kb-select kb-select-sm" title="切换当前对话使用的模型">
           <option :value="null" disabled>选择模型...</option>
           <option v-for="m in userModels" :key="m.id" :value="m.id">
             {{ modelLabel(m) }}
           </option>
         </select>
-        <Button size="sm" variant="ghost" @click="activeTab = 'models'">
-          <Icon name="settings" size="xs" /> 管理
-        </Button>
       </div>
     </header>
 
@@ -2357,6 +2548,18 @@ watch(activeTab, (tab) => {
 
         <!-- 中栏：对话区 -->
         <main class="agent-chat">
+          <div class="chat-header">
+            <div class="chat-title">
+              <Icon name="message-square" size="xs" />
+              <span class="chat-session-name">{{ currentSessionName }}</span>
+              <span v-if="selectedConfigName" class="chat-model-tag">{{ selectedConfigName }}</span>
+            </div>
+            <div class="chat-header-actions">
+              <button class="header-btn" title="清空当前会话消息" @click="clearCurrentSession" :disabled="!messages.length">
+                <Icon name="trash-2" size="xxs" /> 清空
+              </button>
+            </div>
+          </div>
           <div class="messages" ref="messagesEl">
             <!-- 历史消息分页：向上加载更早的消息 -->
             <div v-if="hasMoreMessages" class="load-earlier">
@@ -2432,41 +2635,132 @@ watch(activeTab, (tab) => {
                   <div class="gen-files-head">
                     <Icon name="folder" size="xxs" />
                     <span>生成产物（{{ msg.files.length }} 个文件）</span>
-                    <span v-if="msg.saved" class="gen-saved-tag">
+                    <span v-if="reviewMode && msg === lastGeneratedMessage" class="gen-saved-tag review">
+                      <Icon name="history" size="xxs" /> 审阅模式
+                    </span>
+                    <span v-else-if="msg.saved" class="gen-saved-tag">
                       <Icon name="check" size="xxs" /> 已保存
                     </span>
                   </div>
+
                   <ul class="gen-file-list">
                     <li v-for="file in msg.files" :key="file.fileName">
-                      <button class="gen-file-btn" @click="previewGeneratedFile(file)">
+                      <!-- 已挂载目录且磁盘存在同名旧文件：展开行级 diff 对比 -->
+                      <div
+                        v-if="reviewMode && msg === lastGeneratedMessage && fileDiffs[file.fileName]"
+                        class="diff-card"
+                        :class="{ adopted: fileAdopted[file.fileName], reverted: fileAdopted[file.fileName] === false }"
+                      >
+                        <div class="diff-head">
+                          <button class="gen-file-btn" @click="previewGeneratedFile(file)">
+                            <Icon name="file" size="xxs" />
+                            <span class="gen-file-name">{{ file.fileName }}</span>
+                          </button>
+                          <span class="diff-stats">
+                            <span class="diff-add">+{{ fileDiffs[file.fileName].added }}</span>
+                            <span class="diff-del">-{{ fileDiffs[file.fileName].deleted }}</span>
+                          </span>
+                          <span
+                            v-if="fileAdopted[file.fileName]"
+                            class="diff-state adopted"
+                          ><Icon name="check" size="xxs" /> 已采纳</span>
+                          <span
+                            v-else-if="fileAdopted[file.fileName] === false"
+                            class="diff-state reverted"
+                          ><Icon name="undo" size="xxs" /> 已撤销</span>
+                        </div>
+                        <div class="diff-view">
+                          <div class="diff-col diff-old">
+                            <div class="diff-col-head">旧版本</div>
+                            <div
+                              v-for="(ln, i) in fileDiffs[file.fileName].lines"
+                              :key="'o' + i"
+                              class="diff-line"
+                              :class="ln.type"
+                            >
+                              <span class="diff-no">{{ ln.oldNo ?? '' }}</span>
+                              <span class="diff-text">{{ ln.text || ' ' }}</span>
+                            </div>
+                          </div>
+                          <div class="diff-col diff-new">
+                            <div class="diff-col-head">新版本</div>
+                            <div
+                              v-for="(ln, i) in fileDiffs[file.fileName].lines"
+                              :key="'n' + i"
+                              class="diff-line"
+                              :class="ln.type"
+                            >
+                              <span class="diff-no">{{ ln.newNo ?? '' }}</span>
+                              <span class="diff-text">{{ ln.text || ' ' }}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="diff-actions">
+                          <Button
+                            size="sm"
+                            variant="primary"
+                            :disabled="fileAdopted[file.fileName]"
+                            @click="adoptFile(file)"
+                          >
+                            <Icon name="check" size="xxs" /> 采纳
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            :disabled="fileAdopted[file.fileName] === false"
+                            @click="revertFile(file.fileName)"
+                          >
+                            <Icon name="undo" size="xxs" /> 撤销
+                          </Button>
+                        </div>
+                      </div>
+
+                      <!-- 无旧文件或不可对比：普通文件条目 -->
+                      <button v-else class="gen-file-btn" @click="previewGeneratedFile(file)">
                         <Icon name="file" size="xxs" />
                         <span class="gen-file-name">{{ file.fileName }}</span>
                         <span class="gen-file-meta">{{ formatBytes(file.size) }}</span>
                       </button>
                     </li>
                   </ul>
+
                   <div class="gen-files-actions">
-                    <Button size="sm" variant="primary" :disabled="!!saveProgress" @click="saveGeneratedFiles(msg)">
-                      <Icon name="download" size="xxs" />
-                      {{ msg.saved ? '重新保存到目录' : '保存到目录' }}
-                    </Button>
-                    <Button
-                      v-if="rememberedDirName"
-                      size="sm"
-                      variant="ghost"
-                      :disabled="!!saveProgress"
-                      @click="changeSaveDirectory"
-                      title="清除记忆目录，下次生成会重新选择"
-                    >
-                      <Icon name="folder-open" size="xxs" />
-                      更换目录
-                    </Button>
+                    <template v-if="reviewMode && msg === lastGeneratedMessage">
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        :disabled="!!saveProgress"
+                        @click="adoptAllFiles(msg)"
+                      >
+                        <Icon name="check" size="xxs" /> 全部采纳
+                      </Button>
+                      <span class="gen-tip">
+                        共 {{ msg.files.filter((f) => fileDiffs[f.fileName] && !fileDiffs[f.fileName].unchanged).length }} 个文件有改动，请逐文件审阅
+                      </span>
+                    </template>
+                    <template v-else>
+                      <Button size="sm" variant="primary" :disabled="!!saveProgress" @click="saveGeneratedFiles(msg)">
+                        <Icon name="download" size="xxs" />
+                        {{ msg.saved ? '重新保存到目录' : '保存到目录' }}
+                      </Button>
+                      <Button
+                        v-if="rememberedDirName && !reviewMode"
+                        size="sm"
+                        variant="ghost"
+                        :disabled="!!saveProgress"
+                        @click="changeSaveDirectory"
+                        title="清除记忆目录，下次生成会重新选择"
+                      >
+                        <Icon name="folder-open" size="xxs" />
+                        更换目录
+                      </Button>
                     <span v-if="rememberedDirName" class="gen-tip">
                       默认目录：{{ rememberedDirName }}
                     </span>
                     <span v-else-if="!supportsDirectoryPicker()" class="gen-tip">
                       当前浏览器不支持目录选择，将下载到默认目录
                     </span>
+                    </template>
                   </div>
                 </div>
 
@@ -2606,53 +2900,60 @@ watch(activeTab, (tab) => {
 
           <div class="input-area">
             <div class="input-toolbar">
-              <label class="ctx-toggle">
-                <input type="checkbox" v-model="includeFileContext" />
-                <span>附带文件上下文</span>
-              </label>
-              <label class="ctx-toggle" title="开启后，「帮我写一个 HTML demo」这类指令将调用本地 deepseek-coder 生成代码并保存到你选择的目录">
-                <input type="checkbox" v-model="localCodeGenEnabled" />
-                <span>本地生成并保存文件</span>
-              </label>
-              <span
-                v-if="localCodeGenEnabled && rememberedDirName"
-                class="ctx-file"
-                :title="`默认保存目录：${rememberedDirName}，点击可更换`"
-              >
-                <Icon name="folder" size="xxs" /> {{ rememberedDirName }}
-                <button class="ctx-clear" @click="changeSaveDirectory" title="更换保存目录">✕</button>
-              </span>
-              <span v-else-if="localCodeGenEnabled" class="ctx-file hint">
-                <Icon name="folder-open" size="xxs" /> 未选择默认目录
-              </span>
-              <span v-if="currentFile" class="ctx-file">
-                <Icon name="file" size="xxs" /> {{ currentFile.path }}
-              </span>
-              <label
-                class="ctx-toggle"
-                title="开启后由模型自主决定调用工具（代码执行/文件读写/数据查询），高危工具需二次确认"
-              >
-                <input type="checkbox" v-model="agentToolMode" :disabled="streaming" />
-                <span>Agent 工具模式</span>
-              </label>
-              <button
-                class="toolbar-settings"
-                :class="{ active: showCallChain }"
-                title="查看本会话的工具调用链"
-                @click="showCallChain = !showCallChain"
-              >
-                <Icon name="git-branch" size="xxs" />
-                <span>调用链</span>
-              </button>
-              <button
-                class="toolbar-settings"
-                :class="{ active: showSettings }"
-                title="设置：配置默认保存目录等"
-                @click="showSettings = !showSettings"
-              >
-                <Icon name="settings" size="xxs" />
-                <span>设置</span>
-              </button>
+              <div class="toolbar-group">
+                <label class="ctx-toggle" title="将当前/选中文件作为上下文一并发送给模型">
+                  <input type="checkbox" v-model="includeFileContext" />
+                  <span>附带文件上下文</span>
+                </label>
+                <label class="ctx-toggle" title="开启后，「帮我写一个 HTML demo」这类指令将调用本地模型生成代码并保存到目录">
+                  <input type="checkbox" v-model="localCodeGenEnabled" />
+                  <span>本地生成并保存文件</span>
+                </label>
+                <button
+                  v-if="localCodeGenEnabled && !rememberedDirName"
+                  class="quick-dir-btn"
+                  :disabled="!supportsDirectoryPicker()"
+                  title="前置高频配置：一键设置默认保存目录，之后生成代码自动落盘无需弹框"
+                  @click="pickDefaultDirectory"
+                >
+                  <Icon name="folder-plus" size="xxs" /> 设置默认目录
+                </button>
+                <label
+                  class="ctx-toggle"
+                  title="开启后由模型自主决定调用工具（代码执行/文件读写/数据查询），高危工具需二次确认"
+                >
+                  <input type="checkbox" v-model="agentToolMode" :disabled="streaming" />
+                  <span>Agent 工具模式</span>
+                </label>
+              </div>
+              <div class="toolbar-group toolbar-group-right">
+                <span v-if="localCodeGenEnabled && rememberedDirName" class="ctx-file" :title="`默认保存目录：${rememberedDirName}`">
+                  <Icon name="folder" size="xxs" /> {{ rememberedDirName }}
+                  <button class="ctx-clear" @click="changeSaveDirectory" title="更换保存目录">✕</button>
+                </span>
+                <span v-else-if="localCodeGenEnabled" class="ctx-file hint">
+                  <Icon name="folder-open" size="xxs" /> 未选择默认目录
+                </span>
+                <span v-if="currentFile" class="ctx-file">
+                  <Icon name="file" size="xxs" /> {{ currentFile.path }}
+                </span>
+                <button
+                  class="toolbar-icon-btn"
+                  :class="{ active: showCallChain }"
+                  title="查看本会话的工具调用链"
+                  @click="showCallChain = !showCallChain"
+                >
+                  <Icon name="git-branch" size="xxs" />
+                </button>
+                <button
+                  class="toolbar-icon-btn"
+                  :class="{ active: showSettings }"
+                  title="设置：配置默认保存目录等"
+                  @click="showSettings = !showSettings"
+                >
+                  <Icon name="settings" size="xxs" />
+                </button>
+              </div>
             </div>
 
             <!-- 调用链抽屉：展示本会话工具执行时间轴与聚合统计 -->
@@ -2838,7 +3139,29 @@ watch(activeTab, (tab) => {
         <Icon name="message-square" size="3xl" />
         <p>暂无会话，点击右上角创建新会话</p>
       </div>
-      <div v-else class="session-grid">
+      <!-- 最近使用快捷入口：搜索态下隐藏，避免与结果重复 -->
+      <div v-if="!sessionKeyword.trim() && recentSessions.length" class="recent-strip">
+        <div class="recent-strip-title">
+          <Icon name="clock" size="xxs" /> 最近使用
+        </div>
+        <div class="recent-chips">
+          <button
+            v-for="s in recentSessions"
+            :key="s.id"
+            class="recent-chip"
+            :class="{ active: currentSessionId === s.id }"
+            :title="s.title"
+            @click="selectSession(s)"
+          >
+            <Icon name="message-square" size="xxs" />
+            <span class="recent-chip-name">{{ s.title }}</span>
+            <span class="recent-chip-time">{{ formatSessionTime(s.updateTime) }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 搜索态：扁平结果列表 -->
+      <div v-if="sessionKeyword.trim()" class="session-grid">
         <div
           v-for="s in sessions"
           :key="s.id"
@@ -2870,6 +3193,45 @@ watch(activeTab, (tab) => {
           </div>
         </div>
       </div>
+
+      <!-- 非搜索态：按时间分组 -->
+      <template v-else>
+        <div v-for="g in sessionGroups" :key="g.key" class="session-group">
+          <div class="session-group-title">{{ g.label }}</div>
+          <div class="session-grid">
+            <div
+              v-for="s in g.items"
+              :key="s.id"
+              class="session-card"
+              :class="{ active: currentSessionId === s.id }"
+              @click="selectSession(s)"
+            >
+              <div class="session-card-header">
+                <Icon name="message-square" size="sm" />
+                <span class="session-card-title">{{ s.title }}</span>
+              </div>
+              <div class="session-card-meta">
+                <span v-if="s.configLabel" class="meta-item">
+                  <Icon name="cpu" size="xxs" /> {{ s.configLabel }}
+                </span>
+                <span class="meta-item">
+                  <Icon name="message-circle" size="xxs" /> {{ s.messageCount || 0 }} 条消息
+                </span>
+                <span class="meta-item">{{ formatSessionTime(s.updateTime) }}</span>
+              </div>
+              <div v-if="s.lastMessage" class="session-card-preview">{{ s.lastMessage }}</div>
+              <div class="session-card-actions">
+                <button class="link-btn" @click.stop="renameSession(s)">
+                  <Icon name="edit" size="xxs" /> 重命名
+                </button>
+                <button class="link-btn danger" @click.stop="deleteSession(s)">
+                  <Icon name="trash" size="xxs" /> 删除
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
       <!-- 会话分页：按需加载更多 -->
       <div v-if="!loadingSessions && sessions.length" class="session-more">
         <span class="session-count">已显示 {{ sessions.length }} / {{ sessionTotal }}</span>
@@ -2898,6 +3260,11 @@ watch(activeTab, (tab) => {
           <AgentCallChain :session-id="currentSessionId" />
         </section>
       </div>
+    </div>
+
+    <!-- ==================== 工作流标签 ==================== -->
+    <div v-show="activeTab === 'workflows'" class="workflows-tab">
+      <AgentWorkflowPanel />
     </div>
 
     <!-- ==================== 模型监测标签 ==================== -->
@@ -3748,6 +4115,78 @@ watch(activeTab, (tab) => {
   overflow: hidden;
 }
 
+/* 顶部右侧模型选择：图标 + 下拉一体化，去掉冗余「管理」按钮 */
+.tabs-right .model-icon {
+  color: var(--kb-muted-foreground);
+}
+
+/* 对话区顶部会话头：标题 + 模型标签 + 清空（对齐 Cursor/Copilot 风格） */
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  flex-shrink: 0;
+}
+.chat-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--kb-muted-foreground);
+}
+.chat-title > .icon {
+  color: var(--kb-primary);
+  flex-shrink: 0;
+}
+.chat-session-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--kb-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+.chat-model-tag {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--kb-primary);
+  background: var(--kb-highlight-soft, rgba(59, 111, 224, 0.1));
+  border: 1px solid var(--kb-highlight-border, rgba(59, 111, 224, 0.25));
+  padding: 1px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.chat-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-muted-foreground);
+  font-size: 12px;
+  border-radius: var(--kb-radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.header-btn:hover:not(:disabled) {
+  color: var(--kb-destructive);
+  border-color: var(--kb-destructive);
+}
+.header-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 /* 左栏：文件树 */
 .agent-sidebar {
   background: var(--kb-card);
@@ -4051,6 +4490,134 @@ watch(activeTab, (tab) => {
   color: var(--kb-muted-foreground);
 }
 
+/* ===== 行级 diff 审阅 ===== */
+.diff-card {
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-sm);
+  margin: 4px 0;
+  overflow: hidden;
+  background: var(--kb-background);
+}
+.diff-card.adopted {
+  border-color: color-mix(in srgb, var(--kb-success, #3ba55d) 50%, var(--kb-border));
+}
+.diff-card.reverted {
+  border-color: color-mix(in srgb, var(--kb-warning, #e0a800) 50%, var(--kb-border));
+  opacity: 0.92;
+}
+.diff-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  background: var(--kb-card);
+  border-bottom: 1px solid var(--kb-border);
+}
+.diff-head .gen-file-btn {
+  flex: 1;
+  padding: 2px 4px;
+}
+.diff-stats {
+  display: inline-flex;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--kb-fs-xs);
+  flex-shrink: 0;
+}
+.diff-add {
+  color: var(--kb-success, #3ba55d);
+}
+.diff-del {
+  color: var(--kb-danger, #e5484d);
+}
+.diff-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: var(--kb-fs-xs);
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.diff-state.adopted {
+  color: var(--kb-success, #3ba55d);
+  background: color-mix(in srgb, var(--kb-success, #3ba55d) 12%, transparent);
+}
+.diff-state.reverted {
+  color: var(--kb-warning, #e0a800);
+  background: color-mix(in srgb, var(--kb-warning, #e0a800) 12%, transparent);
+}
+.diff-view {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  max-height: 320px;
+  overflow: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--kb-fs-xs);
+  line-height: 1.5;
+  background: var(--kb-background);
+}
+.diff-col-head {
+  position: sticky;
+  top: 0;
+  padding: 3px 8px;
+  font-size: var(--kb-fs-xs);
+  color: var(--kb-muted-foreground);
+  background: var(--kb-card);
+  border-bottom: 1px solid var(--kb-border);
+  z-index: 1;
+}
+.diff-old .diff-col-head {
+  border-right: 1px solid var(--kb-border);
+}
+.diff-line {
+  display: flex;
+  padding: 0 4px;
+  min-height: 1.5em;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.diff-old .diff-line {
+  border-right: 1px solid var(--kb-border);
+}
+.diff-line .diff-no {
+  width: 28px;
+  flex-shrink: 0;
+  text-align: right;
+  padding-right: 8px;
+  color: var(--kb-muted-foreground);
+  user-select: none;
+}
+.diff-line .diff-text {
+  flex: 1;
+  white-space: pre-wrap;
+}
+.diff-line.add {
+  background: color-mix(in srgb, var(--kb-success, #3ba55d) 16%, transparent);
+}
+.diff-line.add .diff-no {
+  color: color-mix(in srgb, var(--kb-success, #3ba55d) 70%, var(--kb-foreground));
+}
+.diff-line.del {
+  background: color-mix(in srgb, var(--kb-danger, #e5484d) 16%, transparent);
+}
+.diff-line.del .diff-no {
+  color: color-mix(in srgb, var(--kb-danger, #e5484d) 70%, var(--kb-foreground));
+}
+.diff-actions {
+  display: flex;
+  gap: 8px;
+  padding: 6px 8px;
+  border-top: 1px solid var(--kb-border);
+  background: var(--kb-card);
+}
+.gen-saved-tag.review {
+  color: var(--kb-warning, #e0a800);
+  background: color-mix(in srgb, var(--kb-warning, #e0a800) 12%, transparent);
+}
+
 /* ===== 生成进度 ===== */
 .gen-progress {
   display: flex;
@@ -4226,25 +4793,6 @@ watch(activeTab, (tab) => {
 }
 
 /* ===== 工具栏设置按钮 ===== */
-.toolbar-settings {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 10px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: transparent;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
-  cursor: pointer;
-}
-.toolbar-settings:hover,
-.toolbar-settings.active {
-  color: var(--kb-primary);
-  border-color: var(--kb-primary);
-  background: color-mix(in srgb, var(--kb-primary) 10%, transparent);
-}
 
 /* 文件树手动刷新按钮 */
 .sidebar-refresh {
@@ -4405,16 +4953,82 @@ watch(activeTab, (tab) => {
 .input-toolbar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   margin-bottom: 8px;
   font-size: 12px;
   color: var(--kb-muted-foreground);
+  flex-wrap: wrap;
 }
-.ctx-toggle {
+.toolbar-group {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.toolbar-group-right {
+  gap: 8px;
+}
+.ctx-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   cursor: pointer;
+  user-select: none;
+  color: var(--kb-muted-foreground);
+  transition: color 0.15s;
+}
+.ctx-toggle:hover {
+  color: var(--kb-foreground);
+}
+.ctx-toggle input {
+  accent-color: var(--kb-primary);
+  cursor: pointer;
+}
+/* 次要操作（调用链/设置）收敛为图标按钮，减少视觉噪音 */
+.toolbar-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-muted-foreground);
+  border-radius: var(--kb-radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.toolbar-icon-btn:hover {
+  color: var(--kb-foreground);
+  border-color: var(--kb-primary);
+}
+.toolbar-icon-btn.active {
+  color: var(--kb-primary);
+  border-color: var(--kb-primary);
+  background: var(--kb-highlight-soft, rgba(59, 111, 224, 0.1));
+}
+/* 高频配置前置：未设置默认目录时的快捷设置按钮 */
+.quick-dir-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px dashed var(--kb-primary);
+  border-radius: var(--kb-radius-sm);
+  background: var(--kb-highlight-soft, rgba(59, 111, 224, 0.08));
+  color: var(--kb-primary);
+  font-size: var(--kb-fs-caption);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.quick-dir-btn:hover:not(:disabled) {
+  background: var(--kb-primary);
+  color: #fff;
+}
+.quick-dir-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .ctx-file {
   display: flex;
@@ -4586,6 +5200,69 @@ watch(activeTab, (tab) => {
 }
 
 /* ===== 会话管理 ===== */
+/* 最近使用快捷入口：横向 chips，快速回到常用会话 */
+.recent-strip {
+  margin-bottom: 22px;
+}
+.recent-strip-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--kb-muted-foreground);
+  margin-bottom: 10px;
+}
+.recent-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.recent-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 240px;
+  padding: 6px 12px;
+  border: 1px solid var(--kb-border);
+  border-radius: 999px;
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.recent-chip:hover {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+}
+.recent-chip.active {
+  border-color: var(--kb-primary);
+  background: var(--kb-highlight-soft, rgba(59, 111, 224, 0.1));
+  color: var(--kb-primary);
+}
+.recent-chip-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recent-chip-time {
+  font-size: 11px;
+  color: var(--kb-muted-foreground);
+  flex-shrink: 0;
+}
+/* 时间分组 */
+.session-group {
+  margin-bottom: 22px;
+}
+.session-group-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--kb-muted-foreground);
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+  padding-left: 2px;
+}
 .session-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));

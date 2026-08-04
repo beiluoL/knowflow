@@ -40,6 +40,7 @@ public class AgentRuntimeService {
     private final AgentMessageMapper messageMapper;
     private final AgentContextManager contextManager;
     private final ObjectMapper objectMapper;
+    private final com.knowflow.service.AgentWorkflowService workflowService;
 
     /**
      * Agent 运行过程事件监听：由调用方（SSE 控制器）实现，用于实时推送。
@@ -101,6 +102,14 @@ public class AgentRuntimeService {
         // 1. 由上下文管理器组装受控长度的历史（含摘要压缩）
         List<ModelAdapter.ChatMessage> messages =
                 new ArrayList<>(contextManager.buildContext(session, userId, configId));
+
+        // 1.1 自定义工作流：命中关键词的工作流模板以 system 消息注入（仅注入首个最匹配项）
+        String workflowPrompt = workflowService.resolvePrompt(userText, userId);
+        if (workflowPrompt != null && !workflowPrompt.isBlank()) {
+            messages.add(new ModelAdapter.ChatMessage("system",
+                    "[自定义工作流提示]\n" + workflowPrompt));
+        }
+
         messages.add(new ModelAdapter.ChatMessage("user", userText));
 
         // 2. 构造工具声明（仅注入该用户已启用的工具）

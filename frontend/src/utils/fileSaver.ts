@@ -204,6 +204,32 @@ async function writeFileToDirectory(
   }
 }
 
+/**
+ * 读取目录中已存在的文件内容，用于生成代码前对比旧版本。
+ * 文件不存在或无目录句柄时返回 null（视为全新文件，无 diff 可比）。
+ */
+export async function readFileFromDirectory(
+  dirHandle: FileSystemDirectoryHandleLike | null | undefined,
+  fileName: string,
+): Promise<string | null> {
+  if (!dirHandle || !dirHandle.getFileHandle) return null
+  const segments = fileName.split('/').filter(Boolean)
+  const baseName = segments.pop()
+  if (!baseName) return null
+  let target: FileSystemDirectoryHandleLike = dirHandle
+  try {
+    for (const segment of segments) {
+      target = await target.getDirectoryHandle(segment, { create: false })
+    }
+    const fileHandle = await target.getFileHandle(baseName, { create: false })
+    const file = await fileHandle.getFile()
+    return await file.text()
+  } catch {
+    // 目录/文件不存在：视为新文件
+    return null
+  }
+}
+
 /** 降级方案：通过 a[download] 逐个下载到浏览器默认下载目录 */
 function downloadFile(file: WritableFile): void {
   const blob = new Blob([file.content], { type: 'text/plain;charset=utf-8' })

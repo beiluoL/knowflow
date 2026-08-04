@@ -809,6 +809,32 @@ export interface AgentToolVO {
   parameters?: Record<string, unknown>
 }
 
+/** 自定义工作流 */
+export interface AgentWorkflowVO {
+  id: number
+  userId: number
+  name: string
+  /** intent(按意图触发) / keyword(关键词) / manual(手动) */
+  triggerType: 'intent' | 'keyword' | 'manual'
+  /** 意图类型或触发关键词，逗号分隔 */
+  triggerValue?: string
+  /** prompt 模板，支持 {input}/{file}/{tree} 占位 */
+  promptTemplate: string
+  /** 0 禁用 / 1 启用 */
+  enabled: number
+  sortOrder: number
+}
+
+/** 工作流新建/更新入参 */
+export interface AgentWorkflowPayload {
+  name: string
+  triggerType: 'intent' | 'keyword' | 'manual'
+  triggerValue?: string
+  promptTemplate: string
+  enabled?: number
+  sortOrder?: number
+}
+
 /** 工具调用链节点 */
 export interface AgentToolCallVO {
   id: number

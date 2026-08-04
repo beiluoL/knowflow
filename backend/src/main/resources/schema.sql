@@ -498,6 +498,22 @@ CREATE TABLE IF NOT EXISTS agent_tool_call (
 );
 CREATE INDEX idx_agent_tool_call_session ON agent_tool_call (session_id, create_time);
 
+-- 自定义工作流：用户预设 prompt 模板 + 触发条件，由 Agent 编排入口注入
+CREATE TABLE IF NOT EXISTS agent_workflow (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '所属用户（逻辑外键 sys_user.id）',
+    name VARCHAR(100) NOT NULL COMMENT '工作流名称',
+    trigger_type VARCHAR(20) NOT NULL COMMENT 'intent(按意图触发)/keyword(关键词)/manual(手动)',
+    trigger_value VARCHAR(200) COMMENT '意图类型或触发关键词，逗号分隔；manual 可空',
+    prompt_template MEDIUMTEXT NOT NULL COMMENT '注入的系统/用户 prompt 模板，支持 {input}/{file}/{tree} 占位',
+    enabled INT DEFAULT 1 COMMENT '是否启用: 0 禁用 / 1 启用',
+    sort_order INT DEFAULT 0 COMMENT '排序，越小越优先',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX idx_agent_workflow_user ON agent_workflow (user_id, deleted);
+
 -- Ollama 本地模型配置表（持久化服务地址、默认模型、参数预设）
 CREATE TABLE IF NOT EXISTS ollama_config (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
