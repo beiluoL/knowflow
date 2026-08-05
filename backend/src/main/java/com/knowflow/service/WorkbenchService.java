@@ -5,6 +5,7 @@ import com.knowflow.dto.WbCaptureDTO;
 import com.knowflow.dto.WbNoteDTO;
 import com.knowflow.dto.WbPalaceDTO;
 import com.knowflow.dto.WbPalaceLociDTO;
+import com.knowflow.dto.WbRecallSessionDTO;
 import com.knowflow.dto.WbReviewCardDTO;
 import com.knowflow.dto.WbReviewGradeDTO;
 import com.knowflow.dto.WbStoryDTO;
@@ -14,6 +15,7 @@ import com.knowflow.entity.WbPalace;
 import com.knowflow.entity.WbPalaceLoci;
 import com.knowflow.entity.WbReviewCard;
 import com.knowflow.entity.WbStory;
+import com.knowflow.vo.WbRecallSessionVO;
 import com.knowflow.vo.WbForgettingCurveVO;
 import com.knowflow.vo.WbReviewCardVO;
 import com.knowflow.vo.WbReviewGradeResultVO;
@@ -77,6 +79,23 @@ public interface WorkbenchService extends IService<WbCapture> {
 
     /** 遗忘曲线可视化：按日聚合复习日志的复习量与遗忘率走势。 */
     WbForgettingCurveVO forgettingCurve(Long userId, Integer days);
+
+    // ---------- 模块三扩展：主动回忆（三轮闭卷默写） ----------
+
+    /** 主动回忆会话列表（按创建时间倒序）。 */
+    List<WbRecallSessionVO> listRecallSessions(Long userId);
+
+    /** 获取会话详情（含三轮分数趋势与进步百分比）。 */
+    WbRecallSessionVO getRecallSession(Long id, Long userId);
+
+    /** 创建会话（仅填原文/标题），返回新会话 ID。 */
+    Long createRecallSession(WbRecallSessionDTO dto, Long userId);
+
+    /** 提交某轮默写内容，自动比对原文计算得分并保存，返回更新后会话。 */
+    WbRecallSessionVO submitRecallRound(Long id, WbRecallSessionDTO dto, Long userId);
+
+    /** 删除会话。 */
+    void deleteRecallSession(Long id, Long userId);
 
     // ---------- 模块三扩展：记忆宫殿 ----------
     List<WbPalace> listPalaces(Long userId);

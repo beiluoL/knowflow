@@ -335,6 +335,12 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   {
+    path: '/workbench/recall',
+    name: 'WorkbenchRecall',
+    component: () => import('@/views/WorkbenchRecall.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
     path: '/workbench/palace/:id',
     name: 'WorkbenchPalaceEdit',
     component: () => import('@/views/WorkbenchPalaceEdit.vue'),

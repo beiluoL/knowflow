@@ -23,6 +23,9 @@
             </p>
           </div>
           <div class="wb-hero-actions">
+            <router-link to="/workbench/recall" class="kb-btn wb-ghost-btn">
+              <Icon name="edit-2" :size="15" /> 主动回忆
+            </router-link>
             <router-link to="/workbench/palace" class="kb-btn wb-ghost-btn">
               <Icon name="map-pin" :size="15" /> 记忆宫殿
             </router-link>

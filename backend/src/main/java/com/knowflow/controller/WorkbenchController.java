@@ -6,6 +6,7 @@ import com.knowflow.dto.WbCaptureDTO;
 import com.knowflow.dto.WbNoteDTO;
 import com.knowflow.dto.WbPalaceDTO;
 import com.knowflow.dto.WbPalaceLociDTO;
+import com.knowflow.dto.WbRecallSessionDTO;
 import com.knowflow.dto.WbReviewCardDTO;
 import com.knowflow.dto.WbReviewGradeDTO;
 import com.knowflow.dto.WbStoryDTO;
@@ -17,6 +18,7 @@ import com.knowflow.entity.WbReviewCard;
 import com.knowflow.entity.WbStory;
 import com.knowflow.service.WorkbenchService;
 import com.knowflow.vo.WbForgettingCurveVO;
+import com.knowflow.vo.WbRecallSessionVO;
 import com.knowflow.vo.WbReviewCardVO;
 import com.knowflow.vo.WbReviewGradeResultVO;
 import com.knowflow.vo.WorkbenchOverviewVO;
@@ -195,10 +197,42 @@ public class WorkbenchController {
         return Result.success();
     }
 
-    @Operation(summary = "遗忘曲线：按日聚合复习量与遗忘率走势（基于 wb_review_log）")
+    @Operation(summary = "遗忘曲线：按日聚合复习量与遗忘率走势")
     @GetMapping("/reviews/forgetting-curve")
     public Result<WbForgettingCurveVO> forgettingCurve(@RequestParam(required = false, defaultValue = "30") Integer days) {
         return Result.success(workbenchService.forgettingCurve(uid(), days));
+    }
+
+    // ============================ 模块三扩展：主动回忆（三轮闭卷默写） ============================
+    @Operation(summary = "主动回忆会话列表")
+    @GetMapping("/recall-sessions")
+    public Result<List<WbRecallSessionVO>> listRecallSessions() {
+        return Result.success(workbenchService.listRecallSessions(uid()));
+    }
+
+    @Operation(summary = "主动回忆会话详情")
+    @GetMapping("/recall-sessions/{id}")
+    public Result<WbRecallSessionVO> getRecallSession(@PathVariable Long id) {
+        return Result.success(workbenchService.getRecallSession(id, uid()));
+    }
+
+    @Operation(summary = "创建主动回忆会话（填原文与标题）")
+    @PostMapping("/recall-sessions")
+    public Result<Long> createRecallSession(@RequestBody WbRecallSessionDTO dto) {
+        return Result.success(workbenchService.createRecallSession(dto, uid()));
+    }
+
+    @Operation(summary = "提交某轮默写内容（自动比对计分）")
+    @PostMapping("/recall-sessions/{id}/submit")
+    public Result<WbRecallSessionVO> submitRecallRound(@PathVariable Long id, @RequestBody WbRecallSessionDTO dto) {
+        return Result.success(workbenchService.submitRecallRound(id, dto, uid()));
+    }
+
+    @Operation(summary = "删除主动回忆会话")
+    @DeleteMapping("/recall-sessions/{id}")
+    public Result<Void> deleteRecallSession(@PathVariable Long id) {
+        workbenchService.deleteRecallSession(id, uid());
+        return Result.success();
     }
 
     // ============================ 模块三扩展：记忆宫殿 ============================

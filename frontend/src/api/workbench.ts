@@ -19,6 +19,8 @@ import type {
   WbStoryPayload,
   CategoryVO,
   WbForgettingCurve,
+  WbRecallSession,
+  WbRecallSessionPayload,
 } from './types'
 
 // ============================ 总览 ============================
@@ -146,4 +148,26 @@ export function getCategoryTree() {
 /** 遗忘曲线：按日聚合复习量与遗忘率走势（基于 wb_review_log） */
 export function getForgettingCurve(days = 30) {
   return apiGet<WbForgettingCurve>('/workbench/reviews/forgetting-curve', { days })
+}
+
+// ============================ 复习扩展：主动回忆（三轮闭卷默写） ============================
+/** 主动回忆会话列表 */
+export function listRecallSessions() {
+  return apiGet<WbRecallSession[]>('/workbench/recall-sessions')
+}
+/** 主动回忆会话详情 */
+export function getRecallSession(id: number) {
+  return apiGet<WbRecallSession>(`/workbench/recall-sessions/${id}`)
+}
+/** 创建主动回忆会话（填原文与标题） */
+export function createRecallSession(payload: WbRecallSessionPayload) {
+  return apiPost<number>('/workbench/recall-sessions', payload)
+}
+/** 提交某轮默写内容（自动比对计分） */
+export function submitRecallRound(id: number, payload: WbRecallSessionPayload) {
+  return apiPost<WbRecallSession>(`/workbench/recall-sessions/${id}/submit`, payload)
+}
+/** 删除主动回忆会话 */
+export function deleteRecallSession(id: number) {
+  return apiDelete<void>(`/workbench/recall-sessions/${id}`)
 }

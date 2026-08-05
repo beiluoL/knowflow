@@ -1186,6 +1186,34 @@ CREATE TABLE IF NOT EXISTS wb_review_log (
   KEY idx_wbrl_deleted (deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ---------- 模块三扩展：主动回忆（三轮闭卷默写）----------
+-- 三轮流程：1 即时默写 → 2 补漏默写 → 3 1小时后复测。每轮提交后与原文比对计分。
+CREATE TABLE IF NOT EXISTS wb_recall_session (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  note_id BIGINT COMMENT '关联笔记ID（逻辑外键 wb_note.id）',
+  card_id BIGINT COMMENT '关联复习卡ID（逻辑外键 wb_review_card.id）',
+  title VARCHAR(200) COMMENT '标题（冗余自笔记/卡片，便于列表展示）',
+  source_text LONGTEXT NOT NULL COMMENT '原文（默写对照基准）',
+  round1_text LONGTEXT COMMENT '第一轮：即时默写内容',
+  round1_score INT COMMENT '第一轮得分（0-100）',
+  round2_text LONGTEXT COMMENT '第二轮：补漏默写内容',
+  round2_score INT COMMENT '第二轮得分（0-100）',
+  round3_text LONGTEXT COMMENT '第三轮：1小时后复测内容',
+  round3_score INT COMMENT '第三轮得分（0-100）',
+  current_round INT DEFAULT 1 COMMENT '当前轮次：1 / 2 / 3',
+  status VARCHAR(20) DEFAULT 'IN_PROGRESS' COMMENT '会话状态：IN_PROGRESS 进行中 / COMPLETED 已完成',
+  round3_due_time DATETIME COMMENT '第三轮预定复测时间（1小时后），用于提醒',
+  completed_time DATETIME COMMENT '完成时间',
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+  KEY idx_wbrs_user_time (user_id, create_time),
+  KEY idx_wbrs_note (note_id),
+  KEY idx_wbrs_status (status),
+  KEY idx_wbrs_deleted (deleted)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ---------- 模块三扩展：记忆宫殿（Method of Loci）----------
 CREATE TABLE IF NOT EXISTS wb_palace (
   id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',

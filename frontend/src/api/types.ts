@@ -1803,3 +1803,40 @@ export interface WbForgettingCurve {
   totalLapses: number
   overallLapseRate: number
 }
+
+/** 主动回忆会话（三轮闭卷默写） */
+export interface WbRecallSession {
+  id: number
+  noteId?: number
+  cardId?: number
+  title?: string
+  sourceText: string
+  round1Text?: string
+  round1Score?: number
+  round2Text?: string
+  round2Score?: number
+  round3Text?: string
+  round3Score?: number
+  currentRound: number
+  status: 'IN_PROGRESS' | 'COMPLETED'
+  round3DueTime?: string
+  completedTime?: string
+  createTime?: string
+  updateTime?: string
+  /** 三轮分数序列（用于折线图），null 表示该轮未提交 */
+  scoreTrend: (number | null)[]
+  /** 逐轮进步百分比（相对上一轮），null 表示无对比基准 */
+  improvementPct: (number | null)[]
+}
+
+/** 主动回忆会话提交入参 */
+export interface WbRecallSessionPayload {
+  noteId?: number
+  cardId?: number
+  title?: string
+  sourceText?: string
+  /** 当前提交的轮次：1 / 2 / 3 */
+  round?: number
+  /** 本轮默写内容 */
+  text?: string
+}

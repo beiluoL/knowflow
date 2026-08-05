@@ -263,6 +263,11 @@ const tips = [
     desc: '线索栏自测 + 笔记栏记录 + 总结栏复述，主动回忆胜过被动阅读，三栏协同内化知识。',
     principle: '主动回忆', path: '/workbench/notes',
   },
+  {
+    title: '主动回忆法', tag: 'Active Recall', icon: 'edit-2', color: '#F59E0B',
+    desc: '三轮闭卷默写：即时默写 → 补漏默写 → 1小时复测，自动比对原文高亮遗漏与错误。',
+    principle: '强制提取', path: '/workbench/recall',
+  },
 ]
 
 function goCapture() {
@@ -696,7 +701,7 @@ onMounted(async () => {
 /* ============ 学习方法论 ============ */
 .wb-method-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 16px;
 }
 .wb-method-card {

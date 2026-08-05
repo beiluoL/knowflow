@@ -6,6 +6,7 @@ import com.knowflow.dto.WbCaptureDTO;
 import com.knowflow.dto.WbNoteDTO;
 import com.knowflow.dto.WbPalaceDTO;
 import com.knowflow.dto.WbPalaceLociDTO;
+import com.knowflow.dto.WbRecallSessionDTO;
 import com.knowflow.dto.WbReviewCardDTO;
 import com.knowflow.dto.WbReviewGradeDTO;
 import com.knowflow.dto.WbStoryDTO;
@@ -16,16 +17,19 @@ import com.knowflow.entity.WbPalaceLoci;
 import com.knowflow.entity.WbReviewCard;
 import com.knowflow.entity.WbReviewLog;
 import com.knowflow.entity.WbStory;
+import com.knowflow.entity.WbRecallSession;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.WbCaptureMapper;
 import com.knowflow.mapper.WbNoteMapper;
 import com.knowflow.mapper.WbPalaceLociMapper;
 import com.knowflow.mapper.WbPalaceMapper;
+import com.knowflow.mapper.WbRecallSessionMapper;
 import com.knowflow.mapper.WbReviewCardMapper;
 import com.knowflow.mapper.WbReviewLogMapper;
 import com.knowflow.mapper.WbStoryMapper;
 import com.knowflow.service.WorkbenchService;
 import com.knowflow.vo.WbForgettingCurveVO;
+import com.knowflow.vo.WbRecallSessionVO;
 import com.knowflow.vo.WbReviewCardVO;
 import com.knowflow.vo.WbReviewGradeResultVO;
 import com.knowflow.vo.WorkbenchOverviewVO;
@@ -65,6 +69,7 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
     private final WbPalaceMapper palaceMapper;
     private final WbPalaceLociMapper lociMapper;
     private final WbStoryMapper storyMapper;
+    private final WbRecallSessionMapper recallSessionMapper;
 
     /** SM-2 难度系数默认 2.50，以整数存储（×100）。 */
     private static final int DEFAULT_EF = 250;
@@ -738,6 +743,148 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
         vo.setTotalLapses(totalLapses);
         vo.setOverallLapseRate(overall);
         return vo;
+    }
+
+    // ============================ 模块三扩展：主动回忆（三轮闭卷默写） ============================
+
+    @Override
+    public List<WbRecallSessionVO> listRecallSessions(Long userId) {
+        List<WbRecallSession> list = recallSessionMapper.selectList(
+                new LambdaQueryWrapper<WbRecallSession>()
+                        .eq(WbRecallSession::getUserId, userId)
+                        .orderByDesc(WbRecallSession::getCreateTime));
+        return list.stream().map(this::toRecallVO).collect(Collectors.toList());
+    }
+
+    @Override
+    public WbRecallSessionVO getRecallSession(Long id, Long userId) {
+        WbRecallSession e = requireOwn(recallSessionMapper.selectById(id), userId, WbRecallSession::getUserId);
+        return toRecallVO(e);
+    }
+
+    @Override
+    @Transactional
+    public Long createRecallSession(WbRecallSessionDTO dto, Long userId) {
+        requireNotBlank(dto.getSourceText(), "原文不能为空");
+        WbRecallSession e = new WbRecallSession();
+        e.setUserId(userId);
+        e.setNoteId(dto.getNoteId());
+        e.setCardId(dto.getCardId());
+        e.setTitle(StringUtils.hasText(dto.getTitle()) ? dto.getTitle().trim() : "主动回忆会话");
+        e.setSourceText(dto.getSourceText());
+        e.setCurrentRound(1);
+        e.setStatus("IN_PROGRESS");
+        recallSessionMapper.insert(e);
+        return e.getId();
+    }
+
+    @Override
+    @Transactional
+    public WbRecallSessionVO submitRecallRound(Long id, WbRecallSessionDTO dto, Long userId) {
+        WbRecallSession e = requireOwn(recallSessionMapper.selectById(id), userId, WbRecallSession::getUserId);
+        int round = dto.getRound() == null ? 1 : dto.getRound();
+        if (round < 1 || round > 3) {
+            throw new BusinessException("轮次需在 1~3 之间");
+        }
+        if (!StringUtils.hasText(dto.getText())) {
+            throw new BusinessException("默写内容不能为空");
+        }
+        int score = scoreRecall(e.getSourceText(), dto.getText());
+        if (round == 1) {
+            e.setRound1Text(dto.getText());
+            e.setRound1Score(score);
+            e.setCurrentRound(2);
+        } else if (round == 2) {
+            e.setRound2Text(dto.getText());
+            e.setRound2Score(score);
+            e.setCurrentRound(3);
+            e.setRound3DueTime(LocalDateTime.now().plusHours(1));
+        } else {
+            e.setRound3Text(dto.getText());
+            e.setRound3Score(score);
+            e.setCurrentRound(3);
+            e.setStatus("COMPLETED");
+            e.setCompletedTime(LocalDateTime.now());
+        }
+        recallSessionMapper.updateById(e);
+        return toRecallVO(e);
+    }
+
+    @Override
+    public void deleteRecallSession(Long id, Long userId) {
+        WbRecallSession e = requireOwn(recallSessionMapper.selectById(id), userId, WbRecallSession::getUserId);
+        recallSessionMapper.deleteById(e.getId());
+    }
+
+    /**
+     * 比对原文与默写，计算 0-100 分。
+     * 算法：按空白切词，原文词集为基准，默写命中的关键词比例 × 100。
+     * 忽略大小写与标点，过滤停用词与短词（长度≤1）。
+     */
+    private int scoreRecall(String source, String recall) {
+        if (!StringUtils.hasText(source)) return 0;
+        java.util.Set<String> sourceWords = tokenize(source);
+        if (sourceWords.isEmpty()) return 0;
+        java.util.Set<String> recallWords = tokenize(recall);
+        if (recallWords.isEmpty()) return 0;
+        long hit = sourceWords.stream().filter(recallWords::contains).count();
+        return (int) Math.round((double) hit / sourceWords.size() * 100);
+    }
+
+    /** 简易分词：英文按空白/标点切分，中文按字符切分，合并后小写化，过滤长度≤1 的 token。 */
+    private java.util.Set<String> tokenize(String text) {
+        java.util.Set<String> tokens = new HashSet<>();
+        String lower = text.toLowerCase();
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("[a-z]+|[\u4e00-\u9fa5]").matcher(lower);
+        while (m.find()) {
+            String t = m.group();
+            if (t.length() > 1) {
+                tokens.add(t);
+            }
+        }
+        return tokens;
+    }
+
+    /** 实体 → VO，补充分数趋势与逐轮进步百分比。 */
+    private WbRecallSessionVO toRecallVO(WbRecallSession e) {
+        WbRecallSessionVO vo = new WbRecallSessionVO();
+        vo.setId(e.getId());
+        vo.setNoteId(e.getNoteId());
+        vo.setCardId(e.getCardId());
+        vo.setTitle(e.getTitle());
+        vo.setSourceText(e.getSourceText());
+        vo.setRound1Text(e.getRound1Text());
+        vo.setRound1Score(e.getRound1Score());
+        vo.setRound2Text(e.getRound2Text());
+        vo.setRound2Score(e.getRound2Score());
+        vo.setRound3Text(e.getRound3Text());
+        vo.setRound3Score(e.getRound3Score());
+        vo.setCurrentRound(e.getCurrentRound());
+        vo.setStatus(e.getStatus());
+        vo.setRound3DueTime(e.getRound3DueTime());
+        vo.setCompletedTime(e.getCompletedTime());
+        vo.setCreateTime(e.getCreateTime());
+        vo.setUpdateTime(e.getUpdateTime());
+
+        List<Integer> trend = new ArrayList<>();
+        trend.add(e.getRound1Score());
+        trend.add(e.getRound2Score());
+        trend.add(e.getRound3Score());
+        vo.setScoreTrend(trend);
+
+        List<Integer> improvement = new ArrayList<>();
+        improvement.add(null);
+        improvement.add(calcImprovement(e.getRound1Score(), e.getRound2Score()));
+        improvement.add(calcImprovement(e.getRound2Score(), e.getRound3Score()));
+        vo.setImprovementPct(improvement);
+        return vo;
+    }
+
+    /** 计算本轮相对上一轮的进步百分比，任一为空返回 null。 */
+    private Integer calcImprovement(Integer prev, Integer curr) {
+        if (prev == null || curr == null) return null;
+        if (prev == 0) return curr > 0 ? 100 : 0;
+        return Math.round((float) (curr - prev) / prev * 100);
     }
 
     // ============================ 通用工具 ============================
