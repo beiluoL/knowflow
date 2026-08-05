@@ -16,6 +16,7 @@ import com.knowflow.entity.WbPalace;
 import com.knowflow.entity.WbPalaceLoci;
 import com.knowflow.entity.WbReviewCard;
 import com.knowflow.entity.WbStory;
+import com.knowflow.service.WorkbenchMigrationService;
 import com.knowflow.service.WorkbenchService;
 import com.knowflow.vo.WbForgettingCurveVO;
 import com.knowflow.vo.WbRecallSessionVO;
@@ -36,7 +37,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 前台-知识库工作台接口：输入（收集箱）/整理（康奈尔笔记）/复习（间隔重复+记忆宫殿）/输出（费曼故事）四模块闭环。
@@ -50,6 +53,7 @@ import java.util.List;
 public class WorkbenchController {
 
     private final WorkbenchService workbenchService;
+    private final WorkbenchMigrationService workbenchMigrationService;
 
     /** 当前登录用户 ID（全部接口需登录）。 */
     private Long uid() {
@@ -61,6 +65,15 @@ public class WorkbenchController {
     @GetMapping("/overview")
     public Result<WorkbenchOverviewVO> overview() {
         return Result.success(workbenchService.overview(uid()));
+    }
+
+    @Operation(summary = "导出当前登录用户的工作台全量数据（用于迁移到桌面端 KnowFlow 学习工作台）")
+    @GetMapping("/export")
+    public Result<Map<String, Object>> exportWorkbench(HttpServletResponse response) {
+        Map<String, Object> payload = workbenchMigrationService.exportAll(uid());
+        String filename = "workbench-export-" + uid() + ".json";
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+        return Result.success(payload);
     }
 
     // ============================ 模块一：收集箱 ============================
