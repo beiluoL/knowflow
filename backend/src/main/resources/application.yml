@@ -7,18 +7,12 @@ spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
 
-  datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:knowflow;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
-    username: sa
-    password:
-    sql-script-encoding: UTF-8
-
+  # 数据源由 DynamicDataSourceConfig 接管（见 knowflow.datasource）。
+  # 必须关闭 Spring Boot 自带的脚本初始化器：否则它会按默认约定再次执行
+  # classpath:schema.sql，与动态数据源已执行的方言脚本重复导致建索引冲突。
   sql:
     init:
-      mode: always
-      schema-locations: classpath:schema.sql
-      data-locations: classpath:data.sql
+      mode: never
 
   h2:
     console:
@@ -36,6 +30,45 @@ spring:
       max-file-size: 50MB
       max-request-size: 500MB
       file-size-threshold: 2KB
+
+# ============================================================
+# 数据库切换配置
+# 只需修改 type（h2 / mysql）即可切换数据库，无需改动任何代码。
+#   - h2   : 开发测试环境，内存库，每次启动重建表并灌入演示数据
+#   - mysql: 生产环境，持久化，默认仅首次建表（init-mode=auto）
+# 也可在后台「数据库设置」页面运行时热切换，切换结果会写入
+# config-file 指定的外置文件，其优先级高于此处的 type。
+# ============================================================
+knowflow:
+  datasource:
+    type: ${DB_TYPE:h2}
+    # 是否允许通过后台页面运行时热切换；生产可设为 false 防误操作
+    allow-runtime-switch: ${DB_ALLOW_RUNTIME_SWITCH:true}
+    # 热切换结果持久化位置（不写回 jar 内的 application.yml）
+    config-file: ${DB_CONFIG_FILE:./config/datasource.json}
+
+    h2:
+      url: jdbc:h2:mem:knowflow;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+      username: sa
+      password: ""
+      schema-location: classpath:db/h2/schema.sql
+      data-location: classpath:db/h2/data.sql
+      # 内存库每次启动都需重建
+      init-mode: always
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+    mysql:
+      # 生产务必开启 utf8mb4 与时区，否则中文/emoji 写入异常
+      url: ${MYSQL_URL:jdbc:mysql://localhost:3306/knowflow?useUnicode=true&characterEncoding=utf8mb4&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true}
+      username: ${MYSQL_USERNAME:root}
+      password: ${MYSQL_PASSWORD:}
+      schema-location: classpath:db/mysql/schema.sql
+      data-location: classpath:db/mysql/data.sql
+      # auto：库中无业务表时才建表灌数据，避免重启清空生产数据
+      init-mode: ${MYSQL_INIT_MODE:auto}
+      maximum-pool-size: 20
+      minimum-idle: 5
 
 mybatis-plus:
   configuration:

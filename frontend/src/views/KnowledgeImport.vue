@@ -9,7 +9,12 @@
         </button>
       </div>
       <h1 class="page-title">导入知识库</h1>
-      <div class="header-right"></div>
+      <div class="header-right">
+        <router-link to="/obsidian/import" class="adv-import-link">
+          <Icon name="rocket" :size="16" />
+          <span>目录一键四模块导入</span>
+        </router-link>
+      </div>
     </div>
 
     <!-- 步骤指示器 -->
@@ -985,6 +990,26 @@ onMounted(loadCategories)
 .header-left,
 .header-right {
   flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.adv-import-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--kb-primary, #5b8cff);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.adv-import-link:hover {
+  opacity: 0.88;
 }
 
 .back-btn {

@@ -185,6 +185,17 @@ const allGroups: NavGroup[] = [
       { path: '/admin/community', label: '社区管理', icon: 'message-square', adminOnly: true },
     ],
   },
+  {
+    title: '导入与模板',
+    items: [
+      { path: '/import-templates', label: '规则模板', icon: 'layout', adminOnly: true },
+      { path: '/obsidian/import', label: '模板导入', icon: 'upload', adminOnly: true },
+    ],
+  },
+  {
+    title: '系统设置',
+    items: [{ path: '/admin/database', label: '数据库设置', icon: 'database', adminOnly: true }],
+  },
 ];
 
 const visibleGroups = computed(() =>

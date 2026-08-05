@@ -282,3 +282,29 @@ INSERT INTO achievement (code, name, description, icon, category, condition_type
 ('REVIEW_500_FLASHCARD', '闪卡大师', '累计复习 500 张闪卡', 'layers', 'LEARNING', 'REVIEW_FLASHCARD', 500, 5, 600),
 ('MISTAKE_10_MASTERED', '错题猎手', '掌握 10 个错题', 'alert-circle', 'EXPLORATION', 'MISTAKE_MASTERED', 10, 22, 200),
 ('MISTAKE_50_MASTERED', '错题终结者', '掌握 50 个错题', 'alert-circle', 'EXPLORATION', 'MISTAKE_MASTERED', 50, 23, 500);
+
+-- ========== 导入规则模板预设（MERGE 幂等；驱动 Obsidian 一键导入的闪卡/题库抽取）==========
+-- 闪卡默认预设：抽取二级标题为正反问答，单篇上限 12 张
+MERGE INTO import_template (id, user_id, name, type, description, content, enabled, is_default, is_preset) KEY(id) VALUES (
+  1, 1, '标准闪卡模板', 'FLASHCARD', '按二级标题拆分正反问答，适配通用知识领域，单篇上限 12 张。',
+  STRINGDECODE('{"fieldSchema":[{"key":"front","label":"正面","type":"markdown","required":true,"source":"heading-2"},{"key":"back","label":"背面","type":"markdown","required":true,"source":"heading-2-content"}],"rules":{"headingLevel":2,"maxPerDoc":12},"validation":[{"field":"front","rule":"not-empty"},{"field":"back","rule":"not-empty"},{"field":"front","rule":"max-length","value":500}],"style":{"cardLayout":"qa","showImage":true,"theme":"light"},"sourceBinding":{"mode":"heading","pattern":"## "}}'),
+  1, 1, 1
+);
+-- 闪卡进阶预设：抽取三级标题，强调细节，单篇上限 20 张
+MERGE INTO import_template (id, user_id, name, type, description, content, enabled, is_default, is_preset) KEY(id) VALUES (
+  2, 1, '细粒度闪卡模板', 'FLASHCARD', '按三级标题拆分细节问答，适合概念密集型内容，单篇上限 20 张。',
+  STRINGDECODE('{"fieldSchema":[{"key":"front","label":"概念","type":"markdown","required":true,"source":"heading-3"},{"key":"back","label":"解释","type":"markdown","required":true,"source":"heading-3-content"}],"rules":{"headingLevel":3,"maxPerDoc":20},"validation":[{"field":"front","rule":"not-empty"},{"field":"back","rule":"not-empty"}],"style":{"cardLayout":"flip","showImage":true,"theme":"light"},"sourceBinding":{"mode":"heading","pattern":"### "}}'),
+  1, 0, 1
+);
+-- 题库默认预设：客观题组合（单选+多选+判断），单篇上限 15 题
+MERGE INTO import_template (id, user_id, name, type, description, content, enabled, is_default, is_preset) KEY(id) VALUES (
+  3, 1, '标准题库模板', 'QUIZ', '生成单选题、多选题与判断题，适配通用知识测评，单篇上限 15 题。',
+  STRINGDECODE('{"fieldSchema":[{"key":"question","label":"题干","type":"markdown","required":true,"source":"heading-2"},{"key":"options","label":"选项","type":"json","required":true,"source":"heading-2-content"},{"key":"answer","label":"答案","type":"text","required":true,"source":"heading-2-content"}],"rules":{"headingLevel":2,"maxPerDoc":15,"questionTypes":["SINGLE","MULTIPLE","JUDGE"]},"validation":[{"field":"question","rule":"not-empty"},{"field":"answer","rule":"not-empty"}],"style":{"showImage":true,"theme":"light"},"sourceBinding":{"mode":"heading","pattern":"## "}}'),
+  1, 1, 1
+);
+-- 题库判断题预设：纯判断题，适合概念辨析
+MERGE INTO import_template (id, user_id, name, type, description, content, enabled, is_default, is_preset) KEY(id) VALUES (
+  4, 1, '判断题模板', 'QUIZ', '仅生成判断题，用于快速概念辨析，单篇上限 20 题。',
+  STRINGDECODE('{"fieldSchema":[{"key":"question","label":"判断题干","type":"markdown","required":true,"source":"heading-3"},{"key":"answer","label":"正误","type":"text","required":true,"source":"heading-3-content"}],"rules":{"headingLevel":3,"maxPerDoc":20,"questionTypes":["JUDGE"]},"validation":[{"field":"question","rule":"not-empty"},{"field":"answer","rule":"not-empty"}],"style":{"showImage":false,"theme":"light"},"sourceBinding":{"mode":"keyword","pattern":"判断"}}'),
+  1, 0, 1
+);

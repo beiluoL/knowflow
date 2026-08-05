@@ -1,14 +1,19 @@
 package com.knowflow.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.dto.ObsidianImportDTO;
 import com.knowflow.entity.*;
 import com.knowflow.mapper.*;
+import com.knowflow.exception.BusinessException;
+import com.knowflow.service.ImportProgressListener;
 import com.knowflow.service.KnowledgeImportService;
 import com.knowflow.service.ObsidianImportService;
 import com.knowflow.service.PathImportService;
+import com.knowflow.util.LocalFileMultipartFile;
+import com.knowflow.vo.KnowledgeImportResultVO;
 import com.knowflow.vo.ObsidianImportResultVO;
 import com.knowflow.vo.PathImportScanVO;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +25,9 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 
 /**
@@ -54,21 +62,122 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
 
     @Override
     public ObsidianImportResultVO importAll(ObsidianImportDTO dto, Long userId) {
+        // 兼容入口：同步执行，无进度推送
+        return doImport(dto, userId, UUID().substring(0, 12), null);
+    }
+
+    @Override
+    public PathImportScanVO scanFiles(List<String> filePaths) {
+        PathImportScanVO vo = new PathImportScanVO();
+        vo.setRootName("文件选择");
+        vo.setFile(true);
+        vo.setAbsolutePath("");
+        List<PathImportScanVO.FileEntry> entries = new ArrayList<>();
+        int doc = 0, img = 0;
+        for (String fp : filePaths) {
+            File f = new File(pathImportService.resolvePath(fp, null));
+            if (!f.exists() || !f.canRead()) continue;
+            String extension = ext(f.getName());
+            if (extension.isEmpty()) continue;
+            PathImportScanVO.FileEntry e = new PathImportScanVO.FileEntry();
+            e.setName(f.getName());
+            e.setPath(f.getName());
+            boolean isImg = IMG_EXT.contains(extension);
+            e.setType(isImg ? "image" : "doc");
+            e.setExt(extension);
+            e.setSize(f.length());
+            entries.add(e);
+            if (isImg) img++; else doc++;
+        }
+        entries.sort(Comparator.comparing(PathImportScanVO.FileEntry::getPath));
+        vo.setFiles(entries);
+        vo.setDocCount(doc);
+        vo.setImageCount(img);
+        vo.setDirCount(0);
+        return vo;
+    }
+
+    @Override
+    public ObsidianImportResultVO importAllWithProgress(ObsidianImportDTO dto, Long userId,
+                                                        String batchId, ImportProgressListener listener) {
+        return doImport(dto, userId, batchId, listener);
+    }
+
+    /**
+     * 统一的导入编排（目录模式 / 文件选择模式共用）。
+     * <ul>
+     *   <li>知识库导入走 KnowledgeImportService.importDirectoryWithProgress，由 listener 推送文件级进度</li>
+     *   <li>闪卡 / 题库生成采用线程池并行解析，主线程批量持久化，提升导入速度</li>
+     *   <li>listener 为 null 时退化为同步执行</li>
+     * </ul>
+     */
+    private ObsidianImportResultVO doImport(ObsidianImportDTO dto, Long userId, String batchId,
+                                           ImportProgressListener listener) {
         ObsidianImportResultVO result = new ObsidianImportResultVO();
         result.setGeneratedModules(new ArrayList<>());
 
-        // 1. 解析并扫描路径
-        String absPath = pathImportService.resolvePath(dto.getPath(), null);
-        result.setAbsolutePath(absPath);
-        PathImportScanVO scan = pathImportService.scanForImport(absPath);
-        // 收集所有 md 相对路径（用于导入后反查 docId）与子目录结构
+        boolean fileMode = dto.getFilePaths() != null && !dto.getFilePaths().isEmpty();
+        String absPath = "";
+        PathImportScanVO scan = new PathImportScanVO();
+        MultipartFile[] files;
         List<String> mdPaths = new ArrayList<>();
         Map<String, List<String>> dirDocs = new LinkedHashMap<>();
-        for (PathImportScanVO.FileEntry e : scan.getFiles()) {
-            if ("doc".equals(e.getType())) {
-                mdPaths.add(e.getPath());
-                String dir = dirOf(e.getPath());
-                dirDocs.computeIfAbsent(dir, k -> new ArrayList<>()).add(e.getPath());
+
+        if (listener != null) {
+            listener.onStart(batchId, 0);
+        }
+
+        if (fileMode) {
+            // 文件选择模式：仅导入用户指定的单个 / 多个文件，不再递归整目录
+            List<MultipartFile> list = new ArrayList<>();
+            for (String fp : dto.getFilePaths()) {
+                String resolved = pathImportService.resolvePath(fp, dto.getRelativeTo());
+                File f = new File(resolved);
+                if (!f.exists() || !f.canRead()) {
+                    if (listener != null) listener.onFileDone(0, 0, fp, "skipped", "文件不存在或不可读");
+                    continue;
+                }
+                String extension = ext(f.getName());
+                if (extension.isEmpty()) continue;
+                String rel = f.getName(); // 单文件模式：相对路径即文件名
+                list.add(new LocalFileMultipartFile(f, rel));
+                if ("md".equals(extension)) {
+                    mdPaths.add(rel);
+                    dirDocs.computeIfAbsent("", k -> new ArrayList<>()).add(rel);
+                } else if (IMG_EXT.contains(extension)) {
+                    // 图片文件随知识库一并导入
+                }
+            }
+            files = list.toArray(new MultipartFile[0]);
+            scan.setRootName(fileMode ? "文件导入" : "");
+            scan.setFile(files.length <= 1);
+            scan.setDocCount(mdPaths.size());
+            scan.setImageCount(files.length - mdPaths.size());
+            if (files.length == 0) {
+                if (listener != null) listener.onError("未选中任何可导入的文件");
+                throw new BusinessException("未选中任何可导入的文件");
+            }
+        } else {
+            // 1. 解析并扫描路径（relativeTo 支持相对路径基准）
+            absPath = pathImportService.resolvePath(dto.getPath(), dto.getRelativeTo());
+            result.setAbsolutePath(absPath);
+            scan = pathImportService.scanForImport(absPath);
+            for (PathImportScanVO.FileEntry e : scan.getFiles()) {
+                if ("doc".equals(e.getType())) {
+                    mdPaths.add(e.getPath());
+                    String dir = dirOf(e.getPath());
+                    dirDocs.computeIfAbsent(dir, k -> new ArrayList<>()).add(e.getPath());
+                }
+            }
+            // Obsidian 图片语法预处理：复制为临时目录并平铺图片、改写为标准 Markdown
+            try {
+                String batch = UUID().substring(0, 12);
+                String tempDir = prepareTempDir(absPath, batch);
+                files = pathImportService.collectFiles(tempDir);
+            } catch (Exception e) {
+                log.error("目录预处理异常: {}", e.getMessage(), e);
+                if (listener != null) listener.onError("目录预处理失败：" + e.getMessage());
+                throw new RuntimeException("目录预处理失败：" + e.getMessage());
             }
         }
 
@@ -77,7 +186,7 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
         String categoryName;
         if (categoryId == null) {
             DocCategory cat = new DocCategory();
-            cat.setName(scan.getRootName());
+            cat.setName(fileMode ? "文件导入" : scan.getRootName());
             cat.setParentId(0L);
             cat.setStatus(1);
             cat.setSortOrder(10);
@@ -91,26 +200,21 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
         result.setCategoryId(categoryId);
         result.setCategoryName(categoryName);
 
-        // 3. 导入知识库（同步，复用既有流程）
-        //    由于既有 importDirectory 对 Obsidian ![[abs/xxx.svg|alt]] 图片语法处理会清空正文，
-        //    这里先预处理：把源目录复制为临时目录，将 ![[...]] 重写为标准 Markdown !(文件名)，
-        //    并把图片平铺到临时目录，使 importDirectory 能正常迁移图片、保留正文。
+        // 3. 导入知识库（带进度 / 兼容无进度）
         if (dto.getModules() == null || dto.getModules().contains("knowledge")) {
             try {
-                String batch = UUID().substring(0, 12);
-                String tempDir = prepareTempDir(absPath, batch);
-                MultipartFile[] files = pathImportService.collectFiles(tempDir);
-                knowledgeImportService.importDirectory(files, buildOptions(dto, categoryId), userId);
+                KnowledgeImportResultVO ki = knowledgeImportService.importDirectoryWithProgress(
+                        files, buildOptions(dto, categoryId), userId, batchId, listener);
+                result.setDocCount(ki != null ? ki.getSuccessCount() : 0);
                 result.getGeneratedModules().add("knowledge");
             } catch (Exception e) {
                 log.error("知识库导入异常: {}", e.getMessage(), e);
+                if (listener != null) listener.onError("知识库导入失败：" + e.getMessage());
                 throw new RuntimeException("知识库导入失败：" + e.getMessage());
             }
         }
 
-        // 4. 收集导入的文档（按子分类分组）。
-        //    注：路径导入模式未必写入 sourcePath，故直接按分类树查询全部文档建立关联，
-        //    避免依赖 sourcePath 精确匹配。mdPaths 仅用于图片兜底读取源文件。
+        // 4. 收集导入的文档（按子分类分组）。直接按分类树查询，避免依赖 sourcePath 精确匹配。
         List<Long> descendantCats = descendantCategoryIds(categoryId);
         Map<Long, List<Long>> catToDocIds = new HashMap<>();
         List<Long> allDocIds = new ArrayList<>();
@@ -130,37 +234,47 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
             DocCategory c = docCategoryMapper.selectById(cid);
             if (c != null) dirToCatId.put(c.getName(), cid);
         }
-        result.setDocCount(allDocIds.size());
+        if (result.getDocCount() <= 0) {
+            result.setDocCount(allDocIds.size());
+        }
 
-        // 5. 图片已在第 3 步由 importDirectory 统一迁移（临时目录已平铺图片并重写为标准语法）。
-
-        // 6. 按需生成其余模块
+        // 5. 按需生成其余模块
         boolean doPath = dto.getModules() != null && dto.getModules().contains("path");
         boolean doFlash = dto.getModules() != null && dto.getModules().contains("flashcard");
         boolean doQuiz = dto.getModules() != null && dto.getModules().contains("quiz");
 
-        // 加载规则模板（驱动闪卡/题库的抽取层级、数量上限、题型与数据源绑定）
         TemplateRule flashRule = resolveTemplate(dto.getFlashcardTemplateId(), "FLASHCARD");
         TemplateRule quizRule = resolveTemplate(dto.getQuizTemplateId(), "QUIZ");
 
-        // 学习路径必须在闪卡之前，章节需要挂载闪卡
         Map<String, List<Long>> dirFlashcardIds = new HashMap<>();
         if (doPath || doFlash || doQuiz) {
-            // 先生成闪卡（逐文档）
+            List<DocDocument> docs = new ArrayList<>();
+            for (Long id : allDocIds) {
+                DocDocument d = docDocumentMapper.selectById(id);
+                if (d != null) docs.add(d);
+            }
+
+            // 闪卡：线程池并行解析生成，主线程汇总批量持久化
             if (doFlash) {
-                int fc = 0;
-                for (Long docId : allDocIds) {
-                    DocDocument doc = docDocumentMapper.selectById(docId);
-                    if (doc == null) continue;
-                    List<Long> ids = generateFlashcards(doc, userId, flashRule);
-                    fc += ids.size();
-                    String dir = dirOfByCat(doc.getCategoryId(), dirToCatId, categoryId);
-                    dirFlashcardIds.computeIfAbsent(dir, k -> new ArrayList<>()).addAll(ids);
+                List<LearningFlashcard> fcEntities = parallelGenerate(docs, doc -> generateFlashcardEntities(doc, userId, flashRule));
+                saveBatch(learningFlashcardMapper, fcEntities);
+                int fc = fcEntities.size();
+                // 按目录归集闪卡 ID，供章节挂载
+                for (LearningFlashcard card : fcEntities) {
+                    String dir = dirOfByCat(card.getCategoryId(), dirToCatId, categoryId);
+                    dirFlashcardIds.computeIfAbsent(dir, k -> new ArrayList<>()).add(card.getId());
+                }
+                // 进度推送：逐条上报已生成的闪卡
+                if (listener != null) {
+                    int total = fcEntities.size();
+                    for (int i = 0; i < fcEntities.size(); i++) {
+                        listener.onFileDone(i + 1, total, "闪卡: " + fcEntities.get(i).getFront(), "success", "");
+                    }
                 }
                 result.setFlashcardCount(fc);
                 result.getGeneratedModules().add("flashcard");
             }
-            // 生成学习路径 + 章节
+            // 学习路径（需先有闪卡）
             if (doPath) {
                 Long pathId = buildLearningPath(dto, categoryId, categoryName, dirDocs,
                         dirToCatId, catToDocIds, dirFlashcardIds, userId);
@@ -168,21 +282,71 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
                 result.setChapterCount(dirDocs.size());
                 result.getGeneratedModules().add("path");
             }
-            // 生成题库
+            // 题库：线程池并行解析生成，主线程汇总批量持久化
             if (doQuiz) {
-                int q = 0;
-                for (Long docId : allDocIds) {
-                    DocDocument doc = docDocumentMapper.selectById(docId);
-                    if (doc == null) continue;
-                    q += generateQuiz(doc, doc.getCategoryId(), quizRule);
+                List<QuizQuestion> qEntities = parallelGenerate(docs, doc -> generateQuizEntities(doc, doc.getCategoryId(), quizRule));
+                saveBatch(quizQuestionMapper, qEntities);
+                int q = qEntities.size();
+                if (listener != null) {
+                    int total = qEntities.size();
+                    for (int i = 0; i < qEntities.size(); i++) {
+                        listener.onFileDone(i + 1, total, "题库: " + qEntities.get(i).getTitle(), "success", "");
+                    }
                 }
                 result.setQuizCount(q);
                 result.getGeneratedModules().add("quiz");
             }
         }
 
+        if (listener != null) {
+            // 汇总结果由调用方（SSE 控制器）在 importAllWithProgress 返回后自行推送 complete 事件，
+            // 此处仅触发 onComplete 占位，保证监听器生命周期完整。
+            listener.onComplete(null);
+        }
         result.setMessage("内容提炼采用规则模板（离线，不依赖 AI）。如需 AI 质量请配置 AI 服务后重试。");
         return result;
+    }
+
+    /**
+     * 线程池并行执行文档级解析生成，聚合结果到主线程统一持久化。
+     * <p>文本解析为 CPU 密集操作，并行可显著缩短大目录导入耗时。</p>
+     */
+    private <T> List<T> parallelGenerate(List<DocDocument> docs, java.util.function.Function<DocDocument, List<T>> fn) {
+        if (docs.isEmpty()) return new ArrayList<>();
+        int n = Math.min(docs.size(), Math.max(2, Runtime.getRuntime().availableProcessors()));
+        ExecutorService pool = Executors.newFixedThreadPool(n);
+        try {
+            List<Future<List<T>>> futures = new ArrayList<>();
+            for (DocDocument doc : docs) {
+                futures.add(pool.submit(() -> fn.apply(doc)));
+            }
+            List<T> result = new ArrayList<>();
+            for (Future<List<T>> f : futures) {
+                try {
+                    result.addAll(f.get());
+                } catch (Exception e) {
+                    log.warn("并行生成单元异常：{}", e.getMessage());
+                }
+            }
+            return result;
+        } finally {
+            pool.shutdown();
+        }
+    }
+
+    /** 批量持久化（在事务内逐条 insert，保证实体 ID 回填）。 */
+    private <E> void saveBatch(BaseMapper<E> mapper, List<E> entities) {
+        for (E e : entities) {
+            mapper.insert(e);
+        }
+    }
+
+    private String toJson(Object o) {
+        try {
+            return objectMapper.writeValueAsString(o);
+        } catch (Exception e) {
+            return "{}";
+        }
     }
 
     // ==================== 内部：知识库导入选项 ====================
@@ -308,9 +472,9 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
 
     // ==================== 内部：闪卡规则模板生成 ====================
 
-    /** 解析 Markdown 标题为问答闪卡，抽取层级/数量上限/数据源绑定由模板规则驱动。 */
-    private List<Long> generateFlashcards(DocDocument doc, Long userId, TemplateRule rule) {
-        List<Long> ids = new ArrayList<>();
+    /** 解析 Markdown 标题为问答闪卡实体（不直接落库，交由主线程批量持久化）。 */
+    private List<LearningFlashcard> generateFlashcardEntities(DocDocument doc, Long userId, TemplateRule rule) {
+        List<LearningFlashcard> out = new ArrayList<>();
         String content = doc.getContent();
         // 按模板指定的标题层级切分（rule.headingLevel：2→## / 3→### / 1→#）
         String[] parts = content.split("(?m)^#{1," + rule.headingLevel + "}\\s+");
@@ -335,23 +499,23 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
             fc.setDifficulty(2);
             fc.setTags("Obsidian导入");
             fc.setSourceType("IMPORT");
-            learningFlashcardMapper.insert(fc);
-            ids.add(fc.getId());
+            out.add(fc);
             made++;
         }
-        return ids;
+        return out;
     }
 
     // ==================== 内部：题库规则模板生成 ====================
 
-    /** 解析文档标题生成题库，题型组合/抽取层级/数量上限/数据源绑定由模板规则驱动。 */
-    private int generateQuiz(DocDocument doc, Long categoryId, TemplateRule rule) {
-        int n = 0;
+    /** 解析文档标题生成题库实体（不直接落库，交由主线程批量持久化）。 */
+    private List<QuizQuestion> generateQuizEntities(DocDocument doc, Long categoryId, TemplateRule rule) {
+        List<QuizQuestion> out = new ArrayList<>();
         String content = doc.getContent();
         String[] parts = content.split("(?m)^#{1," + rule.headingLevel + "}\\s+");
         boolean doShort = rule.questionTypes.isEmpty() || rule.questionTypes.contains("SHORT_ANSWER");
         boolean doJudge = rule.questionTypes.isEmpty() || rule.questionTypes.contains("JUDGE");
-        for (int i = 1; i < parts.length && n < rule.maxPerDoc; i++) {
+        int made = 0;
+        for (int i = 1; i < parts.length && made < rule.maxPerDoc; i++) {
             String block = parts[i];
             int nl = block.indexOf('\n');
             String heading = (nl >= 0 ? block.substring(0, nl) : block).trim();
@@ -376,8 +540,8 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
                 saq.setTags("Obsidian导入");
                 saq.setSource(SRC_TAG);
                 saq.setStatus(1);
-                quizQuestionMapper.insert(saq);
-                n++;
+                out.add(saq);
+                made++;
             }
 
             // 判断题：用标题作为命题（带"是否/能不能"等问句则转为陈述）
@@ -396,12 +560,12 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
                     tf.setTags("Obsidian导入");
                     tf.setSource(SRC_TAG);
                     tf.setStatus(1);
-                    quizQuestionMapper.insert(tf);
-                    n++;
+                    out.add(tf);
+                    made++;
                 }
             }
         }
-        return n;
+        return out;
     }
 
     private String toProposition(String heading) {

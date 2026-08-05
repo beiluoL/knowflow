@@ -13,8 +13,21 @@ import java.util.List;
 @Data
 public class ObsidianImportDTO {
 
-    /** 本地路径：绝对路径（如 /Users/x/docs/Java集合）或相对路径（基于 JVM 工作目录）。 */
+    /** 本地路径：绝对路径（如 /Users/x/docs/Java集合）或相对路径（基于 relativeTo 基准解析）。 */
     private String path;
+
+    /**
+     * 相对路径基准（可选）。当 path 为相对路径时，后端以此基准解析为绝对路径
+     * （如服务根目录 uploads/xxx）。为空表示 path 已是绝对路径或由 JVM 工作目录解析。
+     */
+    private String relativeTo;
+
+    /**
+     * 文件选择导入模式：显式指定要导入的单个或多个文件绝对路径。
+     * 非空时，仅导入这些文件（不再递归整目录），适合用户手动挑选若干文档/图片。
+     * 与 path/relativeTo 互斥：指定 filePaths 时忽略 path。
+     */
+    private List<String> filePaths;
 
     /**
      * 目标知识库 ID（顶级分类）。必填，四模块的知识库部分导入到此知识库。

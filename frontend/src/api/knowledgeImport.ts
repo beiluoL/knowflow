@@ -130,7 +130,7 @@ export const knowledgeImportApi = {
  * @param extraHeaders 额外请求头（路径导入需指定 Content-Type）
  * @returns 取消函数
  */
-function runSseImport(
+export function runSseImport(
   url: string,
   body: BodyInit,
   callbacks: ImportStreamCallbacks,

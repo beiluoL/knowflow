@@ -30,31 +30,53 @@ java -jar target/knowflow-backend-1.0.0.jar
 
 ### 2.3 生产配置（切换 MySQL）
 
-编辑 `backend/src/main/resources/application.yml`：
+先在 MySQL 中创建数据库（**务必使用 utf8mb4**，否则中文/emoji 写入异常）：
+
+```sql
+CREATE DATABASE knowflow DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+再编辑 `backend/src/main/resources/application.yml`，**只需把 `type` 改为 `mysql`**，
+系统启动时会自动加载 MySQL 驱动与 `db/mysql/` 方言脚本，无需改动任何代码：
 
 ```yaml
-spring:
+knowflow:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://<host>:3306/knowflow?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: prod_user
-    password: ******      # 改为强密码
-  sql:
-    init:
-      mode: always        # 首次部署建表+写入种子数据；之后改 never
+    type: mysql                 # h2（开发测试）/ mysql（生产）
+    allow-runtime-switch: false # 生产建议关闭后台热切换，防误操作
+    mysql:
+      url: jdbc:mysql://<host>:3306/knowflow?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=true
+      username: prod_user
+      password: ******          # 改为强密码
+      init-mode: auto           # auto：库为空时自动建表灌数据；已有数据则跳过
+      maximum-pool-size: 20
 jwt:
-  secret: ******          # 改为强随机值（默认值是开发占位符）
+  secret: ******                # 改为强随机值（默认值是开发占位符）
 ```
 
-也可用命令行参数覆盖，避免把密码写进配置文件：
+推荐用环境变量注入，避免把密码写进配置文件：
 
 ```bash
-java -jar target/knowflow-backend-1.0.0.jar \
-  --spring.datasource.url=jdbc:mysql://<host>:3306/knowflow \
-  --spring.datasource.username=prod_user \
-  --spring.datasource.password='******' \
-  --jwt.secret='******'
+DB_TYPE=mysql \
+MYSQL_URL='jdbc:mysql://<host>:3306/knowflow?characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai' \
+MYSQL_USERNAME=prod_user \
+MYSQL_PASSWORD='******' \
+MYSQL_INIT_MODE=auto \
+DB_ALLOW_RUNTIME_SWITCH=false \
+java -jar target/knowflow-backend-1.0.0.jar --jwt.secret='******'
 ```
+
+**`init-mode` 取值说明**：
+
+| 取值 | 行为 | 建议 |
+|------|------|------|
+| `auto` | 库中无业务表时才建表并灌演示数据 | 首次部署推荐 |
+| `never` | 从不执行脚本，结构由 DBA / 迁移工具管理 | 表结构稳定后推荐 |
+| `always` | 每次启动都执行 | **生产禁用**，会重复写入数据 |
+
+> 后台「系统设置 → 数据库设置」页可查看当前库状态、测试连通性并热切换。
+> 生产环境建议设 `allow-runtime-switch: false` 关闭该能力，仅保留状态查看。
+> 双库语法差异与迁移说明详见 [DATABASE.md 第五章](./DATABASE.md#五双数据库支持h2--mysql-切换)。
 
 ### 2.4 进程守护（systemd 示例）
 
@@ -160,6 +182,8 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 services:
   db:
     image: mysql:8
+    # 强制 utf8mb4，保证中文与 emoji 正确存储
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     environment:
       MYSQL_DATABASE: knowflow
       MYSQL_ROOT_PASSWORD: change_me
@@ -178,11 +202,14 @@ services:
       db:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/knowflow?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: change_me
+      # 只需指定 DB_TYPE=mysql，系统自动加载 MySQL 驱动与 db/mysql 方言脚本
+      DB_TYPE: mysql
+      MYSQL_URL: jdbc:mysql://db:3306/knowflow?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: change_me
+      MYSQL_INIT_MODE: auto            # 库为空时自动建表灌数据，重启不清空
+      DB_ALLOW_RUNTIME_SWITCH: "false" # 容器环境禁用后台热切换
       JWT_SECRET: change_me_to_a_long_random_secret
-      SPRING_SQL_INIT_MODE: always
     ports:
       - "8080:8080"
 
