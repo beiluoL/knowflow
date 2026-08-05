@@ -1,669 +1,1673 @@
 <template>
-  <div class="obsidian-import">
-    <!-- 顶部：返回 + 标题 -->
-    <header class="page-head">
-      <button class="back-btn" @click="onBack" title="返回上一页">
-        <Icon name="arrow-left" /> 返回
-      </button>
-      <div class="head-text">
-        <h1>Obsidian 目录一键导入</h1>
-        <p class="subtitle">
-          选择本地 Obsidian 仓库或任意 Markdown 目录/文件，系统自动扫描结构并生成
-          <b>知识库 / 学习路径 / 闪卡 / 题库</b> 四个模块。
-        </p>
-      </div>
-    </header>
-
-    <!-- 导入指引 -->
-    <section class="guide">
-      <button class="guide-toggle" @click="showGuide = !showGuide">
-        <Icon name="help-circle" />
-        <span>导入方式说明</span>
-        <Icon :name="showGuide ? 'chevron-up' : 'chevron-down'" class="chev" />
-      </button>
-      <div v-if="showGuide" class="guide-body">
-        <div class="guide-item">
-          <span class="gi-icon"><Icon name="folder" /></span>
-          <div>
-            <b>绝对路径</b>
-            <p>直接粘贴本地目录或单个文件的完整路径，服务需能访问该路径。</p>
-          </div>
-        </div>
-        <div class="guide-item">
-          <span class="gi-icon"><Icon name="upload" /></span>
-          <div>
-            <b>选择文件夹</b>
-            <p>点击「选择文件夹」选中整个目录，自动取目录名用于相对路径导入（目录位于服务可访问范围时）。</p>
-          </div>
-        </div>
-        <div class="guide-item">
-          <span class="gi-icon"><Icon name="file" /></span>
-          <div>
-            <b>选择文件</b>
-            <p>勾选多个 Markdown 文件进行导入。因浏览器安全限制无法读取文件绝对路径，请填写「文件所在目录的绝对路径」以定位文件。</p>
-          </div>
-        </div>
-        <div class="guide-item">
-          <span class="gi-icon"><Icon name="link" /></span>
-          <div>
-            <b>相对路径</b>
-            <p>输入相对服务根目录的路径（如 <code>uploads/Java集合</code>），后端解析为绝对路径。</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 步骤 1：选择导入方式 -->
-    <section class="card">
-      <div class="step-title"><span class="num">1</span> 选择导入方式</div>
-      <div class="mode-tabs">
-        <button
-          v-for="m in modes"
-          :key="m.key"
-          class="mode-tab"
-          :class="{ active: mode === m.key }"
-          @click="mode = m.key"
-        >
-          <Icon :name="m.icon" /> {{ m.label }}
+  <div class="knowledge-import-page">
+    <!-- 顶部导航 -->
+    <div class="page-header">
+      <div class="header-left">
+        <button class="back-btn" @click="goBack">
+          <Icon name="arrow-left" :size="18" />
+          <span>返回知识库</span>
         </button>
       </div>
-
-      <!-- 绝对路径 -->
-      <div v-if="mode === 'absolute'" class="mode-panel">
-        <input
-          v-model.trim="path"
-          class="path-input"
-          placeholder="输入目录或文件的绝对路径，如 /Users/you/Obsidian/Java集合"
-          @keyup.enter="onScan"
-        />
-        <p class="hint">服务必须对该路径具有读取权限。</p>
-      </div>
-
-      <!-- 选择文件夹 -->
-      <div v-else-if="mode === 'folder'" class="mode-panel">
-        <label class="folder-btn">
-          <input type="file" webkitdirectory directory hidden @change="onPickFolder" />
-          <Icon name="folder" /> 选择文件夹
-        </label>
-        <div v-if="pickedFolder" class="picked">
-          <span class="picked-name">已选择目录：<b>{{ pickedFolder }}</b></span>
-          <label class="opt-check">
-            <input type="checkbox" v-model="useFolderAsRelative" />
-            作为相对路径导入（目录位于服务可访问范围时勾选）
-          </label>
-        </div>
-        <p class="hint">
-          浏览器不会暴露绝对路径。
-          <template v-if="useFolderAsRelative">
-            将使用目录名 <code>{{ pickedFolder || '（未选）' }}</code> 作为相对路径提交。
-          </template>
-          <template v-else>请复制该目录绝对路径，切换到「绝对路径」方式粘贴。</template>
-        </p>
-      </div>
-
-      <!-- 选择文件 -->
-      <div v-else-if="mode === 'files'" class="mode-panel">
-        <label class="folder-btn">
-          <input type="file" multiple accept=".md,.markdown,.txt" hidden @change="onPickFiles" />
-          <Icon name="file" /> 选择文件
-        </label>
-        <input
-          v-model.trim="filesBaseDir"
-          class="path-input"
-          placeholder="填写这些文件所在的目录绝对路径，如 /Users/you/Obsidian/Java集合"
-        />
-        <p class="hint">支持选择一个或多个 Markdown 文件；请填写它们所在目录的绝对路径，后端据此定位文件。</p>
-        <ul v-if="selectedFiles.length" class="file-pick-list">
-          <li v-for="(f, i) in selectedFiles" :key="i">
-            <Icon name="file-text" /> {{ f.rel || f.name }}
-          </li>
-        </ul>
-      </div>
-
-      <!-- 相对路径 -->
-      <div v-else class="mode-panel">
-        <input
-          v-model.trim="path"
-          class="path-input"
-          placeholder="输入相对服务根目录的路径，如 uploads/Java集合"
-          @keyup.enter="onScan"
-        />
-        <p class="hint">后端会基于服务运行目录将此相对路径解析为绝对路径。</p>
-      </div>
-
-      <button class="btn primary" :disabled="!canScan || scanning" @click="onScan">
-        {{ scanning ? '扫描中…' : '扫描预览' }}
-      </button>
-    </section>
-
-    <!-- SSE 导入进度 -->
-    <section v-if="importing" class="card progress-card">
-      <div class="step-title"><span class="num">⟳</span> 导入进行中</div>
-      <div class="progress-bar">
-        <div class="progress-fill" :style="{ width: progressPercent + '%' }"></div>
-      </div>
-      <div class="progress-meta">
-        <span>{{ progressPercent }}%</span>
-        <span v-if="progressCurrent">当前：{{ progressCurrent }}</span>
-        <span v-if="progressTotal">共 {{ progressTotal }} 项</span>
-      </div>
-      <ul class="progress-log">
-        <li v-for="(log, i) in progressLogs" :key="i" :class="log.status">
-          <Icon :name="log.status === 'success' ? 'check' : log.status === 'failed' ? 'x' : 'info'" />
-          <span>{{ log.path }}</span>
-          <span class="log-status">{{ statusText(log.status) }}</span>
-        </li>
-      </ul>
-      <button class="btn" @click="cancelImport">取消导入</button>
-    </section>
-
-    <!-- 步骤 2：扫描预览 -->
-    <section v-else-if="scan" class="card">
-      <div class="step-title"><span class="num">2</span> 扫描预览（{{ scan.rootName }}）</div>
-      <div class="scan-stat">
-        <span>文档 {{ scan.docCount }}</span>
-        <span>图片 {{ scan.imageCount }}</span>
-        <span>目录 {{ scan.dirCount }}</span>
-        <span>文件合计 {{ scan.files.length }}</span>
-      </div>
-      <div v-if="scan.files.length" class="file-tree">
-        <div v-for="f in scan.files" :key="f.path" class="file-item" :class="f.type">
-          <span class="fi-name">{{ f.name }}</span>
-          <span class="fi-path">{{ f.path }}</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- 步骤 3：模块与选项（仅扫描后、未在导入时显示） -->
-    <section v-if="scan && !importing" class="card">
-      <div class="step-title"><span class="num">3</span> 选择要生成的模块</div>
-      <div class="module-grid">
-        <label
-          v-for="m in moduleOptions"
-          :key="m.key"
-          class="module-chip"
-          :class="{ active: modules.includes(m.key) }"
-        >
-          <input type="checkbox" :value="m.key" v-model="modules" hidden />
-          <span class="m-title">{{ m.title }}</span>
-          <span class="m-desc">{{ m.desc }}</span>
-        </label>
-      </div>
-
-      <div class="tpl-select">
-        <label class="opt">
-          闪卡规则模板
-          <select v-model.number="flashcardTemplateId">
-            <option :value="0">内置默认（按二级标题）</option>
-            <option v-for="t in flashTemplates" :key="t.id" :value="t.id">
-              {{ t.name }}{{ t.isDefault === 1 ? '（默认）' : '' }}
-            </option>
-          </select>
-        </label>
-        <label class="opt">
-          题库规则模板
-          <select v-model.number="quizTemplateId">
-            <option :value="0">内置默认（简答+判断）</option>
-            <option v-for="t in quizTemplates" :key="t.id" :value="t.id">
-              {{ t.name }}{{ t.isDefault === 1 ? '（默认）' : '' }}
-            </option>
-          </select>
-        </label>
-        <router-link class="tpl-manage" to="/import-templates">
-          <Icon name="settings" /> 管理规则模板
+      <h1 class="page-title">目录一键四模块导入</h1>
+      <div class="header-right">
+        <router-link to="/knowledge/import" class="adv-import-link">
+          <Icon name="folder-open" :size="16" />
+          <span>普通目录导入</span>
         </router-link>
       </div>
+    </div>
 
-      <div class="opt-row">
-        <label class="opt">
-          目标知识库
-          <select v-model.number="targetCategoryId">
-            <option :value="0">自动新建（以目录命名）</option>
-            <option v-for="kb in kbs" :key="kb.id" :value="kb.id">{{ kb.name }}</option>
-          </select>
-        </label>
-        <label class="opt">
-          学习路径标题（留空用目录名）
-          <input v-model.trim="pathTitle" placeholder="可选" />
-        </label>
+    <!-- 步骤指示器 -->
+    <div class="step-indicator">
+      <div
+        v-for="(step, idx) in steps"
+        :key="idx"
+        class="step-item"
+        :class="{ active: currentStep === idx, done: currentStep > idx }"
+      >
+        <div class="step-circle">
+          <Icon v-if="currentStep > idx" name="check" :size="14" />
+          <span v-else>{{ idx + 1 }}</span>
+        </div>
+        <span class="step-label">{{ step }}</span>
+        <div v-if="idx < steps.length - 1" class="step-connector"></div>
       </div>
+    </div>
 
-      <div class="opt-row">
-        <label class="opt-check">
-          <input type="checkbox" v-model="createSubCategories" /> 按目录创建子分类
-        </label>
-        <label class="opt-check">
-          <input type="checkbox" v-model="autoTags" /> 自动生成标签
-        </label>
-        <label class="opt-check">
-          <input type="checkbox" v-model="incremental" /> 增量去重（重复运行只更新）
-        </label>
-      </div>
+    <div class="import-content">
+      <!-- ===== Step 0: 选择导入来源 ===== -->
+      <template v-if="currentStep === 0">
+        <div class="step-panel">
+          <!-- 智能导入向导 -->
+          <div class="guide-card">
+            <div class="guide-header">
+              <Icon name="info" :size="20" class="guide-icon" />
+              <h3>导入向导</h3>
+            </div>
+            <div class="guide-body">
+              <div class="guide-section">
+                <h4>两种导入方式</h4>
+                <ul>
+                  <li><strong>目录路径</strong>：填写服务器可访问的绝对路径（如 /Users/x/docs），或相对路径并指定基准目录，系统直接读取本地文件，适合大目录。</li>
+                  <li><strong>文件选择 / 拖拽</strong>：选择本地目录或文件，前端预览文件列表后交由后端解析导入。</li>
+                </ul>
+              </div>
+              <div class="guide-section">
+                <h4>四模块批量生成</h4>
+                <ul>
+                  <li><strong>知识库</strong>：将 Markdown 解析为带层级分类的文档。</li>
+                  <li><strong>学习路径</strong>：按目录层级自动生成章节并关联文档。</li>
+                  <li><strong>闪卡 / 题库</strong>：基于 AI 提炼问答与测验题（需配置 AI Key）。</li>
+                </ul>
+              </div>
+              <div class="guide-section">
+                <h4>注意事项</h4>
+                <ul>
+                  <li>路径需由部署服务的服务器可访问，容器环境请使用挂载目录。</li>
+                  <li>单次导入建议不超过 200 个文件，超大目录请分批导入。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
 
-      <button class="btn primary lg" :disabled="generating || modules.length === 0" @click="onGenerate">
-        {{ generating ? '生成中…' : '一键生成所选模块' }}
-      </button>
-      <p class="hint">
-        默认全选即一次性生成四个模块；取消勾选可在后续重复运行时单独补生成某模块。
-        内容提炼采用规则模板，离线可用、不依赖 AI。
-      </p>
-    </section>
+          <!-- 导入方式 Tab -->
+          <div class="import-mode-tabs">
+            <button
+              class="mode-tab"
+              :class="{ active: sourceMode === 'path' }"
+              @click="sourceMode = 'path'"
+            >
+              <Icon name="terminal" :size="16" />
+              <span>目录路径</span>
+            </button>
+            <button
+              class="mode-tab"
+              :class="{ active: sourceMode === 'files' }"
+              @click="sourceMode = 'files'"
+            >
+              <Icon name="upload" :size="16" />
+              <span>文件选择 / 拖拽</span>
+            </button>
+          </div>
 
-    <!-- 步骤 4：结果 -->
-    <section v-if="result" class="card result">
-      <div class="step-title"><span class="num">✓</span> 导入完成</div>
-      <div class="result-stat">
-        <div class="rs"><b>{{ result.docCount }}</b><span>文档</span></div>
-        <div class="rs"><b>{{ result.imageCount }}</b><span>图片</span></div>
-        <div class="rs" v-if="result.learningPathId"><b>{{ result.chapterCount }}</b><span>章节</span></div>
-        <div class="rs" v-if="result.flashcardCount"><b>{{ result.flashcardCount }}</b><span>闪卡</span></div>
-        <div class="rs" v-if="result.quizCount"><b>{{ result.quizCount }}</b><span>题库</span></div>
-      </div>
-      <p class="result-msg">{{ result.message }}</p>
-      <p class="result-path">知识库：{{ result.categoryName }}（ID {{ result.categoryId }}）</p>
-      <div class="result-actions">
-        <button class="btn" @click="onBack">返回上一页</button>
-        <router-link class="btn primary" :to="`/docs?categoryId=${result.categoryId}`">
-          <Icon name="book-open" /> 前往知识库
-        </router-link>
-      </div>
-    </section>
+          <!-- 模式 A：目录路径输入（绝对 + 相对） -->
+          <div v-if="sourceMode === 'path'" class="form-card">
+            <h3 class="card-title">目录路径</h3>
+            <p class="card-desc">填写服务器可访问的路径，支持绝对路径或相对路径（需指定基准）</p>
 
-    <p v-if="errorMsg" class="error">{{ errorMsg }}</p>
+            <div class="form-group">
+              <label class="form-label">绝对路径或相对路径</label>
+              <div class="path-input-row">
+                <div class="path-input-icon">
+                  <Icon name="terminal" :size="20" />
+                </div>
+                <input
+                  v-model="pathInput"
+                  type="text"
+                  class="path-input"
+                  :class="{ 'input-error': pathError }"
+                  placeholder="绝对路径如 /Users/xxx/docs/Obsidian 或相对路径如 ./uploads/notes"
+                  @keyup.enter="handleScan"
+                />
+                <button class="btn-scan" :disabled="scanning || !pathInput.trim()" @click="handleScan">
+                  <Icon :name="scanning ? 'loader' : 'search'" :size="14" :class="{ 'spin-icon': scanning }" />
+                  <span>{{ scanning ? '扫描中' : '扫描' }}</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                相对路径基准
+                <span class="label-optional">（可选，仅当上方为相对路径时生效）</span>
+              </label>
+              <input
+                v-model="relativeToInput"
+                type="text"
+                class="path-input standalone"
+                placeholder="如 /app/uploads 或留空由服务解析"
+                @keyup.enter="handleScan"
+              />
+            </div>
+
+            <div v-if="pathError" class="scan-error-box">
+              <div class="scan-error-head">
+                <Icon name="alert-circle" :size="16" />
+                <span class="scan-error-title">未找到可导入文件</span>
+              </div>
+              <p class="scan-error-msg">{{ pathError.message }}</p>
+              <p v-if="pathError.path" class="scan-error-path">
+                <span class="scan-error-k">扫描路径：</span>{{ pathError.path }}
+              </p>
+              <div class="scan-error-types">
+                <span class="scan-error-k">支持的文件类型：</span>
+                <span class="scan-error-types-list">{{ SUPPORTED_TYPES_TEXT }}</span>
+              </div>
+              <button class="btn-reselect" @click="reselectPath">
+                <Icon name="rotate-ccw" :size="14" />
+                <span>重新选择路径</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 模式 B：文件选择 / 拖拽 -->
+          <div v-else class="form-card">
+            <h3 class="card-title">选择文件或目录</h3>
+            <p class="card-desc">点击选择或拖拽目录 / 多个文件到下方区域，将自动预览文件列表</p>
+
+            <div
+              class="drop-zone"
+              :class="{ 'drag-over': dragging }"
+              @click="triggerFileInput"
+              @dragover.prevent="dragging = true"
+              @dragleave.prevent="dragging = false"
+              @drop.prevent="handleDrop"
+            >
+              <input
+                ref="fileInputRef"
+                type="file"
+                class="hidden-file-input"
+                webkitdirectory
+                directory
+                multiple
+                @change="handleFileSelect"
+              />
+              <div class="dir-select-icon">
+                <Icon name="upload" :size="32" />
+              </div>
+              <p class="dir-select-title">
+                {{ selectedFiles.length > 0 ? `已选择 ${selectedFiles.length} 个文件` : '点击或拖拽目录 / 文件到此处' }}
+              </p>
+              <p class="dir-select-hint">
+                推荐拖入整个目录（含子目录）；浏览器安全限制下将自动以文件公共父目录作为导入路径
+              </p>
+            </div>
+
+            <div v-if="sourceMode === 'files' && derivedPath" class="form-group">
+              <label class="form-label">推导的导入路径（可编辑）</label>
+              <input
+                v-model="pathInput"
+                type="text"
+                class="path-input standalone"
+                placeholder="导入路径"
+              />
+              <p class="path-input-hint">
+                拖拽/选择后自动推导，确认无误后即可扫描；如需精确控制请切换到「目录路径」手动填写。
+              </p>
+            </div>
+
+            <div v-if="pathError" class="scan-error-box">
+              <div class="scan-error-head">
+                <Icon name="alert-circle" :size="16" />
+                <span class="scan-error-title">未找到可导入文件</span>
+              </div>
+              <p class="scan-error-msg">{{ pathError.message }}</p>
+              <p v-if="pathError.path" class="scan-error-path">
+                <span class="scan-error-k">扫描路径：</span>{{ pathError.path }}
+              </p>
+              <div class="scan-error-types">
+                <span class="scan-error-k">支持的文件类型：</span>
+                <span class="scan-error-types-list">{{ SUPPORTED_TYPES_TEXT }}</span>
+              </div>
+              <button class="btn-reselect" @click="reselectPath">
+                <Icon name="rotate-ccw" :size="14" />
+                <span>重新选择路径</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 扫描结果预览 -->
+          <div v-if="scanResult" class="preview-card">
+            <div class="preview-header">
+              <h3 class="card-title">
+                已选文件预览
+                <span class="scan-mode-tag">{{ scanResult.isFile ? '单文件' : '目录' }}</span>
+              </h3>
+              <div class="preview-stats">
+                <span class="stat-badge doc">{{ scanResult.docCount }} 文档</span>
+                <span v-if="scanResult.imageCount > 0" class="stat-badge img">{{ scanResult.imageCount }} 图片</span>
+                <span v-if="scanResult.dirCount > 0" class="stat-badge dir">{{ scanResult.dirCount }} 目录</span>
+              </div>
+            </div>
+            <div class="path-files-list">
+              <div
+                v-for="file in scanResult.files.slice(0, 200)"
+                :key="file.path"
+                class="path-file-item"
+                :class="file.type"
+              >
+                <Icon :name="getFileIcon(file.ext, file.type)" :size="14" class="file-ext-icon" />
+                <span class="file-path-text" :title="file.path">{{ file.path }}</span>
+                <span class="file-size">{{ formatFileSize(file.size) }}</span>
+              </div>
+              <p v-if="scanResult.files.length > 200" class="more-files-hint">
+                仅显示前 200 个文件，共 {{ scanResult.files.length }} 个
+              </p>
+            </div>
+            <p v-if="scanResult.absolutePath" class="resolved-path-hint">
+              <Icon name="check-circle" :size="14" />
+              <span>解析路径：{{ scanResult.absolutePath }}</span>
+            </p>
+          </div>
+
+          <div class="step-actions">
+            <button class="btn-secondary" @click="goBack">取消</button>
+            <button
+              class="btn-primary"
+              :disabled="!canProceed"
+              @click="goToStep(1)"
+            >
+              <span>下一步：配置模块</span>
+              <Icon name="chevron-right" :size="14" />
+            </button>
+          </div>
+        </div>
+      </template>
+
+      <!-- ===== Step 1: 配置四模块 ===== -->
+      <template v-if="currentStep === 1">
+        <div class="step-panel">
+          <div class="guide-card">
+            <div class="guide-header">
+              <Icon name="info" :size="20" class="guide-icon" />
+              <h3>模块与知识库</h3>
+            </div>
+            <div class="guide-body">
+              <div class="guide-section">
+                <h4>勾选需要生成的模块</h4>
+                <ul>
+                  <li><strong>知识库</strong>始终执行（其他模块依赖其产出的文档），可搭配学习路径、闪卡、题库。</li>
+                  <li>未配置 AI Key 时，闪卡 / 题库将降级跳过，可稍后在对应模块手动生成。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h3 class="card-title">目标知识库</h3>
+            <p class="card-desc">四模块的知识库部分将导入到该知识库（需 Owner / Editor 权限）</p>
+            <div class="kb-select-grid">
+              <div
+                v-for="cat in kbCategories"
+                :key="cat.id"
+                class="kb-select-item"
+                :class="{ selected: selectedKbId === cat.id }"
+                @click="selectedKbId = cat.id"
+              >
+                <div class="kb-select-icon" :style="{ background: getKbColor(cat.id) }">
+                  <Icon :name="getCategoryIcon(cat.icon)" :size="20" />
+                </div>
+                <div class="kb-select-info">
+                  <p class="kb-name">{{ cat.name }}</p>
+                  <p class="kb-count">{{ cat.docCount || 0 }} 篇文档</p>
+                </div>
+                <Icon v-if="selectedKbId === cat.id" name="check-circle" :size="20" class="check-icon" />
+              </div>
+            </div>
+            <p v-if="kbCategories.length === 0" class="empty-hint">
+              暂无可导入的知识库，请先
+              <router-link to="/knowledge/new" class="link-btn">新建知识库</router-link>。
+            </p>
+          </div>
+
+          <div class="form-card">
+            <h3 class="card-title">生成模块</h3>
+            <p class="card-desc">选择一次性批量生成的模块（知识库始终包含）</p>
+            <div class="module-grid">
+              <button
+                v-for="m in moduleOptions"
+                :key="m.key"
+                class="module-item"
+                :class="{ selected: selectedModules.includes(m.key) }"
+                @click="toggleModule(m.key)"
+              >
+                <Icon :name="m.icon" :size="20" class="module-icon" />
+                <div class="module-info">
+                  <p class="module-name">{{ m.label }}</p>
+                  <p class="module-desc">{{ m.desc }}</p>
+                </div>
+                <Icon v-if="selectedModules.includes(m.key)" name="check-circle" :size="18" class="module-check" />
+              </button>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h3 class="card-title">导入选项</h3>
+            <div class="option-list">
+              <label class="checkbox-row">
+                <input type="checkbox" v-model="createSubCategories" />
+                <span>按目录创建子分类（保留目录层级）</span>
+              </label>
+              <label class="checkbox-row">
+                <input type="checkbox" v-model="autoTags" />
+                <span>自动生成标签（基于文档结构）</span>
+              </label>
+              <label class="checkbox-row">
+                <input type="checkbox" v-model="incremental" />
+                <span>增量去重（跳过内容未变更的文件）</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button class="btn-secondary" @click="goToStep(0)">
+              <Icon name="chevron-left" :size="14" />
+              <span>上一步</span>
+            </button>
+            <button class="btn-primary" :disabled="!selectedKbId" @click="startImport">
+              <Icon name="rocket" :size="14" />
+              <span>开始四模块导入</span>
+            </button>
+          </div>
+        </div>
+      </template>
+
+      <!-- ===== Step 2: 执行导入（进度） ===== -->
+      <template v-if="currentStep === 2">
+        <div class="step-panel">
+          <div class="form-card">
+            <h3 class="card-title">导入进度</h3>
+            <p class="card-desc">
+              {{ progress.total > 0 ? `正在处理 ${progress.current} / ${progress.total} 个文件` : '正在初始化…' }}
+            </p>
+
+            <div class="progress-bar-wrap">
+              <div class="progress-bar" :style="{ width: progressPercent + '%' }"></div>
+            </div>
+            <p class="progress-percent">{{ progressPercent }}%</p>
+
+            <div v-if="currentFile" class="current-file">
+              <Icon name="loader" :size="14" class="spin-icon" />
+              <span class="current-file-path" :title="currentFile">{{ currentFile }}</span>
+            </div>
+
+            <div v-if="progressLogs.length" class="path-files-list log-list">
+              <div
+                v-for="(log, i) in progressLogs.slice(-100).reverse()"
+                :key="i"
+                class="log-item"
+                :class="log.status"
+              >
+                <Icon :name="logIcon(log.status)" :size="13" class="log-icon" />
+                <span class="log-path" :title="log.path">{{ log.path }}</span>
+                <span class="log-msg">{{ log.message }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <span class="actions-spacer" />
+            <button v-if="!importing" class="btn-secondary" @click="goToStep(1)">
+              <Icon name="chevron-left" :size="14" />
+              <span>上一步</span>
+            </button>
+            <button v-if="importing" class="btn-secondary" @click="cancelImport">
+              <Icon name="x-circle" :size="14" />
+              <span>取消导入</span>
+            </button>
+          </div>
+        </div>
+      </template>
+
+      <!-- ===== Step 3: 完成 ===== -->
+      <template v-if="currentStep === 3">
+        <div class="step-panel">
+          <div class="result-banner">
+            <Icon name="check-circle" :size="40" class="result-icon" />
+            <h2>导入完成</h2>
+            <p class="result-sub">已生成以下模块内容</p>
+          </div>
+
+          <div v-if="importResult" class="result-grid">
+            <div class="result-stat">
+              <Icon name="file-text" :size="18" />
+              <div>
+                <p class="result-num">{{ importResult.docCount }}</p>
+                <p class="result-label">知识库文档</p>
+              </div>
+            </div>
+            <div class="result-stat">
+              <Icon name="image" :size="18" />
+              <div>
+                <p class="result-num">{{ importResult.imageCount }}</p>
+                <p class="result-label">迁移图片</p>
+              </div>
+            </div>
+            <div v-if="hasModule('path')" class="result-stat">
+              <Icon name="book-open" :size="18" />
+              <div>
+                <p class="result-num">{{ importResult.chapterCount }}</p>
+                <p class="result-label">学习路径章节</p>
+              </div>
+            </div>
+            <div v-if="hasModule('flashcard')" class="result-stat">
+              <Icon name="file-text" :size="18" />
+              <div>
+                <p class="result-num">{{ importResult.flashcardCount }}</p>
+                <p class="result-label">闪卡</p>
+              </div>
+            </div>
+            <div v-if="hasModule('quiz')" class="result-stat">
+              <Icon name="help-circle" :size="18" />
+              <div>
+                <p class="result-num">{{ importResult.quizCount }}</p>
+                <p class="result-label">题库</p>
+              </div>
+            </div>
+          </div>
+
+          <p v-if="importResult?.message" class="import-message">
+            <Icon name="info" :size="14" />
+            <span>{{ importResult.message }}</span>
+          </p>
+
+          <div class="step-actions">
+            <button class="btn-secondary" @click="goToStep(0)">
+              <Icon name="rotate-ccw" :size="14" />
+              <span>再次导入</span>
+            </button>
+            <button class="btn-primary" @click="goToResult">
+              <Icon name="arrow-right" :size="14" />
+              <span>前往知识库</span>
+            </button>
+          </div>
+        </div>
+      </template>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import { notify } from '@/utils/toast'
 import { obsidianImportApi, type ObsidianModule } from '@/api/obsidianImport'
-import { importTemplateApi, type ImportTemplateVO } from '@/api/importTemplate'
 import type { PathImportScanVO, CategoryVO } from '@/api/types'
-import type { ImportStreamCallbacks } from '@/api/knowledgeImport'
 
 const router = useRouter()
 
-type ImportMode = 'absolute' | 'folder' | 'files' | 'relative'
-const modes: { key: ImportMode; label: string; icon: string }[] = [
-  { key: 'absolute', label: '绝对路径', icon: 'folder' },
-  { key: 'folder', label: '选择文件夹', icon: 'upload' },
-  { key: 'files', label: '选择文件', icon: 'file' },
-  { key: 'relative', label: '相对路径', icon: 'link' },
-]
-const mode = ref<ImportMode>('absolute')
+const steps = ['选择来源', '配置模块', '执行导入', '完成']
+const currentStep = ref(0)
 
-const path = ref('')
-const pickedFolder = ref('')
-const useFolderAsRelative = ref(false)
-const filesBaseDir = ref('')
-const selectedFiles = ref<{ name: string; rel: string }[]>([])
+function goToStep(idx: number) {
+  if (idx >= 0 && idx < steps.length) currentStep.value = idx
+}
+function goBack() {
+  router.back()
+}
+function goToResult() {
+  router.push('/knowledge')
+}
 
-const scan = ref<PathImportScanVO | null>(null)
+// ============ Step 0: 来源 ============
+const sourceMode = ref<'path' | 'files'>('path')
+const pathInput = ref('')
+const relativeToInput = ref('')
 const scanning = ref(false)
-const importing = ref(false)
-const generating = ref(false)
-const errorMsg = ref('')
-const showGuide = ref(true)
+interface ScanError {
+  path: string
+  message: string
+}
+const pathError = ref<ScanError | null>(null)
+const scanResult = ref<PathImportScanVO | null>(null)
 
-const modules = ref<ObsidianModule[]>(['knowledge', 'path', 'flashcard', 'quiz'])
-const moduleOptions: { key: ObsidianModule; title: string; desc: string }[] = [
-  { key: 'knowledge', title: '知识库', desc: '导入文档，保留目录层级与图片' },
-  { key: 'path', title: '学习路径', desc: '按目录建章节并关联文档' },
-  { key: 'flashcard', title: '闪卡', desc: '按标题/段落提炼问答卡' },
-  { key: 'quiz', title: '题库', desc: '生成选择/判断/简答题' },
+// 与后端 PathImportService.DOC_EXTS / IMAGE_EXTS 对齐的支持类型
+const SUPPORTED_TYPES = [
+  { ext: '.md / .markdown', label: 'Markdown 笔记' },
+  { ext: '.txt', label: '纯文本' },
+  { ext: '.pdf', label: 'PDF 文档' },
+  { ext: '.doc / .docx', label: 'Word 文档' },
+  { ext: '.ppt / .pptx', label: 'PowerPoint' },
+  { ext: '.html / .htm', label: '网页' },
+  { ext: '.rtf', label: '富文本' },
+  { ext: '.jpg / .png / .gif / .webp / .svg', label: '图片' },
 ]
+const SUPPORTED_TYPES_TEXT = SUPPORTED_TYPES.map((t) => t.ext).join('、')
 
-const kbs = ref<CategoryVO[]>([])
-const targetCategoryId = ref(0)
-const pathTitle = ref('')
-const createSubCategories = ref(true)
-const autoTags = ref(true)
-const incremental = ref(true)
+const selectedFiles = ref<File[]>([])
+const dragging = ref(false)
+const fileInputRef = ref<HTMLInputElement | null>(null)
 
-const flashTemplates = ref<ImportTemplateVO[]>([])
-const quizTemplates = ref<ImportTemplateVO[]>([])
-const flashcardTemplateId = ref(0)
-const quizTemplateId = ref(0)
-
-const result = ref<null | {
-  absolutePath: string
-  categoryId: number
-  categoryName: string
-  docCount: number
-  imageCount: number
-  learningPathId?: number
-  chapterCount: number
-  flashcardCount: number
-  quizCount: number
-  generatedModules: ObsidianModule[]
-  message?: string
-}>(null)
-
-// 进度状态
-const progressPercent = ref(0)
-const progressCurrent = ref('')
-const progressTotal = ref(0)
-const progressLogs = ref<{ path: string; status: string }[]>([])
-let cancelFn: (() => Promise<void>) | null = null
-
-/** 文件选择模式：拼接每个文件的绝对路径 */
-const submitFilePaths = computed<string[]>(() => {
-  if (mode.value !== 'files' || !filesBaseDir.value) return []
-  const base = filesBaseDir.value.replace(/\/+$/, '')
-  return selectedFiles.value.map((f) => {
-    const rel = f.rel || f.name
-    return `${base}/${rel}`.replace(/\/{2,}/g, '/')
-  })
-})
-
-const submitPath = computed(() => {
-  if (mode.value === 'folder') return useFolderAsRelative.value ? pickedFolder.value : path.value
-  return path.value
-})
-
-const canScan = computed(() => {
-  if (mode.value === 'folder') return useFolderAsRelative.value ? !!pickedFolder.value : !!path.value
-  if (mode.value === 'files') return submitFilePaths.value.length > 0
-  return !!path.value
-})
-
-onMounted(async () => {
-  try {
-    kbs.value = await obsidianImportApi.listEditableKbs()
-  } catch {
-    kbs.value = []
+const derivedPath = computed(() => {
+  if (sourceMode.value !== 'files' || selectedFiles.value.length === 0) return ''
+  const first = selectedFiles.value[0]
+  const rel = (first as any).webkitRelativePath as string | undefined
+  if (rel && rel.includes('/')) {
+    const root = rel.split('/')[0]
+    return root
   }
-  try {
-    const all = await importTemplateApi.list()
-    flashTemplates.value = all.filter((t) => t.type === 'FLASHCARD' && t.enabled === 1)
-    quizTemplates.value = all.filter((t) => t.type === 'QUIZ' && t.enabled === 1)
-    const fd = flashTemplates.value.find((t) => t.isDefault === 1)
-    const qd = quizTemplates.value.find((t) => t.isDefault === 1)
-    flashcardTemplateId.value = fd ? fd.id : 0
-    quizTemplateId.value = qd ? qd.id : 0
-  } catch {
-    flashTemplates.value = []
-    quizTemplates.value = []
+  // 单个文件：以文件名所在（相对）目录作为导入路径
+  return first.name
+})
+
+const canProceed = computed(() => !!scanResult.value && !scanning.value)
+
+function triggerFileInput() {
+  fileInputRef.value?.click()
+}
+
+function handleFileSelect(e: Event) {
+  const input = e.target as HTMLInputElement
+  if (input.files) {
+    selectedFiles.value = Array.from(input.files)
+    pathInput.value = derivedPath.value
+    autoScanForFiles()
   }
-})
+}
 
-onBeforeUnmount(() => {
-  if (cancelFn) cancelFn().catch(() => {})
-})
-
-async function onScan() {
-  if (!canScan.value) return
-  scanning.value = true
-  errorMsg.value = ''
-  scan.value = null
-  result.value = null
-  try {
-    if (mode.value === 'files') {
-      scan.value = await obsidianImportApi.scan({ filePaths: submitFilePaths.value })
-    } else if (mode.value === 'relative') {
-      scan.value = await obsidianImportApi.scan({ path: path.value, relativeTo: '' })
-    } else {
-      scan.value = await obsidianImportApi.scan({ path: submitPath.value })
+function handleDrop(e: DragEvent) {
+  dragging.value = false
+  const items = e.dataTransfer?.files
+  if (items && items.length) {
+    selectedFiles.value = Array.from(items)
+    pathInput.value = derivedPath.value
+    autoScanForFiles()
+  } else {
+    pathError.value = {
+      path: pathInput.value.trim(),
+      message: '请拖入目录或文件后再扫描。',
     }
-    if (mode.value !== 'relative' && scan.value.absolutePath) path.value = scan.value.absolutePath
-  } catch (e) {
-    errorMsg.value = (e as Error).message || '扫描失败'
+  }
+}
+
+async function autoScanForFiles() {
+  // 文件模式无法直接拿到绝对路径，先进入扫描用相对根目录预览；
+  // 若后端无法解析则提示切换目录路径模式。
+  await handleScan()
+}
+
+// 重新选择路径：清空扫描结果并聚焦路径输入框，方便快速修正
+function reselectPath() {
+  pathError.value = null
+  scanResult.value = null
+  sourceMode.value = 'path'
+  if (sourceMode.value === 'path') {
+    const el = document.querySelector<HTMLInputElement>('.path-input:not(.standalone)')
+    el?.focus()
+  }
+}
+
+async function handleScan() {
+  const path = pathInput.value.trim()
+  if (!path) {
+    pathError.value = {
+      path: '',
+      message: '请输入路径或先选择文件后再扫描。',
+    }
+    return
+  }
+  scanning.value = true
+  pathError.value = null
+  scanResult.value = null
+  try {
+    const res = await obsidianImportApi.scan({
+      path,
+      relativeTo: relativeToInput.value.trim() || undefined,
+    })
+    scanResult.value = res.data
+    const vo = res.data
+    const hasFiles = vo && (vo.docCount > 0 || vo.imageCount > 0 || (vo.files && vo.files.length > 0))
+    if (!hasFiles) {
+      // 未发现可导入文件，给出含具体路径、支持类型与检查建议的友好提示
+      pathError.value = {
+        path,
+        message:
+          '该路径下未发现可导入的文件。请检查：① 路径是否正确（服务器可访问的绝对路径）；' +
+          '② 文件夹是否为空；③ 文件扩展名是否在支持范围内。',
+      }
+    } else {
+      notify(`扫描完成，共 ${vo!.docCount} 个文档`, 'success')
+    }
+  } catch (e: any) {
+    pathError.value = {
+      path,
+      message: e?.message || '路径扫描失败，请确认路径是否可被服务访问，或切换为「目录路径」手动填写绝对路径。',
+    }
   } finally {
     scanning.value = false
   }
 }
 
-function onPickFolder(e: Event) {
-  const input = e.target as HTMLInputElement
-  if (input.files && input.files.length) {
-    const rel = input.files[0].webkitRelativePath || ''
-    pickedFolder.value = rel.split('/')[0] || ''
-    errorMsg.value = ''
+// ============ Step 1: 模块配置 ============
+const kbCategories = ref<CategoryVO[]>([])
+const selectedKbId = ref<number | null>(null)
+
+const moduleOptions: { key: ObsidianModule; label: string; desc: string; icon: string }[] = [
+  { key: 'knowledge', label: '知识库', desc: '解析为带层级分类的文档（必选）', icon: 'file-text' },
+  { key: 'path', label: '学习路径', desc: '按目录层级生成章节并关联文档', icon: 'book-open' },
+  { key: 'flashcard', label: '闪卡', desc: 'AI 提炼问答卡片', icon: 'layers' },
+  { key: 'quiz', label: '题库', desc: 'AI 生成选择/判断/简答题', icon: 'help-circle' },
+]
+const selectedModules = ref<ObsidianModule[]>(['knowledge', 'path', 'flashcard', 'quiz'])
+
+const createSubCategories = ref(true)
+const autoTags = ref(true)
+const incremental = ref(true)
+
+function toggleModule(key: ObsidianModule) {
+  // knowledge 始终包含
+  if (key === 'knowledge') return
+  const idx = selectedModules.value.indexOf(key)
+  if (idx >= 0) selectedModules.value.splice(idx, 1)
+  else selectedModules.value.push(key)
+}
+function hasModule(key: ObsidianModule) {
+  return importResult.value?.generatedModules?.includes(key) ?? selectedModules.value.includes(key)
+}
+
+async function loadKbs() {
+  try {
+    const res = await obsidianImportApi.listEditableKbs()
+    kbCategories.value = res.data ?? []
+    if (kbCategories.value.length) selectedKbId.value = kbCategories.value[0].id
+  } catch {
+    kbCategories.value = []
   }
 }
 
-function onPickFiles(e: Event) {
-  const input = e.target as HTMLInputElement
-  if (!input.files) return
-  selectedFiles.value = Array.from(input.files).map((f) => ({
-    name: f.name,
-    rel: (f as any).webkitRelativePath || f.name,
-  }))
-  errorMsg.value = ''
+// ============ Step 2: 执行导入（SSE 进度） ============
+const importing = ref(false)
+const progress = ref({ current: 0, total: 0 })
+const currentFile = ref('')
+interface ProgressLog { path: string; status: string; message: string }
+const progressLogs = ref<ProgressLog[]>([])
+const importResult = ref<{
+  docCount: number
+  imageCount: number
+  chapterCount: number
+  flashcardCount: number
+  quizCount: number
+  generatedModules: ObsidianModule[]
+  message?: string
+} | null>(null)
+
+let cancelFn: (() => Promise<void>) | null = null
+
+const progressPercent = computed(() => {
+  if (progress.value.total <= 0) return importing.value ? 5 : 0
+  return Math.min(99, Math.round((progress.value.current / progress.value.total) * 100))
+})
+
+function logIcon(status: string) {
+  if (status === 'success' || status === 'ok') return 'check-circle'
+  if (status === 'skip') return 'skip-forward'
+  if (status === 'error' || status === 'fail') return 'x-circle'
+  return 'file-text'
 }
 
-function buildParams() {
-  const base: any = {
-    modules: modules.value,
-    targetCategoryId: targetCategoryId.value || undefined,
-    pathTitle: pathTitle.value || undefined,
+function startImport() {
+  if (!selectedKbId.value) return
+  importing.value = true
+  progress.value = { current: 0, total: 0 }
+  currentFile.value = ''
+  progressLogs.value = []
+  importResult.value = null
+  currentStep.value = 2
+
+  const params = {
+    path: pathInput.value.trim(),
+    relativeTo: relativeToInput.value.trim() || undefined,
+    targetCategoryId: selectedKbId.value,
+    modules: selectedModules.value,
     createSubCategories: createSubCategories.value,
     autoTags: autoTags.value,
     incremental: incremental.value,
-    flashcardTemplateId: flashcardTemplateId.value || undefined,
-    quizTemplateId: quizTemplateId.value || undefined,
   }
-  if (mode.value === 'files') {
-    base.filePaths = submitFilePaths.value
-  } else if (mode.value === 'relative') {
-    base.path = path.value
-    base.relativeTo = ''
-  } else {
-    base.path = submitPath.value
-  }
-  return base
-}
 
-function buildCallbacks(): ImportStreamCallbacks {
-  return {
-    onStart: (d) => {
-      progressTotal.value = d.total || 0
-    },
-    onFileStart: (d) => {
-      progressCurrent.value = d.path
-      progressTotal.value = d.total || progressTotal.value
-    },
-    onFileDone: (d) => {
-      progressLogs.value.push({ path: d.path, status: d.status })
-      const done = progressLogs.value.length
-      progressPercent.value = progressTotal.value ? Math.round((done / progressTotal.value) * 100) : 99
-      progressCurrent.value = d.path
-    },
-    onComplete: (r: any) => {
-      importing.value = false
-      generating.value = false
-      progressPercent.value = 100
-      result.value = r
-    },
-    onError: (msg) => {
-      importing.value = false
-      generating.value = false
-      errorMsg.value = msg
-    },
-  }
-}
-
-async function onGenerate() {
-  if (modules.value.length === 0) return
-  importing.value = true
-  generating.value = true
-  errorMsg.value = ''
-  result.value = null
-  progressPercent.value = 0
-  progressLogs.value = []
-  progressCurrent.value = ''
-  progressTotal.value = 0
-  try {
-    cancelFn = obsidianImportApi.importStream(buildParams(), buildCallbacks()).cancel
-  } catch (e) {
-    importing.value = false
-    generating.value = false
-    errorMsg.value = (e as Error).message || '导入失败'
-  }
+  cancelFn = obsidianImportApi
+    .importStream(params, {
+      onStart: (data) => {
+        progress.value.total = data.total
+      },
+      onFileStart: (data) => {
+        currentFile.value = data.path
+        progress.value.current = data.index
+      },
+      onFileDone: (data) => {
+        progress.value.current = data.index
+        progressLogs.value.push({
+          path: data.path,
+          status: data.status || 'ok',
+          message: data.message || '',
+        })
+      },
+      onComplete: (result: any) => {
+        importing.value = false
+        progress.value.current = progress.value.total
+        importResult.value = {
+          docCount: result.docCount ?? 0,
+          imageCount: result.imageCount ?? 0,
+          chapterCount: result.chapterCount ?? 0,
+          flashcardCount: result.flashcardCount ?? 0,
+          quizCount: result.quizCount ?? 0,
+          generatedModules: (result.generatedModules ?? selectedModules.value) as ObsidianModule[],
+          message: result.message,
+        }
+        notify('导入完成', 'success')
+        currentStep.value = 3
+      },
+      onError: (error) => {
+        importing.value = false
+        pathError.value = error
+        notify(error, 'error')
+        currentStep.value = 1
+      },
+      onCancel: () => {
+        importing.value = false
+        notify('已取消导入', 'info')
+      },
+    })
+    .cancel
 }
 
 async function cancelImport() {
   if (cancelFn) await cancelFn()
-  importing.value = false
-  generating.value = false
+  cancelFn = null
 }
 
-function statusText(s: string) {
-  return s === 'success' ? '成功' : s === 'skipped' ? '跳过' : s === 'failed' ? '失败' : '处理中'
+// ============ 工具 ============
+function getFileIcon(ext: string, type: string) {
+  if (type === 'image') return 'image'
+  const code = ['java', 'py', 'js', 'ts', 'vue', 'go', 'css', 'html', 'xml', 'json', 'sql', 'yml', 'md']
+  if (code.includes(ext.replace('.', ''))) return 'code'
+  if (ext === 'pdf' || ext === 'doc' || ext === 'docx') return 'file-text'
+  return 'file'
+}
+function formatFileSize(bytes: number) {
+  if (!bytes) return '0 B'
+  const units = ['B', 'KB', 'MB', 'GB']
+  let i = 0
+  let val = bytes
+  while (val >= 1024 && i < units.length - 1) {
+    val /= 1024
+    i++
+  }
+  return `${val.toFixed(val >= 10 || i === 0 ? 0 : 1)} ${units[i]}`
+}
+const KB_COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899']
+function getKbColor(id?: number) {
+  return KB_COLORS[(id ?? 0) % KB_COLORS.length]
+}
+function getCategoryIcon(icon?: string) {
+  const map: Record<string, string> = {
+    book: 'book-open',
+    code: 'code',
+    brain: 'file-text',
+   灯泡: 'file-text',
+    folder: 'folder',
+  }
+  return map[icon || ''] || 'folder'
 }
 
-function onBack() {
-  if (window.history.length > 1) router.back()
-  else router.push('/')
-}
+onMounted(loadKbs)
 </script>
 
 <style scoped>
-.obsidian-import {
-  max-width: 920px;
-  margin: 0 auto;
-  padding: 24px 20px 60px;
-  color: var(--kb-text, #e8eaf0);
+.knowledge-import-page {
+  min-height: 100vh;
+  background: var(--kb-background);
+  padding: 24px 16px 48px;
 }
-.page-head {
+
+.page-header {
+  max-width: 960px;
+  margin: 0 auto 20px;
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  margin-bottom: 18px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
+
+.header-left,
+.header-right {
+  display: flex;
+  flex: 1;
+}
+.header-left {
+  justify-content: flex-start;
+}
+.header-right {
+  justify-content: flex-end;
+}
+
 .back-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--kb-border, #2c3040);
-  background: var(--kb-surface, #262a38);
-  color: var(--kb-text, #e8eaf0);
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  color: var(--kb-foreground);
+  font-size: var(--kb-text-sm);
   cursor: pointer;
-  font-size: 13px;
+  transition: background 0.15s;
+}
+.back-btn:hover {
+  background: var(--kb-muted-bg);
+}
+
+.page-title {
+  font-size: var(--kb-text-xl);
+  font-weight: 600;
+  color: var(--kb-foreground);
+  margin: 0;
+  text-align: center;
+}
+
+.adv-import-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--kb-text-sm);
+  color: var(--kb-primary);
+  text-decoration: none;
+}
+.adv-import-link:hover {
+  text-decoration: underline;
+}
+
+/* 步骤指示器 */
+.step-indicator {
+  max-width: 960px;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+}
+.step-item {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  position: relative;
+}
+.step-item:last-child {
+  flex: 0 0 auto;
+}
+.step-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--kb-muted-bg);
+  color: var(--kb-muted);
+  font-size: var(--kb-text-sm);
+  font-weight: 600;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  z-index: 1;
+}
+.step-label {
+  margin-left: 8px;
+  font-size: var(--kb-text-sm);
+  color: var(--kb-muted);
   white-space: nowrap;
 }
-.back-btn:hover { border-color: var(--kb-primary, #5b8cff); }
-.head-text h1 { font-size: 24px; margin: 0 0 6px; }
-.subtitle { color: var(--kb-text-secondary, #9aa0b4); line-height: 1.6; margin: 0; font-size: 14px; }
-.guide {
-  border: 1px solid var(--kb-border, #2c3040);
-  background: var(--kb-card-bg, #1c1f2b);
-  border-radius: 12px;
-  margin-bottom: 18px;
+.step-item.active .step-circle {
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+}
+.step-item.active .step-label {
+  color: var(--kb-foreground);
+  font-weight: 500;
+}
+.step-item.done .step-circle {
+  background: var(--kb-accent);
+  color: #fff;
+}
+.step-item.done .step-label {
+  color: var(--kb-foreground);
+}
+.step-connector {
+  flex: 1;
+  height: 2px;
+  background: var(--kb-border);
+  margin: 0 12px;
+}
+
+.import-content {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.step-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 向导卡片 */
+.guide-card {
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-lg);
+  padding: 18px 20px;
+}
+.guide-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.guide-icon {
+  color: var(--kb-primary);
+}
+.guide-header h3 {
+  margin: 0;
+  font-size: var(--kb-text-base);
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+.guide-body {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.guide-section h4 {
+  margin: 0 0 6px;
+  font-size: var(--kb-text-sm);
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+.guide-section ul {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.guide-section li {
+  font-size: var(--kb-text-sm);
+  color: var(--kb-muted);
+  line-height: 1.6;
+}
+.guide-section code {
+  background: var(--kb-muted-bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--kb-foreground);
+}
+
+/* 表单卡片 */
+.form-card {
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-lg);
+  padding: 20px;
+}
+.card-title {
+  margin: 0;
+  font-size: var(--kb-text-base);
+  font-weight: 600;
+  color: var(--kb-foreground);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-desc {
+  margin: 6px 0 16px;
+  font-size: var(--kb-text-sm);
+  color: var(--kb-muted);
+  line-height: 1.6;
+}
+.form-group {
+  margin-bottom: 16px;
+}
+.form-group:last-child {
+  margin-bottom: 0;
+}
+.form-label {
+  display: block;
+  font-size: var(--kb-text-sm);
+  font-weight: 500;
+  color: var(--kb-foreground);
+  margin-bottom: 8px;
+}
+.label-optional {
+  font-weight: 400;
+  color: var(--kb-muted);
+}
+.input-error {
+  border-color: var(--kb-danger) !important;
+}
+
+/* 导入方式 Tab */
+.import-mode-tabs {
+  display: flex;
+  gap: 8px;
+  background: var(--kb-muted-bg);
+  padding: 4px;
+  border-radius: var(--kb-radius-md);
+  width: fit-content;
+}
+.mode-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  border-radius: var(--kb-radius-sm);
+  color: var(--kb-muted);
+  font-size: var(--kb-text-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mode-tab.active {
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  box-shadow: var(--kb-shadow-sm);
+  font-weight: 500;
+}
+
+/* 路径输入 */
+.path-input-row {
+  display: flex;
+  align-items: center;
+  background: var(--kb-background);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
   overflow: hidden;
 }
-.guide-toggle {
-  width: 100%; display: flex; align-items: center; gap: 8px;
-  padding: 14px 18px; background: transparent; border: none;
-  color: var(--kb-text, #e8eaf0); cursor: pointer; font-size: 14px; font-weight: 600;
+.path-input-icon {
+  padding: 0 10px;
+  color: var(--kb-muted);
+  display: flex;
 }
-.guide-toggle .chev { margin-left: auto; }
-.guide-body { padding: 4px 18px 18px; display: flex; flex-direction: column; gap: 12px; }
-.guide-item { display: flex; gap: 12px; align-items: flex-start; }
-.gi-icon {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 30px; height: 30px; border-radius: 8px;
-  background: rgba(91, 140, 255, 0.12); color: var(--kb-primary, #5b8cff); flex-shrink: 0;
-}
-.guide-item b { font-size: 14px; }
-.guide-item p { margin: 4px 0 0; font-size: 13px; color: var(--kb-text-secondary, #9aa0b4); line-height: 1.6; }
-.guide-item code { background: var(--kb-input-bg, #14161f); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
-.card {
-  background: var(--kb-card-bg, #1c1f2b);
-  border: 1px solid var(--kb-border, #2c3040);
-  border-radius: 12px; padding: 20px; margin-bottom: 18px;
-}
-.step-title { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; margin-bottom: 16px; }
-.num {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 24px; height: 24px; border-radius: 50%;
-  background: var(--kb-primary, #5b8cff); color: #fff; font-size: 13px;
-}
-.mode-tabs { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-.mode-tab {
-  display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px;
-  border-radius: 8px; border: 1px solid var(--kb-border, #2c3040);
-  background: var(--kb-surface, #262a38); color: var(--kb-text, #e8eaf0); cursor: pointer; font-size: 14px;
-}
-.mode-tab.active { border-color: var(--kb-primary, #5b8cff); background: rgba(91, 140, 255, 0.14); color: var(--kb-primary, #5b8cff); }
-.mode-panel { margin-bottom: 16px; }
 .path-input {
-  width: 100%; padding: 10px 12px; border-radius: 8px;
-  border: 1px solid var(--kb-border, #2c3040); background: var(--kb-input-bg, #14161f);
-  color: var(--kb-text, #e8eaf0); font-size: 14px;
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 11px 12px;
+  font-size: var(--kb-text-sm);
+  color: var(--kb-foreground);
+  outline: none;
 }
-.folder-btn {
-  display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px;
-  border-radius: 8px; background: var(--kb-surface, #262a38);
-  border: 1px solid var(--kb-border, #2c3040); cursor: pointer; font-size: 14px;
+.path-input.standalone {
+  width: 100%;
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  background: var(--kb-background);
+  padding: 11px 12px;
 }
-.folder-btn:hover { border-color: var(--kb-primary, #5b8cff); }
-.picked {
-  display: flex; flex-direction: column; gap: 10px; margin: 14px 0 4px;
-  padding: 12px 14px; border-radius: 8px;
-  background: var(--kb-input-bg, #14161f); border: 1px solid var(--kb-border, #2c3040);
+.btn-scan {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px;
+  padding: 8px 16px;
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  border: none;
+  border-radius: var(--kb-radius-sm);
+  font-size: var(--kb-text-sm);
+  cursor: pointer;
+  white-space: nowrap;
 }
-.file-pick-list { list-style: none; margin: 12px 0 0; padding: 0; max-height: 200px; overflow: auto; }
-.file-pick-list li { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 13px; color: var(--kb-text-secondary, #9aa0b4); }
-.hint { color: var(--kb-text-secondary, #9aa0b4); font-size: 13px; line-height: 1.6; margin: 12px 0; }
-.hint code { background: var(--kb-input-bg, #14161f); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
-.btn {
-  padding: 10px 18px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px;
-  background: var(--kb-surface, #262a38); color: var(--kb-text, #e8eaf0);
-  text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+.btn-scan:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
-.btn.primary { background: var(--kb-primary, #5b8cff); color: #fff; }
-.btn.lg { width: 100%; padding: 14px; font-size: 15px; margin-top: 8px; justify-content: center; }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.scan-stat { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 14px; color: var(--kb-text-secondary, #9aa0b4); font-size: 14px; }
-.file-tree { max-height: 320px; overflow: auto; border: 1px solid var(--kb-border, #2c3040); border-radius: 8px; }
-.file-item { display: flex; justify-content: space-between; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--kb-border, #2c3040); font-size: 13px; }
-.file-item.image { color: var(--kb-text-secondary, #9aa0b4); }
-.fi-path { color: var(--kb-text-secondary, #9aa0b4); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 55%; }
-.module-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; }
-.module-chip {
-  display: flex; flex-direction: column; gap: 4px; padding: 14px; border-radius: 10px;
-  border: 1px solid var(--kb-border, #2c3040); background: var(--kb-input-bg, #14161f); cursor: pointer;
+.path-input-hint {
+  margin: 8px 0 0;
+  font-size: var(--kb-text-sm);
+  color: var(--kb-muted);
+  line-height: 1.5;
 }
-.module-chip.active { border-color: var(--kb-primary, #5b8cff); background: rgba(91, 140, 255, 0.12); }
-.m-title { font-weight: 600; }
-.m-desc { font-size: 12px; color: var(--kb-text-secondary, #9aa0b4); }
-.tpl-select {
-  display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px; margin-bottom: 16px;
-  padding: 14px; border-radius: 10px; border: 1px dashed var(--kb-border, #2c3040); background: var(--kb-input-bg, #14161f);
+.field-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  font-size: var(--kb-text-sm);
+  color: var(--kb-danger);
 }
-.tpl-select .opt { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--kb-text-secondary, #9aa0b4); }
-.tpl-select .opt select {
-  border: 1px solid var(--kb-border, #2c3040); background: var(--kb-input-bg, #14161f);
-  color: var(--kb-text, #e8eaf0); border-radius: 8px; padding: 7px 10px; font-size: 13px; min-width: 220px;
+
+/* 扫描错误提示卡片 */
+.scan-error-box {
+  margin: 14px 0 0;
+  padding: 14px 16px;
+  background: var(--kb-danger-bg, #fef2f2);
+  border: 1px solid var(--kb-danger, #dc2626);
+  border-radius: var(--kb-radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-.tpl-manage { margin-left: auto; font-size: 13px; color: var(--kb-primary, #5b8cff); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
-.tpl-manage:hover { text-decoration: underline; }
-.opt-row { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 12px; }
-.opt { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--kb-text-secondary, #9aa0b4); }
-.opt select, .opt input {
-  padding: 8px 10px; border-radius: 8px; border: 1px solid var(--kb-border, #2c3040);
-  background: var(--kb-input-bg, #14161f); color: var(--kb-text, #e8eaf0);
+.scan-error-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--kb-danger, #dc2626);
+  font-weight: 600;
+  font-size: var(--kb-text-sm);
 }
-.opt-check { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--kb-text-secondary, #9aa0b4); }
-.progress-card { border-color: var(--kb-primary, #5b8cff); }
-.progress-bar { height: 10px; border-radius: 6px; background: var(--kb-input-bg, #14161f); overflow: hidden; }
-.progress-fill { height: 100%; background: var(--kb-primary, #5b8cff); transition: width 0.3s ease; }
-.progress-meta { display: flex; gap: 16px; margin: 10px 0; font-size: 13px; color: var(--kb-text-secondary, #9aa0b4); }
-.progress-log { list-style: none; margin: 8px 0 14px; padding: 0; max-height: 260px; overflow: auto; }
-.progress-log li { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 13px; border-bottom: 1px solid var(--kb-border, #2c3040); }
-.progress-log li.success { color: #5fcf80; }
-.progress-log li.failed { color: #ff6b6b; }
-.progress-log li.skipped { color: var(--kb-text-secondary, #9aa0b4); }
-.log-status { margin-left: auto; font-size: 12px; }
-.result-stat { display: flex; gap: 16px; flex-wrap: wrap; }
-.rs { display: flex; flex-direction: column; align-items: center; padding: 14px 20px; border-radius: 10px; background: rgba(91, 140, 255, 0.1); min-width: 72px; }
-.rs b { font-size: 22px; color: var(--kb-primary, #5b8cff); }
-.rs span { font-size: 12px; color: var(--kb-text-secondary, #9aa0b4); }
-.result-msg, .result-path { color: var(--kb-text-secondary, #9aa0b4); font-size: 13px; margin: 12px 0 0; }
-.result-actions { display: flex; gap: 12px; margin-top: 18px; }
-.error { color: #ff6b6b; background: rgba(255, 107, 107, 0.1); padding: 12px; border-radius: 8px; font-size: 14px; }
+.scan-error-title {
+  color: var(--kb-danger, #dc2626);
+}
+.scan-error-msg {
+  margin: 0;
+  font-size: var(--kb-text-sm);
+  font-weight: 400;
+  color: var(--kb-foreground);
+  line-height: 1.6;
+}
+.scan-error-path {
+  margin: 0;
+  font-size: var(--kb-text-sm);
+  color: var(--kb-foreground);
+  word-break: break-all;
+}
+.scan-error-k {
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+.scan-error-types {
+  font-size: var(--kb-text-sm);
+  color: var(--kb-foreground);
+  line-height: 1.6;
+}
+.scan-error-types-list {
+  font-weight: 400;
+  color: var(--kb-muted);
+}
+.btn-reselect {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 8px 16px;
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  font-size: var(--kb-text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-reselect:hover {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+}
+
+/* 拖拽区 */
+.drop-zone {
+  border: 2px dashed var(--kb-border);
+  border-radius: var(--kb-radius-lg);
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--kb-muted-bg);
+}
+.drop-zone.drag-over {
+  border-color: var(--kb-primary);
+  background: var(--kb-accent-bg, rgba(59, 130, 246, 0.06));
+}
+.dir-select-icon {
+  color: var(--kb-muted);
+  margin-bottom: 10px;
+}
+.dir-select-title {
+  margin: 0;
+  font-size: var(--kb-text-base);
+  font-weight: 500;
+  color: var(--kb-foreground);
+}
+.dir-select-hint {
+  margin: 6px 0 0;
+  font-size: var(--kb-text-sm);
+  color: var(--kb-muted);
+}
+.hidden-file-input {
+  display: none;
+}
+
+/* 预览卡片 */
+.preview-card {
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-lg);
+  padding: 20px;
+}
+.preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.scan-mode-tag {
+  font-size: var(--kb-text-xs);
+  padding: 2px 8px;
+  background: var(--kb-muted-bg);
+  border-radius: var(--kb-radius-full);
+  color: var(--kb-muted);
+  font-weight: 400;
+}
+.preview-stats {
+  display: flex;
+  gap: 8px;
+}
+.stat-badge {
+  font-size: var(--kb-text-xs);
+  padding: 3px 10px;
+  border-radius: var(--kb-radius-full);
+  font-weight: 500;
+}
+.stat-badge.doc {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+}
+.stat-badge.img {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+.stat-badge.dir {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+.path-files-list {
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.path-file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--kb-radius-sm);
+  font-size: var(--kb-text-xs);
+}
+.path-file-item:hover {
+  background: var(--kb-muted-bg);
+}
+.file-ext-icon {
+  color: var(--kb-muted);
+  flex-shrink: 0;
+}
+.file-path-text {
+  flex: 1;
+  color: var(--kb-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.file-size {
+  color: var(--kb-muted);
+  flex-shrink: 0;
+}
+.more-files-hint {
+  font-size: var(--kb-text-xs);
+  color: var(--kb-muted);
+  font-style: italic;
+  padding: 6px 8px;
+}
+.resolved-path-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0 0;
+  font-size: var(--kb-text-xs);
+  color: var(--kb-accent);
+}
+
+/* 知识库选择 */
+.kb-select-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.kb-select-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+.kb-select-item:hover {
+  border-color: var(--kb-primary);
+}
+.kb-select-item.selected {
+  border-color: var(--kb-primary);
+  background: var(--kb-accent-bg, rgba(59, 130, 246, 0.06));
+}
+.kb-select-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--kb-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+.kb-select-info {
+  flex: 1;
+  min-width: 0;
+}
+.kb-name {
+  margin: 0;
+  font-size: var(--kb-text-sm);
+  font-weight: 500;
+  color: var(--kb-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kb-count {
+  margin: 2px 0 0;
+  font-size: var(--kb-text-xs);
+  color: var(--kb-muted);
+}
+.check-icon {
+  color: var(--kb-primary);
+  flex-shrink: 0;
+}
+.empty-hint {
+  font-size: var(--kb-text-sm);
+  color: var(--kb-muted);
+  line-height: 1.6;
+}
+.link-btn {
+  color: var(--kb-primary);
+  text-decoration: none;
+}
+
+/* 模块选择 */
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.module-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  cursor: pointer;
+  background: var(--kb-card);
+  text-align: left;
+  transition: all 0.15s;
+  position: relative;
+}
+.module-item:hover {
+  border-color: var(--kb-primary);
+}
+.module-item.selected {
+  border-color: var(--kb-primary);
+  background: var(--kb-accent-bg, rgba(59, 130, 246, 0.06));
+}
+.module-icon {
+  color: var(--kb-primary);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.module-info {
+  flex: 1;
+  min-width: 0;
+}
+.module-name {
+  margin: 0;
+  font-size: var(--kb-text-sm);
+  font-weight: 500;
+  color: var(--kb-foreground);
+}
+.module-desc {
+  margin: 4px 0 0;
+  font-size: var(--kb-text-xs);
+  color: var(--kb-muted);
+  line-height: 1.5;
+}
+.module-check {
+  color: var(--kb-primary);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* 选项 */
+.option-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--kb-text-sm);
+  color: var(--kb-foreground);
+  cursor: pointer;
+}
+
+/* 操作按钮 */
+.step-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.actions-spacer {
+  flex: 1;
+}
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 22px;
+  border-radius: var(--kb-radius-md);
+  font-size: var(--kb-text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+.btn-primary {
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+}
+.btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-secondary {
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  border-color: var(--kb-border);
+}
+.btn-secondary:hover {
+  background: var(--kb-muted-bg);
+}
+
+/* 进度 */
+.progress-bar-wrap {
+  margin-top: 16px;
+  height: 10px;
+  background: var(--kb-muted-bg);
+  border-radius: var(--kb-radius-full);
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--kb-primary);
+  border-radius: var(--kb-radius-full);
+  transition: width 0.3s ease;
+}
+.progress-percent {
+  margin: 8px 0 0;
+  font-size: var(--kb-text-sm);
+  font-weight: 600;
+  color: var(--kb-foreground);
+  text-align: right;
+}
+.current-file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: var(--kb-text-sm);
+  color: var(--kb-muted);
+}
+.current-file-path {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.log-list {
+  margin-top: 14px;
+  max-height: 280px;
+}
+.log-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  font-size: var(--kb-text-xs);
+}
+.log-icon {
+  flex-shrink: 0;
+}
+.log-item.success .log-icon,
+.log-item.ok .log-icon {
+  color: var(--kb-success);
+}
+.log-item.error .log-icon,
+.log-item.fail .log-icon {
+  color: var(--kb-danger);
+}
+.log-item.skip .log-icon {
+  color: var(--kb-muted);
+}
+.log-path {
+  flex: 1;
+  color: var(--kb-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.log-msg {
+  color: var(--kb-muted);
+  flex-shrink: 0;
+}
+
+/* 结果 */
+.result-banner {
+  text-align: center;
+  padding: 16px 0;
+}
+.result-icon {
+  color: var(--kb-success);
+}
+.result-banner h2 {
+  margin: 10px 0 4px;
+  font-size: var(--kb-text-xl);
+  color: var(--kb-foreground);
+}
+.result-sub {
+  margin: 0;
+  font-size: var(--kb-text-sm);
+  color: var(--kb-muted);
+}
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+.result-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  padding: 16px;
+  color: var(--kb-primary);
+}
+.result-stat > div {
+  flex: 1;
+}
+.result-num {
+  margin: 0;
+  font-size: var(--kb-text-xl);
+  font-weight: 700;
+  color: var(--kb-foreground);
+}
+.result-label {
+  margin: 2px 0 0;
+  font-size: var(--kb-text-xs);
+  color: var(--kb-muted);
+}
+.import-message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--kb-text-sm);
+  color: var(--kb-muted);
+  background: var(--kb-muted-bg);
+  padding: 10px 14px;
+  border-radius: var(--kb-radius-md);
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .page-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .page-title {
+    order: -1;
+    width: 100%;
+    text-align: left;
+  }
+  .import-mode-tabs {
+    width: 100%;
+  }
+  .mode-tab {
+    flex: 1;
+    justify-content: center;
+  }
+  .kb-select-grid,
+  .module-grid {
+    grid-template-columns: 1fr;
+  }
+  .step-actions {
+    flex-direction: column-reverse;
+  }
+  .step-actions .btn-primary,
+  .step-actions .btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+  .step-label {
+    display: none;
+  }
+}
 </style>

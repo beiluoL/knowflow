@@ -99,7 +99,15 @@ ai:
   api-key: ${AI_API_KEY:sk-placeholder-replace-with-your-key}
   base-url: ${AI_BASE_URL:https://api.deepseek.com/v1}
   model: ${AI_MODEL:deepseek-chat}
+  # Embedding 独立配置：对话模型与嵌入模型通常来自不同厂商。
+  # 例如 base-url 指向 DeepSeek 时，DeepSeek 并不提供 /embeddings 接口，
+  # 若共用 base-url 会导致向量化恒失败、doc_chunk.embedding 全为 NULL、语义检索失效。
+  # 留空时回退到 ai.base-url / ai.api-key，保持旧配置兼容。
+  embedding-base-url: ${AI_EMBEDDING_BASE_URL:}
+  embedding-api-key: ${AI_EMBEDDING_API_KEY:}
   embedding-model: ${AI_EMBEDDING_MODEL:text-embedding-3-small}
+  # 单次批量向量化的最大文本条数，用于导入时批量提交降低往返开销
+  embedding-batch-size: ${AI_EMBEDDING_BATCH_SIZE:16}
   max-tokens: ${AI_MAX_TOKENS:8000}
   timeout-seconds: ${AI_TIMEOUT_SECONDS:180}
   max-content-chars: ${AI_MAX_CONTENT_CHARS:20000}

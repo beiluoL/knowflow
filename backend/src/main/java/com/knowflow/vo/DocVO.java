@@ -48,4 +48,14 @@ public class DocVO {
     private Integer status;
 
     private LocalDateTime createTime;
+
+    /**
+     * 正文命中片段（纯文本，不含 HTML）。仅关键词搜索时返回，
+     * 用于在搜索结果中展示关键词上下文。前端负责高亮渲染，
+     * 后端不拼接 HTML 标签以避免 XSS 注入面。
+     */
+    private String highlight;
+
+    /** 相关度得分，仅关键词搜索时返回，供前端调试与排序校验 */
+    private Double score;
 }

@@ -989,8 +989,15 @@ onMounted(loadCategories)
 
 .header-left,
 .header-right {
-  flex: 1;
   display: flex;
+  flex: 1;
+}
+
+.header-left {
+  justify-content: flex-start;
+}
+
+.header-right {
   justify-content: flex-end;
 }
 

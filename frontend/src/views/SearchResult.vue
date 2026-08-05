@@ -137,10 +137,10 @@
           </div>
           <!-- 标题（含关键词高亮） -->
           <h3 class="result-title" v-html="highlightKeyword(doc.title)"></h3>
-          <!-- 摘要（含关键词高亮） -->
+          <!-- 摘要（优先展示正文命中片段，含关键词高亮） -->
           <p
             class="result-summary"
-            v-html="highlightKeyword(doc.summary || '')"
+            v-html="highlightKeyword(getSummaryText(doc))"
           ></p>
           <!-- 底部：作者 + 日期 + 浏览数 + 收藏按钮 -->
           <div class="result-meta-bottom">
@@ -234,15 +234,18 @@ const favoritedIds = ref<Set<number>>(new Set());
 // 分页状态
 const pageNum = ref(1);
 const pageSize = ref(10);
-// 后端返回的总数（无筛选时用）
+// 后端返回的总数
 const serverTotal = ref(0);
-// 是否有前端筛选条件
-const hasFilters = computed(() =>
-  activeTab.value !== 'all' || activeTime.value !== 'all' || activeSort.value !== 'relevance',
-);
+// 类型/时间为纯前端筛选（后端无对应字段），排序已下推后端，不计入此判断
+const hasFilters = computed(() => activeTab.value !== 'all' || activeTime.value !== 'all');
 
 // 热门搜索词
 const hotTags = ['Vue 3', 'TypeScript', 'React Hooks', '前端性能优化', '设计模式', '算法入门'];
+
+/** 前端筛选场景下单批拉取条数 */
+const BATCH_SIZE = 100;
+/** 前端筛选场景下最多加载的文档数，超出部分不再拉取以保护浏览器内存 */
+const MAX_CLIENT_FILTER_DOCS = 1000;
 
 // 筛选项配置
 const filterTabs = computed(() => [
@@ -259,13 +262,15 @@ const timeOptions = [
   { key: 'month', label: '最近一月' },
 ];
 
+// 排序 key 与后端 DocQueryDTO.sort 取值一一对应，由后端执行排序
 const sortOptions = [
   { key: 'relevance', label: '相关性排序' },
   { key: 'time', label: '最新发布' },
-  { key: 'progress', label: '最多阅读' },
+  { key: 'view', label: '最多阅读' },
 ];
 
-// 按类型/时间过滤，再按相关度/时间/阅读量排序
+// 仅做类型/时间的前端过滤；排序由后端完成，此处不再二次排序，
+// 否则会打乱后端的相关度（含语义召回）排名。
 const filteredResults = computed(() => {
   let results = [...allResults.value];
 
@@ -289,13 +294,6 @@ const filteredResults = computed(() => {
       if (!d.createTime) return false;
       return (now - new Date(d.createTime).getTime()) / 86400000 <= days;
     });
-  }
-
-  // 排序
-  if (activeSort.value === 'time') {
-    results.sort((a, b) => new Date(b.createTime || 0).getTime() - new Date(a.createTime || 0).getTime());
-  } else if (activeSort.value === 'progress') {
-    results.sort((a, b) => (b.readCount || 0) - (a.readCount || 0));
   }
 
   return results;
@@ -343,11 +341,10 @@ const visiblePages = computed(() => {
   return pages;
 });
 
-// 翻页：边界内才允许跳转
+// 翻页：边界内才允许跳转。无前端筛选时需向后端请求对应页，有筛选时本地切片即可。
 function goToPage(p: number): void {
   if (p < 1 || p > totalPages.value || p === -1) return;
   pageNum.value = p;
-  // 无筛选时：后端分页，需重新请求
   if (!hasFilters.value && searchQuery.value.trim()) {
     fetchPage(p);
   }
@@ -364,14 +361,32 @@ function escapeHtml(str: string): string {
     .replace(/'/g, '&#39;');
 }
 
-// 关键词高亮：转义文本与关键词后，用正则包裹 <mark> 标签；正则元字符已转义避免注入
+/**
+ * 关键词高亮：先整体 HTML 转义，再用字面量匹配包裹 <mark>。
+ * 用 indexOf 循环而非动态正则，规避用户输入构造正则带来的 ReDoS 与转义遗漏风险。
+ */
 function highlightKeyword(text: string): string {
-  const safe = escapeHtml(text);
-  const kw = searchQuery.value.trim();
+  const safe = escapeHtml(text || '');
+  const kw = escapeHtml(searchQuery.value.trim());
   if (!kw) return safe;
-  const safeKw = escapeHtml(kw);
-  const regex = new RegExp(`(${safeKw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-  return safe.replace(regex, '<mark class="kw-highlight">$1</mark>');
+
+  const lowerSafe = safe.toLowerCase();
+  const lowerKw = kw.toLowerCase();
+  let result = '';
+  let cursor = 0;
+  let idx = lowerSafe.indexOf(lowerKw);
+  while (idx >= 0) {
+    result += safe.slice(cursor, idx);
+    result += `<mark class="kw-highlight">${safe.slice(idx, idx + kw.length)}</mark>`;
+    cursor = idx + kw.length;
+    idx = lowerSafe.indexOf(lowerKw, cursor);
+  }
+  return result + safe.slice(cursor);
+}
+
+/** 摘要展示：优先用后端返回的正文命中片段，回退到文档摘要 */
+function getSummaryText(doc: DocVO): string {
+  return doc.highlight || doc.summary || '';
 }
 
 // ===== 搜索逻辑 =====
@@ -381,25 +396,36 @@ async function doSearch(keyword: string): Promise<void> {
     hasSearched.value = false;
     return;
   }
-  loading.value = true;
   hasSearched.value = true;
   pageNum.value = 1;
+  await fetchPage(1);
+  router.replace({ path: '/search', query: { q: keyword } });
+}
+
+/**
+ * 拉取搜索结果。
+ * - 无前端筛选：走后端分页，每次只取当前页。
+ * - 有前端筛选（类型/时间）：后端无对应字段，需拉全量再本地过滤。
+ *   这里按 total 分批取完，避免旧实现「固定 pageSize=100 后本地切片」
+ *   在结果超 100 条时静默丢弃数据、导致分页与计数失真的问题。
+ */
+async function fetchPage(page: number): Promise<void> {
+  const keyword = searchQuery.value.trim();
+  if (!keyword) return;
+  loading.value = true;
   try {
-    if (hasFilters.value) {
-      // 有筛选：拉取较多数据做前端筛选
-      const res = await docsApi.list({ keyword, pageSize: 100 });
+    const sort = activeSort.value as 'relevance' | 'time' | 'view';
+    if (!hasFilters.value) {
+      const res = await docsApi.list({ keyword, sort, pageNum: page, pageSize: pageSize.value });
       allResults.value = res.records || [];
       serverTotal.value = res.total || 0;
     } else {
-      // 无筛选：后端分页
-      const res = await docsApi.list({ keyword, pageNum: 1, pageSize: pageSize.value });
-      allResults.value = res.records || [];
-      serverTotal.value = res.total || 0;
+      allResults.value = await fetchAllPages(keyword, sort);
+      serverTotal.value = allResults.value.length;
     }
     favoritedIds.value = new Set(
       allResults.value.filter((d) => d.favoriteCount && d.favoriteCount > 0).map((d) => d.id),
     );
-    router.replace({ path: '/search', query: { q: keyword } });
   } catch (e: unknown) {
     allResults.value = [];
     serverTotal.value = 0;
@@ -409,26 +435,25 @@ async function doSearch(keyword: string): Promise<void> {
   }
 }
 
-// 后端分页：翻页时请求新数据
-async function fetchPage(page: number): Promise<void> {
-  if (!searchQuery.value.trim()) return;
-  loading.value = true;
-  try {
-    const res = await docsApi.list({
-      keyword: searchQuery.value,
-      pageNum: page,
-      pageSize: pageSize.value,
-    });
-    allResults.value = res.records || [];
-    serverTotal.value = res.total || 0;
-    favoritedIds.value = new Set(
-      allResults.value.filter((d) => d.favoriteCount && d.favoriteCount > 0).map((d) => d.id),
-    );
-  } catch (e: unknown) {
-    notify(getApiError(e, '加载失败'), 'error');
-  } finally {
-    loading.value = false;
-  }
+/** 分批拉取全部结果，上限 MAX_CLIENT_FILTER_DOCS 条，防止极端数据量拖垮浏览器 */
+async function fetchAllPages(
+  keyword: string,
+  sort: 'relevance' | 'time' | 'view',
+): Promise<DocVO[]> {
+  const first = await docsApi.list({ keyword, sort, pageNum: 1, pageSize: BATCH_SIZE });
+  const records = [...(first.records || [])];
+  const total = Math.min(first.total || 0, MAX_CLIENT_FILTER_DOCS);
+  const totalBatches = Math.ceil(total / BATCH_SIZE);
+  if (totalBatches <= 1) return records;
+
+  // 并发拉取剩余批次，缩短等待时间
+  const rest = await Promise.all(
+    Array.from({ length: totalBatches - 1 }, (_, i) =>
+      docsApi.list({ keyword, sort, pageNum: i + 2, pageSize: BATCH_SIZE }),
+    ),
+  );
+  rest.forEach((r) => records.push(...(r.records || [])));
+  return records.slice(0, MAX_CLIENT_FILTER_DOCS);
 }
 
 function handleSearch(): void {
@@ -515,11 +540,12 @@ watch(
   },
 );
 
-// 筛选条件变化时重置分页并重新搜索（切换数据拉取策略）
+// 筛选/排序变化时重置到第一页重新拉取：
+// 排序已下推后端，类型/时间筛选会切换「后端分页 ↔ 全量本地过滤」策略，两者都需重新请求。
 watch([activeTab, activeTime, activeSort], () => {
   if (hasSearched.value && searchQuery.value.trim()) {
     pageNum.value = 1;
-    doSearch(searchQuery.value);
+    fetchPage(1);
   }
 });
 </script>

@@ -297,6 +297,61 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/Profile.vue'),
     meta: { layout: 'c', requiresAuth: true },
   },
+  // ===== C 端：知识库工作台（输入 → 整理 → 复习 → 输出 四模块闭环）=====
+  {
+    path: '/workbench',
+    name: 'Workbench',
+    component: () => import('@/views/Workbench.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
+    path: '/workbench/capture',
+    name: 'WorkbenchCapture',
+    component: () => import('@/views/WorkbenchCapture.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
+    path: '/workbench/notes',
+    name: 'WorkbenchNotes',
+    component: () => import('@/views/WorkbenchNotes.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
+    path: '/workbench/notes/:id',
+    name: 'WorkbenchNoteEdit',
+    component: () => import('@/views/WorkbenchNoteEdit.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
+    path: '/workbench/review',
+    name: 'WorkbenchReview',
+    component: () => import('@/views/WorkbenchReview.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
+    path: '/workbench/palace',
+    name: 'WorkbenchPalace',
+    component: () => import('@/views/WorkbenchPalace.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
+    path: '/workbench/palace/:id',
+    name: 'WorkbenchPalaceEdit',
+    component: () => import('@/views/WorkbenchPalaceEdit.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
+    path: '/workbench/story',
+    name: 'WorkbenchStory',
+    component: () => import('@/views/WorkbenchStory.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
+    path: '/workbench/story/:id',
+    name: 'WorkbenchStoryEdit',
+    component: () => import('@/views/WorkbenchStoryEdit.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
   {
     path: '/settings/background',
     name: 'BackgroundSettings',

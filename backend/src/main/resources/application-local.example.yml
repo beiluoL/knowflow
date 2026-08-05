@@ -1,6 +1,23 @@
 # 本地开发环境配置示例（复制为 application-local.yml 并填入真实密钥）
 # application-local.yml 已加入 .gitignore，不会被提交
 ai:
+  # ===== 对话模型：用于 AI 问答、摘要、出题、打标 =====
   api-key: your-api-key-here
   base-url: https://api.deepseek.com/v1
   model: deepseek-chat
+
+  # ===== 嵌入模型：用于文档向量化与语义检索（可选）=====
+  # 嵌入模型与对话模型往往来自不同厂商，故单独配置；
+  # 留空时回退到上面的 base-url / api-key。
+  #
+  # 重要：DeepSeek 不提供 /embeddings 接口。若 base-url 指向 DeepSeek 且此处留空，
+  # 向量化会全部失败，语义检索自动降级为关键词检索（启动日志有 ERROR 提示）。
+  #
+  # 可选方案：
+  #   硅基流动  https://api.siliconflow.cn/v1  + BAAI/bge-m3
+  #   本地 Ollama http://localhost:11434/v1     + nomic-embed-text（无需 Key）
+  embedding-base-url: https://api.siliconflow.cn/v1
+  embedding-api-key: your-embedding-key-here
+  embedding-model: BAAI/bge-m3
+  # 单次批量向量化的文本条数，越大导入越快，需在服务端限制内
+  embedding-batch-size: 16

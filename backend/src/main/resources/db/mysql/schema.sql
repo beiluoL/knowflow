@@ -1032,6 +1032,14 @@ CREATE UNIQUE INDEX uk_cert_user_path ON learning_certificate (user_id, path_id,
 CREATE INDEX idx_doc_source_path ON doc_document (source_path);
 CREATE INDEX idx_doc_content_hash ON doc_document (content_hash);
 
+-- ========== 全文检索索引（MySQL 专有）==========
+-- LIKE '%kw%' 前后通配无法命中 B-Tree 索引，数据量增长后必然全表扫描。
+-- 这里为标题/摘要/正文建立 FULLTEXT，配合 ngram 解析器支持中文分词（MySQL 5.7.6+ 内置），
+-- 使检索可走 MATCH ... AGAINST 并获得 BM25 相关度评分。
+-- 注意：H2 不支持 FULLTEXT，故该索引只存在于 MySQL 方言脚本中；
+-- 应用层检索保持 LIKE 与 MATCH 双路兼容，缺失该索引时功能不受影响，仅性能下降。
+CREATE FULLTEXT INDEX ft_doc_content ON doc_document (title, summary, content) WITH PARSER ngram;
+
 -- ========== 专注会话（P0 专注模块核心表）==========
 CREATE TABLE IF NOT EXISTS focus_session (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -1084,4 +1092,158 @@ CREATE TABLE IF NOT EXISTS import_template (
   KEY idx_it_type (type),
   KEY idx_it_default (type, is_default),
   KEY idx_it_deleted (deleted)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================================
+-- 知识库工作台（Workbench）：输入 → 整理 → 复习 → 输出 四模块闭环
+-- MySQL 方言：建表保留 IF NOT EXISTS，索引用 KEY，TEXT 用 LONGTEXT，结尾 InnoDB。
+-- ============================================================================
+
+-- ---------- 模块一：知识输入（收集箱 Inbox）----------
+CREATE TABLE IF NOT EXISTS wb_capture (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  title VARCHAR(200) NOT NULL COMMENT '标题/一句话摘要',
+  content LONGTEXT COMMENT '正文内容（Markdown）',
+  source_type VARCHAR(20) DEFAULT 'MANUAL' COMMENT '来源：MANUAL 手记 / DOC 文档 / WEB 网页 / AI 生成 / IMPORT 导入',
+  source_url VARCHAR(1000) COMMENT '来源链接（网页剪藏时使用）',
+  doc_id BIGINT COMMENT '来源文档ID（逻辑外键 doc_document.id）',
+  category_id BIGINT COMMENT '归属知识库/分类ID（逻辑外键 doc_category.id）',
+  tags VARCHAR(500) COMMENT '逗号分隔标签',
+  status VARCHAR(20) DEFAULT 'INBOX' COMMENT '流转状态：INBOX 待整理 / PROCESSED 已整理 / ARCHIVED 已归档',
+  starred INT DEFAULT 0 COMMENT '是否标星：1 是 / 0 否',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+  KEY idx_wbc_user_status (user_id, status),
+  KEY idx_wbc_category (category_id),
+  KEY idx_wbc_doc (doc_id),
+  KEY idx_wbc_deleted (deleted)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------- 模块二：知识整理（康奈尔笔记 Cornell Note）----------
+CREATE TABLE IF NOT EXISTS wb_note (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  capture_id BIGINT COMMENT '来源收集箱条目ID（逻辑外键 wb_capture.id）',
+  category_id BIGINT COMMENT '归属知识库/分类ID（逻辑外键 doc_category.id）',
+  title VARCHAR(200) NOT NULL COMMENT '笔记标题',
+  cue_column LONGTEXT COMMENT '康奈尔-线索栏：关键问题/关键词，用于主动回忆自测',
+  note_column LONGTEXT COMMENT '康奈尔-笔记栏：课堂/阅读主体内容',
+  summary_column LONGTEXT COMMENT '康奈尔-总结栏：用自己的话概括',
+  tags VARCHAR(500) COMMENT '逗号分隔标签',
+  mastery INT DEFAULT 0 COMMENT '掌握度自评：0~100',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+  KEY idx_wbn_user (user_id),
+  KEY idx_wbn_capture (capture_id),
+  KEY idx_wbn_category (category_id),
+  KEY idx_wbn_deleted (deleted)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------- 模块三：知识复习（间隔重复卡片，SM-2 算法）----------
+CREATE TABLE IF NOT EXISTS wb_review_card (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  capture_id BIGINT COMMENT '来源收集箱条目ID（逻辑外键 wb_capture.id）',
+  note_id BIGINT COMMENT '来源康奈尔笔记ID（逻辑外键 wb_note.id）',
+  category_id BIGINT COMMENT '归属知识库/分类ID（逻辑外键 doc_category.id）',
+  front LONGTEXT NOT NULL COMMENT '卡片正面：问题/线索',
+  back LONGTEXT NOT NULL COMMENT '卡片背面：答案/解释',
+  card_type VARCHAR(20) DEFAULT 'BASIC' COMMENT '卡片类型：BASIC 问答 / CLOZE 挖空 / RECALL 主动回忆',
+  ease_factor INT DEFAULT 250 COMMENT 'SM-2 难度系数（放大100倍存储，默认250即2.5）',
+  repetitions INT DEFAULT 0 COMMENT 'SM-2 连续答对次数，答错归零',
+  interval_day INT DEFAULT 0 COMMENT '当前复习间隔（天）',
+  review_count INT DEFAULT 0 COMMENT '累计复习次数',
+  lapse_count INT DEFAULT 0 COMMENT '遗忘次数（评分低于及格线）',
+  next_review_time TIMESTAMP COMMENT '下次应复习时间（遗忘曲线提醒依据）',
+  last_review_time TIMESTAMP COMMENT '上次复习时间',
+  suspended INT DEFAULT 0 COMMENT '是否暂停复习：1 暂停 / 0 正常',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+  KEY idx_wbrc_user_next (user_id, next_review_time),
+  KEY idx_wbrc_capture (capture_id),
+  KEY idx_wbrc_note (note_id),
+  KEY idx_wbrc_deleted (deleted)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 复习日志：每次抽查的评分流水，用于遗忘曲线可视化与学习报告统计
+CREATE TABLE IF NOT EXISTS wb_review_log (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  card_id BIGINT NOT NULL COMMENT '复习卡片ID（逻辑外键 wb_review_card.id）',
+  quality INT NOT NULL COMMENT '用户反馈评分：0 完全忘记 / 1 困难 / 2 一般 / 3 容易（映射 SM-2）',
+  interval_day INT COMMENT '本次评分后计算出的新间隔（天）',
+  ease_factor INT COMMENT '本次评分后的难度系数（放大100倍）',
+  cost_ms BIGINT COMMENT '本次作答耗时（毫秒）',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+  KEY idx_wbrl_user_time (user_id, create_time),
+  KEY idx_wbrl_card (card_id),
+  KEY idx_wbrl_deleted (deleted)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------- 模块三扩展：记忆宫殿（Method of Loci）----------
+CREATE TABLE IF NOT EXISTS wb_palace (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  name VARCHAR(100) NOT NULL COMMENT '宫殿名称，如「我的书房」',
+  description VARCHAR(500) COMMENT '场景描述',
+  theme VARCHAR(20) DEFAULT 'ROOM' COMMENT '场景主题：ROOM 房间 / STREET 街道 / CAMPUS 校园 / CUSTOM 自定义',
+  cover_color VARCHAR(20) COMMENT '封面主题色（十六进制）',
+  category_id BIGINT COMMENT '归属知识库/分类ID（逻辑外键 doc_category.id）',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+  KEY idx_wbp_user (user_id),
+  KEY idx_wbp_deleted (deleted)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 宫殿位点：pos_x/pos_y 为画布百分比坐标（0~100），前端拖拽编辑空间布局
+CREATE TABLE IF NOT EXISTS wb_palace_loci (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  palace_id BIGINT NOT NULL COMMENT '所属宫殿ID（逻辑外键 wb_palace.id）',
+  capture_id BIGINT COMMENT '关联收集箱条目ID（逻辑外键 wb_capture.id）',
+  note_id BIGINT COMMENT '关联康奈尔笔记ID（逻辑外键 wb_note.id）',
+  name VARCHAR(100) NOT NULL COMMENT '位点名称，如「书桌左上角」',
+  knowledge_point VARCHAR(500) COMMENT '绑定的知识点内容',
+  image_hint VARCHAR(500) COMMENT '联想图像描述（越夸张越好记）',
+  icon VARCHAR(50) COMMENT '位点图标名（Icon 组件图标）',
+  pos_x INT DEFAULT 50 COMMENT '画布横向百分比坐标（0~100）',
+  pos_y INT DEFAULT 50 COMMENT '画布纵向百分比坐标（0~100）',
+  sort_order INT DEFAULT 0 COMMENT '漫游顺序（记忆宫殿按固定路线回忆）',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+  KEY idx_wbpl_palace (palace_id, sort_order),
+  KEY idx_wbpl_user (user_id),
+  KEY idx_wbpl_deleted (deleted)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------- 模块四：知识输出（费曼故事）----------
+CREATE TABLE IF NOT EXISTS wb_story (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  capture_id BIGINT COMMENT '来源收集箱条目ID（逻辑外键 wb_capture.id）',
+  note_id BIGINT COMMENT '来源康奈尔笔记ID（逻辑外键 wb_note.id）',
+  category_id BIGINT COMMENT '归属知识库/分类ID（逻辑外键 doc_category.id）',
+  title VARCHAR(200) NOT NULL COMMENT '故事标题',
+  audience VARCHAR(50) DEFAULT 'CHILD' COMMENT '假想听众：CHILD 小孩 / NEWBIE 初学者 / PEER 同行 / INTERVIEWER 面试官',
+  metaphor VARCHAR(500) COMMENT '核心类比/隐喻，如「把索引比作书的目录」',
+  content LONGTEXT COMMENT '故事正文（Markdown 叙事体）',
+  gap_note LONGTEXT COMMENT '讲述卡点记录：没讲清楚的地方 = 知识漏洞',
+  status VARCHAR(20) DEFAULT 'DRAFT' COMMENT '状态：DRAFT 草稿 / DONE 已完成 / PUBLISHED 已分享',
+  clarity_score INT DEFAULT 0 COMMENT '自评讲清程度：0~100',
+  word_count INT DEFAULT 0 COMMENT '正文字数',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+  KEY idx_wbs_user_status (user_id, status),
+  KEY idx_wbs_capture (capture_id),
+  KEY idx_wbs_note (note_id),
+  KEY idx_wbs_deleted (deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

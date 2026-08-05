@@ -1082,3 +1082,170 @@ CREATE INDEX IF NOT EXISTS idx_it_user ON import_template (user_id);
 CREATE INDEX IF NOT EXISTS idx_it_type ON import_template (type);
 CREATE INDEX IF NOT EXISTS idx_it_default ON import_template (type, is_default);
 CREATE INDEX IF NOT EXISTS idx_it_deleted ON import_template (deleted);
+
+-- ============================================================================
+-- 知识库工作台（Workbench）：输入 → 整理 → 复习 → 输出 四模块闭环
+-- 设计要点：
+--   1) 所有表均为用户维度隔离（user_id），逻辑外键 + 应用层维护，不建物理外键；
+--   2) 四模块通过 wb_capture.id 串联：收集箱条目可派生笔记/宫殿位点/故事，
+--      派生对象回写 capture_id，形成「一条知识的全生命周期」链路；
+--   3) 复习统一走 wb_review_log + 宿主对象上的 SM-2 字段（ease_factor/interval_day）。
+-- ============================================================================
+
+-- ---------- 模块一：知识输入（收集箱 Inbox）----------
+-- 快速捕获入口：手动摘录、网页剪藏、文档划线、AI 生成均落到此表，
+-- status 驱动 GTD 式流转：INBOX 待整理 → PROCESSED 已整理 → ARCHIVED 归档。
+CREATE TABLE IF NOT EXISTS wb_capture (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  title VARCHAR(200) NOT NULL COMMENT '标题/一句话摘要',
+  content TEXT COMMENT '正文内容（Markdown）',
+  source_type VARCHAR(20) DEFAULT 'MANUAL' COMMENT '来源：MANUAL 手记 / DOC 文档 / WEB 网页 / AI 生成 / IMPORT 导入',
+  source_url VARCHAR(1000) COMMENT '来源链接（网页剪藏时使用）',
+  doc_id BIGINT COMMENT '来源文档ID（逻辑外键 doc_document.id）',
+  category_id BIGINT COMMENT '归属知识库/分类ID（逻辑外键 doc_category.id）',
+  tags VARCHAR(500) COMMENT '逗号分隔标签',
+  status VARCHAR(20) DEFAULT 'INBOX' COMMENT '流转状态：INBOX 待整理 / PROCESSED 已整理 / ARCHIVED 已归档',
+  starred INT DEFAULT 0 COMMENT '是否标星：1 是 / 0 否',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_wbc_user_status ON wb_capture (user_id, status);
+CREATE INDEX IF NOT EXISTS idx_wbc_category ON wb_capture (category_id);
+CREATE INDEX IF NOT EXISTS idx_wbc_doc ON wb_capture (doc_id);
+CREATE INDEX IF NOT EXISTS idx_wbc_deleted ON wb_capture (deleted);
+
+-- ---------- 模块二：知识整理（康奈尔笔记 Cornell Note）----------
+-- 康奈尔笔记法三分区结构：线索栏(cue) / 笔记栏(note) / 总结栏(summary)。
+-- mastery 记录自评掌握度，供工作台总览与复习优先级排序使用。
+CREATE TABLE IF NOT EXISTS wb_note (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  capture_id BIGINT COMMENT '来源收集箱条目ID（逻辑外键 wb_capture.id）',
+  category_id BIGINT COMMENT '归属知识库/分类ID（逻辑外键 doc_category.id）',
+  title VARCHAR(200) NOT NULL COMMENT '笔记标题',
+  cue_column TEXT COMMENT '康奈尔-线索栏：关键问题/关键词，用于主动回忆自测',
+  note_column TEXT COMMENT '康奈尔-笔记栏：课堂/阅读主体内容',
+  summary_column TEXT COMMENT '康奈尔-总结栏：用自己的话概括',
+  tags VARCHAR(500) COMMENT '逗号分隔标签',
+  mastery INT DEFAULT 0 COMMENT '掌握度自评：0~100',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_wbn_user ON wb_note (user_id);
+CREATE INDEX IF NOT EXISTS idx_wbn_capture ON wb_note (capture_id);
+CREATE INDEX IF NOT EXISTS idx_wbn_category ON wb_note (category_id);
+CREATE INDEX IF NOT EXISTS idx_wbn_deleted ON wb_note (deleted);
+
+-- ---------- 模块三：知识复习（间隔重复卡片，SM-2 算法）----------
+-- 与既有 learning_flashcard 的区别：本表是工作台闭环内、由收集箱/笔记派生的复习卡，
+-- 完整实现 SM-2（ease_factor 难度系数 + repetitions 连续答对次数 + interval_day 间隔）。
+CREATE TABLE IF NOT EXISTS wb_review_card (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  capture_id BIGINT COMMENT '来源收集箱条目ID（逻辑外键 wb_capture.id）',
+  note_id BIGINT COMMENT '来源康奈尔笔记ID（逻辑外键 wb_note.id）',
+  category_id BIGINT COMMENT '归属知识库/分类ID（逻辑外键 doc_category.id）',
+  front TEXT NOT NULL COMMENT '卡片正面：问题/线索',
+  back TEXT NOT NULL COMMENT '卡片背面：答案/解释',
+  card_type VARCHAR(20) DEFAULT 'BASIC' COMMENT '卡片类型：BASIC 问答 / CLOZE 挖空 / RECALL 主动回忆',
+  ease_factor INT DEFAULT 250 COMMENT 'SM-2 难度系数（放大100倍存储，默认250即2.5）',
+  repetitions INT DEFAULT 0 COMMENT 'SM-2 连续答对次数，答错归零',
+  interval_day INT DEFAULT 0 COMMENT '当前复习间隔（天）',
+  review_count INT DEFAULT 0 COMMENT '累计复习次数',
+  lapse_count INT DEFAULT 0 COMMENT '遗忘次数（评分低于及格线）',
+  next_review_time TIMESTAMP COMMENT '下次应复习时间（遗忘曲线提醒依据）',
+  last_review_time TIMESTAMP COMMENT '上次复习时间',
+  suspended INT DEFAULT 0 COMMENT '是否暂停复习：1 暂停 / 0 正常',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_wbrc_user_next ON wb_review_card (user_id, next_review_time);
+CREATE INDEX IF NOT EXISTS idx_wbrc_capture ON wb_review_card (capture_id);
+CREATE INDEX IF NOT EXISTS idx_wbrc_note ON wb_review_card (note_id);
+CREATE INDEX IF NOT EXISTS idx_wbrc_deleted ON wb_review_card (deleted);
+
+-- 复习日志：每次抽查的评分流水，用于遗忘曲线可视化与学习报告统计
+CREATE TABLE IF NOT EXISTS wb_review_log (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  card_id BIGINT NOT NULL COMMENT '复习卡片ID（逻辑外键 wb_review_card.id）',
+  quality INT NOT NULL COMMENT '用户反馈评分：0 完全忘记 / 1 困难 / 2 一般 / 3 容易（映射 SM-2）',
+  interval_day INT COMMENT '本次评分后计算出的新间隔（天）',
+  ease_factor INT COMMENT '本次评分后的难度系数（放大100倍）',
+  cost_ms BIGINT COMMENT '本次作答耗时（毫秒）',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_wbrl_user_time ON wb_review_log (user_id, create_time);
+CREATE INDEX IF NOT EXISTS idx_wbrl_card ON wb_review_log (card_id);
+CREATE INDEX IF NOT EXISTS idx_wbrl_deleted ON wb_review_log (deleted);
+
+-- ---------- 模块三扩展：记忆宫殿（Method of Loci）----------
+-- 宫殿 = 一个熟悉的空间场景；位点 = 场景中的具体位置，绑定一个知识点。
+CREATE TABLE IF NOT EXISTS wb_palace (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  name VARCHAR(100) NOT NULL COMMENT '宫殿名称，如「我的书房」',
+  description VARCHAR(500) COMMENT '场景描述',
+  theme VARCHAR(20) DEFAULT 'ROOM' COMMENT '场景主题：ROOM 房间 / STREET 街道 / CAMPUS 校园 / CUSTOM 自定义',
+  cover_color VARCHAR(20) COMMENT '封面主题色（十六进制）',
+  category_id BIGINT COMMENT '归属知识库/分类ID（逻辑外键 doc_category.id）',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_wbp_user ON wb_palace (user_id);
+CREATE INDEX IF NOT EXISTS idx_wbp_deleted ON wb_palace (deleted);
+
+-- 宫殿位点：pos_x/pos_y 为画布百分比坐标（0~100），前端拖拽编辑空间布局
+CREATE TABLE IF NOT EXISTS wb_palace_loci (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  palace_id BIGINT NOT NULL COMMENT '所属宫殿ID（逻辑外键 wb_palace.id）',
+  capture_id BIGINT COMMENT '关联收集箱条目ID（逻辑外键 wb_capture.id）',
+  note_id BIGINT COMMENT '关联康奈尔笔记ID（逻辑外键 wb_note.id）',
+  name VARCHAR(100) NOT NULL COMMENT '位点名称，如「书桌左上角」',
+  knowledge_point VARCHAR(500) COMMENT '绑定的知识点内容',
+  image_hint VARCHAR(500) COMMENT '联想图像描述（越夸张越好记）',
+  icon VARCHAR(50) COMMENT '位点图标名（Icon 组件图标）',
+  pos_x INT DEFAULT 50 COMMENT '画布横向百分比坐标（0~100）',
+  pos_y INT DEFAULT 50 COMMENT '画布纵向百分比坐标（0~100）',
+  sort_order INT DEFAULT 0 COMMENT '漫游顺序（记忆宫殿按固定路线回忆）',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_wbpl_palace ON wb_palace_loci (palace_id, sort_order);
+CREATE INDEX IF NOT EXISTS idx_wbpl_user ON wb_palace_loci (user_id);
+CREATE INDEX IF NOT EXISTS idx_wbpl_deleted ON wb_palace_loci (deleted);
+
+-- ---------- 模块四：知识输出（费曼故事）----------
+-- 费曼技巧 + 故事化叙事：用讲故事的方式把知识讲给「假想听众」，
+-- gap_note 记录讲不通的卡点（费曼法核心：卡壳处即知识漏洞）。
+CREATE TABLE IF NOT EXISTS wb_story (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  capture_id BIGINT COMMENT '来源收集箱条目ID（逻辑外键 wb_capture.id）',
+  note_id BIGINT COMMENT '来源康奈尔笔记ID（逻辑外键 wb_note.id）',
+  category_id BIGINT COMMENT '归属知识库/分类ID（逻辑外键 doc_category.id）',
+  title VARCHAR(200) NOT NULL COMMENT '故事标题',
+  audience VARCHAR(50) DEFAULT 'CHILD' COMMENT '假想听众：CHILD 小孩 / NEWBIE 初学者 / PEER 同行 / INTERVIEWER 面试官',
+  metaphor VARCHAR(500) COMMENT '核心类比/隐喻，如「把索引比作书的目录」',
+  content TEXT COMMENT '故事正文（Markdown 叙事体）',
+  gap_note TEXT COMMENT '讲述卡点记录：没讲清楚的地方 = 知识漏洞',
+  status VARCHAR(20) DEFAULT 'DRAFT' COMMENT '状态：DRAFT 草稿 / DONE 已完成 / PUBLISHED 已分享',
+  clarity_score INT DEFAULT 0 COMMENT '自评讲清程度：0~100',
+  word_count INT DEFAULT 0 COMMENT '正文字数',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_wbs_user_status ON wb_story (user_id, status);
+CREATE INDEX IF NOT EXISTS idx_wbs_capture ON wb_story (capture_id);
+CREATE INDEX IF NOT EXISTS idx_wbs_note ON wb_story (note_id);
+CREATE INDEX IF NOT EXISTS idx_wbs_deleted ON wb_story (deleted);

@@ -88,6 +88,10 @@ export interface DocVO {
   status?: number
   createTime?: string
   favoriteTime?: string
+  /** 正文命中片段（纯文本，后端不返回 HTML）。仅关键词搜索时有值。 */
+  highlight?: string
+  /** 相关度得分。仅关键词搜索且按相关度排序时有值。 */
+  score?: number
 }
 
 export interface DocDetailVO extends DocVO {
@@ -114,6 +118,8 @@ export interface DocQuery {
   status?: number
   pageNum?: number
   pageSize?: number
+  /** 排序方式：relevance 相关度（默认，需有 keyword）/ time 最新 / view 最热 */
+  sort?: 'relevance' | 'time' | 'view'
 }
 
 export interface ReadProgressPayload {
@@ -1548,4 +1554,220 @@ export interface PathImportFileEntry {
   type: 'doc' | 'image'
   ext: string
   size: number
+}
+
+// ===== 知识库工作台（输入 → 整理 → 复习 → 输出 四模块闭环）=====
+
+/** 工作台总览统计 */
+export interface WorkbenchOverview {
+  captureTotal: number
+  captureInbox: number
+  captureStarred: number
+  noteTotal: number
+  reviewDue: number
+  reviewCount: number
+  palaceTotal: number
+  lociTotal: number
+  storyTotal: number
+  storyDraft: number
+  reviewLast7d: number
+}
+
+/** 收集箱条目（知识输入） */
+export interface WbCapture {
+  id: number
+  userId: number
+  title: string
+  content?: string
+  sourceType?: 'MANUAL' | 'DOC' | 'WEB' | 'AI' | 'IMPORT'
+  sourceUrl?: string
+  docId?: number
+  categoryId?: number
+  tags?: string
+  status?: 'INBOX' | 'PROCESSED' | 'ARCHIVED'
+  starred?: number
+  createTime?: string
+  updateTime?: string
+}
+
+/** 康奈尔笔记（知识整理） */
+export interface WbNote {
+  id: number
+  userId: number
+  captureId?: number
+  categoryId?: number
+  title: string
+  cueColumn?: string
+  noteColumn?: string
+  summaryColumn?: string
+  tags?: string
+  mastery?: number
+  createTime?: string
+  updateTime?: string
+}
+
+/** 间隔重复卡片（知识复习） */
+export interface WbReviewCard {
+  id: number
+  userId: number
+  captureId?: number
+  noteId?: number
+  categoryId?: number
+  front: string
+  back: string
+  cardType?: 'BASIC' | 'CLOZE' | 'RECALL'
+  easeFactor?: number
+  repetitions?: number
+  intervalDay?: number
+  reviewCount?: number
+  lapseCount?: number
+  nextReviewTime?: string
+  lastReviewTime?: string
+  suspended?: number
+  createTime?: string
+  updateTime?: string
+}
+
+/** 复习卡片返回（含人类可读调度信息） */
+export interface WbReviewCardVO extends WbReviewCard {
+  easeFactorDecimal?: number
+  nextReviewHint?: string
+}
+
+/** 复习评分结果 */
+export interface WbReviewGradeResult {
+  cardId: number
+  quality: number
+  repetitions: number
+  intervalDay: number
+  easeFactor: number
+  nextReviewAt: number
+  lapsed: boolean
+}
+
+/** 记忆宫殿（知识复习扩展） */
+export interface WbPalace {
+  id: number
+  userId: number
+  name: string
+  description?: string
+  theme?: 'ROOM' | 'STREET' | 'CAMPUS' | 'CUSTOM'
+  coverColor?: string
+  categoryId?: number
+  createTime?: string
+  updateTime?: string
+}
+
+/** 记忆宫殿位点 */
+export interface WbPalaceLoci {
+  id: number
+  userId: number
+  palaceId: number
+  captureId?: number
+  noteId?: number
+  name: string
+  knowledgePoint?: string
+  imageHint?: string
+  icon?: string
+  posX?: number
+  posY?: number
+  sortOrder?: number
+  createTime?: string
+  updateTime?: string
+}
+
+/** 费曼故事（知识输出） */
+export interface WbStory {
+  id: number
+  userId: number
+  captureId?: number
+  noteId?: number
+  categoryId?: number
+  title: string
+  audience?: 'CHILD' | 'NEWBIE' | 'PEER' | 'INTERVIEWER'
+  metaphor?: string
+  content?: string
+  gapNote?: string
+  status?: 'DRAFT' | 'DONE' | 'PUBLISHED'
+  clarityScore?: number
+  wordCount?: number
+  createTime?: string
+  updateTime?: string
+}
+
+/** 收集箱入参 */
+export interface WbCapturePayload {
+  title: string
+  content?: string
+  sourceType?: string
+  sourceUrl?: string
+  docId?: number
+  categoryId?: number
+  tags?: string
+  starred?: number
+}
+
+/** 康奈尔笔记入参 */
+export interface WbNotePayload {
+  captureId?: number
+  categoryId?: number
+  title: string
+  cueColumn?: string
+  noteColumn?: string
+  summaryColumn?: string
+  tags?: string
+  mastery?: number
+}
+
+/** 复习卡片入参 */
+export interface WbReviewCardPayload {
+  captureId?: number
+  noteId?: number
+  categoryId?: number
+  front: string
+  back: string
+  cardType?: string
+}
+
+/** 复习评分入参 */
+export interface WbReviewGradePayload {
+  quality: number
+  costMs?: number
+}
+
+/** 记忆宫殿入参 */
+export interface WbPalacePayload {
+  name: string
+  description?: string
+  theme?: string
+  coverColor?: string
+  categoryId?: number
+}
+
+/** 宫殿位点入参 */
+export interface WbPalaceLociPayload {
+  palaceId: number
+  captureId?: number
+  noteId?: number
+  name: string
+  knowledgePoint?: string
+  imageHint?: string
+  icon?: string
+  posX?: number
+  posY?: number
+  sortOrder?: number
+}
+
+/** 费曼故事入参 */
+export interface WbStoryPayload {
+  captureId?: number
+  noteId?: number
+  categoryId?: number
+  title: string
+  audience?: string
+  metaphor?: string
+  content?: string
+  gapNote?: string
+  status?: string
+  clarityScore?: number
 }

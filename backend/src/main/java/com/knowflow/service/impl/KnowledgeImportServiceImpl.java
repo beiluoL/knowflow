@@ -33,6 +33,7 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -708,7 +709,14 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
     }
 
     /**
-     * 简单关键词提取：去除常见停用词后按词频取 Top N。
+     * 关键词提取：中英文分别处理后按词频取 Top N。
+     *
+     * <p>中文没有空格分隔，若只按标点切分，整句会被当成一个「词」并被长度上限过滤掉，
+     * 导致中文文档提不出任何关键词。这里对中文串做 2-4 字 N-gram 统计，
+     * 并用「更长的 gram 若与短 gram 频次相同则优先保留长的」策略去除冗余子串，
+     * 例如「机器学习」和「机器」同频时只保留「机器学习」。
+     *
+     * <p>这是无词典的轻量方案，精度不及 IK/HanLP 等分词器，但零依赖、对导入性能友好。
      */
     private List<String> extractKeywords(String content, int topN) {
         // 去除 markdown 标记、代码块
@@ -718,20 +726,109 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
                 .replaceAll("\\[([^\\]]+)\\]\\([^)]+\\)", "$1")
                 .replaceAll("[#*>|\\[\\](){}_~=-]", " ")
                 .replaceAll("\\s+", " ");
-        // 中文按 2-4 字提取，英文按单词
+
         Map<String, Integer> freq = new LinkedHashMap<>();
-        // 英文单词
+        // 英文单词：按空白与中英文标点切分
         for (String word : text.split("[\\s,.;:!?，。；：！？、（）()\"'<>]+")) {
             String w = word.trim().toLowerCase(Locale.ROOT);
-            if (w.length() >= 3 && w.length() <= 20 && !isStopWord(w)) {
+            if (w.length() >= MIN_EN_KEYWORD_LEN && w.length() <= MAX_KEYWORD_LEN && !isStopWord(w)) {
                 freq.merge(w, 1, Integer::sum);
             }
         }
-        return freq.entrySet().stream()
-                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .limit(topN)
-                .map(Map.Entry::getKey)
+        // 中文 N-gram
+        collectChineseNgrams(text, freq);
+
+        // 排序权重 = 频次 × 长度系数。
+        // 纯频次排序会让短片段永远压过长短语（「最左」必然 ≥「最左前缀」的频次），
+        // 乘上长度后，完整短语才能排到其碎片之前，配合去冗余即可滤掉碎片。
+        List<Map.Entry<String, Integer>> ranked = freq.entrySet().stream()
+                .filter(e -> e.getValue() >= MIN_KEYWORD_FREQ)
+                .sorted(Comparator
+                        .comparingDouble((Map.Entry<String, Integer> e) -> -keywordWeight(e.getKey(), e.getValue()))
+                        .thenComparing(Map.Entry::getKey))
                 .collect(Collectors.toList());
+
+        // 去冗余：丢弃与已选关键词重叠的 N-gram 片段。
+        // N-gram 会把「最左前缀」拆出「最左」「左前」「前缀」等交叠片段，
+        // 仅靠「子串且同频」无法滤净，故对中文再加一条「与已选词有公共子串则跳过」的约束。
+        List<String> result = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : ranked) {
+            if (result.size() >= topN) break;
+            String candidate = entry.getKey();
+            if (isRedundantKeyword(candidate, entry.getValue(), result, freq)) {
+                continue;
+            }
+            result.add(candidate);
+        }
+        return result;
+    }
+
+    /**
+     * 关键词排序权重：频次 × 词长。
+     * 中文按字数计长，英文按 1 计（英文已是完整单词，不需要长度倾斜）。
+     */
+    private double keywordWeight(String keyword, int freq) {
+        int lengthFactor = isChinese(keyword) ? keyword.length() : 1;
+        return (double) freq * lengthFactor;
+    }
+
+    /**
+     * 判断候选关键词相对已选集合是否冗余。
+     *
+     * <p>两条规则：
+     * ①候选是已选词的子串且频次相同 —— 说明它只是长词的附属，如「机器」之于「机器学习」；
+     * ②候选与已选词存在 ≥2 字的公共部分（仅中文）—— 说明二者是同一短语被 N-gram 切出的交叠片段，
+     * 如「最左」「左前」之于「最左前缀」。
+     */
+    private boolean isRedundantKeyword(String candidate, int candidateFreq,
+                                       List<String> selected, Map<String, Integer> freq) {
+        for (String kept : selected) {
+            if (kept.contains(candidate) && freq.getOrDefault(kept, 0) == candidateFreq) {
+                return true;
+            }
+            if (isChinese(candidate) && isChinese(kept) && hasOverlap(candidate, kept)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** 是否为纯中文串 */
+    private boolean isChinese(String s) {
+        return CHINESE_RUN_PATTERN.matcher(s).matches();
+    }
+
+    /**
+     * 两个中文串是否交叠：存在 ≥2 字公共子串，或一方的首/尾字与另一方的尾/首字相接。
+     * 后一条用于识别 N-gram 从同一短语切出的相邻片段，如「最左前」与「前缀原则」共享「前」字。
+     */
+    private boolean hasOverlap(String a, String b) {
+        for (int i = 0; i + MIN_CN_GRAM <= a.length(); i++) {
+            if (b.contains(a.substring(i, i + MIN_CN_GRAM))) {
+                return true;
+            }
+        }
+        return a.charAt(a.length() - 1) == b.charAt(0)
+                || b.charAt(b.length() - 1) == a.charAt(0);
+    }
+
+    /**
+     * 对文本中的连续中文片段做 2-4 字 N-gram 频次统计。
+     * 只统计纯中文子串，避免跨标点、跨中英文边界产生无意义组合。
+     */
+    private void collectChineseNgrams(String text, Map<String, Integer> freq) {
+        Matcher matcher = CHINESE_RUN_PATTERN.matcher(text);
+        while (matcher.find()) {
+            String run = matcher.group();
+            for (int n = MIN_CN_GRAM; n <= MAX_CN_GRAM; n++) {
+                for (int i = 0; i + n <= run.length(); i++) {
+                    String gram = run.substring(i, i + n);
+                    if (!isChineseStopWord(gram)) {
+                        freq.merge(gram, 1, Integer::sum);
+                    }
+                }
+            }
+        }
     }
 
     private static final Set<String> STOP_WORDS = Set.of(
@@ -743,9 +840,55 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
             "where", "while", "using", "use", "used", "get", "set", "via"
     );
 
+    /** 中文关键词长度下限（字） */
+    private static final int MIN_CN_GRAM = 2;
+    /** 中文关键词长度上限（字） */
+    private static final int MAX_CN_GRAM = 4;
+    /** 英文关键词最短长度 */
+    private static final int MIN_EN_KEYWORD_LEN = 3;
+    /** 关键词最长长度 */
+    private static final int MAX_KEYWORD_LEN = 20;
+    /** 入选关键词的最低出现次数，过滤偶现噪声 */
+    private static final int MIN_KEYWORD_FREQ = 2;
+
+    /** 连续中文片段（含中日韩统一表意文字） */
+    private static final Pattern CHINESE_RUN_PATTERN = Pattern.compile("[\\u4e00-\\u9fa5]+");
+
+    /**
+     * 中文停用词：高频虚词、连接词与常见无实义组合。
+     * N-gram 会产出大量此类噪声，需在统计阶段直接剔除。
+     */
+    private static final Set<String> CN_STOP_WORDS = Set.of(
+            "我们", "你们", "他们", "自己", "这个", "那个", "这些", "那些", "什么", "怎么",
+            "为了", "因为", "所以", "但是", "如果", "虽然", "并且", "或者", "以及", "而且",
+            "可以", "需要", "应该", "能够", "进行", "通过", "使用", "提供", "包括", "由于",
+            "如下", "上面", "下面", "一个", "一些", "一样", "一般", "一起", "没有", "不是",
+            "就是", "还是", "只有", "只是", "如何", "为什么", "也就是", "也就是说", "换句话说",
+            "举个例子", "需要注意", "值得注意", "综上所述", "总而言之", "在这里", "接下来"
+    );
+
     private boolean isStopWord(String word) {
         return STOP_WORDS.contains(word);
     }
+
+    /**
+     * 中文 N-gram 停用判断：命中停用词表，或整体由「的地得了着是在有和与」等
+     * 单字虚词构成的组合，均视为无效关键词。
+     */
+    private boolean isChineseStopWord(String gram) {
+        if (CN_STOP_WORDS.contains(gram)) {
+            return true;
+        }
+        for (int i = 0; i < gram.length(); i++) {
+            if (CN_FUNCTION_CHARS.indexOf(gram.charAt(i)) < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** 中文单字虚词集合，用于识别纯虚词构成的无意义 gram */
+    private static final String CN_FUNCTION_CHARS = "的地得了着是在有和与也就都很更最不非把被让给对从到向于其之而则以及等此该本";
 
     // ==================== front-matter 处理 ====================
 

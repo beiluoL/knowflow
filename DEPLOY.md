@@ -78,6 +78,15 @@ java -jar target/knowflow-backend-1.0.0.jar --jwt.secret='******'
 > 生产环境建议设 `allow-runtime-switch: false` 关闭该能力，仅保留状态查看。
 > 双库语法差异与迁移说明详见 [DATABASE.md 第五章](./DATABASE.md#五双数据库支持h2--mysql-切换)。
 
+**存量 MySQL 库补建全文索引**：`db/mysql/schema.sql` 已内置文档全文索引，但 `init-mode=auto`
+只在空库时执行建表。若你的库是本次升级前创建的，需手动补建一次（H2 无需此步）：
+
+```sql
+CREATE FULLTEXT INDEX ft_doc_content ON doc_document (title, summary, content) WITH PARSER ngram;
+```
+
+该索引用于提升关键词检索性能。未补建时功能不受影响，仅在文档量较大时检索变慢。
+
 ### 2.4 进程守护（systemd 示例）
 
 `/etc/systemd/system/knowflow-backend.service`：

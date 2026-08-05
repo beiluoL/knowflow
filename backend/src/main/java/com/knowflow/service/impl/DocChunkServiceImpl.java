@@ -11,8 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -30,6 +34,12 @@ public class DocChunkServiceImpl implements DocChunkService {
 
     /** 单块最大字符数 */
     private static final int MAX_CHUNK_SIZE = 500;
+
+    /** 语义召回的相似度下限，过滤明显不相关的分块 */
+    private static final double MIN_SIMILARITY = 0.3;
+
+    /** 语义召回的文档数上限 */
+    private static final int MAX_SEMANTIC_DOCS = 50;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -55,11 +65,17 @@ public class DocChunkServiceImpl implements DocChunkService {
             current.append(trimmed);
         }
         if (current.length() > 0) chunks.add(current.toString());
+        if (chunks.isEmpty()) return;
 
-        // 逐块生成 embedding 并入库
+        // 批量向量化：一次请求提交多块，避免逐块串行调用导致大目录导入极慢。
+        // 服务不可用时跳过向量化，分块仍然入库以保证关键词检索可用。
+        List<List<Float>> vectors = embeddingService.isAvailable()
+                ? embeddingService.embedBatch(chunks)
+                : List.of();
+
         for (int i = 0; i < chunks.size(); i++) {
             String chunkText = chunks.get(i);
-            List<Float> vec = embeddingService.embed(chunkText);
+            List<Float> vec = i < vectors.size() ? vectors.get(i) : null;
             String embeddingStr = vec != null && !vec.isEmpty()
                     ? vec.stream().map(String::valueOf).collect(Collectors.joining(","))
                     : null;
@@ -72,7 +88,8 @@ public class DocChunkServiceImpl implements DocChunkService {
             chunk.setEmbedding(embeddingStr);
             docChunkMapper.insert(chunk);
         }
-        log.info("文档分块完成：docId={}, chunks={}", docId, chunks.size());
+        log.info("文档分块完成：docId={}, chunks={}, 向量化={}", docId, chunks.size(),
+                embeddingService.isAvailable() ? "已启用" : "已跳过");
     }
 
     @Override
@@ -117,6 +134,41 @@ public class DocChunkServiceImpl implements DocChunkService {
                 .limit(size)
                 .map(o -> ((DocChunk) o[0]).getContent())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<Long, Double> searchSimilarDocIds(String query, int limit) {
+        if (query == null || query.isBlank() || !embeddingService.isAvailable()) {
+            return Collections.emptyMap();
+        }
+        List<Float> queryVec = embeddingService.embed(query);
+        if (queryVec == null || queryVec.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<DocChunk> allChunks = docChunkMapper.selectList(
+                new LambdaQueryWrapper<DocChunk>()
+                        .isNotNull(DocChunk::getEmbedding)
+                        .ne(DocChunk::getEmbedding, ""));
+        if (allChunks.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        // 同一文档取分块最高分，避免长文档凭分块数量刷屏
+        Map<Long, Double> docScores = new HashMap<>();
+        for (DocChunk chunk : allChunks) {
+            List<Float> chunkVec = parseVector(chunk.getEmbedding());
+            if (chunkVec == null) continue;
+            double sim = embeddingService.cosineSimilarity(queryVec, chunkVec);
+            if (sim < MIN_SIMILARITY) continue;
+            docScores.merge(chunk.getDocId(), sim, Math::max);
+        }
+
+        int size = Math.min(Math.max(limit, 1), MAX_SEMANTIC_DOCS);
+        return docScores.entrySet().stream()
+                .sorted(Map.Entry.<Long, Double>comparingByValue().reversed())
+                .limit(size)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (a, b) -> a, LinkedHashMap::new));
     }
 
     /** 解析逗号分隔的浮点数字符串为 List<Float> */

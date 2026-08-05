@@ -134,6 +134,13 @@ erDiagram
 | code_submit_record | user_id / question_id | sys_user / code_question | idx_csr_user / idx_csr_question | 否 |
 | kg_entity | doc_id / category_id | doc_document / doc_category | idx_kg_entity_doc / idx_kg_entity_category + idx_kg_entity_name | doc_id 否 / category_id 可空 |
 | kg_relation | source_entity_id / target_entity_id / doc_id | kg_entity / kg_entity / doc_document | idx_kg_rel_source / idx_kg_rel_target / idx_kg_rel_doc | 否 |
+| wb_capture | user_id / doc_id / category_id | sys_user / doc_document / doc_category | idx_wbc_user_status / idx_wbc_doc / idx_wbc_category | 否（doc_id/category_id 可空） |
+| wb_note | user_id / capture_id / category_id | sys_user / wb_capture / doc_category | idx_wbn_user / idx_wbn_capture / idx_wbn_category | 否（capture_id/category_id 可空） |
+| wb_review_card | user_id / capture_id / note_id / category_id | sys_user / wb_capture / wb_note / doc_category | idx_wbrc_user_next / idx_wbrc_capture / idx_wbrc_note | 否（capture_id/note_id/category_id 可空） |
+| wb_review_log | user_id / card_id | sys_user / wb_review_card | idx_wbrl_user_time / idx_wbrl_card | 否 |
+| wb_palace | user_id / category_id | sys_user / doc_category | idx_wbp_user | 否（category_id 可空） |
+| wb_palace_loci | user_id / palace_id / capture_id / note_id | sys_user / wb_palace / wb_capture / wb_note | idx_wbpl_palace / idx_wbpl_user | 否（capture_id/note_id 可空） |
+| wb_story | user_id / capture_id / note_id / category_id | sys_user / wb_capture / wb_note / doc_category | idx_wbs_user_status / idx_wbs_capture / idx_wbs_note | 否（capture_id/note_id/category_id 可空） |
 
 > 说明：`doc_category.parent_id` 用 `0` 表示顶级分类（哨兵值）；所有逻辑删除列 `deleted` 不参与关联。以上均为逻辑外键，物理层无 FOREIGN KEY 约束。
 
@@ -805,6 +812,142 @@ erDiagram
 - 索引：唯一 `uk_cert_no(cert_no)`、`idx_cert_user(user_id)`、`idx_cert_path(path_id)`、联合唯一 `uk_cert_user_path(user_id, path_id, deleted)`（幂等：同用户同路径只发一次）
 
 ---
+
+## 二·补、知识库工作台（Workbench）七表 `wb_*`
+
+> **新增模块**：知识库工作台（`/workbench`）实现「知识输入 → 整理 → 复习 → 输出」学习闭环，融合间隔重复（SM-2）、记忆宫殿、费曼故事、康奈尔笔记等学习方法论。
+> 七张表均以 `user_id` 做用户维度隔离，全部为逻辑外键 + 应用层维护（物理层无 FOREIGN KEY）；四模块通过 `wb_capture.id` 串联：收集箱条目可派生笔记/宫殿位点/故事，派生对象回写 `capture_id` 形成知识全生命周期链路。
+> 计入后全库共 **54 张表**。
+
+### 45. wb_capture（工作台·收集箱 / 知识输入）
+> GTD 式快速捕获：手动摘录、网页剪藏、文档划线、AI 生成均落到此表；`status` 驱动 INBOX→PROCESSED→ARCHIVED 流转。`starred` 用于置顶收藏。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键，自增 | PK |
+| user_id | BIGINT | 所属用户（逻辑外键 sys_user.id） | 非空 |
+| title | VARCHAR(200) | 标题/一句话摘要 | 非空 |
+| content | TEXT / LONGTEXT | 正文（Markdown） | 可空 |
+| source_type | VARCHAR(20) | 来源 MANUAL/DOC/WEB/AI/IMPORT | 默认 MANUAL |
+| source_url | VARCHAR(1000) | 来源链接 | 可空 |
+| doc_id | BIGINT | 来源文档（逻辑外键 doc_document.id） | 可空 |
+| category_id | BIGINT | 归属知识库/分类（逻辑外键 doc_category.id） | 可空 |
+| tags | VARCHAR(500) | 逗号分隔标签 | 可空 |
+| status | VARCHAR(20) | INBOX/PROCESSED/ARCHIVED | 默认 INBOX |
+| starred | INT | 标星 1/0 | 默认 0 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_wbc_user_status(user_id, status)`、`idx_wbc_category(category_id)`、`idx_wbc_doc(doc_id)`、`idx_wbc_deleted(deleted)`
+
+### 46. wb_note（工作台·康奈尔笔记 / 知识整理）
+> 康奈尔三分区：cue_column 线索栏（主动回忆自测）+ note_column 笔记栏（主体）+ summary_column 总结栏（复述）。`mastery` 掌握度供总览与复习优先级排序。新建笔记会把来源收集箱标记为 PROCESSED。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键，自增 | PK |
+| user_id | BIGINT | 所属用户（逻辑外键 sys_user.id） | 非空 |
+| capture_id | BIGINT | 来源收集箱（逻辑外键 wb_capture.id） | 可空 |
+| category_id | BIGINT | 归属知识库/分类（逻辑外键 doc_category.id） | 可空 |
+| title | VARCHAR(200) | 笔记标题 | 非空 |
+| cue_column / note_column / summary_column | TEXT / LONGTEXT | 康奈尔三栏 | 可空 |
+| tags | VARCHAR(500) | 逗号分隔标签 | 可空 |
+| mastery | INT | 掌握度自评 0~100 | 默认 0 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_wbn_user(user_id)`、`idx_wbn_capture(capture_id)`、`idx_wbn_category(category_id)`、`idx_wbn_deleted(deleted)`
+
+### 47. wb_review_card（工作台·间隔重复卡片 / 知识复习 · SM-2）
+> 完整 SM-2 调度：`ease_factor` 难度系数放大 100 倍存储（默认 250=2.5，避免浮点误差）、`repetitions` 连续答对次数、`interval_day` 间隔天数、`next_review_time` 驱动遗忘曲线提醒。新卡立即进入今日队列。区别于既有 `learning_flashcard`，本表是工作台闭环内由收集箱/笔记派生的复习卡。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键，自增 | PK |
+| user_id | BIGINT | 所属用户（逻辑外键 sys_user.id） | 非空 |
+| capture_id / note_id / category_id | BIGINT | 来源收集箱/笔记/分类（逻辑外键） | 可空 |
+| front / back | TEXT / LONGTEXT | 卡片正/反面 | front/back 非空 |
+| card_type | VARCHAR(20) | BASIC/CLOZE/RECALL | 默认 BASIC |
+| ease_factor | INT | SM-2 难度系数（×100） | 默认 250 |
+| repetitions | INT | 连续答对次数，答错归零 | 默认 0 |
+| interval_day | INT | 当前间隔（天） | 默认 0 |
+| review_count / lapse_count | INT | 累计复习/遗忘次数 | 默认 0 |
+| next_review_time / last_review_time | TIMESTAMP | 下次/上次复习时间 | 可空 |
+| suspended | INT | 暂停复习 1/0 | 默认 0 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_wbrc_user_next(user_id, next_review_time)`、`idx_wbrc_capture(capture_id)`、`idx_wbrc_note(note_id)`、`idx_wbrc_deleted(deleted)`
+- **SM-2 调度规则**（见 `WorkbenchServiceImpl.gradeReview`）：`EF' = EF + (0.1 - (5-q)(0.08 + (5-q)*0.02))`，下限 1.30；q<2 视为遗忘（repetitions=0、interval=1、lapse+1），否则 repetitions+1 且 interval 按 1→6→interval×EF 递推。
+
+### 48. wb_review_log（工作台·复习日志 / 知识复习流水）
+> 每次抽查评分流水，用于遗忘曲线可视化与学习报告。`quality`：0 完全忘记 / 1 困难 / 2 一般 / 3 容易（映射 SM-2 q）。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键，自增 | PK |
+| user_id | BIGINT | 所属用户（逻辑外键 sys_user.id） | 非空 |
+| card_id | BIGINT | 复习卡片（逻辑外键 wb_review_card.id） | 非空 |
+| quality | INT | 评分 0~3 | 非空 |
+| interval_day / ease_factor | INT | 本次评分后新间隔/难度系数（×100） | 可空 |
+| cost_ms | BIGINT | 作答耗时（毫秒） | 可空 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_wbrl_user_time(user_id, create_time)`、`idx_wbrl_card(card_id)`、`idx_wbrl_deleted(deleted)`
+
+### 49. wb_palace（工作台·记忆宫殿 / 知识复习扩展）
+> 宫殿 = 一个熟悉的空间场景（房间/街道/校园/自定义），用于挂载多个位点。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键，自增 | PK |
+| user_id | BIGINT | 所属用户（逻辑外键 sys_user.id） | 非空 |
+| name | VARCHAR(100) | 宫殿名称 | 非空 |
+| description | VARCHAR(500) | 场景描述 | 可空 |
+| theme | VARCHAR(20) | ROOM/STREET/CAMPUS/CUSTOM | 默认 ROOM |
+| cover_color | VARCHAR(20) | 封面主题色（十六进制） | 可空 |
+| category_id | BIGINT | 归属知识库/分类（逻辑外键 doc_category.id） | 可空 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_wbp_user(user_id)`、`idx_wbp_deleted(deleted)`
+
+### 50. wb_palace_loci（工作台·记忆宫殿位点 / 知识复习扩展）
+> 位点 = 宫殿中的具体位置，绑定知识点；`pos_x/pos_y` 为画布百分比坐标（0~100），前端拖拽编辑空间布局；`sort_order` 为漫游回忆顺序。删除宫殿时级联逻辑删除位点。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键，自增 | PK |
+| user_id | BIGINT | 所属用户（逻辑外键 sys_user.id） | 非空 |
+| palace_id | BIGINT | 所属宫殿（逻辑外键 wb_palace.id） | 非空 |
+| capture_id / note_id | BIGINT | 关联收集箱/笔记（逻辑外键） | 可空 |
+| name | VARCHAR(100) | 位点名称 | 非空 |
+| knowledge_point / image_hint | VARCHAR(500) | 绑定知识点/联想图像描述 | 可空 |
+| icon | VARCHAR(50) | 位点图标名（Icon 组件） | 可空 |
+| pos_x / pos_y | INT | 画布百分比坐标 0~100 | 默认 50 |
+| sort_order | INT | 漫游顺序 | 默认 0 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_wbpl_palace(palace_id, sort_order)`、`idx_wbpl_user(user_id)`、`idx_wbpl_deleted(deleted)`
+
+### 51. wb_story（工作台·费曼故事 / 知识输出）
+> 费曼技巧 + 故事化叙事：以教代学；`gap_note` 记录讲不通的卡点（费曼法核心：卡壳处即知识漏洞）；`audience` 指定假想听众；`clarity_score` 自评讲清程度。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键，自增 | PK |
+| user_id | BIGINT | 所属用户（逻辑外键 sys_user.id） | 非空 |
+| capture_id / note_id / category_id | BIGINT | 来源收集箱/笔记/分类（逻辑外键） | 可空 |
+| title | VARCHAR(200) | 故事标题 | 非空 |
+| audience | VARCHAR(50) | CHILD/NEWBIE/PEER/INTERVIEWER | 默认 CHILD |
+| metaphor | VARCHAR(500) | 核心类比/隐喻 | 可空 |
+| content | TEXT / LONGTEXT | 故事正文（Markdown 叙事体） | 可空 |
+| gap_note | TEXT / LONGTEXT | 讲述卡点记录 | 可空 |
+| status | VARCHAR(20) | DRAFT/DONE/PUBLISHED | 默认 DRAFT |
+| clarity_score | INT | 自评讲清程度 0~100 | 默认 0 |
+| word_count | INT | 正文字数 | 默认 0 |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除 | 默认 0 |
+- 索引：`idx_wbs_user_status(user_id, status)`、`idx_wbs_capture(capture_id)`、`idx_wbs_note(note_id)`、`idx_wbs_deleted(deleted)
+
+---
+
 
 ## 二·补、编程 Agent 评估日志表 `agent_call_log`
 

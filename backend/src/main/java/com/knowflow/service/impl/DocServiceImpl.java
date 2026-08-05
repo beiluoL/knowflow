@@ -44,6 +44,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -67,26 +68,53 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     private final UploadConfigProperties uploadConfig;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    // ============ 搜索排序与相关度打分参数 ============
+    /** 排序方式：相关度 */
+    private static final String SORT_RELEVANCE = "relevance";
+    /** 排序方式：最热（按阅读量） */
+    private static final String SORT_VIEW = "view";
+    /** 相关度排序的候选集上限，防止大数据量下全表加载进内存 */
+    private static final int RELEVANCE_CANDIDATE_LIMIT = 500;
+    /** 字段权重：标题命中 */
+    private static final double WEIGHT_TITLE = 10.0;
+    /** 字段权重：标题完全相等的额外加成 */
+    private static final double WEIGHT_TITLE_EXACT = 20.0;
+    /** 字段权重：标题前缀匹配的额外加成 */
+    private static final double WEIGHT_TITLE_PREFIX = 5.0;
+    /** 字段权重：标签命中 */
+    private static final double WEIGHT_TAGS = 6.0;
+    /** 字段权重：摘要命中 */
+    private static final double WEIGHT_SUMMARY = 3.0;
+    /** 字段权重：正文单次命中 */
+    private static final double WEIGHT_CONTENT = 1.0;
+    /** 正文命中计分上限，避免长文档靠篇幅堆分 */
+    private static final int MAX_CONTENT_HITS = 5;
+    /** 摘要片段：关键词前保留字符数 */
+    private static final int SNIPPET_BEFORE = 40;
+    /** 摘要片段：关键词后保留字符数 */
+    private static final int SNIPPET_AFTER = 120;
+    /** 语义通道召回文档数上限 */
+    private static final int SEMANTIC_RECALL_LIMIT = 50;
+    /** RRF 融合常数，业界经验值 60，抑制头部排名的过度影响 */
+    private static final int RRF_K = 60;
+
     @Override
     public PageResult<DocVO> getDocPage(DocQueryDTO dto) {
-        Page<DocDocument> page = new Page<>(dto.getPageNum(), dto.getPageSize());
+        boolean hasKeyword = StrUtil.isNotBlank(dto.getKeyword());
+        String keyword = hasKeyword ? dto.getKeyword().trim() : null;
+        // 相关度排序需在应用层按命中位置打分，无法交给 SQL 完成，
+        // 因此走「宽召回 + 内存打分 + 手动分页」；其余排序仍用数据库分页避免全量加载。
+        boolean relevanceSort = hasKeyword && isRelevanceSort(dto.getSort());
+
         LambdaQueryWrapper<DocDocument> wrapper = new LambdaQueryWrapper<>();
-        if (StrUtil.isNotBlank(dto.getKeyword())) {
-            // F-15 修复：搜索扩展至标签与分类名（分类名先查出命中的分类 id 再并入条件）
-            List<Long> matchedCategoryIds = categoryService.list(
-                            new LambdaQueryWrapper<DocCategory>().like(DocCategory::getName, dto.getKeyword()))
-                    .stream().map(DocCategory::getId).collect(Collectors.toList());
-            // 命中顶级分类时，其子分类下的文档也应命中（文档多挂在子分类）
-            if (!matchedCategoryIds.isEmpty()) {
-                List<Long> childIds = categoryService.list(
-                                new LambdaQueryWrapper<DocCategory>().in(DocCategory::getParentId, matchedCategoryIds))
-                        .stream().map(DocCategory::getId).collect(Collectors.toList());
-                matchedCategoryIds.addAll(childIds);
-            }
+        if (hasKeyword) {
+            List<Long> matchedCategoryIds = findMatchedCategoryIds(keyword);
             wrapper.and(w -> {
-                w.like(DocDocument::getTitle, dto.getKeyword())
-                        .or().like(DocDocument::getSummary, dto.getKeyword())
-                        .or().like(DocDocument::getTags, dto.getKeyword());
+                w.like(DocDocument::getTitle, keyword)
+                        .or().like(DocDocument::getSummary, keyword)
+                        .or().like(DocDocument::getTags, keyword)
+                        // 正文纳入检索范围：此前遗漏导致「搜正文关键词返回空」
+                        .or().like(DocDocument::getContent, keyword);
                 if (!matchedCategoryIds.isEmpty()) {
                     w.or().in(DocDocument::getCategoryId, matchedCategoryIds);
                 }
@@ -103,16 +131,46 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         } else {
             wrapper.eq(DocDocument::getStatus, 1);
         }
-        wrapper.orderByDesc(DocDocument::getCreateTime);
-        Page<DocDocument> result = this.page(page, wrapper);
-        List<DocVO> voList = result.getRecords().stream().map(doc -> {
-            DocVO vo = BeanUtil.copyProperties(doc, DocVO.class);
-            DocCategory category = categoryService.getById(doc.getCategoryId());
-            if (category != null) {
-                vo.setCategoryName(category.getName());
-            }
-            return vo;
-        }).collect(Collectors.toList());
+
+        return relevanceSort
+                ? pageByRelevance(dto, keyword, wrapper)
+                : pageByColumn(dto, keyword, wrapper);
+    }
+
+    /** 缺省排序策略：有关键词时按相关度，无关键词时按时间 */
+    private boolean isRelevanceSort(String sort) {
+        return StrUtil.isBlank(sort) || SORT_RELEVANCE.equalsIgnoreCase(sort);
+    }
+
+    /**
+     * 查出分类名命中关键词的分类 id 集合（含其直接子分类）。
+     * 文档通常挂在子分类下，命中父分类时子分类文档也应召回。
+     */
+    private List<Long> findMatchedCategoryIds(String keyword) {
+        List<Long> matched = categoryService.list(
+                        new LambdaQueryWrapper<DocCategory>().like(DocCategory::getName, keyword))
+                .stream().map(DocCategory::getId).collect(Collectors.toList());
+        if (matched.isEmpty()) {
+            return matched;
+        }
+        List<Long> childIds = categoryService.list(
+                        new LambdaQueryWrapper<DocCategory>().in(DocCategory::getParentId, matched))
+                .stream().map(DocCategory::getId).collect(Collectors.toList());
+        matched.addAll(childIds);
+        return matched;
+    }
+
+    /** 普通排序：数据库分页 */
+    private PageResult<DocVO> pageByColumn(DocQueryDTO dto, String keyword,
+                                           LambdaQueryWrapper<DocDocument> wrapper) {
+        if (SORT_VIEW.equalsIgnoreCase(dto.getSort())) {
+            wrapper.orderByDesc(DocDocument::getViewCount);
+        } else {
+            wrapper.orderByDesc(DocDocument::getCreateTime);
+        }
+        Page<DocDocument> result = this.page(new Page<>(dto.getPageNum(), dto.getPageSize()), wrapper);
+        List<DocVO> voList = toVoList(result.getRecords(), keyword, false);
+
         PageResult<DocVO> pageResult = new PageResult<>();
         pageResult.setRecords(voList);
         pageResult.setTotal(result.getTotal());
@@ -120,6 +178,204 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         pageResult.setPageSize(result.getSize());
         pageResult.setPages(result.getPages());
         return pageResult;
+    }
+
+    /**
+     * 相关度排序（混合检索）：
+     * 1) 关键词通道——按创建时间倒序宽召回候选集（上限 RELEVANCE_CANDIDATE_LIMIT），按字段权重打分；
+     * 2) 语义通道——向量相似度召回文档 id（embedding 不可用时自动跳过）；
+     * 3) 用 RRF（Reciprocal Rank Fusion）融合两路排名，再手动切片分页。
+     *
+     * <p>RRF 只依赖排名而非绝对分值，天然规避了「关键词得分」与「余弦相似度」量纲不一致的问题。
+     * 候选集设上限是为了避免大数据量下把整表拉进 JVM。
+     */
+    private PageResult<DocVO> pageByRelevance(DocQueryDTO dto, String keyword,
+                                              LambdaQueryWrapper<DocDocument> wrapper) {
+        wrapper.orderByDesc(DocDocument::getCreateTime);
+        Page<DocDocument> candidatePage = this.page(new Page<>(1, RELEVANCE_CANDIDATE_LIMIT), wrapper);
+        List<DocDocument> candidates = candidatePage.getRecords();
+
+        String lowerKeyword = keyword.toLowerCase();
+        // 关键词通道排名
+        List<DocDocument> keywordRanked = candidates.stream()
+                .sorted(Comparator.comparingDouble((DocDocument d) -> -relevanceScore(d, lowerKeyword))
+                        .thenComparing(DocDocument::getCreateTime, Comparator.nullsLast(Comparator.reverseOrder())))
+                .collect(Collectors.toList());
+
+        List<DocDocument> sorted = fuseWithSemantic(keywordRanked, keyword);
+
+        long total = candidatePage.getTotal();
+        int pageNum = Math.max(1, (int) dto.getPageNum());
+        int pageSize = Math.max(1, (int) dto.getPageSize());
+        int from = Math.min((pageNum - 1) * pageSize, sorted.size());
+        int to = Math.min(from + pageSize, sorted.size());
+        List<DocVO> voList = toVoList(sorted.subList(from, to), keyword, true);
+
+        PageResult<DocVO> pageResult = new PageResult<>();
+        pageResult.setRecords(voList);
+        pageResult.setTotal(total);
+        pageResult.setPageNum(pageNum);
+        pageResult.setPageSize(pageSize);
+        pageResult.setPages(pageSize == 0 ? 0 : (total + pageSize - 1) / pageSize);
+        return pageResult;
+    }
+
+    /**
+     * 将关键词排名与语义排名做 RRF 融合。
+     *
+     * <p>RRF 公式：score(d) = Σ 1 / (k + rank_i(d))，k 取 60 为业界常用经验值。
+     * 语义通道不可用（未配置 embedding / 无向量数据）时原样返回关键词排名，
+     * 保证功能降级而非报错。
+     *
+     * <p>只对已在关键词候选集中的文档做重排，不引入候选集之外的文档，
+     * 以保证分页 total 与实际结果集一致。
+     */
+    private List<DocDocument> fuseWithSemantic(List<DocDocument> keywordRanked, String keyword) {
+        Map<Long, Double> semanticScores;
+        try {
+            semanticScores = docChunkService.searchSimilarDocIds(keyword, SEMANTIC_RECALL_LIMIT);
+        } catch (Exception e) {
+            log.warn("语义召回失败，退化为纯关键词排序: {}", e.getMessage());
+            return keywordRanked;
+        }
+        if (semanticScores == null || semanticScores.isEmpty()) {
+            return keywordRanked;
+        }
+
+        // 语义通道排名：LinkedHashMap 已按得分降序，遍历顺序即排名
+        Map<Long, Integer> semanticRank = new java.util.HashMap<>();
+        int rank = 0;
+        for (Long docId : semanticScores.keySet()) {
+            semanticRank.put(docId, rank++);
+        }
+        // 关键词通道排名
+        Map<Long, Integer> keywordRank = new java.util.HashMap<>();
+        for (int i = 0; i < keywordRanked.size(); i++) {
+            keywordRank.put(keywordRanked.get(i).getId(), i);
+        }
+
+        Map<Long, Double> fused = new java.util.HashMap<>();
+        for (DocDocument doc : keywordRanked) {
+            double score = 0;
+            Integer kr = keywordRank.get(doc.getId());
+            if (kr != null) {
+                score += 1.0 / (RRF_K + kr);
+            }
+            Integer sr = semanticRank.get(doc.getId());
+            if (sr != null) {
+                score += 1.0 / (RRF_K + sr);
+            }
+            fused.put(doc.getId(), score);
+        }
+
+        return keywordRanked.stream()
+                .sorted(Comparator.comparingDouble((DocDocument d) -> -fused.getOrDefault(d.getId(), 0.0)))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 相关度打分：按字段重要性加权，标题 > 标签 > 摘要 > 正文。
+     * 标题完全相等或前缀匹配额外加权，使精确命中稳定排在前面。
+     */
+    private double relevanceScore(DocDocument doc, String lowerKeyword) {
+        double score = 0;
+        String title = doc.getTitle() == null ? "" : doc.getTitle().toLowerCase();
+        if (!title.isEmpty() && title.contains(lowerKeyword)) {
+            score += WEIGHT_TITLE;
+            if (title.equals(lowerKeyword)) {
+                score += WEIGHT_TITLE_EXACT;
+            } else if (title.startsWith(lowerKeyword)) {
+                score += WEIGHT_TITLE_PREFIX;
+            }
+        }
+        String tags = doc.getTags() == null ? "" : doc.getTags().toLowerCase();
+        if (!tags.isEmpty() && tags.contains(lowerKeyword)) {
+            score += WEIGHT_TAGS;
+        }
+        String summary = doc.getSummary() == null ? "" : doc.getSummary().toLowerCase();
+        if (!summary.isEmpty() && summary.contains(lowerKeyword)) {
+            score += WEIGHT_SUMMARY;
+        }
+        String content = doc.getContent() == null ? "" : doc.getContent().toLowerCase();
+        if (!content.isEmpty()) {
+            // 正文按出现频次累加，但设上限避免长文档仅靠篇幅堆分
+            int occurrences = countOccurrences(content, lowerKeyword);
+            score += Math.min(occurrences, MAX_CONTENT_HITS) * WEIGHT_CONTENT;
+        }
+        return score;
+    }
+
+    /** 统计子串出现次数（非重叠） */
+    private int countOccurrences(String text, String keyword) {
+        if (keyword.isEmpty()) return 0;
+        int count = 0;
+        int idx = text.indexOf(keyword);
+        while (idx >= 0 && count < MAX_CONTENT_HITS) {
+            count++;
+            idx = text.indexOf(keyword, idx + keyword.length());
+        }
+        return count;
+    }
+
+    /**
+     * 批量组装 VO：一次性查出所有分类名，消除逐条 getById 的 N+1 查询。
+     *
+     * @param withScore 是否回填相关度得分（仅相关度排序时有意义）
+     */
+    private List<DocVO> toVoList(List<DocDocument> docs, String keyword, boolean withScore) {
+        if (docs == null || docs.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Long> categoryIds = docs.stream()
+                .map(DocDocument::getCategoryId)
+                .filter(java.util.Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        Map<Long, String> categoryNameMap = categoryIds.isEmpty()
+                ? Collections.emptyMap()
+                : categoryService.listByIds(categoryIds).stream()
+                        .collect(Collectors.toMap(DocCategory::getId, DocCategory::getName, (a, b) -> a));
+
+        String lowerKeyword = keyword == null ? null : keyword.toLowerCase();
+        return docs.stream().map(doc -> {
+            DocVO vo = BeanUtil.copyProperties(doc, DocVO.class);
+            if (doc.getCategoryId() != null) {
+                vo.setCategoryName(categoryNameMap.get(doc.getCategoryId()));
+            }
+            if (lowerKeyword != null) {
+                vo.setHighlight(buildSnippet(doc.getContent(), keyword));
+                if (withScore) {
+                    vo.setScore(relevanceScore(doc, lowerKeyword));
+                }
+            }
+            return vo;
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * 截取正文中关键词周围的上下文片段，返回纯文本。
+     * 不拼接 HTML 标签：高亮由前端在转义后渲染，避免后端注入 HTML 造成 XSS。
+     */
+    private String buildSnippet(String content, String keyword) {
+        if (StrUtil.isBlank(content) || StrUtil.isBlank(keyword)) {
+            return null;
+        }
+        // 去除 markdown 换行与多余空白，避免片段里出现大段空行
+        String flat = content.replaceAll("\\s+", " ").trim();
+        int idx = flat.toLowerCase().indexOf(keyword.toLowerCase());
+        if (idx < 0) {
+            return null;
+        }
+        int from = Math.max(0, idx - SNIPPET_BEFORE);
+        int to = Math.min(flat.length(), idx + keyword.length() + SNIPPET_AFTER);
+        String snippet = flat.substring(from, to);
+        if (from > 0) {
+            snippet = "..." + snippet;
+        }
+        if (to < flat.length()) {
+            snippet = snippet + "...";
+        }
+        return snippet;
     }
 
     @Override
