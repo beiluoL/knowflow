@@ -1,0 +1,27 @@
+[package]
+name = "knowflow-desktop"
+version = "1.0.0"
+description = "KnowFlow 学习工作台桌面应用"
+authors = ["KnowFlow"]
+edition = "2021"
+
+[lib]
+name = "knowflow_desktop"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-shell = "2"
+tauri-plugin-notification = "2"
+tauri-plugin-updater = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# 纯 Rust HTTP 客户端，用于后台轮询待复习计数（无 OpenSSL 依赖，macOS 开箱即用）
+ureq = { version = "2", features = ["json"] }
+
+[features]
+# 默认启用自定义协议（生产构建需要）
+custom-protocol = ["tauri/custom-protocol"]

@@ -1,0 +1,26 @@
+# Node 依赖
+src-api/node_modules/
+src-ui/node_modules/
+node_modules/
+
+# 构建产物
+src-api/dist/
+src-ui/dist/
+
+# 本地运行数据（SQLite）
+src-api/data/
+*.db
+*.db-wal
+*.db-shm
+
+# Tauri 侧车二进制（由 scripts/prepare-bin.sh 生成）
+binaries/
+
+# Tauri 生成物
+src-tauri/target/
+src-tauri/gen/
+
+# 编辑器/系统
+.DS_Store
+.idea/
+.vscode/

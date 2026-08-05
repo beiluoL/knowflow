@@ -1,0 +1,20 @@
+{
+  "name": "knowflow-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "KnowFlow 学习工作台 macOS 桌面应用 (Tauri 2 + Node.js + SQLite)",
+  "scripts": {
+    "dev:web": "npm --prefix src-ui run dev",
+    "dev:api": "npm --prefix src-api run dev",
+    "dev:all": "npm run dev:web & npm run dev:api & wait",
+    "build:web": "npm --prefix src-ui run build",
+    "build:api": "npm --prefix src-api run build",
+    "build:all": "npm run build:web && npm run build:api",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0"
+  }
+}

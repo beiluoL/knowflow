@@ -1,0 +1,1227 @@
+/* 字体加载：合并为单次请求（Noto Sans SC 正文 + Noto Serif SC 展示标题 + JetBrains Mono 代码）
+ * 使用国内镜像 fonts.loli.net 替换 Google Fonts，避免国内访问失败 */
+@import url('https://fonts.loli.net/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@500;600;700;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* =====================================================================
+   * F-07 设计令牌单一来源（Single Source of Truth）
+   * 本文件 :root 的 --kb-* 是全项目唯一颜色令牌定义处。
+   * 1. 旧版 --color-* 变量一律引用 --kb-*，禁止再写死色值；
+   * 2. tailwind.config.js 的 primary/success/warning/danger 色板必须与
+   *    此处 --kb-* 保持一致（主色 #3B6FE0）；改主题时先改这里再同步 tailwind。
+   * ===================================================================== */
+
+  /* ===== Design-system tokens (--kb-* 与设计稿统一) ===== */
+  --kb-background: #F7F8FA;
+  --kb-foreground: #1A1D23;
+  --kb-card: #FFFFFF;
+  --kb-card-foreground: #1A1D23;
+  --kb-popover: #FFFFFF;
+  --kb-popover-foreground: #1A1D23;
+  --kb-primary: #3B6FE0;
+  --kb-primary-foreground: #FFFFFF;
+  --kb-muted: #E8ECF1;
+  --kb-muted-foreground: #6B7280;
+  --kb-border: #E2E6EC;
+  --kb-input: #E2E6EC;
+  --kb-ring: #3B6FE0;
+  --kb-sidebar: #F0F2F5;
+  --kb-sidebar-foreground: #374151;
+  --kb-accent: #10B981;
+  --kb-accent-foreground: #FFFFFF;
+  --kb-destructive: #EF4444;
+  --kb-destructive-foreground: #FFFFFF;
+  --kb-warning: #F59E0B;
+  --kb-warning-foreground: #FFFFFF;
+
+  /* ===== Signature Highlight（高光时刻标识色） =====
+   * 暖橘 #FF6B35 是 KnowFlow 的 signature accent，区别于主蓝，
+   * 专门用于「成就解锁 / 连续打卡火焰 / AI 推荐 / 升级庆祝」等高光时刻，
+   * 与主色 #3B6FE0 形成 80/20 主辅关系，制造视觉惊喜与记忆点。
+   * 使用建议：不大面积铺色，仅用于徽章、图标、动效高光、强调数字。
+   */
+  --kb-highlight: #FF6B35;
+  --kb-highlight-foreground: #FFFFFF;
+  --kb-highlight-soft: rgba(255, 107, 53, 0.10); /* 软背景：徽章底色、卡片高光 */
+  --kb-highlight-border: rgba(255, 107, 53, 0.30);
+
+  --kb-radius-sm: 6px;
+  --kb-radius-md: 10px;
+  --kb-radius-lg: 16px;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0 8px 24px 0 rgba(0, 0, 0, 0.08);
+
+  /* ===== 字体系统 =====
+   * --font-sans   正文（Noto Sans SC，功能性）
+   * --font-serif  展示标题 H1/H2/H3（Noto Serif SC，杂志感）
+   * --font-display Hero 大标题专用，比 serif 更重更紧（900 字重）
+   * --font-mono   代码块/数字列（JetBrains Mono，等宽带连字）
+   */
+  --font-sans: 'Noto Sans SC', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Noto Serif SC', Georgia, 'Times New Roman', serif;
+  --font-display: 'Noto Serif SC', Georgia, 'Times New Roman', serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Consolas, monospace;
+
+  /* =====================================================================
+   * Typography 字号阶梯（企业级 8px 基线网格对齐）
+   * h1 -> display-xl  40px / 1.2  (Hero 大标题)
+   * h2 -> display-lg  32px / 1.25 (页面主标题)
+   * h3 -> display-md  24px / 1.3  (区块标题)
+   * h4 -> display-sm  20px / 1.4  (卡片标题)
+   * body-lg -> 16px  (正文大)
+   * body-md -> 14px  (正文默认 / 导航菜单)
+   * body-sm -> 13px  (辅助正文 / 下拉菜单)
+   * caption   -> 12px (标签 / 说明 / 分组标题)
+   * xs        -> 11px (角标 / 时间)
+   * ===================================================================== */
+  --kb-fs-h1: 40px;  --kb-lh-h1: 1.2;  --kb-fw-h1: 700;
+  --kb-fs-h2: 32px;  --kb-lh-h2: 1.25; --kb-fw-h2: 700;
+  --kb-fs-h3: 24px;  --kb-lh-h3: 1.3;  --kb-fw-h3: 600;
+  --kb-fs-h4: 20px;  --kb-lh-h4: 1.4;  --kb-fw-h4: 600;
+  --kb-fs-body-lg: 16px;  --kb-lh-body-lg: 1.6; --kb-fw-body-lg: 400;
+  --kb-fs-body-md: 14px;  --kb-lh-body-md: 1.6; --kb-fw-body-md: 400;
+  --kb-fs-body-sm: 13px;  --kb-lh-body-sm: 1.5; --kb-fw-body-sm: 400;
+  --kb-fs-caption:  12px;  --kb-lh-caption:  1.5; --kb-fw-caption:  500;
+  --kb-fs-xs:       11px;  --kb-lh-xs:       1.4; --kb-fw-xs:       500;
+
+  /* =====================================================================
+   * Icon 图标尺寸阶梯（偶数 + 语义化，避免魔法数字）
+   * xxs  10px  超小（列表内点 / 角标图标）
+   * xs   12px  特小（面包屑 / tag 标签）
+   * sm   14px  小（下拉箭头 / 辅助图标）
+   * md   16px  中（导航菜单 / 表单输入框 / 默认）
+   * lg   18px  大（移动端菜单 / 按钮图标）
+   * xl   20px  特大（Logo / 通知铃铛 / 顶部操作）
+   * 2xl  24px  超大（卡片 / Hero 区域）
+   * 3xl  32px  巨大（空状态 / 节日插画）
+   * ===================================================================== */
+  --kb-icon-xxs: 10px;
+  --kb-icon-xs:  12px;
+  --kb-icon-sm:  14px;
+  --kb-icon-md:  16px;   /* 默认 */
+  --kb-icon-lg:  18px;
+  --kb-icon-xl:  20px;
+  --kb-icon-2xl: 24px;
+  --kb-icon-3xl: 32px;
+
+  /* =====================================================================
+   * Spacing 间距阶梯（基于 4px 网格，统一 gap / padding / margin）
+   * 0  0px | 1  4px | 2  8px | 3  12px | 4  16px
+   * 5  20px | 6  24px | 8  32px | 10 40px | 12 48px
+   * ===================================================================== */
+  --kb-space-1: 4px;
+  --kb-space-2: 8px;
+  --kb-space-3: 12px;
+  --kb-space-4: 16px;
+  --kb-space-5: 20px;
+  --kb-space-6: 24px;
+  --kb-space-8: 32px;
+
+  /* =====================================================================
+   * Layout 布局专用语义化尺寸
+   * 顶栏高度 h-14 = 56px；侧边栏 Logo 高度同样 56px；
+   * 导航菜单默认：图标 md(16px) + 文字 body-md(14px/500) + 间距 gap-2(8px)
+   * 下拉菜单项：图标 md(16px) + 文字 body-sm(13px) + 间距 gap-2(8px)
+   * 移动端菜单项：图标 lg(18px) + 文字 body-md(14px) + 间距 gap-2(8px)
+   * ===================================================================== */
+  --kb-nav-height: 56px;
+  --kb-nav-icon: var(--kb-icon-md);        /* 桌面导航图标 */
+  --kb-nav-chevron: var(--kb-icon-sm);     /* 下拉箭头 */
+  --kb-nav-text-fs: var(--kb-fs-body-md);  /* 桌面导航文字 14px */
+  --kb-nav-text-fw: 500;                   /* 导航文字字重 Medium */
+  --kb-nav-gap: var(--kb-space-2);         /* 图标 ↔ 文字间距 8px */
+  --kb-dropdown-icon: var(--kb-icon-md);   /* 下拉菜单图标 */
+  --kb-dropdown-text-fs: var(--kb-fs-body-sm); /* 下拉菜单文字 13px */
+  --kb-mobile-icon: var(--kb-icon-lg);     /* 移动端菜单图标 18px */
+  --kb-logo-icon: var(--kb-icon-xl);       /* Logo 图标 20px */
+  --kb-logo-text-fs: var(--kb-fs-h4);      /* Logo 文字 20px */
+  --kb-logo-text-fw: 600;                  /* Logo 文字字重 */
+
+  /* 侧边栏（管理后台 Sidebar）专用语义化尺寸 */
+  --kb-sidebar-icon: var(--kb-icon-md);       /* 侧边栏导航项图标 16px */
+  --kb-sidebar-text-fs: var(--kb-fs-body-sm); /* 侧边栏导航文字 13px */
+  --kb-sidebar-text-fw: 500;                  /* 侧边栏导航字重 */
+  --kb-sidebar-gap: var(--kb-space-3);        /* 侧边栏图标↔文字间距 12px */
+  --kb-sidebar-label-fs: var(--kb-fs-xs);     /* 侧边栏分组标题 11px */
+  --kb-sidebar-label-fw: 500;                 /* 侧边栏分组标题字重 */
+  --kb-sidebar-chevron: var(--kb-icon-md);    /* 侧边栏折叠/展开箭头 16px */
+  --kb-sidebar-bottom-icon: var(--kb-icon-sm);/* 侧边栏底部辅助图标 14px */
+  --kb-sidebar-bottom-fs: var(--kb-fs-caption); /* 侧边栏底部文字 12px */
+
+  /* ===== 旧版 --color-* 变量：全部引用 --kb-*，不再各自写死（F-07） ===== */
+  --color-primary: var(--kb-primary);
+  --color-primary-light: #6F9AF2;
+  --color-primary-dark: #2F59B3;
+  --color-success: var(--kb-accent);
+  --color-warning: var(--kb-warning);
+  --color-danger: var(--kb-destructive);
+  --color-background: var(--kb-background);
+  --color-surface: var(--kb-card);
+  --color-text-primary: var(--kb-foreground);
+  --color-text-secondary: var(--kb-muted-foreground);
+  --color-border: #E5E7EB;
+  --color-border-light: #F3F4F6;
+  --radius-sm: var(--kb-radius-sm);
+  --radius-md: var(--kb-radius-md);
+  --radius-lg: var(--kb-radius-lg);
+}
+
+/* =====================================================================
+ * P3-1：深色模式（data-theme="dark"）
+ * 策略：重写 --kb-* 令牌为深色色板，所有引用 var(--kb-*) 的组件自动响应；
+ * 同时对高频 Tailwind 工具类（.bg-white/.text-gray-800/.border-gray-200 等）
+ * 做全局兜底映射，使未改造的页面也能瞬间变深色。
+ * 主色保持 #3B6FE0 家族，仅在深底下提亮以保证对比度。
+ * ===================================================================== */
+:root[data-theme='dark'] {
+  --kb-background: #0F1115;
+  --kb-foreground: #E6E8EC;
+  --kb-card: #1A1D23;
+  --kb-card-foreground: #E6E8EC;
+  --kb-popover: #1A1D23;
+  --kb-popover-foreground: #E6E8EC;
+  --kb-primary: #4F86F9;
+  --kb-primary-foreground: #0F1115;
+  --kb-muted: #252932;
+  --kb-muted-foreground: #9AA1AC;
+  --kb-border: #2A2F38;
+  --kb-input: #2A2F38;
+  --kb-ring: #4F86F9;
+  --kb-sidebar: #15171C;
+  --kb-sidebar-foreground: #C5CAD3;
+  --kb-accent: #34D399;
+  --kb-accent-foreground: #0F1115;
+  --kb-destructive: #F8716E;
+  --kb-destructive-foreground: #0F1115;
+  --kb-warning: #FBBF24;
+  --kb-warning-foreground: #0F1115;
+
+  --kb-highlight: #FF8556;
+  --kb-highlight-foreground: #0F1115;
+  --kb-highlight-soft: rgba(255, 133, 86, 0.16);
+  --kb-highlight-border: rgba(255, 133, 86, 0.40);
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 2px 8px 0 rgba(0, 0, 0, 0.3);
+  --shadow-card-hover: 0 8px 24px 0 rgba(0, 0, 0, 0.45);
+
+  --color-primary-light: #7BA3F5;
+  --color-primary-dark: #3B6FE0;
+  --color-border: #2A2F38;
+  --color-border-light: #252932;
+}
+
+/* 全局兜底：将高频 Tailwind 工具类映射到深色令牌，
+ * 让未显式使用 var(--kb-*) 的旧组件也能在深色模式下基本可用。 */
+:root[data-theme='dark'] .bg-white { background-color: var(--kb-card) !important; }
+:root[data-theme='dark'] .bg-gray-50,
+:root[data-theme='dark'] .bg-gray-100 { background-color: var(--kb-muted) !important; }
+:root[data-theme='dark'] .bg-gray-50\/30 { background-color: rgba(37, 41, 50, 0.5) !important; }
+
+:root[data-theme='dark'] .text-gray-900 { color: var(--kb-foreground) !important; }
+:root[data-theme='dark'] .text-gray-800 { color: var(--kb-foreground) !important; }
+:root[data-theme='dark'] .text-gray-700 { color: #C5CAD3 !important; }
+:root[data-theme='dark'] .text-gray-600 { color: var(--kb-muted-foreground) !important; }
+:root[data-theme='dark'] .text-gray-500 { color: var(--kb-muted-foreground) !important; }
+:root[data-theme='dark'] .text-gray-400 { color: #6B7280 !important; }
+
+:root[data-theme='dark'] .border-gray-200,
+:root[data-theme='dark'] .border-gray-300 { border-color: var(--kb-border) !important; }
+:root[data-theme='dark'] .border-gray-100,
+:root[data-theme='dark'] .border-gray-50 { border-color: var(--kb-muted) !important; }
+
+:root[data-theme='dark'] .hover\:bg-gray-50:hover { background-color: var(--kb-muted) !important; }
+:root[data-theme='dark'] .hover\:bg-gray-100:hover { background-color: #2A2F38 !important; }
+:root[data-theme='dark'] .hover\:text-gray-700:hover { color: var(--kb-foreground) !important; }
+
+/* 输入框深色化 */
+:root[data-theme='dark'] input,
+:root[data-theme='dark'] textarea,
+:root[data-theme='dark'] select {
+  background-color: var(--kb-card);
+  color: var(--kb-foreground);
+  border-color: var(--kb-border);
+}
+:root[data-theme='dark'] input::placeholder,
+:root[data-theme='dark'] textarea::placeholder {
+  color: #6B7280;
+}
+
+/* =====================================================================
+ * P3-2：功能区背景色调差异化（语义化区域背景）
+ * 通过为不同功能区分配差异化的背景色调，打破「全白/全灰一片」的扁平感，
+ * 建立侧栏 → 顶栏 → 内容区 → 强调区 的视觉层次。
+ * 所有类都基于 --kb-* 令牌，深色模式下自动响应。
+ * ===================================================================== */
+/* 顶栏：与卡片同色，靠底部边线与内容区区分 */
+.kb-region-topbar {
+  background: var(--kb-card);
+  border-bottom: 1px solid var(--kb-border);
+}
+/* 侧栏：比内容区略深/略浅，制造「抽屉」感 */
+.kb-region-sidebar {
+  background: var(--kb-sidebar);
+  border-right: 1px solid var(--kb-border);
+}
+/* 主内容区：纵向微妙渐变，顶部稍亮、底部稍沉，制造空间纵深 */
+.kb-region-content {
+  background:
+    linear-gradient(180deg, var(--kb-card) 0%, var(--kb-background) 280px);
+}
+/* 强调区：主色调氛围背景，用于 Hero、AI 对话等 signature 区域 */
+.kb-region-accent {
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(59, 111, 224, 0.08) 0%, transparent 60%),
+    radial-gradient(100% 60% at 100% 0%, rgba(255, 107, 53, 0.06) 0%, transparent 50%),
+    var(--kb-card);
+}
+:root[data-theme='dark'] .kb-region-content {
+  background:
+    linear-gradient(180deg, var(--kb-card) 0%, var(--kb-background) 320px);
+}
+
+/* 全局背景激活时：布局容器透明，让 z-index:-1 的背景层可见 */
+html.has-global-bg body {
+  background-color: transparent;
+  background-image: none;
+}
+html.has-global-bg .kb-region-content {
+  background: transparent;
+}
+:root[data-theme='dark'] .kb-region-accent {
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(79, 134, 249, 0.12) 0%, transparent 60%),
+    radial-gradient(100% 60% at 100% 0%, rgba(255, 133, 86, 0.08) 0%, transparent 50%),
+    var(--kb-card);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  /* 开启字体光学尺寸自动调整（变体字体特性，让大字号更紧凑、小字号更舒展） */
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* 代码块、pre、kbd 统一使用 mono 字体（带连字更美观） */
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--font-mono);
+  font-variant-ligatures: contextual; /* 连字仅在语义合理时启用 */
+}
+
+/* 数字密集场景：表格数字列、统计数字、进度数字
+ * 直接在元素加 class="tabular-nums" 或 style="font-variant-numeric: tabular-nums" */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(59, 111, 224, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(59, 111, 224, 0.02) 0%, transparent 50%);
+  background-size: 100% 100%;
+  background-attachment: fixed;
+}
+
+#app {
+  min-height: 100vh;
+  font-family: var(--font-sans);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+}
+
+/* 可访问性：保留键盘焦点可见环（替代全局 outline:none，不改动主题色） */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible,
+[role='button']:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #D1D5DB;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #9CA3AF;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #D1D5DB transparent;
+}
+
+/* Selection */
+::selection {
+  background-color: rgba(59, 111, 224, 0.2);
+  color: var(--color-text-primary);
+}
+
+/* Common utility classes */
+@layer components {
+  .transition-base {
+    transition: all 0.2s ease;
+  }
+
+  .text-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .text-ellipsis-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ===== Design-system typography scale（杂志感衬线展示标题） =====
+   * H1/H2/H3 用 Noto Serif SC，配合紧字距 + 重字重 + 光学尺寸，
+   * 让大字号在中文场景下呈现「杂志大标题」的精致感，而非默认松散状态。
+   * 正文与 H4 保持 Noto Sans SC，兼顾功能性与阅读舒适度。
+   */
+  .kb-display {
+    font-family: var(--font-display);
+    font-size: 44px;
+    font-weight: 900;
+    line-height: 1.15;
+    letter-spacing: -0.04em;
+    color: var(--kb-foreground);
+    text-wrap: balance; /* 标题自动平衡换行，避免孤行 */
+  }
+  .kb-h1 {
+    font-family: var(--font-serif);
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+    color: var(--kb-foreground);
+    text-wrap: balance;
+  }
+  .kb-h2 {
+    font-family: var(--font-serif);
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+    color: var(--kb-foreground);
+    text-wrap: balance;
+  }
+  .kb-h3 {
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    color: var(--kb-foreground);
+    text-wrap: pretty; /* 三级标题用 pretty 避免孤行 */
+  }
+  .kb-h4 {
+    font-family: var(--font-sans);
+    font-size: var(--kb-fs-h4);
+    font-weight: var(--kb-fw-h4);
+    line-height: var(--kb-lh-h4);
+    color: var(--kb-foreground);
+  }
+  .kb-body {
+    font-family: var(--font-sans);
+    font-size: var(--kb-fs-body-md);
+    font-weight: var(--kb-fw-body-md);
+    line-height: var(--kb-lh-body-md);
+    color: var(--kb-card-foreground);
+  }
+  .kb-body-sm {
+    font-family: var(--font-sans);
+    font-size: var(--kb-fs-body-sm);
+    font-weight: var(--kb-fw-body-sm);
+    line-height: var(--kb-lh-body-sm);
+    color: var(--kb-muted-foreground);
+  }
+  .kb-caption {
+    font-family: var(--font-sans);
+    font-size: var(--kb-fs-caption);
+    font-weight: var(--kb-fw-caption);
+    line-height: var(--kb-lh-caption);
+    color: var(--kb-muted-foreground);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ===== Design-system shared components ===== */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--kb-radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--kb-primary-foreground);
+    background: var(--kb-primary);
+    transition: opacity 0.2s ease;
+  }
+  .btn-primary:hover {
+    opacity: 0.9;
+  }
+
+  /* ===== Signature highlight 工具类（高光时刻专用） =====
+   * 用于成就徽章、连续打卡火焰、AI 推荐标识、升级庆祝数字等，
+   * 保持 signature accent 的应用一致性，避免各页面自行写色值。
+   */
+  .highlight-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--kb-highlight);
+    background: var(--kb-highlight-soft);
+    border: 1px solid var(--kb-highlight-border);
+  }
+  .highlight-text {
+    color: var(--kb-highlight);
+  }
+  .highlight-glow {
+    /* 高光阴影：用于解锁动效、强调数字 */
+    box-shadow: 0 0 0 4px var(--kb-highlight-soft);
+  }
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--kb-radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--kb-foreground);
+    background: var(--kb-card);
+    border: 1px solid var(--kb-border);
+    transition: background 0.2s ease;
+  }
+  .btn-secondary:hover {
+    background: var(--kb-muted);
+  }
+
+  /* =====================================================================
+   * 统一下拉选择器 .kb-select（原生 <select> 美化）
+   * 全项目所有筛选/表单下拉统一使用此类，保证视觉与交互一致。
+   * - 移除浏览器默认外观，统一箭头图标（SVG 内联，无额外资源请求）
+   * - 38px 高度 / 10px 圆角 / --kb-border 边框 / focus 主色高亮环
+   * - min-width 140px 防止选中值被截断；option 文本浏览器自动撑宽
+   * - 深色模式自动响应（所有色值均引用 --kb-* 令牌）
+   * ===================================================================== */
+  .kb-select {
+    display: inline-block;
+    height: 38px;
+    padding: 0 32px 0 12px;
+    border-radius: var(--kb-radius-md);
+    border: 1px solid var(--kb-border);
+    background-color: var(--kb-card);
+    color: var(--kb-foreground);
+    font-size: var(--kb-fs-body-md);
+    font-family: inherit;
+    line-height: var(--kb-lh-body-md);
+    min-width: 140px;
+    max-width: 100%;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    /* 内联 SVG 箭头：使用 currentColor 自动跟随文字色，深色模式自适应 */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 14px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .kb-select:hover {
+    border-color: var(--kb-primary);
+  }
+  .kb-select:focus {
+    border-color: var(--kb-primary);
+    box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+  }
+  .kb-select:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background-color: var(--kb-muted);
+  }
+  /* 选项文本：确保完整可读，浏览器会自动按最长 option 撑宽面板 */
+  .kb-select option {
+    padding: 8px 12px;
+    color: var(--kb-foreground);
+    background-color: var(--kb-card);
+    font-size: var(--kb-fs-body-md);
+    line-height: var(--kb-lh-body-md);
+    word-break: break-word;
+  }
+  /* 紧凑变体：用于空间受限的工具栏 */
+  .kb-select.kb-select-sm {
+    height: 32px;
+    padding: 0 28px 0 10px;
+    font-size: var(--kb-fs-body-sm);
+    min-width: 110px;
+  }
+
+  /* =====================================================================
+   * 统一筛选按钮组 .kb-filter-btn / .kb-filter-group
+   * 用于分类筛选、排序切换、视图切换等分段控件。
+   * - 默认态：白底灰字灰边；悬停/激活：主色软背景 + 主色字 + 主色边
+   * - 12px 字号 / 6px 14px 内边距 / 6px 圆角，紧凑适合工具栏
+   * - .kb-filter-group 容器提供统一间距与换行
+   * ===================================================================== */
+  .kb-filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--kb-space-2);
+  }
+  .kb-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: var(--kb-radius-sm);
+    font-size: var(--kb-fs-body-sm);
+    font-weight: 500;
+    line-height: var(--kb-lh-body-sm);
+    border: 1px solid var(--kb-border);
+    background: var(--kb-card);
+    color: var(--kb-muted-foreground);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+  .kb-filter-btn:hover {
+    border-color: var(--kb-primary);
+    color: var(--kb-primary);
+  }
+  .kb-filter-btn.active {
+    background: rgba(59, 111, 224, 0.08);
+    color: var(--kb-primary);
+    border-color: var(--kb-primary);
+  }
+  .kb-filter-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  /* 计数徽章：筛选按钮内的小数字 */
+  .kb-filter-btn .filter-count {
+    font-size: 11px;
+    opacity: 0.7;
+    font-variant-numeric: tabular-nums;
+  }
+  .kb-filter-btn.active .filter-count {
+    opacity: 0.9;
+  }
+
+  /* =====================================================================
+   * 统一自定义下拉面板 .kb-dropdown（非原生 <select> 的弹出选择）
+   * 用于章节下拉、排序下拉、角色筛选等需要自定义渲染的场景。
+   * - trigger 复用 .kb-select 视觉（38px 高、主色高亮环）
+   * - panel：max-height 320px + overflow-y auto 防止选项过多溢出
+   * - item：white-space: normal 允许长文本换行，确保完整可读
+   * - 键盘导航：聚焦项有主色软背景高亮
+   * ===================================================================== */
+  .kb-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  .kb-dropdown-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--kb-space-2);
+    height: 38px;
+    padding: 0 12px;
+    border-radius: var(--kb-radius-md);
+    border: 1px solid var(--kb-border);
+    background: var(--kb-card);
+    color: var(--kb-foreground);
+    font-size: var(--kb-fs-body-md);
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    min-width: 140px;
+  }
+  .kb-dropdown-trigger:hover {
+    border-color: var(--kb-primary);
+  }
+  .kb-dropdown-trigger.active {
+    border-color: var(--kb-primary);
+    box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+  }
+  .kb-dropdown-trigger.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .kb-dropdown-trigger .trigger-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+  .kb-dropdown-trigger .trigger-placeholder {
+    color: var(--kb-muted-foreground);
+  }
+  .kb-dropdown-trigger .trigger-arrow {
+    color: var(--kb-muted-foreground);
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+  .kb-dropdown-trigger.active .trigger-arrow {
+    transform: rotate(180deg);
+  }
+  .kb-dropdown-panel {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 100%;
+    z-index: 50;
+    max-height: 320px;
+    overflow-y: auto;
+    border: 1px solid var(--kb-border);
+    border-radius: var(--kb-radius-md);
+    background: var(--kb-popover);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    padding: 4px;
+  }
+  /* 面板宽度自适应内容：确保长文本选项完整显示 */
+  .kb-dropdown-panel.kb-dropdown-wide {
+    width: max-content;
+    max-width: 360px;
+  }
+  .kb-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: var(--kb-space-2);
+    padding: 8px 12px;
+    border-radius: var(--kb-radius-sm);
+    font-size: var(--kb-fs-body-sm);
+    color: var(--kb-foreground);
+    cursor: pointer;
+    transition: background 0.12s ease;
+    /* 关键：允许长文本换行，避免截断 */
+    white-space: normal;
+    word-break: break-word;
+  }
+  .kb-dropdown-item:hover,
+  .kb-dropdown-item.focused {
+    background: var(--kb-muted);
+  }
+  .kb-dropdown-item.selected {
+    color: var(--kb-primary);
+    font-weight: 500;
+    background: rgba(59, 111, 224, 0.06);
+  }
+  .kb-dropdown-item.disabled {
+    color: var(--kb-muted-foreground);
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* C-end top nav dropdown */
+  .nav-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    margin-top: 6px;
+    min-width: 168px;
+    background: var(--kb-popover);
+    border: 1px solid var(--kb-border);
+    border-radius: var(--kb-radius-md);
+    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.08);
+    padding: 6px;
+    z-index: 60;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+  }
+  .nav-dropdown.is-open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+  .nav-dropdown a {
+    display: flex;
+    align-items: center;
+    gap: var(--kb-nav-gap);
+    padding: 8px 10px;
+    border-radius: var(--kb-radius-sm);
+    font-size: var(--kb-dropdown-text-fs);
+    color: var(--kb-foreground);
+    transition: background 0.15s ease;
+  }
+  .nav-dropdown a:hover {
+    background: var(--kb-muted);
+  }
+
+  /* B-end sidebar nav item */
+  .sidebar-group-label {
+    padding: 10px 12px 6px;
+    font-size: var(--kb-sidebar-label-fs);
+    font-weight: var(--kb-sidebar-label-fw);
+    color: var(--kb-muted-foreground);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--kb-sidebar-gap);
+    padding: 8px 12px;
+    border-radius: var(--kb-radius-sm);
+    font-size: var(--kb-sidebar-text-fs);
+    font-weight: var(--kb-sidebar-text-fw);
+    color: var(--kb-sidebar-foreground);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .sidebar-nav-item:hover {
+    background: rgba(59, 111, 224, 0.06);
+  }
+  .sidebar-nav-item.active {
+    background: var(--kb-primary);
+    color: var(--kb-primary-foreground);
+  }
+
+  /* B-end topbar search */
+  .topbar-search {
+    width: 100%;
+    height: 36px;
+    padding: 0 12px 0 36px;
+    font-size: 13px;
+    color: var(--kb-foreground);
+    background: var(--kb-background);
+    border: 1px solid var(--kb-border);
+    border-radius: var(--kb-radius-sm);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .topbar-search:focus {
+    border-color: var(--kb-primary);
+    box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+    outline: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* =====================================================================
+ * 全局 prefers-reduced-motion 守护
+ * 用户系统设置了「减少动效」时，禁用所有动画与过渡，避免前庭不适。
+ * 覆盖各组件内分散的 animation/transition，无需逐个修改业务代码。
+ * ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =====================================================================
+ * Staggered Reveal 入场动效（P2-1）
+ * 页面卡片/列表项按顺序延迟淡入上滑，制造节奏感。
+ * 用法：父容器加 class="reveal-stagger"，子项自动按 --reveal-index 顺序入场。
+ *       或单独使用 .reveal-item 并内联 style="--reveal-index: 0/1/2..."
+ * 动画仅在元素首次进入时执行一次（animation-fill-mode: both）。
+ * ===================================================================== */
+.reveal-item {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: revealFadeUp 0.5s ease-out forwards;
+  animation-delay: calc(var(--reveal-index, 0) * 60ms);
+}
+
+@keyframes revealFadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =====================================================================
+ * 解锁粒子爆开动效（P1-2 成就解锁瞬间）
+ * 用于成就解锁、里程碑达成等高光时刻，CSS-only 实现。
+ * 用法：父容器加 class="particle-burst"，会生成 8 个方向的粒子扩散。
+ * ===================================================================== */
+.particle-burst {
+  position: relative;
+}
+
+.particle-burst::before,
+.particle-burst::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kb-highlight);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.particle-burst.is-bursting::before {
+  animation: particleExplode 0.8s ease-out forwards;
+}
+
+.particle-burst.is-bursting::after {
+  animation: particleExplode 0.8s ease-out 0.1s forwards;
+}
+
+@keyframes particleExplode {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow:
+      0 0 0 0 var(--kb-highlight),
+      12px 0 0 0 var(--kb-highlight),
+      -12px 0 0 0 var(--kb-highlight),
+      0 12px 0 0 var(--kb-highlight),
+      0 -12px 0 0 var(--kb-highlight),
+      9px 9px 0 0 var(--kb-highlight),
+      -9px 9px 0 0 var(--kb-highlight),
+      9px -9px 0 0 var(--kb-highlight),
+      -9px -9px 0 0 var(--kb-highlight);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.5);
+    box-shadow:
+      0 0 0 2px transparent,
+      32px 0 0 2px transparent,
+      -32px 0 0 2px transparent,
+      0 32px 0 2px transparent,
+      0 -32px 0 2px transparent,
+      24px 24px 0 2px transparent,
+      -24px 24px 0 2px transparent,
+      24px -24px 0 2px transparent,
+      -24px -24px 0 2px transparent;
+  }
+}
+
+/* 高光脉冲：用于强调数字、徽章解锁瞬间 */
+.highlight-pulse {
+  animation: highlightPulse 1.2s ease-out;
+}
+
+@keyframes highlightPulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--kb-highlight-soft);
+  }
+  50% {
+    box-shadow: 0 0 0 12px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+/* =====================================================================
+ * 全局 Markdown / Prose 样式：保留空格、换行、制表符
+ * 所有使用 .prose 类的容器都会自动获得正确的格式保留行为
+ * （解决内容中 \n\n 换行不生效、空格丢失等问题）
+ * ===================================================================== */
+.prose,
+.prose * {
+  /* 关键：保留空格和换行 */
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.prose {
+  line-height: 1.7;
+  tab-size: 4;
+}
+.prose p {
+  margin: 0.5rem 0;
+}
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  white-space: normal;
+}
+.prose code,
+.prose pre {
+  white-space: pre;
+}
+
+/* ========================================================================
+ * 代码块全局样式（DocDetail / DocEdit / DocCreate / Chat 等共享）
+ * 深色主题 + 语法高亮 + 行号 + 复制按钮
+ * ======================================================================== */
+
+/* 代码块包装器 */
+.code-block-wrapper {
+  margin: 16px 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #1a1d23;
+}
+
+/* 代码块头部栏：语言标签 + 复制按钮 */
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.code-lang {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.45);
+  font-family: var(--font-mono);
+}
+
+/* 复制按钮 */
+.code-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--font-sans);
+}
+
+.code-copy-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.code-copy-btn.copied {
+  color: #10B981 !important;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.code-copy-btn .copy-label {
+  line-height: 1;
+}
+
+/* 代码块主体：行号 + 代码 */
+.code-block-body {
+  display: flex;
+  overflow-x: auto;
+}
+
+/* 行号列 */
+.code-line-numbers {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0;
+  min-width: 48px;
+  text-align: right;
+  background: rgba(0, 0, 0, 0.18);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.code-line-num {
+  display: block;
+  padding: 0 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.25);
+  font-family: var(--font-mono);
+}
+
+/* 代码区域 */
+.code-block-body pre {
+  margin: 0;
+  padding: 16px 20px;
+  background: #1a1d23;
+  overflow-x: auto;
+  flex: 1;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.code-block-body pre code {
+  background: none;
+  padding: 0;
+  color: #e6e8ec;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+/* highlight.js 覆盖：让 github-dark 主题背景透明 */
+.code-block-body pre code.hljs {
+  background: transparent;
+  padding: 0;
+}
+
+/* 行内代码（非代码块） */
+.prose :not(pre) > code {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.875em;
+  background: var(--kb-muted);
+  color: var(--kb-primary);
+  font-family: var(--font-mono);
+}
+
+/* ========================================================================
+ * 图片预览样式 + 点击放大 Lightbox（DocDetail / DocEdit / DocCreate 共享）
+ * ======================================================================== */
+
+/* Markdown 图片：圆角、阴影、hover 交互、cursor 提示可点击 */
+.prose img,
+.md-image-zoom {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+  cursor: zoom-in;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.prose img:hover,
+.md-image-zoom:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* 图片放大遮罩层 */
+.image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  cursor: zoom-out;
+  animation: lightbox-fade-in 0.2s ease-out;
+}
+.image-lightbox img {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 4px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  cursor: default;
+}
+.image-lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+.image-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+@keyframes lightbox-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

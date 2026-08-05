@@ -1,0 +1,44 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "KnowFlow 学习工作台",
+  "version": "1.0.0",
+  "identifier": "com.knowflow.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev:all",
+    "devUrl": "http://localhost:5173",
+    "beforeBuildCommand": "npm run build:all",
+    "frontendDist": "../src-ui/dist"
+  },
+  "app": {
+    "windows": [],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "app",
+    "icon": ["icons/icon.png"],
+    "resources": {
+      "../src-ui/dist": "web",
+      "../src-api/dist": "api",
+      "../src-api/node_modules": "api/node_modules"
+    },
+    "externalBin": ["../binaries/server"]
+  },
+  "plugins": {
+    "shell": {
+      "open": false
+    },
+    "updater": {
+      "active": false,
+      "endpoints": [
+        "https://github.com/OWNER/REPO/releases/latest/download/latest.json"
+      ],
+      "pubkey": "REPLACE_WITH_YOUR_TAURI_PUBLIC_KEY",
+      "windows": {
+        "installMode": "passive"
+      }
+    }
+  }
+}
