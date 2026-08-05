@@ -1556,7 +1556,7 @@ export interface PathImportFileEntry {
   size: number
 }
 
-// ===== 知识库工作台（输入 → 整理 → 复习 → 输出 四模块闭环）=====
+// ===== 学习工作台（输入 → 整理 → 复习 → 输出 四模块闭环）=====
 
 /** 工作台总览统计 */
 export interface WorkbenchOverview {

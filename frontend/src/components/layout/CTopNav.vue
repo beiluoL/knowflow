@@ -27,7 +27,7 @@
         <span>首页</span>
       </router-link>
 
-      <!-- 知识库工作台（顶级菜单，四模块学习闭环） -->
+      <!-- 学习工作台（顶级菜单，四模块学习闭环） -->
       <router-link
         to="/workbench"
         class="flex items-center gap-2 transition-colors"
@@ -35,7 +35,7 @@
         :style="{ color: isNavActive('/workbench') ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)', fontSize: 'var(--kb-nav-text-fs)', fontWeight: isNavActive('/workbench') ? 600 : 'var(--kb-nav-text-fw)' }"
       >
         <Icon name="brain" size="md" />
-        <span>知识库工作台</span>
+        <span>学习工作台</span>
       </router-link>
 
       <!-- 知识库（下拉） -->
@@ -578,7 +578,7 @@ const learningMenu: NavLink[] = [
   { path: '/learning/code-practice', label: '代码练习', icon: 'code' },
   { path: '/learning/flashcards', label: '闪卡大厅', icon: 'layers' },
   { path: '/learning/review', label: '复习计划', icon: 'calendar-check' },
-  { path: '/workbench', label: '知识库工作台', icon: 'brain' },
+  { path: '/workbench', label: '学习工作台', icon: 'brain' },
 ];
 
 const communityMenu: NavLink[] = [

@@ -297,7 +297,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/Profile.vue'),
     meta: { layout: 'c', requiresAuth: true },
   },
-  // ===== C 端：知识库工作台（输入 → 整理 → 复习 → 输出 四模块闭环）=====
+  // ===== C 端：学习工作台（输入 → 整理 → 复习 → 输出 四模块闭环）=====
   {
     path: '/workbench',
     name: 'Workbench',

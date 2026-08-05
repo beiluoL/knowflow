@@ -1,4 +1,4 @@
-// 知识库工作台接口：输入（收集箱）→ 整理（康奈尔笔记）→ 复习（间隔重复+记忆宫殿）→ 输出（费曼故事）四模块闭环。
+// 学习工作台接口：输入（收集箱）→ 整理（康奈尔笔记）→ 复习（间隔重复+记忆宫殿）→ 输出（费曼故事）四模块闭环。
 import { apiGet, apiPost, apiPut, apiDelete } from './request'
 import type {
   WorkbenchOverview,
