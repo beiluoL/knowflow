@@ -27,6 +27,10 @@
         {{ tab.label }}
       </button>
       <div class="flex-1" />
+      <select v-model="activeCategory" class="kb-input" style="max-width: 180px;" @change="load">
+        <option :value="undefined">全部分类</option>
+        <option v-for="c in flatCategories" :key="c.id" :value="c.id">{{ '　'.repeat(c.depth) }}{{ c.name }}</option>
+      </select>
       <input
         v-model="keyword"
         class="kb-input"
@@ -64,6 +68,7 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <span class="status-badge" :style="statusStyle(item.status)">{{ statusLabel(item.status) }}</span>
+            <span v-if="categoryName(item.categoryId)" class="text-[11px] px-1.5 py-0.5 rounded" style="background: rgba(59,111,224,0.10); color: var(--kb-primary);">{{ categoryName(item.categoryId) }}</span>
             <span class="text-[11px]" style="color: var(--kb-muted-foreground);">{{ sourceLabel(item.sourceType) }}</span>
           </div>
           <div class="flex items-center gap-1">
@@ -105,9 +110,16 @@
               </select>
             </div>
             <div>
-              <label class="kb-label">标签（逗号分隔）</label>
-              <input v-model="form.tags" class="kb-input" placeholder="算法, 英语" />
+              <label class="kb-label">归类知识库分类</label>
+              <select v-model="form.categoryId" class="kb-input">
+                <option :value="undefined">未归类</option>
+                <option v-for="c in flatCategories" :key="c.id" :value="c.id">{{ '　'.repeat(c.depth) }}{{ c.name }}</option>
+              </select>
             </div>
+          </div>
+          <div>
+            <label class="kb-label">标签（逗号分隔）</label>
+            <input v-model="form.tags" class="kb-input" placeholder="算法, 英语" />
           </div>
           <div>
             <label class="kb-label">来源链接</label>
@@ -135,14 +147,32 @@ import {
   deleteCapture,
   setCaptureStatus,
   toggleCaptureStar,
+  getCategoryTree,
 } from '@/api/workbench'
-import type { WbCapture, WbCapturePayload } from '@/api/types'
+import type { WbCapture, WbCapturePayload, CategoryVO } from '@/api/types'
 
 const router = useRouter()
 const list = ref<WbCapture[]>([])
 const loading = ref(true)
 const activeStatus = ref<string>('')
+const activeCategory = ref<number | undefined>(undefined)
 const keyword = ref('')
+const categories = ref<CategoryVO[]>([])
+const flatCategories = ref<CategoryVO[]>([])
+const categoryMap = ref<Map<number, string>>(new Map())
+
+// 递归展平分类树，保留层级缩进所需的 depth
+function flatten(nodes: CategoryVO[], depth = 0): CategoryVO[] {
+  const out: CategoryVO[] = []
+  for (const n of nodes) {
+    out.push({ ...n, depth })
+    if (n.children && n.children.length) out.push(...flatten(n.children, depth + 1))
+  }
+  return out
+}
+function categoryName(id?: number) {
+  return id ? categoryMap.value.get(id) || '' : ''
+}
 const tabs = [
   { label: '全部', value: '' },
   { label: '待整理', value: 'INBOX' },
@@ -152,13 +182,14 @@ const tabs = [
 
 const showDrawer = ref(false)
 const editingId = ref<number | null>(null)
-const form = reactive<WbCapturePayload>({ title: '', content: '', sourceType: 'MANUAL', tags: '', sourceUrl: '' })
+const form = reactive<WbCapturePayload>({ title: '', content: '', sourceType: 'MANUAL', tags: '', sourceUrl: '', categoryId: undefined })
 
 async function load() {
   loading.value = true
   try {
     list.value = await listCaptures({
       status: activeStatus.value || undefined,
+      categoryId: activeCategory.value,
       keyword: keyword.value || undefined,
     })
   } catch (e) {
@@ -168,9 +199,21 @@ async function load() {
   }
 }
 
+async function loadCategories() {
+  try {
+    categories.value = await getCategoryTree()
+    flatCategories.value = flatten(categories.value)
+    const map = new Map<number, string>()
+    flatCategories.value.forEach((c) => map.set(c.id, c.name))
+    categoryMap.value = map
+  } catch {
+    /* 分类下拉为增强项，失败不影响主流程 */
+  }
+}
+
 function openCreate() {
   editingId.value = null
-  Object.assign(form, { title: '', content: '', sourceType: 'MANUAL', tags: '', sourceUrl: '' })
+  Object.assign(form, { title: '', content: '', sourceType: 'MANUAL', tags: '', sourceUrl: '', categoryId: undefined })
   showDrawer.value = true
 }
 function openEdit(item: WbCapture) {
@@ -181,6 +224,7 @@ function openEdit(item: WbCapture) {
     sourceType: item.sourceType || 'MANUAL',
     tags: item.tags || '',
     sourceUrl: item.sourceUrl || '',
+    categoryId: item.categoryId,
   })
   showDrawer.value = true
 }
@@ -248,5 +292,8 @@ function sourceLabel(s?: string) {
   return { MANUAL: '手记', DOC: '文档', WEB: '网页', AI: 'AI', IMPORT: '导入' }[s || ''] || s || ''
 }
 
-onMounted(load)
+onMounted(() => {
+  load()
+  loadCategories()
+})
 </script>

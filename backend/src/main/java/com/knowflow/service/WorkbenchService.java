@@ -14,6 +14,7 @@ import com.knowflow.entity.WbPalace;
 import com.knowflow.entity.WbPalaceLoci;
 import com.knowflow.entity.WbReviewCard;
 import com.knowflow.entity.WbStory;
+import com.knowflow.vo.WbForgettingCurveVO;
 import com.knowflow.vo.WbReviewCardVO;
 import com.knowflow.vo.WbReviewGradeResultVO;
 import com.knowflow.vo.WorkbenchOverviewVO;
@@ -73,6 +74,9 @@ public interface WorkbenchService extends IService<WbCapture> {
     WbReviewGradeResultVO gradeReview(Long cardId, WbReviewGradeDTO dto, Long userId);
 
     void toggleSuspend(Long cardId, Long userId);
+
+    /** 遗忘曲线可视化：按日聚合复习日志的复习量与遗忘率走势。 */
+    WbForgettingCurveVO forgettingCurve(Long userId, Integer days);
 
     // ---------- 模块三扩展：记忆宫殿 ----------
     List<WbPalace> listPalaces(Long userId);

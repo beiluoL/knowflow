@@ -917,6 +917,7 @@ erDiagram
 | user_id | BIGINT | 所属用户（逻辑外键 sys_user.id） | 非空 |
 | palace_id | BIGINT | 所属宫殿（逻辑外键 wb_palace.id） | 非空 |
 | capture_id / note_id | BIGINT | 关联收集箱/笔记（逻辑外键） | 可空 |
+| category_id | BIGINT | 归属知识库/分类（逻辑外键 doc_category.id），用于位点级归类下拉 | 可空 |
 | name | VARCHAR(100) | 位点名称 | 非空 |
 | knowledge_point / image_hint | VARCHAR(500) | 绑定知识点/联想图像描述 | 可空 |
 | icon | VARCHAR(50) | 位点图标名（Icon 组件） | 可空 |
@@ -924,7 +925,7 @@ erDiagram
 | sort_order | INT | 漫游顺序 | 默认 0 |
 | create_time / update_time | TIMESTAMP | | |
 | deleted | INT | 逻辑删除 | 默认 0 |
-- 索引：`idx_wbpl_palace(palace_id, sort_order)`、`idx_wbpl_user(user_id)`、`idx_wbpl_deleted(deleted)`
+- 索引：`idx_wbpl_palace(palace_id, sort_order)`、`idx_wbpl_user(user_id)`、`idx_wbpl_category(category_id)`、`idx_wbpl_deleted(deleted)`
 
 ### 51. wb_story（工作台·费曼故事 / 知识输出）
 > 费曼技巧 + 故事化叙事：以教代学；`gap_note` 记录讲不通的卡点（费曼法核心：卡壳处即知识漏洞）；`audience` 指定假想听众；`clarity_score` 自评讲清程度。

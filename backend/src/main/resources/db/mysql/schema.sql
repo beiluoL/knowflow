@@ -1209,6 +1209,7 @@ CREATE TABLE IF NOT EXISTS wb_palace_loci (
   palace_id BIGINT NOT NULL COMMENT '所属宫殿ID（逻辑外键 wb_palace.id）',
   capture_id BIGINT COMMENT '关联收集箱条目ID（逻辑外键 wb_capture.id）',
   note_id BIGINT COMMENT '关联康奈尔笔记ID（逻辑外键 wb_note.id）',
+  category_id BIGINT COMMENT '归属知识库/分类ID（逻辑外键 doc_category.id）',
   name VARCHAR(100) NOT NULL COMMENT '位点名称，如「书桌左上角」',
   knowledge_point VARCHAR(500) COMMENT '绑定的知识点内容',
   image_hint VARCHAR(500) COMMENT '联想图像描述（越夸张越好记）',
@@ -1221,6 +1222,7 @@ CREATE TABLE IF NOT EXISTS wb_palace_loci (
   deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
   KEY idx_wbpl_palace (palace_id, sort_order),
   KEY idx_wbpl_user (user_id),
+  KEY idx_wbpl_category (category_id),
   KEY idx_wbpl_deleted (deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

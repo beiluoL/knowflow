@@ -17,6 +17,8 @@ import type {
   WbPalaceLociPayload,
   WbStory,
   WbStoryPayload,
+  CategoryVO,
+  WbForgettingCurve,
 } from './types'
 
 // ============================ 总览 ============================
@@ -132,4 +134,16 @@ export function updateStory(id: number, payload: WbStoryPayload) {
 }
 export function deleteStory(id: number) {
   return apiDelete<void>(`/workbench/stories/${id}`)
+}
+
+// ============================ 公共：知识库分类下拉 ============================
+/** 获取真实 doc_category 分类树（用于收集箱/宫殿/位点等归类下拉） */
+export function getCategoryTree() {
+  return apiGet<CategoryVO[]>('/categories/tree')
+}
+
+// ============================ 复习：遗忘曲线可视化 ============================
+/** 遗忘曲线：按日聚合复习量与遗忘率走势（基于 wb_review_log） */
+export function getForgettingCurve(days = 30) {
+  return apiGet<WbForgettingCurve>('/workbench/reviews/forgetting-curve', { days })
 }

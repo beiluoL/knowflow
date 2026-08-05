@@ -25,6 +25,7 @@ import com.knowflow.mapper.WbReviewCardMapper;
 import com.knowflow.mapper.WbReviewLogMapper;
 import com.knowflow.mapper.WbStoryMapper;
 import com.knowflow.service.WorkbenchService;
+import com.knowflow.vo.WbForgettingCurveVO;
 import com.knowflow.vo.WbReviewCardVO;
 import com.knowflow.vo.WbReviewGradeResultVO;
 import com.knowflow.vo.WorkbenchOverviewVO;
@@ -35,9 +36,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -530,6 +539,7 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
         e.setPalaceId(requireNotNull(dto.getPalaceId(), "宫殿ID不能为空"));
         e.setCaptureId(dto.getCaptureId());
         e.setNoteId(dto.getNoteId());
+        e.setCategoryId(dto.getCategoryId());
         e.setName(requireNotBlank(dto.getName(), "位点名称不能为空"));
         e.setKnowledgePoint(dto.getKnowledgePoint());
         e.setImageHint(dto.getImageHint());
@@ -550,6 +560,7 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
         }
         e.setCaptureId(dto.getCaptureId());
         e.setNoteId(dto.getNoteId());
+        e.setCategoryId(dto.getCategoryId());
         if (StringUtils.hasText(dto.getName())) {
             e.setName(dto.getName());
         }
@@ -663,6 +674,70 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
             }
         }
         return cjk + en;
+    }
+
+    // ============================ 遗忘曲线可视化 ============================
+
+    @Override
+    public WbForgettingCurveVO forgettingCurve(Long userId, Integer days) {
+        int span = (days == null || days <= 0) ? 30 : Math.min(days, 365);
+        LocalDate end = LocalDate.now();
+        LocalDate start = end.minusDays(span - 1);
+        // 拉取统计区间内的复习日志（带 cardId 以便判断首评新卡）
+        List<WbReviewLog> logs = reviewLogMapper.selectList(own(userId, WbReviewLog::getUserId)
+                .ge(WbReviewLog::getCreateTime, start.atStartOfDay())
+                .le(WbReviewLog::getCreateTime, end.atTime(LocalTime.MAX))
+                .orderByAsc(WbReviewLog::getCreateTime));
+
+        // 每个卡片首次评分日期，用于标记 newCards
+        Set<Long> seenCards = new HashSet<>();
+        // 以日期为键的聚合桶
+        Map<String, WbForgettingCurveVO.Point> bucket = new LinkedHashMap<>();
+        for (LocalDate d = start; !d.isAfter(end); d = d.plusDays(1)) {
+            WbForgettingCurveVO.Point p = new WbForgettingCurveVO.Point();
+            p.setDate(d.format(DateTimeFormatter.ISO_LOCAL_DATE));
+            p.setReviews(0);
+            p.setLapses(0);
+            p.setNewCards(0);
+            bucket.put(p.getDate(), p);
+        }
+
+        long totalReviews = 0;
+        long totalLapses = 0;
+        for (WbReviewLog log : logs) {
+            String date = log.getCreateTime().toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE);
+            WbForgettingCurveVO.Point p = bucket.get(date);
+            if (p == null) {
+                continue;
+            }
+            p.setReviews(p.getReviews() + 1);
+            if (log.getQuality() != null && log.getQuality() == 0) {
+                p.setLapses(p.getLapses() + 1);
+            }
+            if (log.getCardId() != null && !seenCards.contains(log.getCardId())) {
+                seenCards.add(log.getCardId());
+                p.setNewCards(p.getNewCards() + 1);
+            }
+            totalReviews++;
+            if (log.getQuality() != null && log.getQuality() == 0) {
+                totalLapses++;
+            }
+        }
+
+        List<WbForgettingCurveVO.Point> points = new ArrayList<>(bucket.values());
+        for (WbForgettingCurveVO.Point p : points) {
+            p.setLapseRate(p.getReviews() == 0 ? 0d : (double) p.getLapses() / p.getReviews());
+        }
+        double overall = totalReviews == 0 ? 0d : (double) totalLapses / totalReviews;
+
+        WbForgettingCurveVO vo = new WbForgettingCurveVO();
+        vo.setStartDate(start.format(DateTimeFormatter.ISO_LOCAL_DATE));
+        vo.setEndDate(end.format(DateTimeFormatter.ISO_LOCAL_DATE));
+        vo.setPoints(points);
+        vo.setTotalReviews(totalReviews);
+        vo.setTotalLapses(totalLapses);
+        vo.setOverallLapseRate(overall);
+        return vo;
     }
 
     // ============================ 通用工具 ============================

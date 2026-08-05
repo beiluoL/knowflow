@@ -86,6 +86,11 @@
         <div v-if="selected" class="rounded-xl border p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
           <h3 class="kb-h4 mb-2" style="color: var(--kb-foreground);">位点详情</h3>
           <p class="text-[12px] mb-2" style="color: var(--kb-muted-foreground);">名称：{{ selected.name }}</p>
+          <p class="kb-body-sm mb-1" style="color: var(--kb-foreground);">归类分类</p>
+          <p class="text-[12px] mb-2" style="color: var(--kb-muted-foreground);">
+            <span v-if="categoryName(selected.categoryId)" class="px-1.5 py-0.5 rounded" style="background: rgba(59,111,224,0.10); color: var(--kb-primary);">{{ categoryName(selected.categoryId) }}</span>
+            <span v-else>（未归类）</span>
+          </p>
           <p class="kb-body-sm mb-1" style="color: var(--kb-foreground);">知识点</p>
           <p class="text-[12px] mb-2" style="color: var(--kb-muted-foreground);">{{ selected.knowledgePoint || '（空）' }}</p>
           <p class="kb-body-sm mb-1" style="color: var(--kb-foreground);">联想图像</p>
@@ -132,6 +137,13 @@
               <input type="number" v-model.number="lociForm.sortOrder" class="kb-input" />
             </div>
           </div>
+          <div>
+            <label class="kb-label">归类知识库分类</label>
+            <select v-model="lociForm.categoryId" class="kb-input">
+              <option :value="undefined">未归类</option>
+              <option v-for="c in flatCategories" :key="c.id" :value="c.id">{{ '　'.repeat(c.depth) }}{{ c.name }}</option>
+            </select>
+          </div>
         </div>
         <div class="flex justify-end gap-2 mt-5">
           <button class="kb-btn" @click="showLociForm = false">取消</button>
@@ -147,8 +159,8 @@ import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import { notify, getApiError } from '@/utils/toast'
-import { getPalace, listLoci, createLoci, updateLoci, deleteLoci } from '@/api/workbench'
-import type { WbPalace, WbPalaceLoci, WbPalaceLociPayload } from '@/api/types'
+import { getPalace, listLoci, createLoci, updateLoci, deleteLoci, getCategoryTree } from '@/api/workbench'
+import type { WbPalace, WbPalaceLoci, WbPalaceLociPayload, CategoryVO } from '@/api/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -158,6 +170,22 @@ const loci = ref<WbPalaceLoci[]>([])
 const selectedId = ref<number | null>(null)
 const selected = ref<WbPalaceLoci | null>(null)
 const canvasRef = ref<HTMLElement | null>(null)
+const categories = ref<CategoryVO[]>([])
+const flatCategories = ref<CategoryVO[]>([])
+const categoryMap = ref<Map<number, string>>(new Map())
+
+// 递归展平分类树，保留层级缩进所需的 depth
+function flatten(nodes: CategoryVO[], depth = 0): CategoryVO[] {
+  const out: CategoryVO[] = []
+  for (const n of nodes) {
+    out.push({ ...n, depth })
+    if (n.children && n.children.length) out.push(...flatten(n.children, depth + 1))
+  }
+  return out
+}
+function categoryName(id?: number) {
+  return id ? categoryMap.value.get(id) || '' : ''
+}
 
 const showLociForm = ref(false)
 const editingLociId = ref<number | null>(null)
@@ -167,6 +195,7 @@ const lociForm = reactive<WbPalaceLociPayload>({
   knowledgePoint: '',
   imageHint: '',
   icon: 'map-pin',
+  categoryId: undefined,
   posX: 50,
   posY: 50,
   sortOrder: 0,
@@ -180,6 +209,17 @@ async function load() {
     loci.value = await listLoci(palaceId)
   } catch (e) {
     notify({ type: 'error', message: getApiError(e, '加载失败') })
+  }
+}
+async function loadCategories() {
+  try {
+    categories.value = await getCategoryTree()
+    flatCategories.value = flatten(categories.value)
+    const map = new Map<number, string>()
+    flatCategories.value.forEach((c) => map.set(c.id, c.name))
+    categoryMap.value = map
+  } catch {
+    /* 分类下拉为增强项，失败不影响主流程 */
   }
 }
 
@@ -226,6 +266,7 @@ async function endDrag() {
           knowledgePoint: target.knowledgePoint,
           imageHint: target.imageHint,
           icon: target.icon,
+          categoryId: target.categoryId,
           posX: target.posX,
           posY: target.posY,
           sortOrder: target.sortOrder,
@@ -247,6 +288,7 @@ function openCreateLoci() {
     knowledgePoint: '',
     imageHint: '',
     icon: 'map-pin',
+    categoryId: undefined,
     posX: 50,
     posY: 50,
     sortOrder: next,
@@ -261,6 +303,7 @@ function editLoci(l: WbPalaceLoci) {
     knowledgePoint: l.knowledgePoint || '',
     imageHint: l.imageHint || '',
     icon: l.icon || 'map-pin',
+    categoryId: l.categoryId,
     posX: l.posX,
     posY: l.posY,
     sortOrder: l.sortOrder,
@@ -302,6 +345,7 @@ function themeLabel(t?: string) {
 
 onMounted(() => {
   load()
+  loadCategories()
   // 从列表/笔记跳转预填（如有 query）可在此扩展
   if (route.query.new === '1') openCreateLoci()
 })

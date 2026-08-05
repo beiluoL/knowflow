@@ -1209,6 +1209,7 @@ CREATE TABLE IF NOT EXISTS wb_palace_loci (
   palace_id BIGINT NOT NULL COMMENT '所属宫殿ID（逻辑外键 wb_palace.id）',
   capture_id BIGINT COMMENT '关联收集箱条目ID（逻辑外键 wb_capture.id）',
   note_id BIGINT COMMENT '关联康奈尔笔记ID（逻辑外键 wb_note.id）',
+  category_id BIGINT COMMENT '归属知识库/分类ID（逻辑外键 doc_category.id）',
   name VARCHAR(100) NOT NULL COMMENT '位点名称，如「书桌左上角」',
   knowledge_point VARCHAR(500) COMMENT '绑定的知识点内容',
   image_hint VARCHAR(500) COMMENT '联想图像描述（越夸张越好记）',
@@ -1222,6 +1223,7 @@ CREATE TABLE IF NOT EXISTS wb_palace_loci (
 );
 CREATE INDEX IF NOT EXISTS idx_wbpl_palace ON wb_palace_loci (palace_id, sort_order);
 CREATE INDEX IF NOT EXISTS idx_wbpl_user ON wb_palace_loci (user_id);
+CREATE INDEX IF NOT EXISTS idx_wbpl_category ON wb_palace_loci (category_id);
 CREATE INDEX IF NOT EXISTS idx_wbpl_deleted ON wb_palace_loci (deleted);
 
 -- ---------- 模块四：知识输出（费曼故事）----------

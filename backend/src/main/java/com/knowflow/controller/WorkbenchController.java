@@ -16,6 +16,7 @@ import com.knowflow.entity.WbPalaceLoci;
 import com.knowflow.entity.WbReviewCard;
 import com.knowflow.entity.WbStory;
 import com.knowflow.service.WorkbenchService;
+import com.knowflow.vo.WbForgettingCurveVO;
 import com.knowflow.vo.WbReviewCardVO;
 import com.knowflow.vo.WbReviewGradeResultVO;
 import com.knowflow.vo.WorkbenchOverviewVO;
@@ -192,6 +193,12 @@ public class WorkbenchController {
     public Result<Void> toggleSuspend(@PathVariable Long id) {
         workbenchService.toggleSuspend(id, uid());
         return Result.success();
+    }
+
+    @Operation(summary = "遗忘曲线：按日聚合复习量与遗忘率走势（基于 wb_review_log）")
+    @GetMapping("/reviews/forgetting-curve")
+    public Result<WbForgettingCurveVO> forgettingCurve(@RequestParam(required = false, defaultValue = "30") Integer days) {
+        return Result.success(workbenchService.forgettingCurve(uid(), days));
     }
 
     // ============================ 模块三扩展：记忆宫殿 ============================

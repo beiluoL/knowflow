@@ -1665,6 +1665,7 @@ export interface WbPalaceLoci {
   palaceId: number
   captureId?: number
   noteId?: number
+  categoryId?: number
   name: string
   knowledgePoint?: string
   imageHint?: string
@@ -1749,6 +1750,7 @@ export interface WbPalaceLociPayload {
   palaceId: number
   captureId?: number
   noteId?: number
+  categoryId?: number
   name: string
   knowledgePoint?: string
   imageHint?: string
@@ -1770,4 +1772,34 @@ export interface WbStoryPayload {
   gapNote?: string
   status?: string
   clarityScore?: number
+}
+
+/** 知识库分类树节点（与 doc_category 同源） */
+export interface CategoryVO {
+  id: number
+  name: string
+  parentId: number
+  depth: number
+  path?: string
+  docCount: number
+  children?: CategoryVO[]
+}
+
+/** 遗忘曲线单日数据点 */
+export interface WbForgettingCurvePoint {
+  date: string
+  reviews: number
+  lapses: number
+  lapseRate: number
+  newCards: number
+}
+
+/** 遗忘曲线可视化数据 */
+export interface WbForgettingCurve {
+  startDate: string
+  endDate: string
+  points: WbForgettingCurvePoint[]
+  totalReviews: number
+  totalLapses: number
+  overallLapseRate: number
 }

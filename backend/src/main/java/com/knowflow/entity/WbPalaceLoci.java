@@ -25,6 +25,9 @@ public class WbPalaceLoci extends BaseEntity {
     /** 关联康奈尔笔记ID（逻辑外键 wb_note.id） */
     private Long noteId;
 
+    /** 归属知识库/分类ID（逻辑外键 doc_category.id，与宫殿共享可选） */
+    private Long categoryId;
+
     /** 位点名称，如「书桌左上角」 */
     private String name;
 

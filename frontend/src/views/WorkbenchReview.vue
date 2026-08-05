@@ -12,6 +12,65 @@
       </div>
     </div>
 
+    <!-- 遗忘曲线可视化（基于 wb_review_log 已落数据） -->
+    <div class="rounded-xl border p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
+      <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+        <div>
+          <h3 class="kb-h4 flex items-center gap-2" style="color: var(--kb-foreground);">
+            <Icon name="repeat" :size="18" style="color: var(--kb-primary);" /> 遗忘曲线
+          </h3>
+          <p class="text-[12px] mt-0.5" style="color: var(--kb-muted-foreground);">
+            近 {{ curveDays }} 天复习 {{ curve?.totalReviews || 0 }} 次 · 遗忘率
+            {{ ((curve?.overallLapseRate || 0) * 100).toFixed(1) }}%
+          </p>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button
+            v-for="d in [14, 30, 90]"
+            :key="d"
+            class="px-2.5 py-1 rounded-full text-[12px] transition-colors"
+            :style="curveDays === d
+              ? { background: 'var(--kb-primary)', color: '#fff' }
+              : { background: 'var(--kb-background)', color: 'var(--kb-muted-foreground)', border: '1px solid var(--kb-border)' }"
+            @click="curveDays = d; loadCurve()"
+          >{{ d }}天</button>
+        </div>
+      </div>
+      <div v-if="curveLoading" class="h-[200px] flex items-center justify-center" style="color: var(--kb-muted-foreground);">
+        <Icon name="repeat" :size="22" class="animate-spin" />
+      </div>
+      <div v-else-if="!curve || curve.points.length === 0" class="h-[160px] flex items-center justify-center kb-body-sm" style="color: var(--kb-muted-foreground);">
+        暂无复习记录，开始复习后这里会呈现记忆巩固趋势
+      </div>
+      <template v-else>
+        <svg :viewBox="`0 0 720 ${svgH}`" class="w-full" style="height: auto;">
+          <!-- 网格线 -->
+          <line v-for="g in yTicks" :key="'g' + g" :x1="padL" :y1="g.y" :x2="720 - padR" :y2="g.y"
+                :stroke="'var(--kb-border)'" stroke-width="1" stroke-dasharray="3 4" />
+          <text v-for="g in yTicks" :key="'gt' + g" :x="padL - 8" :y="g.y + 4" text-anchor="end"
+                font-size="11" :fill="'var(--kb-muted-foreground)'">{{ g.label }}</text>
+
+          <!-- 复习量柱状（右轴刻度） -->
+          <rect v-for="(p, i) in chartPoints" :key="'b' + i" :x="p.x - barW / 2" :y="p.barY"
+                :width="barW" :height="p.barH" rx="2" :fill="'var(--kb-primary)'" fill-opacity="0.28" />
+
+          <!-- 遗忘率折线（左轴 0~100%） -->
+          <polyline :points="chartPoints.map((p) => `${p.x},${p.lineY}`).join(' ')"
+                    fill="none" :stroke="'var(--kb-state-error)'" stroke-width="2.5" stroke-linejoin="round" />
+          <circle v-for="(p, i) in chartPoints" :key="'c' + i" :cx="p.x" :cy="p.lineY" r="3"
+                  :fill="'var(--kb-state-error)'" />
+
+          <!-- x 轴日期标签（稀疏显示） -->
+          <text v-for="(p, i) in chartPoints" :key="'x' + i" v-show="i % xLabelStep === 0" :x="p.x" :y="svgH - 8"
+                text-anchor="middle" font-size="10" :fill="'var(--kb-muted-foreground)'">{{ p.dateLabel }}</text>
+        </svg>
+        <div class="flex items-center gap-4 mt-2 text-[12px]" style="color: var(--kb-muted-foreground);">
+          <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-3 rounded-sm" style="background: var(--kb-primary); opacity: .28;"></span>每日复习量</span>
+          <span class="flex items-center gap-1.5"><span class="inline-block w-3 h-0.5" style="background: var(--kb-state-error);"></span>每日遗忘率</span>
+        </div>
+      </template>
+    </div>
+
     <!-- 抽卡区 -->
     <div v-if="active" class="rounded-xl border p-6" style="background: var(--kb-card); border-color: var(--kb-border);">
       <div class="flex items-center justify-between mb-4">
@@ -121,7 +180,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import { notify, getApiError } from '@/utils/toast'
@@ -132,8 +191,9 @@ import {
   deleteReview,
   gradeReview,
   toggleReviewSuspend,
+  getForgettingCurve,
 } from '@/api/workbench'
-import type { WbReviewCardVO, WbReviewGradeResult } from '@/api/types'
+import type { WbReviewCardVO, WbReviewGradeResult, WbForgettingCurve } from '@/api/types'
 
 const route = useRoute()
 const cards = ref<WbReviewCardVO[]>([])
@@ -146,6 +206,17 @@ const lastResult = ref<WbReviewGradeResult | null>(null)
 const showCreate = ref(false)
 const cardForm = reactive({ front: '', back: '', cardType: 'BASIC' })
 
+// 遗忘曲线状态
+const curve = ref<WbForgettingCurve | null>(null)
+const curveLoading = ref(false)
+const curveDays = ref(30)
+const svgW = 720
+const svgH = 220
+const padL = 36
+const padR = 16
+const padT = 16
+const padB = 28
+
 const current = ref<WbReviewCardVO>({} as WbReviewCardVO)
 
 async function load() {
@@ -156,6 +227,45 @@ async function load() {
     notify({ type: 'error', message: getApiError(e, '加载失败') })
   } finally {
     loading.value = false
+  }
+}
+
+// 计算 SVG 绘图坐标：柱状用复习量（右轴），折线用遗忘率（左轴 0~100%）
+const chartPoints = computed(() => {
+  if (!curve.value) return []
+  const pts = curve.value.points
+  const n = pts.length
+  const innerW = svgW - padL - padR
+  const innerH = svgH - padT - padB
+  const maxReviews = Math.max(1, ...pts.map((p) => p.reviews))
+  const xLabelStep = Math.max(1, Math.ceil(n / 10))
+  const barW = Math.max(2, Math.min(14, innerW / n - 2))
+  return pts.map((p, i) => {
+    const x = padL + (n === 1 ? innerW / 2 : (innerW * i) / (n - 1))
+    const barH = (p.reviews / maxReviews) * innerH
+    const lineY = padT + innerH - p.lapseRate * innerH
+    const dateLabel = p.date.slice(5) // MM-DD
+    return { x, barY: padT + innerH - barH, barH, lineY, dateLabel, rate: p.lapseRate }
+  })
+})
+// y 轴刻度（按百分比）
+const yTicks = [
+  { y: padT, label: '0%' },
+  { y: padT + (svgH - padT - padB) * 0.25, label: '25%' },
+  { y: padT + (svgH - padT - padB) * 0.5, label: '50%' },
+  { y: padT + (svgH - padT - padB) * 0.75, label: '75%' },
+  { y: svgH - padB, label: '100%' },
+]
+const xLabelStep = computed(() => Math.max(1, Math.ceil((curve.value?.points.length || 1) / 10)))
+
+async function loadCurve() {
+  curveLoading.value = true
+  try {
+    curve.value = await getForgettingCurve(curveDays.value)
+  } catch (e) {
+    notify({ type: 'error', message: getApiError(e, '加载遗忘曲线失败') })
+  } finally {
+    curveLoading.value = false
   }
 }
 
@@ -245,6 +355,7 @@ function qStyle(q: number) {
 
 onMounted(() => {
   load()
+  loadCurve()
   if (route.query.front) cardForm.front = String(route.query.front)
   if (route.query.back) cardForm.back = String(route.query.back)
 })

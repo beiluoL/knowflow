@@ -17,6 +17,9 @@ public class WbPalaceLociDTO {
     /** 关联康奈尔笔记ID */
     private Long noteId;
 
+    /** 归属知识库/分类ID（逻辑外键 doc_category.id） */
+    private Long categoryId;
+
     /** 位点名称 */
     private String name;
 
