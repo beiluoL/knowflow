@@ -86,6 +86,23 @@ if (webDir && fs.existsSync(webDir)) {
   app.get('/', async () => ({ app: 'KnowFlow 学习工作台桌面后端', status: 'ok', note: '前端未构建或 --web-dir 未指定' }));
 }
 
+/**
+ * 父进程（Tauri 外壳）退出时，侧车的 stdin 管道会关闭。
+ * 监听 EOF 主动退出，避免应用被强杀后 Node 后端变成孤儿进程长期占用端口，
+ * 导致下次启动窗口连到旧后端而白屏。
+ */
+function exitWhenParentGone() {
+  if (process.stdin.isTTY) return;
+  try {
+    process.stdin.resume();
+    process.stdin.on('end', () => process.exit(0));
+    process.stdin.on('close', () => process.exit(0));
+    process.stdin.on('error', () => process.exit(0));
+  } catch {
+    /* ignore */
+  }
+}
+
 // ===== 启动：仅绑定回环地址，动态端口避让占用 =====
 async function start() {
   let port = resolvePort();
@@ -105,6 +122,8 @@ async function start() {
   }
   throw new Error('无法找到可用端口');
 }
+
+exitWhenParentGone();
 
 start().catch((e) => {
   console.error(e);
