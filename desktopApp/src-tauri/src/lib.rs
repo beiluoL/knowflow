@@ -181,8 +181,10 @@ fn fetch_due_count() -> Option<(u32, Vec<String>)> {
         .call()
         .ok()?;
     let v: serde_json::Value = resp.into_json().ok()?;
-    let count = v.get("count")?.as_u64()? as u32;
-    let sample: Vec<String> = v
+    // 后端统一信封 {code, data}，计数在 data 内
+    let data = v.get("data")?;
+    let count = data.get("count")?.as_u64()? as u32;
+    let sample: Vec<String> = data
         .get("sample")?
         .as_array()?
         .iter()
