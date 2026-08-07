@@ -84,58 +84,12 @@
           </div>
         </div>
 
-        <!-- 评论输入 -->
-        <section class="border rounded-[10px] p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
-          <div class="flex items-start gap-2">
-            <textarea
-              v-model="commentInput"
-              rows="2"
-              placeholder="写下你的评论..."
-              class="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-primary-400 resize-none"
-            ></textarea>
-            <button
-              @click="submitComment"
-              :disabled="submittingComment || !commentInput.trim()"
-              class="shrink-0 self-end px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 transition-colors disabled:opacity-50"
-            >发送</button>
-          </div>
-        </section>
-
-        <!-- 评论列表 -->
-        <section class="border rounded-[10px] p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
-          <p class="text-[13px] font-medium text-gray-500 mb-3">全部评论 {{ commentTotal }}</p>
-          <SkeletonList v-if="commentLoading" :rows="3" type="list" />
-          <EmptyState v-else-if="commentList.length === 0" icon="message-circle" title="还没有评论">
-            <p class="text-sm text-gray-500">来抢沙发吧</p>
-          </EmptyState>
-          <ul v-else class="flex flex-col gap-4">
-            <li v-for="c in commentList" :key="c.id" class="flex gap-2.5">
-              <div
-                class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0"
-                :style="{ backgroundColor: avatarColor(c.userId) }"
-              >{{ initialOf(c) }}</div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2">
-                  <span class="text-[13px] font-medium text-gray-800">{{ c.nickname || c.username }}</span>
-                  <span class="text-[12px] text-gray-400">{{ formatTime(c.createTime) }}</span>
-                </div>
-                <p class="text-sm text-gray-600 mt-0.5 whitespace-pre-line break-words">{{ c.content }}</p>
-              </div>
-              <button
-                v-if="canDeleteComment(c)"
-                @click="removeComment(c)"
-                class="shrink-0 text-[12px] text-gray-400 hover:text-danger-500 transition-colors"
-              >删除</button>
-            </li>
-          </ul>
-          <Pagination
-            v-if="commentTotal > commentPageSize"
-            :page-num="commentPageNum"
-            :page-size="commentPageSize"
-            :total="commentTotal"
-            @change="handleCommentPageChange"
-          />
-        </section>
+        <!-- 评论区：发表 / 排序 / 分页 / 回复 / 点赞 / 编辑 / 删除 -->
+        <CommentList
+          :post-id="post.id"
+          :initial-total="post.commentCount ?? 0"
+          @count-change="handleCommentCountChange"
+        />
       </article>
 
       <!-- 右侧信息边栏：作者信息 + 帖子数据（lg 及以上展示，移动端自动隐藏） -->
@@ -181,33 +135,24 @@
 
 <script setup lang="ts">
 // 帖子详情页：从社区列表跳转而来，独立页面承载正文、点赞与评论，支持返回社区。
-import { ref, computed, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SkeletonList from '@/components/ui/SkeletonList.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
-import Pagination from '@/components/ui/Pagination.vue'
+import CommentList from '@/components/community/CommentList.vue'
 import { communityApi } from '@/api/community'
-import type { PostVO, CommentVO } from '@/api/types'
+import type { PostVO } from '@/api/types'
 import { useAuthStore } from '@/stores/auth'
 import { notify } from '@/utils/toast'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
-const currentUserId = computed(() => authStore.user?.id)
 
 const post = ref<PostVO | null>(null)
 const loading = ref(true)
-
-const commentList = ref<CommentVO[]>([])
-const commentTotal = ref(0)
-const commentPageNum = ref(1)
-const commentPageSize = ref(20)
-const commentLoading = ref(false)
-const commentInput = ref('')
-const submittingComment = ref(false)
 
 // F-10：点赞/取消点赞（幂等切换）
 const likedByMe = ref(false)
@@ -223,7 +168,6 @@ async function loadPost() {
     const id = Number(route.params.id)
     post.value = await communityApi.postDetail(id)
     likedByMe.value = false
-    fetchComments()
   } catch {
     post.value = null
   } finally {
@@ -259,76 +203,10 @@ async function toggleLike() {
 }
 
 // ===== 评论 =====
-function canDeleteComment(c: CommentVO): boolean {
-  return !!currentUserId.value && currentUserId.value === c.userId
-}
-
-async function fetchComments() {
+/** 评论区增删后同步帖子头部与右侧边栏的评论计数 */
+function handleCommentCountChange(delta: number): void {
   if (!post.value) return
-  commentLoading.value = true
-  try {
-    const res = await communityApi.comments(post.value.id, {
-      pageNum: commentPageNum.value,
-      pageSize: commentPageSize.value,
-    })
-    commentList.value = res.records
-    commentTotal.value = res.total
-  } catch {
-    commentList.value = []
-  } finally {
-    commentLoading.value = false
-  }
-}
-
-function handleCommentPageChange(page: number) {
-  commentPageNum.value = page
-  fetchComments()
-}
-
-async function submitComment() {
-  if (!post.value) return
-  const content = commentInput.value.trim()
-  if (!content) return
-  submittingComment.value = true
-  try {
-    await communityApi.addComment(post.value.id, { content })
-    commentInput.value = ''
-    // 乐观更新：本地插入并 +1 计数
-    commentList.value.unshift({
-      id: -Date.now(),
-      postId: post.value.id,
-      userId: currentUserId.value,
-      content,
-      username: authStore.user?.username,
-      nickname: authStore.user?.nickname,
-      createTime: new Date().toISOString().slice(0, 19),
-    })
-    commentTotal.value++
-    if (post.value.commentCount != null) post.value.commentCount++
-  } catch {
-    // 拦截器已处理
-  } finally {
-    submittingComment.value = false
-  }
-}
-
-async function removeComment(comment: CommentVO) {
-  if (!comment.id) return
-  // 乐观插入的临时项（负 id）仅本地移除
-  if (comment.id < 0) {
-    commentList.value = commentList.value.filter((c) => c.id !== comment.id)
-    commentTotal.value = Math.max(0, commentTotal.value - 1)
-    if (post.value?.commentCount != null) post.value.commentCount--
-    return
-  }
-  try {
-    await communityApi.deleteComment(comment.id)
-    commentList.value = commentList.value.filter((c) => c.id !== comment.id)
-    commentTotal.value = Math.max(0, commentTotal.value - 1)
-    if (post.value?.commentCount != null) post.value.commentCount--
-  } catch {
-    // 拦截器已处理
-  }
+  post.value.commentCount = Math.max(0, (post.value.commentCount ?? 0) + delta)
 }
 
 // ===== 工具函数 =====

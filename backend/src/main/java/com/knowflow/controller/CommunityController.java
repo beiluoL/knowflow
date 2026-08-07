@@ -3,8 +3,9 @@ package com.knowflow.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.knowflow.common.PageResult;
 import com.knowflow.common.Result;
-import com.knowflow.entity.CommunityComment;
+import com.knowflow.dto.CommentCreateDTO;
 import com.knowflow.entity.CommunityPost;
+import com.knowflow.service.CommunityCommentService;
 import com.knowflow.service.CommunityService;
 import com.knowflow.vo.CommentVO;
 import com.knowflow.vo.PostVO;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class CommunityController {
 
     private final CommunityService communityService;
+    private final CommunityCommentService commentService;
 
     @Operation(summary = "帖子列表")
     @GetMapping("/posts")
@@ -71,36 +73,32 @@ public class CommunityController {
         return Result.success(communityService.likePost(id, userId));
     }
 
-    @Operation(summary = "评论列表")
+    /**
+     * 兼容端点：等价于 GET /api/community/comments/post/{id}，保留以免旧客户端失效。
+     */
+    @Operation(summary = "评论列表（兼容端点）")
     @GetMapping("/posts/{id}/comments")
     public Result<PageResult<CommentVO>> comments(
             @PathVariable Long id,
             @RequestParam(defaultValue = "1") Integer pageNum,
-            @RequestParam(defaultValue = "20") Integer pageSize) {
-        IPage<CommentVO> page = communityService.getCommentPage(id, pageNum, pageSize);
+            @RequestParam(defaultValue = "20") Integer pageSize,
+            @RequestParam(defaultValue = "latest") String sortBy) {
+        IPage<CommentVO> page = commentService.getCommentPage(id, pageNum, pageSize, sortBy);
         return Result.success(PageResult.of(page));
     }
 
-    @Operation(summary = "发表评论")
+    /**
+     * 兼容端点：等价于 POST /api/community/comments，帖子 ID 取自路径。
+     */
+    @Operation(summary = "发表评论（兼容端点）")
     @PostMapping("/posts/{id}/comments")
-    public Result<Void> addComment(@PathVariable Long id, @RequestBody CommunityComment comment, Authentication authentication) {
+    public Result<CommentVO> addComment(@PathVariable Long id, @RequestBody CommentCreateDTO dto,
+                                        Authentication authentication) {
         if (authentication == null) {
             return Result.error(401, "请先登录");
         }
         Long userId = (Long) authentication.getPrincipal();
-        comment.setPostId(id);
-        communityService.addComment(comment, userId);
-        return Result.success();
-    }
-
-    @Operation(summary = "删除评论")
-    @DeleteMapping("/comments/{id}")
-    public Result<Void> deleteComment(@PathVariable Long id, Authentication authentication) {
-        if (authentication == null) {
-            return Result.error(401, "请先登录");
-        }
-        Long userId = (Long) authentication.getPrincipal();
-        communityService.deleteComment(id, userId);
-        return Result.success();
+        dto.setPostId(id);
+        return Result.success(commentService.addComment(dto, userId));
     }
 }

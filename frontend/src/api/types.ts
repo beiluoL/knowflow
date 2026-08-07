@@ -586,12 +586,38 @@ export interface CommentVO {
   id: number
   postId?: number
   userId?: number
+  /** 0 = 顶级评论，非 0 = 所属顶级评论 ID */
+  parentId?: number
+  /** 被回复用户 ID，0 表示直接回复顶级评论 */
+  replyToUserId?: number
+  /** 被回复用户昵称，用于渲染「回复 @某人」 */
+  replyToNickname?: string
   content?: string
   username?: string
   nickname?: string
   avatar?: string
+  likeCount?: number
+  replyCount?: number
+  /** 当前用户是否已点赞该评论 */
+  liked?: boolean
+  /** 当前用户是否为评论作者 */
+  author?: boolean
+  canEdit?: boolean
+  canDelete?: boolean
   createTime?: string
+  updateTime?: string
+  /** 顶级评论预加载的前若干条回复 */
+  replies?: CommentVO[]
 }
+
+/** 评论点赞切换结果 */
+export interface CommentLikeResult {
+  liked: boolean
+  likeCount: number
+}
+
+/** 评论排序方式：最新 / 最热 / 最早 */
+export type CommentSort = 'latest' | 'hot' | 'oldest'
 
 export interface CommentPageResult {
   records: CommentVO[]

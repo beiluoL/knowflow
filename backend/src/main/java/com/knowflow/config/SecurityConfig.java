@@ -63,7 +63,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/community/posts",
                                 "/api/community/posts/{id}",
-                                "/api/community/posts/{id}/comments"
+                                "/api/community/posts/{id}/comments",
+                                // F-06：评论与回复只读接口匿名可浏览，发表/编辑/删除/点赞仍需登录
+                                "/api/community/comments/post/{postId}",
+                                "/api/community/comments/{commentId}/replies"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/knowledge/graph",

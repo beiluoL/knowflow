@@ -7,36 +7,33 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knowflow.common.PageQuery;
-import com.knowflow.entity.CommunityComment;
 import com.knowflow.entity.CommunityPost;
 import com.knowflow.entity.CommunityPostLike;
 import com.knowflow.entity.SysUser;
 import com.knowflow.exception.BusinessException;
-import com.knowflow.mapper.CommunityCommentMapper;
 import com.knowflow.mapper.CommunityPostLikeMapper;
 import com.knowflow.mapper.CommunityPostMapper;
 import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.service.CommunityCommentService;
 import com.knowflow.service.CommunityService;
 import com.knowflow.service.NotificationService;
-import com.knowflow.vo.CommentVO;
 import com.knowflow.vo.PostVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** 社区（帖子 / 评论 / 点赞）业务服务实现。 */
+/** 社区帖子业务服务实现（评论能力见 {@link com.knowflow.service.CommunityCommentService}）。 */
 @Service
 @RequiredArgsConstructor
 public class CommunityServiceImpl extends ServiceImpl<CommunityPostMapper, CommunityPost> implements CommunityService {
 
     private final SysUserMapper userMapper;
     private final NotificationService notificationService;
-    private final CommunityCommentMapper commentMapper;
+    private final CommunityCommentService commentService;
     private final CommunityPostLikeMapper postLikeMapper;
 
     private static final int MAX_TITLE_LENGTH = 200;
     private static final int MAX_CONTENT_LENGTH = 20000;
-    private static final int MAX_COMMENT_LENGTH = 1000;
 
     @Override
     public IPage<PostVO> getPostPage(String category, String sort, Integer pageNum, Integer pageSize) {
@@ -141,73 +138,9 @@ public class CommunityServiceImpl extends ServiceImpl<CommunityPostMapper, Commu
         if (!java.util.Objects.equals(post.getUserId(), userId)) {
             throw new BusinessException("无权删除他人帖子");
         }
-        commentMapper.delete(new LambdaQueryWrapper<CommunityComment>()
-                .eq(CommunityComment::getPostId, id));
+        // F-06：帖子删除时级联逻辑删除其全部评论与回复
+        commentService.deleteByPostId(id);
         this.removeById(id);
-    }
-
-    @Override
-    public IPage<CommentVO> getCommentPage(Long postId, Integer pageNum, Integer pageSize) {
-        Page<CommunityComment> page = new Page<>(
-                PageQuery.normalizePageNum(pageNum), PageQuery.normalizePageSize(pageSize));
-        LambdaQueryWrapper<CommunityComment> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(CommunityComment::getPostId, postId)
-                .orderByAsc(CommunityComment::getCreateTime);
-        Page<CommunityComment> result = commentMapper.selectPage(page, wrapper);
-        return result.convert(this::convertCommentToVO);
-    }
-
-    @Override
-    @Transactional
-    public void addComment(CommunityComment comment, Long userId) {
-        // F-05 修复：评论空值与长度校验
-        if (comment.getContent() == null || comment.getContent().trim().isEmpty()) {
-            throw new BusinessException(400, "评论内容不能为空");
-        }
-        if (comment.getContent().length() > MAX_COMMENT_LENGTH) {
-            throw new BusinessException(400, "评论内容不能超过 " + MAX_COMMENT_LENGTH + " 字");
-        }
-        CommunityPost post = this.getById(comment.getPostId());
-        if (post == null) {
-            throw new BusinessException(404, "帖子不存在");
-        }
-        comment.setContent(comment.getContent().trim());
-        comment.setUserId(userId);
-        commentMapper.insert(comment);
-        this.update(new LambdaUpdateWrapper<CommunityPost>()
-                .eq(CommunityPost::getId, comment.getPostId())
-                .setSql("comment_count = comment_count + 1"));
-        if (!java.util.Objects.equals(post.getUserId(), userId)) {
-            notificationService.createNotification(post.getUserId(), "comment", "收到一条评论",
-                    "你的帖子《" + post.getTitle() + "》收到了新评论", comment.getPostId(), "post");
-        }
-    }
-
-    @Override
-    @Transactional
-    public void deleteComment(Long id, Long userId) {
-        CommunityComment comment = commentMapper.selectById(id);
-        if (comment == null) {
-            throw new BusinessException(404, "评论不存在");
-        }
-        if (!java.util.Objects.equals(comment.getUserId(), userId)) {
-            throw new BusinessException("无权删除他人评论");
-        }
-        commentMapper.deleteById(id);
-        this.update(new LambdaUpdateWrapper<CommunityPost>()
-                .eq(CommunityPost::getId, comment.getPostId())
-                .setSql("comment_count = comment_count - 1"));
-    }
-
-    private CommentVO convertCommentToVO(CommunityComment comment) {
-        CommentVO vo = BeanUtil.copyProperties(comment, CommentVO.class);
-        SysUser user = userMapper.selectById(comment.getUserId());
-        if (user != null) {
-            vo.setUsername(user.getUsername());
-            vo.setNickname(user.getNickname());
-            vo.setAvatar(user.getAvatar());
-        }
-        return vo;
     }
 
     private PostVO convertToVO(CommunityPost post) {

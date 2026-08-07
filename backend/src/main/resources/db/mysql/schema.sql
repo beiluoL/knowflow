@@ -347,15 +347,30 @@ CREATE TABLE IF NOT EXISTS community_post_like (
     CONSTRAINT uk_post_like UNIQUE (post_id, user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 社区评论表
+-- 社区评论表（F-06：支持一级回复、评论点赞与回复计数）
 CREATE TABLE IF NOT EXISTS community_comment (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     post_id BIGINT NOT NULL,
     user_id BIGINT NOT NULL,
+    parent_id BIGINT DEFAULT 0 COMMENT '0=顶级评论，非0=回复的顶级评论ID',
+    reply_to_user_id BIGINT DEFAULT 0 COMMENT '被回复用户ID，0=直接回复顶级评论',
     content LONGTEXT NOT NULL,
+    like_count INT DEFAULT 0,
+    reply_count INT DEFAULT 0 COMMENT '回复数，仅 parent_id=0 的顶级评论维护',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 评论点赞关系表（F-06：评论点赞幂等 + 可取消，用户-评论联合唯一）
+CREATE TABLE IF NOT EXISTS community_comment_like (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    comment_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0,
+    CONSTRAINT uk_comment_like UNIQUE (comment_id, user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 消息通知表
@@ -393,7 +408,11 @@ CREATE INDEX idx_post_like_user ON community_post_like (user_id);
 -- 社区评论索引
 CREATE INDEX idx_comment_post    ON community_comment (post_id);
 CREATE INDEX idx_comment_user    ON community_comment (user_id);
+CREATE INDEX idx_comment_parent  ON community_comment (parent_id);
 CREATE INDEX idx_comment_deleted ON community_comment (deleted);
+
+-- 评论点赞索引（逻辑外键列建索引，阿里规约）
+CREATE INDEX idx_comment_like_user ON community_comment_like (user_id);
 
 -- 消息通知索引
 CREATE INDEX idx_notif_user   ON sys_notification (user_id);

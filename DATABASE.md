@@ -51,6 +51,9 @@ erDiagram
     sys_user ||--o{ community_post_like : "点赞"
     community_post ||--o{ community_comment : "包含评论"
     community_post ||--o{ community_post_like : "被点赞"
+    community_comment ||--o{ community_comment : "一级回复(parent_id)"
+    community_comment ||--o{ community_comment_like : "评论被点赞"
+    sys_user ||--o{ community_comment_like : "点赞评论"
     sys_user ||--o{ sys_notification : "接收通知"
     sys_user ||--|| sys_user_ai_config : "AI配置"
     sys_user ||--o{ sys_icon : "自定义图标"
@@ -109,6 +112,9 @@ erDiagram
 | community_post | user_id | sys_user(id) | idx_post_user | 否 |
 | community_post_like | post_id / user_id | community_post / sys_user | uk_post_like(post_id,user_id) | 否 |
 | community_comment | post_id / user_id | community_post / sys_user | idx_comment_post / idx_comment_user | 否 |
+| community_comment | parent_id | community_comment(id) 自关联 | idx_comment_parent | 是（0=顶级哨兵） |
+| community_comment | reply_to_user_id | sys_user(id) | — | 是（0=不指向某人） |
+| community_comment_like | comment_id / user_id | community_comment / sys_user | uk_comment_like(comment_id,user_id) / idx_comment_like_user | 否 |
 | sys_notification | user_id | sys_user(id) | idx_notif_user | 否 |
 | sys_user_ai_config | user_id | sys_user(id) | uk_user_ai_config_user(user_id,deleted) | 否 |
 | sys_icon | user_id | sys_user(id) | idx_icon_user | 是 |
@@ -415,15 +421,40 @@ erDiagram
 - 约束：唯一 `uk_post_like(post_id, user_id)`；索引 `idx_post_like_user(user_id)`
 
 ### 17. community_comment（社区评论表）
+> 支持「顶级评论 + 一级回复」两层结构。`parent_id = 0` 为顶级评论，非 0 指向所属顶级评论。
+> **回复的回复也会被扁平化挂到同一个顶级评论下**（Service 层 `resolveTargetComment` 保证），
+> 靠 `reply_to_user_id` 表达「回复 @某人」，从而避免无限递归与深层嵌套渲染。
+
 | 字段 | 类型 | 说明 | 约束 |
 |---|---|---|---|
 | id | BIGINT | 主键 | PK |
 | post_id | BIGINT | 帖子 | 逻辑关联 → community_post |
 | user_id | BIGINT | 评论者 | 逻辑关联 → sys_user |
+| parent_id | BIGINT | 所属顶级评论；0=自身即顶级 | 默认 0（哨兵值，不用 NULL） |
+| reply_to_user_id | BIGINT | 被回复者；0=未指向具体某人 | 默认 0 |
 | content | TEXT | 评论内容 | 非空 |
+| like_count | INT | 点赞数 | 默认 0，原子自增 |
+| reply_count | INT | 回复数（仅顶级评论维护） | 默认 0，原子自增 |
 | create_time / update_time | TIMESTAMP | | |
 | deleted | INT | 逻辑删除 | 默认 0 |
-- 索引：`idx_comment_post(post_id)`、`idx_comment_user(user_id)`、`idx_comment_deleted(deleted)`
+- 索引：`idx_comment_post(post_id)`、`idx_comment_user(user_id)`、`idx_comment_parent(parent_id)`、`idx_comment_deleted(deleted)`
+- 计数一致性：`like_count` / `reply_count` 以及帖子 `comment_count` 一律走 `SET x = x + 1` / `GREATEST(0, x - n)` 原子 SQL，禁止「先查后写」
+- 级联规则：删除顶级评论 → 逻辑删除其全部子回复，并按实际条数回退帖子 `comment_count`；删除帖子 → `deleteByPostId` 逻辑删除该帖全部评论
+
+### 17b. community_comment_like（评论点赞关系表）
+> 评论点赞幂等 + 可取消，用户-评论联合唯一。
+
+| 字段 | 类型 | 说明 | 约束 |
+|---|---|---|---|
+| id | BIGINT | 主键 | PK |
+| comment_id | BIGINT | 评论 | 逻辑关联 → community_comment |
+| user_id | BIGINT | 用户 | 逻辑关联 → sys_user |
+| create_time / update_time | TIMESTAMP | | |
+| deleted | INT | 逻辑删除列（保留占位，**本表不使用**） | 默认 0 |
+- 约束：唯一 `uk_comment_like(comment_id, user_id)`；索引 `idx_comment_like_user(user_id)`
+- ⚠️ **本表必须物理删除**：唯一约束不含 `deleted` 列，若取消点赞走逻辑删除，残留行会永久占住唯一键，
+  导致用户「取消点赞后无法再次点赞」（insert 抛 `DuplicateKeyException` 被吞、`like_count` 不再累加）。
+  因此 `CommunityCommentLikeMapper` 用 `@Delete` 原生 SQL 做物理删除与存在性判断，绕开 MyBatis-Plus 自动追加的 `deleted = 0`。
 
 ### 18. sys_notification（消息通知表）
 | 字段 | 类型 | 说明 | 约束 |
