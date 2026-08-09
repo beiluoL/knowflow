@@ -2496,7 +2496,10 @@ watch(activeTab, (tab) => {
                 class="file-node"
                 :class="{ active: currentFile?.path === node.path }"
                 :style="{ paddingLeft: `${node.depth * 12 + 8}px` }"
+                role="button"
+                tabindex="0"
                 @click="node.kind === 'directory' ? toggleNode(node) : selectFile(node)"
+                @keydown.enter.space.self.prevent="($event.target as HTMLElement).click()"
               >
                 <Icon
                   :name="node.kind === 'directory' ? (node.expanded ? 'chevron-down' : 'chevron-right') : 'file'"
@@ -2511,7 +2514,10 @@ watch(activeTab, (tab) => {
                   class="file-node"
                   :class="{ active: currentFile?.path === child.path }"
                   :style="{ paddingLeft: `${child.depth * 12 + 8}px` }"
+                  role="button"
+                  tabindex="0"
                   @click="child.kind === 'directory' ? toggleNode(child) : selectFile(child)"
+                  @keydown.enter.space.self.prevent="($event.target as HTMLElement).click()"
                 >
                   <Icon
                     :name="child.kind === 'directory' ? (child.expanded ? 'chevron-down' : 'chevron-right') : 'file'"
@@ -2536,7 +2542,10 @@ watch(activeTab, (tab) => {
                 :key="s.id"
                 class="sidebar-session-item"
                 :class="{ active: currentSessionId === s.id }"
+                role="button"
+                tabindex="0"
                 @click="selectSession(s)"
+                @keydown.enter.space.self.prevent="($event.target as HTMLElement).click()"
               >
                 <Icon name="message-square" size="xxs" />
                 <span class="session-title">{{ s.title }}</span>
@@ -3167,7 +3176,10 @@ watch(activeTab, (tab) => {
           :key="s.id"
           class="session-card"
           :class="{ active: currentSessionId === s.id }"
+          role="button"
+          tabindex="0"
           @click="selectSession(s)"
+          @keydown.enter.space.self.prevent="($event.target as HTMLElement).click()"
         >
           <div class="session-card-header">
             <Icon name="message-square" size="sm" />
@@ -3204,7 +3216,10 @@ watch(activeTab, (tab) => {
               :key="s.id"
               class="session-card"
               :class="{ active: currentSessionId === s.id }"
+              role="button"
+              tabindex="0"
               @click="selectSession(s)"
+              @keydown.enter.space.self.prevent="($event.target as HTMLElement).click()"
             >
               <div class="session-card-header">
                 <Icon name="message-square" size="sm" />
@@ -3436,7 +3451,10 @@ watch(activeTab, (tab) => {
             active: selectedModelIds.includes(m.id!),
             checked: selectedModelIds.includes(m.id!),
           }"
+          role="button"
+          tabindex="0"
           @click="toggleModelCheck(m)"
+          @keydown.enter.space.self.prevent="($event.target as HTMLElement).click()"
         >
           <div class="model-card-header">
             <!-- 勾选框 -->
@@ -6341,5 +6359,187 @@ watch(activeTab, (tab) => {
 .eval-badge.low {
   color: var(--kb-danger, #ef4444);
   background: color-mix(in srgb, var(--kb-danger, #ef4444) 12%, transparent);
+}
+
+/* =====================================================================
+ * 交互状态补齐：hover / active / focus-visible
+ * ---------------------------------------------------------------------
+ * 本区块只“补缺”，不覆盖既有配色与布局：
+ * 1. focus-visible 统一用 --kb-ring 令牌画 2px 焦点环，仅键盘导航时出现，
+ *    鼠标点击不显示，避免影响原有观感；
+ * 2. active 统一按压反馈——紧凑按钮用 scale(0.98)，卡片用 scale(0.99)，
+ *    满宽行用 inset 蒙层（与背景色无关，浅/深色模式都可见）；
+ * 3. 仅为原先完全没有 hover 的元素补 hover，已有 hover 的一律保留。
+ * ===================================================================== */
+
+/* --- 1a. 焦点环：紧凑按钮 / 卡片（外置 2px） --- */
+.tab-btn:focus-visible,
+.sidebar-refresh:focus-visible,
+.link-btn:focus-visible,
+.header-btn:focus-visible,
+.load-earlier-btn:focus-visible,
+.gen-file-btn:focus-visible,
+.clarify-opt:focus-visible,
+.quick-dir-btn:focus-visible,
+.ctx-clear:focus-visible,
+.toolbar-icon-btn:focus-visible,
+.settings-close:focus-visible,
+.recent-chip:focus-visible,
+.seg-btn:focus-visible,
+.params-edit-btn:focus-visible,
+.close-btn:focus-visible,
+.btn-reset:focus-visible,
+.btn-cancel:focus-visible,
+.session-card:focus-visible,
+.model-card:focus-visible,
+.model-card-params:focus-visible,
+.clarify-input:focus-visible,
+.code-editor:focus-visible,
+.param-slider:focus-visible,
+.model-checkbox:focus-within {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
+/* --- 1b. 焦点环：满宽行（内置 -2px，避免被滚动容器裁剪） --- */
+.file-node:focus-visible,
+.sidebar-session-item:focus-visible,
+.tool-card-head:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: -2px;
+}
+
+/* --- 2a. 按压反馈：紧凑按钮 --- */
+.tab-btn:not(:disabled):active,
+.sidebar-refresh:not(:disabled):active,
+.link-btn:not(:disabled):active,
+.header-btn:not(:disabled):active,
+.load-earlier-btn:not(:disabled):active,
+.gen-file-btn:not(:disabled):active,
+.clarify-opt:not(:disabled):active,
+.quick-dir-btn:not(:disabled):active,
+.ctx-clear:not(:disabled):active,
+.toolbar-icon-btn:not(:disabled):active,
+.settings-close:not(:disabled):active,
+.recent-chip:not(:disabled):active,
+.seg-btn:not(:disabled):active,
+.params-edit-btn:not(:disabled):active,
+.close-btn:not(:disabled):active,
+.btn-reset:not(:disabled):active,
+.btn-cancel:not(:disabled):active {
+  transform: scale(0.98);
+}
+
+/* --- 2b. 按压反馈：卡片（幅度更小，避免大面积位移） --- */
+.session-card:active,
+.model-card:active {
+  transform: scale(0.99);
+}
+
+/* --- 2c. 按压反馈：满宽行 / 参数条（inset 蒙层，不依赖背景色） --- */
+.file-node:active,
+.sidebar-session-item:active,
+.tool-card-head:active,
+.model-card-params:active {
+  box-shadow: inset 0 0 0 999px color-mix(in srgb, currentColor 10%, transparent);
+}
+
+/* --- 3. 补齐缺失的 hover（原先完全没有 hover 反馈的元素） --- */
+.tool-card-head:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+.close-btn:hover {
+  color: var(--kb-foreground);
+}
+.model-icon:hover {
+  background: color-mix(in srgb, var(--kb-primary) 18%, transparent);
+}
+.model-info:hover .model-name {
+  color: var(--kb-primary);
+}
+.model-checkbox:hover .checkbox-mark {
+  border-color: var(--kb-primary);
+}
+.model-checkbox:active .checkbox-mark {
+  transform: scale(0.92);
+}
+
+/* --- 4. 补齐缺失的过渡，使 hover / active 平滑（仅列出原先无 transition 者） --- */
+.sidebar-refresh,
+.file-node,
+.load-earlier-btn,
+.tool-card-head,
+.ctx-clear,
+.settings-close,
+.params-edit-btn,
+.close-btn,
+.model-icon,
+.model-info .model-name {
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
+}
+
+/* --- 5. 已有 transition 的元素：补上 transform 通道，让按压动效同样平滑 --- */
+.link-btn,
+.sidebar-session-item {
+  transition:
+    background 0.1s ease,
+    color 0.1s ease,
+    transform 0.1s ease;
+}
+
+/* --- 6. 尊重「减少动态效果」系统偏好 --- */
+@media (prefers-reduced-motion: reduce) {
+  .tab-btn,
+  .sidebar-refresh,
+  .link-btn,
+  .header-btn,
+  .load-earlier-btn,
+  .gen-file-btn,
+  .clarify-opt,
+  .quick-dir-btn,
+  .ctx-clear,
+  .toolbar-icon-btn,
+  .settings-close,
+  .recent-chip,
+  .seg-btn,
+  .params-edit-btn,
+  .close-btn,
+  .btn-reset,
+  .btn-cancel,
+  .file-node,
+  .sidebar-session-item,
+  .tool-card-head,
+  .session-card,
+  .model-card,
+  .model-card-params,
+  .model-icon {
+    transition: none;
+  }
+  .tab-btn:active,
+  .sidebar-refresh:active,
+  .link-btn:active,
+  .header-btn:active,
+  .load-earlier-btn:active,
+  .gen-file-btn:active,
+  .clarify-opt:active,
+  .quick-dir-btn:active,
+  .ctx-clear:active,
+  .toolbar-icon-btn:active,
+  .settings-close:active,
+  .recent-chip:active,
+  .seg-btn:active,
+  .params-edit-btn:active,
+  .close-btn:active,
+  .btn-reset:active,
+  .btn-cancel:active,
+  .session-card:active,
+  .model-card:active {
+    transform: none;
+  }
 }
 </style>

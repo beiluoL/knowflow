@@ -29,7 +29,10 @@
             :key="'p' + conv.id"
             class="conv-item"
             :class="{ active: activeConvId === conv.id }"
+            role="button"
+            tabindex="0"
             @click="selectPrivateConv(conv)"
+            @keydown.enter.prevent="$event.target.click()"
           >
             <div class="conv-avatar" :style="{ background: getUserColor(conv.targetUserName || 'U') }">
               {{ (conv.targetUserName || 'U').charAt(0) }}
@@ -51,7 +54,10 @@
             v-for="group in filteredGroups"
             :key="'g' + group.id"
             class="conv-item"
+            role="button"
+            tabindex="0"
             @click="openGroup(group)"
+            @keydown.enter.prevent="$event.target.click()"
           >
             <div class="conv-avatar group" :style="{ background: group.color || '#8B5CF6' }">
               {{ group.name.charAt(0) }}
@@ -119,7 +125,7 @@
                     <p class="message-text">{{ msg.recalled ? '[撤回的消息]' : (msg.content || '') }}</p>
                   </template>
                   <template v-else-if="msg.messageType === 'IMAGE'">
-                    <img :src="msg.fileUrl" :alt="msg.fileName" class="message-image" @click="previewImage(msg.fileUrl)" />
+                    <img :src="msg.fileUrl" :alt="msg.fileName" class="message-image" role="button" tabindex="0" @click="previewImage(msg.fileUrl)" @keydown.enter.prevent="$event.target.click()" />
                   </template>
                   <template v-else-if="msg.messageType === 'FILE'">
                     <a :href="msg.fileUrl" target="_blank" class="message-file">
@@ -139,7 +145,7 @@
                 </div>
                 <div class="message-time">
                   <span v-if="msg.isMine && msg.read" class="msg-read">已读</span>
-                  <span v-if="msg.isMine && !msg.recalled" class="msg-recall" @click="recallPrivateMessage(msg)">撤回</span>
+                  <span v-if="msg.isMine && !msg.recalled" class="msg-recall" role="button" tabindex="0" @click="recallPrivateMessage(msg)" @keydown.enter.prevent="$event.target.click()">撤回</span>
                   <span>{{ formatTime(msg.createTime) }}</span>
                 </div>
               </div>
@@ -210,7 +216,10 @@
                 v-for="u in searchResults"
                 :key="u.id"
                 class="user-search-item"
+                role="button"
+                tabindex="0"
                 @click="startConversation(u)"
+                @keydown.enter.prevent="$event.target.click()"
               >
                 <div class="conv-avatar" :style="{ background: getUserColor(u.nickname || u.username || 'U') }">
                   {{ (u.nickname || u.username || 'U').charAt(0) }}
@@ -646,7 +655,7 @@ onUnmounted(() => {
   border: 1px dashed var(--kb-border);
   background: transparent;
   color: var(--kb-primary);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
@@ -655,6 +664,15 @@ onUnmounted(() => {
 .new-chat-btn:hover {
   background: rgba(59, 111, 224, 0.08);
   border-color: var(--kb-primary);
+}
+
+.new-chat-btn:active {
+  transform: scale(0.98);
+}
+
+.new-chat-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .sidebar-search {
@@ -678,7 +696,7 @@ onUnmounted(() => {
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
   color: var(--kb-foreground);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   outline: none;
 }
 
@@ -705,7 +723,7 @@ onUnmounted(() => {
   padding: 10px 12px;
   border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s, transform 0.1s ease;
 }
 
 .conv-item:hover {
@@ -716,6 +734,15 @@ onUnmounted(() => {
   background: rgba(59, 111, 224, 0.1);
 }
 
+.conv-item:active {
+  transform: scale(0.99);
+}
+
+.conv-item:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
 .conv-avatar {
   width: 40px;
   height: 40px;
@@ -724,7 +751,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 16px;
+  font-size: var(--kb-fs-body-lg);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -739,7 +766,7 @@ onUnmounted(() => {
 }
 
 .conv-name {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 500;
   color: var(--kb-foreground);
   margin: 0;
@@ -752,7 +779,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
   margin: 2px 0 0;
   white-space: nowrap;
@@ -773,21 +800,22 @@ onUnmounted(() => {
   color: white;
   padding: 2px 6px;
   border-radius: 10px;
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .empty-tip {
   text-align: center;
   color: var(--kb-muted-foreground);
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   padding: 12px;
 }
 
 .loading-placeholder {
   text-align: center;
   color: var(--kb-muted-foreground);
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   padding: 12px;
 }
 
@@ -826,7 +854,7 @@ onUnmounted(() => {
 }
 
 .chat-empty p {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   margin: 0;
 }
 
@@ -843,22 +871,27 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
 }
 
 .header-text {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .conv-title {
-  font-size: 16px;
+  font-size: var(--kb-fs-body-lg);
   font-weight: 600;
   color: var(--kb-foreground);
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .conv-desc {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   color: var(--kb-muted-foreground);
   margin: 2px 0 0;
 }
@@ -919,7 +952,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -931,7 +964,7 @@ onUnmounted(() => {
 }
 
 .message-sender {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   font-weight: 500;
   color: var(--kb-muted-foreground);
 }
@@ -949,7 +982,7 @@ onUnmounted(() => {
 }
 
 .message-text {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   color: var(--kb-foreground);
   margin: 0;
   line-height: 1.5;
@@ -965,6 +998,20 @@ onUnmounted(() => {
   max-width: 240px;
   border-radius: 8px;
   cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.message-image:hover {
+  opacity: 0.92;
+}
+
+.message-image:active {
+  transform: scale(0.98);
+}
+
+.message-image:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .message-file {
@@ -976,12 +1023,35 @@ onUnmounted(() => {
   border-radius: 8px;
   text-decoration: none;
   color: var(--kb-foreground);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
+  min-width: 0;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.message-file:hover {
+  background: var(--kb-muted);
+}
+
+.message-file:active {
+  transform: scale(0.99);
+}
+
+.message-file:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
+.message-file span:not(.file-size) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .file-size {
   color: var(--kb-muted-foreground);
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  flex-shrink: 0;
 }
 
 .message-code {
@@ -998,7 +1068,7 @@ onUnmounted(() => {
 }
 
 .code-lang {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
 }
 
@@ -1006,12 +1076,12 @@ onUnmounted(() => {
   margin: 0;
   padding: 12px;
   overflow-x: auto;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   color: var(--kb-foreground);
 }
 
 .message-time {
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   color: var(--kb-muted-foreground);
   display: flex;
   align-items: center;
@@ -1025,10 +1095,21 @@ onUnmounted(() => {
 .msg-recall {
   cursor: pointer;
   color: var(--kb-muted-foreground);
+  transition: color 0.15s ease;
 }
 
 .msg-recall:hover {
-  color: #EF4444;
+  color: var(--kb-destructive);
+}
+
+.msg-recall:active {
+  opacity: 0.7;
+}
+
+.msg-recall:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 .message-item.mine .message-time {
@@ -1038,7 +1119,7 @@ onUnmounted(() => {
 
 .typing-indicator {
   padding: 8px 24px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
 }
 
@@ -1073,6 +1154,15 @@ onUnmounted(() => {
   color: var(--kb-primary);
 }
 
+.tool-btn:active {
+  transform: scale(0.95);
+}
+
+.tool-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
 .hidden-input {
   display: none;
 }
@@ -1095,7 +1185,7 @@ onUnmounted(() => {
   flex: 1;
   border: none;
   background: transparent;
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   color: var(--kb-foreground);
   resize: none;
   outline: none;
@@ -1114,6 +1204,20 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.send-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.send-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.send-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .send-btn:disabled {
@@ -1161,11 +1265,21 @@ onUnmounted(() => {
   color: var(--kb-muted-foreground);
   padding: 4px;
   border-radius: 6px;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
 }
 
 .dialog-close:hover {
   background: var(--kb-muted);
   color: var(--kb-foreground);
+}
+
+.dialog-close:active {
+  transform: scale(0.95);
+}
+
+.dialog-close:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .dialog-body {
@@ -1178,7 +1292,7 @@ onUnmounted(() => {
 
 .form-group label {
   display: block;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   color: var(--kb-foreground);
   margin-bottom: 8px;
@@ -1191,7 +1305,7 @@ onUnmounted(() => {
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
   color: var(--kb-foreground);
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   outline: none;
   box-sizing: border-box;
 }
@@ -1215,26 +1329,62 @@ onUnmounted(() => {
   padding: 10px;
   border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s, transform 0.1s ease;
 }
 
 .user-search-item:hover {
   background: var(--kb-muted);
 }
 
+.user-search-item:active {
+  background: var(--kb-muted);
+  transform: scale(0.99);
+}
+
+.user-search-item:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
 .user-search-info {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  flex: 1;
 }
 
 .user-search-name {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 500;
   color: var(--kb-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .user-search-username {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 响应式：小屏收窄横向内边距，避免聊天区横向溢出（不影响桌面布局） */
+@media (max-width: 640px) {
+  .chat-header {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .message-list {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .chat-footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
 }
 </style>

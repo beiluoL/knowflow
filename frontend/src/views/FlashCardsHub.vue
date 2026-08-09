@@ -150,7 +150,16 @@
 
       <!-- 闪卡翻转展示区 -->
       <div v-else class="flip-area">
-        <div class="flip-card" :class="{ flipped: isFlipped }" @click="flipCard">
+        <div
+          class="flip-card"
+          :class="{ flipped: isFlipped }"
+          role="button"
+          tabindex="0"
+          aria-label="翻转卡片查看答案"
+          @click="flipCard"
+          @keydown.enter.prevent="$event.currentTarget.click()"
+          @keydown.space.prevent="$event.currentTarget.click()"
+        >
           <div class="flip-card-inner">
             <div class="flip-card-face flip-card-front">
               <div class="face-tags">
@@ -254,7 +263,16 @@
         </div>
 
         <div class="flip-area">
-          <div class="flip-card" :class="{ flipped: isReviewFlipped }" @click="flipReviewCard">
+          <div
+            class="flip-card"
+            :class="{ flipped: isReviewFlipped }"
+            role="button"
+            tabindex="0"
+            aria-label="翻转卡片查看答案"
+            @click="flipReviewCard"
+            @keydown.enter.prevent="$event.currentTarget.click()"
+            @keydown.space.prevent="$event.currentTarget.click()"
+          >
             <div class="flip-card-inner">
               <div class="flip-card-face flip-card-front">
                 <div class="face-tags">
@@ -1404,7 +1422,7 @@ onUnmounted(() => {
 .icon-primary { background: rgba(59, 111, 224, 0.1); color: var(--kb-primary); }
 .icon-accent { background: rgba(16, 185, 129, 0.1); color: var(--kb-accent); }
 .icon-warning { background: rgba(245, 158, 11, 0.1); color: var(--kb-warning); }
-.icon-success { background: rgba(34, 197, 94, 0.12); color: #16a34a; }
+.icon-success { background: rgba(16, 185, 129, 0.12); color: var(--kb-accent); }
 .hero-stat-body { display: flex; flex-direction: column; line-height: 1.2; }
 .hero-stat-num { font-size: 18px; font-weight: 700; color: var(--kb-foreground); }
 .hero-stat-label { font-size: 12px; color: var(--kb-muted-foreground); margin-top: 2px; }
@@ -1449,7 +1467,7 @@ onUnmounted(() => {
 }
 .tab-btn.active .tab-count {
   background: rgba(255,255,255,0.25);
-  color: #fff;
+  color: var(--kb-primary-foreground);
 }
 
 /* ========== 全局搜索 ========== */
@@ -1476,7 +1494,7 @@ onUnmounted(() => {
 }
 .search-input:focus {
   border-color: var(--kb-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
 }
 .clear-btn {
   position: absolute; right: 8px; top: 50%;
@@ -1566,12 +1584,12 @@ onUnmounted(() => {
 }
 .btn-secondary:hover { border-color: var(--kb-primary); color: var(--kb-primary); }
 .btn-secondary:disabled { opacity: 0.55; cursor: not-allowed; }
-.btn-secondary.danger:hover { border-color: #ef4444; color: #ef4444; }
+.btn-secondary.danger:hover { border-color: var(--kb-destructive); color: var(--kb-destructive); }
 .btn-ghost {
   background: transparent; color: var(--kb-muted-foreground);
   padding: 0 10px; height: 36px;
 }
-.btn-ghost:hover { color: var(--kb-primary); background: rgba(59,130,246,0.08); }
+.btn-ghost:hover { color: var(--kb-primary); background: rgba(59,111,224,0.08); }
 .badge {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 18px; height: 18px; padding: 0 6px;
@@ -1667,9 +1685,9 @@ onUnmounted(() => {
 .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn-outline { border: 1px solid var(--kb-border); background: var(--kb-card); color: var(--kb-foreground); }
 .btn-outline:not(:disabled):hover { border-color: var(--kb-primary); color: var(--kb-primary); }
-.btn-danger { background: var(--kb-destructive); color: #fff; }
-.btn-warning { background: var(--kb-warning); color: #fff; }
-.btn-success { background: var(--kb-accent); color: #fff; }
+.btn-danger { background: var(--kb-destructive); color: var(--kb-destructive-foreground); }
+.btn-warning { background: var(--kb-warning); color: var(--kb-warning-foreground); }
+.btn-success { background: var(--kb-accent); color: var(--kb-accent-foreground); }
 
 /* ========== 反馈提示 ========== */
 .feedback-text { text-align: center; font-size: 14px; font-weight: 500; color: var(--kb-muted-foreground); margin: 0; }
@@ -1730,7 +1748,7 @@ onUnmounted(() => {
 .view-btn:hover { color: var(--kb-foreground); }
 .view-btn.active {
   background: var(--kb-primary); color: var(--kb-primary-foreground);
-  box-shadow: 0 2px 6px rgba(59,130,246,0.25);
+  box-shadow: 0 2px 6px rgba(59,111,224,0.25);
 }
 .spinning { animation: spin 1s linear infinite; }
 
@@ -1740,6 +1758,7 @@ onUnmounted(() => {
   border: 1px solid var(--kb-border);
   border-radius: var(--kb-radius-lg);
   overflow: hidden;
+  overflow-x: auto; /* 小屏允许表格横向滚动，避免列被裁切/页面溢出 */
 }
 .kb-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .kb-table thead th {
@@ -1752,7 +1771,7 @@ onUnmounted(() => {
 }
 .kb-table tbody td { padding: 14px 16px; border-bottom: 1px solid var(--kb-border); vertical-align: top; }
 .kb-table tbody tr:last-child td { border-bottom: none; }
-.kb-table tbody tr:hover { background: rgba(59,130,246,0.03); }
+.kb-table tbody tr:hover { background: rgba(59,111,224,0.03); }
 .kb-table input[type=checkbox] { accent-color: var(--kb-primary); width: 15px; height: 15px; }
 .cell-front, .cell-back { line-height: 1.55; }
 .cell-front { font-weight: 500; }
@@ -1763,7 +1782,7 @@ onUnmounted(() => {
 .mini-tags { display: inline-flex; gap: 4px; margin-right: 6px; }
 .mini-tag {
   font-size: 11px; color: var(--kb-primary);
-  background: rgba(59,130,246,0.1);
+  background: rgba(59,111,224,0.1);
   border-radius: 6px; padding: 1px 6px;
 }
 
@@ -1773,7 +1792,7 @@ onUnmounted(() => {
   font-size: 12px; font-weight: 500;
 }
 .diff-easy { background: rgba(34,197,94,0.12); color: #16a34a; }
-.diff-medium { background: rgba(59,130,246,0.12); color: #2563eb; }
+.diff-medium { background: rgba(59,111,224,0.12); color: var(--kb-primary); }
 .diff-hard { background: rgba(239,68,68,0.12); color: #dc2626; }
 
 .source-badge {
@@ -1798,7 +1817,7 @@ onUnmounted(() => {
   transition: all 0.15s;
 }
 .row-btn:hover { border-color: var(--kb-primary); color: var(--kb-primary); }
-.row-btn.danger:hover { border-color: #ef4444; color: #ef4444; }
+.row-btn.danger:hover { border-color: var(--kb-destructive); color: var(--kb-destructive); }
 
 /* ========== 卡片视图 ========== */
 .card-grid {
@@ -1825,8 +1844,8 @@ onUnmounted(() => {
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .fc-card:hover .fc-face {
-  border-color: rgba(59,130,246,0.35);
-  box-shadow: 0 10px 30px rgba(59,130,246,0.08);
+  border-color: rgba(59,111,224,0.35);
+  box-shadow: 0 10px 30px rgba(59,111,224,0.08);
 }
 .fc-face-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .fc-top-actions {
@@ -1845,7 +1864,7 @@ onUnmounted(() => {
   cursor: pointer; transition: all 0.15s;
 }
 .icon-btn:hover { color: var(--kb-primary); border-color: var(--kb-primary); }
-.icon-btn.danger:hover { color: #ef4444; border-color: #ef4444; }
+.icon-btn.danger:hover { color: var(--kb-destructive); border-color: var(--kb-destructive); }
 .fc-front-title {
   flex: 1; margin: 16px 0;
   font-size: 18px; font-weight: 600; line-height: 1.6;
@@ -1864,7 +1883,7 @@ onUnmounted(() => {
 .fc-tags { display: flex; flex-wrap: wrap; gap: 5px; }
 .fc-tag {
   font-size: 12px; color: var(--kb-primary);
-  background: rgba(59,130,246,0.1);
+  background: rgba(59,111,224,0.1);
   padding: 2px 8px; border-radius: 999px;
 }
 .fc-face-bottom {
@@ -1894,7 +1913,7 @@ onUnmounted(() => {
   display: inline-flex; align-items: center; gap: 4px;
   padding: 2px 8px; border-radius: 6px;
   font-size: 12px;
-  background: rgba(59,130,246,0.1); color: #2563eb;
+  background: rgba(59,111,224,0.1); color: var(--kb-primary);
 }
 .fc-back { transform: rotateY(180deg); }
 
@@ -1941,7 +1960,7 @@ onUnmounted(() => {
 .col-span-2 { grid-column: span 2; }
 .form-item { display: flex; flex-direction: column; gap: 6px; }
 .form-label { font-size: 13px; font-weight: 500; color: var(--kb-foreground); }
-.form-label .req { color: #ef4444; margin-left: 2px; }
+.form-label .req { color: var(--kb-destructive); margin-left: 2px; }
 .form-hint { margin: 4px 0 0; font-size: 12.5px; color: var(--kb-muted-foreground); }
 .modal-footer {
   padding: 14px 22px;
@@ -1967,7 +1986,7 @@ onUnmounted(() => {
 .seg-btn.active {
   background: var(--kb-primary);
   color: var(--kb-primary-foreground);
-  box-shadow: 0 2px 6px rgba(59,130,246,0.25);
+  box-shadow: 0 2px 6px rgba(59,111,224,0.25);
 }
 
 .count-stepper { display: inline-flex; align-items: center; gap: 8px; }
@@ -2011,7 +2030,7 @@ onUnmounted(() => {
   position: absolute; top: 10px; right: 12px;
   font-size: 11px; font-weight: 600;
   color: var(--kb-primary);
-  background: rgba(59,130,246,0.1);
+  background: rgba(59,111,224,0.1);
   padding: 2px 8px; border-radius: 999px;
 }
 .preview-front, .preview-back {
@@ -2032,7 +2051,7 @@ onUnmounted(() => {
 }
 .import-hint b { color: var(--kb-foreground); }
 .import-hint code {
-  background: rgba(59,130,246,0.1);
+  background: rgba(59,111,224,0.1);
   color: var(--kb-primary);
   padding: 1px 6px; border-radius: 5px;
   font-size: 12.5px;
@@ -2053,6 +2072,60 @@ onUnmounted(() => {
   color: #dc2626;
   font-size: 13px;
   display: inline-flex; align-items: center; gap: 5px;
+}
+
+/* ========== 交互反馈补齐（hover / active / focus-visible）==========
+ * 焦点环由全局 style.css 统一覆盖（button / a / [tabindex] / [role=button]）。
+ * 此处补齐：缺失的 hover 态、统一的 :active 按压反馈，以及翻转卡的可达状态。 */
+
+/* 统一按压反馈：轻微缩放，禁用态不响应 */
+.back-btn:active:not(:disabled),
+.clear-btn:active,
+.tab-btn:active:not(:disabled),
+.btn-primary:active:not(:disabled),
+.btn-secondary:active:not(:disabled),
+.btn-ghost:active:not(:disabled),
+.action-btn:active:not(:disabled),
+.row-btn:active,
+.icon-btn:active,
+.view-btn:active,
+.seg-btn:active,
+.fc-flip-btn:active,
+.stepper-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* 评分/操作按钮补 hover 态（原 btn-danger/warning/success 仅有底色，无反馈） */
+.action-btn.btn-danger:not(:disabled):hover,
+.action-btn.btn-warning:not(:disabled):hover,
+.action-btn.btn-success:not(:disabled):hover {
+  filter: brightness(1.06);
+}
+
+/* 分段控件补 hover 态（原仅有 .active 态） */
+.seg-btn:not(.active):hover {
+  color: var(--kb-foreground);
+}
+
+/* 可点击翻转卡（div[role=button]）：补 hover / active / focus-visible */
+.flip-card:hover .flip-card-face {
+  border-color: var(--kb-primary);
+}
+.flip-card:active {
+  transform: scale(0.99);
+}
+.flip-card:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-radius: var(--kb-radius-lg);
+}
+.flip-card:focus-visible .flip-card-face {
+  border-color: var(--kb-primary);
+}
+
+/* 我的闪卡卡片视图（div@click.self，已有 hover）：补按压反馈 */
+.fc-card:active .fc-face {
+  box-shadow: 0 4px 14px rgba(59, 111, 224, 0.06);
 }
 
 /* ========== 响应式 ========== */

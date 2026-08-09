@@ -6,7 +6,7 @@
     >
       <template #actions>
         <button v-if="bg.isActive" type="button" class="clear-btn" @click="handleClear">
-          <Icon name="x-circle" :size="15" />
+          <Icon name="x-circle" :size="14" />
           <span>清除背景</span>
         </button>
       </template>
@@ -27,7 +27,7 @@
               :class="{ 'type-tab-active': bg.type === t.value }"
               @click="bg.setType(t.value)"
             >
-              <Icon :name="t.icon" :size="18" />
+              <Icon :name="t.icon" :size="20" />
               <span>{{ t.label }}</span>
             </button>
           </div>
@@ -39,6 +39,9 @@
           <div
             class="upload-zone"
             :class="{ 'upload-zone-drag': isDragging }"
+            role="button"
+            tabindex="0"
+            @keydown.enter.prevent="($event.target as HTMLElement).click()"
             @click="triggerImageUpload"
             @dragover.prevent="isDragging = true"
             @dragleave.prevent="isDragging = false"
@@ -52,7 +55,7 @@
               </div>
             </template>
             <template v-else>
-              <Icon name="image" :size="40" class="upload-icon" />
+              <Icon name="image" :size="32" class="upload-icon" />
               <p class="upload-text">点击或拖拽上传图片</p>
               <p class="upload-hint">支持 JPG / PNG / WebP，建议不超过 5MB</p>
             </template>
@@ -81,6 +84,9 @@
           <div
             class="upload-zone"
             :class="{ 'upload-zone-drag': isDragging }"
+            role="button"
+            tabindex="0"
+            @keydown.enter.prevent="($event.target as HTMLElement).click()"
             @click="triggerVideoUpload"
             @dragover.prevent="isDragging = true"
             @dragleave.prevent="isDragging = false"
@@ -94,7 +100,7 @@
               </div>
             </template>
             <template v-else>
-              <Icon name="video" :size="40" class="upload-icon" />
+              <Icon name="video" :size="32" class="upload-icon" />
               <p class="upload-text">点击或拖拽上传视频</p>
               <p class="upload-hint">支持 MP4 / WebM，建议不超过 10MB</p>
             </template>
@@ -195,7 +201,7 @@
               class="save-preset-btn"
               @click="showSaveDialog = true"
             >
-              <Icon name="bookmark-plus" :size="15" />
+              <Icon name="bookmark-plus" :size="14" />
               <span>保存当前配置</span>
             </button>
           </div>
@@ -208,7 +214,7 @@
 
           <!-- 空状态 -->
           <div v-else-if="bg.userPresets.length === 0" class="custom-preset-empty">
-            <Icon name="bookmark" :size="28" class="empty-icon" />
+            <Icon name="bookmark" :size="24" class="empty-icon" />
             <p>还没有自定义预设</p>
             <p class="empty-hint">配置纯色/渐变/预设后，点击「保存当前配置」即可收藏</p>
           </div>
@@ -584,17 +590,24 @@ vueWatch(showSaveDialog, (val) => {
 }
 
 .card-title {
-  font-size: 16px;
+  font-size: var(--kb-fs-body-lg);
   font-weight: 600;
   color: var(--kb-foreground);
   margin-bottom: 16px;
+}
+
+/* 小屏内边距收敛，避免横向溢出 */
+@media (max-width: 600px) {
+  .settings-card {
+    padding: 16px;
+  }
 }
 
 /* 类型 Tab */
 .type-tabs {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 12px;
 }
 @media (max-width: 600px) {
   .type-tabs {
@@ -606,20 +619,34 @@ vueWatch(showSaveDialog, (val) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 14px 8px;
+  gap: 8px;
+  padding: 16px 8px;
   border-radius: 12px;
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
   color: var(--kb-muted-foreground);
   cursor: pointer;
-  transition: all 0.15s ease;
-  font-size: 13px;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
+  min-width: 0;
 }
 .type-tab:hover {
   border-color: var(--kb-primary);
   color: var(--kb-primary);
+}
+.type-tab:active {
+  transform: scale(0.98);
+}
+.type-tab:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+.type-tab span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .type-tab-active {
   border-color: var(--kb-primary);
@@ -647,6 +674,19 @@ vueWatch(showSaveDialog, (val) => {
   border-color: var(--kb-primary);
   background: rgba(59, 111, 224, 0.02);
 }
+.upload-zone:active {
+  border-color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.05);
+}
+.upload-zone:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-color: var(--kb-primary);
+}
+/* 键盘聚焦时同样展示「点击更换」提示层，保证反馈一致 */
+.upload-zone:focus-visible .upload-overlay {
+  opacity: 1;
+}
 .upload-zone-drag {
   border-color: var(--kb-primary);
   background: rgba(59, 111, 224, 0.05);
@@ -656,13 +696,15 @@ vueWatch(showSaveDialog, (val) => {
   opacity: 0.5;
 }
 .upload-text {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 500;
   color: var(--kb-foreground);
 }
 .upload-hint {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
+  padding: 0 16px;
+  text-align: center;
 }
 .upload-preview {
   width: 100%;
@@ -677,10 +719,10 @@ vueWatch(showSaveDialog, (val) => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   background: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  font-size: 13px;
+  color: var(--kb-primary-foreground);
+  font-size: var(--kb-fs-body-sm);
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -698,10 +740,12 @@ vueWatch(showSaveDialog, (val) => {
   flex-wrap: wrap;
 }
 .control-label {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   color: var(--kb-foreground);
   white-space: nowrap;
+  /* 拖动滑块时数字宽度稳定，避免标签左右跳动 */
+  font-variant-numeric: tabular-nums;
 }
 
 /* 颜色选择 */
@@ -718,25 +762,43 @@ vueWatch(showSaveDialog, (val) => {
   cursor: pointer;
   background: transparent;
   padding: 2px;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.color-picker:hover {
+  border-color: var(--kb-primary);
+}
+.color-picker:active {
+  transform: scale(0.98);
+}
+.color-picker:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-color: var(--kb-primary);
 }
 .color-text {
   width: 90px;
   height: 32px;
   padding: 0 8px;
-  font-size: 12px;
-  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--kb-fs-caption);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   border: 1px solid var(--kb-border);
-  border-radius: 6px;
+  border-radius: var(--kb-radius-sm);
   background: var(--kb-background);
   color: var(--kb-foreground);
   outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.color-text:focus-visible {
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
 
 .color-presets {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: 16px;
 }
 .color-swatch {
   width: 32px;
@@ -748,6 +810,13 @@ vueWatch(showSaveDialog, (val) => {
 }
 .color-swatch:hover {
   transform: scale(1.1);
+}
+.color-swatch:active {
+  transform: scale(1.02);
+}
+.color-swatch:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 .color-swatch-active {
   border-color: var(--kb-primary);
@@ -765,6 +834,17 @@ vueWatch(showSaveDialog, (val) => {
   -webkit-appearance: none;
   appearance: none;
   cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+.slider:hover {
+  background: var(--kb-border);
+}
+.slider:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+.slider:active::-webkit-slider-thumb {
+  transform: scale(1.08);
 }
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -774,8 +854,9 @@ vueWatch(showSaveDialog, (val) => {
   border-radius: 50%;
   background: var(--kb-primary);
   cursor: pointer;
-  border: 2px solid #fff;
+  border: 2px solid var(--kb-card);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s ease;
 }
 .slider::-moz-range-thumb {
   width: 18px;
@@ -783,38 +864,48 @@ vueWatch(showSaveDialog, (val) => {
   border-radius: 50%;
   background: var(--kb-primary);
   cursor: pointer;
-  border: 2px solid #fff;
+  border: 2px solid var(--kb-card);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s ease;
 }
 
 /* 渐变预览 */
 .gradient-preview {
   width: 100%;
   height: 60px;
-  border-radius: 10px;
-  margin-top: 14px;
+  border-radius: var(--kb-radius-md);
+  margin-top: 16px;
   border: 1px solid var(--kb-border);
 }
 
 /* 显示方式按钮组 */
 .size-mode-group {
   display: flex;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .size-mode-btn {
   padding: 6px 14px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   font-weight: 500;
-  border-radius: 6px;
+  border-radius: var(--kb-radius-sm);
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
   color: var(--kb-muted-foreground);
   cursor: pointer;
-  transition: all 0.15s ease;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
 .size-mode-btn:hover {
   border-color: var(--kb-primary);
   color: var(--kb-primary);
+}
+.size-mode-btn:active {
+  transform: scale(0.98);
+}
+.size-mode-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 .size-mode-active {
   border-color: var(--kb-primary);
@@ -826,7 +917,7 @@ vueWatch(showSaveDialog, (val) => {
 .preset-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 12px;
 }
 @media (max-width: 600px) {
   .preset-grid {
@@ -838,16 +929,25 @@ vueWatch(showSaveDialog, (val) => {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 10px;
+  padding: 12px;
   border-radius: 12px;
   border: 2px solid var(--kb-border);
   background: var(--kb-background);
   cursor: pointer;
-  transition: all 0.15s ease;
+  min-width: 0;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 .preset-card:hover {
   border-color: var(--kb-primary);
   transform: translateY(-2px);
+}
+.preset-card:active {
+  transform: translateY(0) scale(0.98);
+}
+.preset-card:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-color: var(--kb-primary);
 }
 .preset-card-active {
   border-color: var(--kb-primary);
@@ -859,34 +959,47 @@ vueWatch(showSaveDialog, (val) => {
   border-radius: 8px;
 }
 .preset-name {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   font-weight: 500;
   color: var(--kb-foreground);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* 清除按钮 */
 .clear-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 13px;
+  gap: 6px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
-  padding: 7px 14px;
+  padding: 8px 14px;
   border-radius: var(--kb-radius-sm);
   border: 1px solid var(--kb-destructive);
   background: rgba(239, 68, 68, 0.06);
   color: var(--kb-destructive);
   cursor: pointer;
-  transition: all 0.15s ease;
+  white-space: nowrap;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 .clear-btn:hover {
   background: rgba(239, 68, 68, 0.12);
+}
+.clear-btn:active {
+  background: rgba(239, 68, 68, 0.18);
+  transform: scale(0.98);
+}
+.clear-btn:focus-visible {
+  outline: 2px solid var(--kb-destructive);
+  outline-offset: 2px;
 }
 
 /* 预览面板 */
 .preview-card {
   position: sticky;
-  top: 70px;
+  top: 72px;
 }
 .preview-window {
   position: relative;
@@ -976,24 +1089,30 @@ vueWatch(showSaveDialog, (val) => {
 
 /* 预览状态 */
 .preview-status {
-  margin-top: 14px;
-  padding-top: 14px;
+  margin-top: 16px;
+  padding-top: 16px;
   border-top: 1px solid var(--kb-border);
 }
 .status-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   padding: 4px 0;
 }
 .status-label {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
+  flex-shrink: 0;
 }
 .status-value {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   color: var(--kb-foreground);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* 自定义预设管理 */
@@ -1001,6 +1120,8 @@ vueWatch(showSaveDialog, (val) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
   margin-bottom: 16px;
 }
 .custom-preset-header .card-title {
@@ -1009,8 +1130,8 @@ vueWatch(showSaveDialog, (val) => {
 .save-preset-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 13px;
+  gap: 6px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   padding: 6px 12px;
   border-radius: var(--kb-radius-sm);
@@ -1018,13 +1139,22 @@ vueWatch(showSaveDialog, (val) => {
   background: rgba(59, 111, 224, 0.06);
   color: var(--kb-primary);
   cursor: pointer;
-  transition: all 0.15s ease;
+  white-space: nowrap;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 .save-preset-btn:hover {
   background: rgba(59, 111, 224, 0.12);
 }
+.save-preset-btn:active {
+  background: rgba(59, 111, 224, 0.18);
+  transform: scale(0.98);
+}
+.save-preset-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
 .preset-badge {
-  font-size: 10px;
+  font-size: var(--kb-fs-xs);
   padding: 2px 6px;
   border-radius: 4px;
   background: rgba(59, 111, 224, 0.1);
@@ -1038,9 +1168,10 @@ vueWatch(showSaveDialog, (val) => {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 32px 0;
+  padding: 32px 16px;
+  text-align: center;
   color: var(--kb-muted-foreground);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
 }
 .empty-icon, .spin-icon {
   opacity: 0.4;
@@ -1053,21 +1184,21 @@ vueWatch(showSaveDialog, (val) => {
   to { transform: rotate(360deg); }
 }
 .empty-hint {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   opacity: 0.7;
 }
 
 .custom-preset-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 .custom-preset-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
+  padding: 12px;
+  border-radius: var(--kb-radius-md);
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
   transition: border-color 0.15s ease;
@@ -1090,7 +1221,7 @@ vueWatch(showSaveDialog, (val) => {
   min-width: 0;
 }
 .custom-preset-name {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   color: var(--kb-foreground);
   overflow: hidden;
@@ -1098,28 +1229,42 @@ vueWatch(showSaveDialog, (val) => {
   white-space: nowrap;
 }
 .custom-preset-type {
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   color: var(--kb-muted-foreground);
   text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .custom-preset-actions {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: 8px;
   flex-shrink: 0;
 }
 .apply-btn {
-  font-size: 12px;
+  height: 28px;
+  font-size: var(--kb-fs-caption);
   font-weight: 500;
-  padding: 5px 12px;
-  border-radius: 6px;
+  padding: 0 12px;
+  border-radius: var(--kb-radius-sm);
   border: 1px solid var(--kb-primary);
   background: rgba(59, 111, 224, 0.06);
   color: var(--kb-primary);
   cursor: pointer;
-  transition: all 0.15s ease;
+  white-space: nowrap;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 .apply-btn:hover {
   background: rgba(59, 111, 224, 0.12);
+}
+.apply-btn:active {
+  background: rgba(59, 111, 224, 0.18);
+  transform: scale(0.98);
+}
+.apply-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 .delete-btn {
   width: 28px;
@@ -1127,16 +1272,26 @@ vueWatch(showSaveDialog, (val) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: var(--kb-radius-sm);
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
   color: var(--kb-muted-foreground);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
 .delete-btn:hover {
   border-color: var(--kb-destructive);
   color: var(--kb-destructive);
+}
+.delete-btn:active {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--kb-destructive);
+  color: var(--kb-destructive);
+  transform: scale(0.98);
+}
+.delete-btn:focus-visible {
+  outline: 2px solid var(--kb-destructive);
+  outline-offset: 2px;
 }
 
 /* 保存预设弹窗 */
@@ -1164,7 +1319,7 @@ vueWatch(showSaveDialog, (val) => {
   to { transform: scale(1); opacity: 1; }
 }
 .save-dialog-title {
-  font-size: 16px;
+  font-size: var(--kb-fs-body-lg);
   font-weight: 600;
   color: var(--kb-foreground);
   margin-bottom: 16px;
@@ -1173,7 +1328,7 @@ vueWatch(showSaveDialog, (val) => {
   width: 100%;
   height: 40px;
   padding: 0 12px;
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   border: 1px solid var(--kb-border);
   border-radius: 8px;
   background: var(--kb-background);
@@ -1188,36 +1343,53 @@ vueWatch(showSaveDialog, (val) => {
 .save-dialog-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
 }
 .cancel-btn {
-  padding: 8px 18px;
-  font-size: 13px;
+  padding: 8px 20px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   border-radius: 8px;
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
   color: var(--kb-foreground);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 .cancel-btn:hover {
   background: var(--kb-muted);
 }
+.cancel-btn:active {
+  background: var(--kb-border);
+  transform: scale(0.98);
+}
+.cancel-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
 .confirm-btn {
-  padding: 8px 18px;
-  font-size: 13px;
+  padding: 8px 20px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   border-radius: 8px;
   border: none;
   background: var(--kb-primary);
-  color: #fff;
+  color: var(--kb-primary-foreground);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 .confirm-btn:hover:not(:disabled) {
   opacity: 0.9;
+}
+.confirm-btn:active:not(:disabled) {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+.confirm-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 .confirm-btn:disabled {
   opacity: 0.5;

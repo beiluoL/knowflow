@@ -3,8 +3,8 @@
     <!-- ===== 顶部导航栏 ===== -->
     <div class="playground-header">
       <div class="header-left">
-        <button type="button" class="back-btn" title="返回列表" @click="goBack">
-          <Icon name="arrow-left" :size="18" />
+        <button type="button" class="back-btn" title="返回列表" aria-label="返回列表" @click="goBack">
+          <Icon name="arrow-left" :size="20" />
         </button>
         <div class="header-info">
           <span class="diff-badge" :class="`diff-${question.difficulty ?? 0}`">{{ difficultyLabel(question.difficulty) }}</span>
@@ -13,7 +13,7 @@
         </div>
       </div>
       <div class="header-right">
-        <select v-model="selectedLanguage" class="lang-select" @change="onLanguageChange">
+        <select v-model="selectedLanguage" class="lang-select" aria-label="选择编程语言" @change="onLanguageChange">
           <option value="javascript">JavaScript</option>
           <option value="typescript">TypeScript</option>
           <option value="python">Python</option>
@@ -67,11 +67,11 @@
                 我的工作区
               </h3>
               <div class="ws-actions">
-                <button class="ws-mini-btn" title="新建文件" @click="createWsFilePrompt">
-                  <Icon name="plus" :size="13" />
+                <button type="button" class="ws-mini-btn" title="新建文件" aria-label="新建文件" @click="createWsFilePrompt">
+                  <Icon name="plus" :size="14" />
                 </button>
-                <button class="ws-mini-btn" title="重置沙箱" @click="resetWorkspace">
-                  <Icon name="rotate-ccw" :size="13" />
+                <button type="button" class="ws-mini-btn" title="重置沙箱" aria-label="重置沙箱" @click="resetWorkspace">
+                  <Icon name="rotate-ccw" :size="14" />
                 </button>
               </div>
             </div>
@@ -82,11 +82,14 @@
                 :key="f.path"
                 class="ws-file-item"
                 :class="{ active: f.path === activeWsFile }"
+                role="button"
+                tabindex="0"
                 @click="openWsFile(f.path)"
+                @keydown.enter.prevent="$event.target.click()"
               >
-                <Icon :name="wsIcon(f.language)" :size="13" />
+                <Icon :name="wsIcon(f.language)" :size="14" />
                 <span class="ws-file-name">{{ f.name }}</span>
-                <button class="ws-del" title="删除" @click.stop="deleteWsFile(f.path)">
+                <button type="button" class="ws-del" title="删除" aria-label="删除文件" @click.stop="deleteWsFile(f.path)">
                   <Icon name="trash" :size="12" />
                 </button>
               </li>
@@ -127,10 +130,10 @@
             <!-- SQL 题目显示可用表 -->
             <div v-if="selectedLanguage === 'sql'" class="panel-section">
               <h3 class="subsection-heading">内置示例数据库</h3>
-              <p class="problem-desc" style="font-size: 13px;">
+              <p class="problem-desc" style="font-size: var(--kb-fs-body-sm);">
                 可用表：<code class="example-code">users</code>、<code class="example-code">orders</code>、<code class="example-code">products</code>
               </p>
-              <p class="problem-desc" style="font-size: 12px; margin-top: 4px;">
+              <p class="problem-desc" style="font-size: var(--kb-fs-caption); margin-top: 4px;">
                 可使用 <code class="example-code">SHOW TABLES</code> 查看所有表，<code class="example-code">DESCRIBE 表名</code> 查看表结构
               </p>
             </div>
@@ -185,7 +188,13 @@
       </div>
 
       <!-- ===== 拖拽分隔线 ===== -->
-      <div class="resizer" @mousedown="startResize"></div>
+      <div
+        class="resizer"
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="拖拽调整左右面板宽度"
+        @mousedown="startResize"
+      ></div>
 
       <!-- ===== 右侧：代码编辑器 + 控制台 ===== -->
       <div class="editor-panel">
@@ -293,10 +302,10 @@
                   <Icon :name="runStatusIcon" :size="14" />
                   <span>{{ statusLabel(runResult?.status) }}</span>
                   <span class="output-time">{{ runResult?.time }}ms</span>
-                  <button v-if="runResult?.error" class="output-ai-btn" title="用 AI 解释这个错误" @click="explainError">
+                  <button v-if="runResult?.error" type="button" class="output-ai-btn" title="用 AI 解释这个错误" @click="explainError">
                     <Icon name="sparkles" :size="12" /> AI 解释
                   </button>
-                  <button v-if="runResult?.error" class="output-ai-btn mistake" title="归集到错题本" :disabled="collectingMistake" @click="collectMistake">
+                  <button v-if="runResult?.error" type="button" class="output-ai-btn mistake" title="归集到错题本" :disabled="collectingMistake" @click="collectMistake">
                     <Icon name="bookmark" :size="12" /> {{ collectingMistake ? '归集...' : '归集错题' }}
                   </button>
                 </div>
@@ -306,7 +315,7 @@
                 <!-- SC1-AI-03 错题归集结果 -->
                 <div v-if="mistakeResult" class="mistake-block">
                   <div class="mistake-head">
-                    <Icon name="bookmark" :size="13" />
+                    <Icon name="bookmark" :size="14" />
                     <span>已归集到错题本</span>
                     <span class="mistake-type">{{ mistakeResult.errorType }}</span>
                   </div>
@@ -345,9 +354,9 @@
             <!-- AI 助手 Tab（SC1-AI-01 内联联动） -->
             <div v-show="activeTab === 'ai'" class="ai-tab">
               <div v-if="!aiAnswer && !aiAssisting" class="ai-empty">
-                <Icon name="sparkles" :size="22" style="opacity: 0.4" />
+                <Icon name="sparkles" :size="24" style="opacity: 0.4" />
                 <p>AI 助手可解释运行错误、回答编程问题。</p>
-                <button v-if="runResult && runResult.error" class="ai-explain-btn" @click="explainError">
+                <button v-if="runResult && runResult.error" type="button" class="ai-explain-btn" @click="explainError">
                   <Icon name="sparkles" :size="14" /> 用 AI 解释这个错误
                 </button>
               </div>
@@ -368,7 +377,7 @@
                   placeholder="问 AI 任何编程问题，例如：如何优化这段代码？"
                   @keydown.ctrl.enter="askAi"
                 ></textarea>
-                <button class="ai-ask-btn" :disabled="aiAssisting" @click="askAi">
+                <button type="button" class="ai-ask-btn" :disabled="aiAssisting" @click="askAi">
                   <Icon name="send" :size="12" /> 提问
                 </button>
               </div>
@@ -1299,6 +1308,14 @@ onUnmounted(() => {
   background: var(--kb-background);
 }
 
+/* 统一键盘焦点环：等价于 focus-visible:ring-2 ring-[--kb-ring] ring-offset-2
+ * 覆盖本页所有可交互元素（按钮 / 下拉 / 输入 / role=button 列表项） */
+.playground-page :is(button, select, textarea, [role='button']):focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-radius: var(--kb-radius-sm);
+}
+
 /* ===== 顶部导航栏 ===== */
 .playground-header {
   display: flex;
@@ -1327,12 +1344,16 @@ onUnmounted(() => {
   color: var(--kb-muted-foreground);
   border: none;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
   flex-shrink: 0;
 }
 .back-btn:hover {
   background: var(--kb-muted);
   color: var(--kb-primary);
+}
+.back-btn:active {
+  transform: scale(0.96);
+  background: var(--kb-muted);
 }
 .header-info {
   display: flex;
@@ -1341,7 +1362,8 @@ onUnmounted(() => {
   min-width: 0;
 }
 .header-title {
-  font-size: 16px;
+  font-size: var(--kb-fs-body-lg);
+  line-height: var(--kb-lh-body-lg);
   font-weight: 600;
   color: var(--kb-foreground);
   white-space: nowrap;
@@ -1356,32 +1378,44 @@ onUnmounted(() => {
 }
 .lang-select {
   height: 32px;
-  padding: 0 10px;
-  font-size: 13px;
+  padding: 0 12px;
+  font-size: var(--kb-fs-body-sm);
   border-radius: var(--kb-radius-sm);
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
   color: var(--kb-foreground);
   outline: none;
   cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.lang-select:hover {
+  border-color: var(--kb-primary);
+}
+.lang-select:focus {
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
 .header-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   height: 32px;
   padding: 0 12px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   border-radius: var(--kb-radius-sm);
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
   color: var(--kb-foreground);
   cursor: pointer;
-  transition: background 0.15s ease;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 .header-btn:hover {
   background: var(--kb-muted);
+}
+.header-btn:active:not(:disabled) {
+  transform: scale(0.98);
 }
 .header-btn:disabled {
   opacity: 0.6;
@@ -1406,7 +1440,7 @@ onUnmounted(() => {
   align-items: center;
   padding: 2px 8px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   font-weight: 500;
   flex-shrink: 0;
 }
@@ -1425,7 +1459,8 @@ onUnmounted(() => {
   background: var(--kb-border);
   transition: background 0.15s ease;
 }
-.resizer:hover {
+.resizer:hover,
+.resizer:active {
   background: var(--kb-primary);
 }
 
@@ -1439,19 +1474,21 @@ onUnmounted(() => {
   margin-bottom: 24px;
 }
 .section-heading {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: var(--kb-fs-h4);
+  font-weight: var(--kb-fw-h4);
+  line-height: var(--kb-lh-h4);
   color: var(--kb-foreground);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .subsection-heading {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 600;
+  line-height: var(--kb-lh-body-md);
   color: var(--kb-foreground);
   margin-bottom: 8px;
 }
 .problem-desc {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   line-height: 1.7;
   color: var(--kb-foreground);
   white-space: pre-wrap;
@@ -1465,7 +1502,7 @@ onUnmounted(() => {
 .example-row {
   display: flex;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   margin-bottom: 4px;
 }
 .example-row:last-child {
@@ -1477,15 +1514,17 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 .example-code {
-  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  font-family: var(--font-mono);
   color: var(--kb-primary);
+  min-width: 0;
+  word-break: break-word;
 }
 .hint-block {
   background: rgba(245, 158, 11, 0.06);
   border: 1px solid rgba(245, 158, 11, 0.15);
   border-radius: var(--kb-radius-sm);
   padding: 12px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   line-height: 1.6;
   color: var(--kb-foreground);
 }
@@ -1501,19 +1540,20 @@ onUnmounted(() => {
   justify-content: space-between;
   padding: 8px 12px;
   background: var(--kb-background);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   color: var(--kb-foreground);
 }
 .testcase-num {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
+  font-variant-numeric: tabular-nums;
 }
 .testcase-result {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   font-weight: 500;
   padding: 2px 8px;
   border-radius: 4px;
@@ -1527,14 +1567,18 @@ onUnmounted(() => {
   color: var(--kb-state-error);
 }
 .testcase-body {
-  padding: 10px 12px;
+  padding: 12px;
 }
 .testcase-row {
   display: flex;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   margin-bottom: 4px;
-  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  font-family: var(--font-mono);
+}
+.testcase-row code {
+  min-width: 0;
+  word-break: break-word;
 }
 .testcase-row:last-child {
   margin-bottom: 0;
@@ -1558,21 +1602,23 @@ onUnmounted(() => {
   background: var(--kb-background);
   border: 1px solid var(--kb-border);
   border-radius: var(--kb-radius-sm);
-  padding: 10px;
+  padding: 12px;
 }
 .stats-item {
   text-align: center;
+  min-width: 0;
 }
 .stats-label {
   display: block;
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   color: var(--kb-muted-foreground);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 .stats-value {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 600;
   color: var(--kb-foreground);
+  font-variant-numeric: tabular-nums;
 }
 
 /* 加载/错误状态 */
@@ -1585,7 +1631,7 @@ onUnmounted(() => {
   gap: 12px;
   padding: 60px 20px;
   color: var(--kb-muted-foreground);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
 }
 .error-block {
   color: var(--kb-state-error);
@@ -1632,9 +1678,9 @@ onUnmounted(() => {
 .editor-tab {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  font-size: 12px;
+  gap: 6px;
+  padding: 4px 12px;
+  font-size: var(--kb-fs-caption);
   font-weight: 500;
   color: var(--kb-primary);
   background: var(--kb-card);
@@ -1656,11 +1702,15 @@ onUnmounted(() => {
   background: transparent;
   color: var(--kb-muted-foreground);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 .editor-action-btn:hover {
   background: var(--kb-muted);
   color: var(--kb-primary);
+}
+.editor-action-btn:active {
+  transform: scale(0.94);
+  background: var(--kb-muted);
 }
 
 /* 代码编辑器 */
@@ -1675,8 +1725,8 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   padding: 16px 8px 16px 16px;
-  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
-  font-size: 13px;
+  font-family: var(--font-mono);
+  font-size: var(--kb-fs-body-sm);
   line-height: 1.6;
   color: #6c7086;
   text-align: right;
@@ -1691,8 +1741,8 @@ onUnmounted(() => {
 .code-textarea {
   flex: 1;
   padding: 16px 16px 16px 8px;
-  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
-  font-size: 13px;
+  font-family: var(--font-mono);
+  font-size: var(--kb-fs-body-sm);
   line-height: 1.6;
   background: transparent;
   color: #cdd6f4;
@@ -1720,6 +1770,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   height: 36px;
   padding: 0 12px;
   border-bottom: 1px solid var(--kb-border);
@@ -1729,22 +1780,34 @@ onUnmounted(() => {
 .console-tabs {
   display: flex;
   gap: 4px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.console-tabs::-webkit-scrollbar {
+  display: none;
 }
 .console-tab {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  font-size: 12px;
+  gap: 6px;
+  padding: 4px 12px;
+  font-size: var(--kb-fs-caption);
   font-weight: 500;
   color: var(--kb-muted-foreground);
   background: transparent;
   border: none;
   border-radius: var(--kb-radius-sm);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 .console-tab:hover {
+  background: var(--kb-muted);
+}
+.console-tab:active {
+  transform: scale(0.98);
   background: var(--kb-muted);
 }
 .console-tab.active {
@@ -1754,10 +1817,11 @@ onUnmounted(() => {
 .tab-badge {
   display: inline-flex;
   align-items: center;
-  padding: 1px 6px;
+  padding: 2px 6px;
   border-radius: 8px;
-  font-size: 10px;
+  font-size: var(--kb-fs-xs);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 .tab-badge.pass {
   background: rgba(16, 185, 129, 0.15);
@@ -1771,15 +1835,23 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: var(--kb-radius-sm);
+  font-size: var(--kb-fs-xs);
   color: var(--kb-muted-foreground);
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: color 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
 .console-clear:hover {
   color: var(--kb-foreground);
+  background: var(--kb-muted);
+}
+.console-clear:active {
+  transform: scale(0.96);
 }
 .console-body {
   flex: 1;
@@ -1794,17 +1866,18 @@ onUnmounted(() => {
   gap: 8px;
   height: 100%;
   color: var(--kb-muted-foreground);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
 }
 .console-output {
-  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
-  font-size: 13px;
+  font-family: var(--font-mono);
+  font-size: var(--kb-fs-body-sm);
 }
 .output-status {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   margin-bottom: 8px;
 }
@@ -1816,15 +1889,17 @@ onUnmounted(() => {
 }
 .output-time {
   margin-left: auto;
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   color: var(--kb-muted-foreground);
   font-weight: 400;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .output-content {
   background: var(--kb-background);
   border-radius: var(--kb-radius-sm);
-  padding: 10px;
-  font-size: 12px;
+  padding: 12px;
+  font-size: var(--kb-fs-caption);
   line-height: 1.6;
   color: var(--kb-foreground);
   white-space: pre-wrap;
@@ -1834,8 +1909,8 @@ onUnmounted(() => {
 .output-error {
   background: rgba(239, 68, 68, 0.06);
   border-radius: var(--kb-radius-sm);
-  padding: 10px;
-  font-size: 12px;
+  padding: 12px;
+  font-size: var(--kb-fs-caption);
   line-height: 1.6;
   color: var(--kb-state-error);
   white-space: pre-wrap;
@@ -1857,17 +1932,23 @@ onUnmounted(() => {
 .footer-left {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
+  min-width: 0;
 }
 .footer-info {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   color: var(--kb-muted-foreground);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .footer-right {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
 }
 .footer-btn {
@@ -1876,12 +1957,16 @@ onUnmounted(() => {
   gap: 6px;
   height: 32px;
   padding: 0 16px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   border-radius: var(--kb-radius-sm);
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  white-space: nowrap;
+  transition: opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+.footer-btn:active:not(:disabled) {
+  transform: scale(0.98);
 }
 .run-btn {
   background: var(--kb-card);
@@ -1922,7 +2007,7 @@ onUnmounted(() => {
   align-items: center;
   padding: 2px 8px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   font-weight: 500;
   flex-shrink: 0;
 }
@@ -1950,6 +2035,40 @@ onUnmounted(() => {
   }
   .problem-panel {
     border-bottom: 1px solid var(--kb-border);
+    padding: 16px;
+  }
+  /* 小屏收窄内边距（等价 px-4 md:px-6），并让工具栏可横向滚动而不撑破布局 */
+  .playground-header {
+    padding: 0 16px;
+  }
+  .header-right {
+    gap: 8px;
+    min-width: 0;
+    flex-shrink: 1;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .header-right::-webkit-scrollbar {
+    display: none;
+  }
+  .header-right > * {
+    flex-shrink: 0;
+  }
+  .editor-footer {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .footer-right {
+    flex-wrap: nowrap;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .footer-right::-webkit-scrollbar {
+    display: none;
+  }
+  .footer-btn {
+    flex-shrink: 0;
   }
 }
 /* ===== 沙箱模式切换按钮（头部） ===== */
@@ -1987,21 +2106,25 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: var(--kb-radius-sm);
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
   color: var(--kb-muted-foreground);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 .ws-mini-btn:hover {
   background: var(--kb-muted);
   color: var(--kb-primary);
+  border-color: var(--kb-primary);
+}
+.ws-mini-btn:active {
+  transform: scale(0.94);
 }
 .ws-loading {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
   padding: 8px 0;
 }
@@ -2011,7 +2134,7 @@ onUnmounted(() => {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   max-height: 220px;
   overflow-y: auto;
 }
@@ -2021,13 +2144,18 @@ onUnmounted(() => {
   gap: 8px;
   padding: 6px 8px;
   border-radius: var(--kb-radius-sm);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   color: var(--kb-foreground);
   cursor: pointer;
-  transition: background 0.15s ease;
+  min-width: 0;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 .ws-file-item:hover {
   background: var(--kb-muted);
+}
+.ws-file-item:active {
+  background: var(--kb-muted);
+  transform: scale(0.99);
 }
 .ws-file-item.active {
   background: rgba(59, 111, 224, 0.12);
@@ -2036,7 +2164,8 @@ onUnmounted(() => {
 }
 .ws-file-name {
   flex: 1;
-  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  min-width: 0;
+  font-family: var(--font-mono);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2053,17 +2182,24 @@ onUnmounted(() => {
   border-radius: 4px;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+  transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
-.ws-file-item:hover .ws-del {
+.ws-file-item:hover .ws-del,
+.ws-file-item:focus-within .ws-del,
+.ws-del:focus-visible {
   opacity: 1;
 }
 .ws-del:hover {
   color: var(--kb-state-error);
   background: rgba(239, 68, 68, 0.1);
 }
+.ws-del:active {
+  transform: scale(0.9);
+  background: rgba(239, 68, 68, 0.18);
+}
 .ws-empty {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
   padding: 8px 4px;
 }
@@ -2082,53 +2218,58 @@ onUnmounted(() => {
   gap: 8px;
   flex: 1;
   color: var(--kb-muted-foreground);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   text-align: center;
 }
 .ai-explain-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  height: 30px;
-  padding: 0 14px;
-  font-size: 13px;
+  gap: 6px;
+  height: 32px;
+  padding: 0 16px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   border-radius: var(--kb-radius-sm);
   border: 1px solid rgba(139, 92, 246, 0.4);
   background: rgba(139, 92, 246, 0.1);
   color: #8B5CF6;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 .ai-explain-btn:hover {
   background: rgba(139, 92, 246, 0.18);
+  border-color: rgba(139, 92, 246, 0.6);
+}
+.ai-explain-btn:active {
+  transform: scale(0.98);
+  background: rgba(139, 92, 246, 0.24);
 }
 .ai-output {
   flex: 1;
   overflow-y: auto;
-  padding: 4px 2px;
+  padding: 4px;
 }
 .ai-thinking {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   color: var(--kb-muted-foreground);
   padding: 8px 0;
 }
 .ai-answer {
   white-space: pre-wrap;
   word-break: break-word;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   line-height: 1.7;
   color: var(--kb-foreground);
-  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  font-family: var(--font-mono);
   margin: 0;
 }
 .ai-unconfigured {
-  margin-top: 10px;
-  padding: 8px 10px;
-  font-size: 12px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  font-size: var(--kb-fs-caption);
   line-height: 1.6;
   color: var(--kb-state-warning);
   background: rgba(245, 158, 11, 0.08);
@@ -2136,38 +2277,44 @@ onUnmounted(() => {
   border-radius: var(--kb-radius-sm);
 }
 .ai-unconfigured code {
-  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  font-family: var(--font-mono);
   color: var(--kb-primary);
 }
 .ai-input-row {
   display: flex;
-  gap: 6px;
-  padding-top: 10px;
+  gap: 8px;
+  padding-top: 12px;
   border-top: 1px solid var(--kb-border);
   margin-top: 8px;
 }
 .ai-input {
   flex: 1;
+  min-width: 0;
   height: 40px;
   resize: none;
-  padding: 8px 10px;
-  font-size: 13px;
+  padding: 8px 12px;
+  font-size: var(--kb-fs-body-sm);
   font-family: inherit;
   border-radius: var(--kb-radius-sm);
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
   color: var(--kb-foreground);
   outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.ai-input:hover {
+  border-color: var(--kb-primary);
 }
 .ai-input:focus {
   border-color: var(--kb-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
 .ai-ask-btn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 0 14px;
-  font-size: 13px;
+  padding: 0 16px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   border: none;
   border-radius: var(--kb-radius-sm);
@@ -2175,9 +2322,15 @@ onUnmounted(() => {
   color: var(--kb-primary-foreground);
   cursor: pointer;
   flex-shrink: 0;
+  white-space: nowrap;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 .ai-ask-btn:hover:not(:disabled) {
   opacity: 0.9;
+}
+.ai-ask-btn:active:not(:disabled) {
+  transform: scale(0.98);
+  opacity: 0.85;
 }
 .ai-ask-btn:disabled {
   opacity: 0.5;
@@ -2188,20 +2341,28 @@ onUnmounted(() => {
 .output-ai-btn {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   margin-left: 8px;
   padding: 2px 8px;
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   font-weight: 500;
-  border-radius: 10px;
+  border-radius: var(--kb-radius-md);
   border: 1px solid rgba(139, 92, 246, 0.4);
   background: rgba(139, 92, 246, 0.1);
   color: #8B5CF6;
   cursor: pointer;
-  transition: background 0.15s ease;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
-.output-ai-btn:hover {
+.output-ai-btn:hover:not(:disabled) {
   background: rgba(139, 92, 246, 0.2);
+}
+.output-ai-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+.output-ai-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .output-ai-btn.mistake {
   border-color: rgba(59, 111, 224, 0.4);
@@ -2223,14 +2384,16 @@ onUnmounted(() => {
 .mistake-head {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: 6px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 600;
   color: var(--kb-foreground);
 }
 .mistake-type {
   margin-left: auto;
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   font-weight: 500;
   padding: 2px 8px;
   border-radius: 8px;
@@ -2239,19 +2402,19 @@ onUnmounted(() => {
 }
 .mistake-summary {
   margin: 8px 0 0;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   line-height: 1.6;
   color: var(--kb-foreground);
   white-space: pre-wrap;
 }
 .mistake-docs {
-  margin-top: 10px;
+  margin-top: 12px;
 }
 .mistake-docs-title {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   font-weight: 600;
   color: var(--kb-muted-foreground);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .mistake-doc-list {
   list-style: none;
@@ -2265,7 +2428,7 @@ onUnmounted(() => {
   display: flex;
   gap: 8px;
   align-items: flex-start;
-  padding: 8px 10px;
+  padding: 8px 12px;
   border-radius: var(--kb-radius-sm);
   background: var(--kb-card);
   border: 1px solid var(--kb-border);
@@ -2276,12 +2439,12 @@ onUnmounted(() => {
   min-width: 0;
 }
 .mistake-doc-name {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   color: var(--kb-primary);
 }
 .mistake-doc-snippet {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
   white-space: pre-wrap;
   display: -webkit-box;
@@ -2291,37 +2454,37 @@ onUnmounted(() => {
 }
 .mistake-nodocs {
   margin-top: 8px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
 }
 
 /* ===== 调试 Tab（推进 2.1） ===== */
 .debug-errline {
   margin-bottom: 8px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 600;
   color: var(--kb-state-error);
 }
 .debug-trace {
-  margin-top: 10px;
+  margin-top: 12px;
   border: 1px solid var(--kb-border);
   border-radius: var(--kb-radius-sm);
   overflow: hidden;
 }
 .debug-trace-title {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   font-weight: 600;
   color: var(--kb-muted-foreground);
-  padding: 6px 10px;
+  padding: 8px 12px;
   background: var(--kb-background);
   border-bottom: 1px solid var(--kb-border);
 }
 .debug-step {
   display: flex;
-  gap: 10px;
-  padding: 8px 10px;
+  gap: 12px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--kb-border);
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   align-items: flex-start;
 }
 .debug-step:last-child {
@@ -2334,7 +2497,8 @@ onUnmounted(() => {
   flex-shrink: 0;
   font-weight: 600;
   color: var(--kb-primary);
-  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 .debug-event {
   flex-shrink: 0;
@@ -2346,8 +2510,8 @@ onUnmounted(() => {
   margin: 0;
   white-space: pre-wrap;
   word-break: break-all;
-  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: var(--kb-fs-xs);
   line-height: 1.5;
   color: var(--kb-foreground);
 }
@@ -2356,10 +2520,11 @@ onUnmounted(() => {
 .assess-score {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px;
   border-radius: var(--kb-radius-sm);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .assess-score.pass {
   background: rgba(16, 185, 129, 0.1);
@@ -2370,9 +2535,10 @@ onUnmounted(() => {
   border: 1px solid rgba(245, 158, 11, 0.25);
 }
 .assess-score-num {
-  font-size: 32px;
-  font-weight: 700;
+  font-size: var(--kb-fs-h2);
+  font-weight: var(--kb-fw-h2);
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 .assess-score.pass .assess-score-num {
   color: var(--kb-state-success);
@@ -2383,19 +2549,20 @@ onUnmounted(() => {
 .assess-score-meta {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+  min-width: 0;
 }
 .assess-level {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 600;
   color: var(--kb-foreground);
 }
 .assess-tests {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
 }
 .assess-summary {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   line-height: 1.7;
   color: var(--kb-foreground);
   white-space: pre-wrap;
@@ -2405,17 +2572,18 @@ onUnmounted(() => {
   margin-bottom: 12px;
 }
 .assess-issues-title {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   font-weight: 600;
   color: var(--kb-muted-foreground);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .assess-issue-item {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: baseline;
-  padding: 6px 0;
-  font-size: 12px;
+  padding: 8px 0;
+  font-size: var(--kb-fs-caption);
   border-bottom: 1px dashed var(--kb-border);
 }
 .assess-issue-rule {
@@ -2426,10 +2594,13 @@ onUnmounted(() => {
 .assess-issue-line {
   flex-shrink: 0;
   color: var(--kb-primary);
-  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  font-family: var(--font-mono);
 }
 .assess-issue-msg {
   color: var(--kb-foreground);
+  min-width: 0;
+  flex: 1;
+  word-break: break-word;
 }
 .assess-ai {
   margin-top: 8px;
@@ -2438,18 +2609,18 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 600;
   color: #8B5CF6;
   margin-bottom: 6px;
 }
 .assess-ai-body {
   margin: 0;
-  padding: 10px 12px;
+  padding: 12px;
   background: var(--kb-background);
   border: 1px solid var(--kb-border);
   border-radius: var(--kb-radius-sm);
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   line-height: 1.7;
   color: var(--kb-foreground);
   white-space: pre-wrap;
@@ -2457,8 +2628,8 @@ onUnmounted(() => {
 }
 .assess-ai-unconf {
   margin-top: 8px;
-  padding: 8px 10px;
-  font-size: 12px;
+  padding: 8px 12px;
+  font-size: var(--kb-fs-caption);
   line-height: 1.6;
   color: var(--kb-state-warning);
   background: rgba(245, 158, 11, 0.08);

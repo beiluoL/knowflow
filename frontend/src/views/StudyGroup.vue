@@ -4,7 +4,7 @@
     <aside class="group-sidebar">
       <div class="sidebar-header">
         <h2 class="sidebar-title">学习小组</h2>
-        <button class="create-group-btn" @click="openCreateDialog">
+        <button type="button" class="create-group-btn" @click="openCreateDialog">
           <Icon name="plus" :size="16" />
           <span>创建小组</span>
         </button>
@@ -31,7 +31,10 @@
             :key="group.id"
             class="group-item"
             :class="{ active: activeGroupId === group.id }"
+            role="button"
+            tabindex="0"
             @click="selectGroup(group.id)"
+            @keydown.enter.self.prevent="$event.target.click()"
           >
             <div class="group-avatar" :style="{ background: group.color || '#3B6FE0' }">
               {{ group.name.charAt(0) }}
@@ -39,7 +42,7 @@
             <div class="group-info">
               <h4 class="group-name">{{ group.name }}</h4>
               <p class="group-meta">
-                <span>{{ group.memberCount || 0 }} 成员</span>
+                <span class="meta-count">{{ group.memberCount || 0 }} 成员</span>
                 <span v-if="group.unreadCount" class="unread-badge">{{ group.unreadCount }}</span>
               </p>
             </div>
@@ -57,7 +60,10 @@
             v-for="group in filteredRecommendGroups"
             :key="group.id"
             class="group-item"
+            role="button"
+            tabindex="0"
             @click="showGroupDetail(group)"
+            @keydown.enter.self.prevent="$event.target.click()"
           >
             <div class="group-avatar" :style="{ background: group.color || '#8B5CF6' }">
               {{ group.name.charAt(0) }}
@@ -65,11 +71,11 @@
             <div class="group-info">
               <h4 class="group-name">{{ group.name }}</h4>
               <p class="group-meta">
-                <span>{{ group.memberCount || 0 }} 成员</span>
+                <span class="meta-count">{{ group.memberCount || 0 }} 成员</span>
                 <span class="group-type" :class="group.type?.toLowerCase()">{{ group.type === 'PUBLIC' ? '公开' : '私有' }}</span>
               </p>
             </div>
-            <button class="join-btn" @click.stop="joinGroup(group.id)">加入</button>
+            <button type="button" class="join-btn" @click.stop="joinGroup(group.id)">加入</button>
           </div>
           <div v-if="recommendGroups.length === 0" class="empty-tip">暂无推荐小组</div>
         </div>
@@ -81,7 +87,7 @@
       <!-- 未选择小组时的空状态 -->
       <div v-if="!activeGroupId" class="chat-empty">
         <div class="empty-icon">
-          <Icon name="users" :size="48" />
+          <Icon name="users" :size="32" />
         </div>
         <h3>选择一个学习小组开始聊天</h3>
         <p>从左侧列表选择小组，或创建新的学习小组</p>
@@ -101,14 +107,14 @@
             </div>
           </div>
           <div class="header-actions">
-            <button class="action-btn" @click="showMembers = true">
+            <button type="button" class="action-btn" @click="showMembers = true">
               <Icon name="users" :size="18" />
-              <span>{{ activeGroup?.memberCount || 0 }}</span>
+              <span class="action-count">{{ activeGroup?.memberCount || 0 }}</span>
             </button>
-            <button class="action-btn" @click="showSettings = true">
+            <button type="button" class="action-btn" @click="showSettings = true">
               <Icon name="settings" :size="18" />
             </button>
-            <button class="action-btn" @click="openInviteDialog">
+            <button type="button" class="action-btn" @click="openInviteDialog">
               <Icon name="user-plus" :size="18" />
             </button>
           </div>
@@ -136,13 +142,21 @@
                   </template>
                   <!-- 图片消息 -->
                   <template v-else-if="msg.messageType === 'IMAGE'">
-                    <img :src="msg.fileUrl" :alt="msg.fileName" class="message-image" @click="previewImage(msg.fileUrl)" />
+                    <img
+                      :src="msg.fileUrl"
+                      :alt="msg.fileName"
+                      class="message-image"
+                      role="button"
+                      tabindex="0"
+                      @click="previewImage(msg.fileUrl)"
+                      @keydown.enter.self.prevent="$event.target.click()"
+                    />
                   </template>
                   <!-- 文件消息 -->
                   <template v-else-if="msg.messageType === 'FILE'">
                     <a :href="msg.fileUrl" target="_blank" class="message-file">
                       <Icon name="file" :size="20" />
-                      <span>{{ msg.fileName }}</span>
+                      <span class="file-name">{{ msg.fileName }}</span>
                       <span class="file-size">{{ formatFileSize(msg.fileSize) }}</span>
                     </a>
                   </template>
@@ -151,7 +165,7 @@
                     <div class="message-code">
                       <div class="code-header">
                         <span class="code-lang">{{ msg.codeLanguage || 'code' }}</span>
-                        <button class="copy-btn" @click="copyCode(msg.content || '')">复制</button>
+                        <button type="button" class="copy-btn" @click="copyCode(msg.content || '')">复制</button>
                       </div>
                       <pre><code :class="`language-${msg.codeLanguage || 'text'}`">{{ msg.content }}</code></pre>
                     </div>
@@ -164,11 +178,24 @@
                   </template>
                   <template v-else-if="msg.sendStatus === 'error'">
                     <span class="status-dot error" :title="msg.errorMsg"></span>
-                    <span class="status-fail" @click="retryFailedMessage(msg.tempId!)">发送失败，点击重试</span>
+                    <span
+                      class="status-fail"
+                      role="button"
+                      tabindex="0"
+                      @click="retryFailedMessage(msg.tempId!)"
+                      @keydown.enter.self.prevent="$event.target.click()"
+                    >发送失败，点击重试</span>
                   </template>
                   <template v-else>{{ formatTime(msg.createTime) }}</template>
                   <span v-if="msg.isMine && msg.read" class="msg-read">已读</span>
-                  <span v-if="msg.isMine && !msg.recalled" class="msg-recall" @click="recallGroupMessage(msg)">撤回</span>
+                  <span
+                    v-if="msg.isMine && !msg.recalled"
+                    class="msg-recall"
+                    role="button"
+                    tabindex="0"
+                    @click="recallGroupMessage(msg)"
+                    @keydown.enter.self.prevent="$event.target.click()"
+                  >撤回</span>
                 </div>
               </div>
             </div>
@@ -190,32 +217,33 @@
         <footer class="chat-footer">
           <!-- 工具栏 -->
           <div class="input-toolbar">
-            <button class="tool-btn" @click="showEmojiPicker = !showEmojiPicker">
+            <button type="button" class="tool-btn" @click="showEmojiPicker = !showEmojiPicker">
               <Icon name="smile" :size="18" />
             </button>
-            <button class="tool-btn" @click="toggleMentionPopover" title="提及成员">
+            <button type="button" class="tool-btn" @click="toggleMentionPopover" title="提及成员">
               <Icon name="at-sign" :size="18" />
             </button>
             <div v-if="showMentionPopover" class="mention-popover">
-              <div
+              <button
                 v-for="member in groupMembers"
                 :key="member.id"
+                type="button"
                 class="mention-item"
                 @click="insertMention(member)"
               >
                 @{{ member.userName }}
-              </div>
+              </button>
               <div v-if="groupMembers.length === 0" class="empty-tip">暂无成员</div>
             </div>
             <input ref="imageInputRef" type="file" accept="image/*" class="hidden-input" @change="handleImageUpload" />
-            <button class="tool-btn" @click="triggerImageUpload">
+            <button type="button" class="tool-btn" @click="triggerImageUpload">
               <Icon name="image" :size="18" />
             </button>
             <input ref="fileInputRef" type="file" class="hidden-input" @change="handleFileUpload" />
-            <button class="tool-btn" @click="triggerFileUpload">
+            <button type="button" class="tool-btn" @click="triggerFileUpload">
               <Icon name="paperclip" :size="18" />
             </button>
-            <button class="tool-btn" @click="openCodeDialog">
+            <button type="button" class="tool-btn" @click="openCodeDialog">
               <Icon name="code" :size="18" />
             </button>
           </div>
@@ -228,7 +256,7 @@
               @keydown.enter.exact.prevent="sendMessage"
               @input="handleTyping"
             ></textarea>
-            <button class="send-btn" :disabled="!canSend" @click="sendMessage">
+            <button type="button" class="send-btn" :disabled="!canSend" @click="sendMessage">
               <Icon name="send" :size="18" />
             </button>
           </div>
@@ -242,7 +270,7 @@
         <div class="member-panel">
           <div class="panel-header">
             <h3>成员列表</h3>
-            <button class="panel-close" @click="showMembers = false">
+            <button type="button" class="panel-close" @click="showMembers = false">
               <Icon name="x" :size="18" />
             </button>
           </div>
@@ -255,7 +283,7 @@
                 <span class="member-name">{{ member.userName }}</span>
                 <span class="member-role" :class="member.role?.toLowerCase()">{{ getRoleLabel(member.role) }}</span>
               </div>
-              <button v-if="canManageMember(member)" class="member-action" @click="removeMember(member.id)">
+              <button v-if="canManageMember(member)" type="button" class="member-action" @click="removeMember(member.id)">
                 <Icon name="x" :size="14" />
               </button>
             </div>
@@ -270,7 +298,7 @@
         <div class="create-dialog">
           <div class="dialog-header">
             <h3>创建学习小组</h3>
-            <button class="dialog-close" @click="createDialogVisible = false">
+            <button type="button" class="dialog-close" @click="createDialogVisible = false">
               <Icon name="x" :size="18" />
             </button>
           </div>
@@ -286,16 +314,17 @@
             <div class="form-group">
               <label>小组颜色</label>
               <div class="color-picker">
-                <div
+                <button
                   v-for="color in availableColors"
                   :key="color"
+                  type="button"
                   class="color-item"
                   :class="{ active: createForm.color === color }"
                   :style="{ background: color }"
                   @click="createForm.color = color"
                 >
                   <Icon v-if="createForm.color === color" name="check" :size="14" />
-                </div>
+                </button>
               </div>
             </div>
             <div class="form-group">
@@ -321,8 +350,8 @@
             </div>
           </div>
           <div class="dialog-footer">
-            <button class="btn-secondary" @click="createDialogVisible = false">取消</button>
-            <button class="btn-primary" :disabled="!createForm.name.trim() || creating" @click="handleCreate">
+            <button type="button" class="btn-secondary" @click="createDialogVisible = false">取消</button>
+            <button type="button" class="btn-primary" :disabled="!createForm.name.trim() || creating" @click="handleCreate">
               {{ creating ? '创建中...' : '创建小组' }}
             </button>
           </div>
@@ -336,7 +365,7 @@
         <div class="create-dialog">
           <div class="dialog-header">
             <h3>邀请成员</h3>
-            <button class="dialog-close" @click="inviteDialogVisible = false">
+            <button type="button" class="dialog-close" @click="inviteDialogVisible = false">
               <Icon name="x" :size="18" />
             </button>
           </div>
@@ -361,8 +390,8 @@
             </div>
           </div>
           <div class="dialog-footer">
-            <button class="btn-secondary" @click="inviteDialogVisible = false">取消</button>
-            <button class="btn-primary" :disabled="!inviteForm.email.trim() || inviting" @click="handleInvite">
+            <button type="button" class="btn-secondary" @click="inviteDialogVisible = false">取消</button>
+            <button type="button" class="btn-primary" :disabled="!inviteForm.email.trim() || inviting" @click="handleInvite">
               {{ inviting ? '邀请中...' : '发送邀请' }}
             </button>
           </div>
@@ -376,7 +405,7 @@
         <div class="code-dialog">
           <div class="dialog-header">
             <h3>发送代码块</h3>
-            <button class="dialog-close" @click="codeDialogVisible = false">
+            <button type="button" class="dialog-close" @click="codeDialogVisible = false">
               <Icon name="x" :size="18" />
             </button>
           </div>
@@ -400,8 +429,8 @@
             </div>
           </div>
           <div class="dialog-footer">
-            <button class="btn-secondary" @click="codeDialogVisible = false">取消</button>
-            <button class="btn-primary" :disabled="!codeForm.content.trim()" @click="sendCodeMessage">发送</button>
+            <button type="button" class="btn-secondary" @click="codeDialogVisible = false">取消</button>
+            <button type="button" class="btn-primary" :disabled="!codeForm.content.trim()" @click="sendCodeMessage">发送</button>
           </div>
         </div>
       </div>
@@ -429,8 +458,8 @@
             </div>
           </div>
           <div class="detail-footer">
-            <button class="btn-secondary" @click="detailDialogVisible = false">取消</button>
-            <button class="btn-primary" @click="handleJoinGroup">加入小组</button>
+            <button type="button" class="btn-secondary" @click="detailDialogVisible = false">取消</button>
+            <button type="button" class="btn-primary" @click="handleJoinGroup">加入小组</button>
           </div>
         </div>
       </div>
@@ -442,7 +471,7 @@
         <div class="settings-dialog">
           <div class="dialog-header">
             <h3>小组设置</h3>
-            <button class="dialog-close" @click="showSettings = false">
+            <button type="button" class="dialog-close" @click="showSettings = false">
               <Icon name="x" :size="18" />
             </button>
           </div>
@@ -456,7 +485,7 @@
                 class="form-textarea"
                 rows="4"
               ></textarea>
-              <button class="btn-save" @click="updateAnnouncement">保存公告</button>
+              <button type="button" class="btn-save" @click="updateAnnouncement">保存公告</button>
             </div>
 
             <!-- 学习计划关联 -->
@@ -467,7 +496,7 @@
                 <span>已关联学习计划 ID: {{ activeGroup.learningPlanId }}</span>
               </div>
               <div v-else class="plan-empty">暂未关联学习计划</div>
-              <button class="btn-link" @click="notify('学习计划功能开发中', 'info')">
+              <button type="button" class="btn-link" @click="notify('学习计划功能开发中', 'info')">
                 <Icon name="link" :size="16" />
                 <span>关联学习计划</span>
               </button>
@@ -476,7 +505,7 @@
             <!-- 退出小组 -->
             <div class="form-group danger-zone">
               <label>危险操作</label>
-              <button class="btn-leave" @click="leaveCurrentGroup">
+              <button type="button" class="btn-leave" @click="leaveCurrentGroup">
                 <Icon name="log-out" :size="16" />
                 <span>退出小组</span>
               </button>
@@ -1324,7 +1353,8 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .sidebar-title {
-  font-size: 18px;
+  font-size: var(--kb-fs-h4);
+  line-height: var(--kb-lh-h4);
   font-weight: 700;
   color: var(--kb-foreground);
   margin: 0 0 12px;
@@ -1333,22 +1363,32 @@ watch(activeGroupId, (_, oldId) => {
 .create-group-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
   height: 36px;
   border-radius: 8px;
   border: 1px dashed var(--kb-border);
   background: transparent;
   color: var(--kb-primary);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 
 .create-group-btn:hover {
   background: rgba(59, 111, 224, 0.08);
   border-color: var(--kb-primary);
+}
+
+.create-group-btn:active {
+  background: rgba(59, 111, 224, 0.14);
+  transform: scale(0.98);
+}
+
+.create-group-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .sidebar-search {
@@ -1372,13 +1412,19 @@ watch(activeGroupId, (_, oldId) => {
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
   color: var(--kb-foreground);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.search-input:focus {
+.search-input:hover {
   border-color: var(--kb-primary);
+}
+
+.search-input:focus,
+.search-input:focus-visible {
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
 
 .group-section {
@@ -1388,7 +1434,8 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .section-label {
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
+  line-height: var(--kb-lh-xs);
   font-weight: 600;
   color: var(--kb-muted-foreground);
   text-transform: uppercase;
@@ -1405,15 +1452,26 @@ watch(activeGroupId, (_, oldId) => {
 .group-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: 12px;
+  min-width: 0;
+  padding: 12px;
   border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
 .group-item:hover {
   background: var(--kb-muted);
+}
+
+.group-item:active {
+  background: rgba(59, 111, 224, 0.14);
+  transform: scale(0.98);
+}
+
+.group-item:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .group-item.active {
@@ -1427,8 +1485,8 @@ watch(activeGroupId, (_, oldId) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 16px;
+  color: #FFFFFF;
+  font-size: var(--kb-fs-body-lg);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -1436,7 +1494,7 @@ watch(activeGroupId, (_, oldId) => {
 .group-avatar.large {
   width: 48px;
   height: 48px;
-  font-size: 20px;
+  font-size: var(--kb-fs-h4);
 }
 
 .group-info {
@@ -1445,7 +1503,8 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .group-name {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
   font-weight: 500;
   color: var(--kb-foreground);
   margin: 0;
@@ -1457,31 +1516,39 @@ watch(activeGroupId, (_, oldId) => {
 .group-meta {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
-  font-size: 12px;
+  min-width: 0;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   color: var(--kb-muted-foreground);
-  margin: 2px 0 0;
+  margin: 4px 0 0;
+}
+
+.group-meta .meta-count {
+  font-variant-numeric: tabular-nums;
 }
 
 .unread-badge {
   background: var(--kb-primary);
-  color: white;
-  padding: 2px 6px;
+  color: var(--kb-primary-foreground);
+  padding: 2px 8px;
   border-radius: 10px;
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .group-type {
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   font-weight: 500;
 }
 
 .group-type.public {
   background: rgba(16, 185, 129, 0.1);
-  color: #10B981;
+  color: var(--kb-accent);
 }
 
 .group-type.private {
@@ -1490,33 +1557,44 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .join-btn {
+  flex-shrink: 0;
   padding: 4px 12px;
   border-radius: 6px;
   border: 1px solid var(--kb-primary);
   background: transparent;
   color: var(--kb-primary);
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .join-btn:hover {
   background: var(--kb-primary);
-  color: white;
+  color: var(--kb-primary-foreground);
+}
+
+.join-btn:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.join-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .empty-tip {
   text-align: center;
   color: var(--kb-muted-foreground);
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   padding: 12px;
 }
 
 .loading-placeholder {
   text-align: center;
   color: var(--kb-muted-foreground);
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   padding: 12px;
 }
 
@@ -1549,15 +1627,19 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .chat-empty h3 {
-  font-size: 18px;
+  font-size: var(--kb-fs-h4);
+  line-height: var(--kb-lh-h4);
   font-weight: 600;
   color: var(--kb-foreground);
   margin: 0 0 8px;
 }
 
 .chat-empty p {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
   margin: 0;
+  padding: 0 16px;
+  text-align: center;
 }
 
 /* 聊天头部 */
@@ -1565,6 +1647,7 @@ watch(activeGroupId, (_, oldId) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 16px 24px;
   border-bottom: 1px solid var(--kb-border);
   background: var(--kb-card);
@@ -1574,29 +1657,41 @@ watch(activeGroupId, (_, oldId) => {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1;
+  min-width: 0;
 }
 
 .header-text {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .group-title {
-  font-size: 16px;
+  font-size: var(--kb-fs-body-lg);
+  line-height: var(--kb-lh-h4);
   font-weight: 600;
   color: var(--kb-foreground);
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .group-desc {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
   color: var(--kb-muted-foreground);
-  margin: 2px 0 0;
+  margin: 4px 0 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .header-actions {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .action-btn {
@@ -1608,14 +1703,28 @@ watch(activeGroupId, (_, oldId) => {
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
   color: var(--kb-muted-foreground);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+}
+
+.action-btn .action-count {
+  font-variant-numeric: tabular-nums;
 }
 
 .action-btn:hover {
   border-color: var(--kb-primary);
   color: var(--kb-primary);
+}
+
+.action-btn:active {
+  background: rgba(59, 111, 224, 0.08);
+  transform: scale(0.98);
+}
+
+.action-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 /* 消息列表 */
@@ -1654,8 +1763,9 @@ watch(activeGroupId, (_, oldId) => {
 
 .message-item {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   max-width: 70%;
+  min-width: 0;
 }
 
 .message-item.mine {
@@ -1686,8 +1796,8 @@ watch(activeGroupId, (_, oldId) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 13px;
+  color: #FFFFFF;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -1696,19 +1806,22 @@ watch(activeGroupId, (_, oldId) => {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 }
 
 .message-sender {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   font-weight: 500;
   color: var(--kb-muted-foreground);
 }
 
 .message-bubble {
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: 12px;
   background: var(--kb-card);
   border: 1px solid var(--kb-border);
+  min-width: 0;
 }
 
 .message-item.mine .message-bubble {
@@ -1717,38 +1830,81 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .message-text {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   color: var(--kb-foreground);
   margin: 0;
-  line-height: 1.5;
+  line-height: var(--kb-lh-body-md);
   word-break: break-word;
 }
 
 .message-item.mine .message-text {
-  color: white;
+  color: var(--kb-primary-foreground);
 }
 
 .message-image {
   max-width: 240px;
+  width: 100%;
   border-radius: 8px;
   cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.message-image:hover {
+  opacity: 0.92;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.message-image:active {
+  transform: scale(0.98);
+}
+
+.message-image:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .message-file {
   display: flex;
   align-items: center;
   gap: 8px;
+  max-width: 100%;
   padding: 8px 12px;
   background: var(--kb-background);
+  border: 1px solid transparent;
   border-radius: 8px;
   text-decoration: none;
   color: var(--kb-foreground);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.message-file:hover {
+  background: var(--kb-muted);
+  border-color: var(--kb-primary);
+}
+
+.message-file:active {
+  transform: scale(0.98);
+}
+
+.message-file:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
+.message-file .file-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .file-size {
+  flex-shrink: 0;
   color: var(--kb-muted-foreground);
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  font-variant-numeric: tabular-nums;
 }
 
 .message-code {
@@ -1766,31 +1922,51 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .code-lang {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
+  font-family: var(--font-mono);
 }
 
 .copy-btn {
   background: transparent;
   border: none;
   color: var(--kb-primary);
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  padding: 2px 8px;
+  border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+.copy-btn:hover {
+  background: rgba(59, 111, 224, 0.1);
+}
+
+.copy-btn:active {
+  opacity: 0.8;
+}
+
+.copy-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .message-code pre {
   margin: 0;
   padding: 12px;
   overflow-x: auto;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
+  font-family: var(--font-mono);
 }
 
 .message-time {
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   color: var(--kb-muted-foreground);
   display: flex;
   align-items: center;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
 }
 
 .message-item.mine .message-time {
@@ -1805,19 +1981,48 @@ watch(activeGroupId, (_, oldId) => {
   flex-shrink: 0;
 }
 .status-dot.sending {
-  background: #3B6FE0;
+  background: var(--kb-primary);
   animation: pulse 1s ease-in-out infinite;
 }
 .status-dot.error {
-  background: #EF4444;
+  background: var(--kb-destructive);
 }
 .status-fail {
-  color: #EF4444;
+  color: var(--kb-destructive);
   cursor: pointer;
+  border-radius: 4px;
   text-decoration: underline dotted;
+  transition: opacity 0.15s ease, text-decoration-color 0.15s ease;
 }
 .status-fail:hover {
-  color: #B91C1C;
+  opacity: 0.8;
+  text-decoration-style: solid;
+}
+.status-fail:active {
+  opacity: 0.65;
+}
+.status-fail:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
+/* 撤回：可点击文本，补齐 hover / active / focus 反馈 */
+.msg-recall {
+  cursor: pointer;
+  border-radius: 4px;
+  color: var(--kb-muted-foreground);
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+.msg-recall:hover {
+  color: var(--kb-primary);
+  text-decoration: underline;
+}
+.msg-recall:active {
+  opacity: 0.7;
+}
+.msg-recall:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 @keyframes pulse {
@@ -1835,7 +2040,7 @@ watch(activeGroupId, (_, oldId) => {
 /* 正在输入提示 */
 .typing-indicator {
   padding: 8px 24px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
 }
 
@@ -1847,7 +2052,10 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .input-toolbar {
+  position: relative;
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 4px;
   margin-bottom: 8px;
 }
@@ -1863,12 +2071,67 @@ watch(activeGroupId, (_, oldId) => {
   color: var(--kb-muted-foreground);
   cursor: pointer;
   border-radius: 6px;
-  transition: all 0.15s;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .tool-btn:hover {
   background: var(--kb-muted);
   color: var(--kb-primary);
+}
+
+.tool-btn:active {
+  background: rgba(59, 111, 224, 0.14);
+  transform: scale(0.98);
+}
+
+.tool-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
+/* @提及下拉：与设计系统 .kb-dropdown-panel 保持一致 */
+.mention-popover {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  background: var(--kb-popover);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.mention-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  border: none;
+  border-radius: var(--kb-radius-sm);
+  background: transparent;
+  color: var(--kb-foreground);
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.mention-item:hover {
+  background: var(--kb-muted);
+  color: var(--kb-primary);
+}
+
+.mention-item:active {
+  background: rgba(59, 111, 224, 0.14);
+}
+
+.mention-item:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: -2px;
 }
 
 .hidden-input {
@@ -1879,7 +2142,7 @@ watch(activeGroupId, (_, oldId) => {
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: 12px;
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
@@ -1892,9 +2155,10 @@ watch(activeGroupId, (_, oldId) => {
 
 .message-input {
   flex: 1;
+  min-width: 0;
   border: none;
   background: transparent;
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   color: var(--kb-foreground);
   resize: none;
   outline: none;
@@ -1909,15 +2173,16 @@ watch(activeGroupId, (_, oldId) => {
 .send-btn {
   width: 36px;
   height: 36px;
+  flex-shrink: 0;
   border-radius: 8px;
   border: none;
   background: var(--kb-primary);
-  color: white;
+  color: var(--kb-primary-foreground);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .send-btn:disabled {
@@ -1927,6 +2192,16 @@ watch(activeGroupId, (_, oldId) => {
 
 .send-btn:not(:disabled):hover {
   opacity: 0.9;
+}
+
+.send-btn:not(:disabled):active {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+
+.send-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 /* 对话框样式 */
@@ -1964,7 +2239,9 @@ watch(activeGroupId, (_, oldId) => {
 .panel-header h3,
 .dialog-header h3 {
   margin: 0;
-  font-size: 18px;
+  min-width: 0;
+  font-size: var(--kb-fs-h4);
+  line-height: var(--kb-lh-h4);
   font-weight: 600;
   color: var(--kb-foreground);
 }
@@ -1977,13 +2254,26 @@ watch(activeGroupId, (_, oldId) => {
   color: var(--kb-muted-foreground);
   padding: 4px;
   border-radius: 6px;
-  transition: all 0.15s;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .panel-close:hover,
 .dialog-close:hover {
   background: var(--kb-muted);
   color: var(--kb-foreground);
+}
+
+.panel-close:active,
+.dialog-close:active {
+  transform: scale(0.98);
+  opacity: 0.85;
+}
+
+.panel-close:focus-visible,
+.dialog-close:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .panel-body {
@@ -1996,7 +2286,8 @@ watch(activeGroupId, (_, oldId) => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 0;
+  min-width: 0;
+  padding: 12px 0;
 }
 
 .member-avatar {
@@ -2006,30 +2297,37 @@ watch(activeGroupId, (_, oldId) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 14px;
+  color: #FFFFFF;
+  font-size: var(--kb-fs-body-md);
   font-weight: 600;
+  flex-shrink: 0;
 }
 
 .member-info {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
 
 .member-name {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
   font-weight: 500;
   color: var(--kb-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .member-role {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   color: var(--kb-muted-foreground);
 }
 
-.member-role.owner { color: #F59E0B; }
-.member-role.admin { color: #10B981; }
+.member-role.owner { color: var(--kb-warning); }
+.member-role.admin { color: var(--kb-accent); }
 
 .member-action {
   background: transparent;
@@ -2038,12 +2336,23 @@ watch(activeGroupId, (_, oldId) => {
   color: var(--kb-muted-foreground);
   padding: 6px;
   border-radius: 6px;
-  transition: all 0.15s;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .member-action:hover {
   background: rgba(239, 68, 68, 0.1);
-  color: #EF4444;
+  color: var(--kb-destructive);
+}
+
+.member-action:active {
+  background: rgba(239, 68, 68, 0.18);
+  transform: scale(0.98);
+}
+
+.member-action:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .dialog-body {
@@ -2056,28 +2365,28 @@ watch(activeGroupId, (_, oldId) => {
 
 .form-group label {
   display: block;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   color: var(--kb-foreground);
   margin-bottom: 8px;
 }
 
 .form-group .required {
-  color: #EF4444;
+  color: var(--kb-destructive);
 }
 
 .form-input,
 .form-textarea,
 .form-select {
   width: 100%;
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: 10px;
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
   color: var(--kb-foreground);
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   box-sizing: border-box;
 }
 
@@ -2086,21 +2395,35 @@ watch(activeGroupId, (_, oldId) => {
   resize: none;
 }
 
+.form-input:hover,
+.form-textarea:hover,
+.form-select:hover {
+  border-color: var(--kb-primary);
+}
+
 .form-input:focus,
 .form-textarea:focus,
-.form-select:focus {
+.form-select:focus,
+.form-input:focus-visible,
+.form-textarea:focus-visible,
+.form-select:focus-visible {
   border-color: var(--kb-primary);
-  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
+}
+
+.form-select {
+  cursor: pointer;
 }
 
 .code-textarea {
   min-height: 200px;
-  font-family: monospace;
+  font-family: var(--font-mono);
 }
 
 .color-picker {
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .color-item {
@@ -2112,12 +2435,22 @@ watch(activeGroupId, (_, oldId) => {
   align-items: center;
   justify-content: center;
   border: 2px solid transparent;
-  color: white;
-  transition: all 0.15s;
+  color: #FFFFFF;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .color-item:hover {
   transform: scale(1.1);
+}
+
+.color-item:active {
+  transform: scale(0.98);
+}
+
+.color-item:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .color-item.active {
@@ -2127,22 +2460,33 @@ watch(activeGroupId, (_, oldId) => {
 .type-options {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .type-option {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 14px;
+  padding: 12px 16px;
   border-radius: 10px;
   border: 1px solid var(--kb-border);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
 }
 
 .type-option:hover {
   border-color: var(--kb-primary);
+}
+
+.type-option:active {
+  transform: scale(0.99);
+  background: rgba(59, 111, 224, 0.06);
+}
+
+.type-option:focus-within {
+  border-color: var(--kb-primary);
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .type-option.active {
@@ -2150,42 +2494,70 @@ watch(activeGroupId, (_, oldId) => {
   background: rgba(59, 111, 224, 0.08);
 }
 
-.type-option input { display: none; }
+/* 单选框视觉隐藏但保留键盘可聚焦（配合 :focus-within 焦点环） */
+.type-option input,
+.role-option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
 
 .type-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-width: 0;
 }
 
 .type-name {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 500;
   color: var(--kb-foreground);
 }
 
 .type-desc {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
 }
 
 .role-options {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
 .role-option {
   flex: 1;
+  min-width: 0;
   padding: 12px;
   border-radius: 8px;
   border: 1px solid var(--kb-border);
   text-align: center;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
 }
 
 .role-option:hover {
   border-color: var(--kb-primary);
+}
+
+.role-option:active {
+  transform: scale(0.99);
+  background: rgba(59, 111, 224, 0.06);
+}
+
+.role-option:focus-within {
+  border-color: var(--kb-primary);
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .role-option.active {
@@ -2193,16 +2565,15 @@ watch(activeGroupId, (_, oldId) => {
   background: rgba(59, 111, 224, 0.08);
 }
 
-.role-option input { display: none; }
-
 .role-name {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 500;
   color: var(--kb-foreground);
 }
 
 .invite-desc {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
   color: var(--kb-muted-foreground);
   margin: 0 0 16px;
 }
@@ -2218,13 +2589,20 @@ watch(activeGroupId, (_, oldId) => {
 .btn-secondary,
 .btn-primary {
   flex: 1;
+  min-width: 0;
   height: 40px;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background-color 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
   border: none;
+}
+
+.btn-secondary:focus-visible,
+.btn-primary:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .btn-secondary {
@@ -2237,9 +2615,14 @@ watch(activeGroupId, (_, oldId) => {
   background: var(--kb-muted);
 }
 
+.btn-secondary:active {
+  background: var(--kb-muted);
+  transform: scale(0.98);
+}
+
 .btn-primary {
   background: var(--kb-primary);
-  color: white;
+  color: var(--kb-primary-foreground);
 }
 
 .btn-primary:disabled {
@@ -2251,10 +2634,15 @@ watch(activeGroupId, (_, oldId) => {
   opacity: 0.9;
 }
 
+.btn-primary:not(:disabled):active {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+
 /* 小组详情 */
 .detail-header {
   padding: 32px 24px;
-  color: white;
+  color: #FFFFFF;
   text-align: center;
 }
 
@@ -2272,15 +2660,19 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .detail-name {
-  font-size: 20px;
+  font-size: var(--kb-fs-h4);
+  line-height: var(--kb-lh-h4);
   font-weight: 700;
   margin: 0 0 8px;
+  word-break: break-word;
 }
 
 .detail-desc {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
   opacity: 0.9;
   margin: 0;
+  word-break: break-word;
 }
 
 .detail-body {
@@ -2296,8 +2688,9 @@ watch(activeGroupId, (_, oldId) => {
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 14px;
+  gap: 12px;
+  min-width: 0;
+  font-size: var(--kb-fs-body-md);
   color: var(--kb-foreground);
 }
 
@@ -2316,6 +2709,33 @@ watch(activeGroupId, (_, oldId) => {
   .chat-main {
     height: 60%;
   }
+
+  /* 小屏内边距收敛为 16px，避免横向溢出（桌面维持 24px） */
+  .chat-header,
+  .message-list,
+  .chat-footer,
+  .typing-indicator {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .message-item {
+    max-width: 88%;
+  }
+
+  .panel-header,
+  .dialog-header,
+  .dialog-footer,
+  .detail-footer,
+  .panel-body {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .dialog-body,
+  .detail-body {
+    padding: 16px;
+  }
 }
 
 /* 小组设置样式 */
@@ -2325,14 +2745,14 @@ watch(activeGroupId, (_, oldId) => {
   align-items: center;
   gap: 8px;
   margin-top: 12px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   border-radius: 8px;
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
   color: var(--kb-foreground);
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
 }
 
 .btn-save:hover,
@@ -2341,20 +2761,34 @@ watch(activeGroupId, (_, oldId) => {
   color: var(--kb-primary);
 }
 
+.btn-save:active,
+.btn-link:active {
+  background: rgba(59, 111, 224, 0.08);
+  transform: scale(0.98);
+}
+
+.btn-save:focus-visible,
+.btn-link:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
 .plan-info {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
   padding: 12px;
   background: rgba(59, 111, 224, 0.08);
   border-radius: 8px;
   color: var(--kb-foreground);
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
+  word-break: break-word;
 }
 
 .plan-empty {
   color: var(--kb-muted-foreground);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   padding: 12px 0;
 }
 
@@ -2371,15 +2805,25 @@ watch(activeGroupId, (_, oldId) => {
   width: 100%;
   padding: 12px;
   border-radius: 8px;
-  border: 1px solid #EF4444;
+  border: 1px solid var(--kb-destructive);
   background: transparent;
-  color: #EF4444;
-  font-size: 14px;
+  color: var(--kb-destructive);
+  font-size: var(--kb-fs-body-md);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
 .btn-leave:hover {
   background: rgba(239, 68, 68, 0.1);
+}
+
+.btn-leave:active {
+  background: rgba(239, 68, 68, 0.18);
+  transform: scale(0.98);
+}
+
+.btn-leave:focus-visible {
+  outline: 2px solid var(--kb-destructive);
+  outline-offset: 2px;
 }
 </style>
