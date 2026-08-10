@@ -9,11 +9,14 @@
         <!-- 拖拽上传区 -->
         <div
           class="upload-zone"
+          role="button"
+          tabindex="0"
           :class="{ dragging: isDragging, hasfiles: files.length > 0 }"
           @dragover.prevent="isDragging = true"
           @dragleave.prevent="isDragging = false"
           @drop.prevent="handleDrop"
           @click="triggerFileInput"
+          @keydown.enter.prevent="($event.target as HTMLElement).click()"
         >
           <input
             ref="fileInputRef"
@@ -24,7 +27,7 @@
             @change="handleFileSelect"
           />
           <div class="upload-zone-icon">
-            <Icon name="upload" :size="28" />
+            <Icon name="upload" :size="24" />
           </div>
           <p class="upload-zone-title">
             {{ isDragging ? '释放文件以上传' : '拖拽文件到此处，或点击选择文件' }}
@@ -69,8 +72,10 @@
               </span>
               <!-- 删除按钮 -->
               <button
+                type="button"
                 class="file-remove-btn"
                 title="移除"
+                :aria-label="`移除 ${file.name}`"
                 @click.stop="removeFile(idx)"
               >
                 <Icon name="trash-2" :size="14" />
@@ -496,11 +501,21 @@ onMounted(async () => {
   padding: 48px 24px;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
 }
 .upload-zone:hover {
   border-color: var(--kb-primary);
   background: rgba(59, 111, 224, 0.03);
+}
+.upload-zone:active {
+  border-color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.06);
+  transform: scale(0.995);
+}
+.upload-zone:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-color: var(--kb-primary);
 }
 .upload-zone.dragging {
   border-color: var(--kb-primary);
@@ -519,13 +534,15 @@ onMounted(async () => {
   color: var(--kb-primary);
 }
 .upload-zone-title {
-  font-size: 16px;
+  font-size: var(--kb-fs-body-lg);
+  line-height: var(--kb-lh-body-lg);
   font-weight: 500;
   color: var(--kb-foreground);
-  margin-bottom: 4px;
+  margin-bottom: var(--kb-space-1);
 }
 .upload-zone-hint {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
   color: var(--kb-muted-foreground);
 }
 
@@ -544,12 +561,22 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--kb-space-3);
   padding: 12px 16px;
   border-bottom: 1px solid var(--kb-border);
 }
+.file-list-header .kb-h3 {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .file-list-count {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   color: var(--kb-muted-foreground);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
 }
 .file-list-body {
   display: flex;
@@ -574,10 +601,10 @@ onMounted(async () => {
   justify-content: center;
   flex-shrink: 0;
 }
-.type-pdf { background: rgba(239, 68, 68, 0.1); color: var(--kb-state-error); }
-.type-md { background: rgba(16, 185, 129, 0.1); color: var(--kb-state-success); }
+.type-pdf { background: rgba(239, 68, 68, 0.1); color: var(--kb-destructive); }
+.type-md { background: rgba(16, 185, 129, 0.1); color: var(--kb-accent); }
 .type-doc { background: rgba(59, 111, 224, 0.08); color: var(--kb-primary); }
-.type-ppt { background: rgba(245, 158, 11, 0.1); color: var(--kb-state-warning); }
+.type-ppt { background: rgba(245, 158, 11, 0.1); color: var(--kb-warning); }
 .type-default { background: rgba(59, 111, 224, 0.08); color: var(--kb-primary); }
 
 /* 文件信息 */
@@ -586,7 +613,8 @@ onMounted(async () => {
   min-width: 0;
 }
 .file-name {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
   font-weight: 500;
   color: var(--kb-foreground);
   overflow: hidden;
@@ -594,8 +622,10 @@ onMounted(async () => {
   white-space: nowrap;
 }
 .file-size {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   color: var(--kb-muted-foreground);
+  font-variant-numeric: tabular-nums;
   margin-top: 2px;
 }
 
@@ -616,18 +646,20 @@ onMounted(async () => {
   transition: width 0.3s;
 }
 .fill-primary { background: var(--kb-primary); }
-.fill-success { background: var(--kb-state-success); }
-.fill-error { background: var(--kb-state-error); }
+.fill-success { background: var(--kb-accent); }
+.fill-error { background: var(--kb-destructive); }
 
 /* 状态文字 */
 .file-status {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   flex-shrink: 0;
   min-width: 48px;
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
-.status-success { color: var(--kb-state-success); }
-.status-error { color: var(--kb-state-error); }
+.status-success { color: var(--kb-accent); }
+.status-error { color: var(--kb-destructive); }
 .status-muted { color: var(--kb-muted-foreground); }
 
 /* 删除按钮 */
@@ -647,7 +679,17 @@ onMounted(async () => {
 }
 .file-remove-btn:hover {
   background: rgba(239, 68, 68, 0.08);
-  color: var(--kb-state-error);
+  color: var(--kb-destructive);
+}
+.file-remove-btn:active {
+  background: rgba(239, 68, 68, 0.16);
+  color: var(--kb-destructive);
+  transform: scale(0.94);
+}
+.file-remove-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  color: var(--kb-destructive);
 }
 
 /* ===== 右侧：上传设置表单 ===== */
@@ -672,17 +714,19 @@ onMounted(async () => {
   flex-direction: column;
 }
 .form-label {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
   font-weight: 500;
   color: var(--kb-foreground);
   margin-bottom: 6px;
 }
 .required-mark {
-  color: var(--kb-state-error);
+  color: var(--kb-destructive);
 }
 .form-hint {
-  margin-top: 4px;
-  font-size: 11px;
+  margin-top: var(--kb-space-1);
+  font-size: var(--kb-fs-xs);
+  line-height: var(--kb-lh-xs);
   color: var(--kb-muted-foreground);
 }
 .form-input,
@@ -691,7 +735,7 @@ onMounted(async () => {
   height: 36px;
   padding: 0 12px;
   border-radius: var(--kb-radius-sm);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   background: var(--kb-background);
   color: var(--kb-foreground);
   border: 1px solid var(--kb-border);
@@ -713,7 +757,8 @@ onMounted(async () => {
   width: 100%;
   padding: 8px 12px;
   border-radius: var(--kb-radius-sm);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
   background: var(--kb-background);
   color: var(--kb-foreground);
   border: 1px solid var(--kb-border);
@@ -744,10 +789,12 @@ onMounted(async () => {
   height: 24px;
   padding: 0 10px;
   border-radius: var(--kb-radius-sm);
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   font-weight: 500;
   background: rgba(59, 111, 224, 0.08);
   color: var(--kb-primary);
+  max-width: 100%;
 }
 .tag-remove {
   background: transparent;
@@ -758,14 +805,22 @@ onMounted(async () => {
   display: inline-flex;
   align-items: center;
   opacity: 0.7;
-  transition: opacity 0.15s;
+  border-radius: var(--kb-radius-sm);
+  flex-shrink: 0;
+  transition: opacity 0.15s, transform 0.15s;
 }
 .tag-remove:hover { opacity: 1; }
+.tag-remove:active { opacity: 1; transform: scale(0.9); }
+.tag-remove:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
 .tag-text-input {
   flex: 1;
   min-width: 80px;
   height: 24px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   background: transparent;
   border: none;
   outline: none;
@@ -790,10 +845,17 @@ onMounted(async () => {
   height: 36px;
   padding: 0 14px;
   border-radius: var(--kb-radius-sm);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   cursor: pointer;
+  min-width: 0;
+  white-space: nowrap;
   transition: all 0.15s;
+}
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 .btn-primary {
   background: var(--kb-primary);
@@ -801,6 +863,7 @@ onMounted(async () => {
   border: none;
 }
 .btn-primary:hover { opacity: 0.9; }
+.btn-primary:active:not(:disabled) { opacity: 0.9; transform: scale(0.98); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-secondary {
   background: var(--kb-card);
@@ -808,6 +871,7 @@ onMounted(async () => {
   border: 1px solid var(--kb-border);
 }
 .btn-secondary:hover { background: var(--kb-muted); }
+.btn-secondary:active { background: var(--kb-muted); transform: scale(0.98); }
 
 /* ===== 响应式 ===== */
 @media (max-width: 768px) {

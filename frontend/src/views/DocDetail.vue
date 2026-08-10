@@ -2,28 +2,32 @@
   <div class="animate-fade-in">
     <div class="flex items-center gap-4 mb-6 pb-4 border-b border-gray-100">
       <button
-        class="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
+        type="button"
+        class="w-9 h-9 shrink-0 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
         @click="goBack"
       >
         <Icon name="arrow-left" :size="16" />
       </button>
       <div class="flex items-center gap-2 text-sm text-gray-500 min-w-0 flex-1">
-        <router-link to="/" class="hover:text-primary-500 transition-colors shrink-0">首页</router-link>
-        <Icon name="chevron-right" :size="16" class="shrink-0" />
+        <router-link
+          to="/"
+          class="shrink-0 rounded hover:text-primary-500 active:opacity-70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
+        >首页</router-link>
+        <Icon name="chevron-right" :size="16" class="shrink-0" aria-hidden="true" />
         <router-link
           :to="`/categories?categoryId=${doc.categoryId}`"
-          class="hover:text-primary-500 transition-colors shrink-0"
+          class="shrink-0 rounded hover:text-primary-500 active:opacity-70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
         >
           {{ doc.categoryName }}
         </router-link>
-        <Icon name="chevron-right" :size="16" class="shrink-0" />
+        <Icon name="chevron-right" :size="16" class="shrink-0" aria-hidden="true" />
         <span class="text-gray-700 truncate">{{ doc.title }}</span>
       </div>
       <!-- 阅读进度胶囊（紧凑展示，不抢视觉） -->
       <div class="hidden sm:flex items-center gap-2 shrink-0">
         <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style="background: var(--kb-muted);">
-          <Icon name="book-open" :size="12" class="text-primary-600" />
-          <span class="text-[11px] font-medium text-gray-600">{{ readProgress }}%</span>
+          <Icon name="book-open" :size="12" class="text-primary-600" aria-hidden="true" />
+          <span class="font-medium text-gray-600 tabular-nums" style="font-size: var(--kb-fs-xs);">{{ readProgress }}%</span>
         </div>
       </div>
     </div>
@@ -31,32 +35,32 @@
     <div class="flex gap-8">
       <article class="flex-1 min-w-0">
         <Card padding="lg">
-          <header class="mb-6 pb-6 border-b border-[#E2E6EC]">
+          <header class="mb-6 pb-6 border-b" style="border-color: var(--kb-border);">
             <span
-              class="inline-flex items-center rounded-lg px-2.5 py-1 text-[12px] font-medium"
-              style="background: rgba(59,111,224,0.1); color: #3B6FE0;"
+              class="inline-flex items-center rounded-lg px-2.5 py-1 font-medium"
+              style="background: rgba(59,111,224,0.1); color: var(--kb-primary); font-size: var(--kb-fs-caption);"
             >
               {{ doc.categoryName || '未分类' }}
             </span>
 
-            <h1 class="mt-3 text-2xl font-bold text-gray-800 leading-tight" style="text-wrap: balance">
+            <h1 class="mt-3 font-bold text-gray-800 leading-tight break-words" style="text-wrap: balance; font-size: var(--kb-fs-h3);">
               {{ doc.title }}
             </h1>
 
-            <div class="mt-3 flex items-center gap-2.5">
+            <div class="mt-3 flex items-center gap-2.5 flex-wrap">
               <div
-                class="w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-medium flex-shrink-0"
-                style="background: #E8ECF1; color: #3B6FE0;"
+                class="w-8 h-8 rounded-full flex items-center justify-center font-medium flex-shrink-0"
+                style="background: var(--kb-muted); color: var(--kb-primary); font-size: var(--kb-fs-body-sm);"
               >
                 {{ doc.author?.charAt(0) || '知' }}
               </div>
-              <div class="flex items-center gap-1.5 text-[12px] text-gray-500">
-                <span class="font-medium text-gray-800">{{ doc.author || '知识库管理员' }}</span>
+              <div class="flex items-center gap-1.5 text-gray-500 min-w-0 flex-wrap" style="font-size: var(--kb-fs-caption);">
+                <span class="font-medium text-gray-800 truncate">{{ doc.author || '知识库管理员' }}</span>
                 <span class="text-gray-300">·</span>
-                <span>{{ formatDate(doc.createTime) }}</span>
+                <span class="tabular-nums">{{ formatDate(doc.createTime) }}</span>
                 <span class="text-gray-300">·</span>
-                <span class="flex items-center gap-1">
-                  <Icon name="clock" :size="12" />
+                <span class="flex items-center gap-1 tabular-nums">
+                  <Icon name="clock" :size="12" aria-hidden="true" />
                   {{ readTimeMinutes }} 分钟阅读
                 </span>
               </div>
@@ -67,9 +71,10 @@
               :href="doc.fileUrl"
               target="_blank"
               rel="noopener"
-              class="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] px-3 py-1.5 text-[12px] font-medium text-gray-600 hover:bg-gray-50"
+              class="mt-3 inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-50 hover:text-primary-600 active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
+              style="border-color: var(--kb-border); font-size: var(--kb-fs-caption);"
             >
-              <Icon name="download" :size="14" />
+              <Icon name="download" :size="14" aria-hidden="true" />
               下载原文
             </a>
 
@@ -77,7 +82,8 @@
               <span
                 v-for="tag in tagList"
                 :key="tag"
-                class="shrink-0 inline-flex items-center rounded-lg px-2.5 py-1 text-[12px] bg-gray-100 text-gray-500"
+                class="shrink-0 inline-flex items-center rounded-lg px-2.5 py-1 bg-gray-100 text-gray-500"
+                style="font-size: var(--kb-fs-caption);"
               >
                 #{{ tag }}
               </span>
@@ -91,10 +97,10 @@
           ></div>
 
           <!-- 文章底部操作区（阅读完后的自然操作位置） -->
-          <div class="mt-8 pt-6 border-t border-[#E2E6EC]">
+          <div class="mt-8 pt-6 border-t" style="border-color: var(--kb-border);">
             <div class="flex flex-col sm:flex-row items-center gap-4">
               <span class="text-sm text-gray-500 shrink-0 self-start sm:self-center">读完这篇文档？</span>
-              <div class="flex items-center gap-2 flex-wrap justify-center">
+              <div class="flex min-w-0 items-center gap-2 flex-wrap justify-center">
                 <button
                   type="button"
                   class="action-btn"
@@ -137,9 +143,16 @@
                       class="kb-dropdown-item"
                       @click="goToChapter(ch.id)"
                     >
-                      <Icon name="play" :size="14" class="shrink-0" />
-                      <span class="truncate">{{ ch.title }}</span>
-                      <Icon v-if="ch.completed" name="check-circle" :size="14" class="shrink-0 text-green-500" />
+                      <Icon name="play" :size="14" class="shrink-0" aria-hidden="true" />
+                      <span class="truncate min-w-0 text-left">{{ ch.title }}</span>
+                      <Icon
+                        v-if="ch.completed"
+                        name="check-circle"
+                        :size="14"
+                        class="shrink-0"
+                        style="color: var(--kb-accent);"
+                        aria-hidden="true"
+                      />
                     </button>
                   </div>
                 </div>
@@ -189,7 +202,7 @@
 
       <aside class="hidden lg:block w-56 flex-shrink-0">
         <div class="sticky top-20 rounded-xl border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
-          <h3 class="kb-h4 mb-4" style="font-size: 13px;">目录</h3>
+          <h3 class="kb-h4 mb-4" style="font-size: var(--kb-fs-body-sm);">目录</h3>
           <nav class="flex flex-col gap-1 max-h-[60vh] overflow-y-auto no-scrollbar">
             <a
               v-for="item in flatToc"
@@ -197,24 +210,24 @@
               :href="`#${item.id}`"
               class="toc-link"
               :class="{ active: activeTocId === item.id }"
-              :style="item.level === 3 ? { paddingLeft: '24px', fontSize: '11px' } : {}"
+              :style="item.level === 3 ? { paddingLeft: '24px', fontSize: 'var(--kb-fs-xs)' } : {}"
               @click="scrollToSection(item.id, $event)"
             >{{ item.text }}</a>
             <p v-if="flatToc.length === 0" class="text-xs" style="color: var(--kb-muted-foreground);">暂无目录</p>
           </nav>
           <!-- 文档信息紧凑展示 -->
           <div class="mt-4 pt-4 space-y-2 text-xs" style="border-top: 1px solid var(--kb-border); color: var(--kb-muted-foreground);">
-            <div class="flex items-center justify-between">
-              <span class="flex items-center gap-1.5"><Icon name="file-text" :size="12" />字数</span>
-              <span style="color: var(--kb-foreground);">{{ doc.wordCount?.toLocaleString() }}</span>
+            <div class="flex items-center justify-between gap-2">
+              <span class="flex items-center gap-1.5 min-w-0"><Icon name="file-text" :size="12" aria-hidden="true" />字数</span>
+              <span class="tabular-nums shrink-0" style="color: var(--kb-foreground);">{{ doc.wordCount?.toLocaleString() }}</span>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="flex items-center gap-1.5"><Icon name="clock" :size="12" />阅读</span>
-              <span style="color: var(--kb-foreground);">{{ readTimeMinutes }} 分钟</span>
+            <div class="flex items-center justify-between gap-2">
+              <span class="flex items-center gap-1.5 min-w-0"><Icon name="clock" :size="12" aria-hidden="true" />阅读</span>
+              <span class="tabular-nums shrink-0" style="color: var(--kb-foreground);">{{ readTimeMinutes }} 分钟</span>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="flex items-center gap-1.5"><Icon name="bar-chart-2" :size="12" />进度</span>
-              <span style="color: var(--kb-primary);">{{ readProgress }}%</span>
+            <div class="flex items-center justify-between gap-2">
+              <span class="flex items-center gap-1.5 min-w-0"><Icon name="bar-chart-2" :size="12" aria-hidden="true" />进度</span>
+              <span class="tabular-nums shrink-0" style="color: var(--kb-primary);">{{ readProgress }}%</span>
             </div>
           </div>
         </div>
@@ -229,19 +242,19 @@
           v-for="(item, idx) in relatedDocs"
           :key="item.id"
           href="#"
-          class="flex flex-col px-5 py-5 rounded-xl border hover:opacity-90 transition-opacity"
+          class="related-card flex flex-col min-w-0 px-5 py-5 rounded-xl border hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
           style="background: var(--kb-card); border-color: var(--kb-border);"
           @click.prevent="goToDoc(item.id)"
         >
           <span
-            class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-md font-medium w-fit mb-3"
-            :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }"
+            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-medium w-fit mb-3"
+            :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length], fontSize: 'var(--kb-fs-caption)' }"
           >{{ getDocTypeLabel(item) }}</span>
-          <h3 class="text-sm font-semibold mb-1.5" style="color: var(--kb-foreground);">{{ item.title }}</h3>
-          <p class="text-xs line-clamp-2" style="color: var(--kb-muted-foreground);">{{ item.summary || '暂无摘要' }}</p>
-          <div class="flex items-center gap-1.5 mt-3 pt-3" style="border-top: 1px solid var(--kb-border);">
-            <Icon name="folder" :size="12" style="color: var(--kb-muted-foreground);" />
-            <span class="text-xs" style="color: var(--kb-muted-foreground);">{{ item.categoryName || '未分类' }}</span>
+          <h3 class="text-sm font-semibold mb-1.5 break-words" style="color: var(--kb-foreground);">{{ item.title }}</h3>
+          <p class="line-clamp-2" style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption);">{{ item.summary || '暂无摘要' }}</p>
+          <div class="flex items-center gap-1.5 mt-3 pt-3 min-w-0" style="border-top: 1px solid var(--kb-border);">
+            <Icon name="folder" :size="12" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
+            <span class="truncate" style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption);">{{ item.categoryName || '未分类' }}</span>
           </div>
         </a>
       </div>
@@ -252,7 +265,7 @@
       <Card v-if="aiSummary">
         <template #header>
           <h3 class="font-medium text-gray-800 flex items-center gap-2">
-            <Icon name="sparkles" :size="16" class="text-primary-600" />
+            <Icon name="sparkles" :size="16" class="text-primary-600" aria-hidden="true" />
             AI 内容摘要
           </h3>
         </template>
@@ -262,22 +275,23 @@
       <Card v-if="aiFlashcards.length > 0">
         <template #header>
           <h3 class="font-medium text-gray-800 flex items-center gap-2">
-            <Icon name="layers" :size="16" class="text-primary-600" />
-            AI 生成的复习闪卡（{{ aiFlashcards.length }} 张）
+            <Icon name="layers" :size="16" class="text-primary-600" aria-hidden="true" />
+            AI 生成的复习闪卡（<span class="tabular-nums">{{ aiFlashcards.length }}</span> 张）
           </h3>
         </template>
         <div class="space-y-3">
           <div
             v-for="(card, idx) in aiFlashcards"
             :key="idx"
-            class="rounded-lg border border-gray-100 p-3"
+            class="rounded-lg border border-gray-100 p-3 min-w-0"
           >
             <p class="text-sm font-medium text-gray-800">Q：{{ card.front }}</p>
             <p class="text-sm text-gray-600 mt-1">A：{{ card.back }}</p>
             <span
               v-if="card.difficulty"
-              class="inline-block mt-2 text-[11px] px-2 py-0.5 rounded"
+              class="inline-block mt-2 px-2 py-0.5 rounded"
               :class="difficultyClass(card.difficulty)"
+              style="font-size: var(--kb-fs-xs);"
             >{{ difficultyLabel(card.difficulty) }}</span>
           </div>
         </div>
@@ -610,15 +624,26 @@ onUnmounted(() => {
   display: block;
   padding: 4px 12px;
   border-left: 2px solid transparent;
-  font-size: 12px;
+  border-radius: 0 var(--kb-radius-sm) var(--kb-radius-sm) 0;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
   text-decoration: none;
   line-height: 1.6;
-  transition: all 0.15s;
+  /* 超长无空格标题不撑破侧栏 */
+  overflow-wrap: anywhere;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 .toc-link:hover {
   color: var(--kb-primary);
   border-left-color: var(--kb-primary);
+}
+.toc-link:active {
+  background: color-mix(in srgb, var(--kb-primary) 12%, transparent);
+}
+.toc-link:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  color: var(--kb-primary);
 }
 .toc-link.active {
   color: var(--kb-primary);
@@ -633,18 +658,32 @@ onUnmounted(() => {
   gap: 6px;
   padding: 8px 14px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   color: var(--kb-foreground);
   background: var(--kb-muted);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
 }
 
 .action-btn:hover {
   background: color-mix(in srgb, var(--kb-primary) 8%, var(--kb-card));
   color: var(--kb-primary);
+}
+
+.action-btn:active:not(:disabled) {
+  transform: scale(0.98);
+  background: color-mix(in srgb, var(--kb-primary) 14%, var(--kb-card));
+}
+
+.action-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
+.action-btn:disabled {
+  cursor: not-allowed;
 }
 
 .action-btn-primary {
@@ -657,24 +696,65 @@ onUnmounted(() => {
   color: var(--kb-primary-foreground);
 }
 
+.action-btn-primary:active:not(:disabled) {
+  background: color-mix(in srgb, var(--kb-primary) 82%, black);
+  color: var(--kb-primary-foreground);
+}
+
 .action-btn-active-danger {
-  background: rgba(239, 68, 68, 0.1);
-  color: #EF4444;
+  background: color-mix(in srgb, var(--kb-destructive) 10%, transparent);
+  color: var(--kb-destructive);
 }
 
 .action-btn-active-danger:hover {
-  background: rgba(239, 68, 68, 0.15);
-  color: #EF4444;
+  background: color-mix(in srgb, var(--kb-destructive) 15%, transparent);
+  color: var(--kb-destructive);
+}
+
+.action-btn-active-danger:active:not(:disabled) {
+  background: color-mix(in srgb, var(--kb-destructive) 22%, transparent);
+  color: var(--kb-destructive);
 }
 
 /* 章节选择下拉面板 */
 .chapter-dropdown-header {
   padding: 6px 10px 8px;
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   font-weight: 600;
   color: var(--kb-muted-foreground);
   border-bottom: 1px solid var(--kb-border);
   margin-bottom: 4px;
+}
+
+/* 下拉项：全局 .kb-dropdown-item 仅有 hover，此处补齐按下与键盘焦点反馈 */
+.chapter-dropdown .kb-dropdown-item {
+  text-align: left;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.chapter-dropdown .kb-dropdown-item:active {
+  background: color-mix(in srgb, var(--kb-primary) 12%, transparent);
+  color: var(--kb-primary);
+}
+
+.chapter-dropdown .kb-dropdown-item:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: -2px;
+  background: var(--kb-muted);
+}
+
+/* 相关推荐卡片：补齐按下反馈（hover 已由 Tailwind 提供） */
+.related-card {
+  transition: opacity 0.2s ease, border-color 0.2s ease, transform 0.12s ease;
+}
+
+.related-card:hover {
+  border-color: color-mix(in srgb, var(--kb-primary) 40%, var(--kb-border));
+}
+
+.related-card:active {
+  transform: scale(0.99);
+  border-color: var(--kb-primary);
 }
 
 @keyframes fadeIn {
@@ -804,7 +884,7 @@ onUnmounted(() => {
   background: var(--kb-muted);
   padding: 2px 6px;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-family: var(--font-mono);
   color: var(--kb-primary);
   font-weight: 500;
@@ -831,7 +911,7 @@ onUnmounted(() => {
 }
 
 :deep(.doc-content .code-lang) {
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -845,18 +925,29 @@ onUnmounted(() => {
   gap: 5px;
   padding: 3px 8px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: rgba(255, 255, 255, 0.5);
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: color 0.15s ease, background 0.15s ease, transform 0.12s ease;
   font-family: var(--font-sans);
 }
 
 :deep(.doc-content .code-copy-btn:hover) {
   color: rgba(255, 255, 255, 0.9);
   background: rgba(255, 255, 255, 0.08);
+}
+
+:deep(.doc-content .code-copy-btn:active) {
+  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+:deep(.doc-content .code-copy-btn:focus-visible) {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 :deep(.doc-content .code-copy-btn .copy-label) {
@@ -892,10 +983,11 @@ onUnmounted(() => {
   width: 100%;
   border-collapse: collapse;
   margin: 12px 0;
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--kb-border);
+  font-variant-numeric: tabular-nums;
 }
 
 :deep(.doc-content th) {
@@ -935,6 +1027,16 @@ onUnmounted(() => {
   text-decoration: underline;
 }
 
+:deep(.doc-content a:active) {
+  opacity: 0.7;
+}
+
+:deep(.doc-content a:focus-visible) {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-radius: var(--kb-radius-sm);
+}
+
 /* 分隔线 */
 :deep(.doc-content hr) {
   border: none;
@@ -948,6 +1050,12 @@ onUnmounted(() => {
   height: auto;
   border-radius: 8px;
   margin: 8px 0;
+  cursor: zoom-in;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+:deep(.doc-content img:active) {
+  transform: scale(0.995);
 }
 
 /* 强调文本 */

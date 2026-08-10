@@ -98,7 +98,10 @@
               v-for="(cat, idx) in topCategories"
               :key="cat.id"
               class="quick-card"
+              role="button"
+              tabindex="0"
               @click="onCategoryClick(cat)"
+              @keydown.enter.prevent="($event.target as HTMLElement).click()"
             >
               <div class="quick-icon" :style="{ background: `${kbColors[idx % kbColors.length]}1A` }">
                 <Icon :name="getCategoryIcon(cat.icon)" :size="24" :style="{ color: kbColors[idx % kbColors.length] }" />
@@ -165,7 +168,10 @@
               v-for="(doc, idx) in latestDocs"
               :key="doc.id"
               class="recent-card"
+              role="button"
+              tabindex="0"
               @click="goToDoc(doc.id)"
+              @keydown.enter.prevent="($event.target as HTMLElement).click()"
             >
               <DocTypeBadge :file-url="doc.fileUrl" :content="doc.content" :size="36" />
               <div class="recent-info">
@@ -187,10 +193,10 @@
           <!-- 面包屑 -->
           <div class="category-header">
             <div class="breadcrumb">
-              <span class="breadcrumb-link" @click="onAllClick">全部文档</span>
+              <button type="button" class="breadcrumb-link" @click="onAllClick">全部文档</button>
               <Icon name="chevron-right" :size="12" class="sep" />
               <template v-if="currentParentCategory">
-                <span class="breadcrumb-link" @click="onCategoryClick(currentParentCategory)">{{ currentParentCategory.name }}</span>
+                <button type="button" class="breadcrumb-link" @click="onCategoryClick(currentParentCategory)">{{ currentParentCategory.name }}</button>
                 <Icon name="chevron-right" :size="12" class="sep" />
               </template>
               <span class="breadcrumb-current">{{ currentCategory.name }}</span>
@@ -210,7 +216,7 @@
           <!-- 分类图标标题区 -->
           <div class="category-hero" :style="{ background: `${getCategoryColor(currentCategory)}10`, borderColor: `${getCategoryColor(currentCategory)}20` }">
             <div class="hero-icon" :style="{ background: `${getCategoryColor(currentCategory)}20`, color: getCategoryColor(currentCategory) }">
-              <Icon :name="getCategoryIcon(currentCategory.icon)" :size="28" />
+              <Icon :name="getCategoryIcon(currentCategory.icon)" :size="24" />
             </div>
             <div class="hero-info">
               <h1 class="hero-title">{{ currentCategory.name }}</h1>
@@ -226,10 +232,13 @@
                 v-for="(sub, idx) in currentCategory.children"
                 :key="sub.id"
                 class="sub-category-card"
+                role="button"
+                tabindex="0"
                 @click="onCategoryClick(sub)"
+                @keydown.enter.prevent="($event.target as HTMLElement).click()"
               >
                 <div class="sub-icon" :style="{ background: `${subColors[idx % subColors.length]}14` }">
-                  <Icon :name="getCategoryIcon(sub.icon)" :size="22" :style="{ color: subColors[idx % subColors.length] }" />
+                  <Icon :name="getCategoryIcon(sub.icon)" :size="24" :style="{ color: subColors[idx % subColors.length] }" />
                 </div>
                 <div class="sub-info">
                   <h3 class="sub-name">{{ sub.name }}</h3>
@@ -258,7 +267,10 @@
                 v-for="(doc, idx) in categoryDocs.slice(0, 6)"
                 :key="doc.id"
                 class="doc-row"
+                role="button"
+                tabindex="0"
                 @click="goToDoc(doc.id)"
+                @keydown.enter.prevent="($event.target as HTMLElement).click()"
               >
                 <DocTypeBadge :file-url="doc.fileUrl" :content="doc.content" :size="36" />
                 <div class="doc-row-info">
@@ -281,10 +293,10 @@
           <!-- 面包屑 -->
           <div class="category-header">
             <div class="breadcrumb">
-              <span class="breadcrumb-link" @click="onAllClick">全部文档</span>
+              <button type="button" class="breadcrumb-link" @click="onAllClick">全部文档</button>
               <Icon name="chevron-right" :size="12" class="sep" />
               <template v-if="currentParentCategory">
-                <span class="breadcrumb-link" @click="onCategoryClick(currentParentCategory)">{{ currentParentCategory.name }}</span>
+                <button type="button" class="breadcrumb-link" @click="onCategoryClick(currentParentCategory)">{{ currentParentCategory.name }}</button>
                 <Icon name="chevron-right" :size="12" class="sep" />
               </template>
               <span class="breadcrumb-current">{{ currentCategory.name }}</span>
@@ -301,7 +313,7 @@
           <div class="leaf-header" :style="{ background: `${getCategoryColor(currentCategory)}08`, borderColor: `${getCategoryColor(currentCategory)}18` }">
             <div class="leaf-info">
               <div class="leaf-icon" :style="{ background: `${getCategoryColor(currentCategory)}20`, color: getCategoryColor(currentCategory) }">
-                <Icon :name="getCategoryIcon(currentCategory.icon)" :size="22" />
+                <Icon :name="getCategoryIcon(currentCategory.icon)" :size="24" />
               </div>
               <div>
                 <h1 class="leaf-title">{{ currentCategory.name }}</h1>
@@ -353,7 +365,7 @@
 
           <!-- 空态 -->
           <div v-else-if="categoryDocs.length === 0" class="docs-empty">
-            <Icon name="file-question" :size="40" class="empty-icon" />
+            <Icon name="file-question" :size="32" class="empty-icon" />
             <h3>该分类下暂无文档</h3>
             <p>点击右上角「上传文档」添加内容</p>
           </div>
@@ -364,7 +376,10 @@
               v-for="(doc, idx) in sortedCategoryDocs"
               :key="doc.id"
               class="doc-row"
+              role="button"
+              tabindex="0"
               @click="goToDoc(doc.id)"
+              @keydown.enter.prevent="($event.target as HTMLElement).click()"
             >
               <div class="doc-row-icon" :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }">
                 <Icon name="file-text" :size="16" />
@@ -375,7 +390,7 @@
                 <p class="doc-row-meta">
                   <span class="doc-row-tag" :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }">{{ doc.categoryName || currentCategory.name }}</span>
                   <span class="doc-row-time">{{ formatRelativeTime(doc.createTime) }}</span>
-                  <span class="doc-row-views"><Icon name="eye" :size="11" /> {{ doc.viewCount || 0 }}</span>
+                  <span class="doc-row-views"><Icon name="eye" :size="12" /> {{ doc.viewCount || 0 }}</span>
                 </p>
               </div>
               <Icon name="arrow-right" :size="14" class="doc-row-arrow" />
@@ -944,13 +959,15 @@ onUnmounted(() => {
 .top-bar {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .search-box {
   position: relative;
   flex: 1;
+  min-width: 0;
   max-width: 560px;
 }
 
@@ -970,13 +987,18 @@ onUnmounted(() => {
   border-radius: 10px;
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   color: var(--kb-foreground);
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.search-input:focus {
+.search-input:hover {
+  border-color: var(--kb-primary);
+}
+
+.search-input:focus,
+.search-input:focus-visible {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
 }
@@ -986,7 +1008,8 @@ onUnmounted(() => {
   right: 14px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
+  font-family: var(--font-mono);
   padding: 2px 6px;
   border-radius: 4px;
   background: var(--kb-muted);
@@ -1004,10 +1027,10 @@ onUnmounted(() => {
   border: none;
   background: var(--kb-primary);
   color: var(--kb-primary-foreground);
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 500;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
   white-space: nowrap;
 }
 
@@ -1015,10 +1038,20 @@ onUnmounted(() => {
   opacity: 0.9;
 }
 
+.upload-btn:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+.upload-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
 .upload-btn.small {
   height: 36px;
   padding: 0 14px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
 }
 
 .import-btn {
@@ -1031,7 +1064,7 @@ onUnmounted(() => {
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
   color: var(--kb-foreground);
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
@@ -1043,13 +1076,26 @@ onUnmounted(() => {
   color: var(--kb-primary);
 }
 
+.import-btn:active {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.08);
+  transform: scale(0.98);
+}
+
+.import-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
 /* 问候语 */
 .greeting-section {
   margin-bottom: 36px;
 }
 
 .greeting-title {
-  font-size: 28px;
+  font-size: var(--kb-fs-h3);
+  line-height: var(--kb-lh-h3);
   font-weight: 700;
   color: var(--kb-foreground);
   margin-bottom: 16px;
@@ -1072,14 +1118,15 @@ onUnmounted(() => {
 }
 
 .quote-text {
-  font-size: 15px;
+  font-size: var(--kb-fs-body-lg);
+  line-height: var(--kb-lh-body-lg);
   font-weight: 500;
   color: var(--kb-foreground);
   margin-bottom: 6px;
 }
 
 .quote-author {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   color: var(--kb-muted-foreground);
 }
 
@@ -1096,7 +1143,8 @@ onUnmounted(() => {
 }
 
 .section-title {
-  font-size: 16px;
+  font-size: var(--kb-fs-body-lg);
+  line-height: var(--kb-lh-body-lg);
   font-weight: 600;
   color: var(--kb-foreground);
   margin-bottom: 16px;
@@ -1110,14 +1158,30 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
+  padding: 4px 8px;
+  margin-right: -8px;
+  border-radius: var(--kb-radius-sm);
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   color: var(--kb-primary);
   text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s, opacity 0.15s;
 }
 
 .view-all-link:hover {
   opacity: 0.8;
+  background: rgba(59, 111, 224, 0.08);
+}
+
+.view-all-link:active {
+  opacity: 1;
+  background: rgba(59, 111, 224, 0.14);
+}
+
+.view-all-link:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 /* 快速访问 */
@@ -1131,19 +1195,32 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
-  padding: 18px 16px;
+  gap: 12px;
+  padding: 16px;
   border-radius: 12px;
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
   cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s, background 0.15s;
 }
 
 .quick-card:hover {
   border-color: var(--kb-primary);
   box-shadow: 0 4px 16px rgba(59, 111, 224, 0.08);
   transform: translateY(-1px);
+}
+
+.quick-card:active {
+  border-color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.04);
+  transform: translateY(0) scale(0.98);
+}
+
+.quick-card:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-radius: 12px;
+  border-color: var(--kb-primary);
 }
 
 .quick-icon {
@@ -1155,15 +1232,24 @@ onUnmounted(() => {
   justify-content: center;
 }
 
+.quick-info {
+  min-width: 0;
+  max-width: 100%;
+}
+
 .quick-name {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 600;
   color: var(--kb-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .quick-count {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
+  font-variant-numeric: tabular-nums;
 }
 
 /* 学习概览统计 */
@@ -1176,8 +1262,8 @@ onUnmounted(() => {
 .stat-card {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 18px 20px;
+  gap: 16px;
+  padding: 16px 20px;
   border-radius: 12px;
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
@@ -1193,25 +1279,27 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
-.stat-blue { background: rgba(59, 111, 224, 0.1); color: #3B6FE0; }
-.stat-green { background: rgba(16, 185, 129, 0.1); color: #10B981; }
-.stat-orange { background: rgba(245, 158, 11, 0.1); color: #F59E0B; }
+.stat-blue { background: rgba(59, 111, 224, 0.1); color: var(--kb-primary); }
+.stat-green { background: rgba(16, 185, 129, 0.1); color: var(--kb-accent); }
+.stat-orange { background: rgba(245, 158, 11, 0.1); color: var(--kb-warning); }
 .stat-purple { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
 
 .stat-info {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .stat-value {
-  font-size: 22px;
+  font-size: var(--kb-fs-h4);
   font-weight: 700;
   color: var(--kb-foreground);
   line-height: 1.2;
+  font-variant-numeric: tabular-nums;
 }
 
 .stat-label {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   color: var(--kb-muted-foreground);
   margin-top: 2px;
 }
@@ -1227,17 +1315,30 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 16px;
+  padding: 12px 16px;
   border-radius: 10px;
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
   cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s, transform 0.15s;
 }
 
 .recent-card:hover {
   border-color: var(--kb-primary);
   box-shadow: 0 2px 8px rgba(59, 111, 224, 0.06);
+}
+
+.recent-card:active {
+  border-color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.04);
+  transform: scale(0.98);
+}
+
+.recent-card:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-radius: 10px;
+  border-color: var(--kb-primary);
 }
 
 .recent-icon {
@@ -1256,7 +1357,7 @@ onUnmounted(() => {
 }
 
 .recent-title {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 500;
   color: var(--kb-foreground);
   margin-bottom: 6px;
@@ -1268,24 +1369,31 @@ onUnmounted(() => {
 .recent-meta {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
-  font-size: 12px;
+  min-width: 0;
+  font-size: var(--kb-fs-caption);
 }
 
 .recent-tag {
   padding: 2px 6px;
   border-radius: 4px;
   font-weight: 500;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .recent-time {
   color: var(--kb-muted-foreground);
+  font-variant-numeric: tabular-nums;
 }
 
 .empty-hint {
   padding: 40px 0;
   text-align: center;
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   color: var(--kb-muted-foreground);
 }
 
@@ -1308,13 +1416,22 @@ onUnmounted(() => {
 .breadcrumb {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: 6px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
 }
 
 .breadcrumb-link {
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
   color: var(--kb-muted-foreground);
   cursor: pointer;
+  border-radius: var(--kb-radius-sm);
   transition: color 0.15s;
 }
 
@@ -1322,9 +1439,24 @@ onUnmounted(() => {
   color: var(--kb-primary);
 }
 
+.breadcrumb-link:active {
+  color: var(--kb-primary);
+  opacity: 0.75;
+}
+
+.breadcrumb-link:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  color: var(--kb-primary);
+}
+
 .breadcrumb-current {
   color: var(--kb-foreground);
   font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .breadcrumb .sep {
@@ -1335,6 +1467,7 @@ onUnmounted(() => {
 .header-meta {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -1344,7 +1477,9 @@ onUnmounted(() => {
   gap: 4px;
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 12px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--kb-fs-caption);
   font-weight: 500;
   background: var(--kb-muted);
   color: var(--kb-muted-foreground);
@@ -1376,14 +1511,15 @@ onUnmounted(() => {
 }
 
 .hero-title {
-  font-size: 22px;
+  font-size: var(--kb-fs-h4);
+  line-height: var(--kb-lh-h4);
   font-weight: 700;
   color: var(--kb-foreground);
   margin: 0 0 6px;
 }
 
 .hero-desc {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   color: var(--kb-muted-foreground);
   margin: 0;
 }
@@ -1396,25 +1532,42 @@ onUnmounted(() => {
 .sub-category-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 14px;
+  gap: 16px;
 }
 
 .sub-category-card {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 16px 18px;
+  padding: 16px 20px;
   border-radius: 12px;
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
   cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s, background 0.15s;
 }
 
 .sub-category-card:hover {
   border-color: var(--kb-primary);
   box-shadow: 0 4px 14px rgba(59, 111, 224, 0.08);
   transform: translateY(-1px);
+}
+
+.sub-category-card:active {
+  border-color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.04);
+  transform: translateY(0) scale(0.98);
+}
+
+.sub-category-card:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-color: var(--kb-primary);
+}
+
+.sub-category-card:focus-visible .sub-arrow {
+  opacity: 1;
+  color: var(--kb-primary);
 }
 
 .sub-icon {
@@ -1433,19 +1586,24 @@ onUnmounted(() => {
 }
 
 .sub-name {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 600;
   color: var(--kb-foreground);
   margin: 0 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sub-meta {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
   margin: 0 0 4px;
+  font-variant-numeric: tabular-nums;
 }
 
 .sub-divider {
@@ -1457,7 +1615,7 @@ onUnmounted(() => {
 }
 
 .sub-desc {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
   margin: 0;
   overflow: hidden;
@@ -1495,8 +1653,8 @@ onUnmounted(() => {
 .doc-row {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
-  padding: 14px 18px;
+  gap: 16px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--kb-border);
   cursor: pointer;
   transition: background 0.12s;
@@ -1508,6 +1666,21 @@ onUnmounted(() => {
 
 .doc-row:hover {
   background: rgba(59, 111, 224, 0.03);
+}
+
+.doc-row:active {
+  background: rgba(59, 111, 224, 0.08);
+}
+
+.doc-row:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: -2px;
+  background: rgba(59, 111, 224, 0.03);
+}
+
+.doc-row:focus-visible .doc-row-arrow {
+  opacity: 1;
+  color: var(--kb-primary);
 }
 
 .doc-row-icon {
@@ -1526,7 +1699,7 @@ onUnmounted(() => {
 }
 
 .doc-row-title {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 600;
   color: var(--kb-foreground);
   margin: 0 0 4px;
@@ -1536,10 +1709,10 @@ onUnmounted(() => {
 }
 
 .doc-row-summary {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   color: var(--kb-muted-foreground);
   margin: 0 0 6px;
-  line-height: 1.5;
+  line-height: var(--kb-lh-body-sm);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -1549,8 +1722,10 @@ onUnmounted(() => {
 .doc-row-meta {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   margin: 0;
 }
 
@@ -1558,17 +1733,23 @@ onUnmounted(() => {
   padding: 1px 6px;
   border-radius: 4px;
   font-weight: 500;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .doc-row-time {
   color: var(--kb-muted-foreground);
+  font-variant-numeric: tabular-nums;
 }
 
 .doc-row-views {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   color: var(--kb-muted-foreground);
+  font-variant-numeric: tabular-nums;
 }
 
 .doc-row-arrow {
@@ -1590,7 +1771,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 22px 28px;
+  padding: 24px 28px;
   border-radius: 14px;
   border: 1px solid;
   flex-wrap: wrap;
@@ -1600,6 +1781,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex: 1;
+  min-width: 0;
 }
 
 .leaf-icon {
@@ -1613,14 +1796,15 @@ onUnmounted(() => {
 }
 
 .leaf-title {
-  font-size: 22px;
+  font-size: var(--kb-fs-h4);
+  line-height: var(--kb-lh-h4);
   font-weight: 700;
   color: var(--kb-foreground);
   margin: 0 0 4px;
 }
 
 .leaf-desc {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   color: var(--kb-muted-foreground);
   margin: 0;
 }
@@ -1632,8 +1816,8 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 60px 20px;
+  gap: 12px;
+  padding: 60px 24px;
   background: var(--kb-card);
   border: 1px solid var(--kb-border);
   border-radius: 12px;
@@ -1641,14 +1825,15 @@ onUnmounted(() => {
 }
 
 .docs-empty h3 {
-  font-size: 15px;
+  font-size: var(--kb-fs-body-lg);
+  line-height: var(--kb-lh-body-lg);
   font-weight: 600;
   color: var(--kb-foreground);
   margin: 0;
 }
 
 .docs-empty p {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   color: var(--kb-muted-foreground);
   margin: 0;
 }
@@ -1661,8 +1846,8 @@ onUnmounted(() => {
 .loading-row {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px 18px;
+  gap: 16px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--kb-border);
   background: var(--kb-card);
 }
@@ -1711,7 +1896,8 @@ onUnmounted(() => {
     justify-content: center;
   }
   .greeting-title {
-    font-size: 22px;
+    font-size: var(--kb-fs-h4);
+    line-height: var(--kb-lh-h4);
   }
   .quick-access-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -1760,7 +1946,8 @@ onUnmounted(() => {
 
 .invite-dialog-header h3 {
   margin: 0;
-  font-size: 18px;
+  font-size: var(--kb-fs-h4);
+  line-height: var(--kb-lh-h4);
   font-weight: 600;
   color: var(--kb-foreground);
 }
@@ -1780,15 +1967,27 @@ onUnmounted(() => {
   color: var(--kb-foreground);
 }
 
+.invite-close:active {
+  background: var(--kb-muted);
+  color: var(--kb-foreground);
+  transform: scale(0.94);
+}
+
+.invite-close:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  color: var(--kb-foreground);
+}
+
 .invite-dialog-body {
   padding: 24px;
 }
 
 .invite-desc {
   color: var(--kb-muted-foreground);
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   margin: 0 0 20px;
-  line-height: 1.5;
+  line-height: var(--kb-lh-body-md);
 }
 
 .invite-form-group {
@@ -1797,7 +1996,7 @@ onUnmounted(() => {
 
 .invite-form-group label {
   display: block;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   color: var(--kb-foreground);
   margin-bottom: 8px;
@@ -1807,7 +2006,7 @@ onUnmounted(() => {
   width: 100%;
   padding: 10px 14px;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   background: var(--kb-background);
   color: var(--kb-foreground);
   border: 1px solid var(--kb-border);
@@ -1816,7 +2015,12 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
-.invite-form-group .form-input:focus {
+.invite-form-group .form-input:hover {
+  border-color: var(--kb-primary);
+}
+
+.invite-form-group .form-input:focus,
+.invite-form-group .form-input:focus-visible {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
 }
@@ -1824,7 +2028,7 @@ onUnmounted(() => {
 .role-options {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .role-option {
@@ -1841,6 +2045,17 @@ onUnmounted(() => {
 .role-option:hover {
   border-color: var(--kb-primary);
   background: rgba(59, 111, 224, 0.04);
+}
+
+.role-option:active {
+  border-color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.1);
+}
+
+.role-option:focus-within {
+  border-color: var(--kb-primary);
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .role-option.active {
@@ -1861,13 +2076,13 @@ onUnmounted(() => {
 }
 
 .role-name {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 500;
   color: var(--kb-foreground);
 }
 
 .role-desc {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
 }
 
@@ -1883,7 +2098,7 @@ onUnmounted(() => {
   flex: 1;
   height: 40px;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
@@ -1892,6 +2107,12 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 6px;
+}
+
+.invite-dialog-footer .btn-secondary:focus-visible,
+.invite-dialog-footer .btn-primary:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .invite-dialog-footer .btn-secondary {
@@ -1904,19 +2125,31 @@ onUnmounted(() => {
   background: var(--kb-muted);
 }
 
+.invite-dialog-footer .btn-secondary:active {
+  background: var(--kb-muted);
+  border-color: var(--kb-primary);
+  transform: scale(0.98);
+}
+
 .invite-dialog-footer .btn-primary {
   background: var(--kb-primary);
-  color: white;
+  color: var(--kb-primary-foreground);
 }
 
 .invite-dialog-footer .btn-primary:hover {
   opacity: 0.9;
 }
 
+.invite-dialog-footer .btn-primary:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
 /* leaf-header 操作区 */
 .leaf-actions {
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .btn-ghost.small {
@@ -1925,7 +2158,7 @@ onUnmounted(() => {
   gap: 6px;
   padding: 8px 14px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   cursor: pointer;
   background: var(--kb-card);
@@ -1937,6 +2170,18 @@ onUnmounted(() => {
 .btn-ghost.small:hover {
   border-color: var(--kb-primary);
   color: var(--kb-primary);
+}
+
+.btn-ghost.small:active {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.08);
+  transform: scale(0.98);
+}
+
+.btn-ghost.small:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 @media (max-width: 640px) {
@@ -1982,12 +2227,25 @@ onUnmounted(() => {
     color: var(--kb-foreground);
     cursor: pointer;
     flex-shrink: 0;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, color 0.15s, background 0.15s, transform 0.15s;
   }
 
   .mobile-menu-btn:hover {
     border-color: var(--kb-primary);
     color: var(--kb-primary);
+  }
+
+  .mobile-menu-btn:active {
+    border-color: var(--kb-primary);
+    color: var(--kb-primary);
+    background: rgba(59, 111, 224, 0.08);
+    transform: scale(0.96);
+  }
+
+  .mobile-menu-btn:focus-visible {
+    outline: 2px solid var(--kb-ring);
+    outline-offset: 2px;
+    border-color: var(--kb-primary);
   }
 }
 
@@ -2020,17 +2278,31 @@ onUnmounted(() => {
   color: var(--kb-primary);
 }
 
+.page-btn:active:not(:disabled) {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.08);
+  transform: scale(0.96);
+}
+
+.page-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-color: var(--kb-primary);
+}
+
 .page-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 
 .page-info {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   color: var(--kb-muted-foreground);
   min-width: 60px;
   text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ===== 搜索历史下拉 ===== */
@@ -2056,7 +2328,7 @@ onUnmounted(() => {
 }
 
 .history-title {
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -2066,13 +2338,26 @@ onUnmounted(() => {
 .history-clear {
   background: transparent;
   border: none;
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   color: var(--kb-primary);
   cursor: pointer;
   padding: 0;
+  border-radius: var(--kb-radius-sm);
+  transition: color 0.15s, opacity 0.15s;
 }
 
 .history-clear:hover {
+  text-decoration: underline;
+}
+
+.history-clear:active {
+  text-decoration: underline;
+  opacity: 0.75;
+}
+
+.history-clear:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
   text-decoration: underline;
 }
 
@@ -2089,7 +2374,9 @@ onUnmounted(() => {
   gap: 4px;
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  max-width: 100%;
+  min-width: 0;
   background: var(--kb-muted);
   color: var(--kb-foreground);
   border: 1px solid transparent;
@@ -2097,8 +2384,28 @@ onUnmounted(() => {
   transition: all 0.15s;
 }
 
+.history-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .history-item:hover {
   background: rgba(59, 111, 224, 0.08);
+  color: var(--kb-primary);
+  border-color: var(--kb-primary);
+}
+
+.history-item:active {
+  background: rgba(59, 111, 224, 0.16);
+  color: var(--kb-primary);
+  border-color: var(--kb-primary);
+  transform: scale(0.97);
+}
+
+.history-item:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
   color: var(--kb-primary);
   border-color: var(--kb-primary);
 }
@@ -2118,8 +2425,12 @@ onUnmounted(() => {
 .tag-filter-btn {
   padding: 4px 12px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   font-weight: 500;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   background: var(--kb-card);
   color: var(--kb-muted-foreground);
   border: 1px solid var(--kb-border);
@@ -2130,6 +2441,19 @@ onUnmounted(() => {
 .tag-filter-btn:hover {
   border-color: var(--kb-primary);
   color: var(--kb-primary);
+}
+
+.tag-filter-btn:active {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.08);
+  transform: scale(0.97);
+}
+
+.tag-filter-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-color: var(--kb-primary);
 }
 
 .tag-filter-btn.active {

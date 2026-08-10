@@ -3,8 +3,8 @@
     <!-- 顶部导航 -->
     <div class="page-header">
       <div class="header-left">
-        <button class="back-btn" @click="goBack">
-          <Icon name="arrow-left" :size="18" />
+        <button type="button" class="back-btn" @click="goBack">
+          <Icon name="arrow-left" :size="16" />
           <span>返回知识库</span>
         </button>
       </div>
@@ -25,7 +25,7 @@
               <Icon name="database-import" :size="14" />
               导入进度
             </span>
-            <span class="global-progress-count">
+            <span class="global-progress-count tabular-nums">
               {{ progressCurrent }} / {{ progressTotal }}（{{ overallProgressPercent }}%）
             </span>
           </div>
@@ -43,6 +43,7 @@
         <!-- 导入方式 Tab：上传文件 / 路径导入 -->
         <div class="import-mode-tabs">
           <button
+            type="button"
             class="mode-tab"
             :class="{ active: importMode === 'file' }"
             :disabled="uploading || pathImporting"
@@ -52,6 +53,7 @@
             <span>上传文件</span>
           </button>
           <button
+            type="button"
             class="mode-tab"
             :class="{ active: importMode === 'path' }"
             :disabled="uploading || pathImporting"
@@ -67,10 +69,14 @@
           <div
             class="upload-zone"
             :class="{ dragging: isDragging, hasfiles: files.length > 0 }"
+            role="button"
+            tabindex="0"
+            aria-label="拖拽文件到此处，或点击选择文件"
             @dragover.prevent="isDragging = true"
             @dragleave.prevent="isDragging = false"
             @drop.prevent="handleDrop"
             @click="triggerFileInput"
+            @keydown.enter.prevent="($event.target as HTMLElement).click()"
           >
             <input
               ref="fileInputRef"
@@ -81,7 +87,7 @@
               @change="handleFileSelect"
             />
             <div class="upload-zone-icon">
-              <Icon name="upload" :size="28" />
+              <Icon name="upload" :size="24" />
             </div>
             <p class="upload-zone-title">
               {{ isDragging ? '释放文件以上传' : '拖拽文件到此处，或点击选择文件' }}
@@ -95,7 +101,7 @@
           <div v-if="files.length > 0" class="file-list-card">
             <div class="file-list-header">
               <h3 class="list-title">待上传文件</h3>
-              <span class="file-list-count">{{ files.length }} 个文件</span>
+              <span class="file-list-count tabular-nums">{{ files.length }} 个文件</span>
             </div>
             <div class="file-list-body">
               <div v-for="(file, idx) in files" :key="file.id" class="file-item">
@@ -104,7 +110,7 @@
                 </div>
                 <div class="file-info">
                   <p class="file-name">{{ file.name }}</p>
-                  <p class="file-size">{{ formatFileSize(file.size) }}</p>
+                  <p class="file-size tabular-nums">{{ formatFileSize(file.size) }}</p>
                 </div>
                 <div class="file-progress">
                   <div class="upload-bar">
@@ -115,10 +121,10 @@
                     ></div>
                   </div>
                 </div>
-                <span class="file-status" :class="getStatusTextClass(file)">
+                <span class="file-status tabular-nums" :class="getStatusTextClass(file)">
                   {{ getStatusLabel(file) }}
                 </span>
-                <button class="file-remove-btn" title="移除" @click.stop="removeFile(idx)">
+                <button type="button" class="file-remove-btn" title="移除" @click.stop="removeFile(idx)">
                   <Icon name="trash-2" :size="14" />
                 </button>
               </div>
@@ -142,11 +148,12 @@
                 @keyup.enter="scanPath"
               />
               <button
+                type="button"
                 class="btn-scan"
                 :disabled="pathScanning || !pathInput.trim() || pathImporting"
                 @click="scanPath"
               >
-                <Icon :name="pathScanning ? 'loader' : 'search'" :size="14" :class="{ 'spin-icon': pathScanning }" />
+                <Icon :name="pathScanning ? 'loader' : 'search'" :size="16" :class="{ 'spin-icon': pathScanning }" />
                 <span>{{ pathScanning ? '扫描中...' : '扫描' }}</span>
               </button>
             </div>
@@ -165,7 +172,7 @@
                   {{ pathScanResult.isFile ? '单文件' : '目录' }}
                 </span>
               </h3>
-              <span class="file-list-count">
+              <span class="file-list-count tabular-nums">
                 {{ pathScanResult.docCount }} 文档 /
                 {{ pathScanResult.imageCount }} 图片 /
                 {{ pathScanResult.dirCount }} 目录
@@ -185,7 +192,7 @@
                 </div>
                 <div class="file-info">
                   <p class="file-name" :title="entry.path">{{ entry.name }}</p>
-                  <p class="file-size">
+                  <p class="file-size tabular-nums" :title="entry.path">
                     {{ entry.path }} · {{ formatFileSize(entry.size) }}
                   </p>
                 </div>
@@ -202,7 +209,7 @@
                   {{ getPathFileStatusLabel(entry, idx) }}
                 </span>
               </div>
-              <p v-if="pathScanResult.files.length > 200" class="more-files-hint">
+              <p v-if="pathScanResult.files.length > 200" class="more-files-hint tabular-nums">
                 仅显示前 200 个文件，共 {{ pathScanResult.files.length }} 个
               </p>
             </div>
@@ -239,14 +246,17 @@
                 :key="cat.id"
                 class="kb-select-item"
                 :class="{ selected: Number(formData.kbId) === cat.id }"
+                role="button"
+                tabindex="0"
                 @click="selectKb(cat.id)"
+                @keydown.enter.prevent="($event.target as HTMLElement).click()"
               >
                 <div class="kb-select-icon" :style="{ background: getKbColor(cat.id) }">
                   <Icon :name="getCategoryIcon(cat.icon)" :size="20" />
                 </div>
                 <div class="kb-select-info">
                   <p class="kb-name">{{ cat.name }}</p>
-                  <p class="kb-count">{{ (cat as any).docCount || 0 }} 篇文档</p>
+                  <p class="kb-count tabular-nums">{{ (cat as any).docCount || 0 }} 篇文档</p>
                 </div>
                 <Icon v-if="Number(formData.kbId) === cat.id" name="check-circle" :size="20" class="check-icon" />
               </div>
@@ -269,8 +279,8 @@
                 {{ cat.name }}
               </option>
             </select>
-            <button v-if="formData.kbId && filteredSubCategories.length === 0" class="create-category-link" @click="createSubCategory">
-              <Icon name="plus" :size="12" />
+            <button v-if="formData.kbId && filteredSubCategories.length === 0" type="button" class="create-category-link" @click="createSubCategory">
+              <Icon name="plus" :size="14" />
               <span>新建子分类</span>
             </button>
           </div>
@@ -318,7 +328,7 @@
             :disabled="!canSubmit || (importMode === 'file' ? uploading : pathImporting)"
             @click="handleUpload"
           >
-            <Icon name="upload" :size="14" />
+            <Icon name="upload" :size="16" />
             <span>{{ submitLabel }}</span>
           </button>
         </div>
@@ -336,20 +346,21 @@
         <div class="form-row">
           <label class="form-label">分类图标</label>
           <div class="icon-grid">
-            <div
+            <button
               v-for="icon in availableIcons"
               :key="icon"
+              type="button"
               class="icon-item"
               :class="{ active: newCategoryIcon === icon }"
               @click="newCategoryIcon = icon"
             >
-              <Icon :name="icon" :size="18" />
-            </div>
+              <Icon :name="icon" :size="16" />
+            </button>
           </div>
         </div>
         <div class="modal-actions">
-          <button class="btn-secondary" @click="showCategoryModal = false">取消</button>
-          <button class="btn-primary" @click="confirmCreateCategory">确定</button>
+          <button type="button" class="btn-secondary" @click="showCategoryModal = false">取消</button>
+          <button type="button" class="btn-primary" @click="confirmCreateCategory">确定</button>
         </div>
       </div>
     </div>
@@ -925,12 +936,18 @@ onMounted(loadCategories)
   padding: 0 24px 40px;
 }
 
+@media (max-width: 768px) {
+  .knowledge-upload-page {
+    padding: 0 16px 32px;
+  }
+}
+
 /* ===== 整体导入进度条 ===== */
 .global-progress-card {
-  background: var(--kb-card, #fff);
-  border: 1px solid var(--kb-border, #e2e8f0);
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
   border-radius: 14px;
-  padding: 14px 16px;
+  padding: 16px;
   margin-bottom: 16px;
 }
 
@@ -938,43 +955,46 @@ onMounted(loadCategories)
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .global-progress-title {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: 8px;
+  min-width: 0;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 600;
-  color: var(--kb-foreground, #1e293b);
+  color: var(--kb-foreground);
 }
 
 .global-progress-count {
-  font-size: 12px;
-  color: var(--kb-primary, #3b6fe0);
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-primary);
   font-weight: 600;
 }
 
 .global-progress-bar {
   height: 8px;
   border-radius: 4px;
-  background: var(--kb-muted, #f1f5f9);
+  background: var(--kb-muted);
   overflow: hidden;
 }
 
 .global-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3b6fe0, #6366f1);
+  background: linear-gradient(90deg, var(--kb-primary), #6366F1);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
 
 .global-progress-file {
   margin: 8px 0 0;
-  font-size: 12px;
-  color: var(--kb-muted-foreground, #64748b);
-  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-muted-foreground);
+  font-family: var(--font-mono);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -985,31 +1005,43 @@ onMounted(loadCategories)
   display: flex;
   gap: 4px;
   padding: 4px;
-  background: var(--kb-muted, #f1f5f9);
+  background: var(--kb-muted);
   border-radius: 12px;
   margin-bottom: 16px;
 }
 
 .mode-tab {
   flex: 1;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 10px 14px;
+  gap: 8px;
+  padding: 8px 16px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground, #64748b);
-  font-size: 13px;
+  color: var(--kb-muted-foreground);
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
+  line-height: var(--kb-lh-body-sm);
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
   font-family: inherit;
 }
 
 .mode-tab:hover:not(:disabled) {
-  color: var(--kb-foreground, #1e293b);
+  background: rgba(59, 111, 224, 0.06);
+  color: var(--kb-foreground);
+}
+
+.mode-tab:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.mode-tab:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .mode-tab:disabled {
@@ -1018,9 +1050,14 @@ onMounted(loadCategories)
 }
 
 .mode-tab.active {
-  background: var(--kb-card, #fff);
-  color: var(--kb-primary, #3b6fe0);
+  background: var(--kb-card);
+  color: var(--kb-primary);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.mode-tab.active:hover:not(:disabled) {
+  background: var(--kb-card);
+  color: var(--kb-primary);
 }
 
 .page-header {
@@ -1044,26 +1081,39 @@ onMounted(loadCategories)
 .back-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
+  gap: 8px;
+  padding: 8px 16px;
   border-radius: 8px;
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
   color: var(--kb-foreground);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
+  line-height: var(--kb-lh-body-sm);
   cursor: pointer;
-  transition: all 0.15s;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
 
 .back-btn:hover {
   border-color: var(--kb-primary);
   color: var(--kb-primary);
+  background: rgba(59, 111, 224, 0.06);
+}
+
+.back-btn:active {
+  transform: scale(0.98);
+}
+
+.back-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .page-title {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: var(--kb-fs-h4);
+  font-weight: var(--kb-fw-h4);
+  line-height: var(--kb-lh-h4);
   color: var(--kb-foreground);
   margin: 0;
 }
@@ -1093,12 +1143,22 @@ onMounted(loadCategories)
   padding: 48px 24px;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .upload-zone:hover {
   border-color: var(--kb-primary);
   background: rgba(59, 111, 224, 0.03);
+}
+
+.upload-zone:active {
+  background: rgba(59, 111, 224, 0.08);
+}
+
+.upload-zone:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-color: var(--kb-primary);
 }
 
 .upload-zone.dragging {
@@ -1119,14 +1179,16 @@ onMounted(loadCategories)
 }
 
 .upload-zone-title {
-  font-size: 15px;
+  font-size: var(--kb-fs-body-lg);
   font-weight: 500;
+  line-height: var(--kb-lh-body-lg);
   color: var(--kb-foreground);
   margin-bottom: 4px;
 }
 
 .upload-zone-hint {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
   color: var(--kb-muted-foreground);
 }
 
@@ -1145,19 +1207,24 @@ onMounted(loadCategories)
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px;
   border-bottom: 1px solid var(--kb-border);
 }
 
 .list-title {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 600;
+  line-height: var(--kb-lh-body-md);
   color: var(--kb-foreground);
+  min-width: 0;
   margin: 0;
 }
 
 .file-list-count {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   color: var(--kb-muted-foreground);
 }
 
@@ -1188,11 +1255,11 @@ onMounted(loadCategories)
   flex-shrink: 0;
 }
 
-.type-pdf { background: rgba(239, 68, 68, 0.1); color: #EF4444; }
-.type-md { background: rgba(16, 185, 129, 0.1); color: #10B981; }
-.type-doc { background: rgba(59, 111, 224, 0.08); color: #3B6FE0; }
-.type-ppt { background: rgba(245, 158, 11, 0.1); color: #F59E0B; }
-.type-default { background: rgba(107, 114, 128, 0.1); color: #6B7280; }
+.type-pdf { background: rgba(239, 68, 68, 0.1); color: var(--kb-destructive); }
+.type-md { background: rgba(16, 185, 129, 0.1); color: var(--kb-accent); }
+.type-doc { background: rgba(59, 111, 224, 0.08); color: var(--kb-primary); }
+.type-ppt { background: rgba(245, 158, 11, 0.1); color: var(--kb-warning); }
+.type-default { background: rgba(107, 114, 128, 0.1); color: var(--kb-muted-foreground); }
 
 .file-info {
   flex: 1;
@@ -1200,8 +1267,9 @@ onMounted(loadCategories)
 }
 
 .file-name {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
+  line-height: var(--kb-lh-body-sm);
   color: var(--kb-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1210,9 +1278,12 @@ onMounted(loadCategories)
 }
 
 .file-size {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   color: var(--kb-muted-foreground);
-  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   margin: 0;
 }
 
@@ -1235,18 +1306,19 @@ onMounted(loadCategories)
 }
 
 .fill-primary { background: var(--kb-primary); }
-.fill-success { background: #10B981; }
-.fill-error { background: #EF4444; }
+.fill-success { background: var(--kb-accent); }
+.fill-error { background: var(--kb-destructive); }
 
 .file-status {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   flex-shrink: 0;
   min-width: 48px;
   text-align: right;
 }
 
-.status-success { color: #10B981; }
-.status-error { color: #EF4444; }
+.status-success { color: var(--kb-accent); }
+.status-error { color: var(--kb-destructive); }
 .status-muted { color: var(--kb-muted-foreground); }
 
 .file-remove-btn {
@@ -1261,12 +1333,22 @@ onMounted(loadCategories)
   color: var(--kb-muted-foreground);
   border-radius: 6px;
   flex-shrink: 0;
-  transition: all 0.15s;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .file-remove-btn:hover {
   background: rgba(239, 68, 68, 0.08);
-  color: #EF4444;
+  color: var(--kb-destructive);
+}
+
+.file-remove-btn:active {
+  transform: scale(0.94);
+  background: rgba(239, 68, 68, 0.14);
+}
+
+.file-remove-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .upload-right {
@@ -1279,8 +1361,9 @@ onMounted(loadCategories)
 }
 
 .form-title {
-  font-size: 16px;
+  font-size: var(--kb-fs-body-lg);
   font-weight: 600;
+  line-height: var(--kb-lh-h4);
   color: var(--kb-foreground);
   margin: 0 0 20px;
 }
@@ -1294,21 +1377,23 @@ onMounted(loadCategories)
 .form-row {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .form-label {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
+  line-height: var(--kb-lh-body-sm);
   color: var(--kb-foreground);
 }
 
 .required-mark {
-  color: #EF4444;
+  color: var(--kb-destructive);
 }
 
 .form-hint {
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
+  line-height: var(--kb-lh-xs);
   color: var(--kb-muted-foreground);
   margin: 0;
 }
@@ -1319,12 +1404,12 @@ onMounted(loadCategories)
   height: 38px;
   padding: 0 12px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   background: var(--kb-background);
   color: var(--kb-foreground);
   border: 1px solid var(--kb-border);
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   font-family: inherit;
 }
 
@@ -1332,9 +1417,20 @@ onMounted(loadCategories)
   cursor: pointer;
 }
 
+.form-select:hover:not(:disabled) {
+  border-color: var(--kb-primary);
+}
+
 .form-input:focus,
 .form-select:focus {
   border-color: var(--kb-primary);
+}
+
+.form-input:focus-visible,
+.form-select:focus-visible,
+.form-textarea:focus-visible {
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
 
 .form-select:disabled {
@@ -1346,13 +1442,14 @@ onMounted(loadCategories)
   width: 100%;
   padding: 8px 12px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
   background: var(--kb-background);
   color: var(--kb-foreground);
   border: 1px solid var(--kb-border);
   outline: none;
   resize: none;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   font-family: inherit;
 }
 
@@ -1369,9 +1466,10 @@ onMounted(loadCategories)
   border: 1px dashed var(--kb-border);
   background: transparent;
   color: var(--kb-primary);
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
   align-self: flex-start;
 }
 
@@ -1380,16 +1478,36 @@ onMounted(loadCategories)
   border-color: var(--kb-primary);
 }
 
+.create-category-link:active {
+  transform: scale(0.98);
+  background: rgba(59, 111, 224, 0.12);
+}
+
+.create-category-link:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
 .tags-input {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  padding: 8px 10px;
+  padding: 8px 12px;
   border-radius: 8px;
   background: var(--kb-background);
   border: 1px solid var(--kb-border);
   min-height: 38px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tags-input:hover {
+  border-color: var(--kb-primary);
+}
+
+.tags-input:focus-within {
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
 
 .tag-chip {
@@ -1397,35 +1515,49 @@ onMounted(loadCategories)
   align-items: center;
   gap: 4px;
   height: 24px;
-  padding: 0 10px;
+  padding: 0 8px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   font-weight: 500;
   background: rgba(59, 111, 224, 0.1);
   color: var(--kb-primary);
+  max-width: 100%;
 }
 
 .tag-remove {
   background: transparent;
   border: none;
+  border-radius: 4px;
   cursor: pointer;
   color: var(--kb-primary);
   padding: 0;
   display: inline-flex;
   align-items: center;
   opacity: 0.7;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
 
 .tag-remove:hover {
   opacity: 1;
+  background: rgba(59, 111, 224, 0.14);
+}
+
+.tag-remove:active {
+  transform: scale(0.9);
+}
+
+.tag-remove:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .tag-text-input {
   flex: 1;
   min-width: 80px;
   height: 24px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   background: transparent;
   border: none;
   outline: none;
@@ -1447,28 +1579,41 @@ onMounted(loadCategories)
 .btn-primary,
 .btn-secondary {
   flex: 1;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   height: 38px;
   padding: 0 16px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
+  line-height: var(--kb-lh-body-sm);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
   border: none;
   font-family: inherit;
 }
 
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
 .btn-primary {
   background: var(--kb-primary);
-  color: white;
+  color: var(--kb-primary-foreground);
 }
 
 .btn-primary:hover:not(:disabled) {
   opacity: 0.9;
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
+  opacity: 0.85;
 }
 
 .btn-primary:disabled {
@@ -1482,8 +1627,19 @@ onMounted(loadCategories)
   border: 1px solid var(--kb-border);
 }
 
-.btn-secondary:hover {
+.btn-secondary:hover:not(:disabled) {
   background: var(--kb-muted);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: scale(0.98);
+  background: var(--kb-muted);
+  border-color: var(--kb-primary);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* 新建分类弹窗 */
@@ -1507,8 +1663,9 @@ onMounted(loadCategories)
 }
 
 .modal-title {
-  font-size: 16px;
+  font-size: var(--kb-fs-body-lg);
   font-weight: 600;
+  line-height: var(--kb-lh-h4);
   color: var(--kb-foreground);
   margin: 0 0 16px;
 }
@@ -1519,6 +1676,12 @@ onMounted(loadCategories)
   gap: 8px;
 }
 
+@media (max-width: 768px) {
+  .icon-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
 .icon-item {
   display: flex;
   align-items: center;
@@ -1527,13 +1690,24 @@ onMounted(loadCategories)
   height: 36px;
   border-radius: 8px;
   cursor: pointer;
+  color: var(--kb-foreground);
   background: var(--kb-background);
   border: 1px solid transparent;
-  transition: all 0.15s;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .icon-item:hover {
   background: var(--kb-muted);
+  border-color: var(--kb-border);
+}
+
+.icon-item:active {
+  transform: scale(0.94);
+}
+
+.icon-item:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .icon-item.active {
@@ -1586,17 +1760,23 @@ onMounted(loadCategories)
 .path-input-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 8px;
-  background: var(--kb-card, #fff);
-  border: 2px solid var(--kb-border, #e2e8f0);
+  background: var(--kb-card);
+  border: 2px solid var(--kb-border);
   border-radius: 14px;
-  transition: all 0.15s;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.path-input-row:hover {
+  border-color: var(--kb-primary);
 }
 
 .path-input-row:focus-within,
 .path-input-row.scanning {
-  border-color: var(--kb-primary, #3b6fe0);
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
 
 .path-input-icon {
@@ -1605,23 +1785,24 @@ onMounted(loadCategories)
   justify-content: center;
   width: 40px;
   height: 40px;
-  color: var(--kb-muted-foreground, #64748b);
+  color: var(--kb-muted-foreground);
   flex-shrink: 0;
 }
 
 .path-input {
   flex: 1;
+  min-width: 0;
   border: none;
   outline: none;
   background: transparent;
-  font-size: 14px;
-  color: var(--kb-foreground, #1e293b);
-  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--kb-fs-body-md);
+  color: var(--kb-foreground);
+  font-family: var(--font-mono);
   padding: 8px 4px;
 }
 
 .path-input::placeholder {
-  color: var(--kb-muted-foreground, #94a3b8);
+  color: var(--kb-muted-foreground);
 }
 
 .path-input:disabled {
@@ -1632,22 +1813,34 @@ onMounted(loadCategories)
 .btn-scan {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 18px;
+  gap: 8px;
+  padding: 8px 16px;
   border: none;
-  background: var(--kb-primary, #3b6fe0);
-  color: white;
-  font-size: 13px;
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
+  line-height: var(--kb-lh-body-sm);
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
   flex-shrink: 0;
+  white-space: nowrap;
   font-family: inherit;
 }
 
 .btn-scan:hover:not(:disabled) {
-  background: var(--kb-primary-dark, #2c5dd8);
+  background: var(--color-primary-dark);
+}
+
+.btn-scan:active:not(:disabled) {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.btn-scan:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .btn-scan:disabled {
@@ -1656,9 +1849,9 @@ onMounted(loadCategories)
 }
 
 .path-input-hint {
-  margin: 10px 2px 0;
-  font-size: 12px;
-  color: var(--kb-muted-foreground, #64748b);
+  margin: 12px 2px 0;
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-muted-foreground);
   line-height: 1.6;
 }
 
@@ -1667,30 +1860,30 @@ onMounted(loadCategories)
   display: inline-block;
   margin-left: 8px;
   padding: 2px 8px;
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   font-weight: 500;
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.1));
-  color: var(--kb-primary, #3b6fe0);
+  background: rgba(59, 111, 224, 0.1);
+  color: var(--kb-primary);
   border-radius: 4px;
 }
 
 .path-file-list .file-name {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
 }
 
 .path-file-list .file-size {
-  color: var(--kb-muted-foreground, #94a3b8);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
+  color: var(--kb-muted-foreground);
+  font-family: var(--font-mono);
+  font-size: var(--kb-fs-xs);
 }
 
 .more-files-hint {
   padding: 12px;
   text-align: center;
-  font-size: 12px;
-  color: var(--kb-muted-foreground, #64748b);
-  border-top: 1px solid var(--kb-border, #f1f5f9);
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-muted-foreground);
+  border-top: 1px solid var(--kb-border);
 }
 
 .spin-icon {
@@ -1707,14 +1900,14 @@ onMounted(loadCategories)
 }
 
 .kb-select-wrap .form-label {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   display: block;
 }
 
 .kb-select-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 
 .kb-select-item {
@@ -1722,19 +1915,31 @@ onMounted(loadCategories)
   align-items: center;
   gap: 12px;
   padding: 12px;
-  border: 2px solid var(--kb-border, #e2e8f0);
+  border: 2px solid var(--kb-border);
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
   position: relative;
 }
 
 .kb-select-item:hover {
   border-color: rgba(59, 111, 224, 0.4);
+  background: rgba(59, 111, 224, 0.03);
+}
+
+.kb-select-item:active {
+  transform: scale(0.99);
+  background: rgba(59, 111, 224, 0.06);
+}
+
+.kb-select-item:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-color: var(--kb-primary);
 }
 
 .kb-select-item.selected {
-  border-color: var(--kb-primary, #3b6fe0);
+  border-color: var(--kb-primary);
   background: rgba(59, 111, 224, 0.04);
 }
 
@@ -1746,7 +1951,7 @@ onMounted(loadCategories)
   height: 40px;
   border-radius: 10px;
   flex-shrink: 0;
-  color: var(--kb-primary, #3b6fe0);
+  color: var(--kb-primary);
 }
 
 .kb-select-info {
@@ -1755,9 +1960,10 @@ onMounted(loadCategories)
 }
 
 .kb-name {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 500;
-  color: var(--kb-foreground, #1e293b);
+  line-height: var(--kb-lh-body-md);
+  color: var(--kb-foreground);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1765,28 +1971,47 @@ onMounted(loadCategories)
 }
 
 .kb-count {
-  font-size: 12px;
-  color: var(--kb-muted-foreground, #64748b);
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
+  color: var(--kb-muted-foreground);
   margin: 2px 0 0;
 }
 
 .check-icon {
-  color: var(--kb-primary, #3b6fe0);
+  color: var(--kb-primary);
   flex-shrink: 0;
 }
 
 .empty-hint {
-  font-size: 14px;
-  color: var(--kb-muted-foreground, #64748b);
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
+  color: var(--kb-muted-foreground);
   padding: 16px;
-  border: 1px dashed var(--kb-border, #e2e8f0);
+  border: 1px dashed var(--kb-border);
   border-radius: 10px;
   text-align: center;
   margin: 0;
 }
 
 .link-btn {
-  color: var(--kb-primary, #3b6fe0);
+  display: inline-block;
+  border-radius: 4px;
+  color: var(--kb-primary);
   text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.link-btn:hover {
+  color: var(--color-primary-dark);
+}
+
+.link-btn:active {
+  opacity: 0.8;
+}
+
+.link-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 </style>

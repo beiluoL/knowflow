@@ -1,12 +1,12 @@
 <template>
   <div class="animate-fade-in">
     <!-- 面包屑导航 -->
-    <nav class="flex items-center gap-2 text-sm mb-6 breadcrumb-bar">
+    <nav class="flex items-center flex-wrap gap-2 text-sm mb-6 breadcrumb-bar">
       <router-link to="/" class="breadcrumb-link">首页</router-link>
-      <Icon name="chevron-right" :size="14" class="breadcrumb-sep" />
+      <Icon name="chevron-right" :size="14" class="breadcrumb-sep shrink-0" />
       <router-link to="/admin/docs" class="breadcrumb-link">文档管理</router-link>
-      <Icon name="chevron-right" :size="14" class="breadcrumb-sep" />
-      <span class="breadcrumb-current">新增文档</span>
+      <Icon name="chevron-right" :size="14" class="breadcrumb-sep shrink-0" />
+      <span class="breadcrumb-current min-w-0 truncate">新增文档</span>
     </nav>
 
     <!-- 页面标题 -->
@@ -16,11 +16,11 @@
     <div class="flex gap-6 doc-layout">
       <!-- ===== 左侧编辑区 ===== -->
       <div class="flex-1 min-w-0">
-        <div class="rounded-lg border p-6 editor-card">
+        <div class="rounded-lg border p-4 md:p-6 editor-card">
           <form @submit.prevent="handleSubmit" class="flex flex-col gap-5">
             <!-- 文档标题 -->
             <div>
-              <label class="block text-sm font-medium mb-1.5 field-label">文档标题</label>
+              <label class="block text-sm font-medium mb-2 field-label">文档标题</label>
               <input
                 v-model="form.title"
                 type="text"
@@ -32,7 +32,7 @@
             <!-- 分类 + 文档类型 -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium mb-1.5 field-label">分类</label>
+                <label class="block text-sm font-medium mb-2 field-label">分类</label>
                 <CategoryTreeSelect
                   v-model="form.categoryId"
                   :categories="categories"
@@ -41,7 +41,7 @@
                 />
               </div>
               <div>
-                <label class="block text-sm font-medium mb-1.5 field-label">文档类型</label>
+                <label class="block text-sm font-medium mb-2 field-label">文档类型</label>
                 <div class="flex items-center gap-1 p-1 rounded-lg type-switch">
                   <button
                     v-for="t in docTypes"
@@ -57,7 +57,7 @@
 
             <!-- 标签（chips 可删除 + 输入回车添加） -->
             <div>
-              <label class="block text-sm font-medium mb-1.5 field-label">标签</label>
+              <label class="block text-sm font-medium mb-2 field-label">标签</label>
               <div class="flex items-center gap-2 flex-wrap p-3 rounded-lg border tags-input">
                 <span
                   v-for="(tag, idx) in tagList"
@@ -82,7 +82,7 @@
 
             <!-- 内容编辑器（工具栏 + 文本域） -->
             <div>
-              <label class="block text-sm font-medium mb-1.5 field-label">内容</label>
+              <label class="block text-sm font-medium mb-2 field-label">内容</label>
               <div
                 class="rounded-lg border overflow-hidden content-editor"
                 :class="{ 'drag-over': isDragOver }"
@@ -91,12 +91,12 @@
                 @drop.prevent="onDrop"
               >
                 <!-- 工具栏 -->
-                <div class="flex items-center gap-1 px-2 py-1.5 border-b toolbar">
+                <div class="flex items-center flex-wrap gap-1 px-2 py-1.5 border-b toolbar">
                   <button
                     v-for="tool in toolbarTools"
                     :key="tool.name"
                     type="button"
-                    class="w-7 h-7 flex items-center justify-center rounded toolbar-btn"
+                    class="w-7 h-7 shrink-0 flex items-center justify-center rounded toolbar-btn"
                     :title="tool.title"
                     @click="tool.name === 'image' ? handleImagePick() : insertMarkdown(tool.prefix, tool.suffix)"
                   >
@@ -107,7 +107,7 @@
                 <div class="relative">
                   <!-- 拖拽提示遮罩 -->
                   <div v-if="isDragOver" class="drag-hint">
-                    <Icon name="upload" :size="36" />
+                    <Icon name="upload" :size="32" />
                     <p>松开鼠标上传图片</p>
                     <p class="drag-hint-sub">支持 JPG / PNG / GIF / WEBP / SVG</p>
                   </div>
@@ -149,7 +149,7 @@
 
             <!-- 摘要 -->
             <div>
-              <label class="block text-sm font-medium mb-1.5 field-label">摘要</label>
+              <label class="block text-sm font-medium mb-2 field-label">摘要</label>
               <textarea
                 v-model="form.summary"
                 rows="3"
@@ -159,7 +159,7 @@
             </div>
 
             <!-- 底部操作栏 -->
-            <div class="flex items-center gap-3 pt-4 border-t action-bar">
+            <div class="flex items-center flex-wrap gap-3 pt-4 border-t action-bar">
               <button type="button" class="btn-secondary" @click="handleSaveDraft">
                 <Icon name="save" :size="14" />
                 <span>保存草稿</span>
@@ -195,10 +195,10 @@
         <!-- 写作提示卡 -->
         <div class="rounded-lg border p-5 mt-4 tips-card">
           <h4 class="kb-h4 mb-3">写作提示</h4>
-          <ul class="flex flex-col gap-2.5 text-sm tips-list">
+          <ul class="flex flex-col gap-3 text-sm tips-list">
             <li v-for="(tip, idx) in writingTips" :key="idx" class="flex items-start gap-2 tip-item">
               <Icon name="check-circle" :size="16" class="mt-0.5 shrink-0 tip-icon" />
-              <span>{{ tip }}</span>
+              <span class="min-w-0 flex-1">{{ tip }}</span>
             </li>
           </ul>
         </div>
@@ -491,10 +491,20 @@ onUnmounted(() => {
 .breadcrumb-link {
   color: var(--kb-muted-foreground);
   text-decoration: none;
-  transition: color 0.15s ease;
+  border-radius: var(--kb-radius-sm);
+  transition: color 0.15s ease, opacity 0.15s ease;
 }
 .breadcrumb-link:hover {
   color: var(--kb-primary);
+}
+.breadcrumb-link:active {
+  color: var(--kb-primary);
+  opacity: 0.8;
+}
+.breadcrumb-link:focus-visible {
+  color: var(--kb-primary);
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 .breadcrumb-sep {
   color: var(--kb-muted-foreground);
@@ -518,12 +528,17 @@ onUnmounted(() => {
   background: var(--kb-background);
   border-color: var(--kb-border);
   color: var(--kb-foreground);
+  font-size: var(--kb-fs-body-md);
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field-input:hover {
+  border-color: var(--kb-primary);
 }
 .field-input:focus {
   border-color: var(--kb-ring);
   background: var(--kb-card);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
 
 /* 文档类型切换 */
@@ -535,6 +550,7 @@ onUnmounted(() => {
   background: transparent;
   border: none;
   cursor: pointer;
+  font-size: var(--kb-fs-body-md);
   transition: all 0.15s ease;
 }
 .type-switch-btn.active {
@@ -542,15 +558,32 @@ onUnmounted(() => {
   color: var(--kb-foreground);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
+.type-switch-btn:hover:not(.active) {
+  color: var(--kb-foreground);
+  background: rgba(59, 111, 224, 0.08);
+}
+.type-switch-btn:active {
+  transform: scale(0.98);
+}
+.type-switch-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
 
 /* 标签输入 */
 .tags-input {
   background: var(--kb-background);
   border-color: var(--kb-border);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.tags-input:focus-within {
+  border-color: var(--kb-ring);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
 .tag-chip {
   background: rgba(59, 111, 224, 0.08);
   color: var(--kb-primary);
+  font-size: var(--kb-fs-caption);
 }
 .tag-remove {
   display: inline-flex;
@@ -558,22 +591,38 @@ onUnmounted(() => {
   justify-content: center;
   background: transparent;
   border: none;
+  border-radius: var(--kb-radius-sm);
   color: inherit;
   cursor: pointer;
   opacity: 0.7;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 .tag-remove:hover {
   opacity: 1;
 }
+.tag-remove:active {
+  opacity: 1;
+  transform: scale(0.92);
+}
+.tag-remove:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
 .tag-text-input {
   background: transparent;
   color: var(--kb-foreground);
+  font-size: var(--kb-fs-body-md);
 }
 
 /* 内容编辑器 */
 .content-editor {
   border-color: var(--kb-border);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.content-editor:focus-within {
+  border-color: var(--kb-ring);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
 .content-editor.drag-over {
   border-color: var(--kb-primary);
@@ -588,16 +637,27 @@ onUnmounted(() => {
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 .toolbar-btn:hover {
   background: var(--kb-muted);
   color: var(--kb-primary);
 }
+.toolbar-btn:active {
+  background: var(--kb-muted);
+  color: var(--kb-primary);
+  transform: scale(0.94);
+}
+.toolbar-btn:focus-visible {
+  color: var(--kb-primary);
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
 .content-textarea {
   background: var(--kb-card);
   color: var(--kb-foreground);
   font-family: 'Noto Sans SC', 'Inter', ui-monospace, monospace;
+  font-size: var(--kb-fs-body-md);
   line-height: 1.7;
 }
 .preview-area {
@@ -611,7 +671,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(2px);
   color: var(--kb-primary);
@@ -619,13 +679,13 @@ onUnmounted(() => {
   z-index: 10;
 }
 .drag-hint p {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 600;
   margin: 0;
   color: var(--kb-primary);
 }
 .drag-hint .drag-hint-sub {
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   font-weight: 400;
   color: var(--kb-muted-foreground);
 }
@@ -634,7 +694,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 16px;
+  padding: 8px 16px;
   background: rgba(59, 111, 224, 0.06);
   border-top: 1px solid var(--kb-border);
   color: var(--kb-primary);
@@ -648,11 +708,26 @@ onUnmounted(() => {
   background: transparent;
   border: none;
   cursor: pointer;
+  font-size: var(--kb-fs-caption);
   transition: all 0.15s ease;
 }
 .preview-toggle.active {
   background: var(--kb-primary);
   color: var(--kb-primary-foreground);
+}
+.preview-toggle:hover:not(.active) {
+  background: var(--kb-muted);
+  color: var(--kb-foreground);
+}
+.preview-toggle.active:hover {
+  opacity: 0.9;
+}
+.preview-toggle:active {
+  transform: scale(0.98);
+}
+.preview-toggle:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 /* 操作栏 */
@@ -668,16 +743,24 @@ onUnmounted(() => {
   height: 34px;
   padding: 0 14px;
   border-radius: var(--kb-radius-sm);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   background: var(--kb-primary);
   color: var(--kb-primary-foreground);
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   opacity: 0.9;
+}
+.btn-primary:active:not(:disabled) {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+.btn-primary:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 .btn-primary:disabled {
   opacity: 0.5;
@@ -690,16 +773,25 @@ onUnmounted(() => {
   height: 34px;
   padding: 0 14px;
   border-radius: var(--kb-radius-sm);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   background: var(--kb-card);
   color: var(--kb-sidebar-foreground);
   border: 1px solid var(--kb-border);
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 .btn-secondary:hover {
   background: var(--kb-muted);
+}
+.btn-secondary:active {
+  background: var(--kb-muted);
+  border-color: var(--kb-primary);
+  transform: scale(0.98);
+}
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 /* 右侧辅助面板 */

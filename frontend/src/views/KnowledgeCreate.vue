@@ -2,8 +2,8 @@
   <div class="knowledge-create-page">
     <!-- 顶部导航 -->
     <div class="page-header">
-      <button class="back-btn" @click="goBack">
-        <Icon name="arrow-left" :size="18" />
+      <button type="button" class="back-btn" @click="goBack">
+        <Icon name="arrow-left" :size="16" />
         <span>返回知识库</span>
       </button>
       <h1 class="page-title">新建知识库</h1>
@@ -33,32 +33,38 @@
           <div class="form-group">
             <label class="form-label">知识库图标</label>
             <div class="icon-grid">
-              <div
+              <button
                 v-for="icon in availableIcons"
                 :key="icon.name"
+                type="button"
                 class="icon-item"
                 :class="{ active: formData.icon === icon.name }"
                 @click="formData.icon = icon.name"
                 :title="icon.name"
+                :aria-label="icon.name"
+                :aria-pressed="formData.icon === icon.name"
               >
                 <Icon :name="icon.name" :size="20" />
-              </div>
+              </button>
             </div>
           </div>
 
           <div class="form-group">
             <label class="form-label">知识库颜色</label>
             <div class="color-picker">
-              <div
+              <button
                 v-for="color in availableColors"
                 :key="color.value"
+                type="button"
                 class="color-item"
                 :class="{ active: formData.color === color.value }"
                 :style="{ background: color.value }"
                 @click="formData.color = color.value"
+                :aria-label="color.value"
+                :aria-pressed="formData.color === color.value"
               >
                 <Icon v-if="formData.color === color.value" name="check" :size="14" />
-              </div>
+              </button>
             </div>
           </div>
 
@@ -86,7 +92,7 @@
                     <span class="member-name">{{ member.name }}</span>
                     <span class="member-role">{{ member.role }}</span>
                   </div>
-                  <button class="member-remove" @click="removeMember(member.id)" v-if="member.id !== currentUserId">
+                  <button type="button" class="member-remove" aria-label="移除成员" @click="removeMember(member.id)" v-if="member.id !== currentUserId">
                     <Icon name="x" :size="14" />
                   </button>
                 </div>
@@ -100,7 +106,7 @@
                     placeholder="输入成员邮箱邀请加入"
                     class="form-input"
                   />
-                  <button class="invite-btn" @click="inviteMember">
+                  <button type="button" class="invite-btn" @click="inviteMember">
                     <Icon name="user-plus" :size="14" />
                     <span>邀请</span>
                   </button>
@@ -111,8 +117,8 @@
           </div>
 
           <div class="form-actions">
-            <button class="btn-secondary" @click="goBack">取消</button>
-            <button class="btn-primary" :disabled="!canSubmit" @click="handleCreate">
+            <button type="button" class="btn-secondary" @click="goBack">取消</button>
+            <button type="button" class="btn-primary" :disabled="!canSubmit" @click="handleCreate">
               <Icon name="check" :size="14" />
               <span>创建知识库</span>
             </button>
@@ -127,7 +133,7 @@
           
           <div class="preview-knowledge" :style="{ borderColor: formData.color + '40' }">
             <div class="preview-icon" :style="{ background: formData.color + '15', color: formData.color }">
-              <Icon :name="formData.icon" :size="28" />
+              <Icon :name="formData.icon" :size="24" />
             </div>
             <div class="preview-info">
               <h4 class="preview-name">{{ formData.name || '知识库名称' }}</h4>
@@ -347,16 +353,16 @@ function goBack(): void {
 .back-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--kb-space-2);
   padding: 8px 14px;
   border-radius: 8px;
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
   color: var(--kb-foreground);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
 
 .back-btn:hover {
@@ -364,8 +370,17 @@ function goBack(): void {
   color: var(--kb-primary);
 }
 
+.back-btn:active {
+  transform: scale(0.98);
+}
+
+.back-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
 .page-title {
-  font-size: 20px;
+  font-size: var(--kb-fs-h4);
   font-weight: 700;
   color: var(--kb-foreground);
   margin: 0;
@@ -392,7 +407,7 @@ function goBack(): void {
 }
 
 .form-section-title {
-  font-size: 16px;
+  font-size: var(--kb-fs-body-lg);
   font-weight: 600;
   color: var(--kb-foreground);
   margin: 0 0 20px;
@@ -404,22 +419,22 @@ function goBack(): void {
 
 .form-label {
   display: block;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   color: var(--kb-foreground);
   margin-bottom: 8px;
 }
 
 .required-mark {
-  color: #EF4444;
+  color: var(--kb-destructive);
 }
 
 .form-input,
 .form-textarea {
   width: 100%;
   padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: var(--kb-radius-md);
+  font-size: var(--kb-fs-body-md);
   background: var(--kb-background);
   color: var(--kb-foreground);
   border: 1px solid var(--kb-border);
@@ -440,9 +455,10 @@ function goBack(): void {
 }
 
 .form-hint {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
-  margin: 6px 0 0;
+  margin: var(--kb-space-2) 0 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .icon-grid {
@@ -457,16 +473,26 @@ function goBack(): void {
   justify-content: center;
   width: 44px;
   height: 44px;
-  border-radius: 10px;
+  padding: 0;
+  border-radius: var(--kb-radius-md);
   cursor: pointer;
   background: var(--kb-background);
   border: 2px solid transparent;
-  transition: all 0.15s;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
   color: var(--kb-foreground);
 }
 
 .icon-item:hover {
   background: var(--kb-muted);
+}
+
+.icon-item:active {
+  transform: scale(0.96);
+}
+
+.icon-item:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .icon-item.active {
@@ -477,24 +503,36 @@ function goBack(): void {
 
 .color-picker {
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: var(--kb-space-3);
 }
 
 .color-item {
   width: 32px;
   height: 32px;
+  padding: 0;
+  flex-shrink: 0;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 2px solid transparent;
-  color: white;
-  transition: all 0.15s;
+  color: #FFFFFF;
+  transition: transform 0.15s ease, border-color 0.15s ease;
 }
 
 .color-item:hover {
   transform: scale(1.1);
+}
+
+.color-item:active {
+  transform: scale(0.95);
+}
+
+.color-item:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .color-item.active {
@@ -512,15 +550,15 @@ function goBack(): void {
 .member-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: var(--kb-space-3);
+  margin-bottom: var(--kb-space-4);
 }
 
 .member-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px;
+  gap: var(--kb-space-3);
+  padding: var(--kb-space-2);
   border-radius: 8px;
   background: var(--kb-card);
 }
@@ -528,36 +566,45 @@ function goBack(): void {
 .member-avatar {
   width: 32px;
   height: 32px;
+  flex-shrink: 0;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 13px;
+  color: #FFFFFF;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 600;
 }
 
 .member-info {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
 .member-name {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   color: var(--kb-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .member-role {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .member-remove {
   width: 24px;
   height: 24px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -566,38 +613,53 @@ function goBack(): void {
   cursor: pointer;
   color: var(--kb-muted-foreground);
   border-radius: 4px;
-  transition: all 0.15s;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .member-remove:hover {
   background: rgba(239, 68, 68, 0.1);
-  color: #EF4444;
+  color: var(--kb-destructive);
+}
+
+.member-remove:active {
+  transform: scale(0.92);
+}
+
+.member-remove:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .invite-section {
   border-top: 1px solid var(--kb-border);
-  padding-top: 16px;
+  padding-top: var(--kb-space-4);
 }
 
 .invite-input-row {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: var(--kb-space-2);
+}
+
+.invite-input-row .form-input {
+  flex: 1;
+  min-width: 0;
 }
 
 .invite-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--kb-space-2);
   padding: 0 16px;
   height: 40px;
   border-radius: 8px;
   border: none;
   background: var(--kb-primary);
-  color: white;
-  font-size: 13px;
+  color: var(--kb-primary-foreground);
+  font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: opacity 0.15s ease, transform 0.15s ease;
   flex-shrink: 0;
 }
 
@@ -605,39 +667,59 @@ function goBack(): void {
   opacity: 0.9;
 }
 
+.invite-btn:active {
+  transform: scale(0.98);
+}
+
+.invite-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
 .form-actions {
   display: flex;
-  gap: 12px;
-  margin-top: 24px;
-  padding-top: 20px;
+  gap: var(--kb-space-3);
+  margin-top: var(--kb-space-6);
+  padding-top: var(--kb-space-5);
   border-top: 1px solid var(--kb-border);
 }
 
 .btn-primary,
 .btn-secondary {
   flex: 1;
+  min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: var(--kb-space-2);
   height: 40px;
   padding: 0 16px;
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: var(--kb-radius-md);
+  font-size: var(--kb-fs-body-md);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: opacity 0.15s ease, background 0.15s ease, transform 0.15s ease;
   border: none;
   font-family: inherit;
 }
 
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
 .btn-primary {
   background: var(--kb-primary);
-  color: white;
+  color: var(--kb-primary-foreground);
 }
 
 .btn-primary:hover:not(:disabled) {
   opacity: 0.9;
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .btn-primary:disabled {
@@ -655,6 +737,10 @@ function goBack(): void {
   background: var(--kb-muted);
 }
 
+.btn-secondary:active {
+  transform: scale(0.98);
+}
+
 /* 预览面板 */
 .preview-card {
   background: var(--kb-card);
@@ -666,10 +752,10 @@ function goBack(): void {
 }
 
 .preview-title {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 600;
   color: var(--kb-foreground);
-  margin: 0 0 16px;
+  margin: 0 0 var(--kb-space-4);
 }
 
 .preview-knowledge {
@@ -684,46 +770,56 @@ function goBack(): void {
 .preview-icon {
   width: 48px;
   height: 48px;
+  flex-shrink: 0;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 4px;
+  margin-bottom: var(--kb-space-1);
 }
 
 .preview-info {
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--kb-space-1);
 }
 
 .preview-name {
-  font-size: 16px;
+  font-size: var(--kb-fs-body-lg);
   font-weight: 600;
   color: var(--kb-foreground);
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .preview-desc {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   color: var(--kb-muted-foreground);
   margin: 0;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .preview-stats {
   display: flex;
-  gap: 16px;
-  padding-top: 12px;
+  flex-wrap: wrap;
+  gap: var(--kb-space-4);
+  padding-top: var(--kb-space-3);
   border-top: 1px solid var(--kb-border);
 }
 
 .preview-stat {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
+  gap: var(--kb-space-1);
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.preview-stat svg {
+  flex-shrink: 0;
 }
 
 .preview-tips {
@@ -733,10 +829,10 @@ function goBack(): void {
 }
 
 .tips-title {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 600;
   color: var(--kb-foreground);
-  margin: 0 0 10px;
+  margin: 0 0 var(--kb-space-3);
 }
 
 .tips-list {
@@ -745,18 +841,30 @@ function goBack(): void {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--kb-space-2);
 }
 
 .tips-list li {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
+  gap: var(--kb-space-2);
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
 }
 
+.tips-list li svg {
+  flex-shrink: 0;
+}
+
+.tips-list li span {
+  min-width: 0;
+}
+
 @media (max-width: 768px) {
+  .knowledge-create-page {
+    padding: 0 var(--kb-space-4) 40px;
+  }
+  
   .create-layout {
     grid-template-columns: 1fr;
   }

@@ -2,13 +2,13 @@
   <div class="animate-fade-in space-y-6">
     <!-- Page Header -->
     <div class="flex items-end justify-between flex-wrap gap-3">
-      <div>
+      <div class="min-w-0">
         <h1 class="kb-h1">知识库</h1>
         <p class="kb-body-sm mt-1">按分类浏览全部技术文档，点开分类查看文档列表</p>
       </div>
       <button
         type="button"
-        class="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium transition-colors"
+        class="inline-flex shrink-0 items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium transition-[opacity,transform] hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
         @click="goTo('/search')"
       >
@@ -26,7 +26,7 @@
         v-for="tab in categoryTabs"
         :key="tab.id"
         type="button"
-        class="shrink-0 inline-flex items-center whitespace-nowrap rounded-lg px-3.5 py-1.5 text-[13px] font-medium transition-colors"
+        class="kb-tab shrink-0 inline-flex items-center whitespace-nowrap rounded-lg px-4 py-1.5 font-medium"
         :class="activeTab === tab.id ? 'tab-active' : 'tab-default'"
         :aria-pressed="activeTab === tab.id"
         @click="selectTab(tab.id)"
@@ -62,7 +62,7 @@
     </div>
 
     <!-- Knowledge Tree -->
-    <section v-else class="space-y-2.5">
+    <section v-else class="space-y-3">
       <div
         v-for="cat in visibleCategories"
         :key="cat.id"
@@ -72,21 +72,27 @@
         <!-- Category Header -->
         <button
           type="button"
-          class="flex w-full items-center justify-between px-3.5 py-3 transition-colors hover:bg-gray-50"
+          class="flex w-full items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-gray-50 active:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--kb-ring)]"
           :aria-expanded="expandedIds.has(cat.id)"
           @click="toggleCategory(cat.id)"
         >
-          <div class="flex items-center gap-2.5 min-w-0">
+          <div class="flex items-center gap-3 min-w-0 flex-1">
             <span
               class="flex h-7 w-7 items-center justify-center rounded-md shrink-0"
               style="background: rgba(59,111,224,0.1); color: var(--kb-primary);"
             >
-              <Icon :name="getCategoryIcon(cat.icon)" :size="16" />
+              <Icon :name="getCategoryIcon(cat.icon)" :size="16" aria-hidden="true" />
             </span>
-            <span class="text-[14px] font-semibold truncate" style="color: var(--kb-foreground);">
+            <span
+              class="font-semibold truncate"
+              style="color: var(--kb-foreground); font-size: var(--kb-fs-body-md);"
+            >
               {{ cat.name }}
             </span>
-            <span class="text-[12px] shrink-0" style="color: var(--kb-muted-foreground);">
+            <span
+              class="shrink-0 tabular-nums"
+              style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption);"
+            >
               {{ cat.docCount || 0 }} 篇
             </span>
           </div>
@@ -95,6 +101,7 @@
             :size="16"
             class="shrink-0"
             style="color: var(--kb-muted-foreground);"
+            aria-hidden="true"
           />
         </button>
 
@@ -104,26 +111,35 @@
           class="border-t"
           style="border-color: var(--kb-border);"
         >
-          <div v-if="getCategoryDocs(cat.id).length === 0" class="px-3.5 py-4 text-center text-xs" style="color: var(--kb-muted-foreground);">
+          <div v-if="getCategoryDocs(cat.id).length === 0" class="px-4 py-4 text-center text-xs" style="color: var(--kb-muted-foreground);">
             该分类下暂无文档
           </div>
           <div
             v-for="doc in getCategoryDocs(cat.id)"
             :key="doc.id"
-            class="flex items-center gap-2.5 px-3.5 py-2.5 cursor-pointer transition-colors hover:bg-gray-50"
+            role="button"
+            tabindex="0"
+            class="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors hover:bg-gray-50 active:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--kb-ring)]"
             :style="{
               borderBottom: `1px solid color-mix(in srgb, ${kbBorder} 50%, transparent)`,
             }"
             @click="goTo(`/doc/${doc.id}`)"
+            @keydown.enter.prevent="($event.target as HTMLElement).click()"
           >
             <DocTypeBadge :file-url="doc.fileUrl" :content="doc.content" :size="24" />
             <div class="min-w-0 flex-1">
-              <span class="block text-[13px] font-medium truncate" style="color: var(--kb-foreground);">
+              <span
+                class="block font-medium truncate"
+                style="color: var(--kb-foreground); font-size: var(--kb-fs-body-sm);"
+              >
                 {{ doc.title }}
               </span>
-              <span class="flex items-center gap-2 text-[11px] mt-0.5" style="color: var(--kb-muted-foreground);">
-                <span class="flex items-center gap-0.5">
-                  <Icon name="clock" :size="11" />
+              <span
+                class="flex flex-wrap items-center gap-2 mt-1"
+                style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-xs);"
+              >
+                <span class="flex items-center gap-1 tabular-nums">
+                  <Icon name="clock" :size="14" aria-hidden="true" />
                   {{ estimateReadMinutes(doc.wordCount) }} 分钟
                 </span>
                 <span
@@ -134,11 +150,11 @@
                 </span>
                 <span
                   v-if="doc.fileUrl"
-                  class="inline-flex items-center gap-0.5 text-[10px] whitespace-nowrap"
+                  class="inline-flex items-center gap-1 text-[10px] whitespace-nowrap"
                   style="color: var(--kb-muted-foreground);"
                   :title="doc.fileName || '原文件'"
                 >
-                  <Icon name="paperclip" :size="10" />
+                  <Icon name="paperclip" :size="14" aria-hidden="true" />
                   原文件
                 </span>
               </span>
@@ -151,23 +167,33 @@
     <!-- Recently Viewed -->
     <section v-if="!loading && recentDocs.length > 0">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-[15px] font-semibold" style="color: var(--kb-foreground);">最近阅读</h2>
-        <router-link to="/favorites" class="text-xs flex items-center gap-1" style="color: var(--kb-primary);">
+        <h2 class="font-semibold min-w-0 truncate" style="color: var(--kb-foreground); font-size: var(--kb-fs-body-lg);">最近阅读</h2>
+        <router-link
+          to="/favorites"
+          class="shrink-0 rounded text-xs flex items-center gap-1 transition-opacity hover:opacity-80 active:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          style="color: var(--kb-primary);"
+        >
           查看全部
-          <Icon name="chevron-right" :size="12" />
+          <Icon name="chevron-right" :size="14" aria-hidden="true" />
         </router-link>
       </div>
       <div class="flex flex-nowrap gap-3 overflow-x-auto no-scrollbar pb-1">
         <div
           v-for="(doc, idx) in recentDocs"
           :key="doc.id"
-          class="recent-card shrink-0 w-[220px] overflow-hidden rounded-lg border cursor-pointer transition-all hover:shadow-md"
+          role="button"
+          tabindex="0"
+          class="recent-card shrink-0 w-[220px] overflow-hidden rounded-lg border cursor-pointer hover:shadow-md"
           style="background: var(--kb-card); border-color: var(--kb-border);"
           @click="goTo(`/doc/${doc.id}`)"
+          @keydown.enter.prevent="($event.target as HTMLElement).click()"
         >
           <div class="h-2" :style="{ background: recentColors[idx % recentColors.length] }"></div>
-          <div class="px-3 py-2.5">
-            <span class="block text-[13px] font-medium truncate" style="color: var(--kb-foreground);">
+          <div class="px-3 py-3">
+            <span
+              class="block font-medium truncate"
+              style="color: var(--kb-foreground); font-size: var(--kb-fs-body-sm);"
+            >
               {{ doc.title }}
             </span>
             <div class="mt-2 flex items-center gap-2">
@@ -176,14 +202,17 @@
                 style="background: var(--kb-muted);"
               >
                 <div
-                  class="h-full rounded-full transition-all"
+                  class="h-full rounded-full transition-[width] duration-300"
                   :style="{
                     width: `${getRecentProgress(doc)}%`,
                     background: recentColors[idx % recentColors.length],
                   }"
                 ></div>
               </div>
-              <span class="text-[11px] whitespace-nowrap" style="color: var(--kb-muted-foreground);">
+              <span
+                class="shrink-0 whitespace-nowrap tabular-nums"
+                style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-xs);"
+              >
                 {{ getRecentProgress(doc) }}%
               </span>
             </div>
@@ -347,9 +376,28 @@ onMounted(loadData)
   to { opacity: 1; transform: translateY(0); }
 }
 
+.kb-tab {
+  font-size: var(--kb-fs-body-sm);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+    opacity 0.2s ease, transform 0.12s ease;
+}
+
+.kb-tab:active {
+  transform: scale(0.98);
+}
+
+.kb-tab:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
 .tab-active {
   background: var(--kb-primary);
   color: var(--kb-primary-foreground);
+}
+
+.tab-active:hover {
+  opacity: 0.9;
 }
 
 .tab-default {
@@ -363,11 +411,24 @@ onMounted(loadData)
   border-color: var(--kb-primary);
 }
 
+.tab-default:active {
+  background: var(--kb-muted);
+}
+
 .recent-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .recent-card:hover {
   transform: translateY(-2px);
+}
+
+.recent-card:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.recent-card:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 </style>
