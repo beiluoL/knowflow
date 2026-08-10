@@ -1,17 +1,17 @@
 <template>
   <div class="learning-mode h-screen flex flex-col" style="background: var(--kb-background);">
     <!-- ===== 精简顶部栏 ===== -->
-    <div class="h-14 flex items-center justify-between px-6 shrink-0 topbar">
-      <button type="button" class="flex items-center gap-2 text-sm font-medium topbar-back" @click="exitLearning">
+    <div class="h-14 flex items-center justify-between gap-3 px-4 md:px-6 shrink-0 topbar">
+      <button type="button" class="flex items-center gap-2 shrink-0 text-sm font-medium topbar-back" @click="exitLearning">
         <Icon name="arrow-left" :size="16" />
         <span>返回</span>
       </button>
-      <div class="flex items-center gap-4">
-        <span class="text-sm" style="color: var(--kb-muted-foreground);">{{ courseTitle }}</span>
-        <span class="px-2 py-0.5 rounded text-xs progress-chip">第 {{ currentIndex + 1 }}/{{ total }} 题</span>
+      <div class="flex items-center gap-4 min-w-0">
+        <span class="text-sm truncate" style="color: var(--kb-muted-foreground);">{{ courseTitle }}</span>
+        <span class="px-2 py-0.5 rounded text-xs shrink-0 tabular-nums progress-chip">第 {{ currentIndex + 1 }}/{{ total }} 题</span>
       </div>
-      <div class="flex items-center gap-3">
-        <button type="button" class="flex items-center gap-1.5 h-8 px-3 rounded-lg text-sm pause-btn" @click="togglePause">
+      <div class="flex items-center gap-3 shrink-0">
+        <button type="button" class="flex items-center gap-2 h-8 px-3 rounded-lg text-sm pause-btn" @click="togglePause">
           <Icon :name="isPaused ? 'play' : 'pause'" :size="14" />
           {{ isPaused ? '继续' : '暂停' }}
         </button>
@@ -22,7 +22,7 @@
     </div>
 
     <!-- ===== 主内容区 ===== -->
-    <div class="flex-1 flex flex-col items-center justify-center px-6 relative overflow-y-auto">
+    <div class="flex-1 flex flex-col items-center justify-center px-4 md:px-6 relative overflow-y-auto">
       <!-- 加载态 -->
       <div v-if="loading" class="text-center">
         <div class="w-12 h-12 rounded-full border-4 animate-spin mx-auto mb-4" style="border-color: var(--kb-muted); border-top-color: var(--kb-primary);"></div>
@@ -32,11 +32,11 @@
       <!-- 空态 -->
       <div v-else-if="cards.length === 0" class="text-center">
         <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background: var(--kb-muted);">
-          <Icon name="layers" :size="32" style="color: var(--kb-muted-foreground);" />
+          <Icon name="layers" :size="24" style="color: var(--kb-muted-foreground);" />
         </div>
         <h3 class="kb-h3 mb-2">暂无学习卡片</h3>
         <p class="kb-body-sm mb-4">请先在其他页面创建闪卡或选择学习路径</p>
-        <button type="button" class="px-4 py-2 rounded-lg text-sm font-medium" style="background: var(--kb-primary); color: var(--kb-primary-foreground);" @click="exitLearning">返回学习中心</button>
+        <button type="button" class="px-4 py-2 rounded-lg text-sm font-medium empty-cta" style="background: var(--kb-primary); color: var(--kb-primary-foreground);" @click="exitLearning">返回学习中心</button>
       </div>
 
       <!-- 学习内容 -->
@@ -51,7 +51,7 @@
                 stroke-linecap="round"
                 :stroke-dasharray="timerCircumference"
                 :stroke-dashoffset="timerDashoffset"
-                class="transition-all duration-1000 ease-linear"
+                class="transition-[stroke-dashoffset] duration-1000 ease-linear"
               />
             </svg>
             <div class="absolute inset-0 flex flex-col items-center justify-center">
@@ -74,9 +74,9 @@
               >{{ tag.label }}</span>
             </div>
             <!-- 题目标题 -->
-            <h2 class="text-2xl font-bold mb-4" style="color: var(--kb-foreground);">{{ currentCard?.front }}</h2>
+            <h2 class="font-bold mb-4" style="color: var(--kb-foreground); font-size: var(--kb-fs-h3); line-height: var(--kb-lh-h3);">{{ currentCard?.front }}</h2>
             <!-- 引导文案 -->
-            <p class="leading-relaxed" style="color: var(--kb-muted-foreground); font-size: 15px;">
+            <p class="leading-relaxed" style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-body-md);">
               请在脑海中组织答案，回想相关知识点。准备好后点击下方按钮，也可查看答案与提示。
             </p>
             <!-- 展开的答案 -->
@@ -99,7 +99,7 @@
         </div>
 
         <!-- 大按钮 -->
-        <div class="flex items-center gap-6 mb-8">
+        <div class="flex flex-wrap items-center justify-center gap-6 mb-8">
           <button
             type="button"
             class="flex items-center gap-3 h-16 px-12 rounded-2xl text-lg font-semibold border-2 review-btn"
@@ -122,10 +122,10 @@
         <div class="w-full max-w-xl">
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm" style="color: var(--kb-muted-foreground);">学习进度</span>
-            <span class="text-sm font-medium" style="color: var(--kb-primary);">{{ currentIndex + 1 }} / {{ total }}</span>
+            <span class="text-sm font-medium tabular-nums" style="color: var(--kb-primary);">{{ currentIndex + 1 }} / {{ total }}</span>
           </div>
           <div class="h-2 rounded-full overflow-hidden" style="background: var(--kb-muted);">
-            <div class="h-full rounded-full transition-all duration-500" :style="{ width: `${progressPercent}%`, background: 'var(--kb-primary)' }"></div>
+            <div class="h-full rounded-full transition-[width] duration-500" :style="{ width: `${progressPercent}%`, background: 'var(--kb-primary)' }"></div>
           </div>
         </div>
       </template>
@@ -133,12 +133,12 @@
 
     <!-- ===== 右下角设置浮动面板 ===== -->
     <div class="fixed bottom-6 right-6">
-      <div v-if="showSettings" class="mb-3 p-5 rounded-xl border shadow-xl w-72 settings-panel" style="background: var(--kb-card); border-color: var(--kb-border);">
+      <div v-if="showSettings" class="mb-3 p-5 rounded-xl border shadow-xl w-72 max-w-[calc(100vw-3rem)] settings-panel" style="background: var(--kb-card); border-color: var(--kb-border);">
         <h4 class="text-sm font-semibold mb-4" style="color: var(--kb-foreground);">学习设置</h4>
         <div class="space-y-4">
           <!-- 学习目标时长 -->
           <div>
-            <label class="text-xs font-medium mb-1.5 block" style="color: var(--kb-muted-foreground);">学习目标</label>
+            <label class="text-xs font-medium mb-2 block" style="color: var(--kb-muted-foreground);">学习目标</label>
             <div class="flex items-center gap-2">
               <button
                 v-for="d in durationOptions"
@@ -152,8 +152,8 @@
           </div>
           <!-- 题目数量 -->
           <div>
-            <label class="text-xs font-medium mb-1.5 block" style="color: var(--kb-muted-foreground);">题目数量</label>
-            <select v-model="settings.questionCount" class="w-full h-9 rounded-lg border text-sm outline-none settings-select">
+            <label class="text-xs font-medium mb-2 block" style="color: var(--kb-muted-foreground);">题目数量</label>
+            <select v-model="settings.questionCount" class="w-full h-9 rounded-lg border text-sm outline-none cursor-pointer settings-select">
               <option :value="10">10 题</option>
               <option :value="20">20 题</option>
               <option :value="0">全部</option>
@@ -162,10 +162,10 @@
           </div>
           <!-- 退出按钮 -->
           <div class="pt-2 flex gap-2">
-            <button type="button" class="flex-1 h-9 rounded-lg text-sm font-medium border" style="border-color: var(--kb-border); color: var(--kb-foreground); background: var(--kb-card);" @click="togglePause">
+            <button type="button" class="flex-1 min-w-0 h-9 rounded-lg text-sm font-medium border panel-btn" style="border-color: var(--kb-border); color: var(--kb-foreground); background: var(--kb-card);" @click="togglePause">
               {{ isPaused ? '继续' : '暂停' }}
             </button>
-            <button type="button" class="flex-1 h-9 rounded-lg text-sm font-medium" style="background: var(--kb-destructive); color: var(--kb-destructive-foreground);" @click="exitLearning">退出学习</button>
+            <button type="button" class="flex-1 min-w-0 h-9 rounded-lg text-sm font-medium panel-btn-danger" style="background: var(--kb-destructive); color: var(--kb-destructive-foreground);" @click="exitLearning">退出学习</button>
           </div>
         </div>
       </div>
@@ -320,10 +320,13 @@ onUnmounted(() => {
 }
 .topbar-back {
   color: var(--kb-muted-foreground);
-  transition: color 0.15s ease;
+  transition: color 0.15s ease, transform 0.15s ease;
 }
 .topbar-back:hover {
   color: var(--kb-primary);
+}
+.topbar-back:active {
+  transform: scale(0.98);
 }
 .progress-chip {
   background: rgba(59, 111, 224, 0.08);
@@ -333,25 +336,46 @@ onUnmounted(() => {
   border: 1px solid var(--kb-border);
   color: var(--kb-foreground);
   background: var(--kb-card);
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 .pause-btn:hover {
   background: var(--kb-muted);
 }
+.pause-btn:active {
+  background: var(--kb-muted);
+  transform: scale(0.98);
+}
 .settings-trigger {
   color: var(--kb-muted-foreground);
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 .settings-trigger:hover {
   background: var(--kb-muted);
   color: var(--kb-primary);
 }
+.settings-trigger:active {
+  background: var(--kb-muted);
+  transform: scale(0.98);
+}
+
+/* 空态主按钮 */
+.empty-cta {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.empty-cta:hover {
+  opacity: 0.92;
+}
+.empty-cta:active {
+  opacity: 0.92;
+  transform: scale(0.98);
+}
 
 /* 计时器数字 */
 .timer-display {
-  font-size: 40px;
+  font-size: var(--kb-fs-h1);
   font-weight: 700;
-  font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
 
@@ -374,6 +398,10 @@ onUnmounted(() => {
   transform: scale(1.02);
   background: rgba(245, 158, 11, 0.06);
 }
+.review-btn:active {
+  transform: scale(0.98);
+  background: rgba(245, 158, 11, 0.12);
+}
 .memorized-btn {
   background: var(--kb-accent);
   color: var(--kb-accent-foreground);
@@ -382,6 +410,10 @@ onUnmounted(() => {
 .memorized-btn:hover {
   transform: scale(1.02);
   opacity: 0.92;
+}
+.memorized-btn:active {
+  transform: scale(0.98);
+  opacity: 0.88;
 }
 
 /* 设置浮窗 */
@@ -402,27 +434,86 @@ onUnmounted(() => {
   border-color: var(--kb-border);
   color: var(--kb-muted-foreground);
   background: var(--kb-card);
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.duration-btn:hover {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+  background: var(--kb-muted);
+}
+.duration-btn:active {
+  background: rgba(59, 111, 224, 0.12);
 }
 .duration-btn.active {
   border-color: var(--kb-primary);
   color: var(--kb-primary);
   background: rgba(59, 111, 224, 0.08);
 }
+
+/* 设置面板底部按钮 */
+.panel-btn {
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.panel-btn:hover {
+  background: var(--kb-muted) !important;
+  color: var(--kb-primary);
+}
+.panel-btn:active {
+  background: var(--kb-muted) !important;
+  transform: scale(0.98);
+}
+.panel-btn-danger {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.panel-btn-danger:hover {
+  opacity: 0.92;
+}
+.panel-btn-danger:active {
+  opacity: 0.88;
+  transform: scale(0.98);
+}
+
 .settings-select {
   background: var(--kb-background);
   border-color: var(--kb-border);
   color: var(--kb-foreground);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.settings-select:hover {
+  border-color: var(--kb-primary);
+}
+.settings-select:focus-visible {
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
 .settings-fab {
   background: var(--kb-card);
   border-color: var(--kb-border);
   color: var(--kb-muted-foreground);
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 .settings-fab:hover {
   background: var(--kb-muted);
   color: var(--kb-primary);
+}
+.settings-fab:active {
+  background: var(--kb-muted);
+  transform: scale(0.98);
+}
+
+/* 统一键盘焦点环 */
+.topbar-back:focus-visible,
+.pause-btn:focus-visible,
+.settings-trigger:focus-visible,
+.empty-cta:focus-visible,
+.review-btn:focus-visible,
+.memorized-btn:focus-visible,
+.duration-btn:focus-visible,
+.panel-btn:focus-visible,
+.panel-btn-danger:focus-visible,
+.settings-fab:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 /* 响应式：移动端按钮缩小 */
@@ -431,7 +522,7 @@ onUnmounted(() => {
   .memorized-btn {
     height: 56px;
     padding: 0 32px;
-    font-size: 16px;
+    font-size: var(--kb-fs-body-lg);
   }
 }
 </style>

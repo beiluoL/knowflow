@@ -1,9 +1,9 @@
 <template>
   <div class="prefs-page animate-fade-in">
     <!-- 页头 -->
-    <div class="flex items-center justify-between mb-6">
-      <div class="flex items-center gap-3">
-        <button type="button" class="back-btn" title="返回" @click="router.back()">
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
+      <div class="flex items-center gap-3 min-w-0">
+        <button type="button" class="back-btn" title="返回" aria-label="返回" @click="router.back()">
           <Icon name="arrow-left" :size="18" />
         </button>
         <h1 class="kb-h1">学习偏好</h1>
@@ -339,6 +339,7 @@ const togglePush = async () => {
 
 <style scoped>
 .prefs-page {
+  width: 100%;
   max-width: 880px;
   margin: 0 auto;
 }
@@ -349,35 +350,55 @@ const togglePush = async () => {
   justify-content: center;
   width: 36px;
   height: 36px;
+  flex-shrink: 0;
   border-radius: var(--kb-radius-sm);
   background: transparent;
   color: var(--kb-muted-foreground);
   border: none;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 .back-btn:hover {
   background: var(--kb-muted);
   color: var(--kb-primary);
 }
+.back-btn:active {
+  background: var(--kb-muted);
+  transform: scale(0.96);
+}
+.back-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
 
 .header-btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--kb-space-2);
   height: 38px;
-  padding: 0 18px;
+  padding: 0 var(--kb-space-4);
   border-radius: var(--kb-radius-sm);
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
   font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
   background: var(--kb-primary);
   color: var(--kb-primary-foreground);
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 .header-btn-primary:hover:not(:disabled) {
   opacity: 0.9;
+}
+.header-btn-primary:active:not(:disabled) {
+  opacity: 0.95;
+  transform: scale(0.98);
+}
+.header-btn-primary:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 .header-btn-primary:disabled {
   opacity: 0.5;
@@ -388,47 +409,62 @@ const togglePush = async () => {
   background: var(--kb-card);
   border: 1px solid var(--kb-border);
   border-radius: 12px;
-  padding: 20px 24px;
-  margin-bottom: 16px;
+  padding: var(--kb-space-5) var(--kb-space-6);
+  margin-bottom: var(--kb-space-4);
 }
 .card-head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--kb-space-2);
+  min-width: 0;
 }
 .card-icon {
   color: var(--kb-primary);
+  flex-shrink: 0;
 }
 .card-desc {
-  margin-top: 6px;
-  font-size: 13px;
+  margin-top: var(--kb-space-2);
+  font-size: var(--kb-fs-body-sm);
   color: var(--kb-muted-foreground);
-  line-height: 1.6;
+  line-height: var(--kb-lh-body-md);
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--kb-space-2);
+  min-width: 0;
 }
 .field-label {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
   font-weight: 500;
   color: var(--kb-foreground);
 }
 .field-input {
+  width: 100%;
+  min-width: 0;
   height: 38px;
-  padding: 0 12px;
-  font-size: 14px;
+  padding: 0 var(--kb-space-3);
+  font-size: var(--kb-fs-body-md);
+  font-variant-numeric: tabular-nums;
   border-radius: var(--kb-radius-sm);
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
   color: var(--kb-foreground);
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.field-input:focus {
+select.field-input {
+  cursor: pointer;
+}
+.field-input:hover {
   border-color: var(--kb-primary);
+}
+.field-input:focus,
+.field-input:focus-visible {
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
 
 /* 开关行 */
@@ -436,45 +472,69 @@ const togglePush = async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
+  gap: var(--kb-space-3);
+  padding: var(--kb-space-3);
   border: 1px solid var(--kb-border);
   border-radius: var(--kb-radius-sm);
   background: var(--kb-card);
   cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.switch-row:hover {
+  background: var(--kb-muted);
+  border-color: var(--kb-primary);
+}
+.switch-row:active {
+  background: color-mix(in srgb, var(--kb-primary) 8%, transparent);
+}
+.switch-row:has(input[type='checkbox']:focus-visible) {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 .switch-text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--kb-space-1);
+  flex: 1;
+  min-width: 0;
 }
 .switch-label {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
   font-weight: 500;
   color: var(--kb-foreground);
 }
 .switch-hint {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   color: var(--kb-muted-foreground);
 }
 .switch-row input[type='checkbox'] {
   width: 18px;
   height: 18px;
+  flex-shrink: 0;
   cursor: pointer;
   accent-color: var(--kb-primary);
+}
+.switch-row input[type='checkbox']:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 /* 学习提醒激活区 */
 .reminder-block {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 12px;
+  gap: var(--kb-space-3);
+  margin-top: var(--kb-space-3);
 }
 .reminder-perm {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
+  flex-wrap: wrap;
+  gap: var(--kb-space-3);
+  padding: var(--kb-space-3);
   border: 1px solid var(--kb-warning);
   border-radius: var(--kb-radius-sm);
   background: color-mix(in srgb, var(--kb-warning) 8%, transparent);
@@ -482,34 +542,65 @@ const togglePush = async () => {
 .perm-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--kb-space-2);
   height: 32px;
-  padding: 0 14px;
-  font-size: 13px;
+  padding: 0 var(--kb-space-4);
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
   font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
   border-radius: var(--kb-radius-sm);
   border: none;
   background: var(--kb-primary);
   color: var(--kb-primary-foreground);
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 .perm-btn:hover {
   opacity: 0.9;
 }
+.perm-btn:active {
+  opacity: 0.95;
+  transform: scale(0.98);
+}
+.perm-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
 .push-btn {
   height: 32px;
-  padding: 0 14px;
-  font-size: 13px;
+  padding: 0 var(--kb-space-4);
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
   font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
   border-radius: var(--kb-radius-sm);
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
   color: var(--kb-foreground);
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 .push-btn:hover {
   background: var(--kb-muted);
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+}
+.push-btn:active {
+  transform: scale(0.98);
+  background: color-mix(in srgb, var(--kb-primary) 8%, transparent);
+}
+.push-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
+/* 响应式：小屏收紧卡片内边距（px-4），桌面端保持 px-6 不变 */
+@media (max-width: 640px) {
+  .prefs-card {
+    padding: var(--kb-space-4);
+  }
 }
 </style>

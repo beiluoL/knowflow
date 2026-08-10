@@ -89,21 +89,21 @@
           <!-- 统计 -->
           <div class="wr-stats">
             <div class="wr-stat">
-              <div class="wr-stat-icon" style="background: rgba(59,111,224,0.1); color: var(--kb-primary);">
+              <div class="wr-stat-icon" style="background: color-mix(in srgb, var(--kb-primary) 10%, transparent); color: var(--kb-primary);">
                 <Icon name="clock" :size="18" />
               </div>
               <div class="wr-stat-num tabular-nums">{{ currentReport.studyMinutes }}</div>
               <div class="wr-stat-label">学习分钟</div>
             </div>
             <div class="wr-stat">
-              <div class="wr-stat-icon" style="background: rgba(16,185,129,0.1); color: var(--kb-accent);">
+              <div class="wr-stat-icon" style="background: color-mix(in srgb, var(--kb-accent) 10%, transparent); color: var(--kb-accent);">
                 <Icon name="check-circle" :size="18" />
               </div>
               <div class="wr-stat-num tabular-nums">{{ currentReport.checkinDays }}</div>
               <div class="wr-stat-label">打卡天数</div>
             </div>
             <div class="wr-stat">
-              <div class="wr-stat-icon" style="background: rgba(245,158,11,0.1); color: var(--kb-warning);">
+              <div class="wr-stat-icon" style="background: color-mix(in srgb, var(--kb-warning) 10%, transparent); color: var(--kb-warning);">
                 <Icon name="layers" :size="18" />
               </div>
               <div class="wr-stat-num tabular-nums">{{ currentReport.flashcardReviewed }}</div>
@@ -217,7 +217,7 @@
 
         <!-- 空态 -->
         <div v-else class="wr-empty">
-          <Icon name="file-question" :size="40" />
+          <Icon name="file-question" :size="32" />
           <p>本周暂无周报，点击右上角「生成本周周报」开始生成。</p>
         </div>
       </section>
@@ -271,17 +271,17 @@
             <!-- E. 历史周报 miniStats 横条 -->
             <div class="wr-history-mini-stats">
               <span class="wr-mini-stat">
-                <Icon name="clock" :size="11" />
+                <Icon name="clock" :size="12" />
                 <span class="tabular-nums">学习 {{ report.studyMinutes ?? 0 }} 分钟</span>
               </span>
               <span class="wr-mini-stat-sep" />
               <span class="wr-mini-stat">
-                <Icon name="calendar-check" :size="11" />
+                <Icon name="calendar-check" :size="12" />
                 <span class="tabular-nums">打卡 {{ report.checkinDays ?? 0 }} 天</span>
               </span>
               <span class="wr-mini-stat-sep" />
               <span class="wr-mini-stat">
-                <Icon name="layers" :size="11" />
+                <Icon name="layers" :size="12" />
                 <span class="tabular-nums">闪卡 {{ report.flashcardReviewed ?? 0 }}</span>
               </span>
             </div>
@@ -719,7 +719,7 @@ onMounted(() => {
 .wr-header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
@@ -734,7 +734,7 @@ onMounted(() => {
   color: var(--kb-muted-foreground);
   border: none;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .wr-back-btn:hover {
@@ -742,8 +742,20 @@ onMounted(() => {
   color: var(--kb-primary);
 }
 
+.wr-back-btn:active {
+  background: var(--kb-muted);
+  color: var(--kb-primary);
+  transform: scale(0.96);
+}
+
+.wr-back-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+
 .wr-title {
-  font-size: 24px;
+  font-size: var(--kb-fs-h3);
+  line-height: var(--kb-lh-h3);
   font-weight: 700;
   color: var(--kb-foreground);
   margin: 0;
@@ -775,17 +787,27 @@ onMounted(() => {
   height: 38px;
   padding: 0 18px;
   border-radius: var(--kb-radius-sm);
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 600;
   background: var(--kb-primary);
   color: var(--kb-primary-foreground);
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .wr-generate-btn:hover:not(:disabled) {
   opacity: 0.9;
+}
+
+.wr-generate-btn:active:not(:disabled) {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+
+.wr-generate-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 .wr-generate-btn:disabled {
@@ -800,7 +822,7 @@ onMounted(() => {
   height: 38px;
   padding: 0 14px;
   border-radius: var(--kb-radius-sm);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 600;
   background: var(--kb-card);
   color: var(--kb-foreground);
@@ -813,6 +835,16 @@ onMounted(() => {
   border-color: var(--kb-primary);
   color: var(--kb-primary);
 }
+.wr-secondary-btn:active:not(:disabled) {
+  background: var(--kb-muted);
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+  transform: scale(0.98);
+}
+.wr-secondary-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
 .wr-secondary-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -820,17 +852,19 @@ onMounted(() => {
 
 /* ========== 区块 ========== */
 .wr-section {
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .wr-section-title {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
-  font-size: 18px;
+  font-size: var(--kb-fs-h4);
+  line-height: var(--kb-lh-h4);
   font-weight: 600;
   color: var(--kb-foreground);
-  margin: 0 0 14px;
+  margin: 0 0 12px;
 }
 
 .wr-section-title svg {
@@ -845,10 +879,11 @@ onMounted(() => {
   height: 20px;
   padding: 0 6px;
   border-radius: 10px;
-  background: rgba(59, 111, 224, 0.1);
+  background: color-mix(in srgb, var(--kb-primary) 10%, transparent);
   color: var(--kb-primary);
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ========== 卡片 ========== */
@@ -856,25 +891,28 @@ onMounted(() => {
   background: var(--kb-card);
   border: 1px solid var(--kb-border);
   border-radius: 14px;
-  padding: 20px 22px;
+  padding: 20px;
 }
 
 .wr-current-card {
-  box-shadow: 0 4px 16px rgba(59, 111, 224, 0.04);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--kb-primary) 4%, transparent);
 }
 
 .wr-card-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
 .wr-period {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 14px;
+  min-width: 0;
+  font-size: var(--kb-fs-body-md);
   font-weight: 600;
   color: var(--kb-foreground);
 }
@@ -888,7 +926,7 @@ onMounted(() => {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
 }
 
 @media (max-width: 640px) {
@@ -911,28 +949,31 @@ onMounted(() => {
 .wr-stat-icon {
   width: 40px;
   height: 40px;
-  border-radius: 10px;
+  border-radius: var(--kb-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .wr-stat-num {
-  font-size: 24px;
+  font-size: var(--kb-fs-h3);
   font-weight: 700;
   color: var(--kb-foreground);
   line-height: 1;
 }
 
 .wr-stat-label {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   color: var(--kb-muted-foreground);
+  text-align: center;
 }
 
 /* ========== 内容块 ========== */
 .wr-block {
-  margin-top: 18px;
-  padding-top: 18px;
+  margin-top: 16px;
+  padding-top: 16px;
   border-top: 1px solid var(--kb-border);
 }
 
@@ -945,22 +986,27 @@ onMounted(() => {
 .wr-block-title {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
-  font-size: 14px;
+  min-width: 0;
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
   font-weight: 600;
   color: var(--kb-foreground);
-  margin: 0 0 10px;
+  margin: 0 0 8px;
 }
 
 .wr-block-title svg {
   color: var(--kb-primary);
+  flex-shrink: 0;
 }
 
 .wr-week-minutes {
   margin-left: auto;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   font-weight: 500;
   color: var(--kb-muted-foreground);
+  font-variant-numeric: tabular-nums;
 }
 
 /* A. 模式分布 stacked bar */
@@ -996,19 +1042,22 @@ onMounted(() => {
 .wr-stacked-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 16px;
+  gap: 8px 16px;
 }
 .wr-legend-item {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  min-width: 0;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   color: var(--kb-foreground);
 }
 .wr-legend-dot {
   width: 10px;
   height: 10px;
   border-radius: 3px;
+  flex-shrink: 0;
 }
 .wr-legend-label {
   font-weight: 500;
@@ -1021,15 +1070,16 @@ onMounted(() => {
 .wr-empty-mini {
   padding: 16px 0;
   text-align: center;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   color: var(--kb-muted-foreground);
 }
 
 /* ========== 总结 / 列表 ========== */
 .wr-summary {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   line-height: 1.7;
   color: var(--kb-card-foreground, var(--kb-foreground));
+  word-break: break-word;
 }
 
 .wr-summary :deep(p) {
@@ -1042,8 +1092,8 @@ onMounted(() => {
 
 .wr-summary :deep(ul),
 .wr-summary :deep(ol) {
-  margin: 6px 0 8px;
-  padding-left: 22px;
+  margin: 8px 0;
+  padding-left: 20px;
 }
 
 .wr-summary :deep(li) {
@@ -1054,7 +1104,8 @@ onMounted(() => {
   padding: 1px 5px;
   border-radius: 4px;
   background: var(--kb-muted);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
+  font-family: var(--font-mono);
 }
 
 .wr-list {
@@ -1070,12 +1121,18 @@ onMounted(() => {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
   color: var(--kb-foreground);
-  padding: 8px 10px;
+  padding: 8px 12px;
   border-radius: 8px;
   background: var(--kb-background);
+}
+
+.wr-list-item > span {
+  min-width: 0;
+  flex: 1;
+  word-break: break-word;
 }
 
 .wr-list-icon {
@@ -1088,7 +1145,7 @@ onMounted(() => {
 .wr-insight-skeleton {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 8px;
 }
 .wr-insight-sk-card {
   height: 108px;
@@ -1111,7 +1168,7 @@ onMounted(() => {
 .wr-insight-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 8px;
 }
 @media (max-width: 640px) {
   .wr-insight-grid {
@@ -1122,45 +1179,61 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 14px;
+  padding: 16px;
   border-radius: 12px;
   background: var(--kb-background);
   border: 1px solid var(--kb-border);
+  min-width: 0;
 }
 .wr-insight-card.positive {
-  border-color: rgba(16, 185, 129, 0.22);
-  background: linear-gradient(180deg, rgba(16, 185, 129, 0.06), rgba(16, 185, 129, 0.02));
+  border-color: color-mix(in srgb, var(--kb-accent) 22%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--kb-accent) 6%, transparent),
+    color-mix(in srgb, var(--kb-accent) 2%, transparent)
+  );
 }
 .wr-insight-card.warning {
-  border-color: rgba(245, 158, 11, 0.22);
-  background: linear-gradient(180deg, rgba(245, 158, 11, 0.06), rgba(245, 158, 11, 0.02));
+  border-color: color-mix(in srgb, var(--kb-warning) 22%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--kb-warning) 6%, transparent),
+    color-mix(in srgb, var(--kb-warning) 2%, transparent)
+  );
 }
 .wr-insight-card.info {
-  border-color: rgba(59, 111, 224, 0.22);
-  background: linear-gradient(180deg, rgba(59, 111, 224, 0.06), rgba(59, 111, 224, 0.02));
+  border-color: color-mix(in srgb, var(--kb-primary) 22%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--kb-primary) 6%, transparent),
+    color-mix(in srgb, var(--kb-primary) 2%, transparent)
+  );
 }
 .wr-insight-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--kb-radius-md);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(59, 111, 224, 0.12);
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--kb-primary) 12%, transparent);
   color: var(--kb-primary);
 }
 .wr-insight-card.positive .wr-insight-icon {
   color: var(--kb-accent);
-  background: rgba(16, 185, 129, 0.14);
+  background: color-mix(in srgb, var(--kb-accent) 14%, transparent);
 }
 .wr-insight-card.warning .wr-insight-icon {
   color: var(--kb-warning);
-  background: rgba(245, 158, 11, 0.14);
+  background: color-mix(in srgb, var(--kb-warning) 14%, transparent);
 }
 .wr-insight-title {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
   font-weight: 600;
   color: var(--kb-foreground);
+  word-break: break-word;
 }
 .wr-insight-body {
   display: flex;
@@ -1169,9 +1242,10 @@ onMounted(() => {
   min-width: 0;
 }
 .wr-insight-content {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   line-height: 1.6;
   color: var(--kb-muted-foreground);
+  word-break: break-word;
 }
 
 /* ========== 空态 / 错误 ========== */
@@ -1180,7 +1254,7 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   padding: 48px 24px;
   color: var(--kb-muted-foreground);
   background: var(--kb-card);
@@ -1194,7 +1268,8 @@ onMounted(() => {
 }
 
 .wr-empty p {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
   margin: 0;
 }
 
@@ -1206,7 +1281,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 40px 24px;
   color: var(--kb-muted-foreground);
   background: var(--kb-card);
@@ -1220,20 +1295,30 @@ onMounted(() => {
 }
 
 .wr-retry-btn {
-  height: 34px;
+  height: 36px;
   padding: 0 16px;
   border-radius: var(--kb-radius-sm);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 600;
   background: var(--kb-primary);
   color: var(--kb-primary-foreground);
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .wr-retry-btn:hover {
   opacity: 0.9;
+}
+
+.wr-retry-btn:active {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+
+.wr-retry-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 /* ========== 骨架屏 ========== */
@@ -1259,7 +1344,7 @@ onMounted(() => {
 .wr-history-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .wr-history-item {
@@ -1271,7 +1356,7 @@ onMounted(() => {
 }
 
 .wr-history-item:hover {
-  border-color: rgba(59, 111, 224, 0.3);
+  border-color: color-mix(in srgb, var(--kb-primary) 30%, transparent);
 }
 
 .wr-history-head {
@@ -1279,8 +1364,9 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
   width: 100%;
-  padding: 14px 18px;
+  padding: 12px 16px;
   background: transparent;
   border: none;
   cursor: pointer;
@@ -1292,39 +1378,62 @@ onMounted(() => {
   background: var(--kb-muted);
 }
 
+.wr-history-head:active {
+  background: color-mix(in srgb, var(--kb-primary) 8%, var(--kb-muted));
+}
+
+.wr-history-head:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: -2px;
+}
+
 .wr-history-period {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 14px;
+  min-width: 0;
+  flex: 1;
+  font-size: var(--kb-fs-body-md);
   font-weight: 600;
   color: var(--kb-foreground);
 }
 
 .wr-history-period svg {
   color: var(--kb-primary);
+  flex-shrink: 0;
+}
+
+.wr-history-period > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .wr-history-meta {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .wr-meta-pill {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 9px;
+  padding: 4px 8px;
   border-radius: 12px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   font-weight: 500;
+  white-space: nowrap;
   background: var(--kb-muted);
   color: var(--kb-muted-foreground);
 }
 
 .wr-chevron {
   color: var(--kb-muted-foreground);
+  flex-shrink: 0;
   transition: transform 0.2s ease;
 }
 
@@ -1337,8 +1446,9 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 18px 12px;
-  font-size: 11px;
+  padding: 0 16px 12px;
+  font-size: var(--kb-fs-xs);
+  line-height: var(--kb-lh-xs);
   color: var(--kb-muted-foreground);
   flex-wrap: wrap;
 }
@@ -1346,10 +1456,11 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 999px;
   background: var(--kb-background);
   font-weight: 500;
+  white-space: nowrap;
 }
 .wr-mini-stat svg {
   opacity: 0.8;
@@ -1361,12 +1472,12 @@ onMounted(() => {
 }
 
 .wr-history-body {
-  padding: 4px 18px 18px;
+  padding: 4px 16px 16px;
   border-top: 1px solid var(--kb-border);
 }
 
 .wr-history-body .wr-block:first-child {
-  margin-top: 14px;
+  margin-top: 12px;
 }
 
 /* 折叠过渡 */
@@ -1381,6 +1492,33 @@ onMounted(() => {
 .wr-collapse-leave-to {
   opacity: 0;
   max-height: 0;
+}
+
+/* ========== 小屏适配：仅收紧内边距，不改桌面布局 ========== */
+@media (max-width: 640px) {
+  .weekly-report-page {
+    padding: 4px 16px 32px;
+  }
+
+  .wr-card {
+    padding: 16px;
+  }
+
+  .wr-history-head {
+    padding: 12px;
+  }
+
+  .wr-history-mini-stats {
+    padding: 0 12px 12px;
+  }
+
+  .wr-history-body {
+    padding: 4px 12px 16px;
+  }
+
+  .wr-header-actions {
+    width: 100%;
+  }
 }
 
 /* 分享 textarea fallback */

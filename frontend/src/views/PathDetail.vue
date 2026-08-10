@@ -19,7 +19,7 @@
       <div class="hero-body">
         <!-- 左：图标盒 -->
         <div class="hero-icon">
-          <Icon :name="getPathIconName(currentPath.icon)" :size="34" />
+          <Icon :name="getPathIconName(currentPath.icon)" :size="32" />
         </div>
 
         <!-- 中：信息区 -->
@@ -29,11 +29,11 @@
               {{ getDifficultyLabel(currentPath.difficulty) }}
             </span>
             <span v-if="isFinished" class="tag tag-status-done">
-              <Icon name="check" :size="11" />已完成
+              <Icon name="check" :size="12" />已完成
             </span>
             <span v-else-if="hasStarted" class="tag tag-status-learning">学习中</span>
             <span v-else-if="!isEnrolled" class="tag tag-status-not-enrolled">
-              <Icon name="user-plus" :size="11" />未报名
+              <Icon name="user-plus" :size="12" />未报名
             </span>
             <span v-else class="tag tag-status-not-started">未开始</span>
           </div>
@@ -43,19 +43,19 @@
 
           <div class="hero-chips">
             <span class="chip">
-              <Icon name="book-open" :size="13" />
+              <Icon name="book-open" :size="12" />
               <span>{{ currentPath.chaptersCount }} 章节</span>
             </span>
             <span class="chip">
-              <Icon name="clock" :size="13" />
+              <Icon name="clock" :size="12" />
               <span>{{ formatDuration(currentPath.totalDuration) }}</span>
             </span>
             <span class="chip">
-              <Icon name="users" :size="13" />
+              <Icon name="users" :size="12" />
               <span>{{ formatCount(currentPath.enrolledCount) }} 人学习</span>
             </span>
             <span class="chip chip-rating">
-              <Icon name="star" :size="13" />
+              <Icon name="star" :size="12" />
               <span>{{ getRating(currentPath.id) }} 评分</span>
             </span>
           </div>
@@ -81,6 +81,7 @@
             </div>
           </div>
           <button
+            type="button"
             class="primary-btn"
             :class="{ 'enroll-btn': !isEnrolled, 'is-loading': enrolling }"
             :disabled="enrolling"
@@ -113,8 +114,8 @@
       <span class="enroll-banner-text">
         报名后即可解锁全部章节开始学习
       </span>
-      <button class="enroll-banner-btn" :disabled="enrolling" @click="handleEnroll">
-        <Icon name="user-plus" :size="13" />
+      <button type="button" class="enroll-banner-btn" :disabled="enrolling" @click="handleEnroll">
+        <Icon name="user-plus" :size="14" />
         <span>{{ enrolling ? '报名中…' : '立即报名' }}</span>
       </button>
     </div>
@@ -136,7 +137,7 @@
     <section v-if="currentPath" class="panel dag-panel">
       <header class="panel-header">
         <h2 class="panel-title">
-          <Icon name="git-branch" :size="17" class="panel-icon" />
+          <Icon name="git-branch" :size="18" class="panel-icon" />
           学习路径图谱
         </h2>
         <span class="panel-meta">基于章节前置依赖自动编排，点击节点直达章节</span>
@@ -155,7 +156,7 @@
       <div v-else class="panel-body">
         <DagGraph :data="dag" :height="420" :active-id="currentChapterId" @node-click="handleDagNodeClick" />
         <p v-if="dag && dag.nodes.length > 0 && !dagHasEdges" class="panel-hint">
-          <Icon name="info" :size="13" />
+          <Icon name="info" :size="12" />
           当前路径为线性顺序，暂无显式前置依赖分支。
         </p>
       </div>
@@ -165,7 +166,7 @@
     <section v-if="currentPath" class="panel">
       <header class="panel-header">
         <h2 class="panel-title">
-          <Icon name="list" :size="17" class="panel-icon" />
+          <Icon name="list" :size="18" class="panel-icon" />
           章节列表
         </h2>
         <span class="panel-meta">已完成 {{ completedChaptersCount }} / {{ pathChapters.length }} 章</span>
@@ -182,15 +183,18 @@
             locked: isChapterLocked(chapter),
           }"
           :style="{ animationDelay: `${Math.min(index, 12) * 40}ms` }"
+          role="button"
+          tabindex="0"
           @click="handleChapterClick(chapter)"
+          @keydown.enter.prevent="($event.target as HTMLElement).click()"
         >
           <!-- 左侧轴线与状态点 -->
           <div class="timeline-rail">
             <span class="rail-line rail-top" :class="{ hidden: index === 0 }"></span>
             <span class="rail-dot" :class="getChapterStatusClass(chapter)">
-              <Icon v-if="chapter.completed" name="check" :size="15" />
-              <Icon v-else-if="chapter.isCurrent" name="play" :size="13" />
-              <Icon v-else-if="isChapterLocked(chapter)" name="lock" :size="13" />
+              <Icon v-if="chapter.completed" name="check" :size="16" />
+              <Icon v-else-if="chapter.isCurrent" name="play" :size="14" />
+              <Icon v-else-if="isChapterLocked(chapter)" name="lock" :size="14" />
               <span v-else class="rail-order">{{ chapter.order }}</span>
             </span>
             <span class="rail-line rail-bottom" :class="{ hidden: index === pathChapters.length - 1 }"></span>
@@ -595,22 +599,36 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  flex-wrap: wrap;
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
 }
 .crumb-link {
+  flex-shrink: 0;
   font-weight: 500;
   color: var(--kb-muted-foreground);
   text-decoration: none;
-  transition: color 0.15s;
+  border-radius: var(--kb-radius-sm);
+  transition: color 0.15s ease, opacity 0.15s ease;
 }
 .crumb-link:hover { color: var(--kb-primary); }
-.crumb-sep { color: var(--kb-muted-foreground); }
+.crumb-link:active { color: var(--kb-primary); opacity: 0.75; }
+.crumb-link:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  color: var(--kb-primary);
+}
+.crumb-sep {
+  color: var(--kb-muted-foreground);
+  flex-shrink: 0;
+}
 .crumb-current {
   font-weight: 500;
   color: var(--kb-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
   max-width: 400px;
 }
 
@@ -649,16 +667,16 @@ onMounted(async () => {
   position: relative;
   display: flex;
   align-items: flex-start;
-  gap: 22px;
-  padding: 26px 28px;
+  gap: 24px;
+  padding: 24px;
 }
 
 .hero-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 68px;
-  height: 68px;
+  width: 64px;
+  height: 64px;
   flex-shrink: 0;
   border-radius: var(--kb-radius-lg);
   color: #fff;
@@ -674,17 +692,19 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
 }
 .tag {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   font-weight: 500;
-  padding: 3px 10px;
+  padding: 4px 10px;
   border-radius: 999px;
+  white-space: nowrap;
 }
 .tag-status-learning {
   background: rgba(16, 185, 129, 0.10);
@@ -700,24 +720,26 @@ onMounted(async () => {
 }
 /* 未报名标签：中性灰蓝，弱化提示「先报名再学习」 */
 .tag-status-not-enrolled {
-  background: rgba(100, 116, 139, 0.12);
-  color: #64748b;
+  background: var(--kb-muted);
+  color: var(--kb-muted-foreground);
 }
 
 .hero-title {
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1.3;
+  font-size: var(--kb-fs-h2);
+  font-weight: var(--kb-fw-h2);
+  line-height: var(--kb-lh-h2);
   letter-spacing: -0.02em;
   color: var(--kb-foreground);
   margin-bottom: 8px;
+  overflow-wrap: break-word;
 }
 .hero-desc {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   line-height: 1.65;
   color: var(--kb-muted-foreground);
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   max-width: 62ch;
+  overflow-wrap: break-word;
 }
 
 .hero-chips {
@@ -729,14 +751,16 @@ onMounted(async () => {
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  height: 26px;
+  gap: 4px;
+  height: 24px;
   padding: 0 10px;
   border-radius: 999px;
   border: 1px solid var(--kb-border);
-  background: rgba(255, 255, 255, 0.7);
-  font-size: 12px;
+  background: var(--kb-card);
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   color: var(--kb-muted-foreground);
+  white-space: nowrap;
 }
 .chip-rating { color: var(--kb-warning); }
 
@@ -745,13 +769,14 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   flex-shrink: 0;
 }
 .progress-ring {
   position: relative;
   width: 116px;
   height: 116px;
+  flex-shrink: 0;
 }
 .ring-svg {
   width: 100%;
@@ -780,21 +805,23 @@ onMounted(async () => {
   gap: 2px;
 }
 .ring-num {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: var(--kb-fs-h3);
+  font-weight: var(--kb-fw-h1);
   line-height: 1;
   color: var(--theme);
   font-variant-numeric: tabular-nums;
 }
 .ring-num i {
   font-style: normal;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 600;
   margin-left: 1px;
 }
 .ring-label {
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
+  line-height: var(--kb-lh-xs);
   color: var(--kb-muted-foreground);
+  font-variant-numeric: tabular-nums;
 }
 
 .primary-btn {
@@ -807,20 +834,27 @@ onMounted(async () => {
   height: 40px;
   padding: 0 20px;
   border-radius: var(--kb-radius-sm);
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 500;
   background: var(--theme);
   color: #fff;
   border: none;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(var(--theme-rgb), 0.26);
-  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease, background 0.15s ease;
 }
-.primary-btn:hover {
+.primary-btn:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(var(--theme-rgb), 0.32);
 }
-.primary-btn:active { transform: translateY(0); }
+.primary-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(var(--theme-rgb), 0.22);
+}
+.primary-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
 /* 未报名态主按钮：描边样式弱化「待办」语义，区别于实色「开始学习」 */
 .primary-btn.enroll-btn {
   background: transparent;
@@ -828,9 +862,13 @@ onMounted(async () => {
   border: 1.5px solid var(--theme);
   box-shadow: none;
 }
-.primary-btn.enroll-btn:hover {
+.primary-btn.enroll-btn:hover:not(:disabled) {
   background: rgba(var(--theme-rgb), 0.08);
   box-shadow: 0 6px 16px rgba(var(--theme-rgb), 0.18);
+}
+.primary-btn.enroll-btn:active:not(:disabled) {
+  background: rgba(var(--theme-rgb), 0.14);
+  box-shadow: none;
 }
 .primary-btn.is-loading {
   cursor: not-allowed;
@@ -849,26 +887,36 @@ onMounted(async () => {
   margin-top: 8px;
   padding: 0 20px;
   border-radius: var(--kb-radius-sm);
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   font-weight: 500;
-  background: rgba(245, 185, 64, 0.15);
-  color: #b8860b;
-  border: 1px solid rgba(245, 185, 64, 0.4);
+  background: rgba(245, 158, 11, 0.14);
+  color: var(--kb-warning);
+  border: 1px solid rgba(245, 158, 11, 0.4);
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.15s, transform 0.15s;
+  transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
 }
 .cert-btn:hover {
-  background: rgba(245, 185, 64, 0.24);
+  background: rgba(245, 158, 11, 0.22);
+  border-color: var(--kb-warning);
   transform: translateY(-1px);
+}
+.cert-btn:active {
+  background: rgba(245, 158, 11, 0.3);
+  transform: translateY(0) scale(0.98);
+}
+.cert-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 
 /* ===== 未报名引导横幅 ===== */
 .enroll-banner {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
   border-radius: var(--kb-radius-md);
   border: 1px dashed rgba(var(--theme-rgb), 0.45);
   background: rgba(var(--theme-rgb), 0.06);
@@ -880,28 +928,40 @@ onMounted(async () => {
 }
 .enroll-banner-text {
   flex: 1;
-  font-size: 13px;
-  line-height: 1.5;
+  min-width: 0;
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
 }
 .enroll-banner-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   height: 32px;
-  padding: 0 14px;
+  padding: 0 16px;
+  flex-shrink: 0;
   border: none;
   border-radius: var(--kb-radius-sm);
   background: var(--theme);
   color: #fff;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
   font-weight: 500;
+  white-space: nowrap;
   cursor: pointer;
   box-shadow: 0 3px 10px rgba(var(--theme-rgb), 0.26);
-  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
-.enroll-banner-btn:hover {
+.enroll-banner-btn:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(var(--theme-rgb), 0.32);
+}
+.enroll-banner-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 6px rgba(var(--theme-rgb), 0.22);
+}
+.enroll-banner-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 .enroll-banner-btn:disabled {
   cursor: not-allowed;
@@ -918,7 +978,8 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 16px;
+  min-width: 0;
+  padding: 16px;
   border-radius: var(--kb-radius-md);
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
@@ -948,15 +1009,22 @@ onMounted(async () => {
   min-width: 0;
 }
 .metric-value {
-  font-size: 16px;
+  font-size: var(--kb-fs-body-lg);
   font-weight: 700;
   line-height: 1.2;
   color: var(--kb-foreground);
   font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .metric-label {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   color: var(--kb-muted-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ===== 通用面板 ===== */
@@ -978,26 +1046,30 @@ onMounted(async () => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 1.35;
+  min-width: 0;
+  font-size: var(--kb-fs-h4);
+  font-weight: var(--kb-fw-h4);
+  line-height: var(--kb-lh-h4);
   letter-spacing: -0.01em;
   color: var(--kb-foreground);
   margin: 0;
 }
-.panel-icon { color: var(--theme); }
+.panel-icon { color: var(--theme); flex-shrink: 0; }
 .panel-meta {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   color: var(--kb-muted-foreground);
   text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 .panel-body { padding: 16px 24px 20px; }
 .panel-hint {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 10px;
-  font-size: 12px;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   color: var(--kb-muted-foreground);
 }
 .panel-error {
@@ -1005,7 +1077,8 @@ onMounted(async () => {
   align-items: center;
   gap: 8px;
   padding: 24px;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
   color: var(--kb-destructive);
 }
 
@@ -1028,7 +1101,8 @@ onMounted(async () => {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .state-text {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
   color: var(--kb-muted-foreground);
 }
 
@@ -1044,20 +1118,31 @@ onMounted(async () => {
   gap: 16px;
   cursor: pointer;
   opacity: 0;
+  border-radius: var(--kb-radius-md);
   animation: tlIn 0.35s ease-out forwards;
+  transition: background 0.18s ease;
 }
 @keyframes tlIn {
   from { opacity: 0; transform: translateX(-8px); }
   to { opacity: 1; transform: translateX(0); }
 }
 .timeline-item.locked { cursor: not-allowed; }
+/* 键盘焦点环：role="button" 的章节行同样可达 */
+.timeline-item:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
+.timeline-item:focus-visible:not(.locked) .timeline-card {
+  background: rgba(var(--theme-rgb), 0.04);
+  border-color: rgba(var(--theme-rgb), 0.18);
+}
 
 /* 左侧轴 */
 .timeline-rail {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 34px;
+  width: 32px;
   flex-shrink: 0;
 }
 .rail-line {
@@ -1089,17 +1174,20 @@ onMounted(async () => {
   color: var(--kb-muted-foreground);
 }
 .timeline-item:hover:not(.locked) .rail-dot { transform: scale(1.08); }
+.timeline-item:active:not(.locked) .rail-dot { transform: scale(1); }
 .rail-order {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 /* 右侧卡片 */
 .timeline-card {
   flex: 1;
   min-width: 0;
-  margin: 6px 0;
-  padding: 12px 14px;
+  margin: 8px 0;
+  padding: 12px 16px;
   border-radius: var(--kb-radius-md);
   border: 1px solid transparent;
   transition: background 0.18s, border-color 0.18s, transform 0.18s;
@@ -1108,6 +1196,11 @@ onMounted(async () => {
   background: rgba(var(--theme-rgb), 0.04);
   border-color: rgba(var(--theme-rgb), 0.18);
   transform: translateX(2px);
+}
+.timeline-item:active:not(.locked) .timeline-card {
+  background: rgba(var(--theme-rgb), 0.09);
+  border-color: rgba(var(--theme-rgb), 0.28);
+  transform: translateX(2px) scale(0.99);
 }
 .timeline-item.current .timeline-card {
   background: rgba(var(--theme-rgb), 0.06);
@@ -1122,36 +1215,44 @@ onMounted(async () => {
   flex-wrap: wrap;
 }
 .tl-order {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
   color: var(--kb-muted-foreground);
   font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
 }
 .timeline-item.current .tl-order { color: var(--theme); font-weight: 500; }
 .tl-title {
-  font-size: 15px;
+  font-size: var(--kb-fs-body-lg);
   font-weight: 600;
   line-height: 1.45;
   color: var(--kb-foreground);
   margin: 0;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 .timeline-item.current .tl-title { color: var(--theme); }
 .tl-badge {
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
+  line-height: var(--kb-lh-xs);
   font-weight: 500;
-  padding: 1px 7px;
+  padding: 2px 8px;
   border-radius: 999px;
   background: rgba(var(--theme-rgb), 0.10);
   color: var(--theme);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .tl-badge-done {
   background: rgba(16, 185, 129, 0.10);
   color: var(--kb-accent);
 }
 .tl-desc {
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   line-height: 1.55;
   color: var(--kb-muted-foreground);
-  margin-top: 5px;
+  margin-top: 4px;
+  overflow-wrap: break-word;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -1161,7 +1262,7 @@ onMounted(async () => {
 .tl-foot {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   margin-top: 8px;
   flex-wrap: wrap;
 }
@@ -1169,8 +1270,12 @@ onMounted(async () => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  min-width: 0;
+  max-width: 100%;
+  font-size: var(--kb-fs-xs);
+  line-height: var(--kb-lh-xs);
   color: var(--kb-muted-foreground);
+  overflow-wrap: anywhere;
 }
 .tl-arrow {
   align-self: center;
@@ -1199,15 +1304,15 @@ onMounted(async () => {
   .primary-btn { width: auto; flex: 1; }
 }
 @media (max-width: 640px) {
-  .hero-title { font-size: 22px; }
+  .hero-title { font-size: var(--kb-fs-h3); line-height: var(--kb-lh-h3); }
   .progress-ring { width: 92px; height: 92px; }
-  .ring-num { font-size: 20px; }
+  .ring-num { font-size: var(--kb-fs-h4); }
   .panel-header { padding: 12px 16px; }
-  .panel-title { font-size: 16px; }
+  .panel-title { font-size: var(--kb-fs-body-lg); }
   .panel-meta { display: none; }
   .panel-body { padding: 12px 16px 16px; }
   .timeline { padding: 8px 12px 12px; }
-  .timeline-item { gap: 10px; }
+  .timeline-item { gap: 12px; }
   .tl-arrow { display: none; }
 }
 </style>

@@ -2,12 +2,12 @@
   <div class="certificate-page">
     <!-- 顶部操作栏 -->
     <div class="page-header">
-      <button class="back-btn" @click="router.back()">
-        <Icon name="arrow-left" :size="18" />
+      <button type="button" class="back-btn" @click="router.back()">
+        <Icon name="arrow-left" :size="16" />
         <span>返回</span>
       </button>
       <h1 class="page-title">数字证书</h1>
-      <button class="download-btn" :disabled="!cert" @click="downloadImage">
+      <button type="button" class="download-btn" :disabled="!cert" @click="downloadImage">
         <Icon name="download" :size="16" />
         <span>下载证书</span>
       </button>
@@ -46,7 +46,7 @@
     </div>
 
     <p v-else class="empty-state">
-      <Icon name="award" :size="40" style="color: var(--kb-muted-foreground);" />
+      <Icon name="award" :size="32" style="color: var(--kb-muted-foreground);" />
       证书不存在或已被移除
     </p>
 
@@ -60,7 +60,7 @@
           placeholder="输入证书验证码（如 KC-20260731-1234）"
           class="verify-input"
         />
-        <button class="verify-btn" :disabled="verifying" @click="doVerify">
+        <button type="button" class="verify-btn" :disabled="verifying" @click="doVerify">
           <Icon name="shield" :size="16" />
           <span>{{ verifying ? '验证中...' : '验证' }}</span>
         </button>
@@ -241,51 +241,80 @@ onMounted(loadCert);
 .certificate-page {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 24px;
+  /* 4px 网格：小屏 16px，≥768px 恢复桌面 24px（等价 px-4 md:px-6） */
+  padding: var(--kb-space-4);
+}
+@media (min-width: 768px) {
+  .certificate-page {
+    padding: var(--kb-space-6);
+  }
 }
 .page-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: var(--kb-space-3);
+  margin-bottom: var(--kb-space-6);
 }
 .back-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  font-size: 14px;
+  gap: var(--kb-space-2);
+  padding: var(--kb-space-2) var(--kb-space-4);
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
   color: var(--kb-muted-foreground);
   background: transparent;
   border: 1px solid var(--kb-border);
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
 }
 .back-btn:hover {
   background: var(--kb-muted);
+  color: var(--kb-foreground);
+}
+.back-btn:active {
+  transform: scale(0.98);
+  background: var(--kb-muted);
+}
+.back-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 .page-title {
-  font-size: 20px;
-  font-weight: 600;
+  min-width: 0;
+  font-size: var(--kb-fs-h4);
+  line-height: var(--kb-lh-h4);
+  font-weight: var(--kb-fw-h4);
   color: var(--kb-foreground);
 }
 .download-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--kb-space-2);
   padding: 10px 20px;
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
   font-weight: 500;
   color: var(--kb-primary-foreground);
   background: var(--kb-primary);
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
 }
 .download-btn:hover:not(:disabled) {
   opacity: 0.9;
+}
+.download-btn:active:not(:disabled) {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+.download-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 .download-btn:disabled {
   opacity: 0.5;
@@ -297,14 +326,17 @@ onMounted(loadCert);
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 0;
-  gap: 16px;
+  padding: 60px var(--kb-space-4);
+  gap: var(--kb-space-4);
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
+  text-align: center;
   color: var(--kb-muted-foreground);
 }
 .cert-viewer {
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-card-hover);
 }
 .cert-canvas {
   width: 100%;
@@ -312,8 +344,8 @@ onMounted(loadCert);
   display: block;
 }
 .cert-info-card {
-  margin-top: 24px;
-  padding: 20px;
+  margin-top: var(--kb-space-6);
+  padding: var(--kb-space-5);
   border: 1px solid var(--kb-border);
   border-radius: 12px;
   background: var(--kb-card);
@@ -322,6 +354,7 @@ onMounted(loadCert);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--kb-space-3);
   padding: 10px 0;
   border-bottom: 1px dashed var(--kb-border);
 }
@@ -329,60 +362,87 @@ onMounted(loadCert);
   border-bottom: none;
 }
 .info-label {
-  font-size: 14px;
+  flex-shrink: 0;
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
   color: var(--kb-muted-foreground);
 }
 .info-value {
-  font-size: 14px;
+  /* 小屏防溢出：允许收缩换行而非撑破卡片 */
+  min-width: 0;
+  text-align: right;
+  word-break: break-word;
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
   font-weight: 500;
   color: var(--kb-foreground);
 }
 .info-value.mono {
-  font-family: 'Fira Code', 'Consolas', monospace;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 .verify-section {
-  margin-top: 24px;
+  margin-top: var(--kb-space-6);
 }
 .verify-title {
-  font-size: 15px;
+  font-size: var(--kb-fs-body-lg);
+  line-height: var(--kb-lh-body-lg);
   font-weight: 600;
   color: var(--kb-foreground);
-  margin-bottom: 12px;
+  margin-bottom: var(--kb-space-3);
 }
 .verify-box {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: var(--kb-space-3);
 }
 .verify-input {
-  flex: 1;
-  padding: 10px 14px;
-  font-size: 14px;
+  flex: 1 1 240px;
+  min-width: 0;
+  padding: 10px var(--kb-space-3);
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
   color: var(--kb-foreground);
   background: var(--kb-card);
   border: 1px solid var(--kb-border);
   border-radius: 8px;
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.verify-input:focus {
+.verify-input:hover {
   border-color: var(--kb-primary);
+}
+.verify-input:focus,
+.verify-input:focus-visible {
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
 .verify-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  flex-shrink: 0;
+  gap: var(--kb-space-2);
   padding: 10px 20px;
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
   font-weight: 500;
   color: var(--kb-primary-foreground);
   background: var(--kb-primary);
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
 }
 .verify-btn:hover:not(:disabled) {
   opacity: 0.9;
+}
+.verify-btn:active:not(:disabled) {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+.verify-btn:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
 }
 .verify-btn:disabled {
   opacity: 0.5;
@@ -391,27 +451,50 @@ onMounted(loadCert);
 .verify-result {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-  padding: 12px 14px;
-  font-size: 13px;
+  flex-wrap: wrap;
+  gap: var(--kb-space-2);
+  margin-top: var(--kb-space-3);
+  padding: var(--kb-space-3) var(--kb-space-4);
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
   border-radius: 8px;
 }
+/* 结果图标不被压缩，文案可收缩换行，避免小屏横向溢出 */
+.verify-result > svg {
+  flex-shrink: 0;
+}
+.verify-result > span {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
 .verify-ok {
-  color: #047857;
-  background: rgba(16, 185, 129, 0.1);
+  color: color-mix(in srgb, var(--kb-accent) 78%, #000);
+  background: color-mix(in srgb, var(--kb-accent) 10%, transparent);
 }
 .verify-fail {
-  color: #b91c1c;
-  background: rgba(239, 68, 68, 0.1);
+  color: color-mix(in srgb, var(--kb-destructive) 82%, #000);
+  background: color-mix(in srgb, var(--kb-destructive) 10%, transparent);
 }
 .verify-link {
   margin-left: auto;
+  flex-shrink: 0;
   color: var(--kb-primary);
   text-decoration: none;
   font-weight: 500;
+  border-radius: var(--kb-radius-sm);
+  transition: color 0.15s ease, opacity 0.15s ease;
 }
 .verify-link:hover {
+  text-decoration: underline;
+}
+.verify-link:active {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+.verify-link:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
   text-decoration: underline;
 }
 </style>

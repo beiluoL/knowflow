@@ -12,7 +12,8 @@
             v-for="opt in periodOptions"
             :key="opt.value"
             type="button"
-            class="px-3 py-1.5 text-sm font-medium rounded-md transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
+            class="px-3 py-1.5 text-sm font-medium rounded-md whitespace-nowrap transition duration-150 hover:opacity-90 hover:bg-[var(--kb-muted)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
+            :aria-pressed="period === opt.value"
             :style="period === opt.value
               ? { background: 'var(--kb-primary)', color: 'var(--kb-primary-foreground)' }
               : { color: 'var(--kb-muted-foreground)' }"
@@ -28,7 +29,7 @@
       <p class="text-sm" style="color: var(--kb-muted-foreground);">{{ error }}</p>
       <button
         type="button"
-        class="px-3 py-1.5 rounded-lg text-sm font-medium"
+        class="px-3 py-1.5 rounded-lg text-sm font-medium transition duration-150 hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
         @click="loadData"
       >重新加载</button>
@@ -60,8 +61,8 @@
             </div>
           </div>
           <p class="text-[28px] font-bold tabular-nums leading-none" :style="{ color: card.color }">{{ card.value }}</p>
-          <p class="mt-2 text-[13px]" style="color: var(--kb-muted-foreground);">{{ card.label }}</p>
-          <p v-if="card.sub" class="mt-1 text-[12px]" style="color: var(--kb-muted-foreground);">{{ card.sub }}</p>
+          <p class="mt-2 text-[length:var(--kb-fs-body-sm)] truncate" style="color: var(--kb-muted-foreground);">{{ card.label }}</p>
+          <p v-if="card.sub" class="mt-1 text-[length:var(--kb-fs-caption)] truncate" style="color: var(--kb-muted-foreground);">{{ card.sub }}</p>
         </div>
       </section>
 
@@ -69,8 +70,8 @@
       <section class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
         <!-- 每日学习活跃度 -->
         <div class="lg:col-span-2 border rounded-[10px] p-5 bg-white border-gray-200">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="report-h2">学习活跃度</h2>
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
+            <h2 class="report-h2 min-w-0">学习活跃度</h2>
             <span class="text-sm tabular-nums" style="color: var(--kb-muted-foreground);">
               最近 30 天 · 共 <span style="color: var(--kb-primary);">{{ dailyTotalMinutes }}</span> 分钟
             </span>
@@ -103,9 +104,9 @@
 
         <!-- 知识库掌握度 -->
         <div class="border rounded-[10px] p-5 bg-white border-gray-200">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="report-h2">知识库掌握度</h2>
-            <span class="text-sm" style="color: var(--kb-muted-foreground);">Top 5</span>
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
+            <h2 class="report-h2 min-w-0">知识库掌握度</h2>
+            <span class="text-sm shrink-0" style="color: var(--kb-muted-foreground);">Top 5</span>
           </div>
           <EmptyState
             v-if="report.categoryMastery.length === 0"
@@ -117,9 +118,9 @@
           </EmptyState>
           <ul v-else class="space-y-4">
             <li v-for="(item, idx) in report.categoryMastery" :key="idx">
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-sm font-medium truncate" style="color: var(--kb-foreground);">{{ item.categoryName }}</span>
-                <span class="text-sm font-semibold tabular-nums" style="color: var(--kb-primary);">{{ item.percent }}%</span>
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="text-sm font-medium truncate min-w-0 flex-1" style="color: var(--kb-foreground);">{{ item.categoryName }}</span>
+                <span class="text-sm font-semibold tabular-nums shrink-0" style="color: var(--kb-primary);">{{ item.percent }}%</span>
               </div>
               <div class="w-full h-2 rounded-full overflow-hidden" style="background: var(--kb-muted);">
                 <div
@@ -127,7 +128,7 @@
                   :style="{ width: `${item.percent}%`, background: 'linear-gradient(90deg, var(--kb-primary), var(--kb-accent))' }"
                 ></div>
               </div>
-              <p class="mt-1 text-[12px] tabular-nums" style="color: var(--kb-muted-foreground);">
+              <p class="mt-1 text-[length:var(--kb-fs-caption)] tabular-nums" style="color: var(--kb-muted-foreground);">
                 已掌握 {{ item.mastered }} / {{ item.total }}
               </p>
             </li>
@@ -137,15 +138,15 @@
 
       <!-- 周趋势 -->
       <section class="mt-6 border rounded-[10px] p-5 bg-white border-gray-200">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="report-h2">周趋势</h2>
-          <div class="flex items-center gap-4 text-sm">
-            <span class="flex items-center gap-1.5">
-              <span class="w-3 h-3 rounded-sm" style="background: var(--kb-primary);"></span>
+        <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
+          <h2 class="report-h2 min-w-0">周趋势</h2>
+          <div class="flex items-center flex-wrap gap-x-4 gap-y-2 text-sm">
+            <span class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-sm shrink-0" style="background: var(--kb-primary);"></span>
               <span style="color: var(--kb-muted-foreground);">学习时长(分钟)</span>
             </span>
-            <span class="flex items-center gap-1.5">
-              <span class="w-3 h-3 rounded-sm" style="background: var(--kb-accent);"></span>
+            <span class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-sm shrink-0" style="background: var(--kb-accent);"></span>
               <span style="color: var(--kb-muted-foreground);">签到天数</span>
             </span>
           </div>
@@ -186,28 +187,28 @@
         <div class="border rounded-[10px] p-5 bg-white border-gray-200">
           <h3 class="report-h3 mb-3">闪卡 & 错题</h3>
           <dl class="space-y-2 text-sm">
-            <div class="flex justify-between"><dt style="color: var(--kb-muted-foreground);">闪卡复习次数</dt><dd class="tabular-nums font-medium" style="color: var(--kb-foreground);">{{ report.flashcardReviewed }}</dd></div>
-            <div class="flex justify-between"><dt style="color: var(--kb-muted-foreground);">已掌握闪卡</dt><dd class="tabular-nums font-medium" style="color: var(--kb-accent);">{{ report.flashcardMastered }}</dd></div>
-            <div class="flex justify-between"><dt style="color: var(--kb-muted-foreground);">错题总数</dt><dd class="tabular-nums font-medium" style="color: var(--kb-foreground);">{{ report.mistakeCount }}</dd></div>
-            <div class="flex justify-between"><dt style="color: var(--kb-muted-foreground);">已掌握错题</dt><dd class="tabular-nums font-medium" style="color: var(--kb-accent);">{{ report.mistakeMastered }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">闪卡复习次数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-foreground);">{{ report.flashcardReviewed }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">已掌握闪卡</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-accent);">{{ report.flashcardMastered }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">错题总数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-foreground);">{{ report.mistakeCount }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">已掌握错题</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-accent);">{{ report.mistakeMastered }}</dd></div>
           </dl>
         </div>
         <div class="border rounded-[10px] p-5 bg-white border-gray-200">
           <h3 class="report-h3 mb-3">代码 & 测验</h3>
           <dl class="space-y-2 text-sm">
-            <div class="flex justify-between"><dt style="color: var(--kb-muted-foreground);">代码提交次数</dt><dd class="tabular-nums font-medium" style="color: var(--kb-foreground);">{{ report.codeSubmissions }}</dd></div>
-            <div class="flex justify-between"><dt style="color: var(--kb-muted-foreground);">代码通过次数</dt><dd class="tabular-nums font-medium" style="color: var(--kb-accent);">{{ report.codePassed }}</dd></div>
-            <div class="flex justify-between"><dt style="color: var(--kb-muted-foreground);">测验答题数</dt><dd class="tabular-nums font-medium" style="color: var(--kb-foreground);">{{ report.quizAnswered }}</dd></div>
-            <div class="flex justify-between"><dt style="color: var(--kb-muted-foreground);">测验答对数</dt><dd class="tabular-nums font-medium" style="color: var(--kb-accent);">{{ report.quizCorrect }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">代码提交次数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-foreground);">{{ report.codeSubmissions }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">代码通过次数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-accent);">{{ report.codePassed }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">测验答题数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-foreground);">{{ report.quizAnswered }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">测验答对数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-accent);">{{ report.quizCorrect }}</dd></div>
           </dl>
         </div>
         <div class="border rounded-[10px] p-5 bg-white border-gray-200">
           <h3 class="report-h3 mb-3">阅读 & 学习时长</h3>
           <dl class="space-y-2 text-sm">
-            <div class="flex justify-between"><dt style="color: var(--kb-muted-foreground);">阅读文档数</dt><dd class="tabular-nums font-medium" style="color: var(--kb-foreground);">{{ report.docsRead }}</dd></div>
-            <div class="flex justify-between"><dt style="color: var(--kb-muted-foreground);">学习时长(分钟)</dt><dd class="tabular-nums font-medium" style="color: var(--kb-primary);">{{ report.studyMinutes }}</dd></div>
-            <div class="flex justify-between"><dt style="color: var(--kb-muted-foreground);">签到天数</dt><dd class="tabular-nums font-medium" style="color: var(--kb-foreground);">{{ report.checkinDays }}</dd></div>
-            <div class="flex justify-between"><dt style="color: var(--kb-muted-foreground);">当前连续打卡</dt><dd class="tabular-nums font-medium" style="color: var(--kb-warning);">{{ report.continuousDays }} 天</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">阅读文档数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-foreground);">{{ report.docsRead }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">学习时长(分钟)</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-primary);">{{ report.studyMinutes }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">签到天数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-foreground);">{{ report.checkinDays }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">当前连续打卡</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-warning);">{{ report.continuousDays }} 天</dd></div>
           </dl>
         </div>
       </section>
@@ -322,16 +323,16 @@ onMounted(() => {
 
 /* 标题字体：衬线 */
 .report-h2 {
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 1.4;
+  font-size: var(--kb-fs-h4);
+  font-weight: var(--kb-fw-h4);
+  line-height: var(--kb-lh-h4);
   color: var(--kb-foreground);
   font-family: var(--font-serif, 'Noto Serif SC', Georgia, serif);
 }
 .report-h3 {
-  font-size: 15px;
+  font-size: var(--kb-fs-body-lg);
   font-weight: 600;
-  line-height: 1.4;
+  line-height: var(--kb-lh-h4);
   color: var(--kb-foreground);
   font-family: var(--font-serif, 'Noto Serif SC', Georgia, serif);
 }
@@ -341,16 +342,16 @@ onMounted(() => {
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .report-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-card-hover);
 }
 
 /* ========== 每日活跃度柱状图 ========== */
 .daily-chart {
   display: flex;
   align-items: flex-end;
-  gap: 3px;
+  gap: var(--kb-space-1);
   height: 180px;
-  padding-top: 8px;
+  padding-top: var(--kb-space-2);
   overflow-x: auto;
 }
 .daily-bar-wrap {
@@ -373,7 +374,7 @@ onMounted(() => {
 .daily-bar {
   width: 70%;
   min-height: 2px;
-  border-radius: 3px 3px 0 0;
+  border-radius: 4px 4px 0 0;
   background: var(--kb-primary);
   transition: height 0.3s ease, opacity 0.15s ease;
   cursor: pointer;
@@ -381,21 +382,31 @@ onMounted(() => {
 .daily-bar:hover {
   opacity: 0.75;
 }
+.daily-bar:active {
+  opacity: 0.6;
+}
+.daily-bar:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
 .daily-bar-label {
   position: absolute;
   bottom: -18px;
-  font-size: 10px;
+  font-size: var(--kb-fs-xs);
+  line-height: var(--kb-lh-xs);
   color: var(--kb-muted-foreground);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ========== 周趋势柱状图 ========== */
 .weekly-chart {
   display: flex;
   align-items: flex-end;
-  gap: 12px;
+  gap: var(--kb-space-3);
   height: 200px;
-  padding-top: 8px;
+  padding-top: var(--kb-space-2);
+  overflow-x: auto;
 }
 .weekly-col {
   flex: 1 0 0;
@@ -411,7 +422,7 @@ onMounted(() => {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 4px;
+  gap: var(--kb-space-1);
 }
 .weekly-bar {
   width: 18px;
@@ -423,6 +434,13 @@ onMounted(() => {
 .weekly-bar:hover {
   opacity: 0.75;
 }
+.weekly-bar:active {
+  opacity: 0.6;
+}
+.weekly-bar:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+}
 .weekly-bar-minutes {
   background: var(--kb-primary);
 }
@@ -430,10 +448,12 @@ onMounted(() => {
   background: var(--kb-accent);
 }
 .weekly-label {
-  margin-top: 8px;
-  font-size: 11px;
+  margin-top: var(--kb-space-2);
+  font-size: var(--kb-fs-xs);
+  line-height: var(--kb-lh-xs);
   color: var(--kb-muted-foreground);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 /* 移动端适配 */
@@ -442,7 +462,7 @@ onMounted(() => {
     width: 12px;
   }
   .weekly-chart {
-    gap: 6px;
+    gap: var(--kb-space-2);
   }
 }
 </style>
