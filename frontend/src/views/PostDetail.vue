@@ -7,7 +7,7 @@
       <template #actions>
         <button
           @click="goBack"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 border border-gray-200 hover:bg-gray-50 active:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         >
           <Icon name="chevron-left" :size="16" />
           <span>返回</span>
@@ -22,10 +22,10 @@
       icon="message-square"
       title="帖子不存在或已删除"
     >
-      <button
-        @click="goBack"
-        class="mt-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 transition-colors"
-      >返回社区</button>
+        <button
+          @click="goBack"
+          class="mt-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 active:bg-primary-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+        >返回社区</button>
     </EmptyState>
 
     <!-- 全宽双栏布局：左侧正文/评论自适应 + 右侧信息边栏（对齐文档详情与主流帖子详情界面） -->
@@ -64,7 +64,7 @@
             <button
               @click="toggleLike"
               :disabled="liking"
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium border transition-colors disabled:opacity-50"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium border transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 active:bg-primary-100"
               :class="likedByMe
                 ? 'text-primary-600 border-primary-300 bg-primary-50'
                 : 'text-gray-500 border-gray-200 hover:border-primary-300 hover:text-primary-600'"

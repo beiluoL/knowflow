@@ -45,7 +45,7 @@
         <button
           type="button"
           :disabled="liking"
-          class="inline-flex items-center gap-1 text-[12px] rounded px-1 py-0.5 -ml-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-200 disabled:opacity-50"
+          class="inline-flex items-center gap-1 text-[12px] rounded px-1 py-0.5 -ml-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 disabled:opacity-50"
           :class="liked ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600'"
           :aria-pressed="liked"
           :title="liked ? '取消点赞' : '点赞'"
@@ -57,7 +57,7 @@
 
         <button
           type="button"
-          class="inline-flex items-center gap-1 text-[12px] text-gray-400 rounded px-1 py-0.5 transition-colors hover:text-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-200"
+          class="inline-flex items-center gap-1 text-[12px] text-gray-400 rounded px-1 py-0.5 transition-colors hover:text-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           :aria-expanded="replying"
           @click="replying = !replying"
         >
@@ -68,7 +68,7 @@
         <button
           v-if="comment.canEdit"
           type="button"
-          class="inline-flex items-center gap-1 text-[12px] text-gray-400 rounded px-1 py-0.5 transition-colors hover:text-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-200"
+          class="inline-flex items-center gap-1 text-[12px] text-gray-400 rounded px-1 py-0.5 transition-colors hover:text-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           @click="editing = true"
         >
           <Icon name="pencil" :size="13" />
@@ -79,7 +79,7 @@
           v-if="comment.canDelete"
           type="button"
           :disabled="deleting"
-          class="inline-flex items-center gap-1 text-[12px] text-gray-400 rounded px-1 py-0.5 transition-colors hover:text-danger-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-danger-200 disabled:opacity-50"
+          class="inline-flex items-center gap-1 text-[12px] text-gray-400 rounded px-1 py-0.5 transition-colors hover:text-danger-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-destructive)] focus-visible:ring-offset-2 disabled:opacity-50"
           @click="handleDelete"
         >
           <Icon name="trash-2" :size="13" />
@@ -118,7 +118,7 @@
           v-if="hasMoreReplies"
           type="button"
           :disabled="loadingReplies"
-          class="mt-1.5 inline-flex items-center gap-1 text-[12px] text-primary-600 rounded px-1 py-0.5 transition-colors hover:text-primary-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-200 disabled:opacity-50"
+          class="mt-1.5 inline-flex items-center gap-1 text-[12px] text-primary-600 rounded px-1 py-0.5 transition-colors hover:text-primary-700 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 disabled:opacity-50"
           @click="loadAllReplies"
         >
           <Icon name="chevron-down" :size="12" />

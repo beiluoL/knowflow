@@ -7,7 +7,7 @@
       <template #actions>
         <button
           @click="goBack"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 border border-gray-200 hover:bg-gray-50 active:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         >
           <Icon name="chevron-left" :size="16" />
           <span>返回</span>
@@ -15,7 +15,7 @@
         <button
           @click="handleSubmit"
           :disabled="submitting || !canSubmit"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 transition-colors disabled:opacity-50"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 active:bg-primary-700 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         >
           <Icon name="pen-line" :size="16" />
           <span>{{ submitting ? '发布中...' : '发布' }}</span>
@@ -47,7 +47,7 @@
             @click="form.category = cat.value"
             type="button"
             :class="[
-              'px-3 py-1.5 rounded-lg text-sm border transition-colors',
+              'px-3 py-1.5 rounded-lg text-sm border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 active:opacity-90',
               form.category === cat.value
                 ? 'bg-primary-50 text-primary-600 border-primary-300 font-medium'
                 : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300',
@@ -72,13 +72,13 @@
         <button
           @click="goBack"
           type="button"
-          class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+          class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         >取消</button>
         <button
           @click="handleSubmit"
           :disabled="submitting || !canSubmit"
           type="button"
-          class="px-5 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 transition-colors disabled:opacity-50"
+          class="px-5 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 active:bg-primary-700 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         >{{ submitting ? '发布中...' : '发布帖子' }}</button>
       </div>
     </div>

@@ -7,7 +7,7 @@
       <template #actions>
         <button
           @click="goCreate"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 transition-colors"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 active:bg-primary-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           aria-label="发布新帖子"
         >
           <Icon name="pen-line" :size="16" />
@@ -22,7 +22,7 @@
         :key="sort.value"
         @click="handleSortChange(sort.value)"
         :class="[
-          'shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border whitespace-nowrap transition-colors',
+          'shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 active:opacity-90',
           currentSort === sort.value
             ? 'bg-primary-500 text-white border-primary-500 font-medium'
             : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300',
@@ -50,7 +50,11 @@
               v-for="post in postList"
               :key="post.id"
               @click="goPost(post)"
-              class="border rounded-[10px] p-5 bg-white border-gray-200 hover:shadow-sm transition-shadow cursor-pointer"
+              role="button"
+              tabindex="0"
+              @keydown.enter.prevent="($event.target as HTMLElement).click()"
+              @keydown.space.prevent="($event.target as HTMLElement).click()"
+              class="border rounded-[10px] p-5 bg-white border-gray-200 hover:shadow-sm active:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-shadow cursor-pointer"
             >
               <div class="flex items-center gap-2.5 mb-3">
                 <div
@@ -116,9 +120,9 @@
               href="#"
               @click.prevent="handleCategoryClick(cat.value)"
               :class="[
-                'flex items-center justify-between px-2 py-1.5 rounded-lg text-sm transition-colors',
+                'flex items-center justify-between px-2 py-1.5 rounded-lg text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
                 selectedCategory === cat.value
-                  ? 'bg-blue-50 text-primary-500 font-medium'
+                  ? 'bg-primary-50 text-primary-500 font-medium'
                   : 'text-gray-700 hover:bg-gray-50',
               ]"
             >
@@ -135,7 +139,7 @@
               v-for="(topic, index) in trendingTopics"
               :key="index"
               href="#"
-              class="flex items-start gap-2 hover:bg-gray-50 rounded-lg p-1 -mx-1 transition-colors"
+              class="flex items-start gap-2 hover:bg-gray-50 rounded-lg p-1 -mx-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
               <span
                 :class="[
@@ -173,7 +177,7 @@
               </div>
               <button
                 type="button"
-                class="text-xs font-medium px-3 py-1 rounded-md border transition-colors"
+                class="text-xs font-medium px-3 py-1 rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 active:opacity-90"
                 :class="user.followed
                   ? 'text-gray-400 border-gray-200 bg-gray-50'
                   : 'text-primary-500 border-primary-500 hover:bg-primary-50'"
