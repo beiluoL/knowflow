@@ -23,21 +23,21 @@
             </p>
           </div>
           <div class="wb-hero-actions">
-            <router-link to="/workbench/recall" class="kb-btn wb-ghost-btn">
-              <Icon name="edit-2" :size="15" /> 主动回忆
+            <router-link to="/workbench/recall" class="kb-btn wb-ghost-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+              <Icon name="edit-2" :size="15" aria-hidden="true" /> 主动回忆
             </router-link>
-            <router-link to="/workbench/palace" class="kb-btn wb-ghost-btn">
-              <Icon name="map-pin" :size="15" /> 记忆宫殿
+            <router-link to="/workbench/palace" class="kb-btn wb-ghost-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+              <Icon name="map-pin" :size="15" aria-hidden="true" /> 记忆宫殿
             </router-link>
-            <button class="kb-btn kb-btn-primary wb-cta" @click="startReview">
-              <Icon name="play" :size="15" /> 开始抽查
+            <button class="kb-btn kb-btn-primary wb-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="startReview">
+              <Icon name="play" :size="15" aria-hidden="true" /> 开始抽查
             </button>
           </div>
         </div>
 
         <!-- 闭环导航条 -->
         <nav class="wb-loop-nav" aria-label="学习闭环">
-          <router-link v-for="s in loopSteps" :key="s.key" :to="s.path" class="wb-loop-step" :class="{ 'is-current': s.key === 'review' }">
+          <router-link v-for="s in loopSteps" :key="s.key" :to="s.path" class="wb-loop-step focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :class="{ 'is-current': s.key === 'review' }">
             <span class="wb-loop-num">{{ s.num }}</span>
             <span class="wb-loop-name">{{ s.name }}</span>
           </router-link>
@@ -58,7 +58,7 @@
             <button
               v-for="d in [14, 30, 90]"
               :key="d"
-              class="wb-range-btn"
+              class="wb-range-btn hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               :class="{ 'is-active': curveDays === d }"
               @click="curveDays = d; loadCurve()"
             >{{ d }}天</button>
@@ -109,19 +109,22 @@
         <span class="wb-section-hint">第 {{ index + 1 }} / {{ queue.length }} 张</span>
       </h2>
       <div class="wb-quiz-card">
-        <button class="wb-quiz-close" title="暂停" @click="active = false">
-          <Icon name="pause" :size="15" />
+        <button class="wb-quiz-close focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="暂停" @click="active = false">
+          <Icon name="pause" :size="15" aria-hidden="true" />
         </button>
 
         <div
-          class="wb-quiz-face"
+          class="wb-quiz-face focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ 'is-revealed': revealed }"
+          role="button"
+          tabindex="0"
           @click="revealed = !revealed"
+          @keydown.enter.prevent="($event.target as HTMLElement).click()"
         >
           <div v-if="!revealed" class="wb-quiz-front">
             <span class="wb-quiz-label">问题</span>
             <p class="wb-quiz-text">{{ current.front }}</p>
-            <span class="wb-quiz-hint"><Icon name="eye" :size="13" /> 点击查看答案</span>
+            <span class="wb-quiz-hint"><Icon name="eye" :size="13" aria-hidden="true" /> 点击查看答案</span>
           </div>
           <div v-else class="wb-quiz-back">
             <span class="wb-quiz-label wb-quiz-label-back">答案</span>
@@ -132,23 +135,23 @@
         <div v-if="revealed" class="wb-quiz-grade">
           <p class="wb-quiz-grade-title">你记得多少？反馈以调整下次间隔</p>
           <div class="wb-quiz-grade-grid">
-            <button class="wb-grade-btn" :style="qStyle(0)" @click="grade(0)">
-              <Icon name="x-circle" :size="16" />
+            <button class="wb-grade-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :style="qStyle(0)" @click="grade(0)">
+              <Icon name="x-circle" :size="16" aria-hidden="true" />
               <span class="wb-grade-label">忘了</span>
               <span class="wb-grade-hint">重置</span>
             </button>
-            <button class="wb-grade-btn" :style="qStyle(1)" @click="grade(1)">
-              <Icon name="thumbs-down" :size="16" />
+            <button class="wb-grade-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :style="qStyle(1)" @click="grade(1)">
+              <Icon name="thumbs-down" :size="16" aria-hidden="true" />
               <span class="wb-grade-label">困难</span>
               <span class="wb-grade-hint">+1d</span>
             </button>
-            <button class="wb-grade-btn" :style="qStyle(2)" @click="grade(2)">
-              <Icon name="thumbs-up" :size="16" />
+            <button class="wb-grade-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :style="qStyle(2)" @click="grade(2)">
+              <Icon name="thumbs-up" :size="16" aria-hidden="true" />
               <span class="wb-grade-label">一般</span>
               <span class="wb-grade-hint">×2.5</span>
             </button>
-            <button class="wb-grade-btn" :style="qStyle(3)" @click="grade(3)">
-              <Icon name="check-circle" :size="16" />
+            <button class="wb-grade-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :style="qStyle(3)" @click="grade(3)">
+              <Icon name="check-circle" :size="16" aria-hidden="true" />
               <span class="wb-grade-label">容易</span>
               <span class="wb-grade-hint">×4</span>
             </button>
@@ -167,8 +170,8 @@
       <div class="wb-empty-icon"><Icon name="calendar-check" :size="40" /></div>
       <h3 class="wb-empty-title">暂无待复习卡片</h3>
       <p class="wb-empty-desc">新建复习卡，或把笔记转为卡片，让记忆开始流动。</p>
-      <button class="kb-btn kb-btn-primary" @click="showCreate = true">
-        <Icon name="plus" :size="15" /> 新建复习卡
+      <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = true">
+        <Icon name="plus" :size="15" aria-hidden="true" /> 新建复习卡
       </button>
     </section>
 
@@ -180,8 +183,8 @@
           全部复习卡
           <span class="wb-section-hint">{{ cards.length }} 张</span>
         </h2>
-        <button class="kb-btn kb-btn-primary" @click="showCreate = true">
-          <Icon name="plus" :size="15" /> 新建
+        <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = true">
+          <Icon name="plus" :size="15" aria-hidden="true" /> 新建
         </button>
       </div>
 
@@ -201,11 +204,11 @@
             </div>
           </div>
           <div class="wb-card-row-actions">
-            <button class="wb-icon-btn" :title="c.suspended ? '恢复' : '暂停'" @click="suspend(c)">
-              <Icon :name="c.suspended ? 'play' : 'pause'" :size="15" />
+            <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :title="c.suspended ? '恢复' : '暂停'" @click="suspend(c)">
+              <Icon :name="c.suspended ? 'play' : 'pause'" :size="15" aria-hidden="true" />
             </button>
-            <button class="wb-icon-btn" title="删除" @click="remove(c)">
-              <Icon name="trash-2" :size="15" />
+            <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="删除" @click="remove(c)">
+              <Icon name="trash-2" :size="15" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -213,14 +216,14 @@
     </section>
 
     <!-- ============ 新建复习卡 Drawer ============ -->
-    <div v-if="showCreate" class="wb-drawer-mask" @click.self="showCreate = false">
+    <div v-if="showCreate" class="wb-drawer-mask focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @click.self="showCreate = false" @keydown.enter.prevent="($event.target as HTMLElement).click()">
       <div class="wb-drawer">
         <header class="wb-drawer-head">
           <div>
             <span class="wb-eyebrow wb-eyebrow-sm">New Card</span>
             <h2 class="wb-drawer-title">新建复习卡</h2>
           </div>
-          <button class="wb-icon-btn" @click="showCreate = false"><Icon name="x" :size="18" /></button>
+          <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = false"><Icon name="x" :size="18" aria-hidden="true" /></button>
         </header>
         <div class="wb-drawer-body">
           <div class="wb-field">
@@ -241,9 +244,9 @@
           </div>
         </div>
         <footer class="wb-drawer-foot">
-          <button class="kb-btn" @click="showCreate = false">取消</button>
-          <button class="kb-btn kb-btn-primary" @click="saveCard">
-            <Icon name="check" :size="15" /> 保存
+          <button class="kb-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = false">取消</button>
+          <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="saveCard">
+            <Icon name="check" :size="15" aria-hidden="true" /> 保存
           </button>
         </footer>
       </div>

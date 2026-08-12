@@ -8,9 +8,9 @@
         <p class="kb-body" style="color: var(--kb-muted-foreground);">以教代学：用一个故事把知识讲给外行听。</p>
       </div>
       <div class="flex items-center gap-2">
-        <button class="kb-btn" @click="router.push('/workbench/story')"><Icon name="chevron-left" :size="16" /> 返回</button>
-        <button class="kb-btn" @click="save('DRAFT')"><Icon name="save" :size="16" /> 存草稿</button>
-        <button class="kb-btn kb-btn-primary" @click="save('DONE')"><Icon name="check-circle" :size="16" /> 完成</button>
+        <button class="kb-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="router.push('/workbench/story')"><Icon name="chevron-left" :size="16" aria-hidden="true" /> 返回</button>
+        <button class="kb-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="save('DRAFT')"><Icon name="save" :size="16" aria-hidden="true" /> 存草稿</button>
+        <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="save('DONE')"><Icon name="check-circle" :size="16" aria-hidden="true" /> 完成</button>
       </div>
     </div>
 
@@ -19,12 +19,12 @@
       <div class="space-y-3">
         <div>
           <label class="kb-label">标题 *</label>
-          <input v-model="form.title" class="kb-input" placeholder="故事标题" />
+          <input v-model="form.title" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" placeholder="故事标题" />
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="kb-label">假想听众</label>
-            <select v-model="form.audience" class="kb-input">
+            <select v-model="form.audience" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
               <option value="CHILD">小孩</option>
               <option value="NEWBIE">初学者</option>
               <option value="PEER">同行</option>
@@ -33,20 +33,20 @@
           </div>
           <div>
             <label class="kb-label">自评讲清程度 {{ form.clarityScore }}%</label>
-            <input type="range" min="0" max="100" step="5" v-model.number="form.clarityScore" style="accent-color: var(--kb-primary); width: 100%;" />
+            <input type="range" min="0" max="100" step="5" v-model.number="form.clarityScore" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" style="accent-color: var(--kb-primary); width: 100%;" />
           </div>
         </div>
         <div>
           <label class="kb-label">核心类比 / 隐喻</label>
-          <input v-model="form.metaphor" class="kb-input" placeholder="如：把「索引」比作「书的目录」" />
+          <input v-model="form.metaphor" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" placeholder="如：把「索引」比作「书的目录」" />
         </div>
         <div>
           <label class="kb-label">故事正文（Markdown）</label>
-          <textarea v-model="form.content" class="kb-input" rows="12" placeholder="从前有一个…用故事讲清这个概念…"></textarea>
+          <textarea v-model="form.content" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" rows="12" placeholder="从前有一个…用故事讲清这个概念…"></textarea>
         </div>
         <div>
           <label class="kb-label">讲述卡点（费曼法核心：卡壳处即知识漏洞）</label>
-          <textarea v-model="form.gapNote" class="kb-input" rows="3" placeholder="哪里没讲清楚？回去补学…"></textarea>
+          <textarea v-model="form.gapNote" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" rows="3" placeholder="哪里没讲清楚？回去补学…"></textarea>
         </div>
       </div>
 

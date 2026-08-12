@@ -22,14 +22,14 @@
               整理后流入笔记与复习，构成闭环的第一步。
             </p>
           </div>
-          <button class="kb-btn kb-btn-primary wb-cta" @click="openCreate">
-            <Icon name="plus" :size="16" /> 新建条目
+          <button class="kb-btn kb-btn-primary wb-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="openCreate">
+            <Icon name="plus" :size="16" aria-hidden="true" /> 新建条目
           </button>
         </div>
 
         <!-- 闭环导航条 -->
         <nav class="wb-loop-nav" aria-label="学习闭环">
-          <router-link v-for="s in loopSteps" :key="s.key" :to="s.path" class="wb-loop-step" :class="{ 'is-current': s.key === 'input' }">
+          <router-link v-for="s in loopSteps" :key="s.key" :to="s.path" class="wb-loop-step focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :class="{ 'is-current': s.key === 'input' }">
             <span class="wb-loop-num">{{ s.num }}</span>
             <span class="wb-loop-name">{{ s.name }}</span>
           </router-link>
@@ -43,7 +43,7 @@
         <button
           v-for="tab in tabs"
           :key="tab.value"
-          class="wb-tab"
+          class="wb-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ 'is-active': activeStatus === tab.value }"
           @click="activeStatus = tab.value; load()"
         >
@@ -58,7 +58,7 @@
         </select>
         <div class="wb-search">
           <Icon name="search" :size="14" class="wb-search-icon" />
-          <input v-model="keyword" class="kb-input wb-search-input" placeholder="搜索标题…" @input="load" />
+          <input v-model="keyword" class="kb-input wb-search-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" placeholder="搜索标题…" @input="load" />
         </div>
       </div>
     </section>
@@ -77,8 +77,8 @@
         <div class="wb-empty-icon"><Icon name="inbox" :size="40" /></div>
         <h3 class="wb-empty-title">收集箱还是空的</h3>
         <p class="wb-empty-desc">从一条灵感开始，让知识真正流动起来。</p>
-        <button class="kb-btn kb-btn-primary" @click="openCreate">
-          <Icon name="plus" :size="15" /> 新建第一条
+        <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="openCreate">
+          <Icon name="plus" :size="15" aria-hidden="true" /> 新建第一条
         </button>
       </div>
 
@@ -92,8 +92,8 @@
             <span class="wb-card-status" :style="statusStyle(item.status)">
               <span class="wb-status-dot"></span>{{ statusLabel(item.status) }}
             </span>
-            <button class="wb-icon-btn" :class="{ 'is-on': item.starred }" title="标星" @click="toggleStar(item)">
-              <Icon name="star" :size="16" />
+            <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :class="{ 'is-on': item.starred }" title="标星" @click="toggleStar(item)">
+              <Icon name="star" :size="16" aria-hidden="true" />
             </button>
           </div>
 
@@ -113,17 +113,17 @@
           </div>
 
           <div class="wb-card-foot">
-            <button class="wb-mini-btn wb-mini-primary" title="转为笔记" @click="toNote(item)">
-              <Icon name="notebook-pen" :size="13" /> 转笔记
+            <button class="wb-mini-btn wb-mini-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="转为笔记" @click="toNote(item)">
+              <Icon name="notebook-pen" :size="13" aria-hidden="true" /> 转笔记
             </button>
-            <button class="wb-mini-btn" title="归档" @click="setStatus(item, 'ARCHIVED')">
-              <Icon name="archive" :size="13" /> 归档
+            <button class="wb-mini-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="归档" @click="setStatus(item, 'ARCHIVED')">
+              <Icon name="archive" :size="13" aria-hidden="true" /> 归档
             </button>
-            <button class="wb-mini-btn" title="编辑" @click="openEdit(item)">
-              <Icon name="edit-2" :size="13" />
+            <button class="wb-mini-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="编辑" @click="openEdit(item)">
+              <Icon name="edit-2" :size="13" aria-hidden="true" />
             </button>
-            <button class="wb-mini-btn wb-mini-danger" title="删除" @click="remove(item)">
-              <Icon name="trash-2" :size="13" />
+            <button class="wb-mini-btn wb-mini-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="删除" @click="remove(item)">
+              <Icon name="trash-2" :size="13" aria-hidden="true" />
             </button>
           </div>
         </article>
@@ -131,19 +131,19 @@
     </section>
 
     <!-- ============ Drawer ============ -->
-    <div v-if="showDrawer" class="wb-drawer-mask" @click.self="showDrawer = false">
+    <div v-if="showDrawer" class="wb-drawer-mask focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors hover:bg-black/50" role="button" tabindex="0" @click.self="showDrawer = false" @keydown.enter.prevent="($event.target as HTMLElement).click()">
       <div class="wb-drawer">
         <header class="wb-drawer-head">
           <div>
             <span class="wb-eyebrow wb-eyebrow-sm">Capture</span>
             <h2 class="wb-drawer-title">{{ editingId ? '编辑条目' : '新建收集箱条目' }}</h2>
           </div>
-          <button class="wb-icon-btn" @click="showDrawer = false"><Icon name="x" :size="18" /></button>
+          <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showDrawer = false"><Icon name="x" :size="18" aria-hidden="true" /></button>
         </header>
         <div class="wb-drawer-body">
           <div class="wb-field">
             <label class="wb-label">标题 <span class="wb-req">*</span></label>
-            <input v-model="form.title" class="kb-input" placeholder="一句话摘要" />
+            <input v-model="form.title" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" placeholder="一句话摘要" />
           </div>
           <div class="wb-field">
             <label class="wb-label">正文（Markdown）</label>
@@ -170,17 +170,17 @@
           </div>
           <div class="wb-field">
             <label class="wb-label">标签（逗号分隔）</label>
-            <input v-model="form.tags" class="kb-input" placeholder="算法, 英语" />
+            <input v-model="form.tags" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" placeholder="算法, 英语" />
           </div>
           <div class="wb-field">
             <label class="wb-label">来源链接</label>
-            <input v-model="form.sourceUrl" class="kb-input" placeholder="https://…" />
+            <input v-model="form.sourceUrl" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" placeholder="https://…" />
           </div>
         </div>
         <footer class="wb-drawer-foot">
-          <button class="kb-btn" @click="showDrawer = false">取消</button>
-          <button class="kb-btn kb-btn-primary" @click="save">
-            <Icon name="check" :size="15" /> 保存
+          <button class="kb-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showDrawer = false">取消</button>
+          <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="save">
+            <Icon name="check" :size="15" aria-hidden="true" /> 保存
           </button>
         </footer>
       </div>

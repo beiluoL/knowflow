@@ -3,8 +3,8 @@
     <!-- ============ Sticky Top Bar ============ -->
     <header class="note-topbar">
       <div class="note-topbar-left">
-        <button class="wb-icon-btn" title="返回列表" @click="goBack">
-          <Icon name="chevron-left" :size="18" />
+        <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="返回列表" @click="goBack">
+          <Icon name="chevron-left" :size="18" aria-hidden="true" />
         </button>
         <div class="note-topbar-title">
           <span class="wb-eyebrow wb-eyebrow-sm">
@@ -31,11 +31,11 @@
       </div>
 
       <div class="note-topbar-right">
-        <button class="kb-btn wb-ghost-btn note-export-btn" :disabled="exporting" @click="exportImage">
-          <Icon name="image" :size="14" /> 导出图片
+        <button class="kb-btn wb-ghost-btn note-export-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="exporting" @click="exportImage">
+          <Icon name="image" :size="14" aria-hidden="true" /> 导出图片
         </button>
-        <button class="kb-btn wb-ghost-btn note-export-btn" :disabled="exporting" @click="exportPDF">
-          <Icon name="file-text" :size="14" /> 导出PDF
+        <button class="kb-btn wb-ghost-btn note-export-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="exporting" @click="exportPDF">
+          <Icon name="file-text" :size="14" aria-hidden="true" /> 导出PDF
         </button>
       </div>
     </header>
@@ -47,7 +47,7 @@
           <label class="wb-label">笔记标题 <span class="wb-req">*</span></label>
           <input
             v-model="form.title"
-            class="kb-input note-title-input"
+            class="kb-input note-title-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             placeholder="给这则笔记起个名字…"
             @blur="validateField('title')"
           />
@@ -56,7 +56,7 @@
 
         <div class="note-meta-field">
           <label class="wb-label">所属科目 / 分类</label>
-          <select v-model="form.categoryId" class="kb-input">
+          <select v-model="form.categoryId" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
             <option :value="undefined">未归类</option>
             <option v-for="c in flatCategories" :key="c.id" :value="c.id">{{ '　'.repeat(c.depth) }}{{ c.name }}</option>
           </select>
@@ -68,7 +68,7 @@
             <Icon name="hash" :size="14" class="note-tags-icon" />
             <input
               v-model="tagInput"
-              class="kb-input note-tags-field"
+              class="kb-input note-tags-field focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               placeholder="输入标签后回车"
               @keydown.enter.prevent="addTag"
               @keydown.delete="removeLastTag"
@@ -77,14 +77,14 @@
           <div v-if="tags.length" class="note-tags-list">
             <span v-for="(t, i) in tags" :key="i" class="note-tag-chip">
               {{ t }}
-              <button class="note-tag-remove" @click="tags.splice(i, 1)"><Icon name="x" :size="11" /></button>
+              <button class="note-tag-remove focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="tags.splice(i, 1)"><Icon name="x" :size="11" aria-hidden="true" /></button>
             </span>
           </div>
         </div>
 
         <div class="note-meta-field note-meta-mastery">
           <label class="wb-label">掌握度 <span class="note-mastery-val">{{ form.mastery }}%</span></label>
-          <input type="range" min="0" max="100" step="5" v-model.number="form.mastery" class="note-mastery-slider" />
+          <input type="range" min="0" max="100" step="5" v-model.number="form.mastery" class="note-mastery-slider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
         </div>
       </div>
 
@@ -101,7 +101,7 @@
           </div>
           <textarea
             v-model="form.cueColumn"
-            class="kb-input cornell-textarea cornell-cue-input"
+            class="kb-input cornell-textarea cornell-cue-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             placeholder="例如：&#10;- 什么是 SM-2 算法？&#10;- 间隔重复的原理是什么？"
             rows="12"
           ></textarea>
@@ -119,28 +119,28 @@
 
           <!-- Rich Text Toolbar -->
           <div class="rte-toolbar">
-            <button class="rte-btn" title="加粗 (Ctrl+B)" @mousedown.prevent="exec('bold')">
-              <Icon name="bold" :size="15" />
+            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="加粗 (Ctrl+B)" @mousedown.prevent="exec('bold')">
+              <Icon name="bold" :size="15" aria-hidden="true" />
             </button>
-            <button class="rte-btn" title="斜体 (Ctrl+I)" @mousedown.prevent="exec('italic')">
-              <Icon name="italic" :size="15" />
+            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="斜体 (Ctrl+I)" @mousedown.prevent="exec('italic')">
+              <Icon name="italic" :size="15" aria-hidden="true" />
             </button>
-            <button class="rte-btn" title="下划线" @mousedown.prevent="exec('underline')">
-              <Icon name="underline" :size="15" />
-            </button>
-            <span class="rte-divider"></span>
-            <button class="rte-btn" title="无序列表" @mousedown.prevent="exec('insertUnorderedList')">
-              <Icon name="list" :size="15" />
-            </button>
-            <button class="rte-btn" title="有序列表" @mousedown.prevent="exec('insertOrderedList')">
-              <Icon name="list-ordered" :size="15" />
+            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="下划线" @mousedown.prevent="exec('underline')">
+              <Icon name="underline" :size="15" aria-hidden="true" />
             </button>
             <span class="rte-divider"></span>
-            <button class="rte-btn rte-highlight" title="高亮" @mousedown.prevent="toggleHighlight">
+            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="无序列表" @mousedown.prevent="exec('insertUnorderedList')">
+              <Icon name="list" :size="15" aria-hidden="true" />
+            </button>
+            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="有序列表" @mousedown.prevent="exec('insertOrderedList')">
+              <Icon name="list-ordered" :size="15" aria-hidden="true" />
+            </button>
+            <span class="rte-divider"></span>
+            <button class="rte-btn rte-highlight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="高亮" @mousedown.prevent="toggleHighlight">
               <span class="rte-hl-mark">H</span>
             </button>
-            <button class="rte-btn" title="清除格式" @mousedown.prevent="exec('removeFormat')">
-              <Icon name="x" :size="15" />
+            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="清除格式" @mousedown.prevent="exec('removeFormat')">
+              <Icon name="x" :size="15" aria-hidden="true" />
             </button>
           </div>
 
@@ -164,7 +164,7 @@
           </div>
           <textarea
             v-model="form.summaryColumn"
-            class="kb-input cornell-textarea cornell-summary-input"
+            class="kb-input cornell-textarea cornell-summary-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             placeholder="一句话讲清这个概念…"
             rows="12"
           ></textarea>
@@ -180,11 +180,11 @@
         </span>
       </div>
       <div class="note-action-right">
-        <button class="kb-btn note-draft-btn" :disabled="saving" @click="saveDraft">
-          <Icon name="save" :size="15" /> 保存草稿
+        <button class="kb-btn note-draft-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving" @click="saveDraft">
+          <Icon name="save" :size="15" aria-hidden="true" /> 保存草稿
         </button>
-        <button class="kb-btn kb-btn-primary note-publish-btn" :disabled="saving" @click="publish">
-          <Icon name="send" :size="15" /> 完成并发布
+        <button class="kb-btn kb-btn-primary note-publish-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving" @click="publish">
+          <Icon name="send" :size="15" aria-hidden="true" /> 完成并发布
         </button>
       </div>
     </footer>

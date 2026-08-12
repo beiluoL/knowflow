@@ -7,8 +7,8 @@
         </h1>
         <p class="kb-body" style="color: var(--kb-muted-foreground);">线索栏自测、笔记栏记录、总结栏复述，主动回忆胜过被动阅读。</p>
       </div>
-      <button class="kb-btn kb-btn-primary" @click="router.push('/workbench/notes/new')">
-        <Icon name="plus" :size="16" /> 新建笔记
+      <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="router.push('/workbench/notes/new')">
+        <Icon name="plus" :size="16" aria-hidden="true" /> 新建笔记
       </button>
     </div>
 
@@ -21,15 +21,18 @@
     <div v-else-if="list.length === 0" class="rounded-xl border p-8 text-center" style="background: var(--kb-card); border-color: var(--kb-border);">
       <Icon name="notebook-pen" :size="40" style="color: var(--kb-muted-foreground);" />
       <p class="kb-body-sm mt-2" style="color: var(--kb-muted-foreground);">还没有康奈尔笔记</p>
-      <button class="kb-btn kb-btn-primary mt-3" @click="router.push('/workbench/notes/new')"><Icon name="plus" :size="15" /> 立即创建</button>
+      <button class="kb-btn kb-btn-primary mt-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="router.push('/workbench/notes/new')"><Icon name="plus" :size="15" aria-hidden="true" /> 立即创建</button>
     </div>
     <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
       <div
         v-for="n in list"
         :key="n.id"
-        class="rounded-xl border p-4 cursor-pointer transition-shadow hover:shadow-sm"
+        class="rounded-xl border p-4 cursor-pointer transition-shadow hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         style="background: var(--kb-card); border-color: var(--kb-border);"
+        role="button"
+        tabindex="0"
         @click="router.push('/workbench/notes/' + n.id)"
+        @keydown.enter.prevent="($event.target as HTMLElement).click()"
       >
         <div class="flex items-start justify-between mb-2">
           <h3 class="kb-h4 flex-1" style="color: var(--kb-foreground);">{{ n.title }}</h3>
@@ -42,9 +45,9 @@
         <div class="flex items-center justify-between">
           <span v-if="n.tags" class="text-[11px]" style="color: var(--kb-muted-foreground);">#{{ n.tags }}</span>
           <div class="flex items-center gap-1 ml-auto" @click.stop>
-            <button class="icon-btn" title="转为复习卡" @click="toReview(n)"><Icon name="repeat" :size="15" /></button>
-            <button class="icon-btn" title="转为故事" @click="toStory(n)"><Icon name="wand-2" :size="15" /></button>
-            <button class="icon-btn" title="删除" @click="remove(n)"><Icon name="trash-2" :size="15" /></button>
+            <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="转为复习卡" @click="toReview(n)"><Icon name="repeat" :size="15" aria-hidden="true" /></button>
+            <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="转为故事" @click="toStory(n)"><Icon name="wand-2" :size="15" aria-hidden="true" /></button>
+            <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="删除" @click="remove(n)"><Icon name="trash-2" :size="15" aria-hidden="true" /></button>
           </div>
         </div>
       </div>

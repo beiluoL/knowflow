@@ -23,18 +23,18 @@
             </p>
           </div>
           <div class="wb-hero-actions">
-            <router-link to="/workbench/review" class="kb-btn wb-ghost-btn">
-              <Icon name="repeat" :size="15" /> 间隔重复
+            <router-link to="/workbench/review" class="kb-btn wb-ghost-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+              <Icon name="repeat" :size="15" aria-hidden="true" /> 间隔重复
             </router-link>
-            <button class="kb-btn kb-btn-primary wb-cta" @click="showCreate = true">
-              <Icon name="plus" :size="16" /> 新建默写
+            <button class="kb-btn kb-btn-primary wb-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = true">
+              <Icon name="plus" :size="16" aria-hidden="true" /> 新建默写
             </button>
           </div>
         </div>
 
         <!-- 闭环导航条 -->
         <nav class="wb-loop-nav" aria-label="学习闭环">
-          <router-link v-for="s in loopSteps" :key="s.key" :to="s.path" class="wb-loop-step" :class="{ 'is-current': s.key === 'review' }">
+          <router-link v-for="s in loopSteps" :key="s.key" :to="s.path" class="wb-loop-step focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :class="{ 'is-current': s.key === 'review' }">
             <span class="wb-loop-num">{{ s.num }}</span>
             <span class="wb-loop-name">{{ s.name }}</span>
           </router-link>
@@ -61,8 +61,8 @@
         <div class="wb-empty-icon"><Icon name="edit-2" :size="40" /></div>
         <h3 class="wb-empty-title">还没有默写会话</h3>
         <p class="wb-empty-desc">粘贴一段要记忆的内容，开始三轮闭卷默写。</p>
-        <button class="kb-btn kb-btn-primary" @click="showCreate = true">
-          <Icon name="plus" :size="15" /> 新建默写
+        <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = true">
+          <Icon name="plus" :size="15" aria-hidden="true" /> 新建默写
         </button>
       </div>
 
@@ -70,8 +70,11 @@
         <article
           v-for="s in sessions"
           :key="s.id"
-          class="wb-session-card"
+          class="wb-session-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          role="button"
+          tabindex="0"
           @click="enterSession(s.id)"
+          @keydown.enter.prevent="($event.target as HTMLElement).click()"
         >
           <div class="wb-session-head">
             <span class="wb-session-status" :class="s.status === 'COMPLETED' ? 'is-done' : 'is-progress'">
@@ -103,8 +106,8 @@
     <section v-else class="recall-detail">
       <!-- 顶部：返回 + 标题 + 进度条 -->
       <div class="recall-detail-head">
-        <button class="wb-icon-btn" @click="exitSession">
-          <Icon name="chevron-left" :size="18" />
+        <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" aria-label="返回" @click="exitSession">
+          <Icon name="chevron-left" :size="18" aria-hidden="true" />
         </button>
         <div class="recall-detail-title">
           <h2 class="wb-section-title" style="margin: 0;">
@@ -156,7 +159,7 @@
 
         <textarea
           v-model="currentText"
-          class="kb-input recall-write-area"
+          class="kb-input recall-write-area focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :placeholder="`闭卷默写原文内容…（第 ${activeSession.currentRound} 轮）`"
           rows="14"
         ></textarea>
@@ -164,17 +167,17 @@
         <div class="recall-write-actions">
           <button
             v-if="activeSession.currentRound > 1"
-            class="kb-btn wb-ghost-btn"
+            class="kb-btn wb-ghost-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             @click="showSourcePreview = !showSourcePreview"
           >
-            <Icon name="eye" :size="15" /> {{ showSourcePreview ? '隐藏原文' : '查看原文（作弊警告）' }}
+            <Icon name="eye" :size="15" aria-hidden="true" /> {{ showSourcePreview ? '隐藏原文' : '查看原文（作弊警告）' }}
           </button>
           <button
-            class="kb-btn kb-btn-primary"
+            class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             :disabled="submitting || !currentText.trim()"
             @click="submitRound"
           >
-            <Icon name="send" :size="15" /> 提交本轮
+            <Icon name="send" :size="15" aria-hidden="true" /> 提交本轮
           </button>
         </div>
 
@@ -249,23 +252,23 @@
     </section>
 
     <!-- ============ 新建会话 Drawer ============ -->
-    <div v-if="showCreate" class="wb-drawer-mask" @click.self="showCreate = false">
+    <div v-if="showCreate" class="wb-drawer-mask focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @click.self="showCreate = false" @keydown.enter.prevent="($event.target as HTMLElement).click()">
       <div class="wb-drawer">
         <header class="wb-drawer-head">
           <div>
             <span class="wb-eyebrow wb-eyebrow-sm">New Session</span>
             <h2 class="wb-drawer-title">新建默写会话</h2>
           </div>
-          <button class="wb-icon-btn" @click="showCreate = false"><Icon name="x" :size="18" /></button>
+          <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" aria-label="关闭" @click="showCreate = false"><Icon name="x" :size="18" aria-hidden="true" /></button>
         </header>
         <div class="wb-drawer-body">
           <div class="wb-field">
             <label class="wb-label">标题</label>
-            <input v-model="createForm.title" class="kb-input" placeholder="如：SM-2 算法要点" />
+            <input v-model="createForm.title" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" placeholder="如：SM-2 算法要点" />
           </div>
           <div class="wb-field">
             <label class="wb-label">原文 <span class="wb-req">*</span></label>
-            <textarea v-model="createForm.sourceText" class="kb-input" rows="8" placeholder="粘贴要记忆的内容…"></textarea>
+            <textarea v-model="createForm.sourceText" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" rows="8" placeholder="粘贴要记忆的内容…"></textarea>
           </div>
           <p class="recall-create-hint">
             <Icon name="info" :size="13" />
@@ -273,9 +276,9 @@
           </p>
         </div>
         <footer class="wb-drawer-foot">
-          <button class="kb-btn" @click="showCreate = false">取消</button>
-          <button class="kb-btn kb-btn-primary" @click="createSession">
-            <Icon name="play" :size="15" /> 开始默写
+          <button class="kb-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = false">取消</button>
+          <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="createSession">
+            <Icon name="play" :size="15" aria-hidden="true" /> 开始默写
           </button>
         </footer>
       </div>

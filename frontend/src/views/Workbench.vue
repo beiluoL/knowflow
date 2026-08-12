@@ -24,18 +24,18 @@
               让每一条知识都被真正记住、能用、可复述。
             </p>
           </div>
-          <button class="kb-btn kb-btn-primary wb-cta" @click="goCapture">
-            <Icon name="plus" :size="16" /> 快速记录灵感
+          <button class="kb-btn kb-btn-primary wb-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="goCapture">
+            <Icon name="plus" :size="16" aria-hidden="true" /> 快速记录灵感
           </button>
         </div>
 
         <!-- 学习闭环可视化 -->
         <div class="wb-loop" role="navigation" aria-label="学习闭环导航">
           <template v-for="(m, i) in modules" :key="m.key">
-            <button class="wb-loop-node" :style="{ '--mc': m.color }" @click="router.push(m.path)">
+            <button class="wb-loop-node focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :style="{ '--mc': m.color }" @click="router.push(m.path)">
               <span class="wb-loop-step">{{ m.step }}</span>
               <span class="wb-loop-icon">
-                <Icon :name="m.icon" :size="22" />
+                <Icon :name="m.icon" :size="22" aria-hidden="true" />
               </span>
               <span class="wb-loop-title">{{ m.title }}</span>
               <span v-if="m.metric != null" class="wb-loop-count">{{ m.metric }}</span>
@@ -63,18 +63,18 @@
         <button
           v-for="f in focusItems"
           :key="f.key"
-          class="wb-focus-card"
+          class="wb-focus-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ 'is-urgent': f.urgent }"
           @click="router.push(f.path)"
         >
           <span class="wb-focus-icon" :style="{ background: f.color + '14', color: f.color }">
-            <Icon :name="f.icon" :size="20" />
+            <Icon :name="f.icon" :size="20" aria-hidden="true" />
           </span>
           <span class="wb-focus-body">
             <span class="wb-focus-label">{{ f.label }}</span>
             <span class="wb-focus-num" :style="{ color: f.color }">{{ f.value }}</span>
           </span>
-          <Icon name="arrow-right" :size="16" class="wb-focus-arrow" />
+          <Icon name="arrow-right" :size="16" class="wb-focus-arrow" aria-hidden="true" />
         </button>
       </div>
     </section>
@@ -89,25 +89,25 @@
         <button
           v-for="m in modules"
           :key="m.key"
-          class="wb-module-card"
+          class="wb-module-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :style="{ '--mc': m.color }"
           @click="router.push(m.path)"
         >
           <div class="wb-module-top">
             <span class="wb-module-badge">{{ m.step }}</span>
             <span class="wb-module-icon">
-              <Icon :name="m.icon" :size="24" />
+              <Icon :name="m.icon" :size="24" aria-hidden="true" />
             </span>
           </div>
           <h3 class="wb-module-title">{{ m.title }}</h3>
           <p class="wb-module-desc">{{ m.desc }}</p>
           <div v-if="m.sub" class="wb-module-sub">
-            <Icon :name="m.subIcon" :size="13" />
+            <Icon :name="m.subIcon" :size="13" aria-hidden="true" />
             <span>{{ m.sub }}</span>
           </div>
           <span class="wb-module-cta">
             进入模块
-            <Icon name="arrow-right" :size="14" />
+            <Icon name="arrow-right" :size="14" aria-hidden="true" />
           </span>
         </button>
       </div>
@@ -151,13 +151,13 @@
         <button
           v-for="tip in tips"
           :key="tip.title"
-          class="wb-method-card"
+          class="wb-method-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :style="{ '--mc': tip.color }"
           @click="router.push(tip.path)"
         >
           <div class="wb-method-head">
             <span class="wb-method-icon">
-              <Icon :name="tip.icon" :size="18" />
+              <Icon :name="tip.icon" :size="18" aria-hidden="true" />
             </span>
             <div>
               <h4 class="wb-method-title">{{ tip.title }}</h4>
@@ -166,7 +166,7 @@
           </div>
           <p class="wb-method-desc">{{ tip.desc }}</p>
           <span class="wb-method-principle">
-            <Icon name="zap" :size="12" />
+            <Icon name="zap" :size="12" aria-hidden="true" />
             {{ tip.principle }}
           </span>
         </button>

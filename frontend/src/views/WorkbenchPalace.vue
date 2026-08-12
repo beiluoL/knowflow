@@ -23,18 +23,18 @@
             </p>
           </div>
           <div class="wb-hero-actions">
-            <router-link to="/workbench/review" class="kb-btn wb-ghost-btn">
-              <Icon name="repeat" :size="15" /> 间隔重复
+            <router-link to="/workbench/review" class="kb-btn wb-ghost-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+              <Icon name="repeat" :size="15" aria-hidden="true" /> 间隔重复
             </router-link>
-            <button class="kb-btn kb-btn-primary wb-cta" @click="showCreate = true">
-              <Icon name="plus" :size="16" /> 新建宫殿
+            <button class="kb-btn kb-btn-primary wb-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = true">
+              <Icon name="plus" :size="16" aria-hidden="true" /> 新建宫殿
             </button>
           </div>
         </div>
 
         <!-- 闭环导航条 -->
         <nav class="wb-loop-nav" aria-label="学习闭环">
-          <router-link v-for="s in loopSteps" :key="s.key" :to="s.path" class="wb-loop-step" :class="{ 'is-current': s.key === 'review' }">
+          <router-link v-for="s in loopSteps" :key="s.key" :to="s.path" class="wb-loop-step focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :class="{ 'is-current': s.key === 'review' }">
             <span class="wb-loop-num">{{ s.num }}</span>
             <span class="wb-loop-name">{{ s.name }}</span>
           </router-link>
@@ -56,8 +56,8 @@
         <div class="wb-empty-icon"><Icon name="map-pin" :size="40" /></div>
         <h3 class="wb-empty-title">还没有记忆宫殿</h3>
         <p class="wb-empty-desc">创建一个你熟悉的空间场景，开始挂靠知识点。</p>
-        <button class="kb-btn kb-btn-primary" @click="showCreate = true">
-          <Icon name="plus" :size="15" /> 创建第一个
+        <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = true">
+          <Icon name="plus" :size="15" aria-hidden="true" /> 创建第一个
         </button>
       </div>
 
@@ -65,13 +65,16 @@
         <article
           v-for="p in list"
           :key="p.id"
-          class="wb-palace-card"
+          class="wb-palace-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :style="{ '--pc': p.coverColor || '#3B6FE0' }"
+          role="button"
+          tabindex="0"
+          @keydown.enter.prevent="($event.target as HTMLElement).click()"
           @click="router.push('/workbench/palace/' + p.id)"
         >
           <div class="wb-palace-cover">
             <div class="wb-palace-cover-icon">
-              <Icon name="map-pin" :size="28" />
+              <Icon name="map-pin" :size="28" aria-hidden="true" />
             </div>
             <div class="wb-palace-cover-grid" aria-hidden="true">
               <span></span><span></span><span></span>
@@ -89,10 +92,10 @@
           <div class="wb-palace-foot">
             <span class="wb-palace-cta">
               进入编辑
-              <Icon name="arrow-right" :size="13" />
+              <Icon name="arrow-right" :size="13" aria-hidden="true" />
             </span>
-            <button class="wb-icon-btn" title="删除" @click.stop="remove(p)">
-              <Icon name="trash-2" :size="14" />
+            <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="删除" @click.stop="remove(p)">
+              <Icon name="trash-2" :size="14" aria-hidden="true" />
             </button>
           </div>
         </article>
@@ -100,28 +103,28 @@
     </section>
 
     <!-- ============ 新建宫殿 Drawer ============ -->
-    <div v-if="showCreate" class="wb-drawer-mask" @click.self="showCreate = false">
+    <div v-if="showCreate" class="wb-drawer-mask focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @keydown.enter.prevent="($event.target as HTMLElement).click()" @click.self="showCreate = false">
       <div class="wb-drawer">
         <header class="wb-drawer-head">
           <div>
             <span class="wb-eyebrow wb-eyebrow-sm">New Palace</span>
             <h2 class="wb-drawer-title">新建记忆宫殿</h2>
           </div>
-          <button class="wb-icon-btn" @click="showCreate = false"><Icon name="x" :size="18" /></button>
+          <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = false"><Icon name="x" :size="18" aria-hidden="true" /></button>
         </header>
         <div class="wb-drawer-body">
           <div class="wb-field">
             <label class="wb-label">名称 <span class="wb-req">*</span></label>
-            <input v-model="form.name" class="kb-input" placeholder="如：我的书房" />
+            <input v-model="form.name" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" placeholder="如：我的书房" />
           </div>
           <div class="wb-field">
             <label class="wb-label">描述</label>
-            <input v-model="form.description" class="kb-input" placeholder="场景描述" />
+            <input v-model="form.description" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" placeholder="场景描述" />
           </div>
           <div class="wb-field-row">
             <div class="wb-field">
               <label class="wb-label">主题</label>
-              <select v-model="form.theme" class="kb-input">
+              <select v-model="form.theme" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
                 <option value="ROOM">房间</option>
                 <option value="STREET">街道</option>
                 <option value="CAMPUS">校园</option>
@@ -134,7 +137,7 @@
                 <button
                   v-for="c in colorPresets"
                   :key="c"
-                  class="wb-color-dot"
+                  class="wb-color-dot focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
                   :class="{ 'is-active': form.coverColor === c }"
                   :style="{ background: c }"
                   @click="form.coverColor = c"
@@ -144,9 +147,9 @@
           </div>
         </div>
         <footer class="wb-drawer-foot">
-          <button class="kb-btn" @click="showCreate = false">取消</button>
-          <button class="kb-btn kb-btn-primary" @click="save">
-            <Icon name="check" :size="15" /> 保存
+          <button class="kb-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = false">取消</button>
+          <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="save">
+            <Icon name="check" :size="15" aria-hidden="true" /> 保存
           </button>
         </footer>
       </div>

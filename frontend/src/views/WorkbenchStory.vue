@@ -22,14 +22,14 @@
               强制简化与重组，以教代学让理解真正落地。
             </p>
           </div>
-          <button class="kb-btn kb-btn-primary wb-cta" @click="router.push('/workbench/story/new')">
-            <Icon name="plus" :size="16" /> 写个故事
+          <button class="kb-btn kb-btn-primary wb-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="router.push('/workbench/story/new')">
+            <Icon name="plus" :size="16" aria-hidden="true" /> 写个故事
           </button>
         </div>
 
         <!-- 闭环导航条 -->
         <nav class="wb-loop-nav" aria-label="学习闭环">
-          <router-link v-for="s in loopSteps" :key="s.key" :to="s.path" class="wb-loop-step" :class="{ 'is-current': s.key === 'output' }">
+          <router-link v-for="s in loopSteps" :key="s.key" :to="s.path" class="wb-loop-step focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :class="{ 'is-current': s.key === 'output' }">
             <span class="wb-loop-num">{{ s.num }}</span>
             <span class="wb-loop-name">{{ s.name }}</span>
           </router-link>
@@ -40,13 +40,13 @@
     <!-- ============ Filter Bar ============ -->
     <section class="wb-filter">
       <div class="wb-tabs">
-        <button
-          v-for="tab in tabs"
-          :key="tab.value"
-          class="wb-tab"
-          :class="{ 'is-active': activeStatus === tab.value }"
-          @click="activeStatus = tab.value; load()"
-        >{{ tab.label }}</button>
+          <button
+            v-for="tab in tabs"
+            :key="tab.value"
+            class="wb-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            :class="{ 'is-active': activeStatus === tab.value }"
+            @click="activeStatus = tab.value; load()"
+          >{{ tab.label }}</button>
       </div>
       <div class="wb-filter-stats">
         <span class="wb-stat-pill">
@@ -71,17 +71,20 @@
         <div class="wb-empty-icon"><Icon name="wand-2" :size="40" /></div>
         <h3 class="wb-empty-title">还没有费曼故事</h3>
         <p class="wb-empty-desc">试着用一个故事，讲清一个概念。</p>
-        <button class="kb-btn kb-btn-primary" @click="router.push('/workbench/story/new')">
-          <Icon name="plus" :size="15" /> 写第一篇
-        </button>
+          <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="router.push('/workbench/story/new')">
+            <Icon name="plus" :size="15" aria-hidden="true" /> 写第一篇
+          </button>
       </div>
 
       <div v-else class="wb-story-grid">
         <article
           v-for="s in list"
           :key="s.id"
-          class="wb-story-card"
+          class="wb-story-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          role="button"
+          tabindex="0"
           @click="router.push('/workbench/story/' + s.id)"
+          @keydown.enter.prevent="($event.target as HTMLElement).click()"
         >
           <div class="wb-story-head">
             <span class="wb-story-status" :style="statusStyle(s.status)">
@@ -105,11 +108,11 @@
               </span>
             </div>
             <div class="wb-story-actions" @click.stop>
-              <button class="wb-icon-btn" title="编辑" @click="router.push('/workbench/story/' + s.id)">
-                <Icon name="edit-2" :size="14" />
+              <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="编辑" @click="router.push('/workbench/story/' + s.id)">
+                <Icon name="edit-2" :size="14" aria-hidden="true" />
               </button>
-              <button class="wb-icon-btn" title="删除" @click="remove(s)">
-                <Icon name="trash-2" :size="14" />
+              <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="删除" @click="remove(s)">
+                <Icon name="trash-2" :size="14" aria-hidden="true" />
               </button>
             </div>
           </div>
