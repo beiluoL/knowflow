@@ -34,11 +34,11 @@
         v-for="tab in tabs"
         :key="tab.value"
         type="button"
-        class="community-tab"
+        class="community-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="activeTab === tab.value ? 'active' : ''"
         @click="activeTab = tab.value"
       >
-        <Icon :name="tab.icon" :size="14" />
+        <Icon :name="tab.icon" :size="14" aria-hidden="true" />
         {{ tab.label }}
         <span
           v-if="tab.badge"
@@ -57,14 +57,14 @@
             v-model="postSearch"
             type="text"
             placeholder="搜索帖子标题、作者..."
-            class="w-full h-9 pl-9 pr-4 rounded-lg text-sm border outline-none focus:ring-2"
+            class="w-full h-9 pl-9 pr-4 rounded-lg text-sm border outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             style="background: var(--kb-background); border-color: var(--kb-input); color: var(--kb-foreground);"
           />
         </div>
         <div class="flex items-center gap-2 flex-wrap">
           <select
             v-model="postStatusFilter"
-            class="h-9 px-3 rounded-lg text-sm border outline-none"
+            class="h-9 px-3 rounded-lg text-sm border outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             style="background: var(--kb-card); border-color: var(--kb-input); color: var(--kb-foreground);"
           >
             <option value="">全部状态</option>
@@ -74,12 +74,12 @@
           </select>
           <button
             type="button"
-            class="h-9 px-3 rounded-lg text-sm border inline-flex items-center gap-1.5 transition-colors hover:bg-gray-50"
+            class="h-9 px-3 rounded-lg text-sm border inline-flex items-center gap-1.5 transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             style="background: var(--kb-card); border-color: var(--kb-input); color: var(--kb-foreground);"
             :disabled="postLoading"
             @click="loadPosts"
           >
-            <Icon name="refresh-cw" :size="14" :class="postLoading ? 'animate-spin' : ''" style="color: var(--kb-muted-foreground);" />
+            <Icon name="refresh-cw" :size="14" :class="postLoading ? 'animate-spin' : ''" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
             刷新
           </button>
         </div>
@@ -97,7 +97,7 @@
         <p class="text-sm" style="color: var(--kb-muted-foreground);">{{ postError }}</p>
         <button
           type="button"
-          class="px-3 py-1.5 rounded-lg text-xs font-medium"
+          class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
           @click="loadPosts"
         >重新加载</button>
@@ -164,7 +164,7 @@
                 <div class="flex items-center gap-1">
                   <button
                     type="button"
-                    class="p-1.5 rounded-md transition-colors hover:bg-gray-100"
+                    class="p-1.5 rounded-md transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                     :title="post.pinned ? '取消置顶' : '置顶'"
                     style="color: var(--kb-muted-foreground);"
                     @click="togglePin(post)"
@@ -174,7 +174,7 @@
                   <button
                     v-if="post.status === 'pending'"
                     type="button"
-                    class="p-1.5 rounded-md transition-colors hover:bg-green-50"
+                    class="p-1.5 rounded-md transition-colors hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                     title="通过"
                     style="color: var(--kb-accent);"
                     @click="approvePost(post)"
@@ -184,7 +184,7 @@
                   <button
                     v-if="post.status !== 'hidden'"
                     type="button"
-                    class="p-1.5 rounded-md transition-colors hover:bg-red-50"
+                    class="p-1.5 rounded-md transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                     title="隐藏"
                     style="color: var(--kb-destructive);"
                     @click="hidePost(post)"
@@ -213,11 +213,11 @@
         <h2 class="kb-h3">话题列表</h2>
         <button
           type="button"
-          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-opacity hover:opacity-90"
+          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
           @click="notify('新建话题功能开发中', 'info')"
         >
-          <Icon name="plus" :size="14" />
+          <Icon name="plus" :size="14" aria-hidden="true" />
           新建话题
         </button>
       </div>
@@ -232,7 +232,7 @@
             <span class="text-sm font-semibold px-2 py-1 rounded-md" style="background: rgba(59,111,224,0.08); color: var(--kb-primary);">#{{ topic.name }}</span>
             <button
               type="button"
-              class="p-1 rounded transition-colors hover:bg-gray-100"
+              class="p-1 rounded transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               style="color: var(--kb-muted-foreground);"
               @click="notify(`编辑话题 #${topic.name}`, 'info')"
             >
@@ -280,13 +280,13 @@
           <div class="flex items-center gap-1.5 shrink-0" v-if="report.status === 'pending'">
             <button
               type="button"
-              class="px-2.5 py-1 rounded-md text-xs font-medium transition-opacity hover:opacity-90"
+              class="px-2.5 py-1 rounded-md text-xs font-medium transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               style="background: var(--kb-destructive); color: var(--kb-primary-foreground);"
               @click="handleReport(report, 'removed')"
             >删除内容</button>
             <button
               type="button"
-              class="px-2.5 py-1 rounded-md text-xs font-medium border transition-colors hover:bg-gray-50"
+              class="px-2.5 py-1 rounded-md text-xs font-medium border transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               style="border-color: var(--kb-border); color: var(--kb-foreground);"
               @click="handleReport(report, 'dismissed')"
             >驳回</button>

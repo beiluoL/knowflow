@@ -4,7 +4,7 @@
     <!-- 页面标题 -->
     <div class="page-head">
       <h1 class="kb-h1">图标管理</h1>
-      <button class="btn-primary" @click="openUploadModal">
+      <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="openUploadModal">
         <Icon name="upload" :size="16" />
         <span>添加图标</span>
       </button>
@@ -21,7 +21,7 @@
         <button
           v-for="cat in presetIconCategories"
           :key="cat.key"
-          class="preset-tab-btn"
+          class="preset-tab-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: activeCategory === cat.key }"
           @click="activeCategory = cat.key"
         >
@@ -34,9 +34,12 @@
         <div
           v-for="icon in filteredPresetIcons"
           :key="icon.key"
-          class="icon-cell preset-cell"
+          class="icon-cell preset-cell focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :title="`${icon.name}（${icon.key}）点击复制`"
+          role="button"
+          tabindex="0"
           @click="copyPresetIcon(icon)"
+          @keydown.enter.prevent="($event.target as HTMLElement).click()"
         >
           <div class="icon-glyph preset-glyph">
             <Icon :name="icon.svg" :size="28" />
@@ -57,9 +60,12 @@
         <div
           v-for="name in systemIcons"
           :key="name"
-          class="icon-cell"
+          class="icon-cell focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :title="name"
+          role="button"
+          tabindex="0"
           @click="copyIconName(name)"
+          @keydown.enter.prevent="($event.target as HTMLElement).click()"
         >
           <div class="icon-glyph">
             <Icon :name="name" :size="24" />
@@ -84,7 +90,7 @@
           class="icon-cell custom-cell"
         >
           <button
-            class="delete-btn"
+            class="delete-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             title="删除"
             @click="removeIcon(icon)"
           >
@@ -104,7 +110,7 @@
       <div class="modal-card">
         <div class="modal-head">
           <h3 class="kb-h3">添加图标</h3>
-          <button class="icon-btn" title="关闭" @click="closeModal">
+          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="关闭" @click="closeModal">
             <Icon name="x" :size="18" />
           </button>
         </div>
@@ -114,7 +120,7 @@
             <button
               v-for="tab in tabs"
               :key="tab.key"
-              class="tab-btn"
+              class="tab-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               :class="{ active: form.type === tab.key }"
               @click="switchTab(tab.key)"
             >
@@ -129,7 +135,7 @@
             <input
               v-model="form.name"
               type="text"
-              class="form-input"
+              class="form-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               placeholder="请输入图标名称（如：学习笔记）"
             />
           </div>
@@ -140,7 +146,7 @@
             <input
               ref="fileInputRef"
               type="file"
-              class="form-input file-input"
+              class="form-input file-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               accept=".png,.jpg,.jpeg,.svg,.ico,.gif,.webp"
               @change="onFileChange"
             />
@@ -153,7 +159,7 @@
             <input
               v-model="form.content"
               type="text"
-              class="form-input"
+              class="form-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               placeholder="输入 iconfont code，如 e601 或 &#xe601;"
             />
             <span class="form-hint">在 iconfont.cn 图标详情页可查看 Unicode code（如 e601）。需项目已引入对应 iconfont 字体才能正确显示。</span>
@@ -162,12 +168,12 @@
           <!-- SVG 代码 -->
           <div v-else-if="form.type === 'svg'" class="form-group">
             <label class="form-label">SVG 代码 <span class="required">*</span></label>
-            <textarea
-              v-model="form.content"
-              class="form-input svg-textarea"
-              placeholder='<svg viewBox="0 0 24 24" fill="currentColor"><path d="..." /></svg>'
-              rows="6"
-            />
+              <textarea
+                v-model="form.content"
+                class="form-input svg-textarea focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                placeholder='<svg viewBox="0 0 24 24" fill="currentColor"><path d="..." /></svg>'
+                rows="6"
+              />
             <span class="form-hint">粘贴 SVG 代码，纯黑（#000）填色会自动替换为所选颜色。可从 iconfont、Figma 等导出 SVG。</span>
           </div>
 
@@ -180,7 +186,7 @@
                   v-for="c in presetColors"
                   :key="c"
                   type="button"
-                  class="swatch"
+                  class="swatch focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
                   :class="{ active: form.color === c }"
                   :style="{ background: c }"
                   :title="c"
@@ -191,7 +197,7 @@
                 <input
                   v-model="form.color"
                   type="color"
-                  class="custom-color-input"
+                  class="custom-color-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
                 />
                 <Icon name="palette" :size="14" class="custom-color-icon" />
                 <span class="custom-color-text">{{ form.color || '自定义' }}</span>
@@ -199,7 +205,7 @@
               <button
                 v-if="form.color"
                 type="button"
-                class="clear-color-btn"
+                class="clear-color-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
                 @click="form.color = ''"
               >清除</button>
             </div>
@@ -223,8 +229,8 @@
           </div>
         </div>
         <div class="modal-foot">
-          <button class="btn-secondary" @click="closeModal">取消</button>
-          <button class="btn-primary" :disabled="saving" @click="save">
+          <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="closeModal">取消</button>
+          <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving" @click="save">
             {{ saving ? '保存中...' : '保存' }}
           </button>
         </div>

@@ -10,8 +10,8 @@
     <div class="cloud-card">
       <div class="cloud-head">
         <h3 class="kb-h3">标签云</h3>
-        <button class="btn-primary" @click="openCreate">
-          <Icon name="plus" :size="16" />
+        <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="openCreate">
+          <Icon name="plus" :size="16" aria-hidden="true" />
           <span>新建标签</span>
         </button>
       </div>
@@ -19,10 +19,13 @@
         <span
           v-for="tag in tags"
           :key="tag.id"
-          class="cloud-tag"
+          class="cloud-tag focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="cloudSizeClass(tag.count)"
           :style="cloudStyle(tag.color)"
+          role="button"
+          tabindex="0"
           @click="selectTag(tag)"
+          @keydown.enter.prevent="($event.target as HTMLElement).click()"
         >
           {{ tag.name }}
         </span>
@@ -51,11 +54,11 @@
         <div class="col-usage">{{ tag.count }} 次使用</div>
         <div class="col-creator">{{ tag.creator }}</div>
         <div class="col-actions">
-          <button class="icon-btn" title="编辑" @click="openEdit(tag)">
-            <Icon name="edit" :size="14" />
+          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="编辑" @click="openEdit(tag)">
+            <Icon name="edit" :size="14" aria-hidden="true" />
           </button>
-          <button class="icon-btn" title="删除" @click="removeTag(tag)">
-            <Icon name="trash-2" :size="14" />
+          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="删除" @click="removeTag(tag)">
+            <Icon name="trash-2" :size="14" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -63,12 +66,12 @@
     </div>
 
     <!-- 新建/编辑弹窗 -->
-    <div v-if="showModal" class="modal-mask" @click.self="closeModal">
+    <div v-if="showModal" class="modal-mask focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @click.self="closeModal" @keydown.enter.prevent="($event.target as HTMLElement).click()">
       <div class="modal-card">
         <div class="modal-head">
           <h3 class="kb-h3">{{ editingId ? '编辑标签' : '新建标签' }}</h3>
-          <button class="icon-btn" title="关闭" @click="closeModal">
-            <Icon name="x" :size="18" />
+          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="关闭" @click="closeModal">
+            <Icon name="x" :size="18" aria-hidden="true" />
           </button>
         </div>
         <div class="modal-body">
@@ -77,7 +80,7 @@
             <input
               v-model="form.name"
               type="text"
-              class="form-input"
+              class="form-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors hover:border-[var(--kb-ring)]"
               placeholder="请输入标签名称"
             />
           </div>
@@ -87,12 +90,12 @@
               <input
                 v-model="form.color"
                 type="color"
-                class="color-picker"
+                class="color-picker focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors hover:border-[var(--kb-ring)]"
               />
               <input
                 v-model="form.color"
                 type="text"
-                class="form-input"
+                class="form-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors hover:border-[var(--kb-ring)]"
                 placeholder="#3B6FE0"
               />
             </div>
@@ -101,7 +104,7 @@
                 v-for="color in colorPresets"
                 :key="color"
                 type="button"
-                class="color-preset"
+                class="color-preset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
                 :class="{ active: form.color === color }"
                 :style="{ backgroundColor: color }"
                 @click="form.color = color"
@@ -110,8 +113,8 @@
           </div>
         </div>
         <div class="modal-foot">
-          <button class="btn-secondary" @click="closeModal">取消</button>
-          <button class="btn-primary" :disabled="saving" @click="save">
+          <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="closeModal">取消</button>
+          <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving" @click="save">
             {{ saving ? '保存中...' : '保存' }}
           </button>
         </div>

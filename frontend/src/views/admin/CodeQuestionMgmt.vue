@@ -74,14 +74,14 @@
           <input
             v-model="searchQuery"
             placeholder="搜索题目标题或标签..."
-            class="w-full h-10 pl-10 pr-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)]"
+            class="w-full h-10 pl-10 pr-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
             @keyup.enter="loadQuestions"
           />
         </div>
         <select
           v-model="filterLanguage"
-          class="h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+          class="h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
           @change="loadQuestions"
         >
@@ -90,7 +90,7 @@
         </select>
         <select
           v-model="filterDifficulty"
-          class="h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+          class="h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
           @change="loadQuestions"
         >
@@ -101,7 +101,7 @@
         </select>
         <select
           v-model="filterStatus"
-          class="h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+          class="h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
           @change="loadQuestions"
         >
@@ -189,41 +189,41 @@
             <div class="col-span-2 flex items-center justify-center gap-1">
               <button
                 type="button"
-                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-primary)]/10"
+                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-primary)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="color: var(--kb-primary);"
                 title="编辑"
                 @click="openEdit(q)"
               >
-                <Icon name="edit" :size="16" />
+                <Icon name="edit" :size="16" aria-hidden="true" />
               </button>
               <button
                 v-if="q.status !== 1"
                 type="button"
-                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-accent)]/10"
+                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-accent)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="color: var(--kb-accent);"
                 title="发布"
                 @click="publishQuestion(q)"
               >
-                <Icon name="trending-up" :size="16" />
+                <Icon name="trending-up" :size="16" aria-hidden="true" />
               </button>
               <button
                 v-else
                 type="button"
-                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-warning)]/10"
+                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-warning)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="color: #f59e0b;"
                 title="下架"
                 @click="unpublishQuestion(q)"
               >
-                <Icon name="trending-down" :size="16" />
+                <Icon name="trending-down" :size="16" aria-hidden="true" />
               </button>
               <button
                 type="button"
-                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-destructive)]/10"
+                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-destructive)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="color: var(--kb-destructive);"
                 title="删除"
                 @click="removeQuestion(q)"
               >
-                <Icon name="trash-2" :size="16" />
+                <Icon name="trash-2" :size="16" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -234,16 +234,19 @@
     <!-- 新增/编辑题目弹窗 -->
     <div
       v-if="showModal"
-      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+      role="button"
+      tabindex="0"
       @click.self="closeModal"
+      @keydown.enter.prevent="($event.target as HTMLElement).click()"
     >
       <div class="rounded-xl w-full max-w-3xl shadow-xl animate-dropdown max-h-[92vh] flex flex-col" style="background: var(--kb-card); border: 1px solid var(--kb-border);">
         <div class="flex items-center justify-between px-6 py-4 border-b shrink-0" style="border-color: var(--kb-border);">
           <h3 class="text-lg font-semibold" style="color: var(--kb-foreground);">
             {{ editingId ? '编辑题目' : '新增题目' }}
           </h3>
-          <button class="p-1 rounded transition-colors hover:bg-[var(--kb-muted)]" @click="closeModal">
-            <Icon name="x" :size="20" style="color: var(--kb-muted-foreground);" />
+          <button class="p-1 rounded transition-colors hover:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="closeModal">
+            <Icon name="x" :size="20" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
           </button>
         </div>
         <div class="px-6 py-4 space-y-4 overflow-y-auto flex-1">
@@ -254,7 +257,7 @@
               <input
                 v-model="form.title"
                 placeholder="例如：实现 Promise.all"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
               />
             </div>
@@ -262,7 +265,7 @@
               <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">难度</label>
               <select
                 v-model.number="form.difficulty"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
               >
                 <option :value="0">简单</option>
@@ -274,7 +277,7 @@
               <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">主语言</label>
               <select
                 v-model="form.language"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
               >
                 <option v-for="lang in languageOptions" :key="lang" :value="lang">{{ langLabel(lang) }}</option>
@@ -285,7 +288,7 @@
               <input
                 v-model="form.tags"
                 placeholder="例如：算法,数组,Promise"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
               />
             </div>
@@ -296,7 +299,7 @@
                   v-model.number="form.duration"
                   type="number"
                   min="1"
-                  class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+                  class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                   style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
                 />
               </div>
@@ -306,7 +309,7 @@
                   v-model.number="form.sortOrder"
                   type="number"
                   min="0"
-                  class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+                  class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                   style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
                 />
               </div>
@@ -314,7 +317,7 @@
                 <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">状态</label>
                 <select
                   v-model.number="form.status"
-                  class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+                  class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                   style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
                 >
                   <option :value="1">已发布</option>
@@ -331,7 +334,7 @@
               v-model="form.description"
               rows="4"
               placeholder="详细描述题目要求、限制条件等..."
-              class="w-full px-3 py-2 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)] resize-y"
+              class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
             ></textarea>
           </div>
@@ -344,7 +347,7 @@
                 v-model="form.exampleInput"
                 rows="2"
                 placeholder="例如：Promise.all([p1, p2, p3])"
-                class="w-full px-3 py-2 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)] resize-y"
+                class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
               ></textarea>
             </div>
@@ -354,7 +357,7 @@
                 v-model="form.exampleOutput"
                 rows="2"
                 placeholder="例如：[v1, v2, v3]"
-                class="w-full px-3 py-2 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)] resize-y"
+                class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
               ></textarea>
             </div>
@@ -368,7 +371,7 @@
                 v-model="form.hint"
                 rows="2"
                 placeholder="给用户的解题提示..."
-                class="w-full px-3 py-2 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)] resize-y"
+                class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
               ></textarea>
             </div>
@@ -378,7 +381,7 @@
                 v-model="form.solutionHint"
                 rows="2"
                 placeholder="例如：使用计数器记录已完成的 Promise 数量"
-                class="w-full px-3 py-2 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)] resize-y"
+                class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
               ></textarea>
             </div>
@@ -391,7 +394,7 @@
               v-model="form.codeTemplate"
               rows="5"
               placeholder="用户进入代码编辑器时的初始代码..."
-              class="w-full px-3 py-2 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)] resize-y font-mono"
+              class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 font-mono"
               style="background: #1e1e2e; border-color: var(--kb-border); color: #cdd6f4;"
             ></textarea>
           </div>
@@ -402,11 +405,11 @@
               <label class="block text-sm font-medium" style="color: var(--kb-foreground);">测试用例（JSON 数组）</label>
               <button
                 type="button"
-                class="text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors"
+                class="text-xs flex items-center gap-1 px-2 py-1 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="color: var(--kb-primary); background: rgba(59,111,224,0.08);"
                 @click="addTestCase"
               >
-                <Icon name="plus" :size="12" /> 添加用例
+                <Icon name="plus" :size="12" aria-hidden="true" /> 添加用例
               </button>
             </div>
             <p class="text-xs mb-2" style="color: var(--kb-muted-foreground);">
@@ -429,7 +432,7 @@
                   <input
                     v-model="tc.input"
                     placeholder="输入"
-                    class="w-full h-8 px-2 rounded text-xs border outline-none focus:border-[var(--kb-primary)] font-mono"
+                    class="w-full h-8 px-2 rounded text-xs border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                     style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
                   />
                 </div>
@@ -437,18 +440,18 @@
                   <input
                     v-model="tc.expected"
                     placeholder="期望输出"
-                    class="w-full h-8 px-2 rounded text-xs border outline-none focus:border-[var(--kb-primary)] font-mono"
+                    class="w-full h-8 px-2 rounded text-xs border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                     style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
                   />
                 </div>
                 <div class="col-span-1 flex items-center justify-center">
                   <button
                     type="button"
-                    class="p-1 rounded transition-colors hover:bg-[var(--kb-destructive)]/10"
+                    class="p-1 rounded transition-colors hover:bg-[var(--kb-destructive)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                     style="color: var(--kb-destructive);"
                     @click="removeTestCase(idx)"
                   >
-                    <Icon name="x" :size="14" />
+                    <Icon name="x" :size="14" aria-hidden="true" />
                   </button>
                 </div>
               </div>

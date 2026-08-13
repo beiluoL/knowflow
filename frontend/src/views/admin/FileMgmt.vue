@@ -5,8 +5,8 @@
     <div class="page-head">
       <h1 class="kb-h1">文件管理</h1>
       <div class="flex items-center gap-2">
-        <button class="btn-secondary" @click="loadData">
-          <Icon name="refresh-cw" :size="14" />
+        <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="loadData">
+          <Icon name="refresh-cw" :size="14" aria-hidden="true" />
           <span>刷新</span>
         </button>
       </div>
@@ -61,10 +61,10 @@
         </h3>
         <button
           v-if="!editingDir"
-          class="btn-secondary btn-sm"
+          class="btn-secondary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           @click="startEditDir"
         >
-          <Icon name="edit-3" :size="14" />
+          <Icon name="edit-3" :size="14" aria-hidden="true" />
           <span>修改目录</span>
         </button>
       </div>
@@ -86,11 +86,11 @@
           <input
             v-model="newDir"
             type="text"
-            class="dir-input"
+            class="dir-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             placeholder="输入上传目录的绝对路径，如 /Users/xxx/knowflow/uploads"
           />
-          <button class="btn-secondary btn-sm" @click="pickDirectory" title="选择本地文件夹">
-            <Icon name="folder" :size="14" />
+          <button class="btn-secondary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="pickDirectory" title="选择本地文件夹">
+            <Icon name="folder" :size="14" aria-hidden="true" />
             <span>选择文件夹</span>
           </button>
         </div>
@@ -99,11 +99,11 @@
           <span>修改目录后需重启后端才能让 /uploads 静态资源映射生效。已有文件不会自动迁移。</span>
         </div>
         <div class="flex items-center gap-2 mt-3">
-          <button class="btn-primary btn-sm" :disabled="savingDir" @click="saveDir">
-            <Icon name="check" :size="14" />
+          <button class="btn-primary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="savingDir" @click="saveDir">
+            <Icon name="check" :size="14" aria-hidden="true" />
             <span>{{ savingDir ? '保存中...' : '保存配置' }}</span>
           </button>
-          <button class="btn-secondary btn-sm" @click="editingDir = false">取消</button>
+          <button class="btn-secondary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="editingDir = false">取消</button>
         </div>
       </div>
     </div>
@@ -119,20 +119,20 @@
           <button
             v-for="t in typeFilters"
             :key="t.value"
-            class="kb-filter-btn"
+            class="kb-filter-btn hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             :class="{ active: filterType === t.value }"
             @click="filterType = t.value"
           >{{ t.label }}</button>
         </div>
-        <input
-          v-model="keyword"
-          type="text"
-          class="search-input"
-          placeholder="搜索文件名..."
-          @keydown.enter="applyFilter"
-        />
-        <button class="btn-secondary btn-sm" @click="applyFilter">
-          <Icon name="search" :size="14" />
+          <input
+            v-model="keyword"
+            type="text"
+            class="search-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            placeholder="搜索文件名..."
+            @keydown.enter="applyFilter"
+          />
+        <button class="btn-secondary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="applyFilter">
+          <Icon name="search" :size="14" aria-hidden="true" />
           <span>搜索</span>
         </button>
       </div>
@@ -153,7 +153,7 @@
       <div v-else class="file-grid">
         <div v-for="file in files" :key="file.fileUrl" class="file-card">
           <!-- 文件预览 -->
-          <div class="file-preview" @click="previewFile(file)">
+          <div class="file-preview focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @click="previewFile(file)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
             <img v-if="file.isImage" :src="file.fileUrl" :alt="file.fileName" loading="lazy" />
             <div v-else class="file-icon-large">
               <Icon :name="getFileIcon(file.extension)" :size="36" />
@@ -173,28 +173,28 @@
           <!-- 操作按钮 -->
           <div class="file-actions">
             <button
-              class="icon-btn"
+              class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               title="复制链接"
               @click="copyUrl(file.fileUrl)"
             >
-              <Icon name="link" :size="14" />
+              <Icon name="link" :size="14" aria-hidden="true" />
             </button>
             <a
               v-if="file.isImage"
               :href="file.fileUrl"
               target="_blank"
               rel="noopener"
-              class="icon-btn"
+              class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               title="新窗口打开"
             >
-              <Icon name="external-link" :size="14" />
+              <Icon name="external-link" :size="14" aria-hidden="true" />
             </a>
             <button
-              class="icon-btn danger"
+              class="icon-btn danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               title="删除"
               @click="deleteFile(file)"
             >
-              <Icon name="trash-2" :size="14" />
+              <Icon name="trash-2" :size="14" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -203,13 +203,13 @@
       <!-- 分页 -->
       <div v-if="total > pageSize" class="pagination-bar">
         <button
-          class="page-btn"
+          class="page-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="page <= 1"
           @click="page--; loadData()"
         >上一页</button>
         <span class="page-info">第 {{ page }} / {{ totalPages }} 页</span>
         <button
-          class="page-btn"
+          class="page-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="page >= totalPages"
           @click="page++; loadData()"
         >下一页</button>
@@ -224,6 +224,7 @@
       directory
       multiple
       style="display: none"
+      class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
       @change="onDirectoryPicked"
     />
   </div>

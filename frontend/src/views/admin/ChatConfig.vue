@@ -34,7 +34,7 @@
               v-for="p in providerList"
               :key="p.id"
               type="button"
-              class="provider-btn p-3 rounded-lg border text-center transition-all cursor-pointer"
+              class="provider-btn p-3 rounded-lg border text-center transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               :style="{
                 borderColor: form.provider === p.id ? 'var(--kb-primary)' : 'var(--kb-border)',
                 background: form.provider === p.id ? 'rgba(59,111,224,0.06)' : 'var(--kb-card)',
@@ -57,17 +57,17 @@
               v-model="form.apiKey"
               :type="showKey ? 'text' : 'password'"
               placeholder="输入你的 API Key"
-              class="w-full h-10 px-3 pr-10 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)]"
+              class="w-full h-10 px-3 pr-10 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
               autocomplete="off"
             />
             <button
               type="button"
-              class="absolute right-2 top-1/2 -translate-y-1/2 p-1"
+              class="absolute right-2 top-1/2 -translate-y-1/2 p-1 transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               @click="showKey = !showKey"
               :aria-label="showKey ? '隐藏 Key' : '显示 Key'"
             >
-              <Icon :name="showKey ? 'eye-off' : 'eye'" :size="16" style="color: var(--kb-muted-foreground);" />
+              <Icon :name="showKey ? 'eye-off' : 'eye'" :size="16" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
             </button>
           </div>
           <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">Key 仅保存在服务器，不会泄露给第三方</p>
@@ -80,7 +80,7 @@
             v-model="form.baseUrl"
             type="text"
             placeholder="https://api.deepseek.com/v1"
-            class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)]"
+            class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
           />
           <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">选择提供商后自动填充，也可自定义</p>
@@ -93,7 +93,7 @@
             v-model="form.model"
             type="text"
             placeholder="deepseek-chat"
-            class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)]"
+            class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
           />
         </div>
@@ -107,7 +107,7 @@
           <button
             type="button"
             :class="[
-              'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200',
+              'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
               form.isActive ? 'bg-[var(--kb-primary)]' : 'bg-gray-200'
             ]"
             @click="form.isActive = form.isActive ? 0 : 1"
@@ -126,7 +126,7 @@
           <button
             v-if="userConfig"
             type="button"
-            class="px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-gray-50"
+            class="px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             style="border-color: var(--kb-border); color: var(--kb-foreground);"
             @click="handleDelete"
           >
@@ -134,7 +134,7 @@
           </button>
           <button
             type="button"
-            class="px-4 h-9 rounded-lg text-sm font-medium transition-colors hover:opacity-90"
+            class="px-4 h-9 rounded-lg text-sm font-medium transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
             @click="handleSave"
           >
@@ -161,7 +161,7 @@
         <div
           v-for="pm in platformModels"
           :key="pm.provider"
-          class="p-4 rounded-lg border transition-all"
+          class="p-4 rounded-lg border transition-colors"
           style="border-color: var(--kb-border);"
         >
           <div class="flex items-center justify-between mb-3">
@@ -224,7 +224,7 @@
             min="0"
             max="2"
             step="0.1"
-            class="w-full h-2 rounded-lg appearance-none cursor-pointer"
+            class="w-full h-2 rounded-lg appearance-none cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             style="background: var(--kb-muted); color: var(--kb-primary);"
           />
           <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">控制输出的随机性，值越高越随机</p>
@@ -240,7 +240,7 @@
             min="1024"
             max="32768"
             step="1024"
-            class="w-full h-2 rounded-lg appearance-none cursor-pointer"
+            class="w-full h-2 rounded-lg appearance-none cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             style="background: var(--kb-muted); color: var(--kb-primary);"
           />
           <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">模型能处理的最大 token 数量</p>
@@ -256,7 +256,7 @@
             min="0"
             max="1"
             step="0.05"
-            class="w-full h-2 rounded-lg appearance-none cursor-pointer"
+            class="w-full h-2 rounded-lg appearance-none cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             style="background: var(--kb-muted); color: var(--kb-primary);"
           />
           <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">核采样参数，控制输出的多样性</p>
@@ -272,7 +272,7 @@
             min="256"
             max="8192"
             step="256"
-            class="w-full h-2 rounded-lg appearance-none cursor-pointer"
+            class="w-full h-2 rounded-lg appearance-none cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             style="background: var(--kb-muted); color: var(--kb-primary);"
           />
           <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">单次回复的最大 token 数量</p>
@@ -281,7 +281,7 @@
       <div class="flex items-center justify-end gap-3 mt-6 pt-4 border-t" style="border-color: var(--kb-border);">
         <button
           type="button"
-          class="px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-gray-50"
+          class="px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           style="border-color: var(--kb-border); color: var(--kb-foreground);"
           @click="resetParams"
         >
@@ -289,7 +289,7 @@
         </button>
         <button
           type="button"
-          class="px-4 h-9 rounded-lg text-sm font-medium transition-colors hover:opacity-90"
+          class="px-4 h-9 rounded-lg text-sm font-medium transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
           @click="saveParams"
         >

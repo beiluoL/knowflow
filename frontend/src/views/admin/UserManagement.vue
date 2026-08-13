@@ -21,11 +21,11 @@
               <div class="relative">
                 <button
                   @click="showRoleFilter = !showRoleFilter"
-                  class="inline-flex items-center gap-2 px-4 py-2 text-sm border border-gray-200 rounded-sm bg-white hover:bg-gray-50 transition-colors"
+                  class="inline-flex items-center gap-2 px-4 py-2 text-sm border border-gray-200 rounded-sm bg-white hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 >
-                  <Icon name="filter" :size="16" />
+                  <Icon name="filter" :size="16" aria-hidden="true" />
                   <span>{{ selectedRole || '全部角色' }}</span>
-                  <Icon name="chevron-down" :size="16" />
+                  <Icon name="chevron-down" :size="16" aria-hidden="true" />
                 </button>
                 <div
                   v-if="showRoleFilter"
@@ -33,7 +33,7 @@
                 >
                   <button
                     @click="selectedRole = ''; showRoleFilter = false"
-                    class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
+                    class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                     :class="{ 'bg-primary-50 text-primary-600': !selectedRole }"
                   >
                     全部角色
@@ -41,7 +41,7 @@
                   <button
                     v-for="role in roles" :key="role.value"
                     @click="selectedRole = role.value; showRoleFilter = false"
-                    class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors"
+                    class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                     :class="{ 'bg-primary-50 text-primary-600': selectedRole === role.value }"
                   >
                     {{ role.label }}
@@ -101,11 +101,11 @@
                 <td class="px-4 py-3 text-sm text-gray-500">{{ user.registerTime }}</td>
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
-                    <button class="p-1 text-gray-400 hover:text-primary-500 transition-colors" title="编辑" @click="openEdit(user)">
-                      <Icon name="edit" :size="16" />
+                    <button class="p-1 text-gray-400 hover:text-primary-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="编辑" @click="openEdit(user)">
+                      <Icon name="edit" :size="16" aria-hidden="true" />
                     </button>
-                    <button class="p-1 text-gray-400 hover:text-danger-500 transition-colors" title="删除" @click="removeUser(user)">
-                      <Icon name="trash-2" :size="16" />
+                    <button class="p-1 text-gray-400 hover:text-danger-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="删除" @click="removeUser(user)">
+                      <Icon name="trash-2" :size="16" aria-hidden="true" />
                     </button>
                   </div>
                 </td>
@@ -125,17 +125,17 @@
             <button
               @click="currentPage = Math.max(1, currentPage - 1)"
               :disabled="currentPage === 1"
-              class="p-2 rounded-sm border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="p-2 rounded-sm border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
-              <Icon name="chevron-left" :size="16" />
+              <Icon name="chevron-left" :size="16" aria-hidden="true" />
             </button>
             <button
               v-for="page in visiblePages" :key="page"
               @click="currentPage = page"
               :class="[
-                'w-8 h-8 text-sm rounded-sm transition-colors',
+                'w-8 h-8 text-sm rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
                 currentPage === page
-                  ? 'bg-primary-500 text-white'
+                  ? 'bg-primary-500 text-white hover:bg-primary-600'
                   : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
               ]"
             >
@@ -144,9 +144,9 @@
             <button
               @click="currentPage = Math.min(totalPages, currentPage + 1)"
               :disabled="currentPage === totalPages"
-              class="p-2 rounded-sm border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="p-2 rounded-sm border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
-              <Icon name="chevron-right" :size="16" />
+              <Icon name="chevron-right" :size="16" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -162,8 +162,8 @@
       <div class="bg-white rounded-xl w-full max-w-md shadow-xl animate-dropdown">
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h3 class="text-lg font-semibold text-gray-800">{{ editingId ? '编辑用户' : '新增用户' }}</h3>
-          <button class="p-1 hover:bg-gray-100 rounded transition-colors" @click="closeModal">
-            <Icon name="x" :size="20" />
+          <button class="p-1 hover:bg-gray-100 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" aria-label="关闭" @click="closeModal">
+            <Icon name="x" :size="20" aria-hidden="true" />
           </button>
         </div>
         <div class="px-6 py-4 space-y-4">
@@ -181,7 +181,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1.5">角色</label>
-            <select v-model="form.role" class="w-full px-3 py-2 border border-gray-200 rounded-sm text-sm focus:outline-none focus:border-primary-500">
+            <select v-model="form.role" class="w-full px-3 py-2 border border-gray-200 rounded-sm text-sm hover:border-gray-300 transition-colors focus:outline-none focus:border-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2">
               <option value="USER">普通用户</option>
               <option value="ADMIN">管理员</option>
             </select>

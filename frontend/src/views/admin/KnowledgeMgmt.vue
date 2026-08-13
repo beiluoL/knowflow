@@ -71,7 +71,7 @@
         <button
           @click="viewMode = 'list'"
           :class="[
-            'px-3 h-9 rounded-md text-sm border transition-all flex items-center gap-1.5',
+            'px-3 h-9 rounded-md text-sm border transition-colors flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
             viewMode === 'list'
               ? 'border-primary-500 bg-primary-50 text-primary-600 font-medium'
               : 'border-[#E2E6EC] text-gray-500 hover:border-gray-300 hover:text-gray-700',
@@ -82,7 +82,7 @@
         <button
           @click="viewMode = 'card'"
           :class="[
-            'px-3 h-9 rounded-md text-sm border transition-all flex items-center gap-1.5',
+            'px-3 h-9 rounded-md text-sm border transition-colors flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
             viewMode === 'card'
               ? 'border-primary-500 bg-primary-50 text-primary-600 font-medium'
               : 'border-[#E2E6EC] text-gray-500 hover:border-gray-300 hover:text-gray-700',
@@ -116,26 +116,30 @@
               <!-- 展开/折叠按钮 -->
               <button
                 v-if="node.hasChildren"
-                class="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-700 flex-shrink-0"
+                class="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-700 flex-shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 :style="{ marginLeft: node.level * 24 + 'px' }"
                 @click="toggleExpand(node.kb.id)"
                 :title="expandedIds.has(node.kb.id) ? '折叠' : '展开'"
               >
-                <Icon :name="expandedIds.has(node.kb.id) ? 'chevron-down' : 'chevron-right'" :size="14" />
+                <Icon :name="expandedIds.has(node.kb.id) ? 'chevron-down' : 'chevron-right'" :size="14" aria-hidden="true" />
               </button>
               <div v-else :style="{ marginLeft: node.level * 24 + 20 + 'px' }"></div>
               <div
-                class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 cursor-pointer"
+                class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 cursor-pointer hover:opacity-90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 :style="{ backgroundColor: getKbColor(node.kb.icon) + '15' }"
+                role="button"
+                tabindex="0"
                 @click="goToKbDetail(node.kb)"
+                @keydown.enter.prevent="($event.target as HTMLElement).click()"
               >
                 <Icon
                   :name="getCategoryIconName(node.kb.icon)"
                   :size="20"
                   :color="getKbColor(node.kb.icon)"
+                  aria-hidden="true"
                 />
               </div>
-              <div class="min-w-0 cursor-pointer flex-1" @click="goToKbDetail(node.kb)">
+              <div class="min-w-0 cursor-pointer flex-1 hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="goToKbDetail(node.kb)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
                 <p class="font-medium text-gray-800 truncate hover:text-primary-500 transition-colors">
                   {{ node.kb.name }}
                   <span v-if="node.level > 0" class="ml-1.5 text-[10px] text-gray-400 font-normal">L{{ node.level + 1 }}</span>
@@ -154,40 +158,40 @@
             </div>
             <div class="col-span-1 text-center flex justify-center">
               <button
-                class="px-2 py-1 text-xs rounded-md bg-green-50 text-green-600 hover:bg-green-100 flex items-center gap-1 transition-colors"
+                class="px-2 py-1 text-xs rounded-md bg-green-50 text-green-600 hover:bg-green-100 flex items-center gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="openMembers(node.kb)"
               >
-                <Icon name="users" :size="12" /> {{ getMemberCount(node.kb.id) }}
+                <Icon name="users" :size="12" aria-hidden="true" /> {{ getMemberCount(node.kb.id) }}
               </button>
             </div>
             <div class="col-span-1 flex items-center justify-center gap-1">
               <button
-                class="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded transition-colors"
+                class="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="openMembers(node.kb)"
                 title="成员管理"
               >
-                <Icon name="users" :size="16" />
+                <Icon name="users" :size="16" aria-hidden="true" />
               </button>
               <button
-                class="p-1.5 text-gray-400 hover:text-purple-500 hover:bg-purple-50 rounded transition-colors"
+                class="p-1.5 text-gray-400 hover:text-purple-500 hover:bg-purple-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="openExport(node.kb)"
                 title="导出"
               >
-                <Icon name="download" :size="16" />
+                <Icon name="download" :size="16" aria-hidden="true" />
               </button>
               <button
-                class="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded transition-colors"
+                class="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="editKb(node.kb)"
                 title="编辑"
               >
-                <Icon name="edit-2" :size="16" />
+                <Icon name="edit-2" :size="16" aria-hidden="true" />
               </button>
               <button
-                class="p-1.5 text-gray-400 hover:text-danger-500 hover:bg-danger-50 rounded transition-colors"
+                class="p-1.5 text-gray-400 hover:text-danger-500 hover:bg-danger-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="deleteKb(node.kb)"
                 title="删除"
               >
-                <Icon name="trash-2" :size="16" />
+                <Icon name="trash-2" :size="16" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -203,7 +207,7 @@
     <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
       <div
         v-for="kb in filteredKbs" :key="kb.id"
-        class="bg-white border border-[#E2E6EC] rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 group"
+        class="bg-white border border-[#E2E6EC] rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-shadow transition-transform duration-200 group"
       >
         <!-- 卡片顶部渐变条 + 图标 -->
         <div
@@ -220,25 +224,25 @@
             />
           </div>
           <div class="ml-auto flex items-center gap-1 absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
-              class="p-1.5 bg-white/90 backdrop-blur rounded-md text-gray-500 hover:text-primary-500 shadow-sm border border-white"
-              @click.stop="editKb(kb)"
-              title="编辑"
-            >
-              <Icon name="edit-2" :size="14" />
-            </button>
-            <button
-              class="p-1.5 bg-white/90 backdrop-blur rounded-md text-gray-500 hover:text-purple-500 shadow-sm border border-white"
-              @click.stop="openExport(kb)"
-              title="导出"
-            >
-              <Icon name="download" :size="14" />
-            </button>
+              <button
+                class="p-1.5 bg-white/90 backdrop-blur rounded-md text-gray-500 hover:text-primary-500 shadow-sm border border-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                @click.stop="editKb(kb)"
+                title="编辑"
+              >
+                <Icon name="edit-2" :size="14" aria-hidden="true" />
+              </button>
+              <button
+                class="p-1.5 bg-white/90 backdrop-blur rounded-md text-gray-500 hover:text-purple-500 shadow-sm border border-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                @click.stop="openExport(kb)"
+                title="导出"
+              >
+                <Icon name="download" :size="14" aria-hidden="true" />
+              </button>
           </div>
         </div>
 
         <!-- 卡片主体 -->
-        <div class="pt-10 px-5 pb-5 cursor-pointer" @click="goToKbDetail(kb)">
+        <div class="pt-10 px-5 pb-5 cursor-pointer hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="goToKbDetail(kb)" @keydown.enter.self.prevent="($event.target as HTMLElement).click()">
           <div class="flex items-start justify-between mb-1">
             <h3 class="font-semibold text-gray-800 text-[15px] leading-tight line-clamp-1 pr-2 group-hover:text-primary-600 transition-colors">
               {{ kb.name }}
@@ -249,11 +253,11 @@
           <div class="flex items-center justify-between text-xs text-gray-500">
             <div class="flex items-center gap-3">
               <span class="inline-flex items-center gap-1">
-                <Icon name="file-text" :size="12" class="text-blue-500" />
+                <Icon name="file-text" :size="12" class="text-blue-500" aria-hidden="true" />
                 {{ getDocCount(kb) }} 篇
               </span>
               <span class="inline-flex items-center gap-1">
-                <Icon name="hard-drive" :size="12" class="text-purple-500" />
+                <Icon name="hard-drive" :size="12" class="text-purple-500" aria-hidden="true" />
                 {{ formatStorage(getDocCount(kb), kb.id) }}
               </span>
             </div>
@@ -265,14 +269,14 @@
             </div>
             <div class="flex items-center gap-1">
               <button
-                class="inline-flex items-center gap-1 px-2.5 h-7 rounded-md text-xs bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
+                class="inline-flex items-center gap-1 px-2.5 h-7 rounded-md text-xs bg-green-50 text-green-600 hover:bg-green-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click.stop="openMembers(kb)"
               >
-                <Icon name="users" :size="12" />
+                <Icon name="users" :size="12" aria-hidden="true" />
                 {{ getMemberCount(kb.id) }}
               </button>
               <button
-                class="inline-flex items-center gap-1 px-2.5 h-7 rounded-md text-xs bg-primary-50 text-primary-600 hover:bg-primary-100 transition-colors"
+                class="inline-flex items-center gap-1 px-2.5 h-7 rounded-md text-xs bg-primary-50 text-primary-600 hover:bg-primary-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click.stop="goToKbDetail(kb)"
               >
                 查看
@@ -287,7 +291,7 @@
     <div>
       <h3 class="text-base font-semibold text-gray-800 mb-4">快捷操作</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white border border-[#E2E6EC] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-all" @click="openImport()">
+        <div class="bg-white border border-[#E2E6EC] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="openImport()" @keydown.enter.prevent="($event.target as HTMLElement).click()">
           <div class="flex items-start gap-4">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-primary-50 flex-shrink-0">
               <Icon name="upload" :size="22" class="text-primary-500" />
@@ -299,7 +303,7 @@
           </div>
         </div>
 
-        <div class="bg-white border border-[#E2E6EC] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-all" @click="firstKb && openMembers(firstKb)">
+        <div class="bg-white border border-[#E2E6EC] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="firstKb && openMembers(firstKb)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
           <div class="flex items-start gap-4">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-50 flex-shrink-0">
               <Icon name="shield" :size="22" class="text-blue-500" />
@@ -311,7 +315,7 @@
           </div>
         </div>
 
-        <div class="bg-white border border-[#E2E6EC] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-all" @click="firstKb && openExport(firstKb)">
+        <div class="bg-white border border-[#E2E6EC] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="firstKb && openExport(firstKb)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
           <div class="flex items-start gap-4">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-purple-50 flex-shrink-0">
               <Icon name="download" :size="22" class="text-purple-500" />
@@ -347,7 +351,7 @@
             </label>
             <select
               v-model="kbForm.parentId"
-              class="w-full h-10 px-3 rounded-lg border border-[#E2E6EC] text-sm text-gray-700 focus:border-primary-500 focus:outline-none bg-white"
+              class="w-full h-10 px-3 rounded-lg border border-[#E2E6EC] text-sm text-gray-700 focus:border-primary-500 focus:outline-none bg-white hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
               <option :value="undefined">作为顶级分类</option>
               <option
@@ -372,7 +376,7 @@
                 :key="cat.key"
                 @click="activeIconCategory = cat.key"
                 :class="[
-                  'px-2.5 py-1 text-xs rounded-md border transition-all',
+                  'px-2.5 py-1 text-xs rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
                   activeIconCategory === cat.key
                     ? 'border-primary-500 bg-primary-50 text-primary-600 font-medium'
                     : 'border-[#E2E6EC] text-gray-500 hover:border-gray-300',
@@ -388,13 +392,13 @@
                 @click="selectPresetIcon(icon.key)"
                 :title="`${icon.name}（${icon.key}）`"
                 :class="[
-                  'aspect-square rounded-md flex items-center justify-center border transition-all',
+                  'aspect-square rounded-md flex items-center justify-center border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
                   selectedIconKey === icon.key
                     ? 'border-primary-500 bg-primary-50 ring-1 ring-primary-500'
                     : 'border-transparent hover:border-gray-300 hover:bg-gray-50',
                 ]"
               >
-                <Icon :name="icon.svg" :size="22" />
+                <Icon :name="icon.svg" :size="22" aria-hidden="true" />
               </button>
             </div>
             <div v-if="selectedIconKey" class="mt-3 flex items-center gap-2 flex-wrap">
@@ -405,7 +409,7 @@
                 type="button"
                 @click="selectIconColor(c)"
                 :class="[
-                  'w-6 h-6 rounded-full border-2 transition-all',
+                  'w-6 h-6 rounded-full border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
                   selectedIconColor === c ? 'border-gray-700 scale-110' : 'border-white shadow-sm hover:scale-110',
                 ]"
                 :style="{ backgroundColor: c }"
@@ -415,7 +419,7 @@
                 <input
                   :value="selectedIconColor"
                   type="color"
-                  class="w-6 h-6 rounded cursor-pointer border border-gray-200"
+                  class="w-6 h-6 rounded cursor-pointer border border-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                   @input="selectIconColor(($event.target as HTMLInputElement).value)"
                 />
                 <span>自定义</span>
@@ -423,7 +427,7 @@
               <button
                 v-if="selectedIconColor"
                 type="button"
-                class="text-xs text-gray-400 hover:text-red-500"
+                class="text-xs text-gray-400 hover:text-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="selectIconColor('')"
               >清除</button>
               <div class="ml-auto flex items-center gap-2">
@@ -463,8 +467,8 @@
               <span class="ml-3">共 {{ members.length }} 位成员</span>
             </p>
           </div>
-          <button @click="closeMemberModal" class="text-gray-400 hover:text-gray-600 p-1">
-            <Icon name="x" :size="20" />
+          <button @click="closeMemberModal" class="text-gray-400 hover:text-gray-600 p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2">
+            <Icon name="x" :size="20" aria-hidden="true" />
           </button>
         </div>
 
@@ -481,7 +485,7 @@
           <div class="w-[130px]">
             <select
               v-model="newMemberRole"
-              class="w-full h-10 px-3 rounded-lg border border-[#E2E6EC] text-sm text-gray-700 focus:border-primary-500 focus:outline-none"
+              class="w-full h-10 px-3 rounded-lg border border-[#E2E6EC] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
               <option value="READER">阅读者</option>
               <option value="EDITOR">编辑者</option>
@@ -504,7 +508,7 @@
           <div class="w-[130px]">
             <select
               v-model="inviteRole"
-              class="w-full h-10 px-3 rounded-lg border border-[#E2E6EC] text-sm text-gray-700 focus:border-primary-500 focus:outline-none"
+              class="w-full h-10 px-3 rounded-lg border border-[#E2E6EC] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
               <option value="READER">阅读者</option>
               <option value="EDITOR">编辑者</option>
@@ -584,7 +588,7 @@
                   v-if="m.role !== 'OWNER' || canTransferOwner(m)"
                   :value="m.role"
                   @change="onChangeRole(m, ($event.target as HTMLSelectElement).value)"
-                  class="h-8 px-2 rounded-md border border-[#E2E6EC] text-xs text-gray-700 focus:border-primary-500 focus:outline-none"
+                  class="h-8 px-2 rounded-md border border-[#E2E6EC] text-xs text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 >
                   <option value="OWNER">所有者</option>
                   <option value="EDITOR">编辑者</option>
@@ -593,11 +597,11 @@
                 <span v-else class="text-xs text-gray-400 px-2">唯一所有者</span>
                 <button
                   v-if="m.role !== 'OWNER'"
-                  class="p-1.5 text-gray-400 hover:text-danger-500 hover:bg-danger-50 rounded transition-colors"
+                  class="p-1.5 text-gray-400 hover:text-danger-500 hover:bg-danger-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                   @click="doRemoveMember(m)"
                   title="移除成员"
                 >
-                  <Icon name="trash-2" :size="14" />
+                  <Icon name="trash-2" :size="14" aria-hidden="true" />
                 </button>
               </div>
             </div>
@@ -622,8 +626,8 @@
             <h3 class="text-lg font-semibold text-gray-800">批量导入文档</h3>
             <p class="text-sm text-gray-500 mt-0.5">将文档导入到指定知识库</p>
           </div>
-          <button @click="closeImport" class="text-gray-400 hover:text-gray-600 p-1">
-            <Icon name="x" :size="20" />
+          <button @click="closeImport" class="text-gray-400 hover:text-gray-600 p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2">
+            <Icon name="x" :size="20" aria-hidden="true" />
           </button>
         </div>
 
@@ -641,19 +645,22 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1.5">选择文件</label>
             <div
-              class="border-2 border-dashed border-[#E2E6EC] rounded-xl p-8 text-center hover:border-primary-400 transition-colors cursor-pointer"
+              class="border-2 border-dashed border-[#E2E6EC] rounded-xl p-8 text-center hover:border-primary-400 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              role="button"
+              tabindex="0"
               @click="triggerImportFile"
+              @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
               @dragover.prevent
               @drop.prevent="onImportDrop"
             >
               <input
                 ref="importFileRef"
                 type="file"
-                class="hidden"
+                class="hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 :accept="'.zip,.md,.markdown,.txt,.json'"
                 @change="onImportFileChange"
               />
-              <Icon name="upload" :size="36" class="text-gray-300 mx-auto mb-2" />
+              <Icon name="upload" :size="36" class="text-gray-300 mx-auto mb-2" aria-hidden="true" />
               <p class="text-sm text-gray-600 font-medium">{{ importForm.file ? importForm.file.name : '点击上传或拖拽文件到此处' }}</p>
               <p class="text-xs text-gray-400 mt-1">支持 ZIP / MD / TXT / JSON，单个文件最大 50MB</p>
             </div>

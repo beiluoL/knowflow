@@ -86,12 +86,12 @@
               <!-- 展开箭头 / 占位 -->
               <button
                 v-if="node.hasChildren"
-                class="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-700 flex-shrink-0"
+                class="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-700 flex-shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 :style="{ marginLeft: node.level * 24 + 'px' }"
                 @click="toggleExpand(node.cat.id)"
                 :title="expandedIds.has(node.cat.id) ? '折叠' : '展开'"
               >
-                <Icon :name="expandedIds.has(node.cat.id) ? 'chevron-down' : 'chevron-right'" :size="14" />
+                <Icon :name="expandedIds.has(node.cat.id) ? 'chevron-down' : 'chevron-right'" :size="14" aria-hidden="true" />
               </button>
               <div v-else :style="{ marginLeft: node.level * 24 + 20 + 'px' }" class="flex-shrink-0"></div>
               <!-- 图标 -->
@@ -122,32 +122,32 @@
             <!-- 操作 -->
             <div class="col-span-3 flex items-center justify-center gap-1">
               <button
-                class="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded transition-colors"
+                class="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="openCreate(node.cat)"
                 title="新增子分类"
               >
-                <Icon name="folder-plus" :size="15" />
+                <Icon name="folder-plus" :size="15" aria-hidden="true" />
               </button>
               <button
-                class="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded transition-colors"
+                class="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="openEdit(node.cat)"
                 title="编辑"
               >
-                <Icon name="edit-2" :size="15" />
+                <Icon name="edit-2" :size="15" aria-hidden="true" />
               </button>
               <button
-                class="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded transition-colors"
+                class="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="openMove(node.cat)"
                 title="移动"
               >
-                <Icon name="move" :size="15" />
+                <Icon name="move" :size="15" aria-hidden="true" />
               </button>
               <button
-                class="p-1.5 text-gray-400 hover:text-danger-500 hover:bg-danger-50 rounded transition-colors"
+                class="p-1.5 text-gray-400 hover:text-danger-500 hover:bg-danger-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="deleteCategory(node.cat)"
                 title="删除"
               >
-                <Icon name="trash-2" :size="15" />
+                <Icon name="trash-2" :size="15" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -169,8 +169,11 @@
     <!-- ========== 新增/编辑弹窗 ========== -->
     <div
       v-if="showFormModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+      role="button"
+      tabindex="0"
       @click.self="closeFormModal"
+      @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
     >
       <div class="bg-white rounded-xl w-full max-w-md p-6 animate-scale-in max-h-[90vh] overflow-y-auto">
         <h3 class="text-lg font-semibold text-gray-800 mb-4">
@@ -208,9 +211,10 @@
               <button
                 v-for="cat in presetIconCategories"
                 :key="cat.key"
+                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="activeIconCategory = cat.key"
                 :class="[
-                  'px-2.5 py-1 text-xs rounded-md border transition-all',
+                  'px-2.5 py-1 text-xs rounded-md border transition-colors',
                   activeIconCategory === cat.key
                     ? 'border-primary-500 bg-primary-50 text-primary-600 font-medium'
                     : 'border-[#E2E6EC] text-gray-500 hover:border-gray-300',
@@ -223,16 +227,17 @@
               <button
                 v-for="icon in filteredPresetIcons"
                 :key="icon.key"
+                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="selectPresetIcon(icon.key)"
                 :title="`${icon.name}（${icon.key}）`"
                 :class="[
-                  'aspect-square rounded-md flex items-center justify-center border transition-all',
+                  'aspect-square rounded-md flex items-center justify-center border transition-colors',
                   selectedIconKey === icon.key
                     ? 'border-primary-500 bg-primary-50 ring-1 ring-primary-500'
                     : 'border-transparent hover:border-gray-300 hover:bg-gray-50',
                 ]"
               >
-                <Icon :name="icon.svg" :size="22" />
+                <Icon :name="icon.svg" :size="22" aria-hidden="true" />
               </button>
             </div>
             <!-- 颜色选择 -->
@@ -242,9 +247,10 @@
                 v-for="c in iconColorPresets"
                 :key="c"
                 type="button"
+                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="selectIconColor(c)"
                 :class="[
-                  'w-6 h-6 rounded-full border-2 transition-all',
+                  'w-6 h-6 rounded-full border-2 transition-colors',
                   selectedIconColor === c ? 'border-gray-700 scale-110' : 'border-white shadow-sm hover:scale-110',
                 ]"
                 :style="{ backgroundColor: c }"
@@ -254,7 +260,7 @@
                 <input
                   :value="selectedIconColor"
                   type="color"
-                  class="w-6 h-6 rounded cursor-pointer border border-gray-200"
+                  class="w-6 h-6 rounded cursor-pointer border border-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                   @input="selectIconColor(($event.target as HTMLInputElement).value)"
                 />
                 <span>自定义</span>
@@ -262,7 +268,7 @@
               <button
                 v-if="selectedIconColor"
                 type="button"
-                class="text-xs text-gray-400 hover:text-red-500"
+                class="text-xs text-gray-400 hover:text-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="selectIconColor('')"
               >清除</button>
               <div class="ml-auto flex items-center gap-2">
@@ -292,8 +298,11 @@
     <!-- ========== 移动弹窗 ========== -->
     <div
       v-if="showMoveModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+      role="button"
+      tabindex="0"
       @click.self="closeMoveModal"
+      @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
     >
       <div class="bg-white rounded-xl w-full max-w-sm p-6 animate-scale-in">
         <h3 class="text-lg font-semibold text-gray-800 mb-2">移动分类</h3>

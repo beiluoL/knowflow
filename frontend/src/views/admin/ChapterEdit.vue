@@ -5,11 +5,11 @@
       <div class="header-left">
         <button
           type="button"
-          class="back-btn"
+          class="back-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           title="返回"
           @click="goBack"
         >
-          <Icon name="arrow-left" :size="18" />
+          <Icon name="arrow-left" :size="18" aria-hidden="true" />
         </button>
         <nav class="breadcrumb">
           <span class="crumb muted">学习路径</span>
@@ -52,7 +52,7 @@
               v-model="chapterForm.title"
               type="text"
               placeholder="例如：第一章 入门基础"
-              class="form-input"
+              class="form-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             />
           </div>
           <div class="form-grid-2">
@@ -63,7 +63,7 @@
                 type="number"
                 min="1"
                 placeholder="30"
-                class="form-input"
+                class="form-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               />
             </div>
             <div class="form-row">
@@ -73,7 +73,7 @@
                 type="number"
                 min="0"
                 placeholder="1"
-                class="form-input"
+                class="form-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               />
             </div>
           </div>
@@ -99,11 +99,11 @@
               <span class="chip-title">{{ doc.title }}</span>
               <button
                 type="button"
-                class="chip-remove"
+                class="chip-remove focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
                 title="移除"
                 @click="removeSelectedDoc(doc.id)"
               >
-                <Icon name="x" :size="12" />
+                <Icon name="x" :size="12" aria-hidden="true" />
               </button>
             </span>
           </div>
@@ -112,7 +112,7 @@
           <div class="doc-filters">
             <select
               v-model="docPickerCategoryId"
-              class="form-select"
+              class="form-select focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               @change="loadPickerDocs"
             >
               <option :value="undefined">全部知识库</option>
@@ -128,7 +128,7 @@
                 v-model="docPickerKeyword"
                 type="text"
                 placeholder="搜索文档标题或摘要..."
-                class="form-input search-input"
+                class="form-input search-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               />
             </div>
           </div>
@@ -151,7 +151,7 @@
               >
                 <input
                   type="checkbox"
-                  class="doc-checkbox-hidden"
+                  class="doc-checkbox-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
                   :checked="isDocSelected(doc.id)"
                   @change="toggleDocSelection(doc)"
                 />
@@ -187,7 +187,7 @@
             v-model="chapterForm.content"
             rows="15"
             placeholder="可填写章节内容，或选择参考文档后点击「AI 生成内容」自动生成（支持 Markdown）"
-            class="form-textarea mono"
+            class="form-textarea mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           ></textarea>
         </section>
       </template>

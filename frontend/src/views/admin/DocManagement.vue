@@ -8,16 +8,16 @@
         <span class="kb-body-sm">共 {{ totalDocs }} 个</span>
       </div>
       <div class="head-actions">
-        <button class="btn-primary" @click="goToUpload">
-          <Icon name="upload" :size="16" />
+        <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="goToUpload">
+          <Icon name="upload" :size="16" aria-hidden="true" />
           <span>上传</span>
         </button>
-        <button class="btn-secondary" @click="goToCreate">
-          <Icon name="file-plus" :size="16" />
+        <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="goToCreate">
+          <Icon name="file-plus" :size="16" aria-hidden="true" />
           <span>新建</span>
         </button>
-        <button class="btn-secondary" @click="toggleBatch">
-          <Icon name="check-square" :size="16" />
+        <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="toggleBatch">
+          <Icon name="check-square" :size="16" aria-hidden="true" />
           <span>{{ batchMode ? '退出批量' : '批量操作' }}</span>
         </button>
       </div>
@@ -26,19 +26,19 @@
     <!-- 视图切换 -->
     <div class="view-switcher">
       <button
-        class="view-btn"
+        class="view-btn hover:bg-[var(--kb-card)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: viewMode === 'list' }"
         @click="viewMode = 'list'"
       >
-        <Icon name="list" :size="16" />
+        <Icon name="list" :size="16" aria-hidden="true" />
         <span>列表视图</span>
       </button>
       <button
-        class="view-btn"
+        class="view-btn hover:bg-[var(--kb-card)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: viewMode === 'grid' }"
         @click="viewMode = 'grid'"
       >
-        <Icon name="layout-grid" :size="16" />
+        <Icon name="layout-grid" :size="16" aria-hidden="true" />
         <span>网格视图</span>
       </button>
     </div>
@@ -48,15 +48,15 @@
       <div class="batch-info">
         <Icon name="check-square" :size="16" />
         <span>已选择 <strong>{{ checkedIds.length }}</strong> 个文档</span>
-        <button v-if="checkedIds.length > 0" class="link-btn" @click="checkedIds = []">取消选择</button>
+        <button v-if="checkedIds.length > 0" class="link-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="checkedIds = []">取消选择</button>
       </div>
       <div class="batch-actions">
-        <button class="btn-danger" :disabled="!checkedIds.length" @click="batchDelete">
-          <Icon name="trash-2" :size="14" />
+        <button class="btn-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="!checkedIds.length" @click="batchDelete">
+          <Icon name="trash-2" :size="14" aria-hidden="true" />
           <span>批量删除</span>
         </button>
-        <button class="btn-secondary" :disabled="!checkedIds.length" @click="openMoveModal">
-          <Icon name="move" :size="14" />
+        <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="!checkedIds.length" @click="openMoveModal">
+          <Icon name="move" :size="14" aria-hidden="true" />
           <span>批量移动</span>
         </button>
       </div>
@@ -75,7 +75,7 @@
       </div>
       <!-- 状态筛选（后端查询） -->
       <div class="filter-category">
-        <select v-model="selectedStatus" class="category-select" @change="onFilterChange">
+        <select v-model="selectedStatus" class="category-select focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @change="onFilterChange">
           <option :value="undefined">全部状态</option>
           <option :value="0">草稿</option>
           <option :value="1">已发布</option>
@@ -87,7 +87,7 @@
         <button
           v-for="t in fileTypes"
           :key="t.value"
-          class="filter-btn"
+          class="filter-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: selectedType === t.value }"
           @click="selectedType = t.value"
         >
@@ -97,7 +97,7 @@
       <div class="filter-right">
         <div class="sort-group">
           <span class="sort-label">排序:</span>
-          <select v-model="sortBy" class="sort-select">
+          <select v-model="sortBy" class="sort-select focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
             <option value="modified">修改时间</option>
             <option value="name">名称</option>
             <option value="size">大小</option>
@@ -109,10 +109,10 @@
             v-model="searchQuery"
             type="text"
             placeholder="搜索标题..."
-            class="search-input"
+            class="search-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             @keyup.enter="onFilterChange"
           />
-          <button class="search-btn" @click="onFilterChange">搜索</button>
+          <button class="search-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="onFilterChange">搜索</button>
         </div>
       </div>
     </div>
@@ -127,12 +127,12 @@
       <!-- 表头 -->
       <div class="table-row table-head">
         <label v-if="batchMode" class="checkbox-cell">
-          <input
-            type="checkbox"
-            :checked="allChecked"
-            @change="toggleAll"
-            class="checkbox"
-          />
+            <input
+              type="checkbox"
+              :checked="allChecked"
+              @change="toggleAll"
+              class="checkbox focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            />
         </label>
         <div class="col-name">文件名</div>
         <div class="col-category">分类</div>
@@ -155,7 +155,7 @@
             type="checkbox"
             v-model="checkedIds"
             :value="doc.id"
-            class="checkbox"
+            class="checkbox focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           />
         </label>
         <div class="col-name">
@@ -163,7 +163,7 @@
             <div class="file-icon" :style="{ background: doc.iconBg || '' }">
               <Icon :name="doc.icon || ''" :size="16" :style="{ color: doc.iconColor || '' }" />
             </div>
-            <span class="file-name-text" :title="doc.title" @click="goToDetail(doc)">{{ doc.title }}</span>
+            <span class="file-name-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :title="doc.title" role="button" tabindex="0" @click="goToDetail(doc)" @keydown.enter.prevent="($event.target as HTMLElement).click()">{{ doc.title }}</span>
           </div>
         </div>
         <div class="col-category">
@@ -187,14 +187,14 @@
           <span class="progress-text">{{ doc.progress }}%</span>
         </div>
         <div class="col-actions">
-          <button class="icon-btn" title="分享" @click="shareDoc(doc)">
-            <Icon name="share-2" :size="14" />
+          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="分享" @click="shareDoc(doc)">
+              <Icon name="share-2" :size="14" aria-hidden="true" />
           </button>
-          <button class="icon-btn" title="下载" @click="downloadDoc(doc)">
-            <Icon name="download" :size="14" />
+          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="下载" @click="downloadDoc(doc)">
+              <Icon name="download" :size="14" aria-hidden="true" />
           </button>
-          <button class="icon-btn" title="更多" @click="openMenu(doc)">
-            <Icon name="more-vertical" :size="14" />
+          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="更多" @click="openMenu(doc)">
+              <Icon name="more-vertical" :size="14" aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -217,22 +217,22 @@
               type="checkbox"
               v-model="checkedIds"
               :value="doc.id"
-              class="checkbox"
+              class="checkbox focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             />
           </label>
           <div class="card-icon" :style="{ background: doc.iconBg || '' }">
             <Icon :name="doc.icon || ''" :size="20" :style="{ color: doc.iconColor || '' }" />
           </div>
           <div class="card-actions">
-            <button class="icon-btn" title="编辑" @click="openEdit(doc)">
-              <Icon name="edit" :size="14" />
+            <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="编辑" @click="openEdit(doc)">
+              <Icon name="edit" :size="14" aria-hidden="true" />
             </button>
-            <button class="icon-btn" title="删除" @click="removeDoc(doc)">
-              <Icon name="trash-2" :size="14" />
+            <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="删除" @click="removeDoc(doc)">
+              <Icon name="trash-2" :size="14" aria-hidden="true" />
             </button>
           </div>
         </div>
-        <div class="card-title" :title="doc.title" @click="goToDetail(doc)">{{ doc.title }}</div>
+        <div class="card-title focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :title="doc.title" role="button" tabindex="0" @click="goToDetail(doc)" @keydown.enter.prevent="($event.target as HTMLElement).click()">{{ doc.title }}</div>
         <div class="card-meta">
           <span class="category-badge" :style="categoryStyle(doc.categoryColor)">{{ doc.category }}</span>
           <span class="card-date">{{ doc.modified }}</span>
@@ -256,7 +256,7 @@
       <span class="page-info">显示 {{ rangeStart }}-{{ rangeEnd }} / 共 {{ totalDocs }} 个</span>
       <div class="page-buttons">
         <button
-          class="page-btn"
+          class="page-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="currentPage === 1"
           @click="currentPage = Math.max(1, currentPage - 1)"
         >
@@ -265,7 +265,7 @@
         <button
           v-for="page in visiblePages"
           :key="page"
-          class="page-btn"
+          class="page-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{
             active: page === currentPage,
             ellipsis: page === -1,
@@ -276,7 +276,7 @@
           {{ page === -1 ? '...' : page }}
         </button>
         <button
-          class="page-btn"
+          class="page-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="currentPage === totalPages"
           @click="currentPage = Math.min(totalPages, currentPage + 1)"
         >
@@ -285,7 +285,7 @@
       </div>
       <div class="page-size">
         <span class="page-size-label">每页:</span>
-        <select v-model.number="pageSize" class="page-size-select">
+        <select v-model.number="pageSize" class="page-size-select focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
           <option :value="10">10</option>
           <option :value="20">20</option>
           <option :value="50">50</option>
@@ -296,39 +296,42 @@
     <!-- 更多操作下拉菜单 -->
     <div
       v-if="menuDoc"
-      class="menu-mask"
+      class="menu-mask focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+      role="button"
+      tabindex="0"
       @click="menuDoc = null"
+      @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
     >
       <div class="menu-popover" @click.stop>
-        <button class="menu-item" @click="openEdit(menuDoc); menuDoc = null">
-          <Icon name="edit" :size="14" />
+        <button class="menu-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="openEdit(menuDoc); menuDoc = null">
+          <Icon name="edit" :size="14" aria-hidden="true" />
           <span>修订</span>
         </button>
-        <button v-if="menuDoc.raw.status !== 1" class="menu-item" @click="publishDoc(menuDoc); menuDoc = null">
-          <Icon name="check-circle" :size="14" />
+        <button v-if="menuDoc.raw.status !== 1" class="menu-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="publishDoc(menuDoc); menuDoc = null">
+          <Icon name="check-circle" :size="14" aria-hidden="true" />
           <span>发布</span>
         </button>
-        <button v-if="menuDoc.raw.status !== 0" class="menu-item" @click="draftDoc(menuDoc); menuDoc = null">
-          <Icon name="edit-2" :size="14" />
+        <button v-if="menuDoc.raw.status !== 0" class="menu-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="draftDoc(menuDoc); menuDoc = null">
+          <Icon name="edit-2" :size="14" aria-hidden="true" />
           <span>转为草稿</span>
         </button>
-        <button v-if="menuDoc.raw.status !== 3" class="menu-item" @click="deprecateDoc(menuDoc); menuDoc = null">
-          <Icon name="archive" :size="14" />
+        <button v-if="menuDoc.raw.status !== 3" class="menu-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="deprecateDoc(menuDoc); menuDoc = null">
+          <Icon name="archive" :size="14" aria-hidden="true" />
           <span>废弃</span>
         </button>
-        <button class="menu-item danger" @click="removeDoc(menuDoc); menuDoc = null">
-          <Icon name="trash-2" :size="14" />
+        <button class="menu-item danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="removeDoc(menuDoc); menuDoc = null">
+          <Icon name="trash-2" :size="14" aria-hidden="true" />
           <span>删除</span>
         </button>
       </div>
     </div>
 
     <!-- 移动文档到知识库 弹窗 -->
-    <div v-if="showMoveModal" class="modal-overlay" @click="showMoveModal = false">
+    <div v-if="showMoveModal" class="modal-overlay focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @click="showMoveModal = false" @keydown.enter.prevent.self="($event.target as HTMLElement).click()">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
           <h3>移动文档到知识库</h3>
-          <button class="modal-close" @click="showMoveModal = false">
+          <button class="modal-close focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showMoveModal = false">
             <Icon name="x" :size="18" />
           </button>
         </div>
@@ -348,7 +351,7 @@
                 type="radio"
                 v-model="targetCategoryId"
                 :value="cat.id"
-                class="radio-input"
+                class="radio-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               />
               <Icon name="folder" :size="18" />
               <div class="kb-info">
@@ -359,9 +362,9 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="showMoveModal = false">取消</button>
-          <button class="btn-primary" :disabled="!targetCategoryId || moving" @click="batchMove">
-            <Icon name="check" :size="14" />
+          <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showMoveModal = false">取消</button>
+          <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="!targetCategoryId || moving" @click="batchMove">
+            <Icon name="check" :size="14" aria-hidden="true" />
             <span>{{ moving ? '移动中...' : '确认移动' }}</span>
           </button>
         </div>

@@ -5,19 +5,19 @@
     <div class="page-header">
       <div class="header-left">
         <h1 class="kb-h1">管理后台</h1>
-        <button type="button" class="btn-secondary">
-          <Icon name="calendar" :size="14" />
+        <button type="button" class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+          <Icon name="calendar" :size="14" aria-hidden="true" />
           <span>最近 7 天</span>
-          <Icon name="chevron-down" :size="12" />
+          <Icon name="chevron-down" :size="12" aria-hidden="true" />
         </button>
       </div>
       <div class="header-right">
-        <button type="button" class="btn-secondary" @click="loadData">
-          <Icon name="refresh-cw" :size="14" />
+        <button type="button" class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="loadData">
+          <Icon name="refresh-cw" :size="14" aria-hidden="true" />
           <span>刷新数据</span>
         </button>
-        <button type="button" class="btn-primary">
-          <Icon name="download" :size="14" />
+        <button type="button" class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+          <Icon name="download" :size="14" aria-hidden="true" />
           <span>导出报表</span>
         </button>
       </div>
@@ -129,7 +129,7 @@
       <div class="dash-card col-2">
         <div class="card-head">
           <h3 class="kb-h3">最近操作日志</h3>
-          <a href="#" class="link-text">查看全部</a>
+          <a href="#" class="link-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">查看全部</a>
         </div>
         <ul class="log-list">
           <li
@@ -155,7 +155,7 @@
       <div class="dash-card col-3">
         <div class="card-head">
           <h3 class="kb-h3">内容分类统计</h3>
-          <a href="#" class="link-text">管理分类</a>
+          <a href="#" class="link-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">管理分类</a>
         </div>
         <div class="hbar-list">
           <div
@@ -176,7 +176,7 @@
       <div class="dash-card col-2">
         <div class="card-head">
           <h3 class="kb-h3">热门学习路径</h3>
-          <a href="#" class="link-text">查看全部</a>
+          <a href="#" class="link-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">查看全部</a>
         </div>
         <ul class="rank-list">
           <li
@@ -254,7 +254,7 @@
               <p class="pending-text">{{ item.text }}</p>
               <p class="pending-sub">{{ item.sub }}</p>
             </div>
-            <button type="button" class="btn-sm">处理</button>
+            <button type="button" class="btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">处理</button>
           </div>
         </div>
       </div>

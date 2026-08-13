@@ -10,8 +10,8 @@
           切换 H2（开发测试）与 MySQL（生产）数据源。切换前会自动校验目标库连通性，失败则保持当前数据库不变。
         </p>
       </div>
-      <button class="db-btn db-btn--ghost" :disabled="loading" @click="loadStatus">
-        <Icon name="refresh-cw" size="sm" />
+      <button class="db-btn db-btn--ghost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="loading" @click="loadStatus">
+        <Icon name="refresh-cw" size="sm" aria-hidden="true" />
         刷新
       </button>
     </header>
@@ -67,12 +67,12 @@
         <button
           v-for="opt in status.options"
           :key="opt.code"
-          class="db-option"
+          class="db-option focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ 'is-selected': form.type === opt.code, 'is-active': opt.active }"
           type="button"
           @click="selectType(opt)"
         >
-          <Icon :name="opt.code === 'mysql' ? 'server' : 'zap'" size="md" />
+          <Icon :name="opt.code === 'mysql' ? 'server' : 'zap'" size="md" aria-hidden="true" />
           <span class="db-option__name">{{ opt.displayName }}</span>
           <span v-if="opt.active" class="db-option__tag">运行中</span>
         </button>
@@ -81,20 +81,20 @@
       <div class="db-form">
         <label class="db-field">
           <span class="db-field__label">连接地址（JDBC URL）</span>
-          <input v-model.trim="form.url" class="db-input" type="text" placeholder="留空则使用服务端配置" />
+          <input v-model.trim="form.url" class="db-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" type="text" placeholder="留空则使用服务端配置" />
         </label>
         <div class="db-field-row">
           <label class="db-field">
             <span class="db-field__label">用户名</span>
-            <input v-model.trim="form.username" class="db-input" type="text" placeholder="留空沿用服务端配置" />
+            <input v-model.trim="form.username" class="db-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" type="text" placeholder="留空沿用服务端配置" />
           </label>
           <label class="db-field">
             <span class="db-field__label">密码</span>
-            <input v-model="form.password" class="db-input" type="password" placeholder="留空沿用服务端配置" />
+            <input v-model="form.password" class="db-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" type="password" placeholder="留空沿用服务端配置" />
           </label>
         </div>
         <label class="db-field db-field--check">
-          <input v-model="form.initSchema" type="checkbox" />
+          <input v-model="form.initSchema" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" type="checkbox" />
           <span>
             切换后执行初始化脚本（建表 + 演示数据）
             <em class="db-hint">目标库为空时首次切换请勾选；已有数据时勾选会重复写入</em>
@@ -103,16 +103,16 @@
       </div>
 
       <div class="db-actions">
-        <button class="db-btn db-btn--ghost" :disabled="testing || switching" @click="handleTest">
-          <Icon name="link" size="sm" />
+        <button class="db-btn db-btn--ghost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="testing || switching" @click="handleTest">
+          <Icon name="link" size="sm" aria-hidden="true" />
           {{ testing ? '测试中…' : '测试连接' }}
         </button>
         <button
-          class="db-btn db-btn--primary"
+          class="db-btn db-btn--primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="switching || testing || !canSwitch"
           @click="handleSwitch"
         >
-          <Icon name="save" size="sm" />
+          <Icon name="save" size="sm" aria-hidden="true" />
           {{ switching ? '切换中…' : '切换并保存' }}
         </button>
       </div>
@@ -136,8 +136,8 @@
         对当前生效的数据库强制执行方言脚本（db/{{ status.currentType }}/schema.sql 与 data.sql）。
         用于新库建表或重建演示数据，请谨慎在生产环境使用。
       </p>
-      <button class="db-btn db-btn--ghost" :disabled="initializing" @click="handleInit">
-        <Icon name="cpu" size="sm" />
+      <button class="db-btn db-btn--ghost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="initializing" @click="handleInit">
+        <Icon name="cpu" size="sm" aria-hidden="true" />
         {{ initializing ? '执行中…' : '执行初始化脚本' }}
       </button>
       <p v-if="initMessage" class="db-alert" :class="initOk ? 'db-alert--ok' : 'db-alert--error'">

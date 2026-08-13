@@ -77,13 +77,13 @@
           <input
             v-model="searchQuery"
             placeholder="搜索路径标题或描述..."
-            class="w-full h-10 pl-10 pr-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)]"
+            class="w-full h-10 pl-10 pr-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
           />
         </div>
         <select
           v-model="filterLevel"
-          class="h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+          class="h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
         >
           <option value="">全部难度</option>
@@ -93,7 +93,7 @@
         </select>
         <select
           v-model="filterStatus"
-          class="h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+          class="h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
         >
           <option value="">全部状态</option>
@@ -176,50 +176,50 @@
             <div class="col-span-2 flex items-center justify-center gap-1">
               <button
                 type="button"
-                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-primary)]/10"
+                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-primary)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="color: var(--kb-primary);"
                 title="管理章节"
                 @click="openChapterMgmt(path)"
               >
-                <Icon name="list-ordered" :size="16" />
+                <Icon name="list-ordered" :size="16" aria-hidden="true" />
               </button>
               <button
                 type="button"
-                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-primary)]/10"
+                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-primary)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="color: var(--kb-primary);"
                 title="编辑"
                 @click="openEditPath(path)"
               >
-                <Icon name="edit" :size="16" />
+                <Icon name="edit" :size="16" aria-hidden="true" />
               </button>
               <button
                 v-if="path.status !== 1"
                 type="button"
-                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-accent)]/10"
+                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-accent)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="color: var(--kb-accent);"
                 title="发布"
                 @click="publishPath(path)"
               >
-                <Icon name="trending-up" :size="16" />
+                <Icon name="trending-up" :size="16" aria-hidden="true" />
               </button>
               <button
                 v-else
                 type="button"
-                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-warning)]/10"
+                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-warning)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="color: #f59e0b;"
                 title="下架"
                 @click="unpublishPath(path)"
               >
-                <Icon name="trending-down" :size="16" />
+                <Icon name="trending-down" :size="16" aria-hidden="true" />
               </button>
               <button
                 type="button"
-                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-destructive)]/10"
+                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-destructive)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="color: var(--kb-destructive);"
                 title="删除"
                 @click="removePath(path)"
               >
-                <Icon name="trash-2" :size="16" />
+                <Icon name="trash-2" :size="16" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -238,8 +238,8 @@
           <h3 class="text-lg font-semibold" style="color: var(--kb-foreground);">
             {{ editingPathId ? '编辑学习路径' : '新建学习路径' }}
           </h3>
-          <button class="p-1 rounded transition-colors hover:bg-[var(--kb-muted)]" @click="closePathModal">
-            <Icon name="x" :size="20" style="color: var(--kb-muted-foreground);" />
+          <button class="p-1 rounded transition-colors hover:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="closePathModal">
+            <Icon name="x" :size="20" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
           </button>
         </div>
         <div class="px-6 py-4 space-y-4">
@@ -248,7 +248,7 @@
             <input
               v-model="pathForm.title"
               placeholder="例如：Java 全栈工程师学习路径"
-              class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+              class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
             />
           </div>
@@ -258,7 +258,7 @@
               v-model="pathForm.description"
               rows="3"
               placeholder="简要描述本路径的学习目标、适用人群..."
-              class="w-full px-3 py-2 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)] resize-y"
+              class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 resize-y"
               style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
             ></textarea>
           </div>
@@ -267,7 +267,7 @@
               <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">难度级别</label>
               <select
                 v-model="pathForm.level"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
               >
                 <option value="入门">入门</option>
@@ -282,7 +282,7 @@
                 type="number"
                 min="0"
                 placeholder="0"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
               />
             </div>
@@ -312,8 +312,8 @@
               <p class="text-xs" style="color: var(--kb-muted-foreground);">基于知识库文档内容，AI 将自动设计路径与章节</p>
             </div>
           </div>
-          <button class="p-1 rounded transition-colors hover:bg-[var(--kb-muted)]" @click="closeAiModal">
-            <Icon name="x" :size="20" style="color: var(--kb-muted-foreground);" />
+          <button class="p-1 rounded transition-colors hover:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="closeAiModal">
+            <Icon name="x" :size="20" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
           </button>
         </div>
         <div class="px-6 py-4 space-y-4">
@@ -329,7 +329,7 @@
             <input
               v-model="aiForm.topic"
               placeholder="例如：Spring Boot 微服务开发"
-              class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+              class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
             />
           </div>
@@ -339,7 +339,7 @@
               v-model="aiForm.description"
               rows="2"
               placeholder="可补充学习目标、重点内容、适用人群等（可选）"
-              class="w-full px-3 py-2 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)] resize-y"
+              class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 resize-y"
               style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
             ></textarea>
           </div>
@@ -347,7 +347,7 @@
             <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">参考知识库</label>
             <select
               v-model="aiForm.categoryId"
-              class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+              class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
             >
               <option :value="undefined">全部知识库（不筛选）</option>
@@ -362,7 +362,7 @@
               <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">目标难度</label>
               <select
                 v-model="aiForm.level"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
               >
                 <option value="入门">入门</option>
@@ -378,7 +378,7 @@
                 min="1"
                 max="15"
                 placeholder="5"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
               />
               <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">建议 3-10 章，过多会影响生成质量</p>
@@ -412,8 +412,8 @@
             <Button size="sm" variant="secondary" icon-name="sparkles" @click="batchGenerateFlashcards" :disabled="batchGenerating">
               {{ batchGenerating ? '生成闪卡中...' : 'AI 批量生成闪卡' }}
             </Button>
-            <button class="p-1 rounded transition-colors hover:bg-[var(--kb-muted)]" @click="closeChapterModal">
-              <Icon name="x" :size="20" style="color: var(--kb-muted-foreground);" />
+            <button class="p-1 rounded transition-colors hover:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="closeChapterModal">
+              <Icon name="x" :size="20" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -439,7 +439,7 @@
             <div
               v-for="(chapter, idx) in chapters"
               :key="chapter.id"
-              class="rounded-lg border p-4 transition-all"
+              class="rounded-lg border p-4 transition-colors"
               style="border-color: var(--kb-border); background: var(--kb-background);"
             >
               <div class="flex items-start gap-3">
@@ -461,31 +461,31 @@
                 <div class="flex items-center gap-1 shrink-0">
                   <button
                     type="button"
-                    class="p-1.5 rounded transition-colors hover:bg-[var(--kb-primary)]/10"
+                    class="p-1.5 rounded transition-colors hover:bg-[var(--kb-primary)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                     style="color: var(--kb-primary);"
                     title="AI 生成内容"
                     :disabled="generatingChapterId === chapter.id"
                     @click="generateChapterContent(chapter)"
                   >
-                    <Icon :name="generatingChapterId === chapter.id ? 'loader' : 'sparkles'" :size="16" />
+                    <Icon :name="generatingChapterId === chapter.id ? 'loader' : 'sparkles'" :size="16" aria-hidden="true" />
                   </button>
                   <button
                     type="button"
-                    class="p-1.5 rounded transition-colors hover:bg-[var(--kb-primary)]/10"
+                    class="p-1.5 rounded transition-colors hover:bg-[var(--kb-primary)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                     style="color: var(--kb-primary);"
                     title="编辑"
                     @click="openEditChapter(chapter)"
                   >
-                    <Icon name="edit" :size="16" />
+                    <Icon name="edit" :size="16" aria-hidden="true" />
                   </button>
                   <button
                     type="button"
-                    class="p-1.5 rounded transition-colors hover:bg-[var(--kb-destructive)]/10"
+                    class="p-1.5 rounded transition-colors hover:bg-[var(--kb-destructive)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                     style="color: var(--kb-destructive);"
                     title="删除"
                     @click="removeChapter(chapter)"
                   >
-                    <Icon name="trash-2" :size="16" />
+                    <Icon name="trash-2" :size="16" aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -514,8 +514,8 @@
           <h3 class="text-lg font-semibold" style="color: var(--kb-foreground);">
             {{ editingChapterId ? '编辑章节' : '新增章节' }}
           </h3>
-          <button class="p-1 rounded transition-colors hover:bg-[var(--kb-muted)]" @click="closeChapterFormModal">
-            <Icon name="x" :size="20" style="color: var(--kb-muted-foreground);" />
+          <button class="p-1 rounded transition-colors hover:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="closeChapterFormModal">
+            <Icon name="x" :size="20" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
           </button>
         </div>
         <div class="px-6 py-4 space-y-4 max-h-[60vh] overflow-y-auto">
@@ -524,7 +524,7 @@
             <input
               v-model="chapterForm.title"
               placeholder="例如：第一章 入门基础"
-              class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+              class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
             />
           </div>
@@ -536,7 +536,7 @@
                 type="number"
                 min="1"
                 placeholder="30"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
               />
             </div>
@@ -547,7 +547,7 @@
                 type="number"
                 min="0"
                 placeholder="1"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)]"
+                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
               />
             </div>
@@ -558,7 +558,7 @@
               <label class="text-sm font-medium" style="color: var(--kb-foreground);">参考文档（可选）</label>
               <button
                 type="button"
-                class="text-xs font-medium hover:opacity-80"
+                class="text-xs font-medium hover:opacity-80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 style="color: var(--kb-primary);"
                 @click="showDocPicker = !showDocPicker"
               >
@@ -577,8 +577,8 @@
                 style="background: rgba(59,111,224,0.1); color: var(--kb-primary);"
               >
                 {{ doc.title }}
-                <button type="button" class="hover:opacity-70" @click="removeSelectedDoc(doc.id)">
-                  <Icon name="x" :size="12" />
+                <button type="button" class="hover:opacity-70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="removeSelectedDoc(doc.id)">
+                  <Icon name="x" :size="12" aria-hidden="true" />
                 </button>
               </span>
             </div>
@@ -587,7 +587,7 @@
               <div class="flex items-center gap-2">
                 <select
                   v-model="docPickerCategoryId"
-                  class="flex-1 h-9 px-2 rounded text-xs border outline-none focus:border-[var(--kb-primary)]"
+                  class="flex-1 h-9 px-2 rounded text-xs border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                   style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
                   @change="loadPickerDocs"
                 >
@@ -599,7 +599,7 @@
                   <input
                     v-model="docPickerKeyword"
                     placeholder="搜索文档..."
-                    class="w-full h-9 pl-7 pr-2 rounded text-xs border outline-none focus:border-[var(--kb-primary)]"
+                    class="w-full h-9 pl-7 pr-2 rounded text-xs border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                     style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
                   />
                 </div>
@@ -608,9 +608,12 @@
                 <div
                   v-for="doc in filteredPickerDocs"
                   :key="doc.id"
-                  class="flex items-center gap-2 p-2 rounded cursor-pointer transition-colors"
+                  class="flex items-center gap-2 p-2 rounded cursor-pointer transition-colors hover:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                   :style="isDocSelected(doc.id) ? { background: 'rgba(59,111,224,0.08)' } : {}"
+                  role="button"
+                  tabindex="0"
                   @click="toggleDocSelection(doc)"
+                  @keydown.enter.prevent="($event.target as HTMLElement).click()"
                 >
                   <div
                     class="w-4 h-4 rounded border flex items-center justify-center shrink-0"
@@ -618,7 +621,7 @@
                       ? { background: 'var(--kb-primary)', borderColor: 'var(--kb-primary)' }
                       : { borderColor: 'var(--kb-border)' }"
                   >
-                    <Icon v-if="isDocSelected(doc.id)" name="check" :size="12" style="color: white;" />
+                    <Icon v-if="isDocSelected(doc.id)" name="check" :size="12" style="color: white;" aria-hidden="true" />
                   </div>
                   <div class="flex-1 min-w-0">
                     <p class="text-xs font-medium truncate" style="color: var(--kb-foreground);">{{ doc.title }}</p>
@@ -637,7 +640,7 @@
               v-model="chapterForm.content"
               rows="8"
               placeholder="可填写章节描述，或选择上方参考文档后点击「AI 生成」让 AI 自动生成详细内容（支持 Markdown）"
-              class="w-full px-3 py-2 rounded-lg text-sm border outline-none focus:border-[var(--kb-primary)] resize-y font-mono"
+              class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 resize-y font-mono"
               style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
             ></textarea>
           </div>
