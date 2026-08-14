@@ -7,7 +7,7 @@
   >
     <div class="panel-header">
       <span class="panel-title">沉浸工作台设置</span>
-      <button type="button" class="close-btn" @click="emit('close')">
+      <button type="button" class="close-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="emit('close')">
         <Icon name="x" :size="14" />
       </button>
     </div>
@@ -19,7 +19,7 @@
           v-for="rp in RHYTHM_PRESETS_UI"
           :key="rp.id"
           type="button"
-          class="rhythm-card"
+          class="rhythm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: currentRhythm === rp.id }"
           @click="handleSelectRhythm(rp.id)"
         >
@@ -41,10 +41,10 @@
       </div>
       <button
         type="button"
-        class="toggle-switch"
-        :class="{ on: breakGuideEnabled }"
-        :aria-pressed="breakGuideEnabled"
-        @click="breakGuideEnabled = !breakGuideEnabled"
+          class="toggle-switch focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          :class="{ on: breakGuideEnabled }"
+          :aria-pressed="breakGuideEnabled"
+          @click="breakGuideEnabled = !breakGuideEnabled"
       >
         <span class="toggle-knob" />
       </button>
@@ -57,10 +57,10 @@
       </div>
       <button
         type="button"
-        class="toggle-switch"
-        :class="{ on: pomodoroStore.settings.autoNext }"
-        :aria-pressed="pomodoroStore.settings.autoNext"
-        @click="toggleAutoNext"
+          class="toggle-switch focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          :class="{ on: pomodoroStore.settings.autoNext }"
+          :aria-pressed="pomodoroStore.settings.autoNext"
+          @click="toggleAutoNext"
       >
         <span class="toggle-knob" />
       </button>
@@ -76,11 +76,11 @@
       </div>
       <button
         type="button"
-        class="toggle-switch"
-        :class="{ on: pomodoroStore.settings.soundEnabled }"
-        :title="pomodoroStore.settings.soundEnabled ? '点击关闭：阶段结束不播放提示音' : '点击开启：阶段结束播放提示音'"
-        :aria-pressed="pomodoroStore.settings.soundEnabled"
-        @click="toggleSoundEnabled"
+          class="toggle-switch focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          :class="{ on: pomodoroStore.settings.soundEnabled }"
+          :title="pomodoroStore.settings.soundEnabled ? '点击关闭：阶段结束不播放提示音' : '点击开启：阶段结束播放提示音'"
+          :aria-pressed="pomodoroStore.settings.soundEnabled"
+          @click="toggleSoundEnabled"
       >
         <span class="toggle-knob" />
       </button>
@@ -94,7 +94,7 @@
       <div class="number-adjust">
         <button
           type="button"
-          class="num-btn minus"
+          class="num-btn minus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="pomodoroStore.settings.roundsPerSet <= 2"
           @click="decrementRounds"
         >
@@ -103,7 +103,7 @@
         <span class="num-value">{{ pomodoroStore.settings.roundsPerSet }}</span>
         <button
           type="button"
-          class="num-btn plus"
+          class="num-btn plus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="pomodoroStore.settings.roundsPerSet >= 10"
           @click="incrementRounds"
         >
@@ -119,10 +119,10 @@
       </div>
       <button
         type="button"
-        class="toggle-switch"
-        :class="{ on: resetThemeOnExit }"
-        :aria-pressed="resetThemeOnExit"
-        @click="resetThemeOnExit = !resetThemeOnExit"
+          class="toggle-switch focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          :class="{ on: resetThemeOnExit }"
+          :aria-pressed="resetThemeOnExit"
+          @click="resetThemeOnExit = !resetThemeOnExit"
       >
         <span class="toggle-knob" />
       </button>

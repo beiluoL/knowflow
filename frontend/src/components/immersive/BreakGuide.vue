@@ -27,7 +27,11 @@
         <span class="gif-subtext">💧🎯🧘‍♂️</span>
       </div>
 
-      <button type="button" class="continue-btn" @click="handleDismiss">
+      <button
+        type="button"
+        class="continue-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        @click="handleDismiss"
+      >
         我已休息，继续学习
       </button>
     </div>

@@ -3,11 +3,15 @@
     <aside class="buddy-groups">
       <header class="panel-head">
         <h3 class="panel-title">
-          <Icon name="users" :size="16" />
+          <Icon name="users" :size="16" aria-hidden="true" />
           <span>学习小组</span>
         </h3>
-        <button type="button" class="join-btn" @click="handleJoinGroup">
-          <Icon name="plus" :size="14" />
+        <button
+        type="button"
+        class="join-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        @click="handleJoinGroup"
+      >
+          <Icon name="plus" :size="14" aria-hidden="true" />
           <span>加入小组</span>
         </button>
       </header>
@@ -17,7 +21,7 @@
       </div>
       <div v-else-if="groups.length === 0" class="empty-wrap">
         <div class="empty-illustration">
-          <Icon name="users" :size="48" />
+          <Icon name="users" :size="48" aria-hidden="true" />
         </div>
         <p class="empty-text">还没有加入任何小组</p>
         <p class="empty-sub">去小组页加入一个，与伙伴一起进步</p>
@@ -26,9 +30,12 @@
         <li
           v-for="g in groups"
           :key="g.id"
-          class="group-card"
+          class="group-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: activeGroupId === g.id }"
+          role="button"
+          tabindex="0"
           @click="selectGroup(g.id)"
+          @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
         >
           <div class="group-icon" :style="{ background: g.color || 'var(--kb-primary)' }">
             <span>{{ g.name.charAt(0) }}</span>
@@ -41,7 +48,7 @@
             <p class="group-desc">{{ g.description || '暂无描述' }}</p>
             <div class="group-meta">
               <span class="member-count">
-                <Icon name="user" :size="12" />
+                <Icon name="user" :size="12" aria-hidden="true" />
                 {{ g.memberCount || 0 }}人
               </span>
               <span class="role-badge" :class="roleClass(g.userRole)">
@@ -82,23 +89,35 @@
               <div class="time-display tabular-nums">{{ pomodoroStore.timeFormatted }}</div>
               <div class="sub-label">小组共同专注</div>
               <div class="online-members">
-                <Icon name="users" :size="12" />
+                <Icon name="users" :size="12" aria-hidden="true" />
                 {{ onlineCount }} 位伙伴在线
               </div>
             </div>
           </DualRingProgress>
 
           <div class="controls">
-            <button type="button" class="ctrl-btn primary" @click="handleToggle">
-              <Icon :name="pomodoroStore.runtime.isRunning ? 'pause' : 'play'" :size="18" />
+            <button
+            type="button"
+            class="ctrl-btn primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            @click="handleToggle"
+          >
+              <Icon :name="pomodoroStore.runtime.isRunning ? 'pause' : 'play'" :size="18" aria-hidden="true" />
               <span>{{ pomodoroStore.runtime.isRunning ? '暂停' : '开始' }}</span>
             </button>
-            <button type="button" class="ctrl-btn" @click="pomodoroStore.skip()">
-              <Icon name="skip-forward" :size="16" />
+            <button
+              type="button"
+              class="ctrl-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              @click="pomodoroStore.skip()"
+            >
+              <Icon name="skip-forward" :size="16" aria-hidden="true" />
               <span>跳过</span>
             </button>
-            <button type="button" class="ctrl-btn" @click="pomodoroStore.resetCurrentMode()">
-              <Icon name="rotate-ccw" :size="16" />
+            <button
+              type="button"
+              class="ctrl-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              @click="pomodoroStore.resetCurrentMode()"
+            >
+              <Icon name="rotate-ccw" :size="16" aria-hidden="true" />
               <span>重置</span>
             </button>
           </div>
@@ -116,7 +135,7 @@
 
       <div v-else class="guide-wrap">
         <div class="guide-icon">
-          <Icon name="users" :size="56" />
+          <Icon name="users" :size="56" aria-hidden="true" />
         </div>
         <h2 class="guide-title">选择一个小组，与成员共同专注</h2>
         <p class="guide-text">在左侧选择一个学习小组，开启伙伴陪伴式学习</p>
@@ -127,7 +146,7 @@
       <template v-if="activeGroup">
         <header class="panel-head">
           <h3 class="panel-title">
-            <Icon name="activity" :size="16" />
+            <Icon name="activity" :size="16" aria-hidden="true" />
             <span>成员状态</span>
           </h3>
           <span class="group-switch">{{ activeGroup.name }}</span>
@@ -165,7 +184,7 @@
 
         <div class="chat-box">
           <div class="chat-head">
-            <Icon name="message-circle" :size="14" />
+            <Icon name="message-circle" :size="14" aria-hidden="true" />
             <span>群聊动态</span>
           </div>
           <div v-if="chatLoading" class="chat-empty">
@@ -183,13 +202,18 @@
           <div class="chat-input-wrap">
             <textarea
               v-model="chatInput"
-              class="chat-input"
+              class="chat-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               rows="2"
               placeholder="发一条鼓励的消息…"
               @keydown.enter.ctrl="handleSendMessage"
             />
-            <button type="button" class="send-btn" :disabled="!chatInput.trim()" @click="handleSendMessage">
-              <Icon name="send" :size="14" />
+            <button
+              type="button"
+              class="send-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              :disabled="!chatInput.trim()"
+              @click="handleSendMessage"
+            >
+              <Icon name="send" :size="14" aria-hidden="true" />
               发送
             </button>
           </div>
@@ -197,7 +221,7 @@
       </template>
 
       <div v-else class="empty-side">
-        <Icon name="user-x" :size="36" />
+        <Icon name="user-x" :size="36" aria-hidden="true" />
         <p>选择左侧小组查看成员</p>
       </div>
     </aside>

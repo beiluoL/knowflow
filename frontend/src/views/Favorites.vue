@@ -7,8 +7,8 @@
         <h1 class="kb-h1">收藏夹</h1>
         <span class="count-pill">{{ total }} 个收藏</span>
       </div>
-      <button type="button" class="btn-secondary" @click="toggleBatchMode">
-        <Icon name="check-square" :size="14" />
+      <button type="button" class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="toggleBatchMode">
+        <Icon name="check-square" :size="14" aria-hidden="true" />
         <span>{{ batchMode ? '取消' : '批量管理' }}</span>
       </button>
     </div>
@@ -19,7 +19,7 @@
         <button
           v-for="tab in typeTabs"
           :key="tab.value"
-          class="filter-tab"
+          class="filter-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: selectedType === tab.value }"
           @click="handleTypeChange(tab.value)"
         >
@@ -28,11 +28,11 @@
         </button>
         <div class="tab-divider"></div>
         <button
-          class="filter-tab sort-tab"
+          class="filter-tab sort-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: showSortMenu }"
           @click="toggleSortMenu"
         >
-          <Icon name="arrow-up-down" :size="14" />
+          <Icon name="arrow-up-down" :size="14" aria-hidden="true" />
           <span>{{ sortLabel }}</span>
         </button>
         <!-- 排序下拉菜单 -->
@@ -40,7 +40,7 @@
           <button
             v-for="opt in sortOptions"
             :key="opt.value"
-            class="sort-menu-item"
+            class="sort-menu-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             :class="{ active: selectedSort === opt.value }"
             @click="selectSort(opt.value)"
           >
@@ -60,7 +60,7 @@
     <!-- ===== 空态 ===== -->
     <div v-else-if="filteredItems.length === 0" class="state-area">
       <div class="empty-icon-box">
-        <Icon name="heart" :size="40" class="empty-icon" />
+        <Icon name="heart" :size="40" class="empty-icon" aria-hidden="true" />
       </div>
       <p class="state-title">暂无收藏</p>
       <p class="state-text">去逛逛知识库，收藏感兴趣的内容吧</p>
@@ -71,21 +71,24 @@
       <div
         v-for="item in pagedItems"
         :key="item.id"
-        class="fav-card"
+        class="fav-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ selected: batchMode && selectedIds.has(item.id) }"
+        role="button"
+        tabindex="0"
         @click="handleItemClick(item)"
+        @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
       >
         <!-- 顶部：类型图标 + 取消收藏按钮 -->
         <div class="fav-card-top">
           <div class="fav-icon" :class="getItemIconClass(item)">
-            <Icon :name="getItemIcon(item)" :size="18" />
+            <Icon :name="getItemIcon(item)" :size="18" aria-hidden="true" />
           </div>
           <button
-            class="fav-unstar-btn"
+            class="fav-unstar-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             title="取消收藏"
             @click.stop="handleUnfavorite(item.id)"
           >
-            <Icon name="bookmark" :size="14" :fill="true" />
+            <Icon name="bookmark" :size="14" :fill="true" aria-hidden="true" />
           </button>
         </div>
         <!-- 标题 -->
@@ -106,7 +109,7 @@
         <!-- 底部分隔线 + 来源 + 收藏时间 -->
         <div class="fav-card-bottom">
           <div class="fav-source">
-            <Icon name="folder" :size="12" />
+            <Icon name="folder" :size="12" aria-hidden="true" />
             <span>{{ item.categoryName || '未分类' }}</span>
           </div>
           <span class="fav-time">{{ formatTime(item.favoriteTime) }}</span>
@@ -117,17 +120,17 @@
     <!-- ===== 分页器 ===== -->
     <div v-if="!loading && filteredItems.length > 0" class="pagination-wrap">
       <button
-        class="pagination-btn"
+        class="pagination-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
         :disabled="pageNum <= 1"
         @click="goToPage(pageNum - 1)"
         aria-label="上一页"
       >
-        <Icon name="chevron-left" :size="16" />
+        <Icon name="chevron-left" :size="16" aria-hidden="true" />
       </button>
       <button
         v-for="page in visiblePages"
         :key="page"
-        class="pagination-btn"
+        class="pagination-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: page === pageNum, ellipsis: page === -1 }"
         :disabled="page === -1"
         @click="goToPage(page)"
@@ -135,12 +138,12 @@
         {{ page === -1 ? '...' : page }}
       </button>
       <button
-        class="pagination-btn"
+        class="pagination-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
         :disabled="pageNum >= totalPages"
         @click="goToPage(pageNum + 1)"
         aria-label="下一页"
       >
-        <Icon name="chevron-right" :size="16" />
+        <Icon name="chevron-right" :size="16" aria-hidden="true" />
       </button>
     </div>
   </div>

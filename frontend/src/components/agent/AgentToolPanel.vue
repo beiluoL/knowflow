@@ -77,13 +77,13 @@ defineExpose({ loadTools })
         </p>
       </div>
       <Button size="sm" variant="ghost" :disabled="loading" @click="loadTools">
-        <Icon name="refresh-cw" size="xs" /> 刷新
+        <Icon name="refresh-cw" size="xs" aria-hidden="true" /> 刷新
       </Button>
     </div>
 
     <div v-if="loading" class="tool-empty">加载中...</div>
     <div v-else-if="tools.length === 0" class="tool-empty">
-      <Icon name="settings" size="2xl" />
+      <Icon name="settings" size="2xl" aria-hidden="true" />
       <p>暂无可用工具</p>
     </div>
 
@@ -103,7 +103,7 @@ defineExpose({ loadTools })
         </div>
         <button
           type="button"
-          class="switch"
+          class="switch transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           :class="{ on: tool.enabled }"
           :disabled="savingSet.has(tool.name)"
           :aria-label="`${tool.enabled ? '禁用' : '启用'} ${tool.name}`"

@@ -7,7 +7,7 @@
         <p class="kb-body" style="color: var(--kb-muted-foreground);">深耕不同知识领域，获得专属进阶称号</p>
       </div>
       <div class="shrink-0 rounded-lg border p-3 flex items-center gap-3 exp-card" style="background: var(--kb-card); border-color: var(--kb-border);">
-        <Icon name="zap" :size="20" style="color: var(--kb-accent);" />
+        <Icon name="zap" :size="20" style="color: var(--kb-accent);" aria-hidden="true" />
         <div>
           <div class="kb-body-sm">当前总经验值</div>
           <div class="kb-h4" style="color: var(--kb-foreground);">{{ formatExp(user.totalExp) }} EXP</div>
@@ -18,7 +18,7 @@
     <!-- ===== 用户当前称号横幅 ===== -->
     <div class="rounded-lg p-6 mb-6 flex items-center gap-6 flex-wrap banner-card">
       <div class="shrink-0 w-20 h-20 rounded-lg flex flex-col items-center justify-center banner-level-box">
-        <Icon name="award" :size="28" style="color: var(--kb-primary-foreground);" />
+        <Icon name="award" :size="28" style="color: var(--kb-primary-foreground);" aria-hidden="true" />
         <span class="text-xs font-semibold" style="color: var(--kb-primary-foreground);">Lv.{{ user.level }}</span>
       </div>
       <div class="flex-1 min-w-0 banner-info">
@@ -52,7 +52,7 @@
         v-for="kb in knowledgeBases"
         :key="kb.id"
         type="button"
-        class="kb-tab"
+        class="kb-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: currentKb === kb.id }"
         @click="currentKb = kb.id"
       >
@@ -63,7 +63,7 @@
     <!-- ===== 当前知识库称号进阶路径 ===== -->
     <div class="rounded-lg border p-6 mb-6 path-card" style="background: var(--kb-card); border-color: var(--kb-border);">
       <div class="flex items-center gap-2 mb-5">
-        <Icon :name="currentKbData.icon" :size="20" style="color: var(--kb-primary);" />
+        <Icon :name="currentKbData.icon" :size="20" style="color: var(--kb-primary);" aria-hidden="true" />
         <h2 class="kb-h2">{{ currentKbData.name }} · 称号进阶路径</h2>
       </div>
 
@@ -79,7 +79,7 @@
             class="path-node"
             :style="getNodeStyle(title)"
           >
-            <Icon :name="title.unlocked ? title.icon : 'lock'" :size="24" />
+            <Icon :name="title.unlocked ? title.icon : 'lock'" :size="24" aria-hidden="true" />
           </div>
 
           <!-- 卡片 -->
@@ -90,14 +90,14 @@
                   <span class="kb-body-sm" style="color: var(--kb-muted-foreground);">Lv.{{ title.level }}</span>
                   <span class="kb-h4">{{ title.name }}</span>
                   <span v-if="title.isCurrent" class="status-tag current">
-                    <Icon name="award" :size="12" />
+                    <Icon name="award" :size="12" aria-hidden="true" />
                     当前称号
                   </span>
                 </div>
                 <p class="kb-body-sm">{{ title.desc }}</p>
               </div>
               <span class="status-tag" :class="title.unlocked ? 'unlocked' : (title.inProgress ? 'current' : 'locked')">
-                <Icon :name="title.unlocked ? 'check' : (title.inProgress ? 'loader' : 'lock')" :size="12" />
+                <Icon :name="title.unlocked ? 'check' : (title.inProgress ? 'loader' : 'lock')" :size="12" aria-hidden="true" />
                 {{ title.unlocked ? '已解锁' : (title.inProgress ? '进行中' : '未解锁') }}
               </span>
             </div>
@@ -115,7 +115,7 @@
 
             <div class="flex items-center gap-4 pt-2 border-t reward-row" style="border-color: var(--kb-border);">
               <span class="kb-body-sm flex items-center gap-1">
-                <Icon name="zap" :size="14" :style="title.unlocked ? 'color: var(--kb-accent);' : 'color: var(--kb-muted-foreground);'" />
+                <Icon name="zap" :size="14" :style="title.unlocked ? 'color: var(--kb-accent);' : 'color: var(--kb-muted-foreground);'" aria-hidden="true" />
                 {{ formatExp(title.requiredExp) }} EXP 解锁
               </span>
               <span v-if="title.inProgress && title.progress" class="kb-body-sm" style="color: var(--kb-primary);">
@@ -132,7 +132,7 @@
       <div class="flex items-start justify-between gap-6 mb-5 flex-wrap">
         <div class="flex items-center gap-4">
           <div class="w-16 h-16 rounded-lg flex items-center justify-center" style="background: rgba(59, 111, 224, 0.1);">
-            <Icon :name="currentTitleData.icon" :size="32" style="color: var(--kb-primary);" />
+            <Icon :name="currentTitleData.icon" :size="32" style="color: var(--kb-primary);" aria-hidden="true" />
           </div>
           <div>
             <div class="flex items-center gap-2 mb-1">
@@ -143,7 +143,7 @@
           </div>
         </div>
         <span class="status-tag unlocked">
-          <Icon name="check" :size="14" />
+          <Icon name="check" :size="14" aria-hidden="true" />
           已解锁
         </span>
       </div>
@@ -183,7 +183,7 @@
       <!-- 下一级预览 -->
       <div class="mt-4 rounded-lg p-4 border-2 border-dashed preview-box" style="border-color: var(--kb-border);">
         <div class="flex items-center gap-2 mb-1">
-          <Icon name="eye" :size="16" style="color: var(--kb-muted-foreground);" />
+          <Icon name="eye" :size="16" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
           <span class="kb-body-sm" style="color: var(--kb-muted-foreground);">下一级预览</span>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
@@ -196,7 +196,7 @@
     <!-- ===== 其他知识库称号速览 ===== -->
     <div>
       <div class="flex items-center gap-2 mb-4">
-        <Icon name="grid-3x3" :size="20" style="color: var(--kb-primary);" />
+        <Icon name="grid-3x3" :size="20" style="color: var(--kb-primary);" aria-hidden="true" />
         <h2 class="kb-h2">其他知识库称号速览</h2>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -211,7 +211,7 @@
               class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
               style="background: rgba(59, 111, 224, 0.1);"
             >
-              <Icon :name="kb.icon" :size="18" style="color: var(--kb-primary);" />
+              <Icon :name="kb.icon" :size="18" style="color: var(--kb-primary);" aria-hidden="true" />
             </div>
             <div class="min-w-0">
               <div class="kb-body-sm">{{ kb.name }}</div>
@@ -227,11 +227,11 @@
           </div>
           <button
             type="button"
-            class="flex items-center justify-center gap-1 w-full py-2 rounded text-sm font-medium border detail-btn"
+            class="flex items-center justify-center gap-1 w-full py-2 rounded text-sm font-medium border detail-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             @click="switchToKb(kb.id)"
           >
             查看详情
-            <Icon name="chevron-right" :size="14" />
+            <Icon name="chevron-right" :size="14" aria-hidden="true" />
           </button>
         </div>
       </div>

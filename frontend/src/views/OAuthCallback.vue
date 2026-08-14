@@ -14,7 +14,7 @@
       <!-- 成功态：已完成（短暂展示后跳转） -->
       <template v-else-if="status === 'success'">
         <div class="icon-box icon-success">
-          <Icon name="check" :size="28" />
+          <Icon name="check" :size="28" aria-hidden="true" />
         </div>
         <h1 class="title">登录成功</h1>
         <p class="desc">{{ countdown }} 秒后自动跳转首页</p>
@@ -23,11 +23,11 @@
       <!-- 失败态 -->
       <template v-else>
         <div class="icon-box icon-error">
-          <Icon name="x" :size="28" />
+          <Icon name="x" :size="28" aria-hidden="true" />
         </div>
         <h1 class="title">登录失败</h1>
         <p class="desc">{{ errorMessage }}</p>
-        <button class="primary-btn" @click="goLogin">返回登录</button>
+        <button class="primary-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="goLogin">返回登录</button>
       </template>
     </div>
   </main>

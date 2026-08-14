@@ -3,10 +3,10 @@
     <aside v-if="visible" class="graph-sidebar">
       <header class="sidebar-head">
         <div class="title-row">
-          <Icon name="network" :size="16" />
+          <Icon name="network" :size="16" aria-hidden="true" />
           <span class="sidebar-title">知识图谱</span>
         </div>
-        <button type="button" class="close-btn" @click="$emit('close')">
+        <button type="button" class="close-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="$emit('close')">
           <Icon name="x" :size="14" />
         </button>
       </header>
@@ -16,11 +16,11 @@
           v-for="tab in tabs"
           :key="tab.id"
           type="button"
-          class="tab-btn"
+          class="tab-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: activeTab === tab.id }"
           @click="activeTab = tab.id"
         >
-          <Icon :name="tab.icon" :size="14" />
+          <Icon :name="tab.icon" :size="14" aria-hidden="true" />
           <span>{{ tab.label }}</span>
         </button>
       </nav>
@@ -31,18 +31,18 @@
             <input
               v-model="conceptInput"
               type="text"
-              class="concept-input"
+              class="concept-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               placeholder="输入概念名，生成图解"
               @keyup.enter="handleGenerateConcept"
             />
-            <button
-              type="button"
-              class="generate-btn"
-              :disabled="conceptLoading"
-              @click="handleGenerateConcept"
-            >
-              <Icon v-if="!conceptLoading" name="sparkles" :size="14" />
-              <Icon v-else name="loader" :size="14" class="spin" />
+        <button
+          type="button"
+          class="generate-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          :disabled="conceptLoading"
+          @click="handleGenerateConcept"
+        >
+              <Icon v-if="!conceptLoading" name="sparkles" :size="14" aria-hidden="true" />
+              <Icon v-else name="loader" :size="14" class="spin" aria-hidden="true" />
               <span>生成</span>
             </button>
           </div>
@@ -75,10 +75,10 @@
             <div v-if="conceptDiagram.explanation" class="expl-section">
               <button
                 type="button"
-                class="expand-toggle"
+                class="expand-toggle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
                 @click="explExpanded = !explExpanded"
               >
-                <Icon :name="explExpanded ? 'chevron-down' : 'chevron-right'" :size="14" />
+                <Icon :name="explExpanded ? 'chevron-down' : 'chevron-right'" :size="14" aria-hidden="true" />
                 <span>详细解释</span>
               </button>
               <div v-show="explExpanded" class="expl-text">
@@ -92,20 +92,23 @@
                 <span
                   v-for="(rc, idx) in conceptDiagram.relatedConcepts"
                   :key="idx"
-                  class="chip rel-chip"
+                  class="chip rel-chip focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                  role="button"
+                  tabindex="0"
                   @click="handleRelatedClick(rc)"
+                  @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
                 >{{ rc }}</span>
               </div>
             </div>
 
             <div v-if="conceptDiagram.mermaidCode" class="mermaid-section">
               <div class="section-label">Mermaid 代码</div>
-              <pre class="mermaid-pre" @click="handleCopyMermaid">{{ conceptDiagram.mermaidCode }}</pre>
+              <pre class="mermaid-pre focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @click="handleCopyMermaid" @keydown.enter.prevent.self="($event.target as HTMLElement).click()">{{ conceptDiagram.mermaidCode }}</pre>
               <p class="mermaid-hint">点击代码可复制，可粘贴到 Mermaid 查看器渲染</p>
             </div>
           </div>
           <div v-else class="empty-state">
-            <Icon name="lightbulb" :size="32" />
+            <Icon name="lightbulb" :size="32" aria-hidden="true" />
             <span>输入一个概念，生成可视化图解</span>
           </div>
         </div>
@@ -129,8 +132,11 @@
               <div
                 v-for="node in entityNodesPreview"
                 :key="node.id"
-                class="entity-node-card"
+                class="entity-node-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                role="button"
+                tabindex="0"
                 @click="handleEntityNodeClick(node.name)"
+                @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
               >
                 <div class="node-head">
                   <span class="node-name">{{ node.name }}</span>
@@ -141,7 +147,7 @@
             </div>
           </div>
           <div v-else class="empty-state">
-            <Icon name="database" :size="32" />
+            <Icon name="database" :size="32" aria-hidden="true" />
             <span>暂未抽取实体知识图谱</span>
           </div>
         </div>
@@ -163,6 +169,7 @@
                   :name="node.type === 'category' ? 'folder' : 'file-text'"
                   :size="14"
                   :color="node.type === 'category' ? 'var(--kb-warning)' : 'var(--kb-primary)'"
+                  aria-hidden="true"
                 />
                 <span class="doc-node-name">{{ node.label }}</span>
                 <span class="doc-node-type">{{ node.type }}</span>
@@ -181,7 +188,7 @@
             </ul>
           </div>
           <div v-else class="empty-state">
-            <Icon name="folder-tree" :size="32" />
+            <Icon name="folder-tree" :size="32" aria-hidden="true" />
             <span>暂无文档层级图谱</span>
           </div>
         </div>

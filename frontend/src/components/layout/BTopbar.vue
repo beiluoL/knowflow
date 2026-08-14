@@ -7,16 +7,16 @@
     <div class="flex items-center gap-3 flex-1 min-w-0 max-w-md">
       <button
         type="button"
-        class="w-9 h-9 rounded-lg flex items-center justify-center border transition-colors hover:bg-gray-50 lg:hidden"
+        class="w-9 h-9 rounded-lg flex items-center justify-center border transition-colors hover:bg-gray-50 lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         style="border-color: var(--kb-border);"
         @click="$emit('toggle-sidebar')"
         aria-label="切换侧边栏"
       >
-        <Icon name="menu" :size="18" class="text-gray-600" />
+        <Icon name="menu" :size="18" class="text-gray-600" aria-hidden="true" />
       </button>
 
       <div class="relative flex-1 min-w-0">
-        <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true" />
         <input
           v-model="searchQuery"
           type="text"
@@ -32,12 +32,12 @@
     <div class="flex items-center gap-4 shrink-0 ml-4 sm:ml-6">
       <button
         type="button"
-        class="relative p-2 rounded-lg transition-colors hover:bg-gray-50"
+        class="relative p-2 rounded-lg transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         style="color: var(--kb-sidebar-foreground);"
         @click="toggleNotifications"
         :aria-label="`消息通知，${unreadCount} 条未读`"
       >
-        <Icon name="bell" :size="20" />
+        <Icon name="bell" :size="20" aria-hidden="true" />
         <span
           v-if="unreadCount > 0"
           class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
@@ -54,7 +54,7 @@
           <p class="text-[13px] font-medium truncate text-gray-800">{{ displayName }}</p>
           <p class="text-[11px] truncate text-gray-500">{{ roleLabel }}</p>
         </div>
-        <Icon name="chevron-down" :size="14" class="text-gray-400 hidden sm:block" />
+        <Icon name="chevron-down" :size="14" class="text-gray-400 hidden sm:block" aria-hidden="true" />
       </div>
     </div>
 
@@ -70,7 +70,7 @@
         <button
           v-if="unreadCount > 0"
           type="button"
-          class="text-xs text-primary-600 hover:underline"
+          class="text-xs text-primary-600 hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           @click="handleMarkAllRead"
         >全部已读</button>
       </div>
@@ -78,13 +78,16 @@
         <div
           v-for="notification in notificationStore.unreadList.slice(0, 5)"
           :key="notification.id"
-          class="px-4 py-3 hover:bg-gray-50 border-b cursor-pointer transition-colors"
+          class="px-4 py-3 hover:bg-gray-50 border-b cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           style="border-color: var(--kb-muted);"
+          role="button"
+          tabindex="0"
           @click="handleNotificationClick(notification.id)"
+          @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
         >
           <div class="flex items-start gap-3">
             <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" :class="getNotifBg(notification.type)">
-              <Icon :name="getNotifIcon(notification.type)" :size="16" :class="getNotifColor(notification.type)" />
+              <Icon :name="getNotifIcon(notification.type)" :size="16" :class="getNotifColor(notification.type)" aria-hidden="true" />
             </div>
             <div class="flex-1 min-w-0">
               <div class="font-medium text-gray-800 text-sm">{{ notification.title }}</div>
@@ -100,7 +103,7 @@
       <div class="px-4 py-2 border-t" style="border-color: var(--kb-border);">
         <button
           type="button"
-          class="w-full text-center text-sm text-primary-600 hover:underline"
+          class="w-full text-center text-sm text-primary-600 hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           @click="goTo('/admin/overview')"
         >查看全部通知</button>
       </div>

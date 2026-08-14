@@ -131,7 +131,7 @@ onMounted(load)
   <div class="wf-panel">
     <div class="wf-head">
       <div class="wf-title">
-        <Icon name="git-branch" size="xs" />
+        <Icon name="git-branch" size="xs" aria-hidden="true" />
         <span>自定义工作流</span>
         <span class="wf-count">{{ enabledCount }}/{{ workflows.length }} 启用</span>
       </div>
@@ -176,11 +176,11 @@ onMounted(load)
         <div class="wf-modal-title">{{ editing ? '编辑工作流' : '新建工作流' }}</div>
         <label class="wf-field">
           <span>名称</span>
-          <input v-model="form.name" placeholder="如：审查代码风格" maxlength="100" />
+          <input v-model="form.name" placeholder="如：审查代码风格" maxlength="100" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
         </label>
         <label class="wf-field">
           <span>触发方式</span>
-          <select v-model="form.triggerType">
+          <select v-model="form.triggerType" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
             <option value="keyword">关键词（消息含关键词即生效）</option>
             <option value="intent">按意图（兜底按关键词匹配）</option>
             <option value="manual">手动（仅手动触发）</option>
@@ -188,11 +188,11 @@ onMounted(load)
         </label>
         <label v-if="form.triggerType !== 'manual'" class="wf-field">
           <span>触发值（逗号分隔）</span>
-          <input v-model="form.triggerValue" placeholder="如：审查,review,优化" />
+          <input v-model="form.triggerValue" placeholder="如：审查,review,优化" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
         </label>
         <label class="wf-field">
           <span>Prompt 模板</span>
-          <textarea v-model="form.promptTemplate" rows="6" placeholder="在回答时遵循以下约定：{input} 为用户需求"></textarea>
+          <textarea v-model="form.promptTemplate" rows="6" placeholder="在回答时遵循以下约定：{input} 为用户需求" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"></textarea>
         </label>
         <div class="wf-modal-actions">
           <Button size="sm" variant="ghost" @click="showForm = false">取消</Button>

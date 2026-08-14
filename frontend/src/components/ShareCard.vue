@@ -17,8 +17,8 @@
         <div class="sc-dialog">
           <header class="sc-header">
             <h3 class="sc-title">进度分享卡片</h3>
-            <button type="button" class="sc-icon-btn" aria-label="关闭" @click="close">
-              <Icon name="x" :size="18" />
+            <button type="button" class="sc-icon-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" aria-label="关闭" @click="close">
+              <Icon name="x" :size="18" aria-hidden="true" />
             </button>
           </header>
 
@@ -27,9 +27,9 @@
           </div>
 
           <footer class="sc-actions">
-            <button type="button" class="sc-btn sc-btn-ghost" @click="close">关闭</button>
+            <button type="button" class="sc-btn sc-btn-ghost transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="close">关闭</button>
             <button type="button" class="sc-btn sc-btn-primary" :disabled="saving" @click="saveImage">
-              <Icon name="download" :size="16" />
+              <Icon name="download" :size="16" aria-hidden="true" />
               <span>{{ saving ? '生成中…' : '保存图片' }}</span>
             </button>
           </footer>

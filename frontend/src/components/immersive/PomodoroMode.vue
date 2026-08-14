@@ -2,7 +2,7 @@
   <div class="pomo-root">
     <section class="tasks-section">
       <h3 class="section-title">
-        <Icon name="check-circle" :size="16" />
+        <Icon name="check-circle" :size="16" aria-hidden="true" />
         <span>今日任务</span>
         <span v-if="tasks.length" class="task-count">{{ completedCount }}/{{ tasks.length }}</span>
       </h3>
@@ -15,11 +15,12 @@
           :class="{ done: task.status === 1 }"
         >
           <label class="task-check">
-            <input
-              type="checkbox"
-              :checked="task.status === 1"
-              @change="toggleTask(task)"
-            />
+              <input
+                type="checkbox"
+                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                :checked="task.status === 1"
+                @change="toggleTask(task)"
+              />
             <span class="task-title">{{ task.title }}</span>
           </label>
         </li>
@@ -47,16 +48,16 @@
       </DualRingProgress>
 
       <div class="controls">
-        <button type="button" class="ctrl-btn primary" @click="handleToggle">
-          <Icon :name="store.runtime.isRunning ? 'pause' : 'play'" :size="18" />
+        <button type="button" class="ctrl-btn primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleToggle">
+          <Icon :name="store.runtime.isRunning ? 'pause' : 'play'" :size="18" aria-hidden="true" />
           <span>{{ store.runtime.isRunning ? '暂停' : '开始' }}</span>
         </button>
-        <button type="button" class="ctrl-btn" @click="store.skip()">
-          <Icon name="skip-forward" :size="16" />
+        <button type="button" class="ctrl-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="store.skip()">
+          <Icon name="skip-forward" :size="16" aria-hidden="true" />
           <span>跳过</span>
         </button>
-        <button type="button" class="ctrl-btn" @click="store.resetCurrentMode()">
-          <Icon name="rotate-ccw" :size="16" />
+        <button type="button" class="ctrl-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="store.resetCurrentMode()">
+          <Icon name="rotate-ccw" :size="16" aria-hidden="true" />
           <span>重置</span>
         </button>
       </div>
@@ -88,8 +89,8 @@
       <div class="stat-card">
         <div class="stat-label-row">
           <span class="stat-label">分心次数</span>
-          <button type="button" class="distract-btn" @click="recordDistraction">
-            <Icon name="alert-circle" :size="14" />
+          <button type="button" class="distract-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="recordDistraction">
+            <Icon name="alert-circle" :size="14" aria-hidden="true" />
             <span>记录分心</span>
           </button>
         </div>
@@ -98,7 +99,7 @@
 
       <div class="ai-card">
         <div class="ai-title">
-          <Icon name="sparkles" :size="14" />
+          <Icon name="sparkles" :size="14" aria-hidden="true" />
           <span>AI 今日建议</span>
         </div>
         <p class="ai-text">
@@ -106,14 +107,14 @@
         </p>
       </div>
 
-      <button
-        type="button"
-        class="noise-btn"
-        :class="{ 'is-on': noisePlayingState.value }"
-        :title="noiseBtnTitle"
-        @click="toggleNoise"
-      >
-        <Icon :name="noisePlayingState.value ? 'music' : 'bell-off'" :size="16" />
+        <button
+          type="button"
+          class="noise-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          :class="{ 'is-on': noisePlayingState.value }"
+          :title="noiseBtnTitle"
+          @click="toggleNoise"
+        >
+        <Icon :name="noisePlayingState.value ? 'music' : 'bell-off'" :size="16" aria-hidden="true" />
         <span>白噪音</span>
       </button>
     </section>

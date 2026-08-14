@@ -9,18 +9,18 @@
       <div v-if="expanded" class="wn-panel" role="group" aria-label="白噪音播放器">
         <header class="wn-head">
           <div class="wn-title">
-            <Icon :name="playing ? 'volume-2' : 'volume-x'" :size="15" />
+            <Icon :name="playing ? 'volume-2' : 'volume-x'" :size="15" aria-hidden="true" />
             <span>白噪音</span>
             <span v-if="playing && type" class="wn-status">{{ typeLabel }}</span>
           </div>
           <button
             type="button"
-            class="wn-icon-btn"
+            class="wn-icon-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             aria-label="收起"
             title="收起"
             @click="expanded = false"
           >
-            <Icon name="minimize-2" :size="14" />
+            <Icon name="minimize-2" :size="14" aria-hidden="true" />
           </button>
         </header>
 
@@ -29,25 +29,25 @@
             v-for="t in TYPES"
             :key="t.id"
             type="button"
-            class="wn-type"
+            class="wn-type transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             :class="{ active: type === t.id && playing }"
             :aria-pressed="type === t.id && playing"
             @click="toggle(t.id)"
           >
-            <Icon :name="t.icon" :size="18" />
+            <Icon :name="t.icon" :size="18" aria-hidden="true" />
             <span>{{ t.label }}</span>
           </button>
         </div>
 
         <div class="wn-volume">
-          <Icon :name="volumePct === 0 ? 'volume-x' : 'volume-2'" :size="14" />
+          <Icon :name="volumePct === 0 ? 'volume-x' : 'volume-2'" :size="14" aria-hidden="true" />
           <input
             type="range"
             min="0"
             max="100"
             step="1"
             :value="volumePct"
-            class="wn-slider"
+            class="wn-slider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             aria-label="音量"
             @input="onVolumeInput"
           />
@@ -61,12 +61,12 @@
       <button
         v-if="!expanded"
         type="button"
-        class="wn-chip"
+        class="wn-chip transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         :class="{ playing: playing }"
         :aria-label="`展开白噪音${playing ? '（正在播放' + typeLabel + '）' : ''}`"
         @click="expanded = true"
       >
-        <Icon :name="chipIcon" :size="16" />
+        <Icon :name="chipIcon" :size="16" aria-hidden="true" />
         <span v-if="playing" class="wn-chip-pulse" aria-hidden="true"></span>
       </button>
     </transition>

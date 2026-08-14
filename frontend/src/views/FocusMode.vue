@@ -6,8 +6,8 @@
   >
     <header class="immersive-topbar">
       <div class="topbar-left">
-        <button type="button" class="exit-btn" @click="handleExit">
-          <Icon name="arrow-left" :size="16" />
+        <button type="button" class="exit-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleExit">
+          <Icon name="arrow-left" :size="16" aria-hidden="true" />
           <span>退出</span>
         </button>
         <div class="mode-info">
@@ -24,7 +24,7 @@
       <div class="topbar-right">
         <button
           type="button"
-          class="icon-btn"
+          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: drawerExpanded && leftDrawerTab === 'rank' }"
           title="排行榜"
           @click="handleToggleLeaderboard"
@@ -33,7 +33,7 @@
         </button>
         <button
           type="button"
-          class="icon-btn"
+          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           title="生成分享卡"
           @click="shareCardVisible = true"
         >
@@ -41,7 +41,7 @@
         </button>
         <button
           type="button"
-          class="icon-btn"
+          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: graphVisible }"
           title="知识图谱"
           @click="graphVisible = !graphVisible"
@@ -50,7 +50,7 @@
         </button>
         <button
           type="button"
-          class="icon-btn"
+          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: noiseVisible }"
           title="白噪音"
           @click="toggleNoiseVisible"
@@ -59,7 +59,7 @@
         </button>
         <button
           type="button"
-          class="icon-btn"
+          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: themePanelVisible }"
           title="主题切换"
           @click="handleThemeToggle"
@@ -68,7 +68,7 @@
         </button>
         <button
           type="button"
-          class="icon-btn"
+          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: settingsPanelVisible }"
           title="设置"
           @click="openSettings"
@@ -79,27 +79,27 @@
     </header>
 
     <aside class="left-drawer" :class="{ expanded: drawerExpanded }">
-      <button type="button" class="drawer-toggle" @click="drawerExpanded = !drawerExpanded">
+      <button type="button" class="drawer-toggle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="drawerExpanded = !drawerExpanded">
         <Icon :name="drawerExpanded ? 'chevron-left' : 'chevron-right'" :size="16" />
       </button>
       <div v-if="drawerExpanded" class="drawer-content">
         <div class="drawer-tabs">
           <button
             type="button"
-            class="dtab"
+            class="dtab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             :class="{ active: leftDrawerTab === 'nav' }"
             @click="leftDrawerTab = 'nav'"
           >
-            <Icon name="compass" :size="14" />
+            <Icon name="compass" :size="14" aria-hidden="true" />
             导航
           </button>
           <button
             type="button"
-            class="dtab"
+            class="dtab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             :class="{ active: leftDrawerTab === 'rank' }"
             @click="leftDrawerTab = 'rank'"
           >
-            <Icon name="trophy" :size="14" />
+            <Icon name="trophy" :size="14" aria-hidden="true" />
             排行榜
           </button>
         </div>
@@ -136,28 +136,28 @@
     </main>
 
     <footer class="immersive-toolbar">
-      <button type="button" class="tool-btn" @click="handleNote">
-        <Icon name="file-text" :size="16" />
+      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleNote">
+        <Icon name="file-text" :size="16" aria-hidden="true" />
         <span>笔记</span>
       </button>
-      <button type="button" class="tool-btn" @click="handleHighlight">
-        <Icon name="highlighter" :size="16" />
+      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleHighlight">
+        <Icon name="highlighter" :size="16" aria-hidden="true" />
         <span>重点</span>
       </button>
-      <button type="button" class="tool-btn" @click="handleReadAloud">
-        <Icon name="mic" :size="16" />
+      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleReadAloud">
+        <Icon name="mic" :size="16" aria-hidden="true" />
         <span>朗读</span>
       </button>
-      <button type="button" class="tool-btn" @click="handleGraph">
-        <Icon name="network" :size="16" />
+      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleGraph">
+        <Icon name="network" :size="16" aria-hidden="true" />
         <span>知识图谱</span>
       </button>
-      <button type="button" class="tool-btn" @click="handleAi">
-        <Icon name="bot" :size="16" />
+      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleAi">
+        <Icon name="bot" :size="16" aria-hidden="true" />
         <span>AI助手</span>
       </button>
-      <button type="button" class="tool-btn" @click="toggleNoiseVisible">
-        <Icon name="music" :size="16" />
+      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="toggleNoiseVisible">
+        <Icon name="music" :size="16" aria-hidden="true" />
         <span>白噪音</span>
       </button>
     </footer>
@@ -171,18 +171,18 @@
         <div class="note-panel">
           <header class="note-panel-head">
             <span class="note-panel-title">快速笔记</span>
-            <button type="button" class="icon-btn-sm" @click="notePanelOpen = false">
+            <button type="button" class="icon-btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="notePanelOpen = false">
               <Icon name="x" :size="14" />
             </button>
           </header>
           <textarea
             v-model="noteText"
-            class="note-input"
+            class="note-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             placeholder="在这里记录你的专注心得…"
             rows="8"
           />
           <footer class="note-panel-foot">
-            <button type="button" class="save-btn" @click="saveNote">保存</button>
+            <button type="button" class="save-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="saveNote">保存</button>
           </footer>
         </div>
       </div>

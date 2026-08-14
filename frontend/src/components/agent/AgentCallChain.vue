@@ -92,7 +92,7 @@ defineExpose({ loadChain })
         <p v-else class="hint">该会话尚未触发工具调用</p>
       </div>
       <Button size="sm" variant="ghost" :disabled="loading || sessionId == null" @click="loadChain">
-        <Icon name="refresh-cw" size="xs" /> 刷新
+        <Icon name="refresh-cw" size="xs" aria-hidden="true" /> 刷新
       </Button>
     </div>
 
@@ -111,11 +111,11 @@ defineExpose({ loadChain })
 
     <div v-if="loading" class="chain-empty">加载中...</div>
     <div v-else-if="sessionId == null" class="chain-empty">
-      <Icon name="git-branch" size="2xl" />
+      <Icon name="git-branch" size="2xl" aria-hidden="true" />
       <p>请先选择一个会话</p>
     </div>
     <div v-else-if="calls.length === 0" class="chain-empty">
-      <Icon name="git-branch" size="2xl" />
+      <Icon name="git-branch" size="2xl" aria-hidden="true" />
       <p>暂无工具调用记录</p>
     </div>
 
@@ -125,7 +125,7 @@ defineExpose({ loadChain })
           <Icon :name="statusIcon(call.status)" size="xs" />
         </div>
         <div class="timeline-body">
-          <button type="button" class="timeline-head" @click="toggleExpand(call.id)">
+          <button type="button" class="timeline-head transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="toggleExpand(call.id)">
             <span class="step-no">#{{ idx + 1 }}</span>
             <span class="tool-name">{{ call.toolName }}</span>
             <span class="perm-tag" :class="call.permission.toLowerCase()">{{ call.permission }}</span>

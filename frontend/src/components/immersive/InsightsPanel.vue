@@ -5,11 +5,11 @@
         v-for="t in TABS"
         :key="t.key"
         type="button"
-        class="ip-tab"
+        class="ip-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: activeTab === t.key }"
         @click="activeTab = t.key"
       >
-        <Icon :name="t.icon" :size="14" />
+        <Icon :name="t.icon" :size="14" aria-hidden="true" />
         <span>{{ t.label }}</span>
       </button>
     </header>
@@ -25,21 +25,21 @@
             <div class="ip-grid-2">
               <div class="ip-card">
                 <div class="ip-card-label">
-                  <Icon name="clock" :size="14" />
+                  <Icon name="clock" :size="14" aria-hidden="true" />
                   <span>今日专注</span>
                 </div>
                 <div class="ip-bignum tabular-nums">{{ focusStats?.todayMinutes ?? 0 }}
                   <span class="ip-unit">分钟</span>
                 </div>
                 <div class="ip-compare" :class="compareClass">
-                  <Icon :name="compareIcon" :size="12" />
+                  <Icon :name="compareIcon" :size="12" aria-hidden="true" />
                   <span>{{ compareText }}</span>
                 </div>
               </div>
 
               <div class="ip-card">
                 <div class="ip-card-label">
-                  <Icon name="timer" :size="14" />
+                  <Icon name="timer" :size="14" aria-hidden="true" />
                   <span>今日番茄</span>
                 </div>
                 <div class="ip-bignum tabular-nums">{{ focusStats?.todayPomodoros ?? 0 }}
@@ -55,7 +55,7 @@
 
               <div class="ip-card">
                 <div class="ip-card-label">
-                  <Icon name="zap-off" :size="14" />
+                  <Icon name="zap-off" :size="14" aria-hidden="true" />
                   <span>分心次数</span>
                 </div>
                 <div class="ip-bignum tabular-nums">{{ totalDistractions }}
@@ -77,7 +77,7 @@
 
               <div class="ip-card">
                 <div class="ip-card-label">
-                  <Icon name="flame" :size="14" />
+                  <Icon name="flame" :size="14" aria-hidden="true" />
                   <span>连续打卡</span>
                 </div>
                 <div class="ip-bignum tabular-nums highlight-text">{{ streakDays }}
@@ -104,7 +104,7 @@
           <template v-else>
             <div class="ip-block">
               <div class="ip-block-title">
-                <Icon name="activity" :size="14" />
+                <Icon name="activity" :size="14" aria-hidden="true" />
                 <span>24小时热度条</span>
               </div>
               <div class="ip-heat-row">
@@ -125,7 +125,7 @@
 
             <div class="ip-block">
               <div class="ip-block-title">
-                <Icon name="bar-chart-2" :size="14" />
+                <Icon name="bar-chart-2" :size="14" aria-hidden="true" />
                 <span>本周柱状图</span>
               </div>
               <div class="ip-week-bars">
@@ -148,7 +148,7 @@
 
             <div class="ip-block">
               <div class="ip-block-title">
-                <Icon name="list" :size="14" />
+                <Icon name="list" :size="14" aria-hidden="true" />
                 <span>今日会话时间线</span>
               </div>
               <div v-if="todaySessions.length === 0" class="ip-empty">
@@ -180,7 +180,7 @@
           <template v-else>
             <div class="ip-block">
               <div class="ip-block-title">
-                <Icon name="pie-chart" :size="14" />
+                <Icon name="pie-chart" :size="14" aria-hidden="true" />
                 <span>专注模式分布</span>
                 <span class="ip-week-minutes tabular-nums">
                   总 {{ focusStats?.weekMinutes ?? 0 }} 分钟
@@ -237,7 +237,7 @@
           <template v-else>
             <div class="ip-block">
               <div class="ip-block-title">
-                <Icon name="sparkles" :size="14" />
+                <Icon name="sparkles" :size="14" aria-hidden="true" />
                 <span>AI 洞见</span>
               </div>
               <div class="ip-insight-list">
@@ -248,7 +248,7 @@
                   :class="it.tone"
                 >
                   <div class="ip-insight-icon">
-                    <Icon :name="it.icon" :size="16" />
+                    <Icon :name="it.icon" :size="16" aria-hidden="true" />
                   </div>
                   <div class="ip-insight-body">
                     <div class="ip-insight-title">{{ it.title }}</div>
@@ -260,7 +260,7 @@
 
             <div class="ip-block">
               <div class="ip-block-title">
-                <Icon name="award" :size="14" />
+                <Icon name="award" :size="14" aria-hidden="true" />
                 <span>最近成就解锁</span>
               </div>
               <div v-if="recentAchievements.length === 0" class="ip-empty">
@@ -273,7 +273,7 @@
                   class="ip-achieve-item"
                 >
                   <div class="ip-achieve-icon">
-                    <Icon :name="a.icon" :size="16" />
+                    <Icon :name="a.icon" :size="16" aria-hidden="true" />
                   </div>
                   <div class="ip-achieve-body">
                     <div class="ip-achieve-name">{{ a.name }}</div>
@@ -286,7 +286,7 @@
             <div class="ip-grid-2">
               <div class="ip-card">
                 <div class="ip-card-label">
-                  <Icon name="book-open" :size="14" />
+                  <Icon name="book-open" :size="14" aria-hidden="true" />
                   <span>待复习闪卡</span>
                 </div>
                 <div class="ip-bignum tabular-nums">{{ mastery?.flashcardDue ?? lowMasteryFallback }}
@@ -296,7 +296,7 @@
               </div>
               <div class="ip-card">
                 <div class="ip-card-label">
-                  <Icon name="alert-triangle" :size="14" />
+                  <Icon name="alert-triangle" :size="14" aria-hidden="true" />
                   <span>本周错题</span>
                 </div>
                 <div class="ip-bignum tabular-nums highlight-text">{{ mistakes?.total ?? 0 }}

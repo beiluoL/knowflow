@@ -3,7 +3,7 @@
     <header class="lb-tabs">
       <button
         type="button"
-        class="lb-tab"
+        class="lb-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: activeTab === 'week' }"
         @click="activeTab = 'week'"
       >
@@ -11,7 +11,7 @@
       </button>
       <button
         type="button"
-        class="lb-tab"
+        class="lb-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: activeTab === 'duration' }"
         @click="activeTab = 'duration'"
       >
@@ -19,7 +19,7 @@
       </button>
       <button
         type="button"
-        class="lb-tab"
+        class="lb-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: activeTab === 'group' }"
         @click="activeTab = 'group'"
       >

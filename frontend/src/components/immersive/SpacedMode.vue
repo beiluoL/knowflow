@@ -2,7 +2,7 @@
   <div class="spaced-root">
     <section class="review-queue">
       <h3 class="section-title">
-        <Icon name="list-ordered" :size="16" />
+        <Icon name="list-ordered" :size="16" aria-hidden="true" />
         <span>今日复习队列</span>
       </h3>
       <div v-if="loading" class="queue-empty">加载中…</div>
@@ -11,9 +11,12 @@
         <li
           v-for="(card, idx) in queue"
           :key="card.id"
-          class="queue-item"
+          class="queue-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: idx === currentIndex, done: idx < currentIndex }"
+          role="button"
+          tabindex="0"
           @click="jumpToCard(idx)"
+          @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
         >
           <div class="queue-card-name">{{ truncate(card.front ?? '未命名卡', 26) }}</div>
           <Badge :variant="masteryBadge(card).variant" class="queue-badge">
@@ -24,7 +27,7 @@
       <div class="queue-actions">
         <button
           type="button"
-          class="act-btn primary"
+          class="act-btn primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="!queue.length || currentIndex >= queue.length"
           @click="toggleTimer"
         >
@@ -37,7 +40,7 @@
         <span>已完成 {{ reviewedCount }} 张</span>
       </div>
       <div class="queue-timer">
-        <Icon name="clock" :size="14" />
+        <Icon name="clock" :size="14" aria-hidden="true" />
         <span class="tabular-nums">{{ formatElapsed(reviewElapsedSec) }}</span>
       </div>
     </section>
@@ -45,16 +48,19 @@
     <section class="flashcard-area">
       <div class="card-stage" :style="{ perspective: '1400px' }">
         <div
-          class="flashcard"
+          class="flashcard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ flipped: isFlipped, loading: loadingCard }"
+          role="button"
+          tabindex="0"
           @click="handleCardClick"
+          @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
         >
           <div class="card-face card-front">
             <div v-if="currentCard" class="card-q">
               {{ currentCard.front ?? '（无正面内容）' }}
             </div>
             <div v-else class="card-empty">
-              <Icon name="check-circle-2" :size="48" />
+              <Icon name="check-circle-2" :size="48" aria-hidden="true" />
               <p>本轮复习已全部完成！</p>
             </div>
             <div v-if="currentCard" class="flip-hint">点击查看答案</div>
@@ -68,9 +74,9 @@
                 v-for="r in ratings"
                 :key="r.quality"
                 type="button"
-                class="rate-btn"
-                :class="`rate-${r.quality}`"
-                @click.stop="submitRating(r.quality)"
+                  class="rate-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                  :class="`rate-${r.quality}`"
+                  @click.stop="submitRating(r.quality)"
               >
                 <span class="rate-emoji">{{ r.emoji }}</span>
                 <span class="rate-label">{{ r.label }}</span>
@@ -105,7 +111,7 @@
       </div>
       <div class="next-ach-card">
         <div class="na-title">
-          <Icon name="lock" :size="14" />
+          <Icon name="lock" :size="14" aria-hidden="true" />
           <span>完成本轮可解锁</span>
         </div>
         <div v-if="nextLockedAchievement" class="na-item">
@@ -118,7 +124,7 @@
           </div>
         </div>
         <div v-else class="na-all-done">
-          <Icon name="trophy" :size="20" />
+          <Icon name="trophy" :size="20" aria-hidden="true" />
           <span>本轮微成就已全部解锁！</span>
         </div>
       </div>

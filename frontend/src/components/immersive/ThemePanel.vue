@@ -7,7 +7,7 @@
   >
     <div class="panel-header">
       <span class="panel-title">个性化偏好</span>
-      <button type="button" class="close-btn" @click="$emit('close')">
+      <button type="button" class="close-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="$emit('close')">
         <Icon name="x" :size="14" />
       </button>
     </div>
@@ -19,7 +19,7 @@
           v-for="theme in IMMERSIVE_THEMES"
           :key="theme.id"
           type="button"
-          class="theme-card"
+          class="theme-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: currentTheme === theme.id }"
           @click="handleSelectTheme(theme.id)"
         >
@@ -36,7 +36,7 @@
           v-for="accent in ACCENT_PALETTE"
           :key="accent.id"
           type="button"
-          class="accent-dot"
+          class="accent-dot focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: currentAccent === accent.id }"
           :style="{ background: accent.color }"
           :title="accent.name"
@@ -52,7 +52,7 @@
           v-for="fs in FONT_SIZES"
           :key="fs.id"
           type="button"
-          class="fontsize-btn"
+          class="fontsize-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: currentFontSize === fs.id }"
           @click="handleSelectFontSize(fs.id)"
         >
@@ -68,7 +68,7 @@
           v-for="rp in RHYTHM_PRESETS_UI"
           :key="rp.id"
           type="button"
-          class="rhythm-card"
+          class="rhythm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: currentRhythm === rp.id }"
           @click="handleSelectRhythm(rp.id)"
         >
@@ -82,8 +82,8 @@
     </div>
 
     <div class="panel-section reset-section">
-      <button type="button" class="reset-btn" @click="handleReset">
-        <Icon name="rotate-ccw" :size="14" />
+      <button type="button" class="reset-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleReset">
+        <Icon name="rotate-ccw" :size="14" aria-hidden="true" />
         <span>还原默认主题</span>
       </button>
     </div>

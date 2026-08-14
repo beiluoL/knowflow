@@ -34,14 +34,14 @@
 
       <!-- 操作按钮 -->
       <div class="notfound-actions">
-        <button class="btn-primary" @click="goHome">
-          <Icon name="home" :size="16" />
-          <span>返回首页</span>
-        </button>
-        <button class="btn-outline" @click="goSearch">
-          <Icon name="search" :size="16" />
-          <span>搜索知识库</span>
-        </button>
+      <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="goHome">
+        <Icon name="home" :size="16" aria-hidden="true" />
+        <span>返回首页</span>
+      </button>
+      <button class="btn-outline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="goSearch">
+        <Icon name="search" :size="16" aria-hidden="true" />
+        <span>搜索知识库</span>
+      </button>
       </div>
     </div>
   </main>

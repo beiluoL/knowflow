@@ -68,7 +68,7 @@ function decide(approved: boolean) {
   <div v-if="event" class="confirm-mask">
     <div class="confirm-dialog" role="alertdialog" aria-modal="true">
       <div class="confirm-header">
-        <Icon name="alert-circle" size="md" />
+        <Icon name="alert-circle" size="md" aria-hidden="true" />
         <h3>高危工具确认</h3>
       </div>
       <p class="confirm-desc">
@@ -84,7 +84,7 @@ function decide(approved: boolean) {
         <span class="countdown">{{ remaining }} 秒后自动拒绝</span>
         <div class="actions">
           <Button size="sm" variant="ghost" @click="decide(false)">拒绝</Button>
-          <button type="button" class="danger-btn" @click="decide(true)">允许执行</button>
+          <button type="button" class="danger-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="decide(true)">允许执行</button>
         </div>
       </div>
     </div>

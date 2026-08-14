@@ -15,17 +15,17 @@
       </div>
       <div class="dag-tools">
         <span class="zoom-label">{{ Math.round(scale * 100) }}%</span>
-        <button type="button" class="tool-btn" title="缩小" @click="zoomByCenter(1 / ZOOM_STEP)">
-          <Icon name="zoom-out" :size="15" />
+        <button type="button" class="tool-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="缩小" @click="zoomByCenter(1 / ZOOM_STEP)">
+          <Icon name="zoom-out" :size="15" aria-hidden="true" />
         </button>
-        <button type="button" class="tool-btn" title="放大" @click="zoomByCenter(ZOOM_STEP)">
-          <Icon name="zoom-in" :size="15" />
+        <button type="button" class="tool-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="放大" @click="zoomByCenter(ZOOM_STEP)">
+          <Icon name="zoom-in" :size="15" aria-hidden="true" />
         </button>
-        <button type="button" class="tool-btn" title="适应画布" @click="fitView">
-          <Icon name="target" :size="15" />
+        <button type="button" class="tool-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="适应画布" @click="fitView">
+          <Icon name="target" :size="15" aria-hidden="true" />
         </button>
-        <button type="button" class="tool-btn" :title="expanded ? '退出全屏' : '全屏查看'" @click="toggleExpand">
-          <Icon name="maximize" :size="15" />
+        <button type="button" class="tool-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" :title="expanded ? '退出全屏' : '全屏查看'" @click="toggleExpand">
+          <Icon name="maximize" :size="15" aria-hidden="true" />
         </button>
       </div>
     </div>
@@ -131,7 +131,7 @@
     </div>
 
     <p class="dag-tips">
-      <Icon name="move" :size="13" />
+      <Icon name="move" :size="13" aria-hidden="true" />
       <span>拖拽平移 · 滚轮缩放 · 点击节点进入章节</span>
     </p>
   </div>

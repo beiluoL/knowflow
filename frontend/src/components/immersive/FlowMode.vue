@@ -2,7 +2,7 @@
   <div class="flow-root">
     <section class="tasks-section">
       <h3 class="section-title">
-        <Icon name="check-circle" :size="16" />
+        <Icon name="check-circle" :size="16" aria-hidden="true" />
         <span>今日任务</span>
         <span v-if="tasks.length" class="task-count">{{ completedCount }}/{{ tasks.length }}</span>
       </h3>
@@ -17,6 +17,7 @@
           <label class="task-check">
             <input
               type="checkbox"
+              class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               :checked="task.status === 1"
               @change="toggleTask(task)"
             />
@@ -39,7 +40,7 @@
           <div class="time-display tabular-nums">{{ timeFormatted }}</div>
           <div class="mode-label">Flow 流时间</div>
           <div class="flow-stage" :style="{ color: flowStage.color }">
-            <Icon :name="flowStage.icon" :size="14" />
+            <Icon :name="flowStage.icon" :size="14" aria-hidden="true" />
             <span>{{ flowStage.label }}</span>
           </div>
         </div>
@@ -48,35 +49,35 @@
       <div class="controls">
         <button
           type="button"
-          class="ctrl-btn primary big"
+          class="ctrl-btn primary big focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="isRunning"
           @click="handleStart"
         >
-          <Icon name="play" :size="20" />
+          <Icon name="play" :size="20" aria-hidden="true" />
           <span>开始</span>
         </button>
         <button
           type="button"
-          class="ctrl-btn"
+          class="ctrl-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="!isRunning"
           @click="handlePause"
         >
-          <Icon name="pause" :size="18" />
+          <Icon name="pause" :size="18" aria-hidden="true" />
           <span>暂停</span>
         </button>
         <button
           type="button"
-          class="ctrl-btn danger"
+          class="ctrl-btn danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="elapsedSec === 0 && !isRunning"
           @click="handleEnd"
         >
-          <Icon name="square" :size="18" />
+          <Icon name="square" :size="18" aria-hidden="true" />
           <span>结束</span>
         </button>
       </div>
 
       <div class="motivation">
-        <Icon name="sparkles" :size="14" />
+        <Icon name="sparkles" :size="14" aria-hidden="true" />
         <span>{{ motivationText }}</span>
       </div>
     </section>
@@ -127,7 +128,7 @@
         <div class="stat-label-row">
           <span class="stat-label">分心次数</span>
           <button type="button" class="distract-btn" @click="recordDistraction">
-            <Icon name="alert-circle" :size="14" />
+            <Icon name="alert-circle" :size="14" aria-hidden="true" />
             <span>记录分心</span>
           </button>
         </div>
@@ -136,7 +137,7 @@
 
       <div class="flow-tip-card">
         <div class="tip-title">
-          <Icon name="lightbulb" :size="14" />
+          <Icon name="lightbulb" :size="14" aria-hidden="true" />
           <span>Flow 提示</span>
         </div>
         <p class="tip-text">

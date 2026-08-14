@@ -2,25 +2,25 @@
   <div class="deep-root">
     <aside class="deep-left">
       <header class="left-head">
-        <Icon name="compass" :size="16" />
+        <Icon name="compass" :size="16" aria-hidden="true" />
         <span class="left-title">深潜主题</span>
       </header>
       <div class="topic-input-row">
         <input
           v-model="topicInput"
           type="text"
-          class="topic-input"
+          class="topic-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           placeholder="输入主题关键词进行深潜"
           @keyup.enter="handleGenerateTechGraph"
         />
         <button
           type="button"
-          class="topic-gen-btn"
+          class="topic-gen-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="graphLoading"
           @click="handleGenerateTechGraph"
         >
-          <Icon v-if="!graphLoading" name="sparkles" :size="14" />
-          <Icon v-else name="loader" :size="14" class="spin" />
+          <Icon v-if="!graphLoading" name="sparkles" :size="14" aria-hidden="true" />
+          <Icon v-else name="loader" :size="14" class="spin" aria-hidden="true" />
           <span>生成深潜路径</span>
         </button>
       </div>
@@ -29,13 +29,16 @@
         <SkeletonList :rows="6" />
       </div>
       <ul v-else-if="techGraph && techGraph.nodes.length" class="topic-list">
-        <li
-          v-for="node in techGraph.nodes"
-          :key="node.id"
-          class="topic-card"
-          :class="{ active: currentTopic?.id === node.id }"
-          @click="handleSelectTopic(node)"
-        >
+          <li
+            v-for="node in techGraph.nodes"
+            :key="node.id"
+            class="topic-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            :class="{ active: currentTopic?.id === node.id }"
+            role="button"
+            tabindex="0"
+            @click="handleSelectTopic(node)"
+            @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
+          >
           <div class="topic-card-head">
             <span class="topic-name">{{ node.name }}</span>
             <span
@@ -48,7 +51,7 @@
               {{ node.categoryLabel }}
             </span>
             <span v-if="node.docCount" class="doc-count">
-              <Icon name="file-text" :size="11" />
+              <Icon name="file-text" :size="11" aria-hidden="true" />
               {{ node.docCount }}
             </span>
           </div>
@@ -58,7 +61,7 @@
         </li>
       </ul>
       <div v-else class="empty-hint">
-        <Icon name="map" :size="28" />
+        <Icon name="map" :size="28" aria-hidden="true" />
         <p>输入主题，AI 为你生成深潜路径</p>
       </div>
     </aside>
@@ -68,20 +71,20 @@
         <div class="tts-toolbar">
           <button
             type="button"
-            class="tts-btn primary"
+            class="tts-btn primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             :disabled="isSpeaking"
             @click="handleSpeakTopic"
           >
-            <Icon :name="isSpeaking ? 'loader' : 'play'" :size="14" :class="{ spin: isSpeaking }" />
+            <Icon :name="isSpeaking ? 'loader' : 'play'" :size="14" :class="{ spin: isSpeaking }" aria-hidden="true" />
             <span>{{ isSpeaking ? '朗读中…' : '朗读当前简介' }}</span>
           </button>
           <button
             type="button"
-            class="tts-btn"
+            class="tts-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             :disabled="!isSpeaking"
             @click="stop"
           >
-            <Icon name="square" :size="14" />
+            <Icon name="square" :size="14" aria-hidden="true" />
             <span>停止</span>
           </button>
           <div class="tts-sep" />
@@ -91,7 +94,7 @@
               v-for="r in rateSteps"
               :key="r.v"
               type="button"
-              class="rate-chip"
+              class="rate-chip focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               :class="{ active: Math.abs(rate - r.v) < 0.05 }"
               @click="setRate(r.v)"
             >{{ r.label }}</button>
@@ -103,7 +106,7 @@
               v-for="p in pitchSteps"
               :key="p.v"
               type="button"
-              class="rate-chip"
+              class="rate-chip focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               :class="{ active: Math.abs(pitch - p.v) < 0.05 }"
               @click="setPitch(p.v)"
             >{{ p.label }}</button>
@@ -111,7 +114,7 @@
           <select
             v-if="voices.length"
             :value="selectedVoiceName"
-            class="voice-select"
+            class="voice-select focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             @change="(e) => setVoice((e.target as HTMLSelectElement).value)"
           >
             <option v-for="v in voices" :key="v.name" :value="v.name">
@@ -172,12 +175,12 @@
 
           <section class="reader-section">
             <h3>深潜笔记区</h3>
-            <textarea
-              v-model="deepNote"
-              class="note-textarea"
-              rows="6"
-              placeholder="在这里记下你的深潜思考…"
-            />
+          <textarea
+            v-model="deepNote"
+            class="note-textarea focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            rows="6"
+            placeholder="在这里记下你的深潜思考…"
+          />
           </section>
         </div>
       </div>
@@ -194,7 +197,7 @@
             <div class="ring-time tabular-nums">{{ timeFormatted }}</div>
             <div class="ring-label">深潜时长</div>
             <div class="ring-stage" :style="{ color: stageInfo.color }">
-              <Icon :name="stageInfo.icon" :size="12" />
+              <Icon :name="stageInfo.icon" :size="12" aria-hidden="true" />
               <span>{{ stageInfo.label }}</span>
             </div>
           </div>
@@ -205,7 +208,7 @@
 
     <aside class="deep-right">
       <header class="left-head">
-        <Icon name="bar-chart-2" :size="16" />
+        <Icon name="bar-chart-2" :size="16" aria-hidden="true" />
         <span class="left-title">深潜洞察</span>
       </header>
 
@@ -221,7 +224,7 @@
             <div class="ring-time tabular-nums">{{ timeFormatted }}</div>
             <div class="ring-label">深潜时长</div>
             <div class="ring-stage" :style="{ color: stageInfo.color }">
-              <Icon :name="stageInfo.icon" :size="12" />
+              <Icon :name="stageInfo.icon" :size="12" aria-hidden="true" />
               <span>{{ stageInfo.label }}</span>
             </div>
           </div>
@@ -238,7 +241,7 @@
           min="0"
           max="100"
           v-model.number="masteryPercent"
-          class="mastery-slider"
+          class="mastery-slider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
         />
         <div class="mastery-hint">
           手动标记当前对主题的理解程度
@@ -247,7 +250,7 @@
 
       <div class="insight-card">
         <div class="insight-label">
-          <Icon name="bookmark" :size="13" />
+          <Icon name="bookmark" :size="13" aria-hidden="true" />
           <span>探索过的概念</span>
         </div>
         <div v-if="exploredTopics.length" class="explored-chips">
@@ -262,7 +265,7 @@
 
       <div class="insight-card badges">
         <div class="insight-label">
-          <Icon name="award" :size="13" />
+          <Icon name="award" :size="13" aria-hidden="true" />
           <span>解锁深度徽章</span>
         </div>
         <div class="badge-row">
@@ -271,7 +274,7 @@
             :class="{ unlocked: hit30min }"
             title="深潜 30 分钟"
           >
-            <Icon name="clock" :size="18" />
+            <Icon name="clock" :size="18" aria-hidden="true" />
             <span>30 分钟</span>
           </div>
           <div
@@ -279,35 +282,35 @@
             :class="{ unlocked: hit60min }"
             title="深潜 60 分钟"
           >
-            <Icon name="flame" :size="18" />
+            <Icon name="flame" :size="18" aria-hidden="true" />
             <span>60 分钟</span>
           </div>
         </div>
-        <button
-          type="button"
-          class="end-btn"
-          @click="handleEndSession"
-        >
-          <Icon name="log-out" :size="14" />
+          <button
+            type="button"
+            class="end-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            @click="handleEndSession"
+          >
+          <Icon name="log-out" :size="14" aria-hidden="true" />
           <span>结束深潜</span>
         </button>
       </div>
 
       <div class="insight-card actions">
-        <button
-          type="button"
-          class="action-btn"
-          @click="$emit('toggle-graph')"
-        >
-          <Icon name="network" :size="14" />
+          <button
+            type="button"
+            class="action-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            @click="$emit('toggle-graph')"
+          >
+          <Icon name="network" :size="14" aria-hidden="true" />
           <span>打开知识图谱</span>
         </button>
-        <button
-          type="button"
-          class="action-btn"
-          @click="$emit('toggle-copilot')"
-        >
-          <Icon name="bot" :size="14" />
+          <button
+            type="button"
+            class="action-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            @click="$emit('toggle-copilot')"
+          >
+          <Icon name="bot" :size="14" aria-hidden="true" />
           <span>打开 AI 助手</span>
         </button>
       </div>

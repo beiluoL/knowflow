@@ -1,11 +1,11 @@
 <template>
   <div class="copilot-wrapper">
-    <button
-      v-if="!visible"
-      type="button"
-      class="copilot-fab"
-      @click="handleToggleVisible"
-    >
+      <button
+        v-if="!visible"
+        type="button"
+        class="copilot-fab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        @click="handleToggleVisible"
+      >
       <Icon name="bot" :size="22" />
     </button>
 
@@ -13,13 +13,13 @@
       <div v-if="visible" class="copilot-panel">
         <header class="copilot-head">
           <div class="head-title">
-            <Icon name="sparkles" :size="14" />
+            <Icon name="sparkles" :size="14" aria-hidden="true" />
             <span>沉浸工作台 AI Copilot</span>
           </div>
           <div class="head-actions">
             <button
               type="button"
-              class="head-btn"
+              class="head-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               title="新建会话"
               @click="handleNewConversation"
             >
@@ -27,7 +27,7 @@
             </button>
             <button
               type="button"
-              class="head-btn"
+              class="head-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               title="关闭"
               @click="handleToggleVisible"
             >
@@ -39,7 +39,7 @@
         <div class="conv-row">
           <select
             v-model="activeConversationId"
-            class="conv-select"
+            class="conv-select focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             @change="handleConvChange"
           >
             <option :value="undefined">💬 临时会话（不保存）</option>
@@ -51,7 +51,7 @@
           </select>
           <button
             type="button"
-            class="conv-refresh"
+            class="conv-refresh focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             title="刷新会话列表"
             @click="loadConversations"
           >
@@ -61,11 +61,11 @@
 
         <div ref="msgWrapRef" class="messages-wrap">
           <div v-if="msgLoading" class="msg-empty">
-            <Icon name="loader" :size="18" class="spin" />
+            <Icon name="loader" :size="18" class="spin" aria-hidden="true" />
             <span>加载消息…</span>
           </div>
           <div v-else-if="displayMessages.length === 0" class="msg-empty">
-            <Icon name="message-circle" :size="28" />
+            <Icon name="message-circle" :size="28" aria-hidden="true" />
             <p>有什么我可以帮你的？</p>
             <p class="empty-hint">选择「临时会话」可快速体验，或先新建会话保存记录</p>
           </div>
@@ -86,7 +86,7 @@
         <footer class="copilot-input-row">
           <textarea
             v-model="inputText"
-            class="chat-input"
+            class="chat-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             rows="2"
             placeholder="Enter 发送 / Ctrl+Enter 换行"
             @keydown="handleInputKeydown"
@@ -94,7 +94,7 @@
           />
           <button
             type="button"
-            class="send-btn"
+            class="send-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             :disabled="!inputText.trim() || sending"
             @click="handleSend"
           >

@@ -8,10 +8,10 @@
       <template #actions>
         <button
           @click="startPractice"
-          class="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 transition-colors"
+          class="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           aria-label="开始错题练习"
         >
-          <Icon name="play" :size="16" />
+          <Icon name="play" :size="16" aria-hidden="true" />
           <span>开始错题练习</span>
         </button>
       </template>
@@ -23,7 +23,7 @@
         :key="cat.value"
         @click="handleCategoryChange(cat.value)"
         :class="[
-          'shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border whitespace-nowrap transition-colors',
+          'shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
           selectedCategory === cat.value
             ? 'bg-primary-500 text-white border-primary-500'
             : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300',
@@ -44,7 +44,7 @@
         <div class="flex items-center justify-between">
           <div>
             <div class="flex items-center gap-2 mb-1">
-              <Icon name="book-open" :size="16" class="text-primary-500" />
+              <Icon name="book-open" :size="16" class="text-primary-500" aria-hidden="true" />
               <span class="text-sm text-gray-500">错题攻克</span>
             </div>
             <div class="flex items-baseline gap-2 mt-2">
@@ -73,7 +73,7 @@
                 stroke-linecap="round"
                 :stroke-dasharray="circumference"
                 :stroke-dashoffset="dashOffset"
-                class="transition-all duration-700"
+                class="transition-[stroke-dashoffset] duration-700"
               />
               <defs>
                 <linearGradient id="mistake-mastery-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -95,7 +95,7 @@
       </div>
       <div class="border rounded-[10px] p-4 bg-white border-gray-200">
         <div class="flex items-center gap-2 mb-2">
-          <Icon name="check-circle" :size="16" class="text-success-500" />
+          <Icon name="check-circle" :size="16" class="text-success-500" aria-hidden="true" />
           <span class="text-sm text-gray-500">已掌握</span>
         </div>
         <div class="flex items-baseline gap-2">
@@ -114,7 +114,7 @@
       </div>
       <div class="border rounded-[10px] p-4 bg-white border-gray-200">
         <div class="flex items-center gap-2 mb-2">
-          <Icon name="clock" :size="16" class="text-warning-500" />
+          <Icon name="clock" :size="16" class="text-warning-500" aria-hidden="true" />
           <span class="text-sm text-gray-500">待复习</span>
         </div>
         <div class="flex items-baseline gap-2">
@@ -168,14 +168,14 @@
           </div>
           <div class="rounded-lg p-3 mb-3 bg-red-50 border-l-[3px] border-danger-500">
             <div class="flex items-center gap-1.5 mb-1">
-              <Icon name="x-circle" :size="14" class="shrink-0 text-danger-500" />
+              <Icon name="x-circle" :size="14" class="shrink-0 text-danger-500" aria-hidden="true" />
               <span class="text-sm text-danger-500">你的答案</span>
             </div>
             <p class="text-sm text-gray-700">{{ mistake.wrongAnswer }}</p>
           </div>
           <div class="rounded-lg p-3 mb-3 bg-green-50 border-l-[3px] border-success-500">
             <div class="flex items-center gap-1.5 mb-1">
-              <Icon name="check-circle" :size="14" class="shrink-0 text-success-500" />
+              <Icon name="check-circle" :size="14" class="shrink-0 text-success-500" aria-hidden="true" />
               <span class="text-sm text-success-500">正确答案</span>
             </div>
             <p class="text-sm text-gray-700">{{ mistake.correctAnswer }}</p>
@@ -183,7 +183,7 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <div class="flex items-center gap-1">
-                <Icon name="refresh-cw" :size="14" class="text-gray-400" />
+                <Icon name="refresh-cw" :size="14" class="text-gray-400" aria-hidden="true" />
                 <span class="text-xs text-gray-500">复习 {{ mistake.reviewCount }} 次</span>
               </div>
               <span class="text-xs text-gray-400">{{ formatTime(mistake.createTime) }}</span>
@@ -191,13 +191,13 @@
             <button
               v-if="mistake.mastered !== 1"
               @click="handleMarkMastered(mistake.id)"
-              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border text-success-500 border-success-500 bg-white hover:bg-success-50 transition-colors"
+              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border text-success-500 border-success-500 bg-white hover:bg-success-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
-              <Icon name="check" :size="14" />
+              <Icon name="check" :size="14" aria-hidden="true" />
               <span>标记已掌握</span>
             </button>
             <span v-else class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-success-500">
-              <Icon name="check-circle" :size="14" />
+              <Icon name="check-circle" :size="14" aria-hidden="true" />
               <span>已掌握</span>
             </span>
           </div>

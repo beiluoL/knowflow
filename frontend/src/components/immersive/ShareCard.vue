@@ -7,12 +7,12 @@
         @click.self="handleClose"
       >
         <div class="sharecard-panel">
-          <button type="button" class="close-btn" @click="handleClose" aria-label="关闭">
-            <Icon name="x" :size="18" />
+          <button type="button" class="close-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleClose" aria-label="关闭">
+            <Icon name="x" :size="18" aria-hidden="true" />
           </button>
 
           <h2 class="panel-title">
-            <Icon name="share-2" :size="18" />
+            <Icon name="share-2" :size="18" aria-hidden="true" />
             生成分享卡
           </h2>
 
@@ -38,7 +38,7 @@
                 <div class="user-info">
                   <div class="user-name">{{ data.userName || '知流学习者' }}</div>
                   <div v-if="data.streak" class="streak-badge">
-                    <Icon name="flame" :size="12" />
+                    <Icon name="flame" :size="12" aria-hidden="true" />
                     连续 {{ data.streak }} 天
                   </div>
                 </div>
@@ -89,12 +89,12 @@
           </div>
 
           <div class="actions">
-            <button type="button" class="action-btn" @click="handleDownload">
-              <Icon name="download" :size="16" />
+            <button type="button" class="action-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleDownload">
+              <Icon name="download" :size="16" aria-hidden="true" />
               下载图片
             </button>
-            <button type="button" class="action-btn primary" @click="handleCopyText">
-              <Icon name="copy" :size="16" />
+            <button type="button" class="action-btn primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleCopyText">
+              <Icon name="copy" :size="16" aria-hidden="true" />
               复制文案
             </button>
           </div>

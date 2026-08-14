@@ -9,11 +9,11 @@
       </div>
       <button
         type="button"
-        class="btn-secondary"
+        class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
         :disabled="unreadCount === 0"
         @click="handleMarkAllRead"
       >
-        <Icon name="check-check" :size="14" />
+        <Icon name="check-check" :size="14" aria-hidden="true" />
         <span>全部标记已读</span>
       </button>
     </div>
@@ -23,7 +23,7 @@
       <button
         v-for="tab in typeTabs"
         :key="tab.value"
-        class="tab-item"
+        class="tab-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: selectedType === tab.value }"
         @click="handleTypeChange(tab.value)"
       >
@@ -40,7 +40,7 @@
     <!-- ===== 空态 ===== -->
     <div v-else-if="notificationList.length === 0" class="state-area">
       <div class="empty-icon-box">
-        <Icon name="bell" :size="40" class="empty-icon" />
+        <Icon name="bell" :size="40" class="empty-icon" aria-hidden="true" />
       </div>
       <p class="state-title">暂无消息</p>
       <p class="state-text">所有消息都已处理完毕</p>
@@ -52,8 +52,11 @@
         <div
           v-for="item in notificationList"
           :key="item.id"
-          class="notif-item"
+          class="notif-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ unread: item.isRead === 0 }"
+          role="button"
+          tabindex="0"
+          @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
           @click="handleNotificationClick(item)"
         >
           <!-- 类型图标 -->
@@ -75,11 +78,11 @@
       <div v-if="hasMore" class="load-more-wrap">
         <button
           type="button"
-          class="btn-secondary"
+          class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="loadingMore"
           @click="handleLoadMore"
         >
-          <Icon name="chevron-down" :size="14" />
+          <Icon name="chevron-down" :size="14" aria-hidden="true" />
           <span>{{ loadingMore ? '加载中...' : '加载更多' }}</span>
         </button>
       </div>
