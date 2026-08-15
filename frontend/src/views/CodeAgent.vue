@@ -3467,10 +3467,22 @@ watch(activeTab, (tab) => {
               />
               <span class="checkbox-mark"></span>
             </label>
-            <div class="model-icon" @click.stop="openParamsModal(m)">
+            <div
+              class="model-icon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              role="button"
+              tabindex="0"
+              @click.stop="openParamsModal(m)"
+              @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
+            >
               <Icon name="cpu" size="md" />
             </div>
-            <div class="model-info" @click.stop="openParamsModal(m)">
+            <div
+              class="model-info focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              role="button"
+              tabindex="0"
+              @click.stop="openParamsModal(m)"
+              @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
+            >
               <div class="model-name">{{ m.displayName || m.providerLabel || m.provider }}</div>
               <div class="model-provider">{{ m.model }}</div>
             </div>
@@ -3481,7 +3493,13 @@ watch(activeTab, (tab) => {
             </div>
           </div>
           <!-- 参数摘要 -->
-          <div class="model-card-params" @click.stop="openParamsModal(m)">
+          <div
+            class="model-card-params focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            role="button"
+            tabindex="0"
+            @click.stop="openParamsModal(m)"
+            @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
+          >
             <Icon name="sliders" size="xxs" />
             <span>{{ paramsSummary(m) }}</span>
             <button class="params-edit-btn" @click.stop="openParamsModal(m)" title="配置参数">
