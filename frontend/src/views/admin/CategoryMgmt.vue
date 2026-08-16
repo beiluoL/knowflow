@@ -20,7 +20,7 @@
     </div>
 
     <!-- 搜索框 -->
-    <div class="bg-white border border-[#E2E6EC] rounded-xl px-6 py-4 mb-4">
+    <div class="bg-white border border-[var(--kb-border)] rounded-xl px-6 py-4 mb-4">
       <div class="max-w-md">
         <Input v-model="searchKeyword" placeholder="搜索分类名称..." icon-name="search" />
       </div>
@@ -36,9 +36,9 @@
     </div>
 
     <!-- 树形列表 -->
-    <div class="bg-white border border-[#E2E6EC] rounded-xl overflow-hidden">
+    <div class="bg-white border border-[var(--kb-border)] rounded-xl overflow-hidden">
       <!-- 表头 -->
-      <div class="px-6 py-3 border-b border-[#E2E6EC]">
+      <div class="px-6 py-3 border-b border-[var(--kb-border)]">
         <div class="grid grid-cols-12 gap-4 text-xs text-gray-500 font-medium items-center">
           <div class="col-span-5">分类名称</div>
           <div class="col-span-2 text-center">层级</div>
@@ -161,7 +161,7 @@
       </div>
 
       <!-- 底部统计 -->
-      <div v-if="flatTreeNodes.length" class="px-6 py-3 text-center border-t border-[#E2E6EC]/50">
+      <div v-if="flatTreeNodes.length" class="px-6 py-3 text-center border-t border-[var(--kb-border)]/50">
         <span class="text-sm text-gray-400">显示 {{ flatTreeNodes.length }} / {{ allFlatCats.length }} 个分类</span>
       </div>
     </div>
@@ -217,13 +217,13 @@
                   'px-2.5 py-1 text-xs rounded-md border transition-colors',
                   activeIconCategory === cat.key
                     ? 'border-primary-500 bg-primary-50 text-primary-600 font-medium'
-                    : 'border-[#E2E6EC] text-gray-500 hover:border-gray-300',
+                    : 'border-[var(--kb-border)] text-gray-500 hover:border-gray-300',
                 ]"
               >
                 {{ cat.label }}
               </button>
             </div>
-            <div class="grid grid-cols-8 gap-2 max-h-44 overflow-y-auto p-1 border border-[#E2E6EC] rounded-lg">
+            <div class="grid grid-cols-8 gap-2 max-h-44 overflow-y-auto p-1 border border-[var(--kb-border)] rounded-lg">
               <button
                 v-for="icon in filteredPresetIcons"
                 :key="icon.key"

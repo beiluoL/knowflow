@@ -8,7 +8,7 @@
       <p class="text-[14px] text-gray-500 mb-6">
         {{ message }}
       </p>
-      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-[#E2E6EC] text-[13px] text-gray-600">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-[var(--kb-border)] text-[13px] text-gray-600">
         <span class="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
         {{ countdown }} 秒后自动跳转
       </div>

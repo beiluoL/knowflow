@@ -18,7 +18,7 @@
     </div>
 
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white border border-[#E2E6EC] rounded-xl p-5">
+      <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-primary-50">
             <Icon name="database" :size="20" class="text-primary-500" />
@@ -28,7 +28,7 @@
         <p class="text-2xl font-bold text-gray-800">{{ totalKbCount }} <span class="text-sm font-normal text-gray-500">个</span></p>
       </div>
 
-      <div class="bg-white border border-[#E2E6EC] rounded-xl p-5">
+      <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-50">
             <Icon name="file-text" :size="20" class="text-blue-500" />
@@ -38,7 +38,7 @@
         <p class="text-2xl font-bold text-gray-800">{{ totalDocCount }} <span class="text-sm font-normal text-gray-500">篇</span></p>
       </div>
 
-      <div class="bg-white border border-[#E2E6EC] rounded-xl p-5">
+      <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-purple-50">
             <Icon name="hard-drive" :size="20" class="text-purple-500" />
@@ -51,7 +51,7 @@
         </div>
       </div>
 
-      <div class="bg-white border border-[#E2E6EC] rounded-xl p-5">
+      <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-green-50">
             <Icon name="users" :size="20" class="text-green-500" />
@@ -63,7 +63,7 @@
     </div>
 
     <!-- 搜索 + 视图切换 -->
-    <div class="bg-white border border-[#E2E6EC] rounded-xl px-6 py-4 flex flex-wrap gap-4 items-center">
+    <div class="bg-white border border-[var(--kb-border)] rounded-xl px-6 py-4 flex flex-wrap gap-4 items-center">
       <div class="flex-1 min-w-[220px] max-w-md">
         <Input v-model="searchKeyword" placeholder="搜索知识库名称 / 描述..." icon-name="search" />
       </div>
@@ -74,7 +74,7 @@
             'px-3 h-9 rounded-md text-sm border transition-colors flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
             viewMode === 'list'
               ? 'border-primary-500 bg-primary-50 text-primary-600 font-medium'
-              : 'border-[#E2E6EC] text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              : 'border-[var(--kb-border)] text-gray-500 hover:border-gray-300 hover:text-gray-700',
           ]"
         >
           <Icon name="list" :size="16" /> 列表
@@ -85,7 +85,7 @@
             'px-3 h-9 rounded-md text-sm border transition-colors flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
             viewMode === 'card'
               ? 'border-primary-500 bg-primary-50 text-primary-600 font-medium'
-              : 'border-[#E2E6EC] text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              : 'border-[var(--kb-border)] text-gray-500 hover:border-gray-300 hover:text-gray-700',
           ]"
         >
           <Icon name="grid" :size="16" /> 卡片
@@ -94,8 +94,8 @@
     </div>
 
     <!-- ========= 列表视图 ========= -->
-    <div v-if="viewMode === 'list'" class="bg-white border border-[#E2E6EC] rounded-xl overflow-hidden">
-      <div class="px-6 py-4 border-b border-[#E2E6EC]">
+    <div v-if="viewMode === 'list'" class="bg-white border border-[var(--kb-border)] rounded-xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-[var(--kb-border)]">
         <div class="grid grid-cols-12 gap-4 text-xs text-gray-500 font-medium">
           <div class="col-span-4">知识库名称</div>
           <div class="col-span-2 text-center">文档数量</div>
@@ -198,7 +198,7 @@
         </div>
       </div>
 
-      <div class="px-6 py-3 text-center border-t border-[#E2E6EC]/50">
+      <div class="px-6 py-3 text-center border-t border-[var(--kb-border)]/50">
         <span class="text-sm text-gray-400">显示 {{ flatTreeNodes.length }} / {{ allFlatKbs.length }} 个分类</span>
       </div>
     </div>
@@ -207,7 +207,7 @@
     <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
       <div
         v-for="kb in filteredKbs" :key="kb.id"
-        class="bg-white border border-[#E2E6EC] rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-shadow transition-transform duration-200 group"
+        class="bg-white border border-[var(--kb-border)] rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-shadow transition-transform duration-200 group"
       >
         <!-- 卡片顶部渐变条 + 图标 -->
         <div
@@ -215,7 +215,7 @@
           :style="{ background: `linear-gradient(135deg, ${getKbColor(kb.icon)}22 0%, ${getKbColor(kb.icon)}08 100%)` }"
         >
           <div
-            class="w-14 h-14 rounded-2xl flex items-center justify-center bg-white shadow-sm border border-[#E2E6EC] absolute bottom-0 translate-y-1/2 left-5"
+            class="w-14 h-14 rounded-2xl flex items-center justify-center bg-white shadow-sm border border-[var(--kb-border)] absolute bottom-0 translate-y-1/2 left-5"
           >
             <Icon
               :name="getCategoryIconName(kb.icon)"
@@ -263,7 +263,7 @@
             </div>
           </div>
 
-          <div class="mt-4 pt-4 border-t border-[#E2E6EC]/70 flex items-center justify-between">
+          <div class="mt-4 pt-4 border-t border-[var(--kb-border)]/70 flex items-center justify-between">
             <div class="flex items-center gap-2">
               <span class="text-xs text-gray-400">{{ formatDate(kb.createTime) }}</span>
             </div>
@@ -291,7 +291,7 @@
     <div>
       <h3 class="text-base font-semibold text-gray-800 mb-4">快捷操作</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white border border-[#E2E6EC] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="openImport()" @keydown.enter.prevent="($event.target as HTMLElement).click()">
+        <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="openImport()" @keydown.enter.prevent="($event.target as HTMLElement).click()">
           <div class="flex items-start gap-4">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-primary-50 flex-shrink-0">
               <Icon name="upload" :size="22" class="text-primary-500" />
@@ -303,7 +303,7 @@
           </div>
         </div>
 
-        <div class="bg-white border border-[#E2E6EC] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="firstKb && openMembers(firstKb)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
+        <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="firstKb && openMembers(firstKb)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
           <div class="flex items-start gap-4">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-50 flex-shrink-0">
               <Icon name="shield" :size="22" class="text-blue-500" />
@@ -315,7 +315,7 @@
           </div>
         </div>
 
-        <div class="bg-white border border-[#E2E6EC] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="firstKb && openExport(firstKb)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
+        <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="firstKb && openExport(firstKb)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
           <div class="flex items-start gap-4">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-purple-50 flex-shrink-0">
               <Icon name="download" :size="22" class="text-purple-500" />
@@ -351,7 +351,7 @@
             </label>
             <select
               v-model="kbForm.parentId"
-              class="w-full h-10 px-3 rounded-lg border border-[#E2E6EC] text-sm text-gray-700 focus:border-primary-500 focus:outline-none bg-white hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none bg-white hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
               <option :value="undefined">作为顶级分类</option>
               <option
@@ -379,13 +379,13 @@
                   'px-2.5 py-1 text-xs rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
                   activeIconCategory === cat.key
                     ? 'border-primary-500 bg-primary-50 text-primary-600 font-medium'
-                    : 'border-[#E2E6EC] text-gray-500 hover:border-gray-300',
+                    : 'border-[var(--kb-border)] text-gray-500 hover:border-gray-300',
                 ]"
               >
                 {{ cat.label }}
               </button>
             </div>
-            <div class="grid grid-cols-8 gap-2 max-h-44 overflow-y-auto p-1 border border-[#E2E6EC] rounded-lg">
+            <div class="grid grid-cols-8 gap-2 max-h-44 overflow-y-auto p-1 border border-[var(--kb-border)] rounded-lg">
               <button
                 v-for="icon in filteredPresetIcons"
                 :key="icon.key"
@@ -473,7 +473,7 @@
         </div>
 
         <!-- 搜索 + 新增行 -->
-        <div class="flex flex-wrap gap-3 items-center mb-4 pb-4 border-b border-[#E2E6EC]">
+        <div class="flex flex-wrap gap-3 items-center mb-4 pb-4 border-b border-[var(--kb-border)]">
           <div class="flex-1 min-w-[200px]">
             <Input
               v-model="memberSearch"
@@ -485,7 +485,7 @@
           <div class="w-[130px]">
             <select
               v-model="newMemberRole"
-              class="w-full h-10 px-3 rounded-lg border border-[#E2E6EC] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
               <option value="READER">阅读者</option>
               <option value="EDITOR">编辑者</option>
@@ -501,14 +501,14 @@
         </div>
 
         <!-- 邮箱邀请行 -->
-        <div v-if="showInviteByEmail" class="flex flex-wrap gap-3 items-center mb-4 pb-4 border-b border-[#E2E6EC] bg-gray-50/60 -mx-6 px-6 py-3">
+        <div v-if="showInviteByEmail" class="flex flex-wrap gap-3 items-center mb-4 pb-4 border-b border-[var(--kb-border)] bg-gray-50/60 -mx-6 px-6 py-3">
           <div class="flex-1 min-w-[220px]">
             <Input v-model="inviteEmail" placeholder="输入邀请邮箱（例如 user@example.com）" />
           </div>
           <div class="w-[130px]">
             <select
               v-model="inviteRole"
-              class="w-full h-10 px-3 rounded-lg border border-[#E2E6EC] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
               <option value="READER">阅读者</option>
               <option value="EDITOR">编辑者</option>
@@ -521,7 +521,7 @@
         </div>
 
         <!-- 候选用户列表（搜索后显示） -->
-        <div v-if="candidateUsers.length" class="mb-4 pb-4 border-b border-[#E2E6EC]">
+        <div v-if="candidateUsers.length" class="mb-4 pb-4 border-b border-[var(--kb-border)]">
           <p class="text-xs text-gray-500 mb-2">搜索结果：</p>
           <div class="space-y-2 max-h-40 overflow-y-auto">
             <div
@@ -558,7 +558,7 @@
             <div
               v-for="m in members"
               :key="m.id"
-              class="flex items-center justify-between px-4 py-3 rounded-lg border border-[#E2E6EC] hover:border-primary-500/30 transition-colors"
+              class="flex items-center justify-between px-4 py-3 rounded-lg border border-[var(--kb-border)] hover:border-primary-500/30 transition-colors"
             >
               <div class="flex items-center gap-3 min-w-0 flex-1">
                 <div class="w-10 h-10 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center font-medium flex-shrink-0">
@@ -588,7 +588,7 @@
                   v-if="m.role !== 'OWNER' || canTransferOwner(m)"
                   :value="m.role"
                   @change="onChangeRole(m, ($event.target as HTMLSelectElement).value)"
-                  class="h-8 px-2 rounded-md border border-[#E2E6EC] text-xs text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                  class="h-8 px-2 rounded-md border border-[var(--kb-border)] text-xs text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 >
                   <option value="OWNER">所有者</option>
                   <option value="EDITOR">编辑者</option>
@@ -608,7 +608,7 @@
           </div>
         </div>
 
-        <div class="flex items-center justify-end gap-2 pt-4 mt-4 border-t border-[#E2E6EC]">
+        <div class="flex items-center justify-end gap-2 pt-4 mt-4 border-t border-[var(--kb-border)]">
           <Button variant="secondary" @click="closeMemberModal">完成</Button>
         </div>
       </div>
@@ -645,7 +645,7 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1.5">选择文件</label>
             <div
-              class="border-2 border-dashed border-[#E2E6EC] rounded-xl p-8 text-center hover:border-primary-400 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="border-2 border-dashed border-[var(--kb-border)] rounded-xl p-8 text-center hover:border-primary-400 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               role="button"
               tabindex="0"
               @click="triggerImportFile"
