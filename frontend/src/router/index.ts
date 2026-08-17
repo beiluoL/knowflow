@@ -359,6 +359,12 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   {
+    path: '/mindmap',
+    name: 'MindMap',
+    component: () => import('@/views/MindMap.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
     path: '/settings/background',
     name: 'BackgroundSettings',
     component: () => import('@/views/BackgroundSettings.vue'),

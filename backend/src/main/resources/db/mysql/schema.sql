@@ -1296,3 +1296,20 @@ CREATE TABLE IF NOT EXISTS wb_story (
   KEY idx_wbs_note (note_id),
   KEY idx_wbs_deleted (deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------- 学习工作台：思维导图（MindMap）----------
+-- 整图以 JSON 形式持久化在 data 列：{ nodes:[{id,text,x,y,parentId,collapsed,color}], edges:[{id,source,target}], view:{scale,tx,ty} }
+-- 层级关系由节点 parentId 表达；edges 存储额外自由连线（跨节点连接）。
+CREATE TABLE IF NOT EXISTS wb_mindmap (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  title VARCHAR(200) NOT NULL COMMENT '思维导图标题',
+  data LONGTEXT COMMENT '整图数据（JSON）：节点/连线/视图变换',
+  category_id BIGINT COMMENT '归属知识库/分类ID（逻辑外键 doc_category.id）',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+  KEY idx_wbm_user (user_id),
+  KEY idx_wbm_category (category_id),
+  KEY idx_wbm_deleted (deleted)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -213,6 +213,12 @@ const modules = computed(() => {
       path: '/workbench/story', metric: o?.storyDraft ?? null,
       sub: o ? `${o.storyDraft} 篇草稿` : '', subIcon: 'wand-2',
     },
+    {
+      key: 'mindmap', step: '05 结构', title: '思维导图',
+      desc: '把零散想法结构化：自由增删节点、拖拽布局、连线建立关系、折叠分支聚焦重点。', icon: 'git-branch', color: '#0EA5E9',
+      path: '/mindmap', metric: null,
+      sub: '可视化知识网络', subIcon: 'git-branch',
+    },
   ]
 })
 

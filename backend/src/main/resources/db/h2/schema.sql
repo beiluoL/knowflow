@@ -1298,3 +1298,20 @@ CREATE INDEX IF NOT EXISTS idx_wbs_user_status ON wb_story (user_id, status);
 CREATE INDEX IF NOT EXISTS idx_wbs_capture ON wb_story (capture_id);
 CREATE INDEX IF NOT EXISTS idx_wbs_note ON wb_story (note_id);
 CREATE INDEX IF NOT EXISTS idx_wbs_deleted ON wb_story (deleted);
+
+-- ---------- 学习工作台：思维导图（MindMap）----------
+-- 整图以 JSON 形式持久化在 data 列：{ nodes:[{id,text,x,y,parentId,collapsed,color}], edges:[{id,source,target}], view:{scale,tx,ty} }
+-- 层级关系由节点 parentId 表达；edges 存储额外自由连线（跨节点连接）。
+CREATE TABLE IF NOT EXISTS wb_mindmap (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  title VARCHAR(200) NOT NULL COMMENT '思维导图标题',
+  data CLOB COMMENT '整图数据（JSON）：节点/连线/视图变换',
+  category_id BIGINT COMMENT '归属知识库/分类ID（逻辑外键 doc_category.id）',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_wbm_user ON wb_mindmap (user_id);
+CREATE INDEX IF NOT EXISTS idx_wbm_category ON wb_mindmap (category_id);
+CREATE INDEX IF NOT EXISTS idx_wbm_deleted ON wb_mindmap (deleted);
