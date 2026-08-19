@@ -627,10 +627,38 @@ const selectNode = (node: RenderNode) => { selectedNode.value = selectedNode.val
 const levelLabel = (level: string) => level === 'center' ? '核心主题' : level === 'level1' ? '分类' : '文档'
 const goToDoc = (nodeId: string) => { const docId = parseInt(nodeId.split('_')[1] || nodeId); if (!isNaN(docId)) router.push(`/doc/${docId}`) }
 
+// C② 导出当前 Tab 的图谱数据（分类/技术/实体为 nodes+edges 结构，概念为 Mermaid 图解）
+const exportMeta: Record<ViewTab, { file: string; label: string }> = {
+  category: { file: 'knowledge-graph-category', label: '分类图谱' },
+  tech: { file: 'knowledge-graph-tech', label: '技术依赖图' },
+  concept: { file: 'knowledge-graph-concept', label: '概念图解' },
+  entity: { file: 'knowledge-graph-entity', label: '知识实体图' },
+}
+
 const handleExport = () => {
-  const blob = new Blob([JSON.stringify({ nodes: renderNodes.value.map(n => ({ id: n.id, label: n.label, level: n.level })), edges: renderEdges.value.map(e => ({ source: e.source, target: e.target })) }, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `knowledge-graph-${Date.now()}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url)
-  notify('图谱已导出', 'success')
+  const tab = currentView.value
+  let payload: unknown
+  let hasData = false
+  if (tab === 'category') {
+    payload = { nodes: graph.value.nodes, edges: graph.value.edges }
+    hasData = graph.value.nodes.length > 0
+  } else if (tab === 'tech') {
+    payload = techGraph.value
+    hasData = !!techGraph.value && techGraph.value.nodes.length > 0
+  } else if (tab === 'entity') {
+    payload = entityGraph.value
+    hasData = !!entityGraph.value && entityGraph.value.nodes.length > 0
+  } else {
+    payload = conceptDiagram.value
+    hasData = !!conceptDiagram.value
+  }
+  if (!hasData) {
+    notify(`${exportMeta[tab].label}暂无数据，无法导出`, 'warning')
+    return
+  }
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${exportMeta[tab].file}-${Date.now()}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url)
+  notify(`${exportMeta[tab].label}已导出`, 'success')
 }
 
 async function loadGraph() {

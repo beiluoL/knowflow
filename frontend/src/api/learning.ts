@@ -12,6 +12,7 @@ import type {
   FlashcardGenerateInput,
   DailyActivityVO,
   MasteryDistributionVO,
+  CategoryMasteryVO,
   PersonalizedPathVO,
   ChapterDagVO,
   LearningCertificateVO,
@@ -36,6 +37,8 @@ export const learningApi = {
   dailyActivity: (days = 120) => apiGet<DailyActivityVO[]>('/learning/stats/daily-activity', { days }),
   // C① 掌握分布看板
   mastery: () => apiGet<MasteryDistributionVO>('/learning/stats/mastery'),
+  // C① 分类维度掌握度（含薄弱项）
+  categoryMastery: () => apiGet<CategoryMasteryVO[]>('/learning/category-mastery'),
   // SM-2 间隔重复复习：quality ∈ [0,5]，<3 重置，3=有印象，5=完全掌握
   reviewFlashcard: (id: number, quality: number) =>
     apiPost<void>(`/learning/flashcards/${id}/review?quality=${quality}`),

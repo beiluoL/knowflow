@@ -443,6 +443,7 @@ const quickNavItems = [
   { label: '闪卡复习', icon: 'layers', color: '#10B981', to: '/learning/flashcards' },
   { label: '复习计划', icon: 'calendar-check', color: '#F59E0B', to: '/learning/review' },
   { label: '知识图谱', icon: 'share-2', color: '#8B5CF6', to: '/learning/knowledge-graph' },
+  { label: '掌握分布', icon: 'pie-chart', color: '#06B6D4', to: '/learning/mastery' },
   { label: 'AI 问答', icon: 'brain', color: '#06B6D4', to: '/chat' },
 ]
 

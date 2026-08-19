@@ -62,6 +62,7 @@
 |  | 编程 Agent（对话 / 本地目录 / 代码运行 / **本地生成代码并保存到指定目录**） | `/coding/agent` |
 |  | 学习闪卡 | `/learning/flashcards` |
 |  | 知识图谱 | `/learning/knowledge-graph` |
+|  | 掌握分布看板（闪卡/错题掌握度 + 分类薄弱项） | `/learning/mastery` |
 |  | 复习计划 | `/learning/review` |
 |  | 沉浸式学习模式（无顶栏） | `/learning/mode` |
 |  | 番茄钟 | `/learning/pomodoro` |
@@ -134,7 +135,7 @@
 | DocController | `/api/docs` | 文档列表 / 详情 / 收藏 / 进度 / 推荐 / **AI 摘要** / **AI 生成闪卡** |
 | CategoryController | `/api/categories` | 分类树 |
 | ChatController | `/api/chat` | 会话 CRUD、发送消息（RAG + 大模型）、**可用模型列表** |
-| LearningController | `/api/learning` | 路径 / 章节 / 报名 / 闪卡 SM-2 复习 / 任务 / **热力图**（`/stats/daily-activity`）/ **掌握分布**（`/stats/mastery`）/ **章节依赖图(DAG)**（`/paths/{pathId}/dag`）/ **视频进度**（`/chapters/{id}/video-progress`）/ **数字证书**（`/certificates` 列表/详情/`verify` 验证） |
+| LearningController | `/api/learning` | 路径 / 章节 / 报名 / 闪卡 SM-2 复习 / 任务 / **热力图**（`/stats/daily-activity`）/ **掌握分布**（`/stats/mastery`）/ **分类掌握度（含薄弱项）**（`/category-mastery`）/ **章节依赖图(DAG)**（`/paths/{pathId}/dag`）/ **视频进度**（`/chapters/{id}/video-progress`）/ **数字证书**（`/certificates` 列表/详情/`verify` 验证） |
 | CodeQuestionController | `/api/code-questions` | 已发布代码题列表 / 详情 / 提交统计 |
 | MistakeController | `/api/mistakes` | 错题列表 / 标记掌握 / 幂等添加 / 统计 |
 | CommunityController | `/api/community` | 帖子 / 评论 / 点赞（幂等切换） |

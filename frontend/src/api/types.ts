@@ -404,6 +404,15 @@ export interface MasteryDistributionVO {
   mistakePending: number
 }
 
+/** 分类维度掌握度：按分类统计答题正确率并标记薄弱项。 */
+export interface CategoryMasteryVO {
+  category: string
+  total: number
+  correct: number
+  rate: number
+  weak: boolean
+}
+
 // ===== 知识图谱 =====
 export interface GraphNodeVO {
   id: string

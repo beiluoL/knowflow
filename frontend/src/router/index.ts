@@ -211,6 +211,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/KnowledgeGraph.vue'),
     meta: { layout: 'c', fullscreen: true },
   },
+  // C① 掌握分布看板
+  {
+    path: '/learning/mastery',
+    name: 'MasteryDashboard',
+    component: () => import('@/views/MasteryDashboard.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
   {
     path: '/learning/review',
     name: 'ReviewPlan',
