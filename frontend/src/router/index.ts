@@ -372,6 +372,12 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   {
+    path: '/drawing',
+    name: 'Drawing',
+    component: () => import('@/views/DrawingEditor.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
     path: '/settings/background',
     name: 'BackgroundSettings',
     component: () => import('@/views/BackgroundSettings.vue'),

@@ -63,6 +63,8 @@
 |  | 学习闪卡 | `/learning/flashcards` |
 |  | 知识图谱 | `/learning/knowledge-graph` |
 |  | 掌握分布看板（闪卡/错题掌握度 + 分类薄弱项） | `/learning/mastery` |
+| **绘图编辑器** | 思维导图（节点/连线/折叠/自动布局） | `/mindmap` |
+|  | 流程图（vue-flow：拖拽节点 / 自由连线 / 双击编辑 / 自动保存） | `/drawing` |
 |  | 复习计划 | `/learning/review` |
 |  | 沉浸式学习模式（无顶栏） | `/learning/mode` |
 |  | 番茄钟 | `/learning/pomodoro` |
@@ -121,7 +123,7 @@
 | 统一入口 | `/portal`（重定向至 `/tasks`） | 登录后工作台 |
 | 重定向 / 404 | `/redirect` `*` | 路由过渡页 / 错误页 |
 
-## 后端接口总览（47 个控制器）
+## 后端接口总览（48 个控制器）
 
 统一前缀 `/api`，完整接口文档见 Swagger（`/swagger-ui.html`）。
 
@@ -141,6 +143,7 @@
 | CommunityController | `/api/community` | 帖子 / 评论 / 点赞（幂等切换） |
 | NotificationController | `/api/notifications` | 消息列表 / 已读 / 未读数 |
 | KnowledgeController | `/api/knowledge` | 知识图谱数据（分类图/技术栈图/概念图解/实体关系图；`/entity-graph` 查询、`/extract` 触发 AI 抽取） |
+| DrawingController | `/api/drawings` | 绘图编辑器·流程图整图 CRUD（列表/详情/新建/更新/删除），全部需登录，user_id 维度隔离；`data` 存 vue-flow 契约 JSON（nodes/edges） |
 | QuizController | `/api/quiz` | 智能测验：按知识库/文档出题、提交判分、答题记录、错题同步 |
 | CheckInController | `/api/checkin` | 每日打卡（签到 / 补卡 / 连续天数与奖励） |
 | AchievementController | `/api/achievements` | 成就列表与解锁、用户成就进度 |

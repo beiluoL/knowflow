@@ -219,6 +219,12 @@ const modules = computed(() => {
       path: '/mindmap', metric: null,
       sub: '可视化知识网络', subIcon: 'git-branch',
     },
+    {
+      key: 'drawing', step: '06 表达', title: '流程图',
+      desc: '用节点与连线表达流程：拖拽添加、自由连线、双击编辑文字，适合画算法/业务/学习流程图。', icon: 'pen-tool', color: '#8B5CF6',
+      path: '/drawing', metric: null,
+      sub: 'vue-flow 流程图', subIcon: 'pen-tool',
+    },
   ]
 })
 

@@ -1315,3 +1315,16 @@ CREATE TABLE IF NOT EXISTS wb_mindmap (
 CREATE INDEX IF NOT EXISTS idx_wbm_user ON wb_mindmap (user_id);
 CREATE INDEX IF NOT EXISTS idx_wbm_category ON wb_mindmap (category_id);
 CREATE INDEX IF NOT EXISTS idx_wbm_deleted ON wb_mindmap (deleted);
+
+CREATE TABLE IF NOT EXISTS wb_drawing (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  title VARCHAR(200) NOT NULL COMMENT '绘图标题',
+  type VARCHAR(50) DEFAULT 'flowchart' COMMENT '图类型（flowchart 等）',
+  data CLOB COMMENT '整图数据（JSON）：节点/连线（vue-flow 契约）',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_wbd_user ON wb_drawing (user_id);
+CREATE INDEX IF NOT EXISTS idx_wbd_deleted ON wb_drawing (deleted);

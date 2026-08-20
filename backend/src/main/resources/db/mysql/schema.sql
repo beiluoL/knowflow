@@ -1313,3 +1313,16 @@ CREATE TABLE IF NOT EXISTS wb_mindmap (
   KEY idx_wbm_category (category_id),
   KEY idx_wbm_deleted (deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS wb_drawing (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  title VARCHAR(200) NOT NULL COMMENT '绘图标题',
+  type VARCHAR(50) DEFAULT 'flowchart' COMMENT '图类型（flowchart 等）',
+  data LONGTEXT COMMENT '整图数据（JSON）：节点/连线（vue-flow 契约）',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+  KEY idx_wbd_user (user_id),
+  KEY idx_wbd_deleted (deleted)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
