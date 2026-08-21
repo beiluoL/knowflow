@@ -200,6 +200,46 @@ CREATE TABLE IF NOT EXISTS learning_task (
     deleted INT DEFAULT 0
 );
 
+-- 任务清单（Things3 式：领域 / 项目 / 清单层级）
+CREATE TABLE IF NOT EXISTS task_list (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    kind VARCHAR(20),
+    parent_id BIGINT DEFAULT 0,
+    color VARCHAR(20),
+    icon VARCHAR(40),
+    sort_order INT DEFAULT 0,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+
+-- 任务（Things3 式：子任务 parent_id + 智能列表 scheduled_date/someday/status）
+CREATE TABLE IF NOT EXISTS task (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    list_id BIGINT,
+    parent_id BIGINT DEFAULT 0,
+    title VARCHAR(255) NOT NULL,
+    notes TEXT,
+    status INT DEFAULT 0,
+    scheduled_date DATE,
+    due_date DATE,
+    someday INT DEFAULT 0,
+    sort_order INT DEFAULT 0,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_task_user     ON task (user_id);
+CREATE INDEX IF NOT EXISTS idx_task_list     ON task (list_id);
+CREATE INDEX IF NOT EXISTS idx_task_parent   ON task (parent_id);
+CREATE INDEX IF NOT EXISTS idx_task_status   ON task (status);
+CREATE INDEX IF NOT EXISTS idx_tasklist_user ON task_list (user_id);
+CREATE INDEX IF NOT EXISTS idx_tasklist_par  ON task_list (parent_id);
+
 -- ============================================================
 -- 表间关系说明（遵循《阿里巴巴 Java 开发手册》：不使用物理外键）
 -- ------------------------------------------------------------

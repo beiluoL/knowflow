@@ -882,6 +882,7 @@ const quickActions = [
   { label: '资源中心', icon: 'book', color: 'qa-green', action: () => { activeTab.value = 'resources' } },
   { label: '我的成就', icon: 'trophy', color: 'qa-orange', action: () => { activeTab.value = 'achievements' } },
   { label: '社区讨论', icon: 'message-square', color: 'qa-purple', action: () => { activeTab.value = 'community' } },
+  { label: '数据结构', icon: 'git-branch', color: 'qa-indigo', action: () => router.push('/learning/data-structures/red-black-tree') },
   { label: '学习报告', icon: 'bar-chart-2', color: 'qa-cyan', action: () => router.push('/learning/report') },
 ]
 
@@ -1483,6 +1484,7 @@ onUnmounted(() => {
 .qa-orange { background: linear-gradient(135deg, #F59E0B, #FBBF24); }
 .qa-purple { background: linear-gradient(135deg, #8B5CF6, #A78BFA); }
 .qa-cyan { background: linear-gradient(135deg, #06B6D4, #22D3EE); }
+.qa-indigo { background: linear-gradient(135deg, #6366F1, #818CF8); }
 .qa-label {
   font-size: 13px;
   font-weight: 500;

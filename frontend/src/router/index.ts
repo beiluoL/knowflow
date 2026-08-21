@@ -238,6 +238,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/FocusMode.vue'),
     meta: { layout: 'none', requiresAuth: true, backgroundOverride: 'none' },
   },
+  // 数据结构可视化演示：红黑树
+  {
+    path: '/learning/data-structures/red-black-tree',
+    name: 'RedBlackTree',
+    component: () => import('@/views/RedBlackTree.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
   // 学习报告独立页面
   {
     path: '/learning/report',
