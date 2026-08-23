@@ -15,6 +15,12 @@ export interface TaskNode {
   scheduledDate: string | null
   dueDate: string | null
   someday: boolean
+  /** 重要程度 0/1（四象限视图用）。 */
+  important: number
+  /** 紧急程度 0/1（四象限视图用）。 */
+  urgent: number
+  /** 看板阶段 0 待办 / 1 进行中 / 2 已完成。 */
+  stage: number
   sortOrder: number
   children: TaskNode[]
   hasChildren: boolean
@@ -41,6 +47,9 @@ export interface TaskPayload {
   scheduledDate?: string | null
   dueDate?: string | null
   someday?: boolean
+  important?: number
+  urgent?: number
+  stage?: number
   sortOrder?: number
   status?: number
 }
@@ -72,6 +81,16 @@ export function setTaskStatus(id: number, status: number) {
 }
 export function deleteTask(id: number) {
   return apiDelete<void>(`/tasks/${id}`)
+}
+
+// ===== 看板 / 四象限 =====
+/** 看板数据：当前用户全部顶层任务（parent_id=0）扁平列表。 */
+export function listBoard() {
+  return apiGet<TaskNode[]>('/tasks/board')
+}
+/** 更新看板阶段（0 待办 / 1 进行中 / 2 已完成），后端自动同步完成态。 */
+export function updateTaskStage(id: number, stage: number) {
+  return apiPut<void>(`/tasks/${id}/stage`, {}, { params: { stage } })
 }
 
 // ===== 清单 =====

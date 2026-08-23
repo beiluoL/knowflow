@@ -71,6 +71,9 @@ public class TaskServiceImpl implements TaskService {
         t.setScheduledDate(dto.getScheduledDate());
         t.setDueDate(dto.getDueDate());
         t.setSomeday(dto.getSomeday() != null && dto.getSomeday() ? 1 : 0);
+        t.setImportant(dto.getImportant() != null ? dto.getImportant() : 0);
+        t.setUrgent(dto.getUrgent() != null ? dto.getUrgent() : 0);
+        t.setStage(dto.getStage() != null ? dto.getStage() : 0);
         t.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0);
         t.setStatus(0);
         taskMapper.insert(t);
@@ -80,17 +83,18 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void updateTask(Long userId, Long id, TaskDTO dto) {
         Task t = ownedTask(userId, id);
-        t.setTitle(dto.getTitle() == null ? t.getTitle() : dto.getTitle().trim());
-        t.setListId(dto.getListId());
-        t.setParentId(dto.getParentId() != null && dto.getParentId() > 0 ? dto.getParentId() : 0L);
-        t.setNotes(dto.getNotes());
-        t.setScheduledDate(dto.getScheduledDate());
-        t.setDueDate(dto.getDueDate());
-        t.setSomeday(dto.getSomeday() != null && dto.getSomeday() ? 1 : 0);
-        t.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0);
-        if (dto.getStatus() != null) {
-            t.setStatus(dto.getStatus());
-        }
+        if (dto.getTitle() != null) t.setTitle(dto.getTitle().trim());
+        if (dto.getListId() != null) t.setListId(dto.getListId());
+        if (dto.getParentId() != null) t.setParentId(dto.getParentId() > 0 ? dto.getParentId() : 0L);
+        if (dto.getNotes() != null) t.setNotes(dto.getNotes());
+        if (dto.getScheduledDate() != null) t.setScheduledDate(dto.getScheduledDate());
+        if (dto.getDueDate() != null) t.setDueDate(dto.getDueDate());
+        if (dto.getSomeday() != null) t.setSomeday(dto.getSomeday() ? 1 : 0);
+        if (dto.getImportant() != null) t.setImportant(dto.getImportant());
+        if (dto.getUrgent() != null) t.setUrgent(dto.getUrgent());
+        if (dto.getStage() != null) t.setStage(dto.getStage());
+        if (dto.getSortOrder() != null) t.setSortOrder(dto.getSortOrder());
+        if (dto.getStatus() != null) t.setStatus(dto.getStatus());
         taskMapper.updateById(t);
     }
 
@@ -104,6 +108,32 @@ public class TaskServiceImpl implements TaskService {
     public void setStatus(Long userId, Long id, Integer status) {
         Task t = ownedTask(userId, id);
         t.setStatus(status);
+        taskMapper.updateById(t);
+    }
+
+    @Override
+    public List<TaskVO> listBoard(Long userId) {
+        QueryWrapper<Task> qw = new QueryWrapper<>();
+        qw.eq("user_id", userId).eq("deleted", 0).eq("parent_id", 0)
+                .orderByAsc("sort_order").orderByAsc("id");
+        List<Task> tasks = taskMapper.selectList(qw);
+        List<TaskVO> result = new ArrayList<>();
+        for (Task t : tasks) {
+            TaskVO vo = toVO(t);
+            result.add(vo);
+        }
+        return result;
+    }
+
+    @Override
+    public void updateStage(Long userId, Long id, Integer stage) {
+        if (stage == null || stage < 0 || stage > 2) {
+            throw new BusinessException("非法的看板阶段");
+        }
+        Task t = ownedTask(userId, id);
+        t.setStage(stage);
+        // 看板「已完成」列与 status 完成态保持同步：拖到已完成即标记完成，拖出则回到待办
+        t.setStatus(stage == 2 ? 1 : 0);
         taskMapper.updateById(t);
     }
 
@@ -277,6 +307,9 @@ public class TaskServiceImpl implements TaskService {
         vo.setScheduledDate(t.getScheduledDate());
         vo.setDueDate(t.getDueDate());
         vo.setSomeday(t.getSomeday() != null && t.getSomeday() == 1);
+        vo.setImportant(t.getImportant() != null && t.getImportant() == 1 ? 1 : 0);
+        vo.setUrgent(t.getUrgent() != null && t.getUrgent() == 1 ? 1 : 0);
+        vo.setStage(t.getStage() == null ? 0 : t.getStage());
         vo.setSortOrder(t.getSortOrder() == null ? 0 : t.getSortOrder());
         vo.setHasChildren(false);
         vo.setChildren(new ArrayList<>());

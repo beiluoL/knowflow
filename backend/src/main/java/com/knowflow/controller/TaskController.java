@@ -70,6 +70,19 @@ public class TaskController {
         return Result.success();
     }
 
+    @Operation(summary = "看板视图数据：当前用户全部顶层任务（parent_id=0）")
+    @GetMapping("/board")
+    public Result<List<TaskVO>> board() {
+        return Result.success(taskService.listBoard(uid()));
+    }
+
+    @Operation(summary = "更新看板阶段（0 待办 / 1 进行中 / 2 已完成），自动同步完成态")
+    @PutMapping("/{id}/stage")
+    public Result<Void> updateStage(@PathVariable Long id, @RequestParam Integer stage) {
+        taskService.updateStage(uid(), id, stage);
+        return Result.success();
+    }
+
     @Operation(summary = "删除任务及其子任务")
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {

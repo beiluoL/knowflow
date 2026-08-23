@@ -39,5 +39,14 @@ public class Task extends BaseEntity {
     /** 1 表示放入「某天 / 也许」清单（Someday）。 */
     private Integer someday;
 
+    /** 重要程度：0 不重要 / 1 重要（四象限视图用）。 */
+    private Integer important;
+
+    /** 紧急程度：0 不紧急 / 1 紧急（四象限视图用）。 */
+    private Integer urgent;
+
+    /** 看板阶段：0 待办 / 1 进行中 / 2 已完成（看板视图用，与 status 同步）。 */
+    private Integer stage;
+
     private Integer sortOrder;
 }

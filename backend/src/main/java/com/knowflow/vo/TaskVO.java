@@ -33,6 +33,15 @@ public class TaskVO {
 
     private Boolean someday;
 
+    /** 重要程度：0 / 1（四象限视图用）。 */
+    private Integer important;
+
+    /** 紧急程度：0 / 1（四象限视图用）。 */
+    private Integer urgent;
+
+    /** 看板阶段：0 待办 / 1 进行中 / 2 已完成。 */
+    private Integer stage;
+
     private Integer sortOrder;
 
     /** 子任务（嵌套）。 */

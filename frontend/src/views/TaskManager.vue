@@ -1,5 +1,22 @@
 <template>
   <div class="tm-page">
+    <!-- 顶部模式切换：列表 / 四象限 / 看板 -->
+    <div class="tm-toolbar">
+      <div class="tm-modes">
+        <button class="tm-mode" :class="{ active: mode === 'list' }" @click="mode = 'list'">
+          <Icon name="list" :size="15" /> <span>列表</span>
+        </button>
+        <button class="tm-mode" :class="{ active: mode === 'quadrant' }" @click="mode = 'quadrant'">
+          <Icon name="layout-grid" :size="15" /> <span>四象限</span>
+        </button>
+        <button class="tm-mode" :class="{ active: mode === 'board' }" @click="mode = 'board'">
+          <Icon name="columns" :size="15" /> <span>看板</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 列表模式：保留原有左栏 + 任务树 -->
+    <div v-if="mode === 'list'" class="tm-list-wrap">
     <!-- 左栏：智能列表 + 清单 / 项目 / 领域 -->
     <aside class="tm-side">
       <div class="tm-side-section">
@@ -87,6 +104,10 @@
         </div>
       </template>
     </section>
+    </div>
+
+    <div v-else-if="mode === 'quadrant'" class="tm-feature"><TaskQuadrant /></div>
+    <div v-else-if="mode === 'board'" class="tm-feature"><TaskKanban /></div>
   </div>
 </template>
 
@@ -95,6 +116,8 @@
 import { ref, computed, onMounted, provide } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import TaskRow from '@/components/TaskRow.vue'
+import TaskQuadrant from '@/views/TaskQuadrant.vue'
+import TaskKanban from '@/views/TaskKanban.vue'
 import {
   listTasks,
   listTasksByList,
@@ -119,6 +142,8 @@ const smartItems = [
 const viewMode = ref<'smart' | 'list'>('smart')
 const smart = ref<SmartList>('inbox')
 const selectedListId = ref<number | null>(null)
+// 顶部模式：列表 / 四象限 / 看板
+const mode = ref<'list' | 'quadrant' | 'board'>('list')
 const tasks = ref<TaskNode[]>([])
 const lists = ref<TaskListVO[]>([])
 const counts = ref<Record<string, number>>({})
@@ -289,12 +314,31 @@ onMounted(async () => {
 <style scoped>
 .tm-page {
   display: flex;
+  flex-direction: column;
   height: calc(100vh - 104px);
   background: var(--kb-card);
   border: 1px solid var(--kb-border);
   border-radius: 14px;
   overflow: hidden;
 }
+
+/* ===== 顶部模式切换 ===== */
+.tm-toolbar { flex: 0 0 auto; padding: 12px 16px; border-bottom: 1px solid var(--kb-border); }
+.tm-modes { display: inline-flex; gap: 4px; background: var(--kb-muted); padding: 3px; border-radius: 10px; }
+.tm-mode {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border: none; background: transparent;
+  border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500;
+  color: var(--kb-muted-foreground); transition: all 0.12s ease;
+}
+.tm-mode:hover { color: var(--kb-foreground); }
+.tm-mode.active { background: var(--kb-card); color: var(--kb-primary); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); }
+
+/* 列表模式容器（左栏 + 右栏横向排列） */
+.tm-list-wrap { flex: 1 1 auto; min-height: 0; display: flex; }
+
+/* 四象限 / 看板特性视图容器 */
+.tm-feature { flex: 1 1 auto; min-height: 0; padding: 16px; }
 
 /* ===== 左栏 ===== */
 .tm-side {

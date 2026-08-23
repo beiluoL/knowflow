@@ -30,6 +30,12 @@ public interface TaskService {
     /** 设置任务状态（0 待办 / 1 已完成）。 */
     void setStatus(Long userId, Long id, Integer status);
 
+    /** 看板视图：返回当前用户顶层任务（parent_id=0）扁平列表，按 stage 分组由前端完成。 */
+    List<TaskVO> listBoard(Long userId);
+
+    /** 更新看板阶段（0 待办 / 1 进行中 / 2 已完成），并同步 status（已完成阶段 ⟺ status=1）。 */
+    void updateStage(Long userId, Long id, Integer stage);
+
     /** 当前用户全部清单 / 项目 / 领域（含任务计数）。 */
     List<TaskListVO> listTaskLists(Long userId);
 
