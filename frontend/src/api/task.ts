@@ -34,7 +34,7 @@ export interface TaskListVO {
 }
 
 export interface TaskPayload {
-  title: string
+  title?: string
   listId?: number | null
   parentId?: number | null
   notes?: string

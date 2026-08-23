@@ -385,6 +385,12 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   {
+    path: '/task-list',
+    name: 'TaskManager',
+    component: () => import('@/views/TaskManager.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
     path: '/settings/background',
     name: 'BackgroundSettings',
     component: () => import('@/views/BackgroundSettings.vue'),

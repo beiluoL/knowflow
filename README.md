@@ -72,6 +72,7 @@
 |  | 智能出题 | `/learning/quiz` |
 |  | 智能写作（AI 评分 / 预览 / 导出 PDF・MD） | `/learning/writing` |
 | **个人空间** | 工作台（任务中心） | `/tasks` |
+|  | 任务清单（Things3 式：智能列表 inbox/today/upcoming/someday/logbook + 项目/区域 + 子任务树） | `/task-list` |
 |  | 个人中心 | `/profile` |
 |  | 收藏夹 | `/favorites` |
 |  | 笔记管理 / 笔记编辑 | `/notes` `/notes/new` `/notes/:id/edit` |
@@ -123,7 +124,7 @@
 | 统一入口 | `/portal`（重定向至 `/tasks`） | 登录后工作台 |
 | 重定向 / 404 | `/redirect` `*` | 路由过渡页 / 错误页 |
 
-## 后端接口总览（48 个控制器）
+## 后端接口总览（50 个控制器）
 
 统一前缀 `/api`，完整接口文档见 Swagger（`/swagger-ui.html`）。
 
@@ -144,6 +145,8 @@
 | NotificationController | `/api/notifications` | 消息列表 / 已读 / 未读数 |
 | KnowledgeController | `/api/knowledge` | 知识图谱数据（分类图/技术栈图/概念图解/实体关系图；`/entity-graph` 查询、`/extract` 触发 AI 抽取） |
 | DrawingController | `/api/drawings` | 绘图编辑器·流程图整图 CRUD（列表/详情/新建/更新/删除），全部需登录，user_id 维度隔离；`data` 存 vue-flow 契约 JSON（nodes/edges） |
+| TaskController | `/api/tasks` | 任务 CRUD + 智能列表（inbox/today/upcoming/someday/logbook，按 scheduledDate/completed 自动归类）、按清单/父任务/完成态过滤；支持子任务（parentId 层级、递归子树）；全部需登录，user_id 维度隔离 |
+| TaskListController | `/api/task-lists` | 任务清单/项目/区域 CRUD（type: inbox/today/upcoming/someday/logbook/project/area），含任务计数；user_id 维度隔离 |
 | QuizController | `/api/quiz` | 智能测验：按知识库/文档出题、提交判分、答题记录、错题同步 |
 | CheckInController | `/api/checkin` | 每日打卡（签到 / 补卡 / 连续天数与奖励） |
 | AchievementController | `/api/achievements` | 成就列表与解锁、用户成就进度 |

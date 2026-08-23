@@ -325,8 +325,8 @@ CREATE INDEX IF NOT EXISTS idx_fc_category    ON learning_flashcard (category_id
 CREATE INDEX IF NOT EXISTS idx_fc_doc         ON learning_flashcard (doc_id);
 CREATE INDEX IF NOT EXISTS idx_fc_next_review ON learning_flashcard (next_review_time);
 CREATE INDEX IF NOT EXISTS idx_fc_deleted     ON learning_flashcard (deleted);
-CREATE INDEX idx_task_user    ON learning_task (user_id);
-CREATE INDEX idx_task_status  ON learning_task (status);
+CREATE INDEX idx_learning_task_user    ON learning_task (user_id);
+CREATE INDEX idx_learning_task_status  ON learning_task (status);
 
 -- 错题表
 CREATE TABLE IF NOT EXISTS learning_mistake (
