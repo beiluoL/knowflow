@@ -124,6 +124,7 @@ import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/controls/dist/style.css'
 import Icon from '@/components/ui/Icon.vue'
 import { notify } from '@/utils/toast'
+import { dialog } from '@/utils/dialog'
 import {
   listDrawings,
   getDrawing,
@@ -220,7 +221,7 @@ async function newDrawing() {
 }
 
 async function deleteDrawingItem(id: number) {
-  if (!window.confirm('确定删除该流程图？此操作不可恢复。')) return
+  if (!(await dialog.confirm({ title: '删除确认', message: '确定删除该流程图？此操作不可恢复。', variant: 'danger' }))) return
   try {
     await deleteDrawing(id)
     notify('已删除', 'success')

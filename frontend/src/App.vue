@@ -11,6 +11,7 @@
   </router-view>
   <ToastHost />
   <Celebration />
+  <DialogHost />
 </template>
 
 <script setup lang="ts">
@@ -21,6 +22,7 @@ import CLayout from '@/components/layout/CLayout.vue';
 import GlobalBackground from '@/components/GlobalBackground.vue';
 import ToastHost from '@/components/ui/ToastHost.vue';
 import Celebration from '@/components/ui/Celebration.vue';
+import DialogHost from '@/components/ui/DialogHost.vue';
 import { useAuthStore } from '@/stores/auth';
 import { usePomodoroStore } from '@/stores/pomodoro';
 

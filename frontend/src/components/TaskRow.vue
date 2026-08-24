@@ -56,6 +56,7 @@ import Icon from '@/components/ui/Icon.vue'
 import { updateTask, setTaskStatus, createTask, deleteTask } from '@/api/task'
 import type { TaskNode } from '@/api/task'
 import { notify } from '@/utils/toast'
+import { dialog } from '@/utils/dialog'
 
 const props = defineProps<{ task: TaskNode; depth: number }>()
 const reload = inject<() => void>('taskReload', () => {})
@@ -123,7 +124,7 @@ async function toggleSomeday() {
 }
 
 async function remove() {
-  if (!confirm('确定删除该任务及其所有子任务？')) return
+  if (!(await dialog.confirm({ title: '删除确认', message: '确定删除该任务及其所有子任务？', variant: 'danger' }))) return
   try {
     await deleteTask(props.task.id)
     reload()

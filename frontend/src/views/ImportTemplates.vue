@@ -277,6 +277,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { dialog } from '@/utils/dialog'
 import Icon from '@/components/ui/Icon.vue'
 import {
   importTemplateApi,
@@ -452,7 +453,7 @@ async function copyPreset(tpl: ImportTemplateVO) {
 }
 
 async function remove(tpl: ImportTemplateVO) {
-  if (!confirm(`确认删除模板「${tpl.name}」？`)) return
+  if (!(await dialog.confirm({ title: '删除确认', message: `确认删除模板「${tpl.name}」？`, variant: 'danger' }))) return
   try {
     await importTemplateApi.remove(tpl.id)
     await load()

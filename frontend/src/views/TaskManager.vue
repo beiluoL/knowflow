@@ -129,6 +129,7 @@ import {
   type SmartList,
 } from '@/api/task'
 import { notify } from '@/utils/toast'
+import { dialog } from '@/utils/dialog'
 
 const smartItems = [
   { key: 'inbox', label: '收件箱', icon: 'inbox' },
@@ -289,8 +290,12 @@ async function addTask() {
 }
 
 async function createList() {
-  const name = prompt('清单名称：')
-  if (!name || !name.trim()) return
+  const name = await dialog.prompt({
+    title: '新建清单',
+    message: '请输入清单名称：',
+    input: { placeholder: '清单名称', maxlength: 40 },
+  })
+  if (name === null || !name.trim()) return
   try {
     await createTaskList({ name: name.trim(), kind: 'list' })
     await loadLists()

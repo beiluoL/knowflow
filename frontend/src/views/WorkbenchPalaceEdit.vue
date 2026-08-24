@@ -179,6 +179,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import { notify, getApiError } from '@/utils/toast'
+import { dialog } from '@/utils/dialog'
 import { getPalace, listLoci, createLoci, updateLoci, deleteLoci, getCategoryTree } from '@/api/workbench'
 import type { WbPalace, WbPalaceLoci, WbPalaceLociPayload, CategoryVO } from '@/api/types'
 
@@ -349,7 +350,7 @@ async function saveLoci() {
   }
 }
 async function removeLoci(l: WbPalaceLoci) {
-  if (!confirm('确认删除该位点？')) return
+  if (!(await dialog.confirm({ title: '删除确认', message: '确认删除该位点？', variant: 'danger' }))) return
   try {
     await deleteLoci(l.id)
     notify({ type: 'success', message: '已删除' })

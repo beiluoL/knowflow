@@ -60,6 +60,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import { notify, getApiError } from '@/utils/toast'
+import { dialog } from '@/utils/dialog'
 import { listNotes, deleteNote } from '@/api/workbench'
 import type { WbNote } from '@/api/types'
 
@@ -84,7 +85,7 @@ function masteryColor(v?: number) {
   return 'var(--kb-state-error)'
 }
 async function remove(n: WbNote) {
-  if (!confirm('确认删除该笔记？')) return
+  if (!(await dialog.confirm({ title: '删除确认', message: '确认删除该笔记？', variant: 'danger' }))) return
   try {
     await deleteNote(n.id)
     notify({ type: 'success', message: '已删除' })

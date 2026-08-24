@@ -149,6 +149,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
+import { dialog } from '@/utils/dialog';
 import Icon from '@/components/ui/Icon.vue';
 import { databaseApi } from '@/api/database';
 import type { DbOptionVO, DbStatusVO, DbTestResult } from '@/api/database';
@@ -238,11 +239,14 @@ async function handleTest(): Promise<void> {
 
 async function handleSwitch(): Promise<void> {
   const target = status.value?.options.find((o) => o.code === form.type);
-  const confirmed = window.confirm(
-    `确认将数据库切换为「${target?.displayName ?? form.type}」？\n` +
-      '切换后新请求将立即使用目标库，旧连接池会在 30 秒后释放。',
-  );
-  if (!confirmed) return;
+  if (
+    !(await dialog.confirm({
+      title: '切换数据库',
+      message: `确认将数据库切换为「${target?.displayName ?? form.type}」？\n切换后新请求将立即使用目标库，旧连接池会在 30 秒后释放。`,
+      variant: 'danger',
+    }))
+  )
+    return;
 
   switching.value = true;
   switchMessage.value = '';
@@ -261,10 +265,14 @@ async function handleSwitch(): Promise<void> {
 }
 
 async function handleInit(): Promise<void> {
-  const confirmed = window.confirm(
-    '确认对当前数据库执行初始化脚本？\n若库中已有数据，可能产生重复记录或主键冲突。',
-  );
-  if (!confirmed) return;
+  if (
+    !(await dialog.confirm({
+      title: '初始化数据库',
+      message: '确认对当前数据库执行初始化脚本？\n若库中已有数据，可能产生重复记录或主键冲突。',
+      variant: 'danger',
+    }))
+  )
+    return;
 
   initializing.value = true;
   initMessage.value = '';

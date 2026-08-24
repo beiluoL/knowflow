@@ -81,6 +81,7 @@ import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import { listBoard, createTask, updateTaskStage, setTaskStatus, deleteTask, type TaskNode } from '@/api/task'
 import { notify } from '@/utils/toast'
+import { dialog } from '@/utils/dialog'
 
 type Stage = 0 | 1 | 2
 
@@ -173,7 +174,7 @@ async function toggleDone(t: TaskNode) {
 }
 
 async function remove(t: TaskNode) {
-  if (!confirm('确定删除该任务？')) return
+  if (!(await dialog.confirm({ title: '删除确认', message: '确定删除该任务？', variant: 'danger' }))) return
   try {
     await deleteTask(t.id)
     tasks.value = tasks.value.filter((x) => x.id !== t.id)
@@ -183,8 +184,12 @@ async function remove(t: TaskNode) {
 }
 
 async function addInColumn(col: (typeof columns)[number]) {
-  const v = prompt(`在「${col.label}」新建任务：`)
-  if (!v || !v.trim()) return
+  const v = await dialog.prompt({
+    title: `在「${col.label}」新建任务`,
+    message: '请输入任务标题：',
+    input: { placeholder: '任务标题', maxlength: 100 },
+  })
+  if (v === null || !v.trim()) return
   try {
     await createTask({ title: v.trim(), stage: col.key })
     await reload()

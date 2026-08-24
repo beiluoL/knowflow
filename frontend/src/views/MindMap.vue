@@ -151,6 +151,7 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import { notify } from '@/utils/toast'
+import { dialog } from '@/utils/dialog'
 import {
   listMindMaps,
   getMindMap,
@@ -254,7 +255,7 @@ async function newMap() {
 }
 
 async function deleteMap(id: number) {
-  if (!window.confirm('确定删除该思维导图？此操作不可恢复。')) return
+  if (!(await dialog.confirm({ title: '删除确认', message: '确定删除该思维导图？此操作不可恢复。', variant: 'danger' }))) return
   try {
     await deleteMindMap(id)
     notify('已删除', 'success')
@@ -328,10 +329,10 @@ function addRoot() {
   })
 }
 
-function deleteNode(id: string) {
+async function deleteNode(id: string) {
   const node = nodeById(id)
   if (!node) return
-  if (!window.confirm('删除该节点及其所有子节点？')) return
+  if (!(await dialog.confirm({ title: '删除确认', message: '删除该节点及其所有子节点？', variant: 'danger' }))) return
   const toRemove = new Set<string>([id])
   let changed = true
   while (changed) {
