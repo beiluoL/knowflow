@@ -46,6 +46,10 @@ export interface TaskPayload {
   notes?: string
   scheduledDate?: string | null
   dueDate?: string | null
+  /** 定时事件开始时间：yyyy-MM-dd HH:mm（全天事件留空）。 */
+  startTime?: string | null
+  /** 定时事件结束时间：yyyy-MM-dd HH:mm。 */
+  endTime?: string | null
   someday?: boolean
   important?: number
   urgent?: number

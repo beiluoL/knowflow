@@ -597,6 +597,7 @@ const aiMenu: NavLink[] = [
 const growthMenu: NavLink[] = [
   { path: '/tasks', label: '任务中心', icon: 'target' },
   { path: '/task-list', label: '任务清单', icon: 'list-checks' },
+  { path: '/calendar', label: '日历', icon: 'calendar' },
   { path: '/check-in', label: '每日打卡', icon: 'calendar-check' },
   { path: '/achievements', label: '成就系统', icon: 'trophy' },
   { path: '/kb-titles', label: '知识库称号', icon: 'award' },

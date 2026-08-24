@@ -2,9 +2,11 @@ package com.knowflow.service;
 
 import com.knowflow.dto.TaskDTO;
 import com.knowflow.dto.TaskListDTO;
+import com.knowflow.vo.CalendarEventVO;
 import com.knowflow.vo.TaskListVO;
 import com.knowflow.vo.TaskVO;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -47,4 +49,7 @@ public interface TaskService {
 
     /** 删除清单（其任务退回收件箱、子清单提升为顶级）。 */
     void deleteTaskList(Long userId, Long id);
+
+    /** 按时间区间查询日历事件（start/end 必填），供月/周/日视图与范围筛选共用。 */
+    List<CalendarEventVO> listByRange(Long userId, LocalDateTime start, LocalDateTime end, Integer status, Long listId);
 }

@@ -4,11 +4,13 @@ import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
 import com.knowflow.dto.TaskDTO;
 import com.knowflow.service.TaskService;
+import com.knowflow.vo.CalendarEventVO;
 import com.knowflow.vo.TaskVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -48,6 +51,16 @@ public class TaskController {
     @GetMapping("/list/{listId}")
     public Result<List<TaskVO>> listByList(@PathVariable Long listId) {
         return Result.success(taskService.listByList(uid(), listId));
+    }
+
+    @Operation(summary = "按时间区间查询日历事件（start/end 必填，本地时间 ISO 格式，如 2026-08-01T00:00:00）")
+    @GetMapping("/range")
+    public Result<List<CalendarEventVO>> range(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+            @RequestParam(required = false) Integer status,
+            @RequestParam(required = false) Long listId) {
+        return Result.success(taskService.listByRange(uid(), start, end, status, listId));
     }
 
     @Operation(summary = "新建任务")

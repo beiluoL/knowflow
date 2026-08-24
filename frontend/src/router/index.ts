@@ -294,6 +294,12 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'c', requiresAuth: true },
   },
   {
+    path: '/calendar',
+    name: 'Calendar',
+    component: () => import('@/views/CalendarView.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  {
     path: '/achievements',
     name: 'Achievement',
     component: () => import('@/views/Achievement.vue'),

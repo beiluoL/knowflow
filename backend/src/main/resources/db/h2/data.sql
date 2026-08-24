@@ -342,3 +342,30 @@ MERGE INTO import_template (id, user_id, name, type, description, content, enabl
   STRINGDECODE('{"fieldSchema":[{"key":"question","label":"判断题干","type":"markdown","required":true,"source":"heading-3"},{"key":"answer","label":"正误","type":"text","required":true,"source":"heading-3-content"}],"rules":{"headingLevel":3,"maxPerDoc":20,"questionTypes":["JUDGE"]},"validation":[{"field":"question","rule":"not-empty"},{"field":"answer","rule":"not-empty"}],"style":{"showImage":false,"theme":"light"},"sourceBinding":{"mode":"keyword","pattern":"判断"}}'),
   1, 0, 1
 );
+
+-- 日历演示数据（相对当前日期生成，重启后回滚）：覆盖全天 / 定时 / 已完成 / 重要 / 紧急
+INSERT INTO task (user_id, list_id, parent_id, title, notes, status, scheduled_date, due_date, someday, important, urgent, stage, sort_order, start_time, end_time, create_time, update_time, deleted) VALUES
+-- 今日：晨会同步（重要，定时）
+(2, NULL, 0, '晨会同步', '每日站会同步进度', 0, CURRENT_DATE, NULL, 0, 1, 0, 0, 0,
+  DATEADD(HOUR, 9, CAST(CURRENT_DATE AS TIMESTAMP)), DATEADD(HOUR, 10, CAST(CURRENT_DATE AS TIMESTAMP)), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+-- 今日：代码评审（定时）
+(2, NULL, 0, '代码评审', NULL, 0, CURRENT_DATE, NULL, 0, 0, 0, 1, 1,
+  DATEADD(HOUR, 14, CAST(CURRENT_DATE AS TIMESTAMP)), DATEADD(HOUR, 15, DATEADD(MINUTE, 30, CAST(CURRENT_DATE AS TIMESTAMP))), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+-- 今日：线上故障排查（紧急，定时）
+(2, NULL, 0, '线上故障排查', 'P0 告警', 0, CURRENT_DATE, NULL, 0, 0, 1, 0, 2,
+  DATEADD(HOUR, 11, CAST(CURRENT_DATE AS TIMESTAMP)), DATEADD(HOUR, 12, CAST(CURRENT_DATE AS TIMESTAMP)), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+-- 今日：提交周报（全天）
+(2, NULL, 0, '提交周报', NULL, 0, CURRENT_DATE, CURRENT_DATE, 0, 0, 0, 0, 3,
+  NULL, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+-- 昨日：完成需求文档（已完成，定时）
+(2, NULL, 0, '完成需求文档', NULL, 1, DATEADD(DAY, -1, CURRENT_DATE), NULL, 0, 0, 0, 2, 4,
+  DATEADD(HOUR, 16, DATEADD(DAY, -1, CAST(CURRENT_DATE AS TIMESTAMP))), DATEADD(HOUR, 17, DATEADD(DAY, -1, CAST(CURRENT_DATE AS TIMESTAMP))), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+-- 明日：需求评审（定时）
+(2, NULL, 0, '需求评审', NULL, 0, DATEADD(DAY, 1, CURRENT_DATE), NULL, 0, 1, 0, 0, 0,
+  DATEADD(HOUR, 10, DATEADD(DAY, 1, CAST(CURRENT_DATE AS TIMESTAMP))), DATEADD(HOUR, 11, DATEADD(DAY, 1, CAST(CURRENT_DATE AS TIMESTAMP))), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+-- 后天：团队团建（全天）
+(2, NULL, 0, '团队团建', NULL, 0, DATEADD(DAY, 2, CURRENT_DATE), NULL, 0, 0, 0, 0, 0,
+  NULL, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0),
+-- 本周五：一对一沟通（定时）
+(2, NULL, 0, '一对一沟通', NULL, 0, DATEADD(DAY, 4, CURRENT_DATE), NULL, 0, 0, 0, 0, 0,
+  DATEADD(HOUR, 16, DATEADD(DAY, 4, CAST(CURRENT_DATE AS TIMESTAMP))), DATEADD(HOUR, 17, DATEADD(DAY, 4, CAST(CURRENT_DATE AS TIMESTAMP))), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);

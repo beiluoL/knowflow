@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Things3 式任务实体：支持清单/项目/领域层级（list_id）、
@@ -35,6 +36,12 @@ public class Task extends BaseEntity {
 
     /** 截止日期（可选）。 */
     private LocalDate dueDate;
+
+    /** 任务开始时间（日历定时事件用）；null 表示无具体时间（按 scheduled_date 作为全天事件）。 */
+    private LocalDateTime startTime;
+
+    /** 任务结束时间（可选，仅当 startTime 存在时有意义）。 */
+    private LocalDateTime endTime;
 
     /** 1 表示放入「某天 / 也许」清单（Someday）。 */
     private Integer someday;

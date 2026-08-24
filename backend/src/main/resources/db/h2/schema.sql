@@ -231,6 +231,8 @@ CREATE TABLE IF NOT EXISTS task (
     urgent INT DEFAULT 0,
     stage INT DEFAULT 0,
     sort_order INT DEFAULT 0,
+    start_time TIMESTAMP,
+    end_time   TIMESTAMP,
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0
@@ -241,6 +243,7 @@ CREATE INDEX IF NOT EXISTS idx_task_list     ON task (list_id);
 CREATE INDEX IF NOT EXISTS idx_task_parent   ON task (parent_id);
 CREATE INDEX IF NOT EXISTS idx_task_status   ON task (status);
 CREATE INDEX IF NOT EXISTS idx_task_stage    ON task (stage);
+CREATE INDEX IF NOT EXISTS idx_task_start_time ON task (start_time);
 CREATE INDEX IF NOT EXISTS idx_tasklist_user ON task_list (user_id);
 CREATE INDEX IF NOT EXISTS idx_tasklist_par  ON task_list (parent_id);
 

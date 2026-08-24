@@ -10,6 +10,7 @@ import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.TaskListMapper;
 import com.knowflow.mapper.TaskMapper;
 import com.knowflow.service.TaskService;
+import com.knowflow.vo.CalendarEventVO;
 import com.knowflow.vo.TaskListVO;
 import com.knowflow.vo.TaskVO;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -70,6 +72,12 @@ public class TaskServiceImpl implements TaskService {
         t.setNotes(dto.getNotes());
         t.setScheduledDate(dto.getScheduledDate());
         t.setDueDate(dto.getDueDate());
+        // 定时事件：写入起止时间；若未给 scheduledDate 则取开始日期，保证月视图归类正确
+        t.setStartTime(dto.getStartTime());
+        t.setEndTime(dto.getEndTime());
+        if (dto.getStartTime() != null && dto.getScheduledDate() == null) {
+            t.setScheduledDate(dto.getStartTime().toLocalDate());
+        }
         t.setSomeday(dto.getSomeday() != null && dto.getSomeday() ? 1 : 0);
         t.setImportant(dto.getImportant() != null ? dto.getImportant() : 0);
         t.setUrgent(dto.getUrgent() != null ? dto.getUrgent() : 0);
@@ -89,6 +97,9 @@ public class TaskServiceImpl implements TaskService {
         if (dto.getNotes() != null) t.setNotes(dto.getNotes());
         if (dto.getScheduledDate() != null) t.setScheduledDate(dto.getScheduledDate());
         if (dto.getDueDate() != null) t.setDueDate(dto.getDueDate());
+        // 起止时间：仅在显式提供时更新（保持与其它部分更新调用方的兼容，避免误清空）
+        if (dto.getStartTime() != null) t.setStartTime(dto.getStartTime());
+        if (dto.getEndTime() != null) t.setEndTime(dto.getEndTime());
         if (dto.getSomeday() != null) t.setSomeday(dto.getSomeday() ? 1 : 0);
         if (dto.getImportant() != null) t.setImportant(dto.getImportant());
         if (dto.getUrgent() != null) t.setUrgent(dto.getUrgent());
@@ -220,6 +231,19 @@ public class TaskServiceImpl implements TaskService {
             self.setDeleted(1);
             taskListMapper.updateById(self);
         }
+    }
+
+    // ===== 日历范围查询 =====
+
+    @Override
+    public List<CalendarEventVO> listByRange(Long userId, LocalDateTime start, LocalDateTime end, Integer status, Long listId) {
+        LocalDate startDate = start.toLocalDate();
+        LocalDate endDate = end.toLocalDate();
+        List<CalendarEventVO> list = taskMapper.selectCalendarRange(userId, start, end, startDate, endDate, status, listId);
+        for (CalendarEventVO vo : list) {
+            vo.setAllDay(vo.getStartTime() == null);
+        }
+        return list;
     }
 
     // ===== 内部工具 =====
