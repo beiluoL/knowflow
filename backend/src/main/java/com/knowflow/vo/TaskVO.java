@@ -56,4 +56,7 @@ public class TaskVO {
 
     /** 是否拥有子任务（用于前端展开图标）。 */
     private Boolean hasChildren;
+
+    /** 关联标签（Things3 式标签）。 */
+    private List<TaskTagVO> tags;
 }

@@ -1,7 +1,16 @@
 // Things3 式任务清单接口封装。
 import { apiGet, apiPost, apiPut, apiDelete } from './request'
 
-export type SmartList = 'inbox' | 'today' | 'upcoming' | 'someday' | 'logbook' | 'all'
+export type SmartList = 'inbox' | 'today' | 'upcoming' | 'anytime' | 'someday' | 'logbook' | 'all'
+
+/** 任务标签视图对象。 */
+export interface TaskTagVO {
+  id: number
+  name: string
+  color: string
+  sortOrder: number
+  taskCount: number
+}
 
 /** 任务节点（含嵌套子任务）。 */
 export interface TaskNode {
@@ -24,6 +33,8 @@ export interface TaskNode {
   sortOrder: number
   children: TaskNode[]
   hasChildren: boolean
+  /** 关联标签 */
+  tags: TaskTagVO[]
 }
 
 /** 清单 / 项目 / 领域。 */
@@ -56,6 +67,8 @@ export interface TaskPayload {
   stage?: number
   sortOrder?: number
   status?: number
+  /** 关联标签 ID 列表（非 null 时覆盖该任务的标签关联） */
+  tagIds?: number[]
 }
 
 export interface TaskListPayload {
@@ -65,6 +78,17 @@ export interface TaskListPayload {
   color?: string
   icon?: string
   sortOrder?: number
+}
+
+export interface TaskTagPayload {
+  name?: string
+  color?: string
+  sortOrder?: number
+}
+
+export interface ReorderItem {
+  id: number
+  sortOrder: number
 }
 
 // ===== 任务 =====
@@ -85,6 +109,14 @@ export function setTaskStatus(id: number, status: number) {
 }
 export function deleteTask(id: number) {
   return apiDelete<void>(`/tasks/${id}`)
+}
+/** 批量更新排序（拖拽重排） */
+export function reorderTasks(items: ReorderItem[]) {
+  return apiPut<void>('/tasks/reorder', items)
+}
+/** 设置任务标签（覆盖式） */
+export function setTaskTags(id: number, tagIds: number[]) {
+  return apiPut<void>(`/tasks/${id}/tags`, { tagIds })
 }
 
 // ===== 看板 / 四象限 =====
@@ -109,4 +141,18 @@ export function updateTaskList(id: number, payload: TaskListPayload) {
 }
 export function deleteTaskList(id: number) {
   return apiDelete<void>(`/task-lists/${id}`)
+}
+
+// ===== 标签 =====
+export function listTaskTags() {
+  return apiGet<TaskTagVO[]>('/task-tags')
+}
+export function createTaskTag(payload: TaskTagPayload) {
+  return apiPost<number>('/task-tags', payload)
+}
+export function updateTaskTag(id: number, payload: TaskTagPayload) {
+  return apiPut<void>(`/task-tags/${id}`, payload)
+}
+export function deleteTaskTag(id: number) {
+  return apiDelete<void>(`/task-tags/${id}`)
 }

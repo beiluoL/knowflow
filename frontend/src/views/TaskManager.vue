@@ -56,6 +56,29 @@
         </button>
         <div v-if="!lists.length" class="tm-side-empty">还没有清单，点右上角 + 新建</div>
       </div>
+
+      <!-- 标签 -->
+      <div class="tm-side-section">
+        <div class="tm-side-head">
+          <span class="tm-side-title">标签</span>
+          <button class="tm-add-list" title="新建标签" @click="createTag"><Icon name="tag" :size="14" /></button>
+        </div>
+        <button
+          v-for="t in tags"
+          :key="t.id"
+          class="tm-nav tag-nav"
+          :class="{ active: viewMode === 'tag' && selectedTagId === t.id }"
+          @click="selectTag(t)"
+        >
+          <Icon name="tag" :size="15" :color="t.color || 'var(--kb-muted-foreground)'" />
+          <span class="tm-nav-label">{{ t.name }}</span>
+          <span class="tm-nav-count">{{ t.taskCount }}</span>
+          <button class="tag-del" title="删除标签" @click.stop="deleteTag(t)">
+            <Icon name="x" :size="11" />
+          </button>
+        </button>
+        <div v-if="!tags.length" class="tm-side-empty">还没有标签，点右上角 # 新建</div>
+      </div>
     </aside>
 
     <!-- 右栏：任务列表 -->
@@ -93,7 +116,7 @@
           <TaskRow v-for="t in tasks" :key="t.id" :task="t" :depth="0" />
         </div>
 
-        <div class="tm-add">
+        <div v-if="viewMode !== 'tag'" class="tm-add">
           <Icon name="plus" :size="15" style="color: var(--kb-muted-foreground);" />
           <input
             v-model="newTitle"
@@ -124,29 +147,37 @@ import {
   createTask,
   listTaskLists,
   createTaskList,
+  listTaskTags,
+  createTaskTag,
+  deleteTaskTag,
+  reorderTasks,
   type TaskNode,
   type TaskListVO,
+  type TaskTagVO,
   type SmartList,
 } from '@/api/task'
-import { notify } from '@/utils/toast'
+import { notify, getApiError } from '@/utils/toast'
 import { dialog } from '@/utils/dialog'
 
 const smartItems = [
   { key: 'inbox', label: '收件箱', icon: 'inbox' },
   { key: 'today', label: '今天', icon: 'calendar' },
   { key: 'upcoming', label: '即将到来', icon: 'flag' },
+  { key: 'anytime', label: '待办', icon: 'layers' },
   { key: 'someday', label: '某天也许', icon: 'cloud' },
   { key: 'logbook', label: '日志', icon: 'check-circle' },
   { key: 'all', label: '全部', icon: 'list-checks' },
 ] as const
 
-const viewMode = ref<'smart' | 'list'>('smart')
+const viewMode = ref<'smart' | 'list' | 'tag'>('smart')
 const smart = ref<SmartList>('inbox')
 const selectedListId = ref<number | null>(null)
+const selectedTagId = ref<number | null>(null)
 // 顶部模式：列表 / 四象限 / 看板
 const mode = ref<'list' | 'quadrant' | 'board'>('list')
 const tasks = ref<TaskNode[]>([])
 const lists = ref<TaskListVO[]>([])
+const tags = ref<TaskTagVO[]>([])
 const counts = ref<Record<string, number>>({})
 const loading = ref(false)
 const error = ref('')
@@ -157,12 +188,17 @@ const currentTitle = computed(() => {
     const l = lists.value.find((x) => x.id === selectedListId.value)
     return l ? l.name : '清单'
   }
+  if (viewMode.value === 'tag') {
+    const t = tags.value.find((x) => x.id === selectedTagId.value)
+    return t ? `#${t.name}` : '标签'
+  }
   const s = smartItems.find((x) => x.key === smart.value)
   return s ? s.label : '任务'
 })
 
 const addPlaceholder = computed(() => {
   if (viewMode.value === 'list') return '添加任务到该清单…'
+  if (viewMode.value === 'tag') return '标签视图下不支持直接添加，请切换到清单或智能列表…'
   if (smart.value === 'today') return '添加今天要做的任务…'
   if (smart.value === 'logbook') return '这是已完成任务的归档'
   return '添加任务…'
@@ -203,18 +239,22 @@ function computeCounts(all: TaskNode[], logbook: TaskNode[]) {
   let inbox = 0
   let todayC = 0
   let up = 0
+  let any = 0
   let some = 0
   for (const t of allFlat) {
     if (t.status === 1) continue
     if (t.listId == null && !t.someday) inbox++
     if (t.scheduledDate && t.scheduledDate <= today) todayC++
     if (t.scheduledDate && t.scheduledDate > today) up++
+    // 待办：已归属清单但未安排日期，且非某天也许
+    if (t.listId != null && !t.scheduledDate && !t.someday) any++
     if (t.someday) some++
   }
   counts.value = {
     inbox,
     today: todayC,
     upcoming: up,
+    anytime: any,
     someday: some,
     logbook: flatten(logbook).length,
     all: allFlat.length,
@@ -225,14 +265,27 @@ async function loadLists() {
   lists.value = await listTaskLists()
 }
 
+async function loadTags() {
+  try {
+    tags.value = await listTaskTags()
+  } catch {
+    /* 标签加载失败不阻断主流程 */
+  }
+}
+
 async function loadTasks() {
   loading.value = true
   error.value = ''
   try {
-    tasks.value =
-      viewMode.value === 'list' && selectedListId.value != null
-        ? await listTasksByList(selectedListId.value)
-        : await listTasks(smart.value)
+    if (viewMode.value === 'tag' && selectedTagId.value != null) {
+      // 标签视图：拉取全部未完成任务，前端按标签过滤
+      const all = await listTasks('all')
+      tasks.value = filterByTag(all, selectedTagId.value)
+    } else if (viewMode.value === 'list' && selectedListId.value != null) {
+      tasks.value = await listTasksByList(selectedListId.value)
+    } else {
+      tasks.value = await listTasks(smart.value)
+    }
   } catch (e) {
     error.value = (e as Error).message || '加载失败'
   } finally {
@@ -240,8 +293,21 @@ async function loadTasks() {
   }
 }
 
+/** 按标签过滤任务树：保留含该标签的节点及其祖先链；子任务无该标签也一并保留以保持上下文。 */
+function filterByTag(nodes: TaskNode[], tagId: number): TaskNode[] {
+  const out: TaskNode[] = []
+  for (const n of nodes) {
+    const children = n.children ? filterByTag(n.children, tagId) : []
+    const hasTag = (n.tags || []).some((t) => t.id === tagId)
+    if (hasTag || children.length > 0) {
+      out.push({ ...n, children })
+    }
+  }
+  return out
+}
+
 async function reload() {
-  await Promise.all([loadTasks(), loadLists()])
+  await Promise.all([loadTasks(), loadLists(), loadTags()])
 }
 
 async function loadCounts() {
@@ -256,13 +322,58 @@ async function loadCounts() {
 function selectSmart(s: SmartList) {
   viewMode.value = 'smart'
   smart.value = s
+  selectedTagId.value = null
   loadTasks()
 }
 
 function selectList(l: TaskListVO) {
   viewMode.value = 'list'
   selectedListId.value = l.id
+  selectedTagId.value = null
   loadTasks()
+}
+
+function selectTag(t: TaskTagVO) {
+  viewMode.value = 'tag'
+  selectedTagId.value = t.id
+  loadTasks()
+}
+
+async function createTag() {
+  const name = await dialog.prompt({
+    title: '新建标签',
+    message: '请输入标签名称：',
+    input: { placeholder: '标签名', maxlength: 20 },
+  })
+  if (name === null || !name.trim()) return
+  try {
+    await createTaskTag({ name: name.trim() })
+    await loadTags()
+    notify('标签已创建', 'success')
+  } catch (e: unknown) {
+    notify(getApiError(e, '创建标签失败'), 'error')
+  }
+}
+
+async function deleteTag(t: TaskTagVO) {
+  if (!(await dialog.confirm({
+    title: '删除标签',
+    message: `确定删除标签「${t.name}」？关联任务不会被删除。`,
+    variant: 'danger',
+  }))) return
+  try {
+    await deleteTaskTag(t.id)
+    if (selectedTagId.value === t.id) {
+      selectedTagId.value = null
+      viewMode.value = 'smart'
+      smart.value = 'inbox'
+    }
+    await loadTags()
+    notify('标签已删除', 'success')
+    if (selectedTagId.value === null) loadTasks()
+  } catch (e: unknown) {
+    notify(getApiError(e, '删除标签失败'), 'error')
+  }
 }
 
 function todayStr(): string {
@@ -273,6 +384,7 @@ function todayStr(): string {
 }
 
 async function addTask() {
+  if (viewMode.value === 'tag') return
   const v = newTitle.value.trim()
   if (!v) return
   newTitle.value = ''
@@ -305,14 +417,32 @@ async function createList() {
   }
 }
 
+// ===== 拖拽排序（仅智能列表 / 清单视图下，顶层任务之间） =====
+async function handleReorder(draggedId: number, targetId: number) {
+  const dragIdx = tasks.value.findIndex((t) => t.id === draggedId)
+  const targetIdx = tasks.value.findIndex((t) => t.id === targetId)
+  if (dragIdx === -1 || targetIdx === -1 || dragIdx === targetIdx) return
+  // 乐观更新：先移动，再持久化
+  const [moved] = tasks.value.splice(dragIdx, 1)
+  tasks.value.splice(targetIdx, 0, moved)
+  const items = tasks.value.map((t, i) => ({ id: t.id, sortOrder: i }))
+  try {
+    await reorderTasks(items)
+  } catch (e) {
+    notify((e as Error).message || '排序失败，已恢复', 'error')
+    reload()
+  }
+}
+
 // 供递归 TaskRow 在写操作后刷新当前视图与计数
 provide('taskReload', async () => {
   await reload()
   loadCounts()
 })
+provide('taskReorder', handleReorder)
 
 onMounted(async () => {
-  await Promise.all([loadLists(), loadTasks(), loadCounts()])
+  await Promise.all([loadLists(), loadTasks(), loadCounts(), loadTags()])
 })
 </script>
 
@@ -406,6 +536,23 @@ onMounted(async () => {
   text-align: center;
   padding: 1px 6px;
 }
+.tag-nav .tag-del {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: var(--kb-muted-foreground);
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.12s ease, color 0.12s ease;
+}
+.tag-nav:hover .tag-del { opacity: 0.7; }
+.tag-nav .tag-del:hover { opacity: 1; color: var(--kb-destructive); background: rgba(239, 68, 68, 0.1); }
 .tm-side-empty { font-size: 12px; color: var(--kb-muted-foreground); padding: 8px; line-height: 1.5; }
 
 /* ===== 右栏 ===== */

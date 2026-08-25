@@ -3,6 +3,7 @@ package com.knowflow.controller;
 import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
 import com.knowflow.dto.TaskDTO;
+import com.knowflow.dto.TaskReorderDTO;
 import com.knowflow.service.TaskService;
 import com.knowflow.vo.CalendarEventVO;
 import com.knowflow.vo.TaskVO;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 前台-Things3 式任务清单接口（任务维度）：智能列表 / 按清单查询 / 增删改 / 状态切换。
@@ -93,6 +95,23 @@ public class TaskController {
     @PutMapping("/{id}/stage")
     public Result<Void> updateStage(@PathVariable Long id, @RequestParam Integer stage) {
         taskService.updateStage(uid(), id, stage);
+        return Result.success();
+    }
+
+    @Operation(summary = "批量更新排序（拖拽重排）：入参 [{id, sortOrder}] 列表")
+    @PutMapping("/reorder")
+    public Result<Void> reorder(@RequestBody List<TaskReorderDTO> items) {
+        taskService.reorderTasks(uid(), items);
+        return Result.success();
+    }
+
+    @Operation(summary = "设置任务标签（覆盖式）：body 为 { tagIds: [1,2] }")
+    @PutMapping("/{id}/tags")
+    public Result<Void> setTags(@PathVariable Long id, @RequestBody Map<String, List<Long>> body) {
+        List<Long> tagIds = body.get("tagIds");
+        TaskDTO dto = new TaskDTO();
+        dto.setTagIds(tagIds);
+        taskService.updateTask(uid(), id, dto);
         return Result.success();
     }
 

@@ -1373,3 +1373,68 @@ CREATE TABLE IF NOT EXISTS wb_drawing (
   KEY idx_wbd_user (user_id),
   KEY idx_wbd_deleted (deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ========== 习惯打卡：多习惯管理 + 每日打卡记录 + 连续天数与进度 ==========
+CREATE TABLE IF NOT EXISTS habit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    name VARCHAR(100) NOT NULL COMMENT '习惯名称',
+    description VARCHAR(500) COMMENT '习惯描述',
+    icon VARCHAR(40) DEFAULT 'repeat' COMMENT '习惯图标',
+    color VARCHAR(20) DEFAULT 'var(--kb-primary)' COMMENT '习惯主题色',
+    frequency VARCHAR(20) DEFAULT 'daily' COMMENT '打卡频率：daily 每日 / weekly 每周',
+    target_count INT DEFAULT 1 COMMENT '每周期目标打卡次数（如每日 8 杯水）',
+    reminder_time VARCHAR(5) COMMENT '提醒时间 HH:mm（前端 Notification API 触发）',
+    start_date DATE COMMENT '习惯开始日期',
+    active TINYINT(1) DEFAULT 1 COMMENT '是否启用：1 启用 / 0 停用',
+    sort_order INT DEFAULT 0 COMMENT '排序',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX idx_habit_user ON habit (user_id);
+CREATE INDEX idx_habit_active ON habit (active);
+
+-- 习惯打卡记录：每习惯每自然日一行，count 累计当日打卡次数（支持多目标习惯）
+CREATE TABLE IF NOT EXISTS habit_checkin (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    habit_id BIGINT NOT NULL COMMENT '习惯ID（逻辑外键 habit.id）',
+    check_date DATE NOT NULL COMMENT '打卡日期（自然日）',
+    count INT DEFAULT 1 COMMENT '当日累计打卡次数',
+    note VARCHAR(500) COMMENT '打卡备注',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- 同一用户同一习惯同一自然日仅允许一条记录（幂等约束，count 累加）
+CREATE UNIQUE INDEX uk_hc_user_habit_date ON habit_checkin (user_id, habit_id, check_date);
+CREATE INDEX idx_hc_user ON habit_checkin (user_id);
+CREATE INDEX idx_hc_habit ON habit_checkin (habit_id);
+
+-- ========== 任务标签（Things3 式标签） ==========
+CREATE TABLE IF NOT EXISTS task_tag (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    name VARCHAR(50) NOT NULL COMMENT '标签名称',
+    color VARCHAR(20) DEFAULT 'var(--kb-muted-foreground)' COMMENT '标签颜色',
+    sort_order INT DEFAULT 0 COMMENT '排序',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX idx_tag_user ON task_tag (user_id);
+
+-- 任务-标签关联（多对多，逻辑外键，无物理外键）
+CREATE TABLE IF NOT EXISTS task_tag_rel (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    task_id BIGINT NOT NULL COMMENT '任务ID（逻辑外键 task.id）',
+    tag_id BIGINT NOT NULL COMMENT '标签ID（逻辑外键 task_tag.id）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- 同一任务同一标签仅关联一次
+CREATE UNIQUE INDEX uk_ttr_task_tag ON task_tag_rel (task_id, tag_id);
+CREATE INDEX idx_ttr_task ON task_tag_rel (task_id);
+CREATE INDEX idx_ttr_tag ON task_tag_rel (tag_id);

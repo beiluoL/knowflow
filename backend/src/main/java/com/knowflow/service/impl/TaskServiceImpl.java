@@ -4,14 +4,21 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.knowflow.dto.TaskDTO;
 import com.knowflow.dto.TaskListDTO;
+import com.knowflow.dto.TaskReorderDTO;
+import com.knowflow.dto.TaskTagDTO;
 import com.knowflow.entity.Task;
 import com.knowflow.entity.TaskList;
+import com.knowflow.entity.TaskTag;
+import com.knowflow.entity.TaskTagRel;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.TaskListMapper;
 import com.knowflow.mapper.TaskMapper;
+import com.knowflow.mapper.TaskTagMapper;
+import com.knowflow.mapper.TaskTagRelMapper;
 import com.knowflow.service.TaskService;
 import com.knowflow.vo.CalendarEventVO;
 import com.knowflow.vo.TaskListVO;
+import com.knowflow.vo.TaskTagVO;
 import com.knowflow.vo.TaskVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +27,11 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -35,6 +44,8 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskMapper taskMapper;
     private final TaskListMapper taskListMapper;
+    private final TaskTagMapper taskTagMapper;
+    private final TaskTagRelMapper taskTagRelMapper;
 
     // ===== 智能列表 =====
 
@@ -42,6 +53,7 @@ public class TaskServiceImpl implements TaskService {
     public List<TaskVO> listBySmartList(Long userId, String smart) {
         List<Task> all = allTasks(userId);
         List<TaskVO> roots = buildTree(all);
+        fillTags(roots, userId);
         LocalDate today = LocalDate.now();
         return roots.stream()
                 .filter(t -> matchSmart(t, smart, today))
@@ -52,6 +64,7 @@ public class TaskServiceImpl implements TaskService {
     public List<TaskVO> listByList(Long userId, Long listId) {
         List<Task> all = allTasks(userId);
         List<TaskVO> roots = buildTree(all);
+        fillTags(roots, userId);
         return roots.stream()
                 .filter(t -> listId.equals(t.getListId()) && t.getStatus() == 0)
                 .collect(Collectors.toList());
@@ -85,6 +98,10 @@ public class TaskServiceImpl implements TaskService {
         t.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0);
         t.setStatus(0);
         taskMapper.insert(t);
+        // 关联标签（若提供）
+        if (dto.getTagIds() != null) {
+            syncTags(t.getId(), dto.getTagIds(), userId);
+        }
         return t.getId();
     }
 
@@ -107,6 +124,10 @@ public class TaskServiceImpl implements TaskService {
         if (dto.getSortOrder() != null) t.setSortOrder(dto.getSortOrder());
         if (dto.getStatus() != null) t.setStatus(dto.getStatus());
         taskMapper.updateById(t);
+        // 标签：tagIds 非 null 时覆盖该任务的全部标签关联
+        if (dto.getTagIds() != null) {
+            syncTags(t.getId(), dto.getTagIds(), userId);
+        }
     }
 
     @Override
@@ -133,6 +154,8 @@ public class TaskServiceImpl implements TaskService {
             TaskVO vo = toVO(t);
             result.add(vo);
         }
+        // 批量填充标签
+        fillTags(result, userId);
         return result;
     }
 
@@ -349,6 +372,9 @@ public class TaskServiceImpl implements TaskService {
                 return open && t.getScheduledDate() != null && !t.getScheduledDate().isAfter(today);
             case "upcoming":
                 return open && t.getScheduledDate() != null && t.getScheduledDate().isAfter(today);
+            case "anytime":
+                // 待办：已归属清单/项目但未安排日期，且非某天也许
+                return open && t.getListId() != null && t.getScheduledDate() == null && !t.getSomeday();
             case "someday":
                 return open && t.getSomeday();
             case "logbook":
@@ -356,6 +382,182 @@ public class TaskServiceImpl implements TaskService {
             case "all":
             default:
                 return open;
+        }
+    }
+
+    // ===== 批量排序 =====
+
+    @Override
+    public void reorderTasks(Long userId, List<TaskReorderDTO> idOrders) {
+        if (idOrders == null || idOrders.isEmpty()) {
+            return;
+        }
+        for (TaskReorderDTO entry : idOrders) {
+            if (entry == null || entry.getId() == null) continue;
+            Task t = ownedTask(userId, entry.getId());
+            t.setSortOrder(entry.getSortOrder() == null ? 0 : entry.getSortOrder());
+            taskMapper.updateById(t);
+        }
+    }
+
+    // ===== 标签 =====
+
+    @Override
+    public List<TaskTagVO> listTags(Long userId) {
+        QueryWrapper<TaskTag> qw = new QueryWrapper<>();
+        qw.eq("user_id", userId).eq("deleted", 0)
+                .orderByAsc("sort_order").orderByAsc("id");
+        List<TaskTag> tags = taskTagMapper.selectList(qw);
+        // 统计每个标签关联任务数
+        List<TaskTagRel> allRels = taskTagRelMapper.selectList(new QueryWrapper<TaskTagRel>()
+                .eq("deleted", 0).in("tag_id", tags.stream().map(TaskTag::getId).toList()));
+        Map<Long, Long> countByTag = allRels.stream()
+                .collect(Collectors.groupingBy(TaskTagRel::getTagId, Collectors.counting()));
+        List<TaskTagVO> result = new ArrayList<>();
+        for (TaskTag tag : tags) {
+            TaskTagVO vo = new TaskTagVO();
+            vo.setId(tag.getId());
+            vo.setName(tag.getName());
+            vo.setColor(tag.getColor());
+            vo.setSortOrder(tag.getSortOrder() == null ? 0 : tag.getSortOrder());
+            vo.setTaskCount(countByTag.getOrDefault(tag.getId(), 0L).intValue());
+            result.add(vo);
+        }
+        return result;
+    }
+
+    @Override
+    public Long createTag(Long userId, TaskTagDTO dto) {
+        if (dto.getName() == null || dto.getName().isBlank()) {
+            throw new BusinessException("标签名称不能为空");
+        }
+        TaskTag tag = new TaskTag();
+        tag.setUserId(userId);
+        tag.setName(dto.getName().trim());
+        tag.setColor(dto.getColor() != null ? dto.getColor() : "var(--kb-muted-foreground)");
+        tag.setSortOrder(dto.getSortOrder() != null ? dto.getSortOrder() : 0);
+        taskTagMapper.insert(tag);
+        return tag.getId();
+    }
+
+    @Override
+    public void updateTag(Long userId, Long id, TaskTagDTO dto) {
+        TaskTag tag = ownedTag(userId, id);
+        if (dto.getName() != null) tag.setName(dto.getName().trim());
+        if (dto.getColor() != null) tag.setColor(dto.getColor());
+        if (dto.getSortOrder() != null) tag.setSortOrder(dto.getSortOrder());
+        taskTagMapper.updateById(tag);
+    }
+
+    @Override
+    public void deleteTag(Long userId, Long id) {
+        ownedTag(userId, id);
+        // 清理该标签的全部关联关系（逻辑删除）
+        UpdateWrapper<TaskTagRel> uw = new UpdateWrapper<>();
+        uw.eq("tag_id", id).set("deleted", 1);
+        taskTagRelMapper.update(null, uw);
+        TaskTag tag = taskTagMapper.selectById(id);
+        if (tag != null) {
+            tag.setDeleted(1);
+            taskTagMapper.updateById(tag);
+        }
+    }
+
+    private TaskTag ownedTag(Long userId, Long id) {
+        TaskTag tag = taskTagMapper.selectById(id);
+        if (tag == null || tag.getDeleted() != null && tag.getDeleted() == 1 || !userId.equals(tag.getUserId())) {
+            throw new BusinessException("标签不存在");
+        }
+        return tag;
+    }
+
+    /** 批量为任务树填充标签（避免 N+1，一次性加载该用户全部关联）。 */
+    private void fillTags(List<TaskVO> roots, Long userId) {
+        if (roots.isEmpty()) return;
+        // 收集全部节点 id
+        List<Long> taskIds = new ArrayList<>();
+        for (TaskVO r : roots) {
+            collectIds(r, taskIds);
+        }
+        if (taskIds.isEmpty()) return;
+        // 一次性加载关联 + 标签
+        List<TaskTagRel> rels = taskTagRelMapper.selectList(new QueryWrapper<TaskTagRel>()
+                .eq("deleted", 0).in("task_id", taskIds));
+        if (rels.isEmpty()) {
+            for (TaskVO r : roots) ensureEmptyTags(r);
+            return;
+        }
+        Set<Long> tagIdSet = rels.stream().map(TaskTagRel::getTagId).collect(Collectors.toSet());
+        Map<Long, TaskTag> tagMap = new LinkedHashMap<>();
+        if (!tagIdSet.isEmpty()) {
+            List<TaskTag> tags = taskTagMapper.selectList(new QueryWrapper<TaskTag>()
+                    .eq("user_id", userId).eq("deleted", 0).in("id", tagIdSet));
+            for (TaskTag t : tags) {
+                tagMap.put(t.getId(), t);
+            }
+        }
+        Map<Long, List<TaskTagVO>> byTask = new LinkedHashMap<>();
+        for (TaskTagRel rel : rels) {
+            TaskTag tag = tagMap.get(rel.getTagId());
+            if (tag == null) continue;
+            TaskTagVO vo = new TaskTagVO();
+            vo.setId(tag.getId());
+            vo.setName(tag.getName());
+            vo.setColor(tag.getColor());
+            vo.setSortOrder(tag.getSortOrder() == null ? 0 : tag.getSortOrder());
+            byTask.computeIfAbsent(rel.getTaskId(), k -> new ArrayList<>()).add(vo);
+        }
+        for (TaskVO r : roots) {
+            assignTags(r, byTask);
+        }
+    }
+
+    private void collectIds(TaskVO node, List<Long> ids) {
+        if (node == null) return;
+        ids.add(node.getId());
+        if (node.getChildren() != null) {
+            for (TaskVO c : node.getChildren()) {
+                collectIds(c, ids);
+            }
+        }
+    }
+
+    private void assignTags(TaskVO node, Map<Long, List<TaskTagVO>> byTask) {
+        if (node == null) return;
+        node.setTags(byTask.getOrDefault(node.getId(), Collections.emptyList()));
+        if (node.getChildren() != null) {
+            for (TaskVO c : node.getChildren()) {
+                assignTags(c, byTask);
+            }
+        }
+    }
+
+    private void ensureEmptyTags(TaskVO node) {
+        if (node == null) return;
+        node.setTags(Collections.emptyList());
+        if (node.getChildren() != null) {
+            for (TaskVO c : node.getChildren()) {
+                ensureEmptyTags(c);
+            }
+        }
+    }
+
+    /** 覆盖式同步：先删旧关联，再按 tagIds 建新关联（去重）。 */
+    private void syncTags(Long taskId, List<Long> tagIds, Long userId) {
+        // 清理旧关联
+        UpdateWrapper<TaskTagRel> uw = new UpdateWrapper<>();
+        uw.eq("task_id", taskId).set("deleted", 1);
+        taskTagRelMapper.update(null, uw);
+        // 过滤出当前用户拥有的标签，避免越权关联
+        Set<Long> unique = tagIds.stream().filter(id -> id != null && id > 0).collect(Collectors.toSet());
+        if (unique.isEmpty()) return;
+        List<TaskTag> owned = taskTagMapper.selectList(new QueryWrapper<TaskTag>()
+                .eq("user_id", userId).eq("deleted", 0).in("id", unique));
+        for (TaskTag tag : owned) {
+            TaskTagRel rel = new TaskTagRel();
+            rel.setTaskId(taskId);
+            rel.setTagId(tag.getId());
+            taskTagRelMapper.insert(rel);
         }
     }
 }

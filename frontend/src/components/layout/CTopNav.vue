@@ -599,6 +599,7 @@ const growthMenu: NavLink[] = [
   { path: '/task-list', label: '任务清单', icon: 'list-checks' },
   { path: '/calendar', label: '日历', icon: 'calendar' },
   { path: '/check-in', label: '每日打卡', icon: 'calendar-check' },
+  { path: '/habits', label: '习惯打卡', icon: 'repeat' },
   { path: '/achievements', label: '成就系统', icon: 'trophy' },
   { path: '/kb-titles', label: '知识库称号', icon: 'award' },
 ];
@@ -618,7 +619,7 @@ const activeDropdownKey = computed<string>(() => {
   if (['/knowledge', '/categories', '/search', '/docs', '/learning/knowledge-graph'].some(s => p === s || p.startsWith(s + '/'))) return 'knowledge';
   if (p.startsWith('/learning')) return 'learning';
   if (['/community', '/study-group', '/messages'].some(s => p === s || p.startsWith(s + '/'))) return 'community';
-  if (['/tasks', '/task-list', '/check-in', '/achievements', '/kb-titles'].includes(p)) return 'growth';
+  if (['/tasks', '/task-list', '/check-in', '/habits', '/achievements', '/kb-titles'].includes(p)) return 'growth';
   if (['/profile', '/favorites', '/notes', '/mistakes'].some(s => p === s || p.startsWith(s + '/'))) return 'personal';
   return '';
 });

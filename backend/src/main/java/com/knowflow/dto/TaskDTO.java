@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 任务创建 / 更新数据传输对象。
@@ -48,4 +49,7 @@ public class TaskDTO {
 
     /** 仅更新时使用：任务状态 0/1。 */
     private Integer status;
+
+    /** 关联标签 ID 列表（非 null 时覆盖该任务的标签关联）。 */
+    private List<Long> tagIds;
 }

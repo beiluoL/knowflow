@@ -2,8 +2,11 @@ package com.knowflow.service;
 
 import com.knowflow.dto.TaskDTO;
 import com.knowflow.dto.TaskListDTO;
+import com.knowflow.dto.TaskReorderDTO;
+import com.knowflow.dto.TaskTagDTO;
 import com.knowflow.vo.CalendarEventVO;
 import com.knowflow.vo.TaskListVO;
+import com.knowflow.vo.TaskTagVO;
 import com.knowflow.vo.TaskVO;
 
 import java.time.LocalDateTime;
@@ -14,7 +17,7 @@ import java.util.List;
  */
 public interface TaskService {
 
-    /** 按智能列表（inbox/today/upcoming/someday/logbook/all）返回嵌套任务树。 */
+    /** 按智能列表（inbox/today/upcoming/anytime/someday/logbook/all）返回嵌套任务树。 */
     List<TaskVO> listBySmartList(Long userId, String smart);
 
     /** 返回某清单 / 项目下的顶层任务树。 */
@@ -38,6 +41,9 @@ public interface TaskService {
     /** 更新看板阶段（0 待办 / 1 进行中 / 2 已完成），并同步 status（已完成阶段 ⟺ status=1）。 */
     void updateStage(Long userId, Long id, Integer stage);
 
+    /** 批量更新排序（拖拽重排）：入参为 [{id, sortOrder}] 列表。 */
+    void reorderTasks(Long userId, List<TaskReorderDTO> idOrders);
+
     /** 当前用户全部清单 / 项目 / 领域（含任务计数）。 */
     List<TaskListVO> listTaskLists(Long userId);
 
@@ -49,6 +55,18 @@ public interface TaskService {
 
     /** 删除清单（其任务退回收件箱、子清单提升为顶级）。 */
     void deleteTaskList(Long userId, Long id);
+
+    /** 当前用户全部标签（含关联任务计数）。 */
+    List<TaskTagVO> listTags(Long userId);
+
+    /** 新建标签，返回新 ID。 */
+    Long createTag(Long userId, TaskTagDTO dto);
+
+    /** 更新标签。 */
+    void updateTag(Long userId, Long id, TaskTagDTO dto);
+
+    /** 删除标签（连带清理关联关系）。 */
+    void deleteTag(Long userId, Long id);
 
     /** 按时间区间查询日历事件（start/end 必填），供月/周/日视图与范围筛选共用。 */
     List<CalendarEventVO> listByRange(Long userId, LocalDateTime start, LocalDateTime end, Integer status, Long listId);
