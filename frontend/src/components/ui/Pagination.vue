@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center justify-between flex-wrap gap-3">
-    <span v-if="showInfo" class="text-sm text-gray-500">
+    <span v-if="showInfo" class="text-sm text-muted-foreground">
       显示 {{ startIndex }}-{{ endIndex }} / 共 {{ total }} 项
     </span>
     <span v-else></span>
@@ -8,7 +8,7 @@
       <button
         @click="goToPage(pageNum - 1)"
         :disabled="pageNum <= 1"
-        class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm border text-gray-500 border-gray-200 bg-white hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm border text-muted-foreground border-border bg-card hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         :aria-label="'上一页'"
       >
         <Icon name="chevron-left" :size="16" />
@@ -24,7 +24,7 @@
             'inline-flex items-center justify-center min-w-[36px] h-9 rounded-lg text-sm transition-colors',
             page === pageNum
               ? 'bg-primary-500 text-white font-medium'
-              : 'text-gray-700 hover:bg-gray-50 border border-transparent',
+              : 'text-foreground hover:bg-muted border border-transparent',
           ]"
         >
           {{ page }}

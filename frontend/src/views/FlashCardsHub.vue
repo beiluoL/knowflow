@@ -14,34 +14,42 @@
       </div>
       <!-- 全局统计卡片：四个核心指标 -->
       <div class="hero-stats">
-        <div class="hero-stat">
-          <div class="hero-stat-icon icon-primary"><Icon name="layers" :size="16" /></div>
-          <div class="hero-stat-body">
-            <div class="hero-stat-num tabular-nums">{{ learnTotal }}</div>
-            <div class="hero-stat-label">系统闪卡</div>
-          </div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-icon icon-accent"><Icon name="bookmark" :size="16" /></div>
-          <div class="hero-stat-body">
-            <div class="hero-stat-num tabular-nums">{{ mineTotal }}</div>
-            <div class="hero-stat-label">我的闪卡</div>
-          </div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-icon icon-warning"><Icon name="repeat" :size="16" /></div>
-          <div class="hero-stat-body">
-            <div class="hero-stat-num tabular-nums">{{ reviewTotal }}</div>
-            <div class="hero-stat-label">待复习</div>
-          </div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-icon icon-success"><Icon name="check-circle" :size="16" /></div>
-          <div class="hero-stat-body">
-            <div class="hero-stat-num tabular-nums">{{ todayLearned }}</div>
-            <div class="hero-stat-label">今日已学</div>
-          </div>
-        </div>
+        <StatCard
+          icon="layers"
+          icon-color="var(--kb-primary)"
+          icon-bg="rgba(59, 111, 224, 0.1)"
+          :icon-size="16"
+          :value="learnTotal"
+          label="系统闪卡"
+          layout="horizontal"
+        />
+        <StatCard
+          icon="bookmark"
+          icon-color="var(--kb-accent)"
+          icon-bg="rgba(16, 185, 129, 0.1)"
+          :icon-size="16"
+          :value="mineTotal"
+          label="我的闪卡"
+          layout="horizontal"
+        />
+        <StatCard
+          icon="repeat"
+          icon-color="var(--kb-warning)"
+          icon-bg="rgba(245, 158, 11, 0.1)"
+          :icon-size="16"
+          :value="reviewTotal"
+          label="待复习"
+          layout="horizontal"
+        />
+        <StatCard
+          icon="check-circle"
+          icon-color="var(--kb-accent)"
+          icon-bg="rgba(16, 185, 129, 0.12)"
+          :icon-size="16"
+          :value="todayLearned"
+          label="今日已学"
+          layout="horizontal"
+        />
       </div>
     </header>
 
@@ -708,6 +716,7 @@
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import StatCard from '@/components/ui/StatCard.vue'
 import { learningApi } from '@/api/learning'
 import { categoriesApi } from '@/api/categories'
 import { docsApi } from '@/api'
@@ -1405,27 +1414,6 @@ onUnmounted(() => {
 
 /* Hero 统计卡片组 */
 .hero-stats { display: flex; gap: 14px; flex-wrap: wrap; }
-.hero-stat {
-  display: inline-flex; align-items: center; gap: 10px;
-  padding: 10px 16px;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  min-width: 120px;
-}
-.hero-stat-icon {
-  width: 32px; height: 32px;
-  border-radius: var(--kb-radius-sm);
-  display: inline-flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.icon-primary { background: rgba(59, 111, 224, 0.1); color: var(--kb-primary); }
-.icon-accent { background: rgba(16, 185, 129, 0.1); color: var(--kb-accent); }
-.icon-warning { background: rgba(245, 158, 11, 0.1); color: var(--kb-warning); }
-.icon-success { background: rgba(16, 185, 129, 0.12); color: var(--kb-accent); }
-.hero-stat-body { display: flex; flex-direction: column; line-height: 1.2; }
-.hero-stat-num { font-size: 18px; font-weight: 700; color: var(--kb-foreground); }
-.hero-stat-label { font-size: 12px; color: var(--kb-muted-foreground); margin-top: 2px; }
 
 /* ========== 标签页 ========== */
 .tabs-bar {

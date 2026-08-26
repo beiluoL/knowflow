@@ -20,34 +20,10 @@
 
     <!-- ===== 概览统计 ===== -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div class="stat-card">
-        <div class="stat-icon" style="background: rgba(59,111,224,0.12); color: var(--kb-primary);">
-          <Icon name="repeat" :size="20" />
-        </div>
-        <div class="stat-num tabular-nums">{{ habits.length }}</div>
-        <div class="stat-label">进行中习惯</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon" style="background: rgba(16,185,129,0.12); color: var(--kb-accent);">
-          <Icon name="check-circle" :size="20" />
-        </div>
-        <div class="stat-num tabular-nums">{{ todayDoneCount }}/{{ habits.length }}</div>
-        <div class="stat-label">今日已达标</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon" style="background: rgba(245,158,11,0.12); color: var(--kb-warning);">
-          <Icon name="flame" :size="20" />
-        </div>
-        <div class="stat-num tabular-nums">{{ maxStreak }}</div>
-        <div class="stat-label">最长连续</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon" style="background: rgba(139,92,246,0.12); color: #8B5CF6;">
-          <Icon name="award" :size="20" />
-        </div>
-        <div class="stat-num tabular-nums">{{ totalCheckins }}</div>
-        <div class="stat-label">累计达标天数</div>
-      </div>
+      <StatCard icon="repeat" icon-color="var(--kb-primary)" icon-bg="rgba(59,111,224,0.12)" :value="habits.length" label="进行中习惯" />
+      <StatCard icon="check-circle" icon-color="var(--kb-accent)" icon-bg="rgba(16,185,129,0.12)" :value="`${todayDoneCount}/${habits.length}`" label="今日已达标" />
+      <StatCard icon="flame" icon-color="var(--kb-warning)" icon-bg="rgba(245,158,11,0.12)" :value="maxStreak" label="最长连续" />
+      <StatCard icon="award" icon-color="#8B5CF6" icon-bg="rgba(139,92,246,0.12)" :value="totalCheckins" label="累计达标天数" />
     </div>
 
     <!-- ===== 空状态 ===== -->
@@ -240,6 +216,7 @@
 // 习惯打卡页：多习惯管理 + 今日打卡（幂等累加）+ 连续天数 + 近 7 天进度可视化 + 提醒。
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
+import StatCard from '@/components/ui/StatCard.vue'
 import { notify, getApiError } from '@/utils/toast'
 import { dialog } from '@/utils/dialog'
 import { habitApi, type HabitVO, type HabitPayload } from '@/api'
@@ -486,19 +463,6 @@ function hexBg(color: string): string {
   transition: opacity 0.15s, transform 0.15s;
 }
 .btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
-
-/* ===== 统计卡片 ===== */
-.stat-card {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
-  padding: 18px 20px; border-radius: var(--kb-radius-lg);
-  background: var(--kb-card); border: 1px solid var(--kb-border);
-}
-.stat-icon {
-  width: 36px; height: 36px; border-radius: var(--kb-radius-md);
-  display: flex; align-items: center; justify-content: center; margin-bottom: 6px;
-}
-.stat-num { font-size: 24px; font-weight: 700; color: var(--kb-foreground); }
-.stat-label { font-size: 12px; color: var(--kb-muted-foreground); }
 
 /* ===== 空状态 / 加载态 ===== */
 .empty-state, .loading-state {

@@ -58,7 +58,7 @@
             <button
               v-for="d in [14, 30, 90]"
               :key="d"
-              class="wb-range-btn hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="wb-range-btn hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
               :class="{ 'is-active': curveDays === d }"
               @click="curveDays = d; loadCurve()"
             >{{ d }}天</button>

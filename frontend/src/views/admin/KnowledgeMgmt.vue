@@ -1,15 +1,15 @@
 <template>
   <div class="space-y-6 animate-fade-in">
-    <nav class="flex items-center gap-2 text-sm text-gray-500">
+    <nav class="flex items-center gap-2 text-sm text-muted-foreground">
       <span class="text-primary-500 font-medium">知识库</span>
       <Icon name="chevron-right" :size="14" />
-      <span class="text-gray-700 font-medium">管理</span>
+      <span class="text-foreground font-medium">管理</span>
     </nav>
 
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-800">知识库管理</h1>
-        <p class="text-gray-500 text-sm mt-1">创建、编辑和管理你的知识库集合</p>
+        <h1 class="text-2xl font-bold text-foreground">知识库管理</h1>
+        <p class="text-muted-foreground text-sm mt-1">创建、编辑和管理你的知识库集合</p>
       </div>
       <div class="flex items-center gap-3">
         <Button variant="secondary" icon-name="upload" @click="openImport()">批量导入</Button>
@@ -18,52 +18,52 @@
     </div>
 
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5">
+      <div class="bg-card border border-[var(--kb-border)] rounded-xl p-5">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-primary-50">
             <Icon name="database" :size="20" class="text-primary-500" />
           </div>
-          <span class="text-sm text-gray-600">知识库总数</span>
+          <span class="text-sm text-muted-foreground">知识库总数</span>
         </div>
-        <p class="text-2xl font-bold text-gray-800">{{ totalKbCount }} <span class="text-sm font-normal text-gray-500">个</span></p>
+        <p class="text-2xl font-bold text-foreground">{{ totalKbCount }} <span class="text-sm font-normal text-muted-foreground">个</span></p>
       </div>
 
-      <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5">
+      <div class="bg-card border border-[var(--kb-border)] rounded-xl p-5">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-50">
             <Icon name="file-text" :size="20" class="text-blue-500" />
           </div>
-          <span class="text-sm text-gray-600">文档总数</span>
+          <span class="text-sm text-muted-foreground">文档总数</span>
         </div>
-        <p class="text-2xl font-bold text-gray-800">{{ totalDocCount }} <span class="text-sm font-normal text-gray-500">篇</span></p>
+        <p class="text-2xl font-bold text-foreground">{{ totalDocCount }} <span class="text-sm font-normal text-muted-foreground">篇</span></p>
       </div>
 
-      <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5">
+      <div class="bg-card border border-[var(--kb-border)] rounded-xl p-5">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-purple-50">
             <Icon name="hard-drive" :size="20" class="text-purple-500" />
           </div>
-          <span class="text-sm text-gray-600">总存储量</span>
+          <span class="text-sm text-muted-foreground">总存储量</span>
         </div>
-        <p class="text-2xl font-bold text-gray-800 mb-2">{{ totalStorage }} <span class="text-sm font-normal text-gray-500">/ 10 GB</span></p>
+        <p class="text-2xl font-bold text-foreground mb-2">{{ totalStorage }} <span class="text-sm font-normal text-muted-foreground">/ 10 GB</span></p>
         <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
           <div class="h-full rounded-full bg-primary-500" :style="{ width: storagePercent + '%' }"></div>
         </div>
       </div>
 
-      <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5">
+      <div class="bg-card border border-[var(--kb-border)] rounded-xl p-5">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-green-50">
             <Icon name="users" :size="20" class="text-green-500" />
           </div>
-          <span class="text-sm text-gray-600">团队成员</span>
+          <span class="text-sm text-muted-foreground">团队成员</span>
         </div>
-        <p class="text-2xl font-bold text-gray-800">{{ realTotalUsers }} <span class="text-sm font-normal text-gray-500">人</span></p>
+        <p class="text-2xl font-bold text-foreground">{{ realTotalUsers }} <span class="text-sm font-normal text-muted-foreground">人</span></p>
       </div>
     </div>
 
     <!-- 搜索 + 视图切换 -->
-    <div class="bg-white border border-[var(--kb-border)] rounded-xl px-6 py-4 flex flex-wrap gap-4 items-center">
+    <div class="bg-card border border-[var(--kb-border)] rounded-xl px-6 py-4 flex flex-wrap gap-4 items-center">
       <div class="flex-1 min-w-[220px] max-w-md">
         <Input v-model="searchKeyword" placeholder="搜索知识库名称 / 描述..." icon-name="search" />
       </div>
@@ -74,7 +74,7 @@
             'px-3 h-9 rounded-md text-sm border transition-colors flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
             viewMode === 'list'
               ? 'border-primary-500 bg-primary-50 text-primary-600 font-medium'
-              : 'border-[var(--kb-border)] text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              : 'border-[var(--kb-border)] text-muted-foreground hover:border-border hover:text-foreground',
           ]"
         >
           <Icon name="list" :size="16" /> 列表
@@ -85,7 +85,7 @@
             'px-3 h-9 rounded-md text-sm border transition-colors flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
             viewMode === 'card'
               ? 'border-primary-500 bg-primary-50 text-primary-600 font-medium'
-              : 'border-[var(--kb-border)] text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              : 'border-[var(--kb-border)] text-muted-foreground hover:border-border hover:text-foreground',
           ]"
         >
           <Icon name="grid" :size="16" /> 卡片
@@ -94,9 +94,9 @@
     </div>
 
     <!-- ========= 列表视图 ========= -->
-    <div v-if="viewMode === 'list'" class="bg-white border border-[var(--kb-border)] rounded-xl overflow-hidden">
+    <div v-if="viewMode === 'list'" class="bg-card border border-[var(--kb-border)] rounded-xl overflow-hidden">
       <div class="px-6 py-4 border-b border-[var(--kb-border)]">
-        <div class="grid grid-cols-12 gap-4 text-xs text-gray-500 font-medium">
+        <div class="grid grid-cols-12 gap-4 text-xs text-muted-foreground font-medium">
           <div class="col-span-4">知识库名称</div>
           <div class="col-span-2 text-center">文档数量</div>
           <div class="col-span-2 text-center">存储占用</div>
@@ -109,14 +109,14 @@
       <div class="divide-y divide-[#E2E6EC]/50">
         <div
           v-for="node in flatTreeNodes" :key="node.kb.id"
-          class="px-6 py-4 hover:bg-gray-50 transition-colors group"
+          class="px-6 py-4 hover:bg-muted transition-colors group"
         >
           <div class="grid grid-cols-12 gap-4 items-center">
             <div class="col-span-4 flex items-center gap-3">
               <!-- 展开/折叠按钮 -->
               <button
                 v-if="node.hasChildren"
-                class="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-700 flex-shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="w-5 h-5 flex items-center justify-center text-muted-foreground hover:text-foreground flex-shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 :style="{ marginLeft: node.level * 24 + 'px' }"
                 @click="toggleExpand(node.kb.id)"
                 :title="expandedIds.has(node.kb.id) ? '折叠' : '展开'"
@@ -139,22 +139,22 @@
                   aria-hidden="true"
                 />
               </div>
-              <div class="min-w-0 cursor-pointer flex-1 hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="goToKbDetail(node.kb)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
-                <p class="font-medium text-gray-800 truncate hover:text-primary-500 transition-colors">
+              <div class="min-w-0 cursor-pointer flex-1 hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="goToKbDetail(node.kb)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
+                <p class="font-medium text-foreground truncate hover:text-primary-500 transition-colors">
                   {{ node.kb.name }}
-                  <span v-if="node.level > 0" class="ml-1.5 text-[10px] text-gray-400 font-normal">L{{ node.level + 1 }}</span>
+                  <span v-if="node.level > 0" class="ml-1.5 text-[10px] text-muted-foreground font-normal">L{{ node.level + 1 }}</span>
                 </p>
-                <p class="text-xs text-gray-400 truncate">{{ node.kb.description || '暂无描述' }}</p>
+                <p class="text-xs text-muted-foreground truncate">{{ node.kb.description || '暂无描述' }}</p>
               </div>
             </div>
             <div class="col-span-2 text-center">
-              <span class="text-sm text-gray-700 font-medium">{{ getDocCount(node.kb) }} 篇</span>
+              <span class="text-sm text-foreground font-medium">{{ getDocCount(node.kb) }} 篇</span>
             </div>
             <div class="col-span-2 text-center">
-              <span class="text-sm text-gray-700">{{ formatStorage(getDocCount(node.kb), node.kb.id) }}</span>
+              <span class="text-sm text-foreground">{{ formatStorage(getDocCount(node.kb), node.kb.id) }}</span>
             </div>
             <div class="col-span-2 text-center">
-              <span class="text-sm text-gray-500">{{ formatDate(node.kb.createTime) }}</span>
+              <span class="text-sm text-muted-foreground">{{ formatDate(node.kb.createTime) }}</span>
             </div>
             <div class="col-span-1 text-center flex justify-center">
               <button
@@ -166,28 +166,28 @@
             </div>
             <div class="col-span-1 flex items-center justify-center gap-1">
               <button
-                class="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="p-1.5 text-muted-foreground hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="openMembers(node.kb)"
                 title="成员管理"
               >
                 <Icon name="users" :size="16" aria-hidden="true" />
               </button>
               <button
-                class="p-1.5 text-gray-400 hover:text-purple-500 hover:bg-purple-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="p-1.5 text-muted-foreground hover:text-purple-500 hover:bg-purple-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="openExport(node.kb)"
                 title="导出"
               >
                 <Icon name="download" :size="16" aria-hidden="true" />
               </button>
               <button
-                class="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="p-1.5 text-muted-foreground hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="editKb(node.kb)"
                 title="编辑"
               >
                 <Icon name="edit-2" :size="16" aria-hidden="true" />
               </button>
               <button
-                class="p-1.5 text-gray-400 hover:text-danger-500 hover:bg-danger-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="p-1.5 text-muted-foreground hover:text-danger-500 hover:bg-danger-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="deleteKb(node.kb)"
                 title="删除"
               >
@@ -199,7 +199,7 @@
       </div>
 
       <div class="px-6 py-3 text-center border-t border-[var(--kb-border)]/50">
-        <span class="text-sm text-gray-400">显示 {{ flatTreeNodes.length }} / {{ allFlatKbs.length }} 个分类</span>
+        <span class="text-sm text-muted-foreground">显示 {{ flatTreeNodes.length }} / {{ allFlatKbs.length }} 个分类</span>
       </div>
     </div>
 
@@ -207,7 +207,7 @@
     <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
       <div
         v-for="kb in filteredKbs" :key="kb.id"
-        class="bg-white border border-[var(--kb-border)] rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-shadow transition-transform duration-200 group"
+        class="bg-card border border-[var(--kb-border)] rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-shadow transition-transform duration-200 group"
       >
         <!-- 卡片顶部渐变条 + 图标 -->
         <div
@@ -215,7 +215,7 @@
           :style="{ background: `linear-gradient(135deg, ${getKbColor(kb.icon)}22 0%, ${getKbColor(kb.icon)}08 100%)` }"
         >
           <div
-            class="w-14 h-14 rounded-2xl flex items-center justify-center bg-white shadow-sm border border-[var(--kb-border)] absolute bottom-0 translate-y-1/2 left-5"
+            class="w-14 h-14 rounded-2xl flex items-center justify-center bg-card shadow-sm border border-[var(--kb-border)] absolute bottom-0 translate-y-1/2 left-5"
           >
             <Icon
               :name="getCategoryIconName(kb.icon)"
@@ -225,14 +225,14 @@
           </div>
           <div class="ml-auto flex items-center gap-1 absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
-                class="p-1.5 bg-white/90 backdrop-blur rounded-md text-gray-500 hover:text-primary-500 shadow-sm border border-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="p-1.5 bg-card/90 backdrop-blur rounded-md text-muted-foreground hover:text-primary-500 shadow-sm border border-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click.stop="editKb(kb)"
                 title="编辑"
               >
                 <Icon name="edit-2" :size="14" aria-hidden="true" />
               </button>
               <button
-                class="p-1.5 bg-white/90 backdrop-blur rounded-md text-gray-500 hover:text-purple-500 shadow-sm border border-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="p-1.5 bg-card/90 backdrop-blur rounded-md text-muted-foreground hover:text-purple-500 shadow-sm border border-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click.stop="openExport(kb)"
                 title="导出"
               >
@@ -242,15 +242,15 @@
         </div>
 
         <!-- 卡片主体 -->
-        <div class="pt-10 px-5 pb-5 cursor-pointer hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="goToKbDetail(kb)" @keydown.enter.self.prevent="($event.target as HTMLElement).click()">
+        <div class="pt-10 px-5 pb-5 cursor-pointer hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="goToKbDetail(kb)" @keydown.enter.self.prevent="($event.target as HTMLElement).click()">
           <div class="flex items-start justify-between mb-1">
-            <h3 class="font-semibold text-gray-800 text-[15px] leading-tight line-clamp-1 pr-2 group-hover:text-primary-600 transition-colors">
+            <h3 class="font-semibold text-foreground text-[15px] leading-tight line-clamp-1 pr-2 group-hover:text-primary-600 transition-colors">
               {{ kb.name }}
             </h3>
           </div>
-          <p class="text-xs text-gray-400 line-clamp-2 h-8 mb-4">{{ kb.description || '暂无描述' }}</p>
+          <p class="text-xs text-muted-foreground line-clamp-2 h-8 mb-4">{{ kb.description || '暂无描述' }}</p>
 
-          <div class="flex items-center justify-between text-xs text-gray-500">
+          <div class="flex items-center justify-between text-xs text-muted-foreground">
             <div class="flex items-center gap-3">
               <span class="inline-flex items-center gap-1">
                 <Icon name="file-text" :size="12" class="text-blue-500" aria-hidden="true" />
@@ -265,7 +265,7 @@
 
           <div class="mt-4 pt-4 border-t border-[var(--kb-border)]/70 flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <span class="text-xs text-gray-400">{{ formatDate(kb.createTime) }}</span>
+              <span class="text-xs text-muted-foreground">{{ formatDate(kb.createTime) }}</span>
             </div>
             <div class="flex items-center gap-1">
               <button
@@ -289,40 +289,40 @@
 
     <!-- 快捷操作 -->
     <div>
-      <h3 class="text-base font-semibold text-gray-800 mb-4">快捷操作</h3>
+      <h3 class="text-base font-semibold text-foreground mb-4">快捷操作</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="openImport()" @keydown.enter.prevent="($event.target as HTMLElement).click()">
+        <div class="bg-card border border-[var(--kb-border)] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="openImport()" @keydown.enter.prevent="($event.target as HTMLElement).click()">
           <div class="flex items-start gap-4">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-primary-50 flex-shrink-0">
               <Icon name="upload" :size="22" class="text-primary-500" />
             </div>
             <div>
-              <h4 class="font-medium text-gray-800 mb-1">批量导入文档</h4>
-              <p class="text-sm text-gray-500">支持 ZIP（内含 MD/TXT/JSON）、单文件上传</p>
+              <h4 class="font-medium text-foreground mb-1">批量导入文档</h4>
+              <p class="text-sm text-muted-foreground">支持 ZIP（内含 MD/TXT/JSON）、单文件上传</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="firstKb && openMembers(firstKb)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
+        <div class="bg-card border border-[var(--kb-border)] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="firstKb && openMembers(firstKb)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
           <div class="flex items-start gap-4">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-50 flex-shrink-0">
               <Icon name="shield" :size="22" class="text-blue-500" />
             </div>
             <div>
-              <h4 class="font-medium text-gray-800 mb-1">设置权限管理</h4>
-              <p class="text-sm text-gray-500">管理成员角色与访问权限（OWNER / EDITOR / READER）</p>
+              <h4 class="font-medium text-foreground mb-1">设置权限管理</h4>
+              <p class="text-sm text-muted-foreground">管理成员角色与访问权限（OWNER / EDITOR / READER）</p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="firstKb && openExport(firstKb)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
+        <div class="bg-card border border-[var(--kb-border)] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="firstKb && openExport(firstKb)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
           <div class="flex items-start gap-4">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-purple-50 flex-shrink-0">
               <Icon name="download" :size="22" class="text-purple-500" />
             </div>
             <div>
-              <h4 class="font-medium text-gray-800 mb-1">导出知识库</h4>
-              <p class="text-sm text-gray-500">将知识库导出为 ZIP（meta.json + docs/*.md）</p>
+              <h4 class="font-medium text-foreground mb-1">导出知识库</h4>
+              <p class="text-sm text-muted-foreground">将知识库导出为 ZIP（meta.json + docs/*.md）</p>
             </div>
           </div>
         </div>
@@ -335,23 +335,23 @@
       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
       @click.self="closeModal"
     >
-      <div class="bg-white rounded-xl w-full max-w-md p-6 animate-scale-in max-h-[90vh] overflow-y-auto">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+      <div class="bg-card rounded-xl w-full max-w-md p-6 animate-scale-in max-h-[90vh] overflow-y-auto">
+        <h3 class="text-lg font-semibold text-foreground mb-4">
           {{ editingKb ? '编辑知识库' : '新建知识库' }}
         </h3>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">知识库名称</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">知识库名称</label>
             <Input v-model="kbForm.name" placeholder="请输入知识库名称" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">
+            <label class="block text-sm font-medium text-foreground mb-1.5">
               父分类
-              <span class="text-xs text-gray-400 font-normal ml-1">（不选则为顶级分类，最多 3 级）</span>
+              <span class="text-xs text-muted-foreground font-normal ml-1">（不选则为顶级分类，最多 3 级）</span>
             </label>
             <select
               v-model="kbForm.parentId"
-              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none bg-white hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none bg-card hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
               <option :value="undefined">作为顶级分类</option>
               <option
@@ -365,11 +365,11 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">描述</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">描述</label>
             <Input v-model="kbForm.description" placeholder="请输入知识库描述" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">图标</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">图标</label>
             <div class="flex flex-wrap gap-1.5 mb-3">
               <button
                 v-for="cat in presetIconCategories"
@@ -379,7 +379,7 @@
                   'px-2.5 py-1 text-xs rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
                   activeIconCategory === cat.key
                     ? 'border-primary-500 bg-primary-50 text-primary-600 font-medium'
-                    : 'border-[var(--kb-border)] text-gray-500 hover:border-gray-300',
+                    : 'border-[var(--kb-border)] text-muted-foreground hover:border-border',
                 ]"
               >
                 {{ cat.label }}
@@ -395,14 +395,14 @@
                   'aspect-square rounded-md flex items-center justify-center border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
                   selectedIconKey === icon.key
                     ? 'border-primary-500 bg-primary-50 ring-1 ring-primary-500'
-                    : 'border-transparent hover:border-gray-300 hover:bg-gray-50',
+                    : 'border-transparent hover:border-border hover:bg-muted',
                 ]"
               >
                 <Icon :name="icon.svg" :size="22" aria-hidden="true" />
               </button>
             </div>
             <div v-if="selectedIconKey" class="mt-3 flex items-center gap-2 flex-wrap">
-              <span class="text-xs text-gray-500">颜色：</span>
+              <span class="text-xs text-muted-foreground">颜色：</span>
               <button
                 v-for="c in iconColorPresets"
                 :key="c"
@@ -415,11 +415,11 @@
                 :style="{ backgroundColor: c }"
                 :title="c"
               />
-              <label class="flex items-center gap-1 cursor-pointer text-xs text-gray-500" title="自定义颜色">
+              <label class="flex items-center gap-1 cursor-pointer text-xs text-muted-foreground" title="自定义颜色">
                 <input
                   :value="selectedIconColor"
                   type="color"
-                  class="w-6 h-6 rounded cursor-pointer border border-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                  class="w-6 h-6 rounded cursor-pointer border border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                   @input="selectIconColor(($event.target as HTMLInputElement).value)"
                 />
                 <span>自定义</span>
@@ -427,11 +427,11 @@
               <button
                 v-if="selectedIconColor"
                 type="button"
-                class="text-xs text-gray-400 hover:text-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="text-xs text-muted-foreground hover:text-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="selectIconColor('')"
               >清除</button>
               <div class="ml-auto flex items-center gap-2">
-                <span class="text-xs text-gray-400">预览：</span>
+                <span class="text-xs text-muted-foreground">预览：</span>
                 <div
                   class="w-9 h-9 rounded-lg flex items-center justify-center"
                   :style="{ backgroundColor: (selectedIconColor || currentPresetDefaultColor) + '15' }"
@@ -440,7 +440,7 @@
                 </div>
               </div>
             </div>
-            <p class="text-xs text-gray-400 mt-1.5">
+            <p class="text-xs text-muted-foreground mt-1.5">
               已选择：{{ selectedIconKey || '未选择' }}{{ selectedIconColor ? `（${selectedIconColor}）` : '' }}
             </p>
           </div>
@@ -458,16 +458,16 @@
       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
       @click.self="closeMemberModal"
     >
-      <div class="bg-white rounded-xl w-full max-w-3xl p-6 animate-scale-in max-h-[90vh] overflow-hidden flex flex-col">
+      <div class="bg-card rounded-xl w-full max-w-3xl p-6 animate-scale-in max-h-[90vh] overflow-hidden flex flex-col">
         <div class="flex items-start justify-between mb-4">
           <div>
-            <h3 class="text-lg font-semibold text-gray-800">成员管理</h3>
-            <p class="text-sm text-gray-500 mt-0.5">
-              知识库：<span class="text-gray-700 font-medium">{{ currentKb?.name }}</span>
+            <h3 class="text-lg font-semibold text-foreground">成员管理</h3>
+            <p class="text-sm text-muted-foreground mt-0.5">
+              知识库：<span class="text-foreground font-medium">{{ currentKb?.name }}</span>
               <span class="ml-3">共 {{ members.length }} 位成员</span>
             </p>
           </div>
-          <button @click="closeMemberModal" class="text-gray-400 hover:text-gray-600 p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2">
+          <button @click="closeMemberModal" class="text-muted-foreground hover:text-muted-foreground p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2">
             <Icon name="x" :size="20" aria-hidden="true" />
           </button>
         </div>
@@ -485,7 +485,7 @@
           <div class="w-[130px]">
             <select
               v-model="newMemberRole"
-              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
               <option value="READER">阅读者</option>
               <option value="EDITOR">编辑者</option>
@@ -501,14 +501,14 @@
         </div>
 
         <!-- 邮箱邀请行 -->
-        <div v-if="showInviteByEmail" class="flex flex-wrap gap-3 items-center mb-4 pb-4 border-b border-[var(--kb-border)] bg-gray-50/60 -mx-6 px-6 py-3">
+        <div v-if="showInviteByEmail" class="flex flex-wrap gap-3 items-center mb-4 pb-4 border-b border-[var(--kb-border)] bg-muted/60 -mx-6 px-6 py-3">
           <div class="flex-1 min-w-[220px]">
             <Input v-model="inviteEmail" placeholder="输入邀请邮箱（例如 user@example.com）" />
           </div>
           <div class="w-[130px]">
             <select
               v-model="inviteRole"
-              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
               <option value="READER">阅读者</option>
               <option value="EDITOR">编辑者</option>
@@ -522,23 +522,23 @@
 
         <!-- 候选用户列表（搜索后显示） -->
         <div v-if="candidateUsers.length" class="mb-4 pb-4 border-b border-[var(--kb-border)]">
-          <p class="text-xs text-gray-500 mb-2">搜索结果：</p>
+          <p class="text-xs text-muted-foreground mb-2">搜索结果：</p>
           <div class="space-y-2 max-h-40 overflow-y-auto">
             <div
               v-for="u in candidateUsers"
               :key="u.id"
-              class="flex items-center justify-between px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+              class="flex items-center justify-between px-3 py-2 rounded-lg bg-muted hover:bg-gray-100 transition-colors"
             >
               <div class="flex items-center gap-3 min-w-0">
                 <div class="w-8 h-8 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center text-xs font-medium flex-shrink-0">
                   {{ (u.nickname || u.username || '?').slice(0, 1) }}
                 </div>
                 <div class="min-w-0">
-                  <p class="text-sm text-gray-800 font-medium truncate">
+                  <p class="text-sm text-foreground font-medium truncate">
                     {{ u.nickname || u.username }}
-                    <span v-if="u.username" class="text-xs text-gray-400 font-normal ml-1">@{{ u.username }}</span>
+                    <span v-if="u.username" class="text-xs text-muted-foreground font-normal ml-1">@{{ u.username }}</span>
                   </p>
-                  <p v-if="u.email" class="text-xs text-gray-400 truncate">{{ u.email }}</p>
+                  <p v-if="u.email" class="text-xs text-muted-foreground truncate">{{ u.email }}</p>
                 </div>
               </div>
               <Button size="sm" variant="secondary" @click="doAddUser(u)" :disabled="addingMember">
@@ -550,7 +550,7 @@
 
         <!-- 成员列表 -->
         <div class="flex-1 overflow-y-auto -mx-6 px-6">
-          <div v-if="!members.length" class="py-12 text-center text-gray-400 text-sm">
+          <div v-if="!members.length" class="py-12 text-center text-muted-foreground text-sm">
             <Icon name="users" :size="32" class="mx-auto mb-2 opacity-50" />
             暂无成员
           </div>
@@ -566,17 +566,17 @@
                 </div>
                 <div class="min-w-0 flex-1">
                   <div class="flex items-center gap-2">
-                    <span class="text-sm font-medium text-gray-800 truncate">{{ displayName(m) }}</span>
+                    <span class="text-sm font-medium text-foreground truncate">{{ displayName(m) }}</span>
                     <span :class="[
                       'text-[10px] px-2 py-0.5 rounded-full font-medium',
                       m.role === 'OWNER' ? 'bg-orange-50 text-orange-600' :
                       m.role === 'EDITOR' ? 'bg-primary-50 text-primary-600' :
-                      'bg-gray-100 text-gray-500',
+                      'bg-gray-100 text-muted-foreground',
                     ]">
                       {{ roleLabel(m.role) }}
                     </span>
                   </div>
-                  <div class="text-xs text-gray-400 truncate">
+                  <div class="text-xs text-muted-foreground truncate">
                     <span v-if="m.email">{{ m.email }}</span>
                     <span v-else-if="m.inviteEmail" class="text-amber-500">邀请中：{{ m.inviteEmail }}</span>
                     <span v-if="m.joinTime"> · 加入于 {{ formatDate(m.joinTime) }}</span>
@@ -588,16 +588,16 @@
                   v-if="m.role !== 'OWNER' || canTransferOwner(m)"
                   :value="m.role"
                   @change="onChangeRole(m, ($event.target as HTMLSelectElement).value)"
-                  class="h-8 px-2 rounded-md border border-[var(--kb-border)] text-xs text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                  class="h-8 px-2 rounded-md border border-[var(--kb-border)] text-xs text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 >
                   <option value="OWNER">所有者</option>
                   <option value="EDITOR">编辑者</option>
                   <option value="READER">阅读者</option>
                 </select>
-                <span v-else class="text-xs text-gray-400 px-2">唯一所有者</span>
+                <span v-else class="text-xs text-muted-foreground px-2">唯一所有者</span>
                 <button
                   v-if="m.role !== 'OWNER'"
-                  class="p-1.5 text-gray-400 hover:text-danger-500 hover:bg-danger-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                  class="p-1.5 text-muted-foreground hover:text-danger-500 hover:bg-danger-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                   @click="doRemoveMember(m)"
                   title="移除成员"
                 >
@@ -620,20 +620,20 @@
       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
       @click.self="closeImport"
     >
-      <div class="bg-white rounded-xl w-full max-w-lg p-6 animate-scale-in">
+      <div class="bg-card rounded-xl w-full max-w-lg p-6 animate-scale-in">
         <div class="flex items-start justify-between mb-4">
           <div>
-            <h3 class="text-lg font-semibold text-gray-800">批量导入文档</h3>
-            <p class="text-sm text-gray-500 mt-0.5">将文档导入到指定知识库</p>
+            <h3 class="text-lg font-semibold text-foreground">批量导入文档</h3>
+            <p class="text-sm text-muted-foreground mt-0.5">将文档导入到指定知识库</p>
           </div>
-          <button @click="closeImport" class="text-gray-400 hover:text-gray-600 p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2">
+          <button @click="closeImport" class="text-muted-foreground hover:text-muted-foreground p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2">
             <Icon name="x" :size="20" aria-hidden="true" />
           </button>
         </div>
 
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">目标知识库</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">目标知识库</label>
             <CategoryTreeSelect
               v-model="importForm.categoryId"
               :categories="knowledgeBases"
@@ -643,7 +643,7 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">选择文件</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">选择文件</label>
             <div
               class="border-2 border-dashed border-[var(--kb-border)] rounded-xl p-8 text-center hover:border-primary-400 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               role="button"
@@ -661,17 +661,17 @@
                 @change="onImportFileChange"
               />
               <Icon name="upload" :size="36" class="text-gray-300 mx-auto mb-2" aria-hidden="true" />
-              <p class="text-sm text-gray-600 font-medium">{{ importForm.file ? importForm.file.name : '点击上传或拖拽文件到此处' }}</p>
-              <p class="text-xs text-gray-400 mt-1">支持 ZIP / MD / TXT / JSON，单个文件最大 50MB</p>
+              <p class="text-sm text-muted-foreground font-medium">{{ importForm.file ? importForm.file.name : '点击上传或拖拽文件到此处' }}</p>
+              <p class="text-xs text-muted-foreground mt-1">支持 ZIP / MD / TXT / JSON，单个文件最大 50MB</p>
             </div>
           </div>
 
-          <div v-if="importResult" class="bg-gray-50 rounded-lg p-4 text-sm space-y-2">
-            <p class="flex items-center gap-2 font-medium text-gray-800">
+          <div v-if="importResult" class="bg-muted rounded-lg p-4 text-sm space-y-2">
+            <p class="flex items-center gap-2 font-medium text-foreground">
               <Icon name="check-circle" :size="16" class="text-green-500" /> 导入完成
             </p>
             <div class="grid grid-cols-3 gap-2 text-center">
-              <div><span class="text-xs text-gray-500">总数</span><p class="font-bold text-gray-800">{{ importResult.total }}</p></div>
+              <div><span class="text-xs text-muted-foreground">总数</span><p class="font-bold text-foreground">{{ importResult.total }}</p></div>
               <div><span class="text-xs text-green-600">成功</span><p class="font-bold text-green-600">{{ importResult.success }}</p></div>
               <div><span class="text-xs text-red-500">失败</span><p class="font-bold text-red-500">{{ importResult.failed }}</p></div>
             </div>

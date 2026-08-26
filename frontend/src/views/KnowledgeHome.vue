@@ -118,42 +118,38 @@
         <section class="section">
           <h2 class="section-title">学习概览</h2>
           <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-icon stat-blue">
-                <Icon name="clock" :size="20" />
-              </div>
-              <div class="stat-info">
-                <span class="stat-value">{{ userStats?.totalStudyHours != null ? userStats.totalStudyHours + 'h' : '—' }}</span>
-                <span class="stat-label">本周学习时长</span>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon stat-green">
-                <Icon name="file-text" :size="20" />
-              </div>
-              <div class="stat-info">
-                <span class="stat-value">{{ userStats?.readDocsCount != null ? userStats.readDocsCount + ' 篇' : '—' }}</span>
-                <span class="stat-label">已阅读文档</span>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon stat-orange">
-                <Icon name="flame" :size="20" />
-              </div>
-              <div class="stat-info">
-                <span class="stat-value">{{ userStats?.streakDays != null ? userStats.streakDays + ' 天' : '—' }}</span>
-                <span class="stat-label">连续学习</span>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon stat-purple">
-                <Icon name="star" :size="20" />
-              </div>
-              <div class="stat-info">
-                <span class="stat-value">{{ userStats?.favoriteCount != null ? userStats.favoriteCount + ' 个' : '—' }}</span>
-                <span class="stat-label">知识收藏</span>
-              </div>
-            </div>
+            <StatCard
+              icon="clock"
+              icon-color="var(--kb-primary)"
+              icon-bg="rgba(59, 111, 224, 0.1)"
+              :value="userStats?.totalStudyHours != null ? userStats.totalStudyHours + 'h' : '—'"
+              label="本周学习时长"
+              layout="horizontal"
+            />
+            <StatCard
+              icon="file-text"
+              icon-color="var(--kb-accent)"
+              icon-bg="rgba(16, 185, 129, 0.1)"
+              :value="userStats?.readDocsCount != null ? userStats.readDocsCount + ' 篇' : '—'"
+              label="已阅读文档"
+              layout="horizontal"
+            />
+            <StatCard
+              icon="flame"
+              icon-color="var(--kb-warning)"
+              icon-bg="rgba(245, 158, 11, 0.1)"
+              :value="userStats?.streakDays != null ? userStats.streakDays + ' 天' : '—'"
+              label="连续学习"
+              layout="horizontal"
+            />
+            <StatCard
+              icon="star"
+              icon-color="#8B5CF6"
+              icon-bg="rgba(139, 92, 246, 0.1)"
+              :value="userStats?.favoriteCount != null ? userStats.favoriteCount + ' 个' : '—'"
+              label="知识收藏"
+              layout="horizontal"
+            />
           </div>
         </section>
 
@@ -479,6 +475,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import StatCard from '@/components/ui/StatCard.vue'
 import KnowledgeSidebar from '@/components/layout/KnowledgeSidebar.vue'
 import { categoriesApi, docsApi, adminApi, userApi } from '@/api'
 import type { CategoryVO, DocVO, UserStatsVO } from '@/api/types'
@@ -1257,51 +1254,6 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
-}
-
-.stat-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
-  border-radius: 12px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-}
-
-.stat-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.stat-blue { background: rgba(59, 111, 224, 0.1); color: var(--kb-primary); }
-.stat-green { background: rgba(16, 185, 129, 0.1); color: var(--kb-accent); }
-.stat-orange { background: rgba(245, 158, 11, 0.1); color: var(--kb-warning); }
-.stat-purple { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
-
-.stat-info {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.stat-value {
-  font-size: var(--kb-fs-h4);
-  font-weight: 700;
-  color: var(--kb-foreground);
-  line-height: 1.2;
-  font-variant-numeric: tabular-nums;
-}
-
-.stat-label {
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-muted-foreground);
-  margin-top: 2px;
 }
 
 /* 最近浏览 */

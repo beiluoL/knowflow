@@ -25,7 +25,7 @@
           'shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 active:opacity-90',
           currentSort === sort.value
             ? 'bg-primary-500 text-white border-primary-500 font-medium'
-            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300',
+            : 'bg-card text-foreground border-border hover:border-border',
         ]"
       >
         <span>{{ sort.label }}</span>
@@ -42,7 +42,7 @@
             icon="message-square"
             title="暂无帖子"
           >
-            <p class="text-sm text-gray-500">快来发布第一篇帖子吧</p>
+            <p class="text-sm text-muted-foreground">快来发布第一篇帖子吧</p>
           </EmptyState>
 
           <div v-else class="flex flex-col gap-4">
@@ -54,7 +54,7 @@
               tabindex="0"
               @keydown.enter.prevent="($event.target as HTMLElement).click()"
               @keydown.space.prevent="($event.target as HTMLElement).click()"
-              class="border rounded-[10px] p-5 bg-white border-gray-200 hover:shadow-sm active:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-shadow cursor-pointer"
+              class="border rounded-[10px] p-5 bg-card border-border hover:shadow-sm active:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-shadow cursor-pointer"
             >
               <div class="flex items-center gap-2.5 mb-3">
                 <div
@@ -62,8 +62,8 @@
                   :style="{ backgroundColor: getAvatarColor(post.userId) }"
                 >{{ (post.nickname || post.username || '用').charAt(0) }}</div>
                 <div class="flex items-center gap-2 min-w-0">
-                  <span class="text-sm truncate text-gray-800">{{ post.nickname || post.username }}</span>
-                  <span class="text-sm shrink-0 text-gray-400">{{ formatTime(post.createTime) }}</span>
+                  <span class="text-sm truncate text-foreground">{{ post.nickname || post.username }}</span>
+                  <span class="text-sm shrink-0 text-muted-foreground">{{ formatTime(post.createTime) }}</span>
                   <span
                     v-if="post.isEssence === 1"
                     class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-md text-xs whitespace-nowrap bg-yellow-50 text-warning-500"
@@ -74,27 +74,27 @@
                   >{{ post.commentCount }} 讨论</span>
                 </div>
               </div>
-              <p class="text-[15px] font-semibold mb-2 text-gray-800">{{ post.title }}</p>
-              <p class="text-sm line-clamp-2 mb-3 text-gray-500">{{ post.content }}</p>
+              <p class="text-[15px] font-semibold mb-2 text-foreground">{{ post.title }}</p>
+              <p class="text-sm line-clamp-2 mb-3 text-muted-foreground">{{ post.content }}</p>
               <div class="flex items-center gap-1.5 mb-3 flex-wrap">
                 <span
                   v-for="tag in getTags(post.tags)"
                   :key="tag"
-                  class="inline-flex items-center px-2 py-0.5 rounded-md text-xs whitespace-nowrap bg-gray-100 text-gray-500"
+                  class="inline-flex items-center px-2 py-0.5 rounded-md text-xs whitespace-nowrap bg-gray-100 text-muted-foreground"
                 >{{ tag }}</span>
               </div>
               <div class="flex items-center gap-4">
                 <div class="flex items-center gap-1">
-                  <Icon name="heart" :size="14" class="text-gray-400" />
-                  <span class="text-xs text-gray-500">{{ post.likeCount }}</span>
+                  <Icon name="heart" :size="14" class="text-muted-foreground" />
+                  <span class="text-xs text-muted-foreground">{{ post.likeCount }}</span>
                 </div>
                 <div class="flex items-center gap-1">
-                  <Icon name="message-circle" :size="14" class="text-gray-400" />
-                  <span class="text-xs text-gray-500">{{ post.commentCount }}</span>
+                  <Icon name="message-circle" :size="14" class="text-muted-foreground" />
+                  <span class="text-xs text-muted-foreground">{{ post.commentCount }}</span>
                 </div>
                 <div class="flex items-center gap-1">
-                  <Icon name="eye" :size="14" class="text-gray-400" />
-                  <span class="text-xs text-gray-500">{{ formatViewCount(post.viewCount) }}</span>
+                  <Icon name="eye" :size="14" class="text-muted-foreground" />
+                  <span class="text-xs text-muted-foreground">{{ formatViewCount(post.viewCount) }}</span>
                 </div>
               </div>
             </div>
@@ -111,8 +111,8 @@
       </div>
 
       <aside class="w-full lg:w-64 shrink-0 flex flex-col gap-4">
-        <div class="border rounded-[10px] p-4 bg-white border-gray-200">
-          <h3 class="text-[18px] font-semibold mb-3 text-gray-800">话题分类</h3>
+        <div class="border rounded-[10px] p-4 bg-card border-border">
+          <h3 class="text-[18px] font-semibold mb-3 text-foreground">话题分类</h3>
           <div class="flex flex-col gap-1">
             <a
               v-for="cat in categoryList"
@@ -123,44 +123,44 @@
                 'flex items-center justify-between px-2 py-1.5 rounded-lg text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
                 selectedCategory === cat.value
                   ? 'bg-primary-50 text-primary-500 font-medium'
-                  : 'text-gray-700 hover:bg-gray-50',
+                  : 'text-foreground hover:bg-muted',
               ]"
             >
               <span>{{ cat.label }}</span>
-              <span class="text-xs text-gray-400">{{ cat.count }}</span>
+              <span class="text-xs text-muted-foreground">{{ cat.count }}</span>
             </a>
           </div>
         </div>
 
-        <div class="border rounded-[10px] p-4 bg-white border-gray-200">
-          <h3 class="text-[18px] font-semibold mb-3 text-gray-800">热门话题</h3>
+        <div class="border rounded-[10px] p-4 bg-card border-border">
+          <h3 class="text-[18px] font-semibold mb-3 text-foreground">热门话题</h3>
           <div class="flex flex-col gap-3">
             <a
               v-for="(topic, index) in trendingTopics"
               :key="index"
               href="#"
-              class="flex items-start gap-2 hover:bg-gray-50 rounded-lg p-1 -mx-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="flex items-start gap-2 hover:bg-muted rounded-lg p-1 -mx-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
               <span
                 :class="[
                   'shrink-0 w-5 h-5 rounded flex items-center justify-center text-xs font-bold',
-                  index < 3 ? 'text-white' : 'bg-gray-100 text-gray-500',
+                  index < 3 ? 'text-white' : 'bg-gray-100 text-muted-foreground',
                   index === 0 ? 'bg-danger-500' : '',
                   index === 1 ? 'bg-warning-500' : '',
                   index === 2 ? 'bg-primary-500' : '',
                 ]"
               >{{ index + 1 }}</span>
               <div class="min-w-0">
-                <p class="text-sm truncate text-gray-800">{{ topic.title }}</p>
-                <span class="text-[11px] uppercase tracking-wider text-gray-400">{{ topic.discussions }} 讨论</span>
+                <p class="text-sm truncate text-foreground">{{ topic.title }}</p>
+                <span class="text-[11px] uppercase tracking-wider text-muted-foreground">{{ topic.discussions }} 讨论</span>
               </div>
             </a>
           </div>
         </div>
 
         <!-- 活跃用户（对齐设计稿） -->
-        <div class="border rounded-[10px] p-4 bg-white border-gray-200">
-          <h3 class="text-[18px] font-semibold mb-3 text-gray-800">活跃用户</h3>
+        <div class="border rounded-[10px] p-4 bg-card border-border">
+          <h3 class="text-[18px] font-semibold mb-3 text-foreground">活跃用户</h3>
           <div class="flex flex-col gap-3">
             <div
               v-for="(user, index) in activeUsers"
@@ -172,14 +172,14 @@
                 :style="{ backgroundColor: user.color }"
               >{{ user.name.charAt(0) }}</div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium truncate text-gray-800">{{ user.name }}</p>
-                <p class="text-xs text-gray-400">{{ user.contribution }} 贡献值</p>
+                <p class="text-sm font-medium truncate text-foreground">{{ user.name }}</p>
+                <p class="text-xs text-muted-foreground">{{ user.contribution }} 贡献值</p>
               </div>
               <button
                 type="button"
                 class="text-xs font-medium px-3 py-1 rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 active:opacity-90"
                 :class="user.followed
-                  ? 'text-gray-400 border-gray-200 bg-gray-50'
+                  ? 'text-muted-foreground border-border bg-muted'
                   : 'text-primary-500 border-primary-500 hover:bg-primary-50'"
                 @click="toggleFollowUser(user)"
               >{{ user.followed ? '已关注' : '关注' }}</button>

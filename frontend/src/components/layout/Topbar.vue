@@ -3,20 +3,20 @@
     <div class="flex items-center gap-3">
       <button
         type="button"
-        class="w-9 h-9 rounded-lg flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition-colors lg:hidden"
+        class="w-9 h-9 rounded-lg flex items-center justify-center border border-border hover:bg-muted transition-colors lg:hidden"
         @click="$emit('toggle-sidebar')"
         aria-label="切换侧边栏"
       >
-        <Icon name="menu" :size="18" class="text-gray-600" />
+        <Icon name="menu" :size="18" class="text-muted-foreground" />
       </button>
 
       <div class="relative hidden sm:block">
-        <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <input
           v-model="searchQuery"
           type="text"
           placeholder="搜索知识库、文档..."
-          class="w-56 lg:w-72 h-9 pl-9 pr-4 rounded-lg text-[13px] border border-gray-200 bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all"
+          class="w-56 lg:w-72 h-9 pl-9 pr-4 rounded-lg text-[13px] border border-border bg-card text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all"
           @keyup.enter="handleSearch"
           aria-label="搜索"
         />
@@ -24,11 +24,11 @@
 
       <button
         type="button"
-        class="w-9 h-9 rounded-lg flex items-center justify-center border border-gray-200 bg-white hover:bg-gray-50 transition-colors sm:hidden"
+        class="w-9 h-9 rounded-lg flex items-center justify-center border border-border bg-card hover:bg-muted transition-colors sm:hidden"
         @click="goTo('/search')"
         aria-label="搜索"
       >
-        <Icon name="search" :size="18" class="text-gray-500" />
+        <Icon name="search" :size="18" class="text-muted-foreground" />
       </button>
     </div>
 
@@ -36,23 +36,23 @@
       <!-- P3-1：主题切换 -->
       <button
         type="button"
-        class="w-9 h-9 rounded-lg flex items-center justify-center border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+        class="w-9 h-9 rounded-lg flex items-center justify-center border border-border bg-card hover:bg-muted transition-colors"
         :aria-label="isDark ? '切换到浅色模式' : '切换到深色模式'"
         :title="isDark ? '切换到浅色模式' : '切换到深色模式'"
         @click="toggleTheme"
       >
-        <Icon :name="isDark ? 'sun' : 'moon'" :size="18" class="text-gray-500" />
+        <Icon :name="isDark ? 'sun' : 'moon'" :size="18" class="text-muted-foreground" />
       </button>
 
       <button
         v-if="isLoggedIn"
         type="button"
-        class="relative w-9 h-9 rounded-lg flex items-center justify-center border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+        class="relative w-9 h-9 rounded-lg flex items-center justify-center border border-border bg-card hover:bg-muted transition-colors"
         @click="handleToggleNotifications"
         :aria-label="`消息通知，${unreadCount} 条未读`"
         :aria-expanded="showNotifications"
       >
-        <Icon name="bell" :size="18" class="text-gray-500" />
+        <Icon name="bell" :size="18" class="text-muted-foreground" />
         <span v-if="unreadCount > 0" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-danger-500" />
       </button>
 
@@ -71,12 +71,12 @@
         <div v-if="showUserMenu" class="fixed inset-0 z-40" @click="showUserMenu = false" />
         <div
           v-if="showUserMenu"
-          class="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50"
+          class="absolute right-0 top-full mt-2 w-56 bg-card border border-border rounded-lg shadow-lg py-2 z-50"
           role="menu"
         >
-          <div class="px-4 py-3 border-b border-gray-100">
-            <div class="text-sm font-medium text-gray-800">{{ displayName }}</div>
-            <div v-if="displayEmail" class="text-xs text-gray-500 mt-0.5">{{ displayEmail }}</div>
+          <div class="px-4 py-3 border-b border-border">
+            <div class="text-sm font-medium text-foreground">{{ displayName }}</div>
+            <div v-if="displayEmail" class="text-xs text-muted-foreground mt-0.5">{{ displayEmail }}</div>
           </div>
           <div class="py-1">
             <button
@@ -84,14 +84,14 @@
               :key="item.path"
               type="button"
               role="menuitem"
-              class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              class="w-full flex items-center gap-3 px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
               @click="goTo(item.path)"
             >
-              <Icon :name="item.iconName" :size="16" class="text-gray-400" />
+              <Icon :name="item.iconName" :size="16" class="text-muted-foreground" />
               {{ item.label }}
             </button>
           </div>
-          <div class="border-t border-gray-100 pt-1">
+          <div class="border-t border-border pt-1">
             <button
               v-if="isLoggedIn"
               type="button"
@@ -120,10 +120,10 @@
     <div v-if="isLoggedIn && showNotifications" class="fixed inset-0 z-40" @click="showNotifications = false" />
     <div
       v-if="isLoggedIn && showNotifications"
-      class="fixed right-2 left-2 sm:left-auto sm:right-4 top-16 sm:w-80 bg-white border border-gray-200 rounded-lg shadow-xl z-50"
+      class="fixed right-2 left-2 sm:left-auto sm:right-4 top-16 sm:w-80 bg-card border border-border rounded-lg shadow-xl z-50"
     >
-      <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-        <h3 class="font-semibold text-gray-800">通知</h3>
+      <div class="flex items-center justify-between px-4 py-3 border-b border-border">
+        <h3 class="font-semibold text-foreground">通知</h3>
         <button
           v-if="unreadCount > 0"
           class="text-sm text-primary-600 hover:underline"
@@ -134,7 +134,7 @@
         <div
           v-for="notification in notificationStore.unreadList.slice(0, 5)"
           :key="notification.id"
-          class="px-4 py-3 hover:bg-gray-50 border-b border-gray-50 cursor-pointer transition-colors bg-primary-50/30"
+          class="px-4 py-3 hover:bg-muted border-b border-border cursor-pointer transition-colors bg-primary-50/30"
           @click="handleNotificationClick(notification.id)"
         >
           <div class="flex items-start gap-3">
@@ -145,20 +145,20 @@
               <Icon :name="getNotificationIcon(notification.type)" :size="16" :class="getNotificationIconColor(notification.type)" />
             </div>
             <div class="flex-1 min-w-0">
-              <div class="font-medium text-gray-800 text-sm">{{ notification.title }}</div>
-              <div class="text-gray-500 text-xs mt-0.5 line-clamp-2">{{ notification.content }}</div>
-              <div class="text-gray-400 text-xs mt-1">{{ formatTime(notification.createTime) }}</div>
+              <div class="font-medium text-foreground text-sm">{{ notification.title }}</div>
+              <div class="text-muted-foreground text-xs mt-0.5 line-clamp-2">{{ notification.content }}</div>
+              <div class="text-muted-foreground text-xs mt-1">{{ formatTime(notification.createTime) }}</div>
             </div>
           </div>
         </div>
         <div
           v-if="notificationStore.unreadList.length === 0"
-          class="px-4 py-8 text-center text-sm text-gray-400"
+          class="px-4 py-8 text-center text-sm text-muted-foreground"
         >
           暂无未读通知
         </div>
       </div>
-      <div class="px-4 py-2 border-t border-gray-100">
+      <div class="px-4 py-2 border-t border-border">
         <button
           type="button"
           class="w-full text-center text-sm text-primary-600 hover:underline"
@@ -299,7 +299,7 @@ function getNotificationIconColor(type: string): string {
     case 'COMMUNITY':
       return 'text-purple-500'
     default:
-      return 'text-gray-500'
+      return 'text-muted-foreground'
   }
 }
 

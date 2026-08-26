@@ -230,15 +230,17 @@
           @keydown.enter="submitSearch"
         />
         <span
-          class="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded"
+          class="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded cursor-pointer transition-colors hover:bg-[var(--kb-primary)] hover:text-white"
           style="background: var(--kb-muted); color: var(--kb-muted-foreground); font-size: var(--kb-fs-xs); font-weight: var(--kb-fw-xs);"
+          title="打开命令面板（⌘K / Ctrl+K）"
+          @click="openPalette"
         >⌘K</span>
       </div>
 
       <!-- Search (mobile icon) -->
       <button
         type="button"
-        class="md:hidden w-9 h-9 rounded-lg flex items-center justify-center border transition-colors hover:bg-gray-50"
+        class="md:hidden w-9 h-9 rounded-lg flex items-center justify-center border transition-colors hover:bg-muted"
         style="border-color: var(--kb-border);"
         @click="goTo('/search')"
         aria-label="搜索"
@@ -253,7 +255,7 @@
       <button
         v-if="isLoggedIn"
         type="button"
-        class="relative p-2 rounded-lg transition-colors hover:bg-gray-50"
+        class="relative p-2 rounded-lg transition-colors hover:bg-muted"
         style="color: var(--kb-muted-foreground);"
         @click="toggleNotifications"
         :aria-label="`消息通知，${unreadCount} 条未读`"
@@ -290,7 +292,7 @@
       <!-- Mobile nav toggle -->
       <button
         type="button"
-        class="lg:hidden w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-gray-50"
+        class="lg:hidden w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-muted"
         @click="mobileOpen = !mobileOpen"
         aria-label="菜单"
       >
@@ -323,7 +325,7 @@
         <div
           v-for="notification in notificationStore.unreadList.slice(0, 5)"
           :key="notification.id"
-          class="px-4 py-3 hover:bg-gray-50 border-b cursor-pointer transition-colors"
+          class="px-4 py-3 hover:bg-muted border-b cursor-pointer transition-colors"
           style="border-color: var(--kb-muted);"
           @click="handleNotificationClick(notification.id)"
         >
@@ -363,7 +365,7 @@
       <button
         type="button"
         role="menuitem"
-        class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-gray-50"
+        class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-muted"
         style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);"
         @click="goTo('/profile')"
       >
@@ -373,7 +375,7 @@
       <button
         type="button"
         role="menuitem"
-        class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-gray-50"
+        class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-muted"
         style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);"
         @click="goTo('/settings/background')"
       >
@@ -384,7 +386,7 @@
         v-if="isAdmin"
         type="button"
         role="menuitem"
-        class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-gray-50"
+        class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-muted"
         style="color: var(--kb-primary); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);"
         @click="goTo('/admin/overview')"
       >
@@ -395,7 +397,7 @@
       <button
         type="button"
         role="menuitem"
-        class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-gray-50"
+        class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-muted"
         style="color: var(--kb-destructive); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);"
         @click="handleLogout"
       >
@@ -423,7 +425,7 @@
           v-for="item in mobileLinks"
           :key="item.path"
           :to="item.path"
-          class="flex items-center px-3 py-2.5 rounded-lg transition-colors hover:bg-gray-50"
+          class="flex items-center px-3 py-2.5 rounded-lg transition-colors hover:bg-muted"
           style="color: var(--kb-foreground); font-size: var(--kb-fs-body-md); gap: var(--kb-nav-gap);"
           @click="mobileOpen = false"
         >
@@ -436,7 +438,7 @@
           v-for="it in learningMenu"
           :key="it.path"
           :to="it.path"
-          class="flex items-center px-3 py-2.5 rounded-lg transition-colors hover:bg-gray-50"
+          class="flex items-center px-3 py-2.5 rounded-lg transition-colors hover:bg-muted"
           style="color: var(--kb-foreground); font-size: var(--kb-fs-body-md); gap: var(--kb-nav-gap);"
           @click="mobileOpen = false"
         >
@@ -449,7 +451,7 @@
           v-for="it in communityMenu"
           :key="it.path"
           :to="it.path"
-          class="flex items-center px-3 py-2.5 rounded-lg transition-colors hover:bg-gray-50"
+          class="flex items-center px-3 py-2.5 rounded-lg transition-colors hover:bg-muted"
           style="color: var(--kb-foreground); font-size: var(--kb-fs-body-md); gap: var(--kb-nav-gap);"
           @click="mobileOpen = false"
         >
@@ -462,7 +464,7 @@
           v-for="it in aiMenu"
           :key="it.path"
           :to="it.path"
-          class="flex items-center px-3 py-2.5 rounded-lg transition-colors hover:bg-gray-50"
+          class="flex items-center px-3 py-2.5 rounded-lg transition-colors hover:bg-muted"
           style="color: var(--kb-foreground); font-size: var(--kb-fs-body-md); gap: var(--kb-nav-gap);"
           @click="mobileOpen = false"
         >
@@ -475,7 +477,7 @@
           v-for="it in growthMenu"
           :key="it.path"
           :to="it.path"
-          class="flex items-center px-3 py-2.5 rounded-lg transition-colors hover:bg-gray-50"
+          class="flex items-center px-3 py-2.5 rounded-lg transition-colors hover:bg-muted"
           style="color: var(--kb-foreground); font-size: var(--kb-fs-body-md); gap: var(--kb-nav-gap);"
           @click="mobileOpen = false"
         >
@@ -488,7 +490,7 @@
           v-for="it in personalMenu"
           :key="it.path"
           :to="it.path"
-          class="flex items-center px-3 py-2.5 rounded-lg transition-colors hover:bg-gray-50"
+          class="flex items-center px-3 py-2.5 rounded-lg transition-colors hover:bg-muted"
           style="color: var(--kb-foreground); font-size: var(--kb-fs-body-md); gap: var(--kb-nav-gap);"
           @click="mobileOpen = false"
         >
@@ -510,11 +512,13 @@ import PomodoroFloating from '@/components/ui/PomodoroFloating.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useNotificationStore } from '@/stores/notification';
 import { useBackgroundStore } from '@/stores/background';
+import { useCommandPalette } from '@/composables/useCommandPalette';
 import { notify } from '@/utils/toast';
 
 const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
+const palette = useCommandPalette();
 const notificationStore = useNotificationStore();
 const bgStore = useBackgroundStore();
 
@@ -722,7 +726,7 @@ function getNotifColor(type: string): string {
     case 'SYSTEM': return 'text-primary-500';
     case 'LEARNING': return 'text-success-500';
     case 'COMMUNITY': return 'text-purple-500';
-    default: return 'text-gray-500';
+    default: return 'text-muted-foreground';
   }
 }
 
@@ -741,12 +745,16 @@ function formatTime(time?: string): string {
   return date.toLocaleDateString('zh-CN');
 }
 
-// 全局快捷键：Cmd/Ctrl + K 跳转到搜索页
+// 全局快捷键：Cmd/Ctrl + K 已由 App.vue 命令面板统一接管，此处不再拦截。
 function onKeyDown(e: KeyboardEvent) {
-  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-    e.preventDefault();
-    goTo('/search');
-  }
+  // 占位：保留钩子供后续其他全局快捷键扩展
+  void e;
+}
+
+// 打开命令面板（F2：⌘K / Ctrl+K）
+function openPalette() {
+  // useCommandPalette 在模块顶层调用一次，这里直接触发
+  palette.open();
 }
 
 watch(isLoggedIn, (loggedIn) => {

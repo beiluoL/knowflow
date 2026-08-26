@@ -21,7 +21,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -138,6 +140,142 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
         messageMapper.delete(new LambdaQueryWrapper<ChatMessage>()
                 .eq(ChatMessage::getConversationId, conversationId));
         this.removeById(conversationId);
+    }
+
+    /**
+     * F1：流式发送消息。
+     * 流程：保存 user 消息 → 检索相关文档 → 拼 system prompt（含摘要+RAG）→
+     * 调 AiService.streamChat 异步推送 → onComplete 回调保存 assistant 消息并更新会话。
+     */
+    @Override
+    public SseEmitter streamSend(ChatSendDTO dto, Long userId) {
+        // 与 AiService 内部 timeout 180s 对齐
+        SseEmitter emitter = new SseEmitter(180_000L);
+
+        // 1. 获取/创建会话
+        ChatConversation conversation;
+        if (dto.getConversationId() == null) {
+            conversation = createConversationEntity(userId, dto.getContent());
+        } else {
+            conversation = this.getById(dto.getConversationId());
+            if (conversation == null || !conversation.getUserId().equals(userId)) {
+                throw new BusinessException(404, "对话不存在");
+            }
+        }
+
+        // 2. 保存用户消息（同步）
+        ChatMessage userMessage = new ChatMessage();
+        userMessage.setConversationId(conversation.getId());
+        userMessage.setUserId(userId);
+        userMessage.setRole("user");
+        userMessage.setContent(dto.getContent());
+        userMessage.setTokenCount(dto.getContent().length());
+        userMessage.setTruncated(0);
+        messageMapper.insert(userMessage);
+
+        // 3. 检索 RAG 文档 + 拼上下文 system prompt
+        List<DocDocument> contextDocs = searchRelatedDocs(dto.getContent());
+        String systemPrompt = buildStreamSystemPrompt(conversation, contextDocs);
+        final ChatConversation conv = conversation;
+        final List<DocDocument> docs = contextDocs;
+        final Long uid = userId;
+
+        // 4. 异步流式调用 AI；onComplete 回调持久化 assistant 消息
+        aiService.streamChat(systemPrompt, dto.getContent(), userId, null, emitter,
+                (content, success) -> {
+                    try {
+                        String finalContent;
+                        if (StrUtil.isBlank(content)) {
+                            finalContent = success ? "（AI 暂未返回内容，请重试）" : "（生成被中断或失败，请重试）";
+                        } else {
+                            finalContent = content;
+                        }
+                        ChatMessage assistantMessage = new ChatMessage();
+                        assistantMessage.setConversationId(conv.getId());
+                        assistantMessage.setUserId(uid);
+                        assistantMessage.setRole("assistant");
+                        assistantMessage.setContent(finalContent);
+                        assistantMessage.setDocReferences(buildDocReferences(docs));
+                        assistantMessage.setTokenCount(finalContent.length());
+                        // success=false 表示流被打断（用户点停止或网络中断），标记 truncated=1
+                        assistantMessage.setTruncated(success ? 0 : 1);
+                        messageMapper.insert(assistantMessage);
+
+                        conv.setMessageCount((conv.getMessageCount() == null ? 0 : conv.getMessageCount()) + 2);
+                        String lastMsg = finalContent.length() > 3900 ? finalContent.substring(0, 3900) : finalContent;
+                        conv.setLastMessage(lastMsg);
+                        ChatServiceImpl.this.updateById(conv);
+
+                        // 异步触发摘要生成（每 6 轮生成一次）
+                        maybeSummarize(conv);
+                    } catch (Exception e) {
+                        log.error("流式结束回调保存消息失败 convId={}", conv.getId(), e);
+                    }
+                },
+                null, null, null);  // temperature/maxTokens/topP 用默认值
+
+        return emitter;
+    }
+
+    /** 拼装流式对话的 system prompt：摘要 + RAG 上下文。 */
+    private String buildStreamSystemPrompt(ChatConversation conversation, List<DocDocument> contextDocs) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("你是 KnowFlow 学习助手。请基于以下信息回答用户的问题。\n\n");
+        if (StrUtil.isNotBlank(conversation.getSummary())) {
+            sb.append("【历史对话摘要】\n").append(conversation.getSummary()).append("\n\n");
+        }
+        if (contextDocs != null && !contextDocs.isEmpty()) {
+            sb.append("【相关文档上下文】\n");
+            for (int i = 0; i < contextDocs.size(); i++) {
+                DocDocument d = contextDocs.get(i);
+                sb.append("--- 文档").append(i + 1).append(" ---\n");
+                String c = d.getContent();
+                if (StrUtil.isNotBlank(c)) {
+                    // 截断避免上下文过长
+                    sb.append(c.length() > 1500 ? c.substring(0, 1500) + "..." : c);
+                }
+                sb.append("\n\n");
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * 每 6 轮（messageCount 为 6 的倍数）调用 AI 同步生成对话摘要。
+     * 失败时静默降级，不影响主流程。
+     */
+    private void maybeSummarize(ChatConversation conversation) {
+        if (conversation.getMessageCount() == null
+                || conversation.getMessageCount() == 0
+                || conversation.getMessageCount() % 6 != 0) {
+            return;
+        }
+        try {
+            List<ChatMessage> recent = messageMapper.selectList(new LambdaQueryWrapper<ChatMessage>()
+                    .eq(ChatMessage::getConversationId, conversation.getId())
+                    .orderByDesc(ChatMessage::getCreateTime)
+                    .last("LIMIT 6"));
+            if (recent.size() < 6) {
+                return;
+            }
+            Collections.reverse(recent);  // 按时间正序拼接
+            StringBuilder dialogue = new StringBuilder();
+            for (ChatMessage m : recent) {
+                dialogue.append("【").append(m.getRole()).append("】")
+                        .append(m.getContent() != null ? m.getContent() : "")
+                        .append("\n");
+            }
+            String systemPrompt = "请用 200 字以内总结以下对话的关键信息（用户意图、已讨论的主题、达成的结论、待解决的问题）。只输出总结，不要附加说明。";
+            String summary = aiService.complete(systemPrompt, dialogue.toString(), null, conversation.getUserId());
+            if (StrUtil.isNotBlank(summary)) {
+                conversation.setSummary(summary);
+                conversation.setSummaryUpdatedAt(LocalDateTime.now());
+                this.updateById(conversation);
+                log.info("对话摘要已更新 convId={} len={}", conversation.getId(), summary.length());
+            }
+        } catch (Exception e) {
+            log.warn("生成对话摘要失败 convId={}: {}", conversation.getId(), e.getMessage());
+        }
     }
 
     private List<DocDocument> searchRelatedDocs(String query) {

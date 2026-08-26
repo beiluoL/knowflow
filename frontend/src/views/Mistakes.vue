@@ -26,7 +26,7 @@
           'shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
           selectedCategory === cat.value
             ? 'bg-primary-500 text-white border-primary-500'
-            : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300',
+            : 'bg-card text-foreground border-border hover:border-border',
         ]"
       >
         <span
@@ -35,22 +35,22 @@
           :style="{ backgroundColor: cat.color }"
         ></span>
         <span>{{ cat.label }}</span>
-        <span v-if="cat.count" :class="selectedCategory === cat.value ? 'opacity-80' : 'text-gray-400'">{{ cat.count }}</span>
+        <span v-if="cat.count" :class="selectedCategory === cat.value ? 'opacity-80' : 'text-muted-foreground'">{{ cat.count }}</span>
       </button>
     </section>
 
     <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="border rounded-[10px] p-4 bg-white border-gray-200">
+      <div class="border rounded-[10px] p-4 bg-card border-border">
         <div class="flex items-center justify-between">
           <div>
             <div class="flex items-center gap-2 mb-1">
               <Icon name="book-open" :size="16" class="text-primary-500" aria-hidden="true" />
-              <span class="text-sm text-gray-500">错题攻克</span>
+              <span class="text-sm text-muted-foreground">错题攻克</span>
             </div>
             <div class="flex items-baseline gap-2 mt-2">
               <!-- P2-2：正面表述「已消灭」而非「总错题」，减少挫败感 -->
-              <span class="text-[28px] font-bold text-gray-800">{{ stats.mastered }}</span>
-              <span class="text-xs text-gray-400">/ {{ stats.total }} 道已攻克</span>
+              <span class="text-[28px] font-bold text-foreground">{{ stats.mastered }}</span>
+              <span class="text-xs text-muted-foreground">/ {{ stats.total }} 道已攻克</span>
             </div>
           </div>
           <div class="relative w-[64px] h-[64px]" :title="`掌握率 ${masteryPercent}%`">
@@ -82,29 +82,29 @@
                 </linearGradient>
               </defs>
             </svg>
-            <div class="absolute inset-0 flex items-center justify-center text-[13px] font-semibold text-gray-700">
+            <div class="absolute inset-0 flex items-center justify-center text-[13px] font-semibold text-foreground">
               {{ masteryPercent }}%
             </div>
           </div>
         </div>
         <!-- P2-2：正面鼓励文案 -->
-        <p class="text-xs text-gray-400 mt-3">
+        <p class="text-xs text-muted-foreground mt-3">
           <span v-if="stats.mastered > 0" class="text-success-500">✓ 已消灭 {{ stats.mastered }} 道错题，继续保持！</span>
           <span v-else>开始攻克第一道错题吧</span>
         </p>
       </div>
-      <div class="border rounded-[10px] p-4 bg-white border-gray-200">
+      <div class="border rounded-[10px] p-4 bg-card border-border">
         <div class="flex items-center gap-2 mb-2">
           <Icon name="check-circle" :size="16" class="text-success-500" aria-hidden="true" />
-          <span class="text-sm text-gray-500">已掌握</span>
+          <span class="text-sm text-muted-foreground">已掌握</span>
         </div>
         <div class="flex items-baseline gap-2">
-          <span class="text-[28px] font-bold text-gray-800">{{ stats.mastered }}</span>
-          <span class="text-xs text-gray-400">道</span>
+          <span class="text-[28px] font-bold text-foreground">{{ stats.mastered }}</span>
+          <span class="text-xs text-muted-foreground">道</span>
         </div>
         <div class="mt-3 space-y-1.5">
           <div class="flex items-center justify-between text-xs">
-            <span class="text-gray-400">本周新增</span>
+            <span class="text-muted-foreground">本周新增</span>
             <span class="text-success-500 font-medium">+{{ stats.weeklyNew }} 道</span>
           </div>
           <div class="h-1.5 rounded-full bg-gray-100 overflow-hidden">
@@ -112,18 +112,18 @@
           </div>
         </div>
       </div>
-      <div class="border rounded-[10px] p-4 bg-white border-gray-200">
+      <div class="border rounded-[10px] p-4 bg-card border-border">
         <div class="flex items-center gap-2 mb-2">
           <Icon name="clock" :size="16" class="text-warning-500" aria-hidden="true" />
-          <span class="text-sm text-gray-500">待复习</span>
+          <span class="text-sm text-muted-foreground">待复习</span>
         </div>
         <div class="flex items-baseline gap-2">
-          <span class="text-[28px] font-bold text-gray-800">{{ stats.pending }}</span>
-          <span class="text-xs text-gray-400">道</span>
+          <span class="text-[28px] font-bold text-foreground">{{ stats.pending }}</span>
+          <span class="text-xs text-muted-foreground">道</span>
         </div>
         <div class="mt-3 space-y-1.5">
           <div class="flex items-center justify-between text-xs">
-            <span class="text-gray-400">今日需复习</span>
+            <span class="text-muted-foreground">今日需复习</span>
             <span class="text-warning-500 font-medium">{{ stats.dueToday }} 道</span>
           </div>
           <div class="h-1.5 rounded-full bg-gray-100 overflow-hidden">
@@ -142,20 +142,20 @@
         title="太棒了，暂无错题"
         variant="success"
       >
-        <p class="text-sm text-gray-500">继续保持，做题时遇到的错题会自动收录到这里</p>
+        <p class="text-sm text-muted-foreground">继续保持，做题时遇到的错题会自动收录到这里</p>
       </EmptyState>
 
       <section v-else class="flex flex-col gap-4">
         <div
           v-for="mistake in mistakeList"
           :key="mistake.id"
-          class="mistake-card border rounded-[10px] p-5 bg-white border-gray-200"
+          class="mistake-card border rounded-[10px] p-5 bg-card border-border"
           :style="{ '--category-color': getCategoryColor(mistake.category) }"
         >
           <div class="flex items-center justify-between gap-4 mb-3">
-            <p class="text-[15px] font-semibold truncate min-w-0 text-gray-800">{{ mistake.question }}</p>
+            <p class="text-[15px] font-semibold truncate min-w-0 text-foreground">{{ mistake.question }}</p>
             <div class="flex items-center gap-2 shrink-0">
-              <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs whitespace-nowrap bg-gray-100 text-gray-500">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs whitespace-nowrap bg-gray-100 text-muted-foreground">
                 {{ mistake.category }}
               </span>
               <span
@@ -171,27 +171,27 @@
               <Icon name="x-circle" :size="14" class="shrink-0 text-danger-500" aria-hidden="true" />
               <span class="text-sm text-danger-500">你的答案</span>
             </div>
-            <p class="text-sm text-gray-700">{{ mistake.wrongAnswer }}</p>
+            <p class="text-sm text-foreground">{{ mistake.wrongAnswer }}</p>
           </div>
           <div class="rounded-lg p-3 mb-3 bg-green-50 border-l-[3px] border-success-500">
             <div class="flex items-center gap-1.5 mb-1">
               <Icon name="check-circle" :size="14" class="shrink-0 text-success-500" aria-hidden="true" />
               <span class="text-sm text-success-500">正确答案</span>
             </div>
-            <p class="text-sm text-gray-700">{{ mistake.correctAnswer }}</p>
+            <p class="text-sm text-foreground">{{ mistake.correctAnswer }}</p>
           </div>
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <div class="flex items-center gap-1">
-                <Icon name="refresh-cw" :size="14" class="text-gray-400" aria-hidden="true" />
-                <span class="text-xs text-gray-500">复习 {{ mistake.reviewCount }} 次</span>
+                <Icon name="refresh-cw" :size="14" class="text-muted-foreground" aria-hidden="true" />
+                <span class="text-xs text-muted-foreground">复习 {{ mistake.reviewCount }} 次</span>
               </div>
-              <span class="text-xs text-gray-400">{{ formatTime(mistake.createTime) }}</span>
+              <span class="text-xs text-muted-foreground">{{ formatTime(mistake.createTime) }}</span>
             </div>
             <button
               v-if="mistake.mastered !== 1"
               @click="handleMarkMastered(mistake.id)"
-              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border text-success-500 border-success-500 bg-white hover:bg-success-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border text-success-500 border-success-500 bg-card hover:bg-success-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
               <Icon name="check" :size="14" aria-hidden="true" />
               <span>标记已掌握</span>
@@ -323,7 +323,7 @@ function getDifficultyStyle(diff?: number): string {
   if (diff === 1) return 'bg-green-50 text-success-500'
   if (diff === 2) return 'bg-yellow-50 text-warning-500'
   if (diff === 3) return 'bg-red-50 text-danger-500'
-  return 'bg-gray-100 text-gray-500'
+  return 'bg-gray-100 text-muted-foreground'
 }
 
 // P2-2：按分类获取色条颜色，与 categoryFilters 的颜色保持一致

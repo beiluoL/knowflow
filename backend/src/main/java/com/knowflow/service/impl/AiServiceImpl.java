@@ -393,6 +393,8 @@ public class AiServiceImpl implements AiService {
             if (callback != null) callback.onComplete(errMsg, false);
             return;
         }
+        // F1：full 移到 try 块外声明，便于 catch 块访问已生成的 partial content（用户中断/异常时仍能保存截断消息）
+        StringBuilder full = new StringBuilder();
         try {
             ModelAdapter adapter = adapterFactory.getAdapter(effective.provider());
             ModelAdapter.ChatRequest req = new ModelAdapter.ChatRequest();
@@ -407,7 +409,6 @@ public class AiServiceImpl implements AiService {
             ModelAdapter.ChatMessage usrMsg = new ModelAdapter.ChatMessage("user", userPrompt);
             req.messages = Arrays.asList(sysMsg, usrMsg);
 
-            StringBuilder full = new StringBuilder();
             adapter.streamChat(req,
                     delta -> {
                         if (delta.delta != null && !delta.delta.isEmpty()) {
@@ -424,12 +425,15 @@ public class AiServiceImpl implements AiService {
                     userId, configId, effective.provider(), e.getMessage());
             String errMsg = "AI 流式调用失败：" + e.getMessage();
             sendSseEvent(emitter, "error", Map.of("error", errMsg));
-            if (callback != null) callback.onComplete(errMsg, false);
+            // F1：异常时若已生成 partial content，优先回传 partial（success=false），便于上层保存为截断消息
+            String partial = full.length() > 0 ? full.toString() : errMsg;
+            if (callback != null) callback.onComplete(partial, false);
         } catch (Exception e) {
             log.error("流式对话异常: userId={}, configId={}, err={}", userId, configId, e.getMessage(), e);
             String errMsg = "AI 流式调用失败：" + e.getMessage();
             sendSseEvent(emitter, "error", Map.of("error", errMsg));
-            if (callback != null) callback.onComplete(errMsg, false);
+            String partial = full.length() > 0 ? full.toString() : errMsg;
+            if (callback != null) callback.onComplete(partial, false);
         } finally {
             completeSse(emitter);
         }

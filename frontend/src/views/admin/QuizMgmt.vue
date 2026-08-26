@@ -1,16 +1,16 @@
 <template>
   <div class="space-y-6 animate-fade-in">
-    <nav class="flex items-center gap-2 text-sm text-gray-500">
+    <nav class="flex items-center gap-2 text-sm text-muted-foreground">
       <span class="text-primary-500 font-medium">内容管理</span>
       <Icon name="chevron-right" :size="14" />
-      <span class="text-gray-700 font-medium">智能题库</span>
+      <span class="text-foreground font-medium">智能题库</span>
     </nav>
 
     <!-- 页面标题 + 顶部按钮 -->
     <div class="flex items-center justify-between flex-wrap gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-800">智能出题管理</h1>
-        <p class="text-gray-500 text-sm mt-1">AI 智能出题与手动题库管理</p>
+        <h1 class="text-2xl font-bold text-foreground">智能出题管理</h1>
+        <p class="text-muted-foreground text-sm mt-1">AI 智能出题与手动题库管理</p>
       </div>
       <div class="flex items-center gap-3">
         <Button icon-name="sparkles" @click="openAiModal">AI 出题</Button>
@@ -20,55 +20,55 @@
 
     <!-- 统计卡片 -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5">
+      <div class="bg-card border border-[var(--kb-border)] rounded-xl p-5">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-50">
             <Icon name="file-text" :size="20" class="text-blue-500" />
           </div>
-          <span class="text-sm text-gray-600">题目总数</span>
+          <span class="text-sm text-muted-foreground">题目总数</span>
         </div>
-        <p class="text-2xl font-bold text-gray-800">{{ totalCount }} <span class="text-sm font-normal text-gray-500">道</span></p>
+        <p class="text-2xl font-bold text-foreground">{{ totalCount }} <span class="text-sm font-normal text-muted-foreground">道</span></p>
       </div>
 
-      <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5">
+      <div class="bg-card border border-[var(--kb-border)] rounded-xl p-5">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-purple-50">
             <Icon name="sparkles" :size="20" class="text-purple-500" />
           </div>
-          <span class="text-sm text-gray-600">AI 生成数</span>
+          <span class="text-sm text-muted-foreground">AI 生成数</span>
         </div>
-        <p class="text-2xl font-bold text-gray-800">{{ aiCount }} <span class="text-sm font-normal text-gray-500">道</span></p>
+        <p class="text-2xl font-bold text-foreground">{{ aiCount }} <span class="text-sm font-normal text-muted-foreground">道</span></p>
       </div>
 
-      <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5">
+      <div class="bg-card border border-[var(--kb-border)] rounded-xl p-5">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-green-50">
             <Icon name="edit-2" :size="20" class="text-green-500" />
           </div>
-          <span class="text-sm text-gray-600">手动新增数</span>
+          <span class="text-sm text-muted-foreground">手动新增数</span>
         </div>
-        <p class="text-2xl font-bold text-gray-800">{{ manualCount }} <span class="text-sm font-normal text-gray-500">道</span></p>
+        <p class="text-2xl font-bold text-foreground">{{ manualCount }} <span class="text-sm font-normal text-muted-foreground">道</span></p>
       </div>
 
-      <div class="bg-white border border-[var(--kb-border)] rounded-xl p-5">
+      <div class="bg-card border border-[var(--kb-border)] rounded-xl p-5">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center bg-orange-50">
             <Icon name="check-circle" :size="20" class="text-orange-500" />
           </div>
-          <span class="text-sm text-gray-600">已发布数</span>
+          <span class="text-sm text-muted-foreground">已发布数</span>
         </div>
-        <p class="text-2xl font-bold text-gray-800">{{ publishedCount }} <span class="text-sm font-normal text-gray-500">道</span></p>
+        <p class="text-2xl font-bold text-foreground">{{ publishedCount }} <span class="text-sm font-normal text-muted-foreground">道</span></p>
       </div>
     </div>
 
     <!-- 搜索 + 筛选 + 视图切换 -->
-    <div class="bg-white border border-[var(--kb-border)] rounded-xl px-6 py-4 flex flex-wrap gap-4 items-center">
+    <div class="bg-card border border-[var(--kb-border)] rounded-xl px-6 py-4 flex flex-wrap gap-4 items-center">
       <div class="flex-1 min-w-[220px] max-w-md">
         <Input v-model="searchKeyword" placeholder="搜索题目标题 / 内容..." prefix-icon-name="search" @keyup.enter="onSearch" />
       </div>
       <select
         v-model="filterType"
-        class="h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+        class="h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         @change="onFilterChange"
       >
         <option value="">全部题型</option>
@@ -76,7 +76,7 @@
       </select>
       <select
         v-model="filterDifficulty"
-        class="h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+        class="h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         @change="onFilterChange"
       >
         <option value="">全部难度</option>
@@ -86,7 +86,7 @@
       </select>
       <select
         v-model="filterSource"
-        class="h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+        class="h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         @change="onFilterChange"
       >
         <option value="">全部来源</option>
@@ -100,7 +100,7 @@
             'px-3 h-9 rounded-md text-sm border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 flex items-center gap-1.5',
             viewMode === 'list'
               ? 'border-primary-500 bg-primary-50 text-primary-600 font-medium'
-              : 'border-[var(--kb-border)] text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              : 'border-[var(--kb-border)] text-muted-foreground hover:border-border hover:text-foreground',
           ]"
         >
           <Icon name="list" :size="16" aria-hidden="true" /> 列表
@@ -111,7 +111,7 @@
             'px-3 h-9 rounded-md text-sm border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 flex items-center gap-1.5',
             viewMode === 'card'
               ? 'border-primary-500 bg-primary-50 text-primary-600 font-medium'
-              : 'border-[var(--kb-border)] text-gray-500 hover:border-gray-300 hover:text-gray-700',
+              : 'border-[var(--kb-border)] text-muted-foreground hover:border-border hover:text-foreground',
           ]"
         >
           <Icon name="grid" :size="16" aria-hidden="true" /> 卡片
@@ -120,22 +120,22 @@
     </div>
 
     <!-- ========= 列表视图 ========= -->
-    <div v-if="viewMode === 'list'" class="bg-white border border-[var(--kb-border)] rounded-xl overflow-hidden">
+    <div v-if="viewMode === 'list'" class="bg-card border border-[var(--kb-border)] rounded-xl overflow-hidden">
       <div v-if="loading" class="px-6 py-12 flex flex-col items-center justify-center gap-3">
         <div class="w-8 h-8 border-2 border-[var(--kb-border)] border-t-primary-500 rounded-full animate-spin"></div>
-        <p class="text-sm text-gray-400">加载题目列表...</p>
+        <p class="text-sm text-muted-foreground">加载题目列表...</p>
       </div>
 
       <div v-else-if="questions.length === 0" class="px-6 py-12 flex flex-col items-center justify-center gap-3">
-        <div class="w-14 h-14 rounded-full bg-gray-50 flex items-center justify-center">
+        <div class="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
           <Icon name="file-text" :size="28" class="text-gray-300" />
         </div>
-        <p class="text-sm text-gray-400">暂无题目，点击「AI 出题」或「手动新增」开始创建</p>
+        <p class="text-sm text-muted-foreground">暂无题目，点击「AI 出题」或「手动新增」开始创建</p>
       </div>
 
       <template v-else>
         <div class="px-6 py-4 border-b border-[var(--kb-border)]">
-          <div class="grid grid-cols-12 gap-4 text-xs text-gray-500 font-medium">
+          <div class="grid grid-cols-12 gap-4 text-xs text-muted-foreground font-medium">
             <div class="col-span-3">题目标题</div>
             <div class="col-span-1 text-center">题型</div>
             <div class="col-span-1 text-center">难度</div>
@@ -150,12 +150,12 @@
           <div
             v-for="q in questions"
             :key="q.id"
-            class="px-6 py-4 hover:bg-gray-50 transition-colors group"
+            class="px-6 py-4 hover:bg-muted transition-colors group"
           >
             <div class="grid grid-cols-12 gap-4 items-center">
               <div class="col-span-3 min-w-0">
-                <p class="font-medium text-gray-800 truncate">{{ q.title }}</p>
-                <p class="text-xs text-gray-400 truncate mt-0.5">{{ q.tags || '无标签' }}</p>
+                <p class="font-medium text-foreground truncate">{{ q.title }}</p>
+                <p class="text-xs text-muted-foreground truncate mt-0.5">{{ q.tags || '无标签' }}</p>
               </div>
               <div class="col-span-1 text-center">
                 <span :class="['inline-block px-2 py-0.5 rounded-full text-xs font-medium', QUESTION_TYPE_STYLE[q.questionType]]">
@@ -168,21 +168,21 @@
                 </span>
               </div>
               <div class="col-span-1 text-center">
-                <span :class="['inline-block px-2 py-0.5 rounded-full text-xs font-medium', q.source === 'AI' ? 'bg-purple-50 text-purple-600' : 'bg-gray-100 text-gray-500']">
+                <span :class="['inline-block px-2 py-0.5 rounded-full text-xs font-medium', q.source === 'AI' ? 'bg-purple-50 text-purple-600' : 'bg-gray-100 text-muted-foreground']">
                   {{ q.source === 'AI' ? 'AI 生成' : '手动' }}
                 </span>
               </div>
               <div class="col-span-1 text-center">
-                <span :class="['inline-block px-2 py-0.5 rounded-full text-xs font-medium', q.status === 1 ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500']">
+                <span :class="['inline-block px-2 py-0.5 rounded-full text-xs font-medium', q.status === 1 ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-muted-foreground']">
                   {{ q.status === 1 ? '已发布' : '草稿' }}
                 </span>
               </div>
               <div class="col-span-2 text-center">
-                <span class="text-sm text-gray-500">{{ formatDate(q.createTime) }}</span>
+                <span class="text-sm text-muted-foreground">{{ formatDate(q.createTime) }}</span>
               </div>
               <div class="col-span-3 flex items-center justify-center gap-1">
                 <button
-                  class="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                  class="p-1.5 text-muted-foreground hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                   @click="openEdit(q)"
                   title="编辑"
                 >
@@ -190,7 +190,7 @@
                 </button>
                 <button
                   v-if="q.status !== 1"
-                  class="p-1.5 text-gray-400 hover:text-green-500 hover:bg-green-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                  class="p-1.5 text-muted-foreground hover:text-green-500 hover:bg-green-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                   @click="publishQuestion(q)"
                   title="发布"
                 >
@@ -198,14 +198,14 @@
                 </button>
                 <button
                   v-else
-                  class="p-1.5 text-gray-400 hover:text-orange-500 hover:bg-orange-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                  class="p-1.5 text-muted-foreground hover:text-orange-500 hover:bg-orange-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                   @click="unpublishQuestion(q)"
                   title="下架"
                 >
                   <Icon name="trending-down" :size="16" aria-hidden="true" />
                 </button>
                 <button
-                  class="p-1.5 text-gray-400 hover:text-danger-500 hover:bg-danger-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                  class="p-1.5 text-muted-foreground hover:text-danger-500 hover:bg-danger-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                   @click="deleteQuestion(q)"
                   title="删除"
                 >
@@ -218,16 +218,16 @@
 
         <!-- 分页 -->
         <div class="px-6 py-3 border-t border-[var(--kb-border)]/50 flex items-center justify-between">
-          <span class="text-sm text-gray-400">共 {{ totalCount }} 道，第 {{ pageNum }} / {{ totalPages }} 页</span>
+          <span class="text-sm text-muted-foreground">共 {{ totalCount }} 道，第 {{ pageNum }} / {{ totalPages }} 页</span>
           <div class="flex items-center gap-2">
             <button
               :disabled="pageNum <= 1 || loading"
-              class="px-3 h-8 rounded-md text-sm border border-[var(--kb-border)] text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="px-3 h-8 rounded-md text-sm border border-[var(--kb-border)] text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               @click="goPage(pageNum - 1)"
             >上一页</button>
             <button
               :disabled="pageNum >= totalPages || loading"
-              class="px-3 h-8 rounded-md text-sm border border-[var(--kb-border)] text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="px-3 h-8 rounded-md text-sm border border-[var(--kb-border)] text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               @click="goPage(pageNum + 1)"
             >下一页</button>
           </div>
@@ -239,19 +239,19 @@
     <div v-else>
       <div v-if="loading" class="py-12 flex flex-col items-center justify-center gap-3">
         <div class="w-8 h-8 border-2 border-[var(--kb-border)] border-t-primary-500 rounded-full animate-spin"></div>
-        <p class="text-sm text-gray-400">加载题目列表...</p>
+        <p class="text-sm text-muted-foreground">加载题目列表...</p>
       </div>
       <div v-else-if="questions.length === 0" class="py-12 flex flex-col items-center justify-center gap-3">
-        <div class="w-14 h-14 rounded-full bg-gray-50 flex items-center justify-center">
+        <div class="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
           <Icon name="file-text" :size="28" class="text-gray-300" />
         </div>
-        <p class="text-sm text-gray-400">暂无题目，点击「AI 出题」或「手动新增」开始创建</p>
+        <p class="text-sm text-muted-foreground">暂无题目，点击「AI 出题」或「手动新增」开始创建</p>
       </div>
       <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
         <div
           v-for="q in questions"
           :key="q.id"
-          class="bg-white border border-[var(--kb-border)] rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-shadow transition-transform duration-200 group flex flex-col"
+          class="bg-card border border-[var(--kb-border)] rounded-2xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-shadow transition-transform duration-200 group flex flex-col"
         >
           <div class="flex items-center gap-2 flex-wrap mb-3">
             <span :class="['inline-block px-2 py-0.5 rounded-full text-xs font-medium', QUESTION_TYPE_STYLE[q.questionType]]">
@@ -260,19 +260,19 @@
             <span :class="['inline-block px-2 py-0.5 rounded-full text-xs font-medium', DIFFICULTY_STYLE[q.difficulty]]">
               {{ DIFFICULTY_LABEL[q.difficulty] || '—' }}
             </span>
-            <span :class="['inline-block px-2 py-0.5 rounded-full text-xs font-medium', q.source === 'AI' ? 'bg-purple-50 text-purple-600' : 'bg-gray-100 text-gray-500']">
+            <span :class="['inline-block px-2 py-0.5 rounded-full text-xs font-medium', q.source === 'AI' ? 'bg-purple-50 text-purple-600' : 'bg-gray-100 text-muted-foreground']">
               {{ q.source === 'AI' ? 'AI 生成' : '手动' }}
             </span>
           </div>
-          <h3 class="font-semibold text-gray-800 text-[15px] leading-tight line-clamp-1 group-hover:text-primary-600 transition-colors">
+          <h3 class="font-semibold text-foreground text-[15px] leading-tight line-clamp-1 group-hover:text-primary-600 transition-colors">
             {{ q.title }}
           </h3>
-          <p class="text-xs text-gray-400 line-clamp-2 mt-2 flex-1">{{ q.content || '暂无题干内容' }}</p>
+          <p class="text-xs text-muted-foreground line-clamp-2 mt-2 flex-1">{{ q.content || '暂无题干内容' }}</p>
           <div class="mt-4 pt-4 border-t border-[var(--kb-border)]/70 flex items-center justify-between">
-            <span class="text-xs text-gray-400">{{ formatDate(q.createTime) }}</span>
+            <span class="text-xs text-muted-foreground">{{ formatDate(q.createTime) }}</span>
             <div class="flex items-center gap-1">
               <button
-                class="p-1.5 text-gray-400 hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="p-1.5 text-muted-foreground hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="openEdit(q)"
                 title="编辑"
               >
@@ -280,7 +280,7 @@
               </button>
               <button
                 v-if="q.status !== 1"
-                class="p-1.5 text-gray-400 hover:text-green-500 hover:bg-green-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="p-1.5 text-muted-foreground hover:text-green-500 hover:bg-green-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="publishQuestion(q)"
                 title="发布"
               >
@@ -288,14 +288,14 @@
               </button>
               <button
                 v-else
-                class="p-1.5 text-gray-400 hover:text-orange-500 hover:bg-orange-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="p-1.5 text-muted-foreground hover:text-orange-500 hover:bg-orange-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="unpublishQuestion(q)"
                 title="下架"
               >
                 <Icon name="trending-down" :size="14" />
               </button>
               <button
-                class="p-1.5 text-gray-400 hover:text-danger-500 hover:bg-danger-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="p-1.5 text-muted-foreground hover:text-danger-500 hover:bg-danger-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @click="deleteQuestion(q)"
                 title="删除"
               >
@@ -316,13 +316,13 @@
       @click.self="closeAiModal"
       @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
     >
-      <div class="bg-white rounded-xl w-full max-w-md p-6 animate-scale-in max-h-[90vh] overflow-y-auto">
+      <div class="bg-card rounded-xl w-full max-w-md p-6 animate-scale-in max-h-[90vh] overflow-y-auto">
         <div class="flex items-start justify-between mb-4">
           <div>
-            <h3 class="text-lg font-semibold text-gray-800">AI 出题</h3>
-            <p class="text-sm text-gray-500 mt-0.5">基于知识库或文档智能生成题目</p>
+            <h3 class="text-lg font-semibold text-foreground">AI 出题</h3>
+            <p class="text-sm text-muted-foreground mt-0.5">基于知识库或文档智能生成题目</p>
           </div>
-          <button @click="closeAiModal" class="text-gray-400 hover:text-gray-600 p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2">
+          <button @click="closeAiModal" class="text-muted-foreground hover:text-muted-foreground p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2">
             <Icon name="x" :size="20" />
           </button>
         </div>
@@ -330,25 +330,25 @@
         <div class="space-y-4">
           <!-- 来源选择 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">生成来源</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">生成来源</label>
             <div class="flex items-center gap-4">
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="radio" value="category" v-model="aiForm.source" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
-                <span class="text-sm text-gray-700">按知识库</span>
+                <span class="text-sm text-foreground">按知识库</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
                 <input type="radio" value="doc" v-model="aiForm.source" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
-                <span class="text-sm text-gray-700">按文档</span>
+                <span class="text-sm text-foreground">按文档</span>
               </label>
             </div>
           </div>
 
           <!-- 知识库下拉 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">知识库</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">知识库</label>
             <select
               v-model="aiForm.categoryId"
-              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               @change="onAiCategoryChange"
             >
               <option :value="null">请选择知识库</option>
@@ -358,11 +358,11 @@
 
           <!-- 文档下拉 -->
           <div v-if="aiForm.source === 'doc'">
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">文档</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">文档</label>
             <select
               v-model="aiForm.docId"
               :disabled="!aiForm.categoryId"
-              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
               <option :value="null">{{ aiForm.categoryId ? '请选择文档' : '请先选择知识库' }}</option>
               <option v-for="doc in aiDocs" :key="doc.id" :value="doc.id">{{ doc.title }}</option>
@@ -371,10 +371,10 @@
 
           <!-- 题型 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">题型</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">题型</label>
             <select
               v-model="aiForm.questionType"
-              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
               <option v-for="t in QUESTION_TYPE_KEYS" :key="t" :value="t">{{ QUESTION_TYPE_LABEL[t] }}</option>
             </select>
@@ -382,15 +382,15 @@
 
           <!-- 生成数量 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">生成数量</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">生成数量</label>
             <input
               v-model.number="aiForm.count"
               type="number"
               min="3"
               max="20"
-              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             />
-            <p class="text-xs text-gray-400 mt-1">范围 3-20，默认 5</p>
+            <p class="text-xs text-muted-foreground mt-1">范围 3-20，默认 5</p>
           </div>
         </div>
 
@@ -413,12 +413,12 @@
       @click.self="closeEditModal"
       @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
     >
-      <div class="bg-white rounded-xl w-full max-w-2xl p-6 animate-scale-in max-h-[90vh] overflow-y-auto">
+      <div class="bg-card rounded-xl w-full max-w-2xl p-6 animate-scale-in max-h-[90vh] overflow-y-auto">
         <div class="flex items-start justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-800">
+          <h3 class="text-lg font-semibold text-foreground">
             {{ editingId ? '编辑题目' : '手动新增题目' }}
           </h3>
-          <button @click="closeEditModal" class="text-gray-400 hover:text-gray-600 p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2">
+          <button @click="closeEditModal" class="text-muted-foreground hover:text-muted-foreground p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2">
             <Icon name="x" :size="20" />
           </button>
         </div>
@@ -426,27 +426,27 @@
         <div class="space-y-4">
           <!-- 题目标题 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">题目标题 <span class="text-danger-500">*</span></label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">题目标题 <span class="text-danger-500">*</span></label>
             <Input v-model="form.title" placeholder="请输入题目标题" />
           </div>
 
           <!-- 题型 + 难度 -->
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">题型</label>
+              <label class="block text-sm font-medium text-foreground mb-1.5">题型</label>
               <select
                 v-model="form.questionType"
-                class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 @change="onFormTypeChange"
               >
                 <option v-for="t in QUESTION_TYPE_KEYS" :key="t" :value="t">{{ QUESTION_TYPE_LABEL[t] }}</option>
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">难度</label>
+              <label class="block text-sm font-medium text-foreground mb-1.5">难度</label>
               <select
                 v-model.number="form.difficulty"
-                class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               >
                 <option :value="1">简单</option>
                 <option :value="2">中等</option>
@@ -457,19 +457,19 @@
 
           <!-- 题干内容 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">题干内容 <span class="text-danger-500">*</span></label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">题干内容 <span class="text-danger-500">*</span></label>
             <textarea
               v-model="form.content"
               rows="3"
               placeholder="请输入题干内容..."
-              class="w-full px-3 py-2 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 resize-y transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full px-3 py-2 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border resize-y transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             ></textarea>
           </div>
 
           <!-- 选项编辑（仅选择题显示） -->
           <div v-if="isChoiceType">
             <div class="flex items-center justify-between mb-1.5">
-              <label class="block text-sm font-medium text-gray-700">选项</label>
+              <label class="block text-sm font-medium text-foreground">选项</label>
               <button
                 type="button"
                 class="text-xs flex items-center gap-1 px-2 py-1 rounded-md bg-primary-50 text-primary-600 hover:bg-primary-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
@@ -479,20 +479,20 @@
                 <Icon name="plus" :size="12" aria-hidden="true" /> 添加选项
               </button>
             </div>
-            <p class="text-xs text-gray-400 mb-2">最多 6 个选项，最少 2 个</p>
+            <p class="text-xs text-muted-foreground mb-2">最多 6 个选项，最少 2 个</p>
             <div class="space-y-2">
               <div
                 v-for="(opt, idx) in form.options"
                 :key="idx"
                 class="flex items-center gap-2"
               >
-                <span :class="['w-6 h-6 rounded-full text-xs font-medium flex items-center justify-center flex-shrink-0', opt.trim() ? 'bg-primary-50 text-primary-600' : 'bg-gray-100 text-gray-500']">
+                <span :class="['w-6 h-6 rounded-full text-xs font-medium flex items-center justify-center flex-shrink-0', opt.trim() ? 'bg-primary-50 text-primary-600' : 'bg-gray-100 text-muted-foreground']">
                   {{ String.fromCharCode(65 + idx) }}
                 </span>
                 <Input v-model="form.options[idx]" :placeholder="`选项 ${String.fromCharCode(65 + idx)}`" />
                 <button
                   type="button"
-                  class="p-1.5 text-gray-400 hover:text-danger-500 hover:bg-danger-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 flex-shrink-0"
+                  class="p-1.5 text-muted-foreground hover:text-danger-500 hover:bg-danger-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 flex-shrink-0"
                   :disabled="form.options.length <= 2"
                   @click="removeOption(idx)"
                   title="删除选项"
@@ -506,7 +506,7 @@
           <!-- 正确答案：根据题型动态显示 -->
           <!-- 单选 -->
           <div v-if="form.questionType === 'SINGLE_CHOICE'">
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">正确答案</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">正确答案</label>
             <div class="flex flex-col gap-2">
               <label
                 v-for="(opt, idx) in form.options"
@@ -515,14 +515,14 @@
                 :class="{ 'border-primary-500 bg-primary-50': form.singleAnswer === String(idx) }"
               >
                 <input type="radio" :value="String(idx)" v-model="form.singleAnswer" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
-                <span class="text-sm text-gray-700 truncate">{{ opt || `选项 ${String.fromCharCode(65 + idx)}` }}</span>
+                <span class="text-sm text-foreground truncate">{{ opt || `选项 ${String.fromCharCode(65 + idx)}` }}</span>
               </label>
             </div>
           </div>
 
           <!-- 多选 -->
           <div v-else-if="form.questionType === 'MULTIPLE_CHOICE'">
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">正确答案（可多选）</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">正确答案（可多选）</label>
             <div class="flex flex-col gap-2">
               <label
                 v-for="(opt, idx) in form.options"
@@ -531,57 +531,57 @@
                 :class="{ 'border-primary-500 bg-primary-50': form.multipleAnswer.includes(idx) }"
               >
                 <input type="checkbox" :value="idx" v-model="form.multipleAnswer" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
-                <span class="text-sm text-gray-700 truncate">{{ opt || `选项 ${String.fromCharCode(65 + idx)}` }}</span>
+                <span class="text-sm text-foreground truncate">{{ opt || `选项 ${String.fromCharCode(65 + idx)}` }}</span>
               </label>
             </div>
           </div>
 
           <!-- 填空 -->
           <div v-else-if="form.questionType === 'FILL_BLANK'">
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">正确答案</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">正确答案</label>
             <Input v-model="form.fillAnswer" placeholder="请输入填空答案" />
           </div>
 
           <!-- 判断 -->
           <div v-else-if="form.questionType === 'TRUE_FALSE'">
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">正确答案</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">正确答案</label>
             <div class="flex items-center gap-4">
               <label class="flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg border border-[var(--kb-border)] hover:border-primary-500 transition-colors" :class="{ 'border-primary-500 bg-primary-50': form.trueFalseAnswer === 'true' }">
                 <input type="radio" value="true" v-model="form.trueFalseAnswer" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
-                <span class="text-sm text-gray-700">正确</span>
+                <span class="text-sm text-foreground">正确</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg border border-[var(--kb-border)] hover:border-primary-500 transition-colors" :class="{ 'border-primary-500 bg-primary-50': form.trueFalseAnswer === 'false' }">
                 <input type="radio" value="false" v-model="form.trueFalseAnswer" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
-                <span class="text-sm text-gray-700">错误</span>
+                <span class="text-sm text-foreground">错误</span>
               </label>
             </div>
           </div>
 
           <!-- 简答 -->
           <div v-else-if="form.questionType === 'SHORT_ANSWER'">
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">参考答案</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">参考答案</label>
             <textarea
               v-model="form.shortAnswer"
               rows="3"
               placeholder="请输入参考答案..."
-              class="w-full px-3 py-2 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 resize-y transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full px-3 py-2 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border resize-y transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             ></textarea>
           </div>
 
           <!-- 答案解析 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">答案解析</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">答案解析</label>
             <textarea
               v-model="form.explanation"
               rows="2"
               placeholder="请输入答案解析（选填）..."
-              class="w-full px-3 py-2 rounded-lg border border-[var(--kb-border)] text-sm text-gray-700 focus:border-primary-500 focus:outline-none hover:border-gray-300 resize-y transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full px-3 py-2 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border resize-y transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             ></textarea>
           </div>
 
           <!-- 标签 -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">标签（逗号分隔）</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">标签（逗号分隔）</label>
             <Input v-model="form.tags" placeholder="例如：基础,概念,入门" />
           </div>
         </div>

@@ -11,15 +11,15 @@
     <div class="flex-1 min-w-0">
       <!-- 作者行 -->
       <div class="flex items-center gap-2 flex-wrap">
-        <span class="text-[13px] font-medium text-gray-800">{{ displayName }}</span>
+        <span class="text-[13px] font-medium text-foreground">{{ displayName }}</span>
         <span
           v-if="comment.replyToNickname"
-          class="text-[12px] text-gray-400"
+          class="text-[12px] text-muted-foreground"
         >回复 <span class="text-primary-600">@{{ comment.replyToNickname }}</span></span>
-        <span class="text-[12px] text-gray-400">{{ formatTime(comment.createTime) }}</span>
+        <span class="text-[12px] text-muted-foreground">{{ formatTime(comment.createTime) }}</span>
         <span
           v-if="edited"
-          class="text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-400"
+          class="text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-muted-foreground"
         >已编辑</span>
       </div>
 
@@ -37,7 +37,7 @@
       </div>
       <p
         v-else
-        class="text-sm text-gray-600 mt-1 whitespace-pre-line break-words leading-relaxed"
+        class="text-sm text-muted-foreground mt-1 whitespace-pre-line break-words leading-relaxed"
       >{{ content }}</p>
 
       <!-- 操作行 -->
@@ -46,7 +46,7 @@
           type="button"
           :disabled="liking"
           class="inline-flex items-center gap-1 text-[12px] rounded px-1 py-0.5 -ml-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 disabled:opacity-50"
-          :class="liked ? 'text-primary-600' : 'text-gray-400 hover:text-primary-600'"
+          :class="liked ? 'text-primary-600' : 'text-muted-foreground hover:text-primary-600'"
           :aria-pressed="liked"
           :title="liked ? '取消点赞' : '点赞'"
           @click="handleToggleLike"
@@ -57,7 +57,7 @@
 
         <button
           type="button"
-          class="inline-flex items-center gap-1 text-[12px] text-gray-400 rounded px-1 py-0.5 transition-colors hover:text-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="inline-flex items-center gap-1 text-[12px] text-muted-foreground rounded px-1 py-0.5 transition-colors hover:text-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           :aria-expanded="replying"
           @click="replying = !replying"
         >
@@ -68,7 +68,7 @@
         <button
           v-if="comment.canEdit"
           type="button"
-          class="inline-flex items-center gap-1 text-[12px] text-gray-400 rounded px-1 py-0.5 transition-colors hover:text-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="inline-flex items-center gap-1 text-[12px] text-muted-foreground rounded px-1 py-0.5 transition-colors hover:text-primary-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           @click="editing = true"
         >
           <Icon name="pencil" :size="13" />
@@ -79,7 +79,7 @@
           v-if="comment.canDelete"
           type="button"
           :disabled="deleting"
-          class="inline-flex items-center gap-1 text-[12px] text-gray-400 rounded px-1 py-0.5 transition-colors hover:text-danger-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-destructive)] focus-visible:ring-offset-2 disabled:opacity-50"
+          class="inline-flex items-center gap-1 text-[12px] text-muted-foreground rounded px-1 py-0.5 transition-colors hover:text-danger-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-destructive)] focus-visible:ring-offset-2 disabled:opacity-50"
           @click="handleDelete"
         >
           <Icon name="trash-2" :size="13" />
@@ -102,7 +102,7 @@
 
       <!-- 子回复列表（仅顶级评论渲染，回复层不再嵌套，避免无限层级） -->
       <template v-if="!isReply">
-        <ul v-if="localReplies.length" class="mt-2 pl-3 border-l-2 border-gray-100">
+        <ul v-if="localReplies.length" class="mt-2 pl-3 border-l-2 border-border">
           <CommentItem
             v-for="reply in localReplies"
             :key="reply.id"

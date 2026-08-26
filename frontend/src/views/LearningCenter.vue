@@ -541,7 +541,7 @@
                         'px-3 py-1 text-[13px] rounded-full transition-colors duration-200',
                         currentMode === mode.value
                           ? 'bg-primary-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
+                          : 'bg-gray-100 text-muted-foreground hover:bg-gray-200',
                       ]"
                     >
                       {{ mode.label }}
@@ -557,7 +557,7 @@
                     modeColors[currentMode].bg,
                   ]"
                 >
-                  <div class="absolute inset-2 rounded-full bg-white shadow-inner" />
+                  <div class="absolute inset-2 rounded-full bg-card shadow-inner" />
                   <div class="relative z-10 text-center">
                     <div class="text-5xl font-bold font-mono" style="color: var(--kb-foreground);">
                       {{ formatTime(timeLeft) }}
@@ -603,7 +603,7 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                  <span class="text-sm text-gray-500">今日番茄数：</span>
+                  <span class="text-sm text-muted-foreground">今日番茄数：</span>
                   <div class="flex gap-1">
                     <div
                       v-for="i in 6"
@@ -614,7 +614,7 @@
                       ]"
                     />
                   </div>
-                  <span class="text-sm font-medium text-gray-700">{{ studyData.pomodorosCompleted }}/6</span>
+                  <span class="text-sm font-medium text-foreground">{{ studyData.pomodorosCompleted }}/6</span>
                 </div>
               </div>
             </Card>
@@ -627,7 +627,7 @@
                     <Icon name="list" :size="20" />
                     <h2>学习任务</h2>
                   </div>
-                  <span class="text-sm text-gray-500">
+                  <span class="text-sm text-muted-foreground">
                     {{ completedTasksCount }}/{{ tasks.length }} 已完成
                   </span>
                 </div>
@@ -639,7 +639,7 @@
                   :key="task.id"
                   :class="[
                     'flex items-center gap-3 p-3 rounded-lg transition-colors duration-200 group',
-                    task.completed ? 'bg-gray-50' : 'hover:bg-gray-50',
+                    task.completed ? 'bg-muted' : 'hover:bg-muted',
                   ]"
                 >
                   <button
@@ -648,18 +648,18 @@
                       'w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors duration-200',
                       task.completed
                         ? 'bg-primary-500 border-primary-500'
-                        : 'border-gray-300 hover:border-primary-400',
+                        : 'border-border hover:border-primary-400',
                     ]"
                   >
                     <Icon name="check" :size="12" v-if="task.completed" />
                   </button>
                   <div class="flex-1 min-w-0">
-                    <p :class="['text-sm transition-colors duration-200', task.completed ? 'text-gray-400 line-through' : 'text-gray-700']">
+                    <p :class="['text-sm transition-colors duration-200', task.completed ? 'text-muted-foreground line-through' : 'text-foreground']">
                       {{ task.title }}
                     </p>
                   </div>
                   <div class="flex items-center gap-2 flex-shrink-0">
-                    <div class="flex items-center gap-2 text-[13px] text-gray-400">
+                    <div class="flex items-center gap-2 text-[13px] text-muted-foreground">
                       <Icon name="clock" :size="16" />
                       <span>{{ task.duration }}分钟</span>
                     </div>
@@ -714,15 +714,15 @@
                   </div>
                 </div>
                 <div class="flex items-center gap-2 mb-3">
-                  <span class="font-semibold text-gray-800">{{ pet.name }}</span>
+                  <span class="font-semibold text-foreground">{{ pet.name }}</span>
                   <Badge variant="primary">Lv.{{ pet.level }}</Badge>
                   <Badge variant="success">{{ pet.mood }}</Badge>
                 </div>
                 <div class="w-full space-y-3">
                   <div>
                     <div class="flex justify-between text-[13px] mb-1">
-                      <span class="text-gray-500">体力值</span>
-                      <span class="text-gray-700 font-medium">{{ pet.energy }}%</span>
+                      <span class="text-muted-foreground">体力值</span>
+                      <span class="text-foreground font-medium">{{ pet.energy }}%</span>
                     </div>
                     <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div class="h-full bg-gradient-to-r from-green-400 to-emerald-500 rounded-full transition-[width] duration-500" :style="{ width: `${pet.energy}%` }" />
@@ -730,8 +730,8 @@
                   </div>
                   <div>
                     <div class="flex justify-between text-[13px] mb-1">
-                      <span class="text-gray-500">经验值</span>
-                      <span class="text-gray-700 font-medium">{{ pet.exp }}/{{ pet.maxExp }}</span>
+                      <span class="text-muted-foreground">经验值</span>
+                      <span class="text-foreground font-medium">{{ pet.exp }}/{{ pet.maxExp }}</span>
                     </div>
                     <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div class="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full transition-[width] duration-500" :style="{ width: `${(pet.exp / pet.maxExp) * 100}%` }" />
@@ -764,20 +764,20 @@
                   :key="item.id"
                   :class="[
                     'flex items-center gap-3 p-2 rounded-lg transition-[background-color,box-shadow] duration-200',
-                    item.isCurrentUser ? 'bg-primary-50 ring-1 ring-primary-200' : 'hover:bg-gray-50',
+                    item.isCurrentUser ? 'bg-primary-50 ring-1 ring-primary-200' : 'hover:bg-muted',
                   ]"
                 >
                   <div :class="['rank-circle', `rank-${item.rank}`]">{{ item.rank }}</div>
                   <Avatar :name="item.name" size="sm" />
                   <div class="flex-1 min-w-0">
-                    <p :class="['text-sm font-medium truncate', item.isCurrentUser ? 'text-primary-600' : 'text-gray-700']">
+                    <p :class="['text-sm font-medium truncate', item.isCurrentUser ? 'text-primary-600' : 'text-foreground']">
                       {{ item.name }}
                       <span v-if="item.isCurrentUser" class="text-[13px] text-primary-500">(我)</span>
                     </p>
                   </div>
                   <div class="flex items-center gap-2 text-sm">
                     <Icon name="clock" :size="16" />
-                    <span class="font-medium text-gray-700">{{ item.studyHours }}h</span>
+                    <span class="font-medium text-foreground">{{ item.studyHours }}h</span>
                   </div>
                 </div>
               </div>

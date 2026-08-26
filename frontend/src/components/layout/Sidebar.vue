@@ -82,7 +82,7 @@
 
       <button
         type="button"
-        class="w-full flex items-center py-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors border-t"
+        class="w-full flex items-center py-2.5 text-muted-foreground hover:text-foreground hover:bg-gray-100 transition-colors border-t"
         :class="collapsed ? 'justify-center' : 'px-4'"
         :style="{
           gap: 'var(--kb-sidebar-gap)',

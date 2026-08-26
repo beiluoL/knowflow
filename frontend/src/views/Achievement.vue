@@ -21,20 +21,17 @@
 
     <!-- ===== 成就概览卡（4 项统计） ===== -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <div
+      <StatCard
         v-for="stat in overviewStats"
         :key="stat.label"
-        class="rounded-lg border p-4 flex items-center gap-3 stat-card"
-        style="background: var(--kb-card); border-color: var(--kb-border);"
-      >
-        <div class="stat-icon" :style="`background: ${stat.bg};`">
-          <Icon :name="stat.icon" :size="20" :style="`color: ${stat.color};`" />
-        </div>
-        <div class="min-w-0">
-          <div class="kb-body-sm truncate">{{ stat.label }}</div>
-          <div class="kb-h3 tabular-nums" style="color: var(--kb-foreground);">{{ stat.value }}</div>
-        </div>
-      </div>
+        :icon="stat.icon"
+        :icon-bg="stat.bg"
+        :icon-color="stat.color"
+        :icon-size="20"
+        :value="stat.value"
+        :label="stat.label"
+        layout="horizontal"
+      />
     </div>
 
     <!-- ===== 主内容 + 侧边栏 ===== -->
@@ -154,6 +151,7 @@
 // 真实后端数据：GET /api/achievements 自动计算进度与解锁。
 import { ref, computed, onMounted, reactive } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
+import StatCard from '@/components/ui/StatCard.vue'
 import { achievementApi } from '@/api/achievement'
 import { notify, getApiError } from '@/utils/toast'
 import type { AchievementPageVO } from '@/api/types'
@@ -265,17 +263,6 @@ onMounted(loadAchievements)
   border-radius: 4px;
   background: var(--kb-primary);
   transition: width 0.5s ease;
-}
-
-/* ===== 概览统计 ===== */
-.stat-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--kb-radius-md);
-  flex-shrink: 0;
 }
 
 /* ===== 分类标签 ===== */

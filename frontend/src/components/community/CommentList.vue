@@ -5,9 +5,9 @@
       class="flex items-center justify-between gap-3 px-4 py-3"
       style="border-bottom: 1px solid var(--kb-border);"
     >
-      <h2 class="text-[14px] font-medium text-gray-800">
+      <h2 class="text-[14px] font-medium text-foreground">
         全部评论
-        <span class="ml-1 text-[13px] font-normal text-gray-400 tabular-nums">{{ total }}</span>
+        <span class="ml-1 text-[13px] font-normal text-muted-foreground tabular-nums">{{ total }}</span>
       </h2>
       <div class="flex items-center gap-1 p-0.5 rounded-lg bg-gray-100">
         <button
@@ -16,8 +16,8 @@
           type="button"
           class="px-2.5 py-1 rounded-md text-[12px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           :class="sortBy === opt.value
-            ? 'bg-white text-primary-600 shadow-sm'
-            : 'text-gray-500 hover:text-gray-700'"
+            ? 'bg-card text-primary-600 shadow-sm'
+            : 'text-muted-foreground hover:text-foreground'"
           :aria-pressed="sortBy === opt.value"
           @click="changeSort(opt.value)"
         >{{ opt.label }}</button>
@@ -44,7 +44,7 @@
         title="还没有评论"
         class="py-8"
       >
-        <p class="text-sm text-gray-500">来抢沙发，说说你的看法吧</p>
+        <p class="text-sm text-muted-foreground">来抢沙发，说说你的看法吧</p>
       </EmptyState>
 
       <ul v-else class="divide-y" style="border-color: var(--kb-border);">

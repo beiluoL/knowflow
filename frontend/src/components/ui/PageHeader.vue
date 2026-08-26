@@ -5,14 +5,14 @@
         <span
           :class="[
             'text-sm',
-            index === crumbs.length - 1 ? 'text-gray-800 font-medium' : 'text-gray-500',
+            index === crumbs.length - 1 ? 'text-foreground font-medium' : 'text-muted-foreground',
           ]"
         >{{ crumb.label }}</span>
         <Icon
           v-if="index < crumbs.length - 1"
           name="chevron-right"
           :size="14"
-          class="text-gray-400"
+          class="text-muted-foreground"
         />
       </template>
     </nav>
@@ -27,7 +27,7 @@
         >{{ title }}</h1>
         <span
           v-if="count != null"
-          class="shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-500"
+          class="shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-muted-foreground"
         >{{ count }} 项</span>
       </div>
       <div v-if="$slots.actions" class="flex items-center gap-2 shrink-0">
@@ -56,6 +56,6 @@ interface Props {
 
 withDefaults(defineProps<Props>(), {
   size: 'lg',
-  titleColor: 'text-gray-800',
+  titleColor: 'text-foreground',
 })
 </script>

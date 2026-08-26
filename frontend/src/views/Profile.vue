@@ -92,50 +92,42 @@
     <section class="mb-6">
       <h2 class="kb-h3 mb-4">学习数据概览</h2>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="stat-card">
-          <div class="flex items-center gap-2 mb-2">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(59,111,224,0.1);">
-              <Icon name="clock" :size="16" style="color: var(--kb-primary);" />
-            </div>
-            <span class="text-xs" style="color: var(--kb-muted-foreground);">累计学习</span>
-          </div>
-          <p class="text-2xl font-bold tabular-nums" style="color: var(--kb-foreground);">
-            {{ user.totalStudyHours ?? 0 }}<span class="text-sm font-normal ml-0.5" style="color: var(--kb-muted-foreground);">h</span>
-          </p>
-        </div>
-        <div class="stat-card">
-          <div class="flex items-center gap-2 mb-2">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(16,185,129,0.1);">
-              <Icon name="graduation-cap" :size="16" style="color: var(--kb-accent);" />
-            </div>
-            <span class="text-xs" style="color: var(--kb-muted-foreground);">完成课程</span>
-          </div>
-          <p class="text-2xl font-bold tabular-nums" style="color: var(--kb-foreground);">
-            {{ user.completedPaths ?? 0 }}<span class="text-sm font-normal ml-0.5" style="color: var(--kb-muted-foreground);">个</span>
-          </p>
-        </div>
-        <div class="stat-card">
-          <div class="flex items-center gap-2 mb-2">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(245,158,11,0.1);">
-              <Icon name="brain" :size="16" style="color: var(--kb-warning);" />
-            </div>
-            <span class="text-xs" style="color: var(--kb-muted-foreground);">知识点</span>
-          </div>
-          <p class="text-2xl font-bold tabular-nums" style="color: var(--kb-foreground);">
-            {{ user.totalFlashcards ?? 0 }}<span class="text-sm font-normal ml-0.5" style="color: var(--kb-muted-foreground);">个</span>
-          </p>
-        </div>
-        <div class="stat-card">
-          <div class="flex items-center gap-2 mb-2">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgba(239,68,68,0.1);">
-              <Icon name="flame" :size="16" style="color: var(--kb-destructive);" />
-            </div>
-            <span class="text-xs" style="color: var(--kb-muted-foreground);">连续打卡</span>
-          </div>
-          <p class="text-2xl font-bold tabular-nums" style="color: var(--kb-foreground);">
-            {{ user.streakDays ?? 0 }}<span class="text-sm font-normal ml-0.5" style="color: var(--kb-muted-foreground);">天</span>
-          </p>
-        </div>
+        <StatCard
+          icon="clock"
+          icon-color="var(--kb-primary)"
+          icon-bg="rgba(59,111,224,0.1)"
+          :icon-size="16"
+          :value="user.totalStudyHours ?? 0"
+          unit="h"
+          label="累计学习"
+        />
+        <StatCard
+          icon="graduation-cap"
+          icon-color="var(--kb-accent)"
+          icon-bg="rgba(16,185,129,0.1)"
+          :icon-size="16"
+          :value="user.completedPaths ?? 0"
+          unit="个"
+          label="完成课程"
+        />
+        <StatCard
+          icon="brain"
+          icon-color="var(--kb-warning)"
+          icon-bg="rgba(245,158,11,0.1)"
+          :icon-size="16"
+          :value="user.totalFlashcards ?? 0"
+          unit="个"
+          label="知识点"
+        />
+        <StatCard
+          icon="flame"
+          icon-color="var(--kb-destructive)"
+          icon-bg="rgba(239,68,68,0.1)"
+          :icon-size="16"
+          :value="user.streakDays ?? 0"
+          unit="天"
+          label="连续打卡"
+        />
       </div>
     </section>
 
@@ -398,6 +390,7 @@
 // 个人中心：Banner+大头像 + 紧凑经验值进度条 + 学习数据4卡 + 等级奖励路径 + 成就徽章横滚 + 活动时间线 + 快捷设置
 import { ref, computed, reactive, onMounted, onUnmounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
+import StatCard from '@/components/ui/StatCard.vue'
 import { notify } from '@/utils/toast'
 import { userApi, learningApi } from '@/api'
 import { useAuthStore } from '@/stores/auth'
@@ -874,18 +867,6 @@ onMounted(async () => {
   border-radius: 3px;
   background: var(--kb-primary);
   transition: width 0.5s ease;
-}
-
-/* Stat card */
-.stat-card {
-  border-radius: var(--kb-radius-md);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  padding: 1.25rem 1.5rem;
-  transition: box-shadow 0.2s;
-}
-.stat-card:hover {
-  box-shadow: 0 2px 12px rgba(59, 111, 224, 0.06);
 }
 
 .badges-empty {

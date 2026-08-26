@@ -4,11 +4,11 @@
       <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 bg-primary-500/10">
         <Icon name="external-link" :size="32" class="text-primary-600" />
       </div>
-      <h1 class="text-[22px] font-semibold text-gray-900 mb-2">页面重定向中</h1>
-      <p class="text-[14px] text-gray-500 mb-6">
+      <h1 class="text-[22px] font-semibold text-foreground mb-2">页面重定向中</h1>
+      <p class="text-[14px] text-muted-foreground mb-6">
         {{ message }}
       </p>
-      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-[var(--kb-border)] text-[13px] text-gray-600">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-card border border-[var(--kb-border)] text-[13px] text-muted-foreground">
         <span class="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
         {{ countdown }} 秒后自动跳转
       </div>

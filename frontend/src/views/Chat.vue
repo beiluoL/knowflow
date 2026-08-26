@@ -19,10 +19,10 @@
 
     <!-- 会话列表侧栏 -->
     <div
-      class="chat-sidebar bg-white border-r border-gray-200 flex flex-col flex-shrink-0"
+      class="chat-sidebar bg-card border-r border-border flex flex-col flex-shrink-0"
       :class="[{ open: sidebarOpen }, sidebarCollapsed && !isMobile ? 'sidebar-collapsed' : 'sidebar-expanded']"
     >
-      <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+      <div class="p-4 border-b border-border flex items-center justify-between">
         <Button block icon-name="plus" @click="createNewChat" :disabled="loading">新建对话</Button>
         <button
           v-if="isMobile"
@@ -35,9 +35,9 @@
         </button>
       </div>
 
-      <div class="p-3 border-b border-gray-100 space-y-3">
+      <div class="p-3 border-b border-border space-y-3">
         <div class="relative">
-          <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             v-model="searchQuery"
             type="text"
@@ -45,7 +45,7 @@
             name="search"
             autocomplete="off"
             placeholder="搜索对话…"
-            class="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-colors"
+            class="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-colors"
           />
         </div>
       </div>
@@ -55,16 +55,16 @@
           type="button"
           v-for="chat in filteredChats" :key="chat.id"
           :class="[
-            'w-full text-left p-3 border-b border-gray-50 cursor-pointer transition-colors duration-200 group',
-            activeChatId === chat.id ? 'bg-primary-50' : 'hover:bg-gray-50'
+            'w-full text-left p-3 border-b border-border cursor-pointer transition-colors duration-200 group',
+            activeChatId === chat.id ? 'bg-primary-50' : 'hover:bg-muted'
           ]"
           @click="selectChat(chat.id)"
         >
           <div class="flex items-start justify-between gap-2">
             <div class="flex-1 min-w-0">
-              <h4 class="text-sm font-medium text-gray-800 truncate">{{ chat.title }}</h4>
-              <p class="text-[13px] text-gray-500 mt-1 truncate">{{ chat.lastMessage }}</p>
-              <p class="text-xs text-gray-400 mt-1">{{ formatTime(chat.updateTime || chat.createdAt) }}</p>
+              <h4 class="text-sm font-medium text-foreground truncate">{{ chat.title }}</h4>
+              <p class="text-[13px] text-muted-foreground mt-1 truncate">{{ chat.lastMessage }}</p>
+              <p class="text-xs text-muted-foreground mt-1">{{ formatTime(chat.updateTime || chat.createdAt) }}</p>
             </div>
             <button
               type="button"
@@ -72,11 +72,11 @@
               class="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-gray-200 transition-[opacity,background-color]"
               @click.stop="deleteChat(chat.id)"
             >
-              <Icon name="trash-2" :size="16" class="text-gray-400 hover:text-danger-500" />
+              <Icon name="trash-2" :size="16" class="text-muted-foreground hover:text-danger-500" />
             </button>
           </div>
         </button>
-        <div v-if="filteredChats.length === 0" class="p-4 text-center text-sm text-gray-400">
+        <div v-if="filteredChats.length === 0" class="p-4 text-center text-sm text-muted-foreground">
           暂无对话
         </div>
       </div>
@@ -101,8 +101,8 @@
       </div>
     </div>
 
-    <div class="flex-1 flex flex-col bg-gray-50">
-      <div v-if="activeChat" class="border-b border-gray-200 bg-white px-4 sm:px-6 py-3 flex items-center justify-between">
+    <div class="flex-1 flex flex-col bg-muted">
+      <div v-if="activeChat" class="border-b border-border bg-card px-4 sm:px-6 py-3 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <!-- 移动端：打开侧栏抽屉 -->
           <button
@@ -125,8 +125,8 @@
             <Icon :name="sidebarCollapsed ? 'chevron-right' : 'chevron-left'" :size="18" />
           </button>
           <div>
-            <h2 class="font-semibold text-gray-800">{{ activeChat.title }}</h2>
-            <p class="text-[13px] text-gray-500 mt-0.5 flex items-center gap-1.5">
+            <h2 class="font-semibold text-foreground">{{ activeChat.title }}</h2>
+            <p class="text-[13px] text-muted-foreground mt-0.5 flex items-center gap-1.5">
               <Icon name="cpu" :size="12" />
               {{ activeModelLabel }}
             </p>
@@ -242,10 +242,24 @@
                 <Icon name="sparkles" :size="18" style="color: var(--kb-primary);" />
               </div>
               <div class="flex-1">
-                <div class="flex items-center gap-1.5 py-2">
+                <div class="flex items-center gap-2 py-2">
                   <span class="chat-typing-dot" style="animation-delay: 0ms"></span>
                   <span class="chat-typing-dot" style="animation-delay: 150ms"></span>
                   <span class="chat-typing-dot" style="animation-delay: 300ms"></span>
+                  <!-- F1：流式生成中显示"停止生成"按钮，点击中断 SSE 流 -->
+                  <button
+                    v-if="abortController"
+                    type="button"
+                    class="ml-2 px-2.5 py-1 rounded-md text-xs font-medium transition-colors"
+                    style="background: var(--kb-muted); color: var(--kb-foreground); border: 1px solid var(--kb-border);"
+                    title="停止生成"
+                    @click="stopGeneration"
+                  >
+                    <span class="inline-flex items-center gap-1">
+                      <span class="inline-block w-2 h-2 rounded-sm" style="background: var(--kb-destructive);"></span>
+                      停止生成
+                    </span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -359,7 +373,7 @@
               >
                 <div
                   :class="[
-                    'absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-200',
+                    'absolute top-0.5 w-4 h-4 bg-card rounded-full transition-transform duration-200',
                     useKnowledgeBase ? 'translate-x-4' : 'translate-x-0.5'
                   ]"
                 ></div>
@@ -423,19 +437,19 @@
 
   <!-- 分享弹窗 -->
   <div v-if="showShareModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" @click.self="showShareModal = false">
-    <div class="share-modal-panel w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
+    <div class="share-modal-panel w-full max-w-md rounded-2xl bg-card p-6 shadow-xl" role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
       <div class="flex items-center justify-between mb-4">
-        <h3 id="share-modal-title" class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+        <h3 id="share-modal-title" class="text-lg font-semibold text-foreground flex items-center gap-2">
           <Icon name="share-2" :size="18" class="text-primary-500" /> 分享对话
         </h3>
-        <button type="button" aria-label="关闭" class="text-gray-400 hover:text-gray-600" @click="showShareModal = false">
+        <button type="button" aria-label="关闭" class="text-muted-foreground hover:text-muted-foreground" @click="showShareModal = false">
           <Icon name="x" :size="20" />
         </button>
       </div>
       <div class="space-y-4">
         <!-- 生成分享链接 -->
         <div>
-          <label for="share-link" class="text-sm text-gray-600 mb-1.5 block">分享链接</label>
+          <label for="share-link" class="text-sm text-muted-foreground mb-1.5 block">分享链接</label>
           <div class="flex gap-2">
             <input
               type="text"
@@ -444,30 +458,30 @@
               autocomplete="off"
               :value="shareLink"
               readonly
-              class="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-700"
+              class="flex-1 px-3 py-2 text-sm border border-border rounded-lg bg-muted text-foreground"
             />
             <Button size="sm" icon-name="copy" @click="copyShareLink">复制</Button>
           </div>
-          <p class="text-[13px] text-gray-400 mt-1">其他人可通过此链接查看对话内容</p>
+          <p class="text-[13px] text-muted-foreground mt-1">其他人可通过此链接查看对话内容</p>
         </div>
 
         <!-- 分享选项 -->
         <div class="grid grid-cols-2 gap-3">
           <button
             type="button"
-            class="flex items-center justify-center gap-2 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+            class="flex items-center justify-center gap-2 p-3 rounded-lg border border-border hover:bg-muted transition-colors"
             @click="shareAsMarkdown"
           >
-            <Icon name="file-text" :size="16" class="text-gray-500" />
-            <span class="text-sm text-gray-700">导出 Markdown</span>
+            <Icon name="file-text" :size="16" class="text-muted-foreground" />
+            <span class="text-sm text-foreground">导出 Markdown</span>
           </button>
           <button
             type="button"
-            class="flex items-center justify-center gap-2 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+            class="flex items-center justify-center gap-2 p-3 rounded-lg border border-border hover:bg-muted transition-colors"
             @click="shareAsImage"
           >
-            <Icon name="image" :size="16" class="text-gray-500" />
-            <span class="text-sm text-gray-700">生成图片</span>
+            <Icon name="image" :size="16" class="text-muted-foreground" />
+            <span class="text-sm text-foreground">生成图片</span>
           </button>
         </div>
       </div>
@@ -476,7 +490,7 @@
 
   <!-- AI 配置弹窗 -->
   <div v-if="showAiConfigModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4" @click.self="showAiConfigModal = false">
-    <div class="ai-config-panel w-full max-w-xl rounded-2xl bg-white shadow-xl" role="dialog" aria-modal="true" aria-labelledby="ai-config-title">
+    <div class="ai-config-panel w-full max-w-xl rounded-2xl bg-card shadow-xl" role="dialog" aria-modal="true" aria-labelledby="ai-config-title">
       <div class="flex items-center justify-between px-5 py-4 border-b" style="border-color: var(--kb-border);">
         <h3 id="ai-config-title" class="text-lg font-semibold flex items-center gap-2" style="color: var(--kb-foreground);">
           <Icon name="settings" :size="18" style="color: var(--kb-primary);" />
@@ -631,7 +645,7 @@
             >
               <span
                 :class="[
-                  'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200',
+                  'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-card shadow transition duration-200',
                   aiForm.isActive === 1 ? 'translate-x-5' : 'translate-x-0'
                 ]"
               ></span>
@@ -648,7 +662,7 @@
           <div class="rounded-lg border overflow-hidden" style="border-color: var(--kb-border);">
             <button
               type="button"
-              class="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium transition-colors hover:bg-gray-50"
+              class="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium transition-colors hover:bg-muted"
               style="color: var(--kb-foreground);"
               @click="showKeyGuide = !showKeyGuide"
             >
@@ -687,7 +701,7 @@
         <button
           v-if="userAiActive"
           type="button"
-          class="px-3 h-8 rounded-lg text-xs font-medium border transition-colors hover:bg-gray-50"
+          class="px-3 h-8 rounded-lg text-xs font-medium border transition-colors hover:bg-muted"
           style="border-color: var(--kb-border); color: var(--kb-muted-foreground);"
           @click="handleDeleteAiConfig"
         >
@@ -697,7 +711,7 @@
         <div class="flex items-center gap-2">
           <button
             type="button"
-            class="px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-gray-50"
+            class="px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-muted"
             style="border-color: var(--kb-border); color: var(--kb-foreground);"
             @click="showAiConfigModal = false"
           >
@@ -719,13 +733,14 @@
 </template>
 
 <script setup lang="ts">
-// AI 智能问答页：会话列表管理、流式打字机效果渲染、Markdown 与参考来源展示。
+// AI 智能问答页：会话列表管理、SSE 流式渲染、Markdown 与参考来源展示。
 import { notify, confirmDialog } from '@/utils/toast'
 import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
 import { chatApi, aiConfigApi } from '@/api'
+import { streamChat } from '@/api/chat'
 import type { MessageVO } from '@/api/types'
 
 interface Chat {
@@ -756,6 +771,8 @@ const activeChatId = ref<number | null>(null)
 const inputMessage = ref('')
 const isTyping = ref(false)
 const loading = ref(false)
+// F1：流式生成控制——abortController 用于"停止生成"按钮中断 SSE 流
+const abortController = ref<AbortController | null>(null)
 const useKnowledgeBase = ref(true)
 const suggestionList = ['帮我写一篇 Java 学习笔记', '解释一下 Spring Boot 的自动配置', '生成一个 React 组件示例', '总结今天学到的知识']
 function useSuggestion(text: string) {
@@ -1268,43 +1285,122 @@ const sendMessage = async () => {
   scrollToBottom()
 
   isTyping.value = true
+  // F1：文本消息走流式 SSE；图片消息仍走同步接口（AiService.streamChat 暂不支持图片）
+  if (hasImages) {
+    try {
+      const sendContent = content || '请描述这些图片'
+      const resp = await chatApi.send({
+        conversationId: chatId,
+        content: sendContent,
+        model: selectedModel.value,
+        images,
+      })
+      const assistantMessage: Message = {
+        id: resp.id,
+        role: resp.role === 'assistant' ? 'assistant' : 'user',
+        content: resp.content,
+        createdAt: resp.createTime || new Date().toISOString(),
+        sources: parseDocReferences(resp.docReferences),
+      }
+      chatMessages.value[chatId].push(assistantMessage)
+      const messageIndex = displayedMessages.value.length
+      displayedMessages.value.push('')
+      typeText(assistantMessage.content, messageIndex)
+      if (chat) {
+        chat.lastMessage = assistantMessage.content.slice(0, 30) + (assistantMessage.content.length > 30 ? '…' : '')
+        chat.updateTime = new Date().toISOString()
+      }
+    } catch {
+      const messageIndex = displayedMessages.value.length
+      chatMessages.value[chatId].push({
+        id: Date.now() + 1,
+        role: 'assistant',
+        content: '抱歉，服务暂时不可用，请稍后再试。',
+        createdAt: new Date().toISOString(),
+      })
+      displayedMessages.value.push('')
+      typeText('抱歉，服务暂时不可用，请稍后再试。', messageIndex)
+    } finally {
+      isTyping.value = false
+    }
+    return
+  }
+
+  // F1：文本消息流式渲染——先 push 占位空消息，逐 token 填充
+  const assistantMessage: Message = {
+    id: Date.now(),
+    role: 'assistant',
+    content: '',
+    createdAt: new Date().toISOString(),
+  }
+  chatMessages.value[chatId].push(assistantMessage)
+  const messageIndex = displayedMessages.value.length
+  displayedMessages.value.push('')
+
+  // 创建 AbortController 供"停止生成"按钮中断
+  const controller = new AbortController()
+  abortController.value = controller
+
   try {
-    // A-CHAT-01 多模态：有图片时同时发送 base64 数据，后端使用 vision 模型识别
-    const sendContent = hasImages
-      ? (content || '请描述这些图片')
-      : content
-    const resp = await chatApi.send({
-      conversationId: chatId,
-      content: sendContent,
-      model: selectedModel.value,
-      images: hasImages ? images : undefined,
-    })
-    const assistantMessage: Message = {
-      id: resp.id,
-      role: resp.role === 'assistant' ? 'assistant' : 'user',
-      content: resp.content,
-      createdAt: resp.createTime || new Date().toISOString(),
-      sources: parseDocReferences(resp.docReferences),
+    await streamChat(
+      {
+        conversationId: chatId,
+        content,
+        model: selectedModel.value,
+      },
+      {
+        onToken: (delta) => {
+          // 流式增量 append 到 displayedMessages（响应式触发渲染）
+          displayedMessages.value[messageIndex] += delta
+          // 同步到 assistantMessage.content（持久化/复制时使用）
+          assistantMessage.content = displayedMessages.value[messageIndex]
+          scrollToBottom()
+        },
+        onDone: (full) => {
+          // 用后端 done 事件的完整内容覆盖（防止 token 拼接遗漏）
+          if (full) {
+            displayedMessages.value[messageIndex] = full
+            assistantMessage.content = full
+          }
+          if (chat) {
+            const preview = (full || '').slice(0, 30)
+            chat.lastMessage = preview + (full.length > 30 ? '…' : '')
+            chat.updateTime = new Date().toISOString()
+          }
+        },
+        onError: (err) => {
+          // 已生成内容为空时显示错误占位；有内容时保留为截断消息
+          if (!displayedMessages.value[messageIndex]) {
+            const errMsg = '抱歉，AI 流式响应失败：' + (err.message || '未知错误')
+            displayedMessages.value[messageIndex] = errMsg
+            assistantMessage.content = errMsg
+          }
+          notify('AI 回复中断：' + (err.message || '未知错误'), 'error')
+        },
+      },
+      controller.signal,
+    )
+  } catch (e) {
+    // 网络/解析异常兜底
+    if (!displayedMessages.value[messageIndex]) {
+      const errMsg = '抱歉，服务暂时不可用，请稍后再试。'
+      displayedMessages.value[messageIndex] = errMsg
+      assistantMessage.content = errMsg
     }
-    chatMessages.value[chatId].push(assistantMessage)
-    const messageIndex = displayedMessages.value.length
-    displayedMessages.value.push('')
-    typeText(assistantMessage.content, messageIndex)
-    if (chat) {
-      chat.lastMessage = assistantMessage.content.slice(0, 30) + (assistantMessage.content.length > 30 ? '…' : '')
-      chat.updateTime = new Date().toISOString()
-    }
-  } catch {
-    const messageIndex = displayedMessages.value.length
-    chatMessages.value[chatId].push({
-      id: Date.now() + 1,
-      role: 'assistant',
-      content: '抱歉，服务暂时不可用，请稍后再试。',
-      createdAt: new Date().toISOString(),
-    })
-    displayedMessages.value.push('')
-    typeText('抱歉，服务暂时不可用，请稍后再试。', messageIndex)
   } finally {
+    isTyping.value = false
+    abortController.value = null
+  }
+}
+
+/**
+ * F1：停止 AI 流式生成。点击"停止"按钮时调用。
+ * 通过 AbortController.abort() 中断 fetch 请求，已生成的部分内容会作为截断消息保留。
+ */
+const stopGeneration = () => {
+  if (abortController.value) {
+    abortController.value.abort()
+    abortController.value = null
     isTyping.value = false
   }
 }

@@ -7,7 +7,7 @@
       <template #actions>
         <button
           @click="goBack"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 border border-gray-200 hover:bg-gray-50 active:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground border border-border hover:bg-muted active:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         >
           <Icon name="chevron-left" :size="16" />
           <span>返回</span>
@@ -26,20 +26,20 @@
     <div class="max-w-3xl mx-auto flex flex-col gap-5">
       <!-- 标题 -->
       <section class="border rounded-[10px] p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
-        <label class="block text-sm font-medium text-gray-700 mb-2">标题</label>
+        <label class="block text-sm font-medium text-foreground mb-2">标题</label>
         <input
           v-model="form.title"
           type="text"
           maxlength="60"
           placeholder="一句话概括你的主题，例如：大模型微调踩坑记录"
-          class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-primary-400"
+          class="w-full px-3 py-2.5 rounded-lg border border-border text-sm focus:outline-none focus:border-primary-400"
         />
-        <p class="text-[12px] text-gray-400 mt-1.5 text-right">{{ form.title.length }}/60</p>
+        <p class="text-[12px] text-muted-foreground mt-1.5 text-right">{{ form.title.length }}/60</p>
       </section>
 
       <!-- 分类 -->
       <section class="border rounded-[10px] p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
-        <label class="block text-sm font-medium text-gray-700 mb-3">分类</label>
+        <label class="block text-sm font-medium text-foreground mb-3">分类</label>
         <div class="flex flex-wrap gap-2">
           <button
             v-for="cat in categories"
@@ -50,7 +50,7 @@
               'px-3 py-1.5 rounded-lg text-sm border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 active:opacity-90',
               form.category === cat.value
                 ? 'bg-primary-50 text-primary-600 border-primary-300 font-medium'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300',
+                : 'bg-card text-muted-foreground border-border hover:border-border',
             ]"
           >{{ cat.label }}</button>
         </div>
@@ -58,12 +58,12 @@
 
       <!-- 正文 -->
       <section class="border rounded-[10px] p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
-        <label class="block text-sm font-medium text-gray-700 mb-2">正文</label>
+        <label class="block text-sm font-medium text-foreground mb-2">正文</label>
         <textarea
           v-model="form.content"
           rows="14"
           placeholder="分享你的经验、问题或资源，支持换行..."
-          class="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm leading-relaxed focus:outline-none focus:border-primary-400 resize-none"
+          class="w-full px-3 py-2.5 rounded-lg border border-border text-sm leading-relaxed focus:outline-none focus:border-primary-400 resize-none"
         ></textarea>
       </section>
 
@@ -72,7 +72,7 @@
         <button
           @click="goBack"
           type="button"
-          class="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted active:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         >取消</button>
         <button
           @click="handleSubmit"

@@ -119,7 +119,7 @@
           <button
             v-for="t in typeFilters"
             :key="t.value"
-            class="kb-filter-btn hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="kb-filter-btn hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             :class="{ active: filterType === t.value }"
             @click="filterType = t.value"
           >{{ t.label }}</button>

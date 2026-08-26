@@ -2,12 +2,12 @@
   <div class="space-y-4 animate-fade-in">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-800">复习计划</h1>
-        <p class="text-gray-500 mt-1">根据艾宾浩斯遗忘曲线，科学安排复习</p>
+        <h1 class="text-2xl font-bold text-foreground">复习计划</h1>
+        <p class="text-muted-foreground mt-1">根据艾宾浩斯遗忘曲线，科学安排复习</p>
       </div>
       <button
         type="button"
-        class="h-9 w-9 inline-flex items-center justify-center rounded-lg border transition-colors hover:bg-gray-50 self-start md:self-auto focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
+        class="h-9 w-9 inline-flex items-center justify-center rounded-lg border transition-colors hover:bg-muted self-start md:self-auto focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
         style="border-color: var(--kb-input);"
         :disabled="loading"
         title="刷新"
@@ -42,7 +42,7 @@
             </div>
             <div class="h-2 rounded w-full" style="background: var(--kb-muted);"></div>
           </div>
-          <div class="md:border-l md:border-gray-100 md:pl-6 md:py-2">
+          <div class="md:border-l md:border-border md:pl-6 md:py-2">
             <div class="h-10 w-24 rounded-lg" style="background: var(--kb-muted);"></div>
           </div>
         </div>
@@ -73,32 +73,32 @@
         <div class="flex-1">
           <div class="flex items-center gap-2 mb-2">
             <Icon name="calendar" :size="22" />
-            <h2 class="font-semibold text-gray-800">今日复习</h2>
+            <h2 class="font-semibold text-foreground">今日复习</h2>
             <Badge variant="default" class="text-xs">本地计划</Badge>
           </div>
-          <p class="text-sm text-gray-500 mb-4">基于真实闪卡复习进度推算，「已复习」为本机记录</p>
+          <p class="text-sm text-muted-foreground mb-4">基于真实闪卡复习进度推算，「已复习」为本机记录</p>
 
           <div class="flex items-center gap-6 mb-4">
             <div class="text-center">
               <div class="flex items-baseline gap-1">
                 <span class="text-3xl font-bold text-danger-500 tabular-nums">{{ todayReview.total }}</span>
-                <span class="text-gray-400">张</span>
+                <span class="text-muted-foreground">张</span>
               </div>
-              <p class="text-[13px] text-gray-500 mt-1">待复习</p>
+              <p class="text-[13px] text-muted-foreground mt-1">待复习</p>
             </div>
             <div class="text-center">
               <div class="flex items-baseline gap-1">
                 <span class="text-3xl font-bold text-success-500 tabular-nums">{{ todayReview.completed }}</span>
-                <span class="text-gray-400">张</span>
+                <span class="text-muted-foreground">张</span>
               </div>
-              <p class="text-[13px] text-gray-500 mt-1">已复习</p>
+              <p class="text-[13px] text-muted-foreground mt-1">已复习</p>
             </div>
           </div>
 
           <Progress :percentage="todayReview.progress" label="今日进度" show-label />
         </div>
 
-        <div class="md:border-l md:border-gray-100 md:pl-6 md:py-2">
+        <div class="md:border-l md:border-border md:pl-6 md:py-2">
           <Button size="lg" @click="startReview">
             <Icon name="play" :size="20" Circle />
             开始复习
@@ -114,7 +114,7 @@
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <Icon name="calendar" :size="20" Days />
-                <h2 class="font-semibold text-gray-800">复习日历</h2>
+                <h2 class="font-semibold text-foreground">复习日历</h2>
               </div>
               <div class="flex items-center gap-2">
                 <button
@@ -123,7 +123,7 @@
                 >
                   <Icon name="chevron-left" :size="20" />
                 </button>
-                <span class="text-sm font-medium text-gray-700 w-24 text-center tabular-nums">
+                <span class="text-sm font-medium text-foreground w-24 text-center tabular-nums">
                   {{ currentYear }}年{{ currentMonth }}月
                 </span>
                 <button
@@ -140,7 +140,7 @@
             <div class="grid grid-cols-7 gap-1 mb-2">
               <div
                 v-for="day in weekDays" :key="day"
-                class="text-center text-[13px] font-medium text-gray-400 py-2"
+                class="text-center text-[13px] font-medium text-muted-foreground py-2"
               >
                 {{ day }}
               </div>
@@ -154,32 +154,32 @@
                   day.isCurrentMonth ? '' : 'opacity-40',
                   day.isToday ? 'bg-primary-500 text-white font-semibold' : '',
                   day.hasReview && !day.isToday ? 'hover:bg-primary-50' : '',
-                  !day.hasReview && !day.isToday ? 'hover:bg-gray-50' : '',
+                  !day.hasReview && !day.isToday ? 'hover:bg-muted' : '',
                   selectedDate === day.dateStr ? 'ring-2 ring-primary-400 ring-offset-1' : '',
                 ]"
                 @click="selectDate(day)"
               >
-                <span :class="day.isToday ? 'text-white' : 'text-gray-700'">{{ day.day }}</span>
+                <span :class="day.isToday ? 'text-white' : 'text-foreground'">{{ day.day }}</span>
                 <div
                   v-if="day.hasReview && !day.isToday"
                   class="w-1.5 h-1.5 rounded-full bg-primary-500 mt-0.5"
                 />
                 <div
                   v-if="day.hasReview && day.isToday"
-                  class="w-1.5 h-1.5 rounded-full bg-white mt-0.5"
+                  class="w-1.5 h-1.5 rounded-full bg-card mt-0.5"
                 />
               </div>
             </div>
           </div>
 
-          <div class="flex items-center justify-center gap-4 mt-4 pt-4 border-t border-gray-50">
+          <div class="flex items-center justify-center gap-4 mt-4 pt-4 border-t border-border">
             <div class="flex items-center gap-2">
               <div class="w-2 h-2 rounded-full bg-primary-500" />
-              <span class="text-[13px] text-gray-500">有复习任务</span>
+              <span class="text-[13px] text-muted-foreground">有复习任务</span>
             </div>
             <div class="flex items-center gap-2">
               <div class="w-2 h-2 rounded-full bg-primary-500 ring-2 ring-primary-200" />
-              <span class="text-[13px] text-gray-500">今天</span>
+              <span class="text-[13px] text-muted-foreground">今天</span>
             </div>
           </div>
         </Card>
@@ -190,7 +190,7 @@
           <template #header>
             <div class="flex items-center gap-2">
               <Icon name="list" :size="20" Checks />
-              <h2 class="font-semibold text-gray-800">
+              <h2 class="font-semibold text-foreground">
                 {{ selectedDateLabel }}复习
               </h2>
             </div>
@@ -199,7 +199,7 @@
           <div v-if="selectedDayCards.length > 0" class="space-y-3">
             <div
               v-for="card in selectedDayCards" :key="card.id"
-              class="p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+              class="p-3 rounded-lg bg-muted hover:bg-gray-100 transition-colors cursor-pointer"
               @click="goToFlashCards"
             >
               <div class="flex items-center gap-2 mb-2">
@@ -208,7 +208,7 @@
                   {{ getDifficultyLabel(card.difficulty) }}
                 </Badge>
               </div>
-              <p class="text-sm text-gray-700 font-medium line-clamp-2">{{ card.question }}</p>
+              <p class="text-sm text-foreground font-medium line-clamp-2">{{ card.question }}</p>
             </div>
 
             <Button block class="mt-4" @click="goToFlashCards">
@@ -221,8 +221,8 @@
             <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
               <Icon name="check" :size="32" Circle />
             </div>
-            <p class="text-sm text-gray-500">暂无复习任务</p>
-            <p class="text-[13px] text-gray-400 mt-1">去学习新内容吧~</p>
+            <p class="text-sm text-muted-foreground">暂无复习任务</p>
+            <p class="text-[13px] text-muted-foreground mt-1">去学习新内容吧~</p>
           </div>
         </Card>
       </div>
@@ -232,14 +232,14 @@
       <template #header>
         <div class="flex items-center gap-2">
           <Icon name="clock" :size="20" />
-          <h2 class="font-semibold text-gray-800">即将到来的复习</h2>
+          <h2 class="font-semibold text-foreground">即将到来的复习</h2>
         </div>
       </template>
 
       <div class="space-y-4">
         <div
           v-for="day in upcomingReviews" :key="day.date"
-          class="border-b border-gray-100 last:border-0 pb-4 last:pb-0"
+          class="border-b border-border last:border-0 pb-4 last:pb-0"
         >
           <div class="flex items-center gap-3 mb-3">
             <div class="w-10 h-10 rounded-lg bg-primary-50 flex flex-col items-center justify-center flex-shrink-0">
@@ -247,8 +247,8 @@
               <span class="text-sm font-bold text-primary-600 tabular-nums">{{ getDay(day.date) }}</span>
             </div>
             <div>
-              <p class="text-sm font-medium text-gray-800">{{ formatDateLabel(day.date) }}</p>
-              <p class="text-[13px] text-gray-500 tabular-nums">{{ day.cards.length }} 张闪卡待复习</p>
+              <p class="text-sm font-medium text-foreground">{{ formatDateLabel(day.date) }}</p>
+              <p class="text-[13px] text-muted-foreground tabular-nums">{{ day.cards.length }} 张闪卡待复习</p>
             </div>
           </div>
           <div class="flex flex-wrap gap-2 ml-13">
@@ -262,7 +262,7 @@
             </Badge>
             <span
               v-if="day.cards.length > 3"
-              class="text-[13px] text-gray-400 py-0.5 tabular-nums"
+              class="text-[13px] text-muted-foreground py-0.5 tabular-nums"
             >
               +{{ day.cards.length - 3 }} 更多
             </span>
@@ -281,7 +281,7 @@
           >
             <Icon name="brain" :size="18" style="color: var(--kb-primary);" />
           </div>
-          <h2 class="font-semibold text-gray-800">艾宾浩斯遗忘曲线</h2>
+          <h2 class="font-semibold text-foreground">艾宾浩斯遗忘曲线</h2>
         </div>
       </template>
 

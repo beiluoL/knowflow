@@ -1,8 +1,8 @@
 <template>
   <div class="w-full">
     <div v-if="showLabel" class="flex justify-between mb-1.5">
-      <span class="text-sm text-gray-600">{{ label }}</span>
-      <span class="text-sm font-medium text-gray-700">{{ percentage }}%</span>
+      <span class="text-sm text-muted-foreground">{{ label }}</span>
+      <span class="text-sm font-medium text-foreground">{{ percentage }}%</span>
     </div>
     <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
       <div

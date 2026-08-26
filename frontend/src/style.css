@@ -226,6 +226,15 @@
 :root[data-theme='dark'] .bg-gray-50,
 :root[data-theme='dark'] .bg-gray-100 { background-color: var(--kb-muted) !important; }
 :root[data-theme='dark'] .bg-gray-50\/30 { background-color: rgba(37, 41, 50, 0.5) !important; }
+/* U1-Step2：补全 gray 200~900 背景梯度兜底 */
+:root[data-theme='dark'] .bg-gray-200 { background-color: var(--kb-border) !important; }
+:root[data-theme='dark'] .bg-gray-300,
+:root[data-theme='dark'] .bg-gray-400 { background-color: var(--kb-muted-foreground) !important; }
+:root[data-theme='dark'] .bg-gray-500,
+:root[data-theme='dark'] .bg-gray-600,
+:root[data-theme='dark'] .bg-gray-700,
+:root[data-theme='dark'] .bg-gray-800,
+:root[data-theme='dark'] .bg-gray-900 { background-color: var(--kb-foreground) !important; }
 
 :root[data-theme='dark'] .text-gray-900 { color: var(--kb-foreground) !important; }
 :root[data-theme='dark'] .text-gray-800 { color: var(--kb-foreground) !important; }
@@ -233,15 +242,38 @@
 :root[data-theme='dark'] .text-gray-600 { color: var(--kb-muted-foreground) !important; }
 :root[data-theme='dark'] .text-gray-500 { color: var(--kb-muted-foreground) !important; }
 :root[data-theme='dark'] .text-gray-400 { color: #6B7280 !important; }
+/* U1-Step2：补全 gray 100~300 文本梯度兜底 */
+:root[data-theme='dark'] .text-gray-300 { color: #9AA1AC !important; }
+:root[data-theme='dark'] .text-gray-200 { color: #6B7280 !important; }
+:root[data-theme='dark'] .text-gray-100 { color: var(--kb-muted) !important; }
 
 :root[data-theme='dark'] .border-gray-200,
 :root[data-theme='dark'] .border-gray-300 { border-color: var(--kb-border) !important; }
 :root[data-theme='dark'] .border-gray-100,
 :root[data-theme='dark'] .border-gray-50 { border-color: var(--kb-muted) !important; }
+/* U1-Step2：补全 gray 400~900 边框梯度兜底 */
+:root[data-theme='dark'] .border-gray-400 { border-color: var(--kb-muted-foreground) !important; }
+:root[data-theme='dark'] .border-gray-500,
+:root[data-theme='dark'] .border-gray-600,
+:root[data-theme='dark'] .border-gray-700,
+:root[data-theme='dark'] .border-gray-800,
+:root[data-theme='dark'] .border-gray-900 { border-color: var(--kb-sidebar-foreground) !important; }
 
 :root[data-theme='dark'] .hover\:bg-gray-50:hover { background-color: var(--kb-muted) !important; }
 :root[data-theme='dark'] .hover\:bg-gray-100:hover { background-color: #2A2F38 !important; }
+:root[data-theme='dark'] .hover\:bg-gray-200:hover { background-color: var(--kb-border) !important; }
 :root[data-theme='dark'] .hover\:text-gray-700:hover { color: var(--kb-foreground) !important; }
+:root[data-theme='dark'] .hover\:text-gray-900:hover { color: var(--kb-foreground) !important; }
+
+/* U1-Step2：divide / placeholder / ring 兜底 */
+:root[data-theme='dark'] .divide-gray-100 > * + *,
+:root[data-theme='dark'] .divide-gray-200 > * + *,
+:root[data-theme='dark'] .divide-gray-300 > * + * { border-color: var(--kb-border) !important; }
+:root[data-theme='dark'] .placeholder-gray-400::placeholder,
+:root[data-theme='dark'] .placeholder-gray-500::placeholder { color: #6B7280 !important; }
+:root[data-theme='dark'] .ring-gray-200,
+:root[data-theme='dark'] .ring-gray-300 { --tw-ring-color: var(--kb-border) !important; }
+:root[data-theme='dark'] .ring-gray-400 { --tw-ring-color: var(--kb-muted-foreground) !important; }
 
 /* 输入框深色化 */
 :root[data-theme='dark'] input,
@@ -1002,6 +1034,373 @@ button:focus-visible,
   100% {
     box-shadow: 0 0 0 0 transparent;
   }
+}
+
+/* =====================================================================
+ * U4：通用统计卡片 .kb-stat-*
+ * 消除 Habits/PomodoroMode/AgentCallChain/Home 等页面的 stat-card 重复样式。
+ * 配合 components/ui/StatCard.vue 使用，也可单独用于业务页面。
+ * ===================================================================== */
+.kb-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 18px 20px;
+  border-radius: var(--kb-radius-lg, 12px);
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+}
+
+.kb-stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--kb-radius-md, 8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+  flex-shrink: 0;
+}
+
+.kb-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--kb-foreground);
+}
+
+.kb-stat-unit {
+  font-size: 13px;
+  font-weight: 500;
+  margin-left: 4px;
+  color: var(--kb-muted-foreground);
+}
+
+.kb-stat-label {
+  font-size: 12px;
+  color: var(--kb-muted-foreground);
+  letter-spacing: 0.02em;
+}
+
+/* 水平布局变体：图标在左，数值/标签在右 */
+.kb-stat-card.kb-stat-card-horizontal {
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+}
+
+.kb-stat-card-horizontal .kb-stat-icon {
+  margin-bottom: 0;
+}
+
+.kb-stat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* =====================================================================
+ * U5：状态视图 .kb-state-*
+ * 统一 loading/empty/error 三态视觉，与 EmptyState/ErrorState 组件配合。
+ * - .kb-state：通用容器（居中、纵向堆叠、内边距）
+ * - .kb-state-icon：圆形图标背景区
+ * - .kb-state-title / .kb-state-desc / .kb-state-action：标题/描述/操作区
+ * - .kb-state-retry：重试按钮（主色边框 + hover 填充）
+ * - .kb-state-error：错误态变体（红/橘色调）
+ * - fade-in 过渡：状态切换平滑过渡
+ * ===================================================================== */
+.kb-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 64px 16px;
+  animation: kb-state-fade-in 0.2s ease-out;
+}
+
+.kb-state-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+  background: var(--kb-muted);
+  color: var(--kb-muted-foreground);
+}
+
+.kb-state-error .kb-state-icon {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.kb-state-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--kb-foreground);
+  margin-bottom: 8px;
+}
+
+.kb-state-desc {
+  font-size: 14px;
+  color: var(--kb-muted-foreground);
+  max-width: 320px;
+}
+
+.kb-state-action {
+  margin-top: 24px;
+}
+
+.kb-state-retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--kb-radius-md, 8px);
+  border: 1px solid var(--kb-primary);
+  background: var(--kb-card);
+  color: var(--kb-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.kb-state-retry:hover {
+  background: var(--kb-primary);
+  color: #fff;
+}
+
+@keyframes kb-state-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =====================================================================
+ * U6：表单组件 .kb-textarea / .kb-checkbox / .kb-select-*
+ * 与 Input.vue 视觉一致（38px 高、--kb-border、focus 主色环）。
+ * ===================================================================== */
+.kb-textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--kb-radius-md, 8px);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  font-size: var(--kb-fs-body-md);
+  font-family: inherit;
+  line-height: var(--kb-lh-body-md);
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.kb-textarea::placeholder {
+  color: var(--kb-muted-foreground);
+}
+.kb-textarea:focus {
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+}
+.kb-textarea.kb-textarea-error {
+  border-color: #ef4444;
+}
+.kb-textarea.kb-textarea-error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+.kb-textarea.kb-textarea-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: var(--kb-muted);
+}
+.kb-textarea-autoresize {
+  resize: none;
+  overflow-y: hidden;
+}
+
+/* 复选框：自定义方框 + 对勾/横线指示器 */
+.kb-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+.kb-checkbox-box {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid var(--kb-border);
+  background: var(--kb-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  flex-shrink: 0;
+}
+.kb-checkbox-box-checked {
+  border-color: var(--kb-primary);
+  background: var(--kb-primary);
+}
+.kb-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+.kb-checkbox-mark {
+  color: #fff;
+  pointer-events: none;
+}
+.kb-checkbox-label {
+  font-size: var(--kb-fs-body-md);
+  color: var(--kb-foreground);
+}
+.kb-checkbox.kb-checkbox-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.kb-checkbox:hover:not(.kb-checkbox-disabled) .kb-checkbox-box {
+  border-color: var(--kb-primary);
+}
+
+/* 自定义下拉选择 .kb-select-*（替代原生 select，支持搜索） */
+.kb-select-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: var(--kb-radius-md, 8px);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  font-size: var(--kb-fs-body-md);
+  cursor: pointer;
+  outline: none;
+  text-align: left;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.kb-select-trigger:hover {
+  border-color: var(--kb-primary);
+}
+.kb-select-trigger:focus {
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+}
+.kb-select-trigger-error {
+  border-color: #ef4444;
+}
+.kb-select-trigger-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: var(--kb-muted);
+}
+.kb-select-prefix {
+  color: var(--kb-muted-foreground);
+  flex-shrink: 0;
+}
+.kb-select-value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kb-select-placeholder {
+  flex: 1;
+  color: var(--kb-muted-foreground);
+}
+.kb-select-arrow {
+  color: var(--kb-muted-foreground);
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+.kb-select-arrow-up {
+  transform: rotate(180deg);
+}
+
+/* 下拉面板：浮层 + 阴影 + 滚动 */
+.kb-select-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  border-radius: var(--kb-radius-md, 8px);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  box-shadow: var(--shadow-dropdown-2, 0 4px 12px rgba(0, 0, 0, 0.08));
+  overflow: hidden;
+}
+.kb-select-search {
+  position: relative;
+  padding: 8px;
+  border-bottom: 1px solid var(--kb-border);
+}
+.kb-select-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--kb-muted-foreground);
+  pointer-events: none;
+}
+.kb-select-search-input {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px 0 32px;
+  border-radius: 6px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-muted);
+  color: var(--kb-foreground);
+  font-size: 13px;
+  outline: none;
+}
+.kb-select-search-input:focus {
+  border-color: var(--kb-primary);
+}
+.kb-select-list {
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 4px;
+}
+.kb-select-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: var(--kb-foreground);
+  font-size: var(--kb-fs-body-md);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.kb-select-option:hover {
+  background: var(--kb-muted);
+}
+.kb-select-option-active {
+  background: rgba(59, 111, 224, 0.08);
+  color: var(--kb-primary);
+  font-weight: 500;
+}
+.kb-select-empty {
+  padding: 16px;
+  text-align: center;
+  color: var(--kb-muted-foreground);
+  font-size: 13px;
 }
 
 /* =====================================================================

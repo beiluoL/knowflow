@@ -8,8 +8,8 @@
     >
       <Icon :name="icon" :size="32" :class="iconClass" />
     </div>
-    <h3 class="text-lg font-semibold mb-2 text-gray-800">{{ title }}</h3>
-    <div class="text-sm text-gray-500 max-w-xs">
+    <h3 class="text-lg font-semibold mb-2 text-foreground">{{ title }}</h3>
+    <div class="text-sm text-muted-foreground max-w-xs">
       <slot>
         <p>暂无数据</p>
       </slot>
@@ -58,7 +58,7 @@ const iconClass = computed(() => {
     case 'success':
       return 'text-success-500'
     default:
-      return 'text-gray-400'
+      return 'text-muted-foreground'
   }
 })
 </script>

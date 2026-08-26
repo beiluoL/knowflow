@@ -35,51 +35,51 @@
       <template v-else>
         <!-- 第一行：核心指标卡片 -->
         <section class="mmd-stats">
-          <div class="mmd-stat">
-            <div class="mmd-stat-icon" style="background: rgba(59,111,224,.1); color: var(--kb-primary);">
-              <Icon name="layers" :size="18" />
-            </div>
-            <div>
-              <div class="mmd-stat-value">{{ d.flashcardTotal }}</div>
-              <div class="mmd-stat-label">闪卡总数</div>
-            </div>
-          </div>
-          <div class="mmd-stat">
-            <div class="mmd-stat-icon" style="background: rgba(245,158,11,.12); color: #F59E0B;">
-              <Icon name="clock" :size="18" />
-            </div>
-            <div>
-              <div class="mmd-stat-value">{{ d.flashcardDue }}</div>
-              <div class="mmd-stat-label">待复习</div>
-            </div>
-          </div>
-          <div class="mmd-stat">
-            <div class="mmd-stat-icon" style="background: rgba(16,185,129,.12); color: #10B981;">
-              <Icon name="check-circle" :size="18" />
-            </div>
-            <div>
-              <div class="mmd-stat-value">{{ d.flashcardReviewed }}</div>
-              <div class="mmd-stat-label">已复习</div>
-            </div>
-          </div>
-          <div class="mmd-stat">
-            <div class="mmd-stat-icon" style="background: rgba(16,185,129,.12); color: #10B981;">
-              <Icon name="award" :size="18" />
-            </div>
-            <div>
-              <div class="mmd-stat-value">{{ d.mistakeMastered }}</div>
-              <div class="mmd-stat-label">错题已掌握</div>
-            </div>
-          </div>
-          <div class="mmd-stat">
-            <div class="mmd-stat-icon" style="background: rgba(239,68,68,.12); color: #EF4444;">
-              <Icon name="alert-triangle" :size="18" />
-            </div>
-            <div>
-              <div class="mmd-stat-value">{{ d.mistakePending }}</div>
-              <div class="mmd-stat-label">错题待巩固</div>
-            </div>
-          </div>
+          <StatCard
+            icon="layers"
+            icon-color="var(--kb-primary)"
+            icon-bg="rgba(59,111,224,.1)"
+            :icon-size="18"
+            :value="d.flashcardTotal"
+            label="闪卡总数"
+            layout="horizontal"
+          />
+          <StatCard
+            icon="clock"
+            icon-color="#F59E0B"
+            icon-bg="rgba(245,158,11,.12)"
+            :icon-size="18"
+            :value="d.flashcardDue"
+            label="待复习"
+            layout="horizontal"
+          />
+          <StatCard
+            icon="check-circle"
+            icon-color="#10B981"
+            icon-bg="rgba(16,185,129,.12)"
+            :icon-size="18"
+            :value="d.flashcardReviewed"
+            label="已复习"
+            layout="horizontal"
+          />
+          <StatCard
+            icon="award"
+            icon-color="#10B981"
+            icon-bg="rgba(16,185,129,.12)"
+            :icon-size="18"
+            :value="d.mistakeMastered"
+            label="错题已掌握"
+            layout="horizontal"
+          />
+          <StatCard
+            icon="alert-triangle"
+            icon-color="#EF4444"
+            icon-bg="rgba(239,68,68,.12)"
+            :icon-size="18"
+            :value="d.mistakePending"
+            label="错题待巩固"
+            layout="horizontal"
+          />
         </section>
 
         <!-- 第二行：难度分布 + 错题掌握 -->
@@ -157,6 +157,7 @@
 // 从难度、复习、分类三个维度可视化用户知识掌握情况。纯 CSS 图表，不依赖第三方图表库。
 import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
+import StatCard from '@/components/ui/StatCard.vue'
 import { notify, getApiError } from '@/utils/toast'
 import { learningApi } from '@/api'
 import type { MasteryDistributionVO, CategoryMasteryVO } from '@/api/types'
@@ -278,27 +279,6 @@ onMounted(loadData)
   gap: 14px;
   margin-bottom: 16px;
 }
-.mmd-stat {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  border-radius: 14px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-}
-.mmd-stat-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 11px;
-  flex-shrink: 0;
-}
-.mmd-stat-value { font-size: 24px; font-weight: 700; line-height: 1; color: var(--kb-foreground); }
-.mmd-stat-label { font-size: 12px; color: var(--kb-muted-foreground); margin-top: 4px; }
-
 /* 卡片通用 */
 .mmd-row {
   display: grid;

@@ -1,17 +1,17 @@
 <template>
   <div
     :class="[
-      'bg-white rounded-lg shadow-card transition-all duration-300 overflow-hidden',
+      'bg-card rounded-lg shadow-card transition-all duration-300 overflow-hidden',
       { 'hover:shadow-card-hover hover:-translate-y-0.5 cursor-pointer': hoverable },
     ]"
   >
-    <div v-if="$slots.header" class="px-6 py-4 border-b border-gray-100">
+    <div v-if="$slots.header" class="px-6 py-4 border-b border-border">
       <slot name="header" />
     </div>
     <div :class="bodyClass">
       <slot />
     </div>
-    <div v-if="$slots.footer" class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+    <div v-if="$slots.footer" class="px-6 py-4 border-t border-border bg-muted/50">
       <slot name="footer" />
     </div>
   </div>

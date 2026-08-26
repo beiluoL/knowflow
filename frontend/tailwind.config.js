@@ -2,7 +2,10 @@
 // F-07 说明：颜色令牌的单一来源是 src/style.css :root 的 --kb-* 变量。
 // 本文件的 primary(#3B6FE0)/success/warning/danger 色板必须与其保持一致；
 // 修改主题请先改 style.css 再同步此处，防止两套令牌漂移。
+// U1：darkMode 配置为 ['class', '[data-theme="dark"]']，与 useTheme.ts 的 data-theme 切换一致，
+// 使 dark: 变体可正常工作；gray/background/surface 全部改为引用 --kb-* token，深色模式自动跟随。
 export default {
+  darkMode: ['class', '[data-theme="dark"]'],
   content: [
     "./index.html",
     "./src/**/*.{vue,js,ts,jsx,tsx}",
@@ -10,6 +13,28 @@ export default {
   theme: {
     extend: {
       colors: {
+        // 语义 alias：codemod 后 bg-card/text-foreground/border-border 等更直观
+        card: 'var(--kb-card)',
+        'card-foreground': 'var(--kb-card-foreground)',
+        popover: 'var(--kb-popover)',
+        'popover-foreground': 'var(--kb-popover-foreground)',
+        background: 'var(--kb-background)',
+        foreground: 'var(--kb-foreground)',
+        muted: 'var(--kb-muted)',
+        'muted-foreground': 'var(--kb-muted-foreground)',
+        border: 'var(--kb-border)',
+        input: 'var(--kb-input)',
+        ring: 'var(--kb-ring)',
+        sidebar: 'var(--kb-sidebar)',
+        'sidebar-foreground': 'var(--kb-sidebar-foreground)',
+        accent: 'var(--kb-accent)',
+        'accent-foreground': 'var(--kb-accent-foreground)',
+        destructive: 'var(--kb-destructive)',
+        'destructive-foreground': 'var(--kb-destructive-foreground)',
+        // 旧别名保留（向后兼容）
+        surface: 'var(--kb-card)',
+        'text-primary': 'var(--kb-foreground)',
+        'text-secondary': 'var(--kb-muted-foreground)',
         primary: {
           50: '#EFF4FE',
           100: '#DBE6FC',
@@ -57,21 +82,23 @@ export default {
           soft: 'rgba(255, 107, 53, 0.10)',
         },
         gray: {
-          50: '#F9FAFB',
-          100: '#F3F4F6',
-          200: '#E5E7EB',
-          300: '#D1D5DB',
-          400: '#9CA3AF',
-          500: '#6B7280',
-          600: '#4B5563',
-          700: '#374151',
-          800: '#1F2937',
-          900: '#111827',
+          // U1：gray 全梯度改为引用 --kb-* token，深色模式自动跟随；
+          // opacity 修饰符（如 bg-gray-100/50）由 Tailwind 用 color-mix 处理，现代浏览器均支持。
+          50: 'var(--kb-muted)',
+          100: 'var(--kb-muted)',
+          200: 'var(--kb-border)',
+          300: 'var(--kb-border)',
+          400: 'var(--kb-muted-foreground)',
+          500: 'var(--kb-muted-foreground)',
+          600: 'var(--kb-sidebar-foreground)',
+          700: 'var(--kb-foreground)',
+          800: 'var(--kb-foreground)',
+          900: 'var(--kb-foreground)',
         },
-        background: '#F7F8FA',
-        surface: '#FFFFFF',
-        'text-primary': '#1A1D23',
-        'text-secondary': '#6B7280',
+        background: 'var(--kb-background)',
+        surface: 'var(--kb-card)',
+        'text-primary': 'var(--kb-foreground)',
+        'text-secondary': 'var(--kb-muted-foreground)',
       },
       borderRadius: {
         'sm': '6px',

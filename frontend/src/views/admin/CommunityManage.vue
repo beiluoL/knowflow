@@ -74,7 +74,7 @@
           </select>
           <button
             type="button"
-            class="h-9 px-3 rounded-lg text-sm border inline-flex items-center gap-1.5 transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+            class="h-9 px-3 rounded-lg text-sm border inline-flex items-center gap-1.5 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             style="background: var(--kb-card); border-color: var(--kb-input); color: var(--kb-foreground);"
             :disabled="postLoading"
             @click="loadPosts"
@@ -129,7 +129,7 @@
             <tr
               v-for="post in filteredPosts"
               :key="post.id"
-              class="transition-colors hover:bg-gray-50"
+              class="transition-colors hover:bg-muted"
             >
               <td class="px-4 py-3">
                 <div class="flex items-center gap-2">
@@ -286,7 +286,7 @@
             >删除内容</button>
             <button
               type="button"
-              class="px-2.5 py-1 rounded-md text-xs font-medium border transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="px-2.5 py-1 rounded-md text-xs font-medium border transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
               style="border-color: var(--kb-border); color: var(--kb-foreground);"
               @click="handleReport(report, 'dismissed')"
             >驳回</button>

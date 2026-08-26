@@ -7,7 +7,7 @@
       <template #actions>
         <button
           @click="goBack"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-gray-600 border border-gray-200 hover:bg-gray-50 active:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground border border-border hover:bg-muted active:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         >
           <Icon name="chevron-left" :size="16" />
           <span>返回</span>
@@ -39,8 +39,8 @@
               :style="{ backgroundColor: avatarColor(post.userId) }"
             >{{ initialOf(post) }}</div>
             <div class="flex items-center gap-2 min-w-0">
-              <span class="text-sm truncate text-gray-800">{{ post.nickname || post.username }}</span>
-              <span class="text-xs shrink-0 text-gray-400">{{ formatTime(post.createTime) }}</span>
+              <span class="text-sm truncate text-foreground">{{ post.nickname || post.username }}</span>
+              <span class="text-xs shrink-0 text-muted-foreground">{{ formatTime(post.createTime) }}</span>
               <span
                 v-if="post.isEssence === 1"
                 class="shrink-0 inline-flex items-center px-2 py-0.5 rounded-md text-xs whitespace-nowrap bg-yellow-50 text-warning-500"
@@ -48,14 +48,14 @@
             </div>
           </div>
 
-          <h1 class="text-[20px] font-bold mb-3 text-gray-800">{{ post.title }}</h1>
-          <p class="text-[15px] whitespace-pre-line text-gray-600 leading-relaxed max-w-[860px]">{{ post.content }}</p>
+          <h1 class="text-[20px] font-bold mb-3 text-foreground">{{ post.title }}</h1>
+          <p class="text-[15px] whitespace-pre-line text-muted-foreground leading-relaxed max-w-[860px]">{{ post.content }}</p>
 
           <div v-if="getTags(post.tags).length" class="flex items-center gap-1.5 mt-3 flex-wrap">
             <span
               v-for="tag in getTags(post.tags)"
               :key="tag"
-              class="inline-flex items-center px-2 py-0.5 rounded-md text-xs whitespace-nowrap bg-gray-100 text-gray-500"
+              class="inline-flex items-center px-2 py-0.5 rounded-md text-xs whitespace-nowrap bg-gray-100 text-muted-foreground"
             >{{ tag }}</span>
           </div>
 
@@ -67,17 +67,17 @@
               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium border transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 active:bg-primary-100"
               :class="likedByMe
                 ? 'text-primary-600 border-primary-300 bg-primary-50'
-                : 'text-gray-500 border-gray-200 hover:border-primary-300 hover:text-primary-600'"
+                : 'text-muted-foreground border-border hover:border-primary-300 hover:text-primary-600'"
               :aria-pressed="likedByMe"
             >
               <Icon name="thumbs-up" :size="14" :fill="likedByMe" />
               <span>{{ likedByMe ? '已赞' : '点赞' }} {{ post.likeCount ?? 0 }}</span>
             </button>
-            <div class="flex items-center gap-1 text-gray-400">
+            <div class="flex items-center gap-1 text-muted-foreground">
               <Icon name="message-circle" :size="14" />
               <span class="text-xs">{{ post.commentCount ?? 0 }} 评论</span>
             </div>
-            <div class="flex items-center gap-1 text-gray-400">
+            <div class="flex items-center gap-1 text-muted-foreground">
               <Icon name="eye" :size="14" />
               <span class="text-xs">{{ formatViewCount(post.viewCount) }} 浏览</span>
             </div>
@@ -96,34 +96,34 @@
       <aside class="hidden lg:block w-56 flex-shrink-0">
         <div class="sticky top-20 rounded-xl border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
           <!-- 作者信息 -->
-          <h3 class="text-[13px] font-medium text-gray-800 mb-3">作者</h3>
+          <h3 class="text-[13px] font-medium text-foreground mb-3">作者</h3>
           <div class="flex items-center gap-3">
             <div
               class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold text-white shrink-0"
               :style="{ backgroundColor: avatarColor(post.userId) }"
             >{{ initialOf(post) }}</div>
             <div class="min-w-0">
-              <p class="text-[13px] font-medium truncate text-gray-800">{{ post.nickname || post.username }}</p>
-              <p class="text-[12px] text-gray-400 truncate">@{{ post.username }}</p>
+              <p class="text-[13px] font-medium truncate text-foreground">{{ post.nickname || post.username }}</p>
+              <p class="text-[12px] text-muted-foreground truncate">@{{ post.username }}</p>
             </div>
           </div>
 
           <!-- 帖子数据 -->
           <div class="mt-4 pt-4 space-y-2 text-xs" style="border-top: 1px solid var(--kb-border);">
             <div class="flex items-center justify-between">
-              <span class="flex items-center gap-1.5 text-gray-500"><Icon name="eye" :size="12" />浏览</span>
-              <span class="tabular-nums text-gray-800">{{ formatViewCount(post.viewCount) }}</span>
+              <span class="flex items-center gap-1.5 text-muted-foreground"><Icon name="eye" :size="12" />浏览</span>
+              <span class="tabular-nums text-foreground">{{ formatViewCount(post.viewCount) }}</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="flex items-center gap-1.5 text-gray-500"><Icon name="thumbs-up" :size="12" />点赞</span>
-              <span class="tabular-nums text-gray-800">{{ post.likeCount ?? 0 }}</span>
+              <span class="flex items-center gap-1.5 text-muted-foreground"><Icon name="thumbs-up" :size="12" />点赞</span>
+              <span class="tabular-nums text-foreground">{{ post.likeCount ?? 0 }}</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="flex items-center gap-1.5 text-gray-500"><Icon name="message-circle" :size="12" />评论</span>
-              <span class="tabular-nums text-gray-800">{{ post.commentCount ?? 0 }}</span>
+              <span class="flex items-center gap-1.5 text-muted-foreground"><Icon name="message-circle" :size="12" />评论</span>
+              <span class="tabular-nums text-foreground">{{ post.commentCount ?? 0 }}</span>
             </div>
             <div v-if="post.isEssence === 1" class="flex items-center justify-between">
-              <span class="flex items-center gap-1.5 text-gray-500"><Icon name="star" :size="12" />精华</span>
+              <span class="flex items-center gap-1.5 text-muted-foreground"><Icon name="star" :size="12" />精华</span>
               <span class="font-medium text-warning-500">精华帖</span>
             </div>
           </div>

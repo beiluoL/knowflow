@@ -23,4 +23,7 @@ public class ChatMessage extends BaseEntity {
     private String docReferences;
 
     private Integer tokenCount;
+
+    /** F1：是否被截断（用户点击「停止」中断流式生成时为 1）。 */
+    private Integer truncated;
 }

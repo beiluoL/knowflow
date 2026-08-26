@@ -114,7 +114,7 @@
           >
             <span
               :class="[
-                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200',
+                'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-card shadow transition duration-200',
                 form.isActive ? 'translate-x-5' : 'translate-x-0'
               ]"
             ></span>
@@ -126,7 +126,7 @@
           <button
             v-if="userConfig"
             type="button"
-            class="px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+            class="px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             style="border-color: var(--kb-border); color: var(--kb-foreground);"
             @click="handleDelete"
           >
@@ -281,7 +281,7 @@
       <div class="flex items-center justify-end gap-3 mt-6 pt-4 border-t" style="border-color: var(--kb-border);">
         <button
           type="button"
-          class="px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           style="border-color: var(--kb-border); color: var(--kb-foreground);"
           @click="resetParams"
         >

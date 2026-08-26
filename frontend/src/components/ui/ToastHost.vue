@@ -6,16 +6,16 @@
     <transition-group name="toast">
       <div
         v-for="t in toastState.toasts" :key="t.id"
-        class="pointer-events-auto flex items-start gap-3 rounded-lg border-l-4 bg-white px-4 py-3 shadow-lg"
+        class="pointer-events-auto flex items-start gap-3 rounded-lg border-l-4 bg-card px-4 py-3 shadow-lg"
         :class="toastClass(t.type)"
         role="status"
         :aria-live="t.type === 'error' ? 'assertive' : 'polite'"
       >
         <Icon :name="toastIcon(t.type)" :size="18" :class="toastText(t.type)" />
-        <span class="flex-1 text-sm text-gray-800">{{ t.message }}</span>
+        <span class="flex-1 text-sm text-foreground">{{ t.message }}</span>
         <button
           type="button"
-          class="text-gray-400 transition-colors hover:text-gray-600"
+          class="text-muted-foreground transition-colors hover:text-muted-foreground"
           aria-label="关闭提示"
           @click="dismiss(t.id)"
         >
@@ -31,8 +31,8 @@
     role="alertdialog"
     aria-modal="true"
   >
-    <div class="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl" :data-confirm-id="c.id">
-      <p class="mb-5 text-sm text-gray-800">{{ c.message }}</p>
+    <div class="w-full max-w-sm rounded-xl bg-card p-6 shadow-xl" :data-confirm-id="c.id">
+      <p class="mb-5 text-sm text-foreground">{{ c.message }}</p>
       <!-- Prompt 输入框（仅当配置了 prompt 时显示） -->
       <input
         v-if="c.prompt"
@@ -41,13 +41,13 @@
         :value="c.prompt.defaultValue"
         :placeholder="c.prompt.placeholder"
         type="text"
-        class="mb-5 w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none transition-colors focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+        class="mb-5 w-full rounded-md border border-border px-3 py-2 text-sm outline-none transition-colors focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
         @keydown.enter="onPromptEnter($event, c)"
       />
       <div class="flex justify-end gap-3">
         <button
           type="button"
-          class="rounded-md px-4 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100"
+          class="rounded-md px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-gray-100"
           @click="c.resolve(false)"
         >
           取消

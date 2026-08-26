@@ -72,7 +72,7 @@
         <!-- Category Header -->
         <button
           type="button"
-          class="flex w-full items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-gray-50 active:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--kb-ring)]"
+          class="flex w-full items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-muted active:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--kb-ring)]"
           :aria-expanded="expandedIds.has(cat.id)"
           @click="toggleCategory(cat.id)"
         >
@@ -119,7 +119,7 @@
             :key="doc.id"
             role="button"
             tabindex="0"
-            class="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors hover:bg-gray-50 active:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--kb-ring)]"
+            class="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors hover:bg-muted active:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--kb-ring)]"
             :style="{
               borderBottom: `1px solid color-mix(in srgb, ${kbBorder} 50%, transparent)`,
             }"

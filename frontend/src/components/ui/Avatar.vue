@@ -1,7 +1,7 @@
 <template>
   <div
     :class="[
-      'relative inline-flex items-center justify-center rounded-full bg-gray-200 text-gray-600 font-medium overflow-hidden flex-shrink-0',
+      'relative inline-flex items-center justify-center rounded-full bg-gray-200 text-muted-foreground font-medium overflow-hidden flex-shrink-0',
       sizeClass,
     ]"
   >

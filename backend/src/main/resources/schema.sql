@@ -93,6 +93,8 @@ CREATE TABLE IF NOT EXISTS chat_conversation (
     title VARCHAR(200),
     message_count INT DEFAULT 0,
     last_message VARCHAR(4000),
+    summary TEXT,
+    summary_updated_at TIMESTAMP NULL,
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0
@@ -107,6 +109,7 @@ CREATE TABLE IF NOT EXISTS chat_message (
     content TEXT,
     doc_references VARCHAR(1000),
     token_count INT DEFAULT 0,
+    truncated INT DEFAULT 0,
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0

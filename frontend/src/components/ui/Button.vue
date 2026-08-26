@@ -77,7 +77,7 @@ const variantClass = computed(() => {
   const variants = {
     primary: 'bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700 shadow-sm',
     secondary:
-      'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 active:bg-gray-100 shadow-sm',
+      'bg-card text-foreground border border-border hover:bg-muted active:bg-gray-100 shadow-sm',
     text: 'text-primary-500 hover:bg-primary-50 active:bg-primary-100',
     ghost: 'bg-transparent text-primary-500 border border-primary-500 hover:bg-primary-50 active:bg-primary-100',
   }

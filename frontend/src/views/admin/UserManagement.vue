@@ -2,13 +2,13 @@
     <div class="space-y-6 animate-fade-in">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-gray-800">用户管理</h1>
-          <p class="text-gray-500 text-sm mt-1">管理系统中的所有用户账号</p>
+          <h1 class="text-2xl font-bold text-foreground">用户管理</h1>
+          <p class="text-muted-foreground text-sm mt-1">管理系统中的所有用户账号</p>
         </div>
       </div>
 
       <Card padding="none">
-        <div class="p-4 border-b border-gray-100">
+        <div class="p-4 border-b border-border">
           <div class="flex flex-col sm:flex-row sm:items-center gap-4">
             <div class="flex-1">
               <Input
@@ -21,7 +21,7 @@
               <div class="relative">
                 <button
                   @click="showRoleFilter = !showRoleFilter"
-                  class="inline-flex items-center gap-2 px-4 py-2 text-sm border border-gray-200 rounded-sm bg-white hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                  class="inline-flex items-center gap-2 px-4 py-2 text-sm border border-border rounded-sm bg-card hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                 >
                   <Icon name="filter" :size="16" aria-hidden="true" />
                   <span>{{ selectedRole || '全部角色' }}</span>
@@ -29,11 +29,11 @@
                 </button>
                 <div
                   v-if="showRoleFilter"
-                  class="absolute top-full left-0 mt-1 w-40 bg-white border border-gray-200 rounded-sm shadow-lg z-10 py-1 animate-dropdown"
+                  class="absolute top-full left-0 mt-1 w-40 bg-card border border-border rounded-sm shadow-lg z-10 py-1 animate-dropdown"
                 >
                   <button
                     @click="selectedRole = ''; showRoleFilter = false"
-                    class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                    class="w-full px-4 py-2 text-left text-sm hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                     :class="{ 'bg-primary-50 text-primary-600': !selectedRole }"
                   >
                     全部角色
@@ -41,7 +41,7 @@
                   <button
                     v-for="role in roles" :key="role.value"
                     @click="selectedRole = role.value; showRoleFilter = false"
-                    class="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                    class="w-full px-4 py-2 text-left text-sm hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
                     :class="{ 'bg-primary-50 text-primary-600': selectedRole === role.value }"
                   >
                     {{ role.label }}
@@ -55,32 +55,32 @@
 
         <div class="overflow-x-auto">
           <table class="w-full">
-            <thead class="bg-gray-50">
+            <thead class="bg-muted">
               <tr>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">用户</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">邮箱</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">角色</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">等级</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">学习时长</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">注册时间</th>
-                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">用户</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">邮箱</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">角色</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">等级</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">学习时长</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">注册时间</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">操作</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
               <tr
                 v-for="user in pagedUsers" :key="user.id"
-                class="hover:bg-gray-50 transition-colors table-row"
+                class="hover:bg-muted transition-colors table-row"
               >
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-3">
                     <Avatar :src="user.avatar" :name="user.username" size="md" />
                     <div>
-                      <p class="text-sm font-medium text-gray-800">{{ user.username }}</p>
-                      <p class="text-xs text-gray-400">ID: {{ user.id }}</p>
+                      <p class="text-sm font-medium text-foreground">{{ user.username }}</p>
+                      <p class="text-xs text-muted-foreground">ID: {{ user.id }}</p>
                     </div>
                   </div>
                 </td>
-                <td class="px-4 py-3 text-sm text-gray-600">{{ user.email || '—' }}</td>
+                <td class="px-4 py-3 text-sm text-muted-foreground">{{ user.email || '—' }}</td>
                 <td class="px-4 py-3">
                   <Badge :variant="user.role === 'ADMIN' ? 'primary' : 'default'">{{ user.role === 'ADMIN' ? '管理员' : '普通用户' }}</Badge>
                 </td>
@@ -89,43 +89,43 @@
                     <div class="w-6 h-6 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
                       <Icon name="star" :size="12" />
                     </div>
-                    <span class="text-sm font-medium text-gray-700">Lv.{{ user.level }}</span>
+                    <span class="text-sm font-medium text-foreground">Lv.{{ user.level }}</span>
                   </div>
                 </td>
                 <td class="px-4 py-3">
                   <div class="w-32">
                     <Progress :percentage="user.studyProgress" :variant="user.level > 5 ? 'success' : 'primary'" />
-                    <p class="text-xs text-gray-400 mt-1">{{ user.studyHours }}h</p>
+                    <p class="text-xs text-muted-foreground mt-1">{{ user.studyHours }}h</p>
                   </div>
                 </td>
-                <td class="px-4 py-3 text-sm text-gray-500">{{ user.registerTime }}</td>
+                <td class="px-4 py-3 text-sm text-muted-foreground">{{ user.registerTime }}</td>
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2">
-                    <button class="p-1 text-gray-400 hover:text-primary-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="编辑" @click="openEdit(user)">
+                    <button class="p-1 text-muted-foreground hover:text-primary-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="编辑" @click="openEdit(user)">
                       <Icon name="edit" :size="16" aria-hidden="true" />
                     </button>
-                    <button class="p-1 text-gray-400 hover:text-danger-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="删除" @click="removeUser(user)">
+                    <button class="p-1 text-muted-foreground hover:text-danger-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="删除" @click="removeUser(user)">
                       <Icon name="trash-2" :size="16" aria-hidden="true" />
                     </button>
                   </div>
                 </td>
               </tr>
               <tr v-if="pagedUsers.length === 0">
-                <td colspan="7" class="px-4 py-12 text-center text-gray-400 text-sm">暂无用户数据</td>
+                <td colspan="7" class="px-4 py-12 text-center text-muted-foreground text-sm">暂无用户数据</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div class="px-4 py-3 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p class="text-sm text-gray-500">
-            共 <span class="font-medium text-gray-700">{{ totalUsers }}</span> 位用户
+        <div class="px-4 py-3 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p class="text-sm text-muted-foreground">
+            共 <span class="font-medium text-foreground">{{ totalUsers }}</span> 位用户
           </p>
           <div class="flex items-center gap-1">
             <button
               @click="currentPage = Math.max(1, currentPage - 1)"
               :disabled="currentPage === 1"
-              class="p-2 rounded-sm border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="p-2 rounded-sm border border-border hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
               <Icon name="chevron-left" :size="16" aria-hidden="true" />
             </button>
@@ -136,7 +136,7 @@
                 'w-8 h-8 text-sm rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
                 currentPage === page
                   ? 'bg-primary-500 text-white hover:bg-primary-600'
-                  : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                  : 'border border-border text-muted-foreground hover:bg-muted'
               ]"
             >
               {{ page }}
@@ -144,7 +144,7 @@
             <button
               @click="currentPage = Math.min(totalPages, currentPage + 1)"
               :disabled="currentPage === totalPages"
-              class="p-2 rounded-sm border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="p-2 rounded-sm border border-border hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             >
               <Icon name="chevron-right" :size="16" aria-hidden="true" />
             </button>
@@ -159,39 +159,39 @@
       class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
       @click.self="closeModal"
     >
-      <div class="bg-white rounded-xl w-full max-w-md shadow-xl animate-dropdown">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h3 class="text-lg font-semibold text-gray-800">{{ editingId ? '编辑用户' : '新增用户' }}</h3>
+      <div class="bg-card rounded-xl w-full max-w-md shadow-xl animate-dropdown">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+          <h3 class="text-lg font-semibold text-foreground">{{ editingId ? '编辑用户' : '新增用户' }}</h3>
           <button class="p-1 hover:bg-gray-100 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" aria-label="关闭" @click="closeModal">
             <Icon name="x" :size="20" aria-hidden="true" />
           </button>
         </div>
         <div class="px-6 py-4 space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">用户名</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">用户名</label>
             <Input v-model="form.username" placeholder="请输入用户名" :disabled="!!editingId" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">邮箱</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">邮箱</label>
             <Input v-model="form.email" placeholder="请输入邮箱" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">昵称</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">昵称</label>
             <Input v-model="form.nickname" placeholder="请输入昵称" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">角色</label>
-            <select v-model="form.role" class="w-full px-3 py-2 border border-gray-200 rounded-sm text-sm hover:border-gray-300 transition-colors focus:outline-none focus:border-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2">
+            <label class="block text-sm font-medium text-foreground mb-1.5">角色</label>
+            <select v-model="form.role" class="w-full px-3 py-2 border border-border rounded-sm text-sm hover:border-border transition-colors focus:outline-none focus:border-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2">
               <option value="USER">普通用户</option>
               <option value="ADMIN">管理员</option>
             </select>
           </div>
           <div v-if="!editingId">
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">密码</label>
+            <label class="block text-sm font-medium text-foreground mb-1.5">密码</label>
             <Input v-model="form.password" type="password" placeholder="请输入初始密码" />
           </div>
         </div>
-        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100">
+        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
           <Button variant="secondary" @click="closeModal">取消</Button>
           <Button :disabled="saving" @click="save">{{ saving ? '保存中...' : '保存' }}</Button>
         </div>

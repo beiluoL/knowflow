@@ -1,7 +1,7 @@
 <template>
   <div class="w-full">
     <!-- 回复 / 编辑模式的上下文提示 -->
-    <div v-if="contextLabel" class="flex items-center gap-1.5 mb-1.5 text-[12px] text-gray-500">
+    <div v-if="contextLabel" class="flex items-center gap-1.5 mb-1.5 text-[12px] text-muted-foreground">
       <Icon :name="mode === 'edit' ? 'pencil' : 'message-circle'" :size="12" />
       <span>{{ contextLabel }}</span>
     </div>
@@ -15,7 +15,7 @@
         :placeholder="placeholder"
         :disabled="submitting"
         class="flex-1 px-3 py-2 rounded-lg border text-sm resize-none transition-colors focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
-        :class="overLimit ? 'border-danger-400 focus:border-danger-500' : 'border-gray-200 hover:border-gray-300 focus:border-primary-400'"
+        :class="overLimit ? 'border-danger-400 focus:border-danger-500' : 'border-border hover:border-border focus:border-primary-400'"
         @keydown.ctrl.enter.prevent="handleSubmit"
         @keydown.meta.enter.prevent="handleSubmit"
         @keydown.esc="handleCancel"
@@ -26,7 +26,7 @@
           v-if="cancelable"
           type="button"
           :disabled="submitting"
-          class="px-3 py-2 rounded-lg text-sm font-medium text-gray-600 border border-gray-200 transition-colors hover:bg-gray-50 active:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 disabled:opacity-50"
+          class="px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground border border-border transition-colors hover:bg-muted active:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 disabled:opacity-50"
           @click="handleCancel"
         >取消</button>
         <button
@@ -39,8 +39,8 @@
     </div>
 
     <div class="flex items-center justify-between mt-1.5">
-      <span class="text-[12px] text-gray-400">Ctrl / ⌘ + Enter 快捷发送</span>
-      <span class="text-[12px] tabular-nums" :class="overLimit ? 'text-danger-500' : 'text-gray-400'">
+      <span class="text-[12px] text-muted-foreground">Ctrl / ⌘ + Enter 快捷发送</span>
+      <span class="text-[12px] tabular-nums" :class="overLimit ? 'text-danger-500' : 'text-muted-foreground'">
         {{ text.length }} / {{ maxLength }}
       </span>
     </div>

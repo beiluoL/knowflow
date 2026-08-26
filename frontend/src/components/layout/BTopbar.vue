@@ -7,16 +7,16 @@
     <div class="flex items-center gap-3 flex-1 min-w-0 max-w-md">
       <button
         type="button"
-        class="w-9 h-9 rounded-lg flex items-center justify-center border transition-colors hover:bg-gray-50 lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+        class="w-9 h-9 rounded-lg flex items-center justify-center border transition-colors hover:bg-muted lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         style="border-color: var(--kb-border);"
         @click="$emit('toggle-sidebar')"
         aria-label="切换侧边栏"
       >
-        <Icon name="menu" :size="18" class="text-gray-600" aria-hidden="true" />
+        <Icon name="menu" :size="18" class="text-muted-foreground" aria-hidden="true" />
       </button>
 
       <div class="relative flex-1 min-w-0">
-        <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true" />
+        <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
         <input
           v-model="searchQuery"
           type="text"
@@ -32,7 +32,7 @@
     <div class="flex items-center gap-4 shrink-0 ml-4 sm:ml-6">
       <button
         type="button"
-        class="relative p-2 rounded-lg transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+        class="relative p-2 rounded-lg transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
         style="color: var(--kb-sidebar-foreground);"
         @click="toggleNotifications"
         :aria-label="`消息通知，${unreadCount} 条未读`"
@@ -51,10 +51,10 @@
           style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
         >{{ initials }}</div>
         <div class="hidden sm:block min-w-0">
-          <p class="text-[13px] font-medium truncate text-gray-800">{{ displayName }}</p>
-          <p class="text-[11px] truncate text-gray-500">{{ roleLabel }}</p>
+          <p class="text-[13px] font-medium truncate text-foreground">{{ displayName }}</p>
+          <p class="text-[11px] truncate text-muted-foreground">{{ roleLabel }}</p>
         </div>
-        <Icon name="chevron-down" :size="14" class="text-gray-400 hidden sm:block" aria-hidden="true" />
+        <Icon name="chevron-down" :size="14" class="text-muted-foreground hidden sm:block" aria-hidden="true" />
       </div>
     </div>
 
@@ -66,7 +66,7 @@
       style="background: var(--kb-card); border-color: var(--kb-border);"
     >
       <div class="flex items-center justify-between px-4 py-3 border-b" style="border-color: var(--kb-border);">
-        <h3 class="font-semibold text-gray-800 text-sm">通知</h3>
+        <h3 class="font-semibold text-foreground text-sm">通知</h3>
         <button
           v-if="unreadCount > 0"
           type="button"
@@ -78,7 +78,7 @@
         <div
           v-for="notification in notificationStore.unreadList.slice(0, 5)"
           :key="notification.id"
-          class="px-4 py-3 hover:bg-gray-50 border-b cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="px-4 py-3 hover:bg-muted border-b cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
           style="border-color: var(--kb-muted);"
           role="button"
           tabindex="0"
@@ -90,13 +90,13 @@
               <Icon :name="getNotifIcon(notification.type)" :size="16" :class="getNotifColor(notification.type)" aria-hidden="true" />
             </div>
             <div class="flex-1 min-w-0">
-              <div class="font-medium text-gray-800 text-sm">{{ notification.title }}</div>
-              <div class="text-gray-500 text-xs mt-0.5 line-clamp-2">{{ notification.content }}</div>
-              <div class="text-gray-400 text-xs mt-1">{{ formatTime(notification.createTime) }}</div>
+              <div class="font-medium text-foreground text-sm">{{ notification.title }}</div>
+              <div class="text-muted-foreground text-xs mt-0.5 line-clamp-2">{{ notification.content }}</div>
+              <div class="text-muted-foreground text-xs mt-1">{{ formatTime(notification.createTime) }}</div>
             </div>
           </div>
         </div>
-        <div v-if="notificationStore.unreadList.length === 0" class="px-4 py-8 text-center text-sm text-gray-400">
+        <div v-if="notificationStore.unreadList.length === 0" class="px-4 py-8 text-center text-sm text-muted-foreground">
           暂无未读通知
         </div>
       </div>
@@ -222,7 +222,7 @@ function getNotifColor(type: string): string {
     case 'SYSTEM': return 'text-primary-500';
     case 'LEARNING': return 'text-success-500';
     case 'COMMUNITY': return 'text-purple-500';
-    default: return 'text-gray-500';
+    default: return 'text-muted-foreground';
   }
 }
 

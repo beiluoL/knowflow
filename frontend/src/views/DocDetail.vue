@@ -1,14 +1,14 @@
 <template>
   <div class="animate-fade-in">
-    <div class="flex items-center gap-4 mb-6 pb-4 border-b border-gray-100">
+    <div class="flex items-center gap-4 mb-6 pb-4 border-b border-border">
       <button
         type="button"
-        class="w-9 h-9 shrink-0 rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
+        class="w-9 h-9 shrink-0 rounded-lg border border-border flex items-center justify-center hover:bg-muted active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
         @click="goBack"
       >
         <Icon name="arrow-left" :size="16" />
       </button>
-      <div class="flex items-center gap-2 text-sm text-gray-500 min-w-0 flex-1">
+      <div class="flex items-center gap-2 text-sm text-muted-foreground min-w-0 flex-1">
         <router-link
           to="/"
           class="shrink-0 rounded hover:text-primary-500 active:opacity-70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
@@ -21,13 +21,13 @@
           {{ doc.categoryName }}
         </router-link>
         <Icon name="chevron-right" :size="16" class="shrink-0" aria-hidden="true" />
-        <span class="text-gray-700 truncate">{{ doc.title }}</span>
+        <span class="text-foreground truncate">{{ doc.title }}</span>
       </div>
       <!-- 阅读进度胶囊（紧凑展示，不抢视觉） -->
       <div class="hidden sm:flex items-center gap-2 shrink-0">
         <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style="background: var(--kb-muted);">
           <Icon name="book-open" :size="12" class="text-primary-600" aria-hidden="true" />
-          <span class="font-medium text-gray-600 tabular-nums" style="font-size: var(--kb-fs-xs);">{{ readProgress }}%</span>
+          <span class="font-medium text-muted-foreground tabular-nums" style="font-size: var(--kb-fs-xs);">{{ readProgress }}%</span>
         </div>
       </div>
     </div>
@@ -43,7 +43,7 @@
               {{ doc.categoryName || '未分类' }}
             </span>
 
-            <h1 class="mt-3 font-bold text-gray-800 leading-tight break-words" style="text-wrap: balance; font-size: var(--kb-fs-h3);">
+            <h1 class="mt-3 font-bold text-foreground leading-tight break-words" style="text-wrap: balance; font-size: var(--kb-fs-h3);">
               {{ doc.title }}
             </h1>
 
@@ -54,8 +54,8 @@
               >
                 {{ doc.author?.charAt(0) || '知' }}
               </div>
-              <div class="flex items-center gap-1.5 text-gray-500 min-w-0 flex-wrap" style="font-size: var(--kb-fs-caption);">
-                <span class="font-medium text-gray-800 truncate">{{ doc.author || '知识库管理员' }}</span>
+              <div class="flex items-center gap-1.5 text-muted-foreground min-w-0 flex-wrap" style="font-size: var(--kb-fs-caption);">
+                <span class="font-medium text-foreground truncate">{{ doc.author || '知识库管理员' }}</span>
                 <span class="text-gray-300">·</span>
                 <span class="tabular-nums">{{ formatDate(doc.createTime) }}</span>
                 <span class="text-gray-300">·</span>
@@ -71,7 +71,7 @@
               :href="doc.fileUrl"
               target="_blank"
               rel="noopener"
-              class="mt-3 inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-50 hover:text-primary-600 active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
+              class="mt-3 inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 font-medium text-muted-foreground hover:bg-muted hover:text-primary-600 active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
               style="border-color: var(--kb-border); font-size: var(--kb-fs-caption);"
             >
               <Icon name="download" :size="14" aria-hidden="true" />
@@ -82,7 +82,7 @@
               <span
                 v-for="tag in tagList"
                 :key="tag"
-                class="shrink-0 inline-flex items-center rounded-lg px-2.5 py-1 bg-gray-100 text-gray-500"
+                class="shrink-0 inline-flex items-center rounded-lg px-2.5 py-1 bg-gray-100 text-muted-foreground"
                 style="font-size: var(--kb-fs-caption);"
               >
                 #{{ tag }}
@@ -99,7 +99,7 @@
           <!-- 文章底部操作区（阅读完后的自然操作位置） -->
           <div class="mt-8 pt-6 border-t" style="border-color: var(--kb-border);">
             <div class="flex flex-col sm:flex-row items-center gap-4">
-              <span class="text-sm text-gray-500 shrink-0 self-start sm:self-center">读完这篇文档？</span>
+              <span class="text-sm text-muted-foreground shrink-0 self-start sm:self-center">读完这篇文档？</span>
               <div class="flex min-w-0 items-center gap-2 flex-wrap justify-center">
                 <button
                   type="button"
@@ -264,17 +264,17 @@
     <div v-if="auth.isLoggedIn && (aiSummary || aiFlashcards.length > 0)" class="mt-6 space-y-4 animate-fade-in">
       <Card v-if="aiSummary">
         <template #header>
-          <h3 class="font-medium text-gray-800 flex items-center gap-2">
+          <h3 class="font-medium text-foreground flex items-center gap-2">
             <Icon name="sparkles" :size="16" class="text-primary-600" aria-hidden="true" />
             AI 内容摘要
           </h3>
         </template>
-        <p class="text-sm text-gray-700 leading-relaxed">{{ aiSummary }}</p>
+        <p class="text-sm text-foreground leading-relaxed">{{ aiSummary }}</p>
       </Card>
 
       <Card v-if="aiFlashcards.length > 0">
         <template #header>
-          <h3 class="font-medium text-gray-800 flex items-center gap-2">
+          <h3 class="font-medium text-foreground flex items-center gap-2">
             <Icon name="layers" :size="16" class="text-primary-600" aria-hidden="true" />
             AI 生成的复习闪卡（<span class="tabular-nums">{{ aiFlashcards.length }}</span> 张）
           </h3>
@@ -283,10 +283,10 @@
           <div
             v-for="(card, idx) in aiFlashcards"
             :key="idx"
-            class="rounded-lg border border-gray-100 p-3 min-w-0"
+            class="rounded-lg border border-border p-3 min-w-0"
           >
-            <p class="text-sm font-medium text-gray-800">Q：{{ card.front }}</p>
-            <p class="text-sm text-gray-600 mt-1">A：{{ card.back }}</p>
+            <p class="text-sm font-medium text-foreground">Q：{{ card.front }}</p>
+            <p class="text-sm text-muted-foreground mt-1">A：{{ card.back }}</p>
             <span
               v-if="card.difficulty"
               class="inline-block mt-2 px-2 py-0.5 rounded"
@@ -532,7 +532,7 @@ const difficultyClass = (d?: number) => {
   if (d === 1) return 'bg-green-50 text-green-600'
   if (d === 2) return 'bg-amber-50 text-amber-600'
   if (d === 3) return 'bg-red-50 text-red-600'
-  return 'bg-gray-100 text-gray-500'
+  return 'bg-gray-100 text-muted-foreground'
 }
 
 const goToDoc = (docId: number) => router.push(`/doc/${docId}`)

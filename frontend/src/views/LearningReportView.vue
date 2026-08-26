@@ -4,7 +4,7 @@
     <PageHeader
       title="学习报告"
       :crumbs="[{ label: '学习中心', to: '/learning/center' }, { label: '学习报告' }]"
-      title-color="text-gray-800"
+      title-color="text-foreground"
     >
       <template #actions>
         <div class="flex items-center gap-1 p-1 rounded-lg border" style="border-color: var(--kb-border); background: var(--kb-card);">
@@ -53,7 +53,7 @@
         <div
           v-for="card in overviewCards"
           :key="card.label"
-          class="border rounded-[10px] p-5 bg-white border-gray-200 report-card"
+          class="border rounded-[10px] p-5 bg-card border-border report-card"
         >
           <div class="flex items-center justify-between mb-3">
             <div class="w-9 h-9 rounded-lg flex items-center justify-center" :style="{ background: `${card.color}14` }">
@@ -69,7 +69,7 @@
       <!-- 活跃度柱状图 + 知识库掌握度 -->
       <section class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4">
         <!-- 每日学习活跃度 -->
-        <div class="lg:col-span-2 border rounded-[10px] p-5 bg-white border-gray-200">
+        <div class="lg:col-span-2 border rounded-[10px] p-5 bg-card border-border">
           <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
             <h2 class="report-h2 min-w-0">学习活跃度</h2>
             <span class="text-sm tabular-nums" style="color: var(--kb-muted-foreground);">
@@ -103,7 +103,7 @@
         </div>
 
         <!-- 知识库掌握度 -->
-        <div class="border rounded-[10px] p-5 bg-white border-gray-200">
+        <div class="border rounded-[10px] p-5 bg-card border-border">
           <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
             <h2 class="report-h2 min-w-0">知识库掌握度</h2>
             <span class="text-sm shrink-0" style="color: var(--kb-muted-foreground);">Top 5</span>
@@ -137,7 +137,7 @@
       </section>
 
       <!-- 周趋势 -->
-      <section class="mt-6 border rounded-[10px] p-5 bg-white border-gray-200">
+      <section class="mt-6 border rounded-[10px] p-5 bg-card border-border">
         <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
           <h2 class="report-h2 min-w-0">周趋势</h2>
           <div class="flex items-center flex-wrap gap-x-4 gap-y-2 text-sm">
@@ -184,7 +184,7 @@
 
       <!-- 详细数据汇总 -->
       <section class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="border rounded-[10px] p-5 bg-white border-gray-200">
+        <div class="border rounded-[10px] p-5 bg-card border-border">
           <h3 class="report-h3 mb-3">闪卡 & 错题</h3>
           <dl class="space-y-2 text-sm">
             <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">闪卡复习次数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-foreground);">{{ report.flashcardReviewed }}</dd></div>
@@ -193,7 +193,7 @@
             <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">已掌握错题</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-accent);">{{ report.mistakeMastered }}</dd></div>
           </dl>
         </div>
-        <div class="border rounded-[10px] p-5 bg-white border-gray-200">
+        <div class="border rounded-[10px] p-5 bg-card border-border">
           <h3 class="report-h3 mb-3">代码 & 测验</h3>
           <dl class="space-y-2 text-sm">
             <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">代码提交次数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-foreground);">{{ report.codeSubmissions }}</dd></div>
@@ -202,7 +202,7 @@
             <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">测验答对数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-accent);">{{ report.quizCorrect }}</dd></div>
           </dl>
         </div>
-        <div class="border rounded-[10px] p-5 bg-white border-gray-200">
+        <div class="border rounded-[10px] p-5 bg-card border-border">
           <h3 class="report-h3 mb-3">阅读 & 学习时长</h3>
           <dl class="space-y-2 text-sm">
             <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">阅读文档数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-foreground);">{{ report.docsRead }}</dd></div>

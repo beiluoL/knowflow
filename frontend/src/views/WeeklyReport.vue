@@ -88,27 +88,30 @@
 
           <!-- 统计 -->
           <div class="wr-stats">
-            <div class="wr-stat">
-              <div class="wr-stat-icon" style="background: color-mix(in srgb, var(--kb-primary) 10%, transparent); color: var(--kb-primary);">
-                <Icon name="clock" :size="18" />
-              </div>
-              <div class="wr-stat-num tabular-nums">{{ currentReport.studyMinutes }}</div>
-              <div class="wr-stat-label">学习分钟</div>
-            </div>
-            <div class="wr-stat">
-              <div class="wr-stat-icon" style="background: color-mix(in srgb, var(--kb-accent) 10%, transparent); color: var(--kb-accent);">
-                <Icon name="check-circle" :size="18" />
-              </div>
-              <div class="wr-stat-num tabular-nums">{{ currentReport.checkinDays }}</div>
-              <div class="wr-stat-label">打卡天数</div>
-            </div>
-            <div class="wr-stat">
-              <div class="wr-stat-icon" style="background: color-mix(in srgb, var(--kb-warning) 10%, transparent); color: var(--kb-warning);">
-                <Icon name="layers" :size="18" />
-              </div>
-              <div class="wr-stat-num tabular-nums">{{ currentReport.flashcardReviewed }}</div>
-              <div class="wr-stat-label">复习闪卡</div>
-            </div>
+            <StatCard
+              icon="clock"
+              icon-color="var(--kb-primary)"
+              icon-bg="color-mix(in srgb, var(--kb-primary) 10%, transparent)"
+              :icon-size="18"
+              :value="currentReport.studyMinutes"
+              label="学习分钟"
+            />
+            <StatCard
+              icon="check-circle"
+              icon-color="var(--kb-accent)"
+              icon-bg="color-mix(in srgb, var(--kb-accent) 10%, transparent)"
+              :icon-size="18"
+              :value="currentReport.checkinDays"
+              label="打卡天数"
+            />
+            <StatCard
+              icon="layers"
+              icon-color="var(--kb-warning)"
+              icon-bg="color-mix(in srgb, var(--kb-warning) 10%, transparent)"
+              :icon-size="18"
+              :value="currentReport.flashcardReviewed"
+              label="复习闪卡"
+            />
           </div>
 
           <!-- A. 本周专注模式分布（stacked bar） -->
@@ -340,6 +343,7 @@
 import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
+import StatCard from '@/components/ui/StatCard.vue';
 import { learningApi } from '@/api';
 import { notify, getApiError } from '@/utils/toast';
 import { renderMarkdown } from '@/utils/markdown';
@@ -933,41 +937,6 @@ onMounted(() => {
   .wr-stats {
     grid-template-columns: 1fr;
   }
-}
-
-.wr-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 16px 12px;
-  border-radius: 12px;
-  background: var(--kb-background);
-  border: 1px solid var(--kb-border);
-}
-
-.wr-stat-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--kb-radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.wr-stat-num {
-  font-size: var(--kb-fs-h3);
-  font-weight: 700;
-  color: var(--kb-foreground);
-  line-height: 1;
-}
-
-.wr-stat-label {
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
-  color: var(--kb-muted-foreground);
-  text-align: center;
 }
 
 /* ========== 内容块 ========== */
