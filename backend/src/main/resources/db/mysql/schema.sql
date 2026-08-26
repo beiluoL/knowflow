@@ -1441,3 +1441,24 @@ CREATE TABLE IF NOT EXISTS task_tag_rel (
 CREATE UNIQUE INDEX uk_ttr_task_tag ON task_tag_rel (task_id, tag_id);
 CREATE INDEX idx_ttr_task ON task_tag_rel (task_id);
 CREATE INDEX idx_ttr_tag ON task_tag_rel (tag_id);
+
+-- ============================================================
+-- 学习计划表：AI 编排生成的日级计划，关联任务/习惯/学习任务
+-- F3 学习计划智能编排（P2·体系打通）
+-- ============================================================
+CREATE TABLE IF NOT EXISTS learning_plan (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    plan_date DATE NOT NULL COMMENT '计划日期',
+    learning_task_ids LONGTEXT COMMENT '学习任务IDs(JSON数组)',
+    habit_ids LONGTEXT COMMENT '习惯IDs(JSON数组)',
+    todo_ids LONGTEXT COMMENT '待办任务IDs(JSON数组)',
+    time_blocks LONGTEXT COMMENT '时间块安排(JSON数组，PlanBlockVO[]序列化)',
+    completed_ratio DECIMAL(5,2) DEFAULT 0 COMMENT '完成率(%)',
+    status TINYINT DEFAULT 0 COMMENT '状态：0 草稿 / 1 已生成 / 2 已完成',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+    UNIQUE KEY uk_lp_user_date (user_id, plan_date, deleted),
+    KEY idx_lp_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -1875,3 +1875,54 @@ export interface WbRecallSessionPayload {
   /** 本轮默写内容 */
   text?: string
 }
+
+// ============================================================
+// F3 · 学习计划智能编排（LearningPlanController）
+// 与后端 LearningPlanVO / PlanBlockVO / PlanItemVO 字段一一对应
+// ============================================================
+
+export type PlanItemType = 'learningTask' | 'todo' | 'habit'
+
+export interface PlanItemVO {
+  type: PlanItemType
+  learningTaskId?: number
+  chapterId?: number
+  taskId?: number
+  habitId?: number
+  title: string
+  duration?: number
+  startTime?: string
+  endTime?: string
+  completed?: boolean
+}
+
+export interface PlanBlockVO {
+  timeSlot: 'morning' | 'afternoon' | 'evening'
+  label?: string
+  startTime?: string
+  endTime?: string
+  items: PlanItemVO[]
+}
+
+export interface LearningPlanVO {
+  planId?: number
+  /** 日期 YYYY-MM-DD（后端 LocalDate 序列化为 ISO 字符串） */
+  date: string
+  completedRatio?: number
+  /** 状态 0 草稿 / 1 已生成 / 2 已完成 */
+  status?: number
+  totalItems?: number
+  completedItems?: number
+  blocks: PlanBlockVO[]
+}
+
+export interface PlanGenerateParams {
+  startDate?: string
+  days?: number
+  force?: boolean
+}
+
+export interface PlanGenerateResult {
+  generatedDays: number
+}
+

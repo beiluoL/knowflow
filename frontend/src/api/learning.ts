@@ -16,6 +16,9 @@ import type {
   PersonalizedPathVO,
   ChapterDagVO,
   LearningCertificateVO,
+  LearningPlanVO,
+  PlanGenerateParams,
+  PlanGenerateResult,
 } from './types'
 
 export const learningApi = {
@@ -110,4 +113,41 @@ export const learningApi = {
   /** 按验证码验证证书（可匿名核验真伪） */
   verifyCertificate: (certNo: string) =>
     apiGet<LearningCertificateVO>(`/learning/certificates/verify?certNo=${encodeURIComponent(certNo)}`),
+
+  // ============================================================
+  // F3 · 学习计划智能编排
+  // ============================================================
+  /** 今日计划（懒生成：首次调用会自动生成当日计划） */
+  getTodayPlan: () => apiGet<LearningPlanVO>('/learning/plan/today'),
+  /** 生成范围计划（默认下一周 7 天） */
+  generatePlan: (params?: PlanGenerateParams) =>
+    apiPost<PlanGenerateResult>('/learning/plan/generate', params ?? {}),
+  /** 导出日历（.ics 文件下载，不走 apiGet 拦截器，避开 Result 解包） */
+  async exportCalendar(params?: { date?: string; range?: number }) {
+    const query = new URLSearchParams()
+    if (params?.date) query.set('date', params.date)
+    if (params?.range != null) query.set('range', String(params.range))
+    const q = query.toString() ? `?${query.toString()}` : ''
+    const res = await fetch(`/api/learning/plan/calendar.ics${q}`, {
+      headers: (() => {
+        const h: Record<string, string> = {}
+        const token = localStorage.getItem('token')
+        if (token) h.Authorization = `Bearer ${token}`
+        return h
+      })(),
+    })
+    if (!res.ok) {
+      const text = await res.text().catch(() => '')
+      throw new Error(`日历导出失败：${res.status} ${text || res.statusText}`)
+    }
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'knowflow-plan.ics'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 5000)
+  },
 }
