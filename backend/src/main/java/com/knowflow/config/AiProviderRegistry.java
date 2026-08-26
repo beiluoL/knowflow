@@ -41,40 +41,93 @@ public class AiProviderRegistry {
 
     @PostConstruct
     void init() {
-        // ===== 云端 11 个（与 Chat.vue 原 aiProviders 保持一致）=====
-        // protocol：anthropic/wenxin 走原生协议，其余 OpenAI 兼容
+        // ===== 云端 11 个 =====
         register("deepseek", "DeepSeek", "https://api.deepseek.com/v1", "deepseek-chat",
-                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "免费体验额度，超出需订阅");
-        register("siliconflow", "硅基流动", "https://api.siliconflow.cn/v1", "Qwen/Qwen2.5-7B-Instruct",
-                ProviderType.CLOUD, Capability.LIGHT, Protocol.OPENAI, false, "免费额度，超出需订阅");
-        register("bailian", "阿里云百炼", "https://dashscope.aliyuncs.com/compatible-mode/v1", "qwen-plus",
-                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "免费额度，超出需订阅");
-        register("zhipu", "智谱AI", "https://open.bigmodel.cn/api/paas/v4", "glm-4",
-                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "免费额度，超出需订阅");
-        register("moonshot", "月之暗面", "https://api.moonshot.cn/v1", "moonshot-v1-8k",
-                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "需付费");
-        register("doubao", "字节豆包", "https://ark.cn-beijing.volces.com/api/v3", "doubao-pro-32k",
-                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "需付费");
-        register("hunyuan", "腾讯混元", "https://api.hunyuan.cloud.tencent.com/v1", "hunyuan-pro",
-                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "需付费");
-        register("wenxin", "百度文心", "https://qianfan.baidubce.com/v2", "ernie-4.0-8k",
-                ProviderType.CLOUD, Capability.STANDARD, Protocol.QIANFAN, false, "需付费");
-        register("openai", "OpenAI", "https://api.openai.com/v1", "gpt-4o",
-                ProviderType.CLOUD, Capability.POWERFUL, Protocol.OPENAI, true, "需要订阅，按量计费");
-        register("anthropic", "Anthropic", "https://api.anthropic.com/v1", "claude-3-5-sonnet-20241022",
-                ProviderType.CLOUD, Capability.POWERFUL, Protocol.ANTHROPIC, true, "需要订阅，按量计费");
-        register("custom", "自定义（云端）", "", "",
-                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "用户自定义接口地址");
+                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "免费体验额度，超出需订阅", true,
+                "https://platform.deepseek.com",
+                new String[]{"访问 platform.deepseek.com 注册账号", "完成实名认证", "进入「API Keys」页面", "点击「创建 API Key」，复制密钥"},
+                new String[]{"deepseek-chat", "deepseek-reasoner"});
 
-        // ===== 本地 4 类（OpenAI 兼容协议）=====
+        register("siliconflow", "硅基流动", "https://api.siliconflow.cn/v1", "Qwen/Qwen2.5-7B-Instruct",
+                ProviderType.CLOUD, Capability.LIGHT, Protocol.OPENAI, false, "免费额度，超出需订阅", true,
+                "https://cloud.siliconflow.cn",
+                new String[]{"访问 cloud.siliconflow.cn 注册账号", "完成手机号绑定", "进入「API 密钥」页面", "点击「新建 API 密钥」，复制密钥"},
+                new String[]{"Qwen/Qwen2.5-7B-Instruct", "deepseek-ai/DeepSeek-V3", "Pro/deepseek-ai/DeepSeek-R1"});
+
+        register("bailian", "阿里云百炼", "https://dashscope.aliyuncs.com/compatible-mode/v1", "qwen-plus",
+                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "免费额度，超出需订阅", true,
+                "https://bailian.console.aliyun.com",
+                new String[]{"访问 bailian.console.aliyun.com 登录阿里云", "开通百炼服务", "进入「API-KEY 管理」", "创建 API Key 并复制"},
+                new String[]{"qwen-plus", "qwen-turbo", "qwen-max"});
+
+        register("zhipu", "智谱AI", "https://open.bigmodel.cn/api/paas/v4", "glm-4",
+                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "免费额度，超出需订阅", true,
+                "https://open.bigmodel.cn",
+                new String[]{"访问 open.bigmodel.cn 注册账号", "完成实名认证", "进入「API Keys」页面", "点击「添加 API Key」，复制密钥"},
+                new String[]{"glm-4", "glm-4-flash", "glm-4-air"});
+
+        register("moonshot", "月之暗面", "https://api.moonshot.cn/v1", "moonshot-v1-8k",
+                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "需付费", true,
+                "https://platform.moonshot.cn",
+                new String[]{"访问 platform.moonshot.cn 注册账号", "完成实名认证", "进入「API Key 管理」", "点击「创建 API Key」，复制密钥"},
+                new String[]{"moonshot-v1-8k", "moonshot-v1-32k", "moonshot-v1-128k"});
+
+        register("doubao", "字节豆包", "https://ark.cn-beijing.volces.com/api/v3", "doubao-pro-32k",
+                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "需付费", true,
+                "https://www.volcengine.com/product/doubao",
+                new String[]{"访问 volcengine.com 注册火山引擎账号", "开通豆包大模型服务", "进入「API Key」管理页", "创建 API Key 并复制"},
+                new String[]{"doubao-pro-32k", "doubao-pro-128k", "doubao-lite-32k"});
+
+        register("hunyuan", "腾讯混元", "https://api.hunyuan.cloud.tencent.com/v1", "hunyuan-pro",
+                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "需付费", true,
+                "https://cloud.tencent.com/product/hunyuan",
+                new String[]{"访问 cloud.tencent.com 注册腾讯云账号", "开通混元大模型服务", "进入「API Key 管理」", "创建 API Key 并复制"},
+                new String[]{"hunyuan-pro", "hunyuan-standard", "hunyuan-lite"});
+
+        register("wenxin", "百度文心", "https://qianfan.baidubce.com/v2", "ernie-4.0-8k",
+                ProviderType.CLOUD, Capability.STANDARD, Protocol.QIANFAN, false, "需付费", true,
+                "https://qianfan.cloud.baidu.com",
+                new String[]{"访问 qianfan.cloud.baidu.com 登录百度智能云", "开通千帆大模型平台", "进入「应用管理」创建应用", "获取 API Key 和 Secret Key"},
+                new String[]{"ernie-4.0-8k", "ernie-3.5-8k", "ernie-speed-8k"});
+
+        register("openai", "OpenAI", "https://api.openai.com/v1", "gpt-4o",
+                ProviderType.CLOUD, Capability.POWERFUL, Protocol.OPENAI, true, "需要订阅，按量计费", true,
+                "https://platform.openai.com",
+                new String[]{"访问 platform.openai.com 注册账号", "绑定信用卡（需海外卡）", "进入「API Keys」页面", "点击「Create new secret key」，复制密钥"},
+                new String[]{"gpt-4o", "gpt-4o-mini", "gpt-4-turbo"});
+
+        register("anthropic", "Anthropic", "https://api.anthropic.com/v1", "claude-3-5-sonnet-20241022",
+                ProviderType.CLOUD, Capability.POWERFUL, Protocol.ANTHROPIC, true, "需要订阅，按量计费", true,
+                "https://console.anthropic.com",
+                new String[]{"访问 console.anthropic.com 注册账号", "绑定信用卡", "进入「API Keys」页面", "点击「Create Key」，复制密钥"},
+                new String[]{"claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022", "claude-3-opus-20240229"});
+
+        register("custom", "自定义（云端）", "", "",
+                ProviderType.CLOUD, Capability.STANDARD, Protocol.OPENAI, false, "用户自定义接口地址", true,
+                null, null, null);
+
+        // ===== 本地 4 类 =====
         register("ollama", "Ollama（本地）", "http://localhost:11434/v1", "llama3.1",
-                ProviderType.LOCAL, Capability.LIGHT, Protocol.OPENAI, false, "本地部署，免费", false);
+                ProviderType.LOCAL, Capability.LIGHT, Protocol.OPENAI, false, "本地部署，免费", false,
+                "https://ollama.com",
+                new String[]{"安装 Ollama：ollama.com 下载", "拉取模型：ollama pull llama3.1", "启动服务后自动可用", "API Key 固定为 local"},
+                new String[]{"llama3.1", "qwen2.5:7b", "deepseek-r1:8b"});
+
         register("vllm", "vLLM（本地）", "http://localhost:8000/v1", "Qwen/Qwen2.5-7B-Instruct",
-                ProviderType.LOCAL, Capability.STANDARD, Protocol.OPENAI, false, "本地部署，免费", false);
+                ProviderType.LOCAL, Capability.STANDARD, Protocol.OPENAI, false, "本地部署，免费", false,
+                "https://docs.vllm.ai",
+                new String[]{"pip install vllm", "启动：vllm serve --model Qwen/Qwen2.5-7B-Instruct", "默认监听 localhost:8000", "API Key 固定为 local"},
+                new String[]{"Qwen/Qwen2.5-7B-Instruct", "meta-llama/Llama-3.1-8B-Instruct"});
+
         register("localai", "LocalAI（本地）", "http://localhost:8080/v1", "gpt-3.5-turbo",
-                ProviderType.LOCAL, Capability.LIGHT, Protocol.OPENAI, false, "本地部署，免费", false);
+                ProviderType.LOCAL, Capability.LIGHT, Protocol.OPENAI, false, "本地部署，免费", false,
+                "https://localai.io",
+                new String[]{"Docker 部署：docker run localai/localai", "通过 WebUI 拉取模型", "启动后默认监听 8080", "API Key 固定为 local"},
+                new String[]{"gpt-3.5-turbo", "llama3.1"});
+
         register("custom-local", "自定义（本地）", "", "",
-                ProviderType.LOCAL, Capability.STANDARD, Protocol.OPENAI, false, "用户自定义本地接口地址", false);
+                ProviderType.LOCAL, Capability.STANDARD, Protocol.OPENAI, false, "用户自定义本地接口地址", false,
+                null, null, null);
     }
 
     private void register(String id, String label, String baseUrl, String defaultModel,
@@ -87,6 +140,14 @@ public class AiProviderRegistry {
     private void register(String id, String label, String baseUrl, String defaultModel,
                           ProviderType type, Capability capability, Protocol protocol,
                           boolean subscriptionRequired, String priceInfo, boolean supportsTools) {
+        register(id, label, baseUrl, defaultModel, type, capability, protocol,
+                subscriptionRequired, priceInfo, supportsTools, null, null, null);
+    }
+
+    private void register(String id, String label, String baseUrl, String defaultModel,
+                          ProviderType type, Capability capability, Protocol protocol,
+                          boolean subscriptionRequired, String priceInfo, boolean supportsTools,
+                          String websiteUrl, String[] keyGuide, String[] popularModels) {
         ProviderInfo info = new ProviderInfo();
         info.setProvider(id);
         info.setLabel(label);
@@ -98,6 +159,9 @@ public class AiProviderRegistry {
         info.setSubscriptionRequired(subscriptionRequired);
         info.setPriceInfo(priceInfo);
         info.setSupportsTools(supportsTools);
+        info.setWebsiteUrl(websiteUrl);
+        info.setKeyGuide(keyGuide);
+        info.setPopularModels(popularModels);
         builtins.add(info);
         index.put(id, info);
     }
@@ -166,12 +230,13 @@ public class AiProviderRegistry {
         private Protocol protocol;
         private boolean subscriptionRequired;
         private String priceInfo;
-        /**
-         * 是否支持 Function Calling / tools 参数。
-         * 本地推理服务默认 false（具体模型是否支持取决于模型本身，如 deepseek-coder:6.7b 不支持，
-         * 直接下发 tools 会触发 400 Bad Request），云端 OpenAI 兼容厂商默认 true。
-         */
         private boolean supportsTools = true;
+        /** 官网地址 */
+        private String websiteUrl;
+        /** API Key 获取引导（步骤数组） */
+        private String[] keyGuide;
+        /** 推荐模型列表 */
+        private String[] popularModels;
     }
 
     /**

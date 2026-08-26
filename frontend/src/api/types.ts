@@ -748,12 +748,22 @@ export interface PlatformModelVO {
   model: string
   subscriptionRequired: boolean
   priceInfo: string
-  /** CLOUD / LOCAL */
   providerType?: string
-  /** LIGHT / STANDARD / POWERFUL */
   capability?: string
-  /** 默认推荐模型 */
   defaultModel?: string
+  /** 官网地址 */
+  websiteUrl?: string
+  /** API Key 获取引导步骤 */
+  keyGuide?: string[]
+  /** 推荐模型列表 */
+  popularModels?: string[]
+}
+
+export interface AiTestResult {
+  success: boolean
+  message: string
+  elapsedMs: number
+  reply?: string
 }
 
 // ===== 编程 Agent =====

@@ -58,12 +58,34 @@ public class OpenAiAdapter implements ModelAdapter {
 
         SseClient.stream(url, request.apiKey, body, objectMapper, new SseClient.Handler() {
             @Override
-            public void onData(JsonNode delta) {
+            public void onData(JsonNode frame) {
+                // SSE 帧结构：{"choices":[{"delta":{"content":"...","role":"assistant"},"finish_reason":null}]}
+                JsonNode choices = frame.get("choices");
+                if (choices == null || !choices.isArray() || choices.isEmpty()) {
+                    // 兼容直接返回 content 的非标准协议
+                    JsonNode direct = frame.get("content");
+                    if (direct != null && !direct.isNull()) {
+                        String text = direct.asText();
+                        if (!text.isEmpty()) {
+                            full.append(text);
+                            onToken.accept(new TokenDelta(text));
+                        }
+                    }
+                    return;
+                }
+                JsonNode choice0 = choices.get(0);
+                JsonNode delta = choice0.get("delta");
+                if (delta == null || delta.isNull()) {
+                    // finish_reason 帧无 delta，跳过
+                    return;
+                }
                 JsonNode content = delta.get("content");
                 if (content != null && !content.isNull()) {
                     String text = content.asText();
-                    full.append(text);
-                    onToken.accept(new TokenDelta(text));
+                    if (!text.isEmpty()) {
+                        full.append(text);
+                        onToken.accept(new TokenDelta(text));
+                    }
                 }
                 JsonNode toolNodes = delta.get("tool_calls");
                 if (toolNodes != null && toolNodes.isArray()) {

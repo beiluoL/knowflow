@@ -84,6 +84,9 @@ public class SecurityConfig {
                         ).permitAll()
                         // WebSocket 握手由 WebSocketAuthInterceptor 用 token 参数鉴权
                         .requestMatchers("/ws/**").permitAll()
+                        // SSE 流式对话：JwtAuthenticationFilter 仍解析 token 设置 Authentication，
+                        // permitAll 避免 SseEmitter 异步分发时 SecurityContext 丢失导致 AccessDeniedException
+                        .requestMatchers("/api/chat/stream").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // H2 控制台与 API 文档仅限管理员（生产已关闭 H2 控制台，本地开发由 ADMIN 账号访问）
                         .requestMatchers(

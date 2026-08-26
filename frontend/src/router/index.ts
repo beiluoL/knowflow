@@ -245,6 +245,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/RedBlackTree.vue'),
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
+  // F3：今日计划（AI 智能编排：学习任务+Todo+习惯 → 早/午/晚三段）
+  {
+    path: '/learning/today-plan',
+    name: 'TodayPlan',
+    component: () => import('@/views/TodayPlan.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
   // 学习报告独立页面
   {
     path: '/learning/report',

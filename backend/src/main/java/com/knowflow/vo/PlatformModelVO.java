@@ -14,10 +14,13 @@ public class PlatformModelVO {
     private String model;
     private boolean subscriptionRequired;
     private String priceInfo;
-    /** CLOUD / LOCAL。 */
     private String providerType;
-    /** LIGHT / STANDARD / POWERFUL。 */
     private String capability;
-    /** 默认推荐模型。 */
     private String defaultModel;
+    /** 官网地址 */
+    private String websiteUrl;
+    /** API Key 获取引导步骤 */
+    private String[] keyGuide;
+    /** 推荐模型列表 */
+    private String[] popularModels;
 }

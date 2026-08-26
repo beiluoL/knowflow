@@ -387,19 +387,23 @@
     </div>
 
     <!-- 右侧悬浮：本次对话提问目录 -->
-    <div
-      class="chat-history-rail"
-      @mouseenter="historyHovered = true"
-      @mouseleave="historyHovered = false"
-    >
-      <!-- 收起态：横向窄条 -->
-      <div v-if="!historyHovered" class="history-rail-collapsed">
+    <div class="chat-history-rail">
+      <!-- 收起态：横向窄条（hover 时展开） -->
+      <div
+        v-if="!historyHovered"
+        class="history-rail-collapsed"
+        @mouseenter="historyHovered = true"
+      >
         <Icon name="list" :size="14" style="color: var(--kb-muted-foreground);" />
         <span class="history-count">{{ userQuestions.length }}</span>
       </div>
 
-      <!-- 展开态：提问列表 -->
-      <div v-else class="history-rail-expanded">
+      <!-- 展开态：提问列表（mouseleave 时收起） -->
+      <div
+        v-else
+        class="history-rail-expanded"
+        @mouseleave="historyHovered = false"
+      >
         <div class="flex items-center justify-between px-4 py-3 border-b" style="border-color: var(--kb-border);">
           <span class="text-sm font-medium flex items-center gap-2" style="color: var(--kb-foreground);">
             <Icon name="list" :size="14" style="color: var(--kb-primary);" />
@@ -1972,6 +1976,8 @@ onUnmounted(() => {
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
+  /* 关键：容器本身不接收鼠标事件，仅子元素（收起条/展开面板）响应 hover */
+  pointer-events: none;
 }
 
 /* 收起态：横向窄条 */
@@ -1988,6 +1994,8 @@ onUnmounted(() => {
   background: var(--kb-card);
   transition: border-color 0.2s, background 0.2s;
   height: fit-content;
+  /* 子元素恢复接收鼠标事件 */
+  pointer-events: auto;
 }
 .history-rail-collapsed:hover {
   background: rgba(59, 111, 224, 0.06);
@@ -2009,6 +2017,8 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   animation: history-slide-in 0.2s ease-out;
+  /* 展开面板恢复接收鼠标事件 */
+  pointer-events: auto;
 }
 
 @keyframes history-slide-in {

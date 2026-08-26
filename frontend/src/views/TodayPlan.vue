@@ -86,11 +86,13 @@
           class="today-plan-progress-card"
           layout="horizontal"
           icon="target"
-          variant="primary"
-          title="今日完成度"
-          :value="displayRatio + '%'"
-          :subtitle="`已完成 ${plan?.completedItems ?? 0} / ${plan?.totalItems ?? 0} 项`"
+          label="今日完成度"
+          :value="displayRatio"
+          unit="%"
         >
+          <div class="today-plan-subhint">
+            已完成 {{ plan?.completedItems ?? 0 }} / {{ plan?.totalItems ?? 0 }} 项
+          </div>
           <Progress
             :percentage="displayRatio"
             variant="primary"
@@ -198,7 +200,7 @@ import StatCard from '@/components/ui/StatCard.vue'
 import { learningApi } from '@/api/learning'
 import { setTaskStatus } from '@/api/task'
 import { habitApi } from '@/api/habit'
-import { showToast } from '@/utils/toast'
+import { notify, getApiError } from '@/utils/toast'
 import type { LearningPlanVO, PlanBlockVO, PlanItemVO } from '@/api/types'
 
 const router = useRouter()
@@ -235,10 +237,10 @@ const viewStatus = computed<'loading' | 'error' | 'empty' | 'ready'>(() => {
   return 'ready'
 })
 
-// 完成度环形/线性：0~100
+// 完成度环形/线性：0~100 整数显示
 const displayRatio = computed(() => {
   const raw = plan.value?.completedRatio ?? 0
-  return Math.max(0, Math.min(100, Math.round(raw * 100) / 100))
+  return Math.max(0, Math.min(100, Math.round(raw)))
 })
 
 // -------- Helpers --------
@@ -311,8 +313,8 @@ async function loadPlan(forceToday = false) {
   try {
     const data = await learningApi.getTodayPlan()
     plan.value = data
-  } catch (e: any) {
-    error.value = e?.message ?? '加载失败'
+  } catch (e: unknown) {
+    error.value = getApiError(e, '加载失败')
   } finally {
     loading.value = false
   }
@@ -322,10 +324,10 @@ async function handleGenerateWeek() {
   generating.value = true
   try {
     const res = await learningApi.generatePlan({ force: false })
-    showToast(`已生成 ${res.generatedDays} 天计划`, 'success')
+    notify(`已生成 ${res.generatedDays} 天计划`, 'success')
     loadPlan(true)
-  } catch (e: any) {
-    showToast(e?.message ?? '生成失败', 'error')
+  } catch (e: unknown) {
+    notify(getApiError(e, '生成失败'), 'error')
   } finally {
     generating.value = false
   }
@@ -335,9 +337,9 @@ async function handleExport() {
   exporting.value = true
   try {
     await learningApi.exportCalendar({ date: todayStr, range: 7 })
-    showToast('日历已导出：knowflow-plan.ics', 'success')
-  } catch (e: any) {
-    showToast(e?.message ?? '导出失败', 'error')
+    notify('日历已导出：knowflow-plan.ics', 'success')
+  } catch (e: unknown) {
+    notify(getApiError(e, '导出失败'), 'error')
   } finally {
     exporting.value = false
   }
@@ -347,7 +349,7 @@ async function onPickDateChange() {
   if (pickDate.value === todayStr) {
     loadPlan()
   } else {
-    showToast('目前只支持查看今日计划（其它日期接口待扩展）', 'info')
+    notify('目前只支持查看今日计划（其它日期接口待扩展）', 'info')
     pickDate.value = todayStr
   }
 }
@@ -371,16 +373,16 @@ async function toggleItem(item: PlanItemVO & { _loading?: boolean }, nextValue: 
       if (!item.habitId) throw new Error('缺少 habitId')
       if (!nextValue) {
         // 习惯打卡首版不支持撤销（后端 undo API 虽有，但保持体验一致）
-        showToast('习惯打卡已记录，如需撤销请到习惯管理页面操作', 'info')
+        notify('习惯打卡已记录，如需撤销请到习惯管理页面操作', 'info')
         return
       }
       await habitApi.checkIn(item.habitId)
     }
     item.completed = nextValue
     recomputeCompleted()
-    showToast(nextValue ? '已标记完成' : '已恢复待办', 'success')
-  } catch (e: any) {
-    showToast(e?.message ?? '操作失败', 'error')
+    notify(nextValue ? '已标记完成' : '已恢复待办', 'success')
+  } catch (e: unknown) {
+    notify(getApiError(e, '操作失败'), 'error')
   } finally {
     item._loading = false
   }
@@ -455,6 +457,11 @@ watch(pickDate, (v) => {
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   gap: var(--kb-space-4);
   margin: var(--kb-space-5) 0 var(--kb-space-4);
+}
+.today-plan-subhint {
+  margin-top: var(--kb-space-2);
+  font-size: 13px;
+  color: var(--kb-muted-foreground);
 }
 .today-plan-progress-card { padding: var(--kb-space-4); }
 .today-plan-progress { margin-top: var(--kb-space-3); }

@@ -17,8 +17,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Tag(name = "AI 配置接口")
@@ -178,9 +186,118 @@ public class AiConfigController {
             vo.setPriceInfo(info.getPriceInfo());
             vo.setProviderType(info.getType().name());
             vo.setCapability(info.getCapability().name());
+            vo.setWebsiteUrl(info.getWebsiteUrl());
+            vo.setKeyGuide(info.getKeyGuide());
+            vo.setPopularModels(info.getPopularModels());
             list.add(vo);
         }
         return Result.success(list);
+    }
+
+    @Operation(summary = "测试 AI 配置连通性")
+    @PostMapping("/test")
+    public Result<Map<String, Object>> testConnection(@RequestBody Map<String, String> body,
+                                                       Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        String provider = body.get("provider");
+        String apiKey = body.get("apiKey");
+        String baseUrl = body.get("baseUrl");
+        String model = body.get("model");
+
+        // 优先用前端传入的 apiKey；若为 **** 脱敏值则从数据库取真实 key
+        if (apiKey == null || apiKey.contains("****") || apiKey.isBlank()) {
+            UserAiConfig cfg = findActive(userId);
+            if (cfg != null && provider != null && provider.equals(cfg.getProvider())) {
+                apiKey = cfg.getApiKey();
+            } else if (cfg != null) {
+                apiKey = cfg.getApiKey();
+            }
+        }
+        // 本地模型固定 key
+        AiProviderRegistry.ProviderInfo info = providerRegistry.find(provider);
+        if (info != null && info.getType() == AiProviderRegistry.ProviderType.LOCAL) {
+            apiKey = "local";
+        }
+
+        // 默认值回退
+        if (baseUrl == null || baseUrl.isBlank()) {
+            baseUrl = info != null ? info.getBaseUrl() : "";
+        }
+        if (model == null || model.isBlank()) {
+            model = info != null ? info.getDefaultModel() : "";
+        }
+
+        if (apiKey == null || apiKey.isBlank()) {
+            Map<String, Object> r = new HashMap<>();
+            r.put("success", false);
+            r.put("message", "API Key 为空，请先保存配置或输入 Key");
+            r.put("elapsedMs", 0);
+            return Result.success(r);
+        }
+
+        String url = baseUrl.endsWith("/v1") ? baseUrl + "/chat/completions" : baseUrl + "/chat/completions";
+
+        Map<String, Object> reqBody = new HashMap<>();
+        reqBody.put("model", model);
+        reqBody.put("messages", new Object[]{
+                Map.of("role", "user", "content", "Hi")
+        });
+        reqBody.put("max_tokens", 5);
+
+        long start = System.currentTimeMillis();
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper om = new com.fasterxml.jackson.databind.ObjectMapper();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofSeconds(30))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + apiKey)
+                    .POST(HttpRequest.BodyPublishers.ofString(om.writeValueAsString(reqBody)))
+                    .build();
+
+            HttpClient client = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(15))
+                    .build();
+
+            HttpResponse<String> resp = client.send(request, HttpResponse.BodyHandlers.ofString());
+            long elapsed = System.currentTimeMillis() - start;
+            Map<String, Object> r = new HashMap<>();
+            r.put("elapsedMs", elapsed);
+
+            if (resp.statusCode() >= 200 && resp.statusCode() < 300) {
+                r.put("success", true);
+                r.put("message", "连通成功，模型响应正常");
+                try {
+                    com.fasterxml.jackson.databind.JsonNode node = om.readTree(resp.body());
+                    if (node.has("choices")) {
+                        String content = node.path("choices").path(0).path("message").path("content").asText("");
+                        if (!content.isEmpty()) r.put("reply", content);
+                    }
+                } catch (Exception ignored) {}
+            } else {
+                r.put("success", false);
+                r.put("message", "HTTP " + resp.statusCode() + "：" + resp.body());
+            }
+            return Result.success(r);
+        } catch (java.net.ConnectException e) {
+            Map<String, Object> r = new HashMap<>();
+            r.put("success", false);
+            r.put("message", "连接失败：" + e.getMessage() + "（请检查接口地址是否正确）");
+            r.put("elapsedMs", System.currentTimeMillis() - start);
+            return Result.success(r);
+        } catch (java.net.SocketTimeoutException e) {
+            Map<String, Object> r = new HashMap<>();
+            r.put("success", false);
+            r.put("message", "请求超时：" + e.getMessage() + "（请检查网络或模型是否可用）");
+            r.put("elapsedMs", System.currentTimeMillis() - start);
+            return Result.success(r);
+        } catch (Exception e) {
+            Map<String, Object> r = new HashMap<>();
+            r.put("success", false);
+            r.put("message", "异常：" + e.getMessage());
+            r.put("elapsedMs", System.currentTimeMillis() - start);
+            return Result.success(r);
+        }
     }
 
     // ==================== 内部工具 ====================

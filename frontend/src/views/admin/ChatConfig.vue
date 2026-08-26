@@ -29,73 +29,151 @@
         <!-- 选择提供商 -->
         <div>
           <label class="block text-sm font-medium mb-3" style="color: var(--kb-foreground);">选择模型提供商</label>
-          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             <button
-              v-for="p in providerList"
-              :key="p.id"
+              v-for="p in platformModels"
+              :key="p.provider"
               type="button"
-              class="provider-btn p-3 rounded-lg border text-center transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="provider-btn p-3 rounded-lg border text-center transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 relative"
               :style="{
-                borderColor: form.provider === p.id ? 'var(--kb-primary)' : 'var(--kb-border)',
-                background: form.provider === p.id ? 'rgba(59,111,224,0.06)' : 'var(--kb-card)',
+                borderColor: form.provider === p.provider ? 'var(--kb-primary)' : 'var(--kb-border)',
+                background: form.provider === p.provider ? 'rgba(59,111,224,0.06)' : 'var(--kb-card)',
               }"
-              @click="selectProvider(p.id)"
+              @click="selectProvider(p.provider)"
             >
-              <div class="text-sm font-medium" :style="{ color: form.provider === p.id ? 'var(--kb-primary)' : 'var(--kb-foreground)' }">{{ p.label }}</div>
+              <div class="text-sm font-medium" :style="{ color: form.provider === p.provider ? 'var(--kb-primary)' : 'var(--kb-foreground)' }">{{ p.label }}</div>
+              <div v-if="p.providerType === 'LOCAL'" class="text-xs mt-0.5" style="color: var(--kb-muted-foreground);">本地</div>
             </button>
           </div>
         </div>
 
-        <!-- API Key -->
-        <div>
-          <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground);">
-            API Key
-            <span v-if="userConfig?.apiKeyMasked" class="ml-2 text-xs" style="color: var(--kb-muted-foreground);">当前: {{ userConfig.apiKeyMasked }}</span>
-          </label>
-          <div class="relative">
-            <input
-              v-model="form.apiKey"
-              :type="showKey ? 'text' : 'password'"
-              placeholder="输入你的 API Key"
-              class="w-full h-10 px-3 pr-10 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-              style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
-              autocomplete="off"
-            />
+        <!-- 当前选中提供商信息栏 -->
+        <div v-if="currentProviderInfo" class="p-4 rounded-lg border" style="border-color: var(--kb-border); background: var(--kb-muted);">
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center gap-4">
+              <div>
+                <span class="text-sm font-medium" style="color: var(--kb-foreground);">{{ currentProviderInfo.label }}</span>
+                <span v-if="currentProviderInfo.priceInfo" class="ml-2 text-xs" style="color: var(--kb-muted-foreground);">{{ currentProviderInfo.priceInfo }}</span>
+              </div>
+              <a
+                v-if="currentProviderInfo.websiteUrl"
+                :href="currentProviderInfo.websiteUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1 text-xs font-medium transition-colors hover:opacity-80"
+                style="color: var(--kb-primary);"
+              >
+                <Icon name="external-link" :size="14" />
+                访问官网
+              </a>
+            </div>
             <button
+              v-if="currentProviderInfo.keyGuide && currentProviderInfo.keyGuide.length > 0"
               type="button"
-              class="absolute right-2 top-1/2 -translate-y-1/2 p-1 transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-              @click="showKey = !showKey"
-              :aria-label="showKey ? '隐藏 Key' : '显示 Key'"
+              class="inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              style="border-color: var(--kb-border); color: var(--kb-primary);"
+              @click="showKeyGuide = !showKeyGuide"
             >
-              <Icon :name="showKey ? 'eye-off' : 'eye'" :size="16" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
+              <Icon name="help-circle" :size="14" />
+              {{ showKeyGuide ? '收起引导' : '如何获取 API Key？' }}
             </button>
           </div>
-          <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">Key 仅保存在服务器，不会泄露给第三方</p>
+
+          <!-- 推荐模型快速选择 -->
+          <div v-if="currentProviderInfo.popularModels && currentProviderInfo.popularModels.length > 0" class="mt-3 flex items-center gap-2 flex-wrap">
+            <span class="text-xs" style="color: var(--kb-muted-foreground);">推荐模型：</span>
+            <button
+              v-for="m in currentProviderInfo.popularModels"
+              :key="m"
+              type="button"
+              class="px-2 py-0.5 rounded text-xs border transition-colors hover:opacity-80"
+              :style="{
+                borderColor: form.model === m ? 'var(--kb-primary)' : 'var(--kb-border)',
+                color: form.model === m ? 'var(--kb-primary)' : 'var(--kb-foreground)',
+                background: form.model === m ? 'rgba(59,111,224,0.06)' : 'transparent',
+              }"
+              @click="form.model = m"
+            >{{ m }}</button>
+          </div>
         </div>
 
-        <!-- Base URL -->
-        <div>
-          <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground);">API 地址 (Base URL)</label>
-          <input
-            v-model="form.baseUrl"
-            type="text"
-            placeholder="https://api.deepseek.com/v1"
-            class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-            style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
-          />
-          <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">选择提供商后自动填充，也可自定义</p>
+        <!-- API Key 获取引导 -->
+        <div v-if="showKeyGuide && currentProviderInfo?.keyGuide" class="p-4 rounded-lg border" style="border-color: var(--kb-primary); background: rgba(59,111,224,0.04);">
+          <div class="flex items-center gap-2 mb-3">
+            <Icon name="book-open" :size="16" style="color: var(--kb-primary);" />
+            <span class="text-sm font-medium" style="color: var(--kb-primary);">API Key 获取步骤</span>
+          </div>
+          <ol class="space-y-2">
+            <li v-for="(step, idx) in currentProviderInfo.keyGuide" :key="idx" class="flex items-start gap-3">
+              <span class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" style="background: var(--kb-primary); color: var(--kb-primary-foreground);">{{ idx + 1 }}</span>
+              <span class="text-sm pt-0.5" style="color: var(--kb-foreground);">{{ step }}</span>
+            </li>
+          </ol>
+          <a
+            v-if="currentProviderInfo.websiteUrl"
+            :href="currentProviderInfo.websiteUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1 mt-3 text-xs font-medium hover:opacity-80"
+            style="color: var(--kb-primary);"
+          >
+            <Icon name="external-link" :size="14" />
+            前往 {{ currentProviderInfo.label }} 官网注册 →
+          </a>
         </div>
 
-        <!-- Model -->
-        <div>
-          <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground);">模型名称</label>
-          <input
-            v-model="form.model"
-            type="text"
-            placeholder="deepseek-chat"
-            class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-            style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
-          />
+        <!-- 表单网格：API Key + Base URL + Model -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- API Key -->
+          <div class="md:col-span-1">
+            <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground);">
+              API Key
+              <span v-if="userConfig?.apiKeyMasked" class="ml-2 text-xs" style="color: var(--kb-muted-foreground);">当前: {{ userConfig.apiKeyMasked }}</span>
+            </label>
+            <div class="relative">
+              <input
+                v-model="form.apiKey"
+                :type="showKey ? 'text' : 'password'"
+                placeholder="输入你的 API Key"
+                class="w-full h-10 px-3 pr-10 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
+                autocomplete="off"
+              />
+              <button
+                type="button"
+                class="absolute right-2 top-1/2 -translate-y-1/2 p-1 transition-colors hover:bg-gray-100"
+                @click="showKey = !showKey"
+                :aria-label="showKey ? '隐藏 Key' : '显示 Key'"
+              >
+                <Icon :name="showKey ? 'eye-off' : 'eye'" :size="16" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
+              </button>
+            </div>
+            <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">Key 仅保存在服务器</p>
+          </div>
+
+          <!-- Base URL -->
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground);">API 地址</label>
+            <input
+              v-model="form.baseUrl"
+              type="text"
+              placeholder="https://api.deepseek.com/v1"
+              class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
+            />
+          </div>
+
+          <!-- Model -->
+          <div>
+            <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground);">模型名称</label>
+            <input
+              v-model="form.model"
+              type="text"
+              placeholder="deepseek-chat"
+              class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
+            />
+          </div>
         </div>
 
         <!-- 启用开关 -->
@@ -107,7 +185,7 @@
           <button
             type="button"
             :class="[
-              'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
+              'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 hover:opacity-90',
               form.isActive ? 'bg-[var(--kb-primary)]' : 'bg-gray-200'
             ]"
             @click="form.isActive = form.isActive ? 0 : 1"
@@ -121,25 +199,61 @@
           </button>
         </div>
 
+        <!-- 连通性测试结果 -->
+        <div v-if="testResult" class="p-4 rounded-lg border" :style="{
+          borderColor: testResult.success ? 'var(--kb-accent)' : 'var(--kb-danger, #ef4444)',
+          background: testResult.success ? 'rgba(16,185,129,0.06)' : 'rgba(239,68,68,0.06)',
+        }">
+          <div class="flex items-start gap-3">
+            <Icon
+              :name="testResult.success ? 'check-circle' : 'x-circle'"
+              :size="20"
+              :style="{ color: testResult.success ? 'var(--kb-accent)' : 'var(--kb-danger, #ef4444)' }"
+            />
+            <div class="flex-1">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium" :style="{ color: testResult.success ? 'var(--kb-accent)' : 'var(--kb-danger, #ef4444)' }">
+                  {{ testResult.success ? '连通成功' : '连通失败' }}
+                </span>
+                <span class="text-xs" style="color: var(--kb-muted-foreground);">耗时 {{ testResult.elapsedMs }}ms</span>
+              </div>
+              <p class="text-sm mt-1" style="color: var(--kb-foreground);">{{ testResult.message }}</p>
+              <p v-if="testResult.reply" class="text-xs mt-1" style="color: var(--kb-muted-foreground);">模型回复：{{ testResult.reply }}</p>
+            </div>
+          </div>
+        </div>
+
         <!-- 操作按钮 -->
-        <div class="flex items-center justify-end gap-3">
+        <div class="flex items-center justify-between gap-3">
           <button
-            v-if="userConfig"
             type="button"
-            class="px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+            :disabled="testing"
+            class="inline-flex items-center gap-2 px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             style="border-color: var(--kb-border); color: var(--kb-foreground);"
-            @click="handleDelete"
+            @click="handleTest"
           >
-            删除配置
+            <Icon :name="testing ? 'loader' : 'zap'" :size="16" :class="testing ? 'animate-spin' : ''" style="color: var(--kb-primary);" />
+            {{ testing ? '测试中...' : '测试连通性' }}
           </button>
-          <button
-            type="button"
-            class="px-4 h-9 rounded-lg text-sm font-medium transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-            style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
-            @click="handleSave"
-          >
-            保存配置
-          </button>
+          <div class="flex items-center gap-3">
+            <button
+              v-if="userConfig"
+              type="button"
+              class="px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              style="border-color: var(--kb-border); color: var(--kb-foreground);"
+              @click="handleDelete"
+            >
+              删除配置
+            </button>
+            <button
+              type="button"
+              class="px-4 h-9 rounded-lg text-sm font-medium transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
+              @click="handleSave"
+            >
+              保存配置
+            </button>
+          </div>
         </div>
       </div>
     </Card>
@@ -157,7 +271,7 @@
           </div>
         </div>
       </template>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div
           v-for="pm in platformModels"
           :key="pm.provider"
@@ -185,8 +299,21 @@
               style="background: rgba(16,185,129,0.08); color: var(--kb-accent);"
             >免费额度</span>
           </div>
-          <p class="text-xs mb-3" style="color: var(--kb-muted-foreground);">{{ pm.priceInfo }}</p>
-          <p class="text-xs" style="color: var(--kb-muted-foreground);">API: {{ pm.baseUrl }}</p>
+          <p class="text-xs mb-2" style="color: var(--kb-muted-foreground);">{{ pm.priceInfo }}</p>
+          <div class="flex items-center justify-between">
+            <p class="text-xs" style="color: var(--kb-muted-foreground);">{{ pm.baseUrl || '自定义地址' }}</p>
+            <a
+              v-if="pm.websiteUrl"
+              :href="pm.websiteUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1 text-xs font-medium hover:opacity-80"
+              style="color: var(--kb-primary);"
+            >
+              <Icon name="external-link" :size="12" />
+              官网
+            </a>
+          </div>
         </div>
       </div>
       <div class="mt-4 p-3 rounded-lg" style="background: rgba(59,111,224,0.04);">
@@ -218,109 +345,56 @@
             <label class="text-sm font-medium" style="color: var(--kb-foreground);">温度 (Temperature)</label>
             <span class="text-sm font-medium" style="color: var(--kb-primary);">{{ modelConfig.temperature }}</span>
           </div>
-          <input
-            type="range"
-            v-model.number="modelConfig.temperature"
-            min="0"
-            max="2"
-            step="0.1"
-            class="w-full h-2 rounded-lg appearance-none cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-            style="background: var(--kb-muted); color: var(--kb-primary);"
-          />
-          <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">控制输出的随机性，值越高越随机</p>
+          <input type="range" v-model.number="modelConfig.temperature" min="0" max="2" step="0.1" class="w-full h-2 rounded-lg appearance-none cursor-pointer" style="background: var(--kb-muted);" />
+          <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">值越高越随机</p>
         </div>
         <div>
           <div class="flex items-center justify-between mb-2">
             <label class="text-sm font-medium" style="color: var(--kb-foreground);">最大上下文长度</label>
             <span class="text-sm font-medium" style="color: var(--kb-primary);">{{ modelConfig.maxContext }} tokens</span>
           </div>
-          <input
-            type="range"
-            v-model.number="modelConfig.maxContext"
-            min="1024"
-            max="32768"
-            step="1024"
-            class="w-full h-2 rounded-lg appearance-none cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-            style="background: var(--kb-muted); color: var(--kb-primary);"
-          />
-          <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">模型能处理的最大 token 数量</p>
+          <input type="range" v-model.number="modelConfig.maxContext" min="1024" max="32768" step="1024" class="w-full h-2 rounded-lg appearance-none cursor-pointer" style="background: var(--kb-muted);" />
+          <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">最大 token 数量</p>
         </div>
         <div>
           <div class="flex items-center justify-between mb-2">
             <label class="text-sm font-medium" style="color: var(--kb-foreground);">Top P</label>
             <span class="text-sm font-medium" style="color: var(--kb-primary);">{{ modelConfig.topP }}</span>
           </div>
-          <input
-            type="range"
-            v-model.number="modelConfig.topP"
-            min="0"
-            max="1"
-            step="0.05"
-            class="w-full h-2 rounded-lg appearance-none cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-            style="background: var(--kb-muted); color: var(--kb-primary);"
-          />
-          <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">核采样参数，控制输出的多样性</p>
+          <input type="range" v-model.number="modelConfig.topP" min="0" max="1" step="0.05" class="w-full h-2 rounded-lg appearance-none cursor-pointer" style="background: var(--kb-muted);" />
+          <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">核采样参数</p>
         </div>
         <div>
           <div class="flex items-center justify-between mb-2">
             <label class="text-sm font-medium" style="color: var(--kb-foreground);">最大生成长度</label>
             <span class="text-sm font-medium" style="color: var(--kb-primary);">{{ modelConfig.maxTokens }} tokens</span>
           </div>
-          <input
-            type="range"
-            v-model.number="modelConfig.maxTokens"
-            min="256"
-            max="8192"
-            step="256"
-            class="w-full h-2 rounded-lg appearance-none cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-            style="background: var(--kb-muted); color: var(--kb-primary);"
-          />
-          <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">单次回复的最大 token 数量</p>
+          <input type="range" v-model.number="modelConfig.maxTokens" min="256" max="8192" step="256" class="w-full h-2 rounded-lg appearance-none cursor-pointer" style="background: var(--kb-muted);" />
+          <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">单次回复最大 token</p>
         </div>
       </div>
       <div class="flex items-center justify-end gap-3 mt-6 pt-4 border-t" style="border-color: var(--kb-border);">
-        <button
-          type="button"
-          class="px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-          style="border-color: var(--kb-border); color: var(--kb-foreground);"
-          @click="resetParams"
-        >
-          重置参数
-        </button>
-        <button
-          type="button"
-          class="px-4 h-9 rounded-lg text-sm font-medium transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-          style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
-          @click="saveParams"
-        >
-          保存参数
-        </button>
+        <button type="button" class="px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-muted" style="border-color: var(--kb-border); color: var(--kb-foreground);" @click="resetParams">重置参数</button>
+        <button type="button" class="px-4 h-9 rounded-lg text-sm font-medium transition-colors hover:opacity-90" style="background: var(--kb-primary); color: var(--kb-primary-foreground);" @click="saveParams">保存参数</button>
       </div>
     </Card>
   </div>
 </template>
 
 <script setup lang="ts">
-// 管理后台-AI 设置：用户自定义 API Key + 平台模型 + 参数微调。
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
 import { aiConfigApi } from '@/api/aiConfig'
 import { notify, confirmDialog } from '@/utils/toast'
-import type { UserAiConfigVO, PlatformModelVO } from '@/api/types'
-
-// ===== 提供商预设 =====
-const providerList = [
-  { id: 'deepseek', label: 'DeepSeek', baseUrl: 'https://api.deepseek.com/v1', model: 'deepseek-chat' },
-  { id: 'siliconflow', label: '硅基流动', baseUrl: 'https://api.siliconflow.cn/v1', model: 'Qwen/Qwen2.5-7B-Instruct' },
-  { id: 'openai', label: 'OpenAI', baseUrl: 'https://api.openai.com/v1', model: 'gpt-4o' },
-  { id: 'qwen', label: '通义千问', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', model: 'qwen-plus' },
-  { id: 'custom', label: '自定义', baseUrl: '', model: '' },
-]
+import type { UserAiConfigVO, PlatformModelVO, AiTestResult } from '@/api/types'
 
 const userConfig = ref<UserAiConfigVO | null>(null)
 const platformModels = ref<PlatformModelVO[]>([])
 const showKey = ref(false)
+const showKeyGuide = ref(false)
+const testing = ref(false)
+const testResult = ref<AiTestResult | null>(null)
 
 const form = reactive({
   provider: 'deepseek',
@@ -339,13 +413,19 @@ const modelConfig = reactive({
 
 const PARAMS_KEY = 'knowflow_model_params'
 
+const currentProviderInfo = computed(() =>
+  platformModels.value.find(p => p.provider === form.provider)
+)
+
 function selectProvider(id: string) {
   form.provider = id
-  const preset = providerList.find(p => p.id === id)
-  if (preset) {
-    form.baseUrl = preset.baseUrl
-    form.model = preset.model
+  const p = platformModels.value.find(m => m.provider === id)
+  if (p) {
+    form.baseUrl = p.baseUrl || ''
+    form.model = p.defaultModel || p.model || ''
   }
+  testResult.value = null
+  showKeyGuide.value = false
 }
 
 async function loadConfig() {
@@ -361,9 +441,11 @@ async function loadConfig() {
       form.baseUrl = config.baseUrl || ''
       form.model = config.model || ''
       form.isActive = config.isActive ?? 1
+    } else if (models.length > 0) {
+      selectProvider(models[0].provider)
     }
   } catch {
-    // 未配置时静默处理
+    // 静默处理
   }
 }
 
@@ -384,7 +466,7 @@ async function handleSave() {
   try {
     const result = await aiConfigApi.saveConfig({
       provider: form.provider,
-      apiKey: form.apiKey || '****', // 如果未修改 key，传占位符让后端忽略
+      apiKey: form.apiKey || '****',
       baseUrl: form.baseUrl,
       model: form.model,
       isActive: form.isActive,
@@ -398,14 +480,40 @@ async function handleSave() {
   }
 }
 
+async function handleTest() {
+  testing.value = true
+  testResult.value = null
+  try {
+    const result = await aiConfigApi.testConnection({
+      provider: form.provider,
+      apiKey: form.apiKey || (userConfig.value?.apiKeyMasked || ''),
+      baseUrl: form.baseUrl,
+      model: form.model,
+    })
+    testResult.value = result
+    if (result.success) {
+      notify('连通测试成功', 'success')
+    } else {
+      notify(result.message, 'error')
+    }
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : '测试失败'
+    testResult.value = { success: false, message: msg, elapsedMs: 0 }
+    notify(msg, 'error')
+  } finally {
+    testing.value = false
+  }
+}
+
 async function handleDelete() {
   const confirmed = await confirmDialog('确定要删除自定义 AI 配置吗？将回退到使用平台模型。')
   if (!confirmed) return
   try {
-    await aiConfigApi.deleteConfig()
+    await aiConfigApi.deleteAll()
     userConfig.value = null
     form.apiKey = ''
     form.isActive = 0
+    testResult.value = null
     notify('已删除自定义配置，将使用平台模型', 'success')
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : '删除失败'

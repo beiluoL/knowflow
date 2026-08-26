@@ -577,6 +577,7 @@ const knowledgeMenu: NavLink[] = [
 
 // 学习下拉：学习活动
 const learningMenu: NavLink[] = [
+  { path: '/learning/today-plan', label: '今日计划', icon: 'calendar-check' },
   { path: '/learning/center', label: '学习中心', icon: 'icon-xuexizhongxin' },
   { path: '/learning/paths', label: '学习路径', icon: 'route' },
   { path: '/learning/code-practice', label: '代码练习', icon: 'code' },

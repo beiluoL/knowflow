@@ -61,6 +61,7 @@ const staticCommands: Command[] = [
   { id: 'nav-community', title: '社区', icon: 'users', category: 'navigation', path: '/community', aliases: ['shequ'] },
 
   // ===== 学习中心 =====
+  { id: 'learn-today', title: '今日计划', subtitle: 'AI编排的三段日程', icon: 'calendar-check', category: 'learning', path: '/learning/today-plan', aliases: ['jinri', 'jihua', 'today'] },
   { id: 'learn-center', title: '学习中心', subtitle: '学习总览与报告', icon: 'graduation-cap', category: 'learning', path: '/learning/center', aliases: ['xuexi'] },
   { id: 'learn-paths', title: '学习路径', icon: 'route', category: 'learning', path: '/learning/paths' },
   { id: 'learn-mastery', title: '掌握分布看板', icon: 'bar-chart-2', category: 'learning', path: '/learning/mastery' },
