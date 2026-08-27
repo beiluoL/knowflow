@@ -2,7 +2,7 @@
 // store id 固定为 'calendar'（项目红线：Pinia store ID 一旦设定不可修改）。
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { listCalendarRange, type CalendarEvent } from '@/api/calendar'
+import { listCalendarRange, listDateMarks, type CalendarEvent, type DateMark } from '@/api/calendar'
 import {
   createTask,
   updateTask,
@@ -22,6 +22,7 @@ import {
   addDays,
   addMonths,
   toISO,
+  toDateInput,
   monthTitle,
   weekTitle,
   dayTitle,
@@ -34,6 +35,8 @@ export const useCalendarStore = defineStore('calendar', () => {
   const mode = ref<CalendarMode>('month')
   const anchor = ref<Date>(startOfDay(new Date()))
   const events = ref<CalendarEvent[]>([])
+  /** 日期标记（节假日/节日/纪念日），三视图共享，保证视图切换数据一致。 */
+  const marks = ref<DateMark[]>([])
   const lists = ref<TaskListVO[]>([])
   const filter = ref<{ status: number | null; listId: number | null }>({
     status: null,
@@ -71,18 +74,26 @@ export const useCalendarStore = defineStore('calendar', () => {
     }
   }
 
-  /** 按当前 range + filter 拉取事件（绝不全量）；供三视图共享。 */
+  /** 按当前 range + filter 拉取事件与日期标记（绝不全量）；供三视图共享。 */
   async function loadRange() {
     loading.value = true
+    const startIso = toISO(range.value.start)
+    const endIso = toISO(range.value.end)
     try {
-      events.value = await listCalendarRange({
-        start: toISO(range.value.start),
-        end: toISO(range.value.end),
-        status: filter.value.status,
-        listId: filter.value.listId,
-      })
+      const [evs, ms] = await Promise.all([
+        listCalendarRange({
+          start: startIso,
+          end: endIso,
+          status: filter.value.status,
+          listId: filter.value.listId,
+        }),
+        listDateMarks(toDateInput(range.value.start), toDateInput(range.value.end)),
+      ])
+      events.value = evs
+      marks.value = ms
     } catch (e) {
       events.value = []
+      marks.value = []
       notify(getApiError(e, '加载日历失败'), 'error')
     } finally {
       loading.value = false
@@ -136,6 +147,7 @@ export const useCalendarStore = defineStore('calendar', () => {
     mode,
     anchor,
     events,
+    marks,
     lists,
     filter,
     loading,

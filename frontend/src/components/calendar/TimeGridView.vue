@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { CalendarEvent } from '@/api/calendar'
+import type { CalendarEvent, DateMark } from '@/api/calendar'
 import {
   isSameDay,
   formatDate,
@@ -11,6 +11,7 @@ import {
 
 const props = defineProps<{
   events: CalendarEvent[]
+  marks: DateMark[]
   days: Date[]
 }>()
 
@@ -101,6 +102,36 @@ function chipColor(ev: CalendarEvent): string {
   return ev.listColor || (ev.important ? '#F59E0B' : '#3B6FE0')
 }
 
+// ===== 日期标记（节假日 / 节日 / 纪念日） =====
+
+const marksByDay = computed<Record<string, DateMark[]>>(() => {
+  const map: Record<string, DateMark[]> = {}
+  for (const day of props.days) map[formatDate(day)] = []
+  for (const m of props.marks) {
+    if (map[m.date]) map[m.date].push(m)
+  }
+  return map
+})
+
+/** 该日「休/班」角标。 */
+function holidayBadge(day: Date): { label: string; work: boolean } | null {
+  const m = marksByDay.value[formatDate(day)].find(
+    (x) => x.type === 'holiday' && (x.subLabel === '休' || x.subLabel === '班')
+  )
+  if (!m) return null
+  return { label: m.subLabel as string, work: m.subLabel === '班' }
+}
+
+/** 该日节日标签（传统/现代/纪念日）：日视图最多 5 条，周视图最多 2 条。 */
+function festivalMarks(day: Date): DateMark[] {
+  const limit = props.days.length === 1 ? 5 : 2
+  return marksByDay.value[formatDate(day)].filter((x) => x.type !== 'holiday').slice(0, limit)
+}
+
+function festivalCount(day: Date): number {
+  return marksByDay.value[formatDate(day)].filter((x) => x.type !== 'holiday').length
+}
+
 // 当前时间指示线（仅今日列）
 const nowTop = computed(() => {
   const n = new Date()
@@ -134,7 +165,31 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
         @click="emit('day-header-click', day)"
       >
         <span class="tg-dh-w">周{{ labels[(day.getDay() + 6) % 7] }}</span>
-        <span class="tg-dh-d" :class="{ 'today-num': isSameDay(day, today) }">{{ day.getDate() }}</span>
+        <span class="tg-dh-date-row">
+          <span class="tg-dh-d" :class="{ 'today-num': isSameDay(day, today) }">{{ day.getDate() }}</span>
+          <span
+            v-if="holidayBadge(day)"
+            class="c-badge"
+            :class="holidayBadge(day)!.work ? 'is-work' : 'is-rest'"
+          >
+            {{ holidayBadge(day)!.label }}
+          </span>
+        </span>
+        <div v-if="festivalMarks(day).length" class="tg-dh-marks">
+          <span
+            v-for="m in festivalMarks(day)"
+            :key="m.type + m.name"
+            class="c-mark"
+            :style="{ '--mc': m.color }"
+            :title="m.subLabel || m.name"
+          >
+            <i class="c-mark-dot"></i>
+            <span class="c-mark-name">{{ m.name }}</span>
+          </span>
+          <span v-if="festivalCount(day) > festivalMarks(day).length" class="c-mark-more">
+            +{{ festivalCount(day) - festivalMarks(day).length }}
+          </span>
+        </div>
       </div>
 
       <div class="tg-allday-label">全天</div>
@@ -234,13 +289,14 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
 }
 .tg-dayhead {
   text-align: center;
-  padding: 8px 0 6px;
+  padding: 8px 4px 6px;
   border-right: 1px solid #f1f3f6;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
+  overflow: hidden;
 }
 .tg-dayhead:hover {
   background: #f0f5ff;
@@ -251,6 +307,11 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
 .tg-dh-w {
   font-size: 11px;
   color: #6b7280;
+}
+.tg-dh-date-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 .tg-dh-d {
   font-size: 16px;
@@ -266,6 +327,60 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
 .tg-dh-d.today-num {
   background: var(--kb-primary);
   color: #fff;
+}
+/* 「休/班」角标 */
+.c-badge {
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.c-badge.is-rest {
+  background: #e5484d;
+}
+.c-badge.is-work {
+  background: #f59e0b;
+}
+/* 节日标签行 */
+.tg-dh-marks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  min-height: 15px;
+  max-width: 100%;
+}
+.c-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  cursor: default;
+}
+.c-mark-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--mc, #0ea5e9);
+  flex-shrink: 0;
+}
+.c-mark-name {
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60px;
+}
+.c-mark-more {
+  font-size: 10px;
+  color: #9aa3b2;
+  flex-shrink: 0;
 }
 .tg-allday-label {
   display: flex;

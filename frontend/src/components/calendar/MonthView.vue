@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
-import type { CalendarEvent } from '@/api/calendar'
+import type { CalendarEvent, DateMark } from '@/api/calendar'
 import {
   eachDay,
   isSameDay,
@@ -13,6 +13,7 @@ import {
 
 const props = defineProps<{
   events: CalendarEvent[]
+  marks: DateMark[]
   anchor: Date
 }>()
 
@@ -55,6 +56,34 @@ function eventsOf(day: Date): CalendarEvent[] {
   return byDay.value[formatDate(day)] || []
 }
 
+// ===== 日期标记（节假日 / 节日 / 纪念日） =====
+
+const marksByDay = computed<Record<string, DateMark[]>>(() => {
+  const map: Record<string, DateMark[]> = {}
+  for (const m of props.marks) {
+    ;(map[m.date] ||= []).push(m)
+  }
+  return map
+})
+
+/** 该日「休/班」角标（holiday 类型且 subLabel 为休/班）。 */
+function holidayBadge(day: Date): { label: string; work: boolean } | null {
+  const m = (marksByDay.value[formatDate(day)] || []).find(
+    (x) => x.type === 'holiday' && (x.subLabel === '休' || x.subLabel === '班')
+  )
+  if (!m) return null
+  return { label: m.subLabel as string, work: m.subLabel === '班' }
+}
+
+/** 该日节日标签（传统/现代/纪念日），最多展示 2 条。 */
+function festivalMarks(day: Date): DateMark[] {
+  return (marksByDay.value[formatDate(day)] || []).filter((x) => x.type !== 'holiday').slice(0, 2)
+}
+
+function festivalCount(day: Date): number {
+  return (marksByDay.value[formatDate(day)] || []).filter((x) => x.type !== 'holiday').length
+}
+
 function chipColor(ev: CalendarEvent): string {
   return ev.listColor || (ev.important ? '#F59E0B' : '#3B6FE0')
 }
@@ -82,9 +111,18 @@ function chipColor(ev: CalendarEvent): string {
         @click="emit('day-click', day)"
       >
         <div class="c-month-cell-top">
-          <span class="c-month-date" :class="{ 'today-num': isSameDay(day, today) }">
-            {{ day.getDate() }}
-          </span>
+          <div class="c-month-date-wrap">
+            <span class="c-month-date" :class="{ 'today-num': isSameDay(day, today) }">
+              {{ day.getDate() }}
+            </span>
+            <span
+              v-if="holidayBadge(day)"
+              class="c-badge"
+              :class="holidayBadge(day)!.work ? 'is-work' : 'is-rest'"
+            >
+              {{ holidayBadge(day)!.label }}
+            </span>
+          </div>
           <button
             class="c-month-add"
             title="新建事件"
@@ -92,6 +130,20 @@ function chipColor(ev: CalendarEvent): string {
           >
             <Icon name="plus" :size="13" />
           </button>
+        </div>
+
+        <div v-if="festivalMarks(day).length" class="c-month-marks">
+          <span
+            v-for="m in festivalMarks(day)"
+            :key="m.type + m.name"
+            class="c-mark"
+            :style="{ '--mc': m.color }"
+            :title="m.subLabel || m.name"
+          >
+            <i class="c-mark-dot"></i>
+            <span class="c-mark-name">{{ m.name }}</span>
+          </span>
+          <span v-if="festivalCount(day) > 2" class="c-mark-more">+{{ festivalCount(day) - 2 }}</span>
         </div>
 
         <div class="c-month-events">
@@ -185,6 +237,12 @@ function chipColor(ev: CalendarEvent): string {
   align-items: center;
   justify-content: space-between;
 }
+.c-month-date-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
 .c-month-date {
   font-size: 13px;
   font-weight: 600;
@@ -195,10 +253,63 @@ function chipColor(ev: CalendarEvent): string {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 .c-month-date.today-num {
   background: var(--kb-primary);
   color: #fff;
+}
+/* 「休/班」角标：Apple 日历风格的小徽章 */
+.c-badge {
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.c-badge.is-rest {
+  background: #e5484d;
+}
+.c-badge.is-work {
+  background: #f59e0b;
+}
+/* 节日标签行（传统/现代/纪念日）：彩色圆点 + 名称 */
+.c-month-marks {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 16px;
+  overflow: hidden;
+}
+.c-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  cursor: default;
+}
+.c-mark-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--mc, #0ea5e9);
+  flex-shrink: 0;
+}
+.c-mark-name {
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 56px;
+}
+.c-mark-more {
+  font-size: 10px;
+  color: #9aa3b2;
+  flex-shrink: 0;
 }
 .c-month-add {
   opacity: 0;

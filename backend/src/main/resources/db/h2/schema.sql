@@ -250,6 +250,24 @@ CREATE INDEX IF NOT EXISTS idx_task_start_time ON task (start_time);
 CREATE INDEX IF NOT EXISTS idx_tasklist_user ON task_list (user_id);
 CREATE INDEX IF NOT EXISTS idx_tasklist_par  ON task_list (parent_id);
 
+-- ---------- 日历：自定义纪念日（Memorial）----------
+-- 两类：fixed（固定日期，仅当年生效）/ yearly（每年重复，按 MM-dd 展开）
+CREATE TABLE IF NOT EXISTS calendar_memorial (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  name VARCHAR(100) NOT NULL COMMENT '纪念日名称',
+  type VARCHAR(10) NOT NULL COMMENT 'fixed 固定日期 / yearly 每年重复',
+  month_day VARCHAR(5) NOT NULL COMMENT '月-日（MM-dd），yearly 展开与 fixed 冗余存储',
+  fixed_date DATE COMMENT '固定日期（type=fixed 时必填，完整 yyyy-MM-dd）',
+  color VARCHAR(20) COMMENT '标记颜色（默认取纪念日主题色）',
+  note VARCHAR(500) COMMENT '备注',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_cm_user ON calendar_memorial (user_id);
+CREATE INDEX IF NOT EXISTS idx_cm_deleted ON calendar_memorial (deleted);
+
 -- ============================================================
 -- 表间关系说明（遵循《阿里巴巴 Java 开发手册》：不使用物理外键）
 -- ------------------------------------------------------------

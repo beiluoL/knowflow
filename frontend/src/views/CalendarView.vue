@@ -8,6 +8,7 @@ import { notify, getApiError } from '@/utils/toast'
 import MonthView from '@/components/calendar/MonthView.vue'
 import TimeGridView from '@/components/calendar/TimeGridView.vue'
 import CalendarEventDialog from '@/components/calendar/CalendarEventDialog.vue'
+import MemorialDialog from '@/components/calendar/MemorialDialog.vue'
 import {
   startOfWeek,
   endOfWeek,
@@ -21,6 +22,16 @@ const dialogOpen = ref(false)
 const editingEvent = ref<CalendarEvent | null>(null)
 const defaultDate = ref<Date | null>(null)
 const saving = ref(false)
+const memorialOpen = ref(false)
+
+/** 图例：四类日期标记 + 休/班（与后端颜色常量保持一致）。 */
+const legendItems = [
+  { label: '休', color: '#E5484D', shape: 'badge' as const },
+  { label: '班', color: '#F59E0B', shape: 'badge' as const },
+  { label: '传统节日', color: '#E11D48', shape: 'dot' as const },
+  { label: '现代节日', color: '#0EA5E9', shape: 'dot' as const },
+  { label: '纪念日', color: '#8B5CF6', shape: 'dot' as const },
+]
 
 const modes: { key: CalendarMode; label: string; icon: string }[] = [
   { key: 'month', label: '月', icon: 'grid-3x3' },
@@ -96,10 +107,32 @@ onMounted(async () => {
         <h1 class="kb-h1 mb-1">日历</h1>
         <p class="kb-body-sm" style="font-size: 14px;">管理你的任务与时间安排</p>
       </div>
-      <button class="cal-new" @click="openCreate(startOfDay(store.anchor))">
-        <Icon name="plus" :size="16" />
-        <span>新建事件</span>
-      </button>
+      <div class="cal-head-actions">
+        <button class="cal-memorial" @click="memorialOpen = true">
+          <Icon name="heart" :size="16" />
+          <span>纪念日</span>
+        </button>
+        <button class="cal-new" @click="openCreate(startOfDay(store.anchor))">
+          <Icon name="plus" :size="16" />
+          <span>新建事件</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 图例 -->
+    <div class="cal-legend">
+      <span class="cal-legend-title">图例</span>
+      <span v-for="item in legendItems" :key="item.label" class="cal-legend-item">
+        <i
+          v-if="item.shape === 'badge'"
+          class="cal-legend-shape is-badge"
+          :style="{ background: item.color }"
+        >{{ item.label }}</i>
+        <template v-else>
+          <i class="cal-legend-shape is-dot" :style="{ background: item.color }"></i>
+          {{ item.label }}
+        </template>
+      </span>
     </div>
 
     <!-- 工具栏 -->
@@ -167,6 +200,7 @@ onMounted(async () => {
       <MonthView
         v-if="store.mode === 'month'"
         :events="store.events"
+        :marks="store.marks"
         :anchor="store.anchor"
         @event-click="openEdit"
         @day-click="openCreate"
@@ -174,6 +208,7 @@ onMounted(async () => {
       <TimeGridView
         v-else
         :events="store.events"
+        :marks="store.marks"
         :days="days"
         @event-click="openEdit"
         @day-click="openCreate"
@@ -191,6 +226,13 @@ onMounted(async () => {
       @save="onSave"
       @delete="onDelete"
     />
+
+    <!-- 纪念日管理 -->
+    <MemorialDialog
+      :open="memorialOpen"
+      @close="memorialOpen = false"
+      @changed="store.loadRange()"
+    />
   </div>
 </template>
 
@@ -205,7 +247,66 @@ onMounted(async () => {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+}
+.cal-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cal-memorial {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  color: #8b5cf6;
+  border: 1px solid #ddd6fe;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.cal-memorial:hover {
+  background: #f5f3ff;
+  border-color: #c4b5fd;
+}
+.cal-legend {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 6px 2px 10px;
+  font-size: 12px;
+  color: #6b7280;
+}
+.cal-legend-title {
+  font-weight: 600;
+  color: #9aa3b2;
+}
+.cal-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.cal-legend-shape.is-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.cal-legend-shape.is-badge {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 1;
 }
 .cal-new {
   display: inline-flex;

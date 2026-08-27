@@ -73,7 +73,7 @@
 |  | 智能写作（AI 评分 / 预览 / 导出 PDF・MD） | `/learning/writing` |
 | **个人空间** | 工作台（任务中心） | `/tasks` |
 |  | 任务清单（Things3 式：智能列表 inbox/today/upcoming/someday/logbook + 项目/区域 + 子任务树） | `/task-list` |
-|  | 日历（月/周/日三视图 + 24h 时间轴 + 范围查询 + 全天/定时事件 CRUD，与任务清单同源） | `/calendar` |
+|  | 日历（月/周/日三视图 + 24h 时间轴 + 范围查询 + 全天/定时事件 CRUD + **四类日期标记：法定节假日（休/班）/中国传统节日（农历）/现代节日/自定义纪念日**） | `/calendar` |
 |  | 个人中心 | `/profile` |
 |  | 收藏夹 | `/favorites` |
 |  | 笔记管理 / 笔记编辑 | `/notes` `/notes/new` `/notes/:id/edit` |
@@ -148,6 +148,7 @@
 | DrawingController | `/api/drawings` | 绘图编辑器·流程图整图 CRUD（列表/详情/新建/更新/删除），全部需登录，user_id 维度隔离；`data` 存 vue-flow 契约 JSON（nodes/edges） |
 | TaskController | `/api/tasks` | 任务 CRUD + 智能列表（inbox/today/upcoming/someday/logbook，按 scheduledDate/completed 自动归类）、按清单/父任务/完成态过滤；支持子任务（parentId 层级、递归子树）；**日历范围查询** `GET /api/tasks/range?start=&end=&status=&listId=`（按时间窗返回重叠的定时事件 + 区间内的全天事件，绝不全量扫描）；定时事件 `start_time/end_time` 字段；全部需登录，user_id 维度隔离 |
 | TaskListController | `/api/task-lists` | 任务清单/项目/区域 CRUD（type: inbox/today/upcoming/someday/logbook/project/area），含任务计数；user_id 维度隔离 |
+| CalendarMarkController | `/api/calendar` | **日历四类日期标记（2026-08-27）**：`GET /marks?start=&end=` 按区间返回 holiday/lunar/modern/memorial 四类标记（最长 2 年）；`/memorials` 用户纪念日 CRUD（fixed 固定日期 / yearly 每年重复 + 月日展开 + 颜色 + 备注）；全部需登录，user_id 维度隔离。法定节假日数据内置 2025/2026 国务院办公厅安排（中国政府网公告交叉验证）；农历换算用 `util/LunarCalendar` 查表法（1900-2100，香港天文台推算数据）。详见 `doc/技术方案/日历四类标记技术方案.md`。 |
 | QuizController | `/api/quiz` | 智能测验：按知识库/文档出题、提交判分、答题记录、错题同步 |
 | CheckInController | `/api/checkin` | 每日打卡（签到 / 补卡 / 连续天数与奖励） |
 | AchievementController | `/api/achievements` | 成就列表与解锁、用户成就进度 |

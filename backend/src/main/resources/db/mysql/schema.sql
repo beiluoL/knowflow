@@ -261,6 +261,25 @@ CREATE INDEX idx_task_stage    ON task (stage);
 CREATE INDEX idx_tasklist_user ON task_list (user_id);
 CREATE INDEX idx_tasklist_par  ON task_list (parent_id);
 
+-- ---------- 日历：自定义纪念日（Memorial）----------
+-- 两类：fixed（固定日期，仅当年生效）/ yearly（每年重复，按 MM-dd 展开）
+CREATE TABLE IF NOT EXISTS calendar_memorial (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    type VARCHAR(10) NOT NULL,
+    month_day VARCHAR(5) NOT NULL,
+    fixed_date DATE NULL,
+    color VARCHAR(20),
+    note VARCHAR(500),
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_cm_user ON calendar_memorial (user_id);
+CREATE INDEX idx_cm_deleted ON calendar_memorial (deleted);
+
 -- ============================================================
 -- 表间关系说明（遵循《阿里巴巴 Java 开发手册》：不使用物理外键）
 -- ------------------------------------------------------------
