@@ -1250,7 +1250,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.92);
+  background: color-mix(in srgb, var(--kb-card) 92%, transparent);
   backdrop-filter: blur(2px);
   color: var(--kb-primary);
   pointer-events: none;

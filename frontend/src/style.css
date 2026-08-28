@@ -49,6 +49,25 @@
   --kb-highlight-soft: rgba(255, 107, 53, 0.10); /* 软背景：徽章底色、卡片高光 */
   --kb-highlight-border: rgba(255, 107, 53, 0.30);
 
+  /* ===== 语义状态色（success / warning / error / info）=====
+   * 用于状态徽标、进度数字、通过/失败标记、复习状态等。
+   * 与 --kb-accent / --kb-warning / --kb-destructive 色族一致，
+   * 但取稍深一档以保证在浅色软背景上的文字对比度（满足 WCAG AA）。
+   * --kb-state-info 复用主蓝，用于提示性文字。
+   */
+  --kb-state-success: #047857;   /* emerald-700，软绿底上的深绿文字 */
+  --kb-state-warning: #B45309;   /* amber-700，软琥珀底上的深琥珀文字 */
+  --kb-state-error: #B91C1C;     /* red-700，软红底上的深红文字 */
+  --kb-state-info: #2F59B3;      /* primary-600，软蓝底上的深蓝文字 */
+
+  /* ===== 主色软背景 / 下拉阴影令牌 =====
+   * --kb-primary-soft：主色 8% 透明度，用于选中态背景、聚焦光晕；
+   * --shadow-dropdown-*：自定义下拉/浮层的分层阴影（2=轻、3=重）。
+   */
+  --kb-primary-soft: rgba(59, 111, 224, 0.08);
+  --shadow-dropdown-2: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-dropdown-3: 0 12px 32px rgba(0, 0, 0, 0.12);
+
   --kb-radius-sm: 6px;
   --kb-radius-md: 10px;
   --kb-radius-lg: 16px;
@@ -171,6 +190,29 @@
   --radius-sm: var(--kb-radius-sm);
   --radius-md: var(--kb-radius-md);
   --radius-lg: var(--kb-radius-lg);
+
+  /* ===== 命名别名（兼容各页面历史用法，统一指向 canonical token）=====
+   * 避免逐文件替换 var(--kb-text) → var(--kb-foreground) 等大量改动，
+   * 在此集中提供别名，深色模式自动跟随其引用的 canonical token。
+   */
+  --kb-text: var(--kb-foreground);                 /* 正文文字色 */
+  --kb-text-muted: var(--kb-muted-foreground);     /* 次要文字色 */
+  --kb-text-secondary: var(--kb-muted-foreground); /* 次要文字色（旧名） */
+  --kb-bg: var(--kb-background);                  /* 页面背景 */
+  --kb-bg-subtle: var(--kb-muted);                /* 次级背景（卡片间分区） */
+  --kb-surface: var(--kb-card);                   /* 卡片表面 */
+  --kb-success: var(--kb-accent);                 /* 成功色（旧名，复用 accent） */
+  --kb-danger: var(--kb-destructive);             /* 危险色（旧名，复用 destructive） */
+  --kb-success-soft: rgba(16, 185, 129, 0.10);     /* 成功软背景 */
+  --kb-danger-soft: rgba(239, 68, 68, 0.10);      /* 危险软背景 */
+  --kb-warning-soft: rgba(245, 158, 11, 0.10);    /* 警告软背景 */
+  --kb-state-success-foreground: #FFFFFF;         /* 成功态前景色（白字） */
+  --kb-radius: var(--kb-radius-md);               /* 通用圆角（默认中） */
+  --kb-radius-xs: 4px;                            /* 超小圆角（tag/角标） */
+  --kb-shadow-sm: var(--shadow-sm);               /* 小阴影（旧名） */
+  --kb-shadow-lg: var(--shadow-lg);               /* 大阴影（旧名） */
+  --kb-fs-body: var(--kb-fs-body-md);             /* 正文字号（旧名，默认中） */
+  --kb-fs-sm: var(--kb-fs-body-sm);               /* 小字号（旧名） */
 }
 
 /* =====================================================================
@@ -207,6 +249,16 @@
   --kb-highlight-foreground: #0F1115;
   --kb-highlight-soft: rgba(255, 133, 86, 0.16);
   --kb-highlight-border: rgba(255, 133, 86, 0.40);
+
+  /* 深色模式状态色：提亮一档以在深色软背景上保持对比度 */
+  --kb-state-success: #34D399;
+  --kb-state-warning: #FBBF24;
+  --kb-state-error: #F8716E;
+  --kb-state-info: #7BA3F5;
+
+  --kb-primary-soft: rgba(79, 134, 249, 0.16);
+  --shadow-dropdown-2: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-dropdown-3: 0 12px 32px rgba(0, 0, 0, 0.55);
 
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
