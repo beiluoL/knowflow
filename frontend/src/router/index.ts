@@ -218,6 +218,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/MasteryDashboard.vue'),
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
+  // Phase 2-B：知识点掌握度详情
+  {
+    path: '/learning/knowledge-mastery/:id',
+    name: 'KnowledgeMasteryDetail',
+    component: () => import('@/views/KnowledgeMasteryDetail.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
   // Phase 1：学习行为事件（统一埋点只读视图）
   {
     path: '/learning/events',

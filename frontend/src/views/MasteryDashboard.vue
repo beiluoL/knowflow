@@ -147,6 +147,54 @@
             </li>
           </ul>
         </section>
+
+        <!-- 第四行：我的知识点掌握度（Phase 2-B） -->
+        <section class="mmd-card">
+          <div class="mmd-card-head">
+            <h3 class="mmd-card-title" style="margin:0;">
+              <Icon name="brain" :size="16" /> 我的知识点掌握度
+            </h3>
+            <button type="button" class="mmd-recalk" :disabled="recalcLoading" @click="recalculate">
+              <Icon name="refresh-cw" :size="13" :class="{ spin: recalcLoading }" /> 重新计算
+            </button>
+          </div>
+
+          <div v-if="!masteryList.length" class="mmd-sub-empty">
+            暂无知识点掌握度。做题 / 编程 / 复习 / 主动回忆后，引擎会基于学习信号自动计算；若长期无数据，可点击「重新计算」触发历史回填。
+          </div>
+          <ul v-else class="mmd-kp-list">
+            <li v-for="kp in sortedMastery" :key="kp.knowledgeId" class="mmd-kp-item" @click="openDetail(kp.knowledgeId)">
+              <div class="mmd-kp-main">
+                <div class="mmd-kp-name">
+                  {{ kp.name || ('知识点 #' + kp.knowledgeId) }}
+                  <span class="mmd-kp-type">{{ typeLabel(kp.type) }}</span>
+                  <span v-if="kp.weaknessTypes && kp.weaknessTypes.length" class="mmd-kp-weak">{{ weaknessShort(kp.weaknessTypes) }}</span>
+                </div>
+                <div class="mmd-kp-sub">{{ kp.categoryName || '未分类' }}</div>
+              </div>
+              <div class="mmd-kp-score">
+                <span class="mmd-kp-score-val" :style="{ color: scoreColor(kp.masteryScore) }">{{ kp.masteryScore }}</span>
+                <span class="mmd-kp-score-lbl">掌握度</span>
+              </div>
+              <div class="mmd-kp-bars">
+                <div class="mmd-kp-bar-row">
+                  <span class="mmd-kp-bar-lbl">置信</span>
+                  <div class="mmd-kp-bar-track"><div class="mmd-kp-bar-fill" :style="{ width: kp.confidenceScore + '%', background: confColor(kp.confidenceScore) }"></div></div>
+                  <span class="mmd-kp-bar-num">{{ kp.confidenceScore }}%</span>
+                </div>
+                <div class="mmd-kp-bar-row">
+                  <span class="mmd-kp-bar-lbl">遗忘</span>
+                  <div class="mmd-kp-bar-track"><div class="mmd-kp-bar-fill" :style="{ width: kp.forgettingRisk + '%', background: riskColor(kp.forgettingRisk) }"></div></div>
+                  <span class="mmd-kp-bar-num">{{ kp.forgettingRisk }}</span>
+                </div>
+              </div>
+              <span class="mmd-kp-status" :style="{ background: statusMeta(kp.learningStatus).bg, color: statusMeta(kp.learningStatus).fg }">
+                {{ statusMeta(kp.learningStatus).label }}
+              </span>
+              <Icon name="chevron-right" :size="16" style="color: var(--kb-muted-foreground); flex-shrink: 0;" />
+            </li>
+          </ul>
+        </section>
       </template>
     </template>
   </div>
@@ -156,14 +204,18 @@
 // 掌握分布看板（C①）：消费后端 /learning/stats/mastery 与 /learning/category-mastery，
 // 从难度、复习、分类三个维度可视化用户知识掌握情况。纯 CSS 图表，不依赖第三方图表库。
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import StatCard from '@/components/ui/StatCard.vue'
 import { notify, getApiError } from '@/utils/toast'
 import { learningApi } from '@/api'
-import type { MasteryDistributionVO, CategoryMasteryVO } from '@/api/types'
+import type { MasteryDistributionVO, CategoryMasteryVO, KnowledgeMasteryVO, MasteryStatus } from '@/api/types'
+
+const router = useRouter()
 
 const loading = ref(false)
 const error = ref('')
+const recalcLoading = ref(false)
 const d = ref<MasteryDistributionVO>({
   flashcardTotal: 0,
   flashcardDiffEasy: 0,
@@ -175,30 +227,69 @@ const d = ref<MasteryDistributionVO>({
   mistakePending: 0,
 })
 const categories = ref<CategoryMasteryVO[]>([])
+const masteryList = ref<KnowledgeMasteryVO[]>([])
 
 const diffTotal = computed(() => d.value.flashcardDiffEasy + d.value.flashcardDiffMedium + d.value.flashcardDiffHard)
 const mistakeTotal = computed(() => d.value.mistakeMastered + d.value.mistakePending)
 const hasData = computed(() => d.value.flashcardTotal > 0 || mistakeTotal.value > 0 || categories.value.length > 0)
 const sortedCategories = computed(() => [...categories.value].sort((a, b) => a.rate - b.rate))
 const weakCount = computed(() => categories.value.filter((c) => c.weak).length)
+const sortedMastery = computed(() => [...masteryList.value].sort((a, b) => b.masteryScore - a.masteryScore))
 
 const pct = (v: number, total: number) => (total > 0 ? Math.round((v / total) * 100) : 0)
+
+const STATUS_META: Record<MasteryStatus, { label: string; bg: string; fg: string }> = {
+  NOT_STARTED: { label: '未学习', bg: 'rgba(100,116,139,.12)', fg: '#64748b' },
+  LEARNING: { label: '学习中', bg: 'rgba(59,111,224,.12)', fg: '#3b6fe0' },
+  WEAK: { label: '薄弱', bg: 'rgba(239,68,68,.12)', fg: '#EF4444' },
+  MASTERED: { label: '已掌握', bg: 'rgba(16,185,129,.12)', fg: '#10B981' },
+  REVIEW_REQUIRED: { label: '需复习', bg: 'rgba(245,158,11,.12)', fg: '#F59E0B' },
+}
+const TYPE_LABELS: Record<string, string> = {
+  CONCEPT: '概念', TECHNIQUE: '技术', TERM: '术语', PRINCIPLE: '原理', TOOL: '工具', OTHER: '其他',
+}
+const STATUS_LABEL: Record<string, string> = {
+  LOW_MASTERY: '掌握度偏低', CODING_WEAK: '编程弱', RECALL_WEAK: '回忆弱',
+  FORGETTING_RISK: '遗忘风险', LOW_CONFIDENCE: '样本少', HIGH_ERROR_RATE: '错多',
+}
+const statusMeta = (s: MasteryStatus) => STATUS_META[s] || STATUS_META.NOT_STARTED
+const typeLabel = (t?: string | null) => TYPE_LABELS[t || 'OTHER'] || '其他'
+const weaknessShort = (ws: string[]) => ws.map((w) => STATUS_LABEL[w] || w).slice(0, 2).join('·')
+const scoreColor = (v: number) => (v >= 80 ? '#10B981' : v >= 60 ? '#3b6fe0' : v >= 40 ? '#F59E0B' : '#EF4444')
+const confColor = (v: number) => (v >= 50 ? '#10B981' : v >= 30 ? '#F59E0B' : '#EF4444')
+const riskColor = (v: number) => (v >= 70 ? '#EF4444' : v >= 60 ? '#F59E0B' : '#10B981')
+const openDetail = (id: number) => router.push(`/learning/knowledge-mastery/${id}`)
 
 async function loadData() {
   loading.value = true
   error.value = ''
   try {
-    const [mastery, catMastery] = await Promise.all([
+    const [mastery, catMastery, kp] = await Promise.all([
       learningApi.mastery(),
       learningApi.categoryMastery().catch(() => [] as CategoryMasteryVO[]),
+      learningApi.knowledgeMastery().catch(() => [] as KnowledgeMasteryVO[]),
     ])
     d.value = mastery
     categories.value = catMastery
+    masteryList.value = kp
   } catch (e: unknown) {
     error.value = '掌握分布加载失败：' + getApiError(e, '网络错误')
     notify('掌握分布加载失败', 'error')
   } finally {
     loading.value = false
+  }
+}
+
+async function recalculate() {
+  recalcLoading.value = true
+  try {
+    await learningApi.knowledgeMasteryRecalculate()
+    notify('已触发重新计算，正在回填掌握度', 'success')
+    await loadData()
+  } catch (e: unknown) {
+    notify('重新计算失败：' + getApiError(e, '网络错误'), 'error')
+  } finally {
+    recalcLoading.value = false
   }
 }
 
@@ -374,7 +465,39 @@ onMounted(loadData)
 }
 .mmd-cat-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
 
+/* 知识点掌握度列表（Phase 2-B） */
+.mmd-recalk {
+  display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 12px;
+  font-size: 12px; font-weight: 600; border-radius: 8px; border: 1px solid var(--kb-border);
+  background: var(--kb-card); color: var(--kb-foreground); cursor: pointer; transition: all 0.15s ease;
+}
+.mmd-recalk:hover:not(:disabled) { border-color: var(--kb-primary); color: var(--kb-primary); }
+.mmd-recalk:disabled { opacity: .6; cursor: default; }
+.mmd-kp-list { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.mmd-kp-item {
+  display: flex; align-items: center; gap: 16px; padding: 12px 14px; border-radius: 12px;
+  background: var(--kb-muted); cursor: pointer; transition: all 0.15s ease;
+}
+.mmd-kp-item:hover { background: rgba(59,111,224,.06); border: 1px solid rgba(59,111,224,.2); }
+.mmd-kp-main { flex: 1; min-width: 0; }
+.mmd-kp-name { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--kb-foreground); }
+.mmd-kp-type { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: rgba(59,111,224,.1); color: var(--kb-primary); }
+.mmd-kp-weak { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: rgba(239,68,68,.12); color: #EF4444; }
+.mmd-kp-sub { font-size: 12px; color: var(--kb-muted-foreground); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mmd-kp-score { display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0; }
+.mmd-kp-score-val { font-size: 22px; font-weight: 800; line-height: 1; }
+.mmd-kp-score-lbl { font-size: 11px; color: var(--kb-muted-foreground); }
+.mmd-kp-bars { display: flex; flex-direction: column; gap: 5px; width: 160px; flex-shrink: 0; }
+.mmd-kp-bar-row { display: flex; align-items: center; gap: 6px; }
+.mmd-kp-bar-lbl { font-size: 11px; color: var(--kb-muted-foreground); width: 24px; flex-shrink: 0; }
+.mmd-kp-bar-track { flex: 1; height: 6px; border-radius: 3px; background: var(--kb-border); overflow: hidden; }
+.mmd-kp-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.mmd-kp-bar-num { font-size: 11px; font-weight: 600; color: var(--kb-foreground); width: 34px; text-align: right; flex-shrink: 0; }
+.mmd-kp-status { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; flex-shrink: 0; }
+
 @media (max-width: 720px) {
   .mmd-row { grid-template-columns: 1fr; }
+  .mmd-kp-item { flex-wrap: wrap; gap: 10px; }
+  .mmd-kp-bars { width: 100%; order: 3; }
 }
 </style>

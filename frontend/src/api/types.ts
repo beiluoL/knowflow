@@ -435,6 +435,83 @@ export interface CategoryMasteryVO {
   weak: boolean
 }
 
+// ===== 知识点掌握度引擎（Phase 2-B）=====
+/** 知识掌握状态枚举。 */
+export type MasteryStatus = 'NOT_STARTED' | 'LEARNING' | 'WEAK' | 'MASTERED' | 'REVIEW_REQUIRED'
+
+/** 单维度信号对掌握度的贡献（结构化解释用）。 */
+export interface SignalContributionVO {
+  type: string
+  label: string
+  strength: number
+  weight: number
+  contribution: number
+  sampleCount: number
+}
+
+/** 知识点掌握度视图对象（看板 / 知识图谱复用）。 */
+export interface KnowledgeMasteryVO {
+  knowledgeId: number
+  name: string | null
+  type: string | null
+  categoryId: number | null
+  categoryName: string | null
+  masteryScore: number
+  confidenceScore: number
+  learningStatus: MasteryStatus
+  forgettingRisk: number
+  weaknessTypes: string[]
+  reason: string | null
+  lastLearnedAt: string | null
+  lastReviewedAt: string | null
+  lastAssessedAt: string | null
+  nextReviewAt: string | null
+}
+
+/** 知识点掌握度详情（在 KnowledgeMasteryVO 基础上补充解释、信号明细与原始计数器）。 */
+export interface KnowledgeMasteryDetailVO {
+  knowledgeId: number
+  name: string | null
+  type: string | null
+  description: string | null
+  categoryId: number | null
+  categoryName: string | null
+  masteryScore: number
+  confidenceScore: number
+  learningStatus: MasteryStatus
+  forgettingRisk: number
+  weaknessTypes: string[]
+  reason: string | null
+  explanation: string
+  signals: SignalContributionVO[]
+  correctCount: number
+  wrongCount: number
+  attemptCount: number
+  reviewCount: number
+  recallCount: number
+  recallAvgScore: number
+  codingAttemptCount: number
+  codingPassCount: number
+  mistakeCount: number
+  mistakeMastered: number
+  consecutiveCorrect: number
+  consecutiveWrong: number
+  lastLearnedAt: string | null
+  lastReviewedAt: string | null
+  lastAssessedAt: string | null
+  nextReviewAt: string | null
+}
+
+/** 掌握度引擎可观察性诊断。 */
+export interface MasteryDiagnosticsVO {
+  totalMappings: number
+  acceptedMappings: number
+  pendingMappings: number
+  rejectedMappings: number
+  unmappedResources: number
+  note: string
+}
+
 // ===== 知识图谱 =====
 export interface GraphNodeVO {
   id: string

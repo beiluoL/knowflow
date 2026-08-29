@@ -1439,3 +1439,65 @@ CREATE TABLE IF NOT EXISTS learning_event (
 CREATE INDEX IF NOT EXISTS idx_le_user_time ON learning_event (user_id, create_time);
 CREATE INDEX IF NOT EXISTS idx_le_user_type ON learning_event (user_id, event_type, create_time);
 CREATE INDEX IF NOT EXISTS idx_le_resource ON learning_event (resource_type, resource_id);
+
+-- ============================================================
+-- 知识点掌握度引擎（Phase 2-B：Knowledge Mastery Engine）
+-- 设计要点：
+--   1) knowledge_mastery：以 (user_id, knowledge_id=kg_entity.id) 为主键维度，
+--      存储多信号加权后的掌握度 / 置信度 / 遗忘风险 / 学习状态及明细计数器；
+--   2) resource_knowledge_mapping：资源 → 知识点（kg_entity）的映射层，
+--      支持显式(MANUAL/AI/IMPORT) / AUTO 最佳努力匹配 / 分类极低置信兜底；
+--   3) 仅逻辑外键 + 应用层维护，无物理外键；整行重算保证幂等。
+-- ============================================================
+
+-- ---------- 资源 → 知识点映射表 ----------
+CREATE TABLE IF NOT EXISTS resource_knowledge_mapping (
+  id            BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  resource_type VARCHAR(40) NOT NULL COMMENT '资源类型：QUIZ/CODE_QUESTION/MISTAKE/REVIEW_CARD/RECALL_SESSION/FLASHCARD/DOC',
+  resource_id   BIGINT NOT NULL COMMENT '关联资源ID（逻辑外键，按 resource_type 指向对应业务表）',
+  knowledge_id  BIGINT NOT NULL COMMENT '知识点ID（逻辑外键 kg_entity.id，仅可学习类型）',
+  source        VARCHAR(20) NOT NULL DEFAULT 'AUTO' COMMENT '映射来源：MANUAL/AI/IMPORT/AUTO/CATEGORY_FALLBACK',
+  confidence    DECIMAL(4,3) DEFAULT 0 COMMENT '置信度 0~1（AUTO 由关键词匹配打分，分类兜底固定低值）',
+  status        VARCHAR(20) NOT NULL DEFAULT 'PENDING' COMMENT '映射状态：ACCEPTED（进入 Mastery）/PENDING（待确认，不进入）/REJECTED',
+  create_time  TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted       INT      DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+) COMMENT='资源→知识点映射层（Knowledge Mastery Engine，Phase 2-B）';
+CREATE UNIQUE INDEX IF NOT EXISTS uk_rkm_res_know ON resource_knowledge_mapping (resource_type, resource_id, knowledge_id);
+CREATE INDEX IF NOT EXISTS idx_rkm_knowledge ON resource_knowledge_mapping (knowledge_id);
+CREATE INDEX IF NOT EXISTS idx_rkm_resource ON resource_knowledge_mapping (resource_type, resource_id);
+CREATE INDEX IF NOT EXISTS idx_rkm_status ON resource_knowledge_mapping (source, status);
+
+-- ---------- 知识点掌握度表 ----------
+CREATE TABLE IF NOT EXISTS knowledge_mastery (
+  id                    BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id               BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  knowledge_id          BIGINT NOT NULL COMMENT '知识点ID（逻辑外键 kg_entity.id）',
+  mastery_score         INT    DEFAULT 0 COMMENT '掌握度 0~100（多信号加权、有效权重归一化）',
+  confidence_score      INT    DEFAULT 0 COMMENT '置信度 0~100（有效样本数饱和 N/(N+K)*100）',
+  learning_status       VARCHAR(20) DEFAULT 'NOT_STARTED' COMMENT '学习状态：NOT_STARTED/LEARNING/WEAK/MASTERED/REVIEW_REQUIRED',
+  correct_count         INT    DEFAULT 0 COMMENT 'Quiz 答对累计',
+  wrong_count           INT    DEFAULT 0 COMMENT 'Quiz 答错累计',
+  attempt_count         INT    DEFAULT 0 COMMENT 'Quiz 作答次数累计',
+  review_count          INT    DEFAULT 0 COMMENT '复习（SM-2 抽查）次数累计',
+  recall_count          INT    DEFAULT 0 COMMENT '主动回忆会话次数累计',
+  recall_avg_score      INT    DEFAULT 0 COMMENT '主动回忆平均得分 0~100',
+  coding_attempt_count   INT    DEFAULT 0 COMMENT '代码提交次数累计',
+  coding_pass_count      INT    DEFAULT 0 COMMENT '代码完全通过次数累计',
+  mistake_count         INT    DEFAULT 0 COMMENT '关联错题数累计',
+  mistake_mastered      INT    DEFAULT 0 COMMENT '已掌握错题数累计',
+  consecutive_correct   INT    DEFAULT 0 COMMENT '当前连续答对（Quiz 尾部游程）',
+  consecutive_wrong     INT    DEFAULT 0 COMMENT '当前连续答错（Quiz 尾部游程）',
+  last_learned_at       TIMESTAMP COMMENT '最近学习/互动时间',
+  last_reviewed_at      TIMESTAMP COMMENT '最近复习时间（复习/回忆/闪卡/阅读）',
+  last_assessed_at      TIMESTAMP COMMENT '最近测评时间（Quiz/代码/错题）',
+  next_review_at        TIMESTAMP COMMENT '下次应复习时间（来自 SM-2/回忆排程）',
+  forgetting_risk       INT    DEFAULT 0 COMMENT '遗忘风险 0~100',
+  create_time          TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time           TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted               INT    DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+) COMMENT='知识点掌握度（Knowledge Mastery Engine，Phase 2-B）';
+CREATE UNIQUE INDEX IF NOT EXISTS uk_km_user_knowledge ON knowledge_mastery (user_id, knowledge_id);
+CREATE INDEX IF NOT EXISTS idx_km_status ON knowledge_mastery (user_id, learning_status);
+CREATE INDEX IF NOT EXISTS idx_km_risk ON knowledge_mastery (user_id, forgetting_risk);
+CREATE INDEX IF NOT EXISTS idx_km_next ON knowledge_mastery (user_id, next_review_at);

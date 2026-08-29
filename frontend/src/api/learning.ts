@@ -15,6 +15,9 @@ import type {
   IPage,
   MasteryDistributionVO,
   CategoryMasteryVO,
+  KnowledgeMasteryVO,
+  KnowledgeMasteryDetailVO,
+  MasteryDiagnosticsVO,
   PersonalizedPathVO,
   ChapterDagVO,
   LearningCertificateVO,
@@ -47,6 +50,23 @@ export const learningApi = {
   mastery: () => apiGet<MasteryDistributionVO>('/learning/stats/mastery'),
   // C① 分类维度掌握度（含薄弱项）
   categoryMastery: () => apiGet<CategoryMasteryVO[]>('/learning/category-mastery'),
+
+  // ============================================================
+  // Phase 2-B：知识点掌握度引擎
+  // ============================================================
+  /** 我的全部知识点掌握度（按 masteryScore 倒序）。 */
+  knowledgeMastery: () => apiGet<KnowledgeMasteryVO[]>('/learning/mastery'),
+  /** 薄弱知识点（learningStatus = WEAK）。 */
+  knowledgeMasteryWeak: () => apiGet<KnowledgeMasteryVO[]>('/learning/mastery/weak'),
+  /** 需复习知识点（learningStatus = REVIEW_REQUIRED）。 */
+  knowledgeMasteryReviewRequired: () => apiGet<KnowledgeMasteryVO[]>('/learning/mastery/review-required'),
+  /** 单知识点掌握度详情（信号明细 + 原始计数器 + 解释）。 */
+  knowledgeMasteryDetail: (id: number) => apiGet<KnowledgeMasteryDetailVO>(`/learning/mastery/${id}`),
+  /** 引擎可观察性诊断（映射统计 / 未映射资源）。 */
+  knowledgeMasteryDiagnostics: () => apiGet<MasteryDiagnosticsVO>('/learning/mastery/diagnostics'),
+  /** 重新计算并回填（构建映射 + 重算全部知识点掌握度）。 */
+  knowledgeMasteryRecalculate: () => apiPost<void>('/learning/mastery/recalculate'),
+
   // SM-2 间隔重复复习：quality ∈ [0,5]，<3 重置，3=有印象，5=完全掌握
   reviewFlashcard: (id: number, quality: number) =>
     apiPost<void>(`/learning/flashcards/${id}/review?quality=${quality}`),

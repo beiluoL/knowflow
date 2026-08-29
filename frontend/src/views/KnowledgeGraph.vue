@@ -397,8 +397,13 @@
               <text :x="edge.mx" :y="edge.my" text-anchor="middle" font-size="9" :fill="edge.color">{{ relationLabel(edge.relation) }}</text>
             </g>
             <g v-for="node in entityRenderNodes" :key="node.id" class="cursor-pointer" @click="selectEntityNode(node)">
-              <circle :cx="node.x" :cy="node.y" :r="node.r" :fill="node.bgColor" :stroke="node.strokeColor" stroke-width="2" :opacity="entitySelectedNode && entitySelectedNode.id !== node.id && !isEntityNodeConnected(node.id) ? 0.25 : 1" class="transition-opacity duration-300" />
+              <circle :cx="node.x" :cy="node.y" :r="node.r" :fill="node.bgColor" :stroke="node.masteryColor || node.strokeColor" stroke-width="node.masteryColor ? 3 : 2" :opacity="entitySelectedNode && entitySelectedNode.id !== node.id && !isEntityNodeConnected(node.id) ? 0.25 : 1" class="transition-opacity duration-300" />
               <text :x="node.x" :y="node.y" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="600" :fill="node.textColor">{{ node.name }}</text>
+              <!-- Phase 2-B：掌握状态指示点 -->
+              <g v-if="node.masteryColor">
+                <circle :cx="node.x + node.r * 0.72" :cy="node.y - node.r * 0.72" :r="5" :fill="node.masteryColor" stroke="#fff" stroke-width="1.5" />
+                <text :x="node.x" :y="node.y + node.r + 11" text-anchor="middle" font-size="9" font-weight="700" :fill="node.masteryColor">{{ node.masteryScore }}</text>
+              </g>
             </g>
           </svg>
           <div class="flex items-center gap-3 mt-3 flex-wrap text-xs" style="color: var(--kb-muted-foreground);">
@@ -417,6 +422,17 @@
             </div>
           </div>
           <p v-if="entitySelectedNode.description" class="text-sm mb-3" style="color: var(--kb-foreground);">{{ entitySelectedNode.description }}</p>
+          <!-- Phase 2-B：掌握度概览 -->
+          <div v-if="selectedNodeMastery" class="rounded p-3 mb-3 text-sm" style="background: var(--kb-muted);">
+            <div class="text-xs mb-1" style="color: var(--kb-muted-foreground);">我的掌握度</div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-semibold" :style="{ color: masteryStatusColor(selectedNodeMastery.learningStatus) }">
+                {{ selectedNodeMastery.masteryScore }} 分 · {{ masteryStatusLabel(selectedNodeMastery.learningStatus) }}
+              </span>
+              <span class="text-xs" style="color: var(--kb-muted-foreground);">置信 {{ selectedNodeMastery.confidenceScore }}% · 遗忘风险 {{ selectedNodeMastery.forgettingRisk }}</span>
+              <button type="button" class="ml-auto px-2 py-0.5 rounded text-xs font-medium" style="border:1px solid var(--kb-primary); color: var(--kb-primary); background: rgba(59,111,224,.05);" @click="openMasteryDetail(entitySelectedNode.id)">查看详情</button>
+            </div>
+          </div>
           <div class="rounded p-3 mb-3 text-sm" style="background: var(--kb-muted);">
             <div class="text-xs mb-1" style="color: var(--kb-muted-foreground);">关联关系</div>
             <div class="font-semibold">{{ countEntityRelations(entitySelectedNode.id) }} 条 · 重要度 {{ entitySelectedNode.weight || 1 }}</div>
@@ -446,12 +462,13 @@ import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import MermaidDiagram from '@/components/Knowledge/MermaidDiagram.vue'
 import { notify, getApiError } from '@/utils/toast'
-import { knowledgeApi, categoriesApi } from '@/api'
+import { knowledgeApi, categoriesApi, learningApi } from '@/api'
 import type {
   KnowledgeGraphVO, GraphNodeVO,
   TechGraphVO, TechNodeVO, TechEdgeVO,
   ConceptDiagramVO,
   EntityNodeVO, EntityEdgeVO, EntityGraphVO, CategoryVO,
+  KnowledgeMasteryVO,
 } from '@/api/types'
 
 const router = useRouter()
@@ -472,10 +489,25 @@ async function fetchEntityGraph() {
   entitySelectedNode.value = null
   try {
     entityGraph.value = await knowledgeApi.entityGraph(entityCategoryId.value || undefined)
+    // Phase 2-B：并行加载知识点掌握度，叠加到实体节点（失败仅告警，不阻断图谱）
+    void loadEntityMastery()
   } catch (e: unknown) {
     notify(getApiError(e, '实体图谱加载失败'), 'error')
   } finally {
     entityLoading.value = false
+  }
+}
+
+// Phase 2-B：知识点掌握度映射（kg_entity.id -> mastery），用于实体图谱叠加掌握状态
+const masteryMap = ref<Record<number, KnowledgeMasteryVO>>({})
+async function loadEntityMastery() {
+  try {
+    const list = await learningApi.knowledgeMastery().catch(() => [] as KnowledgeMasteryVO[])
+    const map: Record<number, KnowledgeMasteryVO> = {}
+    for (const m of list) map[m.knowledgeId] = m
+    masteryMap.value = map
+  } catch {
+    // 掌握度缺失不影响图谱渲染
   }
 }
 
@@ -880,8 +912,13 @@ const entityViewBox = computed(() => {
   return `0 0 ${width} 520`
 })
 
-interface EntityRenderNode extends EntityNodeVO { x: number; y: number; r: number; bgColor: string; strokeColor: string; textColor: string }
+interface EntityRenderNode extends EntityNodeVO { x: number; y: number; r: number; bgColor: string; strokeColor: string; textColor: string; masteryScore?: number; learningStatus?: string; masteryColor?: string }
 interface EntityRenderEdge extends EntityEdgeVO { x1: number; y1: number; x2: number; y2: number; color: string; opacity: number; mx: number; my: number }
+
+const MASTERY_STATUS_COLORS: Record<string, string> = {
+  NOT_STARTED: '#64748b', LEARNING: '#3b6fe0', WEAK: '#EF4444', MASTERED: '#10B981', REVIEW_REQUIRED: '#F59E0B',
+}
+const masteryStatusColor = (s?: string) => MASTERY_STATUS_COLORS[s || 'NOT_STARTED'] || MASTERY_STATUS_COLORS.NOT_STARTED
 
 const entityRenderNodes = computed<EntityRenderNode[]>(() => {
   if (!entityGraph.value) return []
@@ -896,7 +933,12 @@ const entityRenderNodes = computed<EntityRenderNode[]>(() => {
     const w = n.weight || 1
     const r = Math.max(15, Math.min(34, 13 + w))
     const colors = ENTITY_TYPE_COLORS[n.type] || ENTITY_TYPE_COLORS.OTHER
-    return { ...n, x, y, r, bgColor: colors.bg, strokeColor: colors.stroke, textColor: colors.text }
+    const mk = masteryMap.value[n.id]
+    return {
+      ...n, x, y, r, bgColor: colors.bg, strokeColor: colors.stroke, textColor: colors.text,
+      masteryScore: mk?.masteryScore, learningStatus: mk?.learningStatus,
+      masteryColor: mk ? masteryStatusColor(mk.learningStatus) : undefined,
+    }
   })
 })
 
@@ -947,6 +989,14 @@ const getEntityNeighbors = (id: number): EntityNeighbor[] => {
   }
   return result
 }
+
+// Phase 2-B：选中节点的掌握度 + 跳转详情
+const MASTERY_STATUS_LABELS: Record<string, string> = {
+  NOT_STARTED: '未学习', LEARNING: '学习中', WEAK: '薄弱', MASTERED: '已掌握', REVIEW_REQUIRED: '需复习',
+}
+const masteryStatusLabel = (s?: string) => MASTERY_STATUS_LABELS[s || 'NOT_STARTED'] || '未学习'
+const selectedNodeMastery = computed(() => entitySelectedNode.value ? masteryMap.value[entitySelectedNode.value.id] : undefined)
+const openMasteryDetail = (id: number) => router.push(`/learning/knowledge-mastery/${id}`)
 
 // ===== 初始化 =====
 onMounted(() => {

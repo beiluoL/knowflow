@@ -9,7 +9,9 @@ import com.knowflow.common.LearningEventType;
 import com.knowflow.common.SecurityUtils;
 import com.knowflow.entity.LearningEvent;
 import com.knowflow.mapper.LearningEventMapper;
+import com.knowflow.service.KnowledgeMasteryService;
 import com.knowflow.service.LearningEventService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -25,9 +27,13 @@ import java.util.Map;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class LearningEventServiceImpl extends ServiceImpl<LearningEventMapper, LearningEvent> implements LearningEventService {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    /** 掌握度引擎：事件落库后触发（独立 try/catch，失败仅告警，不阻断业务）。 */
+    private final KnowledgeMasteryService knowledgeMasteryService;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -63,6 +69,11 @@ public class LearningEventServiceImpl extends ServiceImpl<LearningEventMapper, L
             event.setResourceId(resourceId);
             event.setMetadata(serialize(metadata));
             this.save(event);
+            try {
+                knowledgeMasteryService.processEvent(event);
+            } catch (Exception ex) {
+                log.warn("掌握度引擎处理事件失败（已忽略，不影响主流程）: eventId={}, err={}", event.getId(), ex.getMessage());
+            }
         } catch (Exception ex) {
             log.warn("记录学习事件失败（已忽略，不影响主流程）: type={}, err={}", eventType, ex.getMessage());
         }
