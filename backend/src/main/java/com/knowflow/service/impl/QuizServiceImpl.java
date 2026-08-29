@@ -14,6 +14,8 @@ import com.knowflow.mapper.QuizQuestionMapper;
 import com.knowflow.mapper.LearningMistakeMapper;
 import com.knowflow.service.MistakeService;
 import com.knowflow.service.QuizService;
+import com.knowflow.common.LearningEventType;
+import com.knowflow.service.LearningEventService;
 import com.knowflow.vo.QuizMistakeVO;
 import com.knowflow.vo.QuizPracticeVO;
 import com.knowflow.vo.QuizStatsVO;
@@ -41,6 +43,7 @@ public class QuizServiceImpl extends ServiceImpl<QuizAnswerRecordMapper, QuizAns
     private final MistakeService mistakeService;
     private final LearningMistakeMapper learningMistakeMapper;
     private final ObjectMapper objectMapper;
+    private final LearningEventService learningEventService;
 
     private static final String MISTAKE_SOURCE = "QUIZ";
     private static final String MISTAKE_CATEGORY = "智能题库";
@@ -111,6 +114,13 @@ public class QuizServiceImpl extends ServiceImpl<QuizAnswerRecordMapper, QuizAns
                 record.setScore(score);
                 record.setTimeCost(ans.getTimeCost() == null ? 0 : ans.getTimeCost());
                 this.save(record);
+                learningEventService.record(userId, LearningEventType.QUESTION_ANSWERED, "QUIZ", q.getId(),
+                        Map.of("correct", correct, "score", score, "timeCost", record.getTimeCost()));
+                if (correct) {
+                    learningEventService.record(userId, LearningEventType.QUESTION_CORRECT, "QUIZ", q.getId(), Map.of("score", score));
+                } else {
+                    learningEventService.record(userId, LearningEventType.QUESTION_WRONG, "QUIZ", q.getId(), Map.of("score", score));
+                }
 
                 String correctDisplay = toDisplayAnswer(q.getQuestionType(), q.getAnswer(), options);
 

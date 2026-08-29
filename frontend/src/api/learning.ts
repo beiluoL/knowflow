@@ -11,6 +11,8 @@ import type {
   FlashcardInput,
   FlashcardGenerateInput,
   DailyActivityVO,
+  LearningEventVO,
+  IPage,
   MasteryDistributionVO,
   CategoryMasteryVO,
   PersonalizedPathVO,
@@ -38,6 +40,9 @@ export const learningApi = {
     apiGet<FlashcardVO[]>('/learning/flashcards', { pathId, chapterId }),
   // C① 学习活跃度热力图（按日期聚合）
   dailyActivity: (days = 120) => apiGet<DailyActivityVO[]>('/learning/stats/daily-activity', { days }),
+  // Phase 1：统一学习行为事件查询（只读，按事件类型/分页过滤）
+  learningEvents: (params?: { eventType?: string; current?: number; size?: number }) =>
+    apiGet<IPage<LearningEventVO>>('/learning/events', params),
   // C① 掌握分布看板
   mastery: () => apiGet<MasteryDistributionVO>('/learning/stats/mastery'),
   // C① 分类维度掌握度（含薄弱项）

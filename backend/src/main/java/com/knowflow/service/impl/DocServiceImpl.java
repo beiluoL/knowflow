@@ -26,6 +26,8 @@ import com.knowflow.service.AiService;
 import com.knowflow.service.CategoryService;
 import com.knowflow.service.DocChunkService;
 import com.knowflow.service.DocService;
+import com.knowflow.common.LearningEventType;
+import com.knowflow.service.LearningEventService;
 import com.knowflow.service.DocumentTextExtractor;
 import com.knowflow.service.KnowledgeService;
 import com.knowflow.util.UploadHelper;
@@ -66,6 +68,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     private final DocumentTextExtractor documentTextExtractor;
     private final KnowledgeService knowledgeService;
     private final UploadConfigProperties uploadConfig;
+    private final LearningEventService learningEventService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // ============ 搜索排序与相关度打分参数 ============
@@ -591,6 +594,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
             progress.setLastReadTime(LocalDateTime.now());
             readProgressMapper.updateById(progress);
         }
+        learningEventService.record(userId, LearningEventType.DOCUMENT_READ, "DOC", dto.getDocId(), null);
         if (dto.getProgress() != null && dto.getProgress().compareTo(new BigDecimal("100")) >= 0) {
             this.update(new LambdaUpdateWrapper<DocDocument>()
                     .eq(DocDocument::getId, dto.getDocId())

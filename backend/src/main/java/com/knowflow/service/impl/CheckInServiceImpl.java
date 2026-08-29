@@ -2,11 +2,13 @@ package com.knowflow.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.knowflow.common.LearningEventType;
 import com.knowflow.entity.SysUser;
 import com.knowflow.entity.UserCheckIn;
 import com.knowflow.mapper.SysUserMapper;
 import com.knowflow.mapper.UserCheckInMapper;
 import com.knowflow.service.CheckInService;
+import com.knowflow.service.LearningEventService;
 import com.knowflow.vo.CheckInResultVO;
 import com.knowflow.vo.CheckInStatusVO;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /** 每日打卡业务服务实现：连续天数计算、奖励发放与 streak 同步。 */
@@ -24,6 +27,7 @@ import java.util.stream.Collectors;
 public class CheckInServiceImpl extends ServiceImpl<UserCheckInMapper, UserCheckIn> implements CheckInService {
 
     private final SysUserMapper sysUserMapper;
+    private final LearningEventService learningEventService;
 
     /** 每日基础奖励经验值。 */
     private static final int BASE_EXP = 10;
@@ -61,6 +65,10 @@ public class CheckInServiceImpl extends ServiceImpl<UserCheckInMapper, UserCheck
         record.setRewardExp(rewardExp);
         record.setRewardEnergy(BASE_ENERGY);
         this.save(record);
+
+        // Learning Event System（Phase 1）：每日签到事件（仅真实新增签到记录时触发）
+        learningEventService.record(userId, LearningEventType.CHECK_IN, "CHECK_IN", null,
+                Map.of("continuousDays", continuous, "rewardExp", rewardExp, "rewardEnergy", BASE_ENERGY));
 
         // 同步 sys_user.streak_days（用户统计以该字段展示连续学习天数）
         SysUser user = sysUserMapper.selectById(userId);

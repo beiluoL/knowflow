@@ -444,6 +444,7 @@ const quickNavItems = [
   { label: '复习计划', icon: 'calendar-check', color: '#F59E0B', to: '/learning/review' },
   { label: '知识图谱', icon: 'share-2', color: '#8B5CF6', to: '/learning/knowledge-graph' },
   { label: '掌握分布', icon: 'pie-chart', color: '#06B6D4', to: '/learning/mastery' },
+  { label: '行为事件', icon: 'activity', color: '#3B6FE0', to: '/learning/events' },
   { label: 'AI 问答', icon: 'brain', color: '#06B6D4', to: '/chat' },
 ]
 

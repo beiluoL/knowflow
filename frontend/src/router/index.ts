@@ -218,6 +218,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/MasteryDashboard.vue'),
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
+  // Phase 1：学习行为事件（统一埋点只读视图）
+  {
+    path: '/learning/events',
+    name: 'LearningEvents',
+    component: () => import('@/views/LearningEvents.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
   {
     path: '/learning/review',
     name: 'ReviewPlan',

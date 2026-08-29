@@ -1,7 +1,10 @@
 package com.knowflow.controller;
 
+import com.knowflow.common.LearningEventType;
 import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.service.KnowledgeService;
+import com.knowflow.service.LearningEventService;
 import com.knowflow.vo.ConceptDiagramVO;
 import com.knowflow.vo.EntityGraphVO;
 import com.knowflow.vo.ExtractResultVO;
@@ -13,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 /** 知识图谱 REST 接口：分类-文档图谱、技术栈依赖图谱、概念可视化图解、实体关系知识图谱（A-RAG-04）。 */
 @Tag(name = "知识图谱接口")
 @RestController
@@ -21,10 +26,14 @@ import org.springframework.web.bind.annotation.*;
 public class KnowledgeController {
 
     private final KnowledgeService knowledgeService;
+    private final LearningEventService learningEventService;
 
     @Operation(summary = "分类-文档层级图谱")
     @GetMapping("/graph")
     public Result<KnowledgeGraphVO> graph() {
+        // Learning Event System（Phase 1）：知识图谱查看事件（匿名访问时 userId 为空，record 内部自动跳过）
+        learningEventService.record(SecurityUtils.getCurrentUserIdNullable(),
+                LearningEventType.KNOWLEDGE_VIEWED, "GRAPH", null, Map.of("kind", "category-doc"));
         return Result.success(knowledgeService.getGraph());
     }
 
@@ -56,6 +65,11 @@ public class KnowledgeController {
     @GetMapping("/entity-graph")
     public Result<EntityGraphVO> getEntityGraph(@RequestParam(required = false) Long categoryId,
                                                @RequestParam(required = false) Long docId) {
+        // Learning Event System（Phase 1）：实体关系知识图谱查看事件
+        learningEventService.record(SecurityUtils.getCurrentUserIdNullable(),
+                LearningEventType.KNOWLEDGE_VIEWED, "ENTITY_GRAPH", docId,
+                Map.of("categoryId", categoryId == null ? "" : categoryId.toString(),
+                        "docId", docId == null ? "" : docId.toString()));
         return Result.success(knowledgeService.getEntityGraph(categoryId, docId));
     }
 

@@ -1,6 +1,7 @@
 package com.knowflow.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.knowflow.common.LearningEventType;
 import com.knowflow.common.Result;
 import cn.hutool.core.util.StrUtil;
 import com.knowflow.common.SecurityUtils;
@@ -8,6 +9,7 @@ import com.knowflow.entity.CodeQuestion;
 import com.knowflow.entity.CodeSubmitRecord;
 import com.knowflow.mapper.CodeQuestionMapper;
 import com.knowflow.mapper.CodeSubmitRecordMapper;
+import com.knowflow.service.LearningEventService;
 import com.knowflow.vo.CodeSubmitRecordVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -32,6 +35,7 @@ public class CodeQuestionController {
 
     private final CodeQuestionMapper questionMapper;
     private final CodeSubmitRecordMapper submitRecordMapper;
+    private final LearningEventService learningEventService;
 
     /** 默认编程语言 */
     private static final String DEFAULT_LANG = "javascript";
@@ -107,6 +111,17 @@ public class CodeQuestionController {
                 record.setPassCount(pass);
                 record.setPassed(allPassed ? 1 : 0);
                 submitRecordMapper.insert(record);
+                // Learning Event System（Phase 1）：代码提交事件，与业务完全解耦
+                Long uid = record.getUserId();
+                learningEventService.record(uid, LearningEventType.CODE_SUBMITTED, "CODE_QUESTION", id,
+                        Map.of("language", record.getLanguage(), "total", total, "passCount", pass));
+                if (allPassed) {
+                    learningEventService.record(uid, LearningEventType.CODE_PASSED, "CODE_QUESTION", id,
+                            Map.of("language", record.getLanguage()));
+                } else {
+                    learningEventService.record(uid, LearningEventType.CODE_FAILED, "CODE_QUESTION", id,
+                            Map.of("language", record.getLanguage(), "total", total, "passCount", pass));
+                }
             } catch (Exception e) {
                 log.warn("提交记录写入失败(不影响): {}", e.getMessage());
             }

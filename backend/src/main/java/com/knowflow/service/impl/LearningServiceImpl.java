@@ -21,9 +21,11 @@ import com.knowflow.entity.LearningPath;
 import com.knowflow.entity.LearningTask;
 import com.knowflow.entity.LearningUserChapter;
 import com.knowflow.entity.LearningUserPath;
+import com.knowflow.entity.LearningEvent;
 import com.knowflow.entity.DocReadProgress;
 import com.knowflow.entity.SysUser;
 import com.knowflow.exception.BusinessException;
+import com.knowflow.common.LearningEventType;
 import com.knowflow.mapper.AiPersonalizedPathMapper;
 import com.knowflow.mapper.DocCategoryMapper;
 import com.knowflow.mapper.DocDocumentMapper;
@@ -36,9 +38,11 @@ import com.knowflow.mapper.LearningPathMapper;
 import com.knowflow.mapper.LearningTaskMapper;
 import com.knowflow.mapper.LearningUserChapterMapper;
 import com.knowflow.mapper.LearningUserPathMapper;
+import com.knowflow.mapper.LearningEventMapper;
 import com.knowflow.mapper.SysUserMapper;
 import com.knowflow.service.AiService;
 import com.knowflow.service.LearningService;
+import com.knowflow.service.LearningEventService;
 import com.knowflow.service.NotificationService;
 import com.knowflow.vo.CategoryMasteryVO;
 import com.knowflow.vo.ChapterDagVO;
@@ -95,6 +99,8 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     private final NotificationService notificationService;
     private final AiService aiService;
     private final JdbcTemplate jdbcTemplate;
+    private final LearningEventMapper learningEventMapper;
+    private final LearningEventService learningEventService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /** 分类掌握度薄弱阈值：正确率低于此值标记为薄弱项 */
@@ -456,6 +462,8 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         uc.setChapterId(chapterId);
         uc.setCompleteTime(LocalDateTime.now());
         userChapterMapper.insert(uc);
+        learningEventService.record(userId, LearningEventType.CHAPTER_COMPLETE, "CHAPTER", chapterId,
+                Map.of("pathId", chapter.getPathId()));
         userPathMapper.update(new LambdaUpdateWrapper<LearningUserPath>()
                 .eq(LearningUserPath::getId, userPath.getId())
                 .setSql("completed_chapters = completed_chapters + 1")
@@ -473,6 +481,8 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
             // G-CERT-01：路径全部章节完成时自动颁发证书
             if (updated.getCompletedChapters() >= allChapters.size()) {
                 issueCertificate(userId, chapter.getPathId());
+                learningEventService.record(userId, LearningEventType.PATH_COMPLETED, "PATH", chapter.getPathId(),
+                        Map.of("completedChapters", updated.getCompletedChapters(), "totalChapters", allChapters.size()));
             }
         }
     }
@@ -550,6 +560,8 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
             uc.setChapterId(chapterId);
             uc.setVideoProgress(progress);
             userChapterMapper.insert(uc);
+            learningEventService.record(userId, LearningEventType.CHAPTER_START, "CHAPTER", chapterId,
+                    Map.of("pathId", chapter.getPathId(), "progress", progress));
             return progress;
         }
         // 已存在记录：取较大值，保证进度单调不减
@@ -647,6 +659,8 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         card.setLastReviewTime(now);
         card.setNextReviewTime(nextReview);
         flashcardMapper.updateById(card);
+        learningEventService.record(userId, LearningEventType.FLASHCARD_REVIEWED, "FLASHCARD", flashcardId,
+                Map.of("quality", q, "interval", interval));
     }
 
     /** C① 学习热力图：聚合用户阅读/完成章节/复习错题事件，返回最近 days 天每日计数。 */
@@ -677,6 +691,21 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         for (LearningMistake m : mistakes) {
             if (m.getLastReviewTime() != null) {
                 counts.merge(m.getLastReviewTime().toLocalDate(), 1, Integer::sum);
+            }
+        }
+
+        // Phase 1：统一从 learning_event 补充学习行为计数
+        // （排除已由业务表统计的 DOCUMENT_READ / CHAPTER_COMPLETE，避免重复计数；
+        //   其余事件类型：答题/代码/闪卡复习/主动回忆/AI对话/签到/知识图谱查看 为新增信号，丰富热力图）
+        List<LearningEvent> events = learningEventMapper.selectList(
+                new LambdaQueryWrapper<LearningEvent>()
+                        .eq(LearningEvent::getUserId, userId)
+                        .ge(LearningEvent::getCreateTime, start.atStartOfDay())
+                        .le(LearningEvent::getCreateTime, end.atTime(23, 59, 59))
+                        .notIn(LearningEvent::getEventType, List.of("DOCUMENT_READ", "CHAPTER_COMPLETE")));
+        for (LearningEvent e : events) {
+            if (e.getCreateTime() != null) {
+                counts.merge(e.getCreateTime().toLocalDate(), 1, Integer::sum);
             }
         }
 

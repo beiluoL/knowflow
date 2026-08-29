@@ -392,6 +392,28 @@ export interface DailyActivityVO {
   count: number
 }
 
+/** MyBatis-Plus 分页结果（后端 IPage 直接返回 records/total/current/size/pages）。 */
+export interface IPage<T> {
+  records: T[]
+  total: number
+  current: number
+  size: number
+  pages: number
+}
+
+/** 学习行为事件（Learning Event System，Phase 1，对应后端 LearningEvent）。 */
+export interface LearningEventVO {
+  id: number
+  userId: number
+  eventType: string
+  resourceType?: string | null
+  resourceId?: number | null
+  metadata?: string | null
+  createTime?: string | null
+  updateTime?: string | null
+  deleted?: number | null
+}
+
 /** 掌握分布看板数据。 */
 export interface MasteryDistributionVO {
   flashcardTotal: number

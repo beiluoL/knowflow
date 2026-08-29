@@ -1481,3 +1481,23 @@ CREATE TABLE IF NOT EXISTS learning_plan (
     UNIQUE KEY uk_lp_user_date (user_id, plan_date, deleted),
     KEY idx_lp_user (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- 学习行为事件层（Learning Event System，Phase 1）
+-- 统一埋点所有学习行为，作为掌握度引擎 / AI 教练 / 学习计划的数据底座。
+-- 仅追加记录，不替换任何原有业务表。
+-- ============================================================
+CREATE TABLE IF NOT EXISTS learning_event (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  event_type VARCHAR(40) NOT NULL COMMENT '事件类型：DOCUMENT_READ/CHAPTER_START/CHAPTER_COMPLETE/QUESTION_ANSWERED/QUESTION_CORRECT/QUESTION_WRONG/CODE_SUBMITTED/CODE_PASSED/CODE_FAILED/FLASHCARD_REVIEWED/RECALL_COMPLETED/AI_CHAT/KNOWLEDGE_VIEWED/PATH_COMPLETED/CHECK_IN',
+  resource_type VARCHAR(40) COMMENT '资源类型：DOC/CHAPTER/QUIZ/CODE/REVIEW_CARD/RECALL/CHAT/KNOWLEDGE/PATH/CHECKIN',
+  resource_id BIGINT COMMENT '关联资源ID（可为空）',
+  metadata LONGTEXT COMMENT '事件扩展信息（JSON）：分数/耗时/章节/题目/连续天数等',
+  create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+  KEY idx_le_user_time (user_id, create_time),
+  KEY idx_le_user_type (user_id, event_type, create_time),
+  KEY idx_le_resource (resource_type, resource_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

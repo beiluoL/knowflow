@@ -14,7 +14,9 @@ import com.knowflow.mapper.ChatMessageMapper;
 import com.knowflow.mapper.DocDocumentMapper;
 import com.knowflow.service.AiService;
 import com.knowflow.service.ChatService;
+import com.knowflow.common.LearningEventType;
 import com.knowflow.service.DocChunkService;
+import com.knowflow.service.LearningEventService;
 import com.knowflow.vo.ConversationVO;
 import com.knowflow.vo.MessageVO;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /** 聊天业务服务实现。 */
@@ -39,6 +42,7 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
     private final AiService aiService;
     private final DocDocumentMapper docMapper;
     private final DocChunkService docChunkService;
+    private final LearningEventService learningEventService;
 
     @Override
     public List<ConversationVO> getConversationList(Long userId) {
@@ -84,6 +88,8 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
         userMessage.setContent(dto.getContent());
         userMessage.setTokenCount(dto.getContent().length());
         messageMapper.insert(userMessage);
+        learningEventService.record(userId, LearningEventType.AI_CHAT, "CHAT", conversation.getId(),
+                Map.of("hasImages", dto.getImages() != null && !dto.getImages().isEmpty()));
         List<DocDocument> contextDocs = searchRelatedDocs(dto.getContent());
         // A-RAG + A-CHAT：有图片时使用视觉模型，否则使用文本模型
         List<String> images = dto.getImages();
@@ -172,6 +178,10 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
         userMessage.setTokenCount(dto.getContent().length());
         userMessage.setTruncated(0);
         messageMapper.insert(userMessage);
+
+        // Learning Event System（Phase 1）：流式 AI 对话事件
+        learningEventService.record(userId, LearningEventType.AI_CHAT, "CHAT", conversation.getId(),
+                Map.of("hasImages", dto.getImages() != null && !dto.getImages().isEmpty(), "stream", true));
 
         // 3. 检索 RAG 文档 + 拼上下文 system prompt
         List<DocDocument> contextDocs = searchRelatedDocs(dto.getContent());

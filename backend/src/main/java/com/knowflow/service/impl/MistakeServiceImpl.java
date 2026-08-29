@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.knowflow.common.LearningEventType;
 import com.knowflow.dto.CodeMistakeCollectRequest;
 import com.knowflow.dto.CodeMistakeCollectResult;
 import com.knowflow.entity.DocDocument;
@@ -13,6 +14,7 @@ import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.CodeQuestionMapper;
 import com.knowflow.mapper.DocDocumentMapper;
 import com.knowflow.mapper.LearningMistakeMapper;
+import com.knowflow.service.LearningEventService;
 import com.knowflow.service.MistakeService;
 import com.knowflow.vo.MistakeVO;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /** 错题本业务服务实现。 */
 @Service
@@ -31,6 +34,7 @@ public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, Learn
 
     private final DocDocumentMapper docMapper;
     private final CodeQuestionMapper codeQuestionMapper;
+    private final LearningEventService learningEventService;
 
     @Override
     public IPage<MistakeVO> getMistakePage(Long userId, String category, Integer mastered, Integer pageNum, Integer pageSize) {
@@ -96,6 +100,9 @@ public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, Learn
                 exist.setMastered(0);
                 exist.setLastReviewTime(LocalDateTime.now());
                 this.updateById(exist);
+                // Learning Event System（Phase 1）：错题再次归集（已存在则更新）事件
+                learningEventService.record(userId, LearningEventType.MISTAKE, "MISTAKE", exist.getId(),
+                        Map.of("source", mistake.getSource() == null ? "" : mistake.getSource(), "updated", true));
                 return;
             }
         }
@@ -104,6 +111,9 @@ public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, Learn
         mistake.setReviewCount(0);
         mistake.setLastReviewTime(LocalDateTime.now());
         this.save(mistake);
+        // Learning Event System（Phase 1）：新错题归集事件
+        learningEventService.record(userId, LearningEventType.MISTAKE, "MISTAKE", mistake.getId(),
+                Map.of("source", mistake.getSource() == null ? "" : mistake.getSource(), "updated", false));
     }
 
     @Override
@@ -194,9 +204,15 @@ public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, Learn
             exist.setLastReviewTime(LocalDateTime.now());
             this.updateById(exist);
             mistakeId = exist.getId();
+            // Learning Event System（Phase 1）：代码错题自动归集（已存在则更新）事件
+            learningEventService.record(userId, LearningEventType.MISTAKE, "MISTAKE", exist.getId(),
+                    Map.of("source", mistake.getSource(), "kind", "code", "updated", true));
         } else {
             this.save(mistake);
             mistakeId = mistake.getId();
+            // Learning Event System（Phase 1）：代码错题自动归集（新增）事件
+            learningEventService.record(userId, LearningEventType.MISTAKE, "MISTAKE", mistake.getId(),
+                    Map.of("source", mistake.getSource(), "kind", "code", "updated", false));
         }
 
         return CodeMistakeCollectResult.builder()

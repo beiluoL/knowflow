@@ -18,6 +18,7 @@ import com.knowflow.entity.WbReviewCard;
 import com.knowflow.entity.WbReviewLog;
 import com.knowflow.entity.WbStory;
 import com.knowflow.entity.WbRecallSession;
+import com.knowflow.common.LearningEventType;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.WbCaptureMapper;
 import com.knowflow.mapper.WbNoteMapper;
@@ -27,6 +28,7 @@ import com.knowflow.mapper.WbRecallSessionMapper;
 import com.knowflow.mapper.WbReviewCardMapper;
 import com.knowflow.mapper.WbReviewLogMapper;
 import com.knowflow.mapper.WbStoryMapper;
+import com.knowflow.service.LearningEventService;
 import com.knowflow.service.WorkbenchService;
 import com.knowflow.vo.WbForgettingCurveVO;
 import com.knowflow.vo.WbRecallSessionVO;
@@ -70,6 +72,7 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
     private final WbPalaceLociMapper lociMapper;
     private final WbStoryMapper storyMapper;
     private final WbRecallSessionMapper recallSessionMapper;
+    private final LearningEventService learningEventService;
 
     /** SM-2 难度系数默认 2.50，以整数存储（×100）。 */
     private static final int DEFAULT_EF = 250;
@@ -429,6 +432,10 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
         log.setEaseFactor(ef);
         log.setCostMs(dto.getCostMs());
         reviewLogMapper.insert(log);
+
+        // Learning Event System（Phase 1）：复习卡 SM-2 复习落库事件，与业务完全解耦
+        learningEventService.record(userId, LearningEventType.FLASHCARD_REVIEWED, "REVIEW_CARD", cardId,
+                Map.of("quality", quality, "lapsed", lapsed, "intervalDay", interval, "repetitions", repetitions));
 
         WbReviewGradeResultVO result = new WbReviewGradeResultVO();
         result.setCardId(cardId);
@@ -805,6 +812,11 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
             e.setCurrentRound(3);
             e.setStatus("COMPLETED");
             e.setCompletedTime(LocalDateTime.now());
+            // Learning Event System（Phase 1）：主动回忆会话完成事件
+            double recallAvg = ((e.getRound1Score() == null ? 0 : e.getRound1Score())
+                    + (e.getRound2Score() == null ? 0 : e.getRound2Score()) + score) / 3.0;
+            learningEventService.record(userId, LearningEventType.RECALL_COMPLETED, "RECALL_SESSION", e.getId(),
+                    Map.of("round3Score", score, "avgScore", recallAvg));
         }
         recallSessionMapper.updateById(e);
         return toRecallVO(e);
