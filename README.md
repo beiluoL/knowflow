@@ -21,7 +21,7 @@
 - **知识库工作台（学习闭环）**：新增顶部菜单「知识库工作台」（`/workbench`），实现 **知识输入 → 整理 → 复习 → 输出** 四模块闭环，融合多种高效学习方法论：①**间隔重复**——基于 **SM-2 遗忘曲线算法** 自动排程复习卡片，按用户反馈（忘了/困难/一般/容易）动态拉长间隔（`ease_factor`/`repetitions`/`interval_day` 驱动 `next_review_time` 提醒），支持卡片抽查与暂停；②**记忆宫殿**——可视化空间编辑，把知识点挂载到熟悉场景的固定位点（`pos_x/pos_y` 画布百分比坐标，前端拖拽布局），沿 `sort_order` 漫游路线回忆；③**费曼故事**——以故事/叙事形式重新表达知识（以教代学），支持假想听众（小孩/初学者/同行/面试官）、核心类比 `metaphor` 与**卡点记录 `gap_note`**（讲不通处即知识漏洞）；④**康奈尔笔记**——三栏结构（线索栏自测/笔记栏记录/总结栏复述）融入整理模块，掌握度 `mastery` 自评驱动总览。四模块通过 `wb_capture` 收集箱串联：任一知识可从采集派生笔记/复习卡/宫殿位点/故事，形成全生命周期闭环。
 - **智能测验与写作**：多题型题库（单选/多选/填空/判断/简答）+ **AI 按知识库/文档出题**；智能写作含 AI 评分反馈、实时预览、导出 PDF / Markdown。
 - **数据可视化**：学习热力图（GitHub 式按日活跃度）、掌握分布看板（闪卡/错题掌握度）、**知识图谱**（分类/文档层级图、技术栈依赖图、概念图解、**AI 抽取的实体关系图**等多视图 SVG 可视化）。
-- **社区与消息**：帖子 / 评论 / 点赞（幂等切换）、精华帖；消息通知中心（未读数 / 单条已读 / 一键全部已读）；即时通讯（学习小组群聊 + 单聊私信，含 @提及 / 撤回 / 已读游标，详见 `doc/技术方案/消息功能技术方案.md`）。
+- **社区与消息**：帖子 / 评论 / 点赞（幂等切换）、精华帖；消息通知中心（未读数 / 单条已读 / 一键全部已读）；即时通讯（学习小组群聊 + 单聊私信，含 @提及 / 撤回 / 已读游标，详见 `docs/技术方案/消息功能技术方案.md`）。
 - **管理后台**：概览看板（真实统计：用户增长/健康度/活动流）、用户管理、文档管理（发布/草稿/废弃、批量删除/移动）、知识库与成员管理、学习路径与章节管理（**AI 生成路径/章节内容**）、闪卡管理（**AI 批量生成**）、代码题库、测验题库（**AI 出题**）、自定义图标（SVG 上传）、对话配置、社区管理。
 
 ## 技术栈
@@ -148,7 +148,7 @@
 | DrawingController | `/api/drawings` | 绘图编辑器·流程图整图 CRUD（列表/详情/新建/更新/删除），全部需登录，user_id 维度隔离；`data` 存 vue-flow 契约 JSON（nodes/edges） |
 | TaskController | `/api/tasks` | 任务 CRUD + 智能列表（inbox/today/upcoming/someday/logbook，按 scheduledDate/completed 自动归类）、按清单/父任务/完成态过滤；支持子任务（parentId 层级、递归子树）；**日历范围查询** `GET /api/tasks/range?start=&end=&status=&listId=`（按时间窗返回重叠的定时事件 + 区间内的全天事件，绝不全量扫描）；定时事件 `start_time/end_time` 字段；全部需登录，user_id 维度隔离 |
 | TaskListController | `/api/task-lists` | 任务清单/项目/区域 CRUD（type: inbox/today/upcoming/someday/logbook/project/area），含任务计数；user_id 维度隔离 |
-| CalendarMarkController | `/api/calendar` | **日历四类日期标记（2026-08-27）**：`GET /marks?start=&end=` 按区间返回 holiday/lunar/modern/memorial 四类标记（最长 2 年）；`/memorials` 用户纪念日 CRUD（fixed 固定日期 / yearly 每年重复 + 月日展开 + 颜色 + 备注）；全部需登录，user_id 维度隔离。法定节假日数据内置 2025/2026 国务院办公厅安排（中国政府网公告交叉验证）；农历换算用 `util/LunarCalendar` 查表法（1900-2100，香港天文台推算数据）。详见 `doc/技术方案/日历四类标记技术方案.md`。 |
+| CalendarMarkController | `/api/calendar` | **日历四类日期标记（2026-08-27）**：`GET /marks?start=&end=` 按区间返回 holiday/lunar/modern/memorial 四类标记（最长 2 年）；`/memorials` 用户纪念日 CRUD（fixed 固定日期 / yearly 每年重复 + 月日展开 + 颜色 + 备注）；全部需登录，user_id 维度隔离。法定节假日数据内置 2025/2026 国务院办公厅安排（中国政府网公告交叉验证）；农历换算用 `util/LunarCalendar` 查表法（1900-2100，香港天文台推算数据）。详见 `docs/技术方案/日历四类标记技术方案.md`。 |
 | QuizController | `/api/quiz` | 智能测验：按知识库/文档出题、提交判分、答题记录、错题同步 |
 | CheckInController | `/api/checkin` | 每日打卡（签到 / 补卡 / 连续天数与奖励） |
 | AchievementController | `/api/achievements` | 成就列表与解锁、用户成就进度 |
@@ -213,9 +213,9 @@ knowflow/
 │   │   ├── types/         # TS 类型定义
 │   │   └── utils/         # 工具函数（toast 等）
 │   └── package.json
-├── miniprogram/           # 微信小程序（独立子项目，见 `doc/改造与提交/审核提交说明.md`）
+├── miniprogram/           # 微信小程序（独立子项目）
 ├── design/                # 原始设计稿（HTML）
-├── doc/                   # 项目文档汇总（技术方案 / 审查报告 / 优化选型 / 产品项目 / 改造提交 / 部署接入）
+├── docs/                  # 项目文档汇总（技术方案 / 产品需求 / 优化选型 / 部署接入 / 开发计划 / 前端规范）
 └── README.md              # 本文件
 ```
 
@@ -240,7 +240,7 @@ cd backend
 - H2 控制台：<http://localhost:8080/h2-console>（JDBC URL：`jdbc:h2:mem:knowflow`，用户名 `sa`，密码空）
 - **切换 MySQL**：把 `application.yml` 中 `knowflow.datasource.type` 改为 `mysql`（或启动时加 `DB_TYPE=mysql`），
   系统会自动加载 MySQL 驱动与 `db/mysql/` 方言脚本，**无需改动任何代码**；
-  也可登录后台「系统设置 → 数据库设置」在运行时热切换。详见 [DATABASE.md 第五章](./doc/部署与接入/DATABASE.md#五双数据库支持h2--mysql-切换)
+  也可登录后台「系统设置 → 数据库设置」在运行时热切换。详见 [DATABASE.md 第五章](./docs/部署与接入/DATABASE.md#五双数据库支持h2--mysql-切换)
 - **AI 功能配置**：复制 `backend/src/main/resources/application-local.example.yml` 为 `application-local.yml`（已被 gitignore，不会提交），填入真实 `ai.api-key` / `ai.base-url` / `ai.model`（也支持环境变量 `AI_API_KEY` 等覆盖）。未配置时 AI 对话 / 摘要 / 出题等功能不可用；用户也可在前端「AI 设置」中自行填入个人 Key
 - **语义检索配置（可选）**：文档检索支持「关键词 + 向量语义」混合召回。嵌入模型与对话模型通常不是同一厂商，
   需通过 `ai.embedding-base-url` / `ai.embedding-api-key` 单独配置（留空则回退 `ai.base-url` / `ai.api-key`）。
@@ -298,17 +298,18 @@ git push gitee      # 推送到 Gitee（HTTPS）
 
 ## 部署
 
-生产环境部署（后端 jar / MySQL、前端构建 + Nginx 反代、Docker 一键部署、systemd 守护等）请见 [DEPLOY.md](./doc/部署与接入/DEPLOY.md)。
+生产环境部署（后端 jar / MySQL、前端构建 + Nginx 反代、Docker 一键部署、systemd 守护等）请见 [DEPLOY.md](./docs/部署与接入/DEPLOY.md)。
 
 ## 相关文档
 
-- [DATABASE.md](./doc/部署与接入/DATABASE.md) — 数据库表结构（41 张表）、字段定义、索引设计（遵循《阿里巴巴 Java 开发手册》）
-- [DEPLOY.md](./doc/部署与接入/DEPLOY.md) — 生产环境部署指南（jar / Nginx / Docker / systemd）
-- [OAUTH.md](./doc/部署与接入/OAUTH.md) — GitHub / 微信 第三方 OAuth 登录接入指南
-- [消息功能技术方案.md](./doc/技术方案/消息功能技术方案.md) — IM（学习小组群聊 / 单聊私信）权威技术文档
-- [PRD-功能需求文档.md](./doc/产品与项目/PRD-功能需求文档.md) — 产品功能需求文档
-- [审核提交说明.md](./doc/改造与提交/审核提交说明.md) — 微信小程序审核提交说明
-- 其余技术方案 / 审查报告 / 优化选型等文档已归集到 [`doc/`](./doc/README.md) 目录
+- [DATABASE.md](./docs/部署与接入/DATABASE.md) — 数据库表结构（73 张表）、字段定义、索引设计（遵循《阿里巴巴 Java 开发手册》）
+- [DEPLOY.md](./docs/部署与接入/DEPLOY.md) — 生产环境部署指南（jar / Nginx / Docker / systemd）
+- [OAUTH.md](./docs/部署与接入/OAUTH.md) — GitHub / 微信 第三方 OAuth 登录接入指南
+- [消息功能技术方案.md](./docs/技术方案/消息功能技术方案.md) — IM（学习小组群聊 / 单聊私信）权威技术文档
+- [PRD-功能需求文档.md](./docs/产品需求/PRD-功能需求文档.md) — 产品功能需求文档
+- [UI设计系统.md](./docs/前端规范/UI设计系统.md) — 前端 UI 设计系统与界面规范（设计令牌 / 排版 / 组件 / 覆盖计划）
+- [知识库存储与上传方案.md](./docs/优化选型/知识库存储与上传方案.md) — 存储方案对比 / 分片上传 / 断点续传 / 秒传 / 超长正文存储
+- 其余技术方案 / 开发计划 / 优化选型等文档已归集到 [`docs/`](./docs/README.md) 目录
 
 ## 说明
 
