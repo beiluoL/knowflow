@@ -3,7 +3,9 @@ package com.knowflow.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.knowflow.common.Result;
 import com.knowflow.entity.LearningEvent;
+import com.knowflow.service.LearningEventQueryService;
 import com.knowflow.service.LearningEventService;
+import com.knowflow.vo.LearningEventSummaryVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class LearningEventController {
 
     private final LearningEventService learningEventService;
+    private final LearningEventQueryService learningEventQueryService;
 
     @Operation(summary = "查询我的学习行为事件（掌握度引擎 / AI 教练 / 看板数据源）")
     @GetMapping
@@ -28,5 +31,12 @@ public class LearningEventController {
             Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal();
         return Result.success(learningEventService.pageEvents(userId, eventType, current, size));
+    }
+
+    @Operation(summary = "学习事件统计摘要（今日 + 近7日，统一口径）")
+    @GetMapping("/summary")
+    public Result<LearningEventSummaryVO> summary(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return Result.success(learningEventQueryService.summary(userId));
     }
 }

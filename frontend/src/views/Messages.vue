@@ -32,7 +32,7 @@
             role="button"
             tabindex="0"
             @click="selectPrivateConv(conv)"
-            @keydown.enter.prevent="$event.target.click()"
+            @keydown.enter.prevent="($event.target as HTMLElement).click()"
           >
             <div class="conv-avatar" :style="{ background: getUserColor(conv.targetUserName || 'U') }">
               {{ (conv.targetUserName || 'U').charAt(0) }}
@@ -57,7 +57,7 @@
             role="button"
             tabindex="0"
             @click="openGroup(group)"
-            @keydown.enter.prevent="$event.target.click()"
+            @keydown.enter.prevent="($event.target as HTMLElement).click()"
           >
             <div class="conv-avatar group" :style="{ background: group.color || '#8B5CF6' }">
               {{ group.name.charAt(0) }}
@@ -125,7 +125,7 @@
                     <p class="message-text">{{ msg.recalled ? '[撤回的消息]' : (msg.content || '') }}</p>
                   </template>
                   <template v-else-if="msg.messageType === 'IMAGE'">
-                    <img :src="msg.fileUrl" :alt="msg.fileName" class="message-image" role="button" tabindex="0" @click="previewImage(msg.fileUrl)" @keydown.enter.prevent="$event.target.click()" />
+                    <img :src="msg.fileUrl" :alt="msg.fileName" class="message-image" role="button" tabindex="0" @click="previewImage(msg.fileUrl)" @keydown.enter.prevent="($event.target as HTMLElement).click()" />
                   </template>
                   <template v-else-if="msg.messageType === 'FILE'">
                     <a :href="msg.fileUrl" target="_blank" class="message-file">
@@ -145,7 +145,7 @@
                 </div>
                 <div class="message-time">
                   <span v-if="msg.isMine && msg.read" class="msg-read">已读</span>
-                  <span v-if="msg.isMine && !msg.recalled" class="msg-recall" role="button" tabindex="0" @click="recallPrivateMessage(msg)" @keydown.enter.prevent="$event.target.click()">撤回</span>
+                  <span v-if="msg.isMine && !msg.recalled" class="msg-recall" role="button" tabindex="0" @click="recallPrivateMessage(msg)" @keydown.enter.prevent="($event.target as HTMLElement).click()">撤回</span>
                   <span>{{ formatTime(msg.createTime) }}</span>
                 </div>
               </div>
@@ -219,7 +219,7 @@
                 role="button"
                 tabindex="0"
                 @click="startConversation(u)"
-                @keydown.enter.prevent="$event.target.click()"
+                @keydown.enter.prevent="($event.target as HTMLElement).click()"
               >
                 <div class="conv-avatar" :style="{ background: getUserColor(u.nickname || u.username || 'U') }">
                   {{ (u.nickname || u.username || 'U').charAt(0) }}
@@ -579,7 +579,7 @@ function scrollToBottom() {
 }
 
 function getUserColor(name: string): string {
-  const colors = ['#3B6FE0', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#06B6D4', '#EF4444']
+  const colors = ['var(--kb-primary)', '#8B5CF6', '#EC4899', 'var(--kb-warning)', 'var(--kb-success)', '#06B6D4', 'var(--kb-danger)']
   let hash = 0
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash)

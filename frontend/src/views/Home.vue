@@ -16,20 +16,21 @@
             <h1 class="welcome-title">{{ greeting }}，{{ userName }}！</h1>
             <p class="welcome-tagline">{{ dynamicTagline }}</p>
             <div class="welcome-stats">
-              <div class="stat-pill">
-                <Icon name="clock" :size="14" />
-                <span class="stat-value tabular-nums">{{ studyHoursDisplay }}</span>
-                <span class="stat-unit">小时</span>
-              </div>
-              <div class="stat-pill">
-                <Icon name="target" :size="14" />
-                <span class="stat-value tabular-nums">{{ readDocsDisplay }}</span>
-                <span class="stat-unit">篇文档</span>
-              </div>
               <div v-if="streakDays > 0" class="stat-pill highlight-badge">
                 <Icon name="flame" :size="14" />
                 <span class="stat-value tabular-nums">{{ streakDaysDisplay }}</span>
                 <span class="stat-unit">天连击</span>
+              </div>
+              <!-- Architecture-5 §62：Coin / XP 轻量展示（真实钱包，学习驱动经济，不喧宾夺主 §60-63） -->
+              <div v-if="auth.isLoggedIn && wallet" class="stat-pill coin-pill">
+                <Icon name="coins" :size="14" />
+                <span class="stat-value tabular-nums">{{ wallet.coin }}</span>
+                <span class="stat-unit">Coin</span>
+              </div>
+              <div v-if="auth.isLoggedIn && wallet" class="stat-pill xp-pill">
+                <Icon name="zap" :size="14" />
+                <span class="stat-value tabular-nums">{{ wallet.xp }}</span>
+                <span class="stat-unit">XP · Lv{{ wallet.level }}</span>
               </div>
             </div>
           </div>
@@ -51,82 +52,76 @@
       </div>
     </section>
 
-    <section class="progress-section reveal-item" style="--reveal-index: 1;">
-      <div class="section-header">
-        <h2 class="section-title">今日学习进度</h2>
-        <span class="section-tag">
-          <Icon name="trending-up" :size="14" />
-          坚持学习
-        </span>
+    <!-- Architecture-5：今日学习状态（真实数据汇总 §215-216/§223）——
+         只保留能帮助用户「今天学什么」做决定的信息（§54/§57），
+         删除原先伪造的课程进度公式与周目标（§55）。 -->
+    <section class="status-section reveal-item" style="--reveal-index: 1;">
+      <div class="status-grid">
+        <div class="status-item">
+          <div class="status-head">
+            <Icon name="list-checks" :size="14" />
+            <span>今日任务</span>
+          </div>
+          <p class="status-value tabular-nums">{{ doneTasks }}<span class="status-unit"> / {{ tasks.length }} 已完成</span></p>
+        </div>
+        <div class="status-item">
+          <div class="status-head">
+            <Icon name="rotate-ccw" :size="14" />
+            <span>待复习</span>
+          </div>
+          <p class="status-value tabular-nums">{{ reviewRequired.length }}<span class="status-unit"> 个知识点</span></p>
+        </div>
+        <div class="status-item">
+          <div class="status-head">
+            <Icon name="trending-down" :size="14" />
+            <span>薄弱知识</span>
+          </div>
+          <p class="status-value tabular-nums">{{ weakPoints.length }}<span class="status-unit"> 个知识点</span></p>
+        </div>
+        <div class="status-item">
+          <div class="status-head">
+            <Icon name="route" :size="14" />
+            <span>当前路径</span>
+          </div>
+          <p v-if="currentPath" class="status-value tabular-nums">{{ pathPercent }}<span class="status-unit">% 进度</span></p>
+          <p v-else class="status-value status-muted">—</p>
+        </div>
       </div>
-      <div class="progress-cards">
-        <div class="progress-card course-progress reveal-item" style="--reveal-index: 2;">
-          <div class="card-header">
-            <Icon name="book-open" :size="14" />
-            <span class="card-label">当前课程进度</span>
-          </div>
-          <div class="progress-ring-container">
-            <svg class="progress-ring" width="80" height="80">
-              <circle class="progress-ring-bg" cx="40" cy="40" r="34"></circle>
-              <circle class="progress-ring-fill" cx="40" cy="40" r="34" :stroke-dasharray="ringCircumference" :stroke-dashoffset="ringOffset"></circle>
-            </svg>
-            <div class="ring-center">
-              <span class="ring-value tabular-nums">{{ courseProgress }}%</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <h3 class="card-title">{{ currentCourse.title }}</h3>
-            <p class="card-subtitle">{{ currentCourse.subtitle }}</p>
-            <button class="card-action">
-              <Icon name="arrow-right" :size="12" />
-              <span>继续学习</span>
-            </button>
-          </div>
-        </div>
+      <!-- Architecture-5 §35-38：今日奖励（reward_ledger 真实数据，轻量展示 §109） -->
+      <p v-if="todayRewardLoaded && (todayXp > 0 || todayCoin > 0)" class="today-reward-line">
+        <Icon name="zap" :size="12" />
+        今日已获得 <span class="tabular-nums">+{{ todayXp }} XP</span> · <span class="tabular-nums">+{{ todayCoin }} Coin</span>（学习奖励）
+      </p>
+    </section>
 
-        <div class="progress-card streak-progress reveal-item" style="--reveal-index: 3;">
-          <div class="card-header">
-            <Icon name="flame" :size="14" />
-            <span class="card-label">连续学习天数</span>
-          </div>
-          <div class="streak-display">
-            <span class="streak-number tabular-nums">{{ streakDays }}</span>
-            <span class="streak-unit">天</span>
-            <span class="streak-badge">
-              <Icon name="trending-up" :size="12" />
-              坚持中
-            </span>
-          </div>
-          <div class="streak-calendar">
-            <div v-for="(d, i) in weekdays" :key="i" class="day-item">
-              <div class="day-dot" :class="{ active: d.active }"></div>
-              <span class="day-label">{{ d.label }}</span>
-            </div>
-          </div>
-        </div>
+    <!-- Architecture-4/5：下一步（第一视觉 §5/§28/§118）——
+         用户打开首页第一个看到的是「现在该做什么」，而不是功能拼盘（§217-220）。 -->
+    <section class="next-section reveal-item" style="--reveal-index: 2;">
+      <NextActionCard :action="nextAction" dismissible />
+    </section>
 
-        <div class="progress-card mastery-progress reveal-item" style="--reveal-index: 4;">
-          <div class="card-header">
-            <Icon name="brain" :size="14" />
-            <span class="card-label">知识掌握度</span>
-          </div>
-          <div class="mastery-display">
-            <span class="mastery-number tabular-nums">{{ masteryPoints }}</span>
-            <span class="mastery-unit">个知识点</span>
-          </div>
-          <p class="mastery-percent tabular-nums">已掌握 {{ masteryPercent }}%</p>
-          <div class="mastery-bar">
-            <div class="mastery-fill" :style="`width: ${masteryPercent}%`"></div>
-          </div>
-          <div class="mastery-meta">
-            <span>已掌握 {{ masteryPercent }}%</span>
-            <span>目标 {{ masteryTarget }}</span>
-          </div>
+    <!-- Architecture-7：问问学习教练 CTA（§79-82，不抢占 NextAction 首屏） -->
+    <section class="reveal-item" style="--reveal-index: 2.2;">
+      <div class="flex items-center gap-3 rounded-2xl border px-4 py-3" style="border-color: var(--kb-border); background: rgba(59,111,224,0.05);">
+        <Icon name="graduation-cap" :size="20" style="color: var(--kb-primary); flex-shrink: 0;" />
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold" style="color: var(--kb-foreground);">问问学习教练</p>
+          <p class="text-[12px] mt-0.5" style="color: var(--kb-muted-foreground);">基于你的真实学习数据给出可执行的建议，不会改动任何学习记录。</p>
         </div>
+        <router-link to="/chat?coach=1" class="inline-flex items-center gap-1 px-3 h-9 rounded-lg text-sm font-medium transition-opacity hover:opacity-90" style="background: var(--kb-primary); color: var(--kb-primary-foreground);">
+          去问问
+          <Icon name="arrow-right" :size="14" />
+        </router-link>
       </div>
     </section>
 
-    <section class="todos-section reveal-item" style="--reveal-index: 5;">
+    <!-- Architecture-6：学习状态（第二层理解，§82-87/§196-217）——
+         用真实诊断回答「为什么 / 现在该关注什么」，不展示内部枚举（§59-61），不新增导航（§199-201）。 -->
+    <section class="state-section reveal-item" style="--reveal-index: 1.4;">
+      <LearningStateCard :diagnoses="homeDiagnoses" mode="home" />
+    </section>
+
+    <section class="todos-section reveal-item" style="--reveal-index: 3;">
       <div class="section-header">
         <h2 class="section-title">今日待办与计划</h2>
         <span class="section-badge">已完成 {{ doneTasks }} / {{ tasks.length }}</span>
@@ -152,73 +147,71 @@
             <router-link to="/learning/center" class="empty-state-link">暂无待办，去学习中心添加计划吧</router-link>
           </div>
         </div>
-
-        <div class="weekly-goal">
-          <div class="goal-header">
-            <Icon name="target" :size="14" />
-            <span class="goal-label">本周学习目标</span>
-          </div>
-          <div class="goal-ring-container">
-            <svg class="goal-ring" width="100" height="100">
-              <circle class="goal-ring-bg" cx="50" cy="50" r="42"></circle>
-              <circle class="goal-ring-fill" cx="50" cy="50" r="42" stroke-width="8" :stroke-dasharray="weekCircumference" :stroke-dashoffset="weekOffset"></circle>
-            </svg>
-            <div class="goal-center">
-              <span class="goal-percent tabular-nums">{{ weekPercent }}%</span>
-              <span class="goal-stats">{{ weekDone }} / {{ weekTarget }}h</span>
-            </div>
-          </div>
-          <div class="goal-details">
-            <div class="goal-detail">
-              <span class="detail-label">已完成</span>
-              <span class="detail-value tabular-nums">{{ weekDone }} 小时</span>
-            </div>
-            <div class="goal-detail">
-              <span class="detail-label">剩余目标</span>
-              <span class="detail-value tabular-nums">{{ Math.max(0, weekTarget - weekDone) }} 小时</span>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
 
-    <section class="paths-section reveal-item" style="--reveal-index: 6;">
+    <!-- Architecture-5：待复习 + 薄弱知识 并排（决策信息 §23/§57，具体知识点在学习中心展开） -->
+    <div class="summary-grid reveal-item" style="--reveal-index: 4;">
+      <section class="review-section">
+        <ReviewDueCard
+          :items="reviewRequired"
+          :loading="reviewLoading"
+          :error="reviewError"
+          @retry="loadReviewRequired"
+          @start="goTo('/learning/review')"
+          @continue="goTo('/learning/center')"
+        />
+      </section>
+      <section class="weak-section">
+        <WeakPointCard
+          :items="weakPoints"
+          :loading="weakLoading"
+          :error="weakError"
+          @retry="loadWeakPoints"
+          @view-all="goTo('/learning/mastery')"
+        />
+      </section>
+    </div>
+
+    <!-- Architecture-5：当前学习路径（真实 enrolled 路径 + 后端进度 §57） -->
+    <section class="current-path-section reveal-item" style="--reveal-index: 5;">
       <div class="section-header">
-        <h2 class="section-title">为你推荐</h2>
+        <h2 class="section-title">当前学习路径</h2>
         <router-link to="/learning/paths" class="section-link">
           <span>查看更多</span>
           <Icon name="arrow-right" :size="14" />
         </router-link>
       </div>
-      <div class="paths-scroll">
-        <router-link
-          v-for="path in learningPaths.slice(0, 6)"
-          :key="path.id"
-          :to="`/learning/path/${path.id}`"
-          class="path-card"
-        >
-          <div class="path-cover" :style="{ background: pathCover(path.id) }">
-            <Icon name="route" :size="24" />
-          </div>
-          <div class="path-content">
-            <div class="path-meta">
-              <span class="path-badge" :class="levelBadge(path.level).cls">{{ levelBadge(path.level).text }}</span>
-              <span class="path-chapters tabular-nums">{{ path.chapterCount || 0 }} 章</span>
-            </div>
-            <h3 class="path-title">{{ path.title }}</h3>
-            <p class="path-desc">{{ path.description || '系统化学习路径，循序渐进掌握技能。' }}</p>
-            <div class="path-progress">
-              <span class="progress-text">{{ pathProgress(path.id) }}%</span>
-              <div class="progress-bar">
-                <div class="progress-fill" :style="`width: ${pathProgress(path.id)}%`"></div>
-              </div>
-            </div>
-          </div>
-        </router-link>
-        <div v-if="learningPaths.length === 0" class="empty-state">
-          <Icon name="book-open" :size="24" />
-          <p>暂无推荐路径，浏览全部路径</p>
+      <div v-if="currentPath" class="path-card current-path-card">
+        <div class="path-cover" :style="{ background: pathCover(currentPath.id) }">
+          <Icon name="route" :size="24" />
         </div>
+        <div class="path-content">
+          <div class="path-meta">
+            <span class="path-badge" :class="levelBadge(currentPath.level).cls">{{ levelBadge(currentPath.level).text }}</span>
+            <span class="path-chapters tabular-nums">{{ currentPath.chapterCount || 0 }} 章</span>
+          </div>
+          <h3 class="path-title">{{ currentPath.title }}</h3>
+          <p class="path-desc">{{ currentPath.description || '系统化学习路径，循序渐进掌握技能。' }}</p>
+          <div class="path-progress">
+            <span class="progress-text tabular-nums">{{ pathPercent }}%</span>
+            <div class="progress-bar">
+              <div class="progress-fill" :style="`width: ${pathPercent}%`"></div>
+            </div>
+          </div>
+          <router-link :to="`/learning/path/${currentPath.id}`" class="path-continue">
+            <Icon name="play" :size="14" />
+            <span>继续学习</span>
+          </router-link>
+        </div>
+      </div>
+      <div v-else class="current-path-empty">
+        <Icon name="route" :size="24" />
+        <p>还没有进行中的学习路径</p>
+        <router-link to="/learning/paths" class="section-link">
+          <span>浏览学习路径</span>
+          <Icon name="arrow-right" :size="14" />
+        </router-link>
       </div>
     </section>
 
@@ -249,10 +242,6 @@
           </div>
           <div class="doc-footer">
             <span class="doc-time">{{ formatTime(doc.createTime) }}</span>
-            <span class="doc-progress tabular-nums">{{ docProgress(doc) }}%</span>
-          </div>
-          <div class="doc-progress-bar">
-            <div class="progress-fill" :style="`width: ${docProgress(doc)}%`"></div>
           </div>
         </router-link>
         <div v-if="continueDocs.length === 0" class="empty-state">
@@ -262,27 +251,27 @@
       </div>
     </section>
 
-    <section class="ai-section">
+    <!-- Architecture-1：我的应用（Registry 驱动，只显示已安装+启用的前 6 个 —— §162） -->
+    <section class="apps-section reveal-item" style="--reveal-index: 7;">
       <div class="section-header">
-        <h2 class="section-title">AI 学习建议</h2>
-        <span class="section-hint">基于你的学习行为智能生成</span>
+        <h2 class="section-title">我的应用</h2>
+        <router-link to="/apps" class="section-more">应用中心 →</router-link>
       </div>
-      <div class="ai-cards">
+      <div v-if="homeApps.length > 0" class="home-apps">
         <router-link
-          v-for="(rec, idx) in aiRecs"
-          :key="idx"
-          :to="rec.path"
-          class="ai-card"
+          v-for="app in homeApps"
+          :key="app.key"
+          :to="app.route"
+          class="home-app"
+          :title="app.description"
         >
-          <div class="ai-icon" :style="{ background: rec.bg, color: rec.color }">
-            <Icon :name="rec.icon" :size="16" />
-          </div>
-          <div class="ai-content">
-            <h4 class="ai-title">{{ rec.title }}</h4>
-            <p class="ai-desc">{{ rec.desc }}</p>
-          </div>
-          <button class="ai-action">开始</button>
+          <span class="home-app-icon"><Icon :name="app.icon" :size="18" /></span>
+          <span class="home-app-name">{{ app.name }}</span>
         </router-link>
+      </div>
+      <div v-else class="home-apps-empty">
+        <p>还没有安装学习应用</p>
+        <router-link to="/apps" class="section-more">去应用中心看看 →</router-link>
       </div>
     </section>
 
@@ -291,7 +280,7 @@
         :to="{
           path: '/learning/report',
           query: {
-            period: userStats?.studyDaysThisWeek >= 7 ? 'week' : 'month',
+            period: (userStats?.streakDays ?? 0) >= 7 ? 'week' : 'month',
             source: 'home'
           }
         }"
@@ -307,21 +296,103 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
+import ReviewDueCard from '@/components/home/ReviewDueCard.vue';
+import WeakPointCard from '@/components/home/WeakPointCard.vue';
+import { useAppStore } from '@/stores/apps';
 import { useAuthStore } from '@/stores/auth';
+import { useWalletStore } from '@/stores/wallet';
+import NextActionCard from '@/components/workflow/NextActionCard.vue';
+import LearningStateCard from '@/components/workflow/LearningStateCard.vue';
+import { resolveNextAction } from '@/learning/action-priority';
+import { actionToCta } from '@/learning/route';
+import { diagnoseLearningState } from '@/learning/intelligence/diagnosis';
+import type { NextLearningAction } from '@/learning/types';
+import type { LearningDiagnosis } from '@/learning/intelligence/types';
 import { docsApi, learningApi, userApi } from '@/api';
+import { walletApi } from '@/api/wallet';
 import { notify, getApiError } from '@/utils/toast';
 import { useCountUp } from '@/composables/useCountUp';
-import type { DocVO, LearningPathVO, LearningTaskVO, UserStatsVO } from '@/api/types';
+import type {
+  DocVO,
+  KnowledgeMasteryVO,
+  LearningPathVO,
+  LearningTaskVO,
+  UserStatsVO,
+} from '@/api/types';
 
 const auth = useAuthStore();
+const appStore = useAppStore();
+const walletStore = useWalletStore();
+const router = useRouter();
+
+/** Architecture-5：真实钱包（Coin/XP/Level 服务端真源 §39/§181） */
+const wallet = computed(() => walletStore.wallet);
+
+/* ===== Architecture-5 §35-38：今日奖励（reward_ledger 真实数据，非前端累加 §40） ===== */
+const todayXp = ref(0)
+const todayCoin = ref(0)
+const todayRewardLoaded = ref(false)
+
+async function loadTodayReward(): Promise<void> {
+  if (!auth.isLoggedIn) return
+  try {
+    const ledger = await walletApi.getLedger({ page: 1, size: 100 })
+    const today = new Date().toDateString()
+    let xp = 0
+    let coin = 0
+    for (const l of ledger) {
+      if (l.direction !== 'CREDIT') continue
+      const d = new Date(l.createTime)
+      if (d.toDateString() !== today) continue
+      if (l.currency === 'XP') xp += l.amount
+      else if (l.currency === 'COIN') coin += l.amount
+    }
+    todayXp.value = xp
+    todayCoin.value = coin
+  } catch {
+    // 奖励流水失败静默，不阻断首页（§211）
+  } finally {
+    todayRewardLoaded.value = true
+  }
+}
+
+/** Architecture-1：首页「我的应用」——只取已安装且启用的前 6 个（Registry 驱动，§139/§162） */
+const homeApps = computed(() => appStore.enabledApps.slice(0, 6));
+
+/** Architecture-4：唯一 Next Action 决策入口（§69/§179）——Review > Task > Weak > Path > Explore */
+const nextAction = computed<NextLearningAction>(() =>
+  resolveNextAction({
+    reviewRequired: reviewRequired.value,
+    weakPoints: weakPoints.value,
+    tasks: tasks.value,
+    currentPath: learningPaths.value.find((p) => p.enrolled) ?? null,
+    installedApps: appStore.enabledApps,
+  }),
+);
+
+/** Architecture-6：学习状态诊断（§6.5/§123-125）——前端本地纯函数推导，复用首页已加载的真实数据，
+ *  不新增 API（§124-129）。生产环境仅 reviewRequired / weakPoints 触发 REVIEW_OVERDUE / WEAK_KNOWLEDGE，
+ *  其余诊断需真实 mapping 才触发，绝不伪造（§68/§148/§239）。 */
+const homeDiagnoses = computed<LearningDiagnosis[]>(() =>
+  diagnoseLearningState({
+    reviewRequired: reviewRequired.value,
+    weakPoints: weakPoints.value,
+    tasks: tasks.value,
+    currentPath: currentPath.value,
+  }),
+);
 
 const userName = computed(() => auth.user?.nickname || auth.user?.username || '探索者');
 const userStats = ref<UserStatsVO | null>(null);
 const tasks = ref<LearningTaskVO[]>([]);
 const learningPaths = ref<LearningPathVO[]>([]);
 const continueDocs = ref<DocVO[]>([]);
-const pathProgressMap = ref<Record<number, { progress: number; completed: number; total: number }>>({});
+
+/** Architecture-5：当前学习路径 = 已报名且已开始的路径（后端填充 progress，§45/§57） */
+const currentPath = computed(() => learningPaths.value.find((p) => p.enrolled && (p.progress ?? 0) > 0) ?? null);
+const pathPercent = computed(() => Math.min(100, Math.round(currentPath.value?.progress ?? 0)));
 
 const greeting = computed(() => {
   const h = new Date().getHours();
@@ -339,12 +410,9 @@ const todayStr = computed(() => {
 });
 
 const studyHours = computed(() => userStats.value?.totalStudyHours ?? 0);
-const readDocs = computed(() => userStats.value?.readDocsCount ?? 0);
 const streakDays = computed(() => userStats.value?.streakDays ?? 0);
 
-// P1-3：数字 count-up 动画
-const { display: studyHoursDisplay } = useCountUp(studyHours);
-const { display: readDocsDisplay } = useCountUp(readDocs);
+// P1-3：数字 count-up 动画（连击天数）
 const { display: streakDaysDisplay } = useCountUp(streakDays);
 
 // P1-1：动态 CTA —— 基于用户学习状态给出最相关的下一步动作
@@ -357,64 +425,63 @@ const dynamicTagline = computed(() => {
 });
 
 const dynamicCta = computed(() => {
-  // 未登录 / 新用户 → 引导创建第一条路径
-  if (!auth.isLoggedIn || studyHours.value === 0) {
+  // 未登录 → 引导探索
+  if (!auth.isLoggedIn) {
     return {
       primary: { text: '探索学习路径', icon: 'route', path: '/learning/paths' },
       secondary: { text: '浏览知识库', icon: 'book-open', path: '/categories' },
     };
   }
-  // 有未完成文档 → 继续上次
-  if (continueDocs.value.length > 0) {
-    return {
-      primary: { text: '继续上次学习', icon: 'play', path: `/doc/${continueDocs.value[0].id}` },
-      secondary: { text: '查看待办', icon: 'list', path: '/learning/center' },
-    };
+  // 已登录 → 与「下一步」卡片共用同一优先级来源（Architecture-4 §69/§180），不再各自定义
+  const primary = actionToCta(nextAction.value);
+  const secondary = primary.path === '/learning/center'
+    ? { text: '浏览学习路径', icon: 'route', path: '/learning/paths' }
+    : { text: '查看待办', icon: 'list', path: '/learning/center' };
+  return { primary, secondary };
+});
+
+/* ========== 今日待复习（真实接口 /learning/mastery/review-required）========== */
+const reviewRequired = ref<KnowledgeMasteryVO[]>([]);
+const reviewLoading = ref(false);
+const reviewError = ref('');
+
+async function loadReviewRequired() {
+  if (!auth.isLoggedIn) return;
+  reviewLoading.value = true;
+  reviewError.value = '';
+  try {
+    reviewRequired.value = await learningApi.knowledgeMasteryReviewRequired();
+  } catch (e) {
+    reviewError.value = getApiError(e, '待复习数据加载失败');
+  } finally {
+    reviewLoading.value = false;
   }
-  // 默认 → 学习中心
-  return {
-    primary: { text: '进入学习中心', icon: 'play', path: '/learning/center' },
-    secondary: { text: '创建笔记', icon: 'plus', path: '/notes' },
-  };
-});
+}
 
-const weekdays = computed(() => {
-  const labels = ['一', '二', '三', '四', '五', '六', '日'];
-  const today = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
-  return labels.map((label, i) => ({ label, active: i <= today && streakDays.value > 0 }));
-});
+/* ========== 薄弱知识点（真实接口 /learning/mastery/weak）========== */
+const weakPoints = ref<KnowledgeMasteryVO[]>([]);
+const weakLoading = ref(false);
+const weakError = ref('');
 
-const courseProgress = computed(() => {
-  if (!userStats.value?.readDocsCount) return 0;
-  return Math.min(100, Math.round((userStats.value.readDocsCount / Math.max(1, userStats.value.readDocsCount + 5)) * 100));
-});
+async function loadWeakPoints() {
+  if (!auth.isLoggedIn) return;
+  weakLoading.value = true;
+  weakError.value = '';
+  try {
+    weakPoints.value = await learningApi.knowledgeMasteryWeak();
+  } catch (e) {
+    weakError.value = getApiError(e, '薄弱知识点加载失败');
+  } finally {
+    weakLoading.value = false;
+  }
+}
 
-const currentCourse = computed(() => ({
-  title: continueDocs.value[0]?.title || '开始你的第一篇文档',
-  subtitle: continueDocs.value[0]?.categoryName || '点击继续学习',
-}));
-
-const masteryPoints = computed(() => userStats.value?.totalFlashcards ?? 0);
-const masteryTarget = 200;
-const masteryPercent = computed(() => Math.min(100, Math.round((masteryPoints.value / masteryTarget) * 100)));
+/** 供卡片的行为回调统一走路由跳转（ emit action，不在卡片内做业务） */
+function goTo(path: string) {
+  router.push(path);
+}
 
 const doneTasks = computed(() => tasks.value.filter((t) => t.status === 1).length);
-
-const weekTarget = 14;
-const weekDone = computed(() => Math.min(weekTarget, Math.round((userStats.value?.totalStudyHours ?? 0) % weekTarget) || 0));
-const weekPercent = computed(() => Math.round((weekDone.value / weekTarget) * 100));
-
-const ringCircumference = 2 * Math.PI * 34;
-const ringOffset = computed(() => ringCircumference * (1 - courseProgress.value / 100));
-const weekCircumference = 2 * Math.PI * 42;
-const weekOffset = computed(() => weekCircumference * (1 - weekPercent.value / 100));
-
-const aiRecs = [
-  { title: '复习学习闪卡', desc: '利用间隔重复巩固记忆，建议今日完成闪卡复习', icon: 'refresh-cw', bg: 'rgba(59,111,224,0.08)', color: 'var(--kb-primary)', path: '/learning/flashcards' },
-  { title: '尝试代码练习', desc: '根据你的学习路径，建议完成今日编程练习', icon: 'code', bg: 'rgba(16,185,129,0.1)', color: 'var(--kb-accent)', path: '/learning/code-practice' },
-  { title: '阅读推荐文档', desc: '与你最近学习内容相关，推荐延伸阅读', icon: 'book-open', bg: 'rgba(245,158,11,0.1)', color: 'var(--kb-warning)', path: '/categories' },
-  { title: '智能问答答疑', desc: '遇到不懂的知识点，向 AI 提问快速解惑', icon: 'message-circle', bg: 'rgba(59,111,224,0.08)', color: 'var(--kb-primary)', path: '/chat' },
-];
 
 const pathCovers = [
   'linear-gradient(135deg, var(--kb-primary), rgba(59,111,224,0.6))',
@@ -435,30 +502,6 @@ function levelBadge(level?: string) {
   }
 }
 
-function pathProgress(id: number) {
-  const p = pathProgressMap.value[id];
-  return p ? p.progress : 0;
-}
-
-async function loadAllPathProgress() {
-  if (learningPaths.value.length === 0) return;
-  try {
-    const results = await Promise.allSettled(
-      learningPaths.value.map((p) => learningApi.chapters(p.id)),
-    );
-    learningPaths.value.forEach((path, idx) => {
-      const res = results[idx];
-      if (res.status === 'fulfilled') {
-        const chapters = res.value;
-        const total = chapters.length || (path.chapterCount ?? 0);
-        const completed = chapters.filter((c) => c.completed).length;
-        const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
-        pathProgressMap.value[path.id] = { progress, completed, total };
-      }
-    });
-  } catch {}
-}
-
 const docColors = [
   { bg: 'rgba(59,111,224,0.1)', color: 'var(--kb-primary)' },
   { bg: 'rgba(16,185,129,0.1)', color: 'var(--kb-accent)' },
@@ -474,10 +517,6 @@ function docIconBg(id: number) {
 
 function docIconColor(id: number) {
   return docColors[Math.abs(id) % docColors.length].color;
-}
-
-function docProgress(_doc: DocVO) {
-  return 0;
 }
 
 function formatTime(dateStr?: string) {
@@ -529,28 +568,48 @@ async function toggleTaskStatus(task: LearningTaskVO) {
 
 onMounted(async () => {
   if (auth.isLoggedIn) {
-    try {
-      userStats.value = await userApi.stats();
-    } catch {
-      userStats.value = null;
-    }
-    try {
-      tasks.value = await learningApi.tasks();
-    } catch {
-      tasks.value = [];
-    }
+    appStore.hydrate();
   }
-  try {
-    learningPaths.value = await learningApi.paths();
-    loadAllPathProgress();
-  } catch {
-    learningPaths.value = [];
-  }
-  try {
-    continueDocs.value = await docsApi.recent();
-  } catch {
-    continueDocs.value = [];
-  }
+  // Architecture-5 §47/§126：全部接口并行加载，任一失败不影响其余区块（各卡片自带 ErrorState）
+  await Promise.allSettled([
+    (async () => {
+      if (!auth.isLoggedIn) return;
+      try {
+        userStats.value = await userApi.stats();
+      } catch {
+        userStats.value = null;
+      }
+    })(),
+    (async () => {
+      if (!auth.isLoggedIn) return;
+      try {
+        tasks.value = await learningApi.tasks();
+      } catch {
+        tasks.value = [];
+      }
+    })(),
+    (async () => {
+      try {
+        learningPaths.value = await learningApi.paths();
+      } catch {
+        learningPaths.value = [];
+      }
+    })(),
+    (async () => {
+      try {
+        continueDocs.value = await docsApi.recent();
+      } catch {
+        continueDocs.value = [];
+      }
+    })(),
+    loadReviewRequired(),
+    loadWeakPoints(),
+    loadTodayReward(),
+    (async () => {
+      if (!auth.isLoggedIn) return;
+      void walletStore.fetchWallet(true);
+    })(),
+  ]);
 });
 </script>
 
@@ -829,6 +888,80 @@ onMounted(async () => {
 .section-hint {
   font-size: 12px;
   color: var(--kb-muted-foreground);
+}
+
+/* Architecture-1：我的应用区（Registry 驱动） */
+.section-more {
+  font-size: 13px;
+  color: var(--kb-primary);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.section-more:hover {
+  opacity: 0.75;
+}
+.apps-section {
+  margin-top: 32px;
+}
+/* Architecture-4：下一步卡片 */
+.next-section {
+  margin-bottom: 24px;
+}
+/* Architecture-6：学习状态卡片（第二层） */
+.state-section {
+  margin-bottom: 24px;
+}
+.home-apps {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+.home-app {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  background: var(--kb-card);
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+.home-app:hover {
+  border-color: var(--kb-primary-muted);
+}
+.home-app-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--kb-primary-soft);
+  color: var(--kb-primary);
+  flex-shrink: 0;
+}
+.home-app-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--kb-foreground);
+}
+.home-apps-empty {
+  padding: 20px;
+  border: 1px dashed var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  text-align: center;
+  color: var(--kb-muted-foreground);
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+@media (max-width: 640px) {
+  .home-apps {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .progress-cards {
@@ -1594,5 +1727,144 @@ onMounted(async () => {
 .empty-state-link:hover {
   opacity: 0.8;
   text-decoration: underline;
+}
+
+/* ========== Architecture-5：今日学习状态（§215-216） ========== */
+.status-section {
+  margin-bottom: 20px;
+}
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.status-item {
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  padding: 14px 16px;
+}
+.status-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--kb-fs-caption);
+  font-weight: 600;
+  color: var(--kb-muted-foreground);
+  letter-spacing: 0.02em;
+  margin-bottom: 8px;
+}
+.status-head svg {
+  color: var(--kb-primary);
+}
+.status-value {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--kb-foreground);
+  line-height: 1.2;
+}
+.status-unit {
+  font-size: var(--kb-fs-caption);
+  font-weight: 500;
+  color: var(--kb-muted-foreground);
+}
+.status-muted {
+  color: var(--kb-muted-foreground);
+  font-size: 18px;
+}
+.today-reward-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  font-size: var(--kb-fs-body-sm);
+  color: var(--kb-muted-foreground);
+}
+.today-reward-line svg {
+  color: var(--kb-warning);
+}
+.today-reward-line span {
+  color: var(--kb-warning);
+  font-weight: 600;
+}
+@media (max-width: 768px) {
+  .status-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 欢迎横幅内的 Coin / XP 轻量展示（§62） */
+.stat-pill.coin-pill {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--kb-warning);
+}
+.stat-pill.xp-pill {
+  background: rgba(59, 111, 224, 0.08);
+  color: var(--kb-primary);
+}
+
+/* ========== Architecture-5：待复习 + 薄弱并排 ========== */
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+@media (max-width: 768px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========== Architecture-5：当前学习路径（§57） ========== */
+.current-path-section {
+  margin-bottom: 20px;
+}
+.current-path-card {
+  width: auto;
+  display: flex;
+  align-items: stretch;
+}
+.current-path-card .path-cover {
+  width: 120px;
+  height: auto;
+  flex-shrink: 0;
+}
+.current-path-card .path-content {
+  flex: 1;
+  padding: 20px;
+}
+.path-continue {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 8px 18px;
+  border-radius: var(--kb-radius-sm);
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+.path-continue:hover {
+  opacity: 0.9;
+}
+.current-path-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px;
+  background: var(--kb-card);
+  border: 1px dashed var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  color: var(--kb-muted-foreground);
+}
+.current-path-empty svg {
+  opacity: 0.5;
 }
 </style>

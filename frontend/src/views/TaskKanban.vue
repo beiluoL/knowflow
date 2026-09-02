@@ -87,8 +87,8 @@ type Stage = 0 | 1 | 2
 
 const columns = [
   { key: 0 as Stage, label: '待办', color: '#94A3B8' },
-  { key: 1 as Stage, label: '进行中', color: '#3B6FE0' },
-  { key: 2 as Stage, label: '已完成', color: '#10B981' },
+  { key: 1 as Stage, label: '进行中', color: 'var(--kb-primary)' },
+  { key: 2 as Stage, label: '已完成', color: 'var(--kb-success)' },
 ]
 
 const tasks = ref<TaskNode[]>([])
@@ -210,7 +210,7 @@ onMounted(reload)
 
 .kb-progress { display: flex; align-items: center; gap: 10px; min-width: 200px; }
 .kb-progress-bar { flex: 1 1 auto; height: 8px; border-radius: 999px; background: var(--kb-muted); overflow: hidden; }
-.kb-progress-fill { height: 100%; border-radius: 999px; background: #10B981; transition: width 0.3s ease; }
+.kb-progress-fill { height: 100%; border-radius: 999px; background: var(--kb-success); transition: width 0.3s ease; }
 .kb-progress-text { font-size: 12px; color: var(--kb-muted-foreground); white-space: nowrap; }
 
 .kb-loading, .kb-error {
@@ -253,8 +253,8 @@ onMounted(reload)
   display: inline-flex; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 500;
   padding: 1px 7px; border-radius: 999px;
 }
-.kb-chip.imp { color: #F59E0B; background: rgba(245, 158, 11, 0.12); }
-.kb-chip.urg { color: #EF4444; background: rgba(239, 68, 68, 0.12); }
+.kb-chip.imp { color: var(--kb-warning); background: rgba(245, 158, 11, 0.12); }
+.kb-chip.urg { color: var(--kb-danger); background: rgba(239, 68, 68, 0.12); }
 
 .kb-card-actions { margin-left: auto; display: flex; gap: 2px; opacity: 0; transition: opacity 0.12s ease; }
 .kb-card:hover .kb-card-actions { opacity: 1; }

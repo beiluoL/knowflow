@@ -1,6 +1,10 @@
 import { ref, watch, onMounted, nextTick } from 'vue';
-import { usePomodoroStore, type RhythmPreset } from '@/stores/pomodoro';
+import { usePomodoroStore } from '@/stores/pomodoro';
+import type { RhythmPreset } from '@/stores/pomodoro';
 import { setTheme } from '@/composables/useTheme';
+
+/** 复导出 RhythmPreset，供沉浸主题面板等消费方按类型导入（Architecture-5 §171） */
+export type { RhythmPreset } from '@/stores/pomodoro';
 
 export type ImmersiveThemeId = 'midnight' | 'library' | 'ocean' | 'forest' | 'coffee' | 'sunset';
 
@@ -66,7 +70,7 @@ export const IMMERSIVE_THEMES: ImmersiveThemeDef[] = [
       '--kb-bg-1': '#292524',
       '--kb-bg-2': 'rgba(28, 25, 23, 0.6)',
       '--kb-elev-border': 'rgba(255, 237, 213, 0.1)',
-      '--kb-foreground': '#fef3c7',
+      '--kb-foreground': 'var(--kb-warning-soft-strong)',
       '--kb-muted-foreground': '#a8a29e',
     },
   },
@@ -105,7 +109,7 @@ export const IMMERSIVE_THEMES: ImmersiveThemeDef[] = [
       '--kb-bg-1': '#2d2418',
       '--kb-bg-2': 'rgba(26, 26, 26, 0.65)',
       '--kb-elev-border': 'rgba(254, 243, 199, 0.12)',
-      '--kb-foreground': '#fffbeb',
+      '--kb-foreground': 'var(--kb-warning-subtle)',
       '--kb-muted-foreground': '#d6d3d1',
     },
   },
@@ -130,7 +134,7 @@ export const ACCENT_PALETTE: AccentDef[] = [
   { id: 'purple', name: '紫', color: '#8B5CF6' },
   { id: 'pink', name: '粉', color: '#EC4899' },
   { id: 'orange', name: '橙', color: '#F97316' },
-  { id: 'green', name: '绿', color: '#10B981' },
+  { id: 'green', name: '绿', color: 'var(--kb-success)' },
 ];
 
 export const FONT_SIZES: FontSizeDef[] = [
@@ -252,9 +256,9 @@ const LIGHT_THEME_TOKENS: Record<string, string> = {
   '--kb-bg-0': '#F7F8FA',
   '--kb-bg-1': '#FFFFFF',
   '--kb-bg-2': 'rgba(255, 255, 255, 0.8)',
-  '--kb-elev-border': '#E2E6EC',
-  '--kb-foreground': '#1A1D23',
-  '--kb-muted-foreground': '#6B7280',
+  '--kb-elev-border': 'var(--kb-border)',
+  '--kb-foreground': 'var(--kb-foreground)',
+  '--kb-muted-foreground': 'var(--kb-muted-foreground)',
 };
 
 /** 还原所有主题偏好为系统默认白色主题并即时生效 */
@@ -269,7 +273,7 @@ export function resetImmersiveTheme(rootEl: HTMLElement | null) {
   // 切换全局主题为白色（light），退出沉浸模式的深色主题
   setTheme('light');
 
-  // 清除 documentElement 上被自定义修改的行内样式，回到 :root 默认值（--kb-primary: #3B6FE0）
+  // 清除 documentElement 上被自定义修改的行内样式，回到 :root 默认值（--kb-primary: var(--kb-primary)）
   document.documentElement.style.removeProperty('--kb-primary');
   document.documentElement.style.removeProperty('--kb-base-font-size');
 

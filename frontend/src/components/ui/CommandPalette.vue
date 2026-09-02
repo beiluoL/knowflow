@@ -26,7 +26,7 @@
         </div>
 
         <!-- 命令列表 -->
-        <div ref="listRef" class="kb-palette-list">
+        <div class="kb-palette-list">
           <template v-for="group in grouped" :key="group.key">
             <div class="kb-palette-group">{{ group.label }}</div>
             <button
@@ -84,7 +84,6 @@ const { isOpen, query, close } = useCommandPalette()
 const { filter } = useCommandRegistry()
 
 const inputRef = ref<HTMLInputElement | null>(null)
-const listRef = ref<HTMLElement | null>(null)
 const activeId = ref<string>('')
 
 // 过滤后的命令列表

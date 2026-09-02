@@ -93,7 +93,7 @@
               icon-color="var(--kb-primary)"
               icon-bg="color-mix(in srgb, var(--kb-primary) 10%, transparent)"
               :icon-size="18"
-              :value="currentReport.studyMinutes"
+              :value="currentReport.studyMinutes ?? 0"
               label="学习分钟"
             />
             <StatCard
@@ -101,7 +101,7 @@
               icon-color="var(--kb-accent)"
               icon-bg="color-mix(in srgb, var(--kb-accent) 10%, transparent)"
               :icon-size="18"
-              :value="currentReport.checkinDays"
+              :value="currentReport.checkinDays ?? 0"
               label="打卡天数"
             />
             <StatCard
@@ -109,7 +109,7 @@
               icon-color="var(--kb-warning)"
               icon-bg="color-mix(in srgb, var(--kb-warning) 10%, transparent)"
               :icon-size="18"
-              :value="currentReport.flashcardReviewed"
+              :value="currentReport.flashcardReviewed ?? 0"
               label="复习闪卡"
             />
           </div>
@@ -266,7 +266,7 @@
                 <Icon
                   name="chevron-down"
                   :size="16"
-                  :class="['wr-chevron', { 'wr-chevron-open': expandedId === report.id }]"
+                  :class="{ 'wr-chevron': true, 'wr-chevron-open': expandedId === report.id }"
                 />
               </div>
             </button>
@@ -375,11 +375,11 @@ const renderedSummary = computed(() =>
 );
 
 const MODE_COLORS: Record<string, string> = {
-  POMODORO: '#EF4444',
+  POMODORO: 'var(--kb-danger)',
   FLOW: '#06B6D4',
   DEEP: '#8B5CF6',
-  SPACED: '#10B981',
-  BUDDY: '#F59E0B',
+  SPACED: 'var(--kb-success)',
+  BUDDY: 'var(--kb-warning)',
 };
 const MODE_LABELS: Record<string, string> = {
   POMODORO: '番茄',
@@ -577,7 +577,7 @@ async function handleDownloadPdf(): Promise<void> {
     const insightsHtml = insights
       .map((it, i) => {
         const y = 520 + i * 110;
-        const toneColor = it.tone === 'positive' ? '#10B981' : it.tone === 'warning' ? '#F59E0B' : '#3B6FE0';
+        const toneColor = it.tone === 'positive' ? 'var(--kb-success)' : it.tone === 'warning' ? 'var(--kb-warning)' : 'var(--kb-primary)';
         const toneBg = it.tone === 'positive' ? 'rgba(16,185,129,0.08)' : it.tone === 'warning' ? 'rgba(245,158,11,0.08)' : 'rgba(59,111,224,0.08)';
         const contentLines = splitText(it.content, 32);
         const contentText = contentLines
@@ -587,7 +587,7 @@ async function handleDownloadPdf(): Promise<void> {
         return `<rect x="40" y="${y}" width="${w - 80}" height="96" rx="12" fill="${toneBg}" stroke="${toneColor}22" stroke-width="1" />
 <circle cx="66" cy="${y + 30}" r="18" fill="${toneColor}18" />
 <text x="66" y="${y + 36}" text-anchor="middle" font-size="18" fill="${toneColor}" font-family="Noto Sans SC, sans-serif">★</text>
-<text x="92" y="${y + 28}" font-size="14" font-weight="600" fill="#1A1D23" font-family="Noto Sans SC, -apple-system, sans-serif">${escapeXml(it.title)}</text>
+<text x="92" y="${y + 28}" font-size="14" font-weight="600" fill="var(--kb-foreground)" font-family="Noto Sans SC, -apple-system, sans-serif">${escapeXml(it.title)}</text>
 ${contentText}`;
       })
       .join('\n');
@@ -597,7 +597,7 @@ ${contentText}`;
       .map((a, i) => {
         const y = 380 + i * 32;
         return `<circle cx="58" cy="${y}" r="8" fill="rgba(245,158,11,0.18)" />
-<text x="58" y="${y + 4}" text-anchor="middle" font-size="11" fill="#F59E0B">★</text>
+<text x="58" y="${y + 4}" text-anchor="middle" font-size="11" fill="var(--kb-warning)">★</text>
 <text x="78" y="${y + 4}" font-size="13" fill="#374151" font-family="Noto Sans SC, -apple-system, sans-serif">${escapeXml(a)}</text>`;
       })
       .join('\n');
@@ -610,8 +610,8 @@ ${contentText}`;
       <stop offset="100%" stop-color="#F0F4FF"/>
     </linearGradient>
     <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#3B6FE0"/>
-      <stop offset="100%" stop-color="#6F9AF2"/>
+      <stop offset="0%" stop-color="var(--kb-primary)"/>
+      <stop offset="100%" stop-color="var(--kb-primary-muted)"/>
     </linearGradient>
   </defs>
 
@@ -627,20 +627,20 @@ ${contentText}`;
 
   <rect x="40" y="190" width="${w - 80}" height="140" rx="16" fill="#FFFFFF" stroke="rgba(59,111,224,0.1)" stroke-width="1"/>
   <rect x="76" y="220" width="${(w - 80 - 80) / 3 - 12}" height="80" rx="12" fill="rgba(59,111,224,0.06)"/>
-  <text x="${76 + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="#6B7280" font-family="Noto Sans SC, sans-serif">学习分钟</text>
-  <text x="${76 + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="#1A1D23" font-family="Noto Sans SC, sans-serif">${minutes}</text>
+  <text x="${76 + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="var(--kb-muted-foreground)" font-family="Noto Sans SC, sans-serif">学习分钟</text>
+  <text x="${76 + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="var(--kb-foreground)" font-family="Noto Sans SC, sans-serif">${minutes}</text>
 
   <rect x="${76 + (w - 80 - 80) / 3}" y="220" width="${(w - 80 - 80) / 3 - 12}" height="80" rx="12" fill="rgba(16,185,129,0.06)"/>
-  <text x="${76 + (w - 80 - 80) / 3 + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="#6B7280" font-family="Noto Sans SC, sans-serif">打卡天数</text>
-  <text x="${76 + (w - 80 - 80) / 3 + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="#1A1D23" font-family="Noto Sans SC, sans-serif">${days}</text>
+  <text x="${76 + (w - 80 - 80) / 3 + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="var(--kb-muted-foreground)" font-family="Noto Sans SC, sans-serif">打卡天数</text>
+  <text x="${76 + (w - 80 - 80) / 3 + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="var(--kb-foreground)" font-family="Noto Sans SC, sans-serif">${days}</text>
 
   <rect x="${76 + 2 * ((w - 80 - 80) / 3)}" y="220" width="${(w - 80 - 80) / 3 - 12}" height="80" rx="12" fill="rgba(245,158,11,0.06)"/>
-  <text x="${76 + 2 * ((w - 80 - 80) / 3) + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="#6B7280" font-family="Noto Sans SC, sans-serif">复习闪卡</text>
-  <text x="${76 + 2 * ((w - 80 - 80) / 3) + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="#1A1D23" font-family="Noto Sans SC, sans-serif">${cards}</text>
+  <text x="${76 + 2 * ((w - 80 - 80) / 3) + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="var(--kb-muted-foreground)" font-family="Noto Sans SC, sans-serif">复习闪卡</text>
+  <text x="${76 + 2 * ((w - 80 - 80) / 3) + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="var(--kb-foreground)" font-family="Noto Sans SC, sans-serif">${cards}</text>
 
-  ${achievements.length ? `<text x="40" y="360" font-size="16" font-weight="600" fill="#1A1D23" font-family="Noto Sans SC, sans-serif">🏆 本周成就</text>\n${achHtml}` : ''}
+  ${achievements.length ? `<text x="40" y="360" font-size="16" font-weight="600" fill="var(--kb-foreground)" font-family="Noto Sans SC, sans-serif">🏆 本周成就</text>\n${achHtml}` : ''}
 
-  <text x="40" y="500" font-size="16" font-weight="600" fill="#1A1D23" font-family="Noto Sans SC, sans-serif">✨ AI 深度洞见</text>
+  <text x="40" y="500" font-size="16" font-weight="600" fill="var(--kb-foreground)" font-family="Noto Sans SC, sans-serif">✨ AI 深度洞见</text>
   ${insightsHtml}
 
   <text x="${w / 2}" y="${h - 32}" text-anchor="middle" font-size="12" font-weight="600" fill="#9AA1AC" letter-spacing="2" font-family="Noto Sans SC, sans-serif">knowflow.cn</text>

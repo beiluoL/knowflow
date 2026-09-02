@@ -34,9 +34,9 @@
             role="button"
             tabindex="0"
             @click="selectGroup(group.id)"
-            @keydown.enter.self.prevent="$event.target.click()"
+            @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
           >
-            <div class="group-avatar" :style="{ background: group.color || '#3B6FE0' }">
+            <div class="group-avatar" :style="{ background: group.color || 'var(--kb-primary)' }">
               {{ group.name.charAt(0) }}
             </div>
             <div class="group-info">
@@ -63,7 +63,7 @@
             role="button"
             tabindex="0"
             @click="showGroupDetail(group)"
-            @keydown.enter.self.prevent="$event.target.click()"
+            @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
           >
             <div class="group-avatar" :style="{ background: group.color || '#8B5CF6' }">
               {{ group.name.charAt(0) }}
@@ -98,7 +98,7 @@
         <!-- 聊天头部 -->
         <header class="chat-header">
           <div class="header-info">
-            <div class="group-avatar large" :style="{ background: activeGroup?.color || '#3B6FE0' }">
+            <div class="group-avatar large" :style="{ background: activeGroup?.color || 'var(--kb-primary)' }">
               {{ activeGroup?.name.charAt(0) }}
             </div>
             <div class="header-text">
@@ -149,7 +149,7 @@
                       role="button"
                       tabindex="0"
                       @click="previewImage(msg.fileUrl)"
-                      @keydown.enter.self.prevent="$event.target.click()"
+                      @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
                     />
                   </template>
                   <!-- 文件消息 -->
@@ -183,7 +183,7 @@
                       role="button"
                       tabindex="0"
                       @click="retryFailedMessage(msg.tempId!)"
-                      @keydown.enter.self.prevent="$event.target.click()"
+                      @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
                     >发送失败，点击重试</span>
                   </template>
                   <template v-else>{{ formatTime(msg.createTime) }}</template>
@@ -194,7 +194,7 @@
                     role="button"
                     tabindex="0"
                     @click="recallGroupMessage(msg)"
-                    @keydown.enter.self.prevent="$event.target.click()"
+                    @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
                   >撤回</span>
                 </div>
               </div>
@@ -440,7 +440,7 @@
     <Teleport to="body">
       <div v-if="detailDialogVisible" class="panel-overlay" @click.self="detailDialogVisible = false">
         <div class="detail-dialog">
-          <div class="detail-header" :style="{ background: detailGroup?.color || '#3B6FE0' }">
+          <div class="detail-header" :style="{ background: detailGroup?.color || 'var(--kb-primary)' }">
             <div class="detail-avatar">{{ detailGroup?.name.charAt(0) }}</div>
             <h2 class="detail-name">{{ detailGroup?.name }}</h2>
             <p class="detail-desc">{{ detailGroup?.description || '暂无描述' }}</p>
@@ -569,7 +569,7 @@ let typingTimeout: number | null = null
 const createForm = ref({
   name: '',
   description: '',
-  color: '#3B6FE0',
+  color: 'var(--kb-primary)',
   type: 'PUBLIC' as 'PUBLIC' | 'PRIVATE',
 })
 
@@ -587,7 +587,7 @@ const settingsForm = ref({
   announcement: '',
 })
 
-const availableColors = ['#3B6FE0', '#8B5CF6', '#EC4899', '#EF4444', '#F59E0B', '#10B981', '#06B6D4', '#6366F1']
+const availableColors = ['var(--kb-primary)', '#8B5CF6', '#EC4899', 'var(--kb-danger)', 'var(--kb-warning)', 'var(--kb-success)', '#06B6D4', '#6366F1']
 
 // 计算属性
 const filteredMyGroups = computed(() => {
@@ -1007,7 +1007,7 @@ async function handleJoinGroup() {
 
 // 创建小组
 function openCreateDialog() {
-  createForm.value = { name: '', description: '', color: '#3B6FE0', type: 'PUBLIC' }
+  createForm.value = { name: '', description: '', color: 'var(--kb-primary)', type: 'PUBLIC' }
   createDialogVisible.value = true
 }
 
@@ -1219,7 +1219,7 @@ function scrollToBottom() {
 }
 
 function getMemberColor(name: string): string {
-  const colors = ['#3B6FE0', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#06B6D4', '#EF4444']
+  const colors = ['var(--kb-primary)', '#8B5CF6', '#EC4899', 'var(--kb-warning)', 'var(--kb-success)', '#06B6D4', 'var(--kb-danger)']
   let hash = 0
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash)

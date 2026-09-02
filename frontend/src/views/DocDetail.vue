@@ -36,9 +36,33 @@
       <article class="flex-1 min-w-0">
         <Card padding="lg">
           <header class="mb-6 pb-6 border-b" style="border-color: var(--kb-border);">
+            <!-- Phase UI-2：面包屑 —— 保证详情页有明确返回路径（§25），
+                 末级为当前文档标题，前两级与导航配置「知识 › 知识库」一致 -->
+            <nav
+              class="mb-3 flex items-center gap-1.5 flex-wrap"
+              aria-label="面包屑导航"
+              style="font-size: var(--kb-fs-body-sm);"
+            >
+              <router-link
+                to="/knowledge"
+                class="transition-colors hover:text-[var(--kb-primary)]"
+                style="color: var(--kb-muted-foreground);"
+              >知识</router-link>
+              <Icon name="chevron-right" :size="12" style="color: var(--kb-muted-foreground);" />
+              <router-link
+                to="/knowledge"
+                class="transition-colors hover:text-[var(--kb-primary)]"
+                style="color: var(--kb-muted-foreground);"
+              >知识库</router-link>
+              <Icon name="chevron-right" :size="12" style="color: var(--kb-muted-foreground);" />
+              <span class="truncate max-w-[16rem]" style="color: var(--kb-foreground);" aria-current="page">
+                {{ doc.title }}
+              </span>
+            </nav>
+
             <span
               class="inline-flex items-center rounded-lg px-2.5 py-1 font-medium"
-              style="background: rgba(59,111,224,0.1); color: var(--kb-primary); font-size: var(--kb-fs-caption);"
+              style="background: var(--kb-primary-soft); color: var(--kb-primary); font-size: var(--kb-fs-caption);"
             >
               {{ doc.categoryName || '未分类' }}
             </span>
@@ -319,7 +343,7 @@ import { handleImageLightboxClick } from '@/utils/imageLightbox'
 import 'highlight.js/styles/github-dark.css'
 
 // 文档类型标签色板（与设计稿对齐）
-const docIconColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
+const docIconColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#8B5CF6']
 
 const getDocTypeLabel = (doc: DocVO): string => {
   const tags = (doc.tags || '').toLowerCase()
@@ -369,14 +393,6 @@ const readTimeMinutes = computed(() => Math.max(1, Math.round((doc.value.wordCou
 const tagList = computed(() => {
   return (doc.value.tags || '').split(',').filter(Boolean)
 })
-
-// 将标题文本转为可用于锚点的 slug（保留中英文，其余字符替换为短横线）
-const slugify = (text: string) =>
-  text
-    .trim()
-    .toLowerCase()
-    .replace(/[^\w一-龥]+/g, '-')
-    .replace(/^-+|-+$/g, '')
 
 // 从 Markdown 文本提取二级/三级标题，生成目录树
 // 注意：h2/h3 的锚点 id 采用与全局 markdown 渲染一致的约定（heading-1, heading-2…），
@@ -896,7 +912,7 @@ onUnmounted(() => {
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid var(--kb-border);
-  background: #1a1d23;
+  background: var(--kb-foreground);
   white-space: normal;
 }
 
@@ -957,7 +973,7 @@ onUnmounted(() => {
 :deep(.doc-content pre) {
   margin: 0;
   padding: 16px 20px;
-  background: #1a1d23;
+  background: var(--kb-foreground);
   overflow-x: auto;
   font-size: 13.5px;
   line-height: 1.6;

@@ -95,10 +95,10 @@ const validIcons = [
 
 const iconColorMap: Record<string, string> = {
   '人工智能': '#8B5CF6',
-  '前端开发': '#3B6FE0',
-  '后端技术': '#10B981',
-  '数据科学': '#F59E0B',
-  '移动开发': '#EF4444',
+  '前端开发': 'var(--kb-primary)',
+  '后端技术': 'var(--kb-success)',
+  '数据科学': 'var(--kb-warning)',
+  '移动开发': 'var(--kb-danger)',
   '数据库': '#06B6D4',
   'DevOps': '#F97316',
   '网络安全': '#6366F1',
@@ -129,11 +129,11 @@ function getIconName(icon?: string): string {
 }
 
 function getIconColor(icon?: string): string {
-  if (!icon) return '#6B7280'
+  if (!icon) return 'var(--kb-muted-foreground)'
   for (const [name, color] of Object.entries(iconColorMap)) {
     if (icon.includes(name) || nameIconMap[name] === icon) return color
   }
-  return '#3B6FE0'
+  return 'var(--kb-primary)'
 }
 </script>
 

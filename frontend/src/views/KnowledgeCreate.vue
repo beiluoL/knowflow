@@ -220,12 +220,12 @@ const availableIcons = [
 ]
 
 const availableColors = [
-  { value: '#3B6FE0' },
+  { value: 'var(--kb-primary)' },
   { value: '#8B5CF6' },
   { value: '#EC4899' },
-  { value: '#EF4444' },
-  { value: '#F59E0B' },
-  { value: '#10B981' },
+  { value: 'var(--kb-danger)' },
+  { value: 'var(--kb-warning)' },
+  { value: 'var(--kb-success)' },
   { value: '#06B6D4' },
   { value: '#6366F1' },
 ]
@@ -233,7 +233,7 @@ const availableColors = [
 const formData = ref({
   name: '',
   icon: 'folder',
-  color: '#3B6FE0',
+  color: 'var(--kb-primary)',
   description: '',
 })
 
@@ -247,7 +247,7 @@ const canSubmit = computed(() => {
 })
 
 function getMemberColor(name: string): string {
-  const colors = ['#3B6FE0', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#06B6D4']
+  const colors = ['var(--kb-primary)', '#8B5CF6', '#EC4899', 'var(--kb-warning)', 'var(--kb-success)', '#06B6D4']
   let hash = 0
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash)

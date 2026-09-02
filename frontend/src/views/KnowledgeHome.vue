@@ -114,6 +114,26 @@
           </div>
         </section>
 
+        <!-- 3.2 §41/§44：已启用的知识工具（数据只来自 UserApp，未启用则不渲染） -->
+        <section v-if="knowledgeApps.length > 0" class="section">
+          <div class="section-header">
+            <h2 class="section-title">我的知识工具</h2>
+            <router-link to="/apps" class="view-all-link">应用中心 <Icon name="arrow-right" :size="14" /></router-link>
+          </div>
+          <div class="kb-app-grid">
+            <router-link
+              v-for="app in knowledgeApps"
+              :key="app.path"
+              :to="app.path"
+              class="kb-app-card"
+            >
+              <span class="kb-app-icon"><Icon :name="app.icon" :size="18" /></span>
+              <span class="kb-app-name">{{ app.label }}</span>
+              <Icon name="arrow-right" :size="14" class="kb-app-arrow" />
+            </router-link>
+          </div>
+        </section>
+
         <!-- 学习概览 -->
         <section class="section">
           <h2 class="section-title">学习概览</h2>
@@ -477,13 +497,23 @@ import { useRouter, useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import StatCard from '@/components/ui/StatCard.vue'
 import KnowledgeSidebar from '@/components/layout/KnowledgeSidebar.vue'
-import { categoriesApi, docsApi, adminApi, userApi } from '@/api'
+import { docsApi, adminApi, userApi } from '@/api'
 import type { CategoryVO, DocVO, UserStatsVO } from '@/api/types'
 import DocTypeBadge from '@/components/doc/DocTypeBadge.vue'
 import { notify, getApiError } from '@/utils/toast'
 import { useKnowledgeStore } from '@/stores/knowledge'
+import { useAppStore } from '@/stores/apps'
+import { resolveAppNavChildren } from '@/apps/navigation'
 
 const knowledgeStore = useKnowledgeStore()
+const appStore = useAppStore()
+
+/**
+ * UI/UX 3.2 §41：知识首页承担「知识图谱 / 思维导图」等知识工具的入口。
+ * 这里**不是固定菜单** —— 数据完全来自 UserApp（§44：App 菜单只来自 UserApp），
+ * 未启用任何知识 App 时整块不渲染（§119：知识首页不做第二个 Sidebar）。
+ */
+const knowledgeApps = computed(() => resolveAppNavChildren(appStore.userApps).knowledge)
 
 const router = useRouter()
 const route = useRoute()
@@ -520,9 +550,9 @@ const categoryTotalPages = computed(() => Math.ceil(categoryTotal.value / catego
 const activeKey = ref<'all'>('all')
 const activeCategoryId = ref<number | null>(null)
 
-const kbColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#6B7280']
-const docIconColors = ['#EF4444', '#3B6FE0', '#8B5CF6', '#10B981', '#F59E0B', '#6B7280']
-const subColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#F97316', '#EC4899']
+const kbColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#8B5CF6', 'var(--kb-muted-foreground)']
+const docIconColors = ['var(--kb-danger)', 'var(--kb-primary)', '#8B5CF6', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-muted-foreground)']
+const subColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#8B5CF6', '#06B6D4', '#F97316', '#EC4899']
 
 const greetingText = computed(() => {
   const hour = new Date().getHours()
@@ -610,8 +640,8 @@ const validIcons = [
 ]
 
 const iconColorMap: Record<string, string> = {
-  '人工智能': '#8B5CF6', '前端开发': '#3B6FE0', '后端技术': '#10B981',
-  '数据科学': '#F59E0B', '移动开发': '#EF4444', '数据库': '#06B6D4',
+  '人工智能': '#8B5CF6', '前端开发': 'var(--kb-primary)', '后端技术': 'var(--kb-success)',
+  '数据科学': 'var(--kb-warning)', '移动开发': 'var(--kb-danger)', '数据库': '#06B6D4',
   'DevOps': '#F97316', '网络安全': '#6366F1', '算法与数据结构': '#64748B',
   '产品设计': '#EC4899', '编程语言': '#14B8A6', '项目管理': '#8B5CF6',
 }
@@ -629,10 +659,10 @@ function getCategoryIcon(icon?: string): string {
 }
 
 function getCategoryColor(cat: CategoryVO | null): string {
-  if (!cat) return '#3B6FE0'
+  if (!cat) return 'var(--kb-primary)'
   if (cat.icon && iconColorMap[cat.icon]) return iconColorMap[cat.icon]
-  if (nameIconMap[cat.name]) return iconColorMap[cat.name] || '#3B6FE0'
-  return '#3B6FE0'
+  if (nameIconMap[cat.name]) return iconColorMap[cat.name] || 'var(--kb-primary)'
+  return 'var(--kb-primary)'
 }
 
 function getSubDescription(name: string): string {
@@ -857,7 +887,7 @@ watch(activeCategoryId, (id) => {
 const inviteDialogVisible = ref(false)
 const inviteForm = ref({
   email: '',
-  role: 'READER',
+  role: 'READER' as 'OWNER' | 'EDITOR' | 'READER',
 })
 
 const roleOptions = [
@@ -1186,6 +1216,65 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 16px;
+}
+
+/* ===== 3.2 §41：我的知识工具（已启用 App，动态渲染） ===== */
+.kb-app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.kb-app-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.kb-app-card:hover {
+  border-color: var(--kb-primary);
+  box-shadow: 0 4px 16px rgba(59, 111, 224, 0.08);
+  transform: translateY(-1px);
+}
+
+.kb-app-card:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-color: var(--kb-primary);
+}
+
+.kb-app-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: rgba(59, 111, 224, 0.1);
+  color: var(--kb-primary);
+}
+
+.kb-app-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kb-app-arrow {
+  flex-shrink: 0;
+  color: var(--kb-muted-foreground);
 }
 
 .quick-card {

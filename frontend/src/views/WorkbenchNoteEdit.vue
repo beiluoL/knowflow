@@ -198,7 +198,7 @@ import Icon from '@/components/ui/Icon.vue'
 import { notify, confirmDialog, getApiError } from '@/utils/toast'
 import './workbench-shared.css'
 import { getNote, createNote, updateNote, getCategoryTree } from '@/api/workbench'
-import type { WbNotePayload, CategoryVO } from '@/api/types'
+import type { WbNotePayload, CategoryTreeNodeVO } from '@/api/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -216,7 +216,7 @@ const autoSaving = ref(false)
 const lastSavedAt = ref('')
 const loaded = ref(false)
 
-const flatCategories = ref<CategoryVO[]>([])
+const flatCategories = ref<CategoryTreeNodeVO[]>([])
 const tagInput = ref('')
 const tags = ref<string[]>([])
 
@@ -235,8 +235,8 @@ const errors = reactive<{ title?: string; _form?: string }>({})
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
 
-function flatten(nodes: CategoryVO[], depth = 0): CategoryVO[] {
-  const out: CategoryVO[] = []
+function flatten(nodes: CategoryTreeNodeVO[], depth = 0): CategoryTreeNodeVO[] {
+  const out: CategoryTreeNodeVO[] = []
   for (const n of nodes) {
     out.push({ ...n, depth })
     if (n.children && n.children.length) out.push(...flatten(n.children, depth + 1))
@@ -581,8 +581,8 @@ onMounted(() => {
   color: var(--mc);
 }
 .note-save-done {
-  background: color-mix(in srgb, #10B981 10%, transparent);
-  color: #10B981;
+  background: color-mix(in srgb, var(--kb-success) 10%, transparent);
+  color: var(--kb-success);
 }
 .note-save-idle {
   background: var(--kb-muted);
@@ -718,9 +718,9 @@ onMounted(() => {
   border: 1px solid var(--kb-border);
   overflow: hidden;
 }
-.cornell-cue { border-top: 3px solid #F59E0B; }
+.cornell-cue { border-top: 3px solid var(--kb-warning); }
 .cornell-note { border-top: 3px solid var(--mc); }
-.cornell-summary { border-top: 3px solid #10B981; }
+.cornell-summary { border-top: 3px solid var(--kb-success); }
 
 .cornell-col-head {
   display: flex;
@@ -729,8 +729,8 @@ onMounted(() => {
   padding: 12px 14px 8px;
   color: var(--kb-foreground);
 }
-.cornell-cue .cornell-col-head { color: #F59E0B; }
-.cornell-summary .cornell-col-head { color: #10B981; }
+.cornell-cue .cornell-col-head { color: var(--kb-warning); }
+.cornell-summary .cornell-col-head { color: var(--kb-success); }
 .cornell-col-title {
   font-family: var(--font-serif);
   font-size: 15px;
@@ -756,10 +756,10 @@ onMounted(() => {
   line-height: 1.7;
 }
 .cornell-cue-input {
-  background: color-mix(in srgb, #F59E0B 2%, transparent);
+  background: color-mix(in srgb, var(--kb-warning) 2%, transparent);
 }
 .cornell-summary-input {
-  background: color-mix(in srgb, #10B981 2%, transparent);
+  background: color-mix(in srgb, var(--kb-success) 2%, transparent);
 }
 
 /* ===== Rich Text Editor ===== */

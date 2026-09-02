@@ -1,12 +1,6 @@
 <template>
-  <div class="animate-fade-in knowledge-graph-page">
-    <!-- ===== 页面标题区 ===== -->
-    <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
-      <div>
-        <h1 class="kb-h1">知识图谱</h1>
-        <p class="kb-body-sm mt-1">可视化技术栈依赖，图解编程概念</p>
-      </div>
-    </div>
+  <MiniAppShell title="知识图谱" subtitle="可视化技术栈依赖，图解编程概念" back-label="返回" @back="goBack">
+    <div class="animate-fade-in knowledge-graph-page">
 
     <!-- ===== 视图切换 Tab ===== -->
     <div class="flex items-center gap-1 p-1 rounded-lg segmented mb-4" style="background: var(--kb-muted);">
@@ -212,11 +206,11 @@
           </svg>
           <!-- 图例 -->
           <div class="flex items-center gap-4 mt-3 flex-wrap text-xs" style="color: var(--kb-muted-foreground);">
-            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background: #3b6fe0;"/> 编程语言</span>
-            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background: #10b981;"/> 框架</span>
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background: var(--kb-primary);"/> 编程语言</span>
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background: var(--kb-success);"/> 框架</span>
             <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background: #8b5cf6;"/> 工具</span>
-            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background: #f59e0b;"/> 数据库</span>
-            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background: #ef4444;"/> 算法</span>
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background: var(--kb-warning);"/> 数据库</span>
+            <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background: var(--kb-danger);"/> 算法</span>
             <span class="flex items-center gap-1"><span class="inline-block w-3 h-3 rounded-full" style="background: #06b6d4;"/> 平台</span>
             <span class="flex items-center gap-1 ml-2">— 前置依赖</span>
             <span class="flex items-center gap-1">╌ 组件/包含</span>
@@ -454,12 +448,14 @@
       </template>
     </template>
   </div>
+</MiniAppShell>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import MiniAppShell from '@/components/layout/MiniAppShell.vue'
 import MermaidDiagram from '@/components/Knowledge/MermaidDiagram.vue'
 import { notify, getApiError } from '@/utils/toast'
 import { knowledgeApi, categoriesApi, learningApi } from '@/api'
@@ -472,6 +468,11 @@ import type {
 } from '@/api/types'
 
 const router = useRouter()
+
+function goBack() {
+  if (window.history.length > 1) router.back()
+  else router.push('/learning/center')
+}
 
 // ===== 视图切换 =====
 type ViewTab = 'category' | 'tech' | 'concept' | 'entity'
@@ -721,11 +722,11 @@ interface TechRenderEdge extends TechEdgeVO {
 }
 
 const CATEGORY_COLORS: Record<string, { bg: string; stroke: string; text: string }> = {
-  LANGUAGE:   { bg: 'rgba(59,111,224,0.15)', stroke: '#3b6fe0', text: '#3b6fe0' },
-  FRAMEWORK:  { bg: 'rgba(16,185,129,0.15)', stroke: '#10b981', text: '#10b981' },
+  LANGUAGE:   { bg: 'rgba(59,111,224,0.15)', stroke: 'var(--kb-primary)', text: 'var(--kb-primary)' },
+  FRAMEWORK:  { bg: 'rgba(16,185,129,0.15)', stroke: 'var(--kb-success)', text: 'var(--kb-success)' },
   TOOL:       { bg: 'rgba(139,92,246,0.15)', stroke: '#8b5cf6', text: '#8b5cf6' },
-  DATABASE:   { bg: 'rgba(245,158,11,0.15)', stroke: '#f59e0b', text: '#f59e0b' },
-  ALGORITHM:  { bg: 'rgba(239,68,68,0.15)', stroke: '#ef4444', text: '#ef4444' },
+  DATABASE:   { bg: 'rgba(245,158,11,0.15)', stroke: 'var(--kb-warning)', text: 'var(--kb-warning)' },
+  ALGORITHM:  { bg: 'rgba(239,68,68,0.15)', stroke: 'var(--kb-danger)', text: 'var(--kb-danger)' },
   PLATFORM:   { bg: 'rgba(6,182,212,0.15)', stroke: '#06b6d4', text: '#06b6d4' },
 }
 
@@ -774,7 +775,7 @@ const techEdges = computed<TechRenderEdge[]>(() => {
     const ux = dx / len, uy = dy / len
     const x1 = s.x + ux * s.r, y1 = s.y + uy * s.r
     const x2 = t.x - ux * (t.r + 4), y2 = t.y - uy * (t.r + 4)
-    const color = e.relation === 'PREREQUISITE' ? '#3b6fe0' : e.relation === 'COMPONENT' ? '#10b981' : '#8b5cf6'
+    const color = e.relation === 'PREREQUISITE' ? 'var(--kb-primary)' : e.relation === 'COMPONENT' ? 'var(--kb-success)' : '#8b5cf6'
     const width = (e.strength || 1) * 0.6 + 0.6
     const opacity = techSelectedNode.value ? (e.source === techSelectedNode.value.id || e.target === techSelectedNode.value.id ? 1 : 0.15) : 0.8
     // 箭头
@@ -833,7 +834,7 @@ function difficultyLabel(d: number) {
   return d === 3 ? '进阶' : d === 2 ? '中等' : '入门'
 }
 function difficultyColor(d: number) {
-  return d === 3 ? '#ef4444' : d === 2 ? '#f59e0b' : '#10b981'
+  return d === 3 ? 'var(--kb-danger)' : d === 2 ? 'var(--kb-warning)' : 'var(--kb-success)'
 }
 function difficultyBg(d: number) {
   return d === 3 ? 'rgba(239,68,68,0.12)' : d === 2 ? 'rgba(245,158,11,0.12)' : 'rgba(16,185,129,0.12)'
@@ -883,9 +884,9 @@ const entitySelectedNode = ref<EntityNodeVO | null>(null)
 const entityCategoryId = ref<number | null>(null)
 
 const ENTITY_TYPE_COLORS: Record<string, { bg: string; stroke: string; text: string }> = {
-  CONCEPT:    { bg: 'rgba(59,111,224,0.15)', stroke: '#3b6fe0', text: '#3b6fe0' },
-  TECHNIQUE: { bg: 'rgba(16,185,129,0.15)', stroke: '#10b981', text: '#10b981' },
-  TERM:      { bg: 'rgba(245,158,11,0.15)', stroke: '#f59e0b', text: '#f59e0b' },
+  CONCEPT:    { bg: 'rgba(59,111,224,0.15)', stroke: 'var(--kb-primary)', text: 'var(--kb-primary)' },
+  TECHNIQUE: { bg: 'rgba(16,185,129,0.15)', stroke: 'var(--kb-success)', text: 'var(--kb-success)' },
+  TERM:      { bg: 'rgba(245,158,11,0.15)', stroke: 'var(--kb-warning)', text: 'var(--kb-warning)' },
   PRINCIPLE: { bg: 'rgba(139,92,246,0.15)', stroke: '#8b5cf6', text: '#8b5cf6' },
   TOOL:      { bg: 'rgba(6,182,212,0.15)', stroke: '#06b6d4', text: '#06b6d4' },
   OTHER:     { bg: 'rgba(100,116,139,0.15)', stroke: '#64748b', text: '#64748b' },
@@ -897,7 +898,7 @@ const RELATION_LABELS: Record<string, string> = {
   RELATED_TO: '相关', PREREQUISITE: '前置', IS_A: '属于', PART_OF: '组成', USES: '使用', CONTRASTS: '对比',
 }
 const RELATION_COLORS: Record<string, string> = {
-  RELATED_TO: '#94a3b8', PREREQUISITE: '#3b6fe0', IS_A: '#8b5cf6', PART_OF: '#10b981', USES: '#06b6d4', CONTRASTS: '#ef4444',
+  RELATED_TO: '#94a3b8', PREREQUISITE: 'var(--kb-primary)', IS_A: '#8b5cf6', PART_OF: 'var(--kb-success)', USES: '#06b6d4', CONTRASTS: 'var(--kb-danger)',
 }
 const entityTypeLegend = computed(() => ENTITY_TYPE_COLORS)
 
@@ -916,7 +917,7 @@ interface EntityRenderNode extends EntityNodeVO { x: number; y: number; r: numbe
 interface EntityRenderEdge extends EntityEdgeVO { x1: number; y1: number; x2: number; y2: number; color: string; opacity: number; mx: number; my: number }
 
 const MASTERY_STATUS_COLORS: Record<string, string> = {
-  NOT_STARTED: '#64748b', LEARNING: '#3b6fe0', WEAK: '#EF4444', MASTERED: '#10B981', REVIEW_REQUIRED: '#F59E0B',
+  NOT_STARTED: '#64748b', LEARNING: 'var(--kb-primary)', WEAK: 'var(--kb-danger)', MASTERED: 'var(--kb-success)', REVIEW_REQUIRED: 'var(--kb-warning)',
 }
 const masteryStatusColor = (s?: string) => MASTERY_STATUS_COLORS[s || 'NOT_STARTED'] || MASTERY_STATUS_COLORS.NOT_STARTED
 

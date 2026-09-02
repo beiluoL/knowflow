@@ -147,7 +147,7 @@ const error = ref('')
 const d = ref<KnowledgeMasteryDetailVO | null>(null)
 
 const TYPE_COLORS: Record<string, string> = {
-  CONCEPT: '#3b6fe0', TECHNIQUE: '#10b981', TERM: '#f59e0b',
+  CONCEPT: 'var(--kb-primary)', TECHNIQUE: 'var(--kb-success)', TERM: 'var(--kb-warning)',
   PRINCIPLE: '#8b5cf6', TOOL: '#06b6d4', OTHER: '#64748b',
 }
 const TYPE_LABELS: Record<string, string> = {
@@ -155,10 +155,10 @@ const TYPE_LABELS: Record<string, string> = {
 }
 const STATUS_META: Record<MasteryStatus, { label: string; bg: string; fg: string }> = {
   NOT_STARTED: { label: '未学习', bg: 'rgba(100,116,139,.12)', fg: '#64748b' },
-  LEARNING: { label: '学习中', bg: 'rgba(59,111,224,.12)', fg: '#3b6fe0' },
-  WEAK: { label: '薄弱', bg: 'rgba(239,68,68,.12)', fg: '#EF4444' },
-  MASTERED: { label: '已掌握', bg: 'rgba(16,185,129,.12)', fg: '#10B981' },
-  REVIEW_REQUIRED: { label: '需复习', bg: 'rgba(245,158,11,.12)', fg: '#F59E0B' },
+  LEARNING: { label: '学习中', bg: 'rgba(59,111,224,.12)', fg: 'var(--kb-primary)' },
+  WEAK: { label: '薄弱', bg: 'rgba(239,68,68,.12)', fg: 'var(--kb-danger)' },
+  MASTERED: { label: '已掌握', bg: 'rgba(16,185,129,.12)', fg: 'var(--kb-success)' },
+  REVIEW_REQUIRED: { label: '需复习', bg: 'rgba(245,158,11,.12)', fg: 'var(--kb-warning)' },
 }
 const WEAK_LABELS: Record<string, string> = {
   LOW_MASTERY: '掌握度偏低', CODING_WEAK: '编程通过率低', RECALL_WEAK: '主动回忆得分低',
@@ -170,9 +170,9 @@ const typeLabel = (t?: string | null) => TYPE_LABELS[t || 'OTHER'] || '其他'
 const statusMeta = (s: MasteryStatus) => STATUS_META[s] || STATUS_META.NOT_STARTED
 const weaknessLabel = (w: string) => WEAK_LABELS[w] || w
 const formatWeight = (w: number) => (w != null ? w.toFixed(2) : '0.00')
-const scoreColor = (v: number) => (v >= 80 ? '#10B981' : v >= 60 ? '#3b6fe0' : v >= 40 ? '#F59E0B' : '#EF4444')
-const confColor = (v: number) => (v >= 50 ? '#10B981' : v >= 30 ? '#F59E0B' : '#EF4444')
-const riskColor = (v: number) => (v >= 70 ? '#EF4444' : v >= 60 ? '#F59E0B' : '#10B981')
+const scoreColor = (v: number) => (v >= 80 ? 'var(--kb-success)' : v >= 60 ? 'var(--kb-primary)' : v >= 40 ? 'var(--kb-warning)' : 'var(--kb-danger)')
+const confColor = (v: number) => (v >= 50 ? 'var(--kb-success)' : v >= 30 ? 'var(--kb-warning)' : 'var(--kb-danger)')
+const riskColor = (v: number) => (v >= 70 ? 'var(--kb-danger)' : v >= 60 ? 'var(--kb-warning)' : 'var(--kb-success)')
 const fmt = (s?: string | null) => (s ? String(s).replace('T', ' ').slice(0, 19) : '—')
 
 function goBack() {
@@ -234,8 +234,8 @@ onMounted(load)
 .kmd-scorebar-fill { height: 100%; border-radius: 5px; transition: width 0.6s ease; }
 
 .kmd-weak { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
-.kmd-weak-title { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: #EF4444; }
-.kmd-weak-tag { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: rgba(239,68,68,.1); color: #EF4444; }
+.kmd-weak-title { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: var(--kb-danger); }
+.kmd-weak-tag { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: rgba(239,68,68,.1); color: var(--kb-danger); }
 
 .kmd-explain { font-size: 14px; line-height: 1.7; color: var(--kb-foreground); }
 

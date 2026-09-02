@@ -18,6 +18,8 @@ import type {
   AgentEvalRequest,
   AgentEvalResult,
   AgentSessionPageResult,
+  AgentWorkflowVO,
+  AgentWorkflowPayload,
   ToolPermission,
 } from './types'
 import type { CodeRunPayload, CodeRunResultDTO } from './codeRun'

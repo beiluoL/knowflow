@@ -62,12 +62,10 @@ export interface SnapshotNode {
 /** 红黑树类 */
 export class RedBlackTree {
   private root: RBNode | null = null;
-  private nilIdCounter = -1;
   private nodeIdCounter = 0;
   /** 步骤历史（每步一个快照） */
   private steps: Step[] = [];
   /** 当前步骤指针 */
-  private currentStepIndex = -1;
 
   constructor() {
     this.steps = [];
@@ -411,7 +409,6 @@ export class RedBlackTree {
     this.root = null;
     this.steps = [];
     this.nodeIdCounter = 0;
-    this.nilIdCounter = -1;
   }
 
   /** 验证红黑树规则 */

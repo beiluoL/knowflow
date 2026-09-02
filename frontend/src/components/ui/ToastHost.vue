@@ -37,7 +37,7 @@
       <input
         v-if="c.prompt"
         :data-prompt-id="c.id"
-        ref="registerPromptInput"
+        :ref="(el) => registerPromptInput(el as Element | ComponentPublicInstance | null)"
         :value="c.prompt.defaultValue"
         :placeholder="c.prompt.placeholder"
         type="text"

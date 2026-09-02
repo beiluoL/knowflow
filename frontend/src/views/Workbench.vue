@@ -191,7 +191,7 @@ const modules = computed(() => {
   return [
     {
       key: 'input', step: '01 输入', title: '知识输入',
-      desc: '收集箱快速捕获灵感、摘录与碎片，先积累再沉淀。', icon: 'inbox', color: '#3B6FE0',
+      desc: '收集箱快速捕获灵感、摘录与碎片，先积累再沉淀。', icon: 'inbox', color: 'var(--kb-primary)',
       path: '/workbench/capture', metric: o?.captureInbox ?? null,
       sub: o ? `${o.captureInbox} 条待整理` : '', subIcon: 'inbox',
     },
@@ -203,13 +203,13 @@ const modules = computed(() => {
     },
     {
       key: 'review', step: '03 复习', title: '间隔复习',
-      desc: 'SM-2 遗忘曲线自动排程 + 记忆宫殿空间记忆，对抗遗忘。', icon: 'repeat', color: '#F59E0B',
+      desc: 'SM-2 遗忘曲线自动排程 + 记忆宫殿空间记忆，对抗遗忘。', icon: 'repeat', color: 'var(--kb-warning)',
       path: '/workbench/review', metric: o?.reviewDue ?? null,
       sub: o ? `${o.reviewDue} 张待复习` : '', subIcon: 'repeat',
     },
     {
       key: 'output', step: '04 输出', title: '知识输出',
-      desc: '费曼故事以教代学，讲不通的卡点就是下一步要补的洞。', icon: 'wand-2', color: '#10B981',
+      desc: '费曼故事以教代学，讲不通的卡点就是下一步要补的洞。', icon: 'wand-2', color: 'var(--kb-success)',
       path: '/workbench/story', metric: o?.storyDraft ?? null,
       sub: o ? `${o.storyDraft} 篇草稿` : '', subIcon: 'wand-2',
     },
@@ -233,9 +233,9 @@ const focusItems = computed(() => {
   const o = overview.value
   if (!o) return []
   const items = [
-    { key: 'review', label: '待复习卡片', value: o.reviewDue, icon: 'repeat', color: '#F59E0B', path: '/workbench/review', urgent: o.reviewDue > 0 },
-    { key: 'inbox', label: '待整理碎片', value: o.captureInbox, icon: 'inbox', color: '#3B6FE0', path: '/workbench/capture', urgent: false },
-    { key: 'story', label: '故事草稿', value: o.storyDraft, icon: 'wand-2', color: '#10B981', path: '/workbench/story', urgent: false },
+    { key: 'review', label: '待复习卡片', value: o.reviewDue, icon: 'repeat', color: 'var(--kb-warning)', path: '/workbench/review', urgent: o.reviewDue > 0 },
+    { key: 'inbox', label: '待整理碎片', value: o.captureInbox, icon: 'inbox', color: 'var(--kb-primary)', path: '/workbench/capture', urgent: false },
+    { key: 'story', label: '故事草稿', value: o.storyDraft, icon: 'wand-2', color: 'var(--kb-success)', path: '/workbench/story', urgent: false },
     { key: 'palace', label: '记忆宫殿', value: o.palaceTotal, icon: 'map-pin', color: '#8B5CF6', path: '/workbench/palace', urgent: false },
   ]
   return items
@@ -245,28 +245,28 @@ const stats = computed(() => {
   const o = overview.value
   if (!o) return []
   return [
-    { key: 'capture', label: '收集箱', value: o.captureTotal, color: '#3B6FE0', sub: `${o.captureInbox} 待整理` },
+    { key: 'capture', label: '收集箱', value: o.captureTotal, color: 'var(--kb-primary)', sub: `${o.captureInbox} 待整理` },
     { key: 'note', label: '康奈尔笔记', value: o.noteTotal, color: '#8B5CF6', sub: '结构化沉淀' },
-    { key: 'review', label: '待复习', value: o.reviewDue, color: '#F59E0B', sub: `近7天 ${o.reviewLast7d} 次` },
+    { key: 'review', label: '待复习', value: o.reviewDue, color: 'var(--kb-warning)', sub: `近7天 ${o.reviewLast7d} 次` },
     { key: 'palace', label: '记忆宫殿', value: o.palaceTotal, color: '#6366F1', sub: `${o.lociTotal} 个位点` },
-    { key: 'story', label: '费曼故事', value: o.storyTotal, color: '#10B981', sub: `${o.storyDraft} 待分享` },
-    { key: 'star', label: '标星条目', value: o.captureStarred, color: '#FF6B35', sub: '重点收藏' },
+    { key: 'story', label: '费曼故事', value: o.storyTotal, color: 'var(--kb-success)', sub: `${o.storyDraft} 待分享` },
+    { key: 'star', label: '标星条目', value: o.captureStarred, color: 'var(--kb-highlight)', sub: '重点收藏' },
   ]
 })
 
 const tips = [
   {
-    title: '间隔重复法', tag: 'Spaced Repetition', icon: 'repeat', color: '#F59E0B',
+    title: '间隔重复法', tag: 'Spaced Repetition', icon: 'repeat', color: 'var(--kb-warning)',
     desc: '基于艾宾浩斯遗忘曲线自动排程，按反馈质量动态拉长复习间隔，把记忆留存率拉到 90% 以上。',
     principle: '对抗遗忘曲线', path: '/workbench/review',
   },
   {
-    title: '记忆宫殿法', tag: 'Memory Palace', icon: 'map-pin', color: '#3B6FE0',
+    title: '记忆宫殿法', tag: 'Memory Palace', icon: 'map-pin', color: 'var(--kb-primary)',
     desc: '将知识点挂靠到熟悉空间的固定位点，沿路线漫游回忆，调用空间记忆让抽象知识具象、牢固。',
     principle: '空间位置锚定', path: '/workbench/palace',
   },
   {
-    title: '费曼故事法', tag: 'Feynman Technique', icon: 'wand-2', color: '#10B981',
+    title: '费曼故事法', tag: 'Feynman Technique', icon: 'wand-2', color: 'var(--kb-success)',
     desc: '用故事讲给外行听，强制简化与重组；讲不通的卡点就是知识漏洞，定位后回炉重学。',
     principle: '以教代学', path: '/workbench/story',
   },
@@ -276,7 +276,7 @@ const tips = [
     principle: '主动回忆', path: '/workbench/notes',
   },
   {
-    title: '主动回忆法', tag: 'Active Recall', icon: 'edit-2', color: '#F59E0B',
+    title: '主动回忆法', tag: 'Active Recall', icon: 'edit-2', color: 'var(--kb-warning)',
     desc: '三轮闭卷默写：即时默写 → 补漏默写 → 1小时复测，自动比对原文高亮遗漏与错误。',
     principle: '强制提取', path: '/workbench/recall',
   },

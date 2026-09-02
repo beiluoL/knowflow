@@ -1,10 +1,6 @@
 <template>
-  <div class="space-y-4 animate-fade-in">
-    <!-- 页面头部 -->
-    <div class="mb-2">
-      <h1 class="kb-h1 mb-1" style="color: var(--kb-foreground);">代码练习</h1>
-      <p class="kb-body" style="color: var(--kb-muted-foreground);">通过实际编码巩固知识，涵盖多种编程语言与难度等级。</p>
-    </div>
+  <MiniAppShell title="代码练习" subtitle="通过实际编码巩固知识，涵盖多种编程语言与难度等级。" back-label="返回" @back="goBack">
+    <div class="space-y-4 animate-fade-in">
 
     <!-- 语言筛选 -->
     <div class="flex items-center gap-3 flex-wrap">
@@ -166,6 +162,7 @@
       </aside>
     </div>
   </div>
+</MiniAppShell>
 </template>
 
 <script setup lang="ts">
@@ -173,11 +170,17 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import MiniAppShell from '@/components/layout/MiniAppShell.vue'
 import { codeQuestionApi } from '@/api/codeQuestion'
 import { notify, getApiError } from '@/utils/toast'
 import type { CodeQuestionVO } from '@/api/types'
 
 const router = useRouter()
+
+function goBack() {
+  if (window.history.length > 1) router.back()
+  else router.push('/learning/center')
+}
 
 const questions = ref<CodeQuestionVO[]>([])
 const loading = ref(false)
@@ -216,11 +219,11 @@ const langLabel = (lang?: string) => {
 
 // 语言主题色
 const LANG_COLORS: Record<string, string> = {
-  javascript: '#3B6FE0',
-  typescript: '#3B6FE0',
-  python: '#10B981',
-  java: '#F59E0B',
-  sql: '#EF4444',
+  javascript: 'var(--kb-primary)',
+  typescript: 'var(--kb-primary)',
+  python: 'var(--kb-success)',
+  java: 'var(--kb-warning)',
+  sql: 'var(--kb-danger)',
 }
 const langColor = (lang?: string) => LANG_COLORS[lang || ''] || 'var(--kb-muted-foreground)'
 const langColorBg = (lang?: string) => {

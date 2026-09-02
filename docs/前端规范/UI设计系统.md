@@ -503,7 +503,7 @@ CodeAgent、CodePlayground、KnowledgeImport、ObsidianImport、FlashCardsHub、
 | `views/Challenge.vue（✅ 2026-08-10）` | 378 | 0 | ✅ | P0 | `transition-all=1`、缺 focus |
 | `views/ChallengePlay.vue（✅ 2026-08-10）` | 702 | 1 | ✅ | P0 | 死按钮、缺 focus |
 | `views/WeeklyReport.vue（✅ 2026-08-10）` | 1400 | 0 | ✅ | P0 | 体量大、缺 focus |
-| `views/LearningReportView.vue（✅ 2026-08-10）` | 448 | 0 | ❌(foc=3) | P1 | 已较好，少量补 hover 即可 |
+| `views/LearningReportPage.vue（✅ 2026-08-10）` | 448 | 0 | ❌(foc=3) | P1 | 已较好，少量补 hover 即可 |
 | `views/LearningPrefs.vue（✅ 2026-08-10）` | 515 | 0 | ✅ | P1 | 缺 focus |
 | `views/Achievement.vue（✅ 2026-08-10）` | 451 | 0 | ✅ | P2 | 偏展示 |
 | `views/Certificate.vue（✅ 2026-08-10）` | 417 | 0 | ✅ | P2 | 偏展示 |
@@ -650,8 +650,8 @@ cd frontend && npm run build
 
 | 功能 | 路由 | 页面 | 说明 |
 |------|------|------|------|
-| **学习中心（总览）** | `/learning/center` | LearningReport.vue | 学习热力图（120 天活动）+ 掌握分布看板（知识库维度）+ 分类掌握度雷达图 + 薄弱点识别（<60% 自动 weak 标记）+ 统计概览（学习时长/文档数/路径数）+ 宠物卡片（喂食/玩耍/专注获经验，等级升级 exp≥maxExp→level+1+maxExp×1.5）+ 分享进度按钮（Canvas 绘制分享卡片下载） |
-| **学习报告（独立页）** | `/learning/report` | LearningReportView.vue | 详细学习数据 + 周/月维度切换 |
+| **学习中心（总览）** | `/learning/center` | LearningCenterPage.vue | 学习热力图（120 天活动）+ 掌握分布看板（知识库维度）+ 分类掌握度雷达图 + 薄弱点识别（<60% 自动 weak 标记）+ 统计概览（学习时长/文档数/路径数）+ 宠物卡片（喂食/玩耍/专注获经验，等级升级 exp≥maxExp→level+1+maxExp×1.5）+ 分享进度按钮（Canvas 绘制分享卡片下载） |
+| **学习报告（独立页）** | `/learning/report` | LearningReportPage.vue | 详细学习数据 + 周/月维度切换 |
 | **周报自动生成** | `/weekly-report` | WeeklyReport.vue | **AI 自动生成周报**：summary + achievements + suggestions 注入真实统计数据，最近 8 周列表，支持手动 regenerate，降级模板拼接 |
 | **错题本** | `/mistakes` | Mistakes.vue | 错题列表 + 筛选（已掌握/未掌握）+ 标记掌握 + 按错误类型归类（含代码异常自动归集）+ 关联知识库文档 |
 | **闪卡大厅** | `/learning/flashcards` | FlashCardsHub.vue | 闪卡创建 + SM-2 间隔重复复习算法 + 闪卡掌握度追踪 |
@@ -675,7 +675,7 @@ cd frontend && npm run build
 |------|------|------|------|
 | **沉浸工作台** | `/learning/focus` | FocusMode.vue | **全屏深色主题（路由 meta.layout='none'）**：SVG 进度环 + 番茄钟整合 + 白噪音播放器（Web Audio 程序化生成 rain/cafe/wave）+ 今日任务列表 + 激励文案 + 5 种专注模式切换（Flow/Deep/Pomodoro/Spaced/Buddy）+ 进入自动切深色、退出恢复 |
 | **学习模式（旧）** | `/learning/mode` | LearningMode.vue | 沉浸式学习壳（侧边栏可收起） |
-| **番茄钟** | `/learning/pomodoro` | LearningCenter.vue | 独立番茄钟页面 + 白噪音悬浮播放器 |
+| **番茄钟** | `/learning/pomodoro` | PomodoroPage.vue | 独立番茄钟页面 + 白噪音悬浮播放器 |
 | **白噪音组件** | - | WhiteNoisePlayer.vue | 三种环境音（rain/cafe/wave）+ 音量调节 + 最小化悬浮，挂载于番茄钟和 FocusMode |
 | **学习提醒** | `/settings/prefs`（嵌入） | - | PWA Service Worker + Notification API 定时提醒 + 设置面板（LearningPrefs.vue） |
 
@@ -786,7 +786,7 @@ cd frontend && npm run build
 - 卡片间距：gap-6 网格
 
 【参考已实现页面】
-- 同类参考：<已有的类似页面路径，如 @/views/LearningReport.vue>
+- 同类参考：<已有的类似页面路径，如 @/views/LearningCenterPage.vue>
 - 组件参考：<类似组件路径>
 
 【产出要求】

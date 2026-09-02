@@ -752,7 +752,7 @@ onUnmounted(async () => {
   gap: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: #10B981;
+  color: var(--kb-success);
 }
 
 .tabular-nums {

@@ -82,6 +82,15 @@
                   去获取 EXP <Icon name="arrow-right" :size="12" />
                 </router-link>
               </div>
+              <!-- Architecture-2：钱包（Coin 与流水入口；余额来自后端 wallet，§98/§119） -->
+              <div class="flex items-center justify-between mt-3 pt-3 border-t text-xs" style="border-color: var(--kb-border);">
+                <span class="flex items-center gap-2 font-semibold" style="color: var(--kb-warning);">
+                  <Icon name="credit-card" :size="14" />{{ walletStore.wallet?.coin ?? 0 }} Coin
+                </span>
+                <router-link to="/wallet" class="flex items-center gap-2 font-medium hover:opacity-80 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-primary)]" style="color: var(--kb-primary);">
+                  钱包与流水 <Icon name="arrow-right" :size="12" />
+                </router-link>
+              </div>
             </div>
           </div>
         </div>
@@ -394,9 +403,11 @@ import StatCard from '@/components/ui/StatCard.vue'
 import { notify } from '@/utils/toast'
 import { userApi, learningApi } from '@/api'
 import { useAuthStore } from '@/stores/auth'
+import { useWalletStore } from '@/stores/wallet'
 import type { UserVO, UserStatsVO, LearningCertificateVO } from '@/api/types'
 
 const auth = useAuthStore()
+const walletStore = useWalletStore()
 
 const user = ref<UserVO & Partial<UserStatsVO>>({
   id: 0,
@@ -538,9 +549,9 @@ interface Badge {
 
 // 成就徽章（含已解锁与未解锁）
 const badges = ref<Badge[]>([
-  { id: 1, label: '连续学习7天', icon: 'flame', gradient: 'linear-gradient(135deg, #F59E0B, #FBBF24)', unlocked: true, date: '2025-06-01 获得' },
-  { id: 2, label: '完成第一个路径', icon: 'map', gradient: 'linear-gradient(135deg, #3B6FE0, #6B9CFA)', unlocked: true, date: '2025-04-20 获得' },
-  { id: 3, label: '代码达人', icon: 'code', gradient: 'linear-gradient(135deg, #10B981, #34D399)', unlocked: true, date: '2025-05-10 获得' },
+  { id: 1, label: '连续学习7天', icon: 'flame', gradient: 'linear-gradient(135deg, var(--kb-warning), #FBBF24)', unlocked: true, date: '2025-06-01 获得' },
+  { id: 2, label: '完成第一个路径', icon: 'map', gradient: 'linear-gradient(135deg, var(--kb-primary), #6B9CFA)', unlocked: true, date: '2025-04-20 获得' },
+  { id: 3, label: '代码达人', icon: 'code', gradient: 'linear-gradient(135deg, var(--kb-success), #34D399)', unlocked: true, date: '2025-05-10 获得' },
   { id: 4, label: '知识大师', icon: 'lock', gradient: '', unlocked: false, date: '' },
 ])
 
@@ -615,19 +626,19 @@ const saveSettings = async () => {
 function buildActivities(stats: UserStatsVO): Activity[] {
   const list: Activity[] = []
   if ((stats.completedPaths ?? 0) > 0) {
-    list.push({ icon: 'check-circle', text: `完成了 ${stats.completedPaths} 个学习路径`, time: '累计', color: '#10B981' })
+    list.push({ icon: 'check-circle', text: `完成了 ${stats.completedPaths} 个学习路径`, time: '累计', color: 'var(--kb-success)' })
   }
   if ((stats.readDocsCount ?? 0) > 0) {
-    list.push({ icon: 'bookmark', text: `收藏/阅读了 ${stats.readDocsCount} 篇文档`, time: '累计', color: '#3B6FE0' })
+    list.push({ icon: 'bookmark', text: `收藏/阅读了 ${stats.readDocsCount} 篇文档`, time: '累计', color: 'var(--kb-primary)' })
   }
   if ((stats.streakDays ?? 0) > 0) {
-    list.push({ icon: 'flame', text: `连续打卡第 ${stats.streakDays} 天`, time: '今天', color: '#F59E0B' })
+    list.push({ icon: 'flame', text: `连续打卡第 ${stats.streakDays} 天`, time: '今天', color: 'var(--kb-warning)' })
   }
   if ((stats.totalFlashcards ?? 0) > 0) {
-    list.push({ icon: 'layers', text: `共学习了 ${stats.totalFlashcards} 张闪卡`, time: '累计', color: '#3B6FE0' })
+    list.push({ icon: 'layers', text: `共学习了 ${stats.totalFlashcards} 张闪卡`, time: '累计', color: 'var(--kb-primary)' })
   }
   if ((stats.totalStudyHours ?? 0) > 0) {
-    list.push({ icon: 'clock', text: `累计学习 ${stats.totalStudyHours} 小时`, time: '累计', color: '#3B6FE0' })
+    list.push({ icon: 'clock', text: `累计学习 ${stats.totalStudyHours} 小时`, time: '累计', color: 'var(--kb-primary)' })
   }
   return list.slice(0, 5)
 }
@@ -648,6 +659,7 @@ onUnmounted(() => {
 })
 
 onMounted(async () => {
+  void walletStore.fetchWallet(true) // Architecture-2：钱包余额（只读展示）
   try {
     const profile = await userApi.profile()
     user.value = { ...user.value, ...profile }

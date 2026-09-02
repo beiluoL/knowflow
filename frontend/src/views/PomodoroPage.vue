@@ -3,8 +3,8 @@
     <!-- ===== 页面头部：问候语 + 快捷统计 ===== -->
     <header class="lc-header">
       <div class="header-left">
-        <h1 class="page-title">学习中心</h1>
-        <p class="page-subtitle">{{ greeting }}，今天也要保持学习节奏哦~</p>
+        <h1 class="page-title">番茄钟</h1>
+        <p class="page-subtitle">{{ greeting }}，用一段专注时间进入学习状态吧~</p>
       </div>
       <div class="header-stats">
         <div class="hs-item">
@@ -78,8 +78,8 @@
                   />
                   <defs>
                     <linearGradient id="dashGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" style="stop-color:#3B6FE0" />
-                      <stop offset="100%" style="stop-color:#6F9AF2" />
+                      <stop offset="0%" style="stop-color:var(--kb-primary)" />
+                      <stop offset="100%" style="stop-color:var(--kb-primary-muted)" />
                     </linearGradient>
                   </defs>
                 </svg>
@@ -1091,9 +1091,9 @@ const pomodoroModes = [
 ]
 const modeLabels: Record<PomodoroMode, string> = { focus: '专注时间', shortBreak: '短休息', longBreak: '长休息' }
 const modeColors: Record<PomodoroMode, { bg: string; stroke: string }> = {
-  focus: { bg: 'bg-red-50', stroke: '#EF4444' },
-  shortBreak: { bg: 'bg-green-50', stroke: '#10B981' },
-  longBreak: { bg: 'bg-blue-50', stroke: '#3B6FE0' },
+  focus: { bg: 'bg-red-50', stroke: 'var(--kb-danger)' },
+  shortBreak: { bg: 'bg-green-50', stroke: 'var(--kb-success)' },
+  longBreak: { bg: 'bg-blue-50', stroke: 'var(--kb-primary)' },
 }
 const currentMode = ref<PomodoroMode>('focus')
 const isRunning = ref(false)
@@ -1258,7 +1258,7 @@ onUnmounted(() => {
 .hs-icon {
   color: var(--kb-primary);
 }
-.hs-icon-flame { color: #F59E0B; }
+.hs-icon-flame { color: var(--kb-warning); }
 .hs-icon-star { color: #EAB308; }
 .hs-item > div {
   display: flex;
@@ -1431,9 +1431,9 @@ onUnmounted(() => {
   border-radius: 10px;
   background: var(--kb-muted);
 }
-.stat-icon-green { color: #10B981; }
-.stat-icon-blue { color: #3B6FE0; }
-.stat-icon-orange { color: #F59E0B; }
+.stat-icon-green { color: var(--kb-success); }
+.stat-icon-blue { color: var(--kb-primary); }
+.stat-icon-orange { color: var(--kb-warning); }
 .stat-icon-purple { color: #8B5CF6; }
 .stat-num {
   font-size: 22px;
@@ -1478,10 +1478,10 @@ onUnmounted(() => {
   border-radius: 12px;
   color: #fff;
 }
-.qa-red { background: linear-gradient(135deg, #EF4444, #F87171); }
-.qa-blue { background: linear-gradient(135deg, #3B6FE0, #6F9AF2); }
-.qa-green { background: linear-gradient(135deg, #10B981, #34D399); }
-.qa-orange { background: linear-gradient(135deg, #F59E0B, #FBBF24); }
+.qa-red { background: linear-gradient(135deg, var(--kb-danger), var(--kb-danger-muted)); }
+.qa-blue { background: linear-gradient(135deg, var(--kb-primary), var(--kb-primary-muted)); }
+.qa-green { background: linear-gradient(135deg, var(--kb-success), #34D399); }
+.qa-orange { background: linear-gradient(135deg, var(--kb-warning), #FBBF24); }
 .qa-purple { background: linear-gradient(135deg, #8B5CF6, #A78BFA); }
 .qa-cyan { background: linear-gradient(135deg, #06B6D4, #22D3EE); }
 .qa-indigo { background: linear-gradient(135deg, #6366F1, #818CF8); }
@@ -1518,7 +1518,7 @@ onUnmounted(() => {
   width: 60%;
   max-width: 40px;
   min-height: 4px;
-  background: linear-gradient(180deg, #6F9AF2, #3B6FE0);
+  background: linear-gradient(180deg, var(--kb-primary-muted), var(--kb-primary));
   border-radius: 6px 6px 0 0;
   position: relative;
   transition: height 0.6s ease-out;
@@ -1526,7 +1526,7 @@ onUnmounted(() => {
   justify-content: center;
 }
 .chart-bar.is-today {
-  background: linear-gradient(180deg, #FBBF24, #F59E0B);
+  background: linear-gradient(180deg, #FBBF24, var(--kb-warning));
 }
 .chart-bar-value {
   position: absolute;
@@ -1567,9 +1567,9 @@ onUnmounted(() => {
   flex-shrink: 0;
   color: #fff;
 }
-.timeline-dot.study { background: #3B6FE0; }
-.timeline-dot.task { background: #10B981; }
-.timeline-dot.start { background: #F59E0B; }
+.timeline-dot.study { background: var(--kb-primary); }
+.timeline-dot.task { background: var(--kb-success); }
+.timeline-dot.start { background: var(--kb-warning); }
 .timeline-body {
   flex: 1;
   min-width: 0;
@@ -1587,7 +1587,7 @@ onUnmounted(() => {
 .timeline-points {
   font-size: 13px;
   font-weight: 600;
-  color: #F59E0B;
+  color: var(--kb-warning);
 }
 
 /* ===== Section Header ===== */
@@ -1627,7 +1627,7 @@ onUnmounted(() => {
   width: 56px;
   height: 56px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #3B6FE0, #8B5CF6);
+  background: linear-gradient(135deg, var(--kb-primary), #8B5CF6);
   color: #fff;
   flex-shrink: 0;
 }
@@ -1717,7 +1717,7 @@ onUnmounted(() => {
 }
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3B6FE0, #6F9AF2);
+  background: linear-gradient(90deg, var(--kb-primary), var(--kb-primary-muted));
   border-radius: 3px;
   transition: width 0.6s ease-out;
 }
@@ -1832,12 +1832,12 @@ onUnmounted(() => {
   border-radius: 10px;
   color: #fff;
 }
-.r-green { background: #10B981; }
-.r-blue { background: #3B6FE0; }
-.r-orange { background: #F59E0B; }
+.r-green { background: var(--kb-success); }
+.r-blue { background: var(--kb-primary); }
+.r-orange { background: var(--kb-warning); }
 .r-purple { background: #8B5CF6; }
 .r-cyan { background: #06B6D4; }
-.r-red { background: #EF4444; }
+.r-red { background: var(--kb-danger); }
 .r-indigo { background: #6366F1; }
 .resource-title {
   font-size: 15px;
@@ -1926,7 +1926,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #3B6FE0, #8B5CF6);
+  background: linear-gradient(135deg, var(--kb-primary), #8B5CF6);
   border-radius: 50%;
   color: #fff;
   z-index: 1;
@@ -1976,7 +1976,7 @@ onUnmounted(() => {
 }
 .points-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3B6FE0, #8B5CF6);
+  background: linear-gradient(90deg, var(--kb-primary), #8B5CF6);
   border-radius: 4px;
   transition: width 0.8s ease-out;
 }
@@ -2042,10 +2042,10 @@ onUnmounted(() => {
   color: #fff;
   margin-bottom: 4px;
 }
-.badge-common { background: linear-gradient(135deg, #6B7280, #9CA3AF); }
-.badge-rare { background: linear-gradient(135deg, #3B6FE0, #6F9AF2); }
+.badge-common { background: linear-gradient(135deg, var(--kb-muted-foreground), #9CA3AF); }
+.badge-rare { background: linear-gradient(135deg, var(--kb-primary), var(--kb-primary-muted)); }
 .badge-epic { background: linear-gradient(135deg, #8B5CF6, #A78BFA); }
-.badge-legendary { background: linear-gradient(135deg, #F59E0B, #FBBF24); }
+.badge-legendary { background: linear-gradient(135deg, var(--kb-warning), #FBBF24); }
 .badge-name {
   font-size: 13px;
   font-weight: 600;
@@ -2083,8 +2083,8 @@ onUnmounted(() => {
   flex-shrink: 0;
   color: #fff;
 }
-.ph-plus { background: #10B981; }
-.ph-minus { background: #EF4444; }
+.ph-plus { background: var(--kb-success); }
+.ph-minus { background: var(--kb-danger); }
 .ph-body {
   flex: 1;
 }
@@ -2102,8 +2102,8 @@ onUnmounted(() => {
   font-size: 15px;
   font-weight: 700;
 }
-.ph-amount.plus { color: #10B981; }
-.ph-amount.minus { color: #EF4444; }
+.ph-amount.plus { color: var(--kb-success); }
+.ph-amount.minus { color: var(--kb-danger); }
 
 /* ===== 社区讨论 ===== */
 .community-header {
@@ -2250,7 +2250,7 @@ onUnmounted(() => {
   flex-shrink: 0;
   color: #fff;
 }
-.rank-1 { background: linear-gradient(135deg, #FCD34D, #F59E0B); }
+.rank-1 { background: linear-gradient(135deg, #FCD34D, var(--kb-warning)); }
 .rank-2 { background: linear-gradient(135deg, #D1D5DB, #9CA3AF); }
 .rank-3 { background: linear-gradient(135deg, #FDBA74, #F97316); }
 .rank-circle:not(.rank-1):not(.rank-2):not(.rank-3) {
@@ -2337,7 +2337,7 @@ onUnmounted(() => {
   height: 0;
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
-  border-top: 8px solid #F59E0B;
+  border-top: 8px solid var(--kb-warning);
   position: absolute;
   top: 38px;
   left: 50%;
@@ -2384,7 +2384,7 @@ onUnmounted(() => {
 .owl-foot {
   width: 14px;
   height: 8px;
-  background: #F59E0B;
+  background: var(--kb-warning);
   border-radius: 4px;
 }
 

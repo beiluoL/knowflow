@@ -18,7 +18,7 @@
             />
           </label>
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             :loading="generating"
             @click="handleGenerateWeek"
@@ -188,7 +188,6 @@
  * 与后端 /api/learning/plan/{today,generate,calendar.ics} 对接。
  */
 import { computed, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import Button from '@/components/ui/Button.vue'
 import Icon from '@/components/ui/Icon.vue'
@@ -202,8 +201,6 @@ import { setTaskStatus } from '@/api/task'
 import { habitApi } from '@/api/habit'
 import { notify, getApiError } from '@/utils/toast'
 import type { LearningPlanVO, PlanBlockVO, PlanItemVO } from '@/api/types'
-
-const router = useRouter()
 
 // -------- State --------
 const plan = ref<LearningPlanVO | null>(null)
@@ -244,10 +241,6 @@ const displayRatio = computed(() => {
 })
 
 // -------- Helpers --------
-function fmt(d: number | string, n = 2) {
-  const s = String(d)
-  return s.length < n ? '0'.repeat(n - s.length) + s : s
-}
 function slotDefaultLabel(slot: string) {
   if (slot === 'morning') return '上午 🌅'
   if (slot === 'afternoon') return '下午 ☀️'
@@ -283,11 +276,11 @@ function typeLabel(type: string) {
 function completedCount(block: PlanBlockVO) {
   return block.items.filter((it) => it.completed).length
 }
-function badgeVariant(block: PlanBlockVO) {
-  if (!block.items.length) return 'neutral' as const
-  if (completedCount(block) === block.items.length) return 'success' as const
-  if (completedCount(block) === 0) return 'warning' as const
-  return 'info' as const
+function badgeVariant(block: PlanBlockVO): 'primary' | 'success' | 'warning' | 'danger' | 'default' {
+  if (!block.items.length) return 'default'
+  if (completedCount(block) === block.items.length) return 'success'
+  if (completedCount(block) === 0) return 'warning'
+  return 'primary'
 }
 function summaryMorning() {
   const b = (plan.value?.blocks ?? []).find((x) => x.timeSlot === 'morning')
@@ -358,7 +351,7 @@ async function onPickDateChange() {
  * 勾选切换：按 type 调对应后端 API，成功后局部更新状态与总完成率。
  * 完成 → 勾选为 true；未完成 → 勾选为 false（todo/learningTask 支持撤销，habit 不支持）。
  */
-async function toggleItem(item: PlanItemVO & { _loading?: boolean }, nextValue: boolean, block: PlanBlockVO) {
+async function toggleItem(item: PlanItemVO & { _loading?: boolean }, nextValue: boolean, _block: PlanBlockVO) {
   if (item._loading) return
   if (nextValue === !!item.completed) return
   try {
@@ -504,7 +497,7 @@ watch(pickDate, (v) => {
   box-shadow: var(--kb-shadow-sm);
 }
 .block-morning {
-  border-top: 3px solid color-mix(in oklab, #f59e0b 70%, transparent);
+  border-top: 3px solid color-mix(in oklab, var(--kb-warning) 70%, transparent);
 }
 .block-afternoon {
   border-top: 3px solid color-mix(in oklab, #0ea5e9 70%, transparent);

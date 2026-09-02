@@ -1,5 +1,19 @@
 <template>
-  <div class="wb-page animate-fade-in" :style="{ '--mc': themeColor }">
+  <MiniAppShell
+    title="知识复习 · 记忆宫殿"
+    back-label="返回"
+    @back="goBack"
+  >
+    <template #actions>
+      <router-link to="/workbench/review" class="kb-btn wb-ghost-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+        <Icon name="repeat" :size="15" aria-hidden="true" /> 间隔重复
+      </router-link>
+      <button class="kb-btn kb-btn-primary wb-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = true">
+        <Icon name="plus" :size="16" aria-hidden="true" /> 新建宫殿
+      </button>
+    </template>
+
+    <div class="wb-page animate-fade-in" :style="{ '--mc': themeColor }">
     <!-- ============ Module Hero ============ -->
     <section class="wb-hero">
       <div class="wb-hero-bg" aria-hidden="true">
@@ -13,22 +27,10 @@
               <span class="wb-eyebrow-dot"></span>
               Step 03 · 复习 · Memory Palace
             </span>
-            <h1 class="wb-title">
-              <Icon name="map-pin" :size="28" class="wb-title-icon" />
-              知识复习 · 记忆宫殿
-            </h1>
             <p class="wb-subtitle">
               把知识点挂靠到熟悉空间的固定位点，<strong>沿路线漫游回忆</strong>。
               调用空间记忆，让抽象知识具象、牢固。
             </p>
-          </div>
-          <div class="wb-hero-actions">
-            <router-link to="/workbench/review" class="kb-btn wb-ghost-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
-              <Icon name="repeat" :size="15" aria-hidden="true" /> 间隔重复
-            </router-link>
-            <button class="kb-btn kb-btn-primary wb-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = true">
-              <Icon name="plus" :size="16" aria-hidden="true" /> 新建宫殿
-            </button>
           </div>
         </div>
 
@@ -66,7 +68,7 @@
           v-for="p in list"
           :key="p.id"
           class="wb-palace-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
-          :style="{ '--pc': p.coverColor || '#3B6FE0' }"
+          :style="{ '--pc': p.coverColor || 'var(--kb-primary)' }"
           role="button"
           tabindex="0"
           @keydown.enter.prevent="($event.target as HTMLElement).click()"
@@ -155,26 +157,34 @@
       </div>
     </div>
   </div>
+</MiniAppShell>
 </template>
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import MiniAppShell from '@/components/layout/MiniAppShell.vue'
 import { notify, confirmDialog, getApiError } from '@/utils/toast'
 import './workbench-shared.css'
 import { listPalaces, createPalace, deletePalace } from '@/api/workbench'
 import type { WbPalace, WbPalacePayload } from '@/api/types'
 
 const router = useRouter()
+
+function goBack() {
+  if (window.history.length > 1) router.back()
+  else router.push('/learning/center')
+}
+
 const themeColor = '#8B5CF6'
 
 const list = ref<WbPalace[]>([])
 const loading = ref(true)
 const showCreate = ref(false)
-const form = reactive<WbPalacePayload>({ name: '', description: '', theme: 'ROOM', coverColor: '#3B6FE0' })
+const form = reactive<WbPalacePayload>({ name: '', description: '', theme: 'ROOM', coverColor: 'var(--kb-primary)' })
 
-const colorPresets = ['#3B6FE0', '#8B5CF6', '#F59E0B', '#10B981', '#FF6B35', '#EF4444']
+const colorPresets = ['var(--kb-primary)', '#8B5CF6', 'var(--kb-warning)', 'var(--kb-success)', 'var(--kb-highlight)', 'var(--kb-danger)']
 
 const loopSteps = [
   { key: 'input', num: '01', name: '输入', path: '/workbench/capture' },
@@ -202,7 +212,7 @@ async function save() {
     await createPalace({ ...form })
     notify('已创建', 'success')
     showCreate.value = false
-    Object.assign(form, { name: '', description: '', theme: 'ROOM', coverColor: '#3B6FE0' })
+    Object.assign(form, { name: '', description: '', theme: 'ROOM', coverColor: 'var(--kb-primary)' })
     load()
   } catch (e) {
     notify(getApiError(e, '保存失败'), 'error')
@@ -269,7 +279,7 @@ onMounted(load)
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--pc), color-mix(in srgb, var(--pc) 60%, #1a1d23));
+  background: linear-gradient(135deg, var(--pc), color-mix(in srgb, var(--pc) 60%, var(--kb-foreground)));
   overflow: hidden;
 }
 .wb-palace-cover-icon {

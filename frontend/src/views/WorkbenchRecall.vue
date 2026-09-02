@@ -288,7 +288,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import { notify, confirmDialog, getApiError } from '@/utils/toast'
 import './workbench-shared.css'
@@ -297,13 +297,11 @@ import {
   getRecallSession,
   createRecallSession,
   submitRecallRound,
-  deleteRecallSession,
 } from '@/api/workbench'
 import type { WbRecallSession, WbRecallSessionPayload } from '@/api/types'
 
 const route = useRoute()
-const router = useRouter()
-const themeColor = '#F59E0B'
+const themeColor = 'var(--kb-warning)'
 
 const sessions = ref<WbRecallSession[]>([])
 const activeSession = ref<WbRecallSession | null>(null)
@@ -415,7 +413,7 @@ function exitSession() {
 }
 
 async function createSession() {
-  if (!createForm.sourceText.trim()) {
+  if (!createForm.sourceText?.trim()) {
     notify('原文不能为空', 'warning')
     return
   }
@@ -509,9 +507,9 @@ function escapeHtml(s: string): string {
 }
 
 function scoreColor(score: number) {
-  if (score >= 80) return '#10B981'
-  if (score >= 50) return '#F59E0B'
-  return '#EF4444'
+  if (score >= 80) return 'var(--kb-success)'
+  if (score >= 50) return 'var(--kb-warning)'
+  return 'var(--kb-danger)'
 }
 
 function formatTime(iso?: string) {
@@ -580,8 +578,8 @@ onMounted(() => {
   font-weight: 600;
 }
 .wb-session-status.is-done {
-  background: color-mix(in srgb, #10B981 12%, transparent);
-  color: #10B981;
+  background: color-mix(in srgb, var(--kb-success) 12%, transparent);
+  color: var(--kb-success);
 }
 .wb-session-status.is-progress {
   background: color-mix(in srgb, var(--mc) 12%, transparent);
@@ -872,8 +870,8 @@ onMounted(() => {
   color: var(--kb-foreground);
 }
 .recall-diff-text :deep(.rc-miss) {
-  background: color-mix(in srgb, #EF4444 18%, transparent);
-  color: #EF4444;
+  background: color-mix(in srgb, var(--kb-danger) 18%, transparent);
+  color: var(--kb-danger);
   border-radius: 2px;
   padding: 0 2px;
   font-weight: 600;
@@ -923,8 +921,8 @@ onMounted(() => {
   font-weight: 700;
 }
 .recall-imp-null { color: var(--kb-muted-foreground); }
-.recall-imp-up { color: #10B981; }
-.recall-imp-down { color: #EF4444; }
+.recall-imp-up { color: var(--kb-success); }
+.recall-imp-down { color: var(--kb-danger); }
 
 /* ===== Create Hint ===== */
 .recall-create-hint {

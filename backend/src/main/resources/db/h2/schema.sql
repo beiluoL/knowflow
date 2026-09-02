@@ -179,6 +179,7 @@ CREATE TABLE IF NOT EXISTS learning_flashcard (
     source_type VARCHAR(20) DEFAULT 'MANUAL' COMMENT '来源：MANUAL/AI_DOC/AI_KB/IMPORT',
     review_count INT DEFAULT 0 COMMENT '已复习次数',
     review_interval INT DEFAULT 0 COMMENT '当前复习间隔（天，间隔重复算法）',
+    ease_factor INT DEFAULT 250 COMMENT 'SM-2 难度系数（放大100倍存储，默认250即2.5）',
     next_review_time TIMESTAMP COMMENT '下次应复习时间',
     last_review_time TIMESTAMP COMMENT '上次复习时间',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -249,6 +250,32 @@ CREATE INDEX IF NOT EXISTS idx_task_stage    ON task (stage);
 CREATE INDEX IF NOT EXISTS idx_task_start_time ON task (start_time);
 CREATE INDEX IF NOT EXISTS idx_tasklist_user ON task_list (user_id);
 CREATE INDEX IF NOT EXISTS idx_tasklist_par  ON task_list (parent_id);
+
+-- 任务标签（Things3 式标签）
+CREATE TABLE IF NOT EXISTS task_tag (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    name VARCHAR(50) NOT NULL COMMENT '标签名称',
+    color VARCHAR(20) DEFAULT 'var(--kb-muted-foreground)' COMMENT '标签颜色',
+    sort_order INT DEFAULT 0 COMMENT '排序',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_task_tag_user ON task_tag (user_id);
+
+-- 任务-标签关联（多对多，逻辑外键，无物理外键）
+CREATE TABLE IF NOT EXISTS task_tag_rel (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    task_id BIGINT NOT NULL COMMENT '任务ID（逻辑外键 task.id）',
+    tag_id BIGINT NOT NULL COMMENT '标签ID（逻辑外键 task_tag.id）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_task_tag_rel_task_tag ON task_tag_rel (task_id, tag_id);
+CREATE INDEX IF NOT EXISTS idx_task_tag_rel_task ON task_tag_rel (task_id);
+CREATE INDEX IF NOT EXISTS idx_task_tag_rel_tag ON task_tag_rel (tag_id);
 
 -- ---------- 日历：自定义纪念日（Memorial）----------
 -- 两类：fixed（固定日期，仅当年生效）/ yearly（每年重复，按 MM-dd 展开）
@@ -365,6 +392,8 @@ CREATE TABLE IF NOT EXISTS learning_mistake (
     correct_answer TEXT,
     category VARCHAR(50),
     difficulty INT DEFAULT 1,
+    question_id BIGINT COMMENT '原测验题ID（逻辑外键 quiz_question.id，可空兼容旧数据）',
+    code_question_id BIGINT COMMENT '原代码题ID（逻辑外键 code_question.id，可空兼容旧数据）',
     review_count INT DEFAULT 0,
     last_review_time TIMESTAMP,
     mastered INT DEFAULT 0,
@@ -373,6 +402,9 @@ CREATE TABLE IF NOT EXISTS learning_mistake (
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0
 );
+CREATE INDEX IF NOT EXISTS idx_learning_mistake_user ON learning_mistake (user_id);
+CREATE INDEX IF NOT EXISTS idx_learning_mistake_question ON learning_mistake (question_id);
+CREATE INDEX IF NOT EXISTS idx_learning_mistake_code ON learning_mistake (code_question_id);
 
 -- 社区帖子表
 CREATE TABLE IF NOT EXISTS community_post (
@@ -733,6 +765,46 @@ CREATE TABLE IF NOT EXISTS user_check_in (
 -- 同一用户同一自然日仅允许一条打卡记录（幂等约束）
 CREATE UNIQUE INDEX IF NOT EXISTS uk_uci_user_date ON user_check_in (user_id, check_date);
 CREATE INDEX IF NOT EXISTS idx_uci_user ON user_check_in (user_id);
+
+-- ========== 习惯（Habit）==========
+
+-- 习惯表
+CREATE TABLE IF NOT EXISTS habit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    name VARCHAR(100) NOT NULL COMMENT '习惯名称',
+    description VARCHAR(500) COMMENT '习惯描述',
+    icon VARCHAR(40) DEFAULT 'repeat' COMMENT '习惯图标',
+    color VARCHAR(20) DEFAULT 'var(--kb-primary)' COMMENT '习惯主题色',
+    frequency VARCHAR(20) DEFAULT 'daily' COMMENT '打卡频率：daily 每日 / weekly 每周',
+    target_count INT DEFAULT 1 COMMENT '每周期目标打卡次数（如每日 8 杯水）',
+    reminder_time VARCHAR(5) COMMENT '提醒时间 HH:mm（前端 Notification API 触发）',
+    start_date DATE COMMENT '习惯开始日期',
+    active TINYINT DEFAULT 1 COMMENT '是否启用：1 启用 / 0 停用',
+    sort_order INT DEFAULT 0 COMMENT '排序',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_habit_user ON habit (user_id);
+CREATE INDEX IF NOT EXISTS idx_habit_active ON habit (active);
+
+-- 习惯打卡记录：每习惯每自然日一行，count 累计当日打卡次数（支持多目标习惯）
+CREATE TABLE IF NOT EXISTS habit_checkin (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    habit_id BIGINT NOT NULL COMMENT '习惯ID（逻辑外键 habit.id）',
+    check_date DATE NOT NULL COMMENT '打卡日期（自然日）',
+    count INT DEFAULT 1 COMMENT '当日累计打卡次数',
+    note VARCHAR(500) COMMENT '打卡备注',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+-- 同一用户同一习惯同一自然日仅允许一条记录（幂等约束，count 累加）
+CREATE UNIQUE INDEX IF NOT EXISTS uk_habit_checkin_user_habit_date ON habit_checkin (user_id, habit_id, check_date);
+CREATE INDEX IF NOT EXISTS idx_habit_checkin_user ON habit_checkin (user_id);
+CREATE INDEX IF NOT EXISTS idx_habit_checkin_habit ON habit_checkin (habit_id);
 
 -- ========== 学习小组 ==========
 
@@ -1419,6 +1491,110 @@ CREATE TABLE IF NOT EXISTS learning_plan (
 );
 
 -- ============================================================
+-- Phase 0 补全：章节学习笔记 / 章节收藏 / 学习宠物 / 学习周报 /
+--               AI 学习建议缓存 / 用户学习偏好（此前仅有实体无建表脚本）
+-- ============================================================
+
+-- 章节学习笔记：关联用户与章节，正文支持 Markdown
+CREATE TABLE IF NOT EXISTS learning_note (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    chapter_id BIGINT COMMENT '关联章节ID（可空，表示通用笔记，逻辑外键 learning_chapter.id）',
+    path_id BIGINT COMMENT '关联学习路径ID（逻辑外键 learning_path.id）',
+    title VARCHAR(200) COMMENT '笔记标题',
+    content LONGTEXT COMMENT '笔记正文（Markdown）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_learning_note_user ON learning_note (user_id);
+CREATE INDEX IF NOT EXISTS idx_learning_note_user_chapter ON learning_note (user_id, chapter_id);
+
+-- 章节收藏：用户与章节多对多，同一章节仅收藏一次
+CREATE TABLE IF NOT EXISTS chapter_favorite (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    chapter_id BIGINT NOT NULL COMMENT '章节ID（逻辑外键 learning_chapter.id）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_chapter_favorite_user_chapter ON chapter_favorite (user_id, chapter_id);
+
+-- 用户学习宠物：每用户一只，喂食/玩耍/专注积累经验升级
+CREATE TABLE IF NOT EXISTS user_pet (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    name VARCHAR(50) DEFAULT '小鹰' COMMENT '宠物名称',
+    level INT DEFAULT 1 COMMENT '等级',
+    mood VARCHAR(20) DEFAULT '开心' COMMENT '心情',
+    energy INT DEFAULT 80 COMMENT '体力值 0-100',
+    exp INT DEFAULT 0 COMMENT '当前经验值',
+    max_exp INT DEFAULT 100 COMMENT '当前等级经验上限',
+    avatar VARCHAR(50) DEFAULT 'owl' COMMENT '宠物头像标识',
+    total_focus_minutes INT DEFAULT 0 COMMENT '累计专注分钟',
+    total_pomodoros INT DEFAULT 0 COMMENT '累计番茄数',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_user_pet_user ON user_pet (user_id);
+
+-- 学习周报：按自然周（周一至周日）汇总学习统计，AI 生成摘要/成就/建议
+CREATE TABLE IF NOT EXISTS weekly_report (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    week_start DATE NOT NULL COMMENT '本周一日期',
+    week_end DATE NOT NULL COMMENT '本周日日期',
+    summary TEXT COMMENT 'AI 生成的周报摘要',
+    achievements TEXT COMMENT 'JSON：本周成就列表',
+    suggestions TEXT COMMENT 'JSON：下周学习建议',
+    study_minutes INT DEFAULT 0 COMMENT '本周学习分钟',
+    checkin_days INT DEFAULT 0 COMMENT '本周签到天数',
+    flashcard_reviewed INT DEFAULT 0 COMMENT '本周闪卡复习数',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+    UNIQUE KEY uk_weekly_report_user_week (user_id, week_start, deleted)
+);
+CREATE INDEX IF NOT EXISTS idx_weekly_report_user ON weekly_report (user_id);
+
+-- AI 学习建议缓存：按用户 + 周期维度缓存，避免重复调用大模型
+CREATE TABLE IF NOT EXISTS ai_learning_suggestion (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    suggestions LONGTEXT COMMENT 'JSON 数组字符串：[{title,desc,icon,path}]',
+    period VARCHAR(10) DEFAULT 'week' COMMENT '周期：week/month',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_ai_learning_suggestion_user_period ON ai_learning_suggestion (user_id, period);
+
+-- 用户学习偏好：沉浸学习时长/难度/节奏等个性化设置，一个用户仅一条有效配置（Service 层 upsert 保证）
+CREATE TABLE IF NOT EXISTS sys_user_pref (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    focus_minutes INT DEFAULT 25 COMMENT '默认专注时长（分钟）',
+    short_break INT DEFAULT 5 COMMENT '短休时长（分钟）',
+    long_break INT DEFAULT 15 COMMENT '长休时长（分钟）',
+    rounds INT DEFAULT 4 COMMENT '每组工作次数',
+    card_strategy VARCHAR(20) DEFAULT 'RANDOM' COMMENT '闪卡抽取策略：RANDOM/DIFFICULTY/DUE/WEAK',
+    card_count INT DEFAULT 20 COMMENT '每次卡片数量（0 表示全部）',
+    difficulty_filter VARCHAR(10) COMMENT '难度过滤：1/2/3 或空',
+    theme VARCHAR(20) DEFAULT 'day' COMMENT '阅读主题：day/eye/night/parchment',
+    font_size VARCHAR(10) DEFAULT 'md' COMMENT '字体大小：sm/md/lg/xl',
+    sound_enabled INT DEFAULT 1 COMMENT '声音提醒：0 关 / 1 开',
+    notification_enabled INT DEFAULT 1 COMMENT '桌面通知：0 关 / 1 开',
+    reminder_time VARCHAR(5) COMMENT '每日学习提醒时间 HH:mm',
+    white_noise VARCHAR(20) COMMENT '白噪音：rain/cafe/wave 或空',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_sys_user_pref_user ON sys_user_pref (user_id);
+
+-- ============================================================
 -- 学习行为事件层（Learning Event System，Phase 1）
 -- 统一埋点所有学习行为，作为掌握度引擎 / AI 教练 / 学习计划的数据底座。
 -- 仅追加记录，不替换任何原有业务表（quiz_answer_record / code_submit_record /
@@ -1501,3 +1677,111 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_km_user_knowledge ON knowledge_mastery (use
 CREATE INDEX IF NOT EXISTS idx_km_status ON knowledge_mastery (user_id, learning_status);
 CREATE INDEX IF NOT EXISTS idx_km_risk ON knowledge_mastery (user_id, forgetting_risk);
 CREATE INDEX IF NOT EXISTS idx_km_next ON knowledge_mastery (user_id, next_review_at);
+
+-- ============ Architecture-2：Learning Economy（经济层，6 张表） ============
+-- wallet：用户钱包（当前状态；一人一个，user_id 唯一）
+CREATE TABLE IF NOT EXISTS wallet (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    xp INT DEFAULT 0,
+    coin INT DEFAULT 0,
+    level INT DEFAULT 1,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_wallet_user ON wallet (user_id);
+
+-- reward_ledger：流水（append-only；幂等键 user_id+source_type+source_id+currency）
+CREATE TABLE IF NOT EXISTS reward_ledger (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    currency VARCHAR(8) NOT NULL,
+    amount INT NOT NULL,
+    direction VARCHAR(8) NOT NULL,
+    reason VARCHAR(50) NOT NULL,
+    source_type VARCHAR(20) NOT NULL,
+    source_id BIGINT,
+    balance_after INT NOT NULL,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_ledger_idempotent ON reward_ledger (user_id, source_type, source_id, currency);
+CREATE INDEX IF NOT EXISTS idx_ledger_user_time ON reward_ledger (user_id, create_time);
+
+-- product：商品（App=能力，Product=商品；价格服务端唯一可信）
+CREATE TABLE IF NOT EXISTS product (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    product_key VARCHAR(50) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(500),
+    type VARCHAR(20) DEFAULT 'APP',
+    app_key VARCHAR(50),
+    price_coin INT DEFAULT 0,
+    status VARCHAR(20) DEFAULT 'ACTIVE',
+    version VARCHAR(20) DEFAULT '1.0.0',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_product_key ON product (product_key);
+
+-- order_：订单（order 为保留字；保留购买时价格快照）
+CREATE TABLE IF NOT EXISTS order_ (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_no VARCHAR(40) NOT NULL,
+    user_id BIGINT NOT NULL,
+    total_coin INT NOT NULL,
+    status VARCHAR(20) DEFAULT 'PAID',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_order_no ON order_ (order_no);
+
+-- order_item：订单明细（购买时价格快照）
+CREATE TABLE IF NOT EXISTS order_item (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    product_key VARCHAR(50) NOT NULL,
+    product_name VARCHAR(100) NOT NULL,
+    price_coin INT NOT NULL,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_order_item_order ON order_item (order_id);
+
+-- entitlement：购买资格（拥有资格 ≠ UserApp 启用状态）
+CREATE TABLE IF NOT EXISTS entitlement (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    product_key VARCHAR(50) NOT NULL,
+    status VARCHAR(20) DEFAULT 'ACTIVE',
+    granted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_entitlement_user_product ON entitlement (user_id, product_id);
+CREATE INDEX IF NOT EXISTS idx_entitlement_user ON entitlement (user_id);
+
+-- ============ Architecture-3：UserApp 后端化（用户应用状态，1 张表） ============
+-- UserApp = 用户启用/显示状态（Backend Source of Truth，§19/§419）；localStorage 降级为缓存（§420）。
+-- Entitlement（拥有资格）≠ UserApp（启用状态），停用不删 Entitlement/业务数据（§142）。
+CREATE TABLE IF NOT EXISTS user_app (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    app_key VARCHAR(50) NOT NULL,
+    installed INT DEFAULT 1,
+    enabled INT DEFAULT 1,
+    sort_order INT DEFAULT 0,
+    last_open_at TIMESTAMP,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_user_app ON user_app (user_id, app_key);

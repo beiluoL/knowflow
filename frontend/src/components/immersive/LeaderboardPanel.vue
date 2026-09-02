@@ -67,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, defineComponent, h } from 'vue';
 import Icon from '@/components/ui/Icon.vue';
 import { rankApi, studyGroupApi } from '@/api';
 import { useAuthStore } from '@/stores/auth';
@@ -176,14 +176,9 @@ watch(activeTab, (tab) => {
 onMounted(() => {
   void loadWeekRank();
 });
-</script>
 
-<script lang="ts">
-import { h } from 'vue';
-
-export default {
-  components: {
-    LoadingSkeleton: {
+// ===== 内联渲染组件（原第二 script 块迁入 script setup，规避 vue-tsc 双块合并类型怪癖） =====
+const LoadingSkeleton = defineComponent({
       props: { rows: { type: Number, default: 6 } },
       setup(props: { rows: number }) {
         const items = Array.from({ length: props.rows }, (_, i) => i);
@@ -200,8 +195,8 @@ export default {
             ),
           );
       },
-    },
-    Podium: {
+    });
+const Podium = defineComponent({
       props: {
         users: { type: Array, default: () => [] },
         groups: { type: Array, default: () => [] },
@@ -262,8 +257,8 @@ export default {
           return `${m}分钟`;
         }
       },
-    },
-    RankList: {
+    });
+const RankList = defineComponent({
       props: {
         items: { type: Array, default: () => [] },
         type: { type: String, required: true },
@@ -375,10 +370,10 @@ export default {
           }
         };
       },
-    },
-  },
-};
+    });
 </script>
+
+
 
 <style scoped>
 .lb-panel {

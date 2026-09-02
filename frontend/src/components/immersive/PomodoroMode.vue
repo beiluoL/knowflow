@@ -33,7 +33,7 @@
         :inner-progress="store.progress"
         :outer-progress="store.setProgress"
         :inner-color="store.modeColor.stroke"
-        outer-color="#10B981"
+        outer-color="var(--kb-success)"
         :size="260"
       >
         <div class="center">
@@ -110,11 +110,11 @@
         <button
           type="button"
           class="noise-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
-          :class="{ 'is-on': noisePlayingState.value }"
+          :class="{ 'is-on': noisePlayingState }"
           :title="noiseBtnTitle"
           @click="toggleNoise"
         >
-        <Icon :name="noisePlayingState.value ? 'music' : 'bell-off'" :size="16" aria-hidden="true" />
+        <Icon :name="noisePlayingState ? 'music' : 'bell-off'" :size="16" aria-hidden="true" />
         <span>白噪音</span>
       </button>
     </section>
@@ -549,7 +549,7 @@ onUnmounted(async () => {
   filter: brightness(1.05);
 }
 .noise-btn.is-on {
-  background: var(--kb-highlight, #FF6B35);
+  background: var(--kb-highlight, var(--kb-highlight));
   box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
 }
 

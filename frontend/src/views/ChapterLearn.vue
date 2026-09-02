@@ -6,7 +6,7 @@
       <div class="flex-1 min-w-0">
         <!-- 面包屑 -->
         <nav class="flex items-center gap-2 text-sm px-6 py-3 breadcrumb-bar">
-          <router-link to="/learning/center" class="font-medium breadcrumb-link">学习中心</router-link>
+          <router-link to="/learning/center" class="font-medium breadcrumb-link">学习首页</router-link>
           <Icon name="chevron-right" :size="14" class="breadcrumb-sep" />
           <router-link to="/learning/paths" class="font-medium breadcrumb-link">学习路径</router-link>
           <Icon name="chevron-right" :size="14" class="breadcrumb-sep" />
@@ -886,7 +886,7 @@ onBeforeUnmount(() => stopVideoTimer());
   border-top: 1px solid var(--kb-border);
 }
 .code-run-output.has-error {
-  color: #fca5a5;
+  color: var(--kb-danger-tint);
 }
 
 /* L-FORM-02 / A-FB-02 章节内嵌即时测验 */
@@ -950,7 +950,7 @@ onBeforeUnmount(() => stopVideoTimer());
   background: rgba(16, 185, 129, 0.08);
 }
 .quiz-opt.quiz-wrong {
-  border-color: #ef4444;
+  border-color: var(--kb-danger);
   background: rgba(239, 68, 68, 0.08);
 }
 .quiz-feedback {
@@ -961,17 +961,17 @@ onBeforeUnmount(() => stopVideoTimer());
   border-radius: 6px;
 }
 .quiz-feedback.quiz-correct-msg {
-  color: #047857;
+  color: var(--kb-state-success);
   background: rgba(16, 185, 129, 0.1);
 }
 .quiz-feedback.quiz-wrong-msg {
-  color: #b91c1c;
+  color: var(--kb-state-error);
   background: rgba(239, 68, 68, 0.1);
 }
 .quiz-invalid {
   padding: 12px;
   font-size: 13px;
-  color: #b91c1c;
+  color: var(--kb-state-error);
   background: rgba(239, 68, 68, 0.08);
   border-radius: 6px;
 }

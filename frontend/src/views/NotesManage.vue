@@ -1,5 +1,6 @@
 <template>
-  <div class="notes-layout">
+  <MiniAppShell title="笔记" back-label="返回" @back="goBack">
+    <div class="notes-layout">
     <!-- 左栏：文件夹 + 笔记列表 -->
     <aside
       class="notes-sidebar"
@@ -275,15 +276,22 @@
       </div>
     </section>
   </div>
+</MiniAppShell>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
+import MiniAppShell from '@/components/layout/MiniAppShell.vue';
 import { renderMarkdown } from '@/utils/markdown';
 
 const router = useRouter();
+
+function goBack() {
+  if (window.history.length > 1) router.back()
+  else router.push('/learning/center');
+}
 
 interface NoteItem {
   id: number;
@@ -309,12 +317,12 @@ interface TagStyle {
 
 function tagColor(tag: string): TagStyle {
   switch (tag) {
-    case 'Python': return { backgroundColor: 'rgba(16,185,129,0.12)', color: '#10B981' };
-    case 'AI': return { backgroundColor: 'rgba(59,111,224,0.12)', color: '#3B6FE0' };
-    case '前端': return { backgroundColor: 'rgba(245,158,11,0.12)', color: '#F59E0B' };
-    case '算法': return { backgroundColor: 'rgba(239,68,68,0.12)', color: '#EF4444' };
-    case '全部': return { backgroundColor: 'rgba(107,114,128,0.1)', color: '#6B7280' };
-    default: return { backgroundColor: 'rgba(107,114,128,0.1)', color: '#6B7280' };
+    case 'Python': return { backgroundColor: 'rgba(16,185,129,0.12)', color: 'var(--kb-success)' };
+    case 'AI': return { backgroundColor: 'rgba(59,111,224,0.12)', color: 'var(--kb-primary)' };
+    case '前端': return { backgroundColor: 'rgba(245,158,11,0.12)', color: 'var(--kb-warning)' };
+    case '算法': return { backgroundColor: 'rgba(239,68,68,0.12)', color: 'var(--kb-danger)' };
+    case '全部': return { backgroundColor: 'rgba(107,114,128,0.1)', color: 'var(--kb-muted-foreground)' };
+    default: return { backgroundColor: 'rgba(107,114,128,0.1)', color: 'var(--kb-muted-foreground)' };
   }
 }
 

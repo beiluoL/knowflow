@@ -6,7 +6,6 @@ import type {
   WbCapturePayload,
   WbNote,
   WbNotePayload,
-  WbReviewCard,
   WbReviewCardVO,
   WbReviewCardPayload,
   WbReviewGradePayload,
@@ -17,7 +16,7 @@ import type {
   WbPalaceLociPayload,
   WbStory,
   WbStoryPayload,
-  CategoryVO,
+  CategoryTreeNodeVO,
   WbForgettingCurve,
   WbRecallSession,
   WbRecallSessionPayload,
@@ -141,7 +140,7 @@ export function deleteStory(id: number) {
 // ============================ 公共：知识库分类下拉 ============================
 /** 获取真实 doc_category 分类树（用于收集箱/宫殿/位点等归类下拉） */
 export function getCategoryTree() {
-  return apiGet<CategoryVO[]>('/categories/tree')
+  return apiGet<CategoryTreeNodeVO[]>('/categories/tree')
 }
 
 // ============================ 复习：遗忘曲线可视化 ============================

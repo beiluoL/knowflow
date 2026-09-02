@@ -372,7 +372,7 @@ onMounted(loadStatus);
 
 .db-status__badge.is-error {
   background: var(--kb-danger-bg, rgba(239, 68, 68, 0.12));
-  color: var(--kb-danger, #dc2626);
+  color: var(--kb-danger, var(--kb-danger-hover));
 }
 
 .db-grid {
@@ -549,12 +549,12 @@ onMounted(loadStatus);
 
 .db-alert--error {
   background: var(--kb-danger-bg, rgba(239, 68, 68, 0.12));
-  color: var(--kb-danger, #dc2626);
+  color: var(--kb-danger, var(--kb-danger-hover));
 }
 
 .db-alert--warn {
   background: var(--kb-warning-bg, rgba(245, 158, 11, 0.12));
-  color: var(--kb-warning, #d97706);
+  color: var(--kb-warning, var(--kb-warning-hover));
 }
 
 @media (max-width: 640px) {

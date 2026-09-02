@@ -16,7 +16,7 @@
             生成分享卡
           </h2>
 
-          <div class="card-preview" ref="cardRef">
+          <div class="card-preview">
             <div
               class="share-card"
               :style="{
@@ -105,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue';
+import { watch, nextTick } from 'vue';
 import Icon from '@/components/ui/Icon.vue';
 import { notify, getApiError } from '@/utils/toast';
 
@@ -144,8 +144,6 @@ const emit = defineEmits<{
   'update:visible': [value: boolean];
   'close': [];
 }>();
-
-const cardRef = ref<HTMLElement | null>(null);
 
 const initialOf = (name?: string) => {
   if (!name) return 'K';

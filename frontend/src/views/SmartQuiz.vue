@@ -1,13 +1,19 @@
 <template>
-  <div class="animate-fade-in smart-quiz-page">
-    <!-- ===== 顶部：标题 + 操作 ===== -->
-    <div class="flex items-center justify-between mb-6 page-header">
-      <h1 class="kb-h1">智能出题</h1>
+  <MiniAppShell
+    title="智能出题"
+    :subtitle="mode === 'generate' ? 'AI 生成练习' : '题库在线答题'"
+    :knowledge-name="knowledgeContext?.name"
+    :clearable-context="!!knowledgeContext"
+    back-label="返回"
+    @back="goBack"
+    @clear-context="knowledgeContext = null"
+  >
+    <template #actions>
       <button v-if="mode === 'generate'" type="button" class="btn-primary header-action" @click="generateQuiz" :disabled="generating">
         <Icon name="sparkles" :size="16" />
         <span>{{ generating ? '生成中…' : '新建题目' }}</span>
       </button>
-    </div>
+    </template>
 
     <!-- ===== 模式切换：AI 生成 / 题库答题 ===== -->
     <div class="mode-tabs mb-6">
@@ -60,6 +66,16 @@
         <Icon name="award" :size="18" />
         <span class="tabular-nums">本次得分 {{ onlineResult.accuracy }}% · 答对 {{ onlineResult.correct }}/{{ onlineResult.total }} · 已同步错题 {{ onlineResult.syncedMistakes }}</span>
       </div>
+
+      <!-- Architecture-4/5：完成 → 结果 + 奖励 + 学习状态 + 下一步（§76/§80/§84，真实数据驱动） -->
+      <LearningResultPanel
+        v-if="onlineResult"
+        :result="quizResultText"
+        :reward="lastReward"
+        :mastery-updated="!!lastReward"
+        :next-action="quizNextAction"
+        class="mb-4"
+      />
 
       <!-- 状态区 -->
       <div v-if="onlineLoading" class="state-area">
@@ -406,7 +422,7 @@
       </div>
     </div>
     </div>
-  </div>
+  </MiniAppShell>
 </template>
 
 <script setup lang="ts">
@@ -417,14 +433,40 @@
  * 数据来源：闪卡接口（learningApi.flashcards），按配置生成选择题。
  */
 import { ref, computed, reactive } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
+import MiniAppShell from '@/components/layout/MiniAppShell.vue';
+import LearningResultPanel from '@/components/workflow/LearningResultPanel.vue';
 import { notify } from '@/utils/toast';
 import { learningApi, quizApi } from '@/api';
+import { withRewardFeedback } from '@/economy/rewardToast';
+import type { RewardDiff } from '@/economy/rewardToast';
+import { setLastCompleted } from '@/learning/action-priority';
+import type { NextLearningAction } from '@/learning/types';
 import type { QuizPracticeVO, QuizSubmitResult } from '@/api';
 import type { FlashcardVO } from '@/api/types';
 
 // ===== 页面模式：AI 生成（闪卡）/ 题库在线答题（真实 quiz_question） =====
 const mode = ref<'generate' | 'online'>('generate');
+
+// Architecture-5 §229：Mini App 上下文（knowledgeId/knowledgeName 经 route query 透传）
+const route = useRoute();
+const router = useRouter();
+function goBack() {
+  if (window.history.length > 1) router.back();
+  else router.push('/learning/center');
+}
+const knowledgeContext = ref<{ id: number; name: string } | null>(null);
+{
+  const kid = route.query.knowledgeId;
+  const kname = route.query.knowledgeName;
+  if (typeof kid === 'string' && kid) {
+    knowledgeContext.value = {
+      id: Number(kid),
+      name: typeof kname === 'string' && kname ? kname : '该知识点',
+    };
+  }
+}
 
 // 题目类型选项
 const questionTypes = [
@@ -701,12 +743,48 @@ const onlineAnswers = ref<Record<number, string | string[]>>({});
 const onlineRevealed = ref<Record<number, boolean>>({});
 const onlineResult = ref<QuizSubmitResult | null>(null);
 const submitting = ref(false);
+/** Architecture-5：本次答题的真实奖励（钱包 diff，§80/§144） */
+const lastReward = ref<RewardDiff | null>(null);
+
+/** 结果摘要（真实判分数据） */
+const quizResultText = computed(() => {
+  const res = onlineResult.value;
+  if (!res) return '';
+  return `正确率 ${res.accuracy}% · 答对 ${res.correct}/${res.total}${res.syncedMistakes > 0 ? ` · ${res.syncedMistakes} 道错题已入错题本` : ''}`;
+});
+
+/**
+ * Architecture-4：答题完成后的下一步（§76/§182）。
+ * 真实数据驱动：有错题 → 建议查看错题（错题 App）；全对 → 继续探索。
+ * 不重复推荐 Quiz（循环保护 §261）。
+ */
+const quizNextAction = computed<NextLearningAction | null>(() => {
+  const res = onlineResult.value;
+  if (!res) return null;
+  if (res.syncedMistakes > 0) {
+    return {
+      type: 'MINI_APP',
+      title: `复习错题（${res.syncedMistakes} 道）`,
+      reason: `答错的题目已自动进入错题本，建议先回顾错题再继续`,
+      route: '/mistakes',
+      appKey: 'mistake',
+      diagnosisType: 'REPEATED_MISTAKE',
+    };
+  }
+  return {
+    type: 'EXPLORE',
+    title: '本轮全部答对',
+    reason: '本轮题目全部答对，可以继续探索新的知识或练习',
+    route: '/learning/paths',
+  };
+});
 
 // 拉取真实题目
 async function startOnlineQuiz() {
   onlineLoading.value = true;
   onlineError.value = '';
   onlineResult.value = null;
+  lastReward.value = null;
   try {
     const list = await quizApi.questions({
       difficulty: onlineConfig.difficulty || undefined,
@@ -814,12 +892,17 @@ async function submitOnlineQuiz() {
   }
   submitting.value = true;
   try {
-    const res = await quizApi.submit(answers);
-    onlineResult.value = res;
-    const tip = res.syncedMistakes > 0
-      ? `得分 ${res.accuracy}%，${res.syncedMistakes} 道错题已入错题本`
-      : `得分 ${res.accuracy}%，全部答对！`;
-    notify(tip, res.wrong > 0 ? 'info' : 'success');
+    // Architecture-4/5：真实钱包 diff 计算奖励（Reward 后端计算 §142/§198），不伪造
+    lastReward.value = await withRewardFeedback(async () => {
+      const res = await quizApi.submit(answers);
+      onlineResult.value = res;
+      const tip = res.syncedMistakes > 0
+        ? `得分 ${res.accuracy}%，${res.syncedMistakes} 道错题已入错题本`
+        : `得分 ${res.accuracy}%，全部答对！`;
+      notify(tip, res.wrong > 0 ? 'info' : 'success');
+    });
+    // 循环保护（§261-262）：记录刚完成 Quiz，避免系统紧接着再次推荐 Quiz
+    setLastCompleted('QUIZ');
   } catch (err) {
     notify(err instanceof Error ? err.message : '提交失败', 'error');
   } finally {

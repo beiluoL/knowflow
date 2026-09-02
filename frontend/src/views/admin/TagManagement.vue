@@ -96,7 +96,7 @@
                 v-model="form.color"
                 type="text"
                 class="form-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors hover:border-[var(--kb-ring)]"
-                placeholder="#3B6FE0"
+                placeholder="var(--kb-primary)"
               />
             </div>
             <div class="color-presets">
@@ -139,31 +139,31 @@ interface Tag {
 
 /** 标签列表（演示数据） */
 const tags = ref<Tag[]>([
-  { id: '1', name: 'Python', color: '#3B6FE0', count: 45, creator: '张三' },
-  { id: '2', name: '机器学习', color: '#10B981', count: 38, creator: '李四' },
-  { id: '3', name: '前端开发', color: '#F59E0B', count: 32, creator: '王五' },
-  { id: '4', name: 'React', color: '#EF4444', count: 28, creator: '张三' },
-  { id: '5', name: 'Node.js', color: '#6B7280', count: 22, creator: '赵六' },
-  { id: '6', name: '数据分析', color: '#3B6FE0', count: 24, creator: '赵六' },
-  { id: '7', name: 'Vue', color: '#10B981', count: 19, creator: '王五' },
-  { id: '8', name: 'TypeScript', color: '#F59E0B', count: 17, creator: '张三' },
-  { id: '9', name: 'Docker', color: '#EF4444', count: 18, creator: '李四' },
-  { id: '10', name: 'API 设计', color: '#6B7280', count: 15, creator: '王五' },
-  { id: '11', name: '数据库', color: '#3B6FE0', count: 14, creator: '张三' },
-  { id: '12', name: '微服务', color: '#10B981', count: 12, creator: '张三' },
-  { id: '13', name: '产品需求', color: '#F59E0B', count: 10, creator: '王五' },
-  { id: '14', name: 'UI 设计', color: '#EF4444', count: 9, creator: '赵六' },
-  { id: '15', name: '性能优化', color: '#6B7280', count: 8, creator: '李四' },
-  { id: '16', name: '算法', color: '#3B6FE0', count: 7, creator: '张三' },
-  { id: '17', name: '深度学习', color: '#10B981', count: 6, creator: '赵六' },
-  { id: '18', name: 'Kubernetes', color: '#F59E0B', count: 5, creator: '王五' },
-  { id: '19', name: 'Go 语言', color: '#EF4444', count: 4, creator: '李四' },
-  { id: '20', name: '安全', color: '#6B7280', count: 3, creator: '张三' },
+  { id: '1', name: 'Python', color: 'var(--kb-primary)', count: 45, creator: '张三' },
+  { id: '2', name: '机器学习', color: 'var(--kb-success)', count: 38, creator: '李四' },
+  { id: '3', name: '前端开发', color: 'var(--kb-warning)', count: 32, creator: '王五' },
+  { id: '4', name: 'React', color: 'var(--kb-danger)', count: 28, creator: '张三' },
+  { id: '5', name: 'Node.js', color: 'var(--kb-muted-foreground)', count: 22, creator: '赵六' },
+  { id: '6', name: '数据分析', color: 'var(--kb-primary)', count: 24, creator: '赵六' },
+  { id: '7', name: 'Vue', color: 'var(--kb-success)', count: 19, creator: '王五' },
+  { id: '8', name: 'TypeScript', color: 'var(--kb-warning)', count: 17, creator: '张三' },
+  { id: '9', name: 'Docker', color: 'var(--kb-danger)', count: 18, creator: '李四' },
+  { id: '10', name: 'API 设计', color: 'var(--kb-muted-foreground)', count: 15, creator: '王五' },
+  { id: '11', name: '数据库', color: 'var(--kb-primary)', count: 14, creator: '张三' },
+  { id: '12', name: '微服务', color: 'var(--kb-success)', count: 12, creator: '张三' },
+  { id: '13', name: '产品需求', color: 'var(--kb-warning)', count: 10, creator: '王五' },
+  { id: '14', name: 'UI 设计', color: 'var(--kb-danger)', count: 9, creator: '赵六' },
+  { id: '15', name: '性能优化', color: 'var(--kb-muted-foreground)', count: 8, creator: '李四' },
+  { id: '16', name: '算法', color: 'var(--kb-primary)', count: 7, creator: '张三' },
+  { id: '17', name: '深度学习', color: 'var(--kb-success)', count: 6, creator: '赵六' },
+  { id: '18', name: 'Kubernetes', color: 'var(--kb-warning)', count: 5, creator: '王五' },
+  { id: '19', name: 'Go 语言', color: 'var(--kb-danger)', count: 4, creator: '李四' },
+  { id: '20', name: '安全', color: 'var(--kb-muted-foreground)', count: 3, creator: '张三' },
 ])
 
 /** 预设颜色 */
 const colorPresets = [
-  '#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#6B7280',
+  'var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', 'var(--kb-muted-foreground)',
   '#06B6D4', '#EC4899', '#84CC16', '#F97316', '#6366F1',
 ]
 
@@ -173,7 +173,7 @@ const editingId = ref<string | null>(null)
 const saving = ref(false)
 const form = reactive({
   name: '',
-  color: '#3B6FE0',
+  color: 'var(--kb-primary)',
 })
 
 /** 根据使用次数返回标签云尺寸类 */
@@ -213,7 +213,7 @@ const selectTag = (tag: Tag) => {
 const openCreate = () => {
   editingId.value = null
   form.name = ''
-  form.color = '#3B6FE0'
+  form.color = 'var(--kb-primary)'
   showModal.value = true
 }
 

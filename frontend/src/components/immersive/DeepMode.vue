@@ -189,8 +189,8 @@
         <DualRingProgress
           :inner-progress="innerProgress"
           :outer-progress="outerProgress"
-          inner-color="#F59E0B"
-          outer-color="#EF4444"
+          inner-color="var(--kb-warning)"
+          outer-color="var(--kb-danger)"
           :size="180"
         >
           <div class="ring-center">
@@ -216,8 +216,8 @@
         <DualRingProgress
           :inner-progress="innerProgress"
           :outer-progress="outerProgress"
-          inner-color="#F59E0B"
-          outer-color="#EF4444"
+          inner-color="var(--kb-warning)"
+          outer-color="var(--kb-danger)"
           :size="180"
         >
           <div class="ring-center">
@@ -399,8 +399,8 @@ const timeFormatted = computed(() => {
 const stageInfo = computed(() => {
   const m = elapsedSec.value / 60;
   if (m < 20) return { label: '探索阶段', color: '#60A5FA', icon: 'search' };
-  if (m <= 60) return { label: '专注阶段', color: '#F59E0B', icon: 'target' };
-  return { label: '掌握阶段', color: '#10B981', icon: 'award' };
+  if (m <= 60) return { label: '专注阶段', color: 'var(--kb-warning)', icon: 'target' };
+  return { label: '掌握阶段', color: 'var(--kb-success)', icon: 'award' };
 });
 
 const prerequisiteChips = computed<string[]>(() => {
@@ -702,7 +702,7 @@ onUnmounted(async () => {
 }
 .diff-badge.easy { color: #34D399; }
 .diff-badge.medium { color: #FBBF24; }
-.diff-badge.hard { color: #F87171; }
+.diff-badge.hard { color: var(--kb-danger-muted); }
 .topic-card-meta {
   display: flex;
   align-items: center;
@@ -725,7 +725,7 @@ onUnmounted(async () => {
 .cat-framework { background: rgba(59, 130, 246, 0.15); color: #60A5FA; }
 .cat-tool { background: rgba(139, 92, 246, 0.15); color: #A78BFA; }
 .cat-database { background: rgba(245, 158, 11, 0.15); color: #FBBF24; }
-.cat-algorithm { background: rgba(239, 68, 68, 0.15); color: #F87171; }
+.cat-algorithm { background: rgba(239, 68, 68, 0.15); color: var(--kb-danger-muted); }
 .cat-platform { background: rgba(236, 72, 153, 0.15); color: #F472B6; }
 .doc-count {
   display: inline-flex;
@@ -1153,7 +1153,7 @@ onUnmounted(async () => {
 }
 .end-btn:hover {
   background: rgba(239, 68, 68, 0.18);
-  color: #F87171;
+  color: var(--kb-danger-muted);
 }
 
 .insight-card.actions {

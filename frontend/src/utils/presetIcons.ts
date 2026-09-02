@@ -83,7 +83,7 @@ export const presetIcons: PresetIcon[] = [
   { key: 'format-ppt', name: 'PPT', category: 'format', color: '#D24726', svg: svg('M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3 3h3a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-2v2H10v-7zm1 4h2v-2h-2v2z') },
   { key: 'format-json', name: 'JSON', category: 'format', color: '#F5A623', svg: svg('M5 3h2v2H5v4l-2 2 2 2v4h2v2H5a2 2 0 0 1-2-2v-3l-2-2 2-2V5a2 2 0 0 1 2-2zm14 0h-2v2h2v4l2 2-2 2v4h-2v2h2a2 2 0 0 0 2-2v-3l2-2-2-2V5a2 2 0 0 0-2-2zM9 7h2v10H9V7zm4 0h2v10h-2V7z') },
   { key: 'format-csv', name: 'CSV', category: 'format', color: '#1B9C77', svg: svg('M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zM7 13h10v6H7v-6zm1 1v1h3v-1H8zm4 0v1h4v-1h-4zm-4 2v1h3v-1H8zm4 0v1h4v-1h-4z') },
-  { key: 'format-zip', name: 'ZIP', category: 'format', color: '#F59E0B', svg: svg('M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3 1h2v2h-2v-2zm0 3h2v2h-2v-2zm0 3h2v2h-2v-2z') },
+  { key: 'format-zip', name: 'ZIP', category: 'format', color: 'var(--kb-warning)', svg: svg('M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13zm-3 1h2v2h-2v-2zm0 3h2v2h-2v-2zm0 3h2v2h-2v-2z') },
   { key: 'format-image', name: 'Image', category: 'format', color: '#8B5CF6', svg: svg('M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z') },
   { key: 'format-video', name: 'Video', category: 'format', color: '#EC4899', svg: svg('M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z') },
 
@@ -138,14 +138,14 @@ export const resolveIconForRender = (raw?: string): { name: string; color: strin
   if (!key) return { name: '', color: '' }
   const preset = getIconByKey(key)
   if (preset) {
-    return { name: preset.svg, color: color || preset.color || '#6B7280' }
+    return { name: preset.svg, color: color || preset.color || 'var(--kb-muted-foreground)' }
   }
   return { name: key, color }
 }
 
 /** 预设颜色板（供图标颜色选择器使用） */
 export const iconColorPresets: string[] = [
-  '#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+  'var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#8B5CF6',
   '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
   '#14B8A6', '#64748B', '#000000', '#FFFFFF',
 ]

@@ -290,7 +290,7 @@ const systemIcons = [
 
 /** 预设颜色 */
 const presetColors = [
-  '#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+  'var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#8B5CF6',
   '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
   '#14B8A6', '#64748B',
 ]
@@ -579,8 +579,8 @@ onMounted(() => {
   line-height: 1.3;
 }
 .badge-custom { background: #DBEAFE; color: #1D4ED8; }
-.badge-iconfont { background: #FEF3C7; color: #B45309; }
-.badge-svg { background: #D1FAE5; color: #047857; }
+.badge-iconfont { background: var(--kb-warning-soft-strong); color: var(--kb-state-warning); }
+.badge-svg { background: var(--kb-success-soft-strong); color: var(--kb-state-success); }
 
 /* 自定义图标图片 */
 .custom-img {
@@ -614,7 +614,7 @@ onMounted(() => {
 }
 
 .custom-cell .delete-btn:hover {
-  background: #ef4444;
+  background: var(--kb-danger);
   color: #fff;
 }
 
@@ -790,7 +790,7 @@ onMounted(() => {
 }
 
 .required {
-  color: #ef4444;
+  color: var(--kb-danger);
 }
 
 .form-hint {
@@ -915,8 +915,8 @@ onMounted(() => {
 }
 
 .clear-color-btn:hover {
-  color: #ef4444;
-  border-color: #ef4444;
+  color: var(--kb-danger);
+  border-color: var(--kb-danger);
 }
 
 /* 预览 */
@@ -959,7 +959,7 @@ onMounted(() => {
   gap: 8px;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px dashed var(--kb-border, #E8ECF1);
+  border-bottom: 1px dashed var(--kb-border, var(--kb-muted));
 }
 
 .preset-tab-btn {
@@ -969,24 +969,24 @@ onMounted(() => {
   padding: 6px 14px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-muted-foreground, #6B7280);
+  color: var(--kb-muted-foreground, var(--kb-muted-foreground));
   background: var(--kb-card, #F8FAFC);
-  border: 1px solid var(--kb-border, #E8ECF1);
+  border: 1px solid var(--kb-border, var(--kb-muted));
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .preset-tab-btn:hover {
-  color: var(--kb-primary, #3B6FE0);
-  border-color: var(--kb-primary, #3B6FE0);
+  color: var(--kb-primary, var(--kb-primary));
+  border-color: var(--kb-primary, var(--kb-primary));
   background: rgba(59, 111, 224, 0.06);
 }
 
 .preset-tab-btn.active {
   color: #fff;
-  background: var(--kb-primary, #3B6FE0);
-  border-color: var(--kb-primary, #3B6FE0);
+  background: var(--kb-primary, var(--kb-primary));
+  border-color: var(--kb-primary, var(--kb-primary));
   box-shadow: 0 2px 6px rgba(59, 111, 224, 0.25);
 }
 
@@ -1021,7 +1021,7 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   padding: 14px 8px;
-  border: 1px solid var(--kb-border, #E8ECF1);
+  border: 1px solid var(--kb-border, var(--kb-muted));
   border-radius: 10px;
   background: var(--kb-card, #FFFFFF);
   cursor: pointer;
@@ -1029,7 +1029,7 @@ onMounted(() => {
 }
 
 .preset-cell:hover {
-  border-color: var(--kb-primary, #3B6FE0);
+  border-color: var(--kb-primary, var(--kb-primary));
   background: rgba(59, 111, 224, 0.04);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 111, 224, 0.12);

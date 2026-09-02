@@ -162,8 +162,8 @@
               tabindex="0"
               aria-label="选择文件或拖拽目录到此处"
               @click="triggerFileInput"
-              @keydown.enter.prevent="$event.target.click()"
-              @keydown.space.prevent="$event.target.click()"
+              @keydown.enter.prevent="($event.target as HTMLElement).click()"
+              @keydown.space.prevent="($event.target as HTMLElement).click()"
               @dragover.prevent="dragging = true"
               @dragleave.prevent="dragging = false"
               @drop.prevent="handleDrop"
@@ -301,8 +301,8 @@
                 tabindex="0"
                 :aria-pressed="selectedKbId === cat.id"
                 @click="selectedKbId = cat.id"
-                @keydown.enter.prevent="$event.target.click()"
-                @keydown.space.prevent="$event.target.click()"
+                @keydown.enter.prevent="($event.target as HTMLElement).click()"
+                @keydown.space.prevent="($event.target as HTMLElement).click()"
               >
                 <div class="kb-select-icon" :style="{ background: getKbColor(cat.id) }">
                   <Icon :name="getCategoryIcon(cat.icon)" :size="20" />
@@ -611,12 +611,11 @@ async function handleScan() {
   pathError.value = null
   scanResult.value = null
   try {
-    const res = await obsidianImportApi.scan({
+    const vo = await obsidianImportApi.scan({
       path,
       relativeTo: relativeToInput.value.trim() || undefined,
     })
-    scanResult.value = res.data
-    const vo = res.data
+    scanResult.value = vo
     const hasFiles = vo && (vo.docCount > 0 || vo.imageCount > 0 || (vo.files && vo.files.length > 0))
     if (!hasFiles) {
       // 未发现可导入文件，给出含具体路径、支持类型与检查建议的友好提示
@@ -669,7 +668,7 @@ function hasModule(key: ObsidianModule) {
 async function loadKbs() {
   try {
     const res = await obsidianImportApi.listEditableKbs()
-    kbCategories.value = res.data ?? []
+    kbCategories.value = res ?? []
     if (kbCategories.value.length) selectedKbId.value = kbCategories.value[0].id
   } catch {
     kbCategories.value = []
@@ -759,7 +758,7 @@ function startImport() {
       },
       onError: (error) => {
         importing.value = false
-        pathError.value = error
+        pathError.value = { path: pathInput.value.trim(), message: error }
         notify(error, 'error')
         currentStep.value = 1
       },
@@ -795,7 +794,7 @@ function formatFileSize(bytes: number) {
   }
   return `${val.toFixed(val >= 10 || i === 0 ? 0 : 1)} ${units[i]}`
 }
-const KB_COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899']
+const KB_COLORS = ['#3b82f6', '#8b5cf6', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#06b6d4', '#ec4899']
 function getKbColor(id?: number) {
   return KB_COLORS[(id ?? 0) % KB_COLORS.length]
 }

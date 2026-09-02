@@ -45,6 +45,8 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
     private final LearningUserPathMapper userPathMapper;
     private final LearningFlashcardMapper flashcardMapper;
     private final LearningTaskMapper taskMapper;
+    /** Architecture-2：XP/等级统一从钱包读取（修 G1：消除 stats 推导公式口径分裂，§11/§131） */
+    private final com.knowflow.reward.WalletService walletService;
 
     /** 登录校验：用户名或密码错误统一返回 401，以防止用户名枚举。 */
     @Override
@@ -136,10 +138,11 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
                     new LambdaQueryWrapper<LearningFlashcard>().in(LearningFlashcard::getPathId, pathIds));
         }
 
-        // 等级与经验由真实学习行为派生：阅读 +10/篇、完成路径 +50、收藏 +5
-        int exp = readDocsCount * 10 + completedPaths * 50 + favoriteCount * 5;
-        int level = exp / 100 + 1;
-        // 精力值：待完成任务越多消耗越多，下限 0 上限 100
+        // Architecture-2：等级与经验统一读取 Wallet（Wallet = 当前状态；首次访问惰性初始化 xp=sys_user.exp，§7/§11）
+        com.knowflow.entity.Wallet wallet = walletService.getOrCreate(userId);
+        int exp = wallet.getXp();
+        int level = wallet.getLevel();
+        // 精力值：待完成任务越多消耗越多，下限 0 上限 100（energy 不在经济闭环内，保持兼容，§9/§12）
         long pendingTasks = taskMapper.selectCount(new LambdaQueryWrapper<LearningTask>()
                 .eq(LearningTask::getUserId, userId)
                 .eq(LearningTask::getStatus, 0));

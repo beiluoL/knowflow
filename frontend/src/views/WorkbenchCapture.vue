@@ -203,18 +203,18 @@ import {
   toggleCaptureStar,
   getCategoryTree,
 } from '@/api/workbench'
-import type { WbCapture, WbCapturePayload, CategoryVO } from '@/api/types'
+import type { WbCapture, WbCapturePayload, CategoryTreeNodeVO } from '@/api/types'
 
 const router = useRouter()
-const themeColor = '#3B6FE0'
+const themeColor = 'var(--kb-primary)'
 
 const list = ref<WbCapture[]>([])
 const loading = ref(true)
 const activeStatus = ref<string>('')
 const activeCategory = ref<number | undefined>(undefined)
 const keyword = ref('')
-const categories = ref<CategoryVO[]>([])
-const flatCategories = ref<CategoryVO[]>([])
+const categories = ref<CategoryTreeNodeVO[]>([])
+const flatCategories = ref<CategoryTreeNodeVO[]>([])
 const categoryMap = ref<Map<number, string>>(new Map())
 
 const inboxCount = computed(() => list.value.filter((i) => i.status === 'INBOX').length)
@@ -226,8 +226,8 @@ const loopSteps = [
   { key: 'output', num: '04', name: '输出', path: '/workbench/story' },
 ]
 
-function flatten(nodes: CategoryVO[], depth = 0): CategoryVO[] {
-  const out: CategoryVO[] = []
+function flatten(nodes: CategoryTreeNodeVO[], depth = 0): CategoryTreeNodeVO[] {
+  const out: CategoryTreeNodeVO[] = []
   for (const n of nodes) {
     out.push({ ...n, depth })
     if (n.children && n.children.length) out.push(...flatten(n.children, depth + 1))
@@ -348,11 +348,11 @@ function statusLabel(s?: string) {
 }
 function statusStyle(s?: string) {
   const map: Record<string, string> = {
-    INBOX: '#F59E0B',
-    PROCESSED: '#3B6FE0',
-    ARCHIVED: '#6B7280',
+    INBOX: 'var(--kb-warning)',
+    PROCESSED: 'var(--kb-primary)',
+    ARCHIVED: 'var(--kb-muted-foreground)',
   }
-  const c = map[s || ''] || '#6B7280'
+  const c = map[s || ''] || 'var(--kb-muted-foreground)'
   return { '--sc': c, color: c, background: `color-mix(in srgb, ${c} 12%, transparent)` }
 }
 function sourceLabel(s?: string) {

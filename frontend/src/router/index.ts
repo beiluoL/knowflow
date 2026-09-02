@@ -2,12 +2,16 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { notify } from '@/utils/toast';
+import { findChildByPath, findGroupByPath } from '@/config/navigation';
 
 /**
- * 布局约定（与设计稿对齐）：
- * - meta.layout = 'c'  → C 端：固定顶部导航 + 全屏内容（无侧边栏）
- * - meta.layout = 'b'  → B 端：左侧边栏 + 顶部栏 + 可滚动内容
- * - meta.layout = 'none' / 缺省 → 无布局壳（登录/入口/404/沉浸式）
+ * 布局约定（Phase UI-2 更新）：
+ * - meta.layout = 'c'    → C 端：AppShell = 固定顶栏 + 左侧边栏 + 可滚动主区
+ * - meta.layout = 'b'    → B 端：左侧边栏 + 顶部栏 + 可滚动内容（管理后台）
+ * - meta.layout = 'none' / 缺省 → 无布局壳（登录/入口/404/沉浸式/编辑器）
+ *
+ * meta.fullscreen = true → 主内容区取消最大宽度限制（AI/图谱/工作台等），
+ *                          但仍保留顶栏与侧边栏，保证导航不丢失（§40）。
  */
 const routes: RouteRecordRaw[] = [
   // ===== 通用系统页面（无布局） =====
@@ -139,11 +143,11 @@ const routes: RouteRecordRaw[] = [
     name: 'Learning',
     redirect: '/learning/center',
   },
-  // F-01 修复：/learning/center 指向真实学习总览页（LearningReport.vue，页面标题「学习中心」）
+  // Phase UI-4：文件命名治理。/learning/center = 学习行动中心（LearningCenterPage.vue）
   {
     path: '/learning/center',
-    name: 'LearningCenter',
-    component: () => import('@/views/LearningReport.vue'),
+    name: 'LearningCenterPage',
+    component: () => import('@/views/LearningCenterPage.vue'),
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   {
@@ -266,18 +270,18 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/TodayPlan.vue'),
     meta: { layout: 'c', requiresAuth: true },
   },
-  // 学习报告独立页面
+  // 学习报告独立页面（Phase UI-4：文件命名治理，LearningReportPage.vue）
   {
     path: '/learning/report',
-    name: 'LearningReport',
-    component: () => import('@/views/LearningReportView.vue'),
+    name: 'LearningReportPage',
+    component: () => import('@/views/LearningReportPage.vue'),
     meta: { layout: 'c', requiresAuth: true },
   },
-  // F-01 修复：番茄钟独立路由（LearningCenter.vue 实为番茄钟专注页）
+  // 番茄钟独立路由（Phase UI-4：PomodoroPage.vue，职责=专注工具，不再叫「学习中心」）
   {
     path: '/learning/pomodoro',
     name: 'LearningPomodoro',
-    component: () => import('@/views/LearningCenter.vue'),
+    component: () => import('@/views/PomodoroPage.vue'),
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
 
@@ -312,6 +316,20 @@ const routes: RouteRecordRaw[] = [
     path: '/tasks',
     name: 'TaskCenter',
     component: () => import('@/views/TaskCenter.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  // Architecture-1：App Center（Mini App 应用中心）
+  {
+    path: '/apps',
+    name: 'AppCenter',
+    component: () => import('@/views/AppCenterPage.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  // Architecture-2：钱包（学习经济）
+  {
+    path: '/wallet',
+    name: 'Wallet',
+    component: () => import('@/views/WalletPage.vue'),
     meta: { layout: 'c', requiresAuth: true },
   },
   {
@@ -666,6 +684,29 @@ router.beforeEach(async (to) => {
   }
 
   return true;
+});
+
+/**
+ * Phase UI-2：页面标题统一由导航配置推导（§12/§20）。
+ *
+ * 之所以不在 90 条路由上逐条手写 meta.title：一旦逐条维护，
+ * 「导航叫什么」与「页面标题叫什么」迟早会各说各话（本项目此前就出现了
+ * /learning/center 与 /learning/pomodoro 两个页面都自称「学习中心」的情况）。
+ * 这里改为从 @/config/navigation.ts 单一数据源推导，二者永远一致。
+ * 未纳入导航的页面（登录/404/详情页等）回落到站点名，详情页可由 PageHeader 的 crumbs 补充。
+ */
+router.afterEach((to) => {
+  const hit = findChildByPath(to.path);
+  if (hit) {
+    document.title = `${hit.child.label} · ${hit.group.label} · KnowFlow`;
+    return;
+  }
+  const group = findGroupByPath(to.path);
+  if (group) {
+    document.title = `${group.label} · KnowFlow`;
+    return;
+  }
+  document.title = 'KnowFlow';
 });
 
 export default router;

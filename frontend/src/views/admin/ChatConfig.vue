@@ -201,18 +201,18 @@
 
         <!-- 连通性测试结果 -->
         <div v-if="testResult" class="p-4 rounded-lg border" :style="{
-          borderColor: testResult.success ? 'var(--kb-accent)' : 'var(--kb-danger, #ef4444)',
+          borderColor: testResult.success ? 'var(--kb-accent)' : 'var(--kb-danger, var(--kb-danger))',
           background: testResult.success ? 'rgba(16,185,129,0.06)' : 'rgba(239,68,68,0.06)',
         }">
           <div class="flex items-start gap-3">
             <Icon
               :name="testResult.success ? 'check-circle' : 'x-circle'"
               :size="20"
-              :style="{ color: testResult.success ? 'var(--kb-accent)' : 'var(--kb-danger, #ef4444)' }"
+              :style="{ color: testResult.success ? 'var(--kb-accent)' : 'var(--kb-danger, var(--kb-danger))' }"
             />
             <div class="flex-1">
               <div class="flex items-center gap-2">
-                <span class="text-sm font-medium" :style="{ color: testResult.success ? 'var(--kb-accent)' : 'var(--kb-danger, #ef4444)' }">
+                <span class="text-sm font-medium" :style="{ color: testResult.success ? 'var(--kb-accent)' : 'var(--kb-danger, var(--kb-danger))' }">
                   {{ testResult.success ? '连通成功' : '连通失败' }}
                 </span>
                 <span class="text-xs" style="color: var(--kb-muted-foreground);">耗时 {{ testResult.elapsedMs }}ms</span>

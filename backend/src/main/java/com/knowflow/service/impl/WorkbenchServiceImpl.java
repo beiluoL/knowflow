@@ -29,6 +29,7 @@ import com.knowflow.mapper.WbReviewCardMapper;
 import com.knowflow.mapper.WbReviewLogMapper;
 import com.knowflow.mapper.WbStoryMapper;
 import com.knowflow.service.LearningEventService;
+import com.knowflow.service.SrsService;
 import com.knowflow.service.WorkbenchService;
 import com.knowflow.vo.WbForgettingCurveVO;
 import com.knowflow.vo.WbRecallSessionVO;
@@ -73,11 +74,10 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
     private final WbStoryMapper storyMapper;
     private final WbRecallSessionMapper recallSessionMapper;
     private final LearningEventService learningEventService;
+    private final SrsService srsService;
 
     /** SM-2 难度系数默认 2.50，以整数存储（×100）。 */
     private static final int DEFAULT_EF = 250;
-    /** SM-2 难度系数下限 1.30（×100），防止过度压缩间隔。 */
-    private static final int MIN_EF = 130;
     /** 评分质量 q 的及格线：≥2 视为答对，<2 视为遗忘（重置连续答对与间隔）。 */
     private static final int PASS_QUALITY = 2;
     /** 近 7 天复习统计窗口（天）。 */
@@ -388,33 +388,21 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
             throw new BusinessException("评分质量需在 0~3 之间");
         }
 
-        int ef = e.getEaseFactor() == null ? DEFAULT_EF : e.getEaseFactor();
-        int repetitions = e.getRepetitions() == null ? 0 : e.getRepetitions();
-        int interval = e.getIntervalDay() == null ? 0 : e.getIntervalDay();
-        boolean lapsed = quality < PASS_QUALITY;
-
-        // SM-2 核心：更新难度系数 —— EF' = EF + (0.1 - (5-q)(0.08 + (5-q)*0.02))
-        double q = quality;
-        double efDouble = ef / 100.0 + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
-        ef = (int) Math.round(Math.max(MIN_EF / 100.0, efDouble) * 100);
-
-        if (lapsed) {
-            // 遗忘：连续答对归零，间隔重置为 1 天后重新学习
-            repetitions = 0;
-            interval = 1;
-            e.setLapseCount((e.getLapseCount() == null ? 0 : e.getLapseCount()) + 1);
-        } else {
-            repetitions += 1;
-            if (repetitions == 1) {
-                interval = 1;
-            } else if (repetitions == 2) {
-                interval = 6;
-            } else {
-                interval = (int) Math.round(interval * (ef / 100.0));
-            }
-        }
+        // SM-2 核心计算统一收敛到 SrsService（唯一业务实现入口），此处仅做领域校验与落库
+        SrsService.SrsState state = new SrsService.SrsState();
+        state.setRepetitions(e.getRepetitions() == null ? 0 : e.getRepetitions());
+        state.setIntervalDay(e.getIntervalDay() == null ? 0 : e.getIntervalDay());
+        state.setEaseFactor(e.getEaseFactor() == null ? DEFAULT_EF : e.getEaseFactor());
+        state.setLapseCount(e.getLapseCount() == null ? 0 : e.getLapseCount());
 
         LocalDateTime now = LocalDateTime.now();
+        SrsService.SrsResult r = srsService.grade(quality, PASS_QUALITY, state, now);
+
+        int ef = r.getEaseFactor();
+        int repetitions = r.getRepetitions();
+        int interval = r.getIntervalDay();
+        boolean lapsed = r.isLapsed();
+
         e.setEaseFactor(ef);
         e.setRepetitions(repetitions);
         e.setIntervalDay(interval);

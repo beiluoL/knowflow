@@ -350,7 +350,7 @@ async function handleRegister(): Promise<void> {
   width: 55%;
   min-height: 100vh;
   padding: 60px 80px;
-  background: linear-gradient(145deg, var(--kb-primary) 0%, #4A7DE8 50%, #3B6FE0 100%);
+  background: linear-gradient(145deg, var(--kb-primary) 0%, #4A7DE8 50%, var(--kb-primary) 100%);
   overflow: hidden;
   animation: slideInLeft 0.8s ease-out;
 }

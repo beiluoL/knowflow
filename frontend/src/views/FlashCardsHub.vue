@@ -1,19 +1,16 @@
 <template>
-  <!-- 闪卡大厅：统一入口，整合「学习闪卡 / 推荐复习 / 我的闪卡」三个模块。 -->
-  <div class="flashcards-hub animate-fade-in">
-    <!-- ===== 顶部 Hero：标题 + 全局统计 ===== -->
-    <header class="hub-hero">
-      <div class="hero-left">
-        <button type="button" class="back-btn" title="返回" @click="goBack">
-          <Icon name="arrow-left" :size="16" />
-        </button>
-        <div class="title-text">
-          <h1 class="kb-h1">闪卡大厅</h1>
-          <p class="kb-body-sm">系统闪卡 · 智能推荐 · 个人卡片，一站式复习</p>
-        </div>
-      </div>
-      <!-- 全局统计卡片：四个核心指标 -->
-      <div class="hero-stats">
+  <MiniAppShell
+    title="闪卡大厅"
+    subtitle="系统闪卡 · 智能推荐 · 个人卡片，一站式复习"
+    :knowledge-name="knowledgeContext?.name"
+    :clearable-context="!!knowledgeContext"
+    back-label="返回"
+    @back="goBack"
+    @clear-context="knowledgeContext = null"
+  >
+    <div class="flashcards-hub animate-fade-in">
+    <!-- ===== 全局统计卡片（内容区，外壳已提供返回/标题） ===== -->
+    <div class="hero-stats">
         <StatCard
           icon="layers"
           icon-color="var(--kb-primary)"
@@ -51,7 +48,6 @@
           layout="horizontal"
         />
       </div>
-    </header>
 
     <!-- ===== Tab 切换 ===== -->
     <div class="tabs-bar" role="tablist" aria-label="闪卡模式切换">
@@ -165,8 +161,8 @@
           tabindex="0"
           aria-label="翻转卡片查看答案"
           @click="flipCard"
-          @keydown.enter.prevent="$event.currentTarget.click()"
-          @keydown.space.prevent="$event.currentTarget.click()"
+          @keydown.enter.prevent="($event.currentTarget as HTMLElement).click()"
+          @keydown.space.prevent="($event.currentTarget as HTMLElement).click()"
         >
           <div class="flip-card-inner">
             <div class="flip-card-face flip-card-front">
@@ -214,6 +210,16 @@
           <span>下一张</span><Icon name="skip-forward" :size="14" />
         </button>
       </div>
+
+      <!-- Architecture-4/5：本次复习完成 → 结果 + 奖励 + 学习状态 + 下一步（§77/§85/§138） -->
+      <LearningResultPanel
+        v-if="learnSessionDone"
+        :result="`本次复习 ${ratedInSession} 张`"
+        :reward="sessionReward"
+        :mastery-updated="!!sessionReward"
+        :next-action="sessionNextAction"
+        class="mt-4"
+      />
 
       <transition name="fade">
         <p v-if="feedback" class="feedback-text">{{ feedback }}</p>
@@ -278,8 +284,8 @@
             tabindex="0"
             aria-label="翻转卡片查看答案"
             @click="flipReviewCard"
-            @keydown.enter.prevent="$event.currentTarget.click()"
-            @keydown.space.prevent="$event.currentTarget.click()"
+            @keydown.enter.prevent="($event.currentTarget as HTMLElement).click()"
+            @keydown.space.prevent="($event.currentTarget as HTMLElement).click()"
           >
             <div class="flip-card-inner">
               <div class="flip-card-face flip-card-front">
@@ -700,6 +706,7 @@
       </div>
     </section>
   </div>
+</MiniAppShell>
 </template>
 
 <script setup lang="ts">
@@ -714,9 +721,13 @@
  * 设计遵循项目 --kb-* CSS 变量体系与组件规范，Toast/确认弹窗统一走 @/utils/toast。
  */
 import { ref, reactive, computed, watch, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import MiniAppShell from '@/components/layout/MiniAppShell.vue'
 import StatCard from '@/components/ui/StatCard.vue'
+import LearningResultPanel from '@/components/workflow/LearningResultPanel.vue'
+import { useAppStore } from '@/stores/apps'
+import { useWalletStore } from '@/stores/wallet'
 import { learningApi } from '@/api/learning'
 import { categoriesApi } from '@/api/categories'
 import { docsApi } from '@/api'
@@ -724,8 +735,25 @@ import { mistakesApi } from '@/api/mistakes'
 import type { FlashcardVO, FlashcardInput, CategoryVO, DocVO, MistakeVO } from '@/api/types'
 import { markReviewed, dateStr } from '@/utils/studySession'
 import { notify, confirmDialog, getApiError } from '@/utils/toast'
+import { setLastCompleted } from '@/learning/action-priority'
+import { resolveNextActionWithIntelligence } from '@/learning/intelligence/action-integration'
+import type { NextLearningAction } from '@/learning/types'
 
 const router = useRouter()
+const route = useRoute()
+
+// Architecture-5 §229：Mini App 上下文（knowledgeId/knowledgeName 经 route query 透传）
+const knowledgeContext = ref<{ id: number; name: string } | null>(null)
+{
+  const kid = route.query.knowledgeId
+  const kname = route.query.knowledgeName
+  if (typeof kid === 'string' && kid) {
+    knowledgeContext.value = {
+      id: Number(kid),
+      name: typeof kname === 'string' && kname ? kname : '该知识点',
+    }
+  }
+}
 
 // ===================== Tab 切换 =====================
 const activeTab = ref<'learn' | 'review' | 'mine'>('learn')
@@ -779,6 +807,65 @@ const learnTotal = ref(0)
 const todayLearned = ref(0)
 const studySeconds = ref(0)
 
+// ===================== Architecture-4：本次复习会话（结果 + 奖励 + 下一步 §77/§138） =====================
+const appStore = useAppStore()
+const walletStore = useWalletStore()
+const ratedInSession = ref(0)
+const sessionBaseline = ref<{ coin: number; xp: number } | null>(null)
+const sessionReward = ref<{ xp: number; coin: number } | null>(null)
+const sessionEnded = ref(false)
+const sessionNextAction = ref<NextLearningAction | null>(null)
+
+/** 会话完成：全部过滤后的卡片都已评分（真实数据驱动，§77） */
+const learnSessionDone = computed(
+  () =>
+    learnFiltered.value.length > 0 &&
+    learnIndex.value === learnFiltered.value.length - 1 &&
+    ratedInSession.value >= learnFiltered.value.length,
+)
+
+function resetSession(): void {
+  ratedInSession.value = 0
+  sessionBaseline.value = null
+  sessionReward.value = null
+  sessionEnded.value = false
+  sessionNextAction.value = null
+}
+
+/** 会话开始时记录真实钱包基线（Reward 后端计算，§142/§198） */
+async function ensureSessionBaseline(): Promise<void> {
+  if (sessionBaseline.value) return
+  await walletStore.fetchWallet(true)
+  sessionBaseline.value = { coin: walletStore.wallet?.coin ?? 0, xp: walletStore.wallet?.xp ?? 0 }
+}
+
+/** 会话完成：真实奖励 diff + 下一步（§77/§138/§183） */
+async function finalizeSession(): Promise<void> {
+  if (sessionEnded.value) return
+  sessionEnded.value = true
+  setLastCompleted('FLASHCARD') // 循环保护（§261-262）：刚完成闪卡，不再立刻推荐闪卡
+  await walletStore.fetchWallet(true)
+  if (sessionBaseline.value && walletStore.wallet) {
+    const dCoin = walletStore.wallet.coin - sessionBaseline.value.coin
+    const dXp = walletStore.wallet.xp - sessionBaseline.value.xp
+    if (dCoin > 0 || dXp > 0) sessionReward.value = { xp: dXp, coin: dCoin }
+  }
+  // 下一步：仅在会话结束时并行拉取一次真实上下文（§286：不 N+1）
+  const [rv, wk, tk, ps] = await Promise.allSettled([
+    learningApi.knowledgeMasteryReviewRequired(),
+    learningApi.knowledgeMasteryWeak(),
+    learningApi.tasks(),
+    learningApi.paths(),
+  ])
+  sessionNextAction.value = resolveNextActionWithIntelligence({
+    reviewRequired: rv.status === 'fulfilled' ? rv.value : [],
+    weakPoints: wk.status === 'fulfilled' ? wk.value : [],
+    tasks: tk.status === 'fulfilled' ? tk.value : [],
+    currentPath: ps.status === 'fulfilled' ? (ps.value.find((p) => p.enrolled) ?? null) : null,
+    installedApps: appStore.enabledApps,
+  })
+}
+
 // 将后端 FlashcardVO 映射为本地展示用的闪卡结构（缺省字段兜底）
 const mapCard = (f: FlashcardVO): FlashCard => ({
   id: f.id,
@@ -814,10 +901,12 @@ watch(newCountComputed, (v) => { newCount.value = v })
 watch(selectedCategory, () => {
   learnIndex.value = 0
   isFlipped.value = false
+  resetSession()
 })
 watch(globalKeyword, () => {
   learnIndex.value = 0
   isFlipped.value = false
+  resetSession()
 })
 
 const getDifficultyLabel = (difficulty?: number) => {
@@ -841,6 +930,7 @@ const shuffleCards = () => {
   learnCards.value = arr
   learnIndex.value = 0
   isFlipped.value = false
+  resetSession()
 }
 
 const ratingToQuality = (rating: Rating): number => {
@@ -860,8 +950,11 @@ const rateCard = async (rating: Rating) => {
   if (reviewing.value || !currentCard.value) return
   reviewing.value = true
   try {
+    // Architecture-4：会话基线（第一次评分前记录，用于会话结束时的真实奖励 diff）
+    await ensureSessionBaseline()
     await learningApi.reviewFlashcard(currentCard.value.id, ratingToQuality(rating))
     markReviewed(dateStr(new Date()), String(currentCard.value.id))
+    ratedInSession.value++
     todayCount.value++
     todayLearned.value++
     if (rating === 'mastered') { knownCount.value++; correctCount.value++ }
@@ -878,15 +971,21 @@ const rateCard = async (rating: Rating) => {
         source: 'flashcard',
       }).catch(() => { /* 归集失败不阻断复习 */ })
     }
-    if (rating === 'unknown') showFeedback('已记录 · 明天再复习这张')
+    // Phase UI-7：评分接口不返回 nextReviewAt，原「明天再复习这张」是前端猜的时间（§31 禁止）。
+    // 改为如实提示「已记录」，具体下次复习时间由复习计划页展示后端真实数据。
+    if (rating === 'unknown') showFeedback('已记录 · 会在复习计划中安排再练')
     else if (rating === 'familiar') showFeedback('已记录 · 继续保持')
     else showFeedback('已记录 · 掌握得不错')
     if (learnIndex.value < learnFiltered.value.length - 1) {
       isFlipped.value = false
       learnIndex.value++
     }
+    // Architecture-4：最后一张评分完成 → 会话结束（结果 + 奖励 + 下一步 §77/§138）
+    if (learnIndex.value >= learnFiltered.value.length - 1) {
+      void finalizeSession()
+    }
   } catch (e: unknown) {
-    notify.error(getApiError(e, '评分提交失败'))
+    notify(getApiError(e, '评分提交失败'), 'error')
     if (learnIndex.value < learnFiltered.value.length - 1) {
       isFlipped.value = false
       learnIndex.value++
@@ -905,9 +1004,10 @@ const loadLearnCards = async () => {
     const uniqueCats = Array.from(new Set(list.map((f) => f.category || '通用')))
     categories.value = ['全部', ...uniqueCats]
     newCount.value = learnFiltered.value.length
+    resetSession()
     studyTimer = setInterval(() => { studySeconds.value++ }, 1000)
   } catch (e: unknown) {
-    notify.error(getApiError(e, '加载系统闪卡失败'))
+    notify(getApiError(e, '加载系统闪卡失败'), 'error')
     learnCards.value = []
     learnTotal.value = 0
   } finally {
@@ -993,7 +1093,7 @@ const markReviewMastered = async () => {
     isReviewFlipped.value = false
     showReviewFeedback('已标记掌握 · 不会再推荐')
   } catch (e: unknown) {
-    notify.error(getApiError(e, '标记掌握失败'))
+    notify(getApiError(e, '标记掌握失败'), 'error')
   } finally {
     markingMastered.value = false
   }
@@ -1004,13 +1104,13 @@ const loadReviewCards = async () => {
   try {
     // 取未掌握错题（mastered=0），前端过滤 source=flashcard
     const res = await mistakesApi.list({ mastered: 0, pageNum: 1, pageSize: 200 })
-    const all = res?.list || []
+    const all = res?.records || []
     reviewCards.value = all.filter((m) => m.source === 'flashcard')
     reviewIndex.value = 0
     isReviewFlipped.value = false
     reviewMasteredCount.value = 0
   } catch (e: unknown) {
-    notify.error(getApiError(e, '加载推荐复习失败'))
+    notify(getApiError(e, '加载推荐复习失败'), 'error')
     reviewCards.value = []
   } finally {
     reviewLoading.value = false
@@ -1116,7 +1216,7 @@ const reloadMine = async () => {
     mineTotal.value = mineCards.value.length
     selectedIds.value = selectedIds.value.filter(id => mineCards.value.some(c => c.id === id))
   } catch (e: unknown) {
-    notify.error(getApiError(e, '加载我的闪卡失败'))
+    notify(getApiError(e, '加载我的闪卡失败'), 'error')
   } finally {
     mineLoading.value = false
   }
@@ -1161,7 +1261,7 @@ const closeForm = () => { formDialog.visible = false }
 
 const submitForm = async () => {
   if (!formData.front.trim() || !formData.back.trim()) {
-    notify.error('正面和背面内容必填')
+    notify('正面和背面内容必填', 'error')
     return
   }
   submitting.value = true
@@ -1177,15 +1277,15 @@ const submitForm = async () => {
     }
     if (formDialog.mode === 'edit' && formDialog.id) {
       await learningApi.updateMyFlashcard(formDialog.id, payload)
-      notify.success('已更新')
+      notify('已更新', 'success')
     } else {
       await learningApi.createMyFlashcard(payload)
-      notify.success('已新增')
+      notify('已新增', 'success')
     }
     closeForm()
     await reloadMine()
   } catch (e: unknown) {
-    notify.error(getApiError(e, '保存失败'))
+    notify(getApiError(e, '保存失败'), 'error')
   } finally {
     submitting.value = false
   }
@@ -1196,10 +1296,10 @@ const removeOne = async (c: FlashcardVO) => {
   if (!ok) return
   try {
     await learningApi.deleteMyFlashcard(c.id)
-    notify.success('已删除')
+    notify('已删除', 'success')
     reloadMine()
   } catch (e: unknown) {
-    notify.error(getApiError(e, '删除失败'))
+    notify(getApiError(e, '删除失败'), 'error')
   }
 }
 
@@ -1209,11 +1309,11 @@ const batchDelete = async () => {
   if (!ok) return
   try {
     await learningApi.deleteMyFlashcards(selectedIds.value)
-    notify.success(`已删除 ${selectedIds.value.length} 张`)
+    notify(`已删除 ${selectedIds.value.length} 张`, 'success')
     selectedIds.value = []
     reloadMine()
   } catch (e: unknown) {
-    notify.error(getApiError(e, '删除失败'))
+    notify(getApiError(e, '删除失败'), 'error')
   }
 }
 
@@ -1236,7 +1336,7 @@ const openGenerate = () => {
 const closeGenerate = () => { genDialog.visible = false; previewList.value = [] }
 
 const doGenerate = async () => {
-  if (!genReady.value) { notify.error('请选择生成来源'); return }
+  if (!genReady.value) { notify('请选择生成来源', 'error'); return }
   generating.value = true
   previewList.value = []
   try {
@@ -1247,10 +1347,10 @@ const doGenerate = async () => {
       difficultyPreference: genDialog.difficultyPreference || undefined,
     })
     previewList.value = list
-    notify.success(`成功生成 ${list.length} 张闪卡`)
+    notify(`成功生成 ${list.length} 张闪卡`, 'success')
     await reloadMine()
   } catch (e: unknown) {
-    notify.error(getApiError(e, 'AI 生成失败'))
+    notify(getApiError(e, 'AI 生成失败'), 'error')
   } finally {
     generating.value = false
   }
@@ -1289,11 +1389,11 @@ const doImport = async () => {
   importDialog.parseError = ''
   try {
     const r = await learningApi.importMyFlashcards(valid)
-    notify.success(`成功导入 ${r.inserted} 张`)
+    notify(`成功导入 ${r.inserted} 张`, 'success')
     closeImport()
     reloadMine()
   } catch (e: unknown) {
-    notify.error(getApiError(e, '导入失败'))
+    notify(getApiError(e, '导入失败'), 'error')
   } finally {
     importing.value = false
   }
@@ -1317,9 +1417,9 @@ const doExport = async () => {
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
-    notify.success(`已导出 ${list.length} 张`)
+    notify(`已导出 ${list.length} 张`, 'success')
   } catch (e: unknown) {
-    notify.error(getApiError(e, '导出失败'))
+    notify(getApiError(e, '导出失败'), 'error')
   }
 }
 
@@ -1781,7 +1881,7 @@ onUnmounted(() => {
 }
 .diff-easy { background: rgba(34,197,94,0.12); color: #16a34a; }
 .diff-medium { background: rgba(59,111,224,0.12); color: var(--kb-primary); }
-.diff-hard { background: rgba(239,68,68,0.12); color: #dc2626; }
+.diff-hard { background: rgba(239,68,68,0.12); color: var(--kb-danger-hover); }
 
 .source-badge {
   display: inline-flex; align-items: center; gap: 4px;
@@ -1792,7 +1892,7 @@ onUnmounted(() => {
 }
 .src-manual { color: #0f766e; border-color: rgba(15,118,110,0.25); background: rgba(20,184,166,0.08); }
 .src-ai { color: #7c3aed; border-color: rgba(124,58,237,0.25); background: rgba(139,92,246,0.1); }
-.src-imp { color: #b45309; border-color: rgba(180,83,9,0.25); background: rgba(217,119,6,0.08); }
+.src-imp { color: var(--kb-state-warning); border-color: rgba(180,83,9,0.25); background: rgba(217,119,6,0.08); }
 
 .row-actions { display: inline-flex; gap: 4px; flex-wrap: wrap; }
 .row-btn {
@@ -2057,7 +2157,7 @@ onUnmounted(() => {
 }
 .parse-error {
   margin: 8px 0 0;
-  color: #dc2626;
+  color: var(--kb-danger-hover);
   font-size: 13px;
   display: inline-flex; align-items: center; gap: 5px;
 }

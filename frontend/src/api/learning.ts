@@ -24,6 +24,11 @@ import type {
   LearningPlanVO,
   PlanGenerateParams,
   PlanGenerateResult,
+  WeeklyReportVO,
+  UserLearningPrefInput,
+  UserLearningPrefVO,
+  LearningReportData,
+  LearningEventSummaryVO,
 } from './types'
 
 export const learningApi = {
@@ -32,6 +37,19 @@ export const learningApi = {
   pathDetail: (id: number) => apiGet<LearningPathVO>(`/learning/paths/${id}`),
   enroll: (id: number) => apiPost<void>(`/learning/paths/${id}/enroll`),
   chapters: (pathId: number) => apiGet<LearningChapterVO[]>(`/learning/paths/${pathId}/chapters`),
+  /**
+   * 按文档 ID 反查关联章节（docIds 逗号分隔）。后端无独立端点，
+   * 前端扫描当前用户可见路径的章节（仅用户显式点击「进入章节学习」时触发，非 N+1 热路径）。
+   */
+  chaptersByDoc: async (docId: number) => {
+    const paths = await apiGet<LearningPathVO[]>('/learning/paths')
+    const all = await Promise.all(
+      paths.map((p) => apiGet<LearningChapterVO[]>(`/learning/paths/${p.id}/chapters`).catch(() => [] as LearningChapterVO[])),
+    )
+    return all
+      .flat()
+      .filter((c) => c.docIds?.split(',').map((s) => s.trim()).includes(String(docId)) ?? false)
+  },
   chapterDetail: (id: number) => apiGet<LearningChapterVO>(`/learning/chapters/${id}`),
   completeChapter: (id: number) => apiPost<void>(`/learning/chapters/${id}/complete`),
   // L-FORM-01 章节嵌入视频：上报观看进度（0-100），返回当前累计进度
@@ -46,6 +64,10 @@ export const learningApi = {
   // Phase 1：统一学习行为事件查询（只读，按事件类型/分页过滤）
   learningEvents: (params?: { eventType?: string; current?: number; size?: number }) =>
     apiGet<IPage<LearningEventVO>>('/learning/events', params),
+  // Phase 1：学习事件统计摘要（今日 + 近7日，统一口径）
+  learningEventSummary: () => apiGet<LearningEventSummaryVO>('/learning/events/summary'),
+  // 学习报告（按周期聚合签到/闪卡/错题/代码/阅读/测验）
+  getReport: (period: string) => apiGet<LearningReportData>('/learning/report', { period }),
   // C① 掌握分布看板
   mastery: () => apiGet<MasteryDistributionVO>('/learning/stats/mastery'),
   // C① 分类维度掌握度（含薄弱项）
@@ -138,6 +160,20 @@ export const learningApi = {
   /** 按验证码验证证书（可匿名核验真伪） */
   verifyCertificate: (certNo: string) =>
     apiGet<LearningCertificateVO>(`/learning/certificates/verify?certNo=${encodeURIComponent(certNo)}`),
+
+  // ============================================================
+  // Phase 0：学习周报 / 学习偏好（对应后端 WeeklyReport / UserLearningPref，此前前端缺 API 层）
+  // ============================================================
+  /** 获取当前周周报（不存在则自动生成） */
+  getWeeklyReport: () => apiGet<WeeklyReportVO>('/learning/weekly-report'),
+  /** 历史周报列表（最近 8 周） */
+  listWeeklyReports: () => apiGet<WeeklyReportVO[]>('/learning/weekly-report/list'),
+  /** 手动生成当前周周报 */
+  generateWeeklyReport: () => apiPost<WeeklyReportVO>('/learning/weekly-report/generate'),
+  /** 获取学习偏好（不存在则返回默认值） */
+  getPrefs: () => apiGet<UserLearningPrefVO>('/learning/prefs'),
+  /** 保存学习偏好（upsert） */
+  savePrefs: (data: UserLearningPrefInput) => apiPost<UserLearningPrefVO>('/learning/prefs', data),
 
   // ============================================================
   // F3 · 学习计划智能编排

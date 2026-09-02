@@ -23,6 +23,19 @@ public class ChatSendDTO {
     /** 图片 base64 列表（不含 data:image/...;base64, 前缀，前端直接传 raw base64）。 */
     private List<String> images;
 
+    /**
+     * 对话模式：GENERAL（默认，通用 AI 问答）/ LEARNING_COACH（学习教练）。
+     * 缺省或未知值一律按 GENERAL 处理，保证向后兼容既有对话行为。
+     */
+    private String mode = "GENERAL";
+
+    /**
+     * 学习教练上下文（仅 mode=LEARNING_COACH 时使用）。
+     * 由前端基于已加载的真实学习数据组装为结构化文本，后端仅作为「数据」包裹进系统提示词，
+     * 绝不作为指令执行，亦不可覆盖后端固定提示词。
+     */
+    private String coachContext;
+
     /** 自定义校验：至少提供 content 或 images 之一 */
     @AssertTrue(message = "消息内容或图片不能同时为空")
     public boolean isValid() {

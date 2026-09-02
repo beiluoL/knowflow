@@ -19,7 +19,7 @@
         :style="{
           background:
             breakType === 'shortBreak'
-              ? 'linear-gradient(135deg, #10B981 0%, #059669 50%, #047857 100%)'
+              ? 'linear-gradient(135deg, var(--kb-success) 0%, var(--kb-success-hover) 50%, var(--kb-state-success) 100%)'
               : 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%)',
         }"
       >

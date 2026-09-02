@@ -3,7 +3,7 @@
     <!-- 页头 -->
     <PageHeader
       title="学习报告"
-      :crumbs="[{ label: '学习中心', to: '/learning/center' }, { label: '学习报告' }]"
+      :crumbs="[{ label: '学习首页', to: '/learning/center' }, { label: '学习报告' }]"
       title-color="text-foreground"
     >
       <template #actions>
@@ -109,7 +109,7 @@
             <span class="text-sm shrink-0" style="color: var(--kb-muted-foreground);">Top 5</span>
           </div>
           <EmptyState
-            v-if="report.categoryMastery.length === 0"
+            v-if="(report.categoryMastery ?? []).length === 0"
             icon="award"
             title="暂无掌握度数据"
             variant="info"
@@ -117,7 +117,7 @@
             <p>创建闪卡或错题后会自动统计掌握度</p>
           </EmptyState>
           <ul v-else class="space-y-4">
-            <li v-for="(item, idx) in report.categoryMastery" :key="idx">
+            <li v-for="(item, idx) in report.categoryMastery ?? []" :key="idx">
               <div class="flex items-center justify-between gap-2 mb-2">
                 <span class="text-sm font-medium truncate min-w-0 flex-1" style="color: var(--kb-foreground);">{{ item.categoryName }}</span>
                 <span class="text-sm font-semibold tabular-nums shrink-0" style="color: var(--kb-primary);">{{ item.percent }}%</span>

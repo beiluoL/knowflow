@@ -21,7 +21,7 @@ const emit = defineEmits<{
 }>()
 
 /** 纪念日主题色预设（与视图渲染共用，首项为默认）。 */
-const PRESET_COLORS = ['#8B5CF6', '#EC4899', '#E5484D', '#F59E0B', '#10B981', '#0EA5E9', '#14B8A6', '#A16207']
+const PRESET_COLORS = ['#8B5CF6', '#EC4899', '#E5484D', 'var(--kb-warning)', 'var(--kb-success)', '#0EA5E9', '#14B8A6', '#A16207']
 
 interface Form {
   name: string
@@ -354,7 +354,7 @@ async function onDelete(m: Memorial) {
   flex: 1;
   border: 1px solid #e5e7eb;
   background: #fff;
-  color: #6b7280;
+  color: var(--kb-muted-foreground);
   font-size: 13px;
   font-weight: 600;
   padding: 8px 10px;
@@ -403,7 +403,7 @@ async function onDelete(m: Memorial) {
   resize: vertical;
 }
 .mem-error {
-  color: #ef4444;
+  color: var(--kb-danger);
   font-size: 13px;
   margin: 0;
 }
@@ -486,7 +486,7 @@ async function onDelete(m: Memorial) {
 }
 .mem-item-note {
   margin-left: 6px;
-  color: #6b7280;
+  color: var(--kb-muted-foreground);
 }
 .mem-item-actions {
   display: flex;
@@ -498,7 +498,7 @@ async function onDelete(m: Memorial) {
   height: 30px;
   border: 1px solid #e5e7eb;
   background: #fff;
-  color: #6b7280;
+  color: var(--kb-muted-foreground);
   border-radius: 8px;
   cursor: pointer;
   display: flex;
@@ -511,8 +511,8 @@ async function onDelete(m: Memorial) {
   color: var(--kb-primary);
 }
 .mem-op-del:hover {
-  border-color: #fca5a5;
-  color: #ef4444;
+  border-color: var(--kb-danger-tint);
+  color: var(--kb-danger);
 }
 .mem-foot {
   display: flex;

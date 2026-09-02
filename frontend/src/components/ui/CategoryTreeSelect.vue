@@ -130,9 +130,9 @@ const getIconName = (raw?: string): string => {
 }
 
 const getIconColor = (raw?: string): string => {
-  if (!raw) return '#6B7280'
+  if (!raw) return 'var(--kb-muted-foreground)'
   const { color } = resolveIconForRender(raw)
-  return color || '#6B7280'
+  return color || 'var(--kb-muted-foreground)'
 }
 
 // 点击外部关闭

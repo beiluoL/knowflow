@@ -1,5 +1,16 @@
 <template>
-  <div class="wb-page animate-fade-in" :style="{ '--mc': themeColor }">
+  <MiniAppShell
+    title="知识输出 · 费曼故事"
+    back-label="返回"
+    @back="goBack"
+  >
+    <template #actions>
+      <button class="kb-btn kb-btn-primary wb-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="router.push('/workbench/story/new')">
+        <Icon name="plus" :size="16" aria-hidden="true" /> 写个故事
+      </button>
+    </template>
+
+    <div class="wb-page animate-fade-in" :style="{ '--mc': themeColor }">
     <!-- ============ Module Hero ============ -->
     <section class="wb-hero">
       <div class="wb-hero-bg" aria-hidden="true">
@@ -13,18 +24,11 @@
               <span class="wb-eyebrow-dot"></span>
               Step 04 · 输出 · Feynman Technique
             </span>
-            <h1 class="wb-title">
-              <Icon name="wand-2" :size="28" class="wb-title-icon" />
-              知识输出 · 费曼故事
-            </h1>
             <p class="wb-subtitle">
               用故事讲给外行听，<strong>讲不通的卡点就是知识漏洞</strong>。
               强制简化与重组，以教代学让理解真正落地。
             </p>
           </div>
-          <button class="kb-btn kb-btn-primary wb-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="router.push('/workbench/story/new')">
-            <Icon name="plus" :size="16" aria-hidden="true" /> 写个故事
-          </button>
         </div>
 
         <!-- 闭环导航条 -->
@@ -103,8 +107,8 @@
               <span class="wb-chip wb-chip-mono">
                 <Icon name="type" :size="11" />{{ s.wordCount || 0 }} 字
               </span>
-              <span v-if="s.coreAnalogy" class="wb-story-analogy">
-                <Icon name="lightbulb" :size="11" />{{ s.coreAnalogy }}
+              <span v-if="s.metaphor" class="wb-story-analogy">
+                <Icon name="lightbulb" :size="11" />{{ s.metaphor }}
               </span>
             </div>
             <div class="wb-story-actions" @click.stop>
@@ -125,19 +129,27 @@
       </div>
     </section>
   </div>
+</MiniAppShell>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import MiniAppShell from '@/components/layout/MiniAppShell.vue'
 import { notify, confirmDialog, getApiError } from '@/utils/toast'
 import './workbench-shared.css'
 import { listStories, deleteStory } from '@/api/workbench'
 import type { WbStory } from '@/api/types'
 
 const router = useRouter()
-const themeColor = '#10B981'
+
+function goBack() {
+  if (window.history.length > 1) router.back()
+  else router.push('/learning/center')
+}
+
+const themeColor = 'var(--kb-success)'
 
 const list = ref<WbStory[]>([])
 const loading = ref(true)
@@ -183,11 +195,11 @@ function statusLabel(s?: string) {
 }
 function statusStyle(s?: string) {
   const map: Record<string, string> = {
-    DRAFT: '#6B7280',
-    DONE: '#3B6FE0',
-    PUBLISHED: '#10B981',
+    DRAFT: 'var(--kb-muted-foreground)',
+    DONE: 'var(--kb-primary)',
+    PUBLISHED: 'var(--kb-success)',
   }
-  const c = map[s || ''] || '#6B7280'
+  const c = map[s || ''] || 'var(--kb-muted-foreground)'
   return { '--sc': c, color: c, background: `color-mix(in srgb, ${c} 12%, transparent)` }
 }
 function audienceLabel(a?: string) {

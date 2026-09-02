@@ -53,7 +53,7 @@
             type="button"
             class="conv-refresh focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             title="刷新会话列表"
-            @click="loadConversations"
+            @click="() => loadConversations()"
           >
             <Icon name="refresh-cw" :size="14" />
           </button>

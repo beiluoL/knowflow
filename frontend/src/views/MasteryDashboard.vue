@@ -46,7 +46,7 @@
           />
           <StatCard
             icon="clock"
-            icon-color="#F59E0B"
+            icon-color="var(--kb-warning)"
             icon-bg="rgba(245,158,11,.12)"
             :icon-size="18"
             :value="d.flashcardDue"
@@ -55,7 +55,7 @@
           />
           <StatCard
             icon="check-circle"
-            icon-color="#10B981"
+            icon-color="var(--kb-success)"
             icon-bg="rgba(16,185,129,.12)"
             :icon-size="18"
             :value="d.flashcardReviewed"
@@ -64,7 +64,7 @@
           />
           <StatCard
             icon="award"
-            icon-color="#10B981"
+            icon-color="var(--kb-success)"
             icon-bg="rgba(16,185,129,.12)"
             :icon-size="18"
             :value="d.mistakeMastered"
@@ -73,7 +73,7 @@
           />
           <StatCard
             icon="alert-triangle"
-            icon-color="#EF4444"
+            icon-color="var(--kb-danger)"
             icon-bg="rgba(239,68,68,.12)"
             :icon-size="18"
             :value="d.mistakePending"
@@ -90,14 +90,14 @@
               <Icon name="bar-chart-2" :size="16" /> 难度分布
             </h3>
             <div class="mmd-bar-track">
-              <div class="mmd-bar-seg" :style="{ width: pct(d.flashcardDiffEasy, diffTotal) + '%', background: '#10B981' }"></div>
-              <div class="mmd-bar-seg" :style="{ width: pct(d.flashcardDiffMedium, diffTotal) + '%', background: '#F59E0B' }"></div>
-              <div class="mmd-bar-seg" :style="{ width: pct(d.flashcardDiffHard, diffTotal) + '%', background: '#EF4444' }"></div>
+              <div class="mmd-bar-seg" :style="{ width: pct(d.flashcardDiffEasy, diffTotal) + '%', background: 'var(--kb-success)' }"></div>
+              <div class="mmd-bar-seg" :style="{ width: pct(d.flashcardDiffMedium, diffTotal) + '%', background: 'var(--kb-warning)' }"></div>
+              <div class="mmd-bar-seg" :style="{ width: pct(d.flashcardDiffHard, diffTotal) + '%', background: 'var(--kb-danger)' }"></div>
             </div>
             <div class="mmd-legend">
-              <span class="mmd-legend-item"><i style="background:#10B981"></i>简单 {{ d.flashcardDiffEasy }}（{{ pct(d.flashcardDiffEasy, diffTotal) }}%）</span>
-              <span class="mmd-legend-item"><i style="background:#F59E0B"></i>中等 {{ d.flashcardDiffMedium }}（{{ pct(d.flashcardDiffMedium, diffTotal) }}%）</span>
-              <span class="mmd-legend-item"><i style="background:#EF4444"></i>困难 {{ d.flashcardDiffHard }}（{{ pct(d.flashcardDiffHard, diffTotal) }}%）</span>
+              <span class="mmd-legend-item"><i style="background:var(--kb-success)"></i>简单 {{ d.flashcardDiffEasy }}（{{ pct(d.flashcardDiffEasy, diffTotal) }}%）</span>
+              <span class="mmd-legend-item"><i style="background:var(--kb-warning)"></i>中等 {{ d.flashcardDiffMedium }}（{{ pct(d.flashcardDiffMedium, diffTotal) }}%）</span>
+              <span class="mmd-legend-item"><i style="background:var(--kb-danger)"></i>困难 {{ d.flashcardDiffHard }}（{{ pct(d.flashcardDiffHard, diffTotal) }}%）</span>
             </div>
           </div>
 
@@ -107,12 +107,12 @@
               <Icon name="target" :size="16" /> 错题掌握
             </h3>
             <div class="mmd-bar-track mmd-bar-track-2">
-              <div class="mmd-bar-seg" :style="{ width: pct(d.mistakeMastered, mistakeTotal) + '%', background: '#10B981' }"></div>
-              <div class="mmd-bar-seg" :style="{ width: pct(d.mistakePending, mistakeTotal) + '%', background: '#EF4444' }"></div>
+              <div class="mmd-bar-seg" :style="{ width: pct(d.mistakeMastered, mistakeTotal) + '%', background: 'var(--kb-success)' }"></div>
+              <div class="mmd-bar-seg" :style="{ width: pct(d.mistakePending, mistakeTotal) + '%', background: 'var(--kb-danger)' }"></div>
             </div>
             <div class="mmd-legend">
-              <span class="mmd-legend-item"><i style="background:#10B981"></i>已掌握 {{ d.mistakeMastered }}</span>
-              <span class="mmd-legend-item"><i style="background:#EF4444"></i>待巩固 {{ d.mistakePending }}</span>
+              <span class="mmd-legend-item"><i style="background:var(--kb-success)"></i>已掌握 {{ d.mistakeMastered }}</span>
+              <span class="mmd-legend-item"><i style="background:var(--kb-danger)"></i>待巩固 {{ d.mistakePending }}</span>
             </div>
           </div>
         </section>
@@ -134,14 +134,14 @@
                   {{ c.category }}
                   <span v-if="c.weak" class="mmd-weak-tag">薄弱</span>
                 </span>
-                <span class="mmd-cat-rate" :style="{ color: c.weak ? '#EF4444' : 'var(--kb-primary)' }">
+                <span class="mmd-cat-rate" :style="{ color: c.weak ? 'var(--kb-danger)' : 'var(--kb-primary)' }">
                   {{ c.rate }}% <small style="color:var(--kb-muted-foreground)">· {{ c.correct }}/{{ c.total }}</small>
                 </span>
               </div>
               <div class="mmd-cat-track">
                 <div
                   class="mmd-cat-fill"
-                  :style="{ width: c.rate + '%', background: c.weak ? '#EF4444' : 'linear-gradient(90deg,#6F9AF2,#3B6FE0)' }"
+                  :style="{ width: c.rate + '%', background: c.weak ? 'var(--kb-danger)' : 'linear-gradient(90deg,var(--kb-primary-muted),var(--kb-primary))' }"
                 ></div>
               </div>
             </li>
@@ -240,10 +240,10 @@ const pct = (v: number, total: number) => (total > 0 ? Math.round((v / total) * 
 
 const STATUS_META: Record<MasteryStatus, { label: string; bg: string; fg: string }> = {
   NOT_STARTED: { label: '未学习', bg: 'rgba(100,116,139,.12)', fg: '#64748b' },
-  LEARNING: { label: '学习中', bg: 'rgba(59,111,224,.12)', fg: '#3b6fe0' },
-  WEAK: { label: '薄弱', bg: 'rgba(239,68,68,.12)', fg: '#EF4444' },
-  MASTERED: { label: '已掌握', bg: 'rgba(16,185,129,.12)', fg: '#10B981' },
-  REVIEW_REQUIRED: { label: '需复习', bg: 'rgba(245,158,11,.12)', fg: '#F59E0B' },
+  LEARNING: { label: '学习中', bg: 'rgba(59,111,224,.12)', fg: 'var(--kb-primary)' },
+  WEAK: { label: '薄弱', bg: 'rgba(239,68,68,.12)', fg: 'var(--kb-danger)' },
+  MASTERED: { label: '已掌握', bg: 'rgba(16,185,129,.12)', fg: 'var(--kb-success)' },
+  REVIEW_REQUIRED: { label: '需复习', bg: 'rgba(245,158,11,.12)', fg: 'var(--kb-warning)' },
 }
 const TYPE_LABELS: Record<string, string> = {
   CONCEPT: '概念', TECHNIQUE: '技术', TERM: '术语', PRINCIPLE: '原理', TOOL: '工具', OTHER: '其他',
@@ -255,9 +255,9 @@ const STATUS_LABEL: Record<string, string> = {
 const statusMeta = (s: MasteryStatus) => STATUS_META[s] || STATUS_META.NOT_STARTED
 const typeLabel = (t?: string | null) => TYPE_LABELS[t || 'OTHER'] || '其他'
 const weaknessShort = (ws: string[]) => ws.map((w) => STATUS_LABEL[w] || w).slice(0, 2).join('·')
-const scoreColor = (v: number) => (v >= 80 ? '#10B981' : v >= 60 ? '#3b6fe0' : v >= 40 ? '#F59E0B' : '#EF4444')
-const confColor = (v: number) => (v >= 50 ? '#10B981' : v >= 30 ? '#F59E0B' : '#EF4444')
-const riskColor = (v: number) => (v >= 70 ? '#EF4444' : v >= 60 ? '#F59E0B' : '#10B981')
+const scoreColor = (v: number) => (v >= 80 ? 'var(--kb-success)' : v >= 60 ? 'var(--kb-primary)' : v >= 40 ? 'var(--kb-warning)' : 'var(--kb-danger)')
+const confColor = (v: number) => (v >= 50 ? 'var(--kb-success)' : v >= 30 ? 'var(--kb-warning)' : 'var(--kb-danger)')
+const riskColor = (v: number) => (v >= 70 ? 'var(--kb-danger)' : v >= 60 ? 'var(--kb-warning)' : 'var(--kb-success)')
 const openDetail = (id: number) => router.push(`/learning/knowledge-mastery/${id}`)
 
 async function loadData() {
@@ -404,7 +404,7 @@ onMounted(loadData)
   padding: 3px 10px;
   border-radius: 999px;
   background: rgba(239,68,68,.1);
-  color: #EF4444;
+  color: var(--kb-danger);
 }
 
 /* 条形图 */
@@ -454,7 +454,7 @@ onMounted(loadData)
   padding: 1px 7px;
   border-radius: 999px;
   background: rgba(239,68,68,.12);
-  color: #EF4444;
+  color: var(--kb-danger);
 }
 .mmd-cat-rate { font-size: 14px; font-weight: 700; flex-shrink: 0; }
 .mmd-cat-track {
@@ -482,7 +482,7 @@ onMounted(loadData)
 .mmd-kp-main { flex: 1; min-width: 0; }
 .mmd-kp-name { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--kb-foreground); }
 .mmd-kp-type { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: rgba(59,111,224,.1); color: var(--kb-primary); }
-.mmd-kp-weak { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: rgba(239,68,68,.12); color: #EF4444; }
+.mmd-kp-weak { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: rgba(239,68,68,.12); color: var(--kb-danger); }
 .mmd-kp-sub { font-size: 12px; color: var(--kb-muted-foreground); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mmd-kp-score { display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0; }
 .mmd-kp-score-val { font-size: 22px; font-weight: 800; line-height: 1; }

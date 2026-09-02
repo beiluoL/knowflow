@@ -53,7 +53,9 @@ md.use(taskLists);
  * 2. 链接语法：[text](url) - 方括号后跟 (
  * 3. 模板变量：[variable_name] - 合法变量名且不跟 (
  */
-function variablePlugin(md: MarkdownIt) {
+// Phase UI-1：MarkdownIt 默认导出是「类」（值），不能直接当类型用（TS2749）。
+// 用 InstanceType<typeof MarkdownIt> 取得实例类型，下游 state/tokens 参数即可被正确推导。
+function variablePlugin(md: InstanceType<typeof MarkdownIt>) {
   md.inline.ruler.before('backticks', 'variable', (state, silent) => {
     const pos = state.pos;
     const ch = state.src.charCodeAt(pos);
@@ -68,7 +70,6 @@ function variablePlugin(md: MarkdownIt) {
     
     // 检查 ] 后面的字符
     const nextChar = state.src.charCodeAt(end + 1);
-    const nextChar2 = end + 2 < state.src.length ? state.src.charCodeAt(end + 2) : -1;
 
     // 【规则1】：如果后面跟 '('，这是链接语法，跳过（交给 link 规则）
     if (nextChar === 0x28 /* ( */) {
@@ -109,7 +110,8 @@ function variablePlugin(md: MarkdownIt) {
   });
 
   // 注册 variable token 的渲染规则
-  md.renderer.rules.variable = (tokens, idx, options, env, self) => {
+  // Phase UI-1：仅保留实际使用的前两个形参，避免 TS6133（未使用）与 TS7006（隐式 any）
+  md.renderer.rules.variable = (tokens: any[], idx: number) => {
     const token = tokens[idx];
     const varName = token.content;
     // 生成带有特定类名和属性的 HTML，便于前端识别和后续模板替换
@@ -136,7 +138,8 @@ md.renderer.rules.fence = (tokens, idx) => {
   }
   // 常规代码块：语法高亮 + 行号 + 语言标签 + 复制按钮
   const langLabel = info || 'text';
-  const highlighted = md.options.highlight?.(code, info) || md.utils.escapeHtml(code);
+  // Phase UI-1：markdown-it 的 highlight 签名为 (str, lang, attrs)，此处补齐第三个实参
+  const highlighted = md.options.highlight?.(code, info, '') || md.utils.escapeHtml(code);
   const encoded = encodeURIComponent(code);
   // 生成行号 HTML
   const lineCount = code.replace(/\n$/, '').split('\n').length;

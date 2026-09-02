@@ -44,6 +44,7 @@ import com.knowflow.service.AiService;
 import com.knowflow.service.LearningService;
 import com.knowflow.service.LearningEventService;
 import com.knowflow.service.NotificationService;
+import com.knowflow.service.SrsService;
 import com.knowflow.vo.CategoryMasteryVO;
 import com.knowflow.vo.ChapterDagVO;
 import com.knowflow.vo.ChapterEdgeVO;
@@ -101,6 +102,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     private final JdbcTemplate jdbcTemplate;
     private final LearningEventMapper learningEventMapper;
     private final LearningEventService learningEventService;
+    private final SrsService srsService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /** 分类掌握度薄弱阈值：正确率低于此值标记为薄弱项 */
@@ -371,6 +373,12 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         }
         task.setStatus(status);
         taskMapper.updateById(task);
+        // Phase 1：仅真实「完成」才记事件（status=1 已完成），打开/切换待办不记，避免刷事件
+        if (status != null && status == 1) {
+            learningEventService.record(userId, LearningEventType.LEARNING_TASK_COMPLETE, "TASK", taskId,
+                    Map.of("title", task.getTitle() == null ? "" : task.getTitle(),
+                            "type", task.getType() == null ? "" : task.getType()));
+        }
     }
 
     @Override
@@ -619,7 +627,10 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         return vo;
     }
 
-    /** 闪卡复习调度（SM-2 间隔重复算法）：按评分 quality(0~5) 计算下次复习间隔并保证边界。 */
+    /** 学习中心闪卡 SM-2 及格阈值：quality(0~5) < 3 视为遗忘（与旧实现语义一致） */
+    private static final int FLASHCARD_PASS_QUALITY = 3;
+
+    /** 闪卡复习调度（SM-2 间隔重复算法，统一收敛到 SrsService）：按评分 quality(0~5) 计算下次复习间隔并保证边界。 */
     @Override
     public void reviewFlashcard(Long flashcardId, Long userId, Integer quality) {
         LearningFlashcard card = flashcardMapper.selectById(flashcardId);
@@ -630,37 +641,22 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         if (q < 0) q = 0;
         if (q > 5) q = 5;
 
-        int reviewCount = card.getReviewCount() != null ? card.getReviewCount() : 0;
-        int interval = card.getReviewInterval() != null ? card.getReviewInterval() : 0;
+        // 组装当前 SM-2 状态（easeFactor 为 Phase 0 新增列，旧数据为 null 时按默认 250 处理）
+        SrsService.SrsState state = new SrsService.SrsState();
+        state.setRepetitions(card.getReviewCount() != null ? card.getReviewCount() : 0);
+        state.setIntervalDay(card.getReviewInterval() != null ? card.getReviewInterval() : 0);
+        state.setEaseFactor(card.getEaseFactor() != null ? card.getEaseFactor() : SrsService.DEFAULT_EF);
 
-        if (q < 3) {
-            reviewCount = 0;
-            interval = 1;
-        } else {
-            reviewCount++;
-            if (reviewCount == 1) {
-                interval = 1;
-            } else if (reviewCount == 2) {
-                interval = 6;
-            } else {
-                double ef = 2.5;
-                if (q == 3) ef = 2.0;
-                else if (q == 4) ef = 2.3;
-                else if (q == 5) ef = 2.8;
-                interval = (int) Math.max(1, Math.round(interval * ef));
-            }
-        }
+        SrsService.SrsResult r = srsService.grade(q, FLASHCARD_PASS_QUALITY, state, LocalDateTime.now());
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime nextReview = now.plusDays(interval);
-
-        card.setReviewCount(reviewCount);
-        card.setReviewInterval(interval);
-        card.setLastReviewTime(now);
-        card.setNextReviewTime(nextReview);
+        card.setReviewCount(r.getRepetitions());
+        card.setReviewInterval(r.getIntervalDay());
+        card.setEaseFactor(r.getEaseFactor());
+        card.setLastReviewTime(LocalDateTime.now());
+        card.setNextReviewTime(r.getNextReviewAt());
         flashcardMapper.updateById(card);
         learningEventService.record(userId, LearningEventType.FLASHCARD_REVIEWED, "FLASHCARD", flashcardId,
-                Map.of("quality", q, "interval", interval));
+                Map.of("quality", q, "interval", r.getIntervalDay(), "lapsed", r.isLapsed()));
     }
 
     /** C① 学习热力图：聚合用户阅读/完成章节/复习错题事件，返回最近 days 天每日计数。 */

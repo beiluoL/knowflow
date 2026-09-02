@@ -1,9 +1,8 @@
 <template>
-  <!-- 智能写作页：模板选择 + 左侧写作配置 + 右侧编辑器，支持 AI 生成/评分与本地草稿自动保存 -->
-  <div class="smart-writing-page animate-fade-in no-print">
-    <!-- ===== Row 1: 标题 + 操作 ===== -->
+  <MiniAppShell title="智能写作" back-label="返回" @back="goBack">
+    <div class="smart-writing-page animate-fade-in no-print">
+    <!-- ===== Row 1: 操作（标题由外壳提供） ===== -->
     <div class="page-header">
-      <h1 class="kb-h1">智能写作</h1>
       <div class="header-actions">
         <button type="button" class="btn-secondary" @click="showPreviewModal = true">
           <Icon name="eye" :size="16" />
@@ -307,6 +306,7 @@
     <!-- 打印专用区域（仅导出 PDF 时可见） -->
     <div id="print-area" class="print-only" v-html="renderedMarkdown"></div>
   </div>
+</MiniAppShell>
 </template>
 
 <script setup lang="ts">
@@ -318,6 +318,14 @@ import CategoryTreeSelect from '@/components/ui/CategoryTreeSelect.vue';
 import { categoriesApi } from '@/api/categories';
 import { chatApi } from '@/api/chat';
 import type { CategoryVO } from '@/api/types';
+import { useRouter } from 'vue-router'
+import MiniAppShell from '@/components/layout/MiniAppShell.vue'
+
+const router = useRouter()
+function goBack() {
+  if (window.history.length > 1) router.back()
+  else router.push('/learning/center')
+}
 
 // ===== 类型定义 =====
 interface Draft {
@@ -446,12 +454,12 @@ const scoreBgColor = computed(() => {
 });
 
 const scoreTextColor = computed(() => {
-  if (!scoreResult.value) return '#3B6FE0';
+  if (!scoreResult.value) return 'var(--kb-primary)';
   const s = scoreResult.value.score;
-  if (s >= 90) return '#10B981';
-  if (s >= 80) return '#3B6FE0';
-  if (s >= 60) return '#F59E0B';
-  return '#EF4444';
+  if (s >= 90) return 'var(--kb-success)';
+  if (s >= 80) return 'var(--kb-primary)';
+  if (s >= 60) return 'var(--kb-warning)';
+  return 'var(--kb-danger)';
 });
 
 const renderedMarkdown = computed(() => renderMarkdown(content.value));
@@ -676,7 +684,7 @@ async function scoreWithAI(): Promise<void> {
         - grade: 等级（A+/A/B+/B/C/D）
         - gradeDescription: 等级描述（如"优秀"、"良好"、"中等"、"及格"、"需改进"）
         - overallComment: 总体评价（50字以内）
-        - dimensions: 数组，每个元素包含 name(维度名)、score(0-100)、color(颜色代码)、comment(简短评价)。维度包括：内容质量、结构逻辑、语言表达、原创性。颜色参考：优秀用#10B981，良好用#3B6FE0，中等用#F59E0B，需改进用#EF4444
+        - dimensions: 数组，每个元素包含 name(维度名)、score(0-100)、color(颜色代码)、comment(简短评价)。维度包括：内容质量、结构逻辑、语言表达、原创性。颜色参考：优秀用var(--kb-success)，良好用var(--kb-primary)，中等用var(--kb-warning)，需改进用var(--kb-danger)
         - suggestions: 改进建议数组，3条具体建议
 
         文章：
@@ -710,10 +718,10 @@ async function scoreWithAI(): Promise<void> {
 
 function defaultDimensions(): ScoreDimension[] {
   return [
-    { name: '内容质量', score: 75, color: '#3B6FE0', comment: '内容较充实' },
-    { name: '结构逻辑', score: 80, color: '#10B981', comment: '结构清晰' },
-    { name: '语言表达', score: 70, color: '#F59E0B', comment: '表达较流畅' },
-    { name: '原创性', score: 75, color: '#3B6FE0', comment: '有个人见解' },
+    { name: '内容质量', score: 75, color: 'var(--kb-primary)', comment: '内容较充实' },
+    { name: '结构逻辑', score: 80, color: 'var(--kb-success)', comment: '结构清晰' },
+    { name: '语言表达', score: 70, color: 'var(--kb-warning)', comment: '表达较流畅' },
+    { name: '原创性', score: 75, color: 'var(--kb-primary)', comment: '有个人见解' },
   ];
 }
 
@@ -753,10 +761,10 @@ function generateMockScore(wordCount: number): ScoreResult {
 }
 
 function getDimColor(score: number): string {
-  if (score >= 85) return '#10B981';
-  if (score >= 75) return '#3B6FE0';
-  if (score >= 60) return '#F59E0B';
-  return '#EF4444';
+  if (score >= 85) return 'var(--kb-success)';
+  if (score >= 75) return 'var(--kb-primary)';
+  if (score >= 60) return 'var(--kb-warning)';
+  return 'var(--kb-danger)';
 }
 
 // ===== Markdown 渲染 / 导出 =====
@@ -1490,7 +1498,7 @@ function printPdf(): void {
   margin-bottom: 12px;
   color: #92400e;
 }
-.score-suggestions h4 svg { color: #f59e0b; }
+.score-suggestions h4 svg { color: var(--kb-warning); }
 .suggestion-list { display: flex; flex-direction: column; gap: 8px; }
 .suggestion-item {
   display: flex;

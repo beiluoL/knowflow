@@ -45,7 +45,7 @@
       <div class="rounded-xl border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(245,158,11,0.08);">
-            <Icon name="edit" :size="20" style="color: #f59e0b;" />
+            <Icon name="edit" :size="20" style="color: var(--kb-warning);" />
           </div>
           <span class="text-sm" style="color: var(--kb-muted-foreground);">草稿</span>
         </div>
@@ -210,7 +210,7 @@
                 v-else
                 type="button"
                 class="p-1.5 rounded transition-colors hover:bg-[var(--kb-warning)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="color: #f59e0b;"
+                style="color: var(--kb-warning);"
                 title="下架"
                 @click="unpublishQuestion(q)"
               >
@@ -519,7 +519,7 @@ const stats = computed(() => {
 const difficultyLabel = (d?: number) => (d === 0 ? '简单' : d === 1 ? '中等' : '困难')
 const getDifficultyStyle = (d?: number) => {
   if (d === 0) return { background: 'rgba(16,185,129,0.1)', color: 'var(--kb-accent)' }
-  if (d === 1) return { background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }
+  if (d === 1) return { background: 'rgba(245,158,11,0.1)', color: 'var(--kb-warning)' }
   return { background: 'rgba(239,68,68,0.1)', color: 'var(--kb-destructive)' }
 }
 
@@ -535,11 +535,11 @@ const langLabel = (lang?: string) => {
 }
 const getLanguageStyle = (lang?: string) => {
   const map: Record<string, string> = {
-    javascript: '#3B6FE0',
-    typescript: '#3B6FE0',
-    python: '#10B981',
-    java: '#F59E0B',
-    sql: '#EF4444',
+    javascript: 'var(--kb-primary)',
+    typescript: 'var(--kb-primary)',
+    python: 'var(--kb-success)',
+    java: 'var(--kb-warning)',
+    sql: 'var(--kb-danger)',
   }
   const hex = map[lang || '']
   return hex ? { background: `${hex}14`, color: hex } : { background: 'var(--kb-muted)', color: 'var(--kb-muted-foreground)' }

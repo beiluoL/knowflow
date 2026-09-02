@@ -66,7 +66,7 @@ function loadState(): BackgroundState {
     imageData: '',
     videoData: '',
     color: '#1a1a2e',
-    gradient: { from: '#3B6FE0', to: '#8B5CF6', angle: 135 },
+    gradient: { from: 'var(--kb-primary)', to: '#8B5CF6', angle: 135 },
     presetId: '',
     opacity: 1,
     blur: 0,

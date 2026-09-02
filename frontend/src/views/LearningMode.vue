@@ -208,10 +208,10 @@ const courseTitle = computed(() => (route.query.title as string) || '沉浸学�
 const currentTags = computed(() => {
   const tags: { label: string; color: string }[] = [];
   if (route.query.category) {
-    tags.push({ label: String(route.query.category), color: '#3B6FE0' });
+    tags.push({ label: String(route.query.category), color: 'var(--kb-primary)' });
   }
-  tags.push({ label: '核心概念', color: '#10B981' });
-  tags.push({ label: '重要', color: '#F59E0B' });
+  tags.push({ label: '核心概念', color: 'var(--kb-success)' });
+  tags.push({ label: '重要', color: 'var(--kb-warning)' });
   return tags;
 });
 

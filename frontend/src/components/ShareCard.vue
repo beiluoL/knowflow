@@ -129,10 +129,10 @@ function drawCard(): void {
   canvas.height = CARD_H;
   ctx.clearRect(0, 0, CARD_W, CARD_H);
 
-  // 1. 背景渐变（#3B6FE0 → #6F9AF2）
+  // 1. 背景渐变（var(--kb-primary) → var(--kb-primary-muted)）
   const grad = ctx.createLinearGradient(0, 0, CARD_W, CARD_H);
-  grad.addColorStop(0, '#3B6FE0');
-  grad.addColorStop(1, '#6F9AF2');
+  grad.addColorStop(0, 'var(--kb-primary)');
+  grad.addColorStop(1, 'var(--kb-primary-muted)');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, CARD_W, CARD_H);
 
@@ -260,7 +260,7 @@ function drawCard(): void {
   ctx.fill();
 
   // 点阵
-  ctx.fillStyle = '#3B6FE0';
+  ctx.fillStyle = 'var(--kb-primary)';
   const cell = 6;
   const gridOff = (qrSize - cell * QR_PATTERN.length) / 2;
   for (let r = 0; r < QR_PATTERN.length; r++) {
@@ -272,7 +272,7 @@ function drawCard(): void {
   }
   // 三个定位角
   const drawFinder = (fx: number, fy: number) => {
-    ctx.fillStyle = '#3B6FE0';
+    ctx.fillStyle = 'var(--kb-primary)';
     ctx.fillRect(fx, fy, 16, 16);
     ctx.fillStyle = '#fff';
     ctx.fillRect(fx + 4, fy + 4, 8, 8);

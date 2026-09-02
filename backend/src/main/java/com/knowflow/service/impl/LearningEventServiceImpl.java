@@ -35,6 +35,9 @@ public class LearningEventServiceImpl extends ServiceImpl<LearningEventMapper, L
     /** 掌握度引擎：事件落库后触发（独立 try/catch，失败仅告警，不阻断业务）。 */
     private final KnowledgeMasteryService knowledgeMasteryService;
 
+    /** 奖励引擎（Architecture-2）：事件是奖励的唯一行为输入（§13/§19），失败不影响主流程。 */
+    private final com.knowflow.reward.RewardEngine rewardEngine;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void record(Long userId, String eventType, String resourceType, Long resourceId, Map<String, Object> metadata) {
@@ -73,6 +76,11 @@ public class LearningEventServiceImpl extends ServiceImpl<LearningEventMapper, L
                 knowledgeMasteryService.processEvent(event);
             } catch (Exception ex) {
                 log.warn("掌握度引擎处理事件失败（已忽略，不影响主流程）: eventId={}, err={}", event.getId(), ex.getMessage());
+            }
+            try {
+                rewardEngine.onEvent(event);
+            } catch (Exception ex) {
+                log.warn("奖励引擎处理事件失败（已忽略，不影响主流程）: eventId={}, err={}", event.getId(), ex.getMessage());
             }
         } catch (Exception ex) {
             log.warn("记录学习事件失败（已忽略，不影响主流程）: type={}, err={}", eventType, ex.getMessage());

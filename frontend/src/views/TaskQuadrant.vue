@@ -90,9 +90,9 @@ const loading = ref(false)
 const error = ref('')
 
 const quadrants = [
-  { key: 'q1' as QKey, label: '重要且紧急', icon: 'alert-octagon', color: '#EF4444', cls: 'q-important-urgent', tip: '立即处理 · 优先做' },
-  { key: 'q2' as QKey, label: '重要不紧急', icon: 'star', color: '#3B6FE0', cls: 'q-important', tip: '制定计划 · 重点做' },
-  { key: 'q3' as QKey, label: '紧急不重要', icon: 'zap', color: '#F59E0B', cls: 'q-urgent', tip: '尽量委托 · 快速做' },
+  { key: 'q1' as QKey, label: '重要且紧急', icon: 'alert-octagon', color: 'var(--kb-danger)', cls: 'q-important-urgent', tip: '立即处理 · 优先做' },
+  { key: 'q2' as QKey, label: '重要不紧急', icon: 'star', color: 'var(--kb-primary)', cls: 'q-important', tip: '制定计划 · 重点做' },
+  { key: 'q3' as QKey, label: '紧急不重要', icon: 'zap', color: 'var(--kb-warning)', cls: 'q-urgent', tip: '尽量委托 · 快速做' },
   { key: 'q4' as QKey, label: '不重要不紧急', icon: 'minus-circle', color: '#94A3B8', cls: 'q-normal', tip: '减少投入 · 有空做' },
 ]
 
@@ -223,9 +223,9 @@ onMounted(reload)
   min-height: 0;
   border-top: 3px solid var(--kb-border);
 }
-.qm-quad.q-important-urgent { border-top-color: #EF4444; }
-.qm-quad.q-important { border-top-color: #3B6FE0; }
-.qm-quad.q-urgent { border-top-color: #F59E0B; }
+.qm-quad.q-important-urgent { border-top-color: var(--kb-danger); }
+.qm-quad.q-important { border-top-color: var(--kb-primary); }
+.qm-quad.q-urgent { border-top-color: var(--kb-warning); }
 .qm-quad.q-normal { border-top-color: #94A3B8; }
 
 .qm-quad-head { display: flex; align-items: center; justify-content: space-between; }
@@ -266,7 +266,7 @@ onMounted(reload)
   display: inline-flex; align-items: center; justify-content: center; transition: all 0.12s ease;
 }
 .qm-flag:hover { background: var(--kb-card); color: var(--kb-foreground); }
-.qm-flag.on { color: #F59E0B; }
+.qm-flag.on { color: var(--kb-warning); }
 .qm-flag.del:hover { color: var(--kb-destructive); background: rgba(239, 68, 68, 0.1); }
 
 .qm-empty { font-size: 12px; color: var(--kb-muted-foreground); text-align: center; padding: 16px 0; }

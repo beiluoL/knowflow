@@ -912,11 +912,11 @@ async function loadCategories(): Promise<void> {
 // ===== 知识库卡片选择 =====
 function selectKb(id: number) {
   formData.value.kbId = id
-  // 切换知识库时清空分类选择
-  formData.value.categoryId = undefined
+  // 切换知识库时清空分类选择（'' 为「未选择」的既有约定）
+  formData.value.categoryId = ''
 }
 
-const kbColors = ['#3B6FE0', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16']
+const kbColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16']
 function getKbColor(id: number) {
   const idx = (id - 1) % kbColors.length
   return `${kbColors[Math.max(0, idx)]}1A`

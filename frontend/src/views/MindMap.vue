@@ -1,5 +1,6 @@
 <template>
-  <div class="mm-root">
+  <MiniAppShell title="思维导图" back-label="返回" @back="goBack">
+    <div class="mm-root">
     <!-- ============ 侧边：思维导图列表 ============ -->
     <aside class="mm-side">
       <div class="mm-side-head">
@@ -85,7 +86,7 @@
                   xmlns="http://www.w3.org/1999/xhtml"
                   class="mm-card focus-visible:outline-none"
                   :class="{ selected: selectedId === n.id, 'is-source': connectMode && connectFrom === n.id }"
-                  :style="{ borderColor: n.color || '#3B6FE0' }"
+                  :style="{ borderColor: n.color || 'var(--kb-primary)' }"
                   tabindex="0"
                   @pointerdown="onNodeDown(n, $event)"
                   @dblclick="onNodeDblClick(n)"
@@ -145,6 +146,7 @@
       </div>
     </main>
   </div>
+</MiniAppShell>
 </template>
 
 <script setup lang="ts">
@@ -163,10 +165,18 @@ import {
   type MindMapEdge,
   type MindMapSummary,
 } from '@/api/mindmap'
+import { useRouter } from 'vue-router'
+import MiniAppShell from '@/components/layout/MiniAppShell.vue'
+
+const router = useRouter()
+function goBack() {
+  if (window.history.length > 1) router.back()
+  else router.push('/learning/center')
+}
 
 const NODE_W = 184
 const NODE_H = 48
-const PALETTE = ['#3B6FE0', '#8B5CF6', '#10B981', '#F59E0B', '#EF4444', '#0EA5E9']
+const PALETTE = ['var(--kb-primary)', '#8B5CF6', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#0EA5E9']
 
 interface RenderedEdge extends MindMapEdge {
   hierarchy?: boolean
@@ -652,7 +662,7 @@ onMounted(loadList)
   padding: 9px 12px;
   border-radius: 10px;
   border: none;
-  background: var(--kb-primary, #3b6fe0);
+  background: var(--kb-primary, var(--kb-primary));
   color: #fff;
   font-weight: 600;
   cursor: pointer;
@@ -695,11 +705,11 @@ onMounted(loadList)
   background: #f1f4f9;
 }
 .mm-list-item.active {
-  border-color: var(--kb-primary, #3b6fe0);
+  border-color: var(--kb-primary, var(--kb-primary));
   background: #eef3fe;
 }
 .mm-list-ico {
-  color: var(--kb-primary, #3b6fe0);
+  color: var(--kb-primary, var(--kb-primary));
   flex: 0 0 auto;
 }
 .mm-list-name {
@@ -726,8 +736,8 @@ onMounted(loadList)
   display: inline-flex;
 }
 .mm-list-del:hover {
-  color: #ef4444;
-  background: #fee2e2;
+  color: var(--kb-danger);
+  background: var(--kb-danger-soft-strong);
 }
 
 .mm-main {
@@ -780,18 +790,18 @@ onMounted(loadList)
 }
 .mm-tool-btn:hover {
   background: #f1f4f9;
-  color: var(--kb-primary, #3b6fe0);
+  color: var(--kb-primary, var(--kb-primary));
   border-color: #d6deeb;
 }
 .mm-tool-btn.active {
   background: #eef3fe;
-  color: var(--kb-primary, #3b6fe0);
-  border-color: var(--kb-primary, #3b6fe0);
+  color: var(--kb-primary, var(--kb-primary));
+  border-color: var(--kb-primary, var(--kb-primary));
 }
 .mm-tool-btn.mm-save {
   color: #fff;
-  background: var(--kb-primary, #3b6fe0);
-  border-color: var(--kb-primary, #3b6fe0);
+  background: var(--kb-primary, var(--kb-primary));
+  border-color: var(--kb-primary, var(--kb-primary));
 }
 .mm-tool-btn.mm-save:hover {
   background: #2f5bc4;
@@ -832,11 +842,11 @@ onMounted(loadList)
   cursor: pointer;
 }
 .mm-edge-free {
-  stroke: #f59e0b;
+  stroke: var(--kb-warning);
   stroke-dasharray: 6 4;
 }
 .mm-edge-hl {
-  stroke: var(--kb-primary, #3b6fe0);
+  stroke: var(--kb-primary, var(--kb-primary));
   stroke-width: 3;
 }
 .mm-fo {
@@ -849,7 +859,7 @@ onMounted(loadList)
   display: flex;
   align-items: center;
   background: #fff;
-  border: 2px solid var(--kb-primary, #3b6fe0);
+  border: 2px solid var(--kb-primary, var(--kb-primary));
   border-radius: 12px;
   padding: 0 10px;
   cursor: grab;
@@ -914,11 +924,11 @@ onMounted(loadList)
 }
 .mm-card-btn:hover {
   background: #e2e8f0;
-  color: var(--kb-primary, #3b6fe0);
+  color: var(--kb-primary, var(--kb-primary));
 }
 .mm-card-btn.mm-danger:hover {
-  background: #fee2e2;
-  color: #ef4444;
+  background: var(--kb-danger-soft-strong);
+  color: var(--kb-danger);
 }
 
 .mm-empty,
@@ -961,16 +971,16 @@ onMounted(loadList)
   background: #fbfcfe;
 }
 .mm-dirty {
-  color: #f59e0b;
+  color: var(--kb-warning);
 }
 .mm-saved {
-  color: #10b981;
+  color: var(--kb-success);
 }
 .mm-sav-dot {
-  color: #3b6fe0;
+  color: var(--kb-primary);
 }
 .mm-connect-hint {
-  color: #f59e0b;
+  color: var(--kb-warning);
   margin-left: auto;
 }
 </style>

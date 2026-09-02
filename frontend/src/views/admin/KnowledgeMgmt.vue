@@ -106,7 +106,7 @@
         </div>
       </div>
 
-      <div class="divide-y divide-[#E2E6EC]/50">
+      <div class="divide-y divide-[var(--kb-border)]/50">
         <div
           v-for="node in flatTreeNodes" :key="node.kb.id"
           class="px-6 py-4 hover:bg-muted transition-colors group"
@@ -739,14 +739,14 @@ const filteredPresetIcons = computed(() =>
   presetIcons.filter(icon => icon.category === activeIconCategory.value)
 )
 const legacyIconColors: Record<string, string> = {
-  code: '#3B6FE0', server: '#10B981', database: '#F59E0B', brain: '#8B5CF6',
-  layout: '#EC4899', settings: '#06B6D4', 'book-open': '#3B6FE0', folder: '#6B7280',
+  code: 'var(--kb-primary)', server: 'var(--kb-success)', database: 'var(--kb-warning)', brain: '#8B5CF6',
+  layout: '#EC4899', settings: '#06B6D4', 'book-open': 'var(--kb-primary)', folder: 'var(--kb-muted-foreground)',
   layers: '#F97316', 'message-circle': '#84CC16',
 }
 const kbForm = reactive({ name: '', description: '', icon: 'lang-java', parentId: undefined as number | undefined })
 const selectedIconKey = computed(() => parseIconValue(kbForm.icon).key)
 const selectedIconColor = computed(() => parseIconValue(kbForm.icon).color)
-const currentPresetDefaultColor = computed(() => getIconByKey(selectedIconKey.value)?.color || '#6B7280')
+const currentPresetDefaultColor = computed(() => getIconByKey(selectedIconKey.value)?.color || 'var(--kb-muted-foreground)')
 const currentRenderIconName = computed(() => {
   const preset = getIconByKey(selectedIconKey.value)
   return preset?.svg || selectedIconKey.value || 'folder'
@@ -764,9 +764,9 @@ const getCategoryIconName = (raw?: string): string => {
   return name || 'folder'
 }
 const getKbColor = (raw?: string): string => {
-  if (!raw) return '#6B7280'
+  if (!raw) return 'var(--kb-muted-foreground)'
   const { color } = resolveIconForRender(raw)
-  return color || legacyIconColors[raw] || '#6B7280'
+  return color || legacyIconColors[raw] || 'var(--kb-muted-foreground)'
 }
 
 // ========== 统计派生 ==========

@@ -12,6 +12,7 @@ import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.ChatConversationMapper;
 import com.knowflow.mapper.ChatMessageMapper;
 import com.knowflow.mapper.DocDocumentMapper;
+import com.knowflow.ai.CoachPrompts;
 import com.knowflow.service.AiService;
 import com.knowflow.service.ChatService;
 import com.knowflow.common.LearningEventType;
@@ -179,16 +180,30 @@ public class ChatServiceImpl extends ServiceImpl<ChatConversationMapper, ChatCon
         userMessage.setTruncated(0);
         messageMapper.insert(userMessage);
 
-        // Learning Event System（Phase 1）：流式 AI 对话事件
-        learningEventService.record(userId, LearningEventType.AI_CHAT, "CHAT", conversation.getId(),
-                Map.of("hasImages", dto.getImages() != null && !dto.getImages().isEmpty(), "stream", true));
+        // 是否为学习教练模式（mode=LEARNING_COACH）。Coach 是「解释/建议」层，不记为学习事件（§435-436）。
+        final boolean isCoach = "LEARNING_COACH".equals(dto.getMode());
 
-        // 3. 检索 RAG 文档 + 拼上下文 system prompt
-        List<DocDocument> contextDocs = searchRelatedDocs(dto.getContent());
-        String systemPrompt = buildStreamSystemPrompt(conversation, contextDocs);
+        // Learning Event System（Phase 1）：通用 AI 对话记事件；Coach 模式不记（避免把辅导当学习行为奖励）
+        if (!isCoach) {
+            learningEventService.record(userId, LearningEventType.AI_CHAT, "CHAT", conversation.getId(),
+                    Map.of("hasImages", dto.getImages() != null && !dto.getImages().isEmpty(), "stream", true));
+        }
+
+        // 3. 系统提示词 + 上下文：Coach 模式与通用模式分治
         final ChatConversation conv = conversation;
-        final List<DocDocument> docs = contextDocs;
         final Long uid = userId;
+        final List<DocDocument> docs;
+        final String systemPrompt;
+        if (isCoach) {
+            // 学习教练：后端固定提示词 + 前端基于真实数据组装的上下文（仅作数据，不可作为指令）
+            systemPrompt = CoachPrompts.buildCoachSystemPrompt(dto.getCoachContext());
+            docs = Collections.emptyList();
+        } else {
+            // 通用问答：RAG 检索 + 历史摘要上下文
+            List<DocDocument> contextDocs = searchRelatedDocs(dto.getContent());
+            systemPrompt = buildStreamSystemPrompt(conversation, contextDocs);
+            docs = contextDocs;
+        }
 
         // 4. 异步流式调用 AI；onComplete 回调持久化 assistant 消息
         aiService.streamChat(systemPrompt, dto.getContent(), userId, null, emitter,

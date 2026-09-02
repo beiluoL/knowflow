@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import { notify, getApiError } from '@/utils/toast'
@@ -116,14 +116,14 @@ onMounted(async () => {
         clarityScore: s.clarityScore || 0,
       })
     } catch (e) {
-      notify({ type: 'error', message: getApiError(e, '加载失败') })
+      notify(getApiError(e, '加载失败'), 'error')
     }
   }
 })
 
 async function save(status: string) {
   if (!form.title?.trim()) {
-    notify({ type: 'warning', message: '标题不能为空' })
+    notify('标题不能为空', 'warning')
     return
   }
   form.status = status
@@ -133,10 +133,10 @@ async function save(status: string) {
     } else {
       await updateStory(Number(id), { ...form })
     }
-    notify({ type: 'success', message: status === 'DONE' ? '故事已完成' : '已保存草稿' })
+    notify(status === 'DONE' ? '故事已完成' : '已保存草稿', 'success')
     router.push('/workbench/story')
   } catch (e) {
-    notify({ type: 'error', message: getApiError(e, '保存失败') })
+    notify(getApiError(e, '保存失败'), 'error')
   }
 }
 </script>

@@ -446,23 +446,23 @@ const loading = ref(false)
 const iconOptions = ['file-text', 'file-code', 'book-open', 'pencil', 'code', 'brain', 'layout', 'database', 'server', 'lightbulb']
 
 const iconColors: Record<string, string> = {
-  'file-text': '#3B6FE0',
-  'file-code': '#10B981',
+  'file-text': 'var(--kb-primary)',
+  'file-code': 'var(--kb-success)',
   'book-open': '#8B5CF6',
-  'pencil': '#F59E0B',
-  'code': '#3B6FE0',
+  'pencil': 'var(--kb-warning)',
+  'code': 'var(--kb-primary)',
   'brain': '#8B5CF6',
   'layout': '#EC4899',
-  'database': '#F59E0B',
-  'server': '#10B981',
-  'lightbulb': '#F59E0B',
+  'database': 'var(--kb-warning)',
+  'server': 'var(--kb-success)',
+  'lightbulb': 'var(--kb-warning)',
 }
 
 /** 更多操作菜单 */
 const menuDoc = ref<DocRow | null>(null)
 
 /** 颜色池：用于分类徽标 */
-const categoryColors = ['#F59E0B', '#3B6FE0', '#10B981', '#EF4444', '#6B7280']
+const categoryColors = ['var(--kb-warning)', 'var(--kb-primary)', 'var(--kb-success)', 'var(--kb-danger)', 'var(--kb-muted-foreground)']
 
 /** 根据文档标题推断文件类型图标与颜色；若设置过自定义图标则优先使用 */
 const inferIcon = (title: string, customIcon?: string): { icon: string; bg: string; color: string } => {
@@ -470,7 +470,7 @@ const inferIcon = (title: string, customIcon?: string): { icon: string; bg: stri
   if (customIcon) {
     const { name, color } = resolveIconForRender(customIcon)
     if (name && getIconByKey(parseIconValue(customIcon).key)) {
-      const finalColor = color || '#6B7280'
+      const finalColor = color || 'var(--kb-muted-foreground)'
       return {
         icon: name,
         bg: hexToRgba(finalColor, 0.1),
@@ -479,20 +479,20 @@ const inferIcon = (title: string, customIcon?: string): { icon: string; bg: stri
     }
     // 2. 旧版系统图标名
     if (iconOptions.includes(customIcon)) {
-      const c = iconColors[customIcon] || '#6B7280'
+      const c = iconColors[customIcon] || 'var(--kb-muted-foreground)'
       return { icon: customIcon, bg: hexToRgba(c, 0.1), color: c }
     }
   }
   // 3. 根据标题推断
   const lower = title.toLowerCase()
   if (lower.endsWith('.pdf')) {
-    return { icon: 'file-text', bg: 'rgba(239,68,68,0.1)', color: '#EF4444' }
+    return { icon: 'file-text', bg: 'rgba(239,68,68,0.1)', color: 'var(--kb-danger)' }
   }
   if (lower.endsWith('.md')) {
-    return { icon: 'file-code', bg: 'rgba(59,111,224,0.08)', color: '#3B6FE0' }
+    return { icon: 'file-code', bg: 'rgba(59,111,224,0.08)', color: 'var(--kb-primary)' }
   }
   if (lower.endsWith('.docx') || lower.endsWith('.doc')) {
-    return { icon: 'file-text', bg: 'rgba(59,111,224,0.08)', color: '#3B6FE0' }
+    return { icon: 'file-text', bg: 'rgba(59,111,224,0.08)', color: 'var(--kb-primary)' }
   }
   // 笔记类
   return { icon: 'pencil', bg: 'var(--kb-muted)', color: 'var(--kb-muted-foreground)' }
@@ -720,10 +720,10 @@ const draftDoc = async (doc: DocRow) => {
 /** 获取文档状态标签 */
 const statusLabel = (status?: number): { text: string; color: string } => {
   switch (status) {
-    case 1: return { text: '已发布', color: '#10B981' }
-    case 2: return { text: '已禁用', color: '#EF4444' }
-    case 3: return { text: '已废弃', color: '#6B7280' }
-    default: return { text: '草稿', color: '#F59E0B' }
+    case 1: return { text: '已发布', color: 'var(--kb-success)' }
+    case 2: return { text: '已禁用', color: 'var(--kb-danger)' }
+    case 3: return { text: '已废弃', color: 'var(--kb-muted-foreground)' }
+    default: return { text: '草稿', color: 'var(--kb-warning)' }
   }
 }
 
@@ -799,7 +799,7 @@ const loadDocs = async () => {
 
     const records = (docPage.records ?? []) as DocVO[]
     allDocs.value = records.map((d) => {
-      const cat = catMap.get(d.categoryId ?? -1) ?? { name: '未分类', color: '#6B7280' }
+      const cat = catMap.get(d.categoryId ?? -1) ?? { name: '未分类', color: 'var(--kb-muted-foreground)' }
       const iconInfo = inferIcon(d.title ?? '', d.icon)
       return {
         id: d.id,
@@ -1780,7 +1780,7 @@ onMounted(() => {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  background: #EF4444;
+  background: var(--kb-danger);
   color: #fff;
   border: none;
   cursor: pointer;

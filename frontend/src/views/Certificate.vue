@@ -97,8 +97,8 @@ const loading = ref(false);
 
 const CERT_W = 1200;
 const CERT_H = 850;
-const PRIMARY = '#3B6FE0';
-const ACCENT = '#10B981';
+const PRIMARY = 'var(--kb-primary)';
+const ACCENT = 'var(--kb-success)';
 
 const formatDate = (d?: string) => {
   if (!d) return '';

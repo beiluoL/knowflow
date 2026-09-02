@@ -114,17 +114,13 @@ public class QuizServiceImpl extends ServiceImpl<QuizAnswerRecordMapper, QuizAns
                 record.setScore(score);
                 record.setTimeCost(ans.getTimeCost() == null ? 0 : ans.getTimeCost());
                 this.save(record);
+                // Phase 1：一次答题 = 一条核心事件 QUESTION_ANSWERED（行为+结果合一，避免 ANSWERED+CORRECT/WRONG 双事件）
                 learningEventService.record(userId, LearningEventType.QUESTION_ANSWERED, "QUIZ", q.getId(),
                         Map.of("correct", correct, "score", score, "timeCost", record.getTimeCost()));
-                if (correct) {
-                    learningEventService.record(userId, LearningEventType.QUESTION_CORRECT, "QUIZ", q.getId(), Map.of("score", score));
-                } else {
-                    learningEventService.record(userId, LearningEventType.QUESTION_WRONG, "QUIZ", q.getId(), Map.of("score", score));
-                }
 
                 String correctDisplay = toDisplayAnswer(q.getQuestionType(), q.getAnswer(), options);
 
-                // 答错自动同步错题本（幂等：同用户 + 同题干）
+                // 答错自动同步错题本（幂等：同用户 + 同题干；Phase 0 起记录原题ID，打通 错题→原题→解析→再练习）
                 if (!correct) {
                     LearningMistake mistake = new LearningMistake();
                     mistake.setQuestion(buildMistakeQuestion(q));
@@ -133,6 +129,7 @@ public class QuizServiceImpl extends ServiceImpl<QuizAnswerRecordMapper, QuizAns
                     mistake.setCategory(MISTAKE_CATEGORY);
                     mistake.setDifficulty(q.getDifficulty());
                     mistake.setSource(MISTAKE_SOURCE);
+                    mistake.setQuestionId(q.getId());
                     try {
                         mistakeService.addMistake(mistake, userId);
                         synced++;

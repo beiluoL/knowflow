@@ -51,6 +51,9 @@ public class LearningFlashcard extends BaseEntity {
     /** 当前复习间隔（天），间隔重复算法使用 */
     private Integer reviewInterval;
 
+    /** SM-2 难度系数（放大100倍存储，默认250即2.5），与统一 SrsService 对齐 */
+    private Integer easeFactor;
+
     /** 下次应复习时间 */
     private LocalDateTime nextReviewTime;
 

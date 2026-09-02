@@ -1,17 +1,17 @@
 <template>
-  <div class="space-y-4 animate-fade-in">
-    <div class="flex items-center justify-between flex-wrap gap-3">
-      <div>
-        <h1 class="kb-h1 mb-1 flex items-center gap-2" style="color: var(--kb-foreground);">
-          <Icon name="notebook-pen" :size="24" style="color: var(--kb-primary);" /> 知识整理 · 康奈尔笔记
-        </h1>
-        <p class="kb-body" style="color: var(--kb-muted-foreground);">线索栏自测、笔记栏记录、总结栏复述，主动回忆胜过被动阅读。</p>
-      </div>
+  <MiniAppShell
+    title="知识整理 · 康奈尔笔记"
+    subtitle="线索栏自测、笔记栏记录、总结栏复述，主动回忆胜过被动阅读。"
+    back-label="返回"
+    @back="goBack"
+  >
+    <template #actions>
       <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="router.push('/workbench/notes/new')">
         <Icon name="plus" :size="16" aria-hidden="true" /> 新建笔记
       </button>
-    </div>
+    </template>
 
+    <div class="space-y-4 animate-fade-in">
     <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
       <div v-for="n in 6" :key="n" class="rounded-xl border p-4 animate-pulse" style="background: var(--kb-card); border-color: var(--kb-border); min-height: 120px;">
         <div class="h-4 rounded mb-3" style="background: var(--kb-muted);"></div>
@@ -53,18 +53,26 @@
       </div>
     </div>
   </div>
+</MiniAppShell>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import MiniAppShell from '@/components/layout/MiniAppShell.vue'
 import { notify, getApiError } from '@/utils/toast'
 import { dialog } from '@/utils/dialog'
 import { listNotes, deleteNote } from '@/api/workbench'
 import type { WbNote } from '@/api/types'
 
 const router = useRouter()
+
+function goBack() {
+  if (window.history.length > 1) router.back()
+  else router.push('/learning/center')
+}
+
 const list = ref<WbNote[]>([])
 const loading = ref(true)
 
@@ -73,7 +81,7 @@ async function load() {
   try {
     list.value = await listNotes({})
   } catch (e) {
-    notify({ type: 'error', message: getApiError(e, '加载失败') })
+    notify(getApiError(e, '加载失败'), 'error')
   } finally {
     loading.value = false
   }
@@ -88,10 +96,10 @@ async function remove(n: WbNote) {
   if (!(await dialog.confirm({ title: '删除确认', message: '确认删除该笔记？', variant: 'danger' }))) return
   try {
     await deleteNote(n.id)
-    notify({ type: 'success', message: '已删除' })
+    notify('已删除', 'success')
     load()
   } catch (e) {
-    notify({ type: 'error', message: getApiError(e, '删除失败') })
+    notify(getApiError(e, '删除失败'), 'error')
   }
 }
 function toReview(n: WbNote) {

@@ -146,7 +146,7 @@
           </div>
         </div>
 
-        <div class="divide-y divide-[#E2E6EC]/50">
+        <div class="divide-y divide-[var(--kb-border)]/50">
           <div
             v-for="q in questions"
             :key="q.id"

@@ -369,6 +369,10 @@ export interface ChatSendPayload {
   model?: string
   /** 多模态图片 base64 数组（不含 data:image 前缀），后端支持 vision 模型识别 */
   images?: string[]
+  /** 对话模式：GENERAL（默认通用问答）/ LEARNING_COACH（学习教练，§297） */
+  mode?: 'GENERAL' | 'LEARNING_COACH'
+  /** 学习教练上下文（mode=LEARNING_COACH 时由前端基于真实数据组装，仅作数据，§15-18） */
+  coachContext?: string
 }
 
 // ===== AI 文档增强 =====
@@ -638,6 +642,10 @@ export interface MistakeVO {
   correctAnswer?: string
   category?: string
   difficulty?: number
+  /** 原测验题ID（逻辑外键 quiz_question.id，可空兼容旧数据） */
+  questionId?: number
+  /** 原代码题ID（逻辑外键 code_question.id，可空兼容旧数据） */
+  codeQuestionId?: number
   reviewCount?: number
   lastReviewTime?: string
   mastered?: number
@@ -1123,6 +1131,9 @@ export interface IntentHistoryItem {
   content: string
   intent?: AgentIntentType
   slots?: Record<string, string>
+  /** 消息 ID / 父消息 ID（CodeAgent 组装历史时透传，便于后端追踪对话树） */
+  id?: number | string
+  parentId?: number | string
 }
 
 /** 意图识别：项目结构快照项 */
@@ -1918,15 +1929,23 @@ export interface WbStoryPayload {
   clarityScore?: number
 }
 
-/** 知识库分类树节点（与 doc_category 同源） */
-export interface CategoryVO {
+/**
+ * 知识库分类树节点（与 doc_category 同源）。
+ *
+ * Phase UI-1 修复说明：本接口原先也命名为 CategoryVO，与上方（约 155 行）的
+ * 「扁平分类 VO」重名。TypeScript 接口声明合并要求同名属性的修饰符与类型完全一致，
+ * 而二者的 parentId / docCount 一个必填、一个可选，导致 TS2687 / TS2717 构建失败。
+ * 若强行合并，depth 会成为扁平 VO 的必填项，波及全部引用文件；
+ * 因此这里按语义重命名为 CategoryTreeNodeVO（树结构专用），扁平 VO 保持原名不变。
+ */
+export interface CategoryTreeNodeVO {
   id: number
   name: string
   parentId: number
   depth: number
   path?: string
   docCount: number
-  children?: CategoryVO[]
+  children?: CategoryTreeNodeVO[]
 }
 
 /** 遗忘曲线单日数据点 */
@@ -2003,6 +2022,8 @@ export interface PlanItemVO {
   startTime?: string
   endTime?: string
   completed?: boolean
+  /** 前端本地勾选状态（仅 TodayPlan 交互用，服务端不返回） */
+  _loading?: boolean
 }
 
 export interface PlanBlockVO {
@@ -2035,3 +2056,93 @@ export interface PlanGenerateResult {
   generatedDays: number
 }
 
+
+// ============================================================
+// Phase 0：学习周报 / 学习偏好 类型（对应后端 WeeklyReport / UserLearningPref）
+// ============================================================
+
+export interface WeeklyReportVO {
+  id: number
+  /** 周一日期 YYYY-MM-DD */
+  weekStart: string
+  /** 周日日期 YYYY-MM-DD */
+  weekEnd: string
+  /** AI 生成的周报摘要（Markdown） */
+  summary?: string
+  /** 本周成就列表 */
+  achievements?: string[]
+  /** 下周学习建议列表 */
+  suggestions?: string[]
+  studyMinutes?: number
+  checkinDays?: number
+  flashcardReviewed?: number
+  createTime?: string
+  updateTime?: string
+}
+
+/** 用户学习偏好：入参（后端 UserLearningPrefDTO） */
+export interface UserLearningPrefInput {
+  focusMinutes?: number
+  shortBreak?: number
+  longBreak?: number
+  rounds?: number
+  cardStrategy?: string
+  cardCount?: number
+  difficultyFilter?: string
+  theme?: string
+  fontSize?: string
+  soundEnabled?: number
+  notificationEnabled?: number
+  reminderTime?: string
+  whiteNoise?: string
+}
+
+/** 用户学习偏好：返回（后端 UserLearningPrefVO） */
+export interface UserLearningPrefVO extends UserLearningPrefInput {
+  id?: number
+  userId?: number
+}
+
+/** 学习报告（后端 LearningReportVO，GET /learning/report?period=week|month|all） */
+export interface LearningReportData {
+  period?: string
+  startDate?: string
+  endDate?: string
+  checkinDays: number
+  continuousDays: number
+  flashcardReviewed: number
+  flashcardMastered: number
+  mistakeCount: number
+  mistakeMastered: number
+  codeSubmissions: number
+  codePassed: number
+  docsRead: number
+  quizAnswered: number
+  quizCorrect: number
+  studyMinutes: number
+  dailyActivity: { date: string; minutes: number; count?: number }[]
+  categoryMastery?: { categoryName: string; total: number; mastered: number; percent: number }[]
+  weeklyTrend: { weekStart: string; studyMinutes: number; checkinDays: number }[]
+}
+
+/** 学习事件统计摘要（GET /learning/events/summary） */
+export interface LearningEventSummaryVO {
+  /** 今日学习事件数 */
+  todayEventCount: number
+  /** 近 7 日答题数 */
+  quizAnswered7d: number
+  /** 近 7 日答对数 */
+  quizCorrect7d: number
+  /** 近 7 日答题正确率（0~1） */
+  quizAccuracy7d: number
+  /** 近 7 日闪卡复习数 */
+  flashcardReviewed7d: number
+  /** 近 7 日代码提交数 */
+  codeSubmitted7d: number
+  /** 近 7 日错题复习数 */
+  mistakesReviewed7d: number
+  /** 近 7 日任务完成数 */
+  tasksCompleted7d: number
+  /** 最近 10 条事件类型 */
+  recentTypes: string[]
+}

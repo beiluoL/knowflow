@@ -345,7 +345,7 @@ function onDelete() {
   gap: 4px;
   border: 1px solid #e5e7eb;
   background: #fff;
-  color: #6b7280;
+  color: var(--kb-muted-foreground);
   font-size: 13px;
   padding: 6px 10px;
   border-radius: 9px;
@@ -358,7 +358,7 @@ function onDelete() {
   background: #f0f5ff;
 }
 .ev-error {
-  color: #ef4444;
+  color: var(--kb-danger);
   font-size: 13px;
   margin: 0;
 }
@@ -373,16 +373,16 @@ function onDelete() {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  border: 1px solid #fca5a5;
+  border: 1px solid var(--kb-danger-tint);
   background: #fff;
-  color: #ef4444;
+  color: var(--kb-danger);
   font-size: 13px;
   padding: 8px 12px;
   border-radius: 9px;
   cursor: pointer;
 }
 .ev-del:hover {
-  background: #fef2f2;
+  background: var(--kb-danger-subtle);
 }
 .ev-foot-right {
   display: flex;

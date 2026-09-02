@@ -3,7 +3,7 @@
   <div class="path-detail-page animate-fade-in" :style="themeVars">
     <!-- ===== 面包屑 ===== -->
     <nav class="breadcrumb">
-      <router-link to="/learning/center" class="crumb-link">学习中心</router-link>
+      <router-link to="/learning/center" class="crumb-link">学习首页</router-link>
       <Icon name="chevron-right" :size="14" class="crumb-sep" />
       <router-link to="/learning/paths" class="crumb-link">学习路径</router-link>
       <Icon name="chevron-right" :size="14" class="crumb-sep" />

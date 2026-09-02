@@ -149,7 +149,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import Icon from '@/components/ui/Icon.vue';
 import DualRingProgress from './DualRingProgress.vue';
 import { useFocusSession } from '@/composables/useFocusSession';
@@ -211,7 +211,7 @@ const totalFormatted = computed(() => formatHM(elapsedSec.value));
 const flowStage = computed(() => {
   const m = elapsedSec.value / 60;
   if (m < 15) {
-    return { label: '热身阶段', color: '#F59E0B', icon: 'coffee' };
+    return { label: '热身阶段', color: 'var(--kb-warning)', icon: 'coffee' };
   }
   if (m <= 60) {
     return { label: 'Flow 状态', color: '#0EA5E9', icon: 'waves' };
@@ -508,7 +508,7 @@ onUnmounted(async () => {
 }
 .ctrl-btn.danger:hover:not(:disabled) {
   border-color: rgba(239, 68, 68, 0.5);
-  color: #F87171;
+  color: var(--kb-danger-muted);
 }
 
 .motivation {

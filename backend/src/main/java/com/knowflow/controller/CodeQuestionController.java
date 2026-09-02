@@ -111,17 +111,11 @@ public class CodeQuestionController {
                 record.setPassCount(pass);
                 record.setPassed(allPassed ? 1 : 0);
                 submitRecordMapper.insert(record);
-                // Learning Event System（Phase 1）：代码提交事件，与业务完全解耦
+                // Phase 1：一次代码提交 = 一条核心事件 CODE_SUBMITTED（行为+结果合一，结果经 passed/total/passCount 表达）
+                // 事件经 LearningEventService 写入（统一入口），不直接触碰 LearningEventMapper
                 Long uid = record.getUserId();
                 learningEventService.record(uid, LearningEventType.CODE_SUBMITTED, "CODE_QUESTION", id,
-                        Map.of("language", record.getLanguage(), "total", total, "passCount", pass));
-                if (allPassed) {
-                    learningEventService.record(uid, LearningEventType.CODE_PASSED, "CODE_QUESTION", id,
-                            Map.of("language", record.getLanguage()));
-                } else {
-                    learningEventService.record(uid, LearningEventType.CODE_FAILED, "CODE_QUESTION", id,
-                            Map.of("language", record.getLanguage(), "total", total, "passCount", pass));
-                }
+                        Map.of("language", record.getLanguage(), "total", total, "passCount", pass, "passed", allPassed));
             } catch (Exception e) {
                 log.warn("提交记录写入失败(不影响): {}", e.getMessage());
             }

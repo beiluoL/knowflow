@@ -243,7 +243,7 @@ const expandedIds = ref<Set<number>>(new Set())
 
 const kbBorder = 'var(--kb-border)'
 
-const recentColors = ['#3B6FE0', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899']
+const recentColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', '#8B5CF6', '#EC4899']
 
 const categoryTabs = computed(() => {
   const tabs = [{ id: 0, name: '全部' }]
@@ -322,9 +322,9 @@ const difficultyLabel = (d?: number): string => {
 }
 
 const difficultyStyle = (d?: number): Record<string, string> => {
-  if (d === 1) return { background: 'rgba(16,185,129,0.1)', color: '#10B981' }
-  if (d === 3) return { background: 'rgba(239,68,68,0.1)', color: '#EF4444' }
-  return { background: 'rgba(245,158,11,0.1)', color: '#F59E0B' }
+  if (d === 1) return { background: 'rgba(16,185,129,0.1)', color: 'var(--kb-success)' }
+  if (d === 3) return { background: 'rgba(239,68,68,0.1)', color: 'var(--kb-danger)' }
+  return { background: 'rgba(245,158,11,0.1)', color: 'var(--kb-warning)' }
 }
 
 const getRecentProgress = (doc: DocVO): number => {

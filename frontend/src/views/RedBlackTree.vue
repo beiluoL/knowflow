@@ -239,8 +239,8 @@
               :class="[
                 'rule-item',
                 {
-                  violated: violatedRules.some((v) => v.ruleId === id),
-                  highlighted: currentStep?.ruleId === id,
+                  violated: violatedRules.some((v) => v.ruleId === Number(id)),
+                  highlighted: currentStep?.ruleId === Number(id),
                 },
               ]"
             >
@@ -250,7 +250,7 @@
                 <span class="rule-detail">{{ rule.detail }}</span>
               </div>
               <Icon
-                v-if="violatedRules.some((v) => v.ruleId === id)"
+                v-if="violatedRules.some((v) => v.ruleId === Number(id))"
                 name="alert-circle"
                 :size="16"
                 class="rule-warning"
@@ -323,7 +323,6 @@ import {
   type RBNode,
   type SnapshotNode,
   type StepType,
-  type RuleId,
   type RuleViolation,
   RULE_DESCRIPTIONS,
 } from '@/utils/redBlackTree';
@@ -432,9 +431,9 @@ const stepIcon = computed(() => {
   return icons[currentStep.value.type] || 'hash';
 });
 
-const stepBadgeVariant = computed(() => {
+const stepBadgeVariant = computed<'primary' | 'success' | 'warning' | 'danger' | 'default'>(() => {
   if (!currentStep.value) return 'default'
-  const variants: Record<StepType, string> = {
+  const variants: Record<StepType, 'primary' | 'success' | 'warning' | 'danger' | 'default'> = {
     insert: 'primary',
     'color-change': 'warning',
     'rotate-left': 'success',
@@ -662,7 +661,7 @@ onMounted(() => {
 /* ===== 页面布局 ===== */
 .rbt-page {
   min-height: calc(100vh - 60px);
-  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+  background: linear-gradient(135deg, #f5f7fa 0%, var(--kb-muted) 100%);
   padding: 24px 32px;
   display: flex;
   flex-direction: column;
@@ -796,7 +795,7 @@ onMounted(() => {
 }
 
 .node-shadow.shadow-red {
-  fill: #dc2626;
+  fill: var(--kb-danger-hover);
   opacity: 0.3;
 }
 
@@ -811,8 +810,8 @@ onMounted(() => {
 }
 
 .node-circle.node-red {
-  fill: #dc2626;
-  stroke: #b91c1c;
+  fill: var(--kb-danger-hover);
+  stroke: var(--kb-state-error);
 }
 
 .node-circle.node-black {
@@ -864,7 +863,7 @@ onMounted(() => {
 }
 
 .red-dot {
-  background: #dc2626;
+  background: var(--kb-danger-hover);
 }
 
 .black-dot {
@@ -889,7 +888,7 @@ onMounted(() => {
 .red-dot-inline {
   width: 10px;
   height: 10px;
-  background: #dc2626;
+  background: var(--kb-danger-hover);
   border-radius: 50%;
 }
 
@@ -1035,7 +1034,7 @@ onMounted(() => {
   top: 0;
   left: 0;
   height: 100%;
-  background: linear-gradient(90deg, var(--kb-primary), #FF6B35);
+  background: linear-gradient(90deg, var(--kb-primary), var(--kb-highlight));
   border-radius: 4px;
   transition: width 0.3s;
 }
@@ -1121,8 +1120,8 @@ onMounted(() => {
 }
 
 .rule-item.violated {
-  background: #fef2f2;
-  border-color: #fca5a5;
+  background: var(--kb-danger-subtle);
+  border-color: var(--kb-danger-tint);
   animation: shake 0.5s ease;
 }
 
@@ -1147,7 +1146,7 @@ onMounted(() => {
 }
 
 .rule-item.violated .rule-num {
-  background: #dc2626;
+  background: var(--kb-danger-hover);
 }
 
 .rule-item.highlighted .rule-num {
@@ -1175,12 +1174,12 @@ onMounted(() => {
 }
 
 .rule-warning {
-  color: #dc2626;
+  color: var(--kb-danger-hover);
   flex-shrink: 0;
 }
 
 .rule-ok {
-  color: #10b981;
+  color: var(--kb-success);
   flex-shrink: 0;
 }
 
@@ -1188,8 +1187,8 @@ onMounted(() => {
 .violations-panel {
   margin-top: 12px;
   padding: 12px;
-  background: #fef2f2;
-  border: 1px solid #fca5a5;
+  background: var(--kb-danger-subtle);
+  border: 1px solid var(--kb-danger-tint);
   border-radius: var(--kb-radius-xs);
 }
 
@@ -1199,7 +1198,7 @@ onMounted(() => {
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: #dc2626;
+  color: var(--kb-danger-hover);
   margin: 0 0 8px;
 }
 
@@ -1221,7 +1220,7 @@ onMounted(() => {
 .violation-rule {
   display: inline-block;
   padding: 1px 6px;
-  background: #dc2626;
+  background: var(--kb-danger-hover);
   color: white;
   font-size: 11px;
   font-weight: 600;

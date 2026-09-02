@@ -1,5 +1,6 @@
 <template>
-  <div class="dw-root">
+  <MiniAppShell title="绘图" back-label="返回" @back="goBack">
+    <div class="dw-root">
     <!-- ============ 侧边：流程图列表 ============ -->
     <aside class="dw-side">
       <div class="dw-side-head">
@@ -112,6 +113,7 @@
       </div>
     </main>
   </div>
+</MiniAppShell>
 </template>
 
 <script setup lang="ts">
@@ -134,6 +136,14 @@ import {
   type DrawingData,
   type DrawingSummary,
 } from '@/api/drawing'
+import { useRouter } from 'vue-router'
+import MiniAppShell from '@/components/layout/MiniAppShell.vue'
+
+const router = useRouter()
+function goBack() {
+  if (window.history.length > 1) router.back()
+  else router.push('/learning/center')
+}
 
 const { fitView } = useVueFlow()
 
@@ -358,7 +368,7 @@ onMounted(loadList)
   padding: 9px 12px;
   border-radius: 10px;
   border: none;
-  background: var(--kb-primary, #3b6fe0);
+  background: var(--kb-primary, var(--kb-primary));
   color: #fff;
   font-weight: 600;
   cursor: pointer;
@@ -401,11 +411,11 @@ onMounted(loadList)
   background: #f1f4f9;
 }
 .dw-list-item.active {
-  border-color: var(--kb-primary, #3b6fe0);
+  border-color: var(--kb-primary, var(--kb-primary));
   background: #eef3fe;
 }
 .dw-list-ico {
-  color: var(--kb-primary, #3b6fe0);
+  color: var(--kb-primary, var(--kb-primary));
   flex: 0 0 auto;
 }
 .dw-list-name {
@@ -432,8 +442,8 @@ onMounted(loadList)
   display: inline-flex;
 }
 .dw-list-del:hover {
-  color: #ef4444;
-  background: #fee2e2;
+  color: var(--kb-danger);
+  background: var(--kb-danger-soft-strong);
 }
 
 .dw-main {
@@ -486,13 +496,13 @@ onMounted(loadList)
 }
 .dw-tool-btn:hover {
   background: #f1f4f9;
-  color: var(--kb-primary, #3b6fe0);
+  color: var(--kb-primary, var(--kb-primary));
   border-color: #d6deeb;
 }
 .dw-tool-btn.dw-save {
   color: #fff;
-  background: var(--kb-primary, #3b6fe0);
-  border-color: var(--kb-primary, #3b6fe0);
+  background: var(--kb-primary, var(--kb-primary));
+  border-color: var(--kb-primary, var(--kb-primary));
 }
 .dw-tool-btn.dw-save:hover {
   background: #2f5bc4;
@@ -536,7 +546,7 @@ onMounted(loadList)
   padding: 8px 12px;
   box-sizing: border-box;
   background: #fff;
-  border: 2px solid var(--kb-primary, #3b6fe0);
+  border: 2px solid var(--kb-primary, var(--kb-primary));
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(16, 24, 40, 0.08);
   position: relative;
@@ -576,8 +586,8 @@ onMounted(loadList)
   align-items: center;
   justify-content: center;
   border: none;
-  background: #fee2e2;
-  color: #ef4444;
+  background: var(--kb-danger-soft-strong);
+  color: var(--kb-danger);
   border-radius: 50%;
   cursor: pointer;
 }
@@ -596,13 +606,13 @@ onMounted(loadList)
   background: #fbfcfe;
 }
 .dw-dirty {
-  color: #f59e0b;
+  color: var(--kb-warning);
 }
 .dw-saved {
-  color: #10b981;
+  color: var(--kb-success);
 }
 .dw-sav-dot {
-  color: #3b6fe0;
+  color: var(--kb-primary);
 }
 .dw-tip {
   margin-left: auto;

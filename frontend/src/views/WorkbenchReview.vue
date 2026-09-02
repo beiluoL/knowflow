@@ -91,8 +91,8 @@
                   :width="p.barW" :height="p.barH" rx="2" fill="var(--mc)" fill-opacity="0.28" />
 
             <polyline :points="chartPoints.map((p) => `${p.x},${p.lineY}`).join(' ')"
-                      fill="none" stroke="#EF4444" stroke-width="2.5" stroke-linejoin="round" />
-            <circle v-for="(p, i) in chartPoints" :key="'c' + i" :cx="p.x" :cy="p.lineY" r="3" fill="#EF4444" />
+                      fill="none" stroke="var(--kb-danger)" stroke-width="2.5" stroke-linejoin="round" />
+            <circle v-for="(p, i) in chartPoints" :key="'c' + i" :cx="p.x" :cy="p.lineY" r="3" fill="var(--kb-danger)" />
 
             <text v-for="(p, i) in chartPoints" :key="'x' + i" v-show="i % xLabelStep === 0" :x="p.x" :y="svgH - 8"
                   text-anchor="middle" font-size="10" font-family="var(--font-mono)" fill="var(--kb-muted-foreground)">{{ p.dateLabel }}</text>
@@ -272,7 +272,7 @@ import {
 import type { WbReviewCardVO, WbReviewGradeResult, WbForgettingCurve } from '@/api/types'
 
 const route = useRoute()
-const themeColor = '#F59E0B'
+const themeColor = 'var(--kb-warning)'
 
 const cards = ref<WbReviewCardVO[]>([])
 const queue = ref<WbReviewCardVO[]>([])
@@ -431,7 +431,7 @@ async function saveCard() {
 }
 
 function qStyle(q: number) {
-  const colors = ['#EF4444', '#F59E0B', '#3B6FE0', '#10B981']
+  const colors = ['var(--kb-danger)', 'var(--kb-warning)', 'var(--kb-primary)', 'var(--kb-success)']
   return { background: `color-mix(in srgb, ${colors[q]} 12%, transparent)`, color: colors[q], border: `1px solid color-mix(in srgb, ${colors[q]} 35%, transparent)` }
 }
 
@@ -515,7 +515,7 @@ onMounted(() => {
 }
 .wb-legend-line {
   width: 14px; height: 2px;
-  background: #EF4444;
+  background: var(--kb-danger);
 }
 .wb-curve-svg {
   width: 100%;
@@ -570,8 +570,8 @@ onMounted(() => {
 }
 .wb-quiz-face:hover { border-color: var(--mc); }
 .wb-quiz-face.is-revealed {
-  background: linear-gradient(135deg, color-mix(in srgb, #10B981 6%, var(--kb-background)), var(--kb-background));
-  border-color: #10B981;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--kb-success) 6%, var(--kb-background)), var(--kb-background));
+  border-color: var(--kb-success);
   border-style: solid;
 }
 .wb-quiz-front, .wb-quiz-back {
@@ -592,8 +592,8 @@ onMounted(() => {
   letter-spacing: 0.05em;
 }
 .wb-quiz-label-back {
-  background: color-mix(in srgb, #10B981 14%, transparent);
-  color: #10B981;
+  background: color-mix(in srgb, var(--kb-success) 14%, transparent);
+  color: var(--kb-success);
 }
 .wb-quiz-text {
   font-family: var(--font-serif);
@@ -652,8 +652,8 @@ onMounted(() => {
   margin-top: 14px;
   padding: 6px 12px;
   border-radius: 999px;
-  background: color-mix(in srgb, #10B981 10%, transparent);
-  color: #10B981;
+  background: color-mix(in srgb, var(--kb-success) 10%, transparent);
+  color: var(--kb-success);
   font-size: 12px;
   font-weight: 600;
 }

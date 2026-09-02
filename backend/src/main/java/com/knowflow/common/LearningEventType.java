@@ -19,29 +19,35 @@ public enum LearningEventType {
     /** 章节完成（completeChapter 插入 LearningUserChapter） */
     CHAPTER_COMPLETE,
 
-    /** 题目作答（每次提交 QuizAnswerRecord） */
+    /** 题目作答（每次提交 QuizAnswerRecord；结果通过 metadata.correct/score 表达，Phase 1 起为答题唯一核心事件） */
     QUESTION_ANSWERED,
 
-    /** 题目答对 */
+    /** 题目答对（历史结果事件，Phase 1 起合并进 QUESTION_ANSWERED 的 metadata，不再单独落库） */
     QUESTION_CORRECT,
 
-    /** 题目答错 */
+    /** 题目答错（历史结果事件，Phase 1 起合并进 QUESTION_ANSWERED 的 metadata，不再单独落库） */
     QUESTION_WRONG,
 
     /** 错题归集（learning_mistake 写入：题目错题 / 代码错题自动归集） */
     MISTAKE,
 
-    /** 代码提交（CodeSubmitRecord 写入） */
+    /** 错题复习完成（markMastered 标记已掌握，作为一次真实复习行为的完成信号） */
+    MISTAKE_REVIEW,
+
+    /** 代码提交（CodeSubmitRecord 写入；result 通过 metadata.passed/total/passCount 表达） */
     CODE_SUBMITTED,
 
-    /** 代码全部测试用例通过 */
+    /** 代码全部测试用例通过（历史结果事件，Phase 1 起合并进 CODE_SUBMITTED 的 metadata，不再单独落库） */
     CODE_PASSED,
 
-    /** 代码未全部通过 */
+    /** 代码未全部通过（历史结果事件，Phase 1 起合并进 CODE_SUBMITTED 的 metadata，不再单独落库） */
     CODE_FAILED,
 
     /** 闪卡 / 复习卡复习（SM-2 gradeReview 写 WbReviewLog） */
     FLASHCARD_REVIEWED,
+
+    /** 学习任务完成（LearningTask.status 置为已完成时记录） */
+    LEARNING_TASK_COMPLETE,
 
     /** 主动回忆会话完成（三轮闭卷默写 submitRecallRound 状态 COMPLETED） */
     RECALL_COMPLETED,

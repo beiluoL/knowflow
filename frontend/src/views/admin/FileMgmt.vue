@@ -15,7 +15,7 @@
     <!-- 存储统计卡片 -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon" style="background: rgba(59,111,224,0.1); color: #3B6FE0;">
+        <div class="stat-icon" style="background: rgba(59,111,224,0.1); color: var(--kb-primary);">
           <Icon name="file" :size="20" />
         </div>
         <div class="stat-info">
@@ -24,7 +24,7 @@
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10B981;">
+        <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: var(--kb-success);">
           <Icon name="hard-drive" :size="20" />
         </div>
         <div class="stat-info">
@@ -33,7 +33,7 @@
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: #F59E0B;">
+        <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: var(--kb-warning);">
           <Icon name="image" :size="20" />
         </div>
         <div class="stat-info">
@@ -345,7 +345,7 @@ function onDirectoryPicked(e: Event) {
 // ===== 文件操作 =====
 async function deleteFile(file: UploadFileVO) {
   try {
-    const ok = await confirmDialog(`确定删除文件「${file.fileName}」吗？此操作不可恢复。`, '删除确认')
+    const ok = await confirmDialog(`确定删除文件「${file.fileName}」吗？此操作不可恢复。`)
     if (!ok) return
     await fileApi.remove(file.fileUrl)
     notify('删除成功', 'success')
@@ -524,14 +524,14 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #10B981;
+  color: var(--kb-success);
   font-size: 13px;
 }
 .status-warn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #F59E0B;
+  color: var(--kb-warning);
   font-size: 13px;
 }
 .config-edit {

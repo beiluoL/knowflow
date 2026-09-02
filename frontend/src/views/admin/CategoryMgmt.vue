@@ -48,7 +48,7 @@
       </div>
 
       <!-- 树行 -->
-      <div v-if="flatTreeNodes.length" class="divide-y divide-[#E2E6EC]/50">
+      <div v-if="flatTreeNodes.length" class="divide-y divide-[var(--kb-border)]/50">
         <div
           v-for="node in flatTreeNodes"
           :key="node.cat.id"
@@ -67,17 +67,17 @@
           <!-- before 指示线 -->
           <div
             v-if="dropTargetId === node.cat.id && dropPosition === 'before'"
-            class="absolute top-[-2px] left-6 right-6 h-[3px] bg-[#3B6FE0] rounded-full z-10"
+            class="absolute top-[-2px] left-6 right-6 h-[3px] bg-[var(--kb-primary)] rounded-full z-10"
           />
           <!-- after 指示线 -->
           <div
             v-if="dropTargetId === node.cat.id && dropPosition === 'after'"
-            class="absolute bottom-[-2px] left-6 right-6 h-[3px] bg-[#3B6FE0] rounded-full z-10"
+            class="absolute bottom-[-2px] left-6 right-6 h-[3px] bg-[var(--kb-primary)] rounded-full z-10"
           />
           <!-- inside 高亮 -->
           <div
             v-if="dropTargetId === node.cat.id && dropPosition === 'inside'"
-            class="absolute inset-y-1 inset-x-3 bg-[#3B6FE0]/[0.06] border border-[#3B6FE0]/30 rounded-lg z-0 pointer-events-none"
+            class="absolute inset-y-1 inset-x-3 bg-[var(--kb-primary)]/[0.06] border border-[var(--kb-primary)]/30 rounded-lg z-0 pointer-events-none"
           />
 
           <div class="grid grid-cols-12 gap-4 items-center relative z-[1]">
@@ -106,7 +106,7 @@
               <!-- 拖拽提示 -->
               <span
                 v-if="dropTargetId === node.cat.id && dropPosition === 'inside'"
-                class="text-xs text-[#3B6FE0] font-medium ml-1"
+                class="text-xs text-[var(--kb-primary)] font-medium ml-1"
               >放入</span>
             </div>
             <!-- 层级标签 -->
@@ -420,9 +420,9 @@ const getCatIconName = (raw?: string): string => {
   return name || 'folder'
 }
 const getCatColor = (raw?: string): string => {
-  if (!raw) return '#6B7280'
+  if (!raw) return 'var(--kb-muted-foreground)'
   const { color } = resolveIconForRender(raw)
-  return color || '#6B7280'
+  return color || 'var(--kb-muted-foreground)'
 }
 
 // ========== 层级标签样式 ==========
@@ -453,7 +453,7 @@ const filteredPresetIcons = computed(() =>
 )
 const selectedIconKey = computed(() => parseIconValue(form.icon).key)
 const selectedIconColor = computed(() => parseIconValue(form.icon).color)
-const currentPresetDefaultColor = computed(() => getIconByKey(selectedIconKey.value)?.color || '#6B7280')
+const currentPresetDefaultColor = computed(() => getIconByKey(selectedIconKey.value)?.color || 'var(--kb-muted-foreground)')
 const currentRenderIconName = computed(() => {
   const preset = getIconByKey(selectedIconKey.value)
   return preset?.svg || selectedIconKey.value || 'folder'

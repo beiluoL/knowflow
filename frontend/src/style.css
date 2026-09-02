@@ -68,6 +68,48 @@
   --shadow-dropdown-2: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-dropdown-3: 0 12px 32px rgba(0, 0, 0, 0.12);
 
+  /* ===== Phase UI-1：语义色阶令牌（hover / active / soft-strong / subtle）=====
+   * 背景：tailwind.config.js 原先把 primary/success/warning/danger/highlight
+   * 写成硬编码 hex 色板（如 primary-500: #3B6FE0），导致深色模式下
+   * --kb-primary 变成 #4F86F9 而 primary-500 仍是 #3B6FE0 —— 主色漂移。
+   * 解决：色板每一档改为引用本处令牌，class 名（bg-primary-500 等）保持不变，
+   * 因此无需改动任何页面代码即可让深色模式正确跟随。
+   * 浅色档位数值与原色板逐档一致，保证视觉效果不变。
+   */
+  --kb-primary-hover: #2F59B3;          /* primary-600 */
+  --kb-primary-active: #234386;         /* primary-700 */
+  --kb-primary-soft-strong: #DBE6FC;    /* primary-100 */
+  --kb-primary-subtle: #EFF4FE;         /* primary-50  */
+  --kb-primary-tint: #B7CDF9;           /* primary-200 */
+  --kb-primary-tint-strong: #93B3F5;    /* primary-300 */
+  --kb-primary-muted: #6F9AF2;          /* primary-400 */
+
+  --kb-success-hover: #059669;          /* success-600 */
+  --kb-success-active: #047857;         /* success-700 */
+  --kb-success-soft-strong: #D1FAE5;    /* success-100 */
+  --kb-success-subtle: #ECFDF5;         /* success-50  */
+
+  --kb-warning-hover: #D97706;          /* warning-600 */
+  --kb-warning-active: #B45309;         /* warning-700 */
+  --kb-warning-soft-strong: #FEF3C7;    /* warning-100 */
+  --kb-warning-subtle: #FFFBEB;         /* warning-50  */
+
+  --kb-danger-hover: #DC2626;           /* danger-600 */
+  --kb-danger-active: #B91C1C;          /* danger-700 */
+  --kb-danger-soft-strong: #FEE2E2;     /* danger-100 */
+  --kb-danger-subtle: #FEF2F2;          /* danger-50  */
+  --kb-danger-tint: #FCA5A5;            /* danger-300 */
+  --kb-danger-muted: #F87171;           /* danger-400 */
+
+  --kb-highlight-hover: #E85420;        /* highlight-600 */
+  --kb-highlight-active: #BF4214;       /* highlight-700 */
+  --kb-highlight-soft-strong: #FFE6D5;  /* highlight-100 */
+  --kb-highlight-subtle: #FFF4EE;       /* highlight-50  */
+
+  /* 中性色阶（补充 Tailwind gray 之外的语义命名，供新代码优先使用） */
+  --kb-neutral-soft: var(--kb-muted);
+  --kb-neutral-border-strong: #CBD2DB;
+
   --kb-radius-sm: 6px;
   --kb-radius-md: 10px;
   --kb-radius-lg: 16px;
@@ -257,6 +299,40 @@
   --kb-state-info: #7BA3F5;
 
   --kb-primary-soft: rgba(79, 134, 249, 0.16);
+
+  /* Phase UI-1：深色模式语义色阶（hover 提亮、active 压暗、soft 用深底染色） */
+  --kb-primary-hover: #6B9BFA;
+  --kb-primary-active: #3D6FD6;
+  --kb-primary-soft-strong: #1E3A6B;
+  --kb-primary-subtle: #16233D;
+  --kb-primary-tint: #2A4A85;
+  --kb-primary-tint-strong: #3A5F9E;
+  --kb-primary-muted: #5A87D8;
+
+  --kb-success-hover: #5BE3B0;
+  --kb-success-active: #2BB886;
+  --kb-success-soft-strong: #14402F;
+  --kb-success-subtle: #0F2E22;
+
+  --kb-warning-hover: #FCCB4D;
+  --kb-warning-active: #D9A017;
+  --kb-warning-soft-strong: #43330F;
+  --kb-warning-subtle: #2E2309;
+
+  --kb-danger-hover: #FA8F8C;
+  --kb-danger-active: #D95754;
+  --kb-danger-soft-strong: #4A1F1E;
+  --kb-danger-subtle: #331514;
+  --kb-danger-tint: #7A3A38;
+  --kb-danger-muted: #C25A57;
+
+  --kb-highlight-hover: #FF9E77;
+  --kb-highlight-active: #DB6B3E;
+  --kb-highlight-soft-strong: #4A2A18;
+  --kb-highlight-subtle: #331C10;
+
+  --kb-neutral-border-strong: #3A4150;
+
   --shadow-dropdown-2: 0 4px 12px rgba(0, 0, 0, 0.4);
   --shadow-dropdown-3: 0 12px 32px rgba(0, 0, 0, 0.55);
 

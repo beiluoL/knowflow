@@ -369,3 +369,12 @@ INSERT INTO task (user_id, list_id, parent_id, title, notes, status, scheduled_d
 -- 本周五：一对一沟通（定时）
 (2, NULL, 0, '一对一沟通', NULL, 0, DATEADD(DAY, 4, CURRENT_DATE), NULL, 0, 0, 0, 0, 0,
   DATEADD(HOUR, 16, DATEADD(DAY, 4, CAST(CURRENT_DATE AS TIMESTAMP))), DATEADD(HOUR, 17, DATEADD(DAY, 4, CAST(CURRENT_DATE AS TIMESTAMP))), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
+
+-- Architecture-2：应用商店种子（只为真实存在的 App 建商品，§143-144；默认 4 个免费 App 不在此列，§52/§226）
+INSERT INTO product (product_key, name, description, type, app_key, price_coin, status, version) VALUES
+('feynman_pro', '费曼 Pro', '用费曼技巧把知识点讲给别人听，检验是否真正理解', 'APP', 'feynman', 200, 'ACTIVE', '1.0.0'),
+('memory_palace_pro', '记忆宫殿 Pro', '用位置记忆法把知识点放进宫殿，强化长期记忆', 'APP', 'memory-palace', 150, 'ACTIVE', '1.0.0'),
+('cornell_pro', '康奈尔 Pro', '康奈尔笔记法：输入 → 线索 → 总结，高效整理知识', 'APP', 'cornell', 150, 'ACTIVE', '1.0.0'),
+('graph_pro', '知识图谱 Pro', '知识关系与掌握度洞察，发现薄弱环节', 'APP', 'knowledge-graph', 120, 'ACTIVE', '1.0.0'),
+('coding_pro', '代码练习 Pro', '真实题目 + 在线编辑运行，提升实战能力', 'APP', 'coding', 180, 'ACTIVE', '1.0.0');
+

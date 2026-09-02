@@ -94,7 +94,7 @@
           <span
             v-if="userAiActive"
             class="ml-auto px-1.5 py-0.5 rounded text-[10px] font-medium"
-            style="background: rgba(16,185,129,0.1); color: var(--kb-accent, #10b981);"
+            style="background: rgba(16,185,129,0.1); color: var(--kb-accent, var(--kb-success));"
           >已配置</span>
           <Icon v-else name="chevron-right" :size="14" class="ml-auto" />
         </button>
@@ -131,6 +131,23 @@
               {{ activeModelLabel }}
             </p>
           </div>
+        </div>
+        <!-- Architecture-7：模式切换（普通助手 / 学习教练，同一套 AI Chat，§297） -->
+        <div class="flex items-center gap-1 p-1 rounded-lg" style="background: var(--kb-muted);">
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+            :style="mode === 'GENERAL' ? 'background: var(--kb-card); color: var(--kb-foreground); box-shadow: 0 1px 2px rgba(0,0,0,0.06);' : 'color: var(--kb-muted-foreground);'"
+            @click="setMode('GENERAL')"
+          >普通助手</button>
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1"
+            :style="mode === 'LEARNING_COACH' ? 'background: var(--kb-card); color: var(--kb-primary); box-shadow: 0 1px 2px rgba(0,0,0,0.06);' : 'color: var(--kb-muted-foreground);'"
+            @click="setMode('LEARNING_COACH')"
+          >
+            <Icon name="graduation-cap" :size="13" /> 学习教练
+          </button>
         </div>
         <div class="flex items-center gap-2">
           <Button variant="text" size="sm" icon-name="share-2" @click="showShareModal = true">
@@ -231,6 +248,36 @@
                     </Badge>
                   </div>
                 </div>
+
+                <!-- Phase UI-6：AI 回答后的学习动作条。
+                     全部指向项目真实入口（学习中心/智能测验/复习计划/掌握度），
+                     不含任何未经后端支撑的伪造能力（生成闪卡/题目需文档上下文，未接入前不显示）。 -->
+                <div
+                  v-if="isMessageComplete(index)"
+                  class="mt-3 pt-3 border-t flex flex-wrap items-center gap-2"
+                  style="border-color: var(--kb-border);"
+                >
+                  <span class="text-xs mr-1" style="color: var(--kb-muted-foreground);">接下来：</span>
+                  <router-link to="/learning/center" class="chat-learn-action" aria-label="继续学习">
+                    <Icon name="play" :size="13" /> 继续学习
+                  </router-link>
+                  <router-link to="/learning/quiz" class="chat-learn-action" aria-label="智能测验">
+                    <Icon name="icon-kaoshi" :size="13" /> 智能测验
+                  </router-link>
+                  <router-link to="/learning/review" class="chat-learn-action" aria-label="复习计划">
+                    <Icon name="rotate-ccw" :size="13" /> 复习计划
+                  </router-link>
+                  <router-link to="/learning/mastery" class="chat-learn-action" aria-label="掌握度">
+                    <Icon name="bar-chart" :size="13" /> 掌握度
+                  </router-link>
+                </div>
+                <!-- Architecture-7：教练结构化建议卡片（仅当 AI 返回合法建议且通过本地校验时展示，§125/§416） -->
+                <CoachSuggestionCard
+                  v-if="message.coachSuggestion && message.coachSuggestion.validation && message.coachSuggestion.validation.valid"
+                  :validation="message.coachSuggestion.validation"
+                  :knowledge-id="message.coachSuggestion.suggestion?.knowledgeId"
+                  class="mt-3"
+                />
               </div>
             </div>
           </div>
@@ -268,6 +315,33 @@
       </div>
 
       <div class="shrink-0 border-t px-5 py-4" style="background: var(--kb-card); border-color: var(--kb-border);">
+        <!-- Architecture-7：学习教练模式下的真实学习状态面板（数据来自本地，不依赖 AI，§367） -->
+        <div
+          v-if="mode === 'LEARNING_COACH'"
+          class="mb-3 rounded-lg border px-3 py-2.5 flex items-start gap-2"
+          style="border-color: var(--kb-border); background: rgba(59,111,224,0.04);"
+        >
+          <Icon name="graduation-cap" :size="16" class="mt-0.5" style="color: var(--kb-primary);" />
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 text-[13px] font-medium" style="color: var(--kb-foreground);">
+              学习教练已开启
+              <span v-if="coachSummary" class="text-[11px] font-normal" style="color: var(--kb-muted-foreground);">
+                待复习 {{ coachSummary.reviewCount }} · 薄弱 {{ coachSummary.weakCount }} · 任务 {{ coachSummary.taskCount }}{{ coachSummary.hasPath ? ' · 有进行中路径' : '' }}
+              </span>
+              <span v-else-if="coachLoading" class="text-[11px] font-normal" style="color: var(--kb-muted-foreground);">加载中…</span>
+            </div>
+            <p class="text-[12px] mt-0.5" style="color: var(--kb-muted-foreground);">基于你的真实学习数据给出建议，不会修改任何学习记录。</p>
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              <button
+                v-for="q in coachQuickQuestions" :key="q"
+                type="button"
+                class="px-2.5 py-1 rounded-full text-[12px] border transition-colors hover:bg-[rgba(59,111,224,0.06)]"
+                style="border-color: var(--kb-border); color: var(--kb-foreground);"
+                @click="useSuggestion(q)"
+              >{{ q }}</button>
+            </div>
+          </div>
+        </div>
         <div class="flex items-end gap-3">
           <!-- 左侧工具栏：附件 + 图片 -->
           <div class="flex items-center gap-1 pb-1">
@@ -528,7 +602,7 @@
               <Icon
                 :name="userAiActive ? 'check-circle' : 'info'"
                 :size="16"
-                :style="{ color: userAiActive ? '#10b981' : 'var(--kb-primary)' }"
+                :style="{ color: userAiActive ? 'var(--kb-success)' : 'var(--kb-primary)' }"
               />
             </div>
             <div class="flex-1 min-w-0">
@@ -746,6 +820,17 @@ import Badge from '@/components/ui/Badge.vue'
 import { chatApi, aiConfigApi } from '@/api'
 import { streamChat } from '@/api/chat'
 import type { MessageVO } from '@/api/types'
+// Architecture-7：学习教练（复用 Architecture-6 的 NextAction / Diagnosis，不重写 §46-48）
+import { learningApi } from '@/api/learning'
+import { useRoute } from 'vue-router'
+import { APP_DEFINITIONS } from '@/apps/registry'
+import { resolveNextAction, isPathInProgress } from '@/learning/action-priority'
+import { diagnoseLearningState } from '@/learning/intelligence/diagnosis'
+import { buildLearningCoachContext } from '@/learning/coach/context'
+import { renderCoachContext } from '@/learning/coach/prompt'
+import { parseCoachResponse } from '@/learning/coach/response'
+import CoachSuggestionCard from '@/components/ai/CoachSuggestionCard.vue'
+import type { LearningCoachContext, CoachResponse, CoachMode } from '@/learning/coach'
 
 interface Chat {
   id: number
@@ -762,6 +847,8 @@ interface Message {
   createdAt: string
   sources?: { id: number; title: string }[]
   images?: string[]
+  /** Architecture-7：学习教练结构化建议解析结果（仅当 AI 返回合法建议时存在，§116/§194）。 */
+  coachSuggestion?: CoachResponse | null
 }
 
 interface Model {
@@ -782,6 +869,68 @@ const suggestionList = ['帮我写一篇 Java 学习笔记', '解释一下 Sprin
 function useSuggestion(text: string) {
   inputMessage.value = text
   adjustTextareaHeight()
+}
+
+// ===== Architecture-7：学习教练模式（复用现有 AI Chat，不新建第二套，§297） =====
+const mode = ref<CoachMode>('GENERAL')
+const coachLoading = ref(false)
+/** 已组装的最小化、隐私过滤后的学习上下文文本（送入后端作为「数据」，§15-23） */
+const coachContextText = ref<string>('')
+/** 来自本地真实数据的摘要，供输入框面板直接展示（不依赖 AI，§367） */
+const coachSummary = ref<LearningCoachContext['summary'] | null>(null)
+const coachQuickQuestions = [
+  '我最近哪里最薄弱？',
+  '今天先学什么？',
+  '为什么推荐这个？',
+  '怎么巩固这个知识点？',
+]
+const route = useRoute()
+
+/** 切换对话模式；进入学习教练时拉取真实学习数据组装上下文（§473-476）。 */
+function setMode(m: CoachMode) {
+  if (mode.value === m) return
+  mode.value = m
+  onCoachEnter()
+}
+
+/** 进入学习教练模式：并行拉取真实学习数据 → 诊断 + 下一步 → 组装 Coach Context。 */
+async function onCoachEnter() {
+  if (mode.value !== 'LEARNING_COACH') {
+    coachContextText.value = ''
+    coachSummary.value = null
+    return
+  }
+  coachLoading.value = true
+  try {
+    const [reviewRequired, weakPoints, tasks, paths] = await Promise.all([
+      learningApi.knowledgeMasteryReviewRequired(),
+      learningApi.knowledgeMasteryWeak(),
+      learningApi.tasks(),
+      learningApi.paths(),
+    ])
+    const currentPath = paths.find((p) => isPathInProgress(p)) ?? null
+    const diagnoses = diagnoseLearningState({ reviewRequired, weakPoints, tasks, currentPath })
+    const nextAction = resolveNextAction({ reviewRequired, weakPoints, tasks, currentPath, installedApps: APP_DEFINITIONS })
+    const ctx = buildLearningCoachContext({ reviewRequired, weakPoints, tasks, currentPath, nextAction, diagnoses })
+    coachContextText.value = renderCoachContext(ctx)
+    coachSummary.value = ctx.summary
+  } catch {
+    coachContextText.value = ''
+    coachSummary.value = null
+    notify('学习状态加载失败，将以通用方式回答', 'info')
+  } finally {
+    coachLoading.value = false
+  }
+}
+
+/** 解析 AI 回复，提取经校验的结构化建议（校验失败则仅返回文本，§194-196）。 */
+function attachCoachSuggestion(message: Message, full: string) {
+  if (mode.value !== 'LEARNING_COACH') return
+  try {
+    message.coachSuggestion = parseCoachResponse(full)
+  } catch {
+    message.coachSuggestion = null
+  }
 }
 const messagesContainer = ref<HTMLElement | null>(null)
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
@@ -958,7 +1107,8 @@ async function handleDeleteAiConfig() {
   const confirmed = await confirmDialog('确定删除自定义配置？将回退到平台模型。')
   if (!confirmed) return
   try {
-    await aiConfigApi.deleteConfig()
+    // 删除全部自定义配置（回退平台模型；DELETE /ai-config/{id} 需指定 id，此处语义为清空用户配置）
+    await aiConfigApi.deleteAll()
     userAiActive.value = false
     aiExistingKey.value = ''
     aiForm.value.apiKey = ''
@@ -1298,6 +1448,8 @@ const sendMessage = async () => {
         content: sendContent,
         model: selectedModel.value,
         images,
+        mode: mode.value,
+        coachContext: mode.value === 'LEARNING_COACH' ? coachContextText.value : undefined,
       })
       const assistantMessage: Message = {
         id: resp.id,
@@ -1307,6 +1459,7 @@ const sendMessage = async () => {
         sources: parseDocReferences(resp.docReferences),
       }
       chatMessages.value[chatId].push(assistantMessage)
+      attachCoachSuggestion(assistantMessage, assistantMessage.content)
       const messageIndex = displayedMessages.value.length
       displayedMessages.value.push('')
       typeText(assistantMessage.content, messageIndex)
@@ -1351,6 +1504,8 @@ const sendMessage = async () => {
         conversationId: chatId,
         content,
         model: selectedModel.value,
+        mode: mode.value,
+        coachContext: mode.value === 'LEARNING_COACH' ? coachContextText.value : undefined,
       },
       {
         onToken: (delta) => {
@@ -1371,6 +1526,7 @@ const sendMessage = async () => {
             chat.lastMessage = preview + (full.length > 30 ? '…' : '')
             chat.updateTime = new Date().toISOString()
           }
+          attachCoachSuggestion(assistantMessage, full || displayedMessages.value[messageIndex])
         },
         onError: (err) => {
           // 已生成内容为空时显示错误占位；有内容时保留为截断消息
@@ -1626,6 +1782,10 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+  // Architecture-7：从首页等入口带 coach=1 进入学习教练模式（§79-82）
+  if (route.query.coach === '1') {
+    await setMode('LEARNING_COACH')
+  }
 })
 
 onUnmounted(() => {
@@ -1722,6 +1882,30 @@ onUnmounted(() => {
   border: none;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
+}
+/* Phase UI-6：AI 回答后的学习动作条 */
+.chat-learn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-muted-foreground);
+  font-size: var(--kb-fs-caption);
+  font-weight: 500;
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.chat-learn-action:hover {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+  background: var(--kb-primary-soft);
+}
+.chat-learn-action:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--kb-ring);
 }
 .msg-action-btn:hover {
   background: var(--kb-muted);

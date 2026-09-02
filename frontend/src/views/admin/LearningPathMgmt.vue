@@ -48,7 +48,7 @@
       <div class="rounded-xl border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(245,158,11,0.08);">
-            <Icon name="edit" :size="20" style="color: #f59e0b;" />
+            <Icon name="edit" :size="20" style="color: var(--kb-warning);" />
           </div>
           <span class="text-sm" style="color: var(--kb-muted-foreground);">草稿</span>
         </div>
@@ -206,7 +206,7 @@
                 v-else
                 type="button"
                 class="p-1.5 rounded transition-colors hover:bg-[var(--kb-warning)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="color: #f59e0b;"
+                style="color: var(--kb-warning);"
                 title="下架"
                 @click="unpublishPath(path)"
               >

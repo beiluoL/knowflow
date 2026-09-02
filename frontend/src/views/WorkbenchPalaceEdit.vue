@@ -181,7 +181,7 @@ import Icon from '@/components/ui/Icon.vue'
 import { notify, getApiError } from '@/utils/toast'
 import { dialog } from '@/utils/dialog'
 import { getPalace, listLoci, createLoci, updateLoci, deleteLoci, getCategoryTree } from '@/api/workbench'
-import type { WbPalace, WbPalaceLoci, WbPalaceLociPayload, CategoryVO } from '@/api/types'
+import type { WbPalace, WbPalaceLoci, WbPalaceLociPayload, CategoryTreeNodeVO } from '@/api/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -191,13 +191,13 @@ const loci = ref<WbPalaceLoci[]>([])
 const selectedId = ref<number | null>(null)
 const selected = ref<WbPalaceLoci | null>(null)
 const canvasRef = ref<HTMLElement | null>(null)
-const categories = ref<CategoryVO[]>([])
-const flatCategories = ref<CategoryVO[]>([])
+const categories = ref<CategoryTreeNodeVO[]>([])
+const flatCategories = ref<CategoryTreeNodeVO[]>([])
 const categoryMap = ref<Map<number, string>>(new Map())
 
 // 递归展平分类树，保留层级缩进所需的 depth
-function flatten(nodes: CategoryVO[], depth = 0): CategoryVO[] {
-  const out: CategoryVO[] = []
+function flatten(nodes: CategoryTreeNodeVO[], depth = 0): CategoryTreeNodeVO[] {
+  const out: CategoryTreeNodeVO[] = []
   for (const n of nodes) {
     out.push({ ...n, depth })
     if (n.children && n.children.length) out.push(...flatten(n.children, depth + 1))
@@ -229,7 +229,7 @@ async function load() {
     palace.value = await getPalace(palaceId)
     loci.value = await listLoci(palaceId)
   } catch (e) {
-    notify({ type: 'error', message: getApiError(e, '加载失败') })
+    notify(getApiError(e, '加载失败'), 'error')
   }
 }
 async function loadCategories() {
@@ -293,7 +293,7 @@ async function endDrag() {
           sortOrder: target.sortOrder,
         })
       } catch (e) {
-        notify({ type: 'error', message: getApiError(e, '位置保存失败') })
+        notify(getApiError(e, '位置保存失败'), 'error')
       }
     }
   }
@@ -316,24 +316,9 @@ function openCreateLoci() {
   })
   showLociForm.value = true
 }
-function editLoci(l: WbPalaceLoci) {
-  editingLociId.value = l.id
-  Object.assign(lociForm, {
-    palaceId: l.palaceId,
-    name: l.name,
-    knowledgePoint: l.knowledgePoint || '',
-    imageHint: l.imageHint || '',
-    icon: l.icon || 'map-pin',
-    categoryId: l.categoryId,
-    posX: l.posX,
-    posY: l.posY,
-    sortOrder: l.sortOrder,
-  })
-  showLociForm.value = true
-}
 async function saveLoci() {
   if (!lociForm.name.trim()) {
-    notify({ type: 'warning', message: '位点名称不能为空' })
+    notify('位点名称不能为空', 'warning')
     return
   }
   try {
@@ -342,22 +327,22 @@ async function saveLoci() {
     } else {
       await createLoci({ ...lociForm })
     }
-    notify({ type: 'success', message: '已保存' })
+    notify('已保存', 'success')
     showLociForm.value = false
     await load()
   } catch (e) {
-    notify({ type: 'error', message: getApiError(e, '保存失败') })
+    notify(getApiError(e, '保存失败'), 'error')
   }
 }
 async function removeLoci(l: WbPalaceLoci) {
   if (!(await dialog.confirm({ title: '删除确认', message: '确认删除该位点？', variant: 'danger' }))) return
   try {
     await deleteLoci(l.id)
-    notify({ type: 'success', message: '已删除' })
+    notify('已删除', 'success')
     deselect()
     load()
   } catch (e) {
-    notify({ type: 'error', message: getApiError(e, '删除失败') })
+    notify(getApiError(e, '删除失败'), 'error')
   }
 }
 function themeLabel(t?: string) {

@@ -35,9 +35,10 @@ import type {
   AgentIntentType,
   AgentIntentRequest,
   AgentIntentResult,
+  IntentHistoryItem,
+  ProjectSnapshotItem,
   Ambiguity,
   ClarifyQuestion,
-  AgentEvalResult,
 } from '@/api/types'
 import { renderMarkdown } from '@/utils/markdown'
 import { notify, confirmDialog, promptDialog, getApiError } from '@/utils/toast'
@@ -902,7 +903,8 @@ const reviewMode = ref(false)
 /** 最近一条携带生成产物的消息（审阅模式仅作用于该消息） */
 const lastGeneratedMessage = computed<ChatMessage | null>(() => {
   for (let i = messages.value.length - 1; i >= 0; i--) {
-    if (messages.value[i].files && messages.value[i].files.length) return messages.value[i]
+    const m = messages.value[i]
+    if (m && m.files && m.files.length) return m
   }
   return null
 })
@@ -1050,7 +1052,7 @@ async function runCodeGeneration(text: string, intent?: AgentIntentResult) {
     if (intent?.needsClarify && intent.clarifications?.length) {
       selectedClarifyOptions.value = {}
       clarifyText.value = ''
-      pendingClarify.value = { base: intent, questions: intent.clarifications }
+      pendingClarify.value = { base: intent, questions: intent.clarifications, input: text }
     }
 
     // 步骤二：确定保存目录 —— 有设置的默认目录则直接复用（全自动），否则准备弹框
@@ -1208,7 +1210,7 @@ function collectLastGeneratedFiles(): GeneratedFile[] {
 }
 
 /** 基于后端结构化意图结果构建「理解意图」步骤细节 */
-function buildIntentDetailFromResult(text: string, intent: AgentIntentResult): string {
+function buildIntentDetailFromResult(_text: string, intent: AgentIntentResult): string {
   const labelMap: Record<AgentIntentType, string> = {
     generate: '生成并保存代码文件',
     modify: '在已有产物基础上修改',
@@ -1533,7 +1535,7 @@ function flattenFileTree(nodes: FileNode[]): FileNode[] {
  * 显式澄清（P2）：需要用户确认意图/参数时，冻结输入、展示结构化澄清卡片，
  * 用户作答后以带意图的 user 消息重进识别流程。
  */
-const pendingClarify = ref<{ base: AgentIntentResult; questions: ClarifyQuestion[] } | null>(null)
+const pendingClarify = ref<{ base: AgentIntentResult; questions: ClarifyQuestion[]; input: string } | null>(null)
 
 /** 最近一次路由的意图结果，供 runChat 生成后做 P3 评估回填 */
 const lastIntent = ref<AgentIntentResult | null>(null)
@@ -1586,7 +1588,7 @@ async function skipClarify() {
   // 用户选择直接执行：沿用已识别意图（可能参数不完整，由后续歧义检测兜底）
   // 同样需要置 needsClarify=false 防止 routeByIntent 重新弹出澄清卡片
   const resolvedIntent = { ...pending.base, needsClarify: false }
-  await routeByIntent(pending.base.currentInput ?? '', resolvedIntent)
+  await routeByIntent(pending.input ?? '', resolvedIntent)
 }
 
 /** 根据意图识别结果把用户输入路由到对应处理链路 */
@@ -1612,7 +1614,7 @@ async function routeByIntent(text: string, intent: AgentIntentResult) {
     setStep('clarify', { status: 'active', detail: intent.clarifications.map((c) => c.question).join('；') })
     selectedClarifyOptions.value = {}
     clarifyText.value = ''
-    pendingClarify.value = { base: intent, questions: intent.clarifications }
+    pendingClarify.value = { base: intent, questions: intent.clarifications, input: text }
     return
   }
   setStep('clarify', { status: 'done', detail: '意图明确，无需澄清' })
@@ -1969,7 +1971,7 @@ function buildPreviewDoc(lang: string, code: string): string {
     return `<!DOCTYPE html><html><head><meta charset="utf-8">
 <style>body{font-family:sans-serif;max-width:760px;margin:0 auto;padding:20px;color:#333;line-height:1.7}
 pre{background:#f5f5f5;padding:12px;border-radius:6px;overflow:auto}code{background:#f5f5f5;padding:2px 6px;border-radius:3px}
-table{border-collapse:collapse}th,td{border:1px solid #ddd;padding:6px 12px}blockquote{border-left:4px solid #3B6FE0;margin:0;padding-left:16px;color:#666}</style>
+table{border-collapse:collapse}th,td{border:1px solid #ddd;padding:6px 12px}blockquote{border-left:4px solid var(--kb-primary);margin:0;padding-left:16px;color:#666}</style>
 </head><body>${html}</body></html>`
   }
   if (lang === 'json') {
@@ -1977,7 +1979,7 @@ table{border-collapse:collapse}th,td{border:1px solid #ddd;padding:6px 12px}bloc
     try {
       pretty = JSON.stringify(JSON.parse(code), null, 2)
     } catch {
-      return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:monospace;padding:16px;color:#dc2626}</style></head>
+      return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:monospace;padding:16px;color:var(--kb-danger-hover)}</style></head>
 <body>JSON 解析失败：格式不正确</body></html>`
     }
     return `<!DOCTYPE html><html><head><meta charset="utf-8">
@@ -3348,7 +3350,7 @@ watch(activeTab, (tab) => {
           <div class="chart-card">
             <div class="chart-title">响应时间趋势</div>
             <svg v-if="latencyTrendPath" class="trend-chart" viewBox="0 0 100 40" preserveAspectRatio="none">
-              <path :d="latencyTrendPath" fill="none" stroke="var(--kb-highlight, #FF6B35)" stroke-width="1.5" />
+              <path :d="latencyTrendPath" fill="none" stroke="var(--kb-highlight, var(--kb-highlight))" stroke-width="1.5" />
             </svg>
             <div v-else class="chart-empty">数据不足</div>
           </div>
@@ -3919,7 +3921,7 @@ watch(activeTab, (tab) => {
 }
 
 .tool-card.failed {
-  border-color: var(--kb-danger, #ef4444);
+  border-color: var(--kb-danger, var(--kb-danger));
 }
 
 .tool-card-head {
@@ -3957,7 +3959,7 @@ watch(activeTab, (tab) => {
 }
 
 .tool-card.failed .tool-card-status {
-  color: var(--kb-danger, #ef4444);
+  color: var(--kb-danger, var(--kb-danger));
 }
 
 .tool-card-detail {
@@ -4125,7 +4127,7 @@ watch(activeTab, (tab) => {
   height: 16px;
   padding: 0 4px;
   border-radius: 8px;
-  background: var(--kb-highlight, #FF6B35);
+  background: var(--kb-highlight, var(--kb-highlight));
   color: #fff;
   font-size: 10px;
   font-weight: 600;
@@ -4425,7 +4427,7 @@ watch(activeTab, (tab) => {
   color: var(--kb-accent-foreground);
 }
 .message-content :deep(pre) {
-  background: #1a1d23;
+  background: var(--kb-foreground);
   color: #e6e6e6;
   padding: 12px;
   border-radius: 8px;
@@ -5143,7 +5145,7 @@ watch(activeTab, (tab) => {
   flex-shrink: 0;
 }
 .unsaved-dot {
-  color: var(--kb-highlight, #FF6B35);
+  color: var(--kb-highlight, var(--kb-highlight));
   font-size: 10px;
   margin-left: 2px;
 }
@@ -5155,7 +5157,7 @@ watch(activeTab, (tab) => {
   font-size: 13px;
   line-height: 1.5;
   resize: none;
-  background: #1a1d23;
+  background: var(--kb-foreground);
   color: #e6e6e6;
   outline: none;
   white-space: pre;
@@ -5383,7 +5385,7 @@ watch(activeTab, (tab) => {
   gap: 4px;
 }
 .stat-card.success {
-  border-color: #10b981;
+  border-color: var(--kb-success);
 }
 .stat-card.danger {
   border-color: var(--kb-destructive);
@@ -5392,7 +5394,7 @@ watch(activeTab, (tab) => {
   color: var(--kb-muted-foreground);
   margin-bottom: 4px;
 }
-.stat-card.success .stat-icon { color: #10b981; }
+.stat-card.success .stat-icon { color: var(--kb-success); }
 .stat-card.danger .stat-icon { color: var(--kb-destructive); }
 .stat-value {
   font-size: 28px;
@@ -5472,7 +5474,7 @@ watch(activeTab, (tab) => {
 }
 .bar-fill {
   width: 100%;
-  background: #10b981;
+  background: var(--kb-success);
   border-radius: 2px 2px 0 0;
   min-height: 2px;
   transition: height 0.3s;
@@ -5506,7 +5508,7 @@ watch(activeTab, (tab) => {
 .stats-table td {
   color: var(--kb-foreground);
 }
-.text-success { color: #10b981; }
+.text-success { color: var(--kb-success); }
 .text-danger { color: var(--kb-destructive); }
 
 /* ===== 模型管理 ===== */
@@ -5880,7 +5882,7 @@ watch(activeTab, (tab) => {
 }
 .health-result.ok {
   background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
+  color: var(--kb-success);
 }
 .health-result.fail {
   background: rgba(239, 68, 68, 0.1);
@@ -6270,7 +6272,7 @@ watch(activeTab, (tab) => {
   max-width: 820px;
   width: calc(100% - 32px);
   background: var(--kb-card);
-  border: 1px solid var(--kb-warning, #f59e0b);
+  border: 1px solid var(--kb-warning, var(--kb-warning));
   border-radius: 12px;
   padding: 14px 16px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
@@ -6280,7 +6282,7 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 6px;
   font-weight: 600;
-  color: var(--kb-warning, #f59e0b);
+  color: var(--kb-warning, var(--kb-warning));
   margin-bottom: 10px;
 }
 .clarify-question {
@@ -6344,9 +6346,9 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: var(--kb-warning, #f59e0b);
-  background: color-mix(in srgb, var(--kb-warning, #f59e0b) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--kb-warning, #f59e0b) 40%, transparent);
+  color: var(--kb-warning, var(--kb-warning));
+  background: color-mix(in srgb, var(--kb-warning, var(--kb-warning)) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kb-warning, var(--kb-warning)) 40%, transparent);
   border-radius: 999px;
   padding: 2px 10px;
 }
@@ -6367,16 +6369,16 @@ watch(activeTab, (tab) => {
   margin-top: 6px;
 }
 .eval-badge.high {
-  color: var(--kb-accent, #10b981);
-  background: color-mix(in srgb, var(--kb-accent, #10b981) 12%, transparent);
+  color: var(--kb-accent, var(--kb-success));
+  background: color-mix(in srgb, var(--kb-accent, var(--kb-success)) 12%, transparent);
 }
 .eval-badge.mid {
-  color: var(--kb-warning, #f59e0b);
-  background: color-mix(in srgb, var(--kb-warning, #f59e0b) 12%, transparent);
+  color: var(--kb-warning, var(--kb-warning));
+  background: color-mix(in srgb, var(--kb-warning, var(--kb-warning)) 12%, transparent);
 }
 .eval-badge.low {
-  color: var(--kb-danger, #ef4444);
-  background: color-mix(in srgb, var(--kb-danger, #ef4444) 12%, transparent);
+  color: var(--kb-danger, var(--kb-danger));
+  background: color-mix(in srgb, var(--kb-danger, var(--kb-danger)) 12%, transparent);
 }
 
 /* =====================================================================

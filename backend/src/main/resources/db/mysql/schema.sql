@@ -190,6 +190,7 @@ CREATE TABLE IF NOT EXISTS learning_flashcard (
     source_type VARCHAR(20) DEFAULT 'MANUAL' COMMENT '来源：MANUAL/AI_DOC/AI_KB/IMPORT',
     review_count INT DEFAULT 0 COMMENT '已复习次数',
     review_interval INT DEFAULT 0 COMMENT '当前复习间隔（天，间隔重复算法）',
+    ease_factor INT DEFAULT 250 COMMENT 'SM-2 难度系数（放大100倍存储，默认250即2.5）',
     next_review_time TIMESTAMP NULL DEFAULT NULL COMMENT '下次应复习时间',
     last_review_time TIMESTAMP NULL DEFAULT NULL COMMENT '上次复习时间',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -378,6 +379,8 @@ CREATE TABLE IF NOT EXISTS learning_mistake (
     correct_answer LONGTEXT,
     category VARCHAR(50),
     difficulty INT DEFAULT 1,
+    question_id BIGINT COMMENT '原测验题ID（逻辑外键 quiz_question.id，可空兼容旧数据）',
+    code_question_id BIGINT COMMENT '原代码题ID（逻辑外键 code_question.id，可空兼容旧数据）',
     review_count INT DEFAULT 0,
     last_review_time TIMESTAMP NULL DEFAULT NULL,
     mastered INT DEFAULT 0,
@@ -386,6 +389,9 @@ CREATE TABLE IF NOT EXISTS learning_mistake (
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE INDEX idx_learning_mistake_user ON learning_mistake (user_id);
+CREATE INDEX idx_learning_mistake_question ON learning_mistake (question_id);
+CREATE INDEX idx_learning_mistake_code ON learning_mistake (code_question_id);
 
 -- 社区帖子表
 CREATE TABLE IF NOT EXISTS community_post (
@@ -1483,6 +1489,110 @@ CREATE TABLE IF NOT EXISTS learning_plan (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
+-- Phase 0 补全：章节学习笔记 / 章节收藏 / 学习宠物 / 学习周报 /
+--               AI 学习建议缓存 / 用户学习偏好（此前仅有实体无建表脚本）
+-- ============================================================
+
+-- 章节学习笔记：关联用户与章节，正文支持 Markdown
+CREATE TABLE IF NOT EXISTS learning_note (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    chapter_id BIGINT COMMENT '关联章节ID（可空，表示通用笔记，逻辑外键 learning_chapter.id）',
+    path_id BIGINT COMMENT '关联学习路径ID（逻辑外键 learning_path.id）',
+    title VARCHAR(200) COMMENT '笔记标题',
+    content LONGTEXT COMMENT '笔记正文（Markdown）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+    KEY idx_learning_note_user (user_id),
+    KEY idx_learning_note_user_chapter (user_id, chapter_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 章节收藏：用户与章节多对多，同一章节仅收藏一次
+CREATE TABLE IF NOT EXISTS chapter_favorite (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    chapter_id BIGINT NOT NULL COMMENT '章节ID（逻辑外键 learning_chapter.id）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+    KEY idx_chapter_favorite_user_chapter (user_id, chapter_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 用户学习宠物：每用户一只，喂食/玩耍/专注积累经验升级
+CREATE TABLE IF NOT EXISTS user_pet (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    name VARCHAR(50) DEFAULT '小鹰' COMMENT '宠物名称',
+    level INT DEFAULT 1 COMMENT '等级',
+    mood VARCHAR(20) DEFAULT '开心' COMMENT '心情',
+    energy INT DEFAULT 80 COMMENT '体力值 0-100',
+    exp INT DEFAULT 0 COMMENT '当前经验值',
+    max_exp INT DEFAULT 100 COMMENT '当前等级经验上限',
+    avatar VARCHAR(50) DEFAULT 'owl' COMMENT '宠物头像标识',
+    total_focus_minutes INT DEFAULT 0 COMMENT '累计专注分钟',
+    total_pomodoros INT DEFAULT 0 COMMENT '累计番茄数',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+    KEY idx_user_pet_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 学习周报：按自然周（周一至周日）汇总学习统计，AI 生成摘要/成就/建议
+CREATE TABLE IF NOT EXISTS weekly_report (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    week_start DATE NOT NULL COMMENT '本周一日期',
+    week_end DATE NOT NULL COMMENT '本周日日期',
+    summary TEXT COMMENT 'AI 生成的周报摘要',
+    achievements TEXT COMMENT 'JSON：本周成就列表',
+    suggestions TEXT COMMENT 'JSON：下周学习建议',
+    study_minutes INT DEFAULT 0 COMMENT '本周学习分钟',
+    checkin_days INT DEFAULT 0 COMMENT '本周签到天数',
+    flashcard_reviewed INT DEFAULT 0 COMMENT '本周闪卡复习数',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+    UNIQUE KEY uk_weekly_report_user_week (user_id, week_start, deleted),
+    KEY idx_weekly_report_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- AI 学习建议缓存：按用户 + 周期维度缓存，避免重复调用大模型
+CREATE TABLE IF NOT EXISTS ai_learning_suggestion (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    suggestions LONGTEXT COMMENT 'JSON 数组字符串：[{title,desc,icon,path}]',
+    period VARCHAR(10) DEFAULT 'week' COMMENT '周期：week/month',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+    KEY idx_ai_learning_suggestion_user_period (user_id, period)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 用户学习偏好：沉浸学习时长/难度/节奏等个性化设置，一个用户仅一条有效配置（Service 层 upsert 保证）
+CREATE TABLE IF NOT EXISTS sys_user_pref (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    focus_minutes INT DEFAULT 25 COMMENT '默认专注时长（分钟）',
+    short_break INT DEFAULT 5 COMMENT '短休时长（分钟）',
+    long_break INT DEFAULT 15 COMMENT '长休时长（分钟）',
+    rounds INT DEFAULT 4 COMMENT '每组工作次数',
+    card_strategy VARCHAR(20) DEFAULT 'RANDOM' COMMENT '闪卡抽取策略：RANDOM/DIFFICULTY/DUE/WEAK',
+    card_count INT DEFAULT 20 COMMENT '每次卡片数量（0 表示全部）',
+    difficulty_filter VARCHAR(10) COMMENT '难度过滤：1/2/3 或空',
+    theme VARCHAR(20) DEFAULT 'day' COMMENT '阅读主题：day/eye/night/parchment',
+    font_size VARCHAR(10) DEFAULT 'md' COMMENT '字体大小：sm/md/lg/xl',
+    sound_enabled INT DEFAULT 1 COMMENT '声音提醒：0 关 / 1 开',
+    notification_enabled INT DEFAULT 1 COMMENT '桌面通知：0 关 / 1 开',
+    reminder_time VARCHAR(5) COMMENT '每日学习提醒时间 HH:mm',
+    white_noise VARCHAR(20) COMMENT '白噪音：rain/cafe/wave 或空',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+    KEY idx_sys_user_pref_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
 -- 学习行为事件层（Learning Event System，Phase 1）
 -- 统一埋点所有学习行为，作为掌握度引擎 / AI 教练 / 学习计划的数据底座。
 -- 仅追加记录，不替换任何原有业务表。
@@ -1560,4 +1670,103 @@ CREATE TABLE IF NOT EXISTS knowledge_mastery (
   KEY idx_km_status (user_id, learning_status),
   KEY idx_km_risk (user_id, forgetting_risk),
   KEY idx_km_next (user_id, next_review_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- ============ Architecture-2：Learning Economy（经济层，6 张表） ============
+CREATE TABLE wallet (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    xp INT DEFAULT 0 COMMENT '经验值',
+    coin INT DEFAULT 0 COMMENT '金币',
+    level INT DEFAULT 1 COMMENT '等级',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0,
+    UNIQUE KEY uk_wallet_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE reward_ledger (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    currency VARCHAR(8) NOT NULL COMMENT '币种：XP / COIN',
+    amount INT NOT NULL,
+    direction VARCHAR(8) NOT NULL COMMENT 'CREDIT / DEBIT',
+    reason VARCHAR(50) NOT NULL,
+    source_type VARCHAR(20) NOT NULL,
+    source_id BIGINT,
+    balance_after INT NOT NULL,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0,
+    UNIQUE KEY uk_ledger_idempotent (user_id, source_type, source_id, currency),
+    KEY idx_ledger_user_time (user_id, create_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE product (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    product_key VARCHAR(50) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(500),
+    type VARCHAR(20) DEFAULT 'APP' COMMENT 'APP / AI_CAPABILITY / CONTENT',
+    app_key VARCHAR(50),
+    price_coin INT DEFAULT 0 COMMENT '价格（Coin）',
+    status VARCHAR(20) DEFAULT 'ACTIVE',
+    version VARCHAR(20) DEFAULT '1.0.0',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0,
+    UNIQUE KEY uk_product_key (product_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE order_ (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_no VARCHAR(40) NOT NULL,
+    user_id BIGINT NOT NULL,
+    total_coin INT NOT NULL,
+    status VARCHAR(20) DEFAULT 'PAID',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0,
+    UNIQUE KEY uk_order_no (order_no)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE order_item (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    product_key VARCHAR(50) NOT NULL,
+    product_name VARCHAR(100) NOT NULL,
+    price_coin INT NOT NULL,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0,
+    KEY idx_order_item_order (order_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE entitlement (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    product_key VARCHAR(50) NOT NULL,
+    status VARCHAR(20) DEFAULT 'ACTIVE',
+    granted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0,
+    UNIQUE KEY uk_entitlement_user_product (user_id, product_id),
+    KEY idx_entitlement_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============ Architecture-3：UserApp 后端化（1 张表） ============
+CREATE TABLE user_app (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    app_key VARCHAR(50) NOT NULL COMMENT 'AppDefinition.key',
+    installed INT DEFAULT 1 COMMENT '是否安装',
+    enabled INT DEFAULT 1 COMMENT '是否启用',
+    sort_order INT DEFAULT 0 COMMENT '排序',
+    last_open_at TIMESTAMP NULL COMMENT '最近打开（未来推荐用）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0,
+    UNIQUE KEY uk_user_app (user_id, app_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

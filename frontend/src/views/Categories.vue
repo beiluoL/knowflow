@@ -172,8 +172,8 @@ const docSearchKeyword = ref('')
 const sortBy = ref<'latest' | 'hot' | 'name'>('latest')
 const selectedCategoryId = ref<number | string>('')
 
-const categoryColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
-const docIconColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
+const categoryColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#8B5CF6']
+const docIconColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#8B5CF6']
 
 const iconOptions = ['code', 'server', 'database', 'brain', 'settings', 'git-branch', 'monitor', 'wifi', 'folder', 'layers', 'book-open', 'cpu', 'palette', 'briefcase', 'shield', 'message-square', 'target', 'bar-chart-2', 'bot', 'lock', 'layout', 'smartphone', 'container', 'binary', 'kanban', 'file-code']
 

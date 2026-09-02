@@ -25,7 +25,7 @@
         {{ t.label }}
       </button>
           <label class="chip check">
-            <input type="checkbox" v-model="onlyEnabled" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors /> 仅看启用
+            <input type="checkbox" v-model="onlyEnabled" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" /> 仅看启用
       </label>
     </div>
 
@@ -93,11 +93,11 @@
         <div class="drawer-body">
           <div class="form-row">
             <label>模板名称 *</label>
-            <input v-model.trim="form.name" placeholder="如：概念辨析闪卡模板" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors />
+            <input v-model.trim="form.name" placeholder="如：概念辨析闪卡模板" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
           </div>
           <div class="form-row">
             <label>模板类型 *</label>
-            <select v-model="form.type" :disabled="editingId && editingIsPreset">
+            <select v-model="form.type" :disabled="Boolean(editingId && editingIsPreset)">
               <option value="FLASHCARD">闪卡（FLASHCARD）</option>
               <option value="QUIZ">题库（QUIZ）</option>
               <option value="PATH">学习路径（PATH）</option>
@@ -105,7 +105,7 @@
           </div>
           <div class="form-row">
             <label>描述</label>
-            <input v-model.trim="form.description" placeholder="简要说明适用题型 / 知识领域" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors />
+            <input v-model.trim="form.description" placeholder="简要说明适用题型 / 知识领域" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
           </div>
 
           <!-- 字段结构 -->
@@ -116,15 +116,15 @@
             </div>
             <div class="field-list">
               <div v-for="(f, i) in form.content.fieldSchema" :key="i" class="field-row">
-                <input v-model.trim="f.key" placeholder="key" class="k" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors />
-                <input v-model.trim="f.label" placeholder="标签" class="l" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors />
-                <select v-model="f.type" class="t" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+                <input v-model.trim="f.key" placeholder="key" class="k focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
+                <input v-model.trim="f.label" placeholder="标签" class="l focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
+                <select v-model="f.type" class="t focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
                   <option value="text">text</option>
                   <option value="markdown">markdown</option>
                   <option value="json">json</option>
                   <option value="number">number</option>
                 </select>
-                <select v-model="f.source" class="s" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+                <select v-model="f.source" class="s focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"">
                   <option value="heading-2">标题(##)</option>
                   <option value="heading-3">标题(###)</option>
                   <option value="heading-2-content">标题正文</option>
@@ -133,7 +133,7 @@
                   <option value="first-sentence">首句</option>
                   <option value="custom">自定义</option>
                 </select>
-                <label class="req"><input type="checkbox" v-model="f.required" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors /> 必填</label>
+                <label class="req"><input type="checkbox" v-model="f.required" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" /> 必填</label>
                 <button class="icon-btn sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="removeField(i)"><Icon name="x" /></button>
               </div>
             </div>
@@ -144,14 +144,14 @@
             <div class="block-head"><span>抽取规则（rules）</span></div>
             <div class="rule-grid">
               <label>标题层级
-                <select v-model.number="form.content.rules.headingLevel" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+                <select v-model.number="form.content.rules.headingLevel" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"">
                   <option :value="1">一级 #</option>
                   <option :value="2">二级 ##</option>
                   <option :value="3">三级 ###</option>
                 </select>
               </label>
               <label>单篇最大数量
-                <input type="number" min="1" max="200" v-model.number="form.content.rules.maxPerDoc" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors />
+                <input type="number" min="1" max="200" v-model.number="form.content.rules.maxPerDoc" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
               </label>
               <label class="span2">题型组合（题库）
                 <div class="checks">
@@ -160,7 +160,7 @@
                       type="checkbox"
                       :value="qt.value"
                       v-model="form.content.rules.questionTypes"
-                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors
+                      class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
                     /> {{ qt.label }}
                   </label>
                 </div>
@@ -176,8 +176,8 @@
             </div>
             <div class="val-list">
               <div v-for="(v, i) in form.content.validation" :key="i" class="val-row">
-                <input v-model.trim="v.field" placeholder="字段" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors />
-                <select v-model="v.rule" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+                <input v-model.trim="v.field" placeholder="字段" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
+                <select v-model="v.rule" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"">
                   <option value="not-empty">非空</option>
                   <option value="max-length">最大长度</option>
                   <option value="min-length">最小长度</option>
@@ -187,8 +187,7 @@
                   type="number"
                   v-model.number="v.value"
                   placeholder="数值"
-                  class="val-num"
-                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors
+                  class="val-num focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
                 />
                 <button class="icon-btn sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="removeValidation(i)"><Icon name="x" /></button>
               </div>
@@ -200,17 +199,17 @@
             <div class="block-head"><span>展示样式（style）</span></div>
             <div class="rule-grid">
               <label>卡片布局
-                <select v-model="form.content.style.cardLayout" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+                <select v-model="form.content.style.cardLayout" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"">
                   <option value="qa">问答</option>
                   <option value="flip">翻转</option>
                   <option value="list">列表</option>
                 </select>
               </label>
               <label class="check-only">
-                <input type="checkbox" v-model="form.content.style.showImage" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors /> 显示图片
+                <input type="checkbox" v-model="form.content.style.showImage" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" /> 显示图片
               </label>
               <label>主题
-                <select v-model="form.content.style.theme" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+                <select v-model="form.content.style.theme" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"">
                   <option value="light">浅色</option>
                   <option value="dark">深色</option>
                 </select>
@@ -223,14 +222,14 @@
             <div class="block-head"><span>数据源绑定（sourceBinding）</span></div>
             <div class="rule-grid">
               <label>绑定模式
-                <select v-model="form.content.sourceBinding.mode" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+                <select v-model="form.content.sourceBinding.mode" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"">
                   <option value="heading">按标题层级</option>
                   <option value="tag">按标签</option>
                   <option value="keyword">按关键词</option>
                 </select>
               </label>
               <label class="span2">匹配模式 / 关键词
-                <input v-model.trim="form.content.sourceBinding.pattern" placeholder="如 ## 或 判断" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors />
+                <input v-model.trim="form.content.sourceBinding.pattern" placeholder="如 ## 或 判断" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
               </label>
             </div>
           </section>
@@ -244,7 +243,7 @@
 
         <footer class="drawer-foot">
           <label class="check-only">
-            <input type="checkbox" v-model="form.enabled" focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors /> 启用
+            <input type="checkbox" v-model="form.enabled" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" /> 启用
           </label>
           <div class="spacer" />
           <button class="btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="closeEditor">取消</button>

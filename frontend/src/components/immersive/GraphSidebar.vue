@@ -206,7 +206,6 @@ import {
   type ConceptDiagramVO,
   type EntityGraphVO,
   type KnowledgeGraphVO,
-  type EntityNodeVO,
 } from '@/api';
 import { notify, getApiError } from '@/utils/toast';
 
@@ -218,13 +217,14 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits<{ (e: 'close'): void }>();
 
-const tabs = [
+type GraphTabId = 'concept' | 'entity' | 'doc';
+const tabs: { id: GraphTabId; label: string; icon: string }[] = [
   { id: 'concept', label: '概念图解', icon: 'lightbulb' },
   { id: 'entity', label: '实体图谱', icon: 'database' },
   { id: 'doc', label: '文档层级', icon: 'folder-tree' },
 ];
 
-const activeTab = ref<'concept' | 'entity' | 'doc'>('concept');
+const activeTab = ref<GraphTabId>('concept');
 
 const conceptInput = ref('');
 const conceptLoading = ref(false);
@@ -707,7 +707,7 @@ watch(activeTab, (tab) => {
 .type-concept { background: rgba(59, 130, 246, 0.15); color: #60A5FA; }
 .type-technique { background: rgba(16, 185, 129, 0.15); color: #34D399; }
 .type-term { background: rgba(245, 158, 11, 0.15); color: #FBBF24; }
-.type-principle { background: rgba(239, 68, 68, 0.15); color: #F87171; }
+.type-principle { background: rgba(239, 68, 68, 0.15); color: var(--kb-danger-muted); }
 .type-tool { background: rgba(139, 92, 246, 0.15); color: #A78BFA; }
 .type-other { background: rgba(148, 163, 184, 0.15); color: #94A3B8; }
 .node-desc {

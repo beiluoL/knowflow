@@ -1,21 +1,22 @@
 <template>
-  <div class="space-y-6 animate-fade-in">
-    <PageHeader
-      :crumbs="[{ label: '知识库' }, { label: '错题本' }]"
-      title="错题本"
-      :count="stats.total"
-    >
-      <template #actions>
-        <button
-          @click="startPractice"
-          class="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-          aria-label="开始错题练习"
-        >
-          <Icon name="play" :size="16" aria-hidden="true" />
-          <span>开始错题练习</span>
-        </button>
-      </template>
-    </PageHeader>
+  <MiniAppShell
+    title="错题本"
+    subtitle="回顾做错的题目，标记掌握、反复练习薄弱点。"
+    back-label="返回"
+    @back="goBack"
+  >
+    <template #actions>
+      <button
+        @click="startPractice"
+        class="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+        aria-label="开始错题练习"
+      >
+        <Icon name="play" :size="16" aria-hidden="true" />
+        <span>开始错题练习</span>
+      </button>
+    </template>
+
+    <div class="space-y-6 animate-fade-in">
 
     <section class="flex items-center gap-2 flex-nowrap overflow-x-auto no-scrollbar">
       <button
@@ -77,8 +78,8 @@
               />
               <defs>
                 <linearGradient id="mistake-mastery-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#3B6FE0" />
-                  <stop offset="100%" stop-color="#10B981" />
+                  <stop offset="0%" stop-color="var(--kb-primary)" />
+                  <stop offset="100%" stop-color="var(--kb-success)" />
                 </linearGradient>
               </defs>
             </svg>
@@ -213,13 +214,14 @@
       />
     </template>
   </div>
+</MiniAppShell>
 </template>
 
 <script setup lang="ts">
 // 错题本：按分类筛选错题、掌握率环形进度、标记已掌握与复习提醒。
 import { ref, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
-import PageHeader from '@/components/ui/PageHeader.vue'
+import MiniAppShell from '@/components/layout/MiniAppShell.vue'
 import Pagination from '@/components/ui/Pagination.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import SkeletonList from '@/components/ui/SkeletonList.vue'
@@ -227,8 +229,15 @@ import { mistakesApi } from '@/api/mistakes'
 import type { MistakeVO, MistakeStats } from '@/api/types'
 import { useRouter } from 'vue-router'
 import { notify, getApiError } from '@/utils/toast'
+import { withRewardFeedback } from '@/economy/rewardToast'
+import { setLastCompleted } from '@/learning/action-priority'
 
 const router = useRouter()
+
+function goBack() {
+  if (window.history.length > 1) router.back()
+  else router.push('/learning/center')
+}
 
 function startPractice() {
   router.push('/learning/flashcards')
@@ -246,7 +255,7 @@ const categoryFilters = ref([
   { value: 'all', label: '全部', count: 0, color: '' },
   { value: 'AI', label: 'AI', count: 0, color: 'rgba(139, 92, 246, 0.8)' },
   { value: '前端', label: '前端', count: 0, color: 'rgba(59, 111, 224, 0.8)' },
-  { value: '算法', label: '算法', count: 0, color: '#F59E0B' },
+  { value: '算法', label: '算法', count: 0, color: 'var(--kb-warning)' },
   { value: '后端', label: '后端', count: 0, color: 'rgba(16, 185, 129, 0.8)' },
 ])
 
@@ -306,9 +315,14 @@ function handlePageChange(page: number) {
 }
 
 function handleMarkMastered(id: number) {
-  mistakesApi.markMastered(id).then(() => {
+  // Architecture-5 §86：标记掌握 = 真实学习行为（MISTAKE_REVIEW 事件）→ 真实奖励反馈
+  void withRewardFeedback(async () => {
+    await mistakesApi.markMastered(id)
     fetchList()
     fetchStats()
+  }, '错题已标记掌握').then(() => {
+    // 循环保护（§261-262）：刚完成一次复习性动作
+    setLastCompleted('REVIEW')
   })
 }
 

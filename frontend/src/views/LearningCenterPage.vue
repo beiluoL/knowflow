@@ -1,5 +1,91 @@
 <template>
   <div class="learning-center animate-fade-in">
+    <!-- ========== Phase UI-4: 今日行动（学习首页第一屏，回答「我现在该做什么」） ========== -->
+    <section class="today-action">
+      <div class="today-head">
+        <div>
+          <!-- 3.2 §28：与 Sidebar 固定入口同名，避免「菜单说学习首页、页面说学习中心」 -->
+          <h1 class="ta-title">学习首页</h1>
+          <p class="ta-subtitle">今天继续推进你的学习</p>
+        </div>
+        <Button :icon-name="mainCta.icon" @click="goTo(mainCta.path)">{{ mainCta.text }}</Button>
+      </div>
+
+      <!-- 今日完成（真实任务数据；系统无每日目标设置，因此不展示伪造百分比目标 §29） -->
+      <div v-if="tasks.length > 0" class="ta-progress">
+        <div class="ta-progress-head">
+          <span class="ta-label">今日完成</span>
+          <span class="ta-count tabular-nums">{{ doneCount }} / {{ tasks.length }}</span>
+        </div>
+        <div
+          class="ta-progress-bar"
+          role="progressbar"
+          :aria-valuenow="donePercent"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-label="今日任务完成进度"
+        >
+          <div class="ta-progress-fill" :style="{ width: donePercent + '%' }"></div>
+        </div>
+      </div>
+
+      <!-- 待复习 + 待巩固：复用 Home 的展示卡片（§48/§49 复用优先），数据真实、错误隔离 -->
+      <div class="ta-buckets">
+        <ReviewDueCard
+          :items="reviewRequired"
+          :loading="reviewLoading"
+          :error="reviewError"
+          @retry="loadReviewRequired"
+          @start="goTo('/learning/review')"
+          @continue="goTo('/learning/paths')"
+        />
+        <WeakPointCard
+          :items="weakPoints"
+          :loading="weakLoading"
+          :error="weakError"
+          @retry="loadWeakPoints"
+          @view-all="goTo('/learning/mastery')"
+        />
+      </div>
+
+      <!-- 当前学习路径（真实 paths[0]，只读进度不 N+1） -->
+      <div v-if="currentPath" class="ta-path">
+        <div class="min-w-0">
+          <span class="ta-label">当前学习路径</span>
+          <h3 class="ta-path-title">{{ currentPath.title }}</h3>
+        </div>
+        <Button variant="secondary" size="sm" icon-name="play" @click="goTo(`/learning/path/${currentPath.id}`)">继续</Button>
+      </div>
+      <div v-else class="ta-path ta-path-empty">
+        <p>还没有进行中的学习路径</p>
+        <Button variant="secondary" size="sm" icon-name="route" @click="goTo('/learning/paths')">浏览学习路径</Button>
+      </div>
+
+      <!-- Architecture-5 §23/§225：学习中心展示「具体」待复习知识点（Home 只显示数量） -->
+      <div v-if="reviewRequired.length > 0" class="ta-review-chips">
+        <span class="ta-chips-label">待复习：</span>
+        <button
+          v-for="k in reviewRequired.slice(0, 5)"
+          :key="k.knowledgeId"
+          type="button"
+          class="ta-chip"
+          :title="`查看「${k.name || '未命名知识点'}」掌握度`"
+          @click="goTo(`/learning/knowledge-mastery/${k.knowledgeId}`)"
+        >{{ k.name || '未命名知识点' }}</button>
+        <span v-if="reviewRequired.length > 5" class="ta-chip-more">+{{ reviewRequired.length - 5 }}</span>
+      </div>
+
+      <!-- Architecture-4/5：下一步（§225 流程收尾：今日计划 → 待复习 → 薄弱 → 路径 → 下一步） -->
+      <div class="ta-next">
+        <NextActionCard :action="nextAction" dismissible />
+      </div>
+
+      <!-- Architecture-6：需要关注（理解层，§88-91/§157）——为什么建议关注、怎么处理 -->
+      <div class="ta-insights">
+        <LearningStateCard :diagnoses="centerDiagnoses" mode="center" />
+      </div>
+    </section>
+
     <!-- ========== Section 1: 每日名言卡片 ========== -->
     <section class="quote-card">
       <div class="quote-card-accent"></div>
@@ -52,7 +138,8 @@
           <Icon name="flame" :size="16" />
           <span class="tabular-nums">连续 {{ streakDays }} 天</span>
         </div>
-        <div class="stats-pill stats-pill-clock">
+        <!-- Phase UI-5：无真实「今日分钟」接口时隐藏（不显示伪造的 0 分钟） -->
+        <div v-if="todayMinutes > 0" class="stats-pill stats-pill-clock">
           <Icon name="clock" :size="16" />
           <span class="tabular-nums">今日 {{ todayMinutes }} 分钟</span>
         </div>
@@ -94,10 +181,10 @@
 
     <!-- Content -->
     <template v-else>
-      <!-- ========== Section 3: 快速入口 ========== -->
+      <!-- ========== Section 3: 快速入口（3.2 §120-125：页面内部 Card 导航，默认前 8 + 更多） ========== -->
       <section class="quick-nav">
         <router-link
-          v-for="(item, idx) in quickNavItems"
+          v-for="(item, idx) in quickNavVisible"
           :key="idx"
           :to="item.to"
           class="quick-nav-card"
@@ -109,6 +196,17 @@
           <Icon name="arrow-right" :size="14" class="quick-nav-arrow" />
         </router-link>
       </section>
+      <div v-if="quickNavRestCount > 0 || showAllQuickNav" class="quick-nav-more">
+        <button
+          type="button"
+          class="quick-nav-more-btn"
+          :aria-expanded="showAllQuickNav"
+          @click="showAllQuickNav = !showAllQuickNav"
+        >
+          <Icon :name="showAllQuickNav ? 'chevron-up' : 'chevron-down'" :size="14" />
+          <span>{{ showAllQuickNav ? '收起工具' : `更多工具（${quickNavRestCount}）` }}</span>
+        </button>
+      </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <!-- 左侧：进行中课程 + 今日任务 -->
@@ -293,28 +391,6 @@
             </p>
           </section>
 
-          <!-- 推荐下一步 -->
-          <section class="rounded-xl border p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
-            <h3 class="kb-h3 mb-3">推荐下一步</h3>
-            <div class="space-y-3">
-              <router-link
-                v-for="(rec, idx) in recommendations"
-                :key="idx"
-                :to="rec.to"
-                class="flex items-start gap-3 p-3 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
-                :style="{ background: `${rec.color}0A` }"
-              >
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" :style="{ background: `${rec.color}14` }">
-                  <Icon :name="rec.icon" :size="20" :style="{ color: rec.color }" />
-                </div>
-                <div class="min-w-0">
-                  <p class="text-sm font-medium" style="color: var(--kb-foreground);">{{ rec.title }}</p>
-                  <p class="kb-body-sm mt-0.5">{{ rec.subtitle }}</p>
-                </div>
-              </router-link>
-            </div>
-          </section>
-
           <!-- 本周概览 -->
           <section class="rounded-xl border p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
             <h3 class="kb-h3 mb-3">本周概览</h3>
@@ -323,15 +399,16 @@
                 <p class="text-2xl font-bold tabular-nums" style="color: var(--kb-primary);">{{ weekHours }}</p>
                 <p class="kb-body-sm mt-1">学习时长(h)</p>
               </div>
-              <div class="text-center p-3 rounded-lg" style="background: var(--kb-background);">
+              <!-- Phase UI-5：以下三项无真实数据接口，置 0 时隐藏，避免展示伪造统计（§59） -->
+              <div v-if="weekChapters > 0" class="text-center p-3 rounded-lg" style="background: var(--kb-background);">
                 <p class="text-2xl font-bold tabular-nums" style="color: var(--kb-accent);">{{ weekChapters }}</p>
                 <p class="kb-body-sm mt-1">完成章节</p>
               </div>
-              <div class="text-center p-3 rounded-lg" style="background: var(--kb-background);">
+              <div v-if="weekPractices > 0" class="text-center p-3 rounded-lg" style="background: var(--kb-background);">
                 <p class="text-2xl font-bold tabular-nums" style="color: var(--kb-warning);">{{ weekPractices }}</p>
                 <p class="kb-body-sm mt-1">练习题数</p>
               </div>
-              <div class="text-center p-3 rounded-lg" style="background: var(--kb-background);">
+              <div v-if="accuracy > 0" class="text-center p-3 rounded-lg" style="background: var(--kb-background);">
                 <p class="text-2xl font-bold tabular-nums" style="color: var(--kb-destructive);">{{ accuracy }}%</p>
                 <p class="kb-body-sm mt-1">正确率</p>
               </div>
@@ -344,17 +421,109 @@
 </template>
 
 <script setup lang="ts">
-// 学习中心：名人名言 + 学习数据概览 + 快速入口 + 进行中课程 + 今日任务 + 学习热力图 + 推荐下一步 + 本周概览
+// 学习中心（Phase UI-4 重构）：今日行动中心 —— 待复习 / 待巩固 / 当前路径 / 今日任务 + 动态主 CTA。
+// 原有内容（数据概览/热力图/推荐下一步/本周概览）保留在下部，第一屏以「今日行动」为核心。
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import Button from '@/components/ui/Button.vue'
+import ReviewDueCard from '@/components/home/ReviewDueCard.vue'
+import WeakPointCard from '@/components/home/WeakPointCard.vue'
 import { notify, confirmDialog, getApiError } from '@/utils/toast'
 import { userApi, learningApi } from '@/api'
 import { useAuthStore } from '@/stores/auth'
-import type { LearningTaskVO, LearningPathVO, DailyActivityVO, LearningTaskInput } from '@/api/types'
+import { useAppStore } from '@/stores/apps'
+import NextActionCard from '@/components/workflow/NextActionCard.vue'
+import LearningStateCard from '@/components/workflow/LearningStateCard.vue'
+import { resolveNextAction } from '@/learning/action-priority'
+import { actionToCta } from '@/learning/route'
+import { diagnoseLearningState } from '@/learning/intelligence/diagnosis'
+import type { NextLearningAction } from '@/learning/types';
+import type { LearningDiagnosis } from '@/learning/intelligence/types';
+import type {
+  LearningTaskVO,
+  LearningPathVO,
+  DailyActivityVO,
+  LearningTaskInput,
+  KnowledgeMasteryVO,
+} from '@/api/types'
 
 const auth = useAuthStore()
+const appStore = useAppStore()
+const router = useRouter()
 const loading = ref(false)
 const error = ref('')
+
+/* ================= Phase UI-4：今日行动数据（真实接口，独立错误隔离） ================= */
+const reviewRequired = ref<KnowledgeMasteryVO[]>([])
+const reviewLoading = ref(false)
+const reviewError = ref('')
+const weakPoints = ref<KnowledgeMasteryVO[]>([])
+const weakLoading = ref(false)
+const weakError = ref('')
+
+async function loadReviewRequired() {
+  reviewLoading.value = true
+  reviewError.value = ''
+  try {
+    reviewRequired.value = await learningApi.knowledgeMasteryReviewRequired()
+  } catch (e) {
+    reviewError.value = getApiError(e, '待复习数据加载失败')
+  } finally {
+    reviewLoading.value = false
+  }
+}
+
+async function loadWeakPoints() {
+  weakLoading.value = true
+  weakError.value = ''
+  try {
+    weakPoints.value = await learningApi.knowledgeMasteryWeak()
+  } catch (e) {
+    weakError.value = getApiError(e, '待巩固数据加载失败')
+  } finally {
+    weakLoading.value = false
+  }
+}
+
+/** 今日完成数：真实 tasks 中 status === 1 的数量（§28/§29，不伪造百分比目标） */
+const doneCount = computed(() => tasks.value.filter((t) => t.status === 1).length)
+const donePercent = computed(() => {
+  if (tasks.value.length === 0) return 0
+  return Math.round((doneCount.value / tasks.value.length) * 100)
+})
+
+/** 当前学习路径：取第一个路径，仅读其章节进度，不做 N+1（§70/§71） */
+const currentPath = computed(() => ongoingPaths.value[0] || null)
+
+/** Architecture-4：唯一 Next Action 决策入口（§69/§179）——Review > Task > Weak > Path > Explore */
+const nextAction = computed<NextLearningAction>(() =>
+  resolveNextAction({
+    reviewRequired: reviewRequired.value,
+    weakPoints: weakPoints.value,
+    tasks: tasks.value,
+    currentPath: currentPath.value,
+    installedApps: appStore.enabledApps,
+  }),
+)
+
+/** 动态主 CTA（§13/§42）：与「下一步」卡片共用同一优先级来源（§69），不再各自定义 */
+const mainCta = computed(() => actionToCta(nextAction.value))
+
+/** Architecture-6：需要关注（§6.6/§88-91/§157）——理解+计划层。
+ *  复用学习中心已加载的真实数据，本地纯函数推导，不新增 API（§123-129）。最多展示 3 条（§157）。 */
+const centerDiagnoses = computed<LearningDiagnosis[]>(() =>
+  diagnoseLearningState({
+    reviewRequired: reviewRequired.value,
+    weakPoints: weakPoints.value,
+    tasks: tasks.value,
+    currentPath: currentPath.value,
+  }),
+)
+
+function goTo(path: string) {
+  router.push(path)
+}
 
 const userName = computed(() => auth.user?.nickname || '同学')
 const greeting = computed(() => {
@@ -379,7 +548,7 @@ const energy = ref(0)
 const ongoingPaths = ref<LearningPathVO[]>([])
 const tasks = ref<LearningTaskVO[]>([])
 
-const pathColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444']
+const pathColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)']
 const pathIcons = ['code-2', 'database', 'brain', 'shield']
 const pathBadges = ['前端', '后端', '算法', '安全']
 
@@ -435,30 +604,67 @@ function refreshQuote() {
   setTimeout(() => { quoteSwitching.value = false }, 400)
 }
 
+/**
+ * 学习首页快捷入口（3.2 §36-40/§120-125：页面内部 Card 导航，不是 Sidebar 菜单）。
+ *
+ * UI/UX 3.2 起，学习 Sidebar 只保留「学习首页」一个固定入口（§8/§28），
+ * 原先的固定二级菜单（今日计划 / 学习路径 / 复习计划 / 掌握度 / 学习报告 / 挑战 /
+ * 学习工作台 / 番茄钟 / 专注模式 / 编程 Agent）全部下沉到本页卡片，
+ * 功能与路由一律保留（§51-59），只换入口位置（§105-107 避免死功能）。
+ *
+ * 前 8 个默认展示，其余折叠进「更多工具」（§118：学习首页不做第二个 Sidebar、§183：前 N 个 + 更多）。
+ */
+const QUICK_NAV_LIMIT = 8
+
 const quickNavItems = [
-  { label: '学习路径', icon: 'route', color: '#3B6FE0', to: '/learning/paths' },
-  { label: '番茄钟专注', icon: 'timer', color: '#EF4444', to: '/learning/pomodoro' },
-  { label: '代码练习', icon: 'code', color: '#F59E0B', to: '/learning/code-practice' },
-  { label: '编程挑战', icon: 'rocket', color: '#8B5CF6', to: '/challenge' },
-  { label: '闪卡复习', icon: 'layers', color: '#10B981', to: '/learning/flashcards' },
-  { label: '复习计划', icon: 'calendar-check', color: '#F59E0B', to: '/learning/review' },
-  { label: '知识图谱', icon: 'share-2', color: '#8B5CF6', to: '/learning/knowledge-graph' },
+  // ── 学习核心能力（页面内部，始终可用）
+  { label: '今日计划', icon: 'calendar-check', color: 'var(--kb-primary)', to: '/learning/today-plan' },
+  { label: '学习路径', icon: 'route', color: 'var(--kb-primary)', to: '/learning/paths' },
+  { label: '复习计划', icon: 'calendar-check', color: 'var(--kb-warning)', to: '/learning/review' },
   { label: '掌握分布', icon: 'pie-chart', color: '#06B6D4', to: '/learning/mastery' },
-  { label: '行为事件', icon: 'activity', color: '#3B6FE0', to: '/learning/events' },
+  { label: '学习报告', icon: 'bar-chart-2', color: 'var(--kb-accent)', to: '/learning/report' },
+  { label: '番茄钟专注', icon: 'timer', color: 'var(--kb-danger)', to: '/learning/pomodoro' },
+  { label: '编程 Agent', icon: 'cpu', color: '#8B5CF6', to: '/coding/agent' },
+  { label: '学习工作台', icon: 'brain', color: '#8B5CF6', to: '/workbench' },
+  // ── 更多工具（含 App 类，按启用态过滤；与 Sidebar 动态菜单同源，不冲突 §127）
+  { label: '代码练习', icon: 'code', color: 'var(--kb-warning)', to: '/learning/code-practice' },
+  { label: '编程挑战', icon: 'rocket', color: '#8B5CF6', to: '/challenge' },
+  { label: '闪卡复习', icon: 'layers', color: 'var(--kb-success)', to: '/learning/flashcards' },
+  { label: '知识图谱', icon: 'share-2', color: '#8B5CF6', to: '/learning/knowledge-graph' },
+  { label: '行为事件', icon: 'activity', color: 'var(--kb-primary)', to: '/learning/events' },
   { label: 'AI 问答', icon: 'brain', color: '#06B6D4', to: '/chat' },
 ]
 
-const recommendations = computed(() => {
-  const list = [
-    { title: '继续学习路径', subtitle: '从上次进度接着学', icon: 'rocket', color: '#3B6FE0', to: '/learning/paths' },
-    { title: '闪卡复习', subtitle: `${dueFlashcards} 张到期需要复习`, icon: 'layers', color: '#10B981', to: '/learning/flashcards' },
-    { title: '挑战练习', subtitle: '巩固所学知识', icon: 'target', color: '#F59E0B', to: '/learning/code-practice' },
-    { title: '智能问答', subtitle: '遇到问题随时问 AI', icon: 'brain', color: '#8B5CF6', to: '/chat' },
-  ]
-  return list
-})
+// UI/UX 3.0 §34：学习中心快捷入口中「App 类链接」按 UserApp 启用态过滤（不硬编码展示已停用 App）。
+// 番茄钟（focus）为沉浸式核心工具（§13），始终保持；其余 App 类链接仅启用时显示。
+const QUICK_NAV_APP_ROUTE: Record<string, string> = {
+  '/learning/flashcards': 'flashcard',
+  '/learning/code-practice': 'coding',
+  '/learning/knowledge-graph': 'knowledge-graph',
+}
+const quickNavItemsResolved = computed(() =>
+  quickNavItems.filter((it) => {
+    const key = QUICK_NAV_APP_ROUTE[it.to]
+    if (!key) return true
+    const st = appStore.stateOf(key)
+    return st.installed && st.enabled
+  }),
+)
 
-const dueFlashcards = ref(0)
+/** 是否展开「更多工具」 */
+const showAllQuickNav = ref(false)
+
+/** 默认只渲染前 N 个（§183），展开后渲染全部 */
+const quickNavVisible = computed(() =>
+  showAllQuickNav.value
+    ? quickNavItemsResolved.value
+    : quickNavItemsResolved.value.slice(0, QUICK_NAV_LIMIT),
+)
+
+/** 折叠区剩余数量（为 0 时不渲染切换按钮） */
+const quickNavRestCount = computed(() =>
+  Math.max(0, quickNavItemsResolved.value.length - QUICK_NAV_LIMIT),
+)
 
 // ===== 添加计划功能 =====
 const showAddTask = ref(false)
@@ -570,13 +776,16 @@ async function loadData(): Promise<void> {
     ])
 
     streakDays.value = stats.streakDays ?? 0
-    weekHours.value = Math.round((stats.totalStudyHours ?? 0) / 8 * 10) / 10 || 0
-    todayMinutes.value = Math.round((stats.totalStudyHours ?? 0) * 6) || 0
-    monthHours.value = Math.round((stats.totalStudyHours ?? 0) * 0.6 * 10) / 10 || 0
-    weekChapters.value = stats.completedPaths ? stats.completedPaths * 3 : 0
-    weekPractices.value = stats.totalFlashcards ? Math.round(stats.totalFlashcards * 0.15) : 0
-    accuracy.value = stats.totalFlashcards ? Math.min(95, 70 + Math.floor(stats.totalFlashcards / 10)) : 0
-    dueFlashcards.value = stats.totalFlashcards ? Math.min(stats.totalFlashcards, 12) : 0
+    // Phase UI-5（承接 UI-4 遗留 §59）：删除无依据的伪造统计。
+    // 原实现用 totalStudyHours×6 / 70+闪卡数/10 / ×3 等推导"今日分钟/正确率/本周章节"，
+    // 均无真实数据来源，违反"禁止伪造百分比"原则。
+    // 现改为只呈现真实字段；无对应接口的一律置 0，交由模板 v-if 隐藏，而非凭空编造。
+    weekHours.value = stats.totalStudyHours ?? 0
+    monthHours.value = stats.totalStudyHours ?? 0
+    todayMinutes.value = 0 // 无「今日分钟」接口，置 0 由模板隐藏
+    weekChapters.value = 0 // 无「本周章节」接口，置 0 由模板隐藏
+    weekPractices.value = 0 // 无「本周练习」接口，置 0 由模板隐藏
+    accuracy.value = 0 // 无「正确率」接口，置 0 由模板隐藏
     energy.value = stats.energy ?? 0
 
     ongoingPaths.value = paths.slice(0, 4)
@@ -589,6 +798,9 @@ async function loadData(): Promise<void> {
   } finally {
     loading.value = false
   }
+
+  // Phase UI-4：待复习 / 待巩固 独立并联加载，任一失败只影响对应卡片，不阻塞学习中心（§44/§45）
+  await Promise.allSettled([loadReviewRequired(), loadWeakPoints()])
 }
 
 onMounted(() => {
@@ -599,6 +811,140 @@ onMounted(() => {
 <style scoped>
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out;
+}
+
+/* ===== Phase UI-4: 今日行动区 ===== */
+.today-action {
+  margin-bottom: 24px;
+}
+.today-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.ta-title {
+  margin: 0;
+  font-size: var(--kb-fs-h2);
+  font-weight: 700;
+  line-height: var(--kb-lh-h2);
+  color: var(--kb-foreground);
+}
+.ta-subtitle {
+  margin-top: 4px;
+  color: var(--kb-muted-foreground);
+  font-size: var(--kb-fs-body-md);
+}
+.ta-progress {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: var(--kb-radius-md);
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+}
+.ta-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.ta-label {
+  color: var(--kb-muted-foreground);
+  font-size: var(--kb-fs-body-sm);
+}
+.ta-count {
+  color: var(--kb-foreground);
+  font-weight: 600;
+  font-size: var(--kb-fs-body-sm);
+}
+.ta-progress-bar {
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--kb-muted);
+  overflow: hidden;
+}
+.ta-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: var(--kb-primary);
+  transition: width 200ms ease;
+}
+.ta-buckets {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+@media (min-width: 1024px) {
+  .ta-buckets {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.ta-path {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: var(--kb-radius-md);
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.ta-path-title {
+  margin-top: 4px;
+  color: var(--kb-foreground);
+  font-size: var(--kb-fs-body-lg);
+  font-weight: 600;
+}
+.ta-path-empty {
+  color: var(--kb-muted-foreground);
+  font-size: var(--kb-fs-body-md);
+}
+
+/* Architecture-5 §23：待复习具体知识点 chips（学习中心展示明细，Home 只展示数量） */
+.ta-review-chips {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ta-chips-label {
+  font-size: var(--kb-fs-caption);
+  font-weight: 600;
+  color: var(--kb-muted-foreground);
+}
+.ta-chip {
+  padding: 4px 12px;
+  border: 1px solid var(--kb-border);
+  border-radius: 999px;
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  font-size: var(--kb-fs-caption);
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.ta-chip:hover {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+}
+.ta-chip-more {
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-muted-foreground);
+}
+
+/* Architecture-5 §225：下一步收尾主流程 */
+.ta-next {
+  margin-top: 16px;
+}
+
+/* Architecture-6：需要关注（理解层） */
+.ta-insights {
+  margin-top: 16px;
 }
 
 /* 添加计划按钮 */
@@ -1056,6 +1402,39 @@ onMounted(() => {
   opacity: 0;
   transform: translateX(-4px);
   transition: all 0.2s ease;
+}
+
+/* 3.2 §183：「更多工具」折叠开关（默认只展示前 8 个，避免学习首页变第二个 Sidebar） */
+.quick-nav-more {
+  display: flex;
+  justify-content: center;
+  margin: -8px 0 20px;
+}
+
+.quick-nav-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--kb-border);
+  border-radius: 999px;
+  background: var(--kb-card);
+  color: var(--kb-muted-foreground);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.quick-nav-more-btn:hover {
+  background: var(--kb-muted);
+  color: var(--kb-foreground);
+  border-color: var(--kb-primary);
+}
+
+.quick-nav-more-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--kb-ring);
 }
 
 /* ========== 课程卡片 ========== */

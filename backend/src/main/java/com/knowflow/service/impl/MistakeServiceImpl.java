@@ -78,6 +78,10 @@ public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, Learn
         mistake.setMastered(1);
         mistake.setLastReviewTime(LocalDateTime.now());
         this.updateById(mistake);
+        // Phase 1：错题复习完成信号（仅标记已掌握时记录一次，避免与答题/归集事件重复统计）
+        learningEventService.record(userId, LearningEventType.MISTAKE_REVIEW, "MISTAKE", id,
+                Map.of("mastered", 1, "questionId", mistake.getQuestionId() == null ? "" : mistake.getQuestionId(),
+                        "codeQuestionId", mistake.getCodeQuestionId() == null ? "" : mistake.getCodeQuestionId()));
     }
 
     @Override
@@ -95,6 +99,13 @@ public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, Learn
                 exist.setCategory(mistake.getCategory());
                 exist.setDifficulty(mistake.getDifficulty());
                 exist.setSource(mistake.getSource());
+                // Phase 0：合并时回填原题回溯字段（旧数据初次同步时补全，可空）
+                if (mistake.getQuestionId() != null) {
+                    exist.setQuestionId(mistake.getQuestionId());
+                }
+                if (mistake.getCodeQuestionId() != null) {
+                    exist.setCodeQuestionId(mistake.getCodeQuestionId());
+                }
                 exist.setReviewCount((exist.getReviewCount() == null ? 0 : exist.getReviewCount()) + 1);
                 // 再次答错则重置为未掌握，重新进入待复习队列
                 exist.setMastered(0);
@@ -184,6 +195,8 @@ public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, Learn
         mistake.setCategory("代码练习");
         mistake.setSource("code:" + lang + ":" + (type.isEmpty() ? "unknown" : type) + ":"
                 + (req.getQuestionId() == null ? "sandbox" : req.getQuestionId()));
+        // Phase 0：记录原代码题ID，打通 错题→原题→知识点→掌握度→再练习 闭环
+        mistake.setCodeQuestionId(req.getQuestionId());
         if (req.getQuestionId() != null) {
             com.knowflow.entity.CodeQuestion q = codeQuestionMapper.selectById(req.getQuestionId());
             if (q != null) {
@@ -199,6 +212,10 @@ public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, Learn
         if (exist != null) {
             exist.setWrongAnswer(mistake.getWrongAnswer());
             exist.setSource(mistake.getSource());
+            // Phase 0：回填原代码题ID（旧数据初次归集时补全，可空）
+            if (mistake.getCodeQuestionId() != null) {
+                exist.setCodeQuestionId(mistake.getCodeQuestionId());
+            }
             exist.setReviewCount((exist.getReviewCount() == null ? 0 : exist.getReviewCount()) + 1);
             exist.setMastered(0);
             exist.setLastReviewTime(LocalDateTime.now());

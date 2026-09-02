@@ -528,7 +528,7 @@ const selectedKbName = computed(() => {
   return kb?.name || ''
 })
 
-const kbColors = ['#3B6FE0', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16']
+const kbColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16']
 const getKbColor = (id: number) => {
   const idx = (id - 1) % kbColors.length
   const color = kbColors[Math.max(0, idx)]
@@ -751,7 +751,7 @@ interface FileProgressItem {
 }
 const fileProgressList = ref<FileProgressItem[]>([])
 
-// 当前导入的取消函数（由 importDirectoryStream 返回）
+// 当前导入的取消函数（由 importDirectoryStream / importPathStream 返回的 { cancel }）
 let importCancelFn: (() => Promise<void>) | null = null
 
 const progressPercent = computed(() => {
@@ -825,7 +825,7 @@ const startImport = () => {
 
   if (importMode.value === 'path') {
     // 路径导入：调用 /path/stream，由后端直接读取本地文件
-    importCancelFn = knowledgeImportApi.importPathStream({
+    const stream = knowledgeImportApi.importPathStream({
       path: pathScanResult.value!.absolutePath,
       targetCategoryId: selectedKbId.value,
       createSubCategories: importOptions.value.createSubCategories,
@@ -833,6 +833,7 @@ const startImport = () => {
       aiTags: importOptions.value.aiTags,
       incremental: importOptions.value.incremental,
     }, callbacks)
+    importCancelFn = stream.cancel
   } else {
     // 目录导入：通过 multipart 上传文件
     const formData = new FormData()
@@ -846,7 +847,8 @@ const startImport = () => {
     formData.append('autoTags', String(importOptions.value.autoTags))
     formData.append('aiTags', String(importOptions.value.aiTags))
     formData.append('incremental', String(importOptions.value.incremental))
-    importCancelFn = knowledgeImportApi.importDirectoryStream(formData, callbacks)
+    const stream = knowledgeImportApi.importDirectoryStream(formData, callbacks)
+    importCancelFn = stream.cancel
   }
 }
 
@@ -887,7 +889,7 @@ const buildImportCallbacks = () => ({
     importCancelFn = null
     notify(`导入已取消：${data.reason}`, 'warning')
     importResult.value = {
-      targetCategoryId: selectedKbId.value,
+      targetCategoryId: selectedKbId.value ?? 0,
       totalDocs: progressTotal.value,
       successCount: progressSuccess.value,
       skippedCount: progressSkipped.value,
@@ -908,7 +910,7 @@ const buildImportCallbacks = () => ({
       ? (pathScanResult.value?.docCount ?? 0)
       : docFileCount.value
     importResult.value = {
-      targetCategoryId: selectedKbId.value,
+      targetCategoryId: selectedKbId.value ?? 0,
       totalDocs: total,
       successCount: progressSuccess.value,
       skippedCount: progressSkipped.value,

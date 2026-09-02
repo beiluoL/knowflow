@@ -85,7 +85,7 @@
                 role="button"
                 tabindex="0"
                 @click="openWsFile(f.path)"
-                @keydown.enter.prevent="$event.target.click()"
+                @keydown.enter.prevent="($event.target as HTMLElement).click()"
               >
                 <Icon :name="wsIcon(f.language)" :size="14" />
                 <span class="ws-file-name">{{ f.name }}</span>
@@ -674,12 +674,12 @@ const langLabel = (lang?: string) => {
 }
 
 const LANG_COLORS: Record<string, string> = {
-  javascript: '#3B6FE0',
-  typescript: '#3B6FE0',
-  python: '#10B981',
-  java: '#F59E0B',
+  javascript: 'var(--kb-primary)',
+  typescript: 'var(--kb-primary)',
+  python: 'var(--kb-success)',
+  java: 'var(--kb-warning)',
   cpp: '#06B6D4',
-  sql: '#EF4444',
+  sql: 'var(--kb-danger)',
 }
 const langColor = (lang?: string) => LANG_COLORS[lang || ''] || 'var(--kb-muted-foreground)'
 const langColorBg = (lang?: string) => {
