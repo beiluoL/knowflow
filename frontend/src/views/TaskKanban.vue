@@ -47,7 +47,7 @@
             <div class="kb-card-title">{{ t.title }}</div>
             <div class="kb-card-foot">
               <span v-if="t.important === 1" class="kb-chip imp" title="重要"><Icon name="star" :size="11" /> 重要</span>
-              <span v-if="t.urgent === 1" class="kb-chip urg" title="紧急"><Icon name="alert-triangle" :size="11" /> 紧急</span>
+              <span v-if="t.urgent === 1" class="kb-chip urg" title="紧急"><Icon name="alert-circle" :size="11" /> 紧急</span>
               <span class="kb-card-actions">
                 <button
                   class="kb-act"

@@ -17,7 +17,7 @@
       <template #header>
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(59,111,224,0.08);">
-            <Icon name="key" :size="20" style="color: var(--kb-primary);" />
+            <Icon name="lock" :size="20" style="color: var(--kb-primary);" />
           </div>
           <div>
             <h3 class="font-semibold" style="color: var(--kb-foreground);">自定义 AI 模型</h3>

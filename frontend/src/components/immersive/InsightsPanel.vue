@@ -55,7 +55,7 @@
 
               <div class="ip-card">
                 <div class="ip-card-label">
-                  <Icon name="zap-off" :size="14" aria-hidden="true" />
+                  <Icon name="zap" :size="14" aria-hidden="true" />
                   <span>分心次数</span>
                 </div>
                 <div class="ip-bignum tabular-nums">{{ totalDistractions }}
@@ -104,7 +104,7 @@
           <template v-else>
             <div class="ip-block">
               <div class="ip-block-title">
-                <Icon name="activity" :size="14" aria-hidden="true" />
+                <Icon name="trending-up" :size="14" aria-hidden="true" />
                 <span>24小时热度条</span>
               </div>
               <div class="ip-heat-row">
@@ -296,7 +296,7 @@
               </div>
               <div class="ip-card">
                 <div class="ip-card-label">
-                  <Icon name="alert-triangle" :size="14" aria-hidden="true" />
+                  <Icon name="alert-circle" :size="14" aria-hidden="true" />
                   <span>本周错题</span>
                 </div>
                 <div class="ip-bignum tabular-nums highlight-text">{{ mistakes?.total ?? 0 }}

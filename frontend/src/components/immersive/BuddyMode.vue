@@ -146,7 +146,7 @@
       <template v-if="activeGroup">
         <header class="panel-head">
           <h3 class="panel-title">
-            <Icon name="activity" :size="16" aria-hidden="true" />
+            <Icon name="trending-up" :size="16" aria-hidden="true" />
             <span>成员状态</span>
           </h3>
           <span class="group-switch">{{ activeGroup.name }}</span>
@@ -221,7 +221,7 @@
       </template>
 
       <div v-else class="empty-side">
-        <Icon name="user-x" :size="36" aria-hidden="true" />
+        <Icon name="user" :size="36" aria-hidden="true" />
         <p>选择左侧小组查看成员</p>
       </div>
     </aside>

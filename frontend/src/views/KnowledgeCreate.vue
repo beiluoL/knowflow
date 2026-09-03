@@ -167,7 +167,7 @@
                 <span>邀请团队成员协作编辑</span>
               </li>
               <li>
-                <Icon name="share" :size="14" />
+                <Icon name="share-2" :size="14" />
                 <span>分享知识库链接给其他成员</span>
               </li>
             </ul>

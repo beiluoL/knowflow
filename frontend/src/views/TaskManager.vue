@@ -10,7 +10,7 @@
           <Icon name="layout-grid" :size="15" /> <span>四象限</span>
         </button>
         <button class="tm-mode" :class="{ active: mode === 'board' }" @click="mode = 'board'">
-          <Icon name="columns" :size="15" /> <span>看板</span>
+          <Icon name="layout" :size="15" /> <span>看板</span>
         </button>
       </div>
     </div>

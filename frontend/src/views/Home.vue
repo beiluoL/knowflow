@@ -137,7 +137,7 @@
               <p v-if="task.description" class="todo-desc">{{ task.description }}</p>
             </div>
             <span class="todo-status" :class="getStatusClass(task)">
-              <Icon v-if="task.status === 1" name="check-circle-2" :size="12" />
+              <Icon v-if="task.status === 1" name="check-circle" :size="12" />
               <Icon v-else-if="task.deadline" name="clock" :size="12" />
               {{ getStatusText(task) }}
             </span>

@@ -5,7 +5,7 @@
   <section class="learning-state-card" :class="`mode-${mode}`" aria-label="学习状态">
     <div class="ls-head">
       <span class="ls-badge">
-        <Icon name="activity" :size="14" />
+        <Icon name="trending-up" :size="14" />
         学习状态
       </span>
       <span class="ls-count" v-if="visible.length > 0">{{ visible.length }} 项值得关注</span>
@@ -14,7 +14,7 @@
 
     <!-- 健康：无问题 -->
     <p v-if="visible.length === 0" class="ls-healthy">
-      <Icon name="check-circle-2" :size="16" />
+      <Icon name="check-circle" :size="16" />
       学习状态良好，按自己的节奏继续即可。
     </p>
 

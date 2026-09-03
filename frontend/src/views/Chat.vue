@@ -268,7 +268,7 @@
                     <Icon name="rotate-ccw" :size="13" /> 复习计划
                   </router-link>
                   <router-link to="/learning/mastery" class="chat-learn-action" aria-label="掌握度">
-                    <Icon name="bar-chart" :size="13" /> 掌握度
+                    <Icon name="layout" :size="13" /> 掌握度
                   </router-link>
                 </div>
                 <!-- Architecture-7：教练结构化建议卡片（仅当 AI 返回合法建议且通过本地校验时展示，§125/§416） -->
@@ -582,7 +582,7 @@
       <div class="px-5 py-5 space-y-5 max-h-[60vh] overflow-y-auto">
         <!-- 当前状态 -->
         <div v-if="aiConfigLoading" class="flex items-center justify-center py-8">
-          <Icon name="loader-2" :size="24" class="animate-spin" style="color: var(--kb-primary);" />
+          <Icon name="loader" :size="24" class="animate-spin" style="color: var(--kb-primary);" />
           <span class="ml-2 text-sm" style="color: var(--kb-muted-foreground);">加载配置中…</span>
         </div>
 

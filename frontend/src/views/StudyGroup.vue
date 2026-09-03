@@ -218,10 +218,10 @@
           <!-- 工具栏 -->
           <div class="input-toolbar">
             <button type="button" class="tool-btn" @click="showEmojiPicker = !showEmojiPicker">
-              <Icon name="smile" :size="18" />
+              <Icon name="message-circle" :size="18" />
             </button>
             <button type="button" class="tool-btn" @click="toggleMentionPopover" title="提及成员">
-              <Icon name="at-sign" :size="18" />
+              <Icon name="send" :size="18" />
             </button>
             <div v-if="showMentionPopover" class="mention-popover">
               <button
@@ -333,7 +333,7 @@
                 <label class="type-option" :class="{ active: createForm.type === 'PUBLIC' }">
                   <input type="radio" value="PUBLIC" v-model="createForm.type" />
                   <div class="type-info">
-                    <Icon name="globe" :size="18" />
+                    <Icon name="map" :size="18" />
                     <span class="type-name">公开小组</span>
                     <span class="type-desc">任何人都可以加入</span>
                   </div>

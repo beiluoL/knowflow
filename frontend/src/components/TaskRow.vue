@@ -10,7 +10,7 @@
       @drop="onDrop"
       @dragleave="onDragLeave"
     >
-      <span class="tr-grip" title="拖拽排序"><Icon name="grip-vertical" :size="12" /></span>
+      <span class="tr-grip" title="拖拽排序"><Icon name="menu" :size="12" /></span>
 
       <button
         class="tr-check"

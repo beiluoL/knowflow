@@ -60,7 +60,7 @@
               {{ currentCard.front ?? '（无正面内容）' }}
             </div>
             <div v-else class="card-empty">
-              <Icon name="check-circle-2" :size="48" aria-hidden="true" />
+              <Icon name="check-circle" :size="48" aria-hidden="true" />
               <p>本轮复习已全部完成！</p>
             </div>
             <div v-if="currentCard" class="flip-hint">点击查看答案</div>

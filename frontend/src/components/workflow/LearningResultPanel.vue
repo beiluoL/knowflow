@@ -4,7 +4,7 @@
         每一项都来自真实数据：无数据则不显示该行（§81-82，绝不显示伪造的 0）。 -->
   <section class="learning-result-panel" aria-label="学习完成结果">
     <div class="lrp-head">
-      <Icon name="check-circle-2" :size="18" />
+      <Icon name="check-circle" :size="18" />
       <span>完成</span>
     </div>
 

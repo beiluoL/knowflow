@@ -3,7 +3,7 @@
     <aside v-if="visible" class="graph-sidebar">
       <header class="sidebar-head">
         <div class="title-row">
-          <Icon name="network" :size="16" aria-hidden="true" />
+          <Icon name="share-2" :size="16" aria-hidden="true" />
           <span class="sidebar-title">知识图谱</span>
         </div>
         <button type="button" class="close-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="$emit('close')">

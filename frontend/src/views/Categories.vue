@@ -63,7 +63,7 @@
         </div>
 
         <div v-else class="empty-state">
-          <Icon name="folder-question" :size="32" class="empty-icon" />
+          <Icon name="help-circle" :size="32" class="empty-icon" />
           <p>暂无分类</p>
         </div>
       </section>

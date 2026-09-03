@@ -72,7 +72,7 @@
 
       <!-- 薄弱标记 -->
       <div v-if="d.weaknessTypes && d.weaknessTypes.length" class="kmd-weak">
-        <span class="kmd-weak-title"><Icon name="alert-triangle" :size="14" /> 薄弱点</span>
+        <span class="kmd-weak-title"><Icon name="alert-circle" :size="14" /> 薄弱点</span>
         <span v-for="w in d.weaknessTypes" :key="w" class="kmd-weak-tag">{{ weaknessLabel(w) }}</span>
       </div>
 

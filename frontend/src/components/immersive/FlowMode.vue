@@ -71,7 +71,7 @@
           :disabled="elapsedSec === 0 && !isRunning"
           @click="handleEnd"
         >
-          <Icon name="square" :size="18" aria-hidden="true" />
+          <Icon name="layout" :size="18" aria-hidden="true" />
           <span>结束</span>
         </button>
       </div>

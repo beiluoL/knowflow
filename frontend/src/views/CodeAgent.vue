@@ -2485,7 +2485,7 @@ watch(activeTab, (tab) => {
             </button>
           </div>
           <div v-if="!supportsFsAccess" class="fs-warning">
-            <Icon name="alert-triangle" size="xs" />
+            <Icon name="alert-circle" size="xs" />
             <span>请使用 Chrome/Edge 86+</span>
           </div>
           <div v-else-if="!rootHandle" class="empty-tip">
@@ -2778,7 +2778,7 @@ watch(activeTab, (tab) => {
                 <!-- P2 歧义标签：结构/语义歧义高亮提示（复用 --kb-warning 色变量） -->
                 <div v-if="msg.ambiguity && msg.ambiguity.length" class="ambig-tags">
                   <span class="ambig-tag" v-for="(a, i) in msg.ambiguity" :key="i" :title="a.reason">
-                    <Icon name="alert-triangle" size="xxs" />
+                    <Icon name="alert-circle" size="xxs" />
                     {{ a.kind }}：{{ a.point }}
                   </span>
                   <span class="ambig-suggest" v-if="msg.ambiguity[0].suggestion">
@@ -2802,7 +2802,7 @@ watch(activeTab, (tab) => {
             </div>
             <div v-if="streaming" class="message assistant">
               <div class="message-avatar">
-                <Icon name="robot" size="sm" />
+                <Icon name="bot" size="sm" />
               </div>
               <div class="message-body">
                 <div class="bubble">
@@ -2822,7 +2822,7 @@ watch(activeTab, (tab) => {
             <!-- 本地代码生成推理过程（结构化步骤链） -->
             <div v-if="generating || saveProgress" class="message assistant">
               <div class="message-avatar">
-                <Icon name="robot" size="sm" />
+                <Icon name="bot" size="sm" />
               </div>
               <div class="message-body">
                 <div class="bubble">
@@ -2990,7 +2990,7 @@ watch(activeTab, (tab) => {
                 <Icon name="send" size="xs" /> {{ generating ? '生成中' : '发送' }}
               </Button>
               <Button v-else variant="secondary" @click="cancelStream">
-                <Icon name="square" size="xs" /> 停止
+                <Icon name="layout" size="xs" /> 停止
               </Button>
             </div>
           </div>
@@ -3202,7 +3202,7 @@ watch(activeTab, (tab) => {
               <Icon name="edit" size="xxs" /> 重命名
             </button>
             <button class="link-btn danger" @click.stop="deleteSession(s)">
-              <Icon name="trash" size="xxs" /> 删除
+              <Icon name="trash-2" size="xxs" /> 删除
             </button>
           </div>
         </div>
@@ -3242,7 +3242,7 @@ watch(activeTab, (tab) => {
                   <Icon name="edit" size="xxs" /> 重命名
                 </button>
                 <button class="link-btn danger" @click.stop="deleteSession(s)">
-                  <Icon name="trash" size="xxs" /> 删除
+                  <Icon name="trash-2" size="xxs" /> 删除
                 </button>
               </div>
             </div>
@@ -3305,14 +3305,14 @@ watch(activeTab, (tab) => {
 
       <div v-if="loadingStats && !statsData" class="loading-state">加载监测数据中...</div>
       <div v-else-if="!statsData || statsSummary.total === 0" class="empty-state">
-        <Icon name="activity" size="3xl" />
+        <Icon name="trending-up" size="3xl" />
         <p>暂无调用数据，发起对话后即可看到监测统计</p>
       </div>
       <template v-else>
         <!-- 汇总卡片 -->
         <div class="stats-cards">
           <div class="stat-card">
-            <div class="stat-icon"><Icon name="activity" size="md" /></div>
+            <div class="stat-icon"><Icon name="trending-up" size="md" /></div>
             <div class="stat-value">{{ statsSummary.total }}</div>
             <div class="stat-label">总调用</div>
           </div>
@@ -3502,7 +3502,7 @@ watch(activeTab, (tab) => {
             @click.stop="openParamsModal(m)"
             @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
           >
-            <Icon name="sliders" size="xxs" />
+            <Icon name="settings" size="xxs" />
             <span>{{ paramsSummary(m) }}</span>
             <button class="params-edit-btn" @click.stop="openParamsModal(m)" title="配置参数">
               <Icon name="settings" size="xxs" />
@@ -3524,7 +3524,7 @@ watch(activeTab, (tab) => {
               <Icon name="edit" size="xxs" /> 编辑
             </button>
             <button class="link-btn danger" @click="deleteConfig(m.id!)">
-              <Icon name="trash" size="xxs" /> 删除
+              <Icon name="trash-2" size="xxs" /> 删除
             </button>
           </div>
         </div>
@@ -3720,7 +3720,7 @@ watch(activeTab, (tab) => {
           <div v-for="m in ollamaModels" :key="m.name" class="ollama-model-card">
             <div class="ollama-model-header">
               <div class="ollama-model-icon">
-                <Icon name="box" size="md" />
+                <Icon name="archive" size="md" />
               </div>
               <div class="ollama-model-info">
                 <div class="ollama-model-name">{{ m.name }}</div>
@@ -3749,21 +3749,21 @@ watch(activeTab, (tab) => {
                 @click="unloadOllamaModel(m.name)"
                 :disabled="ollamaModelOps[m.name] === 'unloading'"
               >
-                <Icon name="square" size="xs" />
+                <Icon name="layout" size="xs" />
                 {{ ollamaModelOps[m.name] === 'unloading' ? '卸载中...' : '卸载' }}
               </button>
               <button
                 class="link-btn primary"
                 @click="addOllamaToAgent(m.name)"
               >
-                <Icon name="plus-circle" size="xs" /> 添加到 Agent
+                <Icon name="plus" size="xs" /> 添加到 Agent
               </button>
               <button
                 class="link-btn danger"
                 @click="deleteOllamaModel(m.name)"
                 :disabled="ollamaModelOps[m.name] === 'deleting'"
               >
-                <Icon name="trash" size="xs" />
+                <Icon name="trash-2" size="xs" />
                 {{ ollamaModelOps[m.name] === 'deleting' ? '删除中...' : '删除' }}
               </button>
             </div>

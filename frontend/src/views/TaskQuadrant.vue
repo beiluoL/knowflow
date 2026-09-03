@@ -55,7 +55,7 @@
                 title="紧急"
                 @click="toggleUrgent(t)"
               >
-                <Icon name="alert-triangle" :size="13" />
+                <Icon name="alert-circle" :size="13" />
               </button>
               <button class="qm-flag del" title="删除" @click="remove(t)">
                 <Icon name="trash-2" :size="13" />

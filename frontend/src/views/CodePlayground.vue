@@ -90,7 +90,7 @@
                 <Icon :name="wsIcon(f.language)" :size="14" />
                 <span class="ws-file-name">{{ f.name }}</span>
                 <button type="button" class="ws-del" title="删除" aria-label="删除文件" @click.stop="deleteWsFile(f.path)">
-                  <Icon name="trash" :size="12" />
+                  <Icon name="trash-2" :size="12" />
                 </button>
               </li>
               <li v-if="!wsLoading && workspaceFiles.length === 0" class="ws-empty">

@@ -84,7 +84,7 @@
             :disabled="!isSpeaking"
             @click="stop"
           >
-            <Icon name="square" :size="14" aria-hidden="true" />
+            <Icon name="layout" :size="14" aria-hidden="true" />
             <span>停止</span>
           </button>
           <div class="tts-sep" />
@@ -302,7 +302,7 @@
             class="action-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             @click="$emit('toggle-graph')"
           >
-          <Icon name="network" :size="14" aria-hidden="true" />
+          <Icon name="share-2" :size="14" aria-hidden="true" />
           <span>打开知识图谱</span>
         </button>
           <button

@@ -161,7 +161,7 @@
         </div>
         <div class="toolbar-right" v-if="current">
           <span class="toolbar-meta">
-            <Icon name="edit-3" :size="13" />
+            <Icon name="pencil" :size="13" />
             {{ current.words }} 字
           </span>
           <span class="toolbar-meta">
@@ -250,7 +250,7 @@
           <!-- 关联文档 -->
           <div v-if="current.related && current.related.length > 0" class="detail-related">
             <div class="related-header">
-              <Icon name="link-2" :size="16" />
+              <Icon name="link" :size="16" />
               <span>关联文档</span>
             </div>
             <div class="related-list">

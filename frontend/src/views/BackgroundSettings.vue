@@ -100,7 +100,7 @@
               </div>
             </template>
             <template v-else>
-              <Icon name="video" :size="32" class="upload-icon" />
+              <Icon name="play" :size="32" class="upload-icon" />
               <p class="upload-text">点击或拖拽上传视频</p>
               <p class="upload-hint">支持 MP4 / WebM，建议不超过 10MB</p>
             </template>
@@ -201,7 +201,7 @@
               class="save-preset-btn"
               @click="showSaveDialog = true"
             >
-              <Icon name="bookmark-plus" :size="14" />
+              <Icon name="bookmark" :size="14" />
               <span>保存当前配置</span>
             </button>
           </div>

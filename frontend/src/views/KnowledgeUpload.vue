@@ -22,7 +22,7 @@
         >
           <div class="global-progress-header">
             <span class="global-progress-title">
-              <Icon name="database-import" :size="14" />
+              <Icon name="database" :size="14" />
               导入进度
             </span>
             <span class="global-progress-count tabular-nums">

@@ -51,7 +51,7 @@
             <div class="habit-desc">{{ h.description || freqLabel(h) }}</div>
           </div>
           <div class="habit-actions">
-            <button title="编辑" @click="openEdit(h)"><Icon name="edit-3" :size="14" /></button>
+            <button title="编辑" @click="openEdit(h)"><Icon name="pencil" :size="14" /></button>
             <button title="删除" class="danger" @click="removeHabit(h)"><Icon name="trash-2" :size="14" /></button>
           </div>
         </div>

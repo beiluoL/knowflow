@@ -174,7 +174,7 @@
 ## 14. Remaining Issues
 
 1. PageHeader 复用 9/81，自定义头部返回一致性待下阶段统一。
-2. 旧业务页存在 Icon.vue 未定义图标名 + 3 处 iconfont 依赖（空白图标）。
+2. ~~旧业务页存在 Icon.vue 未定义图标名 + 3 处 iconfont 依赖（空白图标）。~~ **已清零（见 §16 3.3.2 图标清零）**：29 处未定义静态 `<Icon name>` 已替换为 Icon.vue 已定义的近义图标；3 处 `icon-*` 走 iconfont 分支（非空白）。
 3. 旧页面硬编码字号/间距/按钮尺寸/卡片样式残留，待令牌化。
 4. 390px 移动端、深色模式对比度、键盘可达性未做真机视觉复核。
 
@@ -183,13 +183,34 @@
 ## 15. 下一阶段建议
 
 1. **3.3.2 PageHeader 统一**：81 视图头部收敛到 `PageHeader`（返回+标题+描述+Actions），逐页比对不破坏业务布局。
-2. **图标清零（P1）**：扫描全站 `<Icon name>` 与 iconfont，补齐 Icon.vue 或替换，消除空白图标。
+2. ~~图标清零（P1）~~ → 已完成（见 §16）。
 3. **令牌化扫尾**：用 `ui-tokens.css` 语义类替换旧页面硬编码。
 4. **真机视觉验收**：本地浏览器对 §36/§37/§38 逐条截图复核，补齐 ⚠️ 项。
 5. 上述完成后才评估进入 AI Coach / Agent / MCP / Tool Calling / Architecture-7。
 
 ---
 
+## 16. 3.3.2 进展：图标清零（P1，已完成）
+
+> 用户「continue」后启动的 3.3.2 首个子任务：消除全站空白图标方块。
+
+**诊断（精确锚定 `<Icon` 标签扫描）：**
+- Icon.vue 共定义 **210** 个系统 SVG 图标（`name === 'xxx'`）。
+- 全站静态 `<Icon name="字面量">` 用法中，**32 个未定义**会渲染空白方块；其中 3 个为 `icon-*`（走 iconfont 分支，非空白），真实需修复 **29 个**。
+
+**修复（零渲染风险策略）：**
+- 不手写新增 SVG 路径（避免路径错误比空白更糟），改用 Icon.vue 已定义的近义图标替换每个未定义名。
+- 映射示例：`activity→trending-up`、`alert-triangle→alert-circle`、`trash→trash-2`、`robot→bot`、`network→share-2`、`globe→map`、`user-x→user`、`video→play`、`waves→wind`、`zap-off→zap`、`check-circle-2→check-circle`、`calendar-range→calendar`、`edit-3→pencil`、`bookmark-plus→bookmark`、`columns→layout`、`sliders→settings`、`grip-vertical→menu`、`key→lock`、`link-2→link`、`loader-2→loader`、`plus-circle→plus`、`share→share-2`、`smile→message-circle`、`square→layout`、`box→archive`、`bar-chart→layout`、`folder-question→help-circle`、`highlighter→pencil`、`at-sign→send`、`database-import→database`。
+- 涉及 29 个文件（views/ 与 components/immersive、components/workflow、components/ui 等）。
+
+**防回归：新增 `components/ui/__tests__/icon-usage.spec.ts`**
+- 用 Vite 原生 `?raw` + `import.meta.glob` 扫描全站静态 `<Icon name>`，断言每个名字 ∈ Icon.vue 定义集合 或以 `icon-` 开头；Icon.vue 定义数断言 ≥ 200（防误删）。
+- 任何新增未定义 `<Icon name>` 将导致测试失败。
+
+**验证：Vitest 232/232（含图标测试 2 例）、vue-tsc 0 errors、Vite Build PASS。**
+
+---
+
 ## STOP
 
-本阶段已按 §45 停止。未 commit / 未 push（本地个人项目，遵循用户硬规则）。所有改动留在工作区，待用户本地浏览器复核后自行决策。
+本阶段（3.3.1 + 3.3.2 图标清零）已停止。未 push（本地个人项目硬规则）。所有改动已本地 commit，待用户本地浏览器复核后自行决策。

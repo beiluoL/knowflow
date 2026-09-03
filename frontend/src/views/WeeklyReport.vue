@@ -81,7 +81,7 @@
         <div v-if="currentReport" class="wr-card wr-current-card">
           <div class="wr-card-head">
             <div class="wr-period">
-              <Icon name="calendar-range" :size="16" />
+              <Icon name="calendar" :size="16" />
               <span>{{ currentReport.weekStart }} ~ {{ currentReport.weekEnd }}</span>
             </div>
           </div>

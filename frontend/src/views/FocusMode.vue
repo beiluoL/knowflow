@@ -46,7 +46,7 @@
           title="知识图谱"
           @click="graphVisible = !graphVisible"
         >
-          <Icon name="network" :size="18" />
+          <Icon name="share-2" :size="18" />
         </button>
         <button
           type="button"
@@ -141,7 +141,7 @@
         <span>笔记</span>
       </button>
       <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleHighlight">
-        <Icon name="highlighter" :size="16" aria-hidden="true" />
+        <Icon name="pencil" :size="16" aria-hidden="true" />
         <span>重点</span>
       </button>
       <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleReadAloud">
@@ -149,7 +149,7 @@
         <span>朗读</span>
       </button>
       <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleGraph">
-        <Icon name="network" :size="16" aria-hidden="true" />
+        <Icon name="share-2" :size="16" aria-hidden="true" />
         <span>知识图谱</span>
       </button>
       <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleAi">

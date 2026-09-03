@@ -64,7 +64,7 @@
           class="btn-secondary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           @click="startEditDir"
         >
-          <Icon name="edit-3" :size="14" aria-hidden="true" />
+          <Icon name="pencil" :size="14" aria-hidden="true" />
           <span>修改目录</span>
         </button>
       </div>
