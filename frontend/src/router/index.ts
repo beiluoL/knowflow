@@ -242,6 +242,27 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/ReviewPlan.vue'),
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
+  // Architecture-4.0：学习目标（学习闭环起点，从首页「当前目标」/ 学习中心进入，不进侧边栏菜单）
+  {
+    path: '/learning/goals',
+    name: 'LearningGoals',
+    component: () => import('@/views/LearningGoals.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  // Architecture-4.0-4：场景练习（Scenario Lab，Practice 节点；从学习中心「练习」/目标工作区进入，不进侧边栏菜单）
+  {
+    path: '/learning/scenario',
+    name: 'ScenarioLab',
+    component: () => import('@/views/ScenarioLab.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  // Architecture-4.0-7：费曼表达四维评分（Expression 节点；从学习中心「费曼表达」进入，不进侧边栏菜单）
+  {
+    path: '/learning/feynman',
+    name: 'FeynmanLab',
+    component: () => import('@/views/FeynmanLab.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
   // 沉浸式学习模式：无顶栏
   {
     path: '/learning/mode',
@@ -561,6 +582,12 @@ const routes: RouteRecordRaw[] = [
     path: '/admin/flashcards',
     name: 'AdminFlashcards',
     component: () => import('@/views/admin/FlashcardMgmt.vue'),
+    meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/scenarios',
+    name: 'AdminScenarios',
+    component: () => import('@/views/admin/ScenarioMgmt.vue'),
     meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
   },
   {

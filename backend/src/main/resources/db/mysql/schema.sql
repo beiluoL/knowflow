@@ -1770,3 +1770,39 @@ CREATE TABLE user_app (
     deleted INT DEFAULT 0,
     UNIQUE KEY uk_user_app (user_id, app_key)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============ Architecture-4.0：学习目标（Learning Goal，学习闭环起点） ============
+CREATE TABLE IF NOT EXISTS learning_goal (
+  id            BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  user_id       BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+  title         VARCHAR(200) NOT NULL COMMENT '目标标题：一句话目标，如「7 天掌握 JVM GC」',
+  description   VARCHAR(1000) NULL COMMENT '目标描述（为什么学）',
+  target        VARCHAR(500) NULL COMMENT '达标标准（做到什么算掌握）',
+  status        VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' COMMENT '状态：ACTIVE/COMPLETED/ARCHIVED',
+  path_id       BIGINT NULL COMMENT '关联学习路径ID（逻辑外键 learning_path.id，可空）',
+  start_date    DATE NULL COMMENT '开始日期',
+  deadline      DATE NULL COMMENT '截止日期（时间盒终点）',
+  daily_minutes INT DEFAULT 0 COMMENT '每日计划投入分钟（0=未约定）',
+  create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted       INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+  KEY idx_lg_user (user_id, status),
+  KEY idx_lg_path (path_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============ Architecture-4.0-4：场景练习（Scenario Lab，Practice 节点） ============
+CREATE TABLE IF NOT EXISTS learning_scenario (
+  id            BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+  title         VARCHAR(200) NOT NULL COMMENT '场景标题，如「线上 Full GC 频繁排查」',
+  context_text  TEXT NULL COMMENT '情景背景描述',
+  question_text VARCHAR(1000) NOT NULL COMMENT '要用户回答的问题',
+  key_points    TEXT NOT NULL COMMENT '要点清单 JSON：[{label, keywords[]}]',
+  difficulty    INT DEFAULT 1 COMMENT '难度 1-3',
+  knowledge_id  BIGINT NULL COMMENT '关联知识点ID（逻辑外键 kg_entity.id，可空）',
+  status        INT DEFAULT 1 COMMENT '1 上架 / 0 下架',
+  create_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  deleted       INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+  KEY idx_lsc_status (status),
+  KEY idx_lsc_knowledge (knowledge_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

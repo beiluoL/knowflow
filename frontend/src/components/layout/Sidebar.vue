@@ -165,6 +165,7 @@ const allGroups: NavGroup[] = [
       { path: '/admin/tags', label: '知识库与标签', icon: 'tags', adminOnly: true },
       { path: '/admin/learning-paths', label: '学习路径管理', icon: 'route', adminOnly: true },
       { path: '/admin/flashcards', label: '知识卡片管理', icon: 'credit-card', adminOnly: true },
+      { path: '/admin/scenarios', label: '场景练习管理', icon: 'target', adminOnly: true },
       { path: '/admin/code-questions', label: '代码题库管理', icon: 'code', adminOnly: true },
       { path: '/admin/icons', label: '图标管理', icon: 'palette', adminOnly: true },
       { path: '/admin/files', label: '文件管理', icon: 'folder', adminOnly: true },

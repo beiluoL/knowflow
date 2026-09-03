@@ -12,7 +12,7 @@
 import { describe, it, expect, afterEach, vi } from 'vitest'
 import { resolveNextAction, setLastCompleted, getLastCompleted } from '../action-priority'
 import type { LearningActionContext, LearningActionType } from '../types'
-import type { KnowledgeMasteryVO, LearningTaskVO, LearningPathVO } from '@/api/types'
+import type { KnowledgeMasteryVO, LearningTaskVO, LearningPathVO, LearningGoalVO } from '@/api/types'
 import type { AppDefinition } from '@/apps/types'
 
 // node 环境无 sessionStorage：注入内存 stub，验证跨页面记录与过期逻辑
@@ -62,6 +62,17 @@ function path(partial: Partial<LearningPathVO> = {}): LearningPathVO {
     progress: 40,
     ...partial,
   } as LearningPathVO
+}
+
+/** Architecture-4.0-2：当前学习目标（activeGoal） */
+function goal(partial: Partial<LearningGoalVO> = {}): LearningGoalVO {
+  return {
+    id: 1,
+    title: '7 天掌握 JVM GC',
+    status: 'ACTIVE',
+    pathId: 20,
+    ...partial,
+  } as LearningGoalVO
 }
 
 function app(key: string): AppDefinition {
@@ -163,6 +174,105 @@ describe('resolveNextAction 优先级（§54/§131）', () => {
     const action = resolveNextAction(baseCtx())
     expect(action.type).toBe('EXPLORE')
     expect(action.route).toBe('/learning/paths')
+  })
+})
+
+describe('目标上下文（Architecture-4.0-2：Goal → NextAction，§10/§26/§46）', () => {
+  it('目标路线刚落地（0%）→ 推荐从第一课起步（LEARNING_PATH）', () => {
+    const action = resolveNextAction({
+      ...baseCtx(),
+      goal: goal({}),
+      goalPath: path({ id: 20, title: 'JVM 内存与 GC', progress: 0 }),
+    })
+    expect(action.type).toBe('LEARNING_PATH')
+    expect(action.route).toBe('/learning/path/20')
+    expect(action.title).toContain('开始')
+    expect(action.title).toContain('JVM 内存与 GC')
+    expect(action.reason).toContain('7 天掌握 JVM GC')
+  })
+
+  it('目标路线进行中（40%）→ 推荐继续目标路线（而非其它进行中路径）', () => {
+    const action = resolveNextAction({
+      ...baseCtx(),
+      // 另一条非目标路径也在进行中 —— 目标应优先（用户声明的意图）
+      currentPath: path({ id: 10, title: 'Java 并发', progress: 60 }),
+      goal: goal({}),
+      goalPath: path({ id: 20, title: 'JVM 内存与 GC', progress: 40 }),
+    })
+    expect(action.type).toBe('LEARNING_PATH')
+    expect(action.route).toBe('/learning/path/20')
+    expect(action.reason).toContain('40%')
+    expect(action.reason).toContain('7 天掌握 JVM GC')
+  })
+
+  it('健康信号优先：目标存在但有待复习 → 仍 REVIEW（§43）', () => {
+    const action = resolveNextAction({
+      ...baseCtx(),
+      goal: goal({}),
+      goalPath: path({ id: 20, progress: 0 }),
+      reviewRequired: [mastery({})],
+    })
+    expect(action.type).toBe('REVIEW')
+  })
+
+  it('健康信号优先：目标存在但有薄弱知识点 → 仍费曼/闪卡（§43）', () => {
+    const action = resolveNextAction({
+      ...baseCtx(),
+      goal: goal({}),
+      goalPath: path({ id: 20, progress: 0 }),
+      weakPoints: [mastery({ masteryScore: 30 })],
+    })
+    expect(action.type).toBe('MINI_APP')
+    expect(action.appKey).toBe('feynman')
+  })
+
+  it('目标关联路线未报名 → 不推荐目标路径，落通用兜底（无进行中路径 → EXPLORE）', () => {
+    const action = resolveNextAction({
+      ...baseCtx(),
+      goal: goal({}),
+      goalPath: path({ id: 20, enrolled: false }),
+    })
+    expect(action.type).not.toBe('LEARNING_PATH')
+    expect(action.type).toBe('EXPLORE')
+  })
+
+  it('目标路线已完成（100%）→ 不再推荐该路线，落通用兜底', () => {
+    const action = resolveNextAction({
+      ...baseCtx(),
+      goal: goal({}),
+      goalPath: path({ id: 20, progress: 100 }),
+    })
+    expect(action.type).not.toBe('LEARNING_PATH')
+  })
+
+  it('目标尚未关联路线（pathId=null）→ 不影响通用决策（无其它 → EXPLORE）', () => {
+    const action = resolveNextAction({
+      ...baseCtx(),
+      goal: goal({ pathId: null }),
+      goalPath: null,
+    })
+    expect(action.type).toBe('EXPLORE')
+  })
+
+  it('显式 skip LEARNING_PATH → 目标路径也不推荐（循环保护兼容）', () => {
+    const action = resolveNextAction(
+      {
+        ...baseCtx(),
+        goal: goal({}),
+        goalPath: path({ id: 20, progress: 0 }),
+      },
+      ['LEARNING_PATH'],
+    )
+    expect(action.type).not.toBe('LEARNING_PATH')
+  })
+
+  it('无目标时行为不变：有进行中路径 → LEARNING_PATH（旧用例回归）', () => {
+    const action = resolveNextAction({
+      ...baseCtx(),
+      currentPath: path({ progress: 40 }),
+    })
+    expect(action.type).toBe('LEARNING_PATH')
+    expect(action.route).toBe('/learning/path/10')
   })
 })
 

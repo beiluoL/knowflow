@@ -100,6 +100,52 @@
       <NextActionCard :action="nextAction" dismissible />
     </section>
 
+    <!-- Architecture-4.0：当前学习目标（让「下一步」有上文 —— 我为什么学 / 关联哪条路线 / 进度多少） -->
+    <section class="reveal-item" style="--reveal-index: 2.1;">
+      <div v-if="activeGoal" class="goal-banner">
+        <div class="goal-banner-icon">
+          <Icon name="target" :size="18" />
+        </div>
+        <div class="goal-banner-main">
+          <div class="goal-banner-top">
+            <span class="goal-kicker">当前目标</span>
+            <span v-if="activeGoal.deadline" class="goal-deadline">
+              <Icon name="calendar" :size="12" />
+              {{ goalDeadlineText }}
+            </span>
+            <span v-if="activeGoal.pathId" class="goal-pct tabular-nums">{{ goalPathPercent }}%</span>
+          </div>
+          <router-link
+            v-if="activeGoal.pathId"
+            :to="`/learning/path/${activeGoal.pathId}`"
+            class="goal-title"
+          >{{ activeGoal.title }}</router-link>
+          <router-link v-else to="/learning/goals" class="goal-title">{{ activeGoal.title }}</router-link>
+          <div v-if="activeGoal.pathId" class="goal-path">
+            <Icon name="route" :size="13" />
+            <span class="goal-path-name">{{ activeGoal.pathTitle || '学习路线' }}</span>
+            <div class="goal-progress">
+              <div class="goal-progress-fill" :style="{ width: goalPathPercent + '%' }"></div>
+            </div>
+          </div>
+          <div v-else class="goal-cta-line">
+            <span>还没有关联学习路线 ——</span>
+            <router-link to="/learning/goals" class="goal-inline-link">生成 / 选择一条路线</router-link>
+          </div>
+        </div>
+        <router-link to="/learning/goals" class="goal-manage">
+          <Icon name="pen-line" :size="14" />
+          <span>管理目标</span>
+        </router-link>
+      </div>
+      <!-- 没有进行中目标时：轻量引导设定目标（闭环起点 CTA） -->
+      <div v-else-if="auth.isLoggedIn && goalLoaded" class="goal-empty-banner">
+        <Icon name="flag" :size="18" />
+        <p>设定一个学习目标，让系统知道你「为什么学、下一步该做什么」。</p>
+        <router-link to="/learning/goals" class="goal-empty-cta">设定学习目标</router-link>
+      </div>
+    </section>
+
     <!-- Architecture-7：问问学习教练 CTA（§79-82，不抢占 NextAction 首屏） -->
     <section class="reveal-item" style="--reveal-index: 2.2;">
       <div class="flex items-center gap-3 rounded-2xl border px-4 py-3" style="border-color: var(--kb-border); background: rgba(59,111,224,0.05);">
@@ -317,6 +363,7 @@ import { useCountUp } from '@/composables/useCountUp';
 import type {
   DocVO,
   KnowledgeMasteryVO,
+  LearningGoalVO,
   LearningPathVO,
   LearningTaskVO,
   UserStatsVO,
@@ -361,13 +408,22 @@ async function loadTodayReward(): Promise<void> {
 /** Architecture-1：首页「我的应用」——只取已安装且启用的前 6 个（Registry 驱动，§139/§162） */
 const homeApps = computed(() => appStore.enabledApps.slice(0, 6));
 
-/** Architecture-4：唯一 Next Action 决策入口（§69/§179）——Review > Task > Weak > Path > Explore */
+/** 目标关联的学习路径（从已加载 learningPaths 中按 goal.pathId 匹配；无则 null） */
+const goalLinkedPath = computed<LearningPathVO | null>(() => {
+  const g = activeGoal.value
+  if (!g?.pathId) return null
+  return learningPaths.value.find((p) => p.id === g.pathId) ?? null
+})
+
+/** Architecture-4/4.0：唯一 Next Action 决策入口（§69/§179）——Review > Task > Weak > GoalPath > Path > Explore */
 const nextAction = computed<NextLearningAction>(() =>
   resolveNextAction({
     reviewRequired: reviewRequired.value,
     weakPoints: weakPoints.value,
     tasks: tasks.value,
     currentPath: learningPaths.value.find((p) => p.enrolled) ?? null,
+    goal: activeGoal.value,
+    goalPath: goalLinkedPath.value,
     installedApps: appStore.enabledApps,
   }),
 );
@@ -444,7 +500,6 @@ const dynamicCta = computed(() => {
 const reviewRequired = ref<KnowledgeMasteryVO[]>([]);
 const reviewLoading = ref(false);
 const reviewError = ref('');
-
 async function loadReviewRequired() {
   if (!auth.isLoggedIn) return;
   reviewLoading.value = true;
@@ -479,6 +534,39 @@ async function loadWeakPoints() {
 /** 供卡片的行为回调统一走路由跳转（ emit action，不在卡片内做业务） */
 function goTo(path: string) {
   router.push(path);
+}
+
+/* ========== Architecture-4.0：当前学习目标（学习闭环起点）========== */
+const activeGoal = ref<LearningGoalVO | null>(null);
+const goalLoaded = ref(false);
+
+const goalPathPercent = computed(() =>
+  activeGoal.value?.pathId != null
+    ? Math.min(100, Math.max(0, Math.round(activeGoal.value.pathProgress ?? 0)))
+    : 0,
+);
+
+const goalDeadlineText = computed(() => {
+  const d = activeGoal.value?.deadline;
+  if (!d) return '';
+  const t = new Date(d + 'T00:00:00');
+  const diff = Math.ceil((t.getTime() - Date.now()) / 86400000);
+  if (diff < 0) return `已逾期 ${-diff} 天`;
+  if (diff === 0) return '今天截止';
+  if (diff === 1) return '明天截止';
+  return `${t.getMonth() + 1}/${t.getDate()} 截止`;
+});
+
+async function loadActiveGoal() {
+  if (!auth.isLoggedIn) return;
+  goalLoaded.value = false;
+  try {
+    activeGoal.value = await learningApi.activeGoal();
+  } catch {
+    activeGoal.value = null;
+  } finally {
+    goalLoaded.value = true;
+  }
 }
 
 const doneTasks = computed(() => tasks.value.filter((t) => t.status === 1).length);
@@ -605,6 +693,7 @@ onMounted(async () => {
     loadReviewRequired(),
     loadWeakPoints(),
     loadTodayReward(),
+    loadActiveGoal(),
     (async () => {
       if (!auth.isLoggedIn) return;
       void walletStore.fetchWallet(true);
@@ -1866,5 +1955,168 @@ onMounted(async () => {
 }
 .current-path-empty svg {
   opacity: 0.5;
+}
+
+/* ===== Architecture-4.0：当前目标横幅 ===== */
+.goal-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: var(--kb-radius-lg);
+  border: 1px solid var(--kb-primary-tint);
+  background: linear-gradient(135deg, var(--kb-primary-subtle), var(--kb-card));
+}
+.goal-banner-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--kb-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--kb-primary);
+  background: var(--kb-primary-muted);
+}
+.goal-banner-main {
+  flex: 1;
+  min-width: 0;
+}
+.goal-banner-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.goal-kicker {
+  font-size: var(--kb-fs-caption);
+  font-weight: var(--kb-fw-caption);
+  color: var(--kb-primary);
+  letter-spacing: 0.05em;
+}
+.goal-deadline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-muted-foreground);
+}
+.goal-pct {
+  margin-left: auto;
+  font-size: var(--kb-fs-body-sm);
+  font-weight: var(--kb-fw-body-md);
+  color: var(--kb-primary);
+}
+.goal-title {
+  display: inline-block;
+  margin-top: 3px;
+  font-size: var(--kb-fs-h4);
+  font-weight: var(--kb-fw-h4);
+  color: var(--kb-foreground);
+  text-decoration: none;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.goal-title:hover {
+  color: var(--kb-primary);
+}
+.goal-path {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: var(--kb-fs-body-sm);
+  color: var(--kb-muted-foreground);
+}
+.goal-path-name {
+  flex-shrink: 0;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.goal-progress {
+  flex: 1;
+  max-width: 220px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--kb-bg-subtle);
+  overflow: hidden;
+}
+.goal-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--kb-primary);
+  transition: width 0.4s ease;
+}
+.goal-cta-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: var(--kb-fs-body-sm);
+  color: var(--kb-muted-foreground);
+  flex-wrap: wrap;
+}
+.goal-inline-link {
+  color: var(--kb-primary);
+  text-decoration: none;
+  font-weight: var(--kb-fw-body-md);
+}
+.goal-inline-link:hover {
+  color: var(--kb-primary-hover);
+  text-decoration: underline;
+}
+.goal-manage {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--kb-radius-md);
+  border: 1px solid var(--kb-border);
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-foreground);
+  text-decoration: none;
+  background: var(--kb-card);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.goal-manage:hover {
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+}
+.goal-empty-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: var(--kb-radius-md);
+  border: 1px dashed var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-muted-foreground);
+  font-size: var(--kb-fs-body-sm);
+  flex-wrap: wrap;
+}
+.goal-empty-banner p {
+  flex: 1;
+  min-width: 200px;
+  margin: 0;
+}
+.goal-empty-cta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: var(--kb-radius-md);
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  font-size: var(--kb-fs-caption);
+  font-weight: var(--kb-fw-body-md);
+  text-decoration: none;
+}
+.goal-empty-cta:hover {
+  opacity: 0.9;
 }
 </style>

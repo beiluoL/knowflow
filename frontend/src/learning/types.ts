@@ -6,7 +6,7 @@
  *  - Next Action 是规则驱动的推荐（§52），数据全部来自已有 Core（Review / Task / Weak / Path / App）；
  *  - 不新增任何 Workflow 表 / 微服务 / MQ / Redis（§7-11/§214-216）。
  */
-import type { KnowledgeMasteryVO, LearningTaskVO, LearningPathVO } from '@/api/types'
+import type { KnowledgeMasteryVO, LearningTaskVO, LearningPathVO, LearningGoalVO } from '@/api/types'
 import type { AppDefinition } from '@/apps/types'
 import type { DiagnosisType } from './intelligence/types'
 
@@ -41,6 +41,13 @@ export interface LearningActionContext {
   tasks: LearningTaskVO[]
   /** 当前进行中的学习路径（已报名且 0 < progress < 100，取第一条） */
   currentPath?: LearningPathVO | null
+  /**
+   * Architecture-4.0：当前学习目标（GET /learning/goals/active，可选）。
+   * 存在且关联了路线时，PATH 决策优先服务目标（目标刚落地 0% 也会被推荐起步）。
+   */
+  goal?: LearningGoalVO | null
+  /** 目标关联的学习路径 VO（调用方从已加载 paths 按 goal.pathId 匹配；无则 null） */
+  goalPath?: LearningPathVO | null
   /** 已安装且启用的 App（前端 Registry 白名单） */
   installedApps?: AppDefinition[]
   /** 最近完成动作（循环保护 §260-264；页面传入，如 Quiz 提交后 lastCompleted.type='QUIZ'） */

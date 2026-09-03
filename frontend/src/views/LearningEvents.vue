@@ -144,6 +144,8 @@ const eventTypes: { value: string; label: string }[] = [
   { value: 'MISTAKE', label: '错题归集' },
   { value: 'MISTAKE_REVIEW', label: '错题复习' },
   { value: 'LEARNING_TASK_COMPLETE', label: '任务完成' },
+  { value: 'SCENARIO_COMPLETED', label: '场景练习' },
+  { value: 'FEYNMAN_EXPRESSED', label: '费曼表达' },
 ]
 
 const labelMap = new Map(eventTypes.map((t) => [t.value, t.label]))
@@ -167,6 +169,9 @@ const badgeColors: Record<string, string> = {
   PATH_COMPLETED: 'var(--kb-success)',
   CHECK_IN: 'var(--kb-warning)',
   MISTAKE: 'var(--kb-danger)',
+  MISTAKE_REVIEW: 'var(--kb-success)',
+  SCENARIO_COMPLETED: '#8B5CF6',
+  FEYNMAN_EXPRESSED: '#EC4899',
 }
 const badgeStyle = (v: string) => {
   const c = badgeColors[v] ?? 'var(--kb-muted-foreground)'

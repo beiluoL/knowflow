@@ -61,6 +61,14 @@ public enum LearningEventType {
     /** 学习路径全部章节完成（completeChapter 触发 G-CERT-01） */
     PATH_COMPLETED,
 
+    /** 场景练习提交（Architecture-4.0-4 Scenario Lab：确定性关键词覆盖评分后落库，
+     *  元数据携带 coverage/score/matched/total，供事件流/掌握度引擎后续消费；暂不直接改写掌握度） */
+    SCENARIO_COMPLETED,
+
+    /** 费曼表达评分提交（Architecture-4.0-7：四维确定性自检评分 Accuracy/Clarity/Completeness/Structure，
+     *  元数据携带 overall + 各维 score/checked/total 与 topic；作者自检为据，不直写掌握度） */
+    FEYNMAN_EXPRESSED,
+
     /** 每日签到（CheckIn 写入 UserCheckIn） */
     CHECK_IN;
 }

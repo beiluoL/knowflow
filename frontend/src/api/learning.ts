@@ -29,6 +29,15 @@ import type {
   UserLearningPrefVO,
   LearningReportData,
   LearningEventSummaryVO,
+  LearningGoalVO,
+  LearningGoalInput,
+  ScenarioSummaryVO,
+  ScenarioDetailVO,
+  ScenarioSubmitInput,
+  ScenarioSubmitResultVO,
+  FeynmanRubricVO,
+  FeynmanSubmitInput,
+  FeynmanSubmitResultVO,
 } from './types'
 
 export const learningApi = {
@@ -88,6 +97,47 @@ export const learningApi = {
   knowledgeMasteryDiagnostics: () => apiGet<MasteryDiagnosticsVO>('/learning/mastery/diagnostics'),
   /** 重新计算并回填（构建映射 + 重算全部知识点掌握度）。 */
   knowledgeMasteryRecalculate: () => apiPost<void>('/learning/mastery/recalculate'),
+
+  // ============================================================
+  // Architecture-4.0：学习目标（学习闭环起点）
+  // ============================================================
+  /** 我的全部学习目标（ACTIVE 在前）。 */
+  goals: () => apiGet<LearningGoalVO[]>('/learning/goals'),
+  /** 当前进行中学习目标（无则 null）。 */
+  activeGoal: () => apiGet<LearningGoalVO | null>('/learning/goals/active'),
+  /** 创建学习目标（pathId 非空则后端校验关联并自动报名）。 */
+  createGoal: (data: LearningGoalInput) => apiPost<LearningGoalVO>('/learning/goals', data),
+  /** 覆盖式更新目标（状态流转 / 换路径 / pathId=null 解除关联）。 */
+  updateGoal: (id: number, data: LearningGoalInput) =>
+    apiPut<LearningGoalVO>(`/learning/goals/${id}`, data),
+  /** 逻辑删除目标。 */
+  removeGoal: (id: number) => apiDelete<void>(`/learning/goals/${id}`),
+
+  // ============================================================
+  // Architecture-4.0-4：场景练习（Scenario Lab，Practice 节点）
+  // ============================================================
+  /** 上架场景列表（可按知识点/难度过滤） */
+  scenarios: (params?: { knowledgeId?: number; difficulty?: number }) => {
+    const q = new URLSearchParams()
+    if (params?.knowledgeId != null) q.set('knowledgeId', String(params.knowledgeId))
+    if (params?.difficulty != null) q.set('difficulty', String(params.difficulty))
+    const query = q.toString()
+    return apiGet<ScenarioSummaryVO[]>(`/learning/scenarios${query ? `?${query}` : ''}`)
+  },
+  /** 场景详情（含要点名称；keywords 不下发） */
+  scenarioDetail: (id: number) => apiGet<ScenarioDetailVO>(`/learning/scenarios/${id}`),
+  /** 提交场景作答（确定性关键词覆盖评分 → SCENARIO_COMPLETED 事件） */
+  submitScenario: (id: number, data: ScenarioSubmitInput) =>
+    apiPost<ScenarioSubmitResultVO>(`/learning/scenarios/${id}/submit`, data),
+
+  // ============================================================
+  // Architecture-4.0-7：费曼表达四维评分（Expression 节点）
+  // ============================================================
+  /** 费曼四维评分 rubric（服务端常量：维度 × 自检准则 × 计分口径） */
+  feynmanRubric: () => apiGet<FeynmanRubricVO>('/learning/feynman/rubric'),
+  /** 提交费曼表达（确定性自检计分 → FEYNMAN_EXPRESSED 事件） */
+  submitFeynman: (data: FeynmanSubmitInput) =>
+    apiPost<FeynmanSubmitResultVO>('/learning/feynman/submit', data),
 
   // SM-2 间隔重复复习：quality ∈ [0,5]，<3 重置，3=有印象，5=完全掌握
   reviewFlashcard: (id: number, quality: number) =>

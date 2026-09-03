@@ -112,7 +112,15 @@ export function resolveNextAction(
     }
   }
 
-  // 4. PATH：有进行中的学习路径且未完成 → 继续路径（§57）
+  // 4. PATH · 目标上下文（Architecture-4.0-2，§10/§26）：有当前目标时，「下一步」优先服务目标——
+  //    目标刚落地路线（0%）也会被推荐起步，而不是只认「进行中(0<p<100)」的路径。
+  //    复习/任务/薄弱等健康信号仍在前（第 1-3 步），不会因目标存在被压过（§43）。
+  if (!skipped.has('LEARNING_PATH')) {
+    const goalAction = buildGoalPathAction(ctx)
+    if (goalAction) return goalAction
+  }
+
+  // 5. PATH：有进行中的学习路径且未完成 → 继续路径（§57）
   if (!skipped.has('LEARNING_PATH') && isPathInProgress(ctx.currentPath)) {
     const path = ctx.currentPath as NonNullable<LearningActionContext['currentPath']>
     return {
@@ -123,12 +131,42 @@ export function resolveNextAction(
     }
   }
 
-  // 5. EXPLORE：兜底（§79/§250）
+  // 6. EXPLORE：兜底（§79/§250）
   return {
     type: 'EXPLORE',
     title: '继续探索知识',
     reason: '今天的学习安排已完成，可以看看新的知识或路径',
     route: '/learning/paths',
+  }
+}
+
+/**
+ * Architecture-4.0-2：目标驱动的「继续路径」动作（§26 场景：你正在学 JVM GC → 下一步继续 GC 路线）。
+ * 仅当满足全部条件才返回动作，否则返回 null 交给通用 PATH/EXPLORE 逻辑：
+ *   - 存在当前目标且已关联路线（goal.pathId 非空）
+ *   - 关联路线已报名（goalPath.enrolled）
+ *   - 关联路线未完成（progress < 100，0% 也接受 —— 刚采用/关联的目标路线需要起步入口）
+ * 文案携带目标标题，让用户看到「朝目标走」的因果（§26-27）。
+ */
+function buildGoalPathAction(ctx: LearningActionContext): NextLearningAction | null {
+  const goal = ctx.goal
+  const goalPath = ctx.goalPath
+  if (!goal?.pathId || !goalPath?.enrolled) return null
+  const progress = goalPath.progress ?? 0
+  if (progress >= 100) return null
+  if (progress > 0) {
+    return {
+      type: 'LEARNING_PATH',
+      title: `继续「${goalPath.title}」`,
+      reason: `朝目标「${goal.title}」推进，当前进度 ${Math.round(progress)}%，接着上次继续`,
+      route: `/learning/path/${goalPath.id}`,
+    }
+  }
+  return {
+    type: 'LEARNING_PATH',
+    title: `开始「${goalPath.title}」`,
+    reason: `目标「${goal.title}」的路线已就绪，从第一课出发`,
+    route: `/learning/path/${goalPath.id}`,
   }
 }
 

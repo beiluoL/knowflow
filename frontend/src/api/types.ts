@@ -633,6 +633,129 @@ export interface PersonalizedPathVO {
   createTime?: string
 }
 
+// ===== Architecture-4.0：学习目标（Learning Goal，学习闭环起点） =====
+export type LearningGoalStatus = 'ACTIVE' | 'COMPLETED' | 'ARCHIVED'
+
+/** 学习目标新增 / 编辑入参（覆盖式：pathId 传 null 表示解除路径关联） */
+export interface LearningGoalInput {
+  title: string
+  description?: string | null
+  target?: string | null
+  status?: LearningGoalStatus
+  pathId?: number | null
+  startDate?: string | null
+  deadline?: string | null
+  dailyMinutes?: number
+}
+
+/** 学习目标视图对象：关联路径时后端实时带出标题 / 章节数 / 进度（0~100） */
+export interface LearningGoalVO {
+  id: number
+  title: string
+  description?: string | null
+  target?: string | null
+  status: LearningGoalStatus
+  pathId?: number | null
+  pathTitle?: string | null
+  pathProgress?: number
+  pathChapterCount?: number
+  startDate?: string | null
+  deadline?: string | null
+  dailyMinutes?: number
+  createTime?: string
+  updateTime?: string
+}
+
+// ===== Architecture-4.0-4：场景练习（Scenario Lab，Practice 节点） =====
+
+/** 场景卡片 VO（列表）：只读内容，不含命中关键词 */
+export interface ScenarioSummaryVO {
+  id: number
+  title: string
+  questionText: string
+  difficulty: number
+  knowledgeId?: number | null
+  pointCount: number
+}
+
+/** 场景详情 VO（作答前展示）：要点仅暴露名称，keywords 不下发 */
+export interface ScenarioDetailVO {
+  id: number
+  title: string
+  contextText?: string | null
+  questionText: string
+  difficulty: number
+  knowledgeId?: number | null
+  pointLabels: string[]
+}
+
+/** 场景作答提交入参 */
+export interface ScenarioSubmitInput {
+  answer: string
+  durationSeconds?: number
+}
+
+/** 场景作答结果 VO（确定性覆盖评分，掌握度不改写） */
+export interface ScenarioSubmitResultVO {
+  scenarioId: number
+  title: string
+  totalPoints: number
+  matchedPoints: number
+  coverage: number
+  score: number
+  comment: string
+  matchedLabels: string[]
+  missedLabels: string[]
+  recorded: boolean
+}
+
+// ===== Architecture-4.0-7：费曼表达四维评分（Expression 节点） =====
+
+/** 费曼自检准则 */
+export interface FeynmanCriterionVO {
+  id: string
+  text: string
+}
+
+/** 费曼评分维度（Accuracy/Clarity/Completeness/Structure） */
+export interface FeynmanDimensionVO {
+  key: string
+  name: string
+  items: FeynmanCriterionVO[]
+}
+
+/** 费曼 rubric（服务端常量唯一下发，前端据此渲染勾选清单） */
+export interface FeynmanRubricVO {
+  dimensions: FeynmanDimensionVO[]
+  scoringNote: string
+}
+
+/** 费曼表达提交入参 */
+export interface FeynmanSubmitInput {
+  topic: string
+  explanation: string
+  checkedCriterionIds: string[]
+  durationSeconds?: number
+}
+
+/** 费曼单维评分结果 */
+export interface FeynmanDimensionResultVO {
+  key: string
+  name: string
+  checked: number
+  total: number
+  score: number
+}
+
+/** 费曼表达提交结果 VO（确定性自检计分 + FEYNMAN_EXPRESSED 事件） */
+export interface FeynmanSubmitResultVO {
+  topic: string
+  overall: number
+  dimensions: FeynmanDimensionResultVO[]
+  comment: string
+  recorded: boolean
+}
+
 // ===== 错题 =====
 export interface MistakeVO {
   id: number

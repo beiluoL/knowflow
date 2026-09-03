@@ -1785,3 +1785,44 @@ CREATE TABLE IF NOT EXISTS user_app (
     deleted INT DEFAULT 0
 );
 CREATE UNIQUE INDEX IF NOT EXISTS uk_user_app ON user_app (user_id, app_key);
+
+-- ============ Architecture-4.0：学习目标（Learning Goal，学习闭环起点） ============
+-- 用户以一句话创建目标（如「7 天掌握 JVM GC」），可关联一条真实 learning_path；
+-- 路径进度实时读 learning_user_path，目标表不冗余存进度。
+CREATE TABLE IF NOT EXISTS learning_goal (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+    title VARCHAR(200) NOT NULL COMMENT '目标标题：一句话目标',
+    description VARCHAR(1000) COMMENT '目标描述（为什么学）',
+    target VARCHAR(500) COMMENT '达标标准（做到什么算掌握）',
+    status VARCHAR(20) DEFAULT 'ACTIVE' COMMENT '状态：ACTIVE/COMPLETED/ARCHIVED',
+    path_id BIGINT DEFAULT NULL COMMENT '关联学习路径ID（逻辑外键 learning_path.id，可空）',
+    start_date DATE DEFAULT NULL COMMENT '开始日期',
+    deadline DATE DEFAULT NULL COMMENT '截止日期（时间盒终点）',
+    daily_minutes INT DEFAULT 0 COMMENT '每日计划投入分钟（0=未约定）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_lg_user ON learning_goal (user_id, status);
+CREATE INDEX IF NOT EXISTS idx_lg_path ON learning_goal (path_id);
+
+-- ============ Architecture-4.0-4：场景练习（Scenario Lab，Practice 节点） ============
+-- 内容表：真实业务场景 + 要点清单（key_points JSON: [{label, keywords[]}]），
+-- 提交后用要点关键词做确定性覆盖匹配评分（Deterministic Workflow，§40），
+-- 学习记录统一沉淀为 learning_event（SCENARIO_COMPLETED），不伪造掌握度联动。
+CREATE TABLE IF NOT EXISTS learning_scenario (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL COMMENT '场景标题，如「线上 Full GC 频繁排查」',
+    context_text TEXT COMMENT '情景背景描述',
+    question_text VARCHAR(1000) NOT NULL COMMENT '要用户回答的问题',
+    key_points TEXT NOT NULL COMMENT '要点清单 JSON：[{label, keywords[]}]',
+    difficulty INT DEFAULT 1 COMMENT '难度 1-3',
+    knowledge_id BIGINT DEFAULT NULL COMMENT '关联知识点ID（逻辑外键 kg_entity.id，可空）',
+    status INT DEFAULT 1 COMMENT '1 上架 / 0 下架',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_lsc_status ON learning_scenario (status);
+CREATE INDEX IF NOT EXISTS idx_lsc_knowledge ON learning_scenario (knowledge_id);

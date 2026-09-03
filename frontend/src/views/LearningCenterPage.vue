@@ -75,6 +75,20 @@
         <span v-if="reviewRequired.length > 5" class="ta-chip-more">+{{ reviewRequired.length - 5 }}</span>
       </div>
 
+      <!-- Architecture-4.0-5：场景练习待补强（真实 SCENARIO_COMPLETED 事件驱动：最近一次未覆盖全部要点 → 深链回场景重答） -->
+      <div v-if="scenarioDebt.length > 0 && !scenarioDebtLoading" class="ta-review-chips ta-scenario-debt-chips">
+        <span class="ta-chips-label">待补强场景：</span>
+        <button
+          v-for="s in scenarioDebt.slice(0, 5)"
+          :key="s.scenarioId"
+          type="button"
+          class="ta-chip"
+          :title="`最近覆盖 ${s.matched}/${s.total} 个要点，回到场景补强再答`"
+          @click="goTo(`/learning/scenario?id=${s.scenarioId}`)"
+        >{{ s.scenarioTitle }}</button>
+        <span v-if="scenarioDebt.length > 5" class="ta-chip-more">+{{ scenarioDebt.length - 5 }}</span>
+      </div>
+
       <!-- Architecture-4/5：下一步（§225 流程收尾：今日计划 → 待复习 → 薄弱 → 路径 → 下一步） -->
       <div class="ta-next">
         <NextActionCard :action="nextAction" dismissible />
@@ -437,16 +451,19 @@ import NextActionCard from '@/components/workflow/NextActionCard.vue'
 import LearningStateCard from '@/components/workflow/LearningStateCard.vue'
 import { resolveNextAction } from '@/learning/action-priority'
 import { actionToCta } from '@/learning/route'
+import { scenarioPracticeDebt } from '@/learning/scenario-debt'
 import { diagnoseLearningState } from '@/learning/intelligence/diagnosis'
 import type { NextLearningAction } from '@/learning/types';
 import type { LearningDiagnosis } from '@/learning/intelligence/types';
 import type {
   LearningTaskVO,
   LearningPathVO,
+  LearningGoalVO,
   DailyActivityVO,
   LearningTaskInput,
   KnowledgeMasteryVO,
 } from '@/api/types'
+import type { ScenarioPracticeDebtItem } from '@/learning/scenario-debt'
 
 const auth = useAuthStore()
 const appStore = useAppStore()
@@ -461,6 +478,10 @@ const reviewError = ref('')
 const weakPoints = ref<KnowledgeMasteryVO[]>([])
 const weakLoading = ref(false)
 const weakError = ref('')
+
+/* ================= Architecture-4.0-5：场景练习待补强（真实 SCENARIO 事件驱动，Practice Debt） ================= */
+const scenarioDebt = ref<ScenarioPracticeDebtItem[]>([])
+const scenarioDebtLoading = ref(false)
 
 async function loadReviewRequired() {
   reviewLoading.value = true
@@ -486,6 +507,22 @@ async function loadWeakPoints() {
   }
 }
 
+/**
+ * 场景练习待补强（4.0-5）：拉取最近 50 条 SCENARIO_COMPLETED 事件 → 纯函数筛选「最近一次未覆盖全部要点」的场景。
+ * 失败静默（页面只在有数据时显示条带，不阻塞学习中心）。
+ */
+async function loadScenarioDebt() {
+  scenarioDebtLoading.value = true
+  try {
+    const page = await learningApi.learningEvents({ eventType: 'SCENARIO_COMPLETED', current: 1, size: 50 })
+    scenarioDebt.value = scenarioPracticeDebt(page.records ?? [])
+  } catch {
+    scenarioDebt.value = []
+  } finally {
+    scenarioDebtLoading.value = false
+  }
+}
+
 /** 今日完成数：真实 tasks 中 status === 1 的数量（§28/§29，不伪造百分比目标） */
 const doneCount = computed(() => tasks.value.filter((t) => t.status === 1).length)
 const donePercent = computed(() => {
@@ -496,13 +533,15 @@ const donePercent = computed(() => {
 /** 当前学习路径：取第一个路径，仅读其章节进度，不做 N+1（§70/§71） */
 const currentPath = computed(() => ongoingPaths.value[0] || null)
 
-/** Architecture-4：唯一 Next Action 决策入口（§69/§179）——Review > Task > Weak > Path > Explore */
+/** Architecture-4/4.0：唯一 Next Action 决策入口（§69/§179）——Review > Task > Weak > GoalPath > Path > Explore */
 const nextAction = computed<NextLearningAction>(() =>
   resolveNextAction({
     reviewRequired: reviewRequired.value,
     weakPoints: weakPoints.value,
     tasks: tasks.value,
     currentPath: currentPath.value,
+    goal: activeGoal.value,
+    goalPath: goalLinkedPath.value,
     installedApps: appStore.enabledApps,
   }),
 )
@@ -547,6 +586,14 @@ const energy = ref(0)
 
 const ongoingPaths = ref<LearningPathVO[]>([])
 const tasks = ref<LearningTaskVO[]>([])
+/** Architecture-4.0：当前学习目标（activeGoal）与其关联路线（全量 paths 中匹配，不截断前 4 条） */
+const activeGoal = ref<LearningGoalVO | null>(null)
+const allPaths = ref<LearningPathVO[]>([])
+const goalLinkedPath = computed<LearningPathVO | null>(() => {
+  const g = activeGoal.value
+  if (!g?.pathId) return null
+  return allPaths.value.find((p) => p.id === g.pathId) ?? null
+})
 
 const pathColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)']
 const pathIcons = ['code-2', 'database', 'brain', 'shield']
@@ -629,6 +676,10 @@ const quickNavItems = [
   // ── 更多工具（含 App 类，按启用态过滤；与 Sidebar 动态菜单同源，不冲突 §127）
   { label: '代码练习', icon: 'code', color: 'var(--kb-warning)', to: '/learning/code-practice' },
   { label: '编程挑战', icon: 'rocket', color: '#8B5CF6', to: '/challenge' },
+  // Architecture-4.0-4：场景练习（Scenario Lab，Practice 节点，非 App 无需启用态过滤）
+  { label: '场景练习', icon: 'pen-tool', color: '#06B6D4', to: '/learning/scenario' },
+  // Architecture-4.0-7：费曼表达（Expression 节点：四维确定性自检评分，非 App 无需启用态过滤）
+  { label: '费曼表达', icon: 'book-open', color: '#8B5CF6', to: '/learning/feynman' },
   { label: '闪卡复习', icon: 'layers', color: 'var(--kb-success)', to: '/learning/flashcards' },
   { label: '知识图谱', icon: 'share-2', color: '#8B5CF6', to: '/learning/knowledge-graph' },
   { label: '行为事件', icon: 'activity', color: 'var(--kb-primary)', to: '/learning/events' },
@@ -768,11 +819,12 @@ async function loadData(): Promise<void> {
   loading.value = true
   error.value = ''
   try {
-    const [stats, paths, taskList, activity] = await Promise.all([
+    const [stats, paths, taskList, activity, goal] = await Promise.all([
       userApi.stats(),
       learningApi.paths().catch(() => [] as LearningPathVO[]),
       learningApi.tasks().catch(() => [] as LearningTaskVO[]),
       learningApi.dailyActivity(120).catch(() => [] as DailyActivityVO[]),
+      learningApi.activeGoal().catch(() => null as LearningGoalVO | null),
     ])
 
     streakDays.value = stats.streakDays ?? 0
@@ -788,7 +840,9 @@ async function loadData(): Promise<void> {
     accuracy.value = 0 // 无「正确率」接口，置 0 由模板隐藏
     energy.value = stats.energy ?? 0
 
+    allPaths.value = paths
     ongoingPaths.value = paths.slice(0, 4)
+    activeGoal.value = goal
     tasks.value = taskList.slice(0, 5)
     dailyActivity.value = activity
   } catch (err) {
@@ -800,7 +854,7 @@ async function loadData(): Promise<void> {
   }
 
   // Phase UI-4：待复习 / 待巩固 独立并联加载，任一失败只影响对应卡片，不阻塞学习中心（§44/§45）
-  await Promise.allSettled([loadReviewRequired(), loadWeakPoints()])
+  await Promise.allSettled([loadReviewRequired(), loadWeakPoints(), loadScenarioDebt()])
 }
 
 onMounted(() => {
