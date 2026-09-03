@@ -74,7 +74,7 @@ export function actionToCta(action: NextLearningAction): ActionCta {
     case 'LEARNING_PATH':
       return { text: '继续学习', icon: 'play', path: resolveActionRoute(action) }
     case 'QUIZ':
-      return { text: '开始练习', icon: 'icon-kaoshi', path: resolveActionRoute(action) }
+      return { text: '开始练习', icon: 'check-circle', path: resolveActionRoute(action) }
     default:
       return { text: '浏览学习路径', icon: 'route', path: resolveActionRoute(action) }
   }

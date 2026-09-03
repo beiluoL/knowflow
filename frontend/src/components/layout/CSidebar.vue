@@ -46,7 +46,7 @@
             />
           </button>
 
-          <!-- 二级导航：折叠态不渲染，避免图标堆叠 -->
+          <!-- 展开态：带文字的二级列表（用户可手动收起） -->
           <div
             v-if="!collapsed && isOpen(group.label)"
             :id="`navgroup-${group.label}`"
@@ -65,6 +65,23 @@
               <span class="csidebar-label">{{ child.label }}</span>
             </router-link>
           </div>
+
+          <!-- 折叠态：图标 rail（仍显示 App 图标，tooltip 显示全称，§10） -->
+          <template v-else-if="collapsed">
+            <router-link
+              v-for="child in group.children"
+              :key="child.path"
+              :to="child.path"
+              class="csidebar-item csidebar-child csidebar-subrail-item"
+              :class="{ 'is-active': isChildActive(child) }"
+              :title="child.label"
+              :aria-label="child.label"
+              :aria-current="isChildActive(child) ? 'page' : undefined"
+              @click="$emit('navigate')"
+            >
+              <Icon :name="child.icon" :size="18" class="csidebar-icon" />
+            </router-link>
+          </template>
         </div>
       </template>
     </nav>
@@ -101,7 +118,7 @@
  *  - 分组展开状态持久化到 localStorage（§47，不新建状态系统）
  */
 import { computed, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import { type NavGroup, type NavChild, findActiveGroup } from '@/config/navigation'
 import { resolveNavigation } from '@/apps/navigation'
@@ -111,12 +128,13 @@ import { useAppStore } from '@/stores/apps'
 
 const props = defineProps<{ collapsed: boolean }>()
 
-defineEmits<{
+const emit = defineEmits<{
   'toggle-collapse': []
   navigate: []
 }>()
 
 const route = useRoute()
+const router = useRouter()
 const auth = useAuthStore()
 const bgStore = useBackgroundStore()
 const appStore = useAppStore()
@@ -159,7 +177,19 @@ function isOpen(label: string): boolean {
   return isGroupActive(g)
 }
 
+/**
+ * 分组标题点击（3.3.1 §9：折叠态不得出现「死了的按钮」）。
+ *  - 折叠态：子项已渲染为图标 rail，展开/收起子项在此状态下没有任何视觉反馈，
+ *    因此改为直达该工作区首页（学习→学习首页 / 知识→知识首页 / AI→AI 助手）。
+ *  - 展开态：保持原行为，切换子项展开 / 收起。
+ */
 function onGroupClick(group: NavGroup) {
+  if (props.collapsed) {
+    const target = group.children?.[0]?.path ?? group.path ?? '/'
+    void router.push(target)
+    emit('navigate')
+    return
+  }
   openState.value = { ...openState.value, [group.label]: !isOpen(group.label) }
   persist()
 }
@@ -250,11 +280,14 @@ watch(
 }
 
 .csidebar-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
   padding: 8px 10px;
+  /* 3.3.1 §7：240px→64px 过渡期间裁掉溢出文字，避免内容“飞出”/闪烁 */
+  overflow: hidden;
   border-radius: var(--kb-radius-sm);
   border: none;
   background: transparent;
@@ -307,6 +340,19 @@ watch(
   font-weight: 600;
 }
 
+/* 3.3.1 §12：激活态不能只有一层浅背景——补一条主色左侧指示条，一眼可辨 */
+.csidebar-item.is-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  border-radius: 0 2px 2px 0;
+  background: var(--kb-primary);
+}
+
 .csidebar-chevron {
   flex-shrink: 0;
   transition: transform 200ms ease;
@@ -340,6 +386,15 @@ watch(
 }
 
 .csidebar.is-collapsed .csidebar-sub {
+  display: none;
+}
+
+/* 折叠态图标 rail：单个 App 图标的点击热区，tooltip 由 :title 提供 */
+.csidebar-subrail-item {
+  justify-content: center;
+  padding: 7px 0;
+}
+.csidebar-subrail-item .csidebar-label {
   display: none;
 }
 

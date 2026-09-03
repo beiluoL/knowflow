@@ -5,10 +5,11 @@
       <button
         type="button"
         class="mini-app-back"
-        :aria-label="`返回${backLabel}`"
-        @click="$emit('back')"
+        :aria-label="backAria"
+        @click="onBack"
       >
         <Icon name="arrow-left" :size="18" aria-hidden="true" />
+        <span v-if="resolvedBack" class="mini-app-back-label">{{ resolvedBack }}</span>
       </button>
 
       <div class="mini-app-titles">
@@ -52,18 +53,30 @@
  *  - 上下文仅在有 knowledgeName 时显示，无则不渲染空状态（§101）。
  *  - 全部颜色走 --kb-* 令牌，深色模式自动跟随（§308-310）。
  */
+import { computed } from 'vue'
 import Icon from '@/components/ui/Icon.vue';
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
-defineProps<{
+const props = defineProps<{
   title: string;
   subtitle?: string;
   knowledgeName?: string;
+  /** 返回标签兜底（优先用 composable 推导的「上一层」名称，如 学习 / 闪卡） */
   backLabel?: string;
   clearableContext?: boolean;
 }>();
 
+// UI/UX 3.3：返回逻辑统一收口到 usePageNavigation（§5/§6）。
+// 旧页面仍传 @back="goBack" 会作为 fallthrough 属性落到根 div，不会触发重复导航；
+// MiniAppShell 自身不再 emit 'back'，避免与 composable 双重返回。
+const nav = usePageNavigation()
+const resolvedBack = computed(() => nav.back.value?.label ?? props.backLabel ?? '返回')
+const backAria = computed(() => `返回${resolvedBack.value}`)
+function onBack() {
+  nav.goBack()
+}
+
 defineEmits<{
-  back: [];
   'clear-context': [];
 }>();
 </script>
@@ -85,17 +98,23 @@ defineEmits<{
 
 .mini-app-back {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: var(--kb-space-2);
+  height: 36px;
+  padding: 0 12px;
   border-radius: var(--kb-radius-sm);
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
   color: var(--kb-foreground);
+  font-size: var(--kb-fs-body-sm);
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.mini-app-back-label {
+  line-height: 1;
 }
 .mini-app-back:hover {
   background: var(--kb-muted);

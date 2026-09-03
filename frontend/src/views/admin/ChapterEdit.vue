@@ -198,7 +198,7 @@
 <script setup lang="ts">
 // 后台-章节编辑页：替代原弹窗式编辑，支持新建/编辑章节、参考文档选择、AI 生成内容
 import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Button from '@/components/ui/Button.vue'
 import { adminApi } from '@/api'
@@ -209,9 +209,10 @@ import type {
   DocVO,
 } from '@/api/types'
 import { notify, getApiError } from '@/utils/toast'
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const route = useRoute()
-const router = useRouter()
+const nav = usePageNavigation()
 
 // ===== 模式判断 =====
 const chapterId = computed(() => {
@@ -377,7 +378,7 @@ const save = async () => {
       await adminApi.createChapter(payload)
       notify('章节已创建', 'success')
     }
-    router.back()
+    nav.goBack()
   } catch (e: unknown) {
     notify('保存失败：' + getApiError(e), 'error')
   } finally {
@@ -421,7 +422,7 @@ const generateContent = async () => {
 
 // ===== 返回 =====
 const goBack = () => {
-  router.back()
+  nav.goBack()
 }
 
 // ===== 初始化 =====

@@ -262,7 +262,7 @@
                     <Icon name="play" :size="13" /> 继续学习
                   </router-link>
                   <router-link to="/learning/quiz" class="chat-learn-action" aria-label="智能测验">
-                    <Icon name="icon-kaoshi" :size="13" /> 智能测验
+                    <Icon name="check-circle" :size="13" /> 智能测验
                   </router-link>
                   <router-link to="/learning/review" class="chat-learn-action" aria-label="复习计划">
                     <Icon name="rotate-ccw" :size="13" /> 复习计划

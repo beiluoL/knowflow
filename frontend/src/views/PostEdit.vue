@@ -94,9 +94,11 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import { communityApi } from '@/api/community'
 import { useAuthStore } from '@/stores/auth'
 import { notify } from '@/utils/toast'
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const nav = usePageNavigation()
 
 // 与社区列表侧边栏分类保持一致
 const categories = [
@@ -113,8 +115,7 @@ const canSubmit = computed(() => form.value.title.trim().length > 0)
 
 // 优先退回上一页（保持社区内的浏览位置），无历史记录时兜底回社区列表
 function goBack() {
-  if (window.history.length > 1) router.back()
-  else router.push('/community')
+  nav.goBack('/community')
 }
 
 async function handleSubmit() {

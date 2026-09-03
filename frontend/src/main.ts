@@ -1,6 +1,7 @@
 // 应用入口：挂载 Vue 应用、注册路由与 Pinia，并在启动时恢复登录态。
 import { createApp } from 'vue'
 import './style.css'
+import '@/styles/ui-tokens.css'
 import '@/assets/iconfont/iconfont.css'
 import App from './App.vue'
 import router from './router'

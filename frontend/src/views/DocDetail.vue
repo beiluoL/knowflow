@@ -341,6 +341,7 @@ import { handleCodeCopyClick } from '@/utils/codeCopy'
 import { handleImageLightboxClick } from '@/utils/imageLightbox'
 // highlight.js 深色主题（与代码块深色背景配合）
 import 'highlight.js/styles/github-dark.css'
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 // 文档类型标签色板（与设计稿对齐）
 const docIconColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#8B5CF6']
@@ -362,6 +363,7 @@ interface TocItem {
 
 const route = useRoute()
 const router = useRouter()
+const nav = usePageNavigation()
 const auth = useAuthStore()
 
 const placeholder: DocDetailVO = {
@@ -421,7 +423,7 @@ const docContentHtml = computed(() =>
 );
 const flatToc = computed(() => buildToc(doc.value.content || ''))
 
-const goBack = () => router.back()
+const goBack = () => nav.goBack('/docs')
 
 const toggleCollect = async () => {
   const id = doc.value.id

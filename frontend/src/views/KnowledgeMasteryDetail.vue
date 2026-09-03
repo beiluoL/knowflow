@@ -133,14 +133,15 @@
 <script setup lang="ts">
 // 知识点掌握度详情（Phase 2-B）：消费 GET /api/learning/mastery/{id}。
 import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import { notify, getApiError } from '@/utils/toast'
 import { learningApi } from '@/api'
 import type { KnowledgeMasteryDetailVO, MasteryStatus } from '@/api/types'
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const route = useRoute()
-const router = useRouter()
+const nav = usePageNavigation()
 
 const loading = ref(false)
 const error = ref('')
@@ -176,8 +177,7 @@ const riskColor = (v: number) => (v >= 70 ? 'var(--kb-danger)' : v >= 60 ? 'var(
 const fmt = (s?: string | null) => (s ? String(s).replace('T', ' ').slice(0, 19) : '—')
 
 function goBack() {
-  if (window.history.length > 1) router.back()
-  else router.push('/learning/mastery')
+  nav.goBack('/learning/mastery')
 }
 
 async function load() {

@@ -120,7 +120,7 @@ export const NAVIGATION: NavGroup[] = [
     mobilePrimary: true,
     // 3.2 §29/§19：知识首页即知识工作区主入口，不再并列「知识库」造成重复
     children: [
-      { label: '知识首页', path: '/knowledge', icon: 'icon-AIbeikezhushou' },
+      { label: '知识首页', path: '/knowledge', icon: 'book' },
     ],
     // 3.2 §48/§105-106：被下沉到「知识首页」的入口（文档库/分类/搜索/社区…）+ knowledge App 路由。
     // 注意 /workbench/notes、/workbench/palace 比 学习工作区的 /workbench 更具体，
@@ -146,7 +146,7 @@ export const NAVIGATION: NavGroup[] = [
     // 移动端 AI 经顶栏「AI 助手」按钮进入（§105/§107），不占底部 Tab
     // 3.2 §31：AI 工作区 = AI 助手 + enabled AI Apps（如智能写作，由 resolver 注入）
     children: [
-      { label: 'AI 助手', path: '/chat', icon: 'icon-rengongzhineng1', auth: true },
+      { label: 'AI 助手', path: '/chat', icon: 'message-circle', auth: true },
     ],
     // 3.2 §48/§153：AI App 路由归属 AI 工作区（智能写作 /learning/writing 由 resolver 注入子项，此处补归属）
     match: ['/learning/writing'],

@@ -136,7 +136,7 @@
 <script setup lang="ts">
 // 帖子详情页：从社区列表跳转而来，独立页面承载正文、点赞与评论，支持返回社区。
 import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SkeletonList from '@/components/ui/SkeletonList.vue'
@@ -146,10 +146,11 @@ import { communityApi } from '@/api/community'
 import type { PostVO } from '@/api/types'
 import { useAuthStore } from '@/stores/auth'
 import { notify } from '@/utils/toast'
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const route = useRoute()
-const router = useRouter()
 const authStore = useAuthStore()
+const nav = usePageNavigation()
 
 const post = ref<PostVO | null>(null)
 const loading = ref(true)
@@ -176,8 +177,7 @@ async function loadPost() {
 }
 
 function goBack() {
-  if (window.history.length > 1) router.back()
-  else router.push('/community')
+  nav.goBack('/community')
 }
 
 // ===== 点赞 =====

@@ -3,7 +3,7 @@
     <!-- 页头 -->
     <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
       <div class="flex items-center gap-3 min-w-0">
-        <button type="button" class="back-btn" title="返回" aria-label="返回" @click="router.back()">
+        <button type="button" class="back-btn" title="返回" aria-label="返回" @click="nav.goBack()">
           <Icon name="arrow-left" :size="18" />
         </button>
         <h1 class="kb-h1">学习偏好</h1>
@@ -210,15 +210,15 @@
  * 加载后端 sys_user_pref 配置，保存时同步至全局番茄钟 store（focusMinutes/shortBreak/longBreak/rounds/sound）。
  */
 import { ref, reactive, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
 import { learningApi } from '@/api';
 import { usePomodoroStore } from '@/stores/pomodoro';
 import { useStudyReminder } from '@/composables/useStudyReminder';
 import { notify, getApiError } from '@/utils/toast';
 import type { UserLearningPrefInput } from '@/api/types';
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
-const router = useRouter();
+const nav = usePageNavigation()
 const pomodoroStore = usePomodoroStore();
 const {
   reminderTime: swReminderTime,

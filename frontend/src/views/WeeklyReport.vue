@@ -9,7 +9,7 @@
     <!-- 页头 -->
     <div class="wr-header">
       <div class="wr-header-left">
-        <button type="button" class="wr-back-btn" title="返回" @click="router.back()">
+        <button type="button" class="wr-back-btn" title="返回" @click="nav.goBack()">
           <Icon name="arrow-left" :size="18" />
         </button>
         <h1 class="wr-title">学习周报</h1>
@@ -341,7 +341,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, nextTick } from 'vue';
-import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
 import StatCard from '@/components/ui/StatCard.vue';
 import { learningApi } from '@/api';
@@ -355,8 +354,9 @@ import {
   type AggregatedMetrics,
   type AiInsight,
 } from '@/composables/useWeeklyReportEnhancer';
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
-const router = useRouter();
+const nav = usePageNavigation()
 
 const loading = ref(false);
 const generating = ref(false);

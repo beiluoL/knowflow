@@ -374,8 +374,10 @@ import Icon from '@/components/ui/Icon.vue'
 import { categoriesApi, docsApi, knowledgeImportApi } from '@/api'
 import type { CategoryVO, PathImportFileEntry, PathImportScanVO } from '@/api/types'
 import { notify, getApiError } from '@/utils/toast'
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const router = useRouter()
+const nav = usePageNavigation()
 
 // ==================== 常量 ====================
 
@@ -864,7 +866,7 @@ function handleCancel(): void {
 }
 
 function goBack(): void {
-  router.push('/knowledge')
+  nav.goBack('/knowledge')
 }
 
 // ==================== 分类管理 ====================

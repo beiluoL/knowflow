@@ -186,8 +186,10 @@ import { categoriesApi, adminApi } from '@/api'
 import type { CategoryInput } from '@/api/types'
 import { notify, getApiError } from '@/utils/toast'
 import { useAuthStore } from '@/stores/auth'
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const router = useRouter()
+const nav = usePageNavigation()
 const auth = useAuthStore()
 
 interface Member {
@@ -321,7 +323,7 @@ async function handleCreate(): Promise<void> {
 }
 
 function goBack(): void {
-  router.push('/knowledge')
+  nav.goBack('/knowledge')
 }
 </script>
 

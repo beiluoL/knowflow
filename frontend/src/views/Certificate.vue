@@ -2,7 +2,7 @@
   <div class="certificate-page">
     <!-- 顶部操作栏 -->
     <div class="page-header">
-      <button type="button" class="back-btn" @click="router.back()">
+      <button type="button" class="back-btn" @click="nav.goBack()">
         <Icon name="arrow-left" :size="16" />
         <span>返回</span>
       </button>
@@ -82,14 +82,15 @@
  * 展示路径完成后自动颁发的数字证书，支持 canvas 生成证书图并下载 PNG，附带验证码核验功能。
  */
 import { ref, onMounted, nextTick } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
 import { learningApi } from '@/api';
 import { notify } from '@/utils/toast';
 import type { LearningCertificateVO } from '@/api/types';
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const route = useRoute();
-const router = useRouter();
+const nav = usePageNavigation()
 
 const certCanvas = ref<HTMLCanvasElement | null>(null);
 const cert = ref<LearningCertificateVO | null>(null);

@@ -232,8 +232,10 @@ import {
   isImageFile,
 } from '@/utils/editorImage';
 import type { CategoryVO } from '@/api/types';
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const router = useRouter();
+const nav = usePageNavigation()
 const submitting = ref(false);
 const isPreview = ref(false);
 const categories = ref<CategoryVO[]>([]);
@@ -436,7 +438,7 @@ function handleSaveDraft() {
 }
 
 function handleCancel() {
-  router.back();
+  nav.goBack();
 }
 
 // AI 写作入口（跳转智能写作页并携带当前标题）

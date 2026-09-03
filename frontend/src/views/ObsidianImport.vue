@@ -494,8 +494,10 @@ import Icon from '@/components/ui/Icon.vue'
 import { notify } from '@/utils/toast'
 import { obsidianImportApi, type ObsidianModule } from '@/api/obsidianImport'
 import type { PathImportScanVO, CategoryVO } from '@/api/types'
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const router = useRouter()
+const nav = usePageNavigation()
 
 const steps = ['选择来源', '配置模块', '执行导入', '完成']
 const currentStep = ref(0)
@@ -504,7 +506,7 @@ function goToStep(idx: number) {
   if (idx >= 0 && idx < steps.length) currentStep.value = idx
 }
 function goBack() {
-  router.back()
+  nav.goBack()
 }
 function goToResult() {
   router.push('/knowledge')

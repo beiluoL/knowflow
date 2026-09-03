@@ -418,9 +418,11 @@ import {
   parseIconValue, buildIconValue, resolveIconForRender,
   type PresetIcon,
 } from '@/utils/presetIcons';
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const route = useRoute();
 const router = useRouter();
+const nav = usePageNavigation()
 const loading = ref(false);
 const submitting = ref(false);
 const isPreview = ref(false);
@@ -887,7 +889,8 @@ function handleCopyLink() {
 }
 
 function handleCancel() {
-  router.back();
+  const id = route.params.id
+  nav.goBack(id ? `/doc/${id}` : '/knowledge');
 }
 
 onMounted(() => {

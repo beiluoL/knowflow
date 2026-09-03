@@ -9,6 +9,7 @@
  * 未注册任何不存在的功能（§173-174）；重复功能（如两套笔记）只选 PRIMARY 注册（§175-176）。
  */
 import type { AppCategory, AppDefinition, AppNavSection } from './types'
+import { APP_ICONS } from './icon-registry'
 
 /** 分类展示顺序与中文标签（§70） */
 export const CATEGORY_ORDER: AppCategory[] = ['MEMORY', 'PRACTICE', 'UNDERSTANDING', 'ORGANIZATION', 'FOCUS', 'CODING', 'AI']
@@ -41,7 +42,7 @@ export const APP_DEFINITIONS: AppDefinition[] = [
     key: 'quiz',
     name: '练习',
     description: '通过答题检验掌握，答错自动进入错题本。',
-    icon: 'icon-kaoshi',
+    icon: 'check-circle', // UI/UX 3.3：语义图标，统一由 icon-registry.ts 派生
     category: 'PRACTICE',
     categoryLabel: '练习',
     route: '/learning/quiz',
@@ -106,7 +107,7 @@ export const APP_DEFINITIONS: AppDefinition[] = [
     key: 'memory-palace',
     name: '记忆宫殿',
     description: '用位置记忆法把知识点放进宫殿，强化长期记忆。',
-    icon: 'share-2',
+    icon: 'map', // UI/UX 3.3：语义图标，统一由 icon-registry.ts 派生
     category: 'MEMORY',
     categoryLabel: '记忆',
     route: '/workbench/palace',
@@ -119,7 +120,7 @@ export const APP_DEFINITIONS: AppDefinition[] = [
     key: 'knowledge-graph',
     name: '知识图谱',
     description: '查看知识关系与掌握状态，发现薄弱环节。',
-    icon: 'icon-zhishitupubaocun',
+    icon: 'share-2', // UI/UX 3.3：语义图标，统一由 icon-registry.ts 派生
     category: 'UNDERSTANDING',
     categoryLabel: '理解',
     route: '/learning/knowledge-graph',
@@ -261,4 +262,11 @@ for (const app of APP_DEFINITIONS) {
   app.navVisible = meta ? (meta.navVisible ?? true) : false
   app.navSection = meta?.navSection
   app.order = meta?.order ?? 999
+}
+
+// UI/UX 3.3：图标集中由 APP_ICONS 派生（单一来源，禁止各页面各自乱选，§13）。
+// 若 Icon.vue 扩充图标集，只需改 icon-registry.ts，消费方（AppCard/Sidebar/Home）自动跟随。
+for (const app of APP_DEFINITIONS) {
+  const icon = APP_ICONS[app.key]
+  if (icon) app.icon = icon
 }

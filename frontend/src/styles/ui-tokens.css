@@ -1,0 +1,57 @@
+/* UI/UX 3.3：Typography / Spacing / 图标对齐 统一工具类
+ *
+ * 全部引用 style.css 的 --kb-* 令牌，禁止写死像素值。
+ * 供 PageHeader / MiniAppShell / 工作区页面复用，消灭随机字号 / 间距（§16-§17）。
+ * 旧页面中出现的 15px / 17px / 19px 等非阶梯字号应改为下列语义类或对应 --kb-fs-*。
+ */
+
+/* ── Typography 语义层级 ── */
+.kb-text-page-title {
+  font-size: var(--kb-fs-h2);
+  font-weight: var(--kb-fw-h2);
+  line-height: var(--kb-lh-h2);
+  color: var(--kb-foreground);
+}
+.kb-text-section-title {
+  font-size: var(--kb-fs-h3);
+  font-weight: var(--kb-fw-h3);
+  line-height: var(--kb-lh-h3);
+  color: var(--kb-foreground);
+}
+.kb-text-card-title {
+  font-size: var(--kb-fs-h4);
+  font-weight: var(--kb-fw-h4);
+  line-height: var(--kb-lh-h4);
+  color: var(--kb-foreground);
+}
+.kb-text-body {
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
+  color: var(--kb-foreground);
+}
+.kb-text-secondary {
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
+  color: var(--kb-muted-foreground);
+}
+.kb-text-caption {
+  font-size: var(--kb-fs-caption);
+  line-height: var(--kb-lh-caption);
+  color: var(--kb-muted-foreground);
+}
+
+/* ── icon + text 垂直对齐（禁止图标偏上 / 偏下，§27）── */
+.kb-icon-text {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--kb-space-2);
+}
+
+/* ── 间距工具（4px 基线网格，§17）── */
+.kb-gap-1 { gap: var(--kb-space-1); }
+.kb-gap-2 { gap: var(--kb-space-2); }
+.kb-gap-3 { gap: var(--kb-space-3); }
+.kb-gap-4 { gap: var(--kb-space-4); }
+.kb-gap-6 { gap: var(--kb-space-6); }
+.kb-p-4 { padding: var(--kb-space-4); }
+.kb-p-6 { padding: var(--kb-space-6); }
