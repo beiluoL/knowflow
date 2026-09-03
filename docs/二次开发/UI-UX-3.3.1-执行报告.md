@@ -1,7 +1,7 @@
 # UI/UX 3.3.1 执行报告 — Visual Acceptance + Sidebar + 全局界面修复
 
 > 阶段：UI/UX 3.3.1 · 一键实施（Vibe Coding）· 直接改码，本地 **未 commit / 未 push**
-> 质量门：Vitest **230/230** · TypeScript **0 errors** · Vite Build **PASS** · Backend **71/71 BUILD SUCCESS**
+> 质量门：Vitest **235/235** · TypeScript **0 errors** · Vite Build **PASS** · Backend **71/71 BUILD SUCCESS**
 > 配套验收文档：`UI-UX-3.3.1-Visual-Acceptance.md`
 > 本阶段 **STOP**：不进入 AI Coach / Agent / MCP / Tool Calling / Architecture-7（§45）
 
@@ -175,7 +175,7 @@
 
 1. PageHeader 复用 9/81，自定义头部返回一致性待下阶段统一。
 2. ~~旧业务页存在 Icon.vue 未定义图标名 + 3 处 iconfont 依赖（空白图标）。~~ **已清零（见 §16 3.3.2 图标清零）**：29 处未定义静态 `<Icon name>` 已替换为 Icon.vue 已定义的近义图标；3 处 `icon-*` 走 iconfont 分支（非空白）。
-3. 旧页面硬编码字号/间距/按钮尺寸/卡片样式残留，待令牌化。
+3. 旧页面硬编码字号/圆角残留 → 已建**冻结基线回归守卫**（`styles/__tests__/typography-tokens.spec.ts` + `typography-baseline.json`）：全站 111 文件 / 728 处非阶梯命中已冻结，禁止新增漂移；逐页令牌化（改用 `ui-tokens.css` 或 `--kb-*`）留作人工视觉复核待办（⚠️ 见 §17）。
 4. 390px 移动端、深色模式对比度、键盘可达性未做真机视觉复核。
 
 ---
@@ -184,7 +184,7 @@
 
 1. **3.3.2 PageHeader 统一**：81 视图头部收敛到 `PageHeader`（返回+标题+描述+Actions），逐页比对不破坏业务布局。
 2. ~~图标清零（P1）~~ → 已完成（见 §16）。
-3. **令牌化扫尾**：用 `ui-tokens.css` 语义类替换旧页面硬编码。
+3. **令牌化扫尾（先守后改）**：已建回归守卫冻结当前债务面；后续逐页将硬编码字号/圆角改为 `ui-tokens.css` 语义类 / `--kb-*` 令牌，改进时守卫测试自动通过、重算基线用 `/tmp/gen_typography_baseline.mjs`。
 4. **真机视觉验收**：本地浏览器对 §36/§37/§38 逐条截图复核，补齐 ⚠️ 项。
 5. 上述完成后才评估进入 AI Coach / Agent / MCP / Tool Calling / Architecture-7。
 
@@ -208,6 +208,37 @@
 - 任何新增未定义 `<Icon name>` 将导致测试失败。
 
 **验证：Vitest 232/232（含图标测试 2 例）、vue-tsc 0 errors、Vite Build PASS。**
+
+---
+
+## 17. 3.3.2 进展：Typography / Radius 令牌化守护（已完成守卫，逐页改造待办）
+
+> 用户第二次「continue」后启动的 3.3.2 第二子任务：消灭随机字号 / 圆角（§18/§20/§22）。
+
+**先测缺口（精确锚定扫描，同源 icon-usage 思路）：**
+- 字号阶梯（`--kb-fs-*`）：11/12/13/14/16/20/24/32/40px；圆角阶梯（`--kb-radius-*`）：4/6/10/16px。
+- 排除 `var(--kb-*)`（非 px 字面量，自动不命中）与意图明确的全圆角 `999/9999px`（胶囊 / 头像，非一致性问题）。
+- 诊断结果：**864 处总命中 / 121 文件**；排除全圆角后真实债务面 **728 处 / 111 文件**（字号 284、圆角 444）。
+- 高频非阶梯值：字号 `15(56)/10(55)/18(47)/22(23)/28(22)/12.5·13.5·11.5(分数值)`；圆角 `8(185)/12(87)/3(46)/14(40)/9(27)/2(19)`。
+
+**为什么只建守卫、不全量改（诚实边界）：**
+- 728 处散落于 111 文件，逐处改会引发无法在本环境视觉验证（§43 无可用浏览器引擎）的布局回归风险，违反「最小改动 / 不破坏业务布局」。
+- 故采用设计系统落地通用做法：**冻结当前债务面 + 回归守卫阻止新增漂移**，逐页令牌化留给人工视觉复核（⚠️ Not verified）。
+
+**交付物：**
+- `frontend/src/styles/__tests__/typography.helpers.ts`：纯函数 `countViolations()` + Vite `import.meta.glob` 加载器，正则与基线生成脚本单源。
+- `frontend/src/styles/__tests__/typography-baseline.json`：一次性冻结的基线（`gen_typography_baseline.mjs` 生成，111 文件 / fs=284 / r=444）；含 `_meta` 说明阶梯与意图值。
+- `frontend/src/styles/__tests__/typography-tokens.spec.ts`：**3 例守卫**
+  1. 基线外新文件不得携带非阶梯字号/圆角（阻止新增漂移）；
+  2. 基线文件非阶梯计数不得增加（允许下降 = 改进）；
+  3. `ui-tokens.css` 语义类不得写死 px（仅引用 `--kb-*`）。
+
+**验证（已做）：**
+- 守卫测试对「植入非阶梯值的新文件」会**真实失败**（已用 `__typography_probe__.vue` 探测并清理验证），非空过。
+- Vitest **235/235**（含本任务 3 例）、`vue-tsc -b` 0 errors、Vite Build PASS。
+
+**待办（⚠️ 需用户本地浏览器逐页复核 + 令牌化）：**
+- 按风险从低到高逐页将 `15/18/22/28px` 等改为 `kb-text-*` 语义类 / `--kb-fs-*`、`8/12/14px` 圆角改为 `--kb-radius-*`，改完守卫自动通过；若某文件计数下降后可重算基线。
 
 ---
 

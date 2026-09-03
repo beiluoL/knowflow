@@ -1,0 +1,478 @@
+{
+  "_meta": {
+    "generatedBy": "gen_typography_baseline.mjs",
+    "note": "冻结基线：当前非阶梯 typography 债务面。守卫测试禁止新增文件命中或非阶梯计数增加；降低某文件计数（改进）允许。逐页人工视觉复核待办（§43 未验证）。",
+    "fsLadder": [
+      11,
+      12,
+      13,
+      14,
+      16,
+      20,
+      24,
+      32,
+      40
+    ],
+    "rLadder": [
+      4,
+      6,
+      10,
+      16
+    ],
+    "rIntentional": [
+      999,
+      9999
+    ]
+  },
+  "files": {
+    "components/Knowledge/FileTreeNode.vue": {
+      "fs": 0,
+      "r": 2
+    },
+    "components/Knowledge/PreviewTreeNode.vue": {
+      "fs": 1,
+      "r": 1
+    },
+    "components/Learning/DagGraph.vue": {
+      "fs": 0,
+      "r": 2
+    },
+    "components/ShareCard.vue": {
+      "fs": 1,
+      "r": 2
+    },
+    "components/TaskRow.vue": {
+      "fs": 0,
+      "r": 1
+    },
+    "components/WhiteNoisePlayer.vue": {
+      "fs": 0,
+      "r": 4
+    },
+    "components/agent/AgentCallChain.vue": {
+      "fs": 2,
+      "r": 0
+    },
+    "components/agent/AgentToolPanel.vue": {
+      "fs": 1,
+      "r": 1
+    },
+    "components/ai/CoachSuggestionCard.vue": {
+      "fs": 0,
+      "r": 2
+    },
+    "components/calendar/CalendarEventDialog.vue": {
+      "fs": 0,
+      "r": 6
+    },
+    "components/calendar/MemorialDialog.vue": {
+      "fs": 0,
+      "r": 8
+    },
+    "components/calendar/MonthView.vue": {
+      "fs": 2,
+      "r": 0
+    },
+    "components/calendar/TimeGridView.vue": {
+      "fs": 3,
+      "r": 1
+    },
+    "components/community/CommentItem.vue": {
+      "fs": 1,
+      "r": 0
+    },
+    "components/immersive/AchievementToast.vue": {
+      "fs": 1,
+      "r": 2
+    },
+    "components/immersive/BreakGuide.vue": {
+      "fs": 3,
+      "r": 3
+    },
+    "components/immersive/BuddyMode.vue": {
+      "fs": 5,
+      "r": 8
+    },
+    "components/immersive/DeepMode.vue": {
+      "fs": 16,
+      "r": 12
+    },
+    "components/immersive/FlowMode.vue": {
+      "fs": 4,
+      "r": 4
+    },
+    "components/immersive/GraphSidebar.vue": {
+      "fs": 11,
+      "r": 5
+    },
+    "components/immersive/InsightsPanel.vue": {
+      "fs": 5,
+      "r": 10
+    },
+    "components/immersive/LeaderboardPanel.vue": {
+      "fs": 7,
+      "r": 1
+    },
+    "components/immersive/MiniChatCopilot.vue": {
+      "fs": 4,
+      "r": 6
+    },
+    "components/immersive/PomodoroMode.vue": {
+      "fs": 3,
+      "r": 2
+    },
+    "components/immersive/SettingsPanel.vue": {
+      "fs": 0,
+      "r": 5
+    },
+    "components/immersive/ShareCard.vue": {
+      "fs": 4,
+      "r": 5
+    },
+    "components/immersive/SpacedMode.vue": {
+      "fs": 4,
+      "r": 5
+    },
+    "components/immersive/ThemePanel.vue": {
+      "fs": 0,
+      "r": 5
+    },
+    "components/layout/CategoryNode.vue": {
+      "fs": 1,
+      "r": 1
+    },
+    "components/layout/KnowledgeSidebar.vue": {
+      "fs": 1,
+      "r": 2
+    },
+    "components/ui/CategoryTreeSelect.vue": {
+      "fs": 0,
+      "r": 2
+    },
+    "components/ui/Celebration.vue": {
+      "fs": 0,
+      "r": 2
+    },
+    "components/ui/CommandPalette.vue": {
+      "fs": 0,
+      "r": 3
+    },
+    "components/ui/PageHeader.vue": {
+      "fs": 1,
+      "r": 0
+    },
+    "components/ui/PomodoroFloating.vue": {
+      "fs": 1,
+      "r": 1
+    },
+    "components/ui/PomodoroMain.vue": {
+      "fs": 3,
+      "r": 3
+    },
+    "style.css": {
+      "fs": 4,
+      "r": 2
+    },
+    "views/BackgroundSettings.vue": {
+      "fs": 0,
+      "r": 17
+    },
+    "views/CalendarView.vue": {
+      "fs": 2,
+      "r": 5
+    },
+    "views/Categories.vue": {
+      "fs": 0,
+      "r": 8
+    },
+    "views/Certificate.vue": {
+      "fs": 0,
+      "r": 7
+    },
+    "views/ChallengePlay.vue": {
+      "fs": 0,
+      "r": 2
+    },
+    "views/ChapterLearn.vue": {
+      "fs": 1,
+      "r": 6
+    },
+    "views/Chat.vue": {
+      "fs": 4,
+      "r": 6
+    },
+    "views/CheckIn.vue": {
+      "fs": 3,
+      "r": 0
+    },
+    "views/CodeAgent.vue": {
+      "fs": 8,
+      "r": 20
+    },
+    "views/CodePlayground.vue": {
+      "fs": 0,
+      "r": 2
+    },
+    "views/CodePractice.vue": {
+      "fs": 3,
+      "r": 0
+    },
+    "views/Community.vue": {
+      "fs": 4,
+      "r": 0
+    },
+    "views/DocDetail.vue": {
+      "fs": 9,
+      "r": 3
+    },
+    "views/DocEdit.vue": {
+      "fs": 6,
+      "r": 2
+    },
+    "views/Docs.vue": {
+      "fs": 2,
+      "r": 0
+    },
+    "views/DrawingEditor.vue": {
+      "fs": 0,
+      "r": 4
+    },
+    "views/Favorites.vue": {
+      "fs": 2,
+      "r": 0
+    },
+    "views/FlashCardsHub.vue": {
+      "fs": 13,
+      "r": 10
+    },
+    "views/FocusMode.vue": {
+      "fs": 0,
+      "r": 6
+    },
+    "views/Habits.vue": {
+      "fs": 4,
+      "r": 0
+    },
+    "views/Home.vue": {
+      "fs": 8,
+      "r": 11
+    },
+    "views/KBTitle.vue": {
+      "fs": 0,
+      "r": 2
+    },
+    "views/KnowledgeCreate.vue": {
+      "fs": 0,
+      "r": 6
+    },
+    "views/KnowledgeHome.vue": {
+      "fs": 0,
+      "r": 17
+    },
+    "views/KnowledgeMasteryDetail.vue": {
+      "fs": 3,
+      "r": 6
+    },
+    "views/KnowledgeUpload.vue": {
+      "fs": 0,
+      "r": 13
+    },
+    "views/LearningCenterPage.vue": {
+      "fs": 4,
+      "r": 7
+    },
+    "views/LearningEvents.vue": {
+      "fs": 0,
+      "r": 4
+    },
+    "views/LearningPaths.vue": {
+      "fs": 0,
+      "r": 10
+    },
+    "views/LearningPrefs.vue": {
+      "fs": 0,
+      "r": 1
+    },
+    "views/LearningReportPage.vue": {
+      "fs": 1,
+      "r": 0
+    },
+    "views/LocalReader.vue": {
+      "fs": 7,
+      "r": 6
+    },
+    "views/Login.vue": {
+      "fs": 5,
+      "r": 2
+    },
+    "views/MasteryDashboard.vue": {
+      "fs": 2,
+      "r": 10
+    },
+    "views/Messages.vue": {
+      "fs": 4,
+      "r": 9
+    },
+    "views/MindMap.vue": {
+      "fs": 0,
+      "r": 5
+    },
+    "views/Mistakes.vue": {
+      "fs": 4,
+      "r": 0
+    },
+    "views/NotFound.vue": {
+      "fs": 2,
+      "r": 2
+    },
+    "views/NoteEdit.vue": {
+      "fs": 1,
+      "r": 1
+    },
+    "views/NotesManage.vue": {
+      "fs": 6,
+      "r": 6
+    },
+    "views/Notifications.vue": {
+      "fs": 2,
+      "r": 0
+    },
+    "views/PomodoroPage.vue": {
+      "fs": 11,
+      "r": 14
+    },
+    "views/PostDetail.vue": {
+      "fs": 1,
+      "r": 0
+    },
+    "views/Profile.vue": {
+      "fs": 4,
+      "r": 2
+    },
+    "views/RedBlackTree.vue": {
+      "fs": 2,
+      "r": 1
+    },
+    "views/Redirect.vue": {
+      "fs": 1,
+      "r": 0
+    },
+    "views/SearchResult.vue": {
+      "fs": 3,
+      "r": 1
+    },
+    "views/SmartQuiz.vue": {
+      "fs": 1,
+      "r": 1
+    },
+    "views/SmartWriting.vue": {
+      "fs": 2,
+      "r": 2
+    },
+    "views/StudyGroup.vue": {
+      "fs": 1,
+      "r": 14
+    },
+    "views/TaskCenter.vue": {
+      "fs": 1,
+      "r": 1
+    },
+    "views/TaskKanban.vue": {
+      "fs": 4,
+      "r": 5
+    },
+    "views/TaskManager.vue": {
+      "fs": 2,
+      "r": 5
+    },
+    "views/TaskQuadrant.vue": {
+      "fs": 5,
+      "r": 4
+    },
+    "views/UploadDoc.vue": {
+      "fs": 0,
+      "r": 2
+    },
+    "views/WeeklyReport.vue": {
+      "fs": 0,
+      "r": 12
+    },
+    "views/Workbench.vue": {
+      "fs": 9,
+      "r": 2
+    },
+    "views/WorkbenchCapture.vue": {
+      "fs": 1,
+      "r": 0
+    },
+    "views/WorkbenchNoteEdit.vue": {
+      "fs": 2,
+      "r": 2
+    },
+    "views/WorkbenchPalace.vue": {
+      "fs": 2,
+      "r": 0
+    },
+    "views/WorkbenchRecall.vue": {
+      "fs": 4,
+      "r": 1
+    },
+    "views/WorkbenchReview.vue": {
+      "fs": 3,
+      "r": 1
+    },
+    "views/WorkbenchStory.vue": {
+      "fs": 1,
+      "r": 0
+    },
+    "views/admin/CategoryMgmt.vue": {
+      "fs": 1,
+      "r": 0
+    },
+    "views/admin/ChapterEdit.vue": {
+      "fs": 0,
+      "r": 5
+    },
+    "views/admin/DatabaseSettings.vue": {
+      "fs": 1,
+      "r": 0
+    },
+    "views/admin/DocManagement.vue": {
+      "fs": 2,
+      "r": 10
+    },
+    "views/admin/FileMgmt.vue": {
+      "fs": 2,
+      "r": 8
+    },
+    "views/admin/IconManagement.vue": {
+      "fs": 4,
+      "r": 9
+    },
+    "views/admin/KnowledgeMgmt.vue": {
+      "fs": 3,
+      "r": 0
+    },
+    "views/admin/Overview.vue": {
+      "fs": 1,
+      "r": 6
+    },
+    "views/admin/QuizMgmt.vue": {
+      "fs": 1,
+      "r": 0
+    },
+    "views/admin/TagManagement.vue": {
+      "fs": 4,
+      "r": 1
+    },
+    "views/workbench-shared.css": {
+      "fs": 6,
+      "r": 0
+    }
+  },
+  "totals": {
+    "files": 111,
+    "fs": 284,
+    "r": 444
+  }
+}
