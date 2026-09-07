@@ -70,5 +70,12 @@ public enum LearningEventType {
     FEYNMAN_EXPRESSED,
 
     /** 每日签到（CheckIn 写入 UserCheckIn） */
-    CHECK_IN;
+    CHECK_IN,
+
+    /**
+     * 第一性原理推导提交（Architecture-4.1-§14~17：六环节结构完整度评分后落库，
+     * 元数据携带 topic/completeness/filled/total/missing；只证明「推导过程写全了」，
+     * 不证明语义正确，不直写掌握度）。
+     */
+    FIRST_PRINCIPLES_DERIVED;
 }

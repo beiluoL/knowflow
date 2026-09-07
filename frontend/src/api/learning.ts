@@ -38,6 +38,9 @@ import type {
   FeynmanRubricVO,
   FeynmanSubmitInput,
   FeynmanSubmitResultVO,
+  FirstPrinciplesRubricVO,
+  FirstPrinciplesSubmitInput,
+  FirstPrinciplesSubmitResultVO,
 } from './types'
 
 export const learningApi = {
@@ -138,6 +141,15 @@ export const learningApi = {
   /** 提交费曼表达（确定性自检计分 → FEYNMAN_EXPRESSED 事件） */
   submitFeynman: (data: FeynmanSubmitInput) =>
     apiPost<FeynmanSubmitResultVO>('/learning/feynman/submit', data),
+
+  // ============================================================
+  // Architecture-4.1：第一性原理推导（Understanding 节点）
+  // ============================================================
+  /** 第一性原理六环节 rubric（服务端常量：环节定义 + 计分口径） */
+  firstPrinciplesRubric: () => apiGet<FirstPrinciplesRubricVO>('/learning/first-principles/rubric'),
+  /** 提交第一性原理推导（结构完整度评估 → FIRST_PRINCIPLES_DERIVED 事件） */
+  submitFirstPrinciples: (data: FirstPrinciplesSubmitInput) =>
+    apiPost<FirstPrinciplesSubmitResultVO>('/learning/first-principles/submit', data),
 
   // SM-2 间隔重复复习：quality ∈ [0,5]，<3 重置，3=有印象，5=完全掌握
   reviewFlashcard: (id: number, quality: number) =>

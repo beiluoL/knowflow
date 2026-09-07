@@ -263,6 +263,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/FeynmanLab.vue'),
     meta: { layout: 'c', requiresAuth: true },
   },
+  // Architecture-4.1：第一性原理推导（Understanding 节点；从学习中心「更多工具 → 第一性原理」进入，不进侧边栏菜单）
+  {
+    path: '/learning/first-principles',
+    name: 'FirstPrinciplesLab',
+    component: () => import('@/views/FirstPrinciplesLab.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
   // 沉浸式学习模式：无顶栏
   {
     path: '/learning/mode',

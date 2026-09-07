@@ -756,6 +756,48 @@ export interface FeynmanSubmitResultVO {
   recorded: boolean
 }
 
+// ===== Architecture-4.1：第一性原理推导（Understanding 节点，§14~17） =====
+
+/** 第一性原理单个环节定义（服务端常量下发，前端不重复定义口径） */
+export interface FirstPrinciplesStepVO {
+  key: 'facts' | 'assumptions' | 'constraints' | 'mechanism' | 'causality' | 'derivation'
+  index: number
+  title: string
+  hint: string
+  placeholder: string
+  minLength: number
+}
+
+/** 第一性原理 rubric */
+export interface FirstPrinciplesRubricVO {
+  steps: FirstPrinciplesStepVO[]
+  scoringNote: string
+}
+
+/** 第一性原理提交入参（六环节全部由用户填写） */
+export interface FirstPrinciplesSubmitInput {
+  topic: string
+  facts: string
+  assumptions: string
+  constraints: string
+  mechanism: string
+  causality: string
+  derivation: string
+  durationSeconds?: number
+}
+
+/** 第一性原理提交结果（结构完整度，非语义正确性） */
+export interface FirstPrinciplesSubmitResultVO {
+  topic: string
+  completeness: number
+  filled: number
+  total: number
+  missing: string[]
+  steps: FirstPrinciplesStepVO[]
+  comment: string
+  recorded: boolean
+}
+
 // ===== 错题 =====
 export interface MistakeVO {
   id: number

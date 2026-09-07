@@ -146,6 +146,7 @@ const eventTypes: { value: string; label: string }[] = [
   { value: 'LEARNING_TASK_COMPLETE', label: '任务完成' },
   { value: 'SCENARIO_COMPLETED', label: '场景练习' },
   { value: 'FEYNMAN_EXPRESSED', label: '费曼表达' },
+  { value: 'FIRST_PRINCIPLES_DERIVED', label: '第一性原理' },
 ]
 
 const labelMap = new Map(eventTypes.map((t) => [t.value, t.label]))

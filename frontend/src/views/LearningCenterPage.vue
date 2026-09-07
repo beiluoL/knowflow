@@ -89,6 +89,34 @@
         <span v-if="scenarioDebt.length > 5" class="ta-chip-more">+{{ scenarioDebt.length - 5 }}</span>
       </div>
 
+      <!-- Architecture-4.1 §28：轻量学习状态（当前知识 / 掌握 / 优势 / 需加强 / 下一步）——
+           只在有真实 Evidence 时出现，不铺 20 张数据卡片；无数据整块隐藏（§33 不伪造） -->
+      <div v-if="strengthSummary.strongest" class="ta-evidence">
+        <div class="ta-evidence-head">
+          <Icon name="trending-up" :size="13" />
+          <span>当前情况</span>
+          <span v-if="latestEvidenceLabel" class="ta-evidence-latest">最近：{{ latestEvidenceLabel }}</span>
+        </div>
+        <div class="ta-evidence-rows">
+          <div class="ta-evidence-row">
+            <span class="ta-evidence-key">优势</span>
+            <span class="ta-evidence-val ta-evidence-good">
+              {{ DIMENSION_LABEL[strengthSummary.strongest.dimension] }} {{ strengthSummary.strongest.score }} 分
+            </span>
+          </div>
+          <div v-if="strengthSummary.weakest" class="ta-evidence-row">
+            <span class="ta-evidence-key">需要加强</span>
+            <span class="ta-evidence-val ta-evidence-bad">
+              {{ DIMENSION_LABEL[strengthSummary.weakest.dimension] }} {{ strengthSummary.weakest.score }} 分
+            </span>
+          </div>
+          <div v-if="nextStrategyLabel" class="ta-evidence-row">
+            <span class="ta-evidence-key">下一步</span>
+            <span class="ta-evidence-val">{{ nextStrategyLabel }}</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Architecture-4/5：下一步（§225 流程收尾：今日计划 → 待复习 → 薄弱 → 路径 → 下一步） -->
       <div class="ta-next">
         <NextActionCard :action="nextAction" dismissible />
@@ -453,6 +481,11 @@ import { resolveNextAction } from '@/learning/action-priority'
 import { actionToCta } from '@/learning/route'
 import { scenarioPracticeDebt } from '@/learning/scenario-debt'
 import { diagnoseLearningState } from '@/learning/intelligence/diagnosis'
+import { resolveEvidenceBatch } from '@/learning/evidence/resolver'
+import { aggregateEvidence } from '@/learning/evidence/aggregate'
+import { diagnoseFromEvidence, strongestAndWeakest, DIMENSION_LABEL } from '@/learning/evidence/diagnosis'
+import { buildTopCandidate } from '@/learning/evidence/action-candidate'
+import { STRATEGY_LABEL } from '@/learning/evidence/strategy'
 import type { NextLearningAction } from '@/learning/types';
 import type { LearningDiagnosis } from '@/learning/intelligence/types';
 import type {
@@ -462,6 +495,7 @@ import type {
   DailyActivityVO,
   LearningTaskInput,
   KnowledgeMasteryVO,
+  LearningEventVO,
 } from '@/api/types'
 import type { ScenarioPracticeDebtItem } from '@/learning/scenario-debt'
 
@@ -533,7 +567,54 @@ const donePercent = computed(() => {
 /** 当前学习路径：取第一个路径，仅读其章节进度，不做 N+1（§70/§71） */
 const currentPath = computed(() => ongoingPaths.value[0] || null)
 
-/** Architecture-4/4.0：唯一 Next Action 决策入口（§69/§179）——Review > Task > Weak > GoalPath > Path > Explore */
+/* ============ Architecture-4.1：Evidence & Strategy Engine（§4-§30） ============
+ * 数据流：最近学习事件 → resolveEvidenceBatch（Event→Evidence）
+ *   → aggregateEvidence（多次证据 + 时间衰减 + 样本上限）
+ *   → diagnoseFromEvidence（能力诊断 + 确定性根因）
+ *   → buildTopCandidate（Strategy + App 可用性 + Goal 上下文）
+ *   → 作为 ctx.evidence 注入既有 resolveNextAction 统一排序（§25：不重写 NextAction）。
+ * 无事件 / 无证据时整条链自动为空，既有行为完全不变（§36）。
+ */
+const recentEvents = ref<LearningEventVO[]>([])
+
+async function loadEvidence() {
+  try {
+    // 一次请求取最近全类型事件（后端支持不带 eventType 分页），避免 6 次类型轮询
+    const page = await learningApi.learningEvents({ current: 1, size: 100 })
+    recentEvents.value = page.records ?? []
+  } catch {
+    recentEvents.value = [] // 静默降级：Evidence 缺失不影响学习中心其余部分
+  }
+}
+
+/** 事件 → 证据（不可解析的事件自动丢弃） */
+const evidences = computed(() => resolveEvidenceBatch(recentEvents.value))
+/** 证据 → 六维聚合（30 天窗口、时间衰减、样本上限） */
+const evidenceAggregate = computed(() => aggregateEvidence(evidences.value))
+/** 聚合 → 能力诊断（无证据返回 []，绝不编造诊断） */
+const behaviorDiagnoses = computed(() => diagnoseFromEvidence(evidenceAggregate.value))
+/** 诊断 → 策略 → 候选动作（过 App 可用性 + 绑定 Goal 上下文） */
+const evidenceCandidate = computed(() =>
+  buildTopCandidate(evidenceAggregate.value, behaviorDiagnoses.value, appStore.enabledApps, {
+    goal: activeGoal.value,
+  }),
+)
+
+/** §28 轻量状态：优势 / 需加强（只在有真实 Evidence 的维度里比较） */
+const strengthSummary = computed(() => strongestAndWeakest(evidenceAggregate.value))
+/** 最近一次证据的标签（用户自己填的主题，真实可见，用于「最近在练」上下文） */
+const latestEvidenceLabel = computed(() => {
+  const last = evidences.value[evidences.value.length - 1]
+  return last ? last.label : null
+})
+/** 下一步策略名（供状态卡展示，与 NextAction 同源） */
+const nextStrategyLabel = computed(() => {
+  const c = evidenceCandidate.value
+  return c ? STRATEGY_LABEL[c.strategy] : null
+})
+
+/** Architecture-4/4.0 + 4.1：唯一 Next Action 决策入口（§69/§179）——
+ *  Review > Task > Evidence(4.1) > Weak > GoalPath > Path > Explore */
 const nextAction = computed<NextLearningAction>(() =>
   resolveNextAction({
     reviewRequired: reviewRequired.value,
@@ -543,6 +624,7 @@ const nextAction = computed<NextLearningAction>(() =>
     goal: activeGoal.value,
     goalPath: goalLinkedPath.value,
     installedApps: appStore.enabledApps,
+    evidence: evidenceCandidate.value,
   }),
 )
 
@@ -680,6 +762,8 @@ const quickNavItems = [
   { label: '场景练习', icon: 'pen-tool', color: '#06B6D4', to: '/learning/scenario' },
   // Architecture-4.0-7：费曼表达（Expression 节点：四维确定性自检评分，非 App 无需启用态过滤）
   { label: '费曼表达', icon: 'book-open', color: '#8B5CF6', to: '/learning/feynman' },
+  // Architecture-4.1：第一性原理推导（Understanding 节点：六环节结构完整度，非 App 无需启用态过滤）
+  { label: '第一性原理', icon: 'compass', color: '#8B5CF6', to: '/learning/first-principles' },
   { label: '闪卡复习', icon: 'layers', color: 'var(--kb-success)', to: '/learning/flashcards' },
   { label: '知识图谱', icon: 'share-2', color: '#8B5CF6', to: '/learning/knowledge-graph' },
   { label: '行为事件', icon: 'activity', color: 'var(--kb-primary)', to: '/learning/events' },
@@ -854,7 +938,8 @@ async function loadData(): Promise<void> {
   }
 
   // Phase UI-4：待复习 / 待巩固 独立并联加载，任一失败只影响对应卡片，不阻塞学习中心（§44/§45）
-  await Promise.allSettled([loadReviewRequired(), loadWeakPoints(), loadScenarioDebt()])
+  // Architecture-4.1：Evidence 事件流同样独立加载（失败静默，Evidence 缺失不阻塞既有功能）
+  await Promise.allSettled([loadReviewRequired(), loadWeakPoints(), loadScenarioDebt(), loadEvidence()])
 }
 
 onMounted(() => {
@@ -989,6 +1074,53 @@ onMounted(() => {
 .ta-chip-more {
   font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
+}
+
+/* Architecture-4.1 §28：轻量学习状态卡（当前情况 → 下一步，不铺数据看板） */
+.ta-evidence {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  background: var(--kb-bg);
+}
+.ta-evidence-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: var(--kb-fs-caption);
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+.ta-evidence-latest {
+  margin-left: auto;
+  font-weight: 400;
+  color: var(--kb-muted-foreground);
+}
+.ta-evidence-rows {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+}
+.ta-evidence-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--kb-fs-caption);
+}
+.ta-evidence-key {
+  color: var(--kb-muted-foreground);
+}
+.ta-evidence-val {
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+.ta-evidence-good {
+  color: var(--kb-success);
+}
+.ta-evidence-bad {
+  color: var(--kb-danger);
 }
 
 /* Architecture-5 §225：下一步收尾主流程 */

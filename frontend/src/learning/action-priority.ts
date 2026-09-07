@@ -96,7 +96,20 @@ export function resolveNextAction(
     }
   }
 
-  // 3. WEAK：有薄弱知识点 → 重新学习（§56/§130/§249）
+  // 3.5 EVIDENCE（Architecture-4.1 §25）：有真实 Evidence → Diagnosis → Strategy 的候选动作时，
+  //     作为「能力补强」插入。位于 TASK 之后、WEAK 之前：Evidence 比「掌握度偏低」这种泛化信号更具体
+  //     （它知道弱在记忆 / 理解 / 讲解 / 应用哪一项）。ctx.evidence 为空时本分支不执行，
+  //     既有优先级链完全不变（§36）。
+  if (!skipped.has('EVIDENCE_PRACTICE') && ctx.evidence?.action) {
+    const candidate = ctx.evidence
+    return {
+      ...candidate.action,
+      type: 'EVIDENCE_PRACTICE',
+      behaviorDiagnosis: candidate.diagnosis,
+    }
+  }
+
+  // 4. WEAK：有薄弱知识点 → 重新学习（§56/§130/§249）
   if (!skipped.has('KNOWLEDGE') && !skipped.has('MINI_APP') && ctx.weakPoints.length > 0) {
     const weakest = [...ctx.weakPoints].sort((a, b) => a.masteryScore - b.masteryScore)[0]
     const appAction = buildWeakAppAction(weakest, ctx.installedApps ?? [], skipped)
@@ -112,7 +125,7 @@ export function resolveNextAction(
     }
   }
 
-  // 4. PATH · 目标上下文（Architecture-4.0-2，§10/§26）：有当前目标时，「下一步」优先服务目标——
+  // 4.5 PATH · 目标上下文（Architecture-4.0-2，§10/§26）：有当前目标时，「下一步」优先服务目标——
   //    目标刚落地路线（0%）也会被推荐起步，而不是只认「进行中(0<p<100)」的路径。
   //    复习/任务/薄弱等健康信号仍在前（第 1-3 步），不会因目标存在被压过（§43）。
   if (!skipped.has('LEARNING_PATH')) {
@@ -120,7 +133,7 @@ export function resolveNextAction(
     if (goalAction) return goalAction
   }
 
-  // 5. PATH：有进行中的学习路径且未完成 → 继续路径（§57）
+  // 5.5 PATH：有进行中的学习路径且未完成 → 继续路径（§57）
   if (!skipped.has('LEARNING_PATH') && isPathInProgress(ctx.currentPath)) {
     const path = ctx.currentPath as NonNullable<LearningActionContext['currentPath']>
     return {

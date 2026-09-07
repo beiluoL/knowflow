@@ -18,7 +18,23 @@ export const ACTION_ROUTES: Record<Exclude<LearningActionType, 'MINI_APP'>, stri
   LEARNING_PATH: '/learning/path/:id',
   TASK: '/learning/center',
   EXPLORE: '/learning/paths',
+  EVIDENCE_PRACTICE: '/learning/center',
 }
+
+/**
+ * Architecture-4.1 §25：Evidence Strategy 允许落地的核心练习页（本地静态白名单）。
+ * 与 Mini App 路由同理（§82-84）：只接受白名单内的固定路径，禁止任意远程 URL / javascript:。
+ */
+export const EVIDENCE_PRACTICE_ROUTES: string[] = [
+  '/learning/flashcards',
+  '/learning/quiz',
+  '/learning/review',
+  '/learning/scenario',
+  '/learning/feynman',
+  '/learning/first-principles',
+  '/learning/writing',
+  '/learning/center',
+]
 
 /** 动作 → 路由（白名单校验后返回；非法时回退到学习中心） */
 export function resolveActionRoute(action: NextLearningAction): string {
@@ -26,6 +42,10 @@ export function resolveActionRoute(action: NextLearningAction): string {
     // Mini App 路由必须来自本地 Registry（§85），未知 appKey 一律回退
     const app = action.appKey ? getAppByKey(action.appKey) : undefined
     return app?.route ?? '/learning/center'
+  }
+  if (action.type === 'EVIDENCE_PRACTICE') {
+    // Evidence 候选的路由必须落在本地白名单内，否则回退学习中心（§83）
+    return EVIDENCE_PRACTICE_ROUTES.includes(action.route) ? action.route : '/learning/center'
   }
   if (action.type === 'KNOWLEDGE' && action.knowledgeId != null) {
     return `/learning/knowledge-mastery/${action.knowledgeId}`
@@ -70,6 +90,11 @@ export function actionToCta(action: NextLearningAction): ActionCta {
     case 'MINI_APP': {
       const app = action.appKey ? getAppByKey(action.appKey) : undefined
       return { text: `打开${app?.name ?? '应用'}`, icon: 'play', path: resolveActionRoute(action) }
+    }
+    case 'EVIDENCE_PRACTICE': {
+      // §22-24：文案优先用 Strategy 名称（如「场景应用」「费曼表达」），由候选动作自带 title
+      const label = action.behaviorDiagnosis ? action.title : '开始练习'
+      return { text: label, icon: 'zap', path: resolveActionRoute(action) }
     }
     case 'LEARNING_PATH':
       return { text: '继续学习', icon: 'play', path: resolveActionRoute(action) }

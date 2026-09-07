@@ -9,6 +9,8 @@
 import type { KnowledgeMasteryVO, LearningTaskVO, LearningPathVO, LearningGoalVO } from '@/api/types'
 import type { AppDefinition } from '@/apps/types'
 import type { DiagnosisType } from './intelligence/types'
+import type { BehaviorDiagnosis } from './evidence/diagnosis'
+import type { StrategyActionCandidate } from './evidence/action-candidate'
 
 /** 下一步动作类型（§172）。类型体系对齐项目现有风格，禁止 any（§173）。 */
 export type LearningActionType =
@@ -20,6 +22,8 @@ export type LearningActionType =
   | 'TASK' // 完成今日任务（/learning/center）
   | 'MINI_APP' // 打开某个 Mini App（route 经本地 Registry 解析 §82-84）
   | 'EXPLORE' // 兜底：继续探索知识（/learning/paths）
+  /** Architecture-4.1 §25：由 Evidence → Strategy 推导的「核心练习页」动作（路由走本地白名单） */
+  | 'EVIDENCE_PRACTICE'
 
 /** 最近完成动作（循环保护 §260-264）：同类型动作刚完成，不立即再次推荐。 */
 export interface LastCompletedAction {
@@ -50,6 +54,12 @@ export interface LearningActionContext {
   goalPath?: LearningPathVO | null
   /** 已安装且启用的 App（前端 Registry 白名单） */
   installedApps?: AppDefinition[]
+  /**
+   * Architecture-4.1 §25：由 Evidence → Diagnosis → Strategy 产出的候选动作（可空）。
+   * 为空时 resolveNextAction 行为与 4.1 之前**完全一致**（§36 不破坏既有优先级）。
+   * 非空时作为「能力补强」动作插入既有优先级链中（位于 TASK 之后、WEAK 之前）。
+   */
+  evidence?: StrategyActionCandidate | null
   /** 最近完成动作（循环保护 §260-264；页面传入，如 Quiz 提交后 lastCompleted.type='QUIZ'） */
   lastCompleted?: LastCompletedAction | null
 }
@@ -80,4 +90,9 @@ export interface NextLearningAction {
    * Explore / Task 等动作通常无诊断（§101-103）。
    */
   diagnosisType?: DiagnosisType
+  /**
+   * Architecture-4.1 §25：触发本动作的能力诊断（真实 Evidence 推导，可空）。
+   * 仅用于展示「为什么推荐这个」，不参与优先级计算。
+   */
+  behaviorDiagnosis?: BehaviorDiagnosis
 }
