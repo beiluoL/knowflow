@@ -1,0 +1,406 @@
+{
+  "project": "java-ai-interview",
+  "version": "5.1.0",
+  "description": "知识点机器索引；正式归属 24 模块（curriculum/CURRICULUM_MAPPING.md）；待审核区不计入",
+  "topics": [
+    {
+      "topic_id": "JAVA-CONCURRENCY-ATOMIC-CLASSES",
+      "title": "Java 原子类与底层实现：AtomicInteger、AtomicReference 与 LongAdder",
+      "module": "M03",
+      "domain": "java",
+      "priority": "P0",
+      "source": "V4.1 新写（V6.1 样板）",
+      "file": "chapters/java/atomic-classes.md",
+      "version": "4.1.0",
+      "prerequisites": [
+        "JAVA-CONCURRENCY-JMM",
+        "JAVA-CONCURRENCY-VOLATILE-ATOMICITY",
+        "JAVA-CONCURRENCY-CAS-ABA"
+      ],
+      "next": [
+        "JAVA-CONCURRENCY-AQS(text)",
+        "JAVA-COLLECTIONS-CONCURRENT-HASHMAP"
+      ],
+      "content_status": "pending_human_review",
+      "technical_review": "passed",
+      "code_verified": true,
+      "code_verified_note": "",
+      "human_review": "pending",
+      "sha256": "e1f7b911b4f262087d89372f2f4496dd90c0e01796f6ee7ffe515e2ddd92094b",
+      "evidence": "examples/atomic-quota-verify/（26/26）+ 99-maintenance/evidence/batch-4/（maven-test-results.txt + 4 个 JDK17 源码提取件）"
+    },
+    {
+      "topic_id": "JAVA-CONCURRENCY-CAS-ABA",
+      "title": "CAS 与 ABA：无锁原子更新的陷阱与版本号防线",
+      "module": "M03",
+      "domain": "java",
+      "priority": "P0",
+      "source": "V4.1 新写",
+      "file": "chapters/java/cas-aba.md",
+      "version": "4.1.0",
+      "prerequisites": [
+        "JAVA-CONCURRENCY-VOLATILE-ATOMICITY"
+      ],
+      "next": [
+        "JAVA-CONCURRENCY-AQS(text)",
+        "JAVA-COLLECTIONS-CONCURRENT-HASHMAP"
+      ],
+      "content_status": "pending_human_review",
+      "technical_review": "passed",
+      "code_verified": true,
+      "code_verified_note": "",
+      "human_review": "pending",
+      "sha256": "abf96bf0b1a97b1dace42e536f24a90d77ab07dd1241e89e577b39f3a880eedb",
+      "evidence": "99-maintenance/evidence/batch-3/evidence-volatile-cas.txt"
+    },
+    {
+      "topic_id": "JAVA-COLLECTIONS-CONCURRENT-HASHMAP",
+      "title": "ConcurrentHashMap：从 CAS 占桶到协作扩容",
+      "module": "M02",
+      "domain": "java",
+      "priority": "P0",
+      "source": "融合重写：吸收 java-ai-interview-v2 concurrenthashmap.md（2.0.3）+ chm/01-12 专题（2.0.0-2.0.3）；V2 原件存于 90-legacy-review/v2/",
+      "file": "chapters/java/concurrenthashmap.md",
+      "version": "4.1.0",
+      "prerequisites": [
+        "JAVA-COLLECTIONS-HASHMAP",
+        "JAVA-CONCURRENCY-VOLATILE-ATOMICITY",
+        "JAVA-CONCURRENCY-CAS-ABA"
+      ],
+      "next": [
+        "JAVA-CONCURRENCY-AQS(text)",
+        "JAVA-CONCURRENCY-THREAD-POOL-EXECUTOR(legacy)"
+      ],
+      "content_status": "pending_human_review",
+      "technical_review": "passed",
+      "code_verified": true,
+      "code_verified_note": "",
+      "human_review": "pending",
+      "sha256": "43f2fcf0a3d689ddfbca91ab38fe23dab56c2ff0b6827a0a3713d6ed3f5c7dee",
+      "evidence": "99-maintenance/evidence/batch-3/evidence-chm-4.txt"
+    },
+    {
+      "topic_id": "JAVA-COLLECTIONS-HASHMAP",
+      "title": "HashMap：从键的契约到扩容与树化",
+      "module": "M02",
+      "domain": "java",
+      "priority": "P0",
+      "source": "融合重写：吸收 java-ai-interview-v2/chapters/java/hashmap.md（2.0.1，pending_review）的源码定位与实验；V2 原件存于 90-legacy-review/v2/",
+      "file": "chapters/java/hashmap.md",
+      "version": "4.1.0",
+      "prerequisites": [],
+      "next": [
+        "JAVA-COLLECTIONS-CONCURRENT-HASHMAP(legacy)"
+      ],
+      "content_status": "pending_human_review",
+      "technical_review": "passed",
+      "code_verified": true,
+      "code_verified_note": "",
+      "human_review": "pending",
+      "sha256": "0ae961c0065f4872300e0684745303b4bf39d0d7098a204704a9a82393da80a2",
+      "evidence": "99-maintenance/evidence/batch-2/evidence-hashkey.txt, evidence-hashresizetree.txt"
+    },
+    {
+      "topic_id": "JAVA-CONCURRENCY-JMM",
+      "title": "JMM 与 happens-before：并发程序为什么「看起来没问题」",
+      "module": "M03",
+      "domain": "java",
+      "priority": "P0",
+      "source": "V4.1 新写",
+      "file": "chapters/java/jmm-happens-before.md",
+      "version": "4.1.0",
+      "prerequisites": [],
+      "next": [
+        "JAVA-CONCURRENCY-SYNCHRONIZED",
+        "JAVA-CONCURRENCY-VOLATILE(planned)"
+      ],
+      "content_status": "pending_human_review",
+      "technical_review": "passed",
+      "code_verified": true,
+      "code_verified_note": "",
+      "human_review": "pending",
+      "sha256": "d3e191acb508adccdac19356cb1efd7386ff5ea35ea14de746645cdc7fcad2b4",
+      "evidence": "99-maintenance/evidence/batch-1/"
+    },
+    {
+      "topic_id": "JAVA-CONCURRENCY-SYNCHRONIZED",
+      "title": "synchronized 与 Monitor：从字节码到锁升级的完整链路",
+      "module": "M03",
+      "domain": "java",
+      "priority": "P0",
+      "source": "V4.1 新写",
+      "file": "chapters/java/synchronized-monitor.md",
+      "version": "4.1.0",
+      "prerequisites": [
+        "JAVA-CONCURRENCY-JMM"
+      ],
+      "next": [
+        "JAVA-CONCURRENCY-AQS(text)",
+        "JAVA-COLLECTIONS-CONCURRENT-HASHMAP(legacy)"
+      ],
+      "content_status": "pending_human_review",
+      "technical_review": "passed",
+      "code_verified": true,
+      "code_verified_note": "",
+      "human_review": "pending",
+      "sha256": "1dafe7dbc0ed1178436ccba633fc6cf88186c874c1e0299788e47349a1670d95",
+      "evidence": "99-maintenance/evidence/batch-1/"
+    },
+    {
+      "topic_id": "JAVA-CONCURRENCY-VOLATILE-ATOMICITY",
+      "title": "volatile 与原子性：可见性、原子性和 CAS 的边界",
+      "module": "M03",
+      "domain": "java",
+      "priority": "P0",
+      "source": "V4.1 新写",
+      "file": "chapters/java/volatile-atomicity.md",
+      "version": "4.1.0",
+      "prerequisites": [
+        "JAVA-CONCURRENCY-JMM"
+      ],
+      "next": [
+        "JAVA-CONCURRENCY-CAS-ABA"
+      ],
+      "content_status": "pending_human_review",
+      "technical_review": "passed",
+      "code_verified": true,
+      "code_verified_note": "",
+      "human_review": "pending",
+      "sha256": "5556a8653827fd3fa35b9a4474223c145f3835593b95d5285afa917963dc152e",
+      "evidence": "99-maintenance/evidence/batch-3/evidence-volatile-cas.txt"
+    },
+    {
+      "topic_id": "MYSQL-MVCC",
+      "title": "MySQL MVCC：版本、Read View、快照读与锁定读",
+      "module": "M07",
+      "domain": "mysql",
+      "priority": "P0",
+      "source": "融合重写：吸收 java-ai-interview-v2/chapters/database/mysql-mvcc.md（2.0.0，pending_review）的源码定位与可见性模型；V2 原件存于 90-legacy-review/v2/",
+      "file": "chapters/mysql/mvcc.md",
+      "version": "4.1.0",
+      "prerequisites": [],
+      "next": [
+        "MYSQL-UNIQUE-INDEX-SOFT-DELETE(planned)",
+        "MYSQL-BPLUS-TREE(planned)"
+      ],
+      "content_status": "pending_human_review",
+      "technical_review": "passed",
+      "code_verified": true,
+      "code_verified_note": "",
+      "human_review": "pending",
+      "sha256": "c3b71f82a972b111ee215f48a78c93d40137f201d0679d647835b895c4d41c74",
+      "evidence": "99-maintenance/evidence/batch-2/evidence-mvcc-model.txt"
+    },
+    {
+      "topic_id": "SPRING-AOP-SELF-INVOCATION",
+      "title": "AOP 代理与自调用：@Transactional 失效的根因与修复",
+      "module": "M06",
+      "domain": "spring",
+      "priority": "P0",
+      "source": "V4.1 新写",
+      "file": "chapters/spring/aop-proxy-self-invocation.md",
+      "version": "4.1.0",
+      "prerequisites": [],
+      "next": [
+        "SPRING-IOC(planned)",
+        "SPRING-TX-PROPAGATION(planned)"
+      ],
+      "content_status": "pending_human_review",
+      "technical_review": "passed",
+      "code_verified": true,
+      "code_verified_note": "",
+      "human_review": "pending",
+      "sha256": "fbc027efddb11f9ee37a9d54133d9c88aebd081679ea81af92e61cc4cd2615cb",
+      "evidence": "examples/batch1-verify/ + 99-maintenance/evidence/batch-1/maven-test-results.txt"
+    },
+    {
+      "topic_id": "JAVA-LANG-EQUALS-HASHCODE",
+      "title": "equals、hashCode 与对象相等性：契约、陷阱与集合行为",
+      "module": "M01",
+      "domain": "java",
+      "priority": "P0",
+      "source": "V4.1 新写（Batch 4，从零）",
+      "file": "chapters/java/equals-hashcode.md",
+      "version": "4.1.0",
+      "prerequisites": [],
+      "next": [
+        "JAVA-COLLECTIONS-HASHMAP",
+        "JAVA-CONCURRENCY-AQS(text)"
+      ],
+      "content_status": "pending_human_review",
+      "technical_review": "passed",
+      "code_verified": true,
+      "code_verified_note": "",
+      "human_review": "pending",
+      "sha256": "e3ab88612e37da27fb8acb093a41ffd1e1172ebfc4fcfba85055349321962401",
+      "evidence": "examples/equals-hashcode-verify/（10/10）+ 99-maintenance/evidence/batch-4/maven-equals-hashcode.txt"
+    },
+    {
+      "topic_id": "JAVA-CONCURRENCY-AQS",
+      "title": "AQS 底层原理：state、同步队列与 park/unpark",
+      "module": "M03",
+      "domain": "java",
+      "priority": "P0",
+      "source": "融合重写：吸收 V2 aqs-reentrantlock.md（2.0.3）+ JDK17 源码镜像；V2 原件存于 90-legacy-review/v2/",
+      "file": "chapters/java/aqs.md",
+      "version": "4.1.0",
+      "prerequisites": [
+        "JAVA-CONCURRENCY-CAS-ABA",
+        "JAVA-CONCURRENCY-VOLATILE-ATOMICITY"
+      ],
+      "next": [
+        "JAVA-COLLECTIONS-CONCURRENT-HASHMAP",
+        "JAVA-CONCURRENCY-THREAD-POOL-EXECUTOR(planned)"
+      ],
+      "content_status": "pending_human_review",
+      "technical_review": "passed",
+      "code_verified": true,
+      "code_verified_note": "",
+      "human_review": "pending",
+      "sha256": "ca19ac6ef65e6bc7c47753e66d1de654dc926ed5991117062e72f83084f12ae1",
+      "evidence": "examples/aqs-verify/（13/13）+ 99-maintenance/evidence/batch-4/maven-aqs.txt + src-AQS/ReentrantLock-jdk17.txt"
+    },
+    {
+      "topic_id": "RAG-ARCHITECTURE",
+      "title": "RAG 整体架构：两条链、证据边界与可追溯回答",
+      "module": "M17",
+      "domain": "rag",
+      "priority": "P0",
+      "source": "融合重写：吸收 V2 rag-pipeline.md（2.0.0）的『三种事实分开』纪律；V2 原件存于 90-legacy-review/v2/",
+      "file": "chapters/rag/rag-architecture.md",
+      "version": "4.1.0",
+      "prerequisites": [],
+      "next": [
+        "RAG-DOC-INGESTION(planned)",
+        "RAG-CHUNKING(planned)",
+        "RAG-RETRIEVER-TOPK(planned)"
+      ],
+      "content_status": "pending_human_review",
+      "technical_review": "passed",
+      "code_verified": true,
+      "code_verified_note": "",
+      "human_review": "pending",
+      "sha256": "2c5e67f40d753c6316a249cc1ee065fca90c769a9e3d4d0b6264a5a189201334",
+      "evidence": "examples/rag-pipeline-verify/（17/17）+ 99-maintenance/evidence/batch-4/maven-rag.txt + evidence-rag-v2.txt"
+    },
+    {
+      "topic_id": "JAVA-LANG-DYNAMIC-PROXY-SPI",
+      "title": "JDK 动态代理与 SPI：运行时生成代理、InvocationHandler 分发与服务提供者发现",
+      "module": "M01",
+      "domain": "java",
+      "priority": "P0",
+      "source": "V4.1 新写（Batch 5）",
+      "file": "chapters/java/dynamic-proxy-spi.md",
+      "version": "4.1.0",
+      "prerequisites": [
+        "JAVA-LANG-REFLECTION"
+      ],
+      "next": [
+        "SPRING-AOP-SELF-INVOCATION"
+      ],
+      "content_status": "pending_human_review",
+      "technical_review": "passed",
+      "code_verified": true,
+      "code_verified_note": "",
+      "human_review": "pending",
+      "sha256": "80309309088ed80bc453ef8d38f6ee74519c5a080b2a384d3ffb5bce791dc3cb",
+      "evidence": "examples/dynamic-proxy-verify（4/4）"
+    },
+    {
+      "topic_id": "JAVA-COLLECTIONS-ARRAYLIST",
+      "title": "ArrayList：底层结构、扩容机制与 fail-fast 迭代",
+      "module": "M02",
+      "domain": "java",
+      "priority": "P0",
+      "source": "V4.1 新写（Batch 5）",
+      "file": "chapters/java/arraylist.md",
+      "version": "4.1.0",
+      "prerequisites": [
+        "JAVA-LANG-EQUALS-HASHCODE"
+      ],
+      "next": [
+        "JAVA-COLLECTIONS-LINKEDLIST"
+      ],
+      "content_status": "pending_human_review",
+      "technical_review": "passed",
+      "code_verified": true,
+      "code_verified_note": "",
+      "human_review": "pending",
+      "sha256": "b05ffceefafd980e5fafdc47c61254d80ce0eebfb0fd9a4df9a7e9ac3ba49f3e",
+      "evidence": "examples/arraylist-verify（6/6）"
+    },
+    {
+      "topic_id": "JAVA-COLLECTIONS-LINKEDLIST",
+      "title": "LinkedList：双向链表实现、插入代价与随机访问边界",
+      "module": "M02",
+      "domain": "java",
+      "priority": "P1",
+      "source": "V4.1 新写（Batch 5）",
+      "file": "chapters/java/linkedlist.md",
+      "version": "4.1.0",
+      "prerequisites": [
+        "JAVA-COLLECTIONS-ARRAYLIST"
+      ],
+      "next": [
+        "JAVA-COLLECTIONS-ITERATION-VIEWS"
+      ],
+      "content_status": "pending_human_review",
+      "technical_review": "passed",
+      "code_verified": true,
+      "code_verified_note": "",
+      "human_review": "pending",
+      "sha256": "4f4cd64604066207f0d3897f568af90aa39ac8288e784d66cc7aef170c816c18",
+      "evidence": "examples/linkedlist-verify（8/8）"
+    },
+    {
+      "topic_id": "JAVA-LANG-STRING",
+      "title": "String、StringBuilder、StringBuffer：不可变、常量池与拼接代价",
+      "module": "M01",
+      "domain": "java",
+      "priority": "P1",
+      "source": "V4.1 新写（Batch 5）",
+      "file": "chapters/java/string.md",
+      "version": "4.1.0",
+      "prerequisites": [
+        "JAVA-LANG-EQUALS-HASHCODE"
+      ],
+      "next": [
+        "JAVA-LANG-FINAL-STATIC"
+      ],
+      "content_status": "pending_human_review",
+      "technical_review": "passed",
+      "code_verified": true,
+      "code_verified_note": "",
+      "human_review": "pending",
+      "sha256": "48c45d6e3082b1a0fbe3203cf98f161fa03fdbcd7217f0eb7263446458283aab",
+      "evidence": "examples/string-verify（9/9）"
+    }
+  ],
+  "legacy_review_topics": [
+    {
+      "topic_id": "JAVA-CONCURRENCY-AQS-REENTRANTLOCK",
+      "title": "AQS 与 ReentrantLock",
+      "module": "M03",
+      "path": "90-legacy-review/v2/chapters/java/aqs-reentrantlock.md",
+      "v2_version": "2.0.3"
+    },
+    {
+      "topic_id": "JAVA-CONCURRENCY-THREAD-POOL-EXECUTOR",
+      "title": "ThreadPoolExecutor",
+      "module": "M03",
+      "path": "90-legacy-review/v2/chapters/java/threadpoolexecutor.md",
+      "v2_version": "2.0.3"
+    },
+    {
+      "topic_id": "AI-RAG-PIPELINE",
+      "title": "RAG Pipeline",
+      "module": "M17",
+      "path": "90-legacy-review/v2/chapters/ai/rag-pipeline.md",
+      "v2_version": "2.0.0"
+    }
+  ],
+  "totals": {
+    "formal": 16,
+    "legacy_review": 3
+  }
+}

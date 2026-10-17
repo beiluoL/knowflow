@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  M01 String/StringBuilder/StringBuffer —— 独立验证工程
+  范围声明：验证不可变、常量池共享、== vs equals、intern 回池、循环拼接用 StringBuilder。
+  不验证：StringTable 内部实现与 GC、StringBuffer 同步开销基准（见章节 §20）。
+  环境：OpenJDK 17.0.14 + Maven 3.8.3
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.2.5</version>
+    <relativePath/>
+  </parent>
+  <groupId>com.knowflow.interview</groupId>
+  <artifactId>string-verify</artifactId>
+  <version>1.0.0</version>
+  <name>string-verify</name>
+  <description>M01 String/StringBuilder/StringBuffer：不可变/常量池/拼接</description>
+  <properties>
+    <java.version>17</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

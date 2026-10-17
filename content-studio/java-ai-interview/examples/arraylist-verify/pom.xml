@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  M02 ArrayList —— 独立验证工程
+  范围声明：验证 1.5x 扩容（反射读 elementData.length）、ensureCapacity 预分配、
+            fail-fast（for-each 中 list.remove 抛 CME，Iterator.remove 安全）、
+            subList 为视图。不验证：hugeCapacity 边界、并发正确性（见章节 §20）。
+  环境：OpenJDK 17.0.14 + Maven 3.8.3
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.2.5</version>
+    <relativePath/>
+  </parent>
+  <groupId>com.knowflow.interview</groupId>
+  <artifactId>arraylist-verify</artifactId>
+  <version>1.0.0</version>
+  <name>arraylist-verify</name>
+  <description>M02 ArrayList：1.5x 扩容、fail-fast、subList 视图</description>
+  <properties>
+    <java.version>17</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- 白盒读取 ArrayList.elementData 需突破模块封装（仅测试用，教学用途） -->
+          <argLine>--add-opens java.base/java.util=ALL-UNNAMED</argLine>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

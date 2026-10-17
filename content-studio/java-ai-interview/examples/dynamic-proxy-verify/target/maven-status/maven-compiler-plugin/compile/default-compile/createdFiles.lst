@@ -1,0 +1,4 @@
+com/knowflow/interview/verify/dynamicproxy/Greeter.class
+com/knowflow/interview/verify/dynamicproxy/TraceHandler.class
+com/knowflow/interview/verify/dynamicproxy/RemoteGreeter.class
+com/knowflow/interview/verify/dynamicproxy/CachedGreeter.class

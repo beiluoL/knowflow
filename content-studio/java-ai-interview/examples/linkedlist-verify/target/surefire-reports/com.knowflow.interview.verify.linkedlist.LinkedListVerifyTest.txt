@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.knowflow.interview.verify.linkedlist.LinkedListVerifyTest
+-------------------------------------------------------------------------------
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.054 s -- in com.knowflow.interview.verify.linkedlist.LinkedListVerifyTest
