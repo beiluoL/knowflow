@@ -16,7 +16,7 @@
           v-model="searchKeyword"
           type="text"
           placeholder="搜索会话..."
-          class="search-input"
+          class="search-input kb-input kb-form-control"
         />
       </div>
 
@@ -32,7 +32,7 @@
             role="button"
             tabindex="0"
             @click="selectPrivateConv(conv)"
-            @keydown.enter.prevent="$event.target.click()"
+            @keydown.enter.prevent="($event.target as HTMLElement).click()"
           >
             <div class="conv-avatar" :style="{ background: getUserColor(conv.targetUserName || 'U') }">
               {{ (conv.targetUserName || 'U').charAt(0) }}
@@ -57,7 +57,7 @@
             role="button"
             tabindex="0"
             @click="openGroup(group)"
-            @keydown.enter.prevent="$event.target.click()"
+            @keydown.enter.prevent="($event.target as HTMLElement).click()"
           >
             <div class="conv-avatar group" :style="{ background: group.color || '#8B5CF6' }">
               {{ group.name.charAt(0) }}
@@ -125,7 +125,7 @@
                     <p class="message-text">{{ msg.recalled ? '[撤回的消息]' : (msg.content || '') }}</p>
                   </template>
                   <template v-else-if="msg.messageType === 'IMAGE'">
-                    <img :src="msg.fileUrl" :alt="msg.fileName" class="message-image" role="button" tabindex="0" @click="previewImage(msg.fileUrl)" @keydown.enter.prevent="$event.target.click()" />
+                    <img :src="msg.fileUrl" :alt="msg.fileName" class="message-image" role="button" tabindex="0" @click="previewImage(msg.fileUrl)" @keydown.enter.prevent="($event.target as HTMLElement).click()" />
                   </template>
                   <template v-else-if="msg.messageType === 'FILE'">
                     <a :href="msg.fileUrl" target="_blank" class="message-file">
@@ -145,7 +145,7 @@
                 </div>
                 <div class="message-time">
                   <span v-if="msg.isMine && msg.read" class="msg-read">已读</span>
-                  <span v-if="msg.isMine && !msg.recalled" class="msg-recall" role="button" tabindex="0" @click="recallPrivateMessage(msg)" @keydown.enter.prevent="$event.target.click()">撤回</span>
+                  <span v-if="msg.isMine && !msg.recalled" class="msg-recall" role="button" tabindex="0" @click="recallPrivateMessage(msg)" @keydown.enter.prevent="($event.target as HTMLElement).click()">撤回</span>
                   <span>{{ formatTime(msg.createTime) }}</span>
                 </div>
               </div>
@@ -163,7 +163,8 @@
         </div>
 
         <footer class="chat-footer">
-          <div class="input-toolbar">
+          <AIComposer v-model="messageInput" input-label="输入私聊消息" placeholder="输入消息，按 Enter 发送…" :disabled="loadingMessages" @submit="sendMessage" @input="handleTyping">
+            <template #tools>
             <input ref="imageInputRef" type="file" accept="image/*" class="hidden-input" @change="handlePrivateImageUpload" />
             <button class="tool-btn" @click="triggerPrivateImageUpload" title="发送图片">
               <Icon name="image" :size="18" />
@@ -172,20 +173,8 @@
             <button class="tool-btn" @click="triggerPrivateFileUpload" title="发送文件">
               <Icon name="paperclip" :size="18" />
             </button>
-          </div>
-          <div class="input-wrapper">
-            <textarea
-              v-model="messageInput"
-              placeholder="输入消息，按 Enter 发送..."
-              class="message-input"
-              rows="1"
-              @keydown.enter.exact.prevent="sendMessage"
-              @input="handleTyping"
-            ></textarea>
-            <button class="send-btn" :disabled="!canSend" @click="sendMessage">
-              <Icon name="send" :size="18" />
-            </button>
-          </div>
+            </template>
+          </AIComposer>
         </footer>
       </template>
     </main>
@@ -207,7 +196,7 @@
                 v-model="userSearchKeyword"
                 type="text"
                 placeholder="输入关键词..."
-                class="form-input"
+                class="form-input kb-input kb-form-control"
                 @input="searchUsersDebounced"
               />
             </div>
@@ -219,7 +208,7 @@
                 role="button"
                 tabindex="0"
                 @click="startConversation(u)"
-                @keydown.enter.prevent="$event.target.click()"
+                @keydown.enter.prevent="($event.target as HTMLElement).click()"
               >
                 <div class="conv-avatar" :style="{ background: getUserColor(u.nickname || u.username || 'U') }">
                   {{ (u.nickname || u.username || 'U').charAt(0) }}
@@ -244,6 +233,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import AIComposer from '@/components/ai/AIComposer.vue'
 import { imApi, studyGroupApi } from '@/api'
 import { notify, getApiError } from '@/utils/toast'
 import { buildWsUrl } from '@/utils/ws'
@@ -306,7 +296,6 @@ const filteredGroups = computed(() => {
   return groups.value.filter(g => g.name.toLowerCase().includes(kw))
 })
 
-const canSend = computed(() => messageInput.value.trim().length > 0)
 
 // 加载会话列表（私聊 + 群聊）
 async function loadConversations() {
@@ -340,9 +329,11 @@ async function loadMessages(convId: number) {
 }
 
 // WebSocket
+let disposed=false
+let reconnectTimer:ReturnType<typeof setTimeout>|undefined
 function connectWebSocket() {
   const token = localStorage.getItem('token')
-  if (!token) return
+  if (!token||disposed) return
 
   const wsUrl = buildWsUrl('/ws/im')
   ws = new WebSocket(wsUrl)
@@ -358,7 +349,7 @@ function connectWebSocket() {
   ws.onerror = (e) => console.error('IM WebSocket 错误', e)
   ws.onclose = () => {
     console.log('IM WebSocket 已断开')
-    setTimeout(connectWebSocket, 5000)
+    if(!disposed)reconnectTimer=setTimeout(connectWebSocket, 5000)
   }
 }
 
@@ -425,8 +416,9 @@ function handleWsMessage(data: any) {
 
 function sendWsMessage(type: string, payload: any) {
   if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({ type, ...payload }))
+    try{ws.send(JSON.stringify({ type, ...payload }));return true}catch{return false}
   }
+  return false
 }
 
 // 会话操作
@@ -439,12 +431,13 @@ function selectPrivateConv(conv: PrivateConversationVO) {
 async function sendMessage() {
   const content = messageInput.value.trim()
   if (!content || !activeConvId.value) return
-  messageInput.value = ''
-  sendWsMessage('message', {
+  const sent=sendWsMessage('message', {
     conversationId: activeConvId.value,
     messageType: 'TEXT',
     content,
   })
+  if(sent)messageInput.value=''
+  else notify('连接尚未就绪，输入已保留，请稍后重试','error')
 }
 
 function handleTyping() {
@@ -579,7 +572,7 @@ function scrollToBottom() {
 }
 
 function getUserColor(name: string): string {
-  const colors = ['#3B6FE0', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#06B6D4', '#EF4444']
+  const colors = ['var(--kb-primary)', '#8B5CF6', '#EC4899', 'var(--kb-warning)', 'var(--kb-success)', '#06B6D4', 'var(--kb-danger)']
   let hash = 0
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash)
@@ -611,6 +604,8 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  disposed=true
+  if(reconnectTimer)clearTimeout(reconnectTimer)
   if (ws) ws.close()
   if (typingTimeout.value) clearTimeout(typingTimeout.value)
 })
@@ -688,19 +683,22 @@ onUnmounted(() => {
   color: var(--kb-muted-foreground);
 }
 
-.search-input {
-  width: 100%;
+.search-input:not(.kb-form-control) {
   height: 36px;
-  padding: 0 12px 0 36px;
   border-radius: 8px;
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-sm);
   outline: none;
 }
 
-.search-input:focus {
+.search-input {
+  width: 100%;
+  padding: 0 12px 0 36px;
+  color: var(--kb-foreground);
+  font-size: var(--kb-fs-body-sm);
+}
+
+.search-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
 }
 
@@ -1173,12 +1171,12 @@ onUnmounted(() => {
   gap: 8px;
   padding: 10px 14px;
   border-radius: 12px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-background);
+  background: var(--kb-field-surface);
+  border: 0;
 }
 
 .input-wrapper:focus-within {
-  border-color: var(--kb-primary);
+  background: var(--kb-field-active);
 }
 
 .message-input {
@@ -1298,19 +1296,22 @@ onUnmounted(() => {
   margin-bottom: 8px;
 }
 
-.form-input {
-  width: 100%;
-  padding: 10px 14px;
+.form-input:not(.kb-form-control) {
   border-radius: 10px;
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
+  outline: none;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
   color: var(--kb-foreground);
   font-size: var(--kb-fs-body-md);
-  outline: none;
   box-sizing: border-box;
 }
 
-.form-input:focus {
+.form-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
 }
 
@@ -1387,4 +1388,8 @@ onUnmounted(() => {
     padding-right: 16px;
   }
 }
+</style>
+
+<style scoped>
+.input-wrapper:has(input:focus-visible){outline:0}.input-wrapper input.kb-form-control,.input-wrapper input.kb-form-control:focus,.input-wrapper input.kb-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
 </style>

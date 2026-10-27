@@ -126,6 +126,12 @@ public class ToolRegistry {
             record.setLatencyMs(System.currentTimeMillis() - start);
             toolCallMapper.insert(record);
             return result;
+        } catch (com.knowflow.exception.BusinessException e) {
+            record.setStatus("failed");
+            record.setResultJson(e.getMessage());
+            record.setLatencyMs(System.currentTimeMillis() - start);
+            toolCallMapper.insert(record);
+            return ToolResult.fail(e.getMessage(), record.getLatencyMs());
         } catch (ToolException e) {
             record.setStatus("failed");
             record.setResultJson("{\"error\":\"" + e.getMessage() + "\"}");

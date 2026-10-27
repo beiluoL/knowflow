@@ -28,6 +28,9 @@ public class QuizAnswerRecord extends BaseEntity {
     /** 答题耗时（秒） */
     private Integer timeCost;
 
+    /** 原作答时题目、版本、判分规则与可选复测来源；旧记录为null。 */
+    private String questionSnapshot;
+
     /** AI 评语（简答题等主观题预留） */
     private String aiFeedback;
 }

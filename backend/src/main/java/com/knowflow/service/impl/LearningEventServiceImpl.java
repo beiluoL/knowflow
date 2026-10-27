@@ -35,6 +35,11 @@ public class LearningEventServiceImpl extends ServiceImpl<LearningEventMapper, L
     /** 掌握度引擎：事件落库后触发（独立 try/catch，失败仅告警，不阻断业务）。 */
     private final KnowledgeMasteryService knowledgeMasteryService;
 
+    /** 奖励引擎（Architecture-2）：事件是奖励的唯一行为输入（§13/§19），失败不影响主流程。 */
+    private final com.knowflow.reward.RewardEngine rewardEngine;
+    private final org.springframework.transaction.PlatformTransactionManager transactionManager;
+    private final org.springframework.context.ApplicationEventPublisher publisher;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void record(Long userId, String eventType, String resourceType, Long resourceId, Map<String, Object> metadata) {
@@ -69,14 +74,48 @@ public class LearningEventServiceImpl extends ServiceImpl<LearningEventMapper, L
             event.setResourceId(resourceId);
             event.setMetadata(serialize(metadata));
             this.save(event);
+            publisher.publishEvent(new com.knowflow.learning.actions.LearningActionProgress.Committed(event));
             try {
                 knowledgeMasteryService.processEvent(event);
             } catch (Exception ex) {
                 log.warn("掌握度引擎处理事件失败（已忽略，不影响主流程）: eventId={}, err={}", event.getId(), ex.getMessage());
             }
+            try {
+                rewardEngine.onEvent(event);
+            } catch (Exception ex) {
+                log.warn("奖励引擎处理事件失败（已忽略，不影响主流程）: eventId={}, err={}", event.getId(), ex.getMessage());
+            }
         } catch (Exception ex) {
             log.warn("记录学习事件失败（已忽略，不影响主流程）: type={}, err={}", eventType, ex.getMessage());
         }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void recordRequired(Long userId, String eventType, String resourceType, Long resourceId, Map<String, Object> metadata) {
+        LearningEvent event = new LearningEvent();
+        event.setUserId(java.util.Objects.requireNonNull(userId));
+        event.setEventType(eventType);
+        event.setResourceType(resourceType);
+        event.setResourceId(resourceId);
+        try { event.setMetadata(MAPPER.writeValueAsString(metadata)); }
+        catch (com.fasterxml.jackson.core.JsonProcessingException ex) { throw new IllegalStateException("Cannot serialize learning event", ex); }
+        if (!save(event)) throw new IllegalStateException("Cannot persist learning event");
+        // Downstream engines must read the committed card, without holding the review row lock.
+        org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+            new org.springframework.transaction.support.TransactionSynchronization() {
+                @Override public void afterCommit() {
+                    try {
+                        var transaction = new org.springframework.transaction.support.TransactionTemplate(transactionManager);
+                        transaction.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+                        transaction.executeWithoutResult(status -> knowledgeMasteryService.processEvent(event));
+                    }
+                    catch (Exception ex) { log.warn("Mastery processing failed for committed event {}", event.getId(), ex); }
+                    try { rewardEngine.onEvent(event); }
+                    catch (Exception ex) { log.warn("Reward processing failed for committed event {}", event.getId(), ex); }
+                }
+            });
+        publisher.publishEvent(new com.knowflow.learning.actions.LearningActionProgress.Committed(event));
     }
 
     private String serialize(Map<String, Object> metadata) {

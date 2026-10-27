@@ -77,7 +77,7 @@ public class ApiDocTool implements AgentTool {
         String url = args.has("url") ? args.get("url").asText() : null;
 
         // 1) 知识库检索
-        List<String> chunks = docChunkService.searchSimilar(query, MAX_CONTEXT);
+        List<String> chunks = docChunkService.searchSimilar(query, MAX_CONTEXT, ctx.getUserId());
         StringBuilder context = new StringBuilder();
         if (!chunks.isEmpty()) {
             context.append("【知识库检索片段】\n").append(String.join("\n---\n", chunks)).append("\n");

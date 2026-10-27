@@ -1,5 +1,6 @@
 // 全局轻量提示（toast / confirm / prompt）与错误提取工具，替代原生弹窗。
 import { reactive } from 'vue'
+import {dialog,type DialogOptions} from './dialog'
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info'
 
@@ -9,24 +10,12 @@ export interface ToastItem {
   type: ToastType
 }
 
-export interface ConfirmItem {
-  id: number
-  message: string
-  resolve: (ok: boolean, inputValue?: string) => void
-  // 可选配置：prompt 输入框配置
-  prompt?: {
-    placeholder?: string
-    defaultValue?: string
-  }
-}
-
 /**
  * 全局轻量提示系统（替代浏览器原生 alert/confirm）。
  * 配色沿用项目现有 primary 色板与语义状态色，不引入外部 UI 库、不改动主题色。
  */
 export const toastState = reactive({
   toasts: [] as ToastItem[],
-  confirms: [] as ConfirmItem[],
 })
 
 let seq = 0
@@ -55,19 +44,8 @@ export function dismiss(id: number): void {
  * @param message 确认提示文案
  * @returns 用户点击「确认」为 true，否则 false
  */
-export function confirmDialog(message: string): Promise<boolean> {
-  const id = ++seq
-  return new Promise<boolean>((resolve) => {
-    toastState.confirms.push({
-      id,
-      message,
-      resolve: (ok: boolean) => {
-        const idx = toastState.confirms.findIndex((c) => c.id === id)
-        if (idx !== -1) toastState.confirms.splice(idx, 1)
-        resolve(ok)
-      },
-    })
-  })
+export function confirmDialog(message: string, options: Omit<DialogOptions, 'message'> = {}): Promise<boolean> {
+  return dialog.confirm({message,...options})
 }
 
 /**
@@ -80,22 +58,7 @@ export function promptDialog(
   message: string,
   options: { placeholder?: string; defaultValue?: string } = {}
 ): Promise<string | null> {
-  const id = ++seq
-  return new Promise<string | null>((resolve) => {
-    toastState.confirms.push({
-      id,
-      message,
-      prompt: {
-        placeholder: options.placeholder,
-        defaultValue: options.defaultValue,
-      },
-      resolve: (ok: boolean, inputValue?: string) => {
-        const idx = toastState.confirms.findIndex((c) => c.id === id)
-        if (idx !== -1) toastState.confirms.splice(idx, 1)
-        resolve(ok ? (inputValue ?? '') : null)
-      },
-    })
-  })
+  return dialog.prompt({message,input:{placeholder:options.placeholder,value:options.defaultValue}})
 }
 
 /**

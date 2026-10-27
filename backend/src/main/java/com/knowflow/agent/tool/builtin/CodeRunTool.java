@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * 内置工具：在受信任沙箱中执行用户代码（复用既有 CodeExecutionService）。
+ * 内置工具：可信本地开发模式的宿主机执行（复用 CodeExecutionService，非 OS Sandbox）。
  * 支持 python / java / javascript / cpp，属于 SAFE 只读执行能力，可直接调用。
  */
 @Slf4j
@@ -25,6 +25,7 @@ public class CodeRunTool implements AgentTool {
 
     private final CodeExecutionService codeExecutionService;
     private final ObjectMapper objectMapper;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
 
     @Override
     public String name() {
@@ -33,7 +34,7 @@ public class CodeRunTool implements AgentTool {
 
     @Override
     public String description() {
-        return "在沙箱中执行一段代码并返回运行结果（stdout/stderr/退出码）。"
+        return "仅在服务端授权的可信本地开发模式执行代码（非 OS Sandbox），返回 stdout/stderr/退出码。"
                 + "支持语言：python、java、javascript、cpp。可用于验证算法、运行示例、调试。";
     }
 
@@ -60,6 +61,7 @@ public class CodeRunTool implements AgentTool {
 
     @Override
     public ToolResult execute(JsonNode args, ToolContext ctx) throws ToolException {
+        hostGuard.requireActor(ctx == null ? null : ctx.getUserId());
         long start = System.currentTimeMillis();
         try {
             String language = args.has("language") ? args.get("language").asText() : null;

@@ -1,6 +1,7 @@
 package com.knowflow.controller;
 
 import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.entity.ChapterFavorite;
 import com.knowflow.mapper.ChapterFavoriteMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -26,12 +27,14 @@ import java.util.stream.Collectors;
 public class ChapterFavoriteController {
 
     private final ChapterFavoriteMapper favoriteMapper;
+    private final com.knowflow.service.LearningService learning;
 
     /** 收藏 / 取消收藏（toggle） */
     @Operation(summary = "收藏 / 取消收藏章节")
     @PostMapping("/{id}/favorite")
     public Result<Map<String, Object>> toggleFavorite(@PathVariable Long id, Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
+        learning.getChapterDetail(id,userId);
         LambdaQueryWrapper<ChapterFavorite> wrapper = new LambdaQueryWrapper<ChapterFavorite>()
                 .eq(ChapterFavorite::getUserId, userId)
                 .eq(ChapterFavorite::getChapterId, id);
@@ -56,7 +59,8 @@ public class ChapterFavoriteController {
     @Operation(summary = "查询是否已收藏")
     @GetMapping("/{id}/favorite")
     public Result<Map<String, Object>> isFavorited(@PathVariable Long id, Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
+        learning.getChapterDetail(id,userId);
         Long count = favoriteMapper.selectCount(new LambdaQueryWrapper<ChapterFavorite>()
                 .eq(ChapterFavorite::getUserId, userId)
                 .eq(ChapterFavorite::getChapterId, id));
@@ -69,7 +73,7 @@ public class ChapterFavoriteController {
     @Operation(summary = "查询收藏的章节ID列表")
     @GetMapping("/favorites")
     public Result<List<Long>> favoriteList(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         List<ChapterFavorite> list = favoriteMapper.selectList(new LambdaQueryWrapper<ChapterFavorite>()
                 .eq(ChapterFavorite::getUserId, userId)
                 .orderByDesc(ChapterFavorite::getCreateTime));

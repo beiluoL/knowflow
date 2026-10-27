@@ -82,7 +82,7 @@ const router = useRouter();
 const CONFETTI_COUNT = 24;
 
 /** 彩带配色（有限庆祝色板，与设计稿 golden/green/blue/purple 一致）。 */
-const CONFETTI_COLORS = ['#F5B940', '#10B981', '#3B6FE0', '#A855F7', '#F59E0B'];
+const CONFETTI_COLORS = ['#F5B940', 'var(--kb-success)', 'var(--kb-primary)', '#A855F7', 'var(--kb-warning)'];
 
 // 彩带随机布局与动画参数（固定取值避免每次渲染抖动）
 const confettiStyle = (n: number): Record<string, string> => {

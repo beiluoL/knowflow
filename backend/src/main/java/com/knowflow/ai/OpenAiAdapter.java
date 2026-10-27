@@ -53,6 +53,7 @@ public class OpenAiAdapter implements ModelAdapter {
         Map<String, Object> body = buildBody(request, true);
         String url = ensureChatCompletionsUrl(request.baseUrl);
         StringBuilder full = new StringBuilder();
+        StringBuilder reasoning = new StringBuilder();
         List<ToolCall> toolCalls = new ArrayList<>();
         Map<String, StringBuilder> argBuffers = new HashMap<>();
 
@@ -78,6 +79,19 @@ public class OpenAiAdapter implements ModelAdapter {
                 if (delta == null || delta.isNull()) {
                     // finish_reason 帧无 delta，跳过
                     return;
+                }
+                // DeepSeek 使用 reasoning_content；部分 OpenAI 兼容实现（Ollama/vLLM）使用 reasoning。
+                // 仅在 Provider 实际返回推理内容时透传，绝不在此生成或补写。
+                JsonNode reasoningNode = delta.get("reasoning_content");
+                if (reasoningNode == null || reasoningNode.isNull()) {
+                    reasoningNode = delta.get("reasoning");
+                }
+                if (reasoningNode != null && !reasoningNode.isNull()) {
+                    String reasoningText = reasoningNode.asText();
+                    if (!reasoningText.isEmpty()) {
+                        reasoning.append(reasoningText);
+                        onToken.accept(TokenDelta.ofReasoning(reasoningText));
+                    }
                 }
                 JsonNode content = delta.get("content");
                 if (content != null && !content.isNull()) {
@@ -116,7 +130,7 @@ public class OpenAiAdapter implements ModelAdapter {
                 call.arguments = sb.toString();
             }
         }
-        onDone.accept(new StreamDone(full.toString(), toolCalls));
+        onDone.accept(new StreamDone(full.toString(), toolCalls, reasoning.toString()));
     }
 
     private ToolCall ensureToolCall(List<ToolCall> toolCalls, Map<String, StringBuilder> argBuffers, String indexStr, String name) {

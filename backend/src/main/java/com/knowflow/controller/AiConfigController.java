@@ -1,6 +1,9 @@
 package com.knowflow.controller;
 
 import com.knowflow.common.Result;
+import com.knowflow.ai.capability.AiCapabilityProperties;
+import com.knowflow.exception.BusinessException;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.config.AiConfig;
 import com.knowflow.config.AiProviderRegistry;
 import com.knowflow.dto.UserAiConfigDTO;
@@ -48,11 +51,12 @@ public class AiConfigController {
     private final UserAiConfigMapper userAiConfigMapper;
     private final AiConfig aiConfig;
     private final AiProviderRegistry providerRegistry;
+    private final AiCapabilityProperties capabilities;
 
     @Operation(summary = "获取当前用户的激活配置（兼容通用 Chat）")
     @GetMapping
     public Result<UserAiConfigVO> getConfig(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         UserAiConfig config = findActive(userId);
         if (config == null) {
             return Result.success(null);
@@ -63,7 +67,7 @@ public class AiConfigController {
     @Operation(summary = "列出当前用户的全部模型配置（编程 Agent 用）")
     @GetMapping("/list")
     public Result<List<UserAiConfigVO>> listConfigs(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         List<UserAiConfig> list = userAiConfigMapper.selectList(
                 new LambdaQueryWrapper<UserAiConfig>()
                         .eq(UserAiConfig::getUserId, userId)
@@ -77,7 +81,7 @@ public class AiConfigController {
     @PostMapping
     public Result<UserAiConfigVO> saveConfig(@Valid @RequestBody UserAiConfigDTO dto,
                                               Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         // 校验 provider 是否合法
         AiProviderRegistry.ProviderInfo info = providerRegistry.find(dto.getProvider());
         if (info == null) {
@@ -138,7 +142,7 @@ public class AiConfigController {
     @Operation(summary = "删除一条模型配置")
     @DeleteMapping("/{id}")
     public Result<Void> deleteConfig(@PathVariable Long id, Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         UserAiConfig existing = userAiConfigMapper.selectById(id);
         if (existing == null || !existing.getUserId().equals(userId)) {
             return Result.error("配置不存在或无权操作");
@@ -150,7 +154,7 @@ public class AiConfigController {
     @Operation(summary = "设置某条配置为激活（通用 Chat 使用）")
     @PostMapping("/{id}/activate")
     public Result<Void> activate(@PathVariable Long id, Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         UserAiConfig existing = userAiConfigMapper.selectById(id);
         if (existing == null || !existing.getUserId().equals(userId)) {
             return Result.error("配置不存在或无权操作");
@@ -165,7 +169,7 @@ public class AiConfigController {
     @Operation(summary = "删除当前用户的全部配置（切换回平台模型）")
     @DeleteMapping
     public Result<Void> deleteAll(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         userAiConfigMapper.delete(new LambdaQueryWrapper<UserAiConfig>()
                 .eq(UserAiConfig::getUserId, userId));
         return Result.success();
@@ -198,7 +202,12 @@ public class AiConfigController {
     @PostMapping("/test")
     public Result<Map<String, Object>> testConnection(@RequestBody Map<String, String> body,
                                                        Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
+        // 连通性测试也会发起付费网络请求，必须在读取密钥与构造HTTP请求前校验系统总开关。
+        // 配置CRUD继续可用；认证仍先于开关，匿名保持401，关停明确422。
+        if (!capabilities.isEnabled()) {
+            throw new BusinessException(422, "AI 增强已被系统关闭，暂不能测试连通性");
+        }
         String provider = body.get("provider");
         String apiKey = body.get("apiKey");
         String baseUrl = body.get("baseUrl");

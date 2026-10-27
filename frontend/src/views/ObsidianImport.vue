@@ -104,7 +104,7 @@
                 <input
                   v-model="pathInput"
                   type="text"
-                  class="path-input"
+                  class="path-input kb-input kb-form-control"
                   :class="{ 'input-error': pathError }"
                   placeholder="绝对路径如 /Users/xxx/docs/Obsidian 或相对路径如 ./uploads/notes"
                   @keyup.enter="handleScan"
@@ -124,7 +124,7 @@
               <input
                 v-model="relativeToInput"
                 type="text"
-                class="path-input standalone"
+                class="path-input standalone kb-input kb-form-control"
                 placeholder="如 /app/uploads 或留空由服务解析"
                 @keyup.enter="handleScan"
               />
@@ -162,8 +162,8 @@
               tabindex="0"
               aria-label="选择文件或拖拽目录到此处"
               @click="triggerFileInput"
-              @keydown.enter.prevent="$event.target.click()"
-              @keydown.space.prevent="$event.target.click()"
+              @keydown.enter.prevent="($event.target as HTMLElement).click()"
+              @keydown.space.prevent="($event.target as HTMLElement).click()"
               @dragover.prevent="dragging = true"
               @dragleave.prevent="dragging = false"
               @drop.prevent="handleDrop"
@@ -193,7 +193,7 @@
               <input
                 v-model="pathInput"
                 type="text"
-                class="path-input standalone"
+                class="path-input standalone kb-input kb-form-control"
                 placeholder="导入路径"
               />
               <p class="path-input-hint">
@@ -301,8 +301,8 @@
                 tabindex="0"
                 :aria-pressed="selectedKbId === cat.id"
                 @click="selectedKbId = cat.id"
-                @keydown.enter.prevent="$event.target.click()"
-                @keydown.space.prevent="$event.target.click()"
+                @keydown.enter.prevent="($event.target as HTMLElement).click()"
+                @keydown.space.prevent="($event.target as HTMLElement).click()"
               >
                 <div class="kb-select-icon" :style="{ background: getKbColor(cat.id) }">
                   <Icon :name="getCategoryIcon(cat.icon)" :size="20" />
@@ -344,16 +344,16 @@
           <div class="form-card">
             <h3 class="card-title">导入选项</h3>
             <div class="option-list">
-              <label class="checkbox-row">
-                <input type="checkbox" v-model="createSubCategories" />
+              <label class="checkbox-row kb-checkbox-row">
+                <Checkbox as="span"  v-model="createSubCategories" />
                 <span>按目录创建子分类（保留目录层级）</span>
               </label>
-              <label class="checkbox-row">
-                <input type="checkbox" v-model="autoTags" />
+              <label class="checkbox-row kb-checkbox-row">
+                <Checkbox as="span"  v-model="autoTags" />
                 <span>自动生成标签（基于文档结构）</span>
               </label>
-              <label class="checkbox-row">
-                <input type="checkbox" v-model="incremental" />
+              <label class="checkbox-row kb-checkbox-row">
+                <Checkbox as="span"  v-model="incremental" />
                 <span>增量去重（跳过内容未变更的文件）</span>
               </label>
             </div>
@@ -488,14 +488,18 @@
 </template>
 
 <script setup lang="ts">
+import Checkbox from '@/components/ui/Checkbox.vue'
+
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import { notify } from '@/utils/toast'
 import { obsidianImportApi, type ObsidianModule } from '@/api/obsidianImport'
 import type { PathImportScanVO, CategoryVO } from '@/api/types'
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const router = useRouter()
+const nav = usePageNavigation()
 
 const steps = ['选择来源', '配置模块', '执行导入', '完成']
 const currentStep = ref(0)
@@ -504,7 +508,7 @@ function goToStep(idx: number) {
   if (idx >= 0 && idx < steps.length) currentStep.value = idx
 }
 function goBack() {
-  router.back()
+  nav.goBack()
 }
 function goToResult() {
   router.push('/knowledge')
@@ -611,12 +615,11 @@ async function handleScan() {
   pathError.value = null
   scanResult.value = null
   try {
-    const res = await obsidianImportApi.scan({
+    const vo = await obsidianImportApi.scan({
       path,
       relativeTo: relativeToInput.value.trim() || undefined,
     })
-    scanResult.value = res.data
-    const vo = res.data
+    scanResult.value = vo
     const hasFiles = vo && (vo.docCount > 0 || vo.imageCount > 0 || (vo.files && vo.files.length > 0))
     if (!hasFiles) {
       // 未发现可导入文件，给出含具体路径、支持类型与检查建议的友好提示
@@ -669,7 +672,7 @@ function hasModule(key: ObsidianModule) {
 async function loadKbs() {
   try {
     const res = await obsidianImportApi.listEditableKbs()
-    kbCategories.value = res.data ?? []
+    kbCategories.value = res ?? []
     if (kbCategories.value.length) selectedKbId.value = kbCategories.value[0].id
   } catch {
     kbCategories.value = []
@@ -759,7 +762,7 @@ function startImport() {
       },
       onError: (error) => {
         importing.value = false
-        pathError.value = error
+        pathError.value = { path: pathInput.value.trim(), message: error }
         notify(error, 'error')
         currentStep.value = 1
       },
@@ -795,7 +798,7 @@ function formatFileSize(bytes: number) {
   }
   return `${val.toFixed(val >= 10 || i === 0 ? 0 : 1)} ${units[i]}`
 }
-const KB_COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899']
+const KB_COLORS = ['#3b82f6', '#8b5cf6', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#06b6d4', '#ec4899']
 function getKbColor(id?: number) {
   return KB_COLORS[(id ?? 0) % KB_COLORS.length]
 }
@@ -818,15 +821,21 @@ onMounted(loadKbs)
   min-height: 100vh;
   background: var(--kb-background);
   padding: 24px 16px 48px;
+
+  padding-inline: 0;
+  padding-top: 0;
 }
 
 .page-header {
-  max-width: 960px;
+  max-width: none;
   margin: 0 auto 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+
+  width: 100%;
+  min-width: 0;
 }
 
 .header-left,
@@ -896,10 +905,13 @@ onMounted(loadKbs)
 
 /* 步骤指示器 */
 .step-indicator {
-  max-width: 960px;
+  max-width: none;
   margin: 0 auto 24px;
   display: flex;
   align-items: center;
+
+  width: 100%;
+  min-width: 0;
 }
 .step-item {
   display: flex;
@@ -954,8 +966,11 @@ onMounted(loadKbs)
 }
 
 .import-content {
-  max-width: 960px;
-  margin: 0 auto;
+  max-width: none;
+  margin-inline: 0;
+
+  width: 100%;
+  min-width: 0;
 }
 
 .step-panel {
@@ -1120,20 +1135,24 @@ onMounted(loadKbs)
   color: var(--kb-muted-foreground);
   display: flex;
 }
-.path-input {
-  flex: 1;
+.path-input:not(.kb-form-control) {
   border: none;
   background: transparent;
+  outline: none;
+}
+.path-input {
+  flex: 1;
   padding: 11px 12px;
   font-size: var(--kb-fs-body-md);
   color: var(--kb-foreground);
-  outline: none;
 }
-.path-input.standalone {
-  width: 100%;
+.path-input:not(.kb-form-control).standalone:not(.kb-form-control) {
   border: 1px solid var(--kb-border);
   border-radius: var(--kb-radius-md);
   background: var(--kb-background);
+}
+.path-input.standalone {
+  width: 100%;
   padding: 11px 12px;
 }
 .btn-scan {
@@ -1550,7 +1569,7 @@ onMounted(loadKbs)
 .checkbox-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--kb-checkbox-gap);
   font-size: var(--kb-fs-body-md);
   color: var(--kb-foreground);
   cursor: pointer;

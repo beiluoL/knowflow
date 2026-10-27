@@ -1,26 +1,41 @@
 <template>
-  <div class="space-y-4 animate-fade-in">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div>
-        <h1 class="text-2xl font-bold text-foreground">复习计划</h1>
-        <p class="text-muted-foreground mt-1">根据艾宾浩斯遗忘曲线，科学安排复习</p>
-      </div>
-      <button
-        type="button"
-        class="h-9 w-9 inline-flex items-center justify-center rounded-lg border transition-colors hover:bg-muted self-start md:self-auto focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
-        style="border-color: var(--kb-input);"
-        :disabled="loading"
-        title="刷新"
-        @click="loadFlashcards"
-      >
-        <Icon name="refresh-cw" :size="16" :class="loading ? 'animate-spin' : ''" style="color: var(--kb-muted-foreground);" />
-      </button>
-    </div>
+  <div class="phase-c-review space-y-4 animate-fade-in">
+    <PageHeader
+      title="复习计划"
+      description="查看服务器记录的新卡、到期卡和已保存的复习安排。"
+    >
+      <template v-if="contextKnowledgeName" #description>
+        <p class="rp-context" data-test="review-context">
+          <Icon name="book-open" :size="13" aria-hidden="true" />
+          <span>正在学习：<strong>{{ contextKnowledgeName }}</strong></span>
+        </p>
+      </template>
+      <template #actions>
+        <button
+          type="button"
+          class="h-9 w-9 inline-flex items-center justify-center rounded-lg border transition-colors hover:bg-muted self-start md:self-auto focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
+          style="border-color: var(--kb-input);"
+          :disabled="loading"
+          title="刷新" aria-label="刷新复习计划"
+          @click="loadFlashcards"
+        >
+          <Icon name="refresh-cw" :size="16" :class="loading ? 'animate-spin' : ''" style="color: var(--kb-muted-foreground);" />
+        </button>
+      </template>
+    </PageHeader>
 
-    <!-- Error state -->
-    <div v-if="error" class="rounded-xl border p-6 flex flex-col items-center justify-center gap-3" style="background: var(--kb-card); border-color: var(--kb-border);">
-      <Icon name="alert-circle" :size="32" style="color: var(--kb-destructive);" />
-      <p class="text-sm" style="color: var(--kb-muted-foreground);">{{ error }}</p>
+    <!-- Error state（UI/UX 5.1 §六：发生了什么 / 影响范围 / 怎么办 三段式，不暴露原始异常） -->
+    <div
+      v-if="errorDesc"
+      class="rounded-xl border p-6 flex flex-col items-center justify-center gap-3"
+      style="background: var(--kb-card); border-color: var(--kb-border);"
+      role="alert"
+      data-test="review-error"
+    >
+      <Icon name="alert-circle" :size="32" style="color: var(--kb-destructive);" aria-hidden="true" />
+      <h3 class="rp-error-title">{{ errorDesc.title }}</h3>
+      <p class="text-sm" style="color: var(--kb-muted-foreground);">{{ errorDesc.scope }}</p>
+      <p class="text-sm" style="color: var(--kb-muted-foreground);">{{ errorDesc.hint }}</p>
       <button
         type="button"
         class="px-3 py-1.5 rounded-lg text-sm font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
@@ -74,9 +89,9 @@
           <div class="flex items-center gap-2 mb-2">
             <Icon name="calendar" :size="22" />
             <h2 class="font-semibold text-foreground">今日复习</h2>
-            <Badge variant="default" class="text-xs">本地计划</Badge>
+            <Badge variant="default" class="text-xs">服务端排程</Badge>
           </div>
-          <p class="text-sm text-muted-foreground mb-4">基于真实闪卡复习进度推算，「已复习」为本机记录</p>
+          <p class="text-sm text-muted-foreground mb-4">待复习包含新卡与已到期卡，队列最多显示 100 张；提交次数来自服务端。</p>
 
           <div class="flex items-center gap-6 mb-4">
             <div class="text-center">
@@ -84,29 +99,35 @@
                 <span class="text-3xl font-bold text-danger-500 tabular-nums">{{ todayReview.total }}</span>
                 <span class="text-muted-foreground">张</span>
               </div>
-              <p class="text-[13px] text-muted-foreground mt-1">待复习</p>
+              <p class="text-[13px] text-muted-foreground mt-1">当前可复习</p>
             </div>
             <div class="text-center">
               <div class="flex items-baseline gap-1">
                 <span class="text-3xl font-bold text-success-500 tabular-nums">{{ todayReview.completed }}</span>
                 <span class="text-muted-foreground">张</span>
               </div>
-              <p class="text-[13px] text-muted-foreground mt-1">已复习</p>
+              <p class="text-[13px] text-muted-foreground mt-1">今日已提交</p>
             </div>
           </div>
 
-          <Progress :percentage="todayReview.progress" label="今日进度" show-label />
+          <p class="text-sm text-muted-foreground">已提交不等于当前队列完成率；实际保存状态可在闪卡会话中查看。</p>
         </div>
 
         <div class="md:border-l md:border-border md:pl-6 md:py-2">
           <Button size="lg" @click="startReview">
             <Icon name="play" :size="20" Circle />
-            开始复习
+            打开复习工作台
           </Button>
         </div>
       </div>
     </Card>
 
+    <section class="review-queue" aria-label="服务器待复习队列">
+      <h2>当前可复习的卡片</h2>
+      <p v-if="dueCards.length === 0" role="status">当前没有新卡或到期卡；已安排的未来复习时间仍可在日历查看。</p>
+      <ul v-else><li v-for="card in dueCards.slice(0,8)" :key="card.id"><span>{{ card.front }}</span><span>{{ card.nextReviewTime ? '已到期' : '新卡' }}</span></li></ul>
+      <p class="review-queue-hint">进入工作台后，可选择“仅新卡与到期卡”。已保存评价会保留；中断会话按原本机草稿与服务端日志恢复。</p>
+    </section>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <div class="lg:col-span-2">
         <Card hoverable>
@@ -118,7 +139,7 @@
               </div>
               <div class="flex items-center gap-2">
                 <button
-                  @click="prevMonth"
+                  aria-label="上一月" @click="prevMonth"
                   class="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
                 >
                   <Icon name="chevron-left" :size="20" />
@@ -128,6 +149,7 @@
                 </span>
                 <button
                   @click="nextMonth"
+                  aria-label="下一月"
                   class="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
                 >
                   <Icon name="chevron-right" :size="20" />
@@ -147,7 +169,7 @@
             </div>
 
             <div class="grid grid-cols-7 gap-1">
-              <div
+              <button type="button"
                 v-for="(day, index) in calendarDays" :key="index"
                 :class="[
                   'aspect-square flex flex-col items-center justify-center rounded-lg text-sm transition-[background-color,box-shadow] duration-200 cursor-pointer',
@@ -157,6 +179,8 @@
                   !day.hasReview && !day.isToday ? 'hover:bg-muted' : '',
                   selectedDate === day.dateStr ? 'ring-2 ring-primary-400 ring-offset-1' : '',
                 ]"
+                :aria-label="day.dateStr + (day.hasReview ? ' 有已排程复习' : '')"
+                :aria-pressed="selectedDate === day.dateStr"
                 @click="selectDate(day)"
               >
                 <span :class="day.isToday ? 'text-white' : 'text-foreground'">{{ day.day }}</span>
@@ -168,7 +192,7 @@
                   v-if="day.hasReview && day.isToday"
                   class="w-1.5 h-1.5 rounded-full bg-card mt-0.5"
                 />
-              </div>
+              </button>
             </div>
           </div>
 
@@ -271,58 +295,6 @@
       </div>
     </Card>
 
-    <!-- 艾宾浩斯遗忘曲线（对齐设计稿） -->
-    <Card hoverable>
-      <template #header>
-        <div class="flex items-center gap-2">
-          <div
-            class="w-8 h-8 rounded-lg flex items-center justify-center"
-            style="background: rgba(59,111,224,0.08);"
-          >
-            <Icon name="brain" :size="18" style="color: var(--kb-primary);" />
-          </div>
-          <h2 class="font-semibold text-foreground">艾宾浩斯遗忘曲线</h2>
-        </div>
-      </template>
-
-      <!-- 简化曲线示意 -->
-      <div class="mb-4 p-4 rounded-lg" style="background: var(--kb-background);">
-        <svg viewBox="0 0 300 100" class="w-full" style="height: 80px;" preserveAspectRatio="none">
-          <!-- 曲线主体 -->
-          <path
-            d="M 10 10 Q 60 60 100 70 Q 150 82 200 85 Q 250 90 290 92"
-            fill="none"
-            stroke="var(--kb-primary)"
-            stroke-width="2.5"
-            stroke-linecap="round"
-          />
-          <!-- 上下参考虚线 -->
-          <line x1="10" y1="10" x2="290" y2="10" stroke="var(--kb-muted)" stroke-width="0.5" stroke-dasharray="4 4" />
-          <line x1="10" y1="92" x2="290" y2="92" stroke="var(--kb-muted)" stroke-width="0.5" stroke-dasharray="4 4" />
-          <!-- 复习节点 -->
-          <circle cx="10" cy="10" r="4" fill="var(--kb-state-success)" />
-          <circle cx="60" cy="50" r="4" fill="var(--kb-state-success)" />
-          <circle cx="100" cy="70" r="4" fill="var(--kb-state-warning)" />
-          <circle cx="160" cy="82" r="4" fill="var(--kb-state-warning)" />
-          <circle cx="230" cy="89" r="4" fill="var(--kb-state-error)" />
-        </svg>
-      </div>
-
-      <!-- 复习节点时间表 -->
-      <div class="space-y-2">
-        <div
-          v-for="node in ebbinghausNodes"
-          :key="node.label"
-          class="flex items-center justify-between text-[13px]"
-        >
-          <span style="color: var(--kb-muted-foreground);">{{ node.label }}</span>
-          <span
-            class="px-2 py-0.5 rounded"
-            :style="{ background: node.bg, color: node.color }"
-          >{{ node.status }}</span>
-        </div>
-      </div>
-    </Card>
     </template>
   </div>
 </template>
@@ -330,23 +302,55 @@
 <script setup lang="ts">
 // 复习计划页：基于艾宾浩斯遗忘曲线展示待复习闪卡、当日进度与月历复习分布。
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
 import Card from '@/components/ui/Card.vue'
 import Badge from '@/components/ui/Badge.vue'
-import Progress from '@/components/ui/Progress.vue'
 import Button from '@/components/ui/Button.vue'
 import { learningApi } from '@/api/learning'
 import type { FlashcardVO } from '@/api/types'
 import { notify } from '@/utils/toast'
-import { loadReviewedIds } from '@/utils/studySession'
+// UI/UX 5.1 §六：统一错误契约（不向用户暴露 err.message / status code）
+import { describePageError } from '@/utils/error-message'
 
 const router = useRouter()
+const route = useRoute()
+
+/**
+ * UI/UX 5.1 §八：本页真实消费的知识点上下文。
+ * 来自 NextAction 深链（?knowledgeId=N&knowledgeName=...），并经 `LEARNING_ENTRY_CONTEXT`
+ * 白名单校验后才会出现在这里 —— 无上下文时一律不渲染上下文条（不造「未知知识点」假信息）。
+ */
+const contextKnowledgeId = computed<number | null>(() => {
+  const raw = Number(route.query.knowledgeId)
+  return Number.isFinite(raw) && raw > 0 ? raw : null
+})
+const contextKnowledgeName = computed<string>(() =>
+  typeof route.query.knowledgeName === 'string' && route.query.knowledgeName
+    ? route.query.knowledgeName
+    : contextKnowledgeId.value != null
+      ? `知识点 #${contextKnowledgeId.value}`
+      : '',
+)
+
+/** 带上下文的跳转：把「正在复习哪个知识点」带到闪卡页，避免用户重新挑一次（§八）。 */
+function pushWithContext(path: string): void {
+  const query: Record<string, string> = {}
+  if (contextKnowledgeId.value != null) query.knowledgeId = String(contextKnowledgeId.value)
+  if (contextKnowledgeName.value) query.knowledgeName = contextKnowledgeName.value
+  router.push(Object.keys(query).length > 0 ? { path, query } : path)
+}
 
 const weekDays = ['日', '一', '二', '三', '四', '五', '六']
 
 const loading = ref(false)
-const error = ref('')
+// UI/UX 5.1 §六：保存**原始异常对象**，由 errorDesc 统一翻译成三段式文案，
+// 渲染层不再直拼 `${err.message}`（旧实现会把 "status code 502" 直接甩给用户）。
+const error = ref<unknown>(null)
+const errorDesc = computed(() =>
+  error.value ? describePageError(error.value, { subject: '复习计划加载失败' }) : null,
+)
 
 interface ReviewDay {
   date: string
@@ -379,57 +383,41 @@ const todayReview = ref<TodayReview>({
 
 // 将后端难度数值映射为前端展示档位：2=难 / 1=中 / 其它=易
 function mapDifficulty(raw?: number): 'easy' | 'medium' | 'hard' {
-  if (raw === 2) return 'hard';
-  if (raw === 1) return 'medium';
+  if (raw === 3) return 'hard';
+  if (raw === 2) return 'medium';
   return 'easy';
 }
 
-// 本机记录的「已复习」卡片集合（按日期隔离），与闪卡复习页联动
-// 复用 studySession 中的 loadReviewedIds / markReviewed
-
-// 复习日期：优先使用后端下发的 nextReviewTime，否则按 reviewCount 在本地用 SM-2 间隔推算
-function computeNextReviewDate(c: FlashcardVO): string {
-  if (c.nextReviewTime) {
-    const d = new Date(c.nextReviewTime)
-    if (!Number.isNaN(d.getTime())) return formatDateStr(d)
-  }
-  // SM-2 间隔重复序列：复习次数越多，下次复习间隔越长（天）
-  const intervals = [0, 1, 2, 4, 7, 15, 30]
-  const idx = Math.min(c.reviewCount ?? 0, intervals.length - 1)
-  const d = new Date()
-  d.setDate(d.getDate() + intervals[idx])
-  return formatDateStr(d)
+// Date-only display of the actual backend dueAt; no local scheduling fallback.
+function computeNextReviewDate(c: FlashcardVO): string | undefined {
+ if(!c.nextReviewTime)return undefined
+ const date=new Date(c.nextReviewTime)
+ return Number.isNaN(date.getTime())?undefined:formatDateStr(date)
 }
-
+const dueCards=ref<FlashcardVO[]>([])
+let loadGeneration=0
 async function loadFlashcards(): Promise<void> {
+  const generation=++loadGeneration;
   loading.value = true;
-  error.value = '';
+  error.value = null;
   try {
-    const list: FlashcardVO[] = await learningApi.flashcards() ?? [];
+    const [list,due,statistics]=await Promise.all([learningApi.flashcards(),learningApi.dueFlashcards(),learningApi.flashcardStatistics()]);
+    if(generation!==loadGeneration)return;
+    dueCards.value=due;
     flashCards.value = list.map((c) => ({
-      id: String(c.id),
-      category: c.category || '未分类',
-      difficulty: mapDifficulty(c.difficulty),
-      question: c.front || '',
-      answer: c.back || '',
-      nextReviewDate: computeNextReviewDate(c),
+      id:String(c.id),category:c.category||'未分类',difficulty:mapDifficulty(c.difficulty),
+      question:c.front||'',answer:c.back||'',nextReviewDate:computeNextReviewDate(c),
     }));
-    reviewDays.value = buildReviewDays(flashCards.value);
-    const todayStr = formatDateStr(new Date());
-    const reviewed = loadReviewedIds(todayStr);
-    const dueToday = getTodayCards(flashCards.value);
-    const completedCount = dueToday.filter((c) => reviewed.has(c.id)).length;
-    todayReview.value = {
-      total: dueToday.length,
-      completed: completedCount,
-      progress: dueToday.length > 0 ? Math.round((completedCount / dueToday.length) * 100) : 0,
-    };
+    reviewDays.value=buildReviewDays(flashCards.value);
+    todayReview.value={total:due.length,completed:statistics.today.completed,progress:0};
   } catch (err) {
-    const message = err instanceof Error ? err.message : '加载失败';
-    error.value = `闪卡数据加载失败：${message}`;
+    if(generation!==loadGeneration)return;
+    // UI/UX 5.1 §六：保存原始异常，由 errorDesc 统一翻译成三段式文案。
+    // 旧写法把 `${err.message}` 直接拼进界面 —— 用户会看到 "status code 502"。
+    error.value = err;
     notify('闪卡数据加载失败', 'error');
   } finally {
-    loading.value = false;
+    if(generation===loadGeneration)loading.value = false;
   }
 }
 
@@ -444,11 +432,6 @@ function buildReviewDays(cards: FlashCardItem[]): ReviewDay[] {
   });
   const dates = Array.from(map.keys()).sort();
   return dates.slice(0, 7).map((date) => ({ date, cards: map.get(date)! }));
-}
-
-function getTodayCards(cards: FlashCardItem[]): FlashCardItem[] {
-  const todayStr = formatDateStr(new Date());
-  return cards.filter((c) => c.nextReviewDate === todayStr);
 }
 
 onMounted(() => {
@@ -635,24 +618,38 @@ const selectDate = (day: CalendarDay) => {
 }
 
 const startReview = () => {
-  router.push('/learning/flashcards')
+  pushWithContext('/learning/flashcards')
 }
 
 const goToFlashCards = () => {
-  router.push('/learning/flashcards')
+  pushWithContext('/learning/flashcards')
 }
 
-// 艾宾浩斯遗忘曲线复习节点：对齐设计稿，展示 5 个时间节点的复习状态
-const ebbinghausNodes = [
-  { label: '学习后 20 分钟', status: '已复习', bg: 'rgba(16,185,129,0.08)', color: 'var(--kb-state-success)' },
-  { label: '学习后 1 小时', status: '已复习', bg: 'rgba(16,185,129,0.08)', color: 'var(--kb-state-success)' },
-  { label: '学习后 1 天', status: '今日待复习', bg: 'rgba(245,158,11,0.08)', color: 'var(--kb-state-warning)' },
-  { label: '学习后 2 天', status: '即将到期', bg: 'rgba(245,158,11,0.08)', color: 'var(--kb-state-warning)' },
-  { label: '学习后 7 天', status: '即将到期', bg: 'rgba(239,68,68,0.08)', color: 'var(--kb-state-error)' },
-]
 </script>
 
 <style scoped>
+/* UI/UX 5.1 §八：深链知识点上下文条（与 MiniAppShell 上下文条同语义） */
+.rp-context {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--kb-primary-soft);
+  color: var(--kb-primary);
+  font-size: var(--kb-fs-caption);
+  line-height: 1.4;
+}
+
+.rp-error-title {
+  margin: 0;
+  font-size: var(--kb-fs-body-lg);
+  line-height: var(--kb-lh-body-lg);
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out;
 }
@@ -678,4 +675,15 @@ const ebbinghausNodes = [
 .ml-13 {
   margin-left: 52px;
 }
+.phase-c-review { min-width:0; }
+.phase-c-review :deep(h1) { font-family:inherit;font-size:var(--kb-page-title-size); }
+.review-queue { display:grid;gap:var(--kb-space-3);padding:var(--kb-space-5);border:1px solid var(--kb-border);background:var(--kb-card);border-radius:var(--kb-radius-lg); }
+.review-queue h2 { font-size:var(--kb-section-title-size);font-weight:600; }
+.review-queue ul { list-style:none;padding:0;margin:0;display:grid;gap:var(--kb-space-2); }
+.review-queue li { display:flex;justify-content:space-between;gap:var(--kb-space-3);border-bottom:1px solid var(--kb-border);padding:var(--kb-space-2) 0; }
+.review-queue li span:first-child { min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.review-queue li span+span,.review-queue-hint { color:var(--kb-muted-foreground);font-size:var(--kb-fs-body-sm); }
+.phase-c-review :is(button,a):focus-visible { outline:2px solid var(--kb-ring);outline-offset:2px; }
+.phase-c-review :deep(button.bg-primary-500.text-white) { color:var(--kb-primary-foreground); }
+@media(max-width:640px){.phase-c-review .ml-13{margin-left:0}.phase-c-review :deep(.kb-card){min-width:0}.review-queue{padding:var(--kb-space-4)}}
 </style>

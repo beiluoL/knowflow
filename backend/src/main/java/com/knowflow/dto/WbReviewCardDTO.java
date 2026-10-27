@@ -25,4 +25,13 @@ public class WbReviewCardDTO {
 
     /** 卡片类型：BASIC/CLOZE/RECALL */
     private String cardType;
+
+    /** 记忆提示（可选） */
+    private String hint;
+
+    /** 标签，逗号分隔（可选） */
+    private String tags;
+
+    /** 类型专属扩展 JSON：RECALL 检查要点等；旧客户端不传时保持为空 */
+    private String extraJson;
 }

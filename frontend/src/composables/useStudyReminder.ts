@@ -214,8 +214,8 @@ async function getServiceWorkerRegistration(): Promise<ServiceWorkerRegistration
   }
 }
 
-/** base64url → Uint8Array（用于 VAPID applicationServerKey） */
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
+/** base64url → Uint8Array（用于 VAPID applicationServerKey；new Uint8Array(len) 天然 ArrayBuffer 兜底） */
+function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
   const raw = atob(base64);

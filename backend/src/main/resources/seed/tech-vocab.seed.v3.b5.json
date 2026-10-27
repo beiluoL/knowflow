@@ -1,0 +1,1008 @@
+{
+  "note": "AI_ENG 批次 B5 种子：AI 工程化的评估、安全与上线运营词汇。释义与例句为本项目原创撰写，未复制来源原文；音标一律未标注以避免未核验数据；缩写全称沿用领域通用写法。",
+  "terms": [
+    {
+      "headword": "Evaluation",
+      "termType": "WORD",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "评估",
+      "definitionCn": "在固定任务与评分口径下衡量模型或应用输出质量的过程。LLM 应用评估通常组合离线评测集、人工标注与线上指标，用可复现的分数判断版本是否达标，而不是凭主观感受。",
+      "definitionEn": "The process of measuring how well a model or application performs a defined task under a fixed scoring rubric. In LLM operations it combines offline datasets, human review, and production metrics so that releases can be compared reproducibly.",
+      "interviewEn": "We treat evaluation as a release gate, so every prompt or model change is scored on the same offline dataset before it reaches production.",
+      "exampleEn": "Our evaluation harness reruns 400 held-out questions on every prompt change and blocks the release when the pass rate drops below 90%.",
+      "exampleCn": "每次修改提示词，我们的评估框架都会重跑 400 道留出问题；通过率低于 90% 就阻断发布。",
+      "aliases": [
+        "评估",
+        "评测"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "OpenAI Evals documentation (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "Evaluation",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        },
+        {
+          "variant": "WORD_UK",
+          "readingText": "Evaluation",
+          "locale": "en-GB",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Benchmark",
+          "targetDomain": "AI_ENG",
+          "relationType": "CONTRAST"
+        },
+        {
+          "targetHeadword": "Golden Dataset",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Regression Test",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Human Evaluation",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Benchmark",
+      "termType": "WORD",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "基准测试",
+      "definitionCn": "一套固定任务、数据集与评分规则组成的公开或内部标准，用于横向比较不同模型、版本或配置。基准分数便于复用与对比，但不等于真实业务效果，需结合自有评估集解读。",
+      "definitionEn": "A standardized set of tasks, datasets, and scoring rules used to compare models, versions, or configurations on common ground. A benchmark score is comparable across systems but does not by itself prove production quality.",
+      "interviewEn": "A benchmark tells you how models compare on a shared task set, while evaluation tells you whether your application works, so I rely on both.",
+      "exampleEn": "The public benchmark score improved by three points, but our own evaluation set showed no gain on customer support questions.",
+      "exampleCn": "公开基准分数提高了 3 分，但我们自己的评估集在客服问题上没有任何提升。",
+      "aliases": [
+        "基准测试",
+        "基准"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "HELM benchmark documentation (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "Benchmark",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        },
+        {
+          "variant": "WORD_UK",
+          "readingText": "Benchmark",
+          "locale": "en-GB",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Evaluation",
+          "targetDomain": "AI_ENG",
+          "relationType": "CONTRAST"
+        },
+        {
+          "targetHeadword": "Regression Test",
+          "targetDomain": "AI_ENG",
+          "relationType": "CONTRAST"
+        },
+        {
+          "targetHeadword": "Golden Dataset",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Golden Dataset",
+      "termType": "PHRASE",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "meaningCn": "黄金数据集",
+      "definitionCn": "由领域专家审核、带标准答案与评分口径的高质量样本集合，作为评估与回归的稳定参照。它规模不大但覆盖关键场景，任何变更都应先在这套数据上验证，避免用模型自评自证。",
+      "definitionEn": "A curated set of examples with expert-approved reference answers and scoring rules that serves as a stable reference for evaluation and regression checks. It prioritizes coverage of critical cases over raw size.",
+      "wordBreakdown": [
+        {
+          "word": "Golden",
+          "meaningCn": "黄金的，引申为权威的"
+        },
+        {
+          "word": "Dataset",
+          "meaningCn": "数据集"
+        }
+      ],
+      "breakdownNote": "黄金数据集强调人工审定与可复用，不是随便抓取的一批样本。",
+      "exampleEn": "We add every escalated ticket that exposed a wrong answer to the golden dataset, so the same failure cannot ship twice.",
+      "exampleCn": "每次出现错误回答的升级工单都会被补进黄金数据集，同一个错误不能上线两次。",
+      "aliases": [
+        "黄金数据集",
+        "标准答案集"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "OpenAI Evals documentation (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "Golden Dataset",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Evaluation",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Regression Test",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Human Evaluation",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Regression Test",
+      "termType": "PHRASE",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "meaningCn": "回归测试",
+      "definitionCn": "每次修改提示词、模型或检索配置后，重跑固定用例集以确认既有能力没有退化的测试。LLM 应用通常对关键问答与安全用例自动打分，并在分数下降超过阈值时阻断发布。",
+      "definitionEn": "A test suite rerun after each change to prompts, models, or retrieval settings to confirm that previously working behavior has not degraded. In LLM applications it scores a fixed case set and fails the build when quality drops beyond a threshold.",
+      "wordBreakdown": [
+        {
+          "word": "Regression",
+          "meaningCn": "回归，指功能退化"
+        },
+        {
+          "word": "Test",
+          "meaningCn": "测试"
+        }
+      ],
+      "breakdownNote": "回归测试关心的是原有正确行为是否仍然正确，而不是验证新功能。",
+      "exampleEn": "The regression test caught that the new system prompt made the assistant refuse legitimate refund requests.",
+      "exampleCn": "回归测试发现，新的系统提示词让助手开始拒绝合理的退款请求。",
+      "aliases": [
+        "回归测试"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "ISTQB glossary (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "Regression Test",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Golden Dataset",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Benchmark",
+          "targetDomain": "AI_ENG",
+          "relationType": "CONTRAST"
+        },
+        {
+          "targetHeadword": "Evaluation",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Guardrail",
+      "termType": "WORD",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "安全护栏",
+      "definitionCn": "在模型调用前后强制执行的安全与合规约束，包括输入过滤、输出校验、敏感信息脱敏与工具权限限制。命中时护栏会拦截、改写或转人工，并在日志中记录拦截原因以便审计。",
+      "definitionEn": "An enforced control around model calls that filters inputs, validates outputs, masks sensitive data, or restricts tool permissions. When triggered, a guardrail blocks, rewrites, or escalates the request and records the reason.",
+      "interviewEn": "Guardrails are deterministic controls around the model, so I never rely on prompt instructions alone to block unsafe output.",
+      "exampleEn": "A guardrail masked the customer's ID number before the prompt reached the model and logged the redaction for audit.",
+      "exampleCn": "护栏在提示词到达模型前屏蔽了客户的身份证号，并记录脱敏操作以供审计。",
+      "aliases": [
+        "护栏",
+        "安全护栏"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "NIST AI RMF (concept only); OWASP Top 10 for LLM Applications (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "Guardrail",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        },
+        {
+          "variant": "WORD_UK",
+          "readingText": "Guardrail",
+          "locale": "en-GB",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Prompt Injection",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Jailbreak",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "PII",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Red Teaming",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Prompt Injection",
+      "termType": "PHRASE",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "meaningCn": "提示词注入",
+      "definitionCn": "把恶意指令藏在用户输入、网页或检索文档中，诱使模型忽略系统指令并执行攻击者意图的攻击方式。防御需隔离不可信内容、收窄工具权限并校验输出，而不是只加一句忽略指令。",
+      "definitionEn": "An attack that hides malicious instructions in user input, web pages, or retrieved documents so the model follows the attacker instead of its system instructions. Defense requires isolating untrusted content, limiting tool permissions, and validating outputs.",
+      "wordBreakdown": [
+        {
+          "word": "Prompt",
+          "meaningCn": "提示词"
+        },
+        {
+          "word": "Injection",
+          "meaningCn": "注入"
+        }
+      ],
+      "breakdownNote": "提示词注入不是数据库注入，它利用的是模型对指令与数据缺乏严格边界。",
+      "interviewEn": "Prompt injection is hard to patch because the model sees instructions and data in one channel, so I constrain tools and validate outputs instead of trusting the prompt.",
+      "exampleEn": "A retrieved page contained a hidden line telling the agent to send chat history to an external URL, which is a prompt injection attempt.",
+      "exampleCn": "检索到的一篇网页里藏着一行指令，要求智能体把聊天记录发往外部地址，这就是一次提示词注入尝试。",
+      "aliases": [
+        "提示词注入",
+        "指令注入"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "OWASP Top 10 for LLM Applications (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "Prompt Injection",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Jailbreak",
+          "targetDomain": "AI_ENG",
+          "relationType": "CONTRAST"
+        },
+        {
+          "targetHeadword": "Guardrail",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Red Teaming",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Tool Calling",
+          "targetDomain": "AGENT",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Jailbreak",
+      "termType": "WORD",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "越狱",
+      "definitionCn": "通过角色扮演、编码转换或多轮诱导绕过模型安全策略，使其输出被禁止内容的攻击手法。团队用红队用例持续测试，按绕过成功率与危害等级跟踪，修复后再做回归验证。",
+      "definitionEn": "An attempt to bypass a model's safety policy through role-play, encoding tricks, or multi-turn persuasion so that it produces prohibited content. Teams track bypass success rate and severity with red-team cases and retest after fixes.",
+      "interviewEn": "Jailbreak targets the model's safety policy, while prompt injection targets the application's instruction hierarchy, so they need different defenses.",
+      "exampleEn": "The red team's jailbreak used a fictional story to extract weapon-building instructions, and the output filter blocked it.",
+      "exampleCn": "红队用虚构故事越狱，试图套出武器制造步骤，输出过滤器拦下了它。",
+      "aliases": [
+        "越狱",
+        "模型越狱"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "OWASP Top 10 for LLM Applications (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "Jailbreak",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        },
+        {
+          "variant": "WORD_UK",
+          "readingText": "Jailbreak",
+          "locale": "en-GB",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Prompt Injection",
+          "targetDomain": "AI_ENG",
+          "relationType": "CONTRAST"
+        },
+        {
+          "targetHeadword": "Red Teaming",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Guardrail",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "PII",
+      "termType": "ACRONYM",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "fullForm": "Personally Identifiable Information",
+      "meaningCn": "个人身份信息",
+      "definitionCn": "可单独或与其他信息结合识别到具体自然人的数据，如姓名、身份证号、手机号与设备标识。LLM 应用需在入库、检索、提示词与日志各环节识别并脱敏，并保留处理记录应对合规审计。",
+      "definitionEn": "Data that can identify a specific person alone or in combination, such as name, national ID, phone number, email, or device identifier. LLM applications must detect and redact it across ingestion, retrieval, prompts, and logs.",
+      "wordBreakdown": [
+        {
+          "word": "Personally",
+          "meaningCn": "与个人相关的"
+        },
+        {
+          "word": "Identifiable",
+          "meaningCn": "可识别的"
+        },
+        {
+          "word": "Information",
+          "meaningCn": "信息"
+        }
+      ],
+      "breakdownNote": "判断 PII 的关键是可识别性，而不是字段名称本身。",
+      "exampleEn": "The ingestion pipeline tagged each detected PII field and replaced it with a stable placeholder before indexing the document.",
+      "exampleCn": "入库管线标出每个识别到的 PII 字段，并在文档索引前替换为稳定的占位符。",
+      "aliases": [
+        "个人身份信息",
+        "个人可识别信息"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "NIST Privacy Framework (concept only); GDPR Article 4 (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "ABBR",
+          "readingText": "P I I",
+          "locale": "en-US",
+          "readingMode": "LETTER_BY_LETTER",
+          "verificationStatus": "VERIFIED"
+        },
+        {
+          "variant": "FULL_FORM",
+          "readingText": "Personally Identifiable Information",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Guardrail",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Red Teaming",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Retrieval",
+          "targetDomain": "RAG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Red Teaming",
+      "termType": "PHRASE",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "meaningCn": "红队测试",
+      "definitionCn": "模拟攻击者主动寻找模型与应用弱点的方法，覆盖越狱、注入、数据泄露与工具滥用。团队按剧本记录成功案例、危害等级与修复状态，并把有效攻击沉淀为自动化回归用例。",
+      "definitionEn": "An adversarial practice in which a team actively probes a model or application for weaknesses such as jailbreaks, injection, data leakage, and tool misuse. Successful attacks are logged by severity and converted into automated regression cases.",
+      "wordBreakdown": [
+        {
+          "word": "Red",
+          "meaningCn": "红方，指攻击方"
+        },
+        {
+          "word": "Teaming",
+          "meaningCn": "组队协作"
+        }
+      ],
+      "breakdownNote": "红队测试来自安全演练，强调对抗性发现而非常规功能验收。",
+      "interviewEn": "We run red teaming before launch and whenever tools or permissions change, because new capabilities create new attack paths.",
+      "exampleEn": "Red teaming found that the agent would reveal another tenant's order when asked politely, which became a blocking regression case.",
+      "exampleCn": "红队测试发现，只要礼貌提问，智能体就会泄露其他租户的订单，这个案例后来成为阻断发布的回归用例。",
+      "aliases": [
+        "红队测试",
+        "红队演练"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "NIST AI RMF (concept only); OWASP Top 10 for LLM Applications (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "Red Teaming",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Jailbreak",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Prompt Injection",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Guardrail",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Data Drift",
+      "termType": "PHRASE",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "meaningCn": "数据漂移",
+      "definitionCn": "线上输入数据的分布随时间偏离训练或评估分布的现象，常见于用户话题、文档格式与语言变化。它会让离线评估分数失真，需用分布统计和分桶指标监控，并触发重采样或重训。",
+      "definitionEn": "A shift in the distribution of production inputs away from the training or evaluation data, often caused by changing user topics, document formats, or language. It makes offline scores stale and is tracked with distribution statistics and segmented metrics.",
+      "wordBreakdown": [
+        {
+          "word": "Data",
+          "meaningCn": "数据"
+        },
+        {
+          "word": "Drift",
+          "meaningCn": "漂移"
+        }
+      ],
+      "breakdownNote": "漂移指整体分布发生变化，不是某一条数据出错。",
+      "exampleEn": "Data drift showed up as a growing share of voice-transcript queries, while accuracy on the old evaluation set stayed flat.",
+      "exampleCn": "数据漂移表现为语音转写类查询占比上升，而旧评估集上的准确率却保持不变。",
+      "aliases": [
+        "数据漂移",
+        "分布漂移"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Google MLOps data validation guidance (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "Data Drift",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Evaluation",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Golden Dataset",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Faithfulness",
+      "termType": "WORD",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "忠实度",
+      "definitionCn": "RAG 评估指标，衡量回答中的陈述是否都能被检索到的上下文支持，用于识别模型自行编造的内容。通常由判定模型按声明逐条核对，输出支持比例并定位无依据语句。",
+      "definitionEn": "A RAG metric measuring whether each claim in an answer is supported by the retrieved context, used to catch unsupported or invented content. It is usually scored per claim by a judge model, producing a support ratio and the unsupported spans.",
+      "interviewEn": "Faithfulness asks whether an answer is grounded in the retrieved context, while answer relevancy asks whether it addresses the user's question.",
+      "exampleEn": "Faithfulness dropped to 0.72 after we lowered the retrieval top-k, because several answers cited policies that were never retrieved.",
+      "exampleCn": "把检索 top-k 调低后，忠实度降到 0.72，因为有好几个回答引用了从未被检索到的政策条款。",
+      "aliases": [
+        "忠实度",
+        "事实一致性"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "RAGAS documentation (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "Faithfulness",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        },
+        {
+          "variant": "WORD_UK",
+          "readingText": "Faithfulness",
+          "locale": "en-GB",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Answer Relevancy",
+          "targetDomain": "AI_ENG",
+          "relationType": "CONTRAST"
+        },
+        {
+          "targetHeadword": "Hallucination",
+          "targetDomain": "LLM",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "LLM-as-a-Judge",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Retrieval",
+          "targetDomain": "RAG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Answer Relevancy",
+      "termType": "PHRASE",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "meaningCn": "答案相关性",
+      "definitionCn": "RAG 评估指标，衡量回答是否直接回应用户问题，惩罚答非所问、跑题与空泛表述。实现上常用判定模型由回答反推可能的问题并与原问题比对，或以要点覆盖度打分。",
+      "definitionEn": "A RAG metric measuring how directly an answer addresses the user's question, penalizing evasive, off-topic, or empty responses. Judge models often score it by inferring the questions an answer could serve and comparing them with the original.",
+      "wordBreakdown": [
+        {
+          "word": "Answer",
+          "meaningCn": "回答"
+        },
+        {
+          "word": "Relevancy",
+          "meaningCn": "相关性"
+        }
+      ],
+      "breakdownNote": "答案相关性只判断是否切题，不判断内容是否有检索依据。",
+      "exampleEn": "Answer relevancy stayed high while faithfulness fell, which told us the model answered the right question with unsupported details.",
+      "exampleCn": "答案相关性保持高位而忠实度下降，说明模型答对了问题，但细节缺乏依据。",
+      "aliases": [
+        "答案相关性"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "RAGAS documentation (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "Answer Relevancy",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Faithfulness",
+          "targetDomain": "AI_ENG",
+          "relationType": "CONTRAST"
+        },
+        {
+          "targetHeadword": "Evaluation",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "LLM-as-a-Judge",
+      "termType": "PHRASE",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "meaningCn": "大模型评审",
+      "definitionCn": "用大模型按给定评分标准自动评估另一模型输出的方法，适合规模化打分相关性、忠实度与完整性。为控制位置偏差与自偏好，需固定评分提示、交换候选顺序并用人工标注校准。",
+      "definitionEn": "Using an LLM to score another model's outputs against a written rubric, which scales relevance, faithfulness, and completeness checks. To control position bias and self-preference, teams fix the rubric, swap candidate order, calibrate against human labels, and audit samples.",
+      "wordBreakdown": [
+        {
+          "word": "LLM",
+          "meaningCn": "大语言模型"
+        },
+        {
+          "word": "Judge",
+          "meaningCn": "裁判，指评审者"
+        }
+      ],
+      "breakdownNote": "LLM-as-a-Judge 是一套完整评估流程，包含评分标准、偏差控制与人工校准，而不只是让模型打个分。",
+      "interviewEn": "I use LLM-as-a-Judge for scale, then calibrate it against a few hundred human labels before trusting its scores for release decisions.",
+      "exampleEn": "The LLM-as-a-Judge pipeline scores every answer with a fixed rubric and swaps candidate order to cancel position bias.",
+      "exampleCn": "大模型评审流程用固定评分标准给每个回答打分，并交换候选顺序以抵消位置偏差。",
+      "aliases": [
+        "大模型评审",
+        "模型即裁判"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "OpenAI Evals documentation (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "LLM-as-a-Judge",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Human Evaluation",
+          "targetDomain": "AI_ENG",
+          "relationType": "CONTRAST"
+        },
+        {
+          "targetHeadword": "Faithfulness",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Evaluation",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Human Evaluation",
+      "termType": "PHRASE",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "meaningCn": "人工评估",
+      "definitionCn": "由标注人员按评分量表判断模型输出质量的方式，常用于建立可信基线、校准自动评审与处理高风险场景。实施时需统一标注指南、做双人复核并计算标注者一致性。",
+      "definitionEn": "Judging model output quality with trained annotators against a scoring rubric, used to build trusted baselines, calibrate automatic judges, and handle high-risk cases. Good practice fixes annotation guidelines, double-reviews samples, and reports inter-annotator agreement.",
+      "wordBreakdown": [
+        {
+          "word": "Human",
+          "meaningCn": "人工的"
+        },
+        {
+          "word": "Evaluation",
+          "meaningCn": "评估"
+        }
+      ],
+      "breakdownNote": "人工评估的成本与一致性管理，决定了它通常只覆盖抽样与高风险样本。",
+      "exampleEn": "Human evaluation on 200 sampled conversations showed the automatic judge was too lenient on incomplete answers.",
+      "exampleCn": "对 200 段抽样对话做人工评估后发现，自动评审对不完整的回答过于宽松。",
+      "aliases": [
+        "人工评估",
+        "人工评测"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "NIST AI RMF (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "Human Evaluation",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "LLM-as-a-Judge",
+          "targetDomain": "AI_ENG",
+          "relationType": "CONTRAST"
+        },
+        {
+          "targetHeadword": "Evaluation",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Golden Dataset",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Cost per Token",
+      "termType": "PHRASE",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "meaningCn": "每 Token 成本",
+      "definitionCn": "按输入与输出 Token 计费的模型调用单价，通常分开报价且输出更贵。运营中结合平均 Token 用量与缓存命中率估算单次请求成本，用于预算控制、模型选型与成本回归监控。",
+      "definitionEn": "The billed price of model usage per token, usually quoted separately for input and output tokens, with output costing more. Operations multiply it by average token usage and cache hit rate to estimate cost per request and track cost regressions.",
+      "wordBreakdown": [
+        {
+          "word": "Cost",
+          "meaningCn": "成本"
+        },
+        {
+          "word": "per",
+          "meaningCn": "每，按"
+        },
+        {
+          "word": "Token",
+          "meaningCn": "词元"
+        }
+      ],
+      "breakdownNote": "每 Token 成本只是单价，真实请求成本还取决于上下文长度、输出长度与缓存命中率。",
+      "exampleEn": "Trimming 600 tokens from the system prompt cut monthly spend by 18% at unchanged traffic, even though cost per token did not move.",
+      "exampleCn": "在流量不变的情况下，系统提示词精简 600 个 Token 使月度花费下降 18%，尽管每 Token 单价并未变化。",
+      "aliases": [
+        "每 Token 成本",
+        "单 Token 成本"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "OpenAI API pricing documentation (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "Cost per Token",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Token",
+          "targetDomain": "LLM",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Context Window",
+          "targetDomain": "LLM",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Semantic Cache",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Semantic Cache",
+      "termType": "PHRASE",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "meaningCn": "语义缓存",
+      "definitionCn": "按语义相似度而非字符串完全匹配复用历史回答的缓存方式，通常对请求向量化后检索近邻，相似度超过阈值即命中。它能降低成本与延迟，但需设置阈值和失效策略避免错配。",
+      "definitionEn": "A cache that reuses earlier answers when a new request is semantically similar rather than textually identical, typically by embedding requests and looking up near neighbors above a similarity threshold. It cuts cost and latency but needs careful thresholds and invalidation to avoid serving stale or mismatched answers.",
+      "wordBreakdown": [
+        {
+          "word": "Semantic",
+          "meaningCn": "语义的"
+        },
+        {
+          "word": "Cache",
+          "meaningCn": "缓存"
+        }
+      ],
+      "breakdownNote": "语义缓存复用的是意思相近，因此正确性风险高于普通精确匹配缓存。",
+      "interviewEn": "I treat a semantic cache hit as a cost optimization that still needs a quality guard, so I sample hits, tune the threshold, and invalidate on policy changes.",
+      "exampleEn": "The semantic cache absorbed 31% of repeated FAQ traffic at a 0.92 similarity threshold, and sampled hits showed no wrong matches.",
+      "exampleCn": "语义缓存在 0.92 相似度阈值下承接了 31% 的重复 FAQ 流量，抽检命中结果没有出现错配。",
+      "aliases": [
+        "语义缓存"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "LLM gateway semantic caching practice (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "Semantic Cache",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Cache",
+          "targetDomain": "CACHE",
+          "relationType": "IS_A"
+        },
+        {
+          "targetHeadword": "Cost per Token",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Latency",
+          "targetDomain": "CONCURRENCY",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Fallback Model",
+      "termType": "PHRASE",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "meaningCn": "兜底模型",
+      "definitionCn": "主模型超时、限流、报错或输出未通过校验时自动切换的备用模型，用于保障可用性与体验连续。上线前需对齐两者的输出格式与能力边界，并在日志标记切换原因。",
+      "definitionEn": "A backup model invoked when the primary model times out, is rate limited, errors, or fails output validation, preserving availability and user experience. Teams align output formats and capability limits between both models and log each switch reason.",
+      "wordBreakdown": [
+        {
+          "word": "Fallback",
+          "meaningCn": "备用，回退"
+        },
+        {
+          "word": "Model",
+          "meaningCn": "模型"
+        }
+      ],
+      "breakdownNote": "兜底模型是运行时降级路径，需要单独评估，不能假设主模型的表现可以平移。",
+      "exampleEn": "When the primary model hit its rate limit, the gateway switched to the fallback model and the answer still passed schema validation.",
+      "exampleCn": "主模型触发限流后，网关切换到兜底模型，回答仍然通过了结构校验。",
+      "aliases": [
+        "兜底模型",
+        "备用模型"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "LLM gateway reliability practice (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "Fallback Model",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Failover",
+          "targetDomain": "DISTRIBUTED",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Canary Release",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Guardrail",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Canary Release",
+      "termType": "PHRASE",
+      "domain": "AI_ENG",
+      "senseKey": "default",
+      "meaningCn": "金丝雀发布",
+      "definitionCn": "先把新模型或新提示词开放给极小比例流量，观察质量、延迟与错误率后再逐步放量的发布方式。LLM 场景需按流量分桶对比评估指标与人工抽样，异常时自动回滚。",
+      "definitionEn": "A rollout that sends a small slice of traffic to a new model or prompt, watches quality, latency, and error rate, then expands gradually. In LLM systems it compares evaluation metrics and human samples per bucket and rolls back automatically on regressions.",
+      "wordBreakdown": [
+        {
+          "word": "Canary",
+          "meaningCn": "金丝雀，引申为先行试验"
+        },
+        {
+          "word": "Release",
+          "meaningCn": "发布"
+        }
+      ],
+      "breakdownNote": "金丝雀发布的关键是可对比的观测指标与自动回滚，而非只是少放一点流量。",
+      "interviewEn": "I gate a canary release on per-bucket quality and latency, not just error rate, because a model can answer successfully and still be worse.",
+      "exampleEn": "The canary release sent 5% of chat traffic to the new model, and a faithfulness dip in that bucket triggered an automatic rollback.",
+      "exampleCn": "金丝雀发布把 5% 的聊天流量切给新模型，该流量桶的忠实度下滑触发了自动回滚。",
+      "aliases": [
+        "金丝雀发布",
+        "渐进式发布"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Google SRE Workbook (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {
+          "variant": "WORD_US",
+          "readingText": "Canary Release",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ],
+      "relations": [
+        {
+          "targetHeadword": "Fallback Model",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Evaluation",
+          "targetDomain": "AI_ENG",
+          "relationType": "RELATED"
+        }
+      ]
+    }
+  ]
+}

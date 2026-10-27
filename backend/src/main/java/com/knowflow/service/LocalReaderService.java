@@ -30,7 +30,9 @@ import java.util.Set;
  * </ul>
  */
 @Service
+@lombok.RequiredArgsConstructor
 public class LocalReaderService {
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
 
     /**
      * 支持的文档扩展名集合（Markdown + 纯文本）。
@@ -74,35 +76,7 @@ public class LocalReaderService {
      * @throws BusinessException 路径无效、不存在、不可读时抛出
      */
     public String resolvePath(LocalReaderResolveDTO dto) {
-        if (dto == null || dto.getPath() == null || dto.getPath().trim().isEmpty()) {
-            throw new BusinessException("路径不能为空");
-        }
-        String rawPath = dto.getPath().trim();
-        Path resolved;
-        try {
-            if (rawPath.startsWith("/") || rawPath.matches("^[A-Za-z]:[\\\\/].*")) {
-                // 绝对路径（Unix 或 Windows）
-                resolved = Paths.get(rawPath).normalize();
-            } else if (dto.getRelativeTo() != null && !dto.getRelativeTo().trim().isEmpty()) {
-                // 相对路径，基于上一次的根目录解析
-                Path base = Paths.get(dto.getRelativeTo().trim()).normalize();
-                resolved = base.resolve(rawPath).normalize();
-            } else {
-                // 相对路径，无基准目录时基于 JVM 工作目录
-                resolved = Paths.get(rawPath).toAbsolutePath().normalize();
-            }
-        } catch (Exception e) {
-            throw new BusinessException("路径格式无效：" + rawPath);
-        }
-
-        File file = resolved.toFile();
-        if (!file.exists()) {
-            throw new BusinessException("路径不存在：" + resolved);
-        }
-        if (!file.canRead()) {
-            throw new BusinessException("路径不可读（权限不足）：" + resolved);
-        }
-        return resolved.toString();
+        return hostGuard.resolveAllowed(dto == null ? null : dto.getPath(), dto == null ? null : dto.getRelativeTo()).toString();
     }
 
     /**
@@ -112,15 +86,16 @@ public class LocalReaderService {
      * @return 目录扫描结果
      */
     public LocalReaderScanVO scanDirectory(String absolutePath) {
+        absolutePath = hostGuard.resolveAllowed(absolutePath,null).toString();
         File root = new File(absolutePath);
         if (!root.exists()) {
-            throw new BusinessException("目录不存在：" + absolutePath);
+            throw new BusinessException(404,"资源不存在");
         }
         if (!root.isDirectory()) {
-            throw new BusinessException("路径不是目录：" + absolutePath);
+            throw new BusinessException(400,"路径不是目录");
         }
         if (!root.canRead()) {
-            throw new BusinessException("目录不可读（权限不足）：" + absolutePath);
+            throw new BusinessException(403,"目录不可读");
         }
 
         LocalReaderScanVO vo = new LocalReaderScanVO();
@@ -158,6 +133,7 @@ public class LocalReaderService {
         });
 
         for (File child : sorted) {
+            hostGuard.requireAllowed(child.toPath());
             // 跳过隐藏文件与常见无关目录
             if (child.isHidden()) continue;
             if (child.isDirectory() && isIgnoredDir(child.getName())) continue;
@@ -215,16 +191,16 @@ public class LocalReaderService {
     public String readDocContent(String rootAbsolutePath, String relativePath) {
         File file = resolveFile(rootAbsolutePath, relativePath);
         if (!file.isFile()) {
-            throw new BusinessException("不是文件：" + relativePath);
+            throw new BusinessException(400,"路径不是文件");
         }
         String ext = getExtension(file.getName());
         if (!ALL_TEXT_EXTS.contains(ext)) {
-            throw new BusinessException("不支持的文件类型：" + ext);
+            throw new BusinessException(400,"不支持的文件类型");
         }
         try {
             return Files.readString(file.toPath(), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new BusinessException("读取文件失败：" + e.getMessage());
+            throw new BusinessException(403,"文件不可读");
         }
     }
 
@@ -238,16 +214,16 @@ public class LocalReaderService {
     public byte[] readImage(String rootAbsolutePath, String relativePath) {
         File file = resolveFile(rootAbsolutePath, relativePath);
         if (!file.isFile()) {
-            throw new BusinessException("图片不存在：" + relativePath);
+            throw new BusinessException(400,"路径不是图片文件");
         }
         String ext = getExtension(file.getName());
         if (!IMAGE_EXTS.contains(ext)) {
-            throw new BusinessException("不支持的图片类型：" + ext);
+            throw new BusinessException(400,"不支持的图片类型");
         }
         try {
             return Files.readAllBytes(file.toPath());
         } catch (IOException e) {
-            throw new BusinessException("读取图片失败：" + e.getMessage());
+            throw new BusinessException(403,"图片不可读");
         }
     }
 
@@ -255,22 +231,25 @@ public class LocalReaderService {
      * 根据相对路径解析文件，包含路径穿越防护。
      */
     private File resolveFile(String rootAbsolutePath, String relativePath) {
+        hostGuard.requireAccess();
         if (relativePath == null || relativePath.trim().isEmpty()) {
-            throw new BusinessException("文件路径不能为空");
+            throw new BusinessException(400,"文件路径不能为空");
         }
-        Path root = Paths.get(rootAbsolutePath).normalize();
-        Path resolved = root.resolve(relativePath).normalize();
+        Path root = hostGuard.resolveAllowed(rootAbsolutePath,null);
+        Path resolved;
+        try { resolved = root.resolve(relativePath).normalize(); }
+        catch (java.nio.file.InvalidPathException ex) { throw new BusinessException(400,"路径格式无效"); }
 
         // 路径穿越防护：解析后的路径必须在根目录下
         if (!resolved.startsWith(root)) {
-            throw new BusinessException("非法路径（超出根目录范围）");
+            throw new BusinessException(403,"该目录不在允许访问范围");
         }
-        File file = resolved.toFile();
+        File file = hostGuard.requireAllowed(resolved).toFile();
         if (!file.exists()) {
-            throw new BusinessException("文件不存在：" + relativePath);
+            throw new BusinessException(404,"资源不存在");
         }
         if (!file.canRead()) {
-            throw new BusinessException("文件不可读（权限不足）：" + relativePath);
+            throw new BusinessException(403,"文件不可读");
         }
         return file;
     }
@@ -289,7 +268,9 @@ public class LocalReaderService {
      * @return 图片字节数组；未找到返回 null
      */
     public byte[] findImage(String rootAbsolutePath, String imagePath, String docRelativePath) {
-        Path root = Paths.get(rootAbsolutePath).normalize();
+        Path root = hostGuard.resolveAllowed(rootAbsolutePath,null);
+        if (imagePath == null || imagePath.isBlank()) throw new BusinessException(400,"图片路径不能为空");
+        if (docRelativePath == null) docRelativePath="";
         String imageName = getFileName(imagePath);
 
         // 候选路径列表
@@ -310,7 +291,13 @@ public class LocalReaderService {
         for (String candidate : candidates) {
             try {
                 Path resolved = root.resolve(candidate).normalize();
-                if (!resolved.startsWith(root)) continue;
+                if (!resolved.startsWith(root)) throw new BusinessException(403,"该目录不在允许访问范围");
+                if (!Files.exists(resolved)) {
+                    // Also validate ancestors of missing candidates before trying fallbacks.
+                    try { hostGuard.requireAllowed(resolved); } catch (BusinessException e) { if (e.getCode()!=404) throw e; }
+                    continue;
+                }
+                resolved=hostGuard.requireAllowed(resolved);
                 File file = resolved.toFile();
                 if (file.isFile() && file.canRead()) {
                     String ext = getExtension(file.getName());
@@ -318,6 +305,8 @@ public class LocalReaderService {
                         return Files.readAllBytes(file.toPath());
                     }
                 }
+            } catch (java.nio.file.InvalidPathException ex) {
+                throw new BusinessException(400,"路径格式无效");
             } catch (IOException ignored) {
                 // 继续尝试下一个候选
             }

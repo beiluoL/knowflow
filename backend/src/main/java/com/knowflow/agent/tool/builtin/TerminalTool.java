@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 public class TerminalTool implements AgentTool {
 
     private final ObjectMapper objectMapper;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
 
     /** 允许的命令前缀（base command） */
     private static final List<String> ALLOWED = Arrays.asList(
@@ -85,6 +86,7 @@ public class TerminalTool implements AgentTool {
 
     @Override
     public ToolResult execute(JsonNode args, ToolContext ctx) throws ToolException {
+        hostGuard.requireActor(ctx == null ? null : ctx.getUserId());
         long start = System.currentTimeMillis();
         String command = args.has("command") ? args.get("command").asText() : null;
         if (command == null || command.isBlank()) {
@@ -103,14 +105,15 @@ public class TerminalTool implements AgentTool {
         }
         long timeout = args.has("timeoutSec") ? args.get("timeoutSec").asLong(60) : 60;
         timeout = Math.max(1, Math.min(300, timeout)) * 1000L;
+        timeout=hostGuard.executionTimeout(args.has("timeoutSec") ? args.get("timeoutSec").asLong()*1000L : null,10000);
 
-        Path root = FsReadTool.resolveRoot(ctx);
+        Path root = FsReadTool.resolveRoot(ctx, hostGuard);
         Path workdir = root;
         if (args.has("cwd") && !args.get("cwd").asText().isBlank()) {
-            workdir = FsReadTool.safeResolve(root, args.get("cwd").asText());
+        workdir = FsReadTool.safeResolve(root, args.get("cwd").asText(), hostGuard);
         }
 
-        try {
+        try (var lease=hostGuard.acquireProcess(timeout)) {
             ProcessBuilder pb = new ProcessBuilder("sh", "-c", command);
             pb.directory(workdir.toFile());
             pb.redirectErrorStream(false);
@@ -134,8 +137,9 @@ public class TerminalTool implements AgentTool {
         StreamReader errR = new StreamReader(process.getErrorStream(), limitBytes);
         outR.start();
         errR.start();
-        boolean finished = process.waitFor(timeoutMs, TimeUnit.MILLISECONDS);
+        boolean finished = hostGuard.awaitProcess(process,timeoutMs);
         if (!finished) {
+            process.descendants().forEach(ProcessHandle::destroyForcibly);
             process.destroyForcibly();
             process.waitFor(2000, TimeUnit.MILLISECONDS);
             cap.timedOut = true;
@@ -179,7 +183,7 @@ public class TerminalTool implements AgentTool {
                     if (buf.size() + n > limit) {
                         buf.write(chunk, 0, limit - buf.size());
                         truncated = true;
-                        break;
+                        continue;
                     }
                     buf.write(chunk, 0, n);
                 }

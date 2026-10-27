@@ -8,7 +8,7 @@
       </button>
       <div class="flex items-center gap-4 min-w-0">
         <span class="text-sm truncate" style="color: var(--kb-muted-foreground);">{{ courseTitle }}</span>
-        <span class="px-2 py-0.5 rounded text-xs shrink-0 tabular-nums progress-chip">第 {{ currentIndex + 1 }}/{{ total }} 题</span>
+        <span class="px-2 py-0.5 rounded text-xs shrink-0 tabular-nums progress-chip">{{ total ? `第 ${currentIndex + 1}/${total} 题` : '等待学习内容' }}</span>
       </div>
       <div class="flex items-center gap-3 shrink-0">
         <button type="button" class="flex items-center gap-2 h-8 px-3 rounded-lg text-sm pause-btn" @click="togglePause">
@@ -23,24 +23,17 @@
 
     <!-- ===== 主内容区 ===== -->
     <div class="flex-1 flex flex-col items-center justify-center px-4 md:px-6 relative overflow-y-auto">
-      <!-- 加载态 -->
-      <div v-if="loading" class="text-center">
-        <div class="w-12 h-12 rounded-full border-4 animate-spin mx-auto mb-4" style="border-color: var(--kb-muted); border-top-color: var(--kb-primary);"></div>
+      <StateView :status="cardStatus" :error-title="cardError?.title" :error-scope="cardError?.scope" :error-hint="cardError?.hint" :show-retry="cardError?.retryable" empty-title="还没有可学习的闪卡" empty-description="先在学习中心选择路径或创建闪卡，再开始专注学习。" @retry="loadCards(true)">
+      <template #empty-action><button type="button" class="kb-state-retry" @click="exitLearning">返回学习中心</button></template>
+      <template #skeleton>
+      <div class="w-full max-w-xl">
+        <SkeletonList type="card" :rows="2" :cols="1" />
         <p class="text-sm" style="color: var(--kb-muted-foreground);">正在准备学习内容...</p>
       </div>
-
-      <!-- 空态 -->
-      <div v-else-if="cards.length === 0" class="text-center">
-        <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background: var(--kb-muted);">
-          <Icon name="layers" :size="24" style="color: var(--kb-muted-foreground);" />
-        </div>
-        <h3 class="kb-h3 mb-2">暂无学习卡片</h3>
-        <p class="kb-body-sm mb-4">请先在其他页面创建闪卡或选择学习路径</p>
-        <button type="button" class="px-4 py-2 rounded-lg text-sm font-medium empty-cta" style="background: var(--kb-primary); color: var(--kb-primary-foreground);" @click="exitLearning">返回学习中心</button>
-      </div>
+      </template>
 
       <!-- 学习内容 -->
-      <template v-else>
+      <template #default>
         <!-- 计时器 -->
         <div class="mb-8 text-center">
           <div class="relative inline-flex items-center justify-center mb-4">
@@ -129,6 +122,7 @@
           </div>
         </div>
       </template>
+      </StateView>
     </div>
 
     <!-- ===== 右下角设置浮动面板 ===== -->
@@ -153,12 +147,7 @@
           <!-- 题目数量 -->
           <div>
             <label class="text-xs font-medium mb-2 block" style="color: var(--kb-muted-foreground);">题目数量</label>
-            <select v-model="settings.questionCount" class="w-full h-9 rounded-lg border text-sm outline-none cursor-pointer settings-select">
-              <option :value="10">10 题</option>
-              <option :value="20">20 题</option>
-              <option :value="0">全部</option>
-              <option :value="50">50 题</option>
-            </select>
+            <Select v-model="settings.questionCount" :options="[{ value: 10, label: '10 题' }, { value: 20, label: '20 题' }, { value: 0, label: '全部' }, { value: 50, label: '50 题' }]" aria-label="题目数量" />
           </div>
           <!-- 退出按钮 -->
           <div class="pt-2 flex gap-2">
@@ -184,7 +173,11 @@
  */
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import Select from '@/components/ui/Select.vue'
 import Icon from '@/components/ui/Icon.vue';
+import StateView from '@/components/ui/StateView.vue';
+import SkeletonList from '@/components/ui/SkeletonList.vue';
+import { useAsyncResource } from '@/composables/useAsyncResource';
 import { learningApi } from '@/api';
 import { notify } from '@/utils/toast';
 import { addSession, dateStr } from '@/utils/studySession';
@@ -194,7 +187,13 @@ const route = useRoute();
 const router = useRouter();
 
 // ===== 数据状态 =====
-const loading = ref(false);
+const cardResource=useAsyncResource(async()=>{
+  const pathId=route.query.pathId?Number(route.query.pathId):undefined;
+  const chapterId=route.query.chapterId?Number(route.query.chapterId):undefined;
+  const list=await learningApi.flashcards(pathId,chapterId);
+  return settings.value.questionCount>0?list.slice(0,settings.value.questionCount):list;
+},list=>list.length===0,'学习内容加载失败');
+const {status:cardStatus,error:cardError}=cardResource;
 const cards = ref<FlashcardVO[]>([]);
 const currentIndex = ref(0);
 const showAnswer = ref(false);
@@ -208,10 +207,10 @@ const courseTitle = computed(() => (route.query.title as string) || '沉浸学�
 const currentTags = computed(() => {
   const tags: { label: string; color: string }[] = [];
   if (route.query.category) {
-    tags.push({ label: String(route.query.category), color: '#3B6FE0' });
+    tags.push({ label: String(route.query.category), color: 'var(--kb-primary)' });
   }
-  tags.push({ label: '核心概念', color: '#10B981' });
-  tags.push({ label: '重要', color: '#F59E0B' });
+  tags.push({ label: '核心概念', color: 'var(--kb-success)' });
+  tags.push({ label: '重要', color: 'var(--kb-warning)' });
   return tags;
 });
 
@@ -237,7 +236,7 @@ const formatTime = (seconds: number) => {
 const startTimer = () => {
   if (timerInterval) clearInterval(timerInterval);
   timerInterval = window.setInterval(() => {
-    if (!isPaused.value && timeLeft.value > 0) {
+    if (cardStatus.value==='ready' && !isPaused.value && timeLeft.value > 0) {
       timeLeft.value--;
     }
   }, 1000);
@@ -287,19 +286,10 @@ const exitLearning = () => {
 };
 
 // ===== 数据加载 =====
-const loadCards = async () => {
-  loading.value = true;
-  try {
-    const pathId = route.query.pathId ? Number(route.query.pathId) : undefined;
-    const chapterId = route.query.chapterId ? Number(route.query.chapterId) : undefined;
-    const list = await learningApi.flashcards(pathId, chapterId).catch(() => [] as FlashcardVO[]);
-    cards.value = settings.value.questionCount > 0 ? list.slice(0, settings.value.questionCount) : list;
-    if (cards.value.length === 0) {
-      notify('暂无可学习的卡片，请先创建闪卡', 'warning');
-    }
-  } finally {
-    loading.value = false;
-  }
+const loadCards = async (retry=false) => {
+  await cardResource.run(retry);
+  if(cardStatus.value==='error')return;
+  cards.value=cardResource.data.value||[];currentIndex.value=0;showAnswer.value=false;
 };
 
 onMounted(() => {

@@ -14,9 +14,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private final UploadConfigProperties uploadConfig;
+    private final com.knowflow.security.DocumentAssetInterceptor documentAssets;
 
-    public WebMvcConfig(UploadConfigProperties uploadConfig) {
+    public WebMvcConfig(UploadConfigProperties uploadConfig,com.knowflow.security.DocumentAssetInterceptor documentAssets) {
         this.uploadConfig = uploadConfig;
+        this.documentAssets=documentAssets;
+    }
+    @Override public void addInterceptors(org.springframework.web.servlet.config.annotation.InterceptorRegistry registry) {
+        registry.addInterceptor(documentAssets).addPathPatterns("/uploads/**");
     }
 
     @Override

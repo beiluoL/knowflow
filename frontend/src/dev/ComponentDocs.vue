@@ -1,0 +1,25 @@
+<template><section class="pg5-docs"><template v-if="tab==='Examples'"><div class="pg5-row"><h3>Vue 3 + TypeScript</h3><Button size="sm" variant="text" @click="copy">{{copyNotice}}</Button></div><pre class="pg4-code"><code>{{example}}</code></pre><h3>Story说明</h3><p>{{story.description}}</p><ol><li v-for="step in story.interactionSteps" :key="step">{{step}}</li></ol></template>
+<template v-else-if="tab==='API'"><h3>Props · 展示支持子集</h3><div class="pg4-table-scroll"><table class="pg4-specs"><thead><tr><th>参数</th><th>类型</th><th>源码默认 / Fixture初值</th><th>说明</th></tr></thead><tbody><tr v-for="p in entry.props" :key="p.name"><td>{{p.name}}{{p.required?' *':''}}</td><td>{{p.type}}</td><td>{{p.sourceDefault}} / {{String(p.default)}}</td><td>{{p.description}} {{p.options?.join(' / ')}}</td></tr></tbody></table></div><h3>Events / Slots</h3><p>{{entry.events.join(', ')||'没有已登记Emits'}}</p><p>Slots：{{entry.slots.join(', ')||'没有已登记插槽'}}</p></template>
+<template v-else-if="tab==='States'"><h3>状态支持</h3><div class="pg4-states"><span v-for="state in stateNames" :key="state">{{state}}：{{stateStatus(state)}}</span></div><p>Hover/Focus/Active通过真实交互观察，不因存在Story就标PASS。</p><p>当前Story：{{story.expectedVisualState}}</p></template>
+<template v-else-if="tab==='Design Specs'"><h3>目标规范</h3><p>沿用UI_DESIGN_SYSTEM_V2；Token与目标不代表当前DOM已通过。</p><dl><template v-for="(value,key) in entry.designSpecs" :key="key"><dt>{{key}}</dt><dd>{{value}}</dd></template></dl><ul><li v-for="note in capabilityNotes[entry.name]||[]" :key="note">{{note}}</li></ul></template>
+<template v-else-if="tab==='Accessibility'"><h3>键盘与可访问性</h3><p>{{entry.accessibilityNotes}}</p><p>{{story.accessibilityNotes}}</p><p>鼠标不能是唯一入口。普通字段沿用浅灰无聚焦外框；按钮、菜单、Checkbox/Radio保留焦点。未做专门测试的对比度/读屏：NOT VERIFIED。</p></template>
+<template v-if="tab==='业务场景'"><h3>隔离业务场景</h3><p>基础组件负责展示与事件；数据/API/权限由业务容器提供，所有场景均为本地Fixture。</p><ul><li v-for="scenario in scenarioLinks" :key="scenario.id"><RouterLink :to="{path:'/dev/ui-components',query:{component:scenario.id.toLowerCase(),story:'basic'}}">{{scenario.label}}</RouterLink></li></ul></template>
+<h3>实现与产品化</h3><p>{{entry.production?.status}} · {{entry.production?.package}}</p><p>v-model：{{entry.production?.model}}</p><ul><li v-for="limit in entry.production?.limitations" :key="limit">{{limit}}</li></ul><p>{{entry.production?.consumers.join(' / ')}}</p><p>{{entry.production?.changed}}</p><ol><li v-for="step in entry.production?.promotion" :key="step">{{step}}</li></ol><h3>质量证据 · 与Inspector测量分离</h3><p v-for="(value,key) in entry.production?.quality" :key="key">{{key}}：{{value.status}} {{value.evidence||'尚无本会话认证证据；本轮运行结果见V6_TEST_REPORT。'}}</p>
+<details><summary>查看源码路径</summary><code>{{entry.sourcePath}}</code></details><Button size="sm" variant="text" @click="copyImport">复制组件引用</Button><p role="status">{{importNotice}}</p>
+<h3>使用建议</h3><p>{{advice}}</p><p>推荐组合公共组件，不通过局部CSS覆盖真实组件制造“合规”。Demo-only仅用于展示中心。</p></section></template>
+<script setup lang="ts">
+import {ref,computed} from 'vue'
+import {RouterLink} from 'vue-router'
+import {scenarioLinks} from './scenarios-v6'
+import Button from '@/components/ui/Button.vue'
+import type {PlaygroundEntry} from './registry'
+import type {ComponentStory} from './stories'
+import {capabilityNotes} from './capabilities'
+const props=defineProps<{entry:PlaygroundEntry;story:ComponentStory;tab:string;example:string}>(),copyNotice=ref('复制代码'),stateNames=['Default','Hover','Active','Focus','Disabled','Loading','Error','Selected','Readonly']
+function stateStatus(state:string){if(['Default','Hover','Active','Focus'].includes(state))return '真实交互 / NOT VERIFIED';const key:Record<string,string>={Disabled:'disabled',Loading:'loading',Error:'error',Selected:'modelValue',Readonly:'readonly'};return props.entry.props.some(p=>p.name===key[state])?'可演示 / NOT VERIFIED':'NOT SUPPORTED'}
+const advice=computed(()=>({Checkbox:'用于多选或确认；即时开关设置使用Switch，单选使用Radio。',Switch:'用于即时二元设置；不替代多选Checkbox。',Select:'用于已知选项的值选择；可输入建议优先Combobox；动作使用Dropdown。',Combobox:'用于输入与建议选择；纯动作不使用listbox。',Dropdown:'用于动作菜单；值选择使用Select。',Dialog:'用于需专注处理的模态流程；辅助工作栏考虑Drawer。',Drawer:'用于辅助内容；高风险批准使用有明确说明的Dialog。',Toast:'用于短暂操作反馈；持续的页面内提示使用Alert。',Alert:'用于持续可见的上下文提示；临时反馈使用Toast。'}[props.entry.name]||'先确认真实能力与参数；未实现能力作为独立任务，不在业务页面复制演示组件。'))
+const importNotice=ref('')
+async function copyImport(){try{const name=props.entry.sourcePath.split('/').pop()!.replace('.vue','');await navigator.clipboard.writeText(`import ${name} from '@/${props.entry.sourcePath.replace('frontend/src/','')}'`);importNotice.value='已复制引用'}catch{importNotice.value='剪贴板不可用'}}
+async function copy(){try{await navigator.clipboard.writeText(props.example);copyNotice.value='已复制'}catch{copyNotice.value='剪贴板不可用'}}
+</script>
+<style scoped>.pg5-docs{padding:var(--kb-space-4);background:var(--kb-card);border:1px solid var(--kb-border);border-radius:var(--kb-radius-lg);min-width:0}.pg5-docs h3{font-size:var(--kb-fs-body-lg);font-weight:var(--kb-fw-label);margin-block:var(--kb-space-4) var(--kb-space-2)}.pg5-docs dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--kb-space-2) var(--kb-space-4)}.pg5-docs dd{overflow-wrap:anywhere}</style>

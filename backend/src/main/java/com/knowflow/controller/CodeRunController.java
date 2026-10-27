@@ -25,12 +25,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 代码在线运行沙箱接口（SC1-IDE-01）与 AI 编程助手内联接口（SC1-AI-01）。
+ * 可信本地开发代码执行接口（不是 OS Sandbox）与 AI 编程助手内联接口。
  * <p>需要登录（JWT）。后端基于系统运行时真实执行用户代码，支持 Python/Java/JavaScript/C++；
  * AI 助手携带当前代码上下文解释运行错误或回答编程问题。
  */
 @Slf4j
-@Tag(name = "代码运行沙箱")
+@Tag(name = "可信本地代码执行")
 @RestController
 @RequestMapping("/api/code")
 @RequiredArgsConstructor

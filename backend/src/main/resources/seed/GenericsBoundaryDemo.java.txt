@@ -1,0 +1,35 @@
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.LongAdder;
+
+public class GenericsBoundaryDemo {
+    static <T> void copyInto(List<? extends T> from, List<? super T> to) {
+        for (T item : from) to.add(item);
+    }
+    public static void main(String[] args) throws Exception {
+        List<Number> target = new ArrayList<>();
+        copyInto(List.of(1, 2, 3), target);
+        System.out.println(target);
+        System.out.println(new ArrayList<String>().getClass() == new ArrayList<Integer>().getClass());
+        var broken = new ConcurrentHashMap<String, Integer>();
+        broken.put("count", 0);
+        var bothRead = new CyclicBarrier(2);
+        Runnable readThenPut = () -> {
+            int old = broken.get("count");
+            try { bothRead.await(); } catch (Exception e) { throw new IllegalStateException(e); }
+            broken.put("count", old + 1);
+        };
+        Thread a = new Thread(readThenPut), b = new Thread(readThenPut);
+        a.start(); b.start(); a.join(); b.join();
+        System.out.println("get+put=" + broken.get("count"));
+        var fixed = new ConcurrentHashMap<String, Integer>();
+        Runnable merge = () -> fixed.merge("count", 1, Integer::sum);
+        a = new Thread(merge); b = new Thread(merge);
+        a.start(); b.start(); a.join(); b.join();
+        System.out.println("merge=" + fixed.get("count"));
+        try { fixed.put("null", null); } catch (NullPointerException expected) { System.out.println("null rejected"); }
+        var frequencies = new ConcurrentHashMap<String, LongAdder>();
+        frequencies.computeIfAbsent("java", k -> new LongAdder()).increment();
+        System.out.println("quiescent sum=" + frequencies.get("java").sum());
+    }
+}

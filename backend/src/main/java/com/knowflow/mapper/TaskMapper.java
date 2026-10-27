@@ -16,6 +16,8 @@ import java.util.List;
  */
 @Mapper
 public interface TaskMapper extends BaseMapper<Task> {
+    @Select("SELECT * FROM task WHERE id=#{id} AND user_id=#{userId} AND deleted=0 FOR UPDATE")
+    Task lockOwned(@Param("id") Long id,@Param("userId") Long userId);
 
     /**
      * 按时间区间查询日历事件：返回与 [start, end] 时间窗重叠的定时事件，

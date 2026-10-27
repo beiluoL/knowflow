@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-6 animate-fade-in">
+  <div class="ai-settings space-y-6 animate-fade-in">
     <div class="flex items-center justify-between">
       <div>
         <h1 class="text-2xl font-bold" style="color: var(--kb-foreground);">AI 设置</h1>
@@ -7,17 +7,22 @@
       </div>
       <div v-if="userConfig" class="flex items-center gap-2">
         <span class="px-3 py-1 rounded-full text-xs font-medium" style="background: rgba(59,111,224,0.1); color: var(--kb-primary);">
-          已启用自定义配置
+          已保存个人配置
         </span>
       </div>
     </div>
 
+    <p role="status" class="text-sm" style="color:var(--kb-muted-foreground)">服务端能力：{{ capability.error ? '状态暂不可读取' : capability.status?.status || '正在读取' }}。保存个人配置不等于系统已启用；连通性测试会发起模型请求。</p>
+    <StateView :status="configLoading ? 'loading' : configError ? 'error' : 'ready'" error-title="AI 配置加载失败" error-description="未成功读取配置，请重试后再编辑。" @retry="loadConfig">
+    <p v-if="actionError" role="alert" class="text-sm" style="color:var(--kb-danger)">{{ actionError }}</p>
+    <p v-if="saving || deleting" role="status" aria-live="polite" class="text-sm">{{ saving ? '正在保存配置…' : '正在确认或删除配置…' }}</p>
+    <fieldset :disabled="saving || deleting" class="min-w-0 space-y-6">
     <!-- Section 1: 自定义 AI 配置 -->
     <Card>
       <template #header>
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(59,111,224,0.08);">
-            <Icon name="key" :size="20" style="color: var(--kb-primary);" />
+            <Icon name="lock" :size="20" style="color: var(--kb-primary);" />
           </div>
           <div>
             <h3 class="font-semibold" style="color: var(--kb-foreground);">自定义 AI 模型</h3>
@@ -132,11 +137,11 @@
             </label>
             <div class="relative">
               <input
-                v-model="form.apiKey"
+                aria-label="API Key" v-model="form.apiKey"
                 :type="showKey ? 'text' : 'password'"
                 placeholder="输入你的 API Key"
-                class="w-full h-10 px-3 pr-10 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
+                class="w-full h-10 px-3 pr-10 text-sm outline-none transition-colors kb-input kb-form-control"
+                style="color: var(--kb-foreground)"
                 autocomplete="off"
               />
               <button
@@ -155,11 +160,11 @@
           <div>
             <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground);">API 地址</label>
             <input
-              v-model="form.baseUrl"
+              aria-label="API 地址" v-model="form.baseUrl"
               type="text"
               placeholder="https://api.deepseek.com/v1"
-              class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-              style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
+              class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
+              style="color: var(--kb-foreground)"
             />
           </div>
 
@@ -167,11 +172,11 @@
           <div>
             <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground);">模型名称</label>
             <input
-              v-model="form.model"
+              aria-label="模型名称" v-model="form.model"
               type="text"
               placeholder="deepseek-chat"
-              class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-              style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
+              class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
+              style="color: var(--kb-foreground)"
             />
           </div>
         </div>
@@ -201,18 +206,18 @@
 
         <!-- 连通性测试结果 -->
         <div v-if="testResult" class="p-4 rounded-lg border" :style="{
-          borderColor: testResult.success ? 'var(--kb-accent)' : 'var(--kb-danger, #ef4444)',
+          borderColor: testResult.success ? 'var(--kb-accent)' : 'var(--kb-danger, var(--kb-danger))',
           background: testResult.success ? 'rgba(16,185,129,0.06)' : 'rgba(239,68,68,0.06)',
         }">
           <div class="flex items-start gap-3">
             <Icon
               :name="testResult.success ? 'check-circle' : 'x-circle'"
               :size="20"
-              :style="{ color: testResult.success ? 'var(--kb-accent)' : 'var(--kb-danger, #ef4444)' }"
+              :style="{ color: testResult.success ? 'var(--kb-accent)' : 'var(--kb-danger, var(--kb-danger))' }"
             />
             <div class="flex-1">
               <div class="flex items-center gap-2">
-                <span class="text-sm font-medium" :style="{ color: testResult.success ? 'var(--kb-accent)' : 'var(--kb-danger, #ef4444)' }">
+                <span class="text-sm font-medium" :style="{ color: testResult.success ? 'var(--kb-accent)' : 'var(--kb-danger, var(--kb-danger))' }">
                   {{ testResult.success ? '连通成功' : '连通失败' }}
                 </span>
                 <span class="text-xs" style="color: var(--kb-muted-foreground);">耗时 {{ testResult.elapsedMs }}ms</span>
@@ -227,7 +232,7 @@
         <div class="flex items-center justify-between gap-3">
           <button
             type="button"
-            :disabled="testing"
+            :disabled="testing || saving || deleting || !canTestConnection"
             class="inline-flex items-center gap-2 px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
             style="border-color: var(--kb-border); color: var(--kb-foreground);"
             @click="handleTest"
@@ -378,6 +383,8 @@
         <button type="button" class="px-4 h-9 rounded-lg text-sm font-medium transition-colors hover:opacity-90" style="background: var(--kb-primary); color: var(--kb-primary-foreground);" @click="saveParams">保存参数</button>
       </div>
     </Card>
+    </fieldset>
+    </StateView>
   </div>
 </template>
 
@@ -385,10 +392,20 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
+import StateView from '@/components/ui/StateView.vue'
+import { useAiCapabilityStore } from '@/stores/aiCapability'
 import { aiConfigApi } from '@/api/aiConfig'
 import { notify, confirmDialog } from '@/utils/toast'
 import type { UserAiConfigVO, PlatformModelVO, AiTestResult } from '@/api/types'
 
+const capability = useAiCapabilityStore()
+// 测试用于验证新配置，系统启用但尚未配置/旧配置失败时也应允许；不能要求旧配置已AVAILABLE。
+const canTestConnection = computed(() => capability.status?.enabled === true && capability.userEnabled && !capability.error)
+const configLoading = ref(true)
+const configError = ref(false)
+const saving = ref(false)
+const deleting = ref(false)
+const actionError = ref('')
 const userConfig = ref<UserAiConfigVO | null>(null)
 const platformModels = ref<PlatformModelVO[]>([])
 const showKey = ref(false)
@@ -429,6 +446,9 @@ function selectProvider(id: string) {
 }
 
 async function loadConfig() {
+  if (saving.value || deleting.value) return
+  configLoading.value = true
+  configError.value = false
   try {
     const [config, models] = await Promise.all([
       aiConfigApi.getConfig(),
@@ -445,8 +465,9 @@ async function loadConfig() {
       selectProvider(models[0].provider)
     }
   } catch {
-    // 静默处理
-  }
+    // 加载失败不能冒充“没有配置”，避免用户基于不完整状态覆盖。
+    configError.value = true
+  } finally { configLoading.value = false }
 }
 
 function loadParams() {
@@ -459,10 +480,13 @@ function loadParams() {
 }
 
 async function handleSave() {
+  if (saving.value || deleting.value || testing.value || configLoading.value || configError.value) return
+  actionError.value = ''
   if (!form.apiKey && !userConfig.value) {
     notify('请输入 API Key', 'error')
     return
   }
+  saving.value = true
   try {
     const result = await aiConfigApi.saveConfig({
       provider: form.provider,
@@ -475,12 +499,13 @@ async function handleSave() {
     form.apiKey = ''
     notify('AI 配置已保存', 'success')
   } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : '保存失败'
-    notify(msg, 'error')
-  }
+    actionError.value = '配置保存失败，请重试；已输入内容仍保留。'
+  } finally { saving.value = false }
 }
 
 async function handleTest() {
+  // 复用唯一能力Store；UI拒绝仅用于反馈，服务端仍必须独立校验。
+  if (testing.value || saving.value || deleting.value || configLoading.value || configError.value || !canTestConnection.value) return
   testing.value = true
   testResult.value = null
   try {
@@ -506,7 +531,11 @@ async function handleTest() {
 }
 
 async function handleDelete() {
-  const confirmed = await confirmDialog('确定要删除自定义 AI 配置吗？将回退到使用平台模型。')
+  if (saving.value || deleting.value || testing.value || configLoading.value || configError.value) return
+  deleting.value = true
+  actionError.value = ''
+  try {
+  const confirmed = await confirmDialog('确定要删除自定义 AI 配置吗？将回退到使用平台模型。', {"title":"确认删除","confirmText":"确认删除","cancelText":"取消","icon":"trash-2","variant":"danger"})
   if (!confirmed) return
   try {
     await aiConfigApi.deleteAll()
@@ -516,9 +545,9 @@ async function handleDelete() {
     testResult.value = null
     notify('已删除自定义配置，将使用平台模型', 'success')
   } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : '删除失败'
-    notify(msg, 'error')
+    actionError.value = '删除配置失败，请重试。'
   }
+  } finally { deleting.value = false }
 }
 
 function resetParams() {
@@ -536,12 +565,16 @@ function saveParams() {
 }
 
 onMounted(() => {
-  loadConfig()
+  void loadConfig()
+  void capability.refresh(false)
   loadParams()
 })
 </script>
 
 <style scoped>
+.ai-settings { min-width:0; }
+.ai-settings > fieldset { min-width:0; }
+@media(prefers-reduced-motion:reduce) { .ai-settings, .ai-settings * { animation:none; transition:none; } }
 .animate-fade-in {
   animation: fadeIn 0.4s ease-out;
 }

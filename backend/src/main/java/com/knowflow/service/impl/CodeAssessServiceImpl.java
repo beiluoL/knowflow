@@ -35,6 +35,7 @@ import java.util.List;
 public class CodeAssessServiceImpl implements CodeAssessService {
 
     private final CodeExecutionService codeExecutionService;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
     private final CodeQuestionMapper codeQuestionMapper;
     private final AiService aiService;
 
@@ -42,6 +43,10 @@ public class CodeAssessServiceImpl implements CodeAssessService {
 
     @Override
     public CodeAssessResult assess(CodeAssessRequest request, Long userId) {
+        hostGuard.requireActor(userId);
+        if (request == null) throw new BusinessException(400,"评估请求不能为空");
+        hostGuard.validateCode(request.getLanguage(),request.getCode());
+        hostGuard.executionTimeout(request.getTimeLimitMs(),DEFAULT_TIME_LIMIT);
         String language = request.getLanguage();
         String code = request.getCode() == null ? "" : request.getCode();
         long timeLimit = (request.getTimeLimitMs() != null && request.getTimeLimitMs() > 0)
@@ -69,6 +74,8 @@ public class CodeAssessServiceImpl implements CodeAssessService {
                     if (ok) {
                         passed++;
                     }
+                } catch (BusinessException e) {
+                    throw e;
                 } catch (Exception e) {
                     log.warn("[Assess] 用例运行异常：{}", e.getMessage());
                 }

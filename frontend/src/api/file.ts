@@ -1,5 +1,5 @@
 // 文件管理请求层：封装上传文件列表、删除、存储统计、目录配置读写接口。
-import { apiGet, apiPost, apiPut, apiDelete } from './request'
+import { apiGet, apiPut, apiDelete } from './request'
 
 /** 上传文件信息 */
 export interface UploadFileVO {

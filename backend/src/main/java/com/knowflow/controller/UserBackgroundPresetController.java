@@ -2,6 +2,7 @@ package com.knowflow.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.entity.UserBackgroundPreset;
 import com.knowflow.mapper.UserBackgroundPresetMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +37,7 @@ public class UserBackgroundPresetController {
     @Operation(summary = "获取当前用户的所有自定义预设")
     @GetMapping
     public Result<List<UserBackgroundPreset>> list(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         List<UserBackgroundPreset> presets = presetMapper.selectList(
                 new LambdaQueryWrapper<UserBackgroundPreset>()
                         .eq(UserBackgroundPreset::getUserId, userId)
@@ -48,7 +49,7 @@ public class UserBackgroundPresetController {
     @Operation(summary = "保存自定义预设")
     @PostMapping
     public Result<UserBackgroundPreset> save(@RequestBody PresetSaveDTO dto, Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         // 同名预设更新，否则新增
         UserBackgroundPreset existing = presetMapper.selectOne(
                 new LambdaQueryWrapper<UserBackgroundPreset>()
@@ -75,7 +76,7 @@ public class UserBackgroundPresetController {
     @Operation(summary = "删除自定义预设")
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id, Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         presetMapper.delete(
                 new LambdaQueryWrapper<UserBackgroundPreset>()
                         .eq(UserBackgroundPreset::getId, id)

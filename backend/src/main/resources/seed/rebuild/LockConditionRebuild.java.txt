@@ -1,0 +1,9 @@
+import java.util.concurrent.*;
+import java.util.concurrent.locks.*;
+public class LockConditionRebuild {
+    public static void main(String[] args)throws Exception{
+        var lock=new ReentrantLock();lock.lock();lock.lock();
+        try{System.out.println(lock.getHoldCount());Thread t=new Thread(()->{try{boolean got=lock.tryLock(20,TimeUnit.MILLISECONDS);System.out.println(got);if(got)lock.unlock();}catch(InterruptedException e){Thread.currentThread().interrupt();}});t.start();t.join();}
+        finally{lock.unlock();lock.unlock();}System.out.println(lock.getHoldCount());
+    }
+}

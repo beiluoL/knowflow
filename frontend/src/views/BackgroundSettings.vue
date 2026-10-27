@@ -100,7 +100,7 @@
               </div>
             </template>
             <template v-else>
-              <Icon name="video" :size="32" class="upload-icon" />
+              <Icon name="play" :size="32" class="upload-icon" />
               <p class="upload-text">点击或拖拽上传视频</p>
               <p class="upload-hint">支持 MP4 / WebM，建议不超过 10MB</p>
             </template>
@@ -129,7 +129,7 @@
             <label class="control-label">选择颜色</label>
             <div class="color-row">
               <input type="color" :value="bg.color" class="color-picker" @input="bg.setColor(($event.target as HTMLInputElement).value)" />
-              <input type="text" :value="bg.color" class="color-text" readonly />
+              <input type="text" :value="bg.color" class="color-text kb-input kb-form-control" readonly />
             </div>
           </div>
           <div class="color-presets">
@@ -152,14 +152,14 @@
             <label class="control-label">起始颜色</label>
             <div class="color-row">
               <input type="color" :value="bg.gradient.from" class="color-picker" @input="updateGradient('from', ($event.target as HTMLInputElement).value)" />
-              <input type="text" :value="bg.gradient.from" class="color-text" readonly />
+              <input type="text" :value="bg.gradient.from" class="color-text kb-input kb-form-control" readonly />
             </div>
           </div>
           <div class="control-row">
             <label class="control-label">结束颜色</label>
             <div class="color-row">
               <input type="color" :value="bg.gradient.to" class="color-picker" @input="updateGradient('to', ($event.target as HTMLInputElement).value)" />
-              <input type="text" :value="bg.gradient.to" class="color-text" readonly />
+              <input type="text" :value="bg.gradient.to" class="color-text kb-input kb-form-control" readonly />
             </div>
           </div>
           <div class="control-row">
@@ -201,7 +201,7 @@
               class="save-preset-btn"
               @click="showSaveDialog = true"
             >
-              <Icon name="bookmark-plus" :size="14" />
+              <Icon name="bookmark" :size="14" />
               <span>保存当前配置</span>
             </button>
           </div>
@@ -315,7 +315,7 @@
           ref="presetNameInput"
           v-model="presetName"
           type="text"
-          class="save-dialog-input"
+          class="save-dialog-input kb-input kb-form-control"
           placeholder="输入预设名称（如：我的深海蓝）"
           maxlength="20"
           @keyup.enter="handleSavePreset"
@@ -475,7 +475,7 @@ function updateGradient(field: 'from' | 'to' | 'angle', value: string | number) 
 }
 
 async function handleClear() {
-  const ok = await confirmDialog('确定清除当前背景设置吗？')
+  const ok = await confirmDialog('确定清除当前背景设置吗？', {"title":"清除背景设置？","confirmText":"清除设置","cancelText":"取消","icon":"refresh-cw","variant":"default"})
   if (!ok) return
   bg.clearBackground()
   notify('背景已清除', 'success')
@@ -531,14 +531,16 @@ async function handleSavePreset() {
 }
 
 async function handleDeletePreset(id: number, name: string) {
-  const ok = await confirmDialog(`确定删除预设「${name}」吗？`)
-  if (!ok) return
-  try {
-    await bg.removeUserPreset(id)
-    notify('预设已删除', 'success')
-  } catch (e: unknown) {
-    notify('删除失败：' + (e as Error).message, 'error')
-  }
+  await confirmDialog(`确定删除预设「${name}」吗？`, { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          try {
+              await bg.removeUserPreset(id);
+              notify('预设已删除', 'success');
+          }
+          catch (e: unknown) {
+              notify('删除失败：' + (e as Error).message, 'error');
+              throw e;
+          }
+      } });
 }
 
 onMounted(() => {
@@ -564,8 +566,11 @@ vueWatch(showSaveDialog, (val) => {
 }
 
 .bg-settings {
-  max-width: 1100px;
-  margin: 0 auto;
+  max-width: none;
+  margin-inline: 0;
+
+  width: 100%;
+  min-width: 0;
 }
 
 .settings-grid {
@@ -775,21 +780,23 @@ vueWatch(showSaveDialog, (val) => {
   outline-offset: 2px;
   border-color: var(--kb-primary);
 }
+.color-text:not(.kb-form-control) {
+  height: 32px;
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-sm);
+  background: var(--kb-background);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
 .color-text {
   width: 90px;
-  height: 32px;
   padding: 0 8px;
   font-size: var(--kb-fs-caption);
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-background);
   color: var(--kb-foreground);
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.color-text:focus-visible {
+.color-text:not(.kb-form-control):focus-visible {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
@@ -1324,19 +1331,21 @@ vueWatch(showSaveDialog, (val) => {
   color: var(--kb-foreground);
   margin-bottom: 16px;
 }
-.save-dialog-input {
-  width: 100%;
+.save-dialog-input:not(.kb-form-control) {
   height: 40px;
-  padding: 0 12px;
-  font-size: var(--kb-fs-body-md);
   border: 1px solid var(--kb-border);
   border-radius: 8px;
   background: var(--kb-background);
-  color: var(--kb-foreground);
   outline: none;
   transition: border-color 0.15s ease;
 }
-.save-dialog-input:focus {
+.save-dialog-input {
+  width: 100%;
+  padding: 0 12px;
+  font-size: var(--kb-fs-body-md);
+  color: var(--kb-foreground);
+}
+.save-dialog-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }

@@ -24,7 +24,7 @@
               v-model="formData.name"
               type="text"
               placeholder="请输入知识库名称"
-              class="form-input"
+              class="form-input kb-input kb-form-control"
               maxlength="50"
             />
             <p class="form-hint">{{ formData.name.length }} / 50 字符</p>
@@ -74,7 +74,7 @@
               v-model="formData.description"
               rows="4"
               placeholder="请输入知识库的描述信息，帮助团队成员了解其用途..."
-              class="form-textarea"
+              class="form-textarea kb-textarea kb-form-control"
               maxlength="200"
             ></textarea>
             <p class="form-hint">{{ formData.description.length }} / 200 字符</p>
@@ -104,7 +104,7 @@
                     v-model="inviteEmail"
                     type="email"
                     placeholder="输入成员邮箱邀请加入"
-                    class="form-input"
+                    class="form-input kb-input kb-form-control"
                   />
                   <button type="button" class="invite-btn" @click="inviteMember">
                     <Icon name="user-plus" :size="14" />
@@ -167,7 +167,7 @@
                 <span>邀请团队成员协作编辑</span>
               </li>
               <li>
-                <Icon name="share" :size="14" />
+                <Icon name="share-2" :size="14" />
                 <span>分享知识库链接给其他成员</span>
               </li>
             </ul>
@@ -186,8 +186,10 @@ import { categoriesApi, adminApi } from '@/api'
 import type { CategoryInput } from '@/api/types'
 import { notify, getApiError } from '@/utils/toast'
 import { useAuthStore } from '@/stores/auth'
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const router = useRouter()
+const nav = usePageNavigation()
 const auth = useAuthStore()
 
 interface Member {
@@ -220,12 +222,12 @@ const availableIcons = [
 ]
 
 const availableColors = [
-  { value: '#3B6FE0' },
+  { value: 'var(--kb-primary)' },
   { value: '#8B5CF6' },
   { value: '#EC4899' },
-  { value: '#EF4444' },
-  { value: '#F59E0B' },
-  { value: '#10B981' },
+  { value: 'var(--kb-danger)' },
+  { value: 'var(--kb-warning)' },
+  { value: 'var(--kb-success)' },
   { value: '#06B6D4' },
   { value: '#6366F1' },
 ]
@@ -233,7 +235,7 @@ const availableColors = [
 const formData = ref({
   name: '',
   icon: 'folder',
-  color: '#3B6FE0',
+  color: 'var(--kb-primary)',
   description: '',
 })
 
@@ -247,7 +249,7 @@ const canSubmit = computed(() => {
 })
 
 function getMemberColor(name: string): string {
-  const colors = ['#3B6FE0', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#06B6D4']
+  const colors = ['var(--kb-primary)', '#8B5CF6', '#EC4899', 'var(--kb-warning)', 'var(--kb-success)', '#06B6D4']
   let hash = 0
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash)
@@ -321,15 +323,20 @@ async function handleCreate(): Promise<void> {
 }
 
 function goBack(): void {
-  router.push('/knowledge')
+  nav.goBack('/knowledge')
 }
 </script>
 
 <style scoped>
 .knowledge-create-page {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: none;
+  margin-inline: 0;
   padding: 0 24px 40px;
+
+  width: 100%;
+  min-width: 0;
+  padding-inline: 0;
+  padding-top: 0;
 }
 
 .page-header {
@@ -429,24 +436,32 @@ function goBack(): void {
   color: var(--kb-destructive);
 }
 
+.form-input:not(.kb-form-control),
+.form-textarea:not(.kb-form-control) {
+  border-radius: var(--kb-radius-md);
+  background: var(--kb-background);
+  border: 1px solid var(--kb-border);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
 .form-input,
 .form-textarea {
   width: 100%;
   padding: 10px 14px;
-  border-radius: var(--kb-radius-md);
   font-size: var(--kb-fs-body-md);
-  background: var(--kb-background);
   color: var(--kb-foreground);
-  border: 1px solid var(--kb-border);
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
   font-family: inherit;
 }
 
-.form-input:focus,
-.form-textarea:focus {
+.form-input:not(.kb-form-control):focus,
+.form-textarea:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
+}
+
+.form-textarea:not(.kb-form-control) {
+  min-height: 100px;
 }
 
 .form-textarea {

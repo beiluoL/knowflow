@@ -51,7 +51,7 @@
             <div class="habit-desc">{{ h.description || freqLabel(h) }}</div>
           </div>
           <div class="habit-actions">
-            <button title="编辑" @click="openEdit(h)"><Icon name="edit-3" :size="14" /></button>
+            <button title="编辑" @click="openEdit(h)"><Icon name="pencil" :size="14" /></button>
             <button title="删除" class="danger" @click="removeHabit(h)"><Icon name="trash-2" :size="14" /></button>
           </div>
         </div>
@@ -139,7 +139,7 @@
               <label class="hm-label">习惯名称 <span class="req">*</span></label>
               <input
                 v-model="form.name"
-                class="hm-input"
+                class="hm-input kb-input kb-form-control"
                 placeholder="如：每日阅读 30 分钟"
                 maxlength="50"
               />
@@ -148,7 +148,7 @@
               <label class="hm-label">描述（可选）</label>
               <input
                 v-model="form.description"
-                class="hm-input"
+                class="hm-input kb-input kb-form-control"
                 placeholder="坚持的意义与目标"
                 maxlength="120"
               />
@@ -163,12 +163,20 @@
               </div>
               <div class="hm-field">
                 <label class="hm-label">目标次数</label>
-                <input v-model.number="form.targetCount" type="number" min="1" max="99" class="hm-input" />
+                <input v-model.number="form.targetCount" type="number" min="1" max="99" class="hm-input kb-input kb-form-control" />
               </div>
             </div>
             <div class="hm-field">
               <label class="hm-label">提醒时间（可选，浏览器通知）</label>
-              <input v-model="form.reminderTime" type="time" class="hm-input" />
+              <TimePicker
+                :model-value="form.reminderTime || ''"
+                class="hm-timepicker"
+                precision="minute"
+                placeholder="选择提醒时间"
+                aria-label="提醒时间"
+                clearable
+                @update:model-value="form.reminderTime = $event || null"
+              />
             </div>
             <div class="hm-field">
               <label class="hm-label">图标</label>
@@ -217,6 +225,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import StatCard from '@/components/ui/StatCard.vue'
+import TimePicker from '@/components/ui/TimePicker.vue'
 import { notify, getApiError } from '@/utils/toast'
 import { dialog } from '@/utils/dialog'
 import { habitApi, type HabitVO, type HabitPayload } from '@/api'
@@ -316,20 +325,22 @@ async function saveHabit() {
 }
 
 async function removeHabit(h: HabitVO) {
-  const ok = await dialog.confirm({
-    title: '删除习惯',
-    message: `确定删除习惯「${h.name}」？\n历史打卡记录将一并清除，且无法恢复。`,
-    variant: 'danger',
-    confirmText: '删除',
-  })
-  if (!ok) return
-  try {
-    await habitApi.remove(h.id)
-    notify('习惯已删除', 'success')
-    await loadHabits()
-  } catch (e: unknown) {
-    notify(getApiError(e, '删除失败'), 'error')
-  }
+  await dialog.confirm({ "cancelText": "取消", "icon": "trash-2",
+      title: '删除习惯',
+      message: `确定删除习惯「${h.name}」？\n历史打卡记录将一并清除，且无法恢复。`,
+      variant: 'danger',
+      confirmText: '删除',
+      onConfirm: async () => {
+          try {
+              await habitApi.remove(h.id);
+              notify('习惯已删除', 'success');
+              await loadHabits();
+          }
+          catch (e: unknown) {
+              notify(getApiError(e, '删除失败'), 'error');
+              throw e;
+          }
+      } });
 }
 
 // ===== 打卡 =====
@@ -573,14 +584,17 @@ function hexBg(color: string): string {
 .hm-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
 .hm-field { display: flex; flex-direction: column; gap: 6px; }
 .hm-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.hm-timepicker { width: 100%; }
 .hm-label { font-size: 12px; font-weight: 600; color: var(--kb-foreground); }
 .req { color: var(--kb-destructive); }
-.hm-input {
-  padding: 9px 12px; border-radius: var(--kb-radius-sm);
-  border: 1px solid var(--kb-border); background: var(--kb-background);
-  color: var(--kb-foreground); font-size: 14px; outline: none; transition: border-color 0.15s;
+.hm-input:not(.kb-form-control) { border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kb-border); background: var(--kb-background); outline: none; transition: border-color 0.15s;
 }
-.hm-input:focus { border-color: var(--kb-primary); }
+.hm-input {
+  padding: 9px 12px;
+  color: var(--kb-foreground); font-size: 14px;
+}
+.hm-input:not(.kb-form-control):focus { border-color: var(--kb-primary); }
 .seg-control {
   display: inline-flex; background: var(--kb-muted); padding: 3px; border-radius: var(--kb-radius-sm);
 }

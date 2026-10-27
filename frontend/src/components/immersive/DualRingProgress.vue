@@ -68,7 +68,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   outerProgress: undefined,
   innerColor: 'var(--kb-primary)',
-  outerColor: '#EF4444',
+  outerColor: 'var(--kb-danger)',
   size: 260,
 });
 

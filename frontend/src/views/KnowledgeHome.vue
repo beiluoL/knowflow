@@ -1,5 +1,5 @@
 <template>
-  <div class="knowledge-layout">
+  <div class="knowledge-layout knowledge-v2" @keydown.esc="sidebarOpen = false">
     <!-- 移动端遮罩层 -->
     <div
       v-if="sidebarOpen"
@@ -10,6 +10,11 @@
     <!-- 左侧边栏 -->
     <KnowledgeSidebar
       ref="sidebarRef"
+      :inert="isCompact && !sidebarOpen"
+      :role="isCompact && sidebarOpen ? 'dialog' : undefined"
+      :aria-modal="isCompact && sidebarOpen ? true : undefined"
+      aria-label="知识分类"
+      @keydown.tab="trapKnowledgeFocus"
       mode="home"
       :active-key="activeKey"
       :active-category-id="activeCategoryId"
@@ -20,26 +25,26 @@
     />
 
     <!-- 主内容区 -->
-    <main class="knowledge-main">
+    <main class="knowledge-main" :inert="isCompact && sidebarOpen">
       <!-- 顶部搜索栏 -->
       <div class="top-bar">
         <!-- 移动端菜单按钮 -->
-        <button class="mobile-menu-btn" @click="sidebarOpen = true">
+        <button class="mobile-menu-btn" type="button" ref="categoryTrigger" aria-label="打开知识分类" @click="sidebarOpen = true">
           <Icon name="menu" :size="20" />
         </button>
-        <div class="search-box">
+        <div class="search-box kb-input-surface">
           <Icon name="search" :size="18" class="search-icon" />
           <input
-            ref="searchInputRef"
             v-model="searchKeyword"
-            type="text"
+            type="search"
+            aria-label="搜索知识文档"
             placeholder="搜索知识文档..."
-            class="search-input"
-            @keyup.enter="goSearch"
+            class="search-input kb-input kb-form-control"
+            @keydown.enter="handleSearchKey"
             @focus="showSearchHistory = true"
             @blur="hideSearchHistory"
           />
-          <span class="search-shortcut">⌘K</span>
+          <kbd class="search-shortcut">Enter</kbd>
           <!-- 搜索历史下拉 -->
           <div
             v-if="showSearchHistory && searchHistory.length > 0 && !searchKeyword"
@@ -62,37 +67,97 @@
             </div>
           </div>
         </div>
-        <button class="upload-btn" @click="goUpload">
-          <Icon name="upload" :size="16" />
-          <span>上传文档</span>
-        </button>
-        <button class="import-btn" @click="goImport">
-          <Icon name="download" :size="16" />
-          <span>导入知识库</span>
-        </button>
-        <button class="import-btn" @click="goReader">
-          <Icon name="book-open" :size="16" />
-          <span>本地阅读</span>
-        </button>
+        <!-- UI/UX 5.0 §十二：顶部动作收敛为 Search + [导入知识]（上传/粘贴/目录/本地阅读统一入口）；
+             AI 整理移入文档上下文的分类操作区，不再占顶栏。 -->
+        <div class="kb-import-dropdown" ref="importMenuRef">
+          <button class="upload-btn" type="button" :aria-expanded="importMenuOpen" aria-haspopup="menu"
+                  @click="importMenuOpen = !importMenuOpen" @keydown.esc="importMenuOpen = false">
+            <Icon name="plus" :size="16" />
+            <span>导入知识</span>
+            <Icon :name="importMenuOpen ? 'chevron-up' : 'chevron-down'" :size="14" />
+          </button>
+          <div v-if="importMenuOpen" class="kb-import-menu" role="menu">
+            <button type="button" role="menuitem" @click="goUpload">
+              <Icon name="upload" :size="15" /><span>上传文件</span>
+            </button>
+            <button type="button" role="menuitem" @click="goProcessPaste">
+              <Icon name="file-plus" :size="15" /><span>粘贴文本</span>
+            </button>
+            <button type="button" role="menuitem" @click="goImport">
+              <Icon name="folder-tree" :size="15" /><span>导入目录</span>
+            </button>
+            <button type="button" role="menuitem" @click="goReader">
+              <Icon name="book-open" :size="15" /><span>本地阅读</span>
+            </button>
+          </div>
+        </div>
       </div>
 
+      <StateView :status="homeStatus" :error-title="homeError?.title" :error-scope="homeError?.scope" :error-hint="homeError?.hint" :show-retry="homeError?.retryable ?? true" empty-title="还没有知识资料" empty-description="先上传资料或粘贴文本，在知识库中建立自己的内容底座。" type="card" :rows="3" @retry="loadData(true)">
+      <template #empty-action><button type="button" class="kb-btn kb-btn-primary" @click="goUpload">上传第一份资料</button></template>
+      <template #default>
       <!-- ============ 视图 1: 全部文档 (首页) ============ -->
       <template v-if="activeKey === 'all' && !activeCategoryId">
         <!-- 问候语 + 引言 -->
         <section class="greeting-section">
-          <h1 class="greeting-title">{{ greetingText }}</h1>
-          <div class="quote-card">
-            <Icon name="quote" :size="20" class="quote-icon" />
-            <div class="quote-content">
-              <p class="quote-text">学习不是为了知道更多，而是为了理解更深。</p>
-              <p class="quote-author">— 理查德·费曼</p>
+          <h1 class="greeting-title">知识中心</h1>
+          <p class="knowledge-intro">{{ greetingText }}。按分类找到资料，继续阅读，再把理解付诸练习。</p>
+          <nav class="knowledge-destinations" aria-label="知识学习入口">
+            <router-link to="/docs"><Icon name="file-text" :size="16" />浏览文档</router-link>
+            <router-link to="/learning/mastery"><Icon name="search" :size="16" />检索知识点</router-link>
+            <router-link v-if="graphEntry" :to="graphEntry.path"><Icon :name="graphEntry.icon" :size="16" />查看知识关联</router-link>
+            <router-link to="/learning/center"><Icon name="book-open" :size="16" />继续学习计划</router-link>
+          </nav>
+        </section>
+
+        <section v-if="auth.isLoggedIn" class="section knowledge-continuity" aria-label="继续学习">
+          <h2 class="section-title">继续学习</h2>
+          <div v-if="learning.error" role="alert"><p>{{ learning.error }}</p><button type="button" class="kb-state-retry" @click="learning.load(true)">重试</button></div>
+          <NextActionCard v-else-if="learning.loaded" :action="learning.nextAction" />
+          <p v-else role="status">正在读取学习计划…</p>
+        </section>
+        <section v-if="auth.isLoggedIn && readingStatus !== 'empty'" class="section">
+          <h2 class="section-title">最近学习 · 继续阅读</h2>
+          <StateView :status="readingStatus" :error-title="readingError?.title" :error-hint="readingError?.hint" :show-retry="readingError?.retryable" @retry="readingResource.run(true)">
+            <div class="knowledge-reading-list"><router-link v-for="doc in continueReadingDocs" :key="doc.id" :to="`/doc/${doc.id}`"><Icon name="book-open" :size="16"/><span>{{ doc.title }}</span></router-link></div>
+          </StateView>
+        </section>
+
+        <!-- 最近浏览 -->
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title">最近文档</h2>
+            <router-link to="/docs" class="view-all-link">查看全部 <Icon name="arrow-right" :size="14" /></router-link>
+          </div>
+          <StateView :status="latestStatus" :error-title="latestError?.title" :error-scope="latestError?.scope" :error-hint="latestError?.hint" :show-retry="latestError?.retryable ?? true" empty-title="还没有最近文档" empty-description="上传资料后，可以在这里快速找到最近的内容。" :rows="1" type="card" @retry="loadLatest(true)">
+          <template #empty-action><button type="button" class="kb-btn" @click="goUpload">上传资料</button></template>
+          <div v-if="latestDocs.length > 0" class="recent-grid">
+            <div
+              v-for="(doc, idx) in latestDocs"
+              :key="doc.id"
+              class="recent-card"
+              role="button"
+              tabindex="0"
+              @click="goToDoc(doc.id)"
+              @keydown.enter.prevent="($event.target as HTMLElement).click()"
+              @keydown.space.prevent="($event.target as HTMLElement).click()"
+            >
+              <DocTypeBadge :file-url="doc.fileUrl" :content="doc.content" :size="36" />
+              <div class="recent-info">
+                <h4 class="recent-title" :title="doc.title">{{ doc.title }}</h4>
+                <p class="recent-meta">
+                  <span class="recent-tag" :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }">{{ doc.categoryName || '未分类' }}</span>
+                  <span class="recent-time">{{ formatRelativeTime(doc.createTime) }}</span>
+                </p>
+              </div>
             </div>
           </div>
+          </StateView>
         </section>
 
         <!-- 快速访问 -->
         <section class="section">
-          <h2 class="section-title">快速访问</h2>
+          <h2 class="section-title">知识分类</h2>
           <div class="quick-access-grid">
             <div
               v-for="(cat, idx) in topCategories"
@@ -102,6 +167,7 @@
               tabindex="0"
               @click="onCategoryClick(cat)"
               @keydown.enter.prevent="($event.target as HTMLElement).click()"
+              @keydown.space.prevent="($event.target as HTMLElement).click()"
             >
               <div class="quick-icon" :style="{ background: `${kbColors[idx % kbColors.length]}1A` }">
                 <Icon :name="getCategoryIcon(cat.icon)" :size="24" :style="{ color: kbColors[idx % kbColors.length] }" />
@@ -114,16 +180,38 @@
           </div>
         </section>
 
+        <!-- 3.2 §41/§44：已启用的知识工具（数据只来自 UserApp，未启用则不渲染） -->
+        <section v-if="knowledgeApps.length > 0" class="section">
+          <div class="section-header">
+            <h2 class="section-title">我的知识工具</h2>
+            <router-link to="/apps" class="view-all-link">应用中心 <Icon name="arrow-right" :size="14" /></router-link>
+          </div>
+          <div class="kb-app-grid">
+            <router-link
+              v-for="app in knowledgeApps"
+              :key="app.path"
+              :to="app.path"
+              class="kb-app-card"
+            >
+              <span class="kb-app-icon"><Icon :name="app.icon" :size="18" /></span>
+              <span class="kb-app-name">{{ app.label }}</span>
+              <Icon name="arrow-right" :size="14" class="kb-app-arrow" />
+            </router-link>
+          </div>
+        </section>
+
         <!-- 学习概览 -->
         <section class="section">
           <h2 class="section-title">学习概览</h2>
+          <StateView :status="statsStatus" :error-title="statsError?.title" :error-scope="statsError?.scope" :error-hint="statsError?.hint" :show-retry="statsError?.retryable ?? true" empty-title="登录后查看学习概览" empty-description="学习统计属于个人数据，需要登录后查看。" type="card" :rows="1" @retry="loadStats(true)">
+          <template #empty-action><button type="button" class="kb-btn" @click="router.push('/login')">登录</button></template>
           <div class="stats-grid">
             <StatCard
               icon="clock"
               icon-color="var(--kb-primary)"
               icon-bg="rgba(59, 111, 224, 0.1)"
               :value="userStats?.totalStudyHours != null ? userStats.totalStudyHours + 'h' : '—'"
-              label="本周学习时长"
+              label="累计学习时长"
               layout="horizontal"
             />
             <StatCard
@@ -151,36 +239,9 @@
               layout="horizontal"
             />
           </div>
+          </StateView>
         </section>
 
-        <!-- 最近浏览 -->
-        <section class="section">
-          <div class="section-header">
-            <h2 class="section-title">最近浏览</h2>
-            <router-link to="/docs" class="view-all-link">查看全部 <Icon name="arrow-right" :size="14" /></router-link>
-          </div>
-          <div v-if="latestDocs.length > 0" class="recent-grid">
-            <div
-              v-for="(doc, idx) in latestDocs"
-              :key="doc.id"
-              class="recent-card"
-              role="button"
-              tabindex="0"
-              @click="goToDoc(doc.id)"
-              @keydown.enter.prevent="($event.target as HTMLElement).click()"
-            >
-              <DocTypeBadge :file-url="doc.fileUrl" :content="doc.content" :size="36" />
-              <div class="recent-info">
-                <h4 class="recent-title" :title="doc.title">{{ doc.title }}</h4>
-                <p class="recent-meta">
-                  <span class="recent-tag" :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }">{{ doc.categoryName || '未分类' }}</span>
-                  <span class="recent-time">{{ formatRelativeTime(doc.createTime) }}</span>
-                </p>
-              </div>
-            </div>
-          </div>
-          <p v-else class="empty-hint">暂无最近浏览的文档</p>
-        </section>
       </template>
 
       <!-- ============ 视图 2: 分类下有子分类 → 显示子分类卡片 ============ -->
@@ -232,6 +293,7 @@
                 tabindex="0"
                 @click="onCategoryClick(sub)"
                 @keydown.enter.prevent="($event.target as HTMLElement).click()"
+              @keydown.space.prevent="($event.target as HTMLElement).click()"
               >
                 <div class="sub-icon" :style="{ background: `${subColors[idx % subColors.length]}14` }">
                   <Icon :name="getCategoryIcon(sub.icon)" :size="24" :style="{ color: subColors[idx % subColors.length] }" />
@@ -267,6 +329,7 @@
                 tabindex="0"
                 @click="goToDoc(doc.id)"
                 @keydown.enter.prevent="($event.target as HTMLElement).click()"
+              @keydown.space.prevent="($event.target as HTMLElement).click()"
               >
                 <DocTypeBadge :file-url="doc.fileUrl" :content="doc.content" :size="36" />
                 <div class="doc-row-info">
@@ -321,6 +384,11 @@
                 <Icon name="user-plus" :size="14" />
                 <span>邀请成员</span>
               </button>
+              <!-- UI/UX 5.0 §十二：AI 整理 = 文档上下文的 contextual action（不占顶栏主入口） -->
+              <button class="btn-ghost small" @click="goProcess">
+                <Icon name="sparkles" :size="14" />
+                <span>AI 整理</span>
+              </button>
               <button class="upload-btn small" @click="goUpload">
                 <Icon name="upload" :size="14" />
                 <span>上传文档</span>
@@ -349,7 +417,7 @@
           </div>
 
           <!-- 加载中 -->
-          <div v-if="loading" class="docs-loading">
+          <div v-if="loading" class="docs-loading" aria-busy="true" aria-label="文档加载中">
             <div v-for="i in 5" :key="i" class="loading-row">
               <div class="loading-icon"></div>
               <div class="loading-lines">
@@ -357,6 +425,18 @@
                 <div class="loading-line w-1/2"></div>
               </div>
             </div>
+          </div>
+
+          <!-- 错误态（UI/UX 5.1 §五/§六：加载失败**不得**显示成「暂无文档」空态） -->
+          <div v-else-if="docsErrorDesc" class="docs-empty" role="alert">
+            <Icon name="alert-circle" :size="32" class="empty-icon" />
+            <h3>{{ docsErrorDesc.title }}</h3>
+            <p>{{ docsErrorDesc.scope }}</p>
+            <p>{{ docsErrorDesc.hint }}</p>
+            <button type="button" class="docs-retry-btn" @click="retryCategoryDocs">
+              <Icon name="refresh-cw" :size="14" />
+              <span>重新加载</span>
+            </button>
           </div>
 
           <!-- 空态 -->
@@ -376,6 +456,7 @@
               tabindex="0"
               @click="goToDoc(doc.id)"
               @keydown.enter.prevent="($event.target as HTMLElement).click()"
+              @keydown.space.prevent="($event.target as HTMLElement).click()"
             >
               <div class="doc-row-icon" :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length] }">
                 <Icon name="file-text" :size="16" />
@@ -413,6 +494,8 @@
           </div>
         </section>
       </template>
+      </template>
+      </StateView>
     </main>
   </div>
 
@@ -422,7 +505,7 @@
       <div class="invite-dialog">
         <div class="invite-dialog-header">
           <h3>邀请成员加入知识库</h3>
-          <button class="invite-close" @click="closeInviteDialog">
+          <button class="invite-close" aria-label="关闭邀请弹窗" @click="closeInviteDialog">
             <Icon name="x" :size="18" />
           </button>
         </div>
@@ -437,7 +520,7 @@
               v-model="inviteForm.email"
               type="email"
               placeholder="请输入成员的邮箱地址"
-              class="form-input"
+              class="form-input kb-input kb-form-control"
             />
           </div>
           
@@ -472,34 +555,100 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import StateView from '@/components/ui/StateView.vue'
+import { useAsyncResource } from '@/composables/useAsyncResource'
+import { useAuthStore } from '@/stores/auth'
 import StatCard from '@/components/ui/StatCard.vue'
 import KnowledgeSidebar from '@/components/layout/KnowledgeSidebar.vue'
-import { categoriesApi, docsApi, adminApi, userApi } from '@/api'
+import { docsApi, adminApi, userApi } from '@/api'
 import type { CategoryVO, DocVO, UserStatsVO } from '@/api/types'
 import DocTypeBadge from '@/components/doc/DocTypeBadge.vue'
 import { notify, getApiError } from '@/utils/toast'
+// UI/UX 5.1 §六：统一错误契约（不向用户暴露 err.message / status code）
+import { describePageError } from '@/utils/error-message'
 import { useKnowledgeStore } from '@/stores/knowledge'
+import { useAppStore } from '@/stores/apps'
+import { resolveAppNavChildren } from '@/apps/navigation'
+import { getAppByKey } from '@/apps/registry'
+import { useLearningStore } from '@/stores/learning'
+import NextActionCard from '@/components/workflow/NextActionCard.vue'
 
 const knowledgeStore = useKnowledgeStore()
+const auth = useAuthStore()
+const homeResource = useAsyncResource(() => knowledgeStore.fetchTree(true), cats => cats.length === 0, '知识首页加载失败')
+const latestResource = useAsyncResource(async () => (await docsApi.list({ pageSize: 6, sort: 'time' })).records, docs => docs.length === 0, '最近文档加载失败', 'section')
+const { status: latestStatus, error: latestError } = latestResource
+const homeStatus = computed(() => {
+  if (homeResource.status.value !== 'empty') return homeResource.status.value
+  // 树成功且为空，但最近文档仍在请求或失败，不能把整页当作没有任何资料。
+  if (latestStatus.value === 'loading' || latestStatus.value === 'retrying') return latestStatus.value
+  return latestStatus.value === 'empty' ? 'empty' : 'ready'
+})
+async function loadLatest(retry = false) {
+  await latestResource.run(retry)
+  if (latestStatus.value !== 'error' && latestResource.data.value) latestDocs.value = latestResource.data.value.slice(0, 4)
+}
+const homeError = homeResource.error
+const statsResource = useAsyncResource(() => userApi.stats(), () => false, '学习概览加载失败', 'section')
+const statsStatus = statsResource.status
+const statsError = statsResource.error
+async function loadStats(retry = false) {
+  if (!auth.isLoggedIn) { statsStatus.value = 'empty'; return }
+  await statsResource.run(retry)
+  if (statsStatus.value === 'ready') userStats.value = statsResource.data.value
+}
+const appStore = useAppStore()
+
+/**
+ * UI/UX 3.2 §41：知识首页承担「知识图谱 / 思维导图」等知识工具的入口。
+ * 这里**不是固定菜单** —— 数据完全来自 UserApp（§44：App 菜单只来自 UserApp），
+ * 未启用任何知识 App 时整块不渲染（§119：知识首页不做第二个 Sidebar）。
+ */
+const knowledgeApps = computed(() => resolveAppNavChildren(appStore.userApps).knowledge)
+const graphEntry = computed(() => knowledgeApps.value.find(app => app.path === getAppByKey('knowledge-graph')?.route))
+const learning = useLearningStore()
+const readingResource = useAsyncResource(() => docsApi.recent(), items => items.length === 0, '最近阅读加载失败', 'section')
+const readingStatus = readingResource.status, readingError = readingResource.error
+const continueReadingDocs = computed(() => (readingResource.data.value || []).slice(0,3))
 
 const router = useRouter()
 const route = useRoute()
 
+const sidebarRef = ref<InstanceType<typeof KnowledgeSidebar> | null>(null)
+const categoryTrigger = ref<HTMLButtonElement | null>(null)
+const isCompact = ref(false)
+let compactMedia: MediaQueryList | undefined
+function syncCompact() { isCompact.value = compactMedia?.matches ?? false; if (!isCompact.value) sidebarOpen.value = false }
+function trapKnowledgeFocus(event: KeyboardEvent) {
+ if (!isCompact.value || !sidebarOpen.value) return
+ const root = (sidebarRef.value as unknown as {$el: HTMLElement})?.$el
+ const items = root?.querySelectorAll<HTMLElement>('button:not(:disabled),a[href],[tabindex="0"]')
+ if (!items?.length) return
+ const first=items[0],last=items[items.length-1]
+ if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+ else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+}
 const searchKeyword = ref('')
 const allCategories = ref<CategoryVO[]>([])
 const topCategories = ref<CategoryVO[]>([])
 const latestDocs = ref<DocVO[]>([])
 const categoryDocs = ref<DocVO[]>([])
 const loading = ref(false)
+// UI/UX 5.1 §五/§六：分类文档区独立的错误态。
+// 存原始异常对象，渲染层只消费 docsErrorDesc 翻译后的三段式文案。
+const docsError = ref<unknown>(null)
+const docsErrorDesc = computed(() =>
+  docsError.value ? describePageError(docsError.value, { subject: '文档加载失败' }) : null,
+)
 
 // 移动端抽屉
 const sidebarOpen = ref(false)
+watch(sidebarOpen, async open => { await nextTick(); if (!isCompact.value) return; if(open) (sidebarRef.value as unknown as {$el: HTMLElement})?.$el?.querySelector<HTMLElement>('button')?.focus(); else categoryTrigger.value?.focus() })
 
 // 搜索框 ref（⌘K 快捷键聚焦）
-const searchInputRef = ref<HTMLInputElement | null>(null)
 
 // 搜索历史
 const searchHistory = ref<string[]>([])
@@ -520,9 +669,9 @@ const categoryTotalPages = computed(() => Math.ceil(categoryTotal.value / catego
 const activeKey = ref<'all'>('all')
 const activeCategoryId = ref<number | null>(null)
 
-const kbColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#6B7280']
-const docIconColors = ['#EF4444', '#3B6FE0', '#8B5CF6', '#10B981', '#F59E0B', '#6B7280']
-const subColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4', '#F97316', '#EC4899']
+const kbColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#8B5CF6', 'var(--kb-muted-foreground)']
+const docIconColors = ['var(--kb-danger)', 'var(--kb-primary)', '#8B5CF6', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-muted-foreground)']
+const subColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#8B5CF6', '#06B6D4', '#F97316', '#EC4899']
 
 const greetingText = computed(() => {
   const hour = new Date().getHours()
@@ -610,8 +759,8 @@ const validIcons = [
 ]
 
 const iconColorMap: Record<string, string> = {
-  '人工智能': '#8B5CF6', '前端开发': '#3B6FE0', '后端技术': '#10B981',
-  '数据科学': '#F59E0B', '移动开发': '#EF4444', '数据库': '#06B6D4',
+  '人工智能': '#8B5CF6', '前端开发': 'var(--kb-primary)', '后端技术': 'var(--kb-success)',
+  '数据科学': 'var(--kb-warning)', '移动开发': 'var(--kb-danger)', '数据库': '#06B6D4',
   'DevOps': '#F97316', '网络安全': '#6366F1', '算法与数据结构': '#64748B',
   '产品设计': '#EC4899', '编程语言': '#14B8A6', '项目管理': '#8B5CF6',
 }
@@ -629,10 +778,10 @@ function getCategoryIcon(icon?: string): string {
 }
 
 function getCategoryColor(cat: CategoryVO | null): string {
-  if (!cat) return '#3B6FE0'
+  if (!cat) return 'var(--kb-primary)'
   if (cat.icon && iconColorMap[cat.icon]) return iconColorMap[cat.icon]
-  if (nameIconMap[cat.name]) return iconColorMap[cat.name] || '#3B6FE0'
-  return '#3B6FE0'
+  if (nameIconMap[cat.name]) return iconColorMap[cat.name] || 'var(--kb-primary)'
+  return 'var(--kb-primary)'
 }
 
 function getSubDescription(name: string): string {
@@ -650,6 +799,7 @@ let categoryLoadToken = 0
 async function loadCategoryDocs(categoryId: number) {
   const token = ++categoryLoadToken
   loading.value = true
+  docsError.value = null
   try {
     const cat = findCategoryById(allCategories.value, categoryId)
     const hasChildren = cat && (cat.children?.length ?? 0) > 0
@@ -686,10 +836,20 @@ async function loadCategoryDocs(categoryId: number) {
     if (token !== categoryLoadToken) return
     categoryDocs.value = []
     categoryTotal.value = 0
+    // UI/UX 5.1 §六：记录原始异常，由 docsErrorDesc 统一翻译（渲染层不碰 err.message），
+    // 并且**必须**让 UI 区分「失败」与「这个分类确实没文档」。
+    docsError.value = e
     notify(getApiError(e, '加载文档失败'), 'error')
   } finally {
     if (token === categoryLoadToken) loading.value = false
   }
+}
+
+/** 错误态重试：重新拉取当前选中的分类 */
+function retryCategoryDocs() {
+  const cid = activeCategoryId.value
+  if (cid == null) return
+  void loadCategoryDocs(cid)
 }
 
 function changePage(page: number) {
@@ -727,13 +887,19 @@ function onAllClick() {
   router.replace({ path: '/knowledge' })
 }
 
+function handleSearchKey(event: KeyboardEvent) {
+  if (event.isComposing || event.keyCode === 229) return
+  event.preventDefault()
+  goSearch()
+}
+
 const goSearch = () => {
   const kw = searchKeyword.value.trim()
   if (kw) {
     saveSearchHistory(kw)
   }
   showSearchHistory.value = false
-  router.push({ path: '/search', query: { q: searchKeyword.value } })
+  router.push({ path: '/search', query: { q: kw } })
 }
 
 // ===== 搜索历史 =====
@@ -777,16 +943,40 @@ const goToDoc = (id: number) => {
   router.push(`/doc/${id}`)
 }
 
+const importMenuOpen = ref(false)
+const importMenuRef = ref<HTMLElement | null>(null)
+
+/** 点击外部关闭导入菜单（§十八：交互反馈） */
+function onDocClick(e: MouseEvent): void {
+  if (importMenuOpen.value && importMenuRef.value && !importMenuRef.value.contains(e.target as Node)) {
+    importMenuOpen.value = false
+  }
+}
+
 const goUpload = () => {
+  importMenuOpen.value = false
   router.push('/knowledge/upload')
 }
 
 const goImport = () => {
+  importMenuOpen.value = false
   router.push('/knowledge/import')
 }
 
 const goReader = () => {
+  importMenuOpen.value = false
   router.push('/knowledge/reader')
+}
+
+/** §十二：粘贴文本 → AI 整理页「粘贴新资料」tab（该页为唯一真实的文本导入通道） */
+const goProcessPaste = () => {
+  importMenuOpen.value = false
+  router.push({ path: '/knowledge/process', query: { source: 'paste' } })
+}
+
+const goProcess = () => {
+  importMenuOpen.value = false
+  router.push('/knowledge/process')
 }
 
 const formatRelativeTime = (dateStr?: string) => {
@@ -801,29 +991,20 @@ const formatRelativeTime = (dateStr?: string) => {
   return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
 }
 
-const loadData = async () => {
-  try {
-    const [cats, recent, stats] = await Promise.all([
-      knowledgeStore.fetchTree(),
-      docsApi.list({ pageSize: 6, sortBy: 'new' } as any).then((r) => r.records || []),
-      userApi.stats().catch(() => null),
-    ])
+const loadData = async (retry = false) => {
+    void loadStats(retry)
+    void loadLatest(retry)
+    await homeResource.run(retry)
+    if (homeStatus.value === 'error' || !homeResource.data.value) return
+    const cats = homeResource.data.value
     allCategories.value = cats
     topCategories.value = cats.slice(0, 6)
-    latestDocs.value = recent.slice(0, 4)
-    userStats.value = stats
 
     // 如果 URL 有 categoryId，选中对应分类（由 watch(activeCategoryId) 自动加载）
     const catId = route.query.categoryId
     if (catId && typeof catId === 'string') {
       activeCategoryId.value = Number(catId)
     }
-  } catch (e: unknown) {
-    topCategories.value = []
-    latestDocs.value = []
-    allCategories.value = []
-    notify(getApiError(e, '加载知识库数据失败'), 'error')
-  }
 }
 
 // 路由 categoryId 变化时，仅同步选中状态；实际加载交给 watch(activeCategoryId)
@@ -857,7 +1038,7 @@ watch(activeCategoryId, (id) => {
 const inviteDialogVisible = ref(false)
 const inviteForm = ref({
   email: '',
-  role: 'READER',
+  role: 'READER' as 'OWNER' | 'EDITOR' | 'READER',
 })
 
 const roleOptions = [
@@ -917,22 +1098,19 @@ async function handleInvite() {
 }
 
 // ⌘K / Ctrl+K 快捷键聚焦搜索框
-function handleShortcut(e: KeyboardEvent) {
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-    e.preventDefault()
-    searchInputRef.value?.focus()
-    searchInputRef.value?.select()
-  }
-}
-
 onMounted(() => {
-  window.addEventListener('keydown', handleShortcut)
+  compactMedia = window.matchMedia?.('(max-width: 1024px)')
+  syncCompact()
+  compactMedia?.addEventListener('change', syncCompact)
+  void learning.load()
+  if (auth.isLoggedIn) void readingResource.run()
   loadSearchHistory()
   loadData()
 })
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', handleShortcut)
+  compactMedia?.removeEventListener('change', syncCompact)
+  document.removeEventListener('click', onDocClick)
 })
 </script>
 
@@ -940,7 +1118,12 @@ onUnmounted(() => {
 /* 全屏布局 */
 .knowledge-layout {
   display: flex;
-  margin: -24px -24px 0;
+  /* UI/UX 5.1 §二十：负边距必须与父容器 padding **同单位、同断点**。
+     旧写法写死 -24px，而父级用的是 Tailwind `px-6`（= 1.5rem）；本应用根字号是 14px，
+     于是父级 padding 实际为 21px、这里却外扩 24px —— 右侧恒定多出 3px，
+     在 1440/1280/1024 三档宽度都能测到横向溢出。
+     `px-4`（<640px）与 `px-6` 的换档由文件末尾的媒体查询承接。 */
+  margin: -1.5rem -1.5rem 0;
   min-height: calc(100vh - 56px);
 }
 
@@ -976,26 +1159,29 @@ onUnmounted(() => {
   color: var(--kb-muted-foreground);
 }
 
-.search-input {
-  width: 100%;
+.search-input:not(.kb-form-control) {
   height: 44px;
-  padding-left: 44px;
-  padding-right: 64px;
   border-radius: 10px;
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-foreground);
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.search-input:hover {
+.search-input {
+  width: 100%;
+  padding-left: 44px;
+  padding-right: 64px;
+  font-size: var(--kb-fs-body-md);
+  color: var(--kb-foreground);
+}
+
+.search-input:not(.kb-form-control):hover {
   border-color: var(--kb-primary);
 }
 
-.search-input:focus,
-.search-input:focus-visible {
+.search-input:not(.kb-form-control):focus,
+.search-input:not(.kb-form-control):focus-visible {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
 }
@@ -1186,6 +1372,65 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 16px;
+}
+
+/* ===== 3.2 §41：我的知识工具（已启用 App，动态渲染） ===== */
+.kb-app-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.kb-app-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.kb-app-card:hover {
+  border-color: var(--kb-primary);
+  box-shadow: 0 4px 16px rgba(59, 111, 224, 0.08);
+  transform: translateY(-1px);
+}
+
+.kb-app-card:focus-visible {
+  outline: 2px solid var(--kb-ring);
+  outline-offset: 2px;
+  border-color: var(--kb-primary);
+}
+
+.kb-app-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: rgba(59, 111, 224, 0.1);
+  color: var(--kb-primary);
+}
+
+.kb-app-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kb-app-arrow {
+  flex-shrink: 0;
+  color: var(--kb-muted-foreground);
 }
 
 .quick-card {
@@ -1795,6 +2040,32 @@ onUnmounted(() => {
   opacity: 0.6;
 }
 
+/* UI/UX 5.1 §六：错误态给「下一步」，不只是报错 */
+.docs-retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 8px 14px;
+  font-size: var(--kb-fs-body-sm);
+  font-weight: 500;
+  color: var(--kb-foreground);
+  background: var(--kb-muted);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md);
+  cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.docs-retry-btn:hover {
+  background: var(--kb-accent);
+}
+
+.docs-retry-btn:focus-visible {
+  outline: 2px solid var(--kb-primary);
+  outline-offset: 2px;
+}
+
 .loading-row {
   display: flex;
   align-items: center;
@@ -1834,7 +2105,9 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .knowledge-layout {
-    margin: -16px -16px 0;
+    /* UI/UX 5.1 §二十：此处父级仍用 Tailwind `px-6`（= 1.5rem，本应用根字号 14px → 21px）。
+       旧写法写死 -16px，与父级 padding 不符（既造成横向溢出、又留下内缩缝隙）。 */
+    margin: -1.5rem -1.5rem 0;
   }
   .knowledge-main {
     padding: 16px;
@@ -1864,6 +2137,15 @@ onUnmounted(() => {
   .category-hero {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+/* UI/UX 5.1 §二十：<640px 时父级 Tailwind padding 换成 `px-4`（= 1rem = 14px），
+   负边距必须同步换档，否则会多外扩 7px 造成横向溢出。
+   必须写在上面 768 媒体块**之后**（同为 max-width 命中时后者生效）。 */
+@media (max-width: 639px) {
+  .knowledge-layout {
+    margin: -1.5rem -1rem 0;
   }
 }
 
@@ -1954,25 +2236,28 @@ onUnmounted(() => {
   margin-bottom: 8px;
 }
 
-.invite-form-group .form-input {
-  width: 100%;
-  padding: 10px 14px;
+.invite-form-group .form-input:not(.kb-form-control) {
   border-radius: 10px;
-  font-size: var(--kb-fs-body-md);
   background: var(--kb-background);
-  color: var(--kb-foreground);
   border: 1px solid var(--kb-border);
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.invite-form-group .form-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: var(--kb-fs-body-md);
+  color: var(--kb-foreground);
   box-sizing: border-box;
 }
 
-.invite-form-group .form-input:hover {
+.invite-form-group .form-input:not(.kb-form-control):hover {
   border-color: var(--kb-primary);
 }
 
-.invite-form-group .form-input:focus,
-.invite-form-group .form-input:focus-visible {
+.invite-form-group .form-input:not(.kb-form-control):focus,
+.invite-form-group .form-input:not(.kb-form-control):focus-visible {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
 }
@@ -2413,4 +2698,69 @@ onUnmounted(() => {
   color: var(--kb-primary-foreground);
   border-color: var(--kb-primary);
 }
+
+/* Architecture-4.3：AI 整理资料 入口（知识处理，次级强调） */
+.import-btn.kp-ai {
+  color: var(--kb-primary);
+  border-color: rgba(59, 111, 224, 0.35);
+  background: rgba(59, 111, 224, 0.05);
+}
+
+/* ══════════ UI/UX 5.0 §十二：导入知识下拉（顶部唯一主操作）══════════ */
+.kb-import-dropdown {
+  position: relative;
+  flex-shrink: 0;
+}
+.kb-import-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 60;
+  min-width: 168px;
+  padding: 6px;
+  background: var(--kb-card, #ffffff);
+  border: 1px solid var(--kb-border, #e5e7eb);
+  border-radius: var(--kb-radius-md, 8px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.kb-import-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--kb-radius-sm, 6px);
+  background: transparent;
+  color: var(--kb-foreground, #1f2937);
+  font-size: var(--kb-fs-body-sm, 13px);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.kb-import-menu button:hover {
+  background: var(--kb-muted, #f3f4f6);
+}
+.kb-import-menu button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--kb-ring, rgba(59, 111, 224, 0.4));
+}
+/* Phase B: embedded workspace follows Phase A shell spacing, without negative margins. */
+.knowledge-layout.knowledge-v2 { margin:0;min-height:0;min-width:0; }
+.knowledge-v2 .knowledge-main { padding:var(--kb-space-5);height:calc(100dvh - var(--kb-nav-height) - var(--kb-space-6) * 2); }
+.knowledge-v2 .greeting-title { font-family:inherit;font-size:var(--kb-page-title-size);line-height:1.3; }
+.knowledge-intro { margin-top:var(--kb-space-3);color:var(--kb-muted-foreground);line-height:var(--kb-lh-body-md); }
+.knowledge-destinations { display:flex;flex-wrap:wrap;gap:var(--kb-space-3);margin-top:var(--kb-space-5); }
+.knowledge-destinations a { display:inline-flex;align-items:center;gap:var(--kb-space-2);min-height:var(--kb-control-hit-size);padding:var(--kb-space-2) var(--kb-space-3);border:1px solid var(--kb-border);border-radius:var(--kb-radius-md);color:var(--kb-foreground);background:var(--kb-card); }
+.knowledge-v2 :is(a,button):focus-visible { outline:2px solid var(--kb-ring);outline-offset:2px; }
+.knowledge-v2 .section-title { font-family:inherit;font-size:var(--kb-section-title-size); }
+.knowledge-v2 :is(.quick-access-grid,.recent-grid) { grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr)); }
+.knowledge-v2 .quick-card { box-shadow:none; }
+@media(max-width:768px){.knowledge-v2 .knowledge-main{padding:var(--kb-space-3);height:auto;min-height:70dvh}.knowledge-v2 .search-box{width:100%;max-width:none}.knowledge-destinations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.knowledge-destinations a{font-size:var(--kb-fs-body-sm)}}
+.knowledge-continuity :deep(.next-action-card) { margin-top:var(--kb-space-3); }
+.knowledge-continuity :deep(button.bg-primary-500.text-white) { color:var(--kb-primary-foreground); }
+.knowledge-reading-list { display:grid;gap:var(--kb-space-2);margin-top:var(--kb-space-3); }
+.knowledge-reading-list a { display:flex;align-items:center;gap:var(--kb-space-3);padding:var(--kb-space-3);border-bottom:1px solid var(--kb-border);overflow-wrap:anywhere;color:var(--kb-foreground); }
 </style>

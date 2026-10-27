@@ -1,0 +1,13 @@
+public class ResizeBitDemo {
+  public static void main(String[] args) {
+    int oldCap = 16;
+    for (int raw : new int[] {1, 17, 33, 49, 65537}) {
+      int hash = raw ^ (raw >>> 16);
+      int before = hash & (oldCap - 1);
+      int after = hash & (oldCap * 2 - 1);
+      int predicted = before + ((hash & oldCap) == 0 ? 0 : oldCap);
+      if (after != predicted) throw new AssertionError("split mismatch");
+      System.out.println(raw + ":" + before + "->" + after);
+    }
+  }
+}

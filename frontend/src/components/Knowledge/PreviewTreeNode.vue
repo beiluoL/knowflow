@@ -117,7 +117,7 @@ const getNodeIcon = (type: TreeNode['type']) => {
 }
 
 .node-icon.dir {
-  color: #F59E0B;
+  color: var(--kb-warning);
 }
 
 .node-icon.doc {
@@ -125,7 +125,7 @@ const getNodeIcon = (type: TreeNode['type']) => {
 }
 
 .node-icon.image {
-  color: #10B981;
+  color: var(--kb-success);
 }
 
 .node-icon.other {
@@ -166,7 +166,7 @@ const getNodeIcon = (type: TreeNode['type']) => {
 
 .node-badge.img {
   background: rgba(16, 185, 129, 0.1);
-  color: #10B981;
+  color: var(--kb-success);
 }
 
 .node-children {

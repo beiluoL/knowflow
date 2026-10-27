@@ -1,434 +1,114 @@
 <template>
-  <div class="animate-fade-in space-y-6">
-    <!-- Page Header -->
-    <div class="flex items-end justify-between flex-wrap gap-3">
-      <div class="min-w-0">
-        <h1 class="kb-h1">知识库</h1>
-        <p class="kb-body-sm mt-1">按分类浏览全部技术文档，点开分类查看文档列表</p>
+  <div class="documents-workspace">
+    <PageHeader title="文档库" description="查找、筛选和阅读你有权访问的知识资料。">
+      <template #actions><router-link to="/knowledge" class="kb-btn">知识中心</router-link></template>
+    </PageHeader>
+    <form class="document-filters" role="search" @submit.prevent="submitSearch">
+      <div class="document-search">
+        <Icon name="search" :size="18" />
+        <input class="kb-input kb-form-control" v-model="keyword" type="search" aria-label="搜索文档" placeholder="搜索标题、正文或标签" @compositionstart="composing = true" @compositionend="composing = false" />
+        <button type="submit" class="kb-btn kb-btn-primary">搜索</button>
       </div>
-      <button
-        type="button"
-        class="inline-flex shrink-0 items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium transition-[opacity,transform] hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-        style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
-        @click="goTo('/search')"
-      >
-        <Icon name="search" :size="16" />
-        搜索文档
-      </button>
-    </div>
-
-    <!-- Filter Tabs -->
-    <nav
-      class="flex flex-nowrap gap-2 overflow-x-auto no-scrollbar py-1"
-      aria-label="分类筛选"
-    >
-      <button
-        v-for="tab in categoryTabs"
-        :key="tab.id"
-        type="button"
-        class="kb-tab shrink-0 inline-flex items-center whitespace-nowrap rounded-lg px-4 py-1.5 font-medium"
-        :class="activeTab === tab.id ? 'tab-active' : 'tab-default'"
-        :aria-pressed="activeTab === tab.id"
-        @click="selectTab(tab.id)"
-      >
-        {{ tab.name }}
-      </button>
-    </nav>
-
-    <!-- Loading skeleton -->
-    <div v-if="loading" class="space-y-3">
-      <div
-        v-for="i in 4"
-        :key="i"
-        class="rounded-lg border p-4 animate-pulse"
-        style="background: var(--kb-card); border-color: var(--kb-border);"
-      >
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-md" style="background: var(--kb-muted);"></div>
-          <div class="h-4 rounded w-32" style="background: var(--kb-muted);"></div>
-          <div class="h-3 rounded w-16 ml-auto" style="background: var(--kb-muted);"></div>
-        </div>
+      <div class="document-filter-row">
+        <Select :model-value="categoryId" label="文档分类" :options="[{ value: '', label: '全部分类' }, ...categoryOptions.map(cat => ({ value: String(cat.id), label: cat.label }))]" searchable @update:modelValue="value => { categoryId = value; changeFilter() }" />
+        <Select :model-value="type" label="文档类型" :options="[{ value: '', label: '全部类型' }, { value: 'doc', label: '文档' }, { value: 'pdf', label: 'PDF' }, { value: 'markdown', label: 'Markdown' }, { value: 'note', label: '笔记' }]" @update:modelValue="value => { type = value; changeFilter() }" />
+        <Select :model-value="sort" label="文档排序" :options="[{ value: 'time', label: '最新发布' }, { value: 'relevance', label: '相关性' }, { value: 'view', label: '最多阅读' }]" @update:modelValue="value => { sort = value; changeFilter() }" />
+        <button v-if="hasFilters" type="button" class="kb-btn" @click="resetFilters">重置筛选</button>
       </div>
-    </div>
-
-    <!-- Empty -->
-    <div
-      v-else-if="visibleCategories.length === 0"
-      class="rounded-lg border p-12 text-center"
-      style="background: var(--kb-card); border-color: var(--kb-border);"
-    >
-      <Icon name="file-text" :size="48" class="mx-auto" style="color: var(--kb-muted-foreground);" />
-      <p class="mt-3 text-sm" style="color: var(--kb-muted-foreground);">暂无分类文档</p>
-    </div>
-
-    <!-- Knowledge Tree -->
-    <section v-else class="space-y-3">
-      <div
-        v-for="cat in visibleCategories"
-        :key="cat.id"
-        class="overflow-hidden rounded-lg border"
-        style="background: var(--kb-card); border-color: var(--kb-border);"
-      >
-        <!-- Category Header -->
-        <button
-          type="button"
-          class="flex w-full items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-muted active:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--kb-ring)]"
-          :aria-expanded="expandedIds.has(cat.id)"
-          @click="toggleCategory(cat.id)"
-        >
-          <div class="flex items-center gap-3 min-w-0 flex-1">
-            <span
-              class="flex h-7 w-7 items-center justify-center rounded-md shrink-0"
-              style="background: rgba(59,111,224,0.1); color: var(--kb-primary);"
-            >
-              <Icon :name="getCategoryIcon(cat.icon)" :size="16" aria-hidden="true" />
-            </span>
-            <span
-              class="font-semibold truncate"
-              style="color: var(--kb-foreground); font-size: var(--kb-fs-body-md);"
-            >
-              {{ cat.name }}
-            </span>
-            <span
-              class="shrink-0 tabular-nums"
-              style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption);"
-            >
-              {{ cat.docCount || 0 }} 篇
-            </span>
-          </div>
-          <Icon
-            :name="expandedIds.has(cat.id) ? 'chevron-down' : 'chevron-right'"
-            :size="16"
-            class="shrink-0"
-            style="color: var(--kb-muted-foreground);"
-            aria-hidden="true"
-          />
-        </button>
-
-        <!-- Children -->
-        <div
-          v-if="expandedIds.has(cat.id)"
-          class="border-t"
-          style="border-color: var(--kb-border);"
-        >
-          <div v-if="getCategoryDocs(cat.id).length === 0" class="px-4 py-4 text-center text-xs" style="color: var(--kb-muted-foreground);">
-            该分类下暂无文档
-          </div>
-          <div
-            v-for="doc in getCategoryDocs(cat.id)"
-            :key="doc.id"
-            role="button"
-            tabindex="0"
-            class="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors hover:bg-muted active:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--kb-ring)]"
-            :style="{
-              borderBottom: `1px solid color-mix(in srgb, ${kbBorder} 50%, transparent)`,
-            }"
-            @click="goTo(`/doc/${doc.id}`)"
-            @keydown.enter.prevent="($event.target as HTMLElement).click()"
-          >
-            <DocTypeBadge :file-url="doc.fileUrl" :content="doc.content" :size="24" />
-            <div class="min-w-0 flex-1">
-              <span
-                class="block font-medium truncate"
-                style="color: var(--kb-foreground); font-size: var(--kb-fs-body-sm);"
-              >
-                {{ doc.title }}
-              </span>
-              <span
-                class="flex flex-wrap items-center gap-2 mt-1"
-                style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-xs);"
-              >
-                <span class="flex items-center gap-1 tabular-nums">
-                  <Icon name="clock" :size="14" aria-hidden="true" />
-                  {{ estimateReadMinutes(doc.wordCount) }} 分钟
-                </span>
-                <span
-                  class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap"
-                  :style="difficultyStyle(doc.difficulty)"
-                >
-                  {{ difficultyLabel(doc.difficulty) }}
-                </span>
-                <span
-                  v-if="doc.fileUrl"
-                  class="inline-flex items-center gap-1 text-[10px] whitespace-nowrap"
-                  style="color: var(--kb-muted-foreground);"
-                  :title="doc.fileName || '原文件'"
-                >
-                  <Icon name="paperclip" :size="14" aria-hidden="true" />
-                  原文件
-                </span>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Recently Viewed -->
-    <section v-if="!loading && recentDocs.length > 0">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="font-semibold min-w-0 truncate" style="color: var(--kb-foreground); font-size: var(--kb-fs-body-lg);">最近阅读</h2>
-        <router-link
-          to="/favorites"
-          class="shrink-0 rounded text-xs flex items-center gap-1 transition-opacity hover:opacity-80 active:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-          style="color: var(--kb-primary);"
-        >
-          查看全部
-          <Icon name="chevron-right" :size="14" aria-hidden="true" />
-        </router-link>
-      </div>
-      <div class="flex flex-nowrap gap-3 overflow-x-auto no-scrollbar pb-1">
-        <div
-          v-for="(doc, idx) in recentDocs"
-          :key="doc.id"
-          role="button"
-          tabindex="0"
-          class="recent-card shrink-0 w-[220px] overflow-hidden rounded-lg border cursor-pointer hover:shadow-md"
-          style="background: var(--kb-card); border-color: var(--kb-border);"
-          @click="goTo(`/doc/${doc.id}`)"
-          @keydown.enter.prevent="($event.target as HTMLElement).click()"
-        >
-          <div class="h-2" :style="{ background: recentColors[idx % recentColors.length] }"></div>
-          <div class="px-3 py-3">
-            <span
-              class="block font-medium truncate"
-              style="color: var(--kb-foreground); font-size: var(--kb-fs-body-sm);"
-            >
-              {{ doc.title }}
-            </span>
-            <div class="mt-2 flex items-center gap-2">
-              <div
-                class="h-1 flex-1 overflow-hidden rounded-full"
-                style="background: var(--kb-muted);"
-              >
-                <div
-                  class="h-full rounded-full transition-[width] duration-300"
-                  :style="{
-                    width: `${getRecentProgress(doc)}%`,
-                    background: recentColors[idx % recentColors.length],
-                  }"
-                ></div>
+    </form>
+    <StateView :status="documentsStatus" :error-title="documentError?.title" :error-scope="documentError?.scope" :error-hint="documentError?.hint" :show-retry="documentError?.retryable" empty-title="还没有可浏览的分类资料" empty-description="当前条件下没有可访问的文档，试试其他关键词或重置筛选。" @retry="loadData(true)">
+      <template #empty-action><button v-if="hasFilters" type="button" class="kb-state-retry" @click="resetFilters">重置筛选</button><router-link v-else to="/knowledge" class="kb-btn">前往知识中心</router-link></template>
+      <div class="document-results">
+        <p class="document-result-count" aria-live="polite">共 {{ total }} 篇文档</p>
+        <ul class="document-list">
+          <li v-for="doc in docs" :key="doc.id">
+            <router-link :to="`/doc/${doc.id}`" class="document-row">
+              <DocTypeBadge :file-url="doc.fileUrl" :content="doc.content" :size="32" />
+              <div class="document-row-content">
+                <h2>{{ doc.title }}</h2>
+                <p v-if="doc.summary || doc.content" class="document-excerpt">{{ searchSummary(doc.summary || doc.content || '') }}</p>
+                <div class="document-meta"><span>{{ doc.categoryName || '未分类' }}</span><time v-if="doc.createTime">{{ formatDate(doc.createTime) }}</time><span v-if="doc.viewCount != null">{{ doc.viewCount }} 次阅读</span></div>
               </div>
-              <span
-                class="shrink-0 whitespace-nowrap tabular-nums"
-                style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-xs);"
-              >
-                {{ getRecentProgress(doc) }}%
-              </span>
-            </div>
-          </div>
-        </div>
+              <Icon name="chevron-right" :size="18" class="document-arrow" />
+            </router-link>
+          </li>
+        </ul>
+        <Pagination v-if="total > pageSize" :page-num="pageNum" :page-size="pageSize" :total="total" @change="changePage" />
       </div>
-    </section>
+    </StateView>
+    <StateView v-if="auth.isLoggedIn" :status="recentStatus" :error-title="recentError?.title" :error-scope="recentError?.scope" :error-hint="recentError?.hint" :show-retry="recentError?.retryable" empty-title="还没有阅读记录" empty-description="打开一篇文档后，可以在这里继续阅读。" @retry="recentResource.run(true)">
+      <section class="document-recent"><h2>继续阅读</h2><div class="document-recent-grid"><router-link v-for="doc in recentDocs" :key="doc.id" :to="`/doc/${doc.id}`" class="document-recent-link"><span>{{ doc.title }}</span></router-link></div></section>
+    </StateView>
   </div>
 </template>
-
 <script setup lang="ts">
-// 知识库文档浏览页：分类树筛选、展开子分类文档、最近阅读与阅读进度。
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import PageHeader from '@/components/ui/PageHeader.vue'
+import Select from '@/components/ui/Select.vue'
 import Icon from '@/components/ui/Icon.vue'
+import StateView from '@/components/ui/StateView.vue'
+import Pagination from '@/components/ui/Pagination.vue'
 import DocTypeBadge from '@/components/doc/DocTypeBadge.vue'
+import { useAsyncResource } from '@/composables/useAsyncResource'
+import { useAuthStore } from '@/stores/auth'
 import { categoriesApi, docsApi } from '@/api'
-import type { CategoryVO, DocVO } from '@/api/types'
-
-const router = useRouter()
-
-const loading = ref(false)
-const categories = ref<CategoryVO[]>([])
-const docs = ref<DocVO[]>([])
-const recentDocs = ref<DocVO[]>([])
-const activeTab = ref<number>(0) // 0 = 全部
-const expandedIds = ref<Set<number>>(new Set())
-
-const kbBorder = 'var(--kb-border)'
-
-const recentColors = ['#3B6FE0', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899']
-
-const categoryTabs = computed(() => {
-  const tabs = [{ id: 0, name: '全部' }]
-  categories.value.forEach((c) => tabs.push({ id: c.id, name: c.name }))
-  return tabs
-})
-
-const visibleCategories = computed(() => {
-  if (activeTab.value === 0) return categories.value
-  // 在分类树中递归查找指定分类并保留其子树
-  const find = (list: CategoryVO[]): CategoryVO[] => {
-    const result: CategoryVO[] = []
-    for (const c of list) {
-      if (c.id === activeTab.value) {
-        result.push(c)
-        return result
-      }
-      if (c.children?.length) {
-        const sub = find(c.children)
-        if (sub.length) {
-          result.push({ ...c, children: sub })
-          return result
-        }
-      }
-    }
-    return []
-  }
-  return find(categories.value)
-})
-
-const getCategoryIcon = (iconName?: string): string => {
-  const valid = ['coffee', 'code', 'layers', 'brain', 'message-circle', 'book-open', 'folder', 'server', 'database', 'settings']
-  return valid.includes(iconName || '') ? iconName! : 'folder'
+import { searchSummary } from '@/utils/searchText'
+import type { CategoryVO, DocQuery } from '@/api/types'
+const auth=useAuthStore(),route=useRoute(),router=useRouter()
+const keyword=ref(''),categoryId=ref(''),type=ref(''),sort=ref<NonNullable<DocQuery['sort']>>('time'),pageNum=ref(1),composing=ref(false),pageSize=12
+const query=ref<DocQuery>({pageNum:1,pageSize,sort:'time'})
+function restoreQuery(){
+ const q=route.query;keyword.value=typeof q.q==='string'?q.q:'';categoryId.value=typeof q.categoryId==='string'&&/^\d+$/.test(q.categoryId)?q.categoryId:''
+ type.value=typeof q.type==='string'&&['doc','pdf','markdown','note'].includes(q.type)?q.type:''
+ sort.value=typeof q.sort==='string'&&['time','view','relevance'].includes(q.sort)?q.sort as NonNullable<DocQuery['sort']>:'time'
+ pageNum.value=typeof q.page==='string'&&/^\d+$/.test(q.page)?Math.max(1,Number(q.page)):1
+ query.value={keyword:keyword.value.trim()||undefined,categoryId:categoryId.value?Number(categoryId.value):undefined,type:type.value as DocQuery['type']||undefined,sort:sort.value,pageNum:pageNum.value,pageSize}
 }
-
-// 收集目标分类及其所有子分类 id，再筛选归属这些分类的文档
-const getCategoryDocs = (catId: number): DocVO[] => {
-  const childIds = new Set<number>([catId])
-  const collect = (list: CategoryVO[]) => {
-    for (const c of list) {
-      if (c.id === catId && c.children?.length) {
-        c.children.forEach((ch) => childIds.add(ch.id))
-      }
-      if (c.children?.length) collect(c.children)
-    }
-  }
-  collect(categories.value)
-  return docs.value.filter((d) => d.categoryId !== undefined && childIds.has(d.categoryId))
-}
-
-const toggleCategory = (id: number) => {
-  const next = new Set(expandedIds.value)
-  if (next.has(id)) next.delete(id)
-  else next.add(id)
-  expandedIds.value = next
-}
-
-const selectTab = (id: number) => {
-  activeTab.value = id
-  // 切换分类时自动展开该分类
-  if (id !== 0 && !expandedIds.value.has(id)) {
-    toggleCategory(id)
-  }
-}
-
-const estimateReadMinutes = (wordCount?: number): number => {
-  if (!wordCount) return 5
-  // 按每分钟 300 字估算，最少 3 分钟
-  return Math.max(3, Math.round(wordCount / 300))
-}
-
-const difficultyLabel = (d?: number): string => {
-  if (d === 1) return '入门'
-  if (d === 3) return '高级'
-  return '进阶'
-}
-
-const difficultyStyle = (d?: number): Record<string, string> => {
-  if (d === 1) return { background: 'rgba(16,185,129,0.1)', color: '#10B981' }
-  if (d === 3) return { background: 'rgba(239,68,68,0.1)', color: '#EF4444' }
-  return { background: 'rgba(245,158,11,0.1)', color: '#F59E0B' }
-}
-
-const getRecentProgress = (doc: DocVO): number => {
-  // 后端无进度字段时，按是否读过给予固定估算值
-  const progress = (doc as DocVO & { readProgress?: number }).readProgress
-  if (typeof progress === 'number') return Math.min(100, Math.max(0, progress))
-  if (doc.readCount && doc.readCount > 0) return 65
-  return 35
-}
-
-const goTo = (path: string) => {
-  router.push(path)
-}
-
-const loadData = async () => {
-  loading.value = true
-  try {
-    const [cats, docsRes, recent] = await Promise.all([
-      categoriesApi.tree(),
-      docsApi.list({ pageSize: 100 } as any).then((r) => r.records || []),
-      docsApi.recent().catch(() => [] as DocVO[]),
-    ])
-    categories.value = cats || []
-    docs.value = docsRes || []
-    recentDocs.value = (recent || []).slice(0, 6)
-    // 默认展开第一个分类
-    if (cats.length > 0) {
-      expandedIds.value = new Set([cats[0].id])
-    }
-  } catch {
-    categories.value = []
-    docs.value = []
-    recentDocs.value = []
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(loadData)
+restoreQuery()
+const documentsResource=useAsyncResource(async()=>{const[cats,page]=await Promise.all([categoriesApi.tree(),docsApi.list({...query.value})]);return{cats,page}},data=>data.page.records.length===0,'文档库加载失败')
+const documentsStatus=documentsResource.status,documentError=documentsResource.error
+const docs=computed(()=>documentsResource.data.value?.page.records||[]),total=computed(()=>documentsResource.data.value?.page.total||0)
+const categoryOptions=computed(()=>{const result:{id:number;label:string}[]=[];function walk(cats:CategoryVO[],prefix=''){for(const cat of cats){result.push({id:cat.id,label:prefix+cat.name});walk(cat.children||[],prefix+'— ')}}walk(documentsResource.data.value?.cats||[]);return result})
+const recentResource=useAsyncResource(()=>docsApi.recent(),data=>data.length===0,'最近阅读加载失败','section')
+const recentStatus=recentResource.status,recentError=recentResource.error,recentDocs=computed(()=>recentResource.data.value?.slice(0,6)||[])
+const hasFilters=computed(()=>!!(keyword.value||categoryId.value||type.value||sort.value!=='time'))
+function formatDate(date?:string){return date?date.slice(0,10):''}
+function loadData(retry=false){return documentsResource.run(retry)}
+function navigate(){const next={...route.query,q:keyword.value.trim()||undefined,categoryId:categoryId.value||undefined,type:type.value||undefined,sort:sort.value==='time'?undefined:sort.value,page:pageNum.value===1?undefined:String(pageNum.value)};void router.replace({query:next});query.value={keyword:keyword.value.trim()||undefined,categoryId:categoryId.value?Number(categoryId.value):undefined,type:type.value as DocQuery['type']||undefined,sort:sort.value,pageNum:pageNum.value,pageSize};void loadData()}
+function submitSearch(){if(composing.value)return;keyword.value=keyword.value.trim();pageNum.value=1;navigate()}
+function changeFilter(){pageNum.value=1;navigate()}
+function changePage(page:number){pageNum.value=page;navigate()}
+function resetFilters(){keyword.value='';categoryId.value='';type.value='';sort.value='time';pageNum.value=1;navigate()}
+watch(()=>route.query,()=>{const previous=JSON.stringify(query.value);restoreQuery();if(previous!==JSON.stringify(query.value))void loadData()})
+onMounted(()=>{void loadData();if(auth.isLoggedIn)void recentResource.run()})
 </script>
+<style scoped>
+.documents-workspace { display:grid; gap:var(--kb-space-6); min-width:0; }
+.document-filters { display:grid; gap:var(--kb-space-4); }
+.document-search { display:flex; align-items:center; gap:var(--kb-space-3); padding:var(--kb-space-2); padding-left:var(--kb-space-4); background:var(--kb-field-surface); border-radius:var(--kb-radius-lg); border:0; }
+.document-search:focus-within { background:var(--kb-field-active); }
+.document-search button { background:var(--kb-primary);color:var(--kb-primary-foreground);padding:var(--kb-space-2) var(--kb-space-4);border-radius:var(--kb-radius-md);min-height:var(--kb-control-hit-size); }
+.document-search input { flex:1;min-width:0;border:0;outline:0;box-shadow:none;background:transparent;color:var(--kb-foreground);font-size:var(--kb-fs-body-md); }
+.document-filter-row { display:flex;flex-wrap:wrap;gap:var(--kb-space-3);align-items:end; }
+.document-filter-row > .select-control { flex:1; min-width:8rem; }
+.document-results,.document-recent { display:grid;gap:var(--kb-space-4);min-width:0; }
+.document-result-count,.document-meta,.document-excerpt { color:var(--kb-muted-foreground);font-size:var(--kb-fs-body-sm); }
+.document-list { margin:0;padding:0;list-style:none;border-top:1px solid var(--kb-border); }
+.document-row { display:flex;align-items:center;gap:var(--kb-space-4);padding:var(--kb-space-5) var(--kb-space-2);border-bottom:1px solid var(--kb-border);color:var(--kb-foreground); }
+.document-row:hover,.document-recent-link:hover { background:var(--kb-muted); }
+.document-row-content { min-width:0;flex:1; }
+.document-row h2,.document-recent h2 { font-family:inherit;font-size:var(--kb-fs-body-lg);font-weight:600;overflow-wrap:anywhere; }
+.document-excerpt { margin-top:var(--kb-space-2);line-height:var(--kb-lh-body-md);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere; }
+.document-meta { display:flex;flex-wrap:wrap;gap:var(--kb-space-3);margin-top:var(--kb-space-2);font-size:var(--kb-fs-caption); }
+.document-recent-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:var(--kb-space-3); }
+.document-recent-link { display:grid;gap:var(--kb-space-2);padding:var(--kb-space-4);border:1px solid var(--kb-border);border-radius:var(--kb-radius-lg);overflow-wrap:anywhere; }
+.document-recent-link span+span { color:var(--kb-muted-foreground);font-size:var(--kb-fs-caption); }
+.documents-workspace :is(a,button,select):focus-visible:not(.kb-form-control, .kb-input, .kb-textarea, .kb-select, .kb-select-trigger) { outline:2px solid var(--kb-ring);outline-offset:2px; }
+.documents-workspace :deep(button.bg-primary-500.text-white) { color:var(--kb-primary-foreground); }
+@media(max-width:640px){.document-arrow{display:none}.document-row{gap:var(--kb-space-3)}.document-filter-row label{min-width:calc(50% - var(--kb-space-3))}}
+</style>
 
 <style scoped>
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.kb-tab {
-  font-size: var(--kb-fs-body-sm);
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
-    opacity 0.2s ease, transform 0.12s ease;
-}
-
-.kb-tab:active {
-  transform: scale(0.98);
-}
-
-.kb-tab:focus-visible {
-  outline: 2px solid var(--kb-ring);
-  outline-offset: 2px;
-}
-
-.tab-active {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
-}
-
-.tab-active:hover {
-  opacity: 0.9;
-}
-
-.tab-default {
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
-}
-
-.tab-default:hover {
-  color: var(--kb-primary);
-  border-color: var(--kb-primary);
-}
-
-.tab-default:active {
-  background: var(--kb-muted);
-}
-
-.recent-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.recent-card:hover {
-  transform: translateY(-2px);
-}
-
-.recent-card:active {
-  transform: translateY(0) scale(0.98);
-}
-
-.recent-card:focus-visible {
-  outline: 2px solid var(--kb-ring);
-  outline-offset: 2px;
-}
+.document-search:has(input:focus-visible){outline:0}.document-search input.kb-form-control,.document-search input.kb-form-control:focus,.document-search input.kb-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
 </style>

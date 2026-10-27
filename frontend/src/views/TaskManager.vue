@@ -1,16 +1,17 @@
 <template>
   <div class="tm-page">
+    <header class="tm-page-head"><div><h1>任务中心</h1><p>安排待办，执行学习任务；完成状态以服务端记录为准。</p></div><RouterLink to="/learning/today-plan" class="tm-plan-link">查看今日计划 <Icon name="arrow-right" :size="14" /></RouterLink></header>
     <!-- 顶部模式切换：列表 / 四象限 / 看板 -->
     <div class="tm-toolbar">
-      <div class="tm-modes">
-        <button class="tm-mode" :class="{ active: mode === 'list' }" @click="mode = 'list'">
+      <div class="tm-modes" role="group" aria-label="任务视图">
+        <button class="tm-mode" :class="{ active: mode === 'list' }" :aria-pressed="mode === 'list'" @click="mode = 'list'">
           <Icon name="list" :size="15" /> <span>列表</span>
         </button>
-        <button class="tm-mode" :class="{ active: mode === 'quadrant' }" @click="mode = 'quadrant'">
+        <button class="tm-mode" :class="{ active: mode === 'quadrant' }" :aria-pressed="mode === 'quadrant'" @click="mode = 'quadrant'">
           <Icon name="layout-grid" :size="15" /> <span>四象限</span>
         </button>
-        <button class="tm-mode" :class="{ active: mode === 'board' }" @click="mode = 'board'">
-          <Icon name="columns" :size="15" /> <span>看板</span>
+        <button class="tm-mode" :class="{ active: mode === 'board' }" :aria-pressed="mode === 'board'" @click="mode = 'board'">
+          <Icon name="layout" :size="15" /> <span>看板</span>
         </button>
       </div>
     </div>
@@ -34,14 +35,14 @@
             :color="viewMode === 'smart' && smart === s.key ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)'"
           />
           <span class="tm-nav-label">{{ s.label }}</span>
-          <span class="tm-nav-count">{{ counts[s.key] ?? 0 }}</span>
+          <span class="tm-nav-count">{{ counts[s.key] ?? '—' }}</span>
         </button>
       </div>
 
       <div class="tm-side-section">
         <div class="tm-side-head">
           <span class="tm-side-title">清单 / 项目</span>
-          <button class="tm-add-list" title="新建清单" @click="createList"><Icon name="plus" :size="14" /></button>
+          <button class="tm-add-list" title="新建清单" aria-label="新建清单" @click="createList"><Icon name="plus" :size="14" /></button>
         </div>
         <button
           v-for="l in lists"
@@ -61,11 +62,9 @@
       <div class="tm-side-section">
         <div class="tm-side-head">
           <span class="tm-side-title">标签</span>
-          <button class="tm-add-list" title="新建标签" @click="createTag"><Icon name="tag" :size="14" /></button>
+          <button class="tm-add-list" title="新建标签" aria-label="新建标签" @click="createTag"><Icon name="tag" :size="14" /></button>
         </div>
-        <button
-          v-for="t in tags"
-          :key="t.id"
+        <div v-for="t in tags" :key="t.id" class="tag-nav-wrap"><button
           class="tm-nav tag-nav"
           :class="{ active: viewMode === 'tag' && selectedTagId === t.id }"
           @click="selectTag(t)"
@@ -73,10 +72,10 @@
           <Icon name="tag" :size="15" :color="t.color || 'var(--kb-muted-foreground)'" />
           <span class="tm-nav-label">{{ t.name }}</span>
           <span class="tm-nav-count">{{ t.taskCount }}</span>
-          <button class="tag-del" title="删除标签" @click.stop="deleteTag(t)">
+        </button><button class="tag-del" :aria-label="`删除标签 ${t.name}`" title="删除标签" @click="deleteTag(t)">
             <Icon name="x" :size="11" />
           </button>
-        </button>
+        </div>
         <div v-if="!tags.length" class="tm-side-empty">还没有标签，点右上角 # 新建</div>
       </div>
     </aside>
@@ -89,14 +88,17 @@
           <p class="tm-sub">
             {{
               viewMode === 'smart' && smart === 'logbook'
-                ? `已完成 ${openCount} 项`
+                ? `已完成 ${flatten(tasks).filter(t => t.status === 1).length} 项`
                 : `共 ${openCount} 个未完成任务`
             }}
           </p>
         </div>
       </header>
 
-      <div v-if="loading" class="tm-loading">
+      <p v-if="auxError" class="tm-aux-error" role="alert">{{ auxError }} <button @click="reload">重试导航数据</button></p>
+      <label class="tm-search"><Icon name="search" :size="16" /><input class="kb-input kb-form-control" v-model="keyword" type="search" aria-label="搜索当前任务" placeholder="搜索当前列表标题或备注" /></label>
+      <p class="tm-sub" role="status" aria-live="polite">{{ loading ? '正在加载任务…' : error ? '任务加载中断' : `当前显示 ${flatten(visibleTasks).length} 项` }}</p>
+      <div v-if="loading" class="tm-loading" role="status">
         <Icon name="loader" :size="18" class="spin" /> 加载中…
       </div>
 
@@ -107,24 +109,25 @@
       </div>
 
       <template v-else>
-        <div v-if="!tasks.length" class="tm-empty">
+        <div v-if="!visibleTasks.length" class="tm-empty">
           <Icon name="check-circle" :size="34" style="color: var(--kb-muted-foreground); opacity: 0.5;" />
-          <p>这里空空如也，添加你的第一个任务吧~</p>
+          <p>{{ keyword ? '没有匹配的任务，试试其他关键词。' : '当前列表没有任务。可以添加待办，或切换其他列表。' }}</p>
         </div>
 
         <div class="tm-tasks">
-          <TaskRow v-for="t in tasks" :key="t.id" :task="t" :depth="0" />
+          <TaskRow v-for="t in visibleTasks" :key="t.id" :task="t" :depth="0" />
         </div>
 
-        <div v-if="viewMode !== 'tag'" class="tm-add">
+        <div v-if="viewMode !== 'tag' && !(viewMode === 'smart' && smart === 'logbook')" class="tm-add">
           <Icon name="plus" :size="15" style="color: var(--kb-muted-foreground);" />
           <input
             v-model="newTitle"
-            class="tm-add-input"
+            class="tm-add-input kb-input kb-form-control" aria-label="新任务标题" :disabled="creating"
             :placeholder="addPlaceholder"
-            @keyup.enter="addTask"
-          />
+            @keyup.enter="onCreateEnter"
+          /><Button size="sm" :loading="creating" :disabled="!newTitle.trim()" @click="addTask">添加任务</Button>
         </div>
+        <p v-if="createError" class="tm-aux-error" role="alert">{{ createError }}；输入已保留，可重试。</p>
       </template>
     </section>
     </div>
@@ -136,7 +139,9 @@
 
 <script setup lang="ts">
 // Things3 式任务清单：左栏智能列表 + 清单/项目/领域，右栏任务树（勾选/内联编辑/子任务/安排/某天也许/删除）。
-import { ref, computed, onMounted, provide } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, provide } from 'vue'
+import { useRoute } from 'vue-router'
+import Button from '@/components/ui/Button.vue'
 import Icon from '@/components/ui/Icon.vue'
 import TaskRow from '@/components/TaskRow.vue'
 import TaskQuadrant from '@/views/TaskQuadrant.vue'
@@ -170,7 +175,8 @@ const smartItems = [
 ] as const
 
 const viewMode = ref<'smart' | 'list' | 'tag'>('smart')
-const smart = ref<SmartList>('inbox')
+const route = useRoute()
+const smart = ref<SmartList>(smartItems.some(s=>s.key===route.query.smart) ? route.query.smart as SmartList : 'inbox')
 const selectedListId = ref<number | null>(null)
 const selectedTagId = ref<number | null>(null)
 // 顶部模式：列表 / 四象限 / 看板
@@ -182,6 +188,23 @@ const counts = ref<Record<string, number>>({})
 const loading = ref(false)
 const error = ref('')
 const newTitle = ref('')
+const creating = ref(false)
+const createError = ref('')
+const auxError = ref('')
+const keyword = ref('')
+let taskRequest = 0
+const visibleTasks = computed(() => {
+  const query = keyword.value.trim().toLocaleLowerCase()
+  if (!query) return tasks.value
+  const filter = (nodes: TaskNode[]): TaskNode[] => nodes.flatMap(node => {
+    if ((node.title + ' ' + (node.notes || '')).toLocaleLowerCase().includes(query)) return [node]
+    const children = filter(node.children || [])
+    return children.length ? [{ ...node, children }] : []
+  })
+  return filter(tasks.value)
+})
+function onCreateEnter(event: KeyboardEvent) { if (!event.isComposing && event.keyCode !== 229) void addTask() }
+onBeforeUnmount(() => { taskRequest++ })
 
 const currentTitle = computed(() => {
   if (viewMode.value === 'list') {
@@ -234,7 +257,7 @@ function flatten(nodes: TaskNode[]): TaskNode[] {
 }
 
 function computeCounts(all: TaskNode[], logbook: TaskNode[]) {
-  const today = new Date().toISOString().slice(0, 10)
+  const today = todayStr()
   const allFlat = flatten(all)
   let inbox = 0
   let todayC = 0
@@ -262,35 +285,29 @@ function computeCounts(all: TaskNode[], logbook: TaskNode[]) {
 }
 
 async function loadLists() {
-  lists.value = await listTaskLists()
+  try { lists.value = await listTaskLists() } catch { auxError.value = '清单加载失败' }
 }
 
 async function loadTags() {
   try {
     tags.value = await listTaskTags()
   } catch {
-    /* 标签加载失败不阻断主流程 */
+    auxError.value = '标签加载失败'
   }
 }
 
 async function loadTasks() {
-  loading.value = true
-  error.value = ''
+  const request = ++taskRequest
+  loading.value = true; error.value = ''
   try {
-    if (viewMode.value === 'tag' && selectedTagId.value != null) {
-      // 标签视图：拉取全部未完成任务，前端按标签过滤
-      const all = await listTasks('all')
-      tasks.value = filterByTag(all, selectedTagId.value)
-    } else if (viewMode.value === 'list' && selectedListId.value != null) {
-      tasks.value = await listTasksByList(selectedListId.value)
-    } else {
-      tasks.value = await listTasks(smart.value)
-    }
-  } catch (e) {
-    error.value = (e as Error).message || '加载失败'
-  } finally {
-    loading.value = false
-  }
+    let rows: TaskNode[]
+    if (viewMode.value === 'tag' && selectedTagId.value != null) rows = filterByTag(await listTasks('all'), selectedTagId.value)
+    else if (viewMode.value === 'list' && selectedListId.value != null) rows = await listTasksByList(selectedListId.value)
+    else rows = await listTasks(smart.value)
+    // 慢请求不能把用户当前选择覆盖回旧列表。
+    if (request === taskRequest) tasks.value = rows
+  } catch (e) { if (request === taskRequest) error.value = getApiError(e, '任务加载失败') }
+  finally { if (request === taskRequest) loading.value = false }
 }
 
 /** 按标签过滤任务树：保留含该标签的节点及其祖先链；子任务无该标签也一并保留以保持上下文。 */
@@ -307,6 +324,7 @@ function filterByTag(nodes: TaskNode[], tagId: number): TaskNode[] {
 }
 
 async function reload() {
+  auxError.value = ''
   await Promise.all([loadTasks(), loadLists(), loadTags()])
 }
 
@@ -315,7 +333,7 @@ async function loadCounts() {
     const [all, logbook] = await Promise.all([listTasks('all'), listTasks('logbook')])
     computeCounts(all, logbook)
   } catch {
-    /* 计数失败不阻断主流程 */
+    counts.value = {}; auxError.value = '任务数量暂时无法加载'
   }
 }
 
@@ -356,24 +374,28 @@ async function createTag() {
 }
 
 async function deleteTag(t: TaskTagVO) {
-  if (!(await dialog.confirm({
-    title: '删除标签',
-    message: `确定删除标签「${t.name}」？关联任务不会被删除。`,
-    variant: 'danger',
-  }))) return
-  try {
-    await deleteTaskTag(t.id)
-    if (selectedTagId.value === t.id) {
-      selectedTagId.value = null
-      viewMode.value = 'smart'
-      smart.value = 'inbox'
-    }
-    await loadTags()
-    notify('标签已删除', 'success')
-    if (selectedTagId.value === null) loadTasks()
-  } catch (e: unknown) {
-    notify(getApiError(e, '删除标签失败'), 'error')
-  }
+  await dialog.confirm({ "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2",
+      title: '删除标签',
+      message: `确定删除标签「${t.name}」？关联任务不会被删除。`,
+      variant: 'danger',
+      onConfirm: async () => {
+          try {
+              await deleteTaskTag(t.id);
+              if (selectedTagId.value === t.id) {
+                  selectedTagId.value = null;
+                  viewMode.value = 'smart';
+                  smart.value = 'inbox';
+              }
+              await loadTags();
+              notify('标签已删除', 'success');
+              if (selectedTagId.value === null)
+                  loadTasks();
+          }
+          catch (e: unknown) {
+              notify(getApiError(e, '删除标签失败'), 'error');
+              throw e;
+          }
+      } });
 }
 
 function todayStr(): string {
@@ -384,21 +406,20 @@ function todayStr(): string {
 }
 
 async function addTask() {
-  if (viewMode.value === 'tag') return
+  if (creating.value || viewMode.value === 'tag') return
   const v = newTitle.value.trim()
   if (!v) return
-  newTitle.value = ''
+  creating.value = true; createError.value = ''
   try {
     await createTask({
       title: v,
       listId: viewMode.value === 'list' ? selectedListId.value : null,
       scheduledDate: viewMode.value === 'smart' && smart.value === 'today' ? todayStr() : null,
     })
-    await reload()
-    loadCounts()
-  } catch (e) {
-    notify((e as Error).message || '添加失败', 'error')
-  }
+    if (newTitle.value.trim() === v) newTitle.value = ''
+    await reload(); void loadCounts()
+  } catch (e) { createError.value = getApiError(e, '添加失败') }
+  finally { creating.value = false }
 }
 
 async function createList() {
@@ -419,6 +440,7 @@ async function createList() {
 
 // ===== 拖拽排序（仅智能列表 / 清单视图下，顶层任务之间） =====
 async function handleReorder(draggedId: number, targetId: number) {
+  if (keyword.value.trim()) { notify('请清除搜索后再排序', 'info'); return }
   const dragIdx = tasks.value.findIndex((t) => t.id === draggedId)
   const targetIdx = tasks.value.findIndex((t) => t.id === targetId)
   if (dragIdx === -1 || targetIdx === -1 || dragIdx === targetIdx) return
@@ -448,6 +470,7 @@ onMounted(async () => {
 
 <style scoped>
 .tm-page {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   height: calc(100vh - 104px);
@@ -584,7 +607,7 @@ onMounted(async () => {
   border-radius: 8px;
   border: none;
   background: var(--kb-primary);
-  color: #fff;
+  color: var(--kb-primary-foreground);
   font-size: 13px;
   cursor: pointer;
 }
@@ -600,15 +623,18 @@ onMounted(async () => {
   margin-top: 12px;
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px dashed var(--kb-border);
   transition: border-color 0.15s ease;
+  border: 0;
 }
-.tm-add:focus-within { border-color: var(--kb-primary); }
-.tm-add-input {
-  flex: 1 1 auto;
+.tm-add:focus-within {
+  background: var(--kb-field-active); }
+.tm-add-input:not(.kb-form-control) {
   border: none;
   outline: none;
   background: transparent;
+}
+.tm-add-input {
+  flex: 1 1 auto;
   font-size: 14px;
   color: var(--kb-foreground);
 }
@@ -622,4 +648,20 @@ onMounted(async () => {
   .tm-side-title, .tm-side-head, .tm-side-empty { display: none; }
   .tm-nav { width: auto; }
 }
+
+.tm-page-head { display:flex; align-items:center; justify-content:space-between; gap:var(--kb-space-4); flex-wrap:wrap; padding:var(--kb-space-5); border-bottom:1px solid var(--kb-border); }
+.tm-page-head h1 { font-size:var(--kb-fs-h2); font-weight:700; color:var(--kb-foreground); }
+.tm-page-head p { color:var(--kb-muted-foreground); font-size:var(--kb-fs-body-sm); margin-top:var(--kb-space-2); }
+.tm-plan-link { display:flex; align-items:center; gap:var(--kb-space-2); color:var(--kb-primary); font-size:var(--kb-fs-body-sm); }
+.tm-search { display:flex; align-items:center; gap:var(--kb-space-2); padding:var(--kb-space-3); border:1px solid var(--kb-border); border-radius:var(--kb-radius-md); background:var(--kb-card); margin-block:var(--kb-space-3); }
+.tm-search input, .tm-add-input { min-width:0; flex:1; background:transparent; color:var(--kb-foreground); outline:none; border:0; box-shadow:none; }
+.tm-aux-error { color:var(--kb-danger); font-size:var(--kb-fs-body-sm); margin-block:var(--kb-space-2); }
+.tag-nav-wrap { display:flex; align-items:center; }.tag-nav-wrap .tm-nav { min-width:0; }.tag-del { color:var(--kb-muted-foreground); }
+.tm-page :is(button,a,input):focus-visible:not(.kb-form-control, .kb-input, .kb-textarea, .kb-select, .kb-select-trigger) { outline:var(--kb-field-focus-width) solid var(--kb-ring); outline-offset:var(--kb-space-1); }
+@media(max-width:768px) { .tm-list-wrap { flex-direction:column; }.tm-side { width:100%; max-height:12rem; flex-shrink:0; border-right:0; border-bottom:1px solid var(--kb-border); }.tm-side-section { min-width:0; }.tm-content { padding:var(--kb-space-4); }.tm-add { flex-wrap:wrap; border: 0; } }
+@media(prefers-reduced-motion:reduce) { .tm-page * { transition:none; animation:none; } }
+</style>
+
+<style scoped>
+.tm-add:has(input:focus-visible){outline:0}.tm-add input.kb-form-control,.tm-add input.kb-form-control:focus,.tm-add input.kb-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
 </style>

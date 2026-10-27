@@ -3,6 +3,7 @@ package com.knowflow.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.knowflow.common.PageResult;
 import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.service.NotificationService;
 import com.knowflow.vo.NotificationVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +29,7 @@ public class NotificationController {
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize,
             Authentication authentication) {
-        Long userId = authentication != null ? (Long) authentication.getPrincipal() : null;
+        Long userId = SecurityUtils.getCurrentUserId();
         IPage<NotificationVO> page = notificationService.getNotificationPage(userId, type, isRead, pageNum, pageSize);
         return Result.success(PageResult.of(page));
     }
@@ -39,7 +40,7 @@ public class NotificationController {
         if (authentication == null) {
             return Result.error(401, "请先登录");
         }
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         notificationService.markAsRead(id, userId);
         return Result.success();
     }
@@ -50,7 +51,7 @@ public class NotificationController {
         if (authentication == null) {
             return Result.error(401, "请先登录");
         }
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         notificationService.markAllAsRead(userId);
         return Result.success();
     }
@@ -58,7 +59,7 @@ public class NotificationController {
     @Operation(summary = "未读数量")
     @GetMapping("/unread-count")
     public Result<Integer> unreadCount(Authentication authentication) {
-        Long userId = authentication != null ? (Long) authentication.getPrincipal() : null;
+        Long userId = SecurityUtils.getCurrentUserId();
         return Result.success(notificationService.getUnreadCount(userId));
     }
 }

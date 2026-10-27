@@ -81,14 +81,16 @@
         <!-- 顶部：类型图标 + 取消收藏按钮 -->
         <div class="fav-card-top">
           <div class="fav-icon" :class="getItemIconClass(item)">
-            <Icon :name="getItemIcon(item)" :size="18" aria-hidden="true" />
+            <Icon :name="getItemIcon(item)" :size="20" aria-hidden="true" />
           </div>
           <button
             class="fav-unstar-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
-            title="取消收藏"
+            type="button"
+            aria-label="取消收藏"
+            title="已收藏，点击取消收藏"
             @click.stop="handleUnfavorite(item.id)"
           >
-            <Icon name="bookmark" :size="14" :fill="true" aria-hidden="true" />
+            <Icon name="bookmark-check" :size="18" aria-hidden="true" />
           </button>
         </div>
         <!-- 标题 -->
@@ -305,13 +307,16 @@ function handleItemClick(item: DocVO): void {
 }
 
 async function handleUnfavorite(id: number): Promise<void> {
-  if (!(await confirmDialog('确定取消收藏吗？'))) return;
-  try {
-    await docsApi.toggleFavorite(id);
-    allItems.value = allItems.value.filter((f) => f.id !== id);
-  } catch (e) {
-    notify(getApiError(e, '取消收藏失败'), 'error');
-  }
+  await confirmDialog('确定取消收藏吗？', { "title": "取消收藏？", "confirmText": "取消收藏", "cancelText": "保留收藏", "icon": "star", "variant": "default", onConfirm: async () => {
+          try {
+              await docsApi.toggleFavorite(id);
+              allItems.value = allItems.value.filter((f) => f.id !== id);
+          }
+          catch (e) {
+              notify(getApiError(e, '取消收藏失败'), 'error');
+              throw e;
+          }
+      } });
 }
 
 // ===== 卡片渲染辅助 =====
@@ -324,9 +329,9 @@ function getItemIcon(item: DocVO): string {
 
 function getItemIconClass(item: DocVO): string {
   const type = getItemType(item);
-  if (type === 'flashcard') return 'icon-flashcard';
-  if (type === 'note') return 'icon-note';
-  return 'icon-doc';
+  if (type === 'flashcard') return 'fav-icon--flashcard';
+  if (type === 'note') return 'fav-icon--note';
+  return 'fav-icon--doc';
 }
 
 function getItemSummary(item: DocVO): string {
@@ -585,27 +590,33 @@ onUnmounted(() => {
   margin-bottom: 12px;
 }
 .fav-icon {
-  width: 36px;
-  height: 36px;
+  width: calc(var(--kb-space-8) + var(--kb-space-2));
+  height: calc(var(--kb-space-8) + var(--kb-space-2));
   border-radius: var(--kb-radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.icon-doc { background: rgba(59, 111, 224, 0.1); color: var(--kb-primary); }
-.icon-note { background: rgba(245, 158, 11, 0.1); color: var(--kb-state-warning); }
-.icon-flashcard { background: rgba(16, 185, 129, 0.1); color: var(--kb-state-success); }
+.fav-icon--doc { background: var(--kb-primary-soft); color: var(--kb-primary); }
+.fav-icon--note { background: color-mix(in srgb, var(--kb-state-warning) 10%, transparent); color: var(--kb-state-warning); }
+.fav-icon--flashcard { background: color-mix(in srgb, var(--kb-state-success) 10%, transparent); color: var(--kb-state-success); }
 
 .fav-unstar-btn {
-  padding: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--kb-control-hit-size);
+  height: var(--kb-control-hit-size);
+  padding: var(--kb-space-2);
   border-radius: var(--kb-radius-sm);
-  background: transparent;
+  background: var(--kb-primary-soft);
   border: none;
   cursor: pointer;
-  color: var(--kb-state-warning);
-  transition: opacity 0.15s;
+  color: var(--kb-primary);
+  transition: background-color var(--kb-control-motion) ease;
 }
-.fav-unstar-btn:hover { opacity: 0.7; }
+.fav-unstar-btn:hover { background: color-mix(in srgb, var(--kb-primary) 16%, var(--kb-card)); }
 
 /* 标题 */
 .fav-title {

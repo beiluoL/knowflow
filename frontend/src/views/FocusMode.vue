@@ -12,13 +12,7 @@
         </button>
         <div class="mode-info">
           <span class="mode-subtitle">沉浸工作台</span>
-          <select v-model="selectedMode" class="mode-select" aria-label="模式选择">
-            <option value="pomodoro">番茄专注 POMODORO</option>
-            <option value="spaced">间隔复习 SPACED</option>
-            <option value="flow">流时间 FLOW</option>
-            <option value="deep">主题深潜 DEEP</option>
-            <option value="buddy">社交伴学 BUDDY</option>
-          </select>
+          <Select v-model="selectedMode" :options="[{ value: 'pomodoro', label: '番茄专注 POMODORO' }, { value: 'spaced', label: '间隔复习 SPACED' }, { value: 'flow', label: '流时间 FLOW' }, { value: 'deep', label: '主题深潜 DEEP' }, { value: 'buddy', label: '社交伴学 BUDDY' }]" aria-label="模式选择" />
         </div>
       </div>
       <div class="topbar-right">
@@ -46,7 +40,7 @@
           title="知识图谱"
           @click="graphVisible = !graphVisible"
         >
-          <Icon name="network" :size="18" />
+          <Icon name="share-2" :size="18" />
         </button>
         <button
           type="button"
@@ -141,7 +135,7 @@
         <span>笔记</span>
       </button>
       <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleHighlight">
-        <Icon name="highlighter" :size="16" aria-hidden="true" />
+        <Icon name="pencil" :size="16" aria-hidden="true" />
         <span>重点</span>
       </button>
       <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleReadAloud">
@@ -149,7 +143,7 @@
         <span>朗读</span>
       </button>
       <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleGraph">
-        <Icon name="network" :size="16" aria-hidden="true" />
+        <Icon name="share-2" :size="16" aria-hidden="true" />
         <span>知识图谱</span>
       </button>
       <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleAi">
@@ -177,7 +171,7 @@
           </header>
           <textarea
             v-model="noteText"
-            class="note-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="note-input transition-colors kb-textarea kb-form-control"
             placeholder="在这里记录你的专注心得…"
             rows="8"
           />
@@ -218,6 +212,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import Select from '@/components/ui/Select.vue'
 import Icon from '@/components/ui/Icon.vue';
 import WhiteNoisePlayer from '@/components/WhiteNoisePlayer.vue';
 import PomodoroMode from '@/components/immersive/PomodoroMode.vue';
@@ -409,7 +404,7 @@ const handleAi = () => {
 };
 
 const handleExit = async () => {
-  const ok = await confirmDialog('确认退出沉浸模式？专注进度将自动保存');
+  const ok = await confirmDialog('确认退出沉浸模式？专注进度将自动保存', {"title":"结束本次学习？","confirmText":"确认退出","cancelText":"继续学习","icon":"layers","variant":"default"});
   if (!ok) return;
   if (isActive()) {
     try {
@@ -783,6 +778,11 @@ onUnmounted(() => {
   background: rgba(255, 255, 255, 0.08);
   color: var(--kb-foreground);
 }
+.note-input:not(.kb-form-control) {
+  background: transparent;
+  border: none;
+  outline: none;
+}
 .note-input {
   display: block;
   width: 100%;
@@ -790,9 +790,6 @@ onUnmounted(() => {
   font-size: 14px;
   line-height: 1.6;
   color: var(--kb-foreground);
-  background: transparent;
-  border: none;
-  outline: none;
   resize: none;
   font-family: inherit;
 }

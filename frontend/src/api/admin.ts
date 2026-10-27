@@ -117,6 +117,39 @@ export interface ImportResultVO {
   failedNames: string[]
 }
 
+// ===== Architecture-4.0-6：场景练习内容管理（后台 ADMIN） =====
+
+/** 场景要点（管理端可读可维护，含命中关键词） */
+export interface ScenarioPointRow {
+  label: string
+  keywords: string[]
+}
+
+/** 场景管理 VO（含服务端私有 keywords，仅管理后台可见） */
+export interface ScenarioAdminVO {
+  id: number
+  title: string
+  contextText?: string | null
+  questionText: string
+  keyPoints: ScenarioPointRow[]
+  difficulty: number
+  knowledgeId?: number | null
+  status: number
+  createTime?: string
+  updateTime?: string
+}
+
+/** 场景新建/更新入参 */
+export interface ScenarioAdminInput {
+  title: string
+  contextText?: string
+  questionText: string
+  keyPoints: ScenarioPointRow[]
+  difficulty?: number
+  knowledgeId?: number | null
+  status?: number
+}
+
 export const adminApi = {
   overview: () => apiGet<AdminOverviewVO>('/admin/overview'),
 
@@ -239,4 +272,13 @@ export const adminApi = {
   unpublishQuizQuestion: (id: number) => apiPut<void>(`/admin/quiz-questions/${id}/unpublish`),
   aiGenerateQuizQuestions: (data: { categoryId?: number; docId?: number; questionType?: string; count?: number }) =>
     apiPost<QuizQuestionVO[]>('/admin/quiz-questions/ai-generate', data, { timeout: 120000 }),
+
+  // ========== 场景练习内容管理（Architecture-4.0-6） ==========
+  scenarios: (params: { keyword?: string; status?: number } = {}) =>
+    apiGet<ScenarioAdminVO[]>('/admin/learning-scenarios', params),
+  scenarioDetail: (id: number) => apiGet<ScenarioAdminVO>(`/admin/learning-scenarios/${id}`),
+  createScenario: (data: ScenarioAdminInput) => apiPost<ScenarioAdminVO>('/admin/learning-scenarios', data),
+  updateScenario: (id: number, data: ScenarioAdminInput) =>
+    apiPut<void>(`/admin/learning-scenarios/${id}`, data),
+  removeScenario: (id: number) => apiDelete<void>(`/admin/learning-scenarios/${id}`),
 }

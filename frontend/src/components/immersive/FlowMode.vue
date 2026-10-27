@@ -14,13 +14,11 @@
           class="task-item"
           :class="{ done: task.status === 1 }"
         >
-          <label class="task-check">
-            <input
-              type="checkbox"
-              class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          <label class="task-check kb-checkbox-row">
+            <Checkbox as="span"
+
               :checked="task.status === 1"
-              @change="toggleTask(task)"
-            />
+              @native-change="toggleTask(task)" />
             <span class="task-title">{{ task.title }}</span>
           </label>
         </li>
@@ -71,7 +69,7 @@
           :disabled="elapsedSec === 0 && !isRunning"
           @click="handleEnd"
         >
-          <Icon name="square" :size="18" aria-hidden="true" />
+          <Icon name="layout" :size="18" aria-hidden="true" />
           <span>结束</span>
         </button>
       </div>
@@ -149,7 +147,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import Checkbox from '@/components/ui/Checkbox.vue'
+
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import Icon from '@/components/ui/Icon.vue';
 import DualRingProgress from './DualRingProgress.vue';
 import { useFocusSession } from '@/composables/useFocusSession';
@@ -211,7 +211,7 @@ const totalFormatted = computed(() => formatHM(elapsedSec.value));
 const flowStage = computed(() => {
   const m = elapsedSec.value / 60;
   if (m < 15) {
-    return { label: '热身阶段', color: '#F59E0B', icon: 'coffee' };
+    return { label: '热身阶段', color: 'var(--kb-warning)', icon: 'coffee' };
   }
   if (m <= 60) {
     return { label: 'Flow 状态', color: '#0EA5E9', icon: 'waves' };
@@ -285,7 +285,7 @@ async function handleEnd() {
   if (elapsedSec.value === 0 && !isRunning.value && !isActive()) {
     return;
   }
-  const ok = await confirmDialog('确认结束本次 Flow 流时间？进度将自动保存');
+  const ok = await confirmDialog('确认结束本次 Flow 流时间？进度将自动保存', {"title":"结束本次学习？","confirmText":"结束学习","cancelText":"继续学习","icon":"layers","variant":"default"});
   if (!ok) return;
   isRunning.value = false;
   if (isActive()) {
@@ -409,7 +409,7 @@ onUnmounted(async () => {
 .task-check {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--kb-checkbox-gap);
   cursor: pointer;
 }
 .task-check input[type='checkbox'] {
@@ -508,7 +508,7 @@ onUnmounted(async () => {
 }
 .ctrl-btn.danger:hover:not(:disabled) {
   border-color: rgba(239, 68, 68, 0.5);
-  color: #F87171;
+  color: var(--kb-danger-muted);
 }
 
 .motivation {

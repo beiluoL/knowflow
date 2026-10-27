@@ -45,7 +45,7 @@
       <div class="rounded-xl border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(245,158,11,0.08);">
-            <Icon name="edit" :size="20" style="color: #f59e0b;" />
+            <Icon name="edit" :size="20" style="color: var(--kb-warning);" />
           </div>
           <span class="text-sm" style="color: var(--kb-muted-foreground);">草稿</span>
         </div>
@@ -74,15 +74,15 @@
           <input
             v-model="searchQuery"
             placeholder="搜索题目标题或标签..."
-            class="w-full h-10 pl-10 pr-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-            style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+            class="w-full h-10 pl-10 pr-3 text-sm outline-none transition-colors hover:border-[var(--kb-primary)] kb-input kb-form-control"
+            style="color: var(--kb-foreground)"
             @keyup.enter="loadQuestions"
           />
         </div>
         <select
           v-model="filterLanguage"
-          class="h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-          style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+          class="h-10 px-3 text-sm outline-none transition-colors hover:border-[var(--kb-primary)] kb-select kb-form-control"
+          style="color: var(--kb-foreground)"
           @change="loadQuestions"
         >
           <option value="">全部语言</option>
@@ -90,8 +90,8 @@
         </select>
         <select
           v-model="filterDifficulty"
-          class="h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-          style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+          class="h-10 px-3 text-sm outline-none transition-colors hover:border-[var(--kb-primary)] kb-select kb-form-control"
+          style="color: var(--kb-foreground)"
           @change="loadQuestions"
         >
           <option value="">全部难度</option>
@@ -101,8 +101,8 @@
         </select>
         <select
           v-model="filterStatus"
-          class="h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-          style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+          class="h-10 px-3 text-sm outline-none transition-colors hover:border-[var(--kb-primary)] kb-select kb-form-control"
+          style="color: var(--kb-foreground)"
           @change="loadQuestions"
         >
           <option value="">全部状态</option>
@@ -210,7 +210,7 @@
                 v-else
                 type="button"
                 class="p-1.5 rounded transition-colors hover:bg-[var(--kb-warning)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="color: #f59e0b;"
+                style="color: var(--kb-warning);"
                 title="下架"
                 @click="unpublishQuestion(q)"
               >
@@ -257,16 +257,16 @@
               <input
                 v-model="form.title"
                 placeholder="例如：实现 Promise.all"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                class="w-full h-10 px-3 text-sm outline-none transition-colors hover:border-[var(--kb-primary)] kb-input kb-form-control"
+                style="color: var(--kb-foreground)"
               />
             </div>
             <div>
               <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">难度</label>
               <select
                 v-model.number="form.difficulty"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                class="w-full h-10 px-3 text-sm outline-none transition-colors hover:border-[var(--kb-primary)] kb-select kb-form-control"
+                style="color: var(--kb-foreground)"
               >
                 <option :value="0">简单</option>
                 <option :value="1">中等</option>
@@ -277,8 +277,8 @@
               <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">主语言</label>
               <select
                 v-model="form.language"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                class="w-full h-10 px-3 text-sm outline-none transition-colors hover:border-[var(--kb-primary)] kb-select kb-form-control"
+                style="color: var(--kb-foreground)"
               >
                 <option v-for="lang in languageOptions" :key="lang" :value="lang">{{ langLabel(lang) }}</option>
               </select>
@@ -288,8 +288,8 @@
               <input
                 v-model="form.tags"
                 placeholder="例如：算法,数组,Promise"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                class="w-full h-10 px-3 text-sm outline-none transition-colors hover:border-[var(--kb-primary)] kb-input kb-form-control"
+                style="color: var(--kb-foreground)"
               />
             </div>
             <div class="grid grid-cols-3 gap-2">
@@ -299,8 +299,8 @@
                   v-model.number="form.duration"
                   type="number"
                   min="1"
-                  class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                  style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                  class="w-full h-10 px-3 text-sm outline-none transition-colors hover:border-[var(--kb-primary)] kb-input kb-form-control"
+                  style="color: var(--kb-foreground)"
                 />
               </div>
               <div>
@@ -309,16 +309,16 @@
                   v-model.number="form.sortOrder"
                   type="number"
                   min="0"
-                  class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                  style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                  class="w-full h-10 px-3 text-sm outline-none transition-colors hover:border-[var(--kb-primary)] kb-input kb-form-control"
+                  style="color: var(--kb-foreground)"
                 />
               </div>
               <div>
                 <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">状态</label>
                 <select
                   v-model.number="form.status"
-                  class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                  style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                  class="w-full h-10 px-3 text-sm outline-none transition-colors hover:border-[var(--kb-primary)] kb-select kb-form-control"
+                  style="color: var(--kb-foreground)"
                 >
                   <option :value="1">已发布</option>
                   <option :value="0">草稿</option>
@@ -334,8 +334,8 @@
               v-model="form.description"
               rows="4"
               placeholder="详细描述题目要求、限制条件等..."
-              class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-              style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+              class="w-full px-3 py-2 text-sm outline-none transition-colors hover:border-[var(--kb-primary)] kb-textarea kb-form-control"
+              style="color: var(--kb-foreground)"
             ></textarea>
           </div>
 
@@ -347,8 +347,8 @@
                 v-model="form.exampleInput"
                 rows="2"
                 placeholder="例如：Promise.all([p1, p2, p3])"
-                class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                class="w-full px-3 py-2 text-sm outline-none transition-colors hover:border-[var(--kb-primary)] kb-textarea kb-form-control"
+                style="color: var(--kb-foreground)"
               ></textarea>
             </div>
             <div>
@@ -357,8 +357,8 @@
                 v-model="form.exampleOutput"
                 rows="2"
                 placeholder="例如：[v1, v2, v3]"
-                class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                class="w-full px-3 py-2 text-sm outline-none transition-colors hover:border-[var(--kb-primary)] kb-textarea kb-form-control"
+                style="color: var(--kb-foreground)"
               ></textarea>
             </div>
           </div>
@@ -371,8 +371,8 @@
                 v-model="form.hint"
                 rows="2"
                 placeholder="给用户的解题提示..."
-                class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                class="w-full px-3 py-2 text-sm outline-none transition-colors hover:border-[var(--kb-primary)] kb-textarea kb-form-control"
+                style="color: var(--kb-foreground)"
               ></textarea>
             </div>
             <div>
@@ -381,8 +381,8 @@
                 v-model="form.solutionHint"
                 rows="2"
                 placeholder="例如：使用计数器记录已完成的 Promise 数量"
-                class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                class="w-full px-3 py-2 text-sm outline-none transition-colors hover:border-[var(--kb-primary)] kb-textarea kb-form-control"
+                style="color: var(--kb-foreground)"
               ></textarea>
             </div>
           </div>
@@ -432,16 +432,16 @@
                   <input
                     v-model="tc.input"
                     placeholder="输入"
-                    class="w-full h-8 px-2 rounded text-xs border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                    style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
+                    class="w-full h-8 px-2 text-xs outline-none transition-colors hover:border-[var(--kb-primary)] kb-input kb-form-control"
+                    style="color: var(--kb-foreground)"
                   />
                 </div>
                 <div class="col-span-5">
                   <input
                     v-model="tc.expected"
                     placeholder="期望输出"
-                    class="w-full h-8 px-2 rounded text-xs border outline-none transition-colors hover:border-[var(--kb-primary)] focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                    style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
+                    class="w-full h-8 px-2 text-xs outline-none transition-colors hover:border-[var(--kb-primary)] kb-input kb-form-control"
+                    style="color: var(--kb-foreground)"
                   />
                 </div>
                 <div class="col-span-1 flex items-center justify-center">
@@ -470,6 +470,8 @@
 <script setup lang="ts">
 // 后台代码题库管理：题目的增删改查与发布/下架，支持测试用例可视化编辑。
 import { ref, computed, onMounted, reactive } from 'vue'
+import { useRoute } from 'vue-router'
+import { watch, onBeforeUnmount } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Button from '@/components/ui/Button.vue'
 import { adminApi } from '@/api/admin'
@@ -519,7 +521,7 @@ const stats = computed(() => {
 const difficultyLabel = (d?: number) => (d === 0 ? '简单' : d === 1 ? '中等' : '困难')
 const getDifficultyStyle = (d?: number) => {
   if (d === 0) return { background: 'rgba(16,185,129,0.1)', color: 'var(--kb-accent)' }
-  if (d === 1) return { background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }
+  if (d === 1) return { background: 'rgba(245,158,11,0.1)', color: 'var(--kb-warning)' }
   return { background: 'rgba(239,68,68,0.1)', color: 'var(--kb-destructive)' }
 }
 
@@ -535,11 +537,11 @@ const langLabel = (lang?: string) => {
 }
 const getLanguageStyle = (lang?: string) => {
   const map: Record<string, string> = {
-    javascript: '#3B6FE0',
-    typescript: '#3B6FE0',
-    python: '#10B981',
-    java: '#F59E0B',
-    sql: '#EF4444',
+    javascript: 'var(--kb-primary)',
+    typescript: 'var(--kb-primary)',
+    python: 'var(--kb-success)',
+    java: 'var(--kb-warning)',
+    sql: 'var(--kb-danger)',
   }
   const hex = map[lang || '']
   return hex ? { background: `${hex}14`, color: hex } : { background: 'var(--kb-muted)', color: 'var(--kb-muted-foreground)' }
@@ -671,20 +673,44 @@ const unpublishQuestion = async (q: CodeQuestionVO) => {
 }
 
 const removeQuestion = async (q: CodeQuestionVO) => {
-  const ok = await confirmDialog(`确定删除题目「${q.title}」？此操作不可恢复。`)
-  if (!ok) return
-  try {
-    await adminApi.removeCodeQuestion(q.id)
-    notify('题目已删除', 'success')
-    await loadQuestions()
-  } catch (e: unknown) {
-    notify('删除失败：' + getApiError(e), 'error')
-  }
+  await confirmDialog(`确定删除题目「${q.title}」？此操作不可恢复。`, { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          try {
+              await adminApi.removeCodeQuestion(q.id);
+              notify('题目已删除', 'success');
+              await loadQuestions();
+          }
+          catch (e: unknown) {
+              notify('删除失败：' + getApiError(e), 'error');
+              throw e;
+          }
+      } });
 }
 
 onMounted(() => {
   loadQuestions()
 })
+
+// Catalog links load the original full source editor, regardless of list pagination.
+const catalogRoute = useRoute()
+let catalogRequest = 0
+watch(() => catalogRoute.query.questionId, async (raw) => {
+  const requestId = ++catalogRequest
+  if (raw === undefined) return
+  if (typeof raw !== 'string' || !/^[1-9]\d*$/.test(raw) || !Number.isSafeInteger(Number(raw))) {
+    notify('题目链接无效', 'error')
+    return
+  }
+  try {
+    const question = await adminApi.codeQuestionDetail(Number(raw))
+    if (requestId === catalogRequest) openEdit(question)
+  } catch (e: unknown) {
+    if (requestId === catalogRequest) notify('题目详情加载失败：' + getApiError(e), 'error')
+  }
+}, { immediate: true })
+watch(() => catalogRoute.query.create, (value) => {
+  if (value === '1' && catalogRoute.query.questionId === undefined) { catalogRequest++; openCreate() }
+}, { immediate: true })
+onBeforeUnmount(() => { catalogRequest++ })
 </script>
 
 <style scoped>

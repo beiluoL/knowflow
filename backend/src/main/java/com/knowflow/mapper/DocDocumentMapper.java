@@ -9,4 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface DocDocumentMapper extends BaseMapper<DocDocument> {
+    /** Include soft-deleted references: deleting a private document must not publish its file. */
+    @org.apache.ibatis.annotations.Select("SELECT * FROM doc_document WHERE file_url=#{url} OR cover=#{url} OR content LIKE #{pattern} ESCAPE '!'")
+    java.util.List<DocDocument> findAssetReferences(@org.apache.ibatis.annotations.Param("url") String url,@org.apache.ibatis.annotations.Param("pattern") String pattern);
 }

@@ -2,6 +2,7 @@ package com.knowflow.controller.admin;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.entity.SysIcon;
 import com.knowflow.mapper.SysIconMapper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,8 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,11 +28,7 @@ public class AdminIconController {
     private final SysIconMapper iconMapper;
 
     private Long getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof Long) {
-            return (Long) authentication.getPrincipal();
-        }
-        return null;
+        return SecurityUtils.getCurrentUserId();
     }
 
     @Operation(summary = "获取自定义图标列表")

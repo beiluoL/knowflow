@@ -68,7 +68,7 @@
       </div>
       <select
         v-model="filterType"
-        class="h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+        class="h-10 px-3 text-sm text-foreground hover:border-border transition-colors kb-select kb-form-control"
         @change="onFilterChange"
       >
         <option value="">全部题型</option>
@@ -76,7 +76,7 @@
       </select>
       <select
         v-model="filterDifficulty"
-        class="h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+        class="h-10 px-3 text-sm text-foreground hover:border-border transition-colors kb-select kb-form-control"
         @change="onFilterChange"
       >
         <option value="">全部难度</option>
@@ -86,7 +86,7 @@
       </select>
       <select
         v-model="filterSource"
-        class="h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+        class="h-10 px-3 text-sm text-foreground hover:border-border transition-colors kb-select kb-form-control"
         @change="onFilterChange"
       >
         <option value="">全部来源</option>
@@ -146,7 +146,7 @@
           </div>
         </div>
 
-        <div class="divide-y divide-[#E2E6EC]/50">
+        <div class="divide-y divide-[var(--kb-border)]/50">
           <div
             v-for="q in questions"
             :key="q.id"
@@ -348,7 +348,7 @@
             <label class="block text-sm font-medium text-foreground mb-1.5">知识库</label>
             <select
               v-model="aiForm.categoryId"
-              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 text-sm text-foreground hover:border-border transition-colors kb-select kb-form-control"
               @change="onAiCategoryChange"
             >
               <option :value="null">请选择知识库</option>
@@ -362,7 +362,7 @@
             <select
               v-model="aiForm.docId"
               :disabled="!aiForm.categoryId"
-              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 text-sm text-foreground hover:border-border disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed transition-colors kb-select kb-form-control"
             >
               <option :value="null">{{ aiForm.categoryId ? '请选择文档' : '请先选择知识库' }}</option>
               <option v-for="doc in aiDocs" :key="doc.id" :value="doc.id">{{ doc.title }}</option>
@@ -374,7 +374,7 @@
             <label class="block text-sm font-medium text-foreground mb-1.5">题型</label>
             <select
               v-model="aiForm.questionType"
-              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 text-sm text-foreground hover:border-border transition-colors kb-select kb-form-control"
             >
               <option v-for="t in QUESTION_TYPE_KEYS" :key="t" :value="t">{{ QUESTION_TYPE_LABEL[t] }}</option>
             </select>
@@ -388,7 +388,7 @@
               type="number"
               min="3"
               max="20"
-              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 text-sm text-foreground hover:border-border transition-colors kb-input kb-form-control"
             />
             <p class="text-xs text-muted-foreground mt-1">范围 3-20，默认 5</p>
           </div>
@@ -436,7 +436,7 @@
               <label class="block text-sm font-medium text-foreground mb-1.5">题型</label>
               <select
                 v-model="form.questionType"
-                class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="w-full h-10 px-3 text-sm text-foreground hover:border-border transition-colors kb-select kb-form-control"
                 @change="onFormTypeChange"
               >
                 <option v-for="t in QUESTION_TYPE_KEYS" :key="t" :value="t">{{ QUESTION_TYPE_LABEL[t] }}</option>
@@ -446,7 +446,7 @@
               <label class="block text-sm font-medium text-foreground mb-1.5">难度</label>
               <select
                 v-model.number="form.difficulty"
-                class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="w-full h-10 px-3 text-sm text-foreground hover:border-border transition-colors kb-select kb-form-control"
               >
                 <option :value="1">简单</option>
                 <option :value="2">中等</option>
@@ -462,7 +462,7 @@
               v-model="form.content"
               rows="3"
               placeholder="请输入题干内容..."
-              class="w-full px-3 py-2 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border resize-y transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full px-3 py-2 text-sm text-foreground hover:border-border resize-y transition-colors kb-textarea kb-form-control"
             ></textarea>
           </div>
 
@@ -527,10 +527,10 @@
               <label
                 v-for="(opt, idx) in form.options"
                 :key="idx"
-                class="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg border border-[var(--kb-border)] hover:border-primary-500 transition-colors"
+                class="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg border border-[var(--kb-border)] hover:border-primary-500 transition-colors kb-checkbox-row"
                 :class="{ 'border-primary-500 bg-primary-50': form.multipleAnswer.includes(idx) }"
               >
-                <input type="checkbox" :value="idx" v-model="form.multipleAnswer" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
+                <Checkbox as="span"  :value="idx" v-model="form.multipleAnswer" />
                 <span class="text-sm text-foreground truncate">{{ opt || `选项 ${String.fromCharCode(65 + idx)}` }}</span>
               </label>
             </div>
@@ -564,7 +564,7 @@
               v-model="form.shortAnswer"
               rows="3"
               placeholder="请输入参考答案..."
-              class="w-full px-3 py-2 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border resize-y transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full px-3 py-2 text-sm text-foreground hover:border-border resize-y transition-colors kb-textarea kb-form-control"
             ></textarea>
           </div>
 
@@ -575,7 +575,7 @@
               v-model="form.explanation"
               rows="2"
               placeholder="请输入答案解析（选填）..."
-              class="w-full px-3 py-2 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border resize-y transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full px-3 py-2 text-sm text-foreground hover:border-border resize-y transition-colors kb-textarea kb-form-control"
             ></textarea>
           </div>
 
@@ -596,8 +596,12 @@
 </template>
 
 <script setup lang="ts">
+import Checkbox from '@/components/ui/Checkbox.vue'
+
 // 管理后台-智能题库管理：题目 CRUD、发布/下架、AI 智能出题、手动新增，支持列表/卡片视图切换。
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { watch, onBeforeUnmount } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
@@ -937,36 +941,45 @@ const saveQuestion = async () => {
 }
 
 const deleteQuestion = async (q: QuizQuestionVO) => {
-  if (!(await confirmDialog(`确定删除题目「${q.title}」吗？此操作不可恢复。`))) return
-  try {
-    await adminApi.removeQuizQuestion(q.id)
-    notify('题目已删除', 'success')
-    await loadQuestions()
-  } catch (e: unknown) {
-    notify('删除失败：' + getApiError(e), 'error')
-  }
+  await confirmDialog(`确定删除题目「${q.title}」吗？此操作不可恢复。`, { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          try {
+              await adminApi.removeQuizQuestion(q.id);
+              notify('题目已删除', 'success');
+              await loadQuestions();
+          }
+          catch (e: unknown) {
+              notify('删除失败：' + getApiError(e), 'error');
+              throw e;
+          }
+      } });
 }
 
 const publishQuestion = async (q: QuizQuestionVO) => {
-  if (!(await confirmDialog(`确定发布题目「${q.title}」吗？`))) return
-  try {
-    await adminApi.publishQuizQuestion(q.id)
-    notify('题目已发布', 'success')
-    await loadQuestions()
-  } catch (e: unknown) {
-    notify('发布失败：' + getApiError(e), 'error')
-  }
+  await confirmDialog(`确定发布题目「${q.title}」吗？`, { "title": "确认变更发布状态？", "confirmText": "确认变更", "cancelText": "取消", "icon": "check-circle", "variant": "default", onConfirm: async () => {
+          try {
+              await adminApi.publishQuizQuestion(q.id);
+              notify('题目已发布', 'success');
+              await loadQuestions();
+          }
+          catch (e: unknown) {
+              notify('发布失败：' + getApiError(e), 'error');
+              throw e;
+          }
+      } });
 }
 
 const unpublishQuestion = async (q: QuizQuestionVO) => {
-  if (!(await confirmDialog(`确定下架题目「${q.title}」吗？`))) return
-  try {
-    await adminApi.unpublishQuizQuestion(q.id)
-    notify('题目已下架', 'info')
-    await loadQuestions()
-  } catch (e: unknown) {
-    notify('下架失败：' + getApiError(e), 'error')
-  }
+  await confirmDialog(`确定下架题目「${q.title}」吗？`, { "title": "确认变更发布状态？", "confirmText": "确认变更", "cancelText": "取消", "icon": "check-circle", "variant": "default", onConfirm: async () => {
+          try {
+              await adminApi.unpublishQuizQuestion(q.id);
+              notify('题目已下架', 'info');
+              await loadQuestions();
+          }
+          catch (e: unknown) {
+              notify('下架失败：' + getApiError(e), 'error');
+              throw e;
+          }
+      } });
 }
 
 // ========== AI 出题 ==========
@@ -1048,6 +1061,33 @@ const generateByAi = async () => {
 onMounted(() => {
   loadQuestions()
 })
+
+// Catalog links load the original full source editor, regardless of list pagination.
+const catalogRoute = useRoute()
+let catalogRequest = 0
+watch(() => catalogRoute.query.questionId, async (raw) => {
+  const requestId = ++catalogRequest
+  if (raw === undefined) return
+  if (typeof raw !== 'string' || !/^[1-9]\d*$/.test(raw) || !Number.isSafeInteger(Number(raw))) {
+    notify('题目链接无效', 'error')
+    return
+  }
+  try {
+    const question = await adminApi.quizQuestionDetail(Number(raw))
+    if (requestId !== catalogRequest) return
+    if (!QUESTION_TYPE_KEYS.includes(question.questionType)) {
+      notify('该题型需要使用对应的专业编辑器', 'error')
+      return
+    }
+    openEdit(question)
+  } catch (e: unknown) {
+    if (requestId === catalogRequest) notify('题目详情加载失败：' + getApiError(e), 'error')
+  }
+}, { immediate: true })
+watch(() => catalogRoute.query.create, (value) => {
+  if (value === '1' && catalogRoute.query.questionId === undefined) { catalogRequest++; openCreate() }
+}, { immediate: true })
+onBeforeUnmount(() => { catalogRequest++ })
 </script>
 
 <style scoped>

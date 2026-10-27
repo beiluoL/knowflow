@@ -37,6 +37,7 @@ import com.knowflow.vo.DocVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,6 +60,7 @@ import java.util.stream.Collectors;
 public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> implements DocService {
 
     private final DocFavoriteMapper favoriteMapper;
+    private final com.knowflow.security.DocumentAssetBindings assetBindings;
     private final DocReadProgressMapper readProgressMapper;
     private final CategoryService categoryService;
     private final SysUserMapper userMapper;
@@ -69,6 +71,9 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     private final KnowledgeService knowledgeService;
     private final UploadConfigProperties uploadConfig;
     private final LearningEventService learningEventService;
+    private final com.knowflow.security.DocumentAccessPolicy access;
+    private final com.knowflow.mapper.LearningPathMapper learningPathMapper;
+    private final com.knowflow.mapper.LearningChapterMapper learningChapterMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // ============ 搜索排序与相关度打分参数 ============
@@ -110,6 +115,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         boolean relevanceSort = hasKeyword && isRelevanceSort(dto.getSort());
 
         LambdaQueryWrapper<DocDocument> wrapper = new LambdaQueryWrapper<>();
+        access.scope(wrapper, access.actor());
         if (hasKeyword) {
             List<Long> matchedCategoryIds = findMatchedCategoryIds(keyword);
             wrapper.and(w -> {
@@ -134,10 +140,54 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         } else {
             wrapper.eq(DocDocument::getStatus, 1);
         }
+        applyTypeFilter(wrapper, dto.getType());
+        applyTimeRange(wrapper, dto.getFrom(), dto.getTo());
 
         return relevanceSort
                 ? pageByRelevance(dto, keyword, wrapper)
                 : pageByColumn(dto, keyword, wrapper);
+    }
+
+    /**
+     * 类型过滤下推（替代历史前端 tags 子串过滤，保证分页/total 正确）。
+     * 口径与旧前端保持一致：pdf/markdown 看文件名后缀与 tags，note 看 tags，doc 为「非笔记」。
+     */
+    private void applyTypeFilter(LambdaQueryWrapper<DocDocument> wrapper, String type) {
+        if (StrUtil.isBlank(type)) {
+            return;
+        }
+        switch (type.trim().toLowerCase()) {
+            case "pdf" -> wrapper.apply("LOWER(file_name) LIKE {0}", "%.pdf");
+            case "markdown" -> wrapper.and(w -> w.apply("LOWER(file_name) LIKE {0}", "%.md")
+                    .or().like(DocDocument::getTags, "markdown")
+                    .or().apply("LOWER(tags) LIKE {0}", "%md%"));
+            case "note" -> wrapper.and(w -> w.like(DocDocument::getTags, "笔记")
+                    .or().apply("LOWER(tags) LIKE {0}", "%note%"));
+            // doc = 非笔记（含 tags 为空的普通文档），NULL 必须显式放行
+            case "doc" -> wrapper.and(w -> w.isNull(DocDocument::getTags)
+                    .or(o -> o.notLike(DocDocument::getTags, "笔记")
+                            .apply("LOWER(tags) NOT LIKE {0}", "%note%")));
+            default -> throw new com.knowflow.exception.BusinessException(400, "非法的文档类型过滤：" + type);
+        }
+    }
+
+    /** 创建时间范围过滤（含边界）；from/to 为 yyyy-MM-dd，非法格式直接 400，不做静默忽略。 */
+    private void applyTimeRange(LambdaQueryWrapper<DocDocument> wrapper, String from, String to) {
+        if (StrUtil.isNotBlank(from)) {
+            try {
+                wrapper.ge(DocDocument::getCreateTime, java.time.LocalDate.parse(from.trim()).atStartOfDay());
+            } catch (java.time.format.DateTimeParseException e) {
+                throw new com.knowflow.exception.BusinessException(400, "from 必须是 yyyy-MM-dd 日期");
+            }
+        }
+        if (StrUtil.isNotBlank(to)) {
+            try {
+                wrapper.lt(DocDocument::getCreateTime,
+                        java.time.LocalDate.parse(to.trim()).plusDays(1).atStartOfDay());
+            } catch (java.time.format.DateTimeParseException e) {
+                throw new com.knowflow.exception.BusinessException(400, "to 必须是 yyyy-MM-dd 日期");
+            }
+        }
     }
 
     /** 缺省排序策略：有关键词时按相关度，无关键词时按时间 */
@@ -167,9 +217,12 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     private PageResult<DocVO> pageByColumn(DocQueryDTO dto, String keyword,
                                            LambdaQueryWrapper<DocDocument> wrapper) {
         if (SORT_VIEW.equalsIgnoreCase(dto.getSort())) {
+            // id 兜底保证并列值翻页稳定，避免跨页漂移
             wrapper.orderByDesc(DocDocument::getViewCount);
+            wrapper.orderByDesc(DocDocument::getId);
         } else {
             wrapper.orderByDesc(DocDocument::getCreateTime);
+            wrapper.orderByDesc(DocDocument::getId);
         }
         Page<DocDocument> result = this.page(new Page<>(dto.getPageNum(), dto.getPageSize()), wrapper);
         List<DocVO> voList = toVoList(result.getRecords(), keyword, false);
@@ -195,19 +248,24 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     private PageResult<DocVO> pageByRelevance(DocQueryDTO dto, String keyword,
                                               LambdaQueryWrapper<DocDocument> wrapper) {
         wrapper.orderByDesc(DocDocument::getCreateTime);
+        wrapper.orderByDesc(DocDocument::getId);
         Page<DocDocument> candidatePage = this.page(new Page<>(1, RELEVANCE_CANDIDATE_LIMIT), wrapper);
         List<DocDocument> candidates = candidatePage.getRecords();
 
         String lowerKeyword = keyword.toLowerCase();
-        // 关键词通道排名
+        // 关键词通道排名（id 作为最终并列兜底，保证翻页确定性）
         List<DocDocument> keywordRanked = candidates.stream()
                 .sorted(Comparator.comparingDouble((DocDocument d) -> -relevanceScore(d, lowerKeyword))
-                        .thenComparing(DocDocument::getCreateTime, Comparator.nullsLast(Comparator.reverseOrder())))
+                        .thenComparing(DocDocument::getCreateTime, Comparator.nullsLast(Comparator.reverseOrder()))
+                        .thenComparing(DocDocument::getId))
                 .collect(Collectors.toList());
 
         List<DocDocument> sorted = fuseWithSemantic(keywordRanked, keyword);
 
-        long total = candidatePage.getTotal();
+        // 诚实窗口：相关度打分只覆盖最新 RELEVANCE_CANDIDATE_LIMIT 条候选。
+        // 命中量超出窗口时，total 必须截断到窗口大小，否则会出现「total 很大、深页为空」的伪分页。
+        long rawTotal = candidatePage.getTotal();
+        long total = Math.min(rawTotal, sorted.size());
         int pageNum = Math.max(1, (int) dto.getPageNum());
         int pageSize = Math.max(1, (int) dto.getPageSize());
         int from = Math.min((pageNum - 1) * pageSize, sorted.size());
@@ -384,10 +442,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     @Override
     public DocDetailVO getDocDetail(Long id, Long userId) {
         DocDocument doc = this.getById(id);
-        if (doc == null || doc.getStatus() == null || doc.getStatus() != 1) {
-            // F-14 修复：不存在的文档返回 404 语义
-            throw new BusinessException(404, "文档不存在");
-        }
+        access.requireRead(doc,userId);
         this.update(new LambdaUpdateWrapper<DocDocument>()
                 .eq(DocDocument::getId, id)
                 .setSql("view_count = view_count + 1"));
@@ -399,6 +454,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     /** 组装文档详情 VO（不含阅读量自增，供详情查询与上传复用）。 */
     private DocDetailVO buildDetailVO(DocDocument doc, Long userId) {
         DocDetailVO vo = BeanUtil.copyProperties(doc, DocDetailVO.class);
+        vo.setCanEdit(access.canEditCategory(doc.getCategoryId(),userId));
         DocCategory category = categoryService.getById(doc.getCategoryId());
         if (category != null) {
             vo.setCategoryName(category.getName());
@@ -425,6 +481,8 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     @Override
     @Transactional
     public DocDetailVO uploadDoc(MultipartFile file, DocUploadMetaDTO meta, Long userId) {
+        if(meta==null) throw new BusinessException(400,"文档元信息不能为空");
+        access.requireEditCategory(meta.getCategoryId(),userId);
         if (file == null || file.isEmpty()) {
             throw new BusinessException(400, "上传文件不能为空");
         }
@@ -467,6 +525,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         doc.setDifficulty(meta.getDifficulty());
         doc.setWordCount(words);
         this.save(doc);
+        assetBindings.trustedAsset(fileUrl,doc.getId());
         // A-RAG：文档保存后自动分块并生成 embedding 索引
         if (StrUtil.isNotBlank(doc.getContent())) {
             try {
@@ -496,11 +555,19 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         return mb + "." + (rem / 10);
     }
 
-    /** 收藏/取消收藏切换，并同步维护文档与用户的收藏计数（保证非负）。 */
+    /**
+     * 收藏/取消收藏切换，并同步维护文档与用户的收藏计数（保证非负）。
+     *
+     * <p>取消收藏是<b>逻辑删除</b>，而唯一约束 {@code uk_fav_user_doc(user_id, doc_id)} 不含
+     * {@code deleted} 列 —— 残留行会一直占着唯一键。因此「再次收藏」不能直接插入新行，
+     * 必须先按 {@link DocFavoriteMapper#reviveDeleted} 把原行复活（{@code deleted} 置回 0）；
+     * 只有在历史上从未收藏过（复活影响 0 行）时才插入。</p>
+     */
     @Override
     @Transactional
     public void toggleFavorite(Long docId, Long userId) {
         DocDocument doc = this.getById(docId);
+        access.requireRead(doc,userId);
         if (doc == null) {
             throw new BusinessException(404, "文档不存在");
         }
@@ -508,18 +575,33 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
                 .eq(DocFavorite::getUserId, userId)
                 .eq(DocFavorite::getDocId, docId));
         if (favorite != null) {
-            favoriteMapper.deleteById(favorite.getId());
-            this.update(new LambdaUpdateWrapper<DocDocument>()
-                    .eq(DocDocument::getId, docId)
-                    .setSql("favorite_count = GREATEST(0, favorite_count - 1)"));
-            userMapper.update(null, new LambdaUpdateWrapper<SysUser>()
-                    .eq(SysUser::getId, userId)
-                    .setSql("favorite_count = GREATEST(0, favorite_count - 1)"));
+            // 以「实际被逻辑删除的行数」为准再回退计数：并发双删时第二次影响 0 行，
+            // 若仍无条件 -1 会把 favorite_count 减穿（GREATEST 只会掩盖而非修正）。
+            if (favoriteMapper.deleteById(favorite.getId()) > 0) {
+                this.update(new LambdaUpdateWrapper<DocDocument>()
+                        .eq(DocDocument::getId, docId)
+                        .setSql("favorite_count = GREATEST(0, favorite_count - 1)"));
+                userMapper.update(null, new LambdaUpdateWrapper<SysUser>()
+                        .eq(SysUser::getId, userId)
+                        .setSql("favorite_count = GREATEST(0, favorite_count - 1)"));
+            }
         } else {
-            favorite = new DocFavorite();
-            favorite.setUserId(userId);
-            favorite.setDocId(docId);
-            favoriteMapper.insert(favorite);
+            // 再次收藏：优先复活历史软删行。取消收藏只把 deleted 置 1，物理行仍占着
+            // uk_fav_user_doc(user_id, doc_id)，直接 insert 必撞唯一键 → DuplicateKeyException → 500，
+            // 且此后该 (user, doc) 永久无法再收藏。复活失败（影响 0 行）说明历史上从未收藏过，才新增。
+            int revived = favoriteMapper.reviveDeleted(userId, docId, LocalDateTime.now());
+            if (revived == 0) {
+                favorite = new DocFavorite();
+                favorite.setUserId(userId);
+                favorite.setDocId(docId);
+                try {
+                    favoriteMapper.insert(favorite);
+                } catch (DuplicateKeyException e) {
+                    // 并发重复收藏：唯一索引兜底，视为已收藏，直接返回以免计数被二次累加
+                    log.debug("忽略并发重复收藏：userId={}, docId={}", userId, docId);
+                    return;
+                }
+            }
             this.update(new LambdaUpdateWrapper<DocDocument>()
                     .eq(DocDocument::getId, docId)
                     .setSql("favorite_count = favorite_count + 1"));
@@ -531,6 +613,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
 
     @Override
     public List<DocVO> getFavoriteList(Long userId) {
+        if(userId==null) return List.of();
         List<DocFavorite> favorites = favoriteMapper.selectList(new LambdaQueryWrapper<DocFavorite>()
                 .eq(DocFavorite::getUserId, userId)
                 .orderByDesc(DocFavorite::getCreateTime));
@@ -538,12 +621,13 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
             return Collections.emptyList();
         }
         List<Long> docIds = favorites.stream().map(DocFavorite::getDocId).collect(Collectors.toList());
-        List<DocDocument> docs = this.listByIds(docIds);
+        List<DocDocument> docs = this.listByIds(docIds).stream().filter(d->access.canRead(d,userId)).toList();
         return docs.stream().map(doc -> BeanUtil.copyProperties(doc, DocVO.class)).collect(Collectors.toList());
     }
 
     @Override
     public List<DocVO> getRecentReadList(Long userId) {
+        if(userId==null) return List.of();
         List<DocReadProgress> progresses = readProgressMapper.selectList(new LambdaQueryWrapper<DocReadProgress>()
                 .eq(DocReadProgress::getUserId, userId)
                 .orderByDesc(DocReadProgress::getLastReadTime)
@@ -552,13 +636,13 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
             return Collections.emptyList();
         }
         List<Long> docIds = progresses.stream().map(DocReadProgress::getDocId).collect(Collectors.toList());
-        List<DocDocument> docs = this.listByIds(docIds);
+        List<DocDocument> docs = this.listByIds(docIds).stream().filter(d->access.canRead(d,userId)).toList();
         return docs.stream().map(doc -> BeanUtil.copyProperties(doc, DocVO.class)).collect(Collectors.toList());
     }
 
     @Override
     public List<DocVO> getRecommendList(Long userId) {
-        List<DocDocument> docs = this.list(new LambdaQueryWrapper<DocDocument>()
+        List<DocDocument> docs = this.list(access.scope(new LambdaQueryWrapper<DocDocument>(),userId)
                 .eq(DocDocument::getStatus, 1)
                 .orderByDesc(DocDocument::getViewCount)
                 .orderByDesc(DocDocument::getFavoriteCount)
@@ -570,6 +654,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     @Transactional
     public void updateReadProgress(ReadProgressDTO dto, Long userId) {
         DocDocument doc = this.getById(dto.getDocId());
+        access.requireRead(doc,userId);
         if (doc == null) {
             throw new BusinessException(404, "文档不存在");
         }
@@ -608,6 +693,9 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     @Override
     @Transactional
     public void saveDoc(DocDocument doc) {
+        access.requireEditCategory(doc.getCategoryId(),access.actor());
+        sanitize(doc,true);
+        assetBindings.clientReferences(doc);
         doc.setWordCount(StrUtil.isNotBlank(doc.getContent()) ? doc.getContent().length() : 0);
         this.save(doc);
         if (doc.getCategoryId() != null) {
@@ -619,8 +707,13 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     @Transactional
     public void updateDoc(DocDocument doc) {
         DocDocument old = this.getById(doc.getId());
+        access.requireEdit(old,access.actor());
+        if(doc.getCategoryId()!=null) access.requireEditCategory(doc.getCategoryId(),access.actor());
+        assetBindings.retain(old);
+        sanitize(doc,false);
+        assetBindings.clientReferences(doc);
         // 仅当传入 content 时才重算 wordCount，避免仅更新状态时把 wordCount 重置为 0
-        if (StrUtil.isNotBlank(doc.getContent())) {
+        if (doc.getContent()!=null) {
             doc.setWordCount(doc.getContent().length());
         } else {
             doc.setWordCount(null);
@@ -628,7 +721,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         this.updateById(doc);
         if (old != null) {
             Long oldCat = old.getCategoryId();
-            Long newCat = doc.getCategoryId();
+            Long newCat = doc.getCategoryId()!=null ? doc.getCategoryId() : oldCat;
             if (oldCat != null && !oldCat.equals(newCat)) {
                 categoryService.decrementDocCount(oldCat);
                 if (newCat != null) {
@@ -642,8 +735,10 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     @Transactional
     public void removeDoc(Long id) {
         DocDocument doc = this.getById(id);
+        access.requireEdit(doc,access.actor());
         favoriteMapper.delete(new LambdaQueryWrapper<DocFavorite>().eq(DocFavorite::getDocId, id));
         readProgressMapper.delete(new LambdaQueryWrapper<DocReadProgress>().eq(DocReadProgress::getDocId, id));
+        docChunkService.deleteChunks(id);
         if (doc != null && doc.getCategoryId() != null) {
             categoryService.decrementDocCount(doc.getCategoryId());
         }
@@ -658,9 +753,11 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         }
         // 查询所有待删除文档（用于维护分类文档数）
         List<DocDocument> docs = this.listByIds(ids);
+        requireEditableBatch(ids,docs);
         // 删除关联的收藏与阅读进度
         favoriteMapper.delete(new LambdaQueryWrapper<DocFavorite>().in(DocFavorite::getDocId, ids));
         readProgressMapper.delete(new LambdaQueryWrapper<DocReadProgress>().in(DocReadProgress::getDocId, ids));
+        ids.forEach(docChunkService::deleteChunks);
         // 按分类分组统计并扣减文档数
         Map<Long, Long> catCountMap = docs.stream()
                 .filter(d -> d.getCategoryId() != null)
@@ -686,6 +783,8 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         }
         // 查询所有文档，统计各原分类需要扣减的数量
         List<DocDocument> docs = this.listByIds(ids);
+        requireEditableBatch(ids,docs);
+        access.requireEditCategory(categoryId,access.actor());
         // 只统计目标分类之外的（同分类不扣减）
         Map<Long, Long> sourceCatCountMap = docs.stream()
                 .filter(d -> d.getCategoryId() != null && !categoryId.equals(d.getCategoryId()))
@@ -713,6 +812,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
     @Override
     public String generateAISummary(Long docId) {
         DocDocument doc = this.getById(docId);
+        access.requireEdit(doc,access.actor());
         if (doc == null || doc.getStatus() == null || doc.getStatus() != 1) {
             throw new BusinessException(404, "文档不存在");
         }
@@ -733,11 +833,31 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         return summary;
     }
 
-    /** B③ AI 基于文档生成复习闪卡：解析大模型返回的 JSON，批量落库后返回。 */
+    /**
+     * B③ AI 基于文档生成复习闪卡：解析大模型返回的 JSON，批量落库后返回。
+     *
+     * <p>P0-1b：闪卡归属由 {@code userId} 决定（来自登录态，非前端可控）。
+     * {@code learning_flashcard.user_id} 为 {@code NOT NULL}，缺失时直接 401 而非落库失败。</p>
+     */
     @Override
     @Transactional
-    public List<LearningFlashcard> generateFlashcards(Long docId, Long pathId, Long chapterId) {
+    public List<LearningFlashcard> generateFlashcards(Long docId, Long pathId, Long chapterId, Long userId) {
+        if (userId == null) {
+            throw new BusinessException(401, "请先登录");
+        }
         DocDocument doc = this.getById(docId);
+        access.requireRead(doc,userId);
+        if(chapterId!=null) {
+            var chapter=learningChapterMapper.selectById(chapterId);
+            if(chapter==null) throw new BusinessException(404,"章节不存在");
+            if(pathId!=null && !pathId.equals(chapter.getPathId())) throw new BusinessException(400,"章节与路径不匹配");
+            pathId=chapter.getPathId();
+        }
+        if(pathId!=null) {
+            var path=learningPathMapper.selectById(pathId);
+            if(path==null) throw new BusinessException(404,"学习路径不存在");
+            if(!java.util.Objects.equals(path.getOwnerUserId(),0L) && !java.util.Objects.equals(path.getOwnerUserId(),userId)) throw new BusinessException(403,"无权访问该学习路径");
+        }
         if (doc == null || doc.getStatus() == null || doc.getStatus() != 1) {
             throw new BusinessException(404, "文档不存在");
         }
@@ -750,7 +870,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
                 + "difficulty 取值 1(简单)/2(中等)/3(困难)。不要输出 JSON 以外的任何文字。\n\n"
                 + "标题：" + doc.getTitle() + "\n\n正文：\n" + content;
         String raw = aiService.complete("你是知识卡片生成助手，只输出符合要求的 JSON。", userPrompt);
-        List<LearningFlashcard> cards = parseFlashcards(raw, doc, pathId, chapterId);
+        List<LearningFlashcard> cards = parseFlashcards(raw, doc, pathId, chapterId, userId);
         if (cards.isEmpty()) {
             throw new BusinessException("AI 未返回有效闪卡，请重试或调整文档内容");
         }
@@ -760,8 +880,15 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         return cards;
     }
 
-    /** 解析大模型返回的闪卡 JSON（兼容 ```json 围栏），构建闪卡实体列表。 */
-    private List<LearningFlashcard> parseFlashcards(String raw, DocDocument doc, Long pathId, Long chapterId) {
+    /**
+     * 解析大模型返回的闪卡 JSON（兼容 ```json 围栏），构建闪卡实体列表。
+     *
+     * <p>P0-1b：构建时必须落 {@code userId}（由调用方从登录态透传）—— 否则
+     * {@code learning_flashcard.user_id} 的 {@code NOT NULL} 约束会让整批插入失败。
+     * 同时补齐 {@code docId} 与 {@code sourceType=AI_DOC}，与其它 AI 闪卡写入路径
+     * （{@code LearningServiceImpl}）保持同一口径。</p>
+     */
+    private List<LearningFlashcard> parseFlashcards(String raw, DocDocument doc, Long pathId, Long chapterId, Long userId) {
         List<LearningFlashcard> result = new ArrayList<>();
         if (raw == null) {
             return result;
@@ -789,6 +916,7 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
                     continue;
                 }
                 LearningFlashcard card = new LearningFlashcard();
+                card.setUserId(userId);
                 card.setFront(String.valueOf(front));
                 card.setBack(String.valueOf(back));
                 int d = 1;
@@ -803,7 +931,10 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
                 card.setCategory(category);
                 card.setPathId(pathId);
                 card.setChapterId(chapterId);
+                card.setDocId(doc.getId());
+                card.setSourceType("AI_DOC");
                 card.setReviewCount(0);
+                card.setReviewInterval(0);
                 result.add(card);
             }
         } catch (Exception e) {
@@ -817,10 +948,22 @@ public class DocServiceImpl extends ServiceImpl<DocDocumentMapper, DocDocument> 
         if (categoryId == null) {
             return List.of();
         }
-        return this.list(new LambdaQueryWrapper<DocDocument>()
+        return this.list(access.scope(new LambdaQueryWrapper<DocDocument>(),access.actor())
                 .eq(DocDocument::getCategoryId, categoryId)
                 .eq(DocDocument::getStatus, 1)
                 .orderByAsc(DocDocument::getSortOrder)
                 .orderByDesc(DocDocument::getCreateTime));
+    }
+
+    private void requireEditableBatch(List<Long> ids,List<DocDocument> docs) {
+        if(docs.size()!=new java.util.HashSet<>(ids).size()) throw new BusinessException(404,"文档不存在");
+        docs.forEach(d->access.requireEdit(d,access.actor()));
+    }
+    /** Do not accept persistence/audit/download fields or counters from JSON entities. */
+    private void sanitize(DocDocument doc,boolean create) {
+        doc.setDeleted(null);doc.setCreateTime(null);doc.setUpdateTime(null);doc.setFileUrl(null);doc.setFileName(null);doc.setFileSize(null);
+        doc.setSourcePath(null);doc.setContentHash(null);doc.setCategoryPath(null);
+        doc.setViewCount(create?0:null);doc.setReadCount(create?0:null);doc.setFavoriteCount(create?0:null);
+        if(create){doc.setId(null);if(doc.getStatus()==null)doc.setStatus(1);}
     }
 }

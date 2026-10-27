@@ -3,7 +3,7 @@
     <!-- 移动端抽屉头部 -->
     <div class="mobile-drawer-header">
       <span class="mobile-drawer-title">知识库导航</span>
-      <button class="mobile-close-btn" @click="$emit('closeMobile')">
+      <button class="mobile-close-btn" aria-label="关闭导航" @click="$emit('closeMobile')">
         <Icon name="x" :size="18" />
       </button>
     </div>
@@ -12,7 +12,7 @@
       <p class="sidebar-section-label">我的知识库</p>
 
       <!-- 全部文档 -->
-      <div
+      <button type="button"
         v-if="mode === 'home'"
         class="sidebar-item"
         :class="{ active: activeKey === 'all' && !activeCategoryId }"
@@ -22,7 +22,7 @@
         <Icon name="file-text" :size="16" class="category-icon" />
         <span class="category-name">全部文档</span>
         <span class="sidebar-badge">{{ totalDocs }}</span>
-      </div>
+      </button>
 
       <!-- 递归渲染分类树 -->
       <template v-for="cat in categories" :key="cat.id">
@@ -321,4 +321,6 @@ defineExpose({ categories })
     color: var(--kb-foreground);
   }
 }
+.sidebar-section > button.sidebar-item { width:100%;text-align:left; }
+.sidebar-item:focus-visible { outline:var(--kb-studio-focus) solid var(--kb-ring);outline-offset:calc(-1 * var(--kb-studio-focus)); }
 </style>

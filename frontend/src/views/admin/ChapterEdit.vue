@@ -52,7 +52,7 @@
               v-model="chapterForm.title"
               type="text"
               placeholder="例如：第一章 入门基础"
-              class="form-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="form-input transition-colors kb-input kb-form-control"
             />
           </div>
           <div class="form-grid-2">
@@ -63,7 +63,7 @@
                 type="number"
                 min="1"
                 placeholder="30"
-                class="form-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                class="form-input transition-colors kb-input kb-form-control"
               />
             </div>
             <div class="form-row">
@@ -73,7 +73,7 @@
                 type="number"
                 min="0"
                 placeholder="1"
-                class="form-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                class="form-input transition-colors kb-input kb-form-control"
               />
             </div>
           </div>
@@ -112,7 +112,7 @@
           <div class="doc-filters">
             <select
               v-model="docPickerCategoryId"
-              class="form-select focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="form-select transition-colors kb-select kb-form-control"
               @change="loadPickerDocs"
             >
               <option :value="undefined">全部知识库</option>
@@ -128,7 +128,7 @@
                 v-model="docPickerKeyword"
                 type="text"
                 placeholder="搜索文档标题或摘要..."
-                class="form-input search-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                class="form-input search-input transition-colors kb-input kb-form-control"
               />
             </div>
           </div>
@@ -146,18 +146,14 @@
               <label
                 v-for="doc in filteredPickerDocs"
                 :key="doc.id"
-                class="doc-item"
+                class="doc-item kb-checkbox-row"
                 :class="{ 'is-selected': isDocSelected(doc.id) }"
               >
-                <input
-                  type="checkbox"
-                  class="doc-checkbox-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                <Checkbox as="span"
+
                   :checked="isDocSelected(doc.id)"
-                  @change="toggleDocSelection(doc)"
-                />
-                <span class="doc-checkbox">
-                  <Icon v-if="isDocSelected(doc.id)" name="check" :size="12" />
-                </span>
+                  @native-change="toggleDocSelection(doc)" />
+
                 <div class="doc-info">
                   <p class="doc-title">{{ doc.title }}</p>
                   <p class="doc-summary">{{ doc.summary || '暂无摘要' }}</p>
@@ -196,9 +192,11 @@
 </template>
 
 <script setup lang="ts">
+import Checkbox from '@/components/ui/Checkbox.vue'
+
 // 后台-章节编辑页：替代原弹窗式编辑，支持新建/编辑章节、参考文档选择、AI 生成内容
 import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Button from '@/components/ui/Button.vue'
 import { adminApi } from '@/api'
@@ -209,9 +207,10 @@ import type {
   DocVO,
 } from '@/api/types'
 import { notify, getApiError } from '@/utils/toast'
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const route = useRoute()
-const router = useRouter()
+const nav = usePageNavigation()
 
 // ===== 模式判断 =====
 const chapterId = computed(() => {
@@ -377,7 +376,7 @@ const save = async () => {
       await adminApi.createChapter(payload)
       notify('章节已创建', 'success')
     }
-    router.back()
+    nav.goBack()
   } catch (e: unknown) {
     notify('保存失败：' + getApiError(e), 'error')
   } finally {
@@ -421,7 +420,7 @@ const generateContent = async () => {
 
 // ===== 返回 =====
 const goBack = () => {
-  router.back()
+  nav.goBack()
 }
 
 // ===== 初始化 =====
@@ -530,12 +529,17 @@ onMounted(async () => {
 
 /* 主体 */
 .chapter-body {
-  max-width: 880px;
-  margin: 0 auto;
+  max-width: none;
+  margin-inline: 0;
   padding: 24px 24px 64px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+
+  width: 100%;
+  min-width: 0;
+  padding-inline: 0;
+  padding-top: 0;
 }
 
 .card {
@@ -598,22 +602,26 @@ onMounted(async () => {
   color: var(--kb-destructive);
 }
 
-.form-input,
-.form-select {
-  width: 100%;
+.form-input:not(.kb-form-control),
+.form-select:not(.kb-form-control) {
   height: 38px;
-  padding: 0 12px;
   border-radius: 8px;
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
-  color: var(--kb-foreground);
-  font-size: 14px;
   outline: none;
   transition: border-color 0.2s;
 }
 
-.form-input:focus,
-.form-select:focus {
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 0 12px;
+  color: var(--kb-foreground);
+  font-size: 14px;
+}
+
+.form-input:not(.kb-form-control):focus,
+.form-select:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
 }
 
@@ -623,21 +631,24 @@ onMounted(async () => {
   gap: 16px;
 }
 
-.form-textarea {
-  width: 100%;
-  padding: 12px;
+.form-textarea:not(.kb-form-control) {
   border-radius: 8px;
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
-  color: var(--kb-foreground);
-  font-size: 14px;
-  line-height: 1.6;
   outline: none;
-  resize: vertical;
   transition: border-color 0.2s;
 }
 
-.form-textarea:focus {
+.form-textarea {
+  width: 100%;
+  padding: 12px;
+  color: var(--kb-foreground);
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.form-textarea:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
 }
 
@@ -744,8 +755,8 @@ onMounted(async () => {
 
 .doc-item {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  align-items: center;
+  gap: var(--kb-checkbox-gap);
   padding: 10px 12px;
   cursor: pointer;
   border-bottom: 1px solid var(--kb-border);
@@ -762,32 +773,6 @@ onMounted(async () => {
 
 .doc-item.is-selected {
   background: rgba(59, 111, 224, 0.06);
-}
-
-.doc-checkbox-hidden {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.doc-checkbox {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  margin-top: 2px;
-  border-radius: 4px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: #fff;
-  flex-shrink: 0;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.doc-item.is-selected .doc-checkbox {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
 }
 
 .doc-info {

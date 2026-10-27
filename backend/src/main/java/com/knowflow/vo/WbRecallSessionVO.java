@@ -17,6 +17,19 @@ public class WbRecallSessionVO {
     private String title;
     private String sourceText;
 
+    /** 原文来源类型：PASTE / NOTE */
+    private String sourceType;
+    /** 来源展示文案（笔记标题或「粘贴原文」） */
+    private String sourceLabel;
+    /** 归档标记：0 未归档 / 1 已归档 */
+    private Integer archived;
+
+    private String round1Draft;
+    private String round2Draft;
+    private String round3Draft;
+    /** 用户确认的关键遗漏（JSON：{"1":["…"],"2":["…"]}） */
+    private String gapJson;
+
     private String round1Text;
     private Integer round1Score;
 
@@ -39,4 +52,10 @@ public class WbRecallSessionVO {
 
     /** 逐轮进步百分比（相对上一轮），null 表示无对比基准 */
     private List<Integer> improvementPct;
+
+    /** 服务端当前时间，供前端校准第三轮倒计时 */
+    private LocalDateTime serverNow;
+
+    /** 第三轮是否已到期且可提交 */
+    private Boolean round3Available;
 }

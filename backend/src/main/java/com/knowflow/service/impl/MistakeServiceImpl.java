@@ -8,12 +8,15 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knowflow.common.LearningEventType;
 import com.knowflow.dto.CodeMistakeCollectRequest;
 import com.knowflow.dto.CodeMistakeCollectResult;
+import com.knowflow.dto.MistakePageQuery;
 import com.knowflow.entity.DocDocument;
 import com.knowflow.entity.LearningMistake;
+import com.knowflow.entity.QuizQuestion;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.CodeQuestionMapper;
 import com.knowflow.mapper.DocDocumentMapper;
 import com.knowflow.mapper.LearningMistakeMapper;
+import com.knowflow.mapper.QuizQuestionMapper;
 import com.knowflow.service.LearningEventService;
 import com.knowflow.service.MistakeService;
 import com.knowflow.vo.MistakeVO;
@@ -24,6 +27,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,25 +37,123 @@ import java.util.Map;
 public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, LearningMistake> implements MistakeService {
 
     private final DocDocumentMapper docMapper;
+    private final com.knowflow.security.DocumentAccessPolicy documentAccess;
     private final CodeQuestionMapper codeQuestionMapper;
     private final LearningEventService learningEventService;
+    private final QuizQuestionMapper quizQuestionMapper;
 
     @Override
     public IPage<MistakeVO> getMistakePage(Long userId, String category, Integer mastered, Integer pageNum, Integer pageSize) {
+        MistakePageQuery q = new MistakePageQuery();
+        q.setUserId(userId);
+        q.setCategory(category);
+        q.setMastered(mastered);
+        q.setPageNum(pageNum);
+        q.setPageSize(pageSize);
+        return getMistakePage(q);
+    }
+
+    /** CODE 错题 wrongAnswer 前缀（归集时由 statusLabel 写入）到判题状态枚举的映射。 */
+    private static final Map<String, String> ERROR_REASON_LABELS = Map.of(
+            "WRONG_ANSWER", "答案错误",
+            "COMPILE_ERROR", "编译错误",
+            "RUNTIME_ERROR", "运行时错误",
+            "TIME_LIMIT_EXCEEDED", "超时",
+            "MEMORY_LIMIT_EXCEEDED", "超内存");
+
+    @Override
+    public IPage<MistakeVO> getMistakePage(MistakePageQuery q) {
+        Long userId = q.getUserId();
         LambdaQueryWrapper<LearningMistake> wrapper = new LambdaQueryWrapper<>();
-        if (userId != null) {
-            wrapper.eq(LearningMistake::getUserId, userId);
+        wrapper.eq(LearningMistake::getUserId, userId);
+        if (q.getCategory() != null && !q.getCategory().isEmpty()) {
+            wrapper.eq(LearningMistake::getCategory, q.getCategory());
         }
-        if (category != null && !category.isEmpty()) {
-            wrapper.eq(LearningMistake::getCategory, category);
+        // 复习状态快捷筛选：due = 未掌握且（从未复习或上次复习早于今日零点），与 dueToday 同口径
+        String reviewStatus = q.getReviewStatus();
+        if ("due".equalsIgnoreCase(reviewStatus)) {
+            wrapper.eq(LearningMistake::getMastered, 0)
+                    .and(w -> w.isNull(LearningMistake::getLastReviewTime)
+                            .or().lt(LearningMistake::getLastReviewTime, LocalDate.now().atStartOfDay()));
+        } else if ("pending".equalsIgnoreCase(reviewStatus)) {
+            wrapper.eq(LearningMistake::getMastered, 0);
+        } else if ("mastered".equalsIgnoreCase(reviewStatus)) {
+            wrapper.eq(LearningMistake::getMastered, 1);
+        } else if (q.getMastered() != null) {
+            wrapper.eq(LearningMistake::getMastered, q.getMastered());
         }
-        if (mastered != null) {
-            wrapper.eq(LearningMistake::getMastered, mastered);
+        if (q.getFrom() != null) {
+            wrapper.ge(LearningMistake::getCreateTime, q.getFrom());
+        }
+        if (q.getTo() != null) {
+            wrapper.le(LearningMistake::getCreateTime, q.getTo());
+        }
+        if (q.getSources() != null && !q.getSources().isEmpty()) {
+            wrapper.and(w -> {
+                boolean first = true;
+                for (String s : q.getSources()) {
+                    if (s == null || s.isBlank()) {
+                        continue;
+                    }
+                    String src = s.trim();
+                    if ("code".equalsIgnoreCase(src)) {
+                        // 同时命中算法题错题（CODE）与沙箱归集错题（code:<lang>:...）
+                        if (first) {
+                            w.eq(LearningMistake::getSource, "CODE")
+                                    .or().likeRight(LearningMistake::getSource, "code:");
+                        } else {
+                            w.or().eq(LearningMistake::getSource, "CODE")
+                                    .or().likeRight(LearningMistake::getSource, "code:");
+                        }
+                    } else if (first) {
+                        w.eq(LearningMistake::getSource, src);
+                    } else {
+                        w.or().eq(LearningMistake::getSource, src);
+                    }
+                    first = false;
+                }
+            });
+        }
+        if (q.getErrorReason() != null && !q.getErrorReason().isBlank()) {
+            String label = ERROR_REASON_LABELS.get(q.getErrorReason().trim().toUpperCase());
+            if (label != null) {
+                wrapper.likeRight(LearningMistake::getWrongAnswer, label);
+            }
+        }
+        // 题型/知识点：错题本身无冗余列，用关联 quiz_question 的半连接子查询（H2/MySQL 均支持）
+        if (q.getQuestionType() != null && !q.getQuestionType().isBlank()) {
+            wrapper.inSql(LearningMistake::getQuestionId,
+                    "SELECT id FROM quiz_question WHERE deleted = 0 AND question_type = '"
+                            + q.getQuestionType().replace("'", "") + "'");
+        }
+        if (q.getTopicCode() != null && !q.getTopicCode().isBlank()) {
+            wrapper.inSql(LearningMistake::getQuestionId,
+                    "SELECT id FROM quiz_question WHERE deleted = 0 AND topic_code = '"
+                            + q.getTopicCode().replace("'", "") + "'");
         }
         wrapper.orderByDesc(LearningMistake::getCreateTime);
 
-        Page<LearningMistake> page = this.page(new Page<>(com.knowflow.common.PageQuery.normalizePageNum(pageNum), com.knowflow.common.PageQuery.normalizePageSize(pageSize)), wrapper);
-        return page.convert(m -> BeanUtil.copyProperties(m, MistakeVO.class));
+        Page<LearningMistake> page = this.page(new Page<>(
+                com.knowflow.common.PageQuery.normalizePageNum(q.getPageNum()),
+                com.knowflow.common.PageQuery.normalizePageSize(q.getPageSize())), wrapper);
+
+        // 批量补全题型/知识点（单条 IN 查询，避免 N+1）
+        List<Long> questionIds = page.getRecords().stream()
+                .map(LearningMistake::getQuestionId).filter(java.util.Objects::nonNull).distinct().toList();
+        Map<Long, QuizQuestion> questionMap = new HashMap<>();
+        if (!questionIds.isEmpty()) {
+            quizQuestionMapper.selectBatchIds(questionIds)
+                    .forEach(qq -> questionMap.put(qq.getId(), qq));
+        }
+        return page.convert(m -> {
+            MistakeVO vo = BeanUtil.copyProperties(m, MistakeVO.class);
+            QuizQuestion qq = m.getQuestionId() == null ? null : questionMap.get(m.getQuestionId());
+            if (qq != null) {
+                vo.setQuestionType(qq.getQuestionType());
+                vo.setTopicCode(qq.getTopicCode());
+            }
+            return vo;
+        });
     }
 
     @Override
@@ -61,7 +163,7 @@ public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, Learn
             throw new BusinessException(404, "错题不存在");
         }
         if (!java.util.Objects.equals(mistake.getUserId(), userId)) {
-            throw new BusinessException("无权访问该错题");
+            throw new BusinessException(403, "无权访问该错题");
         }
         return BeanUtil.copyProperties(mistake, MistakeVO.class);
     }
@@ -73,14 +175,19 @@ public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, Learn
             throw new BusinessException(404, "错题不存在");
         }
         if (!java.util.Objects.equals(mistake.getUserId(), userId)) {
-            throw new BusinessException("无权操作该错题");
+            throw new BusinessException(403, "无权操作该错题");
         }
         mistake.setMastered(1);
         mistake.setLastReviewTime(LocalDateTime.now());
         this.updateById(mistake);
+        // Phase 1：错题复习完成信号（仅标记已掌握时记录一次，避免与答题/归集事件重复统计）
+        learningEventService.record(userId, LearningEventType.MISTAKE_REVIEW, "MISTAKE", id,
+                Map.of("mastered", 1, "questionId", mistake.getQuestionId() == null ? "" : mistake.getQuestionId(),
+                        "codeQuestionId", mistake.getCodeQuestionId() == null ? "" : mistake.getCodeQuestionId()));
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional(rollbackFor=Exception.class)
     public void addMistake(LearningMistake mistake, Long userId) {
         // 幂等：同用户 + 同题目（去空白）已存在则更新答案与复习次数，避免反复刷题刷出重复错题
         String question = mistake.getQuestion() == null ? "" : mistake.getQuestion().trim();
@@ -95,13 +202,20 @@ public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, Learn
                 exist.setCategory(mistake.getCategory());
                 exist.setDifficulty(mistake.getDifficulty());
                 exist.setSource(mistake.getSource());
+                // Phase 0：合并时回填原题回溯字段（旧数据初次同步时补全，可空）
+                if (mistake.getQuestionId() != null) {
+                    exist.setQuestionId(mistake.getQuestionId());
+                }
+                if (mistake.getCodeQuestionId() != null) {
+                    exist.setCodeQuestionId(mistake.getCodeQuestionId());
+                }
                 exist.setReviewCount((exist.getReviewCount() == null ? 0 : exist.getReviewCount()) + 1);
                 // 再次答错则重置为未掌握，重新进入待复习队列
                 exist.setMastered(0);
                 exist.setLastReviewTime(LocalDateTime.now());
                 this.updateById(exist);
                 // Learning Event System（Phase 1）：错题再次归集（已存在则更新）事件
-                learningEventService.record(userId, LearningEventType.MISTAKE, "MISTAKE", exist.getId(),
+                learningEventService.recordRequired(userId, LearningEventType.MISTAKE.name(), "MISTAKE", exist.getId(),
                         Map.of("source", mistake.getSource() == null ? "" : mistake.getSource(), "updated", true));
                 return;
             }
@@ -112,7 +226,7 @@ public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, Learn
         mistake.setLastReviewTime(LocalDateTime.now());
         this.save(mistake);
         // Learning Event System（Phase 1）：新错题归集事件
-        learningEventService.record(userId, LearningEventType.MISTAKE, "MISTAKE", mistake.getId(),
+        learningEventService.recordRequired(userId, LearningEventType.MISTAKE.name(), "MISTAKE", mistake.getId(),
                 Map.of("source", mistake.getSource() == null ? "" : mistake.getSource(), "updated", false));
     }
 
@@ -184,6 +298,8 @@ public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, Learn
         mistake.setCategory("代码练习");
         mistake.setSource("code:" + lang + ":" + (type.isEmpty() ? "unknown" : type) + ":"
                 + (req.getQuestionId() == null ? "sandbox" : req.getQuestionId()));
+        // Phase 0：记录原代码题ID，打通 错题→原题→知识点→掌握度→再练习 闭环
+        mistake.setCodeQuestionId(req.getQuestionId());
         if (req.getQuestionId() != null) {
             com.knowflow.entity.CodeQuestion q = codeQuestionMapper.selectById(req.getQuestionId());
             if (q != null) {
@@ -199,6 +315,10 @@ public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, Learn
         if (exist != null) {
             exist.setWrongAnswer(mistake.getWrongAnswer());
             exist.setSource(mistake.getSource());
+            // Phase 0：回填原代码题ID（旧数据初次归集时补全，可空）
+            if (mistake.getCodeQuestionId() != null) {
+                exist.setCodeQuestionId(mistake.getCodeQuestionId());
+            }
             exist.setReviewCount((exist.getReviewCount() == null ? 0 : exist.getReviewCount()) + 1);
             exist.setMastered(0);
             exist.setLastReviewTime(LocalDateTime.now());
@@ -250,6 +370,7 @@ public class MistakeServiceImpl extends ServiceImpl<LearningMistakeMapper, Learn
             String rawKw = (type.isEmpty() ? error : type);
             final String kw = rawKw.length() > 20 ? rawKw.substring(0, 20) : rawKw;
             LambdaQueryWrapper<DocDocument> w = new LambdaQueryWrapper<>();
+            documentAccess.scope(w,documentAccess.actor());
             w.and(q -> q.like(DocDocument::getTitle, kw)
                     .or().like(DocDocument::getContent, kw)
                     .or().like(DocDocument::getTags, kw));

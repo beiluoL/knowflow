@@ -1,9 +1,13 @@
 <template>
-  <!-- 智能写作页：模板选择 + 左侧写作配置 + 右侧编辑器，支持 AI 生成/评分与本地草稿自动保存 -->
-  <div class="smart-writing-page animate-fade-in no-print">
-    <!-- ===== Row 1: 标题 + 操作 ===== -->
+  <MiniAppShell
+    title="智能写作"
+    back-label="返回"
+    :knowledge-name="contextKnowledgeName"
+    @back="goBack"
+  >
+    <div class="smart-writing-page animate-fade-in no-print">
+    <!-- ===== Row 1: 操作（标题由外壳提供） ===== -->
     <div class="page-header">
-      <h1 class="kb-h1">智能写作</h1>
       <div class="header-actions">
         <button type="button" class="btn-secondary" @click="showPreviewModal = true">
           <Icon name="eye" :size="16" />
@@ -56,6 +60,10 @@
             <CategoryTreeSelect
               v-model="config.kb"
               :categories="categories"
+              aria-label="目标知识库"
+              :loading="categoriesLoading"
+              :load-error="categoriesError"
+              @retry="loadCategories"
               placeholder="请选择知识库"
               empty-label="请选择知识库"
             />
@@ -63,19 +71,12 @@
           <!-- 写作风格 -->
           <div>
             <label class="form-label">写作风格</label>
-            <select v-model="config.style" class="form-select">
-              <option value="professional">专业</option>
-              <option value="concise">简洁</option>
-              <option value="detailed">详细</option>
-            </select>
+            <Select v-model="config.style" :options="[{ value: 'professional', label: '专业' }, { value: 'concise', label: '简洁' }, { value: 'detailed', label: '详细' }]" aria-label="写作风格" />
           </div>
           <!-- 语言 -->
           <div>
             <label class="form-label">语言</label>
-            <select v-model="config.language" class="form-select">
-              <option value="zh">中文</option>
-              <option value="en">English</option>
-            </select>
+            <Select v-model="config.language" :options="[{ value: 'zh', label: '中文' }, { value: 'en', label: 'English' }]" aria-label="写作语言" />
           </div>
           <!-- 字数目标 -->
           <div>
@@ -87,7 +88,7 @@
                 min="100"
                 max="10000"
                 step="100"
-                class="form-input"
+                class="form-input kb-input kb-form-control"
               />
               <span class="word-target-suffix">字</span>
             </div>
@@ -118,14 +119,14 @@
       </aside>
 
       <!-- 右侧：编辑器卡片 -->
-      <div class="editor-card">
+      <div class="editor-card kb-input-surface">
         <!-- 标题输入 -->
         <div class="title-area">
           <input
             v-model="title"
             type="text"
             placeholder="输入文档标题…"
-            class="title-input"
+            class="title-input kb-input kb-form-control"
           />
         </div>
         <!-- 工具栏 -->
@@ -245,7 +246,7 @@
             <Icon name="sparkles" :size="18" />
             <span>AI 写作评分</span>
           </h3>
-          <button type="button" class="modal-close" @click="showScoreModal = false">
+          <button type="button" class="modal-close" aria-label="关闭评分结果" @click="showScoreModal = false">
             <Icon name="x" :size="20" />
           </button>
         </div>
@@ -257,6 +258,7 @@
           </div>
           <!-- 评分结果 -->
           <div v-else-if="scoreResult" class="score-result">
+            <p class="kb-text-caption">AI 写作建议，仅针对本次文章；不作为客观考试成绩或掌握度证据。</p>
             <!-- 总分卡 -->
             <div class="score-summary" :style="{ background: scoreBgColor }">
               <div class="score-number">
@@ -299,7 +301,7 @@
               </ul>
             </div>
           </div>
-          <div v-else class="score-empty">评分结果加载失败，请重试</div>
+          <div v-else class="score-empty"><p role="alert">{{ scoreError || '评分结果加载失败，请重试' }}</p><Button data-test="writing-score-retry" @click="scoreWithAI">重新评分</Button></div>
         </div>
       </div>
     </div>
@@ -307,17 +309,43 @@
     <!-- 打印专用区域（仅导出 PDF 时可见） -->
     <div id="print-area" class="print-only" v-html="renderedMarkdown"></div>
   </div>
+</MiniAppShell>
 </template>
 
 <script setup lang="ts">
 // 智能写作页：Markdown 写作编辑器，支持模板套用、AI 生成/评分、字数统计与本地草稿自动保存。
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { parseWritingScore, type WritingScore as ScoreResult } from '@/writing/score';
 import { notify, getApiError } from '@/utils/toast';
+import Select from '@/components/ui/Select.vue'
 import Icon from '@/components/ui/Icon.vue';
+import Button from '@/components/ui/Button.vue';
 import CategoryTreeSelect from '@/components/ui/CategoryTreeSelect.vue';
 import { categoriesApi } from '@/api/categories';
 import { chatApi } from '@/api/chat';
 import type { CategoryVO } from '@/api/types';
+import { useRouter, useRoute } from 'vue-router'
+import MiniAppShell from '@/components/layout/MiniAppShell.vue'
+
+const router = useRouter()
+const route = useRoute()
+
+/**
+ * UI/UX 5.1 §八：智能写作真实消费的知识点上下文。
+ * 由 NextAction 深链带入（`?knowledgeId=N&knowledgeName=...`），经 `LEARNING_ENTRY_CONTEXT`
+ * 白名单校验；无上下文时返回 undefined → MiniAppShell 不渲染上下文条（不造假信息）。
+ */
+const contextKnowledgeName = computed<string | undefined>(() => {
+  const name = route.query.knowledgeName
+  if (typeof name === 'string' && name) return name
+  const kid = Number(route.query.knowledgeId)
+  return Number.isFinite(kid) && kid > 0 ? `知识点 #${kid}` : undefined
+})
+
+function goBack() {
+  if (window.history.length > 1) router.back()
+  else router.push('/learning/center')
+}
 
 // ===== 类型定义 =====
 interface Draft {
@@ -326,22 +354,6 @@ interface Draft {
   content: string;
   date: string;
   wordCount: number;
-}
-
-interface ScoreDimension {
-  name: string;
-  score: number;
-  color: string;
-  comment: string;
-}
-
-interface ScoreResult {
-  score: number;
-  grade: string;
-  gradeDescription: string;
-  overallComment: string;
-  dimensions: ScoreDimension[];
-  suggestions: string[];
 }
 
 interface Template {
@@ -404,10 +416,12 @@ const currentTemplate = ref('技术文档');
 const showPreviewModal = ref(false);
 const showScoreModal = ref(false);
 const scoring = ref(false);
+const scoreError = ref('');
 const autosaved = ref(false);
 const aiGenerating = ref(false);
 const scoreResult = ref<ScoreResult | null>(null);
 const categories = ref<CategoryVO[]>([]);
+const categoriesLoading=ref(false),categoriesError=ref('');
 const contentRef = ref<HTMLTextAreaElement | null>(null);
 
 // 写作配置
@@ -446,26 +460,22 @@ const scoreBgColor = computed(() => {
 });
 
 const scoreTextColor = computed(() => {
-  if (!scoreResult.value) return '#3B6FE0';
+  if (!scoreResult.value) return 'var(--kb-primary)';
   const s = scoreResult.value.score;
-  if (s >= 90) return '#10B981';
-  if (s >= 80) return '#3B6FE0';
-  if (s >= 60) return '#F59E0B';
-  return '#EF4444';
+  if (s >= 90) return 'var(--kb-success)';
+  if (s >= 80) return 'var(--kb-primary)';
+  if (s >= 60) return 'var(--kb-warning)';
+  return 'var(--kb-danger)';
 });
 
 const renderedMarkdown = computed(() => renderMarkdown(content.value));
 
+// 选择器独立展示真实加载、错误与重试；不改变选中ID或写作配置。
+async function loadCategories(){categoriesLoading.value=true;categoriesError.value='';try{categories.value=await categoriesApi.tree()}catch(e){categoriesError.value=getApiError(e,'知识库加载失败')}finally{categoriesLoading.value=false}}
+
 // ===== 生命周期 =====
 onMounted(async () => {
-  // 加载分类列表
-  try {
-    const res = await categoriesApi.tree();
-    categories.value = res || [];
-  } catch (e) {
-    // 分类加载失败不阻塞页面，仅记录
-    console.warn(getApiError(e, '分类加载失败'));
-  }
+  void loadCategories();
   // 启动自动保存定时器（每 15 秒保存一次）
   autosaveTimer = setInterval(() => {
     if (content.value.trim()) upsertDraft(false);
@@ -662,6 +672,7 @@ ${content.value.trim() ? `- 已有内容（请在此基础上扩展或补充）�
 
 // 调用 AI 对当前文章评分（结构化评分：总分+维度+建议）
 async function scoreWithAI(): Promise<void> {
+  if (scoring.value) return;
   if (!content.value.trim()) {
     notify('内容为空，无法评分', 'warning');
     return;
@@ -669,6 +680,7 @@ async function scoreWithAI(): Promise<void> {
   scoring.value = true;
   showScoreModal.value = true;
   scoreResult.value = null;
+  scoreError.value = '';
   try {
     const res = await chatApi.send({
       content: `你是一位严格的中文写作老师，请对下面这篇文章进行结构化评分。输出格式必须是 JSON，包含以下字段：
@@ -676,7 +688,7 @@ async function scoreWithAI(): Promise<void> {
         - grade: 等级（A+/A/B+/B/C/D）
         - gradeDescription: 等级描述（如"优秀"、"良好"、"中等"、"及格"、"需改进"）
         - overallComment: 总体评价（50字以内）
-        - dimensions: 数组，每个元素包含 name(维度名)、score(0-100)、color(颜色代码)、comment(简短评价)。维度包括：内容质量、结构逻辑、语言表达、原创性。颜色参考：优秀用#10B981，良好用#3B6FE0，中等用#F59E0B，需改进用#EF4444
+        - dimensions: 数组，每个元素包含 name(维度名)、score(0-100)、color(颜色代码)、comment(简短评价)。维度包括：内容质量、结构逻辑、语言表达、原创性。颜色参考：优秀用var(--kb-success)，良好用var(--kb-primary)，中等用var(--kb-warning)，需改进用var(--kb-danger)
         - suggestions: 改进建议数组，3条具体建议
 
         文章：
@@ -686,77 +698,12 @@ async function scoreWithAI(): Promise<void> {
     } as never);
     const contentText = res && (res as { content?: string }).content;
     if (!contentText) throw new Error('AI 未返回评分结果');
-    // 尝试解析 JSON，若失败则降级为模拟评分
-    try {
-      const json = JSON.parse(contentText);
-      scoreResult.value = {
-        score: parseInt(json.score) || 75,
-        grade: json.grade || 'B',
-        gradeDescription: json.gradeDescription || '良好',
-        overallComment: json.overallComment || '文章结构清晰，内容充实。',
-        dimensions: json.dimensions || defaultDimensions(),
-        suggestions: json.suggestions || ['建议增加更多案例支撑论点', '优化段落过渡', '提升语言表达的精炼度'],
-      };
-    } catch {
-      scoreResult.value = generateMockScore(content.value.length);
-    }
-  } catch {
-    scoreResult.value = generateMockScore(content.value.length);
-    notify('AI 评分服务暂不可用，已使用模拟评分', 'info');
+    scoreResult.value = parseWritingScore(contentText);
+  } catch (error) {
+    scoreError.value = getApiError(error, 'AI 评分失败，请重试；本次未生成评分。');
   } finally {
     scoring.value = false;
   }
-}
-
-function defaultDimensions(): ScoreDimension[] {
-  return [
-    { name: '内容质量', score: 75, color: '#3B6FE0', comment: '内容较充实' },
-    { name: '结构逻辑', score: 80, color: '#10B981', comment: '结构清晰' },
-    { name: '语言表达', score: 70, color: '#F59E0B', comment: '表达较流畅' },
-    { name: '原创性', score: 75, color: '#3B6FE0', comment: '有个人见解' },
-  ];
-}
-
-// 模拟评分（AI 不可用时的降级方案）
-function generateMockScore(wordCount: number): ScoreResult {
-  const baseScore = Math.min(95, Math.max(60, 65 + Math.floor(wordCount / 50)));
-  const variance = Math.floor(Math.random() * 10) - 5;
-  const finalScore = Math.max(60, Math.min(100, baseScore + variance));
-
-  let grade = 'B';
-  let gradeDesc = '良好';
-  if (finalScore >= 90) { grade = 'A+'; gradeDesc = '优秀'; }
-  else if (finalScore >= 85) { grade = 'A'; gradeDesc = '良好'; }
-  else if (finalScore >= 75) { grade = 'B+'; gradeDesc = '中等偏上'; }
-  else if (finalScore >= 60) { grade = 'B'; gradeDesc = '及格'; }
-  else { grade = 'C'; gradeDesc = '需改进'; }
-
-  const dims: ScoreDimension[] = [
-    { name: '内容质量', score: finalScore + Math.floor(Math.random() * 6) - 3, color: getDimColor(finalScore), comment: finalScore >= 80 ? '内容充实' : '内容尚可' },
-    { name: '结构逻辑', score: finalScore + Math.floor(Math.random() * 4) - 2, color: getDimColor(finalScore + 2), comment: finalScore >= 80 ? '逻辑清晰' : '结构基本合理' },
-    { name: '语言表达', score: finalScore + Math.floor(Math.random() * 8) - 4, color: getDimColor(finalScore - 2), comment: finalScore >= 80 ? '表达流畅' : '语言较通顺' },
-    { name: '原创性', score: finalScore + Math.floor(Math.random() * 10) - 5, color: getDimColor(finalScore), comment: finalScore >= 80 ? '观点新颖' : '有个人思考' },
-  ];
-
-  return {
-    score: finalScore,
-    grade,
-    gradeDescription: gradeDesc,
-    overallComment: `文章${gradeDesc}，${finalScore >= 80 ? '建议继续保持并精益求精。' : '建议继续提升内容深度和表达能力。'}`,
-    dimensions: dims.map(d => ({ ...d, score: Math.max(0, Math.min(100, d.score)) })),
-    suggestions: [
-      finalScore < 90 ? '增加更多具体案例支撑论点' : '考虑加入更多元视角分析',
-      finalScore < 85 ? '优化段落之间的过渡衔接' : '尝试更精炼的表达方式',
-      finalScore < 80 ? '提升语言表达的准确性和丰富度' : '注意细节的打磨和润色',
-    ],
-  };
-}
-
-function getDimColor(score: number): string {
-  if (score >= 85) return '#10B981';
-  if (score >= 75) return '#3B6FE0';
-  if (score >= 60) return '#F59E0B';
-  return '#EF4444';
 }
 
 // ===== Markdown 渲染 / 导出 =====
@@ -1046,20 +993,23 @@ function printPdf(): void {
   outline-offset: 2px;
 }
 
-.form-input {
-  width: 100%;
+.form-input:not(.kb-form-control) {
   height: 36px;
-  padding: 0 12px;
   border-radius: var(--kb-radius-sm);
-  font-size: 14px;
   background: var(--kb-card);
-  color: var(--kb-foreground);
   border: 1px solid var(--kb-border);
   outline: none;
   transition: border-color 0.15s;
 }
-.form-input:focus { border-color: var(--kb-ring); }
-.form-input:focus-visible {
+
+.form-input {
+  width: 100%;
+  padding: 0 12px;
+  font-size: 14px;
+  color: var(--kb-foreground);
+}
+.form-input:not(.kb-form-control):focus { border-color: var(--kb-ring); }
+.form-input:not(.kb-form-control):focus-visible {
   outline: 2px solid var(--kb-ring);
   outline-offset: 2px;
 }
@@ -1135,19 +1085,21 @@ function printPdf(): void {
   padding: 16px 20px 8px;
   border-bottom: 1px solid var(--kb-border);
 }
+.title-input:not(.kb-form-control) {
+  background: transparent;
+  border: none;
+  outline: none;
+}
 .title-input {
   width: 100%;
   font-size: 18px;
   font-weight: 600;
-  background: transparent;
-  border: none;
-  outline: none;
   color: var(--kb-foreground);
 }
 .title-input::placeholder { color: var(--kb-muted-foreground); }
-.title-input:focus-visible {
-  outline: 2px solid var(--kb-ring);
-  outline-offset: 2px;
+.title-input:not(.kb-form-control):focus-visible {
+  outline: none;
+  box-shadow: none;
   border-radius: var(--kb-radius-sm);
 }
 
@@ -1182,13 +1134,15 @@ function printPdf(): void {
 }
 
 /* 文本编辑区 */
+.content-textarea:not(.kb-form-control) {
+  background: transparent;
+  border: none;
+  outline: none;
+}
 .content-textarea {
   flex: 1;
   width: 100%;
   padding: 16px 20px;
-  background: transparent;
-  border: none;
-  outline: none;
   resize: none;
   font-size: 14px;
   line-height: 1.7;
@@ -1196,9 +1150,9 @@ function printPdf(): void {
   font-family: var(--font-sans, inherit);
 }
 .content-textarea::placeholder { color: var(--kb-muted-foreground); }
-.content-textarea:focus-visible {
-  outline: 2px solid var(--kb-ring);
-  outline-offset: 2px;
+.content-textarea:not(.kb-form-control):focus-visible {
+  outline: none;
+  box-shadow: none;
   border-radius: var(--kb-radius-sm);
 }
 
@@ -1490,7 +1444,7 @@ function printPdf(): void {
   margin-bottom: 12px;
   color: #92400e;
 }
-.score-suggestions h4 svg { color: #f59e0b; }
+.score-suggestions h4 svg { color: var(--kb-warning); }
 .suggestion-list { display: flex; flex-direction: column; gap: 8px; }
 .suggestion-item {
   display: flex;

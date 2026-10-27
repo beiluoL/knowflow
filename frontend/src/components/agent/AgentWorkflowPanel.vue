@@ -102,15 +102,17 @@ async function toggleEnabled(wf: AgentWorkflowVO) {
 }
 
 async function remove(wf: AgentWorkflowVO) {
-  const ok = await confirmDialog(`确定删除工作流「${wf.name}」？`)
-  if (!ok) return
-  try {
-    await codeAgentApi.deleteWorkflow(wf.id)
-    notify('已删除', 'success')
-    await load()
-  } catch (e: unknown) {
-    notify(getApiError(e, '删除失败'), 'error')
-  }
+  await confirmDialog(`确定删除工作流「${wf.name}」？`, { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          try {
+              await codeAgentApi.deleteWorkflow(wf.id);
+              notify('已删除', 'success');
+              await load();
+          }
+          catch (e: unknown) {
+              notify(getApiError(e, '删除失败'), 'error');
+              throw e;
+          }
+      } });
 }
 
 function toPayload(wf: AgentWorkflowVO): AgentWorkflowPayload {
@@ -176,11 +178,11 @@ onMounted(load)
         <div class="wf-modal-title">{{ editing ? '编辑工作流' : '新建工作流' }}</div>
         <label class="wf-field">
           <span>名称</span>
-          <input v-model="form.name" placeholder="如：审查代码风格" maxlength="100" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
+          <input v-model="form.name" placeholder="如：审查代码风格" maxlength="100" class="transition-colors kb-input kb-form-control" />
         </label>
         <label class="wf-field">
           <span>触发方式</span>
-          <select v-model="form.triggerType" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+          <select v-model="form.triggerType" class="transition-colors kb-select kb-form-control">
             <option value="keyword">关键词（消息含关键词即生效）</option>
             <option value="intent">按意图（兜底按关键词匹配）</option>
             <option value="manual">手动（仅手动触发）</option>
@@ -188,11 +190,11 @@ onMounted(load)
         </label>
         <label v-if="form.triggerType !== 'manual'" class="wf-field">
           <span>触发值（逗号分隔）</span>
-          <input v-model="form.triggerValue" placeholder="如：审查,review,优化" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
+          <input v-model="form.triggerValue" placeholder="如：审查,review,优化" class="transition-colors kb-input kb-form-control" />
         </label>
         <label class="wf-field">
           <span>Prompt 模板</span>
-          <textarea v-model="form.promptTemplate" rows="6" placeholder="在回答时遵循以下约定：{input} 为用户需求" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"></textarea>
+          <textarea v-model="form.promptTemplate" rows="6" placeholder="在回答时遵循以下约定：{input} 为用户需求" class="transition-colors kb-textarea kb-form-control"></textarea>
         </label>
         <div class="wf-modal-actions">
           <Button size="sm" variant="ghost" @click="showForm = false">取消</Button>

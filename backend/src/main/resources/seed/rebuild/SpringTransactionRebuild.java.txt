@@ -1,0 +1,25 @@
+import org.springframework.context.annotation.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.*;
+import org.springframework.transaction.*;
+import org.springframework.transaction.annotation.*;
+import javax.sql.DataSource;
+public class SpringTransactionRebuild {
+    @Configuration @EnableTransactionManagement(proxyTargetClass=true)
+    static class Config {
+        @Bean DataSource dataSource(){return new DriverManagerDataSource("jdbc:h2:mem:tx_rebuild;DB_CLOSE_DELAY=-1","sa","");}
+        @Bean JdbcTemplate jdbc(DataSource d){return new JdbcTemplate(d);}
+        @Bean PlatformTransactionManager transactionManager(DataSource d){return new DataSourceTransactionManager(d);}
+        @Bean Service service(JdbcTemplate j){return new Service(j);}
+    }
+    public static class Service {
+        final JdbcTemplate jdbc;public Service(JdbcTemplate j){jdbc=j;}
+        @Transactional public void external(){jdbc.update("insert into sample values(1)");throw new IllegalStateException("rollback");}
+        public void self(){external();}
+    }
+    public static void main(String[] args){try(var context=new AnnotationConfigApplicationContext(Config.class)){
+        var j=context.getBean(JdbcTemplate.class);j.execute("create table sample(id int)");var s=context.getBean(Service.class);
+        try{s.external();}catch(IllegalStateException expected){}System.out.println("external="+j.queryForObject("select count(*) from sample",Integer.class));
+        try{s.self();}catch(IllegalStateException expected){}System.out.println("self="+j.queryForObject("select count(*) from sample",Integer.class));
+    }}
+}

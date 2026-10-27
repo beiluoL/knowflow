@@ -23,6 +23,7 @@ import com.knowflow.vo.TaskVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,18 +44,25 @@ import java.util.stream.Collectors;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskMapper taskMapper;
+    private final com.fasterxml.jackson.databind.ObjectMapper taskJson;
     private final TaskListMapper taskListMapper;
     private final TaskTagMapper taskTagMapper;
     private final TaskTagRelMapper taskTagRelMapper;
+    private final com.knowflow.learning.actions.LearningWriteGuard learningGuard;
 
     // ===== 智能列表 =====
 
     @Override
     public List<TaskVO> listBySmartList(Long userId, String smart) {
+        return listBySmartList(userId,smart,java.time.ZoneId.systemDefault());
+    }
+
+    @Override
+    public List<TaskVO> listBySmartList(Long userId,String smart,java.time.ZoneId zone) {
         List<Task> all = allTasks(userId);
         List<TaskVO> roots = buildTree(all);
         fillTags(roots, userId);
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(zone);
         return roots.stream()
                 .filter(t -> matchSmart(t, smart, today))
                 .collect(Collectors.toList());
@@ -106,8 +114,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public void updateTask(Long userId, Long id, TaskDTO dto) {
-        Task t = ownedTask(userId, id);
+        Task t = lockedOwnedTask(userId, id);
+        if (dto.getStatus() != null || dto.getStage() != null) {
+            learningGuard.requireManualTransition(t, dto.getStatus(), dto.getStage());
+        }
         if (dto.getTitle() != null) t.setTitle(dto.getTitle().trim());
         if (dto.getListId() != null) t.setListId(dto.getListId());
         if (dto.getParentId() != null) t.setParentId(dto.getParentId() > 0 ? dto.getParentId() : 0L);
@@ -137,8 +149,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public void setStatus(Long userId, Long id, Integer status) {
-        Task t = ownedTask(userId, id);
+        Task t = lockedOwnedTask(userId, id);
+        learningGuard.requireManualTransition(t, status, null);
         t.setStatus(status);
         taskMapper.updateById(t);
     }
@@ -160,11 +174,13 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
     public void updateStage(Long userId, Long id, Integer stage) {
         if (stage == null || stage < 0 || stage > 2) {
-            throw new BusinessException("非法的看板阶段");
+            throw new BusinessException(400, "非法的看板阶段");
         }
-        Task t = ownedTask(userId, id);
+        Task t = lockedOwnedTask(userId, id);
+        learningGuard.requireManualTransition(t, stage == 2 ? 1 : 0, stage);
         t.setStage(stage);
         // 看板「已完成」列与 status 完成态保持同步：拖到已完成即标记完成，拖出则回到待办
         t.setStatus(stage == 2 ? 1 : 0);
@@ -281,15 +297,23 @@ public class TaskServiceImpl implements TaskService {
     private Task ownedTask(Long userId, Long id) {
         Task t = taskMapper.selectById(id);
         if (t == null || t.getDeleted() != null && t.getDeleted() == 1 || !userId.equals(t.getUserId())) {
-            throw new BusinessException("任务不存在");
+            throw new BusinessException(404, "任务不存在");
         }
         return t;
+    }
+
+    /** 先保留原私有404合同，再锁定当前行，防止证明回写与手动撤销交错。 */
+    private Task lockedOwnedTask(Long userId, Long id) {
+        ownedTask(userId, id);
+        Task current = taskMapper.lockOwned(id, userId);
+        if (current == null) throw new BusinessException(404, "任务不存在");
+        return current;
     }
 
     private TaskList ownedList(Long userId, Long id) {
         TaskList l = taskListMapper.selectById(id);
         if (l == null || l.getDeleted() != null && l.getDeleted() == 1 || !userId.equals(l.getUserId())) {
-            throw new BusinessException("清单不存在");
+            throw new BusinessException(404, "清单不存在");
         }
         return l;
     }
@@ -346,6 +370,14 @@ public class TaskServiceImpl implements TaskService {
     private TaskVO toVO(Task t) {
         TaskVO vo = new TaskVO();
         vo.setId(t.getId());
+        vo.setLearningPlanRef(t.getLearningPlanRef());
+        if (t.getLearningMetadata() != null || t.getLearningPlanRef() != null) {
+            vo.setCompletionRequirement(learningGuard.completionRequirement(t));
+        }
+        if(t.getLearningMetadata()!=null){
+            try{var meta=taskJson.readTree(t.getLearningMetadata());if(!meta.path("estimatedMinutes").isIntegralNumber()||meta.path("estimatedMinutes").asInt()<1||meta.path("estimatedMinutes").asInt()>720)throw new IllegalArgumentException();vo.setEstimatedMinutes(meta.path("estimatedMinutes").asInt());}
+            catch(Exception ex){throw new BusinessException(500,"任务学习元数据损坏");}
+        }
         vo.setListId(t.getListId());
         vo.setParentId(t.getParentId() == null ? 0L : t.getParentId());
         vo.setTitle(t.getTitle());
@@ -408,6 +440,7 @@ public class TaskServiceImpl implements TaskService {
         qw.eq("user_id", userId).eq("deleted", 0)
                 .orderByAsc("sort_order").orderByAsc("id");
         List<TaskTag> tags = taskTagMapper.selectList(qw);
+        if (tags.isEmpty()) return List.of();
         // 统计每个标签关联任务数
         List<TaskTagRel> allRels = taskTagRelMapper.selectList(new QueryWrapper<TaskTagRel>()
                 .eq("deleted", 0).in("tag_id", tags.stream().map(TaskTag::getId).toList()));
@@ -466,7 +499,7 @@ public class TaskServiceImpl implements TaskService {
     private TaskTag ownedTag(Long userId, Long id) {
         TaskTag tag = taskTagMapper.selectById(id);
         if (tag == null || tag.getDeleted() != null && tag.getDeleted() == 1 || !userId.equals(tag.getUserId())) {
-            throw new BusinessException("标签不存在");
+            throw new BusinessException(404, "标签不存在");
         }
         return tag;
     }
@@ -542,7 +575,7 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
-    /** 覆盖式同步：先删旧关联，再按 tagIds 建新关联（去重）。 */
+    /** 覆盖式同步：逻辑删除旧关联，复用唯一键对应的历史行（去重）。 */
     private void syncTags(Long taskId, List<Long> tagIds, Long userId) {
         // 清理旧关联
         UpdateWrapper<TaskTagRel> uw = new UpdateWrapper<>();
@@ -554,6 +587,8 @@ public class TaskServiceImpl implements TaskService {
         List<TaskTag> owned = taskTagMapper.selectList(new QueryWrapper<TaskTag>()
                 .eq("user_id", userId).eq("deleted", 0).in("id", unique));
         for (TaskTag tag : owned) {
+            // deleted=1 仍占用 (task_id, tag_id) 唯一键，不能重复插入。
+            if (taskTagRelMapper.restoreDeleted(taskId, tag.getId()) > 0) continue;
             TaskTagRel rel = new TaskTagRel();
             rel.setTaskId(taskId);
             rel.setTagId(tag.getId());

@@ -1,327 +1,474 @@
 <template>
-  <div class="home-container">
-    <section class="welcome-banner">
-      <div class="banner-bg">
-        <div class="banner-grid"></div>
-        <div class="banner-blur"></div>
-        <div class="banner-blur-warm"></div>
+  <div class="home-container ui-v2-home">
+    <!-- ══════════ 顶部：欢迎语（§七：降低视觉权重，不再用巨大 Hero Banner 占据首屏）══════════ -->
+    <header class="home-greeting">
+      <div class="home-greeting-main">
+        <p class="home-eyebrow">学习工作台</p>
+        <h1 class="home-greeting-title">{{ greeting }}，{{ userName }}</h1>
+        <p class="home-greeting-sub">{{ todayStr }}</p>
       </div>
-      <div class="banner-content">
-        <div class="banner-header">
-          <div class="welcome-info">
-            <span class="welcome-badge">
-              <Icon name="sun" :size="14" />
-              {{ todayStr }}
-            </span>
-            <h1 class="welcome-title">{{ greeting }}，{{ userName }}！</h1>
-            <p class="welcome-tagline">{{ dynamicTagline }}</p>
-            <div class="welcome-stats">
-              <div class="stat-pill">
-                <Icon name="clock" :size="14" />
-                <span class="stat-value tabular-nums">{{ studyHoursDisplay }}</span>
-                <span class="stat-unit">小时</span>
-              </div>
-              <div class="stat-pill">
-                <Icon name="target" :size="14" />
-                <span class="stat-value tabular-nums">{{ readDocsDisplay }}</span>
-                <span class="stat-unit">篇文档</span>
-              </div>
-              <div v-if="streakDays > 0" class="stat-pill highlight-badge">
-                <Icon name="flame" :size="14" />
-                <span class="stat-value tabular-nums">{{ streakDaysDisplay }}</span>
-                <span class="stat-unit">天连击</span>
-              </div>
-            </div>
-          </div>
-          <div class="banner-cta">
-            <router-link :to="dynamicCta.primary.path" class="action-btn primary">
-              <Icon :name="dynamicCta.primary.icon" :size="16" />
-              <span>{{ dynamicCta.primary.text }}</span>
-            </router-link>
-            <router-link :to="dynamicCta.secondary.path" class="action-btn secondary">
-              <Icon :name="dynamicCta.secondary.icon" :size="16" />
-              <span>{{ dynamicCta.secondary.text }}</span>
-            </router-link>
-            <router-link to="/learning/focus" class="action-btn focus">
-              <Icon name="zap" :size="16" />
-              <span>沉浸工作台</span>
-            </router-link>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="progress-section reveal-item" style="--reveal-index: 1;">
-      <div class="section-header">
-        <h2 class="section-title">今日学习进度</h2>
-        <span class="section-tag">
-          <Icon name="trending-up" :size="14" />
-          坚持学习
+      <div class="home-greeting-aside">
+      <StudioVisual />
+      <div class="home-greeting-meta">
+        <span v-if="streakDays > 0" class="meta-pill">
+          <Icon name="flame" :size="14" />
+          <span class="tabular-nums">{{ streakDaysDisplay }}</span>
+          <span>天连击</span>
+        </span>
+        <span v-if="auth.isLoggedIn && wallet" class="meta-pill">
+          <Icon name="coins" :size="14" />
+          <span class="tabular-nums">{{ formatCoin(wallet) }}</span>
+          <span>Coin</span>
+        </span>
+        <span v-if="auth.isLoggedIn && wallet" class="meta-pill">
+          <Icon name="zap" :size="14" />
+          <span class="tabular-nums">{{ wallet.xp }}</span>
+          <span>XP · Lv{{ wallet.level }}</span>
         </span>
       </div>
-      <div class="progress-cards">
-        <div class="progress-card course-progress reveal-item" style="--reveal-index: 2;">
-          <div class="card-header">
-            <Icon name="book-open" :size="14" />
-            <span class="card-label">当前课程进度</span>
-          </div>
-          <div class="progress-ring-container">
-            <svg class="progress-ring" width="80" height="80">
-              <circle class="progress-ring-bg" cx="40" cy="40" r="34"></circle>
-              <circle class="progress-ring-fill" cx="40" cy="40" r="34" :stroke-dasharray="ringCircumference" :stroke-dashoffset="ringOffset"></circle>
-            </svg>
-            <div class="ring-center">
-              <span class="ring-value tabular-nums">{{ courseProgress }}%</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <h3 class="card-title">{{ currentCourse.title }}</h3>
-            <p class="card-subtitle">{{ currentCourse.subtitle }}</p>
-            <button class="card-action">
-              <Icon name="arrow-right" :size="12" />
-              <span>继续学习</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="progress-card streak-progress reveal-item" style="--reveal-index: 3;">
-          <div class="card-header">
-            <Icon name="flame" :size="14" />
-            <span class="card-label">连续学习天数</span>
-          </div>
-          <div class="streak-display">
-            <span class="streak-number tabular-nums">{{ streakDays }}</span>
-            <span class="streak-unit">天</span>
-            <span class="streak-badge">
-              <Icon name="trending-up" :size="12" />
-              坚持中
-            </span>
-          </div>
-          <div class="streak-calendar">
-            <div v-for="(d, i) in weekdays" :key="i" class="day-item">
-              <div class="day-dot" :class="{ active: d.active }"></div>
-              <span class="day-label">{{ d.label }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="progress-card mastery-progress reveal-item" style="--reveal-index: 4;">
-          <div class="card-header">
-            <Icon name="brain" :size="14" />
-            <span class="card-label">知识掌握度</span>
-          </div>
-          <div class="mastery-display">
-            <span class="mastery-number tabular-nums">{{ masteryPoints }}</span>
-            <span class="mastery-unit">个知识点</span>
-          </div>
-          <p class="mastery-percent tabular-nums">已掌握 {{ masteryPercent }}%</p>
-          <div class="mastery-bar">
-            <div class="mastery-fill" :style="`width: ${masteryPercent}%`"></div>
-          </div>
-          <div class="mastery-meta">
-            <span>已掌握 {{ masteryPercent }}%</span>
-            <span>目标 {{ masteryTarget }}</span>
-          </div>
-        </div>
       </div>
-    </section>
+    </header>
 
-    <section class="todos-section reveal-item" style="--reveal-index: 5;">
-      <div class="section-header">
-        <h2 class="section-title">今日待办与计划</h2>
-        <span class="section-badge">已完成 {{ doneTasks }} / {{ tasks.length }}</span>
-      </div>
-      <div class="todos-grid">
-        <div class="todos-list">
-          <div v-for="task in tasks.slice(0, 5)" :key="task.id" class="todo-item" :class="{ done: task.status === 1 }">
-            <button class="todo-check" :aria-label="task.status === 1 ? '标记为未完成' : '标记为已完成'" @click="toggleTaskStatus(task)">
-              <Icon v-if="task.status === 1" name="check" :size="12" />
-            </button>
-            <div class="todo-content">
-              <h4 class="todo-title">{{ task.title }}</h4>
-              <p v-if="task.description" class="todo-desc">{{ task.description }}</p>
-            </div>
-            <span class="todo-status" :class="getStatusClass(task)">
-              <Icon v-if="task.status === 1" name="check-circle-2" :size="12" />
-              <Icon v-else-if="task.deadline" name="clock" :size="12" />
-              {{ getStatusText(task) }}
-            </span>
-          </div>
-          <div v-if="tasks.length === 0" class="empty-state">
-            <Icon name="list-checks" :size="24" />
-            <router-link to="/learning/center" class="empty-state-link">暂无待办，去学习中心添加计划吧</router-link>
+
+    <!-- 整体加载失败：只影响学习数据区块，给出明确错误与重试（§十七） -->
+    <!-- UI/UX 5.1 §六：补齐「是否影响当前页面 / 怎么解决」，不再只给一句「学习数据加载失败」 -->
+    <StateView
+      v-if="learning.error"
+      status="error"
+      error-title="学习数据加载失败"
+      :error-description="learning.error"
+      error-scope="只是学习相关的区块没加载出来，游览其他页面不受影响。"
+      error-hint="稍后重试；若持续出现请联系管理员。"
+      @retry="reloadLearning"
+    />
+
+    <template v-else>
+      <!-- UI/UX 5.1 §四：首屏加载用**内容形态**骨架（目标条 → 下一步卡 → 今日任务 → 路径）
+           而不是一个居中转圈 —— 让用户先看到「这一页大概长什么样」。 -->
+      <template v-if="learning.loading && !learning.loaded">
+        <div class="home-skeleton" aria-busy="true" aria-label="首页内容加载中">
+          <div class="hs-block hs-goal"></div>
+          <div class="hs-block hs-next"></div>
+          <div class="hs-row">
+            <div class="hs-block hs-half"></div>
+            <div class="hs-block hs-half"></div>
           </div>
         </div>
-
-        <div class="weekly-goal">
-          <div class="goal-header">
-            <Icon name="target" :size="14" />
-            <span class="goal-label">本周学习目标</span>
-          </div>
-          <div class="goal-ring-container">
-            <svg class="goal-ring" width="100" height="100">
-              <circle class="goal-ring-bg" cx="50" cy="50" r="42"></circle>
-              <circle class="goal-ring-fill" cx="50" cy="50" r="42" stroke-width="8" :stroke-dasharray="weekCircumference" :stroke-dashoffset="weekOffset"></circle>
-            </svg>
-            <div class="goal-center">
-              <span class="goal-percent tabular-nums">{{ weekPercent }}%</span>
-              <span class="goal-stats">{{ weekDone }} / {{ weekTarget }}h</span>
-            </div>
-          </div>
-          <div class="goal-details">
-            <div class="goal-detail">
-              <span class="detail-label">已完成</span>
-              <span class="detail-value tabular-nums">{{ weekDone }} 小时</span>
-            </div>
-            <div class="goal-detail">
-              <span class="detail-label">剩余目标</span>
-              <span class="detail-value tabular-nums">{{ Math.max(0, weekTarget - weekDone) }} 小时</span>
-            </div>
-          </div>
+      </template>
+      <template v-else>
+      <!-- 行动先于辅助目标说明，DOM 与视觉顺序一致。仍消费唯一 learning Store。 -->
+      <section class="home-section next-section" aria-label="下一步学习行动">
+        <NextActionCard :action="nextAction" dismissible />
+      </section>
+      <!-- ══════════ 1. 当前目标（让「下一步」有上文：我为什么学）══════════ -->
+      <section class="home-section home-goal-context">
+        <div class="section-header">
+          <h2 class="section-title">当前目标</h2>
+          <router-link to="/learning/goals" class="section-link">
+            <span>{{ activeGoal ? '管理目标' : '设定目标' }}</span>
+            <Icon name="arrow-right" :size="14" />
+          </router-link>
         </div>
-      </div>
-    </section>
 
-    <section class="paths-section reveal-item" style="--reveal-index: 6;">
-      <div class="section-header">
-        <h2 class="section-title">为你推荐</h2>
-        <router-link to="/learning/paths" class="section-link">
-          <span>查看更多</span>
-          <Icon name="arrow-right" :size="14" />
-        </router-link>
-      </div>
-      <div class="paths-scroll">
-        <router-link
-          v-for="path in learningPaths.slice(0, 6)"
-          :key="path.id"
-          :to="`/learning/path/${path.id}`"
-          class="path-card"
+        <StateView
+          :status="goalStatus"
+          type="line"
+          :rows="2"
+          empty-icon="target"
+          empty-title="还没有进行中的学习目标"
+          empty-variant="info"
+          @retry="reloadLearning"
         >
-          <div class="path-cover" :style="{ background: pathCover(path.id) }">
-            <Icon name="route" :size="24" />
-          </div>
-          <div class="path-content">
-            <div class="path-meta">
-              <span class="path-badge" :class="levelBadge(path.level).cls">{{ levelBadge(path.level).text }}</span>
-              <span class="path-chapters tabular-nums">{{ path.chapterCount || 0 }} 章</span>
-            </div>
-            <h3 class="path-title">{{ path.title }}</h3>
-            <p class="path-desc">{{ path.description || '系统化学习路径，循序渐进掌握技能。' }}</p>
-            <div class="path-progress">
-              <span class="progress-text">{{ pathProgress(path.id) }}%</span>
-              <div class="progress-bar">
-                <div class="progress-fill" :style="`width: ${pathProgress(path.id)}%`"></div>
+          <template #empty-description>
+            <p>设定一个学习目标，系统才知道你「为什么学、下一步该做什么」。</p>
+          </template>
+          <template #empty-action>
+            <Button variant="primary" icon-name="flag" @click="goTo('/learning/goals')">
+              设定学习目标
+            </Button>
+          </template>
+
+          <div class="goal-strip">
+            <span class="goal-strip-icon"><Icon name="target" :size="18" /></span>
+            <div class="goal-strip-main">
+              <div class="goal-strip-top">
+                <router-link
+                  :to="activeGoal?.pathId ? `/learning/path/${activeGoal.pathId}` : '/learning/goals'"
+                  class="goal-strip-title"
+                >{{ activeGoal?.title }}</router-link>
+                <span v-if="activeGoal?.deadline" class="goal-deadline">
+                  <Icon name="calendar" :size="12" />
+                  {{ goalDeadlineText }}
+                </span>
+                <span v-if="activeGoal?.pathId" class="goal-pct tabular-nums">{{ goalPathPercent }}%</span>
+              </div>
+              <div class="goal-strip-sub">
+                <template v-if="activeGoal?.pathId">
+                  <Icon name="route" :size="13" />
+                  <span>{{ activeGoal.pathTitle || '学习路线' }}</span>
+                  <span v-if="goalLearningNodeTitle" class="goal-node">· 当前：{{ goalLearningNodeTitle }}</span>
+                  <span v-if="goalKnowledgeTitle" class="goal-node">· 知识点：{{ goalKnowledgeTitle }}</span>
+                </template>
+                <template v-else>
+                  <span>还没有关联学习路线 ——</span>
+                  <router-link to="/learning/goals" class="goal-inline-link">生成 / 选择一条路线</router-link>
+                </template>
+              </div>
+              <div v-if="activeGoal?.pathId" class="goal-progress">
+                <div class="goal-progress-fill" :style="{ width: goalPathPercent + '%' }"></div>
               </div>
             </div>
           </div>
-        </router-link>
-        <div v-if="learningPaths.length === 0" class="empty-state">
-          <Icon name="book-open" :size="24" />
-          <p>暂无推荐路径，浏览全部路径</p>
-        </div>
-      </div>
-    </section>
+        </StateView>
+      </section>
 
-    <section class="continue-section">
-      <div class="section-header">
-        <h2 class="section-title">继续学习</h2>
-        <router-link to="/categories" class="section-link">
-          <span>查看全部</span>
-          <Icon name="arrow-right" :size="14" />
-        </router-link>
-      </div>
-      <div class="continue-grid">
-        <router-link
-          v-for="doc in continueDocs.slice(0, 6)"
-          :key="doc.id"
-          :to="`/doc/${doc.id}`"
-          class="doc-card"
-        >
-          <div class="doc-thumb" :style="{ background: docIconBg(doc.id) }">
-            <Icon name="file-text" :size="20" :style="{ color: docIconColor(doc.id) }" />
-          </div>
-          <div class="doc-info">
-            <h3 class="doc-title">{{ doc.title }}</h3>
-            <p class="doc-category">
-              <Icon name="folder" :size="12" />
-              {{ doc.categoryName || '知识库' }}
+      <!-- ══════════ 3. 今日学习状态（真实数据汇总，只保留影响「今天学什么」的信息）══════════ -->
+      <section class="home-section">
+        <div class="section-header">
+          <h2 class="section-title">今日学习状态</h2>
+          <router-link to="/learning/report" class="section-link">
+            <span>学习报告</span>
+            <Icon name="arrow-right" :size="14" />
+          </router-link>
+        </div>
+        <div class="status-grid">
+          <div class="status-item">
+            <div class="status-head">
+              <Icon name="list-checks" :size="14" />
+              <span>今日任务</span>
+            </div>
+            <p class="status-value tabular-nums">
+              {{ doneTasks }}<span class="status-unit"> / {{ tasks.length }} 已完成</span>
             </p>
           </div>
-          <div class="doc-footer">
-            <span class="doc-time">{{ formatTime(doc.createTime) }}</span>
-            <span class="doc-progress tabular-nums">{{ docProgress(doc) }}%</span>
+          <div class="status-item">
+            <div class="status-head">
+              <Icon name="rotate-ccw" :size="14" />
+              <span>待复习</span>
+            </div>
+            <p class="status-value tabular-nums">
+              {{ reviewRequired.length }}<span class="status-unit"> 个知识点</span>
+            </p>
           </div>
-          <div class="doc-progress-bar">
-            <div class="progress-fill" :style="`width: ${docProgress(doc)}%`"></div>
+          <div class="status-item">
+            <div class="status-head">
+              <Icon name="trending-down" :size="14" />
+              <span>薄弱知识</span>
+            </div>
+            <p class="status-value tabular-nums">
+              {{ weakPoints.length }}<span class="status-unit"> 个知识点</span>
+            </p>
           </div>
-        </router-link>
-        <div v-if="continueDocs.length === 0" class="empty-state">
-          <Icon name="book-open" :size="24" />
-          <p>暂无学习记录，去知识库看看吧</p>
+          <div class="status-item">
+            <div class="status-head">
+              <Icon name="route" :size="14" />
+              <span>当前路径</span>
+            </div>
+            <p v-if="currentPath" class="status-value tabular-nums">
+              {{ pathPercent }}<span class="status-unit">% 进度</span>
+            </p>
+            <p v-else class="status-value status-muted">—</p>
+          </div>
         </div>
-      </div>
-    </section>
+        <div v-if="tasks.length > 0" class="today-tasks">
+          <button
+            v-for="task in tasks.slice(0, 5)"
+            :key="(task.source || 'LEARNING')+task.id"
+            type="button"
+            class="today-task"
+            :class="{ done: task.status === 1 }"
+            :aria-pressed="task.status === 1"
+            @click="toggleTaskStatus(task)"
+          >
+            <span class="today-task-check" :aria-hidden="true">
+              <Icon v-if="task.status === 1" name="check" :size="12" />
+            </span>
+            <span class="today-task-title">{{ task.title }}</span>
+          </button>
+        </div>
+        <p v-if="todayRewardLoaded && (todayXp > 0 || todayCoin > 0)" class="today-reward-line">
+          <Icon name="zap" :size="12" />
+          今日已获得 <span class="tabular-nums">+{{ todayXp }} XP</span> ·
+          <span class="tabular-nums">+{{ todayCoin }} Coin</span>（学习奖励）
+        </p>
+      </section>
 
-    <section class="ai-section">
-      <div class="section-header">
-        <h2 class="section-title">AI 学习建议</h2>
-        <span class="section-hint">基于你的学习行为智能生成</span>
-      </div>
-      <div class="ai-cards">
-        <router-link
-          v-for="(rec, idx) in aiRecs"
-          :key="idx"
-          :to="rec.path"
-          class="ai-card"
+      <!-- ══════════ 4. 当前路径 ══════════ -->
+      <section class="home-section">
+        <div class="section-header">
+          <h2 class="section-title">当前路径</h2>
+          <router-link to="/learning/paths" class="section-link">
+            <span>浏览路径</span>
+            <Icon name="arrow-right" :size="14" />
+          </router-link>
+        </div>
+        <StateView
+          :status="pathStatus"
+          type="card"
+          :rows="1"
+          empty-icon="route"
+          empty-title="还没有进行中的学习路径"
+          @retry="reloadLearning"
         >
-          <div class="ai-icon" :style="{ background: rec.bg, color: rec.color }">
-            <Icon :name="rec.icon" :size="16" />
-          </div>
-          <div class="ai-content">
-            <h4 class="ai-title">{{ rec.title }}</h4>
-            <p class="ai-desc">{{ rec.desc }}</p>
-          </div>
-          <button class="ai-action">开始</button>
-        </router-link>
-      </div>
-    </section>
+          <template #empty-description>
+            <p>选一条路线并报名，首页就会显示你的进度和下一步。</p>
+          </template>
+          <template #empty-action>
+            <Button variant="primary" icon-name="route" @click="goTo('/learning/paths')">
+              浏览学习路径
+            </Button>
+          </template>
 
-    <section class="report-section">
-      <router-link
-        :to="{
-          path: '/learning/report',
-          query: {
-            period: userStats?.studyDaysThisWeek >= 7 ? 'week' : 'month',
-            source: 'home'
-          }
-        }"
-        class="report-btn"
-      >
-        <Icon name="bar-chart-2" :size="16" />
-        <span>查看完整学习报告</span>
-        <Icon name="arrow-right" :size="14" />
-      </router-link>
-    </section>
+          <div v-if="currentPath" class="path-row">
+            <div class="path-row-main">
+              <span class="path-badge" :class="levelBadge(currentPath.level).cls">
+                {{ levelBadge(currentPath.level).text }}
+              </span>
+              <h3 class="path-row-title">{{ currentPath.title }}</h3>
+              <p class="path-row-desc">{{ currentPath.description || '系统化学习路径，循序渐进掌握技能。' }}</p>
+            </div>
+            <div class="path-row-progress">
+              <div class="progress-head">
+                <span class="tabular-nums">{{ pathPercent }}%</span>
+                <span class="path-chapters tabular-nums">{{ currentPath.chapterCount || 0 }} 章</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" :style="`width: ${pathPercent}%`"></div>
+              </div>
+              <Button variant="secondary" icon-name="play" @click="goTo(`/learning/path/${currentPath.id}`)">
+                继续学习
+              </Button>
+            </div>
+          </div>
+        </StateView>
+      </section>
+
+      <!-- ══════════ 5. 最近学习 ══════════ -->
+      <section class="home-section">
+        <div class="section-header">
+          <h2 class="section-title">最近学习</h2>
+          <router-link to="/categories" class="section-link">
+            <span>查看全部</span>
+            <Icon name="arrow-right" :size="14" />
+          </router-link>
+        </div>
+        <StateView
+          :status="recentStatus"
+          type="card"
+          :rows="3"
+          empty-icon="book-open"
+          empty-title="暂无学习记录"
+          @retry="reloadRecent"
+        >
+          <template #empty-description>
+            <p>还没有读过任何文档。去知识库挑一篇开始，这里会显示你最近的进度。</p>
+          </template>
+          <template #empty-action>
+            <Button variant="primary" icon-name="library" @click="goTo('/knowledge')">
+              去知识库看看
+            </Button>
+          </template>
+
+          <div class="recent-list">
+            <router-link
+              v-for="doc in continueDocs.slice(0, 6)"
+              :key="doc.id"
+              :to="`/doc/${doc.id}`"
+              class="recent-item"
+            >
+              <span class="recent-thumb" :style="{ background: docIconBg(doc.id) }">
+                <Icon name="file-text" :size="18" :style="{ color: docIconColor(doc.id) }" />
+              </span>
+              <span class="recent-main">
+                <span class="recent-title">{{ doc.title }}</span>
+                <span class="recent-category">
+                  <Icon name="folder" :size="12" />
+                  {{ doc.categoryName || '知识库' }}
+                </span>
+              </span>
+              <span class="recent-time">{{ formatTime(doc.createTime) }}</span>
+            </router-link>
+          </div>
+        </StateView>
+      </section>
+
+      <!-- ══════════ 6. 薄弱知识 ══════════ -->
+      <section class="home-section">
+        <div class="section-header">
+          <h2 class="section-title">薄弱知识</h2>
+          <router-link to="/learning/mastery" class="section-link">
+            <span>掌握度详情</span>
+            <Icon name="arrow-right" :size="14" />
+          </router-link>
+        </div>
+        <StateView
+          :status="weakStatus"
+          type="list"
+          :rows="3"
+          empty-icon="trending-down"
+          empty-title="暂无薄弱知识"
+          empty-variant="success"
+          @retry="reloadWeak"
+        >
+          <template #empty-description>
+            <p>当前还没有足够的学习行为数据。</p>
+            <p>完成几次练习后，系统会开始分析你的薄弱点。</p>
+          </template>
+          <template #empty-action>
+            <Button variant="primary" icon-name="zap" @click="goTo('/learning/quiz')">
+              开始学习
+            </Button>
+          </template>
+
+          <div class="weak-list">
+            <router-link
+              v-for="w in weakPoints.slice(0, 5)"
+              :key="w.knowledgeId"
+              :to="`/learning/knowledge-mastery/${w.knowledgeId}`"
+              class="weak-item"
+            >
+              <span class="weak-name">{{ w.name || '未命名知识点' }}</span>
+              <span class="weak-score tabular-nums">{{ Math.round(w.masteryScore) }}%</span>
+              <span class="weak-bar">
+                <span class="weak-bar-fill" :style="{ width: Math.min(100, Math.max(0, w.masteryScore)) + '%' }"></span>
+              </span>
+            </router-link>
+          </div>
+        </StateView>
+      </section>
+      </template>
+    </template>
+    <InterviewSeedCard />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
+import StudioVisual from '@/components/ui/StudioVisual.vue';
+import InterviewSeedCard from '@/components/Learning/InterviewSeedCard.vue';
+import Button from '@/components/ui/Button.vue';
+import StateView from '@/components/ui/StateView.vue';
+import { useAsyncResource, type AsyncStatus } from '@/composables/useAsyncResource';
+import { useAppStore } from '@/stores/apps';
 import { useAuthStore } from '@/stores/auth';
-import { docsApi, learningApi, userApi } from '@/api';
-import { notify, getApiError } from '@/utils/toast';
+import { useWalletStore } from '@/stores/wallet';
+import { useLearningStore } from '@/stores/learning';
+import NextActionCard from '@/components/workflow/NextActionCard.vue';
 import { useCountUp } from '@/composables/useCountUp';
-import type { DocVO, LearningPathVO, LearningTaskVO, UserStatsVO } from '@/api/types';
+import { docsApi, userApi } from '@/api';
+import { walletApi } from '@/api/wallet';
+import { notify } from '@/utils/toast';
+import { formatCoin } from '@/economy/format-balance';
+import type {
+  DocVO,
+  LearningTaskVO,
+  UserStatsVO,
+} from '@/api/types';
 
 const auth = useAuthStore();
+const appStore = useAppStore();
+const walletStore = useWalletStore();
+/** UI/UX 5.0：全站唯一学习状态来源（§三：首页不再自算一套 NextAction） */
+const learning = useLearningStore();
+const router = useRouter();
+
+/** Architecture-5：真实钱包（Coin/XP/Level 服务端真源 §39/§181） */
+const wallet = computed(() => walletStore.wallet);
+
+/* ===== Architecture-5 §35-38：今日奖励（reward_ledger 真实数据，非前端累加 §40） ===== */
+const todayXp = ref(0)
+const todayCoin = ref(0)
+const todayRewardLoaded = ref(false)
+
+async function loadTodayReward(): Promise<void> {
+  if (!auth.isLoggedIn) return
+  try {
+    const ledger = await walletApi.getLedger({ page: 1, size: 100 })
+    const today = new Date().toDateString()
+    let xp = 0
+    let coin = 0
+    for (const l of ledger) {
+      if (l.direction !== 'CREDIT') continue
+      const d = new Date(l.createTime)
+      if (d.toDateString() !== today) continue
+      if (l.currency === 'XP') xp += l.amount
+      else if (l.currency === 'COIN') coin += l.amount
+    }
+    todayXp.value = xp
+    todayCoin.value = coin
+  } catch {
+    // 奖励流水失败静默，不阻断首页（§211）
+  } finally {
+    todayRewardLoaded.value = true
+  }
+}
+
+/** UI/UX 5.0 §三：NextAction 唯一来源 —— 首页不再自算，直接读 store（与学习中心/AI Coach 同源） */
+const nextAction = computed(() => learning.nextAction);
+
+/* ===== 统一三态（§十七：每个区块必须有 loading / empty / error，禁止白屏与空白卡片） ===== */
+type Status = AsyncStatus
+
+/** 学习核心数据首次加载中 */
+const learningLoading = computed(() => learning.loading)
+
+const goalStatus = computed<Status>(() => {
+  if (learningLoading.value) return learning.loaded ? 'retrying' : 'loading'
+  if (learning.goalError) return 'error'
+  return learning.activeGoal ? 'ready' : 'empty'
+})
+
+const pathStatus = computed<Status>(() => {
+  if (learningLoading.value) return learning.loaded ? 'retrying' : 'loading'
+  if (learning.pathsError) return 'error'
+  return learning.currentPath ? 'ready' : 'empty'
+})
+
+const weakStatus = computed<Status>(() => {
+  if (learningLoading.value) return learning.loaded ? 'retrying' : 'loading'
+  if (learning.weakError) return 'error'
+  return learning.weakPoints.length > 0 ? 'ready' : 'empty'
+})
+
+const recentResource = useAsyncResource(() => docsApi.recent(), docs => docs.length === 0, '最近学习记录加载失败', 'section')
+const recentStatus = recentResource.status
+
+/** 重新拉取学习核心数据（错误态重试入口） */
+function reloadLearning(): void {
+  void learning.load(true)
+}
 
 const userName = computed(() => auth.user?.nickname || auth.user?.username || '探索者');
 const userStats = ref<UserStatsVO | null>(null);
-const tasks = ref<LearningTaskVO[]>([]);
-const learningPaths = ref<LearningPathVO[]>([]);
-const continueDocs = ref<DocVO[]>([]);
-const pathProgressMap = ref<Record<number, { progress: number; completed: number; total: number }>>({});
+
+/** 「最近学习」文档：首页独有数据，独立 loading/error，不阻塞学习核心区块 */
+const continueDocs = computed<DocVO[]>(() => recentResource.data.value ?? []);
+
+async function loadRecentDocs(retry = false): Promise<void> {
+  await recentResource.run(retry);
+}
+
+function reloadRecent(): void {
+  void loadRecentDocs(true);
+}
+
+function reloadWeak(): void {
+  void learning.reloadWeak();
+}
+
+/* ===== 学习核心数据：全部来自唯一 store，禁止本页再自行拉取/推导（§三） ===== */
+const tasks = computed(() => learning.tasks);
+const reviewRequired = computed(() => learning.reviewRequired);
+const weakPoints = computed(() => learning.weakPoints);
+const activeGoal = computed(() => learning.activeGoal);
+const currentPath = computed(() => learning.currentPath);
+const pathPercent = computed(() => learning.currentPathPercent);
+const doneTasks = computed(() => learning.doneTaskCount);
+/** Architecture-4.2：Goal → 当前知识点上下文（与学习中心 / AI Coach 同源） */
+const goalKnowledgeTitle = computed(() => learning.context.knowledgeTitle);
+const goalLearningNodeTitle = computed(() => learning.context.learningNodeTitle);
 
 const greeting = computed(() => {
   const h = new Date().getHours();
@@ -338,94 +485,33 @@ const todayStr = computed(() => {
   return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 · ${week[d.getDay()]}`;
 });
 
-const studyHours = computed(() => userStats.value?.totalStudyHours ?? 0);
-const readDocs = computed(() => userStats.value?.readDocsCount ?? 0);
 const streakDays = computed(() => userStats.value?.streakDays ?? 0);
 
-// P1-3：数字 count-up 动画
-const { display: studyHoursDisplay } = useCountUp(studyHours);
-const { display: readDocsDisplay } = useCountUp(readDocs);
+// P1-3：数字 count-up 动画（连击天数）
 const { display: streakDaysDisplay } = useCountUp(streakDays);
 
-// P1-1：动态 CTA —— 基于用户学习状态给出最相关的下一步动作
-const dynamicTagline = computed(() => {
-  if (!auth.isLoggedIn) return '登录后开启你的智能学习之旅';
-  if (studyHours.value === 0) return '从第一篇文档开始，构建你的知识图谱';
-  if (continueDocs.value.length > 0) return '继续上次的进度，保持学习节奏';
-  if (streakDays.value >= 7) return '坚持就是胜利，你已连续学习一周';
-  return '今天的知识点，正在等你探索';
-});
-
-const dynamicCta = computed(() => {
-  // 未登录 / 新用户 → 引导创建第一条路径
-  if (!auth.isLoggedIn || studyHours.value === 0) {
-    return {
-      primary: { text: '探索学习路径', icon: 'route', path: '/learning/paths' },
-      secondary: { text: '浏览知识库', icon: 'book-open', path: '/categories' },
-    };
-  }
-  // 有未完成文档 → 继续上次
-  if (continueDocs.value.length > 0) {
-    return {
-      primary: { text: '继续上次学习', icon: 'play', path: `/doc/${continueDocs.value[0].id}` },
-      secondary: { text: '查看待办', icon: 'list', path: '/learning/center' },
-    };
-  }
-  // 默认 → 学习中心
-  return {
-    primary: { text: '进入学习中心', icon: 'play', path: '/learning/center' },
-    secondary: { text: '创建笔记', icon: 'plus', path: '/notes' },
-  };
-});
-
-const weekdays = computed(() => {
-  const labels = ['一', '二', '三', '四', '五', '六', '日'];
-  const today = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
-  return labels.map((label, i) => ({ label, active: i <= today && streakDays.value > 0 }));
-});
-
-const courseProgress = computed(() => {
-  if (!userStats.value?.readDocsCount) return 0;
-  return Math.min(100, Math.round((userStats.value.readDocsCount / Math.max(1, userStats.value.readDocsCount + 5)) * 100));
-});
-
-const currentCourse = computed(() => ({
-  title: continueDocs.value[0]?.title || '开始你的第一篇文档',
-  subtitle: continueDocs.value[0]?.categoryName || '点击继续学习',
-}));
-
-const masteryPoints = computed(() => userStats.value?.totalFlashcards ?? 0);
-const masteryTarget = 200;
-const masteryPercent = computed(() => Math.min(100, Math.round((masteryPoints.value / masteryTarget) * 100)));
-
-const doneTasks = computed(() => tasks.value.filter((t) => t.status === 1).length);
-
-const weekTarget = 14;
-const weekDone = computed(() => Math.min(weekTarget, Math.round((userStats.value?.totalStudyHours ?? 0) % weekTarget) || 0));
-const weekPercent = computed(() => Math.round((weekDone.value / weekTarget) * 100));
-
-const ringCircumference = 2 * Math.PI * 34;
-const ringOffset = computed(() => ringCircumference * (1 - courseProgress.value / 100));
-const weekCircumference = 2 * Math.PI * 42;
-const weekOffset = computed(() => weekCircumference * (1 - weekPercent.value / 100));
-
-const aiRecs = [
-  { title: '复习学习闪卡', desc: '利用间隔重复巩固记忆，建议今日完成闪卡复习', icon: 'refresh-cw', bg: 'rgba(59,111,224,0.08)', color: 'var(--kb-primary)', path: '/learning/flashcards' },
-  { title: '尝试代码练习', desc: '根据你的学习路径，建议完成今日编程练习', icon: 'code', bg: 'rgba(16,185,129,0.1)', color: 'var(--kb-accent)', path: '/learning/code-practice' },
-  { title: '阅读推荐文档', desc: '与你最近学习内容相关，推荐延伸阅读', icon: 'book-open', bg: 'rgba(245,158,11,0.1)', color: 'var(--kb-warning)', path: '/categories' },
-  { title: '智能问答答疑', desc: '遇到不懂的知识点，向 AI 提问快速解惑', icon: 'message-circle', bg: 'rgba(59,111,224,0.08)', color: 'var(--kb-primary)', path: '/chat' },
-];
-
-const pathCovers = [
-  'linear-gradient(135deg, var(--kb-primary), rgba(59,111,224,0.6))',
-  'linear-gradient(135deg, var(--kb-accent), rgba(16,185,129,0.6))',
-  'linear-gradient(135deg, var(--kb-warning), rgba(245,158,11,0.6))',
-  'linear-gradient(135deg, var(--kb-primary), rgba(16,185,129,0.7))',
-];
-
-function pathCover(id: number) {
-  return pathCovers[Math.abs(id) % pathCovers.length];
+/** 供卡片的行为回调统一走路由跳转（ emit action，不在卡片内做业务） */
+function goTo(path: string) {
+  router.push(path);
 }
+
+/* ========== Architecture-4.0：当前学习目标（学习闭环起点）—— 数据取自唯一 store ========== */
+const goalPathPercent = computed(() =>
+  activeGoal.value?.pathId != null
+    ? Math.min(100, Math.max(0, Math.round(activeGoal.value.pathProgress ?? 0)))
+    : 0,
+);
+
+const goalDeadlineText = computed(() => {
+  const d = activeGoal.value?.deadline;
+  if (!d) return '';
+  const t = new Date(d + 'T00:00:00');
+  const diff = Math.ceil((t.getTime() - Date.now()) / 86400000);
+  if (diff < 0) return `已逾期 ${-diff} 天`;
+  if (diff === 0) return '今天截止';
+  if (diff === 1) return '明天截止';
+  return `${t.getMonth() + 1}/${t.getDate()} 截止`;
+});
 
 function levelBadge(level?: string) {
   switch (level) {
@@ -435,37 +521,8 @@ function levelBadge(level?: string) {
   }
 }
 
-function pathProgress(id: number) {
-  const p = pathProgressMap.value[id];
-  return p ? p.progress : 0;
-}
-
-async function loadAllPathProgress() {
-  if (learningPaths.value.length === 0) return;
-  try {
-    const results = await Promise.allSettled(
-      learningPaths.value.map((p) => learningApi.chapters(p.id)),
-    );
-    learningPaths.value.forEach((path, idx) => {
-      const res = results[idx];
-      if (res.status === 'fulfilled') {
-        const chapters = res.value;
-        const total = chapters.length || (path.chapterCount ?? 0);
-        const completed = chapters.filter((c) => c.completed).length;
-        const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
-        pathProgressMap.value[path.id] = { progress, completed, total };
-      }
-    });
-  } catch {}
-}
-
 const docColors = [
-  { bg: 'rgba(59,111,224,0.1)', color: 'var(--kb-primary)' },
-  { bg: 'rgba(16,185,129,0.1)', color: 'var(--kb-accent)' },
-  { bg: 'rgba(245,158,11,0.1)', color: 'var(--kb-warning)' },
-  { bg: 'rgba(124,58,237,0.1)', color: '#7C3AED' },
-  { bg: 'rgba(20,184,166,0.1)', color: '#14B8A6' },
-  { bg: 'rgba(249,115,22,0.1)', color: '#F97316' },
+  { bg: 'var(--kb-muted)', color: 'var(--kb-muted-foreground)' },
 ];
 
 function docIconBg(id: number) {
@@ -474,10 +531,6 @@ function docIconBg(id: number) {
 
 function docIconColor(id: number) {
   return docColors[Math.abs(id) % docColors.length].color;
-}
-
-function docProgress(_doc: DocVO) {
-  return 0;
 }
 
 function formatTime(dateStr?: string) {
@@ -493,73 +546,66 @@ function formatTime(dateStr?: string) {
   return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
 }
 
-function formatDeadline(deadline?: string) {
-  if (!deadline) return '';
-  const d = new Date(deadline);
-  const now = new Date();
-  const diffMs = d.getTime() - now.getTime();
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  if (diffHours < 0) return '已逾期';
-  if (diffHours < 24) return `今日 ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
-  return `${d.getMonth() + 1}/${d.getDate()}`;
-}
-
-function getStatusClass(task: LearningTaskVO) {
-  if (task.status === 1) return 'completed';
-  if (task.deadline) return 'deadline';
-  return 'pending';
-}
-
-function getStatusText(task: LearningTaskVO) {
-  if (task.status === 1) return '已完成';
-  if (task.deadline) return formatDeadline(task.deadline);
-  return '待完成';
-}
-
-async function toggleTaskStatus(task: LearningTaskVO) {
-  const newStatus = task.status === 1 ? 0 : 1;
+/**
+ * 切换今日任务完成状态（§十八：点击后必须立刻看到结果）。
+ * 状态流转收口到 learning store，首页只负责调用与反馈，不本地改数组。
+ */
+async function toggleTaskStatus(task: LearningTaskVO): Promise<void> {
   try {
-    await learningApi.updateTaskStatus(task.id, newStatus);
-    task.status = newStatus;
-    if (newStatus === 1) notify('任务已完成', 'success');
-  } catch (e: unknown) {
-    notify('操作失败：' + getApiError(e), 'error');
+    await learning.toggleTask(task);
+    if (task.status !== 1) notify('任务已完成', 'success');
+  } catch {
+    notify('任务状态更新失败，请重试', 'error');
   }
 }
 
 onMounted(async () => {
   if (auth.isLoggedIn) {
-    try {
-      userStats.value = await userApi.stats();
-    } catch {
-      userStats.value = null;
-    }
-    try {
-      tasks.value = await learningApi.tasks();
-    } catch {
-      tasks.value = [];
-    }
+    appStore.hydrate();
   }
-  try {
-    learningPaths.value = await learningApi.paths();
-    loadAllPathProgress();
-  } catch {
-    learningPaths.value = [];
-  }
-  try {
-    continueDocs.value = await docsApi.recent();
-  } catch {
-    continueDocs.value = [];
-  }
+  // UI/UX 5.0：学习核心数据统一由 learning store 加载（唯一真源，§三）；
+  // 首页独有数据（最近学习 / 统计 / 钱包 / 今日奖励）并行加载，任一失败不影响其余区块。
+  await Promise.allSettled([
+    learning.load(),
+    loadRecentDocs(),
+    (async () => {
+      if (!auth.isLoggedIn) return;
+      try {
+        userStats.value = await userApi.stats();
+      } catch {
+        userStats.value = null;
+      }
+    })(),
+    loadTodayReward(),
+    (async () => {
+      if (!auth.isLoggedIn) return;
+      void walletStore.fetchWallet(true);
+    })(),
+  ]);
 });
 </script>
 
 <style scoped>
+/*
+ * UI/UX 5.0 §五/§六：统一视觉语言
+ *   - 8pt 间距基线（--kb-space-*）
+ *   - 卡片圆角统一 8~16px（--kb-radius-md / --kb-radius-lg），不再出现 20px 英雄区圆角
+ *   - 主色只用于「主要操作」，图标默认中性色（§五：禁止业务分类各用一种彩色图标）
+ *   - 能用普通 section 表达的不再包 Card（§六：减少卡片化）
+ */
 .home-container {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-  animation: pageFadeIn 0.6s ease-out;
+  padding: 0;
+  max-width: none;
+  margin-inline: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--kb-space-6, 24px);
+  animation: pageFadeIn 0.3s ease-out;
+
+  width: 100%;
+  min-width: 0;
+  padding-inline: 0;
+  padding-top: 0;
 }
 
 @keyframes pageFadeIn {
@@ -567,1032 +613,529 @@ onMounted(async () => {
   to { opacity: 1; }
 }
 
-.welcome-banner {
-  position: relative;
-  border-radius: 20px;
-  overflow: hidden;
-  margin-bottom: 24px;
-  animation: slideUp 0.6s ease-out;
-}
-
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-.banner-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  /* 不对称渐变：主色偏左上，右下留出暖橘呼吸空间 */
-  background: linear-gradient(135deg, var(--kb-primary) 0%, rgba(59,111,224,0.92) 55%, rgba(59,111,224,0.85) 100%);
-}
-
-.banner-grid {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
-  /* 网格不对称偏移，打破规整感 */
-  mask-image: linear-gradient(135deg, black 30%, transparent 80%);
-  -webkit-mask-image: linear-gradient(135deg, black 30%, transparent 80%);
-}
-
-.banner-blur {
-  position: absolute;
-  top: -50px;
-  right: -50px;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
-  border-radius: 50%;
-}
-
-/* 暖橘色光晕：signature accent 在 Hero 区的呼吸点 */
-.banner-blur-warm {
-  position: absolute;
-  bottom: -80px;
-  left: 20%;
-  width: 240px;
-  height: 240px;
-  background: radial-gradient(circle, rgba(255,107,53,0.18) 0%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.banner-content {
-  position: relative;
-  z-index: 1;
-  padding: 36px 32px;
-}
-
-.banner-header {
+/* ══════════ 顶部欢迎语：降权为一行标题 + 轻量 meta（§七：不再用巨大 Hero Banner）══════════ */
+.home-greeting {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
   align-items: flex-end;
-  gap: 24px;
-}
-
-.welcome-info {
-  flex: 1 1 320px;
-  min-width: 0;
-}
-
-.welcome-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.9);
-  font-size: 13px;
-  font-weight: 500;
-  margin-bottom: 16px;
-  backdrop-filter: blur(8px);
-}
-
-.welcome-title {
-  font-family: var(--font-display);
-  font-size: 32px;
-  font-weight: 900;
-  color: #ffffff;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-  margin-bottom: 8px;
-  text-wrap: balance;
-}
-
-/* Hero 副标题：杂志感引文风格 */
-.welcome-tagline {
-  font-family: var(--font-serif);
-  font-size: 15px;
-  font-weight: 400;
-  color: rgba(255,255,255,0.78);
-  margin-bottom: 20px;
-  line-height: 1.5;
-  max-width: 420px;
-}
-
-.welcome-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-/* 统计 pill：胶囊式浮动卡片，替代原来的平铺文字 */
-.stat-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.9);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.15);
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.stat-pill:hover {
-  background: rgba(255,255,255,0.18);
-  transform: translateY(-1px);
-}
-
-/* 连击 pill 使用 signature highlight 色 */
-.stat-pill.highlight-badge {
-  background: var(--kb-highlight-soft);
-  color: var(--kb-highlight);
-  border-color: var(--kb-highlight-border);
-}
-
-.stat-value {
-  font-size: 18px;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.stat-pill.highlight-badge .stat-value {
-  color: var(--kb-highlight);
-}
-
-.stat-unit {
-  font-size: 12px;
-  opacity: 0.85;
-}
-
-.banner-cta {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.action-btn.primary {
-  background: #ffffff;
-  color: var(--kb-primary);
-}
-
-.action-btn.primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.action-btn.secondary {
-  background: rgba(255,255,255,0.15);
-  color: #ffffff;
-  border: 1px solid rgba(255,255,255,0.3);
-}
-
-.action-btn.secondary:hover {
-  background: rgba(255,255,255,0.25);
-}
-
-.action-btn.focus {
-  background: rgba(255,255,255,0.08);
-  color: #a5b4fc;
-  border: 1px solid rgba(165,180,252,0.35);
-}
-
-.action-btn.focus:hover {
-  background: rgba(165,180,252,0.18);
-  border-color: rgba(165,180,252,0.6);
-  transform: translateY(-1px);
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  gap: var(--kb-space-4, 16px);
+  flex-wrap: wrap;
+  padding-bottom: var(--kb-space-2, 8px);
 }
-
-.section-title {
-  font-family: var(--font-serif);
-  font-size: 20px;
+.home-greeting-title {
+  margin: 0;
+  font-size: var(--kb-fs-h2);
   font-weight: 600;
+  line-height: 1.3;
   color: var(--kb-foreground);
 }
-
-.section-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
+.home-eyebrow {
+  margin: 0 0 var(--kb-space-2);
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-muted-foreground);
+  letter-spacing: 0.08em;
+}
+.home-greeting-sub {
+  margin: 2px 0 0;
+  font-size: var(--kb-fs-body-sm, 13px);
   color: var(--kb-muted-foreground);
 }
-
-.section-badge {
-  padding: 4px 12px;
-  border-radius: 12px;
-  background: rgba(59,111,224,0.08);
-  color: var(--kb-primary);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.section-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  color: var(--kb-primary);
-  font-weight: 500;
-  text-decoration: none;
-  transition: opacity 0.2s ease;
-}
-
-.section-link:hover {
-  opacity: 0.8;
-}
-
-.section-hint {
-  font-size: 12px;
-  color: var(--kb-muted-foreground);
-}
-
-.progress-cards {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
-@media (min-width: 640px) {
-  .progress-cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .progress-cards {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.progress-card {
-  background: var(--kb-card);
-  border-radius: 16px;
-  padding: 24px;
-  border: 1px solid var(--kb-border);
-  transition: all 0.2s ease;
-}
-
-.progress-card:hover {
-  box-shadow: 0 8px 24px rgba(59,111,224,0.06);
-  border-color: rgba(59,111,224,0.2);
-}
-
-.card-header {
+.home-greeting-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: var(--kb-space-2, 8px);
+  flex-wrap: wrap;
 }
-
-.card-header svg {
-  color: var(--kb-primary);
-}
-
-.card-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--kb-muted-foreground);
-}
-
-.progress-ring-container {
-  position: relative;
-  width: 80px;
-  height: 80px;
-  margin-bottom: 16px;
-}
-
-.progress-ring {
-  transform: rotate(-90deg);
-}
-
-.progress-ring-bg {
-  fill: none;
-  stroke: var(--kb-muted);
-  stroke-width: 6;
-}
-
-.progress-ring-fill {
-  fill: none;
-  stroke: var(--kb-primary);
-  stroke-width: 6;
-  stroke-linecap: round;
-  transition: stroke-dashoffset 0.8s ease;
-}
-
-.ring-center {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.ring-value {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--kb-primary);
-}
-
-.card-body {
-  flex: 1;
-}
-
-.card-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--kb-foreground);
-  margin-bottom: 4px;
-}
-
-.card-subtitle {
-  font-size: 13px;
-  color: var(--kb-muted-foreground);
-  margin-bottom: 12px;
-}
-
-.card-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--kb-primary);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-
-.streak-display {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.streak-number {
-  font-size: 48px;
-  font-weight: 700;
-  color: var(--kb-foreground);
-  line-height: 1;
-}
-
-.streak-unit {
-  font-size: 16px;
-  color: var(--kb-muted-foreground);
-}
-
-.streak-badge {
+.meta-pill {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  border-radius: 12px;
-  background: rgba(16,185,129,0.1);
-  color: var(--kb-accent);
-  font-size: 12px;
-  font-weight: 500;
-  margin-left: auto;
-}
-
-.streak-calendar {
-  display: flex;
-  justify-content: space-between;
-}
-
-.day-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.day-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--kb-muted);
-  transition: background 0.2s ease;
-}
-
-.day-dot.active {
-  background: var(--kb-accent);
-}
-
-.day-label {
-  font-size: 11px;
-  color: var(--kb-muted-foreground);
-}
-
-.mastery-display {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.mastery-number {
-  font-size: 36px;
-  font-weight: 700;
-  color: var(--kb-foreground);
-  line-height: 1;
-}
-
-.mastery-unit {
-  font-size: 14px;
-  color: var(--kb-muted-foreground);
-}
-
-.mastery-percent {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--kb-accent);
-  margin-bottom: 12px;
-}
-
-.mastery-bar {
-  height: 8px;
-  border-radius: 4px;
-  background: var(--kb-muted);
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-
-.mastery-fill {
-  height: 100%;
-  border-radius: 4px;
-  background: linear-gradient(90deg, var(--kb-primary), var(--kb-accent));
-  transition: width 0.8s ease;
-}
-
-.mastery-meta {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--kb-muted-foreground);
-}
-
-.todos-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-  margin-bottom: 24px;
-}
-
-@media (min-width: 1024px) {
-  .todos-grid {
-    grid-template-columns: 2fr 1fr;
-  }
-}
-
-.todos-list {
-  background: var(--kb-card);
-  border-radius: 16px;
-  padding: 24px;
   border: 1px solid var(--kb-border);
-}
-
-.todo-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--kb-border);
-  transition: background 0.2s ease;
-}
-
-.todo-item:last-child {
-  border-bottom: none;
-}
-
-.todo-item:hover {
-  background: var(--kb-muted);
-  margin: 0 -24px;
-  padding-left: 24px;
-  padding-right: 24px;
-}
-
-.todo-check {
-  width: 20px;
-  height: 20px;
-  border-radius: 6px;
-  border: 2px solid var(--kb-border);
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.todo-item.done .todo-check {
-  background: var(--kb-accent);
-  border-color: var(--kb-accent);
-}
-
-.todo-check:focus-visible {
-  outline: 2px solid var(--kb-primary);
-  outline-offset: 2px;
-}
-
-.todo-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.todo-title {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--kb-foreground);
-  margin-bottom: 2px;
-}
-
-.todo-item.done .todo-title {
-  text-decoration: line-through;
-  color: var(--kb-muted-foreground);
-}
-
-.todo-desc {
-  font-size: 12px;
-  color: var(--kb-muted-foreground);
-}
-
-.todo-status {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.todo-status.completed {
-  color: var(--kb-accent);
-}
-
-.todo-status.deadline {
-  color: var(--kb-warning);
-}
-
-.todo-status.pending {
-  color: var(--kb-muted-foreground);
-}
-
-.weekly-goal {
+  border-radius: var(--kb-radius-md, 8px);
   background: var(--kb-card);
-  border-radius: 16px;
-  padding: 24px;
-  border: 1px solid var(--kb-border);
+  font-size: var(--kb-fs-caption, 12px);
+  color: var(--kb-muted-foreground);
 }
-
-.goal-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-
-.goal-header svg {
-  color: var(--kb-accent);
-}
-
-.goal-label {
-  font-size: 13px;
-  font-weight: 500;
+.meta-pill :deep(svg) {
   color: var(--kb-muted-foreground);
 }
 
-.goal-ring-container {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  margin: 0 auto 20px;
-}
-
-.goal-ring {
-  transform: rotate(-90deg);
-}
-
-.goal-ring-bg {
-  fill: none;
-  stroke: var(--kb-muted);
-  stroke-width: 8;
-}
-
-.goal-ring-fill {
-  fill: none;
-  stroke: var(--kb-accent);
-  stroke-linecap: round;
-  transition: stroke-dashoffset 0.8s ease;
-}
-
-.goal-center {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+/* ══════════ 通用 section ══════════ */
+.home-section {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  gap: var(--kb-space-3, 12px);
 }
-
-.goal-percent {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--kb-foreground);
+.home-goal-context :deep(.py-16) {
+  padding-top: var(--kb-space-4);
+  padding-bottom: var(--kb-space-4);
 }
-
-.goal-stats {
-  font-size: 11px;
-  color: var(--kb-muted-foreground);
-}
-
-.goal-details {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.goal-detail {
-  display: flex;
-  justify-content: space-between;
-}
-
-.detail-label {
-  font-size: 13px;
-  color: var(--kb-muted-foreground);
-}
-
-.detail-value {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--kb-accent);
-}
-
-.paths-scroll {
-  display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  padding-bottom: 12px;
-  margin-bottom: 24px;
-}
-
-.paths-scroll::-webkit-scrollbar {
+.home-goal-context :deep(.w-16) {
   display: none;
 }
-
-.path-card {
-  flex-shrink: 0;
-  width: 280px;
-  background: var(--kb-card);
-  border-radius: 16px;
-  border: 1px solid var(--kb-border);
-  overflow: hidden;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.path-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(59,111,224,0.1);
-  border-color: rgba(59,111,224,0.3);
-}
-
-.path-cover {
-  height: 100px;
+.section-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  color: #ffffff;
+  justify-content: space-between;
+  gap: var(--kb-space-3, 12px);
 }
-
-.path-content {
-  padding: 20px;
-}
-
-.path-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.path-badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 10px;
-}
-
-.badge-beginner {
-  background: rgba(16,185,129,0.1);
-  color: var(--kb-accent);
-}
-
-.badge-intermediate {
-  background: rgba(59,111,224,0.1);
-  color: var(--kb-primary);
-}
-
-.badge-advanced {
-  background: rgba(245,158,11,0.1);
-  color: var(--kb-warning);
-}
-
-.path-chapters {
-  font-size: 12px;
-  color: var(--kb-muted-foreground);
-}
-
-.path-title {
-  font-size: 15px;
+.section-title {
+  margin: 0;
+  font-size: var(--kb-fs-h4, 16px);
   font-weight: 600;
   color: var(--kb-foreground);
-  margin-bottom: 8px;
+}
+.section-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--kb-fs-body-sm, 13px);
+  color: var(--kb-primary);
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+.section-link:hover {
+  opacity: 0.8;
 }
 
-.path-desc {
-  font-size: 13px;
+/* ══════════ 1. 当前目标（普通 section + 左侧品牌色竖线，不套 Card）══════════ */
+.goal-strip {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--kb-space-3, 12px);
+  padding: var(--kb-space-4, 16px);
+  border: 1px solid var(--kb-border);
+  border-left: 3px solid var(--kb-primary);
+  border-radius: var(--kb-radius-md, 8px);
+  background: var(--kb-card);
+}
+.goal-strip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--kb-radius-md, 8px);
+  background: var(--kb-primary-subtle);
+  color: var(--kb-primary);
+}
+.goal-strip-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.goal-strip-top {
+  display: flex;
+  align-items: center;
+  gap: var(--kb-space-2, 8px);
+  flex-wrap: wrap;
+}
+.goal-strip-title {
+  font-size: var(--kb-fs-body-lg, 16px);
+  font-weight: 600;
+  color: var(--kb-foreground);
+  text-decoration: none;
+}
+.goal-strip-title:hover {
+  color: var(--kb-primary);
+}
+.goal-deadline,
+.goal-pct {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--kb-fs-caption, 12px);
   color: var(--kb-muted-foreground);
-  line-height: 1.6;
-  margin-bottom: 16px;
+}
+.goal-pct {
+  color: var(--kb-primary);
+  font-weight: 600;
+}
+.goal-strip-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: var(--kb-fs-body-sm, 13px);
+  color: var(--kb-muted-foreground);
+}
+.goal-node {
+  color: var(--kb-muted-foreground);
+}
+.goal-inline-link {
+  color: var(--kb-primary);
+  text-decoration: none;
+}
+.goal-inline-link:hover {
+  text-decoration: underline;
+}
+.goal-progress {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--kb-muted);
+  overflow: hidden;
+  margin-top: 2px;
+}
+.goal-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--kb-primary);
+  transition: width 0.3s ease;
+}
+
+/* ══════════ 2. NextAction：首页视觉重心（§七）═════════ */
+.next-section :deep(.next-action-card) {
+  border-radius: var(--kb-radius-lg, 12px);
+}
+
+/* ══════════ 3. 今日学习状态 ══════════ */
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-lg);
+  background: var(--kb-card);
+  overflow: hidden;
+}
+.status-item {
+  padding: var(--kb-space-3, 12px) var(--kb-space-4, 16px);
+  border-right: 1px solid var(--kb-border);
+  padding: var(--kb-space-5, var(--kb-space-4));
+}
+.status-item:last-child { border-right: none; }
+.status-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--kb-fs-caption, 12px);
+  color: var(--kb-muted-foreground);
+}
+.status-head :deep(svg) {
+  color: var(--kb-muted-foreground);
+}
+.status-value {
+  margin: 6px 0 0;
+  font-size: var(--kb-fs-h3, 20px);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--kb-foreground);
+}
+.status-unit {
+  font-size: var(--kb-fs-caption, 12px);
+  font-weight: 400;
+  color: var(--kb-muted-foreground);
+}
+.status-muted {
+  color: var(--kb-muted-foreground);
+}
+.today-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: var(--kb-space-2, 8px);
+}
+.today-task {
+  display: flex;
+  align-items: center;
+  gap: var(--kb-space-2, 8px);
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: var(--kb-radius-sm, 6px);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font-size: var(--kb-fs-body-sm, 13px);
+  color: var(--kb-foreground);
+  transition: background-color 0.15s ease;
+}
+.today-task:hover {
+  background: var(--kb-muted);
+}
+.today-task:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--kb-ring);
+}
+.today-task-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border: 1px solid var(--kb-border);
+  border-radius: 4px;
+  color: transparent;
+}
+.today-task.done .today-task-check {
+  background: var(--kb-primary);
+  border-color: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+}
+.today-task.done .today-task-title {
+  color: var(--kb-muted-foreground);
+  text-decoration: line-through;
+}
+.today-task-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.today-reward-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--kb-fs-caption, 12px);
+  color: var(--kb-muted-foreground);
+}
+
+/* ══════════ 4. 当前路径 ══════════ */
+.path-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--kb-space-6, 24px);
+  flex-wrap: wrap;
+  padding: var(--kb-space-4, 16px);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-md, 8px);
+  background: var(--kb-card);
+}
+.path-row-main {
+  flex: 1;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.path-row-title {
+  margin: 0;
+  font-size: var(--kb-fs-body-lg, 16px);
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+.path-row-desc {
+  margin: 0;
+  font-size: var(--kb-fs-body-sm, 13px);
+  color: var(--kb-muted-foreground);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
-.path-progress {
+.path-row-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kb-space-2, 8px);
+  min-width: 200px;
+}
+.progress-head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  font-size: var(--kb-fs-caption, 12px);
+  color: var(--kb-muted-foreground);
 }
-
-.progress-text {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--kb-primary);
-}
-
 .progress-bar {
-  flex: 1;
   height: 6px;
-  border-radius: 3px;
+  border-radius: 999px;
   background: var(--kb-muted);
   overflow: hidden;
 }
-
 .progress-fill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: 999px;
   background: var(--kb-primary);
-  transition: width 0.6s ease;
+  transition: width 0.3s ease;
 }
-
-.continue-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-@media (min-width: 640px) {
-  .continue-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .continue-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.doc-card {
-  display: flex;
-  flex-direction: column;
-  background: var(--kb-card);
-  border-radius: 16px;
-  padding: 20px;
-  border: 1px solid var(--kb-border);
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.doc-card:hover {
-  box-shadow: 0 8px 24px rgba(59,111,224,0.06);
-  border-color: rgba(59,111,224,0.2);
-}
-
-.doc-thumb {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 14px;
-}
-
-.doc-info {
-  flex: 1;
-  margin-bottom: 12px;
-}
-
-.doc-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--kb-foreground);
-  margin-bottom: 6px;
-}
-
-.doc-category {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
+.path-badge {
+  align-self: flex-start;
+  padding: 2px 8px;
+  border-radius: var(--kb-radius-sm, 6px);
+  font-size: var(--kb-fs-caption, 12px);
+  font-weight: 500;
+  background: var(--kb-muted);
   color: var(--kb-muted-foreground);
 }
-
-.doc-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+.badge-beginner {
+  background: var(--kb-success-subtle);
+  color: var(--kb-state-success);
 }
-
-.doc-time {
-  font-size: 12px;
-  color: var(--kb-muted-foreground);
-}
-
-.doc-progress {
-  font-size: 12px;
-  font-weight: 600;
+.badge-intermediate {
+  background: var(--kb-primary-subtle);
   color: var(--kb-primary);
 }
-
-.doc-progress-bar {
-  height: 4px;
-  border-radius: 2px;
-  background: var(--kb-muted);
-  overflow: hidden;
+.badge-advanced {
+  background: var(--kb-warning-subtle);
+  color: var(--kb-state-warning);
 }
 
-.doc-progress-bar .progress-fill {
-  background: var(--kb-primary);
+/* ══════════ 5. 最近学习 ══════════ */
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
-
-.ai-cards {
-  background: var(--kb-card);
-  border-radius: 16px;
-  border: 1px solid var(--kb-border);
-  overflow: hidden;
-  margin-bottom: 24px;
-}
-
-.ai-card {
+.recent-item {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--kb-border);
+  gap: var(--kb-space-3, 12px);
+  padding: 10px var(--kb-space-3, 12px);
+  border-radius: var(--kb-radius-md, 8px);
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease;
 }
-
-.ai-card:last-child {
-  border-bottom: none;
+.recent-item:hover {
+  background: var(--kb-muted);
 }
-
-.ai-card:hover {
-  background: rgba(59,111,224,0.04);
+.recent-item:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--kb-ring);
 }
-
-.ai-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.ai-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.ai-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--kb-foreground);
-  margin-bottom: 4px;
-}
-
-.ai-desc {
-  font-size: 13px;
-  color: var(--kb-muted-foreground);
-}
-
-.ai-action {
-  padding: 8px 20px;
-  border-radius: 8px;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
-  font-size: 13px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.ai-action:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.report-section {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 32px;
-}
-
-.report-btn {
+.recent-thumb {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  border-radius: 10px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  color: var(--kb-primary);
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.2s ease;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--kb-radius-md, 8px);
 }
-
-.report-btn:hover {
-  background: var(--kb-muted);
-  border-color: var(--kb-primary);
-}
-
-.empty-state {
+.recent-main {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
+  gap: 2px;
+}
+.recent-title {
+  font-size: var(--kb-fs-body-md, 14px);
+  font-weight: 500;
+  color: var(--kb-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.recent-category {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  padding: 40px;
-  gap: 12px;
+  gap: 4px;
+  font-size: var(--kb-fs-caption, 12px);
+  color: var(--kb-muted-foreground);
+}
+.recent-time {
+  flex-shrink: 0;
+  font-size: var(--kb-fs-caption, 12px);
   color: var(--kb-muted-foreground);
 }
 
-.empty-state svg {
-  opacity: 0.5;
+/* ══════════ 6. 薄弱知识 ══════════ */
+.weak-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.weak-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 120px;
+  align-items: center;
+  gap: var(--kb-space-3, 12px);
+  padding: 10px var(--kb-space-3, 12px);
+  border-radius: var(--kb-radius-md, 8px);
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+.weak-item:hover {
+  background: var(--kb-muted);
+}
+.weak-item:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--kb-ring);
+}
+.weak-name {
+  font-size: var(--kb-fs-body-md, 14px);
+  color: var(--kb-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.weak-score {
+  font-size: var(--kb-fs-body-sm, 13px);
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+.weak-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--kb-muted);
+  overflow: hidden;
+}
+.weak-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  /* 薄弱 = 需要关注：用 warning 语义色，而非业务分类彩（§五） */
+  background: var(--kb-warning);
 }
 
-.empty-state-link {
-  font-size: 14px;
-  color: var(--kb-primary);
-  text-decoration: none;
-  transition: opacity 0.15s ease;
+/* ══════════ 响应式（§六：不错位、不溢出）═════════ */
+@media (max-width: 900px) {
+  .status-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .status-item:nth-child(2) { border-right: none; }
+  .status-item:nth-child(-n + 2) { border-bottom: 1px solid var(--kb-border); }
 }
-.empty-state-link:hover {
-  opacity: 0.8;
-  text-decoration: underline;
+@media (max-width: 640px) {
+  .home-container {
+    padding: 0;
+    gap: var(--kb-space-4, 16px);
+  }
+  .weak-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .weak-bar {
+    display: none;
+  }
+  .path-row-progress {
+    min-width: 100%;
+  }
+}
+
+/* ══════════ UI/UX 5.1 §四：首页首屏内容形态骨架 ══════════
+ * 形状对应真实区块：目标条（矮）→ 下一步卡（高）→ 今日任务/路径（两列）。
+ * 目的：加载期不出现「巨大空白 + 页面跳动」。
+ */
+.home-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kb-space-4, 16px);
+}
+.hs-block {
+  border-radius: var(--kb-radius-md);
+  background: var(--kb-muted);
+  animation: hs-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+.hs-goal { height: 64px; }
+.hs-next { height: 132px; background: var(--kb-card); border: 1px solid var(--kb-border); }
+.hs-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--kb-space-4, 16px);
+}
+.hs-half { height: 160px; }
+@keyframes hs-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@media (max-width: 900px) {
+  .hs-row { grid-template-columns: minmax(0, 1fr); }
+  .hs-half { height: 120px; }
 }
 </style>

@@ -26,6 +26,7 @@ import java.util.List;
 public class AdminCodeQuestionController {
 
     private final CodeQuestionMapper questionMapper;
+    private final com.knowflow.catalog.QuestionMutationAudit catalogAudit;
 
     @Operation(summary = "题目列表（支持按标题/难度/语言/状态筛选）")
     @GetMapping
@@ -96,27 +97,36 @@ public class AdminCodeQuestionController {
 
     @Operation(summary = "删除题目")
     @DeleteMapping("/{id}")
+    @org.springframework.transaction.annotation.Transactional
     public Result<Void> delete(@PathVariable Long id) {
+        if (questionMapper.selectById(id) == null) throw new com.knowflow.exception.BusinessException(404, "题目不存在");
         questionMapper.deleteById(id);
+        catalogAudit.record("LEGACY_CODE", id, "DELETE", null, "deleted=1");
         return Result.success();
     }
 
     @Operation(summary = "发布题目")
     @PutMapping("/{id}/publish")
+    @org.springframework.transaction.annotation.Transactional
     public Result<Void> publish(@PathVariable Long id) {
+        if (questionMapper.selectById(id) == null) throw new com.knowflow.exception.BusinessException(404, "题目不存在");
         CodeQuestion update = new CodeQuestion();
         update.setId(id);
         update.setStatus(1);
+        catalogAudit.record("LEGACY_CODE", id, "PUBLISH", null, "1");
         questionMapper.updateById(update);
         return Result.success();
     }
 
     @Operation(summary = "下架题目（转为草稿）")
     @PutMapping("/{id}/unpublish")
+    @org.springframework.transaction.annotation.Transactional
     public Result<Void> unpublish(@PathVariable Long id) {
+        if (questionMapper.selectById(id) == null) throw new com.knowflow.exception.BusinessException(404, "题目不存在");
         CodeQuestion update = new CodeQuestion();
         update.setId(id);
         update.setStatus(0);
+        catalogAudit.record("LEGACY_CODE", id, "UNPUBLISH", null, "0");
         questionMapper.updateById(update);
         return Result.success();
     }

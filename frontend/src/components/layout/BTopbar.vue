@@ -21,7 +21,7 @@
           v-model="searchQuery"
           type="text"
           placeholder="搜索功能、文档或用户..."
-          class="topbar-search"
+          class="topbar-search kb-input kb-form-control"
           @keyup.enter="handleSearch"
           aria-label="搜索"
         />

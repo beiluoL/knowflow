@@ -368,7 +368,7 @@ const levelCircleStyle = (lv: ChallengeLevelVO) => {
     return { background: themeColor.value, color: '#fff' }
   }
   return {
-    background: (detail.value?.themeColor || '#3B6FE0') + '14',
+    background: (detail.value?.themeColor || 'var(--kb-primary)') + '14',
     color: themeColor.value,
     border: `2px solid ${themeColor.value}`,
   }

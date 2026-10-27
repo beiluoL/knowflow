@@ -36,9 +36,11 @@ import java.util.Set;
 public class PathImportService {
 
     private final LocalReaderService localReaderService;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
 
-    public PathImportService(LocalReaderService localReaderService) {
+    public PathImportService(LocalReaderService localReaderService,com.knowflow.security.HostCapabilityGuard hostGuard) {
         this.localReaderService = localReaderService;
+        this.hostGuard=hostGuard;
     }
 
     /**
@@ -98,12 +100,13 @@ public class PathImportService {
      * @return 扫描结果（含文档数、图片数、目录数、文件列表）
      */
     public PathImportScanVO scanForImport(String absolutePath) {
+        absolutePath=hostGuard.resolveAllowed(absolutePath,null).toString();
         File root = new File(absolutePath);
         if (!root.exists()) {
-            throw new BusinessException("路径不存在：" + absolutePath);
+            throw new BusinessException(404,"资源不存在");
         }
         if (!root.canRead()) {
-            throw new BusinessException("路径不可读（权限不足）：" + absolutePath);
+            throw new BusinessException(403,"资源不可读");
         }
 
         PathImportScanVO vo = new PathImportScanVO();
@@ -116,7 +119,7 @@ public class PathImportService {
             // 单文件模式
             String ext = getExtension(root.getName());
             if (!ALL_EXTS.contains(ext)) {
-                throw new BusinessException("不支持的文件类型：" + ext + "（支持 Markdown/代码/富文档/图片）");
+                throw new BusinessException(400,"不支持的文件类型");
             }
             PathImportScanVO.FileEntry entry = new PathImportScanVO.FileEntry();
             entry.setName(root.getName());
@@ -159,18 +162,19 @@ public class PathImportService {
      * @throws IOException 读取文件失败
      */
     public MultipartFile[] collectFiles(String absolutePath) throws IOException {
+        absolutePath=hostGuard.resolveAllowed(absolutePath,null).toString();
         File root = new File(absolutePath);
         if (!root.exists() || !root.canRead()) {
-            throw new BusinessException("路径不存在或不可读：" + absolutePath);
+            throw new BusinessException(404,"资源不存在或不可读");
         }
 
         List<MultipartFile> result = new ArrayList<>();
         if (root.isFile()) {
             String ext = getExtension(root.getName());
             if (!ALL_EXTS.contains(ext)) {
-                throw new BusinessException("不支持的文件类型：" + ext);
+                throw new BusinessException(400,"不支持的文件类型");
             }
-            result.add(new LocalFileMultipartFile(root, root.getName()));
+            result.add(new LocalFileMultipartFile(root, root.getName(),hostGuard));
         } else {
             collectFilesRecursive(root, root, result, 0);
         }
@@ -194,6 +198,7 @@ public class PathImportService {
         });
 
         for (File child : sorted) {
+            hostGuard.requireAllowed(child.toPath());
             if (child.isHidden()) continue;
             if (child.isDirectory() && isIgnoredDir(child.getName())) continue;
 
@@ -205,7 +210,7 @@ public class PathImportService {
             } else if (child.isFile()) {
                 String ext = getExtension(child.getName());
                 if (!ALL_EXTS.contains(ext)) continue;
-                result.add(new LocalFileMultipartFile(child, relativePath));
+                result.add(new LocalFileMultipartFile(child, relativePath,hostGuard));
             }
         }
     }
@@ -228,6 +233,7 @@ public class PathImportService {
         });
 
         for (File child : sorted) {
+            hostGuard.requireAllowed(child.toPath());
             if (child.isHidden()) continue;
             if (child.isDirectory() && isIgnoredDir(child.getName())) continue;
 

@@ -6,7 +6,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.knowflow.common.PageResult;
 import org.springframework.jdbc.core.JdbcTemplate;
 import com.knowflow.dto.FlashcardGenerateDTO;
 import com.knowflow.dto.FlashcardSaveDTO;
@@ -24,6 +26,7 @@ import com.knowflow.entity.LearningUserPath;
 import com.knowflow.entity.LearningEvent;
 import com.knowflow.entity.DocReadProgress;
 import com.knowflow.entity.SysUser;
+import com.knowflow.entity.KgEntity;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.common.LearningEventType;
 import com.knowflow.mapper.AiPersonalizedPathMapper;
@@ -40,13 +43,19 @@ import com.knowflow.mapper.LearningUserChapterMapper;
 import com.knowflow.mapper.LearningUserPathMapper;
 import com.knowflow.mapper.LearningEventMapper;
 import com.knowflow.mapper.SysUserMapper;
+import com.knowflow.mapper.KgEntityMapper;
 import com.knowflow.service.AiService;
 import com.knowflow.service.LearningService;
 import com.knowflow.service.LearningEventService;
 import com.knowflow.service.NotificationService;
+import com.knowflow.service.SrsService;
+import com.knowflow.service.ResourceKnowledgeService;
+import com.knowflow.mastery.MasteryConfig;
 import com.knowflow.vo.CategoryMasteryVO;
 import com.knowflow.vo.ChapterDagVO;
 import com.knowflow.vo.ChapterEdgeVO;
+import com.knowflow.vo.ChapterKnowledgeVO;
+import com.knowflow.vo.KnowledgeRefVO;
 import com.knowflow.vo.ChapterNodeVO;
 import com.knowflow.vo.DailyActivityVO;
 import com.knowflow.vo.FlashcardVO;
@@ -68,6 +77,7 @@ import java.time.LocalDateTime;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -83,10 +93,13 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, LearningPath> implements LearningService {
+    @org.springframework.beans.factory.annotation.Autowired(required=false) private com.knowflow.learning.adaptive.AdaptivePathOrder adaptivePathOrder;
 
     private final LearningChapterMapper chapterMapper;
+    private final com.knowflow.interview.radar.RadarSourceAssets radarAssets;
     private final LearningFlashcardMapper flashcardMapper;
     private final LearningTaskMapper taskMapper;
+    private final com.knowflow.learning.actions.LearningWriteGuard learningWriteGuard;
     private final LearningUserPathMapper userPathMapper;
     private final LearningUserChapterMapper userChapterMapper;
     private final LearningCertificateMapper certificateMapper;
@@ -94,6 +107,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     private final LearningMistakeMapper mistakeMapper;
     private final DocReadProgressMapper readProgressMapper;
     private final DocDocumentMapper docMapper;
+    private final com.knowflow.security.DocumentAccessPolicy documentAccess;
     private final DocCategoryMapper categoryMapper;
     private final AiPersonalizedPathMapper personalizedPathMapper;
     private final NotificationService notificationService;
@@ -101,6 +115,12 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     private final JdbcTemplate jdbcTemplate;
     private final LearningEventMapper learningEventMapper;
     private final LearningEventService learningEventService;
+    private final SrsService srsService;
+    private final ResourceKnowledgeService resourceKnowledgeService;
+    private final KgEntityMapper kgEntityMapper;
+    private final com.knowflow.mapper.ResourceKnowledgeMappingMapper chapterMappings;
+    private final com.knowflow.mapper.QuizQuestionMapper chapterQuestions;
+    private final com.knowflow.learning.actions.PersonalLearningResourceScope personalScope;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /** 分类掌握度薄弱阈值：正确率低于此值标记为薄弱项 */
@@ -108,14 +128,27 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
 
     @Override
     public List<LearningPathVO> getPathList(Long userId) {
-        // 仅返回平台公开路径（owner_user_id=0），避免用户采用落地的私有个性化路径污染公共列表。
+        // 公共课程与本人固化导入的课程可发现；普通个性化私有路径仍不进入课程列表。
+        List<Long> importedPathIds = userId == null ? Collections.emptyList() : jdbcTemplate.queryForList(
+                "SELECT DISTINCT resource_id FROM interview_seed_resource " +
+                        "WHERE (seed_key=? AND resource_type=? AND resource_key LIKE ?) " +
+                        "OR (seed_key=? AND resource_type='PATH' AND resource_key='path/radar')",
+                Long.class, "content-studio-java-ai-persistent-v1", "PATH", "user/" + userId + "/path/%",
+                com.knowflow.seed.InterviewRadarImportService.KEY + userId);
         List<LearningPath> paths = this.list(new LambdaQueryWrapper<LearningPath>()
                 .eq(LearningPath::getStatus, 1)
-                .eq(LearningPath::getOwnerUserId, 0L)
+                .and(w -> {
+                    w.eq(LearningPath::getOwnerUserId, 0L);
+                    if (!importedPathIds.isEmpty()) {
+                        w.or(own -> own.eq(LearningPath::getOwnerUserId, userId)
+                                .in(LearningPath::getId, importedPathIds));
+                    }
+                })
                 .orderByAsc(LearningPath::getSortOrder));
         List<LearningPathVO> vos = paths.stream()
                 .map(p -> BeanUtil.copyProperties(p, LearningPathVO.class))
                 .collect(Collectors.toList());
+        fillPathMetrics(vos);
         if (userId == null || vos.isEmpty()) {
             return vos;
         }
@@ -142,33 +175,41 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
 
     @Override
     public LearningPathVO getPathDetail(Long pathId, Long userId) {
+        requireReadablePath(pathId,userId);
         LearningPath path = this.getById(pathId);
         if (path == null || path.getStatus() == null || path.getStatus() != 1) {
             throw new BusinessException(404, "学习路径不存在");
         }
         LearningPathVO vo = BeanUtil.copyProperties(path, LearningPathVO.class);
-        // 查询当前用户是否已报名（learning_user_path 有记录即视为已报名）
-        Long enrolled = userId == null ? 0L : userPathMapper.selectCount(new LambdaQueryWrapper<LearningUserPath>()
+        fillPathMetrics(List.of(vo));
+        // 与路径列表使用同一持久化进度，身份只来自认证上下文。
+        LearningUserPath enrollment = userId == null ? null : userPathMapper.selectOne(new LambdaQueryWrapper<LearningUserPath>()
                 .eq(LearningUserPath::getUserId, userId)
                 .eq(LearningUserPath::getPathId, pathId));
-        vo.setEnrolled(enrolled != null && enrolled > 0L);
+        vo.setEnrolled(enrollment != null);
+        if (enrollment != null) vo.setProgress(enrollment.getProgress() == null ? BigDecimal.ZERO : enrollment.getProgress());
         return vo;
     }
 
     @Override
     public List<LearningChapterVO> getChapterList(Long pathId, Long userId) {
+        requireReadablePath(pathId,userId);
         List<LearningChapter> chapters = chapterMapper.selectList(new LambdaQueryWrapper<LearningChapter>()
                 .eq(LearningChapter::getPathId, pathId)
                 .orderByAsc(LearningChapter::getSortOrder));
         // 查询已完成的章节ID集
         List<LearningUserChapter> doneList = userChapterMapper.selectList(
-                new LambdaQueryWrapper<LearningUserChapter>().eq(LearningUserChapter::getUserId, userId));
+                new LambdaQueryWrapper<LearningUserChapter>().eq(LearningUserChapter::getUserId, userId).isNotNull(LearningUserChapter::getCompleteTime));
+        Map<Long,LearningUserChapter> readingByChapter = userChapterMapper.selectList(new LambdaQueryWrapper<LearningUserChapter>()
+                .eq(LearningUserChapter::getUserId,userId).eq(LearningUserChapter::getPathId,pathId)).stream()
+                .collect(Collectors.toMap(LearningUserChapter::getChapterId, c -> c));
         Set<Long> completedIds = doneList.stream()
                 .map(LearningUserChapter::getChapterId).collect(Collectors.toSet());
-        return chapters.stream()
+        List<LearningChapterVO> result = chapters.stream()
                 .map(c -> {
                     LearningChapterVO vo = BeanUtil.copyProperties(c, LearningChapterVO.class);
                     vo.setCompleted(completedIds.contains(c.getId()));
+                    fillReadingPosition(vo,readingByChapter.get(c.getId()));
                     // L-PATH 前置解锁：前置章节未全部完成时 locked=true
                     String prereqStr = c.getPrerequisiteChapterIds();
                     boolean locked = false;
@@ -187,20 +228,20 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
                     return vo;
                 })
                 .collect(Collectors.toList());
+        return adaptivePathOrder==null?result:adaptivePathOrder.apply(userId,pathId,result);
     }
 
     @Override
     public ChapterDagVO getChapterDag(Long pathId, Long userId) {
-        List<LearningChapter> chapters = chapterMapper.selectList(new LambdaQueryWrapper<LearningChapter>()
-                .eq(LearningChapter::getPathId, pathId)
-                .orderByAsc(LearningChapter::getSortOrder));
+        requireReadablePath(pathId,userId);
+        List<LearningChapterVO> chapters = adaptivePathOrder!=null ? getChapterList(pathId,userId) : chapterMapper.selectList(new LambdaQueryWrapper<LearningChapter>().eq(LearningChapter::getPathId,pathId).orderByAsc(LearningChapter::getSortOrder)).stream().map(c->BeanUtil.copyProperties(c,LearningChapterVO.class)).collect(Collectors.toList());
         // 已完成的章节 ID 集，用于判定 locked / completed 状态
         Set<Long> completedIds = userChapterMapper.selectList(
-                        new LambdaQueryWrapper<LearningUserChapter>().eq(LearningUserChapter::getUserId, userId))
+                        new LambdaQueryWrapper<LearningUserChapter>().eq(LearningUserChapter::getUserId, userId).isNotNull(LearningUserChapter::getCompleteTime))
                 .stream().map(LearningUserChapter::getChapterId).collect(Collectors.toSet());
 
         List<ChapterNodeVO> nodes = new ArrayList<>();
-        for (LearningChapter c : chapters) {
+        for (LearningChapterVO c : chapters) {
             ChapterNodeVO node = new ChapterNodeVO();
             node.setId(c.getId());
             node.setTitle(c.getTitle());
@@ -238,7 +279,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         Set<Long> nodeIds = nodes.stream().map(ChapterNodeVO::getId).collect(Collectors.toSet());
         List<ChapterEdgeVO> edges = new ArrayList<>();
         Set<String> seen = new HashSet<>();
-        for (LearningChapter c : chapters) {
+        for (LearningChapterVO c : chapters) {
             String prereqStr = c.getPrerequisiteChapterIds();
             if (StrUtil.isBlank(prereqStr)) {
                 continue;
@@ -274,12 +315,15 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         if (chapter == null) {
             throw new BusinessException(404, "章节不存在");
         }
+        requireReadablePath(chapter.getPathId(),userId);
         LearningChapterVO vo = BeanUtil.copyProperties(chapter, LearningChapterVO.class);
+        vo.setInlineSourceImages(radarAssets.forChapter(userId,chapterId));
         LearningUserChapter userChapter = userChapterMapper.selectOne(new LambdaQueryWrapper<LearningUserChapter>()
                 .eq(LearningUserChapter::getUserId, userId)
                 .eq(LearningUserChapter::getChapterId, chapterId));
-        boolean completed = userChapter != null;
+        boolean completed = userChapter != null && userChapter.getCompleteTime() != null;
         vo.setCompleted(completed);
+        fillReadingPosition(vo,userChapter);
         // L-FORM-01：带出当前用户视频观看进度，用于前端恢复播放位置
         if (userChapter != null && userChapter.getVideoProgress() != null) {
             vo.setVideoProgress(userChapter.getVideoProgress());
@@ -292,7 +336,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
                 try {
                     if (userChapterMapper.selectCount(new LambdaQueryWrapper<LearningUserChapter>()
                             .eq(LearningUserChapter::getUserId, userId)
-                            .eq(LearningUserChapter::getChapterId, Long.parseLong(pid.trim()))) == 0) {
+                            .eq(LearningUserChapter::getChapterId, Long.parseLong(pid.trim())).isNotNull(LearningUserChapter::getCompleteTime)) == 0) {
                         locked = true;
                         break;
                     }
@@ -304,8 +348,104 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         return vo;
     }
 
+    /**
+     * Architecture-4.2（§3-§6）：解析章节对应的真实知识点。
+     *
+     * <p>推导链（全部真实映射，不做名称猜测、不新增字段）：
+     * {@code learning_chapter.docIds → resource_knowledge_mapping(DOC, ACCEPTED) → kg_entity}。
+     * 章节存在但没有任何 ACCEPTED 映射时返回空列表 —— 调用方必须如实提示「该章节暂无关联知识点」，
+     * 禁止回退到「按标题猜一个知识点」。</p>
+     */
     @Override
-    public List<FlashcardVO> getFlashcardList(Long pathId, Long chapterId) {
+    public ChapterKnowledgeVO getChapterKnowledge(Long chapterId) {
+        LearningChapter chapter = chapterMapper.selectById(chapterId);
+        if (chapter == null) {
+            throw new BusinessException(404, "章节不存在");
+        }
+        Long actor=com.knowflow.common.SecurityUtils.getCurrentUserIdNullable();
+        requireReadablePath(chapter.getPathId(),actor);
+        ChapterKnowledgeVO vo = new ChapterKnowledgeVO();
+        vo.setChapterId(chapter.getId());
+        vo.setChapterTitle(chapter.getTitle());
+        List<Long> docIds = parseIdList(chapter.getDocIds()).stream().filter(id->documentAccess.canRead(docMapper.selectById(id),actor)).toList();
+        vo.setDocIds(docIds);
+
+        Map<Long, KnowledgeRefVO> refs = new LinkedHashMap<>();
+        for (Long docId : docIds) {
+            List<Long> knowledgeIds = resourceKnowledgeService.resolveKnowledgeIds(MasteryConfig.RES_DOC, docId);
+            for (Long knowledgeId : knowledgeIds) {
+                if (knowledgeId == null || refs.containsKey(knowledgeId)) {
+                    continue;
+                }
+                KgEntity entity = kgEntityMapper.selectById(knowledgeId);
+                if (entity == null || Integer.valueOf(1).equals(entity.getDeleted()) || !documentAccess.canReadKnowledge(entity,actor)) {
+                    continue;
+                }
+                KnowledgeRefVO ref = new KnowledgeRefVO();
+                ref.setId(entity.getId());
+                ref.setName(entity.getName());
+                ref.setType(entity.getType());
+                ref.setSource("DOC");
+                refs.put(knowledgeId, ref);
+            }
+        }
+        List<KnowledgeRefVO> knowledge = new ArrayList<>(refs.values());
+        knowledge.sort(Comparator.comparing(KnowledgeRefVO::getId));
+        vo.setKnowledge(knowledge);
+        List<ChapterKnowledgeVO.QuestionRef> practice = new ArrayList<>();
+        if (!refs.isEmpty()) {
+            List<Long> questionIds = chapterMappings.selectList(new LambdaQueryWrapper<com.knowflow.entity.ResourceKnowledgeMapping>()
+                    .eq(com.knowflow.entity.ResourceKnowledgeMapping::getResourceType,"QUIZ")
+                    .eq(com.knowflow.entity.ResourceKnowledgeMapping::getStatus,"ACCEPTED")
+                    .in(com.knowflow.entity.ResourceKnowledgeMapping::getKnowledgeId,refs.keySet())).stream()
+                    .map(com.knowflow.entity.ResourceKnowledgeMapping::getResourceId).distinct().toList();
+            if (!questionIds.isEmpty()) {
+                for (var q : chapterQuestions.selectList(new LambdaQueryWrapper<com.knowflow.entity.QuizQuestion>()
+                        .in(com.knowflow.entity.QuizQuestion::getId,questionIds).eq(com.knowflow.entity.QuizQuestion::getStatus,1)
+                        .eq(com.knowflow.entity.QuizQuestion::getReviewStatus,"APPROVED").orderByAsc(com.knowflow.entity.QuizQuestion::getId))) {
+                    if (practice.size() >= 50) break;
+                    if (!Set.of("SINGLE_CHOICE","MULTIPLE_CHOICE","TRUE_FALSE","FILL_BLANK").contains(q.getQuestionType())) continue;
+                    if (!personalScope.category(q.getCategoryId(),actor) || (q.getDocId()!=null && !personalScope.document(docMapper.selectById(q.getDocId()),actor))) continue;
+                    practice.add(new ChapterKnowledgeVO.QuestionRef(q.getId(),q.getTitle(),q.getQuestionType()));
+                }
+            }
+        }
+        vo.setQuestions(practice);
+        return vo;
+    }
+
+    /** 逗号分隔 ID 串 → ID 列表（空白 / 非法片段直接丢弃，不抛异常打断上下文解析） */
+    private List<Long> parseIdList(String raw) {
+        List<Long> out = new ArrayList<>();
+        if (StrUtil.isBlank(raw)) {
+            return out;
+        }
+        for (String part : raw.split(",")) {
+            String t = part.trim();
+            if (t.isEmpty()) {
+                continue;
+            }
+            try {
+                out.add(Long.parseLong(t));
+            } catch (NumberFormatException ignored) {
+                // 脏数据片段：忽略，不影响其余 ID 解析
+            }
+        }
+        return out;
+    }
+
+    /**
+     * 闪卡列表（用户私有）：见 {@link LearningService#getFlashcardList} 的语义说明。
+     *
+     * <p>P0-1 修复要点：把 {@code userId} 作为**无条件**查询条件（而非「非空才加」），
+     * 使 ORM 产生的 SQL 必然带上 {@code user_id = ?} —— 即使未来 Controller 或其它调用方
+     * 忘记做归属校验，数据层也不会返回他人闪卡。</p>
+     */
+    @Override
+    public List<FlashcardVO> getFlashcardList(Long userId, Long pathId, Long chapterId) {
+        if (userId == null) {
+            throw new BusinessException(401, "未登录或登录已失效");
+        }
         Long effectivePathId = pathId;
         if (effectivePathId == null && chapterId != null) {
             LearningChapter chapter = chapterMapper.selectById(chapterId);
@@ -319,7 +459,9 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
                 throw new BusinessException(404, "学习路径不存在或未发布");
             }
         }
-        LambdaQueryWrapper<LearningFlashcard> wrapper = new LambdaQueryWrapper<>();
+        // 归属条件恒定存在，杜绝「条件全空 → 全表」的越权读取。
+        LambdaQueryWrapper<LearningFlashcard> wrapper = new LambdaQueryWrapper<LearningFlashcard>()
+                .eq(LearningFlashcard::getUserId, userId);
         if (pathId != null) {
             wrapper.eq(LearningFlashcard::getPathId, pathId);
         }
@@ -361,16 +503,46 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     }
 
     @Override
+    @Transactional
     public void updateTaskStatus(Long taskId, Long userId, Integer status) {
-        LearningTask task = taskMapper.selectById(taskId);
-        if (task == null) {
-            throw new BusinessException(404, "任务不存在");
+        LearningTask visible = taskMapper.selectById(taskId);
+        if (visible == null) throw new BusinessException(404, "任务不存在");
+        if (!Objects.equals(visible.getUserId(), userId)) {
+            // 沿用旧LearningTask的403合同；管理员也不能修改他人的私有任务。
+            throw new BusinessException(403, "无权操作该任务");
         }
-        if (!java.util.Objects.equals(task.getUserId(), userId)) {
-            throw new BusinessException("无权操作该任务");
+        if (status == null || (status != 0 && status != 1)) {
+            throw new BusinessException(400, "任务状态只能为待办或已完成");
         }
-        task.setStatus(status);
-        taskMapper.updateById(task);
+        // 复用原学习行动owner锁，统一owner→task→event锁顺序。
+        // MySQL RR的事件当前读可能锁事件范围；同用户不同任务也串行，避免互持gap lock死锁。
+        learningWriteGuard.lock(userId);
+        // 读取数据库锁内状态，重复请求不更新状态/时间，也不追加事件。
+        LearningTask task = taskMapper.lockOwned(taskId, userId);
+        if (task == null) throw new BusinessException(404, "任务不存在");
+        if (Objects.equals(task.getStatus(), status)) return;
+        if (!Integer.valueOf(0).equals(task.getStatus()) && !Integer.valueOf(1).equals(task.getStatus())) {
+            throw new BusinessException(409, "原任务状态异常，请检查任务记录");
+        }
+        int previous = task.getStatus();
+        if (taskMapper.update(null, new LambdaUpdateWrapper<LearningTask>()
+                .eq(LearningTask::getId, taskId).eq(LearningTask::getUserId, userId)
+                .eq(LearningTask::getStatus, previous).set(LearningTask::getStatus, status)
+                .set(LearningTask::getUpdateTime, LocalDateTime.now())) != 1) {
+            throw new BusinessException(409, "任务状态已变化，请刷新后重试");
+        }
+        if (previous == 0 && status == 1) {
+            // 包括已逻辑删除的历史活动：撤销/重做不能获得第二次任务奖励。
+            // 这是活动资格，不是知识正确率；不创建Quiz/FSRS证据、不改旧历史。
+            // MySQL RR中前面的普通读取可能建立旧快照；锁定当前读才能看到等待行锁期间已提交的活动。
+            boolean firstCompletion = jdbcTemplate.queryForList(
+                    "SELECT id FROM learning_event WHERE user_id=? AND event_type='LEARNING_TASK_COMPLETE' AND resource_type='TASK' AND resource_id=? LIMIT 1 FOR UPDATE",
+                    userId, taskId).isEmpty();
+            // REQUIRED与当前状态主事务共用提交/回滚；事件失败必须外抛，不能吞掉。
+            learningEventService.recordRequired(userId, LearningEventType.LEARNING_TASK_COMPLETE.name(), "TASK", taskId,
+                    Map.of("title", Objects.toString(task.getTitle(), ""), "type", Objects.toString(task.getType(), ""),
+                            "source", "LEARNING", "fromStatus", previous, "toStatus", status, "rewardEligible", firstCompletion));
+        }
     }
 
     @Override
@@ -380,7 +552,8 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
             throw new BusinessException(404, "任务不存在");
         }
         if (!java.util.Objects.equals(task.getUserId(), userId)) {
-            throw new BusinessException("无权删除该任务");
+            // P1-C-2：与 updateTaskStatus 同一权限模型，语义同样收敛为 403。
+            throw new BusinessException(403, "无权删除该任务");
         }
         taskMapper.deleteById(taskId);
     }
@@ -388,15 +561,14 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     @Override
     @Transactional
     public void enrollPath(Long pathId, Long userId) {
+        learningWriteGuard.lock(userId);
+        requireStudyPath(pathId,userId);
         LearningPath path = this.getById(pathId);
-        if (path == null) {
-            throw new BusinessException(404, "学习路径不存在");
-        }
         LearningUserPath userPath = userPathMapper.selectOne(new LambdaQueryWrapper<LearningUserPath>()
                 .eq(LearningUserPath::getUserId, userId)
                 .eq(LearningUserPath::getPathId, pathId));
         if (userPath != null) {
-            throw new BusinessException("已经报名该学习路径");
+            return; // 重试报名不重置既有进度、不新增通知/任务/人数。
         }
         userPath = new LearningUserPath();
         userPath.setUserId(userId);
@@ -408,7 +580,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         userPathMapper.insert(userPath);
         this.update(new LambdaUpdateWrapper<LearningPath>()
                 .eq(LearningPath::getId, pathId)
-                .setSql("enrolled_count = enrolled_count + 1"));
+                .set(LearningPath::getEnrolledCount,userPathMapper.selectCount(new LambdaQueryWrapper<LearningUserPath>().eq(LearningUserPath::getPathId,pathId))));
         notificationService.createNotification(userId, "enroll", "报名成功",
                 "你已成功报名学习路径《" + path.getTitle() + "》", pathId, "path");
         LearningTask task = new LearningTask();
@@ -425,10 +597,12 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     @Override
     @Transactional
     public void completeChapter(Long chapterId, Long userId) {
+        learningWriteGuard.lock(userId); // owner锁先于快照读取，兼容MySQL REPEATABLE READ。
         LearningChapter chapter = chapterMapper.selectById(chapterId);
         if (chapter == null) {
             throw new BusinessException(404, "章节不存在");
         }
+        requireStudyPath(chapter.getPathId(),userId);
         // L-PATH-02 前置解锁检查：若有前置章节尚未完成，则不允许完成当前章节
         String prereqStr = chapter.getPrerequisiteChapterIds();
         if (StrUtil.isNotBlank(prereqStr)) {
@@ -436,11 +610,11 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
                 Long prevId = Long.parseLong(pid.trim());
                 long count = userChapterMapper.selectCount(new LambdaQueryWrapper<LearningUserChapter>()
                         .eq(LearningUserChapter::getUserId, userId)
-                        .eq(LearningUserChapter::getChapterId, prevId));
+                        .eq(LearningUserChapter::getChapterId, prevId).isNotNull(LearningUserChapter::getCompleteTime));
                 if (count == 0) {
                     LearningChapter prev = chapterMapper.selectById(prevId);
                     String title = prev != null ? prev.getTitle() : String.valueOf(prevId);
-                    throw new BusinessException("请先完成前置章节：「" + title + "」");
+                    throw new BusinessException(409,"请先完成前置章节：「" + title + "」");
                 }
             }
         }
@@ -448,21 +622,20 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
                 .eq(LearningUserPath::getUserId, userId)
                 .eq(LearningUserPath::getPathId, chapter.getPathId()));
         if (userPath == null) {
-            throw new BusinessException("请先报名学习路径");
+            throw new BusinessException(409,"请先报名学习路径");
         }
         LearningUserChapter existing = userChapterMapper.selectOne(new LambdaQueryWrapper<LearningUserChapter>()
                 .eq(LearningUserChapter::getUserId, userId)
                 .eq(LearningUserChapter::getChapterId, chapterId));
-        if (existing != null) {
-            return;
-        }
-        LearningUserChapter uc = new LearningUserChapter();
+        if (existing != null && existing.getCompleteTime() != null) return;
+        LearningUserChapter uc = existing != null ? existing : new LearningUserChapter();
         uc.setUserId(userId);
         uc.setPathId(chapter.getPathId());
         uc.setChapterId(chapterId);
         uc.setCompleteTime(LocalDateTime.now());
-        userChapterMapper.insert(uc);
-        learningEventService.record(userId, LearningEventType.CHAPTER_COMPLETE, "CHAPTER", chapterId,
+        if(existing==null)userChapterMapper.insert(uc);else if(userChapterMapper.updateById(uc)!=1)throw new BusinessException(409,"章节状态写入失败");
+        // 完成事件与完成时间共同提交，后续步骤失败时不留下虚假的完成活动。
+        learningEventService.recordRequired(userId, LearningEventType.CHAPTER_COMPLETE.name(), "CHAPTER", chapterId,
                 Map.of("pathId", chapter.getPathId()));
         userPathMapper.update(new LambdaUpdateWrapper<LearningUserPath>()
                 .eq(LearningUserPath::getId, userPath.getId())
@@ -481,10 +654,50 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
             // G-CERT-01：路径全部章节完成时自动颁发证书
             if (updated.getCompletedChapters() >= allChapters.size()) {
                 issueCertificate(userId, chapter.getPathId());
-                learningEventService.record(userId, LearningEventType.PATH_COMPLETED, "PATH", chapter.getPathId(),
+                learningEventService.recordRequired(userId, LearningEventType.PATH_COMPLETED.name(), "PATH", chapter.getPathId(),
                         Map.of("completedChapters", updated.getCompletedChapters(), "totalChapters", allChapters.size()));
             }
         }
+    }
+
+    private String chapterContentHash(String content) {
+        return cn.hutool.crypto.digest.DigestUtil.sha256Hex(Objects.toString(content,""));
+    }
+
+    private void fillReadingPosition(LearningChapterVO vo, LearningUserChapter record) {
+        vo.setContentHash(chapterContentHash(vo.getContent()));
+        vo.setReadingRevision(record == null || record.getReadingRevision() == null ? 0L : record.getReadingRevision());
+        if (record == null) return;
+        vo.setReadingAnchor(record.getReadingAnchor());
+        vo.setReadingPresentationHash(record.getReadingPresentationHash());
+        vo.setReadingSavedAt(record.getReadingSavedAt());
+        vo.setReadingPositionStale(record.getReadingContentHash() != null && !record.getReadingContentHash().equals(chapterContentHash(vo.getContent())));
+    }
+
+    @Override @Transactional
+    public LearningChapterVO saveReadingPosition(Long chapterId, Long userId, String anchor, Long expectedRevision, String expectedContentHash, String presentationHash) {
+        if (anchor == null || anchor.length() > 255 || !anchor.matches("top|heading-[\\p{L}\\p{N}-]+") || expectedRevision == null || expectedRevision < 0)
+            throw new BusinessException(400,"阅读位置或版本不合法");
+        learningWriteGuard.lock(userId);
+        LearningChapter chapter = chapterMapper.selectById(chapterId);
+        if (chapter == null) throw new BusinessException(404,"章节不存在");
+        requireStudyPath(chapter.getPathId(),userId);
+        if (expectedContentHash == null || !expectedContentHash.matches("[a-f0-9]{64}") || (presentationHash != null && !presentationHash.matches("[a-f0-9]{64}")))
+            throw new BusinessException(400,"缺少有效的正文版本，请重新加载章节");
+        if (!expectedContentHash.equals(chapterContentHash(chapter.getContent()))) throw new BusinessException(409,"正文已更新，请重新加载章节后保存位置");
+        if (userPathMapper.selectCount(new LambdaQueryWrapper<LearningUserPath>().eq(LearningUserPath::getUserId,userId)
+                .eq(LearningUserPath::getPathId,chapter.getPathId())) == 0) throw new BusinessException(409,"请先报名学习路径");
+        LearningChapterVO current = getChapterDetail(chapterId,userId);
+        if (Boolean.TRUE.equals(current.getLocked())) throw new BusinessException(409,"请先完成前置章节");
+        if (!Objects.equals(current.getReadingRevision(),expectedRevision))
+            throw new BusinessException(409,"阅读位置已在其他页面更新，请重新加载后保存");
+        jdbcTemplate.update("INSERT INTO learning_user_chapter(user_id,path_id,chapter_id,complete_time,video_progress) VALUES(?,?,?,NULL,0) ON DUPLICATE KEY UPDATE chapter_id=chapter_id",userId,chapter.getPathId(),chapterId);
+        if (jdbcTemplate.update("UPDATE learning_user_chapter SET reading_anchor=?,reading_revision=reading_revision+1,reading_saved_at=?,reading_content_hash=?,reading_presentation_hash=? WHERE user_id=? AND chapter_id=? AND deleted=0 AND reading_revision=?",
+                anchor,LocalDateTime.now(),expectedContentHash,presentationHash,userId,chapterId,expectedRevision) != 1)
+            throw new BusinessException(409,"阅读位置已变化，请重新加载");
+        userPathMapper.update(new LambdaUpdateWrapper<LearningUserPath>().eq(LearningUserPath::getUserId,userId)
+                .eq(LearningUserPath::getPathId,chapter.getPathId()).set(LearningUserPath::getLastStudyTime,LocalDateTime.now()));
+        return getChapterDetail(chapterId,userId);
     }
 
     /**
@@ -539,29 +752,23 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     @Override
     @Transactional
     public BigDecimal updateVideoProgress(Long chapterId, Long userId, BigDecimal progress) {
+        learningWriteGuard.lock(userId);
         LearningChapter chapter = chapterMapper.selectById(chapterId);
         if (chapter == null) {
             throw new BusinessException(404, "章节不存在");
         }
-        if (progress == null || progress.compareTo(BigDecimal.ZERO) < 0) {
-            progress = BigDecimal.ZERO;
-        }
-        if (progress.compareTo(new BigDecimal("100")) > 0) {
-            progress = new BigDecimal("100");
-        }
+        requireStudyPath(chapter.getPathId(),userId);
+        if(progress==null||progress.compareTo(BigDecimal.ZERO)<0||progress.compareTo(new BigDecimal("100"))>0)throw new BusinessException(400,"视频进度必须介于0与100之间");
+        if(userPathMapper.selectCount(new LambdaQueryWrapper<LearningUserPath>().eq(LearningUserPath::getUserId,userId).eq(LearningUserPath::getPathId,chapter.getPathId()))==0)throw new BusinessException(409,"请先报名学习路径");
+        if (Boolean.TRUE.equals(getChapterDetail(chapterId,userId).getLocked())) throw new BusinessException(409,"请先完成前置章节");
         LearningUserChapter record = userChapterMapper.selectOne(new LambdaQueryWrapper<LearningUserChapter>()
                 .eq(LearningUserChapter::getUserId, userId)
                 .eq(LearningUserChapter::getChapterId, chapterId));
         if (record == null) {
-            // 首次观看：创建进度记录（未完成章节，仅记录视频进度）
-            LearningUserChapter uc = new LearningUserChapter();
-            uc.setUserId(userId);
-            uc.setPathId(chapter.getPathId());
-            uc.setChapterId(chapterId);
-            uc.setVideoProgress(progress);
-            userChapterMapper.insert(uc);
-            learningEventService.record(userId, LearningEventType.CHAPTER_START, "CHAPTER", chapterId,
-                    Map.of("pathId", chapter.getPathId(), "progress", progress));
+            // 显式NULL：旧DDL默认CURRENT_TIMESTAMP，省略complete_time会把刚开始观看伪装成读完。
+            jdbcTemplate.update("INSERT INTO learning_user_chapter(user_id,path_id,chapter_id,video_progress,complete_time) VALUES(?,?,?,?,NULL)",userId,chapter.getPathId(),chapterId,progress);
+            learningEventService.recordRequired(userId, LearningEventType.CHAPTER_START.name(), "CHAPTER", chapterId,
+                    Map.of("pathId",chapter.getPathId(),"progress",progress));
             return progress;
         }
         // 已存在记录：取较大值，保证进度单调不减
@@ -619,48 +826,68 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         return vo;
     }
 
-    /** 闪卡复习调度（SM-2 间隔重复算法）：按评分 quality(0~5) 计算下次复习间隔并保证边界。 */
+    /** 学习中心闪卡 SM-2 及格阈值：quality(0~5) < 3 视为遗忘（与旧实现语义一致） */
+    private static final int FLASHCARD_PASS_QUALITY = 3;
+
+    /** 闪卡复习调度（SM-2 间隔重复算法，统一收敛到 SrsService）：按评分 quality(0~5) 计算下次复习间隔并保证边界。 */
     @Override
+    @Transactional
     public void reviewFlashcard(Long flashcardId, Long userId, Integer quality) {
-        LearningFlashcard card = flashcardMapper.selectById(flashcardId);
-        if (card == null) {
-            throw new BusinessException(404, "闪卡不存在");
-        }
+        reviewFlashcard(flashcardId, userId, quality, null);
+    }
+
+    /**
+     * 闪卡复习调度（携带真实知识点上下文）。
+     * <p>SM-2 计算链路与三参版本完全一致（同一 SrsService.grade），
+     * 唯一差别是把调用方已知的 knowledgeId 写入事件 metadata，
+     * 使 Evidence 解析器能把这条闪卡证据归属到具体知识点（不再回落到上下文兜底）。</p>
+     *
+     * @param knowledgeId 真实知识点 ID；调用方无法确知时传 null（禁止猜测）
+     */
+    @Override
+    @Transactional
+    public void reviewFlashcard(Long flashcardId, Long userId, Integer quality, Long knowledgeId) {
+        // P0-1 修复（IDOR 写越权）：原实现仅 selectById + null 判空，
+        // 未校验归属 —— 任何已登录用户都能复习/改写他人闪卡的 SM-2 状态。
+        // 复用本类既有的 requireMine（不存在 → 404；非本人 → 403），
+        // 把归属约束下沉到 Service，Controller / 其它调用方绕过也无效。
+        requireMine(flashcardId, userId);
+        LearningFlashcard card = flashcardMapper.selectForReview(flashcardId);
+        if (card == null || !Objects.equals(card.getUserId(), userId)) throw new BusinessException(409, "闪卡已变化，请重新加载");
+        if (flashcardMapper.fsrsState(flashcardId) != null) throw new BusinessException(409, "该卡已启用 FSRS，请使用四档复习接口");
         int q = quality != null ? quality : 3;
         if (q < 0) q = 0;
         if (q > 5) q = 5;
 
-        int reviewCount = card.getReviewCount() != null ? card.getReviewCount() : 0;
-        int interval = card.getReviewInterval() != null ? card.getReviewInterval() : 0;
+        // 组装当前 SM-2 状态（easeFactor 为 Phase 0 新增列，旧数据为 null 时按默认 250 处理）
+        SrsService.SrsState state = new SrsService.SrsState();
+        state.setRepetitions(card.getReviewCount() != null ? card.getReviewCount() : 0);
+        state.setIntervalDay(card.getReviewInterval() != null ? card.getReviewInterval() : 0);
+        state.setEaseFactor(card.getEaseFactor() != null ? card.getEaseFactor() : SrsService.DEFAULT_EF);
 
-        if (q < 3) {
-            reviewCount = 0;
-            interval = 1;
-        } else {
-            reviewCount++;
-            if (reviewCount == 1) {
-                interval = 1;
-            } else if (reviewCount == 2) {
-                interval = 6;
-            } else {
-                double ef = 2.5;
-                if (q == 3) ef = 2.0;
-                else if (q == 4) ef = 2.3;
-                else if (q == 5) ef = 2.8;
-                interval = (int) Math.max(1, Math.round(interval * ef));
+        SrsService.SrsResult r = srsService.grade(q, FLASHCARD_PASS_QUALITY, state, LocalDateTime.now());
+
+        card.setReviewCount(r.getRepetitions());
+        card.setReviewInterval(r.getIntervalDay());
+        card.setEaseFactor(r.getEaseFactor());
+        card.setLastReviewTime(LocalDateTime.now());
+        card.setNextReviewTime(r.getNextReviewAt());
+        flashcardMapper.updateById(card);
+
+        // 事件 metadata：原有 quality/interval/lapsed 保持不变（既有测试与前端 Evidence 均依赖），
+        // knowledgeId 仅在真实已知时追加（Map.of 不接受 null，故用 LinkedHashMap 条件写入）。
+        Map<String, Object> meta = new LinkedHashMap<>();
+        meta.put("quality", q);
+        meta.put("interval", r.getIntervalDay());
+        meta.put("lapsed", r.isLapsed());
+        if (knowledgeId != null && knowledgeId > 0) {
+            meta.put("knowledgeId", knowledgeId);
+            // 同时回填章节内知识点归属统计所需的章节信息（闪卡自身可空，故条件写入）
+            if (card.getChapterId() != null) {
+                meta.put("chapterId", card.getChapterId());
             }
         }
-
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime nextReview = now.plusDays(interval);
-
-        card.setReviewCount(reviewCount);
-        card.setReviewInterval(interval);
-        card.setLastReviewTime(now);
-        card.setNextReviewTime(nextReview);
-        flashcardMapper.updateById(card);
-        learningEventService.record(userId, LearningEventType.FLASHCARD_REVIEWED, "FLASHCARD", flashcardId,
-                Map.of("quality", q, "interval", interval));
+        learningEventService.recordRequired(userId, LearningEventType.FLASHCARD_REVIEWED.name(), "FLASHCARD", flashcardId, meta);
     }
 
     /** C① 学习热力图：聚合用户阅读/完成章节/复习错题事件，返回最近 days 天每日计数。 */
@@ -755,33 +982,42 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         return vo;
     }
 
+    /**
+     * 分类维度掌握度：按 doc_category 聚合当前用户的答题正确率，低于阈值标记薄弱。
+     * <p>
+     * P1-C-1 修复：原 SQL 选取 {@code quiz_question.category} —— 该列在三份 schema（根 schema.sql /
+     * db/h2 / db/mysql）中都不存在（真实列为 {@code category_id}，逻辑外键 → {@code doc_category.id}），
+     * 导致每次调用都抛 BadSqlGrammarException 并被 catch 吞成空数组，前端「分类维度掌握度」恒为空。
+     * 现改为 JOIN doc_category 取 name（与 {@code LearningReportServiceImpl#buildCategoryMastery}
+     * 同一分类模型），并去掉 catch：真正的 SQL/系统故障交由全局异常处理映射为 500，
+     * 不再把系统故障伪装成「没有数据」——只有确实没有答题记录时才返回空列表。
+     * </p>
+     */
     @Override
     public List<CategoryMasteryVO> getCategoryMastery(Long userId) {
+        // GROUP BY c.id, c.name：按分类主键聚合，避免同名分类被错误合并；
+        // ORDER BY 用 * 1.0 强制小数比较，使 H2 与 MySQL 排序语义一致。
         String sql = """
-                SELECT q.category,
+                SELECT c.name AS category,
                        COUNT(*) AS total,
                        SUM(CASE WHEN r.is_correct = 1 THEN 1 ELSE 0 END) AS correct
                 FROM quiz_answer_record r
                 JOIN quiz_question q ON r.question_id = q.id
-                WHERE r.user_id = ? AND r.deleted = 0 AND q.deleted = 0
-                GROUP BY q.category
-                ORDER BY CAST(SUM(CASE WHEN r.is_correct = 1 THEN 1 ELSE 0 END) AS DOUBLE) / COUNT(*) ASC
+                JOIN doc_category c ON q.category_id = c.id
+                WHERE r.user_id = ? AND r.deleted = 0 AND q.deleted = 0 AND c.deleted = 0
+                GROUP BY c.id, c.name
+                ORDER BY SUM(CASE WHEN r.is_correct = 1 THEN 1 ELSE 0 END) * 1.0 / COUNT(*) ASC
                 """;
-        try {
-            return jdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) -> {
-                CategoryMasteryVO vo = new CategoryMasteryVO();
-                vo.setCategory(rs.getString("category"));
-                vo.setTotal(rs.getInt("total"));
-                vo.setCorrect(rs.getInt("correct"));
-                int rate = vo.getTotal() > 0 ? vo.getCorrect() * 100 / vo.getTotal() : 0;
-                vo.setRate(rate);
-                vo.setWeak(rate < WEAK_THRESHOLD);
-                return vo;
-            });
-        } catch (Exception e) {
-            log.warn("分类掌握度查询失败: {}", e.getMessage());
-            return List.of();
-        }
+        return jdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) -> {
+            CategoryMasteryVO vo = new CategoryMasteryVO();
+            vo.setCategory(rs.getString("category"));
+            vo.setTotal(rs.getInt("total"));
+            vo.setCorrect(rs.getInt("correct"));
+            int rate = vo.getTotal() > 0 ? vo.getCorrect() * 100 / vo.getTotal() : 0;
+            vo.setRate(rate);
+            vo.setWeak(rate < WEAK_THRESHOLD);
+            return vo;
+        });
     }
 
     // ============================================================
@@ -819,12 +1055,37 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
             List<DocDocument> docs = docMapper.selectBatchIds(docIds);
             for (DocDocument d : docs) docTitles.put(d.getId(), d.getTitle());
         }
-        return list.stream().map(c -> toVO(c, catNames, docTitles)).collect(Collectors.toList());
+        return list.stream().map(c -> {
+            FlashcardVO vo = toVO(c,catNames,docTitles);
+            // 历史错误来源关系不删除；撤销共享后不再回显私有来源标题。
+            if (c.getCategoryId()!=null && !personalScope.category(c.getCategoryId(),c.getUserId())) vo.setCategoryName(null);
+            if (c.getDocId()!=null && !personalScope.document(docMapper.selectById(c.getDocId()),c.getUserId())) vo.setDocTitle(null);
+            return vo;
+        }).collect(Collectors.toList());
     }
 
     @Override
     public List<FlashcardVO> listMyFlashcards(Long userId, String keyword, String category,
                                               Integer difficulty, Long categoryId, String sourceType) {
+        return toVOs(flashcardMapper.selectList(myFlashcardFilter(userId, keyword, category, difficulty, categoryId, sourceType)));
+    }
+
+    @Override
+    public PageResult<FlashcardVO> pageMyFlashcards(Long userId, String keyword, String category,
+                                                    Integer difficulty, Long categoryId, String sourceType,
+                                                    int pageNum, int pageSize) {
+        long current = Math.max(1, pageNum);
+        long size = Math.min(100, Math.max(1, pageSize));
+        Page<LearningFlashcard> result = flashcardMapper.selectPage(
+                new Page<>(current, size),
+                myFlashcardFilter(userId, keyword, category, difficulty, categoryId, sourceType));
+        Page<FlashcardVO> voPage = new Page<>(result.getCurrent(), result.getSize(), result.getTotal());
+        voPage.setRecords(toVOs(result.getRecords()));
+        return PageResult.of(voPage);
+    }
+
+    private LambdaQueryWrapper<LearningFlashcard> myFlashcardFilter(Long userId, String keyword, String category,
+                                                                   Integer difficulty, Long categoryId, String sourceType) {
         LambdaQueryWrapper<LearningFlashcard> w = new LambdaQueryWrapper<LearningFlashcard>()
                 .eq(LearningFlashcard::getUserId, userId);
         if (StrUtil.isNotBlank(keyword)) {
@@ -836,8 +1097,29 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         if (difficulty != null) w.eq(LearningFlashcard::getDifficulty, difficulty);
         if (categoryId != null) w.eq(LearningFlashcard::getCategoryId, categoryId);
         if (StrUtil.isNotBlank(sourceType)) w.eq(LearningFlashcard::getSourceType, sourceType);
-        w.orderByDesc(LearningFlashcard::getCreateTime);
-        return toVOs(flashcardMapper.selectList(w));
+        return w.orderByDesc(LearningFlashcard::getCreateTime).orderByDesc(LearningFlashcard::getId);
+    }
+
+    @Override
+    public List<FlashcardVO> listDueFlashcards(Long userId) {
+        LocalDateTime now = LocalDateTime.now();
+        List<LearningFlashcard> dueCards = flashcardMapper.selectList(new LambdaQueryWrapper<LearningFlashcard>()
+                .eq(LearningFlashcard::getUserId, userId)
+                .isNotNull(LearningFlashcard::getNextReviewTime)
+                .le(LearningFlashcard::getNextReviewTime, now)
+                .orderByAsc(LearningFlashcard::getNextReviewTime)
+                .orderByAsc(LearningFlashcard::getId)
+                .last("LIMIT 100"));
+        if (dueCards.size() < 100) {
+            int remaining = 100 - dueCards.size();
+            dueCards.addAll(flashcardMapper.selectList(new LambdaQueryWrapper<LearningFlashcard>()
+                    .eq(LearningFlashcard::getUserId, userId)
+                    .isNull(LearningFlashcard::getNextReviewTime)
+                    .orderByAsc(LearningFlashcard::getCreateTime)
+                    .orderByAsc(LearningFlashcard::getId)
+                    .last("LIMIT " + remaining)));
+        }
+        return toVOs(dueCards);
     }
 
     private LearningFlashcard requireMine(Long flashcardId, Long userId) {
@@ -858,8 +1140,9 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
     @Transactional
     public FlashcardVO createMyFlashcard(Long userId, FlashcardSaveDTO dto) {
         if (StrUtil.isBlank(dto.getFront()) || StrUtil.isBlank(dto.getBack())) {
-            throw new BusinessException("闪卡正面和背面内容必填");
+            throw new BusinessException(400,"闪卡正面和背面内容必填");
         }
+        validateManualCardSource(userId,dto);
         LearningFlashcard card = new LearningFlashcard();
         card.setUserId(userId);
         card.setPathId(dto.getPathId());
@@ -878,24 +1161,59 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         return toVOs(List.of(card)).get(0);
     }
 
+    private void validateManualCardSource(Long userId, FlashcardSaveDTO dto) {
+        if (dto.getDocId()!=null) {
+            DocDocument source = docMapper.selectById(dto.getDocId());
+            if (source==null) throw new BusinessException(404,"来源文档不存在");
+            if (!personalScope.document(source,userId)) throw new BusinessException(403,"无权使用该文档作为学习来源");
+            if (dto.getCategoryId()!=null && !Objects.equals(dto.getCategoryId(),source.getCategoryId())) throw new BusinessException(400,"来源文档与知识库不一致");
+        }
+        if (dto.getCategoryId()!=null && !personalScope.category(dto.getCategoryId(),userId)) throw new BusinessException(403,"无权使用该知识库作为学习来源");
+        Long pathId = dto.getPathId();
+        if (dto.getChapterId()!=null) {
+            LearningChapter chapter = chapterMapper.selectById(dto.getChapterId());
+            if (chapter==null) throw new BusinessException(404,"来源章节不存在");
+            if (pathId!=null && !Objects.equals(pathId,chapter.getPathId())) throw new BusinessException(400,"来源章节与学习路径不一致");
+            pathId=chapter.getPathId();
+        }
+        if (pathId!=null) requireStudyPath(pathId,userId);
+    }
+
     @Override
+    @Transactional
     public void updateMyFlashcard(Long flashcardId, Long userId, FlashcardSaveDTO dto) {
         LearningFlashcard card = requireMine(flashcardId, userId);
-        if (StrUtil.isNotBlank(dto.getFront())) card.setFront(dto.getFront().trim());
-        if (StrUtil.isNotBlank(dto.getBack())) card.setBack(dto.getBack().trim());
-        if (dto.getPathId() != null) card.setPathId(dto.getPathId());
-        if (dto.getChapterId() != null) card.setChapterId(dto.getChapterId());
-        if (dto.getCategoryId() != null) card.setCategoryId(dto.getCategoryId());
-        if (dto.getDocId() != null) card.setDocId(dto.getDocId());
-        if (dto.getCategory() != null) card.setCategory(StrUtil.trim(dto.getCategory()));
-        if (dto.getDifficulty() != null) card.setDifficulty(dto.getDifficulty());
-        if (dto.getTags() != null) card.setTags(StrUtil.trim(dto.getTags()));
-        flashcardMapper.updateById(card);
+        if (flashcardMapper.countNoteLinks(flashcardId) > 0) throw new BusinessException(409, "请编辑完整闪卡笔记，不能单独修改生成的复习卡");
+        card = flashcardMapper.selectForReview(flashcardId);
+        if (card == null || !Objects.equals(card.getUserId(),userId)) throw new BusinessException(409,"闪卡已变化，请重新加载");
+        FlashcardSaveDTO effective = new FlashcardSaveDTO();
+        effective.setDocId(dto.getDocId()!=null ? dto.getDocId() : card.getDocId());
+        effective.setCategoryId(dto.getCategoryId()!=null ? dto.getCategoryId() : card.getCategoryId());
+        effective.setChapterId(dto.getChapterId()!=null ? dto.getChapterId() : card.getChapterId());
+        effective.setPathId(dto.getPathId()!=null ? dto.getPathId() : card.getPathId());
+        boolean sourceChanged = !Objects.equals(effective.getDocId(),card.getDocId()) || !Objects.equals(effective.getCategoryId(),card.getCategoryId())
+                || !Objects.equals(effective.getChapterId(),card.getChapterId()) || !Objects.equals(effective.getPathId(),card.getPathId());
+        if (sourceChanged) validateManualCardSource(userId,effective);
+        // Content edits must never write a stale copy of concurrent SM-2/FSRS scheduling fields.
+        var update = new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<LearningFlashcard>()
+                .eq(LearningFlashcard::getId, flashcardId).eq(LearningFlashcard::getUserId, userId);
+        if (StrUtil.isNotBlank(dto.getFront())) update.set(LearningFlashcard::getFront, dto.getFront().trim());
+        if (StrUtil.isNotBlank(dto.getBack())) update.set(LearningFlashcard::getBack, dto.getBack().trim());
+        if (dto.getPathId() != null) update.set(LearningFlashcard::getPathId, dto.getPathId());
+        if (dto.getChapterId() != null) update.set(LearningFlashcard::getChapterId, dto.getChapterId());
+        if (dto.getCategoryId() != null) update.set(LearningFlashcard::getCategoryId, dto.getCategoryId());
+        if (dto.getDocId() != null) update.set(LearningFlashcard::getDocId, dto.getDocId());
+        if (dto.getCategory() != null) update.set(LearningFlashcard::getCategory, StrUtil.trim(dto.getCategory()));
+        if (dto.getDifficulty() != null) update.set(LearningFlashcard::getDifficulty, dto.getDifficulty());
+        if (dto.getTags() != null) update.set(LearningFlashcard::getTags, StrUtil.trim(dto.getTags()));
+        update.set(LearningFlashcard::getUpdateTime, LocalDateTime.now());
+        if (flashcardMapper.update(null, update) != 1) throw new BusinessException(409, "闪卡已变化，请重新加载");
     }
 
     @Override
     public void deleteMyFlashcard(Long flashcardId, Long userId) {
         requireMine(flashcardId, userId);
+        if (flashcardMapper.countNoteLinks(flashcardId) > 0) throw new BusinessException(409, "请编辑完整闪卡笔记以移除编号，不能单独删除生成的复习卡");
         flashcardMapper.deleteById(flashcardId);
     }
 
@@ -906,6 +1224,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         for (Long id : flashcardIds) {
             LearningFlashcard c = flashcardMapper.selectById(id);
             if (c != null && Objects.equals(c.getUserId(), userId)) {
+                if (flashcardMapper.countNoteLinks(id) > 0) throw new BusinessException(409, "批量操作包含笔记生成卡，请先编辑完整闪卡笔记");
                 flashcardMapper.deleteById(id);
             }
         }
@@ -927,6 +1246,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         String categoryName = null;
         if (docId != null) {
             DocDocument doc = docMapper.selectById(docId);
+            documentAccess.requireRead(doc,userId);
             if (doc == null || doc.getStatus() == null || doc.getStatus() != 1) {
                 throw new BusinessException(404, "文档不存在或未发布");
             }
@@ -943,6 +1263,7 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         } else {
             DocCategory cat = categoryMapper.selectById(categoryId);
             if (cat == null) throw new BusinessException(404, "知识库不存在");
+            if(!documentAccess.canReadCategory(categoryId,userId)) throw new BusinessException(403,"无权阅读该知识库");
             categoryName = cat.getName();
 
             // 聚合知识库下所有文档（最多 15 篇，每篇截断 1500 字，防止超模型上下文）
@@ -1010,6 +1331,33 @@ public class LearningServiceImpl extends ServiceImpl<LearningPathMapper, Learnin
         }
         for (LearningFlashcard c : cards) flashcardMapper.insert(c);
         return toVOs(cards);
+    }
+
+    private void fillPathMetrics(List<LearningPathVO> paths) {
+        if (paths.isEmpty()) return;
+        Map<Long,LearningPathVO> byId = paths.stream().collect(Collectors.toMap(LearningPathVO::getId,p -> p));
+        paths.forEach(p -> {p.setChapterCount(0);p.setEnrolledCount(0);p.setTotalDuration(null);});
+        // 只聚合本次可见路径，不为每张路径卡片发起三条额外查询。
+        String placeholders = String.join(",",Collections.nCopies(paths.size(),"?"));
+        Object[] ids = paths.stream().map(LearningPathVO::getId).toArray();
+        for (var row : jdbcTemplate.queryForList("SELECT path_id,COUNT(*) chapter_count,SUM(duration) total_duration FROM learning_chapter WHERE deleted=0 AND path_id IN ("+placeholders+") GROUP BY path_id",ids)) {
+            var p = byId.get(((Number)row.get("path_id")).longValue());
+            p.setChapterCount(((Number)row.get("chapter_count")).intValue());
+            if (row.get("total_duration") != null) p.setTotalDuration(((Number)row.get("total_duration")).intValue());
+        }
+        for (var row : jdbcTemplate.queryForList("SELECT path_id,COUNT(DISTINCT user_id) enrolled_count FROM learning_user_path WHERE deleted=0 AND path_id IN ("+placeholders+") GROUP BY path_id",ids))
+            byId.get(((Number)row.get("path_id")).longValue()).setEnrolledCount(((Number)row.get("enrolled_count")).intValue());
+    }
+    private void requireStudyPath(Long pathId,Long actor) {
+        requireReadablePath(pathId,actor);
+        var path=getById(pathId);
+        if(path.getOwnerUserId()!=null&&path.getOwnerUserId()!=0&&!Objects.equals(path.getOwnerUserId(),actor))throw new BusinessException(403,"不能学习他人的私有路径");
+    }
+    private void requireReadablePath(Long pathId,Long userId) {
+        LearningPath path=this.getById(pathId);
+        if(path==null||!Integer.valueOf(1).equals(path.getStatus())) throw new BusinessException(404,"学习路径不存在");
+        Long owner=path.getOwnerUserId();
+        if(owner!=null && owner!=0 && !Objects.equals(owner,userId) && !documentAccess.admin(userId)) throw new BusinessException(userId==null?401:403,"无权访问该学习路径");
     }
 
     /** 解析 AI 返回的 JSON 数组（兼容 ```json 围栏与额外前缀文字）。 */

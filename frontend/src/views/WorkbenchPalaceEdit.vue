@@ -1,18 +1,10 @@
 <template>
-  <div class="space-y-4 animate-fade-in">
-    <div class="flex items-center justify-between flex-wrap gap-3">
-      <div>
-        <h1 class="kb-h1 mb-1 flex items-center gap-2" style="color: var(--kb-foreground);">
-          <Icon name="map-pin" :size="24" style="color: var(--kb-primary);" /> {{ palace?.name || '记忆宫殿' }}
-        </h1>
-        <p class="kb-body" style="color: var(--kb-muted-foreground);">拖拽位点布置空间布局，点击位点编辑绑定的知识点。沿路线漫游回忆。</p>
-      </div>
-      <div class="flex items-center gap-2">
-        <button class="kb-btn hover:bg-[var(--kb-muted)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="router.push('/workbench/palace')"><Icon name="chevron-left" :size="16" aria-hidden="true" /> 返回</button>
-        <button class="kb-btn kb-btn-primary hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="showLociForm = true"><Icon name="plus" :size="16" aria-hidden="true" /> 添加位点</button>
-      </div>
-    </div>
-
+  <WorkbenchShell stage="review" app-key="memory-palace" :title="palace?.name || '记忆宫殿'" subtitle="布置位点、绑定知识与联想图像，沿固定顺序回忆。" help="拖拽位点调整空间布局，点击位点查看知识。编号表示回忆顺序；位置保存仍使用原有宫殿接口。" :revision="revision" @ready="initialize">
+    <template #actions><RouterLink to="/workbench/palace" class="kb-btn">宫殿列表</RouterLink><button class="kb-btn kb-btn-primary" :disabled="loading || !!error" @click="openCreateLoci"><Icon name="plus" :size="16" />添加位点</button></template>
+    <WorkbenchReviewMethods active="memory-palace" />
+    <div v-if="error" role="alert" class="workbench-inline-error">{{ error }} <button class="kb-btn" @click="load">重试</button></div>
+    <div v-else-if="loading" role="status" class="workbench-empty">正在读取宫殿与位点…</div>
+    <div v-else class="space-y-4">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <!-- 画布 -->
       <div class="lg:col-span-2">
@@ -112,17 +104,17 @@
     </div>
 
     <!-- 位点编辑抽屉 -->
-    <div
+    <Teleport to="body"><div
       v-if="showLociForm"
-      class="fixed inset-0 z-40 flex transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+      class="workbench-drawer-mask transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
       role="button"
       tabindex="0"
       aria-label="关闭位点编辑抽屉"
       @click.self="showLociForm = false"
       @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
     >
-      <div class="fixed inset-0" style="background: rgba(0,0,0,0.35);"></div>
-      <div class="relative ml-auto w-full max-w-md h-full bg-[var(--kb-background)] border-l p-5 overflow-y-auto" style="border-color: var(--kb-border);">
+
+      <div role="dialog" aria-modal="true" aria-label="位点编辑" class="workbench-drawer" style="border-color: var(--kb-border);">
         <div class="flex items-center justify-between mb-4">
           <h2 class="kb-h3" style="color: var(--kb-foreground);">{{ editingLociId ? '编辑位点' : '添加位点' }}</h2>
           <button class="icon-btn hover:bg-[var(--kb-muted)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" aria-label="关闭" @click="showLociForm = false"><Icon name="x" :size="18" aria-hidden="true" /></button>
@@ -130,20 +122,20 @@
         <div class="space-y-3">
           <div>
             <label class="kb-label">位点名称 *</label>
-            <input v-model="lociForm.name" class="kb-input transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" placeholder="如：书桌左上角" />
+            <input v-model="lociForm.name" class="kb-input transition-colors kb-form-control" placeholder="如：书桌左上角" />
           </div>
           <div>
             <label class="kb-label">绑定的知识点</label>
-            <textarea v-model="lociForm.knowledgePoint" class="kb-input transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" rows="3" placeholder="这个位置要记住的内容…"></textarea>
+            <textarea v-model="lociForm.knowledgePoint" class="kb-input transition-colors kb-textarea kb-form-control" rows="3" placeholder="这个位置要记住的内容…"></textarea>
           </div>
           <div>
             <label class="kb-label">联想图像描述</label>
-            <input v-model="lociForm.imageHint" class="kb-input transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" placeholder="越夸张越好记，如「一只大象在背单词」" />
+            <input v-model="lociForm.imageHint" class="kb-input transition-colors kb-form-control" placeholder="越夸张越好记，如「一只大象在背单词」" />
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="kb-label">图标</label>
-              <select v-model="lociForm.icon" class="kb-input transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2">
+              <select v-model="lociForm.icon" class="kb-input transition-colors kb-select kb-form-control">
                 <option value="map-pin">map-pin</option>
                 <option value="book">book</option>
                 <option value="lightbulb">lightbulb</option>
@@ -154,12 +146,12 @@
             </div>
             <div>
               <label class="kb-label">漫游顺序</label>
-              <input type="number" v-model.number="lociForm.sortOrder" class="kb-input transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" />
+              <input type="number" v-model.number="lociForm.sortOrder" class="kb-input transition-colors kb-form-control" />
             </div>
           </div>
           <div>
             <label class="kb-label">归类知识库分类</label>
-            <select v-model="lociForm.categoryId" class="kb-input transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2">
+            <select v-model="lociForm.categoryId" class="kb-input transition-colors kb-select kb-form-control">
               <option :value="undefined">未归类</option>
               <option v-for="c in flatCategories" :key="c.id" :value="c.id">{{ '　'.repeat(c.depth) }}{{ c.name }}</option>
             </select>
@@ -170,34 +162,38 @@
           <button class="kb-btn kb-btn-primary hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="saveLoci">保存</button>
         </div>
       </div>
-    </div>
+    </div></Teleport>
   </div>
+  </WorkbenchShell>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { onBeforeUnmount, reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import WorkbenchShell from '@/components/workbench/WorkbenchShell.vue'
+import WorkbenchReviewMethods from '@/components/workbench/WorkbenchReviewMethods.vue'
 import Icon from '@/components/ui/Icon.vue'
 import { notify, getApiError } from '@/utils/toast'
 import { dialog } from '@/utils/dialog'
 import { getPalace, listLoci, createLoci, updateLoci, deleteLoci, getCategoryTree } from '@/api/workbench'
-import type { WbPalace, WbPalaceLoci, WbPalaceLociPayload, CategoryVO } from '@/api/types'
+import type { WbPalace, WbPalaceLoci, WbPalaceLociPayload, CategoryTreeNodeVO } from '@/api/types'
 
 const route = useRoute()
-const router = useRouter()
 const palaceId = Number(route.params.id)
 const palace = ref<WbPalace | null>(null)
+const loading = ref(true), error = ref(''), revision = ref(0)
+let request = 0
 const loci = ref<WbPalaceLoci[]>([])
 const selectedId = ref<number | null>(null)
 const selected = ref<WbPalaceLoci | null>(null)
 const canvasRef = ref<HTMLElement | null>(null)
-const categories = ref<CategoryVO[]>([])
-const flatCategories = ref<CategoryVO[]>([])
+const categories = ref<CategoryTreeNodeVO[]>([])
+const flatCategories = ref<CategoryTreeNodeVO[]>([])
 const categoryMap = ref<Map<number, string>>(new Map())
 
 // 递归展平分类树，保留层级缩进所需的 depth
-function flatten(nodes: CategoryVO[], depth = 0): CategoryVO[] {
-  const out: CategoryVO[] = []
+function flatten(nodes: CategoryTreeNodeVO[], depth = 0): CategoryTreeNodeVO[] {
+  const out: CategoryTreeNodeVO[] = []
   for (const n of nodes) {
     out.push({ ...n, depth })
     if (n.children && n.children.length) out.push(...flatten(n.children, depth + 1))
@@ -225,12 +221,15 @@ const lociForm = reactive<WbPalaceLociPayload>({
 let dragState: { id: number; startX: number; startY: number; baseX: number; baseY: number } | null = null
 
 async function load() {
+  const seq = ++request; loading.value = true; error.value = ''
   try {
-    palace.value = await getPalace(palaceId)
-    loci.value = await listLoci(palaceId)
+    if (!Number.isSafeInteger(palaceId) || palaceId <= 0) throw new Error('Invalid palace ID')
+    const [data, points] = await Promise.all([getPalace(palaceId), listLoci(palaceId)])
+    if (seq !== request) return
+    palace.value = data; loci.value = points
   } catch (e) {
-    notify({ type: 'error', message: getApiError(e, '加载失败') })
-  }
+    if (seq === request) error.value = getApiError(e, '宫殿或位点加载失败，请重试')
+  } finally { if (seq === request) loading.value = false }
 }
 async function loadCategories() {
   try {
@@ -293,7 +292,7 @@ async function endDrag() {
           sortOrder: target.sortOrder,
         })
       } catch (e) {
-        notify({ type: 'error', message: getApiError(e, '位置保存失败') })
+        notify(getApiError(e, '位置保存失败'), 'error')
       }
     }
   }
@@ -316,24 +315,9 @@ function openCreateLoci() {
   })
   showLociForm.value = true
 }
-function editLoci(l: WbPalaceLoci) {
-  editingLociId.value = l.id
-  Object.assign(lociForm, {
-    palaceId: l.palaceId,
-    name: l.name,
-    knowledgePoint: l.knowledgePoint || '',
-    imageHint: l.imageHint || '',
-    icon: l.icon || 'map-pin',
-    categoryId: l.categoryId,
-    posX: l.posX,
-    posY: l.posY,
-    sortOrder: l.sortOrder,
-  })
-  showLociForm.value = true
-}
 async function saveLoci() {
   if (!lociForm.name.trim()) {
-    notify({ type: 'warning', message: '位点名称不能为空' })
+    notify('位点名称不能为空', 'warning')
     return
   }
   try {
@@ -342,32 +326,40 @@ async function saveLoci() {
     } else {
       await createLoci({ ...lociForm })
     }
-    notify({ type: 'success', message: '已保存' })
+    notify('已保存', 'success')
     showLociForm.value = false
-    await load()
+    revision.value++; await load()
   } catch (e) {
-    notify({ type: 'error', message: getApiError(e, '保存失败') })
+    notify(getApiError(e, '保存失败'), 'error')
   }
 }
 async function removeLoci(l: WbPalaceLoci) {
-  if (!(await dialog.confirm({ title: '删除确认', message: '确认删除该位点？', variant: 'danger' }))) return
-  try {
-    await deleteLoci(l.id)
-    notify({ type: 'success', message: '已删除' })
-    deselect()
-    load()
-  } catch (e) {
-    notify({ type: 'error', message: getApiError(e, '删除失败') })
-  }
+  await dialog.confirm({ "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", title: '删除确认', message: '确认删除该位点？', variant: 'danger', onConfirm: async () => {
+          try {
+              await deleteLoci(l.id);
+              notify('已删除', 'success');
+              deselect();
+              load();
+          }
+          catch (e) {
+              notify(getApiError(e, '删除失败'), 'error');
+              throw e;
+          }
+      } });
 }
 function themeLabel(t?: string) {
   return { ROOM: '房间', STREET: '街道', CAMPUS: '校园', CUSTOM: '自定义' }[t || ''] || t || ''
 }
 
-onMounted(() => {
-  load()
-  loadCategories()
-  // 从列表/笔记跳转预填（如有 query）可在此扩展
+function initialize() {
+  void load()
+  void loadCategories()
   if (route.query.new === '1') openCreateLoci()
+}
+onBeforeUnmount(() => {
+  request++
+  dragState = null
+  window.removeEventListener('mousemove', onDrag)
+  window.removeEventListener('mouseup', endDrag)
 })
 </script>

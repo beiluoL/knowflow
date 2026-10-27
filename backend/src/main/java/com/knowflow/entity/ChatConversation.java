@@ -14,6 +14,10 @@ public class ChatConversation extends BaseEntity {
 
     private Long userId;
 
+    private Boolean pinned = false;
+
+    private Boolean archived = false;
+
     private String title;
 
     private Integer messageCount;

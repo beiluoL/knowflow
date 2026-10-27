@@ -20,6 +20,8 @@ public class PlanItemVO {
 
     /** 关联「待办任务」ID（type=todo 时非空）。 */
     private Long taskId;
+    /** 从本人原Task实时投影，不缓存/生成新的完成证明。 */
+    private com.knowflow.learning.actions.PlanModels.CompletionRequirement completionRequirement;
 
     /** 关联「习惯」ID（type=habit 时非空）。 */
     private Long habitId;

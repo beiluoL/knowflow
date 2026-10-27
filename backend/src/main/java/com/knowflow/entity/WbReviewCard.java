@@ -37,6 +37,15 @@ public class WbReviewCard extends BaseEntity {
     /** 卡片类型：BASIC 问答 / CLOZE 挖空 / RECALL 主动回忆 */
     private String cardType;
 
+    /** 记忆提示（可选，三类卡片通用） */
+    private String hint;
+
+    /** 标签，逗号分隔（可选） */
+    private String tags;
+
+    /** 类型专属扩展 JSON：RECALL 存储检查要点，CLOZE 保留扩展位；旧数据为空 */
+    private String extraJson;
+
     /** SM-2 难度系数（放大100倍存储，默认250即2.5） */
     private Integer easeFactor;
 

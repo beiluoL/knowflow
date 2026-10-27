@@ -31,6 +31,24 @@ public class WbRecallSession extends BaseEntity {
     /** 原文（默写对照基准） */
     private String sourceText;
 
+    /** 原文来源类型：PASTE 粘贴 / NOTE 从笔记选择 */
+    private String sourceType;
+
+    /** 归档标记：0 未归档 / 1 已归档 */
+    private Integer archived;
+
+    /** 第一轮中途草稿 */
+    private String round1Draft;
+
+    /** 第二轮中途草稿 */
+    private String round2Draft;
+
+    /** 第三轮中途草稿 */
+    private String round3Draft;
+
+    /** 用户确认的关键遗漏（JSON：{"1":["…"],"2":["…"]}） */
+    private String gapJson;
+
     /** 第一轮：即时默写内容 */
     private String round1Text;
 
@@ -52,7 +70,7 @@ public class WbRecallSession extends BaseEntity {
     /** 当前轮次：1 / 2 / 3 */
     private Integer currentRound;
 
-    /** 会话状态：IN_PROGRESS 进行中 / COMPLETED 已完成 */
+    /** 会话状态：DRAFT 草稿 / IN_PROGRESS 进行中 / COMPLETED 已完成 */
     private String status;
 
     /** 第三轮预定复测时间（1小时后），用于提醒 */

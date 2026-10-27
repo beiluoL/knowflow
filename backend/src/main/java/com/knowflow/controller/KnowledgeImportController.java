@@ -61,13 +61,15 @@ public class KnowledgeImportController {
     private final CategoryService categoryService;
     private final KbMemberService kbMemberService;
     private final PathImportService pathImportService;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
+    private final com.knowflow.security.DocumentAccessPolicy documentAccess;
 
     /** 异步执行导入任务的线程池（与 SseEmitter 配合，不阻塞请求线程） */
-    private final ExecutorService importExecutor = Executors.newCachedThreadPool(r -> {
+    private final ExecutorService importExecutor = new org.springframework.security.concurrent.DelegatingSecurityContextExecutorService(Executors.newCachedThreadPool(r -> {
         Thread t = new Thread(r, "import-stream");
         t.setDaemon(true);
         return t;
-    });
+    }));
 
     /**
      * 批量导入目录文件到知识库（同步，无进度）。
@@ -124,6 +126,7 @@ public class KnowledgeImportController {
 
         Long userId = SecurityUtils.getCurrentUserId();
         // 预生成 batchId，随 start 事件回传前端，后续取消接口需要
+        documentAccess.requireEditCategory(targetCategoryId,userId);
         String batchId = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
 
         KnowledgeImportOptionsDTO options = buildOptions(targetCategoryId, createSubCategories,
@@ -131,18 +134,6 @@ public class KnowledgeImportController {
 
         // 超时设 10 分钟（大目录 + AI 打标可能较慢）
         SseEmitter emitter = new SseEmitter(10 * 60 * 1000L);
-
-        // 主线程中提前做权限校验：异步线程中 SecurityContextHolder 默认不传递，
-        // 会导致 SecurityUtils.isAdmin() 失效，admin 用户被误判为无权导入。
-        if (!kbMemberService.canEditDocs(targetCategoryId, userId)) {
-            sendEvent(emitter, "error", Map.of(
-                    "error", "无权向该知识库导入文档（需 Owner 或 Editor 权限）"));
-            try {
-                emitter.complete();
-            } catch (Exception ignored) {
-            }
-            return emitter;
-        }
 
         log.info("知识库目录导入(SSE): userId={}, targetCategoryId={}, fileCount={}, batchId={}",
                 userId, targetCategoryId, files != null ? files.length : 0, batchId);
@@ -243,23 +234,20 @@ public class KnowledgeImportController {
 
         Long userId = SecurityUtils.getCurrentUserId();
         String batchId = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+        documentAccess.requireEditCategory(targetCategoryId,userId);
         KnowledgeImportOptionsDTO options = buildOptions(targetCategoryId, createSubCategories,
                 autoTags, aiTags, incremental, maxContentChars);
+        hostGuard.requireActor(userId);
+        pathImportService.scanForImport(pathImportService.resolvePath(path,null));
         SseEmitter emitter = new SseEmitter(10 * 60 * 1000L);
-
-        // 主线程提前做权限校验（与 /stream 一致）
-        if (!kbMemberService.canEditDocs(targetCategoryId, userId)) {
-            sendEvent(emitter, "error", Map.of(
-                    "error", "无权向该知识库导入文档（需 Owner 或 Editor 权限）"));
-            try { emitter.complete(); } catch (Exception ignored) {}
-            return emitter;
-        }
 
         // 主线程提前扫描文件，避免异步线程中路径异常难以反馈
         MultipartFile[] files;
         try {
             String absolutePath = pathImportService.resolvePath(path, null);
             files = pathImportService.collectFiles(absolutePath);
+        } catch (com.knowflow.exception.BusinessException e) {
+            throw e;
         } catch (Exception e) {
             log.warn("路径导入扫描失败: path={}, error={}", path, e.getMessage());
             sendEvent(emitter, "error", Map.of("error", "路径扫描失败：" + e.getMessage()));
@@ -279,7 +267,7 @@ public class KnowledgeImportController {
         ImportProgressListener listener = buildListener(emitter);
 
         // 异步执行导入
-        importExecutor.submit(() -> {
+        importExecutor.submit(hostGuard.wrapAuthenticated(() -> {
             try {
                 knowledgeImportService.importDirectoryWithProgress(
                         files, options, userId, batchId, listener);
@@ -287,7 +275,7 @@ public class KnowledgeImportController {
                 log.error("路径导入异步任务异常: batchId={}", batchId, e);
                 listener.onError("导入异常：" + e.getMessage());
             }
-        });
+        }));
 
         emitter.onCompletion(() -> log.debug("路径导入 SSE 连接完成: batchId={}", batchId));
         emitter.onTimeout(() -> {

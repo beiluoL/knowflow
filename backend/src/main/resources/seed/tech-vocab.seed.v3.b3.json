@@ -1,0 +1,1060 @@
+{
+  "note": "V3 批次 b3：消息队列 13 条、分布式系统 16 条、AI Agent 14 条。术语名与事实性概念参考 Apache Kafka、RabbitMQ 官方文档、Martin Kleppmann《Designing Data-Intensive Applications》与 ReAct 论文；释义与例句为本项目原创撰写，未复制来源原文。",
+  "terms": [
+    {
+      "headword": "Broker",
+      "termType": "WORD",
+      "domain": "MQ",
+      "senseKey": "default",
+      "meaningCn": "消息代理",
+      "definitionCn": "独立进程，负责接收生产者发送的消息、持久化并按订阅关系投递给消费者。它把生产与消费在时间和空间上解耦，同时承担路由、复制与流控职责。",
+      "definitionEn": "A server process that receives messages from producers, stores them, and delivers them to consumers according to subscriptions.",
+      "exampleEn": "The broker persisted the order event before acknowledging the producer request.",
+      "exampleCn": "消息代理先持久化订单事件，再向生产者返回确认。",
+      "interviewEn": "A broker decouples producers from consumers, which also means you must think about storage, replication, and delivery guarantees.",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka Documentation (Design: The Log); RabbitMQ Documentation (AMQP Model)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Broker", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Broker", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Producer", "targetDomain": "MQ", "relationType": "RELATED" },
+        { "targetHeadword": "Consumer", "targetDomain": "MQ", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Topic",
+      "termType": "WORD",
+      "domain": "MQ",
+      "senseKey": "default",
+      "meaningCn": "主题",
+      "definitionCn": "消息的逻辑分类单元，生产者按主题写入、消费者按主题订阅。在 Kafka 中主题被划分为多个分区以并行读写，在 AMQP 中路由规则则把消息从交换机送到队列。",
+      "definitionEn": "A logical channel to which producers publish messages and from which consumers subscribe, often partitioned for parallel processing.",
+      "exampleEn": "Order events are written to a dedicated topic instead of a shared general topic.",
+      "exampleCn": "订单事件写入独立主题，而不是共用的通用主题。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka Documentation (Topics and Logs)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Topic", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Topic", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Partition", "targetDomain": "MQ", "relationType": "PART_OF" },
+        { "targetHeadword": "Consumer Group", "targetDomain": "MQ", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Exchange",
+      "termType": "WORD",
+      "domain": "MQ",
+      "senseKey": "default",
+      "meaningCn": "交换机",
+      "definitionCn": "AMQP 中接收生产者消息并按绑定与路由键把消息分发到一个或多个队列的组件。常见类型有直连、主题与扇出交换，路由发生在队列之前。",
+      "definitionEn": "An AMQP component that receives messages from producers and routes them to queues according to bindings and routing keys.",
+      "wordBreakdown": [
+        { "word": "Ex", "meaningCn": "向外" },
+        { "word": "change", "meaningCn": "交换" }
+      ],
+      "breakdownNote": "这里的交换机是消息路由器，不是网络设备中的以太网交换机。",
+      "exampleEn": "The fanout exchange copied the inventory update to every subscribed queue.",
+      "exampleCn": "扇出交换机把库存更新复制到每个已绑定的队列。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "RabbitMQ Documentation (AMQP Concepts: Exchanges)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Exchange", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Exchange", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Broker", "targetDomain": "MQ", "relationType": "PART_OF" }
+      ]
+    },
+    {
+      "headword": "Acknowledgment",
+      "termType": "WORD",
+      "domain": "MQ",
+      "senseKey": "default",
+      "meaningCn": "确认（ACK）",
+      "definitionCn": "消费者或代理返回的确认信号，表示消息已被成功处理或已安全落盘。手动确认让应用在最合适的时机提交位点，避免消息在处理失败前就被标记为完成。",
+      "definitionEn": "A signal confirming that a message has been processed or durably stored, used to advance delivery position safely.",
+      "exampleEn": "The consumer acknowledged the message only after the database transaction committed.",
+      "exampleCn": "消费者在数据库事务提交后才确认该消息。",
+      "interviewEn": "Delaying acknowledgment until the side effect commits is what turns at-least-once delivery into a usable contract.",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "RabbitMQ Documentation (Consumer Acknowledgements and Publisher Confirms)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Acknowledgment", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Acknowledgment", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Consumer", "targetDomain": "MQ", "relationType": "RELATED" },
+        { "targetHeadword": "At-Least-Once", "targetDomain": "MQ", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "At-Least-Once",
+      "termType": "PHRASE",
+      "domain": "MQ",
+      "senseKey": "default",
+      "meaningCn": "至少一次投递",
+      "definitionCn": "消息至少被投递一次，允许在网络重试或确认丢失时出现重复。消费端必须配合幂等处理，才能把重复投递收敛为业务上的恰好一次效果。",
+      "definitionEn": "A delivery guarantee where every message is delivered at least once, permitting duplicates when retries or acknowledgments fail.",
+      "wordBreakdown": [
+        { "word": "At least", "meaningCn": "至少" },
+        { "word": "Once", "meaningCn": "一次" }
+      ],
+      "breakdownNote": "它描述的是投递次数下限，并不承诺“只投递一次”，因此不能省略消费端幂等。",
+      "exampleEn": "At-least-once delivery means the payment consumer must reject duplicate order numbers.",
+      "exampleCn": "至少一次投递意味着支付消费者必须拒绝重复的订单号。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka Documentation (Message Delivery Semantics)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "At-Least-Once", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "At-Least-Once", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Idempotent Consumer", "targetDomain": "MQ", "relationType": "RELATED" },
+        { "targetHeadword": "Acknowledgment", "targetDomain": "MQ", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "At-Most-Once",
+      "termType": "PHRASE",
+      "domain": "MQ",
+      "senseKey": "default",
+      "meaningCn": "至多一次投递",
+      "definitionCn": "消息最多被投递一次，宁可在失败时丢弃也不重试。它避免了重复，但可能丢失消息，通常只适合可容忍缺失的指标、日志类数据。",
+      "definitionEn": "A delivery guarantee where a message is delivered at most once, never retried, and therefore may be lost.",
+      "wordBreakdown": [
+        { "word": "At most", "meaningCn": "至多" },
+        { "word": "Once", "meaningCn": "一次" }
+      ],
+      "breakdownNote": "它与至少一次正好相反：牺牲可靠性换取无重复，而不是同时满足两者。",
+      "exampleEn": "Fire-and-forget metrics use at-most-once delivery because a lost sample is acceptable.",
+      "exampleCn": "发后即忘的监控指标采用至多一次投递，因为丢失一个采样点可以接受。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka Documentation (Message Delivery Semantics)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "At-Most-Once", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "At-Most-Once", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "At-Least-Once", "targetDomain": "MQ", "relationType": "CONTRAST" }
+      ]
+    },
+    {
+      "headword": "Exactly-Once",
+      "termType": "PHRASE",
+      "domain": "MQ",
+      "senseKey": "default",
+      "meaningCn": "恰好一次语义",
+      "definitionCn": "端到端每条消息只产生一次业务效果，既不丢失也不重复。它通常依赖幂等写入、事务性位点提交或去重表配合，单靠代理端确认无法覆盖业务副作用。",
+      "definitionEn": "An end-to-end guarantee that each message affects the business state exactly once, usually built with idempotent writes or transactional offsets.",
+      "wordBreakdown": [
+        { "word": "Exactly", "meaningCn": "恰好" },
+        { "word": "Once", "meaningCn": "一次" }
+      ],
+      "breakdownNote": "它是端到端业务效果，不是代理单方面的投递承诺；跨系统时仍需消费端参与。",
+      "interviewEn": "Exactly-once is achieved by combining idempotent sinks with atomic offset commits, not by trusting the broker alone.",
+      "exampleEn": "The stream job wrote results keyed by event id to reach exactly-once semantics.",
+      "exampleCn": "流处理任务以事件 ID 为键写入结果，从而实现恰好一次语义。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka Documentation (Exactly-Once Semantics)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Exactly-Once", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Exactly-Once", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Idempotent Consumer", "targetDomain": "MQ", "relationType": "RELATED" },
+        { "targetHeadword": "Distributed Transaction", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Message Ordering",
+      "termType": "PHRASE",
+      "domain": "MQ",
+      "senseKey": "default",
+      "meaningCn": "消息顺序性",
+      "definitionCn": "同一业务键的消息按发送顺序被消费的性质。分区内通常有序，跨分区不保证全局顺序，因此需要把相关消息路由到同一分区并谨慎处理重试。",
+      "definitionEn": "The property that messages sharing a business key are consumed in the order they were produced, typically guaranteed only within a partition.",
+      "wordBreakdown": [
+        { "word": "Message", "meaningCn": "消息" },
+        { "word": "Ordering", "meaningCn": "排序、顺序" }
+      ],
+      "breakdownNote": "全局顺序与并行吞吐通常互相冲突，工程上多采用“同一键有序、整体并行”。",
+      "exampleEn": "Order events for one account are keyed by account id so message ordering is preserved.",
+      "exampleCn": "同一账户的订单事件按账户 ID 分区，从而保持消息顺序。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka Documentation (Topic Partition Ordering)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Message Ordering", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Message Ordering", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Partition", "targetDomain": "MQ", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Dead Letter Queue",
+      "termType": "PHRASE",
+      "domain": "MQ",
+      "senseKey": "default",
+      "meaningCn": "死信队列",
+      "definitionCn": "存放多次处理失败或被拒绝消息的专用队列，避免坏消息无限重试阻塞正常消费。运维人员可从中排查原因、修复后重放，但重放前应确认幂等。",
+      "definitionEn": "A dedicated queue that holds messages that repeatedly failed or were rejected, preventing poison messages from blocking normal consumers.",
+      "wordBreakdown": [
+        { "word": "Dead", "meaningCn": "失效的、无法处理的" },
+        { "word": "Letter", "meaningCn": "信件，指消息" },
+        { "word": "Queue", "meaningCn": "队列" }
+      ],
+      "breakdownNote": "“死信”指无法正常投递的消息，不是已删除消息；它仍可被检查与重放。",
+      "exampleEn": "After three failed deliveries the message moved to the dead letter queue for inspection.",
+      "exampleCn": "连续三次投递失败后，消息被转入死信队列等待排查。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "RabbitMQ Documentation (Dead Lettering)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Dead Letter Queue", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Dead Letter Queue", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Consumer", "targetDomain": "MQ", "relationType": "RELATED" },
+        { "targetHeadword": "Backpressure", "targetDomain": "MQ", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Idempotent Consumer",
+      "termType": "PHRASE",
+      "domain": "MQ",
+      "senseKey": "default",
+      "meaningCn": "幂等消费者",
+      "definitionCn": "对同一消息重复消费多次也只产生一次业务效果的消费者。常见实现是唯一键去重表、状态机条件更新或基于事件 ID 的写入，必须与业务事务原子提交。",
+      "definitionEn": "A consumer that produces the same business effect no matter how many times a message is delivered, usually via a deduplication table or conditional update.",
+      "wordBreakdown": [
+        { "word": "Idempotent", "meaningCn": "幂等的，重复执行结果相同" },
+        { "word": "Consumer", "meaningCn": "消费者" }
+      ],
+      "breakdownNote": "幂等不等于“忽略重复消息”，而是重复执行后结果与执行一次一致。",
+      "interviewEn": "Make the deduplication record and the business write share one transaction, otherwise a crash between them still breaks exactly-once.",
+      "exampleEn": "The idempotent consumer inserted the event id in the same transaction as the balance update.",
+      "exampleCn": "幂等消费者把事件 ID 与余额更新放在同一事务中写入。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka Documentation (Message Delivery Semantics); 幂等设计通用实践",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Idempotent Consumer", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Idempotent Consumer", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Exactly-Once", "targetDomain": "MQ", "relationType": "RELATED" },
+        { "targetHeadword": "Idempotency", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Rebalance",
+      "termType": "WORD",
+      "domain": "MQ",
+      "senseKey": "default",
+      "meaningCn": "再均衡",
+      "definitionCn": "消费组内成员或分区变化时重新分配分区的过程。再均衡期间消费可能短暂暂停，频繁触发会造成重复处理与延迟，通常通过缩短处理时间和调整会话超时缓解。",
+      "definitionEn": "The process of redistributing partitions among consumers when group membership or subscription changes.",
+      "exampleEn": "A slow consumer triggered a rebalance that paused the whole group for several seconds.",
+      "exampleCn": "一个处理缓慢的消费者触发再均衡，使整个消费组暂停了数秒。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka Documentation (Consumer Group Rebalancing)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Rebalance", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Rebalance", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Consumer Group", "targetDomain": "MQ", "relationType": "PART_OF" }
+      ]
+    },
+    {
+      "headword": "Retention",
+      "termType": "WORD",
+      "domain": "MQ",
+      "senseKey": "default",
+      "meaningCn": "消息保留策略",
+      "definitionCn": "代理按时间或容量保留消息的规则，超过阈值的旧数据会被删除。它与消费位点相互独立，消费者落后太久可能读到已被清理的数据。",
+      "definitionEn": "A policy that controls how long or how much message data a broker keeps before deleting the oldest records.",
+      "exampleEn": "The topic uses a seven-day retention window, so late consumers cannot replay older events.",
+      "exampleCn": "该主题保留七天数据，因此启动过晚的消费者无法重放更早的事件。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka Documentation (Log Retention)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Retention", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Retention", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Topic", "targetDomain": "MQ", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Publish-Subscribe",
+      "termType": "PHRASE",
+      "domain": "MQ",
+      "senseKey": "default",
+      "meaningCn": "发布订阅模式",
+      "definitionCn": "生产者把消息发布到主题，多个订阅者各自获得副本的通信模式。它支持一对多广播与解耦，但订阅者通常需要自行处理重复、顺序与积压。",
+      "definitionEn": "A messaging pattern in which producers publish messages to a topic and every subscriber receives its own copy.",
+      "wordBreakdown": [
+        { "word": "Publish", "meaningCn": "发布" },
+        { "word": "Subscribe", "meaningCn": "订阅" }
+      ],
+      "breakdownNote": "它强调一对多广播；点对点模式则保证一条消息只被一个消费者处理。",
+      "exampleEn": "Inventory, billing and analytics each subscribe to the same order topic.",
+      "exampleCn": "库存、计费与分析服务各自订阅同一个订单主题。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka Documentation (Publish/Subscribe Messaging)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Publish-Subscribe", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Publish-Subscribe", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Topic", "targetDomain": "MQ", "relationType": "RELATED" },
+        { "targetHeadword": "Consumer Group", "targetDomain": "MQ", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Distributed System",
+      "termType": "PHRASE",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "meaningCn": "分布式系统",
+      "definitionCn": "由多台通过网络协作的计算机组成的系统，对外表现为一个整体。它带来水平扩展与容错能力，同时引入网络分区、时钟不一致与部分失败等固有复杂度。",
+      "definitionEn": "A system composed of multiple networked computers that coordinate to appear as a single coherent service.",
+      "wordBreakdown": [
+        { "word": "Distributed", "meaningCn": "分布式的" },
+        { "word": "System", "meaningCn": "系统" }
+      ],
+      "breakdownNote": "关键难点是部分失败：某个节点不可用不代表整个系统停止，也不代表它一定崩溃。",
+      "exampleEn": "The order service is a distributed system spanning three availability zones.",
+      "exampleCn": "订单服务是横跨三个可用区的分布式系统。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Designing Data-Intensive Applications (Chapter 8: The Trouble with Distributed Systems) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Distributed System", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Distributed System", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "CAP", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Partition Tolerance",
+      "termType": "PHRASE",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "meaningCn": "分区容忍性",
+      "definitionCn": "系统在网络分区导致节点间无法通信时仍能继续运行的能力。真实网络必然出现分区，因此实际选择是在分区期间牺牲一致性还是可用性。",
+      "definitionEn": "The ability of a system to keep operating when the network drops messages between nodes.",
+      "wordBreakdown": [
+        { "word": "Partition", "meaningCn": "分区，网络分裂" },
+        { "word": "Tolerance", "meaningCn": "容忍" }
+      ],
+      "breakdownNote": "分区容忍不是可选项；CAP 中的取舍发生在分区已经出现之后。",
+      "exampleEn": "Partition tolerance forced the team to choose between stale reads and refusing writes.",
+      "exampleCn": "分区容忍性迫使团队在读到旧数据与拒绝写入之间做选择。",
+      "interviewEn": "Since partitions are unavoidable, CAP really asks whether you give up consistency or availability during a partition.",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Brewer's CAP Theorem; Designing Data-Intensive Applications (Chapter 9) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Partition Tolerance", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Partition Tolerance", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "CAP", "targetDomain": "DISTRIBUTED", "relationType": "PART_OF" }
+      ]
+    },
+    {
+      "headword": "Eventual Consistency",
+      "termType": "PHRASE",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "meaningCn": "最终一致性",
+      "definitionCn": "副本之间允许短暂不一致，但在不再有新写入后最终会收敛到相同状态。它换来更高的可用性与更低延迟，代价是读取方必须处理旧值与中间状态。",
+      "definitionEn": "A consistency model in which replicas may temporarily diverge but converge to the same value once updates stop.",
+      "wordBreakdown": [
+        { "word": "Eventual", "meaningCn": "最终的" },
+        { "word": "Consistency", "meaningCn": "一致性" }
+      ],
+      "breakdownNote": "“最终”没有给出具体时限，工程上要明确收敛上界或提供读己之写等更强保证。",
+      "exampleEn": "The product counter is eventually consistent, so two regions can briefly disagree.",
+      "exampleCn": "商品计数采用最终一致性，因此两个地域可能短暂不一致。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Designing Data-Intensive Applications (Chapter 5: Replication) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Eventual Consistency", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Eventual Consistency", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Consistency", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" },
+        { "targetHeadword": "Strong Consistency", "targetDomain": "DISTRIBUTED", "relationType": "CONTRAST" }
+      ]
+    },
+    {
+      "headword": "Strong Consistency",
+      "termType": "PHRASE",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "meaningCn": "强一致性",
+      "definitionCn": "任何读操作都能看到此前已完成的写操作结果，所有副本对外表现如同单一副本。它通常依赖共识、同步复制或主节点串行化，代价是更高延迟与更低分区可用性。",
+      "definitionEn": "A guarantee that every read reflects all previously completed writes, as if a single copy served all requests.",
+      "wordBreakdown": [
+        { "word": "Strong", "meaningCn": "强的" },
+        { "word": "Consistency", "meaningCn": "一致性" }
+      ],
+      "breakdownNote": "强一致并不等于“永不失败”，它约束的是成功读写之间的可见顺序。",
+      "exampleEn": "Account balances require strong consistency so a transfer is never observed twice.",
+      "exampleCn": "账户余额要求强一致性，避免同一笔转账被观察到两次。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Designing Data-Intensive Applications (Chapter 9: Consistency and Consensus) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Strong Consistency", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Strong Consistency", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Consensus", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" },
+        { "targetHeadword": "Eventual Consistency", "targetDomain": "DISTRIBUTED", "relationType": "CONTRAST" }
+      ]
+    },
+    {
+      "headword": "Consensus",
+      "termType": "WORD",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "meaningCn": "共识",
+      "definitionCn": "多个节点在可能故障与网络分区下对某个值达成一致的算法问题。Raft 与 Paxos 通过任期、投票与日志复制保证已提交的决定不会被后续领导者推翻。",
+      "definitionEn": "The problem of getting multiple nodes to agree on a value despite failures and network partitions.",
+      "exampleEn": "The metadata store uses consensus to elect one leader and replicate its log.",
+      "exampleCn": "元数据存储用共识算法选出唯一主节点并复制其日志。",
+      "interviewEn": "Consensus gives you a replicated log; building a database on top still requires handling reads, leases, and membership changes.",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Raft Paper (In Search of an Understandable Consensus Algorithm) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Consensus", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Consensus", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Raft", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" },
+        { "targetHeadword": "Paxos", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Raft",
+      "termType": "WORD",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "meaningCn": "Raft 共识算法",
+      "definitionCn": "以领导者选举、日志复制和安全性约束为核心的共识算法，设计目标是易于理解与实现。集群中只有一个领导处理写入，跟随者复制日志，多数派确认后才提交。",
+      "definitionEn": "A consensus algorithm built around leader election, log replication and safety rules, designed to be easier to understand than Paxos.",
+      "exampleEn": "Raft committed the configuration change only after a majority of followers persisted it.",
+      "exampleCn": "Raft 在多数跟随者持久化配置变更后才提交该变更。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Raft Paper (In Search of an Understandable Consensus Algorithm)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Raft", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Raft", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Consensus", "targetDomain": "DISTRIBUTED", "relationType": "IS_A" },
+        { "targetHeadword": "Leader Election", "targetDomain": "DISTRIBUTED", "relationType": "PART_OF" }
+      ]
+    },
+    {
+      "headword": "Paxos",
+      "termType": "WORD",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "meaningCn": "Paxos 共识算法",
+      "definitionCn": "通过提议编号与多数派接受阶段达成共识的经典算法族，理论完备但实现细节繁复。工程中常使用其简化变体或多副本日志方案，而非直接照搬原始描述。",
+      "definitionEn": "A family of consensus algorithms that agree on a value through numbered proposals and majority acceptance.",
+      "exampleEn": "The team studied Paxos before adopting a Raft-based library for the control plane.",
+      "exampleCn": "团队先研究 Paxos，最终在控制面采用基于 Raft 的库。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Paxos Made Simple (Leslie Lamport) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Paxos", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Paxos", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Consensus", "targetDomain": "DISTRIBUTED", "relationType": "IS_A" }
+      ]
+    },
+    {
+      "headword": "Leader Election",
+      "termType": "PHRASE",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "meaningCn": "领导者选举",
+      "definitionCn": "在多个候选节点中选出一个负责协调写入或分配任务的节点的过程。它依赖任期、租约或多数派投票，选举期间可能出现短暂不可写。",
+      "definitionEn": "The process of choosing one node among candidates to coordinate writes or assign work, often using terms, leases or majority votes.",
+      "wordBreakdown": [
+        { "word": "Leader", "meaningCn": "领导者" },
+        { "word": "Election", "meaningCn": "选举" }
+      ],
+      "breakdownNote": "选出领导者只是第一步，还必须防止旧领导在网络分区中继续对外服务。",
+      "exampleEn": "Leader election promoted a follower within seconds of the old leader losing its lease.",
+      "exampleCn": "旧领导者租约失效后数秒内，领导者选举把某个跟随者提升为主。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Raft Paper (Leader Election) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Leader Election", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Leader Election", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Consensus", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" },
+        { "targetHeadword": "Split Brain", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Split Brain",
+      "termType": "PHRASE",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "meaningCn": "脑裂",
+      "definitionCn": "网络分区后两个子集各自认为自己是主节点，同时接受写入并产生冲突状态。常用多数派法定人数、隔离与租约来确保至多一个主节点可写。",
+      "definitionEn": "A failure mode in which two partitions each believe they are the primary and accept conflicting writes.",
+      "wordBreakdown": [
+        { "word": "Split", "meaningCn": "分裂" },
+        { "word": "Brain", "meaningCn": "大脑，指控制中心" }
+      ],
+      "breakdownNote": "脑裂的本质是双主，而不是单纯网络断开；修复时往往需要人工裁决冲突数据。",
+      "exampleEn": "Without a quorum check the cluster suffered split brain and accepted two order updates.",
+      "exampleCn": "缺少法定人数校验时集群发生脑裂，接受了两次订单更新。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Designing Data-Intensive Applications (Chapter 9: Distributed Systems) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Split Brain", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Split Brain", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Quorum", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" },
+        { "targetHeadword": "Leader Election", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Quorum",
+      "termType": "WORD",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "meaningCn": "法定人数",
+      "definitionCn": "为做出决定所需的最小节点数，通常是多数派。读写法定人数重叠可以保证读到最新已提交值，同时避免分区两侧各自形成有效决策。",
+      "definitionEn": "The minimum number of nodes that must participate in a decision, usually a majority, so that decision sets overlap.",
+      "exampleEn": "The write needs a quorum of three nodes, so losing two replicas blocks new writes.",
+      "exampleCn": "写入需要三个节点的法定人数，因此失去两个副本会阻塞新写入。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Designing Data-Intensive Applications (Chapter 5: Quorums for Replication) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Quorum", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Quorum", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Consensus", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" },
+        { "targetHeadword": "Split Brain", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Fault Tolerance",
+      "termType": "PHRASE",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "meaningCn": "容错",
+      "definitionCn": "系统在部分组件故障时仍能继续提供可接受服务的能力。它通常通过冗余、副本、超时重试与故障转移实现，但无法覆盖所有故障类型。",
+      "definitionEn": "The ability of a system to keep providing acceptable service despite failures of some components.",
+      "wordBreakdown": [
+        { "word": "Fault", "meaningCn": "故障" },
+        { "word": "Tolerance", "meaningCn": "容忍" }
+      ],
+      "breakdownNote": "容错针对的是预期内的部分故障；灾难恢复处理的是更大范围的失效。",
+      "exampleEn": "Replicating the queue across zones provides fault tolerance for a single zone outage.",
+      "exampleCn": "把队列跨可用区复制，可对单区故障提供容错。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Designing Data-Intensive Applications (Chapter 1: Reliability) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Fault Tolerance", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Fault Tolerance", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Failover", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" },
+        { "targetHeadword": "Availability", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Service Discovery",
+      "termType": "PHRASE",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "meaningCn": "服务发现",
+      "definitionCn": "让调用方动态找到可用服务实例地址的机制，通常由注册中心维护实例列表并处理健康检查。它避免把实例 IP 写死在配置中，并支持扩缩容与故障摘除。",
+      "definitionEn": "A mechanism that lets clients locate healthy service instances dynamically, usually through a registry with health checks.",
+      "wordBreakdown": [
+        { "word": "Service", "meaningCn": "服务" },
+        { "word": "Discovery", "meaningCn": "发现" }
+      ],
+      "breakdownNote": "服务发现解决“去哪里”，负载均衡解决“选哪一个”，二者常配合但不等价。",
+      "exampleEn": "Service discovery removed the hard-coded instance list from the gateway configuration.",
+      "exampleCn": "服务发现让网关配置不再写死实例列表。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Microservices Patterns (Chris Richardson) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Service Discovery", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Service Discovery", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Load Balancing", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Distributed Transaction",
+      "termType": "PHRASE",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "meaningCn": "分布式事务",
+      "definitionCn": "跨越多个服务或数据源的事务，需要协调各参与方同时提交或回滚。常见方案有两阶段提交、补偿事务与基于消息的最终一致，选择取决于一致性要求与可用性预算。",
+      "definitionEn": "A transaction spanning multiple services or data stores that requires coordinated commit or rollback across participants.",
+      "wordBreakdown": [
+        { "word": "Distributed", "meaningCn": "分布式的" },
+        { "word": "Transaction", "meaningCn": "事务" }
+      ],
+      "breakdownNote": "跨服务事务很难做到真正的原子性，工程上更常用补偿与幂等换取最终一致。",
+      "exampleEn": "The checkout flow uses a distributed transaction spread across inventory, payment and shipping.",
+      "exampleCn": "下单流程的分布式事务横跨库存、支付与履约三个服务。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Microservices Patterns (Chris Richardson: Managing Transactions) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Distributed Transaction", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Distributed Transaction", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Two-Phase Commit", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" },
+        { "targetHeadword": "Saga", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Two-Phase Commit",
+      "termType": "PHRASE",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "meaningCn": "两阶段提交",
+      "definitionCn": "协调者先询问所有参与者能否提交，全部同意后再发送提交指令的原子提交协议。它在等待阶段会锁定资源，协调者故障时可能造成参与者长时间阻塞。",
+      "definitionEn": "An atomic commit protocol in which a coordinator first prepares all participants and then instructs them to commit.",
+      "wordBreakdown": [
+        { "word": "Two-Phase", "meaningCn": "两阶段的" },
+        { "word": "Commit", "meaningCn": "提交" }
+      ],
+      "breakdownNote": "两阶段是准备加提交，不是“重试两次”；它的主要代价是阻塞与协调者单点。",
+      "exampleEn": "Two-phase commit kept the inventory row locked while the payment service was unreachable.",
+      "exampleCn": "支付服务不可达期间，两阶段提交一直锁着库存行。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Designing Data-Intensive Applications (Chapter 9: Distributed Transactions) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Two-Phase Commit", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Two-Phase Commit", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Distributed Transaction", "targetDomain": "DISTRIBUTED", "relationType": "PART_OF" },
+        { "targetHeadword": "Saga", "targetDomain": "DISTRIBUTED", "relationType": "CONTRAST" }
+      ]
+    },
+    {
+      "headword": "Saga",
+      "termType": "WORD",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "meaningCn": "Saga 补偿事务模式",
+      "definitionCn": "把长事务拆成一系列本地事务，每个步骤都有对应的补偿动作，失败时按逆序补偿。它避免长时间锁资源，但只提供最终一致，且补偿逻辑必须幂等。",
+      "definitionEn": "A pattern that splits a long transaction into local steps with compensating actions, giving eventual rather than atomic consistency.",
+      "exampleEn": "The saga refunded the payment after the shipping step failed permanently.",
+      "exampleCn": "履约步骤永久失败后，Saga 对支付执行了退款补偿。",
+      "interviewEn": "A saga trades isolation for availability, so every compensating action must tolerate retries and out-of-order execution.",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Microservices Patterns (Chris Richardson: Saga) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Saga", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Saga", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Distributed Transaction", "targetDomain": "DISTRIBUTED", "relationType": "RELATED" },
+        { "targetHeadword": "Two-Phase Commit", "targetDomain": "DISTRIBUTED", "relationType": "CONTRAST" }
+      ]
+    },
+    {
+      "headword": "Idempotency",
+      "termType": "WORD",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "meaningCn": "幂等性",
+      "definitionCn": "同一个操作执行一次与执行多次产生相同结果的性质。分布式系统中它让重试、重复投递与补偿变得安全，通常借助唯一请求 ID、去重表或条件更新实现。",
+      "definitionEn": "The property that performing an operation multiple times has the same effect as performing it once, making retries safe.",
+      "exampleEn": "The payment API required an idempotency key so a retried request would not charge twice.",
+      "exampleCn": "支付接口要求幂等键，避免重试请求重复扣款。",
+      "interviewEn": "Idempotency keys only work if the deduplication record and the side effect commit atomically.",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Designing Data-Intensive Applications (Chapter 11: Idempotence) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Idempotency", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Idempotency", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Idempotent Consumer", "targetDomain": "MQ", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Agentic AI",
+      "termType": "PHRASE",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "meaningCn": "智能体式人工智能",
+      "definitionCn": "以大模型为决策核心、能够自主规划多步任务并调用外部工具的系统形态。与传统单次问答不同，它强调目标驱动的循环、状态记忆与对环境的持续反馈。",
+      "definitionEn": "An AI system that uses a model as a decision core to plan multi-step tasks and act through tools.",
+      "wordBreakdown": [
+        { "word": "Agentic", "meaningCn": "具备自主行动能力的" },
+        { "word": "AI", "meaningCn": "人工智能" }
+      ],
+      "breakdownNote": "“Agentic”强调自主性与行动闭环，而非模型规模本身；没有工具与反馈就只是生成式问答。",
+      "exampleEn": "The agentic AI reconciled invoices by planning steps, calling the ledger API and checking results.",
+      "exampleCn": "该智能体通过规划步骤、调用账务接口并检查结果来完成发票核对。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "ReAct Paper (Yao et al.) 与 MCP 官方文档 — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Agentic AI", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Agentic AI", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Agent", "targetDomain": "AGENT", "relationType": "IS_A" },
+        { "targetHeadword": "Planning", "targetDomain": "AGENT", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Planning",
+      "termType": "WORD",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "meaningCn": "任务规划",
+      "definitionCn": "智能体在行动前把目标拆解为可执行步骤并安排顺序的能力。规划可以是显式的步骤列表，也可以是在循环中逐步修正的隐式策略，通常需要与环境反馈结合。",
+      "definitionEn": "The ability of an agent to break a goal into executable steps and order them before acting.",
+      "exampleEn": "The agent's planning step produced four subgoals before any tool was called.",
+      "exampleCn": "智能体的规划步骤在调用任何工具前先产出四个子目标。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "ReAct Paper (Yao et al.) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Planning", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Planning", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Subgoal", "targetDomain": "AGENT", "relationType": "PART_OF" },
+        { "targetHeadword": "Task Decomposition", "targetDomain": "AGENT", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Memory",
+      "termType": "WORD",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "meaningCn": "智能体记忆",
+      "definitionCn": "智能体在多轮交互中保存和检索信息的机制，可分为对话短期记忆与外部长期记忆。长期记忆通常依赖向量检索或结构化存储，并需要处理过期、冲突与隐私。",
+      "definitionEn": "The mechanism an agent uses to store and retrieve information across turns, ranging from short-term context to external long-term stores.",
+      "exampleEn": "The agent stored the user's preferred report format in long-term memory.",
+      "exampleCn": "智能体把用户偏好的报告格式写入长期记忆。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MCP 官方文档; ReAct Paper — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Memory", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Memory", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Agent", "targetDomain": "AGENT", "relationType": "PART_OF" }
+      ]
+    },
+    {
+      "headword": "ReAct",
+      "termType": "ACRONYM",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "fullForm": "Reasoning and Acting",
+      "meaningCn": "推理与行动交替范式",
+      "definitionCn": "让模型交替生成推理轨迹与动作、再根据观察结果继续推理的提示范式。它把思维链与工具调用结合，使智能体能够根据真实反馈修正后续步骤。",
+      "definitionEn": "A prompting paradigm in which a model alternates between reasoning traces and actions, using observations to guide the next step.",
+      "exampleEn": "With ReAct the agent searched the API docs, observed the error and then corrected its request.",
+      "exampleCn": "采用 ReAct 后，智能体先检索接口文档、观察报错，再修正请求。",
+      "interviewEn": "ReAct interleaves thought and action; the observation step is what keeps the loop grounded in real tool results.",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "ReAct: Synergizing Reasoning and Acting in Language Models (Yao et al., 2022)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "ABBR", "readingText": null, "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "PENDING" },
+        { "variant": "FULL_FORM", "readingText": "Reasoning and Acting", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Tool Calling", "targetDomain": "AGENT", "relationType": "RELATED" },
+        { "targetHeadword": "Observation", "targetDomain": "AGENT", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Task Decomposition",
+      "termType": "PHRASE",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "meaningCn": "任务分解",
+      "definitionCn": "把复杂目标拆成更小、可独立执行或验证的子任务的过程。它是规划的基础，好的分解应明确依赖关系、输入输出与完成标准。",
+      "definitionEn": "The process of breaking a complex goal into smaller subtasks that can be executed or verified independently.",
+      "wordBreakdown": [
+        { "word": "Task", "meaningCn": "任务" },
+        { "word": "Decomposition", "meaningCn": "分解" }
+      ],
+      "breakdownNote": "分解的目标是降低单步复杂度并可验证，而不是把步骤切得越碎越好。",
+      "exampleEn": "Task decomposition turned the migration request into schema review, data copy and rollback checks.",
+      "exampleCn": "任务分解把迁移请求拆成结构评审、数据复制与回滚校验。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "ReAct Paper; MCP 官方文档 — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Task Decomposition", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Task Decomposition", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Subgoal", "targetDomain": "AGENT", "relationType": "RELATED" },
+        { "targetHeadword": "Planning", "targetDomain": "AGENT", "relationType": "PART_OF" }
+      ]
+    },
+    {
+      "headword": "Multi-Agent",
+      "termType": "PHRASE",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "meaningCn": "多智能体",
+      "definitionCn": "由多个各自承担角色的智能体协作完成任务的架构。它可以分工、互审与并行，但也会放大通信成本、上下文丢失与责任边界不清的问题。",
+      "definitionEn": "An architecture in which multiple agents with distinct roles collaborate to complete a task.",
+      "wordBreakdown": [
+        { "word": "Multi", "meaningCn": "多个" },
+        { "word": "Agent", "meaningCn": "智能体" }
+      ],
+      "breakdownNote": "多智能体不是简单把模型调用多次，关键在角色划分、消息协议与结果汇总。",
+      "exampleEn": "The multi-agent setup used a researcher, a writer and a reviewer with separate prompts.",
+      "exampleCn": "该多智能体架构分别使用研究员、撰写者与审阅者三个独立提示。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MCP 官方文档; Agent 系统通用架构实践 — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Multi-Agent", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Multi-Agent", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Agent", "targetDomain": "AGENT", "relationType": "PART_OF" },
+        { "targetHeadword": "Orchestrator", "targetDomain": "AGENT", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Orchestrator",
+      "termType": "WORD",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "meaningCn": "编排器",
+      "definitionCn": "负责调度多个智能体或工具、控制执行顺序并汇总结果的组件。它通常还承担重试、超时、预算控制与失败降级，是智能体系统里的控制平面。",
+      "definitionEn": "A component that schedules agents or tools, controls execution order and aggregates their results.",
+      "exampleEn": "The orchestrator retried the failed tool call and passed the summary to the writer agent.",
+      "exampleCn": "编排器重试失败的工调用，并把摘要交给撰写智能体。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MCP 官方文档; Agent 系统通用架构实践 — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Orchestrator", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Orchestrator", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Multi-Agent", "targetDomain": "AGENT", "relationType": "PART_OF" },
+        { "targetHeadword": "Tool Selection", "targetDomain": "AGENT", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Tool Selection",
+      "termType": "PHRASE",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "meaningCn": "工具选择",
+      "definitionCn": "智能体根据当前目标、工具描述与参数约束决定调用哪个工具的决策过程。工具描述越清晰、数量越克制，选择准确率通常越高；错误选择会浪费预算并放大风险。",
+      "definitionEn": "The decision process by which an agent chooses which tool to invoke based on the goal, tool descriptions and parameter constraints.",
+      "wordBreakdown": [
+        { "word": "Tool", "meaningCn": "工具" },
+        { "word": "Selection", "meaningCn": "选择" }
+      ],
+      "breakdownNote": "工具选择发生在调用之前；参数是否合法由工具调用阶段继续校验。",
+      "exampleEn": "Clear tool descriptions improved tool selection and reduced invalid arguments.",
+      "exampleCn": "清晰的工具描述提升了工具选择准确率，并减少了非法参数。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MCP 官方文档 (Tools) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Tool Selection", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Tool Selection", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Tool Calling", "targetDomain": "AGENT", "relationType": "RELATED" },
+        { "targetHeadword": "Function Calling", "targetDomain": "AGENT", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Sandbox",
+      "termType": "WORD",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "meaningCn": "沙箱",
+      "definitionCn": "限制智能体或工具执行范围与权限的隔离环境，用于防止误操作影响真实系统。常见手段包括容器隔离、只读文件系统、网络白名单与资源配额。",
+      "definitionEn": "An isolated environment that limits what an agent or tool can access and modify, protecting real systems from mistakes.",
+      "exampleEn": "The code interpreter ran inside a sandbox without network access.",
+      "exampleCn": "代码解释器运行在没有网络访问权限的沙箱中。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MCP 官方文档 (Security); Agent 系统安全实践 — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Sandbox", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Sandbox", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Tool Calling", "targetDomain": "AGENT", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Human-in-the-Loop",
+      "termType": "PHRASE",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "meaningCn": "人在回路",
+      "definitionCn": "在高风险步骤前引入人工确认或审批的协作模式。它把最终决策权保留给人，适合资金、权限、删除与对外发布等不可逆操作。",
+      "definitionEn": "A collaboration pattern that inserts human review or approval before high-risk or irreversible actions.",
+      "wordBreakdown": [
+        { "word": "Human", "meaningCn": "人类" },
+        { "word": "in the loop", "meaningCn": "在回路中" }
+      ],
+      "breakdownNote": "它强调的是关键节点的人工介入，而不是让人全程操作每一步。",
+      "exampleEn": "Human-in-the-loop approval was required before the agent could issue a refund.",
+      "exampleCn": "智能体发起退款前必须经过人在回路审批。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Agent 系统安全实践; MCP 官方文档 — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Human-in-the-Loop", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Human-in-the-Loop", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Guardrail", "targetDomain": "AI_ENG", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Self-Reflection",
+      "termType": "WORD",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "meaningCn": "自我反思",
+      "definitionCn": "智能体检查自身输出、错误或工具结果并据此修正下一步的能力。它依赖可验证的反馈信号，否则容易变成重复确认甚至放大原有错误。",
+      "definitionEn": "The ability of an agent to review its own output or tool results and adjust subsequent actions accordingly.",
+      "exampleEn": "Self-reflection caught the wrong date format before the report was submitted.",
+      "exampleCn": "自我反思在报告提交前发现了错误的日期格式。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "ReAct Paper; Agent 系统通用架构实践 — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Self-Reflection", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Self-Reflection", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "ReAct", "targetDomain": "AGENT", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Observation",
+      "termType": "WORD",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "meaningCn": "观察结果",
+      "definitionCn": "智能体执行动作后从环境或工具获得的返回信息，作为下一轮推理的输入。把观察与模型猜测区分开，是避免智能体凭空编造事实的关键。",
+      "definitionEn": "The information an agent receives from the environment or a tool after acting, which feeds the next reasoning step.",
+      "exampleEn": "The observation showed a 404, so the agent corrected the endpoint instead of retrying blindly.",
+      "exampleCn": "观察结果返回 404，智能体因此修正了端点而不是盲目重试。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "ReAct Paper (Yao et al.) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Observation", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Observation", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "ReAct", "targetDomain": "AGENT", "relationType": "PART_OF" }
+      ]
+    },
+    {
+      "headword": "Scratchpad",
+      "termType": "WORD",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "meaningCn": "草稿区",
+      "definitionCn": "智能体在推理过程中临时记录中间步骤的工作区，帮助保持上下文连贯。它属于过程性内容，通常不应直接暴露给最终用户或当作可审计事实。",
+      "definitionEn": "A temporary workspace where an agent records intermediate reasoning steps to keep context coherent.",
+      "exampleEn": "The scratchpad held the intermediate SQL before the agent executed the final query.",
+      "exampleCn": "草稿区保存了中间 SQL，随后智能体才执行最终查询。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Chain-of-Thought Prompting (Wei et al.) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Scratchpad", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Scratchpad", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Chain-of-Thought", "targetDomain": "LLM", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Subgoal",
+      "termType": "WORD",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "meaningCn": "子目标",
+      "definitionCn": "在任务分解中从总目标拆出的较小目标，通常具备独立的完成条件。子目标之间可能存在依赖或顺序约束，规划器需要据此安排执行。",
+      "definitionEn": "A smaller goal derived from an overall objective during decomposition, usually with its own completion condition.",
+      "exampleEn": "The agent marked the schema-migration subgoal complete before starting the data copy.",
+      "exampleCn": "智能体先把结构迁移子目标标记完成，再开始数据复制。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "ReAct Paper; Agent 系统通用架构实践 — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Subgoal", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Subgoal", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Planning", "targetDomain": "AGENT", "relationType": "PART_OF" }
+      ]
+    }
+  ]
+}

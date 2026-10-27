@@ -20,8 +20,43 @@ public class ChatSendDTO {
     /** 可选模型标识，为 null 时回退到服务配置默认模型（用于对话多模型切换）。 */
     private String model;
 
+    /** 缺省沿用知识库检索；false 明确禁止本次检索。 */
+    private Boolean useKnowledgeBase = true;
+
     /** 图片 base64 列表（不含 data:image/...;base64, 前缀，前端直接传 raw base64）。 */
     private List<String> images;
+
+    /**
+     * 对话模式：GENERAL（默认，通用 AI 问答）/ LEARNING_COACH（学习教练）。
+     * 缺省或未知值一律按 GENERAL 处理，保证向后兼容既有对话行为。
+     */
+    private String mode = "GENERAL";
+
+    /**
+     * 学习教练上下文（仅 mode=LEARNING_COACH 时使用）。
+     * 由前端基于已加载的真实学习数据组装为结构化文本，后端仅作为「数据」包裹进系统提示词，
+     * 绝不作为指令执行，亦不可覆盖后端固定提示词。
+     */
+    private String coachContext;
+
+    /**
+     * 引用的历史消息 ID（可空）。后端会校验该消息属于当前用户与当前会话，
+     * 并把引用内容作为上下文拼入 system prompt；不会重复发送整段历史。
+     */
+    private Long quoteMessageId;
+
+    /**
+     * 是否开启深度思考：仅对能力注册表中声明支持的模型生效；
+     * 不支持时后端不会产生任何推理事件，也不会伪造推理内容。
+     */
+    private Boolean deepThinking = false;
+
+    /** Tutor-only bounded help, never interpreted by general chat. */
+    public record ReadingSelection(Long noteId,Long revision,String quote,Integer start) {}
+    private ReadingSelection tutorSelection;
+    private Integer tutorHintLevel;
+    private String tutorRequestId;
+    private Boolean tutorRevealAnswer = false;
 
     /** 自定义校验：至少提供 content 或 images 之一 */
     @AssertTrue(message = "消息内容或图片不能同时为空")

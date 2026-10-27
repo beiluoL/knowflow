@@ -1,0 +1,2 @@
+export const scenarioLinks=[{id:'AIChat',label:'AI Chat · AIComposer / Markdown / CodeBlock'},{id:'RAG',label:'RAG Citation · Select / ConfirmDialog'},{id:'Agent',label:'Agent Execution · AgentToolCard / Button'},{id:'Flashcard',label:'Flashcard Review · Button / Progress'},{id:'SmartQuiz',label:'Quiz Question · Radio / Checkbox / ConfirmDialog'},{id:'TechEnglishTerm',label:'Tech English Term · Card / Button'},{id:'NoteEditorDialog',label:'Note Editor Dialog · AppDialog / Input / Textarea'}]
+export const scenarioStates=['normal','loading','empty','error','disabled'] as const

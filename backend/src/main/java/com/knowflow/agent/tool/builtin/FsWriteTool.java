@@ -25,6 +25,7 @@ import java.nio.file.Path;
 public class FsWriteTool implements AgentTool {
 
     private final ObjectMapper objectMapper;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
 
     @Override
     public String name() {
@@ -59,14 +60,15 @@ public class FsWriteTool implements AgentTool {
 
     @Override
     public ToolResult execute(JsonNode args, ToolContext ctx) throws ToolException {
+        hostGuard.requireActor(ctx == null ? null : ctx.getUserId());
         long start = System.currentTimeMillis();
         String rel = args.has("path") ? args.get("path").asText() : null;
         String content = args.has("content") ? args.get("content").asText() : null;
         if (rel == null || rel.isBlank() || content == null) {
             return ToolResult.fail("缺少必填参数 path 或 content", System.currentTimeMillis() - start);
         }
-        Path root = FsReadTool.resolveRoot(ctx);
-        Path target = FsReadTool.safeResolve(root, rel);
+        Path root = FsReadTool.resolveRoot(ctx, hostGuard);
+        Path target = FsReadTool.safeResolve(root, rel, hostGuard);
         try {
             Files.createDirectories(target.getParent());
             Files.writeString(target, content);

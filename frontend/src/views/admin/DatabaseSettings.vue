@@ -81,20 +81,20 @@
       <div class="db-form">
         <label class="db-field">
           <span class="db-field__label">连接地址（JDBC URL）</span>
-          <input v-model.trim="form.url" class="db-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" type="text" placeholder="留空则使用服务端配置" />
+          <input v-model.trim="form.url" class="db-input transition-colors kb-input kb-form-control" type="text" placeholder="留空则使用服务端配置" />
         </label>
         <div class="db-field-row">
           <label class="db-field">
             <span class="db-field__label">用户名</span>
-            <input v-model.trim="form.username" class="db-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" type="text" placeholder="留空沿用服务端配置" />
+            <input v-model.trim="form.username" class="db-input transition-colors kb-input kb-form-control" type="text" placeholder="留空沿用服务端配置" />
           </label>
           <label class="db-field">
             <span class="db-field__label">密码</span>
-            <input v-model="form.password" class="db-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" type="password" placeholder="留空沿用服务端配置" />
+            <input v-model="form.password" class="db-input transition-colors kb-input kb-form-control" type="password" placeholder="留空沿用服务端配置" />
           </label>
         </div>
-        <label class="db-field db-field--check">
-          <input v-model="form.initSchema" class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" type="checkbox" />
+        <label class="db-field db-field--check kb-checkbox-row">
+          <Checkbox as="span" v-model="form.initSchema" />
           <span>
             切换后执行初始化脚本（建表 + 演示数据）
             <em class="db-hint">目标库为空时首次切换请勾选；已有数据时勾选会重复写入</em>
@@ -148,6 +148,8 @@
 </template>
 
 <script setup lang="ts">
+import Checkbox from '@/components/ui/Checkbox.vue'
+
 import { computed, onMounted, reactive, ref } from 'vue';
 import { dialog } from '@/utils/dialog';
 import Icon from '@/components/ui/Icon.vue';
@@ -240,7 +242,7 @@ async function handleTest(): Promise<void> {
 async function handleSwitch(): Promise<void> {
   const target = status.value?.options.find((o) => o.code === form.type);
   if (
-    !(await dialog.confirm({
+    !(await dialog.confirm({"confirmText":"确认执行","cancelText":"返回设置","icon":"database",
       title: '切换数据库',
       message: `确认将数据库切换为「${target?.displayName ?? form.type}」？\n切换后新请求将立即使用目标库，旧连接池会在 30 秒后释放。`,
       variant: 'danger',
@@ -266,7 +268,7 @@ async function handleSwitch(): Promise<void> {
 
 async function handleInit(): Promise<void> {
   if (
-    !(await dialog.confirm({
+    !(await dialog.confirm({"confirmText":"确认执行","cancelText":"返回设置","icon":"database",
       title: '初始化数据库',
       message: '确认对当前数据库执行初始化脚本？\n若库中已有数据，可能产生重复记录或主键冲突。',
       variant: 'danger',
@@ -297,11 +299,16 @@ onMounted(loadStatus);
 <style scoped>
 .db-settings {
   padding: 24px;
-  max-width: 960px;
-  margin: 0 auto;
+  max-width: none;
+  margin-inline: 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  width: 100%;
+  min-width: 0;
+  padding-inline: 0;
+  padding-top: 0;
 }
 
 .db-settings__header {
@@ -372,7 +379,7 @@ onMounted(loadStatus);
 
 .db-status__badge.is-error {
   background: var(--kb-danger-bg, rgba(239, 68, 68, 0.12));
-  color: var(--kb-danger, #dc2626);
+  color: var(--kb-danger, var(--kb-danger-hover));
 }
 
 .db-grid {
@@ -461,7 +468,7 @@ onMounted(loadStatus);
 .db-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--kb-checkbox-gap);
 }
 
 .db-field__label {
@@ -471,9 +478,9 @@ onMounted(loadStatus);
 
 .db-field--check {
   flex-direction: row;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 13px;
+  align-items: center;
+  gap: var(--kb-checkbox-gap);
+  font-size: var(--kb-fs-body-md);
   color: var(--kb-text);
 }
 
@@ -485,17 +492,20 @@ onMounted(loadStatus);
   color: var(--kb-text-secondary);
 }
 
-.db-input {
-  padding: 8px 12px;
+.db-input:not(.kb-form-control) {
   border: 1px solid var(--kb-border);
   border-radius: var(--kb-radius, 8px);
   background: var(--kb-bg);
-  color: var(--kb-text);
-  font-size: 13px;
   outline: none;
 }
 
-.db-input:focus {
+.db-input {
+  padding: 8px 12px;
+  color: var(--kb-text);
+  font-size: 13px;
+}
+
+.db-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
 }
 
@@ -549,12 +559,12 @@ onMounted(loadStatus);
 
 .db-alert--error {
   background: var(--kb-danger-bg, rgba(239, 68, 68, 0.12));
-  color: var(--kb-danger, #dc2626);
+  color: var(--kb-danger, var(--kb-danger-hover));
 }
 
 .db-alert--warn {
   background: var(--kb-warning-bg, rgba(245, 158, 11, 0.12));
-  color: var(--kb-warning, #d97706);
+  color: var(--kb-warning, var(--kb-warning-hover));
 }
 
 @media (max-width: 640px) {

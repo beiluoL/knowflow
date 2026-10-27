@@ -17,7 +17,7 @@
           v-model="searchKeyword"
           type="text"
           placeholder="搜索小组..."
-          class="search-input"
+          class="search-input kb-input kb-form-control"
         />
       </div>
 
@@ -34,9 +34,9 @@
             role="button"
             tabindex="0"
             @click="selectGroup(group.id)"
-            @keydown.enter.self.prevent="$event.target.click()"
+            @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
           >
-            <div class="group-avatar" :style="{ background: group.color || '#3B6FE0' }">
+            <div class="group-avatar" :style="{ background: group.color || 'var(--kb-primary)' }">
               {{ group.name.charAt(0) }}
             </div>
             <div class="group-info">
@@ -63,7 +63,7 @@
             role="button"
             tabindex="0"
             @click="showGroupDetail(group)"
-            @keydown.enter.self.prevent="$event.target.click()"
+            @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
           >
             <div class="group-avatar" :style="{ background: group.color || '#8B5CF6' }">
               {{ group.name.charAt(0) }}
@@ -98,7 +98,7 @@
         <!-- 聊天头部 -->
         <header class="chat-header">
           <div class="header-info">
-            <div class="group-avatar large" :style="{ background: activeGroup?.color || '#3B6FE0' }">
+            <div class="group-avatar large" :style="{ background: activeGroup?.color || 'var(--kb-primary)' }">
               {{ activeGroup?.name.charAt(0) }}
             </div>
             <div class="header-text">
@@ -149,7 +149,7 @@
                       role="button"
                       tabindex="0"
                       @click="previewImage(msg.fileUrl)"
-                      @keydown.enter.self.prevent="$event.target.click()"
+                      @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
                     />
                   </template>
                   <!-- 文件消息 -->
@@ -183,7 +183,7 @@
                       role="button"
                       tabindex="0"
                       @click="retryFailedMessage(msg.tempId!)"
-                      @keydown.enter.self.prevent="$event.target.click()"
+                      @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
                     >发送失败，点击重试</span>
                   </template>
                   <template v-else>{{ formatTime(msg.createTime) }}</template>
@@ -194,7 +194,7 @@
                     role="button"
                     tabindex="0"
                     @click="recallGroupMessage(msg)"
-                    @keydown.enter.self.prevent="$event.target.click()"
+                    @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
                   >撤回</span>
                 </div>
               </div>
@@ -218,10 +218,10 @@
           <!-- 工具栏 -->
           <div class="input-toolbar">
             <button type="button" class="tool-btn" @click="showEmojiPicker = !showEmojiPicker">
-              <Icon name="smile" :size="18" />
+              <Icon name="message-circle" :size="18" />
             </button>
             <button type="button" class="tool-btn" @click="toggleMentionPopover" title="提及成员">
-              <Icon name="at-sign" :size="18" />
+              <Icon name="send" :size="18" />
             </button>
             <div v-if="showMentionPopover" class="mention-popover">
               <button
@@ -251,7 +251,7 @@
             <textarea
               v-model="messageInput"
               placeholder="输入消息，按 Enter 发送..."
-              class="message-input"
+              class="message-input kb-textarea kb-form-control"
               rows="1"
               @keydown.enter.exact.prevent="sendMessage"
               @input="handleTyping"
@@ -305,11 +305,11 @@
           <div class="dialog-body">
             <div class="form-group">
               <label>小组名称 <span class="required">*</span></label>
-              <input v-model="createForm.name" type="text" placeholder="输入小组名称" class="form-input" />
+              <input v-model="createForm.name" type="text" placeholder="输入小组名称" class="form-input kb-input kb-form-control" />
             </div>
             <div class="form-group">
               <label>小组描述</label>
-              <textarea v-model="createForm.description" placeholder="介绍小组的学习主题..." class="form-textarea"></textarea>
+              <textarea v-model="createForm.description" placeholder="介绍小组的学习主题..." class="form-textarea kb-textarea kb-form-control"></textarea>
             </div>
             <div class="form-group">
               <label>小组颜色</label>
@@ -333,7 +333,7 @@
                 <label class="type-option" :class="{ active: createForm.type === 'PUBLIC' }">
                   <input type="radio" value="PUBLIC" v-model="createForm.type" />
                   <div class="type-info">
-                    <Icon name="globe" :size="18" />
+                    <Icon name="map" :size="18" />
                     <span class="type-name">公开小组</span>
                     <span class="type-desc">任何人都可以加入</span>
                   </div>
@@ -373,7 +373,7 @@
             <p class="invite-desc">邀请成员加入「{{ activeGroup?.name }}」学习小组</p>
             <div class="form-group">
               <label>成员邮箱</label>
-              <input v-model="inviteForm.email" type="email" placeholder="请输入成员邮箱" class="form-input" />
+              <input v-model="inviteForm.email" type="email" placeholder="请输入成员邮箱" class="form-input kb-input kb-form-control" />
             </div>
             <div class="form-group">
               <label>成员角色</label>
@@ -412,16 +412,7 @@
           <div class="dialog-body">
             <div class="form-group">
               <label>编程语言</label>
-              <select v-model="codeForm.language" class="form-select">
-                <option value="javascript">JavaScript</option>
-                <option value="typescript">TypeScript</option>
-                <option value="python">Python</option>
-                <option value="java">Java</option>
-                <option value="go">Go</option>
-                <option value="sql">SQL</option>
-                <option value="html">HTML</option>
-                <option value="css">CSS</option>
-              </select>
+              <Select v-model="codeForm.language" :options="[{ value: 'javascript', label: 'JavaScript' }, { value: 'typescript', label: 'TypeScript' }, { value: 'python', label: 'Python' }, { value: 'java', label: 'Java' }, { value: 'go', label: 'Go' }, { value: 'sql', label: 'SQL' }, { value: 'html', label: 'HTML' }, { value: 'css', label: 'CSS' }]" aria-label="代码语言" />
             </div>
             <div class="form-group">
               <label>代码内容</label>
@@ -440,7 +431,7 @@
     <Teleport to="body">
       <div v-if="detailDialogVisible" class="panel-overlay" @click.self="detailDialogVisible = false">
         <div class="detail-dialog">
-          <div class="detail-header" :style="{ background: detailGroup?.color || '#3B6FE0' }">
+          <div class="detail-header" :style="{ background: detailGroup?.color || 'var(--kb-primary)' }">
             <div class="detail-avatar">{{ detailGroup?.name.charAt(0) }}</div>
             <h2 class="detail-name">{{ detailGroup?.name }}</h2>
             <p class="detail-desc">{{ detailGroup?.description || '暂无描述' }}</p>
@@ -482,7 +473,7 @@
               <textarea
                 v-model="settingsForm.announcement"
                 placeholder="输入小组公告..."
-                class="form-textarea"
+                class="form-textarea kb-textarea kb-form-control"
                 rows="4"
               ></textarea>
               <button type="button" class="btn-save" @click="updateAnnouncement">保存公告</button>
@@ -519,6 +510,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import Select from '@/components/ui/Select.vue'
 import Icon from '@/components/ui/Icon.vue'
 import { studyGroupApi } from '@/api'
 import { notify, getApiError } from '@/utils/toast'
@@ -569,7 +561,7 @@ let typingTimeout: number | null = null
 const createForm = ref({
   name: '',
   description: '',
-  color: '#3B6FE0',
+  color: 'var(--kb-primary)',
   type: 'PUBLIC' as 'PUBLIC' | 'PRIVATE',
 })
 
@@ -587,7 +579,7 @@ const settingsForm = ref({
   announcement: '',
 })
 
-const availableColors = ['#3B6FE0', '#8B5CF6', '#EC4899', '#EF4444', '#F59E0B', '#10B981', '#06B6D4', '#6366F1']
+const availableColors = ['var(--kb-primary)', '#8B5CF6', '#EC4899', 'var(--kb-danger)', 'var(--kb-warning)', 'var(--kb-success)', '#06B6D4', '#6366F1']
 
 // 计算属性
 const filteredMyGroups = computed(() => {
@@ -1007,7 +999,7 @@ async function handleJoinGroup() {
 
 // 创建小组
 function openCreateDialog() {
-  createForm.value = { name: '', description: '', color: '#3B6FE0', type: 'PUBLIC' }
+  createForm.value = { name: '', description: '', color: 'var(--kb-primary)', type: 'PUBLIC' }
   createDialogVisible.value = true
 }
 
@@ -1115,7 +1107,7 @@ async function handleImageUpload(e: Event) {
 
   try {
     notify('正在上传图片...', 'info')
-    const result = await studyGroupApi.uploadFile(file)
+    const result = await studyGroupApi.uploadFile(activeGroupId.value, file)
 
     await sendMessageSafe({
       groupId: activeGroupId.value,
@@ -1145,7 +1137,7 @@ async function handleFileUpload(e: Event) {
 
   try {
     notify('正在上传文件...', 'info')
-    const result = await studyGroupApi.uploadFile(file)
+    const result = await studyGroupApi.uploadFile(activeGroupId.value, file)
 
     await sendMessageSafe({
       groupId: activeGroupId.value,
@@ -1219,7 +1211,7 @@ function scrollToBottom() {
 }
 
 function getMemberColor(name: string): string {
-  const colors = ['#3B6FE0', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#06B6D4', '#EF4444']
+  const colors = ['var(--kb-primary)', '#8B5CF6', '#EC4899', 'var(--kb-warning)', 'var(--kb-success)', '#06B6D4', 'var(--kb-danger)']
   let hash = 0
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash)
@@ -1404,25 +1396,28 @@ watch(activeGroupId, (_, oldId) => {
   color: var(--kb-muted-foreground);
 }
 
-.search-input {
-  width: 100%;
+.search-input:not(.kb-form-control) {
   height: 36px;
-  padding: 0 12px 0 36px;
   border-radius: 8px;
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-sm);
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.search-input:hover {
+.search-input {
+  width: 100%;
+  padding: 0 12px 0 36px;
+  color: var(--kb-foreground);
+  font-size: var(--kb-fs-body-sm);
+}
+
+.search-input:not(.kb-form-control):hover {
   border-color: var(--kb-primary);
 }
 
-.search-input:focus,
-.search-input:focus-visible {
+.search-input:not(.kb-form-control):focus,
+.search-input:not(.kb-form-control):focus-visible {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
@@ -2144,25 +2139,28 @@ watch(activeGroupId, (_, oldId) => {
   gap: 8px;
   padding: 12px 16px;
   border-radius: 12px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-background);
+  background: var(--kb-field-surface);
   transition: border-color 0.15s;
+  border: 0;
 }
 
 .input-wrapper:focus-within {
-  border-color: var(--kb-primary);
+  background: var(--kb-field-active);
+}
+
+.message-input:not(.kb-form-control) {
+  border: none;
+  background: transparent;
+  outline: none;
+  min-height: 24px;
 }
 
 .message-input {
   flex: 1;
   min-width: 0;
-  border: none;
-  background: transparent;
   font-size: var(--kb-fs-body-md);
   color: var(--kb-foreground);
   resize: none;
-  outline: none;
-  min-height: 24px;
   max-height: 120px;
 }
 
@@ -2390,8 +2388,11 @@ watch(activeGroupId, (_, oldId) => {
   box-sizing: border-box;
 }
 
-.form-textarea {
+.form-textarea:not(.kb-form-control) {
   min-height: 80px;
+}
+
+.form-textarea {
   resize: none;
 }
 
@@ -2401,11 +2402,11 @@ watch(activeGroupId, (_, oldId) => {
   border-color: var(--kb-primary);
 }
 
-.form-input:focus,
-.form-textarea:focus,
+.form-input:focus:not(.kb-form-control),
+.form-textarea:focus:not(.kb-form-control),
 .form-select:focus,
-.form-input:focus-visible,
-.form-textarea:focus-visible,
+.form-input:focus-visible:not(.kb-form-control),
+.form-textarea:focus-visible:not(.kb-form-control),
 .form-select:focus-visible {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
@@ -2826,4 +2827,8 @@ watch(activeGroupId, (_, oldId) => {
   outline: 2px solid var(--kb-destructive);
   outline-offset: 2px;
 }
+</style>
+
+<style scoped>
+.input-wrapper:has(input:focus-visible){outline:0}.input-wrapper input.kb-form-control,.input-wrapper input.kb-form-control:focus,.input-wrapper input.kb-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
 </style>

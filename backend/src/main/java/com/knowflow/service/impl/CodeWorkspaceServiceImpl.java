@@ -40,6 +40,7 @@ public class CodeWorkspaceServiceImpl implements CodeWorkspaceService {
         }
         Path root = Paths.get(workspaceRoot).toAbsolutePath().normalize();
         Path dir = root.resolve(String.valueOf(userId)).normalize();
+        rejectLinks(root,dir);
         // 二次校验：确保解析结果仍在 root 之内（userId 不可能含 ..，此处仅防御）
         if (!dir.startsWith(root)) {
             throw new BusinessException("非法的工作区路径");
@@ -57,7 +58,7 @@ public class CodeWorkspaceServiceImpl implements CodeWorkspaceService {
         Path dir = getWorkspaceDir(userId);
         List<CodeWorkspaceFileVO> result = new ArrayList<>();
         try (Stream<Path> stream = Files.list(dir)) {
-            stream.filter(Files::isRegularFile)
+            stream.peek(p -> rejectLinks(dir,p)).filter(Files::isRegularFile)
                     .sorted(Comparator.comparing(p -> p.getFileName().toString()))
                     .forEach(p -> result.add(toVO(p)));
         } catch (IOException e) {
@@ -116,6 +117,7 @@ public class CodeWorkspaceServiceImpl implements CodeWorkspaceService {
             throw new BusinessException("非法的文件路径：" + rawPath);
         }
         Path resolved = dir.resolve(rawPath).normalize();
+        rejectLinks(dir,resolved);
         if (!resolved.startsWith(dir)) {
             throw new BusinessException("非法的文件路径：" + rawPath);
         }
@@ -126,6 +128,18 @@ public class CodeWorkspaceServiceImpl implements CodeWorkspaceService {
             throw new BusinessException("不支持的文件类型：" + ext + "（允许 " + String.join("/", ALLOWED_EXT) + "）");
         }
         return resolved;
+    }
+
+    // Server-owned workspace storage stays available without host opt-in,
+    // but must never follow caller-created links into host files.
+    private void rejectLinks(Path root,Path target) {
+        if (!target.startsWith(root)) throw new BusinessException(403,"非法的工作区路径");
+        Path current=root;
+        if (Files.isSymbolicLink(current)) throw new BusinessException(403,"工作区不允许符号链接");
+        for (Path part:root.relativize(target)) {
+            current=current.resolve(part);
+            if (Files.isSymbolicLink(current)) throw new BusinessException(403,"工作区不允许符号链接");
+        }
     }
 
     private CodeWorkspaceFileVO toVO(Path p) {

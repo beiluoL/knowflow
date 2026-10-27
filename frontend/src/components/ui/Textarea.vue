@@ -1,17 +1,18 @@
 <template>
-  <div class="w-full">
-    <label v-if="label" :for="textareaId" class="block text-sm font-medium text-foreground mb-1.5">
-      {{ label }}
-      <span v-if="required" class="text-danger-500 ml-0.5">*</span>
-    </label>
+  <FormField :class="$attrs.class" :style="$attrs.style as any" :control-id="textareaId" :label="label" :required="required" :help="help" :error="error">
+    <div class="kb-field" :class="{'kb-field--error':error,'kb-field--disabled':disabled}">
     <textarea
+      v-bind="controlAttrs()"
       :id="textareaId"
+      :required="required"
+      :aria-describedby="descriptionId"
       ref="textareaRef"
       :value="modelValue"
       :placeholder="placeholder"
       :rows="rows"
       :maxlength="maxlength"
       :disabled="disabled"
+      :aria-invalid="error ? 'true' : undefined"
       :class="[
         'kb-textarea',
         autoResize ? 'kb-textarea-autoresize' : '',
@@ -23,20 +24,20 @@
       @blur="$emit('blur', $event)"
       @focus="$emit('focus', $event)"
     />
-    <div v-if="error || (maxlength && showCount)" class="flex items-center justify-between mt-1.5">
-      <p v-if="error" class="text-xs text-danger-500">{{ error }}</p>
-      <span v-else />
-      <span v-if="maxlength && showCount" class="text-xs text-muted-foreground tabular-nums">
-        {{ count }}/{{ maxlength }}
-      </span>
     </div>
-  </div>
+    <template v-if="maxlength && showCount" #meta><span class="kb-form-count">{{count}}/{{maxlength}}</span></template>
+  </FormField>
 </template>
 
 <script setup lang="ts">
 // U6：通用文本域，封装 label/placeholder/rows/auto-resize/字数统计/错误态，v-model 双绑。
 // 复用全局 .kb-textarea 类，与 Input.vue 视觉一致；autoResize 时根据内容自动撑高。
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import FormField from './FormField.vue'
+import { computed, nextTick, onMounted, ref, watch, useAttrs, useId } from 'vue'
+
+defineOptions({inheritAttrs:false})
+const attrs=useAttrs()
+const controlAttrs=()=>Object.fromEntries(Object.entries(attrs).filter(([key])=>!['class','style','id','aria-describedby'].includes(key)))
 
 interface Props {
   modelValue?: string
@@ -47,9 +48,11 @@ interface Props {
   showCount?: boolean
   required?: boolean
   disabled?: boolean
+  help?: string
   error?: string
   autoResize?: boolean
   minHeight?: number
+  maxHeight?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -62,6 +65,7 @@ const props = withDefaults(defineProps<Props>(), {
   disabled: false,
   autoResize: false,
   minHeight: 96,
+  maxHeight: 320,
 })
 
 const emit = defineEmits<{
@@ -71,7 +75,10 @@ const emit = defineEmits<{
 }>()
 
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
-const textareaId = `textarea-${Math.random().toString(36).substring(2, 9)}`
+const generatedId='textarea-'+useId()
+const textareaId=computed(()=>String(attrs.id||generatedId))
+const errorId=computed(()=>textareaId.value+'-error')
+const descriptionId=computed(()=>[attrs['aria-describedby'],props.help?textareaId.value+'-help':undefined,props.error?errorId.value:undefined].filter(Boolean).join(' ')||undefined)
 
 const count = computed(() => (props.modelValue ? props.modelValue.length : 0))
 
@@ -85,7 +92,8 @@ const resize = () => {
   const el = textareaRef.value
   if (!el || !props.autoResize) return
   el.style.height = 'auto'
-  el.style.height = el.scrollHeight + 'px'
+  el.style.height = Math.min(el.scrollHeight,Math.max(props.minHeight,props.maxHeight)) + 'px'
+  el.style.overflowY = el.scrollHeight>Math.max(props.minHeight,props.maxHeight)?'auto':'hidden'
 }
 
 watch(

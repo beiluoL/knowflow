@@ -82,7 +82,7 @@
             :inner-progress="pomodoroStore.progress"
             :outer-progress="groupProgress"
             :inner-color="pomodoroStore.modeColor.stroke"
-            outer-color="#F59E0B"
+            outer-color="var(--kb-warning)"
             :size="280"
           >
             <div class="timer-center">
@@ -146,7 +146,7 @@
       <template v-if="activeGroup">
         <header class="panel-head">
           <h3 class="panel-title">
-            <Icon name="activity" :size="16" aria-hidden="true" />
+            <Icon name="trending-up" :size="16" aria-hidden="true" />
             <span>成员状态</span>
           </h3>
           <span class="group-switch">{{ activeGroup.name }}</span>
@@ -202,7 +202,7 @@
           <div class="chat-input-wrap">
             <textarea
               v-model="chatInput"
-              class="chat-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="chat-input transition-colors kb-textarea kb-form-control"
               rows="2"
               placeholder="发一条鼓励的消息…"
               @keydown.enter.ctrl="handleSendMessage"
@@ -221,7 +221,7 @@
       </template>
 
       <div v-else class="empty-side">
-        <Icon name="user-x" :size="36" aria-hidden="true" />
+        <Icon name="user" :size="36" aria-hidden="true" />
         <p>选择左侧小组查看成员</p>
       </div>
     </aside>
@@ -626,7 +626,7 @@ onUnmounted(async () => {
   font-size: 10px;
   font-weight: 700;
   color: #fff;
-  background: #EF4444;
+  background: var(--kb-danger);
   border-radius: 999px;
   flex-shrink: 0;
 }
@@ -664,7 +664,7 @@ onUnmounted(async () => {
   border-radius: 4px;
 }
 .role-badge.owner {
-  color: #F59E0B;
+  color: var(--kb-warning);
   background: rgba(245, 158, 11, 0.15);
 }
 .role-badge.admin {
@@ -721,7 +721,7 @@ onUnmounted(async () => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #10B981;
+  background: var(--kb-success);
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
 
@@ -759,7 +759,7 @@ onUnmounted(async () => {
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: #F59E0B;
+  color: var(--kb-warning);
   margin-top: 4px;
 }
 
@@ -809,7 +809,7 @@ onUnmounted(async () => {
   transition: background 0.3s ease, transform 0.3s ease;
 }
 .dot.done {
-  background: var(--kb-accent, #10B981);
+  background: var(--kb-accent, var(--kb-success));
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
 }
 
@@ -892,7 +892,7 @@ onUnmounted(async () => {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #10B981;
+  background: var(--kb-success);
   border: 2px solid rgba(15, 23, 42, 1);
   animation: pulse 2s infinite;
 }
@@ -939,7 +939,7 @@ onUnmounted(async () => {
   background: rgba(255, 255, 255, 0.05);
 }
 .status-tag.studying {
-  color: #10B981;
+  color: var(--kb-success);
   background: rgba(16, 185, 129, 0.12);
 }
 
@@ -1024,21 +1024,24 @@ onUnmounted(async () => {
   gap: 6px;
 }
 
+.chat-input:not(.kb-form-control) {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  outline: none;
+}
+
 .chat-input {
   width: 100%;
   box-sizing: border-box;
   padding: 8px 10px;
   font-size: 12px;
   color: var(--kb-foreground);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
   resize: none;
-  outline: none;
   font-family: inherit;
   line-height: 1.5;
 }
-.chat-input:focus {
+.chat-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
 }
 

@@ -91,6 +91,21 @@ public interface WorkbenchService extends IService<WbCapture> {
     /** 创建会话（仅填原文/标题），返回新会话 ID。 */
     Long createRecallSession(WbRecallSessionDTO dto, Long userId);
 
+    /** 编辑会话：草稿可改原文与来源，已开始会话原文锁定。 */
+    WbRecallSessionVO updateRecallSession(Long id, WbRecallSessionDTO dto, Long userId);
+
+    /** 保存某轮中途草稿（已提交的轮次不可再写草稿）。 */
+    WbRecallSessionVO saveRecallDraft(Long id, WbRecallSessionDTO dto, Long userId);
+
+    /** 保存用户确认的关键遗漏（按轮次）。 */
+    WbRecallSessionVO saveRecallGaps(Long id, WbRecallSessionDTO dto, Long userId);
+
+    /** 复制为新会话（草稿），保留原文快照，不复制历史轮次。 */
+    Long copyRecallSession(Long id, Long userId);
+
+    /** 归档 / 取消归档会话。 */
+    void setRecallArchived(Long id, Integer archived, Long userId);
+
     /** 提交某轮默写内容，自动比对原文计算得分并保存，返回更新后会话。 */
     WbRecallSessionVO submitRecallRound(Long id, WbRecallSessionDTO dto, Long userId);
 

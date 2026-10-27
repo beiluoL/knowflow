@@ -27,19 +27,37 @@ public interface AiService {
     /** 带用户ID的结构化补全接口，优先使用用户自带 Key，否则回退到全局配置。 */
     String complete(String systemPrompt, String userPrompt, String model, Long userId);
 
+    /** 有明确JSON契约的调用；实现可按已知供应商能力控制输出，默认保留原适配行为。 */
+    default String completeStructured(String systemPrompt,String userPrompt,String model,Long userId){
+        return complete(systemPrompt,userPrompt,model,userId);
+    }
+
     /** 返回当前可切换的模型列表。 */
     List<String> getAvailableModels();
 
     boolean isConfigured();
 
     /**
-     * 简答题/主观题 AI 评分：将题目、学生答案、参考答案发给大模型，返回打分（0-100）与评语。
-     *
-     * @param question  题目文本
-     * @param userAnswer 用户作答
-     * @param correctAnswer 参考答案
-     * @return JSON 格式：{"score": 85, "feedback": "基本正确，缺少细节说明"}
+     * 指定用户的生效配置是否可用（用户自带 Key 优先，否则看系统级 Key；同时尊重系统 AI 总开关）。
+     * Phase 3H：所有需要判断“AI 能不能用”的业务层都应调用本方法，而不是各自猜配置。
      */
+    default boolean isConfigured(Long userId) {
+        return isConfigured();
+    }
+
+    /**
+     * 指定用户当前生效模型的熔断/统计作用域（provider:model），供能力状态查询使用。
+     */
+    default String currentScope(Long userId) {
+        return "default";
+    }
+
+    /**
+     * @deprecated Phase 3H 起废弃：本方法历史上在 AI 失败时返回伪造的 85/40 分，违反“AI 失败不造假分”
+     * 原则，且生产链路（考试 AI 评卷）使用 {@code ExamAiService.gradeSubjective}，本方法无生产调用方。
+     * 保留仅为二进制兼容，任何新代码不得使用。
+     */
+    @Deprecated
     String gradeEssay(String question, String userAnswer, String correctAnswer);
 
     /**
@@ -102,6 +120,39 @@ public interface AiService {
                     Double temperature, Integer maxTokens, Double topP);
 
     /**
+     * 带深度思考开关的流式对话：deepThinking=true 时按模型能力读取可展示推理内容
+     * （DeepSeek reasoning_content / OpenAI reasoning summary），并与最终回答分开推送。
+     * 默认实现忽略开关，保证既有调用方兼容。
+     */
+    default void streamChat(String systemPrompt, String userPrompt, Long userId, Long configId,
+                            SseEmitter emitter, StreamCompletionCallback callback,
+                            Double temperature, Integer maxTokens, Double topP, boolean deepThinking) {
+        streamChat(systemPrompt, userPrompt, userId, configId, emitter, callback,
+                temperature, maxTokens, topP, deepThinking, null);
+    }
+
+    /**
+     * 指定模型的深度思考流式对话：model 非空时覆盖生效配置中的模型，
+     * 保证前端模型下拉选择与深度思考能力判定使用同一个真实模型。
+     * 默认实现忽略 model 与 deepThinking，回退到基础三参版本；
+     * 需要真实推理内容的实现必须覆盖本方法（否则不会产生推理事件）。
+     */
+    default void streamChat(String systemPrompt, String userPrompt, Long userId, Long configId,
+                            SseEmitter emitter, StreamCompletionCallback callback,
+                            Double temperature, Integer maxTokens, Double topP, boolean deepThinking,
+                            String model) {
+        streamChat(systemPrompt, userPrompt, userId, configId, emitter, callback,
+                temperature, maxTokens, topP);
+    }
+
+    /**
+     * 聊天模型能力（深度思考）列表，供前端开关判断；不包含任何密钥信息。
+     */
+    default com.knowflow.vo.ChatModelCapabilityVO getModelCapabilities(Long userId) {
+        throw new UnsupportedOperationException("模型能力查询未实现");
+    }
+
+    /**
      * 流式对话完成回调函数式接口。
      */
     @FunctionalInterface
@@ -111,6 +162,22 @@ public interface AiService {
          * @param success 是否成功
          */
         void onComplete(String content, boolean success);
+
+        /**
+         * 携带真实推理内容的重载：reasoning 为 Provider 返回的可展示推理文本或摘要，
+         * 无推理内容时为 null。默认回退到两参数版本，兼容既有 lambda 调用方。
+         */
+        default void onComplete(String content, String reasoning, boolean success) {
+            onComplete(content, success);
+        }
+
+        /**
+         * 完整重载：额外携带推理类型（provider_text / summary）与真实耗时，供持久化使用。
+         */
+        default void onComplete(String content, String reasoning, String reasoningKind,
+                                Long reasoningDurationMs, boolean success) {
+            onComplete(content, reasoning, success);
+        }
     }
 
     /**

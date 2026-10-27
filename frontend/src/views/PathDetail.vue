@@ -3,13 +3,14 @@
   <div class="path-detail-page animate-fade-in" :style="themeVars">
     <!-- ===== 面包屑 ===== -->
     <nav class="breadcrumb">
-      <router-link to="/learning/center" class="crumb-link">学习中心</router-link>
+      <router-link to="/learning/center" class="crumb-link">学习首页</router-link>
       <Icon name="chevron-right" :size="14" class="crumb-sep" />
       <router-link to="/learning/paths" class="crumb-link">学习路径</router-link>
       <Icon name="chevron-right" :size="14" class="crumb-sep" />
       <span class="crumb-current">{{ currentPath?.title || '加载中...' }}</span>
     </nav>
 
+    <AdaptivePathPanel v-if="adaptiveEnabled&&currentPath" :path-id="pathId" @applied="loadPath(true)"/>
     <!-- ===== 路径 Hero 卡片 ===== -->
     <section v-if="currentPath" class="hero-card">
       <!-- 顶部主题色装饰条与背景光晕 -->
@@ -54,10 +55,6 @@
               <Icon name="users" :size="12" />
               <span>{{ formatCount(currentPath.enrolledCount) }} 人学习</span>
             </span>
-            <span class="chip chip-rating">
-              <Icon name="star" :size="12" />
-              <span>{{ getRating(currentPath.id) }} 评分</span>
-            </span>
           </div>
         </div>
 
@@ -77,14 +74,14 @@
             </svg>
             <div class="ring-center">
               <span class="ring-num">{{ currentPath.progress }}<i>%</i></span>
-              <span class="ring-label">{{ completedChaptersCount }}/{{ pathChapters.length }} 章</span>
+              <span v-if="chapterStatus === 'ready'" class="ring-label">{{ completedChaptersCount }}/{{ pathChapters.length }} 章</span>
             </div>
           </div>
           <button
             type="button"
             class="primary-btn"
             :class="{ 'enroll-btn': !isEnrolled, 'is-loading': enrolling }"
-            :disabled="enrolling"
+            :disabled="enrolling || (isEnrolled && chapterStatus !== 'ready')"
             @click="isEnrolled ? continueLearning() : handleEnroll()"
           >
             <Icon :name="!isEnrolled ? 'user-plus' : 'play'" :size="14" />
@@ -103,10 +100,7 @@
     </section>
 
     <!-- 加载态 -->
-    <div v-else class="state-area">
-      <div class="loading-spinner"></div>
-      <p class="state-text">加载中...</p>
-    </div>
+    <StateView v-else :status="detailStatus" error-title="学习路径加载失败" error-hint="请检查网络后重试。" @retry="loadPath(true)" />
 
     <!-- ===== 未报名引导横幅 ===== -->
     <div v-if="currentPath && !isEnrolled" class="enroll-banner">
@@ -121,7 +115,7 @@
     </div>
 
     <!-- ===== 数据看板 ===== -->
-    <div v-if="currentPath" class="metric-row">
+    <div v-if="currentPath && chapterStatus === 'ready'" class="metric-row">
       <div v-for="metric in metrics" :key="metric.label" class="metric-card">
         <span class="metric-icon" :class="metric.tone">
           <Icon :name="metric.icon" :size="16" />
@@ -134,7 +128,8 @@
     </div>
 
     <!-- ===== 章节依赖关系图（DAG） ===== -->
-    <section v-if="currentPath" class="panel dag-panel">
+    <details v-if="currentPath" class="panel dag-panel">
+      <summary class="panel-header">查看章节依赖图谱</summary>
       <header class="panel-header">
         <h2 class="panel-title">
           <Icon name="git-branch" :size="18" class="panel-icon" />
@@ -160,7 +155,7 @@
           当前路径为线性顺序，暂无显式前置依赖分支。
         </p>
       </div>
-    </section>
+    </details>
 
     <!-- ===== 章节时间轴 ===== -->
     <section v-if="currentPath" class="panel">
@@ -169,9 +164,10 @@
           <Icon name="list" :size="18" class="panel-icon" />
           章节列表
         </h2>
-        <span class="panel-meta">已完成 {{ completedChaptersCount }} / {{ pathChapters.length }} 章</span>
+        <span v-if="chapterStatus === 'ready'" class="panel-meta">已完成 {{ completedChaptersCount }} / {{ pathChapters.length }} 章</span>
       </header>
 
+      <StateView :status="chapterStatus" error-title="章节加载失败" error-scope="路径简介仍可查看；恢复章节后才能继续学习。" empty-title="这条路径尚未发布章节" @retry="loadPath(true)">
       <div class="timeline">
         <div
           v-for="(chapter, index) in pathChapters"
@@ -228,14 +224,20 @@
           />
         </div>
       </div>
+      </StateView>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
+import AdaptivePathPanel from '@/components/learning-adaptive/AdaptivePathPanel.vue'
+const adaptiveEnabled=import.meta.env.VITE_PRODUCT_ADAPTIVE_LEARNING==='true'
 // 学习路径详情页：Hero（图标 + 标签 + 标题 + 描述 + 环形进度 + CTA）、数据看板、
 // DAG 依赖图谱（dagre 布局，可拖拽缩放）、章节时间轴（三态）。
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, watch } from 'vue';
+import StateView from '@/components/ui/StateView.vue';
+import type { AsyncStatus } from '@/composables/useAsyncResource';
+import { resolveCurrentChapterNode } from '@/learning/path-node';
 import { useRoute, useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
 import DagGraph from '@/components/Learning/DagGraph.vue';
@@ -249,6 +251,8 @@ const router = useRouter();
 const pathId = computed(() => Number(route.params.id));
 const pathDetail = ref<LearningPathVO | null>(null);
 const chapters = ref<LearningChapterVO[]>([]);
+const detailStatus = ref<AsyncStatus>('loading');
+const chapterStatus = ref<AsyncStatus>('loading');
 
 // L-PATH-03 DAG 可视化：章节依赖关系图
 const dag = ref<ChapterDagVO | null>(null);
@@ -260,7 +264,7 @@ const dagHasEdges = computed(() => (dag.value?.edges?.length || 0) > 0);
 const RING_CIRCUMFERENCE = 2 * Math.PI * 52;
 
 // 后端 level 文案 → 统一难度枚举
-function levelToDifficulty(level?: string): 'beginner' | 'intermediate' | 'advanced' {
+function levelToDifficulty(level?: string): 'beginner' | 'intermediate' | 'advanced' | 'unknown' {
   const map: Record<string, 'beginner' | 'intermediate' | 'advanced'> = {
     入门: 'beginner',
     进阶: 'intermediate',
@@ -269,7 +273,7 @@ function levelToDifficulty(level?: string): 'beginner' | 'intermediate' | 'advan
     intermediate: 'intermediate',
     advanced: 'advanced',
   };
-  return map[level || ''] || 'beginner';
+  return map[level || ''] || 'unknown';
 }
 
 // ===== 视图模型 =====
@@ -291,7 +295,8 @@ const pathChapters = computed<ViewChapter[]>(() => {
   const sorted = chapters.value.slice().sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
   const titleById = new Map(sorted.map((c) => [c.id, c.title]));
   // 找到第一个未完成章节作为「当前章节」
-  const firstIncompleteIdx = sorted.findIndex((c) => !c.completed);
+  const available = resolveCurrentChapterNode(dag.value?.nodes);
+  const firstIncompleteIdx = available ? sorted.findIndex(c => c.id === available.id) : sorted.findIndex((c) => !c.completed && !c.locked);
   return sorted.map((c, idx) => ({
     id: c.id,
     title: c.title,
@@ -301,7 +306,7 @@ const pathChapters = computed<ViewChapter[]>(() => {
     completed: !!c.completed,
     isCurrent: idx === firstIncompleteIdx,
     // 已完成或当前章节或之前的章节都视为已解锁
-    unlocked: idx <= (firstIncompleteIdx === -1 ? sorted.length - 1 : firstIncompleteIdx),
+    unlocked: !c.locked,
     prerequisiteTitles: parsePrerequisiteIds(c.prerequisiteChapterIds)
       .map((id) => titleById.get(id))
       .filter((t): t is string => !!t),
@@ -328,7 +333,7 @@ const remainingDuration = computed(() =>
 const currentPath = computed(() => {
   if (!pathDetail.value) return null;
   const total = pathChapters.value.length;
-  const progress = total > 0 ? Math.round((completedChaptersCount.value / total) * 100) : 0;
+  const progress = Math.min(100, Math.max(0, pathDetail.value.progress ?? (chapterStatus.value === 'ready' && total > 0 ? Math.round((completedChaptersCount.value / total) * 100) : 0)));
   return {
     id: pathDetail.value.id,
     title: pathDetail.value.title,
@@ -357,17 +362,6 @@ const ctaText = computed(() => {
 
 /** G-CERT-01 当前路径已颁发证书的 ID（仅完成时展示查看证书入口）。 */
 const certificateId = ref<number | null>(null);
-
-// 路径完成时查询该路径对应的证书
-const loadCertificate = async (pathId: number) => {
-  try {
-    const list = await learningApi.certificates();
-    const mine = list.find((c) => c.pathId === pathId);
-    certificateId.value = mine?.id ?? null;
-  } catch {
-    certificateId.value = null;
-  }
-};
 
 /** 环形进度偏移量：进度越高偏移越小。 */
 const ringOffset = computed(() => {
@@ -442,6 +436,7 @@ function getDifficultyLabel(difficulty: string): string {
     beginner: '入门',
     intermediate: '进阶',
     advanced: '高级',
+    unknown: '难度未提供',
   };
   return labels[difficulty] || difficulty;
 }
@@ -469,7 +464,7 @@ function getChapterStatusClass(chapter: ViewChapter): string {
 function isChapterLocked(chapter: ViewChapter): boolean {
   // 未报名时所有章节均锁定，报名后按前置/进度解锁
   if (!isEnrolled.value) return true;
-  return !chapter.completed && !chapter.isCurrent && !chapter.unlocked;
+  return !chapter.completed && !chapter.unlocked;
 }
 
 function handleChapterClick(chapter: ViewChapter): void {
@@ -482,7 +477,8 @@ function handleChapterClick(chapter: ViewChapter): void {
 
 /** 图谱节点点击：未报名或未解锁节点不跳转。 */
 function handleDagNodeClick(node: ChapterNodeVO): void {
-  if (node.status === 'locked') {
+  const chapter = pathChapters.value.find(chapter => chapter.id === node.id);
+  if (!chapter || isChapterLocked(chapter) || node.status === 'locked') {
     if (!isEnrolled.value) notify('请先报名学习路径，解锁全部章节', 'warning');
     return;
   }
@@ -491,7 +487,7 @@ function handleDagNodeClick(node: ChapterNodeVO): void {
 
 // ===== 格式化 =====
 function formatDuration(minutes: number): string {
-  if (!minutes) return '0 小时';
+  if (!minutes) return '时长未提供';
   if (minutes < 60) return `${minutes} 分钟`;
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
@@ -508,12 +504,6 @@ function formatChapterDuration(minutes: number): string {
 function formatCount(n: number): string {
   if (!n) return '0';
   return n.toLocaleString('en-US');
-}
-
-// 评分（后端无字段，使用基于 id 的稳定值 4.5-4.9）
-function getRating(id: number): string {
-  const ratings = [4.9, 4.8, 4.9, 4.7, 4.6, 4.5];
-  return ratings[id % ratings.length].toFixed(1);
 }
 
 // 数字补零（1 → "01"）
@@ -544,38 +534,36 @@ function continueLearning(): void {
     notify('请先报名学习路径，解锁全部章节', 'warning');
     return;
   }
-  const firstIncomplete = pathChapters.value.find((c) => !c.completed);
-  const target = firstIncomplete || pathChapters.value[0];
+  const firstIncomplete = pathChapters.value.find((c) => c.isCurrent && !isChapterLocked(c));
+  // 恢复本人已保存且仍可访问的阅读章节；前置解锁继续由服务器与原DAG解析器负责。
+  const saved = chapters.value.filter(c => c.readingSavedAt && !c.locked && !c.completed)
+    .sort((a,b) => String(b.readingSavedAt).localeCompare(String(a.readingSavedAt)))[0];
+  const target = saved || firstIncomplete || pathChapters.value.find(chapter => chapter.completed && !isChapterLocked(chapter));
   if (target) router.push(`/learning/chapter/${target.id}`);
+  else notify('暂时没有可学习章节，请先完成前置章节或重试加载。', 'warning');
 }
 
 // ===== 数据加载 =====
-onMounted(async () => {
-  try {
-    pathDetail.value = await learningApi.pathDetail(pathId.value);
-  } catch (e) {
-    console.warn(getApiError(e, '路径加载失败'));
-    pathDetail.value = null;
-  }
-  try {
-    chapters.value = await learningApi.chapters(pathId.value);
-  } catch (e) {
-    console.warn(getApiError(e, '章节加载失败'));
-    chapters.value = [];
-  }
-  // L-PATH-03 DAG：章节依赖关系图
-  dagLoading.value = true;
-  try {
-    dag.value = await learningApi.dag(pathId.value);
-  } catch (e) {
-    console.warn(getApiError(e, '图谱加载失败'));
-    dagError.value = getApiError(e, '图谱加载失败');
-  } finally {
-    dagLoading.value = false;
-  }
-  // G-CERT-01 路径完成时加载证书入口
-  await loadCertificate(pathId.value);
-});
+let generation = 0;
+async function loadPath(retry = false) {
+  const request = ++generation, id = pathId.value;
+  pathDetail.value = null; chapters.value = []; dag.value = null; certificateId.value = null;
+  detailStatus.value = chapterStatus.value = retry ? 'retrying' : 'loading';
+  dagLoading.value = true; dagError.value = '';
+  const [detail, content, graph, certificates] = await Promise.allSettled([
+    learningApi.pathDetail(id), learningApi.chapters(id), learningApi.dag(id), learningApi.certificates(),
+  ]);
+  if (request !== generation) return;
+  if (detail.status === 'fulfilled') { pathDetail.value = detail.value; detailStatus.value = detail.value ? 'ready' : 'empty'; }
+  else detailStatus.value = 'error';
+  if (content.status === 'fulfilled') { chapters.value = content.value; chapterStatus.value = content.value.length ? 'ready' : 'empty'; }
+  else chapterStatus.value = 'error';
+  if (graph.status === 'fulfilled') dag.value = graph.value;
+  else dagError.value = getApiError(graph.reason, '图谱加载失败');
+  dagLoading.value = false;
+  if (certificates.status === 'fulfilled') certificateId.value = certificates.value.find(c => c.pathId === id)?.id ?? null;
+}
+watch(pathId, () => { void loadPath(); }, { immediate: true });
 </script>
 
 <style scoped>
@@ -1315,4 +1303,13 @@ onMounted(async () => {
   .timeline-item { gap: 12px; }
   .tl-arrow { display: none; }
 }
+/* The title and current chapter lead; the graph stays available on demand. */
+.hero-card { background: var(--kb-card); box-shadow: none; }
+.hero-accent, .hero-glow { display: none; }
+.hero-body { padding: var(--kb-space-5); gap: var(--kb-space-4); }
+.hero-icon { background: var(--kb-primary-soft); color: var(--kb-primary); box-shadow: none; }
+.dag-panel > summary { cursor: pointer; color: var(--kb-muted-foreground); font-size: var(--kb-fs-body-md); }
+.dag-panel > summary:focus-visible { outline: var(--kb-studio-focus) solid var(--kb-ring); }
+.metric-row { gap: var(--kb-space-3); }
+.hero-title, .tl-title { overflow-wrap: anywhere; }
 </style>

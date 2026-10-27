@@ -3,7 +3,7 @@
     <!-- 页头 -->
     <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
       <div class="flex items-center gap-3 min-w-0">
-        <button type="button" class="back-btn" title="返回" aria-label="返回" @click="router.back()">
+        <button type="button" class="back-btn" title="返回" aria-label="返回" @click="nav.goBack()">
           <Icon name="arrow-left" :size="18" />
         </button>
         <h1 class="kb-h1">学习偏好</h1>
@@ -36,19 +36,19 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
           <div class="field">
             <label class="field-label">专注时长（分钟）</label>
-            <input v-model.number="form.focusMinutes" type="number" min="5" max="90" class="field-input" />
+            <input v-model.number="form.focusMinutes" type="number" min="5" max="90" class="field-input kb-input kb-form-control" />
           </div>
           <div class="field">
             <label class="field-label">短休时长（分钟）</label>
-            <input v-model.number="form.shortBreak" type="number" min="1" max="20" class="field-input" />
+            <input v-model.number="form.shortBreak" type="number" min="1" max="20" class="field-input kb-input kb-form-control" />
           </div>
           <div class="field">
             <label class="field-label">长休时长（分钟）</label>
-            <input v-model.number="form.longBreak" type="number" min="5" max="45" class="field-input" />
+            <input v-model.number="form.longBreak" type="number" min="5" max="45" class="field-input kb-input kb-form-control" />
           </div>
           <div class="field">
             <label class="field-label">每组工作次数</label>
-            <input v-model.number="form.rounds" type="number" min="2" max="8" class="field-input" />
+            <input v-model.number="form.rounds" type="number" min="2" max="8" class="field-input kb-input kb-form-control" />
           </div>
         </div>
       </section>
@@ -63,25 +63,15 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           <div class="field">
             <label class="field-label">抽卡策略</label>
-            <select v-model="form.cardStrategy" class="field-input">
-              <option value="RANDOM">随机抽取</option>
-              <option value="DIFFICULTY">按难度优先</option>
-              <option value="DUE">仅今日待复习</option>
-              <option value="WEAK">薄弱知识优先</option>
-            </select>
+            <Select v-model="form.cardStrategy" class="prefs-select" aria-label="抽卡策略" :options="[{ value: 'RANDOM', label: '随机抽取' }, { value: 'DIFFICULTY', label: '按难度优先' }, { value: 'DUE', label: '仅今日待复习' }, { value: 'WEAK', label: '薄弱知识优先' }]" />
           </div>
           <div class="field">
             <label class="field-label">每次卡片数量（0=全部）</label>
-            <input v-model.number="form.cardCount" type="number" min="0" max="100" class="field-input" />
+            <input v-model.number="form.cardCount" type="number" min="0" max="100" class="field-input kb-input kb-form-control" />
           </div>
           <div class="field">
             <label class="field-label">难度过滤</label>
-            <select v-model="form.difficultyFilter" class="field-input">
-              <option value="">不限</option>
-              <option value="1">简单</option>
-              <option value="2">中等</option>
-              <option value="3">困难</option>
-            </select>
+            <Select v-model="form.difficultyFilter" class="prefs-select" aria-label="难度过滤" :options="[{ value: '', label: '不限' }, { value: '1', label: '简单' }, { value: '2', label: '中等' }, { value: '3', label: '困难' }]" />
           </div>
         </div>
       </section>
@@ -96,21 +86,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div class="field">
             <label class="field-label">阅读主题</label>
-            <select v-model="form.theme" class="field-input">
-              <option value="day">日间</option>
-              <option value="eye">护眼</option>
-              <option value="night">夜间</option>
-              <option value="parchment">羊皮纸</option>
-            </select>
+            <Select v-model="form.theme" class="prefs-select" aria-label="阅读主题" :options="[{ value: 'day', label: '日间' }, { value: 'eye', label: '护眼' }, { value: 'night', label: '夜间' }, { value: 'parchment', label: '羊皮纸' }]" />
           </div>
           <div class="field">
             <label class="field-label">字体大小</label>
-            <select v-model="form.fontSize" class="field-input">
-              <option value="sm">小</option>
-              <option value="md">中</option>
-              <option value="lg">大</option>
-              <option value="xl">超大</option>
-            </select>
+            <Select v-model="form.fontSize" class="prefs-select" aria-label="字体大小" :options="[{ value: 'sm', label: '小' }, { value: 'md', label: '中' }, { value: 'lg', label: '大' }, { value: 'xl', label: '超大' }]" />
           </div>
         </div>
       </section>
@@ -123,41 +103,39 @@
         </div>
         <p class="card-desc">控制专注结束提醒音、桌面通知与每日学习提醒。</p>
         <div class="space-y-3 mt-4">
-          <label class="switch-row">
+          <label class="switch-row kb-checkbox-row">
             <div class="switch-text">
               <span class="switch-label">声音提醒</span>
               <span class="switch-hint">专注/休息结束时播放提示音</span>
             </div>
-            <input
-              type="checkbox"
+            <Checkbox as="span"
               :checked="form.soundEnabled === 1"
-              @change="form.soundEnabled = ($event.target as HTMLInputElement).checked ? 1 : 0"
-            />
+              @native-change="form.soundEnabled = ($event.target as HTMLInputElement).checked ? 1 : 0" />
           </label>
-          <label class="switch-row">
+          <label class="switch-row kb-checkbox-row">
             <div class="switch-text">
               <span class="switch-label">桌面通知</span>
               <span class="switch-hint">阶段切换时推送系统通知（需授权）</span>
             </div>
-            <input
-              type="checkbox"
+            <Checkbox as="span"
               :checked="form.notificationEnabled === 1"
-              @change="form.notificationEnabled = ($event.target as HTMLInputElement).checked ? 1 : 0"
-            />
+              @native-change="form.notificationEnabled = ($event.target as HTMLInputElement).checked ? 1 : 0" />
           </label>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
             <div class="field">
               <label class="field-label">每日学习提醒时间</label>
-              <input v-model="form.reminderTime" type="time" class="field-input" @change="onReminderTimeChange" />
+              <TimePicker
+                v-model="form.reminderTime"
+                class="prefs-time"
+                precision="minute"
+                placeholder="选择提醒时间"
+                aria-label="每日学习提醒时间"
+                @change="onReminderTimeChange"
+              />
             </div>
             <div class="field">
               <label class="field-label">白噪音</label>
-              <select v-model="form.whiteNoise" class="field-input">
-                <option value="">关闭</option>
-                <option value="rain">雨声</option>
-                <option value="cafe">咖啡馆</option>
-                <option value="wave">海浪</option>
-              </select>
+              <Select v-model="form.whiteNoise" class="prefs-select" aria-label="白噪音" :options="[{ value: '', label: '关闭' }, { value: 'rain', label: '雨声' }, { value: 'cafe', label: '咖啡馆' }, { value: 'wave', label: '海浪' }]" />
             </div>
           </div>
 
@@ -173,18 +151,16 @@
                 <span>开启通知</span>
               </button>
             </div>
-            <label class="switch-row">
+            <label class="switch-row kb-checkbox-row">
               <div class="switch-text">
                 <span class="switch-label">每日本地提醒</span>
                 <span class="switch-hint">
                   到点弹出系统通知（{{ hasPermission === 'granted' ? '已授权' : '未授权' }}）{{ reminderEnabled ? ' · 已开启' : '' }}
                 </span>
               </div>
-              <input
-                type="checkbox"
+              <Checkbox as="span"
                 :checked="reminderEnabled"
-                @change="toggleReminder($event)"
-              />
+                @native-change="toggleReminder($event)" />
             </label>
             <label class="switch-row">
               <div class="switch-text">
@@ -205,20 +181,24 @@
 </template>
 
 <script setup lang="ts">
+import Checkbox from '@/components/ui/Checkbox.vue'
+
 /**
  * 学习偏好设置页
  * 加载后端 sys_user_pref 配置，保存时同步至全局番茄钟 store（focusMinutes/shortBreak/longBreak/rounds/sound）。
  */
 import { ref, reactive, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
+import Select from '@/components/ui/Select.vue';
+import TimePicker from '@/components/ui/TimePicker.vue';
 import { learningApi } from '@/api';
 import { usePomodoroStore } from '@/stores/pomodoro';
 import { useStudyReminder } from '@/composables/useStudyReminder';
 import { notify, getApiError } from '@/utils/toast';
 import type { UserLearningPrefInput } from '@/api/types';
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
-const router = useRouter();
+const nav = usePageNavigation()
 const pomodoroStore = usePomodoroStore();
 const {
   reminderTime: swReminderTime,
@@ -340,8 +320,10 @@ const togglePush = async () => {
 <style scoped>
 .prefs-page {
   width: 100%;
-  max-width: 880px;
-  margin: 0 auto;
+  max-width: none;
+  margin-inline: 0;
+
+  min-width: 0;
 }
 
 .back-btn {
@@ -441,28 +423,35 @@ const togglePush = async () => {
   font-weight: 500;
   color: var(--kb-foreground);
 }
-.field-input {
-  width: 100%;
-  min-width: 0;
+.field-input:not(.kb-form-control) {
   height: 38px;
-  padding: 0 var(--kb-space-3);
-  font-size: var(--kb-fs-body-md);
-  font-variant-numeric: tabular-nums;
   border-radius: var(--kb-radius-sm);
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
-  color: var(--kb-foreground);
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-select.field-input {
-  cursor: pointer;
+.field-input {
+  width: 100%;
+  min-width: 0;
+  padding: 0 var(--kb-space-3);
+  font-size: var(--kb-fs-body-md);
+  font-variant-numeric: tabular-nums;
+  color: var(--kb-foreground);
 }
-.field-input:hover {
+.prefs-select {
+  width: 100%;
+  min-width: 0;
+}
+.prefs-time {
+  width: 100%;
+  min-width: 0;
+}
+.field-input:not(.kb-form-control):hover {
   border-color: var(--kb-primary);
 }
-.field-input:focus,
-.field-input:focus-visible {
+.field-input:not(.kb-form-control):focus,
+.field-input:not(.kb-form-control):focus-visible {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
@@ -472,7 +461,7 @@ select.field-input {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-3);
+  gap: var(--kb-checkbox-gap);
   padding: var(--kb-space-3);
   border: 1px solid var(--kb-border);
   border-radius: var(--kb-radius-sm);
@@ -516,7 +505,7 @@ select.field-input {
   cursor: pointer;
   accent-color: var(--kb-primary);
 }
-.switch-row input[type='checkbox']:focus-visible {
+.switch-row input[type='checkbox']:focus-visible:not(.kb-form-control) {
   outline: 2px solid var(--kb-ring);
   outline-offset: 2px;
 }

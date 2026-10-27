@@ -8,35 +8,26 @@ export const useKnowledgeStore = defineStore('knowledge', () => {
   const categoryTree = ref<CategoryVO[]>([])
   const loaded = ref(false)
   const loading = ref(false)
+  let inFlight: Promise<CategoryVO[]> | null = null
 
   /** 获取分类树（带缓存：首次调用请求后端，后续直接返回缓存） */
-  async function fetchTree(force = false): Promise<CategoryVO[]> {
+  function fetchTree(force = false): Promise<CategoryVO[]> {
     if (loaded.value && !force) {
-      return categoryTree.value
+      return Promise.resolve(categoryTree.value)
     }
-    if (loading.value) {
-      // 等待正在进行的请求
-      await new Promise(resolve => {
-        const check = () => {
-          if (!loading.value) resolve(null)
-          else setTimeout(check, 50)
-        }
-        check()
-      })
-      return categoryTree.value
-    }
+    // 同一请求的所有消费者共享成功或失败，不能让后到的调用收到假空树。
+    if (inFlight) return inFlight
     loading.value = true
-    try {
+    inFlight = (async () => { try {
       const data = await categoriesApi.tree()
       categoryTree.value = data
       loaded.value = true
       return data
-    } catch (e) {
-      categoryTree.value = []
-      throw e
     } finally {
       loading.value = false
-    }
+      inFlight = null
+    } })()
+    return inFlight
   }
 
   /** 强制刷新分类树 */

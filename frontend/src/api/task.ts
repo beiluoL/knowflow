@@ -1,5 +1,6 @@
 // Things3 式任务清单接口封装。
 import { apiGet, apiPost, apiPut, apiDelete } from './request'
+import type { TaskCompletionRequirement } from './types'
 
 export type SmartList = 'inbox' | 'today' | 'upcoming' | 'anytime' | 'someday' | 'logbook' | 'all'
 
@@ -14,6 +15,9 @@ export interface TaskTagVO {
 
 /** 任务节点（含嵌套子任务）。 */
 export interface TaskNode {
+  completionRequirement?: TaskCompletionRequirement | null
+  estimatedMinutes?: number
+  learningPlanRef?: string
   id: number
   listId: number | null
   parentId: number
@@ -93,7 +97,7 @@ export interface ReorderItem {
 
 // ===== 任务 =====
 export function listTasks(smart: SmartList) {
-  return apiGet<TaskNode[]>('/tasks', { smart })
+  return apiGet<TaskNode[]>('/tasks', { smart, zoneId: Intl.DateTimeFormat().resolvedOptions().timeZone })
 }
 export function listTasksByList(listId: number) {
   return apiGet<TaskNode[]>(`/tasks/list/${listId}`)

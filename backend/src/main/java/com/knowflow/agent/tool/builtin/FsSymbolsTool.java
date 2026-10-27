@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 public class FsSymbolsTool implements AgentTool {
 
     private final ObjectMapper objectMapper;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
 
     private static final int MAX_FILES = 120;
     private static final int DEFAULT_MAX_DEPTH = 4;
@@ -94,15 +95,16 @@ public class FsSymbolsTool implements AgentTool {
 
     @Override
     public ToolResult execute(JsonNode args, ToolContext ctx) throws ToolException {
+        hostGuard.requireActor(ctx == null ? null : ctx.getUserId());
         long start = System.currentTimeMillis();
         int maxDepth = args.has("maxDepth") ? args.get("maxDepth").asInt(DEFAULT_MAX_DEPTH) : DEFAULT_MAX_DEPTH;
         maxDepth = Math.max(1, Math.min(10, maxDepth));
         String subPath = args.has("path") ? args.get("path").asText() : "";
 
-        Path root = FsReadTool.resolveRoot(ctx);
+        Path root = FsReadTool.resolveRoot(ctx, hostGuard);
         Path scanRoot = root;
         if (subPath != null && !subPath.isBlank()) {
-            scanRoot = FsReadTool.safeResolve(root, subPath);
+        scanRoot = FsReadTool.safeResolve(root, subPath, hostGuard);
         }
         if (!Files.exists(scanRoot)) {
             return ToolResult.fail("路径不存在：" + subPath, System.currentTimeMillis() - start);
@@ -133,6 +135,7 @@ public class FsSymbolsTool implements AgentTool {
                     .toList();
         }
         for (Path child : children) {
+            hostGuard.requireWorkspace(root,child);
             if (fileCount[0] >= MAX_FILES) return;
             if (Files.isDirectory(child)) {
                 collect(sb, root, child, depth + 1, maxDepth, fileCount);

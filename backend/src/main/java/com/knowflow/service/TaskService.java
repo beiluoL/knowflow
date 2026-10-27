@@ -20,6 +20,8 @@ public interface TaskService {
     /** 按智能列表（inbox/today/upcoming/anytime/someday/logbook/all）返回嵌套任务树。 */
     List<TaskVO> listBySmartList(Long userId, String smart);
 
+    default List<TaskVO> listBySmartList(Long userId,String smart,java.time.ZoneId zone){return listBySmartList(userId,smart);}
+
     /** 返回某清单 / 项目下的顶层任务树。 */
     List<TaskVO> listByList(Long userId, Long listId);
 

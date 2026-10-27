@@ -31,6 +31,7 @@ import java.nio.file.Path;
 public class TestGenTool implements AgentTool {
 
     private final ObjectMapper objectMapper;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
     private final AiService aiService;
     private final CodeExecutionService codeExecutionService;
 
@@ -71,6 +72,7 @@ public class TestGenTool implements AgentTool {
 
     @Override
     public ToolResult execute(JsonNode args, ToolContext ctx) throws ToolException {
+        hostGuard.requireActor(ctx == null ? null : ctx.getUserId());
         long start = System.currentTimeMillis();
         String rel = args.has("path") ? args.get("path").asText() : null;
         if (rel == null || rel.isBlank()) {
@@ -79,8 +81,8 @@ public class TestGenTool implements AgentTool {
         String framework = args.has("framework") ? args.get("framework").asText("auto") : "auto";
         Long timeLimit = args.has("timeLimitMs") ? args.get("timeLimitMs").asLong() : null;
 
-        Path root = FsReadTool.resolveRoot(ctx);
-        Path target = FsReadTool.safeResolve(root, rel);
+        Path root = FsReadTool.resolveRoot(ctx, hostGuard);
+        Path target = FsReadTool.safeResolve(root, rel, hostGuard);
         if (!Files.exists(target) || Files.isDirectory(target)) {
             return ToolResult.fail("文件不存在或路径为目录：" + rel, System.currentTimeMillis() - start);
         }

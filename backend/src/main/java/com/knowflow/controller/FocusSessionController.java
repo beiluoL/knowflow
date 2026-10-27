@@ -62,10 +62,10 @@ public class FocusSessionController {
         Long userId = SecurityUtils.getCurrentUserId();
         FocusSession session = focusSessionMapper.selectById(id);
         if (session == null) {
-            throw new BusinessException("会话不存在");
+            throw new BusinessException(404, "会话不存在");
         }
         if (!Objects.equals(session.getUserId(), userId)) {
-            throw new BusinessException("无权操作该会话");
+            throw new BusinessException(403, "无权操作该会话");
         }
         session.setEndTime(LocalDateTime.now());
         session.setDurationMin(dto.getDurationMin());
@@ -189,10 +189,10 @@ public class FocusSessionController {
         Long userId = SecurityUtils.getCurrentUserId();
         FocusSession session = focusSessionMapper.selectById(id);
         if (session == null) {
-            throw new BusinessException("会话不存在");
+            throw new BusinessException(404, "会话不存在");
         }
         if (!Objects.equals(session.getUserId(), userId)) {
-            throw new BusinessException("无权查看该会话");
+            throw new BusinessException(403, "无权查看该会话");
         }
         return Result.success(session);
     }
@@ -203,10 +203,10 @@ public class FocusSessionController {
         Long userId = SecurityUtils.getCurrentUserId();
         FocusSession session = focusSessionMapper.selectById(id);
         if (session == null) {
-            throw new BusinessException("会话不存在");
+            throw new BusinessException(404, "会话不存在");
         }
         if (!Objects.equals(session.getUserId(), userId)) {
-            throw new BusinessException("无权删除该会话");
+            throw new BusinessException(403, "无权删除该会话");
         }
         focusSessionMapper.deleteById(id);
         return Result.success();

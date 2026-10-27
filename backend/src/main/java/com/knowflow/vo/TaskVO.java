@@ -14,6 +14,10 @@ import java.util.List;
 public class TaskVO {
 
     private Long id;
+    private Integer estimatedMinutes;
+    private String learningPlanRef;
+    /** 有值时必须进入原练习提交完成；客户端不能用此字段改变服务端登记。 */
+    private com.knowflow.learning.actions.PlanModels.CompletionRequirement completionRequirement;
 
     private Long listId;
 

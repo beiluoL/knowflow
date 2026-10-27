@@ -173,7 +173,7 @@
               <input
                 v-model="pathInput"
                 type="text"
-                class="path-input"
+                class="path-input kb-input kb-form-control"
                 placeholder="输入绝对路径（如 /Users/xxx/docs）或相对路径（如 ./src）"
                 @keyup.enter="scanPath"
               />
@@ -265,39 +265,39 @@
             <h3 class="card-title">导入选项</h3>
             <div class="options-list">
               <!-- 按目录创建子分类 -->
-              <label class="option-item">
+              <label class="option-item kb-checkbox-row">
                 <div class="option-info">
                   <p class="option-label">按目录层级创建子分类</p>
                   <p class="option-desc">将目录路径映射为知识库的分类树（最多 3 级，超出部分转为标签）</p>
                 </div>
-                <input type="checkbox" v-model="importOptions.createSubCategories" class="option-checkbox" />
+                <Checkbox as="span"  v-model="importOptions.createSubCategories" />
               </label>
 
               <!-- 自动生成标签 -->
-              <label class="option-item">
+              <label class="option-item kb-checkbox-row">
                 <div class="option-info">
                   <p class="option-label">自动生成标签</p>
                   <p class="option-desc">从目录路径、文件名、正文关键词自动提取标签</p>
                 </div>
-                <input type="checkbox" v-model="importOptions.autoTags" class="option-checkbox" />
+                <Checkbox as="span"  v-model="importOptions.autoTags" />
               </label>
 
               <!-- AI 智能打标 -->
-              <label class="option-item">
+              <label class="option-item kb-checkbox-row">
                 <div class="option-info">
                   <p class="option-label">AI 智能打标</p>
                   <p class="option-desc">调用大模型基于正文内容生成精准标签（较慢，消耗 token）</p>
                 </div>
-                <input type="checkbox" v-model="importOptions.aiTags" class="option-checkbox" />
+                <Checkbox as="span"  v-model="importOptions.aiTags" />
               </label>
 
               <!-- 增量去重 -->
-              <label class="option-item">
+              <label class="option-item kb-checkbox-row">
                 <div class="option-info">
                   <p class="option-label">增量去重</p>
                   <p class="option-desc">按来源路径 + 内容哈希判断，跳过未变更文件</p>
                 </div>
-                <input type="checkbox" v-model="importOptions.incremental" class="option-checkbox" />
+                <Checkbox as="span"  v-model="importOptions.incremental" />
               </label>
             </div>
           </div>
@@ -501,6 +501,8 @@
 </template>
 
 <script setup lang="ts">
+import Checkbox from '@/components/ui/Checkbox.vue'
+
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
@@ -528,7 +530,7 @@ const selectedKbName = computed(() => {
   return kb?.name || ''
 })
 
-const kbColors = ['#3B6FE0', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16']
+const kbColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16']
 const getKbColor = (id: number) => {
   const idx = (id - 1) % kbColors.length
   const color = kbColors[Math.max(0, idx)]
@@ -751,7 +753,7 @@ interface FileProgressItem {
 }
 const fileProgressList = ref<FileProgressItem[]>([])
 
-// 当前导入的取消函数（由 importDirectoryStream 返回）
+// 当前导入的取消函数（由 importDirectoryStream / importPathStream 返回的 { cancel }）
 let importCancelFn: (() => Promise<void>) | null = null
 
 const progressPercent = computed(() => {
@@ -825,7 +827,7 @@ const startImport = () => {
 
   if (importMode.value === 'path') {
     // 路径导入：调用 /path/stream，由后端直接读取本地文件
-    importCancelFn = knowledgeImportApi.importPathStream({
+    const stream = knowledgeImportApi.importPathStream({
       path: pathScanResult.value!.absolutePath,
       targetCategoryId: selectedKbId.value,
       createSubCategories: importOptions.value.createSubCategories,
@@ -833,6 +835,7 @@ const startImport = () => {
       aiTags: importOptions.value.aiTags,
       incremental: importOptions.value.incremental,
     }, callbacks)
+    importCancelFn = stream.cancel
   } else {
     // 目录导入：通过 multipart 上传文件
     const formData = new FormData()
@@ -846,7 +849,8 @@ const startImport = () => {
     formData.append('autoTags', String(importOptions.value.autoTags))
     formData.append('aiTags', String(importOptions.value.aiTags))
     formData.append('incremental', String(importOptions.value.incremental))
-    importCancelFn = knowledgeImportApi.importDirectoryStream(formData, callbacks)
+    const stream = knowledgeImportApi.importDirectoryStream(formData, callbacks)
+    importCancelFn = stream.cancel
   }
 }
 
@@ -887,7 +891,7 @@ const buildImportCallbacks = () => ({
     importCancelFn = null
     notify(`导入已取消：${data.reason}`, 'warning')
     importResult.value = {
-      targetCategoryId: selectedKbId.value,
+      targetCategoryId: selectedKbId.value ?? 0,
       totalDocs: progressTotal.value,
       successCount: progressSuccess.value,
       skippedCount: progressSkipped.value,
@@ -908,7 +912,7 @@ const buildImportCallbacks = () => ({
       ? (pathScanResult.value?.docCount ?? 0)
       : docFileCount.value
     importResult.value = {
-      targetCategoryId: selectedKbId.value,
+      targetCategoryId: selectedKbId.value ?? 0,
       totalDocs: total,
       successCount: progressSuccess.value,
       skippedCount: progressSkipped.value,
@@ -974,9 +978,14 @@ onMounted(loadCategories)
 
 <style scoped>
 .knowledge-import-page {
-  max-width: 900px;
-  margin: 0 auto;
+  max-width: none;
+  margin-inline: 0;
   padding: 24px 20px 60px;
+
+  width: 100%;
+  min-width: 0;
+  padding-inline: 0;
+  padding-top: 0;
 }
 
 /* ===== 顶部导航 ===== */
@@ -1389,11 +1398,14 @@ onMounted(loadCategories)
   flex-shrink: 0;
 }
 
-.path-input {
-  flex: 1;
+.path-input:not(.kb-form-control) {
   border: none;
   outline: none;
   background: transparent;
+}
+
+.path-input {
+  flex: 1;
   font-size: 14px;
   color: var(--kb-foreground);
   font-family: var(--font-mono);

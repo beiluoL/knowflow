@@ -179,6 +179,7 @@ CREATE TABLE IF NOT EXISTS learning_flashcard (
     source_type VARCHAR(20) DEFAULT 'MANUAL' COMMENT '来源：MANUAL/AI_DOC/AI_KB/IMPORT',
     review_count INT DEFAULT 0 COMMENT '已复习次数',
     review_interval INT DEFAULT 0 COMMENT '当前复习间隔（天，间隔重复算法）',
+    ease_factor INT DEFAULT 250 COMMENT 'SM-2 难度系数（放大100倍存储，默认250即2.5）',
     next_review_time TIMESTAMP COMMENT '下次应复习时间',
     last_review_time TIMESTAMP COMMENT '上次复习时间',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -226,6 +227,8 @@ CREATE TABLE IF NOT EXISTS task (
     parent_id BIGINT DEFAULT 0,
     title VARCHAR(255) NOT NULL,
     notes TEXT,
+    learning_plan_ref VARCHAR(36),
+    learning_metadata TEXT,
     status INT DEFAULT 0,
     scheduled_date DATE,
     due_date DATE,
@@ -249,6 +252,32 @@ CREATE INDEX IF NOT EXISTS idx_task_stage    ON task (stage);
 CREATE INDEX IF NOT EXISTS idx_task_start_time ON task (start_time);
 CREATE INDEX IF NOT EXISTS idx_tasklist_user ON task_list (user_id);
 CREATE INDEX IF NOT EXISTS idx_tasklist_par  ON task_list (parent_id);
+
+-- 任务标签（Things3 式标签）
+CREATE TABLE IF NOT EXISTS task_tag (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    name VARCHAR(50) NOT NULL COMMENT '标签名称',
+    color VARCHAR(64) DEFAULT 'var(--kb-muted-foreground)' COMMENT '标签颜色，支持设计令牌与CSS颜色值',
+    sort_order INT DEFAULT 0 COMMENT '排序',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_task_tag_user ON task_tag (user_id);
+
+-- 任务-标签关联（多对多，逻辑外键，无物理外键）
+CREATE TABLE IF NOT EXISTS task_tag_rel (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    task_id BIGINT NOT NULL COMMENT '任务ID（逻辑外键 task.id）',
+    tag_id BIGINT NOT NULL COMMENT '标签ID（逻辑外键 task_tag.id）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_task_tag_rel_task_tag ON task_tag_rel (task_id, tag_id);
+CREATE INDEX IF NOT EXISTS idx_task_tag_rel_task ON task_tag_rel (task_id);
+CREATE INDEX IF NOT EXISTS idx_task_tag_rel_tag ON task_tag_rel (tag_id);
 
 -- ---------- 日历：自定义纪念日（Memorial）----------
 -- 两类：fixed（固定日期，仅当年生效）/ yearly（每年重复，按 MM-dd 展开）
@@ -322,7 +351,12 @@ CREATE TABLE IF NOT EXISTS learning_user_chapter (
     user_id BIGINT NOT NULL,
     path_id BIGINT NOT NULL,
     chapter_id BIGINT NOT NULL,
-    complete_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    complete_time TIMESTAMP NULL DEFAULT NULL,
+    reading_anchor VARCHAR(255) DEFAULT NULL COMMENT '章节阅读标题位置，不表示掌握',
+    reading_revision BIGINT NOT NULL DEFAULT 0 COMMENT '阅读位置乐观锁版本',
+    reading_saved_at TIMESTAMP NULL DEFAULT NULL COMMENT '阅读位置保存时间',
+    reading_content_hash VARCHAR(64) DEFAULT NULL COMMENT '保存时原章节内容摘要',
+    reading_presentation_hash VARCHAR(64) DEFAULT NULL COMMENT '用户阅读展示版本指纹，仅用于本人书签坐标',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0
@@ -365,6 +399,8 @@ CREATE TABLE IF NOT EXISTS learning_mistake (
     correct_answer TEXT,
     category VARCHAR(50),
     difficulty INT DEFAULT 1,
+    question_id BIGINT COMMENT '原测验题ID（逻辑外键 quiz_question.id，可空兼容旧数据）',
+    code_question_id BIGINT COMMENT '原代码题ID（逻辑外键 code_question.id，可空兼容旧数据）',
     review_count INT DEFAULT 0,
     last_review_time TIMESTAMP,
     mastered INT DEFAULT 0,
@@ -373,6 +409,9 @@ CREATE TABLE IF NOT EXISTS learning_mistake (
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0
 );
+CREATE INDEX IF NOT EXISTS idx_learning_mistake_user ON learning_mistake (user_id);
+CREATE INDEX IF NOT EXISTS idx_learning_mistake_question ON learning_mistake (question_id);
+CREATE INDEX IF NOT EXISTS idx_learning_mistake_code ON learning_mistake (code_question_id);
 
 -- 社区帖子表
 CREATE TABLE IF NOT EXISTS community_post (
@@ -678,9 +717,9 @@ CREATE TABLE IF NOT EXISTS quiz_question (
     id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     title VARCHAR(500) NOT NULL COMMENT '题目标题',
     content TEXT NOT NULL COMMENT '题干内容（支持 Markdown）',
-    question_type VARCHAR(20) NOT NULL DEFAULT 'SINGLE_CHOICE' COMMENT '题型：SINGLE_CHOICE 单选 / MULTIPLE_CHOICE 多选 / FILL_BLANK 填空 / TRUE_FALSE 判断 / SHORT_ANSWER 简答',
+    question_type VARCHAR(24) NOT NULL DEFAULT 'SINGLE_CHOICE' COMMENT '题型：SINGLE_CHOICE 单选 / MULTIPLE_CHOICE 多选 / FILL_BLANK 填空 / TRUE_FALSE 判断 / SHORT_ANSWER 简答 / CODE 算法代码题',
     options TEXT COMMENT '选项 JSON 数组（选择题用），如 ["选项A","选项B","选项C","选项D"]',
-    answer TEXT NOT NULL COMMENT '正确答案：选择题填选项索引(如 "0" 或 "0,2")，填空题填答案文本，判断题填 true/false',
+    answer TEXT COMMENT '正确答案：选择题填选项索引(如 "0" 或 "0,2")，填空题填答案文本，判断题填 true/false；CODE 题可空',
     explanation TEXT COMMENT '答案解析',
     difficulty INT DEFAULT 1 COMMENT '难度：1 简单 / 2 中等 / 3 困难',
     category_id BIGINT COMMENT '关联知识库ID（逻辑外键 doc_category.id）',
@@ -689,6 +728,11 @@ CREATE TABLE IF NOT EXISTS quiz_question (
     source VARCHAR(20) DEFAULT 'MANUAL' COMMENT '来源：AI 生成 / MANUAL 手动新增',
     status INT DEFAULT 1 COMMENT '状态：0 草稿 / 1 已发布',
     sort_order INT DEFAULT 0 COMMENT '排序值',
+    canonical_key VARCHAR(128) COMMENT '稳定语义键：跨版本/去重/组卷身份，同键只取一个正式版本',
+    topic_code VARCHAR(64) COMMENT '显式知识点编码（question_topic.code）；非空时不再从 tags 首段推导归属',
+    review_status VARCHAR(24) COMMENT '审核状态：PENDING_REVIEW 待审核 / APPROVED 通过 / REJECTED 驳回；历史题为 NULL',
+    version INT DEFAULT 1 COMMENT '题目版本号',
+    creator_id BIGINT COMMENT '创建人（sys_user.id）；种子题/历史题为 NULL',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
     deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
@@ -709,6 +753,7 @@ CREATE TABLE IF NOT EXISTS quiz_answer_record (
     is_correct INT DEFAULT 0 COMMENT '是否答对：0 错误 / 1 正确',
     score INT DEFAULT 0 COMMENT '本题得分（0-100）',
     time_cost INT DEFAULT 0 COMMENT '答题耗时（秒）',
+    question_snapshot TEXT NULL COMMENT '作答时题目与判分条件快照，旧记录不补造',
     ai_feedback TEXT COMMENT 'AI 评语（简答题等主观题预留）',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -733,6 +778,46 @@ CREATE TABLE IF NOT EXISTS user_check_in (
 -- 同一用户同一自然日仅允许一条打卡记录（幂等约束）
 CREATE UNIQUE INDEX IF NOT EXISTS uk_uci_user_date ON user_check_in (user_id, check_date);
 CREATE INDEX IF NOT EXISTS idx_uci_user ON user_check_in (user_id);
+
+-- ========== 习惯（Habit）==========
+
+-- 习惯表
+CREATE TABLE IF NOT EXISTS habit (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    name VARCHAR(100) NOT NULL COMMENT '习惯名称',
+    description VARCHAR(500) COMMENT '习惯描述',
+    icon VARCHAR(40) DEFAULT 'repeat' COMMENT '习惯图标',
+    color VARCHAR(20) DEFAULT 'var(--kb-primary)' COMMENT '习惯主题色',
+    frequency VARCHAR(20) DEFAULT 'daily' COMMENT '打卡频率：daily 每日 / weekly 每周',
+    target_count INT DEFAULT 1 COMMENT '每周期目标打卡次数（如每日 8 杯水）',
+    reminder_time VARCHAR(5) COMMENT '提醒时间 HH:mm（前端 Notification API 触发）',
+    start_date DATE COMMENT '习惯开始日期',
+    active TINYINT DEFAULT 1 COMMENT '是否启用：1 启用 / 0 停用',
+    sort_order INT DEFAULT 0 COMMENT '排序',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_habit_user ON habit (user_id);
+CREATE INDEX IF NOT EXISTS idx_habit_active ON habit (active);
+
+-- 习惯打卡记录：每习惯每自然日一行，count 累计当日打卡次数（支持多目标习惯）
+CREATE TABLE IF NOT EXISTS habit_checkin (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    habit_id BIGINT NOT NULL COMMENT '习惯ID（逻辑外键 habit.id）',
+    check_date DATE NOT NULL COMMENT '打卡日期（自然日）',
+    count INT DEFAULT 1 COMMENT '当日累计打卡次数',
+    note VARCHAR(500) COMMENT '打卡备注',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+-- 同一用户同一习惯同一自然日仅允许一条记录（幂等约束，count 累加）
+CREATE UNIQUE INDEX IF NOT EXISTS uk_habit_checkin_user_habit_date ON habit_checkin (user_id, habit_id, check_date);
+CREATE INDEX IF NOT EXISTS idx_habit_checkin_user ON habit_checkin (user_id);
+CREATE INDEX IF NOT EXISTS idx_habit_checkin_habit ON habit_checkin (habit_id);
 
 -- ========== 学习小组 ==========
 
@@ -1238,6 +1323,9 @@ CREATE TABLE IF NOT EXISTS wb_review_card (
   front TEXT NOT NULL COMMENT '卡片正面：问题/线索',
   back TEXT NOT NULL COMMENT '卡片背面：答案/解释',
   card_type VARCHAR(20) DEFAULT 'BASIC' COMMENT '卡片类型：BASIC 问答 / CLOZE 挖空 / RECALL 主动回忆',
+  hint VARCHAR(1000) COMMENT '记忆提示（可选）',
+  tags VARCHAR(500) COMMENT '标签，逗号分隔（可选）',
+  extra_json TEXT COMMENT '类型专属扩展 JSON：RECALL 检查要点等；旧数据为空',
   ease_factor INT DEFAULT 250 COMMENT 'SM-2 难度系数（放大100倍存储，默认250即2.5）',
   repetitions INT DEFAULT 0 COMMENT 'SM-2 连续答对次数，答错归零',
   interval_day INT DEFAULT 0 COMMENT '当前复习间隔（天）',
@@ -1281,6 +1369,12 @@ CREATE TABLE IF NOT EXISTS wb_recall_session (
   card_id BIGINT COMMENT '关联复习卡ID（逻辑外键 wb_review_card.id）',
   title VARCHAR(200) COMMENT '标题（冗余自笔记/卡片，便于列表展示）',
   source_text CLOB NOT NULL COMMENT '原文（默写对照基准）',
+  source_type VARCHAR(20) DEFAULT 'PASTE' COMMENT '原文来源类型：PASTE 粘贴 / NOTE 从笔记选择',
+  archived INT DEFAULT 0 COMMENT '归档标记：0 未归档 / 1 已归档',
+  round1_draft CLOB COMMENT '第一轮中途草稿',
+  round2_draft CLOB COMMENT '第二轮中途草稿',
+  round3_draft CLOB COMMENT '第三轮中途草稿',
+  gap_json CLOB COMMENT '用户确认的关键遗漏（JSON 按轮次）',
   round1_text CLOB COMMENT '第一轮：即时默写内容',
   round1_score INT COMMENT '第一轮得分（0-100）',
   round2_text CLOB COMMENT '第二轮：补漏默写内容',
@@ -1288,7 +1382,7 @@ CREATE TABLE IF NOT EXISTS wb_recall_session (
   round3_text CLOB COMMENT '第三轮：1小时后复测内容',
   round3_score INT COMMENT '第三轮得分（0-100）',
   current_round INT DEFAULT 1 COMMENT '当前轮次：1 / 2 / 3',
-  status VARCHAR(20) DEFAULT 'IN_PROGRESS' COMMENT '会话状态：IN_PROGRESS 进行中 / COMPLETED 已完成',
+  status VARCHAR(20) DEFAULT 'IN_PROGRESS' COMMENT '会话状态：DRAFT 草稿 / IN_PROGRESS 进行中 / COMPLETED 已完成',
   round3_due_time TIMESTAMP COMMENT '第三轮预定复测时间（1小时后），用于提醒',
   completed_time TIMESTAMP COMMENT '完成时间',
   create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -1419,6 +1513,120 @@ CREATE TABLE IF NOT EXISTS learning_plan (
 );
 
 -- ============================================================
+-- Phase 0 补全：章节学习笔记 / 章节收藏 / 学习宠物 / 学习周报 /
+--               AI 学习建议缓存 / 用户学习偏好（此前仅有实体无建表脚本）
+-- ============================================================
+
+-- 章节学习笔记：关联用户与章节，正文支持 Markdown
+CREATE TABLE IF NOT EXISTS learning_note (
+    folder_id BIGINT COMMENT '所属笔记目录',
+    favorite BOOLEAN NOT NULL DEFAULT FALSE COMMENT '个人收藏状态',
+    source_doc_id BIGINT COMMENT '来源文档ID，读取时复验权限',
+    revision BIGINT NOT NULL DEFAULT 1 COMMENT '递增修订号',
+    source_type VARCHAR(20) NOT NULL DEFAULT 'GENERAL' COMMENT '笔记来源',
+    content_format VARCHAR(20) NOT NULL DEFAULT 'MARKDOWN' COMMENT '正文格式',
+    status VARCHAR(20) NOT NULL DEFAULT 'SAVED' COMMENT '草稿或已保存',
+    tags VARCHAR(2000) COMMENT '标签',
+    source_title VARCHAR(500) COMMENT '来源标题提示，非权限关联',
+    import_key VARCHAR(64) COMMENT '服务端迁移指纹',
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    chapter_id BIGINT COMMENT '关联章节ID（可空，表示通用笔记，逻辑外键 learning_chapter.id）',
+    path_id BIGINT COMMENT '关联学习路径ID（逻辑外键 learning_path.id）',
+    title VARCHAR(200) COMMENT '笔记标题',
+    content LONGTEXT COMMENT '笔记正文（Markdown）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_learning_note_user ON learning_note (user_id);
+CREATE INDEX IF NOT EXISTS idx_learning_note_user_chapter ON learning_note (user_id, chapter_id);
+
+-- 章节收藏：用户与章节多对多，同一章节仅收藏一次
+CREATE TABLE IF NOT EXISTS chapter_favorite (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    chapter_id BIGINT NOT NULL COMMENT '章节ID（逻辑外键 learning_chapter.id）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_chapter_favorite_user_chapter ON chapter_favorite (user_id, chapter_id);
+
+-- 用户学习宠物：每用户一只，喂食/玩耍/专注积累经验升级
+CREATE TABLE IF NOT EXISTS user_pet (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    name VARCHAR(50) DEFAULT '小鹰' COMMENT '宠物名称',
+    level INT DEFAULT 1 COMMENT '等级',
+    mood VARCHAR(20) DEFAULT '开心' COMMENT '心情',
+    energy INT DEFAULT 80 COMMENT '体力值 0-100',
+    exp INT DEFAULT 0 COMMENT '当前经验值',
+    max_exp INT DEFAULT 100 COMMENT '当前等级经验上限',
+    avatar VARCHAR(50) DEFAULT 'owl' COMMENT '宠物头像标识',
+    total_focus_minutes INT DEFAULT 0 COMMENT '累计专注分钟',
+    total_pomodoros INT DEFAULT 0 COMMENT '累计番茄数',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_user_pet_user ON user_pet (user_id);
+
+-- 学习周报：按自然周（周一至周日）汇总学习统计，AI 生成摘要/成就/建议
+CREATE TABLE IF NOT EXISTS weekly_report (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    week_start DATE NOT NULL COMMENT '本周一日期',
+    week_end DATE NOT NULL COMMENT '本周日日期',
+    summary TEXT COMMENT 'AI 生成的周报摘要',
+    achievements TEXT COMMENT 'JSON：本周成就列表',
+    suggestions TEXT COMMENT 'JSON：下周学习建议',
+    study_minutes INT DEFAULT 0 COMMENT '本周学习分钟',
+    checkin_days INT DEFAULT 0 COMMENT '本周签到天数',
+    flashcard_reviewed INT DEFAULT 0 COMMENT '本周闪卡复习数',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
+    UNIQUE KEY uk_weekly_report_user_week (user_id, week_start, deleted)
+);
+CREATE INDEX IF NOT EXISTS idx_weekly_report_user ON weekly_report (user_id);
+
+-- AI 学习建议缓存：按用户 + 周期维度缓存，避免重复调用大模型
+CREATE TABLE IF NOT EXISTS ai_learning_suggestion (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    suggestions LONGTEXT COMMENT 'JSON 数组字符串：[{title,desc,icon,path}]',
+    period VARCHAR(10) DEFAULT 'week' COMMENT '周期：week/month',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_ai_learning_suggestion_user_period ON ai_learning_suggestion (user_id, period);
+
+-- 用户学习偏好：沉浸学习时长/难度/节奏等个性化设置，一个用户仅一条有效配置（Service 层 upsert 保证）
+CREATE TABLE IF NOT EXISTS sys_user_pref (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id）',
+    focus_minutes INT DEFAULT 25 COMMENT '默认专注时长（分钟）',
+    short_break INT DEFAULT 5 COMMENT '短休时长（分钟）',
+    long_break INT DEFAULT 15 COMMENT '长休时长（分钟）',
+    rounds INT DEFAULT 4 COMMENT '每组工作次数',
+    card_strategy VARCHAR(20) DEFAULT 'RANDOM' COMMENT '闪卡抽取策略：RANDOM/DIFFICULTY/DUE/WEAK',
+    card_count INT DEFAULT 20 COMMENT '每次卡片数量（0 表示全部）',
+    difficulty_filter VARCHAR(10) COMMENT '难度过滤：1/2/3 或空',
+    theme VARCHAR(20) DEFAULT 'day' COMMENT '阅读主题：day/eye/night/parchment',
+    font_size VARCHAR(10) DEFAULT 'md' COMMENT '字体大小：sm/md/lg/xl',
+    sound_enabled INT DEFAULT 1 COMMENT '声音提醒：0 关 / 1 开',
+    notification_enabled INT DEFAULT 1 COMMENT '桌面通知：0 关 / 1 开',
+    reminder_time VARCHAR(5) COMMENT '每日学习提醒时间 HH:mm',
+    white_noise VARCHAR(20) COMMENT '白噪音：rain/cafe/wave 或空',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删'
+);
+CREATE INDEX IF NOT EXISTS idx_sys_user_pref_user ON sys_user_pref (user_id);
+
+-- ============================================================
 -- 学习行为事件层（Learning Event System，Phase 1）
 -- 统一埋点所有学习行为，作为掌握度引擎 / AI 教练 / 学习计划的数据底座。
 -- 仅追加记录，不替换任何原有业务表（quiz_answer_record / code_submit_record /
@@ -1501,3 +1709,676 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_km_user_knowledge ON knowledge_mastery (use
 CREATE INDEX IF NOT EXISTS idx_km_status ON knowledge_mastery (user_id, learning_status);
 CREATE INDEX IF NOT EXISTS idx_km_risk ON knowledge_mastery (user_id, forgetting_risk);
 CREATE INDEX IF NOT EXISTS idx_km_next ON knowledge_mastery (user_id, next_review_at);
+
+-- ============ Architecture-2：Learning Economy（经济层，6 张表） ============
+-- wallet：用户钱包（当前状态；一人一个，user_id 唯一）
+CREATE TABLE IF NOT EXISTS wallet (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    xp INT DEFAULT 0,
+    coin INT DEFAULT 0,
+    level INT DEFAULT 1,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_wallet_user ON wallet (user_id);
+
+-- reward_ledger：流水（append-only；幂等键 user_id+source_type+source_id+currency）
+CREATE TABLE IF NOT EXISTS reward_ledger (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    currency VARCHAR(8) NOT NULL,
+    amount INT NOT NULL,
+    direction VARCHAR(8) NOT NULL,
+    reason VARCHAR(50) NOT NULL,
+    source_type VARCHAR(20) NOT NULL,
+    source_id BIGINT,
+    balance_after INT NOT NULL,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_ledger_idempotent ON reward_ledger (user_id, source_type, source_id, currency);
+CREATE INDEX IF NOT EXISTS idx_ledger_user_time ON reward_ledger (user_id, create_time);
+
+-- product：商品（App=能力，Product=商品；价格服务端唯一可信）
+CREATE TABLE IF NOT EXISTS product (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    product_key VARCHAR(50) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(500),
+    type VARCHAR(20) DEFAULT 'APP',
+    app_key VARCHAR(50),
+    price_coin INT DEFAULT 0,
+    status VARCHAR(20) DEFAULT 'ACTIVE',
+    version VARCHAR(20) DEFAULT '1.0.0',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_product_key ON product (product_key);
+
+-- order_：订单（order 为保留字；保留购买时价格快照）
+CREATE TABLE IF NOT EXISTS order_ (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_no VARCHAR(40) NOT NULL,
+    user_id BIGINT NOT NULL,
+    total_coin INT NOT NULL,
+    status VARCHAR(20) DEFAULT 'PAID',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_order_no ON order_ (order_no);
+
+-- order_item：订单明细（购买时价格快照）
+CREATE TABLE IF NOT EXISTS order_item (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    order_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    product_key VARCHAR(50) NOT NULL,
+    product_name VARCHAR(100) NOT NULL,
+    price_coin INT NOT NULL,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_order_item_order ON order_item (order_id);
+
+-- entitlement：购买资格（拥有资格 ≠ UserApp 启用状态）
+CREATE TABLE IF NOT EXISTS entitlement (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    product_key VARCHAR(50) NOT NULL,
+    status VARCHAR(20) DEFAULT 'ACTIVE',
+    granted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_entitlement_user_product ON entitlement (user_id, product_id);
+CREATE INDEX IF NOT EXISTS idx_entitlement_user ON entitlement (user_id);
+
+-- ============ Architecture-3：UserApp 后端化（用户应用状态，1 张表） ============
+-- UserApp = 用户启用/显示状态（Backend Source of Truth，§19/§419）；localStorage 降级为缓存（§420）。
+-- Entitlement（拥有资格）≠ UserApp（启用状态），停用不删 Entitlement/业务数据（§142）。
+CREATE TABLE IF NOT EXISTS user_app (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    app_key VARCHAR(50) NOT NULL,
+    installed INT DEFAULT 1,
+    enabled INT DEFAULT 1,
+    sort_order INT DEFAULT 0,
+    last_open_at TIMESTAMP,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_user_app ON user_app (user_id, app_key);
+
+-- ============ Architecture-4.0：学习目标（Learning Goal，学习闭环起点） ============
+-- 用户以一句话创建目标（如「7 天掌握 JVM GC」），可关联一条真实 learning_path；
+-- 路径进度实时读 learning_user_path，目标表不冗余存进度。
+CREATE TABLE IF NOT EXISTS learning_goal (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '所属用户ID（逻辑外键 sys_user.id）',
+    title VARCHAR(200) NOT NULL COMMENT '目标标题：一句话目标',
+    description VARCHAR(1000) COMMENT '目标描述（为什么学）',
+    target VARCHAR(500) COMMENT '达标标准（做到什么算掌握）',
+    status VARCHAR(20) DEFAULT 'ACTIVE' COMMENT '状态：ACTIVE/COMPLETED/ARCHIVED',
+    path_id BIGINT DEFAULT NULL COMMENT '关联学习路径ID（逻辑外键 learning_path.id，可空）',
+    start_date DATE DEFAULT NULL COMMENT '开始日期',
+    deadline DATE DEFAULT NULL COMMENT '截止日期（时间盒终点）',
+    daily_minutes INT DEFAULT 0 COMMENT '每日计划投入分钟（0=未约定）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_lg_user ON learning_goal (user_id, status);
+CREATE INDEX IF NOT EXISTS idx_lg_path ON learning_goal (path_id);
+
+-- ============ Architecture-4.0-4：场景练习（Scenario Lab，Practice 节点） ============
+-- 内容表：真实业务场景 + 要点清单（key_points JSON: [{label, keywords[]}]），
+-- 提交后用要点关键词做确定性覆盖匹配评分（Deterministic Workflow，§40），
+-- 学习记录统一沉淀为 learning_event（SCENARIO_COMPLETED），不伪造掌握度联动。
+CREATE TABLE IF NOT EXISTS learning_scenario (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL COMMENT '场景标题，如「线上 Full GC 频繁排查」',
+    context_text TEXT COMMENT '情景背景描述',
+    question_text VARCHAR(1000) NOT NULL COMMENT '要用户回答的问题',
+    key_points TEXT NOT NULL COMMENT '要点清单 JSON：[{label, keywords[]}]',
+    difficulty INT DEFAULT 1 COMMENT '难度 1-3',
+    knowledge_id BIGINT DEFAULT NULL COMMENT '关联知识点ID（逻辑外键 kg_entity.id，可空）',
+    status INT DEFAULT 1 COMMENT '1 上架 / 0 下架',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_lsc_status ON learning_scenario (status);
+CREATE INDEX IF NOT EXISTS idx_lsc_knowledge ON learning_scenario (knowledge_id);
+-- Attachment ownership survives removal of content references; doc_id=0 is legacy public.
+CREATE TABLE IF NOT EXISTS doc_asset_binding (
+    asset_key CHAR(64) PRIMARY KEY,
+    asset_url VARCHAR(2048) NOT NULL,
+    doc_id BIGINT NOT NULL
+);
+
+-- ==================================================================
+-- Phase 3E · Java + AI 智能考试系统（Exam OS）
+-- 逻辑概念：ExamTemplate / ExamPaper / ExamAttempt / ExamAnswer / ExamGrade
+-- 设计原则：题目来自 quiz_question（可空，AI 个人卷以 snapshot 承载）；
+--          截止时间以服务端 server_deadline 为准；评分证据可重放、不覆盖。
+-- ==================================================================
+
+-- 试卷模板：稳定 template_key，描述默认组卷规格（spec 为 JSON）
+CREATE TABLE IF NOT EXISTS exam_template (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    template_key VARCHAR(64) NOT NULL COMMENT '稳定模板标识，如 java-collections',
+    name VARCHAR(200) NOT NULL COMMENT '模板名称',
+    description VARCHAR(1000) COMMENT '模板说明',
+    domain VARCHAR(32) NOT NULL DEFAULT 'JAVA' COMMENT '领域：JAVA / AI / JAVA_AI',
+    topics VARCHAR(500) COMMENT '知识点标签（逗号分隔，取 quiz_question.tags 首标签）',
+    spec TEXT NOT NULL COMMENT '组卷规格 JSON：题型/难度/题量/分值/评分策略',
+    duration_minutes INT NOT NULL DEFAULT 60 COMMENT '考试时长（分钟）',
+    total_score INT NOT NULL DEFAULT 100 COMMENT '总分',
+    pass_score INT NOT NULL DEFAULT 60 COMMENT '及格分',
+    mode VARCHAR(16) NOT NULL DEFAULT 'EXAM' COMMENT 'PRACTICE 练习 / EXAM 模拟考试',
+    status INT DEFAULT 1 COMMENT '1 启用 / 0 停用',
+    version VARCHAR(24) DEFAULT '1.0' COMMENT '模板版本',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_et_key ON exam_template (template_key, deleted);
+
+-- 试卷：一次组卷/AI 出卷的快照头
+CREATE TABLE IF NOT EXISTS exam_paper (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(200) NOT NULL COMMENT '试卷名称',
+    domain VARCHAR(32) COMMENT '领域',
+    topics VARCHAR(500) COMMENT '实际覆盖知识点（逗号分隔）',
+    source VARCHAR(16) NOT NULL COMMENT 'TEMPLATE 模板 / SMART 智能组卷 / AI 智能出卷',
+    template_key VARCHAR(64) COMMENT '来源模板标识',
+    strategy VARCHAR(32) DEFAULT 'RANDOM' COMMENT 'RANDOM/FREQUENCY/BALANCED/GRADIENT/MISTAKE/WEAK/SCENARIO',
+    seed_value BIGINT COMMENT '随机种子（同种子+同题库版本可复现）',
+    duration_minutes INT NOT NULL COMMENT '考试时长（分钟）',
+    total_score INT NOT NULL COMMENT '总分',
+    pass_score INT NOT NULL DEFAULT 60 COMMENT '及格分',
+    mode VARCHAR(16) NOT NULL DEFAULT 'EXAM' COMMENT 'PRACTICE / EXAM',
+    shuffle_question INT DEFAULT 0 COMMENT '题目乱序：0 否 / 1 是',
+    shuffle_option INT DEFAULT 0 COMMENT '选项乱序：0 否 / 1 是',
+    allow_pause INT DEFAULT 1 COMMENT '允许暂停',
+    allow_change INT DEFAULT 1 COMMENT '交卷前允许修改答案',
+    config_json TEXT COMMENT '组卷输入完整快照（JSON）',
+    bank_version VARCHAR(64) COMMENT '题库版本/指纹',
+    ai_meta TEXT COMMENT 'AI 出卷元数据 JSON：model/promptVersion/sourceDocs/generatedAt/reviewStatus',
+    review_status VARCHAR(24) DEFAULT 'APPROVED' COMMENT 'APPROVED 规则卷 / PENDING_REVIEW AI 卷',
+    owner_user_id BIGINT COMMENT '归属用户：NULL 为系统公共卷；AI 个人卷为用户ID',
+    status INT DEFAULT 1 COMMENT '1 可用 / 0 失效',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_ep_owner ON exam_paper (owner_user_id);
+CREATE INDEX IF NOT EXISTS idx_ep_template ON exam_paper (template_key);
+CREATE INDEX IF NOT EXISTS idx_ep_source ON exam_paper (source);
+
+-- 试卷题目快照：题目顺序、分值、评分策略与题干快照（不依赖题库后续改动）
+CREATE TABLE IF NOT EXISTS exam_paper_question (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    paper_id BIGINT NOT NULL COMMENT '试卷ID',
+    question_id BIGINT COMMENT '题库ID（quiz_question.id；AI 个人快照题为 NULL）',
+    ordinal INT NOT NULL COMMENT '题号（从 1 开始）',
+    score INT NOT NULL DEFAULT 5 COMMENT '本题满分',
+    question_type VARCHAR(24) NOT NULL COMMENT '题型',
+    topic VARCHAR(64) COMMENT '知识点（取 tags 首标签）',
+    scoring_rule VARCHAR(32) DEFAULT 'ALL_OR_NOTHING' COMMENT '多选评分：ALL_OR_NOTHING / PARTIAL_CREDIT',
+    snapshot TEXT NOT NULL COMMENT '题目快照 JSON：title/content/options/answer/explanation',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_epq_paper ON exam_paper_question (paper_id);
+CREATE INDEX IF NOT EXISTS idx_epq_question ON exam_paper_question (question_id);
+
+-- 考试尝试：一次作答的状态机与服务端可信截止时间
+CREATE TABLE IF NOT EXISTS exam_attempt (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    paper_id BIGINT NOT NULL COMMENT '试卷ID',
+    user_id BIGINT NOT NULL COMMENT '考生用户ID',
+    mode VARCHAR(16) COMMENT 'PRACTICE / EXAM',
+    status VARCHAR(24) NOT NULL DEFAULT 'CREATED' COMMENT 'CREATED/IN_PROGRESS/SUBMITTED/GRADING/GRADED/GRADING_FAILED/EXPIRED/CANCELLED/REVIEW_REQUIRED',
+    start_time TIMESTAMP COMMENT '首次进入（服务端）时间',
+    server_deadline TIMESTAMP COMMENT '服务端截止时间=start+duration，交卷判时以此为准',
+    submit_time TIMESTAMP COMMENT '交卷时间',
+    duration_seconds INT COMMENT '实际作答耗时（秒）',
+    draft TEXT COMMENT '自动保存草稿 JSON：{paperQuestionId: userAnswer}',
+    marked TEXT COMMENT '标记待检查题号 JSON：[ordinal...]',
+    total_score INT COMMENT '得分（未评分题不计 0，见 grading_status）',
+    max_score INT COMMENT '已评分题目满分合计',
+    paper_max_score INT COMMENT '整卷满分',
+    correct_count INT DEFAULT 0 COMMENT '答对题数（仅已评分）',
+    graded_count INT DEFAULT 0 COMMENT '已评题数',
+    question_count INT DEFAULT 0 COMMENT '总题数',
+    grading_status VARCHAR(24) DEFAULT 'NONE' COMMENT 'NONE 全客观 / PENDING_AI 待AI / AI_GRADED 已AI评 / AI_FAILED AI失败 / REVIEW_REQUIRED',
+    ai_meta TEXT COMMENT '本次 AI 评卷元数据 JSON（模型/版本/时间/置信度）',
+    client_version VARCHAR(64) COMMENT '客户端提交版本标识',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_ea_user ON exam_attempt (user_id);
+CREATE INDEX IF NOT EXISTS idx_ea_paper ON exam_attempt (paper_id);
+CREATE INDEX IF NOT EXISTS idx_ea_status ON exam_attempt (status);
+
+-- 逐题作答与评分证据（重评不覆盖：重评走新记录或 grade_detail 版本）
+CREATE TABLE IF NOT EXISTS exam_answer (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    attempt_id BIGINT NOT NULL COMMENT '考试尝试ID',
+    paper_question_id BIGINT NOT NULL COMMENT '试卷题目快照ID',
+    question_id BIGINT COMMENT '题库ID（可空，对齐快照题）',
+    ordinal INT COMMENT '题号',
+    topic VARCHAR(64) COMMENT '知识点',
+    user_answer TEXT COMMENT '用户作答',
+    is_correct INT COMMENT '0 错 / 1 对（AI 部分正确可为 0，分数体现程度）',
+    score INT COMMENT '本题得分（未评分为 NULL，绝不默认 0）',
+    max_score INT COMMENT '本题满分',
+    grade_type VARCHAR(16) COMMENT 'RULE 规则 / AI 智能 / PENDING 待评',
+    grade_detail TEXT COMMENT '评分证据 JSON：命中点/缺失点/各维度分/模型版本/置信度',
+    time_cost INT DEFAULT 0 COMMENT '本题耗时（秒）',
+    graded INT DEFAULT 0 COMMENT '0 未评 / 1 已评',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_eans_attempt_pq ON exam_answer (attempt_id, paper_question_id, deleted);
+CREATE INDEX IF NOT EXISTS idx_eans_attempt ON exam_answer (attempt_id);
+CREATE INDEX IF NOT EXISTS idx_eans_question ON exam_answer (question_id);
+
+-- ==================== Phase 3G：统一题库分类 + 算法题（CODE）扩展 ====================
+
+-- 题目知识点分类树（两级：一级领域 / 二级知识点）。题目归属以 topic_code 为准，tags 仅作检索标签。
+CREATE TABLE IF NOT EXISTS question_topic (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(64) NOT NULL COMMENT '稳定编码，如 ALGO_ARRAY / ALGO_DP',
+    name VARCHAR(100) NOT NULL COMMENT '展示名称',
+    parent_code VARCHAR(64) COMMENT '父级编码；NULL 为一级分类',
+    level INT NOT NULL DEFAULT 1 COMMENT '层级：1 一级 / 2 二级',
+    sort_order INT DEFAULT 0,
+    status INT DEFAULT 1 COMMENT '1 启用 / 0 停用',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_qt_code ON question_topic (code, deleted);
+
+-- CODE 题型扩展（与 quiz_question 1:1，question_id 即 quiz_question.id）
+CREATE TABLE IF NOT EXISTS code_problem (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    question_id BIGINT NOT NULL COMMENT '统一题目ID quiz_question.id',
+    supported_languages VARCHAR(200) DEFAULT 'java' COMMENT '支持语言逗号分隔：java/...',
+    function_signature TEXT COMMENT '固定函数签名（Java 全限定声明）',
+    starter_code TEXT COMMENT '编辑器初始代码',
+    constraints TEXT COMMENT '约束条件（Markdown）',
+    examples TEXT COMMENT '展示用示例 JSON：[{input,output,explanation}]（公开）',
+    time_limit_ms INT DEFAULT 1000 COMMENT '单测时间上限（毫秒）',
+    memory_limit_mb INT DEFAULT 256 COMMENT '内存上限（MB，隔离 Runner 生效时强制）',
+    judge_mode VARCHAR(24) DEFAULT 'FUNCTION' COMMENT 'FUNCTION 固定函数 Harness / STDOUT 标准输入输出',
+    checker VARCHAR(24) DEFAULT 'EXACT' COMMENT '比较器：EXACT/NUMERIC/UNORDERED/BOOLEAN',
+    tolerance_value DOUBLE DEFAULT 0 COMMENT 'NUMERIC 比较器允许误差',
+    test_case_version VARCHAR(24) DEFAULT 'v1' COMMENT '测试用例版本',
+    reference_solution TEXT COMMENT '参考解答（保密：普通题目详情接口不返回）',
+    solution_explanation TEXT COMMENT '题解（按作答状态开放，非无条件公开）',
+    complexity_analysis TEXT COMMENT '复杂度分析（Markdown）',
+    follow_ups TEXT COMMENT '面试追问 JSON 数组',
+    common_mistakes TEXT COMMENT '常见错误 JSON 数组',
+    harness_class VARCHAR(200) COMMENT 'JUnit 风格 Harness 主类名（默认按题目生成 SolutionRunner）',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_cp_question ON code_problem (question_id, deleted);
+
+CREATE TABLE IF NOT EXISTS code_test_case (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    problem_id BIGINT NOT NULL COMMENT 'code_problem.id',
+    input TEXT NOT NULL COMMENT '入参 JSON：单值或参数数组，如 [\"[1,2,3]\",\"5\"]',
+    expected_output TEXT NOT NULL COMMENT '期望输出 JSON',
+    visibility VARCHAR(16) NOT NULL DEFAULT 'PUBLIC' COMMENT 'PUBLIC 示例用例 / HIDDEN 隐藏用例（详情接口不返回）',
+    weight INT DEFAULT 1 COMMENT '用例权重',
+    order_no INT DEFAULT 0 COMMENT '用例顺序',
+    version VARCHAR(24) DEFAULT 'v1',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_ctc_problem ON code_test_case (problem_id);
+
+-- 代码草稿（与正式提交分离；同用户同题唯一行，upsert 保存）
+CREATE TABLE IF NOT EXISTS code_draft (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    question_id BIGINT NOT NULL,
+    language VARCHAR(20) NOT NULL DEFAULT 'java',
+    source_code TEXT,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uk_cd_user_question ON code_draft (user_id, question_id, deleted);
+
+-- 正式代码提交（RUN 试运行 / SUBMIT 正式判题）
+CREATE TABLE IF NOT EXISTS code_submission (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    question_id BIGINT NOT NULL COMMENT 'quiz_question.id（CODE 题）',
+    problem_version VARCHAR(24) DEFAULT 'v1' COMMENT '判题时的题目版本',
+    language VARCHAR(20) NOT NULL DEFAULT 'java',
+    source_code TEXT NOT NULL,
+    submission_type VARCHAR(16) NOT NULL DEFAULT 'SUBMIT' COMMENT 'RUN 仅公开用例 / SUBMIT 全部用例',
+    judge_status VARCHAR(24) NOT NULL DEFAULT 'QUEUED' COMMENT 'QUEUED/ACCEPTED/WRONG_ANSWER/COMPILE_ERROR/RUNTIME_ERROR/TIME_LIMIT_EXCEEDED/MEMORY_LIMIT_EXCEEDED/SYSTEM_ERROR/JUDGE_UNAVAILABLE',
+    score INT COMMENT '百分制得分（NULL=未完成判题，绝不默认 0）',
+    passed_count INT DEFAULT 0,
+    total_count INT DEFAULT 0,
+    execution_time_ms INT COMMENT '最大单测耗时',
+    memory_used_kb INT COMMENT '峰值内存（Runner 支持时）',
+    compile_output TEXT COMMENT '编译输出（可向本人展示）',
+    case_results TEXT COMMENT '逐用例结果 JSON；隐藏用例只回汇总，不回 input/expected',
+    judge_detail TEXT COMMENT '判题审计 JSON（Runner 版本/耗时/错误分类）',
+    context_type VARCHAR(16) DEFAULT 'PRACTICE' COMMENT 'PRACTICE 练习 / EXAM 考试',
+    context_ref_id BIGINT COMMENT 'context_type=EXAM 时为 exam_answer.id',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_cs_user ON code_submission (user_id);
+CREATE INDEX IF NOT EXISTS idx_cs_question ON code_submission (question_id);
+CREATE INDEX IF NOT EXISTS idx_cs_status ON code_submission (judge_status);
+CREATE INDEX IF NOT EXISTS idx_cs_context ON code_submission (context_type, context_ref_id);
+
+-- Phase 3H：模拟面试会话（基础模式最小闭环；预置题+追问树+手工作答+量表自评；不依赖 AI）
+CREATE TABLE IF NOT EXISTS mock_interview_session (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    track VARCHAR(32) NOT NULL COMMENT '方向：JAVA_BASIC/JAVA_CONCURRENCY/JVM/FRAMEWORK_STORAGE/RAG/AGENT_MCP/JAVA_AI_SCENE/ALGORITHM',
+    mode VARCHAR(16) NOT NULL DEFAULT 'BASIC' COMMENT 'BASIC 预置题库基础模式（AI 动态追问模式预留）',
+    status VARCHAR(16) NOT NULL DEFAULT 'IN_PROGRESS' COMMENT 'IN_PROGRESS/FINISHED',
+    question_count INT NOT NULL,
+    questions_json TEXT NOT NULL COMMENT '题目快照（题干/参考要点/追问树），题库升级不影响历史会话',
+    answers_json TEXT COMMENT '作答快照 JSON：[{questionId,answer,followups:[{q,a}],selfScore(1-5),selfComment}]',
+    avg_self_score DECIMAL(4,1) COMMENT '自评均分（1-5），仅本人可见',
+    duration_sec INT COMMENT '服务端按 started/finished 计算的实际用时',
+    started_at TIMESTAMP,
+    finished_at TIMESTAMP,
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_mis_user ON mock_interview_session (user_id);
+CREATE INDEX IF NOT EXISTS idx_mis_status ON mock_interview_session (status);
+
+-- Question Catalog mutation audit: additive only, no source identity migration.
+CREATE TABLE IF NOT EXISTS question_catalog_audit (
+ id BIGINT AUTO_INCREMENT PRIMARY KEY, actor_id BIGINT NOT NULL,
+ source_type VARCHAR(32) NOT NULL, source_question_id BIGINT NOT NULL,
+ action VARCHAR(32) NOT NULL, before_state VARCHAR(512), after_state VARCHAR(512),
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Phase 3I-G: independent interview AI advice, never an answer or score source.
+CREATE TABLE IF NOT EXISTS mock_interview_ai_turn (
+ id BIGINT AUTO_INCREMENT PRIMARY KEY, user_id BIGINT NOT NULL, session_id BIGINT NOT NULL,
+ question_id VARCHAR(100) NOT NULL, answer_fingerprint VARCHAR(64) NOT NULL,
+ round_no INT NOT NULL, request_id VARCHAR(80) NOT NULL, status VARCHAR(16) NOT NULL,
+ source_snapshot MEDIUMTEXT NOT NULL, followup_answer TEXT, result_json TEXT, error_message VARCHAR(240),
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ UNIQUE (user_id,request_id), UNIQUE (session_id,question_id,round_no)
+);
+
+-- Phase4E: confirmation drafts only, actual tasks stay in task.
+CREATE TABLE IF NOT EXISTS learning_action_draft (
+ id VARCHAR(36) PRIMARY KEY, user_id BIGINT NOT NULL, version INT NOT NULL DEFAULT 1,
+ state VARCHAR(20) NOT NULL, payload TEXT NOT NULL, result_json TEXT,
+ idempotency_key VARCHAR(80), request_hash VARCHAR(64),
+ expires_at TIMESTAMP NOT NULL, create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Phase 4I interview V2 additive tables
+CREATE TABLE IF NOT EXISTS mock_interview_speech (
+ id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '转写记录ID',
+ user_id BIGINT NOT NULL COMMENT '认证用户ID',
+ session_id BIGINT NOT NULL COMMENT '所属面试会话',
+ question_id VARCHAR(100) NOT NULL COMMENT '会话快照题目ID',
+ request_id VARCHAR(80) NOT NULL COMMENT '用户范围幂等键',
+ request_hash VARCHAR(64) NOT NULL COMMENT '录音和请求上下文摘要',
+ status VARCHAR(20) NOT NULL COMMENT 'TRANSCRIBING/TRANSCRIBED/FAILED',
+ raw_text TEXT COMMENT '未经用户确认的原始转写',
+ error_message VARCHAR(300) COMMENT '脱敏错误',
+ duration_ms BIGINT NOT NULL COMMENT 'PCM内容计算的真实时长毫秒',
+ claimed_duration_ms BIGINT NOT NULL COMMENT '客户端声明时长仅供审计',
+ v2_version BIGINT COMMENT '录音预留时V2版本基础会话为空',
+ v2_depth INT COMMENT '录音预留时追问深度',
+ v2_prompt_hash VARCHAR(64) COMMENT '完整题干UTF8的SHA256摘要',
+ provider VARCHAR(100) NOT NULL COMMENT '服务提供方审计标识不含密钥',
+ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+ updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+ UNIQUE KEY uk_interview_speech_request(user_id,request_id),
+ CONSTRAINT fk_interview_speech_session FOREIGN KEY(session_id) REFERENCES mock_interview_session(id)
+) COMMENT='模拟面试语音转写（不保存音频，不自动提交答案）';
+
+-- 增量辅助表：不改写原会话快照，不清空用户历史；同一脚本可重复运行。
+CREATE TABLE IF NOT EXISTS mock_interview_v2_state (
+ session_id BIGINT PRIMARY KEY COMMENT '原面试会话主键',
+ user_id BIGINT NOT NULL COMMENT '服务端认证的会话所属用户',
+ start_request VARCHAR(80) NOT NULL COMMENT '创建幂等键',
+ start_hash VARCHAR(64) NOT NULL COMMENT '创建请求指纹',
+ version BIGINT NOT NULL DEFAULT 0 COMMENT '乐观锁版本',
+ state VARCHAR(32) NOT NULL COMMENT '服务端面试状态',
+ mode VARCHAR(20) NOT NULL COMMENT 'BASIC基础 STRICT严格 TEACHING教学',
+ role VARCHAR(100) NOT NULL COMMENT '目标岗位，仅作为不可信上下文',
+ difficulty VARCHAR(20) NOT NULL COMMENT '用户选择的面试难度',
+ max_depth INT NOT NULL COMMENT '最大连续追问深度',
+ question_index INT NOT NULL DEFAULT 0 COMMENT '当前主问题序号，从零开始',
+ followup_depth INT NOT NULL DEFAULT 0 COMMENT '当前追问深度',
+ duration_minutes INT NOT NULL COMMENT '有效面试时间上限分钟',
+ deadline TIMESTAMP NOT NULL COMMENT '服务端有效截止时间',
+ paused_at TIMESTAMP COMMENT '服务端暂停时间',
+ current_prompt VARCHAR(2000) NOT NULL COMMENT '当前服务端决定的问题',
+ current_question_id VARCHAR(100) NOT NULL COMMENT '原会话快照题目身份',
+ project_json TEXT COMMENT '已授权项目资料及用户描述快照',
+ message VARCHAR(1000) COMMENT '降级或超时提示，不包含密钥',
+ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '创建时间',
+ updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '最后状态变更时间',
+ CONSTRAINT fk_iv2_session FOREIGN KEY(session_id) REFERENCES mock_interview_session(id),
+ CONSTRAINT uk_iv2_start UNIQUE(user_id,start_request),
+ CONSTRAINT ck_iv2_state CHECK(state IN ('CREATED','ASKING','ANSWERING','TRANSCRIBING','ANSWER_CONFIRMED','EVALUATING','DECIDING','FOLLOW_UP','PAUSED','COMPLETED')),
+ CONSTRAINT ck_iv2_depth CHECK(max_depth BETWEEN 0 AND 3 AND followup_depth BETWEEN 0 AND 3)
+) COMMENT='面试V2的受控状态，不建立第二套学习状态';
+CREATE INDEX IF NOT EXISTS idx_iv2_owner ON mock_interview_v2_state(user_id,state);
+CREATE TABLE IF NOT EXISTS mock_interview_v2_turn (
+ id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '确认轮次身份',
+ session_id BIGINT NOT NULL COMMENT '原面试会话身份',
+ user_id BIGINT NOT NULL COMMENT '服务端所属用户',
+ request_id VARCHAR(80) NOT NULL COMMENT '确认提交幂等键',
+ request_hash VARCHAR(64) NOT NULL COMMENT '确认内容指纹，拒绝同键不同正文',
+ question_id VARCHAR(100) NOT NULL COMMENT '主问题快照身份',
+ prompt VARCHAR(2000) NOT NULL COMMENT '本轮真正问过的问题',
+ depth INT NOT NULL COMMENT '本轮连续追问深度',
+ answer TEXT NOT NULL COMMENT '用户明确确认后的文字，仅此文字可评分',
+ speech_id BIGINT COMMENT '原始语音转写身份，不能重复作为新轮次消费',
+ self_score INT COMMENT '用户自评分，独立于AI评分，可为空',
+ evaluation_json TEXT COMMENT '经结构及原文引用校验的AI建议，含模型和版本',
+ decision VARCHAR(24) COMMENT '服务端最终决定的追问或下一题',
+ source VARCHAR(24) NOT NULL COMMENT 'AI或预置回退来源',
+ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '确认时间',
+ CONSTRAINT fk_iv2_turn_session FOREIGN KEY(session_id) REFERENCES mock_interview_session(id),
+ CONSTRAINT uk_iv2_answer UNIQUE(user_id,request_id),
+ CONSTRAINT uk_iv2_position UNIQUE(session_id,question_id,depth),
+ CONSTRAINT uk_iv2_speech UNIQUE(speech_id),
+ CONSTRAINT ck_iv2_self_score CHECK(self_score IS NULL OR self_score BETWEEN 1 AND 5)
+) COMMENT='真实确认回答与追问链，不混用自评与AI评价';
+CREATE INDEX IF NOT EXISTS idx_iv2_turn_session ON mock_interview_v2_turn(session_id,id);
+CREATE TABLE IF NOT EXISTS mock_interview_v2_command (
+ user_id BIGINT NOT NULL COMMENT '服务端用户',
+ request_id VARCHAR(80) NOT NULL COMMENT '命令幂等键',
+ session_id BIGINT NOT NULL COMMENT '原会话身份',
+ operation VARCHAR(20) NOT NULL COMMENT 'pause resume finish命令',
+ request_hash VARCHAR(64) NOT NULL COMMENT '版本和操作指纹',
+ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '执行时间',
+ PRIMARY KEY(user_id,request_id),
+ CONSTRAINT fk_iv2_command_session FOREIGN KEY(session_id) REFERENCES mock_interview_session(id)
+) COMMENT='面试状态操作幂等记录';
+
+-- 已确认的面试复习任务关联既有 task 表，不建立第二套任务或掌握度系统。
+-- 不级联删除：逻辑删除后的来源与确认历史保留，归属由服务端校验及会话行锁保证。
+CREATE TABLE IF NOT EXISTS interview_remediation (
+ session_id BIGINT NOT NULL,
+ knowledge_id BIGINT NOT NULL,
+ user_id BIGINT NOT NULL,
+ task_id BIGINT NOT NULL,
+ request_id VARCHAR(100) NOT NULL,
+ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+ PRIMARY KEY (session_id, knowledge_id),
+ CONSTRAINT fk_interview_remediation_session FOREIGN KEY (session_id) REFERENCES mock_interview_session(id),
+ CONSTRAINT fk_interview_remediation_knowledge FOREIGN KEY (knowledge_id) REFERENCES kg_entity(id),
+ CONSTRAINT fk_interview_remediation_task FOREIGN KEY (task_id) REFERENCES task(id),
+ CONSTRAINT fk_interview_remediation_user FOREIGN KEY (user_id) REFERENCES sys_user(id),
+ CONSTRAINT ck_interview_remediation_ids CHECK (session_id > 0 AND knowledge_id > 0 AND user_id > 0 AND task_id > 0)
+);
+CREATE INDEX IF NOT EXISTS idx_interview_remediation_user ON interview_remediation(user_id, session_id);
+COMMENT ON TABLE interview_remediation IS '用户明确确认的面试复习任务关联；保留历史且不写掌握度';
+COMMENT ON COLUMN interview_remediation.session_id IS '来源面试会话ID，关联mock_interview_session.id';
+COMMENT ON COLUMN interview_remediation.knowledge_id IS '实际可阅读知识实体ID，关联kg_entity.id；同会话去重';
+COMMENT ON COLUMN interview_remediation.user_id IS '服务端认证用户ID，关联sys_user.id；会话及任务归属由服务校验';
+COMMENT ON COLUMN interview_remediation.task_id IS '复用既有任务ID，关联task.id；不自动完成任务';
+COMMENT ON COLUMN interview_remediation.request_id IS '首次确认请求标识；去重按会话与知识实体而非请求标识';
+COMMENT ON COLUMN interview_remediation.created_at IS '首次明确确认并创建关联的时间';
+
+-- 笔记历史快照，恢复会创建新版本。
+CREATE TABLE IF NOT EXISTS learning_note_version (id BIGINT AUTO_INCREMENT PRIMARY KEY,note_id BIGINT NOT NULL COMMENT '所属笔记',user_id BIGINT NOT NULL COMMENT '修改者',revision BIGINT NOT NULL COMMENT '修订号',title VARCHAR(200),content LONGTEXT,tags VARCHAR(2000),source_title VARCHAR(500),folder_id BIGINT,favorite BOOLEAN NOT NULL DEFAULT FALSE,source_doc_id BIGINT,chapter_id BIGINT,path_id BIGINT,status VARCHAR(20),note_deleted INT NOT NULL DEFAULT 0,reason VARCHAR(40) COMMENT '版本来源',create_time TIMESTAMP NOT NULL,UNIQUE(note_id,revision));
+
+-- ========== 技术英语 P0：公共词库 / 发音变体 / 用户状态 / 概念关联 ==========
+-- 设计原则：词条是系统公共知识；收藏与学习状态是用户私有数据，二者分表隔离。
+-- 唯一键均包含 deleted，兼容逻辑删除（deleted=1 不释放唯一约束）。
+
+-- 技术英语词条：同一 headword 可因领域/义项不同并存（normalized_key + domain + sense_key 去重）
+CREATE TABLE IF NOT EXISTS tech_vocab_term (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    headword VARCHAR(200) NOT NULL COMMENT '英文主词、短语或缩写',
+    normalized_key VARCHAR(200) NOT NULL COMMENT '搜索归一化键（小写+空白折叠），不做唯一含义判定',
+    term_type VARCHAR(20) NOT NULL DEFAULT 'WORD' COMMENT 'WORD / ACRONYM / PHRASE',
+    sense_key VARCHAR(100) NOT NULL DEFAULT 'default' COMMENT '同形异义义项键',
+    domain VARCHAR(40) NOT NULL COMMENT '技术领域编码，如 JAVA / JVM / SPRING / DB / LLM / RAG / AGENT',
+    full_form VARCHAR(300) COMMENT '缩写全称（普通词为空）',
+    class_name VARCHAR(200) COMMENT '对应 Java 类名（如 AbstractQueuedSynchronizer）',
+    part_of_speech VARCHAR(40) COMMENT '词性（单词适用）',
+    ipa_us VARCHAR(200) COMMENT '经核验的美式音标；无可靠音标时留空',
+    ipa_uk VARCHAR(200) COMMENT '经核验的英式音标；无可靠音标时留空',
+    meaning_cn VARCHAR(300) NOT NULL COMMENT '中文短释义',
+    definition_cn TEXT COMMENT '中文技术概念解释（专业含义优先）',
+    definition_en TEXT COMMENT '英文专业解释（可选）',
+    word_breakdown TEXT COMMENT '全称逐词拆解 JSON：[{"word":"Abstract","meaningCn":"抽象的"}]',
+    breakdown_note VARCHAR(500) COMMENT '拆解说明：完整概念不是各单词含义的机械相加',
+    interview_en TEXT COMMENT '面试英文表达：一句可用于技术面试的回答',
+    example_en TEXT COMMENT '技术英文例句',
+    example_cn TEXT COMMENT '例句中文解释',
+    aliases VARCHAR(500) COMMENT '别名/中文别名，逗号分隔，仅用于搜索',
+    content_status VARCHAR(20) NOT NULL DEFAULT 'DRAFT' COMMENT 'DRAFT / REVIEWED / PUBLISHED / ARCHIVED',
+    reference_source VARCHAR(1000) COMMENT '定义、全称与读法来源',
+    license_note VARCHAR(500) COMMENT '内容/音频许可说明',
+    reviewed_at TIMESTAMP COMMENT '最近审核时间',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0,
+    CONSTRAINT uk_tech_term_sense UNIQUE (normalized_key, domain, sense_key, deleted)
+);
+CREATE INDEX IF NOT EXISTS idx_tech_term_domain ON tech_vocab_term (domain, content_status, deleted);
+CREATE INDEX IF NOT EXISTS idx_tech_term_type ON tech_vocab_term (term_type, content_status, deleted);
+
+-- 发音变体：单词 US/UK、缩写读法 ABBR、全称读法 FULL_FORM 分开存储。
+-- audio_url 可为空；为空且 reading_text 已核验时由浏览器语音合成降级。
+CREATE TABLE IF NOT EXISTS tech_vocab_pronunciation (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    term_id BIGINT NOT NULL COMMENT '所属词条ID（逻辑外键 tech_vocab_term.id）',
+    variant VARCHAR(30) NOT NULL COMMENT 'WORD_US / WORD_UK / ABBR / FULL_FORM',
+    reading_text VARCHAR(500) COMMENT '经审核的朗读文本；不等于任意拼接的提示词',
+    locale VARCHAR(20) COMMENT 'en-US / en-GB 等',
+    reading_mode VARCHAR(30) COMMENT 'LETTER_BY_LETTER / SPOKEN_WORD / MIXED',
+    audio_url VARCHAR(1000) COMMENT '已授权音频地址，可为空',
+    audio_provider VARCHAR(100) COMMENT '音频提供方',
+    license_note VARCHAR(500) COMMENT '音频许可说明',
+    verification_status VARCHAR(20) NOT NULL DEFAULT 'UNVERIFIED' COMMENT 'VERIFIED / PENDING / UNAVAILABLE',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0,
+    CONSTRAINT uk_tech_pron_variant UNIQUE (term_id, variant, deleted)
+);
+CREATE INDEX IF NOT EXISTS idx_tech_pron_term ON tech_vocab_pronunciation (term_id, deleted);
+
+-- 用户词条状态：收藏与学习状态是私有数据，必须按认证用户隔离。
+CREATE TABLE IF NOT EXISTS user_vocab_state (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '用户ID（逻辑外键 sys_user.id，服务端认证上下文写入）',
+    term_id BIGINT NOT NULL COMMENT '词条ID（逻辑外键 tech_vocab_term.id）',
+    favorite INT NOT NULL DEFAULT 0 COMMENT '是否收藏：0 否 / 1 是',
+    learning_status VARCHAR(20) NOT NULL DEFAULT 'NEW' COMMENT 'NEW / LEARNING / MASTERED（展示层状态）',
+    linked_flashcard_id BIGINT COMMENT 'P1 预留：关联既有闪卡ID，不新建复习算法',
+    last_opened_at TIMESTAMP COMMENT '最近打开时间',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0,
+    CONSTRAINT uk_user_vocab_term UNIQUE (user_id, term_id, deleted)
+);
+CREATE INDEX IF NOT EXISTS idx_user_vocab_favorite ON user_vocab_state (user_id, favorite, deleted);
+CREATE INDEX IF NOT EXISTS idx_user_vocab_status ON user_vocab_state (user_id, learning_status, deleted);
+
+-- 概念关联：term -> 既有知识实体的稳定 ID 关联，查询时必须二次校验目标权限。
+-- target_type = TERM 时表示词条之间的相关/对比/易混淆关系。
+CREATE TABLE IF NOT EXISTS tech_vocab_concept_link (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    term_id BIGINT NOT NULL COMMENT '来源词条ID',
+    target_type VARCHAR(30) NOT NULL COMMENT 'KNOWLEDGE / CHAPTER / DOCUMENT / NOTE / TERM',
+    target_id BIGINT NOT NULL COMMENT '目标实体稳定ID（禁止用标题文本代替）',
+    relation_type VARCHAR(30) NOT NULL DEFAULT 'RELATED' COMMENT 'EXPLAINS / RELATED / CONTRASTS / CONFUSABLE',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0,
+    CONSTRAINT uk_tech_link UNIQUE (term_id, target_type, target_id, relation_type, deleted)
+);
+CREATE INDEX IF NOT EXISTS idx_tech_link_target ON tech_vocab_concept_link (target_type, target_id, deleted);
+
+-- P2 个人候选词条：AI / 规则提取结果，与公共词库物理隔离，审核通过后才生成正式词条。
+CREATE TABLE IF NOT EXISTS tech_vocab_candidate (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL COMMENT '提交用户',
+    headword VARCHAR(200) NOT NULL COMMENT '候选英文主词',
+    normalized_key VARCHAR(200) NOT NULL COMMENT '归一化键（个人候选去重）',
+    term_type VARCHAR(20) NOT NULL DEFAULT 'WORD' COMMENT 'WORD / ACRONYM / PHRASE',
+    domain VARCHAR(40) NOT NULL COMMENT '建议技术领域',
+    full_form VARCHAR(300) COMMENT '建议英文全称（需人工核验）',
+    meaning_cn VARCHAR(300) COMMENT '建议中文释义',
+    definition_cn TEXT COMMENT '建议中文解释',
+    source_type VARCHAR(20) NOT NULL DEFAULT 'TEXT' COMMENT 'DOCUMENT / NOTE / CHAPTER / TEXT',
+    source_id BIGINT COMMENT '来源实体ID，TEXT 来源为空',
+    source_title VARCHAR(300) COMMENT '来源标题快照（不对外公开）',
+    source_context VARCHAR(500) COMMENT '来源上下文片段',
+    confidence INT COMMENT '置信提示 0-100，不代表已核验',
+    extractor VARCHAR(10) NOT NULL DEFAULT 'RULE' COMMENT 'RULE / AI',
+    review_status VARCHAR(20) NOT NULL DEFAULT 'PENDING' COMMENT 'PENDING / APPROVED / REJECTED',
+    duplicate_term_id BIGINT COMMENT '与公共词库重复时的词条ID',
+    term_id BIGINT COMMENT '审核通过后生成的正式词条ID',
+    review_note VARCHAR(500) COMMENT '审核备注',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted INT DEFAULT 0,
+    CONSTRAINT uk_tech_candidate UNIQUE (user_id, normalized_key, source_type, source_id, deleted)
+);
+CREATE INDEX IF NOT EXISTS idx_tech_candidate_owner ON tech_vocab_candidate (user_id, review_status, deleted);
+
+-- 笔记V2组织与关系
+CREATE TABLE IF NOT EXISTS learning_note_folder(id BIGINT AUTO_INCREMENT PRIMARY KEY,user_id BIGINT NOT NULL COMMENT '所属用户',parent_id BIGINT COMMENT '父文件夹',name VARCHAR(100) NOT NULL COMMENT '目录名',revision BIGINT NOT NULL DEFAULT 1 COMMENT '目录修订号',INDEX idx_note_folder_owner(user_id,parent_id));
+CREATE TABLE IF NOT EXISTS learning_note_tag(id BIGINT AUTO_INCREMENT PRIMARY KEY,user_id BIGINT NOT NULL,name VARCHAR(100) NOT NULL COMMENT '标签名',name_key VARCHAR(100) NOT NULL COMMENT '规范化唯一名',UNIQUE(user_id,name_key));
+CREATE TABLE IF NOT EXISTS learning_note_tag_ref(user_id BIGINT NOT NULL,note_id BIGINT NOT NULL,tag_id BIGINT NOT NULL,PRIMARY KEY(note_id,tag_id),INDEX idx_note_tag_owner(user_id,tag_id,note_id));
+CREATE TABLE IF NOT EXISTS learning_note_relation(id BIGINT AUTO_INCREMENT PRIMARY KEY,user_id BIGINT NOT NULL,note_id BIGINT NOT NULL,target_type VARCHAR(10) NOT NULL COMMENT 'DOC或NOTE',target_id BIGINT NOT NULL,UNIQUE(user_id,note_id,target_type,target_id));

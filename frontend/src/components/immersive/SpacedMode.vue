@@ -6,6 +6,22 @@
         <span>今日复习队列</span>
       </h3>
       <div v-if="loading" class="queue-empty">加载中…</div>
+      <ErrorState
+        v-else-if="loadError"
+        class="queue-error"
+        title="复习队列加载失败"
+        :description="loadError"
+        scope="本轮复习尚未开始，现有学习数据不会受影响。"
+        hint="请检查网络或后端服务后重新加载。"
+        :show-retry="false"
+      >
+        <template #action>
+          <button type="button" class="kb-state-retry" data-test="due-retry" @click="loadQueue">
+            <Icon name="refresh-cw" :size="14" aria-hidden="true" />
+            <span>重新加载</span>
+          </button>
+        </template>
+      </ErrorState>
       <div v-else-if="!queue.length" class="queue-empty">暂无待复习卡片，太棒了！</div>
       <ul v-else class="queue-list">
         <li
@@ -59,8 +75,12 @@
             <div v-if="currentCard" class="card-q">
               {{ currentCard.front ?? '（无正面内容）' }}
             </div>
+            <div v-else-if="loadError" class="card-empty">
+              <Icon name="alert-circle" :size="48" aria-hidden="true" />
+              <p>复习队列暂时无法加载</p>
+            </div>
             <div v-else class="card-empty">
-              <Icon name="check-circle-2" :size="48" aria-hidden="true" />
+              <Icon name="check-circle" :size="48" aria-hidden="true" />
               <p>本轮复习已全部完成！</p>
             </div>
             <div v-if="currentCard" class="flip-hint">点击查看答案</div>
@@ -136,6 +156,7 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import Icon from '@/components/ui/Icon.vue';
 import Badge from '@/components/ui/Badge.vue';
+import ErrorState from '@/components/ui/ErrorState.vue';
 import { learningApi, achievementApi, type FlashcardVO } from '@/api';
 import { useFocusSession } from '@/composables/useFocusSession';
 import { useMicroAchievements } from '@/composables/useMicroAchievements';
@@ -146,6 +167,7 @@ const { checkReview, allDefs } = useMicroAchievements();
 
 const queue = ref<FlashcardVO[]>([]);
 const loading = ref(false);
+const loadError = ref('');
 const loadingCard = ref(false);
 const currentIndex = ref(0);
 const isFlipped = ref(false);
@@ -238,24 +260,16 @@ function formatElapsed(sec: number) {
 
 async function loadQueue() {
   loading.value = true;
+  loadError.value = '';
   try {
-    if (typeof (learningApi as unknown as { dueFlashcards?: () => Promise<FlashcardVO[]> }).dueFlashcards === 'function') {
-      const due = await (learningApi as unknown as { dueFlashcards: () => Promise<FlashcardVO[]> }).dueFlashcards();
-      if (due && Array.isArray(due) && due.length > 0) {
-        queue.value = due.slice(0, 100);
-        return;
-      }
+    const due = await learningApi.dueFlashcards();
+    if (!Array.isArray(due)) {
+      throw new Error('复习队列响应格式错误');
     }
-    const all = await learningApi.flashcards();
-    const now = Date.now();
-    queue.value = all
-      .filter((c) => {
-        if (!c.nextReviewTime) return true;
-        return new Date(c.nextReviewTime).getTime() <= now;
-      })
-      .slice(0, 100);
+    queue.value = due.slice(0, 100);
   } catch (e: unknown) {
-    notify(getApiError(e, '加载复习队列失败'), 'warning');
+    loadError.value = getApiError(e, '加载复习队列失败');
+    notify(loadError.value, 'warning');
     queue.value = [];
   } finally {
     loading.value = false;
@@ -752,7 +766,7 @@ onUnmounted(async () => {
   gap: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: #10B981;
+  color: var(--kb-success);
 }
 
 .tabular-nums {

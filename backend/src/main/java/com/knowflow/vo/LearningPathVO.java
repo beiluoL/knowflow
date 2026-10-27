@@ -32,7 +32,7 @@ public class LearningPathVO {
     /** 当前登录用户是否已报名该路径（用于详情页报名按钮状态）。 */
     private Boolean enrolled;
 
-    /** 当前登录用户的学习进度比例（0~1）；未报名时为 null。 */
+    /** 当前登录用户的学习完成百分比（0~100）；未报名时为 null。 */
     private BigDecimal progress;
 
     private Integer sortOrder;

@@ -33,6 +33,7 @@ import java.util.Map;
 @Slf4j
 public class AdminQuizQuestionController {
 
+    private final com.knowflow.catalog.QuizQuestionAdminService questionAdmin;
     private final QuizQuestionMapper quizQuestionMapper;
     private final DocCategoryMapper docCategoryMapper;
     private final DocDocumentMapper docDocumentMapper;
@@ -72,7 +73,8 @@ public class AdminQuizQuestionController {
         if (categoryId != null) {
             qw.eq("category_id", categoryId);
         }
-        qw.orderByDesc("create_time");
+        qw.ne("question_type", QuizQuestion.TYPE_CODE);
+        qw.orderByDesc("create_time").orderByDesc("id");
 
         Page<QuizQuestion> p = quizQuestionMapper.selectPage(
                 new Page<>(page, pageSize), qw);
@@ -93,64 +95,40 @@ public class AdminQuizQuestionController {
     @Operation(summary = "手动新增题目")
     @PostMapping
     public Result<QuizQuestion> create(@RequestBody QuizQuestion question) {
-        if (question.getTitle() == null || question.getTitle().isBlank()) {
-            return Result.error("题目标题不能为空");
-        }
-        if (question.getContent() == null || question.getContent().isBlank()) {
-            return Result.error("题干内容不能为空");
-        }
-        if (question.getQuestionType() == null) {
-            question.setQuestionType(QuizQuestion.TYPE_SINGLE_CHOICE);
-        }
-        if (question.getDifficulty() == null) {
-            question.setDifficulty(2);
-        }
-        if (question.getSource() == null) {
-            question.setSource(QuizQuestion.SOURCE_MANUAL);
-        }
-        if (question.getStatus() == null) {
-            question.setStatus(1);
-        }
-        quizQuestionMapper.insert(question);
-        return Result.success(question);
+        return Result.success(questionAdmin.create(question));
     }
 
     @Operation(summary = "编辑题目")
     @PutMapping("/{id}")
     public Result<QuizQuestion> update(@PathVariable Long id, @RequestBody QuizQuestion question) {
-        QuizQuestion existing = quizQuestionMapper.selectById(id);
-        if (existing == null) {
-            return Result.error("题目不存在");
-        }
-        question.setId(id);
-        quizQuestionMapper.updateById(question);
-        return Result.success(question);
+        return Result.success(questionAdmin.update(id, question));
     }
 
     @Operation(summary = "删除题目")
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
-        quizQuestionMapper.deleteById(id);
+        questionAdmin.delete(id);
         return Result.success();
     }
 
     @Operation(summary = "发布题目")
     @PutMapping("/{id}/publish")
     public Result<Void> publish(@PathVariable Long id) {
-        QuizQuestion q = quizQuestionMapper.selectById(id);
-        if (q == null) return Result.error("题目不存在");
-        q.setStatus(1);
-        quizQuestionMapper.updateById(q);
+        questionAdmin.publish(id, true);
         return Result.success();
     }
 
     @Operation(summary = "下架题目")
     @PutMapping("/{id}/unpublish")
     public Result<Void> unpublish(@PathVariable Long id) {
-        QuizQuestion q = quizQuestionMapper.selectById(id);
-        if (q == null) return Result.error("题目不存在");
-        q.setStatus(0);
-        quizQuestionMapper.updateById(q);
+        questionAdmin.publish(id, false);
+        return Result.success();
+    }
+
+    public record ReviewRequest(String decision,String comment,Integer expectedSourceVersion,String expectedEditToken) {}
+    @PostMapping("/{id}/review")
+    public Result<Void> review(@PathVariable Long id, @RequestBody ReviewRequest body) {
+        questionAdmin.review(id, body.decision(), body.comment(), body.expectedSourceVersion(), body.expectedEditToken());
         return Result.success();
     }
 
@@ -273,9 +251,12 @@ public class AdminQuizQuestionController {
                 q.setDocId(docId);
                 q.setTags((String) item.getOrDefault("tags", ""));
                 q.setSource(QuizQuestion.SOURCE_AI);
-                q.setStatus(1);
+                q.setStatus(0);
+                q.setReviewStatus(QuizQuestion.REVIEW_PENDING);
+                q.setVersion(1);
+                q.setCreatorId(userId);
                 q.setSortOrder(0);
-                quizQuestionMapper.insert(q);
+                questionAdmin.create(q);
                 created.add(q);
             }
 

@@ -136,7 +136,7 @@ public class CommunityServiceImpl extends ServiceImpl<CommunityPostMapper, Commu
             throw new BusinessException(404, "帖子不存在");
         }
         if (!java.util.Objects.equals(post.getUserId(), userId)) {
-            throw new BusinessException("无权删除他人帖子");
+            throw new BusinessException(403, "无权删除他人帖子");
         }
         // F-06：帖子删除时级联逻辑删除其全部评论与回复
         commentService.deleteByPostId(id);

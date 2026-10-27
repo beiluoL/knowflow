@@ -47,7 +47,12 @@ public class DynamicDataSourceConfig {
         DataSourceProperties.Item item = manager.resolveItem(type);
         HikariDataSource real = manager.buildDataSource(type, item);
         // 执行方言脚本：H2 每次重建，MySQL 默认仅首次建表
-        manager.initSchemaIfNeeded(real::getConnection, type, item);
+        try {
+            manager.initSchemaIfNeeded(real::getConnection, type, item);
+        } catch (RuntimeException e) {
+            real.close();
+            throw e;
+        }
         return new DynamicRoutingDataSource(real, type);
     }
 

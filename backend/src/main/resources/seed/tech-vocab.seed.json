@@ -1,0 +1,1152 @@
+{
+  "note": "P0 种子词库：释义与例句为项目原创整理，未复制词典原文；音标参照常见美式/英式词典标注人工整理，未逐条联网复核，发布前需人工抽检。音频一律为空，前端使用浏览器语音合成降级。",
+  "terms": [
+    {
+      "headword": "Polymorphism",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˌpɑːliˈmɔːrfɪzəm/",
+      "ipaUk": "/ˌpɒliˈmɔːfɪzəm/",
+      "meaningCn": "多态",
+      "definitionCn": "同一接口或父类型在不同实现对象上表现出不同行为的能力。Java 通过方法重写实现运行时多态，通过方法重载实现编译期多态，调用方只需依赖抽象类型。",
+      "definitionEn": "The ability of one interface or supertype to represent different behaviors across implementations. Java realizes runtime polymorphism through method overriding and compile-time polymorphism through overloading.",
+      "exampleEn": "Because the order service depends on the PaymentGateway interface, polymorphism lets it switch providers without touching business code.",
+      "exampleCn": "订单服务依赖 PaymentGateway 接口，多态使它无需修改业务代码就能切换支付提供商。",
+      "aliases": ["多态"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Language Specification；音标为常见词典标注整理，未经逐条在线复核",
+      "licenseNote": "释义与例句为本项目原创整理，未复制词典原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Polymorphism", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Polymorphism", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [{"targetHeadword": "Inheritance", "targetDomain": "JAVA", "relationType": "RELATED"}]
+    },
+    {
+      "headword": "Encapsulation",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ɪnˌkæpsjəˈleɪʃn/",
+      "ipaUk": "/ɪnˌkæpsjuˈleɪʃn/",
+      "meaningCn": "封装",
+      "definitionCn": "隐藏对象内部状态、只通过受控方法暴露行为的设计原则。Java 常用 private 字段加公共方法实现，降低模块间耦合，并为校验和并发控制保留统一入口。",
+      "exampleEn": "Encapsulation keeps the balance field private so that every change goes through the transfer method.",
+      "exampleCn": "封装把余额字段设为私有，所有变更都必须经过转账方法。",
+      "aliases": ["封装"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Language Specification；音标为常见词典标注整理，未经逐条在线复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Encapsulation", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Encapsulation", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Inheritance",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ɪnˈherɪtəns/",
+      "ipaUk": "/ɪnˈherɪtəns/",
+      "meaningCn": "继承",
+      "definitionCn": "子类复用父类结构与行为的机制。Java 类只支持单继承，接口支持多实现；当子类只是想复用代码而不是表达 is-a 关系时，组合通常优于继承。",
+      "exampleEn": "We replaced inheritance with composition because the subclass inherited state it never used.",
+      "exampleCn": "我们用组合替代了继承，因为子类继承了一批根本用不到的状态。",
+      "aliases": ["继承"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Language Specification；音标为常见词典标注整理，未经逐条在线复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Inheritance", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Inheritance", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [{"targetHeadword": "Polymorphism", "targetDomain": "JAVA", "relationType": "RELATED"}]
+    },
+    {
+      "headword": "Generic",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "partOfSpeech": "adjective / noun",
+      "ipaUs": "/dʒəˈnerɪk/",
+      "ipaUk": "/dʒəˈnerɪk/",
+      "meaningCn": "泛型",
+      "definitionCn": "把类型作为参数参与编译期检查的语言特性。Java 泛型在编译后发生类型擦除，因此不能直接 new T()，也不能用基本类型作为类型参数。",
+      "exampleEn": "Generics let the repository return List<Order> instead of a raw List.",
+      "exampleCn": "泛型让仓储层返回 List<Order>，而不是裸 List。",
+      "aliases": ["泛型", "Generics"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 泛型教程；音标为常见词典标注整理，未经逐条在线复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Generic", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Generic", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Reflection",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/rɪˈflekʃn/",
+      "ipaUk": "/rɪˈflekʃn/",
+      "meaningCn": "反射",
+      "definitionCn": "在运行时检查并操作类、方法、字段的能力。Spring、Jackson 等框架依赖反射完成依赖注入与序列化，但反射调用有性能与封装破坏成本，热路径应谨慎使用。",
+      "exampleEn": "Spring uses reflection to inject dependencies into private fields.",
+      "exampleCn": "Spring 使用反射把依赖注入到私有字段。",
+      "aliases": ["反射"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Reflection API；音标为常见词典标注整理，未经逐条在线复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Reflection", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Reflection", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Annotation",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˌænəˈteɪʃn/",
+      "ipaUk": "/ˌænəˈteɪʃn/",
+      "meaningCn": "注解",
+      "definitionCn": "附加在代码元素上的元数据，本身不直接改变程序语义，由编译器或框架读取后决定行为。例如 @Transactional 由 Spring 解析并生成事务代理。",
+      "exampleEn": "@Transactional is an annotation that Spring reads to wrap the method in a transaction.",
+      "exampleCn": "@Transactional 是一种注解，Spring 读取后把该方法包装进事务。",
+      "aliases": ["注解"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Annotations；音标为常见词典标注整理，未经逐条在线复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Annotation", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Annotation", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "JVM",
+      "termType": "ACRONYM",
+      "domain": "JVM",
+      "senseKey": "default",
+      "fullForm": "Java Virtual Machine",
+      "meaningCn": "Java 虚拟机",
+      "definitionCn": "执行 Java 字节码的抽象计算机，负责类加载、字节码执行、内存管理与即时编译。JVM 屏蔽底层操作系统差异，是 Java 跨平台能力的核心。",
+      "definitionEn": "An abstract machine that executes Java bytecode and handles class loading, execution, memory management, and just-in-time compilation.",
+      "wordBreakdown": [
+        {"word": "Java", "meaningCn": "Java 语言"},
+        {"word": "Virtual", "meaningCn": "虚拟的"},
+        {"word": "Machine", "meaningCn": "机器"}
+      ],
+      "exampleEn": "The JVM warms up the hot method with JIT compilation after enough invocations.",
+      "exampleCn": "调用次数足够多之后，JVM 会用即时编译把热点方法编译成本地代码。",
+      "aliases": ["Java虚拟机", "虚拟机"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Virtual Machine Specification；缩写读法为常见逐字母读法，需人工复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "J V M", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Java Virtual Machine", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "GC", "targetDomain": "JVM", "relationType": "RELATED"},
+        {"targetHeadword": "JIT", "targetDomain": "JVM", "relationType": "RELATED"},
+        {"targetHeadword": "ClassLoader", "targetDomain": "JVM", "relationType": "RELATED"},
+        {"targetHeadword": "Heap", "targetDomain": "JVM", "relationType": "RELATED"},
+        {"targetHeadword": "Metaspace", "targetDomain": "JVM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "GC",
+      "termType": "ACRONYM",
+      "domain": "JVM",
+      "senseKey": "default",
+      "fullForm": "Garbage Collection",
+      "meaningCn": "垃圾回收",
+      "definitionCn": "自动回收不再可达对象所占用内存的机制。HotSpot 采用分代收集，常见收集器包括 G1、ZGC；停顿时间与吞吐量通常需要权衡。",
+      "wordBreakdown": [
+        {"word": "Garbage", "meaningCn": "垃圾"},
+        {"word": "Collection", "meaningCn": "收集"}
+      ],
+      "exampleEn": "A long Full GC pause can push tail latency beyond the SLA.",
+      "exampleCn": "一次长时间的 Full GC 停顿就可能把尾延迟推过 SLA 红线。",
+      "aliases": ["垃圾回收", "垃圾收集"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "OpenJDK 17 HotSpot Garbage Collection 文档；缩写读法需人工复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "G C", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Garbage Collection", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [{"targetHeadword": "Heap", "targetDomain": "JVM", "relationType": "RELATED"}]
+    },
+    {
+      "headword": "JIT",
+      "termType": "ACRONYM",
+      "domain": "JVM",
+      "senseKey": "default",
+      "fullForm": "Just-In-Time Compiler",
+      "meaningCn": "即时编译器",
+      "definitionCn": "JVM 在运行时把热点字节码编译为本地机器码的组件。HotSpot 包含 C1 与 C2 两层编译器，分别偏向快速启动与峰值性能。",
+      "wordBreakdown": [
+        {"word": "Just", "meaningCn": "恰在（运行时）"},
+        {"word": "In", "meaningCn": "在……之中"},
+        {"word": "Time", "meaningCn": "时间"}
+      ],
+      "exampleEn": "JIT compilation trades a short warm-up period for higher steady-state throughput.",
+      "exampleCn": "即时编译用短暂预热换取更高的稳定吞吐量。",
+      "aliases": ["即时编译", "JIT编译器"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "OpenJDK 17 HotSpot JIT 文档；缩写读法需人工复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "J I T", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Just In Time Compiler", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "ClassLoader",
+      "termType": "WORD",
+      "domain": "JVM",
+      "senseKey": "default",
+      "className": "java.lang.ClassLoader",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˈklæsˌloʊdər/",
+      "ipaUk": "/ˈklɑːsˌləʊdə(r)/",
+      "meaningCn": "类加载器",
+      "definitionCn": "把 .class 字节码加载为 JVM 内部类结构的组件。默认遵循双亲委派模型：先委托父加载器，避免核心类被重复定义。",
+      "exampleEn": "A custom ClassLoader can isolate plugin classes from the application class path.",
+      "exampleCn": "自定义类加载器可以把插件类与应用类路径隔离开。",
+      "aliases": ["类加载器", "双亲委派"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "OpenJDK 17 java.lang.ClassLoader Javadoc；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Class Loader", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Class Loader", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Heap",
+      "termType": "WORD",
+      "domain": "JVM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/hiːp/",
+      "ipaUk": "/hiːp/",
+      "meaningCn": "堆",
+      "definitionCn": "JVM 运行时存放对象实例的主要内存区域，由垃圾收集器统一管理。堆大小、分代比例与收集器选择直接影响停顿时间和吞吐量。",
+      "exampleEn": "The heap dump showed that most retained memory came from the query cache.",
+      "exampleCn": "堆转储显示大部分被保留的内存来自查询缓存。",
+      "aliases": ["堆内存", "Java堆"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "OpenJDK 17 HotSpot 内存管理文档；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Heap", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Heap", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Metaspace",
+      "termType": "WORD",
+      "domain": "JVM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˈmetəspeɪs/",
+      "ipaUk": "/ˈmetəspeɪs/",
+      "meaningCn": "元空间",
+      "definitionCn": "JDK 8 起用于存放类元数据的本地内存区域，取代永久代。元空间默认不设上限，类加载器泄漏会导致其持续增长。",
+      "exampleEn": "A plugin reload leak kept growing Metaspace until the container hit its memory limit.",
+      "exampleCn": "插件热重载泄漏让元空间持续增长，直到容器触达内存上限。",
+      "aliases": ["元空间", "Metaspace"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "OpenJDK 17 HotSpot 内存管理文档；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Metaspace", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Metaspace", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "AQS",
+      "termType": "ACRONYM",
+      "domain": "CONCURRENCY",
+      "senseKey": "java-concurrency",
+      "fullForm": "AbstractQueuedSynchronizer",
+      "className": "java.util.concurrent.locks.AbstractQueuedSynchronizer",
+      "meaningCn": "抽象队列同步器",
+      "definitionCn": "java.util.concurrent 中的同步框架：用一个 volatile 状态变量表示同步状态，并用 CLH 变体队列管理阻塞线程。ReentrantLock、CountDownLatch、Semaphore 等都基于 AQS 实现。",
+      "definitionEn": "A framework for building locks and synchronizers on a single volatile state plus a CLH-style wait queue.",
+      "wordBreakdown": [
+        {"word": "Abstract", "meaningCn": "抽象的"},
+        {"word": "Queued", "meaningCn": "排队的"},
+        {"word": "Synchronizer", "meaningCn": "同步器"}
+      ],
+      "exampleEn": "ReentrantLock delegates its lock and unlock logic to a subclass of AQS.",
+      "exampleCn": "ReentrantLock 把加锁与解锁逻辑委托给 AQS 的子类。",
+      "aliases": ["抽象队列同步器", "并发,同步器"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "OpenJDK 17 AbstractQueuedSynchronizer Javadoc；缩写读法为逐字母读法，需人工复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "A Q S", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Abstract Queued Synchronizer", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "CAS", "targetDomain": "CONCURRENCY", "relationType": "RELATED"},
+        {"targetHeadword": "Semaphore", "targetDomain": "CONCURRENCY", "relationType": "RELATED"},
+        {"targetHeadword": "Contention", "targetDomain": "CONCURRENCY", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "CAS",
+      "termType": "ACRONYM",
+      "domain": "CONCURRENCY",
+      "senseKey": "java-concurrency",
+      "fullForm": "Compare-And-Swap",
+      "meaningCn": "比较并交换",
+      "definitionCn": "一种无锁原子指令：仅当内存值等于期望值时才写入新值，否则失败重试。Java 通过 Unsafe 与原子类暴露 CAS，需注意 ABA 问题与自旋开销。",
+      "wordBreakdown": [
+        {"word": "Compare", "meaningCn": "比较"},
+        {"word": "And", "meaningCn": "与"},
+        {"word": "Swap", "meaningCn": "交换"}
+      ],
+      "exampleEn": "The counter uses CAS in a retry loop instead of taking a lock.",
+      "exampleCn": "计数器用 CAS 重试循环代替加锁。",
+      "aliases": ["比较并交换", "无锁,原子操作"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "OpenJDK 17 java.util.concurrent.atomic 文档；缩写读法为逐字母读法，需人工复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "C A S", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Compare And Swap", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [{"targetHeadword": "Volatile", "targetDomain": "CONCURRENCY", "relationType": "RELATED"}]
+    },
+    {
+      "headword": "Deadlock",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "java-concurrency",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˈdedlɑːk/",
+      "ipaUk": "/ˈdedlɒk/",
+      "meaningCn": "死锁（并发）",
+      "definitionCn": "两个或多个线程各自持有对方需要的锁，并永久等待的并发故障。常见规避手段包括固定加锁顺序、使用超时锁与缩小锁粒度。",
+      "exampleEn": "The two transfer threads deadlocked because they acquired the account locks in opposite order.",
+      "exampleCn": "两个转账线程以相反顺序获取账户锁，最终形成死锁。",
+      "aliases": ["死锁", "并发,锁"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "OpenJDK 17 java.util.concurrent 文档；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Deadlock", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Deadlock", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [{"targetHeadword": "Contention", "targetDomain": "CONCURRENCY", "relationType": "RELATED"}]
+    },
+    {
+      "headword": "Volatile",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "partOfSpeech": "adjective",
+      "ipaUs": "/ˈvɑːlətl/",
+      "ipaUk": "/ˈvɒlətaɪl/",
+      "meaningCn": "volatile 关键字（可见性与有序性）",
+      "definitionCn": "Java 关键字，保证变量写入对其他线程可见，并禁止相关指令重排，但不保证复合操作原子性。适合状态标志，不适合 count++ 这类读改写场景。",
+      "exampleEn": "The worker checks a volatile shutdown flag instead of polling a lock-protected field.",
+      "exampleCn": "工作线程读取 volatile 停止标志，而不是轮询受锁保护的字段。",
+      "aliases": ["可见性", "易失变量"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Language Specification §8.3.1.4；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Volatile", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Volatile", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Throughput",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˈθruːpʊt/",
+      "ipaUk": "/ˈθruːpʊt/",
+      "meaningCn": "吞吐量",
+      "definitionCn": "单位时间内系统成功处理的请求或任务数量。吞吐量与延迟通常需要权衡：批量处理能提升吞吐量，却可能增加单请求等待时间。",
+      "exampleEn": "Batching improved throughput but raised the p99 latency.",
+      "exampleCn": "批处理提升了吞吐量，却抬高了 p99 延迟。",
+      "aliases": ["吞吐量", "QPS"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "性能工程通用定义；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Throughput", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Throughput", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [{"targetHeadword": "Latency", "targetDomain": "CONCURRENCY", "relationType": "CONTRAST"}]
+    },
+    {
+      "headword": "Latency",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˈleɪtənsi/",
+      "ipaUk": "/ˈleɪtənsi/",
+      "meaningCn": "延迟",
+      "definitionCn": "单个请求从发出到收到响应所经历的时间。工程上通常关注平均值、p95 与 p99，尾延迟更能反映用户体验。",
+      "exampleEn": "The cache reduced average latency, but p99 stayed high under lock contention.",
+      "exampleCn": "缓存降低了平均延迟，但在锁竞争下 p99 仍然很高。",
+      "aliases": ["延迟", "响应时间"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "性能工程通用定义；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Latency", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Latency", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Semaphore",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˈseməfɔːr/",
+      "ipaUk": "/ˈseməfɔː(r)/",
+      "meaningCn": "信号量",
+      "definitionCn": "维护许可计数的同步工具，用于限制同时访问某类资源的线程数量。Java 的 Semaphore 基于 AQS 实现，支持公平与非公平模式。",
+      "exampleEn": "A semaphore with ten permits caps concurrent calls to the downstream API.",
+      "exampleCn": "一个持有十个许可的信号量把下游 API 的并发调用限制在十个以内。",
+      "aliases": ["信号量", "限流"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "OpenJDK 17 java.util.concurrent.Semaphore Javadoc；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Semaphore", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Semaphore", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Contention",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/kənˈtenʃn/",
+      "ipaUk": "/kənˈtenʃn/",
+      "meaningCn": "竞争（锁竞争）",
+      "definitionCn": "多个线程同时争用同一锁或资源而导致排队、上下文切换与性能下降的现象。降低锁粒度、分段锁与无锁结构都可以缓解竞争。",
+      "exampleEn": "High lock contention made the thread pool spend more time waiting than working.",
+      "exampleCn": "严重的锁竞争让线程池把更多时间花在等待而不是干活上。",
+      "aliases": ["锁竞争", "资源竞争"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "并发编程通用定义；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Contention", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Contention", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "IoC",
+      "termType": "ACRONYM",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "fullForm": "Inversion of Control",
+      "meaningCn": "控制反转",
+      "definitionCn": "把对象创建与依赖装配的控制权从业务代码转移到容器的设计思想。Spring 通过 ApplicationContext 管理 Bean 的定义、创建与生命周期。",
+      "wordBreakdown": [
+        {"word": "Inversion", "meaningCn": "反转"},
+        {"word": "of", "meaningCn": "的"},
+        {"word": "Control", "meaningCn": "控制"}
+      ],
+      "exampleEn": "With IoC, the service class no longer constructs its own repository.",
+      "exampleCn": "借助控制反转，服务类不再自己构造仓储对象。",
+      "aliases": ["控制反转", "Spring,容器"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference：The IoC Container；缩写读法需人工复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "I O C", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Inversion of Control", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [{"targetHeadword": "DI", "targetDomain": "SPRING", "relationType": "RELATED"}]
+    },
+    {
+      "headword": "DI",
+      "termType": "ACRONYM",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "fullForm": "Dependency Injection",
+      "meaningCn": "依赖注入",
+      "definitionCn": "控制反转的一种实现方式：容器把对象所需依赖通过构造器、Setter 或字段注入进来。构造器注入能保证依赖不可变并便于测试。",
+      "wordBreakdown": [
+        {"word": "Dependency", "meaningCn": "依赖"},
+        {"word": "Injection", "meaningCn": "注入"}
+      ],
+      "exampleEn": "Constructor injection makes the required dependencies explicit and the bean immutable.",
+      "exampleCn": "构造器注入让必需依赖显式化，并让 Bean 保持不可变。",
+      "aliases": ["依赖注入", "Spring,注入"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference：Dependency Injection；缩写读法需人工复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "D I", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Dependency Injection", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "AOP",
+      "termType": "ACRONYM",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "fullForm": "Aspect-Oriented Programming",
+      "meaningCn": "面向切面编程",
+      "definitionCn": "把事务、日志、权限等横切关注点抽成切面，并在运行时织入目标方法的编程范式。Spring AOP 默认基于 JDK 动态代理或 CGLIB 生成代理对象。",
+      "wordBreakdown": [
+        {"word": "Aspect", "meaningCn": "切面"},
+        {"word": "Oriented", "meaningCn": "面向"},
+        {"word": "Programming", "meaningCn": "编程"}
+      ],
+      "exampleEn": "AOP keeps logging out of every service method by wrapping them in a proxy.",
+      "exampleCn": "AOP 通过代理包装服务方法，把日志逻辑从每个方法里抽离出来。",
+      "aliases": ["面向切面", "切面编程"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference：Aspect Oriented Programming；缩写读法需人工复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "A O P", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Aspect Oriented Programming", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [{"targetHeadword": "Interceptor", "targetDomain": "SPRING", "relationType": "RELATED"}]
+    },
+    {
+      "headword": "Bean",
+      "termType": "WORD",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/biːn/",
+      "ipaUk": "/biːn/",
+      "meaningCn": "Bean（容器管理的对象）",
+      "definitionCn": "由 Spring 容器创建、装配和管理的对象。Bean 的作用域包括 singleton、prototype、request 等，默认是单例。",
+      "exampleEn": "The bean is a singleton, so it must not hold per-request state in instance fields.",
+      "exampleCn": "该 Bean 是单例，因此不能在实例字段里保存每次请求的状态。",
+      "aliases": ["Spring Bean", "容器对象"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference：Bean Overview；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Bean", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Bean", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Interceptor",
+      "termType": "WORD",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˌɪntərˈseptər/",
+      "ipaUk": "/ˌɪntəˈseptə(r)/",
+      "meaningCn": "拦截器",
+      "definitionCn": "在请求处理前后插入公共逻辑的组件。Spring MVC 的 HandlerInterceptor 可处理登录校验、耗时统计等，但不适合承载核心业务。",
+      "exampleEn": "The interceptor rejects requests without a valid token before the controller runs.",
+      "exampleCn": "拦截器在控制器执行前拒绝没有有效令牌的请求。",
+      "aliases": ["拦截器", "HandlerInterceptor"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference：HandlerInterceptor；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Interceptor", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Interceptor", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "MVCC",
+      "termType": "ACRONYM",
+      "domain": "DB",
+      "senseKey": "innodb",
+      "fullForm": "Multi-Version Concurrency Control",
+      "meaningCn": "多版本并发控制",
+      "definitionCn": "通过保存数据行的多个版本，让读操作读取一致性快照而不阻塞写操作。MySQL InnoDB 借助 undo log 与 ReadView 实现，隔离级别为 REPEATABLE READ 时默认使用快照读。",
+      "wordBreakdown": [
+        {"word": "Multi-Version", "meaningCn": "多版本"},
+        {"word": "Concurrency", "meaningCn": "并发"},
+        {"word": "Control", "meaningCn": "控制"}
+      ],
+      "exampleEn": "MVCC lets a long read query see a consistent snapshot without blocking writers.",
+      "exampleCn": "多版本并发控制让长读查询看到一致性快照，同时不阻塞写入。",
+      "aliases": ["多版本并发控制", "快照读"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual：InnoDB Multi-Versioning；缩写读法需人工复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "M V C C", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Multi Version Concurrency Control", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Isolation", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Transaction", "targetDomain": "DB", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Transaction",
+      "termType": "WORD",
+      "domain": "DB",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/trænˈzækʃn/",
+      "ipaUk": "/trænˈzækʃn/",
+      "meaningCn": "事务",
+      "definitionCn": "一组要么全部提交、要么全部回滚的数据库操作，需满足 ACID。长事务会放大锁持有时间与 undo 膨胀，应尽量缩短。",
+      "exampleEn": "The transfer runs in one transaction so that debiting and crediting cannot diverge.",
+      "exampleCn": "转账在同一个事务中执行，确保扣款与入账不会只成功一半。",
+      "aliases": ["事务", "ACID"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual：Transactions；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Transaction", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Transaction", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Isolation",
+      "termType": "WORD",
+      "domain": "DB",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˌaɪsəˈleɪʃn/",
+      "ipaUk": "/ˌaɪsəˈleɪʃn/",
+      "meaningCn": "隔离性 / 隔离级别",
+      "definitionCn": "事务 ACID 中的隔离性，决定并发事务之间可见性的程度。SQL 标准定义四级隔离；InnoDB 默认 REPEATABLE READ，并通过 MVCC 降低读写冲突。",
+      "exampleEn": "Raising the isolation level reduced anomalies but increased lock waits.",
+      "exampleCn": "提高隔离级别减少了异常现象，却增加了锁等待。",
+      "aliases": ["隔离级别", "隔离性"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual：InnoDB Transaction Isolation Levels；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Isolation", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Isolation", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Deadlock",
+      "termType": "WORD",
+      "domain": "DB",
+      "senseKey": "innodb-lock",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˈdedlɑːk/",
+      "ipaUk": "/ˈdedlɒk/",
+      "meaningCn": "死锁（数据库）",
+      "definitionCn": "两个或多个事务互相等待对方持有的锁而无法继续的现象。InnoDB 会自动检测死锁并回滚代价较小的事务，应用层应捕获错误并重试。",
+      "exampleEn": "InnoDB detected the deadlock and rolled back the transaction that had updated fewer rows.",
+      "exampleCn": "InnoDB 检测到死锁后，回滚了更新行数更少的事务。",
+      "aliases": ["数据库死锁", "锁等待"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual：Deadlocks；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Deadlock", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Deadlock", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [{"targetHeadword": "Transaction", "targetDomain": "DB", "relationType": "RELATED"}]
+    },
+    {
+      "headword": "Index",
+      "termType": "WORD",
+      "domain": "DB",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˈɪndeks/",
+      "ipaUk": "/ˈɪndeks/",
+      "meaningCn": "索引",
+      "definitionCn": "为加速查询而维护的数据结构，MySQL InnoDB 常用 B+ 树。索引能减少扫描行数，但会增加写入成本与存储占用，需要按真实查询设计。",
+      "exampleEn": "The composite index covers the filter and sort columns, so the query avoids a filesort.",
+      "exampleCn": "联合索引覆盖了过滤与排序列，查询因此避免了额外排序。",
+      "aliases": ["索引", "B+树"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual：Optimization and Indexes；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Index", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Index", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [{"targetHeadword": "Sharding", "targetDomain": "DB", "relationType": "RELATED"}]
+    },
+    {
+      "headword": "Sharding",
+      "termType": "WORD",
+      "domain": "DB",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˈʃɑːrdɪŋ/",
+      "ipaUk": "/ˈʃɑːdɪŋ/",
+      "meaningCn": "分片",
+      "definitionCn": "按分片键把数据水平拆分到多个库或表，以突破单库容量与写入瓶颈。分片会带来跨片查询、分布式事务与扩容迁移成本。",
+      "exampleEn": "Sharding by tenant id keeps each tenant's data on a single node.",
+      "exampleCn": "按租户 ID 分片可以让每个租户的数据只落在一个节点上。",
+      "aliases": ["分库分表", "水平拆分"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "分布式数据库通用定义；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Sharding", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Sharding", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Idempotent",
+      "termType": "WORD",
+      "domain": "DB",
+      "senseKey": "default",
+      "partOfSpeech": "adjective",
+      "ipaUs": "/ˌaɪdəmˈpoʊtənt/",
+      "ipaUk": "/ˌɪdəmˈpəʊtənt/",
+      "meaningCn": "幂等的",
+      "definitionCn": "同一操作执行一次与执行多次产生相同结果的特性。支付、消息消费与重试场景通常通过唯一业务键、去重表或状态机实现幂等。",
+      "exampleEn": "The payment callback is idempotent because it deduplicates on the order number.",
+      "exampleCn": "支付回调按订单号去重，因此是幂等的。",
+      "aliases": ["幂等", "重复执行"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "分布式系统通用定义；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Idempotent", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Idempotent", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Cache",
+      "termType": "WORD",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "partOfSpeech": "noun / verb",
+      "ipaUs": "/kæʃ/",
+      "ipaUk": "/kæʃ/",
+      "meaningCn": "缓存",
+      "definitionCn": "把高频访问的数据放在更快的存储层，以减少数据库或远程调用压力。设计缓存必须同时考虑命中率、过期策略、穿透、击穿与一致性。",
+      "exampleEn": "The read-through cache serves repeated product queries from memory.",
+      "exampleCn": "读穿透缓存把重复的商品查询直接由内存返回。",
+      "aliases": ["缓存", "Redis"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Redis 7 Documentation：Caching patterns；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Cache", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Cache", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Eviction", "targetDomain": "CACHE", "relationType": "RELATED"},
+        {"targetHeadword": "Serialization", "targetDomain": "CACHE", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Eviction",
+      "termType": "WORD",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ɪˈvɪkʃn/",
+      "ipaUk": "/ɪˈvɪkʃn/",
+      "meaningCn": "淘汰",
+      "definitionCn": "缓存容量达到上限或条目过期时移除数据的策略。常见策略有 LRU、LFU、TTL；策略选择错误会导致热数据被频繁淘汰、命中率下降。",
+      "exampleEn": "The cache used LRU eviction, so a scan workload pushed out the hot keys.",
+      "exampleCn": "缓存采用 LRU 淘汰，一次全表扫描就把热点键挤了出去。",
+      "aliases": ["淘汰策略", "LRU"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Redis 7 Documentation：Key eviction；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Eviction", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Eviction", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Serialization",
+      "termType": "WORD",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˌsɪriələˈzeɪʃn/",
+      "ipaUk": "/ˌsɪəriəlaɪˈzeɪʃn/",
+      "meaningCn": "序列化",
+      "definitionCn": "把对象转换为可存储或传输的字节序列，并在需要时反序列化还原。Java 原生序列化兼容性差且有安全风险，跨服务通常选择 JSON 或 Protobuf。",
+      "exampleEn": "We replaced Java serialization with JSON to keep cached values readable across versions.",
+      "exampleCn": "我们用 JSON 替换 Java 原生序列化，让缓存值在版本升级后仍然可读。",
+      "aliases": ["序列化", "反序列化"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Serialization 文档；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Serialization", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Serialization", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "MQ",
+      "termType": "ACRONYM",
+      "domain": "MQ",
+      "senseKey": "default",
+      "fullForm": "Message Queue",
+      "meaningCn": "消息队列",
+      "definitionCn": "在生产者和消费者之间异步传递消息的中间件，用于解耦、削峰与可靠投递。使用时必须处理重复消费、顺序性与消息堆积。",
+      "wordBreakdown": [
+        {"word": "Message", "meaningCn": "消息"},
+        {"word": "Queue", "meaningCn": "队列"}
+      ],
+      "exampleEn": "The order service publishes an event to the MQ and returns without waiting for inventory.",
+      "exampleCn": "订单服务把事件投递到消息队列后立即返回，不等待库存处理。",
+      "aliases": ["消息队列", "Kafka", "RabbitMQ"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka 与 RabbitMQ 官方文档；缩写读法需人工复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "M Q", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Message Queue", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [{"targetHeadword": "Backpressure", "targetDomain": "MQ", "relationType": "RELATED"}]
+    },
+    {
+      "headword": "Backpressure",
+      "termType": "WORD",
+      "domain": "MQ",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˈbækˌpreʃər/",
+      "ipaUk": "/ˈbækˌpreʃə(r)/",
+      "meaningCn": "背压",
+      "definitionCn": "下游处理能力不足时，向上游传递的限流或缓冲信号，避免无界队列与内存耗尽。响应式流与消息队列都提供背压或流控机制。",
+      "exampleEn": "Without backpressure, the consumer's in-memory queue grew until the process ran out of memory.",
+      "exampleCn": "没有背压时，消费者的内存队列不断增长，最终把进程撑到内存耗尽。",
+      "aliases": ["背压", "流控"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Reactive Streams 规范与 Kafka 消费流控文档；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Backpressure", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Backpressure", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "LLM",
+      "termType": "ACRONYM",
+      "domain": "LLM",
+      "senseKey": "default",
+      "fullForm": "Large Language Model",
+      "meaningCn": "大语言模型",
+      "definitionCn": "在海量文本上预训练、以预测下一个词元为目标的神经网络模型。LLM 具备生成、总结与推理能力，但输出仍可能幻觉，工程上需要检索增强与校验。",
+      "definitionEn": "A neural language model pretrained on large text corpora to predict the next token, capable of generation, summarization, and reasoning with residual hallucination risk.",
+      "wordBreakdown": [
+        {"word": "Large", "meaningCn": "大型的"},
+        {"word": "Language", "meaningCn": "语言"},
+        {"word": "Model", "meaningCn": "模型"}
+      ],
+      "exampleEn": "The LLM answered fluently, but the team still validated every number against the database.",
+      "exampleCn": "大语言模型回答得很流畅，但团队仍用数据库逐项核对每个数字。",
+      "aliases": ["大模型", "大语言模型"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "公开 LLM 综述与厂商模型文档；缩写读法需人工复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "L L M", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Large Language Model", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Token", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Embedding", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Prompt", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Hallucination", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "RAG", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Agent", "targetDomain": "AGENT", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Token",
+      "termType": "WORD",
+      "domain": "LLM",
+      "senseKey": "llm-text-unit",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˈtoʊkən/",
+      "ipaUk": "/ˈtəʊkən/",
+      "meaningCn": "词元 / Token",
+      "definitionCn": "模型处理文本的最小单位，可能对应一个词、子词或标点。上下文窗口长度与 API 计费通常都按 token 计算。",
+      "exampleEn": "The prompt exceeded the context window by a few hundred tokens.",
+      "exampleCn": "提示词超出上下文窗口几百个 token。",
+      "aliases": ["词元", "上下文窗口"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "主流 LLM 厂商 Tokenizer 文档；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Token", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Token", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Embedding",
+      "termType": "WORD",
+      "domain": "LLM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ɪmˈbedɪŋ/",
+      "ipaUk": "/ɪmˈbedɪŋ/",
+      "meaningCn": "嵌入向量",
+      "definitionCn": "把文本、图片等对象映射为稠密向量的表示，语义相近的对象在向量空间中距离更近。嵌入用于语义检索、聚类与推荐，需配合向量索引使用。",
+      "exampleEn": "The embedding model maps both queries and documents into the same vector space.",
+      "exampleCn": "嵌入模型把查询和文档映射到同一个向量空间。",
+      "aliases": ["向量化", "Embedding向量"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "RAG 与向量检索公开资料；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Embedding", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Embedding", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Prompt",
+      "termType": "WORD",
+      "domain": "LLM",
+      "senseKey": "default",
+      "partOfSpeech": "noun / verb",
+      "ipaUs": "/prɑːmpt/",
+      "ipaUk": "/prɒmpt/",
+      "meaningCn": "提示词",
+      "definitionCn": "输入给模型的指令与上下文。提示工程关注角色、任务、约束、示例与输出格式；提示无法替代事实校验与权限控制。",
+      "exampleEn": "The prompt specifies a JSON schema so the downstream parser can rely on the output shape.",
+      "exampleCn": "提示词要求输出 JSON 结构，下游解析器因此可以依赖固定形状。",
+      "aliases": ["提示词", "提示工程"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "主流 LLM 提示工程公开文档；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Prompt", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Prompt", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Hallucination",
+      "termType": "WORD",
+      "domain": "LLM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/həˌluːsɪˈneɪʃn/",
+      "ipaUk": "/həˌluːsɪˈneɪʃn/",
+      "meaningCn": "幻觉",
+      "definitionCn": "模型生成看似合理、语言流畅但与事实或给定材料不符的内容。常见缓解手段包括检索增强、引用约束、结构化输出与人工复核。",
+      "exampleEn": "The assistant's citation looked precise but was a hallucination.",
+      "exampleCn": "助手的引用看起来非常精确，实际上是幻觉。",
+      "aliases": ["模型幻觉", "事实错误"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "LLM 幻觉研究公开论文与综述；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Hallucination", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Hallucination", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "RAG",
+      "termType": "ACRONYM",
+      "domain": "RAG",
+      "senseKey": "default",
+      "fullForm": "Retrieval-Augmented Generation",
+      "meaningCn": "检索增强生成",
+      "definitionCn": "先检索外部知识，再把相关片段放入上下文让模型生成答案的架构。RAG 能缓解幻觉并支持私有数据，但效果取决于检索质量与片段组织。",
+      "definitionEn": "An architecture that retrieves relevant external knowledge before generation, reducing hallucination and enabling private data grounding.",
+      "wordBreakdown": [
+        {"word": "Retrieval", "meaningCn": "检索"},
+        {"word": "Augmented", "meaningCn": "增强的"},
+        {"word": "Generation", "meaningCn": "生成"}
+      ],
+      "exampleEn": "RAG grounded the answer in the internal runbook instead of relying on model memory.",
+      "exampleCn": "检索增强生成让答案基于内部运维手册，而不是依赖模型记忆。",
+      "aliases": ["检索增强", "检索增强生成"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Lewis et al., 2020, Retrieval-Augmented Generation (arXiv:2005.11401)；缩写读法需人工复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "R A G", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Retrieval Augmented Generation", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Retrieval", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Reranking", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "RRF", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Chunk", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Embedding", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Retrieval",
+      "termType": "WORD",
+      "domain": "RAG",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/rɪˈtriːvl/",
+      "ipaUk": "/rɪˈtriːvl/",
+      "meaningCn": "检索",
+      "definitionCn": "从知识库中找出与用户查询最相关的片段。常见方式包括关键词检索、向量检索与混合检索，召回率与精确率需要分别评估。",
+      "exampleEn": "Retrieval returned the right section, but the generator ignored it and answered from memory.",
+      "exampleCn": "检索返回了正确章节，但生成阶段忽略了它，凭记忆作答。",
+      "aliases": ["检索", "召回"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "信息检索与 RAG 公开资料；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Retrieval", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Retrieval", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [{"targetHeadword": "Reranking", "targetDomain": "RAG", "relationType": "RELATED"}]
+    },
+    {
+      "headword": "Reranking",
+      "termType": "WORD",
+      "domain": "RAG",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˌriːˈræŋkɪŋ/",
+      "ipaUk": "/ˌriːˈræŋkɪŋ/",
+      "meaningCn": "重排序",
+      "definitionCn": "对初步召回的结果使用更精细的模型重新打分排序，以提升最终上下文的相关性。重排序通常比向量检索更慢，只处理少量候选。",
+      "exampleEn": "Reranking moved the exact answer from rank twelve to rank one.",
+      "exampleCn": "重排序把准确答案从第十二位提到了第一位。",
+      "aliases": ["重排序", "Rerank"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "RAG 与交叉编码器公开资料；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Reranking", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Reranking", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "RRF",
+      "termType": "ACRONYM",
+      "domain": "RAG",
+      "senseKey": "default",
+      "fullForm": "Reciprocal Rank Fusion",
+      "meaningCn": "倒数排名融合",
+      "definitionCn": "把多路检索结果按各自排名的倒数相加来融合排序的算法，不依赖不同检索器的分数尺度，常用于混合检索。",
+      "wordBreakdown": [
+        {"word": "Reciprocal", "meaningCn": "倒数的"},
+        {"word": "Rank", "meaningCn": "排名"},
+        {"word": "Fusion", "meaningCn": "融合"}
+      ],
+      "exampleEn": "RRF combined the keyword and vector results without normalizing their scores.",
+      "exampleCn": "倒数排名融合把关键词与向量结果合并，无需归一化两路分数。",
+      "aliases": ["倒数排名融合", "混合检索"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Cormack et al., 2009, Reciprocal Rank Fusion；缩写读法需人工复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "R R F", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Reciprocal Rank Fusion", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [{"targetHeadword": "Reranking", "targetDomain": "RAG", "relationType": "RELATED"}]
+    },
+    {
+      "headword": "Chunk",
+      "termType": "WORD",
+      "domain": "RAG",
+      "senseKey": "default",
+      "partOfSpeech": "noun / verb",
+      "ipaUs": "/tʃʌŋk/",
+      "ipaUk": "/tʃʌŋk/",
+      "meaningCn": "分块 / 文本块",
+      "definitionCn": "把长文档切分为适合检索与放入上下文的小片段。块过大降低检索精度，块过小丢失上下文，通常结合重叠窗口与结构化切分。",
+      "exampleEn": "Chunking by heading kept each section self-contained for retrieval.",
+      "exampleCn": "按标题分块让每个章节在检索时保持语义完整。",
+      "aliases": ["分块", "文本块"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "RAG 工程公开实践；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Chunk", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Chunk", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "MCP",
+      "termType": "ACRONYM",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "fullForm": "Model Context Protocol",
+      "meaningCn": "模型上下文协议",
+      "definitionCn": "用于标准化模型与外部工具、数据源连接的开放协议。MCP 服务端暴露工具与资源，客户端把能力提供给模型，降低每个应用重复集成的成本。",
+      "wordBreakdown": [
+        {"word": "Model", "meaningCn": "模型"},
+        {"word": "Context", "meaningCn": "上下文"},
+        {"word": "Protocol", "meaningCn": "协议"}
+      ],
+      "exampleEn": "The IDE connects to the database through an MCP server instead of hard-coding a client.",
+      "exampleCn": "IDE 通过 MCP 服务端连接数据库，而不是为每个工具硬编码客户端。",
+      "aliases": ["模型上下文协议", "MCP Server"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Model Context Protocol 官方文档；缩写读法需人工复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "M C P", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Model Context Protocol", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [{"targetHeadword": "Tool Calling", "targetDomain": "AGENT", "relationType": "RELATED"}]
+    },
+    {
+      "headword": "Tool Calling",
+      "termType": "PHRASE",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "meaningCn": "工具调用",
+      "definitionCn": "模型输出结构化的工具调用请求，由宿主程序执行真实函数并把结果回传模型继续推理。权限、参数校验与超时必须由宿主控制，不能信任模型输出。",
+      "wordBreakdown": [
+        {"word": "Tool", "meaningCn": "工具"},
+        {"word": "Calling", "meaningCn": "调用"}
+      ],
+      "exampleEn": "Tool calling let the assistant query the order service instead of guessing the status.",
+      "exampleCn": "工具调用让助手直接查询订单服务，而不是猜测订单状态。",
+      "aliases": ["函数调用", "Function Calling"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "主流模型厂商 Tool Calling 文档；读法为整词连读，需人工复核",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Tool Calling", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Tool Calling", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ]
+    },
+    {
+      "headword": "Agent",
+      "termType": "WORD",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˈeɪdʒənt/",
+      "ipaUk": "/ˈeɪdʒənt/",
+      "meaningCn": "智能体",
+      "definitionCn": "能够规划步骤、调用工具、观察结果并迭代直到完成目标的主体。工程上需要限制工具权限、设置步数上限并保留可审计轨迹。",
+      "exampleEn": "The agent retried the failed deployment after reading the build logs.",
+      "exampleCn": "智能体读取构建日志后重试了失败的部署。",
+      "aliases": ["智能体", "AI Agent"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "AI Agent 公开综述与工程实践；音标为常见词典标注整理",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Agent", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Agent", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [{"targetHeadword": "Tool Calling", "targetDomain": "AGENT", "relationType": "RELATED"}]
+    }
+  ]
+}

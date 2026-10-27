@@ -12,6 +12,10 @@ public class ConversationVO {
 
     private Long id;
 
+    private Boolean pinned = false;
+
+    private Boolean archived = false;
+
     private String title;
 
     private Integer messageCount;

@@ -13,7 +13,6 @@ import com.knowflow.vo.TechGraphVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -47,17 +46,15 @@ public class KnowledgeController {
 
     @Operation(summary = "概念可视化图解（优先读缓存，未命中则 AI 生成并持久化）")
     @GetMapping("/concept-diagram")
-    public Result<ConceptDiagramVO> conceptDiagram(@RequestParam String concept,
-                                                    Authentication authentication) {
-        Long userId = authentication != null ? (Long) authentication.getPrincipal() : null;
+    public Result<ConceptDiagramVO> conceptDiagram(@RequestParam String concept) {
+        Long userId = SecurityUtils.getCurrentUserId();
         return Result.success(knowledgeService.getConceptDiagram(userId, concept));
     }
 
     @Operation(summary = "重新生成概念图解（删除旧缓存，AI 重新生成并持久化）")
     @PostMapping("/concept-diagram/regenerate")
-    public Result<ConceptDiagramVO> regenerateConceptDiagram(@RequestParam String concept,
-                                                              Authentication authentication) {
-        Long userId = authentication != null ? (Long) authentication.getPrincipal() : null;
+    public Result<ConceptDiagramVO> regenerateConceptDiagram(@RequestParam String concept) {
+        Long userId = SecurityUtils.getCurrentUserId();
         return Result.success(knowledgeService.regenerateConceptDiagram(userId, concept));
     }
 

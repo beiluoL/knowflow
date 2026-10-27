@@ -26,7 +26,7 @@
             v-model="searchKeyword"
             type="text"
             placeholder="搜索分类..."
-            class="search-input"
+            class="search-input kb-input kb-form-control"
           />
         </div>
       </div>
@@ -63,7 +63,7 @@
         </div>
 
         <div v-else class="empty-state">
-          <Icon name="folder-question" :size="32" class="empty-icon" />
+          <Icon name="help-circle" :size="32" class="empty-icon" />
           <p>暂无分类</p>
         </div>
       </section>
@@ -93,17 +93,10 @@
                 v-model="docSearchKeyword"
                 type="text"
                 placeholder="搜索文档..."
-                class="search-input"
+                class="search-input kb-input kb-form-control"
               />
             </div>
-            <select
-              v-model="sortBy"
-              class="sort-select"
-            >
-              <option value="latest">按时间排序</option>
-              <option value="hot">按热度排序</option>
-              <option value="name">按名称排序</option>
-            </select>
+            <Select v-model="sortBy" class="sort-control" aria-label="文档排序" variant="pill" :options="[{ value: 'latest', label: '按时间排序' }, { value: 'hot', label: '按热度排序' }, { value: 'name', label: '按名称排序' }]" />
           </div>
         </div>
 
@@ -154,6 +147,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import Select from '@/components/ui/Select.vue'
 import Icon from '@/components/ui/Icon.vue'
 import KnowledgeSidebar from '@/components/layout/KnowledgeSidebar.vue'
 import { categoriesApi, docsApi } from '@/api'
@@ -172,8 +166,8 @@ const docSearchKeyword = ref('')
 const sortBy = ref<'latest' | 'hot' | 'name'>('latest')
 const selectedCategoryId = ref<number | string>('')
 
-const categoryColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
-const docIconColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
+const categoryColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#8B5CF6']
+const docIconColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#8B5CF6']
 
 const iconOptions = ['code', 'server', 'database', 'brain', 'settings', 'git-branch', 'monitor', 'wifi', 'folder', 'layers', 'book-open', 'cpu', 'palette', 'briefcase', 'shield', 'message-square', 'target', 'bar-chart-2', 'bot', 'lock', 'layout', 'smartphone', 'container', 'binary', 'kanban', 'file-code']
 
@@ -405,27 +399,30 @@ watch(
   color: var(--kb-muted-foreground);
 }
 
-.search-input {
-  width: 100%;
+.search-input:not(.kb-form-control) {
   height: 36px;
-  padding-left: 36px;
-  padding-right: var(--kb-space-3);
   border-radius: 8px;
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
-  color: var(--kb-foreground);
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.search-input:hover {
+.search-input {
+  width: 100%;
+  padding-left: 36px;
+  padding-right: var(--kb-space-3);
+  font-size: var(--kb-fs-body-sm);
+  line-height: var(--kb-lh-body-sm);
+  color: var(--kb-foreground);
+}
+
+.search-input:not(.kb-form-control):hover {
   border-color: var(--kb-primary);
 }
 
-.search-input:focus,
-.search-input:focus-visible {
+.search-input:not(.kb-form-control):focus,
+.search-input:not(.kb-form-control):focus-visible {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
   outline: none;
@@ -492,42 +489,7 @@ watch(
   gap: var(--kb-space-3);
 }
 
-/* 排序下拉：对齐设计系统 .kb-select 的交互规格（hover 主色边框 + focus 主色高亮环） */
-.sort-select {
-  height: 36px;
-  padding: 0 28px 0 var(--kb-space-3);
-  border-radius: 8px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
-  color: var(--kb-foreground);
-  outline: none;
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right var(--kb-space-2) center;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.sort-select:hover {
-  border-color: var(--kb-primary);
-}
-
-.sort-select:active {
-  border-color: var(--kb-primary);
-}
-
-.sort-select:focus {
-  border-color: var(--kb-primary);
-  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
-}
-
-.sort-select:focus-visible {
-  outline: 2px solid var(--kb-ring);
-  outline-offset: 2px;
-}
+.sort-control { width:auto; min-width:10rem; }
 
 .back-btn {
   display: inline-flex;
@@ -864,7 +826,7 @@ watch(
     flex: 1;
     min-width: 0;
   }
-  .sort-select {
+  .sort-control {
     flex-shrink: 0;
   }
 }

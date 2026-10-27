@@ -65,7 +65,7 @@
                 name="username"
                 autocomplete="username"
                 placeholder="请输入邮箱或手机号"
-                class="form-input"
+                class="form-input kb-input kb-form-control"
               />
             </div>
           </div>
@@ -82,7 +82,7 @@
                 name="password"
                 autocomplete="current-password"
                 placeholder="请输入密码"
-                class="form-input"
+                class="form-input kb-input kb-form-control"
               />
               <button
                 type="button"
@@ -95,12 +95,9 @@
             </div>
           </div>
           <div class="form-row">
-            <label class="checkbox-label">
-              <input
-                v-model="loginForm.rememberMe"
-                type="checkbox"
-                class="custom-checkbox"
-              />
+            <label class="checkbox-label kb-checkbox-row">
+              <Checkbox as="span"
+                v-model="loginForm.rememberMe" />
               <span>记住我</span>
             </label>
             <button type="button" class="link-text">忘记密码?</button>
@@ -144,7 +141,7 @@
                 name="username"
                 autocomplete="username"
                 placeholder="请输入用户名"
-                class="form-input"
+                class="form-input kb-input kb-form-control"
               />
             </div>
           </div>
@@ -161,7 +158,7 @@
                 name="email"
                 autocomplete="email"
                 placeholder="请输入邮箱地址"
-                class="form-input"
+                class="form-input kb-input kb-form-control"
               />
             </div>
           </div>
@@ -178,7 +175,7 @@
                 name="new-password"
                 autocomplete="new-password"
                 placeholder="请设置密码（至少8位）"
-                class="form-input"
+                class="form-input kb-input kb-form-control"
               />
               <button
                 type="button"
@@ -203,7 +200,7 @@
                 name="confirm-password"
                 autocomplete="new-password"
                 placeholder="请再次输入密码"
-                class="form-input"
+                class="form-input kb-input kb-form-control"
               />
               <button
                 type="button"
@@ -215,12 +212,9 @@
               </button>
             </div>
           </div>
-          <label class="agreement-label">
-            <input
-              v-model="registerForm.agreed"
-              type="checkbox"
-              class="custom-checkbox"
-            />
+          <label class="agreement-label kb-checkbox-row">
+            <Checkbox as="span"
+              v-model="registerForm.agreed" />
             <span>
               我已阅读并同意
               <button type="button" class="link-text">服务协议</button>
@@ -246,11 +240,14 @@
 </template>
 
 <script setup lang="ts">
+import Checkbox from '@/components/ui/Checkbox.vue'
+
 import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import Icon from '@/components/ui/Icon.vue';
 import { getApiError, notify } from '@/utils/toast';
+import { createLoginDefaults } from '@/auth/login-defaults';
 
 const router = useRouter();
 const route = useRoute();
@@ -265,11 +262,7 @@ const showConfirmPassword = ref(false);
 
 const features = ['AI 智能问答', '个性化学习路径', '间隔重复记忆'];
 
-const loginForm = ref({
-  username: '',
-  password: '',
-  rememberMe: false,
-});
+const loginForm = ref(createLoginDefaults(import.meta.env.DEV));
 
 const registerForm = ref({
   username: '',
@@ -350,7 +343,7 @@ async function handleRegister(): Promise<void> {
   width: 55%;
   min-height: 100vh;
   padding: 60px 80px;
-  background: linear-gradient(145deg, var(--kb-primary) 0%, #4A7DE8 50%, #3B6FE0 100%);
+  background: linear-gradient(145deg, var(--kb-primary) 0%, #4A7DE8 50%, var(--kb-primary) 100%);
   overflow: hidden;
   animation: slideInLeft 0.8s ease-out;
 }
@@ -654,17 +647,20 @@ async function handleRegister(): Promise<void> {
   pointer-events: none;
 }
 
-.form-input {
-  width: 100%;
+.form-input:not(.kb-form-control) {
   height: 48px;
-  padding: 0 48px;
-  font-size: 15px;
   border-radius: var(--kb-radius-md);
   background: var(--kb-background);
   border: 1px solid var(--kb-border);
-  color: var(--kb-foreground);
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0 48px;
+  font-size: 15px;
+  color: var(--kb-foreground);
   font-family: inherit;
 }
 
@@ -672,12 +668,12 @@ async function handleRegister(): Promise<void> {
   color: var(--kb-muted-foreground);
 }
 
-.form-input:focus {
+.form-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.08);
 }
 
-.form-input:focus-visible {
+.form-input:not(.kb-form-control):focus-visible {
   outline: 2px solid var(--kb-primary);
   outline-offset: 2px;
 }
@@ -707,9 +703,9 @@ async function handleRegister(): Promise<void> {
 .checkbox-label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--kb-checkbox-gap);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   color: var(--kb-muted-foreground);
 }
 
@@ -859,10 +855,10 @@ async function handleRegister(): Promise<void> {
 
 .agreement-label {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  align-items: center;
+  gap: var(--kb-checkbox-gap);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   color: var(--kb-muted-foreground);
   line-height: 1.6;
   animation: fadeInUp 0.5s ease-out 0.75s both;

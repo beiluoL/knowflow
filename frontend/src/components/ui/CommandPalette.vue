@@ -26,7 +26,7 @@
         </div>
 
         <!-- 命令列表 -->
-        <div ref="listRef" class="kb-palette-list">
+        <div class="kb-palette-list">
           <template v-for="group in grouped" :key="group.key">
             <div class="kb-palette-group">{{ group.label }}</div>
             <button
@@ -70,7 +70,7 @@
 // F2：全局命令面板组件。
 // 视觉：全屏半透明遮罩 + 居中卡片；功能：模糊搜索 + 分组渲染 + 键盘导航 + 匹配高亮。
 // 由 App.vue 顶层挂载一次，状态来自 useCommandPalette，命令来自 useCommandRegistry。
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import { useCommandPalette } from '@/composables/useCommandPalette'
@@ -84,7 +84,6 @@ const { isOpen, query, close } = useCommandPalette()
 const { filter } = useCommandRegistry()
 
 const inputRef = ref<HTMLInputElement | null>(null)
-const listRef = ref<HTMLElement | null>(null)
 const activeId = ref<string>('')
 
 // 过滤后的命令列表
@@ -123,7 +122,25 @@ watch(isOpen, (v) => {
   if (v) {
     nextTick(() => inputRef.value?.focus())
     activeId.value = flatList.value[0]?.id || ''
+    window.addEventListener('keydown', onWindowKeydown)
+  } else {
+    window.removeEventListener('keydown', onWindowKeydown)
   }
+})
+
+/**
+ * Interaction OS（UI/UX 5.1）§十九：窗口级 Esc。
+ * 输入框的 @keydown 只在焦点位于 input 时生效；用户一旦用鼠标点过列表项，
+ * 焦点就移到了按钮上，此时 Esc 会失效。窗口级监听补上这个缺口。
+ */
+function onWindowKeydown(e: KeyboardEvent): void {
+  if (e.key !== 'Escape') return
+  e.preventDefault()
+  close()
+}
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onWindowKeydown)
 })
 
 // 查询变化时重置高亮到首项
@@ -154,6 +171,15 @@ function moveActive(delta: number): void {
 }
 
 function onKeydown(e: KeyboardEvent): void {
+  // Interaction OS（UI/UX 5.1）§十九：Esc 关闭。
+  // 此前只在页面上画了一个 <kbd>Esc</kbd> 提示、并只能鼠标点击关闭，
+  // 键盘用户按 Esc 完全没有反应（真实的交互缺陷，不是样式问题）。
+  if (e.key === 'Escape') {
+    e.preventDefault()
+    e.stopPropagation()
+    close()
+    return
+  }
   if (e.key === 'ArrowDown') {
     e.preventDefault()
     moveActive(1)

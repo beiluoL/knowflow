@@ -51,6 +51,7 @@ public class DocDetailVO {
 
     /** 当前登录用户是否已收藏该文档 */
     private Boolean favorite;
+    private Boolean canEdit;
 
     /** 当前用户阅读进度，0-100（百分比） */
     private java.math.BigDecimal readProgress;

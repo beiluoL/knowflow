@@ -149,7 +149,7 @@ public class HabitServiceImpl extends ServiceImpl<HabitMapper, Habit> implements
     private Habit owned(Long userId, Long id) {
         Habit h = this.getById(id);
         if (h == null || h.getDeleted() != null && h.getDeleted() == 1 || !userId.equals(h.getUserId())) {
-            throw new BusinessException("习惯不存在");
+            throw new BusinessException(404, "习惯不存在");
         }
         return h;
     }

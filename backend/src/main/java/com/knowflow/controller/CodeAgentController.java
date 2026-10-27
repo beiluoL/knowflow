@@ -95,6 +95,7 @@ public class CodeAgentController {
     private final AgentMessageMapper agentMessageMapper;
     private final AgentCallLogMapper agentCallLogMapper;
     private final AgentRuntimeService agentRuntimeService;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
 
     /** 异步执行流式对话，避免阻塞 Servlet 线程。 */
     private final ExecutorService agentExecutor = Executors.newCachedThreadPool(r -> {
@@ -227,7 +228,7 @@ public class CodeAgentController {
         final Long finalSessionId = sessionId;
         final String finalProvider = provider;
 
-        agentExecutor.submit(() -> {
+        agentExecutor.submit(hostGuard.wrapAuthenticated(() -> {
             try {
                 // 使用带运行时参数的 streamChat：流结束时自动回调，持久化 assistant 消息与调用日志
                 aiService.streamChat(systemPrompt, userPrompt, userId, dto.getConfigId(), emitter,
@@ -267,7 +268,7 @@ public class CodeAgentController {
                 sendEvent(emitter, "error", Map.of("error", "对话失败：" + e.getMessage()));
                 complete(emitter);
             }
-        });
+        }));
 
         emitter.onCompletion(() -> log.debug("Agent SSE 连接完成: userId={}", userId));
         emitter.onTimeout(() -> {
@@ -400,7 +401,7 @@ public class CodeAgentController {
         // 本次流关联的所有待确认 callId，用于流结束时清理，避免内存泄漏
         final List<String> confirmKeys = new CopyOnWriteArrayList<>();
 
-        agentExecutor.submit(() -> {
+        agentExecutor.submit(hostGuard.wrapAuthenticated(() -> {
             try {
                 String reply = agentRuntimeService.run(finalSessionId, userContent, userId, configId,
                         new AgentRuntimeService.AgentEventListener() {
@@ -474,7 +475,7 @@ public class CodeAgentController {
                 confirmKeys.forEach(pendingConfirms::remove);
                 complete(emitter);
             }
-        });
+        }));
 
         emitter.onTimeout(() -> {
             confirmKeys.forEach(pendingConfirms::remove);
@@ -779,7 +780,7 @@ public class CodeAgentController {
         return Result.success(vo);
     }
 
-    @Operation(summary = "执行代码（复用代码沙箱）")
+    @Operation(summary = "执行代码（可信本地开发宿主机执行，非 OS Sandbox）")
     @PostMapping("/execute")
     public Result<CodeRunResult> execute(@Valid @RequestBody CodeRunRequest request) {
         Long userId = SecurityUtils.getCurrentUserId();

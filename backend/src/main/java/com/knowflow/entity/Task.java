@@ -18,6 +18,10 @@ public class Task extends BaseEntity {
 
     private Long userId;
 
+    /** Server-owned provenance; confirmation metadata, not a second task system. */
+    private String learningPlanRef;
+    private String learningMetadata;
+
     /** 所属清单/项目 ID（task_list.id）；null 表示收件箱（Inbox）。 */
     private Long listId;
 

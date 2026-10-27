@@ -18,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 知识库成员业务服务实现。
@@ -94,19 +96,45 @@ public class KbMemberServiceImpl extends ServiceImpl<KbMemberMapper, KbMember> i
         return getMember(categoryId, currentUserId) != null;
     }
 
+    @Override
+    public Set<Long> listViewableCategoryIds(Long currentUserId) {
+        if (currentUserId == null) {
+            return Set.of();
+        }
+        if (isAdminUser(currentUserId)) {
+            return Set.of();
+        }
+        return this.list(new LambdaQueryWrapper<KbMember>()
+                        .eq(KbMember::getUserId, currentUserId)
+                        .eq(KbMember::getStatus, KbMember.STATUS_ACTIVE))
+                .stream()
+                .map(KbMember::getCategoryId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean canViewAll(Long currentUserId) {
+        return isAdminUser(currentUserId);
+    }
+
     /**
      * 判断指定用户是否为系统管理员。
      * <p>
-     * 优先通过 userId 查询 sys_user.role 判断，避免依赖 {@link SecurityContextHolder}。
-     * 因为 SSE 等异步场景中 {@link SecurityContextHolder} 默认使用 ThreadLocal，
+     * 仅当指定用户与认证主体一致时复用认证角色；其他用户通过 sys_user.role 判断。
+     * 因为 SSE 等异步场景中 SecurityContextHolder 默认使用 ThreadLocal，
      * 主线程的安全上下文不会传递到异步线程，导致 {@link SecurityUtils#isAdmin()} 失效。
      *
      * @param currentUserId 当前用户 ID（可为 null）
      * @return 如果用户角色为 ADMIN 则返回 true
      */
     private boolean isAdminUser(Long currentUserId) {
-        // 兜底：主线程场景下优先使用 SecurityContext（避免额外查库）
-        if (SecurityUtils.isAdmin()) {
+        // 匿名/公开性探测不能继承当前请求的管理员权限。
+        if (currentUserId == null) {
+            return false;
+        }
+        // 仅复用正在检查的同一主体，不能把管理员权限赋给其他用户。
+        if (Objects.equals(currentUserId, SecurityUtils.getCurrentUserIdNullable()) && SecurityUtils.isAdmin()) {
             return true;
         }
         // 异步线程场景：通过 userId 查询 sys_user.role
@@ -159,7 +187,7 @@ public class KbMemberServiceImpl extends ServiceImpl<KbMemberMapper, KbMember> i
         // ============ 直接添加已注册用户 ============
         SysUser user = sysUserMapper.selectById(userId);
         if (user == null) {
-            throw new BusinessException("用户不存在");
+            throw new BusinessException(404, "用户不存在");
         }
         KbMember existing = getMember(categoryId, userId);
         if (existing != null) {
@@ -187,11 +215,11 @@ public class KbMemberServiceImpl extends ServiceImpl<KbMemberMapper, KbMember> i
         }
         KbMember target = this.getById(memberId);
         if (target == null) {
-            throw new BusinessException("成员记录不存在");
+            throw new BusinessException(404, "成员记录不存在");
         }
         // 操作人必须是该知识库 Owner 或系统 ADMIN
         if (!isOwner(target.getCategoryId(), operatorUserId)) {
-            throw new BusinessException("无权修改成员角色");
+            throw new BusinessException(403, "无权修改成员角色");
         }
         // 不能把最后一个 Owner 降级（防止孤立知识库）
         if (KbMember.ROLE_OWNER.equals(target.getRole()) && !KbMember.ROLE_OWNER.equals(newRole)) {
@@ -214,10 +242,10 @@ public class KbMemberServiceImpl extends ServiceImpl<KbMemberMapper, KbMember> i
         }
         KbMember target = this.getById(memberId);
         if (target == null) {
-            throw new BusinessException("成员记录不存在");
+            throw new BusinessException(404, "成员记录不存在");
         }
         if (!isOwner(target.getCategoryId(), operatorUserId)) {
-            throw new BusinessException("无权移除成员");
+            throw new BusinessException(403, "无权移除成员");
         }
         // 禁止 Owner 移除自己（避免孤立知识库）
         if (operatorUserId != null && operatorUserId.equals(target.getUserId())

@@ -52,7 +52,7 @@ const render = async () => {
         themeVariables: {
           primaryColor: '#e8f0fe',
           primaryTextColor: '#1e293b',
-          primaryBorderColor: '#3b6fe0',
+          primaryBorderColor: 'var(--kb-primary)',
           lineColor: '#94a3b8',
           fontFamily: 'inherit',
           fontSize: '14px',

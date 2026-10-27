@@ -2,7 +2,7 @@
   <div class="certificate-page">
     <!-- 顶部操作栏 -->
     <div class="page-header">
-      <button type="button" class="back-btn" @click="router.back()">
+      <button type="button" class="back-btn" @click="nav.goBack()">
         <Icon name="arrow-left" :size="16" />
         <span>返回</span>
       </button>
@@ -58,7 +58,7 @@
           v-model="verifyNo"
           type="text"
           placeholder="输入证书验证码（如 KC-20260731-1234）"
-          class="verify-input"
+          class="verify-input kb-input kb-form-control"
         />
         <button type="button" class="verify-btn" :disabled="verifying" @click="doVerify">
           <Icon name="shield" :size="16" />
@@ -82,14 +82,15 @@
  * 展示路径完成后自动颁发的数字证书，支持 canvas 生成证书图并下载 PNG，附带验证码核验功能。
  */
 import { ref, onMounted, nextTick } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
 import { learningApi } from '@/api';
 import { notify } from '@/utils/toast';
 import type { LearningCertificateVO } from '@/api/types';
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const route = useRoute();
-const router = useRouter();
+const nav = usePageNavigation()
 
 const certCanvas = ref<HTMLCanvasElement | null>(null);
 const cert = ref<LearningCertificateVO | null>(null);
@@ -97,8 +98,8 @@ const loading = ref(false);
 
 const CERT_W = 1200;
 const CERT_H = 850;
-const PRIMARY = '#3B6FE0';
-const ACCENT = '#10B981';
+const PRIMARY = 'var(--kb-primary)';
+const ACCENT = 'var(--kb-success)';
 
 const formatDate = (d?: string) => {
   if (!d) return '';
@@ -239,10 +240,15 @@ onMounted(loadCert);
 
 <style scoped>
 .certificate-page {
-  max-width: 1000px;
-  margin: 0 auto;
+  max-width: none;
+  margin-inline: 0;
   /* 4px 网格：小屏 16px，≥768px 恢复桌面 24px（等价 px-4 md:px-6） */
   padding: var(--kb-space-4);
+
+  width: 100%;
+  min-width: 0;
+  padding-inline: 0;
+  padding-top: 0;
 }
 @media (min-width: 768px) {
   .certificate-page {
@@ -368,7 +374,7 @@ onMounted(loadCert);
   color: var(--kb-muted-foreground);
 }
 .info-value {
-  /* 小屏防溢出：允许收缩换行而非撑破卡片 */
+  /* 小屏防溢出：允许收缩换行而非撑破卡片 */;
   min-width: 0;
   text-align: right;
   word-break: break-word;
@@ -396,6 +402,13 @@ onMounted(loadCert);
   flex-wrap: wrap;
   gap: var(--kb-space-3);
 }
+.verify-input:not(.kb-form-control) {
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
 .verify-input {
   flex: 1 1 240px;
   min-width: 0;
@@ -403,17 +416,12 @@ onMounted(loadCert);
   font-size: var(--kb-fs-body-md);
   line-height: var(--kb-lh-body-md);
   color: var(--kb-foreground);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: 8px;
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.verify-input:hover {
+.verify-input:not(.kb-form-control):hover {
   border-color: var(--kb-primary);
 }
-.verify-input:focus,
-.verify-input:focus-visible {
+.verify-input:not(.kb-form-control):focus,
+.verify-input:not(.kb-form-control):focus-visible {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }

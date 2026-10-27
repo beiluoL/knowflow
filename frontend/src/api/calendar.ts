@@ -17,7 +17,7 @@ export const MARK_COLORS: Record<DateMarkType, string> = {
 }
 
 /** 调休上班日（班）颜色。 */
-export const MARK_WORK_COLOR = '#F59E0B'
+export const MARK_WORK_COLOR = 'var(--kb-warning)'
 
 export interface DateMark {
   type: DateMarkType

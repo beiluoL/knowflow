@@ -1,0 +1,6 @@
+import {apiGet,apiPost} from './request'
+import type {PrivateQuestion,PrivateAttempt} from './privateQuiz'
+export interface Variant {knowledge:string;scenario:string;change:string;difficulty:string;basisQuote:string;ambiguity:string;question:PrivateQuestion}
+export interface VariantSet {id:number;sourceType:string;sourceId:number;parentVersion:string;version:number;state:string;quizId?:number;reviewStatus:string;generationSource:string;model:string;error?:string;variants?:Variant[];attempts?:PrivateAttempt[]}
+const root='/learning/question-variants'
+export const questionVariantApi={list:(sourceType:string,sourceId:number,questionIndex=0)=>apiGet<VariantSet[]>(root,{sourceType,sourceId,questionIndex}),generate:(input:{sourceType:string;sourceId:number;questionIndex:number;requestId:string})=>apiPost<VariantSet>(root,input,{timeout:90000}),confirm:(id:number,expectedVersion:number,variants:Variant[])=>apiPost<VariantSet>(`${root}/${id}/confirm`,{expectedVersion,variants}),begin:(id:number,requestId:string)=>apiPost<PrivateAttempt>(`${root}/${id}/attempts`,{requestId}),submit:(id:number,attemptId:number,answers:string[])=>apiPost<PrivateAttempt>(`${root}/${id}/submit`,{attemptId,answers})}

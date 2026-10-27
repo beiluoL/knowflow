@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, computed, ref } from 'vue'
+import Select from '@/components/ui/Select.vue'
 import Icon from '@/components/ui/Icon.vue'
 import { useCalendarStore, type CalendarMode } from '@/stores/calendar'
 import type { CalendarEvent } from '@/api/calendar'
@@ -27,7 +28,7 @@ const memorialOpen = ref(false)
 /** 图例：四类日期标记 + 休/班（与后端颜色常量保持一致）。 */
 const legendItems = [
   { label: '休', color: '#E5484D', shape: 'badge' as const },
-  { label: '班', color: '#F59E0B', shape: 'badge' as const },
+  { label: '班', color: 'var(--kb-warning)', shape: 'badge' as const },
   { label: '传统节日', color: '#E11D48', shape: 'dot' as const },
   { label: '现代节日', color: '#0EA5E9', shape: 'dot' as const },
   { label: '纪念日', color: '#8B5CF6', shape: 'dot' as const },
@@ -166,23 +167,8 @@ onMounted(async () => {
         <!-- 过滤器 -->
         <div class="cal-filter">
           <Icon name="filter" :size="14" class="cal-filter-ic" />
-          <select
-            class="cal-select"
-            :value="store.filter.status ?? ''"
-            @change="store.setFilter({ status: ($event.target as HTMLSelectElement).value === '' ? null : Number(($event.target as HTMLSelectElement).value) })"
-          >
-            <option value="">全部状态</option>
-            <option value="0">待办</option>
-            <option value="1">已完成</option>
-          </select>
-          <select
-            class="cal-select"
-            :value="store.filter.listId ?? ''"
-            @change="store.setFilter({ listId: ($event.target as HTMLSelectElement).value === '' ? null : Number(($event.target as HTMLSelectElement).value) })"
-          >
-            <option value="">全部分类</option>
-            <option v-for="l in store.lists" :key="l.id" :value="l.id">{{ l.name }}</option>
-          </select>
+          <Select :model-value="store.filter.status" :options="[{ value: null, label: '全部状态' }, { value: 0, label: '待办' }, { value: 1, label: '已完成' }]" aria-label="任务状态" variant="pill" @update:model-value="store.setFilter({ status: $event })" />
+          <Select :model-value="store.filter.listId" :options="[{ value: null, label: '全部分类' }, ...store.lists.map(l => ({ value: l.id, label: l.name }))]" aria-label="任务分类" variant="pill" @update:model-value="store.setFilter({ listId: $event })" />
           <button
             v-if="store.filter.status !== null || store.filter.listId !== null"
             class="cal-reset"
@@ -279,7 +265,7 @@ onMounted(async () => {
   flex-wrap: wrap;
   padding: 6px 2px 10px;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--kb-muted-foreground);
 }
 .cal-legend-title {
   font-weight: 600;
@@ -394,7 +380,7 @@ onMounted(async () => {
   gap: 5px;
   border: none;
   background: transparent;
-  color: #6b7280;
+  color: var(--kb-muted-foreground);
   font-size: 13px;
   font-weight: 600;
   padding: 7px 13px;
@@ -441,8 +427,8 @@ onMounted(async () => {
   justify-content: center;
 }
 .cal-reset:hover {
-  color: #ef4444;
-  border-color: #fca5a5;
+  color: var(--kb-danger);
+  border-color: var(--kb-danger-tint);
 }
 .cal-main {
   flex: 1;

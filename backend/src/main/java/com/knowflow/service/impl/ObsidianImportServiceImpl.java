@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
 public class ObsidianImportServiceImpl implements ObsidianImportService {
 
     private final PathImportService pathImportService;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
     private final KnowledgeImportService knowledgeImportService;
     private final DocDocumentMapper docDocumentMapper;
     private final DocCategoryMapper docCategoryMapper;
@@ -49,6 +50,8 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
     private final LearningFlashcardMapper learningFlashcardMapper;
     private final QuizQuestionMapper quizQuestionMapper;
     private final ImportTemplateMapper importTemplateMapper;
+    private final com.knowflow.service.KbMemberService kbMemberService;
+    private final com.knowflow.security.DocumentAccessPolicy access;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /** 上传根目录（与 WebMvcConfig 的 /uploads 映射一致）。 */
@@ -68,6 +71,7 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
 
     @Override
     public PathImportScanVO scanFiles(List<String> filePaths) {
+        hostGuard.requireAccess();
         PathImportScanVO vo = new PathImportScanVO();
         vo.setRootName("文件选择");
         vo.setFile(true);
@@ -113,6 +117,8 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
      */
     private ObsidianImportResultVO doImport(ObsidianImportDTO dto, Long userId, String batchId,
                                            ImportProgressListener listener) {
+        hostGuard.requireActor(userId);
+        if(dto.getTargetCategoryId()!=null) access.requireEditCategory(dto.getTargetCategoryId(),userId);
         ObsidianImportResultVO result = new ObsidianImportResultVO();
         result.setGeneratedModules(new ArrayList<>());
 
@@ -140,7 +146,7 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
                 String extension = ext(f.getName());
                 if (extension.isEmpty()) continue;
                 String rel = f.getName(); // 单文件模式：相对路径即文件名
-                list.add(new LocalFileMultipartFile(f, rel));
+                list.add(new LocalFileMultipartFile(f, rel,hostGuard));
                 if ("md".equals(extension)) {
                     mdPaths.add(rel);
                     dirDocs.computeIfAbsent("", k -> new ArrayList<>()).add(rel);
@@ -173,7 +179,18 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
             try {
                 String batch = UUID().substring(0, 12);
                 String tempDir = prepareTempDir(absPath, batch);
-                files = pathImportService.collectFiles(tempDir);
+                // This directory is created by the server, never supplied by a client.
+                java.nio.file.Path prepared=java.nio.file.Path.of(tempDir).toRealPath();
+                try (var paths=Files.walk(prepared)) {
+                    List<MultipartFile> generated=new ArrayList<>();
+                    for (java.nio.file.Path p : paths.toList()) {
+                        if (!p.toRealPath().startsWith(prepared)) throw new BusinessException(403,"该目录不在允许访问范围");
+                        if (Files.isRegularFile(p)) generated.add(new LocalFileMultipartFile(p,prepared.relativize(p).toString()));
+                    }
+                    files=generated.toArray(new MultipartFile[0]);
+                }
+            } catch (BusinessException e) {
+                throw e;
             } catch (Exception e) {
                 log.error("目录预处理异常: {}", e.getMessage(), e);
                 if (listener != null) listener.onError("目录预处理失败：" + e.getMessage());
@@ -190,7 +207,9 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
             cat.setParentId(0L);
             cat.setStatus(1);
             cat.setSortOrder(10);
+            cat.setOwnerId(userId);
             docCategoryMapper.insert(cat);
+            kbMemberService.addMember(cat.getId(), userId, KbMember.ROLE_OWNER, null);
             categoryId = cat.getId();
             categoryName = cat.getName();
         } else {
@@ -207,6 +226,8 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
                         files, buildOptions(dto, categoryId), userId, batchId, listener);
                 result.setDocCount(ki != null ? ki.getSuccessCount() : 0);
                 result.getGeneratedModules().add("knowledge");
+            } catch (BusinessException e) {
+                throw e;
             } catch (Exception e) {
                 log.error("知识库导入异常: {}", e.getMessage(), e);
                 if (listener != null) listener.onError("知识库导入失败：" + e.getMessage());
@@ -220,7 +241,7 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
         List<Long> allDocIds = new ArrayList<>();
         if (!descendantCats.isEmpty()) {
             List<DocDocument> all = docDocumentMapper.selectList(
-                    new LambdaQueryWrapper<DocDocument>().in(DocDocument::getCategoryId, descendantCats));
+                    access.scope(new LambdaQueryWrapper<DocDocument>(),userId).in(DocDocument::getCategoryId, descendantCats));
             for (DocDocument d : all) {
                 catToDocIds.computeIfAbsent(d.getCategoryId(), k -> new ArrayList<>()).add(d.getId());
                 allDocIds.add(d.getId());
@@ -365,9 +386,11 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
     // ==================== 内部：图片兜底迁移 ====================
 
     private void collectImages(File dir, List<File> out) {
+        hostGuard.requireAllowed(dir.toPath());
         File[] children = dir.listFiles();
         if (children == null) return;
         for (File f : children) {
+            hostGuard.requireAllowed(f.toPath());
             if (f.isHidden()) continue;
             if (f.isDirectory()) collectImages(f, out);
             else if (IMG_EXT.contains(ext(f.getName()))) out.add(f);
@@ -384,24 +407,26 @@ public class ObsidianImportServiceImpl implements ObsidianImportService {
      */
     private String prepareTempDir(String absPath, String batch) throws Exception {
         File root = new File(absPath);
-        File temp = new File(System.getProperty("java.io.tmpdir"), "knowflow_obsidian_" + batch);
-        deleteDir(temp);
-        temp.mkdirs();
+        hostGuard.requireAllowed(root.toPath());
+        File temp = Files.createTempDirectory("knowflow-obsidian-").toFile();
         // 复制并改写 md
         rewriteMdDir(root, root, temp);
         // 平铺复制图片到临时根
         List<File> imgs = new ArrayList<>();
         collectImages(root, imgs);
         for (File img : imgs) {
+            hostGuard.requireAllowed(img.toPath());
             Files.copy(img.toPath(), new File(temp, img.getName()).toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
         return temp.getAbsolutePath();
     }
 
     private void rewriteMdDir(File root, File current, File tempTarget) throws Exception {
+        hostGuard.requireAllowed(current.toPath());
         File[] children = current.listFiles();
         if (children == null) return;
         for (File f : children) {
+            hostGuard.requireAllowed(f.toPath());
             if (f.isHidden()) continue;
             if (f.isDirectory()) {
                 File sub = new File(tempTarget, f.getName());

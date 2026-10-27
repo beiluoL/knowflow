@@ -1,0 +1,14 @@
+<template><section class="pg5-props"><p>{{entry.title}} · {{entry.name}}（本地设置）</p><details v-for="group in propGroups" :key="group.title" open><summary>{{group.title}}</summary><template v-for="p in group.props" :key="p.name"><Checkbox v-if="p.type==='boolean'" :model-value="!!settings[p.name]" :label="p.name" @update:model-value="$emit('update',p.name,$event)"/><Select v-else-if="p.options" :model-value="String(settings[p.name]??p.default)" :label="p.name" :options="p.options.map(value=>({value,label:value}))" @update:model-value="$emit('update',p.name,$event)"/><Input v-else :model-value="String(settings[p.name]??'')" :type="p.type==='number'?'number':'text'" :label="p.name" @update:model-value="$emit('update',p.name,p.type==='number'?Number($event):$event)"/></template></details><Button size="sm" variant="text" @click="copyProps">{{copyNotice}}</Button><Checkbox v-if="entry.name==='FormField'" :model-value="!!settings.singleColumn" label="singleColumn（展示布局）" @update:model-value="$emit('update','singleColumn',$event)"/><Checkbox v-if="['Dialog','Drawer','AppDialog','ConfirmDialog'].includes(entry.name)" :model-value="!!settings.longContent" label="longContent（Fixture）" @update:model-value="$emit('update','longContent',$event)"/><Checkbox v-if="entry.name==='Select'" :model-value="!!settings.empty" label="empty（Fixture）" @update:model-value="$emit('update','empty',$event)"/><p v-if="!entry.props.some(p=>p.editable)">使用画布中的本地交互；没有额外已支持参数。</p><Button size="sm" variant="secondary" @click="$emit('reset')">重置Props与本地状态</Button></section></template>
+<script setup lang="ts">
+import {computed,ref} from 'vue'
+import Checkbox from '@/components/ui/Checkbox.vue'
+import Select from '@/components/ui/Select.vue'
+import Input from '@/components/ui/Input.vue'
+import Button from '@/components/ui/Button.vue'
+import type {PlaygroundEntry} from './registry'
+const props=defineProps<{entry:PlaygroundEntry;settings:Record<string,unknown>}>();defineEmits<{update:[name:string,value:unknown];reset:[]}>()
+const copyNotice=ref('复制当前Props')
+const propGroups=computed(()=>[{title:'状态',props:props.entry.props.filter(p=>p.editable&&['disabled','readonly','loading','busy','error'].includes(p.name))},{title:'内容与外观',props:props.entry.props.filter(p=>p.editable&&!['disabled','readonly','loading','busy','error'].includes(p.name))}].filter(g=>g.props.length))
+async function copyProps(){try{await navigator.clipboard.writeText(JSON.stringify(Object.fromEntries(props.entry.props.map(p=>[p.name,props.settings[p.name]??p.default])),null,2));copyNotice.value='Props已复制'}catch{copyNotice.value='剪贴板不可用'}}
+</script>
+<style scoped>.pg5-props{display:grid;gap:var(--kb-space-4)}.pg5-props details> :not(summary){display:flex;margin-block-start:var(--kb-space-3)}.pg5-props summary{font-weight:var(--kb-fw-label)}</style>

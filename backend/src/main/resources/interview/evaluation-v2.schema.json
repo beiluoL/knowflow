@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "decision",
+    "reason",
+    "missingKnowledge",
+    "followupQuestion",
+    "targetDimension",
+    "evaluation"
+  ],
+  "properties": {
+    "decision": {
+      "type": "string",
+      "enum": [
+        "FOLLOW_UP",
+        "NEXT_QUESTION"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "missingKnowledge": {
+      "type": "array",
+      "maxItems": 5,
+      "items": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 12
+      }
+    },
+    "followupQuestion": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "targetDimension": {
+      "type": "string",
+      "enum": [
+        "TECHNICAL_CORRECTNESS",
+        "KNOWLEDGE_COVERAGE",
+        "ENGINEERING_PRACTICE",
+        "EXPRESSION_STRUCTURE",
+        "FOLLOWUP_RESPONSE"
+      ]
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dimensions",
+        "strengths",
+        "gaps",
+        "citations",
+        "suggestion",
+        "confidence",
+        "coveredKnowledge",
+        "errors"
+      ],
+      "properties": {
+        "dimensions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "TECHNICAL_CORRECTNESS",
+            "KNOWLEDGE_COVERAGE",
+            "ENGINEERING_PRACTICE",
+            "EXPRESSION_STRUCTURE",
+            "FOLLOWUP_RESPONSE"
+          ],
+          "properties": {
+            "TECHNICAL_CORRECTNESS": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 100
+            },
+            "KNOWLEDGE_COVERAGE": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 100
+            },
+            "ENGINEERING_PRACTICE": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 100
+            },
+            "EXPRESSION_STRUCTURE": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 100
+            },
+            "FOLLOWUP_RESPONSE": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 100
+            }
+          }
+        },
+        "strengths": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "gaps": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "citations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "suggestion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1500
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "coveredKnowledge": {
+          "type": "array",
+          "maxItems": 8,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "errors": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        }
+      }
+    }
+  }
+}

@@ -25,13 +25,14 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl extends ServiceImpl<DocCategoryMapper, DocCategory> implements CategoryService {
 
     private final DocDocumentMapper docDocumentMapper;
+    private final com.knowflow.security.DocumentAccessPolicy access;
 
     @Override
     public List<CategoryVO> getCategoryTree() {
         List<DocCategory> allCategories = this.list(new LambdaQueryWrapper<DocCategory>()
                 .eq(DocCategory::getStatus, 1)
                 .orderByAsc(DocCategory::getSortOrder));
-        return buildTree(allCategories);
+        return buildTree(allCategories.stream().filter(c->access.canReadCategory(c.getId(),access.actor())).toList());
     }
 
     @Override
@@ -75,7 +76,7 @@ public class CategoryServiceImpl extends ServiceImpl<DocCategoryMapper, DocCateg
         }
         DocCategory parent = this.getById(parentId);
         if (parent == null) {
-            throw new BusinessException("指定的父分类不存在");
+            throw new BusinessException(404, "指定的父分类不存在");
         }
         // 层级深度校验：从 parent 往上数祖先，最多 2 层（parent 算第 1 层，新建/更新后是第 2 层）
         // 即允许：顶级 → 一级子分类 → 二级子分类（共 3 级）

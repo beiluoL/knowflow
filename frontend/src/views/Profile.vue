@@ -82,6 +82,15 @@
                   去获取 EXP <Icon name="arrow-right" :size="12" />
                 </router-link>
               </div>
+              <!-- Architecture-2：钱包（Coin 与流水入口；余额来自后端 wallet，§98/§119） -->
+              <div class="flex items-center justify-between mt-3 pt-3 border-t text-xs" style="border-color: var(--kb-border);">
+                <span class="flex items-center gap-2 font-semibold" style="color: var(--kb-warning);">
+                  <Icon name="credit-card" :size="14" />{{ formatCoin(walletStore.wallet) }} Coin
+                </span>
+                <router-link to="/wallet" class="flex items-center gap-2 font-medium hover:opacity-80 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-primary)]" style="color: var(--kb-primary);">
+                  钱包与流水 <Icon name="arrow-right" :size="12" />
+                </router-link>
+              </div>
             </div>
           </div>
         </div>
@@ -355,24 +364,24 @@
         <div class="p-5 space-y-4">
           <div>
             <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">昵称</label>
-            <input v-model="settingsForm.nickname" type="text" name="nickname" autocomplete="nickname" class="kb-input" />
+            <input v-model="settingsForm.nickname" type="text" name="nickname" autocomplete="nickname" class="kb-input kb-form-control" />
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">用户名</label>
-            <input v-model="settingsForm.username" type="text" name="username" autocomplete="username" class="kb-input" disabled />
+            <input v-model="settingsForm.username" type="text" name="username" autocomplete="username" class="kb-input kb-form-control" disabled />
             <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">用户名不可修改</p>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">邮箱</label>
-            <input v-model="settingsForm.email" type="email" name="email" autocomplete="email" class="kb-input" />
+            <input v-model="settingsForm.email" type="email" name="email" autocomplete="email" class="kb-input kb-form-control" />
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">头像地址</label>
-            <input v-model="settingsForm.avatar" type="text" name="avatar" autocomplete="off" placeholder="https://…" class="kb-input" />
+            <input v-model="settingsForm.avatar" type="text" name="avatar" autocomplete="off" placeholder="https://…" class="kb-input kb-form-control" />
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">个人简介</label>
-            <textarea v-model="settingsForm.bio" rows="3" name="bio" autocomplete="off" class="kb-input" placeholder="介绍一下你自己…"></textarea>
+            <textarea v-model="settingsForm.bio" rows="3" name="bio" autocomplete="off" class="kb-input kb-textarea kb-form-control" placeholder="介绍一下你自己…"></textarea>
           </div>
         </div>
         <div class="flex justify-end gap-3 px-5 py-4" style="border-top: 1px solid var(--kb-border);">
@@ -394,9 +403,12 @@ import StatCard from '@/components/ui/StatCard.vue'
 import { notify } from '@/utils/toast'
 import { userApi, learningApi } from '@/api'
 import { useAuthStore } from '@/stores/auth'
+import { useWalletStore } from '@/stores/wallet'
+import { formatCoin } from '@/economy/format-balance'
 import type { UserVO, UserStatsVO, LearningCertificateVO } from '@/api/types'
 
 const auth = useAuthStore()
+const walletStore = useWalletStore()
 
 const user = ref<UserVO & Partial<UserStatsVO>>({
   id: 0,
@@ -538,9 +550,9 @@ interface Badge {
 
 // 成就徽章（含已解锁与未解锁）
 const badges = ref<Badge[]>([
-  { id: 1, label: '连续学习7天', icon: 'flame', gradient: 'linear-gradient(135deg, #F59E0B, #FBBF24)', unlocked: true, date: '2025-06-01 获得' },
-  { id: 2, label: '完成第一个路径', icon: 'map', gradient: 'linear-gradient(135deg, #3B6FE0, #6B9CFA)', unlocked: true, date: '2025-04-20 获得' },
-  { id: 3, label: '代码达人', icon: 'code', gradient: 'linear-gradient(135deg, #10B981, #34D399)', unlocked: true, date: '2025-05-10 获得' },
+  { id: 1, label: '连续学习7天', icon: 'flame', gradient: 'linear-gradient(135deg, var(--kb-warning), #FBBF24)', unlocked: true, date: '2025-06-01 获得' },
+  { id: 2, label: '完成第一个路径', icon: 'map', gradient: 'linear-gradient(135deg, var(--kb-primary), #6B9CFA)', unlocked: true, date: '2025-04-20 获得' },
+  { id: 3, label: '代码达人', icon: 'code', gradient: 'linear-gradient(135deg, var(--kb-success), #34D399)', unlocked: true, date: '2025-05-10 获得' },
   { id: 4, label: '知识大师', icon: 'lock', gradient: '', unlocked: false, date: '' },
 ])
 
@@ -615,19 +627,19 @@ const saveSettings = async () => {
 function buildActivities(stats: UserStatsVO): Activity[] {
   const list: Activity[] = []
   if ((stats.completedPaths ?? 0) > 0) {
-    list.push({ icon: 'check-circle', text: `完成了 ${stats.completedPaths} 个学习路径`, time: '累计', color: '#10B981' })
+    list.push({ icon: 'check-circle', text: `完成了 ${stats.completedPaths} 个学习路径`, time: '累计', color: 'var(--kb-success)' })
   }
   if ((stats.readDocsCount ?? 0) > 0) {
-    list.push({ icon: 'bookmark', text: `收藏/阅读了 ${stats.readDocsCount} 篇文档`, time: '累计', color: '#3B6FE0' })
+    list.push({ icon: 'bookmark', text: `收藏/阅读了 ${stats.readDocsCount} 篇文档`, time: '累计', color: 'var(--kb-primary)' })
   }
   if ((stats.streakDays ?? 0) > 0) {
-    list.push({ icon: 'flame', text: `连续打卡第 ${stats.streakDays} 天`, time: '今天', color: '#F59E0B' })
+    list.push({ icon: 'flame', text: `连续打卡第 ${stats.streakDays} 天`, time: '今天', color: 'var(--kb-warning)' })
   }
   if ((stats.totalFlashcards ?? 0) > 0) {
-    list.push({ icon: 'layers', text: `共学习了 ${stats.totalFlashcards} 张闪卡`, time: '累计', color: '#3B6FE0' })
+    list.push({ icon: 'layers', text: `共学习了 ${stats.totalFlashcards} 张闪卡`, time: '累计', color: 'var(--kb-primary)' })
   }
   if ((stats.totalStudyHours ?? 0) > 0) {
-    list.push({ icon: 'clock', text: `累计学习 ${stats.totalStudyHours} 小时`, time: '累计', color: '#3B6FE0' })
+    list.push({ icon: 'clock', text: `累计学习 ${stats.totalStudyHours} 小时`, time: '累计', color: 'var(--kb-primary)' })
   }
   return list.slice(0, 5)
 }
@@ -648,6 +660,7 @@ onUnmounted(() => {
 })
 
 onMounted(async () => {
+  void walletStore.fetchWallet(true) // Architecture-2：钱包余额（只读展示）
   try {
     const profile = await userApi.profile()
     user.value = { ...user.value, ...profile }
@@ -681,10 +694,10 @@ onMounted(async () => {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.kb-h2 { font-size: 22px; font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; color: var(--kb-foreground); }
-.kb-h3 { font-size: 18px; font-weight: 600; line-height: 1.4; color: var(--kb-foreground); }
-.kb-h4 { font-size: 15px; font-weight: 600; line-height: 1.45; color: var(--kb-foreground); }
-.kb-body { font-size: 14px; line-height: 1.6; color: var(--kb-card-foreground); }
+.kb-h2 { font-size: var(--kb-fs-h2); font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; color: var(--kb-foreground); }
+.kb-h3 { font-size: var(--kb-fs-h4); font-weight: 600; line-height: 1.4; color: var(--kb-foreground); }
+.kb-h4 { font-size: var(--kb-fs-body-emphasis); font-weight: 600; line-height: 1.45; color: var(--kb-foreground); }
+.kb-body { font-size: var(--kb-fs-body-md); line-height: 1.6; color: var(--kb-card-foreground); }
 
 .line-clamp-2 {
   display: -webkit-box;
@@ -796,7 +809,7 @@ onMounted(async () => {
 }
 
 .reward-name {
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 600;
   color: var(--kb-primary);
 }
@@ -813,7 +826,7 @@ onMounted(async () => {
   gap: 6px;
   padding: 4px 10px;
   border-radius: 9999px;
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   font-weight: 600;
 }
 .reward-chip.unlocked {
@@ -920,22 +933,25 @@ onMounted(async () => {
   to { transform: translateX(0); }
 }
 
-.kb-input {
-  width: 100%;
-  padding: 8px 12px;
-  font-size: 14px;
+.kb-input:not(.kb-form-control) {
   border: 1px solid var(--kb-border);
   border-radius: var(--kb-radius-sm);
   background: var(--kb-card);
-  color: var(--kb-foreground);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
-.kb-input:focus {
+
+.kb-input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: var(--kb-fs-body-md);
+  color: var(--kb-foreground);
+}
+.kb-input:not(.kb-form-control):focus {
   outline: none;
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
 }
-.kb-input:focus-visible {
+.kb-input:not(.kb-form-control):focus-visible {
   outline: 2px solid var(--kb-primary);
   outline-offset: 2px;
 }
@@ -951,7 +967,7 @@ onMounted(async () => {
   gap: 8px;
   padding: 8px 18px;
   border-radius: var(--kb-radius-sm);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 600;
   background: var(--kb-primary);
   color: var(--kb-primary-foreground);
@@ -969,7 +985,7 @@ onMounted(async () => {
   gap: 6px;
   padding: 8px 18px;
   border-radius: var(--kb-radius-sm);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 600;
   background: var(--kb-card);
   color: var(--kb-primary);

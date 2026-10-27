@@ -54,8 +54,6 @@ export function insertTextAtCursor(
 ): [number, number] {
   const start = textarea.selectionStart
   const end = textarea.selectionEnd
-  const before = textarea.value.slice(0, start)
-  const after = textarea.value.slice(end)
   // 通过 setRangeText 修改内容（会同步触发 v-model 更新）
   textarea.setRangeText(text, start, end, 'end')
   // setRangeText 使用 'end' 策略后光标在插入文本末尾，但 v-model 可能未同步，

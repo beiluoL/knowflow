@@ -1,6 +1,7 @@
 package com.knowflow.controller;
 
 import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.dto.UpdateProfileDTO;
 import com.knowflow.service.UserService;
 import com.knowflow.vo.UserStatsVO;
@@ -28,21 +29,21 @@ public class UserController {
     @Operation(summary = "个人资料")
     @GetMapping("/profile")
     public Result<UserVO> profile(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         return Result.success(userService.getCurrentUser(userId));
     }
 
     @Operation(summary = "更新个人资料")
     @PutMapping("/profile")
     public Result<UserVO> updateProfile(@Valid @RequestBody UpdateProfileDTO dto, Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         return Result.success(userService.updateProfile(userId, dto));
     }
 
     @Operation(summary = "学习统计")
     @GetMapping("/stats")
     public Result<UserStatsVO> stats(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         return Result.success(userService.getUserStats(userId));
     }
 }

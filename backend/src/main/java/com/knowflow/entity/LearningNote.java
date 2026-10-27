@@ -22,4 +22,20 @@ public class LearningNote extends BaseEntity {
     private String title;
     /** 笔记正文（Markdown） */
     private String content;
+    /** 工作台组织字段，仍与正文共享revision。 */
+    private Long folderId;
+    private Boolean favorite;
+    private Long sourceDocId;
+
+    /** 递增修订号；每次修改必须提交读取到的版本。 */
+    private Long revision;
+    /** 服务端计算的迁移指纹，同一用户内唯一。 */
+    private String importKey;
+    /** GENERAL 普通笔记 / CHAPTER 章节笔记。 */
+    private String sourceType;
+    private String contentFormat;
+    private String status;
+    private String tags;
+    /** 旧来源标题，仅作提示，不代表文档访问授权。 */
+    private String sourceTitle;
 }

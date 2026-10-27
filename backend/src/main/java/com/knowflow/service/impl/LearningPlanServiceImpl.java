@@ -48,6 +48,7 @@ public class LearningPlanServiceImpl implements LearningPlanService {
     private final LearningUserChapterMapper userChapterMapper;
     private final LearningTaskMapper learningTaskMapper;
     private final TaskMapper taskMapper;
+    private final com.knowflow.learning.actions.LearningWriteGuard completionGuard;
     private final HabitMapper habitMapper;
     private final HabitCheckInMapper habitCheckInMapper;
     private final UserLearningPrefMapper userLearningPrefMapper;
@@ -761,13 +762,16 @@ public class LearningPlanServiceImpl implements LearningPlanService {
         // 批量查状态
         Map<Long, Boolean> ltDone = new HashMap<>();
         if (!ltIds.isEmpty()) {
-            learningTaskMapper.selectBatchIds(ltIds).forEach(x ->
+            learningTaskMapper.selectBatchIds(ltIds).stream().filter(x -> userId.equals(x.getUserId())).forEach(x ->
                     ltDone.put(x.getId(), x.getStatus() != null && x.getStatus() == 1));
         }
         Map<Long, Boolean> taskDone = new HashMap<>();
+        Map<Long, com.knowflow.learning.actions.PlanModels.CompletionRequirement> requirements = new HashMap<>();
         if (!taskIds.isEmpty()) {
-            taskMapper.selectBatchIds(taskIds).forEach(x ->
-                    taskDone.put(x.getId(), x.getStatus() != null && x.getStatus() == 1));
+            taskMapper.selectBatchIds(taskIds).stream().filter(x -> userId.equals(x.getUserId())).forEach(x -> {
+                taskDone.put(x.getId(), x.getStatus() != null && x.getStatus() == 1);
+                if (x.getLearningMetadata() != null || x.getLearningPlanRef() != null) requirements.put(x.getId(), completionGuard.completionRequirement(x));
+            });
         }
         Map<Long, Boolean> habitDone = new HashMap<>();
         if (!habitIds.isEmpty()) {
@@ -787,7 +791,7 @@ public class LearningPlanServiceImpl implements LearningPlanService {
                 boolean done = Boolean.FALSE;
                 String t = i.getType();
                 if ("learningTask".equals(t)) done = ltDone.getOrDefault(i.getLearningTaskId(), Boolean.FALSE);
-                else if ("todo".equals(t)) done = taskDone.getOrDefault(i.getTaskId(), Boolean.FALSE);
+                else if ("todo".equals(t)) { done = taskDone.getOrDefault(i.getTaskId(), Boolean.FALSE); i.setCompletionRequirement(requirements.get(i.getTaskId())); }
                 else if ("habit".equals(t)) done = habitDone.getOrDefault(i.getHabitId(), Boolean.FALSE);
                 i.setCompleted(done);
                 if (done) completed++;

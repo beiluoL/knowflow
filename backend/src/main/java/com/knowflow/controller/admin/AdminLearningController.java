@@ -6,11 +6,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.common.PageResult;
 import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.entity.DocCategory;
 import com.knowflow.entity.DocDocument;
 import com.knowflow.entity.LearningChapter;
 import com.knowflow.entity.LearningFlashcard;
 import com.knowflow.entity.LearningPath;
+import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.DocCategoryMapper;
 import com.knowflow.mapper.DocDocumentMapper;
 import com.knowflow.mapper.LearningChapterMapper;
@@ -21,8 +23,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,13 +47,9 @@ public class AdminLearningController {
     private final AiService aiService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    /** 从 SecurityContext 获取当前用户 ID，未登录时返回 null。 */
+    /** 从 SecurityContext 获取当前用户 ID；未登录或 principal 异常时抛出 401。 */
     private Long getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof Long) {
-            return (Long) authentication.getPrincipal();
-        }
-        return null;
+        return SecurityUtils.getCurrentUserId();
     }
 
     // ===== 学习路径 =====
@@ -137,6 +133,13 @@ public class AdminLearningController {
     @Operation(summary = "新增闪卡")
     @PostMapping("/flashcards")
     public Result<LearningFlashcard> addFlashcard(@RequestBody LearningFlashcard flashcard) {
+        // P0-1b：learning_flashcard.user_id 为 NOT NULL，而管理端表单不携带 owner，
+        // 直接 insert 会撞 NOT NULL 约束。缺省归属当前登录管理员；
+        // 显式传入 userId 时尊重传入值（保留「代指定用户建卡」的集成用法）。
+        if (flashcard.getUserId() == null) {
+            Long userId = getCurrentUserId();
+            flashcard.setUserId(userId);
+        }
         flashcardMapper.insert(flashcard);
         return Result.success(flashcard);
     }
@@ -448,6 +451,8 @@ public class AdminLearningController {
                 + "章节列表：\n" + chapterInfo;
 
         Long userId = getCurrentUserId();
+        // P0-1b：userId 原先只用于 AI 调用记账，未落到闪卡上 ——
+        // learning_flashcard.user_id 为 NOT NULL，缺失会让整批插入失败。
         try {
             String aiResponse = aiService.complete(systemPrompt, userPrompt, null, userId);
             String json = aiResponse.trim();
@@ -461,6 +466,7 @@ public class AdminLearningController {
 
             for (Map<String, Object> card : cards) {
                 LearningFlashcard flashcard = new LearningFlashcard();
+                flashcard.setUserId(userId);
                 flashcard.setPathId(id);
                 Long chapterId = card.get("chapterId") != null ? ((Number) card.get("chapterId")).longValue() : null;
                 flashcard.setChapterId(chapterId);
@@ -468,6 +474,7 @@ public class AdminLearningController {
                 flashcard.setBack((String) card.getOrDefault("back", ""));
                 flashcard.setCategory(card.get("category") != null ? (String) card.get("category") : path.getTitle());
                 flashcard.setDifficulty(card.get("difficulty") != null ? ((Number) card.get("difficulty")).intValue() : 2);
+                flashcard.setSourceType("AI_DOC");
                 flashcard.setReviewCount(0);
                 flashcard.setReviewInterval(0);
                 flashcardMapper.insert(flashcard);
@@ -539,6 +546,7 @@ public class AdminLearningController {
         String userPrompt = "知识来源：" + sourceName + "\n\n知识内容：\n" + context;
 
         Long userId = getCurrentUserId();
+        // P0-1b：同 aiGenerateFlashcards —— userId 必须落到闪卡上（user_id NOT NULL）。
         try {
             String aiResponse = aiService.complete(systemPrompt, userPrompt, null, userId);
             String json = aiResponse.trim();
@@ -552,10 +560,14 @@ public class AdminLearningController {
 
             for (Map<String, Object> card : cards) {
                 LearningFlashcard flashcard = new LearningFlashcard();
+                flashcard.setUserId(userId);
+                flashcard.setDocId(docId);
+                flashcard.setCategoryId(categoryId);
                 flashcard.setFront((String) card.getOrDefault("front", ""));
                 flashcard.setBack((String) card.getOrDefault("back", ""));
                 flashcard.setCategory(card.get("category") != null ? (String) card.get("category") : sourceName);
                 flashcard.setDifficulty(card.get("difficulty") != null ? ((Number) card.get("difficulty")).intValue() : 2);
+                flashcard.setSourceType(docId != null ? "AI_DOC" : "AI_KB");
                 flashcard.setReviewCount(0);
                 flashcard.setReviewInterval(0);
                 flashcardMapper.insert(flashcard);

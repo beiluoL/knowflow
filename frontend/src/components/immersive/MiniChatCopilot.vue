@@ -39,7 +39,7 @@
         <div class="conv-row">
           <select
             v-model="activeConversationId"
-            class="conv-select focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="conv-select transition-colors kb-select kb-form-control"
             @change="handleConvChange"
           >
             <option :value="undefined">💬 临时会话（不保存）</option>
@@ -53,7 +53,7 @@
             type="button"
             class="conv-refresh focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             title="刷新会话列表"
-            @click="loadConversations"
+            @click="() => loadConversations()"
           >
             <Icon name="refresh-cw" :size="14" />
           </button>
@@ -86,7 +86,7 @@
         <footer class="copilot-input-row">
           <textarea
             v-model="inputText"
-            class="chat-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="chat-input transition-colors kb-textarea kb-form-control"
             rows="2"
             placeholder="Enter 发送 / Ctrl+Enter 换行"
             @keydown="handleInputKeydown"
@@ -374,19 +374,21 @@ onMounted(() => {
   padding: 10px 12px;
   border-bottom: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
 }
-.conv-select {
-  flex: 1;
+.conv-select:not(.kb-form-control) {
   height: 34px;
-  padding: 0 10px;
-  font-size: 12.5px;
-  color: var(--kb-foreground);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 9px;
   outline: none;
+}
+.conv-select {
+  flex: 1;
+  padding: 0 10px;
+  font-size: 12.5px;
+  color: var(--kb-foreground);
   cursor: pointer;
 }
-.conv-select:focus {
+.conv-select:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
 }
 .conv-refresh {
@@ -490,6 +492,13 @@ onMounted(() => {
   border-top: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
   background: var(--kb-bg-2, #1e293b);
 }
+.chat-input:not(.kb-form-control) {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.15s;
+}
 .chat-input {
   flex: 1;
   display: block;
@@ -498,15 +507,10 @@ onMounted(() => {
   line-height: 1.5;
   font-family: inherit;
   color: var(--kb-foreground);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
-  border-radius: 10px;
   resize: none;
-  outline: none;
-  transition: border-color 0.15s;
   max-height: 96px;
 }
-.chat-input:focus {
+.chat-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
 }
 .chat-input:disabled {

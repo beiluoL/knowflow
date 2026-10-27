@@ -1,0 +1,14 @@
+import java.util.*;
+public class HashContractRebuild {
+    static final class Mutable {
+        int id=1;
+        public int hashCode(){return id;}
+        public boolean equals(Object o){return o instanceof Mutable k && k.id==id;}
+    }
+    record Key(int id){}
+    public static void main(String[] args){
+        var key=new Mutable();var broken=new HashMap<Mutable,String>();broken.put(key,"saved");key.id=2;
+        System.out.println(broken.get(key));System.out.println(broken.size());
+        var stable=new HashMap<Key,String>();stable.put(new Key(1),"saved");System.out.println(stable.get(new Key(1)));
+    }
+}
