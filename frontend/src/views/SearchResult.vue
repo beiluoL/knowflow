@@ -5,26 +5,31 @@
     <div v-if="!hasSearched" class="search-hero">
       <h1 class="kb-h1 text-center">知识搜索</h1>
       <p class="hero-subtitle">输入关键词，在知识库中快速找到你需要的内容</p>
-      <div class="hero-search-box">
+      <form class="hero-search-box" role="search" :aria-busy="heroSubmitting" @submit.prevent="submitHeroSearch">
         <Icon name="search" :size="20" class="hero-search-icon" />
         <input
           v-model="searchQuery"
           type="text"
           placeholder="搜索知识库、文档、笔记..."
-          class="hero-search-input"
-          @keyup.enter="handleSearch"
+          class="hero-search-input kb-input kb-form-control"
+          @keydown.enter="handleHeroEnter"
+          @compositionstart="composing = true"
+          @compositionend="composing = false"
           aria-label="搜索"
         />
         <button
           v-if="searchQuery"
           class="hero-clear-btn"
+          type="button"
           @click="clearInput"
           aria-label="清空输入"
         >
           <Icon name="x" :size="16" />
         </button>
-        <button class="hero-search-btn" @click="handleSearch">搜索</button>
-      </div>
+        <button class="hero-search-btn" type="submit" :disabled="!searchQuery.trim() || heroSubmitting" >
+          {{ heroSubmitting ? '搜索中…' : '搜索' }}
+        </button>
+      </form>
       <!-- 热门搜索标签 -->
       <div class="hot-tags-grid">
         <button
@@ -49,8 +54,10 @@
             v-model="searchQuery"
             type="text"
             placeholder="输入关键词继续搜索..."
-            class="compact-search-input"
-            @keyup.enter="handleSearch"
+            class="compact-search-input kb-input kb-form-control"
+            @keydown.enter="handleSearch"
+            @compositionstart="composing = true"
+            @compositionend="composing = false"
             aria-label="搜索"
           />
           <button
@@ -65,53 +72,40 @@
         </div>
       </div>
 
+      <p v-if="searchQuery.trim() !== (route.query.q || '')" class="search-draft-hint" role="status" aria-live="polite">按 Enter 搜索当前关键词</p>
       <!-- 筛选栏：类型 | 时间 | 排序（设计稿 filter-btn 按钮组） -->
       <div class="filter-bar">
         <div class="filter-group">
-          <span class="filter-label">筛选：</span>
-          <button
-            v-for="tab in filterTabs"
-            :key="tab.key"
-            class="filter-btn"
-            :class="{ active: activeTab === tab.key }"
-            @click="activeTab = tab.key"
-          >
-            {{ tab.label }}
-          </button>
-          <span class="filter-divider" aria-hidden="true">|</span>
-          <button
-            v-for="opt in timeOptions"
-            :key="opt.key"
-            class="filter-btn"
-            :class="{ active: activeTime === opt.key }"
-            @click="activeTime = opt.key"
-          >
-            {{ opt.label }}
-          </button>
-          <span class="filter-divider" aria-hidden="true">|</span>
-          <button
-            v-for="opt in sortOptions"
-            :key="opt.key"
-            class="filter-btn"
-            :class="{ active: activeSort === opt.key }"
-            @click="activeSort = opt.key"
-          >
-            {{ opt.label }}
-          </button>
+          <label v-for="filter in filterControls" :key="filter.key" class="filter-control">
+            <span>{{ filter.label }}</span>
+            <Select
+              class="filter-select"
+              variant="pill"
+              :aria-label="filter.label"
+              :model-value="filter.value"
+              :options="filter.options.map(opt => ({ value: opt.key, label: opt.label }))"
+              @update:model-value="setFilter(filter.key, String($event))"
+            />
+          </label>
+          <button v-if="hasFilters || activeSort !== 'relevance'" class="filter-btn" @click="resetFilters">重置筛选</button>
         </div>
-        <span class="result-count">
-          找到 <strong>{{ totalCount }}</strong> 个结果
+        <span v-if="!loading && !searchError" class="result-count" role="status" aria-live="polite">
+          找到 <strong>{{ totalCount }}</strong> 个结果{{ relevanceCapped ? '（相关度优先展示最新 500 条候选，可改用「最新发布」查看更早结果）' : '' }}
         </span>
       </div>
 
       <!-- 加载态 -->
-      <div v-if="loading" class="state-area">
+      <div v-if="loading" class="state-area" role="status" aria-live="polite">
         <div class="loading-spinner"></div>
         <p class="state-text">搜索中...</p>
       </div>
 
+      <div v-else-if="searchError" class="state-area" role="alert">
+        <p class="state-title">搜索未完成</p><p class="state-text">{{ searchError }}</p>
+        <button class="filter-btn" @click="fetchPage(pageNum)">重试搜索</button>
+      </div>
       <!-- 无结果 -->
-      <div v-else-if="filteredResults.length === 0" class="state-area">
+      <div v-else-if="filteredResults.length === 0" class="state-area" role="status" aria-live="polite">
         <div class="empty-icon-box">
           <Icon name="file-question" :size="32" class="empty-icon" />
         </div>
@@ -121,12 +115,10 @@
 
       <!-- 搜索结果列表（设计稿：单容器分隔列表） -->
       <div v-else class="result-list">
-        <a
+        <article
           v-for="doc in pagedResults"
           :key="doc.id"
-          href="javascript:void(0)"
           class="result-item"
-          @click="goToDoc(doc.id)"
         >
           <!-- 顶部：类型徽标 + 分类 -->
           <div class="result-meta-top">
@@ -136,7 +128,7 @@
             <span class="result-category">{{ doc.categoryName || '未分类' }}</span>
           </div>
           <!-- 标题（含关键词高亮） -->
-          <h3 class="result-title" v-html="highlightKeyword(doc.title)"></h3>
+          <h3 class="result-title"><a :href="`/doc/${doc.id}`" @click="goToDoc(doc.id, $event)" v-html="highlightKeyword(doc.title)"></a></h3>
           <!-- 摘要（优先展示正文命中片段，含关键词高亮） -->
           <p
             class="result-summary"
@@ -145,15 +137,15 @@
           <!-- 底部：作者 + 日期 + 浏览数 + 收藏按钮 -->
           <div class="result-meta-bottom">
             <div class="result-meta-info">
-              <span class="meta-item">
+              <span v-if="doc.author && doc.author !== '未知'" class="meta-item">
                 <Icon name="user" :size="12" />
-                <span>{{ doc.author || '未知' }}</span>
+                <span>{{ doc.author }}</span>
               </span>
-              <span class="meta-item">
+              <span v-if="doc.createTime" class="meta-item">
                 <Icon name="calendar" :size="12" />
                 <span>{{ formatDate(doc.createTime) }}</span>
               </span>
-              <span class="meta-item">
+              <span v-if="doc.readCount != null" class="meta-item">
                 <Icon name="eye" :size="12" />
                 <span>{{ doc.readCount || 0 }} 次浏览</span>
               </span>
@@ -161,7 +153,8 @@
             <button
               class="result-favorite-btn"
               :class="{ active: isFavorited(doc) }"
-              @click.stop="toggleFavorite(doc)"
+              @click.stop.prevent="toggleFavorite(doc)"
+              :disabled="favoritePending.has(doc.id)"
               :aria-label="isFavorited(doc) ? '取消收藏' : '收藏'"
             >
               <Icon
@@ -171,7 +164,7 @@
               />
             </button>
           </div>
-        </a>
+        </article>
       </div>
 
       <!-- 分页器（设计稿 pagination-btn：32x32 方形按钮居中） -->
@@ -209,9 +202,11 @@
 
 <script setup lang="ts">
 // 搜索结果页：按关键词检索文档/笔记，支持类型/时间筛选、相关度/时间/阅读量排序、关键词高亮（XSS 防护）与收藏。
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onBeforeUnmount, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { searchSummary, highlightSearchText } from '@/utils/searchText';
 import Icon from '@/components/ui/Icon.vue';
+import Select from '@/components/ui/Select.vue';
 import { docsApi } from '@/api';
 import type { DocVO } from '@/api/types';
 import { useAuthStore } from '@/stores/auth';
@@ -223,6 +218,14 @@ const auth = useAuthStore();
 
 // ===== 状态 =====
 const searchQuery = ref('');
+const composing = ref(false);
+const heroSubmitting = ref(false);
+const searchError = ref('');
+/** 相关度排序在服务端只对最新 500 条候选打分；命中更多时由后端诚实截断 total，此处给出说明。 */
+const relevanceCapped = ref(false);
+const favoritePending = ref(new Set<number>());
+let requestVersion = 0;
+
 const activeTab = ref('all');
 const activeSort = ref('relevance');
 const activeTime = ref('all');
@@ -234,18 +237,24 @@ const favoritedIds = ref<Set<number>>(new Set());
 // 分页状态
 const pageNum = ref(1);
 const pageSize = ref(10);
-// 后端返回的总数
+// 后端返回的总数（类型/时间过滤已下推服务端，total 即过滤后的真实总数）
 const serverTotal = ref(0);
-// 类型/时间为纯前端筛选（后端无对应字段），排序已下推后端，不计入此判断
 const hasFilters = computed(() => activeTab.value !== 'all' || activeTime.value !== 'all');
+
+/** 相关度打分候选窗口大小（与后端 RELEVANCE_CANDIDATE_LIMIT 一致，仅用于提示文案）。 */
+const RELEVANCE_CANDIDATE_LIMIT = 500;
 
 // 热门搜索词
 const hotTags = ['Vue 3', 'TypeScript', 'React Hooks', '前端性能优化', '设计模式', '算法入门'];
 
-/** 前端筛选场景下单批拉取条数 */
-const BATCH_SIZE = 100;
-/** 前端筛选场景下最多加载的文档数，超出部分不再拉取以保护浏览器内存 */
-const MAX_CLIENT_FILTER_DOCS = 1000;
+/** 把时间筛选换算成服务端 ISO 日期下界（最近 7/30 天，含今天）。 */
+function timeRangeFrom(): string | undefined {
+  if (activeTime.value === 'all') return undefined;
+  const days = activeTime.value === 'week' ? 6 : 29;
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  return d.toISOString().slice(0, 10);
+}
 
 // 筛选项配置
 const filterTabs = computed(() => [
@@ -269,58 +278,18 @@ const sortOptions = [
   { key: 'view', label: '最多阅读' },
 ];
 
-// 仅做类型/时间的前端过滤；排序由后端完成，此处不再二次排序，
-// 否则会打乱后端的相关度（含语义召回）排名。
-const filteredResults = computed(() => {
-  let results = [...allResults.value];
+// 类型/时间过滤已全部下推服务端：当前页即服务端返回页，不再在浏览器内做本地过滤
+// （旧实现最多拉 1000 条本地过滤，会漏结果、total 不准、相关度排序深页为空）。
+const filteredResults = computed(() => allResults.value);
 
-  // 类型筛选：依据 tags 字段匹配
-  if (activeTab.value !== 'all') {
-    results = results.filter((d) => {
-      const tags = (d.tags || '').toLowerCase();
-      if (activeTab.value === 'pdf') return tags.includes('pdf');
-      if (activeTab.value === 'markdown') return tags.includes('markdown') || tags.includes('md');
-      if (activeTab.value === 'note') return tags.includes('笔记') || tags.includes('note');
-      if (activeTab.value === 'doc') return !tags.includes('笔记') && !tags.includes('note');
-      return true;
-    });
-  }
+// 总条数：始终以服务端 total 为准
+const totalCount = computed(() => serverTotal.value);
 
-  // 时间筛选：按 createTime 距今天数
-  if (activeTime.value !== 'all') {
-    const now = Date.now();
-    const days = activeTime.value === 'week' ? 7 : 30;
-    results = results.filter((d) => {
-      if (!d.createTime) return false;
-      return (now - new Date(d.createTime).getTime()) / 86400000 <= days;
-    });
-  }
+// 当前页数据：服务端已分页
+const pagedResults = computed(() => filteredResults.value);
 
-  return results;
-});
-
-// 总条数
-const totalCount = computed(() =>
-  hasFilters.value ? filteredResults.value.length : serverTotal.value,
-);
-
-// 当前页数据
-const pagedResults = computed(() => {
-  if (hasFilters.value) {
-    const start = (pageNum.value - 1) * pageSize.value;
-    return filteredResults.value.slice(start, start + pageSize.value);
-  }
-  // 无筛选：后端已分页，直接用 allResults
-  return filteredResults.value;
-});
-
-// 总页数
-const totalPages = computed(() => {
-  if (hasFilters.value) {
-    return Math.max(1, Math.ceil(filteredResults.value.length / pageSize.value));
-  }
-  return Math.max(1, Math.ceil(serverTotal.value / pageSize.value));
-});
+// 总页数：以服务端 total 为准
+const totalPages = computed(() => Math.max(1, Math.ceil(serverTotal.value / pageSize.value)));
 
 // 可见页码（带省略号，最多展示 5 个数字按钮）
 const visiblePages = computed(() => {
@@ -341,135 +310,110 @@ const visiblePages = computed(() => {
   return pages;
 });
 
-// 翻页：边界内才允许跳转。无前端筛选时需向后端请求对应页，有筛选时本地切片即可。
+// 翻页：始终请求服务端对应页（含类型/时间过滤参数）。
 function goToPage(p: number): void {
   if (p < 1 || p > totalPages.value || p === -1) return;
   pageNum.value = p;
-  if (!hasFilters.value && searchQuery.value.trim()) {
+  if (typeof route.query.q === 'string' && route.query.q.trim()) {
     fetchPage(p);
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ===== XSS 防护：先 HTML 转义再注入高亮标签 =====
-function escapeHtml(str: string): string {
-  return (str || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-/**
- * 关键词高亮：先整体 HTML 转义，再用字面量匹配包裹 <mark>。
- * 用 indexOf 循环而非动态正则，规避用户输入构造正则带来的 ReDoS 与转义遗漏风险。
- */
 function highlightKeyword(text: string): string {
-  const safe = escapeHtml(text || '');
-  const kw = escapeHtml(searchQuery.value.trim());
-  if (!kw) return safe;
-
-  const lowerSafe = safe.toLowerCase();
-  const lowerKw = kw.toLowerCase();
-  let result = '';
-  let cursor = 0;
-  let idx = lowerSafe.indexOf(lowerKw);
-  while (idx >= 0) {
-    result += safe.slice(cursor, idx);
-    result += `<mark class="kw-highlight">${safe.slice(idx, idx + kw.length)}</mark>`;
-    cursor = idx + kw.length;
-    idx = lowerSafe.indexOf(lowerKw, cursor);
-  }
-  return result + safe.slice(cursor);
+  return highlightSearchText(text, typeof route.query.q === 'string' ? route.query.q : '');
 }
-
-/** 摘要展示：优先用后端返回的正文命中片段，回退到文档摘要 */
-function getSummaryText(doc: DocVO): string {
-  return doc.highlight || doc.summary || '';
+function getSummaryText(doc: DocVO): string { return searchSummary(doc.highlight || doc.summary || ''); }
+function writeQuery(keyword = searchQuery.value.trim()) {
+  return router.push({ path: '/search', query: { q: keyword || undefined, type: activeTab.value === 'all' ? undefined : activeTab.value, time: activeTime.value === 'all' ? undefined : activeTime.value, sort: activeSort.value === 'relevance' ? undefined : activeSort.value } });
 }
-
-// ===== 搜索逻辑 =====
-async function doSearch(keyword: string): Promise<void> {
-  if (!keyword.trim()) {
-    allResults.value = [];
-    hasSearched.value = false;
-    return;
-  }
-  hasSearched.value = true;
-  pageNum.value = 1;
-  await fetchPage(1);
-  router.replace({ path: '/search', query: { q: keyword } });
+const filterControls = computed(() => [
+ {key: 'type', label: '类型', value: activeTab.value, options: filterTabs.value},
+ {key: 'time', label: '时间', value: activeTime.value, options: timeOptions},
+ {key: 'sort', label: '排序', value: activeSort.value, options: sortOptions},
+]);
+function setFilter(key: string, value: string) {
+ if (key === 'type') activeTab.value = value;
+ if (key === 'time') activeTime.value = value;
+ if (key === 'sort') activeSort.value = value;
+ writeQuery(typeof route.query.q === 'string' ? route.query.q : '');
 }
+function resetFilters() { activeTab.value = 'all'; activeTime.value = 'all'; activeSort.value = 'relevance'; writeQuery(typeof route.query.q === 'string' ? route.query.q : ''); }
 
 /**
- * 拉取搜索结果。
- * - 无前端筛选：走后端分页，每次只取当前页。
- * - 有前端筛选（类型/时间）：后端无对应字段，需拉全量再本地过滤。
- *   这里按 total 分批取完，避免旧实现「固定 pageSize=100 后本地切片」
- *   在结果超 100 条时静默丢弃数据、导致分页与计数失真的问题。
+ * 拉取搜索结果：始终走服务端分页与服务端过滤（类型/时间/排序全部下推），
+ * 每次只请求当前页，total/页数/翻页均以后端为准。
  */
 async function fetchPage(page: number): Promise<void> {
-  const keyword = searchQuery.value.trim();
+  const keyword = typeof route.query.q === 'string' ? route.query.q.trim() : '';
   if (!keyword) return;
+  const version = ++requestVersion;
+  searchError.value = '';
+  relevanceCapped.value = false;
   loading.value = true;
   try {
     const sort = activeSort.value as 'relevance' | 'time' | 'view';
-    if (!hasFilters.value) {
-      const res = await docsApi.list({ keyword, sort, pageNum: page, pageSize: pageSize.value });
-      allResults.value = res.records || [];
-      serverTotal.value = res.total || 0;
-    } else {
-      allResults.value = await fetchAllPages(keyword, sort);
-      serverTotal.value = allResults.value.length;
+    const params: Parameters<typeof docsApi.list>[0] = {
+      keyword,
+      sort,
+      pageNum: page,
+      pageSize: pageSize.value,
+    };
+    if (activeTab.value !== 'all') params.type = activeTab.value as 'doc' | 'pdf' | 'markdown' | 'note';
+    const from = timeRangeFrom();
+    if (from) params.from = from;
+    const res = await docsApi.list(params);
+    if (version !== requestVersion) return;
+    allResults.value = res.records || [];
+    serverTotal.value = res.total || 0;
+    relevanceCapped.value = sort === 'relevance' && serverTotal.value >= RELEVANCE_CANDIDATE_LIMIT;
+
+    if (auth.isLoggedIn) {
+      try {
+        const favorites = await docsApi.favorites();
+        if (version !== requestVersion) return;
+        favoritedIds.value = new Set(favorites.map(d => d.id));
+      } catch (e) {
+        if (version === requestVersion) notify(getApiError(e, '收藏状态加载失败'), 'error');
+      }
     }
-    favoritedIds.value = new Set(
-      allResults.value.filter((d) => d.favoriteCount && d.favoriteCount > 0).map((d) => d.id),
-    );
+
   } catch (e: unknown) {
+    if (version !== requestVersion) return;
+    searchError.value = getApiError(e, '搜索失败或网络超时，请重试');
     allResults.value = [];
     serverTotal.value = 0;
     notify(getApiError(e, '搜索失败，请稍后再试'), 'error');
   } finally {
-    loading.value = false;
+    if (version === requestVersion) loading.value = false;
   }
 }
 
-/** 分批拉取全部结果，上限 MAX_CLIENT_FILTER_DOCS 条，防止极端数据量拖垮浏览器 */
-async function fetchAllPages(
-  keyword: string,
-  sort: 'relevance' | 'time' | 'view',
-): Promise<DocVO[]> {
-  const first = await docsApi.list({ keyword, sort, pageNum: 1, pageSize: BATCH_SIZE });
-  const records = [...(first.records || [])];
-  const total = Math.min(first.total || 0, MAX_CLIENT_FILTER_DOCS);
-  const totalBatches = Math.ceil(total / BATCH_SIZE);
-  if (totalBatches <= 1) return records;
-
-  // 并发拉取剩余批次，缩短等待时间
-  const rest = await Promise.all(
-    Array.from({ length: totalBatches - 1 }, (_, i) =>
-      docsApi.list({ keyword, sort, pageNum: i + 2, pageSize: BATCH_SIZE }),
-    ),
-  );
-  rest.forEach((r) => records.push(...(r.records || [])));
-  return records.slice(0, MAX_CLIENT_FILTER_DOCS);
+// 首页使用原生表单提交；组合输入不触发导航，导航期间防止重复提交。
+async function submitHeroSearch(): Promise<void> {
+  const keyword = searchQuery.value.trim();
+  if (!keyword || composing.value || heroSubmitting.value) return;
+  heroSubmitting.value = true;
+  try { await writeQuery(keyword); }
+  catch (e: unknown) { notify(getApiError(e, '无法打开搜索结果，请重试'), 'error'); }
+  finally { heroSubmitting.value = false; }
+}
+function handleHeroEnter(event: KeyboardEvent): void {
+  if (composing.value || event.isComposing || event.keyCode === 229) return;
+  event.preventDefault();
+  void submitHeroSearch();
 }
 
-function handleSearch(): void {
-  doSearch(searchQuery.value);
+function handleSearch(event?: KeyboardEvent): void {
+  if (composing.value || event?.isComposing || event?.keyCode === 229) return;
+  writeQuery();
 }
+function searchTag(tag: string): void { searchQuery.value = tag; writeQuery(tag); }
+function clearInput(): void { searchQuery.value = ''; writeQuery(''); }
 
-function searchTag(tag: string): void {
-  searchQuery.value = tag;
-  doSearch(tag);
-}
-
-function clearInput(): void {
-  searchQuery.value = '';
-}
-
-function goToDoc(docId: number): void {
+function goToDoc(docId: number, event: MouseEvent): void {
+  if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
+  event.preventDefault();
   router.push(`/doc/${docId}`);
 }
 
@@ -495,18 +439,17 @@ function isFavorited(doc: DocVO): boolean {
   return favoritedIds.value.has(doc.id);
 }
 
-function toggleFavorite(doc: DocVO): void {
-  if (!auth.isLoggedIn) {
-    notify('请先登录', 'warning');
-    return;
-  }
-  if (favoritedIds.value.has(doc.id)) {
-    favoritedIds.value.delete(doc.id);
-    notify('已取消收藏', 'info');
-  } else {
-    favoritedIds.value.add(doc.id);
-    notify('已收藏', 'success');
-  }
+async function toggleFavorite(doc: DocVO): Promise<void> {
+  if (!auth.isLoggedIn) { notify('请先登录', 'warning'); return; }
+  if (favoritePending.value.has(doc.id)) return;
+  favoritePending.value.add(doc.id);
+  try {
+    await docsApi.toggleFavorite(doc.id);
+    const favorites = await docsApi.favorites();
+    favoritedIds.value = new Set(favorites.map(d => d.id));
+    notify(favoritedIds.value.has(doc.id) ? '已收藏' : '已取消收藏', 'success');
+  } catch (e) { notify(getApiError(e, '收藏失败，请重试'), 'error'); }
+  finally { favoritePending.value.delete(doc.id); }
 }
 
 // ===== 工具函数 =====
@@ -520,41 +463,29 @@ function formatDate(dateStr?: string): string {
   }).replace(/\//g, '-');
 }
 
-// ===== 生命周期 =====
-onMounted(async () => {
-  const query = route.query.q as string;
-  if (query) {
-    searchQuery.value = query;
-    await doSearch(query);
-  }
-});
-
-// 监听路由 query 变化（支持从其他页面跳转过来时自动搜索）
-watch(
-  () => route.query.q,
-  (newQ) => {
-    if (newQ && typeof newQ === 'string' && newQ !== searchQuery.value) {
-      searchQuery.value = newQ;
-      doSearch(newQ);
-    }
-  },
-);
-
-// 筛选/排序变化时重置到第一页重新拉取：
-// 排序已下推后端，类型/时间筛选会切换「后端分页 ↔ 全量本地过滤」策略，两者都需重新请求。
-watch([activeTab, activeTime, activeSort], () => {
-  if (hasSearched.value && searchQuery.value.trim()) {
-    pageNum.value = 1;
-    fetchPage(1);
-  }
-});
+// URL 是已提交查询的唯一入口；输入草稿不触发请求。
+watch(() => route.query, (query) => {
+  requestVersion++;
+  searchQuery.value = typeof query.q === 'string' ? query.q.trim() : '';
+  activeTab.value = filterTabs.value.some(o => o.key === query.type) ? String(query.type) : 'all';
+  activeTime.value = timeOptions.some(o => o.key === query.time) ? String(query.time) : 'all';
+  activeSort.value = sortOptions.some(o => o.key === query.sort) ? String(query.sort) : 'relevance';
+  pageNum.value = 1;
+  hasSearched.value = !!searchQuery.value;
+  allResults.value = []; serverTotal.value = 0; searchError.value = ''; loading.value = false;
+  if (hasSearched.value) fetchPage(1);
+}, { immediate: true });
+onBeforeUnmount(() => { requestVersion++; });
 </script>
 
 <style scoped>
 /* ===== 页面容器 ===== */
 .search-result-page {
-  max-width: 1000px;
-  margin: 0 auto;
+  max-width: none;
+  margin-inline: 0;
+
+  width: 100%;
+  min-width: 0;
 }
 
 .animate-fade-in {
@@ -581,41 +512,51 @@ watch([activeTab, activeTime, activeSort], () => {
 .hero-search-box {
   display: flex;
   align-items: stretch;
-  max-width: 640px;
+  height: var(--kb-search-hero-height);
+  width: 100%;
+  max-width: var(--kb-search-width);
   margin: 0 auto;
-  border-radius: var(--kb-radius-lg);
+  padding: 0;
+  gap: 0;
+  box-sizing: border-box;
+  border-radius: var(--kb-space-3);
   overflow: hidden;
-  border: 2px solid var(--kb-primary);
-  box-shadow: 0 8px 24px rgba(59, 111, 224, 0.1);
-  background: var(--kb-card);
-  transition: box-shadow 0.15s ease;
+  background: var(--kb-field-surface);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  border: 0;
 }
-/* 输入聚焦时整框给出反馈（输入框自身 outline: none） */
 .hero-search-box:focus-within {
-  box-shadow: 0 8px 24px rgba(59, 111, 224, 0.22);
+  background: var(--kb-field-active);
 }
 .hero-search-icon {
-  margin-left: 20px;
+  margin-inline: var(--kb-space-4) var(--kb-space-3);
   align-self: center;
   color: var(--kb-muted-foreground);
   flex-shrink: 0;
 }
-.hero-search-input {
+.hero-search-input:not(.kb-form-control),
+.hero-search-input:not(.kb-form-control):focus {
+  height: 100%;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  box-shadow: none;
+}
+.hero-search-input,
+.hero-search-input:focus {
   flex: 1;
   min-width: 0;
-  padding: 14px 16px;
-  font-size: 15px;
-  background: transparent;
-  border: none;
-  outline: none;
+  padding: 0;
+  font-size: var(--kb-fs-body-lg);
   color: var(--kb-foreground);
 }
 .hero-search-input::placeholder { color: var(--kb-muted-foreground); }
 .hero-clear-btn {
-  margin-right: 8px;
+  margin-inline: var(--kb-space-2);
   align-self: center;
-  width: 28px;
-  height: 28px;
+  width: var(--kb-space-8);
+  height: var(--kb-space-8);
   border-radius: 50%;
   background: transparent;
   border: none;
@@ -634,19 +575,26 @@ watch([activeTab, activeTime, activeSort], () => {
   outline-offset: 2px;
 }
 .hero-search-btn {
-  padding: 0 32px;
+  flex: 0 0 var(--kb-search-hero-button-width);
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
   background: var(--kb-primary);
   color: var(--kb-primary-foreground);
-  border: none;
   cursor: pointer;
-  flex-shrink: 0;
   white-space: nowrap;
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kb-fs-body-lg);
   font-weight: 500;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: background-color 0.15s ease;
 }
-.hero-search-btn:hover { opacity: 0.9; }
-.hero-search-btn:active { opacity: 0.85; transform: scale(0.98); }
+.hero-search-btn:hover:not(:disabled),
+.hero-search-btn:active:not(:disabled) { background: var(--kb-primary-hover); }
+.hero-search-btn:disabled { cursor: not-allowed; }
 /* 位于 overflow:hidden 的搜索框内，焦点环内缩避免被裁切 */
 .hero-search-btn:focus-visible {
   outline: 2px solid var(--kb-primary-foreground);
@@ -705,27 +653,27 @@ watch([activeTab, activeTime, activeSort], () => {
   gap: 12px;
   padding: 12px 20px;
   border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  box-shadow: var(--shadow-card);
+  background: var(--kb-field-surface);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  border: 0;
 }
 /* 输入聚焦时整框给出反馈（输入框自身 outline: none） */
 .compact-search-box:focus-within {
-  border-color: var(--kb-primary);
-  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
+  background: var(--kb-field-active);
 }
 .compact-search-icon {
   color: var(--kb-primary);
   flex-shrink: 0;
 }
+.compact-search-input:not(.kb-form-control) {
+  background: transparent;
+  border: none;
+  outline: none;
+}
 .compact-search-input {
   flex: 1;
   min-width: 0;
   font-size: 15px;
-  background: transparent;
-  border: none;
-  outline: none;
   color: var(--kb-foreground);
 }
 .compact-search-input::placeholder { color: var(--kb-muted-foreground); }
@@ -1064,7 +1012,32 @@ watch([activeTab, activeTime, activeSort], () => {
   .result-meta-bottom { flex-wrap: wrap; }
   /* 窄屏收紧内边距，避免内容贴边或横向溢出 */
   .search-hero { padding-top: 32px; padding-bottom: 48px; }
-  .compact-search-box { padding: 12px 16px; }
+  .compact-search-box { padding: 12px 16px; border: 0; }
   .result-item { padding: 16px; }
 }
+</style>
+
+<style scoped>
+.compact-search-box { height: var(--kb-search-height); padding: 0 var(--kb-space-4); border-radius: var(--kb-space-3); gap: var(--kb-space-3); border: 0; }
+.compact-search-box:focus-within { background: var(--kb-field-active); }
+.compact-search-wrap { max-width: var(--kb-search-width); margin-bottom: var(--kb-space-6); }
+.compact-search-input:not(.kb-form-control), .compact-search-input:not(.kb-form-control):focus { border: 0; box-shadow: none; outline: none; border-radius: 0; height: 100%; }
+.compact-search-input, .compact-search-input:focus { padding: 0; font-size: var(--kb-fs-body-lg); }
+.compact-clear-btn { display: inline-flex; align-items: center; justify-content: center; width: var(--kb-space-8); height: var(--kb-space-8); padding: 0; }
+.filter-control { display: flex; align-items: center; gap: var(--kb-space-2); font-size: var(--kb-fs-caption); color: var(--kb-muted-foreground); }
+.filter-control .filter-select { width: auto; min-width: 0; }
+.filter-group { gap: var(--kb-space-4); }
+.search-draft-hint { margin-block: var(--kb-space-2); color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption); }
+.result-summary { overflow-wrap: anywhere; }
+.result-item { position: relative; }
+.result-title a::after { content: ""; position: absolute; inset: 0; }
+.result-favorite-btn { position: relative; z-index: 1; width: var(--kb-space-8); height: var(--kb-space-8); }
+.filter-btn { min-height: var(--kb-search-filter-height); }
+.result-item:focus-within { outline: 2px solid var(--kb-ring); outline-offset: -2px; }
+:deep(.kw-highlight) { background: var(--kb-primary-soft); color: var(--kb-primary); }
+</style>
+
+<style scoped>
+.hero-search-box:has(input:focus-visible){outline:0}.hero-search-box input.kb-form-control,.hero-search-box input.kb-form-control:focus,.hero-search-box input.kb-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
+.compact-search-box:has(input:focus-visible){outline:0}.compact-search-box input.kb-form-control,.compact-search-box input.kb-form-control:focus,.compact-search-box input.kb-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
 </style>

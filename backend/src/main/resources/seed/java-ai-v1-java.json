@@ -1,0 +1,1901 @@
+{
+  "paths": [
+    {
+      "key": "java-core",
+      "title": "Java 核心与集合",
+      "description": "以Java17为运行基线，准确区分Java8实现细节，练习集合、泛型、IO与现代语言特性。",
+      "tag": "JAVA",
+      "chapters": [
+        {
+        "key": "java-core.hashmap",
+        "title": "HashMap：哈希、扩容与键契约",
+        "description": "围绕键的 equals/hashCode 契约、扩容位拆分、树化与线程安全边界解释原理、工程边界与追问。",
+        "objectives": [
+          "准确解释键的 equals/hashCode 契约并举出反例",
+          "准确解释扩容位拆分并举出反例",
+          "准确解释树化与线程安全边界并举出反例"
+        ],
+        "minutes": 35,
+        "difficulty": 2,
+        "importance": "S",
+        "prerequisites": [],
+        "material": "HashMap 的面试回答应从键契约开始：相等对象必须具有相同 hashCode，键放入后若改变参与 equals 的字段，查找可能失败。Java17 API 允许空键和空值，不保证遍历顺序，也不提供并发安全。默认负载因子为0.75，预估条目数时还要考虑容量取整和遍历成本，容量很大但条目很少同样会浪费时间。\n\n实现细节请明确版本：OpenJDK8 的扰动把高位信息混入低位，桶下标使用容量减一与哈希按位与；扩容到两倍时，旧桶中的节点按旧容量对应的哈希位分到原位置或原位置加旧容量。树化阈值是8，但容量小于64时优先扩容，不能把“第八个元素必然变树”当作结论；退化也与具体删除或分裂过程有关。\n\n工程中先选择稳定不可变的键，再依据预期规模配置初始容量。大量冲突会损伤吞吐，树桶缓解部分最坏情况却不替代良好哈希。fail-fast 只在尽力检测结构变化时抛异常，不能作为线程安全保证。并发读写应采用明确同步或并发容器，不能仅凭一次压测没有报错就认为安全。追问应解释散列冲突、equals比较和扩容的区别，并指出缓存无界增长属于容量治理问题，与容器是否能扩容无关。\n\n复习时自己构造哈希冲突键，比较正常散列和相同散列下的查找路径，把观察记录与源码条件逐项对应。\n\n参考（官方，适用版本已在正文说明）：\n- https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/HashMap.html\n- https://github.com/openjdk/jdk8u/blob/master/jdk/src/share/classes/java/util/HashMap.java",
+        "knowledge": [
+          {
+            "key": "java-core.hashmap.k1",
+            "name": "键的 equals/hashCode 契约",
+            "explanation": "键插入后改变等价字段会让新哈希定位到另一桶，旧节点仍在原桶。首先复现查找失败，再改用不可变键；不能把问题归咎于HashMap随机丢数据。"
+          },
+          {
+            "key": "java-core.hashmap.k2",
+            "name": "扩容位拆分",
+            "explanation": "容量为二次幂时，新掩码只比旧掩码多一位。缓存的哈希与旧容量按位与决定节点保持原位置或移动旧容量距离，仍需遍历与重建链接。"
+          },
+          {
+            "key": "java-core.hashmap.k3",
+            "name": "树化与线程安全边界",
+            "explanation": "不是。OpenJDK8在容量小于64时优先扩容；树化阈值只是实现条件的一部分。还要区分API契约与特定实现，Java17使用者不能依赖内部节点类型。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Pitfall",
+            "front": "键可变会造成什么问题？",
+            "back": "键插入后改变等价字段会让新哈希定位到另一桶，旧节点仍在原桶。首先复现查找失败，再改用不可变键；不能把问题归咎于HashMap随机丢数据。 追问：JDK8扩容为何不必重新计算所有hashCode？",
+            "knowledgeKeys": [
+              "java-core.hashmap.k1"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "JDK8扩容为何不必重新计算所有hashCode？",
+            "back": "容量为二次幂时，新掩码只比旧掩码多一位。缓存的哈希与旧容量按位与决定节点保持原位置或移动旧容量距离，仍需遍历与重建链接。 追问：桶长达到8就一定树化吗？",
+            "knowledgeKeys": [
+              "java-core.hashmap.k2"
+            ]
+          },
+          {
+            "type": "Difference",
+            "front": "桶长达到8就一定树化吗？",
+            "back": "不是。OpenJDK8在容量小于64时优先扩容；树化阈值只是实现条件的一部分。还要区分API契约与特定实现，Java17使用者不能依赖内部节点类型。 追问：键可变会造成什么问题？",
+            "knowledgeKeys": [
+              "java-core.hashmap.k3"
+            ]
+          },
+          {
+            "type": "Scenario",
+            "front": "如何验证本章练习的正确性与边界？",
+            "back": "对trim后的非空文本按\\\\s+切分，merge累计，TreeMap固定输出顺序；拼接时避免末尾逗号。 追问：为何该验证不能直接证明生产环境安全或性能达标？",
+            "knowledgeKeys": [
+              "java-core.hashmap.k1",
+              "java-core.hashmap.k2",
+              "java-core.hashmap.k3"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "键可变会造成什么问题？",
+            "answer": "键插入后改变等价字段会让新哈希定位到另一桶，旧节点仍在原桶。首先复现查找失败，再改用不可变键；不能把问题归咎于HashMap随机丢数据。 工程验证：对trim后的非空文本按\\\\s+切分，merge累计，TreeMap固定输出顺序；拼接时避免末尾逗号。 边界：插入后修改影响hashCode或equals的字段，仍期待旧桶正常查找。",
+            "keyPoints": [
+              "键的 equals/hashCode 契约",
+              "键插入后改变等价字段会让新哈希定位到另一桶，旧节点仍在原桶。首先复现查找失败，再改用不可变键；不能把问题归咎于HashMap随机丢数据。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "JDK8扩容为何不必重新计算所有hashCode？"
+            ],
+            "commonMistakes": [
+              "插入后修改影响hashCode或equals的字段，仍期待旧桶正常查找。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "java-core.hashmap.k1"
+            ]
+          },
+          {
+            "question": "JDK8扩容为何不必重新计算所有hashCode？",
+            "answer": "容量为二次幂时，新掩码只比旧掩码多一位。缓存的哈希与旧容量按位与决定节点保持原位置或移动旧容量距离，仍需遍历与重建链接。 工程验证：对trim后的非空文本按\\\\s+切分，merge累计，TreeMap固定输出顺序；拼接时避免末尾逗号。 边界：把JDK8按旧容量位拆分误说成所有键都重新调用hashCode。",
+            "keyPoints": [
+              "扩容位拆分",
+              "容量为二次幂时，新掩码只比旧掩码多一位。缓存的哈希与旧容量按位与决定节点保持原位置或移动旧容量距离，仍需遍历与重建链接。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "桶长达到8就一定树化吗？"
+            ],
+            "commonMistakes": [
+              "把JDK8按旧容量位拆分误说成所有键都重新调用hashCode。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "java-core.hashmap.k2"
+            ]
+          },
+          {
+            "question": "桶长达到8就一定树化吗？",
+            "answer": "不是。OpenJDK8在容量小于64时优先扩容；树化阈值只是实现条件的一部分。还要区分API契约与特定实现，Java17使用者不能依赖内部节点类型。 工程验证：对trim后的非空文本按\\\\s+切分，merge累计，TreeMap固定输出顺序；拼接时避免末尾逗号。 边界：只记链表长度8，不检查表容量至少64与树化调用条件。",
+            "keyPoints": [
+              "树化与线程安全边界",
+              "不是。OpenJDK8在容量小于64时优先扩容；树化阈值只是实现条件的一部分。还要区分API契约与特定实现，Java17使用者不能依赖内部节点类型。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "键可变会造成什么问题？"
+            ],
+            "commonMistakes": [
+              "只记链表长度8，不检查表容量至少64与树化调用条件。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "java-core.hashmap.k3"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "稳定单词计数",
+          "description": "读取一行空格分隔单词，以TreeMap排序输出 word=count；忽略连续空格，空输入输出 EMPTY。",
+          "hint": "先明确输入边界与输出协议，再完成关键状态转换。对trim后的非空文本按\\\\s+切分，merge累计，TreeMap固定输出顺序",
+          "codeTemplate": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    String line = new Scanner(System.in).nextLine();\n    // TODO 分词、计数，并按键顺序格式化\n    throw new UnsupportedOperationException(\"TODO\");\n  }\n}",
+          "solutionHint": "对trim后的非空文本按\\\\s+切分，merge累计，TreeMap固定输出顺序；拼接时避免末尾逗号。",
+          "exampleInput": "a b a",
+          "exampleOutput": "a=2,b=1",
+          "testCases": [
+            {
+              "input": "a b a",
+              "expected": "a=2,b=1"
+            },
+            {
+              "input": "",
+              "expected": "EMPTY"
+            },
+            {
+              "input": "z z",
+              "expected": "z=2"
+            }
+          ],
+          "knowledgeKeys": [
+            "java-core.hashmap.k1",
+            "java-core.hashmap.k2",
+            "java-core.hashmap.k3"
+          ]
+        }
+        },
+        {
+        "key": "java-core.generics",
+        "title": "泛型、集合边界与 ConcurrentHashMap",
+        "description": "围绕PECS与类型擦除、ConcurrentHashMap原子映射、容器安全与值对象安全解释原理、工程边界与追问。",
+        "objectives": [
+          "准确解释PECS与类型擦除并举出反例",
+          "准确解释ConcurrentHashMap原子映射并举出反例",
+          "准确解释容器安全与值对象安全并举出反例"
+        ],
+        "minutes": 35,
+        "difficulty": 2,
+        "importance": "S",
+        "prerequisites": [
+          "java-core.hashmap"
+        ],
+        "material": "泛型优先解决编译期类型约束，不意味着每个参数化类型都有独立运行时类。Java 的类型擦除保留必要的转换与桥接，两种参数化List 并不因此成为可随意互换的类型；原始类型会绕开部分静态检查，把错误推迟到运行时。泛型不协变。\n设计只读数值聚合接口时使用 ? extends Number，调用者提供Number的子类型，代码可读成Number却不能随意放入Integer；向目标集合写入Integer可使用 ? super Integer，读取只能安全视为Object。PECS是接口方向的经验，不是所有方法都必须使用通配符，既读又写的同类型容器通常需要具体类型参数。\n\nConcurrentHashMap在Java17不接受空键或空值，让null可表示未找到；单次更新和compute等操作有各自原子保证，却没有跨多个键的事务。OpenJDK8常见实现以CAS处理空桶插入，对非空桶更新使用同步等机制，不能套用JDK7的Segment结构解释所有版本。get通常不需要阻塞写锁，但弱一致遍历不等于全表瞬时快照。\n\n工程计数可以merge或compute避免先get再put丢更新；映射函数应短小，不在其中执行慢网络请求或递归更新同一映射。线程安全容器里的可变value仍需要自己的同步。面试追问可用两个账户转账说明“线程安全方法”和“业务原子性”的边界：即使两个put各自安全，读者仍可能看到中间状态。\n\n\n\n参考（官方，适用版本已在正文说明）：\n- https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/ConcurrentHashMap.html\n- https://docs.oracle.com/javase/tutorial/java/generics/wildcards.html",
+        "knowledge": [
+          {
+            "key": "java-core.generics.k1",
+            "name": "PECS与类型擦除",
+            "explanation": "先说明方向：生产者用extends便于读取父类型，消费者用super便于写入子类型。读取super得到Object；extends列表不能任意新增非null值。再解释擦除并不消除编译器约束。"
+          },
+          {
+            "key": "java-core.generics.k2",
+            "name": "ConcurrentHashMap原子映射",
+            "explanation": "多个线程可同时读到同一旧值再各自覆盖，单个get和put安全不能合成原子操作。用merge或compute表达同键更新，映射函数保持短小；若value本身可变，还需保护内部状态。"
+          },
+          {
+            "key": "java-core.generics.k3",
+            "name": "容器安全与值对象安全",
+            "explanation": "不能自动保证。跨两个键的检查与扣加需要同一事务或显式一致的锁协议；否则单方法原子仍暴露中间状态。先说明业务不变量，再选择锁粒度和失败回滚，而非只更换容器。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Pitfall",
+            "front": "extends和super如何选择？",
+            "back": "先说明方向：生产者用extends便于读取父类型，消费者用super便于写入子类型。读取super得到Object；extends列表不能任意新增非null值。再解释擦除并不消除编译器约束。 追问：为什么并发Map中的get再put仍丢计数？",
+            "knowledgeKeys": [
+              "java-core.generics.k1"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "为什么并发Map中的get再put仍丢计数？",
+            "back": "多个线程可同时读到同一旧值再各自覆盖，单个get和put安全不能合成原子操作。用merge或compute表达同键更新，映射函数保持短小；若value本身可变，还需保护内部状态。 追问：ConcurrentHashMap能保证账户转账吗？",
+            "knowledgeKeys": [
+              "java-core.generics.k2"
+            ]
+          },
+          {
+            "type": "Difference",
+            "front": "ConcurrentHashMap能保证账户转账吗？",
+            "back": "不能自动保证。跨两个键的检查与扣加需要同一事务或显式一致的锁协议；否则单方法原子仍暴露中间状态。先说明业务不变量，再选择锁粒度和失败回滚，而非只更换容器。 追问：extends和super如何选择？",
+            "knowledgeKeys": [
+              "java-core.generics.k3"
+            ]
+          },
+          {
+            "type": "Scenario",
+            "front": "如何验证本章练习的正确性与边界？",
+            "back": "泛型上界让元素安全读作Number；使用long累加，空集合自然返回0。 追问：为何该验证不能直接证明生产环境安全或性能达标？",
+            "knowledgeKeys": [
+              "java-core.generics.k1",
+              "java-core.generics.k2",
+              "java-core.generics.k3"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "extends和super如何选择？",
+            "answer": "先说明方向：生产者用extends便于读取父类型，消费者用super便于写入子类型。读取super得到Object；extends列表不能任意新增非null值。再解释擦除并不消除编译器约束。 工程验证：泛型上界让元素安全读作Number；使用long累加，空集合自然返回0。 边界：把extends容器当成可安全写入任意子类的容器。",
+            "keyPoints": [
+              "PECS与类型擦除",
+              "先说明方向：生产者用extends便于读取父类型，消费者用super便于写入子类型。读取super得到Object；extends列表不能任意新增非null值。再解释擦除并不消除编译器约束。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "为什么并发Map中的get再put仍丢计数？"
+            ],
+            "commonMistakes": [
+              "把extends容器当成可安全写入任意子类的容器。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "java-core.generics.k1"
+            ]
+          },
+          {
+            "question": "为什么并发Map中的get再put仍丢计数？",
+            "answer": "多个线程可同时读到同一旧值再各自覆盖，单个get和put安全不能合成原子操作。用merge或compute表达同键更新，映射函数保持短小；若value本身可变，还需保护内部状态。 工程验证：泛型上界让元素安全读作Number；使用long累加，空集合自然返回0。 边界：把get再put的两个操作误认为同一原子计数更新。",
+            "keyPoints": [
+              "ConcurrentHashMap原子映射",
+              "多个线程可同时读到同一旧值再各自覆盖，单个get和put安全不能合成原子操作。用merge或compute表达同键更新，映射函数保持短小；若value本身可变，还需保护内部状态。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "ConcurrentHashMap能保证账户转账吗？"
+            ],
+            "commonMistakes": [
+              "把get再put的两个操作误认为同一原子计数更新。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "java-core.generics.k2"
+            ]
+          },
+          {
+            "question": "ConcurrentHashMap能保证账户转账吗？",
+            "answer": "不能自动保证。跨两个键的检查与扣加需要同一事务或显式一致的锁协议；否则单方法原子仍暴露中间状态。先说明业务不变量，再选择锁粒度和失败回滚，而非只更换容器。 工程验证：泛型上界让元素安全读作Number；使用long累加，空集合自然返回0。 边界：把单键原子性误当跨键转账事务与可变value的线程安全。",
+            "keyPoints": [
+              "容器安全与值对象安全",
+              "不能自动保证。跨两个键的检查与扣加需要同一事务或显式一致的锁协议；否则单方法原子仍暴露中间状态。先说明业务不变量，再选择锁粒度和失败回滚，而非只更换容器。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "extends和super如何选择？"
+            ],
+            "commonMistakes": [
+              "把单键原子性误当跨键转账事务与可变value的线程安全。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "java-core.generics.k3"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "泛型求和",
+          "description": "实现sum(List<? extends Number>)，返回各元素longValue之和；输入为一行整数，空行为0。",
+          "hint": "先明确输入边界与输出协议，再完成关键状态转换。泛型上界让元素安全读作Number",
+          "codeTemplate": "import java.util.*;\npublic class Main {\n  static long sum(List<? extends Number> values) {\n    // TODO 支持Integer和Long列表，避免原始类型\n    throw new UnsupportedOperationException(\"TODO\");\n  }\n  public static void main(String[] args) {\n    // TODO 解析标准输入并调用sum\n  }\n}",
+          "solutionHint": "泛型上界让元素安全读作Number；使用long累加，空集合自然返回0。",
+          "exampleInput": "1 2 3",
+          "exampleOutput": "6",
+          "testCases": [
+            {
+              "input": "1 2 3",
+              "expected": "6"
+            },
+            {
+              "input": "",
+              "expected": "0"
+            },
+            {
+              "input": "-1 1",
+              "expected": "0"
+            }
+          ],
+          "knowledgeKeys": [
+            "java-core.generics.k1",
+            "java-core.generics.k2",
+            "java-core.generics.k3"
+          ]
+        }
+        },
+        {
+        "key": "java-core.io",
+        "title": "IO、NIO 与资源生命周期",
+        "description": "围绕编码与资源关闭、ByteBuffer状态机、部分读写与Selector边界解释原理、工程边界与追问。",
+        "objectives": [
+          "准确解释编码与资源关闭并举出反例",
+          "准确解释ByteBuffer状态机并举出反例",
+          "准确解释部分读写与Selector边界并举出反例"
+        ],
+        "minutes": 35,
+        "difficulty": 2,
+        "importance": "S",
+        "prerequisites": [
+          "java-core.generics"
+        ],
+        "material": "IO 的第一层区分是字节与字符：InputStream处理字节，Reader通过字符集解码。读取UTF8文件必须显式指定编码，不能把一个字节当作一个中文字符。缓冲用于减少小粒度系统调用，不能解决错误编码或无限制读入内存。try-with-resources在正常与异常路径都关闭资源，多资源按声明逆序关闭，关闭异常可作为被抑制异常保留。\n\nNIO不是“所有操作都非阻塞”的同义词。Java17 FileChannel是面向文件的通道，不能像SocketChannel那样注册Selector；网络通道的非阻塞模式与选择器才构成就绪事件模型。ByteBuffer使用position、limit、capacity描述有效范围，写入后flip切换为读取视图，compact保留未消费数据，clear仅重置边界而不擦除内容。\n\n一次read可能少于请求长度，write也可能只写部分数据，协议必须循环并考虑EOF。工程上传应限制字节数、校验文件路径与权限，并以流式方式处理，不能先readAllBytes再假称低内存。transferTo可能利用操作系统优化，但是否达到零拷贝、一次传输多少受平台与通道约束，仍要处理返回值。\n\n面试讲解先画出“磁盘字节→缓冲→解码→业务文本”的顺序，再解释资源谁拥有谁关闭。遇到乱码检查实际编码而非盲目替换字符串；遇到吞吐低要区分磁盘、网络和CPU瓶颈。追问可讨论半包：Selector只报告可操作，不保证完整应用消息已经到达，长度字段和累计缓冲才是协议正确性的基础。\n\n参考（官方，适用版本已在正文说明）：\n- https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/nio/channels/FileChannel.html",
+        "knowledge": [
+          {
+            "key": "java-core.io.k1",
+            "name": "编码与资源关闭",
+            "explanation": "先区分通道类型和模式。SocketChannel可配置非阻塞并注册Selector，但FileChannel不支持这种选择器注册。NIO包含缓冲与通道抽象，API名称本身不保证底层操作不阻塞。"
+          },
+          {
+            "key": "java-core.io.k2",
+            "name": "ByteBuffer状态机",
+            "explanation": "flip把limit设为原position并将position归零，用于读取已写内容。clear把position归零、limit设为capacity，供再次写入，既不清零字节也不保留未消费范围；保留剩余数据应考虑compact。"
+          },
+          {
+            "key": "java-core.io.k3",
+            "name": "部分读写与Selector边界",
+            "explanation": "入口限制大小，流式读写并计算累计字节，在超过限制时明确失败，所有资源使用try-with-resources关闭。检查路径与权限，避免readAllBytes和无界缓存；压测记录内存随文件大小的增长曲线。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Pitfall",
+            "front": "NIO为何不等于非阻塞IO？",
+            "back": "先区分通道类型和模式。SocketChannel可配置非阻塞并注册Selector，但FileChannel不支持这种选择器注册。NIO包含缓冲与通道抽象，API名称本身不保证底层操作不阻塞。 追问：flip与clear有什么区别？",
+            "knowledgeKeys": [
+              "java-core.io.k1"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "flip与clear有什么区别？",
+            "back": "flip把limit设为原position并将position归零，用于读取已写内容。clear把position归零、limit设为capacity，供再次写入，既不清零字节也不保留未消费范围；保留剩余数据应考虑compact。 追问：如何避免文件上传耗尽堆？",
+            "knowledgeKeys": [
+              "java-core.io.k2"
+            ]
+          },
+          {
+            "type": "Difference",
+            "front": "如何避免文件上传耗尽堆？",
+            "back": "入口限制大小，流式读写并计算累计字节，在超过限制时明确失败，所有资源使用try-with-resources关闭。检查路径与权限，避免readAllBytes和无界缓存；压测记录内存随文件大小的增长曲线。 追问：NIO为何不等于非阻塞IO？",
+            "knowledgeKeys": [
+              "java-core.io.k3"
+            ]
+          },
+          {
+            "type": "Scenario",
+            "front": "如何验证本章练习的正确性与边界？",
+            "back": "先处理EOF与空白，再trim并按\\\\s+规范化；资源自动关闭。 追问：为何该验证不能直接证明生产环境安全或性能达标？",
+            "knowledgeKeys": [
+              "java-core.io.k1",
+              "java-core.io.k2",
+              "java-core.io.k3"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "NIO为何不等于非阻塞IO？",
+            "answer": "先区分通道类型和模式。SocketChannel可配置非阻塞并注册Selector，但FileChannel不支持这种选择器注册。NIO包含缓冲与通道抽象，API名称本身不保证底层操作不阻塞。 工程验证：先处理EOF与空白，再trim并按\\\\s+规范化；资源自动关闭。 边界：把所有NIO通道都称为非阻塞，忽略文件通道与具体模式。",
+            "keyPoints": [
+              "编码与资源关闭",
+              "先区分通道类型和模式。SocketChannel可配置非阻塞并注册Selector，但FileChannel不支持这种选择器注册。NIO包含缓冲与通道抽象，API名称本身不保证底层操作不阻塞。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "flip与clear有什么区别？"
+            ],
+            "commonMistakes": [
+              "把所有NIO通道都称为非阻塞，忽略文件通道与具体模式。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "java-core.io.k1"
+            ]
+          },
+          {
+            "question": "flip与clear有什么区别？",
+            "answer": "flip把limit设为原position并将position归零，用于读取已写内容。clear把position归零、limit设为capacity，供再次写入，既不清零字节也不保留未消费范围；保留剩余数据应考虑compact。 工程验证：先处理EOF与空白，再trim并按\\\\s+规范化；资源自动关闭。 边界：把clear说成抹零数据，或翻转后仍用写模式读缓冲。",
+            "keyPoints": [
+              "ByteBuffer状态机",
+              "flip把limit设为原position并将position归零，用于读取已写内容。clear把position归零、limit设为capacity，供再次写入，既不清零字节也不保留未消费范围；保留剩余数据应考虑compact。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "如何避免文件上传耗尽堆？"
+            ],
+            "commonMistakes": [
+              "把clear说成抹零数据，或翻转后仍用写模式读缓冲。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "java-core.io.k2"
+            ]
+          },
+          {
+            "question": "如何避免文件上传耗尽堆？",
+            "answer": "入口限制大小，流式读写并计算累计字节，在超过限制时明确失败，所有资源使用try-with-resources关闭。检查路径与权限，避免readAllBytes和无界缓存；压测记录内存随文件大小的增长曲线。 工程验证：先处理EOF与空白，再trim并按\\\\s+规范化；资源自动关闭。 边界：用readAllBytes加载无界上传，忽略大小限制和流式资源关闭。",
+            "keyPoints": [
+              "部分读写与Selector边界",
+              "入口限制大小，流式读写并计算累计字节，在超过限制时明确失败，所有资源使用try-with-resources关闭。检查路径与权限，避免readAllBytes和无界缓存；压测记录内存随文件大小的增长曲线。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "NIO为何不等于非阻塞IO？"
+            ],
+            "commonMistakes": [
+              "用readAllBytes加载无界上传，忽略大小限制和流式资源关闭。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "java-core.io.k3"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "规范化文本行",
+          "description": "用BufferedReader读取标准输入一行，将连续空白替换为单个空格并trim；空白行输出EMPTY。",
+          "hint": "先明确输入边界与输出协议，再完成关键状态转换。先处理EOF与空白，再trim并按\\\\s+规范化",
+          "codeTemplate": "import java.io.*;\npublic class Main {\n  public static void main(String[] args) throws IOException {\n    try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in, java.nio.charset.StandardCharsets.UTF_8))) {\n      String line = reader.readLine();\n      // TODO 处理EOF、空白与输出\n      throw new UnsupportedOperationException(\"TODO\");\n    }\n  }\n}",
+          "solutionHint": "先处理EOF与空白，再trim并按\\\\s+规范化；资源自动关闭。",
+          "exampleInput": "  java   nio  ",
+          "exampleOutput": "java nio",
+          "testCases": [
+            {
+              "input": "  java   nio  ",
+              "expected": "java nio"
+            },
+            {
+              "input": "   ",
+              "expected": "EMPTY"
+            },
+            {
+              "input": "java",
+              "expected": "java"
+            }
+          ],
+          "knowledgeKeys": [
+            "java-core.io.k1",
+            "java-core.io.k2",
+            "java-core.io.k3"
+          ]
+        }
+        },
+        {
+        "key": "java-core.modern",
+        "title": "Java8+：Stream、Optional 与不可变数据",
+        "description": "围绕惰性流水线与归约、Optional兜底求值、record浅不可变与版本解释原理、工程边界与追问。",
+        "objectives": [
+          "准确解释惰性流水线与归约并举出反例",
+          "准确解释Optional兜底求值并举出反例",
+          "准确解释record浅不可变与版本并举出反例"
+        ],
+        "minutes": 35,
+        "difficulty": 2,
+        "importance": "S",
+        "prerequisites": [
+          "java-core.io"
+        ],
+        "material": "Java8 的Lambda让行为可传入函数接口，Stream表达集合流水线而不是存储数据的容器。中间操作通常惰性，终端操作触发求值，同一流消费后不能重复使用。map转换元素，flatMap展开嵌套结果；筛选与映射尽量保持无副作用，避免用peek修改共享状态，尤其不能把peek当作一定执行的业务回调。\n\nparallelStream不自动加速。拆分成本、合并成本、数据规模、CPU和阻塞任务都会影响效果，顺序与关联性必须满足归约语义。Java17常见实现使用共享ForkJoin执行资源，不能把慢网络调用随手塞进并行流后认为已获得独立隔离。计数、求和可用标准collector或reduce，避免多个线程向ArrayList追加。\n\nOptional表达返回值可能不存在，不是所有字段和参数都应包装。orElse的参数先求值，昂贵兜底应选择orElseGet；get之前缺少存在性判断会把空情况转为异常。空值的业务含义需要显式说明，而非用Optional掩盖上游故障。\n\nJava17支持record简化数据载体以及sealed限制继承集合，但record只让组件字段不可重新赋值，不深度冻结内部List。构造时防御复制，暴露时控制可变视图，才能维护不变量。面试回答版本时分别指出Lambda/Stream/Optional来自Java8，record在Java16正式发布、sealed在Java17正式发布；不能把Java21虚拟线程写成Java17能力。追问应以订单统计举例解释过滤、金额求和与空结果，同时注明并发流的业务收益要用基准测量。\n\n参考（官方，适用版本已在正文说明）：\n- https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html",
+        "knowledge": [
+          {
+            "key": "java-core.modern.k1",
+            "name": "惰性流水线与归约",
+            "explanation": "Stream表示一次遍历的计算管道，终端操作消费后不能再次使用。需重复查询时保存数据源并创建新流；通过无副作用转换与关联性归约保证顺序或并行执行结果，而非保留已关闭流。"
+          },
+          {
+            "key": "java-core.modern.k2",
+            "name": "Optional兜底求值",
+            "explanation": "orElse接收已经求值的表达式，因此即使有值也会执行昂贵兜底；orElseGet传入Supplier，只有空值时才调用。先说明空值业务含义，再用计数器验证兜底调用次数，避免把异常装成空值。"
+          },
+          {
+            "key": "java-core.modern.k3",
+            "name": "record浅不可变与版本",
+            "explanation": "不是。组件字段final但引用指向的集合仍可能被修改。紧凑构造器中使用List.copyOf等防御复制并校验输入；说明Java17支持record，但其生成的equals只遵循组件本身的相等语义。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Pitfall",
+            "front": "为什么Stream不能重复消费？",
+            "back": "Stream表示一次遍历的计算管道，终端操作消费后不能再次使用。需重复查询时保存数据源并创建新流；通过无副作用转换与关联性归约保证顺序或并行执行结果，而非保留已关闭流。 追问：orElse与orElseGet如何影响性能？",
+            "knowledgeKeys": [
+              "java-core.modern.k1"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "orElse与orElseGet如何影响性能？",
+            "back": "orElse接收已经求值的表达式，因此即使有值也会执行昂贵兜底；orElseGet传入Supplier，只有空值时才调用。先说明空值业务含义，再用计数器验证兜底调用次数，避免把异常装成空值。 追问：record是否深度不可变？",
+            "knowledgeKeys": [
+              "java-core.modern.k2"
+            ]
+          },
+          {
+            "type": "Difference",
+            "front": "record是否深度不可变？",
+            "back": "不是。组件字段final但引用指向的集合仍可能被修改。紧凑构造器中使用List.copyOf等防御复制并校验输入；说明Java17支持record，但其生成的equals只遵循组件本身的相等语义。 追问：为什么Stream不能重复消费？",
+            "knowledgeKeys": [
+              "java-core.modern.k3"
+            ]
+          },
+          {
+            "type": "Scenario",
+            "front": "如何验证本章练习的正确性与边界？",
+            "back": "先解析为整数流，再filter、distinct、sorted，最后joining；空序列输出EMPTY。 追问：为何该验证不能直接证明生产环境安全或性能达标？",
+            "knowledgeKeys": [
+              "java-core.modern.k1",
+              "java-core.modern.k2",
+              "java-core.modern.k3"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "为什么Stream不能重复消费？",
+            "answer": "Stream表示一次遍历的计算管道，终端操作消费后不能再次使用。需重复查询时保存数据源并创建新流；通过无副作用转换与关联性归约保证顺序或并行执行结果，而非保留已关闭流。 工程验证：先解析为整数流，再filter、distinct、sorted，最后joining；空序列输出EMPTY。 边界：把已执行终端操作的Stream当可重复消费集合。",
+            "keyPoints": [
+              "惰性流水线与归约",
+              "Stream表示一次遍历的计算管道，终端操作消费后不能再次使用。需重复查询时保存数据源并创建新流；通过无副作用转换与关联性归约保证顺序或并行执行结果，而非保留已关闭流。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "orElse与orElseGet如何影响性能？"
+            ],
+            "commonMistakes": [
+              "把已执行终端操作的Stream当可重复消费集合。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "java-core.modern.k1"
+            ]
+          },
+          {
+            "question": "orElse与orElseGet如何影响性能？",
+            "answer": "orElse接收已经求值的表达式，因此即使有值也会执行昂贵兜底；orElseGet传入Supplier，只有空值时才调用。先说明空值业务含义，再用计数器验证兜底调用次数，避免把异常装成空值。 工程验证：先解析为整数流，再filter、distinct、sorted，最后joining；空序列输出EMPTY。 边界：认为orElse只在Optional为空时才求值。",
+            "keyPoints": [
+              "Optional兜底求值",
+              "orElse接收已经求值的表达式，因此即使有值也会执行昂贵兜底；orElseGet传入Supplier，只有空值时才调用。先说明空值业务含义，再用计数器验证兜底调用次数，避免把异常装成空值。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "record是否深度不可变？"
+            ],
+            "commonMistakes": [
+              "认为orElse只在Optional为空时才求值。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "java-core.modern.k2"
+            ]
+          },
+          {
+            "question": "record是否深度不可变？",
+            "answer": "不是。组件字段final但引用指向的集合仍可能被修改。紧凑构造器中使用List.copyOf等防御复制并校验输入；说明Java17支持record，但其生成的equals只遵循组件本身的相等语义。 工程验证：先解析为整数流，再filter、distinct、sorted，最后joining；空序列输出EMPTY。 边界：把record字段final误认为引用对象和嵌套集合都不可变。",
+            "keyPoints": [
+              "record浅不可变与版本",
+              "不是。组件字段final但引用指向的集合仍可能被修改。紧凑构造器中使用List.copyOf等防御复制并校验输入；说明Java17支持record，但其生成的equals只遵循组件本身的相等语义。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "为什么Stream不能重复消费？"
+            ],
+            "commonMistakes": [
+              "把record字段final误认为引用对象和嵌套集合都不可变。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "java-core.modern.k3"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "Stream稳定汇总",
+          "description": "输入逗号分隔整数，筛选偶数、去重、排序后输出逗号序列；无偶数输出EMPTY。",
+          "hint": "先明确输入边界与输出协议，再完成关键状态转换。先解析为整数流，再filter、distinct、sorted，最后joining",
+          "codeTemplate": "import java.util.*;\nimport java.util.stream.*;\npublic class Main {\n  public static void main(String[] args) {\n    String line = new Scanner(System.in).nextLine();\n    // TODO 创建一次流，筛选去重排序并收集结果\n    throw new UnsupportedOperationException(\"TODO\");\n  }\n}",
+          "solutionHint": "先解析为整数流，再filter、distinct、sorted，最后joining；空序列输出EMPTY。",
+          "exampleInput": "4,2,4,3",
+          "exampleOutput": "2,4",
+          "testCases": [
+            {
+              "input": "4,2,4,3",
+              "expected": "2,4"
+            },
+            {
+              "input": "1,3",
+              "expected": "EMPTY"
+            },
+            {
+              "input": "-2,0,2,-2",
+              "expected": "-2,0,2"
+            }
+          ],
+          "knowledgeKeys": [
+            "java-core.modern.k1",
+            "java-core.modern.k2",
+            "java-core.modern.k3"
+          ]
+        }
+        }
+      ],
+      "notes": [
+        {
+          "title": "HashMap：哈希、扩容与键契约速记",
+          "chapterKey": "java-core.hashmap",
+          "content": "键的 equals/hashCode 契约：键插入后改变等价字段会让新哈希定位到另一桶，旧节点仍在原桶。首先复现查找失败，再改用不可变键；不能把问题归咎于HashMap随机丢数据。\n扩容位拆分：容量为二次幂时，新掩码只比旧掩码多一位。缓存的哈希与旧容量按位与决定节点保持原位置或移动旧容量距离，仍需遍历与重建链接。\n树化与线程安全边界：不是。OpenJDK8在容量小于64时优先扩容；树化阈值只是实现条件的一部分。还要区分API契约与特定实现，Java17使用者不能依赖内部节点类型。\n复习步骤：先复述不变量，再举反例，再描述一项可执行的验证。官方参考见章节材料；速记不替代完整版本与边界说明。"
+        },
+        {
+          "title": "泛型、集合边界与 ConcurrentHashMap速记",
+          "chapterKey": "java-core.generics",
+          "content": "PECS与类型擦除：先说明方向：生产者用extends便于读取父类型，消费者用super便于写入子类型。读取super得到Object；extends列表不能任意新增非null值。再解释擦除并不消除编译器约束。\nConcurrentHashMap原子映射：多个线程可同时读到同一旧值再各自覆盖，单个get和put安全不能合成原子操作。用merge或compute表达同键更新，映射函数保持短小；若value本身可变，还需保护内部状态。\n容器安全与值对象安全：不能自动保证。跨两个键的检查与扣加需要同一事务或显式一致的锁协议；否则单方法原子仍暴露中间状态。先说明业务不变量，再选择锁粒度和失败回滚，而非只更换容器。\n复习步骤：先复述不变量，再举反例，再描述一项可执行的验证。官方参考见章节材料；速记不替代完整版本与边界说明。"
+        },
+        {
+          "title": "IO、NIO 与资源生命周期速记",
+          "chapterKey": "java-core.io",
+          "content": "编码与资源关闭：先区分通道类型和模式。SocketChannel可配置非阻塞并注册Selector，但FileChannel不支持这种选择器注册。NIO包含缓冲与通道抽象，API名称本身不保证底层操作不阻塞。\nByteBuffer状态机：flip把limit设为原position并将position归零，用于读取已写内容。clear把position归零、limit设为capacity，供再次写入，既不清零字节也不保留未消费范围；保留剩余数据应考虑compact。\n部分读写与Selector边界：入口限制大小，流式读写并计算累计字节，在超过限制时明确失败，所有资源使用try-with-resources关闭。检查路径与权限，避免readAllBytes和无界缓存；压测记录内存随文件大小的增长曲线。\n复习步骤：先复述不变量，再举反例，再描述一项可执行的验证。官方参考见章节材料；速记不替代完整版本与边界说明。"
+        }
+      ]
+    },
+    {
+      "key": "concurrency",
+      "title": "Java 并发工程",
+      "description": "从JMM不变量到锁、线程池与异步上下文，强调取消、过载和可复现验证。",
+      "tag": "JAVA,CONCURRENCY",
+      "chapters": [
+        {
+        "key": "concurrency.jmm",
+        "title": "synchronized、JMM 与 CAS",
+        "description": "围绕happens-before、监视器互斥、CAS与ABA边界解释原理、工程边界与追问。",
+        "objectives": [
+          "准确解释happens-before并举出反例",
+          "准确解释监视器互斥并举出反例",
+          "准确解释CAS与ABA边界并举出反例"
+        ],
+        "minutes": 35,
+        "difficulty": 3,
+        "importance": "S",
+        "prerequisites": [],
+        "material": "并发正确性先拆成原子性、可见性和顺序性。JMM以happens-before描述哪些写入对后续读可见：同一监视器的解锁先行发生于后续加锁，volatile写先行发生于后续读取该变量，线程start和join也建立规定的关系。这是语言内存模型规则，不是简单要求“每条语句都刷回物理内存”。\n\nsynchronized把临界区互斥与监视器边界的可见性结合，实例同步方法锁this，静态同步方法锁Class对象。锁必须是所有参与线程共同使用的稳定对象，换成每次new的锁毫无保护意义。volatile适合发布状态，但count++包含读改写，声明volatile不能使整体原子。安全发布还要避免构造期间this逸出；final字段有专门初始化安全规则，但引用里的可变对象仍要管理。\n\nCAS比较预期值并条件更新，可以构造无锁更新循环，但失败重试会消耗CPU，单次成功只保护那一次状态转换。ABA表示值变回原样但中间发生过变化，版本戳能让需要追踪历史的算法识别它，不是所有CAS计数都必须解决ABA。\n\n工程库存扣减先确定不允许负数的不变量，再在同一同步区或CAS循环里检查并修改；不能先检查再锁内扣减。HotSpot锁优化和对象头结构随版本变化，Java17讨论不应照搬早期JDK偏向锁默认启用的说法。面试追问可要求指出代码中的共享变量、同步关系与线性化点，通过CountDownLatch协调测试，避免依赖sleep碰运气证明可见性。\n\n参考（官方，适用版本已在正文说明）：\n- https://docs.oracle.com/javase/specs/jls/se17/html/jls-17.html",
+        "knowledge": [
+          {
+            "key": "concurrency.jmm.k1",
+            "name": "happens-before",
+            "explanation": "volatile保证规定的可见性和顺序关系，但count++是读、加、写三步；两个线程可读到同一旧值。采用AtomicInteger或同一锁保护完整更新，再用join等待所有任务完成并检查最终总数。"
+          },
+          {
+            "key": "concurrency.jmm.k2",
+            "name": "监视器互斥",
+            "explanation": "普通同步实例方法锁各自this，两个对象不会因方法名称相同而互斥。静态同步方法锁对应Class对象；要保护同一资源必须共享同一锁，回答时指出实际锁对象而非只看关键字。"
+          },
+          {
+            "key": "concurrency.jmm.k3",
+            "name": "CAS与ABA边界",
+            "explanation": "不一定。低竞争CAS可能高效，高竞争重试可能占满CPU，复杂多字段不变量用锁更清晰。还要考虑ABA、饥饿和中断需求；先说明业务状态转换及线性化点，再用负载数据比较。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Pitfall",
+            "front": "volatile为何不能保证count++？",
+            "back": "volatile保证规定的可见性和顺序关系，但count++是读、加、写三步；两个线程可读到同一旧值。采用AtomicInteger或同一锁保护完整更新，再用join等待所有任务完成并检查最终总数。 追问：两个实例的同步方法互斥吗？",
+            "knowledgeKeys": [
+              "concurrency.jmm.k1"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "两个实例的同步方法互斥吗？",
+            "back": "普通同步实例方法锁各自this，两个对象不会因方法名称相同而互斥。静态同步方法锁对应Class对象；要保护同一资源必须共享同一锁，回答时指出实际锁对象而非只看关键字。 追问：CAS一定优于锁吗？",
+            "knowledgeKeys": [
+              "concurrency.jmm.k2"
+            ]
+          },
+          {
+            "type": "Difference",
+            "front": "CAS一定优于锁吗？",
+            "back": "不一定。低竞争CAS可能高效，高竞争重试可能占满CPU，复杂多字段不变量用锁更清晰。还要考虑ABA、饥饿和中断需求；先说明业务状态转换及线性化点，再用负载数据比较。 追问：volatile为何不能保证count++？",
+            "knowledgeKeys": [
+              "concurrency.jmm.k3"
+            ]
+          },
+          {
+            "type": "Scenario",
+            "front": "如何验证本章练习的正确性与边界？",
+            "back": "每次读取current，<=0返回false；compareAndSet(current,current-1)成功才返回true；失败重试，join后验证成功总数。 追问：为何该验证不能直接证明生产环境安全或性能达标？",
+            "knowledgeKeys": [
+              "concurrency.jmm.k1",
+              "concurrency.jmm.k2",
+              "concurrency.jmm.k3"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "volatile为何不能保证count++？",
+            "answer": "volatile保证规定的可见性和顺序关系，但count++是读、加、写三步；两个线程可读到同一旧值。采用AtomicInteger或同一锁保护完整更新，再用join等待所有任务完成并检查最终总数。 工程验证：每次读取current，<=0返回false；compareAndSet(current,current-1)成功才返回true；失败重试，join后验证成功总数。 边界：把volatile的可见性误当读改写整体原子性。",
+            "keyPoints": [
+              "happens-before",
+              "volatile保证规定的可见性和顺序关系，但count++是读、加、写三步；两个线程可读到同一旧值。采用AtomicInteger或同一锁保护完整更新，再用join等待所有任务完成并检查最终总数。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "两个实例的同步方法互斥吗？"
+            ],
+            "commonMistakes": [
+              "把volatile的可见性误当读改写整体原子性。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "concurrency.jmm.k1"
+            ]
+          },
+          {
+            "question": "两个实例的同步方法互斥吗？",
+            "answer": "普通同步实例方法锁各自this，两个对象不会因方法名称相同而互斥。静态同步方法锁对应Class对象；要保护同一资源必须共享同一锁，回答时指出实际锁对象而非只看关键字。 工程验证：每次读取current，<=0返回false；compareAndSet(current,current-1)成功才返回true；失败重试，join后验证成功总数。 边界：不同实例锁不同this，却期待同步实例方法互斥。",
+            "keyPoints": [
+              "监视器互斥",
+              "普通同步实例方法锁各自this，两个对象不会因方法名称相同而互斥。静态同步方法锁对应Class对象；要保护同一资源必须共享同一锁，回答时指出实际锁对象而非只看关键字。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "CAS一定优于锁吗？"
+            ],
+            "commonMistakes": [
+              "不同实例锁不同this，却期待同步实例方法互斥。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "concurrency.jmm.k2"
+            ]
+          },
+          {
+            "question": "CAS一定优于锁吗？",
+            "answer": "不一定。低竞争CAS可能高效，高竞争重试可能占满CPU，复杂多字段不变量用锁更清晰。还要考虑ABA、饥饿和中断需求；先说明业务状态转换及线性化点，再用负载数据比较。 工程验证：每次读取current，<=0返回false；compareAndSet(current,current-1)成功才返回true；失败重试，join后验证成功总数。 边界：忽略CAS重试CPU成本、ABA及多变量不变量，宣称无条件优于锁。",
+            "keyPoints": [
+              "CAS与ABA边界",
+              "不一定。低竞争CAS可能高效，高竞争重试可能占满CPU，复杂多字段不变量用锁更清晰。还要考虑ABA、饥饿和中断需求；先说明业务状态转换及线性化点，再用负载数据比较。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "volatile为何不能保证count++？"
+            ],
+            "commonMistakes": [
+              "忽略CAS重试CPU成本、ABA及多变量不变量，宣称无条件优于锁。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "concurrency.jmm.k3"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "CAS安全库存",
+          "description": "Java17手工验证练习：实现tryTake(AtomicInteger stock)，库存大于0才CAS减一；使用并发任务与join检查成功次数等于初始库存、库存不负。人工检查而非假自动PASS。",
+          "hint": "先明确输入边界与输出协议，再完成关键状态转换。每次读取current，<=0返回false",
+          "codeTemplate": "import java.util.concurrent.atomic.AtomicInteger;\npublic class Main {\n  static boolean tryTake(AtomicInteger stock) {\n    // TODO 读取、检查、CAS；失败重新读取\n    throw new UnsupportedOperationException(\"TODO\");\n  }\n  public static void main(String[] args) throws Exception {\n    // TODO 协调并发任务，等待完成后断言不变量\n  }\n}",
+          "solutionHint": "每次读取current，<=0返回false；compareAndSet(current,current-1)成功才返回true；失败重试，join后验证成功总数。",
+          "exampleInput": "stock=10, requests=100",
+          "exampleOutput": "success=10, remaining=0",
+          "testCases": [],
+          "knowledgeKeys": [
+            "concurrency.jmm.k1",
+            "concurrency.jmm.k2",
+            "concurrency.jmm.k3"
+          ]
+        }
+        },
+        {
+        "key": "concurrency.aqs",
+        "title": "AQS、ReentrantLock 与条件队列",
+        "description": "围绕AQS状态与排队、可重入锁释放协议、Condition谓词循环解释原理、工程边界与追问。",
+        "objectives": [
+          "准确解释AQS状态与排队并举出反例",
+          "准确解释可重入锁释放协议并举出反例",
+          "准确解释Condition谓词循环并举出反例"
+        ],
+        "minutes": 35,
+        "difficulty": 3,
+        "importance": "S",
+        "prerequisites": [
+          "concurrency.jmm"
+        ],
+        "material": "AQS提供同步状态与等待队列机制，具体同步器定义state代表什么以及何时获取成功。独占锁、共享许可和倒计时可以复用框架，但不能把AQS本身直接等同于某一把锁。子类实现tryAcquire等钩子描述快速路径，失败后框架负责排队、阻塞和唤醒，唤醒意味着重新竞争，不意味着锁所有权已被无条件交付。\n\nReentrantLock允许同一线程重复持有，释放次数必须与成功获取次数一致。Java17 API提供lockInterruptibly、带超时tryLock和Condition等能力；每次成功获取后在finally中unlock，未获取成功时不能释放。公平模式减少插队倾向但通常损伤吞吐，而且无超时tryLock不遵守公平排队，因此“公平锁绝不会插队”并不准确。\n\nCondition把等待某个业务谓词的线程与锁关联。await原子释放锁并等待，返回前重新获取锁；signal只通知候选等待者，调用者仍持锁，直到释放后对方才能继续。必须在while里重新检查条件，以抵抗虚假唤醒及其他线程抢先消费资源。一个锁可创建多个条件队列，让生产者与消费者分别等待不同谓词。\n\n工程有界缓冲先定义count在零与容量之间的不变量，再选择notEmpty与notFull条件，更新状态后通知正确一侧。不要跨网络调用持锁，也不要吞掉InterruptedException；调用层应决定取消并恢复中断标志。面试追问需要对比synchronized的结构化释放与显式锁的灵活性，并指出AQS中的队列机制不构成业务事务或死锁自动检测。\n\n参考（官方，适用版本已在正文说明）：\n- https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/locks/AbstractQueuedSynchronizer.html",
+        "knowledge": [
+          {
+            "key": "concurrency.aqs.k1",
+            "name": "AQS状态与排队",
+            "explanation": "不是，state语义由具体同步器定义。ReentrantLock可用它表示重入计数，信号量代表可用许可。先讲tryAcquire成功条件，再讲失败排队与重新竞争，不应把框架和具体同步器混为一谈。"
+          },
+          {
+            "key": "concurrency.aqs.k2",
+            "name": "可重入锁释放协议",
+            "explanation": "等待返回不保证业务条件仍成立，可能虚假唤醒，也可能另一线程先消费资源。await释放关联锁、返回前重获锁，while在锁内再次检验谓词；signal仅唤醒候选者，不直接交付资源。"
+          },
+          {
+            "key": "concurrency.aqs.k3",
+            "name": "Condition谓词循环",
+            "explanation": "公平ReentrantLock的常规获取尊重排队倾向，但无超时tryLock可立即争抢而不遵守公平设置。公平也不是线程调度器公平，更不保证绝对等待时间；需要结合吞吐和尾延迟做选择。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Pitfall",
+            "front": "AQS的state就是持锁次数吗？",
+            "back": "不是，state语义由具体同步器定义。ReentrantLock可用它表示重入计数，信号量代表可用许可。先讲tryAcquire成功条件，再讲失败排队与重新竞争，不应把框架和具体同步器混为一谈。 追问：Condition为何使用while而非if？",
+            "knowledgeKeys": [
+              "concurrency.aqs.k1"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "Condition为何使用while而非if？",
+            "back": "等待返回不保证业务条件仍成立，可能虚假唤醒，也可能另一线程先消费资源。await释放关联锁、返回前重获锁，while在锁内再次检验谓词；signal仅唤醒候选者，不直接交付资源。 追问：公平锁为何仍可能插队？",
+            "knowledgeKeys": [
+              "concurrency.aqs.k2"
+            ]
+          },
+          {
+            "type": "Difference",
+            "front": "公平锁为何仍可能插队？",
+            "back": "公平ReentrantLock的常规获取尊重排队倾向，但无超时tryLock可立即争抢而不遵守公平设置。公平也不是线程调度器公平，更不保证绝对等待时间；需要结合吞吐和尾延迟做选择。 追问：AQS的state就是持锁次数吗？",
+            "knowledgeKeys": [
+              "concurrency.aqs.k3"
+            ]
+          },
+          {
+            "type": "Scenario",
+            "front": "如何验证本章练习的正确性与边界？",
+            "back": "状态访问全部位于同一锁内；await放while中；更新后signal另一条件；finally解锁，中断向上传播。 追问：为何该验证不能直接证明生产环境安全或性能达标？",
+            "knowledgeKeys": [
+              "concurrency.aqs.k1",
+              "concurrency.aqs.k2",
+              "concurrency.aqs.k3"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "AQS的state就是持锁次数吗？",
+            "answer": "不是，state语义由具体同步器定义。ReentrantLock可用它表示重入计数，信号量代表可用许可。先讲tryAcquire成功条件，再讲失败排队与重新竞争，不应把框架和具体同步器混为一谈。 工程验证：状态访问全部位于同一锁内；await放while中；更新后signal另一条件；finally解锁，中断向上传播。 边界：把AQS的通用同步state固定解释成所有同步器的持锁次数。",
+            "keyPoints": [
+              "AQS状态与排队",
+              "不是，state语义由具体同步器定义。ReentrantLock可用它表示重入计数，信号量代表可用许可。先讲tryAcquire成功条件，再讲失败排队与重新竞争，不应把框架和具体同步器混为一谈。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "Condition为何使用while而非if？"
+            ],
+            "commonMistakes": [
+              "把AQS的通用同步state固定解释成所有同步器的持锁次数。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "concurrency.aqs.k1"
+            ]
+          },
+          {
+            "question": "Condition为何使用while而非if？",
+            "answer": "等待返回不保证业务条件仍成立，可能虚假唤醒，也可能另一线程先消费资源。await释放关联锁、返回前重获锁，while在锁内再次检验谓词；signal仅唤醒候选者，不直接交付资源。 工程验证：状态访问全部位于同一锁内；await放while中；更新后signal另一条件；finally解锁，中断向上传播。 边界：用if等待业务条件，忽略虚假唤醒与资源被其他线程消费。",
+            "keyPoints": [
+              "可重入锁释放协议",
+              "等待返回不保证业务条件仍成立，可能虚假唤醒，也可能另一线程先消费资源。await释放关联锁、返回前重获锁，while在锁内再次检验谓词；signal仅唤醒候选者，不直接交付资源。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "公平锁为何仍可能插队？"
+            ],
+            "commonMistakes": [
+              "用if等待业务条件，忽略虚假唤醒与资源被其他线程消费。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "concurrency.aqs.k2"
+            ]
+          },
+          {
+            "question": "公平锁为何仍可能插队？",
+            "answer": "公平ReentrantLock的常规获取尊重排队倾向，但无超时tryLock可立即争抢而不遵守公平设置。公平也不是线程调度器公平，更不保证绝对等待时间；需要结合吞吐和尾延迟做选择。 工程验证：状态访问全部位于同一锁内；await放while中；更新后signal另一条件；finally解锁，中断向上传播。 边界：忽略无超时tryLock可插队，宣称公平模式绝对不允许插队。",
+            "keyPoints": [
+              "Condition谓词循环",
+              "公平ReentrantLock的常规获取尊重排队倾向，但无超时tryLock可立即争抢而不遵守公平设置。公平也不是线程调度器公平，更不保证绝对等待时间；需要结合吞吐和尾延迟做选择。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "AQS的state就是持锁次数吗？"
+            ],
+            "commonMistakes": [
+              "忽略无超时tryLock可插队，宣称公平模式绝对不允许插队。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "concurrency.aqs.k3"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "有界缓冲协议",
+          "description": "Java17人工检查：实现容量1的put/take，ReentrantLock与两个Condition，while检查谓词；协调生产消费验证无丢失、可中断，禁止sleep确定次序。人工检查而非假自动PASS。",
+          "hint": "先明确输入边界与输出协议，再完成关键状态转换。状态访问全部位于同一锁内",
+          "codeTemplate": "import java.util.concurrent.locks.*;\npublic class Main {\n  static final class Buffer {\n    private final ReentrantLock lock = new ReentrantLock();\n    // TODO 定义状态与两个条件队列\n    void put(int value) throws InterruptedException { throw new UnsupportedOperationException(\"TODO\"); }\n    int take() throws InterruptedException { throw new UnsupportedOperationException(\"TODO\"); }\n  }\n  public static void main(String[] args) throws Exception {\n    // TODO 验证生产消费和中断，不用sleep同步\n  }\n}",
+          "solutionHint": "状态访问全部位于同一锁内；await放while中；更新后signal另一条件；finally解锁，中断向上传播。",
+          "exampleInput": "put(7), take()",
+          "exampleOutput": "7",
+          "testCases": [],
+          "knowledgeKeys": [
+            "concurrency.aqs.k1",
+            "concurrency.aqs.k2",
+            "concurrency.aqs.k3"
+          ]
+        }
+        },
+        {
+        "key": "concurrency.threadpool",
+        "title": "ThreadPoolExecutor：容量、拒绝与关闭",
+        "description": "围绕线程池接纳顺序、拒绝与异常传播、协作关闭与容量治理解释原理、工程边界与追问。",
+        "objectives": [
+          "准确解释线程池接纳顺序并举出反例",
+          "准确解释拒绝与异常传播并举出反例",
+          "准确解释协作关闭与容量治理并举出反例"
+        ],
+        "minutes": 35,
+        "difficulty": 3,
+        "importance": "S",
+        "prerequisites": [
+          "concurrency.aqs"
+        ],
+        "material": "ThreadPoolExecutor必须按真实接纳顺序解释：工作线程少于corePoolSize时优先创建核心线程；否则尝试入队；队列满后再尝试创建到maximumPoolSize；仍无法接纳则拒绝。无界队列通常使最大线程数难以发挥作用，并把过载转为持续排队与内存增长。容量设计要同时考虑任务耗时、到达速率、下游限流和可接受排队时间。\n\nJava17构造参数包括核心数、最大数、空闲时间、队列、线程工厂和拒绝策略。命名线程便于诊断，ThreadFactory创建失败也可能导致无法正常处理任务。AbortPolicy显式抛异常，CallerRunsPolicy可让提交线程承担压力，但执行器关闭后不会继续运行该任务；丢弃策略必须能满足业务允许丢失的约束，否则可能丢工作且Future一直未完成。\n\nexecute提交任务，未捕获异常可走线程异常处理；submit把结果和异常封装进Future，调用get才发现失败，所以只写日志线程工厂不能覆盖所有异常。shutdown停止接纳并尝试完成已提交任务，shutdownNow尝试中断正在运行者并返回未启动任务，不能保证立刻停机；任务必须协作响应中断。\n\n工程不要在同一有限线程池中让父任务阻塞等待其子任务，这会产生线程饥饿。以有界队列和明确拒绝语义设计API反馈，监控活跃数、队列深度、拒绝率及排队时间。面试追问应给出核心1、最大2、队列1的四任务场景，用闩锁控制前两次阻塞并确认第四次拒绝，而非依靠随机时间差判断线程数。\n\n参考（官方，适用版本已在正文说明）：\n- https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/ThreadPoolExecutor.html",
+        "knowledge": [
+          {
+            "key": "concurrency.threadpool.k1",
+            "name": "线程池接纳顺序",
+            "explanation": "在前三个任务均未结束、首任务占核心线程、第二个入队、第三个占新线程时，第四个无法入队或扩线程，会触发拒绝策略。用闩锁稳定构造此状态，不能只看快速任务提交次数推断。"
+          },
+          {
+            "key": "concurrency.threadpool.k2",
+            "name": "拒绝与异常传播",
+            "explanation": "submit将任务异常保存为Future的失败结果，工作线程可能正常存活，不一定触发未捕获异常处理器。必须消费get、统一完成回调或明确记录失败；日志与指标还应覆盖拒绝和取消。"
+          },
+          {
+            "key": "concurrency.threadpool.k3",
+            "name": "协作关闭与容量治理",
+            "explanation": "不保证，它尝试中断正在执行的任务并返回等待任务。任务若忽略中断或处于不可中断操作，可能继续运行。关闭流程先shutdown、限时awaitTermination，再决定强制尝试和未执行任务补偿。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Pitfall",
+            "front": "核心1最大2队列1时第四个任务怎样？",
+            "back": "在前三个任务均未结束、首任务占核心线程、第二个入队、第三个占新线程时，第四个无法入队或扩线程，会触发拒绝策略。用闩锁稳定构造此状态，不能只看快速任务提交次数推断。 追问：submit为何可能没有异常日志？",
+            "knowledgeKeys": [
+              "concurrency.threadpool.k1"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "submit为何可能没有异常日志？",
+            "back": "submit将任务异常保存为Future的失败结果，工作线程可能正常存活，不一定触发未捕获异常处理器。必须消费get、统一完成回调或明确记录失败；日志与指标还应覆盖拒绝和取消。 追问：shutdownNow保证任务停止吗？",
+            "knowledgeKeys": [
+              "concurrency.threadpool.k2"
+            ]
+          },
+          {
+            "type": "Difference",
+            "front": "shutdownNow保证任务停止吗？",
+            "back": "不保证，它尝试中断正在执行的任务并返回等待任务。任务若忽略中断或处于不可中断操作，可能继续运行。关闭流程先shutdown、限时awaitTermination，再决定强制尝试和未执行任务补偿。 追问：核心1最大2队列1时第四个任务怎样？",
+            "knowledgeKeys": [
+              "concurrency.threadpool.k3"
+            ]
+          },
+          {
+            "type": "Scenario",
+            "front": "如何验证本章练习的正确性与边界？",
+            "back": "ArrayBlockingQueue容量1，AbortPolicy；前3任务全部等待同一Latch使完成不抢跑；捕获第4次拒绝并在finally关闭。 追问：为何该验证不能直接证明生产环境安全或性能达标？",
+            "knowledgeKeys": [
+              "concurrency.threadpool.k1",
+              "concurrency.threadpool.k2",
+              "concurrency.threadpool.k3"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "核心1最大2队列1时第四个任务怎样？",
+            "answer": "在前三个任务均未结束、首任务占核心线程、第二个入队、第三个占新线程时，第四个无法入队或扩线程，会触发拒绝策略。用闩锁稳定构造此状态，不能只看快速任务提交次数推断。 工程验证：ArrayBlockingQueue容量1，AbortPolicy；前3任务全部等待同一Latch使完成不抢跑；捕获第4次拒绝并在finally关闭。 边界：未阻塞前三个任务，就按提交总数推断第四个必定被拒绝。",
+            "keyPoints": [
+              "线程池接纳顺序",
+              "在前三个任务均未结束、首任务占核心线程、第二个入队、第三个占新线程时，第四个无法入队或扩线程，会触发拒绝策略。用闩锁稳定构造此状态，不能只看快速任务提交次数推断。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "submit为何可能没有异常日志？"
+            ],
+            "commonMistakes": [
+              "未阻塞前三个任务，就按提交总数推断第四个必定被拒绝。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "concurrency.threadpool.k1"
+            ]
+          },
+          {
+            "question": "submit为何可能没有异常日志？",
+            "answer": "submit将任务异常保存为Future的失败结果，工作线程可能正常存活，不一定触发未捕获异常处理器。必须消费get、统一完成回调或明确记录失败；日志与指标还应覆盖拒绝和取消。 工程验证：ArrayBlockingQueue容量1，AbortPolicy；前3任务全部等待同一Latch使完成不抢跑；捕获第4次拒绝并在finally关闭。 边界：只配置线程未捕获异常处理，却不观察submit返回的Future。",
+            "keyPoints": [
+              "拒绝与异常传播",
+              "submit将任务异常保存为Future的失败结果，工作线程可能正常存活，不一定触发未捕获异常处理器。必须消费get、统一完成回调或明确记录失败；日志与指标还应覆盖拒绝和取消。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "shutdownNow保证任务停止吗？"
+            ],
+            "commonMistakes": [
+              "只配置线程未捕获异常处理，却不观察submit返回的Future。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "concurrency.threadpool.k2"
+            ]
+          },
+          {
+            "question": "shutdownNow保证任务停止吗？",
+            "answer": "不保证，它尝试中断正在执行的任务并返回等待任务。任务若忽略中断或处于不可中断操作，可能继续运行。关闭流程先shutdown、限时awaitTermination，再决定强制尝试和未执行任务补偿。 工程验证：ArrayBlockingQueue容量1，AbortPolicy；前3任务全部等待同一Latch使完成不抢跑；捕获第4次拒绝并在finally关闭。 边界：认为shutdownNow可强制杀线程，不要求任务协作响应中断。",
+            "keyPoints": [
+              "协作关闭与容量治理",
+              "不保证，它尝试中断正在执行的任务并返回等待任务。任务若忽略中断或处于不可中断操作，可能继续运行。关闭流程先shutdown、限时awaitTermination，再决定强制尝试和未执行任务补偿。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "核心1最大2队列1时第四个任务怎样？"
+            ],
+            "commonMistakes": [
+              "认为shutdownNow可强制杀线程，不要求任务协作响应中断。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "concurrency.threadpool.k3"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "确定性拒绝测试",
+          "description": "Java17人工检查：创建core=1/max=2/队列容量1的池，Latch阻塞任务，依次提交4个任务验证AbortPolicy拒绝第4个；finally释放Latch并关闭池。人工检查而非假自动PASS。",
+          "hint": "先明确输入边界与输出协议，再完成关键状态转换。ArrayBlockingQueue容量1，AbortPolicy",
+          "codeTemplate": "import java.util.concurrent.*;\npublic class Main {\n  public static void main(String[] args) throws Exception {\n    CountDownLatch release = new CountDownLatch(1);\n    // TODO 构造有界线程池；统计接纳与拒绝；finally释放和关闭\n    throw new UnsupportedOperationException(\"TODO\");\n  }\n}",
+          "solutionHint": "ArrayBlockingQueue容量1，AbortPolicy；前3任务全部等待同一Latch使完成不抢跑；捕获第4次拒绝并在finally关闭。",
+          "exampleInput": "4 blocked tasks",
+          "exampleOutput": "accepted=3,rejected=1",
+          "testCases": [],
+          "knowledgeKeys": [
+            "concurrency.threadpool.k1",
+            "concurrency.threadpool.k2",
+            "concurrency.threadpool.k3"
+          ]
+        }
+        },
+        {
+        "key": "concurrency.async",
+        "title": "CompletableFuture 与 ThreadLocal 上下文",
+        "description": "围绕异步依赖图、超时与异常边界、ThreadLocal清理与传播解释原理、工程边界与追问。",
+        "objectives": [
+          "准确解释异步依赖图并举出反例",
+          "准确解释超时与异常边界并举出反例",
+          "准确解释ThreadLocal清理与传播并举出反例"
+        ],
+        "minutes": 35,
+        "difficulty": 3,
+        "importance": "S",
+        "prerequisites": [
+          "concurrency.threadpool"
+        ],
+        "material": "CompletableFuture用于描述异步结果及依赖图。thenApply转换一个已完成结果，thenCompose将返回的Future展开，thenCombine合并独立结果，不能把二者都叫“开启两个线程”。没有Async后缀的回调可能在完成前驱的线程执行；Async方法不传执行器时使用默认异步设施，阻塞IO任务应提供独立且有界的执行器。\n\n异常路径要明确：exceptionally提供失败兜底，handle接收结果或异常并可转换，whenComplete适合观察但回调异常仍可能影响派生阶段。allOf完成仅表示所有输入完成，失败会反映在组合结果，返回值并不直接包含各个任务的数据。orTimeout使Future超时失败，不保证底层网络调用被终止；cancel在该类也不把mayInterruptIfRunning视为控制底层计算的可靠机制。\n\nThreadLocal把值绑定到当前线程，既不是跨线程共享容器，也不是异步链的自动上下文传播。线程池线程反复复用，若一次请求设置用户信息后未remove，下次任务可能读到旧值，出现身份串扰。InheritableThreadLocal不能自动传播池任务上下文。OpenJDK实现的弱key也不消除value被长寿命线程保留的风险。\n\n工程显式捕获不可变请求上下文，在任务边界设置并在finally删除；敏感身份最终仍应由服务端授权校验确定。并行聚合请求需要每路截止时间、失败策略和下游容量约束，不把所有异常转换为空列表。追问用单线程池确定A、B复用次序，验证清理后不再串扰。\n\n参考（官方，适用版本已在正文说明）：\n- https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/CompletableFuture.html\n",
+        "knowledge": [
+          {
+            "key": "concurrency.async.k1",
+            "name": "异步依赖图",
+            "explanation": "thenApply将T映射为U；若函数返回Future，就得到嵌套Future。thenCompose把依赖的异步阶段展开为单层结果，用于后一步依赖前一步的调用。合并独立结果用thenCombine，并说明回调实际在哪执行。"
+          },
+          {
+            "key": "concurrency.async.k2",
+            "name": "超时与异常边界",
+            "explanation": "不能如此保证。orTimeout改变Future完成状态为超时异常，底层操作可能仍占用连接和线程。必须给HTTP客户端自身设置截止时间并设计协作取消；观察超时不等于已经释放全部下游资源。"
+          },
+          {
+            "key": "concurrency.async.k3",
+            "name": "ThreadLocal清理与传播",
+            "explanation": "在任务入口捕获明确上下文，工作线程内设置，finally调用remove，避免长寿命线程留存身份。InheritableThreadLocal不能覆盖既有池线程每次任务的传播；用单线程池依次执行A/B复现并验证清理。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Pitfall",
+            "front": "thenApply和thenCompose区别？",
+            "back": "thenApply将T映射为U；若函数返回Future，就得到嵌套Future。thenCompose把依赖的异步阶段展开为单层结果，用于后一步依赖前一步的调用。合并独立结果用thenCombine，并说明回调实际在哪执行。 追问：orTimeout会取消HTTP调用吗？",
+            "knowledgeKeys": [
+              "concurrency.async.k1"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "orTimeout会取消HTTP调用吗？",
+            "back": "不能如此保证。orTimeout改变Future完成状态为超时异常，底层操作可能仍占用连接和线程。必须给HTTP客户端自身设置截止时间并设计协作取消；观察超时不等于已经释放全部下游资源。 追问：线程池使用ThreadLocal如何防串请求？",
+            "knowledgeKeys": [
+              "concurrency.async.k2"
+            ]
+          },
+          {
+            "type": "Difference",
+            "front": "线程池使用ThreadLocal如何防串请求？",
+            "back": "在任务入口捕获明确上下文，工作线程内设置，finally调用remove，避免长寿命线程留存身份。InheritableThreadLocal不能覆盖既有池线程每次任务的传播；用单线程池依次执行A/B复现并验证清理。 追问：thenApply和thenCompose区别？",
+            "knowledgeKeys": [
+              "concurrency.async.k3"
+            ]
+          },
+          {
+            "type": "Scenario",
+            "front": "如何验证本章练习的正确性与边界？",
+            "back": "thenApply(v->v+1)后thenCompose返回completedFuture(v*2)，join获取8；说明这是已完成阶段，不证明并行执行。 追问：为何该验证不能直接证明生产环境安全或性能达标？",
+            "knowledgeKeys": [
+              "concurrency.async.k1",
+              "concurrency.async.k2",
+              "concurrency.async.k3"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "thenApply和thenCompose区别？",
+            "answer": "thenApply将T映射为U；若函数返回Future，就得到嵌套Future。thenCompose把依赖的异步阶段展开为单层结果，用于后一步依赖前一步的调用。合并独立结果用thenCombine，并说明回调实际在哪执行。 工程验证：thenApply(v->v+1)后thenCompose返回completedFuture(v*2)，join获取8；说明这是已完成阶段，不证明并行执行。 边界：用thenApply返回Future后忽略嵌套结果，或把thenCompose等同开启新线程。",
+            "keyPoints": [
+              "异步依赖图",
+              "thenApply将T映射为U；若函数返回Future，就得到嵌套Future。thenCompose把依赖的异步阶段展开为单层结果，用于后一步依赖前一步的调用。合并独立结果用thenCombine，并说明回调实际在哪执行。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "orTimeout会取消HTTP调用吗？"
+            ],
+            "commonMistakes": [
+              "用thenApply返回Future后忽略嵌套结果，或把thenCompose等同开启新线程。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "concurrency.async.k1"
+            ]
+          },
+          {
+            "question": "orTimeout会取消HTTP调用吗？",
+            "answer": "不能如此保证。orTimeout改变Future完成状态为超时异常，底层操作可能仍占用连接和线程。必须给HTTP客户端自身设置截止时间并设计协作取消；观察超时不等于已经释放全部下游资源。 工程验证：thenApply(v->v+1)后thenCompose返回completedFuture(v*2)，join获取8；说明这是已完成阶段，不证明并行执行。 边界：把Future超时状态误当底层HTTP请求已经取消。",
+            "keyPoints": [
+              "超时与异常边界",
+              "不能如此保证。orTimeout改变Future完成状态为超时异常，底层操作可能仍占用连接和线程。必须给HTTP客户端自身设置截止时间并设计协作取消；观察超时不等于已经释放全部下游资源。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "线程池使用ThreadLocal如何防串请求？"
+            ],
+            "commonMistakes": [
+              "把Future超时状态误当底层HTTP请求已经取消。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "concurrency.async.k2"
+            ]
+          },
+          {
+            "question": "线程池使用ThreadLocal如何防串请求？",
+            "answer": "在任务入口捕获明确上下文，工作线程内设置，finally调用remove，避免长寿命线程留存身份。InheritableThreadLocal不能覆盖既有池线程每次任务的传播；用单线程池依次执行A/B复现并验证清理。 工程验证：thenApply(v->v+1)后thenCompose返回completedFuture(v*2)，join获取8；说明这是已完成阶段，不证明并行执行。 边界：用InheritableThreadLocal自动传播池任务身份，并省略finally remove。",
+            "keyPoints": [
+              "ThreadLocal清理与传播",
+              "在任务入口捕获明确上下文，工作线程内设置，finally调用remove，避免长寿命线程留存身份。InheritableThreadLocal不能覆盖既有池线程每次任务的传播；用单线程池依次执行A/B复现并验证清理。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "thenApply和thenCompose区别？"
+            ],
+            "commonMistakes": [
+              "用InheritableThreadLocal自动传播池任务身份，并省略finally remove。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "concurrency.async.k3"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "异步依赖转换",
+          "description": "Java17实现completedFuture输入整数，thenApply加1、thenCompose乘2，join后打印；不创建线程，输入固定为3。",
+          "hint": "先明确输入边界与输出协议，再完成关键状态转换。thenApply(v->v+1)后thenCompose返回completedFuture(v*2)，join获取8",
+          "codeTemplate": "import java.util.concurrent.CompletableFuture;\npublic class Main {\n  public static void main(String[] args) {\n    CompletableFuture<Integer> input = CompletableFuture.completedFuture(3);\n    // TODO 使用thenApply和thenCompose构造依赖并输出join结果\n    throw new UnsupportedOperationException(\"TODO\");\n  }\n}",
+          "solutionHint": "thenApply(v->v+1)后thenCompose返回completedFuture(v*2)，join获取8；说明这是已完成阶段，不证明并行执行。",
+          "exampleInput": "3",
+          "exampleOutput": "8",
+          "testCases": [
+            {
+              "input": "3",
+              "expected": "8"
+            },
+            {
+              "input": "3",
+              "expected": "8"
+            }
+          ],
+          "knowledgeKeys": [
+            "concurrency.async.k1",
+            "concurrency.async.k2",
+            "concurrency.async.k3"
+          ]
+        }
+        }
+      ],
+      "notes": [
+        {
+          "title": "synchronized、JMM 与 CAS速记",
+          "chapterKey": "concurrency.jmm",
+          "content": "happens-before：volatile保证规定的可见性和顺序关系，但count++是读、加、写三步；两个线程可读到同一旧值。采用AtomicInteger或同一锁保护完整更新，再用join等待所有任务完成并检查最终总数。\n监视器互斥：普通同步实例方法锁各自this，两个对象不会因方法名称相同而互斥。静态同步方法锁对应Class对象；要保护同一资源必须共享同一锁，回答时指出实际锁对象而非只看关键字。\nCAS与ABA边界：不一定。低竞争CAS可能高效，高竞争重试可能占满CPU，复杂多字段不变量用锁更清晰。还要考虑ABA、饥饿和中断需求；先说明业务状态转换及线性化点，再用负载数据比较。\n复习步骤：先复述不变量，再举反例，再描述一项可执行的验证。官方参考见章节材料；速记不替代完整版本与边界说明。"
+        },
+        {
+          "title": "AQS、ReentrantLock 与条件队列速记",
+          "chapterKey": "concurrency.aqs",
+          "content": "AQS状态与排队：不是，state语义由具体同步器定义。ReentrantLock可用它表示重入计数，信号量代表可用许可。先讲tryAcquire成功条件，再讲失败排队与重新竞争，不应把框架和具体同步器混为一谈。\n可重入锁释放协议：等待返回不保证业务条件仍成立，可能虚假唤醒，也可能另一线程先消费资源。await释放关联锁、返回前重获锁，while在锁内再次检验谓词；signal仅唤醒候选者，不直接交付资源。\nCondition谓词循环：公平ReentrantLock的常规获取尊重排队倾向，但无超时tryLock可立即争抢而不遵守公平设置。公平也不是线程调度器公平，更不保证绝对等待时间；需要结合吞吐和尾延迟做选择。\n复习步骤：先复述不变量，再举反例，再描述一项可执行的验证。官方参考见章节材料；速记不替代完整版本与边界说明。"
+        },
+        {
+          "title": "ThreadPoolExecutor：容量、拒绝与关闭速记",
+          "chapterKey": "concurrency.threadpool",
+          "content": "线程池接纳顺序：在前三个任务均未结束、首任务占核心线程、第二个入队、第三个占新线程时，第四个无法入队或扩线程，会触发拒绝策略。用闩锁稳定构造此状态，不能只看快速任务提交次数推断。\n拒绝与异常传播：submit将任务异常保存为Future的失败结果，工作线程可能正常存活，不一定触发未捕获异常处理器。必须消费get、统一完成回调或明确记录失败；日志与指标还应覆盖拒绝和取消。\n协作关闭与容量治理：不保证，它尝试中断正在执行的任务并返回等待任务。任务若忽略中断或处于不可中断操作，可能继续运行。关闭流程先shutdown、限时awaitTermination，再决定强制尝试和未执行任务补偿。\n复习步骤：先复述不变量，再举反例，再描述一项可执行的验证。官方参考见章节材料；速记不替代完整版本与边界说明。"
+        }
+      ]
+    },
+    {
+      "key": "jvm",
+      "title": "JVM 运行与故障诊断",
+      "description": "从规范区域与类生命周期到G1和CPU/OOM证据链，练习版本明确的故障诊断。",
+      "tag": "JAVA,JVM",
+      "chapters": [
+        {
+        "key": "jvm.memory",
+        "title": "运行时内存、可达性与 OOM",
+        "description": "围绕规范区域与HotSpot实现、GC Root与保留链、OOM分型解释原理、工程边界与追问。",
+        "objectives": [
+          "准确解释规范区域与HotSpot实现并举出反例",
+          "准确解释GC Root与保留链并举出反例",
+          "准确解释OOM分型并举出反例"
+        ],
+        "minutes": 35,
+        "difficulty": 3,
+        "importance": "S",
+        "prerequisites": [],
+        "material": "JVM规范的运行时区域包括线程私有的程序计数器、虚拟机栈和本地方法栈，以及共享的堆与方法区。HotSpot Java17用元空间承载部分类型元数据，但“方法区就是元空间”是实现与抽象层次混淆；字符串、数组等对象通常在堆，JIT逃逸分析也可能消除实际分配，不能把源码new次数机械等同于堆对象数量。\n\n垃圾回收按根可达性判断存活，循环引用并不必然泄漏。线程栈、静态引用等能让对象仍可达；缓存、监听器和ThreadLocal可能在业务已不用时继续持有它。内存泄漏是无必要的长期保留，内存压力也可能来自合理但过大的工作集，必须结合业务生命周期区分。\n\nOOM不是单一故障。Java heap space、Metaspace、直接缓冲内存和无法创建本地线程各自对应不同资源；StackOverflowError通常是栈深超限，与堆OOM不同。先保留错误文本、GC日志和时间线，再按类别检查堆转储、类加载数量、直接内存、线程数及宿主机限制，不能统一调大Xmx。\n\n工程取堆转储可能停顿并需要磁盘容量，转储含敏感数据，应在授权环境控制存放权限。分析时看占用大的对象及其到GC Root的持有链，再检查为何过期数据没被移除；高shallow size和高retained size说明的问题不同。面试追問应给出无限缓存案例，展示对象数量随请求增长以及删除引用后的变化，不能只凭进程RSS上涨就宣称堆泄漏，因为本地内存、线程栈与映射文件也会影响RSS。\n\n参考（官方，适用版本已在正文说明）：\n- https://docs.oracle.com/javase/specs/jvms/se17/html/jvms-2.html\n- https://docs.oracle.com/en/java/javase/17/docs/specs/man/jcmd.html",
+        "knowledge": [
+          {
+            "key": "jvm.memory.k1",
+            "name": "规范区域与HotSpot实现",
+            "explanation": "不一定。追踪式GC看从根是否可达，两个对象互相引用但不再被根访问仍可回收。真正问题是长寿命根持有不再需要的数据；分析应沿引用链找到缓存、线程或静态字段的保留原因。"
+          },
+          {
+            "key": "jvm.memory.k2",
+            "name": "GC Root与保留链",
+            "explanation": "Xmx限制最大Java堆，不覆盖元空间、线程栈、代码缓存、直接内存及其他本地分配。RSS是进程驻留视图；结合GC数据和Native Memory Tracking确认来源，不能拿两个指标直接证明泄漏。"
+          },
+          {
+            "key": "jvm.memory.k3",
+            "name": "OOM分型",
+            "explanation": "先记录完整错误类别与发生时间，再选择证据：堆OOM看转储保留链，元空间看类加载器增长，本地线程失败看线程数和系统限制。确认增长对象的生命周期后修复保留原因，扩容只是容量措施。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Pitfall",
+            "front": "循环引用一定不能回收吗？",
+            "back": "不一定。追踪式GC看从根是否可达，两个对象互相引用但不再被根访问仍可回收。真正问题是长寿命根持有不再需要的数据；分析应沿引用链找到缓存、线程或静态字段的保留原因。 追问：为什么RSS大于Xmx？",
+            "knowledgeKeys": [
+              "jvm.memory.k1"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "为什么RSS大于Xmx？",
+            "back": "Xmx限制最大Java堆，不覆盖元空间、线程栈、代码缓存、直接内存及其他本地分配。RSS是进程驻留视图；结合GC数据和Native Memory Tracking确认来源，不能拿两个指标直接证明泄漏。 追问：OOM如何定位而不是直接加堆？",
+            "knowledgeKeys": [
+              "jvm.memory.k2"
+            ]
+          },
+          {
+            "type": "Difference",
+            "front": "OOM如何定位而不是直接加堆？",
+            "back": "先记录完整错误类别与发生时间，再选择证据：堆OOM看转储保留链，元空间看类加载器增长，本地线程失败看线程数和系统限制。确认增长对象的生命周期后修复保留原因，扩容只是容量措施。 追问：循环引用一定不能回收吗？",
+            "knowledgeKeys": [
+              "jvm.memory.k3"
+            ]
+          },
+          {
+            "type": "Scenario",
+            "front": "如何验证本章练习的正确性与边界？",
+            "back": "用contains检查三个完整错误片段，未知保留UNKNOWN；该练习只分类文本，不等于故障诊断完成。 追问：为何该验证不能直接证明生产环境安全或性能达标？",
+            "knowledgeKeys": [
+              "jvm.memory.k1",
+              "jvm.memory.k2",
+              "jvm.memory.k3"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "循环引用一定不能回收吗？",
+            "answer": "不一定。追踪式GC看从根是否可达，两个对象互相引用但不再被根访问仍可回收。真正问题是长寿命根持有不再需要的数据；分析应沿引用链找到缓存、线程或静态字段的保留原因。 工程验证：用contains检查三个完整错误片段，未知保留UNKNOWN；该练习只分类文本，不等于故障诊断完成。 边界：按引用次数而非GC Roots可达性判断循环对象不能回收。",
+            "keyPoints": [
+              "规范区域与HotSpot实现",
+              "不一定。追踪式GC看从根是否可达，两个对象互相引用但不再被根访问仍可回收。真正问题是长寿命根持有不再需要的数据；分析应沿引用链找到缓存、线程或静态字段的保留原因。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "为什么RSS大于Xmx？"
+            ],
+            "commonMistakes": [
+              "按引用次数而非GC Roots可达性判断循环对象不能回收。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "jvm.memory.k1"
+            ]
+          },
+          {
+            "question": "为什么RSS大于Xmx？",
+            "answer": "Xmx限制最大Java堆，不覆盖元空间、线程栈、代码缓存、直接内存及其他本地分配。RSS是进程驻留视图；结合GC数据和Native Memory Tracking确认来源，不能拿两个指标直接证明泄漏。 工程验证：用contains检查三个完整错误片段，未知保留UNKNOWN；该练习只分类文本，不等于故障诊断完成。 边界：把Xmx当进程全部内存，忽略线程栈、直接内存和元空间。",
+            "keyPoints": [
+              "GC Root与保留链",
+              "Xmx限制最大Java堆，不覆盖元空间、线程栈、代码缓存、直接内存及其他本地分配。RSS是进程驻留视图；结合GC数据和Native Memory Tracking确认来源，不能拿两个指标直接证明泄漏。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "OOM如何定位而不是直接加堆？"
+            ],
+            "commonMistakes": [
+              "把Xmx当进程全部内存，忽略线程栈、直接内存和元空间。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "jvm.memory.k2"
+            ]
+          },
+          {
+            "question": "OOM如何定位而不是直接加堆？",
+            "answer": "先记录完整错误类别与发生时间，再选择证据：堆OOM看转储保留链，元空间看类加载器增长，本地线程失败看线程数和系统限制。确认增长对象的生命周期后修复保留原因，扩容只是容量措施。 工程验证：用contains检查三个完整错误片段，未知保留UNKNOWN；该练习只分类文本，不等于故障诊断完成。 边界：不分OOM类别和保留链，只反复扩大堆。",
+            "keyPoints": [
+              "OOM分型",
+              "先记录完整错误类别与发生时间，再选择证据：堆OOM看转储保留链，元空间看类加载器增长，本地线程失败看线程数和系统限制。确认增长对象的生命周期后修复保留原因，扩容只是容量措施。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "循环引用一定不能回收吗？"
+            ],
+            "commonMistakes": [
+              "不分OOM类别和保留链，只反复扩大堆。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "jvm.memory.k3"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "OOM证据分类器",
+          "description": "读取一行异常信息，包含Java heap space输出HEAP，包含Metaspace输出METASPACE，包含unable to create native thread输出THREAD，否则UNKNOWN；匹配按以上优先级。",
+          "hint": "先明确输入边界与输出协议，再完成关键状态转换。用contains检查三个完整错误片段，未知保留UNKNOWN",
+          "codeTemplate": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    String text = new Scanner(System.in).nextLine();\n    // TODO 按规定优先级分类，不吞掉未知情况\n    throw new UnsupportedOperationException(\"TODO\");\n  }\n}",
+          "solutionHint": "用contains检查三个完整错误片段，未知保留UNKNOWN；该练习只分类文本，不等于故障诊断完成。",
+          "exampleInput": "java.lang.OutOfMemoryError: Metaspace",
+          "exampleOutput": "METASPACE",
+          "testCases": [
+            {
+              "input": "java.lang.OutOfMemoryError: Metaspace",
+              "expected": "METASPACE"
+            },
+            {
+              "input": "other error",
+              "expected": "UNKNOWN"
+            },
+            {
+              "input": "unable to create native thread",
+              "expected": "THREAD"
+            }
+          ],
+          "knowledgeKeys": [
+            "jvm.memory.k1",
+            "jvm.memory.k2",
+            "jvm.memory.k3"
+          ]
+        }
+        },
+        {
+        "key": "jvm.g1",
+        "title": "G1：区域、标记与停顿目标",
+        "description": "围绕G1区域与疏散、并发标记和暂停、humongous与容量解释原理、工程边界与追问。",
+        "objectives": [
+          "准确解释G1区域与疏散并举出反例",
+          "准确解释并发标记和暂停并举出反例",
+          "准确解释humongous与容量并举出反例"
+        ],
+        "minutes": 35,
+        "difficulty": 3,
+        "importance": "S",
+        "prerequisites": [
+          "jvm.memory"
+        ],
+        "material": "G1在HotSpot Java17中是常见默认收集器，面向多处理器和大堆，通过大小相同的region组织年轻与老年代，这些逻辑代际不必在内存中连续。年轻集合和混合集合会把存活对象疏散到其他区域，回收空出的区域；“没有连续老年代”不意味着“没有分代”。\n\n并发标记识别存活并为后续老区选择提供信息，并不是所有回收工作都并发。G1有需要暂停应用线程的阶段，停顿目标是尽力达成的软目标，不能保证每次暂停小于MaxGCPauseMillis。跨region引用需要记忆集等信息辅助寻找存活对象，维护这些信息本身也有内存和CPU成本。\n\n大于等于半个region的对象属于humongous对象，通常需要连续region存放，分配可能推动GC节奏；它不能简单等同于“所有大对象都进入普通年轻区”。疏散需要足够目标空间，分配压力、晋升和保留余量影响失败风险，严重情况下仍可能Full GC。减小停顿目标可能增加GC频率或减少单次回收规模，并非免费降低延迟。\n\n工程先启用Java17统一日志如-Xlog:gc*，比较暂停分布、回收前后占用、分配速率和并发周期。若存活量长期上升，要先找业务保留；若大量大数组，引入流式处理或分块而非只调整region。面试追问应区分吞吐、平均延迟和尾延迟，解释为什么一次暂停短但频率高仍可能降低总体吞吐。不同JDK补丁版的细节以实际日志与对应官方指南为准，不能把旧CMS参数直接套到G1。\n\n参考（官方，适用版本已在正文说明）：\n- https://docs.oracle.com/en/java/javase/17/gctuning/garbage-first-g1-garbage-collector1.html",
+        "knowledge": [
+          {
+            "key": "jvm.g1.k1",
+            "name": "G1区域与疏散",
+            "explanation": "不是。G1部分标记与应用并发，但年轻和混合集合等阶段仍需要暂停。MaxGCPauseMillis是软目标，负载和存活量可能使目标无法实现；应看日志中的停顿分布而非仅报告参数值。"
+          },
+          {
+            "key": "jvm.g1.k2",
+            "name": "并发标记和暂停",
+            "explanation": "更低目标可能使单次收集选择更小集合，从而增加频率与CPU开销。先确定业务尾延迟预算，再同时观察吞吐、分配速率和暂停分位数；不能用一次短暂停判断整段运行更快。"
+          },
+          {
+            "key": "jvm.g1.k3",
+            "name": "humongous与容量",
+            "explanation": "大小达到半region的对象需要一个或多个连续region，通常按特殊路径分配，可能增加空间浪费和触发收集。分析大数组来源及生命周期，考虑流式分块，并以GC日志验证影响而非只增大堆。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Pitfall",
+            "front": "G1是完全无停顿的吗？",
+            "back": "不是。G1部分标记与应用并发，但年轻和混合集合等阶段仍需要暂停。MaxGCPauseMillis是软目标，负载和存活量可能使目标无法实现；应看日志中的停顿分布而非仅报告参数值。 追问：为什么调低暂停目标未必更快？",
+            "knowledgeKeys": [
+              "jvm.g1.k1"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "为什么调低暂停目标未必更快？",
+            "back": "更低目标可能使单次收集选择更小集合，从而增加频率与CPU开销。先确定业务尾延迟预算，再同时观察吞吐、分配速率和暂停分位数；不能用一次短暂停判断整段运行更快。 追问：humongous对象如何影响G1？",
+            "knowledgeKeys": [
+              "jvm.g1.k2"
+            ]
+          },
+          {
+            "type": "Difference",
+            "front": "humongous对象如何影响G1？",
+            "back": "大小达到半region的对象需要一个或多个连续region，通常按特殊路径分配，可能增加空间浪费和触发收集。分析大数组来源及生命周期，考虑流式分块，并以GC日志验证影响而非只增大堆。 追问：G1是完全无停顿的吗？",
+            "knowledgeKeys": [
+              "jvm.g1.k3"
+            ]
+          },
+          {
+            "type": "Scenario",
+            "front": "如何验证本章练习的正确性与边界？",
+            "back": "n>0时索引ceil(0.95*n)-1；排序后取值，空输入单独处理。 追问：为何该验证不能直接证明生产环境安全或性能达标？",
+            "knowledgeKeys": [
+              "jvm.g1.k1",
+              "jvm.g1.k2",
+              "jvm.g1.k3"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "G1是完全无停顿的吗？",
+            "answer": "不是。G1部分标记与应用并发，但年轻和混合集合等阶段仍需要暂停。MaxGCPauseMillis是软目标，负载和存活量可能使目标无法实现；应看日志中的停顿分布而非仅报告参数值。 工程验证：n>0时索引ceil(0.95*n)-1；排序后取值，空输入单独处理。 边界：把并发标记误当所有GC阶段与疏散都没有停顿。",
+            "keyPoints": [
+              "G1区域与疏散",
+              "不是。G1部分标记与应用并发，但年轻和混合集合等阶段仍需要暂停。MaxGCPauseMillis是软目标，负载和存活量可能使目标无法实现；应看日志中的停顿分布而非仅报告参数值。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "为什么调低暂停目标未必更快？"
+            ],
+            "commonMistakes": [
+              "把并发标记误当所有GC阶段与疏散都没有停顿。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "jvm.g1.k1"
+            ]
+          },
+          {
+            "question": "为什么调低暂停目标未必更快？",
+            "answer": "更低目标可能使单次收集选择更小集合，从而增加频率与CPU开销。先确定业务尾延迟预算，再同时观察吞吐、分配速率和暂停分位数；不能用一次短暂停判断整段运行更快。 工程验证：n>0时索引ceil(0.95*n)-1；排序后取值，空输入单独处理。 边界：把暂停目标当硬实时保证，忽略吞吐与回收工作的权衡。",
+            "keyPoints": [
+              "并发标记和暂停",
+              "更低目标可能使单次收集选择更小集合，从而增加频率与CPU开销。先确定业务尾延迟预算，再同时观察吞吐、分配速率和暂停分位数；不能用一次短暂停判断整段运行更快。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "humongous对象如何影响G1？"
+            ],
+            "commonMistakes": [
+              "把暂停目标当硬实时保证，忽略吞吐与回收工作的权衡。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "jvm.g1.k2"
+            ]
+          },
+          {
+            "question": "humongous对象如何影响G1？",
+            "answer": "大小达到半region的对象需要一个或多个连续region，通常按特殊路径分配，可能增加空间浪费和触发收集。分析大数组来源及生命周期，考虑流式分块，并以GC日志验证影响而非只增大堆。 工程验证：n>0时索引ceil(0.95*n)-1；排序后取值，空输入单独处理。 边界：忽略大对象与Region大小的关系和连续区域需求。",
+            "keyPoints": [
+              "humongous与容量",
+              "大小达到半region的对象需要一个或多个连续region，通常按特殊路径分配，可能增加空间浪费和触发收集。分析大数组来源及生命周期，考虑流式分块，并以GC日志验证影响而非只增大堆。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "G1是完全无停顿的吗？"
+            ],
+            "commonMistakes": [
+              "忽略大对象与Region大小的关系和连续区域需求。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "jvm.g1.k3"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "GC暂停分位数",
+          "description": "输入逗号分隔非负整数毫秒，排序并输出nearest-rank P95，即ceil(0.95*n)第一个起算位置；空输入EMPTY。",
+          "hint": "先明确输入边界与输出协议，再完成关键状态转换。n>0时索引ceil(0.95*n)-1",
+          "codeTemplate": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    String line = new Scanner(System.in).nextLine();\n    // TODO 解析、排序、计算nearest-rank位置；处理空输入\n    throw new UnsupportedOperationException(\"TODO\");\n  }\n}",
+          "solutionHint": "n>0时索引ceil(0.95*n)-1；排序后取值，空输入单独处理。",
+          "exampleInput": "1,2,3,100",
+          "exampleOutput": "100",
+          "testCases": [
+            {
+              "input": "1,2,3,100",
+              "expected": "100"
+            },
+            {
+              "input": "",
+              "expected": "EMPTY"
+            },
+            {
+              "input": "5",
+              "expected": "5"
+            }
+          ],
+          "knowledgeKeys": [
+            "jvm.g1.k1",
+            "jvm.g1.k2",
+            "jvm.g1.k3"
+          ]
+        }
+        },
+        {
+        "key": "jvm.classload",
+        "title": "类加载、初始化与类型身份",
+        "description": "围绕加载链接初始化、类加载器与身份、主动使用和初始化失败解释原理、工程边界与追问。",
+        "objectives": [
+          "准确解释加载链接初始化并举出反例",
+          "准确解释类加载器与身份并举出反例",
+          "准确解释主动使用和初始化失败并举出反例"
+        ],
+        "minutes": 35,
+        "difficulty": 3,
+        "importance": "S",
+        "prerequisites": [
+          "jvm.g1"
+        ],
+        "material": "JVM类生命周期需要区分加载、链接和初始化，链接包含验证、准备及解析，解析允许按规范在需要时进行。加载获得类的二进制表示，准备为静态字段分配存储并设置规定初始值，初始化执行静态初始化逻辑。不能把new对象和“每次都初始化Class”混为一谈，类初始化具有同步规则，多个线程不会随意重复执行同一初始化。\n\n类型身份由二进制类名与定义它的类加载器共同确定，同名类由不同定义加载器加载可以互不兼容。父优先委派是常见ClassLoader策略，JVM规范不要求所有自定义加载器只能采用这一种顺序；插件隔离和容器可能设计其他规则，因此回答需要区分规范约束与加载器实现。\n\n主动使用如创建实例、调用静态方法、访问非编译期常量的静态字段可能触发初始化，读取编译期常量可能已内联，不触发声明类初始化。Class.forName常见重载会初始化，带initialize参数的版本可控制；ClassLoader.loadClass通常仅加载，不能据此认定静态块已执行。初始化失败后类会进入错误状态，后续使用可能出现NoClassDefFoundError，要追溯最初异常。\n\n工程热部署泄漏常见于旧ClassLoader被线程、静态注册器或缓存保留，类卸载不是删除jar就完成。诊断要结合类加载统计与保留链，移除上下文类加载器和监听器等引用。面试追问用父类静态字段由子类名称访问的例子，说明实际触发的是字段声明类，再讨论常量编译内联导致升级后调用方仍保留旧值的兼容问题。\n\n参考（官方，适用版本已在正文说明）：\n- https://docs.oracle.com/javase/specs/jvms/se17/html/jvms-5.html",
+        "knowledge": [
+          {
+            "key": "jvm.classload.k1",
+            "name": "加载链接初始化",
+            "explanation": "运行时类型身份包含定义加载器与二进制名。两个加载器各定义同名类，仍是不同类型；先确认实际加载器和依赖边界，再用共享父加载器定义公共接口，不应仅比较getName字符串。"
+          },
+          {
+            "key": "jvm.classload.k2",
+            "name": "类加载器与身份",
+            "explanation": "不一定。编译期常量可能被内联，读取它无需初始化声明类；非编译期常量的静态字段则可能触发。回答应区分final修饰与常量表达式，配合静态块输出的小程序展示顺序。"
+          },
+          {
+            "key": "jvm.classload.k3",
+            "name": "主动使用和初始化失败",
+            "explanation": "旧加载器仍被线程、注册器或缓存引用时，其定义的类难以卸载，多次部署积累元数据。结合类加载统计和保留链找到引用源，释放资源并清理上下文，而不是简单调高MaxMetaspaceSize。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Pitfall",
+            "front": "同名类为什么可能转换失败？",
+            "back": "运行时类型身份包含定义加载器与二进制名。两个加载器各定义同名类，仍是不同类型；先确认实际加载器和依赖边界，再用共享父加载器定义公共接口，不应仅比较getName字符串。 追问：访问static final一定初始化类吗？",
+            "knowledgeKeys": [
+              "jvm.classload.k1"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "访问static final一定初始化类吗？",
+            "back": "不一定。编译期常量可能被内联，读取它无需初始化声明类；非编译期常量的静态字段则可能触发。回答应区分final修饰与常量表达式，配合静态块输出的小程序展示顺序。 追问：热部署为何可能导致元空间增长？",
+            "knowledgeKeys": [
+              "jvm.classload.k2"
+            ]
+          },
+          {
+            "type": "Difference",
+            "front": "热部署为何可能导致元空间增长？",
+            "back": "旧加载器仍被线程、注册器或缓存引用时，其定义的类难以卸载，多次部署积累元数据。结合类加载统计和保留链找到引用源，释放资源并清理上下文，而不是简单调高MaxMetaspaceSize。 追问：同名类为什么可能转换失败？",
+            "knowledgeKeys": [
+              "jvm.classload.k3"
+            ]
+          },
+          {
+            "type": "Scenario",
+            "front": "如何验证本章练习的正确性与边界？",
+            "back": "CONST用字面量常量表达式，VALUE调用方法；静态块位置决定与VALUE赋值之间的顺序，输出解释需与自己代码一致。 追问：为何该验证不能直接证明生产环境安全或性能达标？",
+            "knowledgeKeys": [
+              "jvm.classload.k1",
+              "jvm.classload.k2",
+              "jvm.classload.k3"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "同名类为什么可能转换失败？",
+            "answer": "运行时类型身份包含定义加载器与二进制名。两个加载器各定义同名类，仍是不同类型；先确认实际加载器和依赖边界，再用共享父加载器定义公共接口，不应仅比较getName字符串。 工程验证：CONST用字面量常量表达式，VALUE调用方法；静态块位置决定与VALUE赋值之间的顺序，输出解释需与自己代码一致。 边界：只比较类全限定名，忽略定义类加载器也是类型身份。",
+            "keyPoints": [
+              "加载链接初始化",
+              "运行时类型身份包含定义加载器与二进制名。两个加载器各定义同名类，仍是不同类型；先确认实际加载器和依赖边界，再用共享父加载器定义公共接口，不应仅比较getName字符串。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "访问static final一定初始化类吗？"
+            ],
+            "commonMistakes": [
+              "只比较类全限定名，忽略定义类加载器也是类型身份。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "jvm.classload.k1"
+            ]
+          },
+          {
+            "question": "访问static final一定初始化类吗？",
+            "answer": "不一定。编译期常量可能被内联，读取它无需初始化声明类；非编译期常量的静态字段则可能触发。回答应区分final修饰与常量表达式，配合静态块输出的小程序展示顺序。 工程验证：CONST用字面量常量表达式，VALUE调用方法；静态块位置决定与VALUE赋值之间的顺序，输出解释需与自己代码一致。 边界：把编译期常量内联访问当作一定触发声明类初始化。",
+            "keyPoints": [
+              "类加载器与身份",
+              "不一定。编译期常量可能被内联，读取它无需初始化声明类；非编译期常量的静态字段则可能触发。回答应区分final修饰与常量表达式，配合静态块输出的小程序展示顺序。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "热部署为何可能导致元空间增长？"
+            ],
+            "commonMistakes": [
+              "把编译期常量内联访问当作一定触发声明类初始化。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "jvm.classload.k2"
+            ]
+          },
+          {
+            "question": "热部署为何可能导致元空间增长？",
+            "answer": "旧加载器仍被线程、注册器或缓存引用时，其定义的类难以卸载，多次部署积累元数据。结合类加载统计和保留链找到引用源，释放资源并清理上下文，而不是简单调高MaxMetaspaceSize。 工程验证：CONST用字面量常量表达式，VALUE调用方法；静态块位置决定与VALUE赋值之间的顺序，输出解释需与自己代码一致。 边界：忽略仍被线程或静态缓存引用的旧类加载器，只看类文件数量。",
+            "keyPoints": [
+              "主动使用和初始化失败",
+              "旧加载器仍被线程、注册器或缓存引用时，其定义的类难以卸载，多次部署积累元数据。结合类加载统计和保留链找到引用源，释放资源并清理上下文，而不是简单调高MaxMetaspaceSize。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "同名类为什么可能转换失败？"
+            ],
+            "commonMistakes": [
+              "忽略仍被线程或静态缓存引用的旧类加载器，只看类文件数量。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "jvm.classload.k3"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "初始化顺序观察",
+          "description": "Java17人工检查：编写有静态块的Holder，其CONST为编译期常量、VALUE通过方法赋值；main先读CONST再读VALUE，解释输出与初始化时机。人工检查而非假自动PASS。",
+          "hint": "先明确输入边界与输出协议，再完成关键状态转换。CONST用字面量常量表达式，VALUE调用方法",
+          "codeTemplate": "public class Main {\n  static class Holder {\n    // TODO 声明CONST、VALUE、初始化方法及静态块\n  }\n  public static void main(String[] args) {\n    // TODO 按规定顺序访问两个字段并说明输出\n  }\n}",
+          "solutionHint": "CONST用字面量常量表达式，VALUE调用方法；静态块位置决定与VALUE赋值之间的顺序，输出解释需与自己代码一致。",
+          "exampleInput": "read CONST, then VALUE",
+          "exampleOutput": "先常量输出，再静态块，再VALUE",
+          "testCases": [],
+          "knowledgeKeys": [
+            "jvm.classload.k1",
+            "jvm.classload.k2",
+            "jvm.classload.k3"
+          ]
+        }
+        },
+        {
+        "key": "jvm.diagnostics",
+        "title": "CPU100、线程转储与诊断闭环",
+        "description": "围绕CPU口径与时间线、热点线程关联、证据与根因闭环解释原理、工程边界与追问。",
+        "objectives": [
+          "准确解释CPU口径与时间线并举出反例",
+          "准确解释热点线程关联并举出反例",
+          "准确解释证据与根因闭环并举出反例"
+        ],
+        "minutes": 35,
+        "difficulty": 3,
+        "importance": "S",
+        "prerequisites": [
+          "jvm.classload"
+        ],
+        "material": "CPU100是现象而非根因，先确认它表示单核、进程还是容器配额视角，再把异常时间与吞吐、延迟、GC和请求类型关联。热点可能是业务循环、重试风暴、序列化、锁竞争或GC；线程BLOCKED多并不直接证明该线程消耗CPU，等待线程通常需要与真正运行线程区分。\n\n在授权的Java17环境先确认进程归属，再用系统工具查热点线程，记录OS线程ID并转换为十六进制，与线程转储中的本地线程标识关联。jcmd pid Thread.print可获得栈，连续多份转储比一次快照更能判断是否持续卡在同一函数。工具附加可能需要同用户权限和相同宿主环境，不能将命令失败解释为程序没有问题。\n\n若热点在GC线程，应结合-Xlog:gc*观察分配速率、暂停和收集后存活量；若在业务栈，检查无限循环和缺少退避的CAS重试。JFR或采样剖析能提供统计热点，但采样不是每次调用的完整记录，必须解释证据窗口与开销。不要未经确认直接kill进程而丢失诊断证据，也不要用线上生成巨大堆转储代替CPU分析。\n\n工程诊断形成可复现输入、基线指标、根因、最小修复和回归比较的闭环。Personal Project中可构造有界循环练习工具使用，不编造真实线上流量或事故。面试追问需要给出证据能支持和不能支持的结论：栈中看见HashMap不等于HashMap导致死循环，JDK7历史扩容问题也不能直接套用JDK8或Java17；先确认运行版本、竞争访问和实际热点，再说明改动如何验证。\n\n参考（官方，适用版本已在正文说明）：\n- https://docs.oracle.com/en/java/javase/17/docs/specs/man/jcmd.html",
+        "knowledge": [
+          {
+            "key": "jvm.diagnostics.k1",
+            "name": "CPU口径与时间线",
+            "explanation": "先确认CPU口径和进程归属，包括核数、容器限额与发生时间。将CPU变化同延迟、吞吐及GC关联，再定位OS热点线程。不能一上来调线程池或杀进程，因为那会改变现象并损失证据。"
+          },
+          {
+            "key": "jvm.diagnostics.k2",
+            "name": "热点线程关联",
+            "explanation": "不足。单份栈只说明采样时刻在某位置，连续多份稳定栈和线程CPU持续增长才支持持续热点判断。还要核对输入与代码循环退出条件，采样窗口外的行为不能假装已观察到。"
+          },
+          {
+            "key": "jvm.diagnostics.k3",
+            "name": "证据与根因闭环",
+            "explanation": "把热点线程ID关联到线程栈，GC线程热点再看GC日志的频率、存活量和分配率；业务热点检查实际方法及重试循环。使用JFR采样比较修复前后同负载，并保留工具开销和权限限制。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Pitfall",
+            "front": "CPU100第一步看什么？",
+            "back": "先确认CPU口径和进程归属，包括核数、容器限额与发生时间。将CPU变化同延迟、吞吐及GC关联，再定位OS热点线程。不能一上来调线程池或杀进程，因为那会改变现象并损失证据。 追问：一次线程转储足以证明死循环吗？",
+            "knowledgeKeys": [
+              "jvm.diagnostics.k1"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "一次线程转储足以证明死循环吗？",
+            "back": "不足。单份栈只说明采样时刻在某位置，连续多份稳定栈和线程CPU持续增长才支持持续热点判断。还要核对输入与代码循环退出条件，采样窗口外的行为不能假装已观察到。 追问：如何区分GC热点与业务热点？",
+            "knowledgeKeys": [
+              "jvm.diagnostics.k2"
+            ]
+          },
+          {
+            "type": "Difference",
+            "front": "如何区分GC热点与业务热点？",
+            "back": "把热点线程ID关联到线程栈，GC线程热点再看GC日志的频率、存活量和分配率；业务热点检查实际方法及重试循环。使用JFR采样比较修复前后同负载，并保留工具开销和权限限制。 追问：CPU100第一步看什么？",
+            "knowledgeKeys": [
+              "jvm.diagnostics.k3"
+            ]
+          },
+          {
+            "type": "Scenario",
+            "front": "如何验证本章练习的正确性与边界？",
+            "back": "负数输出INVALID；非负使用Long.toHexString并添加0x，不使用int截断。 追问：为何该验证不能直接证明生产环境安全或性能达标？",
+            "knowledgeKeys": [
+              "jvm.diagnostics.k1",
+              "jvm.diagnostics.k2",
+              "jvm.diagnostics.k3"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "CPU100第一步看什么？",
+            "answer": "先确认CPU口径和进程归属，包括核数、容器限额与发生时间。将CPU变化同延迟、吞吐及GC关联，再定位OS热点线程。不能一上来调线程池或杀进程，因为那会改变现象并损失证据。 工程验证：负数输出INVALID；非负使用Long.toHexString并添加0x，不使用int截断。 边界：不核对进程、CPU口径和采样时间，直接把100%归因死循环。",
+            "keyPoints": [
+              "CPU口径与时间线",
+              "先确认CPU口径和进程归属，包括核数、容器限额与发生时间。将CPU变化同延迟、吞吐及GC关联，再定位OS热点线程。不能一上来调线程池或杀进程，因为那会改变现象并损失证据。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "一次线程转储足以证明死循环吗？"
+            ],
+            "commonMistakes": [
+              "不核对进程、CPU口径和采样时间，直接把100%归因死循环。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "jvm.diagnostics.k1"
+            ]
+          },
+          {
+            "question": "一次线程转储足以证明死循环吗？",
+            "answer": "不足。单份栈只说明采样时刻在某位置，连续多份稳定栈和线程CPU持续增长才支持持续热点判断。还要核对输入与代码循环退出条件，采样窗口外的行为不能假装已观察到。 工程验证：负数输出INVALID；非负使用Long.toHexString并添加0x，不使用int截断。 边界：凭一次RUNNABLE堆栈断定热点，无重复采样或线程CPU证据。",
+            "keyPoints": [
+              "热点线程关联",
+              "不足。单份栈只说明采样时刻在某位置，连续多份稳定栈和线程CPU持续增长才支持持续热点判断。还要核对输入与代码循环退出条件，采样窗口外的行为不能假装已观察到。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "如何区分GC热点与业务热点？"
+            ],
+            "commonMistakes": [
+              "凭一次RUNNABLE堆栈断定热点，无重复采样或线程CPU证据。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "jvm.diagnostics.k2"
+            ]
+          },
+          {
+            "question": "如何区分GC热点与业务热点？",
+            "answer": "把热点线程ID关联到线程栈，GC线程热点再看GC日志的频率、存活量和分配率；业务热点检查实际方法及重试循环。使用JFR采样比较修复前后同负载，并保留工具开销和权限限制。 工程验证：负数输出INVALID；非负使用Long.toHexString并添加0x，不使用int截断。 边界：不关联线程名、CPU趋势与GC日志，混淆GC负载和业务热点。",
+            "keyPoints": [
+              "证据与根因闭环",
+              "把热点线程ID关联到线程栈，GC线程热点再看GC日志的频率、存活量和分配率；业务热点检查实际方法及重试循环。使用JFR采样比较修复前后同负载，并保留工具开销和权限限制。",
+              "说明版本、输入边界及验证证据"
+            ],
+            "followUps": [
+              "CPU100第一步看什么？"
+            ],
+            "commonMistakes": [
+              "不关联线程名、CPU趋势与GC日志，混淆GC负载和业务热点。"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "jvm.diagnostics.k3"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "线程ID转换",
+          "description": "输入十进制非负线程ID，输出小写十六进制并加0x前缀；输入值使用long范围，负数输出INVALID。",
+          "hint": "先明确输入边界与输出协议，再完成关键状态转换。负数输出INVALID",
+          "codeTemplate": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    long tid = new Scanner(System.in).nextLong();\n    // TODO 检验非负值并转换进制\n    throw new UnsupportedOperationException(\"TODO\");\n  }\n}",
+          "solutionHint": "负数输出INVALID；非负使用Long.toHexString并添加0x，不使用int截断。",
+          "exampleInput": "255",
+          "exampleOutput": "0xff",
+          "testCases": [
+            {
+              "input": "255",
+              "expected": "0xff"
+            },
+            {
+              "input": "0",
+              "expected": "0x0"
+            },
+            {
+              "input": "-1",
+              "expected": "INVALID"
+            }
+          ],
+          "knowledgeKeys": [
+            "jvm.diagnostics.k1",
+            "jvm.diagnostics.k2",
+            "jvm.diagnostics.k3"
+          ]
+        }
+        }
+      ],
+      "notes": [
+        {
+          "title": "运行时内存、可达性与 OOM速记",
+          "chapterKey": "jvm.memory",
+          "content": "规范区域与HotSpot实现：不一定。追踪式GC看从根是否可达，两个对象互相引用但不再被根访问仍可回收。真正问题是长寿命根持有不再需要的数据；分析应沿引用链找到缓存、线程或静态字段的保留原因。\nGC Root与保留链：Xmx限制最大Java堆，不覆盖元空间、线程栈、代码缓存、直接内存及其他本地分配。RSS是进程驻留视图；结合GC数据和Native Memory Tracking确认来源，不能拿两个指标直接证明泄漏。\nOOM分型：先记录完整错误类别与发生时间，再选择证据：堆OOM看转储保留链，元空间看类加载器增长，本地线程失败看线程数和系统限制。确认增长对象的生命周期后修复保留原因，扩容只是容量措施。\n复习步骤：先复述不变量，再举反例，再描述一项可执行的验证。官方参考见章节材料；速记不替代完整版本与边界说明。"
+        },
+        {
+          "title": "G1：区域、标记与停顿目标速记",
+          "chapterKey": "jvm.g1",
+          "content": "G1区域与疏散：不是。G1部分标记与应用并发，但年轻和混合集合等阶段仍需要暂停。MaxGCPauseMillis是软目标，负载和存活量可能使目标无法实现；应看日志中的停顿分布而非仅报告参数值。\n并发标记和暂停：更低目标可能使单次收集选择更小集合，从而增加频率与CPU开销。先确定业务尾延迟预算，再同时观察吞吐、分配速率和暂停分位数；不能用一次短暂停判断整段运行更快。\nhumongous与容量：大小达到半region的对象需要一个或多个连续region，通常按特殊路径分配，可能增加空间浪费和触发收集。分析大数组来源及生命周期，考虑流式分块，并以GC日志验证影响而非只增大堆。\n复习步骤：先复述不变量，再举反例，再描述一项可执行的验证。官方参考见章节材料；速记不替代完整版本与边界说明。"
+        },
+        {
+          "title": "类加载、初始化与类型身份速记",
+          "chapterKey": "jvm.classload",
+          "content": "加载链接初始化：运行时类型身份包含定义加载器与二进制名。两个加载器各定义同名类，仍是不同类型；先确认实际加载器和依赖边界，再用共享父加载器定义公共接口，不应仅比较getName字符串。\n类加载器与身份：不一定。编译期常量可能被内联，读取它无需初始化声明类；非编译期常量的静态字段则可能触发。回答应区分final修饰与常量表达式，配合静态块输出的小程序展示顺序。\n主动使用和初始化失败：旧加载器仍被线程、注册器或缓存引用时，其定义的类难以卸载，多次部署积累元数据。结合类加载统计和保留链找到引用源，释放资源并清理上下文，而不是简单调高MaxMetaspaceSize。\n复习步骤：先复述不变量，再举反例，再描述一项可执行的验证。官方参考见章节材料；速记不替代完整版本与边界说明。"
+        }
+      ]
+    }
+  ]
+}

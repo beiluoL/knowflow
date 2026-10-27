@@ -46,6 +46,7 @@ public class KnowledgeService {
     private final AiConfig aiConfig;
     private final KgEntityMapper kgEntityMapper;
     private final KgRelationMapper kgRelationMapper;
+    private final com.knowflow.security.DocumentAccessPolicy access;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // ===== 1. 分类-文档层级图谱 =====
@@ -54,7 +55,8 @@ public class KnowledgeService {
         List<DocCategory> categories = categoryMapper.selectList(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<DocCategory>()
                 .eq(DocCategory::getStatus, 1)
                 .orderByAsc(DocCategory::getSortOrder));
-        List<DocDocument> docs = docMapper.selectList(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<DocDocument>()
+        categories=categories.stream().filter(c->access.canReadCategory(c.getId(),access.actor())).toList();
+        List<DocDocument> docs = docMapper.selectList(access.scope(new LambdaQueryWrapper<DocDocument>(),access.actor())
                 .eq(DocDocument::getStatus, 1));
 
         List<GraphNodeVO> nodes = new ArrayList<>();
@@ -103,6 +105,7 @@ public class KnowledgeService {
      * AI 分析该领域涉及的编程语言、框架、数据库、工具、算法等，并构建前置依赖关系。
      */
     public TechGraphVO getTechGraph(String topic, Long categoryId) {
+        if(categoryId!=null && !access.canReadCategory(categoryId,access.actor())) throw new BusinessException(access.actor()==null?401:403,"无权阅读该知识库");
         // 1. 收集该知识库下的文档内容作为 AI 上下文
         List<String> docContents = new ArrayList<>();
         if (categoryId != null) {
@@ -526,8 +529,14 @@ public class KnowledgeService {
      * @param docId      可选：仅返回该文档抽取出的关系，并补全其端点实体
      */
     public EntityGraphVO getEntityGraph(Long categoryId, Long docId) {
+        if(docId!=null) access.requireRead(docMapper.selectById(docId),access.actor());
+        if(categoryId!=null && !access.canReadCategory(categoryId,access.actor())) throw new BusinessException(access.actor()==null?401:403,"无权阅读该知识库");
         List<KgEntity> entities = kgEntityMapper.selectList(new LambdaQueryWrapper<>());
         List<KgRelation> relations = kgRelationMapper.selectList(new LambdaQueryWrapper<>());
+        Set<Long> readableDocs=docMapper.selectList(access.scope(new LambdaQueryWrapper<DocDocument>(),access.actor())).stream().map(DocDocument::getId).collect(Collectors.toSet());
+        entities=entities.stream().filter(e->readableDocs.contains(e.getDocId())).toList();
+        Set<Long> readableEntities=entities.stream().map(KgEntity::getId).collect(Collectors.toSet());
+        relations=relations.stream().filter(r->readableDocs.contains(r.getDocId()) && readableEntities.contains(r.getSourceEntityId()) && readableEntities.contains(r.getTargetEntityId())).toList();
 
         // 过滤实体：按分类或不过滤
         Map<Long, KgEntity> entityMap = new HashMap<>();
@@ -615,6 +624,7 @@ public class KnowledgeService {
      */
     public ExtractResultVO extractDoc(Long docId) {
         DocDocument doc = docMapper.selectById(docId);
+        access.requireEdit(doc,access.actor());
         if (doc == null) throw new BusinessException(404, "文档不存在");
         ExtractResultVO result = new ExtractResultVO();
         result.setDocCount(1);
@@ -658,11 +668,13 @@ public class KnowledgeService {
      * 逐篇 best-effort，单篇失败不影响整体。
      */
     public ExtractResultVO extractByCategory(Long categoryId) {
+        Long actor=com.knowflow.common.SecurityUtils.getCurrentUserId();
+        if(categoryId!=null) access.requireEditCategory(categoryId,actor);
         LambdaQueryWrapper<DocDocument> w = new LambdaQueryWrapper<DocDocument>()
                 .eq(DocDocument::getStatus, 1)
                 .last("LIMIT 200");
         if (categoryId != null) w.eq(DocDocument::getCategoryId, categoryId);
-        List<DocDocument> docs = docMapper.selectList(w);
+        List<DocDocument> docs = docMapper.selectList(access.scope(w,actor)).stream().filter(d->access.canEditCategory(d.getCategoryId(),actor)).toList();
 
         int docsDone = 0, ents = 0, rels = 0;
         for (DocDocument d : docs) {
@@ -686,7 +698,7 @@ public class KnowledgeService {
     /** 实体按名称去重合并：已存在则累加重要度，否则新建。返回实体ID。 */
     private Long upsertEntity(ExtractedEntity en, DocDocument doc) {
         KgEntity existing = kgEntityMapper.selectOne(
-                new LambdaQueryWrapper<KgEntity>().eq(KgEntity::getName, en.name).last("LIMIT 1"));
+                new LambdaQueryWrapper<KgEntity>().eq(KgEntity::getName, en.name).eq(KgEntity::getDocId,doc.getId()).last("LIMIT 1"));
         if (existing != null) {
             int next = (existing.getWeight() != null ? existing.getWeight() : 1) + 1;
             kgEntityMapper.update(null, new LambdaUpdateWrapper<KgEntity>()

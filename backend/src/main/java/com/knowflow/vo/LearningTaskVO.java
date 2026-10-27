@@ -12,6 +12,10 @@ public class LearningTaskVO {
 
     private Long id;
 
+    private String source;
+    private Integer estimatedMinutes;
+    private com.knowflow.learning.actions.PlanModels.CompletionRequirement completionRequirement;
+
     private String title;
 
     private String description;

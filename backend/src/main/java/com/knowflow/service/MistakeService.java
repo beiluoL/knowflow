@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.knowflow.dto.CodeMistakeCollectRequest;
 import com.knowflow.dto.CodeMistakeCollectResult;
+import com.knowflow.dto.MistakePageQuery;
 import com.knowflow.entity.LearningMistake;
 import com.knowflow.vo.MistakeVO;
 
@@ -11,6 +12,9 @@ import com.knowflow.vo.MistakeVO;
 public interface MistakeService extends IService<LearningMistake> {
 
     IPage<MistakeVO> getMistakePage(Long userId, String category, Integer mastered, Integer pageNum, Integer pageSize);
+
+    /** Phase 3H：增强筛选（题型/知识点/来源/错误原因/复习状态/时间范围）。 */
+    IPage<MistakeVO> getMistakePage(MistakePageQuery query);
 
     MistakeVO getMistakeDetail(Long id, Long userId);
 

@@ -13,6 +13,10 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
+  // 路由懒加载前统一预构建，避免首次进入绘图触发依赖重建与过期 hash。
+  optimizeDeps: {
+    include: ['@vue-flow/core', '@vue-flow/background', '@vue-flow/controls'],
+  },
   server: {
     proxy: {
       '/api': {

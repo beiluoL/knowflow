@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.entity.AiLearningSuggestion;
 import com.knowflow.entity.DocReadProgress;
 import com.knowflow.entity.LearningFlashcard;
@@ -54,7 +55,7 @@ public class AiLearningSuggestionController {
     @GetMapping
     public Result<AiLearningSuggestionVO> get(@RequestParam(required = false, defaultValue = "week") String period,
                                               Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         String normalizedPeriod = normalizePeriod(period);
         AiLearningSuggestion cached = suggestionMapper.selectOne(new LambdaQueryWrapper<AiLearningSuggestion>()
                 .eq(AiLearningSuggestion::getUserId, userId)
@@ -73,7 +74,7 @@ public class AiLearningSuggestionController {
     @PostMapping("/regenerate")
     public Result<AiLearningSuggestionVO> regenerate(@RequestParam(required = false, defaultValue = "week") String period,
                                                      Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         String normalizedPeriod = normalizePeriod(period);
         // 逻辑删除旧缓存
         suggestionMapper.delete(new LambdaQueryWrapper<AiLearningSuggestion>()

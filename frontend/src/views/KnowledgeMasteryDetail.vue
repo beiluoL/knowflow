@@ -6,24 +6,32 @@
         <button type="button" class="kmd-back" @click="goBack">
           <Icon name="arrow-left" :size="14" /> 返回
         </button>
-        <h1 class="kb-h1 mt-2">知识点掌握度详情</h1>
-        <p class="kb-body-sm mt-1">可解释的掌握度合成：多维信号加权 · 有效信号归一化 · 时间衰减</p>
+        <h1 class="kb-h1 mt-2">知识点详情</h1>
+        <p class="kb-body-sm mt-1">先理解概念与关联，再根据真实学习证据安排下一步。</p>
       </div>
-      <button type="button" class="kmd-refresh" :disabled="loading" @click="load">
-        <Icon name="refresh-cw" :size="14" :class="{ spin: loading }" />
-        <span>刷新</span>
-      </button>
+      <div class="kmd-head-actions">
+        <!-- Architecture-4.4：知识 → AI 学习内容 Draft 的唯一入口（不进侧边栏，§61/§62） -->
+        <button type="button" class="kmd-content" :disabled="!d || loading" @click="goContent">
+          <Icon name="sparkles" :size="14" />
+          <span>AI 学习内容草稿</span>
+        </button>
+        <button type="button" class="kmd-refresh" :disabled="loading" @click="load">
+          <Icon name="refresh-cw" :size="14" :class="{ spin: loading }" />
+          <span>刷新</span>
+        </button>
+      </div>
     </header>
 
+    <ChapterResourceLinks resource-kind="knowledge" :resource-id="Number(route.params.id)" />
     <!-- 错误态 -->
-    <div v-if="error" class="kmd-state">
+    <div v-if="error" class="kmd-state" role="alert">
       <Icon name="alert-circle" :size="28" style="color: var(--kb-destructive);" />
       <p class="text-sm" style="color: var(--kb-muted-foreground);">{{ error }}</p>
       <button type="button" class="kmd-retry" @click="load">重新加载</button>
     </div>
 
     <!-- 加载态 -->
-    <div v-else-if="loading" class="kmd-state">
+    <div v-else-if="loading" class="kmd-state" role="status" aria-live="polite">
       <span class="inline-block w-6 h-6 border-2 rounded-full animate-spin" style="border-color: var(--kb-primary); border-top-color: transparent;" />
       <p class="text-sm" style="color: var(--kb-muted-foreground);">正在计算掌握度…</p>
     </div>
@@ -32,7 +40,7 @@
       <!-- 顶部：实体信息 + 核心指标 -->
       <section class="kmd-card kmd-top">
         <div class="kmd-id">
-          <span class="kmd-avatar" :style="{ background: typeColor(d?.type) + '22', color: typeColor(d?.type) }">
+          <span class="kmd-avatar" :style="{ background: `color-mix(in srgb, ${typeColor(d?.type)} 14%, transparent)`, color: typeColor(d?.type) }">
             {{ (d?.name || '?').slice(0, 2) }}
           </span>
           <div>
@@ -65,6 +73,17 @@
         </div>
       </section>
 
+      <section class="kmd-card knowledge-explanation">
+        <h3 class="kmd-card-title"><Icon name="book-open" :size="16" />核心解释</h3>
+        <p class="kmd-explain">{{ d.description || '当前知识点尚未提供核心解释，可从关联资料继续了解。' }}</p>
+      </section>
+      <section class="kmd-card">
+        <h3 class="kmd-card-title"><Icon name="share-2" :size="16" />关联知识</h3>
+        <StateView :status="relationsStatus" :error-title="relationsError?.title" :error-hint="relationsError?.hint" :show-retry="relationsError?.retryable" empty-title="暂无已记录的关联知识" empty-description="这里只显示知识图谱实际保存的关系，不推测关联或前置条件。" @retry="relationsResource.run(true)">
+          <ul class="kmd-relations"><li v-for="item in relatedKnowledge" :key="item.key"><router-link :to="`/learning/knowledge-mastery/${item.id}`"><span>{{ item.name }}</span><span>{{ item.label }}</span></router-link></li></ul>
+        </StateView>
+      </section>
+      <section class="kmd-evidence-heading"><h2>学习证据与掌握情况</h2><p>以下指标来自学习记录；AI 内容草稿不代表已经掌握。</p></section>
       <!-- 掌握度进度条 -->
       <div class="kmd-scorebar">
         <div class="kmd-scorebar-fill" :style="{ width: d.masteryScore + '%', background: scoreColor(d.masteryScore) }"></div>
@@ -72,7 +91,7 @@
 
       <!-- 薄弱标记 -->
       <div v-if="d.weaknessTypes && d.weaknessTypes.length" class="kmd-weak">
-        <span class="kmd-weak-title"><Icon name="alert-triangle" :size="14" /> 薄弱点</span>
+        <span class="kmd-weak-title"><Icon name="alert-circle" :size="14" /> 薄弱点</span>
         <span v-for="w in d.weaknessTypes" :key="w" class="kmd-weak-tag">{{ weaknessLabel(w) }}</span>
       </div>
 
@@ -126,28 +145,56 @@
         <div><span>最近测评</span><b>{{ fmt(d.lastAssessedAt) }}</b></div>
         <div><span>下次复习</span><b>{{ fmt(d.nextReviewAt) }}</b></div>
       </section>
+      <section class="kmd-card">
+        <h2 class="kmd-card-title">学习计划的下一步</h2>
+        <p class="kmd-sub-empty">沿用全局学习计划的当前动作，不把它冒称为本知识点的专属建议。</p>
+        <div v-if="learning.error" role="alert"><p>{{ learning.error }}</p><button type="button" class="kmd-retry" @click="learning.load(true)">重试</button></div>
+        <NextActionCard v-else-if="learning.loaded" :action="learning.nextAction" />
+        <p v-else role="status">正在读取学习计划…</p>
+      </section>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
+import ChapterResourceLinks from '@/components/Learning/ChapterResourceLinks.vue'
 // 知识点掌握度详情（Phase 2-B）：消费 GET /api/learning/mastery/{id}。
-import { ref, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import StateView from '@/components/ui/StateView.vue'
+import NextActionCard from '@/components/workflow/NextActionCard.vue'
+import { useLearningStore } from '@/stores/learning'
+import { useAsyncResource } from '@/composables/useAsyncResource'
 import { notify, getApiError } from '@/utils/toast'
-import { learningApi } from '@/api'
+import { learningApi, knowledgeApi } from '@/api'
 import type { KnowledgeMasteryDetailVO, MasteryStatus } from '@/api/types'
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const route = useRoute()
 const router = useRouter()
+const nav = usePageNavigation()
 
+const learning = useLearningStore()
+const relationsResource = useAsyncResource(() => knowledgeApi.entityGraph(), value => value.nodes.length === 0, '关联知识加载失败', 'section')
+const relationsError = relationsResource.error
+const relatedKnowledge = computed(() => {
+ const graph=relationsResource.data.value,id=Number(route.params.id)
+ if(!graph)return[]
+ const labels:Record<string,string>={RELATED_TO:'相关',PREREQUISITE:'前置关系',IS_A:'属于',PART_OF:'组成',USES:'使用',CONTRASTS:'对比'}
+ return graph.edges.filter(edge=>edge.source===id||edge.target===id).flatMap(edge=>{
+ const otherId=edge.source===id?edge.target:edge.source,node=graph.nodes.find(n=>n.id===otherId)
+ return node?[{key:edge.id,id:node.id,name:node.name,label:edge.relation==='PREREQUISITE'?(edge.target===id?'前置知识':'后续知识'):labels[edge.relation]||edge.relation}]:[]
+ })
+})
+const relationsStatus=computed(()=>relationsResource.status.value==='ready'&&relatedKnowledge.value.length===0?'empty':relationsResource.status.value)
+let requestGeneration=0
 const loading = ref(false)
 const error = ref('')
 const d = ref<KnowledgeMasteryDetailVO | null>(null)
 
 const TYPE_COLORS: Record<string, string> = {
-  CONCEPT: '#3b6fe0', TECHNIQUE: '#10b981', TERM: '#f59e0b',
+  CONCEPT: 'var(--kb-primary)', TECHNIQUE: 'var(--kb-success)', TERM: 'var(--kb-warning)',
   PRINCIPLE: '#8b5cf6', TOOL: '#06b6d4', OTHER: '#64748b',
 }
 const TYPE_LABELS: Record<string, string> = {
@@ -155,10 +202,10 @@ const TYPE_LABELS: Record<string, string> = {
 }
 const STATUS_META: Record<MasteryStatus, { label: string; bg: string; fg: string }> = {
   NOT_STARTED: { label: '未学习', bg: 'rgba(100,116,139,.12)', fg: '#64748b' },
-  LEARNING: { label: '学习中', bg: 'rgba(59,111,224,.12)', fg: '#3b6fe0' },
-  WEAK: { label: '薄弱', bg: 'rgba(239,68,68,.12)', fg: '#EF4444' },
-  MASTERED: { label: '已掌握', bg: 'rgba(16,185,129,.12)', fg: '#10B981' },
-  REVIEW_REQUIRED: { label: '需复习', bg: 'rgba(245,158,11,.12)', fg: '#F59E0B' },
+  LEARNING: { label: '学习中', bg: 'rgba(59,111,224,.12)', fg: 'var(--kb-primary)' },
+  WEAK: { label: '薄弱', bg: 'rgba(239,68,68,.12)', fg: 'var(--kb-danger)' },
+  MASTERED: { label: '已掌握', bg: 'rgba(16,185,129,.12)', fg: 'var(--kb-success)' },
+  REVIEW_REQUIRED: { label: '需复习', bg: 'rgba(245,158,11,.12)', fg: 'var(--kb-warning)' },
 }
 const WEAK_LABELS: Record<string, string> = {
   LOW_MASTERY: '掌握度偏低', CODING_WEAK: '编程通过率低', RECALL_WEAK: '主动回忆得分低',
@@ -170,36 +217,58 @@ const typeLabel = (t?: string | null) => TYPE_LABELS[t || 'OTHER'] || '其他'
 const statusMeta = (s: MasteryStatus) => STATUS_META[s] || STATUS_META.NOT_STARTED
 const weaknessLabel = (w: string) => WEAK_LABELS[w] || w
 const formatWeight = (w: number) => (w != null ? w.toFixed(2) : '0.00')
-const scoreColor = (v: number) => (v >= 80 ? '#10B981' : v >= 60 ? '#3b6fe0' : v >= 40 ? '#F59E0B' : '#EF4444')
-const confColor = (v: number) => (v >= 50 ? '#10B981' : v >= 30 ? '#F59E0B' : '#EF4444')
-const riskColor = (v: number) => (v >= 70 ? '#EF4444' : v >= 60 ? '#F59E0B' : '#10B981')
+const scoreColor = (v: number) => (v >= 80 ? 'var(--kb-success)' : v >= 60 ? 'var(--kb-primary)' : v >= 40 ? 'var(--kb-warning)' : 'var(--kb-danger)')
+const confColor = (v: number) => (v >= 50 ? 'var(--kb-success)' : v >= 30 ? 'var(--kb-warning)' : 'var(--kb-danger)')
+const riskColor = (v: number) => (v >= 70 ? 'var(--kb-danger)' : v >= 60 ? 'var(--kb-warning)' : 'var(--kb-success)')
 const fmt = (s?: string | null) => (s ? String(s).replace('T', ' ').slice(0, 19) : '—')
 
+// Architecture-4.4：唯一内容生成入口 → /knowledge/content?knowledgeId=&knowledgeName=
+function goContent() {
+  if (!d.value) return
+  const kid = d.value.knowledgeId ?? Number(route.params.id)
+  if (!kid) return
+  router
+    .push({
+      path: '/knowledge/content',
+      query: { knowledgeId: String(kid), knowledgeName: d.value.name ?? '' },
+    })
+    .catch(() => {})
+}
+
 function goBack() {
-  if (window.history.length > 1) router.back()
-  else router.push('/learning/mastery')
+  nav.goBack('/learning/mastery')
 }
 
 async function load() {
+  const generation=++requestGeneration
   const id = Number(route.params.id)
-  if (!id) { error.value = '缺少知识点 ID'; return }
+  if (!Number.isFinite(id) || id <= 0) { error.value = '缺少知识点 ID'; return }
   loading.value = true
   error.value = ''
   try {
-    d.value = await learningApi.knowledgeMasteryDetail(id)
+    const result = await learningApi.knowledgeMasteryDetail(id)
+    if(generation!==requestGeneration)return
+    d.value = result
   } catch (e: unknown) {
+    if(generation!==requestGeneration)return
     error.value = '掌握度详情加载失败：' + getApiError(e, '网络错误')
     notify('掌握度详情加载失败', 'error')
   } finally {
-    loading.value = false
+    if(generation===requestGeneration)loading.value = false
   }
 }
 
-onMounted(load)
+watch(() => route.params.id, load, {immediate:true})
+onMounted(() => {void relationsResource.run();void learning.load()})
 </script>
 
 <style scoped>
-.kmd-page { max-width: 1000px; margin: 0 auto; padding: 24px 20px 40px; }
+.kmd-page { max-width: none; margin-inline: 0; padding: 24px 20px 40px;
+  width: 100%;
+  min-width: 0;
+  padding-inline: 0;
+  padding-top: 0;
+}
 .kmd-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
 .kmd-back {
   display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 500;
@@ -212,6 +281,14 @@ onMounted(load)
 }
 .kmd-refresh:hover:not(:disabled) { border-color: var(--kb-primary); color: var(--kb-primary); }
 .kmd-refresh:disabled { opacity: .6; cursor: default; }
+.kmd-head-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.kmd-content {
+  display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px;
+  font-size: var(--kb-fs-13); font-weight: 600; border: none; border-radius: var(--kb-radius-md);
+  background: var(--kb-primary); color: #fff; cursor: pointer;
+}
+.kmd-content:hover:not(:disabled) { opacity: 0.92; }
+.kmd-content:disabled { opacity: 0.55; cursor: default; }
 .spin { animation: kmd-spin 0.6s linear infinite; }
 @keyframes kmd-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 
@@ -234,8 +311,8 @@ onMounted(load)
 .kmd-scorebar-fill { height: 100%; border-radius: 5px; transition: width 0.6s ease; }
 
 .kmd-weak { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
-.kmd-weak-title { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: #EF4444; }
-.kmd-weak-tag { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: rgba(239,68,68,.1); color: #EF4444; }
+.kmd-weak-title { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: var(--kb-danger); }
+.kmd-weak-tag { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: rgba(239,68,68,.1); color: var(--kb-danger); }
 
 .kmd-explain { font-size: 14px; line-height: 1.7; color: var(--kb-foreground); }
 
@@ -263,4 +340,19 @@ onMounted(load)
   .kmd-top { flex-direction: column; align-items: flex-start; }
   .kmd-metrics { gap: 18px; }
 }
+.kmd-page :is(h1,h2,h3) { font-family:inherit; }
+.kmd-page h1 { font-size:var(--kb-page-title-size); }
+.kmd-id { min-width:0; }.kmd-id h2 { overflow-wrap:anywhere;font-size:var(--kb-section-title-size); }
+.kmd-content { color:var(--kb-primary-foreground); }
+.knowledge-explanation .kmd-explain { font-size:var(--kb-fs-body-lg);line-height:1.75;white-space:pre-line; }
+.kmd-evidence-heading { margin-block:var(--kb-space-6) var(--kb-space-3); }
+.kmd-evidence-heading h2 { font-size:var(--kb-section-title-size);font-weight:600; }
+.kmd-evidence-heading p { margin-top:var(--kb-space-2);color:var(--kb-muted-foreground); }
+.kmd-relations { list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:var(--kb-space-3); }
+.kmd-relations a { display:flex;justify-content:space-between;gap:var(--kb-space-3);padding:var(--kb-space-3);border:1px solid var(--kb-border);border-radius:var(--kb-radius-md);overflow-wrap:anywhere; }
+.kmd-relations a span+span { color:var(--kb-muted-foreground);font-size:var(--kb-fs-caption);flex-shrink:0; }
+.kmd-page :is(a,button):focus-visible { outline:2px solid var(--kb-ring);outline-offset:2px; }
+.kmd-page :deep(button.bg-primary-500.text-white) { color:var(--kb-primary-foreground); }
+.kmd-sig-top { flex-wrap:wrap; }.kmd-sig-num { overflow-wrap:anywhere; }
+@media(max-width:640px){.kmd-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.kmd-card{padding:var(--kb-space-4)}.kmd-id{align-items:flex-start}.kmd-times b{overflow-wrap:anywhere}}
 </style>

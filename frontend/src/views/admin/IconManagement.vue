@@ -135,7 +135,7 @@
             <input
               v-model="form.name"
               type="text"
-              class="form-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="form-input transition-colors kb-input kb-form-control"
               placeholder="请输入图标名称（如：学习笔记）"
             />
           </div>
@@ -159,7 +159,7 @@
             <input
               v-model="form.content"
               type="text"
-              class="form-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="form-input transition-colors kb-input kb-form-control"
               placeholder="输入 iconfont code，如 e601 或 &#xe601;"
             />
             <span class="form-hint">在 iconfont.cn 图标详情页可查看 Unicode code（如 e601）。需项目已引入对应 iconfont 字体才能正确显示。</span>
@@ -170,7 +170,7 @@
             <label class="form-label">SVG 代码 <span class="required">*</span></label>
               <textarea
                 v-model="form.content"
-                class="form-input svg-textarea focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                class="form-input svg-textarea transition-colors kb-textarea kb-form-control"
                 placeholder='<svg viewBox="0 0 24 24" fill="currentColor"><path d="..." /></svg>'
                 rows="6"
               />
@@ -290,7 +290,7 @@ const systemIcons = [
 
 /** 预设颜色 */
 const presetColors = [
-  '#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+  'var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#8B5CF6',
   '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
   '#14B8A6', '#64748B',
 ]
@@ -430,14 +430,17 @@ const save = async () => {
 
 /** 删除自定义图标 */
 const removeIcon = async (icon: IconVO) => {
-  if (!(await confirmDialog(`确定删除图标「${icon.name}」吗？`))) return
-  try {
-    await adminApi.deleteIcon(icon.id)
-    notify('删除成功', 'success')
-    await loadCustomIcons()
-  } catch (e: unknown) {
-    notify('删除失败：' + getApiError(e), 'error')
-  }
+  await confirmDialog(`确定删除图标「${icon.name}」吗？`, { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          try {
+              await adminApi.deleteIcon(icon.id);
+              notify('删除成功', 'success');
+              await loadCustomIcons();
+          }
+          catch (e: unknown) {
+              notify('删除失败：' + getApiError(e), 'error');
+              throw e;
+          }
+      } });
 }
 
 /** 复制图标名称到剪贴板 */
@@ -460,6 +463,9 @@ onMounted(() => {
 .icon-mgmt-wrap {
   padding: 24px 28px 40px;
   animation: fadeIn 0.4s ease-out;
+
+  padding-inline: 0;
+  padding-top: 0;
 }
 
 @keyframes fadeIn {
@@ -579,8 +585,8 @@ onMounted(() => {
   line-height: 1.3;
 }
 .badge-custom { background: #DBEAFE; color: #1D4ED8; }
-.badge-iconfont { background: #FEF3C7; color: #B45309; }
-.badge-svg { background: #D1FAE5; color: #047857; }
+.badge-iconfont { background: var(--kb-warning-soft-strong); color: var(--kb-state-warning); }
+.badge-svg { background: var(--kb-success-soft-strong); color: var(--kb-state-success); }
 
 /* 自定义图标图片 */
 .custom-img {
@@ -614,7 +620,7 @@ onMounted(() => {
 }
 
 .custom-cell .delete-btn:hover {
-  background: #ef4444;
+  background: var(--kb-danger);
   color: #fff;
 }
 
@@ -790,7 +796,7 @@ onMounted(() => {
 }
 
 .required {
-  color: #ef4444;
+  color: var(--kb-danger);
 }
 
 .form-hint {
@@ -799,21 +805,24 @@ onMounted(() => {
   line-height: 1.4;
 }
 
-.form-input {
+.form-input:not(.kb-form-control) {
   height: 36px;
-  padding: 0 12px;
   border-radius: 6px;
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
-  color: var(--kb-foreground);
-  font-size: 13px;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.form-input {
+  padding: 0 12px;
+  color: var(--kb-foreground);
+  font-size: 13px;
   width: 100%;
   box-sizing: border-box;
 }
 
-.form-input:focus {
+.form-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
@@ -823,13 +832,18 @@ onMounted(() => {
   height: auto;
 }
 
-.svg-textarea {
+.svg-textarea:not(.kb-form-control) {
   height: auto;
+  min-height: 120px;
+}
+
+.svg-textarea {
   padding: 10px 12px;
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
   font-size: 12px;
   line-height: 1.5;
   resize: vertical;
+  height: auto;
   min-height: 120px;
 }
 
@@ -915,8 +929,8 @@ onMounted(() => {
 }
 
 .clear-color-btn:hover {
-  color: #ef4444;
-  border-color: #ef4444;
+  color: var(--kb-danger);
+  border-color: var(--kb-danger);
 }
 
 /* 预览 */
@@ -959,7 +973,7 @@ onMounted(() => {
   gap: 8px;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px dashed var(--kb-border, #E8ECF1);
+  border-bottom: 1px dashed var(--kb-border, var(--kb-muted));
 }
 
 .preset-tab-btn {
@@ -969,24 +983,24 @@ onMounted(() => {
   padding: 6px 14px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-muted-foreground, #6B7280);
+  color: var(--kb-muted-foreground, var(--kb-muted-foreground));
   background: var(--kb-card, #F8FAFC);
-  border: 1px solid var(--kb-border, #E8ECF1);
+  border: 1px solid var(--kb-border, var(--kb-muted));
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .preset-tab-btn:hover {
-  color: var(--kb-primary, #3B6FE0);
-  border-color: var(--kb-primary, #3B6FE0);
+  color: var(--kb-primary, var(--kb-primary));
+  border-color: var(--kb-primary, var(--kb-primary));
   background: rgba(59, 111, 224, 0.06);
 }
 
 .preset-tab-btn.active {
   color: #fff;
-  background: var(--kb-primary, #3B6FE0);
-  border-color: var(--kb-primary, #3B6FE0);
+  background: var(--kb-primary, var(--kb-primary));
+  border-color: var(--kb-primary, var(--kb-primary));
   box-shadow: 0 2px 6px rgba(59, 111, 224, 0.25);
 }
 
@@ -1021,7 +1035,7 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   padding: 14px 8px;
-  border: 1px solid var(--kb-border, #E8ECF1);
+  border: 1px solid var(--kb-border, var(--kb-muted));
   border-radius: 10px;
   background: var(--kb-card, #FFFFFF);
   cursor: pointer;
@@ -1029,7 +1043,7 @@ onMounted(() => {
 }
 
 .preset-cell:hover {
-  border-color: var(--kb-primary, #3B6FE0);
+  border-color: var(--kb-primary, var(--kb-primary));
   background: rgba(59, 111, 224, 0.04);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 111, 224, 0.12);

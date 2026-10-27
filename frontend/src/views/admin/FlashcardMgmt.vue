@@ -72,14 +72,14 @@
             <div class="flex items-center gap-3 flex-wrap">
               <select
                 v-model="filterCategory"
-                class="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:border-primary-500 hover:border-primary-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                class="px-3 py-2 text-sm hover:border-primary-300 transition-colors kb-select kb-form-control"
               >
                 <option value="">全部分类</option>
                 <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
               </select>
               <select
                 v-model="filterStatus"
-                class="px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:border-primary-500 hover:border-primary-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                class="px-3 py-2 text-sm hover:border-primary-300 transition-colors kb-select kb-form-control"
               >
                 <option value="">全部状态</option>
                 <option value="mastered">已掌握</option>
@@ -145,11 +145,11 @@
         <div class="px-6 py-4 space-y-4">
           <div>
             <label class="block text-sm font-medium text-foreground mb-1.5">正面（问题）</label>
-            <textarea v-model="form.front" rows="3" placeholder="请输入问题" class="w-full px-3 py-2 border border-border rounded-sm text-sm focus:outline-none focus:border-primary-500 hover:border-primary-300 font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"></textarea>
+            <textarea v-model="form.front" rows="3" placeholder="请输入问题" class="w-full px-3 py-2 text-sm hover:border-primary-300 font-mono transition-colors kb-textarea kb-form-control"></textarea>
           </div>
           <div>
             <label class="block text-sm font-medium text-foreground mb-1.5">背面（答案）</label>
-            <textarea v-model="form.back" rows="3" placeholder="请输入答案" class="w-full px-3 py-2 border border-border rounded-sm text-sm focus:outline-none focus:border-primary-500 hover:border-primary-300 font-mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"></textarea>
+            <textarea v-model="form.back" rows="3" placeholder="请输入答案" class="w-full px-3 py-2 text-sm hover:border-primary-300 font-mono transition-colors kb-textarea kb-form-control"></textarea>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -158,7 +158,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-foreground mb-1.5">难度</label>
-              <select v-model.number="form.difficulty" class="w-full px-3 py-2 border border-border rounded-sm text-sm focus:outline-none focus:border-primary-500 hover:border-primary-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+              <select v-model.number="form.difficulty" class="w-full px-3 py-2 text-sm hover:border-primary-300 transition-colors kb-select kb-form-control">
                 <option :value="1">简单</option>
                 <option :value="2">中等</option>
                 <option :value="3">困难</option>
@@ -204,7 +204,7 @@
             <label class="block text-sm font-medium text-foreground mb-1.5">知识库</label>
             <select
               v-model="aiCategoryId"
-              class="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:border-primary-500 hover:border-primary-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="w-full px-3 py-2 text-sm hover:border-primary-300 transition-colors kb-select kb-form-control"
               @change="onAiCategoryChange"
             >
               <option :value="null">请选择知识库</option>
@@ -215,7 +215,7 @@
             <label class="block text-sm font-medium text-foreground mb-1.5">文档</label>
             <select
               v-model="aiDocId"
-              class="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:border-primary-500 hover:border-primary-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="w-full px-3 py-2 text-sm hover:border-primary-300 transition-colors kb-select kb-form-control"
               :disabled="!aiCategoryId"
             >
               <option :value="null">{{ aiLoadingDocs ? '文档加载中...' : '请选择文档' }}</option>
@@ -230,7 +230,7 @@
               min="3"
               max="30"
               placeholder="请输入生成数量"
-              class="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:border-primary-500 hover:border-primary-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="w-full px-3 py-2 text-sm hover:border-primary-300 transition-colors kb-input kb-form-control"
             />
           </div>
         </div>
@@ -256,7 +256,7 @@ import Card from '@/components/ui/Card.vue'
 import Input from '@/components/ui/Input.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
-import { learningApi, adminApi } from '@/api'
+import { adminApi } from '@/api'
 import type { FlashcardVO, FlashcardInput, CategoryVO, DocVO } from '@/api/types'
 
 const searchQuery = ref('')
@@ -393,21 +393,29 @@ const save = async () => {
 }
 
 const deleteCard = async (card: Flashcard) => {
-  if (!(await confirmDialog('确定要删除这张卡片吗？'))) return
-  try {
-    await adminApi.removeFlashcard(Number(card.id))
-    notify('删除成功', 'success')
-    selectedCard.value = null
-    await loadCards()
-  } catch (e: unknown) {
-    notify('删除失败：' + getApiError(e), 'error')
-  }
+  await confirmDialog('确定要删除这张卡片吗？', { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          try {
+              await adminApi.removeFlashcard(Number(card.id));
+              notify('删除成功', 'success');
+              selectedCard.value = null;
+              await loadCards();
+          }
+          catch (e: unknown) {
+              notify('删除失败：' + getApiError(e), 'error');
+              throw e;
+          }
+      } });
 }
 
 const loadCards = async () => {
   loading.value = true
   try {
-    const list = (await learningApi.flashcards()) as FlashcardVO[]
+    // P0-1：管理端需要「全站闪卡」全局视图，而 /learning/flashcards 已收敛为
+    // 「当前登录用户私有」语义（匿名 401、登录仅见本人卡片）。
+    // 因此这里改走既有的 ADMIN 门禁端点 GET /admin/learning/flashcards（PageResult 分页结构），
+    // 既不失去管理能力，也不再把管理页面挂靠到用户私有接口上。
+    const res = await adminApi.flashcards({ pageNum: 1, pageSize: 100 })
+    const list = (res?.records ?? []) as FlashcardVO[]
     cards.value = list.map((f) => ({
       id: String(f.id),
       front: f.front ?? '',

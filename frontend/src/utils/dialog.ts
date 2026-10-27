@@ -5,7 +5,17 @@ import { reactive } from 'vue'
 
 export type DialogVariant = 'default' | 'primary' | 'danger' | 'info'
 
+export interface DialogButtonProps { disabled?: boolean; title?: string; class?: string; 'aria-label'?: string }
 export interface DialogOptions {
+  description?: string
+  closeOnOverlay?: boolean
+  closeOnEsc?: boolean
+  disabled?: boolean
+  confirmButtonProps?: DialogButtonProps
+  cancelButtonProps?: DialogButtonProps
+  /** Await the real operation before closing. Throw to retain the dialog with an error. */
+  onConfirm?: (value: string | boolean) => void | boolean | Promise<void | boolean>
+
   /** 标题，缺省按类型给默认值 */
   title?: string
   /** 正文（支持 \n 换行，渲染为 pre-line） */
@@ -22,13 +32,17 @@ export interface DialogOptions {
   input?: { value?: string; placeholder?: string; maxlength?: number }
   /** 是否常驻（禁止 ESC / 点遮罩关闭），默认 false */
   persistent?: boolean
-  /** 卡片最大宽度，默认 420px */
+  /** 卡片最大宽度，确认默认 560px */
   width?: string
 }
 
 export interface DialogState extends DialogOptions {
   id: number
+  /** Only confirmations requested by an awaiting action may overlay their parent. */
+  parentId?: number
   type: 'confirm' | 'prompt' | 'alert'
+  loading?: boolean
+  error?: string
   resolve: (value: boolean | string | null | void) => void
 }
 
@@ -38,7 +52,8 @@ let seq = 0
 
 function open(type: DialogState['type'], opts: DialogOptions): Promise<any> {
   return new Promise((resolve) => {
-    dialogQueue.push({ id: ++seq, type, resolve, ...opts })
+    const parentId = dialogQueue.filter(item => item.loading).at(-1)?.id
+    dialogQueue.push({ id: ++seq, type, resolve, ...opts, parentId })
   })
 }
 
@@ -46,8 +61,8 @@ export const dialog = {
   /** 二次确认，返回 boolean（确认 true / 取消 false） */
   confirm(opts: DialogOptions = {}): Promise<boolean> {
     return open('confirm', {
-      title: '提示',
-      confirmText: '确定',
+      title: '确认操作',
+      confirmText: '继续操作',
       cancelText: '取消',
       ...opts,
     })
@@ -70,10 +85,26 @@ export const dialog = {
       ...opts,
     }) as Promise<void>
   },
+  /** One in-flight operation per queue item; failures remain visible for retry. */
+  async submit(id: number, value: string | boolean) {
+    const state = dialogQueue.find(item => item.id === id)
+    if (!state || state.loading || state.disabled || state.confirmButtonProps?.disabled) return
+    state.loading = true
+    state.error = ''
+    try {
+      const result = await state.onConfirm?.(value)
+      if (result === false) return
+      state.loading = false
+      dialog.close(id, state.type === 'prompt' ? String(value) : true)
+    } catch (e: unknown) {
+      const err = e as {response?:{data?:{message?:string}};message?:string}
+      state.error = err?.response?.data?.message || err?.message || '操作失败，请重试。'
+    } finally { state.loading = false }
+  },
   /** 由 DialogHost 在用户操作后调用，关闭并兑现 Promise */
   close(id: number, value: boolean | string | null) {
     const idx = dialogQueue.findIndex((d) => d.id === id)
-    if (idx === -1) return
+    if (idx === -1 || dialogQueue[idx]?.loading) return
     const [d] = dialogQueue.splice(idx, 1)
     d.resolve(value)
   },

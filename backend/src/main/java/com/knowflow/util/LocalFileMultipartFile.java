@@ -22,7 +22,12 @@ import java.nio.file.Path;
  * @param file         本地文件
  * @param relativePath 相对根目录的路径（作为 originalFilename）
  */
-public record LocalFileMultipartFile(File file, String relativePath) implements MultipartFile {
+public record LocalFileMultipartFile(File file, String relativePath, com.knowflow.security.HostCapabilityGuard guard) implements MultipartFile {
+
+    /** Only server-generated preprocessing files use this unguarded overload. */
+    public LocalFileMultipartFile(File file,String relativePath) { this(file,relativePath,null); }
+
+    private Path checkedPath() { return guard == null ? file.toPath() : guard.requireAllowed(file.toPath()); }
 
     public LocalFileMultipartFile(Path filePath, String relativePath) {
         this(filePath.toFile(), relativePath);
@@ -43,7 +48,7 @@ public record LocalFileMultipartFile(File file, String relativePath) implements 
     @Override
     public String getContentType() {
         try {
-            return Files.probeContentType(file.toPath());
+            return Files.probeContentType(checkedPath());
         } catch (IOException e) {
             return "application/octet-stream";
         }
@@ -51,26 +56,26 @@ public record LocalFileMultipartFile(File file, String relativePath) implements 
 
     @Override
     public boolean isEmpty() {
-        return file.length() == 0;
+        return checkedPath().toFile().length() == 0;
     }
 
     @Override
     public long getSize() {
-        return file.length();
+        return checkedPath().toFile().length();
     }
 
     @Override
     public byte[] getBytes() throws IOException {
-        return Files.readAllBytes(file.toPath());
+        return Files.readAllBytes(checkedPath());
     }
 
     @Override
     public InputStream getInputStream() throws IOException {
-        return new FileInputStream(file);
+        return Files.newInputStream(checkedPath());
     }
 
     @Override
     public void transferTo(java.io.File dest) throws IOException, IllegalStateException {
-        Files.copy(file.toPath(), dest.toPath());
+        Files.copy(checkedPath(), dest.toPath());
     }
 }

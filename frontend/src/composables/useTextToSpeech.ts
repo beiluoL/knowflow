@@ -71,7 +71,10 @@ function stop() {
   if (typeof window === 'undefined' || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   isSpeaking.value = false;
-  pendingUtterance = null;
+  if (pendingUtterance) {
+    // 释放引用（读取以维持对说话中的 utterance 的引用，避免 GC，§keep-reference）
+    pendingUtterance = null;
+  }
 }
 
 function speak(text: string, opts?: { rate?: number; pitch?: number; voice?: string }): Promise<void> {

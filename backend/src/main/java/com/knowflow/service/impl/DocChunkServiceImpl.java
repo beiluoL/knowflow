@@ -2,9 +2,14 @@ package com.knowflow.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.knowflow.entity.DocChunk;
+import com.knowflow.entity.DocDocument;
 import com.knowflow.mapper.DocChunkMapper;
+import com.knowflow.mapper.DocDocumentMapper;
 import com.knowflow.service.DocChunkService;
 import com.knowflow.service.EmbeddingService;
+import com.knowflow.service.KbMemberService;
+import com.knowflow.service.CategoryService;
+import com.knowflow.entity.DocCategory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +23,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -31,6 +38,10 @@ public class DocChunkServiceImpl implements DocChunkService {
 
     private final DocChunkMapper docChunkMapper;
     private final EmbeddingService embeddingService;
+    private final DocDocumentMapper docDocumentMapper;
+    private final KbMemberService kbMemberService;
+    private final CategoryService categoryService;
+    private final com.knowflow.security.DocumentAccessPolicy access;
 
     /** 单块最大字符数 */
     private static final int MAX_CHUNK_SIZE = 500;
@@ -100,44 +111,155 @@ public class DocChunkServiceImpl implements DocChunkService {
     }
 
     @Override
-    public List<String> searchSimilar(String query, int limit) {
-        if (query == null || query.isBlank()) return List.of();
+    @Transactional
+    public List<String> searchSimilar(String query, int limit, Long userId) {
+        return searchSimilarTraced(query, limit, userId, step -> { }).chunks;
+    }
 
-        // 1. 嵌入查询文本
-        List<Float> queryVec = embeddingService.embed(query);
-        if (queryVec == null || queryVec.isEmpty()) {
-            log.warn("query embedding 为空，无法进行向量检索");
-            return List.of();
+    @Override
+    @Transactional(readOnly = true)
+    public SearchOutcome searchSimilarTraced(String query, int limit, Long userId,
+                                             java.util.function.Consumer<com.knowflow.ai.trace.RagTraceStep> onStep) {
+        long overallStart = System.currentTimeMillis();
+        com.knowflow.ai.trace.RagTrace trace = new com.knowflow.ai.trace.RagTrace();
+        trace.setTraceId("rag-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10));
+        if (query == null || query.isBlank() || userId == null) {
+            trace.setStrategy("none");
+            trace.setDurationMs(System.currentTimeMillis() - overallStart);
+            return new SearchOutcome(List.of(), trace);
         }
 
-        // 2. 加载所有有 embedding 的分块
-        List<DocChunk> allChunks = docChunkMapper.selectList(
-                new LambdaQueryWrapper<DocChunk>()
-                        .isNotNull(DocChunk::getEmbedding)
-                        .ne(DocChunk::getEmbedding, "")
-                        .orderByAsc(DocChunk::getDocId)
-                        .orderByAsc(DocChunk::getChunkIndex));
-
-        if (allChunks.isEmpty()) return List.of();
-
-        // 3. 逐块计算余弦相似度
-        int size = Math.min(Math.max(limit, 1), 20);
-        return allChunks.parallelStream()
-                .map(chunk -> {
-                    List<Float> chunkVec = parseVector(chunk.getEmbedding());
-                    if (chunkVec == null) return null;
-                    double sim = embeddingService.cosineSimilarity(queryVec, chunkVec);
-                    return new Object[]{chunk, sim};
-                })
+        long permissionStart = System.currentTimeMillis();
+        List<Long> accessibleDocIds = docDocumentMapper.selectList(
+                        access.scope(new LambdaQueryWrapper<DocDocument>(), userId).eq(DocDocument::getStatus, 1))
+                .stream()
+                .map(DocDocument::getId)
                 .filter(Objects::nonNull)
-                .sorted(Comparator.comparingDouble(o -> - (Double) o[1]))
-                .limit(size)
-                .map(o -> ((DocChunk) o[0]).getContent())
+                .toList();
+        trace.setAccessibleDocCount(accessibleDocIds.size());
+        emitStep(trace, onStep, step("permission_filter", "权限过滤",
+                accessibleDocIds.isEmpty() ? "empty" : "success",
+                "按当前用户可见范围过滤知识库文档", permissionStart, accessibleDocIds.size()));
+        if (accessibleDocIds.isEmpty()) {
+            trace.setStrategy("permission_denied");
+            trace.setEvidenceSufficient(false);
+            trace.setDurationMs(System.currentTimeMillis() - overallStart);
+            return new SearchOutcome(List.of(), trace);
+        }
+
+        long searchStart = System.currentTimeMillis();
+        List<Float> queryVec = embeddingService.embed(query);
+        List<String> results;
+        if (queryVec == null || queryVec.isEmpty()) {
+            // 向量检索真实不可用 → 关键词降级（DocChunkService 现有行为）
+            log.info("query embedding 不可用，降级为分块关键词检索");
+            results = searchByKeyword(query, limit, accessibleDocIds);
+            trace.setStrategy("keyword");
+            emitStep(trace, onStep, step("keyword_search", "关键词检索",
+                    results.isEmpty() ? "empty" : "success",
+                    "向量检索不可用，按关键词匹配已授权文档片段", searchStart, results.size()));
+        } else {
+            List<DocChunk> allChunks = docChunkMapper.selectList(
+                    new LambdaQueryWrapper<DocChunk>()
+                            .isNotNull(DocChunk::getEmbedding)
+                            .ne(DocChunk::getEmbedding, "")
+                            .in(DocChunk::getDocId, accessibleDocIds)
+                            .orderByAsc(DocChunk::getDocId)
+                            .orderByAsc(DocChunk::getChunkIndex));
+            if (allChunks.isEmpty()) {
+                results = List.of();
+            } else {
+                int size = Math.min(Math.max(limit, 1), 20);
+                results = allChunks.parallelStream()
+                        .map(chunk -> {
+                            List<Float> chunkVec = parseVector(chunk.getEmbedding());
+                            if (chunkVec == null) return null;
+                            double sim = embeddingService.cosineSimilarity(queryVec, chunkVec);
+                            return new Object[]{chunk, sim};
+                        })
+                        .filter(Objects::nonNull)
+                        .sorted(Comparator.comparingDouble(o -> - (Double) o[1]))
+                        .limit(size)
+                        .map(o -> ((DocChunk) o[0]).getContent())
+                        .collect(Collectors.toList());
+            }
+            trace.setStrategy("vector");
+            emitStep(trace, onStep, step("vector_search", "向量检索",
+                    results.isEmpty() ? "empty" : "success",
+                    "按余弦相似度召回已授权文档片段", searchStart, results.size()));
+        }
+
+        trace.setResultCount(results.size());
+        trace.setEvidenceSufficient(!results.isEmpty());
+        long evidenceStart = System.currentTimeMillis();
+        emitStep(trace, onStep, step("evidence", "证据判断",
+                results.isEmpty() ? "empty" : "success",
+                results.isEmpty() ? "未检索到可用资料，回答不会引用知识库内容"
+                        : "召回 " + results.size() + " 个片段，可作为回答引用上下文",
+                evidenceStart, results.size()));
+        trace.setDurationMs(System.currentTimeMillis() - overallStart);
+        return new SearchOutcome(results, trace);
+    }
+
+    private static com.knowflow.ai.trace.RagTraceStep step(String type, String label, String status,
+                                                           String detail, long startedAt, int resultCount) {
+        com.knowflow.ai.trace.RagTraceStep step = new com.knowflow.ai.trace.RagTraceStep();
+        step.setStepId(type);
+        step.setType(type);
+        step.setLabel(label);
+        step.setStatus(status);
+        step.setDetail(detail);
+        step.setDurationMs(Math.max(0L, System.currentTimeMillis() - startedAt));
+        step.setResultCount(resultCount);
+        return step;
+    }
+
+    /** 记录并推送单个检索步骤：先写入 trace（供落库历史回放），推送失败不影响检索本身。 */
+    private static void emitStep(com.knowflow.ai.trace.RagTrace trace,
+                                 java.util.function.Consumer<com.knowflow.ai.trace.RagTraceStep> onStep,
+                                 com.knowflow.ai.trace.RagTraceStep step) {
+        if (trace != null) {
+            trace.addStep(step);
+        }
+        if (onStep != null) {
+            try {
+                onStep.accept(step);
+            } catch (Exception ignored) {
+                // 推送失败（客户端断开）不影响检索本身
+            }
+        }
+    }
+
+    private Long resolveRootCategoryId(DocCategory category, Map<Long, DocCategory> categories) {
+        DocCategory current = category;
+        Set<Long> visited = new java.util.HashSet<>();
+        while (current.getParentId() != null && current.getParentId() != 0
+                && visited.add(current.getId())) {
+            DocCategory parent = categories.get(current.getParentId());
+            if (parent == null) break;
+            current = parent;
+        }
+        return current.getId();
+    }
+
+    private List<String> searchByKeyword(String query, int limit, List<Long> accessibleDocIds) {
+        int size = Math.min(Math.max(limit, 1), 20);
+        return docChunkMapper.selectList(new LambdaQueryWrapper<DocChunk>()
+                        .like(DocChunk::getContent, query.trim())
+                        .in(DocChunk::getDocId, accessibleDocIds)
+                        .orderByAsc(DocChunk::getDocId)
+                        .orderByAsc(DocChunk::getChunkIndex)
+                        .last("LIMIT " + size))
+                .stream()
+                .map(DocChunk::getContent)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
     @Override
     public Map<Long, Double> searchSimilarDocIds(String query, int limit) {
+        List<Long> accessible=docDocumentMapper.selectList(access.scope(new LambdaQueryWrapper<DocDocument>(),access.actor()).eq(DocDocument::getStatus,1)).stream().map(DocDocument::getId).toList();
+        if(accessible.isEmpty()) return Collections.emptyMap();
         if (query == null || query.isBlank() || !embeddingService.isAvailable()) {
             return Collections.emptyMap();
         }
@@ -147,6 +269,7 @@ public class DocChunkServiceImpl implements DocChunkService {
         }
         List<DocChunk> allChunks = docChunkMapper.selectList(
                 new LambdaQueryWrapper<DocChunk>()
+                        .in(DocChunk::getDocId,accessible)
                         .isNotNull(DocChunk::getEmbedding)
                         .ne(DocChunk::getEmbedding, ""));
         if (allChunks.isEmpty()) {

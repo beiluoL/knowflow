@@ -1,21 +1,18 @@
 <template>
   <div class="space-y-6 animate-fade-in">
+    <!-- UI/UX 5.1 §十二：返回统一由 PageHeader 左侧承担。
+         §十四：动作区只保留 1 个 Primary（发布），导航不再混进 CTA 区。 -->
     <PageHeader
       :crumbs="[{ label: '社区讨论', to: '/community' }, { label: '发布新帖' }]"
       title="发布新帖"
+      back
+      back-label="返回社区"
     >
       <template #actions>
         <button
-          @click="goBack"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground border border-border hover:bg-muted active:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-        >
-          <Icon name="chevron-left" :size="16" />
-          <span>返回</span>
-        </button>
-        <button
           @click="handleSubmit"
           :disabled="submitting || !canSubmit"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 active:bg-primary-700 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="post-submit-btn"
         >
           <Icon name="pen-line" :size="16" />
           <span>{{ submitting ? '发布中...' : '发布' }}</span>
@@ -23,7 +20,7 @@
       </template>
     </PageHeader>
 
-    <div class="max-w-3xl mx-auto flex flex-col gap-5">
+    <div class="w-full min-w-0 flex flex-col gap-5">
       <!-- 标题 -->
       <section class="border rounded-[10px] p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
         <label class="block text-sm font-medium text-foreground mb-2">标题</label>
@@ -32,7 +29,7 @@
           type="text"
           maxlength="60"
           placeholder="一句话概括你的主题，例如：大模型微调踩坑记录"
-          class="w-full px-3 py-2.5 rounded-lg border border-border text-sm focus:outline-none focus:border-primary-400"
+          class="w-full px-3 py-2.5 text-sm kb-input kb-form-control"
         />
         <p class="text-[12px] text-muted-foreground mt-1.5 text-right">{{ form.title.length }}/60</p>
       </section>
@@ -63,7 +60,7 @@
           v-model="form.content"
           rows="14"
           placeholder="分享你的经验、问题或资源，支持换行..."
-          class="w-full px-3 py-2.5 rounded-lg border border-border text-sm leading-relaxed focus:outline-none focus:border-primary-400 resize-none"
+          class="w-full px-3 py-2.5 text-sm leading-relaxed resize-none kb-textarea kb-form-control"
         ></textarea>
       </section>
 
@@ -78,7 +75,7 @@
           @click="handleSubmit"
           :disabled="submitting || !canSubmit"
           type="button"
-          class="px-5 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 active:bg-primary-700 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="post-submit-btn"
         >{{ submitting ? '发布中...' : '发布帖子' }}</button>
       </div>
     </div>
@@ -94,9 +91,11 @@ import PageHeader from '@/components/ui/PageHeader.vue'
 import { communityApi } from '@/api/community'
 import { useAuthStore } from '@/stores/auth'
 import { notify } from '@/utils/toast'
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const nav = usePageNavigation()
 
 // 与社区列表侧边栏分类保持一致
 const categories = [
@@ -113,8 +112,7 @@ const canSubmit = computed(() => form.value.title.trim().length > 0)
 
 // 优先退回上一页（保持社区内的浏览位置），无历史记录时兜底回社区列表
 function goBack() {
-  if (window.history.length > 1) router.back()
-  else router.push('/community')
+  nav.goBack('/community')
 }
 
 async function handleSubmit() {
@@ -144,6 +142,49 @@ async function handleSubmit() {
 </script>
 
 <style scoped>
+/* UI/UX 5.1 §十四：按钮层级走 --kb-* 令牌
+   （原写法 text-white/bg-primary-500 是 Tailwind 原色板硬编码，深色模式会分叉） */
+.post-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--kb-radius-sm);
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  font-size: var(--kb-fs-body-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.post-submit-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.post-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.post-submit-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--kb-ring);
+}
+
+/* Secondary：页头快捷入口，不与底部主行动争夺视觉权重 */
+.post-submit-btn--secondary {
+  background: var(--kb-card);
+  color: var(--kb-foreground);
+  border: 1px solid var(--kb-border);
+}
+
+.post-submit-btn--secondary:hover:not(:disabled) {
+  background: var(--kb-muted);
+  opacity: 1;
+}
+
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
 }

@@ -7,6 +7,23 @@ const request = axios.create({
   timeout: 15000,
 })
 
+/**
+ * 构造带 HTTP 状态码的业务错误。
+ *
+ * P1-D §九：拦截器此前用 `new Error(res.message)` / `new Error(bizMessage)` 丢掉了状态码，
+ * 于是 `utils/error-message.ts` 的 `classifyPageError()` 只能把这 403 / 500 判成 `unknown`，
+ * 页面就会给出「未知错误 + 稍后重试」——把「没有权限」说成「服务不可用」或「未知错误」。
+ * 这里把状态码挂在 error 上（字段名与 `extractStatus()` 约定一致），
+ * 文案与拒绝行为**完全不变**，只是让错误可被正确分类。
+ */
+function bizError(message: string, status?: number): Error {
+  const err = new Error(message)
+  if (typeof status === 'number' && status > 0) {
+    ;(err as Error & { status?: number }).status = status
+  }
+  return err
+}
+
 // 请求拦截器：自动附加 JWT
 request.interceptors.request.use(
   (config) => {
@@ -24,7 +41,8 @@ request.interceptors.response.use(
   (response) => {
     const res = response.data as { code?: number; message?: string }
     if (res && res.code !== undefined && res.code !== 200) {
-      return Promise.reject(new Error(res.message || '请求失败'))
+      // HTTP 200 + 业务 code（如 500「系统内部错误」）也要保留 code 作为可分类状态
+      return Promise.reject(bizError(res.message || '请求失败', res.code))
     }
     return response.data
   },
@@ -40,10 +58,11 @@ request.interceptors.response.use(
         window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`
       }
     }
-    // 透传后端业务错误信息（如"用户名或密码错误"），避免展示 axios 原始英文报错
+    // 透传后端业务错误信息（如"用户名或密码错误"），避免展示 axios 原始英文报错；
+    // 同时保留 HTTP 状态码，避免 403 被下游当成「未知错误」（P1-D §九）
     const bizMessage = error.response?.data?.message
     if (bizMessage) {
-      return Promise.reject(new Error(bizMessage))
+      return Promise.reject(bizError(bizMessage, error.response?.status))
     }
     return Promise.reject(error)
   }
@@ -57,6 +76,11 @@ export async function apiGet<T>(url: string, params?: object): Promise<T> {
 
 export async function apiPost<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
   const res = await request.post(url, data, config)
+  return (res as unknown as ApiResult<T>).data
+}
+
+export async function apiPatch<T>(url: string, data?: unknown): Promise<T> {
+  const res = await request.patch(url, data)
   return (res as unknown as ApiResult<T>).data
 }
 

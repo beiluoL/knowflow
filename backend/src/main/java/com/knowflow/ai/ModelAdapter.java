@@ -74,11 +74,22 @@ public interface ModelAdapter {
     /** 流式 token 增量。 */
     class TokenDelta {
         public String delta;
+        /**
+         * Provider 真实返回的可展示推理内容增量（如 DeepSeek 的 reasoning_content）。
+         * 无推理内容时为 null；适配器不得自行生成或补写。
+         */
+        public String reasoning;
         /** 若为工具调用片段，填充此字段（适配器负责累积解析） */
         public ToolCall toolCall;
 
         public TokenDelta(String delta) {
             this.delta = delta;
+        }
+
+        public static TokenDelta ofReasoning(String reasoning) {
+            TokenDelta token = new TokenDelta(null);
+            token.reasoning = reasoning;
+            return token;
         }
     }
 
@@ -86,10 +97,17 @@ public interface ModelAdapter {
     class StreamDone {
         public String content;
         public List<ToolCall> toolCalls;
+        /** Provider 真实返回的完整推理内容（可为空，不伪造）。 */
+        public String reasoning;
 
         public StreamDone(String content, List<ToolCall> toolCalls) {
+            this(content, toolCalls, null);
+        }
+
+        public StreamDone(String content, List<ToolCall> toolCalls, String reasoning) {
             this.content = content;
             this.toolCalls = toolCalls;
+            this.reasoning = reasoning;
         }
     }
 

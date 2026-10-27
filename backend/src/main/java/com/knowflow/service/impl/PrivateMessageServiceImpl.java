@@ -7,6 +7,7 @@ import com.knowflow.entity.PrivateConversation;
 import com.knowflow.entity.PrivateConversationRead;
 import com.knowflow.entity.PrivateMessage;
 import com.knowflow.entity.SysUser;
+import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.PrivateConversationMapper;
 import com.knowflow.mapper.PrivateConversationReadMapper;
 import com.knowflow.mapper.PrivateMessageMapper;
@@ -23,6 +24,11 @@ import java.util.stream.Collectors;
 
 /**
  * 私聊消息服务实现
+ *
+ * <p>P1-D4：用户可理解的业务错误统一使用双参 {@link BusinessException}(code, message)，
+ * 由 {@code GlobalExceptionHandler} 同步映射为对应 HTTP 状态码；不再用裸 {@code RuntimeException}
+ * 表达「无权 / 不存在 / 请求非法」——那会被兜底成 HTTP 500「系统内部错误」，
+ * 把用户自己的非法操作或权限不足错误描述成服务端故障。真正的服务端异常仍未捕获、保持 500。</p>
  */
 @Service
 @RequiredArgsConstructor
@@ -37,7 +43,9 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
     @Transactional
     public PrivateConversationVO getOrCreateConversation(Long userId, Long targetUserId) {
         if (targetUserId == null || targetUserId.equals(userId)) {
-            throw new RuntimeException("不能与自己发起私聊");
+            // 400：请求本身不成立（自己与自己建会话）。Controller 的 @RequestParam 必填，
+            // null 分支仅供内部调用防御，HTTP 层不可达。
+            throw new BusinessException(400, "不能与自己发起私聊");
         }
         // 统一存储顺序，保证两人会话唯一
         long a = Math.min(userId, targetUserId);
@@ -188,10 +196,12 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
     public void recallMessage(Long messageId, Long userId) {
         PrivateMessage message = messageMapper.selectById(messageId);
         if (message == null) {
-            throw new RuntimeException("消息不存在");
+            // 404：目标资源不存在（区别于「存在但无权」）
+            throw new BusinessException(404, "消息不存在");
         }
         if (!message.getSenderId().equals(userId)) {
-            throw new RuntimeException("只能撤回自己的消息");
+            // 403：已登录但无权撤回他人消息；抛异常早于任何写入 ⇒ 零副作用
+            throw new BusinessException(403, "只能撤回自己的消息");
         }
         message.setRecalled(1);
         messageMapper.updateById(message);
@@ -202,10 +212,12 @@ public class PrivateMessageServiceImpl implements PrivateMessageService {
     private PrivateConversation checkParticipant(Long conversationId, Long userId) {
         PrivateConversation conversation = conversationMapper.selectById(conversationId);
         if (conversation == null) {
-            throw new RuntimeException("会话不存在");
+            // 404：会话不存在（资源缺失，≠ 权限不足）
+            throw new BusinessException(404, "会话不存在");
         }
         if (!conversation.getUserAId().equals(userId) && !conversation.getUserBId().equals(userId)) {
-            throw new RuntimeException("无权访问该会话");
+            // 403：已登录但非本会话参与者；抛异常早于任何读写 ⇒ 零副作用、零内容泄漏
+            throw new BusinessException(403, "无权访问该会话");
         }
         return conversation;
     }

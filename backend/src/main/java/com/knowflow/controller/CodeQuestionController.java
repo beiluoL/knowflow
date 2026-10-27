@@ -36,6 +36,23 @@ public class CodeQuestionController {
     private final CodeQuestionMapper questionMapper;
     private final CodeSubmitRecordMapper submitRecordMapper;
     private final LearningEventService learningEventService;
+    private final com.knowflow.security.DocumentAccessPolicy documentAccess;
+    private final org.springframework.jdbc.core.JdbcTemplate resourceIndex;
+
+    /** A private import ledger is an ownership boundary independent of publication status. */
+    private void requireIndexedCodeAccess(Long id, Long actor) {
+        if (documentAccess.admin(actor)) {
+            return;
+        }
+        List<String> privateKeys = resourceIndex.queryForList(
+                "SELECT resource_key FROM interview_seed_resource "
+                        + "WHERE resource_type='CODE' AND resource_id=? AND resource_key LIKE 'user/%'",
+                String.class, id);
+        String ownerPrefix = "user/" + actor + "/";
+        if (privateKeys.stream().anyMatch(key -> !key.startsWith(ownerPrefix))) {
+            throw new com.knowflow.exception.BusinessException(403, "无权访问该私人代码练习");
+        }
+    }
 
     /** 默认编程语言 */
     private static final String DEFAULT_LANG = "javascript";
@@ -60,6 +77,15 @@ public class CodeQuestionController {
         if (language != null && !language.trim().isEmpty()) {
             wrapper.eq(CodeQuestion::getLanguage, language.trim());
         }
+        Long actor = SecurityUtils.getCurrentUserId();
+        if (!documentAccess.admin(actor)) {
+            wrapper.apply("NOT EXISTS (SELECT 1 FROM interview_seed_resource private_code "
+                            + "WHERE private_code.resource_type='CODE' "
+                            + "AND private_code.resource_id=code_question.id "
+                            + "AND private_code.resource_key LIKE 'user/%' "
+                            + "AND private_code.resource_key NOT LIKE {0})",
+                    "user/" + actor + "/%");
+        }
         return Result.success(questionMapper.selectList(wrapper));
     }
 
@@ -70,6 +96,7 @@ public class CodeQuestionController {
         if (q == null || q.getStatus() == null || q.getStatus() != 1) {
             return Result.error(404, "题目不存在或已下架");
         }
+        requireIndexedCodeAccess(id, SecurityUtils.getCurrentUserId());
         return Result.success(q);
     }
 
@@ -86,6 +113,7 @@ public class CodeQuestionController {
         if (q == null || q.getStatus() == null || q.getStatus() != 1) {
             return Result.error(404, "题目不存在或已下架");
         }
+        requireIndexedCodeAccess(id, SecurityUtils.getCurrentUserId());
         int total = payload.getTotal() == null ? 0 : payload.getTotal();
         int pass = payload.getPassCount() == null ? 0 : payload.getPassCount();
         boolean allPassed = total > 0 && pass == total;
@@ -111,17 +139,11 @@ public class CodeQuestionController {
                 record.setPassCount(pass);
                 record.setPassed(allPassed ? 1 : 0);
                 submitRecordMapper.insert(record);
-                // Learning Event System（Phase 1）：代码提交事件，与业务完全解耦
+                // Phase 1：一次代码提交 = 一条核心事件 CODE_SUBMITTED（行为+结果合一，结果经 passed/total/passCount 表达）
+                // 事件经 LearningEventService 写入（统一入口），不直接触碰 LearningEventMapper
                 Long uid = record.getUserId();
                 learningEventService.record(uid, LearningEventType.CODE_SUBMITTED, "CODE_QUESTION", id,
-                        Map.of("language", record.getLanguage(), "total", total, "passCount", pass));
-                if (allPassed) {
-                    learningEventService.record(uid, LearningEventType.CODE_PASSED, "CODE_QUESTION", id,
-                            Map.of("language", record.getLanguage()));
-                } else {
-                    learningEventService.record(uid, LearningEventType.CODE_FAILED, "CODE_QUESTION", id,
-                            Map.of("language", record.getLanguage(), "total", total, "passCount", pass));
-                }
+                        Map.of("language", record.getLanguage(), "total", total, "passCount", pass, "passed", allPassed));
             } catch (Exception e) {
                 log.warn("提交记录写入失败(不影响): {}", e.getMessage());
             }
@@ -153,6 +175,7 @@ public class CodeQuestionController {
     @GetMapping("/{id}/submissions")
     public Result<List<CodeSubmitRecordVO>> submissions(@PathVariable Long id) {
         Long userId = SecurityUtils.getCurrentUserId();
+        requireIndexedCodeAccess(id, userId);
         List<CodeSubmitRecord> list = submitRecordMapper.selectList(
                 new LambdaQueryWrapper<CodeSubmitRecord>()
                         .eq(CodeSubmitRecord::getUserId, userId)

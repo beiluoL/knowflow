@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import Checkbox from '@/components/ui/Checkbox.vue'
+
 /**
  * 编程 Agent 页面（/coding/agent）。
  *
@@ -11,6 +13,7 @@
  * 模型支持云端 11 个提供商 + 本地 Ollama/vLLM/LocalAI/自定义（OpenAI 兼容协议）。
  */
 import { ref, computed, onMounted, nextTick, onUnmounted, watch } from 'vue'
+import Select from '@/components/ui/Select.vue'
 import Icon from '@/components/ui/Icon.vue'
 import Button from '@/components/ui/Button.vue'
 import Badge from '@/components/ui/Badge.vue'
@@ -35,9 +38,10 @@ import type {
   AgentIntentType,
   AgentIntentRequest,
   AgentIntentResult,
+  IntentHistoryItem,
+  ProjectSnapshotItem,
   Ambiguity,
   ClarifyQuestion,
-  AgentEvalResult,
 } from '@/api/types'
 import { renderMarkdown } from '@/utils/markdown'
 import { notify, confirmDialog, promptDialog, getApiError } from '@/utils/toast'
@@ -347,16 +351,19 @@ async function saveConfig() {
 }
 
 async function deleteConfig(id: number) {
-  const ok = await confirmDialog('确定删除这条模型配置？')
-  if (!ok) return
-  try {
-    await aiConfigApi.deleteConfig(id)
-    notify('已删除', 'success')
-    if (selectedConfigId.value === id) selectedConfigId.value = null
-    await loadModels()
-  } catch (e: unknown) {
-    notify(getApiError(e, '删除失败'), 'error')
-  }
+  await confirmDialog('确定删除这条模型配置？', { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          try {
+              await aiConfigApi.deleteConfig(id);
+              notify('已删除', 'success');
+              if (selectedConfigId.value === id)
+                  selectedConfigId.value = null;
+              await loadModels();
+          }
+          catch (e: unknown) {
+              notify(getApiError(e, '删除失败'), 'error');
+              throw e;
+          }
+      } });
 }
 
 // ==================== 会话管理（分页加载） ====================
@@ -579,19 +586,21 @@ async function renameSession(s: AgentSessionVO) {
 }
 
 async function deleteSession(s: AgentSessionVO) {
-  const ok = await confirmDialog(`确定删除会话「${s.title}」？此操作不可恢复。`)
-  if (!ok) return
-  try {
-    await codeAgentApi.deleteSession(s.id)
-    sessions.value = sessions.value.filter((x) => x.id !== s.id)
-    if (currentSessionId.value === s.id) {
-      currentSessionId.value = null
-      messages.value = [{ role: 'assistant', content: '会话已删除，请创建新会话或选择其他会话。' }]
-    }
-    notify('会话已删除', 'success')
-  } catch (e: unknown) {
-    notify(getApiError(e, '删除会话失败'), 'error')
-  }
+  await confirmDialog(`确定删除会话「${s.title}」？此操作不可恢复。`, { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          try {
+              await codeAgentApi.deleteSession(s.id);
+              sessions.value = sessions.value.filter((x) => x.id !== s.id);
+              if (currentSessionId.value === s.id) {
+                  currentSessionId.value = null;
+                  messages.value = [{ role: 'assistant', content: '会话已删除，请创建新会话或选择其他会话。' }];
+              }
+              notify('会话已删除', 'success');
+          }
+          catch (e: unknown) {
+              notify(getApiError(e, '删除会话失败'), 'error');
+              throw e;
+          }
+      } });
 }
 
 function formatSessionTime(time?: string): string {
@@ -902,7 +911,8 @@ const reviewMode = ref(false)
 /** 最近一条携带生成产物的消息（审阅模式仅作用于该消息） */
 const lastGeneratedMessage = computed<ChatMessage | null>(() => {
   for (let i = messages.value.length - 1; i >= 0; i--) {
-    if (messages.value[i].files && messages.value[i].files.length) return messages.value[i]
+    const m = messages.value[i]
+    if (m && m.files && m.files.length) return m
   }
   return null
 })
@@ -1050,7 +1060,7 @@ async function runCodeGeneration(text: string, intent?: AgentIntentResult) {
     if (intent?.needsClarify && intent.clarifications?.length) {
       selectedClarifyOptions.value = {}
       clarifyText.value = ''
-      pendingClarify.value = { base: intent, questions: intent.clarifications }
+      pendingClarify.value = { base: intent, questions: intent.clarifications, input: text }
     }
 
     // 步骤二：确定保存目录 —— 有设置的默认目录则直接复用（全自动），否则准备弹框
@@ -1208,7 +1218,7 @@ function collectLastGeneratedFiles(): GeneratedFile[] {
 }
 
 /** 基于后端结构化意图结果构建「理解意图」步骤细节 */
-function buildIntentDetailFromResult(text: string, intent: AgentIntentResult): string {
+function buildIntentDetailFromResult(_text: string, intent: AgentIntentResult): string {
   const labelMap: Record<AgentIntentType, string> = {
     generate: '生成并保存代码文件',
     modify: '在已有产物基础上修改',
@@ -1533,7 +1543,7 @@ function flattenFileTree(nodes: FileNode[]): FileNode[] {
  * 显式澄清（P2）：需要用户确认意图/参数时，冻结输入、展示结构化澄清卡片，
  * 用户作答后以带意图的 user 消息重进识别流程。
  */
-const pendingClarify = ref<{ base: AgentIntentResult; questions: ClarifyQuestion[] } | null>(null)
+const pendingClarify = ref<{ base: AgentIntentResult; questions: ClarifyQuestion[]; input: string } | null>(null)
 
 /** 最近一次路由的意图结果，供 runChat 生成后做 P3 评估回填 */
 const lastIntent = ref<AgentIntentResult | null>(null)
@@ -1586,7 +1596,7 @@ async function skipClarify() {
   // 用户选择直接执行：沿用已识别意图（可能参数不完整，由后续歧义检测兜底）
   // 同样需要置 needsClarify=false 防止 routeByIntent 重新弹出澄清卡片
   const resolvedIntent = { ...pending.base, needsClarify: false }
-  await routeByIntent(pending.base.currentInput ?? '', resolvedIntent)
+  await routeByIntent(pending.input ?? '', resolvedIntent)
 }
 
 /** 根据意图识别结果把用户输入路由到对应处理链路 */
@@ -1612,7 +1622,7 @@ async function routeByIntent(text: string, intent: AgentIntentResult) {
     setStep('clarify', { status: 'active', detail: intent.clarifications.map((c) => c.question).join('；') })
     selectedClarifyOptions.value = {}
     clarifyText.value = ''
-    pendingClarify.value = { base: intent, questions: intent.clarifications }
+    pendingClarify.value = { base: intent, questions: intent.clarifications, input: text }
     return
   }
   setStep('clarify', { status: 'done', detail: '意图明确，无需澄清' })
@@ -1969,7 +1979,7 @@ function buildPreviewDoc(lang: string, code: string): string {
     return `<!DOCTYPE html><html><head><meta charset="utf-8">
 <style>body{font-family:sans-serif;max-width:760px;margin:0 auto;padding:20px;color:#333;line-height:1.7}
 pre{background:#f5f5f5;padding:12px;border-radius:6px;overflow:auto}code{background:#f5f5f5;padding:2px 6px;border-radius:3px}
-table{border-collapse:collapse}th,td{border:1px solid #ddd;padding:6px 12px}blockquote{border-left:4px solid #3B6FE0;margin:0;padding-left:16px;color:#666}</style>
+table{border-collapse:collapse}th,td{border:1px solid #ddd;padding:6px 12px}blockquote{border-left:4px solid var(--kb-primary);margin:0;padding-left:16px;color:#666}</style>
 </head><body>${html}</body></html>`
   }
   if (lang === 'json') {
@@ -1977,7 +1987,7 @@ table{border-collapse:collapse}th,td{border:1px solid #ddd;padding:6px 12px}bloc
     try {
       pretty = JSON.stringify(JSON.parse(code), null, 2)
     } catch {
-      return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:monospace;padding:16px;color:#dc2626}</style></head>
+      return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:monospace;padding:16px;color:var(--kb-danger-hover)}</style></head>
 <body>JSON 解析失败：格式不正确</body></html>`
     }
     return `<!DOCTYPE html><html><head><meta charset="utf-8">
@@ -2333,22 +2343,26 @@ async function unloadOllamaModel(modelName: string) {
 
 /** 删除模型 */
 async function deleteOllamaModel(modelName: string) {
-  const ok = await confirmDialog(`确定删除模型「${modelName}」？此操作将永久删除模型文件，不可恢复。`)
-  if (!ok) return
-  ollamaModelOps.value[modelName] = 'deleting'
-  try {
-    const result = await ollamaApi.deleteModel(modelName, ollamaConfig.value.baseUrl)
-    if (result.ok) {
-      notify(`模型 ${modelName} 已删除`, 'success')
-      ollamaModels.value = ollamaModels.value.filter((m) => m.name !== modelName)
-    } else {
-      notify(`删除失败：${result.error}`, 'error')
-    }
-  } catch (e: unknown) {
-    notify(getApiError(e, '删除模型失败'), 'error')
-  } finally {
-    ollamaModelOps.value[modelName] = undefined
-  }
+  await confirmDialog(`确定删除模型「${modelName}」？此操作将永久删除模型文件，不可恢复。`, { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          ollamaModelOps.value[modelName] = 'deleting';
+          try {
+              const result = await ollamaApi.deleteModel(modelName, ollamaConfig.value.baseUrl);
+              if (result.ok) {
+                  notify(`模型 ${modelName} 已删除`, 'success');
+                  ollamaModels.value = ollamaModels.value.filter((m) => m.name !== modelName);
+              }
+              else {
+                  throw new Error(result.error || '删除模型失败');
+              }
+          }
+          catch (e: unknown) {
+              notify(getApiError(e, '删除模型失败'), 'error');
+              throw e;
+          }
+          finally {
+              ollamaModelOps.value[modelName] = undefined;
+          }
+      } });
 }
 
 /** 将 Ollama 模型添加为 Agent 模型配置 */
@@ -2454,12 +2468,7 @@ watch(activeTab, (tab) => {
       </div>
       <div class="tabs-right">
         <Icon name="cpu" size="xs" class="model-icon" />
-        <select v-model="selectedConfigId" class="kb-select kb-select-sm" title="切换当前对话使用的模型">
-          <option :value="null" disabled>选择模型...</option>
-          <option v-for="m in userModels" :key="m.id" :value="m.id">
-            {{ modelLabel(m) }}
-          </option>
-        </select>
+        <Select class="select-inline" v-model="selectedConfigId" title="切换当前对话使用的模型" :options="[{ value: null, label: '选择模型...', disabled: true }, ...userModels.map(m => ({ value: m.id!, label: modelLabel(m) }))]" aria-label="当前对话模型" />
       </div>
     </header>
 
@@ -2483,7 +2492,7 @@ watch(activeTab, (tab) => {
             </button>
           </div>
           <div v-if="!supportsFsAccess" class="fs-warning">
-            <Icon name="alert-triangle" size="xs" />
+            <Icon name="alert-circle" size="xs" />
             <span>请使用 Chrome/Edge 86+</span>
           </div>
           <div v-else-if="!rootHandle" class="empty-tip">
@@ -2776,7 +2785,7 @@ watch(activeTab, (tab) => {
                 <!-- P2 歧义标签：结构/语义歧义高亮提示（复用 --kb-warning 色变量） -->
                 <div v-if="msg.ambiguity && msg.ambiguity.length" class="ambig-tags">
                   <span class="ambig-tag" v-for="(a, i) in msg.ambiguity" :key="i" :title="a.reason">
-                    <Icon name="alert-triangle" size="xxs" />
+                    <Icon name="alert-circle" size="xxs" />
                     {{ a.kind }}：{{ a.point }}
                   </span>
                   <span class="ambig-suggest" v-if="msg.ambiguity[0].suggestion">
@@ -2800,7 +2809,7 @@ watch(activeTab, (tab) => {
             </div>
             <div v-if="streaming" class="message assistant">
               <div class="message-avatar">
-                <Icon name="robot" size="sm" />
+                <Icon name="bot" size="sm" />
               </div>
               <div class="message-body">
                 <div class="bubble">
@@ -2820,7 +2829,7 @@ watch(activeTab, (tab) => {
             <!-- 本地代码生成推理过程（结构化步骤链） -->
             <div v-if="generating || saveProgress" class="message assistant">
               <div class="message-avatar">
-                <Icon name="robot" size="sm" />
+                <Icon name="bot" size="sm" />
               </div>
               <div class="message-body">
                 <div class="bubble">
@@ -2896,7 +2905,7 @@ watch(activeTab, (tab) => {
             <div class="clarify-input-row">
               <input
                 v-model="clarifyText"
-                class="clarify-input"
+                class="clarify-input kb-input kb-form-control"
                 placeholder="或直接输入你的补充说明…"
                 @keydown.enter="onClarifyKeydown"
                 @compositionstart="onInputCompositionStart"
@@ -2910,12 +2919,12 @@ watch(activeTab, (tab) => {
           <div class="input-area">
             <div class="input-toolbar">
               <div class="toolbar-group">
-                <label class="ctx-toggle" title="将当前/选中文件作为上下文一并发送给模型">
-                  <input type="checkbox" v-model="includeFileContext" />
+                <label class="ctx-toggle kb-checkbox-row" title="将当前/选中文件作为上下文一并发送给模型">
+                  <Checkbox as="span"  v-model="includeFileContext" />
                   <span>附带文件上下文</span>
                 </label>
-                <label class="ctx-toggle" title="开启后，「帮我写一个 HTML demo」这类指令将调用本地模型生成代码并保存到目录">
-                  <input type="checkbox" v-model="localCodeGenEnabled" />
+                <label class="ctx-toggle kb-checkbox-row" title="开启后，「帮我写一个 HTML demo」这类指令将调用本地模型生成代码并保存到目录">
+                  <Checkbox as="span"  v-model="localCodeGenEnabled" />
                   <span>本地生成并保存文件</span>
                 </label>
                 <button
@@ -2928,10 +2937,10 @@ watch(activeTab, (tab) => {
                   <Icon name="folder-plus" size="xxs" /> 设置默认目录
                 </button>
                 <label
-                  class="ctx-toggle"
+                  class="ctx-toggle kb-checkbox-row"
                   title="开启后由模型自主决定调用工具（代码执行/文件读写/数据查询），高危工具需二次确认"
                 >
-                  <input type="checkbox" v-model="agentToolMode" :disabled="streaming" />
+                  <Checkbox as="span"  v-model="agentToolMode" :disabled="streaming" />
                   <span>Agent 工具模式</span>
                 </label>
               </div>
@@ -2970,7 +2979,7 @@ watch(activeTab, (tab) => {
               <AgentCallChain ref="callChainRef" :session-id="currentSessionId" />
             </div>
             <div class="input-row">
-              <textarea
+              <textarea class="kb-textarea kb-form-control"
                 v-model="input"
                 :disabled="streaming || generating"
                 placeholder="输入编程问题，或让我生成代码，例如：替我写一个 html demo 案例 (Enter 发送, Shift+Enter 换行)"
@@ -2988,7 +2997,7 @@ watch(activeTab, (tab) => {
                 <Icon name="send" size="xs" /> {{ generating ? '生成中' : '发送' }}
               </Button>
               <Button v-else variant="secondary" @click="cancelStream">
-                <Icon name="square" size="xs" /> 停止
+                <Icon name="layout" size="xs" /> 停止
               </Button>
             </div>
           </div>
@@ -3041,20 +3050,20 @@ watch(activeTab, (tab) => {
 
               <section class="settings-section">
                 <h4 class="settings-section-title">自动生成与保存</h4>
-                <label class="settings-switch">
-                  <input type="checkbox" v-model="localCodeGenEnabled" />
+                <label class="settings-switch kb-checkbox-row">
+                  <Checkbox as="span"  v-model="localCodeGenEnabled" />
                   <span>开启后，识别到「写/生成代码」类指令即自动调用本地模型并落盘</span>
                 </label>
               </section>
 
               <section class="settings-section">
                 <h4 class="settings-section-title">文件树自动刷新</h4>
-                <label class="settings-switch">
-                  <input type="checkbox" v-model="autoRefreshTree" />
+                <label class="settings-switch kb-checkbox-row">
+                  <Checkbox as="span"  v-model="autoRefreshTree" />
                   <span>代码生成并保存后，自动刷新项目目录结构（新增/修改/删除立即可见）</span>
                 </label>
-                <label class="settings-switch">
-                  <input type="checkbox" v-model="watchTree" />
+                <label class="settings-switch kb-checkbox-row">
+                  <Checkbox as="span"  v-model="watchTree" />
                   <span>持续监听目录变化（轮询式，捕捉生成之外的外部改动；会占用少量资源）</span>
                 </label>
                 <div class="settings-delay">
@@ -3133,7 +3142,7 @@ watch(activeTab, (tab) => {
         <div class="toolbar-right">
           <input
             v-model="sessionKeyword"
-            class="kb-input kb-input-sm session-search"
+            class="kb-input kb-input-sm session-search kb-form-control"
             type="search"
             placeholder="搜索会话标题..."
             @input="onSessionSearch"
@@ -3200,7 +3209,7 @@ watch(activeTab, (tab) => {
               <Icon name="edit" size="xxs" /> 重命名
             </button>
             <button class="link-btn danger" @click.stop="deleteSession(s)">
-              <Icon name="trash" size="xxs" /> 删除
+              <Icon name="trash-2" size="xxs" /> 删除
             </button>
           </div>
         </div>
@@ -3240,7 +3249,7 @@ watch(activeTab, (tab) => {
                   <Icon name="edit" size="xxs" /> 重命名
                 </button>
                 <button class="link-btn danger" @click.stop="deleteSession(s)">
-                  <Icon name="trash" size="xxs" /> 删除
+                  <Icon name="trash-2" size="xxs" /> 删除
                 </button>
               </div>
             </div>
@@ -3288,13 +3297,7 @@ watch(activeTab, (tab) => {
         <h2>模型监测仪表盘</h2>
         <div class="range-selector">
           <span>时间范围：</span>
-          <select v-model="statsRangeHours" class="kb-select kb-select-sm">
-            <option :value="1">最近 1 小时</option>
-            <option :value="6">最近 6 小时</option>
-            <option :value="24">最近 24 小时</option>
-            <option :value="72">最近 3 天</option>
-            <option :value="168">最近 7 天</option>
-          </select>
+          <Select class="select-inline" v-model="statsRangeHours" :options="[{ value: 1, label: '最近 1 小时' }, { value: 6, label: '最近 6 小时' }, { value: 24, label: '最近 24 小时' }, { value: 72, label: '最近 3 天' }, { value: 168, label: '最近 7 天' }]" aria-label="统计时间范围" />
           <Button size="sm" variant="ghost" :loading="loadingStats" @click="loadStats">
             <Icon name="refresh-cw" size="xs" /> 刷新
           </Button>
@@ -3303,14 +3306,14 @@ watch(activeTab, (tab) => {
 
       <div v-if="loadingStats && !statsData" class="loading-state">加载监测数据中...</div>
       <div v-else-if="!statsData || statsSummary.total === 0" class="empty-state">
-        <Icon name="activity" size="3xl" />
+        <Icon name="trending-up" size="3xl" />
         <p>暂无调用数据，发起对话后即可看到监测统计</p>
       </div>
       <template v-else>
         <!-- 汇总卡片 -->
         <div class="stats-cards">
           <div class="stat-card">
-            <div class="stat-icon"><Icon name="activity" size="md" /></div>
+            <div class="stat-icon"><Icon name="trending-up" size="md" /></div>
             <div class="stat-value">{{ statsSummary.total }}</div>
             <div class="stat-label">总调用</div>
           </div>
@@ -3348,7 +3351,7 @@ watch(activeTab, (tab) => {
           <div class="chart-card">
             <div class="chart-title">响应时间趋势</div>
             <svg v-if="latencyTrendPath" class="trend-chart" viewBox="0 0 100 40" preserveAspectRatio="none">
-              <path :d="latencyTrendPath" fill="none" stroke="var(--kb-highlight, #FF6B35)" stroke-width="1.5" />
+              <path :d="latencyTrendPath" fill="none" stroke="var(--kb-highlight, var(--kb-highlight))" stroke-width="1.5" />
             </svg>
             <div v-else class="chart-empty">数据不足</div>
           </div>
@@ -3458,14 +3461,12 @@ watch(activeTab, (tab) => {
         >
           <div class="model-card-header">
             <!-- 勾选框 -->
-            <label class="model-checkbox" @click.stop="toggleModelCheck(m)">
-              <input
-                type="checkbox"
+            <label class="kb-checkbox-row" @click.stop="toggleModelCheck(m)">
+              <Checkbox as="span"
                 :checked="selectedModelIds.includes(m.id!)"
                 :readonly="selectionMode === 'single'"
-                @click.stop="toggleModelCheck(m)"
-              />
-              <span class="checkbox-mark"></span>
+                @click.stop="toggleModelCheck(m)" />
+
             </label>
             <div
               class="model-icon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
@@ -3500,7 +3501,7 @@ watch(activeTab, (tab) => {
             @click.stop="openParamsModal(m)"
             @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
           >
-            <Icon name="sliders" size="xxs" />
+            <Icon name="settings" size="xxs" />
             <span>{{ paramsSummary(m) }}</span>
             <button class="params-edit-btn" @click.stop="openParamsModal(m)" title="配置参数">
               <Icon name="settings" size="xxs" />
@@ -3522,7 +3523,7 @@ watch(activeTab, (tab) => {
               <Icon name="edit" size="xxs" /> 编辑
             </button>
             <button class="link-btn danger" @click="deleteConfig(m.id!)">
-              <Icon name="trash" size="xxs" /> 删除
+              <Icon name="trash-2" size="xxs" /> 删除
             </button>
           </div>
         </div>
@@ -3653,7 +3654,7 @@ watch(activeTab, (tab) => {
             <input
               v-model="ollamaConfig.baseUrl"
               type="text"
-              class="kb-input"
+              class="kb-input kb-form-control"
               placeholder="http://localhost:11434"
             />
             <Button variant="secondary" size="sm" @click="testOllamaConnection" :disabled="ollamaTesting">
@@ -3665,7 +3666,7 @@ watch(activeTab, (tab) => {
             <input
               v-model="ollamaConfig.defaultModel"
               type="text"
-              class="kb-input"
+              class="kb-input kb-form-control"
               placeholder="如 llama3.1:8b"
             />
             <Button variant="primary" size="sm" @click="saveOllamaConfig" :disabled="ollamaLoading">
@@ -3676,15 +3677,15 @@ watch(activeTab, (tab) => {
           <div class="form-row-3">
             <div class="param-field">
               <label>温度</label>
-              <input v-model.number="ollamaConfig.temperature" type="number" min="0" max="2" step="0.1" class="kb-input" />
+              <input v-model.number="ollamaConfig.temperature" type="number" min="0" max="2" step="0.1" class="kb-input kb-form-control" />
             </div>
             <div class="param-field">
               <label>Top-P</label>
-              <input v-model.number="ollamaConfig.topP" type="number" min="0" max="1" step="0.05" class="kb-input" />
+              <input v-model.number="ollamaConfig.topP" type="number" min="0" max="1" step="0.05" class="kb-input kb-form-control" />
             </div>
             <div class="param-field">
               <label>Max Tokens</label>
-              <input v-model.number="ollamaConfig.maxTokens" type="number" min="256" max="8000" step="256" class="kb-input" />
+              <input v-model.number="ollamaConfig.maxTokens" type="number" min="256" max="8000" step="256" class="kb-input kb-form-control" />
             </div>
           </div>
         </div>
@@ -3718,7 +3719,7 @@ watch(activeTab, (tab) => {
           <div v-for="m in ollamaModels" :key="m.name" class="ollama-model-card">
             <div class="ollama-model-header">
               <div class="ollama-model-icon">
-                <Icon name="box" size="md" />
+                <Icon name="archive" size="md" />
               </div>
               <div class="ollama-model-info">
                 <div class="ollama-model-name">{{ m.name }}</div>
@@ -3747,21 +3748,21 @@ watch(activeTab, (tab) => {
                 @click="unloadOllamaModel(m.name)"
                 :disabled="ollamaModelOps[m.name] === 'unloading'"
               >
-                <Icon name="square" size="xs" />
+                <Icon name="layout" size="xs" />
                 {{ ollamaModelOps[m.name] === 'unloading' ? '卸载中...' : '卸载' }}
               </button>
               <button
                 class="link-btn primary"
                 @click="addOllamaToAgent(m.name)"
               >
-                <Icon name="plus-circle" size="xs" /> 添加到 Agent
+                <Icon name="plus" size="xs" /> 添加到 Agent
               </button>
               <button
                 class="link-btn danger"
                 @click="deleteOllamaModel(m.name)"
                 :disabled="ollamaModelOps[m.name] === 'deleting'"
               >
-                <Icon name="trash" size="xs" />
+                <Icon name="trash-2" size="xs" />
                 {{ ollamaModelOps[m.name] === 'deleting' ? '删除中...' : '删除' }}
               </button>
             </div>
@@ -3807,46 +3808,31 @@ watch(activeTab, (tab) => {
           <div class="config-form">
             <div class="form-row">
               <label>提供商</label>
-              <select v-model="configForm.provider" class="kb-select" @change="onProviderChange">
-                <optgroup label="云端">
-                  <option v-for="p in platformModels.filter(p => p.providerType === 'CLOUD')" :key="p.provider" :value="p.provider">
-                    {{ p.label }}
-                  </option>
-                </optgroup>
-                <optgroup label="本地（OpenAI 兼容）">
-                  <option v-for="p in platformModels.filter(p => p.providerType === 'LOCAL')" :key="p.provider" :value="p.provider">
-                    {{ p.label }}
-                  </option>
-                </optgroup>
-              </select>
+              <Select v-model="configForm.provider" @update:modelValue="onProviderChange" :options="platformModels.filter(p => p.providerType === 'CLOUD' || p.providerType === 'LOCAL').map(p => ({ value: p.provider, label: p.label, group: p.providerType === 'LOCAL' ? '本地（OpenAI 兼容）' : '云端' }))" aria-label="模型提供商" />
             </div>
             <div class="form-row" v-if="!platformModels.find(p => p.provider === configForm.provider)?.providerType?.includes('LOCAL')">
               <label>API Key</label>
-              <input v-model="configForm.apiKey" type="password" placeholder="sk-..." class="kb-input" />
+              <input v-model="configForm.apiKey" type="password" placeholder="sk-..." class="kb-input kb-form-control" />
             </div>
             <div class="form-row">
               <label>Base URL</label>
-              <input v-model="configForm.baseUrl" placeholder="留空使用默认" class="kb-input" />
+              <input v-model="configForm.baseUrl" placeholder="留空使用默认" class="kb-input kb-form-control" />
             </div>
             <div class="form-row">
               <label>模型名</label>
-              <input v-model="configForm.model" placeholder="如 deepseek-chat / llama3.1" class="kb-input" />
+              <input v-model="configForm.model" placeholder="如 deepseek-chat / llama3.1" class="kb-input kb-form-control" />
             </div>
             <div class="form-row">
               <label>显示名（可选）</label>
-              <input v-model="configForm.displayName" placeholder="如 我的本地 Llama3" class="kb-input" />
+              <input v-model="configForm.displayName" placeholder="如 我的本地 Llama3" class="kb-input kb-form-control" />
             </div>
             <div class="form-row">
               <label>能力等级</label>
-              <select v-model="configForm.capability" class="kb-select">
-                <option value="LIGHT">轻量（简单补全/解释）</option>
-                <option value="STANDARD">标准（常规编程问答）</option>
-                <option value="POWERFUL">强力（复杂推理/重构）</option>
-              </select>
+              <Select v-model="configForm.capability" :options="[{ value: 'LIGHT', label: '轻量（简单补全/解释）' }, { value: 'STANDARD', label: '标准（常规编程问答）' }, { value: 'POWERFUL', label: '强力（复杂推理/重构）' }]" aria-label="模型能力" />
             </div>
             <div class="form-row" v-if="!configForm.id">
-              <label class="checkbox-label">
-                <input type="checkbox" :checked="configForm.isActive === 1" @change="configForm.isActive = ($event.target as HTMLInputElement).checked ? 1 : 0" />
+              <label class="checkbox-label kb-checkbox-row">
+                <Checkbox as="span"  :checked="configForm.isActive === 1" @native-change="configForm.isActive = ($event.target as HTMLInputElement).checked ? 1 : 0" />
                 <span>设为通用 Chat 的激活配置</span>
               </label>
             </div>
@@ -3865,6 +3851,7 @@ watch(activeTab, (tab) => {
 </template>
 
 <style scoped>
+.select-inline { width: auto; min-width: 0; }
 .agent-page {
   display: flex;
   flex-direction: column;
@@ -3919,7 +3906,7 @@ watch(activeTab, (tab) => {
 }
 
 .tool-card.failed {
-  border-color: var(--kb-danger, #ef4444);
+  border-color: var(--kb-danger, var(--kb-danger));
 }
 
 .tool-card-head {
@@ -3957,7 +3944,7 @@ watch(activeTab, (tab) => {
 }
 
 .tool-card.failed .tool-card-status {
-  color: var(--kb-danger, #ef4444);
+  color: var(--kb-danger, var(--kb-danger));
 }
 
 .tool-card-detail {
@@ -4125,7 +4112,7 @@ watch(activeTab, (tab) => {
   height: 16px;
   padding: 0 4px;
   border-radius: 8px;
-  background: var(--kb-highlight, #FF6B35);
+  background: var(--kb-highlight, var(--kb-highlight));
   color: #fff;
   font-size: 10px;
   font-weight: 600;
@@ -4425,7 +4412,7 @@ watch(activeTab, (tab) => {
   color: var(--kb-accent-foreground);
 }
 .message-content :deep(pre) {
-  background: #1a1d23;
+  background: var(--kb-foreground);
   color: #e6e6e6;
   padding: 12px;
   border-radius: 8px;
@@ -4956,9 +4943,9 @@ watch(activeTab, (tab) => {
 }
 .settings-switch {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: var(--kb-fs-caption);
+  align-items: center;
+  gap: var(--kb-checkbox-gap);
+  font-size: var(--kb-fs-body-md);
   color: var(--kb-muted-foreground);
   line-height: 1.5;
   cursor: pointer;
@@ -5008,7 +4995,7 @@ watch(activeTab, (tab) => {
 .ctx-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--kb-checkbox-gap);
   cursor: pointer;
   user-select: none;
   color: var(--kb-muted-foreground);
@@ -5106,7 +5093,7 @@ watch(activeTab, (tab) => {
   color: var(--kb-foreground);
   font-family: inherit;
 }
-.input-row textarea:focus {
+.input-row textarea:focus:not(.kb-form-control) {
   border-color: var(--kb-primary);
 }
 
@@ -5143,7 +5130,7 @@ watch(activeTab, (tab) => {
   flex-shrink: 0;
 }
 .unsaved-dot {
-  color: var(--kb-highlight, #FF6B35);
+  color: var(--kb-highlight, var(--kb-highlight));
   font-size: 10px;
   margin-left: 2px;
 }
@@ -5155,7 +5142,7 @@ watch(activeTab, (tab) => {
   font-size: 13px;
   line-height: 1.5;
   resize: none;
-  background: #1a1d23;
+  background: var(--kb-foreground);
   color: #e6e6e6;
   outline: none;
   white-space: pre;
@@ -5383,7 +5370,7 @@ watch(activeTab, (tab) => {
   gap: 4px;
 }
 .stat-card.success {
-  border-color: #10b981;
+  border-color: var(--kb-success);
 }
 .stat-card.danger {
   border-color: var(--kb-destructive);
@@ -5392,7 +5379,7 @@ watch(activeTab, (tab) => {
   color: var(--kb-muted-foreground);
   margin-bottom: 4px;
 }
-.stat-card.success .stat-icon { color: #10b981; }
+.stat-card.success .stat-icon { color: var(--kb-success); }
 .stat-card.danger .stat-icon { color: var(--kb-destructive); }
 .stat-value {
   font-size: 28px;
@@ -5472,7 +5459,7 @@ watch(activeTab, (tab) => {
 }
 .bar-fill {
   width: 100%;
-  background: #10b981;
+  background: var(--kb-success);
   border-radius: 2px 2px 0 0;
   min-height: 2px;
   transition: height 0.3s;
@@ -5506,7 +5493,7 @@ watch(activeTab, (tab) => {
 .stats-table td {
   color: var(--kb-foreground);
 }
-.text-success { color: #10b981; }
+.text-success { color: var(--kb-success); }
 .text-danger { color: var(--kb-destructive); }
 
 /* ===== 模型管理 ===== */
@@ -5640,48 +5627,6 @@ watch(activeTab, (tab) => {
 }
 
 /* 勾选框 */
-.model-checkbox {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.model-checkbox input[type="checkbox"] {
-  position: absolute;
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-  margin: 0;
-}
-.checkbox-mark {
-  width: 18px;
-  height: 18px;
-  border: 2px solid var(--kb-border);
-  border-radius: 4px;
-  background: var(--kb-card);
-  transition: all 0.15s;
-  position: relative;
-}
-.model-checkbox input:checked + .checkbox-mark {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
-}
-.model-checkbox input:checked + .checkbox-mark::after {
-  content: '';
-  position: absolute;
-  left: 5px;
-  top: 1px;
-  width: 5px;
-  height: 10px;
-  border: solid #fff;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
 
 /* 已勾选卡片样式 */
 .model-card.checked {
@@ -5880,7 +5825,7 @@ watch(activeTab, (tab) => {
 }
 .health-result.ok {
   background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
+  color: var(--kb-success);
 }
 .health-result.fail {
   background: rgba(239, 68, 68, 0.1);
@@ -6002,22 +5947,24 @@ watch(activeTab, (tab) => {
   color: var(--kb-muted-foreground);
   font-weight: 500;
 }
-.kb-input {
-  padding: 8px 12px;
+.kb-input:not(.kb-form-control) {
   border: 1px solid var(--kb-border);
   border-radius: 6px;
-  font-size: 14px;
   outline: none;
   background: var(--kb-background);
+}
+.kb-input {
+  padding: 8px 12px;
+  font-size: 14px;
   color: var(--kb-foreground);
 }
-.kb-input:focus {
+.kb-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
 }
 .checkbox-label {
   display: flex !important;
   align-items: center;
-  gap: 6px;
+  gap: var(--kb-checkbox-gap);
   cursor: pointer;
   flex-direction: row !important;
 }
@@ -6270,7 +6217,7 @@ watch(activeTab, (tab) => {
   max-width: 820px;
   width: calc(100% - 32px);
   background: var(--kb-card);
-  border: 1px solid var(--kb-warning, #f59e0b);
+  border: 1px solid var(--kb-warning, var(--kb-warning));
   border-radius: 12px;
   padding: 14px 16px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
@@ -6280,7 +6227,7 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 6px;
   font-weight: 600;
-  color: var(--kb-warning, #f59e0b);
+  color: var(--kb-warning, var(--kb-warning));
   margin-bottom: 10px;
 }
 .clarify-question {
@@ -6321,13 +6268,15 @@ watch(activeTab, (tab) => {
   align-items: center;
   margin-top: 4px;
 }
-.clarify-input {
-  flex: 1;
+.clarify-input:not(.kb-form-control) {
   border: 1px solid var(--kb-border);
   border-radius: 8px;
+  background: var(--kb-bg, #fff);
+}
+.clarify-input {
+  flex: 1;
   padding: 7px 10px;
   font-size: 13px;
-  background: var(--kb-bg, #fff);
   color: var(--kb-text, #1e293b);
 }
 
@@ -6344,9 +6293,9 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: var(--kb-warning, #f59e0b);
-  background: color-mix(in srgb, var(--kb-warning, #f59e0b) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--kb-warning, #f59e0b) 40%, transparent);
+  color: var(--kb-warning, var(--kb-warning));
+  background: color-mix(in srgb, var(--kb-warning, var(--kb-warning)) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kb-warning, var(--kb-warning)) 40%, transparent);
   border-radius: 999px;
   padding: 2px 10px;
 }
@@ -6367,16 +6316,16 @@ watch(activeTab, (tab) => {
   margin-top: 6px;
 }
 .eval-badge.high {
-  color: var(--kb-accent, #10b981);
-  background: color-mix(in srgb, var(--kb-accent, #10b981) 12%, transparent);
+  color: var(--kb-accent, var(--kb-success));
+  background: color-mix(in srgb, var(--kb-accent, var(--kb-success)) 12%, transparent);
 }
 .eval-badge.mid {
-  color: var(--kb-warning, #f59e0b);
-  background: color-mix(in srgb, var(--kb-warning, #f59e0b) 12%, transparent);
+  color: var(--kb-warning, var(--kb-warning));
+  background: color-mix(in srgb, var(--kb-warning, var(--kb-warning)) 12%, transparent);
 }
 .eval-badge.low {
-  color: var(--kb-danger, #ef4444);
-  background: color-mix(in srgb, var(--kb-danger, #ef4444) 12%, transparent);
+  color: var(--kb-danger, var(--kb-danger));
+  background: color-mix(in srgb, var(--kb-danger, var(--kb-danger)) 12%, transparent);
 }
 
 /* =====================================================================
@@ -6411,10 +6360,9 @@ watch(activeTab, (tab) => {
 .session-card:focus-visible,
 .model-card:focus-visible,
 .model-card-params:focus-visible,
-.clarify-input:focus-visible,
+.clarify-input:focus-visible:not(.kb-form-control),
 .code-editor:focus-visible,
-.param-slider:focus-visible,
-.model-checkbox:focus-within {
+.param-slider:focus-visible {
   outline: 2px solid var(--kb-ring);
   outline-offset: 2px;
 }
@@ -6474,12 +6422,6 @@ watch(activeTab, (tab) => {
 }
 .model-info:hover .model-name {
   color: var(--kb-primary);
-}
-.model-checkbox:hover .checkbox-mark {
-  border-color: var(--kb-primary);
-}
-.model-checkbox:active .checkbox-mark {
-  transform: scale(0.92);
 }
 
 /* --- 4. 补齐缺失的过渡，使 hover / active 平滑（仅列出原先无 transition 者） --- */

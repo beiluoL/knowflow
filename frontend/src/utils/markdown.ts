@@ -1,7 +1,7 @@
 /**
  * Markdown 渲染器（基于 markdown-it + highlight.js）
  * 用于章节正文等富文本渲染，保留 KnowFlow 特殊语法：
- *  - ```xxx-run  代码块 → 可运行代码占位符（.interactive-code）
+ *  - ```xxx-run 代码块 → 安全展示/复制，不在登录页面执行源码
  *  - ```quiz-run 代码块 → 内嵌测验占位符（.interactive-quiz）
  *  - [video](url) / [视频](url) → 视频占位符（.chapter-video）
  *  - h2/h3 锚点 id 与外部大纲数组对齐（heading-1, heading-2 …）
@@ -12,6 +12,7 @@
 import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js/lib/common';
 import taskLists from 'markdown-it-task-lists';
+import { learningBlocks } from './markdown-learning-blocks';
 
 const md = new MarkdownIt({
   html: false,
@@ -35,6 +36,7 @@ const md = new MarkdownIt({
 
 // 应用任务列表插件 (GFM Task Lists: [x] / [ ])
 md.use(taskLists);
+md.use(learningBlocks);
 
 /**
  * 自定义模板占位符插件：解析 [变量名] 语法
@@ -53,7 +55,9 @@ md.use(taskLists);
  * 2. 链接语法：[text](url) - 方括号后跟 (
  * 3. 模板变量：[variable_name] - 合法变量名且不跟 (
  */
-function variablePlugin(md: MarkdownIt) {
+// Phase UI-1：MarkdownIt 默认导出是「类」（值），不能直接当类型用（TS2749）。
+// 用 InstanceType<typeof MarkdownIt> 取得实例类型，下游 state/tokens 参数即可被正确推导。
+function variablePlugin(md: InstanceType<typeof MarkdownIt>) {
   md.inline.ruler.before('backticks', 'variable', (state, silent) => {
     const pos = state.pos;
     const ch = state.src.charCodeAt(pos);
@@ -68,7 +72,6 @@ function variablePlugin(md: MarkdownIt) {
     
     // 检查 ] 后面的字符
     const nextChar = state.src.charCodeAt(end + 1);
-    const nextChar2 = end + 2 < state.src.length ? state.src.charCodeAt(end + 2) : -1;
 
     // 【规则1】：如果后面跟 '('，这是链接语法，跳过（交给 link 规则）
     if (nextChar === 0x28 /* ( */) {
@@ -109,7 +112,8 @@ function variablePlugin(md: MarkdownIt) {
   });
 
   // 注册 variable token 的渲染规则
-  md.renderer.rules.variable = (tokens, idx, options, env, self) => {
+  // Phase UI-1：仅保留实际使用的前两个形参，避免 TS6133（未使用）与 TS7006（隐式 any）
+  md.renderer.rules.variable = (tokens: any[], idx: number) => {
     const token = tokens[idx];
     const varName = token.content;
     // 生成带有特定类名和属性的 HTML，便于前端识别和后续模板替换
@@ -129,21 +133,21 @@ md.renderer.rules.fence = (tokens, idx) => {
   if (info === 'quiz-run') {
     return `<div class="interactive-quiz" data-quiz="${md.utils.escapeHtml(code)}"></div>`;
   }
-  // 可运行代码：```js-run / ```python-run ...
-  if (info.endsWith('-run')) {
-    const lang = info.replace(/-run$/, '');
-    return `<div class="interactive-code" data-lang="${md.utils.escapeHtml(lang)}" data-code="${md.utils.escapeHtml(code)}"></div>`;
-  }
+  // Imported/stored source must never execute with the reader's origin/session.
+  // Preserve legacy *-run material as ordinary highlighted, copyable code.
+  const displayOnly = info.endsWith('-run');
+  const language = displayOnly ? info.replace(/-run$/, '') : info;
   // 常规代码块：语法高亮 + 行号 + 语言标签 + 复制按钮
-  const langLabel = info || 'text';
-  const highlighted = md.options.highlight?.(code, info) || md.utils.escapeHtml(code);
+  const langLabel = language || 'text';
+  // Phase UI-1：markdown-it 的 highlight 签名为 (str, lang, attrs)，此处补齐第三个实参
+  const highlighted = md.options.highlight?.(code, language, '') || md.utils.escapeHtml(code);
   const encoded = encodeURIComponent(code);
   // 生成行号 HTML
   const lineCount = code.replace(/\n$/, '').split('\n').length;
   const lineNumbers = Array.from({ length: lineCount }, (_, i) =>
     `<span class="code-line-num">${i + 1}</span>`
   ).join('');
-  return `<div class="code-block-wrapper">` +
+  return (displayOnly ? '<p class="code-execution-notice">内嵌源码仅供阅读与复制，不在登录页面执行。请在可信的练习环境运行。</p>' : '') + `<div class="code-block-wrapper">` +
     `<div class="code-block-header">` +
       `<span class="code-lang">${md.utils.escapeHtml(langLabel)}</span>` +
       `<button class="code-copy-btn" data-code="${encoded}" type="button">` +
@@ -156,13 +160,14 @@ md.renderer.rules.fence = (tokens, idx) => {
     `</div>` +
     `<div class="code-block-body">` +
       `<div class="code-line-numbers" aria-hidden="true">${lineNumbers}</div>` +
-      `<pre><code class="hljs language-${md.utils.escapeHtml(info)}">${highlighted}</code></pre>` +
+      `<pre><code class="hljs language-${md.utils.escapeHtml(language)}">${highlighted}</code></pre>` +
     `</div>` +
   `</div>`;
 };
 
 export interface MarkdownOutline {
   id: string;
+  prefix?: string;
 }
 
 /**
@@ -192,7 +197,8 @@ export function renderMarkdown(src: string, outline?: MarkdownOutline[]): string
       const id = outline && outline[headingIdx - 1] ? outline[headingIdx - 1].id : `heading-${headingIdx}`;
       token.attrSet('id', id);
     }
-    return self.renderToken(tokens, i, options);
+    const prefix = (level === 2 || level === 3) ? outline?.[headingIdx - 1]?.prefix : '';
+    return self.renderToken(tokens, i, options) + (prefix ? md.utils.escapeHtml(prefix) : '');
   };
 
   let html = md.render(src);

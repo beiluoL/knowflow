@@ -3,6 +3,7 @@ package com.knowflow.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.knowflow.common.PageResult;
 import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.dto.CommentCreateDTO;
 import com.knowflow.entity.CommunityPost;
 import com.knowflow.service.CommunityCommentService;
@@ -47,7 +48,7 @@ public class CommunityController {
         if (authentication == null) {
             return Result.error(401, "请先登录");
         }
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         communityService.createPost(post, userId);
         return Result.success();
     }
@@ -58,7 +59,7 @@ public class CommunityController {
         if (authentication == null) {
             return Result.error(401, "请先登录");
         }
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         communityService.deletePost(id, userId);
         return Result.success();
     }
@@ -69,7 +70,7 @@ public class CommunityController {
         if (authentication == null) {
             return Result.error(401, "请先登录");
         }
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         return Result.success(communityService.likePost(id, userId));
     }
 
@@ -97,7 +98,7 @@ public class CommunityController {
         if (authentication == null) {
             return Result.error(401, "请先登录");
         }
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         dto.setPostId(id);
         return Result.success(commentService.addComment(dto, userId));
     }

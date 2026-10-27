@@ -16,7 +16,7 @@
           v-model="searchQuery"
           type="text"
           placeholder="搜索知识库、文档..."
-          class="w-56 lg:w-72 h-9 pl-9 pr-4 rounded-lg text-[13px] border border-border bg-card text-foreground placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all"
+          class="w-56 lg:w-72 h-9 pl-9 pr-4 text-[13px] text-foreground placeholder-gray-400 transition-all kb-input kb-form-control"
           @keyup.enter="handleSearch"
           aria-label="搜索"
         />

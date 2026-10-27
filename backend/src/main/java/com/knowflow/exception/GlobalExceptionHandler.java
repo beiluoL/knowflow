@@ -6,10 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.util.unit.DataSize;
 import org.springframework.validation.BindException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -65,6 +69,50 @@ public class GlobalExceptionHandler {
     public Result<Void> handleTypeMismatchException(MethodArgumentTypeMismatchException e) {
         log.warn("参数类型错误: {} = {}", e.getName(), e.getValue());
         return Result.error(400, "参数格式不正确");
+    }
+
+    /**
+     * P1-B 修复：缺少必需的请求参数（如 /api/learning/certificates/verify 未传 certNo）返回 400 而非 500。
+     * <p>只回传参数名——它来自接口契约，不含堆栈、内部类名与敏感数据。</p>
+     */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<Void> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException e) {
+        log.warn("缺少必需参数: {}", e.getParameterName());
+        return Result.error(400, "缺少必需的请求参数：" + e.getParameterName());
+    }
+
+    /**
+     * P1-B 修复：请求体格式错误（畸形 JSON / 无法反序列化）返回 400 而非 500。
+     * <p>不回传解析器原始信息，避免暴露内部字段名与类名。</p>
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<Void> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        log.warn("请求体不可读: {}", e.getMessage());
+        return Result.error(400, "请求参数不正确");
+    }
+
+    /**
+     * P1-B 修复：Content-Type 不受支持返回 415 而非 500。
+     */
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+    public Result<Void> handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException e) {
+        log.warn("不支持的 Content-Type: {}", e.getContentType());
+        return Result.error(415, "请求内容类型不受支持");
+    }
+
+    /**
+     * P1-B 修复：HTTP 方法不受支持（如用 GET 调 POST 接口）返回 405 而非 500。
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    public Result<Void> handleHttpRequestMethodNotSupportedException(
+            HttpRequestMethodNotSupportedException e) {
+        log.warn("不支持的请求方法: {}", e.getMethod());
+        return Result.error(405, "请求方法不受支持");
     }
 
     /**

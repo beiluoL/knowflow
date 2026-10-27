@@ -241,6 +241,38 @@ public class WorkbenchController {
         return Result.success(workbenchService.submitRecallRound(id, dto, uid()));
     }
 
+    @Operation(summary = "编辑主动回忆会话（已开始会话原文锁定）")
+    @PutMapping("/recall-sessions/{id}")
+    public Result<WbRecallSessionVO> updateRecallSession(@PathVariable Long id, @RequestBody WbRecallSessionDTO dto) {
+        return Result.success(workbenchService.updateRecallSession(id, dto, uid()));
+    }
+
+    @Operation(summary = "保存某轮中途草稿")
+    @PostMapping("/recall-sessions/{id}/draft")
+    public Result<WbRecallSessionVO> saveRecallDraft(@PathVariable Long id, @RequestBody WbRecallSessionDTO dto) {
+        return Result.success(workbenchService.saveRecallDraft(id, dto, uid()));
+    }
+
+    @Operation(summary = "确认某轮的关键遗漏")
+    @PostMapping("/recall-sessions/{id}/gaps")
+    public Result<WbRecallSessionVO> saveRecallGaps(@PathVariable Long id, @RequestBody WbRecallSessionDTO dto) {
+        return Result.success(workbenchService.saveRecallGaps(id, dto, uid()));
+    }
+
+    @Operation(summary = "复制为新会话（草稿）")
+    @PostMapping("/recall-sessions/{id}/copy")
+    public Result<Long> copyRecallSession(@PathVariable Long id) {
+        return Result.success(workbenchService.copyRecallSession(id, uid()));
+    }
+
+    @Operation(summary = "归档 / 取消归档主动回忆会话")
+    @PutMapping("/recall-sessions/{id}/archive")
+    public Result<Void> archiveRecallSession(@PathVariable Long id,
+                                             @RequestParam(required = false, defaultValue = "1") Integer archived) {
+        workbenchService.setRecallArchived(id, archived, uid());
+        return Result.success();
+    }
+
     @Operation(summary = "删除主动回忆会话")
     @DeleteMapping("/recall-sessions/{id}")
     public Result<Void> deleteRecallSession(@PathVariable Long id) {

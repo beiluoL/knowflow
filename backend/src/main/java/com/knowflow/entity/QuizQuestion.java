@@ -16,7 +16,7 @@ public class QuizQuestion extends BaseEntity {
     /** 题干内容（支持 Markdown） */
     private String content;
 
-    /** 题型：SINGLE_CHOICE / MULTIPLE_CHOICE / FILL_BLANK / TRUE_FALSE / SHORT_ANSWER */
+    /** 题型：SINGLE_CHOICE / MULTIPLE_CHOICE / FILL_BLANK / TRUE_FALSE / SHORT_ANSWER / CODE */
     private String questionType;
 
     /** 选项 JSON 数组（选择题用） */
@@ -49,14 +49,36 @@ public class QuizQuestion extends BaseEntity {
     /** 排序值 */
     private Integer sortOrder;
 
+    /** 稳定语义键：跨版本/去重/组卷身份 */
+    private String canonicalKey;
+
+    /** 显式知识点编码（question_topic.code）；非空时组卷不再从 tags 首段推导归属 */
+    private String topicCode;
+
+    /** 审核状态：PENDING_REVIEW / APPROVED / REJECTED；历史题为 null */
+    private String reviewStatus;
+
+    /** 题目版本号 */
+    private Integer version;
+
+    /** 创建人（sys_user.id）；种子题/历史题为 null */
+    private Long creatorId;
+
     // ===== 题型常量 =====
     public static final String TYPE_SINGLE_CHOICE = "SINGLE_CHOICE";
     public static final String TYPE_MULTIPLE_CHOICE = "MULTIPLE_CHOICE";
     public static final String TYPE_FILL_BLANK = "FILL_BLANK";
     public static final String TYPE_TRUE_FALSE = "TRUE_FALSE";
     public static final String TYPE_SHORT_ANSWER = "SHORT_ANSWER";
+    /** 算法代码题：扩展数据在 code_problem/code_test_case，判题走 CodeJudgeGateway（不经 AI 评卷） */
+    public static final String TYPE_CODE = "CODE";
 
     // ===== 来源常量 =====
     public static final String SOURCE_AI = "AI";
     public static final String SOURCE_MANUAL = "MANUAL";
+
+    // ===== 审核状态常量 =====
+    public static final String REVIEW_PENDING = "PENDING_REVIEW";
+    public static final String REVIEW_APPROVED = "APPROVED";
+    public static final String REVIEW_REJECTED = "REJECTED";
 }

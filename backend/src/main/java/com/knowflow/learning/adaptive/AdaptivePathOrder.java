@@ -1,0 +1,11 @@
+package com.knowflow.learning.adaptive;
+import com.fasterxml.jackson.databind.*;import com.knowflow.exception.BusinessException;import com.knowflow.vo.LearningChapterVO;import lombok.RequiredArgsConstructor;import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;import org.springframework.jdbc.core.JdbcTemplate;import org.springframework.stereotype.Component;import java.util.*;import java.security.MessageDigest;
+/** Applies a confirmed per-user ordering projection; never edits canonical chapter rows or prerequisites. */
+@Component @RequiredArgsConstructor @ConditionalOnProperty(name="knowflow.product.adaptive-learning.enabled",havingValue="true")
+public class AdaptivePathOrder {
+ private final JdbcTemplate sql;private final ObjectMapper json;private final AdaptiveSchema schema;
+ public String canonicalHash(long path){var rows=sql.queryForList("SELECT id,sort_order,prerequisite_chapter_ids,doc_ids,content FROM learning_chapter WHERE path_id=? AND deleted=0 ORDER BY id",path);try{return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(json.copy().configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS,true).writeValueAsBytes(rows)));}catch(Exception e){throw new IllegalStateException(e);}}
+ public <T extends LearningChapterVO>List<T> apply(Long user,long path,List<T> canonical){if(user==null)return canonical;var rows=sql.queryForList("SELECT order_json,order_hash FROM adaptive_path_state WHERE owner_id=? AND path_id=?",user,path);if(rows.isEmpty()||rows.get(0).get("order_json")==null||!canonicalHash(path).equals(rows.get(0).get("order_hash")))return canonical;
+  try{var ids=json.readTree(rows.get(0).get("order_json").toString());if(!ids.isArray())throw new IllegalArgumentException();var map=new HashMap<Long,T>();canonical.forEach(ch->map.put(ch.getId(),ch));var result=new ArrayList<T>();var seen=new HashSet<Long>();for(var id:ids){long key=id.asLong();if(!seen.add(key)||!map.containsKey(key))return canonical;result.add(map.get(key));}if(result.size()!=canonical.size())return canonical;for(int i=0;i<result.size();i++)result.get(i).setSortOrder(i+1);return result;}catch(Exception e){throw new BusinessException(500,"个人学习顺序损坏，未更改原路径");}
+ }
+}

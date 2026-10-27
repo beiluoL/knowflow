@@ -1,0 +1,22 @@
+// @vitest-environment happy-dom
+import { beforeEach, it, expect, vi } from 'vitest'
+import { mount, flushPromises } from '@vue/test-utils'
+const api=vi.hoisted(()=>({scenarios:vi.fn(),scenarioDetail:vi.fn(),createScenario:vi.fn(),updateScenario:vi.fn(),removeScenario:vi.fn()}))
+const confirm=vi.hoisted(()=>vi.fn())
+vi.mock('@/api',()=>({adminApi:api}))
+vi.mock('@/utils/dialog',()=>({dialog:{confirm}}))
+vi.mock('@/utils/toast',()=>({notify:vi.fn(),getApiError:(e:Error)=>e.message}))
+vi.mock('vue-router',()=>({useRoute:()=>({query:{}}),onBeforeRouteLeave:vi.fn()}))
+import Scenario from '../ScenarioMgmt.vue'
+const row={id:18,title:'真实来源场景',questionText:'描述排查',status:1,difficulty:2,knowledgeId:44,keyPoints:[{label:'日志',keywords:['日志']}],contextText:'背景'}
+beforeEach(()=>{vi.clearAllMocks();api.scenarios.mockResolvedValue([row]);confirm.mockResolvedValue(false)})
+const render=()=>mount(Scenario,{attachTo:document.body,global:{stubs:{Icon:true}}})
+it('列表失败不是空数据，重试可恢复',async()=>{api.scenarios.mockRejectedValueOnce(new Error('Network Error'));const w=render();await flushPromises();expect(w.find('[role="alert"]').exists()).toBe(true);expect(w.text()).not.toContain('暂无场景数据');await w.get('.kb-state-retry').trigger('click');await flushPromises();expect(w.text()).toContain(row.title);w.unmount()})
+it('较早列表请求不能覆盖刷新结果',async()=>{let resolve!:(v:unknown)=>void;api.scenarios.mockImplementationOnce(()=>new Promise(r=>resolve=r));const w=render();await (w.vm as unknown as {loadScenarios:()=>Promise<void>}).loadScenarios();resolve([{...row,title:'过期场景'}]);await flushPromises();expect(w.text()).toContain(row.title);expect(w.text()).not.toContain('过期场景');w.unmount()})
+it('专业编辑保存保留原知识点身份',async()=>{api.updateScenario.mockResolvedValue(row);const w=render();await flushPromises();await w.get('[aria-label="编辑"]').trigger('click');await w.findAll('button').find(b=>b.text()==='保存')!.trigger('click');await flushPromises();expect(api.updateScenario).toHaveBeenCalledWith(18,expect.objectContaining({knowledgeId:44,keyPoints:row.keyPoints}));w.unmount()})
+it('保存同步锁定，失败在表单反馈并保留草稿',async()=>{let fail!:(e:Error)=>void;api.updateScenario.mockImplementation(()=>new Promise((_,r)=>fail=r));const w=render();await flushPromises();await w.get('[aria-label="编辑"]').trigger('click');const vm=w.vm as unknown as {save:()=>Promise<void>};const one=vm.save();const two=vm.save();expect(api.updateScenario).toHaveBeenCalledTimes(1);fail(new Error('offline'));await Promise.all([one,two]);await flushPromises();expect(w.find('[role="alert"]').exists()).toBe(true);expect((w.get('input[placeholder^="如：线上"]').element as HTMLInputElement).value).toBe(row.title);w.unmount()})
+it('取消修改需要确认，拒绝放弃则保留原草稿',async()=>{const w=render();await flushPromises();await w.get('[aria-label="编辑"]').trigger('click');await w.get('input[placeholder^="如：线上"]').setValue('未保存草稿');await w.findAll('button').find(b=>b.text()==='取消')!.trigger('click');await flushPromises();expect(confirm).toHaveBeenCalled();expect((w.get('input[placeholder^="如：线上"]').element as HTMLInputElement).value).toBe('未保存草稿');w.unmount()})
+
+it('共享选择器保留数值难度与零状态保存协议',async()=>{api.updateScenario.mockResolvedValue(row);const w=render();await flushPromises();await w.get('[aria-label="编辑"]').trigger('click');await flushPromises();for(const [label,text] of [['场景难度','困难'],['场景状态','下架']]){await w.get(`button[aria-label="${label}"]`).trigger('click');await flushPromises();const option=Array.from(document.querySelectorAll<HTMLElement>('[role="option"]')).find(option=>option.textContent?.trim()===text);expect(option).toBeDefined();option!.click();await flushPromises()}await w.findAll('button').find(b=>b.text()==='保存')!.trigger('click');await flushPromises();expect(api.updateScenario).toHaveBeenCalledWith(18,expect.objectContaining({difficulty:3,status:0,knowledgeId:44}));w.unmount()})
+
+it('场景选择器的Escape先关闭选项而保留编辑表单',async()=>{const w=render();await flushPromises();await w.get('[aria-label="编辑"]').trigger('click');await flushPromises();await w.get('button[aria-label="场景难度"]').trigger('click');await flushPromises();const option=document.querySelector<HTMLElement>('[role="option"]');expect(option).not.toBeNull();option!.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));await flushPromises();expect(w.find('[role="dialog"]').exists()).toBe(true);expect(w.get('button[aria-label="场景难度"]').attributes('aria-expanded')).toBe('false');w.unmount()})

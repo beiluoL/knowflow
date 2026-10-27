@@ -245,23 +245,26 @@ async function handleDelete(): Promise<void> {
   const tip = replyCount.value > 0
     ? `确定删除这条评论吗？其下 ${replyCount.value} 条回复也会一并删除。`
     : '确定删除这条评论吗？'
-  if (!(await confirmDialog(tip))) return
-
-  deleting.value = true
-  try {
-    await communityApi.deleteComment(props.comment.id)
-    emit('deleted', {
-      id: props.comment.id,
-      removed: 1 + replyCount.value,
-      isReply: props.isReply,
-      parentId: props.comment.parentId || 0,
-    })
-    notify('评论已删除', 'success')
-  } catch {
-    // 请求拦截器已统一提示
-  } finally {
-    deleting.value = false
-  }
+  await confirmDialog(tip, { "title": "删除这条评论？", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          deleting.value = true;
+          try {
+              await communityApi.deleteComment(props.comment.id);
+              emit('deleted', {
+                  id: props.comment.id,
+                  removed: 1 + replyCount.value,
+                  isReply: props.isReply,
+                  parentId: props.comment.parentId || 0,
+              });
+              notify('评论已删除', 'success');
+          }
+          catch (confirmationError) {
+              // 请求拦截器已统一提示
+              throw confirmationError;
+          }
+          finally {
+              deleting.value = false;
+          }
+      } });
 }
 
 async function handleReply(text: string): Promise<void> {

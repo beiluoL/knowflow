@@ -33,19 +33,19 @@ public class AgentIntentController {
 
     @PostMapping("/intent")
     public Result<AgentIntentVO> intent(@RequestBody AgentIntentDTO dto) {
-        Long userId = SecurityUtils.getCurrentUserIdNullable();
+        Long userId = SecurityUtils.getCurrentUserId();
         return Result.success(intentService.classify(dto, userId));
     }
 
     @PostMapping("/ambiguities")
     public Result<List<AmbiguityVO>> ambiguities(@RequestBody AgentIntentDTO dto) {
-        Long userId = SecurityUtils.getCurrentUserIdNullable();
+        Long userId = SecurityUtils.getCurrentUserId();
         return Result.success(intentService.detectAmbiguities(dto, userId));
     }
 
     @PostMapping("/evaluate")
     public Result<AgentEvalVO> evaluate(@RequestBody EvalRequest req) {
-        Long userId = SecurityUtils.getCurrentUserIdNullable();
+        Long userId = SecurityUtils.getCurrentUserId();
         IntentService.EvalInput input = new IntentService.EvalInput(
                 req.intent, req.slots, req.agentOutput, req.userFeedback,
                 req.fromFeedback != null && req.fromFeedback, req.sessionId);

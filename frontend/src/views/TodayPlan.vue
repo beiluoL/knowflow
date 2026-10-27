@@ -1,24 +1,18 @@
 <template>
   <div class="today-plan animate-fade-in">
+    <!-- UI/UX 5.1 §十二：PageHeader 的副标题统一走 `description`。
+         旧写法 `:subtitle` / `icon` 在本组件里**并不存在**，会被当作普通 DOM 属性渲染，
+         结果就是「今日计划」下方那句说明从来没显示出来。 -->
     <PageHeader
       title="今日计划"
-      :subtitle="subtitleText"
-      icon="calendar"
+      :description="subtitleText"
+      back
     >
       <template #actions>
         <div class="today-plan-actions">
-          <label class="today-plan-date">
-            <Icon name="calendar" :size="14" />
-            <input
-              type="date"
-              v-model="pickDate"
-              :max="todayStr"
-              title="查看日期（仅当日可查看/生成）"
-              @change="onPickDateChange"
-            />
-          </label>
+          <span class="today-plan-date"><Icon name="calendar" :size="14" />{{ plan?.date || '服务端今日' }}</span>
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             :loading="generating"
             @click="handleGenerateWeek"
@@ -39,13 +33,16 @@
       </template>
     </PageHeader>
 
+    <SmartPlanPanel v-if="smartEnabled" />
     <StateView
       :status="viewStatus"
       :rows="6"
       type="card"
       :cols="3"
       error-title="计划加载失败"
-      error-description="请检查网络或稍后重试。"
+      :error-description="error || '请检查网络或稍后重试。'"
+      error-scope="当前页面的计划内容没有加载出来，其他页面不受影响。"
+      error-hint="确认服务可用后点「重新加载」；若反复失败，可先返回学习首页。"
       error-icon="alert-circle"
       :show-retry="true"
       retry-text="重新加载"
@@ -110,7 +107,7 @@
           <div class="today-plan-meta-row">
             <Icon name="layers" :size="14" />
             <span>
-              {{ summaryMorning }} · {{ summaryAfternoon }} · {{ summaryEvening }}
+              {{ summaryMorning() }} · {{ summaryAfternoon() }} · {{ summaryEvening() }}
             </span>
           </div>
         </div>
@@ -150,7 +147,7 @@
             >
               <Checkbox
                 :model-value="!!item.completed"
-                :disabled="!!item._loading"
+                :disabled="updating || !!item._loading || !!item.completionRequirement || !['learningTask','todo','habit'].includes(item.type)"
                 class="item-check"
                 @change="(v: boolean) => toggleItem(item, v, block)"
               >
@@ -174,6 +171,7 @@
                   </span>
                 </span>
               </Checkbox>
+              <TaskCompletionAction :requirement="item.completionRequirement" :title="item.title" />
             </li>
           </ul>
         </div>
@@ -183,12 +181,13 @@
 </template>
 
 <script setup lang="ts">
+import SmartPlanPanel from '@/components/learning-adaptive/SmartPlanPanel.vue'
+const smartEnabled=import.meta.env.VITE_PRODUCT_ADAPTIVE_LEARNING==='true'
 /**
  * F3 · 今日计划页。
  * 与后端 /api/learning/plan/{today,generate,calendar.ics} 对接。
  */
-import { computed, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import Button from '@/components/ui/Button.vue'
 import Icon from '@/components/ui/Icon.vue'
@@ -199,11 +198,10 @@ import Progress from '@/components/ui/Progress.vue'
 import StatCard from '@/components/ui/StatCard.vue'
 import { learningApi } from '@/api/learning'
 import { setTaskStatus } from '@/api/task'
+import TaskCompletionAction from '@/components/learning-actions/TaskCompletionAction.vue'
 import { habitApi } from '@/api/habit'
-import { notify, getApiError } from '@/utils/toast'
+import { notify, getApiError, confirmDialog } from '@/utils/toast'
 import type { LearningPlanVO, PlanBlockVO, PlanItemVO } from '@/api/types'
-
-const router = useRouter()
 
 // -------- State --------
 const plan = ref<LearningPlanVO | null>(null)
@@ -213,8 +211,9 @@ const generating = ref(false)
 const exporting = ref(false)
 
 const today = new Date()
-const todayStr = today.toISOString().slice(0, 10)
-const pickDate = ref(todayStr)
+const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`
+const updating = ref(false)
+let planRequest = 0
 
 // 默认空 block（在 empty/loading 下展示骨架结构，便于 TDD 类型）
 const defaultBlocks: PlanBlockVO[] = [
@@ -244,10 +243,6 @@ const displayRatio = computed(() => {
 })
 
 // -------- Helpers --------
-function fmt(d: number | string, n = 2) {
-  const s = String(d)
-  return s.length < n ? '0'.repeat(n - s.length) + s : s
-}
 function slotDefaultLabel(slot: string) {
   if (slot === 'morning') return '上午 🌅'
   if (slot === 'afternoon') return '下午 ☀️'
@@ -283,11 +278,11 @@ function typeLabel(type: string) {
 function completedCount(block: PlanBlockVO) {
   return block.items.filter((it) => it.completed).length
 }
-function badgeVariant(block: PlanBlockVO) {
-  if (!block.items.length) return 'neutral' as const
-  if (completedCount(block) === block.items.length) return 'success' as const
-  if (completedCount(block) === 0) return 'warning' as const
-  return 'info' as const
+function badgeVariant(block: PlanBlockVO): 'primary' | 'success' | 'warning' | 'danger' | 'default' {
+  if (!block.items.length) return 'default'
+  if (completedCount(block) === block.items.length) return 'success'
+  if (completedCount(block) === 0) return 'warning'
+  return 'primary'
 }
 function summaryMorning() {
   const b = (plan.value?.blocks ?? []).find((x) => x.timeSlot === 'morning')
@@ -307,21 +302,24 @@ function itemId(item: PlanItemVO): string {
 
 // -------- Actions --------
 async function loadPlan(forceToday = false) {
-  if (forceToday) pickDate.value = todayStr
+  const request = ++planRequest
+  void forceToday
   loading.value = true
   error.value = null
   try {
     const data = await learningApi.getTodayPlan()
-    plan.value = data
+    if (request === planRequest) plan.value = data
   } catch (e: unknown) {
-    error.value = getApiError(e, '加载失败')
+    if (request === planRequest) error.value = getApiError(e, '加载失败')
   } finally {
-    loading.value = false
+    if (request === planRequest) loading.value = false
   }
 }
 
 async function handleGenerateWeek() {
+  if (generating.value) return
   generating.value = true
+  if (!(await confirmDialog('确定生成下周计划？沿用已有安排规则，不覆盖已有日期计划。', {"title":"确认替换现有内容？","confirmText":"确认替换","cancelText":"返回编辑","icon":"refresh-cw","variant":"danger"}))) { generating.value = false; return }
   try {
     const res = await learningApi.generatePlan({ force: false })
     notify(`已生成 ${res.generatedDays} 天计划`, 'success')
@@ -334,6 +332,7 @@ async function handleGenerateWeek() {
 }
 
 async function handleExport() {
+  if (exporting.value) return
   exporting.value = true
   try {
     await learningApi.exportCalendar({ date: todayStr, range: 7 })
@@ -345,24 +344,16 @@ async function handleExport() {
   }
 }
 
-async function onPickDateChange() {
-  if (pickDate.value === todayStr) {
-    loadPlan()
-  } else {
-    notify('目前只支持查看今日计划（其它日期接口待扩展）', 'info')
-    pickDate.value = todayStr
-  }
-}
-
 /**
  * 勾选切换：按 type 调对应后端 API，成功后局部更新状态与总完成率。
  * 完成 → 勾选为 true；未完成 → 勾选为 false（todo/learningTask 支持撤销，habit 不支持）。
  */
-async function toggleItem(item: PlanItemVO & { _loading?: boolean }, nextValue: boolean, block: PlanBlockVO) {
-  if (item._loading) return
+async function toggleItem(item: PlanItemVO & { _loading?: boolean }, nextValue: boolean, _block: PlanBlockVO) {
+  if (item._loading || updating.value) return
+  if (item.completionRequirement) { notify('此任务需要真实学习记录，请使用去练习入口', 'info'); return }
   if (nextValue === !!item.completed) return
   try {
-    item._loading = true
+    item._loading = true; updating.value = true
     if (item.type === 'learningTask') {
       if (!item.learningTaskId) throw new Error('缺少 learningTaskId')
       await learningApi.updateTaskStatus(item.learningTaskId, nextValue ? 1 : 0)
@@ -377,46 +368,32 @@ async function toggleItem(item: PlanItemVO & { _loading?: boolean }, nextValue: 
         return
       }
       await habitApi.checkIn(item.habitId)
-    }
-    item.completed = nextValue
-    recomputeCompleted()
-    notify(nextValue ? '已标记完成' : '已恢复待办', 'success')
+    } else { throw new Error('暂不支持此计划项的状态操作') }
+    // Void写接口不提供最终状态；重新读取服务端回填结果，不在页面自算完成率。
+    await loadPlan()
+    if (!error.value) notify('已重新读取计划状态', 'success')
   } catch (e: unknown) {
     notify(getApiError(e, '操作失败'), 'error')
   } finally {
-    item._loading = false
+    item._loading = false; updating.value = false
   }
-}
-
-function recomputeCompleted() {
-  if (!plan.value) return
-  let total = 0
-  let done = 0
-  for (const b of plan.value.blocks) {
-    total += b.items.length
-    for (const it of b.items) if (it.completed) done++
-  }
-  plan.value.totalItems = total
-  plan.value.completedItems = done
-  plan.value.completedRatio = total === 0 ? 0 : Math.round((done / total) * 10000) / 100
 }
 
 // -------- Lifecycle --------
 onMounted(loadPlan)
 
-// 日期选择器变化：如果用户未来在后端开放 /plan/date 接口，这里可以直接联动；
-// 目前仅显示今日，所以只占位。
-watch(pickDate, (v) => {
-  if (v === todayStr) return
-})
 </script>
 
 <style scoped>
 .today-plan {
   width: 100%;
-  max-width: 1160px;
-  margin: 0 auto;
+  max-width: none;
+  margin-inline: 0;
   padding: var(--kb-space-6);
+
+  min-width: 0;
+  padding-inline: 0;
+  padding-top: 0;
 }
 
 .today-plan-actions {
@@ -436,14 +413,14 @@ watch(pickDate, (v) => {
   background: var(--kb-card);
   border-radius: var(--kb-radius-md);
   color: var(--kb-muted-foreground);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
 }
 .today-plan-date input[type="date"] {
   background: transparent;
   border: none;
   outline: none;
   color: var(--kb-foreground);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   color-scheme: light dark;
 }
 .today-plan-link {
@@ -460,7 +437,7 @@ watch(pickDate, (v) => {
 }
 .today-plan-subhint {
   margin-top: var(--kb-space-2);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   color: var(--kb-muted-foreground);
 }
 .today-plan-progress-card { padding: var(--kb-space-4); }
@@ -480,7 +457,7 @@ watch(pickDate, (v) => {
   align-items: center;
   gap: var(--kb-space-2);
   color: var(--kb-foreground);
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
 }
 
 .today-plan-blocks {
@@ -504,13 +481,13 @@ watch(pickDate, (v) => {
   box-shadow: var(--kb-shadow-sm);
 }
 .block-morning {
-  border-top: 3px solid color-mix(in oklab, #f59e0b 70%, transparent);
+  border-top: 3px solid color-mix(in oklab, var(--kb-warning) 70%, transparent);
 }
 .block-afternoon {
-  border-top: 3px solid color-mix(in oklab, #0ea5e9 70%, transparent);
+  border-top: 3px solid color-mix(in oklab, var(--kb-primary) 70%, transparent);
 }
 .block-evening {
-  border-top: 3px solid color-mix(in oklab, #7c3aed 70%, transparent);
+  border-top: 3px solid color-mix(in oklab, var(--kb-accent) 70%, transparent);
 }
 
 .block-header {
@@ -523,10 +500,10 @@ watch(pickDate, (v) => {
   align-items: center;
   gap: 8px;
 }
-.block-emo { font-size: 20px; }
+.block-emo { font-size: var(--kb-fs-h3); }
 .block-title {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--kb-fs-body-lg);
   font-weight: 600;
   color: var(--kb-foreground);
 }
@@ -534,7 +511,7 @@ watch(pickDate, (v) => {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
 }
 .block-empty {
@@ -546,7 +523,7 @@ watch(pickDate, (v) => {
   border-radius: var(--kb-radius-md);
   background: var(--kb-muted);
   color: var(--kb-muted-foreground);
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
 }
 .block-items {
   list-style: none;
@@ -585,7 +562,7 @@ watch(pickDate, (v) => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   padding: 2px 8px;
   border-radius: 999px;
   font-weight: 500;
@@ -596,7 +573,7 @@ watch(pickDate, (v) => {
   color: var(--kb-primary);
 }
 .tag-todo {
-  background: color-mix(in oklab, var(--kb-accent-blue, #0ea5e9) 18%, transparent);
+  background: color-mix(in oklab, var(--kb-accent-blue, var(--kb-primary)) 18%, transparent);
   color: var(--kb-accent-blue, #0284c7);
 }
 .tag-habit {
@@ -604,7 +581,7 @@ watch(pickDate, (v) => {
   color: var(--kb-success);
 }
 .item-title {
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   color: var(--kb-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -615,7 +592,7 @@ watch(pickDate, (v) => {
   align-items: center;
   gap: 8px;
   color: var(--kb-muted-foreground);
-  font-size: 12px;
+  font-size: var(--kb-fs-caption);
   white-space: nowrap;
 }
 .item-dur { display: inline-flex; align-items: center; gap: 3px; }

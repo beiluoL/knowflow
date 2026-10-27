@@ -96,7 +96,7 @@ export const studyGroupApi = {
     }),
 
   /** 上传文件（图片/文件） */
-  uploadFile: (file: File) => {
+  uploadFile: (groupId: number, file: File) => {
     const formData = new FormData()
     formData.append('file', file)
     // 注意：不要手动设置 Content-Type: multipart/form-data —— 必须交给 axios/浏览器
@@ -106,7 +106,7 @@ export const studyGroupApi = {
       fileUrl: string
       fileSize: number
       fileType: string
-    }>(`${API_PREFIX}/upload`, formData)
+    }>(`${API_PREFIX}/${groupId}/upload`, formData)
   },
 }
 

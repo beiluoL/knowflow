@@ -15,7 +15,7 @@
     <!-- 存储统计卡片 -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon" style="background: rgba(59,111,224,0.1); color: #3B6FE0;">
+        <div class="stat-icon" style="background: rgba(59,111,224,0.1); color: var(--kb-primary);">
           <Icon name="file" :size="20" />
         </div>
         <div class="stat-info">
@@ -24,7 +24,7 @@
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10B981;">
+        <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: var(--kb-success);">
           <Icon name="hard-drive" :size="20" />
         </div>
         <div class="stat-info">
@@ -33,7 +33,7 @@
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: #F59E0B;">
+        <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: var(--kb-warning);">
           <Icon name="image" :size="20" />
         </div>
         <div class="stat-info">
@@ -64,7 +64,7 @@
           class="btn-secondary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
           @click="startEditDir"
         >
-          <Icon name="edit-3" :size="14" aria-hidden="true" />
+          <Icon name="pencil" :size="14" aria-hidden="true" />
           <span>修改目录</span>
         </button>
       </div>
@@ -86,7 +86,7 @@
           <input
             v-model="newDir"
             type="text"
-            class="dir-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="dir-input transition-colors kb-input kb-form-control"
             placeholder="输入上传目录的绝对路径，如 /Users/xxx/knowflow/uploads"
           />
           <button class="btn-secondary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="pickDirectory" title="选择本地文件夹">
@@ -127,7 +127,7 @@
           <input
             v-model="keyword"
             type="text"
-            class="search-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="search-input transition-colors kb-input kb-form-control"
             placeholder="搜索文件名..."
             @keydown.enter="applyFilter"
           />
@@ -344,15 +344,10 @@ function onDirectoryPicked(e: Event) {
 
 // ===== 文件操作 =====
 async function deleteFile(file: UploadFileVO) {
-  try {
-    const ok = await confirmDialog(`确定删除文件「${file.fileName}」吗？此操作不可恢复。`, '删除确认')
-    if (!ok) return
-    await fileApi.remove(file.fileUrl)
-    notify('删除成功', 'success')
-    await loadData()
-  } catch (e: unknown) {
-    notify(getApiError(e), 'error')
-  }
+  await confirmDialog(`确定删除文件「${file.fileName}」吗？此操作不可恢复。`, {
+    title:'删除文件？',confirmText:'确认删除',cancelText:'取消',icon:'trash-2',variant:'danger',
+    onConfirm:async()=>{await fileApi.remove(file.fileUrl);notify('删除成功','success');await loadData()}
+  })
 }
 
 async function copyUrl(url: string) {
@@ -413,8 +408,13 @@ onMounted(() => {
 <style scoped>
 .file-mgmt-wrap {
   padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
+  max-width: none;
+  margin-inline: 0;
+
+  width: 100%;
+  min-width: 0;
+  padding-inline: 0;
+  padding-top: 0;
 }
 
 /* 页头 */
@@ -524,34 +524,36 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #10B981;
+  color: var(--kb-success);
   font-size: 13px;
 }
 .status-warn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #F59E0B;
+  color: var(--kb-warning);
   font-size: 13px;
 }
 .config-edit {
   display: flex;
   flex-direction: column;
 }
-.dir-input {
-  flex: 1;
+.dir-input:not(.kb-form-control) {
   height: 38px;
-  padding: 0 12px;
   border: 1px solid var(--kb-border);
   border-radius: 8px;
-  font-size: 13px;
-  font-family: var(--font-mono);
-  color: var(--kb-foreground);
   background: var(--kb-card);
   outline: none;
   transition: border-color 0.15s;
 }
-.dir-input:focus {
+.dir-input {
+  flex: 1;
+  padding: 0 12px;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  color: var(--kb-foreground);
+}
+.dir-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
@@ -657,19 +659,21 @@ onMounted(() => {
   color: var(--kb-primary);
   box-shadow: var(--shadow-sm);
 }
-.search-input {
-  flex: 1;
-  min-width: 200px;
+.search-input:not(.kb-form-control) {
   height: 32px;
-  padding: 0 12px;
   border: 1px solid var(--kb-border);
   border-radius: 8px;
-  font-size: 13px;
-  color: var(--kb-foreground);
   background: var(--kb-card);
   outline: none;
 }
-.search-input:focus {
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0 12px;
+  font-size: 13px;
+  color: var(--kb-foreground);
+}
+.search-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
 }
 

@@ -18,6 +18,7 @@
 // 使用全局 .kb-stat-* CSS 类（定义于 style.css），样式与主题 token 自动适配。
 // 支持 vertical（默认，图标在上）和 horizontal（图标在左，数值/标签在右）两种布局。
 import { computed } from 'vue'
+import Icon from './Icon.vue'
 
 interface Props {
   /** 图标名（Icon 组件 name），不传则不显示图标区块 */

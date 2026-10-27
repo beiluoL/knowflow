@@ -85,7 +85,7 @@
               <div class="flex items-center gap-3 min-w-0">
                 <div
                   class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-                  :style="{ background: (c.themeColor || '#3B6FE0') + '14', color: c.themeColor || 'var(--kb-primary)' }"
+                  :style="{ background: (c.themeColor || 'var(--kb-primary)') + '14', color: c.themeColor || 'var(--kb-primary)' }"
                 >
                   <Icon :name="c.icon || 'trophy'" :size="20" />
                 </div>
@@ -268,9 +268,9 @@ const truncateText = (text?: string, len = 64) => {
 
 /** 前三名金银铜徽章配色 */
 const rankBadgeStyle = (rank: number): CSSProperties => {
-  if (rank === 1) return { background: 'rgba(245, 158, 11, 0.15)', color: '#F59E0B' }
+  if (rank === 1) return { background: 'rgba(245, 158, 11, 0.15)', color: 'var(--kb-warning)' }
   if (rank === 2) return { background: 'rgba(148, 163, 184, 0.2)', color: '#64748B' }
-  if (rank === 3) return { background: 'rgba(217, 119, 6, 0.12)', color: '#B45309' }
+  if (rank === 3) return { background: 'rgba(217, 119, 6, 0.12)', color: 'var(--kb-state-warning)' }
   return { background: 'var(--kb-muted)', color: 'var(--kb-muted-foreground)' }
 }
 

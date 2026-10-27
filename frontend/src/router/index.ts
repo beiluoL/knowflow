@@ -1,15 +1,23 @@
 // 前端路由表与登录守卫配置。
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import { createDevRoutes } from '@/dev/routes';
 import { useAuthStore } from '@/stores/auth';
 import { notify } from '@/utils/toast';
+import { findChildByPath, findGroupByPath } from '@/config/navigation';
 
 /**
- * 布局约定（与设计稿对齐）：
- * - meta.layout = 'c'  → C 端：固定顶部导航 + 全屏内容（无侧边栏）
- * - meta.layout = 'b'  → B 端：左侧边栏 + 顶部栏 + 可滚动内容
- * - meta.layout = 'none' / 缺省 → 无布局壳（登录/入口/404/沉浸式）
+ * 布局约定（Phase UI-2 更新）：
+ * - meta.layout = 'c'    → C 端：CLayout = 固定顶栏 + 左侧边栏 + 可滚动主区
+ * - meta.layout = 'b'    → B 端：左侧边栏 + 顶部栏 + 可滚动内容（管理后台）
+ * - meta.layout = 'none' / 缺省 → 无布局壳（登录/入口/404/沉浸式/编辑器）
+ *
+ * C 端所有页面统一占满侧栏右侧，保留小幅安全边距；不再按 fullscreen 限制宽度。
+ * B 端 meta.fullscreen = true 仍用于编辑页移除外层内边距；导航保持可用。
  */
 const routes: RouteRecordRaw[] = [
+  ...(import.meta.env.VITE_PRODUCT_STUDY_PACK==='true'?[{path:'/learning/study-packs/:id?',name:'StudyPacks',component:()=>import('@/views/StudyPacksPage.vue'),meta:{layout:'c',requiresAuth:true}} satisfies RouteRecordRaw]:[]),
+  ...(import.meta.env.DEV ? createDevRoutes(true) : []),
+  {path:'/share/chat/:token',name:'PublicChatShare',component:()=>import('@/views/PublicChatShare.vue'),meta:{layout:'none',backgroundOverride:'none'}},
   // ===== 通用系统页面（无布局） =====
   // UnifiedPortal 已移除：/portal 重定向到任务中心（作为新的工作台首页）
   {
@@ -64,6 +72,21 @@ const routes: RouteRecordRaw[] = [
     path: '/knowledge/import',
     name: 'KnowledgeImport',
     component: () => import('@/views/KnowledgeImport.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  {
+    // Architecture-4.3：AI 整理资料（知识处理）。不进入侧边栏：仅由知识库首页 / 知识页入口打开（§61/§62）。
+    path: '/knowledge/process',
+    name: 'KnowledgeProcess',
+    component: () => import('@/views/KnowledgeProcess.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  {
+    // Architecture-4.4：生成学习内容（Knowledge → AI Draft → 用户审核）。不进侧边栏（§60/§61）：
+    // 仅由知识点详情「生成学习内容」入口打开；?knowledgeId= 必填、knowledgeName 可选透传。
+    path: '/knowledge/content',
+    name: 'KnowledgeContentGen',
+    component: () => import('@/views/KnowledgeContentGen.vue'),
     meta: { layout: 'c', requiresAuth: true },
   },
   {
@@ -139,11 +162,11 @@ const routes: RouteRecordRaw[] = [
     name: 'Learning',
     redirect: '/learning/center',
   },
-  // F-01 修复：/learning/center 指向真实学习总览页（LearningReport.vue，页面标题「学习中心」）
+  // Phase UI-4：文件命名治理。/learning/center = 学习行动中心（LearningCenterPage.vue）
   {
     path: '/learning/center',
-    name: 'LearningCenter',
-    component: () => import('@/views/LearningReport.vue'),
+    name: 'LearningCenterPage',
+    component: () => import('@/views/LearningCenterPage.vue'),
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   {
@@ -176,6 +199,19 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/CodePlayground.vue'),
     meta: { layout: 'none', requiresAuth: true, backgroundOverride: 'none' },
   },
+  // Phase 3G：统一题库中心 · 算法代码题（CODE）
+  {
+    path: '/coding/bank',
+    name: 'CodeProblemList',
+    component: () => import('@/views/coding/CodeProblemList.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
+    path: '/coding/bank/:id',
+    name: 'CodeProblemSolve',
+    component: () => import('@/views/coding/CodeProblemSolve.vue'),
+    meta: { layout: 'none', requiresAuth: true, backgroundOverride: 'none' },
+  },
   {
     path: '/challenge',
     name: 'Challenge',
@@ -187,6 +223,47 @@ const routes: RouteRecordRaw[] = [
     name: 'ChallengePlay',
     component: () => import('@/views/ChallengePlay.vue'),
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  // Java + AI 专业英语：词汇大厅（公开可浏览，收藏/学习状态需登录）
+  {
+    path: '/learning/english',
+    name: 'TechEnglishHome',
+    component: () => import('@/views/TechEnglishHome.vue'),
+    meta: { layout: 'c', fullscreen: true },
+  },
+  // P1 技术英语词汇复习专注页：必须声明在 /learning/english/:id 之前，避免被详情路由吞掉
+  {
+    path: '/learning/english/review',
+    name: 'TechEnglishReview',
+    component: () => import('@/views/TechEnglishReview.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  // V3 专题学习：按技术方向组织词汇，正式复习仍复用既有 FSRS
+  {
+    path: '/learning/english/topics',
+    name: 'TechEnglishTopics',
+    component: () => import('@/views/TechEnglishTopics.vue'),
+    meta: { layout: 'c', fullscreen: true },
+  },
+  {
+    path: '/learning/english/topics/:domain',
+    name: 'TechEnglishTopic',
+    component: () => import('@/views/TechEnglishTopic.vue'),
+    meta: { layout: 'c', fullscreen: true },
+  },
+  // P3 第一阶段：听读 + 本地跟读录音（不上传、不做自动发音评分）
+  {
+    path: '/learning/english/speak',
+    name: 'TechEnglishSpeak',
+    component: () => import('@/views/TechEnglishSpeak.vue'),
+    meta: { layout: 'c', fullscreen: true },
+  },
+  // 专业英语详情深链：与列表共用同一页面，query 保留筛选上下文
+  {
+    path: '/learning/english/:id',
+    name: 'TechEnglishDetail',
+    component: () => import('@/views/TechEnglishHome.vue'),
+    meta: { layout: 'c', fullscreen: true },
   },
   // 闪卡大厅：整合「学习闪卡」与「我的闪卡」为统一入口
   {
@@ -238,6 +315,34 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/ReviewPlan.vue'),
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
+  // Architecture-4.0：学习目标（学习闭环起点，从首页「当前目标」/ 学习中心进入，不进侧边栏菜单）
+  {
+    path: '/learning/goals',
+    name: 'LearningGoals',
+    component: () => import('@/views/LearningGoals.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  // Architecture-4.0-4：场景练习（Scenario Lab，Practice 节点；从学习中心「练习」/目标工作区进入，不进侧边栏菜单）
+  {
+    path: '/learning/scenario',
+    name: 'ScenarioLab',
+    component: () => import('@/views/ScenarioLab.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  // Architecture-4.0-7：费曼表达四维评分（Expression 节点；从学习中心「费曼表达」进入，不进侧边栏菜单）
+  {
+    path: '/learning/feynman',
+    name: 'FeynmanLab',
+    component: () => import('@/views/FeynmanLab.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  // Architecture-4.1：第一性原理推导（Understanding 节点；从学习中心「更多工具 → 第一性原理」进入，不进侧边栏菜单）
+  {
+    path: '/learning/first-principles',
+    name: 'FirstPrinciplesLab',
+    component: () => import('@/views/FirstPrinciplesLab.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
   // 沉浸式学习模式：无顶栏
   {
     path: '/learning/mode',
@@ -266,18 +371,18 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/TodayPlan.vue'),
     meta: { layout: 'c', requiresAuth: true },
   },
-  // 学习报告独立页面
+  // 学习报告独立页面（Phase UI-4：文件命名治理，LearningReportPage.vue）
   {
     path: '/learning/report',
-    name: 'LearningReport',
-    component: () => import('@/views/LearningReportView.vue'),
+    name: 'LearningReportPage',
+    component: () => import('@/views/LearningReportPage.vue'),
     meta: { layout: 'c', requiresAuth: true },
   },
-  // F-01 修复：番茄钟独立路由（LearningCenter.vue 实为番茄钟专注页）
+  // 番茄钟独立路由（Phase UI-4：PomodoroPage.vue，职责=专注工具，不再叫「学习中心」）
   {
     path: '/learning/pomodoro',
     name: 'LearningPomodoro',
-    component: () => import('@/views/LearningCenter.vue'),
+    component: () => import('@/views/PomodoroPage.vue'),
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
 
@@ -300,6 +405,37 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/SmartQuiz.vue'),
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
+  // ===== Phase 3E：Java + AI 智能考试中心（Exam OS） =====
+  {
+    path: '/exam',
+    name: 'ExamCenter',
+    component: () => import('@/views/exam/ExamCenter.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
+    path: '/exam/compose',
+    name: 'ExamCompose',
+    component: () => import('@/views/exam/ExamCompose.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
+    path: '/exam/take/:attemptId',
+    name: 'ExamTake',
+    component: () => import('@/views/exam/ExamTake.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true, examTaking: true },
+  },
+  {
+    path: '/exam/result/:attemptId',
+    name: 'ExamResult',
+    component: () => import('@/views/exam/ExamResultPage.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
+    path: '/exam/mistakes',
+    name: 'ExamMistakes',
+    component: () => import('@/views/exam/ExamMistakes.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
   {
     path: '/learning/writing',
     name: 'SmartWriting',
@@ -312,6 +448,20 @@ const routes: RouteRecordRaw[] = [
     path: '/tasks',
     name: 'TaskCenter',
     component: () => import('@/views/TaskCenter.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  // Architecture-1：App Center（Mini App 应用中心）
+  {
+    path: '/apps',
+    name: 'AppCenter',
+    component: () => import('@/views/AppCenterPage.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  // Architecture-2：钱包（学习经济）
+  {
+    path: '/wallet',
+    name: 'Wallet',
+    component: () => import('@/views/WalletPage.vue'),
     meta: { layout: 'c', requiresAuth: true },
   },
   {
@@ -382,6 +532,12 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   {
+    path: '/workbench/recall/:id',
+    name: 'WorkbenchRecallPractice',
+    component: () => import('@/views/WorkbenchRecallPractice.vue'),
+    meta: { layout: 'c', requiresAuth: true, fullscreen: true },
+  },
+  {
     path: '/workbench/palace/:id',
     name: 'WorkbenchPalaceEdit',
     component: () => import('@/views/WorkbenchPalaceEdit.vue'),
@@ -438,13 +594,13 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/notes/new',
     name: 'NoteCreate',
-    component: () => import('@/views/NoteEdit.vue'),
+    component: () => import('@/views/NotesManage.vue'),
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   {
     path: '/notes/:id/edit',
     name: 'NoteEdit',
-    component: () => import('@/views/NoteEdit.vue'),
+    component: () => import('@/views/NotesManage.vue'),
     meta: { layout: 'c', requiresAuth: true, fullscreen: true },
   },
   {
@@ -463,6 +619,20 @@ const routes: RouteRecordRaw[] = [
     path: '/mistakes',
     name: 'Mistakes',
     component: () => import('@/views/Mistakes.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  {
+    // Phase 3H：统一学习分析（题库/算法题/错题离线口径）
+    path: '/learning/analytics',
+    name: 'LearningAnalytics',
+    component: () => import('@/views/LearningAnalytics.vue'),
+    meta: { layout: 'c', requiresAuth: true },
+  },
+  {
+    // Phase 3H：模拟面试基础模式（预置题库+追问树+倒计时+手工作答+量表自评，零 AI 依赖）
+    path: '/interview',
+    name: 'MockInterview',
+    component: () => import('@/views/interview/MockInterview.vue'),
     meta: { layout: 'c', requiresAuth: true },
   },
   {
@@ -546,6 +716,12 @@ const routes: RouteRecordRaw[] = [
     meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
   },
   {
+    path: '/admin/scenarios',
+    name: 'AdminScenarios',
+    component: () => import('@/views/admin/ScenarioMgmt.vue'),
+    meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
+  },
+  {
     path: '/admin/learning-paths',
     name: 'AdminLearningPaths',
     component: () => import('@/views/admin/LearningPathMgmt.vue'),
@@ -591,6 +767,18 @@ const routes: RouteRecordRaw[] = [
     path: '/admin/code-questions',
     name: 'AdminCodeQuestions',
     component: () => import('@/views/admin/CodeQuestionMgmt.vue'),
+    meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/code-problems',
+    name: 'AdminCodeProblems',
+    component: () => import('@/views/admin/CodeProblemMgmt.vue'),
+    meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/questions',
+    name: 'AdminQuestionCatalog',
+    component: () => import('@/views/admin/QuestionCatalog.vue'),
     meta: { layout: 'b', requiresAuth: true, requiresAdmin: true },
   },
   {
@@ -666,6 +854,33 @@ router.beforeEach(async (to) => {
   }
 
   return true;
+});
+
+/**
+ * Phase UI-2：页面标题统一由导航配置推导（§12/§20）。
+ *
+ * 之所以不在 90 条路由上逐条手写 meta.title：一旦逐条维护，
+ * 「导航叫什么」与「页面标题叫什么」迟早会各说各话（本项目此前就出现了
+ * /learning/center 与 /learning/pomodoro 两个页面都自称「学习中心」的情况）。
+ * 这里改为从 @/config/navigation.ts 单一数据源推导，二者永远一致。
+ * 未纳入导航的页面（登录/404/详情页等）回落到站点名，详情页可由 PageHeader 的 crumbs 补充。
+ */
+router.onError(() => {
+  notify('页面加载失败，请刷新后重试', 'error');
+});
+
+router.afterEach((to) => {
+  const hit = findChildByPath(to.path);
+  if (hit) {
+    document.title = `${hit.child.label} · ${hit.group.label} · KnowFlow`;
+    return;
+  }
+  const group = findGroupByPath(to.path);
+  if (group) {
+    document.title = `${group.label} · KnowFlow`;
+    return;
+  }
+  document.title = 'KnowFlow';
 });
 
 export default router;

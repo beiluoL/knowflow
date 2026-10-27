@@ -1,0 +1,8 @@
+[
+ {"key":"pecs","knowledge":1,"parent":null,"title":"PECS如何指导复制API，边界在哪里？","answer":"生产者extends安全读成T，消费者super接收T；super读取只保证Object。同类型读写保留类型参数，不强行通配符。","detail":"解释List不协变的Double写入反例，再给出<T> copyInto(List<? extends T>,List<? super T>)。extends不能任意加入非null元素，但移除不等于加入。不可变目标仍可能拒绝add。","wrong":"extends容器完全不可修改。"},
+ {"key":"erasure","knowledge":1,"parent":"pecs","title":"类型擦除后为什么仍会有ClassCastException？","answer":"编译器保留静态约束并插入必要强转。原始类型导致heap pollution，读取时的强转可能失败；擦除不是参数化List可互换。","detail":"区分对象运行时实现类和类文件泛型签名。变量擦除到边界，可生成桥接方法；不能通过instanceof List<String>检查元素。用无raw type的边界接口避免延迟错误。","wrong":"所有泛型信息全部消失，所以任何List都可互换。"},
+ {"key":"atomic","knowledge":2,"parent":null,"title":"ConcurrentHashMap的get再put为什么会丢计数？","answer":"两个线程可读到相同旧值，之后覆盖同一个新值。get和put各自安全不保证组合原子；同键计数可用merge或compute。","detail":"用屏障稳定复现两个线程都读0后写1，再对照merge得到2。实验是正确性演示，不是性能基准。回调短小并避免同键递归及慢IO。","wrong":"线程安全容器的任意操作组合都原子。"},
+ {"key":"null","knowledge":2,"parent":"atomic","title":"禁止null与compute返回null有什么区别？","answer":"CHM拒绝null键和值，查询null表示本次未得到映射。compute回调返回null可删除映射，computeIfAbsent返回null则不建立映射。","detail":"不能用containsKey再get获得强一致复合观察。缓存空结果可用非null包装或哨兵；同时定义过期和容量，不把回调副作用当外部系统恰好执行一次的保证。","wrong":"回调返回null就是存入null值。"},
+ {"key":"implementation","knowledge":2,"parent":"atomic","title":"Java17的CHM更新与迁移如何组织？","answer":"Node数组与桶，空桶CAS、非空桶局部同步和复查，迁移节点引导新表访问；不是Java7 Segment，也不是所有方法无锁。","detail":"从putVal/get追核心分支，区分API契约与固定jdk-17+35实现。冲突键可共享一个桶；弱一致迭代与并发size不能当业务额度的强一致快照。","wrong":"每个键一把锁，或者所有方法都是无锁的。"},
+ {"key":"value","knowledge":3,"parent":"implementation","title":"为什么线程安全Map不能自动保护可变值或账户转账？","answer":"Map保护映射操作，不替ArrayList.add同步，也没有跨键事务。可用不可变值原子替换或受保护的值对象；跨键不变量用共同锁协议或数据库事务。","detail":"频次统计可用LongAdder，但并发sum不是额度扣减快照，删除映射后旧引用仍可能被递增。先定义生命周期与业务不变量，不虚构生产事故或性能结论。","wrong":"computeIfAbsent取出的任意对象都线程安全。"}
+]

@@ -16,14 +16,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.net.URI;
+import java.time.Duration;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Embedding 向量服务实现：通过 OpenAI 兼容接口调用文本嵌入模型。
  *
  * <p>配置说明：嵌入模型与对话模型往往不是同一厂商，因此这里支持独立的
- * ai.embedding-base-url / ai.embedding-api-key。若二者留空则回退到 ai.base-url /
- * ai.api-key，保持历史配置兼容。这样可以避免「对话走 DeepSeek、嵌入却被迫也发往
- * DeepSeek /embeddings（该接口不存在）」导致向量恒为空的问题。
+ * ai.embedding-base-url / ai.embedding-api-key。若未配置独立嵌入地址，则默认使用
+ * 本地 Ollama，而不是回退到对话模型厂商。这样可避免「对话走 DeepSeek、嵌入也被迫
+ * 发往 DeepSeek /embeddings（该接口不存在）」导致向量恒为空的问题。
  *
  * <p>未配置有效 Key 时自动降级返回空向量，调用方据此走关键词兜底而非报错。
  */
@@ -45,22 +48,27 @@ public class EmbeddingServiceImpl implements EmbeddingService {
     @Value("${ai.embedding-api-key:}")
     private String embeddingApiKey;
 
-    @Value("${ai.embedding-model:text-embedding-3-small}")
+    @Value("${ai.embedding-model:nomic-embed-text}")
     private String model;
 
     @Value("${ai.embedding-batch-size:16}")
     private int batchSize;
 
     private static final float EPSILON = 1e-12f;
+    private static final String DEFAULT_OLLAMA_BASE_URL = "http://localhost:11434/v1";
+    private final AtomicBoolean localHealthChecked = new AtomicBoolean(false);
+    private volatile boolean localReady = true;
+    private volatile long nextLocalProbeAtNanos = Long.MAX_VALUE;
+    private static final Duration LOCAL_RETRY_INTERVAL = Duration.ofSeconds(30);
 
     /** 占位 Key 前缀，命中即视为未配置 */
     private static final String PLACEHOLDER_KEY_PREFIX = "sk-placeholder";
 
-    /** 已知不提供 /embeddings 接口的厂商域名，用于启动期给出明确告警 */
-    private static final List<String> NO_EMBEDDING_HOSTS = List.of("api.deepseek.com");
-
     public EmbeddingServiceImpl(RestTemplateBuilder builder) {
-        this.restTemplate = builder.build();
+        this.restTemplate = builder
+                .setConnectTimeout(Duration.ofSeconds(2))
+                .setReadTimeout(Duration.ofSeconds(8))
+                .build();
     }
 
     /**
@@ -74,31 +82,88 @@ public class EmbeddingServiceImpl implements EmbeddingService {
             return;
         }
         String url = resolveBaseUrl();
-        for (String host : NO_EMBEDDING_HOSTS) {
-            if (url.contains(host)) {
-                log.error("[Embedding] 当前 embedding base-url 指向 {}，该服务不提供 /embeddings 接口，"
-                        + "向量化将全部失败。请通过 AI_EMBEDDING_BASE_URL 单独配置嵌入服务地址"
-                        + "（如硅基流动 https://api.siliconflow.cn/v1 或本地 Ollama http://localhost:11434/v1）", host);
-                return;
-            }
+        if (isLocalOllama(url)) {
+            checkLocalOllamaOnce();
+            return;
         }
         log.info("[Embedding] 嵌入服务已就绪：base-url={}, model={}, batchSize={}", url, model, batchSize);
     }
 
-    /** 优先使用嵌入专用地址，未配置则回退主地址 */
+    /** 优先使用嵌入专用地址，未配置则使用本地 Ollama；绝不回退对话模型地址。 */
     private String resolveBaseUrl() {
-        return (embeddingBaseUrl != null && !embeddingBaseUrl.isBlank()) ? embeddingBaseUrl : baseUrl;
+        return (embeddingBaseUrl != null && !embeddingBaseUrl.isBlank())
+                ? embeddingBaseUrl : DEFAULT_OLLAMA_BASE_URL;
     }
 
-    /** 优先使用嵌入专用 Key，未配置则回退主 Key */
+    /** Embedding 凭据必须独立配置；本地 Ollama 无需 Key。 */
     private String resolveApiKey() {
-        return (embeddingApiKey != null && !embeddingApiKey.isBlank()) ? embeddingApiKey : apiKey;
+        return embeddingApiKey == null ? "" : embeddingApiKey.trim();
     }
 
     @Override
     public boolean isAvailable() {
+        if (isLocalOllama(resolveBaseUrl())) {
+            if (localHealthChecked.get() && !localReady
+                    && System.nanoTime() >= nextLocalProbeAtNanos) {
+                probeLocalOllama();
+            }
+            return !localHealthChecked.get() || localReady;
+        }
         String key = resolveApiKey();
         return key != null && !key.isBlank() && !key.startsWith(PLACEHOLDER_KEY_PREFIX);
+    }
+
+    private boolean isLocalOllama(String url) {
+        if (url == null || url.isBlank()) return false;
+        try {
+            URI uri = URI.create(url);
+            String host = uri.getHost();
+            return uri.getPort() == 11434
+                    && ("localhost".equalsIgnoreCase(host) || "127.0.0.1".equals(host));
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void checkLocalOllamaOnce() {
+        if (!localHealthChecked.compareAndSet(false, true)) {
+            return;
+        }
+        probeLocalOllama();
+    }
+
+    @SuppressWarnings("unchecked")
+    private synchronized void probeLocalOllama() {
+        try {
+            String tagsUrl = resolveBaseUrl().replaceAll("/v1/?$", "") + "/api/tags";
+            Map<String, Object> response = restTemplate.getForObject(tagsUrl, Map.class);
+            List<Map<String, Object>> models = response == null ? List.of()
+                    : (List<Map<String, Object>>) response.getOrDefault("models", List.of());
+            boolean installed = models.stream().anyMatch(item -> {
+                Object name = item.get("name");
+                return name != null && name.toString().startsWith(model);
+            });
+            if (installed) {
+                localReady = true;
+                nextLocalProbeAtNanos = Long.MAX_VALUE;
+                log.info("[Embedding] 本地 Ollama 已就绪：model={}", model);
+            } else {
+                markLocalUnavailable();
+                log.warn("[Embedding] Ollama 已运行但未安装 {}，请执行：ollama pull {}。"
+                        + "安装前语义检索会降级为关键词检索", model, model);
+            }
+        } catch (Exception e) {
+            markLocalUnavailable();
+            log.warn("[Embedding] 无法连接本地 Ollama，请执行 `ollama serve`，并确认已运行 "
+                    + "`ollama pull {}`。当前语义检索将降级为关键词检索", model);
+        }
+    }
+
+    private void markLocalUnavailable() {
+        localHealthChecked.set(true);
+        localReady = false;
+        nextLocalProbeAtNanos = System.nanoTime() + LOCAL_RETRY_INTERVAL.toNanos();
     }
 
     @Override
@@ -121,7 +186,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
             results.add(Collections.emptyList());
         }
         if (!isAvailable()) {
-            log.warn("[Embedding] API Key 未配置，批量向量化降级返回空向量");
+            log.warn("[Embedding] 服务不可用，批量向量化降级返回空向量");
             return results;
         }
 
@@ -153,7 +218,10 @@ public class EmbeddingServiceImpl implements EmbeddingService {
             Map<String, Object> body = Map.of("model", model, "input", texts);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(resolveApiKey());
+            String embeddingKey = resolveApiKey();
+            if (!embeddingKey.isBlank()) {
+                headers.setBearerAuth(embeddingKey);
+            }
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
 
             ResponseEntity<Map> response = restTemplate.postForEntity(url, request, Map.class);
@@ -182,6 +250,9 @@ public class EmbeddingServiceImpl implements EmbeddingService {
             }
             return batch;
         } catch (Exception e) {
+            if (isLocalOllama(resolveBaseUrl())) {
+                markLocalUnavailable();
+            }
             log.warn("[Embedding] API 调用失败（本批 {} 条降级为空向量）: {}", texts.size(), e.getMessage());
             return batch;
         }

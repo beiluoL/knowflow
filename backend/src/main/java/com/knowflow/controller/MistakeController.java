@@ -3,6 +3,7 @@ package com.knowflow.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.knowflow.common.PageResult;
 import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.dto.CodeMistakeCollectRequest;
 import com.knowflow.dto.CodeMistakeCollectResult;
 import com.knowflow.entity.LearningMistake;
@@ -15,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /** 错题本 REST 接口，提供错题的增删查、掌握标记与统计。 */
@@ -26,23 +28,47 @@ public class MistakeController {
 
     private final MistakeService mistakeService;
 
-    @Operation(summary = "错题列表")
+    @Operation(summary = "错题列表（Phase 3H：支持题型/知识点/来源/错误原因/复习状态/时间范围筛选）")
     @GetMapping
     public Result<PageResult<MistakeVO>> list(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) Integer mastered,
+            @RequestParam(required = false) String questionType,
+            @RequestParam(required = false) String topicCode,
+            @RequestParam(required = false) List<String> sources,
+            @RequestParam(required = false) String errorReason,
+            @RequestParam(required = false) String reviewStatus,
+            @RequestParam(required = false)
+            @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME)
+            java.time.LocalDateTime from,
+            @RequestParam(required = false)
+            @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME)
+            java.time.LocalDateTime to,
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize,
             Authentication authentication) {
-        Long userId = authentication != null ? (Long) authentication.getPrincipal() : null;
-        IPage<MistakeVO> page = mistakeService.getMistakePage(userId, category, mastered, pageNum, pageSize);
+        Long userId = SecurityUtils.getCurrentUserId();
+        com.knowflow.dto.MistakePageQuery query = new com.knowflow.dto.MistakePageQuery();
+        query.setUserId(userId);
+        query.setCategory(category);
+        query.setMastered(mastered);
+        query.setQuestionType(questionType);
+        query.setTopicCode(topicCode);
+        query.setSources(sources);
+        query.setErrorReason(errorReason);
+        query.setReviewStatus(reviewStatus);
+        query.setFrom(from);
+        query.setTo(to);
+        query.setPageNum(pageNum);
+        query.setPageSize(pageSize);
+        IPage<MistakeVO> page = mistakeService.getMistakePage(query);
         return Result.success(PageResult.of(page));
     }
 
     @Operation(summary = "错题详情")
     @GetMapping("/{id}")
     public Result<MistakeVO> detail(@PathVariable Long id, Authentication authentication) {
-        Long userId = authentication != null ? (Long) authentication.getPrincipal() : null;
+        Long userId = SecurityUtils.getCurrentUserId();
         return Result.success(mistakeService.getMistakeDetail(id, userId));
     }
 
@@ -52,7 +78,7 @@ public class MistakeController {
         if (authentication == null) {
             return Result.error(401, "请先登录");
         }
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         mistakeService.markMastered(id, userId);
         return Result.success();
     }
@@ -63,7 +89,7 @@ public class MistakeController {
         if (authentication == null) {
             return Result.error(401, "请先确保已登录");
         }
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         mistakeService.addMistake(mistake, userId);
         return Result.success();
     }
@@ -72,7 +98,7 @@ public class MistakeController {
     @PostMapping("/collect-code")
     public Result<CodeMistakeCollectResult> collectCode(
             @RequestBody CodeMistakeCollectRequest req, Authentication authentication) {
-        Long userId = authentication != null ? (Long) authentication.getPrincipal() : null;
+        Long userId = SecurityUtils.getCurrentUserId();
         if (userId == null) {
             return Result.error(401, "请先登录");
         }
@@ -82,7 +108,7 @@ public class MistakeController {
     @Operation(summary = "错题统计")
     @GetMapping("/stats")
     public Result<Map<String, Integer>> stats(Authentication authentication) {
-        Long userId = authentication != null ? (Long) authentication.getPrincipal() : null;
+        Long userId = SecurityUtils.getCurrentUserId();
         Map<String, Integer> stats = new HashMap<>();
         stats.put("total", mistakeService.getTotalCount(userId));
         stats.put("mastered", mistakeService.getMasteredCount(userId));

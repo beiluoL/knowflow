@@ -384,10 +384,10 @@ public class CalendarMarkServiceImpl implements CalendarMarkService {
 
     private CalendarMemorial requireOwn(CalendarMemorial e, Long userId) {
         if (e == null) {
-            throw new BusinessException("纪念日不存在");
+            throw new BusinessException(404, "纪念日不存在");
         }
         if (!Objects.equals(e.getUserId(), userId)) {
-            throw new BusinessException("无权操作该记录");
+            throw new BusinessException(403, "无权操作该记录");
         }
         return e;
     }

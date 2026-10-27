@@ -1,105 +1,54 @@
 <template>
-  <div class="space-y-4 animate-fade-in">
-    <div class="flex items-center justify-between flex-wrap gap-3">
-      <div>
-        <h1 class="kb-h1 mb-1 flex items-center gap-2" style="color: var(--kb-foreground);">
-          <Icon name="notebook-pen" :size="24" style="color: var(--kb-primary);" /> 知识整理 · 康奈尔笔记
-        </h1>
-        <p class="kb-body" style="color: var(--kb-muted-foreground);">线索栏自测、笔记栏记录、总结栏复述，主动回忆胜过被动阅读。</p>
-      </div>
-      <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="router.push('/workbench/notes/new')">
-        <Icon name="plus" :size="16" aria-hidden="true" /> 新建笔记
-      </button>
+  <WorkbenchShell stage="notes" :revision="revision" @ready="load">
+    <template #actions><RouterLink to="/workbench/notes/new" class="kb-btn kb-btn-primary"><Icon name="plus" :size="16" /> 新建笔记</RouterLink></template>
+    <div class="workbench-toolbar"><input v-model="keyword" class="kb-input workbench-search kb-form-control" aria-label="搜索笔记" placeholder="搜索笔记标题…" @input="load" /><RouterLink v-if="captureId" to="/workbench/notes" class="kb-btn">清除来源筛选</RouterLink></div>
+    <div v-if="error" class="workbench-inline-error" role="alert">{{ error }}<button class="kb-btn" @click="load">重试</button></div>
+    <div v-else-if="loading" class="workbench-empty" role="status">正在加载笔记…</div>
+    <div v-else-if="!list.length" class="workbench-panel workbench-empty"><h2 class="kb-text-card-title">{{ keyword || captureId ? '没有符合筛选的笔记' : '从一篇笔记开始整理' }}</h2><p>可以整理收集内容，也可以直接创建笔记。</p><RouterLink to="/workbench/notes/new" class="kb-btn">新建笔记</RouterLink></div>
+    <div v-else class="workbench-split">
+      <div class="workbench-list"><button v-for="note in list" :key="note.id" class="workbench-row" :class="{ selected: selected?.id === note.id }" :aria-pressed="selected?.id === note.id" @click="selectedId = note.id"><strong>{{ note.title }}</strong><small class="line-clamp-2">{{ plain(note.summaryColumn || note.noteColumn) }}</small><small>{{ note.tags || '未设置标签' }} · 自评 {{ note.mastery || 0 }}%</small></button></div>
+      <section v-if="selected" class="workbench-panel">
+        <header class="workbench-detail-head"><h2 class="kb-text-section-title">{{ selected.title }}</h2><RouterLink :to="'/workbench/notes/' + selected.id" class="kb-btn">编辑笔记</RouterLink></header>
+        <h3 class="kb-text-card-title">线索问题</h3><p class="workbench-preview">{{ selected.cueColumn || '还没有线索问题' }}</p>
+        <h3 class="kb-text-card-title">笔记内容</h3><div class="workbench-preview" v-html="sanitize(selected.noteColumn)"></div>
+        <h3 class="kb-text-card-title">我的总结</h3><p class="workbench-preview">{{ selected.summaryColumn || '试着用自己的话概括' }}</p>
+        <div class="workbench-toolbar"><button data-test="note-to-review" class="kb-btn kb-btn-primary" @click="toReview(selected)">创建复习卡</button><button class="kb-btn" @click="toStory(selected)">开始输出</button><button class="kb-btn" @click="remove(selected)">删除</button></div>
+        <WorkbenchRelations :key="selected.id" :capture-id="selected.captureId" :note-id="selected.id" />
+      </section>
     </div>
-
-    <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-      <div v-for="n in 6" :key="n" class="rounded-xl border p-4 animate-pulse" style="background: var(--kb-card); border-color: var(--kb-border); min-height: 120px;">
-        <div class="h-4 rounded mb-3" style="background: var(--kb-muted);"></div>
-        <div class="h-3 rounded mb-2" style="background: var(--kb-muted); width: 80%;"></div>
-      </div>
-    </div>
-    <div v-else-if="list.length === 0" class="rounded-xl border p-8 text-center" style="background: var(--kb-card); border-color: var(--kb-border);">
-      <Icon name="notebook-pen" :size="40" style="color: var(--kb-muted-foreground);" />
-      <p class="kb-body-sm mt-2" style="color: var(--kb-muted-foreground);">还没有康奈尔笔记</p>
-      <button class="kb-btn kb-btn-primary mt-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="router.push('/workbench/notes/new')"><Icon name="plus" :size="15" aria-hidden="true" /> 立即创建</button>
-    </div>
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-      <div
-        v-for="n in list"
-        :key="n.id"
-        class="rounded-xl border p-4 cursor-pointer transition-shadow hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-        style="background: var(--kb-card); border-color: var(--kb-border);"
-        role="button"
-        tabindex="0"
-        @click="router.push('/workbench/notes/' + n.id)"
-        @keydown.enter.prevent="($event.target as HTMLElement).click()"
-      >
-        <div class="flex items-start justify-between mb-2">
-          <h3 class="kb-h4 flex-1" style="color: var(--kb-foreground);">{{ n.title }}</h3>
-          <span
-            class="text-[11px] px-2 py-0.5 rounded-full shrink-0"
-            :style="{ background: masteryColor(n.mastery) + '22', color: masteryColor(n.mastery) }"
-          >掌握 {{ n.mastery || 0 }}%</span>
-        </div>
-        <p class="kb-body-sm mb-2 line-clamp-2" style="color: var(--kb-muted-foreground);">{{ n.summaryColumn || n.noteColumn || '（未填写）' }}</p>
-        <div class="flex items-center justify-between">
-          <span v-if="n.tags" class="text-[11px]" style="color: var(--kb-muted-foreground);">#{{ n.tags }}</span>
-          <div class="flex items-center gap-1 ml-auto" @click.stop>
-            <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="转为复习卡" @click="toReview(n)"><Icon name="repeat" :size="15" aria-hidden="true" /></button>
-            <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="转为故事" @click="toStory(n)"><Icon name="wand-2" :size="15" aria-hidden="true" /></button>
-            <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="删除" @click="remove(n)"><Icon name="trash-2" :size="15" aria-hidden="true" /></button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  </WorkbenchShell>
 </template>
-
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import WorkbenchShell from '@/components/workbench/WorkbenchShell.vue'
+import WorkbenchRelations from '@/components/workbench/WorkbenchRelations.vue'
 import Icon from '@/components/ui/Icon.vue'
-import { notify, getApiError } from '@/utils/toast'
-import { dialog } from '@/utils/dialog'
+import { useSanitize } from '@/composables/useSanitize'
 import { listNotes, deleteNote } from '@/api/workbench'
 import type { WbNote } from '@/api/types'
-
-const router = useRouter()
-const list = ref<WbNote[]>([])
-const loading = ref(true)
-
-async function load() {
-  loading.value = true
-  try {
-    list.value = await listNotes({})
-  } catch (e) {
-    notify({ type: 'error', message: getApiError(e, '加载失败') })
-  } finally {
-    loading.value = false
-  }
-}
-function masteryColor(v?: number) {
-  const m = v || 0
-  if (m >= 80) return 'var(--kb-state-success)'
-  if (m >= 50) return 'var(--kb-state-warning)'
-  return 'var(--kb-state-error)'
-}
-async function remove(n: WbNote) {
-  if (!(await dialog.confirm({ title: '删除确认', message: '确认删除该笔记？', variant: 'danger' }))) return
-  try {
-    await deleteNote(n.id)
-    notify({ type: 'success', message: '已删除' })
-    load()
-  } catch (e) {
-    notify({ type: 'error', message: getApiError(e, '删除失败') })
-  }
-}
-function toReview(n: WbNote) {
-  router.push({ path: '/workbench/review', query: { noteId: String(n.id), front: n.cueColumn || n.title, back: n.summaryColumn || n.noteColumn } })
-}
-function toStory(n: WbNote) {
-  router.push({ path: '/workbench/story/new', query: { noteId: String(n.id), title: n.title } })
-}
-
-onMounted(load)
+import { positiveId } from '@/workbench/workflow'
+import { notify, confirmDialog, getApiError } from '@/utils/toast'
+const route = useRoute(), router = useRouter(), { sanitize } = useSanitize()
+const list = ref<WbNote[]>([]), loading = ref(true), error = ref(''), keyword = ref(''), selectedId = ref<number>(), revision = ref(0)
+const captureId = computed(() => positiveId(route.query.captureId))
+const selected = computed(() => list.value.find(n => n.id === selectedId.value) || list.value[0])
+let sequence = 0
+async function load() { const seq = ++sequence; loading.value = true; error.value = ''; try { const data = await listNotes({ captureId: captureId.value, keyword: keyword.value || undefined }); if (seq === sequence) list.value = data } catch(e) { if (seq === sequence) error.value = getApiError(e, '笔记加载失败') } finally { if (seq === sequence) loading.value = false } }
+function plain(html?: string) { const div = document.createElement('div'); div.innerHTML = sanitize(html); return div.textContent || '' }
+function toReview(n: WbNote) { void router.push({ path: '/workbench/review', query: { noteId: String(n.id), front: n.cueColumn || n.title, back: n.summaryColumn || plain(n.noteColumn), create: '1' } }) }
+function toStory(n: WbNote) { void router.push({ path: '/workbench/story/new', query: { noteId: String(n.id) } }) }
+async function remove(n: WbNote) { await confirmDialog('删除这篇笔记？关联复习卡和输出不会自动删除。', { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+        try {
+            await deleteNote(n.id);
+            revision.value++;
+            await load();
+        }
+        catch (e) {
+            notify(getApiError(e, '删除失败'), 'error');
+            throw e;
+        }
+    } }); }
+watch(captureId, () => void load())
+onBeforeUnmount(() => sequence++)
 </script>

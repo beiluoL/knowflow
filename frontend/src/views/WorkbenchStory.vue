@@ -1,363 +1,48 @@
 <template>
-  <div class="wb-page animate-fade-in" :style="{ '--mc': themeColor }">
-    <!-- ============ Module Hero ============ -->
-    <section class="wb-hero">
-      <div class="wb-hero-bg" aria-hidden="true">
-        <span class="wb-blob"></span>
-        <span class="wb-grid"></span>
-      </div>
-      <div class="wb-hero-inner">
-        <div class="wb-hero-head">
-          <div class="wb-hero-text">
-            <span class="wb-eyebrow">
-              <span class="wb-eyebrow-dot"></span>
-              Step 04 · 输出 · Feynman Technique
-            </span>
-            <h1 class="wb-title">
-              <Icon name="wand-2" :size="28" class="wb-title-icon" />
-              知识输出 · 费曼故事
-            </h1>
-            <p class="wb-subtitle">
-              用故事讲给外行听，<strong>讲不通的卡点就是知识漏洞</strong>。
-              强制简化与重组，以教代学让理解真正落地。
-            </p>
-          </div>
-          <button class="kb-btn kb-btn-primary wb-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="router.push('/workbench/story/new')">
-            <Icon name="plus" :size="16" aria-hidden="true" /> 写个故事
-          </button>
-        </div>
-
-        <!-- 闭环导航条 -->
-        <nav class="wb-loop-nav" aria-label="学习闭环">
-          <router-link v-for="s in loopSteps" :key="s.key" :to="s.path" class="wb-loop-step focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :class="{ 'is-current': s.key === 'output' }">
-            <span class="wb-loop-num">{{ s.num }}</span>
-            <span class="wb-loop-name">{{ s.name }}</span>
-          </router-link>
-        </nav>
-      </div>
-    </section>
-
-    <!-- ============ Filter Bar ============ -->
-    <section class="wb-filter">
-      <div class="wb-tabs">
-          <button
-            v-for="tab in tabs"
-            :key="tab.value"
-            class="wb-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
-            :class="{ 'is-active': activeStatus === tab.value }"
-            @click="activeStatus = tab.value; load()"
-          >{{ tab.label }}</button>
-      </div>
-      <div class="wb-filter-stats">
-        <span class="wb-stat-pill">
-          <Icon name="book-open" :size="13" />
-          {{ list.length }} 篇故事
-        </span>
-      </div>
-    </section>
-
-    <!-- ============ List ============ -->
-    <section>
-      <div v-if="loading" class="wb-story-grid">
-        <div v-for="n in 4" :key="n" class="wb-story-card wb-skeleton">
-          <div class="wb-skel-line" style="width: 60%; height: 12px;"></div>
-          <div class="wb-skel-line" style="width: 85%; height: 18px; margin-top: 10px;"></div>
-          <div class="wb-skel-line" style="width: 95%; height: 12px; margin-top: 8px;"></div>
-          <div class="wb-skel-line" style="width: 70%; height: 12px;"></div>
-        </div>
-      </div>
-
-      <div v-else-if="list.length === 0" class="wb-empty">
-        <div class="wb-empty-icon"><Icon name="wand-2" :size="40" /></div>
-        <h3 class="wb-empty-title">还没有费曼故事</h3>
-        <p class="wb-empty-desc">试着用一个故事，讲清一个概念。</p>
-          <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="router.push('/workbench/story/new')">
-            <Icon name="plus" :size="15" aria-hidden="true" /> 写第一篇
-          </button>
-      </div>
-
-      <div v-else class="wb-story-grid">
-        <article
-          v-for="s in list"
-          :key="s.id"
-          class="wb-story-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
-          role="button"
-          tabindex="0"
-          @click="router.push('/workbench/story/' + s.id)"
-          @keydown.enter.prevent="($event.target as HTMLElement).click()"
-        >
-          <div class="wb-story-head">
-            <span class="wb-story-status" :style="statusStyle(s.status)">
-              <span class="wb-status-dot"></span>{{ statusLabel(s.status) }}
-            </span>
-            <span class="wb-story-audience">
-              <Icon name="users" :size="11" />{{ audienceLabel(s.audience) }}
-            </span>
-          </div>
-
-          <h3 class="wb-story-title">{{ s.title }}</h3>
-          <p class="wb-story-body">{{ s.content || '（未填写正文）' }}</p>
-
-          <div class="wb-story-foot">
-            <div class="wb-story-meta">
-              <span class="wb-chip wb-chip-mono">
-                <Icon name="type" :size="11" />{{ s.wordCount || 0 }} 字
-              </span>
-              <span v-if="s.coreAnalogy" class="wb-story-analogy">
-                <Icon name="lightbulb" :size="11" />{{ s.coreAnalogy }}
-              </span>
-            </div>
-            <div class="wb-story-actions" @click.stop>
-              <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="编辑" @click="router.push('/workbench/story/' + s.id)">
-                <Icon name="edit-2" :size="14" aria-hidden="true" />
-              </button>
-              <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="删除" @click="remove(s)">
-                <Icon name="trash-2" :size="14" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-
-          <p v-if="s.gapNote" class="wb-story-gap">
-            <Icon name="alert-circle" :size="12" />
-            <span>卡点：{{ s.gapNote }}</span>
-          </p>
-        </article>
-      </div>
-    </section>
-  </div>
+  <WorkbenchShell stage="story" title="知识输出" :revision="revision" @ready="load">
+    <template #actions><RouterLink to="/workbench/story/new" class="kb-btn kb-btn-primary"><Icon name="plus" :size="16" /> 新建输出</RouterLink></template>
+    <div class="workbench-toolbar"><button v-for="tab in tabs" :key="tab.value" class="kb-btn" :class="{ 'kb-btn-primary': activeStatus === tab.value }" :aria-pressed="activeStatus === tab.value" @click="activeStatus = tab.value; load()">{{ tab.label }}</button><input v-model="keyword" class="kb-input workbench-search kb-form-control" aria-label="搜索输出" placeholder="搜索作品标题…" @input="load" /></div>
+    <div v-if="error" role="alert" class="workbench-inline-error">{{ error }}<button class="kb-btn" @click="load">重试</button></div>
+    <div v-else-if="loading" class="workbench-empty" role="status">正在读取输出作品…</div>
+    <section v-else-if="!list.length" class="workbench-panel workbench-empty"><h2 class="kb-text-card-title">{{ keyword || activeStatus ? '没有符合筛选的作品' : '把知识讲给别人听' }}</h2><p>一段简单讲解、一个故事或一个实例，都可以成为你的输出。</p><RouterLink to="/workbench/story/new" class="kb-btn">写第一篇</RouterLink></section>
+    <div v-else class="workbench-split">
+      <div class="workbench-list"><button v-for="story in list" :key="story.id" class="workbench-row" :class="{ selected: selected?.id === story.id }" :aria-pressed="selected?.id === story.id" @click="selectedId = story.id"><span class="workbench-badge">{{ statusLabel(story.status) }} · {{ story.wordCount || 0 }} 字</span><strong>{{ story.title }}</strong><small class="line-clamp-2">{{ story.content || '还没有正文' }}</small><small v-if="story.gapNote">有待补充的卡点</small></button></div>
+      <section v-if="selected" class="workbench-panel">
+        <header class="workbench-detail-head"><h2 class="kb-text-section-title">{{ selected.title }}</h2><RouterLink :to="'/workbench/story/' + selected.id" class="kb-btn kb-btn-primary">继续写作</RouterLink></header>
+        <p class="workbench-muted">讲给{{ audienceLabel(selected.audience) }}听 · 自评讲清程度 {{ selected.clarityScore || 0 }}%（不是掌握度）</p>
+        <p v-if="selected.metaphor" class="workbench-muted">类比：{{ selected.metaphor }}</p><div class="workbench-preview">{{ selected.content || '还没有正文' }}</div>
+        <div v-if="selected.gapNote" class="workbench-gap"><h3 class="kb-text-card-title">还没讲清的地方</h3><p class="workbench-preview">{{ selected.gapNote }}</p><RouterLink v-if="selected.noteId" :to="'/workbench/notes/' + selected.noteId" class="kb-btn">补充关联笔记</RouterLink><RouterLink :to="'/workbench/story/' + selected.id" class="kb-btn">处理卡点</RouterLink></div>
+        <WorkbenchRelations :key="selected.id" :capture-id="selected.captureId" :note-id="selected.noteId" />
+        <button class="kb-btn" @click="remove(selected)">删除作品</button>
+      </section>
+    </div>
+  </WorkbenchShell>
 </template>
-
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onBeforeUnmount, ref } from 'vue'
+import WorkbenchShell from '@/components/workbench/WorkbenchShell.vue'
+import WorkbenchRelations from '@/components/workbench/WorkbenchRelations.vue'
 import Icon from '@/components/ui/Icon.vue'
-import { notify, confirmDialog, getApiError } from '@/utils/toast'
-import './workbench-shared.css'
 import { listStories, deleteStory } from '@/api/workbench'
 import type { WbStory } from '@/api/types'
-
-const router = useRouter()
-const themeColor = '#10B981'
-
-const list = ref<WbStory[]>([])
-const loading = ref(true)
-const activeStatus = ref<string>('')
-
-const loopSteps = [
-  { key: 'input', num: '01', name: '输入', path: '/workbench/capture' },
-  { key: 'organize', num: '02', name: '整理', path: '/workbench/notes' },
-  { key: 'review', num: '03', name: '复习', path: '/workbench/review' },
-  { key: 'output', num: '04', name: '输出', path: '/workbench/story' },
-]
-
-const tabs = [
-  { label: '全部', value: '' },
-  { label: '草稿', value: 'DRAFT' },
-  { label: '已完成', value: 'DONE' },
-  { label: '已分享', value: 'PUBLISHED' },
-]
-
-async function load() {
-  loading.value = true
-  try {
-    list.value = await listStories({ status: activeStatus.value || undefined })
-  } catch (e) {
-    notify(getApiError(e, '加载失败'), 'error')
-  } finally {
-    loading.value = false
-  }
-}
-async function remove(s: WbStory) {
-  const ok = await confirmDialog('确认删除该故事？')
-  if (!ok) return
-  try {
-    await deleteStory(s.id)
-    notify('已删除', 'success')
-    load()
-  } catch (e) {
-    notify(getApiError(e, '删除失败'), 'error')
-  }
-}
-function statusLabel(s?: string) {
-  return { DRAFT: '草稿', DONE: '已完成', PUBLISHED: '已分享' }[s || ''] || s || ''
-}
-function statusStyle(s?: string) {
-  const map: Record<string, string> = {
-    DRAFT: '#6B7280',
-    DONE: '#3B6FE0',
-    PUBLISHED: '#10B981',
-  }
-  const c = map[s || ''] || '#6B7280'
-  return { '--sc': c, color: c, background: `color-mix(in srgb, ${c} 12%, transparent)` }
-}
-function audienceLabel(a?: string) {
-  return { CHILD: '小孩', NEWBIE: '初学者', PEER: '同行', INTERVIEWER: '面试官' }[a || ''] || a || ''
-}
-
-onMounted(load)
+import { notify, confirmDialog, getApiError } from '@/utils/toast'
+const list = ref<WbStory[]>([]), loading = ref(true), error = ref(''), activeStatus = ref(''), keyword = ref(''), selectedId = ref<number>(), revision = ref(0)
+const selected = computed(() => list.value.find(s => s.id === selectedId.value) || list.value[0])
+const tabs = [{ label: '全部', value: '' }, { label: '草稿', value: 'DRAFT' }, { label: '已完成', value: 'DONE' }, { label: '已分享', value: 'PUBLISHED' }]
+let sequence = 0
+async function load() { const seq = ++sequence; loading.value = true; error.value = ''; try { const data = await listStories({ status: activeStatus.value || undefined, keyword: keyword.value || undefined }); if (seq === sequence) list.value = data } catch(e) { if (seq === sequence) error.value = getApiError(e, '输出作品加载失败') } finally { if (seq === sequence) loading.value = false } }
+async function remove(story: WbStory) { await confirmDialog('删除这篇作品？关联笔记和复习卡会保留。', { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+        try {
+            await deleteStory(story.id);
+            revision.value++;
+            await load();
+        }
+        catch (e) {
+            notify(getApiError(e, '删除失败'), 'error');
+            throw e;
+        }
+    } }); }
+function statusLabel(value?: string) { return ({ DRAFT: '草稿', DONE: '已完成', PUBLISHED: '已分享' } as Record<string, string>)[value || ''] || '草稿' }
+function audienceLabel(value?: string) { return ({ CHILD: '小孩', NEWBIE: '初学者', PEER: '同行', INTERVIEWER: '面试官' } as Record<string, string>)[value || ''] || '初学者' }
+onBeforeUnmount(() => sequence++)
 </script>
-
-<style scoped>
-.wb-filter-stats {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.wb-stat-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 11px;
-  border-radius: 999px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  font-size: 12px;
-  color: var(--kb-muted-foreground);
-  font-weight: 500;
-}
-
-/* ===== Story Grid ===== */
-.wb-story-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
-}
-.wb-story-card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 18px;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  cursor: pointer;
-  transition: all 0.18s ease;
-  position: relative;
-}
-.wb-story-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 3px; height: 100%;
-  background: var(--mc);
-  border-radius: var(--kb-radius-md) 0 0 var(--kb-radius-md);
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-.wb-story-card:hover {
-  border-color: color-mix(in srgb, var(--mc) 35%, var(--kb-border));
-  box-shadow: var(--shadow-card-hover);
-  transform: translateY(-2px);
-}
-.wb-story-card:hover::before { opacity: 1; }
-
-.wb-story-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.wb-story-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 9px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-}
-.wb-status-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--sc);
-}
-.wb-story-audience {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  color: var(--kb-muted-foreground);
-  font-weight: 500;
-}
-.wb-story-title {
-  font-family: var(--font-serif);
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--kb-foreground);
-  line-height: 1.4;
-  margin: 0;
-}
-.wb-story-body {
-  font-size: 13px;
-  line-height: 1.7;
-  color: var(--kb-muted-foreground);
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  flex: 1;
-}
-.wb-story-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding-top: 8px;
-  border-top: 1px dashed var(--kb-border);
-}
-.wb-story-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  align-items: center;
-  min-width: 0;
-}
-.wb-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 2px 7px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 500;
-}
-.wb-chip-mono {
-  font-family: var(--font-mono);
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
-}
-.wb-story-analogy {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 11px;
-  color: var(--mc);
-  font-style: italic;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 140px;
-}
-.wb-story-actions {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  flex-shrink: 0;
-}
-.wb-story-gap {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 10px;
-  border-radius: var(--kb-radius-sm);
-  background: color-mix(in srgb, var(--kb-warning) 10%, transparent);
-  color: var(--kb-warning);
-  font-size: 11px;
-  font-weight: 500;
-  margin: 0;
-}
-
-@media (max-width: 768px) {
-  .wb-story-grid { grid-template-columns: 1fr; }
-}
-</style>

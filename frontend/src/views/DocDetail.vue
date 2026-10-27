@@ -1,9 +1,12 @@
 <template>
-  <div class="animate-fade-in">
-    <div class="flex items-center gap-4 mb-6 pb-4 border-b border-border">
+  <SkeletonList v-if="loadingDoc" />
+  <ErrorState v-else-if="docError" :title="docError.title" :scope="docError.scope" :hint="docError.hint" :show-retry="docError.retryable" @retry="loadDocument" />
+  <div v-else class="animate-fade-in document-reader">
+    <div class="reader-toolbar flex items-center gap-4 mb-6 pb-4 border-b border-border">
       <button
         type="button"
         class="w-9 h-9 shrink-0 rounded-lg border border-border flex items-center justify-center hover:bg-muted active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
+        aria-label="返回文档列表"
         @click="goBack"
       >
         <Icon name="arrow-left" :size="16" />
@@ -32,13 +35,18 @@
       </div>
     </div>
 
-    <div class="flex gap-8">
-      <article class="flex-1 min-w-0">
-        <Card padding="lg">
+    <ChapterResourceLinks resource-kind="document" :resource-id="Number(route.params.id)" />
+    <div class="reader-layout">
+      <article class="reader-article">
+        <Card padding="lg" class="reader-card">
           <header class="mb-6 pb-6 border-b" style="border-color: var(--kb-border);">
+            <!-- Phase UI-2：面包屑 —— 保证详情页有明确返回路径（§25），
+                 末级为当前文档标题，前两级与导航配置「知识 › 知识库」一致 -->
+
+
             <span
               class="inline-flex items-center rounded-lg px-2.5 py-1 font-medium"
-              style="background: rgba(59,111,224,0.1); color: var(--kb-primary); font-size: var(--kb-fs-caption);"
+              style="background: var(--kb-primary-soft); color: var(--kb-primary); font-size: var(--kb-fs-caption);"
             >
               {{ doc.categoryName || '未分类' }}
             </span>
@@ -55,28 +63,28 @@
                 {{ doc.author?.charAt(0) || '知' }}
               </div>
               <div class="flex items-center gap-1.5 text-muted-foreground min-w-0 flex-wrap" style="font-size: var(--kb-fs-caption);">
-                <span class="font-medium text-foreground truncate">{{ doc.author || '知识库管理员' }}</span>
+                <span class="font-medium text-foreground truncate">{{ doc.author || '作者未提供' }}</span>
                 <span class="text-gray-300">·</span>
                 <span class="tabular-nums">{{ formatDate(doc.createTime) }}</span>
                 <span class="text-gray-300">·</span>
                 <span class="flex items-center gap-1 tabular-nums">
                   <Icon name="clock" :size="12" aria-hidden="true" />
-                  {{ readTimeMinutes }} 分钟阅读
+                  {{ readTimeMinutes }} 分钟预计阅读
                 </span>
               </div>
             </div>
 
-            <a
+            <button
               v-if="doc.fileUrl"
-              :href="doc.fileUrl"
-              target="_blank"
-              rel="noopener"
+              type="button"
+              :disabled="downloading"
+              @click="downloadOriginal"
               class="mt-3 inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 font-medium text-muted-foreground hover:bg-muted hover:text-primary-600 active:scale-[0.98] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
               style="border-color: var(--kb-border); font-size: var(--kb-fs-caption);"
             >
               <Icon name="download" :size="14" aria-hidden="true" />
-              下载原文
-            </a>
+              {{ downloading ? '下载中…' : '下载原文' }}
+            </button>
 
             <div class="mt-3 flex flex-nowrap gap-2 overflow-x-auto no-scrollbar">
               <span
@@ -95,6 +103,23 @@
             class="prose prose-gray max-w-none doc-content"
             v-html="docContentHtml"
           ></div>
+
+          <!-- 划词学习：选中英文单词/缩写即可查询已发布术语，不发送整篇文档 -->
+          <SelectionTermLookup
+            :target="contentRef"
+            :enabled="!loadingDoc && !docError"
+            :context-domain="contextDomain"
+            @open-extract="openExtract"
+          />
+          <TermExtractDialog
+            :open="extractOpen"
+            source-type="DOCUMENT"
+            :source-id="doc.id || null"
+            :source-title="doc.title"
+            :article-text="doc.content || ''"
+            :selection-text="extractSelection"
+            @close="extractOpen = false"
+          />
 
           <!-- 文章底部操作区（阅读完后的自然操作位置） -->
           <div class="mt-8 pt-6 border-t" style="border-color: var(--kb-border);">
@@ -165,7 +190,15 @@
                   <span>AI 解答</span>
                 </button>
                 <button
-                  v-if="auth.isLoggedIn"
+                  type="button"
+                  class="action-btn"
+                  @click="openExtract"
+                >
+                  <Icon name="book-open" :size="16" />
+                  <span>提取专业英语</span>
+                </button>
+                <button
+                  v-if="auth.isLoggedIn && doc.canEdit"
                   type="button"
                   class="action-btn"
                   :class="generatingSummary ? 'opacity-60' : ''"
@@ -186,30 +219,24 @@
                   <Icon name="layers" :size="16" />
                   <span>{{ generatingCards ? '生成中…' : 'AI 闪卡' }}</span>
                 </button>
-                <button
-                  type="button"
-                  class="action-btn"
-                  @click="handleShare"
-                >
-                  <Icon name="share-2" :size="16" />
-                  <span>分享</span>
-                </button>
+
               </div>
             </div>
           </div>
         </Card>
       </article>
 
-      <aside class="hidden lg:block w-56 flex-shrink-0">
-        <div class="sticky top-20 rounded-xl border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
-          <h3 class="kb-h4 mb-4" style="font-size: var(--kb-fs-body-sm);">目录</h3>
-          <nav class="flex flex-col gap-1 max-h-[60vh] overflow-y-auto no-scrollbar">
+      <aside class="reader-context" aria-label="文档目录与信息">
+        <details class="reader-outline" open>
+          <summary>文档目录 <Icon name="chevron-down" :size="16" /></summary>
+          <nav class="reader-outline-links" aria-label="文档章节">
             <a
               v-for="item in flatToc"
               :key="item.id"
               :href="`#${item.id}`"
               class="toc-link"
               :class="{ active: activeTocId === item.id }"
+              :aria-current="activeTocId === item.id ? 'location' : undefined"
               :style="item.level === 3 ? { paddingLeft: '24px', fontSize: 'var(--kb-fs-xs)' } : {}"
               @click="scrollToSection(item.id, $event)"
             >{{ item.text }}</a>
@@ -230,11 +257,12 @@
               <span class="tabular-nums shrink-0" style="color: var(--kb-primary);">{{ readProgress }}%</span>
             </div>
           </div>
-        </div>
+        </details>
       </aside>
     </div>
 
-    <!-- 相关推荐（底部 3 列网格，对齐设计稿） -->
+    <StateView v-if="relatedStatus === 'error' || relatedStatus === 'retrying'" :status="relatedStatus" :error-title="relatedError?.title" :error-hint="relatedError?.hint" :show-retry="relatedError?.retryable" @retry="relatedResource.run(true)" />
+    <!-- 推荐来自原服务，不把推荐结果称为人工确认的知识关系。 -->
     <section v-if="relatedDocs.length > 0" class="mb-6 mt-10">
       <h2 class="kb-h4 mb-4">相关推荐</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -251,7 +279,7 @@
             :style="{ background: `${docIconColors[idx % docIconColors.length]}14`, color: docIconColors[idx % docIconColors.length], fontSize: 'var(--kb-fs-caption)' }"
           >{{ getDocTypeLabel(item) }}</span>
           <h3 class="text-sm font-semibold mb-1.5 break-words" style="color: var(--kb-foreground);">{{ item.title }}</h3>
-          <p class="line-clamp-2" style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption);">{{ item.summary || '暂无摘要' }}</p>
+          <p class="line-clamp-2" style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption);">{{ searchSummary(item.summary || '') || '暂无摘要' }}</p>
           <div class="flex items-center gap-1.5 mt-3 pt-3 min-w-0" style="border-top: 1px solid var(--kb-border);">
             <Icon name="folder" :size="12" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
             <span class="truncate" style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption);">{{ item.categoryName || '未分类' }}</span>
@@ -301,25 +329,38 @@
 </template>
 
 <script setup lang="ts">
+import ChapterResourceLinks from '@/components/Learning/ChapterResourceLinks.vue'
+import SelectionTermLookup from '@/components/tech-english/SelectionTermLookup.vue'
+import TermExtractDialog from '@/components/tech-english/TermExtractDialog.vue'
+import { inferTermDomain } from '@/components/tech-english/term-labels'
 // 文档详情页：Markdown 渲染、目录与阅读进度追踪、收藏/分享/AI 解答入口。
 import { notify, getApiError } from '@/utils/toast'
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Card from '@/components/ui/Card.vue'
+import StateView from '@/components/ui/StateView.vue'
+import { useAsyncResource } from '@/composables/useAsyncResource'
 import { docsApi, learningApi } from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import type { DocDetailVO, DocVO, LearningFlashcard, LearningChapterVO } from '@/api/types'
 // 统一的 Markdown 渲染与工具函数（解决 \n 换行不生效、空格丢失等问题）
-import { renderMarkdown as renderMarkdownGlobal, normalizeEscapes } from '@/utils/markdown'
+import { renderMarkdown as renderMarkdownGlobal } from '@/utils/markdown'
+import { documentOutline } from '@/utils/documentOutline'
+import { searchSummary } from '@/utils/searchText'
 import { normalizeNewlines } from '@/utils/string'
 import { handleCodeCopyClick } from '@/utils/codeCopy'
 import { handleImageLightboxClick } from '@/utils/imageLightbox'
 // highlight.js 深色主题（与代码块深色背景配合）
 import 'highlight.js/styles/github-dark.css'
+import ErrorState from '@/components/ui/ErrorState.vue'
+import SkeletonList from '@/components/ui/SkeletonList.vue'
+import { describePageError, type PageErrorDescription } from '@/utils/error-message'
+import { fetchDocumentAsset } from '@/utils/document-assets'
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 // 文档类型标签色板（与设计稿对齐）
-const docIconColors = ['#3B6FE0', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6']
+const docIconColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#8B5CF6']
 
 const getDocTypeLabel = (doc: DocVO): string => {
   const tags = (doc.tags || '').toLowerCase()
@@ -329,15 +370,9 @@ const getDocTypeLabel = (doc: DocVO): string => {
   return 'DOC'
 }
 
-interface TocItem {
-  id: string
-  text: string
-  level: number
-  children?: TocItem[]
-}
-
 const route = useRoute()
 const router = useRouter()
+const nav = usePageNavigation()
 const auth = useAuthStore()
 
 const placeholder: DocDetailVO = {
@@ -357,9 +392,61 @@ const placeholder: DocDetailVO = {
 }
 
 const doc = ref<DocDetailVO>(placeholder)
+const loadingDoc = ref(true)
+const docError = ref<PageErrorDescription | null>(null)
+const downloading = ref(false)
+const assetUrls: string[] = []
+async function downloadOriginal() {
+  if (!doc.value.fileUrl || downloading.value) return
+  downloading.value = true
+  try {
+    const url=URL.createObjectURL(await fetchDocumentAsset(doc.value.fileUrl))
+    const link=document.createElement('a');link.href=url;link.download=doc.value.fileName || 'document';link.click()
+    window.setTimeout(()=>URL.revokeObjectURL(url),1000)
+  } catch(e) { notify(getApiError(e,'原文下载失败'),'error') }
+  finally { downloading.value=false }
+}
+async function loadDocument() {
+  loadingDoc.value=true;docError.value=null
+  try {
+    const d=await docsApi.detail(Number(route.params.id));doc.value=d;isCollected.value=!!d.favorite;readProgress.value=Number(d.readProgress || 0)
+  } catch(e) {docError.value=describePageError(e,{subject:'文档加载失败',scope:'page'})}
+  finally {loadingDoc.value=false}
+  await nextTick()
+  if (docError.value) return
+  contentRef.value?.addEventListener('click',handleCodeCopyClick)
+  contentRef.value?.addEventListener('click',handleImageLightboxClick)
+  for (const img of contentRef.value?.querySelectorAll<HTMLImageElement>('img') || []) {
+    const src=img.getAttribute('data-protected-src') || ''
+    if (!src.startsWith('/uploads/')) continue
+    try {const url=URL.createObjectURL(await fetchDocumentAsset(src));assetUrls.push(url);img.src=url}
+    catch {img.removeAttribute('src');img.alt='图片无法访问';notify('部分文档图片无法访问，请确认阅读权限','warning')}
+  }
+}
 const isCollected = ref(false)
-const relatedDocs = ref<DocVO[]>([])
+const relatedResource = useAsyncResource(() => docsApi.recommend(), data => data.length === 0, '推荐文档加载失败', 'section')
+const relatedDocs = computed(() => (relatedResource.data.value || []).slice(0,5))
+const relatedStatus = relatedResource.status
+const relatedError = relatedResource.error
 const contentRef = ref<HTMLElement | null>(null)
+const extractOpen = ref(false)
+const extractSelection = ref('')
+
+/** 提取专业英语入口：只捕获当前正文选区文本，不把整篇私人文档直接发给模型 */
+function openExtract() {
+  if (!auth.isLoggedIn) {
+    notify('登录后才能提取专业词汇并保存候选', 'info')
+    void router.push({ path: '/login', query: { redirect: route.fullPath } })
+    return
+  }
+  const selection = window.getSelection()
+  const text = selection && selection.rangeCount > 0 ? selection.toString().trim() : ''
+  const inside = selection && selection.rangeCount > 0 && contentRef.value
+    ? contentRef.value.contains(selection.getRangeAt(0).commonAncestorContainer)
+    : false
+  extractSelection.value = inside ? text : ''
+  extractOpen.value = true
+}
 const activeTocId = ref('')
 const readProgress = ref(0)
 const savingProgress = ref(false)
@@ -370,42 +457,22 @@ const tagList = computed(() => {
   return (doc.value.tags || '').split(',').filter(Boolean)
 })
 
-// 将标题文本转为可用于锚点的 slug（保留中英文，其余字符替换为短横线）
-const slugify = (text: string) =>
-  text
-    .trim()
-    .toLowerCase()
-    .replace(/[^\w一-龥]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+/** 当前文档的技术领域提示（只用于多义项排序，不作为内容或权限依据） */
+const contextDomain = computed(() =>
+  inferTermDomain([doc.value.categoryName, doc.value.tags, doc.value.title].filter(Boolean).join(' ')),
+)
 
-// 从 Markdown 文本提取二级/三级标题，生成目录树
-// 注意：h2/h3 的锚点 id 采用与全局 markdown 渲染一致的约定（heading-1, heading-2…），
-// 即每遇到一个 h2 或 h3 按出现顺序递增计数，确保与 markdown.ts 注入的 id 完全对齐。
-const buildToc = (md: string): TocItem[] => {
-  const items: TocItem[] = [];
-  let headingSeq = 0;
-  const text = normalizeEscapes(normalizeNewlines(md));
-  for (const line of text.split('\n')) {
-    const m = /^(#{2,3})\s+(.*)$/.exec(line.trim());
-    if (m) {
-      headingSeq++;
-      const title = m[2].replace(/[*`]/g, '').trim();
-      items.push({
-        id: `heading-${headingSeq}`,
-        text: title,
-        level: m[1].length,
-      });
-    }
-  }
-  return items;
-};
+const docContentHtml = computed(() => {
+  const parsed=new DOMParser().parseFromString(renderMarkdownGlobal(normalizeNewlines(doc.value.content || '')),'text/html')
+  parsed.querySelectorAll('img').forEach(img=>{
+    const src=img.getAttribute('src') || ''
+    if(src.startsWith('/uploads/')){img.setAttribute('data-protected-src',src);img.removeAttribute('src')}
+  })
+  return parsed.body.innerHTML
+});
+const flatToc = computed(() => documentOutline(docContentHtml.value))
 
-const docContentHtml = computed(() =>
-  renderMarkdownGlobal(normalizeNewlines(doc.value.content || ''))
-);
-const flatToc = computed(() => buildToc(doc.value.content || ''))
-
-const goBack = () => router.back()
+const goBack = () => nav.goBack('/docs')
 
 const toggleCollect = async () => {
   const id = doc.value.id
@@ -419,19 +486,19 @@ const toggleCollect = async () => {
   }
 }
 
-const handleShare = () => notify('分享功能开发中', 'info')
 const handleNote = () => {
   if (!doc.value.id) return
   const id = doc.value.id
-  // 将当前文档信息暂存到 localStorage，跳转到笔记编辑页自动预填
+  // 当前账户的主动文档预填使用会话暂存，不覆盖或认领旧本地笔记。
   const draft = {
     fromDocId: id,
     fromDocTitle: doc.value.title,
     fromDocCategory: doc.value.categoryName,
     tags: doc.value.tags ? doc.value.tags.split(',').map((t) => t.trim()).filter(Boolean) : [],
-    content: `> 来源文档：[${doc.value.title}](/knowledge/doc/${id})\n\n## 笔记\n\n在此记录你的学习心得、重点摘要和思考...\n\n## 关键内容摘录\n\n> ${doc.value.summary || '（点击"AI 解析"生成摘要后，可在此处粘贴关键内容）'}\n`,
+    content: `> 来源文档：[${doc.value.title}](/doc/${id})\n\n## 笔记\n\n在此记录你的学习心得、重点摘要和思考...\n\n## 关键内容摘录\n\n> ${doc.value.summary || '（点击"AI 解析"生成摘要后，可在此处粘贴关键内容）'}\n`,
   }
-  localStorage.setItem('note-from-doc', JSON.stringify(draft))
+  if (!auth.user?.id) return
+  sessionStorage.setItem(`notes-document-prefill:${auth.user.id}`, JSON.stringify(draft))
   router.push('/notes/new')
 }
 const handleAIExplain = () => {
@@ -546,7 +613,7 @@ const formatDate = (dateStr?: string) => {
 const scrollToSection = (id: string, event: Event) => {
   event.preventDefault()
   const element = document.getElementById(id)
-  if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  if (element) { element.tabIndex = -1; element.focus({preventScroll:true}); element.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }) }
 }
 
 // 滚动时：高亮当前所在标题（距顶部 <=120px），并按滚动比例计算阅读进度
@@ -582,19 +649,8 @@ const saveProgress = async () => {
 onMounted(async () => {
   const id = Number(route.params.id)
   if (id) {
-    try {
-      const d = await docsApi.detail(id)
-      doc.value = d
-      isCollected.value = !!d.favorite
-      readProgress.value = Number(d.readProgress || 0)
-    } catch {
-      /* keep placeholder */
-    }
-    try {
-      relatedDocs.value = (await docsApi.recommend()).slice(0, 5)
-    } catch {
-      relatedDocs.value = []
-    }
+    await loadDocument()
+    void relatedResource.run()
   }
   nextTick(() => {
     contentRef.value?.addEventListener('click', handleCodeCopyClick)
@@ -606,6 +662,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
+  assetUrls.forEach(url=>URL.revokeObjectURL(url))
   window.removeEventListener('scroll', handleScroll)
   document.removeEventListener('click', handleDocumentClick)
   contentRef.value?.removeEventListener('click', handleCodeCopyClick)
@@ -896,7 +953,7 @@ onUnmounted(() => {
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid var(--kb-border);
-  background: #1a1d23;
+  background: var(--kb-foreground);
   white-space: normal;
 }
 
@@ -957,7 +1014,7 @@ onUnmounted(() => {
 :deep(.doc-content pre) {
   margin: 0;
   padding: 16px 20px;
-  background: #1a1d23;
+  background: var(--kb-foreground);
   overflow-x: auto;
   font-size: 13.5px;
   line-height: 1.6;
@@ -1097,4 +1154,21 @@ onUnmounted(() => {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+/* Phase B reading layout, scoped to this real document view. */
+.document-reader { min-width:0; }
+.reader-layout { display:grid;grid-template-columns:minmax(0,1fr) minmax(12rem,16rem);gap:var(--kb-space-6);align-items:start; }
+.reader-article { width:100%;max-width:var(--kb-notes-reading-width);min-width:0;justify-self:center; }
+.reader-context { position:sticky;top:calc(var(--kb-nav-height) + var(--kb-space-4));min-width:0; }
+.reader-outline { background:var(--kb-card);border:1px solid var(--kb-border);border-radius:var(--kb-radius-lg);padding:var(--kb-space-4); }
+.reader-outline summary { display:flex;align-items:center;justify-content:space-between;gap:var(--kb-space-3);font-weight:600;cursor:pointer;min-height:var(--kb-control-hit-size); }
+.reader-outline-links { display:flex;flex-direction:column;gap:var(--kb-space-1);max-height:50dvh;overflow-y:auto;overscroll-behavior:contain; }
+.reader-outline :is(summary,a):focus-visible { outline:2px solid var(--kb-ring);outline-offset:2px; }
+.document-reader :deep(.doc-content) { font-size:var(--kb-fs-body-lg);line-height:1.75;overflow-wrap:anywhere; }
+.document-reader :deep(.doc-content :is(h1,h2,h3,h4)) { font-family:inherit;scroll-margin-top:calc(var(--kb-nav-height) + var(--kb-space-6)); }
+.document-reader :deep(.doc-content :is(pre,.code-block-wrapper)) { min-width:0;max-width:100%; }
+.document-reader :deep(.doc-content :is(pre,.code-block-wrapper)) { background:var(--kb-content-code-background); }
+.document-reader :deep(.doc-content table) { display:block;max-width:100%;overflow-x:auto; }
+.document-reader :deep(.doc-content img) { max-width:100%;height:auto; }
+@media(max-width:1100px){.reader-layout{grid-template-columns:minmax(0,1fr)}.reader-context{position:static;grid-row:1}.reader-outline-links{max-height:25dvh}.reader-toolbar{gap:var(--kb-space-2)}.reader-toolbar>a{min-width:0}}
+@media(max-width:640px){.reader-article :deep(.reader-card > div){padding:var(--kb-space-4)}.document-reader :deep(.action-buttons){flex-wrap:wrap}}
 </style>

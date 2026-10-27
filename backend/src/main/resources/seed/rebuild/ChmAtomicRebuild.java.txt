@@ -1,0 +1,10 @@
+import java.util.concurrent.*;
+public class ChmAtomicRebuild {
+    public static void main(String[] args)throws Exception{
+        var map=new ConcurrentHashMap<String,Integer>();map.put("k",0);
+        var read=new CountDownLatch(2);var write=new CountDownLatch(1);
+        Runnable broken=()->{int old=map.get("k");read.countDown();try{write.await();}catch(InterruptedException e){Thread.currentThread().interrupt();return;}map.put("k",old+1);};
+        Thread a=new Thread(broken),b=new Thread(broken);a.start();b.start();read.await();write.countDown();a.join();b.join();System.out.println(map.get("k"));
+        map.put("k",0);a=new Thread(()->map.merge("k",1,Integer::sum));b=new Thread(()->map.merge("k",1,Integer::sum));a.start();b.start();a.join();b.join();System.out.println(map.get("k"));
+    }
+}

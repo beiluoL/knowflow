@@ -2,6 +2,7 @@ package com.knowflow.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.dto.FocusGainDTO;
 import com.knowflow.dto.UserPetUpdateDTO;
 import com.knowflow.entity.UserPet;
@@ -43,7 +44,7 @@ public class UserPetController {
     @Operation(summary = "获取当前用户宠物（不存在则自动创建）")
     @GetMapping
     public Result<UserPetVO> get(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         UserPet pet = getOrCreatePet(userId);
         return Result.success(toVO(pet));
     }
@@ -52,7 +53,7 @@ public class UserPetController {
     @Operation(summary = "喂食宠物")
     @PostMapping("/feed")
     public Result<UserPetVO> feed(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         UserPet pet = getOrCreatePet(userId);
         pet.setEnergy(clamp(pet.getEnergy() + FEED_ENERGY_GAIN, ENERGY_MIN, ENERGY_MAX));
         pet.setExp(pet.getExp() + FEED_EXP_GAIN);
@@ -66,7 +67,7 @@ public class UserPetController {
     @Operation(summary = "与宠物玩耍")
     @PostMapping("/play")
     public Result<UserPetVO> play(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         UserPet pet = getOrCreatePet(userId);
         pet.setEnergy(clamp(pet.getEnergy() - PLAY_ENERGY_COST, ENERGY_MIN, ENERGY_MAX));
         pet.setExp(pet.getExp() + PLAY_EXP_GAIN);
@@ -80,7 +81,7 @@ public class UserPetController {
     @PostMapping("/focus-gain")
     public Result<UserPetVO> focusGain(@Valid @RequestBody FocusGainDTO dto,
                                        Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         UserPet pet = getOrCreatePet(userId);
         int minutes = dto.getMinutes() != null ? dto.getMinutes() : 0;
         int pomodoros = dto.getPomodoros() != null ? dto.getPomodoros() : 0;
@@ -98,7 +99,7 @@ public class UserPetController {
     @PutMapping
     public Result<UserPetVO> update(@Valid @RequestBody UserPetUpdateDTO dto,
                                     Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         UserPet pet = getOrCreatePet(userId);
         pet.setName(dto.getName());
         if (dto.getAvatar() != null && !dto.getAvatar().isBlank()) {

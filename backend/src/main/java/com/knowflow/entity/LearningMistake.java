@@ -24,6 +24,12 @@ public class LearningMistake extends BaseEntity {
 
     private Integer difficulty;
 
+    /** 原测验题ID（逻辑外键 quiz_question.id，可空兼容旧数据）——打通 错题→原题→解析→知识点→再练习 */
+    private Long questionId;
+
+    /** 原代码题ID（逻辑外键 code_question.id，可空兼容旧数据） */
+    private Long codeQuestionId;
+
     private Integer reviewCount;
 
     private LocalDateTime lastReviewTime;

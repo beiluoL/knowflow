@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS mock_interview_speech (
+ id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '转写记录ID',
+ user_id BIGINT NOT NULL COMMENT '认证用户ID',
+ session_id BIGINT NOT NULL COMMENT '所属面试会话',
+ question_id VARCHAR(100) NOT NULL COMMENT '会话快照题目ID',
+ request_id VARCHAR(80) NOT NULL COMMENT '用户范围幂等键',
+ request_hash VARCHAR(64) NOT NULL COMMENT '录音和请求上下文摘要',
+ status VARCHAR(20) NOT NULL COMMENT 'TRANSCRIBING/TRANSCRIBED/FAILED',
+ raw_text TEXT COMMENT '未经用户确认的原始转写',
+ error_message VARCHAR(300) COMMENT '脱敏错误',
+ duration_ms BIGINT NOT NULL COMMENT 'PCM内容计算的真实时长毫秒',
+ claimed_duration_ms BIGINT NOT NULL COMMENT '客户端声明时长仅供审计',
+ v2_version BIGINT COMMENT '录音预留时V2版本基础会话为空',
+ v2_depth INT COMMENT '录音预留时追问深度',
+ v2_prompt_hash VARCHAR(64) COMMENT '完整题干UTF8的SHA256摘要',
+ provider VARCHAR(100) NOT NULL COMMENT '服务提供方审计标识不含密钥',
+ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+ updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+ UNIQUE KEY uk_interview_speech_request(user_id,request_id),
+ CONSTRAINT fk_interview_speech_session FOREIGN KEY(session_id) REFERENCES mock_interview_session(id)
+) COMMENT='模拟面试语音转写（不保存音频，不自动提交答案）';

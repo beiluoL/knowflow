@@ -8,16 +8,26 @@ ai:
 
   # ===== 嵌入模型：用于文档向量化与语义检索（可选）=====
   # 嵌入模型与对话模型往往来自不同厂商，故单独配置；
-  # 留空时回退到上面的 base-url / api-key。
-  #
-  # 重要：DeepSeek 不提供 /embeddings 接口。若 base-url 指向 DeepSeek 且此处留空，
-  # 向量化会全部失败，语义检索自动降级为关键词检索（启动日志有 ERROR 提示）。
+  # 留空时使用本地 Ollama 默认值，绝不回退上面的 DeepSeek 地址或 Key。
+  # Ollama 未启动或模型未安装时，启动日志会给出操作指引，检索自动降级为关键词。
   #
   # 可选方案：
   #   硅基流动  https://api.siliconflow.cn/v1  + BAAI/bge-m3
-  #   本地 Ollama http://localhost:11434/v1     + nomic-embed-text（无需 Key）
+  #   本地 Ollama http://localhost:11434/v1     + nomic-embed-text（无需 Key，也是留空时的默认值）
   embedding-base-url: https://api.siliconflow.cn/v1
   embedding-api-key: your-embedding-key-here
   embedding-model: BAAI/bge-m3
   # 单次批量向量化的文本条数，越大导入越快，需在服务端限制内
   embedding-batch-size: 16
+
+# 浏览器直接访问开发工具：使用现有 ADMIN 或 seed-personal-v1 账号密码。
+# 同时要求 local profile、非 prod/production、回环来源；不会放开业务管理员接口。
+server:
+  address: 127.0.0.1
+spring:
+  h2:
+    console:
+      enabled: true
+knowflow:
+  developer-tools:
+    enabled: true

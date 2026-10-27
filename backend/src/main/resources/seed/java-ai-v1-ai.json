@@ -1,0 +1,1867 @@
+{
+  "paths": [
+    {
+      "key": "spring-data",
+      "title": "Spring 与数据工程",
+      "description": "理解容器、事务、索引锁及缓存消息可靠性；以 Java17 设计实验连接原理和失败边界。",
+      "tag": "SPRING,MYSQL,REDIS,MQ,DISTRIBUTED",
+      "chapters": [
+        {
+        "key": "spring-container",
+        "title": "容器生命周期与 AOP 代理",
+        "description": "理解构造器注入、Bean 生命周期、AOP 代理边界并能说明失败边界。",
+        "objectives": [
+          "解释构造器注入并举出边界案例",
+          "解释Bean 生命周期并举出边界案例",
+          "解释AOP 代理边界并举出边界案例"
+        ],
+        "minutes": 45,
+        "difficulty": 1,
+        "importance": "S",
+        "prerequisites": [],
+        "material": "## 容器生命周期与 AOP 代理\n\nSpring 容器接收配置并形成 BeanDefinition，创建对象、注入依赖、执行初始化回调，再将可供业务使用的对象交给调用方。BeanPostProcessor 可以在初始化前后处理对象，自动代理也是扩展点的重要用途。构造器注入让必需依赖显式化，便于离线替身测试；并非写了注解的任何对象都会自动受容器管理。单例表示容器作用域中的共享实例，不意味着方法线程安全，用户请求状态应放在局部变量或适当的请求作用域。\n\nAOP 将事务、日志等横切逻辑挂在代理调用边界。接口代理与类代理的可拦截范围不同，类代理不能覆盖 final 方法。典型失败是同类方法通过 this 调用事务方法，绕过代理入口；修复通常是把事务边界移到另一服务，或显式采用编程式事务，而非到处注入自身。初始化阶段也不应假设所有代理行为已经可用。\n\n工程分析时先画出控制器、服务接口、代理、目标对象的调用链，再检查对象由谁创建及调用是否穿过代理。关闭容器时受管理的单例会执行相应销毁回调，原型对象的完整清理通常由使用方负责。追问可比较延迟初始化与启动校验：减少启动开销可能把配置错误推迟到首次请求。本文面向 Spring Framework 6.2 的通用机制，在线文档可能默认展示新版；代码须按项目依赖核对。\n\nSpring MVC 请求通常由 DispatcherServlet 按映射找到控制器，经参数绑定和返回值处理产生响应；控制器调用受代理服务才进入 AOP 边界，路由注解本身不建立事务。\n\n参考：\n- https://docs.spring.io/spring-framework/reference/core/beans.html\n- https://docs.spring.io/spring-framework/reference/web/webmvc.html\n- https://docs.spring.io/spring-framework/reference/core/aop/proxying.html",
+        "knowledge": [
+          {
+            "key": "spring-data.ioc",
+            "name": "构造器注入",
+            "explanation": "容器负责提供依赖，构造器声明必需协作者；单元测试可直接传替身，不能把 new 出来的业务对象误认作容器 Bean。"
+          },
+          {
+            "key": "spring-data.lifecycle",
+            "name": "Bean 生命周期",
+            "explanation": "定义解析、实例化、依赖注入、初始化及后处理构成主要阶段；受管理单例关闭时清理，原型销毁通常需调用者负责。"
+          },
+          {
+            "key": "spring-data.proxy",
+            "name": "AOP 代理边界",
+            "explanation": "代理仅拦截经过代理的可拦截调用；this 自调用绕过代理，final 方法不能被类代理覆写。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Concept",
+            "front": "为什么构造器注入更容易测试，单例又不保证线程安全？",
+            "back": "容器负责提供依赖，构造器声明必需协作者；单元测试可直接传替身，不能把 new 出来的业务对象误认作容器 Bean。\n追问：如何用替身隔离依赖？",
+            "knowledgeKeys": [
+              "spring-data.ioc"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "从 BeanDefinition 到销毁，哪些生命周期职责属于容器？",
+            "back": "定义解析、实例化、依赖注入、初始化及后处理构成主要阶段；受管理单例关闭时清理，原型销毁通常需调用者负责。\n追问：原型对象如何释放资源？",
+            "knowledgeKeys": [
+              "spring-data.lifecycle"
+            ]
+          },
+          {
+            "type": "Pitfall",
+            "front": "Controller 调用服务和服务 this 自调用，事务代理为何表现不同？",
+            "back": "代理仅拦截经过代理的可拦截调用；this 自调用绕过代理，final 方法不能被类代理覆写。\n追问：final 方法和私有方法有何边界？",
+            "knowledgeKeys": [
+              "spring-data.proxy"
+            ]
+          },
+          {
+            "type": "Process",
+            "front": "容器生命周期与 AOP 代理：如何从现象定位错误边界并验证？",
+            "back": "先检查构造器注入的输入与前提，再沿Bean 生命周期追踪处理边界，最终检查AOP 代理边界的失败情况。具体防错：把单例误当成线程安全；以为原型销毁全由容器处理；把 this 自调用误当成代理调用。追问：如何构造正常、边界和失败三个最小样例？",
+            "knowledgeKeys": [
+              "spring-data.ioc",
+              "spring-data.lifecycle",
+              "spring-data.proxy"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "为什么构造器注入更容易测试，单例又不保证线程安全？",
+            "answer": "容器负责提供依赖，构造器声明必需协作者；单元测试可直接传替身，不能把 new 出来的业务对象误认作容器 Bean。BeanPostProcessor 可以在初始化前后处理对象，自动代理也是扩展点的重要用途。构造器注入让必需依赖显式化，便于离线替身测试；并非写了注解的任何对象都会自动受容器管理。单例表示容器作用域中的共享实例，不意味着方法线程安全，用户请求状态应放在局部变量或适当的请求作用域。边界：把单例误当成线程安全。追问：如何用替身隔离依赖？",
+            "keyPoints": [
+              "容器负责提供依赖，构造器声明必需协作者；单元测试可直接传替身，不能把 new 出来的业务对象误认作容器 Bean。",
+              "明确边界：把单例误当成线程安全",
+              "补充验证：如何用替身隔离依赖？"
+            ],
+            "followUps": [
+              "如何用替身隔离依赖？"
+            ],
+            "commonMistakes": [
+              "把单例误当成线程安全"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "spring-data.ioc"
+            ]
+          },
+          {
+            "question": "从 BeanDefinition 到销毁，哪些生命周期职责属于容器？",
+            "answer": "定义解析、实例化、依赖注入、初始化及后处理构成主要阶段；受管理单例关闭时清理，原型销毁通常需调用者负责。接口代理与类代理的可拦截范围不同，类代理不能覆盖 final 方法。典型失败是同类方法通过 this 调用事务方法，绕过代理入口；修复通常是把事务边界移到另一服务，或显式采用编程式事务，而非到处注入自身。初始化阶段也不应假设所有代理行为已经可用。边界：以为原型销毁全由容器处理。追问：原型对象如何释放资源？",
+            "keyPoints": [
+              "定义解析、实例化、依赖注入、初始化及后处理构成主要阶段；受管理单例关闭时清理，原型销毁通常需调用者负责。",
+              "明确边界：以为原型销毁全由容器处理",
+              "补充验证：原型对象如何释放资源？"
+            ],
+            "followUps": [
+              "原型对象如何释放资源？"
+            ],
+            "commonMistakes": [
+              "以为原型销毁全由容器处理"
+            ],
+            "rank": "A",
+            "knowledgeKeys": [
+              "spring-data.lifecycle"
+            ]
+          },
+          {
+            "question": "Controller 调用服务和服务 this 自调用，事务代理为何表现不同？",
+            "answer": "代理仅拦截经过代理的可拦截调用；this 自调用绕过代理，final 方法不能被类代理覆写。关闭容器时受管理的单例会执行相应销毁回调，原型对象的完整清理通常由使用方负责。追问可比较延迟初始化与启动校验：减少启动开销可能把配置错误推迟到首次请求。本文面向 Spring Framework 6.2 的通用机制，在线文档可能默认展示新版；代码须按项目依赖核对。边界：把 this 自调用误当成代理调用。追问：final 方法和私有方法有何边界？",
+            "keyPoints": [
+              "代理仅拦截经过代理的可拦截调用；this 自调用绕过代理，final 方法不能被类代理覆写。",
+              "明确边界：把 this 自调用误当成代理调用",
+              "补充验证：final 方法和私有方法有何边界？"
+            ],
+            "followUps": [
+              "final 方法和私有方法有何边界？"
+            ],
+            "commonMistakes": [
+              "把 this 自调用误当成代理调用"
+            ],
+            "rank": "B",
+            "knowledgeKeys": [
+              "spring-data.proxy"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "为订单服务画代理调用链",
+          "description": "人工检查设计题：用 Java17 风格接口和类展示控制器调用代理后进入目标服务，以及 this 自调用绕过代理的差别。提交实例创建方式、初始化及销毁职责说明，不自动执行 Spring，也不假定项目已有对应服务。",
+          "hint": "先明确构造器注入的前提，再画出正常及失败路径。用把单例误当成线程安全、以为原型销毁全由容器处理、把 this 自调用误当成代理调用反向检查设计是否漏掉边界。",
+          "codeTemplate": "interface OrderService { void submit(); }\nclass Controller {\n  // TODO: 构造器接收服务，并标注运行时对象是否为代理\n}\n// TODO: 绘出正常调用与自调用两条路径",
+          "solutionHint": "人工评审需逐条说明：容器负责提供依赖，构造器声明必需协作者；单元测试可直接传替身，不能把 new 出来的业务对象误认作容器 Bean。；定义解析、实例化、依赖注入、初始化及后处理构成主要阶段；受管理单例关闭时清理，原型销毁通常需调用者负责。；代理仅拦截经过代理的可拦截调用；this 自调用绕过代理，final 方法不能被类代理覆写。提交时序、校验和错误类别，明确哪些结论需要真实外部环境验证。",
+          "exampleInput": "人工检查：阅读题目中的业务条件和失败时序",
+          "exampleOutput": "人工检查：提交设计、时序与边界说明；不产生自动 PASS",
+          "testCases": [],
+          "knowledgeKeys": [
+            "spring-data.ioc",
+            "spring-data.lifecycle",
+            "spring-data.proxy"
+          ]
+        }
+        },
+        {
+        "key": "spring-transaction",
+        "title": "事务边界与失败传播",
+        "description": "理解事务传播、回滚与异常、本地事务与外部副作用并能说明失败边界。",
+        "objectives": [
+          "解释事务传播并举出边界案例",
+          "解释回滚与异常并举出边界案例",
+          "解释本地事务与外部副作用并举出边界案例"
+        ],
+        "minutes": 50,
+        "difficulty": 2,
+        "importance": "S",
+        "prerequisites": [
+          "spring-container"
+        ],
+        "material": "## 事务边界与失败传播\n\n数据库事务应围绕一个可说明的不变量建立，例如扣减库存和新增订单必须一起成功。Spring 声明式事务由拦截器进入事务管理器，再由数据库实现提交、回滚及隔离。REQUIRED 通常参与已有事务，REQUIRES_NEW 建立独立物理事务，意味着额外连接及独立提交；它不等于在原事务中增加一个安全检查。嵌套传播能否使用保存点取决于事务管理器与底层资源。\n\n默认回滚规则通常针对 RuntimeException 与 Error，受检异常是否回滚需要明确配置。业务捕获异常后正常返回，拦截器可能看不到失败；参与者把共享事务标为 rollback-only 后，外层即使捕获异常也可能在提交时收到 UnexpectedRollbackException。不要通过宽泛 catch 把错误包装成成功。事务方法中的远程模型调用不能随着数据库回滚撤销，还会延长连接占用与锁持有时间。\n\n工程上可将状态写入和待发送事件同事务保存，再由独立投递器重试；这是一种 outbox 设计练习，不能声称个人项目已经部署。测试至少核对正常提交、第二步失败、重复请求与外部超时，并直接检查数据库状态，不能只看 HTTP 文本。隔离级别不替代唯一约束或条件更新。追问：为什么独立事务的审计记录可能成功而订单失败？答案应明确物理事务边界及连接池容量。本文以 Spring 6.2 常用代理模式为适用背景，异常规则与传播支持要按项目配置核实。\n\n参考：\n- https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html\n- https://www.rabbitmq.com/docs/confirms",
+        "knowledge": [
+          {
+            "key": "spring-data.propagation",
+            "name": "事务传播",
+            "explanation": "REQUIRED 共享已有事务，REQUIRES_NEW 独立提交且可能需要额外连接；不能把独立提交误当作同一业务原子性。"
+          },
+          {
+            "key": "spring-data.rollback",
+            "name": "回滚与异常",
+            "explanation": "默认规则通常回滚运行时异常和 Error；捕获后正常返回可能使事务提交，rollback-only 又可能使外层提交失败。"
+          },
+          {
+            "key": "spring-data.outbox",
+            "name": "本地事务与外部副作用",
+            "explanation": "数据库回滚不能撤销已经完成的远程调用；本地 outbox 与业务数据同事务记录，再投递和幂等消费。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Concept",
+            "front": "REQUIRED 与 REQUIRES_NEW 在失败和连接占用上有什么区别？",
+            "back": "REQUIRED 共享已有事务，REQUIRES_NEW 独立提交且可能需要额外连接；不能把独立提交误当作同一业务原子性。\n追问：连接池不足时有什么现象？",
+            "knowledgeKeys": [
+              "spring-data.propagation"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "内层异常被捕获后，外层事务为什么仍可能提交失败？",
+            "back": "默认规则通常回滚运行时异常和 Error；捕获后正常返回可能使事务提交，rollback-only 又可能使外层提交失败。\n追问：受检异常如何配置回滚？",
+            "knowledgeKeys": [
+              "spring-data.rollback"
+            ]
+          },
+          {
+            "type": "Pitfall",
+            "front": "数据库事务能否回滚已经发送的消息？如何设计 outbox？",
+            "back": "数据库回滚不能撤销已经完成的远程调用；本地 outbox 与业务数据同事务记录，再投递和幂等消费。\n追问：投递成功但更新状态失败怎么办？",
+            "knowledgeKeys": [
+              "spring-data.outbox"
+            ]
+          },
+          {
+            "type": "Process",
+            "front": "事务边界与失败传播：如何从现象定位错误边界并验证？",
+            "back": "先检查事务传播的输入与前提，再沿回滚与异常追踪处理边界，最终检查本地事务与外部副作用的失败情况。具体防错：把独立事务误当整体原子性；用 catch 隐藏失败而不检查事务状态；把远程副作用当成本地可回滚资源。追问：如何构造正常、边界和失败三个最小样例？",
+            "knowledgeKeys": [
+              "spring-data.propagation",
+              "spring-data.rollback",
+              "spring-data.outbox"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "REQUIRED 与 REQUIRES_NEW 在失败和连接占用上有什么区别？",
+            "answer": "REQUIRED 共享已有事务，REQUIRES_NEW 独立提交且可能需要额外连接；不能把独立提交误当作同一业务原子性。Spring 声明式事务由拦截器进入事务管理器，再由数据库实现提交、回滚及隔离。REQUIRED 通常参与已有事务，REQUIRES_NEW 建立独立物理事务，意味着额外连接及独立提交；它不等于在原事务中增加一个安全检查。嵌套传播能否使用保存点取决于事务管理器与底层资源。边界：把独立事务误当整体原子性。追问：连接池不足时有什么现象？",
+            "keyPoints": [
+              "REQUIRED 共享已有事务，REQUIRES_NEW 独立提交且可能需要额外连接；不能把独立提交误当作同一业务原子性。",
+              "明确边界：把独立事务误当整体原子性",
+              "补充验证：连接池不足时有什么现象？"
+            ],
+            "followUps": [
+              "连接池不足时有什么现象？"
+            ],
+            "commonMistakes": [
+              "把独立事务误当整体原子性"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "spring-data.propagation"
+            ]
+          },
+          {
+            "question": "内层异常被捕获后，外层事务为什么仍可能提交失败？",
+            "answer": "默认规则通常回滚运行时异常和 Error；捕获后正常返回可能使事务提交，rollback-only 又可能使外层提交失败。业务捕获异常后正常返回，拦截器可能看不到失败；参与者把共享事务标为 rollback-only 后，外层即使捕获异常也可能在提交时收到 UnexpectedRollbackException。不要通过宽泛 catch 把错误包装成成功。事务方法中的远程模型调用不能随着数据库回滚撤销，还会延长连接占用与锁持有时间。边界：用 catch 隐藏失败而不检查事务状态。追问：受检异常如何配置回滚？",
+            "keyPoints": [
+              "默认规则通常回滚运行时异常和 Error；捕获后正常返回可能使事务提交，rollback-only 又可能使外层提交失败。",
+              "明确边界：用 catch 隐藏失败而不检查事务状态",
+              "补充验证：受检异常如何配置回滚？"
+            ],
+            "followUps": [
+              "受检异常如何配置回滚？"
+            ],
+            "commonMistakes": [
+              "用 catch 隐藏失败而不检查事务状态"
+            ],
+            "rank": "A",
+            "knowledgeKeys": [
+              "spring-data.rollback"
+            ]
+          },
+          {
+            "question": "数据库事务能否回滚已经发送的消息？如何设计 outbox？",
+            "answer": "数据库回滚不能撤销已经完成的远程调用；本地 outbox 与业务数据同事务记录，再投递和幂等消费。测试至少核对正常提交、第二步失败、重复请求与外部超时，并直接检查数据库状态，不能只看 HTTP 文本。隔离级别不替代唯一约束或条件更新。追问：为什么独立事务的审计记录可能成功而订单失败？答案应明确物理事务边界及连接池容量。本文以 Spring 6.2 常用代理模式为适用背景，异常规则与传播支持要按项目配置核实。边界：把远程副作用当成本地可回滚资源。追问：投递成功但更新状态失败怎么办？",
+            "keyPoints": [
+              "数据库回滚不能撤销已经完成的远程调用；本地 outbox 与业务数据同事务记录，再投递和幂等消费。",
+              "明确边界：把远程副作用当成本地可回滚资源",
+              "补充验证：投递成功但更新状态失败怎么办？"
+            ],
+            "followUps": [
+              "投递成功但更新状态失败怎么办？"
+            ],
+            "commonMistakes": [
+              "把远程副作用当成本地可回滚资源"
+            ],
+            "rank": "B",
+            "knowledgeKeys": [
+              "spring-data.outbox"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "审查库存与消息事务",
+          "description": "人工检查设计题：提交 Java17 伪代码，定义库存条件更新、订单插入、outbox 插入的单事务边界；列出三个失败时刻及数据库预期。禁止用内存成功输出冒充数据库回滚验证。",
+          "hint": "先明确事务传播的前提，再画出正常及失败路径。用把独立事务误当整体原子性、用 catch 隐藏失败而不检查事务状态、把远程副作用当成本地可回滚资源反向检查设计是否漏掉边界。",
+          "codeTemplate": "class OrderWorkflow {\n  void submit(String requestId) {\n    // TODO: 条件扣减、订单与 outbox 的原子边界\n    // TODO: 投递器重试与业务幂等键\n  }\n}",
+          "solutionHint": "人工评审需逐条说明：REQUIRED 共享已有事务，REQUIRES_NEW 独立提交且可能需要额外连接；不能把独立提交误当作同一业务原子性。；默认规则通常回滚运行时异常和 Error；捕获后正常返回可能使事务提交，rollback-only 又可能使外层提交失败。；数据库回滚不能撤销已经完成的远程调用；本地 outbox 与业务数据同事务记录，再投递和幂等消费。提交时序、校验和错误类别，明确哪些结论需要真实外部环境验证。",
+          "exampleInput": "人工检查：阅读题目中的业务条件和失败时序",
+          "exampleOutput": "人工检查：提交设计、时序与边界说明；不产生自动 PASS",
+          "testCases": [],
+          "knowledgeKeys": [
+            "spring-data.propagation",
+            "spring-data.rollback",
+            "spring-data.outbox"
+          ]
+        }
+        },
+        {
+        "key": "mysql-index-mvcc",
+        "title": "MySQL 索引、MVCC 与锁",
+        "description": "理解索引与回表、Read View 与行版本、索引记录锁与范围锁并能说明失败边界。",
+        "objectives": [
+          "解释索引与回表并举出边界案例",
+          "解释Read View 与行版本并举出边界案例",
+          "解释索引记录锁与范围锁并举出边界案例"
+        ],
+        "minutes": 55,
+        "difficulty": 2,
+        "importance": "S",
+        "prerequisites": [
+          "spring-transaction"
+        ],
+        "material": "## MySQL 索引、MVCC 与锁\n\nInnoDB 聚簇索引叶子存放行记录，普通二级索引叶子包含主键值，非覆盖查询可能需要回表。联合索引的列顺序应由过滤、排序与数据分布决定，不能只记最左前缀口号；范围条件、函数表达式、隐式类型转换及低选择性都可能改变访问路径。用 EXPLAIN 检查实际选用索引、估计行数与排序，再在合适环境测量执行，不能把索引出现等同于查询高效。\n\nMVCC 利用行版本与 undo 支持一致性读。READ COMMITTED 通常每次一致性读建立新的可见性视图，REPEATABLE READ 在事务中复用首次一致性读视图；锁定读与更新并非机械地沿用旧快照。长事务阻碍旧版本清理，并可能增加 undo 压力。行锁实际锁住索引记录，范围访问还可能涉及间隙锁或 next-key lock，锁范围受隔离级别、索引与条件影响，不能凭 SQL 看上去只操作一行就断言锁很小。\n\n个人工程练习可以设计 owner_id、deleted、created_at 的列表查询，但必须先看真实表结构，不能直接添加猜测索引。逻辑删除仍保留 UNIQUE 占用，恢复及重复注册要单独分析。排查死锁先收集参与事务与锁等待图，缩短事务、统一访问顺序并对可重试操作设置有限重试；单纯增大超时不解决循环等待。追问：覆盖索引为什么减少随机访问，又为什么让写入更贵？本文按 MySQL 8.4 InnoDB 说明，H2 的成功不能证明 MySQL 锁与索引行为。\n\n参考：\n- https://dev.mysql.com/doc/refman/8.4/en/mysql-indexes.html\n- https://dev.mysql.com/doc/refman/8.4/en/innodb-multi-versioning.html\n- https://dev.mysql.com/doc/refman/8.4/en/innodb-locking.html",
+        "knowledge": [
+          {
+            "key": "spring-data.index",
+            "name": "索引与回表",
+            "explanation": "二级索引通常保存主键定位行；覆盖索引可避免读取完整行，但新增索引增加存储及写入维护成本。"
+          },
+          {
+            "key": "spring-data.mvcc",
+            "name": "Read View 与行版本",
+            "explanation": "一致性读依赖可见性视图及 undo 版本；RC 常按读建立视图，RR 常复用首次一致性读视图，更新与锁定读须另分析。"
+          },
+          {
+            "key": "spring-data.locks",
+            "name": "索引记录锁与范围锁",
+            "explanation": "锁附着于索引访问；RR 范围查询可能产生 next-key 锁，唯一等值及其他条件会改变锁范围，死锁需有限重试。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Concept",
+            "front": "二级索引、覆盖索引和回表之间是什么关系？",
+            "back": "二级索引通常保存主键定位行；覆盖索引可避免读取完整行，但新增索引增加存储及写入维护成本。\n追问：低选择性索引为什么可能未被选择？",
+            "knowledgeKeys": [
+              "spring-data.index"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "RC 与 RR 的一致性读视图有什么区别，锁定读是否相同？",
+            "back": "一致性读依赖可见性视图及 undo 版本；RC 常按读建立视图，RR 常复用首次一致性读视图，更新与锁定读须另分析。\n追问：长事务为何影响版本清理？",
+            "knowledgeKeys": [
+              "spring-data.mvcc"
+            ]
+          },
+          {
+            "type": "Pitfall",
+            "front": "SQL 看起来只更新一行，为何仍可能锁等待或死锁？",
+            "back": "锁附着于索引访问；RR 范围查询可能产生 next-key 锁，唯一等值及其他条件会改变锁范围，死锁需有限重试。\n追问：如何设置幂等且有界的死锁重试？",
+            "knowledgeKeys": [
+              "spring-data.locks"
+            ]
+          },
+          {
+            "type": "Process",
+            "front": "MySQL 索引、MVCC 与锁：如何从现象定位错误边界并验证？",
+            "back": "先检查索引与回表的输入与前提，再沿Read View 与行版本追踪处理边界，最终检查索引记录锁与范围锁的失败情况。具体防错：EXPLAIN 出现索引就认定高效；把更新当作旧快照读；只看 SQL 不看索引和锁等待。追问：如何构造正常、边界和失败三个最小样例？",
+            "knowledgeKeys": [
+              "spring-data.index",
+              "spring-data.mvcc",
+              "spring-data.locks"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "二级索引、覆盖索引和回表之间是什么关系？",
+            "answer": "二级索引通常保存主键定位行；覆盖索引可避免读取完整行，但新增索引增加存储及写入维护成本。联合索引的列顺序应由过滤、排序与数据分布决定，不能只记最左前缀口号；范围条件、函数表达式、隐式类型转换及低选择性都可能改变访问路径。用 EXPLAIN 检查实际选用索引、估计行数与排序，再在合适环境测量执行，不能把索引出现等同于查询高效。边界：EXPLAIN 出现索引就认定高效。追问：低选择性索引为什么可能未被选择？",
+            "keyPoints": [
+              "二级索引通常保存主键定位行；覆盖索引可避免读取完整行，但新增索引增加存储及写入维护成本。",
+              "明确边界：EXPLAIN 出现索引就认定高效",
+              "补充验证：低选择性索引为什么可能未被选择？"
+            ],
+            "followUps": [
+              "低选择性索引为什么可能未被选择？"
+            ],
+            "commonMistakes": [
+              "EXPLAIN 出现索引就认定高效"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "spring-data.index"
+            ]
+          },
+          {
+            "question": "RC 与 RR 的一致性读视图有什么区别，锁定读是否相同？",
+            "answer": "一致性读依赖可见性视图及 undo 版本；RC 常按读建立视图，RR 常复用首次一致性读视图，更新与锁定读须另分析。READ COMMITTED 通常每次一致性读建立新的可见性视图，REPEATABLE READ 在事务中复用首次一致性读视图；锁定读与更新并非机械地沿用旧快照。长事务阻碍旧版本清理，并可能增加 undo 压力。边界：把更新当作旧快照读。追问：长事务为何影响版本清理？",
+            "keyPoints": [
+              "一致性读依赖可见性视图及 undo 版本；RC 常按读建立视图，RR 常复用首次一致性读视图，更新与锁定读须另分析。",
+              "明确边界：把更新当作旧快照读",
+              "补充验证：长事务为何影响版本清理？"
+            ],
+            "followUps": [
+              "长事务为何影响版本清理？"
+            ],
+            "commonMistakes": [
+              "把更新当作旧快照读"
+            ],
+            "rank": "A",
+            "knowledgeKeys": [
+              "spring-data.mvcc"
+            ]
+          },
+          {
+            "question": "SQL 看起来只更新一行，为何仍可能锁等待或死锁？",
+            "answer": "锁附着于索引访问；RR 范围查询可能产生 next-key 锁，唯一等值及其他条件会改变锁范围，死锁需有限重试。逻辑删除仍保留 UNIQUE 占用，恢复及重复注册要单独分析。排查死锁先收集参与事务与锁等待图，缩短事务、统一访问顺序并对可重试操作设置有限重试；单纯增大超时不解决循环等待。追问：覆盖索引为什么减少随机访问，又为什么让写入更贵？本文按 MySQL 8.4 InnoDB 说明，H2 的成功不能证明 MySQL 锁与索引行为。边界：只看 SQL 不看索引和锁等待。追问：如何设置幂等且有界的死锁重试？",
+            "keyPoints": [
+              "锁附着于索引访问；RR 范围查询可能产生 next-key 锁，唯一等值及其他条件会改变锁范围，死锁需有限重试。",
+              "明确边界：只看 SQL 不看索引和锁等待",
+              "补充验证：如何设置幂等且有界的死锁重试？"
+            ],
+            "followUps": [
+              "如何设置幂等且有界的死锁重试？"
+            ],
+            "commonMistakes": [
+              "只看 SQL 不看索引和锁等待"
+            ],
+            "rank": "B",
+            "knowledgeKeys": [
+              "spring-data.locks"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "设计可重复的索引与锁实验",
+          "description": "人工检查设计题：用 Java17 风格代码描述两个连接的操作顺序，附建表 SQL、索引候选、EXPLAIN 观察项和 RC/RR 两种预期；本题不要求在线数据库，不自动判定实际锁。",
+          "hint": "先明确索引与回表的前提，再画出正常及失败路径。用EXPLAIN 出现索引就认定高效、把更新当作旧快照读、只看 SQL 不看索引和锁等待反向检查设计是否漏掉边界。",
+          "codeTemplate": "class TwoSessionExperiment {\n  void sessionA() { /* TODO: begin、查询、暂停、再次查询 */ }\n  void sessionB() { /* TODO: 更新、提交、锁等待观察 */ }\n}",
+          "solutionHint": "人工评审需逐条说明：二级索引通常保存主键定位行；覆盖索引可避免读取完整行，但新增索引增加存储及写入维护成本。；一致性读依赖可见性视图及 undo 版本；RC 常按读建立视图，RR 常复用首次一致性读视图，更新与锁定读须另分析。；锁附着于索引访问；RR 范围查询可能产生 next-key 锁，唯一等值及其他条件会改变锁范围，死锁需有限重试。提交时序、校验和错误类别，明确哪些结论需要真实外部环境验证。",
+          "exampleInput": "人工检查：阅读题目中的业务条件和失败时序",
+          "exampleOutput": "人工检查：提交设计、时序与边界说明；不产生自动 PASS",
+          "testCases": [],
+          "knowledgeKeys": [
+            "spring-data.index",
+            "spring-data.mvcc",
+            "spring-data.locks"
+          ]
+        }
+        },
+        {
+        "key": "redis-mq",
+        "title": "Redis 缓存与消息可靠性",
+        "description": "理解Cache-aside 与失效窗口、租约锁所有权、确认、重投与幂等并能说明失败边界。",
+        "objectives": [
+          "解释Cache-aside 与失效窗口并举出边界案例",
+          "解释租约锁所有权并举出边界案例",
+          "解释确认、重投与幂等并举出边界案例"
+        ],
+        "minutes": 60,
+        "difficulty": 3,
+        "importance": "A",
+        "prerequisites": [
+          "mysql-index-mvcc"
+        ],
+        "material": "## Redis 缓存与消息可靠性\n\n缓存是数据库事实的加速副本。常见 cache-aside 流程为读取缓存、未命中查库并写入；写操作先更新数据库再删除缓存，仍存在并发时旧值回填窗口，需要过期时间、重试或版本校验限制风险。穿透针对不存在的数据，可短期缓存空值；击穿是热点键同时失效，可合并回源；雪崩是大量键集中失效，可用随机过期和隔离限流。三者成因不同，不能统一回答加 Redis 锁。\n\n锁必须具备所有者标识与租约，释放时原子比较标识再删除，不能让超时的旧持有者删除新锁。租约过期后旧进程仍可能继续操作，严格资源互斥还需资源侧 fencing token 等机制；分布式锁不是数据库条件更新的替代。Redis 持久化与复制配置也不意味着业务端到端零丢失。\n\n消息链路要区分生产者确认与消费者确认。RabbitMQ publisher confirm 表示 broker 对发布负责，消费者 ack 表示处理确认，它们不证明外部业务效果恰好发生一次。消费者先提交业务再 ack，可在提交后断连导致重复投递，因此用业务事件 ID 和唯一约束做幂等；先 ack 后提交则可能永久丢处理。失败重试应有次数、退避、死信及人工处理路径。追问：缓存删除失败和消息重投如何观测？回答应给出失败队列、积压时间、重试计数与可恢复动作。本文讨论 Redis 常见命令语义和 RabbitMQ 确认机制，不声称个人项目已接入集群。\n\n参考：\n- https://redis.io/docs/latest/develop/clients/patterns/distributed-locks/\n- https://www.rabbitmq.com/docs/confirms",
+        "knowledge": [
+          {
+            "key": "spring-data.cache",
+            "name": "Cache-aside 与失效窗口",
+            "explanation": "读未命中回源，写后删除缓存；并发回填仍可能短时旧读，用 TTL、重试或版本约束，而非宣称强一致。"
+          },
+          {
+            "key": "spring-data.lease",
+            "name": "租约锁所有权",
+            "explanation": "锁值使用唯一持有者标识，原子比较释放；过期不停止旧执行者，严格互斥须考虑资源侧 fencing。"
+          },
+          {
+            "key": "spring-data.delivery",
+            "name": "确认、重投与幂等",
+            "explanation": "发布确认和消费确认负责不同链路；业务提交后再 ack 可重投，需事件 ID 唯一约束与有界重试。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Concept",
+            "front": "缓存穿透、击穿和雪崩如何分别处理？",
+            "back": "读未命中回源，写后删除缓存；并发回填仍可能短时旧读，用 TTL、重试或版本约束，而非宣称强一致。\n追问：并发旧值回填如何限制？",
+            "knowledgeKeys": [
+              "spring-data.cache"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "租约过期后旧执行者还能写数据吗，安全释放锁要注意什么？",
+            "back": "锁值使用唯一持有者标识，原子比较释放；过期不停止旧执行者，严格互斥须考虑资源侧 fencing。\n追问：fencing token 由谁校验？",
+            "knowledgeKeys": [
+              "spring-data.lease"
+            ]
+          },
+          {
+            "type": "Pitfall",
+            "front": "业务已提交但 ack 丢失，消费重复消息如何避免重复扣款？",
+            "back": "发布确认和消费确认负责不同链路；业务提交后再 ack 可重投，需事件 ID 唯一约束与有界重试。\n追问：消息 ID 和业务幂等键是否总相同？",
+            "knowledgeKeys": [
+              "spring-data.delivery"
+            ]
+          },
+          {
+            "type": "Process",
+            "front": "Redis 缓存与消息可靠性：如何从现象定位错误边界并验证？",
+            "back": "先检查Cache-aside 与失效窗口的输入与前提，再沿租约锁所有权追踪处理边界，最终检查确认、重投与幂等的失败情况。具体防错：用同一种锁回答所有缓存故障；无条件 DEL 删除其他持有者锁；先 ack 后业务提交或不做幂等。追问：如何构造正常、边界和失败三个最小样例？",
+            "knowledgeKeys": [
+              "spring-data.cache",
+              "spring-data.lease",
+              "spring-data.delivery"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "缓存穿透、击穿和雪崩如何分别处理？",
+            "answer": "读未命中回源，写后删除缓存；并发回填仍可能短时旧读，用 TTL、重试或版本约束，而非宣称强一致。常见 cache-aside 流程为读取缓存、未命中查库并写入；写操作先更新数据库再删除缓存，仍存在并发时旧值回填窗口，需要过期时间、重试或版本校验限制风险。穿透针对不存在的数据，可短期缓存空值；击穿是热点键同时失效，可合并回源；雪崩是大量键集中失效，可用随机过期和隔离限流。三者成因不同，不能统一回答加 Redis 锁。边界：用同一种锁回答所有缓存故障。追问：并发旧值回填如何限制？",
+            "keyPoints": [
+              "读未命中回源，写后删除缓存；并发回填仍可能短时旧读，用 TTL、重试或版本约束，而非宣称强一致。",
+              "明确边界：用同一种锁回答所有缓存故障",
+              "补充验证：并发旧值回填如何限制？"
+            ],
+            "followUps": [
+              "并发旧值回填如何限制？"
+            ],
+            "commonMistakes": [
+              "用同一种锁回答所有缓存故障"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "spring-data.cache"
+            ]
+          },
+          {
+            "question": "租约过期后旧执行者还能写数据吗，安全释放锁要注意什么？",
+            "answer": "锁值使用唯一持有者标识，原子比较释放；过期不停止旧执行者，严格互斥须考虑资源侧 fencing。租约过期后旧进程仍可能继续操作，严格资源互斥还需资源侧 fencing token 等机制；分布式锁不是数据库条件更新的替代。Redis 持久化与复制配置也不意味着业务端到端零丢失。边界：无条件 DEL 删除其他持有者锁。追问：fencing token 由谁校验？",
+            "keyPoints": [
+              "锁值使用唯一持有者标识，原子比较释放；过期不停止旧执行者，严格互斥须考虑资源侧 fencing。",
+              "明确边界：无条件 DEL 删除其他持有者锁",
+              "补充验证：fencing token 由谁校验？"
+            ],
+            "followUps": [
+              "fencing token 由谁校验？"
+            ],
+            "commonMistakes": [
+              "无条件 DEL 删除其他持有者锁"
+            ],
+            "rank": "A",
+            "knowledgeKeys": [
+              "spring-data.lease"
+            ]
+          },
+          {
+            "question": "业务已提交但 ack 丢失，消费重复消息如何避免重复扣款？",
+            "answer": "发布确认和消费确认负责不同链路；业务提交后再 ack 可重投，需事件 ID 唯一约束与有界重试。RabbitMQ publisher confirm 表示 broker 对发布负责，消费者 ack 表示处理确认，它们不证明外部业务效果恰好发生一次。消费者先提交业务再 ack，可在提交后断连导致重复投递，因此用业务事件 ID 和唯一约束做幂等；先 ack 后提交则可能永久丢处理。失败重试应有次数、退避、死信及人工处理路径。边界：先 ack 后业务提交或不做幂等。追问：消息 ID 和业务幂等键是否总相同？",
+            "keyPoints": [
+              "发布确认和消费确认负责不同链路；业务提交后再 ack 可重投，需事件 ID 唯一约束与有界重试。",
+              "明确边界：先 ack 后业务提交或不做幂等",
+              "补充验证：消息 ID 和业务幂等键是否总相同？"
+            ],
+            "followUps": [
+              "消息 ID 和业务幂等键是否总相同？"
+            ],
+            "commonMistakes": [
+              "先 ack 后业务提交或不做幂等"
+            ],
+            "rank": "B",
+            "knowledgeKeys": [
+              "spring-data.delivery"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "设计重复事件的幂等消费",
+          "description": "人工检查设计题：提交 Java17 伪代码，表示事件 ID、唯一记录、业务提交和 ack 顺序。列出提交前崩溃、提交后 ack 前崩溃、重复事件三条时序；不假设内存 Set 等价于持久化幂等。",
+          "hint": "先明确Cache-aside 与失效窗口的前提，再画出正常及失败路径。用用同一种锁回答所有缓存故障、无条件 DEL 删除其他持有者锁、先 ack 后业务提交或不做幂等反向检查设计是否漏掉边界。",
+          "codeTemplate": "record Event(String id, String payload) {}\nclass Consumer {\n  void handle(Event event) {\n    // TODO: 持久化幂等判断、业务事务与 ack 时刻\n  }\n}",
+          "solutionHint": "人工评审需逐条说明：读未命中回源，写后删除缓存；并发回填仍可能短时旧读，用 TTL、重试或版本约束，而非宣称强一致。；锁值使用唯一持有者标识，原子比较释放；过期不停止旧执行者，严格互斥须考虑资源侧 fencing。；发布确认和消费确认负责不同链路；业务提交后再 ack 可重投，需事件 ID 唯一约束与有界重试。提交时序、校验和错误类别，明确哪些结论需要真实外部环境验证。",
+          "exampleInput": "人工检查：阅读题目中的业务条件和失败时序",
+          "exampleOutput": "人工检查：提交设计、时序与边界说明；不产生自动 PASS",
+          "testCases": [],
+          "knowledgeKeys": [
+            "spring-data.cache",
+            "spring-data.lease",
+            "spring-data.delivery"
+          ]
+        }
+        }
+      ],
+      "notes": [
+        {
+          "title": "容器生命周期与 AOP 代理速记",
+          "content": "构造器注入：容器负责提供依赖，构造器声明必需协作者；单元测试可直接传替身，不能把 new 出来的业务对象误认作容器 Bean。\nBean 生命周期：定义解析、实例化、依赖注入、初始化及后处理构成主要阶段；受管理单例关闭时清理，原型销毁通常需调用者负责。\nAOP 代理边界：代理仅拦截经过代理的可拦截调用；this 自调用绕过代理，final 方法不能被类代理覆写。\n复习动作：用一个成功样例和一个失败样例解释边界，不把设计评审等同于真实环境验证。",
+          "chapterKey": "spring-container"
+        },
+        {
+          "title": "事务边界与失败传播速记",
+          "content": "事务传播：REQUIRED 共享已有事务，REQUIRES_NEW 独立提交且可能需要额外连接；不能把独立提交误当作同一业务原子性。\n回滚与异常：默认规则通常回滚运行时异常和 Error；捕获后正常返回可能使事务提交，rollback-only 又可能使外层提交失败。\n本地事务与外部副作用：数据库回滚不能撤销已经完成的远程调用；本地 outbox 与业务数据同事务记录，再投递和幂等消费。\n复习动作：用一个成功样例和一个失败样例解释边界，不把设计评审等同于真实环境验证。",
+          "chapterKey": "spring-transaction"
+        },
+        {
+          "title": "MySQL 索引、MVCC 与锁速记",
+          "content": "索引与回表：二级索引通常保存主键定位行；覆盖索引可避免读取完整行，但新增索引增加存储及写入维护成本。\nRead View 与行版本：一致性读依赖可见性视图及 undo 版本；RC 常按读建立视图，RR 常复用首次一致性读视图，更新与锁定读须另分析。\n索引记录锁与范围锁：锁附着于索引访问；RR 范围查询可能产生 next-key 锁，唯一等值及其他条件会改变锁范围，死锁需有限重试。\n复习动作：用一个成功样例和一个失败样例解释边界，不把设计评审等同于真实环境验证。",
+          "chapterKey": "mysql-index-mvcc"
+        }
+      ]
+    },
+    {
+      "key": "llm",
+      "title": "Java 大模型应用基础",
+      "description": "从 token 与 Attention 到提示词、结构输出、流式协议与模型客户端契约。",
+      "tag": "LLM",
+      "chapters": [
+        {
+        "key": "tokens-attention",
+        "title": "Token、Transformer 与 Attention",
+        "description": "理解Token 与预算、缩放点积注意力、上下文与模型参数并能说明失败边界。",
+        "objectives": [
+          "解释Token 与预算并举出边界案例",
+          "解释缩放点积注意力并举出边界案例",
+          "解释上下文与模型参数并举出边界案例"
+        ],
+        "minutes": 45,
+        "difficulty": 1,
+        "importance": "S",
+        "prerequisites": [],
+        "material": "## Token、Transformer 与 Attention\n\n大语言模型把输入编码成 token ID，并根据上下文生成后续 token 的分布。token 不等同于汉字、单词或 Java 字符数，同一文本在不同分词器下计数会变化。上下文窗口需容纳指令、历史、检索材料及输出预算，截断重要材料会直接影响回答。成本与延迟应按供应商真实计费及实际 token 统计计算，不能用固定字符倍率假装精确预算。\n\nTransformer 的注意力把查询 Q 与键 K 的匹配转成权重，再对值 V 加权组合。缩放点积注意力常写为 softmax(QKᵀ/√d_k)V，多头让不同投影观察不同关系；位置编码补充序列顺序。自回归解码通常使用因果掩码限制未来信息访问。原始论文提出编码器与解码器结构，今天许多聊天模型采用 decoder-only 变体，不能把论文图当成所有模型的完整结构。\n\n工程上区分训练学到的参数与请求时提供的上下文：把资料放进提示词并没有永久更新模型。注意力权重也不能直接证明因果解释或事实来源。可离线手算小向量的注意力分数，验证权重和为一；数值计算先减最大值避免指数溢出。追问：为何增加无关历史可能降低质量？因为预算被占用且关键证据更难被利用。本文基于 Transformer 原论文说明基础机制，实际分词器、窗口与采样能力以所选模型版本官方说明为准，不宣称某家模型公开了全部内部实现。\n\nTemperature 调整下一 token 概率分布的集中程度；Top-P（nucleus sampling）限制候选到累计概率质量达到阈值的集合，两者都属于解码采样，而非修改模型知识。通常先只调一项并用固定问题集比较事实支持、格式与多样性。低温不保证事实正确，也不保证跨版本、硬件的逐位确定性；参数支持必须按具体模型核对。\n\n参考：\n- https://arxiv.org/abs/1706.03762\n- https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create",
+        "knowledge": [
+          {
+            "key": "llm.token",
+            "name": "Token 与预算",
+            "explanation": "token 由具体分词器决定；指令、历史、检索内容与输出共同消耗窗口，字符长度不能精确代替 token 数。"
+          },
+          {
+            "key": "llm.attention",
+            "name": "缩放点积注意力",
+            "explanation": "QK 点积经维度缩放和 softmax 成为权重，再组合 V；掩码控制可访问位置，数值稳定性需减去最大分数。"
+          },
+          {
+            "key": "llm.context",
+            "name": "上下文与模型参数",
+            "explanation": "请求注入上下文不修改模型参数；decoder-only 为常见变体，注意力权重不能直接证明事实依据。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Concept",
+            "front": "中文字符长度为什么不能直接当作 token 预算？",
+            "back": "token 由具体分词器决定；指令、历史、检索内容与输出共同消耗窗口，字符长度不能精确代替 token 数。\n追问：怎样预留输出预算？",
+            "knowledgeKeys": [
+              "llm.token"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "请短答说明 Q、K、V、缩放和因果掩码各自的作用。",
+            "back": "QK 点积经维度缩放和 softmax 成为权重，再组合 V；掩码控制可访问位置，数值稳定性需减去最大分数。\n追问：softmax 为何先减最大值？",
+            "knowledgeKeys": [
+              "llm.attention"
+            ]
+          },
+          {
+            "type": "Pitfall",
+            "front": "把资料放进提示词是否让模型永久学会，注意力能证明来源吗？",
+            "back": "请求注入上下文不修改模型参数；decoder-only 为常见变体，注意力权重不能直接证明事实依据。\n追问：增加无关历史如何影响质量？",
+            "knowledgeKeys": [
+              "llm.context"
+            ]
+          },
+          {
+            "type": "Process",
+            "front": "Temperature 与 Top-P 分别控制什么，低温能保证事实正确吗？",
+            "back": "Temperature 调整概率分布集中程度；Top-P 保留累计概率质量达到阈值的候选集合。先只调一项、固定问题集比较效果。低温不保证正确或跨环境确定，不能替代证据、结构校验与权限控制。",
+            "knowledgeKeys": [
+              "llm.token",
+              "llm.attention",
+              "llm.context"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "LLM 与 Token 是什么，为什么中文字符长度不能当作 token 预算？",
+            "answer": "LLM 是从大量数据学习语言模式、根据上下文预测后续 token 的模型，不是保证正确的事实数据库。token 由具体分词器决定；指令、历史、检索内容与输出共同消耗窗口，字符长度不能精确代替 token 数。token 不等同于汉字、单词或 Java 字符数，同一文本在不同分词器下计数会变化。上下文窗口需容纳指令、历史、检索材料及输出预算，截断重要材料会直接影响回答。成本与延迟应按供应商真实计费及实际 token 统计计算，不能用固定字符倍率假装精确预算。边界：固定字符倍率伪装精确计费。追问：怎样预留输出预算？",
+            "keyPoints": [
+              "token 由具体分词器决定；指令、历史、检索内容与输出共同消耗窗口，字符长度不能精确代替 token 数。",
+              "明确边界：固定字符倍率伪装精确计费",
+              "补充验证：怎样预留输出预算？"
+            ],
+            "followUps": [
+              "怎样预留输出预算？"
+            ],
+            "commonMistakes": [
+              "固定字符倍率伪装精确计费"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "llm.token"
+            ]
+          },
+          {
+            "question": "Transformer 解决什么问题，Self-Attention 中 Q、K、V 与因果掩码如何工作？",
+            "answer": "Transformer 用注意力在序列位置之间建立关系，避免把全部依赖限制在逐步递归传递中；训练可并行处理位置，自回归生成仍按 token 推进。QK 点积经维度缩放和 softmax 成为权重，再组合 V；掩码控制可访问位置，数值稳定性需减去最大分数。缩放点积注意力常写为 softmax(QKᵀ/√d_k)V，多头让不同投影观察不同关系；位置编码补充序列顺序。自回归解码通常使用因果掩码限制未来信息访问。原始论文提出编码器与解码器结构，今天许多聊天模型采用 decoder-only 变体，不能把论文图当成所有模型的完整结构。边界：把注意力权重当因果解释。追问：softmax 为何先减最大值？",
+            "keyPoints": [
+              "QK 点积经维度缩放和 softmax 成为权重，再组合 V；掩码控制可访问位置，数值稳定性需减去最大分数。",
+              "明确边界：把注意力权重当因果解释",
+              "补充验证：softmax 为何先减最大值？"
+            ],
+            "followUps": [
+              "softmax 为何先减最大值？"
+            ],
+            "commonMistakes": [
+              "把注意力权重当因果解释"
+            ],
+            "rank": "A",
+            "knowledgeKeys": [
+              "llm.attention"
+            ]
+          },
+          {
+            "question": "上下文窗口、Temperature 和 Top-P 如何影响回答，资料注入是否永久学习？",
+            "answer": "上下文窗口是单次请求可使用的信息预算，不等于模型的长期记忆。资料注入不更新权重。Temperature 调整采样分布的集中程度，Top-P 按累计概率截取候选 token，影响输出多样性而非知识准确性。先固定模型版本、问题和输出预算，只改变一个参数，再用事实支持、格式合法性和多样性比较结果；不同模型的支持范围不同，不能盲目复制配置。低温也可能稳定地产生错误，不保证跨环境逐位确定性。重要历史被截断会丢约束，无关历史又占用预算；应保留必要指令与证据、限制最大输出，不能靠无限加上下文解决幻觉。",
+            "keyPoints": [
+              "请求注入上下文不修改模型参数；decoder-only 为常见变体，注意力权重不能直接证明事实依据。",
+              "明确边界：把上下文注入当模型永久学习",
+              "补充验证：增加无关历史如何影响质量？",
+              "Temperature 和 Top-P 是采样控制，非知识或授权保证"
+            ],
+            "followUps": [
+              "为什么温度为零仍不等于绝对正确或跨环境确定？",
+              "怎样用固定问题集分别评估采样多样性与事实支持？"
+            ],
+            "commonMistakes": [
+              "把上下文注入当模型永久学习"
+            ],
+            "rank": "B",
+            "knowledgeKeys": [
+              "llm.context"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "手算并实现稳定 softmax",
+          "description": "Java17 离线练习：从一行空格分隔的有限 double 分数计算稳定 softmax。输出各概率，保留三位小数，以 Locale.ROOT 格式化；空输入输出 EMPTY。不调用模型。",
+          "hint": "先读取所有分数并求最大值，再计算 exp(score-max)，最后除以指数和。空输入在解析前处理。",
+          "codeTemplate": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner s = new Scanner(System.in);\n    String line = s.hasNextLine() ? s.nextLine().trim() : \"\";\n    // TODO: 空输入、减最大值、归一化与三位输出\n  }\n}",
+          "solutionHint": "先读取所有分数并求最大值，再计算 exp(score-max)，最后除以指数和。空输入在解析前处理。",
+          "exampleInput": "0 0",
+          "exampleOutput": "0.500 0.500",
+          "testCases": [
+            {
+              "input": "0 0",
+              "expected": "0.500 0.500"
+            },
+            {
+              "input": "1000 1000",
+              "expected": "0.500 0.500"
+            },
+            {
+              "input": "",
+              "expected": "EMPTY"
+            }
+          ],
+          "knowledgeKeys": [
+            "llm.token",
+            "llm.attention",
+            "llm.context"
+          ]
+        }
+        },
+        {
+        "key": "prompt-schema",
+        "title": "提示词与结构化输出",
+        "description": "理解指令与资料边界、JSON 与 Schema 保证、结构之后的业务校验并能说明失败边界。",
+        "objectives": [
+          "解释指令与资料边界并举出边界案例",
+          "解释JSON 与 Schema 保证并举出边界案例",
+          "解释结构之后的业务校验并举出边界案例"
+        ],
+        "minutes": 50,
+        "difficulty": 2,
+        "importance": "S",
+        "prerequisites": [
+          "tokens-attention"
+        ],
+        "material": "## 提示词与结构化输出\n\n提示词首先定义任务、输入边界、约束及验收标准，再用少量示例澄清歧义。让模型扮演专家不能代替明确需求。应用应区分开发者指令、用户问题与不可信文档；文档中要求忽略规则的文本仍是资料，不应获得执行权限。提示词可以降低误用概率，但授权、资源归属和工具参数校验必须由后端完成，不能靠模型承诺遵守规则。\n\n结构化输出需要区分提示词要求 JSON、JSON 模式与供应商提供的 JSON Schema 约束能力。合法 JSON 只说明语法通过，并不保证字段齐全、类型正确或业务真实。即使严格 schema 得到结构保证，也要检查拒绝、截断及不支持的 schema 特性，并校验业务规则，例如日期范围、知识点 ID 是否属于当前用户。不要把未知字段强行默认为成功状态。\n\n工程流程是明确 schema、发送请求、处理拒绝和异常、解析、结构校验、业务校验，最后才落库。失败应保留可诊断类别，并设置有界修复次数，防止无限重试和额外费用。离线测试可以用固定响应覆盖缺字段、错误类型、超长内容与跨用户 ID，完全不需要购买模型调用。追问：为什么结构正确仍可能产生幻觉？因为 schema 限制形状而非证据真实性。本文参考 OpenAI 当前结构化输出文档，字段位置与支持子集取决于 API 和模型；兼容接口必须实际测能力，而非复制参数后假设生效。\n\n参考：\n- https://developers.openai.com/api/docs/guides/structured-outputs",
+        "knowledge": [
+          {
+            "key": "llm.prompt",
+            "name": "指令与资料边界",
+            "explanation": "提示词声明任务与验收标准，不可信资料仅作为数据；授权和工具参数检查由应用代码负责。"
+          },
+          {
+            "key": "llm.schema",
+            "name": "JSON 与 Schema 保证",
+            "explanation": "JSON 模式主要约束语法，严格结构能力约束支持的 schema 形状；拒绝、截断、业务事实仍需处理。"
+          },
+          {
+            "key": "llm.validation",
+            "name": "结构之后的业务校验",
+            "explanation": "模型输出须核对 ID 归属、范围、长度及必填内容；结构通过不等于真实或有权访问，修复重试有上限。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Concept",
+            "front": "不可信文档要求调用管理工具，提示词与应用授权应如何分工？",
+            "back": "提示词声明任务与验收标准，不可信资料仅作为数据；授权和工具参数检查由应用代码负责。\n追问：如何防止提示注入触发越权？",
+            "knowledgeKeys": [
+              "llm.prompt"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "JSON 模式与严格 Schema 输出各保证了什么？",
+            "back": "JSON 模式主要约束语法，严格结构能力约束支持的 schema 形状；拒绝、截断、业务事实仍需处理。\n追问：拒绝和截断怎样分类？",
+            "knowledgeKeys": [
+              "llm.schema"
+            ]
+          },
+          {
+            "type": "Pitfall",
+            "front": "Schema 正确的模型响应为什么仍不能直接落库？",
+            "back": "模型输出须核对 ID 归属、范围、长度及必填内容；结构通过不等于真实或有权访问，修复重试有上限。\n追问：如何防止跨用户引用 ID？",
+            "knowledgeKeys": [
+              "llm.validation"
+            ]
+          },
+          {
+            "type": "Process",
+            "front": "提示词与结构化输出：如何从现象定位错误边界并验证？",
+            "back": "先检查指令与资料边界的输入与前提，再沿JSON 与 Schema 保证追踪处理边界，最终检查结构之后的业务校验的失败情况。具体防错：依赖模型执行权限判断；把合法 JSON 当 Schema 合法；结构通过后不查 ID 归属。追问：如何构造正常、边界和失败三个最小样例？",
+            "knowledgeKeys": [
+              "llm.prompt",
+              "llm.schema",
+              "llm.validation"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "不可信文档要求调用管理工具，提示词与应用授权应如何分工？",
+            "answer": "提示词声明任务与验收标准，不可信资料仅作为数据；授权和工具参数检查由应用代码负责。让模型扮演专家不能代替明确需求。应用应区分开发者指令、用户问题与不可信文档；文档中要求忽略规则的文本仍是资料，不应获得执行权限。提示词可以降低误用概率，但授权、资源归属和工具参数校验必须由后端完成，不能靠模型承诺遵守规则。边界：依赖模型执行权限判断。追问：如何防止提示注入触发越权？",
+            "keyPoints": [
+              "提示词声明任务与验收标准，不可信资料仅作为数据；授权和工具参数检查由应用代码负责。",
+              "明确边界：依赖模型执行权限判断",
+              "补充验证：如何防止提示注入触发越权？"
+            ],
+            "followUps": [
+              "如何防止提示注入触发越权？"
+            ],
+            "commonMistakes": [
+              "依赖模型执行权限判断"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "llm.prompt"
+            ]
+          },
+          {
+            "question": "JSON 模式与严格 Schema 输出各保证了什么？",
+            "answer": "JSON 模式主要约束语法，严格结构能力约束支持的 schema 形状；拒绝、截断、业务事实仍需处理。合法 JSON 只说明语法通过，并不保证字段齐全、类型正确或业务真实。即使严格 schema 得到结构保证，也要检查拒绝、截断及不支持的 schema 特性，并校验业务规则，例如日期范围、知识点 ID 是否属于当前用户。不要把未知字段强行默认为成功状态。边界：把合法 JSON 当 Schema 合法。追问：拒绝和截断怎样分类？",
+            "keyPoints": [
+              "JSON 模式主要约束语法，严格结构能力约束支持的 schema 形状；拒绝、截断、业务事实仍需处理。",
+              "明确边界：把合法 JSON 当 Schema 合法",
+              "补充验证：拒绝和截断怎样分类？"
+            ],
+            "followUps": [
+              "拒绝和截断怎样分类？"
+            ],
+            "commonMistakes": [
+              "把合法 JSON 当 Schema 合法"
+            ],
+            "rank": "A",
+            "knowledgeKeys": [
+              "llm.schema"
+            ]
+          },
+          {
+            "question": "Schema 正确的模型响应为什么仍不能直接落库？",
+            "answer": "模型输出须核对 ID 归属、范围、长度及必填内容；结构通过不等于真实或有权访问，修复重试有上限。失败应保留可诊断类别，并设置有界修复次数，防止无限重试和额外费用。离线测试可以用固定响应覆盖缺字段、错误类型、超长内容与跨用户 ID，完全不需要购买模型调用。追问：为什么结构正确仍可能产生幻觉？因为 schema 限制形状而非证据真实性。边界：结构通过后不查 ID 归属。追问：如何防止跨用户引用 ID？",
+            "keyPoints": [
+              "模型输出须核对 ID 归属、范围、长度及必填内容；结构通过不等于真实或有权访问，修复重试有上限。",
+              "明确边界：结构通过后不查 ID 归属",
+              "补充验证：如何防止跨用户引用 ID？"
+            ],
+            "followUps": [
+              "如何防止跨用户引用 ID？"
+            ],
+            "commonMistakes": [
+              "结构通过后不查 ID 归属"
+            ],
+            "rank": "B",
+            "knowledgeKeys": [
+              "llm.validation"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "设计模型响应校验器",
+          "description": "人工检查设计题：用 Java17 record 定义答案、引用 ID、拒绝标志，列出结构校验及业务校验步骤。至少列六个固定响应样例与期望错误类别；没有 JSON 库依赖，不伪造模型响应自动验证结果。",
+          "hint": "先明确指令与资料边界的前提，再画出正常及失败路径。用依赖模型执行权限判断、把合法 JSON 当 Schema 合法、结构通过后不查 ID 归属反向检查设计是否漏掉边界。",
+          "codeTemplate": "record ModelAnswer(String answer, java.util.List<String> citationIds, boolean refused) {}\nclass Validator {\n  void validate(ModelAnswer value, java.util.Set<String> allowedIds) {\n    // TODO: 长度、拒绝、归属、证据匹配校验\n  }\n}",
+          "solutionHint": "人工评审需逐条说明：提示词声明任务与验收标准，不可信资料仅作为数据；授权和工具参数检查由应用代码负责。；JSON 模式主要约束语法，严格结构能力约束支持的 schema 形状；拒绝、截断、业务事实仍需处理。；模型输出须核对 ID 归属、范围、长度及必填内容；结构通过不等于真实或有权访问，修复重试有上限。提交时序、校验和错误类别，明确哪些结论需要真实外部环境验证。",
+          "exampleInput": "人工检查：阅读题目中的业务条件和失败时序",
+          "exampleOutput": "人工检查：提交设计、时序与边界说明；不产生自动 PASS",
+          "testCases": [],
+          "knowledgeKeys": [
+            "llm.prompt",
+            "llm.schema",
+            "llm.validation"
+          ]
+        }
+        },
+        {
+        "key": "stream-sse",
+        "title": "流式生成、SSE 与取消",
+        "description": "理解SSE 事件边界、完成与中断、取消与资源释放并能说明失败边界。",
+        "objectives": [
+          "解释SSE 事件边界并举出边界案例",
+          "解释完成与中断并举出边界案例",
+          "解释取消与资源释放并举出边界案例"
+        ],
+        "minutes": 55,
+        "difficulty": 2,
+        "importance": "S",
+        "prerequisites": [
+          "prompt-schema"
+        ],
+        "material": "## 流式生成、SSE 与取消\n\n流式生成让客户端逐段接收内容，通常能降低首个可见输出的等待时间，并不保证整次生成更快或更便宜。SSE 在 HTTP 连接中使用文本事件边界，事件可包含多行 data 字段，空行结束事件。网络读取的一段字节不等于一个事件，也不等于完整字符；服务端或代理缓冲会使看似流式的接口在客户端表现为批量到达。\n\n应用需要分别记录连接建立、首个内容、结束与异常。接收部分文本后连接断开，应展示中断状态而非把残缺回答保存成完成结果。供应商流式格式不同，OpenAI Responses API 的类型化事件与其他兼容服务的 delta 格式不能混为一谈。工具参数或 JSON 在分片期间常不完整，应在完成边界进行解析和校验；错误和拒绝也可能通过专门事件到达。\n\nJava 服务必须设置连接及请求超时，用户取消时向上游传播取消，释放订阅与连接，避免无人消费仍继续付费生成。慢客户端还需背压或有界缓冲策略，禁止无上限累积事件。重连是否安全由请求幂等与生成语义决定，不能认为 EventSource 的自动重连会自动恢复同一次模型生成。离线练习可用固定 SSE 字符串测试拆包、多行 data、注释、终止和中断，记录消息顺序。追问：如何区分网络故障与模型正常结束？根据明确完成事件及调用状态判断，不能用 socket 关闭一律判成功。本文以 HTTP SSE 和当前 OpenAI 流式事件为参考，具体框架客户端须按版本核对。\n\n参考：\n- https://developers.openai.com/api/docs/guides/streaming-responses",
+        "knowledge": [
+          {
+            "key": "llm.sse",
+            "name": "SSE 事件边界",
+            "explanation": "空行结束事件，多个 data 行组合；网络分片与事件不同，UTF-8 解码和缓冲必须跨读取保留状态。"
+          },
+          {
+            "key": "llm.completion",
+            "name": "完成与中断",
+            "explanation": "只有协议明确完成才标记成功；部分输出后断连是中断，工具参数须在完成后解析，不能把残缺 JSON 落库。"
+          },
+          {
+            "key": "llm.cancel",
+            "name": "取消与资源释放",
+            "explanation": "客户端取消应传播到模型请求，设置超时和有界缓冲；自动重连不能保证续接同一次生成。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Concept",
+            "front": "一次网络读取是否对应一个 SSE 事件，怎样处理多行 data？",
+            "back": "空行结束事件，多个 data 行组合；网络分片与事件不同，UTF-8 解码和缓冲必须跨读取保留状态。\n追问：UTF-8 字节截断怎样缓存？",
+            "knowledgeKeys": [
+              "llm.sse"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "流式回答已有一半后断连，为什么不能判为完成？",
+            "back": "只有协议明确完成才标记成功；部分输出后断连是中断，工具参数须在完成后解析，不能把残缺 JSON 落库。\n追问：工具参数何时可安全解析？",
+            "knowledgeKeys": [
+              "llm.completion"
+            ]
+          },
+          {
+            "type": "Pitfall",
+            "front": "用户取消生成后怎样控制连接、订阅和调用预算？",
+            "back": "客户端取消应传播到模型请求，设置超时和有界缓冲；自动重连不能保证续接同一次生成。\n追问：慢消费者如何控制内存？",
+            "knowledgeKeys": [
+              "llm.cancel"
+            ]
+          },
+          {
+            "type": "Process",
+            "front": "流式生成、SSE 与取消：如何从现象定位错误边界并验证？",
+            "back": "先检查SSE 事件边界的输入与前提，再沿完成与中断追踪处理边界，最终检查取消与资源释放的失败情况。具体防错：把一次读取当完整事件；socket 关闭一律判成功；取消页面但上游继续生成。追问：如何构造正常、边界和失败三个最小样例？",
+            "knowledgeKeys": [
+              "llm.sse",
+              "llm.completion",
+              "llm.cancel"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "一次网络读取是否对应一个 SSE 事件，怎样处理多行 data？",
+            "answer": "空行结束事件，多个 data 行组合；网络分片与事件不同，UTF-8 解码和缓冲必须跨读取保留状态。SSE 在 HTTP 连接中使用文本事件边界，事件可包含多行 data 字段，空行结束事件。网络读取的一段字节不等于一个事件，也不等于完整字符；服务端或代理缓冲会使看似流式的接口在客户端表现为批量到达。边界：把一次读取当完整事件。追问：UTF-8 字节截断怎样缓存？",
+            "keyPoints": [
+              "空行结束事件，多个 data 行组合；网络分片与事件不同，UTF-8 解码和缓冲必须跨读取保留状态。",
+              "明确边界：把一次读取当完整事件",
+              "补充验证：UTF-8 字节截断怎样缓存？"
+            ],
+            "followUps": [
+              "UTF-8 字节截断怎样缓存？"
+            ],
+            "commonMistakes": [
+              "把一次读取当完整事件"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "llm.sse"
+            ]
+          },
+          {
+            "question": "流式回答已有一半后断连，为什么不能判为完成？",
+            "answer": "只有协议明确完成才标记成功；部分输出后断连是中断，工具参数须在完成后解析，不能把残缺 JSON 落库。接收部分文本后连接断开，应展示中断状态而非把残缺回答保存成完成结果。供应商流式格式不同，OpenAI Responses API 的类型化事件与其他兼容服务的 delta 格式不能混为一谈。工具参数或 JSON 在分片期间常不完整，应在完成边界进行解析和校验；错误和拒绝也可能通过专门事件到达。边界：socket 关闭一律判成功。追问：工具参数何时可安全解析？",
+            "keyPoints": [
+              "只有协议明确完成才标记成功；部分输出后断连是中断，工具参数须在完成后解析，不能把残缺 JSON 落库。",
+              "明确边界：socket 关闭一律判成功",
+              "补充验证：工具参数何时可安全解析？"
+            ],
+            "followUps": [
+              "工具参数何时可安全解析？"
+            ],
+            "commonMistakes": [
+              "socket 关闭一律判成功"
+            ],
+            "rank": "A",
+            "knowledgeKeys": [
+              "llm.completion"
+            ]
+          },
+          {
+            "question": "用户取消生成后怎样控制连接、订阅和调用预算？",
+            "answer": "客户端取消应传播到模型请求，设置超时和有界缓冲；自动重连不能保证续接同一次生成。慢客户端还需背压或有界缓冲策略，禁止无上限累积事件。重连是否安全由请求幂等与生成语义决定，不能认为 EventSource 的自动重连会自动恢复同一次模型生成。离线练习可用固定 SSE 字符串测试拆包、多行 data、注释、终止和中断，记录消息顺序。追问：如何区分网络故障与模型正常结束？根据明确完成事件及调用状态判断，不能用 socket 关闭一律判成功。边界：取消页面但上游继续生成。追问：慢消费者如何控制内存？",
+            "keyPoints": [
+              "客户端取消应传播到模型请求，设置超时和有界缓冲；自动重连不能保证续接同一次生成。",
+              "明确边界：取消页面但上游继续生成",
+              "补充验证：慢消费者如何控制内存？"
+            ],
+            "followUps": [
+              "慢消费者如何控制内存？"
+            ],
+            "commonMistakes": [
+              "取消页面但上游继续生成"
+            ],
+            "rank": "B",
+            "knowledgeKeys": [
+              "llm.cancel"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "编写 SSE 事件组装设计",
+          "description": "人工检查设计题：使用 Java17 伪代码设计增量解析器，提交输入被任意切分时的缓存状态，覆盖多行 data、注释、空行、EOF 无终止事件、UTF-8 字符跨字节。检查重点为边界，不能把固定字符串打印当网络验证。",
+          "hint": "先明确SSE 事件边界的前提，再画出正常及失败路径。用把一次读取当完整事件、socket 关闭一律判成功、取消页面但上游继续生成反向检查设计是否漏掉边界。",
+          "codeTemplate": "class SseAssembler {\n  void accept(byte[] fragment) { /* TODO: 增量解码与事件缓存 */ }\n  void endOfInput() { /* TODO: 区分完成与中断 */ }\n}",
+          "solutionHint": "人工评审需逐条说明：空行结束事件，多个 data 行组合；网络分片与事件不同，UTF-8 解码和缓冲必须跨读取保留状态。；只有协议明确完成才标记成功；部分输出后断连是中断，工具参数须在完成后解析，不能把残缺 JSON 落库。；客户端取消应传播到模型请求，设置超时和有界缓冲；自动重连不能保证续接同一次生成。提交时序、校验和错误类别，明确哪些结论需要真实外部环境验证。",
+          "exampleInput": "人工检查：阅读题目中的业务条件和失败时序",
+          "exampleOutput": "人工检查：提交设计、时序与边界说明；不产生自动 PASS",
+          "testCases": [],
+          "knowledgeKeys": [
+            "llm.sse",
+            "llm.completion",
+            "llm.cancel"
+          ]
+        }
+        },
+        {
+        "key": "java-ai-clients",
+        "title": "Java AI 客户端与兼容接口",
+        "description": "理解业务接口与模型适配、兼容接口能力矩阵、密钥与调用预算并能说明失败边界。",
+        "objectives": [
+          "解释业务接口与模型适配并举出边界案例",
+          "解释兼容接口能力矩阵并举出边界案例",
+          "解释密钥与调用预算并举出边界案例"
+        ],
+        "minutes": 60,
+        "difficulty": 3,
+        "importance": "A",
+        "prerequisites": [
+          "stream-sse"
+        ],
+        "material": "## Java AI 客户端与兼容接口\n\nSpring AI 提供围绕模型调用、提示词、结构输出及检索的应用抽象；LangChain4j 也提供 Java 模型适配与检索组件。两者都是学习选型对象，不能根据课程内容宣称 KnowFlow 已集成。选择应先列功能要求和项目 Java、Spring Boot 版本，再核对客户端、供应商及模型的支持矩阵，避免为了示例升级整套工程。\n\nOpenAI-compatible 通常表示某些端点或请求形状兼容，不表示所有功能完全相同。base URL 是否包含版本路径、认证头、模型名、上下文窗口、工具调用、结构化输出、流式事件和 usage 字段都可能不同。错误状态、限流头与重试策略也应逐项验证。模型返回 200 但 body 含错误时不能忽略；401、429、超时与模型拒绝应形成不同可恢复路径。\n\n工程上将业务接口与供应商适配器分离，以本地 fake adapter 覆盖成功、空响应、异常、拒绝及流中断；fake 用于验证应用处理逻辑，不用来证明供应商真实可用。密钥只留在后端安全配置，日志脱敏，限制最大 token、并发与重试预算。远程调用失败不能通过 catch 返回空列表伪装成没有内容。追问：为什么切换兼容服务仍需契约测试？因为协议表面相似无法保证字段语义、工具行为及模型能力一致。本文按 Spring AI 与 LangChain4j 官方当前文档描述抽象，具体 artifact、BOM 和 API 必须按选定版本核实，不要求离线练习调用云端。\n\n参考：\n- https://docs.spring.io/spring-ai/reference/\n- https://docs.langchain4j.dev/tutorials/rag/",
+        "knowledge": [
+          {
+            "key": "llm.abstraction",
+            "name": "业务接口与模型适配",
+            "explanation": "业务依赖自有模型接口，供应商实现负责请求和响应映射；fake 验证应用行为而非证明真实服务可用。"
+          },
+          {
+            "key": "llm.compatible",
+            "name": "兼容接口能力矩阵",
+            "explanation": "同形请求不保证工具、schema、流、usage 与错误语义一致；逐项核对 base URL、认证、模型及功能。"
+          },
+          {
+            "key": "llm.budget",
+            "name": "密钥与调用预算",
+            "explanation": "密钥保留后端，日志脱敏；限制并发、超时、最大 token 与重试，错误不能被转换为假空结果。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Concept",
+            "front": "Spring AI 与 LangChain4j 的抽象如何与业务逻辑解耦？",
+            "back": "业务依赖自有模型接口，供应商实现负责请求和响应映射；fake 验证应用行为而非证明真实服务可用。\n追问：fake 能证明供应商可用吗？",
+            "knowledgeKeys": [
+              "llm.abstraction"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "供应商声称 OpenAI-compatible，为什么还需契约测试？",
+            "back": "同形请求不保证工具、schema、流、usage 与错误语义一致；逐项核对 base URL、认证、模型及功能。\n追问：base URL 与 usage 缺失如何测？",
+            "knowledgeKeys": [
+              "llm.compatible"
+            ]
+          },
+          {
+            "type": "Pitfall",
+            "front": "如何保护后端密钥并区分限流、超时、拒绝与空响应？",
+            "back": "密钥保留后端，日志脱敏；限制并发、超时、最大 token 与重试，错误不能被转换为假空结果。\n追问：有界重试怎样影响成本？",
+            "knowledgeKeys": [
+              "llm.budget"
+            ]
+          },
+          {
+            "type": "Process",
+            "front": "Java AI 客户端与兼容接口：如何从现象定位错误边界并验证？",
+            "back": "先检查业务接口与模型适配的输入与前提，再沿兼容接口能力矩阵追踪处理边界，最终检查密钥与调用预算的失败情况。具体防错：宣称学习框架已在项目部署；只换 URL 就认定完全兼容；catch 返回空列表伪装成功。追问：如何构造正常、边界和失败三个最小样例？",
+            "knowledgeKeys": [
+              "llm.abstraction",
+              "llm.compatible",
+              "llm.budget"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "Spring AI 与 LangChain4j 的抽象如何与业务逻辑解耦？",
+            "answer": "业务依赖自有模型接口，供应商实现负责请求和响应映射；fake 验证应用行为而非证明真实服务可用。两者都是学习选型对象，不能根据课程内容宣称 KnowFlow 已集成。选择应先列功能要求和项目 Java、Spring Boot 版本，再核对客户端、供应商及模型的支持矩阵，避免为了示例升级整套工程。边界：宣称学习框架已在项目部署。追问：fake 能证明供应商可用吗？",
+            "keyPoints": [
+              "业务依赖自有模型接口，供应商实现负责请求和响应映射；fake 验证应用行为而非证明真实服务可用。",
+              "明确边界：宣称学习框架已在项目部署",
+              "补充验证：fake 能证明供应商可用吗？"
+            ],
+            "followUps": [
+              "fake 能证明供应商可用吗？"
+            ],
+            "commonMistakes": [
+              "宣称学习框架已在项目部署"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "llm.abstraction"
+            ]
+          },
+          {
+            "question": "供应商声称 OpenAI-compatible，为什么还需契约测试？",
+            "answer": "同形请求不保证工具、schema、流、usage 与错误语义一致；逐项核对 base URL、认证、模型及功能。base URL 是否包含版本路径、认证头、模型名、上下文窗口、工具调用、结构化输出、流式事件和 usage 字段都可能不同。错误状态、限流头与重试策略也应逐项验证。模型返回 200 但 body 含错误时不能忽略；401、429、超时与模型拒绝应形成不同可恢复路径。边界：只换 URL 就认定完全兼容。追问：base URL 与 usage 缺失如何测？",
+            "keyPoints": [
+              "同形请求不保证工具、schema、流、usage 与错误语义一致；逐项核对 base URL、认证、模型及功能。",
+              "明确边界：只换 URL 就认定完全兼容",
+              "补充验证：base URL 与 usage 缺失如何测？"
+            ],
+            "followUps": [
+              "base URL 与 usage 缺失如何测？"
+            ],
+            "commonMistakes": [
+              "只换 URL 就认定完全兼容"
+            ],
+            "rank": "A",
+            "knowledgeKeys": [
+              "llm.compatible"
+            ]
+          },
+          {
+            "question": "LLM API 如何安全重试、保护密钥并控制 Token 成本？",
+            "answer": "密钥只在后端保存并脱敏日志。先区分参数或认证错误、429 限流、短暂网络故障、5xx、模型拒绝和部分流式输出。参数与认证错误应修复请求，不能反复重试；对可重试失败遵守 Retry-After，使用指数退避加抖动，并限制次数与总截止时间。已经执行的写工具和部分输出不能盲目重放，应检查幂等键及状态。按用户限制并发、输入和最大输出 token，设置单次与每日预算；压缩无关历史、检索去重、缓存适合缓存的结果，最后用真实 usage 和供应商价格计量，缓存命中不证明回答正确。fake 可以验证这些业务分支，不证明真实供应商可用。",
+            "keyPoints": [
+              "密钥保留后端，日志脱敏；限制并发、超时、最大 token 与重试，错误不能被转换为假空结果。",
+              "明确边界：catch 返回空列表伪装成功",
+              "补充验证：有界重试怎样影响成本？"
+            ],
+            "followUps": [
+              "有界重试怎样影响成本？"
+            ],
+            "commonMistakes": [
+              "catch 返回空列表伪装成功"
+            ],
+            "rank": "B",
+            "knowledgeKeys": [
+              "llm.budget"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "设计无云依赖的模型适配契约",
+          "description": "人工检查设计题：用 Java17 接口定义一次生成与可取消的流式生成，设计本地 fake 的成功、空、拒绝、限流、超时和中断样例。列能力矩阵，不自动宣布在线供应商兼容通过。",
+          "hint": "先明确业务接口与模型适配的前提，再画出正常及失败路径。用宣称学习框架已在项目部署、只换 URL 就认定完全兼容、catch 返回空列表伪装成功反向检查设计是否漏掉边界。",
+          "codeTemplate": "interface ModelGateway {\n  // TODO: 定义请求、响应、错误分类及取消契约\n}\nclass FakeGateway implements ModelGateway {\n  // TODO: 可配置固定结果，不能默认一律成功\n}",
+          "solutionHint": "人工评审需逐条说明：业务依赖自有模型接口，供应商实现负责请求和响应映射；fake 验证应用行为而非证明真实服务可用。；同形请求不保证工具、schema、流、usage 与错误语义一致；逐项核对 base URL、认证、模型及功能。；密钥保留后端，日志脱敏；限制并发、超时、最大 token 与重试，错误不能被转换为假空结果。提交时序、校验和错误类别，明确哪些结论需要真实外部环境验证。",
+          "exampleInput": "人工检查：阅读题目中的业务条件和失败时序",
+          "exampleOutput": "人工检查：提交设计、时序与边界说明；不产生自动 PASS",
+          "testCases": [],
+          "knowledgeKeys": [
+            "llm.abstraction",
+            "llm.compatible",
+            "llm.budget"
+          ]
+        }
+        }
+      ],
+      "notes": [
+        {
+          "title": "Token、Transformer 与 Attention速记",
+          "content": "Token 与预算：token 由具体分词器决定；指令、历史、检索内容与输出共同消耗窗口，字符长度不能精确代替 token 数。\n缩放点积注意力：QK 点积经维度缩放和 softmax 成为权重，再组合 V；掩码控制可访问位置，数值稳定性需减去最大分数。\n上下文与模型参数：请求注入上下文不修改模型参数；decoder-only 为常见变体，注意力权重不能直接证明事实依据。\n复习动作：用一个成功样例和一个失败样例解释边界，不把设计评审等同于真实环境验证。",
+          "chapterKey": "tokens-attention"
+        },
+        {
+          "title": "提示词与结构化输出速记",
+          "content": "指令与资料边界：提示词声明任务与验收标准，不可信资料仅作为数据；授权和工具参数检查由应用代码负责。\nJSON 与 Schema 保证：JSON 模式主要约束语法，严格结构能力约束支持的 schema 形状；拒绝、截断、业务事实仍需处理。\n结构之后的业务校验：模型输出须核对 ID 归属、范围、长度及必填内容；结构通过不等于真实或有权访问，修复重试有上限。\n复习动作：用一个成功样例和一个失败样例解释边界，不把设计评审等同于真实环境验证。",
+          "chapterKey": "prompt-schema"
+        },
+        {
+          "title": "流式生成、SSE 与取消速记",
+          "content": "SSE 事件边界：空行结束事件，多个 data 行组合；网络分片与事件不同，UTF-8 解码和缓冲必须跨读取保留状态。\n完成与中断：只有协议明确完成才标记成功；部分输出后断连是中断，工具参数须在完成后解析，不能把残缺 JSON 落库。\n取消与资源释放：客户端取消应传播到模型请求，设置超时和有界缓冲；自动重连不能保证续接同一次生成。\n复习动作：用一个成功样例和一个失败样例解释边界，不把设计评审等同于真实环境验证。",
+          "chapterKey": "stream-sse"
+        }
+      ]
+    },
+    {
+      "key": "rag",
+      "title": "RAG 检索与评估",
+      "description": "完成解析分块、向量检索、混合重排和可追溯回答的学习设计，不要求云模型调用。",
+      "tag": "RAG,EMBEDDING,VECTOR_DB,MILVUS,EVALUATION",
+      "chapters": [
+        {
+        "key": "parse-chunk",
+        "title": "文档解析、分块与元数据",
+        "description": "理解结构保真的解析、分块与重叠、版本与访问元数据并能说明失败边界。",
+        "objectives": [
+          "解释结构保真的解析并举出边界案例",
+          "解释分块与重叠并举出边界案例",
+          "解释版本与访问元数据并举出边界案例"
+        ],
+        "minutes": 45,
+        "difficulty": 1,
+        "importance": "S",
+        "prerequisites": [],
+        "material": "## 文档解析、分块与元数据\n\nRAG 的离线链路先把文件解析为可用文本与结构，再分块、生成 embedding 并入库。解析需保留标题、页码、段落及来源标识，扫描 PDF 可能需要 OCR，表格若简单拼成连续文本会丢失行列关系。先检查解析质量再调检索参数，否则高质量向量只能索引错误文本。原文件与解析版本应关联，更新及删除能够定位到所有派生块。\n\n分块围绕可独立理解的语义边界，而非固定字符数机械截断。较小块容易精准命中但可能缺上下文，较大块保存背景却增加噪声与 token 成本。overlap 可以减少边界丢失，也会重复存储和检索内容；返回结果须去重并考虑相邻段落合并。token 计数由实际分词器决定，离线字符窗口练习应明确只是近似工具，不假装模型 tokenizer。\n\n每个块记录 documentId、chunkId、source、位置、内容版本及访问控制信息。用户和知识库权限过滤必须在检索路径生效，不能先把跨用户文档交给模型再靠提示词保密。重建索引时按内容哈希或版本实现幂等，避免重复块挤占 TopK。工程评估用含表格、跨页标题、重复段落及删除文档的小集合，人工抽查块是否可读、可定位。追问：为什么 chunk overlap 越大未必越好？冗余会降低有效证据覆盖并占用窗口。本文按 LangChain4j RAG 文档的摄取链路说明设计，解析器与 tokenizer 行为以选定版本为准。\n\n参考：\n- https://docs.langchain4j.dev/tutorials/rag/",
+        "knowledge": [
+          {
+            "key": "rag.parse",
+            "name": "结构保真的解析",
+            "explanation": "解析保留标题、页码与表格关系；OCR 和乱码先检查，向量检索不能修复上游丢失信息。"
+          },
+          {
+            "key": "rag.chunk",
+            "name": "分块与重叠",
+            "explanation": "小块精确但缺上下文，大块完整但噪声多；重叠减少断点也制造重复，字符窗口不等于 token 窗口。"
+          },
+          {
+            "key": "rag.metadata",
+            "name": "版本与访问元数据",
+            "explanation": "块绑定文档、位置、版本及权限，更新删除定位派生块；检索前做权限过滤，按版本或哈希防重复摄取。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Concept",
+            "front": "解析表格和扫描 PDF 时，哪些丢失不能靠向量检索补救？",
+            "back": "解析保留标题、页码与表格关系；OCR 和乱码先检查，向量检索不能修复上游丢失信息。\n追问：OCR 置信度低如何处理？",
+            "knowledgeKeys": [
+              "rag.parse"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "小块、大块和 overlap 对检索及上下文有什么权衡？",
+            "back": "小块精确但缺上下文，大块完整但噪声多；重叠减少断点也制造重复，字符窗口不等于 token 窗口。\n追问：相邻块合并何时进行？",
+            "knowledgeKeys": [
+              "rag.chunk"
+            ]
+          },
+          {
+            "type": "Pitfall",
+            "front": "文档修改或删除时，怎样防止旧块继续被检索？",
+            "back": "块绑定文档、位置、版本及权限，更新删除定位派生块；检索前做权限过滤，按版本或哈希防重复摄取。\n追问：权限过滤应在哪个阶段？",
+            "knowledgeKeys": [
+              "rag.metadata"
+            ]
+          },
+          {
+            "type": "Process",
+            "front": "文档解析、分块与元数据：如何从现象定位错误边界并验证？",
+            "back": "先检查结构保真的解析的输入与前提，再沿分块与重叠追踪处理边界，最终检查版本与访问元数据的失败情况。具体防错：未检查解析就调 embedding；无限增大 overlap；先检索跨用户文本再交模型过滤。追问：如何构造正常、边界和失败三个最小样例？",
+            "knowledgeKeys": [
+              "rag.parse",
+              "rag.chunk",
+              "rag.metadata"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "RAG 是什么、为什么需要、完整流程是什么，解析丢失为何不能靠检索补救？",
+            "answer": "RAG 是先检索外部资料，再将证据交给生成模型回答。它让私有或更新资料可作为上下文使用，不靠一次提示就永久训练模型。完整链路是 Upload → Parse → Chunk → Embedding → Vector Store → Retrieve → Rerank → Prompt → LLM → Citation；权限过滤、版本追踪和错误语义贯穿全程。解析保留标题、页码与表格关系；OCR 和乱码先检查，向量检索不能修复上游丢失信息。解析需保留标题、页码、段落及来源标识，扫描 PDF 可能需要 OCR，表格若简单拼成连续文本会丢失行列关系。先检查解析质量再调检索参数，否则高质量向量只能索引错误文本。原文件与解析版本应关联，更新及删除能够定位到所有派生块。边界：未检查解析就调 embedding。追问：OCR 置信度低如何处理？",
+            "keyPoints": [
+              "解析保留标题、页码与表格关系；OCR 和乱码先检查，向量检索不能修复上游丢失信息。",
+              "明确边界：未检查解析就调 embedding",
+              "补充验证：OCR 置信度低如何处理？"
+            ],
+            "followUps": [
+              "OCR 置信度低如何处理？"
+            ],
+            "commonMistakes": [
+              "未检查解析就调 embedding"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "rag.parse"
+            ]
+          },
+          {
+            "question": "小块、大块和 overlap 对检索及上下文有什么权衡？",
+            "answer": "小块精确但缺上下文，大块完整但噪声多；重叠减少断点也制造重复，字符窗口不等于 token 窗口。较小块容易精准命中但可能缺上下文，较大块保存背景却增加噪声与 token 成本。overlap 可以减少边界丢失，也会重复存储和检索内容；返回结果须去重并考虑相邻段落合并。token 计数由实际分词器决定，离线字符窗口练习应明确只是近似工具，不假装模型 tokenizer。边界：无限增大 overlap。追问：相邻块合并何时进行？",
+            "keyPoints": [
+              "小块精确但缺上下文，大块完整但噪声多；重叠减少断点也制造重复，字符窗口不等于 token 窗口。",
+              "明确边界：无限增大 overlap",
+              "补充验证：相邻块合并何时进行？"
+            ],
+            "followUps": [
+              "相邻块合并何时进行？"
+            ],
+            "commonMistakes": [
+              "无限增大 overlap"
+            ],
+            "rank": "A",
+            "knowledgeKeys": [
+              "rag.chunk"
+            ]
+          },
+          {
+            "question": "文档修改或删除时，怎样防止旧块继续被检索？",
+            "answer": "块绑定文档、位置、版本及权限，更新删除定位派生块；检索前做权限过滤，按版本或哈希防重复摄取。用户和知识库权限过滤必须在检索路径生效，不能先把跨用户文档交给模型再靠提示词保密。重建索引时按内容哈希或版本实现幂等，避免重复块挤占 TopK。工程评估用含表格、跨页标题、重复段落及删除文档的小集合，人工抽查块是否可读、可定位。追问：为什么 chunk overlap 越大未必越好？冗余会降低有效证据覆盖并占用窗口。边界：先检索跨用户文本再交模型过滤。追问：权限过滤应在哪个阶段？",
+            "keyPoints": [
+              "块绑定文档、位置、版本及权限，更新删除定位派生块；检索前做权限过滤，按版本或哈希防重复摄取。",
+              "明确边界：先检索跨用户文本再交模型过滤",
+              "补充验证：权限过滤应在哪个阶段？"
+            ],
+            "followUps": [
+              "权限过滤应在哪个阶段？"
+            ],
+            "commonMistakes": [
+              "先检索跨用户文本再交模型过滤"
+            ],
+            "rank": "B",
+            "knowledgeKeys": [
+              "rag.metadata"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "实现离线字符窗口分块",
+          "description": "Java17 离线练习：第一行两个整数 size overlap，第二行为无换行 ASCII 文本。size>0 且0<=overlap<size，非法参数输出 INVALID；每块最多 size 字符，步长 size-overlap，输出每块一行，末块到达文本末尾即停止，空文本输出 EMPTY。此算法仅演示窗口，不是生产 token 分块器。",
+          "hint": "参数校验在循环前完成；输出[start,min(start+size,length))，若 end==length 立即停止，否则 start 增加 size-overlap。",
+          "codeTemplate": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner s = new Scanner(System.in);\n    String params = s.nextLine();\n    String text = s.hasNextLine() ? s.nextLine() : \"\";\n    // TODO: 参数校验与窗口边界，末块到尾后停止\n  }\n}",
+          "solutionHint": "参数校验在循环前完成；输出[start,min(start+size,length))，若 end==length 立即停止，否则 start 增加 size-overlap。",
+          "exampleInput": "4 1\nabcdefgh",
+          "exampleOutput": "abcd\ndefg\ngh",
+          "testCases": [
+            {
+              "input": "4 1\nabcdefgh",
+              "expected": "abcd\ndefg\ngh"
+            },
+            {
+              "input": "4 0\nabc",
+              "expected": "abc"
+            },
+            {
+              "input": "4 4\nabc",
+              "expected": "INVALID"
+            },
+            {
+              "input": "3 1\n",
+              "expected": "EMPTY"
+            }
+          ],
+          "knowledgeKeys": [
+            "rag.parse",
+            "rag.chunk",
+            "rag.metadata"
+          ]
+        }
+        },
+        {
+        "key": "vectors-storage",
+        "title": "Embedding、余弦与向量存储",
+        "description": "理解向量空间兼容、余弦与距离方向、精确与近似 TopK并能说明失败边界。",
+        "objectives": [
+          "解释向量空间兼容并举出边界案例",
+          "解释余弦与距离方向并举出边界案例",
+          "解释精确与近似 TopK并举出边界案例"
+        ],
+        "minutes": 50,
+        "difficulty": 2,
+        "importance": "S",
+        "prerequisites": [
+          "parse-chunk"
+        ],
+        "material": "## Embedding、余弦与向量存储\n\nEmbedding 把文本映射到固定维度向量，距离或相似度衡量模型空间中的关联，不直接衡量答案真实性。查询和文档必须使用兼容模型、维度及预处理方式，换模型后通常需要重新向量化，而不能把不同空间混在一个索引中。余弦相似度等于点积除以两个范数，零向量没有合法余弦值；是否越大越相似要看指标及数据库返回的是距离还是相似度。\n\nMilvus 是面向向量检索的系统，pgvector 是 PostgreSQL 扩展。选型考虑已有数据库、规模、权限过滤、运维与一致性，而非声称某种工具天然更先进。pgvector 的余弦距离运算符返回距离，排序通常升序，不能套用相似度降序；Milvus 的不同指标排序含义也要核对。精确搜索与 HNSW、IVF 等近似索引在延迟、内存及召回率间权衡，近似 TopK 不保证返回全局最近的 K 条。\n\n入库需保存向量模型版本和原文定位，查询先做租户及知识库过滤，再取候选。过滤与近似搜索的组合可能减少返回量，应按数据库版本核对补搜策略，不能只增大 K 就假设权限完备。离线可以计算三组二维向量，明确维度不一致和零范数的处理，再稳定排序；这种实验验证数学与排序，不证明真实索引性能。追问：为何相似度阈值不能跨模型直接搬用？空间及分数分布变了，需要验证集重新校准。本文参考 Milvus 当前指标说明和 pgvector README，索引与过滤能力按安装版本确认。\n\n参考：\n- https://milvus.io/docs/metric.md\n- https://github.com/pgvector/pgvector",
+        "knowledge": [
+          {
+            "key": "rag.embedding",
+            "name": "向量空间兼容",
+            "explanation": "查询与文档使用兼容 embedding 模型和维度；更换模型需规划重建，不能混用空间并比较分数。"
+          },
+          {
+            "key": "rag.cosine",
+            "name": "余弦与距离方向",
+            "explanation": "余弦为归一化点积，零向量不合法；pgvector 余弦距离越小越近，不能误按相似度方向排序。"
+          },
+          {
+            "key": "rag.store",
+            "name": "精确与近似 TopK",
+            "explanation": "Milvus 与 pgvector 提供不同存储方案，近似索引换取效率且可能损失召回；权限过滤仍需验证。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Concept",
+            "front": "查询与文档 embedding 维度相同是否就能混用模型？",
+            "back": "查询与文档使用兼容 embedding 模型和维度；更换模型需规划重建，不能混用空间并比较分数。\n追问：换模型为什么常需重建？",
+            "knowledgeKeys": [
+              "rag.embedding"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "余弦相似度与 pgvector 余弦距离的排序方向如何区分？",
+            "back": "余弦为归一化点积，零向量不合法；pgvector 余弦距离越小越近，不能误按相似度方向排序。\n追问：零向量如何处理？",
+            "knowledgeKeys": [
+              "rag.cosine"
+            ]
+          },
+          {
+            "type": "Pitfall",
+            "front": "Milvus、pgvector 和近似索引应如何围绕需求选型？",
+            "back": "Milvus 与 pgvector 提供不同存储方案，近似索引换取效率且可能损失召回；权限过滤仍需验证。\n追问：近似搜索结合过滤为何可能不足 K？",
+            "knowledgeKeys": [
+              "rag.store"
+            ]
+          },
+          {
+            "type": "Process",
+            "front": "Embedding、余弦与向量存储：如何从现象定位错误边界并验证？",
+            "back": "先检查向量空间兼容的输入与前提，再沿余弦与距离方向追踪处理边界，最终检查精确与近似 TopK的失败情况。具体防错：同维度就混用不同模型；距离按相似度降序排序；近似索引被误当精确召回。追问：如何构造正常、边界和失败三个最小样例？",
+            "knowledgeKeys": [
+              "rag.embedding",
+              "rag.cosine",
+              "rag.store"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "Embedding 与生成式 LLM 有何区别，维度相同能否混用模型？",
+            "answer": "Embedding 把输入映射到固定长度的向量用于比较或检索；生成式 LLM 根据上下文输出后续 token，两种接口与目标不同，聊天模型不一定提供 embedding API。查询与文档使用兼容 embedding 模型和维度；更换模型需规划重建，不能混用空间并比较分数。查询和文档必须使用兼容模型、维度及预处理方式，换模型后通常需要重新向量化，而不能把不同空间混在一个索引中。余弦相似度等于点积除以两个范数，零向量没有合法余弦值；是否越大越相似要看指标及数据库返回的是距离还是相似度。边界：同维度就混用不同模型。追问：换模型为什么常需重建？",
+            "keyPoints": [
+              "查询与文档使用兼容 embedding 模型和维度；更换模型需规划重建，不能混用空间并比较分数。",
+              "明确边界：同维度就混用不同模型",
+              "补充验证：换模型为什么常需重建？"
+            ],
+            "followUps": [
+              "换模型为什么常需重建？"
+            ],
+            "commonMistakes": [
+              "同维度就混用不同模型"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "rag.embedding"
+            ]
+          },
+          {
+            "question": "余弦相似度与 pgvector 余弦距离的排序方向如何区分？",
+            "answer": "余弦为归一化点积，零向量不合法；pgvector 余弦距离越小越近，不能误按相似度方向排序。选型考虑已有数据库、规模、权限过滤、运维与一致性，而非声称某种工具天然更先进。pgvector 的余弦距离运算符返回距离，排序通常升序，不能套用相似度降序；Milvus 的不同指标排序含义也要核对。精确搜索与 HNSW、IVF 等近似索引在延迟、内存及召回率间权衡，近似 TopK 不保证返回全局最近的 K 条。边界：距离按相似度降序排序。追问：零向量如何处理？",
+            "keyPoints": [
+              "余弦为归一化点积，零向量不合法；pgvector 余弦距离越小越近，不能误按相似度方向排序。",
+              "明确边界：距离按相似度降序排序",
+              "补充验证：零向量如何处理？"
+            ],
+            "followUps": [
+              "零向量如何处理？"
+            ],
+            "commonMistakes": [
+              "距离按相似度降序排序"
+            ],
+            "rank": "A",
+            "knowledgeKeys": [
+              "rag.cosine"
+            ]
+          },
+          {
+            "question": "Milvus、pgvector 和近似索引应如何围绕需求选型？",
+            "answer": "向量数据库保存向量与元数据，并提供相似搜索及过滤。Milvus 是专门的向量数据库系统，pgvector 是 PostgreSQL 的向量扩展；不能把课程选型说成 KnowFlow 已部署两者。Milvus 与 pgvector 提供不同存储方案，近似索引换取效率且可能损失召回；权限过滤仍需验证。过滤与近似搜索的组合可能减少返回量，应按数据库版本核对补搜策略，不能只增大 K 就假设权限完备。离线可以计算三组二维向量，明确维度不一致和零范数的处理，再稳定排序；这种实验验证数学与排序，不证明真实索引性能。追问：为何相似度阈值不能跨模型直接搬用？空间及分数分布变了，需要验证集重新校准。边界：近似索引被误当精确召回。追问：近似搜索结合过滤为何可能不足 K？",
+            "keyPoints": [
+              "Milvus 与 pgvector 提供不同存储方案，近似索引换取效率且可能损失召回；权限过滤仍需验证。",
+              "明确边界：近似索引被误当精确召回",
+              "补充验证：近似搜索结合过滤为何可能不足 K？"
+            ],
+            "followUps": [
+              "近似搜索结合过滤为何可能不足 K？"
+            ],
+            "commonMistakes": [
+              "近似索引被误当精确召回"
+            ],
+            "rank": "B",
+            "knowledgeKeys": [
+              "rag.store"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "实现二维余弦相似度",
+          "description": "Java17 离线练习：输入一行四个有限 double，依次为 ax ay bx by。任一向量范数为零输出 UNDEFINED，否则输出余弦相似度，Locale.ROOT 三位小数。测试取小整数，避免把本练习当高维 ANN 性能基准。",
+          "hint": "用 Math.hypot 计算二维范数；先判断零范数，再用归一化分量计算点积，以 Locale.ROOT 输出。",
+          "codeTemplate": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner s = new Scanner(System.in).useLocale(Locale.ROOT);\n    double ax=s.nextDouble(), ay=s.nextDouble(), bx=s.nextDouble(), by=s.nextDouble();\n    // TODO: 点积、范数、零向量和输出格式\n  }\n}",
+          "solutionHint": "用 Math.hypot 计算二维范数；先判断零范数，再用归一化分量计算点积，以 Locale.ROOT 输出。",
+          "exampleInput": "1 0 1 0",
+          "exampleOutput": "1.000",
+          "testCases": [
+            {
+              "input": "1 0 1 0",
+              "expected": "1.000"
+            },
+            {
+              "input": "1 0 0 1",
+              "expected": "0.000"
+            },
+            {
+              "input": "1 0 -1 0",
+              "expected": "-1.000"
+            },
+            {
+              "input": "0 0 1 1",
+              "expected": "UNDEFINED"
+            }
+          ],
+          "knowledgeKeys": [
+            "rag.embedding",
+            "rag.cosine",
+            "rag.store"
+          ]
+        }
+        },
+        {
+        "key": "hybrid-rerank",
+        "title": "混合检索、重排与问题改写",
+        "description": "理解BM25 与语义互补、候选重排与多层 TopK、保留意图的问题改写并能说明失败边界。",
+        "objectives": [
+          "解释BM25 与语义互补并举出边界案例",
+          "解释候选重排与多层 TopK并举出边界案例",
+          "解释保留意图的问题改写并举出边界案例"
+        ],
+        "minutes": 55,
+        "difficulty": 2,
+        "importance": "S",
+        "prerequisites": [
+          "vectors-storage"
+        ],
+        "material": "## 混合检索、重排与问题改写\n\n向量检索擅长语义近邻，关键词检索适合精确术语、错误码及产品编号。BM25 根据词频、逆文档频率与长度归一化进行词项相关性评分，不等同于 embedding 相似度。混合检索分别取得候选后进行融合，直接把两个原始分数相加通常缺乏尺度依据。RRF 使用名次融合是可解释的起点，常写为对各列表求和 1/(k+rank)，rank 从一开始，k 为平滑常数。\n\nrerank 对较小候选集重新比较问题与片段，通常比单向量距离更细致，但增加计算和延迟。它只能重排已召回的内容，不能找回从未进入候选集的证据。TopK 分为召回候选量、重排保留量与最终上下文量，不应只用一个 K 控制整个链路。文档块去重、权限过滤和上下文预算仍需独立处理。\n\n多轮问题如它的有效期多久需要结合对话改写为独立问题，但改写不能偷偷添加未知产品名或改动用户条件。保留原问题，记录改写版本，必要时多查询检索并比较效果。离线设计可给出固定关键词榜与向量榜，手算融合后再分析重排次序；不能把手工分数标为模型测量。追问：为什么增加候选量会让最终回答更差？因为重复与噪声可能进入窗口，重排和证据筛选未必充分。本文参考 LangChain4j 查询变换及检索管线说明和 Milvus 指标文档，BM25 与融合是学习方案，不声称个人项目已经生产采用。\n\n参考：\n- https://docs.langchain4j.dev/tutorials/rag/\n- https://milvus.io/docs/metric.md\n- https://www.elastic.co/docs/reference/elasticsearch/index-settings/similarity",
+        "knowledge": [
+          {
+            "key": "rag.hybrid",
+            "name": "BM25 与语义互补",
+            "explanation": "BM25 面向词项匹配，向量面向语义；原始分数尺度不同，可先以名次融合，精确编号仍需关键词通道。"
+          },
+          {
+            "key": "rag.rerank",
+            "name": "候选重排与多层 TopK",
+            "explanation": "rerank 只作用于已召回候选，不能修复零召回；候选 K、重排 K、上下文 K 分开预算和评估。"
+          },
+          {
+            "key": "rag.rewrite",
+            "name": "保留意图的问题改写",
+            "explanation": "结合历史补全指代，保留原问题与条件，不添加无依据实体；用黄金集比较改写前后召回与延迟。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Concept",
+            "front": "关键词检索与向量检索为何互补，为什么不直接加原始分数？",
+            "back": "BM25 面向词项匹配，向量面向语义；原始分数尺度不同，可先以名次融合，精确编号仍需关键词通道。\n追问：RRF 的名次从几开始？",
+            "knowledgeKeys": [
+              "rag.hybrid"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "rerank 能否修复漏召回，三层 TopK 应怎样设置？",
+            "back": "rerank 只作用于已召回候选，不能修复零召回；候选 K、重排 K、上下文 K 分开预算和评估。\n追问：提高候选 K 如何影响延迟？",
+            "knowledgeKeys": [
+              "rag.rerank"
+            ]
+          },
+          {
+            "type": "Pitfall",
+            "front": "问题改写怎样补全指代又避免改变原问题？",
+            "back": "结合历史补全指代，保留原问题与条件，不添加无依据实体；用黄金集比较改写前后召回与延迟。\n追问：怎样保留原始问题供审计？",
+            "knowledgeKeys": [
+              "rag.rewrite"
+            ]
+          },
+          {
+            "type": "Process",
+            "front": "混合检索、重排与问题改写：如何从现象定位错误边界并验证？",
+            "back": "先检查BM25 与语义互补的输入与前提，再沿候选重排与多层 TopK追踪处理边界，最终检查保留意图的问题改写的失败情况。具体防错：直接相加不同尺度原始分数；让 rerank 修复没召回的文档；改写添加未出现的产品与条件。追问：如何构造正常、边界和失败三个最小样例？",
+            "knowledgeKeys": [
+              "rag.hybrid",
+              "rag.rerank",
+              "rag.rewrite"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "关键词检索与向量检索为何互补，为什么不直接加原始分数？",
+            "answer": "BM25 面向词项匹配，向量面向语义；原始分数尺度不同，可先以名次融合，精确编号仍需关键词通道。BM25 根据词频、逆文档频率与长度归一化进行词项相关性评分，不等同于 embedding 相似度。混合检索分别取得候选后进行融合，直接把两个原始分数相加通常缺乏尺度依据。RRF 使用名次融合是可解释的起点，常写为对各列表求和 1/(k+rank)，rank 从一开始，k 为平滑常数。边界：直接相加不同尺度原始分数。追问：RRF 的名次从几开始？",
+            "keyPoints": [
+              "BM25 面向词项匹配，向量面向语义；原始分数尺度不同，可先以名次融合，精确编号仍需关键词通道。",
+              "明确边界：直接相加不同尺度原始分数",
+              "补充验证：RRF 的名次从几开始？"
+            ],
+            "followUps": [
+              "RRF 的名次从几开始？"
+            ],
+            "commonMistakes": [
+              "直接相加不同尺度原始分数"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "rag.hybrid"
+            ]
+          },
+          {
+            "question": "rerank 能否修复漏召回，三层 TopK 应怎样设置？",
+            "answer": "rerank 只作用于已召回候选，不能修复零召回；候选 K、重排 K、上下文 K 分开预算和评估。它只能重排已召回的内容，不能找回从未进入候选集的证据。TopK 分为召回候选量、重排保留量与最终上下文量，不应只用一个 K 控制整个链路。文档块去重、权限过滤和上下文预算仍需独立处理。边界：让 rerank 修复没召回的文档。追问：提高候选 K 如何影响延迟？",
+            "keyPoints": [
+              "rerank 只作用于已召回候选，不能修复零召回；候选 K、重排 K、上下文 K 分开预算和评估。",
+              "明确边界：让 rerank 修复没召回的文档",
+              "补充验证：提高候选 K 如何影响延迟？"
+            ],
+            "followUps": [
+              "提高候选 K 如何影响延迟？"
+            ],
+            "commonMistakes": [
+              "让 rerank 修复没召回的文档"
+            ],
+            "rank": "A",
+            "knowledgeKeys": [
+              "rag.rerank"
+            ]
+          },
+          {
+            "question": "问题改写怎样补全指代又避免改变原问题？",
+            "answer": "结合历史补全指代，保留原问题与条件，不添加无依据实体；用黄金集比较改写前后召回与延迟。保留原问题，记录改写版本，必要时多查询检索并比较效果。离线设计可给出固定关键词榜与向量榜，手算融合后再分析重排次序；不能把手工分数标为模型测量。追问：为什么增加候选量会让最终回答更差？因为重复与噪声可能进入窗口，重排和证据筛选未必充分。边界：改写添加未出现的产品与条件。追问：怎样保留原始问题供审计？",
+            "keyPoints": [
+              "结合历史补全指代，保留原问题与条件，不添加无依据实体；用黄金集比较改写前后召回与延迟。",
+              "明确边界：改写添加未出现的产品与条件",
+              "补充验证：怎样保留原始问题供审计？"
+            ],
+            "followUps": [
+              "怎样保留原始问题供审计？"
+            ],
+            "commonMistakes": [
+              "改写添加未出现的产品与条件"
+            ],
+            "rank": "B",
+            "knowledgeKeys": [
+              "rag.rewrite"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "人工评审混合检索方案",
+          "description": "人工检查设计题：用 Java17 record 描述候选 ID、来源、名次与分数，给出两张固定榜单并手算 RRF，说明去重、权限过滤、重排和最终预算顺序。固定榜单只演示算法，不代表真实模型评测。",
+          "hint": "先明确BM25 与语义互补的前提，再画出正常及失败路径。用直接相加不同尺度原始分数、让 rerank 修复没召回的文档、改写添加未出现的产品与条件反向检查设计是否漏掉边界。",
+          "codeTemplate": "record Candidate(String id, String channel, int rank, double rawScore) {}\nclass HybridPlan {\n  // TODO: RRF、去重、重排位置与三层 K\n}",
+          "solutionHint": "人工评审需逐条说明：BM25 面向词项匹配，向量面向语义；原始分数尺度不同，可先以名次融合，精确编号仍需关键词通道。；rerank 只作用于已召回候选，不能修复零召回；候选 K、重排 K、上下文 K 分开预算和评估。；结合历史补全指代，保留原问题与条件，不添加无依据实体；用黄金集比较改写前后召回与延迟。提交时序、校验和错误类别，明确哪些结论需要真实外部环境验证。",
+          "exampleInput": "人工检查：阅读题目中的业务条件和失败时序",
+          "exampleOutput": "人工检查：提交设计、时序与边界说明；不产生自动 PASS",
+          "testCases": [],
+          "knowledgeKeys": [
+            "rag.hybrid",
+            "rag.rerank",
+            "rag.rewrite"
+          ]
+        }
+        },
+        {
+        "key": "citation-evaluation",
+        "title": "引用、无答案与黄金集评估",
+        "description": "理解引用支持度、无答案与错误分离、黄金集与分层指标并能说明失败边界。",
+        "objectives": [
+          "解释引用支持度并举出边界案例",
+          "解释无答案与错误分离并举出边界案例",
+          "解释黄金集与分层指标并举出边界案例"
+        ],
+        "minutes": 60,
+        "difficulty": 3,
+        "importance": "A",
+        "prerequisites": [
+          "hybrid-rerank"
+        ],
+        "material": "## 引用、无答案与黄金集评估\n\nRAG 的回答应能够定位到实际检索到且有权限的原文。引用不是在句末拼上文档编号：必须判断对应片段是否支持该陈述，并保留版本与位置，让用户能复核。模型可能引用存在的 ID 却说出材料里没有的结论，因此需要区分引用有效性与引用支持度。文档中注入的执行指令仍是资料，不能升级为系统规则或工具权限。\n\n当证据不足、来源矛盾或问题超出资料范围，应明确无法从当前材料回答，必要时请求澄清。无答案并不等于检索接口失败：前者可能是正常业务结果，后者需错误与重试状态。阈值要在代表性样本上校准，不能用任意高分保证正确。回答风格可以简洁，但不能用自信语气掩盖证据缺失。\n\n黄金集至少记录问题、可回答性、期望关键点、相关文档或块，以及版本。分离开发调参集与保留测试集，避免只在自己编写的简单例子上验收。检索看 recall@K、precision@K 或排序指标，生成看事实支持、引用覆盖、无答案准确率与人工质量，并同时记录首字延迟、总延迟和成本。漏召回、重排丢失与生成幻觉分别归因，不能只展示一个总分。离线可用固定集合计算 recall@K，真实模型及索引评估需另行运行。追问：若回答正确但引用错误算成功吗？对要求可追溯的系统仍是失败。本文基于 LangChain4j RAG 的链路概念说明评估设计，不宣称个人项目已有生产黄金集或付费调用结果。\n\n参考：\n- https://docs.langchain4j.dev/tutorials/rag/",
+        "knowledge": [
+          {
+            "key": "rag.citation",
+            "name": "引用支持度",
+            "explanation": "引用 ID 必须真实且有权访问，原文须支持具体陈述；ID 存在不意味着内容有证据。"
+          },
+          {
+            "key": "rag.no-answer",
+            "name": "无答案与错误分离",
+            "explanation": "证据不足时说明无法据当前材料回答；正常无答案不同于检索失败，需分别展示和统计。"
+          },
+          {
+            "key": "rag.golden",
+            "name": "黄金集与分层指标",
+            "explanation": "黄金集含可回答性和相关证据；检索、重排、生成分层评估，调参集与保留测试集分离并记录成本延迟。"
+          }
+        ],
+        "flashcards": [
+          {
+            "type": "Concept",
+            "front": "模型引用了真实文档 ID，是否就能认为答案有证据？",
+            "back": "引用 ID 必须真实且有权访问，原文须支持具体陈述；ID 存在不意味着内容有证据。\n追问：支持度与覆盖率有什么区别？",
+            "knowledgeKeys": [
+              "rag.citation"
+            ]
+          },
+          {
+            "type": "Why",
+            "front": "如何区分无法回答、资料矛盾和检索服务失败？",
+            "back": "证据不足时说明无法据当前材料回答；正常无答案不同于检索失败，需分别展示和统计。\n追问：阈值如何在验证集校准？",
+            "knowledgeKeys": [
+              "rag.no-answer"
+            ]
+          },
+          {
+            "type": "Pitfall",
+            "front": "黄金集要包含什么，为什么检索和生成应分层评估？",
+            "back": "黄金集含可回答性和相关证据；检索、重排、生成分层评估，调参集与保留测试集分离并记录成本延迟。\n追问：怎样避免调参集泄漏到验收？",
+            "knowledgeKeys": [
+              "rag.golden"
+            ]
+          },
+          {
+            "type": "Process",
+            "front": "引用、无答案与黄金集评估：如何从现象定位错误边界并验证？",
+            "back": "先检查引用支持度的输入与前提，再沿无答案与错误分离追踪处理边界，最终检查黄金集与分层指标的失败情况。具体防错：ID 存在就认定支持结论；把网络失败统计为正常无答案；用同一数据调参与最终验收。追问：如何构造正常、边界和失败三个最小样例？",
+            "knowledgeKeys": [
+              "rag.citation",
+              "rag.no-answer",
+              "rag.golden"
+            ]
+          }
+        ],
+        "questions": [
+          {
+            "question": "模型引用了真实文档 ID，是否就能认为答案有证据？",
+            "answer": "引用 ID 必须真实且有权访问，原文须支持具体陈述；ID 存在不意味着内容有证据。引用不是在句末拼上文档编号：必须判断对应片段是否支持该陈述，并保留版本与位置，让用户能复核。模型可能引用存在的 ID 却说出材料里没有的结论，因此需要区分引用有效性与引用支持度。文档中注入的执行指令仍是资料，不能升级为系统规则或工具权限。边界：ID 存在就认定支持结论。追问：支持度与覆盖率有什么区别？",
+            "keyPoints": [
+              "引用 ID 必须真实且有权访问，原文须支持具体陈述；ID 存在不意味着内容有证据。",
+              "明确边界：ID 存在就认定支持结论",
+              "补充验证：支持度与覆盖率有什么区别？"
+            ],
+            "followUps": [
+              "支持度与覆盖率有什么区别？"
+            ],
+            "commonMistakes": [
+              "ID 存在就认定支持结论"
+            ],
+            "rank": "S",
+            "knowledgeKeys": [
+              "rag.citation"
+            ]
+          },
+          {
+            "question": "如何区分无法回答、资料矛盾和检索服务失败？",
+            "answer": "证据不足时说明无法据当前材料回答；正常无答案不同于检索失败，需分别展示和统计。无答案并不等于检索接口失败：前者可能是正常业务结果，后者需错误与重试状态。阈值要在代表性样本上校准，不能用任意高分保证正确。回答风格可以简洁，但不能用自信语气掩盖证据缺失。边界：把网络失败统计为正常无答案。追问：阈值如何在验证集校准？",
+            "keyPoints": [
+              "证据不足时说明无法据当前材料回答；正常无答案不同于检索失败，需分别展示和统计。",
+              "明确边界：把网络失败统计为正常无答案",
+              "补充验证：阈值如何在验证集校准？"
+            ],
+            "followUps": [
+              "阈值如何在验证集校准？"
+            ],
+            "commonMistakes": [
+              "把网络失败统计为正常无答案"
+            ],
+            "rank": "A",
+            "knowledgeKeys": [
+              "rag.no-answer"
+            ]
+          },
+          {
+            "question": "黄金集要包含什么，为什么检索和生成应分层评估？",
+            "answer": "黄金集含可回答性和相关证据；检索、重排、生成分层评估，调参集与保留测试集分离并记录成本延迟。分离开发调参集与保留测试集，避免只在自己编写的简单例子上验收。检索看 recall@K、precision@K 或排序指标，生成看事实支持、引用覆盖、无答案准确率与人工质量，并同时记录首字延迟、总延迟和成本。漏召回、重排丢失与生成幻觉分别归因，不能只展示一个总分。离线可用固定集合计算 recall@K，真实模型及索引评估需另行运行。边界：用同一数据调参与最终验收。追问：怎样避免调参集泄漏到验收？",
+            "keyPoints": [
+              "黄金集含可回答性和相关证据；检索、重排、生成分层评估，调参集与保留测试集分离并记录成本延迟。",
+              "明确边界：用同一数据调参与最终验收",
+              "补充验证：怎样避免调参集泄漏到验收？"
+            ],
+            "followUps": [
+              "怎样避免调参集泄漏到验收？"
+            ],
+            "commonMistakes": [
+              "用同一数据调参与最终验收"
+            ],
+            "rank": "B",
+            "knowledgeKeys": [
+              "rag.golden"
+            ]
+          }
+        ],
+        "exercise": {
+          "title": "计算离线 Recall@K",
+          "description": "Java17 离线练习：第一行为逗号分隔相关文档 ID，第二行为按名次检索 ID，第三行为非负 K。按前 K 个检索位置取集合去重，与相关 ID 集交集；相关集为空输出 UNDEFINED，否则输出 recall 三位小数，Locale.ROOT。空行表示空集，重复 ID 不重复计分。",
+          "hint": "空行解析为空集合。检索先按位置截取前 K 个，再去重，不是去重后再截 K；以相关 ID 集大小为分母。",
+          "codeTemplate": "import java.util.*;\npublic class Main {\n  public static void main(String[] args) {\n    Scanner s = new Scanner(System.in);\n    String relevant=s.nextLine(), retrieved=s.nextLine();\n    int k=Integer.parseInt(s.nextLine().trim());\n    // TODO: 集合解析、前 K 截取、去重交集和格式\n  }\n}",
+          "solutionHint": "空行解析为空集合。检索先按位置截取前 K 个，再去重，不是去重后再截 K；以相关 ID 集大小为分母。",
+          "exampleInput": "a,b,c\na,x,b\n3",
+          "exampleOutput": "0.667",
+          "testCases": [
+            {
+              "input": "a,b,c\na,x,b\n3",
+              "expected": "0.667"
+            },
+            {
+              "input": "a,b\na,a,x\n2",
+              "expected": "0.500"
+            },
+            {
+              "input": "\na\n1",
+              "expected": "UNDEFINED"
+            },
+            {
+              "input": "a,b\n\n0",
+              "expected": "0.000"
+            }
+          ],
+          "knowledgeKeys": [
+            "rag.citation",
+            "rag.no-answer",
+            "rag.golden"
+          ]
+        }
+        }
+      ],
+      "notes": [
+        {
+          "title": "文档解析、分块与元数据速记",
+          "content": "结构保真的解析：解析保留标题、页码与表格关系；OCR 和乱码先检查，向量检索不能修复上游丢失信息。\n分块与重叠：小块精确但缺上下文，大块完整但噪声多；重叠减少断点也制造重复，字符窗口不等于 token 窗口。\n版本与访问元数据：块绑定文档、位置、版本及权限，更新删除定位派生块；检索前做权限过滤，按版本或哈希防重复摄取。\n复习动作：用一个成功样例和一个失败样例解释边界，不把设计评审等同于真实环境验证。",
+          "chapterKey": "parse-chunk"
+        },
+        {
+          "title": "Embedding、余弦与向量存储速记",
+          "content": "向量空间兼容：查询与文档使用兼容 embedding 模型和维度；更换模型需规划重建，不能混用空间并比较分数。\n余弦与距离方向：余弦为归一化点积，零向量不合法；pgvector 余弦距离越小越近，不能误按相似度方向排序。\n精确与近似 TopK：Milvus 与 pgvector 提供不同存储方案，近似索引换取效率且可能损失召回；权限过滤仍需验证。\n复习动作：用一个成功样例和一个失败样例解释边界，不把设计评审等同于真实环境验证。",
+          "chapterKey": "vectors-storage"
+        },
+        {
+          "title": "混合检索、重排与问题改写速记",
+          "content": "BM25 与语义互补：BM25 面向词项匹配，向量面向语义；原始分数尺度不同，可先以名次融合，精确编号仍需关键词通道。\n候选重排与多层 TopK：rerank 只作用于已召回候选，不能修复零召回；候选 K、重排 K、上下文 K 分开预算和评估。\n保留意图的问题改写：结合历史补全指代，保留原问题与条件，不添加无依据实体；用黄金集比较改写前后召回与延迟。\n复习动作：用一个成功样例和一个失败样例解释边界，不把设计评审等同于真实环境验证。",
+          "chapterKey": "hybrid-rerank"
+        }
+      ]
+    }
+  ]
+}

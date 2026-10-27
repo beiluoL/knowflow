@@ -9,7 +9,7 @@
         <input
           v-model="topicInput"
           type="text"
-          class="topic-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="topic-input transition-colors kb-input kb-form-control"
           placeholder="输入主题关键词进行深潜"
           @keyup.enter="handleGenerateTechGraph"
         />
@@ -84,7 +84,7 @@
             :disabled="!isSpeaking"
             @click="stop"
           >
-            <Icon name="square" :size="14" aria-hidden="true" />
+            <Icon name="layout" :size="14" aria-hidden="true" />
             <span>停止</span>
           </button>
           <div class="tts-sep" />
@@ -114,7 +114,7 @@
           <select
             v-if="voices.length"
             :value="selectedVoiceName"
-            class="voice-select focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="voice-select transition-colors kb-select kb-form-control"
             @change="(e) => setVoice((e.target as HTMLSelectElement).value)"
           >
             <option v-for="v in voices" :key="v.name" :value="v.name">
@@ -177,7 +177,7 @@
             <h3>深潜笔记区</h3>
           <textarea
             v-model="deepNote"
-            class="note-textarea focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="note-textarea transition-colors kb-textarea kb-form-control"
             rows="6"
             placeholder="在这里记下你的深潜思考…"
           />
@@ -189,8 +189,8 @@
         <DualRingProgress
           :inner-progress="innerProgress"
           :outer-progress="outerProgress"
-          inner-color="#F59E0B"
-          outer-color="#EF4444"
+          inner-color="var(--kb-warning)"
+          outer-color="var(--kb-danger)"
           :size="180"
         >
           <div class="ring-center">
@@ -216,8 +216,8 @@
         <DualRingProgress
           :inner-progress="innerProgress"
           :outer-progress="outerProgress"
-          inner-color="#F59E0B"
-          outer-color="#EF4444"
+          inner-color="var(--kb-warning)"
+          outer-color="var(--kb-danger)"
           :size="180"
         >
           <div class="ring-center">
@@ -302,7 +302,7 @@
             class="action-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             @click="$emit('toggle-graph')"
           >
-          <Icon name="network" :size="14" aria-hidden="true" />
+          <Icon name="share-2" :size="14" aria-hidden="true" />
           <span>打开知识图谱</span>
         </button>
           <button
@@ -310,7 +310,7 @@
             class="action-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
             @click="$emit('toggle-copilot')"
           >
-          <Icon name="bot" :size="14" aria-hidden="true" />
+          <Icon name="message-square-sparkles" :size="14" aria-hidden="true" />
           <span>打开 AI 助手</span>
         </button>
       </div>
@@ -399,8 +399,8 @@ const timeFormatted = computed(() => {
 const stageInfo = computed(() => {
   const m = elapsedSec.value / 60;
   if (m < 20) return { label: '探索阶段', color: '#60A5FA', icon: 'search' };
-  if (m <= 60) return { label: '专注阶段', color: '#F59E0B', icon: 'target' };
-  return { label: '掌握阶段', color: '#10B981', icon: 'award' };
+  if (m <= 60) return { label: '专注阶段', color: 'var(--kb-warning)', icon: 'target' };
+  return { label: '掌握阶段', color: 'var(--kb-success)', icon: 'award' };
 });
 
 const prerequisiteChips = computed<string[]>(() => {
@@ -492,7 +492,7 @@ function handleSpeakTopic() {
 }
 
 async function handleEndSession() {
-  const ok = await confirmDialog('确认结束本次深潜？笔记与专注进度将自动保存');
+  const ok = await confirmDialog('确认结束本次深潜？笔记与专注进度将自动保存', {"title":"结束本次学习？","confirmText":"结束学习","cancelText":"继续学习","icon":"layers","variant":"default"});
   if (!ok) return;
   stop();
   if (isActive()) {
@@ -604,18 +604,20 @@ onUnmounted(async () => {
   gap: 8px;
   margin-bottom: 4px;
 }
-.topic-input {
+.topic-input:not(.kb-form-control) {
   height: 40px;
-  padding: 0 12px;
-  font-size: 13px;
-  color: var(--kb-foreground);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   outline: none;
   transition: border-color 0.15s;
 }
-.topic-input:focus {
+.topic-input {
+  padding: 0 12px;
+  font-size: 13px;
+  color: var(--kb-foreground);
+}
+.topic-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
 }
 .topic-gen-btn {
@@ -702,7 +704,7 @@ onUnmounted(async () => {
 }
 .diff-badge.easy { color: #34D399; }
 .diff-badge.medium { color: #FBBF24; }
-.diff-badge.hard { color: #F87171; }
+.diff-badge.hard { color: var(--kb-danger-muted); }
 .topic-card-meta {
   display: flex;
   align-items: center;
@@ -725,7 +727,7 @@ onUnmounted(async () => {
 .cat-framework { background: rgba(59, 130, 246, 0.15); color: #60A5FA; }
 .cat-tool { background: rgba(139, 92, 246, 0.15); color: #A78BFA; }
 .cat-database { background: rgba(245, 158, 11, 0.15); color: #FBBF24; }
-.cat-algorithm { background: rgba(239, 68, 68, 0.15); color: #F87171; }
+.cat-algorithm { background: rgba(239, 68, 68, 0.15); color: var(--kb-danger-muted); }
 .cat-platform { background: rgba(236, 72, 153, 0.15); color: #F472B6; }
 .doc-count {
   display: inline-flex;
@@ -854,19 +856,21 @@ onUnmounted(async () => {
   color: var(--kb-primary);
   border-color: color-mix(in srgb, var(--kb-primary) 35%, transparent);
 }
-.voice-select {
+.voice-select:not(.kb-form-control) {
   height: 30px;
-  padding: 0 8px;
-  font-size: 11.5px;
-  color: var(--kb-foreground);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 7px;
   outline: none;
+}
+.voice-select {
+  padding: 0 8px;
+  font-size: 11.5px;
+  color: var(--kb-foreground);
   cursor: pointer;
   max-width: 160px;
 }
-.voice-select:focus {
+.voice-select:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
 }
 
@@ -986,6 +990,15 @@ onUnmounted(async () => {
   font-size: 11.5px;
 }
 
+.note-textarea:not(.kb-form-control) {
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  min-height: 120px;
+}
+
 .note-textarea {
   display: block;
   width: 100%;
@@ -993,16 +1006,11 @@ onUnmounted(async () => {
   font-size: 13.5px;
   line-height: 1.65;
   color: var(--kb-foreground);
-  background: rgba(0, 0, 0, 0.18);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
-  border-radius: 12px;
   font-family: inherit;
   resize: vertical;
-  outline: none;
-  transition: border-color 0.15s;
   min-height: 120px;
 }
-.note-textarea:focus {
+.note-textarea:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
 }
 
@@ -1153,7 +1161,7 @@ onUnmounted(async () => {
 }
 .end-btn:hover {
   background: rgba(239, 68, 68, 0.18);
-  color: #F87171;
+  color: var(--kb-danger-muted);
 }
 
 .insight-card.actions {

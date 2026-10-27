@@ -1,5 +1,8 @@
 <template>
-  <div class="wb-page animate-fade-in" :style="{ '--mc': themeColor }">
+  <WorkbenchShell stage="notes" :title="isNew ? '新建笔记' : '整理笔记'" :revision="revision" @ready="initialize">
+  <div v-if="loadError" role="alert" class="workbench-inline-error">{{ loadError }}<button class="kb-btn" @click="loadNote">重试</button></div>
+  <div v-else-if="!noteLoaded" class="workbench-empty" role="status">正在读取笔记与来源…</div>
+  <div v-else class="wb-page" :style="{ '--mc': themeColor }">
     <!-- ============ Sticky Top Bar ============ -->
     <header class="note-topbar">
       <div class="note-topbar-left">
@@ -9,16 +12,17 @@
         <div class="note-topbar-title">
           <span class="wb-eyebrow wb-eyebrow-sm">
             <span class="wb-eyebrow-dot"></span>
-            Cornell Notes
+            康奈尔笔记
           </span>
-          <h1 class="note-page-title">{{ isNew ? '新建康奈尔笔记' : '编辑笔记' }}</h1>
         </div>
       </div>
 
       <div class="note-topbar-center">
-        <span v-if="autoSaving" class="note-save-status note-save-saving">
+        <span v-if="saveError" class="note-err" role="alert">{{ saveError }}</span>
+        <span v-else-if="autoSaving" class="note-save-status note-save-saving">
           <Icon name="repeat" :size="13" class="animate-spin" /> 自动保存中…
         </span>
+        <span v-else-if="dirty" class="note-save-status note-save-idle">有新修改，等待保存</span>
         <span v-else-if="lastSavedAt" class="note-save-status note-save-done">
           <Icon name="check" :size="13" /> 已自动保存 · {{ lastSavedAt }}
         </span>
@@ -47,7 +51,7 @@
           <label class="wb-label">笔记标题 <span class="wb-req">*</span></label>
           <input
             v-model="form.title"
-            class="kb-input note-title-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="kb-input note-title-input transition-colors kb-form-control"
             placeholder="给这则笔记起个名字…"
             @blur="validateField('title')"
           />
@@ -56,7 +60,7 @@
 
         <div class="note-meta-field">
           <label class="wb-label">所属科目 / 分类</label>
-          <select v-model="form.categoryId" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+          <select v-model="form.categoryId" class="kb-input transition-colors kb-select kb-form-control">
             <option :value="undefined">未归类</option>
             <option v-for="c in flatCategories" :key="c.id" :value="c.id">{{ '　'.repeat(c.depth) }}{{ c.name }}</option>
           </select>
@@ -68,7 +72,7 @@
             <Icon name="hash" :size="14" class="note-tags-icon" />
             <input
               v-model="tagInput"
-              class="kb-input note-tags-field focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="kb-input note-tags-field transition-colors kb-form-control"
               placeholder="输入标签后回车"
               @keydown.enter.prevent="addTag"
               @keydown.delete="removeLastTag"
@@ -83,7 +87,7 @@
         </div>
 
         <div class="note-meta-field note-meta-mastery">
-          <label class="wb-label">掌握度 <span class="note-mastery-val">{{ form.mastery }}%</span></label>
+          <label class="wb-label">我的自评 <span class="note-mastery-val">{{ form.mastery }}%</span></label>
           <input type="range" min="0" max="100" step="5" v-model.number="form.mastery" class="note-mastery-slider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
         </div>
       </div>
@@ -101,9 +105,9 @@
           </div>
           <textarea
             v-model="form.cueColumn"
-            class="kb-input cornell-textarea cornell-cue-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="kb-input cornell-textarea cornell-cue-input transition-colors kb-textarea kb-form-control"
             placeholder="例如：&#10;- 什么是 SM-2 算法？&#10;- 间隔重复的原理是什么？"
-            rows="12"
+            rows="4"
           ></textarea>
         </div>
 
@@ -164,9 +168,9 @@
           </div>
           <textarea
             v-model="form.summaryColumn"
-            class="kb-input cornell-textarea cornell-summary-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="kb-input cornell-textarea cornell-summary-input transition-colors kb-textarea kb-form-control"
             placeholder="一句话讲清这个概念…"
-            rows="12"
+            rows="4"
           ></textarea>
         </div>
       </div>
@@ -180,31 +184,41 @@
         </span>
       </div>
       <div class="note-action-right">
-        <button class="kb-btn note-draft-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving" @click="saveDraft">
-          <Icon name="save" :size="15" aria-hidden="true" /> 保存草稿
+        <button data-test="note-save" class="kb-btn note-draft-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving || autoSaving" @click="saveDraft">
+          <Icon name="save" :size="15" aria-hidden="true" /> 保存笔记
         </button>
         <button class="kb-btn kb-btn-primary note-publish-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving" @click="publish">
-          <Icon name="send" :size="15" aria-hidden="true" /> 完成并发布
+          <Icon name="check" :size="15" aria-hidden="true" /> 完成整理
         </button>
+        <button class="kb-btn" :disabled="saving || autoSaving" @click="continueTo('review')">创建复习卡</button>
+        <button class="kb-btn" :disabled="saving || autoSaving" @click="continueTo('story')">开始输出</button>
       </div>
     </footer>
+    <WorkbenchRelations :capture-id="form.captureId" :note-id="noteId || undefined" :revision="revision" />
   </div>
+  </WorkbenchShell>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed, nextTick, onBeforeUnmount, reactive, ref, watch } from 'vue'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
+import WorkbenchShell from '@/components/workbench/WorkbenchShell.vue'
+import WorkbenchRelations from '@/components/workbench/WorkbenchRelations.vue'
+import { useSanitize } from '@/composables/useSanitize'
+import { positiveId } from '@/workbench/workflow'
 import Icon from '@/components/ui/Icon.vue'
 import { notify, confirmDialog, getApiError } from '@/utils/toast'
 import './workbench-shared.css'
-import { getNote, createNote, updateNote, getCategoryTree } from '@/api/workbench'
-import type { WbNotePayload, CategoryVO } from '@/api/types'
+import { getNote, getCapture, createNote, updateNote, getCategoryTree } from '@/api/workbench'
+import type { WbNotePayload, CategoryTreeNodeVO } from '@/api/types'
 
 const route = useRoute()
 const router = useRouter()
-const themeColor = '#8B5CF6'
+const themeColor = 'var(--kb-primary)'
+const { sanitize } = useSanitize()
+const revision = ref(0), loadError = ref(''), saveError = ref('')
 
-const noteId = ref<number | null>(route.params.id && route.params.id !== 'new' ? Number(route.params.id) : null)
+const noteId = ref<number | null>(positiveId(route.params.id) || null)
 const isNew = computed(() => noteId.value === null)
 const noteLoaded = ref(false)
 
@@ -216,7 +230,7 @@ const autoSaving = ref(false)
 const lastSavedAt = ref('')
 const loaded = ref(false)
 
-const flatCategories = ref<CategoryVO[]>([])
+const flatCategories = ref<CategoryTreeNodeVO[]>([])
 const tagInput = ref('')
 const tags = ref<string[]>([])
 
@@ -234,9 +248,13 @@ const form = reactive<WbNotePayload>({
 const errors = reactive<{ title?: string; _form?: string }>({})
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null
+let pendingSave: Promise<boolean> | null = null
+const lastSaved = ref('')
+const snapshot = () => JSON.stringify({ ...form, tags: tags.value.join(','), noteColumn: sanitize(form.noteColumn) })
+const dirty = computed(() => loaded.value && snapshot() !== lastSaved.value)
 
-function flatten(nodes: CategoryVO[], depth = 0): CategoryVO[] {
-  const out: CategoryVO[] = []
+function flatten(nodes: CategoryTreeNodeVO[], depth = 0): CategoryTreeNodeVO[] {
+  const out: CategoryTreeNodeVO[] = []
   for (const n of nodes) {
     out.push({ ...n, depth })
     if (n.children && n.children.length) out.push(...flatten(n.children, depth + 1))
@@ -252,16 +270,27 @@ async function loadCategories() {
 }
 
 async function loadNote() {
+  loadError.value = ''
+  loaded.value = false
+  noteLoaded.value = false
+  try {
   if (isNew.value) {
-    if (route.query.captureId) form.captureId = Number(route.query.captureId)
-    if (route.query.title) form.title = String(route.query.title)
+    const captureId = positiveId(route.query.captureId)
+    if (route.query.captureId && !captureId) throw new Error('Invalid source ID')
+    if (captureId) {
+      const capture = await getCapture(captureId)
+      const div = document.createElement('div')
+      div.textContent = capture.content || ''
+      Object.assign(form, { captureId: capture.id, title: capture.title, noteColumn: div.innerHTML, tags: capture.tags || '', categoryId: capture.categoryId })
+      tags.value = (capture.tags || '').split(',').map(t => t.trim()).filter(Boolean)
+    } else if (route.query.title) form.title = String(route.query.title)
     noteLoaded.value = true
     await nextTick()
     initEditor()
     loaded.value = true
+    lastSaved.value = snapshot()
     return
   }
-  try {
     const note = await getNote(noteId.value!)
     Object.assign(form, {
       title: note.title,
@@ -278,14 +307,15 @@ async function loadNote() {
     await nextTick()
     initEditor()
     loaded.value = true
+    lastSaved.value = snapshot()
   } catch (e) {
-    notify(getApiError(e, '加载笔记失败'), 'error')
+    loadError.value = getApiError(e, '笔记或来源加载失败，请重试')
   }
 }
 
 function initEditor() {
   if (editorRef.value) {
-    editorRef.value.innerHTML = form.noteColumn || ''
+    editorRef.value.innerHTML = sanitize(form.noteColumn)
   }
 }
 
@@ -355,28 +385,44 @@ function validateAll(forPublish: boolean): boolean {
 }
 
 async function doSave(silent = false): Promise<boolean> {
+  if (autoSaveTimer) { clearTimeout(autoSaveTimer); autoSaveTimer = null }
+  if (pendingSave) {
+    const ok = await pendingSave
+    if (!ok) return false
+    if (!dirty.value) return true
+  }
   if (!form.title.trim()) {
     if (!silent) errors.title = '标题不能为空'
     return false
   }
-  try {
+  saveError.value = ''
+  form.tags = tags.value.join(',')
+  const payload = { ...form, noteColumn: sanitize(form.noteColumn) }
+  const savedSnapshot = JSON.stringify(payload)
+  const operation = (async () => { try {
     if (isNew.value) {
-      const newId = await createNote({ ...form })
+      const newId = await createNote(payload)
       noteId.value = newId
       if (!silent) notify('已保存', 'success')
     } else {
-      await updateNote(noteId.value!, { ...form })
+      await updateNote(noteId.value!, payload)
       if (!silent) notify('已保存', 'success')
     }
     lastSavedAt.value = formatTime(new Date())
+    lastSaved.value = savedSnapshot
+    revision.value++
     return true
   } catch (e) {
+    saveError.value = getApiError(e, '保存失败，内容仍在编辑器中')
     if (!silent) notify(getApiError(e, '保存失败'), 'error')
     return false
-  }
+  } })()
+  pendingSave = operation
+  try { return await operation } finally { if (pendingSave === operation) pendingSave = null }
 }
 
 async function saveDraft() {
+  if (saving.value) return
   if (!validateAll(false)) {
     notify('请填写标题', 'warning')
     return
@@ -387,6 +433,7 @@ async function saveDraft() {
 }
 
 async function publish() {
+  if (saving.value) return
   if (!validateAll(true)) {
     notify(errors._form || '请补全必填项', 'warning')
     return
@@ -395,18 +442,24 @@ async function publish() {
   const ok = await doSave(false)
   saving.value = false
   if (ok) {
-    notify('笔记已发布！', 'success')
-    router.push('/workbench/notes')
+    notify('已完成整理，可以继续复习或输出', 'success')
   }
 }
 
 function goBack() {
-  if (form.title.trim() || form.noteColumn?.trim()) {
-    confirmDialog('有未保存的内容，确认离开？').then((ok) => {
-      if (ok) router.push('/workbench/notes')
-    })
-  } else {
-    router.push('/workbench/notes')
+  void router.push('/workbench/notes')
+}
+
+async function continueTo(stage: 'review' | 'story') {
+  if (saving.value || autoSaving.value || !validateAll(false)) return
+  saving.value = true
+  const ok = await doSave(false)
+  saving.value = false
+  if (!ok || !noteId.value) return
+  if (stage === 'story') void router.push({ path: '/workbench/story/new', query: { noteId: String(noteId.value) } })
+  else {
+    const div = document.createElement('div'); div.innerHTML = sanitize(form.noteColumn)
+    void router.push({ path: '/workbench/review', query: { noteId: String(noteId.value), create: '1', front: form.cueColumn || form.title, back: form.summaryColumn || div.textContent || '' } })
   }
 }
 
@@ -517,10 +570,16 @@ watch(
   { deep: true }
 )
 
-onMounted(() => {
+function initialize() {
   loadCategories()
   loadNote()
+}
+onBeforeRouteLeave(async () => {
+  if (pendingSave) await pendingSave
+  if (dirty.value) return await confirmDialog('有未保存的修改，确认离开？', {"title":"放弃未保存的修改？","confirmText":"放弃并离开","cancelText":"返回编辑","icon":"log-out","variant":"default"})
+  return true
 })
+onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(autoSaveTimer) })
 </script>
 
 <style scoped>
@@ -581,8 +640,8 @@ onMounted(() => {
   color: var(--mc);
 }
 .note-save-done {
-  background: color-mix(in srgb, #10B981 10%, transparent);
-  color: #10B981;
+  background: color-mix(in srgb, var(--kb-success) 10%, transparent);
+  color: var(--kb-success);
 }
 .note-save-idle {
   background: var(--kb-muted);
@@ -613,8 +672,8 @@ onMounted(() => {
 
 /* ===== Metadata Card ===== */
 .note-meta-card {
-  padding: 20px;
-  border-radius: var(--kb-radius-md);
+  padding: var(--kb-space-6);
+  border-radius: var(--kb-radius-lg);
   background: var(--kb-card);
   border: 1px solid var(--kb-border);
   box-shadow: var(--shadow-card);
@@ -708,8 +767,8 @@ onMounted(() => {
 /* ===== Cornell Three-Column ===== */
 .cornell-grid {
   display: grid;
-  grid-template-columns: 3fr 6fr 3fr;
-  gap: 14px;
+  grid-template-columns: var(--kb-wb-cue-width) minmax(0, 1fr);
+  gap: var(--kb-space-4);
 }
 .cornell-col {
   display: flex;
@@ -718,9 +777,9 @@ onMounted(() => {
   border: 1px solid var(--kb-border);
   overflow: hidden;
 }
-.cornell-cue { border-top: 3px solid #F59E0B; }
+.cornell-cue { border-top: 3px solid var(--kb-warning); }
 .cornell-note { border-top: 3px solid var(--mc); }
-.cornell-summary { border-top: 3px solid #10B981; }
+.cornell-summary { border-top: 3px solid var(--kb-success); grid-column: 1 / -1; }
 
 .cornell-col-head {
   display: flex;
@@ -729,11 +788,11 @@ onMounted(() => {
   padding: 12px 14px 8px;
   color: var(--kb-foreground);
 }
-.cornell-cue .cornell-col-head { color: #F59E0B; }
-.cornell-summary .cornell-col-head { color: #10B981; }
+.cornell-cue .cornell-col-head { color: var(--kb-warning); }
+.cornell-summary .cornell-col-head { color: var(--kb-success); }
 .cornell-col-title {
-  font-family: var(--font-serif);
-  font-size: 15px;
+  font-family: var(--font-sans);
+  font-size: var(--kb-fs-body-md);
   font-weight: 700;
   color: inherit;
   margin: 0;
@@ -744,22 +803,26 @@ onMounted(() => {
   margin: 2px 0 0;
   line-height: 1.4;
 }
-.cornell-textarea {
-  flex: 1;
-  min-height: 280px;
+.cornell-textarea:not(.kb-form-control) {
+  min-height: var(--kb-wb-writing-height);
   border: none;
   border-radius: 0;
   background: transparent;
+}
+.cornell-textarea {
+  flex: 1;
   resize: vertical;
   font-family: var(--font-sans);
   font-size: 14px;
   line-height: 1.7;
+  min-height: var(--kb-wb-writing-height);
 }
-.cornell-cue-input {
-  background: color-mix(in srgb, #F59E0B 2%, transparent);
+.cornell-cue-input:not(.kb-form-control) {
+  background: color-mix(in srgb, var(--kb-warning) 2%, transparent);
 }
-.cornell-summary-input {
-  background: color-mix(in srgb, #10B981 2%, transparent);
+.cornell-summary-input:not(.kb-form-control) {
+  background: color-mix(in srgb, var(--kb-success) 2%, transparent);
+  min-height: calc(var(--kb-space-8) * 3);
 }
 
 /* ===== Rich Text Editor ===== */
@@ -813,9 +876,9 @@ onMounted(() => {
 }
 .cornell-editor {
   flex: 1;
-  min-height: 280px;
-  padding: 14px;
-  font-size: 14px;
+  min-height: var(--kb-wb-writing-height);
+  padding: var(--kb-space-4);
+  font-size: var(--kb-fs-body-md);
   line-height: 1.8;
   color: var(--kb-foreground);
   outline: none;
@@ -908,4 +971,6 @@ onMounted(() => {
   .note-action-bar { flex-direction: column; align-items: stretch; }
   .note-action-right { justify-content: flex-end; }
 }
+.cornell-summary-input {
+  min-height: calc(var(--kb-space-8) * 3); }
 </style>

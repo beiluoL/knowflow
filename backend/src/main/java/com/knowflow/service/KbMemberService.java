@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.knowflow.entity.KbMember;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 知识库成员服务接口。
@@ -47,6 +48,12 @@ public interface KbMemberService extends IService<KbMember> {
      * 当前用户是否对该知识库可查看（任一成员角色 + 系统 ADMIN）。
      */
     boolean canView(Long categoryId, Long currentUserId);
+
+    /** 一次性返回用户可查看的顶级知识库 ID；系统管理员返回空集合并由调用方按全量处理。 */
+    Set<Long> listViewableCategoryIds(Long currentUserId);
+
+    /** 是否可查看全部知识库（系统管理员）。 */
+    boolean canViewAll(Long currentUserId);
 
     /**
      * 添加/邀请成员：

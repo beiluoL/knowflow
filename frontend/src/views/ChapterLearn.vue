@@ -1,12 +1,12 @@
 <template>
   <div class="chapter-learn">
     <!-- 主体：左侧正文 + 右侧大纲 -->
-    <div class="flex">
+    <div class="chapter-columns">
       <!-- 左侧课程内容 -->
       <div class="flex-1 min-w-0">
         <!-- 面包屑 -->
         <nav class="flex items-center gap-2 text-sm px-6 py-3 breadcrumb-bar">
-          <router-link to="/learning/center" class="font-medium breadcrumb-link">学习中心</router-link>
+          <router-link to="/learning/center" class="font-medium breadcrumb-link">学习首页</router-link>
           <Icon name="chevron-right" :size="14" class="breadcrumb-sep" />
           <router-link to="/learning/paths" class="font-medium breadcrumb-link">学习路径</router-link>
           <Icon name="chevron-right" :size="14" class="breadcrumb-sep" />
@@ -16,33 +16,13 @@
             class="font-medium breadcrumb-link"
           >{{ pathDetail.title }}</router-link>
           <Icon name="chevron-right" :size="14" class="breadcrumb-sep" />
-          <span class="font-medium" style="color: var(--kb-foreground);">第 {{ currentChapter?.sortOrder || 1 }} 章</span>
+          <span class="font-medium" style="color: var(--kb-foreground);">{{ currentChapter?.title || '章节学习' }}</span>
         </nav>
 
-        <!-- 进度点 -->
-        <div v-if="pathChapters.length > 0" class="px-6 py-4 flex items-center gap-1 progress-bar-area">
-          <template v-for="(ch, idx) in pathChapters" :key="ch.id">
-            <!-- 连接线（非首项） -->
-            <div
-              v-if="idx > 0"
-              class="progress-line"
-              :style="{ background: ch.completed ? 'var(--kb-accent)' : 'var(--kb-muted)' }"
-            ></div>
-            <!-- 进度点 -->
-            <div
-              class="progress-dot"
-              :class="{ 'is-current': ch.id === currentChapterId, 'is-done': ch.completed }"
-              :title="ch.completed ? '已完成' : ch.id === currentChapterId ? '当前章节' : '未开始'"
-              @click="goToChapter(ch.id)"
-            ></div>
-          </template>
-          <div class="ml-3 text-[13px] font-medium" style="color: var(--kb-primary);">
-            第 {{ currentChapter?.sortOrder || 1 }}/{{ pathChapters.length }} 章
-          </div>
-        </div>
+        <ChapterProgress v-if="pathChapters.length" :chapters="pathChapters" :current-id="currentChapterId" :progress="pathProgress" @select="selectChapter" />
 
         <!-- 课程内容正文 -->
-        <div class="px-6 py-6 content-body" style="max-width: 960px;">
+        <div class="content-body" ref="readingRoot" @click="handleReadingClick">
           <!-- 加载态 -->
           <div v-if="loading" class="space-y-4">
             <div class="h-8 rounded animate-pulse" style="background: var(--kb-muted);"></div>
@@ -51,69 +31,101 @@
             <div class="h-4 rounded animate-pulse w-5/6" style="background: var(--kb-muted);"></div>
           </div>
           <!-- 正文 -->
+          <StateView v-else-if="chapterError" status="error" error-title="章节加载失败" :error-description="chapterError" error-scope="正文暂不可用，不会显示上一章内容。" @retry="loadChapter(currentChapterId)" />
           <template v-else-if="currentChapter">
-            <h2>{{ currentChapter.title }}</h2>
-            <div v-html="renderedContent"></div>
+            <header class="reading-header">
+              <span class="chapter-number">第 {{ currentChapterIndex+1 }} 章</span>
+              <h1>{{ currentChapter.title }}</h1>
+              <p v-if="reading.summary || currentChapter.description" class="chapter-summary">{{ reading.summary || currentChapter.description }}</p>
+              <div class="chapter-meta">
+                <span><Icon name="clock" :size="14" />{{ currentChapter.duration ? `预计 ${currentChapter.duration} 分钟` : '时长未提供' }}</span>
+                <span><Icon name="bar-chart-3" :size="14" />{{ pathDetail?.level || '难度未提供' }}</span>
+                <span v-if="reading.importance"><Icon name="star" :size="14" />面试重要度 {{ reading.importance }}</span>
+                <span :class="{completed:currentChapter.completed}"><Icon :name="currentChapter.completed?'check-circle':'circle'" :size="14" />{{ currentChapter.completed ? '本章已完成' : currentChapter.locked ? '前置未完成' : '尚未完成' }}</span>
+              </div>
+              <p v-if="navigationError" class="resource-error">路径导航加载失败：{{ navigationError }} <button type="button" @click="loadChapter(currentChapterId)">重试</button></p>
+            </header>
+            <section class="reading-bookmark" aria-label="阅读位置保存">
+              <p>阅读位置仅用于继续阅读，不代表知识掌握。</p>
+
+              <Button v-if="currentChapter.readingAnchor && !readingPositionStale" variant="secondary" size="sm" data-reading-resume type="button" @click="resumeReading">恢复已保存位置</Button>
+              <p v-if="readingPositionStale">正文已更新，请重新选择并保存阅读位置。</p>
+              <p v-if="readingSaveSuccess" role="status">阅读位置已保存，可关闭页面后继续。</p>
+              <p v-else-if="readingDirty" role="status">当前位置尚未保存。</p>
+              <p v-if="readingSaveError" role="alert">{{ readingSaveError }} <button type="button" @click="saveReadingPosition">重试保存</button> <button type="button" @click="loadChapter(currentChapterId)">重新加载位置</button></p>
+            </section>
+            <LearningObjectives :items="reading.objectives" />
+            <!-- 提取专业英语：基于当前章节正文或选区生成候选，人工确认后才入库 -->
+            <div class="chapter-extract-row">
+              <Button variant="secondary" size="sm" type="button" @click="openExtract">提取专业英语</Button>
+              <span class="chapter-extract-hint">从本章提取技术词汇候选，需人工确认后进入个人待审列表</span>
+            </div>
+            <article class="chapter-article" v-html="renderedContent"></article>
+            <details v-if="revision || curatedReading" class="original-reading"><summary>查看保留的原版章节正文</summary><div v-html="originalReading"></div></details>
+            <section class="reading-bookmark" aria-label="章节关联练习">
+              <h2>关联练习（已审核）</h2>
+              <p v-if="knowledgeLoading" role="status">正在加载关联练习…</p>
+              <p v-else-if="knowledgeError" role="alert">关联练习加载失败 <button type="button" @click="loadRelatedKnowledge(currentChapterId)">重试</button></p>
+              <div v-else-if="mappedPractice.length"><Button variant="secondary" @click="router.push(chapterPracticeRoute(mappedPractice[0]!.id))" data-chapter-specialty>开始本章专项练习</Button><ul><li v-for="question in mappedPractice" :key="question.id"><router-link :to="chapterPracticeRoute(question.id)" data-chapter-practice>{{ question.title }}</router-link></li></ul></div>
+              <p v-else>暂无可用的已审核关联练习；专题题库待审核或尚未确认关联，不会按标题自动猜题。</p>
+            </section>
+            <InterviewSeedChapter id="chapter-training" :key="currentChapter.id" :chapter-id="currentChapter.id" @revision="onRevision" @reading="curatedReading = $event" @resources="trainingResources = $event" @questions="chapterQuestions = $event" />
           </template>
           <!-- 空态 -->
           <p v-else class="text-center py-12" style="color: var(--kb-muted-foreground);">本章暂无内容</p>
+          <!-- 划词学习：章节教材正文选中英文单词/缩写即可查询已发布术语 -->
+          <SelectionTermLookup
+            :target="readingRoot"
+            :enabled="!loading && !chapterError && !!currentChapter"
+            :context-domain="chapterDomain"
+            @open-extract="openExtract"
+          />
+          <TermExtractDialog
+            :open="extractOpen"
+            source-type="TEXT"
+            :source-title="currentChapter?.title || ''"
+            :article-text="readingSource"
+            :selection-text="extractSelection"
+            @close="extractOpen = false"
+          />
         </div>
       </div>
 
       <!-- 右侧大纲 -->
-      <aside class="w-72 shrink-0 border-l outline-sidebar">
-        <div class="sticky top-14 max-h-[calc(100vh-56px)] overflow-y-auto no-scrollbar p-4">
+      <aside class="outline-sidebar" v-if="currentChapter">
+        <div class="outline-sticky">
+          <button class="outline-toggle" type="button" :aria-expanded="outlineExpanded" aria-controls="chapter-outline-content" @click="outlineExpanded = !outlineExpanded">{{ outlineExpanded ? '收起章节目录' : '展开章节目录' }}</button>
+          <div id="chapter-outline-content" class="outline-content" :class="{ 'is-collapsed': !outlineExpanded }">
           <!-- 本章大纲 -->
-          <h4 class="outline-title">本章大纲</h4>
-          <div class="space-y-1">
-            <a
-              v-for="(item, idx) in outlineItems"
-              :key="idx"
-              class="outline-item"
-              :class="{ active: idx === activeOutlineIndex, sub: item.sub }"
-              :href="`#${item.id}`"
-              @click.prevent="scrollToHeading(item.id)"
-            >{{ item.text }}</a>
-            <p v-if="outlineItems.length === 0" class="px-3 py-2 text-[13px]" style="color: var(--kb-muted-foreground);">暂无大纲</p>
-          </div>
+          <h4 class="outline-title">本章目录</h4>
+          <ChapterTOC :items="outlineItems" :active-index="activeOutlineIndex" @select="scrollToHeading" />
 
-          <!-- 章节信息 -->
-          <div class="mt-6 pt-4 chapter-info-section">
-            <h4 class="outline-title">章节信息</h4>
-            <div class="space-y-2 px-2">
-              <div class="flex items-center justify-between text-[13px]">
-                <span style="color: var(--kb-muted-foreground);">预计时长</span>
-                <span class="font-medium" style="color: var(--kb-foreground);">{{ currentChapter?.duration || 0 }} 分钟</span>
-              </div>
-              <div class="flex items-center justify-between text-[13px]">
-                <span style="color: var(--kb-muted-foreground);">难度等级</span>
-                <span class="font-medium" style="color: var(--kb-warning);">{{ pathDetail?.level || '中等' }}</span>
-              </div>
-              <div class="flex items-center justify-between text-[13px]">
-                <span style="color: var(--kb-muted-foreground);">章节序号</span>
-                <span class="font-medium" style="color: var(--kb-foreground);">第 {{ currentChapter?.sortOrder || 1 }} 章</span>
-              </div>
-            </div>
-          </div>
+          <ChapterStudyTools :flashcard-route="flashcardRoute" :card-count="cardCount" :card-error="cardError" :question-count="questionCount" :exercise-count="exerciseCount" @note="openChapterNote" @questions="scrollToTrainingSection('questions')" @exercises="scrollToTrainingSection('exercises')" @retry="loadCardCount(currentChapterId)" />
 
           <!-- A-FB-01 相关概念 -->
           <div v-if="relatedConcepts.length > 0" class="mt-6 pt-4 related-section">
-            <h4 class="outline-title">相关概念</h4>
+            <h4 class="outline-title">关联知识点</h4>
             <div class="flex flex-wrap gap-2 px-2">
-              <span
-                v-for="concept in relatedConcepts"
-                :key="concept"
+              <router-link
+                v-for="concept in (conceptsExpanded ? relatedConcepts : relatedConcepts.slice(0,6))"
+                :key="concept.id"
+                :to="resolveChapterResourceRoute('knowledge',concept.id,currentChapterId)"
+                :title="`查看 ${concept.name} 的关联资料`"
                 class="related-concept-chip"
-              >{{ concept }}</span>
+              >{{ concept.name }}</router-link>
             </div>
+            <button v-if="relatedConcepts.length>6" class="related-expand" @click="conceptsExpanded=!conceptsExpanded">{{ conceptsExpanded ? '收起关联' : `展开其余 ${relatedConcepts.length-6} 项` }}</button>
           </div>
+          <p v-else-if="!knowledgeError" class="resource-caption">本章暂无关联知识；不会按标题猜测生成。</p>
+          <p v-if="knowledgeError" class="resource-error">知识关联加载失败 <button @click="loadRelatedKnowledge(currentChapterId)">重试</button></p>
+          <p v-if="docsError" class="resource-error">关联文档加载失败 <button @click="loadRelatedDocs(currentChapter)">重试</button></p>
 
           <!-- A-FB-01 相关文档 -->
           <div v-if="relatedDocs.length > 0" class="mt-6 pt-4 related-section">
             <h4 class="outline-title">相关文档</h4>
             <div class="space-y-1 px-1">
               <router-link
-                v-for="doc in relatedDocs"
+                v-for="doc in relatedDocs.slice(0,2)"
                 :key="doc.id"
                 :to="`/doc/${doc.id}`"
                 class="related-doc-item"
@@ -123,12 +135,13 @@
               </router-link>
             </div>
           </div>
+          </div>
         </div>
       </aside>
     </div>
 
     <!-- 底部固定操作栏 -->
-    <div class="fixed bottom-0 left-0 right-0 h-14 flex items-center justify-between px-6 border-t z-40 bottom-action-bar">
+    <div v-if="currentChapter && !loading" class="bottom-action-bar" aria-label="章节学习操作">
       <!-- 上一章 -->
       <button
         type="button"
@@ -137,15 +150,17 @@
         @click="goToPrevChapter"
       >
         <Icon name="arrow-left" :size="16" />
-        <span>上一章{{ prevChapterTitle ? `：${prevChapterTitle}` : '' }}</span>
+        <span>上一章</span>
       </button>
 
       <!-- 中间操作 -->
       <div class="flex items-center gap-3">
+        <Button variant="secondary" size="sm" data-reading-save type="button" :disabled="readingSaving || currentChapter.locked" @click="saveReadingPosition">{{ readingSaving ? '保存中…' : '保存当前阅读位置' }}</Button>
         <button
           type="button"
           class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bottom-icon-btn"
           @click="toggleFavorite"
+          :disabled="favoriteBusy || !!favoriteError"
         >
           <Icon :name="isFavorite ? 'bookmark-check' : 'bookmark'" :size="16" />
           {{ isFavorite ? '已收藏' : '收藏' }}
@@ -153,10 +168,10 @@
         <button
           type="button"
           class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bottom-icon-btn"
-          @click="goToNotes"
+          @click="showNote = !showNote"
         >
           <Icon name="notebook-pen" :size="16" />
-          笔记
+          写本章笔记
         </button>
       </div>
 
@@ -168,7 +183,7 @@
             v-if="!currentChapter.completed && !currentChapter.locked"
             type="button"
             class="complete-btn-inline"
-            :disabled="completing"
+            :disabled="completing || readingSaving"
             @click="completeCurrentChapter"
           >
             <Icon name="check" :size="16" />
@@ -190,14 +205,20 @@
           :disabled="!hasNextChapter"
           @click="goToNextChapter"
         >
-          <span>下一章{{ nextChapterTitle ? `：${nextChapterTitle}` : '' }}</span>
+          <span>继续下一章</span>
           <Icon name="arrow-right" :size="16" />
         </button>
       </div>
     </div>
-
-    <!-- 给底部栏留空间 -->
-    <div class="h-14"></div>
+    <p v-if="favoriteError" class="resource-error">收藏状态加载失败 <button @click="loadFavorite(currentChapterId)">重试</button></p>
+    <section v-if="showNote && currentChapter" class="chapter-note" aria-label="本章笔记">
+      <h2>记录你仍讲不清的地方</h2>
+      <p>保存为本章的新笔记，不覆盖已有速记。</p>
+      <label for="chapter-note-text">笔记内容</label>
+      <textarea id="chapter-note-text" v-model="noteText" class="kb-textarea kb-form-control" rows="5" :disabled="noteSaving" />
+      <button class="note-save" type="button" :disabled="noteSaving || !noteText.trim()" @click="saveNote">{{ noteSaving ? '保存中…' : '保存笔记' }}</button>
+      <p v-if="noteError" role="alert">{{ noteError }}</p>
+    </section>
   </div>
 </template>
 
@@ -207,8 +228,26 @@
  * 设计稿对齐：左侧面包屑 + 进度点 + Markdown 正文；右侧固定大纲 + 章节信息；底部固定操作栏（上一章/收藏/笔记/下一章）。
  */
 import { computed, ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router';
 import Icon from '@/components/ui/Icon.vue';
+import Button from '@/components/ui/Button.vue';
+import InterviewSeedChapter from '@/components/Learning/InterviewSeedChapter.vue';
+import ChapterProgress from '@/components/Learning/ChapterProgress.vue';
+import ChapterTOC from '@/components/Learning/ChapterTOC.vue';
+import LearningObjectives from '@/components/Learning/LearningObjectives.vue';
+import ChapterStudyTools from '@/components/Learning/ChapterStudyTools.vue';
+import SelectionTermLookup from '@/components/tech-english/SelectionTermLookup.vue';
+import TermExtractDialog from '@/components/tech-english/TermExtractDialog.vue';
+import { inferTermDomain } from '@/components/tech-english/term-labels';
+import { useAuthStore } from '@/stores/auth';
+import '@/styles/chapter-reading-v3.css';
+import StateView from '@/components/ui/StateView.vue';
+import { chapterReading } from '@/utils/chapterReading';
+import { displayPathProgress } from './learning-path-display';
+import { stampActionContext, resolveContextualRoute, resolveChapterResourceRoute, resolvePlanResourceSelector } from '@/learning/action-contract';
+import { handleCodeCopyClick as handleCodeCopy } from '@/utils/codeCopy';
+import type { CollectionsRevision, InterviewQuestion } from '@/api/interviewSeed';
+import { bindChapterQuizReferences } from '@/utils/chapterQuizReferences';
 import { learningApi, docsApi } from '@/api';
 import { notify, getApiError, confirmDialog } from '@/utils/toast';
 import { celebrateCertificate } from '@/utils/celebrate';
@@ -217,6 +256,26 @@ import type { LearningChapterVO, LearningPathVO, DocVO, LearningCertificateVO } 
 const route = useRoute();
 const router = useRouter();
 
+const extractOpen = ref(false);
+const extractSelection = ref('');
+/** 只捕获章节正文内的选区，避免把页面其他区域的文字当成提取来源 */
+function openExtract() {
+  // 登录态只在点击提取时读取，章节阅读本身不依赖 Pinia，避免给纯阅读路径增加全局状态依赖
+  const auth = useAuthStore();
+  if (!auth.isLoggedIn) {
+    notify('登录后才能提取专业词汇并保存候选', 'info');
+    void router.push({ path: '/login', query: { redirect: route.fullPath } });
+    return;
+  }
+  const selection = window.getSelection();
+  const hasRange = !!selection && selection.rangeCount > 0;
+  const inside = hasRange && readingRoot.value
+    ? readingRoot.value.contains(selection!.getRangeAt(0).commonAncestorContainer)
+    : false;
+  extractSelection.value = inside ? selection!.toString().trim() : '';
+  extractOpen.value = true;
+}
+
 const loading = ref(false);
 const currentChapterId = computed(() => Number(route.params.id));
 const currentChapter = ref<LearningChapterVO | null>(null);
@@ -224,21 +283,87 @@ const pathChapters = ref<LearningChapterVO[]>([]);
 const pathDetail = ref<LearningPathVO | null>(null);
 const isFavorite = ref(false);
 const activeOutlineIndex = ref(0);
+const readingRoot = ref<HTMLElement | null>(null);
+/** 章节所属技术领域提示（只用于术语多义项排序，不作为权限依据） */
+const chapterDomain = computed(() =>
+  inferTermDomain([pathDetail.value?.title, currentChapter.value?.title].filter(Boolean).join(' ')),
+);
+const readingSaving = ref(false), readingSaveError = ref(''), readingSaveSuccess = ref(false);
+const readingInteracted = ref(false);
+const currentReadingAnchor = computed(() => outlineItems.value[activeOutlineIndex.value]?.id || 'top');
+const readingDirty = computed(() => readingInteracted.value && currentReadingAnchor.value !== (currentChapter.value?.readingAnchor || 'top'));
+async function saveReadingPosition() {
+  if (!currentChapter.value || readingSaving.value) return;
+  const chapter = currentChapter.value, anchor = currentReadingAnchor.value;
+  if (!chapter.contentHash) {readingSaveError.value='缺少正文版本，请重新加载章节';return;}
+  readingSaving.value = true; readingSaveError.value = ''; readingSaveSuccess.value = false;
+  try {
+    const presentation = await presentationFingerprint(readingSource.value);
+    const saved = await learningApi.saveReadingPosition(chapter.id, anchor, chapter.readingRevision || 0, chapter.contentHash, presentation);
+    if (chapter.id === currentChapterId.value) {
+      currentChapter.value = {...currentChapter.value!, readingAnchor:saved.readingAnchor, readingRevision:saved.readingRevision, readingSavedAt:saved.readingSavedAt, readingPositionStale:saved.readingPositionStale, readingPresentationHash:saved.readingPresentationHash};
+      readingSaveSuccess.value = true;
+    }
+  } catch (e) { if (chapter.id === currentChapterId.value) readingSaveError.value = getApiError(e); }
+  finally { readingSaving.value = false; }
+}
+function resumeReading() {
+  const anchor = currentChapter.value?.readingAnchor;
+  if (!anchor || readingPositionStale.value) return;
+  if (anchor === 'top') { readingRoot.value?.scrollIntoView({block:'start'}); return; }
+  const heading = outlineItems.value.find(item => item.id === anchor);
+  if (heading) scrollToHeading(heading.id);
+  else readingSaveError.value = '已保存的标题已不存在，请重新选择并保存。';
+}
+async function protectChapterLeave() {
+  if (readingSaving.value || noteSaving.value) { notify('正在保存，请稍候。','warning'); return false; }
+  if (readingDirty.value || noteText.value.trim()) return await confirmDialog('阅读位置或笔记尚未保存，仍要离开吗？', {"title":"放弃未保存的修改？","confirmText":"放弃并离开","cancelText":"返回编辑","icon":"log-out","variant":"default"});
+  return true;
+}
+onBeforeRouteLeave(protectChapterLeave);
+onBeforeRouteUpdate(protectChapterLeave);
+
+const chapterQuestions = ref<InterviewQuestion[]>([]);
+function handleReadingClick(event:MouseEvent) {
+ handleCodeCopy(event);
+ const button=(event.target as HTMLElement)?.closest<HTMLButtonElement>('[data-question-target]');
+ if(!button || button.disabled)return;
+ const question=readingRoot.value?.querySelector<HTMLDetailsElement>(`#interview-question-${button.dataset.questionTarget}`);
+ if(!question)return;
+ for(let node:HTMLElement|null=question;node;node=node.parentElement)if(node instanceof HTMLDetailsElement)node.open=true;
+ question.scrollIntoView({behavior:'smooth',block:'center'});
+ question.querySelector<HTMLElement>('summary')?.focus();
+}
+const chapterError = ref('');
+const navigationError = ref('');
+const favoriteError = ref('');
+const favoriteBusy = ref(false);
+const showNote = ref(false);
+const noteText = ref('');
+const noteSaving = ref(false);
+const noteError = ref('');
+let chapterRequest = 0;
+const revision = ref<CollectionsRevision | null>(null);
+const curatedReading = ref<string|null>(null);
+const trainingResources=ref<{questions:number;exercises:number}|null>(null);
+const cardCount=ref<number|null>(null),cardError=ref('');
+const questionCount=computed(()=>revision.value?.questions.length ?? trainingResources.value?.questions ?? null);
+const exerciseCount=computed(()=>revision.value?.exercises.length ?? trainingResources.value?.exercises ?? null);
+async function loadCardCount(id:number){cardCount.value=null;cardError.value='';try{const cards=await learningApi.flashcards(undefined,id);if(id===currentChapterId.value)cardCount.value=cards.length}catch(e){if(id===currentChapterId.value)cardError.value=getApiError(e)}}
+function onRevision(value:CollectionsRevision|null){revision.value=value;if(value)void loadCardCount(currentChapterId.value)}
+const pathProgress = computed(() => pathDetail.value ? displayPathProgress(pathDetail.value) : null);
+const conceptsExpanded = ref(false);
+const flashcardRoute = computed(()=>resolveContextualRoute(stampActionContext({type:'FLASHCARD',title:'本章闪卡',reason:'用户选择本章回忆',route:''},{learningNodeId:currentChapterId.value})));
+const scrollToTrainingSection = (kind:'questions'|'exercises') => (readingRoot.value?.querySelector(`#chapter-${kind}-${currentChapterId.value}`) || readingRoot.value?.querySelector('#chapter-training'))?.scrollIntoView({behavior:'smooth',block:'start'});
+const openChapterNote = async () => { showNote.value=true; await nextTick(); document.getElementById('chapter-note-text')?.focus(); };
 
 // ===== 面包屑与章节导航 =====
 const currentChapterIndex = computed(() =>
   pathChapters.value.findIndex((c) => c.id === currentChapterId.value),
 );
 const hasPrevChapter = computed(() => currentChapterIndex.value > 0);
-const hasNextChapter = computed(() => currentChapterIndex.value < pathChapters.value.length - 1);
-const prevChapterTitle = computed(() =>
-  hasPrevChapter.value ? pathChapters.value[currentChapterIndex.value - 1]?.title : '',
-);
-const nextChapterTitle = computed(() =>
-  hasNextChapter.value ? pathChapters.value[currentChapterIndex.value + 1]?.title : '',
-);
-
-const goToChapter = (chapterId: number) => router.push(`/learning/chapter/${chapterId}`);
+const hasNextChapter = computed(() => currentChapterIndex.value >= 0 && currentChapterIndex.value < pathChapters.value.length - 1);
+const selectChapter=(id:number)=>{const chapter=pathChapters.value.find(c=>c.id===id);if(chapter && !chapter.locked)void router.push(`/learning/chapter/${id}`)};
 const goToPrevChapter = () => {
   if (hasPrevChapter.value) {
     const prev = pathChapters.value[currentChapterIndex.value - 1];
@@ -254,6 +379,12 @@ const goToNextChapter = () => {
 
 // ===== 完成章节 =====
 const completing = ref(false);
+const refreshPathProgress = async () => {
+  const pathId=currentChapter.value?.pathId;
+  if(!pathId)return;
+  try {const detail=await learningApi.pathDetail(pathId); if(currentChapter.value?.pathId===pathId)pathDetail.value=detail;}
+  catch(e){navigationError.value=`完成已保存，但进度刷新失败：${getApiError(e)}`;}
+};
 
 // 完成最后一章（路径达成 100%）后，查询该路径证书并触发全屏庆祝，避免无感获得证书
 const checkPathCertificate = async () => {
@@ -292,8 +423,8 @@ const completeCurrentChapter = async () => {
     if (idx >= 0) {
       pathChapters.value[idx] = { ...pathChapters.value[idx], completed: true };
     }
-    stopVideoTimer();
     notify('章节已完成！', 'success');
+    await refreshPathProgress();
 
     // 完成最后一章后检测证书并弹出全屏庆祝
     await checkPathCertificate();
@@ -308,7 +439,7 @@ const completeCurrentChapter = async () => {
     // 未报名路径时引导报名：确认后先在章节页报名，再自动重新完成
     if (msg.includes('报名')) {
       const p = currentChapter.value?.pathId;
-      const ok = await confirmDialog('尚未报名该学习路径，是否立即报名后完成本章？');
+      const ok = await confirmDialog('尚未报名该学习路径，是否立即报名后完成本章？', {"title":"报名并继续学习？","confirmText":"报名并继续","cancelText":"暂不报名","icon":"graduation-cap","variant":"default"});
       if (ok && p) {
         completing.value = true;
         try {
@@ -320,8 +451,8 @@ const completeCurrentChapter = async () => {
           if (idx >= 0) {
             pathChapters.value[idx] = { ...pathChapters.value[idx], completed: true };
           }
-          stopVideoTimer();
           notify('章节已完成！', 'success');
+          await refreshPathProgress();
           // 完成最后一章后检测证书并弹出全屏庆祝
           await checkPathCertificate();
           if (hasNextChapter.value) {
@@ -341,136 +472,106 @@ const completeCurrentChapter = async () => {
 };
 
 // ===== 收藏与笔记 =====
-const toggleFavorite = () => {
-  isFavorite.value = !isFavorite.value;
-  notify(isFavorite.value ? '已收藏本章' : '已取消收藏', 'success');
+const loadFavorite = async (id: number) => {
+  favoriteError.value = '';
+  try { const r = await learningApi.favorite(id); if (id === currentChapterId.value) isFavorite.value = r.favorited; }
+  catch (e) { if (id === currentChapterId.value) favoriteError.value = getApiError(e); }
 };
-const goToNotes = () => router.push('/notes');
+const toggleFavorite = async () => {
+  if (favoriteBusy.value || !currentChapter.value) return;
+  favoriteBusy.value = true;
+  const id = currentChapter.value.id;
+  try { const r = await learningApi.toggleChapterFavorite(id); if (id === currentChapterId.value) { isFavorite.value = r.favorited; notify(r.favorited ? '已收藏本章' : '已取消收藏', 'success'); } }
+  catch (e) { notify(getApiError(e), 'error'); }
+  finally { favoriteBusy.value = false; }
+};
+const saveNote = async () => {
+  if (!currentChapter.value || noteSaving.value || !noteText.value.trim()) return;
+  noteSaving.value = true; noteError.value = '';
+  const id = currentChapter.value.id;
+  try { await learningApi.createChapterNote({ chapterId: id, pathId: currentChapter.value.pathId, title: `${currentChapter.value.title} · 学习笔记`, content: noteText.value.trim() }); if (id === currentChapterId.value) { noteText.value = ''; showNote.value = false; } notify('本章笔记已保存', 'success'); }
+  catch (e) { noteError.value = getApiError(e); }
+  finally { noteSaving.value = false; }
+};
 
 // ===== 大纲：从正文标题（h2/h3）提取 =====
-interface OutlineItem {
-  id: string;
-  text: string;
-  sub: boolean;
+const readingSource = computed(() => revision.value?.content || curatedReading.value || currentChapter.value?.content || '');
+const presentationHash = ref('');
+let fingerprintRequest = 0;
+async function presentationFingerprint(content:string):Promise<string> {
+  const hash = await crypto.subtle.digest('SHA-256',new TextEncoder().encode(content));
+  return Array.from(new Uint8Array(hash),byte=>byte.toString(16).padStart(2,'0')).join('');
 }
-const outlineItems = computed<OutlineItem[]>(() => {
-  if (!currentChapter.value?.content) return [];
-  const items: OutlineItem[] = [];
-  const lines = currentChapter.value.content.split('\n');
-  let idx = 0;
-  for (const line of lines) {
-    const m = /^(#{2,3})\s+(.*)$/.exec(line.trim());
-    if (m) {
-      idx++;
-      items.push({
-        id: `heading-${idx}`,
-        text: m[2].replace(/[*`]/g, '').trim(),
-        sub: m[1].length === 3,
-      });
-    }
-  }
-  return items;
+watch(readingSource, async source => {
+  const request=++fingerprintRequest;presentationHash.value='';
+  try {const hash=await presentationFingerprint(source);if(request===fingerprintRequest)presentationHash.value=hash;}
+  catch {if(request===fingerprintRequest)readingSaveError.value='当前浏览器无法验证阅读版本，请重新加载后重试。';}
 });
+const readingPositionStale = computed(() => !!currentChapter.value?.readingPositionStale || !!(currentChapter.value?.readingPresentationHash && presentationHash.value && currentChapter.value.readingPresentationHash !== presentationHash.value));
+const reading = computed(() => chapterReading(readingSource.value, {numberHeadings:true,inlineSourceImages:currentChapter.value?.inlineSourceImages}));
+const originalReading = computed(() => chapterReading(currentChapter.value?.content || '',{inlineSourceImages:currentChapter.value?.inlineSourceImages}).html.replace(/ id="heading-\d+"/g, ''));
+const outlineItems = computed(() => reading.value.outline);
 
 const scrollToHeading = (id: string) => {
-  const el = document.getElementById(id);
+  readingInteracted.value = true; readingSaveSuccess.value = false;
+  const el = readingRoot.value?.querySelector(`#${id}`);
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  activeOutlineIndex.value = outlineItems.value.findIndex(item => item.id === id);
 };
+const updateOutline = (event?: Event) => {
+  if (event?.isTrusted && !loading.value) readingInteracted.value = true;
+  let active = 0;
+  outlineItems.value.forEach((item,index) => {
+    const heading=readingRoot.value?.querySelector(`#${item.id}`);
+    if(heading && heading.getBoundingClientRect().top<=140)active=index;
+  });
+  if (activeOutlineIndex.value !== active) readingSaveSuccess.value = false;
+  activeOutlineIndex.value=active;
+};
+onMounted(()=>window.addEventListener('scroll',updateOutline,true));
 
 // ===== Markdown 渲染 =====
-const renderedContent = computed(() => renderMarkdown(currentChapter.value?.content || '', outlineItems.value));
+const renderedContent = computed(() => reading.value.html);
 
 // 转义 HTML 特殊字符，防止注入并正确显示代码内容
 const escapeHtml = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-// 轻量 Markdown 渲染器：支持代码块（```）、h2/h3（带锚点 id）、无序/有序列表、行内 code 与段落
-const renderMarkdown = (md: string, outline: OutlineItem[]): string => {
-  if (!md) return '';
-  let html = '';
-  let inCode = false;
-  let codeBuf: string[] = [];
-  let codeLang = '';
-  let headingIdx = 0;
-  for (const raw of md.split('\n')) {
-    const line = raw.trimEnd();
-    const fence = /^```(\w*)/.exec(line);
-    if (fence) {
-      if (!inCode) {
-        inCode = true;
-        codeLang = fence[1] || '';
-        codeBuf = [];
-      } else {
-        // L-FORM-02 互动讲义：```xxx-run 代码块渲染为可运行组件；```quiz-run 渲染为内嵌测验
-        if (codeLang === 'quiz-run') {
-          html += `<div class="interactive-quiz" data-quiz="${escapeHtml(codeBuf.join('\n'))}"></div>`;
-        } else if (codeLang.endsWith('-run')) {
-          const code = escapeHtml(codeBuf.join('\n'));
-          html += `<div class="interactive-code" data-lang="${escapeHtml(codeLang.replace(/-run$/, ''))}" data-code="${code}"></div>`;
-        } else {
-          html += `<pre><code>${escapeHtml(codeBuf.join('\n'))}</code></pre>`;
-        }
-        inCode = false;
-        codeLang = '';
-      }
-      continue;
-    }
-    if (inCode) {
-      codeBuf.push(line);
-      continue;
-    }
-    const h = /^(#{2,3})\s+(.*)$/.exec(line);
-    if (h) {
-      headingIdx++;
-      const text = h[2].replace(/[*`]/g, '').trim();
-      const id = outline[headingIdx - 1]?.id || `heading-${headingIdx}`;
-      html += `<h${h[1].length} id="${id}">${escapeHtml(text)}</h${h[1].length}>`;
-      continue;
-    }
-    if (/^[-*]\s+/.test(line)) {
-      html += `<ul><li>${escapeHtml(line.replace(/^[-*]\s+/, ''))}</li></ul>`;
-      continue;
-    }
-    if (/^\d+\.\s+/.test(line)) {
-      html += `<ol><li>${escapeHtml(line.replace(/^\d+\.\s+/, ''))}</li></ol>`;
-      continue;
-    }
-    if (line === '') continue;
-    // L-FORM-01：章节嵌入视频，约定语法 `[video](https://...)` 或 `[视频](https://...)`
-    const videoMatch = /^\[(?:video|视频)\]\((.+?)\)\s*$/.exec(line.trim());
-    if (videoMatch) {
-      const url = videoMatch[1].trim();
-      html += `<div class="chapter-video" data-video-url="${escapeHtml(url)}"></div>`;
-      continue;
-    }
-    // 行内 code
-    const inline = escapeHtml(line).replace(/`([^`]+)`/g, '<code>$1</code>');
-    html += `<p>${inline}</p>`;
-  }
-  if (inCode) html += `<pre><code>${escapeHtml(codeBuf.join('\n'))}</code></pre>`;
-  // 合并相邻同类列表
-  return html.replace(/<\/ul><ul>/g, '').replace(/<\/ol><ol>/g, '');
-};
-
 // ===== 数据加载 =====
 const loadChapter = async (id: number) => {
+  const request = ++chapterRequest;
+  readingInteracted.value=false;readingSaveError.value='';readingSaveSuccess.value=false;
   loading.value = true;
+  chapterError.value = ''; navigationError.value = '';
+  currentChapter.value = null; pathChapters.value = []; pathDetail.value = null;
+  revision.value = null;
+  curatedReading.value = null; conceptsExpanded.value=false;
+  trainingResources.value=null;cardCount.value=null;cardError.value='';
+  isFavorite.value = false; favoriteError.value = ''; relatedDocs.value = []; relatedKnowledge.value = [];
+  showNote.value = false; noteText.value = ''; noteError.value = ''; activeOutlineIndex.value = 0;
   try {
     const c = await learningApi.chapterDetail(id);
+    if (request !== chapterRequest) return;
     currentChapter.value = c;
     if (c.pathId) {
-      const [chapters, detail] = await Promise.all([
+      const [chapters, detail] = await Promise.allSettled([
         learningApi.chapters(c.pathId),
-        learningApi.pathDetail(c.pathId).catch(() => null),
+        learningApi.pathDetail(c.pathId),
       ]);
-      pathChapters.value = chapters;
-      pathDetail.value = detail;
+      if (request !== chapterRequest) return;
+      if (chapters.status === 'fulfilled') pathChapters.value = chapters.value;
+      else navigationError.value = getApiError(chapters.reason);
+      if (detail.status === 'fulfilled') pathDetail.value = detail.value;
+      else navigationError.value = getApiError(detail.reason);
     }
-    // A-FB-01：加载相关文档推荐
-    await loadRelatedDocs(c);
-  } catch {
-    notify('章节加载失败', 'error');
+    void loadRelatedDocs(c);
+    void loadRelatedKnowledge(id);
+    void loadFavorite(id);
+    void loadCardCount(id);
+  } catch (e) {
+    if (request === chapterRequest) chapterError.value = getApiError(e);
   } finally {
+    if (request !== chapterRequest) return;
     loading.value = false;
     // 渲染完成后滚动到顶部
     await nextTick();
@@ -480,32 +581,35 @@ const loadChapter = async (id: number) => {
 
 // ===== A-FB-01 相关概念/文档推荐 =====
 const relatedDocs = ref<DocVO[]>([]);
-const relatedConcepts = computed(() => {
-  // 从章节标题 + 路径标题提取概念标签（按中文/英文分词关键词）
-  const source = `${currentChapter.value?.title || ''} ${pathDetail.value?.title || ''}`;
-  const words = source.split(/[\s·,，、/]+/).filter((w) => w.length >= 2);
-  return words.slice(0, 6);
-});
+const relatedKnowledge = ref<{ id: number; name: string }[]>([]);
+const relatedConcepts = computed(() => revision.value?.knowledge || relatedKnowledge.value);
+const outlineExpanded = ref(false);
+const knowledgeError = ref('');
+const knowledgeLoading = ref(false);
+const mappedPractice = ref<{id:number;title:string;questionType:string}[]>([]);
+const chapterPracticeRoute = (id:number) => resolvePlanResourceSelector('QUIZ',id,{type:'EVIDENCE_PRACTICE',title:'章节练习',reason:'用户选择已审核关联练习',route:'/learning/quiz'},{learningNodeId:currentChapterId.value});
+const docsError = ref('');
+const loadRelatedKnowledge = async (id: number) => {
+  knowledgeLoading.value=true; knowledgeError.value = ''; mappedPractice.value=[];
+  try { const r = await learningApi.chapterKnowledge(id); if (id === currentChapterId.value) {relatedKnowledge.value = r.knowledge; mappedPractice.value=r.questions || [];} }
+  catch (e) { if (id === currentChapterId.value) knowledgeError.value = getApiError(e); }
+  finally {if(id===currentChapterId.value)knowledgeLoading.value=false;}
+};
 
 const loadRelatedDocs = async (chapter: LearningChapterVO | null) => {
   relatedDocs.value = [];
-  const keyword = (chapter?.title || '').replace(/\s+/g, ' ').trim();
-  if (!keyword) return;
+  docsError.value = '';
+  const ids = (chapter?.docIds || '').split(',').map(Number).filter(id => Number.isSafeInteger(id) && id > 0);
+  if (!chapter || !ids.length) return;
   try {
-    const page = await docsApi.list({ keyword, pageSize: 5 });
-    // 过滤掉标题与章节标题完全一致的"自身"，避免推荐同一章节来源文档混淆
-    relatedDocs.value = (page.records || []).filter((d) => d.title !== chapter?.title);
-  } catch {
-    relatedDocs.value = [];
+    const docs = await Promise.all(ids.map(id => docsApi.detail(id)));
+    if (chapter.id === currentChapterId.value) relatedDocs.value = docs;
+  } catch (e) {
+    if (chapter.id === currentChapterId.value) docsError.value = getApiError(e);
   }
 };
 
-// ===== L-FORM-01 章节嵌入视频：外链 iframe + 观看进度追踪 =====
-const videoProgress = ref(0);
-let videoTimer: ReturnType<typeof setInterval> | null = null;
-
-// 判断章节是否含视频（正文中出现约定 video 语法）
-const hasVideo = computed(() => /\[(?:video|视频)\]\(.+?\)/.test(currentChapter.value?.content || ''));
+// 外链播放器不提供可信的播放事件，阅读停留时间不能作为观看证据。
 
 // 将通用视频链接转换为可内嵌的 iframe 地址
 const toEmbedUrl = (raw: string): string => {
@@ -518,89 +622,6 @@ const toEmbedUrl = (raw: string): string => {
   if (bv) return `https://player.bilibili.com/player.html?bvid=${bv[1]}&page=1`;
   // 已是可嵌入地址或其它外链则原样嵌入
   return url;
-};
-
-// 上报视频观看进度（节流：每 15 秒一次）
-const reportVideoProgress = async (progress: number) => {
-  if (!currentChapterId.value) return;
-  try {
-    const current = await learningApi.updateVideoProgress(currentChapterId.value, progress);
-    videoProgress.value = current;
-    if (current >= 90 && !currentChapter.value?.completed) {
-      notify('视频已看完，可完成本章节了', 'success');
-      stopVideoTimer();
-    }
-  } catch {
-    /* 进度上报失败不影响阅读，静默忽略 */
-  }
-};
-
-const startVideoTimer = () => {
-  stopVideoTimer();
-  if (!hasVideo.value) return;
-  // 基于观看停留时间估算进度：起始为已存进度，每 20 秒累加（约 3 分钟看完折算 100%）
-  videoProgress.value = currentChapter.value?.videoProgress || 0;
-  videoTimer = setInterval(() => {
-    if (document.hidden) return;
-    const next = Math.min(100, Math.round((videoProgress.value + 3.5) * 100) / 100);
-    videoProgress.value = next;
-    reportVideoProgress(next);
-  }, 20000);
-};
-
-const stopVideoTimer = () => {
-  if (videoTimer) {
-    clearInterval(videoTimer);
-    videoTimer = null;
-  }
-};
-
-// ===== L-FORM-02 互动讲义：内嵌可运行代码（浏览器端执行 JS） =====
-const runJavaScript = (code: string): { output: string; error: string | null } => {
-  const logs: string[] = [];
-  const originalLog = console.log;
-  const originalWarn = console.warn;
-  const originalError = console.error;
-  const capture = (...args: unknown[]) => logs.push(args.map(String).join(' '));
-  console.log = capture;
-  console.warn = capture;
-  console.error = capture;
-  try {
-    const fn = new Function(code);
-    const result = fn();
-    if (result !== undefined) logs.push(String(result));
-    return { output: logs.join('\n') || '(无输出)', error: null };
-  } catch (e) {
-    return { output: logs.join('\n'), error: e instanceof Error ? e.message : String(e) };
-  } finally {
-    console.log = originalLog;
-    console.warn = originalWarn;
-    console.error = originalError;
-  }
-};
-
-const bindInteractiveCode = (container: HTMLElement) => {
-  if (container.querySelector('.code-runner')) return;
-  const lang = container.getAttribute('data-lang') || 'js';
-  const initCode = container.getAttribute('data-code') || '';
-  container.innerHTML = `
-    <div class="code-runner">
-      <div class="code-runner-head">
-        <span class="code-runner-lang">${escapeHtml(lang)} · 可运行</span>
-        <button type="button" class="code-run-btn">运行</button>
-      </div>
-      <textarea class="code-run-input" spellcheck="false">${initCode}</textarea>
-      <pre class="code-run-output"></pre>
-    </div>`;
-  const runBtn = container.querySelector<HTMLButtonElement>('.code-run-btn');
-  const input = container.querySelector<HTMLTextAreaElement>('.code-run-input');
-  const output = container.querySelector<HTMLElement>('.code-run-output');
-  runBtn?.addEventListener('click', () => {
-    if (!input || !output) return;
-    const { output: out, error } = runJavaScript(input.value);
-    output.textContent = error ? `⚠️ ${error}` : out;
-    output.classList.toggle('has-error', Boolean(error));
-  });
 };
 
 // ===== L-FORM-02 / A-FB-02 章节内嵌即时测验 =====
@@ -674,10 +695,13 @@ const bindInteractiveQuiz = (container: HTMLElement) => {
   });
 };
 
-// 正文渲染完成后，将视频占位容器替换为 iframe 播放器，并初始化互动代码块/测验
-watch(renderedContent, () => {
+// 正文渲染完成后初始化视频与声明式测验；源码由公共 renderer 安全展示。
+watch([renderedContent, originalReading, loading], ([, , busy]) => {
+  if (busy) return;
   nextTick(() => {
-    const holders = document.querySelectorAll<HTMLElement>('.chapter-video[data-video-url]');
+    const root = readingRoot.value;
+    if (!root) return;
+    const holders = root.querySelectorAll<HTMLElement>('.chapter-video[data-video-url]');
     if (holders.length > 0) {
       holders.forEach((holder) => {
         if (holder.querySelector('iframe')) return;
@@ -687,25 +711,62 @@ watch(renderedContent, () => {
         embed.setAttribute('frameborder', '0');
         embed.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
         embed.setAttribute('allowfullscreen', '');
+        // No allow-same-origin: even a same-site video URL must not inherit
+        // the authenticated reader's storage/DOM privileges.
+        embed.setAttribute('sandbox', 'allow-scripts allow-presentation');
+        embed.title = '章节参考视频';
         embed.classList.add('chapter-video-frame');
         holder.appendChild(embed);
+        const notice = document.createElement('p');
+        notice.textContent = '外部视频不自动记录观看进度。理解内容后，可手动标记本章已完成。';
+        holder.appendChild(notice);
       });
     }
-    const codeBlocks = document.querySelectorAll<HTMLElement>('.interactive-code[data-code]');
-    codeBlocks.forEach(bindInteractiveCode);
-    const quizBlocks = document.querySelectorAll<HTMLElement>('.interactive-quiz[data-quiz]');
+    const quizBlocks = root.querySelectorAll<HTMLElement>('.interactive-quiz[data-quiz]');
     quizBlocks.forEach(bindInteractiveQuiz);
   });
-  if (hasVideo.value) startVideoTimer();
 });
 
-onMounted(() => loadChapter(currentChapterId.value));
+watch(currentChapterId, id => void loadChapter(id), { immediate: true });
+watch([chapterQuestions,renderedContent],async()=>{await nextTick();if(readingRoot.value)bindChapterQuizReferences(readingRoot.value,chapterQuestions.value);if(route.hash===`#chapter-questions-${currentChapterId.value}`)scrollToTrainingSection('questions')});
+watch(()=>route.hash,async hash=>{await nextTick();if(hash===`#chapter-questions-${currentChapterId.value}`)scrollToTrainingSection('questions')});
 
-// 离开页面时停止进度计时，避免泄漏
-onBeforeUnmount(() => stopVideoTimer());
+onBeforeUnmount(() => { chapterRequest++; window.removeEventListener('scroll',updateOutline,true); });
 </script>
 
 <style scoped>
+.chapter-learn { min-width: 0; }
+.chapter-columns { display: grid; grid-template-columns: minmax(0, 1fr) var(--kb-chapter-outline-width); gap: var(--kb-space-6); }
+.content-body { max-width: var(--kb-chapter-reading-width); padding: var(--kb-space-6); margin-inline: auto; overflow-wrap: anywhere; font-size: var(--kb-fs-body-md); }
+.reading-header { padding-block: var(--kb-space-4); margin-bottom: var(--kb-space-6); border-bottom: 1px solid var(--kb-border); }
+.reading-header h1 { font-size: var(--kb-fs-h1); line-height: var(--kb-lh-heading, 1.3); font-weight: 700; color: var(--kb-foreground); }
+.chapter-meta { display: flex; flex-wrap: wrap; gap: var(--kb-space-4); margin-top: var(--kb-space-3); font-size: var(--kb-fs-body-sm); color: var(--kb-muted-foreground); }
+.outline-sticky { position: sticky; top: var(--kb-chapter-sticky-offset); max-height: calc(100vh - var(--kb-chapter-sticky-offset) - var(--kb-chapter-action-height)); overflow-y: auto; padding: var(--kb-space-4); }
+.resource-error { margin: var(--kb-space-3); color: var(--kb-state-error); font-size: var(--kb-fs-body-sm); }
+.resource-error button { text-decoration: underline; margin-inline-start: var(--kb-space-2); }
+.resource-caption { padding: var(--kb-space-2); font-size: var(--kb-fs-caption); color: var(--kb-muted-foreground); }
+.chapter-learn .bottom-action-bar { position: sticky; bottom: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--kb-space-3); padding: var(--kb-space-3); border: 1px solid var(--kb-border); z-index: 10; }
+.bottom-action-bar > button, .bottom-action-bar > div { min-width: 0; max-width: 100%; }
+.bottom-action-bar button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bottom-prev, .bottom-next { max-width: var(--kb-chapter-outline-width); }
+.chapter-note { padding: var(--kb-space-6); background: var(--kb-card); border: 1px solid var(--kb-border); border-radius: var(--kb-radius-md); }
+.chapter-note label { display: block; margin-block: var(--kb-space-3); }
+.note-save { padding: var(--kb-space-2) var(--kb-space-4); background: var(--kb-primary); color: var(--kb-primary-foreground); border-radius: var(--kb-radius-sm); margin-top: var(--kb-space-3); }
+.note-save:disabled { opacity: .5; cursor: not-allowed; }
+.content-body :deep(table) { width: 100%; border-collapse: collapse; margin-block: var(--kb-space-4); font-size: var(--kb-fs-body-sm); }
+.content-body :deep(th), .content-body :deep(td) { border: 1px solid var(--kb-border); padding: var(--kb-space-2); text-align: start; }
+.content-body :deep(th) { background: var(--kb-muted); }
+.content-body :deep(a) { color: var(--kb-primary); text-decoration: underline; text-underline-offset: .2em; }
+.content-body :deep(.code-block-wrapper) { margin-block: var(--kb-space-4); border-radius: var(--kb-radius-md); overflow: hidden; background: var(--kb-foreground); color: var(--kb-background); }
+.content-body :deep(.code-block-header) { display: flex; justify-content: space-between; align-items: center; padding: var(--kb-space-2) var(--kb-space-4); border-bottom: 1px solid var(--kb-muted-foreground); }
+.content-body :deep(.code-copy-btn) { display: inline-flex; gap: var(--kb-space-2); align-items: center; font-size: var(--kb-fs-caption); }
+.content-body :deep(.code-block-body) { display: flex; min-width: 0; }
+.content-body :deep(.code-line-numbers) { display: none; }
+.content-body :deep(.code-block-body pre) { margin: 0; width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
+.content-body :deep(.code-block-body code) { font-family: var(--font-mono); }
+.outline-toggle { display: none; color: var(--kb-primary); padding: var(--kb-space-3); }
+@media (max-width: 1100px) { .chapter-columns { grid-template-columns: minmax(0, 1fr); } .chapter-learn .outline-sidebar { display: block; border: 1px solid var(--kb-border); } .outline-sticky { position: static; max-height: none; } .outline-sidebar { order: -1; } .outline-toggle { display: block; } .outline-content.is-collapsed { display: none; } .content-body { padding-inline: var(--kb-space-4); } }
+@media (prefers-reduced-motion: reduce) { .chapter-learn *, .chapter-learn :deep(*) { scroll-behavior: auto; transition: none; } }
 /* 面包屑 */
 .breadcrumb-bar {
   border-bottom: 1px solid var(--kb-border);
@@ -803,19 +864,18 @@ onBeforeUnmount(() => stopVideoTimer());
 }
 
 /* L-FORM-01 章节嵌入视频 */
-.chapter-video {
+.content-body :deep(.chapter-video) {
   position: relative;
   width: 100%;
-  margin: 16px 0;
-  aspect-ratio: 16 / 9;
-  border-radius: 8px;
+  margin: var(--kb-space-4) 0;
+  border-radius: var(--kb-radius-lg);
   overflow: hidden;
-  background: #000;
+  background: var(--kb-card);
   border: 1px solid var(--kb-border);
 }
-.chapter-video-frame {
+.content-body :deep(.chapter-video-frame) {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 16 / 9;
   border: 0;
   display: block;
 }
@@ -886,94 +946,94 @@ onBeforeUnmount(() => stopVideoTimer());
   border-top: 1px solid var(--kb-border);
 }
 .code-run-output.has-error {
-  color: #fca5a5;
+  color: var(--kb-danger-tint);
 }
 
 /* L-FORM-02 / A-FB-02 章节内嵌即时测验 */
-.interactive-quiz {
-  margin: 16px 0;
+.content-body :deep(.interactive-quiz) {
+  margin: var(--kb-space-4) 0;
 }
-.quiz-card {
-  padding: 16px;
-  border-radius: 8px;
+.content-body :deep(.quiz-card) {
+  padding: var(--kb-space-4);
+  border-radius: var(--kb-radius-lg);
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
 }
-.quiz-head {
-  margin-bottom: 8px;
+.content-body :deep(.quiz-head) {
+  margin-bottom: var(--kb-space-2);
 }
-.quiz-badge {
+.content-body :deep(.quiz-badge) {
   display: inline-block;
-  padding: 2px 10px;
-  font-size: 12px;
+  padding: var(--kb-space-1) var(--kb-space-3);
+  font-size: var(--kb-fs-caption);
   font-weight: 600;
   color: var(--kb-primary);
-  background: rgba(59, 111, 224, 0.1);
-  border-radius: 999px;
+  background: var(--kb-primary-soft);
+  border-radius: var(--kb-badge-radius);
 }
-.quiz-question {
-  margin: 8px 0 12px;
-  font-size: 15px;
+.content-body :deep(.quiz-question) {
+  margin: var(--kb-space-2) 0 var(--kb-space-3);
+  font-size: var(--kb-fs-body-md);
   font-weight: 600;
   line-height: 1.6;
   color: var(--kb-foreground);
 }
-.quiz-options {
+.content-body :deep(.quiz-options) {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--kb-space-2);
 }
-.quiz-opt {
+.content-body :deep(.quiz-opt) {
   display: flex;
   align-items: center;
-  padding: 10px 12px;
-  font-size: 14px;
+  padding: var(--kb-space-3);
+  font-size: var(--kb-fs-body-sm);
   text-align: left;
   color: var(--kb-card-foreground);
   background: var(--kb-background);
   border: 1px solid var(--kb-border);
-  border-radius: 6px;
+  border-radius: var(--kb-radius-md);
   cursor: pointer;
   transition: border-color 0.15s ease, background-color 0.15s ease;
 }
-.quiz-opt:hover:not(:disabled) {
+.content-body :deep(.quiz-opt:hover:not(:disabled)) {
   border-color: var(--kb-primary);
 }
-.quiz-opt:disabled {
+.content-body :deep(.quiz-opt:disabled) {
   cursor: default;
 }
-.quiz-opt-label {
+.content-body :deep(.quiz-opt-label) {
   line-height: 1.5;
 }
-.quiz-opt.quiz-correct {
+.content-body :deep(.quiz-opt.quiz-correct) {
   border-color: var(--kb-accent);
-  background: rgba(16, 185, 129, 0.08);
+  background: var(--kb-success-soft);
 }
-.quiz-opt.quiz-wrong {
-  border-color: #ef4444;
-  background: rgba(239, 68, 68, 0.08);
+.content-body :deep(.quiz-opt.quiz-wrong) {
+  border-color: var(--kb-danger);
+  background: var(--kb-danger-soft);
 }
-.quiz-feedback {
-  margin-top: 12px;
-  padding: 10px 12px;
-  font-size: 13px;
+.content-body :deep(.quiz-feedback) {
+  margin-top: var(--kb-space-3);
+  padding: var(--kb-space-3);
+  font-size: var(--kb-fs-body-sm);
   line-height: 1.6;
-  border-radius: 6px;
+  border-radius: var(--kb-radius-md);
 }
-.quiz-feedback.quiz-correct-msg {
-  color: #047857;
-  background: rgba(16, 185, 129, 0.1);
+.content-body :deep(.quiz-feedback.quiz-correct-msg) {
+  color: var(--kb-state-success);
+  background: var(--kb-success-soft);
 }
-.quiz-feedback.quiz-wrong-msg {
-  color: #b91c1c;
-  background: rgba(239, 68, 68, 0.1);
+.content-body :deep(.quiz-feedback.quiz-wrong-msg) {
+  color: var(--kb-state-error);
+  background: var(--kb-danger-soft);
 }
-.quiz-invalid {
-  padding: 12px;
-  font-size: 13px;
-  color: #b91c1c;
-  background: rgba(239, 68, 68, 0.08);
-  border-radius: 6px;
+.content-body :deep(.quiz-invalid) {
+  padding: var(--kb-space-3);
+  font-size: var(--kb-fs-body-sm);
+  color: var(--kb-state-error);
+  background: var(--kb-danger-soft);
+  border-radius: var(--kb-radius-md);
 }
 
 /* 右侧大纲 */
@@ -1152,6 +1212,49 @@ onBeforeUnmount(() => stopVideoTimer());
   scrollbar-width: none;
 }
 
+/* Chapter V2: one quiet article surface; hierarchy lives in type and spacing. */
+.chapter-learn {max-width: none;margin-inline: 0;padding-bottom:var(--kb-space-6);
+  width: 100%;
+  min-width: 0;
+}
+.chapter-columns {gap:var(--kb-chapter-column-gap)}
+.content-body {padding:var(--kb-space-6) var(--kb-space-4) var(--kb-space-8);font-size:var(--kb-chapter-body-size);line-height:var(--kb-chapter-body-leading)}
+.reading-header h1 {font-size:var(--kb-chapter-h1-size);line-height:1.3}
+.chapter-summary {color:var(--kb-muted-foreground);margin-top:var(--kb-space-4)}
+.chapter-progress {padding:var(--kb-space-4);border-bottom:1px solid var(--kb-border);font-size:var(--kb-fs-body-sm);color:var(--kb-muted-foreground)}
+.chapter-progress>div {display:flex;justify-content:space-between;gap:var(--kb-space-3);margin-bottom:var(--kb-space-2)}
+.chapter-progress progress {display:block;width:100%;height:var(--kb-space-2);accent-color:var(--kb-primary);border:0;border-radius:var(--kb-radius-sm)}
+.chapter-progress progress::-webkit-progress-bar {background:var(--kb-muted);border-radius:var(--kb-radius-sm)}
+.chapter-progress progress::-webkit-progress-value {background:var(--kb-primary);border-radius:var(--kb-radius-sm)}
+.chapter-progress progress::-moz-progress-bar {background:var(--kb-primary);border-radius:var(--kb-radius-sm)}
+.learning-objectives {margin-block:var(--kb-space-6) var(--kb-space-8);padding:var(--kb-space-4) var(--kb-space-6);border-left:var(--kb-space-1) solid var(--kb-primary);background:var(--kb-primary-subtle)}
+.content-body .learning-objectives h2 {font-size:var(--kb-fs-h4);margin:0 0 var(--kb-space-3)}
+.learning-objectives p {font-size:var(--kb-fs-caption);color:var(--kb-muted-foreground)}
+.chapter-article :deep(h2) {font-size:var(--kb-chapter-h2-size);font-weight:700;line-height:1.35;margin:var(--kb-space-8) 0 var(--kb-space-4)}
+.chapter-article :deep(h3) {font-size:var(--kb-chapter-h3-size);font-weight:600;line-height:1.4;margin:var(--kb-space-6) 0 var(--kb-space-3)}
+.chapter-article :deep(h4) {font-size:var(--kb-fs-body-lg);margin-block:var(--kb-space-4) var(--kb-space-2)}
+.chapter-article :deep(p),.chapter-article :deep(li) {line-height:var(--kb-chapter-body-leading);color:var(--kb-card-foreground)}
+.chapter-article :deep(p) {margin-block:var(--kb-space-4)}
+.chapter-article :deep(ul),.chapter-article :deep(ol) {margin-block:var(--kb-space-4);padding-left:var(--kb-space-6)}
+.chapter-article :deep(blockquote) {margin-block:var(--kb-space-6);padding:var(--kb-space-3) var(--kb-space-4);border-left:var(--kb-space-1) solid var(--kb-primary-tint);background:var(--kb-primary-subtle)}
+.chapter-article :deep(hr) {border:0;border-top:1px solid var(--kb-border);margin-block:var(--kb-space-8)}
+.chapter-article :deep(img) {max-width:100%;height:auto;border-radius:var(--kb-radius-sm)}
+.chapter-article :deep(table) {display:block;max-width:100%;overflow-x:auto}
+.content-body :deep(.code-block-body pre) {min-width:0;white-space:pre;overflow-wrap:normal;padding:var(--kb-space-4);font-size:var(--kb-chapter-code-size);line-height:1.65}
+.content-body :deep(.code-block-body pre code) {font-size:inherit}
+.chapter-toc {max-height:38vh;overflow-y:auto;overscroll-behavior:contain}
+.outline-item {overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chapter-tools {margin-top:var(--kb-space-6);padding-top:var(--kb-space-4);border-top:1px solid var(--kb-border)}
+.chapter-tools>a,.chapter-tools>button {display:block;text-align:left;padding:var(--kb-space-2);font-size:var(--kb-fs-body-sm);color:var(--kb-primary);width:100%}
+.chapter-tools .resource-caption {line-height:1.6}
+.related-expand {font-size:var(--kb-fs-caption);color:var(--kb-primary);padding:var(--kb-space-2)}
+.chapter-learn .bottom-action-bar button {min-height:var(--kb-chapter-button-height);height:auto;display:inline-flex;align-items:center;gap:var(--kb-space-2);padding:var(--kb-space-2) var(--kb-space-3);border-radius:var(--kb-radius-sm);font-size:var(--kb-fs-body-sm);box-shadow:none;white-space:normal}
+.bottom-action-bar button span {overflow:visible;text-overflow:clip;white-space:normal}
+.bottom-action-bar .complete-btn-inline {color:var(--kb-muted-foreground);border:1px solid var(--kb-border)}
+.bottom-action-bar .complete-btn-inline:hover:not(:disabled) {color:var(--kb-primary);background:var(--kb-primary-soft);transform:none}
+.breadcrumb-bar {flex-wrap:wrap;font-size:var(--kb-fs-body-sm)}
+.chapter-tools a:focus-visible,.outline-item:focus-visible {outline:var(--kb-studio-focus) solid var(--kb-primary);outline-offset:var(--kb-space-1)}
+
 /* 响应式：移动端隐藏右侧大纲，底部操作栏简化 */
 @media (max-width: 768px) {
   .outline-sidebar {
@@ -1162,4 +1265,12 @@ onBeforeUnmount(() => stopVideoTimer());
     display: none;
   }
 }
+</style>
+
+<style scoped>
+.reading-bookmark {padding:var(--kb-space-4);margin-bottom:var(--kb-space-4);border:1px solid var(--kb-border);border-radius:var(--kb-radius-md);background:var(--kb-muted);font-size:var(--kb-fs-body-sm)}
+.reading-bookmark button {margin-inline-end:var(--kb-space-2);margin-block:var(--kb-space-2)}
+.reading-bookmark p {margin-block:var(--kb-space-2)}
+.chapter-extract-row {display:flex;align-items:center;gap:var(--kb-space-3);flex-wrap:wrap;margin-bottom:var(--kb-space-4)}
+.chapter-extract-hint {color:var(--kb-muted-foreground);font-size:var(--kb-fs-caption)}
 </style>

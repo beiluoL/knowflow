@@ -19,20 +19,11 @@ public final class SecurityUtils {
      * @return 当前用户 ID（非 null）
      */
     public static Long getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new BusinessException("未登录");
+        Long userId = getCurrentUserIdNullable();
+        if (userId == null) {
+            throw new BusinessException(401, "未登录");
         }
-        Object principal = authentication.getPrincipal();
-        if (principal == null) {
-            throw new BusinessException("未登录");
-        }
-        try {
-            return (Long) principal;
-        } catch (ClassCastException e) {
-            // 匿名用户等情况，principal 可能为字符串
-            throw new BusinessException("未登录");
-        }
+        return userId;
     }
 
     /**

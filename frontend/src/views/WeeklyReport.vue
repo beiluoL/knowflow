@@ -9,12 +9,12 @@
     <!-- 页头 -->
     <div class="wr-header">
       <div class="wr-header-left">
-        <button type="button" class="wr-back-btn" title="返回" @click="router.back()">
+        <button type="button" class="wr-back-btn" title="返回" @click="nav.goBack()">
           <Icon name="arrow-left" :size="18" />
         </button>
         <h1 class="wr-title">学习周报</h1>
         <!-- D. 本周热力图小圆徽标 -->
-        <div class="wr-heat-badge" title="本周7天学习活跃度">
+        <div v-if="metricsStatus === 'ready'" class="wr-heat-badge" title="本周7天学习活跃度">
           <div
             v-for="(v, i) in weekHeatMini"
             :key="i"
@@ -56,21 +56,16 @@
       </div>
     </div>
 
-    <!-- 错误态 -->
-    <div v-if="error" class="wr-error">
-      <Icon name="alert-circle" :size="32" />
-      <p>{{ error }}</p>
-      <button type="button" class="wr-retry-btn" @click="loadAll">重新加载</button>
-    </div>
-
-    <!-- 加载态 -->
-    <div v-else-if="loading" class="wr-skeleton">
+    <StateView :status="reportStatus" :error-title="reportError?.title" :error-description="reportError?.hint" :error-scope="reportError?.scope" :error-hint="reportError?.hint" :show-retry="reportError?.retryable ?? true" empty-title="还没有学习周报" empty-description="有学习记录后可生成周报，回顾本周投入与收获。" @retry="loadAll(true)">
+    <template #empty-action><button type="button" class="wr-generate-btn" :disabled="generating" @click="handleGenerate">{{ generating ? '生成中…' : '生成本周周报' }}</button></template>
+    <template #skeleton><div class="wr-skeleton">
       <div class="wr-skeleton-card" />
       <div class="wr-skeleton-card" />
-    </div>
+    </div></template>
 
     <!-- 内容 -->
-    <template v-else>
+    <template #default>
+      <StateView v-if="metricsStatus !== 'ready'" :status="metricsStatus" :error-title="metricsError?.title" :error-description="metricsError?.hint" error-scope="仅增强统计不可用，周报正文和历史仍可阅读。" :error-hint="metricsError?.hint" :show-retry="metricsError?.retryable ?? true" type="card" :rows="1" @retry="loadMetrics(true)" />
       <!-- 当前周报 -->
       <section class="wr-section">
         <h2 class="wr-section-title">
@@ -81,7 +76,7 @@
         <div v-if="currentReport" class="wr-card wr-current-card">
           <div class="wr-card-head">
             <div class="wr-period">
-              <Icon name="calendar-range" :size="16" />
+              <Icon name="calendar" :size="16" />
               <span>{{ currentReport.weekStart }} ~ {{ currentReport.weekEnd }}</span>
             </div>
           </div>
@@ -93,7 +88,7 @@
               icon-color="var(--kb-primary)"
               icon-bg="color-mix(in srgb, var(--kb-primary) 10%, transparent)"
               :icon-size="18"
-              :value="currentReport.studyMinutes"
+              :value="currentReport.studyMinutes ?? 0"
               label="学习分钟"
             />
             <StatCard
@@ -101,7 +96,7 @@
               icon-color="var(--kb-accent)"
               icon-bg="color-mix(in srgb, var(--kb-accent) 10%, transparent)"
               :icon-size="18"
-              :value="currentReport.checkinDays"
+              :value="currentReport.checkinDays ?? 0"
               label="打卡天数"
             />
             <StatCard
@@ -109,13 +104,13 @@
               icon-color="var(--kb-warning)"
               icon-bg="color-mix(in srgb, var(--kb-warning) 10%, transparent)"
               :icon-size="18"
-              :value="currentReport.flashcardReviewed"
+              :value="currentReport.flashcardReviewed ?? 0"
               label="复习闪卡"
             />
           </div>
 
           <!-- A. 本周专注模式分布（stacked bar） -->
-          <div class="wr-block">
+          <div v-if="metricsStatus === 'ready'" class="wr-block">
             <h3 class="wr-block-title">
               <Icon name="pie-chart" :size="16" />
               <span>本周专注模式分布</span>
@@ -185,7 +180,7 @@
           </div>
 
           <!-- B. AI 深度洞见 -->
-          <div class="wr-block">
+          <div v-if="metricsStatus === 'ready'" class="wr-block">
             <h3 class="wr-block-title">
               <Icon name="sparkles" :size="16" />
               <span>AI 深度洞见</span>
@@ -266,7 +261,7 @@
                 <Icon
                   name="chevron-down"
                   :size="16"
-                  :class="['wr-chevron', { 'wr-chevron-open': expandedId === report.id }]"
+                  :class="{ 'wr-chevron': true, 'wr-chevron-open': expandedId === report.id }"
                 />
               </div>
             </button>
@@ -328,11 +323,12 @@
         </div>
       </section>
     </template>
+    </StateView>
 
     <!-- 分享 fallback textbox -->
     <textarea
       ref="shareTaRef"
-      class="wr-share-fallback-ta"
+      class="wr-share-fallback-ta kb-textarea kb-form-control"
       readonly
       aria-hidden="true"
     />
@@ -340,8 +336,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted, nextTick } from 'vue';
+import StateView from '@/components/ui/StateView.vue';
+import { useAsyncResource } from '@/composables/useAsyncResource';
 import Icon from '@/components/ui/Icon.vue';
 import StatCard from '@/components/ui/StatCard.vue';
 import { learningApi } from '@/api';
@@ -355,18 +352,27 @@ import {
   type AggregatedMetrics,
   type AiInsight,
 } from '@/composables/useWeeklyReportEnhancer';
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
-const router = useRouter();
+const nav = usePageNavigation()
 
-const loading = ref(false);
 const generating = ref(false);
-const error = ref('');
 const currentReport = ref<WeeklyReportVO | null>(null);
 const historyReports = ref<WeeklyReportVO[]>([]);
 const expandedId = ref<number | null>(null);
 
-const metricsLoading = ref(false);
 const metrics = ref<AggregatedMetrics | null>(null);
+const reportResource = useAsyncResource(async () => {
+  const [current, history] = await Promise.all([learningApi.getWeeklyReport(), learningApi.listWeeklyReports()]);
+  return { current, history };
+}, value => !value.current && value.history.length === 0, '周报加载失败');
+const reportError = reportResource.error;
+const reportStatus = computed(() => ['ready', 'empty'].includes(reportResource.status.value)
+  ? (!currentReport.value && historyReports.value.length === 0 ? 'empty' : 'ready') : reportResource.status.value);
+const metricsResource = useAsyncResource(aggregateWeeklyMetrics, () => false, '增强统计加载失败', 'section');
+const metricsStatus = metricsResource.status;
+const metricsError = metricsResource.error;
+const metricsLoading = computed(() => ['loading', 'retrying'].includes(metricsStatus.value));
 
 const shareTaRef = ref<HTMLTextAreaElement | null>(null);
 
@@ -375,11 +381,11 @@ const renderedSummary = computed(() =>
 );
 
 const MODE_COLORS: Record<string, string> = {
-  POMODORO: '#EF4444',
+  POMODORO: 'var(--kb-danger)',
   FLOW: '#06B6D4',
   DEEP: '#8B5CF6',
-  SPACED: '#10B981',
-  BUDDY: '#F59E0B',
+  SPACED: 'var(--kb-success)',
+  BUDDY: 'var(--kb-warning)',
 };
 const MODE_LABELS: Record<string, string> = {
   POMODORO: '番茄',
@@ -442,26 +448,15 @@ function toggleExpand(id?: number): void {
   expandedId.value = expandedId.value === id ? null : id;
 }
 
-async function loadMetrics(): Promise<void> {
-  metricsLoading.value = true;
-  try {
-    metrics.value = await aggregateWeeklyMetrics();
-  } catch (e: unknown) {
-    notify('增强数据加载失败：' + getApiError(e, '网络异常'), 'warning');
-    metrics.value = null;
-  } finally {
-    metricsLoading.value = false;
-  }
+async function loadMetrics(retry = false): Promise<void> {
+  await metricsResource.run(retry);
+  if (metricsStatus.value === 'ready') metrics.value = metricsResource.data.value;
 }
 
-async function loadAll(): Promise<void> {
-  loading.value = true;
-  error.value = '';
-  try {
-    const [current, history] = await Promise.all([
-      learningApi.getWeeklyReport().catch(() => null),
-      learningApi.listWeeklyReports().catch(() => [] as WeeklyReportVO[]),
-    ]);
+async function loadAll(retry = false): Promise<void> {
+    await reportResource.run(retry);
+    if (reportResource.status.value === 'error' || !reportResource.data.value) return;
+    const { current, history } = reportResource.data.value;
     currentReport.value = current;
     historyReports.value = [...history].sort((a, b) =>
       (b.weekStart || '').localeCompare(a.weekStart || ''),
@@ -469,12 +464,6 @@ async function loadAll(): Promise<void> {
     if (historyReports.value.length > 0 && historyReports.value[0].id != null) {
       expandedId.value = historyReports.value[0].id!;
     }
-  } catch (e: unknown) {
-    error.value = '周报加载失败：' + getApiError(e);
-    notify('周报加载失败', 'error');
-  } finally {
-    loading.value = false;
-  }
 }
 
 async function handleGenerate(): Promise<void> {
@@ -483,6 +472,7 @@ async function handleGenerate(): Promise<void> {
   try {
     const report = await learningApi.generateWeeklyReport();
     currentReport.value = report;
+    reportResource.status.value = 'ready';
     try {
       const history = await learningApi.listWeeklyReports();
       historyReports.value = [...history].sort((a, b) =>
@@ -577,7 +567,7 @@ async function handleDownloadPdf(): Promise<void> {
     const insightsHtml = insights
       .map((it, i) => {
         const y = 520 + i * 110;
-        const toneColor = it.tone === 'positive' ? '#10B981' : it.tone === 'warning' ? '#F59E0B' : '#3B6FE0';
+        const toneColor = it.tone === 'positive' ? 'var(--kb-success)' : it.tone === 'warning' ? 'var(--kb-warning)' : 'var(--kb-primary)';
         const toneBg = it.tone === 'positive' ? 'rgba(16,185,129,0.08)' : it.tone === 'warning' ? 'rgba(245,158,11,0.08)' : 'rgba(59,111,224,0.08)';
         const contentLines = splitText(it.content, 32);
         const contentText = contentLines
@@ -587,7 +577,7 @@ async function handleDownloadPdf(): Promise<void> {
         return `<rect x="40" y="${y}" width="${w - 80}" height="96" rx="12" fill="${toneBg}" stroke="${toneColor}22" stroke-width="1" />
 <circle cx="66" cy="${y + 30}" r="18" fill="${toneColor}18" />
 <text x="66" y="${y + 36}" text-anchor="middle" font-size="18" fill="${toneColor}" font-family="Noto Sans SC, sans-serif">★</text>
-<text x="92" y="${y + 28}" font-size="14" font-weight="600" fill="#1A1D23" font-family="Noto Sans SC, -apple-system, sans-serif">${escapeXml(it.title)}</text>
+<text x="92" y="${y + 28}" font-size="14" font-weight="600" fill="var(--kb-foreground)" font-family="Noto Sans SC, -apple-system, sans-serif">${escapeXml(it.title)}</text>
 ${contentText}`;
       })
       .join('\n');
@@ -597,7 +587,7 @@ ${contentText}`;
       .map((a, i) => {
         const y = 380 + i * 32;
         return `<circle cx="58" cy="${y}" r="8" fill="rgba(245,158,11,0.18)" />
-<text x="58" y="${y + 4}" text-anchor="middle" font-size="11" fill="#F59E0B">★</text>
+<text x="58" y="${y + 4}" text-anchor="middle" font-size="11" fill="var(--kb-warning)">★</text>
 <text x="78" y="${y + 4}" font-size="13" fill="#374151" font-family="Noto Sans SC, -apple-system, sans-serif">${escapeXml(a)}</text>`;
       })
       .join('\n');
@@ -610,8 +600,8 @@ ${contentText}`;
       <stop offset="100%" stop-color="#F0F4FF"/>
     </linearGradient>
     <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#3B6FE0"/>
-      <stop offset="100%" stop-color="#6F9AF2"/>
+      <stop offset="0%" stop-color="var(--kb-primary)"/>
+      <stop offset="100%" stop-color="var(--kb-primary-muted)"/>
     </linearGradient>
   </defs>
 
@@ -627,20 +617,20 @@ ${contentText}`;
 
   <rect x="40" y="190" width="${w - 80}" height="140" rx="16" fill="#FFFFFF" stroke="rgba(59,111,224,0.1)" stroke-width="1"/>
   <rect x="76" y="220" width="${(w - 80 - 80) / 3 - 12}" height="80" rx="12" fill="rgba(59,111,224,0.06)"/>
-  <text x="${76 + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="#6B7280" font-family="Noto Sans SC, sans-serif">学习分钟</text>
-  <text x="${76 + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="#1A1D23" font-family="Noto Sans SC, sans-serif">${minutes}</text>
+  <text x="${76 + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="var(--kb-muted-foreground)" font-family="Noto Sans SC, sans-serif">学习分钟</text>
+  <text x="${76 + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="var(--kb-foreground)" font-family="Noto Sans SC, sans-serif">${minutes}</text>
 
   <rect x="${76 + (w - 80 - 80) / 3}" y="220" width="${(w - 80 - 80) / 3 - 12}" height="80" rx="12" fill="rgba(16,185,129,0.06)"/>
-  <text x="${76 + (w - 80 - 80) / 3 + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="#6B7280" font-family="Noto Sans SC, sans-serif">打卡天数</text>
-  <text x="${76 + (w - 80 - 80) / 3 + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="#1A1D23" font-family="Noto Sans SC, sans-serif">${days}</text>
+  <text x="${76 + (w - 80 - 80) / 3 + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="var(--kb-muted-foreground)" font-family="Noto Sans SC, sans-serif">打卡天数</text>
+  <text x="${76 + (w - 80 - 80) / 3 + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="var(--kb-foreground)" font-family="Noto Sans SC, sans-serif">${days}</text>
 
   <rect x="${76 + 2 * ((w - 80 - 80) / 3)}" y="220" width="${(w - 80 - 80) / 3 - 12}" height="80" rx="12" fill="rgba(245,158,11,0.06)"/>
-  <text x="${76 + 2 * ((w - 80 - 80) / 3) + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="#6B7280" font-family="Noto Sans SC, sans-serif">复习闪卡</text>
-  <text x="${76 + 2 * ((w - 80 - 80) / 3) + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="#1A1D23" font-family="Noto Sans SC, sans-serif">${cards}</text>
+  <text x="${76 + 2 * ((w - 80 - 80) / 3) + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="var(--kb-muted-foreground)" font-family="Noto Sans SC, sans-serif">复习闪卡</text>
+  <text x="${76 + 2 * ((w - 80 - 80) / 3) + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="var(--kb-foreground)" font-family="Noto Sans SC, sans-serif">${cards}</text>
 
-  ${achievements.length ? `<text x="40" y="360" font-size="16" font-weight="600" fill="#1A1D23" font-family="Noto Sans SC, sans-serif">🏆 本周成就</text>\n${achHtml}` : ''}
+  ${achievements.length ? `<text x="40" y="360" font-size="16" font-weight="600" fill="var(--kb-foreground)" font-family="Noto Sans SC, sans-serif">🏆 本周成就</text>\n${achHtml}` : ''}
 
-  <text x="40" y="500" font-size="16" font-weight="600" fill="#1A1D23" font-family="Noto Sans SC, sans-serif">✨ AI 深度洞见</text>
+  <text x="40" y="500" font-size="16" font-weight="600" fill="var(--kb-foreground)" font-family="Noto Sans SC, sans-serif">✨ AI 深度洞见</text>
   ${insightsHtml}
 
   <text x="${w / 2}" y="${h - 32}" text-anchor="middle" font-size="12" font-weight="600" fill="#9AA1AC" letter-spacing="2" font-family="Noto Sans SC, sans-serif">knowflow.cn</text>
@@ -672,15 +662,6 @@ function splitText(text: string, maxLen: number): string[] {
   return result;
 }
 
-watch(
-  currentReport,
-  () => {
-    if (currentReport.value && !metrics.value && !metricsLoading.value) {
-      void loadMetrics();
-    }
-  },
-);
-
 onMounted(() => {
   void loadAll();
   void loadMetrics();
@@ -689,10 +670,15 @@ onMounted(() => {
 
 <style scoped>
 .weekly-report-page {
-  max-width: 880px;
-  margin: 0 auto;
+  max-width: none;
+  margin-inline: 0;
   padding: 4px 0 32px;
   animation: wr-fade 0.4s ease-out;
+
+  width: 100%;
+  min-width: 0;
+  padding-inline: 0;
+  padding-top: 0;
 }
 
 @keyframes wr-fade {
@@ -1491,12 +1477,14 @@ onMounted(() => {
 }
 
 /* 分享 textarea fallback */
+.wr-share-fallback-ta:not(.kb-form-control) {
+  height: 1px;
+}
 .wr-share-fallback-ta {
   position: fixed;
   left: -99999px;
   top: -99999px;
   width: 1px;
-  height: 1px;
   opacity: 0;
   pointer-events: none;
 }

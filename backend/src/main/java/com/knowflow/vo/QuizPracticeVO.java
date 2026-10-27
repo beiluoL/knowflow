@@ -11,6 +11,8 @@ import java.util.List;
 public class QuizPracticeVO {
 
     private Long id;
+    private Integer version;
+    private String contentHash;
 
     private String title;
 

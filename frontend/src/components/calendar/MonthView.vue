@@ -85,7 +85,7 @@ function festivalCount(day: Date): number {
 }
 
 function chipColor(ev: CalendarEvent): string {
-  return ev.listColor || (ev.important ? '#F59E0B' : '#3B6FE0')
+  return ev.listColor || (ev.important ? 'var(--kb-warning)' : 'var(--kb-primary)')
 }
 </script>
 
@@ -196,10 +196,10 @@ function chipColor(ev: CalendarEvent): string {
   text-align: center;
   font-size: 12px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--kb-muted-foreground);
 }
 .c-month-head-cell.weekend {
-  color: #ef4444;
+  color: var(--kb-danger);
 }
 .c-month-grid {
   flex: 1;
@@ -273,7 +273,7 @@ function chipColor(ev: CalendarEvent): string {
   background: #e5484d;
 }
 .c-badge.is-work {
-  background: #f59e0b;
+  background: var(--kb-warning);
 }
 /* 节日标签行（传统/现代/纪念日）：彩色圆点 + 名称 */
 .c-month-marks {
@@ -299,7 +299,7 @@ function chipColor(ev: CalendarEvent): string {
 }
 .c-mark-name {
   font-size: 11px;
-  color: #6b7280;
+  color: var(--kb-muted-foreground);
   line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -343,7 +343,7 @@ function chipColor(ev: CalendarEvent): string {
   font-size: 12px;
   line-height: 1.3;
   color: #fff;
-  background: var(--c, #3b6fe0);
+  background: var(--c, var(--kb-primary));
   cursor: pointer;
   overflow: hidden;
   white-space: nowrap;
@@ -363,7 +363,7 @@ function chipColor(ev: CalendarEvent): string {
 }
 .c-more {
   font-size: 11px;
-  color: #6b7280;
+  color: var(--kb-muted-foreground);
   padding: 1px 6px;
   cursor: pointer;
 }

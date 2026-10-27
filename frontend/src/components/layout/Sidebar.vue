@@ -6,7 +6,7 @@
     @click="$emit('close')"
   />
 
-  <aside
+  <aside data-test="admin-sidebar" :inert="mobileHidden || undefined" :aria-hidden="mobileHidden || undefined" :role="mobileOpen ? 'dialog' : undefined" :aria-modal="mobileOpen || undefined" aria-label="后台导航"
     class="fixed left-0 top-0 h-screen flex flex-col no-scrollbar overflow-y-auto z-50 transition-all duration-300 ease-in-out lg:translate-x-0"
     :class="[
       mobileOpen ? 'translate-x-0' : '-translate-x-full',
@@ -35,6 +35,7 @@
       </router-link>
     </div>
 
+    <button v-if="mobileOpen" type="button" class="lg:hidden px-4 py-3 text-foreground" aria-label="关闭后台导航" @click="$emit('close')">关闭目录</button>
     <!-- Navigation -->
     <nav class="flex-1 overflow-y-auto no-scrollbar py-3" :class="collapsed ? 'px-2' : 'px-3'">
       <div v-for="group in visibleGroups" :key="group.title" class="mb-2">
@@ -51,7 +52,7 @@
                 isActive(item.path) ? 'active' : '',
                 collapsed ? 'justify-center px-0' : '',
               ]"
-              :title="collapsed ? item.label : ''"
+              :title="collapsed ? item.label : ''" :aria-label="collapsed ? item.label : undefined"
               @click="$emit('close')"
             >
               <Icon :name="item.icon" size="md" class="shrink-0" />
@@ -110,6 +111,7 @@ import { useBackgroundStore } from '@/stores/background';
 defineProps<{
   mobileOpen: boolean;
   collapsed: boolean;
+  mobileHidden?: boolean;
 }>();
 
 const bgStore = useBackgroundStore();
@@ -165,15 +167,36 @@ const allGroups: NavGroup[] = [
       { path: '/admin/tags', label: '知识库与标签', icon: 'tags', adminOnly: true },
       { path: '/admin/learning-paths', label: '学习路径管理', icon: 'route', adminOnly: true },
       { path: '/admin/flashcards', label: '知识卡片管理', icon: 'credit-card', adminOnly: true },
-      { path: '/admin/code-questions', label: '代码题库管理', icon: 'code', adminOnly: true },
       { path: '/admin/icons', label: '图标管理', icon: 'palette', adminOnly: true },
       { path: '/admin/files', label: '文件管理', icon: 'folder', adminOnly: true },
     ],
   },
   {
+    title: '题库管理',
+    items: [
+      { path: '/admin/questions', label: '全部题目', icon: 'file-question', adminOnly: true },
+      { path: '/admin/questions?view=taxonomy', label: '分类与知识点', icon: 'folder-tree', adminOnly: true },
+      { path: '/admin/questions?reviewStatus=PENDING_REVIEW', label: 'AI 出题审核', icon: 'sparkles', adminOnly: true },
+      { path: '/admin/questions?view=versions', label: '来源与版本', icon: 'history', adminOnly: true },
+    ],
+  },
+  {
+    title: '练习与考试',
+    items: [
+      { path: '/admin/scenarios', label: '场景训练配置', icon: 'target', adminOnly: true },
+      { path: '/exam', label: '组卷与考试记录', icon: 'graduation-cap', adminOnly: true },
+    ],
+  },
+  {
+    title: '代码判题配置',
+    items: [
+      { path: '/admin/code-problems', label: '用例与 Judge 配置', icon: 'cpu', adminOnly: true },
+      { path: '/admin/questions?view=judge', label: '判题服务状态', icon: 'activity', adminOnly: true },
+    ],
+  },
+  {
     title: 'AI 与生成',
     items: [
-      { path: '/admin/quiz', label: '智能出题', icon: 'file-question', adminOnly: true },
       { path: '/admin/writing', label: '智能写作', icon: 'pen-tool', adminOnly: true },
       { path: '/admin/chat-config', label: '对话配置', icon: 'settings', adminOnly: true },
     ],
@@ -209,6 +232,12 @@ const visibleGroups = computed(() =>
 
 // 高亮当前路由：精确匹配或以该路径为前缀的子路由均视为激活
 function isActive(path: string): boolean {
+  const [pathname, query] = path.split('?');
+  if (pathname === '/admin/questions') {
+    if (route.path !== pathname) return false;
+    if (!query) return !route.query.view && !route.query.reviewStatus;
+    return [...new URLSearchParams(query)].every(([key, value]) => route.query[key] === value);
+  }
   if (path === '/') return route.path === '/';
   return route.path === path || route.path.startsWith(path + '/');
 }

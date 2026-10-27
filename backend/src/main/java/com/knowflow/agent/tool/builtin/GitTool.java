@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class GitTool implements AgentTool {
 
     private final ObjectMapper objectMapper;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
 
     @Override
     public String name() {
@@ -69,14 +70,16 @@ public class GitTool implements AgentTool {
 
     @Override
     public ToolResult execute(JsonNode args, ToolContext ctx) throws ToolException {
+        hostGuard.requireActor(ctx == null ? null : ctx.getUserId());
         long start = System.currentTimeMillis();
         String action = args.has("action") ? args.get("action").asText() : null;
         if (action == null) {
             return ToolResult.fail("缺少必填参数 action", System.currentTimeMillis() - start);
         }
-        Path root = FsReadTool.resolveRoot(ctx);
+        Path root = FsReadTool.resolveRoot(ctx, hostGuard);
         long timeout = args.has("timeoutSec") ? args.get("timeoutSec").asLong(30) : 30;
         timeout = Math.max(1, Math.min(120, timeout)) * 1000L;
+        timeout=hostGuard.executionTimeout(args.has("timeoutSec") ? args.get("timeoutSec").asLong()*1000L : null,10000);
 
         List<String> cmd = new ArrayList<>();
         cmd.add("git");
@@ -143,7 +146,7 @@ public class GitTool implements AgentTool {
     private Captured runGit(Path root, List<String> cmd, long timeoutMs) {
         Captured cap = new Captured();
         long start = System.currentTimeMillis();
-        try {
+        try (var lease=hostGuard.acquireProcess(timeoutMs)) {
             ProcessBuilder pb = new ProcessBuilder(cmd);
             pb.directory(root.toFile());
             pb.redirectErrorStream(false);
@@ -152,8 +155,9 @@ public class GitTool implements AgentTool {
             StreamReader errR = new StreamReader(p.getErrorStream());
             outR.start();
             errR.start();
-            boolean finished = p.waitFor(timeoutMs, TimeUnit.MILLISECONDS);
+            boolean finished = hostGuard.awaitProcess(p,timeoutMs);
             if (!finished) {
+                p.descendants().forEach(ProcessHandle::destroyForcibly);
                 p.destroyForcibly();
                 p.waitFor(2000, TimeUnit.MILLISECONDS);
                 cap.timedOut = true;
@@ -164,6 +168,8 @@ public class GitTool implements AgentTool {
             errR.join(3000);
             cap.stdout = outR.getCaptured();
             cap.stderr = errR.getCaptured();
+        } catch (com.knowflow.exception.BusinessException e) {
+            throw e;
         } catch (Exception e) {
             cap.stderr = e.getMessage();
         }
@@ -193,7 +199,8 @@ public class GitTool implements AgentTool {
             try {
                 int n;
                 while ((n = in.read(chunk)) != -1) {
-                    buf.write(chunk, 0, n);
+                    int remaining=1048576-buf.size();
+                    if (remaining>0) buf.write(chunk,0,Math.min(n,remaining));
                 }
             } catch (java.io.IOException ignored) {
             }

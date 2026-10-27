@@ -125,7 +125,7 @@ public class CodeChallengeServiceImpl extends ServiceImpl<CodeChallengeMapper, C
     public ChallengeDetailVO getDetail(Long challengeId, Long userId) {
         CodeChallenge challenge = getById(challengeId);
         if (challenge == null || challenge.getStatus() == null || challenge.getStatus() != 1) {
-            throw new BusinessException("挑战不存在或未发布");
+            throw new BusinessException(404, "挑战不存在或未发布");
         }
 
         List<CodeChallengeLevel> levels = levelMapper.selectList(new LambdaQueryWrapper<CodeChallengeLevel>()
@@ -204,12 +204,12 @@ public class CodeChallengeServiceImpl extends ServiceImpl<CodeChallengeMapper, C
     public ChallengeSubmitResultVO submitLevel(Long challengeId, Long levelId, ChallengeSubmitDTO dto, Long userId) {
         CodeChallenge challenge = getById(challengeId);
         if (challenge == null || challenge.getStatus() == null || challenge.getStatus() != 1) {
-            throw new BusinessException("挑战不存在或未发布");
+            throw new BusinessException(404, "挑战不存在或未发布");
         }
         CodeChallengeLevel level = levelMapper.selectById(levelId);
         if (level == null || !challengeId.equals(level.getChallengeId())
                 || level.getStatus() == null || level.getStatus() != 1) {
-            throw new BusinessException("关卡不存在或未发布");
+            throw new BusinessException(404, "关卡不存在或未发布");
         }
 
         // 解锁校验：非第一关需要上一关已通关

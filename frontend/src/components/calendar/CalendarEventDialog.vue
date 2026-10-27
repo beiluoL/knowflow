@@ -1,6 +1,10 @@
 <script setup lang="ts">
+import Checkbox from '@/components/ui/Checkbox.vue'
+
 import { ref, watch, computed } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
+import DatePicker from '@/components/ui/DatePicker.vue'
+import DateTimePicker from '@/components/ui/DateTimePicker.vue'
 import type { CalendarEvent } from '@/api/calendar'
 import type { TaskListVO, TaskPayload } from '@/api/task'
 import {
@@ -158,36 +162,55 @@ function onDelete() {
         <div class="ev-field">
           <input
             v-model="form.title"
-            class="ev-input ev-title-input"
+            class="ev-input ev-title-input kb-input kb-form-control"
             placeholder="添加标题"
             @keyup.enter="onSave"
           />
         </div>
 
         <!-- 全天开关 -->
-        <label class="ev-switch">
-          <input type="checkbox" v-model="form.allDay" />
+        <label class="ev-switch kb-checkbox-row">
+          <Checkbox as="span"  v-model="form.allDay" />
           <span>全天事件</span>
         </label>
 
         <!-- 时间 -->
         <div v-if="form.allDay" class="ev-field">
           <Icon name="calendar" :size="15" class="ev-ic" />
-          <input type="date" v-model="form.scheduledDateStr" class="ev-input" />
+          <DatePicker
+            v-model="form.scheduledDateStr"
+            class="ev-datepicker"
+            required
+            aria-label="事件日期"
+            placeholder="选择日期"
+            :week-starts-on="1"
+          />
         </div>
         <template v-else>
-          <div class="ev-field">
-            <Icon name="clock" :size="15" class="ev-ic" />
-            <input type="datetime-local" v-model="form.startTimeStr" class="ev-input" />
-            <span class="ev-sep">→</span>
-            <input type="datetime-local" v-model="form.endTimeStr" class="ev-input" />
+          <div class="ev-datetime-row">
+            <DateTimePicker
+              v-model="form.startTimeStr"
+              class="ev-datetime"
+              aria-label="开始时间"
+              placeholder="开始时间"
+              :week-starts-on="1"
+              required
+            />
+            <span class="ev-sep" aria-hidden="true">→</span>
+            <DateTimePicker
+              v-model="form.endTimeStr"
+              class="ev-datetime"
+              aria-label="结束时间"
+              placeholder="结束时间"
+              :week-starts-on="1"
+            />
           </div>
         </template>
 
         <!-- 清单 -->
         <div class="ev-field">
           <Icon name="list" :size="15" class="ev-ic" />
-          <select v-model="form.listId" class="ev-input">
+          <select v-model="form.listId" class="ev-input kb-select kb-form-control">
             <option :value="null">无清单</option>
             <option v-for="l in lists" :key="l.id" :value="l.id">{{ l.name }}</option>
           </select>
@@ -220,7 +243,7 @@ function onDelete() {
 
         <!-- 备注 -->
         <div class="ev-field">
-          <textarea v-model="form.notes" class="ev-input ev-textarea" placeholder="备注（可选）" rows="3"></textarea>
+          <textarea v-model="form.notes" class="ev-input ev-textarea kb-textarea kb-form-control" placeholder="备注（可选）" rows="3"></textarea>
         </div>
 
         <p v-if="error" class="ev-error">{{ error }}</p>
@@ -300,18 +323,42 @@ function onDelete() {
   color: #9aa3b2;
   flex-shrink: 0;
 }
-.ev-input {
+.ev-datepicker {
   flex: 1;
+  min-width: 0;
+}
+.ev-datetime-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+.ev-datetime {
+  min-width: 0;
+}
+@media (max-width: 560px) {
+  .ev-datetime-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .ev-datetime-row .ev-sep {
+    display: none;
+  }
+}
+.ev-input:not(.kb-form-control) {
   border: 1px solid #e5e7eb;
   border-radius: 9px;
-  padding: 9px 11px;
-  font-size: 14px;
-  color: #1f2937;
   background: #fff;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
-.ev-input:focus {
+.ev-input {
+  flex: 1;
+  padding: 9px 11px;
+  font-size: 14px;
+  color: #1f2937;
+}
+.ev-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
 }
@@ -329,8 +376,8 @@ function onDelete() {
 .ev-switch {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
+  gap: var(--kb-checkbox-gap);
+  font-size: var(--kb-fs-body-md);
   color: #4b5563;
   cursor: pointer;
 }
@@ -345,7 +392,7 @@ function onDelete() {
   gap: 4px;
   border: 1px solid #e5e7eb;
   background: #fff;
-  color: #6b7280;
+  color: var(--kb-muted-foreground);
   font-size: 13px;
   padding: 6px 10px;
   border-radius: 9px;
@@ -358,7 +405,7 @@ function onDelete() {
   background: #f0f5ff;
 }
 .ev-error {
-  color: #ef4444;
+  color: var(--kb-danger);
   font-size: 13px;
   margin: 0;
 }
@@ -373,16 +420,16 @@ function onDelete() {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  border: 1px solid #fca5a5;
+  border: 1px solid var(--kb-danger-tint);
   background: #fff;
-  color: #ef4444;
+  color: var(--kb-danger);
   font-size: 13px;
   padding: 8px 12px;
   border-radius: 9px;
   cursor: pointer;
 }
 .ev-del:hover {
-  background: #fef2f2;
+  background: var(--kb-danger-subtle);
 }
 .ev-foot-right {
   display: flex;

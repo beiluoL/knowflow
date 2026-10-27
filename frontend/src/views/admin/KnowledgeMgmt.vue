@@ -106,7 +106,7 @@
         </div>
       </div>
 
-      <div class="divide-y divide-[#E2E6EC]/50">
+      <div class="divide-y divide-[var(--kb-border)]/50">
         <div
           v-for="node in flatTreeNodes" :key="node.kb.id"
           class="px-6 py-4 hover:bg-muted transition-colors group"
@@ -351,7 +351,7 @@
             </label>
             <select
               v-model="kbForm.parentId"
-              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none bg-card hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 text-sm text-foreground hover:border-border transition-colors kb-select kb-form-control"
             >
               <option :value="undefined">作为顶级分类</option>
               <option
@@ -485,7 +485,7 @@
           <div class="w-[130px]">
             <select
               v-model="newMemberRole"
-              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 text-sm text-foreground hover:border-border transition-colors kb-select kb-form-control"
             >
               <option value="READER">阅读者</option>
               <option value="EDITOR">编辑者</option>
@@ -508,7 +508,7 @@
           <div class="w-[130px]">
             <select
               v-model="inviteRole"
-              class="w-full h-10 px-3 rounded-lg border border-[var(--kb-border)] text-sm text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="w-full h-10 px-3 text-sm text-foreground hover:border-border transition-colors kb-select kb-form-control"
             >
               <option value="READER">阅读者</option>
               <option value="EDITOR">编辑者</option>
@@ -588,7 +588,7 @@
                   v-if="m.role !== 'OWNER' || canTransferOwner(m)"
                   :value="m.role"
                   @change="onChangeRole(m, ($event.target as HTMLSelectElement).value)"
-                  class="h-8 px-2 rounded-md border border-[var(--kb-border)] text-xs text-foreground focus:border-primary-500 focus:outline-none hover:border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                  class="h-8 px-2 text-xs text-foreground hover:border-border transition-colors kb-select kb-form-control"
                 >
                   <option value="OWNER">所有者</option>
                   <option value="EDITOR">编辑者</option>
@@ -739,14 +739,14 @@ const filteredPresetIcons = computed(() =>
   presetIcons.filter(icon => icon.category === activeIconCategory.value)
 )
 const legacyIconColors: Record<string, string> = {
-  code: '#3B6FE0', server: '#10B981', database: '#F59E0B', brain: '#8B5CF6',
-  layout: '#EC4899', settings: '#06B6D4', 'book-open': '#3B6FE0', folder: '#6B7280',
+  code: 'var(--kb-primary)', server: 'var(--kb-success)', database: 'var(--kb-warning)', brain: '#8B5CF6',
+  layout: '#EC4899', settings: '#06B6D4', 'book-open': 'var(--kb-primary)', folder: 'var(--kb-muted-foreground)',
   layers: '#F97316', 'message-circle': '#84CC16',
 }
 const kbForm = reactive({ name: '', description: '', icon: 'lang-java', parentId: undefined as number | undefined })
 const selectedIconKey = computed(() => parseIconValue(kbForm.icon).key)
 const selectedIconColor = computed(() => parseIconValue(kbForm.icon).color)
-const currentPresetDefaultColor = computed(() => getIconByKey(selectedIconKey.value)?.color || '#6B7280')
+const currentPresetDefaultColor = computed(() => getIconByKey(selectedIconKey.value)?.color || 'var(--kb-muted-foreground)')
 const currentRenderIconName = computed(() => {
   const preset = getIconByKey(selectedIconKey.value)
   return preset?.svg || selectedIconKey.value || 'folder'
@@ -764,9 +764,9 @@ const getCategoryIconName = (raw?: string): string => {
   return name || 'folder'
 }
 const getKbColor = (raw?: string): string => {
-  if (!raw) return '#6B7280'
+  if (!raw) return 'var(--kb-muted-foreground)'
   const { color } = resolveIconForRender(raw)
-  return color || legacyIconColors[raw] || '#6B7280'
+  return color || legacyIconColors[raw] || 'var(--kb-muted-foreground)'
 }
 
 // ========== 统计派生 ==========
@@ -937,15 +937,18 @@ const saveKb = async () => {
   }
 }
 const deleteKb = async (kb: CategoryVO) => {
-  if (!(await confirmDialog(`确定删除知识库「${kb.name}」吗？其成员关系也会一并失效。`))) return
-  try {
-    await adminApi.removeCategory(kb.id)
-    notify('删除成功', 'success')
-    categoryMemberCounts.value.delete(kb.id)
-    await loadKbs()
-  } catch (e: unknown) {
-    notify('删除失败：' + getApiError(e), 'error')
-  }
+  await confirmDialog(`确定删除知识库「${kb.name}」吗？其成员关系也会一并失效。`, { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          try {
+              await adminApi.removeCategory(kb.id);
+              notify('删除成功', 'success');
+              categoryMemberCounts.value.delete(kb.id);
+              await loadKbs();
+          }
+          catch (e: unknown) {
+              notify('删除失败：' + getApiError(e), 'error');
+              throw e;
+          }
+      } });
 }
 
 // ========== 主数据加载 ==========
@@ -1116,7 +1119,7 @@ const onChangeRole = async (m: KbMemberVO, newRole: string) => {
     await refreshMembers(); return
   }
   const label = `${displayName(m)} 变更为「${roleLabel(newRole)}」`
-  if (!(await confirmDialog(`确定将${label}吗？`))) {
+  if (!(await confirmDialog(`确定将${label}吗？`, {"title":"变更成员权限？","confirmText":"确认变更","cancelText":"取消","icon":"users","variant":"default"}))) {
     await refreshMembers(); return
   }
   try {
@@ -1130,14 +1133,17 @@ const onChangeRole = async (m: KbMemberVO, newRole: string) => {
 }
 
 const doRemoveMember = async (m: KbMemberVO) => {
-  if (!(await confirmDialog(`确定移除成员「${displayName(m)}」吗？`))) return
-  try {
-    await adminApi.removeKbMember(m.id)
-    notify('已移除', 'success')
-    await refreshMembers()
-  } catch (e: unknown) {
-    notify('移除失败：' + getApiError(e), 'error')
-  }
+  await confirmDialog(`确定移除成员「${displayName(m)}」吗？`, { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          try {
+              await adminApi.removeKbMember(m.id);
+              notify('已移除', 'success');
+              await refreshMembers();
+          }
+          catch (e: unknown) {
+              notify('移除失败：' + getApiError(e), 'error');
+              throw e;
+          }
+      } });
 }
 
 // ========== 批量导入 ==========
@@ -1186,25 +1192,33 @@ const doImport = async () => {
 
 // ========== 导出 ==========
 const openExport = async (kb: CategoryVO) => {
-  if (!(await confirmDialog(`确定导出知识库「${kb.name}」为 ZIP 格式吗？`))) return
-  try {
-    const resp = await adminApi.exportKb(kb.id)
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
-    const blob = await resp.blob()
-    const cd = resp.headers.get('Content-Disposition') || ''
-    const match = cd.match(/filename\*?=([^;]+)/i)
-    let filename = match ? match[1].replace(/^UTF-8''/, '').replace(/"/g, '').trim() : `${kb.name}.zip`
-    try { filename = decodeURIComponent(filename) } catch {}
-    const a = document.createElement('a')
-    const url = URL.createObjectURL(blob)
-    a.href = url
-    a.download = filename
-    document.body.appendChild(a); a.click()
-    setTimeout(() => { URL.revokeObjectURL(url); a.remove() }, 1000)
-    notify('导出成功', 'success')
-  } catch (e: unknown) {
-    notify('导出失败：' + getApiError(e), 'error')
-  }
+  await confirmDialog(`确定导出知识库「${kb.name}」为 ZIP 格式吗？`, { "title": "导出内容？", "confirmText": "开始导出", "cancelText": "取消", "icon": "download", "variant": "default", onConfirm: async () => {
+          try {
+              const resp = await adminApi.exportKb(kb.id);
+              if (!resp.ok)
+                  throw new Error(`HTTP ${resp.status}`);
+              const blob = await resp.blob();
+              const cd = resp.headers.get('Content-Disposition') || '';
+              const match = cd.match(/filename\*?=([^;]+)/i);
+              let filename = match ? match[1].replace(/^UTF-8''/, '').replace(/"/g, '').trim() : `${kb.name}.zip`;
+              try {
+                  filename = decodeURIComponent(filename);
+              }
+              catch { }
+              const a = document.createElement('a');
+              const url = URL.createObjectURL(blob);
+              a.href = url;
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+              notify('导出成功', 'success');
+          }
+          catch (e: unknown) {
+              notify('导出失败：' + getApiError(e), 'error');
+              throw e;
+          }
+      } });
 }
 
 onMounted(async () => {

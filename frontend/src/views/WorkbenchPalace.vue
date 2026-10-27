@@ -1,50 +1,17 @@
 <template>
-  <div class="wb-page animate-fade-in" :style="{ '--mc': themeColor }">
-    <!-- ============ Module Hero ============ -->
-    <section class="wb-hero">
-      <div class="wb-hero-bg" aria-hidden="true">
-        <span class="wb-blob"></span>
-        <span class="wb-grid"></span>
-      </div>
-      <div class="wb-hero-inner">
-        <div class="wb-hero-head">
-          <div class="wb-hero-text">
-            <span class="wb-eyebrow">
-              <span class="wb-eyebrow-dot"></span>
-              Step 03 · 复习 · Memory Palace
-            </span>
-            <h1 class="wb-title">
-              <Icon name="map-pin" :size="28" class="wb-title-icon" />
-              知识复习 · 记忆宫殿
-            </h1>
-            <p class="wb-subtitle">
-              把知识点挂靠到熟悉空间的固定位点，<strong>沿路线漫游回忆</strong>。
-              调用空间记忆，让抽象知识具象、牢固。
-            </p>
-          </div>
-          <div class="wb-hero-actions">
-            <router-link to="/workbench/review" class="kb-btn wb-ghost-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
-              <Icon name="repeat" :size="15" aria-hidden="true" /> 间隔重复
-            </router-link>
-            <button class="kb-btn kb-btn-primary wb-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = true">
-              <Icon name="plus" :size="16" aria-hidden="true" /> 新建宫殿
-            </button>
-          </div>
-        </div>
+  <WorkbenchShell stage="review" app-key="memory-palace" title="知识复习 · 记忆宫殿" subtitle="把知识放进熟悉的空间，沿位点顺序主动回忆。" help="选择熟悉的房间或街道，为知识添加位点和联想图像。宫殿用于空间回忆，不替代间隔重复排程，也不自动代表掌握度。" :revision="revision" @ready="load">
+    <template #actions>
+      <button class="kb-btn kb-btn-primary wb-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" data-test="palace-create" @click="showCreate = true">
+        <Icon name="plus" :size="16" aria-hidden="true" /> 新建宫殿
+      </button>
+    </template>
 
-        <!-- 闭环导航条 -->
-        <nav class="wb-loop-nav" aria-label="学习闭环">
-          <router-link v-for="s in loopSteps" :key="s.key" :to="s.path" class="wb-loop-step focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :class="{ 'is-current': s.key === 'review' }">
-            <span class="wb-loop-num">{{ s.num }}</span>
-            <span class="wb-loop-name">{{ s.name }}</span>
-          </router-link>
-        </nav>
-      </div>
-    </section>
-
+    <WorkbenchReviewMethods active="memory-palace" />
+    <div class="wb-page" :style="{ '--mc': themeColor }">
     <!-- ============ Palace Grid ============ -->
     <section>
-      <div v-if="loading" class="wb-palace-grid">
+      <div v-if="error" role="alert" class="workbench-inline-error">{{ error }} <button class="kb-btn" @click="load">重试</button></div>
+      <div v-else-if="loading" class="wb-palace-grid">
         <div v-for="n in 3" :key="n" class="wb-palace-card wb-skeleton">
           <div class="wb-skel-line" style="width: 40px; height: 40px; border-radius: 10px;"></div>
           <div class="wb-skel-line" style="width: 70%; height: 18px; margin-top: 10px;"></div>
@@ -66,7 +33,7 @@
           v-for="p in list"
           :key="p.id"
           class="wb-palace-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
-          :style="{ '--pc': p.coverColor || '#3B6FE0' }"
+          :style="{ '--pc': p.coverColor || 'var(--kb-primary)' }"
           role="button"
           tabindex="0"
           @keydown.enter.prevent="($event.target as HTMLElement).click()"
@@ -103,8 +70,8 @@
     </section>
 
     <!-- ============ 新建宫殿 Drawer ============ -->
-    <div v-if="showCreate" class="wb-drawer-mask focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @keydown.enter.prevent="($event.target as HTMLElement).click()" @click.self="showCreate = false">
-      <div class="wb-drawer">
+    <Teleport to="body"><div v-if="showCreate" class="workbench-drawer-mask focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @keydown.enter.prevent="($event.target as HTMLElement).click()" @click.self="showCreate = false">
+      <div class="wb-drawer workbench-drawer" role="dialog" aria-modal="true" aria-label="新建记忆宫殿">
         <header class="wb-drawer-head">
           <div>
             <span class="wb-eyebrow wb-eyebrow-sm">New Palace</span>
@@ -115,16 +82,16 @@
         <div class="wb-drawer-body">
           <div class="wb-field">
             <label class="wb-label">名称 <span class="wb-req">*</span></label>
-            <input v-model="form.name" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" placeholder="如：我的书房" />
+            <input v-model="form.name" class="kb-input transition-colors kb-form-control" placeholder="如：我的书房" />
           </div>
           <div class="wb-field">
             <label class="wb-label">描述</label>
-            <input v-model="form.description" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" placeholder="场景描述" />
+            <input v-model="form.description" class="kb-input transition-colors kb-form-control" placeholder="场景描述" />
           </div>
           <div class="wb-field-row">
             <div class="wb-field">
               <label class="wb-label">主题</label>
-              <select v-model="form.theme" class="kb-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+              <select v-model="form.theme" class="kb-input transition-colors kb-select kb-form-control">
                 <option value="ROOM">房间</option>
                 <option value="STREET">街道</option>
                 <option value="CAMPUS">校园</option>
@@ -148,82 +115,88 @@
         </div>
         <footer class="wb-drawer-foot">
           <button class="kb-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = false">取消</button>
-          <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="save">
+          <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" data-test="palace-save" :disabled="saving" @click="save">
             <Icon name="check" :size="15" aria-hidden="true" /> 保存
           </button>
         </footer>
       </div>
-    </div>
+    </div></Teleport>
   </div>
+</WorkbenchShell>
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { onBeforeUnmount, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import WorkbenchShell from '@/components/workbench/WorkbenchShell.vue'
+import WorkbenchReviewMethods from '@/components/workbench/WorkbenchReviewMethods.vue'
 import { notify, confirmDialog, getApiError } from '@/utils/toast'
 import './workbench-shared.css'
 import { listPalaces, createPalace, deletePalace } from '@/api/workbench'
 import type { WbPalace, WbPalacePayload } from '@/api/types'
 
 const router = useRouter()
-const themeColor = '#8B5CF6'
+
+
+const themeColor = 'var(--kb-primary)'
 
 const list = ref<WbPalace[]>([])
-const loading = ref(true)
+const loading = ref(true), error = ref(''), saving = ref(false), revision = ref(0)
+let request = 0
 const showCreate = ref(false)
-const form = reactive<WbPalacePayload>({ name: '', description: '', theme: 'ROOM', coverColor: '#3B6FE0' })
+const form = reactive<WbPalacePayload>({ name: '', description: '', theme: 'ROOM', coverColor: 'var(--kb-primary)' })
 
-const colorPresets = ['#3B6FE0', '#8B5CF6', '#F59E0B', '#10B981', '#FF6B35', '#EF4444']
+const colorPresets = ['var(--kb-primary)', 'var(--kb-accent)', 'var(--kb-warning)', 'var(--kb-success)', 'var(--kb-highlight)', 'var(--kb-danger)']
 
-const loopSteps = [
-  { key: 'input', num: '01', name: '输入', path: '/workbench/capture' },
-  { key: 'organize', num: '02', name: '整理', path: '/workbench/notes' },
-  { key: 'review', num: '03', name: '复习', path: '/workbench/review' },
-  { key: 'output', num: '04', name: '输出', path: '/workbench/story' },
-]
 
 async function load() {
-  loading.value = true
+  const seq = ++request
+  loading.value = true; error.value = ''
   try {
-    list.value = await listPalaces()
+    const data = await listPalaces()
+    if (seq === request) list.value = data
   } catch (e) {
-    notify(getApiError(e, '加载失败'), 'error')
+    if (seq === request) error.value = getApiError(e, '宫殿加载失败，请重试')
   } finally {
-    loading.value = false
+    if (seq === request) loading.value = false
   }
 }
 async function save() {
+  if (saving.value) return
   if (!form.name.trim()) {
     notify('名称不能为空', 'warning')
     return
   }
+  saving.value = true
   try {
     await createPalace({ ...form })
     notify('已创建', 'success')
     showCreate.value = false
-    Object.assign(form, { name: '', description: '', theme: 'ROOM', coverColor: '#3B6FE0' })
-    load()
+    Object.assign(form, { name: '', description: '', theme: 'ROOM', coverColor: 'var(--kb-primary)' })
+    revision.value++; await load()
   } catch (e) {
-    notify(getApiError(e, '保存失败'), 'error')
-  }
+    notify(getApiError(e, '保存失败，草稿已保留'), 'error')
+  } finally { saving.value = false }
 }
 async function remove(p: WbPalace) {
-  const ok = await confirmDialog('确认删除该宫殿及其所有位点？')
-  if (!ok) return
-  try {
-    await deletePalace(p.id)
-    notify('已删除', 'success')
-    load()
-  } catch (e) {
-    notify(getApiError(e, '删除失败'), 'error')
-  }
+  await confirmDialog('确认删除该宫殿及其所有位点？', { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          try {
+              await deletePalace(p.id);
+              notify('已删除', 'success');
+              load();
+          }
+          catch (e) {
+              notify(getApiError(e, '删除失败'), 'error');
+              throw e;
+          }
+      } });
 }
 function themeLabel(t?: string) {
   return { ROOM: '房间', STREET: '街道', CAMPUS: '校园', CUSTOM: '自定义' }[t || ''] || t || ''
 }
 
-onMounted(load)
+onBeforeUnmount(() => { request++ })
 </script>
 
 <style scoped>
@@ -269,7 +242,7 @@ onMounted(load)
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--pc), color-mix(in srgb, var(--pc) 60%, #1a1d23));
+  background: linear-gradient(135deg, var(--pc), color-mix(in srgb, var(--pc) 60%, var(--kb-foreground)));
   overflow: hidden;
 }
 .wb-palace-cover-icon {

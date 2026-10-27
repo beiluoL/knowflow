@@ -110,6 +110,10 @@ CREATE TABLE IF NOT EXISTS chat_message (
     doc_references VARCHAR(1000),
     token_count INT DEFAULT 0,
     truncated INT DEFAULT 0,
+    reasoning_content TEXT,
+    reasoning_kind VARCHAR(20),
+    reasoning_duration_ms INT,
+    trace_json TEXT,
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0
@@ -257,7 +261,12 @@ CREATE TABLE IF NOT EXISTS learning_user_chapter (
     user_id BIGINT NOT NULL,
     path_id BIGINT NOT NULL,
     chapter_id BIGINT NOT NULL,
-    complete_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    complete_time TIMESTAMP NULL DEFAULT NULL,
+    reading_anchor VARCHAR(255) DEFAULT NULL COMMENT '章节阅读标题位置，不表示掌握',
+    reading_revision BIGINT NOT NULL DEFAULT 0 COMMENT '阅读位置乐观锁版本',
+    reading_saved_at TIMESTAMP NULL DEFAULT NULL COMMENT '阅读位置保存时间',
+    reading_content_hash VARCHAR(64) DEFAULT NULL COMMENT '保存时原章节内容摘要',
+    reading_presentation_hash VARCHAR(64) DEFAULT NULL COMMENT '用户阅读展示版本指纹，仅用于本人书签坐标',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deleted INT DEFAULT 0
@@ -642,6 +651,7 @@ CREATE TABLE IF NOT EXISTS quiz_answer_record (
     is_correct INT DEFAULT 0 COMMENT '是否答对：0 错误 / 1 正确',
     score INT DEFAULT 0 COMMENT '本题得分（0-100）',
     time_cost INT DEFAULT 0 COMMENT '答题耗时（秒）',
+    question_snapshot TEXT NULL COMMENT '作答时题目与判分条件快照，旧记录不补造',
     ai_feedback TEXT COMMENT 'AI 评语（简答题等主观题预留）',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -1095,4 +1105,28 @@ CREATE TABLE IF NOT EXISTS learning_plan (
     deleted INT DEFAULT 0 COMMENT '逻辑删除：0 未删 / 1 已删',
     UNIQUE KEY uk_lp_user_date (user_id, plan_date, deleted),
     KEY idx_lp_user (user_id)
+);
+-- Attachment ownership survives removal of content references; doc_id=0 is legacy public.
+CREATE TABLE IF NOT EXISTS doc_asset_binding (
+    asset_key CHAR(64) PRIMARY KEY,
+    asset_url VARCHAR(2048) NOT NULL,
+    doc_id BIGINT NOT NULL
+);
+
+-- Question Catalog mutation audit: additive only, no source identity migration.
+CREATE TABLE IF NOT EXISTS question_catalog_audit (
+ id BIGINT AUTO_INCREMENT PRIMARY KEY, actor_id BIGINT NOT NULL,
+ source_type VARCHAR(32) NOT NULL, source_question_id BIGINT NOT NULL,
+ action VARCHAR(32) NOT NULL, before_state VARCHAR(512), after_state VARCHAR(512),
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Phase 3I-G: independent interview AI advice, never an answer or score source.
+CREATE TABLE IF NOT EXISTS mock_interview_ai_turn (
+ id BIGINT AUTO_INCREMENT PRIMARY KEY, user_id BIGINT NOT NULL, session_id BIGINT NOT NULL,
+ question_id VARCHAR(100) NOT NULL, answer_fingerprint VARCHAR(64) NOT NULL,
+ round_no INT NOT NULL, request_id VARCHAR(80) NOT NULL, status VARCHAR(16) NOT NULL,
+ source_snapshot MEDIUMTEXT NOT NULL, followup_answer TEXT, result_json TEXT, error_message VARCHAR(240),
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ UNIQUE (user_id,request_id), UNIQUE (session_id,question_id,round_no)
 );

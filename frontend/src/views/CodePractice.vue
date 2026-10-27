@@ -1,380 +1,135 @@
 <template>
-  <div class="space-y-4 animate-fade-in">
-    <!-- 页面头部 -->
-    <div class="mb-2">
-      <h1 class="kb-h1 mb-1" style="color: var(--kb-foreground);">代码练习</h1>
-      <p class="kb-body" style="color: var(--kb-muted-foreground);">通过实际编码巩固知识，涵盖多种编程语言与难度等级。</p>
-    </div>
-
-    <!-- 语言筛选 -->
-    <div class="flex items-center gap-3 flex-wrap">
-      <span class="text-sm font-medium" style="color: var(--kb-foreground);">语言：</span>
-      <button
-        v-for="lang in languages"
-        :key="lang.value"
-        class="lang-btn"
-        :class="{ active: activeLang === lang.value }"
-        @click="setActiveLang(lang.value)"
-      >{{ lang.label }}</button>
-      <div class="ml-auto flex items-center gap-2">
-        <select
-          v-model="filterDifficulty"
-          class="lang-btn"
-          style="height: 32px; padding: 0 10px;"
-          @change="loadQuestions"
-        >
-          <option value="">全部难度</option>
-          <option value="0">简单</option>
-          <option value="1">中等</option>
-          <option value="2">困难</option>
-        </select>
+  <MiniAppShell title="编程练习" subtitle="选择一道题，阅读思路，在代码工作台中练习。">
+    <div class="coding-catalog">
+      <section class="catalog-filters" aria-label="题目筛选">
+        <form class="catalog-search" role="search" @submit.prevent="loadQuestions">
+          <Icon name="search" :size="18" aria-hidden="true" />
+          <input class="kb-input kb-form-control" v-model="keyword" type="search" aria-label="搜索编程题" placeholder="搜索题目或知识关键词" @keydown.enter="onSearchEnter" />
+          <Button type="submit" :loading="loading">搜索</Button>
+        </form>
+        <div class="filter-row">
+          <div class="language-filters" role="group" aria-label="编程语言">
+            <button v-for="lang in languages" :key="lang.value" type="button" class="filter-chip" :aria-pressed="activeLang === lang.value" @click="setActiveLang(lang.value)">{{ lang.label }}</button>
+          </div>
+          <Select class="difficulty-filter" :model-value="filterDifficulty" aria-label="难度" variant="pill" :options="[{ value: '', label: '全部难度' }, { value: '0', label: '简单' }, { value: '1', label: '中等' }, { value: '2', label: '困难' }]" @update:modelValue="value => { filterDifficulty = value; loadQuestions() }" />
+          <Button v-if="keyword || activeLang || filterDifficulty" variant="text" size="sm" @click="resetFilters">重置筛选</Button>
+        </div>
+      </section>
+      <div class="catalog-workspace">
+        <section class="catalog-results" aria-label="编程题目">
+          <div class="result-heading"><h2>题目目录</h2><span role="status" aria-live="polite">{{ loading ? '正在检索…' : error ? '加载中断' : `${questions.length} 道题目` }}</span></div>
+          <StateView :status="status" type="card" :cols="2" error-title="题目加载失败" :error-description="error" empty-title="没有匹配的题目" empty-description="试试其他关键词，或调整语言和难度。" @retry="loadQuestions">
+            <div class="question-list">
+              <article v-for="q in questions" :key="q.id" class="question-card">
+                <div class="question-meta"><span class="difficulty-badge" :class="`difficulty-${q.difficulty}`">{{ difficultyLabel(q.difficulty) }}</span><span>{{ langLabel(q.language) }}</span><span v-if="q.duration != null && q.duration > 0" class="duration">建议 {{ q.duration }} 分钟</span></div>
+                <h3>{{ q.title }}</h3>
+                <p class="question-summary">{{ summary(q.description) }}</p>
+                <div class="question-actions"><span v-if="q.submitCount != null">历史提交 {{ q.submitCount }} 次</span><Button size="sm" variant="secondary" @click="goToPlayground(q.id)">开始练习<span class="sr-only">：{{ q.title }}</span><Icon name="arrow-right" :size="14" aria-hidden="true" /></Button></div>
+              </article>
+            </div>
+            <template #empty-action><Button variant="secondary" @click="resetFilters">重置筛选</Button></template>
+          </StateView>
+        </section>
+        <aside class="catalog-context" aria-label="练习说明">
+          <section class="context-panel"><Icon name="code" :size="24" aria-hidden="true" /><h2>从理解到实践</h2><p>先读题目和示例，再打开工作台编写代码。修改中的代码是临时草稿。</p><p>当前未提供安全判题服务。运行能力受服务端授权限制，不代表沙盒执行；不会把本地预览计为题目通过。</p></section>
+          <section v-if="status === 'ready'" class="context-panel"><h2>当前筛选</h2><p>{{ questions.length }} 道已发布题目</p><ul class="language-distribution"><li v-for="item in languageDistribution" :key="item.language"><span>{{ langLabel(item.language) }}</span><strong>{{ item.count }}</strong></li></ul><p class="context-note">题目数量来自当前 API 返回，不代表个人掌握度或完成进度。</p></section>
+        </aside>
       </div>
     </div>
-
-    <!-- 主体：左侧卡片网格 + 右侧统计面板 -->
-    <div class="flex gap-4 flex-col lg:flex-row">
-      <!-- 左侧：练习题卡片网格 -->
-      <div class="flex-1 min-w-0">
-        <!-- 加载态 -->
-        <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div
-            v-for="n in 4"
-            :key="n"
-            class="rounded-xl border p-4"
-            style="background: var(--kb-card); border-color: var(--kb-border); min-height: 160px;"
-          >
-            <div class="animate-pulse">
-              <div class="h-4 rounded mb-3" style="background: var(--kb-muted);"></div>
-              <div class="h-3 rounded mb-2" style="background: var(--kb-muted); width: 80%;"></div>
-              <div class="h-3 rounded mb-4" style="background: var(--kb-muted); width: 60%;"></div>
-              <div class="h-8 rounded" style="background: var(--kb-muted);"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 空状态 -->
-        <div v-else-if="filteredQuestions.length === 0" class="rounded-xl border p-6 text-center" style="background: var(--kb-card); border-color: var(--kb-border);">
-          <Icon name="inbox" :size="40" style="color: var(--kb-muted-foreground);" />
-          <p class="text-sm mt-2" style="color: var(--kb-muted-foreground);">
-            {{ questions.length === 0 ? '题库暂无题目，请管理员后台添加' : '该筛选条件下暂无题目' }}
-          </p>
-        </div>
-
-        <!-- 卡片列表 -->
-        <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div
-            v-for="q in filteredQuestions"
-            :key="q.id"
-            class="rounded-xl border p-4 cursor-pointer hover:shadow-sm transition-shadow"
-            style="background: var(--kb-card); border-color: var(--kb-border);"
-            @click="goToPlayground(q.id)"
-          >
-            <div class="flex items-center justify-between mb-3">
-              <div class="flex items-center gap-2">
-                <span class="diff-badge" :class="`diff-${q.difficulty ?? 0}`">{{ difficultyLabel(q.difficulty) }}</span>
-                <span
-                  class="text-[13px] px-2 py-0.5 rounded-full"
-                  :style="{ background: langColorBg(q.language), color: langColor(q.language) }"
-                >{{ langLabel(q.language) }}</span>
-              </div>
-              <span class="flex items-center gap-1.5 text-[13px] tabular-nums" style="color: var(--kb-muted-foreground);">
-                <Icon name="clock" :size="14" />{{ q.duration || 30 }}min
-              </span>
-            </div>
-            <h4 class="kb-h4 mb-1.5" style="color: var(--kb-foreground);">{{ q.title }}</h4>
-            <p class="kb-body-sm mb-3" style="color: var(--kb-muted-foreground);">
-              {{ truncateText(q.description, 60) }}
-            </p>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <span class="flex items-center gap-1.5 text-[13px] tabular-nums" style="color: var(--kb-muted-foreground);">
-                  <Icon name="users" :size="14" />{{ q.submitCount || 0 }} 提交
-                </span>
-                <span class="flex items-center gap-1.5 text-[13px] tabular-nums" :style="{ color: passColor(calcPassRate(q)) }">
-                  <Icon name="check-circle" :size="14" />{{ calcPassRate(q) }}% 通过
-                </span>
-              </div>
-              <button
-                class="px-3 py-1.5 rounded-lg text-[13px] font-medium"
-                style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
-                @click.stop="goToPlayground(q.id)"
-              >开始练习</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 右侧统计面板 -->
-      <aside class="w-full lg:w-72 shrink-0 space-y-5">
-        <!-- 学习进度 -->
-        <div class="rounded-xl border p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
-          <h3 class="kb-h3 mb-4">语言分布</h3>
-          <div class="space-y-4">
-            <div v-for="prog in languageProgress" :key="prog.name">
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="text-sm font-medium" style="color: var(--kb-foreground);">{{ prog.name }}</span>
-                <span class="text-[13px] font-semibold tabular-nums" :style="{ color: prog.color }">{{ prog.count }}</span>
-              </div>
-              <div class="w-full h-1.5 rounded-full" style="background: var(--kb-muted);">
-                <div class="h-full rounded-full" :style="{ width: prog.percent + '%', background: prog.color }"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 统计数据 -->
-        <div class="rounded-xl border p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
-          <h3 class="kb-h3 mb-3">统计</h3>
-          <div class="grid grid-cols-2 gap-3">
-            <div class="text-center p-3 rounded-lg" style="background: var(--kb-background);">
-              <p class="text-2xl font-bold tabular-nums" style="color: var(--kb-primary);">{{ stats.total }}</p>
-              <p class="kb-body-sm mt-1">总题目</p>
-            </div>
-            <div class="text-center p-3 rounded-lg" style="background: var(--kb-background);">
-              <p class="text-2xl font-bold tabular-nums" style="color: var(--kb-state-success);">{{ stats.totalSubmit }}</p>
-              <p class="kb-body-sm mt-1">总提交</p>
-            </div>
-            <div class="text-center p-3 rounded-lg" style="background: var(--kb-background);">
-              <p class="text-2xl font-bold tabular-nums" style="color: var(--kb-state-warning);">{{ stats.totalPass }}</p>
-              <p class="kb-body-sm mt-1">通过次数</p>
-            </div>
-            <div class="text-center p-3 rounded-lg" style="background: var(--kb-background);">
-              <p class="text-2xl font-bold tabular-nums" style="color: var(--kb-state-error);">{{ stats.passRate }}%</p>
-              <p class="kb-body-sm mt-1">平均通过</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- 支持语言 -->
-        <div class="rounded-xl border p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
-          <h3 class="kb-h3 mb-3">在线运行支持</h3>
-          <div class="space-y-2 text-sm">
-            <div class="flex items-center gap-2" style="color: var(--kb-foreground);">
-              <Icon name="check-circle" :size="14" style="color: var(--kb-state-success);" />
-              <span>JavaScript / TypeScript（浏览器端）</span>
-            </div>
-            <div class="flex items-center gap-2" style="color: var(--kb-foreground);">
-              <Icon name="check-circle" :size="14" style="color: var(--kb-state-success);" />
-              <span>SQL（内置模拟数据库）</span>
-            </div>
-            <div class="flex items-center gap-2" style="color: var(--kb-muted-foreground);">
-              <Icon name="minus" :size="14" />
-              <span>Python / Java（仅代码模板）</span>
-            </div>
-          </div>
-        </div>
-      </aside>
-    </div>
-  </div>
+  </MiniAppShell>
 </template>
-
 <script setup lang="ts">
-// 代码练习页：从后端 /api/code-questions 加载已发布题目，展示卡片网格 + 右侧统计。
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import MiniAppShell from '@/components/layout/MiniAppShell.vue'
+import Select from '@/components/ui/Select.vue'
 import Icon from '@/components/ui/Icon.vue'
+import Button from '@/components/ui/Button.vue'
+import StateView from '@/components/ui/StateView.vue'
 import { codeQuestionApi } from '@/api/codeQuestion'
-import { notify, getApiError } from '@/utils/toast'
 import type { CodeQuestionVO } from '@/api/types'
-
+import { getApiError } from '@/utils/toast'
+import { searchSummary } from '@/utils/searchText'
 const router = useRouter()
-
 const questions = ref<CodeQuestionVO[]>([])
-const loading = ref(false)
-const activeLang = ref('') // '' 表示全部
+const keyword = ref('')
+const activeLang = ref('')
 const filterDifficulty = ref('')
-
-const languages = [
-  { label: '全部', value: '' },
-  { label: 'JavaScript', value: 'javascript' },
-  { label: 'TypeScript', value: 'typescript' },
-  { label: 'Python', value: 'python' },
-  { label: 'Java', value: 'java' },
-  { label: 'SQL', value: 'sql' },
-]
-
-const setActiveLang = (lang: string) => {
-  activeLang.value = lang
-  // 语言切换时也走后端筛选
-  loadQuestions()
-}
-
-const filteredQuestions = computed(() => questions.value)
-
-const difficultyLabel = (d?: number) => (d === 0 ? '简单' : d === 1 ? '中等' : '困难')
-
-const langLabel = (lang?: string) => {
-  const map: Record<string, string> = {
-    javascript: 'JavaScript',
-    typescript: 'TypeScript',
-    python: 'Python',
-    java: 'Java',
-    sql: 'SQL',
-  }
-  return map[lang || ''] || lang || '-'
-}
-
-// 语言主题色
-const LANG_COLORS: Record<string, string> = {
-  javascript: '#3B6FE0',
-  typescript: '#3B6FE0',
-  python: '#10B981',
-  java: '#F59E0B',
-  sql: '#EF4444',
-}
-const langColor = (lang?: string) => LANG_COLORS[lang || ''] || 'var(--kb-muted-foreground)'
-const langColorBg = (lang?: string) => {
-  const hex = LANG_COLORS[lang || '']
-  return hex ? `${hex}14` : 'var(--kb-muted)'
-}
-
-const calcPassRate = (q: CodeQuestionVO) => {
-  const submit = q.submitCount || 0
-  if (submit === 0) return 0
-  return Math.round(((q.passCount || 0) / submit) * 100)
-}
-
-// 通过率低于 60% 显示警告色
-const passColor = (rate: number) =>
-  rate >= 60 ? 'var(--kb-state-success)' : 'var(--kb-state-warning)'
-
-const truncateText = (text?: string, len = 60) => {
-  if (!text) return '暂无描述'
-  return text.length > len ? text.slice(0, len) + '...' : text
-}
-
-// 右侧语言分布
-const languageProgress = computed(() => {
-  const counts: Record<string, number> = {}
-  questions.value.forEach((q) => {
-    const lang = q.language || 'javascript'
-    counts[lang] = (counts[lang] || 0) + 1
-  })
-  const total = questions.value.length || 1
-  return Object.keys(LANG_COLORS).map((lang) => ({
-    name: langLabel(lang),
-    count: counts[lang] || 0,
-    percent: Math.round(((counts[lang] || 0) / total) * 100),
-    color: LANG_COLORS[lang],
-  }))
+const loading = ref(true)
+const error = ref('')
+// 只接受最新筛选请求，避免慢响应把新列表覆盖；离开时也令旧请求失效。
+let requestId = 0
+const status = computed(() => loading.value ? 'loading' : error.value ? 'error' : questions.value.length ? 'ready' : 'empty')
+const languages = [{ label: '全部', value: '' }, { label: 'JavaScript', value: 'javascript' }, { label: 'TypeScript', value: 'typescript' }, { label: 'Python', value: 'python' }, { label: 'Java', value: 'java' }, { label: 'C++', value: 'cpp' }, { label: 'SQL', value: 'sql' }]
+const langLabel = (language?: string) => languages.find(item => item.value === language)?.label || language || '未标注语言'
+const difficultyLabel = (difficulty?: number) => ['简单', '中等', '困难'][difficulty ?? -1] || '未标注难度'
+const summary = (text?: string) => searchSummary(text || '') || '暂无题目说明'
+const languageDistribution = computed(() => {
+  const counts = new Map<string, number>()
+  for (const q of questions.value) counts.set(q.language || '', (counts.get(q.language || '') || 0) + 1)
+  return [...counts].map(([language, count]) => ({ language, count }))
 })
-
-// 统计数据
-const stats = computed(() => {
-  const total = questions.value.length
-  const totalSubmit = questions.value.reduce((s, q) => s + (q.submitCount || 0), 0)
-  const totalPass = questions.value.reduce((s, q) => s + (q.passCount || 0), 0)
-  const passRate = totalSubmit === 0 ? 0 : Math.round((totalPass / totalSubmit) * 100)
-  return { total, totalSubmit, totalPass, passRate }
-})
-
-const loadQuestions = async () => {
-  loading.value = true
+async function loadQuestions() {
+  const current = ++requestId
+  loading.value = true; error.value = ''
   try {
-    const params: { keyword?: string; difficulty?: number; language?: string } = {}
+    const params: { keyword?: string; language?: string; difficulty?: number } = {}
+    if (keyword.value.trim()) params.keyword = keyword.value.trim()
     if (activeLang.value) params.language = activeLang.value
     if (filterDifficulty.value !== '') params.difficulty = Number(filterDifficulty.value)
-    questions.value = await codeQuestionApi.list(params)
-  } catch (e: unknown) {
-    notify('加载题目列表失败：' + getApiError(e), 'error')
+    const rows = await codeQuestionApi.list(params)
+    if (current === requestId) questions.value = rows
+  } catch (e) {
+    if (current === requestId) error.value = getApiError(e)
   } finally {
-    loading.value = false
+    if (current === requestId) loading.value = false
   }
 }
-
-/** 跳转到代码编辑器页面（LeetCode 风格） */
-const goToPlayground = (id: number) => {
-  router.push(`/learning/code-practice/${id}`)
-}
-
-onMounted(() => {
-  loadQuestions()
-})
+function setActiveLang(language: string) { if (activeLang.value === language) return; activeLang.value = language; void loadQuestions() }
+function resetFilters() { keyword.value = ''; activeLang.value = ''; filterDifficulty.value = ''; void loadQuestions() }
+// 中文候选词确认不能触发表单提交。
+function onSearchEnter(event: KeyboardEvent) { if (event.isComposing || event.keyCode === 229) event.preventDefault() }
+function goToPlayground(id: number) { void router.push(`/learning/code-practice/${id}`) }
+onMounted(loadQuestions)
+onBeforeUnmount(() => { requestId++ })
 </script>
+<style scoped>
+.coding-catalog { min-width: 0; color: var(--kb-foreground); }
+.catalog-filters { display: grid; gap: var(--kb-space-4); margin-bottom: var(--kb-space-6); }
+.catalog-search { display: flex; align-items: center; gap: var(--kb-space-3); padding: var(--kb-space-2) var(--kb-space-3); background: var(--kb-field-surface); border-radius: var(--kb-radius-md); border: 0; }
+.catalog-search:focus-within { background: var(--kb-field-active); }
+.catalog-search input { flex: 1; min-width: 0; padding: 0; background: transparent; border: 0; box-shadow: none; outline: none; color: var(--kb-foreground); font-size: var(--kb-fs-body-md); }
+.filter-row, .language-filters { display: flex; align-items: center; gap: var(--kb-space-2); flex-wrap: wrap; }
+.filter-chip { padding: var(--kb-space-2) var(--kb-space-3); border: 1px solid transparent; border-radius: var(--kb-radius-sm); font-size: var(--kb-fs-body-sm); color: var(--kb-muted-foreground); background: var(--kb-muted); }
+.filter-chip:hover { color: var(--kb-foreground); }
+.filter-chip[aria-pressed="true"] { background: color-mix(in srgb, var(--kb-primary) 10%, var(--kb-card)); color: var(--kb-primary); border-color: color-mix(in srgb, var(--kb-primary) 35%, var(--kb-border)); }
+.difficulty-filter { display: flex; align-items: center; gap: var(--kb-space-2); font-size: var(--kb-fs-body-sm); margin-left: auto; }
+.difficulty-filter { width:auto; min-width:8rem; }
+.catalog-workspace { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 16rem); gap: var(--kb-space-6); }
+.catalog-results, .catalog-context { min-width: 0; }
+.result-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--kb-space-3); margin-bottom: var(--kb-space-4); }
+h2 { font-size: var(--kb-fs-h4); font-weight: 600; }
+.result-heading span, .question-meta, .question-actions > span, .context-note { color: var(--kb-muted-foreground); font-size: var(--kb-fs-body-sm); }
+.question-list { display: grid; gap: var(--kb-space-3); }
+.question-card, .context-panel { padding: var(--kb-space-5); background: var(--kb-card); border: 1px solid var(--kb-border); border-radius: var(--kb-radius-md); min-width: 0; }
+.question-card:hover { border-color: color-mix(in srgb, var(--kb-foreground) 22%, var(--kb-border)); }
+.question-meta { display: flex; align-items: center; gap: var(--kb-space-3); flex-wrap: wrap; }
+.difficulty-badge { padding: var(--kb-space-1) var(--kb-space-2); border-radius: var(--kb-radius-sm); background: var(--kb-muted); color: var(--kb-foreground); }
+.difficulty-0 { color: var(--kb-success); }.difficulty-1 { color: var(--kb-warning); }.difficulty-2 { color: var(--kb-danger); }
+.duration { margin-left: auto; }
+.question-card h3 { font-size: var(--kb-fs-body-lg); font-weight: 600; margin: var(--kb-space-3) 0 var(--kb-space-2); overflow-wrap: anywhere; }
+.question-summary { color: var(--kb-muted-foreground); font-size: var(--kb-fs-body-md); line-height: var(--kb-lh-body-md); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.question-actions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--kb-space-3); margin-top: var(--kb-space-4); }
+.question-actions button { margin-left: auto; gap: var(--kb-space-2); }
+.catalog-context { display: flex; flex-direction: column; gap: var(--kb-space-4); }
+.context-panel h2 { margin: var(--kb-space-2) 0 var(--kb-space-3); }
+.context-panel p { font-size: var(--kb-fs-body-sm); line-height: var(--kb-lh-body-md); color: var(--kb-muted-foreground); margin-top: var(--kb-space-3); }
+.language-distribution li { display: flex; justify-content: space-between; font-size: var(--kb-fs-body-sm); margin-top: var(--kb-space-2); }
+button:focus-visible { outline: var(--kb-field-focus-width) solid var(--kb-ring); outline-offset: var(--kb-space-1); }
+@media(max-width: 1100px) { .catalog-workspace { grid-template-columns: minmax(0,1fr); }.catalog-context { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media(max-width: 600px) { .catalog-context { grid-template-columns: minmax(0,1fr); }.difficulty-filter { margin-left: 0; }.question-card { padding: var(--kb-space-4); }.duration { margin-left: 0; } }
+</style>
 
 <style scoped>
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* 语言筛选按钮 */
-.lang-btn {
-  display: inline-flex;
-  align-items: center;
-  padding: 5px 12px;
-  border-radius: var(--kb-radius-sm);
-  font-size: 13px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
-  cursor: pointer;
-  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
-}
-
-.lang-btn:hover,
-.lang-btn.active {
-  background: rgba(59, 111, 224, 0.08);
-  color: var(--kb-primary);
-  border-color: var(--kb-primary);
-}
-
-/* 难度徽标 */
-.diff-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.diff-0 {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--kb-state-success);
-}
-
-.diff-1 {
-  background: rgba(245, 158, 11, 0.1);
-  color: var(--kb-state-warning);
-}
-
-.diff-2 {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--kb-state-error);
-}
-
-.kb-h1 {
-  font-size: 28px;
-  font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: -0.02em;
-}
-
-.kb-h3 {
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 1.4;
-}
-
-.kb-h4 {
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.45;
-}
-
-.kb-body {
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-.kb-body-sm {
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--kb-muted-foreground);
-}
+.catalog-search:has(input:focus-visible){outline:0}.catalog-search input.kb-form-control,.catalog-search input.kb-form-control:focus,.catalog-search input.kb-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
 </style>

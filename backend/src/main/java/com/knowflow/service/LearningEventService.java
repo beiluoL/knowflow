@@ -34,6 +34,10 @@ public interface LearningEventService {
 
     void record(Long userId, String eventType, String resourceType, Long resourceId);
 
+    /** Atomic review writes: joins caller transaction, fails if the primary event cannot be saved.
+     * Existing best-effort record methods retain their original behavior. */
+    void recordRequired(Long userId, String eventType, String resourceType, Long resourceId, Map<String, Object> metadata);
+
     /** 分页查询指定用户的学习事件，供掌握度引擎 / AI 教练 / 看板消费。 */
     IPage<LearningEvent> pageEvents(Long userId, String eventType, int current, int size);
 }

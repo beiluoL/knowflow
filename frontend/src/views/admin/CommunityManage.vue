@@ -57,21 +57,12 @@
             v-model="postSearch"
             type="text"
             placeholder="搜索帖子标题、作者..."
-            class="w-full h-9 pl-9 pr-4 rounded-lg text-sm border outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
-            style="background: var(--kb-background); border-color: var(--kb-input); color: var(--kb-foreground);"
+            class="w-full h-9 pl-9 pr-4 text-sm outline-none transition-colors kb-input kb-form-control"
+            style="color: var(--kb-foreground)"
           />
         </div>
         <div class="flex items-center gap-2 flex-wrap">
-          <select
-            v-model="postStatusFilter"
-            class="h-9 px-3 rounded-lg text-sm border outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
-            style="background: var(--kb-card); border-color: var(--kb-input); color: var(--kb-foreground);"
-          >
-            <option value="">全部状态</option>
-            <option value="published">已发布</option>
-            <option value="pending">待审核</option>
-            <option value="hidden">已隐藏</option>
-          </select>
+          <Select v-model="postStatusFilter" aria-label="帖子状态筛选" :options="postStatusOptions" />
           <button
             type="button"
             class="h-9 px-3 rounded-lg text-sm border inline-flex items-center gap-1.5 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
@@ -303,6 +294,7 @@
 <script setup lang="ts">
 // 管理后台-社区管理：审核帖子、管理话题与处理举报，含后端状态映射与本地时间格式化。
 import { ref, computed, onMounted } from 'vue';
+import Select from '@/components/ui/Select.vue'
 import Icon from '@/components/ui/Icon.vue';
 import { notify } from '@/utils/toast';
 import { communityApi } from '@/api/community';
@@ -362,6 +354,7 @@ const postLoading = ref(false);
 const postError = ref('');
 const postSearch = ref('');
 const postStatusFilter = ref('');
+const postStatusOptions = [{ value: '', label: '全部状态' }, { value: 'published', label: '已发布' }, { value: 'pending', label: '待审核' }, { value: 'hidden', label: '已隐藏' }];
 
 // 后端 status: 0=待审核, 1=已发布, 2=已隐藏（推断）
 function mapPostStatus(raw?: number): PostStatus {

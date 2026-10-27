@@ -63,6 +63,7 @@ import java.util.stream.Collectors;
 public class KnowledgeImportServiceImpl implements KnowledgeImportService {
 
     private final DocDocumentMapper docDocumentMapper;
+    private final com.knowflow.security.DocumentAssetBindings assetBindings;
     private final DocCategoryMapper docCategoryMapper;
     private final CategoryService categoryService;
     private final KbMemberService kbMemberService;
@@ -72,6 +73,7 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
     private final UploadConfigProperties uploadConfig;
     private final DocumentTextExtractor documentTextExtractor;
     private final ImportCancelService importCancelService;
+    private final com.knowflow.security.DocumentAccessPolicy access;
 
     /**
      * 支持的文档扩展名。
@@ -201,9 +203,7 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
         if (targetCategoryId == null) {
             throw new BusinessException(400, "请选择目标知识库");
         }
-        if (!kbMemberService.canEditDocs(targetCategoryId, userId)) {
-            throw new BusinessException(403, "无权向该知识库导入文档（需 Owner 或 Editor 权限）");
-        }
+        access.requireEditCategory(targetCategoryId,userId);
 
         // 生成导入批次 ID（用于图片存储子目录 + 取消控制）
         final String effectiveBatchId = (batchId == null || batchId.isBlank())
@@ -355,11 +355,20 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
         // 计算 content hash
         String contentHash = sha256(content);
 
-        // 增量去重检查
+        // Resolve and authorize the actual destination before deduplication or filesystem effects.
+        String dirPath = getDirPath(relPath);
+        Long categoryId = createSubCats
+                ? resolveOrCreateCategory(dirPath, targetCategoryId, userId, dirCategoryCache, createdCategoryNames)
+                : targetCategoryId;
+        DocCategory category = categoryService.getById(categoryId);
+        access.requireEditCategory(categoryId,userId);
+        String categoryName = category != null ? category.getName() : "";
+        // 增量去重检查，仅当前目标分类
         if (incremental) {
             DocDocument existing = docDocumentMapper.selectOne(new LambdaQueryWrapper<DocDocument>()
                     .eq(DocDocument::getSourcePath, relPath)
                     .eq(DocDocument::getContentHash, contentHash)
+                    .eq(DocDocument::getCategoryId,categoryId)
                     .last("LIMIT 1"));
             if (existing != null) {
                 result.setSkippedCount(result.getSkippedCount() + 1);
@@ -371,14 +380,6 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
                 return;
             }
         }
-
-        // 确定目标分类
-        String dirPath = getDirPath(relPath);
-        Long categoryId = createSubCats
-                ? resolveOrCreateCategory(dirPath, targetCategoryId, userId, dirCategoryCache, createdCategoryNames)
-                : targetCategoryId;
-        DocCategory category = categoryService.getById(categoryId);
-        String categoryName = category != null ? category.getName() : "";
 
         // 图片迁移 + 链接重写
         ImageRewriteResult rewriteResult = migrateAndRewriteImages(
@@ -419,6 +420,10 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
         doc.setSortOrder(0);
 
         docDocumentMapper.insert(doc);
+        for(String url:assetBindings.urls(doc)) {
+            if(url.startsWith("/uploads/imports/"+batchId+"/")) assetBindings.trustedAsset(url,doc.getId());
+            else assetBindings.captureLegacy(url);
+        }
 
         // 增加分类文档数
         categoryService.incrementDocCount(categoryId);
@@ -591,6 +596,7 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
             // 命中缓存
             Long existing = cache.get(pathKey);
             if (existing != null) {
+                access.requireEditCategory(existing,userId);
                 currentParentId = existing;
                 continue;
             }
@@ -610,19 +616,22 @@ public class KnowledgeImportServiceImpl implements KnowledgeImportService {
                     .eq(DocCategory::getStatus, 1)
                     .last("LIMIT 1"));
             if (existingCat != null) {
+                access.requireEditCategory(existingCat.getId(),userId);
                 currentParentId = existingCat.getId();
                 cache.put(pathKey, currentParentId);
                 continue;
             }
 
             // 创建新分类
+            access.requireEditCategory(currentParentId,userId);
             DocCategory newCat = new DocCategory();
             newCat.setName(dirName);
             newCat.setParentId(currentParentId);
             newCat.setStatus(1);
             newCat.setSortOrder(0);
             newCat.setDocCount(0);
-            newCat.setOwnerId(userId);
+            DocCategory root=docCategoryMapper.selectById(targetCategoryId);
+            newCat.setOwnerId(root!=null ? root.getOwnerId() : null);
             docCategoryMapper.insert(newCat);
             currentParentId = newCat.getId();
             cache.put(pathKey, currentParentId);

@@ -1,0 +1,1161 @@
+{
+  "note": "V3-B4 批次种子：新增 LLM 21 条与 RAG 20 条领域词汇，共 41 条。释义、英文定义与例句均为本项目原创撰写，未复制任何词典或论文原文；仅参考官方文档与论文的术语含义。音标仅对高置信度单词标注，其余留空由前端 TTS 降级；缩写全称按官方资料核对，读法不确定者（HNSW、LoRA、BM25）保持 PENDING 且不猜测朗读文本。加载逻辑幂等，只新增缺失词条，不覆盖已有词条、收藏、复习或关联。",
+  "terms": [
+    {
+      "headword": "Transformer",
+      "termType": "WORD",
+      "domain": "LLM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/trænsˈfɔːrmər/",
+      "ipaUk": "/trænsˈfɔːmə(r)/",
+      "meaningCn": "变换器架构",
+      "definitionCn": "2017 年提出的基于自注意力的序列建模架构，用并行注意力取代循环结构，训练时可以充分利用硬件并行能力。它是当前主流大模型的骨架，面试常追问编码器解码器结构、残差连接与层归一化的作用。",
+      "definitionEn": "A sequence modeling architecture introduced in 2017 that replaces recurrence with self-attention and trains in parallel. It is the backbone of most current large language models.",
+      "interviewEn": "The Transformer replaces recurrence with self-attention, which allows every position to attend to all others in parallel during training.",
+      "exampleEn": "The encoder-decoder Transformer processes the whole prompt in one forward pass instead of stepping through it token by token.",
+      "exampleCn": "编码器—解码器结构的 Transformer 在一次前向传播中处理整段提示词，而不是逐个 token 推进。",
+      "aliases": ["变换器", "Transformer 模型"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Attention Is All You Need (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Transformer", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Transformer", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Attention", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Positional Encoding", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Attention",
+      "termType": "WORD",
+      "domain": "LLM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/əˈtenʃn/",
+      "ipaUk": "/əˈtenʃn/",
+      "meaningCn": "注意力",
+      "definitionCn": "模型按相关性为序列中不同位置分配权重，通常用查询与键的点积打分，再对值加权求和。它让模型不受距离限制直接建立长程依赖，是理解上下文窗口与推理开销的基础机制。",
+      "definitionEn": "A mechanism that scores each position against a query and blends the corresponding values by those scores. It lets the model build long-range dependencies directly instead of through recurrence.",
+      "interviewEn": "Attention computes a weighted sum of values, where the weights come from query-key similarity, so distant tokens can influence each other in a single step.",
+      "exampleEn": "Visualizing the attention weights showed that the model linked each pronoun to the correct noun.",
+      "exampleCn": "可视化注意力权重后可以看到，模型把每个代词关联到了正确的名词。",
+      "aliases": ["注意力", "注意力机制"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Attention Is All You Need (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Attention", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Attention", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Self-Attention", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Multi-Head Attention", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Self-Attention",
+      "termType": "PHRASE",
+      "domain": "LLM",
+      "senseKey": "default",
+      "meaningCn": "自注意力",
+      "definitionCn": "查询、键与值都由同一序列投影得到的注意力，使每个位置能够聚合句内其他位置的信息。它支撑上下文理解，也解释了为什么注意力计算量与显存占用会随序列长度近似平方增长。",
+      "definitionEn": "Attention in which queries, keys and values are all projections of the same sequence, so each position aggregates information from the rest of that sequence.",
+      "interviewEn": "In self-attention the queries, keys and values come from the same input, so the attention cost grows quadratically with sequence length.",
+      "exampleEn": "Self-attention lets the second half of a long document condition on the definitions given earlier.",
+      "exampleCn": "自注意力让长文档的后半部分能够依赖前面给出的定义。",
+      "wordBreakdown": [
+        {"word": "Self", "meaningCn": "自身的"},
+        {"word": "Attention", "meaningCn": "注意力"}
+      ],
+      "breakdownNote": "自注意力不是“自己看自己”的字面叠加，而是查询、键、值同源时按相关性聚合整段序列信息的计算方式。",
+      "aliases": ["自注意力", "自注意力机制"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Attention Is All You Need (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Self-Attention", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Attention", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Multi-Head Attention", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Multi-Head Attention",
+      "termType": "PHRASE",
+      "domain": "LLM",
+      "senseKey": "default",
+      "meaningCn": "多头注意力",
+      "definitionCn": "并行执行多组注意力投影并拼接输出的机制，不同的头可以关注不同的子空间、位置模式或语法关系。头数增加会提升表达能力，同时抬高显存占用与单步计算开销。",
+      "definitionEn": "A mechanism that runs several attention projections in parallel and concatenates their outputs, so different heads can capture different subspaces or positional patterns.",
+      "interviewEn": "Multi-head attention runs several independent attention projections and concatenates the results, which lets the model capture different relations at the same time.",
+      "exampleEn": "Dropping half of the attention heads cut memory use but weakened the model's ability to track separate entities.",
+      "exampleCn": "去掉一半注意力头降低了显存占用，但削弱了模型同时跟踪不同实体的能力。",
+      "wordBreakdown": [
+        {"word": "Multi", "meaningCn": "多个的"},
+        {"word": "Head", "meaningCn": "注意力头"},
+        {"word": "Attention", "meaningCn": "注意力"}
+      ],
+      "breakdownNote": "多头注意力的关键不是“多个头”本身，而是各头在不同表示子空间并行建模后再融合，从而获得比单头更丰富的表达。",
+      "aliases": ["多头注意力", "多头注意力机制"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Attention Is All You Need (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Multi-Head Attention", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Self-Attention", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Attention", "targetDomain": "LLM", "relationType": "PART_OF"}
+      ]
+    },
+    {
+      "headword": "Positional Encoding",
+      "termType": "PHRASE",
+      "domain": "LLM",
+      "senseKey": "default",
+      "meaningCn": "位置编码",
+      "definitionCn": "把词序信息注入 token 表示的机制。自注意力本身对顺序不敏感，因此需要位置编码；常见做法有正弦编码与可学习位置向量，长上下文方案则多用旋转位置编码等相对位置形式。",
+      "definitionEn": "A way to inject order information into token representations, because self-attention alone treats the input as an unordered set of positions.",
+      "exampleEn": "Without positional encoding the model treated the shuffled sentences as identical inputs.",
+      "exampleCn": "缺少位置编码时，模型把打乱顺序的句子当成完全相同的输入。",
+      "wordBreakdown": [
+        {"word": "Positional", "meaningCn": "位置的"},
+        {"word": "Encoding", "meaningCn": "编码"}
+      ],
+      "breakdownNote": "位置编码不只是给每个位置编号，而是要让模型能外推到更长序列并表达相对距离，因此编码方式直接影响长上下文表现。",
+      "aliases": ["位置编码", "位置嵌入"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Attention Is All You Need (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Positional Encoding", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Transformer", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Self-Attention", "targetDomain": "LLM", "relationType": "PREREQUISITE"}
+      ]
+    },
+    {
+      "headword": "Pretraining",
+      "termType": "WORD",
+      "domain": "LLM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˌpriːˈtreɪnɪŋ/",
+      "ipaUk": "/ˌpriːˈtreɪnɪŋ/",
+      "meaningCn": "预训练",
+      "definitionCn": "在大规模无标注语料上以自监督目标训练基础模型，使其获得通用语言与知识表征的阶段。预训练成本极高，下游任务通常只做提示、微调或检索增强，面试常把它与微调对比。",
+      "definitionEn": "Training a base model on large unlabeled corpora with a self-supervised objective so that it acquires general language ability.",
+      "interviewEn": "Pretraining learns general language patterns from unlabeled text, and downstream work usually adapts those weights instead of training from scratch.",
+      "exampleEn": "The team froze the pretrained weights and trained only a small adapter on internal tickets.",
+      "exampleCn": "团队冻结预训练权重，仅在内网工单数据上训练一个小型适配器。",
+      "aliases": ["预训练", "预训练阶段"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "BERT paper (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Pretraining", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Pretraining", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Supervised Fine-Tuning", "targetDomain": "LLM", "relationType": "CONTRAST"},
+        {"targetHeadword": "Fine-tuning", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Knowledge Distillation", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Supervised Fine-Tuning",
+      "termType": "PHRASE",
+      "domain": "LLM",
+      "senseKey": "default",
+      "meaningCn": "监督微调",
+      "definitionCn": "用人工标注的指令与回答对继续训练预训练模型，使其学会遵循指令并输出目标格式。它是把基座模型变成可用助手的常见步骤，标注质量与覆盖范围通常比样本数量更关键。",
+      "definitionEn": "Continuing to train a pretrained model on human-labeled instruction-response pairs so that it follows instructions and produces the expected format.",
+      "interviewEn": "Supervised fine-tuning teaches the base model the instruction-following format, and it usually precedes preference optimization such as RLHF.",
+      "exampleEn": "After supervised fine-tuning on two thousand curated tickets the assistant stopped answering in raw completion style.",
+      "exampleCn": "在两千条精编工单上做监督微调后，助手不再以原始续写风格作答。",
+      "wordBreakdown": [
+        {"word": "Supervised", "meaningCn": "有监督的"},
+        {"word": "Fine-Tuning", "meaningCn": "微调"}
+      ],
+      "breakdownNote": "监督微调的重点在于“监督”带来的行为对齐，而不仅是继续训练，它改变的是模型的指令遵循方式而非单纯扩充知识。",
+      "aliases": ["监督微调", "指令微调", "SFT"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "InstructGPT paper (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Supervised Fine-Tuning", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Pretraining", "targetDomain": "LLM", "relationType": "CONTRAST"},
+        {"targetHeadword": "RLHF", "targetDomain": "LLM", "relationType": "CONTRAST"},
+        {"targetHeadword": "Fine-tuning", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "RLHF",
+      "termType": "ACRONYM",
+      "domain": "LLM",
+      "senseKey": "default",
+      "fullForm": "Reinforcement Learning from Human Feedback",
+      "meaningCn": "人类反馈强化学习",
+      "definitionCn": "先用人类偏好比较数据训练奖励模型，再以强化学习优化语言模型输出并约束其偏离参考模型的程度。它能改善有用性与安全性，但流程复杂、成本高，常被更直接的偏好优化方法补充或替代。",
+      "definitionEn": "A post-training pipeline that fits a reward model on human preference comparisons and then optimizes the language model against that reward with reinforcement learning.",
+      "interviewEn": "RLHF first trains a reward model on pairwise human preferences, then optimizes the policy against that reward with a KL penalty to the reference model.",
+      "exampleEn": "RLHF shifted the model toward shorter and safer answers, so the team re-ran the whole evaluation suite.",
+      "exampleCn": "RLHF 让模型输出转向更简短、更安全的回答，因此团队重新跑了一遍完整评测集。",
+      "wordBreakdown": [
+        {"word": "Reinforcement", "meaningCn": "强化"},
+        {"word": "Learning", "meaningCn": "学习"},
+        {"word": "Human", "meaningCn": "人类"},
+        {"word": "Feedback", "meaningCn": "反馈"}
+      ],
+      "breakdownNote": "RLHF 的完整链路包含偏好采集、奖励建模与策略优化三段，并不是“用人类反馈直接训练”这一句话可以概括的。",
+      "aliases": ["人类反馈强化学习", "RLHF 对齐"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "InstructGPT paper (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "R L H F", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Reinforcement Learning from Human Feedback", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Supervised Fine-Tuning", "targetDomain": "LLM", "relationType": "CONTRAST"},
+        {"targetHeadword": "Fine-tuning", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Prompt Engineering", "targetDomain": "LLM", "relationType": "CONTRAST"}
+      ]
+    },
+    {
+      "headword": "LoRA",
+      "termType": "ACRONYM",
+      "domain": "LLM",
+      "senseKey": "default",
+      "fullForm": "Low-Rank Adaptation",
+      "meaningCn": "低秩适配",
+      "definitionCn": "冻结原模型权重，只在选定层旁路注入低秩矩阵并训练的参数量高效微调方法。显存占用远低于全量微调，适配器可单独保存与切换，面试常追问秩的选择、缩放系数与合并推理。",
+      "definitionEn": "A parameter-efficient fine-tuning method that freezes the base weights and trains low-rank matrices injected beside selected layers.",
+      "interviewEn": "LoRA freezes the base model and learns two low-rank matrices per adapted layer, so the trainable parameter count drops by orders of magnitude.",
+      "exampleEn": "Each tenant ships its own LoRA adapter while one base model stays shared in GPU memory.",
+      "exampleCn": "每个租户单独发布自己的 LoRA 适配器，而基座模型在显存中共享。",
+      "wordBreakdown": [
+        {"word": "Low", "meaningCn": "低的"},
+        {"word": "Rank", "meaningCn": "秩"},
+        {"word": "Adaptation", "meaningCn": "适配"}
+      ],
+      "breakdownNote": "LoRA 的核心假设是权重更新具有低内在秩，因此用小矩阵近似增量即可，而不需要重训整个模型。",
+      "aliases": ["低秩适配", "LoRA 微调"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "LoRA: Low-Rank Adaptation of Large Language Models (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": null, "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "PENDING"},
+        {"variant": "FULL_FORM", "readingText": "Low-Rank Adaptation", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Fine-tuning", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Quantization", "targetDomain": "LLM", "relationType": "CONTRAST"},
+        {"targetHeadword": "Pretraining", "targetDomain": "LLM", "relationType": "CONTRAST"}
+      ]
+    },
+    {
+      "headword": "Quantization",
+      "termType": "WORD",
+      "domain": "LLM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˌkwɑːntəˈzeɪʃn/",
+      "ipaUk": "/ˌkwɒntɪˈzeɪʃn/",
+      "meaningCn": "量化",
+      "definitionCn": "用更低比特表示权重或激活以降低显存占用与推理成本的技术，常见八比特与四比特方案。需要评估精度损失与硬件算子支持，面试常把它与知识蒸馏、低秩适配放在一起比较。",
+      "definitionEn": "Representing weights or activations with fewer bits to reduce memory footprint and inference cost, usually at eight or four bits.",
+      "interviewEn": "Quantization trades a small amount of accuracy for much lower memory and latency, and four-bit weight-only schemes are common for local deployment.",
+      "exampleEn": "After four-bit quantization the model fit on a single consumer GPU with a modest quality drop.",
+      "exampleCn": "做四比特量化后，模型可以放进单张消费级显卡，质量仅有小幅下降。",
+      "aliases": ["量化", "模型量化"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "GPTQ paper (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Quantization", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Quantization", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Knowledge Distillation", "targetDomain": "LLM", "relationType": "CONTRAST"},
+        {"targetHeadword": "LoRA", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Inference", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Knowledge Distillation",
+      "termType": "PHRASE",
+      "domain": "LLM",
+      "senseKey": "default",
+      "meaningCn": "知识蒸馏",
+      "definitionCn": "让小模型学习大模型的输出分布或中间表示，从而以更小体量逼近教师效果。它常用于压缩部署，软标签、温度参数与教师学生容量差距是面试中的常见追问点。",
+      "definitionEn": "Training a smaller student model to match the output distribution or intermediate representations of a larger teacher model.",
+      "exampleEn": "Knowledge distillation gave a seven-billion-parameter student most of the teacher's accuracy on the classification subset.",
+      "exampleCn": "通过知识蒸馏，七十亿参数的学生模型在该分类子集上取得了接近教师模型的准确率。",
+      "wordBreakdown": [
+        {"word": "Knowledge", "meaningCn": "知识"},
+        {"word": "Distillation", "meaningCn": "蒸馏"}
+      ],
+      "breakdownNote": "蒸馏迁移的是教师输出的分布信息而非答案本身，因此软标签中的相对概率关系才是关键。",
+      "aliases": ["知识蒸馏", "模型蒸馏"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Distilling the Knowledge in a Neural Network (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Knowledge Distillation", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Quantization", "targetDomain": "LLM", "relationType": "CONTRAST"},
+        {"targetHeadword": "Pretraining", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Top-k Sampling",
+      "termType": "PHRASE",
+      "domain": "LLM",
+      "senseKey": "default",
+      "meaningCn": "Top-k 采样",
+      "definitionCn": "每一步只在概率最高的 k 个候选 token 中按重新归一化的概率抽样。k 越小输出越稳定，k 越大越发散；它与 Top-p 构造候选集合的方式不同，是采样参数的经典对比题。",
+      "definitionEn": "A decoding rule that keeps only the k most probable next tokens and samples from their renormalized distribution.",
+      "interviewEn": "Top-k sampling truncates the distribution to a fixed number of candidates, while top-p keeps the smallest set whose cumulative probability exceeds p.",
+      "exampleEn": "With k set to one the decoder becomes greedy, so the team used k equal to fifty for brainstorming.",
+      "exampleCn": "k 设为 1 时解码退化为贪心，因此团队在头脑风暴场景改用 k 等于 50。",
+      "wordBreakdown": [
+        {"word": "Top", "meaningCn": "最靠前的"},
+        {"word": "k", "meaningCn": "候选数量参数"},
+        {"word": "Sampling", "meaningCn": "采样"}
+      ],
+      "breakdownNote": "Top-k 并不只是截取前 k 个，还必须对剩余概率重新归一化，否则采样结果不再构成合法分布。",
+      "aliases": ["Top-k 采样", "K 值采样"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "OpenAI API Documentation",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Top-k Sampling", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Top-p Sampling", "targetDomain": "LLM", "relationType": "CONFUSABLE"},
+        {"targetHeadword": "Logits", "targetDomain": "LLM", "relationType": "PREREQUISITE"},
+        {"targetHeadword": "Temperature", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Top-p Sampling",
+      "termType": "PHRASE",
+      "domain": "LLM",
+      "senseKey": "default",
+      "meaningCn": "Top-p 采样（核采样）",
+      "definitionCn": "从累积概率达到阈值 p 的最小候选集合中抽样，候选数量随概率分布形状自适应变化。相比固定 k 值，它分布尖锐时自动收缩、分布平坦时保留更多候选，适合开放生成。",
+      "definitionEn": "Nucleus sampling keeps the smallest set of tokens whose cumulative probability reaches p and samples from that renormalized set.",
+      "interviewEn": "Top-p adapts the candidate set to the shape of the distribution, so no fixed vocabulary cutoff is needed.",
+      "exampleEn": "Setting top-p to 0.9 kept long-tail tokens available without letting the output drift off topic.",
+      "exampleCn": "把 top-p 设为 0.9，既保留了长尾 token，又避免输出偏离主题。",
+      "wordBreakdown": [
+        {"word": "Top", "meaningCn": "累计最高的"},
+        {"word": "p", "meaningCn": "累积概率阈值"},
+        {"word": "Sampling", "meaningCn": "采样"}
+      ],
+      "breakdownNote": "Top-p 的关键是“累积概率刚好达标的最小集合”，候选数量因此随上下文自适应，而不是一个固定数值。",
+      "aliases": ["Top-p 采样", "核采样", "Nucleus Sampling"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "The Curious Case of Neural Text Degeneration (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Top-p Sampling", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Top-k Sampling", "targetDomain": "LLM", "relationType": "CONFUSABLE"},
+        {"targetHeadword": "Temperature", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Logits", "targetDomain": "LLM", "relationType": "PREREQUISITE"}
+      ]
+    },
+    {
+      "headword": "Greedy Decoding",
+      "termType": "PHRASE",
+      "domain": "LLM",
+      "senseKey": "default",
+      "meaningCn": "贪心解码",
+      "definitionCn": "每一步都直接选择概率最高的 token，既不采样也不回溯。结果确定且可复现，但容易陷入重复或局部最优，适合结构化抽取等要求输出稳定的任务。",
+      "definitionEn": "Choosing the single most probable token at every step, with no sampling and no backtracking over earlier choices.",
+      "exampleEn": "Greedy decoding produced identical JSON across runs, which made the extraction pipeline testable.",
+      "exampleCn": "贪心解码让多次运行输出完全相同的 JSON，抽取流程因此变得可测试。",
+      "wordBreakdown": [
+        {"word": "Greedy", "meaningCn": "贪心的"},
+        {"word": "Decoding", "meaningCn": "解码"}
+      ],
+      "breakdownNote": "贪心指的是局部最优策略，它并不保证整段输出的联合概率最高，因此与束搜索的目标不同。",
+      "aliases": ["贪心解码", "贪心搜索"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Speech and Language Processing (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Greedy Decoding", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Beam Search", "targetDomain": "LLM", "relationType": "CONTRAST"},
+        {"targetHeadword": "Temperature", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Beam Search",
+      "termType": "PHRASE",
+      "domain": "LLM",
+      "senseKey": "default",
+      "meaningCn": "束搜索",
+      "definitionCn": "每一步保留得分最高的若干条部分序列并继续扩展，用束宽换取更高的整体序列概率。相比贪心更可能跳出局部最优，但计算与显存开销随束宽线性上升，生成场景需谨慎使用。",
+      "definitionEn": "A decoding strategy that keeps the top-b partial sequences at each step and expands them, trading compute for a higher sequence likelihood.",
+      "interviewEn": "Beam search keeps several partial hypotheses alive instead of committing to one token, so it can recover from an early locally optimal choice.",
+      "exampleEn": "Beam search with a width of four improved translation quality but doubled decoding cost.",
+      "exampleCn": "束宽为 4 的束搜索提升了翻译质量，但解码成本翻倍。",
+      "wordBreakdown": [
+        {"word": "Beam", "meaningCn": "束宽"},
+        {"word": "Search", "meaningCn": "搜索"}
+      ],
+      "breakdownNote": "束搜索的本质是限制宽度的最优优先搜索，需要在每一步按累计得分裁剪候选，而不是简单地多生成几遍。",
+      "aliases": ["束搜索", "集束搜索"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Speech and Language Processing (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Beam Search", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Greedy Decoding", "targetDomain": "LLM", "relationType": "CONTRAST"},
+        {"targetHeadword": "Top-k Sampling", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Logits",
+      "termType": "WORD",
+      "domain": "LLM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˈloʊdʒɪts/",
+      "ipaUk": "/ˈlɒdʒɪts/",
+      "meaningCn": "对数几率原始分数",
+      "definitionCn": "模型在 softmax 之前为词表中每个 token 输出的未归一化分数。温度、Top-k 与 Top-p 都作用在 logits 或其归一化后的概率上，排查采样异常时第一步通常就是查看原始 logits。",
+      "definitionEn": "The unnormalized scores a model emits for each vocabulary item before softmax converts them into probabilities.",
+      "exampleEn": "Inspecting the raw logits showed that the correct label ranked second by a narrow margin.",
+      "exampleCn": "查看原始 logits 后发现，正确标签以微弱差距排在第二位。",
+      "aliases": ["逻辑值", "未归一化分数"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Deep Learning (Goodfellow et al., concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Logits", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Logits", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Top-k Sampling", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Perplexity", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Perplexity",
+      "termType": "WORD",
+      "domain": "LLM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/pərˈpleksəti/",
+      "ipaUk": "/pəˈpleksəti/",
+      "meaningCn": "困惑度",
+      "definitionCn": "语言模型在留出文本上平均每 token 负对数似然取指数得到的指标，数值越低表示模型对文本越不意外。它衡量建模能力而非任务正确率，面试常被追问它与准确率的区别。",
+      "definitionEn": "The exponentiated average negative log-likelihood per token on held-out text, where lower values mean the model is less surprised by the data.",
+      "exampleEn": "Perplexity dropped after the tokenizer change, but downstream answer accuracy stayed flat.",
+      "exampleCn": "更换分词器后困惑度下降，但下游答案准确率没有变化。",
+      "aliases": ["困惑度", "PPL"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Speech and Language Processing (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Perplexity", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Perplexity", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Logits", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Tokenization", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Zero-Shot",
+      "termType": "PHRASE",
+      "domain": "LLM",
+      "senseKey": "default",
+      "meaningCn": "零样本",
+      "definitionCn": "不提供任何示例，只用指令描述任务让模型直接完成。效果高度依赖模型的指令遵循能力，适合快速验证新场景；当结果不稳定时，通常需要补充示例或改为监督微调。",
+      "definitionEn": "Prompting a model to perform a task with instructions only and no worked examples.",
+      "exampleEn": "Zero-shot classification missed the internal ticket taxonomy, so the team added labeled examples.",
+      "exampleCn": "零样本分类无法识别内部工单分类体系，团队因此补充了带标签的示例。",
+      "wordBreakdown": [
+        {"word": "Zero", "meaningCn": "零个"},
+        {"word": "Shot", "meaningCn": "示例"}
+      ],
+      "breakdownNote": "零样本描述的是提示中示例数量为零，而不是模型完全没训练过该领域，这一区别在面试中经常被追问。",
+      "aliases": ["零样本", "零样本提示"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Language Models are Few-Shot Learners (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Zero-Shot", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Few-Shot", "targetDomain": "LLM", "relationType": "CONTRAST"},
+        {"targetHeadword": "Prompt Engineering", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Few-Shot",
+      "termType": "PHRASE",
+      "domain": "LLM",
+      "senseKey": "default",
+      "meaningCn": "少样本",
+      "definitionCn": "在提示词中放入少量输入输出示例，引导模型模仿目标格式与判断边界。示例的代表性与顺序都会影响效果，实践中常结合检索动态挑选与当前问题最相近的示例。",
+      "definitionEn": "Including a small number of worked examples in the prompt so that the model imitates the expected format and decision boundary.",
+      "exampleEn": "Few-shot prompting with three boundary cases fixed most of the mislabeled severity levels.",
+      "exampleCn": "用三个边界案例做少样本提示后，大部分严重级别误标都被修正。",
+      "wordBreakdown": [
+        {"word": "Few", "meaningCn": "少量的"},
+        {"word": "Shot", "meaningCn": "示例"}
+      ],
+      "breakdownNote": "少样本的效果来自示例对格式与边界的示范，而非真正的参数更新，因此示例选得不对会稳定地错。",
+      "aliases": ["少样本", "少样本提示", "In-Context Learning"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Language Models are Few-Shot Learners (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Few-Shot", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Zero-Shot", "targetDomain": "LLM", "relationType": "CONTRAST"},
+        {"targetHeadword": "Chain-of-Thought", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Chain-of-Thought",
+      "termType": "PHRASE",
+      "domain": "LLM",
+      "senseKey": "default",
+      "meaningCn": "思维链",
+      "definitionCn": "让模型先写出中间推理步骤再给出结论的提示或训练方式，可提升多步推理任务的准确率。需要注意推理链未必忠实反映真实计算过程，因此不能直接当作可审计的解释依据。",
+      "definitionEn": "Eliciting intermediate reasoning steps before the final answer, typically through prompting or dedicated fine-tuning.",
+      "exampleEn": "Chain-of-thought prompting raised accuracy on multi-step word problems but tripled the output token count.",
+      "exampleCn": "思维链提示提升了多步应用题的准确率，但输出 token 数增加到三倍。",
+      "wordBreakdown": [
+        {"word": "Chain", "meaningCn": "链条"},
+        {"word": "of", "meaningCn": "……的"},
+        {"word": "Thought", "meaningCn": "思考"}
+      ],
+      "breakdownNote": "思维链的价值在于把一次预测拆成多个可检验的中间步骤，但链条本身不等于可靠的推理证明。",
+      "aliases": ["思维链", "CoT"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Chain-of-Thought", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Few-Shot", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Prompt Engineering", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Prompt", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "KV Cache",
+      "termType": "PHRASE",
+      "domain": "LLM",
+      "senseKey": "default",
+      "meaningCn": "键值缓存",
+      "definitionCn": "自回归解码时缓存历史 token 的键与值张量，避免每一步都重新计算整个前缀。它显著降低解码延迟，但显存占用随上下文长度线性增长，是长上下文部署的主要瓶颈之一。",
+      "definitionEn": "Caching the key and value tensors of previous tokens during autoregressive decoding so the prefix is not recomputed at every step.",
+      "exampleEn": "Enabling the KV cache halved the time to generate the first hundred tokens but filled the GPU memory.",
+      "exampleCn": "启用 KV 缓存把生成前一百个 token 的时间减半，却占满了显存。",
+      "wordBreakdown": [
+        {"word": "KV", "meaningCn": "键与值（key-value）"},
+        {"word": "Cache", "meaningCn": "缓存"}
+      ],
+      "breakdownNote": "KV 缓存换取的是重复计算时间，代价是随序列增长的显存，因此长上下文场景需要分页或压缩等专门方案。",
+      "aliases": ["KV 缓存", "键值缓存"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Efficient Transformers: A Survey (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "KV Cache", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Inference", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Context Window", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Self-Attention", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Vector",
+      "termType": "WORD",
+      "domain": "RAG",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˈvektər/",
+      "ipaUk": "/ˈvektə(r)/",
+      "meaningCn": "向量",
+      "definitionCn": "由嵌入模型输出的定长数值数组，把文本语义映射到可以计算距离的空间中。RAG 的召回、去重与聚类都建立在向量运算上，维度与是否归一化会直接影响相似度排序结果。",
+      "definitionEn": "A fixed-length array of numbers produced by an embedding model that places text semantics into a space where distances are meaningful.",
+      "exampleEn": "The pipeline normalizes every vector so that inner product and cosine similarity produce the same ranking.",
+      "exampleCn": "流程对每个向量做归一化，使内积与余弦相似度给出相同的排序。",
+      "aliases": ["向量", "向量表示"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "FAISS Documentation",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Vector", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Vector", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Embedding", "targetDomain": "LLM", "relationType": "RELATED"},
+        {"targetHeadword": "Vector Database", "targetDomain": "RAG", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Similarity Search",
+      "termType": "PHRASE",
+      "domain": "RAG",
+      "senseKey": "default",
+      "meaningCn": "相似度检索",
+      "definitionCn": "在向量集合中找出与查询向量最接近的若干条目的过程，是 RAG 召回阶段的核心操作。工程上需要在召回质量、延迟与内存之间权衡，大规模场景通常用近似算法替代精确扫描。",
+      "definitionEn": "Finding the stored vectors closest to a query vector, which is the core operation of the retrieval stage in RAG.",
+      "exampleEn": "Similarity search over two million chunks returned candidates in under twenty milliseconds.",
+      "exampleCn": "在两百万个文本块上做相似度检索，候选结果在二十毫秒内返回。",
+      "wordBreakdown": [
+        {"word": "Similarity", "meaningCn": "相似度"},
+        {"word": "Search", "meaningCn": "搜索"}
+      ],
+      "breakdownNote": "相似度检索依赖预先定义的距离度量与索引结构，换一种相似度定义会得到完全不同的排序结果。",
+      "aliases": ["相似度检索", "向量检索"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "FAISS Documentation",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Similarity Search", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Approximate Nearest Neighbor", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Cosine Similarity", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Retrieval", "targetDomain": "RAG", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Cosine Similarity",
+      "termType": "PHRASE",
+      "domain": "RAG",
+      "senseKey": "default",
+      "meaningCn": "余弦相似度",
+      "definitionCn": "用两个向量夹角余弦衡量方向上的相似性，取值与向量长度无关。文本嵌入常先做归一化再比较，此时它与内积排序等价，是 RAG 中最常用的相似度度量方式。",
+      "definitionEn": "The cosine of the angle between two vectors, which measures directional similarity independent of vector magnitude.",
+      "interviewEn": "Cosine similarity ignores vector length, so normalizing embeddings makes cosine and dot product produce the same ranking.",
+      "exampleEn": "A cosine similarity of 0.82 separated the correct passage from near-duplicate boilerplate.",
+      "exampleCn": "余弦相似度 0.82 把正确段落与近似重复的模板文本区分开来。",
+      "wordBreakdown": [
+        {"word": "Cosine", "meaningCn": "余弦"},
+        {"word": "Similarity", "meaningCn": "相似度"}
+      ],
+      "breakdownNote": "余弦相似度只比较方向，因此长度差异大的向量也能比较，但这意味着它无法反映文本长短带来的信息量差别。",
+      "aliases": ["余弦相似度", "余弦距离"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "FAISS Documentation",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Cosine Similarity", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Similarity Search", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Bi-Encoder", "targetDomain": "RAG", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Approximate Nearest Neighbor",
+      "termType": "PHRASE",
+      "domain": "RAG",
+      "senseKey": "default",
+      "meaningCn": "近似最近邻",
+      "definitionCn": "用专门索引结构以略低的召回率换取数量级加速的近邻查找方法，是大规模向量检索的标准做法。需要调节索引参数在召回率、内存与构建时间之间取舍，面试常问图索引与倒排索引的差异。",
+      "definitionEn": "Neighbor search that accepts slightly lower recall in exchange for much faster queries, using structures such as proximity graphs or inverted lists.",
+      "interviewEn": "ANN indexes trade a small recall loss for large latency gains, and query-time parameters control that trade-off directly.",
+      "exampleEn": "Switching from exact scan to an approximate nearest neighbor index cut p99 latency from seconds to milliseconds.",
+      "exampleCn": "从精确扫描改为近似最近邻索引后，p99 延迟从秒级降到毫秒级。",
+      "wordBreakdown": [
+        {"word": "Approximate", "meaningCn": "近似的"},
+        {"word": "Nearest", "meaningCn": "最近的"},
+        {"word": "Neighbor", "meaningCn": "邻居"}
+      ],
+      "breakdownNote": "近似最近邻并非“找得差不多的点”，而是用可证明的索引结构牺牲少量召回换取可预测的加速。",
+      "aliases": ["近似最近邻", "ANN 检索"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "FAISS Documentation",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Approximate Nearest Neighbor", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "HNSW", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "IVF", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Similarity Search", "targetDomain": "RAG", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "HNSW",
+      "termType": "ACRONYM",
+      "domain": "RAG",
+      "senseKey": "default",
+      "fullForm": "Hierarchical Navigable Small World",
+      "meaningCn": "分层可导航小世界图索引",
+      "definitionCn": "用多层邻近图组织向量，查询从稀疏顶层逐步下沉到稠密底层的近似最近邻算法。召回与延迟表现好，但内存占用高、构建慢、删除支持较弱，是向量索引选型的高频对比题。",
+      "definitionEn": "A multi-layer proximity graph index that searches from a sparse top layer down through denser layers to find approximate nearest neighbors.",
+      "interviewEn": "HNSW builds a hierarchical proximity graph, where M and efConstruction control graph quality while efSearch trades recall against latency.",
+      "exampleEn": "Raising efSearch from 32 to 128 improved recall by four points at twice the latency.",
+      "exampleCn": "把 efSearch 从 32 调到 128，召回率提高四个百分点，延迟翻倍。",
+      "wordBreakdown": [
+        {"word": "Hierarchical", "meaningCn": "分层的"},
+        {"word": "Navigable", "meaningCn": "可导航的"},
+        {"word": "Small", "meaningCn": "小的"},
+        {"word": "World", "meaningCn": "世界（图）"}
+      ],
+      "breakdownNote": "HNSW 的关键是分层跳表式导航加小世界图的短路径特性，二者叠加才带来对数级检索路径。",
+      "aliases": ["HNSW 索引", "分层可导航小世界图"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "HNSW paper (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": null, "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "PENDING"},
+        {"variant": "FULL_FORM", "readingText": "Hierarchical Navigable Small World", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Approximate Nearest Neighbor", "targetDomain": "RAG", "relationType": "IS_A"},
+        {"targetHeadword": "IVF", "targetDomain": "RAG", "relationType": "CONFUSABLE"}
+      ]
+    },
+    {
+      "headword": "IVF",
+      "termType": "ACRONYM",
+      "domain": "RAG",
+      "senseKey": "default",
+      "fullForm": "Inverted File Index",
+      "meaningCn": "倒排文件索引",
+      "definitionCn": "先用聚类把向量划分到若干倒排桶，查询时只扫描距离最近的若干桶以减少比较次数。桶数与探测桶数共同决定召回和速度，常与乘积量化组合使用以进一步压缩内存。",
+      "definitionEn": "An index that clusters vectors into inverted lists and scans only the lists nearest to the query, reducing the number of distance comparisons.",
+      "interviewEn": "IVF partitions vectors into nlist clusters and probes only nprobe of them, so recall and latency are tuned by those two parameters.",
+      "exampleEn": "With nprobe set to eight the IVF index visited a small fraction of lists and still met the recall target.",
+      "exampleCn": "把 nprobe 设为 8 时，IVF 索引只访问了少量桶，仍达到召回目标。",
+      "wordBreakdown": [
+        {"word": "Inverted", "meaningCn": "倒排的"},
+        {"word": "File", "meaningCn": "文件"},
+        {"word": "Index", "meaningCn": "索引"}
+      ],
+      "breakdownNote": "IVF 的倒排指的是从“聚类中心”映射到“向量列表”，查询时按桶裁剪候选，而不是扫描全量向量。",
+      "aliases": ["倒排文件索引", "IVF 索引"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "FAISS Documentation",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "I V F", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Inverted File Index", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Approximate Nearest Neighbor", "targetDomain": "RAG", "relationType": "IS_A"},
+        {"targetHeadword": "HNSW", "targetDomain": "RAG", "relationType": "CONFUSABLE"}
+      ]
+    },
+    {
+      "headword": "Text Splitter",
+      "termType": "PHRASE",
+      "domain": "RAG",
+      "senseKey": "default",
+      "meaningCn": "文本切分器",
+      "definitionCn": "把长文档按长度、段落或语义边界切成文本块的组件，切分策略直接决定召回粒度。工程上应保留标题层级与句子完整性，避免把答案所在的上下文从中间割裂。",
+      "definitionEn": "A component that divides long documents into chunks by length, structural boundary or semantic break.",
+      "exampleEn": "The text splitter respected markdown headings so that each chunk kept its section title.",
+      "exampleCn": "文本切分器遵循 Markdown 标题层级，使每个文本块都保留所属小节标题。",
+      "wordBreakdown": [
+        {"word": "Text", "meaningCn": "文本"},
+        {"word": "Splitter", "meaningCn": "切分器"}
+      ],
+      "breakdownNote": "切分器不只是按字符数截断，还要兼顾文档结构与语义边界，否则再好的检索也召不回被切散的答案。",
+      "aliases": ["文本切分器", "分块器"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "LangChain Documentation",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Text Splitter", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Chunk", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Chunk Overlap", "targetDomain": "RAG", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Chunk Overlap",
+      "termType": "PHRASE",
+      "domain": "RAG",
+      "senseKey": "default",
+      "meaningCn": "块重叠",
+      "definitionCn": "相邻文本块之间共享的字符或 token 数量，用于避免关键信息正好被切在边界处而丢失。重叠过大会增加存储开销并带来重复召回，通常取块长度的百分之十到二十。",
+      "definitionEn": "The number of characters or tokens shared between adjacent chunks so that information spanning a boundary is not lost.",
+      "exampleEn": "A hundred-token chunk overlap recovered the sentence that a hard cut had split in half.",
+      "exampleCn": "一百 token 的块重叠找回了被硬切分成两半的那句话。",
+      "wordBreakdown": [
+        {"word": "Chunk", "meaningCn": "文本块"},
+        {"word": "Overlap", "meaningCn": "重叠"}
+      ],
+      "breakdownNote": "重叠比例需要与块大小一起调，重叠过大等于把同一段内容反复索引，会放大重复与存储成本。",
+      "aliases": ["块重叠", "重叠窗口"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "LangChain Documentation",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Chunk Overlap", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Chunk", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Text Splitter", "targetDomain": "RAG", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Metadata Filter",
+      "termType": "PHRASE",
+      "domain": "RAG",
+      "senseKey": "default",
+      "meaningCn": "元数据过滤",
+      "definitionCn": "在向量召回前或召回中按来源、时间、权限等结构化字段限制候选范围。它弥补纯语义检索的盲区，但过滤条件过严会导致空结果，因此需要与召回策略和兜底逻辑配合。",
+      "definitionEn": "Restricting candidate vectors by structured fields such as source, date or access scope before or during similarity search.",
+      "exampleEn": "A metadata filter limited retrieval to documents that the requesting user was allowed to read.",
+      "exampleCn": "元数据过滤把检索范围限制在请求方有权阅读的文档内。",
+      "wordBreakdown": [
+        {"word": "Metadata", "meaningCn": "元数据"},
+        {"word": "Filter", "meaningCn": "过滤条件"}
+      ],
+      "breakdownNote": "元数据过滤同时承担权限边界与语义裁剪的职责，缺失它会让检索越过文档访问控制。",
+      "aliases": ["元数据过滤", "结构化过滤"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Pinecone Documentation",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Metadata Filter", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Vector Database", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Similarity Search", "targetDomain": "RAG", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Query Rewriting",
+      "termType": "PHRASE",
+      "domain": "RAG",
+      "senseKey": "default",
+      "meaningCn": "查询改写",
+      "definitionCn": "把用户口语化或含指代的问题改写成更适合检索的形式，例如补全上下文、扩展同义词或拆成多个子问题。它能提升召回率，但改写错误会直接引入偏差，因此需要保留原始问题以便回退。",
+      "definitionEn": "Reformulating a user question into a retrieval-friendly form by resolving references, expanding terms or splitting it into sub-questions.",
+      "exampleEn": "Query rewriting turned a follow-up question into a standalone question that carried the product name.",
+      "exampleCn": "查询改写把一句追问补全成带产品名的独立问题。",
+      "wordBreakdown": [
+        {"word": "Query", "meaningCn": "查询"},
+        {"word": "Rewriting", "meaningCn": "改写"}
+      ],
+      "breakdownNote": "查询改写不是简单同义替换，而是要为检索器补足缺失的上下文与约束条件。",
+      "aliases": ["查询改写", "查询重写"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "RAG engineering practice (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Query Rewriting", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Retrieval", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Hybrid Search", "targetDomain": "RAG", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Hybrid Search",
+      "termType": "PHRASE",
+      "domain": "RAG",
+      "senseKey": "default",
+      "meaningCn": "混合检索",
+      "definitionCn": "同时使用稠密向量检索与稀疏关键词检索，并按加权或排名融合算法合并两路结果。它兼顾语义泛化与精确术语匹配，融合策略常采用倒数排名融合，是提升召回稳定性的常见手段。",
+      "definitionEn": "Combining dense vector retrieval with sparse keyword retrieval and merging both result lists, often with reciprocal rank fusion.",
+      "interviewEn": "Hybrid search adds a lexical retriever to catch exact identifiers that dense embeddings blur, then fuses both rankings.",
+      "exampleEn": "Hybrid search recovered the error code that the dense retriever had missed.",
+      "exampleCn": "混合检索找回了稠密检索漏掉的错误码。",
+      "wordBreakdown": [
+        {"word": "Hybrid", "meaningCn": "混合的"},
+        {"word": "Search", "meaningCn": "搜索"}
+      ],
+      "breakdownNote": "混合检索的重点不是两路都跑，而是如何归一化并融合两种分数量纲不同的结果。",
+      "aliases": ["混合检索", "混合搜索"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Elasticsearch Documentation",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Hybrid Search", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Dense Retrieval", "targetDomain": "RAG", "relationType": "PART_OF"},
+        {"targetHeadword": "Sparse Retrieval", "targetDomain": "RAG", "relationType": "PART_OF"},
+        {"targetHeadword": "RRF", "targetDomain": "RAG", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Dense Retrieval",
+      "termType": "PHRASE",
+      "domain": "RAG",
+      "senseKey": "default",
+      "meaningCn": "稠密检索",
+      "definitionCn": "用固定维度向量表示查询与文本并做近邻搜索的检索方式，能够匹配同义改写与语义相近的表达。它对罕见专名、编号与数字不敏感，因此常与稀疏检索组合使用以覆盖不同查询类型。",
+      "definitionEn": "Retrieval that represents queries and passages as dense vectors and ranks passages by vector similarity.",
+      "interviewEn": "Dense retrieval generalizes across paraphrases but blurs rare identifiers, which is why it is often paired with a lexical retriever.",
+      "exampleEn": "Dense retrieval matched a refund question with a passage that only used a different wording for the policy.",
+      "exampleCn": "稠密检索把退款问题匹配到一段用不同措辞描述该政策的文本。",
+      "wordBreakdown": [
+        {"word": "Dense", "meaningCn": "稠密的"},
+        {"word": "Retrieval", "meaningCn": "检索"}
+      ],
+      "breakdownNote": "稠密指每个维度几乎都有取值，与稀疏的词项向量相对，两者失败模式不同才需要混合。",
+      "aliases": ["稠密检索", "向量检索"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "DPR paper (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Dense Retrieval", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Sparse Retrieval", "targetDomain": "RAG", "relationType": "CONTRAST"},
+        {"targetHeadword": "Bi-Encoder", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Retrieval", "targetDomain": "RAG", "relationType": "IS_A"}
+      ]
+    },
+    {
+      "headword": "Sparse Retrieval",
+      "termType": "PHRASE",
+      "domain": "RAG",
+      "senseKey": "default",
+      "meaningCn": "稀疏检索",
+      "definitionCn": "以词项权重向量做匹配的检索方式，向量维度等于词表大小且大多数取值为零，典型代表是 BM25。它对精确词、编号与稀有名词更敏感，仍是混合检索中不可或缺的一路。",
+      "definitionEn": "Retrieval over high-dimensional term-weight vectors that are mostly zero, typically scored with BM25.",
+      "interviewEn": "Sparse retrieval scores exact term matches, so it stays strong on product codes and rare names where dense vectors generalize too much.",
+      "exampleEn": "Sparse retrieval ranked the product page first because the query contained the exact identifier.",
+      "exampleCn": "由于查询中包含精确编号，稀疏检索把该商品页面排在第一。",
+      "wordBreakdown": [
+        {"word": "Sparse", "meaningCn": "稀疏的"},
+        {"word": "Retrieval", "meaningCn": "检索"}
+      ],
+      "breakdownNote": "稀疏检索的优势来自精确词项匹配，而不是向量维度高，维度只是词表规模的结果。",
+      "aliases": ["稀疏检索", "词项检索"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "BM25 paper (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Sparse Retrieval", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "BM25", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Dense Retrieval", "targetDomain": "RAG", "relationType": "CONTRAST"},
+        {"targetHeadword": "Retrieval", "targetDomain": "RAG", "relationType": "IS_A"}
+      ]
+    },
+    {
+      "headword": "BM25",
+      "termType": "ACRONYM",
+      "domain": "RAG",
+      "senseKey": "default",
+      "fullForm": "Best Matching 25",
+      "meaningCn": "BM25 相关性打分函数",
+      "definitionCn": "结合词频、逆文档频率与文档长度归一化的经典相关性打分函数，属于 Okapi 系列的第 25 号方案。它无需训练且可解释性强，常作为稀疏检索基线并用于与向量检索融合。",
+      "definitionEn": "A classical relevance scoring function that combines term frequency, inverse document frequency and document length normalization.",
+      "interviewEn": "BM25 saturates term frequency and normalizes by document length, so repeated keywords stop dominating the score.",
+      "exampleEn": "Tuning the BM25 length parameter improved ranking on short support articles.",
+      "exampleCn": "调整 BM25 的长度归一化参数后，短篇支持文章的排序变好了。",
+      "wordBreakdown": [
+        {"word": "Best", "meaningCn": "最佳的"},
+        {"word": "Matching", "meaningCn": "匹配"},
+        {"word": "25", "meaningCn": "第 25 号方案"}
+      ],
+      "breakdownNote": "BM25 名称中的 25 指 Okapi 系列的第 25 个评分函数版本，并非参数含义，理解它需要看饱和与长度归一化两项设计。",
+      "aliases": ["BM25 算法", "Okapi BM25"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "BM25 paper (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": null, "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "PENDING"},
+        {"variant": "FULL_FORM", "readingText": "Best Matching 25", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Sparse Retrieval", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Hybrid Search", "targetDomain": "RAG", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Cross-Encoder",
+      "termType": "PHRASE",
+      "domain": "RAG",
+      "senseKey": "default",
+      "meaningCn": "交叉编码器",
+      "definitionCn": "把查询与候选文本拼接后送入同一个编码器，直接输出相关性分数的模型。精度通常高于双编码器，但无法离线预计算文档向量，只能对少量候选做重排，因此位于 RAG 的第二阶段。",
+      "definitionEn": "A model that concatenates the query and a passage and outputs a relevance score directly, so it must run once per candidate.",
+      "interviewEn": "A cross-encoder scores each query-passage pair jointly, which is more accurate but too slow for first-stage retrieval.",
+      "exampleEn": "The cross-encoder reranked the top twenty candidates and pushed the correct passage to rank one.",
+      "exampleCn": "交叉编码器重排前二十个候选，把正确段落推到第一位。",
+      "wordBreakdown": [
+        {"word": "Cross", "meaningCn": "交叉的"},
+        {"word": "Encoder", "meaningCn": "编码器"}
+      ],
+      "breakdownNote": "交叉指的是查询与文档在同一编码器内相互注意，而非两个向量事后比较，这正是它精度高但无法预计算的原因。",
+      "aliases": ["交叉编码器", "Cross Encoder"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Sentence-Transformers Documentation",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Cross-Encoder", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Bi-Encoder", "targetDomain": "RAG", "relationType": "CONFUSABLE"},
+        {"targetHeadword": "Reranking", "targetDomain": "RAG", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Bi-Encoder",
+      "termType": "PHRASE",
+      "domain": "RAG",
+      "senseKey": "default",
+      "meaningCn": "双编码器",
+      "definitionCn": "用两个共享或独立的编码器分别编码查询与文档，使文档向量可以离线预计算并建索引的架构。它适合大规模召回，精度低于交叉编码器，通常与其组成召回加重排的两阶段流程。",
+      "definitionEn": "An architecture with separate encoders for queries and documents, producing vectors that can be precomputed for large-scale retrieval.",
+      "interviewEn": "A bi-encoder embeds queries and documents independently, so document vectors are indexed offline and only the query is encoded at runtime.",
+      "exampleEn": "The bi-encoder indexed all documents nightly, while the cross-encoder only touched the top results.",
+      "exampleCn": "双编码器每晚对全部文档建索引，交叉编码器只处理排序靠前的结果。",
+      "wordBreakdown": [
+        {"word": "Bi", "meaningCn": "两侧的"},
+        {"word": "Encoder", "meaningCn": "编码器"}
+      ],
+      "breakdownNote": "双编码器的价值在于把查询与文档解耦以便预计算，代价是失去了两者之间的细粒度交互。",
+      "aliases": ["双编码器", "Bi Encoder"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Sentence-Transformers Documentation",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Bi-Encoder", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Cross-Encoder", "targetDomain": "RAG", "relationType": "CONFUSABLE"},
+        {"targetHeadword": "Dense Retrieval", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Embedding", "targetDomain": "LLM", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Recall",
+      "termType": "WORD",
+      "domain": "RAG",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "召回率",
+      "definitionCn": "检索结果覆盖的相关文档占全部相关文档的比例，衡量有没有把该找的内容都找出来。RAG 中召回不足会让生成缺少依据，因此通常与精确率一起评估，并配合重排阶段调整。",
+      "definitionEn": "The share of all relevant documents that the retrieval result actually contains.",
+      "interviewEn": "Recall measures whether the right passage made it into the candidate set at all, which matters more than ordering at the first stage.",
+      "exampleEn": "Increasing top-k from five to twenty raised recall but diluted the context sent to the model.",
+      "exampleCn": "把 top-k 从 5 提到 20 提升了召回率，却稀释了送入模型的上下文。",
+      "aliases": ["召回率", "查全率"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Information Retrieval evaluation (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Recall", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Recall", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Precision", "targetDomain": "RAG", "relationType": "CONTRAST"},
+        {"targetHeadword": "Retrieval", "targetDomain": "RAG", "relationType": "RELATED"},
+        {"targetHeadword": "Reranking", "targetDomain": "RAG", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Precision",
+      "termType": "WORD",
+      "domain": "RAG",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/prɪˈsɪʒn/",
+      "ipaUk": "/prɪˈsɪʒn/",
+      "meaningCn": "精确率",
+      "definitionCn": "检索结果中真正相关的结果所占比例，衡量找得准不准。它决定注入上下文的噪声量，在上下文成本高的场景尤其关键，实际评估中需要与召回率一起权衡。",
+      "definitionEn": "The share of retrieved documents that are actually relevant to the query.",
+      "interviewEn": "Precision reflects how much of the retrieved context is useful, and it is the metric rerankers are usually tuned to improve.",
+      "exampleEn": "Precision at five reached 0.8 after reranking, so four of the five passages were on topic.",
+      "exampleCn": "重排后前五条精确率达到 0.8，也就是五段里有四段切题。",
+      "aliases": ["精确率", "查准率"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Information Retrieval evaluation (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Precision", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Precision", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Recall", "targetDomain": "RAG", "relationType": "CONTRAST"},
+        {"targetHeadword": "Reranking", "targetDomain": "RAG", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Grounding",
+      "termType": "WORD",
+      "domain": "RAG",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/ˈɡraʊndɪŋ/",
+      "ipaUk": "/ˈɡraʊndɪŋ/",
+      "meaningCn": "依据化（答案落地到证据）",
+      "definitionCn": "让生成内容能够追溯到检索到的原文，而不是依赖模型自身记忆的过程。它用于降低幻觉，但要求引用片段真实存在且确实支持该结论，因此需要额外校验引用与原文的对齐关系。",
+      "definitionEn": "Anchoring generated statements in retrieved source text rather than in model memory.",
+      "exampleEn": "Grounding checks flagged one answer whose cited passage did not contain the quoted number.",
+      "exampleCn": "依据化校验发现有一处回答引用的段落里并没有那个数字。",
+      "aliases": ["依据化", "有据生成"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "RAG engineering practice (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Grounding", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Grounding", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Citation", "targetDomain": "RAG", "relationType": "CONFUSABLE"},
+        {"targetHeadword": "Hallucination", "targetDomain": "LLM", "relationType": "CONTRAST"}
+      ]
+    },
+    {
+      "headword": "Citation",
+      "termType": "WORD",
+      "domain": "RAG",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "ipaUs": "/saɪˈteɪʃn/",
+      "ipaUk": "/saɪˈteɪʃn/",
+      "meaningCn": "引用",
+      "definitionCn": "回答中标注来源文档或片段的信息，供用户回查核实。工程上必须保证引用标识能解析到真实文本块，且与所陈述内容一致，否则引用反而会制造虚假的可信感。",
+      "definitionEn": "A pointer from a generated statement to the source document or chunk that it came from.",
+      "exampleEn": "Each citation links to a chunk id that the interface resolves into the original document view.",
+      "exampleCn": "每条引用都指向一个文本块 ID，前端据此跳转到原始文档视图。",
+      "aliases": ["引用", "引证"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "RAG engineering practice (concept only)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Citation", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Citation", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Grounding", "targetDomain": "RAG", "relationType": "CONFUSABLE"},
+        {"targetHeadword": "Retrieval-Augmented Generation", "targetDomain": "RAG", "relationType": "RELATED"}
+      ]
+    }
+  ]
+}

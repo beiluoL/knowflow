@@ -3,10 +3,12 @@ package com.knowflow.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.knowflow.dto.QuizSubmitDTO;
 import com.knowflow.entity.QuizAnswerRecord;
+import com.knowflow.vo.QuizExplainVO;
 import com.knowflow.vo.QuizMistakeVO;
 import com.knowflow.vo.QuizPracticeVO;
 import com.knowflow.vo.QuizStatsVO;
 import com.knowflow.vo.QuizSubmitResultVO;
+import com.knowflow.vo.SmartPracticeVO;
 
 import java.util.List;
 
@@ -26,6 +28,8 @@ public interface QuizService extends IService<QuizAnswerRecord> {
     /**
      * 提交作答并自动判分：持久化答题记录，并将答错题目同步至错题本。
      */
+    QuizPracticeVO practiceQuestion(Long id, Long userId);
+
     QuizSubmitResultVO submit(QuizSubmitDTO dto, Long userId);
 
     /** 用户累计答题统计。 */
@@ -45,4 +49,18 @@ public interface QuizService extends IService<QuizAnswerRecord> {
      * @return true 表示已达到掌握
      */
     boolean reviewMistake(Long mistakeId, Boolean isCorrect, Long userId);
+
+    /**
+     * Phase 3H：题目讲解（AI 可选增强）。
+     * AI 可用时生成个性化讲解；不可用/关闭时降级为题库已有标准答案与解析，
+     * 没有解析时明确返回 hasExplanation=false（“暂无解析”），绝不编造内容。
+     */
+    QuizExplainVO explainQuestion(Long questionId, String userAnswer, Long userId);
+
+    /**
+     * Phase 3H：确定性智能练习推荐（REVIEW 规则引擎，无 AI）。
+     * 按 到期复习 → 高频错题 → 薄弱知识点 → 目标知识点 → 未做新题 的可解释优先级选题。
+     */
+    SmartPracticeVO recommendPractice(Long userId, List<String> topics, List<Integer> difficulties,
+                                      Integer count, Long seed);
 }

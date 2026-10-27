@@ -1,4 +1,4 @@
-// 代码在线运行沙箱请求层（SC1-IDE-01/02/03、SC1-AI-01/02/03）
+// 可信本地开发代码执行请求层（宿主进程，非 OS Sandbox）
 import { apiPost } from './request'
 
 export type CodeRunStatus =

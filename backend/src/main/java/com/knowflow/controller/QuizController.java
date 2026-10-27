@@ -4,6 +4,7 @@ import com.knowflow.common.Result;
 import com.knowflow.common.SecurityUtils;
 import com.knowflow.dto.QuizSubmitDTO;
 import com.knowflow.service.QuizService;
+import com.knowflow.vo.QuizExplainVO;
 import com.knowflow.vo.QuizMistakeVO;
 import com.knowflow.vo.QuizPracticeVO;
 import com.knowflow.vo.QuizStatsVO;
@@ -23,14 +24,27 @@ import java.util.List;
 public class QuizController {
 
     private final QuizService quizService;
+    private final com.knowflow.learning.product.QuizLearningReviewService learningReview;
+
+    @GetMapping("/questions/{id}/learning-review")
+    public Result<java.util.Map<String,Object>> learningReview(@PathVariable long id){return Result.success(learningReview.report(SecurityUtils.getCurrentUserId(),id));}
+
+    @GetMapping("/answers/{id}/learning-review")
+    public Result<java.util.Map<String,Object>> answerReview(@PathVariable long id){long uid=SecurityUtils.getCurrentUserId();return Result.success(learningReview.report(uid,learningReview.owned(id,uid).getQuestionId()));}
+
+    @PostMapping("/answers/{id}/flashcard")
+    public Result<java.util.Map<String,Object>> reviewCard(@PathVariable long id,@RequestBody java.util.Map<String,String> input){return Result.success(learningReview.createCard(SecurityUtils.getCurrentUserId(),id,input.get("front"),input.get("back")));}
+
 
     @Operation(summary = "拉取在线练习题目（仅已发布）")
     @GetMapping("/questions")
     public Result<List<QuizPracticeVO>> questions(
+            @RequestParam(required = false) Long questionId,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) Integer difficulty,
             @RequestParam(required = false) String questionType,
             @RequestParam(defaultValue = "10") Integer count) {
+        if(questionId!=null)return Result.success(List.of(quizService.practiceQuestion(questionId,SecurityUtils.getCurrentUserId())));
         return Result.success(quizService.listPracticeQuestions(categoryId, difficulty, questionType, count));
     }
 
@@ -63,5 +77,25 @@ public class QuizController {
             @RequestParam Boolean correct) {
         Long userId = SecurityUtils.getCurrentUserId();
         return Result.success(quizService.reviewMistake(mistakeId, correct, userId));
+    }
+
+    @Operation(summary = "Phase 3H：题目讲解（AI 不可用时降级为已有答案与解析，无解析显式暂无解析）")
+    @GetMapping("/explain")
+    public Result<QuizExplainVO> explain(
+            @RequestParam Long questionId,
+            @RequestParam(required = false) String userAnswer) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        return Result.success(quizService.explainQuestion(questionId, userAnswer, userId));
+    }
+
+    @Operation(summary = "Phase 3H：确定性智能练习推荐（规则引擎，无 AI；到期错题>高频错题>薄弱点>目标知识点>未做新题）")
+    @GetMapping("/smart-recommend")
+    public Result<com.knowflow.vo.SmartPracticeVO> smartRecommend(
+            @RequestParam(required = false) List<String> topics,
+            @RequestParam(required = false) List<Integer> difficulties,
+            @RequestParam(required = false, defaultValue = "10") Integer count,
+            @RequestParam(required = false) Long seed) {
+        Long userId = SecurityUtils.getCurrentUserId();
+        return Result.success(quizService.recommendPractice(userId, topics, difficulties, count, seed));
     }
 }

@@ -22,5 +22,17 @@ public class MessageVO {
     /** 引用的文档信息，通常为 JSON 字符串 */
     private String docReferences;
 
+    /** 可展示的推理内容（仅 Provider 真实返回时存在）。 */
+    private String reasoningContent;
+
+    /** 推理内容类型：provider_text（模型推理内容）/ summary（思考摘要）。 */
+    private String reasoningKind;
+
+    /** 真实思考耗时（毫秒）。 */
+    private Integer reasoningDurationMs;
+
+    /** RAG / 执行轨迹 JSON（历史会话可还原时间线）。 */
+    private String traceJson;
+
     private LocalDateTime createTime;
 }

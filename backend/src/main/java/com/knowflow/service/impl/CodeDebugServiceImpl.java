@@ -42,6 +42,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class CodeDebugServiceImpl implements CodeDebugService {
 
     private final CodeExecutionService codeExecutionService;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
 
     @Value("${code.execution.python-bin:python3}")
     private String pythonBin;
@@ -57,10 +58,12 @@ public class CodeDebugServiceImpl implements CodeDebugService {
 
     @Override
     public CodeDebugResult debug(CodeDebugRequest request, Long userId) {
+        hostGuard.requireActor(userId);
+        if (request == null) throw new com.knowflow.exception.BusinessException(400,"调试请求不能为空");
+        hostGuard.validateCode(request.getLanguage(),request.getCode());
+        long timeLimit = hostGuard.executionTimeout(request.getTimeLimitMs(),defaultTimeLimitMs);
         String language = request.getLanguage() == null ? "" : request.getLanguage().trim().toLowerCase();
         String code = request.getCode() == null ? "" : request.getCode();
-        long timeLimit = (request.getTimeLimitMs() != null && request.getTimeLimitMs() > 0)
-                ? request.getTimeLimitMs() : defaultTimeLimitMs;
 
         if (code.isBlank()) {
             return CodeDebugResult.builder().status("ERROR").error("代码为空").output("").build();
@@ -165,10 +168,12 @@ public class CodeDebugServiceImpl implements CodeDebugService {
     private CodeDebugResult debugPython(String code, long timeLimit) {
         Path userFile = null;
         Path wrapperFile = null;
-        try {
-            userFile = Files.createTempFile("knowflow-dbg-user-", ".py");
+        Path workDir = null;
+        try (var lease=hostGuard.acquireProcess(timeLimit)) {
+            workDir=Files.createTempDirectory("knowflow-debug-");
+            userFile = workDir.resolve("user.py");
             Files.writeString(userFile, code, StandardCharsets.UTF_8);
-            wrapperFile = Files.createTempFile("knowflow-dbg-wrap-", ".py");
+            wrapperFile = workDir.resolve("wrapper.py");
             Files.writeString(wrapperFile, PY_DEBUG_WRAPPER, StandardCharsets.UTF_8);
 
             Captured cap = runCapture(
@@ -205,9 +210,11 @@ public class CodeDebugServiceImpl implements CodeDebugService {
                     .output(cap.stdout)
                     .timeUsedMs(cap.timeUsedMs)
                     .build();
+        } catch (com.knowflow.exception.BusinessException e) {
+            throw e;
         } catch (Exception e) {
             log.error("[Debug] Python 追踪异常", e);
-            return CodeDebugResult.builder().status("ERROR").error("调试执行异常：" + e.getMessage()).build();
+            return CodeDebugResult.builder().status("ERROR").error("本地调试失败，请检查可信开发环境配置").build();
         } finally {
             if (userFile != null) {
                 try { Files.deleteIfExists(userFile); } catch (Exception ignored) { }
@@ -215,6 +222,7 @@ public class CodeDebugServiceImpl implements CodeDebugService {
             if (wrapperFile != null) {
                 try { Files.deleteIfExists(wrapperFile); } catch (Exception ignored) { }
             }
+            if (workDir != null) try { Files.deleteIfExists(workDir); } catch (java.io.IOException ignored) { }
         }
     }
 
@@ -276,14 +284,16 @@ public class CodeDebugServiceImpl implements CodeDebugService {
         long start = System.currentTimeMillis();
         try {
             ProcessBuilder pb = new ProcessBuilder(cmd);
+            pb.directory(Path.of(cmd.get(1)).getParent().toFile());
             pb.redirectErrorStream(false);
             Process process = pb.start();
-            StreamReader outR = new StreamReader(process.getInputStream(), outputLimitBytes);
-            StreamReader errR = new StreamReader(process.getErrorStream(), outputLimitBytes);
+            StreamReader outR = new StreamReader(process.getInputStream(), Math.max(1,Math.min(1048576,outputLimitBytes)));
+            StreamReader errR = new StreamReader(process.getErrorStream(), Math.max(1,Math.min(1048576,outputLimitBytes)));
             outR.start();
             errR.start();
-            boolean finished = process.waitFor(timeLimitMs, TimeUnit.MILLISECONDS);
+            boolean finished = hostGuard.awaitProcess(process,timeLimitMs);
             if (!finished) {
+                process.descendants().forEach(ProcessHandle::destroyForcibly);
                 process.destroyForcibly();
                 process.waitFor(2000, TimeUnit.MILLISECONDS);
                 cap.timedOut = true;
@@ -333,7 +343,7 @@ public class CodeDebugServiceImpl implements CodeDebugService {
                             buffer.write(chunk, 0, remain);
                         }
                         truncated = true;
-                        break;
+                        continue;
                     }
                     buffer.write(chunk, 0, n);
                 }

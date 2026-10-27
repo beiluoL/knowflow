@@ -49,6 +49,7 @@ import java.util.regex.Pattern;
 public class CodeExecutionServiceImpl implements CodeExecutionService {
 
     private final CodeWorkspaceService workspaceService;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
 
     @Value("${code.execution.time-limit-ms:10000}")
     private long defaultTimeLimitMs;
@@ -80,9 +81,10 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
 
     @PostConstruct
     void init() {
+        outputLimitBytes=Math.max(1,Math.min(1048576,outputLimitBytes));
         // Semaphore 容量一经创建不可变，故在 @PostConstruct 用注入后的配置值新建
         this.semaphore = new Semaphore(Math.max(1, maxConcurrency));
-        log.info("[CodeExecution] 沙箱初始化完成：timeLimit={}ms, outputLimit={}B, maxConcurrency={}",
+        log.info("[CodeExecution] 宿主机执行限制初始化（非 OS Sandbox）：timeLimit={}ms, outputLimit={}B, maxConcurrency={}",
                 defaultTimeLimitMs, outputLimitBytes, maxConcurrency);
     }
 
@@ -92,20 +94,35 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
 
     @Override
     public CodeRunResult execute(CodeRunRequest request, Long userId) {
+        hostGuard.requireActor(userId);
+        if (request == null) throw new com.knowflow.exception.BusinessException(400,"执行请求不能为空");
+        if (resolveLang(request.getLanguage()) == Lang.UNSUPPORTED)
+            throw new com.knowflow.exception.BusinessException(400,"不支持的执行语言");
+        long timeLimit = hostGuard.executionTimeout(request.getTimeLimitMs(),defaultTimeLimitMs);
+        if (Boolean.TRUE.equals(request.getWorkspace())) {
+            if (request.getEntryFile()==null || request.getEntryFile().isBlank())
+                throw new com.knowflow.exception.BusinessException(400,"未指定工作区入口文件");
+            try { if (Path.of(request.getEntryFile()).isAbsolute()) throw new com.knowflow.exception.BusinessException(400,"入口文件必须是工作区相对路径"); }
+            catch (java.nio.file.InvalidPathException ex) { throw new com.knowflow.exception.BusinessException(400,"入口文件路径格式无效"); }
+        }
+        if (!Boolean.TRUE.equals(request.getWorkspace()) && (request.getCode()==null || request.getCode().isBlank()))
+            throw new com.knowflow.exception.BusinessException(400,"代码内容不能为空");
+        if ((request.getCode()!=null && request.getCode().getBytes(StandardCharsets.UTF_8).length>1048576)
+                || (request.getStdin()!=null && request.getStdin().getBytes(StandardCharsets.UTF_8).length>1048576))
+            throw new com.knowflow.exception.BusinessException(400,"执行输入超过允许大小");
         CodeRunResult result = new CodeRunResult();
         Path workDir = null;
         boolean persistent = false;
-        try {
+        try (var lease=hostGuard.acquireProcess(timeLimit)) {
             Lang lang = resolveLang(request.getLanguage());
             if (lang == Lang.UNSUPPORTED) {
                 return rejected(result, "不支持的语言：" + request.getLanguage()
                         + "（支持 python / java / javascript / cpp）");
             }
 
-            semaphore.acquire();
+            if (!semaphore.tryAcquire(timeLimit,TimeUnit.MILLISECONDS))
+                throw new com.knowflow.exception.BusinessException(409,"执行队列繁忙，请稍后重试");
             try {
-                long timeLimit = (request.getTimeLimitMs() != null && request.getTimeLimitMs() > 0)
-                        ? request.getTimeLimitMs() : defaultTimeLimitMs;
 
                 // ===== 工作区模式（SC1-IDE-02）：运行用户持久目录中的入口文件 =====
                 if (Boolean.TRUE.equals(request.getWorkspace())) {
@@ -117,12 +134,14 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
                         return rejected(result, "未指定工作区入口文件 entryFile");
                     }
                     Path wsDir = workspaceService.getWorkspaceDir(userId);
-                    Path srcFile = wsDir.resolve(entry).normalize();
-                    if (!srcFile.startsWith(wsDir) || !Files.exists(srcFile) || !Files.isRegularFile(srcFile)) {
-                        return rejected(result, "工作区中找不到文件：" + entry);
+                    if (Path.of(entry).isAbsolute()) throw new com.knowflow.exception.BusinessException(400,"入口文件必须是工作区相对路径");
+                    Path original = hostGuard.requireWorkspace(wsDir,wsDir.resolve(entry));
+                    workDir = Files.createTempDirectory("knowflow-code-");
+                    snapshotWorkspace(wsDir,workDir);
+                    Path srcFile = workDir.resolve(wsDir.relativize(original)).normalize();
+                    if (!Files.isRegularFile(srcFile)) {
+                        throw new com.knowflow.exception.BusinessException(404,"工作区入口文件不存在");
                     }
-                    workDir = wsDir;
-                    persistent = true; // 持久目录，执行后不清理
                     switch (lang) {
                         case PYTHON -> runSimpleFile(pythonBin, srcFile, request, workDir, timeLimit, result);
                         case JAVASCRIPT -> runSimpleFile(nodeBin, srcFile, request, workDir, timeLimit, result);
@@ -148,12 +167,14 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
             } finally {
                 semaphore.release();
             }
+        } catch (com.knowflow.exception.BusinessException e) {
+            throw e;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return rejected(result, "执行被中断");
         } catch (Exception e) {
             log.error("[CodeExecution] 执行异常", e);
-            return rejected(result, "服务器执行异常：" + e.getMessage());
+            return rejected(result, "本地执行失败，请检查可信开发环境配置");
         } finally {
             if (workDir != null && !persistent) {
                 deleteRecursively(workDir);
@@ -268,22 +289,28 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
         // 继承当前环境（PATH/JAVA_HOME 等），保证各运行时可被定位
         Process process = pb.start();
 
-        // 写入标准输入
-        if (stdin != null && !stdin.isEmpty()) {
+        // Feed asynchronously so a child that does not consume stdin cannot bypass the timeout.
+        Thread inputWriter=new Thread(() -> {
             try (OutputStream os = process.getOutputStream()) {
-                os.write(stdin.getBytes(StandardCharsets.UTF_8));
-            }
-        } else {
-            process.getOutputStream().close();
-        }
+                if (stdin!=null && !stdin.isEmpty()) os.write(stdin.getBytes(StandardCharsets.UTF_8));
+            } catch (IOException ignored) { }
+        },"host-code-stdin");
+        inputWriter.setDaemon(true); inputWriter.start();
 
         StreamReader stdoutReader = new StreamReader(process.getInputStream(), outputLimitBytes);
         StreamReader stderrReader = new StreamReader(process.getErrorStream(), outputLimitBytes);
         stdoutReader.start();
         stderrReader.start();
 
-        boolean finished = process.waitFor(timeLimitMs, TimeUnit.MILLISECONDS);
+        boolean finished;
+        try { finished = process.waitFor(timeLimitMs, TimeUnit.MILLISECONDS); }
+        catch (InterruptedException ex) {
+            process.descendants().forEach(ProcessHandle::destroyForcibly);
+            process.destroyForcibly();
+            throw ex;
+        }
         if (!finished) {
+            process.descendants().forEach(ProcessHandle::destroyForcibly);
             process.destroyForcibly();
             process.waitFor(2000, TimeUnit.MILLISECONDS);
             out.timedOut = true;
@@ -296,6 +323,22 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
         out.stderr = stderrReader.getCaptured();
         out.elapsedMs = System.currentTimeMillis() - start;
         return out;
+    }
+
+    private void snapshotWorkspace(Path source,Path destination) throws IOException {
+        int count=0; long bytes=0;
+        try (var paths=Files.walk(source,10)) {
+            for (Path path : paths.toList()) {
+                hostGuard.requireWorkspace(source,path);
+                Path dest=destination.resolve(source.relativize(path));
+                if (Files.isDirectory(path)) Files.createDirectories(dest);
+                else if (Files.isRegularFile(path)) {
+                    if (++count>512 || (bytes+=Files.size(path))>8*1048576L)
+                        throw new com.knowflow.exception.BusinessException(400,"工作区执行快照超过允许大小");
+                    Files.copy(path,dest);
+                }
+            }
+        }
     }
 
     /** 将底层执行结果映射为对外 CodeRunResult */
@@ -382,6 +425,7 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
         private final byte[] chunk = new byte[4096];
 
         StreamReader(InputStream in, int limitBytes) {
+            setDaemon(true);
             this.in = in;
             this.limitBytes = limitBytes;
         }
@@ -397,7 +441,8 @@ public class CodeExecutionServiceImpl implements CodeExecutionService {
                             buffer.write(chunk, 0, remain);
                         }
                         truncated = true;
-                        break;
+                        // Keep draining without retaining bytes; avoid full pipes deadlocking the child.
+                        continue;
                     }
                     buffer.write(chunk, 0, n);
                 }

@@ -6,6 +6,7 @@ import com.knowflow.dto.GroupInviteDTO;
 import com.knowflow.dto.GroupMessageSendDTO;
 import com.knowflow.dto.StudyGroupCreateDTO;
 import com.knowflow.entity.*;
+import com.knowflow.exception.BusinessException;
 import com.knowflow.mapper.*;
 import com.knowflow.service.StudyGroupService;
 import com.knowflow.vo.GroupMessageVO;
@@ -130,7 +131,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
     public StudyGroupVO getGroupDetail(Long groupId, Long userId) {
         StudyGroup group = studyGroupMapper.selectById(groupId);
         if (group == null) {
-            throw new RuntimeException("小组不存在");
+            throw new BusinessException(404, "小组不存在");
         }
 
         // 检查用户是否有权限查看（私有小组需要是成员）
@@ -139,7 +140,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
             memberWrapper.eq(StudyGroupMember::getGroupId, groupId);
             memberWrapper.eq(StudyGroupMember::getUserId, userId);
             if (studyGroupMemberMapper.selectCount(memberWrapper) == 0) {
-                throw new RuntimeException("无权访问该小组");
+                throw new BusinessException(403, "无权访问该小组");
             }
         }
 
@@ -217,7 +218,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
     public StudyGroupVO updateGroup(Long groupId, StudyGroupCreateDTO dto, Long userId) {
         StudyGroup group = studyGroupMapper.selectById(groupId);
         if (group == null) {
-            throw new RuntimeException("小组不存在");
+            throw new BusinessException(404, "小组不存在");
         }
 
         // 检查权限（只有创建者和管理员可以修改）
@@ -239,12 +240,12 @@ public class StudyGroupServiceImpl implements StudyGroupService {
     public void deleteGroup(Long groupId, Long userId) {
         StudyGroup group = studyGroupMapper.selectById(groupId);
         if (group == null) {
-            throw new RuntimeException("小组不存在");
+            throw new BusinessException(404, "小组不存在");
         }
 
-        // 只有创建者可以删除小组
-        if (!group.getOwnerId().equals(userId)) {
-            throw new RuntimeException("只有创建者可以删除小组");
+        // 小组创建者或系统管理员可执行管理性删除；系统管理员不会因此成为小组成员。
+        if (!group.getOwnerId().equals(userId) && !isSystemAdmin(userId)) {
+            throw new BusinessException(403, "只有创建者可以删除小组");
         }
 
         // 删除所有成员
@@ -333,7 +334,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
         }
 
         if (user == null) {
-            throw new RuntimeException("用户不存在");
+            throw new BusinessException(404, "用户不存在");
         }
 
         // 检查是否已是成员
@@ -341,7 +342,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
         memberWrapper.eq(StudyGroupMember::getGroupId, dto.getGroupId());
         memberWrapper.eq(StudyGroupMember::getUserId, user.getId());
         if (studyGroupMemberMapper.selectCount(memberWrapper) > 0) {
-            throw new RuntimeException("用户已是小组成员");
+            throw new BusinessException(400, "用户已是小组成员");
         }
 
         // 添加成员
@@ -361,11 +362,11 @@ public class StudyGroupServiceImpl implements StudyGroupService {
     public void joinGroup(Long groupId, Long userId) {
         StudyGroup group = studyGroupMapper.selectById(groupId);
         if (group == null) {
-            throw new RuntimeException("小组不存在");
+            throw new BusinessException(404, "小组不存在");
         }
 
         if (!"PUBLIC".equals(group.getType())) {
-            throw new RuntimeException("私有小组需要邀请才能加入");
+            throw new BusinessException(400, "私有小组需要邀请才能加入");
         }
 
         // 检查是否已是成员
@@ -373,7 +374,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
         memberWrapper.eq(StudyGroupMember::getGroupId, groupId);
         memberWrapper.eq(StudyGroupMember::getUserId, userId);
         if (studyGroupMemberMapper.selectCount(memberWrapper) > 0) {
-            throw new RuntimeException("已是小组成员");
+            throw new BusinessException(400, "已是小组成员");
         }
 
         // 添加成员
@@ -396,11 +397,11 @@ public class StudyGroupServiceImpl implements StudyGroupService {
         StudyGroupMember member = studyGroupMemberMapper.selectOne(memberWrapper);
 
         if (member == null) {
-            throw new RuntimeException("不是小组成员");
+            throw new BusinessException(403, "不是小组成员");
         }
 
         if ("OWNER".equals(member.getRole())) {
-            throw new RuntimeException("创建者不能退出小组，请先转让或删除小组");
+            throw new BusinessException(400, "创建者不能退出小组，请先转让或删除小组");
         }
 
         studyGroupMemberMapper.deleteById(member.getId());
@@ -414,11 +415,11 @@ public class StudyGroupServiceImpl implements StudyGroupService {
 
         StudyGroupMember member = studyGroupMemberMapper.selectById(memberId);
         if (member == null || !member.getGroupId().equals(groupId)) {
-            throw new RuntimeException("成员不存在");
+            throw new BusinessException(404, "成员不存在");
         }
 
         if ("OWNER".equals(member.getRole())) {
-            throw new RuntimeException("不能移除创建者");
+            throw new BusinessException(400, "不能移除创建者");
         }
 
         studyGroupMemberMapper.deleteById(memberId);
@@ -429,13 +430,16 @@ public class StudyGroupServiceImpl implements StudyGroupService {
     @Transactional
     public void updateMemberRole(Long groupId, Long memberId, String role, Long operatorId) {
         StudyGroup group = studyGroupMapper.selectById(groupId);
-        if (group == null || !group.getOwnerId().equals(operatorId)) {
-            throw new RuntimeException("只有创建者可以修改成员角色");
+        if (group == null) {
+            throw new BusinessException(404, "小组不存在");
+        }
+        if (!group.getOwnerId().equals(operatorId)) {
+            throw new BusinessException(403, "只有创建者可以修改成员角色");
         }
 
         StudyGroupMember member = studyGroupMemberMapper.selectById(memberId);
         if (member == null || !member.getGroupId().equals(groupId)) {
-            throw new RuntimeException("成员不存在");
+            throw new BusinessException(404, "成员不存在");
         }
 
         member.setRole(role);
@@ -520,11 +524,11 @@ public class StudyGroupServiceImpl implements StudyGroupService {
     public void recallMessage(Long messageId, Long userId) {
         StudyGroupMessage message = studyGroupMessageMapper.selectById(messageId);
         if (message == null) {
-            throw new RuntimeException("消息不存在");
+            throw new BusinessException(404, "消息不存在");
         }
 
         if (!message.getSenderId().equals(userId)) {
-            throw new RuntimeException("只能撤回自己的消息");
+            throw new BusinessException(403, "只能撤回自己的消息");
         }
 
         message.setRecalled(1);
@@ -534,6 +538,7 @@ public class StudyGroupServiceImpl implements StudyGroupService {
     @Override
     @Transactional
     public Long markAsRead(Long groupId, Long userId) {
+        StudyGroupMember member = requireExistingGroupMember(groupId, userId);
         LambdaQueryWrapper<StudyGroupMessage> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(StudyGroupMessage::getGroupId, groupId);
         wrapper.orderByDesc(StudyGroupMessage::getId);
@@ -541,13 +546,9 @@ public class StudyGroupServiceImpl implements StudyGroupService {
         StudyGroupMessage lastMessage = studyGroupMessageMapper.selectOne(wrapper);
 
         if (lastMessage != null) {
-            LambdaQueryWrapper<StudyGroupMember> memberWrapper = new LambdaQueryWrapper<>();
-            memberWrapper.eq(StudyGroupMember::getGroupId, groupId);
-            memberWrapper.eq(StudyGroupMember::getUserId, userId);
-            StudyGroupMember member = studyGroupMemberMapper.selectOne(memberWrapper);
-            if (member != null) {
-                member.setLastReadMessageId(lastMessage.getId());
-                studyGroupMemberMapper.updateById(member);
+            member.setLastReadMessageId(lastMessage.getId());
+            if (studyGroupMemberMapper.updateById(member) == 0) {
+                throw new BusinessException(403, "不是小组成员");
             }
             return lastMessage.getId();
         }
@@ -569,12 +570,9 @@ public class StudyGroupServiceImpl implements StudyGroupService {
 
     @Override
     public int getUnreadCount(Long groupId, Long userId) {
-        LambdaQueryWrapper<StudyGroupMember> memberWrapper = new LambdaQueryWrapper<>();
-        memberWrapper.eq(StudyGroupMember::getGroupId, groupId);
-        memberWrapper.eq(StudyGroupMember::getUserId, userId);
-        StudyGroupMember member = studyGroupMemberMapper.selectOne(memberWrapper);
+        StudyGroupMember member = requireExistingGroupMember(groupId, userId);
 
-        if (member == null || member.getLastReadMessageId() == null) {
+        if (member.getLastReadMessageId() == null) {
             LambdaQueryWrapper<StudyGroupMessage> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(StudyGroupMessage::getGroupId, groupId);
             return Math.toIntExact(studyGroupMessageMapper.selectCount(wrapper));
@@ -587,14 +585,20 @@ public class StudyGroupServiceImpl implements StudyGroupService {
     }
 
     @Override
+    public void requireMember(Long groupId, Long userId) {
+        requireExistingGroupMember(groupId, userId);
+    }
+
+    @Override
     @Transactional
     public void updateAnnouncement(Long groupId, String announcement, Long userId) {
-        checkAdminPermission(groupId, userId);
-
         StudyGroup group = studyGroupMapper.selectById(groupId);
         if (group == null) {
-            throw new RuntimeException("小组不存在");
+            throw new BusinessException(404, "小组不存在");
         }
+        // 存在性判定必须先于权限判定：否则「小组不存在」会被误报为「没有管理权限」（403）
+        checkAdminPermission(groupId, userId);
+
         group.setAnnouncement(announcement);
         studyGroupMapper.updateById(group);
     }
@@ -602,12 +606,13 @@ public class StudyGroupServiceImpl implements StudyGroupService {
     @Override
     @Transactional
     public void linkLearningPlan(Long groupId, Long planId, Long userId) {
-        checkAdminPermission(groupId, userId);
-
         StudyGroup group = studyGroupMapper.selectById(groupId);
         if (group == null) {
-            throw new RuntimeException("小组不存在");
+            throw new BusinessException(404, "小组不存在");
         }
+        // 同上：先 404 后 403，避免把「资源不存在」表述成「无权限」
+        checkAdminPermission(groupId, userId);
+
         group.setLearningPlanId(planId);
         studyGroupMapper.updateById(group);
     }
@@ -617,19 +622,42 @@ public class StudyGroupServiceImpl implements StudyGroupService {
         memberWrapper.eq(StudyGroupMember::getGroupId, groupId);
         memberWrapper.eq(StudyGroupMember::getUserId, userId);
         if (studyGroupMemberMapper.selectCount(memberWrapper) == 0) {
-            throw new RuntimeException("不是小组成员");
+            throw new BusinessException(403, "不是小组成员");
         }
     }
 
+    /** 已读状态属于小组成员私有数据：先区分资源不存在，再校验成员身份。 */
+    private StudyGroupMember requireExistingGroupMember(Long groupId, Long userId) {
+        if (studyGroupMapper.selectById(groupId) == null) {
+            throw new BusinessException(404, "小组不存在");
+        }
+        LambdaQueryWrapper<StudyGroupMember> memberWrapper = new LambdaQueryWrapper<>();
+        memberWrapper.eq(StudyGroupMember::getGroupId, groupId);
+        memberWrapper.eq(StudyGroupMember::getUserId, userId);
+        StudyGroupMember member = studyGroupMemberMapper.selectOne(memberWrapper);
+        if (member == null) {
+            throw new BusinessException(403, "不是小组成员");
+        }
+        return member;
+    }
+
     private void checkAdminPermission(Long groupId, Long userId) {
+        if (isSystemAdmin(userId)) {
+            return;
+        }
         LambdaQueryWrapper<StudyGroupMember> memberWrapper = new LambdaQueryWrapper<>();
         memberWrapper.eq(StudyGroupMember::getGroupId, groupId);
         memberWrapper.eq(StudyGroupMember::getUserId, userId);
         StudyGroupMember member = studyGroupMemberMapper.selectOne(memberWrapper);
 
         if (member == null || (!"OWNER".equals(member.getRole()) && !"ADMIN".equals(member.getRole()))) {
-            throw new RuntimeException("没有管理权限");
+            throw new BusinessException(403, "没有管理权限");
         }
+    }
+
+    private boolean isSystemAdmin(Long userId) {
+        SysUser user = userId == null ? null : sysUserMapper.selectById(userId);
+        return user != null && "ADMIN".equals(user.getRole());
     }
 
     private void updateMemberCount(Long groupId) {

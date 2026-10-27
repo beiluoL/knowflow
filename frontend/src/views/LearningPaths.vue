@@ -8,6 +8,7 @@
           <h1 class="kb-h1">学习路径</h1>
           <p class="page-subtitle">系统化的学习路线，从入门到精通，循序渐进掌握完整技能栈。</p>
         </div>
+        <InterviewRadarImport @imported="loadPaths()" />
         <button class="ai-path-btn" @click="showPersonalizedDialog = true">
           <Icon name="sparkles" :size="16" />
           <span>AI 个性化学习路径</span>
@@ -23,7 +24,7 @@
             <Icon name="sparkles" :size="18" />
             AI 生成个性化学习路径
           </h3>
-          <button class="modal-close" @click="showPersonalizedDialog = false">
+          <button class="modal-close" aria-label="关闭" @click="showPersonalizedDialog = false">
             <Icon name="x" :size="18" />
           </button>
         </div>
@@ -32,25 +33,16 @@
           <div v-if="!personalizedPath && !personalizedLoading" class="space-y-4">
             <div>
               <label class="form-label">学习目标</label>
-              <input v-model="pathGoal" type="text" class="form-input" placeholder="如：掌握 Spring Boot 后端开发、学习 Python 数据分析…" />
+              <input v-model="pathGoal" type="text" class="form-input kb-input kb-form-control" placeholder="如：掌握 Spring Boot 后端开发、学习 Python 数据分析…" />
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="form-label">当前水平</label>
-                <select v-model="pathLevel" class="form-input">
-                  <option value="入门">入门 — 零基础或刚接触</option>
-                  <option value="进阶">进阶 — 有一定基础</option>
-                  <option value="高级">高级 — 熟练使用想深入</option>
-                </select>
+                <Select v-model="pathLevel" :options="[{ value: '入门', label: '入门 — 零基础或刚接触' }, { value: '进阶', label: '进阶 — 有一定基础' }, { value: '高级', label: '高级 — 熟练使用想深入' }]" aria-label="学习基础" />
               </div>
               <div>
                 <label class="form-label">每日学习时间</label>
-                <select v-model="pathDailyMinutes" class="form-input">
-                  <option :value="15">15 分钟</option>
-                  <option :value="30">30 分钟</option>
-                  <option :value="60">1 小时</option>
-                  <option :value="120">2 小时</option>
-                </select>
+                <Select v-model="pathDailyMinutes" :options="[{ value: 15, label: '15 分钟' }, { value: 30, label: '30 分钟' }, { value: 60, label: '1 小时' }, { value: 120, label: '2 小时' }]" aria-label="每日学习时长" />
               </div>
             </div>
             <button class="generate-btn" @click="generatePersonalizedPath">
@@ -212,10 +204,7 @@
     </div>
 
     <!-- ===== 加载态 ===== -->
-    <div v-if="loading" class="state-area">
-      <div class="loading-spinner"></div>
-      <p class="state-text">加载中...</p>
-    </div>
+    <StateView v-if="listStatus !== 'ready'" :status="listStatus" error-title="学习路径加载失败" error-scope="路径列表暂时不可用，尚不能判断是否有路径。" @retry="loadPaths(true)" />
 
     <!-- ===== 空态 ===== -->
     <div v-else-if="filteredPaths.length === 0" class="state-area">
@@ -263,10 +252,6 @@
               <Icon name="users" :size="14" />
               <span>{{ formatCount(path.enrolledCount) }} 人</span>
             </span>
-            <span class="stat-item stat-rating">
-              <Icon name="star" :size="14" :fill="true" />
-              <span>{{ getRating(path.id) }}</span>
-            </span>
           </div>
 
           <!-- 进度行：进度条 + 百分比 + 状态/按钮（报名前→报名学习；报名后→开始学习/学习中） -->
@@ -280,7 +265,8 @@
                   </div>
                   <span class="progress-text" :style="{ color: getThemeColor(path.id) }">{{ path.progress }}%</span>
                 </div>
-                <span class="status-learning">学习中</span>
+                <span class="status-learning">{{ path.progress >= 100 ? '已完成' : '学习中' }}</span>
+                <button class="start-btn" @click.stop="goToPathDetail(path.id)">{{ path.progress >= 100 ? '复习路径' : '继续学习' }}</button>
               </template>
               <!-- 已报名但未开始：进入详情开始学习 -->
               <template v-else>
@@ -308,16 +294,19 @@
 </template>
 
 <script setup lang="ts">
+import InterviewRadarImport from '@/components/Learning/InterviewRadarImport.vue'
 // 学习路径列表页：按难度筛选、按发布/受欢迎排序，2 列卡片网格展示。
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import Select from '@/components/ui/Select.vue'
 import Icon from '@/components/ui/Icon.vue';
 import { learningApi } from '@/api';
+import StateView from '@/components/ui/StateView.vue';
+import { useAsyncResource } from '@/composables/useAsyncResource';
 import { notify, getApiError } from '@/utils/toast';
 import type { LearningPathVO, PersonalizedPathVO } from '@/api/types';
 
 const router = useRouter();
-const loading = ref(false);
 
 // ===== 视图模型 =====
 interface ViewPath {
@@ -325,7 +314,7 @@ interface ViewPath {
   title: string;
   description?: string;
   icon: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'unknown';
   chaptersCount: number;
   totalDuration: number;
   enrolledCount: number;
@@ -345,10 +334,16 @@ function levelToDifficulty(level?: string): ViewPath['difficulty'] {
     intermediate: 'intermediate',
     advanced: 'advanced',
   };
-  return map[level || ''] || 'beginner';
+  return map[level || ''] || 'unknown';
 }
 
 const rawPaths = ref<LearningPathVO[]>([]);
+const { status: listStatus, run: fetchPaths } = useAsyncResource(async () => {
+  const result = await learningApi.paths();
+  rawPaths.value = result;
+  return result;
+}, () => false, '学习路径');
+async function loadPaths(retry = false) { await fetchPaths(retry); }
 
 // 后端 VO → 视图模型
 const paths = computed<ViewPath[]>(() =>
@@ -404,6 +399,7 @@ function getDifficultyLabel(difficulty: string): string {
     beginner: '入门',
     intermediate: '进阶',
     advanced: '高级',
+    unknown: '难度未提供',
   };
   return labels[difficulty] || difficulty;
 }
@@ -466,7 +462,7 @@ function formatPrerequisites(sortOrders: number[]): string {
 
 // 分钟数格式化为「x小时y分」或「x分钟」
 function formatDuration(minutes: number): string {
-  if (!minutes) return '0 小时';
+  if (!minutes) return '时长未提供';
   if (minutes < 60) return `${minutes} 分钟`;
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
@@ -477,12 +473,6 @@ function formatDuration(minutes: number): string {
 function formatCount(n: number): string {
   if (!n) return '0';
   return n.toLocaleString('en-US');
-}
-
-// 评分（后端无字段，使用基于 id 的稳定值 4.5-4.9）
-function getRating(id: number): string {
-  const ratings = [4.9, 4.8, 4.9, 4.7, 4.6, 4.5];
-  return ratings[id % ratings.length].toFixed(1);
 }
 
 // ===== AI 个性化学习路径 =====
@@ -614,16 +604,7 @@ watch(showPersonalizedDialog, (open) => {
 });
 
 // ===== 数据加载 =====
-onMounted(async () => {
-  loading.value = true;
-  try {
-    rawPaths.value = await learningApi.paths();
-  } catch {
-    rawPaths.value = [];
-  } finally {
-    loading.value = false;
-  }
-});
+onMounted(() => { void loadPaths(); });
 </script>
 
 <style scoped>
@@ -1045,21 +1026,23 @@ onMounted(async () => {
   color: var(--kb-foreground);
   margin-bottom: 8px;
 }
+.form-input:not(.kb-form-control) {
+  border-radius: 8px;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
 .form-input {
   width: 100%;
   max-width: 100%;
   padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
   color: var(--kb-foreground);
   font-size: var(--kb-fs-body-md);
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.form-input:hover { border-color: var(--kb-primary); }
-.form-input:focus,
-.form-input:focus-visible {
+.form-input:not(.kb-form-control):hover { border-color: var(--kb-primary); }
+.form-input:not(.kb-form-control):focus,
+.form-input:not(.kb-form-control):focus-visible {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
   outline: none;
@@ -1369,4 +1352,10 @@ onMounted(async () => {
   /* 主行动按钮不再强制占满左侧，允许与其余按钮自然换行 */
   .adopt-btn { margin-right: 0; }
 }
+/* Quiet, compact course headers leave more room for the actual learning goal. */
+.path-cover { height: auto; min-height: var(--kb-space-12); padding: var(--kb-space-4); justify-content: flex-start; background: var(--kb-muted) !important; }
+.path-cover .cover-icon { width: var(--kb-space-8); height: var(--kb-space-8); color: var(--kb-primary) !important; }
+.path-body { padding: var(--kb-space-5); }
+.path-grid { gap: var(--kb-space-4); grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); }
+.path-progress-row { flex-wrap: wrap; gap: var(--kb-space-2); }
 </style>

@@ -55,7 +55,7 @@
 
               <div class="ip-card">
                 <div class="ip-card-label">
-                  <Icon name="zap-off" :size="14" aria-hidden="true" />
+                  <Icon name="zap" :size="14" aria-hidden="true" />
                   <span>分心次数</span>
                 </div>
                 <div class="ip-bignum tabular-nums">{{ totalDistractions }}
@@ -104,7 +104,7 @@
           <template v-else>
             <div class="ip-block">
               <div class="ip-block-title">
-                <Icon name="activity" :size="14" aria-hidden="true" />
+                <Icon name="trending-up" :size="14" aria-hidden="true" />
                 <span>24小时热度条</span>
               </div>
               <div class="ip-heat-row">
@@ -296,7 +296,7 @@
               </div>
               <div class="ip-card">
                 <div class="ip-card-label">
-                  <Icon name="alert-triangle" :size="14" aria-hidden="true" />
+                  <Icon name="alert-circle" :size="14" aria-hidden="true" />
                   <span>本周错题</span>
                 </div>
                 <div class="ip-bignum tabular-nums highlight-text">{{ mistakes?.total ?? 0 }}
@@ -315,7 +315,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch, defineComponent, h, PropType } from 'vue';
+import { ref, reactive, computed, onMounted, watch, defineComponent, h } from 'vue';
+import type { PropType } from 'vue';
 import Icon from '@/components/ui/Icon.vue';
 import { focusSessionApi, learningApi, mistakesApi, userApi } from '@/api';
 import { useMicroAchievements } from '@/composables/useMicroAchievements';
@@ -404,11 +405,11 @@ function heatColor(minutes: number): string {
 }
 
 const MODE_COLORS: Record<string, string> = {
-  POMODORO: '#EF4444',
+  POMODORO: 'var(--kb-danger)',
   FLOW: '#06B6D4',
   DEEP: '#8B5CF6',
-  SPACED: '#10B981',
-  BUDDY: '#F59E0B',
+  SPACED: 'var(--kb-success)',
+  BUDDY: 'var(--kb-warning)',
 };
 
 const MODE_LABELS: Record<string, string> = {
@@ -420,7 +421,7 @@ const MODE_LABELS: Record<string, string> = {
 };
 
 function modeColor(mode?: FocusModeType | string): string {
-  return MODE_COLORS[mode ?? 'POMODORO'] ?? '#3B6FE0';
+  return MODE_COLORS[mode ?? 'POMODORO'] ?? 'var(--kb-primary)';
 }
 function modeColorSoft(mode?: FocusModeType | string): string {
   const c = modeColor(mode);
@@ -761,7 +762,7 @@ const TabSkeleton = defineComponent({
 }
 .ip-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--kb-primary), #6F9AF2);
+  background: linear-gradient(90deg, var(--kb-primary), var(--kb-primary-muted));
   border-radius: 999px;
   transition: width 0.4s ease;
 }
@@ -888,7 +889,7 @@ const TabSkeleton = defineComponent({
 .ip-week-bar {
   width: 100%;
   min-height: 4px;
-  background: linear-gradient(180deg, var(--kb-primary), #6F9AF2);
+  background: linear-gradient(180deg, var(--kb-primary), var(--kb-primary-muted));
   border-radius: 4px 4px 2px 2px;
   transition: height 0.3s ease;
 }

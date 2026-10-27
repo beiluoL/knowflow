@@ -30,6 +30,7 @@ import java.util.List;
 public class CodeReviewTool implements AgentTool {
 
     private final ObjectMapper objectMapper;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
     private final com.knowflow.service.AiService aiService;
 
     @Override
@@ -69,6 +70,7 @@ public class CodeReviewTool implements AgentTool {
 
     @Override
     public ToolResult execute(JsonNode args, ToolContext ctx) throws ToolException {
+        hostGuard.requireActor(ctx == null ? null : ctx.getUserId());
         long start = System.currentTimeMillis();
         String rel = args.has("path") ? args.get("path").asText() : null;
         if (rel == null || rel.isBlank()) {
@@ -77,8 +79,8 @@ public class CodeReviewTool implements AgentTool {
         String severity = args.has("severity") ? args.get("severity").asText("all") : "all";
         String language = args.has("language") ? args.get("language").asText() : null;
 
-        Path root = FsReadTool.resolveRoot(ctx);
-        Path target = FsReadTool.safeResolve(root, rel);
+        Path root = FsReadTool.resolveRoot(ctx, hostGuard);
+        Path target = FsReadTool.safeResolve(root, rel, hostGuard);
         if (!Files.exists(target)) {
             return ToolResult.fail("路径不存在：" + rel, System.currentTimeMillis() - start);
         }

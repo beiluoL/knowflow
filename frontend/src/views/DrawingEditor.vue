@@ -1,20 +1,24 @@
 <template>
-  <div class="dw-root">
+  <MiniAppShell title="绘图" back-label="返回" @back="goBack">
+    <template #actions><button class="dw-directory-toggle" :aria-expanded="sidebarOpen" @click="sidebarOpen = !sidebarOpen"><Icon name="list" :size="18" />目录</button></template>
+    <div class="dw-root" @keydown.esc="sidebarOpen = false" :class="{ 'side-open': sidebarOpen }">
     <!-- ============ 侧边：流程图列表 ============ -->
-    <aside class="dw-side">
+    <aside class="dw-side" aria-label="我的流程图">
       <div class="dw-side-head">
         <Icon name="pen-tool" :size="18" style="color: var(--kb-primary)" />
         <span class="dw-side-title">我的流程图</span>
       </div>
-      <button class="dw-new-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="newDrawing">
+      <button :disabled="saving" :class="{ secondary: drawings.length === 0 }" class="dw-new-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="newDrawing">
         <Icon name="file-plus" :size="16" /> 新建流程图
       </button>
       <div class="dw-list">
         <p v-if="loadingList" class="dw-hint">加载中…</p>
-        <p v-else-if="drawings.length === 0" class="dw-hint">还没有流程图，点击上方按钮创建。</p>
-        <button
+        <div v-else-if="listError" role="alert" class="dw-hint">列表加载失败 <button @click="loadList">重试</button></div>
+        <p v-else-if="drawings.length === 0" class="dw-hint">暂无流程图</p>
+        <div class="dw-list-row"
           v-for="d in drawings"
           :key="d.id"
+        ><button
           class="dw-list-item focus-visible:out-0"
           :class="{ active: currentId === d.id }"
           @click="selectDrawing(d.id)"
@@ -22,10 +26,10 @@
           <Icon name="pen-tool" :size="15" class="dw-list-ico" />
           <span class="dw-list-name">{{ d.title }}</span>
           <span class="dw-list-time">{{ formatTime(d.updateTime) }}</span>
-          <span class="dw-list-del" title="删除" @click.stop="deleteDrawingItem(d.id)">
+          </button><button class="dw-list-del" :aria-label="'删除' + d.title" title="删除" @click.stop="deleteDrawingItem(d.id)">
             <Icon name="trash-2" :size="14" />
-          </span>
-        </button>
+          </button>
+        </div>
       </div>
     </aside>
 
@@ -36,8 +40,9 @@
         <div class="dw-toolbar">
           <input
             v-model="title"
-            class="dw-title focus-visible:outline-none"
+            class="dw-title kb-input kb-form-control"
             placeholder="流程图标题"
+            aria-label="流程图标题"
             @input="markDirty"
             @blur="save"
           />
@@ -69,7 +74,7 @@
                 <input
                   v-if="editingId === np.id"
                   :value="np.data?.label"
-                  class="dw-node-edit focus-visible:outline-none"
+                  class="dw-node-edit kb-input kb-form-control"
                   @mousedown.stop
                   @dblclick.stop
                   @blur="editingId = null"
@@ -89,7 +94,7 @@
 
           <!-- 提示：空画布 -->
           <div v-if="nodes.length === 0" class="dw-empty">
-            <Icon name="pen-tool" :size="40" style="color: #cbd5e1" />
+            <Icon name="pen-tool" :size="40" style="color: var(--kb-muted-foreground)" />
             <p>画布为空。点击工具栏「＋」添加第一个节点，拖拽节点右侧圆点连线。</p>
           </div>
         </div>
@@ -105,17 +110,18 @@
 
       <!-- 未选择任何图 -->
       <div v-else class="dw-blank">
-        <Icon name="pen-tool" :size="48" style="color: #cbd5e1" />
+        <Icon name="pen-tool" :size="48" style="color: var(--kb-muted-foreground)" />
         <h2>流程图</h2>
         <p>用节点和连线把流程画出来：拖拽添加、自由连线、双击编辑文字，数据自动保存。</p>
-        <button class="dw-new-btn lg" @click="newDrawing"><Icon name="file-plus" :size="16" /> 新建第一个流程图</button>
+        <button v-if="!drawings.length" :disabled="saving || loadingList || listError" class="dw-new-btn lg" @click="newDrawing"><Icon name="file-plus" :size="16" /> 新建第一个流程图</button>
       </div>
     </main>
   </div>
+</MiniAppShell>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { VueFlow, useVueFlow, Position, Handle } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
@@ -134,8 +140,17 @@ import {
   type DrawingData,
   type DrawingSummary,
 } from '@/api/drawing'
+import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import MiniAppShell from '@/components/layout/MiniAppShell.vue'
 
-const { fitView } = useVueFlow()
+const router = useRouter()
+function goBack() {
+  if (window.history.length > 1) router.back()
+  else router.push('/learning/center')
+}
+
+const flow = useVueFlow()
+function fitView() { void flow.fitView({ maxZoom: 1, padding: 0.2 }) }
 
 // vue-flow 节点/连线在模板中走 v-model，类型用宽松数组避免 vue-flow 泛型过深实例化报错
 const nodes = ref<any[]>([])
@@ -148,8 +163,11 @@ const editingId = ref<string | null>(null)
 const dirty = ref(false)
 const saving = ref(false)
 const loadingList = ref(false)
+const listError = ref(false)
+const sidebarOpen = ref(false)
 
 let saveTimer: number | undefined
+let revision = 0
 
 function normalizeData(d: Partial<DrawingData> | undefined): DrawingData {
   const ns = Array.isArray(d?.nodes) ? d!.nodes : []
@@ -168,9 +186,11 @@ function normalizeData(d: Partial<DrawingData> | undefined): DrawingData {
 // ---------------- 列表 / 加载 ----------------
 async function loadList() {
   loadingList.value = true
+  listError.value = false
   try {
     drawings.value = await listDrawings()
   } catch (e: any) {
+    listError.value = true
     notify(e?.message || '加载列表失败', 'error')
   } finally {
     loadingList.value = false
@@ -178,9 +198,11 @@ async function loadList() {
 }
 
 async function selectDrawing(id: number) {
-  if (dirty.value && currentId.value) await save()
+  if (saving.value) { notify('正在保存，请稍后再试', 'info'); return }
+  if (dirty.value && currentId.value) { await save(); if (dirty.value) return }
   try {
     const d = await getDrawing(id)
+    sidebarOpen.value = false
     currentId.value = d.id
     title.value = d.title
     const dd = normalizeData(d.data)
@@ -195,7 +217,8 @@ async function selectDrawing(id: number) {
 }
 
 async function newDrawing() {
-  if (dirty.value && currentId.value) await save()
+  if (saving.value) { notify('正在保存，请稍后再试', 'info'); return }
+  if (dirty.value && currentId.value) { await save(); if (dirty.value) return }
   const startId = 'n' + Date.now()
   const initial: DrawingData = {
     nodes: [{ id: startId, position: { x: 160, y: 140 }, data: { label: '开始' }, type: 'flow' }],
@@ -221,20 +244,34 @@ async function newDrawing() {
 }
 
 async function deleteDrawingItem(id: number) {
-  if (!(await dialog.confirm({ title: '删除确认', message: '确定删除该流程图？此操作不可恢复。', variant: 'danger' }))) return
-  try {
-    await deleteDrawing(id)
-    notify('已删除', 'success')
-    if (currentId.value === id) {
-      currentId.value = null
-      title.value = ''
-      nodes.value = []
-      edges.value = []
-    }
-    await loadList()
-  } catch (e: any) {
-    notify(e?.message || '删除失败', 'error')
-  }
+  if (saving.value) { notify('正在保存，请稍后再试', 'info'); return }
+  await dialog.confirm({ "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", title: '删除确认', message: '确定删除该流程图？此操作不可恢复。', variant: 'danger', onConfirm: async () => {
+          try {
+              if (saving.value) {
+                  notify('正在保存，请稍后再试', 'info');
+                  return;
+              }
+              if (currentId.value === id && saveTimer)
+                  clearTimeout(saveTimer);
+              await deleteDrawing(id);
+              notify('已删除', 'success');
+              if (currentId.value === id) {
+                  if (saveTimer)
+                      clearTimeout(saveTimer);
+                  dirty.value = false;
+                  editingId.value = null;
+                  currentId.value = null;
+                  title.value = '';
+                  nodes.value = [];
+                  edges.value = [];
+              }
+              await loadList();
+          }
+          catch (e: any) {
+              notify(e?.message || '删除失败', 'error');
+              throw e;
+          }
+      } });
 }
 
 // ---------------- 画布交互 ----------------
@@ -275,6 +312,7 @@ function removeNodeById(id: string) {
 
 // ---------------- 保存 ----------------
 function markDirty() {
+  revision += 1
   dirty.value = true
   if (saveTimer) clearTimeout(saveTimer)
   if (currentId.value) {
@@ -286,6 +324,9 @@ function markDirty() {
 
 async function save() {
   if (!currentId.value || saving.value) return
+  if (saveTimer) clearTimeout(saveTimer)
+  const savedRevision = revision
+  let success = false
   saving.value = true
   try {
     const data: DrawingData = {
@@ -302,12 +343,14 @@ async function save() {
       })),
     }
     await updateDrawing(currentId.value, { title: title.value || '未命名流程图', data })
-    dirty.value = false
+    success = true
+    dirty.value = revision !== savedRevision
     await loadList()
   } catch (e: any) {
     notify(e?.message || '保存失败', 'error')
   } finally {
     saving.value = false
+    if (success && dirty.value) markDirty()
   }
 }
 
@@ -316,38 +359,44 @@ function formatTime(t?: string): string {
   return t.slice(0, 10)
 }
 
+onBeforeRouteLeave(async () => {
+  if (saving.value) { notify('正在保存，请稍后再试', 'info'); return false }
+  if (dirty.value) await save()
+  return !dirty.value
+})
+onBeforeUnmount(() => { if (saveTimer) clearTimeout(saveTimer) })
 onMounted(loadList)
 </script>
 
 <style scoped>
 .dw-root {
   display: flex;
-  height: calc(100vh - 150px);
-  min-height: 420px;
-  background: #f7f8fa;
-  gap: 12px;
-  padding: 12px;
+  height: calc(100dvh - var(--kb-nav-height) - var(--kb-space-section) - var(--kb-space-section));
+  min-height: 0;
+  background: var(--kb-background);
+  gap: var(--kb-space-3);
+  padding: var(--kb-space-3);
   box-sizing: border-box;
   overflow: hidden;
 }
 .dw-side {
-  width: 264px;
-  flex: 0 0 264px;
-  background: #fff;
-  border: 1px solid #eef0f3;
-  border-radius: 14px;
+  width: var(--kb-canvas-list-width);
+  flex: 0 0 var(--kb-canvas-list-width);
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-lg);
   display: flex;
   flex-direction: column;
-  padding: 14px;
+  padding: var(--kb-space-4);
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
 }
 .dw-side-head {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--kb-space-2);
   font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 12px;
+  color: var(--kb-foreground);
+  margin-bottom: var(--kb-space-3);
 }
 .dw-new-btn {
   display: flex;
@@ -356,16 +405,16 @@ onMounted(loadList)
   gap: 6px;
   width: 100%;
   padding: 9px 12px;
-  border-radius: 10px;
+  border-radius: var(--kb-radius-md);
   border: none;
-  background: var(--kb-primary, #3b6fe0);
-  color: #fff;
+  background: var(--kb-primary, var(--kb-primary));
+  color: var(--kb-card);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
 }
 .dw-new-btn:hover {
-  background: #2f5bc4;
+  background: var(--kb-primary-hover);
 }
 .dw-new-btn.lg {
   width: auto;
@@ -373,6 +422,7 @@ onMounted(loadList)
   padding: 11px 18px;
 }
 .dw-list {
+  min-height: 0;
   margin-top: 12px;
   overflow-y: auto;
   flex: 1;
@@ -381,49 +431,49 @@ onMounted(loadList)
   gap: 6px;
 }
 .dw-hint {
-  color: #98a2b3;
-  font-size: 13px;
+  color: var(--kb-muted-foreground);
+  font-size: var(--kb-fs-body-sm);
   padding: 8px 4px;
 }
 .dw-list-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--kb-space-2);
   padding: 9px 10px;
-  border-radius: 10px;
+  border-radius: var(--kb-radius-md);
   border: 1px solid transparent;
-  background: #f9fafb;
+  background: var(--kb-surface-2);
   cursor: pointer;
   text-align: left;
   transition: all 0.15s;
 }
 .dw-list-item:hover {
-  background: #f1f4f9;
+  background: var(--kb-muted);
 }
 .dw-list-item.active {
-  border-color: var(--kb-primary, #3b6fe0);
-  background: #eef3fe;
+  border-color: var(--kb-primary, var(--kb-primary));
+  background: var(--kb-primary-soft);
 }
 .dw-list-ico {
-  color: var(--kb-primary, #3b6fe0);
+  color: var(--kb-primary, var(--kb-primary));
   flex: 0 0 auto;
 }
 .dw-list-name {
   flex: 1;
-  font-size: 13px;
-  color: #1f2937;
+  font-size: var(--kb-fs-body-sm);
+  color: var(--kb-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .dw-list-time {
   font-size: 11px;
-  color: #98a2b3;
+  color: var(--kb-muted-foreground);
   flex: 0 0 auto;
 }
 .dw-list-del {
   flex: 0 0 auto;
-  color: #98a2b3;
+  color: var(--kb-muted-foreground);
   display: none;
   padding: 2px;
   border-radius: 6px;
@@ -432,39 +482,46 @@ onMounted(loadList)
   display: inline-flex;
 }
 .dw-list-del:hover {
-  color: #ef4444;
-  background: #fee2e2;
+  color: var(--kb-danger);
+  background: var(--kb-danger-soft-strong);
 }
 
 .dw-main {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #fff;
-  border: 1px solid #eef0f3;
-  border-radius: 14px;
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-lg);
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
 }
 .dw-toolbar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--kb-space-3);
   padding: 10px 14px;
-  border-bottom: 1px solid #eef0f3;
+  border-bottom: 1px solid var(--kb-border);
+}
+.dw-title:not(.kb-form-control) {
+  border: none;
+  border-radius: 8px;
+  background: var(--kb-surface-2);
 }
 .dw-title {
+  min-width: 0;
+  width: 0;
   flex: 1;
   font-size: 16px;
   font-weight: 700;
-  color: #1f2937;
-  border: none;
+  color: var(--kb-foreground);
   padding: 6px 8px;
-  border-radius: 8px;
-  background: #f9fafb;
 }
-.dw-title:focus {
-  background: #eef3fe;
+.dw-title:not(.kb-form-control):focus {
+  background: var(--kb-primary-soft);
 }
 .dw-tools {
   display: flex;
@@ -477,25 +534,25 @@ onMounted(loadList)
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #e5e7eb;
-  background: #fff;
+  border: 1px solid var(--kb-border);
+  background: var(--kb-card);
   border-radius: 9px;
-  color: #475467;
+  color: var(--kb-muted-foreground);
   cursor: pointer;
   transition: all 0.15s;
 }
 .dw-tool-btn:hover {
-  background: #f1f4f9;
-  color: var(--kb-primary, #3b6fe0);
-  border-color: #d6deeb;
+  background: var(--kb-muted);
+  color: var(--kb-primary, var(--kb-primary));
+  border-color: var(--kb-border);
 }
 .dw-tool-btn.dw-save {
-  color: #fff;
-  background: var(--kb-primary, #3b6fe0);
-  border-color: var(--kb-primary, #3b6fe0);
+  color: var(--kb-card);
+  background: var(--kb-primary, var(--kb-primary));
+  border-color: var(--kb-primary, var(--kb-primary));
 }
 .dw-tool-btn.dw-save:hover {
-  background: #2f5bc4;
+  background: var(--kb-primary-hover);
 }
 .dw-tool-btn:disabled {
   opacity: 0.5;
@@ -504,15 +561,16 @@ onMounted(loadList)
 .dw-tool-sep {
   width: 1px;
   height: 22px;
-  background: #e5e7eb;
+  background: var(--kb-border);
   margin: 0 4px;
 }
 
 .dw-canvas {
+  min-height: 0;
   position: relative;
   flex: 1;
   overflow: hidden;
-  background: #fbfcfe;
+  background: var(--kb-background);
 }
 .dw-empty {
   position: absolute;
@@ -522,10 +580,10 @@ onMounted(loadList)
   align-items: center;
   justify-content: center;
   gap: 10px;
-  color: #98a2b3;
+  color: var(--kb-muted-foreground);
   text-align: center;
   pointer-events: none;
-  padding: 24px;
+  padding: var(--kb-space-6);
 }
 
 .dw-node {
@@ -535,14 +593,14 @@ onMounted(loadList)
   max-width: 220px;
   padding: 8px 12px;
   box-sizing: border-box;
-  background: #fff;
-  border: 2px solid var(--kb-primary, #3b6fe0);
-  border-radius: 10px;
+  background: var(--kb-card);
+  border: 2px solid var(--kb-primary, var(--kb-primary));
+  border-radius: var(--kb-radius-md);
   box-shadow: 0 2px 8px rgba(16, 24, 40, 0.08);
   position: relative;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 600;
-  color: #1f2937;
+  color: var(--kb-foreground);
 }
 .dw-node.editing {
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.25);
@@ -555,15 +613,17 @@ onMounted(loadList)
   white-space: nowrap;
   user-select: none;
 }
+.dw-node-edit:not(.kb-form-control) {
+  border: none;
+  outline: none;
+  background: transparent;
+}
 .dw-node-edit {
   flex: 1;
   width: 100%;
-  border: none;
-  outline: none;
-  font-size: 13px;
+  font-size: var(--kb-fs-body-sm);
   font-weight: 600;
-  color: #1f2937;
-  background: transparent;
+  color: var(--kb-foreground);
   font-family: inherit;
 }
 .dw-node-del {
@@ -576,8 +636,8 @@ onMounted(loadList)
   align-items: center;
   justify-content: center;
   border: none;
-  background: #fee2e2;
-  color: #ef4444;
+  background: var(--kb-danger-soft-strong);
+  color: var(--kb-danger);
   border-radius: 50%;
   cursor: pointer;
 }
@@ -590,23 +650,23 @@ onMounted(loadList)
   align-items: center;
   gap: 16px;
   padding: 8px 14px;
-  border-top: 1px solid #eef0f3;
+  border-top: 1px solid var(--kb-border);
   font-size: 12px;
-  color: #667085;
-  background: #fbfcfe;
+  color: var(--kb-muted-foreground);
+  background: var(--kb-background);
 }
 .dw-dirty {
-  color: #f59e0b;
+  color: var(--kb-warning);
 }
 .dw-saved {
-  color: #10b981;
+  color: var(--kb-success);
 }
 .dw-sav-dot {
-  color: #3b6fe0;
+  color: var(--kb-primary);
 }
 .dw-tip {
   margin-left: auto;
-  color: #98a2b3;
+  color: var(--kb-muted-foreground);
 }
 
 .dw-blank {
@@ -616,19 +676,41 @@ onMounted(loadList)
   align-items: center;
   justify-content: center;
   gap: 10px;
-  color: #98a2b3;
+  color: var(--kb-muted-foreground);
   text-align: center;
-  padding: 24px;
+  padding: var(--kb-space-6);
 }
 .dw-blank h2 {
-  color: #1f2937;
-  font-size: 20px;
+  color: var(--kb-foreground);
+  font-size: var(--kb-fs-h4);
   margin: 0;
 }
 .dw-blank p {
   max-width: 360px;
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   line-height: 1.6;
   margin: 0;
 }
+
+.dw-new-btn.secondary { background: var(--kb-surface-2); color: var(--kb-foreground); border: 1px solid var(--kb-border); }
+.dw-new-btn:disabled { opacity: .5; cursor: not-allowed; }
+.dw-side { min-width: 0; }
+.dw-blank { position: static; flex: 1; min-height: 0; gap: var(--kb-space-4); }
+.dw-blank h2 { max-width: 100%; }
+.dw-list-item { min-width: 0; flex-shrink: 0; }
+.dw-tools, .dw-status { flex-wrap: wrap; }
+.dw-directory-toggle { display: none; align-items: center; gap: var(--kb-space-2); height: var(--kb-btn-height-sm); padding: 0 var(--kb-space-3); background: var(--kb-card); border: 1px solid var(--kb-border); border-radius: var(--kb-radius-sm); }
+.dw-list-item:focus-within .dw-list-del { display: inline-flex; }
+@media (max-width: 1100px) {
+ .dw-directory-toggle { display: inline-flex; }
+ .dw-root { position: relative; padding: 0; height: calc(100dvh - var(--kb-nav-height) - var(--kb-space-section) - var(--kb-space-section) - var(--kb-space-section)); }
+ .dw-side { display: none; }
+ .dw-root.side-open .dw-side { display: flex; position: absolute; z-index: 5; inset: 0 auto 0 0; max-width: 85%; box-shadow: var(--kb-shadow-lg); }
+ .dw-toolbar { flex-wrap: wrap; }
+ .dw-title { flex-basis: 100%; }
+}
+.dw-list-row { display: flex; align-items: center; gap: var(--kb-space-1); }
+.dw-list-item { flex: 1; }
+.dw-list-del { display: inline-flex; background: transparent; border: 0; }
+.dw-root button:focus-visible { outline: 2px solid var(--kb-ring); outline-offset: 2px; }
 </style>

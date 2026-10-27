@@ -1,0 +1,1065 @@
+{
+  "version": "java-ai-content-rebuild-v1",
+  "verifiedOn": "2026-10-11",
+  "units": [
+    {
+      "key": "hashmap",
+      "path": "java-core",
+      "chapter": "java-core.hashmap",
+      "title": "HashMap：契约、源码与失效边界",
+      "summary": "键契约、put/get/resize、树化分支与并发诊断",
+      "className": "HashContractRebuild",
+      "output": "null\n1\nsaved",
+      "experimentDescription": "预测可变键查不到但size仍1；不可变record查询恢复。解释节点缓存散列，不将结果当性能基准。",
+      "sources": [
+        "https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/HashMap.html",
+        "https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html",
+        "https://github.com/openjdk/jdk/blob/jdk-17%2B35/src/java.base/share/classes/java/util/HashMap.java"
+      ],
+      "body": "hashmap.md",
+      "experiment": "HashContractRebuild.java.txt",
+      "questions": [
+        {
+          "key": "contract",
+          "knowledge": 1,
+          "title": "equals/hashCode为什么必须一起设计？",
+          "answer": "等价键必须同散列，反过来不成立；散列定位候选，equals判断身份。",
+          "explanation": "30秒：等价键必须同散列，反过来不成立；散列定位候选，equals判断身份。\n60秒/深入：只比较hashCode会把不同键错误合并；只重写equals会让等价键落不同桶。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "mutable",
+          "knowledge": 1,
+          "title": "为什么可变键仍在迭代里却get不到？",
+          "answer": "Node缓存插入hash，键变更使新查询散列不同；size仍在但查询路径改变。",
+          "explanation": "30秒：Node缓存插入hash，键变更使新查询散列不同；size仍在但查询路径改变。\n60秒/深入：record键可改善稳定性，成员引用可变对象仍要审查；不是容器随机丢元素。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "contract",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "spread",
+          "knowledge": 2,
+          "title": "扰动与二次幂容量解决什么问题？",
+          "answer": "混合高16位使低位掩码利用高位信息，二次幂容量支持(n-1)&hash定位。",
+          "explanation": "30秒：混合高16位使低位掩码利用高位信息，二次幂容量支持(n-1)&hash定位。\n60秒/深入：扰动不消除所有碰撞，仍需equals；同hash不可比较键不能绝对承诺logn。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "contract",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "resize",
+          "knowledge": 2,
+          "title": "resize为何用hash & oldCap？",
+          "answer": "容量翻倍只新增一位掩码，按缓存hash决定留原桶或加oldCap。",
+          "explanation": "30秒：容量翻倍只新增一位掩码，按缓存hash决定留原桶或加oldCap。\n60秒/深入：不重新调用键hashCode但仍分配数组、扫描和重连，不能说扩容无成本。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "spread",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "tree",
+          "knowledge": 3,
+          "title": "8、6、64分别在哪里生效？",
+          "answer": "树化计数8，小表容量小于64先扩容，树桶split的小分支以6为退化条件。",
+          "explanation": "30秒：树化计数8，小表容量小于64先扩容，树桶split的小分支以6为退化条件。\n60秒/深入：删除退化也看结构；不能把第八个插入或删除到六个当无条件保证。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "resize",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "put",
+          "knowledge": 2,
+          "title": "put同键替换会不会增加size？",
+          "answer": "putVal找到等价键后替换value，新增映射才增加size并检查threshold。",
+          "explanation": "30秒：putVal找到等价键后替换value，新增映射才增加size并检查threshold。\n60秒/深入：null查询要结合containsKey，HashMap不保证顺序；构造不等于立即分配数组。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "failfast",
+          "knowledge": 3,
+          "title": "fail-fast为什么不能保证并发安全？",
+          "answer": "modCount尽力发现结构修改，不建立同步或happens-before。",
+          "explanation": "30秒：modCount尽力发现结构修改，不建立同步或happens-before。\n60秒/深入：单线程错误迭代修改也能CME；不报异常不等于安全，JDK17迁移变化不引入同步。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "tree",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "capacity",
+          "knowledge": 2,
+          "title": "为什么初始容量过大也有代价？",
+          "answer": "遍历成本与容量加size相关，稀疏大表浪费空间并扫描更多桶。",
+          "explanation": "30秒：遍历成本与容量加size相关，稀疏大表浪费空间并扫描更多桶。\n60秒/深入：按元素数/负载因子取整并测实际负载；不盲目把容量越大说成越快。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "missing",
+          "knowledge": 1,
+          "title": "场景：缓存键突然查不到，先如何取证？",
+          "answer": "保存键字段和hashCode、检查containsKey/null、删除与淘汰日志，再查并发。",
+          "explanation": "30秒：保存键字段和hashCode、检查containsKey/null、删除与淘汰日志，再查并发。\n60秒/深入：教学场景，不虚构事故；可变键反例与并发风险是两种机制。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": true,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "cpu",
+          "knowledge": 3,
+          "title": "场景：容器访问CPU高，如何定位？",
+          "answer": "用线程栈和剖析区分equals热点、冲突遍历、稀疏遍历及无界增长。",
+          "explanation": "30秒：用线程栈和剖析区分equals热点、冲突遍历、稀疏遍历及无界增长。\n60秒/深入：先确定热点再选稳定键、容量上限或容器；换CHM不自动修容量问题。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": true,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "single-null",
+          "knowledge": 1,
+          "title": "HashMap.get返回null时哪项正确？",
+          "options": [
+            "一定没有键",
+            "可能缺失也可能映射null",
+            "自动抛异常",
+            "必然并发损坏"
+          ],
+          "answer": "1",
+          "explanation": "B正确：containsKey可区分两者。A/D无证据，C不符合API。",
+          "type": "SINGLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "single-resize",
+          "knowledge": 2,
+          "title": "oldCap=16，hash=17扩容到32的位置？",
+          "options": [
+            "1",
+            "16",
+            "17",
+            "33"
+          ],
+          "answer": "2",
+          "explanation": "C正确：17&15=1，17&31=17。A是旧下标，B混淆偏移，D越界。",
+          "type": "SINGLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "single-tree",
+          "knowledge": 3,
+          "title": "小表遇长链时treeifyBin优先如何处理？",
+          "options": [
+            "总是树化",
+            "容量不足64时扩容",
+            "删除节点",
+            "锁住全表"
+          ],
+          "answer": "1",
+          "explanation": "B符合固定Java17分支。A忽略容量，C/D不属于该策略。",
+          "type": "SINGLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "multi-contract",
+          "knowledge": 1,
+          "title": "哪些符合HashMap契约？",
+          "options": [
+            "null键允许",
+            "有插入顺序保证",
+            "等价键须同散列",
+            "默认支持并发写"
+          ],
+          "answer": "0,2",
+          "explanation": "A/C正确；B需有序容器，D违反非同步契约。",
+          "type": "MULTIPLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "multi-risk",
+          "knowledge": 3,
+          "title": "哪些不能证明HashMap线程安全？",
+          "options": [
+            "一次压测无错",
+            "没有CME",
+            "所有写者遵循同锁协议",
+            "没有JDK7扩容环"
+          ],
+          "answer": "0,1,3",
+          "explanation": "A/B/D都不足；C是明确同步方案，应同时审查读与复合操作。",
+          "type": "MULTIPLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        }
+      ]
+    },
+    {
+      "key": "chm",
+      "path": "java-core",
+      "chapter": "java-core.generics",
+      "title": "ConcurrentHashMap：原子映射与值对象边界",
+      "summary": "putVal、sizeCtl、迁移、TreeBin、计数和业务原子边界",
+      "className": "ChmAtomicRebuild",
+      "output": "1\n2",
+      "experimentDescription": "屏障控制两个线程同读0后put，确定性丢更新结果1；merge对照结果2，join后检查。",
+      "sources": [
+        "https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/ConcurrentHashMap.html",
+        "https://github.com/openjdk/jdk/blob/jdk-17%2B35/src/java.base/share/classes/java/util/concurrent/ConcurrentHashMap.java",
+        "https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/atomic/LongAdder.html"
+      ],
+      "body": "chm.md",
+      "experiment": "ChmAtomicRebuild.java.txt",
+      "questions": [
+        {
+          "key": "architecture",
+          "knowledge": 2,
+          "title": "Java17 CHM仍用Segment吗？",
+          "answer": "主体是Node数组/桶、CAS、局部同步与协作扩容，不是Java7 Segment。",
+          "explanation": "30秒：主体是Node数组/桶、CAS、局部同步与协作扩容，不是Java7 Segment。\n60秒/深入：concurrencyLevel是容量提示，不能用旧分段数解释当前实现。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "put",
+          "knowledge": 2,
+          "title": "putVal为什么CAS与synchronized都需要？",
+          "answer": "空桶CAS安装，非空桶同步桶头并复查；不同键可能落同桶。",
+          "explanation": "30秒：空桶CAS安装，非空桶同步桶头并复查；不同键可能落同桶。\n60秒/深入：不是每个key一把锁，也不是全部方法无锁；MOVED分支先helpTransfer。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "architecture",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "transfer",
+          "knowledge": 2,
+          "title": "ForwardingNode如何支持扩容期间访问？",
+          "answer": "旧桶迁移后用MOVED节点指向nextTable；查询转向新表，写线程可协助迁移。",
+          "explanation": "30秒：旧桶迁移后用MOVED节点指向nextTable；查询转向新表，写线程可协助迁移。\n60秒/深入：transferIndex分配迁移区间，不是每个写者复制全部表。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "put",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "sizectl",
+          "knowledge": 2,
+          "title": "sizeCtl为何不能仅说是元素数量？",
+          "answer": "初始化前容量目标、初始化中-1、正常阈值，扩容中编码stamp与协作状态。",
+          "explanation": "30秒：初始化前容量目标、初始化中-1、正常阈值，扩容中编码stamp与协作状态。\n60秒/深入：CounterCell/baseCount负责计数；sizeCtl不是通用实时size。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "transfer",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "treebin",
+          "knowledge": 2,
+          "title": "TreeBin与CounterCell分别解决什么？",
+          "answer": "TreeBin管理树桶及并发结构访问，CounterCell分散元素计数更新竞争。",
+          "explanation": "30秒：TreeBin管理树桶及并发结构访问，CounterCell分散元素计数更新竞争。\n60秒/深入：树旋转需考虑读者；并发size不是强一致业务快照。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "sizectl",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "atomic",
+          "knowledge": 2,
+          "title": "get再put为何仍丢更新？",
+          "answer": "两个线程可读同旧值，写同新值；同键变换用compute或merge。",
+          "explanation": "30秒：两个线程可读同旧值，写同新值；同键变换用compute或merge。\n60秒/深入：方法各自安全不保证组合原子；回调短小，不放慢IO/外部副作用。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "null",
+          "knowledge": 2,
+          "title": "CHM不允许null与compute返回null冲突吗？",
+          "answer": "put拒绝null键值，compute返回null表示移除，computeIfAbsent返回null不建立。",
+          "explanation": "30秒：put拒绝null键值，compute返回null表示移除，computeIfAbsent返回null不建立。\n60秒/深入：查询null是本次没有映射，空缓存用非null包装；containsKey+get仍非原子组合。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "atomic",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "value",
+          "knowledge": 3,
+          "title": "安装ArrayList后add为什么仍不安全？",
+          "answer": "Map只保护映射，不保护取出Value的修改；并发Value或不可变快照替换。",
+          "explanation": "30秒：Map只保护映射，不保护取出Value的修改；并发Value或不可变快照替换。\n60秒/深入：LongAdder并发sum不适合余额，多键不变量需更高层协议。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "null",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "slow",
+          "knowledge": 2,
+          "title": "场景：computeIfAbsent回调调用远程服务变慢怎么办？",
+          "answer": "将慢IO从原子回调移出，显式协调加载、超时和重复请求，测桶竞争。",
+          "explanation": "30秒：将慢IO从原子回调移出，显式协调加载、超时和重复请求，测桶竞争。\n60秒/深入：不能将API计算语义扩张为外部副作用恰好一次。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": true,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "delete",
+          "knowledge": 3,
+          "title": "场景：移除统计key后仍有旧计数递增怎么办？",
+          "answer": "旧Value引用仍存活，先定义窗口/生命周期，协调移除和更新或切换新版本。",
+          "explanation": "30秒：旧Value引用仍存活，先定义窗口/生命周期，协调移除和更新或切换新版本。\n60秒/深入：CHM不负责TTL/窗口业务，LongAdder不是原子快照。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": true,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "single-count",
+          "knowledge": 2,
+          "title": "两个线程同读0后各put1，最终可能为何？",
+          "options": [
+            "一定2",
+            "1",
+            "null",
+            "必然CME"
+          ],
+          "answer": "1",
+          "explanation": "B是屏障实验确定结果；A误将组合原子化，C/D不符合该流程。",
+          "type": "SINGLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "single-null",
+          "knowledge": 2,
+          "title": "compute回调返回null时？",
+          "options": [
+            "存入null",
+            "删除该映射",
+            "必然递归异常",
+            "返回旧值不改"
+          ],
+          "answer": "1",
+          "explanation": "B符合API；A违背null约束，C只在特定递归更新，D不符语义。",
+          "type": "SINGLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "single-size",
+          "knowledge": 3,
+          "title": "并发size最合适用途？",
+          "options": [
+            "余额扣款依据",
+            "全表事务条件",
+            "监控估计",
+            "同步所有写者"
+          ],
+          "answer": "2",
+          "explanation": "C符合瞬态统计；A/B需要业务一致性，D无此作用。",
+          "type": "SINGLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "multi-update",
+          "knowledge": 2,
+          "title": "Java17 putVal涉及哪些机制？",
+          "options": [
+            "空桶CAS",
+            "非空桶局部同步",
+            "每个key独立锁",
+            "MOVED引导协作"
+          ],
+          "answer": "0,1,3",
+          "explanation": "A/B/D正确；C错误，冲突键可共享桶锁。",
+          "type": "MULTIPLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "multi-boundary",
+          "knowledge": 3,
+          "title": "CHM不会自动提供哪些能力？",
+          "options": [
+            "ArrayList值修改同步",
+            "跨键账户事务",
+            "单键compute原子",
+            "TTL容量淘汰"
+          ],
+          "answer": "0,1,3",
+          "explanation": "A/B/D需业务设计；C已有API单键原子支持。",
+          "type": "MULTIPLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        }
+      ]
+    },
+    {
+      "key": "aqs",
+      "path": "concurrency",
+      "chapter": "concurrency.aqs",
+      "title": "AQS 与 ReentrantLock：状态等待取消",
+      "summary": "Java17获取释放、Condition、中断公平与诊断",
+      "className": "LockConditionRebuild",
+      "output": "2\nfalse\n0",
+      "experimentDescription": "主线程重入两次并持锁到子线程超时，输出2/false/0；不拿结果当公平性能证明。",
+      "sources": [
+        "https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/locks/AbstractQueuedSynchronizer.html",
+        "https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/locks/ReentrantLock.html",
+        "https://github.com/openjdk/jdk/blob/jdk-17%2B35/src/java.base/share/classes/java/util/concurrent/locks/AbstractQueuedSynchronizer.java"
+      ],
+      "body": "aqs.md",
+      "experiment": "LockConditionRebuild.java.txt",
+      "questions": [
+        {
+          "key": "state",
+          "knowledge": 1,
+          "title": "AQS的state对所有同步器都表示锁次数吗？",
+          "answer": "框架管理int状态，语义由子类定义；ReentrantLock重入计数，Semaphore许可不同。",
+          "explanation": "30秒：框架管理int状态，语义由子类定义；ReentrantLock重入计数，Semaphore许可不同。\n60秒/深入：先解释tryAcquire/tryRelease边界，再映射具体同步器，不背统一资源数。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "acquire",
+          "knowledge": 1,
+          "title": "acquire是否必须先入队？",
+          "answer": "先tryAcquire，成功直接返回；失败才组织排队、重试、等待。",
+          "explanation": "30秒：先tryAcquire，成功直接返回；失败才组织排队、重试、等待。\n60秒/深入：Java17内部统一acquire循环不能混用旧版acquireQueued字段。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "state",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "wake",
+          "knowledge": 2,
+          "title": "unpark是否直接交出锁所有权？",
+          "answer": "唤醒或许可后仍须竞争并成功获取state，不能等同owner转移。",
+          "explanation": "30秒：唤醒或许可后仍须竞争并成功获取state，不能等同owner转移。\n60秒/深入：release完全释放后通知后继，业务谓词仍可能不满足。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "acquire",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "shared",
+          "knowledge": 1,
+          "title": "独占与共享模式差在哪？",
+          "answer": "独占由一个所有者持有；共享允许多个成功获取者，返回值指示成功和后续可能性。",
+          "explanation": "30秒：独占由一个所有者持有；共享允许多个成功获取者，返回值指示成功和后续可能性。\n60秒/深入：共享不只读锁，还可用于许可/门闩，不照搬ReentrantLock语义。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "condition",
+          "knowledge": 3,
+          "title": "Condition.await为什么要保存state？",
+          "answer": "加入条件链并完全释放锁，回到同步队列重新获取后恢复重入状态。",
+          "explanation": "30秒：加入条件链并完全释放锁，回到同步队列重新获取后恢复重入状态。\n60秒/深入：signal只给竞争资格；while重查谓词防虚假唤醒。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "wake",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "fair",
+          "knowledge": 2,
+          "title": "公平锁的无参数tryLock遵循排队吗？",
+          "answer": "无参数tryLock可插队；公平lock限制前驱，但不保证OS调度公平。",
+          "explanation": "30秒：无参数tryLock可插队；公平lock限制前驱，但不保证OS调度公平。\n60秒/深入：区分带超时版本，吞吐/尾延迟需实测。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "condition",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "interrupt",
+          "knowledge": 1,
+          "title": "lock与lockInterruptibly对中断有什么不同？",
+          "answer": "lock不因等待中断直接抛异常；lockInterruptibly可取消等待并抛InterruptedException。",
+          "explanation": "30秒：lock不因等待中断直接抛异常；lockInterruptibly可取消等待并抛InterruptedException。\n60秒/深入：中断是协作取消，不是强制停止任意代码；不能吞掉调用协议。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "fair",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "cancel",
+          "knowledge": 1,
+          "title": "取消节点为什么不能简单留在队首？",
+          "answer": "中断/超时取消后需要清理链接与唤醒路径，避免有效后继永久被阻挡。",
+          "explanation": "30秒：中断/超时取消后需要清理链接与唤醒路径，避免有效后继永久被阻挡。\n60秒/深入：沿固定Java17cleanQueue/cancelAcquire定位，不背JDK8SIGNAL值。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "interrupt",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "deadlock",
+          "knowledge": 1,
+          "title": "场景：线程大量WAITING，怎样证明死锁？",
+          "answer": "线程转储确认持有者/等待资源和调用栈，建立等待环，再排除正常条件等待。",
+          "explanation": "30秒：线程转储确认持有者/等待资源和调用栈，建立等待环，再排除正常条件等待。\n60秒/深入：WAITING本身不是死锁证据，monitor与ownable synchronizer需分别分析。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": true,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "timeout",
+          "knowledge": 3,
+          "title": "场景：获取锁超时后如何保证业务一致性？",
+          "answer": "有界等待失败返回/异常后停止依赖临界区的动作，处理已发生外部副作用。",
+          "explanation": "30秒：有界等待失败返回/异常后停止依赖临界区的动作，处理已发生外部副作用。\n60秒/深入：超时不自动回滚HTTP调用；统一锁顺序和补偿是另外的业务协议。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": true,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "single-state",
+          "knowledge": 1,
+          "title": "ReentrantLock同线程重入两次holdCount？",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "随线程数变化"
+          ],
+          "answer": "2",
+          "explanation": "C正确，state记录重入次数；A/B忽略第二次，D混淆竞争线程。",
+          "type": "SINGLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "single-signal",
+          "knowledge": 3,
+          "title": "signal后等待者何时继续业务？",
+          "options": [
+            "立即拥有锁",
+            "重新获取锁并重查条件后",
+            "signal线程退出JVM后",
+            "无需持锁"
+          ],
+          "answer": "1",
+          "explanation": "B正确；A忽略竞争，C无关，D违反Condition使用要求。",
+          "type": "SINGLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "single-fair",
+          "knowledge": 2,
+          "title": "公平ReentrantLock无参数tryLock？",
+          "options": [
+            "必须排队",
+            "可以插队",
+            "永远失败",
+            "抛中断异常"
+          ],
+          "answer": "1",
+          "explanation": "B符合API。A误用公平lock规则，C/D不符合立即尝试契约。",
+          "type": "SINGLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "multi-cancel",
+          "knowledge": 3,
+          "title": "哪些获取方式可有界/取消等待？",
+          "options": [
+            "lockInterruptibly",
+            "tryLock(timeout,unit)",
+            "普通lock强制中断返回",
+            "无参数tryLock立即尝试"
+          ],
+          "answer": "0,1,3",
+          "explanation": "A/B支持可中断或有界等待，D不等待；C错误。",
+          "type": "MULTIPLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "multi-condition",
+          "knowledge": 3,
+          "title": "Condition正确使用包含？",
+          "options": [
+            "持锁await",
+            "while检查谓词",
+            "signal直接转交所有权",
+            "await释放后再重新获取"
+          ],
+          "answer": "0,1,3",
+          "explanation": "A/B/D正确；C只是移动竞争资格，不直接转交锁。",
+          "type": "MULTIPLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        }
+      ]
+    },
+    {
+      "key": "transaction",
+      "path": "spring-data",
+      "chapter": "spring-transaction",
+      "title": "Spring事务：代理边界与数据库结果",
+      "summary": "6.1代理链、传播、回滚、自调用与异步",
+      "className": "SpringTransactionRebuild",
+      "output": "external=0\nself=1",
+      "experimentDescription": "真实Spring6.1代理与H2对照：外部代理调用回滚为0行，自调用未经过新事务边界保留1行；依赖项目classpath。",
+      "sources": [
+        "https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html",
+        "https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/tx-propagation.html",
+        "https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/rolling-back.html"
+      ],
+      "body": "transaction.md",
+      "experiment": "SpringTransactionRebuild.java.txt",
+      "questions": [
+        {
+          "key": "proxy",
+          "knowledge": 1,
+          "title": "Transactional为什么不是注解自己执行事务？",
+          "answer": "代理拦截入口解析属性并调用TransactionManager，资源管理器执行提交回滚。",
+          "explanation": "30秒：代理拦截入口解析属性并调用TransactionManager，资源管理器执行提交回滚。\n60秒/深入：从TransactionInterceptor/invokeWithinTransaction追流程，不把注解存在当边界存在。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2,
+          "knowledgeKey": "shared/spring-data/chapter/spring-container/knowledge/spring-data.proxy"
+        },
+        {
+          "key": "self",
+          "knowledge": 1,
+          "title": "自调用完全没有事务吗？",
+          "answer": "this调用绕过代理，内层注解不形成新边界；外层已有事务仍可能生效。",
+          "explanation": "30秒：this调用绕过代理，内层注解不形成新边界；外层已有事务仍可能生效。\n60秒/深入：拆协作Bean或用TransactionTemplate，实验检查数据而非日志。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "proxy",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2,
+          "knowledgeKey": "shared/spring-data/chapter/spring-container/knowledge/spring-data.proxy"
+        },
+        {
+          "key": "required",
+          "knowledge": 1,
+          "title": "REQUIRED内层异常被外层捕获为何仍回滚？",
+          "answer": "参与同物理事务的逻辑边界可标rollback-only，外层捕获不清除该标志。",
+          "explanation": "30秒：参与同物理事务的逻辑边界可标rollback-only，外层捕获不清除该标志。\n60秒/深入：最终提交可能UnexpectedRollbackException，不是捕获等于成功。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "self",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "new",
+          "knowledge": 1,
+          "title": "REQUIRES_NEW有什么资源代价？",
+          "answer": "挂起外层并开启独立物理事务，可独立提交且需要额外连接。",
+          "explanation": "30秒：挂起外层并开启独立物理事务，可独立提交且需要额外连接。\n60秒/深入：并发下需测连接池，不用它盲修所有事务失效。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "required",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "nested",
+          "knowledge": 1,
+          "title": "NESTED与REQUIRES_NEW相同吗？",
+          "answer": "支持时NESTED用保存点，受外层物理事务约束；不是独立提交。",
+          "explanation": "30秒：支持时NESTED用保存点，受外层物理事务约束；不是独立提交。\n60秒/深入：依管理器/驱动支持，不能假定所有JPA/JDBC均同样工作。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "new",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "rollback",
+          "knowledge": 2,
+          "title": "Spring6.1默认哪些异常触发回滚？",
+          "answer": "RuntimeException/Error默认回滚，checked exception需显式rollbackFor等规则。",
+          "explanation": "30秒：RuntimeException/Error默认回滚，checked exception需显式rollbackFor等规则。\n60秒/深入：不将后续版本全局ALL_EXCEPTIONS配置当6.1能力；吞异常与rollback-only分开。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "async",
+          "knowledge": 3,
+          "title": "异步任务会继承普通线程绑定事务吗？",
+          "answer": "新线程不自动继承线程绑定事务，异步失败不自然撤销已提交主事务。",
+          "explanation": "30秒：新线程不自动继承线程绑定事务，异步失败不自然撤销已提交主事务。\n60秒/深入：响应式是不同上下文模型；可靠事件/outbox应作为方案不假装已实现。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "rollback",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "isolation",
+          "knowledge": 1,
+          "title": "内层隔离级别为什么可能没重新配置？",
+          "answer": "参与已有物理事务时不是新建连接边界，不能假定注解重新设置隔离。",
+          "explanation": "30秒：参与已有物理事务时不是新建连接边界，不能假定注解重新设置隔离。\n60秒/深入：具体数据库决定MVCC/锁；readonly通常不是安全授权。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "async",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "partial",
+          "knowledge": 1,
+          "title": "场景：数据库部分写入，按什么顺序查？",
+          "answer": "代理入口/调用链→线程→管理器/连接→传播→异常逸出与回滚标志→最终数据。",
+          "explanation": "30秒：代理入口/调用链→线程→管理器/连接→传播→异常逸出与回滚标志→最终数据。\n60秒/深入：不以方法异常日志代替数据库证据，也不默认多数据源全原子。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": true,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "remote",
+          "knowledge": 3,
+          "title": "场景：事务内LLM调用很慢，如何改？",
+          "answer": "缩短持连接时间，外部调用和数据库短事务拆边界并设计状态/重试/补偿。",
+          "explanation": "30秒：缩短持连接时间，外部调用和数据库短事务拆边界并设计状态/重试/补偿。\n60秒/深入：数据库回滚不撤销HTTP副作用，连接池耗尽需实证。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": true,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "single-default",
+          "knowledge": 2,
+          "title": "Spring6.1默认回滚异常是哪类？",
+          "options": [
+            "所有checked异常",
+            "RuntimeException/Error",
+            "只有SQL异常",
+            "所有返回值false"
+          ],
+          "answer": "1",
+          "explanation": "B正确；A需规则，C过窄，D不是异常回滚规则。",
+          "type": "SINGLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "single-self",
+          "knowledge": 1,
+          "title": "默认proxy模式this.inner注解？",
+          "options": [
+            "必然新事务",
+            "不形成新代理拦截边界",
+            "自动新线程",
+            "自动新数据库"
+          ],
+          "answer": "1",
+          "explanation": "B正确；外层可能已有事务，A/C/D均无此保证。",
+          "type": "SINGLE_CHOICE",
+          "difficulty": 2,
+          "parent": null,
+          "knowledgeKey": "shared/spring-data/chapter/spring-container/knowledge/spring-data.proxy"
+        },
+        {
+          "key": "single-nested",
+          "knowledge": 1,
+          "title": "NESTED通常依赖什么？",
+          "options": [
+            "独立数据库",
+            "保存点支持",
+            "任意HTTP撤销",
+            "全局锁"
+          ],
+          "answer": "1",
+          "explanation": "B正确且管理器/驱动须支持；其余不属该机制。",
+          "type": "SINGLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "multi-boundary",
+          "knowledge": 1,
+          "title": "哪些需核查才能证明事务边界？",
+          "options": [
+            "代理调用",
+            "具体管理器/连接",
+            "仅注解字符串",
+            "线程/异常传播"
+          ],
+          "answer": "0,1,3",
+          "explanation": "A/B/D是实际机制证据；C不证明经过代理。",
+          "type": "MULTIPLE_CHOICE",
+          "difficulty": 2,
+          "parent": null,
+          "knowledgeKey": "shared/spring-data/chapter/spring-container/knowledge/spring-data.proxy"
+        },
+        {
+          "key": "multi-new",
+          "knowledge": 1,
+          "title": "REQUIRES_NEW正确边界？",
+          "options": [
+            "独立提交",
+            "外层挂起",
+            "自动撤销远程HTTP",
+            "可能多占连接"
+          ],
+          "answer": "0,1,3",
+          "explanation": "A/B/D正确；C不是数据库事务能力。",
+          "type": "MULTIPLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        }
+      ]
+    },
+    {
+      "key": "rag",
+      "path": "rag",
+      "chapter": "citation-evaluation",
+      "title": "RAG完整链路：检索证据与工程验证",
+      "summary": "索引到生成、评估、版本与权限故障诊断",
+      "className": "RagMetricsRebuild",
+      "output": "recall@3=1.00\nrr=0.50\nanswer correctness requires separate labels",
+      "experimentDescription": "手工相关集a/b与排序x/a/b计算Recall@3=1和RR=0.5；不调用模型/Milvus，不把召回等同正确答案。",
+      "sources": [
+        "https://arxiv.org/abs/2005.11401",
+        "https://docs.langchain4j.dev/tutorials/rag",
+        "https://milvus.io/docs/multi-vector-search.md",
+        "https://milvus.io/docs/filtered-search.md",
+        "https://docs.spring.io/spring-ai/reference/api/retrieval-augmented-generation.html"
+      ],
+      "body": "rag.md",
+      "experiment": "RagMetricsRebuild.java.txt",
+      "questions": [
+        {
+          "key": "pipeline",
+          "knowledge": 1,
+          "title": "RAG为何不等于向量数据库？",
+          "answer": "RAG含解析/切分/索引/检索/上下文/生成与评估；向量库只承担一部分检索基础设施。",
+          "explanation": "30秒：RAG含解析/切分/索引/检索/上下文/生成与评估；向量库只承担一部分检索基础设施。\n60秒/深入：原始论文可训练模型不同于现代应用管线，不能声称RAG保证无幻觉。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2,
+          "knowledgeKey": "shared/rag/chapter/parse-chunk/knowledge/rag.metadata"
+        },
+        {
+          "key": "chunk",
+          "knowledge": 1,
+          "title": "Chunk size和overlap如何选？",
+          "answer": "根据结构和token预算权衡上下文完整性、相关性与重复成本，用黄金集验证。",
+          "explanation": "30秒：根据结构和token预算权衡上下文完整性、相关性与重复成本，用黄金集验证。\n60秒/深入：无全场景最佳常数；保留标题/页码/版本，不能只存裸文本。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "pipeline",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2,
+          "knowledgeKey": "shared/rag/chapter/parse-chunk/knowledge/rag.chunk"
+        },
+        {
+          "key": "embedding",
+          "knowledge": 2,
+          "title": "维度相同的Embedding可以混用吗？",
+          "answer": "维度相同不保证语义空间兼容；query/doc模型、预处理和距离指标应兼容。",
+          "explanation": "30秒：维度相同不保证语义空间兼容；query/doc模型、预处理和距离指标应兼容。\n60秒/深入：换模型通常重嵌入重索引，保留模型与索引版本。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "chunk",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2,
+          "knowledgeKey": "shared/rag/chapter/vectors-storage/knowledge/rag.embedding"
+        },
+        {
+          "key": "rerank",
+          "knowledge": 2,
+          "title": "Rerank能解决无召回吗？",
+          "answer": "只能重排已有候选，根本未召回的证据不能凭重排恢复。",
+          "explanation": "30秒：只能重排已有候选，根本未召回的证据不能凭重排恢复。\n60秒/深入：Hybrid融合不同尺度需规范策略，不能随意相加裸分。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "embedding",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2,
+          "knowledgeKey": "shared/rag/chapter/hybrid-rerank/knowledge/rag.rerank"
+        },
+        {
+          "key": "citation",
+          "knowledge": 3,
+          "title": "为什么引用链接存在也可能错误？",
+          "answer": "链接须对应具体版本片段并支持结论；文档存在不等于支撑当前答案。",
+          "explanation": "30秒：链接须对应具体版本片段并支持结论；文档存在不等于支撑当前答案。\n60秒/深入：上下文截断/旧版本/伪造citation均需检查；无证据要可解释拒答。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "rerank",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "metrics",
+          "knowledge": 3,
+          "title": "Recall@K高为何答案仍错？",
+          "answer": "召回测相关证据覆盖，生成可能忽略证据、截断或错推理，答案正确性独立测。",
+          "explanation": "30秒：召回测相关证据覆盖，生成可能忽略证据、截断或错推理，答案正确性独立测。\n60秒/深入：MRR首相关排序，nDCG需等级标注；faithfulness不同于事实正确。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2
+        },
+        {
+          "key": "security",
+          "knowledge": 3,
+          "title": "权限过滤应放在哪里？",
+          "answer": "服务端基于身份在候选与返回链路约束资源，ACL/缓存与索引版本同步。",
+          "explanation": "30秒：服务端基于身份在候选与返回链路约束资源，ACL/缓存与索引版本同步。\n60秒/深入：前端隐藏不授权；文档中的提示注入不是系统指令。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "metrics",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2,
+          "knowledgeKey": "shared/rag/chapter/parse-chunk/knowledge/rag.metadata"
+        },
+        {
+          "key": "stream",
+          "knowledge": 3,
+          "title": "SSE部分输出后重试有什么风险？",
+          "answer": "重新生成可能重复拼接或混合两次答案，需要明确取消/终止/重试协议。",
+          "explanation": "30秒：重新生成可能重复拼接或混合两次答案，需要明确取消/终止/重试协议。\n60秒/深入：首token体验不等于最终耗时，token预算/限流/超时需独立治理。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": "security",
+          "scenario": false,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2,
+          "knowledgeKey": "shared/llm/chapter/stream-sse/knowledge/llm.sse"
+        },
+        {
+          "key": "wrong",
+          "knowledge": 2,
+          "title": "场景：文档有答案却RAG错答，怎么定位？",
+          "answer": "按Parse/Chunk/Embedding/Index/Query/Retrieval/Rerank/Context/Generation找丢失层。",
+          "explanation": "30秒：按Parse/Chunk/Embedding/Index/Query/Retrieval/Rerank/Context/Generation找丢失层。\n60秒/深入：记录候选/版本/引用/耗时；调temperature不修权限和索引。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": true,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2,
+          "knowledgeKey": "shared/rag/chapter/citation-evaluation/knowledge/rag.golden"
+        },
+        {
+          "key": "stale",
+          "knowledge": 3,
+          "title": "场景：删除文档后仍召回旧答案，怎么办？",
+          "answer": "查向量删除/可检索版本、ACL过滤与缓存失效，按幂等身份恢复索引状态。",
+          "explanation": "30秒：查向量删除/可检索版本、ACL过滤与缓存失效，按幂等身份恢复索引状态。\n60秒/深入：数据库删除成功不等于向量同步完成；依赖故障不能假装无知识。\n闭卷：先解释机制，再给出正文实验或边界反例。",
+          "parent": null,
+          "scenario": true,
+          "type": "SHORT_ANSWER",
+          "difficulty": 2,
+          "knowledgeKey": "shared/rag/chapter/parse-chunk/knowledge/rag.metadata"
+        },
+        {
+          "key": "single-recall",
+          "knowledge": 3,
+          "title": "相关a/b，前3为x/a/b，Recall@3是多少？",
+          "options": [
+            "0",
+            "0.5",
+            "1",
+            "无法计算"
+          ],
+          "answer": "2",
+          "explanation": "C：2/2=1；B是首相关倒数排名而非Recall，A/D忽略已知标注。",
+          "type": "SINGLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "single-rr",
+          "knowledge": 3,
+          "title": "首相关结果第2名，reciprocal rank？",
+          "options": [
+            "2",
+            "1",
+            "0.5",
+            "0.33"
+          ],
+          "answer": "2",
+          "explanation": "C：1/2；A/B/D不对应第2名倒数。",
+          "type": "SINGLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "single-noanswer",
+          "knowledge": 3,
+          "title": "向量库不可用应如何表达？",
+          "options": [
+            "用户知识不存在",
+            "依赖故障并可重试",
+            "伪造答案",
+            "返回成功空数组"
+          ],
+          "answer": "1",
+          "explanation": "B区分服务失败与无证据；A/D掩盖故障，C无事实基础。",
+          "type": "SINGLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "multi-eval",
+          "knowledge": 3,
+          "title": "哪些必须与召回单独测？",
+          "options": [
+            "答案正确",
+            "引用支持",
+            "faithfulness",
+            "已知相关集Recall"
+          ],
+          "answer": "0,1,2",
+          "explanation": "A/B/C是生成证据质量；D本身为检索覆盖指标。",
+          "type": "MULTIPLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        },
+        {
+          "key": "multi-permission",
+          "knowledge": 3,
+          "title": "权限安全链路包含哪些？",
+          "options": [
+            "服务端身份过滤",
+            "ACL变化缓存失效",
+            "前端隐藏即可",
+            "返回引用版本校验"
+          ],
+          "answer": "0,1,3",
+          "explanation": "A/B/D需要真实约束；C不是授权防线。",
+          "type": "MULTIPLE_CHOICE",
+          "difficulty": 2,
+          "parent": null
+        }
+      ]
+    }
+  ]
+}

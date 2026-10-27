@@ -86,7 +86,7 @@ public class AdminKbMemberController {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         // 权限：成员可见（含 Owner/Editor/Reader）或系统 ADMIN
         if (!kbMemberService.canView(categoryId, currentUserId)) {
-            throw new BusinessException("无权限查看该知识库成员");
+            throw new BusinessException(403, "无权限查看该知识库成员");
         }
         List<KbMember> members = kbMemberService.listByCategory(categoryId);
         List<Long> userIds = members.stream().map(KbMember::getUserId)
@@ -165,7 +165,7 @@ public class AdminKbMemberController {
             throw new BusinessException("请指定知识库");
         }
         if (!kbMemberService.isOwner(req.getCategoryId(), operator)) {
-            throw new BusinessException("无权限管理该知识库成员");
+            throw new BusinessException(403, "无权限管理该知识库成员");
         }
         Long targetUserId = req.getUserId();
         String inviteEmail = req.getEmail();

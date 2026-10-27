@@ -10,15 +10,15 @@
       @drop="onDrop"
       @dragleave="onDragLeave"
     >
-      <span class="tr-grip" title="拖拽排序"><Icon name="grip-vertical" :size="12" /></span>
+      <span class="tr-grip" title="拖拽排序"><Icon name="menu" :size="12" /></span>
 
       <button
-        class="tr-check"
+        class="tr-check" :disabled="pending || !!task.completionRequirement" :aria-busy="pending"
         :class="{ done: task.status === 1 }"
         :aria-label="task.status === 1 ? '标记为未完成' : '标记为完成'"
         @click="toggle"
       >
-        <Icon v-if="task.status === 1" name="check" :size="12" color="#fff" />
+        <Icon v-if="task.status === 1" name="check" :size="12" color="var(--kb-primary-foreground)" />
       </button>
 
       <div class="tr-body">
@@ -26,13 +26,19 @@
           v-if="editing"
           ref="inputEl"
           v-model="draft"
-          class="tr-edit"
+          class="tr-edit kb-input kb-form-control" aria-label="编辑任务标题" @keydown.esc="editing = false"
           @keyup.enter="saveEdit"
           @blur="saveEdit"
         />
-        <div v-else class="tr-title" :class="{ done: task.status === 1 }" @dblclick="startEdit">
+        <div v-else class="tr-title" role="button" tabindex="0" :aria-label="`编辑任务标题：${task.title}`" @keydown.enter="startEdit" :class="{ done: task.status === 1 }" @dblclick="startEdit">
           {{ task.title }}
         </div>
+        <span v-if="task.estimatedMinutes" class="tr-tag">预计 {{ task.estimatedMinutes }} 分钟</span>
+        <span v-if="pending" class="tr-tag" role="status">正在提交…</span>
+        <span v-else class="tr-tag">{{ task.status === 1 ? '已完成' : task.stage === 1 ? '进行中' : '待开始' }}</span>
+        <span v-if="task.important" class="tr-tag">重要</span><span v-if="task.urgent" class="tr-tag overdue">紧急</span>
+        <span v-if="task.learningPlanRef" class="tr-tag" :title="task.learningPlanRef">来自学习计划</span>
+        <TaskCompletionAction :requirement="task.completionRequirement" :title="task.title" />
         <!-- 标签 -->
         <span
           v-for="tag in task.tags || []"
@@ -45,7 +51,7 @@
           <Icon name="calendar" :size="11" /> {{ task.scheduledDate }}
         </div>
         <!-- 截止日期 -->
-        <div v-else-if="task.dueDate && task.status !== 1" class="tr-tag" :class="{ overdue: isOverdue }">
+        <div v-if="task.dueDate && task.status !== 1" class="tr-tag" :class="{ overdue: isOverdue }">
           <Icon name="flag" :size="11" /> {{ task.dueDate }}
         </div>
         <div v-else-if="task.someday && task.status !== 1" class="tr-tag someday">
@@ -53,7 +59,7 @@
         </div>
       </div>
 
-      <div class="tr-actions">
+      <div class="tr-actions" :inert="pending || undefined">
         <button title="打标签" @click="openTagPicker"><Icon name="tag" :size="14" /></button>
         <button title="设置截止日期" @click="setDue"><Icon name="flag" :size="14" /></button>
         <button title="添加子任务" @click="addSub"><Icon name="plus" :size="14" /></button>
@@ -67,6 +73,9 @@
       </div>
     </div>
 
+    <SelectDialog :open="tagOpen" :model-value="tagIds" :options="tagOptions" title="选择标签" description="选择多个标签，确定后保存；取消保留原标签。" multiple :loading="tagLoading" :load-error="tagLoadError" :error="tagSaveError" :busy="tagSaving" @confirm="saveTags" @cancel="closeTags" @retry="loadTags">
+      <template #empty><template v-if="!allTags.length"><p>还没有标签</p><Button variant="secondary" @click="createFirstTag">新建标签</Button></template><p v-else>无匹配项</p></template>
+    </SelectDialog>
     <div v-if="task.children && task.children.length" class="tr-children">
       <TaskRow v-for="c in task.children" :key="c.id" :task="c" :depth="depth + 1" />
     </div>
@@ -76,10 +85,13 @@
 <script setup lang="ts">
 // 任务树行（递归）：拖拽排序 / 勾选完成 / 内联编辑 / 截止日期 / 标签 / 加子任务 / 安排 / 某天 / 删除。
 // 通过 inject 拿到父级提供的 reload 与 reorder，写操作后刷新当前视图。
-import { ref, inject, nextTick, computed } from 'vue'
+import { ref, inject, nextTick, computed, watch, onBeforeUnmount } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
+import SelectDialog from '@/components/ui/SelectDialog.vue'
+import Button from '@/components/ui/Button.vue'
+import TaskCompletionAction from '@/components/learning-actions/TaskCompletionAction.vue'
 import { updateTask, setTaskStatus, createTask, deleteTask, setTaskTags, listTaskTags } from '@/api/task'
-import type { TaskNode } from '@/api/task'
+import type { TaskTagVO, TaskNode } from '@/api/task'
 import { notify } from '@/utils/toast'
 import { dialog } from '@/utils/dialog'
 
@@ -88,6 +100,7 @@ const reload = inject<() => void>('taskReload', () => {})
 const onTaskDrop = inject<(draggedId: number, targetId: number) => void>('taskReorder', () => {})
 
 const editing = ref(false)
+const pending = ref(false)
 const draft = ref('')
 const inputEl = ref<HTMLInputElement | null>(null)
 const isDragging = ref(false)
@@ -107,15 +120,17 @@ const isOverdue = computed(() => {
 })
 
 async function toggle() {
+  if (pending.value) return
+  if (props.task.completionRequirement) { notify('此任务需要真实学习记录，请使用去练习入口', 'info'); return }
+  pending.value = true
   const next = props.task.status === 1 ? 0 : 1
-  props.task.status = next // 乐观更新，刷新后由后端数据校准
   try {
+    if (next === 1 && !(await dialog.confirm({"confirmText":"确认完成","cancelText":"返回编辑","icon":"check-circle","variant":"default", title: '完成任务', message: '确认提交完成？系统会按原有任务证明和完成规则校验。' }))) return
     await setTaskStatus(props.task.id, next)
-    reload()
-  } catch (e) {
-    props.task.status = props.task.status === 1 ? 0 : 1
-    notify((e as Error).message || '操作失败', 'error')
-  }
+    // 不先改 props；仅在服务成功后重新读取真实任务状态。
+    await reload()
+  } catch (e) { notify((e as Error).message || '操作失败，任务状态未确认', 'error') }
+  finally { pending.value = false }
 }
 
 async function addSub() {
@@ -178,13 +193,14 @@ async function toggleSomeday() {
 }
 
 async function remove() {
-  if (!(await dialog.confirm({ title: '删除确认', message: '确定删除该任务及其所有子任务？', variant: 'danger' }))) return
-  try {
-    await deleteTask(props.task.id)
-    reload()
-  } catch (e) {
-    notify((e as Error).message || '删除失败', 'error')
-  }
+  await dialog.confirm({
+    title:'删除确认', message:'确定删除该任务及其所有子任务？', variant:'danger',
+    confirmText:'确认删除', cancelText:'取消', icon:'trash-2',
+    onConfirm:async()=>{
+      try { await deleteTask(props.task.id); reload() }
+      catch (e) { notify((e as Error).message || '删除失败','error'); throw e }
+    },
+  })
 }
 
 function startEdit() {
@@ -235,53 +251,39 @@ function onDrop(e: DragEvent) {
   onTaskDrop(draggedId, props.task.id)
 }
 
-// ===== 标签选择 =====
-async function openTagPicker() {
-  const allTags = await listTaskTags()
-  if (!allTags.length) {
-    const create = await dialog.confirm({
-      title: '还没有标签',
-      message: '是否立即新建一个标签？',
-      variant: 'primary',
-    })
-    if (!create) return
-    const name = await dialog.prompt({ title: '新建标签', input: { placeholder: '标签名' } })
-    if (!name || !name.trim()) return
-    try {
-      const { createTaskTag } = await import('@/api/task')
-      await createTaskTag({ name: name.trim() })
-      await openTagPicker()
-    } catch (e) {
-      notify((e as Error).message || '创建标签失败', 'error')
-    }
-    return
-  }
-  const current = new Set((props.task.tags || []).map((t) => t.id))
-  const lines = allTags.map((t, i) => `${i + 1}. ${t.name}${current.has(t.id) ? ' ✓' : ''}`).join('\n')
-  const sel = await dialog.prompt({
-    title: '选择标签',
-    message: `输入序号（多个用逗号分隔），清空则输入 0：\n${lines}`,
-    input: { placeholder: '如 1,3' },
-  })
-  if (sel === null) return
-  const v = sel.trim()
-  let nextIds: number[]
-  if (v === '' || v === '0') {
-    nextIds = []
-  } else {
-    const idxs = v.split(/[,，\s]+/).map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n) && n >= 1 && n <= allTags.length)
-    nextIds = idxs.map((i) => allTags[i - 1].id)
-    // 去重
-    nextIds = [...new Set(nextIds)]
-  }
-  try {
-    await setTaskTags(props.task.id, nextIds)
-    props.task.tags = allTags.filter((t) => nextIds.includes(t.id))
-    notify('标签已更新', 'success')
-  } catch (e) {
-    notify((e as Error).message || '标签更新失败', 'error')
-  }
+// ===== 标签选择：草稿只在确认后写入服务器。 =====
+const tagOpen=ref(false),tagLoading=ref(false),tagSaving=ref(false)
+const tagLoadError=ref(''),tagSaveError=ref(''),tagIds=ref<number[]>([]),allTags=ref<TaskTagVO[]>([])
+const tagOptions=computed(()=>allTags.value.map(tag=>({value:tag.id,label:tag.name,color:tag.color})))
+let tagEpoch=0
+function closeTags(){if(tagSaving.value)return;tagEpoch++;tagOpen.value=false;tagLoading.value=false}
+async function loadTags(){
+  const epoch=++tagEpoch,id=props.task.id
+  tagLoading.value=true;tagLoadError.value=''
+  try{const tags=await listTaskTags();if(epoch===tagEpoch&&props.task.id===id&&tagOpen.value)allTags.value=tags}
+  catch(error){if(epoch===tagEpoch)tagLoadError.value=(error as Error).message||'标签加载失败'}
+  finally{if(epoch===tagEpoch)tagLoading.value=false}
 }
+function openTagPicker(){if(pending.value||tagSaving.value)return;tagIds.value=(props.task.tags||[]).map(tag=>tag.id);allTags.value=[];tagSaveError.value='';tagOpen.value=true;void loadTags()}
+async function saveTags(ids:number[]){
+  if(tagSaving.value)return
+  const epoch=tagEpoch,id=props.task.id
+  tagIds.value=[...ids];tagSaving.value=true;tagSaveError.value=''
+  try{await setTaskTags(id,ids);if(epoch!==tagEpoch||props.task.id!==id)return;props.task.tags=allTags.value.filter(tag=>ids.includes(tag.id));tagOpen.value=false;notify('标签已更新','success')}
+  catch(error){if(epoch===tagEpoch)tagSaveError.value=(error as Error).message||'标签更新失败'}
+  finally{if(epoch===tagEpoch)tagSaving.value=false}
+}
+async function createFirstTag(){
+  const epoch=tagEpoch
+  // 保留已有无标签时的新建能力，先关闭选择弹窗以免叠加两个焦点域。
+  closeTags()
+  const name=await dialog.prompt({title:'新建标签',input:{placeholder:'标签名'}})
+  if(!name?.trim()||tagEpoch!==epoch+1)return
+  try{const {createTaskTag}=await import('@/api/task');await createTaskTag({name:name.trim()});if(tagEpoch===epoch+1)openTagPicker()}
+  catch(error){if(tagEpoch===epoch+1)notify((error as Error).message||'创建标签失败','error')}
+}
+watch(()=>props.task.id,()=>{tagEpoch++;tagOpen.value=false;tagLoading.value=false;tagSaving.value=false})
+onBeforeUnmount(()=>{tagEpoch++})
 
 function chipBg(color: string): string {
   if (color.startsWith('var(')) return 'rgba(59,111,224,0.1)'
@@ -304,7 +306,7 @@ function chipBg(color: string): string {
   transition: background 0.12s ease;
 }
 .tr-row:hover { background: var(--kb-muted); }
-.tr-row:hover .tr-actions { opacity: 1; visibility: visible; }
+.tr-row:hover .tr-actions, .tr-row:focus-within .tr-actions { opacity: 1; visibility: visible; }
 
 .tr-grip {
   flex: 0 0 auto;
@@ -347,16 +349,18 @@ function chipBg(color: string): string {
   word-break: break-word;
 }
 .tr-title.done { color: var(--kb-muted-foreground); text-decoration: line-through; }
+.tr-edit:not(.kb-form-control) {
+  border-radius: 6px;
+  border: 1px solid var(--kb-primary);
+  background: var(--kb-card);
+  outline: none;
+}
 .tr-edit {
   flex: 1 1 auto;
   min-width: 120px;
   font-size: 14px;
   padding: 4px 8px;
-  border-radius: 6px;
-  border: 1px solid var(--kb-primary);
-  background: var(--kb-card);
   color: var(--kb-foreground);
-  outline: none;
 }
 .tr-chip {
   display: inline-flex;
@@ -407,4 +411,8 @@ function chipBg(color: string): string {
 .tr-actions button.danger:hover { color: var(--kb-destructive); background: rgba(239, 68, 68, 0.1); }
 
 .tr-children { position: relative; }
+
+.tr-body { min-width:0; }.tr-title { overflow-wrap:anywhere; }.tr-check:disabled { opacity:.6; cursor:wait; }
+.tr-node :is(button,input,[role="button"]):focus-visible:not(.kb-form-control, .kb-input, .kb-textarea, .kb-select, .kb-select-trigger) { outline:var(--kb-field-focus-width) solid var(--kb-ring); outline-offset:var(--kb-space-1); }
+@media(max-width:768px) { .tr-row { flex-wrap:wrap; padding-block:var(--kb-space-3); }.tr-actions { width:100%; justify-content:flex-end; opacity:1; visibility:visible; }.tr-body { flex:1; }.tr-actions button { min-width:var(--kb-btn-height-sm); min-height:var(--kb-btn-height-sm); } }
 </style>

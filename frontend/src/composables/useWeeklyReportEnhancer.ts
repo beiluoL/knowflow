@@ -1,5 +1,4 @@
 import { focusSessionApi, learningApi, mistakesApi, userApi } from '@/api';
-import { notify, getApiError } from '@/utils/toast';
 import type {
   FocusStatsVO,
   DailyActivityVO,
@@ -37,15 +36,8 @@ export interface AiInsight {
 }
 
 export async function aggregateWeeklyMetrics(): Promise<AggregatedMetrics> {
-  const metrics: AggregatedMetrics = {
-    focusStats: null,
-    daily: [],
-    mastery: null,
-    mistakes: null,
-    user: null,
-  };
-
-  const results = await Promise.allSettled([
+  // 增强统计是独立区块：任何来源失败都交由页面显示失败，不能伪装成零数据。
+  const [focusStats, daily, mastery, mistakes, user] = await Promise.all([
     focusSessionApi.stats(7),
     learningApi.dailyActivity(7),
     learningApi.mastery(),
@@ -53,20 +45,7 @@ export async function aggregateWeeklyMetrics(): Promise<AggregatedMetrics> {
     userApi.stats(),
   ]);
 
-  results.forEach((r, idx) => {
-    if (r.status === 'fulfilled') {
-      if (idx === 0) metrics.focusStats = r.value as FocusStatsVO;
-      else if (idx === 1) metrics.daily = r.value as DailyActivityVO[];
-      else if (idx === 2) metrics.mastery = r.value as MasteryDistributionVO;
-      else if (idx === 3) metrics.mistakes = r.value as MistakeStats;
-      else if (idx === 4) metrics.user = r.value as UserStatsVO;
-    } else {
-      const labels = ['专注统计', '每日活跃度', '掌握度分布', '错题统计', '用户统计'];
-      notify(`加载${labels[idx]}失败：${getApiError(r.reason, '网络异常')}`, 'warning');
-    }
-  });
-
-  return metrics;
+  return { focusStats, daily, mastery, mistakes, user };
 }
 
 export function generateAiInsights(

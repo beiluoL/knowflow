@@ -3,6 +3,7 @@
 // 删除走统一 dialog 服务（danger 变体），禁止浏览器原生 confirm。
 import { ref, watch, computed } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
+import DatePicker from '@/components/ui/DatePicker.vue'
 import {
   listMemorials,
   createMemorial,
@@ -21,7 +22,7 @@ const emit = defineEmits<{
 }>()
 
 /** 纪念日主题色预设（与视图渲染共用，首项为默认）。 */
-const PRESET_COLORS = ['#8B5CF6', '#EC4899', '#E5484D', '#F59E0B', '#10B981', '#0EA5E9', '#14B8A6', '#A16207']
+const PRESET_COLORS = ['#8B5CF6', '#EC4899', '#E5484D', 'var(--kb-warning)', 'var(--kb-success)', '#0EA5E9', '#14B8A6', '#A16207']
 
 interface Form {
   name: string
@@ -137,22 +138,24 @@ async function onSave() {
 }
 
 async function onDelete(m: Memorial) {
-  const ok = await dialog.confirm({
-    title: '删除纪念日',
-    message: `确定删除「${m.name}」吗？此操作不可恢复。`,
-    confirmText: '删除',
-    variant: 'danger',
-    icon: 'trash-2',
-  })
-  if (!ok) return
-  try {
-    await deleteMemorial(m.id)
-    notify('已删除', 'success')
-    emit('changed')
-    await load()
-  } catch (e) {
-    notify(getApiError(e, '删除失败'), 'error')
-  }
+  await dialog.confirm({ "cancelText": "取消",
+      title: '删除纪念日',
+      message: `确定删除「${m.name}」吗？此操作不可恢复。`,
+      confirmText: '删除',
+      variant: 'danger',
+      icon: 'trash-2',
+      onConfirm: async () => {
+          try {
+              await deleteMemorial(m.id);
+              notify('已删除', 'success');
+              emit('changed');
+              await load();
+          }
+          catch (e) {
+              notify(getApiError(e, '删除失败'), 'error');
+              throw e;
+          }
+      } });
 }
 </script>
 
@@ -168,7 +171,7 @@ async function onDelete(m: Memorial) {
         <!-- 表单 -->
         <div v-if="isEdit || memorials.length === 0" class="mem-form">
           <div class="mem-form-title">{{ titleText }}</div>
-          <input v-model="form.name" class="mem-input" placeholder="纪念日名称（如：结婚纪念日）" maxlength="100" />
+          <input v-model="form.name" class="mem-input kb-input kb-form-control" placeholder="纪念日名称（如：结婚纪念日）" maxlength="100" />
 
           <div class="mem-type-row">
             <button
@@ -189,17 +192,22 @@ async function onDelete(m: Memorial) {
 
           <div v-if="form.type === 'yearly'" class="mem-field">
             <Icon name="calendar" :size="15" class="mem-ic" />
-            <select v-model.number="form.month" class="mem-input mem-select-sm">
+            <select v-model.number="form.month" class="mem-input mem-select-sm kb-select kb-form-control">
               <option v-for="m in 12" :key="m" :value="m">{{ m }} 月</option>
             </select>
-            <select v-model.number="form.day" class="mem-input mem-select-sm">
+            <select v-model.number="form.day" class="mem-input mem-select-sm kb-select kb-form-control">
               <option v-for="d in 31" :key="d" :value="d">{{ d }} 日</option>
             </select>
             <span class="mem-hint">每年这一天</span>
           </div>
           <div v-else class="mem-field">
-            <Icon name="calendar" :size="15" class="mem-ic" />
-            <input type="date" v-model="form.fixedDate" class="mem-input" />
+            <DatePicker
+              v-model="form.fixedDate"
+              class="mem-datepicker"
+              aria-label="固定日期"
+              placeholder="选择日期"
+              :week-starts-on="1"
+            />
             <span class="mem-hint">仅这一天</span>
           </div>
 
@@ -216,7 +224,7 @@ async function onDelete(m: Memorial) {
             ></button>
           </div>
 
-          <textarea v-model="form.note" class="mem-input mem-textarea" placeholder="备注（可选）" rows="2"></textarea>
+          <textarea v-model="form.note" class="mem-input mem-textarea kb-textarea kb-form-control" placeholder="备注（可选）" rows="2"></textarea>
 
           <p v-if="error" class="mem-error">{{ error }}</p>
 
@@ -327,18 +335,20 @@ async function onDelete(m: Memorial) {
   font-weight: 700;
   color: #374151;
 }
-.mem-input {
+.mem-input:not(.kb-form-control) {
   border: 1px solid #e5e7eb;
   border-radius: 9px;
-  padding: 9px 11px;
-  font-size: 14px;
-  color: #1f2937;
   background: #fff;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
+}
+.mem-input {
+  padding: 9px 11px;
+  font-size: 14px;
+  color: #1f2937;
   font-family: inherit;
 }
-.mem-input:focus {
+.mem-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
 }
@@ -354,7 +364,7 @@ async function onDelete(m: Memorial) {
   flex: 1;
   border: 1px solid #e5e7eb;
   background: #fff;
-  color: #6b7280;
+  color: var(--kb-muted-foreground);
   font-size: 13px;
   font-weight: 600;
   padding: 8px 10px;
@@ -371,6 +381,10 @@ async function onDelete(m: Memorial) {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+.mem-datepicker {
+  flex: 1;
+  min-width: 0;
 }
 .mem-ic {
   color: #9aa3b2;
@@ -403,7 +417,7 @@ async function onDelete(m: Memorial) {
   resize: vertical;
 }
 .mem-error {
-  color: #ef4444;
+  color: var(--kb-danger);
   font-size: 13px;
   margin: 0;
 }
@@ -486,7 +500,7 @@ async function onDelete(m: Memorial) {
 }
 .mem-item-note {
   margin-left: 6px;
-  color: #6b7280;
+  color: var(--kb-muted-foreground);
 }
 .mem-item-actions {
   display: flex;
@@ -498,7 +512,7 @@ async function onDelete(m: Memorial) {
   height: 30px;
   border: 1px solid #e5e7eb;
   background: #fff;
-  color: #6b7280;
+  color: var(--kb-muted-foreground);
   border-radius: 8px;
   cursor: pointer;
   display: flex;
@@ -511,8 +525,8 @@ async function onDelete(m: Memorial) {
   color: var(--kb-primary);
 }
 .mem-op-del:hover {
-  border-color: #fca5a5;
-  color: #ef4444;
+  border-color: var(--kb-danger-tint);
+  color: var(--kb-danger);
 }
 .mem-foot {
   display: flex;

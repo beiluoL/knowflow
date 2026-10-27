@@ -101,10 +101,10 @@ public class AdminCategoryController {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         DocCategory existed = categoryService.getById(id);
         if (existed == null) {
-            throw new BusinessException("知识库不存在");
+            throw new BusinessException(404, "知识库不存在");
         }
         if (!kbMemberService.isOwner(id, currentUserId)) {
-            throw new BusinessException("无权修改该知识库");
+            throw new BusinessException(403, "无权修改该知识库");
         }
         // 校验 parentId 合法性（防止把分类移到自己/子孙节点下形成环）
         categoryService.validateParentId(id, category.getParentId());
@@ -120,7 +120,7 @@ public class AdminCategoryController {
     public Result<Void> delete(@PathVariable Long id) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         if (!kbMemberService.isOwner(id, currentUserId)) {
-            throw new BusinessException("无权删除该知识库");
+            throw new BusinessException(403, "无权删除该知识库");
         }
         categoryService.removeCategory(id);
         return Result.success();
@@ -145,11 +145,11 @@ public class AdminCategoryController {
             @RequestPart("file") MultipartFile file) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         if (!kbMemberService.canEditDocs(categoryId, currentUserId)) {
-            throw new BusinessException("无权向该知识库导入文档");
+            throw new BusinessException(403, "无权向该知识库导入文档");
         }
         DocCategory cat = categoryService.getById(categoryId);
         if (cat == null) {
-            throw new BusinessException("知识库不存在");
+            throw new BusinessException(404, "知识库不存在");
         }
         String original = file.getOriginalFilename() == null ? "" : file.getOriginalFilename().toLowerCase();
         List<ParsedDoc> parsed = new ArrayList<>();
@@ -221,11 +221,11 @@ public class AdminCategoryController {
             @RequestParam(defaultValue = "zip") String format) throws Exception {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         if (!kbMemberService.canView(categoryId, currentUserId)) {
-            throw new BusinessException("无权导出该知识库");
+            throw new BusinessException(403, "无权导出该知识库");
         }
         DocCategory cat = categoryService.getById(categoryId);
         if (cat == null) {
-            throw new BusinessException("知识库不存在");
+            throw new BusinessException(404, "知识库不存在");
         }
         List<DocDocument> docs = docService.listByCategory(categoryId);
 

@@ -58,6 +58,8 @@ public class KnowledgeMasteryServiceImpl implements KnowledgeMasteryService {
     private final LearningEventMapper learningEventMapper;
     private final MasteryEngine masteryEngine;
     private final ResourceKnowledgeService resourceKnowledgeService;
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.knowflow.security.DocumentAccessPolicy documentAccess;
 
     public KnowledgeMasteryServiceImpl(KnowledgeMasteryMapper masteryMapper,
                                        ResourceKnowledgeMappingMapper mappingMapper,
@@ -202,6 +204,7 @@ public class KnowledgeMasteryServiceImpl implements KnowledgeMasteryService {
     @Override
     public KnowledgeMasteryDetailVO getDetail(Long userId, Long knowledgeId) {
         KgEntity entity = kgEntityMapper.selectById(knowledgeId);
+        documentAccess.requireReadKnowledge(entity,userId);
         MasteryComputation comp = masteryEngine.compute(userId, knowledgeId);
         Synthesis s = comp.hasSignals() ? synthesize(comp) : Synthesis.notStarted();
         KnowledgeMasteryDetailVO vo = new KnowledgeMasteryDetailVO();
@@ -406,6 +409,7 @@ public class KnowledgeMasteryServiceImpl implements KnowledgeMasteryService {
         }
         List<KnowledgeMasteryVO> vos = new ArrayList<>();
         for (KnowledgeMastery row : rows) {
+            if (!documentAccess.canReadKnowledge(entMap.get(row.getKnowledgeId()),row.getUserId())) continue;
             KnowledgeMasteryVO vo = new KnowledgeMasteryVO();
             vo.setKnowledgeId(row.getKnowledgeId());
             KgEntity e = entMap.get(row.getKnowledgeId());

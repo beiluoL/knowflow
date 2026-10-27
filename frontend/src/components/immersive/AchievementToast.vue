@@ -42,9 +42,9 @@ const visibleEvents = ref<InternalEvent[]>([]);
 const defsMap = new Map<MicroAchievementId, MicroAchievementDef>();
 
 const iconBgMap: Partial<Record<MicroAchievementId, string>> = {
-  FIRST_FOCUS: '#F59E0B',
-  POMODORO_X3: '#10B981',
-  POMODORO_X5: '#EF4444',
+  FIRST_FOCUS: 'var(--kb-warning)',
+  POMODORO_X3: 'var(--kb-success)',
+  POMODORO_X5: 'var(--kb-danger)',
   FLOW_45MIN: '#0EA5E9',
   FLOW_90MIN: '#8B5CF6',
   NO_DISTRACT: '#14B8A6',

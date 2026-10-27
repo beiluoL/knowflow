@@ -1,0 +1,1226 @@
+{
+  "paths": [
+    {
+      "key": "agent",
+      "title": "AI Agent 工程：工具、循环与安全",
+      "description": "学习可控的工具编排，不依赖付费模型完成练习。",
+      "tag": "AGENT,TOOL_CALLING,MCP,EVALUATION",
+      "chapters": [
+        {
+          "key": "java-ai.agent.tool",
+          "title": "Tool Calling 与 JSON Schema",
+          "description": "围绕工具契约、工具结果回填、执行边界建立可解释的工程判断。",
+          "objectives": [
+            "解释工具契约并给出边界案例",
+            "解释工具结果回填并给出边界案例",
+            "解释执行边界并给出边界案例"
+          ],
+          "minutes": 35,
+          "difficulty": 2,
+          "importance": "S",
+          "prerequisites": [],
+          "material": "工具调用把模型的文字判断转成结构化调用意图，但模型并不直接执行 Java 方法。应用先提供名称、用途和参数模式，模型返回工具名称、参数与调用标识；服务端解析后验证类型、必填项、取值范围和资源权限，再执行已注册工具。JSON Schema 描述结构，不能证明参数对应的文档属于当前用户，也不能保证业务操作安全。严格模式的具体支持范围取决于模型供应商与接口版本，不能把一个供应商的配置原样复制给所有适配器。\n\n完整生命周期是用户请求、第一次模型调用、接收工具意图、服务端执行、回填结果、第二次模型调用以及最终回答。回填必须保留调用标识，多个工具结果才能与对应意图关联；工具报错也应形成明确结果，不能伪装成查询无数据。工程场景可从只读知识检索开始，返回精简片段与来源，避免把整库塞进上下文。写操作应额外检查幂等键和授权，客户端传入的用户身份不能用于鉴权。\n\n常见错误是只把工具输出显示在页面，却没有交给模型继续生成；另一个错误是把模式验证等同于安全验证。面试可以按契约、执行、反馈三个阶段说明职责，再追问重复调用会不会造成重复写入，以及超时后是否允许安全重试。本章以通用工具调用流程为准，Java 17 练习采用本地模拟，不宣称任何云接口已经实际调用。\n\n参考（版本边界见正文）：https://developers.openai.com/api/docs/guides/function-calling",
+          "knowledge": [
+            {
+              "key": "java-ai.agent.tool.contract",
+              "name": "工具契约",
+              "explanation": "JSON Schema约束名称参数结构，业务授权仍由服务端检查。"
+            },
+            {
+              "key": "java-ai.agent.tool.flow",
+              "name": "工具结果回填",
+              "explanation": "工具结果必须绑定callId回填上下文，再请求模型形成最终答复。"
+            },
+            {
+              "key": "java-ai.agent.tool.boundary",
+              "name": "执行边界",
+              "explanation": "模型只提出意图；白名单、权限、幂等和执行由应用负责。"
+            }
+          ],
+          "flashcards": [
+            {
+              "type": "Concept",
+              "front": "工具契约的核心含义是什么？",
+              "back": "JSON Schema约束名称参数结构，业务授权仍由服务端检查。 追问：你会用什么输入证明这个边界？",
+              "knowledgeKeys": [
+                "java-ai.agent.tool.contract"
+              ]
+            },
+            {
+              "type": "Process",
+              "front": "如何说明工具结果回填的数据流？",
+              "back": "工具结果必须绑定callId回填上下文，再请求模型形成最终答复。 追问：中间一步失败后，后续步骤还能否执行？",
+              "knowledgeKeys": [
+                "java-ai.agent.tool.flow"
+              ]
+            },
+            {
+              "type": "Pitfall",
+              "front": "介绍执行边界时最容易夸大什么？",
+              "back": "模型只提出意图；白名单、权限、幂等和执行由应用负责。 追问：哪些结论需要运行测试而不能只看代码？",
+              "knowledgeKeys": [
+                "java-ai.agent.tool.boundary"
+              ]
+            },
+            {
+              "type": "Interview Follow-up",
+              "front": "你如何验证《Tool Calling 与 JSON Schema》中的结论？",
+              "back": "先追踪输入、身份和依赖，再核对输出与副作用；准备成功、空结果、拒绝、超时案例。工具结果必须绑定callId回填上下文，再请求模型形成最终答复。 追问：如何避免一次演示被当成整体质量证据？",
+              "knowledgeKeys": [
+                "java-ai.agent.tool.contract",
+                "java-ai.agent.tool.flow",
+                "java-ai.agent.tool.boundary"
+              ]
+            }
+          ],
+          "questions": [
+            {
+              "question": "Tool Schema需要描述什么？为什么通过Schema校验还不能执行工具？",
+              "answer": "Schema是参数契约，不是授权凭证。定义工具名称、用途、object类型、properties、required及字段范围；应限制不需要的额外字段。模型返回JSON后，服务端先解析、验证类型与必填项，再校验真实账号对目标资源的权限，最后执行。例如deleteDocument需要合法docId，但合法数字仍可能属于他人，因此还要检查Owner/Editor。Schema不能防止重复副作用，写工具还需要请求标识或业务幂等键。对不支持严格输出的兼容接口，必须保留本地校验，不能因模型说“参数正确”就信任。",
+              "keyPoints": [
+                "JSON Schema约束名称参数结构，业务授权仍由服务端检查。",
+                "工具结果必须绑定callId回填上下文，再请求模型形成最终答复。"
+              ],
+              "followUps": [
+                "必填参数遗漏如何返回可供模型修正的错误？",
+                "工具description应如何避免模型选错相似工具？"
+              ],
+              "commonMistakes": [
+                "把strict或required误当成业务授权",
+                "把userId从模型参数直接用于权限判断"
+              ],
+              "rank": "S",
+              "knowledgeKeys": [
+                "java-ai.agent.tool.contract"
+              ]
+            },
+            {
+              "question": "工具执行结果如何回注给模型？为什么还需要第二轮模型调用？",
+              "answer": "工具调用是模型提出意图，最终回答需要真实执行结果。应用保留assistant产生的调用记录，执行获准工具后追加与同一callId关联的tool结果，再发起后续模型请求。例如模型请求查询天气，应用返回城市、温度、采集时间，模型据此组织回答；不能只把结果打印到界面而不加入上下文。多个调用的结果可以完成顺序不同，但关联标识不能串位。参数错误、授权拒绝或超时也要作为明确失败结果回填，不编造成功值。实际字段形状取决于模型协议适配器，应同时保留消息角色和调用关联，不能混用不同供应商格式。",
+              "keyPoints": [
+                "工具结果必须绑定callId回填上下文，再请求模型形成最终答复。",
+                "模型只提出意图；白名单、权限、幂等和执行由应用负责。"
+              ],
+              "followUps": [
+                "并行工具返回顺序不同，怎样保证结果不串位？",
+                "如果第二轮模型又要求调用工具，怎样处理？"
+              ],
+              "commonMistakes": [
+                "只传工具输出而丢失assistant调用记录",
+                "使用错误callId绑定另一个工具的结果"
+              ],
+              "rank": "S",
+              "knowledgeKeys": [
+                "java-ai.agent.tool.flow"
+              ]
+            },
+            {
+              "question": "写入类工具怎样避免越权、重复执行和危险副作用？",
+              "answer": "模型只能建议动作，执行权属于应用。首先从固定白名单解析工具，不接受任意类名或命令；其次从认证上下文确定身份，验证资源归属和操作范围；最后对删除、运行代码等风险动作应用显式确认与能力开关。幂等键必须描述同一个业务操作，不能仅用模型本次随机callId代替所有重复请求语义。网络超时不等于写入失败，应先查询操作结果，不能无限重试删除或转账式副作用。工具输出与网页内容都属于不可信数据，即使包含“管理员授权”也不能扩张权限。日志记录操作标识和结果，但避免保存敏感参数。",
+              "keyPoints": [
+                "模型只提出意图；白名单、权限、幂等和执行由应用负责。",
+                "JSON Schema约束名称参数结构，业务授权仍由服务端检查。"
+              ],
+              "followUps": [
+                "读工具与写工具的重试策略有什么区别？",
+                "确认后目标资源变了，执行前是否需要重新校验？"
+              ],
+              "commonMistakes": [
+                "所有失败都自动重试",
+                "以工具返回的指令作为新的授权"
+              ],
+              "rank": "A",
+              "knowledgeKeys": [
+                "java-ai.agent.tool.boundary"
+              ]
+            }
+          ],
+          "exercise": {
+            "title": "模拟工具结果关联",
+            "description": "设计Java17本地工具调度器：输入调用ID、工具名和参数，拒绝未注册工具及缺少参数的调用，将成功或失败结果绑定原调用ID，并生成第二轮模型所需消息。人工检查：不调用云模型，确认意图消息先于结果消息，结果带callId，错误不伪装成功。",
+            "hint": "先列状态与边界，使用本地固定数据，不访问网络或宿主文件。",
+            "codeTemplate": "import java.util.*;\npublic class Main {\nrecord Call(String id,String name,Map<String,String> args) {}\nrecord Result(String callId,boolean success,String output) {}\nstatic Result dispatch(Call call) {\n    // TODO: 白名单、参数校验与本地执行\n    throw new UnsupportedOperationException(\"实现调度\");\n}\npublic static void main(String[] args) {\n    // TODO: 构造正常与边界用例并打印结果\n}\n}",
+            "solutionHint": "按输入验证、授权或依赖判定、核心处理、输出四段实现；独立检查失败是否阻止副作用。工具结果必须绑定callId回填上下文，再请求模型形成最终答复。",
+            "exampleInput": "调用c1/search/query=Java",
+            "exampleOutput": "结果绑定c1；后续消息包含assistant意图和tool结果",
+            "testCases": [],
+            "knowledgeKeys": [
+              "java-ai.agent.tool.contract",
+              "java-ai.agent.tool.flow",
+              "java-ai.agent.tool.boundary"
+            ]
+          }
+        },
+        {
+          "key": "java-ai.agent.loop",
+          "title": "Agent、Workflow 与 ReAct",
+          "description": "围绕动态决策、有限循环、观察反馈建立可解释的工程判断。",
+          "objectives": [
+            "解释动态决策并给出边界案例",
+            "解释有限循环并给出边界案例",
+            "解释观察反馈并给出边界案例"
+          ],
+          "minutes": 35,
+          "difficulty": 2,
+          "importance": "S",
+          "prerequisites": [
+            "java-ai.agent.tool"
+          ],
+          "material": "Workflow 把步骤与分支预先写进程序，Agent 则让模型根据环境反馈选择后续工具与过程。两者可以组合：固定的权限审核和结果持久化围绕动态工具循环。判断标准不是有没有调用大模型，而是谁决定下一步。固定执行检索、摘要、格式校验的流水线仍是工作流；根据检索失败改写查询并重试的系统可以包含 Agent 决策。\n\nReAct 的工程重点是行动与观察交替：模型提出行动，工具给出外部事实，下一轮利用观察调整选择。不要将模型生成的思考文字当作真实证据，也不必要求模型暴露内部推理。可记录简短决策摘要、工具参数与结果，支持调试即可。循环必须有最大轮次、总时长和调用预算，终止条件包括得到可回答的信息、用户取消、不可恢复错误、权限拒绝与预算耗尽。不同终止原因应分别展示。\n\n在知识检索场景中，第一次查询为空可以尝试一次更具体的关键词，但不能无休止重试，也不能用随机答案替代观察。可重试错误与永久错误要分开，执行带副作用工具前先考虑去重。常见误区是把工具调用次数越多当成智能越强，或用无限循环保证完成。面试应先解释选择 Agent 的必要性，再讲可控状态机与停止策略。本章使用架构概念，不依赖特定框架版本，练习通过本地事件序列检查边界。\n\n参考（版本边界见正文）：https://www.anthropic.com/engineering/building-effective-agents",
+          "knowledge": [
+            {
+              "key": "java-ai.agent.loop.contract",
+              "name": "动态决策",
+              "explanation": "下一步由固定代码决定是workflow，由模型依据反馈动态决定体现agent。"
+            },
+            {
+              "key": "java-ai.agent.loop.flow",
+              "name": "有限循环",
+              "explanation": "最大轮次、总时长、预算与取消条件共同限制循环。"
+            },
+            {
+              "key": "java-ai.agent.loop.boundary",
+              "name": "观察反馈",
+              "explanation": "观察来自真实工具结果，模型描述不能替代环境事实。"
+            }
+          ],
+          "flashcards": [
+            {
+              "type": "Concept",
+              "front": "动态决策的核心含义是什么？",
+              "back": "下一步由固定代码决定是workflow，由模型依据反馈动态决定体现agent。 追问：你会用什么输入证明这个边界？",
+              "knowledgeKeys": [
+                "java-ai.agent.loop.contract"
+              ]
+            },
+            {
+              "type": "Process",
+              "front": "如何说明有限循环的数据流？",
+              "back": "最大轮次、总时长、预算与取消条件共同限制循环。 追问：中间一步失败后，后续步骤还能否执行？",
+              "knowledgeKeys": [
+                "java-ai.agent.loop.flow"
+              ]
+            },
+            {
+              "type": "Pitfall",
+              "front": "介绍观察反馈时最容易夸大什么？",
+              "back": "观察来自真实工具结果，模型描述不能替代环境事实。 追问：哪些结论需要运行测试而不能只看代码？",
+              "knowledgeKeys": [
+                "java-ai.agent.loop.boundary"
+              ]
+            },
+            {
+              "type": "Interview Follow-up",
+              "front": "你如何验证《Agent、Workflow 与 ReAct》中的结论？",
+              "back": "先追踪输入、身份和依赖，再核对输出与副作用；准备成功、空结果、拒绝、超时案例。最大轮次、总时长、预算与取消条件共同限制循环。 追问：如何避免一次演示被当成整体质量证据？",
+              "knowledgeKeys": [
+                "java-ai.agent.loop.contract",
+                "java-ai.agent.loop.flow",
+                "java-ai.agent.loop.boundary"
+              ]
+            }
+          ],
+          "questions": [
+            {
+              "question": "Workflow与Agent如何区分？什么时候不该使用Agent？",
+              "answer": "区别在下一步的决策来源。Workflow由代码预定阶段和分支，例如解析→分块→检索→生成；Agent由模型结合目标与观察动态选择动作和工具。Tool Calling只是模型输出工具调用的能力，一次调用不自动等于完整Agent。对于固定规则、可验收、要求稳定延迟的流程，优先Workflow；需要探索不同信息源或根据工具反馈修订步骤时才考虑Agent。ReAct强调动作与观察循环，但不要求对用户暴露内部推理。工程上可以把Agent限制在一个工作流节点，外层继续控制授权、超时和最终验收，避免将整个系统都交给模型自由决策。",
+              "keyPoints": [
+                "下一步由固定代码决定是workflow，由模型依据反馈动态决定体现agent。",
+                "最大轮次、总时长、预算与取消条件共同限制循环。"
+              ],
+              "followUps": [
+                "一个固定RAG链加工具接口就能称为Agent吗？",
+                "Agent选择路径后，哪些规则仍必须由代码控制？"
+              ],
+              "commonMistakes": [
+                "把RAG、Workflow、Tool Calling、MCP混成同一概念",
+                "因模型能推理就让它自行定义验收标准"
+              ],
+              "rank": "S",
+              "knowledgeKeys": [
+                "java-ai.agent.loop.contract"
+              ]
+            },
+            {
+              "question": "如何限制Agent Loop并避免无限重试？",
+              "answer": "Agent循环需要明确终态，而不只是一个while循环。每轮检查取消信号、剩余时长、轮次和工具预算；模型给出final answer则结束，提出工具调用则校验执行并回填观察，失败则按可重试性分类处理。相同工具与参数重复且没有新信息时应停止或请求人工处理，不能无限反复。超时、拒绝、达到预算都应返回可识别的未完成结果，避免显示成功。KnowFlow当前AgentRuntimeService的MAX_ITER为8，这是已确认代码上限；总Token预算、可取消任务等可作为扩展设计，但不能声称现有代码已经完整实现。8轮也不是安全隔离，工具权限必须独立守住。",
+              "keyPoints": [
+                "最大轮次、总时长、预算与取消条件共同限制循环。",
+                "观察来自真实工具结果，模型描述不能替代环境事实。"
+              ],
+              "followUps": [
+                "达到轮次上限时怎样向用户交代已完成与未完成内容？",
+                "如何判定重试没有产生新的观察？"
+              ],
+              "commonMistakes": [
+                "只限制轮次却不限制单次工具耗时",
+                "达到上限后仍把计划标为完成"
+              ],
+              "rank": "S",
+              "knowledgeKeys": [
+                "java-ai.agent.loop.flow"
+              ]
+            },
+            {
+              "question": "ReAct中的Observation是什么？工具拒绝后模型应如何继续？",
+              "answer": "Observation是环境实际返回的信息，而不是模型对未来结果的猜测。搜索工具返回真实命中文档、数据库工具返回获准查询结果，拒绝或错误也属于观察。Agent将这些结果加入上下文后再选择动作；如果无权访问文档，应解释范围限制或选择获准来源，不能把“访问成功”写入记忆。结果必须带来源与状态，截断内容要说明完整性不足，防止模型把部分输出当成全部事实。评测时同时核对最终答案和调用轨迹：看起来合理的回答，如果依据的是不存在的工具结果，仍属于失败。模型提供行动说明不等于执行证据。",
+              "keyPoints": [
+                "观察来自真实工具结果，模型描述不能替代环境事实。",
+                "下一步由固定代码决定是workflow，由模型依据反馈动态决定体现agent。"
+              ],
+              "followUps": [
+                "工具返回空集合与权限拒绝怎样区分？",
+                "为什么只检查最终回答无法发现虚构工具结果？"
+              ],
+              "commonMistakes": [
+                "把模型叙述当成环境返回值",
+                "隐藏失败结果后继续声称已完成"
+              ],
+              "rank": "A",
+              "knowledgeKeys": [
+                "java-ai.agent.loop.boundary"
+              ]
+            }
+          ],
+          "exercise": {
+            "title": "实现有界循环状态机",
+            "description": "设计Java17模拟Agent执行器，事件包含TOOL、FINAL、DENIED、CANCEL和RETRYABLE_ERROR，最大8轮；用固定事件序列判断终止原因。人工检查：预算耗尽和正常完成不同，拒绝及取消后不继续执行工具。",
+            "hint": "先列状态与边界，使用本地固定数据，不访问网络或宿主文件。",
+            "codeTemplate": "import java.util.*;\npublic class Main {\nenum Event { TOOL, FINAL, DENIED, CANCEL, RETRYABLE_ERROR }\nstatic String run(List<Event> events,int maxRounds) {\n    // TODO: 有界状态迁移\n    throw new UnsupportedOperationException(\"实现循环\");\n}\npublic static void main(String[] args) {\n    // TODO: 构造正常与边界用例并打印结果\n}\n}",
+            "solutionHint": "按输入验证、授权或依赖判定、核心处理、输出四段实现；独立检查失败是否阻止副作用。最大轮次、总时长、预算与取消条件共同限制循环。",
+            "exampleInput": "TOOL,TOOL,FINAL；maxRounds=8",
+            "exampleOutput": "COMPLETED；另测9个TOOL得到BUDGET_EXHAUSTED",
+            "testCases": [],
+            "knowledgeKeys": [
+              "java-ai.agent.loop.contract",
+              "java-ai.agent.loop.flow",
+              "java-ai.agent.loop.boundary"
+            ]
+          }
+        },
+        {
+          "key": "java-ai.agent.memory",
+          "title": "记忆、规划与评估",
+          "description": "围绕记忆分层、可修订计划、轨迹评估建立可解释的工程判断。",
+          "objectives": [
+            "解释记忆分层并给出边界案例",
+            "解释可修订计划并给出边界案例",
+            "解释轨迹评估并给出边界案例"
+          ],
+          "minutes": 35,
+          "difficulty": 2,
+          "importance": "S",
+          "prerequisites": [
+            "java-ai.agent.loop"
+          ],
+          "material": "Agent 的短期记忆通常是当前对话和工具结果，长期记忆是经授权持久化的用户偏好或任务事实。摘要用于压缩上下文，检索用于挑选相关历史，两者都可能遗漏信息。不要将生成摘要升级成权威事实；关键资源标识、来源和用户确认应单独保存。记忆读取与写入都需要用户隔离、保留策略及删除机制，不能把所有会话混成共享缓存。\n\n规划把目标拆成可验证子任务，执行时必须根据新观察更新。检索计划可以先定位文档，再提取相关片段，最后组织带来源回答；如果用户无权访问文档，应终止这一分支而非绕开权限。计划是暂定路径，不是已完成证明。将步骤状态设为待执行、执行中、成功、失败，并依据真实输出推进，比只生成一张漂亮任务清单更可靠。可以固定骨架并仅让模型选择检索关键词，降低复杂度。\n\n评估同时看最终答案和执行轨迹：答案是否忠于材料、检索是否覆盖证据、工具参数是否合法、是否越权、是否陷入循环，以及成本和耗时。小规模离线样本要包含无答案、歧义、工具超时和恶意输入，记录分母与判定标准。常见错误是用单次演示宣布准确率提升，或只评分语言流畅度。面试追问可围绕记忆污染、计划失败恢复和评估回归。本章指标是建议的评估设计，未声称任何项目已经得到这些结果。\n\n参考（版本边界见正文）：https://www.anthropic.com/engineering/building-effective-agents",
+          "knowledge": [
+            {
+              "key": "java-ai.agent.memory.contract",
+              "name": "记忆分层",
+              "explanation": "短期上下文、长期事实与摘要职责不同；摘要可能丢失细节。"
+            },
+            {
+              "key": "java-ai.agent.memory.flow",
+              "name": "可修订计划",
+              "explanation": "计划必须由真实观察推动状态更新，列出步骤不等于完成。"
+            },
+            {
+              "key": "java-ai.agent.memory.boundary",
+              "name": "轨迹评估",
+              "explanation": "轨迹评估检查工具、授权、停止，结果评估检查证据与正确性。"
+            }
+          ],
+          "flashcards": [
+            {
+              "type": "Concept",
+              "front": "记忆分层的核心含义是什么？",
+              "back": "短期上下文、长期事实与摘要职责不同；摘要可能丢失细节。 追问：你会用什么输入证明这个边界？",
+              "knowledgeKeys": [
+                "java-ai.agent.memory.contract"
+              ]
+            },
+            {
+              "type": "Process",
+              "front": "如何说明可修订计划的数据流？",
+              "back": "计划必须由真实观察推动状态更新，列出步骤不等于完成。 追问：中间一步失败后，后续步骤还能否执行？",
+              "knowledgeKeys": [
+                "java-ai.agent.memory.flow"
+              ]
+            },
+            {
+              "type": "Pitfall",
+              "front": "介绍轨迹评估时最容易夸大什么？",
+              "back": "轨迹评估检查工具、授权、停止，结果评估检查证据与正确性。 追问：哪些结论需要运行测试而不能只看代码？",
+              "knowledgeKeys": [
+                "java-ai.agent.memory.boundary"
+              ]
+            },
+            {
+              "type": "Interview Follow-up",
+              "front": "你如何验证《记忆、规划与评估》中的结论？",
+              "back": "先追踪输入、身份和依赖，再核对输出与副作用；准备成功、空结果、拒绝、超时案例。计划必须由真实观察推动状态更新，列出步骤不等于完成。 追问：如何避免一次演示被当成整体质量证据？",
+              "knowledgeKeys": [
+                "java-ai.agent.memory.contract",
+                "java-ai.agent.memory.flow",
+                "java-ai.agent.memory.boundary"
+              ]
+            }
+          ],
+          "questions": [
+            {
+              "question": "Agent短期上下文、长期记忆与摘要分别承担什么职责？",
+              "answer": "短期上下文保存当前对话和最近工具观察，长期记忆保存经过核对、允许复用的事实，摘要用于在上下文有限时压缩历史。三者不能不加区分地永久保存。长期记忆要记录来源、账号范围、创建时间与更新规则；跨用户检索必须先过滤归属。摘要会丢失细节，关键授权决定、引用定位或未完成步骤不能只依赖自由文本摘要。用户纠正了旧事实时，应标记旧版本失效，而不是同时检索出互相矛盾的记忆。敏感信息也不能为了降低Token成本随意长期保存。这里是架构训练，不意味着KnowFlow已部署一个独立的长期记忆服务。",
+              "keyPoints": [
+                "短期上下文、长期事实与摘要职责不同；摘要可能丢失细节。",
+                "计划必须由真实观察推动状态更新，列出步骤不等于完成。"
+              ],
+              "followUps": [
+                "摘要压缩后怎样保留尚未执行的步骤？",
+                "长期记忆过期或相互冲突时怎么办？"
+              ],
+              "commonMistakes": [
+                "把所有聊天全文永久当记忆",
+                "把另一用户的事实放进共享检索池"
+              ],
+              "rank": "S",
+              "knowledgeKeys": [
+                "java-ai.agent.memory.contract"
+              ]
+            },
+            {
+              "question": "Agent计划怎样更新？列出步骤为什么不等于任务完成？",
+              "answer": "计划是待验证的假设，完成状态应由实际观察推动。每个步骤记录目标、依赖、输入范围与验收条件；前置步骤失败时，下游不能假定成功。工具结果可能证明原路线不可行，此时修订计划并保留修改原因，而非继续照单执行。对于“下载→解析→索引”的任务，收到文件不代表解析成功，解析成功也不代表全部分块入库，需要逐层验收。高风险步骤必须先确认，取消后剩余步骤保持未完成。规划器可以提出方案，但代码负责状态迁移与副作用边界。面试应说明怎样恢复中断任务，而不是仅展示一段漂亮的待办清单。",
+              "keyPoints": [
+                "计划必须由真实观察推动状态更新，列出步骤不等于完成。",
+                "轨迹评估检查工具、授权、停止，结果评估检查证据与正确性。"
+              ],
+              "followUps": [
+                "某个前置步骤部分成功，下游怎样选择重试或回滚？",
+                "恢复中断任务时如何避免重复写入？"
+              ],
+              "commonMistakes": [
+                "把模型生成的TODO列表标记为全部完成",
+                "绕过依赖顺序并行执行有副作用步骤"
+              ],
+              "rank": "S",
+              "knowledgeKeys": [
+                "java-ai.agent.memory.flow"
+              ]
+            },
+            {
+              "question": "Agent怎么评估？为什么任务成功率之外还要看轨迹？",
+              "answer": "结果评估检查答案正确、证据充分、任务验收是否达标；轨迹评估检查工具选择、参数、授权、重复调用和停止时机。一个答案碰巧正确，但越权读了私有资源，不能算成功。建立包含正常、工具超时、拒绝、空结果和恶意外部内容的固定任务集，记录成功率、错误调用率、成本、延迟与人工接管比例。比较相同任务和输入版本，避免挑选成功演示。安全约束应作为硬失败项，不能被平均分掩盖。这里没有预设KnowFlow的生产成功率；测试报告必须来自实际运行轨迹，未接入真实模型时只能验证代码边界或离线协议行为。",
+              "keyPoints": [
+                "轨迹评估检查工具、授权、停止，结果评估检查证据与正确性。",
+                "短期上下文、长期事实与摘要职责不同；摘要可能丢失细节。"
+              ],
+              "followUps": [
+                "任务成功但多调用十次工具，如何计入评估？",
+                "评测集如何包含授权拒绝和提示注入样本？"
+              ],
+              "commonMistakes": [
+                "只评最终自然语言是否流畅",
+                "用少数演示推导生产成功率"
+              ],
+              "rank": "A",
+              "knowledgeKeys": [
+                "java-ai.agent.memory.boundary"
+              ]
+            }
+          ],
+          "exercise": {
+            "title": "实现任务计划审计",
+            "description": "设计Java17计划状态机，只有收到对应步骤真实成功事件才能标记完成；失败步骤阻断依赖，摘要不能替代成功事件。人工检查：隔离两个用户的计划，重放同一事件不重复计数。",
+            "hint": "先列状态与边界，使用本地固定数据，不访问网络或宿主文件。",
+            "codeTemplate": "import java.util.*;\npublic class Main {\nrecord Step(String id,String owner,String dependsOn) {}\nstatic Map<String,String> update(List<Step> plan,List<String> observations) {\n    // TODO: 身份、依赖和状态更新\n    throw new UnsupportedOperationException(\"实现计划\");\n}\npublic static void main(String[] args) {\n    // TODO: 构造正常与边界用例并打印结果\n}\n}",
+            "solutionHint": "按输入验证、授权或依赖判定、核心处理、输出四段实现；独立检查失败是否阻止副作用。计划必须由真实观察推动状态更新，列出步骤不等于完成。",
+            "exampleInput": "步骤b依赖a；只有b成功观察",
+            "exampleOutput": "b不得完成，a仍待执行",
+            "testCases": [],
+            "knowledgeKeys": [
+              "java-ai.agent.memory.contract",
+              "java-ai.agent.memory.flow",
+              "java-ai.agent.memory.boundary"
+            ]
+          }
+        },
+        {
+          "key": "java-ai.agent.mcp",
+          "title": "MCP 协议与工具安全",
+          "description": "围绕协议角色、能力发现、安全验证建立可解释的工程判断。",
+          "objectives": [
+            "解释协议角色并给出边界案例",
+            "解释能力发现并给出边界案例",
+            "解释安全验证并给出边界案例"
+          ],
+          "minutes": 35,
+          "difficulty": 2,
+          "importance": "S",
+          "prerequisites": [
+            "java-ai.agent.memory"
+          ],
+          "material": "MCP 是连接模型应用与外部能力的协议，不能把它当作模型、向量数据库或自动授权系统。按本章选用的二〇二五年六月十八日规范，宿主应用管理客户端，一个客户端与服务端连接；初始化时协商版本与能力，工具能力支持发现和调用。工具以输入模式描述参数，可以返回文本或结构化结果，调用错误与协议错误需要区分。资源、提示模板与工具承担不同职责，不能因为提供一个 HTTP 接口就称为完整 MCP 服务。\n\n工具发现只是知道能调用什么，授权仍需独立实现。第三方工具描述与结果都是外部数据，可能夹带要求忽略规则的内容；宿主应限制工具集合、核对参数、按用户和资源检查权限，对写入和高危操作设置确认。把检索结果里的命令当成用户授权会形成提示注入风险。最小权限、输出大小限制、超时、审计与幂等需要落实在程序边界，不靠提示词保证。\n\n工程演练可以用 Java 本地接口模拟发现与调用，区分未知工具、模式不合法、权限拒绝和执行失败；此模拟不是实际 MCP 集成。评估集应包含恶意工具输出、重复调用、确认超时与跨用户资源访问，检查失败是否阻止副作用。常见误区是认为协议接入后自然安全，或把本机命令执行包装成工具就称为生产沙箱。面试应先画出宿主、客户端、服务端职责，再说明哪些安全措施属于应用。新规范可能调整能力，升级时须重新核对版本。\n\n参考（版本边界见正文）：https://modelcontextprotocol.io/specification/2025-06-18/server/tools",
+          "knowledge": [
+            {
+              "key": "java-ai.agent.mcp.contract",
+              "name": "协议角色",
+              "explanation": "Host管理客户端；客户端与服务端协商协议能力，MCP不是模型。"
+            },
+            {
+              "key": "java-ai.agent.mcp.flow",
+              "name": "能力发现",
+              "explanation": "tools/list发现工具，tools/call调用工具，输入结构与返回错误须验证。"
+            },
+            {
+              "key": "java-ai.agent.mcp.boundary",
+              "name": "安全验证",
+              "explanation": "外部工具输出不构成授权，执行必须检查权限及危险操作确认。"
+            }
+          ],
+          "flashcards": [
+            {
+              "type": "Concept",
+              "front": "协议角色的核心含义是什么？",
+              "back": "Host管理客户端；客户端与服务端协商协议能力，MCP不是模型。 追问：你会用什么输入证明这个边界？",
+              "knowledgeKeys": [
+                "java-ai.agent.mcp.contract"
+              ]
+            },
+            {
+              "type": "Process",
+              "front": "如何说明能力发现的数据流？",
+              "back": "tools/list发现工具，tools/call调用工具，输入结构与返回错误须验证。 追问：中间一步失败后，后续步骤还能否执行？",
+              "knowledgeKeys": [
+                "java-ai.agent.mcp.flow"
+              ]
+            },
+            {
+              "type": "Pitfall",
+              "front": "介绍安全验证时最容易夸大什么？",
+              "back": "外部工具输出不构成授权，执行必须检查权限及危险操作确认。 追问：哪些结论需要运行测试而不能只看代码？",
+              "knowledgeKeys": [
+                "java-ai.agent.mcp.boundary"
+              ]
+            },
+            {
+              "type": "Interview Follow-up",
+              "front": "你如何验证《MCP 协议与工具安全》中的结论？",
+              "back": "先追踪输入、身份和依赖，再核对输出与副作用；准备成功、空结果、拒绝、超时案例。tools/list发现工具，tools/call调用工具，输入结构与返回错误须验证。 追问：如何避免一次演示被当成整体质量证据？",
+              "knowledgeKeys": [
+                "java-ai.agent.mcp.contract",
+                "java-ai.agent.mcp.flow",
+                "java-ai.agent.mcp.boundary"
+              ]
+            }
+          ],
+          "questions": [
+            {
+              "question": "MCP的Host、Client和Server是什么关系？它与Tool Calling有什么区别？",
+              "answer": "MCP规定模型应用如何连接外部能力；Host管理应用环境与多个Client，Client与Server建立协议会话，Server暴露工具、资源或提示模板。初始化阶段协商协议版本与能力，再执行相应请求。Tool Calling描述模型怎样提出工具调用意图，MCP描述应用怎样发现和调用外部能力，二者可以配合但不是同一层。没有模型的普通程序也可以作为MCP客户端，而支持Tool Calling的应用不一定使用MCP。本材料选用2025-06-18协议版本，不能把以后新版本行为自动套入。KnowFlow当前本地ToolRegistry不是已经实现的MCP服务，集成MCP属于后续设计。",
+              "keyPoints": [
+                "Host管理客户端；客户端与服务端协商协议能力，MCP不是模型。",
+                "tools/list发现工具，tools/call调用工具，输入结构与返回错误须验证。"
+              ],
+              "followUps": [
+                "MCP提供工具能力就自动拥有业务权限吗？",
+                "为什么不能把普通HTTP接口直接宣称为完整MCP服务？"
+              ],
+              "commonMistakes": [
+                "把MCP当作模型或向量库",
+                "未经实现就宣称项目完成MCP集成"
+              ],
+              "rank": "S",
+              "knowledgeKeys": [
+                "java-ai.agent.mcp.contract"
+              ]
+            },
+            {
+              "question": "MCP工具发现和调用的生命周期有哪些步骤？",
+              "answer": "连接建立后先完成initialize及能力协商，再根据工具能力执行tools/list，读取名称、描述和inputSchema。Host将可用工具转为模型适配器需要的形式，模型选择工具后，应用验证参数和权限，通过tools/call执行。工具返回内容或结构化结果后，Client将其绑定本次调用并交给模型继续回答。分页、能力变化、协议错误和工具执行错误应分别处理，不能把任何文本都当成成功数据。工具schema更新可能破坏缓存，调用失败时重新发现也不等于自动获得新权限。资源与提示模板有不同协议职责，不应伪装成任意可执行工具。",
+              "keyPoints": [
+                "tools/list发现工具，tools/call调用工具，输入结构与返回错误须验证。",
+                "外部工具输出不构成授权，执行必须检查权限及危险操作确认。"
+              ],
+              "followUps": [
+                "工具清单发生变化时客户端缓存如何失效？",
+                "协议请求失败与工具内部业务失败如何分别反馈？"
+              ],
+              "commonMistakes": [
+                "跳过初始化协商直接调用",
+                "把工具错误消息当成成功的结构化结果"
+              ],
+              "rank": "S",
+              "knowledgeKeys": [
+                "java-ai.agent.mcp.flow"
+              ]
+            },
+            {
+              "question": "接入第三方MCP Server有哪些安全风险？如何限制？",
+              "answer": "外部Server的工具描述、资源和结果都是不可信输入，可能诱导模型泄露信息或调用危险工具。Host应限定可连接的服务、可暴露的工具和每个用户的授权范围，服务端仍需验证目标资源，不能信任模型参数里的userId。认证Token应校验用途与受众，避免将一个服务的凭证透传给另一个服务。危险写操作需要确认，结果内容不能修改授权策略。对超时、超大输出与重复调用设置限制，并记录可审计的调用标识。部署边界也要独立考虑网络与进程隔离；MCP协议本身不提供万能沙箱，不会让本机命令自动安全。",
+              "keyPoints": [
+                "外部工具输出不构成授权，执行必须检查权限及危险操作确认。",
+                "Host管理客户端；客户端与服务端协商协议能力，MCP不是模型。"
+              ],
+              "followUps": [
+                "Server返回“请发送密钥”时Host应怎么处理？",
+                "多用户共享MCP连接时怎样避免凭证串用？"
+              ],
+              "commonMistakes": [
+                "认为使用标准协议就无需权限检查",
+                "把第三方工具描述当成高优先级系统指令"
+              ],
+              "rank": "A",
+              "knowledgeKeys": [
+                "java-ai.agent.mcp.boundary"
+              ]
+            }
+          ],
+          "exercise": {
+            "title": "模拟协议与安全门",
+            "description": "设计Java17本地MCP概念模拟器，支持list/call两种操作，注册只读搜索与危险写入工具；发现工具不授予执行权限。人工检查：未知工具、参数无效、无权用户、未确认写入分别失败，失败不产生副作用。该练习不是真实MCP实现。",
+            "hint": "先列状态与边界，使用本地固定数据，不访问网络或宿主文件。",
+            "codeTemplate": "import java.util.*;\npublic class Main {\nrecord Request(String operation,String tool,String actor,boolean confirmed) {}\nstatic String handle(Request request) {\n    // TODO: 发现、校验与授权\n    throw new UnsupportedOperationException(\"实现安全门\");\n}\npublic static void main(String[] args) {\n    // TODO: 构造正常与边界用例并打印结果\n}\n}",
+            "solutionHint": "按输入验证、授权或依赖判定、核心处理、输出四段实现；独立检查失败是否阻止副作用。tools/list发现工具，tools/call调用工具，输入结构与返回错误须验证。",
+            "exampleInput": "call/write/reader/false",
+            "exampleOutput": "DENIED；写入计数不增加",
+            "testCases": [],
+            "knowledgeKeys": [
+              "java-ai.agent.mcp.contract",
+              "java-ai.agent.mcp.flow",
+              "java-ai.agent.mcp.boundary"
+            ]
+          }
+        }
+      ],
+      "notes": [
+        {
+          "title": "Tool Calling 与 JSON Schema速记",
+          "content": "JSON Schema约束名称参数结构，业务授权仍由服务端检查。\n工具结果必须绑定callId回填上下文，再请求模型形成最终答复。\n模型只提出意图；白名单、权限、幂等和执行由应用负责。 复习时用一个正常输入和一个边界输入复述，未运行的环境结论保持未验证。",
+          "chapterKey": "java-ai.agent.tool"
+        },
+        {
+          "title": "Agent、Workflow 与 ReAct速记",
+          "content": "下一步由固定代码决定是workflow，由模型依据反馈动态决定体现agent。\n最大轮次、总时长、预算与取消条件共同限制循环。\n观察来自真实工具结果，模型描述不能替代环境事实。 复习时用一个正常输入和一个边界输入复述，未运行的环境结论保持未验证。",
+          "chapterKey": "java-ai.agent.loop"
+        },
+        {
+          "title": "记忆、规划与评估速记",
+          "content": "短期上下文、长期事实与摘要职责不同；摘要可能丢失细节。\n计划必须由真实观察推动状态更新，列出步骤不等于完成。\n轨迹评估检查工具、授权、停止，结果评估检查证据与正确性。 复习时用一个正常输入和一个边界输入复述，未运行的环境结论保持未验证。",
+          "chapterKey": "java-ai.agent.memory"
+        }
+      ]
+    },
+    {
+      "key": "project",
+      "title": "KnowFlow Personal Project：真实代码讲解",
+      "description": "以仓库当前代码讲述个人项目，区分现状、风险和扩展设想。",
+      "tag": "PROJECT",
+      "chapters": [
+        {
+          "key": "java-ai.project.overview",
+          "title": "个人项目定位与真实调用链",
+          "description": "围绕项目边界、分层调用、证据陈述建立可解释的工程判断。",
+          "objectives": [
+            "解释项目边界并给出边界案例",
+            "解释分层调用并给出边界案例",
+            "解释证据陈述并给出边界案例"
+          ],
+          "minutes": 35,
+          "difficulty": 2,
+          "importance": "S",
+          "prerequisites": [],
+          "material": "KnowFlow 是面向个人知识管理与自适应学习的 Personal Project。本路径只讲当前仓库可读代码，不虚构企业客户、生产部署、并发吞吐或准确率提升。技术介绍必须从入口追踪到服务、Mapper 和表，不能因为依赖文件或类名出现某个词就认定集成完成。当前普通问答的可见链路是 ChatController 调 ChatServiceImpl，后者保存消息、检索资料并调用 AiService；会话与消息分别通过对应 Mapper 持久化到 chat_conversation 与 chat_message。\n\n通用问答与学习教练有不同上下文处理。streamSend 中 LEARNING_COACH 分支采用 CoachPrompts，通用分支执行相关文档检索并拼接历史摘要；教练分支不因建议文本自动记录通用聊天学习事件。这是业务边界，不宜为统一代码而抹掉。前端下一步行动仍应由既有学习 Store 和 Evidence 管线提供，不能让聊天回答创建另一套掌握度结论。\n\n面试讲述可以采用需求、已实现链路、限制、扩展四段。明确做了知识检索和工具编排，不把学习资料中的 Spring AI、LangChain4j、Milvus 或 MCP 说成项目现状；接入它们只能作为待评估扩展。静态扫描能证明分支和表的存在，不能证明外部模型成功调用、权限矩阵全部通过或上线可用。常见错误是把注释里的目标当成运行事实。追问时说明如何用契约测试和真实浏览器补足证据。本章事实对应本次工作区，未对生产环境作验证。\n\n参考（版本边界见正文）：https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-ann-async.html\n代码事实来源：backend/src/main/java/com/knowflow/service/impl/ChatServiceImpl.java；backend/src/main/java/com/knowflow/controller/ChatController.java；backend/src/main/resources/schema.sql\n技术版本：仓库父依赖为 Spring Boot 3.2.5；所列 Spring 当前文档仅核对稳定的异步或认证概念，不代表当前项目使用文档最新版本。",
+          "knowledge": [
+            {
+              "key": "java-ai.project.overview.contract",
+              "name": "项目边界",
+              "explanation": "Personal Project只陈述当前可核对代码，性能与部署需要独立证据。"
+            },
+            {
+              "key": "java-ai.project.overview.flow",
+              "name": "分层调用",
+              "explanation": "ChatController→ChatServiceImpl→Mapper→chat_conversation/chat_message。"
+            },
+            {
+              "key": "java-ai.project.overview.boundary",
+              "name": "证据陈述",
+              "explanation": "学习教练上下文和事件处理有独立业务分支，不可随意混同。"
+            }
+          ],
+          "flashcards": [
+            {
+              "type": "Concept",
+              "front": "项目边界的核心含义是什么？",
+              "back": "Personal Project只陈述当前可核对代码，性能与部署需要独立证据。 追问：你会用什么输入证明这个边界？",
+              "knowledgeKeys": [
+                "java-ai.project.overview.contract"
+              ]
+            },
+            {
+              "type": "Process",
+              "front": "如何说明分层调用的数据流？",
+              "back": "ChatController→ChatServiceImpl→Mapper→chat_conversation/chat_message。 追问：中间一步失败后，后续步骤还能否执行？",
+              "knowledgeKeys": [
+                "java-ai.project.overview.flow"
+              ]
+            },
+            {
+              "type": "Pitfall",
+              "front": "介绍证据陈述时最容易夸大什么？",
+              "back": "学习教练上下文和事件处理有独立业务分支，不可随意混同。 追问：哪些结论需要运行测试而不能只看代码？",
+              "knowledgeKeys": [
+                "java-ai.project.overview.boundary"
+              ]
+            },
+            {
+              "type": "Interview Follow-up",
+              "front": "你如何验证《个人项目定位与真实调用链》中的结论？",
+              "back": "先追踪输入、身份和依赖，再核对输出与副作用；准备成功、空结果、拒绝、超时案例。ChatController→ChatServiceImpl→Mapper→chat_conversation/chat_message。 追问：如何避免一次演示被当成整体质量证据？",
+              "knowledgeKeys": [
+                "java-ai.project.overview.contract",
+                "java-ai.project.overview.flow",
+                "java-ai.project.overview.boundary"
+              ]
+            }
+          ],
+          "questions": [
+            {
+              "question": "用一分钟介绍KnowFlow项目，怎样避免把个人项目包装成生产经验？",
+              "answer": "KnowFlow是我的个人知识管理与自适应学习项目，目标是把文档整理、主动回忆和学习行动串起来。前端是Vue3与Pinia，后端是Spring Boot分层单体，通过Controller、Service和Mapper连接数据库，模型调用由协议适配层负责。代码中可核对知识库问答、分块检索、工具调用和学习事件入口；实际外部模型效果、生产规模和性能不能仅凭代码推断。面试表达先讲用户问题，再展示真实调用链和一个已跑通的流程，最后诚实说明测试环境及限制。我不会声称商业客户、百万用户或某个QPS，未集成的Milvus/MCP也只作为评估方向。",
+              "keyPoints": [
+                "Personal Project只陈述当前可核对代码，性能与部署需要独立证据。",
+                "ChatController→ChatServiceImpl→Mapper→chat_conversation/chat_message。"
+              ],
+              "followUps": [
+                "哪些能力有运行证据，哪些目前只有代码或设计？",
+                "如果面试官追问上线用户量，应怎样回答？"
+              ],
+              "commonMistakes": [
+                "把本地演示称为公司生产项目",
+                "编造吞吐、客户或降本比例"
+              ],
+              "rank": "S",
+              "knowledgeKeys": [
+                "java-ai.project.overview.contract"
+              ]
+            },
+            {
+              "question": "KnowFlow的对话与RAG分层调用链是什么？为什么选择Java？",
+              "answer": "HTTP或SSE请求经过认证，再由ChatController交给ChatServiceImpl编排；会话和消息通过Mapper落库，知识库上下文由DocChunkServiceImpl检索，模型请求经现有Provider/Adapter发出。Java适合复用当前Spring认证、事务、类型与后端工程能力，但不是因为Java能保证模型回答正确。检索与远程生成不应混为同一个数据库事务，远程耗时和失败需要独立处理。当前代码未采用Spring AI或LangChain4j作为事实底座，选型面试可以比较其生态与适配成本，但必须标为未来评估。学习教练分支有自身上下文组装，不可把所有AI入口都描述成同一RAG链。",
+              "keyPoints": [
+                "ChatController→ChatServiceImpl→Mapper→chat_conversation/chat_message。",
+                "学习教练上下文和事件处理有独立业务分支，不可随意混同。"
+              ],
+              "followUps": [
+                "模型请求超时时哪些数据库状态可以回滚，哪些不能？",
+                "引入Spring AI或LangChain4j会替换哪个边界？"
+              ],
+              "commonMistakes": [
+                "把所有AI调用都说成相同检索流程",
+                "把计划选型说成现有依赖"
+              ],
+              "rank": "S",
+              "knowledgeKeys": [
+                "java-ai.project.overview.flow"
+              ]
+            },
+            {
+              "question": "怎样证明项目学习能力有效，而不是展示一个好看的Dashboard？",
+              "answer": "界面有卡片和图表不等于用户学会了知识。KnowFlow的学习闭环依赖真实LearningEvent，经Evidence解析、聚合、诊断和唯一NextAction决策产生建议；无事件不应生成能力证据。演示时先展示未学习状态，再完成一次真实回忆或练习，观察对应事件和下一行动的变化，不能提前填掌握度85%制造效果。权限与功能测试只能证明相应代码契约，不等于长期学习效果验证。若要评估教育效果，应设计持续使用和延迟回忆的实验，区分内容可用、算法响应与真实能力提升，当前不能编造提升百分比。",
+              "keyPoints": [
+                "学习教练上下文和事件处理有独立业务分支，不可随意混同。",
+                "Personal Project只陈述当前可核对代码，性能与部署需要独立证据。"
+              ],
+              "followUps": [
+                "Seed资源映射与学习Evidence有什么区别？",
+                "单次答对为什么不足以证明已掌握？"
+              ],
+              "commonMistakes": [
+                "用初始假成绩证明学习效果",
+                "把单元测试通过等同教育效果实证"
+              ],
+              "rank": "A",
+              "knowledgeKeys": [
+                "java-ai.project.overview.boundary"
+              ]
+            }
+          ],
+          "exercise": {
+            "title": "绘制可核对的Java调用链",
+            "description": "设计Java17调用链登记器，登记入口、服务、Mapper和表以及事实状态CURRENT或PROPOSED，输出个人项目讲述卡。人工检查：不得把PROPOSED描述成已实现，链路每项附仓库路径，不附虚构性能数字。",
+            "hint": "先列状态与边界，使用本地固定数据，不访问网络或宿主文件。",
+            "codeTemplate": "import java.util.*;\npublic class Main {\nrecord Evidence(String layer,String name,String source,boolean implemented) {}\nstatic String describe(List<Evidence> chain) {\n    // TODO: 区分事实与扩展\n    throw new UnsupportedOperationException(\"实现报告\");\n}\npublic static void main(String[] args) {\n    // TODO: 构造正常与边界用例并打印结果\n}\n}",
+            "solutionHint": "按输入验证、授权或依赖判定、核心处理、输出四段实现；独立检查失败是否阻止副作用。ChatController→ChatServiceImpl→Mapper→chat_conversation/chat_message。",
+            "exampleInput": "ChatController；ChatServiceImpl；ChatMessageMapper；chat_message",
+            "exampleOutput": "输出当前链路；Milvus扩展单独标为PROPOSED",
+            "testCases": [],
+            "knowledgeKeys": [
+              "java-ai.project.overview.contract",
+              "java-ai.project.overview.flow",
+              "java-ai.project.overview.boundary"
+            ]
+          }
+        },
+        {
+          "key": "java-ai.project.rag",
+          "title": "权限过滤的文档分块与 RAG",
+          "description": "围绕实际索引、权限先行、检索限制建立可解释的工程判断。",
+          "objectives": [
+            "解释实际索引并给出边界案例",
+            "解释权限先行并给出边界案例",
+            "解释检索限制并给出边界案例"
+          ],
+          "minutes": 35,
+          "difficulty": 2,
+          "importance": "S",
+          "prerequisites": [
+            "java-ai.project.overview"
+          ],
+          "material": "当前文档检索可追踪 ChatServiceImpl.searchRelatedDocs 到 DocChunkServiceImpl.searchSimilar，再到 DocDocumentMapper 与 DocChunkMapper。分块存于 doc_chunk，embedding 字段以逗号分隔浮点数文本保存；检索加载可访问文档的分块，在 Java 中计算余弦相似度并排序。因此这条链路不能介绍成已使用 Milvus 的向量索引，也不能由并行流推断系统吞吐。向量能力依赖 EmbeddingService 的实际可用状态，需要单独验证。\n\nsearchSimilar 先通过 DocumentAccessPolicy.scope 选出已发布、可访问的文档 ID，再用这些 ID 限制分块。查询向量为空时走同一权限范围内的关键词检索。这里的核心安全点是权限进入候选范围，而非拿到答案以后在页面隐藏。ChatServiceImpl 最终没有再执行绕过权限的全表 LIKE 查询。多个检索方法的行为也不能混讲：searchSimilarDocIds 按文档取最高分并使用相似度门槛，普通 searchSimilar 的分块返回路径不能据此宣称同样阈值。\n\n索引按空段落切分，五百字符是累积目标，单个超长段落不会因此自动硬切成五百字符；这类边界可作为改进分析。检索结果只返回字符串片段，当前引用展示存在通用标题，不能宣称完善的可追溯文档引用。扩展设计可考虑结构化片段 ID、引用校验和更大规模向量索引，但需先建立权限、召回和忠实度评估。面试追问应区分空结果、服务不可用与无权访问，而不是把三者都描述为没有资料。\n\n参考（版本边界见正文）：https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Comparator.html\n代码事实来源：backend/src/main/java/com/knowflow/service/impl/DocChunkServiceImpl.java；backend/src/main/java/com/knowflow/security/DocumentAccessPolicy.java；backend/src/main/resources/schema.sql\n技术版本：本练习使用 Java 17；仓库父依赖为 Spring Boot 3.2.5，官方文档用于解释通用概念，不代表仓库升级。",
+          "knowledge": [
+            {
+              "key": "java-ai.project.rag.contract",
+              "name": "实际索引",
+              "explanation": "doc_chunk以文本保存向量，当前服务在Java中做余弦排序。"
+            },
+            {
+              "key": "java-ai.project.rag.flow",
+              "name": "权限先行",
+              "explanation": "先筛选可访问已发布文档，再检索对应分块，关键词降级保留权限范围。"
+            },
+            {
+              "key": "java-ai.project.rag.boundary",
+              "name": "检索限制",
+              "explanation": "500字符为累积目标，超长单段不硬切；结构化引用是扩展方向。"
+            }
+          ],
+          "flashcards": [
+            {
+              "type": "Concept",
+              "front": "实际索引的核心含义是什么？",
+              "back": "doc_chunk以文本保存向量，当前服务在Java中做余弦排序。 追问：你会用什么输入证明这个边界？",
+              "knowledgeKeys": [
+                "java-ai.project.rag.contract"
+              ]
+            },
+            {
+              "type": "Process",
+              "front": "如何说明权限先行的数据流？",
+              "back": "先筛选可访问已发布文档，再检索对应分块，关键词降级保留权限范围。 追问：中间一步失败后，后续步骤还能否执行？",
+              "knowledgeKeys": [
+                "java-ai.project.rag.flow"
+              ]
+            },
+            {
+              "type": "Pitfall",
+              "front": "介绍检索限制时最容易夸大什么？",
+              "back": "500字符为累积目标，超长单段不硬切；结构化引用是扩展方向。 追问：哪些结论需要运行测试而不能只看代码？",
+              "knowledgeKeys": [
+                "java-ai.project.rag.boundary"
+              ]
+            },
+            {
+              "type": "Interview Follow-up",
+              "front": "你如何验证《权限过滤的文档分块与 RAG》中的结论？",
+              "back": "先追踪输入、身份和依赖，再核对输出与副作用；准备成功、空结果、拒绝、超时案例。先筛选可访问已发布文档，再检索对应分块，关键词降级保留权限范围。 追问：如何避免一次演示被当成整体质量证据？",
+              "knowledgeKeys": [
+                "java-ai.project.rag.contract",
+                "java-ai.project.rag.flow",
+                "java-ai.project.rag.boundary"
+              ]
+            }
+          ],
+          "questions": [
+            {
+              "question": "KnowFlow当前向量索引如何实现？为什么不能说已经用了Milvus？",
+              "answer": "当前DocChunkServiceImpl把分块与向量写入doc_chunk，向量以文本字段保存，检索在权限过滤后的分块集合中用Java计算余弦相似度并排序。这是代码事实，不是外部向量数据库。小规模个人项目可先降低部署复杂度，但随着分块数量增长，Java全量排序、读取和序列化会成为成本。Milvus或pgvector可以作为扩展选型，评估近似检索、过滤、运维与数据一致性，但不能把未实现迁移说成已上线。Embedding版本、维度和重建策略也需一致，不能只换一个模型名称继续混用旧向量。面试应将现状、瓶颈假设和下一步验证分开。",
+              "keyPoints": [
+                "doc_chunk以文本保存向量，当前服务在Java中做余弦排序。",
+                "先筛选可访问已发布文档，再检索对应分块，关键词降级保留权限范围。"
+              ],
+              "followUps": [
+                "向量维度变化后旧索引为什么不能直接继续使用？",
+                "迁移外部向量库需要验证哪些过滤与一致性能力？"
+              ],
+              "commonMistakes": [
+                "把doc_chunk文本向量称为Milvus索引",
+                "没有负载数据就宣布已测得性能瓶颈"
+              ],
+              "rank": "S",
+              "knowledgeKeys": [
+                "java-ai.project.rag.contract"
+              ]
+            },
+            {
+              "question": "KnowFlow为什么要先按权限过滤文档，再做检索？",
+              "answer": "检索边界必须在获取候选片段之前限制可读资源。当前代码由DocumentAccessPolicy确定可访问的已发布文档ID，再让分块查询与关键词降级都只在该集合内工作。只在LLM输出后隐藏引用不能补救泄漏，因为私有文本已经进入提示词或外部服务。资源ID也不能因为是数字就被信任，需校验分类Owner、Editor、Reader及源文档状态。关键词降级是检索方式变化，不是权限降级；向量服务不可用时仍保持同一文档范围。共享系统学习材料使用公开分类，与个人卡片和笔记私有状态分开。授权变化后的缓存范围同样需要重新核对。",
+              "keyPoints": [
+                "先筛选可访问已发布文档，再检索对应分块，关键词降级保留权限范围。",
+                "500字符为累积目标，超长单段不硬切；结构化引用是扩展方向。"
+              ],
+              "followUps": [
+                "为何过滤最终引用仍可能泄露私有文档？",
+                "Reader与Editor在检索和编辑上的边界有什么不同？"
+              ],
+              "commonMistakes": [
+                "先检索全库再删不允许的引用",
+                "把向量故障降级为全站关键词搜索"
+              ],
+              "rank": "S",
+              "knowledgeKeys": [
+                "java-ai.project.rag.flow"
+              ]
+            },
+            {
+              "question": "KnowFlow的分块、Citation与No Answer有哪些真实限制？",
+              "answer": "当前分块按段落累积，500字符是累积目标，不是每段强制截断；超长单段仍可能产生更大的块。因此不能声称已经实现精确Token窗口或统一语义切分。检索片段可用于问答上下文，但结构化引用与逐句证据校验需要按实际响应实现再验证，不能凭提示词承诺完全无幻觉。No Answer应在相关性不足或证据缺失时明确返回，而不是强行补全。在扩展设计中，我会保留docId、段落定位和索引版本，建立包含不可回答问题的黄金集，分别测召回与回答忠实度。这里的改进是待实施方案，不代表当前部署已提供完整评测平台。",
+              "keyPoints": [
+                "500字符为累积目标，超长单段不硬切；结构化引用是扩展方向。",
+                "doc_chunk以文本保存向量，当前服务在Java中做余弦排序。"
+              ],
+              "followUps": [
+                "500字符目标对长段落有什么边界？",
+                "怎样构造不可回答样本检验No Answer？"
+              ],
+              "commonMistakes": [
+                "把字符数目标说成严格Token上限",
+                "有引用就宣称所有回答事实正确"
+              ],
+              "rank": "A",
+              "knowledgeKeys": [
+                "java-ai.project.rag.boundary"
+              ]
+            }
+          ],
+          "exercise": {
+            "title": "先权限后TopK检索",
+            "description": "用Java17设计内存检索：每片段有docId、分数和文本，先与可访问文档ID集合求交，再按分数降序取TopK。人工检查：不可访问的最高分片段不能进入上下文；空权限集合为空；同分采用稳定docId顺序。",
+            "hint": "先列状态与边界，使用本地固定数据，不访问网络或宿主文件。",
+            "codeTemplate": "import java.util.*;\npublic class Main {\nrecord Chunk(long docId,double score,String text) {}\nstatic List<Chunk> retrieve(List<Chunk> chunks,Set<Long> accessible,int k) {\n    // TODO: 权限过滤与确定性排序\n    throw new UnsupportedOperationException(\"实现召回\");\n}\npublic static void main(String[] args) {\n    // TODO: 构造正常与边界用例并打印结果\n}\n}",
+            "solutionHint": "按输入验证、授权或依赖判定、核心处理、输出四段实现；独立检查失败是否阻止副作用。先筛选可访问已发布文档，再检索对应分块，关键词降级保留权限范围。",
+            "exampleInput": "doc1=0.99,doc2=0.8；accessible={2}；k=1",
+            "exampleOutput": "只返回doc2",
+            "testCases": [],
+            "knowledgeKeys": [
+              "java-ai.project.rag.contract",
+              "java-ai.project.rag.flow",
+              "java-ai.project.rag.boundary"
+            ]
+          }
+        },
+        {
+          "key": "java-ai.project.stream",
+          "title": "SSE 与有界 Agent 编排",
+          "description": "围绕流式事件、真实循环、持久化边界建立可解释的工程判断。",
+          "objectives": [
+            "解释流式事件并给出边界案例",
+            "解释真实循环并给出边界案例",
+            "解释持久化边界并给出边界案例"
+          ],
+          "minutes": 35,
+          "difficulty": 2,
+          "importance": "S",
+          "prerequisites": [
+            "java-ai.project.rag"
+          ],
+          "material": "普通聊天的 /stream 入口返回 Spring MVC 的 SseEmitter。ChatServiceImpl 在主路径保存用户消息，调用 AiService.streamChat，并在完成回调保存 assistant 消息；回调根据 success 设置 truncated，不能将中断内容当成完整成功回答。ChatController 注释定义 delta、done、error 事件，说明页面要区分增量显示、结束和错误。代理是否关闭缓冲、浏览器断连是否正确清理仍需运行环境验证，静态代码不是这些交互通过的证据。\n\n编程工具流入口在 CodeAgentController.agentStream。控制器读取认证用户、创建或检查会话归属、保存用户消息，再提交异步任务调用 AgentRuntimeService。运行时最大循环轮次为八；模型不支持 tools 时退化为普通对话。支持工具时先把 assistant 的 toolCalls 加入 messages，执行工具后把带 toolCallId 的 tool 消息加入上下文，下一轮再调模型。这是可见的真实工具反馈循环，不能只描述成一次模型输出文本。\n\nToolRegistry 负责查找工具、校验用户启用与写授权、执行并记录 agent_tool_call。DANGEROUS 调用另需确认回调，拒绝会产生失败结果。控制器将事件转换成 tool-start、tool-end 等 SSE 展示信息，并清理待确认键。日志中的延迟和 token 估算能支持调试，不能变成已经测得的生产性能。扩展可考虑可取消任务与更细的预算，但本章没有声称这些扩展已实现。面试追问聚焦结果回填、用户拒绝和断流后持久化一致性。\n\n复盘时补充检查事件顺序和同一会话并发请求，记录失败样本，避免以一个成功演示替代一致性验证。\n\n参考（版本边界见正文）：https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-ann-async.html\n代码事实来源：backend/src/main/java/com/knowflow/controller/CodeAgentController.java；backend/src/main/java/com/knowflow/agent/AgentRuntimeService.java；backend/src/main/java/com/knowflow/agent/tool/ToolRegistry.java\n技术版本：仓库父依赖为 Spring Boot 3.2.5；所列 Spring 当前文档仅核对稳定的异步或认证概念，不代表当前项目使用文档最新版本。",
+          "knowledge": [
+            {
+              "key": "java-ai.project.stream.contract",
+              "name": "流式事件",
+              "explanation": "SseEmitter推送增量，完成回调持久化；success=false设置truncated。"
+            },
+            {
+              "key": "java-ai.project.stream.flow",
+              "name": "真实循环",
+              "explanation": "AgentRuntimeService最多8轮，assistant意图与toolCallId结果均回填。"
+            },
+            {
+              "key": "java-ai.project.stream.boundary",
+              "name": "持久化边界",
+              "explanation": "ToolRegistry记录执行结果；危险工具需要用户确认回调。"
+            }
+          ],
+          "flashcards": [
+            {
+              "type": "Concept",
+              "front": "流式事件的核心含义是什么？",
+              "back": "SseEmitter推送增量，完成回调持久化；success=false设置truncated。 追问：你会用什么输入证明这个边界？",
+              "knowledgeKeys": [
+                "java-ai.project.stream.contract"
+              ]
+            },
+            {
+              "type": "Process",
+              "front": "如何说明真实循环的数据流？",
+              "back": "AgentRuntimeService最多8轮，assistant意图与toolCallId结果均回填。 追问：中间一步失败后，后续步骤还能否执行？",
+              "knowledgeKeys": [
+                "java-ai.project.stream.flow"
+              ]
+            },
+            {
+              "type": "Pitfall",
+              "front": "介绍持久化边界时最容易夸大什么？",
+              "back": "ToolRegistry记录执行结果；危险工具需要用户确认回调。 追问：哪些结论需要运行测试而不能只看代码？",
+              "knowledgeKeys": [
+                "java-ai.project.stream.boundary"
+              ]
+            },
+            {
+              "type": "Interview Follow-up",
+              "front": "你如何验证《SSE 与有界 Agent 编排》中的结论？",
+              "back": "先追踪输入、身份和依赖，再核对输出与副作用；准备成功、空结果、拒绝、超时案例。AgentRuntimeService最多8轮，assistant意图与toolCallId结果均回填。 追问：如何避免一次演示被当成整体质量证据？",
+              "knowledgeKeys": [
+                "java-ai.project.stream.contract",
+                "java-ai.project.stream.flow",
+                "java-ai.project.stream.boundary"
+              ]
+            }
+          ],
+          "questions": [
+            {
+              "question": "KnowFlow为什么使用SSE？中断和重连应该怎么表达？",
+              "answer": "LLM生成通常是服务器向浏览器单向发送增量文本，SSE适合这种HTTP流式输出，不需要双向WebSocket会话。当前Controller用SseEmitter承载事件，服务层通过回调推送内容与结束状态。收到文本片段不等于生成完整，连接断开后要区分正常完成、错误和部分输出。现有完成处理会保存累积消息，失败时用truncated描述不完整；不能把所有关闭都显示为成功。重连也不能简单重复整个请求，否则可能重复模型费用或工具副作用。未来可考虑请求标识、取消传播与恢复协议，但这些需要独立实现和测试，不能因为用了SSE就默认具备。",
+              "keyPoints": [
+                "SseEmitter推送增量，完成回调持久化；success=false设置truncated。",
+                "AgentRuntimeService最多8轮，assistant意图与toolCallId结果均回填。"
+              ],
+              "followUps": [
+                "浏览器收到部分答案后断开，服务端该保存什么？",
+                "重连为何可能产生重复工具副作用？"
+              ],
+              "commonMistakes": [
+                "把SSE连接关闭等同成功完成",
+                "声称SSE天然提供业务断点续传"
+              ],
+              "rank": "S",
+              "knowledgeKeys": [
+                "java-ai.project.stream.contract"
+              ]
+            },
+            {
+              "question": "KnowFlow的Agent工具循环实际怎样工作？达到8轮后意味着什么？",
+              "answer": "AgentRuntimeService调用模型，识别工具意图后通过ToolRegistry执行，将assistant调用记录及带toolCallId的结果放回上下文，再请求下一轮。代码中的MAX_ITER为8，表示当前循环迭代上限，不代表8次任意工具都能成功。ToolRegistry还检查工具启用和写授权，危险调用需要确认回调；被拒绝时应返回失败结果而不是伪造执行成功。Controller把工具开始、结束和内容事件转为SSE给前端。达到轮次上限只能说明系统按当前预算停止，剩余任务应保持未完成。Token成本、单个工具超时和取消传播仍要按实际实现分别核验，不能用MAX_ITER代替所有安全边界。",
+              "keyPoints": [
+                "AgentRuntimeService最多8轮，assistant意图与toolCallId结果均回填。",
+                "ToolRegistry记录执行结果；危险工具需要用户确认回调。"
+              ],
+              "followUps": [
+                "工具确认被拒绝后，下一轮上下文应包含什么？",
+                "MAX_ITER是否能够限制一次无限耗时的工具执行？"
+              ],
+              "commonMistakes": [
+                "把8轮上限视为完整安全预算",
+                "省略toolCallId导致结果无法关联"
+              ],
+              "rank": "S",
+              "knowledgeKeys": [
+                "java-ai.project.stream.flow"
+              ]
+            },
+            {
+              "question": "流式输出与工具日志如何保证可解释的持久化边界？",
+              "answer": "消息、工具调用和界面事件有不同生命周期。消息保存累积文本与完成状态，ToolRegistry记录agent_tool_call的执行信息，SSE只负责推送可见事件，浏览器收到事件不能证明数据库一定已提交。若生成失败后仍保存部分回答，需要显式标记truncated；工具已产生副作用却随后模型失败，不能通过删除聊天记录假装操作未发生。当前项目有相关保存和调用日志，但同会话并发、断流时序和恢复一致性需要专门运行验证。扩展设计可以用请求标识关联消息与调用，确保最终状态可追踪；没有实测前不承诺恰好一次语义或生产级可靠性。",
+              "keyPoints": [
+                "ToolRegistry记录执行结果；危险工具需要用户确认回调。",
+                "SseEmitter推送增量，完成回调持久化；success=false设置truncated。"
+              ],
+              "followUps": [
+                "工具成功但最终模型失败，审计记录应如何显示？",
+                "同一会话并发请求可能导致哪些排序问题？"
+              ],
+              "commonMistakes": [
+                "把UI上的成功事件作为唯一持久化证据",
+                "认为数据库事务能撤销外部工具副作用"
+              ],
+              "rank": "A",
+              "knowledgeKeys": [
+                "java-ai.project.stream.boundary"
+              ]
+            }
+          ],
+          "exercise": {
+            "title": "模拟断流消息归档",
+            "description": "用Java17设计SSE消费者归档状态：delta累积、done成功结束、error中断；工具事件单独记录callId而不混入回答。人工检查：中断文本保留并标truncated，重复done不重复保存，工具结果仍可关联。",
+            "hint": "先列状态与边界，使用本地固定数据，不访问网络或宿主文件。",
+            "codeTemplate": "import java.util.*;\npublic class Main {\nrecord Event(String type,String content,String callId) {}\nrecord Archive(String text,boolean truncated) {}\nstatic Archive consume(List<Event> events) {\n    // TODO: 累积与终态控制\n    throw new UnsupportedOperationException(\"实现归档\");\n}\npublic static void main(String[] args) {\n    // TODO: 构造正常与边界用例并打印结果\n}\n}",
+            "solutionHint": "按输入验证、授权或依赖判定、核心处理、输出四段实现；独立检查失败是否阻止副作用。AgentRuntimeService最多8轮，assistant意图与toolCallId结果均回填。",
+            "exampleInput": "delta=你好；error=断连",
+            "exampleOutput": "text=你好；truncated=true",
+            "testCases": [],
+            "knowledgeKeys": [
+              "java-ai.project.stream.contract",
+              "java-ai.project.stream.flow",
+              "java-ai.project.stream.boundary"
+            ]
+          }
+        },
+        {
+          "key": "java-ai.project.security",
+          "title": "项目安全边界与诚实复盘",
+          "description": "围绕身份归属、宿主能力、验证矩阵建立可解释的工程判断。",
+          "objectives": [
+            "解释身份归属并给出边界案例",
+            "解释宿主能力并给出边界案例",
+            "解释验证矩阵并给出边界案例"
+          ],
+          "minutes": 35,
+          "difficulty": 2,
+          "importance": "S",
+          "prerequisites": [
+            "java-ai.project.stream"
+          ],
+          "material": "当前 SecurityUtils 从 Spring Security 认证上下文提取 Long 用户主体，缺失时抛出带四〇一业务码的异常。ChatController 的 currentUserId 显式检查匿名状态；会话 ID 由用户输入并不代表可访问，ChatServiceImpl 还核对会话 userId。文档阅读与编辑由 DocumentAccessPolicy 和 KbMemberService 管理，知识库角色必须在服务端边界验证，页面隐藏操作按钮不能代替权限检查。\n\nHostCapabilityGuard 是本地宿主机信任边界，源码明确说明它不是操作系统沙箱。requireAccess 同时要求真实认证用户、显式启用以及授权用户集合；不能由管理员身份、请求 IP 或模型参数默认打开。本地文件和进程能力不应被包装成已具备生产隔离。异步 Agent 通过 wrapAuthenticated 捕获真实请求身份，并在 finally 恢复线程局部状态，避免拿 ToolContext 内用户 ID 伪造认证。进程许可、超时和路径边界还应追踪具体调用点测试。\n\n复盘应按匿名、Owner、Other User、Admin 以及知识库 Editor、Reader 分别列用例，断言 HTTP 状态和 body.code。逻辑删除与唯一索引、并发重复操作也需要独立测试，H2 通过不能代替 MySQL 验证。本章只证明这些边界在当前代码中可见，不宣称全部权限场景和宿主隔离已经验证通过。扩展建议是补充威胁建模与沙箱方案，而非把开发权限视为线上能力。面试回答用可复现证据说明做到了什么，再明确未验证项，避免宽泛宣称系统安全。\n\n测试记录应标明代码版本、角色和资源归属，失败用例保留原始响应作为证据。\n\n参考（版本边界见正文）：https://docs.spring.io/spring-security/reference/servlet/authentication/architecture.html\n代码事实来源：backend/src/main/java/com/knowflow/common/SecurityUtils.java；backend/src/main/java/com/knowflow/security/HostCapabilityGuard.java；backend/src/main/java/com/knowflow/security/DocumentAccessPolicy.java\n技术版本：仓库父依赖为 Spring Boot 3.2.5；所列 Spring 当前文档仅核对稳定的异步或认证概念，不代表当前项目使用文档最新版本。",
+          "knowledge": [
+            {
+              "key": "java-ai.project.security.contract",
+              "name": "身份归属",
+              "explanation": "身份来自SecurityUtils，资源归属还必须在服务端核对。"
+            },
+            {
+              "key": "java-ai.project.security.flow",
+              "name": "宿主能力",
+              "explanation": "HostCapabilityGuard显式启用及授权用户才开放，且不是OS沙箱。"
+            },
+            {
+              "key": "java-ai.project.security.boundary",
+              "name": "验证矩阵",
+              "explanation": "权限矩阵同时断言HTTP与body；静态扫描不能替代运行验证。"
+            }
+          ],
+          "flashcards": [
+            {
+              "type": "Concept",
+              "front": "身份归属的核心含义是什么？",
+              "back": "身份来自SecurityUtils，资源归属还必须在服务端核对。 追问：你会用什么输入证明这个边界？",
+              "knowledgeKeys": [
+                "java-ai.project.security.contract"
+              ]
+            },
+            {
+              "type": "Process",
+              "front": "如何说明宿主能力的数据流？",
+              "back": "HostCapabilityGuard显式启用及授权用户才开放，且不是OS沙箱。 追问：中间一步失败后，后续步骤还能否执行？",
+              "knowledgeKeys": [
+                "java-ai.project.security.flow"
+              ]
+            },
+            {
+              "type": "Pitfall",
+              "front": "介绍验证矩阵时最容易夸大什么？",
+              "back": "权限矩阵同时断言HTTP与body；静态扫描不能替代运行验证。 追问：哪些结论需要运行测试而不能只看代码？",
+              "knowledgeKeys": [
+                "java-ai.project.security.boundary"
+              ]
+            },
+            {
+              "type": "Interview Follow-up",
+              "front": "你如何验证《项目安全边界与诚实复盘》中的结论？",
+              "back": "先追踪输入、身份和依赖，再核对输出与副作用；准备成功、空结果、拒绝、超时案例。HostCapabilityGuard显式启用及授权用户才开放，且不是OS沙箱。 追问：如何避免一次演示被当成整体质量证据？",
+              "knowledgeKeys": [
+                "java-ai.project.security.contract",
+                "java-ai.project.security.flow",
+                "java-ai.project.security.boundary"
+              ]
+            }
+          ],
+          "questions": [
+            {
+              "question": "KnowFlow怎样从认证身份落实到资源级数据隔离？",
+              "answer": "SecurityUtils从服务端认证上下文取得当前用户，不能直接信任请求DTO里的userId、owner或role。但身份正确只是第一步，文档、私有闪卡、笔记、会话等仍需按真实资源归属或成员权限校验。DocumentAccessPolicy处理文档分类与源文档可读范围，写入需要Owner或Editor，Reader只读；列表查询也要带范围，不能只保护详情。匿名、本人、他人和Admin是不同分支，Admin权限应按既有管理规则处理而非UI隐藏。越权请求应返回明确401/403/404语义，同时检查没有事件、数据改写或附件泄漏，不能把HTTP200加错误文本当授权成功。",
+              "keyPoints": [
+                "身份来自SecurityUtils，资源归属还必须在服务端核对。",
+                "HostCapabilityGuard显式启用及授权用户才开放，且不是OS沙箱。"
+              ],
+              "followUps": [
+                "列表已过滤，为什么详情ID仍必须校验？",
+                "Editor迁移文档时为什么要检查来源和目标知识库？"
+              ],
+              "commonMistakes": [
+                "只隐藏前端按钮不做后端授权",
+                "以客户端传入的ownerId作为身份依据"
+              ],
+              "rank": "S",
+              "knowledgeKeys": [
+                "java-ai.project.security.contract"
+              ]
+            },
+            {
+              "question": "KnowFlow本地代码运行为什么不是生产安全沙箱？",
+              "answer": "HostCapabilityGuard要求显式启用、指定授权用户和允许目录，默认关闭；Admin身份或local profile本身都不自动放行。代码执行仍使用宿主进程、文件权限和环境，因此超时、输出限制与信号量只是资源保护，不是操作系统隔离。路径读取要检查规范路径和符号链接，异步任务还要携带真实身份并清理上下文。把这套能力公开给不可信用户，会面临网络访问、环境变量、文件和子进程风险。若要生产开放，应单独设计隔离执行环境、资源限额、网络策略与凭证边界，不能仅改一个开关。在面试里应明确可信本地开发能力与公开多租户执行的差别。",
+              "keyPoints": [
+                "HostCapabilityGuard显式启用及授权用户才开放，且不是OS沙箱。",
+                "权限矩阵同时断言HTTP与body；静态扫描不能替代运行验证。"
+              ],
+              "followUps": [
+                "为什么设置超时仍不能防止读取宿主文件？",
+                "Admin为什么不能绕过显式宿主授权？"
+              ],
+              "commonMistakes": [
+                "把ProcessBuilder加超时称为完整沙箱",
+                "将生产API Key放入不可信执行进程环境"
+              ],
+              "rank": "S",
+              "knowledgeKeys": [
+                "java-ai.project.security.flow"
+              ]
+            },
+            {
+              "question": "如何验证这个项目的权限与可靠性？哪些结果不能直接外推生产？",
+              "answer": "先定义身份矩阵：Anonymous、Owner、Other、Admin，知识库再加Editor和Reader。每个资源验证列表、详情、写入、删除、衍生AI检索和附件访问，并同时断言HTTP状态与body.code；拒绝后还要检查零副作用。学习内容初始化应验证幂等、关联和没有假事件，浏览器再验证真实入口可用。H2集成测试只能证明当前测试方言及环境，不等于MySQL唯一约束、隔离级别和迁移已验证；离线模型桩也不能证明外部LLM质量。若假设100用户并发，只能提出容量与限流方案，负载结果必须来自受控实测，不能把设想改写成已经达到的生产指标。",
+              "keyPoints": [
+                "权限矩阵同时断言HTTP与body；静态扫描不能替代运行验证。",
+                "身份来自SecurityUtils，资源归属还必须在服务端核对。"
+              ],
+              "followUps": [
+                "为什么H2通过后仍需验证MySQL并发与逻辑删除？",
+                "离线模型桩能证明什么，不能证明什么？"
+              ],
+              "commonMistakes": [
+                "把静态扫描作为运行PASS",
+                "把假设并发规模写成实际服务能力"
+              ],
+              "rank": "A",
+              "knowledgeKeys": [
+                "java-ai.project.security.boundary"
+              ]
+            }
+          ],
+          "exercise": {
+            "title": "实现宿主权限判定表",
+            "description": "用Java17设计纯函数模拟HostCapabilityGuard边界：匿名401，已登录但未启用或未在授权集合403，三项满足允许。人工检查：ADMIN不自动允许，调用方suppliedActor不得替代真实actor。此练习不是沙箱实现。",
+            "hint": "先列状态与边界，使用本地固定数据，不访问网络或宿主文件。",
+            "codeTemplate": "import java.util.*;\npublic class Main {\nrecord Context(Long actor,boolean enabled,Set<Long> authorized) {}\nstatic int check(Context context,Long suppliedActor) {\n    // TODO: 身份与显式授权\n    throw new UnsupportedOperationException(\"实现判定\");\n}\npublic static void main(String[] args) {\n    // TODO: 构造正常与边界用例并打印结果\n}\n}",
+            "solutionHint": "按输入验证、授权或依赖判定、核心处理、输出四段实现；独立检查失败是否阻止副作用。HostCapabilityGuard显式启用及授权用户才开放，且不是OS沙箱。",
+            "exampleInput": "actor=7；enabled=true；authorized={8}",
+            "exampleOutput": "403；不执行宿主操作",
+            "testCases": [],
+            "knowledgeKeys": [
+              "java-ai.project.security.contract",
+              "java-ai.project.security.flow",
+              "java-ai.project.security.boundary"
+            ]
+          }
+        }
+      ],
+      "notes": [
+        {
+          "title": "个人项目定位与真实调用链速记",
+          "content": "Personal Project只陈述当前可核对代码，性能与部署需要独立证据。\nChatController→ChatServiceImpl→Mapper→chat_conversation/chat_message。\n学习教练上下文和事件处理有独立业务分支，不可随意混同。 复习时用一个正常输入和一个边界输入复述，未运行的环境结论保持未验证。",
+          "chapterKey": "java-ai.project.overview"
+        },
+        {
+          "title": "权限过滤的文档分块与 RAG速记",
+          "content": "doc_chunk以文本保存向量，当前服务在Java中做余弦排序。\n先筛选可访问已发布文档，再检索对应分块，关键词降级保留权限范围。\n500字符为累积目标，超长单段不硬切；结构化引用是扩展方向。 复习时用一个正常输入和一个边界输入复述，未运行的环境结论保持未验证。",
+          "chapterKey": "java-ai.project.rag"
+        },
+        {
+          "title": "SSE 与有界 Agent 编排速记",
+          "content": "SseEmitter推送增量，完成回调持久化；success=false设置truncated。\nAgentRuntimeService最多8轮，assistant意图与toolCallId结果均回填。\nToolRegistry记录执行结果；危险工具需要用户确认回调。 复习时用一个正常输入和一个边界输入复述，未运行的环境结论保持未验证。",
+          "chapterKey": "java-ai.project.stream"
+        }
+      ]
+    }
+  ]
+}

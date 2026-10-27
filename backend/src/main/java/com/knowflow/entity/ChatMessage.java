@@ -26,4 +26,16 @@ public class ChatMessage extends BaseEntity {
 
     /** F1：是否被截断（用户点击「停止」中断流式生成时为 1）。 */
     private Integer truncated;
+
+    /** 可展示的推理内容（Provider 真实返回；摘要类型会在 reasoningKind 中标注）。 */
+    private String reasoningContent;
+
+    /** 推理内容类型：provider_text / summary；无推理内容时为空。 */
+    private String reasoningKind;
+
+    /** 真实思考耗时（毫秒）。 */
+    private Integer reasoningDurationMs;
+
+    /** RAG / 执行轨迹 JSON（步骤、计数、耗时，已脱敏）。 */
+    private String traceJson;
 }

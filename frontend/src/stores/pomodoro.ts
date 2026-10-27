@@ -264,12 +264,12 @@ export const usePomodoroStore = defineStore('pomodoro', () => {
   });
   const modeColor = computed<{ stroke: string; bg: string; fg: string }>(() => {
     if (runtime.value.currentMode === 'focus') {
-      return { stroke: '#EF4444', bg: 'rgba(239,68,68,0.10)', fg: '#EF4444' };
+      return { stroke: 'var(--kb-danger)', bg: 'rgba(239,68,68,0.10)', fg: 'var(--kb-danger)' };
     }
     if (runtime.value.currentMode === 'shortBreak') {
-      return { stroke: '#10B981', bg: 'rgba(16,185,129,0.10)', fg: '#10B981' };
+      return { stroke: 'var(--kb-success)', bg: 'rgba(16,185,129,0.10)', fg: 'var(--kb-success)' };
     }
-    return { stroke: '#3B6FE0', bg: 'rgba(59,111,224,0.10)', fg: '#3B6FE0' };
+    return { stroke: 'var(--kb-primary)', bg: 'rgba(59,111,224,0.10)', fg: 'var(--kb-primary)' };
   });
   const timeFormatted = computed(() => {
     const s = Math.max(0, runtime.value.timeLeft);

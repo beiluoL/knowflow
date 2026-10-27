@@ -1,7 +1,10 @@
 package com.knowflow.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.dto.WbCaptureDTO;
 import com.knowflow.dto.WbNoteDTO;
 import com.knowflow.dto.WbPalaceDTO;
@@ -29,6 +32,7 @@ import com.knowflow.mapper.WbReviewCardMapper;
 import com.knowflow.mapper.WbReviewLogMapper;
 import com.knowflow.mapper.WbStoryMapper;
 import com.knowflow.service.LearningEventService;
+import com.knowflow.service.SrsService;
 import com.knowflow.service.WorkbenchService;
 import com.knowflow.vo.WbForgettingCurveVO;
 import com.knowflow.vo.WbRecallSessionVO;
@@ -73,11 +77,10 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
     private final WbStoryMapper storyMapper;
     private final WbRecallSessionMapper recallSessionMapper;
     private final LearningEventService learningEventService;
+    private final SrsService srsService;
 
     /** SM-2 难度系数默认 2.50，以整数存储（×100）。 */
     private static final int DEFAULT_EF = 250;
-    /** SM-2 难度系数下限 1.30（×100），防止过度压缩间隔。 */
-    private static final int MIN_EF = 130;
     /** 评分质量 q 的及格线：≥2 视为答对，<2 视为遗忘（重置连续答对与间隔）。 */
     private static final int PASS_QUALITY = 2;
     /** 近 7 天复习统计窗口（天）。 */
@@ -337,9 +340,17 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
         e.setCaptureId(dto.getCaptureId());
         e.setNoteId(dto.getNoteId());
         e.setCategoryId(dto.getCategoryId());
+        String cardType = defaultIfBlank(dto.getCardType(), "BASIC");
+        String back = dto.getBack() == null ? "" : dto.getBack();
+        if ("BASIC".equals(cardType)) {
+            requireNotBlank(back, "卡片背面不能为空");
+        }
         e.setFront(requireNotBlank(dto.getFront(), "卡片正面不能为空"));
-        e.setBack(requireNotBlank(dto.getBack(), "卡片背面不能为空"));
-        e.setCardType(defaultIfBlank(dto.getCardType(), "BASIC"));
+        e.setBack(back);
+        e.setCardType(cardType);
+        e.setHint(dto.getHint());
+        e.setTags(dto.getTags());
+        e.setExtraJson(dto.getExtraJson());
         e.setEaseFactor(DEFAULT_EF);
         e.setRepetitions(0);
         e.setIntervalDay(0);
@@ -357,14 +368,27 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
     @Transactional(rollbackFor = Exception.class)
     public void updateReviewCard(Long id, WbReviewCardDTO dto, Long userId) {
         WbReviewCard e = requireOwn(reviewCardMapper.selectById(id), userId, WbReviewCard::getUserId);
+        String nextType = StringUtils.hasText(dto.getCardType()) ? dto.getCardType() : e.getCardType();
         if (StringUtils.hasText(dto.getFront())) {
             e.setFront(dto.getFront());
         }
-        if (StringUtils.hasText(dto.getBack())) {
+        if (dto.getBack() != null) {
+            if ("BASIC".equals(nextType) && !StringUtils.hasText(dto.getBack())) {
+                throw new BusinessException("卡片背面不能为空");
+            }
             e.setBack(dto.getBack());
         }
         if (StringUtils.hasText(dto.getCardType())) {
             e.setCardType(dto.getCardType());
+        }
+        if (dto.getHint() != null) {
+            e.setHint(dto.getHint());
+        }
+        if (dto.getTags() != null) {
+            e.setTags(dto.getTags());
+        }
+        if (dto.getExtraJson() != null) {
+            e.setExtraJson(dto.getExtraJson());
         }
         e.setCaptureId(dto.getCaptureId());
         e.setNoteId(dto.getNoteId());
@@ -388,33 +412,21 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
             throw new BusinessException("评分质量需在 0~3 之间");
         }
 
-        int ef = e.getEaseFactor() == null ? DEFAULT_EF : e.getEaseFactor();
-        int repetitions = e.getRepetitions() == null ? 0 : e.getRepetitions();
-        int interval = e.getIntervalDay() == null ? 0 : e.getIntervalDay();
-        boolean lapsed = quality < PASS_QUALITY;
-
-        // SM-2 核心：更新难度系数 —— EF' = EF + (0.1 - (5-q)(0.08 + (5-q)*0.02))
-        double q = quality;
-        double efDouble = ef / 100.0 + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
-        ef = (int) Math.round(Math.max(MIN_EF / 100.0, efDouble) * 100);
-
-        if (lapsed) {
-            // 遗忘：连续答对归零，间隔重置为 1 天后重新学习
-            repetitions = 0;
-            interval = 1;
-            e.setLapseCount((e.getLapseCount() == null ? 0 : e.getLapseCount()) + 1);
-        } else {
-            repetitions += 1;
-            if (repetitions == 1) {
-                interval = 1;
-            } else if (repetitions == 2) {
-                interval = 6;
-            } else {
-                interval = (int) Math.round(interval * (ef / 100.0));
-            }
-        }
+        // SM-2 核心计算统一收敛到 SrsService（唯一业务实现入口），此处仅做领域校验与落库
+        SrsService.SrsState state = new SrsService.SrsState();
+        state.setRepetitions(e.getRepetitions() == null ? 0 : e.getRepetitions());
+        state.setIntervalDay(e.getIntervalDay() == null ? 0 : e.getIntervalDay());
+        state.setEaseFactor(e.getEaseFactor() == null ? DEFAULT_EF : e.getEaseFactor());
+        state.setLapseCount(e.getLapseCount() == null ? 0 : e.getLapseCount());
 
         LocalDateTime now = LocalDateTime.now();
+        SrsService.SrsResult r = srsService.grade(quality, PASS_QUALITY, state, now);
+
+        int ef = r.getEaseFactor();
+        int repetitions = r.getRepetitions();
+        int interval = r.getIntervalDay();
+        boolean lapsed = r.isLapsed();
+
         e.setEaseFactor(ef);
         e.setRepetitions(repetitions);
         e.setIntervalDay(interval);
@@ -754,13 +766,26 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
 
     // ============================ 模块三扩展：主动回忆（三轮闭卷默写） ============================
 
+    /** 原文最大长度（字符），与前端输入上限一致。 */
+    private static final int RECALL_MAX_SOURCE = 10000;
+    /** 单轮默写最大长度。 */
+    private static final int RECALL_MAX_TEXT = 20000;
+    /** 标题最大长度。 */
+    private static final int RECALL_MAX_TITLE = 100;
+    /** 第三轮延迟复测间隔（分钟）。 */
+    private static final int RECALL_ROUND3_DELAY_MINUTES = 60;
+    private static final ObjectMapper RECALL_JSON = new ObjectMapper();
+
     @Override
     public List<WbRecallSessionVO> listRecallSessions(Long userId) {
         List<WbRecallSession> list = recallSessionMapper.selectList(
                 new LambdaQueryWrapper<WbRecallSession>()
                         .eq(WbRecallSession::getUserId, userId)
                         .orderByDesc(WbRecallSession::getCreateTime));
-        return list.stream().map(this::toRecallVO).collect(Collectors.toList());
+        List<Long> noteIds = list.stream().map(WbRecallSession::getNoteId)
+                .filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        Map<Long, String> noteTitles = noteTitleMap(noteIds);
+        return list.stream().map(e -> toRecallVO(e, noteTitles)).collect(Collectors.toList());
     }
 
     @Override
@@ -772,54 +797,198 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
     @Override
     @Transactional
     public Long createRecallSession(WbRecallSessionDTO dto, Long userId) {
-        requireNotBlank(dto.getSourceText(), "原文不能为空");
+        String source = requireRecallSource(dto.getSourceText());
+        Long noteId = dto.getNoteId();
+        if (noteId != null) {
+            requireOwn(noteMapper.selectById(noteId), userId, WbNote::getUserId);
+        }
+        boolean draft = Boolean.TRUE.equals(dto.getDraft());
         WbRecallSession e = new WbRecallSession();
         e.setUserId(userId);
-        e.setNoteId(dto.getNoteId());
+        e.setNoteId(noteId);
         e.setCardId(dto.getCardId());
-        e.setTitle(StringUtils.hasText(dto.getTitle()) ? dto.getTitle().trim() : "主动回忆会话");
-        e.setSourceText(dto.getSourceText());
+        e.setTitle(normalizeRecallTitle(dto.getTitle(), source));
+        e.setSourceText(source);
+        e.setSourceType(normalizeRecallSourceType(dto.getSourceType(), noteId));
+        e.setArchived(0);
         e.setCurrentRound(1);
-        e.setStatus("IN_PROGRESS");
+        e.setStatus(draft ? "DRAFT" : "IN_PROGRESS");
         recallSessionMapper.insert(e);
         return e.getId();
     }
 
     @Override
     @Transactional
+    public WbRecallSessionVO updateRecallSession(Long id, WbRecallSessionDTO dto, Long userId) {
+        WbRecallSession e = requireOwn(recallSessionMapper.selectById(id), userId, WbRecallSession::getUserId);
+        boolean draft = "DRAFT".equals(e.getStatus());
+        if (dto.getTitle() != null) {
+            String title = dto.getTitle().trim();
+            e.setTitle(title.isEmpty()
+                    ? normalizeRecallTitle(null, e.getSourceText())
+                    : truncateRecallTitle(title));
+        }
+        if (dto.getArchived() != null) {
+            e.setArchived(dto.getArchived() == 1 ? 1 : 0);
+        }
+        if (dto.getSourceText() != null && !dto.getSourceText().equals(e.getSourceText())) {
+            if (!draft) {
+                throw new BusinessException(409, "会话已开始，原文快照已锁定；如需修改请复制为新会话");
+            }
+            e.setSourceText(requireRecallSource(dto.getSourceText()));
+        }
+        if (dto.getSourceType() != null && draft) {
+            e.setSourceType(normalizeRecallSourceType(dto.getSourceType(), e.getNoteId()));
+        }
+        if (dto.getNoteId() != null && draft) {
+            requireOwn(noteMapper.selectById(dto.getNoteId()), userId, WbNote::getUserId);
+            e.setNoteId(dto.getNoteId());
+            e.setSourceType("NOTE");
+        }
+        if (dto.getCardId() != null && draft) {
+            e.setCardId(dto.getCardId());
+        }
+        recallSessionMapper.updateById(e);
+        return toRecallVO(e);
+    }
+
+    @Override
+    @Transactional
+    public WbRecallSessionVO saveRecallDraft(Long id, WbRecallSessionDTO dto, Long userId) {
+        WbRecallSession e = requireOwn(recallSessionMapper.selectById(id), userId, WbRecallSession::getUserId);
+        int round = requireRecallRound(dto);
+        String text = dto.getText() == null ? "" : dto.getText();
+        if (text.length() > RECALL_MAX_TEXT) {
+            throw new BusinessException(400, "草稿内容过长");
+        }
+        requireRecallRoundWritable(e, round, LocalDateTime.now());
+        LambdaUpdateWrapper<WbRecallSession> w = Wrappers.<WbRecallSession>lambdaUpdate()
+                .eq(WbRecallSession::getId, id)
+                .eq(WbRecallSession::getUserId, userId)
+                .set(recallDraftColumn(round), text);
+        if (round == 1) {
+            w.isNull(WbRecallSession::getRound1Text);
+        } else if (round == 2) {
+            w.isNull(WbRecallSession::getRound2Text);
+        } else {
+            w.isNull(WbRecallSession::getRound3Text);
+        }
+        if (recallSessionMapper.update(null, w) == 0) {
+            throw new BusinessException(409, "该轮已提交，无法继续保存草稿");
+        }
+        return getRecallSession(id, userId);
+    }
+
+    @Override
+    @Transactional
+    public WbRecallSessionVO saveRecallGaps(Long id, WbRecallSessionDTO dto, Long userId) {
+        WbRecallSession e = requireOwn(recallSessionMapper.selectById(id), userId, WbRecallSession::getUserId);
+        int round = requireRecallRound(dto);
+        if (recallSubmittedText(e, round) == null) {
+            throw new BusinessException(409, "该轮尚未提交，无法确认遗漏");
+        }
+        List<String> gaps = dto.getGaps() == null ? new ArrayList<>() : dto.getGaps().stream()
+                .filter(StringUtils::hasText)
+                .map(String::trim)
+                .filter(g -> g.length() <= 100)
+                .distinct()
+                .limit(50)
+                .collect(Collectors.toList());
+        Map<String, List<String>> all = parseRecallGaps(e.getGapJson());
+        all.put(String.valueOf(round), gaps);
+        try {
+            e.setGapJson(RECALL_JSON.writeValueAsString(all));
+        } catch (Exception ex) {
+            throw new BusinessException(500, "遗漏内容保存失败");
+        }
+        recallSessionMapper.updateById(e);
+        return toRecallVO(e);
+    }
+
+    @Override
+    @Transactional
+    public Long copyRecallSession(Long id, Long userId) {
+        WbRecallSession e = requireOwn(recallSessionMapper.selectById(id), userId, WbRecallSession::getUserId);
+        WbRecallSession copy = new WbRecallSession();
+        copy.setUserId(userId);
+        copy.setNoteId(e.getNoteId());
+        copy.setCardId(e.getCardId());
+        copy.setTitle(truncateRecallTitle((StringUtils.hasText(e.getTitle()) ? e.getTitle() : "主动回忆会话") + "（副本）"));
+        copy.setSourceText(e.getSourceText());
+        copy.setSourceType(e.getSourceType());
+        copy.setArchived(0);
+        copy.setCurrentRound(1);
+        copy.setStatus("DRAFT");
+        recallSessionMapper.insert(copy);
+        return copy.getId();
+    }
+
+    @Override
+    public void setRecallArchived(Long id, Integer archived, Long userId) {
+        WbRecallSession e = requireOwn(recallSessionMapper.selectById(id), userId, WbRecallSession::getUserId);
+        e.setArchived(archived != null && archived == 1 ? 1 : 0);
+        recallSessionMapper.updateById(e);
+    }
+
+    @Override
+    @Transactional
     public WbRecallSessionVO submitRecallRound(Long id, WbRecallSessionDTO dto, Long userId) {
         WbRecallSession e = requireOwn(recallSessionMapper.selectById(id), userId, WbRecallSession::getUserId);
-        int round = dto.getRound() == null ? 1 : dto.getRound();
-        if (round < 1 || round > 3) {
-            throw new BusinessException("轮次需在 1~3 之间");
-        }
+        int round = requireRecallRound(dto);
         if (!StringUtils.hasText(dto.getText())) {
-            throw new BusinessException("默写内容不能为空");
+            throw new BusinessException(400, "默写内容不能为空");
+        }
+        if (dto.getText().length() > RECALL_MAX_TEXT) {
+            throw new BusinessException(400, "默写内容过长");
+        }
+        if ("COMPLETED".equals(e.getStatus())) {
+            throw new BusinessException(409, "会话已完成，历史记录不可覆盖");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        requireRecallRoundWritable(e, round, now);
+        int expectedRound = e.getCurrentRound() == null ? 1 : e.getCurrentRound();
+        if (expectedRound != round) {
+            throw new BusinessException(409, "当前应提交第 " + expectedRound + " 轮");
         }
         int score = scoreRecall(e.getSourceText(), dto.getText());
+        String text = dto.getText();
+        LambdaUpdateWrapper<WbRecallSession> w = Wrappers.<WbRecallSession>lambdaUpdate()
+                .eq(WbRecallSession::getId, id)
+                .eq(WbRecallSession::getUserId, userId)
+                .eq(WbRecallSession::getCurrentRound, expectedRound);
         if (round == 1) {
-            e.setRound1Text(dto.getText());
-            e.setRound1Score(score);
-            e.setCurrentRound(2);
+            w.isNull(WbRecallSession::getRound1Text)
+                    .set(WbRecallSession::getRound1Text, text)
+                    .set(WbRecallSession::getRound1Score, score)
+                    .set(WbRecallSession::getRound1Draft, null)
+                    .set(WbRecallSession::getCurrentRound, 2)
+                    .set(WbRecallSession::getStatus, "IN_PROGRESS");
         } else if (round == 2) {
-            e.setRound2Text(dto.getText());
-            e.setRound2Score(score);
-            e.setCurrentRound(3);
-            e.setRound3DueTime(LocalDateTime.now().plusHours(1));
+            w.isNull(WbRecallSession::getRound2Text)
+                    .set(WbRecallSession::getRound2Text, text)
+                    .set(WbRecallSession::getRound2Score, score)
+                    .set(WbRecallSession::getRound2Draft, null)
+                    .set(WbRecallSession::getCurrentRound, 3)
+                    .set(WbRecallSession::getStatus, "IN_PROGRESS")
+                    .set(WbRecallSession::getRound3DueTime, now.plusMinutes(RECALL_ROUND3_DELAY_MINUTES));
         } else {
-            e.setRound3Text(dto.getText());
-            e.setRound3Score(score);
-            e.setCurrentRound(3);
-            e.setStatus("COMPLETED");
-            e.setCompletedTime(LocalDateTime.now());
-            // Learning Event System（Phase 1）：主动回忆会话完成事件
+            w.isNull(WbRecallSession::getRound3Text)
+                    .set(WbRecallSession::getRound3Text, text)
+                    .set(WbRecallSession::getRound3Score, score)
+                    .set(WbRecallSession::getRound3Draft, null)
+                    .set(WbRecallSession::getStatus, "COMPLETED")
+                    .set(WbRecallSession::getCompletedTime, now);
+        }
+        if (recallSessionMapper.update(null, w) == 0) {
+            throw new BusinessException(409, "该轮已提交或状态已变化，请刷新后重试");
+        }
+        if (round == 3) {
             double recallAvg = ((e.getRound1Score() == null ? 0 : e.getRound1Score())
                     + (e.getRound2Score() == null ? 0 : e.getRound2Score()) + score) / 3.0;
             learningEventService.record(userId, LearningEventType.RECALL_COMPLETED, "RECALL_SESSION", e.getId(),
                     Map.of("round3Score", score, "avgScore", recallAvg));
         }
-        recallSessionMapper.updateById(e);
-        return toRecallVO(e);
+        return getRecallSession(id, userId);
     }
 
     @Override
@@ -829,9 +998,8 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
     }
 
     /**
-     * 比对原文与默写，计算 0-100 分。
-     * 算法：按空白切词，原文词集为基准，默写命中的关键词比例 × 100。
-     * 忽略大小写与标点，过滤停用词与短词（长度≤1）。
+     * 文本覆盖度比对（0-100）：原文关键词（英文单词 + 中文二元组）在默写中出现的比例。
+     * 该分数只反映字面覆盖，不代表语义理解正确率，前端必须明确标注为辅助指标。
      */
     private int scoreRecall(String source, String recall) {
         if (!StringUtils.hasText(source)) return 0;
@@ -843,15 +1011,21 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
         return (int) Math.round((double) hit / sourceWords.size() * 100);
     }
 
-    /** 简易分词：英文按空白/标点切分，中文按字符切分，合并后小写化，过滤长度≤1 的 token。 */
+    /** 分词：英文按单词（长度≥2），中文按连续汉字的二元组切分，统一小写。 */
     private java.util.Set<String> tokenize(String text) {
         java.util.Set<String> tokens = new HashSet<>();
         String lower = text.toLowerCase();
-        java.util.regex.Matcher m = java.util.regex.Pattern.compile("[a-z]+|[\u4e00-\u9fa5]").matcher(lower);
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("[a-z]+|[\u4e00-\u9fa5]+").matcher(lower);
         while (m.find()) {
             String t = m.group();
-            if (t.length() > 1) {
+            if (t.length() > 1 && t.charAt(0) >= 'a' && t.charAt(0) <= 'z') {
                 tokens.add(t);
+            } else if (t.length() == 1) {
+                tokens.add(t);
+            } else {
+                for (int i = 0; i + 2 <= t.length(); i++) {
+                    tokens.add(t.substring(i, i + 2));
+                }
             }
         }
         return tokens;
@@ -859,12 +1033,23 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
 
     /** 实体 → VO，补充分数趋势与逐轮进步百分比。 */
     private WbRecallSessionVO toRecallVO(WbRecallSession e) {
+        return toRecallVO(e, noteTitleMap(e.getNoteId() == null ? List.of() : List.of(e.getNoteId())));
+    }
+
+    /** 实体 → VO（列表场景复用已批量查询的笔记标题，避免 N+1）。 */
+    private WbRecallSessionVO toRecallVO(WbRecallSession e, Map<Long, String> noteTitles) {
         WbRecallSessionVO vo = new WbRecallSessionVO();
         vo.setId(e.getId());
         vo.setNoteId(e.getNoteId());
         vo.setCardId(e.getCardId());
         vo.setTitle(e.getTitle());
         vo.setSourceText(e.getSourceText());
+        vo.setSourceType(e.getSourceType());
+        vo.setArchived(e.getArchived() == null ? 0 : e.getArchived());
+        vo.setRound1Draft(e.getRound1Draft());
+        vo.setRound2Draft(e.getRound2Draft());
+        vo.setRound3Draft(e.getRound3Draft());
+        vo.setGapJson(e.getGapJson());
         vo.setRound1Text(e.getRound1Text());
         vo.setRound1Score(e.getRound1Score());
         vo.setRound2Text(e.getRound2Text());
@@ -878,6 +1063,15 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
         vo.setCreateTime(e.getCreateTime());
         vo.setUpdateTime(e.getUpdateTime());
 
+        boolean fromNote = "NOTE".equals(e.getSourceType())
+                || (e.getSourceType() == null && e.getNoteId() != null);
+        String noteTitle = e.getNoteId() == null ? null : noteTitles.get(e.getNoteId());
+        vo.setSourceLabel(fromNote ? (StringUtils.hasText(noteTitle) ? noteTitle : "关联笔记") : "粘贴原文");
+
+        LocalDateTime now = LocalDateTime.now();
+        vo.setServerNow(now);
+        vo.setRound3Available(recallRound3Available(e, now));
+
         List<Integer> trend = new ArrayList<>();
         trend.add(e.getRound1Score());
         trend.add(e.getRound2Score());
@@ -890,6 +1084,110 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
         improvement.add(calcImprovement(e.getRound2Score(), e.getRound3Score()));
         vo.setImprovementPct(improvement);
         return vo;
+    }
+
+    // ---------- 主动回忆内部工具 ----------
+
+    private Map<Long, String> noteTitleMap(List<Long> noteIds) {
+        Map<Long, String> titles = new LinkedHashMap<>();
+        if (noteIds == null || noteIds.isEmpty()) return titles;
+        for (WbNote note : noteMapper.selectBatchIds(noteIds)) {
+            if (note != null) titles.put(note.getId(), note.getTitle());
+        }
+        return titles;
+    }
+
+    private String requireRecallSource(String source) {
+        if (!StringUtils.hasText(source)) {
+            throw new BusinessException(400, "原文不能为空");
+        }
+        if (source.length() > RECALL_MAX_SOURCE) {
+            throw new BusinessException(400, "原文不能超过 10000 字");
+        }
+        return source;
+    }
+
+    private int requireRecallRound(WbRecallSessionDTO dto) {
+        int round = dto.getRound() == null ? 1 : dto.getRound();
+        if (round < 1 || round > 3) {
+            throw new BusinessException(400, "轮次需在 1~3 之间");
+        }
+        return round;
+    }
+
+    /** 轮次可写校验：必须按顺序推进、该轮未提交、第三轮必须到期。 */
+    private void requireRecallRoundWritable(WbRecallSession e, int round, LocalDateTime now) {
+        if (round == 1) {
+            if (e.getRound1Text() != null) throw new BusinessException(409, "第一轮已提交，历史记录不可覆盖");
+            return;
+        }
+        if (e.getRound1Text() == null) throw new BusinessException(409, "请先完成第一轮");
+        if (round == 2) {
+            if (e.getRound2Text() != null) throw new BusinessException(409, "第二轮已提交，历史记录不可覆盖");
+            return;
+        }
+        if (e.getRound2Text() == null) throw new BusinessException(409, "请先完成第二轮");
+        if (e.getRound3Text() != null) throw new BusinessException(409, "第三轮已提交，历史记录不可覆盖");
+        if (e.getRound3DueTime() != null && now.isBefore(e.getRound3DueTime())) {
+            throw new BusinessException(409, "第三轮复测尚未到期，请等待复测时间");
+        }
+    }
+
+    private boolean recallRound3Available(WbRecallSession e, LocalDateTime now) {
+        return e.getRound2Text() != null
+                && e.getRound3Text() == null
+                && !"COMPLETED".equals(e.getStatus())
+                && (e.getRound3DueTime() == null || !now.isBefore(e.getRound3DueTime()));
+    }
+
+    private String recallSubmittedText(WbRecallSession e, int round) {
+        if (round == 1) return e.getRound1Text();
+        if (round == 2) return e.getRound2Text();
+        return e.getRound3Text();
+    }
+
+    private com.baomidou.mybatisplus.core.toolkit.support.SFunction<WbRecallSession, String> recallDraftColumn(int round) {
+        if (round == 1) return WbRecallSession::getRound1Draft;
+        if (round == 2) return WbRecallSession::getRound2Draft;
+        return WbRecallSession::getRound3Draft;
+    }
+
+    private String normalizeRecallSourceType(String sourceType, Long noteId) {
+        if (StringUtils.hasText(sourceType)) {
+            return "NOTE".equalsIgnoreCase(sourceType) ? "NOTE" : "PASTE";
+        }
+        return noteId == null ? "PASTE" : "NOTE";
+    }
+
+    private String normalizeRecallTitle(String title, String source) {
+        String base = StringUtils.hasText(title) ? title.trim() : recallFirstLine(source);
+        base = base.replaceFirst("^#+\\s*", "").trim();
+        if (base.isEmpty()) base = "主动回忆会话";
+        return truncateRecallTitle(base);
+    }
+
+    private String recallFirstLine(String source) {
+        if (source == null) return "";
+        for (String line : source.split("\\r?\\n")) {
+            if (StringUtils.hasText(line)) return line.trim();
+        }
+        return "";
+    }
+
+    private String truncateRecallTitle(String title) {
+        String t = title == null ? "" : title.trim();
+        return t.length() > RECALL_MAX_TITLE ? t.substring(0, RECALL_MAX_TITLE) : t;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, List<String>> parseRecallGaps(String json) {
+        if (!StringUtils.hasText(json)) return new LinkedHashMap<>();
+        try {
+            Map<String, List<String>> parsed = RECALL_JSON.readValue(json, Map.class);
+            return parsed == null ? new LinkedHashMap<>() : new LinkedHashMap<>(parsed);
+        } catch (Exception ex) {
+            return new LinkedHashMap<>();
+        }
     }
 
     /** 计算本轮相对上一轮的进步百分比，任一为空返回 null。 */
@@ -907,11 +1205,11 @@ public class WorkbenchServiceImpl extends ServiceImpl<WbCaptureMapper, WbCapture
 
     private <T> T requireOwn(T entity, Long userId, com.baomidou.mybatisplus.core.toolkit.support.SFunction<T, Long> getter) {
         if (entity == null) {
-            throw new BusinessException("记录不存在");
+            throw new BusinessException(404, "记录不存在");
         }
         Long owner = getter.apply(entity);
         if (!Objects.equals(owner, userId)) {
-            throw new BusinessException("无权操作该记录");
+            throw new BusinessException(403, "无权操作该记录");
         }
         return entity;
     }

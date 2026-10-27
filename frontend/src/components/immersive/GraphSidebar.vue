@@ -3,7 +3,7 @@
     <aside v-if="visible" class="graph-sidebar">
       <header class="sidebar-head">
         <div class="title-row">
-          <Icon name="network" :size="16" aria-hidden="true" />
+          <Icon name="share-2" :size="16" aria-hidden="true" />
           <span class="sidebar-title">知识图谱</span>
         </div>
         <button type="button" class="close-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="$emit('close')">
@@ -31,7 +31,7 @@
             <input
               v-model="conceptInput"
               type="text"
-              class="concept-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="concept-input transition-colors kb-input kb-form-control"
               placeholder="输入概念名，生成图解"
               @keyup.enter="handleGenerateConcept"
             />
@@ -206,7 +206,6 @@ import {
   type ConceptDiagramVO,
   type EntityGraphVO,
   type KnowledgeGraphVO,
-  type EntityNodeVO,
 } from '@/api';
 import { notify, getApiError } from '@/utils/toast';
 
@@ -218,13 +217,14 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits<{ (e: 'close'): void }>();
 
-const tabs = [
+type GraphTabId = 'concept' | 'entity' | 'doc';
+const tabs: { id: GraphTabId; label: string; icon: string }[] = [
   { id: 'concept', label: '概念图解', icon: 'lightbulb' },
   { id: 'entity', label: '实体图谱', icon: 'database' },
   { id: 'doc', label: '文档层级', icon: 'folder-tree' },
 ];
 
-const activeTab = ref<'concept' | 'entity' | 'doc'>('concept');
+const activeTab = ref<GraphTabId>('concept');
 
 const conceptInput = ref('');
 const conceptLoading = ref(false);
@@ -475,19 +475,21 @@ watch(activeTab, (tab) => {
   gap: 8px;
   margin-bottom: 4px;
 }
-.concept-input {
-  flex: 1;
+.concept-input:not(.kb-form-control) {
   height: 38px;
-  padding: 0 12px;
-  font-size: 13px;
-  color: var(--kb-foreground);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   outline: none;
   transition: border-color 0.15s;
 }
-.concept-input:focus {
+.concept-input {
+  flex: 1;
+  padding: 0 12px;
+  font-size: 13px;
+  color: var(--kb-foreground);
+}
+.concept-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
 }
 .generate-btn {
@@ -707,7 +709,7 @@ watch(activeTab, (tab) => {
 .type-concept { background: rgba(59, 130, 246, 0.15); color: #60A5FA; }
 .type-technique { background: rgba(16, 185, 129, 0.15); color: #34D399; }
 .type-term { background: rgba(245, 158, 11, 0.15); color: #FBBF24; }
-.type-principle { background: rgba(239, 68, 68, 0.15); color: #F87171; }
+.type-principle { background: rgba(239, 68, 68, 0.15); color: var(--kb-danger-muted); }
 .type-tool { background: rgba(139, 92, 246, 0.15); color: #A78BFA; }
 .type-other { background: rgba(148, 163, 184, 0.15); color: #94A3B8; }
 .node-desc {

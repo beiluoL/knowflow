@@ -29,6 +29,7 @@ import java.util.List;
 public class FsTreeTool implements AgentTool {
 
     private final ObjectMapper objectMapper;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
 
     /** 最大扫描条目数，超出则截断并在结果中提示，避免大模型上下文被目录淹没 */
     private static final int MAX_ENTRIES = 400;
@@ -70,12 +71,13 @@ public class FsTreeTool implements AgentTool {
 
     @Override
     public ToolResult execute(JsonNode args, ToolContext ctx) throws ToolException {
+        hostGuard.requireActor(ctx == null ? null : ctx.getUserId());
         long start = System.currentTimeMillis();
         int maxDepth = args.has("maxDepth") ? args.get("maxDepth").asInt(DEFAULT_MAX_DEPTH) : DEFAULT_MAX_DEPTH;
         maxDepth = Math.max(1, Math.min(10, maxDepth));
         boolean includeHidden = args.has("includeHidden") && args.get("includeHidden").asBoolean();
 
-        Path root = FsReadTool.resolveRoot(ctx);
+        Path root = FsReadTool.resolveRoot(ctx, hostGuard);
         if (!Files.exists(root)) {
             return ToolResult.ok("(空工作区，尚无文件)", System.currentTimeMillis() - start);
         }
@@ -112,6 +114,7 @@ public class FsTreeTool implements AgentTool {
                 return;
             }
             Path child = children.get(i);
+            hostGuard.requireWorkspace(root,child);
             boolean isLast = i == children.size() - 1;
             boolean isDir = Files.isDirectory(child);
             String name = child.getFileName().toString();

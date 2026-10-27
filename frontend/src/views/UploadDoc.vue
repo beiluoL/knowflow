@@ -98,7 +98,7 @@
               v-model="formData.title"
               type="text"
               placeholder="请输入文档标题"
-              class="form-input"
+              class="form-input kb-input kb-form-control"
             />
             <p class="form-hint">默认取第一个文件名，可手动修改</p>
           </div>
@@ -149,7 +149,7 @@
                 v-model="tagInput"
                 type="text"
                 placeholder="添加标签后回车"
-                class="tag-text-input"
+                class="tag-text-input kb-input kb-form-control"
                 @keydown.enter.prevent="addTag"
               />
             </div>
@@ -161,7 +161,7 @@
               v-model="formData.description"
               rows="3"
               placeholder="请输入文档描述..."
-              class="form-textarea"
+              class="form-textarea kb-textarea kb-form-control"
             ></textarea>
           </div>
         </div>
@@ -750,24 +750,27 @@ onMounted(async () => {
   background-repeat: no-repeat;
   background-position: right 10px center;
 }
-.form-input:focus,
+.form-input:focus:not(.kb-form-control),
 .form-select:focus { border-color: var(--kb-ring); }
+
+.form-textarea:not(.kb-form-control) {
+  border-radius: var(--kb-radius-sm);
+  background: var(--kb-background);
+  border: 1px solid var(--kb-border);
+  outline: none;
+  transition: border-color 0.15s;
+}
 
 .form-textarea {
   width: 100%;
   padding: 8px 12px;
-  border-radius: var(--kb-radius-sm);
   font-size: var(--kb-fs-body-sm);
   line-height: var(--kb-lh-body-sm);
-  background: var(--kb-background);
   color: var(--kb-foreground);
-  border: 1px solid var(--kb-border);
-  outline: none;
   resize: none;
-  transition: border-color 0.15s;
   font-family: inherit;
 }
-.form-textarea:focus { border-color: var(--kb-ring); }
+.form-textarea:not(.kb-form-control):focus { border-color: var(--kb-ring); }
 
 /* 标签输入 */
 .tags-input {
@@ -777,11 +780,12 @@ onMounted(async () => {
   flex-wrap: wrap;
   padding: 8px 10px;
   border-radius: var(--kb-radius-sm);
-  background: var(--kb-background);
-  border: 1px solid var(--kb-border);
+  background: var(--kb-field-surface);
   min-height: 36px;
+  border: 0;
 }
-.tags-input:focus-within { border-color: var(--kb-ring); }
+.tags-input:focus-within {
+  background: var(--kb-field-active); }
 .tag-chip {
   display: inline-flex;
   align-items: center;
@@ -816,14 +820,16 @@ onMounted(async () => {
   outline: 2px solid var(--kb-ring);
   outline-offset: 2px;
 }
-.tag-text-input {
-  flex: 1;
-  min-width: 80px;
+.tag-text-input:not(.kb-form-control) {
   height: 24px;
-  font-size: var(--kb-fs-body-sm);
   background: transparent;
   border: none;
   outline: none;
+}
+.tag-text-input {
+  flex: 1;
+  min-width: 80px;
+  font-size: var(--kb-fs-body-sm);
   color: var(--kb-foreground);
 }
 .tag-text-input::placeholder { color: var(--kb-muted-foreground); }
@@ -880,4 +886,8 @@ onMounted(async () => {
   .file-status { order: 4; min-width: auto; }
   .file-remove-btn { order: 5; }
 }
+</style>
+
+<style scoped>
+.tags-input:has(input:focus-visible){outline:0}.tags-input input.kb-form-control,.tags-input input.kb-form-control:focus,.tags-input input.kb-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
 </style>

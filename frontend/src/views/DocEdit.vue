@@ -64,7 +64,7 @@
             v-model="form.title"
             type="text"
             placeholder="请输入文档标题..."
-            class="title-input"
+            class="title-input kb-input kb-form-control"
           />
         </div>
 
@@ -261,19 +261,11 @@
           </div>
           <div class="prop-row">
             <span class="prop-label">可见性</span>
-            <select v-model="form.visibility" class="prop-select">
-              <option value="public">公开</option>
-              <option value="member">仅会员</option>
-              <option value="private">私密</option>
-            </select>
+            <Select v-model="form.visibility" class="prop-select-control" aria-label="可见性" variant="subtle" :options="[{ value: 'public', label: '公开' }, { value: 'member', label: '仅会员' }, { value: 'private', label: '私密' }]" />
           </div>
           <div class="prop-row">
             <span class="prop-label">状态</span>
-            <select v-model="form.status" class="prop-select">
-              <option :value="0">草稿</option>
-              <option :value="1">已发布</option>
-              <option :value="2">已归档</option>
-            </select>
+            <Select v-model="form.status" class="prop-select-control" aria-label="状态" variant="subtle" :options="[{ value: 0, label: '草稿' }, { value: 1, label: '已发布' }, { value: 2, label: '已归档' }]" />
           </div>
         </div>
 
@@ -296,7 +288,7 @@
             v-model="tagInput"
             type="text"
             placeholder="+ 添加标签"
-            class="tag-add-input"
+            class="tag-add-input kb-input kb-form-control"
             @keydown.enter.prevent="addTag"
           />
         </div>
@@ -317,7 +309,7 @@
                 v-model="form.summary"
                 rows="3"
                 placeholder="输入文档摘要..."
-                class="collapse-textarea"
+                class="collapse-textarea kb-textarea kb-form-control"
               ></textarea>
             </div>
             <div>
@@ -326,7 +318,7 @@
                 v-model="form.keywords"
                 type="text"
                 placeholder="输入关键词，用逗号分隔"
-                class="collapse-input"
+                class="collapse-input kb-input kb-form-control"
               />
             </div>
           </div>
@@ -395,6 +387,7 @@
  */
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import Select from '@/components/ui/Select.vue'
 import Icon from '@/components/ui/Icon.vue';
 import CategoryTreeSelect from '@/components/ui/CategoryTreeSelect.vue';
 import { docsApi } from '@/api/docs';
@@ -418,9 +411,11 @@ import {
   parseIconValue, buildIconValue, resolveIconForRender,
   type PresetIcon,
 } from '@/utils/presetIcons';
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const route = useRoute();
 const router = useRouter();
+const nav = usePageNavigation()
 const loading = ref(false);
 const submitting = ref(false);
 const isPreview = ref(false);
@@ -864,17 +859,19 @@ async function handleSubmit() {
 
 async function handleDelete() {
   showMoreMenu.value = false;
-  const ok = await confirmDialog('确定删除该文档吗？此操作不可恢复。');
-  if (!ok) return;
-  const id = Number(route.params.id);
-  try {
-    await docsApi.remove(id);
-    notify('文档已删除', 'success');
-    router.push('/admin/docs');
-  } catch (e) {
-    console.error(e);
-    notify('删除失败', 'error');
-  }
+  await confirmDialog('确定删除该文档吗？此操作不可恢复。', { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          const id = Number(route.params.id);
+          try {
+              await docsApi.remove(id);
+              notify('文档已删除', 'success');
+              router.push('/admin/docs');
+          }
+          catch (e) {
+              console.error(e);
+              notify('删除失败', 'error');
+              throw e;
+          }
+      } });
 }
 
 function handleCopyLink() {
@@ -887,7 +884,8 @@ function handleCopyLink() {
 }
 
 function handleCancel() {
-  router.back();
+  const id = route.params.id
+  nav.goBack(id ? `/doc/${id}` : '/knowledge');
 }
 
 onMounted(() => {
@@ -1151,18 +1149,20 @@ onUnmounted(() => {
 .title-area {
   border-color: var(--kb-border);
 }
-.title-input {
-  width: 100%;
+.title-input:not(.kb-form-control) {
   background: transparent;
   border: none;
   outline: none;
+}
+.title-input {
+  width: 100%;
   font-family: var(--font-sans);
   font-size: 22px;
   font-weight: 600;
   color: var(--kb-foreground);
   line-height: 1.35;
 }
-.title-input:focus-visible {
+.title-input:not(.kb-form-control):focus-visible {
   outline: 2px solid var(--kb-ring);
   outline-offset: 2px;
   border-radius: var(--kb-radius-sm);
@@ -1224,20 +1224,22 @@ onUnmounted(() => {
   background: rgba(59, 111, 224, 0.04);
   box-shadow: inset 0 0 0 2px var(--kb-primary);
 }
+.content-textarea:not(.kb-form-control) {
+  outline: none;
+  border: none;
+  background: var(--kb-card);
+}
 .content-textarea {
   flex: 1;
   width: 100%;
   padding: 20px 24px;
   font-size: var(--kb-fs-body-md);
-  outline: none;
-  border: none;
   resize: none;
-  background: var(--kb-card);
   color: var(--kb-foreground);
   font-family: var(--font-sans);
   line-height: 1.8;
 }
-.content-textarea:focus-visible {
+.content-textarea:not(.kb-form-control):focus-visible {
   outline: 2px solid var(--kb-ring);
   outline-offset: -2px;
 }
@@ -1326,30 +1328,7 @@ onUnmounted(() => {
   flex-shrink: 0;
   color: var(--kb-muted-foreground);
 }
-.prop-select {
-  height: 28px;
-  padding: 0 8px;
-  font-size: var(--kb-fs-caption);
-  border-radius: var(--kb-radius-sm);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  outline: none;
-  min-width: 0;
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
-}
-.prop-select:hover {
-  border-color: var(--kb-primary);
-}
-.prop-select:active {
-  background: var(--kb-muted);
-}
-.prop-select:focus-visible {
-  outline: 2px solid var(--kb-ring);
-  outline-offset: 2px;
-  border-color: var(--kb-primary);
-}
+.prop-select-control { width:auto; min-width:7rem; }
 
 /* 图标选择器 */
 .icon-picker-area {
@@ -1522,25 +1501,27 @@ onUnmounted(() => {
 .tag-empty {
   color: var(--kb-muted-foreground);
 }
-.tag-add-input {
-  width: 100%;
+.tag-add-input:not(.kb-form-control) {
   height: 32px;
-  padding: 0 12px;
-  font-size: var(--kb-fs-caption);
   border-radius: var(--kb-radius-sm);
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
-  color: var(--kb-foreground);
   outline: none;
   transition: border-color 0.15s ease;
 }
-.tag-add-input:hover {
+.tag-add-input {
+  width: 100%;
+  padding: 0 12px;
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-foreground);
+}
+.tag-add-input:not(.kb-form-control):hover {
   border-color: var(--kb-primary);
 }
-.tag-add-input:focus {
+.tag-add-input:not(.kb-form-control):focus {
   border-color: var(--kb-ring);
 }
-.tag-add-input:focus-visible {
+.tag-add-input:not(.kb-form-control):focus-visible {
   outline: 2px solid var(--kb-ring);
   outline-offset: 2px;
 }
@@ -1584,47 +1565,51 @@ onUnmounted(() => {
 .collapse-label {
   color: var(--kb-foreground);
 }
+.collapse-textarea:not(.kb-form-control) {
+  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-background);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
 .collapse-textarea {
   width: 100%;
   padding: 8px 12px;
   font-size: var(--kb-fs-caption);
-  border-radius: var(--kb-radius-sm);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-background);
   color: var(--kb-foreground);
-  outline: none;
   resize: none;
-  transition: border-color 0.15s ease;
 }
-.collapse-textarea:hover {
+.collapse-textarea:not(.kb-form-control):hover {
   border-color: var(--kb-primary);
 }
-.collapse-textarea:focus {
+.collapse-textarea:not(.kb-form-control):focus {
   border-color: var(--kb-ring);
 }
-.collapse-textarea:focus-visible {
+.collapse-textarea:not(.kb-form-control):focus-visible {
   outline: 2px solid var(--kb-ring);
   outline-offset: 2px;
 }
-.collapse-input {
-  width: 100%;
+.collapse-input:not(.kb-form-control) {
   height: 32px;
-  padding: 0 12px;
-  font-size: var(--kb-fs-caption);
   border-radius: var(--kb-radius-sm);
   border: 1px solid var(--kb-border);
   background: var(--kb-background);
-  color: var(--kb-foreground);
   outline: none;
   transition: border-color 0.15s ease;
 }
-.collapse-input:hover {
+.collapse-input {
+  width: 100%;
+  padding: 0 12px;
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-foreground);
+}
+.collapse-input:not(.kb-form-control):hover {
   border-color: var(--kb-primary);
 }
-.collapse-input:focus {
+.collapse-input:not(.kb-form-control):focus {
   border-color: var(--kb-ring);
 }
-.collapse-input:focus-visible {
+.collapse-input:not(.kb-form-control):focus-visible {
   outline: 2px solid var(--kb-ring);
   outline-offset: 2px;
 }

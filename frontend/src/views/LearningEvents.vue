@@ -39,7 +39,7 @@
         />
         <StatCard
           icon="list"
-          icon-color="#10B981"
+          icon-color="var(--kb-success)"
           icon-bg="rgba(16,185,129,.12)"
           :icon-size="18"
           :value="filteredLabel"
@@ -48,7 +48,7 @@
         />
         <StatCard
           icon="calendar"
-          icon-color="#F59E0B"
+          icon-color="var(--kb-warning)"
           icon-bg="rgba(245,158,11,.12)"
           :icon-size="18"
           :value="records.length"
@@ -63,10 +63,7 @@
           <Icon name="filter" :size="14" />
           <span>事件类型</span>
         </label>
-        <select v-model="eventType" class="lev-select" @change="onFilterChange">
-          <option value="">全部类型</option>
-          <option v-for="t in eventTypes" :key="t.value" :value="t.value">{{ t.label }}</option>
-        </select>
+        <Select v-model="eventType" :options="[{ value: '', label: '全部类型' }, ...eventTypes.map(t => ({ value: t.value, label: t.label }))]" aria-label="事件类型" variant="pill" @change="onFilterChange" />
         <span class="lev-filter-hint text-sm">共 {{ page?.total ?? 0 }} 条</span>
       </section>
 
@@ -125,19 +122,17 @@ import { ref, computed, onMounted } from 'vue'
 import { learningApi } from '@/api/learning'
 import type { LearningEventVO, IPage } from '@/api/types'
 import StatCard from '@/components/ui/StatCard.vue'
+import Select from '@/components/ui/Select.vue'
 import Icon from '@/components/ui/Icon.vue'
 
-// 事件类型中文标签（与后端 LearningEventType 一一对应）
+// 事件类型中文标签（与后端 LearningEventType 一一对应；Phase 1 起结果合并进核心事件 metadata，
+// 故过滤项不再包含 QUESTION_CORRECT/WRONG、CODE_PASSED/FAILED；历史数据仍可通过全量列表查看）
 const eventTypes: { value: string; label: string }[] = [
   { value: 'DOCUMENT_READ', label: '文档阅读' },
   { value: 'CHAPTER_START', label: '章节开始' },
   { value: 'CHAPTER_COMPLETE', label: '章节完成' },
   { value: 'QUESTION_ANSWERED', label: '题目作答' },
-  { value: 'QUESTION_CORRECT', label: '题目答对' },
-  { value: 'QUESTION_WRONG', label: '题目答错' },
   { value: 'CODE_SUBMITTED', label: '代码提交' },
-  { value: 'CODE_PASSED', label: '代码通过' },
-  { value: 'CODE_FAILED', label: '代码未过' },
   { value: 'FLASHCARD_REVIEWED', label: '闪卡复习' },
   { value: 'RECALL_COMPLETED', label: '主动回忆完成' },
   { value: 'AI_CHAT', label: 'AI 对话' },
@@ -145,6 +140,11 @@ const eventTypes: { value: string; label: string }[] = [
   { value: 'PATH_COMPLETED', label: '路径完成' },
   { value: 'CHECK_IN', label: '每日签到' },
   { value: 'MISTAKE', label: '错题归集' },
+  { value: 'MISTAKE_REVIEW', label: '错题复习' },
+  { value: 'LEARNING_TASK_COMPLETE', label: '任务完成' },
+  { value: 'SCENARIO_COMPLETED', label: '场景练习' },
+  { value: 'FEYNMAN_EXPRESSED', label: '费曼表达' },
+  { value: 'FIRST_PRINCIPLES_DERIVED', label: '第一性原理' },
 ]
 
 const labelMap = new Map(eventTypes.map((t) => [t.value, t.label]))
@@ -152,25 +152,28 @@ const eventLabel = (v: string) => labelMap.get(v) ?? v
 
 // 事件类型 → 徽章配色（与整体 token 体系一致）
 const badgeColors: Record<string, string> = {
-  DOCUMENT_READ: '#3B6FE0',
-  CHAPTER_START: '#3B6FE0',
-  CHAPTER_COMPLETE: '#10B981',
-  QUESTION_ANSWERED: '#6B7280',
-  QUESTION_CORRECT: '#10B981',
-  QUESTION_WRONG: '#EF4444',
-  CODE_SUBMITTED: '#6B7280',
-  CODE_PASSED: '#10B981',
-  CODE_FAILED: '#EF4444',
-  FLASHCARD_REVIEWED: '#3B6FE0',
-  RECALL_COMPLETED: '#10B981',
-  AI_CHAT: '#3B6FE0',
+  DOCUMENT_READ: 'var(--kb-primary)',
+  CHAPTER_START: 'var(--kb-primary)',
+  CHAPTER_COMPLETE: 'var(--kb-success)',
+  QUESTION_ANSWERED: 'var(--kb-muted-foreground)',
+  QUESTION_CORRECT: 'var(--kb-success)',
+  QUESTION_WRONG: 'var(--kb-danger)',
+  CODE_SUBMITTED: 'var(--kb-muted-foreground)',
+  CODE_PASSED: 'var(--kb-success)',
+  CODE_FAILED: 'var(--kb-danger)',
+  FLASHCARD_REVIEWED: 'var(--kb-primary)',
+  RECALL_COMPLETED: 'var(--kb-success)',
+  AI_CHAT: 'var(--kb-primary)',
   KNOWLEDGE_VIEWED: '#8B5CF6',
-  PATH_COMPLETED: '#10B981',
-  CHECK_IN: '#F59E0B',
-  MISTAKE: '#EF4444',
+  PATH_COMPLETED: 'var(--kb-success)',
+  CHECK_IN: 'var(--kb-warning)',
+  MISTAKE: 'var(--kb-danger)',
+  MISTAKE_REVIEW: 'var(--kb-success)',
+  SCENARIO_COMPLETED: '#8B5CF6',
+  FEYNMAN_EXPRESSED: '#EC4899',
 }
 const badgeStyle = (v: string) => {
-  const c = badgeColors[v] ?? '#6B7280'
+  const c = badgeColors[v] ?? 'var(--kb-muted-foreground)'
   return { color: c, background: `${c}1A`, borderColor: `${c}33` }
 }
 
@@ -234,9 +237,14 @@ onMounted(loadData)
 
 <style scoped>
 .lev-page {
-  max-width: 1080px;
-  margin: 0 auto;
+  max-width: none;
+  margin-inline: 0;
   padding: 24px 20px 40px;
+
+  width: 100%;
+  min-width: 0;
+  padding-inline: 0;
+  padding-top: 0;
 }
 .lev-header {
   display: flex;

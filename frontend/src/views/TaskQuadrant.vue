@@ -34,11 +34,12 @@
 
         <div class="qm-cards">
           <div v-for="t in grouped[q.key]" :key="t.id" class="qm-card" :class="{ done: t.status === 1 }">
-            <button class="qm-check" :class="{ done: t.status === 1 }" @click="complete(t)">
+            <button class="qm-check" :disabled="!!t.completionRequirement" :class="{ done: t.status === 1 }" @click="complete(t)">
               <Icon v-if="t.status === 1" name="check" :size="12" color="#fff" />
             </button>
             <div class="qm-card-body">
               <div class="qm-card-title" :class="{ done: t.status === 1 }">{{ t.title }}</div>
+              <TaskCompletionAction :requirement="t.completionRequirement" :title="t.title" />
             </div>
             <div class="qm-card-flags">
               <button
@@ -55,7 +56,7 @@
                 title="紧急"
                 @click="toggleUrgent(t)"
               >
-                <Icon name="alert-triangle" :size="13" />
+                <Icon name="alert-circle" :size="13" />
               </button>
               <button class="qm-flag del" title="删除" @click="remove(t)">
                 <Icon name="trash-2" :size="13" />
@@ -78,6 +79,7 @@
 // 艾森豪威尔四象限：按 important / urgent 将开放任务划分至 4 个区域，
 // 支持快速切换重要 / 紧急标记、完成与删除。
 import { ref, computed, onMounted } from 'vue'
+import TaskCompletionAction from '@/components/learning-actions/TaskCompletionAction.vue'
 import Icon from '@/components/ui/Icon.vue'
 import { listTasks, createTask, updateTask, setTaskStatus, deleteTask, type TaskNode } from '@/api/task'
 import { notify } from '@/utils/toast'
@@ -90,9 +92,9 @@ const loading = ref(false)
 const error = ref('')
 
 const quadrants = [
-  { key: 'q1' as QKey, label: '重要且紧急', icon: 'alert-octagon', color: '#EF4444', cls: 'q-important-urgent', tip: '立即处理 · 优先做' },
-  { key: 'q2' as QKey, label: '重要不紧急', icon: 'star', color: '#3B6FE0', cls: 'q-important', tip: '制定计划 · 重点做' },
-  { key: 'q3' as QKey, label: '紧急不重要', icon: 'zap', color: '#F59E0B', cls: 'q-urgent', tip: '尽量委托 · 快速做' },
+  { key: 'q1' as QKey, label: '重要且紧急', icon: 'alert-octagon', color: 'var(--kb-danger)', cls: 'q-important-urgent', tip: '立即处理 · 优先做' },
+  { key: 'q2' as QKey, label: '重要不紧急', icon: 'star', color: 'var(--kb-primary)', cls: 'q-important', tip: '制定计划 · 重点做' },
+  { key: 'q3' as QKey, label: '紧急不重要', icon: 'zap', color: 'var(--kb-warning)', cls: 'q-urgent', tip: '尽量委托 · 快速做' },
   { key: 'q4' as QKey, label: '不重要不紧急', icon: 'minus-circle', color: '#94A3B8', cls: 'q-normal', tip: '减少投入 · 有空做' },
 ]
 
@@ -146,6 +148,7 @@ async function toggleUrgent(t: TaskNode) {
 }
 
 async function complete(t: TaskNode) {
+  if (t.completionRequirement) return
   try {
     await setTaskStatus(t.id, 1)
     tasks.value = tasks.value.filter((x) => x.id !== t.id)
@@ -156,13 +159,16 @@ async function complete(t: TaskNode) {
 }
 
 async function remove(t: TaskNode) {
-  if (!(await dialog.confirm({ title: '删除确认', message: '确定删除该任务？', variant: 'danger' }))) return
-  try {
-    await deleteTask(t.id)
-    tasks.value = tasks.value.filter((x) => x.id !== t.id)
-  } catch (e) {
-    notify((e as Error).message || '删除失败', 'error')
-  }
+  await dialog.confirm({ "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", title: '删除确认', message: '确定删除该任务？', variant: 'danger', onConfirm: async () => {
+          try {
+              await deleteTask(t.id);
+              tasks.value = tasks.value.filter((x) => x.id !== t.id);
+          }
+          catch (e) {
+              notify((e as Error).message || '删除失败', 'error');
+              throw e;
+          }
+      } });
 }
 
 async function addInQuadrant(q: (typeof quadrants)[number]) {
@@ -223,9 +229,9 @@ onMounted(reload)
   min-height: 0;
   border-top: 3px solid var(--kb-border);
 }
-.qm-quad.q-important-urgent { border-top-color: #EF4444; }
-.qm-quad.q-important { border-top-color: #3B6FE0; }
-.qm-quad.q-urgent { border-top-color: #F59E0B; }
+.qm-quad.q-important-urgent { border-top-color: var(--kb-danger); }
+.qm-quad.q-important { border-top-color: var(--kb-primary); }
+.qm-quad.q-urgent { border-top-color: var(--kb-warning); }
 .qm-quad.q-normal { border-top-color: #94A3B8; }
 
 .qm-quad-head { display: flex; align-items: center; justify-content: space-between; }
@@ -266,7 +272,7 @@ onMounted(reload)
   display: inline-flex; align-items: center; justify-content: center; transition: all 0.12s ease;
 }
 .qm-flag:hover { background: var(--kb-card); color: var(--kb-foreground); }
-.qm-flag.on { color: #F59E0B; }
+.qm-flag.on { color: var(--kb-warning); }
 .qm-flag.del:hover { color: var(--kb-destructive); background: rgba(239, 68, 68, 0.1); }
 
 .qm-empty { font-size: 12px; color: var(--kb-muted-foreground); text-align: center; padding: 16px 0; }

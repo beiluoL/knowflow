@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.entity.DocReadProgress;
 import com.knowflow.entity.LearningFlashcard;
 import com.knowflow.entity.UserCheckIn;
@@ -55,7 +56,7 @@ public class WeeklyReportController {
     @Operation(summary = "获取当前周周报（不存在则自动生成）")
     @GetMapping
     public Result<WeeklyReportVO> current(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         LocalDate weekStart = currentMonday();
         WeeklyReport report = findReport(userId, weekStart);
         if (report == null) {
@@ -68,7 +69,7 @@ public class WeeklyReportController {
     @Operation(summary = "历史周报列表（最近 8 周）")
     @GetMapping("/list")
     public Result<List<WeeklyReportVO>> list(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         LocalDate from = currentMonday().minusWeeks(HISTORY_WEEKS - 1L);
         List<WeeklyReport> reports = reportMapper.selectList(new LambdaQueryWrapper<WeeklyReport>()
                 .eq(WeeklyReport::getUserId, userId)
@@ -82,7 +83,7 @@ public class WeeklyReportController {
     @Operation(summary = "手动生成当前周周报")
     @PostMapping("/generate")
     public Result<WeeklyReportVO> generate(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         WeeklyReport report = generateWeeklyReport(userId);
         return Result.success(toVO(report));
     }

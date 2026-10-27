@@ -1,0 +1,94 @@
+<template>
+ <div class="notes-workspace" :class="{'nw-immersive':layout==='immersive','nw-directory-open':directoryOpen}" @keydown.esc="escape">
+  <button v-if="directoryOpen" class="nw-directory-backdrop" aria-label="关闭笔记目录" @click="directoryOpen=false"/>
+  <aside :inert="!!actorError||!owner||undefined" v-show="layout!=='immersive'" class="nw-sidebar" aria-label="笔记管理">
+   <div class="nw-side-scroll"><NotesSidebar :view="view" :folder-id="folderId" :stats="stats" :folders="folders" :tags="tags" :selected-tags="selectedTags" :search="search" @new="createNote" @search="search=$event" @view="chooseView" @folder="chooseFolder" @tag="toggleTag" @create-folder="createFolder" @rename-folder="renameFolder" @move-folder="moveFolder" @delete-folder="deleteFolder" @create-tag="createTag" @rename-tag="renameTag" @delete-tag="deleteTag" @migration="migrationOpen=true"/>
+    <div v-if="organizationError" class="nw-inline-error" role="alert">{{ organizationError }}<button class="nw-text-button" @click="loadOrganization">重试</button></div>
+    <div v-if="legacyCount&&!migrationDismissed" class="nw-migration-banner"><Icon name="archive" :size="14"/><button @click="migrationOpen=true">有 {{ legacyCount }} 项旧数据可核对</button><button class="nw-icon" aria-label="关闭迁移提示" @click="migrationDismissed=true"><Icon name="x" :size="12"/></button></div>
+    <details v-if="recoveryEntries.length" class="nw-offline-list"><summary>本地恢复副本（{{ recoveryEntries.length }}）</summary><button v-for="item in recoveryEntries" :key="item.key" @click="openRecovery(item)">{{ item.title }}</button></details>
+    <NotesList :notes="rows" :selected="activeId" :loading="loading" :error="listError" :sort="sort" :page="page" :pages="pages" :total="total" :title="listTitle" :trash="view==='TRASH'" @select="pick" @favorite="favorite" @move="moveNote" @delete="remove" @restore="restore" @sort="sort=$event" @page="page=$event;loadList()" @retry="loadList" @new="createNote"/>
+   </div>
+  </aside>
+  <main class="nw-main" :inert="directoryOpen||undefined">
+   <div v-if="actorError" class="nw-empty" role="alert"><Icon name="alert-circle" :size="30"/><h2>无法读取当前账户</h2><p>{{ actorError }}</p><button class="nw-primary" @click="initialize">重试</button></div>
+   <div v-else-if="!owner" class="nw-empty" role="status">正在加载工作台…</div>
+   <section v-else-if="view==='TRASH'" class="nw-trash-preview"><header class="nw-doc-toolbar"><span>回收站</span><button class="nw-primary" :disabled="!activeTrash" @click="activeTrash&&restore(activeTrash)"><Icon name="rotate-ccw" :size="16"/>恢复笔记</button></header><div class="nw-doc-scroll"><article v-if="activeTrash"><h1>{{ activeTrash.title }}</h1><p class="nw-hint">内容只读，恢复后可以继续编辑。</p><div class="note-read-view" v-html="renderMarkdown(activeTrash.content)"/></article></div></section>
+   <NoteDocument v-else-if="documentKey" :key="documentKey" ref="document" :note-id="initialDocumentId" :owner="owner" :folders="folders" :initial-folder="initialFolder" :draft-key="draftKey" :panel-open="panelOpen" :layout="layout" @saved="saved" @layout="changeLayout" @panel="panelOpen=!panelOpen" @directory="directoryOpen=!directoryOpen" @open-note="openNote" @delete="deleteCurrent"/>
+   <div v-else class="nw-empty"><button class="nw-icon nw-mobile-directory" aria-label="笔记目录" @click="directoryOpen=true"><Icon name="menu" :size="20"/></button><Icon name="notebook-pen" :size="40"/><h2>留一处空间，整理你的想法</h2><p>选择笔记开始编辑，或从一张空白页写起。</p><button class="nw-primary" @click="createNote"><Icon name="plus" :size="16"/>新建笔记</button></div>
+  </main>
+ </div>
+ <AppDialog :open="migrationOpen" title="旧数据迁移与备份" :scrollable="true" :hide-footer="true" @cancel="migrationOpen=false"><LegacyNotesMigration v-if="migrationOpen" :embedded="true" @imported="refresh"/><p v-if="!legacyCount" class="nw-hint">没有检测到旧版本地笔记，当前笔记已由服务器保存。</p></AppDialog>
+ <AppDialog :open="!!moveTarget" title="移动笔记" :hide-footer="true" @cancel="moveTarget=null"><div class="nw-move-options"><button class="nw-picker-item" @click="confirmMove(null)"><Icon name="folder" :size="16"/>未分类</button><button v-for="f in folders" :key="f.id" class="nw-picker-item" @click="confirmMove(f.id)"><Icon name="folder" :size="16"/>{{ fullFolderName(f) }}</button></div><p v-if="operationError" role="alert" class="nw-error">{{ operationError }}</p></AppDialog>
+ <AppDialog :open="!!movingFolder" title="移动文件夹" :hide-footer="true" @cancel="movingFolder=null"><button class="nw-picker-item" @click="confirmFolderMove(null)">根目录</button><button v-for="f in folders.filter(f=>f.id!==movingFolder?.id)" :key="f.id" class="nw-picker-item" @click="confirmFolderMove(f.id)"><Icon name="folder" :size="16"/>{{ fullFolderName(f) }}</button><p v-if="operationError" role="alert" class="nw-error">{{ operationError }}</p></AppDialog>
+</template>
+<script setup lang="ts">
+import {computed,inject,nextTick,onMounted,onBeforeUnmount,ref,watch} from 'vue'
+import {useRoute,useRouter,onBeforeRouteLeave,onBeforeRouteUpdate} from 'vue-router'
+import Icon from '@/components/ui/Icon.vue'
+import AppDialog from '@/components/ui/AppDialog.vue'
+import NotesSidebar from './NotesSidebar.vue'
+import NotesList from './NotesList.vue'
+import NoteDocument from './NoteDocument.vue'
+import LegacyNotesMigration from './LegacyNotesMigration.vue'
+import {notesApi,type ServerNote,type NoteFolder,type NoteTag,type NoteStats,type NoteView,type NoteSort,type NotePayload} from '@/api/notes'
+import {authApi} from '@/api/auth'
+import {NOTES_LAYOUT_KEY,type NotesLayoutMode} from '@/notes/workspace-layout'
+import {scanLegacy} from '@/notes/legacy-migration'
+import {renderMarkdown} from '@/utils/markdown'
+import {notify,confirmDialog,promptDialog,getApiError} from '@/utils/toast'
+import '@/styles/notes-workspace.css'
+const route=useRoute(),router=useRouter(),layout=inject(NOTES_LAYOUT_KEY,ref<NotesLayoutMode>('normal'))
+const owner=ref(0),actorError=ref(''),document=ref<InstanceType<typeof NoteDocument>|null>(null),documentKey=ref(''),initialDocumentId=ref<number|null>(null),activeId=ref<number|null>(null),initialFolder=ref<number|null>(null),draftKey=ref<string|undefined>(),panelOpen=ref(window.innerWidth>=1440),directoryOpen=ref(false)
+const view=ref<NoteView>('ALL'),folderId=ref<number|undefined>(),search=ref(''),selectedTags=ref<number[]>([]),sort=ref<NoteSort>('UPDATED'),rows=ref<ServerNote[]>([]),stats=ref<NoteStats|null>(null),folders=ref<NoteFolder[]>([]),tags=ref<NoteTag[]>([]),page=ref(1),pages=ref(0),total=ref(0),loading=ref(false),listError=ref(''),organizationError=ref(''),migrationOpen=ref(false),migrationDismissed=ref(false),moveTarget=ref<ServerNote|null>(null),movingFolder=ref<NoteFolder|null>(null),operationError=ref(''),activeTrash=ref<ServerNote|null>(null)
+const legacyCount=scanLegacy(localStorage).entries.length
+const recoveryEntries=ref<{key:string;title:string;id:number|null;draft:string}[]>([])
+const accountToken=ref('');
+function accountValid(){if(accountToken.value!==localStorage.getItem('token')){actorError.value='账户已变化，请刷新工作台；未保存内容已保留为原账户副本';return false;}return true}
+let request=0,searchTimer:ReturnType<typeof setTimeout>|undefined,refreshTimer:ReturnType<typeof setTimeout>|undefined,authorizedNavigation=false,disposed=false
+const listTitle=computed(()=>folderId.value!==undefined?(folderId.value===0?'未分类':folders.value.find(f=>f.id===folderId.value)?.name||'文件夹'):({ALL:'全部笔记',RECENT:'最近编辑',FAVORITES:'我的收藏',DRAFT:'草稿',TRASH:'回收站'}[view.value]))
+function routeId(){const id=Number(route.params.id||route.query.note);return Number.isSafeInteger(id)&&id>0?id:null}
+function scanRecovery(){const result:typeof recoveryEntries.value=[];for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i)!;if(!key.startsWith(`notes-recovery:${owner.value}:`))continue;try{const d=JSON.parse(localStorage.getItem(key)!);if(d.userId!==owner.value||d.saved&&!d.needsReview||!d.payload)continue;const suffix=key.split(`notes-recovery:${owner.value}:`)[1]!;result.push({key,title:d.payload.title||'未命名副本',id:d.id||null,draft:suffix==='new'?'legacy':suffix.startsWith('new:')?suffix.slice(4):'legacy'})}catch{/* 损坏副本原始数据保留，不自动上传 */}}recoveryEntries.value=result}
+async function initialize(){actorError.value='';owner.value=0;documentKey.value='';accountToken.value=localStorage.getItem('token')||'';try{const actor=await authApi.me();if(disposed||!accountValid())return;owner.value=actor.id;scanRecovery();try{const pref=JSON.parse(sessionStorage.getItem(`notes-workspace-view:${owner.value}`)||'{}');if(pref.sort)sort.value=pref.sort;}catch{/* 视图偏好不影响正文 */}await Promise.all([loadOrganization(),loadList()]);if(disposed)return;if(route.name==='NoteCreate'&&!routeId())await showNew(String(route.query.draft||''),false);else if(routeId())selectDocument(routeId()!);else if(rows.value[0])selectDocument(rows.value[0].id)}catch(e){actorError.value=getApiError(e,'账户加载失败')}}
+async function loadOrganization(){if(!owner.value||!accountValid())return;organizationError.value='';try{const [s,f,t]=await Promise.all([notesApi.stats(),notesApi.folders(),notesApi.tags()]);if(disposed||!accountValid())return;stats.value=s;folders.value=f;tags.value=t}catch(e){organizationError.value=getApiError(e,'组织信息加载失败')}}
+async function loadList(){if(!owner.value||!accountValid())return;const token=++request;loading.value=true;listError.value='';try{const data=await notesApi.list({pageNum:page.value,pageSize:30,keyword:search.value.trim(),view:view.value,folderId:folderId.value,tagIds:selectedTags.value,sort:sort.value});if(token!==request||disposed||!accountValid())return;rows.value=data.records;total.value=data.total;pages.value=data.pages;if(view.value==='TRASH')activeTrash.value=rows.value.find(n=>n.id===activeTrash.value?.id)||rows.value[0]||null}catch(e){if(token===request)listError.value=getApiError(e,'笔记加载失败')}finally{if(token===request)loading.value=false}}
+async function refresh(){await Promise.all([loadList(),loadOrganization()]);scanRecovery()}
+function selectDocument(id:number){if(document.value?.getId()===id){activeId.value=id;return}activeId.value=id;initialDocumentId.value=id;draftKey.value=undefined;documentKey.value=`note:${id}`;activeTrash.value=null;directoryOpen.value=false}
+async function allowed(){return !document.value||await document.value.protect()}
+async function openNote(id:number){if(document.value?.getId()===id){directoryOpen.value=false;return}if(!await allowed())return;authorizedNavigation=true;await router.push(`/notes/${id}/edit`);selectDocument(id);authorizedNavigation=false}
+function pick(note:ServerNote){if(view.value==='TRASH'){activeTrash.value=note;return}void openNote(note.id)}
+async function showNew(key:string,writeRoute=true){const safe=/^[a-zA-Z0-9-]{1,80}$/.test(key)?key:crypto.randomUUID();initialFolder.value=folderId.value&&folderId.value>0?folderId.value:null;initialDocumentId.value=null;activeId.value=null;draftKey.value=safe;documentKey.value=`draft:${safe}`;view.value='ALL';activeTrash.value=null;directoryOpen.value=false;if(writeRoute||route.query.draft!==safe){authorizedNavigation=true;await router.replace({path:'/notes/new',query:{draft:safe}});authorizedNavigation=false}}
+async function createNote(){if(!await allowed())return;await showNew('');scanRecovery()}
+async function openRecovery(item:typeof recoveryEntries.value[number]){if(!await allowed())return;if(item.id){await openNote(item.id)}else await showNew(item.draft);directoryOpen.value=false}
+function saved(note:ServerNote){activeId.value=note.id;if(routeId()!==note.id){authorizedNavigation=true;void router.replace(`/notes/${note.id}/edit`).finally(()=>{authorizedNavigation=false})}if(refreshTimer)clearTimeout(refreshTimer);refreshTimer=setTimeout(refresh,300)}
+watch(()=>route.fullPath,()=>{if(!owner.value)return;const id=routeId();if(id)selectDocument(id);else if(route.name==='NoteCreate'&&documentKey.value!==`draft:${route.query.draft}`)void showNew(String(route.query.draft||''),false)})
+onBeforeRouteUpdate(async to=>{const id=Number(to.params.id||to.query.note);if(authorizedNavigation||id===document.value?.getId())return true;return allowed()});onBeforeRouteLeave(()=>authorizedNavigation||allowed())
+watch([view,folderId,sort,selectedTags],()=>{page.value=1;void loadList();if(owner.value)try{sessionStorage.setItem(`notes-workspace-view:${owner.value}`,JSON.stringify({sort:sort.value}))}catch{/* 偏好写失败不阻断内容 */}},{deep:true})
+watch(search,()=>{if(searchTimer)clearTimeout(searchTimer);searchTimer=setTimeout(()=>{page.value=1;void loadList()},300)})
+async function chooseView(next:NoteView){if((next==='TRASH'||view.value==='TRASH')&&!await allowed())return;view.value=next;folderId.value=undefined;if(next!=='TRASH'&&!documentKey.value&&rows.value[0])selectDocument(rows.value[0].id)}
+async function chooseFolder(id:number){if(view.value==='TRASH'&&!await allowed())return;view.value='ALL';folderId.value=id;directoryOpen.value=false}
+function toggleTag(id:number){selectedTags.value=selectedTags.value.includes(id)?selectedTags.value.filter(t=>t!==id):[...selectedTags.value,id]}
+function payload(note:ServerNote):NotePayload{return {title:note.title,content:note.content,tags:note.tags,folderId:note.folderId??null,favorite:!!note.favorite,status:note.status||'SAVED',sourceTitle:note.sourceTitle,sourceDocId:note.sourceDocId??null,revision:note.revision,chapterId:note.chapterId,pathId:note.pathId}}
+async function latest(note:ServerNote){if(document.value?.getId()===note.id){if(!await document.value.save())throw Error('当前笔记尚未保存，请先处理保存状态')}return notesApi.detail(note.id)}
+async function favorite(note:ServerNote){try{if(document.value?.getId()===note.id){await document.value.organize({favorite:!document.value.getNote().favorite});await refresh();return;}const current=await latest(note);const n=await notesApi.update(note.id,{...payload(current),favorite:!current.favorite});if(document.value?.getId()===note.id){document.value.session.acceptServer(n)}await refresh()}catch(e){notify(getApiError(e,'收藏失败'),'error')}}
+async function remove(note:ServerNote){if(!await confirmDialog('移入回收站？之后可以恢复。'))return;try{const current=await latest(note);await notesApi.delete(note.id,current.revision);if(activeId.value===note.id){documentKey.value='';activeId.value=null;authorizedNavigation=true;await router.replace('/notes');authorizedNavigation=false;}await refresh()}catch(e){notify(getApiError(e,'删除失败'),'error')}}
+async function deleteCurrent(){const id=document.value?.getId();if(!id)return;const n=await notesApi.detail(id);await remove(n)}
+async function restore(note:ServerNote){try{await notesApi.restore(note.id,note.revision);await refresh();notify('笔记已恢复','success')}catch(e){notify(getApiError(e,'恢复失败，请刷新后重试'),'error')}}
+function moveNote(note:ServerNote){moveTarget.value=note;operationError.value=''}
+async function confirmMove(target:number|null){if(!moveTarget.value)return;try{if(document.value?.getId()===moveTarget.value.id){if(await document.value.organize({folderId:target})){moveTarget.value=null;await refresh()}return;}const current=await latest(moveTarget.value);const n=await notesApi.update(current.id,{...payload(current),folderId:target});if(document.value?.getId()===n.id)document.value.session.acceptServer(n);moveTarget.value=null;await refresh()}catch(e){operationError.value=getApiError(e,'移动失败')}}
+function fullFolderName(folder:NoteFolder){const parts=[folder.name],seen=new Set([folder.id]);let id=folder.parentId;while(id&&!seen.has(id)){seen.add(id);const p=folders.value.find(f=>f.id===id);if(!p)break;parts.unshift(p.name);id=p.parentId}return parts.join(' / ')}
+async function createFolder(parentId:number|null){const name=await promptDialog('文件夹名称');if(!name?.trim())return;try{await notesApi.createFolder({name,parentId});await loadOrganization()}catch(e){notify(getApiError(e,'创建失败'),'error')}}
+async function renameFolder(folder:NoteFolder){const name=await promptDialog('重命名文件夹',{defaultValue:folder.name});if(!name?.trim())return;try{await notesApi.updateFolder(folder.id,{name,parentId:folder.parentId,revision:folder.revision});await loadOrganization()}catch(e){notify(getApiError(e,'重命名失败'),'error')}}
+function moveFolder(folder:NoteFolder){movingFolder.value=folder;operationError.value=''}
+async function confirmFolderMove(parentId:number|null){const f=movingFolder.value;if(!f)return;try{await notesApi.updateFolder(f.id,{name:f.name,parentId,revision:f.revision});movingFolder.value=null;await loadOrganization()}catch(e){operationError.value=getApiError(e,'移动失败')}}
+async function deleteFolder(folder:NoteFolder){if(!await confirmDialog('删除此空文件夹？不会删除笔记。'))return;try{await notesApi.deleteFolder(folder.id,folder.revision);if(folderId.value===folder.id)folderId.value=undefined;await loadOrganization()}catch(e){notify(getApiError(e,'删除失败'),'error')}}
+async function createTag(){const name=await promptDialog('标签名称');if(!name?.trim())return;try{await notesApi.createTag(name);await loadOrganization()}catch(e){notify(getApiError(e,'创建标签失败'),'error')}}
+async function renameTag(tag:NoteTag){if(!await allowed())return;const name=await promptDialog('重命名所有当前笔记中的此标签',{defaultValue:tag.name});if(!name?.trim())return;try{await notesApi.renameTag(tag.id,name);await reloadCurrent();await refresh()}catch(e){notify(getApiError(e,'重命名失败'),'error')}}
+async function deleteTag(tag:NoteTag){if(!await allowed()||!await confirmDialog('从所有当前笔记移除此标签？笔记正文与回收站历史保留。'))return;try{await notesApi.deleteTag(tag.id);selectedTags.value=selectedTags.value.filter(id=>id!==tag.id);await reloadCurrent();await refresh()}catch(e){notify(getApiError(e,'删除标签失败'),'error')}}
+async function reloadCurrent(){const id=document.value?.getId();if(id)document.value?.receive(await notesApi.detail(id))}
+async function changeLayout(next:NotesLayoutMode){const scroll=document.value?.scrollRoot,top=scroll?.scrollTop;layout.value=next;await nextTick();requestAnimationFrame(()=>{if(scroll&&top!==undefined)scroll.scrollTop=top})}
+function resize(){if(window.innerWidth<1100)panelOpen.value=false}
+function escape(){if(layout.value==='immersive')void changeLayout('normal');directoryOpen.value=false}
+function escapeGlobal(event:KeyboardEvent){if(event.key==='Escape'&&!event.defaultPrevented&&!(event.target as Element)?.closest('[role=dialog]'))escape()}
+function storage(event:StorageEvent){if(event.key==='token'||event.key==='user'){if(!accountValid()){request++;document.value?.session.backup()}}}
+onMounted(()=>{window.addEventListener('resize',resize);window.addEventListener('storage',storage);void initialize();window.addEventListener('keydown',escapeGlobal)});onBeforeUnmount(()=>{disposed=true;request++;if(searchTimer)clearTimeout(searchTimer);if(refreshTimer)clearTimeout(refreshTimer);window.removeEventListener('resize',resize);window.removeEventListener('storage',storage);window.removeEventListener('keydown',escapeGlobal);layout.value='normal'})
+</script>

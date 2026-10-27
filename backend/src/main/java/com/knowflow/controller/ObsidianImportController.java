@@ -38,6 +38,7 @@ public class ObsidianImportController {
 
     private final ObsidianImportService obsidianImportService;
     private final PathImportService pathImportService;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
     private final KbMemberService kbMemberService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -71,6 +72,7 @@ public class ObsidianImportController {
     @PostMapping("/generate")
     public Result<ObsidianImportResultVO> generate(@RequestBody ObsidianImportDTO dto) {
         Long userId = SecurityUtils.getCurrentUserId();
+        hostGuard.requireActor(userId);
         if (dto.getTargetCategoryId() != null
                 && !kbMemberService.canEditDocs(dto.getTargetCategoryId(), userId)) {
             return Result.error("无权向该知识库导入文档（需 Owner 或 Editor 权限）");
@@ -86,6 +88,9 @@ public class ObsidianImportController {
     @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter importStream(@RequestBody ObsidianImportDTO dto) {
         Long userId = SecurityUtils.getCurrentUserId();
+        hostGuard.requireActor(userId);
+        if (dto.getFilePaths()!=null && !dto.getFilePaths().isEmpty()) obsidianImportService.scanFiles(dto.getFilePaths());
+        else pathImportService.scanForImport(pathImportService.resolvePath(dto.getPath(),dto.getRelativeTo()));
         // 预生成 batchId，随进度事件回传前端
         String batchId = UUID.randomUUID().toString().replace("-", "").substring(0, 12);
 
@@ -104,7 +109,7 @@ public class ObsidianImportController {
         ImportProgressListener listener = buildListener(emitter, batchId);
 
         log.info("Obsidian 目录导入(SSE): userId={}, batchId={}", userId, batchId);
-        importExecutor.submit(() -> {
+        importExecutor.submit(hostGuard.wrapAuthenticated(() -> {
             try {
                 ObsidianImportResultVO result =
                         obsidianImportService.importAllWithProgress(dto, userId, batchId, listener);
@@ -114,7 +119,7 @@ public class ObsidianImportController {
                 log.error("Obsidian 导入异步任务异常: batchId={}", batchId, e);
                 listener.onError("导入异常：" + e.getMessage());
             }
-        });
+        }));
 
         emitter.onCompletion(() -> log.debug("SSE 连接完成: batchId={}", batchId));
         emitter.onTimeout(() -> log.warn("SSE 连接超时: batchId={}", batchId));

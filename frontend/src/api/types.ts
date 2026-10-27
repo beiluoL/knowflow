@@ -1,5 +1,14 @@
 // 后端接口数据类型（与 com.knowflow.vo / dto 对齐）
 
+/** 服务端登记的完成要求；仅用于展示和导航，不作为客户端写入身份。 */
+export interface TaskCompletionRequirement {
+  resourceType: 'FLASHCARD' | 'QUIZ'
+  resourceId: number
+  pathId?: number | null
+  knowledgeId?: number | null
+  available?: boolean
+}
+
 export interface ApiResult<T = unknown> {
   code: number
   message: string
@@ -95,6 +104,7 @@ export interface DocVO {
 }
 
 export interface DocDetailVO extends DocVO {
+  canEdit?: boolean
   content?: string
   favorite?: boolean
   readProgress?: number
@@ -120,6 +130,12 @@ export interface DocQuery {
   pageSize?: number
   /** 排序方式：relevance 相关度（默认，需有 keyword）/ time 最新 / view 最热 */
   sort?: 'relevance' | 'time' | 'view'
+  /** 文档类型（服务端过滤）：doc / pdf / markdown / note */
+  type?: 'doc' | 'pdf' | 'markdown' | 'note'
+  /** 创建时间下界（含），ISO 日期 yyyy-MM-dd */
+  from?: string
+  /** 创建时间上界（含当天），ISO 日期 yyyy-MM-dd */
+  to?: string
 }
 
 export interface ReadProgressPayload {
@@ -200,6 +216,7 @@ export interface LearningPathVO {
 }
 
 export interface LearningChapterVO {
+  inlineSourceImages?: Record<string,string>
   id: number
   pathId: number
   title: string
@@ -215,6 +232,12 @@ export interface LearningChapterVO {
   /** 前置章节 ID 列表，逗号分隔。 */
   prerequisiteChapterIds?: string
   /** L-FORM-01 视频观看进度百分比（0-100），用于恢复播放位置。 */
+  readingAnchor?: string | null
+  readingRevision?: number
+  readingSavedAt?: string | null
+  readingPositionStale?: boolean
+  contentHash?: string
+  readingPresentationHash?: string | null
   videoProgress?: number
 }
 
@@ -284,6 +307,9 @@ export interface FlashcardVO {
 }
 
 export interface LearningTaskVO {
+  completionRequirement?: TaskCompletionRequirement | null
+  source?: 'TASK' | 'LEARNING'
+  estimatedMinutes?: number
   id: number
   title: string
   description?: string
@@ -344,6 +370,8 @@ export interface FlashcardGenerateInput {
 
 // ===== 对话 / 消息 =====
 export interface ConversationVO {
+  pinned?: boolean
+  archived?: boolean
   id: number
   title?: string
   messageCount?: number
@@ -359,9 +387,23 @@ export interface MessageVO {
   content: string
   docReferences?: string
   createTime?: string
+  /** 可展示推理内容（Provider 真实返回的推理文本或摘要）；无推理时为 null */
+  reasoningContent?: string | null
+  /** provider_text（原始推理文本）/ summary（推理摘要） */
+  reasoningKind?: string | null
+  /** 思考真实耗时（毫秒） */
+  reasoningDurationMs?: number | null
+  /** RAG/Agent 执行轨迹 JSON（仅包含后端真实执行过的步骤） */
+  traceJson?: string | null
 }
 
 export interface ChatSendPayload {
+  tutorSelection?: {noteId:number;revision:number;quote:string;start:number}
+  tutorHintLevel?: number
+  tutorRequestId?: string
+  tutorRevealAnswer?: boolean
+  /** false 时后端跳过知识库检索；缺省保持兼容。 */
+  useKnowledgeBase?: boolean
   conversationId?: number
   /** 消息文本（与 images 至少提供一个） */
   content: string
@@ -369,6 +411,42 @@ export interface ChatSendPayload {
   model?: string
   /** 多模态图片 base64 数组（不含 data:image 前缀），后端支持 vision 模型识别 */
   images?: string[]
+  /** 对话模式：GENERAL（默认通用问答）/ LEARNING_COACH（学习教练，§297） */
+  mode?: 'GENERAL' | 'LEARNING_COACH'
+  /** 学习教练上下文（mode=LEARNING_COACH 时由前端基于真实数据组装，仅作数据，§15-18） */
+  coachContext?: string
+  /** 引用的历史消息 ID（后端校验归属后拼入上下文） */
+  quoteMessageId?: number
+  /** 是否开启深度思考（仅对支持推理内容的模型生效，能力由 /chat/capabilities 下发） */
+  deepThinking?: boolean
+}
+
+/** 重新生成 / 编辑后重新回答的请求体（与后端 ChatRegenerateDTO 对齐）。 */
+export interface ChatRegeneratePayload {
+  model?: string
+  useKnowledgeBase?: boolean
+  quoteMessageId?: number
+  mode?: 'GENERAL' | 'LEARNING_COACH'
+  coachContext?: string
+  deepThinking?: boolean
+}
+
+/** 模型深度思考能力（与后端 ChatModelCapability 对齐）。 */
+export interface ChatModelCapability {
+  model: string
+  provider?: string | null
+  reasoningSupported: boolean
+  /** provider_text / summary / none */
+  reasoningKind: 'provider_text' | 'summary' | 'none' | string
+  reasoningLabel?: string | null
+  supportsTools: boolean
+  note?: string | null
+}
+
+export interface ChatModelCapabilityVO {
+  provider?: string | null
+  defaultModel?: string | null
+  models: ChatModelCapability[]
 }
 
 // ===== AI 文档增强 =====
@@ -398,6 +476,15 @@ export interface IPage<T> {
   total: number
   current: number
   size: number
+  pages: number
+}
+
+/** 后端 PageResult 分页结果（records/total/pageNum/pageSize/pages）。 */
+export interface PageResult<T> {
+  records: T[]
+  total: number
+  pageNum: number
+  pageSize: number
   pages: number
 }
 
@@ -629,6 +716,204 @@ export interface PersonalizedPathVO {
   createTime?: string
 }
 
+// ===== Architecture-4.0：学习目标（Learning Goal，学习闭环起点） =====
+export type LearningGoalStatus = 'ACTIVE' | 'COMPLETED' | 'ARCHIVED'
+
+/** 学习目标新增 / 编辑入参（覆盖式：pathId 传 null 表示解除路径关联） */
+export interface LearningGoalInput {
+  title: string
+  description?: string | null
+  target?: string | null
+  status?: LearningGoalStatus
+  pathId?: number | null
+  startDate?: string | null
+  deadline?: string | null
+  dailyMinutes?: number
+}
+
+// ===== Architecture-4.2：章节 → 知识点上下文（Knowledge Context） =====
+
+/** 知识点简引用（后端由 kg_entity 真实查出，name 为真实名称） */
+export interface KnowledgeRefVO {
+  /** 知识点 ID（逻辑外键 kg_entity.id） */
+  id: number
+  /** 知识点真实名称（禁止前端用「知识点 123」占位兜底，§19） */
+  name: string
+  /** 实体类型：CONCEPT/TECHNIQUE/TERM/PRINCIPLE/TOOL/OTHER */
+  type: string | null
+  /** 来源：DOC=章节关联文档的资源→知识点映射（ACCEPTED）推导 */
+  source: string | null
+}
+
+/**
+ * 章节 → 知识点解析结果。
+ * 推导链：learning_chapter.docIds → resource_knowledge_mapping(DOC, ACCEPTED) → kg_entity。
+ * 全部真实映射；无映射时 knowledge 为空数组，调用方必须如实提示（禁止按标题猜测）。
+ */
+export interface ChapterKnowledgeVO {
+  chapterId: number
+  chapterTitle: string
+  /** 章节关联文档 ID（来自 learning_chapter.docIds） */
+  docIds: number[]
+  /** 该章节解析出的知识点（按 id 升序，稳定可测） */
+  questions?: {id:number;title:string;questionType:string}[]
+  knowledge: KnowledgeRefVO[]
+}
+
+/** 学习目标视图对象：关联路径时后端实时带出标题 / 章节数 / 进度（0~100） */
+export interface LearningGoalVO {
+  id: number
+  title: string
+  description?: string | null
+  target?: string | null
+  status: LearningGoalStatus
+  pathId?: number | null
+  pathTitle?: string | null
+  pathProgress?: number
+  pathChapterCount?: number
+  startDate?: string | null
+  deadline?: string | null
+  dailyMinutes?: number
+  createTime?: string
+  updateTime?: string
+}
+
+// ===== Architecture-4.0-4：场景练习（Scenario Lab，Practice 节点） =====
+
+/** 场景卡片 VO（列表）：只读内容，不含命中关键词 */
+export interface ScenarioSummaryVO {
+  id: number
+  title: string
+  questionText: string
+  difficulty: number
+  knowledgeId?: number | null
+  pointCount: number
+}
+
+/** 场景详情 VO（作答前展示）：要点仅暴露名称，keywords 不下发 */
+export interface ScenarioDetailVO {
+  id: number
+  title: string
+  contextText?: string | null
+  questionText: string
+  difficulty: number
+  knowledgeId?: number | null
+  pointLabels: string[]
+}
+
+/** 场景作答提交入参 */
+export interface ScenarioSubmitInput {
+  answer: string
+  durationSeconds?: number
+}
+
+/** 场景作答结果 VO（确定性覆盖评分，掌握度不改写） */
+export interface ScenarioSubmitResultVO {
+  scenarioId: number
+  title: string
+  totalPoints: number
+  matchedPoints: number
+  coverage: number
+  score: number
+  comment: string
+  matchedLabels: string[]
+  missedLabels: string[]
+  recorded: boolean
+}
+
+// ===== Architecture-4.0-7：费曼表达四维评分（Expression 节点） =====
+
+/** 费曼自检准则 */
+export interface FeynmanCriterionVO {
+  id: string
+  text: string
+}
+
+/** 费曼评分维度（Accuracy/Clarity/Completeness/Structure） */
+export interface FeynmanDimensionVO {
+  key: string
+  name: string
+  items: FeynmanCriterionVO[]
+}
+
+/** 费曼 rubric（服务端常量唯一下发，前端据此渲染勾选清单） */
+export interface FeynmanRubricVO {
+  dimensions: FeynmanDimensionVO[]
+  scoringNote: string
+}
+
+/** 费曼表达提交入参 */
+export interface FeynmanSubmitInput {
+  topic: string
+  explanation: string
+  checkedCriterionIds: string[]
+  durationSeconds?: number
+  /** Architecture-4.2 §9：本次表达所属知识点（页面从 Knowledge Context 透传，可空） */
+  knowledgeId?: number | null
+}
+
+/** 费曼单维评分结果 */
+export interface FeynmanDimensionResultVO {
+  key: string
+  name: string
+  checked: number
+  total: number
+  score: number
+}
+
+/** 费曼表达提交结果 VO（确定性自检计分 + FEYNMAN_EXPRESSED 事件） */
+export interface FeynmanSubmitResultVO {
+  topic: string
+  overall: number
+  dimensions: FeynmanDimensionResultVO[]
+  comment: string
+  recorded: boolean
+}
+
+// ===== Architecture-4.1：第一性原理推导（Understanding 节点，§14~17） =====
+
+/** 第一性原理单个环节定义（服务端常量下发，前端不重复定义口径） */
+export interface FirstPrinciplesStepVO {
+  key: 'facts' | 'assumptions' | 'constraints' | 'mechanism' | 'causality' | 'derivation'
+  index: number
+  title: string
+  hint: string
+  placeholder: string
+  minLength: number
+}
+
+/** 第一性原理 rubric */
+export interface FirstPrinciplesRubricVO {
+  steps: FirstPrinciplesStepVO[]
+  scoringNote: string
+}
+
+/** 第一性原理提交入参（六环节全部由用户填写） */
+export interface FirstPrinciplesSubmitInput {
+  topic: string
+  facts: string
+  assumptions: string
+  constraints: string
+  mechanism: string
+  causality: string
+  derivation: string
+  durationSeconds?: number
+  /** Architecture-4.2 §11：本次推导所属知识点（页面从 Knowledge Context 透传，可空） */
+  knowledgeId?: number | null
+}
+
+/** 第一性原理提交结果（结构完整度，非语义正确性） */
+export interface FirstPrinciplesSubmitResultVO {
+  topic: string
+  completeness: number
+  filled: number
+  total: number
+  missing: string[]
+  steps: FirstPrinciplesStepVO[]
+  comment: string
+  recorded: boolean
+}
+
 // ===== 错题 =====
 export interface MistakeVO {
   id: number
@@ -638,10 +923,18 @@ export interface MistakeVO {
   correctAnswer?: string
   category?: string
   difficulty?: number
+  /** 原测验题ID（逻辑外键 quiz_question.id，可空兼容旧数据） */
+  questionId?: number
+  /** 原代码题ID（逻辑外键 code_question.id，可空兼容旧数据） */
+  codeQuestionId?: number
   reviewCount?: number
   lastReviewTime?: string
   mastered?: number
   source?: string
+  /** Phase 3H：题型（关联 quiz_question 补全；沙箱类历史错题可能为空）。 */
+  questionType?: string
+  /** Phase 3H：知识点编码（关联 quiz_question 补全）。 */
+  topicCode?: string
   createTime?: string
 }
 
@@ -1123,6 +1416,9 @@ export interface IntentHistoryItem {
   content: string
   intent?: AgentIntentType
   slots?: Record<string, string>
+  /** 消息 ID / 父消息 ID（CodeAgent 组装历史时透传，便于后端追踪对话树） */
+  id?: number | string
+  parentId?: number | string
 }
 
 /** 意图识别：项目结构快照项 */
@@ -1760,6 +2056,12 @@ export interface WbReviewCard {
   front: string
   back: string
   cardType?: 'BASIC' | 'CLOZE' | 'RECALL'
+  /** 记忆提示（可选） */
+  hint?: string
+  /** 标签，逗号分隔 */
+  tags?: string
+  /** 类型专属扩展 JSON：RECALL 检查要点等 */
+  extraJson?: string
   easeFactor?: number
   repetitions?: number
   intervalDay?: number
@@ -1872,6 +2174,9 @@ export interface WbReviewCardPayload {
   front: string
   back: string
   cardType?: string
+  hint?: string
+  tags?: string
+  extraJson?: string
 }
 
 /** 复习评分入参 */
@@ -1918,15 +2223,23 @@ export interface WbStoryPayload {
   clarityScore?: number
 }
 
-/** 知识库分类树节点（与 doc_category 同源） */
-export interface CategoryVO {
+/**
+ * 知识库分类树节点（与 doc_category 同源）。
+ *
+ * Phase UI-1 修复说明：本接口原先也命名为 CategoryVO，与上方（约 155 行）的
+ * 「扁平分类 VO」重名。TypeScript 接口声明合并要求同名属性的修饰符与类型完全一致，
+ * 而二者的 parentId / docCount 一个必填、一个可选，导致 TS2687 / TS2717 构建失败。
+ * 若强行合并，depth 会成为扁平 VO 的必填项，波及全部引用文件；
+ * 因此这里按语义重命名为 CategoryTreeNodeVO（树结构专用），扁平 VO 保持原名不变。
+ */
+export interface CategoryTreeNodeVO {
   id: number
   name: string
   parentId: number
   depth: number
   path?: string
   docCount: number
-  children?: CategoryVO[]
+  children?: CategoryTreeNodeVO[]
 }
 
 /** 遗忘曲线单日数据点 */
@@ -1955,6 +2268,17 @@ export interface WbRecallSession {
   cardId?: number
   title?: string
   sourceText: string
+  /** 原文来源类型：PASTE 粘贴 / NOTE 从笔记选择 */
+  sourceType?: 'PASTE' | 'NOTE'
+  /** 来源展示文案 */
+  sourceLabel?: string
+  /** 归档标记：0 未归档 / 1 已归档 */
+  archived?: number
+  round1Draft?: string
+  round2Draft?: string
+  round3Draft?: string
+  /** 用户确认的关键遗漏（JSON：{"1":["…"],"2":["…"]}） */
+  gapJson?: string
   round1Text?: string
   round1Score?: number
   round2Text?: string
@@ -1962,7 +2286,7 @@ export interface WbRecallSession {
   round3Text?: string
   round3Score?: number
   currentRound: number
-  status: 'IN_PROGRESS' | 'COMPLETED'
+  status: 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED'
   round3DueTime?: string
   completedTime?: string
   createTime?: string
@@ -1971,18 +2295,30 @@ export interface WbRecallSession {
   scoreTrend: (number | null)[]
   /** 逐轮进步百分比（相对上一轮），null 表示无对比基准 */
   improvementPct: (number | null)[]
+  /** 服务端当前时间，供第三轮倒计时校准 */
+  serverNow?: string
+  /** 第三轮是否已到期且可提交（服务端判定） */
+  round3Available?: boolean
 }
 
 /** 主动回忆会话提交入参 */
 export interface WbRecallSessionPayload {
+  /** 创建时保存为草稿 */
+  draft?: boolean
   noteId?: number
   cardId?: number
   title?: string
   sourceText?: string
+  /** 原文来源类型：PASTE / NOTE */
+  sourceType?: 'PASTE' | 'NOTE'
+  /** 归档标记 */
+  archived?: number
   /** 当前提交的轮次：1 / 2 / 3 */
   round?: number
   /** 本轮默写内容 */
   text?: string
+  /** 用户确认的关键遗漏 */
+  gaps?: string[]
 }
 
 // ============================================================
@@ -1993,6 +2329,7 @@ export interface WbRecallSessionPayload {
 export type PlanItemType = 'learningTask' | 'todo' | 'habit'
 
 export interface PlanItemVO {
+  completionRequirement?: TaskCompletionRequirement | null
   type: PlanItemType
   learningTaskId?: number
   chapterId?: number
@@ -2003,6 +2340,8 @@ export interface PlanItemVO {
   startTime?: string
   endTime?: string
   completed?: boolean
+  /** 前端本地勾选状态（仅 TodayPlan 交互用，服务端不返回） */
+  _loading?: boolean
 }
 
 export interface PlanBlockVO {
@@ -2035,3 +2374,322 @@ export interface PlanGenerateResult {
   generatedDays: number
 }
 
+
+// ============================================================
+// Phase 0：学习周报 / 学习偏好 类型（对应后端 WeeklyReport / UserLearningPref）
+// ============================================================
+
+export interface WeeklyReportVO {
+  id: number
+  /** 周一日期 YYYY-MM-DD */
+  weekStart: string
+  /** 周日日期 YYYY-MM-DD */
+  weekEnd: string
+  /** AI 生成的周报摘要（Markdown） */
+  summary?: string
+  /** 本周成就列表 */
+  achievements?: string[]
+  /** 下周学习建议列表 */
+  suggestions?: string[]
+  studyMinutes?: number
+  checkinDays?: number
+  flashcardReviewed?: number
+  createTime?: string
+  updateTime?: string
+}
+
+/** 用户学习偏好：入参（后端 UserLearningPrefDTO） */
+export interface UserLearningPrefInput {
+  focusMinutes?: number
+  shortBreak?: number
+  longBreak?: number
+  rounds?: number
+  cardStrategy?: string
+  cardCount?: number
+  difficultyFilter?: string
+  theme?: string
+  fontSize?: string
+  soundEnabled?: number
+  notificationEnabled?: number
+  reminderTime?: string
+  whiteNoise?: string
+}
+
+/** 用户学习偏好：返回（后端 UserLearningPrefVO） */
+export interface UserLearningPrefVO extends UserLearningPrefInput {
+  id?: number
+  userId?: number
+}
+
+/** 学习报告（后端 LearningReportVO，GET /learning/report?period=week|month|all） */
+export interface LearningReportData {
+  period?: string
+  startDate?: string
+  endDate?: string
+  checkinDays: number
+  continuousDays: number
+  flashcardReviewed: number
+  flashcardMastered: number
+  mistakeCount: number
+  mistakeMastered: number
+  codeSubmissions: number
+  codePassed: number
+  docsRead: number
+  quizAnswered: number
+  quizCorrect: number
+  studyMinutes: number
+  dailyActivity: { date: string; minutes: number; count?: number }[]
+  categoryMastery?: { categoryName: string; total: number; mastered: number; percent: number }[]
+  weeklyTrend: { weekStart: string; studyMinutes: number; checkinDays: number }[]
+}
+
+/** 学习事件统计摘要（GET /learning/events/summary） */
+export interface LearningEventSummaryVO {
+  /** 今日学习事件数 */
+  todayEventCount: number
+  /** 近 7 日答题数 */
+  quizAnswered7d: number
+  /** 近 7 日答对数 */
+  quizCorrect7d: number
+  /** 近 7 日答题正确率（0~1） */
+  quizAccuracy7d: number
+  /** 近 7 日闪卡复习数 */
+  flashcardReviewed7d: number
+  /** 近 7 日代码提交数 */
+  codeSubmitted7d: number
+  /** 近 7 日错题复习数 */
+  mistakesReviewed7d: number
+  /** 近 7 日任务完成数 */
+  tasksCompleted7d: number
+  /** 最近 10 条事件类型 */
+  recentTypes: string[]
+}
+
+// =====================================================================
+// Architecture-4.3：Knowledge Processing 2.0（资料 → 候选 → 审核 → Knowledge Core）
+// =====================================================================
+
+export interface KnowledgeProcessRequest {
+  docId: number
+  learningNodeId?: number | null
+  /** SUMMARY / KNOWLEDGE_EXTRACTION（默认） */
+  mode?: string
+}
+
+export interface KnowledgeProcessConceptCandidate {
+  candidateId: string
+  name: string
+  type: string
+  description?: string
+  /** NEW=新增候选 / EXISTING=库中已存在（复用建议） */
+  status: 'NEW' | 'EXISTING'
+  existingId?: number | null
+  matchedName?: string | null
+}
+
+export interface KnowledgeProcessRelationCandidate {
+  candidateId: string
+  source: string
+  target: string
+  relation: string
+  description?: string
+  /** VALID=可接受 / INVALID=非法 */
+  status: 'VALID' | 'INVALID'
+  invalidReason?: string
+}
+
+export interface KnowledgeProcessResultVO {
+  docId: number
+  docTitle: string
+  learningNodeId?: number | null
+  learningNodeTitle?: string | null
+  mode: string
+  promptVersion: string
+  provider?: string
+  model?: string | null
+  processingTimeMs?: number
+  contentFingerprint?: string
+  processedChars?: number
+  contentTruncated?: boolean
+  warnings: string[]
+  summary?: string
+  concepts: KnowledgeProcessConceptCandidate[]
+  relations: KnowledgeProcessRelationCandidate[]
+  conceptTotal: number
+  conceptNew: number
+  conceptExisting: number
+  conceptInvalid: number
+  relationTotal: number
+  relationValid: number
+  relationInvalid: number
+}
+
+export interface KnowledgeProcessAcceptItem {
+  name: string
+  type: string
+  description?: string
+}
+
+export interface KnowledgeProcessAcceptRelation {
+  source: string
+  target: string
+  relation: string
+  description?: string
+}
+
+export interface KnowledgeProcessAcceptRequest {
+  docId: number
+  learningNodeId?: number | null
+  concepts: KnowledgeProcessAcceptItem[]
+  relations: KnowledgeProcessAcceptRelation[]
+}
+
+export interface KnowledgeAcceptedKnowledge {
+  knowledgeId: number
+  name: string
+  type: string
+  created: boolean
+}
+
+export interface KnowledgeAcceptResultVO {
+  docId: number
+  docTitle: string
+  learningNodeId?: number | null
+  chapterId?: number | null
+  learningNodeTitle?: string | null
+  entityCreated: number
+  entityReused: number
+  relationsAdded: number
+  mappingsCreated: number
+  nodeLinked: boolean
+  relationsSkipped: number
+  accepted: KnowledgeAcceptedKnowledge[]
+}
+
+// ============================================================
+// Architecture-4.4：Learning Content Generator（AI 学习内容 Draft）
+// ============================================================
+
+/** 生成请求：以一条知识单元（kg_entity.id）为输入，三类 Draft 按需生成（默认全选）。 */
+export interface LearningContentGenerateRequest {
+  knowledgeId: number
+  learningNodeId?: number | null
+  goalId?: number | null
+  generateFlashcards?: boolean
+  flashcardCount?: number
+  generateFeynman?: boolean
+  generateScenario?: boolean
+}
+
+/** 闪卡 Draft：按现有 learning_flashcard 模型收敛（模型无 hint/knowledge_id 列） */
+export interface ContentFlashcardDraft {
+  front: string
+  back: string
+  difficulty: number
+}
+
+/** 费曼 Draft：AI 生成「题目/引导」，不替用户生成答案 */
+export interface ContentFeynmanDraft {
+  topic: string
+  question: string
+  hints: string[]
+  avoidTerms: string[]
+  difficulty: number
+}
+
+/** 场景 Draft：keywords 服务端私有，前端仅见考察点名称 + 一次性令牌 */
+export interface ContentScenarioDraft {
+  title: string
+  contextText: string
+  questionText: string
+  difficulty: number
+  pointLabels: string[]
+  draftToken: string | null
+}
+
+export interface LearningContentGenerationResultVO {
+  knowledgeId: number
+  knowledgeName: string
+  promptVersion: string
+  provider?: string
+  model?: string | null
+  processingTimeMs?: number
+  generatedAt?: number
+  warnings: string[]
+  flashcards: ContentFlashcardDraft[]
+  feynman: ContentFeynmanDraft | null
+  scenario: ContentScenarioDraft | null
+}
+
+/** 接受请求：用户审核后的内容 + 编辑值（场景凭 draftToken 换服务端 keywords） */
+export interface LearningContentAcceptRequest {
+  knowledgeId: number
+  learningNodeId?: number | null
+  flashcards: { front: string; back: string; difficulty: number }[]
+  scenario?: {
+    draftToken: string
+    title?: string
+    contextText?: string
+    questionText?: string
+    difficulty?: number
+  } | null
+}
+
+export interface LearningContentAcceptResultVO {
+  knowledgeId: number
+  flashcardSaved: number
+  flashcardDuplicates: number
+  flashcardIds: number[]
+  scenario: {
+    saved: boolean
+    existing: boolean
+    scenarioId: number
+    title: string
+  } | null
+  warnings: string[]
+}
+
+export interface FlashcardNoteInput {
+  type: 'BASIC' | 'CLOZE' | 'CODE_CLOZE' | 'IMAGE' | 'SEQUENCE' | 'SCENARIO'
+  front: string
+  back: string
+  language: string
+  category?: string
+  tags?: string
+  revision?: number
+  confirmHistoryImpact?: boolean
+}
+export interface FlashcardNoteVO extends FlashcardNoteInput {
+  id: number
+  revision: number
+  cards: FlashcardVO[]
+}
+
+
+export interface FlashcardSchedulePreview {
+  settingsRevision: number
+  revision: number
+  state: 'NEW' | 'LEARNING' | 'REVIEW' | 'RELEARNING'
+  algorithm: string
+  previousDueAt: string | null
+  conservativeInitialization: boolean
+  previews: { rating: number; dueAt: string; intervalSeconds: number }[]
+  serverTime: string
+}
+export interface FlashcardFsrsResult {
+  algorithm: string
+  revision: number
+  dueAt: string
+  state: string
+  stability: number
+  difficulty: number
+  intervalSeconds: number
+  rating: number
+}
+export interface FlashcardReviewSettings {
+  scheduling: { desiredRetention: number; maximumInterval: number; learningMinutes: number[]; relearningMinutes: number[] }
+  newCardLimit: number
+  reviewLimit: number
+  timezone: string
+  dayStartHour: number
+}

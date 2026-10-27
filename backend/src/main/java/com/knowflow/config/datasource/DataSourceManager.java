@@ -169,17 +169,20 @@ public class DataSourceManager {
      */
     public void initSchemaIfNeeded(DataSource0 wrapper, DbTypeEnum type, DataSourceProperties.Item item) {
         String mode = item.getInitMode() == null ? "auto" : item.getInitMode().trim().toLowerCase();
-        if ("never".equals(mode)) {
-            log.info("[{}] 初始化模式=never，跳过脚本执行", type.getCode());
-            return;
-        }
         try (Connection conn = wrapper.getConnection()) {
-            if ("auto".equals(mode) && countTables(conn) > 0) {
-                log.info("[{}] 初始化模式=auto 且已存在业务表，跳过脚本执行", type.getCode());
-                return;
+            if ("never".equals(mode)) {
+                log.info("[{}] 初始化模式=never，跳过基础脚本执行", type.getCode());
+            } else if ("auto".equals(mode) && countTables(conn) > 0) {
+                log.info("[{}] 初始化模式=auto 且已存在业务表，跳过基础脚本执行", type.getCode());
+            } else {
+                runScript(conn, item.getSchemaLocation(), type, "schema");
+                runScript(conn, item.getDataLocation(), type, "data");
             }
-            runScript(conn, item.getSchemaLocation(), type, "schema");
-            runScript(conn, item.getDataLocation(), type, "data");
+            // Always migrate the target connection before publication, including existing auto/never databases.
+            com.knowflow.service.ChatManagementSchema.migrate(conn);
+            com.knowflow.service.NoteSchema.migrate(conn);
+            // 技术英语 P0：存量 H2/MySQL 库同样需要增量建表
+            com.knowflow.service.TechVocabSchema.migrate(conn);
         } catch (SQLException e) {
             throw new IllegalStateException("执行数据库初始化脚本失败: " + rootMessage(e), e);
         }

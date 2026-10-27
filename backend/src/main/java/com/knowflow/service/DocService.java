@@ -56,8 +56,13 @@ public interface DocService extends IService<DocDocument> {
     /** AI 生成文档摘要并回填 doc.summary，返回摘要内容。要求已配置 AI 服务。 */
     String generateAISummary(Long docId);
 
-    /** AI 基于文档内容生成复习闪卡并落库，返回生成的闪卡列表（可指定归属路径/章节）。 */
-    List<LearningFlashcard> generateFlashcards(Long docId, Long pathId, Long chapterId);
+    /**
+     * AI 基于文档内容生成复习闪卡并落库，返回生成的闪卡列表（可指定归属路径/章节）。
+     *
+     * <p>P0-1b：{@code learning_flashcard.user_id} 为 {@code NOT NULL}，该表按设计即「用户私有闪卡」，
+     * 因此 {@code userId} 为**必传**入参，由调用方从登录态解析后透传；为 {@code null} 时抛 401。</p>
+     */
+    List<LearningFlashcard> generateFlashcards(Long docId, Long pathId, Long chapterId, Long userId);
 
     /** 查询指定分类（知识库）下的全部有效文档，按 sortOrder 升序，createTime 倒序。 */
     List<DocDocument> listByCategory(Long categoryId);

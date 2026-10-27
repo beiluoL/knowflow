@@ -234,6 +234,13 @@
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </template>
 
+    <template v-else-if="name === 'coins'">
+      <circle cx="8" cy="8" r="6" />
+      <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
+      <path d="M7 6h1v4" />
+      <path d="m16.71 13.88.7.71-2.82 2.82" />
+    </template>
+
     <template v-else-if="name === 'clock'">
       <circle cx="12" cy="12" r="10" />
       <polyline points="12 6 12 12 16 14" />
@@ -349,6 +356,12 @@
       <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
       <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
       <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+    </template>
+
+    <!-- AI chat entry: speech bubble and a small sparkle, same 24px stroke grid. -->
+    <template v-else-if="name === 'message-square-sparkles'">
+      <path d="M21 11v4a3 3 0 0 1-3 3H7l-4 3V6a3 3 0 0 1 3-3h6" />
+      <path d="m18 2 1.1 2.9L22 6l-2.9 1.1L18 10l-1.1-2.9L14 6l2.9-1.1Z" />
     </template>
 
     <template v-else-if="name === 'message-square'">
@@ -477,8 +490,8 @@
     </template>
 
     <template v-else-if="name === 'arrow-up'">
-      <path d="m18 15-6-6-6 6" />
-      <path d="M12 3v18" />
+      <path d="M12 19V5" />
+      <path d="m5 12 7-7 7 7" />
     </template>
 
     <template v-else-if="name === 'arrow-down'">
@@ -1057,6 +1070,10 @@
     <template v-else-if="name === 'sticky-note'">
       <path d="M15.5 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h11l6-6V5a2 2 0 0 0-2-2z" />
       <path d="M15 21v-5a1 1 0 0 1 1-1h5" />
+    </template>
+
+    <template v-else-if="name === 'square'">
+      <rect width="12" height="12" x="6" y="6" rx="2" fill="currentColor" stroke="none" />
     </template>
 
     <template v-else-if="name === 'loader'">

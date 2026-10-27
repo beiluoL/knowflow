@@ -6,7 +6,6 @@ import type {
   WbCapturePayload,
   WbNote,
   WbNotePayload,
-  WbReviewCard,
   WbReviewCardVO,
   WbReviewCardPayload,
   WbReviewGradePayload,
@@ -17,7 +16,7 @@ import type {
   WbPalaceLociPayload,
   WbStory,
   WbStoryPayload,
-  CategoryVO,
+  CategoryTreeNodeVO,
   WbForgettingCurve,
   WbRecallSession,
   WbRecallSessionPayload,
@@ -141,7 +140,7 @@ export function deleteStory(id: number) {
 // ============================ 公共：知识库分类下拉 ============================
 /** 获取真实 doc_category 分类树（用于收集箱/宫殿/位点等归类下拉） */
 export function getCategoryTree() {
-  return apiGet<CategoryVO[]>('/categories/tree')
+  return apiGet<CategoryTreeNodeVO[]>('/categories/tree')
 }
 
 // ============================ 复习：遗忘曲线可视化 ============================
@@ -166,6 +165,26 @@ export function createRecallSession(payload: WbRecallSessionPayload) {
 /** 提交某轮默写内容（自动比对计分） */
 export function submitRecallRound(id: number, payload: WbRecallSessionPayload) {
   return apiPost<WbRecallSession>(`/workbench/recall-sessions/${id}/submit`, payload)
+}
+/** 编辑会话（草稿可改原文与来源，已开始会话原文锁定） */
+export function updateRecallSession(id: number, payload: WbRecallSessionPayload) {
+  return apiPut<WbRecallSession>(`/workbench/recall-sessions/${id}`, payload)
+}
+/** 保存某轮中途草稿 */
+export function saveRecallDraft(id: number, payload: WbRecallSessionPayload) {
+  return apiPost<WbRecallSession>(`/workbench/recall-sessions/${id}/draft`, payload)
+}
+/** 确认某轮的关键遗漏 */
+export function saveRecallGaps(id: number, payload: WbRecallSessionPayload) {
+  return apiPost<WbRecallSession>(`/workbench/recall-sessions/${id}/gaps`, payload)
+}
+/** 复制为新会话（草稿） */
+export function copyRecallSession(id: number) {
+  return apiPost<number>(`/workbench/recall-sessions/${id}/copy`)
+}
+/** 归档 / 取消归档会话 */
+export function archiveRecallSession(id: number, archived: number) {
+  return apiPut<void>(`/workbench/recall-sessions/${id}/archive`, undefined, { params: { archived } })
 }
 /** 删除主动回忆会话 */
 export function deleteRecallSession(id: number) {

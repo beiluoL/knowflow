@@ -1,6 +1,7 @@
 package com.knowflow.controller;
 
 import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.config.OAuthConfig;
 import com.knowflow.dto.LoginDTO;
 import com.knowflow.dto.RegisterDTO;
@@ -59,7 +60,7 @@ public class AuthController {
                 || "anonymousUser".equals(authentication.getPrincipal())) {
             return Result.error(401, "未登录");
         }
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         return Result.success(userService.getCurrentUser(userId));
     }
 

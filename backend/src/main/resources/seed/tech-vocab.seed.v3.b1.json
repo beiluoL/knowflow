@@ -1,0 +1,1069 @@
+{
+  "note": "V3 批次 b1：Java 基础与集合 16 条、JVM 12 条、Java 并发 17 条。释义与例句为本项目原创撰写，仅术语名与事实性概念参考 Oracle Java SE 17 文档、Java 语言规范与 JVM 规范；不含任何复制原文。",
+  "terms": [
+    {
+      "headword": "Object-Oriented Programming",
+      "termType": "PHRASE",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "meaningCn": "面向对象编程",
+      "definitionCn": "以对象为基本单位组织程序的范式，通过封装、继承与多态把状态和行为绑定在一起。Java 用类与接口实现该范式，但组合通常比继承更容易维护。",
+      "definitionEn": "A programming paradigm that organizes software around objects combining state and behavior, typically through encapsulation, inheritance and polymorphism.",
+      "wordBreakdown": [
+        { "word": "Object", "meaningCn": "对象" },
+        { "word": "Oriented", "meaningCn": "朝向的" },
+        { "word": "Programming", "meaningCn": "编程" }
+      ],
+      "breakdownNote": "它指一整套以对象建模的设计范式，而不是“面向对象的编程语言”这一单纯分类。",
+      "interviewEn": "Java implements object-oriented programming through classes, interfaces, encapsulation, and runtime polymorphism rather than multiple inheritance.",
+      "exampleEn": "The payment module models each payment method as an object implementing a common interface.",
+      "exampleCn": "支付模块把每种支付方式建模为实现同一接口的对象。",
+      "aliases": ["OOP", "面向对象"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (Object-Oriented Programming Concepts)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Object-Oriented Programming", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Object-Oriented Programming", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Encapsulation", "targetDomain": "JAVA", "relationType": "RELATED" },
+        { "targetHeadword": "Polymorphism", "targetDomain": "JAVA", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Composition",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "meaningCn": "组合",
+      "definitionCn": "通过持有其他对象并在需要时调用其能力来复用实现，而不是继承父类。它在运行期可替换合作对象，避免继承层级膨胀与父类实现耦合。",
+      "definitionEn": "A reuse technique where a class delegates behavior to contained objects rather than inheriting it, allowing the collaborator to be replaced at runtime.",
+      "interviewEn": "Prefer composition over inheritance because composition keeps coupling explicit and avoids fragile base classes.",
+      "exampleEn": "The order service composes a pricing strategy instead of extending a pricing base class.",
+      "exampleCn": "订单服务组合一个计价策略对象，而不是继承计价基类。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Effective Java, Third Edition (Item 18: Favor composition over inheritance) — 概念引用",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Composition", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Composition", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Inheritance", "targetDomain": "JAVA", "relationType": "CONTRAST" }
+      ]
+    },
+    {
+      "headword": "Delegation",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "meaningCn": "委托",
+      "definitionCn": "对象把某项职责转交给内部持有的另一个对象执行，自身只负责转发。委托让行为可组合、可替换，也常用于包装器与代理模式中控制访问。",
+      "definitionEn": "A technique in which an object forwards a responsibility to another object it holds, keeping behavior composable and replaceable.",
+      "exampleEn": "The repository delegates SQL execution to a jdbc template instead of managing connections itself.",
+      "exampleCn": "仓储层把 SQL 执行委托给 jdbc template，而不是自己管理连接。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (Design Patterns)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Delegation", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Delegation", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "Lambda Expression",
+      "termType": "PHRASE",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "meaningCn": "Lambda 表达式",
+      "definitionCn": "Java 8 引入的匿名函数写法，用一段表达式实现函数式接口的唯一抽象方法。它捕获外部局部变量时必须有效 final，编译后由 invokedynamic 生成实现类。",
+      "definitionEn": "An anonymous function literal introduced in Java 8 that implements the single abstract method of a functional interface.",
+      "wordBreakdown": [
+        { "word": "Lambda", "meaningCn": "λ，表示匿名函数" },
+        { "word": "Expression", "meaningCn": "表达式" }
+      ],
+      "breakdownNote": "它是一段可传递的行为而不是方法引用，二者在字节码层面的生成方式不同。",
+      "interviewEn": "A lambda compiles to an invokedynamic call site, so it does not create a separate class file for every usage.",
+      "exampleEn": "The executor accepts a lambda that retries the failed job three times.",
+      "exampleCn": "线程池接收一个 Lambda，用于把失败任务重试三次。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Language Specification SE 17, Chapter 15.27 (Lambda Expressions)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Lambda Expression", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Lambda Expression", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Functional Interface", "targetDomain": "JAVA", "relationType": "PREREQUISITE" }
+      ]
+    },
+    {
+      "headword": "Functional Interface",
+      "termType": "PHRASE",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "meaningCn": "函数式接口",
+      "definitionCn": "只声明一个抽象方法的接口，可被 Lambda 或方法引用实现。default 与 static 方法不算抽象方法，@FunctionalInterface 用于编译期校验这一约束。",
+      "definitionEn": "An interface declaring exactly one abstract method, which can therefore be implemented by a lambda expression or method reference.",
+      "wordBreakdown": [
+        { "word": "Functional", "meaningCn": "函数式的" },
+        { "word": "Interface", "meaningCn": "接口" }
+      ],
+      "breakdownNote": "关键约束是“单一抽象方法”，而不是接口里只能有一个方法。",
+      "interviewEn": "Runnable, Comparator and Callable are functional interfaces, so each can be written as a lambda.",
+      "exampleEn": "The retry policy takes a functional interface so callers can pass any recovery action.",
+      "exampleCn": "重试策略接收函数式接口，调用方可以传入任意恢复动作。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Language Specification SE 17, Chapter 9.8 (Functional Interfaces)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Functional Interface", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Functional Interface", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Lambda Expression", "targetDomain": "JAVA", "relationType": "RELATED" },
+        { "targetHeadword": "Interface", "targetDomain": "JAVA", "relationType": "PART_OF" }
+      ]
+    },
+    {
+      "headword": "Stream API",
+      "termType": "PHRASE",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "meaningCn": "流式 API",
+      "definitionCn": "Java 8 提供的声明式数据处理接口，通过中间操作与终端操作组合完成过滤、映射与归约。流是惰性的，只有终端操作才真正触发计算。",
+      "definitionEn": "The Java 8 API for declarative sequence processing built from lazy intermediate operations and a terminal operation.",
+      "wordBreakdown": [
+        { "word": "Stream", "meaningCn": "数据流" },
+        { "word": "API", "meaningCn": "应用程序编程接口" }
+      ],
+      "breakdownNote": "这里的流是数据管道抽象，与 java.io 的字节流、字符流不是同一概念。",
+      "interviewEn": "Stream operations are lazy, and a parallel stream only helps when the workload is CPU-bound and splitting is cheap.",
+      "exampleEn": "The report groups orders by region with a stream instead of manual loops.",
+      "exampleCn": "报表用流按地区分组订单，而不是手写循环。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (java.util.stream package)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Stream API", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Stream API", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Lambda Expression", "targetDomain": "JAVA", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Optional",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "meaningCn": "可选值容器",
+      "definitionCn": "用于显式表达“可能没有值”的容器类型，避免用 null 表示缺失。它适合作为返回值，不推荐作为字段或方法参数，也不应通过 get() 强行取值。",
+      "definitionEn": "A container type that explicitly represents a possibly absent value, designed primarily as a method return type.",
+      "interviewEn": "Optional documents absence in an API, but it is not a null replacement for fields or a serialization-friendly type.",
+      "exampleEn": "The lookup method returns Optional so callers must handle the missing case explicitly.",
+      "exampleCn": "查询方法返回 Optional，调用方必须显式处理查不到的情况。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (java.util.Optional)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Optional", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Optional", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "Serialization",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "meaningCn": "序列化",
+      "definitionCn": "把对象状态转换为可存储或可传输字节流的过程，Java 原生实现依赖 Serializable 接口与 serialVersionUID。跨版本兼容性脆弱，现代系统多用 JSON 或 Protobuf 替代。",
+      "definitionEn": "The process of converting an object's state into a byte stream for storage or transfer.",
+      "interviewEn": "Java native serialization is fragile across versions, so most services use JSON or Protocol Buffers instead.",
+      "exampleEn": "The cache stores sessions as JSON because native serialization breaks after class changes.",
+      "exampleCn": "缓存用 JSON 存会话，因为原生序列化在类结构变化后会失败。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (Java Object Serialization Specification)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Serialization", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Serialization", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Deserialization", "targetDomain": "JAVA", "relationType": "CONTRAST" }
+      ]
+    },
+    {
+      "headword": "Checked Exception",
+      "termType": "PHRASE",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "meaningCn": "受检异常",
+      "definitionCn": "继承 Exception 但不继承 RuntimeException 的异常，编译器强制调用方捕获或声明抛出。它把可恢复的外部失败写进方法签名，但也容易污染上层接口。",
+      "definitionEn": "An exception type that the compiler requires callers to catch or declare, used for recoverable external failures.",
+      "wordBreakdown": [
+        { "word": "Checked", "meaningCn": "被编译器检查的" },
+        { "word": "Exception", "meaningCn": "异常" }
+      ],
+      "breakdownNote": "受检与否由类型层级决定，而不是由是否真的发生错误决定。",
+      "interviewEn": "Checked exceptions belong in method signatures only when the caller can actually act on the failure.",
+      "exampleEn": "The file loader declares IOException so callers decide whether to retry or abort.",
+      "exampleCn": "文件加载器声明 IOException，由调用方决定重试还是中止。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Language Specification SE 17, Chapter 11 (Exceptions)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Checked Exception", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Checked Exception", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Unchecked Exception", "targetDomain": "JAVA", "relationType": "CONTRAST" }
+      ]
+    },
+    {
+      "headword": "Unchecked Exception",
+      "termType": "PHRASE",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "meaningCn": "非受检异常",
+      "definitionCn": "RuntimeException 及其子类，编译器不要求捕获或声明。它通常表示编程错误或不可恢复状态，如空指针、数组越界与非法参数。",
+      "definitionEn": "A RuntimeException subtype that the compiler does not require callers to catch or declare.",
+      "wordBreakdown": [
+        { "word": "Unchecked", "meaningCn": "未被编译器检查的" },
+        { "word": "Exception", "meaningCn": "异常" }
+      ],
+      "breakdownNote": "非受检不等于可以忽略，服务边界仍需要统一转换成明确的错误响应。",
+      "interviewEn": "Unchecked exceptions signal programming errors, while checked exceptions model recoverable conditions.",
+      "exampleEn": "The validator throws an unchecked exception for a negative amount instead of forcing every caller to catch it.",
+      "exampleCn": "参数校验对负数金额抛非受检异常，而不是强迫每个调用方捕获。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Language Specification SE 17, Chapter 11.1.1 (Exceptions and Exception Types)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Unchecked Exception", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Unchecked Exception", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "Autoboxing",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "meaningCn": "自动装箱",
+      "definitionCn": "编译器在基本类型与其包装类型之间自动插入转换代码，如 int 与 Integer 互换。它在循环与比较中会产生额外对象与拆箱空指针风险。",
+      "definitionEn": "The compiler-inserted conversion between primitive types and their wrapper classes.",
+      "interviewEn": "Autoboxing hides allocation and unboxing, which is why comparing two Integer values with == can be wrong.",
+      "exampleEn": "The counter uses long instead of Long to avoid autoboxing on every increment.",
+      "exampleCn": "计数器使用 long 而不是 Long，避免每次自增都发生装箱。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Language Specification SE 17, Chapter 5.1.7 (Boxing Conversion)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Autoboxing", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Autoboxing", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "Type Erasure",
+      "termType": "PHRASE",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "meaningCn": "类型擦除",
+      "definitionCn": "Java 泛型在编译后擦除类型参数，替换为上界或 Object，并在必要处插入强制转换。因此运行时无法取得实际类型参数，也不能创建泛型数组。",
+      "definitionEn": "The compile-time process that removes generic type parameters so legacy bytecode remains compatible.",
+      "wordBreakdown": [
+        { "word": "Type", "meaningCn": "类型" },
+        { "word": "Erasure", "meaningCn": "擦除" }
+      ],
+      "breakdownNote": "擦除解释了许多泛型限制，例如不能在运行时判断 List<String> 与 List<Integer>。",
+      "interviewEn": "Because of type erasure, overloads that only differ in type arguments do not compile.",
+      "exampleEn": "Type erasure is why you cannot call instanceof with a parameterized type.",
+      "exampleCn": "类型擦除正是不能用 instanceof 判断参数化类型的原因。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Language Specification SE 17, Chapter 4.6 (Type Erasure)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Type Erasure", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Type Erasure", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Generic", "targetDomain": "JAVA", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Collection Framework",
+      "termType": "PHRASE",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "meaningCn": "集合框架",
+      "definitionCn": "Java 提供的统一容器体系，用 List、Set、Map 等接口描述数据结构，并配套迭代器与工具类。选型要看读写比例、有序性与并发需求。",
+      "definitionEn": "The unified Java container hierarchy of interfaces such as List, Set and Map together with their implementations.",
+      "wordBreakdown": [
+        { "word": "Collection", "meaningCn": "集合" },
+        { "word": "Framework", "meaningCn": "框架" }
+      ],
+      "breakdownNote": "Map 不继承 Collection，但同属这一框架，需分别记忆。",
+      "interviewEn": "Choose ArrayList for indexed reads, LinkedList rarely pays off, and HashMap is the default map unless ordering matters.",
+      "exampleEn": "The service returns an unmodifiable collection so callers cannot mutate shared state.",
+      "exampleCn": "服务返回不可修改的集合，避免调用方改动共享状态。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (Collections Framework)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Collection Framework", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Collection Framework", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "Iterator",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "meaningCn": "迭代器",
+      "definitionCn": "按顺序访问集合元素的对象，提供 hasNext、next 与可选 remove。用迭代器遍历时直接修改集合会触发快速失败（fail-fast）。",
+      "definitionEn": "An object that traverses collection elements sequentially and may support safe removal during iteration.",
+      "exampleEn": "Removing elements through the iterator avoids ConcurrentModificationException.",
+      "exampleCn": "通过迭代器删除元素可以避免并发修改异常。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (java.util.Iterator)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Iterator", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Iterator", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "HashMap",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "meaningCn": "哈希映射",
+      "definitionCn": "基于哈希表实现的 Map，平均 O(1) 查找，允许一个 null 键。冲突较多时链表会树化为红黑树，但它不是线程安全的。",
+      "definitionEn": "A hash-table based Map implementation offering constant-time lookups on average and no thread safety.",
+      "interviewEn": "HashMap resizes at a load factor of 0.75 and converts long buckets into red-black trees to bound worst-case lookup.",
+      "exampleEn": "The local aggregation uses HashMap because it is confined to a single request thread.",
+      "exampleCn": "本地聚合使用 HashMap，因为它只在单个请求线程内使用。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (java.util.HashMap)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "HashMap", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "HashMap", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "ArrayList",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "meaningCn": "动态数组列表",
+      "definitionCn": "基于可扩容数组实现的 List，随机访问 O(1)，中间插入删除需要移动元素。扩容按 1.5 倍增长，批量写入前可预设容量减少拷贝。",
+      "definitionEn": "A resizable-array List implementation with constant-time indexed access and linear-time middle insertion.",
+      "exampleEn": "Pre-size the ArrayList when the result count is known to avoid repeated array copies.",
+      "exampleCn": "结果数量已知时预设 ArrayList 容量，避免反复复制数组。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (java.util.ArrayList)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "ArrayList", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "ArrayList", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "Bytecode",
+      "termType": "WORD",
+      "domain": "JVM",
+      "senseKey": "default",
+      "meaningCn": "字节码",
+      "definitionCn": "Java 源码编译后生成的、由 JVM 执行的中间指令集，存放在 class 文件中。它面向栈式虚拟机设计，与具体硬件指令集无关。",
+      "definitionEn": "The intermediate instruction set produced by the Java compiler and executed by the JVM.",
+      "interviewEn": "Bytecode is portable because the JVM, not the CPU, defines its instruction semantics.",
+      "exampleEn": "javap prints the bytecode of a class so you can inspect how a lambda is compiled.",
+      "exampleCn": "javap 可以打印类的字节码，用来观察 Lambda 是如何编译的。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Virtual Machine Specification SE 17, Chapter 6 (The Java Virtual Machine Instruction Set)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Bytecode", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Bytecode", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "Stack Frame",
+      "termType": "PHRASE",
+      "domain": "JVM",
+      "senseKey": "default",
+      "meaningCn": "栈帧",
+      "definitionCn": "线程栈上为单次方法调用分配的结构，存放局部变量表、操作数栈与返回地址。递归过深导致栈帧累积，最终抛出 StackOverflowError。",
+      "definitionEn": "The per-invocation structure on a thread stack holding local variables, the operand stack and return information.",
+      "wordBreakdown": [
+        { "word": "Stack", "meaningCn": "栈" },
+        { "word": "Frame", "meaningCn": "帧、结构单元" }
+      ],
+      "breakdownNote": "栈帧是方法调用级别的单位，而线程栈是容纳所有栈帧的整体。",
+      "interviewEn": "Each method invocation pushes one frame, so deep recursion consumes stack space rather than heap.",
+      "exampleEn": "The recursive file walker was rewritten iteratively to avoid thousands of stack frames.",
+      "exampleCn": "递归的文件遍历被改写为迭代，避免堆积上千个栈帧。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Virtual Machine Specification SE 17, Chapter 2.6 (Frames)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Stack Frame", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Stack Frame", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "Method Area",
+      "termType": "PHRASE",
+      "domain": "JVM",
+      "senseKey": "default",
+      "meaningCn": "方法区",
+      "definitionCn": "JVM 规范中用于存放类元数据、运行时常量池与静态变量的逻辑区域。HotSpot 在 Java 8 之后由元空间（Metaspace）在本地内存中实现。",
+      "definitionEn": "The logical JVM region holding class metadata, the runtime constant pool and static variables.",
+      "wordBreakdown": [
+        { "word": "Method", "meaningCn": "方法" },
+        { "word": "Area", "meaningCn": "区域" }
+      ],
+      "breakdownNote": "方法区是规范概念，元空间是 HotSpot 的具体实现，两者不能完全等同。",
+      "interviewEn": "Since Java 8 the method area is implemented by Metaspace, which grows in native memory instead of the heap.",
+      "exampleEn": "Loading thousands of generated classes fills Metaspace, not the young generation.",
+      "exampleCn": "加载成千上万个生成类会撑大元空间，而不是新生代。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Virtual Machine Specification SE 17, Chapter 2.5.4 (Method Area)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Method Area", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Method Area", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Metaspace", "targetDomain": "JVM", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Young Generation",
+      "termType": "PHRASE",
+      "domain": "JVM",
+      "senseKey": "default",
+      "meaningCn": "新生代",
+      "definitionCn": "堆中存放新创建对象的区域，通常分为 Eden 与两个 Survivor 区。大多数对象在此快速死亡，因此回收频繁但单次停顿较短。",
+      "definitionEn": "The heap region where newly allocated objects live, collected frequently because most objects die young.",
+      "wordBreakdown": [
+        { "word": "Young", "meaningCn": "年轻的" },
+        { "word": "Generation", "meaningCn": "代" }
+      ],
+      "breakdownNote": "分代假设是“对象越老越可能继续存活”，据此把回收成本分层。",
+      "interviewEn": "Objects are promoted to the old generation after surviving several minor collections.",
+      "exampleEn": "Short-lived request buffers stay in the young generation and never reach the old generation.",
+      "exampleCn": "短生命周期的请求缓冲区留在新生代，不会进入老年代。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "HotSpot Virtual Machine Garbage Collection Tuning Guide (Java SE 17)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Young Generation", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Young Generation", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Old Generation", "targetDomain": "JVM", "relationType": "CONTRAST" }
+      ]
+    },
+    {
+      "headword": "Old Generation",
+      "termType": "PHRASE",
+      "domain": "JVM",
+      "senseKey": "default",
+      "meaningCn": "老年代",
+      "definitionCn": "堆中存放长期存活对象的区域，回收频率低但单次停顿更长。老年代持续增长且回收后不下降，通常意味着内存泄漏或缓存无界。",
+      "definitionEn": "The heap region holding long-lived objects, collected less often with longer pauses.",
+      "wordBreakdown": [
+        { "word": "Old", "meaningCn": "老的" },
+        { "word": "Generation", "meaningCn": "代" }
+      ],
+      "breakdownNote": "老年代增长本身不是问题，问题是回收后占用不回落。",
+      "interviewEn": "A steadily rising old generation after full GCs usually points to a leak rather than a sizing issue.",
+      "exampleEn": "The unbounded local cache slowly filled the old generation until full GC ran every minute.",
+      "exampleCn": "无界本地缓存逐渐填满老年代，直到每分钟都触发 Full GC。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "HotSpot Virtual Machine Garbage Collection Tuning Guide (Java SE 17)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Old Generation", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Old Generation", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "Minor GC",
+      "termType": "PHRASE",
+      "domain": "JVM",
+      "senseKey": "default",
+      "meaningCn": "新生代回收",
+      "definitionCn": "只回收新生代的垃圾收集动作，通常使用复制算法，停顿短、频率高。存活对象被晋升到老年代，晋升过快会导致老年代压力上升。",
+      "definitionEn": "A garbage collection limited to the young generation, typically short and frequent.",
+      "wordBreakdown": [
+        { "word": "Minor", "meaningCn": "较小的、次要的" },
+        { "word": "GC", "meaningCn": "垃圾回收" }
+      ],
+      "breakdownNote": "新生代回收并不等于“影响小”，晋升速率过高同样会造成长时间停顿。",
+      "interviewEn": "Frequent minor GCs with high promotion rates often precede a full GC storm.",
+      "exampleEn": "The log showed minor GC every two seconds because each request allocated a large temporary array.",
+      "exampleCn": "日志显示每两秒一次 Minor GC，因为每个请求都分配了大临时数组。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "HotSpot Virtual Machine Garbage Collection Tuning Guide (Java SE 17)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Minor GC", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Minor GC", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Full GC", "targetDomain": "JVM", "relationType": "CONTRAST" }
+      ]
+    },
+    {
+      "headword": "Full GC",
+      "termType": "PHRASE",
+      "domain": "JVM",
+      "senseKey": "default",
+      "meaningCn": "全量回收",
+      "definitionCn": "对整个堆（通常还包含元空间）执行的垃圾回收，停顿明显长于新生代回收。频繁 Full GC 往往意味着晋升过快、内存泄漏或堆设置不合理。",
+      "definitionEn": "A garbage collection covering the whole heap and often metaspace, with noticeably longer pauses.",
+      "wordBreakdown": [
+        { "word": "Full", "meaningCn": "完整的、全量的" },
+        { "word": "GC", "meaningCn": "垃圾回收" }
+      ],
+      "breakdownNote": "“Full”指范围覆盖整个堆，不代表一次就能回收所有垃圾。",
+      "interviewEn": "Investigate frequent full GCs by checking promotion rate, humongous allocations and explicit System.gc calls.",
+      "exampleEn": "A full GC every ten seconds pushed the p99 latency above the service objective.",
+      "exampleCn": "每十秒一次 Full GC 把 p99 延迟推高到服务目标之上。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "HotSpot Virtual Machine Garbage Collection Tuning Guide (Java SE 17)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Full GC", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Full GC", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "Stop-The-World",
+      "termType": "PHRASE",
+      "domain": "JVM",
+      "senseKey": "default",
+      "meaningCn": "全局停顿",
+      "definitionCn": "垃圾收集或某些 VM 操作期间暂停所有应用线程的状态。停顿时间直接影响尾延迟，因此低延迟收集器把缩短单次停顿时长作为核心目标。",
+      "definitionEn": "A state in which all application threads are paused, for example during certain garbage collection phases.",
+      "wordBreakdown": [
+        { "word": "Stop", "meaningCn": "停止" },
+        { "word": "The World", "meaningCn": "整个应用世界" }
+      ],
+      "breakdownNote": "这是停顿语义，不是故障；真正的问题是停顿长度是否超出延迟预算。",
+      "interviewEn": "G1 and ZGC trade throughput for shorter stop-the-world pauses to protect tail latency.",
+      "exampleEn": "The p99 spike matched the stop-the-world pause in the GC log.",
+      "exampleCn": "p99 尖峰与 GC 日志中的全局停顿时间完全对应。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "HotSpot Virtual Machine Garbage Collection Tuning Guide (Java SE 17)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Stop-The-World", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Stop-The-World", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "GC Root",
+      "termType": "PHRASE",
+      "domain": "JVM",
+      "senseKey": "default",
+      "meaningCn": "GC 根",
+      "definitionCn": "可达性分析的起点，包括活动线程栈中的引用、静态变量、JNI 引用与常量等。从根出发不可达的对象才会被判定为可回收。",
+      "definitionEn": "A starting point of reachability analysis, such as thread stack references, static fields and JNI references.",
+      "wordBreakdown": [
+        { "word": "GC", "meaningCn": "垃圾回收" },
+        { "word": "Root", "meaningCn": "根" }
+      ],
+      "breakdownNote": "判断垃圾的标准是“从根是否可达”，而不是引用计数是否为零。",
+      "interviewEn": "Cyclic references are still collectable because reachability, not reference counting, decides liveness.",
+      "exampleEn": "A static map holding request contexts kept them reachable from a GC root forever.",
+      "exampleCn": "保存请求上下文的静态 Map 让它们始终从 GC 根可达，无法回收。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "HotSpot Virtual Machine Garbage Collection Tuning Guide (Java SE 17)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "GC Root", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "GC Root", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "OOM",
+      "termType": "ACRONYM",
+      "domain": "JVM",
+      "senseKey": "default",
+      "fullForm": "OutOfMemoryError",
+      "meaningCn": "内存溢出错误",
+      "definitionCn": "JVM 在无法为新对象或元数据分配内存时抛出的错误，属于 Error 而非普通异常。常见原因包括堆过小、无界缓存、一次性加载大集合与元空间泄漏。",
+      "definitionEn": "An Error thrown when the JVM cannot allocate memory for new objects or metadata.",
+      "interviewEn": "Diagnose an OOM with a heap dump and check the dominant retained size instead of simply raising the heap limit.",
+      "exampleEn": "The export job loaded the whole table into memory and hit an OOM on a 4 GB heap.",
+      "exampleCn": "导出任务把整张表读进内存，在 4 GB 堆上触发 OOM。",
+      "aliases": ["内存溢出"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (java.lang.OutOfMemoryError)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "ABBR", "readingText": "O O M", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED" },
+        { "variant": "FULL_FORM", "readingText": "OutOfMemoryError", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Heap Dump", "targetDomain": "JVM", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Off-Heap Memory",
+      "termType": "PHRASE",
+      "domain": "JVM",
+      "senseKey": "default",
+      "meaningCn": "堆外内存",
+      "definitionCn": "由本地内存分配、不受常规堆回收直接管理的区域，可通过直接缓冲区或 Unsafe 使用。它能减少堆压力与拷贝，但需要显式释放，否则造成本地内存泄漏。",
+      "definitionEn": "Memory allocated outside the Java heap, typically through direct buffers, which must be released explicitly.",
+      "wordBreakdown": [
+        { "word": "Off-Heap", "meaningCn": "堆之外的" },
+        { "word": "Memory", "meaningCn": "内存" }
+      ],
+      "breakdownNote": "堆外并不等于不受 JVM 影响，DirectByteBuffer 仍由 Cleaner 机制间接释放。",
+      "interviewEn": "Off-heap buffers reduce GC pressure but shift the leak risk to native memory.",
+      "exampleEn": "The gateway uses direct buffers for network reads to avoid copying through the heap.",
+      "exampleCn": "网关用直接缓冲区做网络读取，避免数据在堆中再复制一次。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (java.nio.ByteBuffer)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Off-Heap Memory", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Off-Heap Memory", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "Class Loading",
+      "termType": "PHRASE",
+      "domain": "JVM",
+      "senseKey": "default",
+      "meaningCn": "类加载",
+      "definitionCn": "JVM 把 class 文件的二进制数据读入方法区并生成 Class 对象的过程，通常经过加载、链接与初始化。类加载器遵循双亲委派模型来隔离与复用类型。",
+      "definitionEn": "The process of reading class bytecode into the method area and producing a Class object for use.",
+      "wordBreakdown": [
+        { "word": "Class", "meaningCn": "类" },
+        { "word": "Loading", "meaningCn": "加载" }
+      ],
+      "breakdownNote": "加载只是第一步，链接阶段还包含验证、准备与解析。",
+      "interviewEn": "Parent delegation makes core classes load from the bootstrap loader instead of application code.",
+      "exampleEn": "Two plugins loading the same library with separate class loaders create incompatible types.",
+      "exampleCn": "两个插件用各自的类加载器加载同一份库，会产生互不兼容的类型。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Virtual Machine Specification SE 17, Chapter 5 (Loading, Linking, and Initializing)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Class Loading", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Class Loading", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "ClassLoader", "targetDomain": "JVM", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Concurrency",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "并发",
+      "definitionCn": "多个任务在重叠的时间段内推进，但不一定在同一时刻真正同时执行。并发的核心难点是共享状态、可见性与原子性，而不是线程数量本身。",
+      "definitionEn": "The ability of multiple tasks to make progress in overlapping time periods, not necessarily simultaneously.",
+      "interviewEn": "Concurrency is about dealing with many things at once structurally; parallelism is about doing them at the same instant.",
+      "exampleEn": "The service handles thousands of concurrent requests with a bounded thread pool.",
+      "exampleCn": "服务用有界线程池处理上万个并发请求。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Concurrency in Practice (概念引用)；Oracle Java SE 17 Concurrency Tutorial",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Concurrency", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Concurrency", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Parallelism", "targetDomain": "CONCURRENCY", "relationType": "CONTRAST" }
+      ]
+    },
+    {
+      "headword": "Parallelism",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "并行",
+      "definitionCn": "多个任务在同一时刻真正同时执行，依赖多核或多机等物理并行能力。并行是并发的一种实现方式，能否并行取决于硬件与任务的可分割性。",
+      "definitionEn": "Executing multiple tasks at the same instant on physically parallel resources such as multiple CPU cores.",
+      "interviewEn": "Parallelism requires hardware parallelism; concurrency can exist on a single core through interleaving.",
+      "exampleEn": "The batch job achieves parallelism by splitting partitions across four worker threads.",
+      "exampleCn": "批处理任务把分区分给四个工作线程来获得并行。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Concurrency in Practice (概念引用)；Oracle Java SE 17 Concurrency Tutorial",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Parallelism", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Parallelism", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Concurrency", "targetDomain": "CONCURRENCY", "relationType": "CONTRAST" }
+      ]
+    },
+    {
+      "headword": "Thread Safety",
+      "termType": "PHRASE",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "线程安全",
+      "definitionCn": "对象在多线程访问下仍能保持正确不变式，无需调用方额外加锁。实现手段包括不可变、同步、并发容器与线程封闭，选型取决于读写比例。",
+      "definitionEn": "The property that a class behaves correctly when accessed from multiple threads without external locking.",
+      "wordBreakdown": [
+        { "word": "Thread", "meaningCn": "线程" },
+        { "word": "Safety", "meaningCn": "安全性" }
+      ],
+      "breakdownNote": "线程安全是关于正确性的断言，与性能高低是两个独立维度。",
+      "interviewEn": "Immutable objects are inherently thread-safe because no thread can observe a partially updated state.",
+      "exampleEn": "The counter is not thread-safe, so the service wraps increments in an atomic class.",
+      "exampleCn": "该计数器并非线程安全，因此服务用原子类包裹自增操作。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Concurrency in Practice (概念引用)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Thread Safety", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Thread Safety", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Synchronized", "targetDomain": "CONCURRENCY", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Mutual Exclusion",
+      "termType": "PHRASE",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "互斥",
+      "definitionCn": "保证同一时刻最多只有一个线程进入临界区的性质，通常由锁或信号量实现。互斥解决数据竞争，但可能引入阻塞、死锁与优先级反转。",
+      "definitionEn": "The guarantee that at most one thread executes a critical section at any moment.",
+      "wordBreakdown": [
+        { "word": "Mutual", "meaningCn": "相互的" },
+        { "word": "Exclusion", "meaningCn": "排除" }
+      ],
+      "breakdownNote": "互斥是手段，不是目标；过度互斥会把并发退化成串行。",
+      "interviewEn": "Mutual exclusion protects invariants but reduces parallelism, so keep critical sections short.",
+      "exampleEn": "The account transfer holds mutual exclusion on both accounts to keep balances consistent.",
+      "exampleCn": "账户转账对两个账户都加互斥，保证余额一致。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "The Java Tutorials (Concurrency: Synchronization)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Mutual Exclusion", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Mutual Exclusion", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "Critical Section",
+      "termType": "PHRASE",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "临界区",
+      "definitionCn": "访问共享可变状态、必须受互斥保护的代码片段。它越短越好，且不应在其中执行耗时 I/O 或调用可能阻塞的外部服务。",
+      "definitionEn": "A code region that accesses shared mutable state and must be protected by mutual exclusion.",
+      "wordBreakdown": [
+        { "word": "Critical", "meaningCn": "关键的" },
+        { "word": "Section", "meaningCn": "区段" }
+      ],
+      "breakdownNote": "临界区的危险来自共享可变状态，若数据不可变就不需要它。",
+      "interviewEn": "Never perform remote calls inside a critical section, or you serialize the whole service behind one lock.",
+      "exampleEn": "The cache refresh moved the HTTP call outside the critical section.",
+      "exampleCn": "缓存刷新把 HTTP 调用移出了临界区。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "The Java Tutorials (Concurrency: Synchronization)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Critical Section", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Critical Section", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "Memory Barrier",
+      "termType": "PHRASE",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "内存屏障",
+      "definitionCn": "CPU 或编译器层面的指令，用于限制指令重排序并保证特定读写对其他线程可见。Java 通过 volatile、锁与原子类在合适的字节码位置插入屏障。",
+      "definitionEn": "A CPU or compiler instruction that constrains reordering and enforces visibility of reads and writes.",
+      "wordBreakdown": [
+        { "word": "Memory", "meaningCn": "内存" },
+        { "word": "Barrier", "meaningCn": "屏障" }
+      ],
+      "breakdownNote": "屏障不保证操作原子性，只约束顺序与可见性。",
+      "interviewEn": "A volatile write emits a store barrier so later reads by other threads see the updated value.",
+      "exampleEn": "Without a memory barrier the flag update might become visible after the payload write.",
+      "exampleCn": "没有内存屏障时，标志位更新可能晚于数据写入才可见。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Language Specification SE 17, Chapter 17.4 (Memory Model)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Memory Barrier", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Memory Barrier", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "Java Memory Model",
+      "termType": "PHRASE",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "Java 内存模型",
+      "definitionCn": "Java 规范中定义多线程读写可见性与重排序规则的部分，核心是 happens-before 关系。它描述了程序可以观察到的行为，而不是具体的硬件实现细节。",
+      "definitionEn": "The specification chapter defining visibility and ordering guarantees for shared reads and writes in Java.",
+      "wordBreakdown": [
+        { "word": "Java", "meaningCn": "Java 语言" },
+        { "word": "Memory Model", "meaningCn": "内存模型" }
+      ],
+      "breakdownNote": "内存模型规定允许观察到的行为，性能相关的屏障插入属于实现层面。",
+      "interviewEn": "The Java Memory Model defines happens-before rules so programmers reason about visibility instead of CPU caches.",
+      "exampleEn": "A data race is undefined behaviour under the Java Memory Model even if it usually prints the expected value.",
+      "exampleCn": "数据竞争在 Java 内存模型下属于未定义行为，即使它通常打印出期望值。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Language Specification SE 17, Chapter 17 (Threads and Locks)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Java Memory Model", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Java Memory Model", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Happens-Before", "targetDomain": "CONCURRENCY", "relationType": "RELATED" },
+        { "targetHeadword": "Visibility", "targetDomain": "CONCURRENCY", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Happens-Before",
+      "termType": "PHRASE",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "先行发生关系",
+      "definitionCn": "Java 内存模型中描述操作顺序的偏序关系：若 A happens-before B，则 A 的结果对 B 可见。程序顺序、锁释放与获取、volatile 读写都会建立这种关系。",
+      "definitionEn": "A partial ordering in the Java Memory Model that guarantees visibility of one action's effects to another.",
+      "wordBreakdown": [
+        { "word": "Happens", "meaningCn": "发生" },
+        { "word": "Before", "meaningCn": "在……之前" }
+      ],
+      "breakdownNote": "它描述的是可见性保证而不是真实时间先后，两者不能混为一谈。",
+      "interviewEn": "A volatile write happens-before a subsequent read of the same field, which is why the flag pattern works.",
+      "exampleEn": "Unlocking a monitor happens-before a later lock of the same monitor by another thread.",
+      "exampleCn": "释放监视器 happens-before 另一个线程随后获取同一监视器。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Language Specification SE 17, Chapter 17.4.5 (Happens-before Order)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Happens-Before", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Happens-Before", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Volatile", "targetDomain": "CONCURRENCY", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "False Sharing",
+      "termType": "PHRASE",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "伪共享",
+      "definitionCn": "多个线程分别修改同一缓存行内不同的变量，导致缓存行在核心之间反复失效。它不会造成逻辑错误，但会显著降低吞吐，常通过填充（padding）缓解。",
+      "definitionEn": "Performance loss caused by threads updating distinct variables that share one cache line.",
+      "wordBreakdown": [
+        { "word": "False", "meaningCn": "虚假的" },
+        { "word": "Sharing", "meaningCn": "共享" }
+      ],
+      "breakdownNote": "它不是逻辑上的数据共享，而是缓存一致性协议层面的意外争用。",
+      "interviewEn": "False sharing is invisible in correctness tests but shows up as stalled cycles and degraded throughput.",
+      "exampleEn": "The counter array was padded so each slot occupies its own cache line.",
+      "exampleCn": "计数器数组做了填充，让每个槽位独占一条缓存行。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (java.lang.invoke.VarHandle)；Intel 64 Optimization Manual（概念引用）",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "False Sharing", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "False Sharing", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Contention", "targetDomain": "CONCURRENCY", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Lock-Free",
+      "termType": "PHRASE",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "无锁",
+      "definitionCn": "不通过阻塞锁保证进展的并发算法，通常基于 CAS 循环实现。它承诺系统整体始终有线程能推进，但单个线程仍可能长期失败重试。",
+      "definitionEn": "A concurrency property where algorithms guarantee system-wide progress without blocking locks, typically via CAS.",
+      "wordBreakdown": [
+        { "word": "Lock", "meaningCn": "锁" },
+        { "word": "Free", "meaningCn": "免除的" }
+      ],
+      "breakdownNote": "无锁不等于没有重试，也不等于任意线程都能在有限步内完成。",
+      "interviewEn": "Lock-free structures avoid deadlock but can still suffer from contention and retry storms.",
+      "exampleEn": "The metrics collector uses a lock-free queue to keep sampling off the request thread.",
+      "exampleCn": "指标采集使用无锁队列，把采样移出请求线程。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Concurrency in Practice (概念引用)；java.util.concurrent 包文档",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Lock-Free", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Lock-Free", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "CAS", "targetDomain": "CONCURRENCY", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "Spin Lock",
+      "termType": "PHRASE",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "自旋锁",
+      "definitionCn": "获取失败时循环重试而不是让出 CPU 的锁，适合临界区极短、线程数不多的场景。它在高竞争或长临界区下会空耗 CPU，反而不如阻塞锁。",
+      "definitionEn": "A lock that busy-waits until it becomes available, efficient only for very short critical sections.",
+      "wordBreakdown": [
+        { "word": "Spin", "meaningCn": "自旋、空转" },
+        { "word": "Lock", "meaningCn": "锁" }
+      ],
+      "breakdownNote": "自旋是等待策略，不改变锁本身的互斥语义。",
+      "interviewEn": "Spin locks waste CPU under heavy contention, so long critical sections should block instead.",
+      "exampleEn": "The ring buffer uses a short spin lock because each section updates a single index.",
+      "exampleCn": "环形缓冲区使用短自旋锁，因为每段只更新一个索引。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "java.util.concurrent.locks 包文档（概念引用）",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Spin Lock", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Spin Lock", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "Read-Write Lock",
+      "termType": "PHRASE",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "读写锁",
+      "definitionCn": "允许多个读线程并发、写线程独占的锁，适合读多写少场景。它本身有额外开销，读操作极短或写操作频繁时可能不如普通互斥锁。",
+      "definitionEn": "A lock allowing concurrent readers but exclusive writers, beneficial mainly for read-heavy workloads.",
+      "wordBreakdown": [
+        { "word": "Read-Write", "meaningCn": "读-写" },
+        { "word": "Lock", "meaningCn": "锁" }
+      ],
+      "breakdownNote": "读写锁不是普遍更快的锁，是否得益取决于读写比例与临界区长度。",
+      "interviewEn": "ReentrantReadWriteLock helps only when reads dominate and hold times are measurable.",
+      "exampleEn": "The configuration holder uses a read-write lock because reloads are rare.",
+      "exampleCn": "配置容器使用读写锁，因为重载很少发生。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (java.util.concurrent.locks.ReentrantReadWriteLock)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Read-Write Lock", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Read-Write Lock", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "CompletableFuture",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "可完成的 Future",
+      "definitionCn": "Java 8 引入的异步编排类型，支持链式回调、组合多个任务与统一异常处理。默认回调在完成线程上执行，涉及阻塞或长任务时应显式指定线程池。",
+      "definitionEn": "An asynchronous computation type supporting chained callbacks, composition and centralized error handling.",
+      "interviewEn": "Callbacks run on the completing thread unless you pass an executor, so blocking work needs an explicit pool.",
+      "exampleEn": "The page service combines three remote lookups with CompletableFuture and a timeout.",
+      "exampleCn": "页面服务用 CompletableFuture 组合三个远程查询并设置超时。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (java.util.concurrent.CompletableFuture)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "CompletableFuture", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "CompletableFuture", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "ExecutorService",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "执行器服务",
+      "definitionCn": "管理线程池与任务提交的标准接口，提供 submit、invokeAll 与优雅关闭。线程池必须有界并命名线程，否则队列积压与排查困难都会同时出现。",
+      "definitionEn": "The standard interface for submitting tasks to a managed thread pool and shutting it down gracefully.",
+      "interviewEn": "Always bound the queue and name your threads; an unbounded queue turns a pool into a memory leak.",
+      "exampleEn": "The importer submits chunks to an ExecutorService with a bounded queue and rejection policy.",
+      "exampleCn": "导入任务把分片提交给带界队列与拒绝策略的 ExecutorService。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (java.util.concurrent.ExecutorService)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "ExecutorService", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "ExecutorService", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Thread Pool", "targetDomain": "CONCURRENCY", "relationType": "RELATED" }
+      ]
+    },
+    {
+      "headword": "ForkJoinPool",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "分治线程池",
+      "definitionCn": "面向分治任务的线程池，通过工作窃取让空闲线程从其他线程队列尾部取任务。适合可递归拆分且子任务粒度均匀的 CPU 密集型计算。",
+      "definitionEn": "A thread pool for divide-and-conquer tasks that uses work stealing to keep workers busy.",
+      "exampleEn": "The index builder uses a ForkJoinPool so idle workers help with remaining subtasks.",
+      "exampleCn": "索引构建使用 ForkJoinPool，让空闲工作线程帮忙处理剩余子任务。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (java.util.concurrent.ForkJoinPool)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "ForkJoinPool", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "ForkJoinPool", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "ThreadLocal",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "线程本地变量",
+      "definitionCn": "为每个线程维护独立副本的变量容器，常用于请求上下文与可复用缓冲区。线程池中必须在 finally 里清理，否则会随线程复用造成串号与内存泄漏。",
+      "definitionEn": "A variable holder giving each thread its own copy, commonly used for request context and buffers.",
+      "interviewEn": "Always remove ThreadLocal values in a finally block; pooled threads otherwise leak them into later requests.",
+      "exampleEn": "The trace id is stored in a ThreadLocal so downstream logs include it automatically.",
+      "exampleCn": "链路 ID 存在 ThreadLocal 里，下游日志就能自动带上。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Documentation (java.lang.ThreadLocal)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "ThreadLocal", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "ThreadLocal", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ]
+    },
+    {
+      "headword": "Livelock",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "meaningCn": "活锁",
+      "definitionCn": "线程并未阻塞却无法取得进展的状态，典型表现为不断重试并互相让步。与死锁的区别是线程仍在运行，但系统整体没有推进。",
+      "definitionEn": "A state where threads keep retrying and yielding without making progress, although none are blocked.",
+      "interviewEn": "Livelock differs from deadlock: threads are runnable and consuming CPU, yet no task completes.",
+      "exampleEn": "Two workers kept releasing the lock for each other and neither finished the job.",
+      "exampleCn": "两个工作线程不断互相让出锁，结果谁都没完成任务。",
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Concurrency in Practice (概念引用)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        { "variant": "WORD_US", "readingText": "Livelock", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" },
+        { "variant": "WORD_UK", "readingText": "Livelock", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED" }
+      ],
+      "relations": [
+        { "targetHeadword": "Deadlock", "targetDomain": "CONCURRENCY", "relationType": "CONTRAST" }
+      ]
+    }
+  ]
+}

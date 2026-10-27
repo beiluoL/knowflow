@@ -43,7 +43,7 @@ public class NotificationServiceImpl extends ServiceImpl<SysNotificationMapper, 
             throw new BusinessException(404, "通知不存在");
         }
         if (!java.util.Objects.equals(notification.getUserId(), userId)) {
-            throw new BusinessException("无权操作该通知");
+            throw new BusinessException(403, "无权操作该通知");
         }
         notification.setIsRead(1);
         this.updateById(notification);

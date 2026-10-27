@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6 animate-fade-in">
     <PageHeader
-      :crumbs="[{ label: '知识库' }, { label: '社区讨论' }]"
+      :crumbs="[{ label: '知识首页', to: '/knowledge' }, { label: '社区讨论' }]"
       title="社区讨论"
     >
       <template #actions>

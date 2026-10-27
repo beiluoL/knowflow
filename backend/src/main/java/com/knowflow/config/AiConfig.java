@@ -16,6 +16,27 @@ public class AiConfig {
 
     private String apiKey;
 
+    @org.springframework.beans.factory.annotation.Value("${AI_API_KEY:}")
+    private String genericEnvironmentKey;
+    @org.springframework.beans.factory.annotation.Value("${DEEP_SEEK_API_KEY:}")
+    private String deepSeekEnvironmentKey;
+    @org.springframework.beans.factory.annotation.Value("${DEEPSEEK_API_KEY:}")
+    private String conventionalDeepSeekEnvironmentKey;
+
+    /** Environment aliases also work when a private local profile contains an older key. */
+    public String getApiKey() {
+        if (genericEnvironmentKey != null && !genericEnvironmentKey.isBlank()) return genericEnvironmentKey;
+        String providerKey = deepSeekEnvironmentKey != null && !deepSeekEnvironmentKey.isBlank()
+                ? deepSeekEnvironmentKey : conventionalDeepSeekEnvironmentKey;
+        if (providerKey != null && !providerKey.isBlank() && baseUrl != null) {
+            try {
+                String host = java.net.URI.create(baseUrl).getHost();
+                if ("api.deepseek.com".equalsIgnoreCase(host)) return providerKey;
+            } catch (IllegalArgumentException ignored) { /* Existing configuration validation handles invalid URLs. */ }
+        }
+        return apiKey;
+    }
+
     private String baseUrl;
 
     private String model;

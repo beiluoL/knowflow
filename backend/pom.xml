@@ -26,6 +26,12 @@
     </properties>
 
     <dependencies>
+        <!-- FSRS-6, MIT; pinned to the upstream reference fixture. -->
+        <dependency>
+            <groupId>io.github.open-spaced-repetition</groupId>
+            <artifactId>fsrs</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -124,10 +130,34 @@
             <artifactId>sqlite-jdbc</artifactId>
             <version>3.45.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>4.12.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <!-- 测试专属隔离：每类独立JVM，避免H2与静态Fake在不同Context间串扰。
+                 默认关闭AI；仅使用Mock/回环Provider的测试类可显式声明自己的能力合同。 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkCount>2</forkCount>
+                    <reuseForks>false</reuseForks>
+                    <systemPropertyVariables>
+                        <knowflow.ai.capability.enabled>false</knowflow.ai.capability.enabled>
+                        <knowflow.host-capabilities.enabled>false</knowflow.host-capabilities.enabled>
+                        <knowflow.judge.mode>disabled</knowflow.judge.mode>
+                        <knowflow.datasource.allow-runtime-switch>false</knowflow.datasource.allow-runtime-switch>
+                        <knowflow.seed.development-account.enabled>false</knowflow.seed.development-account.enabled>
+                        <knowflow.exam.timeout-scheduler.enabled>false</knowflow.exam.timeout-scheduler.enabled>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

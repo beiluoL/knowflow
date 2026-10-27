@@ -101,6 +101,9 @@ public interface StudyGroupService {
      */
     int getUnreadCount(Long groupId, Long userId);
 
+    /** 校验小组存在且当前用户是成员；不存在抛 404，非成员抛 403。 */
+    void requireMember(Long groupId, Long userId);
+
     /**
      * 更新小组公告
      */

@@ -1,0 +1,6 @@
+// @vitest-environment happy-dom
+import {mount} from '@vue/test-utils'
+import {expect,it} from 'vitest'
+import Panel from '../LearningCoachPanel.vue'
+it('renders full real values in separate sections and emits original owner actions',async()=>{const title='当前真实的学习目标与较长的路径名称，不应被截断';const w=mount(Panel,{props:{goal:title,path:title,nextTitle:title,nextReason:'由真实学习记录推导的原因',cta:'继续学习',questions:['今天先学什么？']}});expect(w.findAll('section')).toHaveLength(3);expect(w.text()).toContain(title);expect(w.find('[data-test=coach-evidence]').exists()).toBe(false);await w.get('.coach-cta').trigger('click');expect(w.emitted('start')).toHaveLength(1);await w.findAll('button').find(b=>b.text()==='今天先学什么？')!.trigger('click');expect(w.emitted('ask')).toEqual([['今天先学什么？']]);w.unmount()})
+it('keeps errors honest and blocks starting a recommendation while loading',async()=>{const w=mount(Panel,{props:{loading:true,nextTitle:'真实任务',cta:'开始'}});expect(w.find('.coach-cta').exists()).toBe(false);await w.setProps({loading:false,error:'读取学习状态失败'});expect(w.get('[role=alert]').text()).toContain('读取学习状态失败');await w.get('[data-retry]').trigger('click');expect(w.emitted('retry')).toHaveLength(1);expect(w.text()).not.toContain('状态良好');w.unmount()})

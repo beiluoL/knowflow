@@ -26,6 +26,7 @@ import java.nio.file.Paths;
 public class FsReadTool implements AgentTool {
 
     private final ObjectMapper objectMapper;
+    private final com.knowflow.security.HostCapabilityGuard hostGuard;
 
     @Override
     public String name() {
@@ -59,19 +60,20 @@ public class FsReadTool implements AgentTool {
 
     @Override
     public ToolResult execute(JsonNode args, ToolContext ctx) throws ToolException {
+        hostGuard.requireActor(ctx == null ? null : ctx.getUserId());
         long start = System.currentTimeMillis();
         String rel = args.has("path") ? args.get("path").asText() : null;
         if (rel == null || rel.isBlank()) {
             return ToolResult.fail("缺少必填参数 path", System.currentTimeMillis() - start);
         }
-        Path root = resolveRoot(ctx);
-        Path target = safeResolve(root, rel);
+        Path root = resolveRoot(ctx,hostGuard);
+        Path target = safeResolve(root,rel,hostGuard);
         try {
             if (Files.isDirectory(target)) {
                 StringBuilder sb = new StringBuilder("目录 ").append(rel).append(":\n");
                 try (var stream = Files.list(target)) {
-                    stream.forEach(p -> sb.append(Files.isDirectory(p) ? "[D] " : "[F] ")
-                            .append(p.getFileName()).append("\n"));
+                    stream.forEach(p -> { hostGuard.requireWorkspace(root,p); sb.append(Files.isDirectory(p) ? "[D] " : "[F] ")
+                            .append(p.getFileName()).append("\n"); });
                 }
                 return ToolResult.ok(sb.toString(), System.currentTimeMillis() - start);
             }
@@ -86,18 +88,21 @@ public class FsReadTool implements AgentTool {
     }
 
     /** 解析用户工作区根目录：./agent-workspaces/{userId}/。 */
-    static Path resolveRoot(ToolContext ctx) {
+    static Path resolveRoot(ToolContext ctx, com.knowflow.security.HostCapabilityGuard guard) {
+        guard.requireActor(ctx.getUserId());
         String base = "agent-workspaces";
         if (ctx.getUserId() != null) base = base + "/" + ctx.getUserId();
-        return Paths.get(base).toAbsolutePath().normalize();
+        Path root=Paths.get(base).toAbsolutePath().normalize();
+        if (Files.exists(root)) guard.requireWorkspace(root,root);
+        return root;
     }
 
     /** 安全解析：禁止路径穿越。 */
-    static Path safeResolve(Path root, String rel) throws ToolException {
+    static Path safeResolve(Path root, String rel, com.knowflow.security.HostCapabilityGuard guard) throws ToolException {
         Path resolved = root.resolve(rel).normalize();
         if (!resolved.startsWith(root)) {
             throw new ToolException("非法路径，禁止访问工作区之外的文件");
         }
-        return resolved;
+        return guard.requireWorkspace(root,resolved);
     }
 }

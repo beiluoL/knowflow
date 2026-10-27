@@ -73,7 +73,7 @@ const staticCommands: Command[] = [
   { id: 'learn-report', title: '学习报告', icon: 'file-text', category: 'learning', path: '/learning/report' },
 
   // ===== AI 助手 =====
-  { id: 'ai-chat', title: 'AI 对话', subtitle: '通用 AI 助手', icon: 'message-square', category: 'ai', path: '/chat', aliases: ['duihua', 'chat'] },
+  { id: 'ai-chat', title: 'AI 对话', subtitle: '通用 AI 助手', icon: 'message-square-sparkles', category: 'ai', path: '/chat', aliases: ['duihua', 'chat'] },
   { id: 'ai-codeagent', title: '编程 Agent', icon: 'code', category: 'ai', path: '/coding/agent' },
   { id: 'ai-quiz', title: '智能测验', icon: 'help-circle', category: 'ai', path: '/learning/quiz' },
   { id: 'ai-writing', title: '智能写作', icon: 'pen-tool', category: 'ai', path: '/learning/writing' },
@@ -123,7 +123,7 @@ const staticCommands: Command[] = [
   {
     id: 'act-new-chat',
     title: '发起新对话',
-    icon: 'message-square',
+    icon: 'message-square-sparkles',
     category: 'action',
     path: '/chat',
   },

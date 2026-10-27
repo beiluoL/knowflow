@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.knowflow.common.PageResult;
 import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.dto.UserQueryDTO;
 import com.knowflow.entity.SysUser;
 import com.knowflow.exception.BusinessException;
@@ -15,8 +16,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,15 +66,15 @@ public class AdminUserController {
     @PostMapping
     public Result<Void> add(@RequestBody SysUser user) {
         if (StrUtil.isBlank(user.getUsername())) {
-            throw new BusinessException("用户名不能为空");
+            throw new BusinessException(400, "用户名不能为空");
         }
         if (StrUtil.isBlank(user.getPassword())) {
-            throw new BusinessException("密码不能为空");
+            throw new BusinessException(400, "密码不能为空");
         }
         SysUser exist = userService.getOne(new LambdaQueryWrapper<SysUser>()
                 .eq(SysUser::getUsername, user.getUsername()));
         if (exist != null) {
-            throw new BusinessException("用户名已存在");
+            throw new BusinessException(409, "用户名已存在");
         }
         user.setId(null);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -121,7 +120,7 @@ public class AdminUserController {
         }
         String newPassword = body.get("password");
         if (StrUtil.isBlank(newPassword) || newPassword.length() < 6) {
-            throw new BusinessException("密码不能为空且不少于6位");
+            throw new BusinessException(400, "密码不能为空且不少于6位");
         }
         SysUser update = new SysUser();
         update.setId(id);
@@ -135,24 +134,24 @@ public class AdminUserController {
     public Result<Void> delete(@PathVariable Long id) {
         Long currentUserId = getCurrentUserId();
         if (id.equals(currentUserId)) {
-            throw new BusinessException("不能删除当前登录用户");
+            throw new BusinessException(403, "不能删除当前登录用户");
         }
         SysUser target = userService.getById(id);
         if (target == null) {
             throw new BusinessException(404, "用户不存在");
         }
         if ("ADMIN".equals(target.getRole())) {
-            throw new BusinessException("不能删除管理员账户");
+            throw new BusinessException(403, "不能删除管理员账户");
         }
         userService.removeById(id);
         return Result.success();
     }
 
     private Long getCurrentUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new BusinessException("未登录");
+        Long userId = SecurityUtils.getCurrentUserIdNullable();
+        if (userId == null) {
+            throw new BusinessException(401, "未登录");
         }
-        return (Long) authentication.getPrincipal();
+        return userId;
     }
 }

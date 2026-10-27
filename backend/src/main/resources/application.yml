@@ -40,6 +40,14 @@ spring:
 # config-file 指定的外置文件，其优先级高于此处的 type。
 # ============================================================
 knowflow:
+  # 默认关闭；仅 local 配置显式开启的本机浏览器开发工具认证。
+  developer-tools:
+    enabled: false
+  # 宿主机能力默认关闭；ADMIN、localhost、开发 profile 均不会自动放行。
+  host-capabilities:
+    enabled: ${HOST_CAPABILITIES_ENABLED:false}
+    authorized-user-ids: ${HOST_CAPABILITIES_AUTHORIZED_USER_IDS:}
+    allowed-roots: ${HOST_CAPABILITIES_ALLOWED_ROOTS:}
   datasource:
     type: ${DB_TYPE:h2}
     # 是否允许通过后台页面运行时热切换；生产可设为 false 防误操作
@@ -68,7 +76,43 @@ knowflow:
       # auto：库中无业务表时才建表灌数据，避免重启清空生产数据
       init-mode: ${MYSQL_INIT_MODE:auto}
       maximum-pool-size: 20
-      minimum-idle: 5
+      minimum-pool-size: 5
+
+  # Phase 3H：统一 AI 能力护栏（超时/重试/熔断/并发/预算）。
+  # AI 是增强层：关闭或故障不影响题库、规则组卷、考试、客观判分、错题等 A 类核心功能。
+  ai:
+    capability:
+      # 系统 AI 总开关；false 时所有 AI 增强进入基础模式
+      enabled: ${KNOWFLOW_AI_CAPABILITY_ENABLED:true}
+      # 可重试错误（429/5xx/超时/网络）的最大尝试次数（含首次）
+      max-attempts: ${KNOWFLOW_AI_MAX_ATTEMPTS:3}
+      # 指数退避：首次重试等待（毫秒），上限（毫秒）
+      initial-backoff-ms: ${KNOWFLOW_AI_INITIAL_BACKOFF_MS:500}
+      max-backoff-ms: ${KNOWFLOW_AI_MAX_BACKOFF_MS:8000}
+      # 全局并发上限与获取许可的等待时间
+      max-concurrent: ${KNOWFLOW_AI_MAX_CONCURRENT:8}
+      acquire-timeout-ms: ${KNOWFLOW_AI_ACQUIRE_TIMEOUT_MS:100}
+      # 熔断：统计窗口、窗口内失败阈值、打开后冷却（毫秒）
+      circuit-window-ms: ${KNOWFLOW_AI_CIRCUIT_WINDOW_MS:60000}
+      circuit-failure-threshold: ${KNOWFLOW_AI_CIRCUIT_FAILURE_THRESHOLD:6}
+      circuit-open-ms: ${KNOWFLOW_AI_CIRCUIT_OPEN_MS:30000}
+      # 每日 token 预算；0 表示不限制
+      daily-token-limit: ${KNOWFLOW_AI_DAILY_TOKEN_LIMIT:0}
+      # 能力状态接口缓存秒数（不发起付费健康检查，仅聚合配置与近期调用结果）
+      status-cache-seconds: ${KNOWFLOW_AI_STATUS_CACHE_SECONDS:30}
+      # 瞬时失败状态在七态中的保留时长
+      transient-state-ttl-seconds: ${KNOWFLOW_AI_TRANSIENT_TTL:60}
+
+  # Phase 3H：确定性智能练习规则引擎（REVIEW 策略），完全不依赖 AI
+  smart-practice:
+    # 错题复习到期窗口（天）；1 与错题 dueToday 口径一致
+    review-due-days: ${KNOWFLOW_SMART_REVIEW_DUE_DAYS:1}
+    weights:
+      due-review: 30
+      high-freq-mistake: 25
+      weak-topic: 20
+      target-topic: 15
+      new-unanswered: 10
 
 mybatis-plus:
   configuration:
@@ -96,16 +140,16 @@ jwt:
   expire: 86400000
 
 ai:
-  api-key: ${AI_API_KEY:sk-placeholder-replace-with-your-key}
+  api-key: ${AI_API_KEY:${DEEP_SEEK_API_KEY:${DEEPSEEK_API_KEY:sk-placeholder-replace-with-your-key}}}
   base-url: ${AI_BASE_URL:https://api.deepseek.com/v1}
   model: ${AI_MODEL:deepseek-chat}
   # Embedding 独立配置：对话模型与嵌入模型通常来自不同厂商。
   # 例如 base-url 指向 DeepSeek 时，DeepSeek 并不提供 /embeddings 接口，
   # 若共用 base-url 会导致向量化恒失败、doc_chunk.embedding 全为 NULL、语义检索失效。
-  # 留空时回退到 ai.base-url / ai.api-key，保持旧配置兼容。
+  # 留空时默认使用本地 Ollama（http://localhost:11434/v1），绝不回退到对话模型地址。
   embedding-base-url: ${AI_EMBEDDING_BASE_URL:}
   embedding-api-key: ${AI_EMBEDDING_API_KEY:}
-  embedding-model: ${AI_EMBEDDING_MODEL:text-embedding-3-small}
+  embedding-model: ${AI_EMBEDDING_MODEL:nomic-embed-text}
   # 单次批量向量化的最大文本条数，用于导入时批量提交降低往返开销
   embedding-batch-size: ${AI_EMBEDDING_BATCH_SIZE:16}
   max-tokens: ${AI_MAX_TOKENS:8000}

@@ -1,0 +1,23 @@
+import java.util.HashMap;
+import java.util.Map;
+public class MutableKeyDemo {
+  static final class Key {
+    int id;
+    Key(int id) { this.id = id; }
+    public int hashCode() { return id; }
+    public boolean equals(Object o) { return o instanceof Key k && id == k.id; }
+  }
+  public static void main(String[] args) {
+    Map<Key, String> map = new HashMap<>();
+    Key key = new Key(1);
+    map.put(key, "saved");
+    System.out.println(map.get(key));
+    key.id = 2;
+    System.out.println(map.get(key));
+    System.out.println(map.size());
+    record StableKey(int id) {}
+    Map<StableKey, String> safe = new HashMap<>();
+    safe.put(new StableKey(1), "saved");
+    System.out.println(safe.get(new StableKey(1)));
+  }
+}

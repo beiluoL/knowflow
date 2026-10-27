@@ -111,6 +111,7 @@ interface FileSystemWritableStream {
 }
 interface FileSystemFileHandleLike {
   createWritable(): Promise<FileSystemWritableStream>
+  getFile(): Promise<File>
 }
 export interface FileSystemDirectoryHandleLike {
   name: string

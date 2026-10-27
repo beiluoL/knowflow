@@ -22,7 +22,7 @@
         >
           <div class="global-progress-header">
             <span class="global-progress-title">
-              <Icon name="database-import" :size="14" />
+              <Icon name="database" :size="14" />
               导入进度
             </span>
             <span class="global-progress-count tabular-nums">
@@ -142,7 +142,7 @@
               <input
                 v-model="pathInput"
                 type="text"
-                class="path-input"
+                class="path-input kb-input kb-form-control"
                 placeholder="输入绝对路径（如 /Users/xxx/docs）或相对路径（如 ./src），也可指定单个文件"
                 :disabled="pathImporting"
                 @keyup.enter="scanPath"
@@ -230,7 +230,7 @@
               v-model="formData.title"
               type="text"
               placeholder="请输入文档标题"
-              class="form-input"
+              class="form-input kb-input kb-form-control"
             />
             <p class="form-hint">默认取第一个文件名，可手动修改</p>
           </div>
@@ -240,28 +240,8 @@
             <label class="form-label">
               目标知识库 <span class="required-mark">*</span>
             </label>
-            <div v-if="kbCategories.length > 0" class="kb-select-grid">
-              <div
-                v-for="cat in kbCategories"
-                :key="cat.id"
-                class="kb-select-item"
-                :class="{ selected: Number(formData.kbId) === cat.id }"
-                role="button"
-                tabindex="0"
-                @click="selectKb(cat.id)"
-                @keydown.enter.prevent="($event.target as HTMLElement).click()"
-              >
-                <div class="kb-select-icon" :style="{ background: getKbColor(cat.id) }">
-                  <Icon :name="getCategoryIcon(cat.icon)" :size="20" />
-                </div>
-                <div class="kb-select-info">
-                  <p class="kb-name">{{ cat.name }}</p>
-                  <p class="kb-count tabular-nums">{{ (cat as any).docCount || 0 }} 篇文档</p>
-                </div>
-                <Icon v-if="Number(formData.kbId) === cat.id" name="check-circle" :size="20" class="check-icon" />
-              </div>
-            </div>
-            <p v-else class="empty-hint">
+            <Select :model-value="formData.kbId" aria-label="选择目标知识库" searchable :panel-width="340" :options="kbSelectOptions" :loading="kbLoading" :load-error="kbLoadError" placeholder="请选择可编辑的知识库" @retry="loadCategories" @update:modelValue="value=>selectKb(Number(value))" />
+            <p v-if="!kbLoading && !kbLoadError && kbCategories.length===0" class="empty-hint">
               暂无可管理的知识库，请先
               <router-link to="/knowledge/new" class="link-btn">新建知识库</router-link>
               或联系知识库所有者添加您为 Editor。
@@ -273,12 +253,7 @@
             <label class="form-label">
               分类 <span class="required-mark">*</span>
             </label>
-            <select v-model="formData.categoryId" class="form-select" :disabled="!formData.kbId">
-              <option value="" disabled>{{ formData.kbId ? '请选择分类' : '请先选择知识库' }}</option>
-              <option v-for="cat in filteredSubCategories" :key="cat.id" :value="cat.id">
-                {{ cat.name }}
-              </option>
-            </select>
+            <CategoryTreeSelect :model-value="formData.categoryId === '' ? null : Number(formData.categoryId)" @update:modelValue="value=>formData.categoryId=value??''" aria-label="上传文档分类" :categories="filteredSubCategories" empty-label="请选择分类" :disabled="!formData.kbId || kbLoading" :placeholder="formData.kbId ? '请选择分类' : '请先选择知识库'" />
             <button v-if="formData.kbId && filteredSubCategories.length === 0" type="button" class="create-category-link" @click="createSubCategory">
               <Icon name="plus" :size="14" />
               <span>新建子分类</span>
@@ -291,7 +266,7 @@
             <div class="tags-input">
               <span v-for="(tag, idx) in formData.tags" :key="idx" class="tag-chip">
                 {{ tag }}
-                <button type="button" class="tag-remove" @click="removeTag(idx)">
+                <button type="button" class="tag-remove" :aria-label="`删除标签 ${tag}`" @click="removeTag(idx)">
                   <Icon name="x" :size="12" />
                 </button>
               </span>
@@ -299,7 +274,7 @@
                 v-model="tagInput"
                 type="text"
                 placeholder="添加标签后回车"
-                class="tag-text-input"
+                class="tag-text-input kb-input kb-form-control"
                 @keydown.enter.prevent="addTag"
               />
             </div>
@@ -312,7 +287,7 @@
               v-model="formData.description"
               rows="3"
               placeholder="请输入文档描述..."
-              class="form-textarea"
+              class="form-textarea kb-textarea kb-form-control"
             ></textarea>
           </div>
         </div>
@@ -341,7 +316,7 @@
         <h3 class="modal-title">新建子分类</h3>
         <div class="form-row">
           <label class="form-label">分类名称</label>
-          <input v-model="newCategoryName" type="text" placeholder="请输入分类名称" class="form-input" />
+          <input v-model="newCategoryName" type="text" placeholder="请输入分类名称" class="form-input kb-input kb-form-control" />
         </div>
         <div class="form-row">
           <label class="form-label">分类图标</label>
@@ -368,14 +343,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import Select from '@/components/ui/Select.vue'
+import CategoryTreeSelect from '@/components/ui/CategoryTreeSelect.vue'
 import { categoriesApi, docsApi, knowledgeImportApi } from '@/api'
 import type { CategoryVO, PathImportFileEntry, PathImportScanVO } from '@/api/types'
 import { notify, getApiError } from '@/utils/toast'
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const router = useRouter()
+const nav = usePageNavigation()
 
 // ==================== 常量 ====================
 
@@ -419,6 +398,9 @@ const files = ref<UploadFile[]>([])
 const uploading = ref(false)
 const tagInput = ref('')
 const kbCategories = ref<CategoryVO[]>([])
+const kbLoading=ref(false),kbLoadError=ref('');let kbEpoch=0,kbDisposed=false
+const kbSelectOptions=computed(()=>kbCategories.value.map(cat=>({value:cat.id,label:cat.name,icon:getCategoryIcon(cat.icon),description:String((cat as CategoryVO & {docCount?:number}).docCount||0)+' 篇文档'})))
+onUnmounted(()=>{kbDisposed=true;kbEpoch++})
 
 // 路径导入相关状态
 const importMode = ref<ImportMode>('file')
@@ -864,7 +846,7 @@ function handleCancel(): void {
 }
 
 function goBack(): void {
-  router.push('/knowledge')
+  nav.goBack('/knowledge')
 }
 
 // ==================== 分类管理 ====================
@@ -899,28 +881,24 @@ async function confirmCreateCategory(): Promise<void> {
 }
 
 async function loadCategories(): Promise<void> {
+  const epoch=++kbEpoch;kbLoading.value=true;kbLoadError.value=''
   try {
-    // 仅加载当前用户可编辑的知识库（与导入知识库功能保持一致）
-    const list = await knowledgeImportApi.listEditableKbs()
-    kbCategories.value = list || []
-  } catch (e: unknown) {
-    notify(`加载分类失败：${getApiError(e)}`, 'error')
-    kbCategories.value = []
-  }
+    const list=await knowledgeImportApi.listEditableKbs()
+    if(kbDisposed||epoch!==kbEpoch)return
+    kbCategories.value=list||[]
+  } catch(e:unknown) {
+    if(kbDisposed||epoch!==kbEpoch)return
+    kbLoadError.value='加载知识库失败：'+getApiError(e)
+  } finally {if(!kbDisposed&&epoch===kbEpoch)kbLoading.value=false}
 }
 
 // ===== 知识库卡片选择 =====
 function selectKb(id: number) {
   formData.value.kbId = id
-  // 切换知识库时清空分类选择
-  formData.value.categoryId = undefined
+  // 切换知识库时清空分类选择（'' 为「未选择」的既有约定）
+  formData.value.categoryId = ''
 }
 
-const kbColors = ['#3B6FE0', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16']
-function getKbColor(id: number) {
-  const idx = (id - 1) % kbColors.length
-  return `${kbColors[Math.max(0, idx)]}1A`
-}
 function getCategoryIcon(icon?: string) {
   if (icon && icon.trim()) return icon
   return 'book-open'
@@ -931,9 +909,14 @@ onMounted(loadCategories)
 
 <style scoped>
 .knowledge-upload-page {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: none;
+  margin-inline: 0;
   padding: 0 24px 40px;
+
+  width: 100%;
+  min-width: 0;
+  padding-inline: 0;
+  padding-top: 0;
 }
 
 @media (max-width: 768px) {
@@ -1398,62 +1381,52 @@ onMounted(loadCategories)
   margin: 0;
 }
 
-.form-input,
-.form-select {
-  width: 100%;
+.form-input:not(.kb-form-control) {
   height: 38px;
-  padding: 0 12px;
   border-radius: 8px;
-  font-size: var(--kb-fs-body-sm);
   background: var(--kb-background);
-  color: var(--kb-foreground);
   border: 1px solid var(--kb-border);
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0 12px;
+  font-size: var(--kb-fs-body-sm);
+  color: var(--kb-foreground);
   font-family: inherit;
 }
 
-.form-select {
-  cursor: pointer;
-}
-
-.form-select:hover:not(:disabled) {
+.form-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
 }
 
-.form-input:focus,
-.form-select:focus {
-  border-color: var(--kb-primary);
-}
-
-.form-input:focus-visible,
-.form-select:focus-visible,
-.form-textarea:focus-visible {
+.form-input:not(.kb-form-control):focus-visible,
+.form-textarea:not(.kb-form-control):focus-visible {
   border-color: var(--kb-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
 
-.form-select:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.form-textarea:not(.kb-form-control) {
+  border-radius: 8px;
+  background: var(--kb-background);
+  border: 1px solid var(--kb-border);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .form-textarea {
   width: 100%;
   padding: 8px 12px;
-  border-radius: 8px;
   font-size: var(--kb-fs-body-sm);
   line-height: var(--kb-lh-body-sm);
-  background: var(--kb-background);
   color: var(--kb-foreground);
-  border: 1px solid var(--kb-border);
-  outline: none;
   resize: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   font-family: inherit;
 }
 
-.form-textarea:focus {
+.form-textarea:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
 }
 
@@ -1495,10 +1468,10 @@ onMounted(loadCategories)
   flex-wrap: wrap;
   padding: 8px 12px;
   border-radius: 8px;
-  background: var(--kb-background);
-  border: 1px solid var(--kb-border);
+  background: var(--kb-field-surface);
   min-height: 38px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  border: 0;
 }
 
 .tags-input:hover {
@@ -1506,8 +1479,7 @@ onMounted(loadCategories)
 }
 
 .tags-input:focus-within {
-  border-color: var(--kb-primary);
-  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
+  background: var(--kb-field-active);
 }
 
 .tag-chip {
@@ -1553,14 +1525,17 @@ onMounted(loadCategories)
   outline-offset: 2px;
 }
 
-.tag-text-input {
-  flex: 1;
-  min-width: 80px;
+.tag-text-input:not(.kb-form-control) {
   height: 24px;
-  font-size: var(--kb-fs-body-sm);
   background: transparent;
   border: none;
   outline: none;
+}
+
+.tag-text-input {
+  flex: 1;
+  min-width: 80px;
+  font-size: var(--kb-fs-body-sm);
   color: var(--kb-foreground);
   font-family: inherit;
 }
@@ -1789,12 +1764,15 @@ onMounted(loadCategories)
   flex-shrink: 0;
 }
 
-.path-input {
-  flex: 1;
-  min-width: 0;
+.path-input:not(.kb-form-control) {
   border: none;
   outline: none;
   background: transparent;
+}
+
+.path-input {
+  flex: 1;
+  min-width: 0;
   font-size: var(--kb-fs-body-md);
   color: var(--kb-foreground);
   font-family: var(--font-mono);
@@ -1904,84 +1882,6 @@ onMounted(loadCategories)
   display: block;
 }
 
-.kb-select-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-
-.kb-select-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border: 2px solid var(--kb-border);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
-  position: relative;
-}
-
-.kb-select-item:hover {
-  border-color: rgba(59, 111, 224, 0.4);
-  background: rgba(59, 111, 224, 0.03);
-}
-
-.kb-select-item:active {
-  transform: scale(0.99);
-  background: rgba(59, 111, 224, 0.06);
-}
-
-.kb-select-item:focus-visible {
-  outline: 2px solid var(--kb-ring);
-  outline-offset: 2px;
-  border-color: var(--kb-primary);
-}
-
-.kb-select-item.selected {
-  border-color: var(--kb-primary);
-  background: rgba(59, 111, 224, 0.04);
-}
-
-.kb-select-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  flex-shrink: 0;
-  color: var(--kb-primary);
-}
-
-.kb-select-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.kb-name {
-  font-size: var(--kb-fs-body-md);
-  font-weight: 500;
-  line-height: var(--kb-lh-body-md);
-  color: var(--kb-foreground);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin: 0;
-}
-
-.kb-count {
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
-  color: var(--kb-muted-foreground);
-  margin: 2px 0 0;
-}
-
-.check-icon {
-  color: var(--kb-primary);
-  flex-shrink: 0;
-}
-
 .empty-hint {
   font-size: var(--kb-fs-body-md);
   line-height: var(--kb-lh-body-md);
@@ -2014,4 +1914,8 @@ onMounted(loadCategories)
   outline: 2px solid var(--kb-ring);
   outline-offset: 2px;
 }
+</style>
+
+<style scoped>
+.tags-input:has(input:focus-visible){outline:0}.tags-input input.kb-form-control,.tags-input input.kb-form-control:focus,.tags-input input.kb-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
 </style>

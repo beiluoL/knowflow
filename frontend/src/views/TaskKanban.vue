@@ -40,17 +40,19 @@
             :key="t.id"
             class="kb-card"
             :class="{ done: t.status === 1 }"
-            draggable="true"
+            :draggable="!t.completionRequirement"
             @dragstart="onDragStart(t, $event)"
             @dragend="onDragEnd"
           >
             <div class="kb-card-title">{{ t.title }}</div>
+            <TaskCompletionAction :requirement="t.completionRequirement" :title="t.title" />
             <div class="kb-card-foot">
               <span v-if="t.important === 1" class="kb-chip imp" title="重要"><Icon name="star" :size="11" /> 重要</span>
-              <span v-if="t.urgent === 1" class="kb-chip urg" title="紧急"><Icon name="alert-triangle" :size="11" /> 紧急</span>
+              <span v-if="t.urgent === 1" class="kb-chip urg" title="紧急"><Icon name="alert-circle" :size="11" /> 紧急</span>
               <span class="kb-card-actions">
                 <button
                   class="kb-act"
+                  :disabled="!!t.completionRequirement"
                   :title="t.status === 1 ? '标记为未完成' : '标记为完成'"
                   @click="toggleDone(t)"
                 >
@@ -78,6 +80,7 @@
 // 可拖拽看板：三列（待办 / 进行中 / 已完成），基于原生 HTML5 拖放实现卡片跨列移动，
 // drop 时乐观更新本地状态并调用 updateTaskStage 实时保存阶段（后端同步完成态）。
 import { ref, computed, onMounted } from 'vue'
+import TaskCompletionAction from '@/components/learning-actions/TaskCompletionAction.vue'
 import Icon from '@/components/ui/Icon.vue'
 import { listBoard, createTask, updateTaskStage, setTaskStatus, deleteTask, type TaskNode } from '@/api/task'
 import { notify } from '@/utils/toast'
@@ -87,8 +90,8 @@ type Stage = 0 | 1 | 2
 
 const columns = [
   { key: 0 as Stage, label: '待办', color: '#94A3B8' },
-  { key: 1 as Stage, label: '进行中', color: '#3B6FE0' },
-  { key: 2 as Stage, label: '已完成', color: '#10B981' },
+  { key: 1 as Stage, label: '进行中', color: 'var(--kb-primary)' },
+  { key: 2 as Stage, label: '已完成', color: 'var(--kb-success)' },
 ]
 
 const tasks = ref<TaskNode[]>([])
@@ -146,6 +149,7 @@ async function onDrop(stage: Stage) {
     dragId.value = null
     return
   }
+  if (t.completionRequirement) { dragId.value = null; return }
   // 乐观更新
   t.stage = stage
   if (stage === 2) t.status = 1
@@ -160,6 +164,7 @@ async function onDrop(stage: Stage) {
 }
 
 async function toggleDone(t: TaskNode) {
+  if (t.completionRequirement) return
   const next = t.status === 1 ? 0 : 1
   t.status = next
   if (next === 1) t.stage = 2
@@ -174,13 +179,16 @@ async function toggleDone(t: TaskNode) {
 }
 
 async function remove(t: TaskNode) {
-  if (!(await dialog.confirm({ title: '删除确认', message: '确定删除该任务？', variant: 'danger' }))) return
-  try {
-    await deleteTask(t.id)
-    tasks.value = tasks.value.filter((x) => x.id !== t.id)
-  } catch (e) {
-    notify((e as Error).message || '删除失败', 'error')
-  }
+  await dialog.confirm({ "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", title: '删除确认', message: '确定删除该任务？', variant: 'danger', onConfirm: async () => {
+          try {
+              await deleteTask(t.id);
+              tasks.value = tasks.value.filter((x) => x.id !== t.id);
+          }
+          catch (e) {
+              notify((e as Error).message || '删除失败', 'error');
+              throw e;
+          }
+      } });
 }
 
 async function addInColumn(col: (typeof columns)[number]) {
@@ -210,7 +218,7 @@ onMounted(reload)
 
 .kb-progress { display: flex; align-items: center; gap: 10px; min-width: 200px; }
 .kb-progress-bar { flex: 1 1 auto; height: 8px; border-radius: 999px; background: var(--kb-muted); overflow: hidden; }
-.kb-progress-fill { height: 100%; border-radius: 999px; background: #10B981; transition: width 0.3s ease; }
+.kb-progress-fill { height: 100%; border-radius: 999px; background: var(--kb-success); transition: width 0.3s ease; }
 .kb-progress-text { font-size: 12px; color: var(--kb-muted-foreground); white-space: nowrap; }
 
 .kb-loading, .kb-error {
@@ -253,8 +261,8 @@ onMounted(reload)
   display: inline-flex; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 500;
   padding: 1px 7px; border-radius: 999px;
 }
-.kb-chip.imp { color: #F59E0B; background: rgba(245, 158, 11, 0.12); }
-.kb-chip.urg { color: #EF4444; background: rgba(239, 68, 68, 0.12); }
+.kb-chip.imp { color: var(--kb-warning); background: rgba(245, 158, 11, 0.12); }
+.kb-chip.urg { color: var(--kb-danger); background: rgba(239, 68, 68, 0.12); }
 
 .kb-card-actions { margin-left: auto; display: flex; gap: 2px; opacity: 0; transition: opacity 0.12s ease; }
 .kb-card:hover .kb-card-actions { opacity: 1; }

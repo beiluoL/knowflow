@@ -1,6 +1,7 @@
 package com.knowflow.controller;
 
 import com.knowflow.common.Result;
+import com.knowflow.common.SecurityUtils;
 import com.knowflow.dto.UserLearningPrefDTO;
 import com.knowflow.entity.UserLearningPref;
 import com.knowflow.mapper.UserLearningPrefMapper;
@@ -29,7 +30,7 @@ public class UserLearningPrefController {
     @Operation(summary = "获取学习偏好")
     @GetMapping
     public Result<UserLearningPrefVO> get(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         UserLearningPref pref = prefMapper.selectOne(new LambdaQueryWrapper<UserLearningPref>()
                 .eq(UserLearningPref::getUserId, userId));
         if (pref == null) {
@@ -43,7 +44,7 @@ public class UserLearningPrefController {
     @Operation(summary = "保存学习偏好")
     @PostMapping
     public Result<UserLearningPrefVO> save(@RequestBody UserLearningPrefDTO dto, Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = SecurityUtils.getCurrentUserId();
         UserLearningPref existing = prefMapper.selectOne(new LambdaQueryWrapper<UserLearningPref>()
                 .eq(UserLearningPref::getUserId, userId));
         if (existing != null) {

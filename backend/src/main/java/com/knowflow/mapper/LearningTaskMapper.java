@@ -9,4 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface LearningTaskMapper extends BaseMapper<LearningTask> {
+    @org.apache.ibatis.annotations.Select("SELECT * FROM learning_task WHERE id=#{id} AND user_id=#{user} AND deleted=0 FOR UPDATE")
+    LearningTask lockOwned(@org.apache.ibatis.annotations.Param("id") Long id, @org.apache.ibatis.annotations.Param("user") Long user);
+
 }

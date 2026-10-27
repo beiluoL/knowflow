@@ -1,0 +1,1266 @@
+{
+  "note": "P2 批次种子：在 P0 50 词基础上新增 56 条高频 Java / AI 技术词汇与缩写。释义由项目人工整理并对照官方文档，音标一律未标注（避免未经核验的数据），发音由前端 TTS 降级；缩写英文全称参照官方文档，标记 PENDING 待人工抽检。加载逻辑幂等，只新增缺失词条，不覆盖已有词条、收藏、复习或关联。",
+  "terms": [
+    {
+      "headword": "Abstraction",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "抽象",
+      "definitionCn": "抽取共性、隐藏实现细节的设计原则。Java 通过抽象类与接口表达抽象，让调用方依赖稳定的契约而不是具体实现。",
+      "exampleEn": "Abstraction lets the service depend on a repository contract instead of a concrete database class.",
+      "exampleCn": "抽象让服务依赖仓储契约，而不是某个具体数据库实现类。",
+      "aliases": [
+        "抽象"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Language Specification；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Interface",
+          "targetDomain": "JAVA",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Interface",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "接口",
+      "definitionCn": "只声明行为契约、不含实例状态的类型。Java 8 起接口可含默认方法与静态方法；接口支持多实现，是解耦与多态的主要手段。",
+      "exampleEn": "The PaymentGateway interface hides provider differences behind one method signature.",
+      "exampleCn": "PaymentGateway 接口用一个方法签名屏蔽了不同支付提供商的差异。",
+      "aliases": [
+        "接口"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Language Specification；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "Overloading",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "重载",
+      "definitionCn": "同一类中方法名相同、参数列表不同的多个方法，由编译器在编译期按实参类型选择版本，属于编译期多态。",
+      "exampleEn": "Overloading the send method for String and byte[] keeps callers free of manual conversion.",
+      "exampleCn": "为 String 与 byte[] 分别重载 send 方法，调用方无需手动转换。",
+      "aliases": [
+        "重载"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Language Specification；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Overriding",
+          "targetDomain": "JAVA",
+          "relationType": "CONTRAST"
+        }
+      ]
+    },
+    {
+      "headword": "Overriding",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "重写",
+      "definitionCn": "子类重新实现父类或接口中签名相同的方法，运行时按实际对象类型分派，属于运行时多态。",
+      "exampleEn": "Overriding equals without hashCode breaks HashMap lookups.",
+      "exampleCn": "只重写 equals 而不重写 hashCode 会破坏 HashMap 的查找行为。",
+      "aliases": [
+        "重写"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Language Specification；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Polymorphism",
+          "targetDomain": "JAVA",
+          "relationType": "PART_OF"
+        }
+      ]
+    },
+    {
+      "headword": "Immutable",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "partOfSpeech": "adjective",
+      "meaningCn": "不可变的",
+      "definitionCn": "对象创建后状态不可再改变。Java 中常用 final 字段、私有构造与防御性拷贝实现，天然线程安全，适合作为值对象与缓存键。",
+      "exampleEn": "An immutable Money type avoids accidental mutation when passed across threads.",
+      "exampleCn": "不可变的 Money 类型在跨线程传递时不会被意外修改。",
+      "aliases": [
+        "不可变"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 文档与并发实践；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "Deserialization",
+      "termType": "WORD",
+      "domain": "JAVA",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "反序列化",
+      "definitionCn": "把字节流或文本还原为对象的过程。反序列化不可信数据存在安全风险，应做类型白名单与字段校验，避免直接使用 Java 原生序列化。",
+      "exampleEn": "The API rejects deserialization of unknown classes to prevent gadget attacks.",
+      "exampleCn": "该接口拒绝反序列化未知类，以避免利用链攻击。",
+      "aliases": [
+        "反序列化"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java 序列化规范与 OWASP 反序列化风险说明；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Serialization",
+          "targetDomain": "CACHE",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Atomicity",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "原子性",
+      "definitionCn": "一组操作要么全部生效、要么全部不生效，中间状态对其他线程不可见。Java 中可用锁、synchronized 或原子类保证。",
+      "exampleEn": "Atomicity guarantees the balance decrement and order insert succeed or fail together.",
+      "exampleCn": "原子性保证余额扣减与订单写入要么一起成功，要么一起失败。",
+      "aliases": [
+        "原子性"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Concurrency in Practice 通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "CAS",
+          "targetDomain": "CONCURRENCY",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Visibility",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "可见性",
+      "definitionCn": "一个线程对共享变量的修改能否被其他线程及时看到。volatile、锁与 final 字段提供可见性保证，缺少同步时可能读到过期值。",
+      "exampleEn": "Without visibility guarantees the worker thread may never observe the stop flag.",
+      "exampleCn": "缺少可见性保证时，工作线程可能永远看不到停止标志。",
+      "aliases": [
+        "可见性"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java 语言规范第 17 章内存模型；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Volatile",
+          "targetDomain": "CONCURRENCY",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Race Condition",
+      "termType": "PHRASE",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "竞态条件",
+      "definitionCn": "程序结果依赖线程执行时序的缺陷。典型表现是先检查后执行，修复方式是缩小临界区或使用原子操作与锁。",
+      "exampleEn": "The check-then-act sequence is a race condition that occasionally oversells stock.",
+      "exampleCn": "先检查后执行属于竞态条件，偶尔会导致超卖。",
+      "aliases": [
+        "竞态条件"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Java Concurrency in Practice 通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "Thread Pool",
+      "termType": "PHRASE",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "线程池",
+      "definitionCn": "复用固定数量工作线程执行任务的机制。Java 通过 ThreadPoolExecutor 控制核心线程、队列与拒绝策略，避免无限制创建线程。",
+      "exampleEn": "A bounded thread pool protects the database from unlimited concurrent requests.",
+      "exampleCn": "有界线程池避免数据库承受无上限的并发请求。",
+      "aliases": [
+        "线程池"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "java.util.concurrent.ThreadPoolExecutor Javadoc；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "ReentrantLock",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "可重入锁",
+      "definitionCn": "基于 AQS 实现的显式锁，同一线程可重复获取，支持公平模式、可中断获取与超时。使用后必须在 finally 中释放。",
+      "exampleEn": "ReentrantLock with tryLock avoids blocking forever when the dependency hangs.",
+      "exampleCn": "使用 tryLock 的 ReentrantLock 可以在依赖卡死时避免无限阻塞。",
+      "aliases": [
+        "可重入锁"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "java.util.concurrent.locks.ReentrantLock Javadoc；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "AQS",
+          "targetDomain": "CONCURRENCY",
+          "relationType": "PART_OF"
+        }
+      ]
+    },
+    {
+      "headword": "CountDownLatch",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "倒计数闩锁",
+      "definitionCn": "一次性同步工具：线程调用 await 等待计数归零，其他线程 countDown 递减。适合等待多个并行任务全部完成。",
+      "exampleEn": "CountDownLatch makes the main thread wait for all shard queries to finish.",
+      "exampleCn": "CountDownLatch 让主线程等待所有分片查询完成。",
+      "aliases": [
+        "倒计数闩锁"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "java.util.concurrent.CountDownLatch Javadoc；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "AQS",
+          "targetDomain": "CONCURRENCY",
+          "relationType": "PART_OF"
+        }
+      ]
+    },
+    {
+      "headword": "Synchronized",
+      "termType": "WORD",
+      "domain": "CONCURRENCY",
+      "senseKey": "default",
+      "partOfSpeech": "keyword",
+      "meaningCn": "同步的",
+      "definitionCn": "Java 内置互斥关键字，可修饰方法或代码块，基于对象监视器实现互斥与可见性；锁升级由偏向锁、轻量级锁到重量级锁演进。",
+      "exampleEn": "The synchronized block guards only the counter update, keeping the critical section small.",
+      "exampleCn": "synchronized 代码块只保护计数更新，把临界区控制在最小范围。",
+      "aliases": [
+        "同步"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle Java SE 17 Language Specification 第 17.1 节；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "Garbage Collection",
+      "termType": "PHRASE",
+      "domain": "JVM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "垃圾回收",
+      "definitionCn": "自动回收不再可达对象的运行时机制。JVM 通过可达性分析判定存活对象，不同收集器在吞吐量、停顿时间与堆占用之间取舍。",
+      "exampleEn": "Tuning garbage collection starts with measuring pause times instead of guessing heap size.",
+      "exampleCn": "调优垃圾回收应先测量停顿时间，而不是凭感觉调整堆大小。",
+      "aliases": [
+        "垃圾回收"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle HotSpot 虚拟机垃圾收集文档；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "GC",
+          "targetDomain": "JVM",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Heap Dump",
+      "termType": "PHRASE",
+      "domain": "JVM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "堆转储",
+      "definitionCn": "某一时刻堆内存对象快照，用于分析内存泄漏与对象分布。常用 jmap 或 -XX:+HeapDumpOnOutOfMemoryError 生成。",
+      "exampleEn": "The heap dump showed ten thousand cached sessions that never expired.",
+      "exampleCn": "堆转储显示有一万个从未过期的会话缓存对象。",
+      "aliases": [
+        "堆转储"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Oracle HotSpot 诊断工具文档；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Heap",
+          "targetDomain": "JVM",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Spring Boot",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "Spring Boot 框架",
+      "definitionCn": "基于 Spring 的快速开发框架，通过自动配置、起步依赖与内嵌容器简化部署，约定优于配置。",
+      "exampleEn": "Spring Boot auto-configures a DataSource when the driver is on the classpath.",
+      "exampleCn": "当类路径存在驱动时，Spring Boot 会自动配置数据源。",
+      "aliases": [
+        "Spring Boot"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Boot 官方参考文档；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "Dependency Injection",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "依赖注入",
+      "definitionCn": "由容器在运行时把依赖对象传入目标对象，而不是由目标对象自行创建，降低耦合并便于替换实现与测试。",
+      "exampleEn": "Constructor dependency injection makes the missing collaborator obvious at compile time.",
+      "exampleCn": "构造器依赖注入让缺失的协作者在编译期就暴露出来。",
+      "aliases": [
+        "依赖注入"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 官方参考文档；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "DI",
+          "targetDomain": "SPRING",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "IoC",
+          "targetDomain": "SPRING",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Aspect-Oriented Programming",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "面向切面编程",
+      "definitionCn": "把日志、事务、权限等横切关注点从业务代码中分离，通过切面在指定连接点织入增强逻辑。Spring AOP 默认基于动态代理。",
+      "exampleEn": "Aspect-oriented programming lets the transaction advice wrap the service without editing it.",
+      "exampleCn": "面向切面编程让事务增强包裹服务方法，而无需修改服务代码。",
+      "aliases": [
+        "面向切面编程"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework AOP 官方文档；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "AOP",
+          "targetDomain": "SPRING",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "MySQL",
+      "termType": "ACRONYM",
+      "domain": "DB",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "MySQL 关系型数据库",
+      "fullForm": "Structured Query Language",
+      "definitionCn": "广泛使用的关系型数据库管理系统，支持 InnoDB 事务、行级锁与多版本并发控制，读多写少的业务常配合缓存使用。",
+      "exampleEn": "MySQL stores the schema while Redis caches hot query results.",
+      "exampleCn": "MySQL 存储表结构数据，Redis 缓存热点查询结果。",
+      "aliases": [
+        "MySQL"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {
+          "variant": "ABBR",
+          "readingText": "M Y S Q L",
+          "locale": "en-US",
+          "readingMode": "LETTER_BY_LETTER",
+          "verificationStatus": "VERIFIED"
+        },
+        {
+          "variant": "FULL_FORM",
+          "readingText": "Structured Query Language",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "headword": "Primary Key",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "主键",
+      "definitionCn": "唯一标识表中每行记录的约束，不允许为空，InnoDB 以其构建聚簇索引。主键选择影响插入性能与二级索引体积。",
+      "exampleEn": "A monotonic primary key keeps InnoDB inserts sequential.",
+      "exampleCn": "单调递增的主键让 InnoDB 插入保持顺序写入。",
+      "aliases": [
+        "主键"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Index",
+          "targetDomain": "DB",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Rollback",
+      "termType": "WORD",
+      "domain": "DB",
+      "senseKey": "default",
+      "partOfSpeech": "verb / noun",
+      "meaningCn": "回滚",
+      "definitionCn": "事务未提交前撤销其修改，使数据库回到事务开始前的状态；依赖 undo 日志实现，也用于死锁时回滚代价较小的事务。",
+      "exampleEn": "The payment transaction rolled back because the inventory update failed.",
+      "exampleCn": "库存更新失败后，支付事务被回滚。",
+      "aliases": [
+        "回滚"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual InnoDB 事务模型；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Transaction",
+          "targetDomain": "DB",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Redo Log",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "重做日志",
+      "definitionCn": "InnoDB 的物理日志，记录页级修改，用于崩溃恢复与提升写入性能。事务提交只需保证 redo 落盘，数据页可延迟刷写。",
+      "exampleEn": "The redo log lets InnoDB acknowledge commits before dirty pages reach disk.",
+      "exampleCn": "redo log 让 InnoDB 在脏页落盘前就能确认提交。",
+      "aliases": [
+        "重做日志"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual InnoDB On-Disk Structures；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "Undo Log",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "回滚日志",
+      "definitionCn": "InnoDB 记录修改前值的逻辑日志，用于事务回滚与 MVCC 读取历史版本；长事务会导致 undo 无法清理、版本链过长。",
+      "exampleEn": "A long-running report held undo logs for hours and inflated the history list.",
+      "exampleCn": "长时间运行的报表事务持有 undo 数小时，使历史版本链膨胀。",
+      "aliases": [
+        "回滚日志"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual InnoDB Multi-Versioning；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "MVCC",
+          "targetDomain": "DB",
+          "relationType": "PART_OF"
+        }
+      ]
+    },
+    {
+      "headword": "Read View",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "读视图",
+      "definitionCn": "MVCC 中判定版本可见性的快照结构，由活跃事务 ID 列表构成。RR 隔离级别在事务首次读取时创建并复用，RC 每条语句重建。",
+      "exampleEn": "In repeatable read the read view is created once, so the report sees a stable snapshot.",
+      "exampleCn": "在可重复读下读视图只创建一次，报表因此看到稳定快照。",
+      "aliases": [
+        "读视图"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual InnoDB Multi-Versioning；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "MVCC",
+          "targetDomain": "DB",
+          "relationType": "PART_OF"
+        }
+      ]
+    },
+    {
+      "headword": "Connection Pool",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "连接池",
+      "definitionCn": "复用数据库连接的组件，避免频繁建连开销并限制并发连接数。需正确设置最大连接、空闲回收与超时，防止连接泄漏。",
+      "exampleEn": "The connection pool exhausted because a background job forgot to close its handles.",
+      "exampleCn": "后台任务忘记关闭连接，导致连接池被耗尽。",
+      "aliases": [
+        "连接池"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "HikariCP 官方文档通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "Normalization",
+      "termType": "WORD",
+      "domain": "DB",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "范式化",
+      "definitionCn": "按范式拆分表以消除冗余与更新异常的设计过程。读多写少的报表场景可适度反范式，以空间换查询效率。",
+      "exampleEn": "Normalization removed duplicated customer addresses before the billing migration.",
+      "exampleCn": "范式化在账务迁移前消除了重复的客户地址。",
+      "aliases": [
+        "范式化"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "关系数据库设计通用理论；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "Redis",
+      "termType": "WORD",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "Redis 内存数据库",
+      "definitionCn": "基于内存的键值数据库，支持字符串、哈希、列表、集合与有序集合等结构，常用于缓存、分布式锁与限流。单线程命令执行保证操作原子性。",
+      "exampleEn": "Redis stores the session token with a short expiration to bound memory usage.",
+      "exampleCn": "Redis 用较短过期时间保存会话令牌，以限制内存占用。",
+      "aliases": [
+        "Redis"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Redis 官方文档；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "TTL",
+      "termType": "ACRONYM",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "生存时间",
+      "fullForm": "Time To Live",
+      "definitionCn": "键或记录的存活时长，到期后自动失效。缓存 TTL 需要在数据新鲜度与回源压力之间权衡，常配合随机抖动避免集体失效。",
+      "exampleEn": "Adding jitter to the TTL prevents thousands of keys from expiring at the same second.",
+      "exampleCn": "给 TTL 加随机抖动，避免大量键在同一秒集中过期。",
+      "aliases": [
+        "生存时间"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Redis 官方文档 EXPIRE 语义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {
+          "variant": "ABBR",
+          "readingText": "T T L",
+          "locale": "en-US",
+          "readingMode": "LETTER_BY_LETTER",
+          "verificationStatus": "VERIFIED"
+        },
+        {
+          "variant": "FULL_FORM",
+          "readingText": "Time To Live",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "headword": "Cache Penetration",
+      "termType": "PHRASE",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "缓存穿透",
+      "definitionCn": "查询大量既不在缓存也不在数据库中的键，请求全部击穿到存储层。常用空值缓存、布隆过滤器或参数校验缓解。",
+      "exampleEn": "A bloom filter blocks cache penetration from random invalid IDs.",
+      "exampleCn": "布隆过滤器拦截随机非法 ID 造成的缓存穿透。",
+      "aliases": [
+        "缓存穿透"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "缓存设计通用模式；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Cache",
+          "targetDomain": "CACHE",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Cache Avalanche",
+      "termType": "PHRASE",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "缓存雪崩",
+      "definitionCn": "大量缓存同时失效或缓存服务整体不可用，请求瞬间压垮数据库。可用过期抖动、多级缓存与熔断降级缓解。",
+      "exampleEn": "Staggered expiration prevented a cache avalanche during the flash sale.",
+      "exampleCn": "错峰过期避免了秒杀期间的缓存雪崩。",
+      "aliases": [
+        "缓存雪崩"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "缓存设计通用模式；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Cache",
+          "targetDomain": "CACHE",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Consistent Hashing",
+      "termType": "PHRASE",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "一致性哈希",
+      "definitionCn": "把键与节点映射到同一哈希环，增删节点时只影响相邻区间的数据，常用于分布式缓存与分片路由。虚拟节点可缓解数据倾斜。",
+      "exampleEn": "Consistent hashing moved only a twelfth of the keys when one cache node was added.",
+      "exampleCn": "新增一台缓存节点时，一致性哈希只迁移了约十二分之一的键。",
+      "aliases": [
+        "一致性哈希"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "分布式缓存通用算法定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Sharding",
+          "targetDomain": "DB",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Kafka",
+      "termType": "WORD",
+      "domain": "MQ",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "Kafka 分布式消息系统",
+      "definitionCn": "基于分区日志的分布式发布订阅系统，支持高吞吐写入、顺序消费与副本容错，常用于解耦、削峰与流式处理。",
+      "exampleEn": "Kafka buffers the order events so downstream services can consume at their own pace.",
+      "exampleCn": "Kafka 缓冲订单事件，让下游服务按自身节奏消费。",
+      "aliases": [
+        "Kafka"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka 官方文档；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Partition",
+          "targetDomain": "MQ",
+          "relationType": "PART_OF"
+        },
+        {
+          "targetHeadword": "Consumer Group",
+          "targetDomain": "MQ",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "RabbitMQ",
+      "termType": "WORD",
+      "domain": "MQ",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "RabbitMQ 消息中间件",
+      "definitionCn": "基于 AMQP 协议的消息中间件，通过交换机与队列路由消息，支持确认机制、死信队列与优先级队列。",
+      "exampleEn": "RabbitMQ dead-letter queues capture messages that repeatedly fail processing.",
+      "exampleCn": "RabbitMQ 的死信队列收集反复处理失败的消息。",
+      "aliases": [
+        "RabbitMQ"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "RabbitMQ 官方文档；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "Producer",
+      "termType": "WORD",
+      "domain": "MQ",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "生产者",
+      "definitionCn": "向消息队列发送消息的客户端。生产端需关注发送确认、重试与幂等，避免重复投递造成下游重复处理。",
+      "exampleEn": "The producer waits for broker acknowledgement before marking the order as published.",
+      "exampleCn": "生产者等到 Broker 确认后才把订单标记为已发布。",
+      "aliases": [
+        "生产者"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka 官方文档通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Consumer",
+          "targetDomain": "MQ",
+          "relationType": "CONTRAST"
+        }
+      ]
+    },
+    {
+      "headword": "Consumer",
+      "termType": "WORD",
+      "domain": "MQ",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "消费者",
+      "definitionCn": "从消息队列拉取并处理消息的客户端。消费端需处理重复消息、顺序性与积压，并提交位点保证进度。",
+      "exampleEn": "The consumer commits offsets only after the database transaction succeeds.",
+      "exampleCn": "消费者只在数据库事务成功后提交位点。",
+      "aliases": [
+        "消费者"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka 官方文档通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Offset",
+          "targetDomain": "MQ",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Partition",
+      "termType": "WORD",
+      "domain": "MQ",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "分区",
+      "definitionCn": "Kafka 主题的并行单元，同一分区内消息有序，分区之间无序。分区数决定并行度上限，扩容后需注意键分布。",
+      "exampleEn": "Keys are hashed to partitions so all events of one order stay ordered.",
+      "exampleCn": "消息按键哈希到分区，使同一订单的事件保持有序。",
+      "aliases": [
+        "分区"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka 官方文档；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "Offset",
+      "termType": "WORD",
+      "domain": "MQ",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "位点",
+      "definitionCn": "消费者在分区中的读取位置标识。提交位点表示该位置之前的消息已处理，位点管理不当会导致重复消费或消息丢失。",
+      "exampleEn": "Resetting the offset replayed two hours of events into the analytics service.",
+      "exampleCn": "重置位点让分析服务重放了两小时的事件。",
+      "aliases": [
+        "位点"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka 官方文档；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "Consumer Group",
+      "termType": "PHRASE",
+      "domain": "MQ",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "消费者组",
+      "definitionCn": "Kafka 中共同消费一个主题的消费者集合，组内分区按成员分配，实现横向扩容；成员变更会触发再均衡。",
+      "exampleEn": "Adding a consumer to the group triggered rebalancing and a short pause.",
+      "exampleCn": "往消费者组增加消费者触发了再均衡并短暂停顿。",
+      "aliases": [
+        "消费者组"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Apache Kafka 官方文档；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "Tokenization",
+      "termType": "WORD",
+      "domain": "LLM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "分词",
+      "definitionCn": "把文本切分为模型可处理的最小单元（token）的过程。分词结果直接影响上下文长度计算与计费。",
+      "exampleEn": "Tokenization splits identifiers into several tokens, which inflates the prompt length.",
+      "exampleCn": "分词会把标识符拆成多个 token，从而抬高提示词长度。",
+      "aliases": [
+        "分词"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "大模型工程通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Token",
+          "targetDomain": "LLM",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Inference",
+      "termType": "WORD",
+      "domain": "LLM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "推理",
+      "definitionCn": "使用已训练模型对新输入生成输出的过程。推理成本由输入输出 token 数、并发与模型规模共同决定。",
+      "exampleEn": "Inference latency rose sharply once the prompt exceeded the context window.",
+      "exampleCn": "当提示词超出上下文窗口后，推理延迟明显上升。",
+      "aliases": [
+        "推理"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "大模型工程通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "Fine-tuning",
+      "termType": "WORD",
+      "domain": "LLM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "微调",
+      "definitionCn": "在预训练模型基础上用领域数据继续训练，以适配特定任务或风格。需与提示工程、检索增强权衡成本与效果。",
+      "exampleEn": "Fine-tuning improved tone consistency but did not fix missing domain facts.",
+      "exampleCn": "微调改善了语气一致性，但并不能补足缺失的领域事实。",
+      "aliases": [
+        "微调"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "大模型工程通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Prompt Engineering",
+          "targetDomain": "LLM",
+          "relationType": "CONTRAST"
+        }
+      ]
+    },
+    {
+      "headword": "Context Window",
+      "termType": "PHRASE",
+      "domain": "LLM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "上下文窗口",
+      "definitionCn": "模型单次请求可处理的最大 token 数量，包含输入与输出。超出窗口需截断、分段或改用检索增强。",
+      "exampleEn": "The whole manual does not fit the context window, so we retrieve relevant sections first.",
+      "exampleCn": "整本手册放不进上下文窗口，因此先检索相关章节。",
+      "aliases": [
+        "上下文窗口"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "大模型工程通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "Temperature",
+      "termType": "WORD",
+      "domain": "LLM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "温度参数",
+      "definitionCn": "采样随机性参数，值越高输出越发散。事实问答与结构化抽取通常用低温度，创意生成可用较高温度。",
+      "exampleEn": "Setting temperature to zero made the extraction output stable across runs.",
+      "exampleCn": "把温度设为 0 后，抽取结果在多次运行间保持稳定。",
+      "aliases": [
+        "温度参数"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "大模型采样参数通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "Prompt Engineering",
+      "termType": "PHRASE",
+      "domain": "LLM",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "提示词工程",
+      "definitionCn": "通过设计指令、示例与输出约束提升模型结果质量的方法。结构化输出场景常配合 JSON Schema 校验。",
+      "exampleEn": "Prompt engineering with explicit JSON constraints reduced malformed responses.",
+      "exampleCn": "在提示词中显式约束 JSON 后，畸形响应明显减少。",
+      "aliases": [
+        "提示词工程"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "大模型工程通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Prompt",
+          "targetDomain": "LLM",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Function Calling",
+      "termType": "PHRASE",
+      "domain": "AGENT",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "函数调用",
+      "definitionCn": "模型按预定义 Schema 选择并输出工具调用参数，由宿主程序执行后回传结果。参数必须校验，工具权限由服务端控制。",
+      "exampleEn": "Function calling let the assistant query the order service instead of guessing the status.",
+      "exampleCn": "函数调用让助手查询订单服务，而不是猜测订单状态。",
+      "aliases": [
+        "函数调用"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "大模型工具调用通用协议；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Tool Calling",
+          "targetDomain": "AGENT",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Vector Database",
+      "termType": "PHRASE",
+      "domain": "RAG",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "向量数据库",
+      "definitionCn": "存储高维向量并支持近似最近邻检索的系统，是 RAG 召回阶段的基础设施，常配合元数据过滤。",
+      "exampleEn": "The vector database returns the ten closest chunks before reranking.",
+      "exampleCn": "向量数据库先返回十个最相近的文本块，再进行重排。",
+      "aliases": [
+        "向量数据库"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "RAG 工程通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Embedding",
+          "targetDomain": "LLM",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Retrieval",
+          "targetDomain": "RAG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Augmentation",
+      "termType": "WORD",
+      "domain": "RAG",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "增强",
+      "definitionCn": "在生成前把检索到的外部知识注入提示词，使回答基于可追溯资料；需控制注入长度与来源可信度。",
+      "exampleEn": "Retrieval augmentation grounded the answer in the internal runbook instead of model memory.",
+      "exampleCn": "检索增强让回答基于内部手册，而不是模型记忆。",
+      "aliases": [
+        "增强"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "RAG 原始论文与工程实践通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "RAG",
+          "targetDomain": "RAG",
+          "relationType": "PART_OF"
+        }
+      ]
+    },
+    {
+      "headword": "Retrieval-Augmented Generation",
+      "termType": "PHRASE",
+      "domain": "RAG",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "检索增强生成",
+      "definitionCn": "先检索相关资料再让模型生成答案的架构，可降低幻觉并支持引用溯源。典型链路为切分、向量化、召回、重排与生成。",
+      "exampleEn": "Retrieval-augmented generation reduced unsupported claims in the support assistant.",
+      "exampleCn": "检索增强生成减少了客服助手中缺乏依据的回答。",
+      "aliases": [
+        "检索增强生成"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "RAG 原始论文与工程实践通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "RAG",
+          "targetDomain": "RAG",
+          "relationType": "RELATED"
+        },
+        {
+          "targetHeadword": "Reranking",
+          "targetDomain": "RAG",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Consistency",
+      "termType": "WORD",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "一致性",
+      "definitionCn": "分布式系统中多副本对外呈现的数据一致程度，分为强一致与最终一致。业务需按读写语义选择合适级别。",
+      "exampleEn": "The ledger requires strong consistency while the product feed accepts eventual consistency.",
+      "exampleCn": "账务要求强一致，而商品信息流可以接受最终一致。",
+      "aliases": [
+        "一致性"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "分布式系统通用教材定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "CAP",
+          "targetDomain": "DISTRIBUTED",
+          "relationType": "PART_OF"
+        }
+      ]
+    },
+    {
+      "headword": "Availability",
+      "termType": "WORD",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "可用性",
+      "definitionCn": "系统在给定时间内可正常响应请求的比例。提升可用性通常依赖冗余、故障转移与降级，而非单点优化。",
+      "exampleEn": "Availability dropped whenever the single cache node was restarted.",
+      "exampleCn": "单点缓存重启时，系统可用性随之下降。",
+      "aliases": [
+        "可用性"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "分布式系统通用教材定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "CAP",
+          "targetDomain": "DISTRIBUTED",
+          "relationType": "PART_OF"
+        }
+      ]
+    },
+    {
+      "headword": "CAP",
+      "termType": "ACRONYM",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "CAP 定理",
+      "fullForm": "Consistency, Availability, Partition tolerance",
+      "definitionCn": "分布式系统在网络分区发生时，只能在一致性与可用性之间取舍。现实系统通常按分区容忍前提设计，再做一致性级别降级。",
+      "exampleEn": "CAP explains why the service returns stale reads while the network partition persists.",
+      "exampleCn": "CAP 解释了网络分区期间服务为何返回过期读。",
+      "aliases": [
+        "CAP 定理"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "分布式系统通用教材定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "pronunciations": [
+        {
+          "variant": "ABBR",
+          "readingText": "C A P",
+          "locale": "en-US",
+          "readingMode": "LETTER_BY_LETTER",
+          "verificationStatus": "VERIFIED"
+        },
+        {
+          "variant": "FULL_FORM",
+          "readingText": "Consistency, Availability, Partition tolerance",
+          "locale": "en-US",
+          "readingMode": "SPOKEN_WORD",
+          "verificationStatus": "VERIFIED"
+        }
+      ]
+    },
+    {
+      "headword": "Replication",
+      "termType": "WORD",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "复制",
+      "definitionCn": "把数据同步到多个副本以提升可用性与读扩展能力。需要处理复制延迟、冲突解决与一致性读策略。",
+      "exampleEn": "Replication kept a standby copy ready while the primary node was upgraded.",
+      "exampleCn": "主节点升级期间，复制保持了备用副本可用。",
+      "aliases": [
+        "复制"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "分布式系统通用教材定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Failover",
+          "targetDomain": "DISTRIBUTED",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Circuit Breaker",
+      "termType": "PHRASE",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "断路器",
+      "definitionCn": "当下游连续失败时快速失败并暂时停止调用，避免级联故障；包含关闭、打开与半开三种状态。",
+      "exampleEn": "The circuit breaker opened after ten timeouts and protected the payment service.",
+      "exampleCn": "连续十次超时后断路器打开，保护了支付服务。",
+      "aliases": [
+        "断路器"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "微服务容错模式通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Failover",
+          "targetDomain": "DISTRIBUTED",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Rate Limiting",
+      "termType": "PHRASE",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "限流",
+      "definitionCn": "限制单位时间内请求数量以保护系统。常用令牌桶、漏桶与滑动窗口算法，阈值应按真实容量设定。",
+      "exampleEn": "Rate limiting per tenant stopped one noisy client from starving the others.",
+      "exampleCn": "按租户限流避免单个大流量客户挤占其他客户资源。",
+      "aliases": [
+        "限流"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "服务治理通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理",
+      "relations": [
+        {
+          "targetHeadword": "Backpressure",
+          "targetDomain": "MQ",
+          "relationType": "RELATED"
+        }
+      ]
+    },
+    {
+      "headword": "Load Balancing",
+      "termType": "PHRASE",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "负载均衡",
+      "definitionCn": "把请求分发到多个实例以提升吞吐与容错。需结合健康检查与会话保持策略，避免把流量打向故障节点。",
+      "exampleEn": "Load balancing removed unhealthy instances before the request reached them.",
+      "exampleCn": "负载均衡在请求到达前移除了不健康实例。",
+      "aliases": [
+        "负载均衡"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "服务治理通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    },
+    {
+      "headword": "Failover",
+      "termType": "WORD",
+      "domain": "DISTRIBUTED",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "故障转移",
+      "definitionCn": "主节点故障时自动切换到副本，保证服务连续。需要避免脑裂，并明确切换期间的数据丢失与不可用窗口。",
+      "exampleEn": "Failover promoted the standby node within thirty seconds of the primary crash.",
+      "exampleCn": "主节点崩溃后三十秒内，故障转移把备用节点提升为主。",
+      "aliases": [
+        "故障转移"
+      ],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "高可用架构通用定义；音标未标注",
+      "licenseNote": "释义与例句为本项目原创整理"
+    }
+  ]
+}

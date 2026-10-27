@@ -1,5 +1,6 @@
 <template>
-  <div class="playground-page">
+  <div class="playground-page" :data-section="section">
+    <ChapterResourceLinks resource-kind="code" :resource-id="Number(route.params.id)" />
     <!-- ===== 顶部导航栏 ===== -->
     <div class="playground-header">
       <div class="header-left">
@@ -13,7 +14,7 @@
         </div>
       </div>
       <div class="header-right">
-        <select v-model="selectedLanguage" class="lang-select" aria-label="选择编程语言" @change="onLanguageChange">
+        <select :value="selectedLanguage" class="lang-select kb-select kb-form-control" :disabled="unavailable || workspaceMode" aria-label="选择编程语言" @change="onLanguageChange">
           <option value="javascript">JavaScript</option>
           <option value="typescript">TypeScript</option>
           <option value="python">Python</option>
@@ -24,42 +25,39 @@
         <button
           type="button"
           class="header-btn ai-btn"
-          :disabled="aiAnswering"
+          :disabled="unavailable || !aiCapability.aiAvailable"
           @click="handleAiAnswer"
         >
           <Icon name="sparkles" :size="14" />
           <span>{{ aiAnswering ? 'AI 思考中...' : 'AI 回答' }}</span>
         </button>
-        <button type="button" class="header-btn hint-btn" @click="showHint = !showHint">
+        <button type="button" class="header-btn hint-btn" :disabled="loading || !!loadError" :aria-pressed="showHint" @click="showHint = !showHint">
           <Icon name="lightbulb" :size="14" />
           <span>提示</span>
         </button>
         <button
           type="button"
-          class="header-btn ws-toggle-btn"
+          class="header-btn ws-toggle-btn" :disabled="unavailable" :aria-pressed="workspaceMode"
           :class="{ active: workspaceMode }"
           @click="toggleWorkspace"
         >
           <Icon name="folder" :size="14" />
-          <span>沙箱模式</span>
+          <span>工作区模式</span>
         </button>
       </div>
     </div>
 
+    <nav class="workspace-sections" aria-label="工作台分区">
+      <button v-for="item in [{id:'problem',name:'题目'}, {id:'code',name:'代码'}, {id:'result',name:'结果'}]" :key="item.id" type="button" :aria-pressed="section === item.id" @click="section = item.id as typeof section">{{ item.name }}</button>
+    </nav>
+    <div class="capability-notice" role="status">{{ selectedLanguage === 'sql' ? 'SQL 仅使用内置示例数据模拟，不连接数据库，不计判题通过。' : '当前未接入安全判题服务；运行、调试及评估仅限已授权的可信开发环境。' }} <span v-if="!aiCapability.aiAvailable">AI 当前不可用，仍可阅读和编辑。</span></div>
+    <p v-if="workspaceError" class="workspace-error" role="alert">{{ workspaceError }}</p>
     <!-- ===== 主体：左右分栏 ===== -->
-    <div class="playground-body">
+    <div class="playground-body" :style="{ gridTemplateColumns: `minmax(0, ${panelWidth}fr) var(--kb-space-1) minmax(0, ${100 - panelWidth}fr)` }">
       <!-- ===== 左侧：题目描述 ===== -->
-      <div class="problem-panel">
-        <!-- 加载状态 -->
-        <div v-if="loading" class="loading-block">
-          <div class="spinner"></div>
-          <p>加载题目...</p>
-        </div>
-
-        <template v-else>
-          <div v-if="loadError" class="error-block">{{ loadError }}</div>
-
-          <!-- 工作区面板（SC1-IDE-02 可重置实验沙箱，仅沙箱模式显示） -->
+      <section class="problem-panel" aria-label="题目说明">
+        <StateView :status="loading ? 'loading' : loadError ? 'error' : 'ready'" error-title="题目加载失败" :error-description="loadError" @retry="loadQuestion">
+          <!-- 工作区面板（SC1-IDE-02 可信开发文件工作区，仅工作区模式显示） -->
           <div v-if="workspaceMode" class="panel-section ws-panel">
             <div class="ws-header">
               <h3 class="subsection-heading">
@@ -67,10 +65,10 @@
                 我的工作区
               </h3>
               <div class="ws-actions">
-                <button type="button" class="ws-mini-btn" title="新建文件" aria-label="新建文件" @click="createWsFilePrompt">
+                <button type="button" class="ws-mini-btn" :disabled="unavailable" title="新建文件" aria-label="新建文件" @click="createWsFilePrompt">
                   <Icon name="plus" :size="14" />
                 </button>
-                <button type="button" class="ws-mini-btn" title="重置沙箱" aria-label="重置沙箱" @click="resetWorkspace">
+                <button type="button" class="ws-mini-btn" :disabled="unavailable" title="重置工作区" aria-label="重置工作区" @click="resetWorkspace">
                   <Icon name="rotate-ccw" :size="14" />
                 </button>
               </div>
@@ -85,12 +83,12 @@
                 role="button"
                 tabindex="0"
                 @click="openWsFile(f.path)"
-                @keydown.enter.prevent="$event.target.click()"
+                @keydown.enter.prevent="($event.target as HTMLElement).click()"
               >
                 <Icon :name="wsIcon(f.language)" :size="14" />
                 <span class="ws-file-name">{{ f.name }}</span>
-                <button type="button" class="ws-del" title="删除" aria-label="删除文件" @click.stop="deleteWsFile(f.path)">
-                  <Icon name="trash" :size="12" />
+                <button type="button" class="ws-del" :disabled="unavailable" title="删除" aria-label="删除文件" @click.stop="deleteWsFile(f.path)">
+                  <Icon name="trash-2" :size="12" />
                 </button>
               </li>
               <li v-if="!wsLoading && workspaceFiles.length === 0" class="ws-empty">
@@ -102,7 +100,7 @@
           <template v-else>
             <div class="panel-section">
               <h2 class="section-heading">题目描述</h2>
-              <p class="problem-desc">{{ question.description || '暂无描述' }}</p>
+              <div class="problem-desc markdown-body" v-html="descriptionHtml" @click="handleCodeCopyClick"></div>
             </div>
 
             <div v-if="question.exampleInput || question.exampleOutput" class="panel-section">
@@ -129,7 +127,7 @@
 
             <!-- SQL 题目显示可用表 -->
             <div v-if="selectedLanguage === 'sql'" class="panel-section">
-              <h3 class="subsection-heading">内置示例数据库</h3>
+              <h3 class="subsection-heading">SQL 示例数据（模拟）</h3>
               <p class="problem-desc" style="font-size: var(--kb-fs-body-sm);">
                 可用表：<code class="example-code">users</code>、<code class="example-code">orders</code>、<code class="example-code">products</code>
               </p>
@@ -167,7 +165,7 @@
 
             <!-- 提交统计 -->
             <div v-if="question.submitCount" class="panel-section">
-              <h3 class="subsection-heading">提交统计</h3>
+              <h3 class="subsection-heading">历史提交统计</h3><p class="editor-status">历史记录不代表当前安全判题结果或个人掌握度。</p>
               <div class="stats-block">
                 <div class="stats-item">
                   <span class="stats-label">累计提交</span>
@@ -184,15 +182,18 @@
               </div>
             </div>
           </template>
-        </template>
-      </div>
+        </StateView>
+      </section>
 
       <!-- ===== 拖拽分隔线 ===== -->
       <div
         class="resizer"
         role="separator"
         aria-orientation="vertical"
-        aria-label="拖拽调整左右面板宽度"
+        aria-label="调整题目面板宽度"
+        tabindex="0" :aria-valuenow="panelWidth" :aria-valuemin="25" :aria-valuemax="65"
+        @keydown.left.prevent="panelWidth = Math.max(25, panelWidth - 5)"
+        @keydown.right.prevent="panelWidth = Math.min(65, panelWidth + 5)"
         @mousedown="startResize"
       ></div>
 
@@ -208,30 +209,49 @@
               </span>
             </div>
             <div class="editor-actions">
-              <button type="button" class="editor-action-btn" title="重置代码" @click="resetCode">
+              <button type="button" class="editor-action-btn" title="复制代码" aria-label="复制代码" :disabled="loading || !!loadError" @click="copyCode"><Icon name="copy" :size="14" /></button>
+              <button type="button" class="editor-action-btn" title="重置代码" aria-label="重置代码" :disabled="unavailable" @click="resetCode">
                 <Icon name="rotate-ccw" :size="14" />
               </button>
-              <button type="button" class="editor-action-btn" title="格式化" @click="formatCode">
-                <Icon name="align-left" :size="14" />
-              </button>
+              <span title="格式化代码（Shift+Alt+F，macOS：Shift+Option+F）"><Button class="format-button" variant="secondary" size="sm" icon-name="align-left" :disabled="unavailable" :loading="formatting" title="格式化代码（Shift+Alt+F，macOS：Shift+Option+F）" @click="formatManually">格式化</Button></span>
+              <details class="format-settings" @keydown.esc="closeFormatSettings">
+                <summary title="设置自动格式化">自动格式化</summary>
+                <div class="format-settings-panel" role="group" aria-label="自动格式化设置">
+                  <label class="kb-checkbox-row"><Checkbox as="span" v-model="formatSettings.enabled" />启用自动格式化</label>
+                  <label class="kb-checkbox-row"><Checkbox as="span" v-model="formatSettings.paste"  :disabled="!formatSettings.enabled" />粘贴后格式化</label>
+                  <label class="kb-checkbox-row"><Checkbox as="span" v-model="formatSettings.save"  :disabled="!formatSettings.enabled" />保存前格式化</label>
+                  <label class="kb-checkbox-row"><Checkbox as="span" v-model="formatSettings.input"  :disabled="!formatSettings.enabled" />输入时格式化（高级）</label>
+                  <p>粘贴后等待内容更新；输入停顿 600ms 后格式化。语法未完成时保留原文。</p>
+                  <p>当前支持 JavaScript、TypeScript。普通练习是临时草稿，仅工作区文件支持保存。</p>
+                  <Button variant="text" size="sm" @click="resetFormatSettings">恢复推荐设置</Button>
+                  <p v-if="formatPersistenceError" role="status">{{ formatPersistenceError }}</p>
+                </div>
+              </details>
             </div>
           </div>
+          <p id="editor-keyboard-help" class="editor-status" role="status" aria-live="polite">{{ workspaceMode ? (dirty ? '有未保存修改' : '工作区文件内容') : dirty ? '临时代码 · 未保存修改' : '临时代码 · 尚未保存' }} · Tab 切换焦点，Ctrl+] 缩进</p>
+          <p v-if="formatMessage || !formatSupported" class="editor-status format-status" role="status" aria-live="polite">{{ formatMessage || '当前语言暂不支持格式化，可继续编辑和保存原代码' }}</p>
           <div class="editor-wrapper">
-            <div class="line-numbers">
+            <div class="line-numbers" aria-hidden="true">
               <span v-for="n in lineCount" :key="n">{{ n }}</span>
             </div>
             <textarea
               ref="codeAreaRef"
               v-model="userCode"
-              class="code-textarea"
+              class="code-textarea" aria-label="练习代码" aria-describedby="editor-keyboard-help" :disabled="unavailable"
               spellcheck="false"
               placeholder="在此编写你的代码..."
               @keydown="handleKeydown"
+              @paste="formatter.onPaste"
+              @input="formatter.onInput"
+              @compositionstart="formatter.onCompositionStart"
+              @compositionend="formatter.onCompositionEnd"
               @scroll="syncScroll"
             ></textarea>
           </div>
         </div>
 
+        <label v-if="selectedLanguage !== 'sql'" class="stdin-field">标准输入（可选）<textarea class="kb-textarea kb-form-control" v-model="stdin" aria-label="标准输入" :disabled="unavailable" rows="1" placeholder="传给程序的输入内容"></textarea></label>
         <!-- 控制台输出 -->
         <div class="console-container" :style="{ height: consoleHeight + 'px' }">
           <div class="console-header">
@@ -290,22 +310,23 @@
               清除
             </button>
           </div>
-          <div class="console-body">
+          <div class="console-body" aria-live="polite" :aria-busy="busy">
             <!-- 运行结果 Tab -->
             <div v-show="activeTab === 'output'">
-              <div v-if="!runResult" class="console-empty">
+              <div v-if="running" class="console-empty" role="status"><span class="spinner"></span><p>正在请求运行，请等待服务端返回…</p></div>
+              <div v-else-if="!runResult" class="console-empty">
                 <Icon name="terminal" :size="32" style="opacity: 0.3;" />
-                <p>点击「运行代码」查看输出结果</p>
+                <p>运行请求的输出与错误会显示在这里</p>
               </div>
               <div v-else class="console-output">
                 <div class="output-status" :class="runStatusClass">
                   <Icon :name="runStatusIcon" :size="14" />
                   <span>{{ statusLabel(runResult?.status) }}</span>
                   <span class="output-time">{{ runResult?.time }}ms</span>
-                  <button v-if="runResult?.error" type="button" class="output-ai-btn" title="用 AI 解释这个错误" @click="explainError">
+                  <button v-if="runResult?.error" type="button" class="output-ai-btn" :disabled="unavailable || !aiCapability.aiAvailable" title="用 AI 解释这个错误" @click="explainError">
                     <Icon name="sparkles" :size="12" /> AI 解释
                   </button>
-                  <button v-if="runResult?.error" type="button" class="output-ai-btn mistake" title="归集到错题本" :disabled="collectingMistake" @click="collectMistake">
+                  <button v-if="runResult?.error" type="button" class="output-ai-btn mistake" title="归集到错题本" :disabled="collectingMistake || unavailable" @click="collectMistake">
                     <Icon name="bookmark" :size="12" /> {{ collectingMistake ? '归集...' : '归集错题' }}
                   </button>
                 </div>
@@ -340,7 +361,7 @@
             <div v-show="activeTab === 'testcase'">
               <div v-if="tcResults.length === 0" class="console-empty">
                 <Icon name="check-square" :size="32" style="opacity: 0.3;" />
-                <p>点击「提交答案」运行全部测试用例</p>
+                <p>安全判题尚未接入。用例仅供阅读，不会生成通过记录。</p>
               </div>
               <div v-else class="console-output">
                 <div class="output-status" :class="testCaseSummary?.allPassed ? 'success' : 'error'">
@@ -356,7 +377,7 @@
               <div v-if="!aiAnswer && !aiAssisting" class="ai-empty">
                 <Icon name="sparkles" :size="24" style="opacity: 0.4" />
                 <p>AI 助手可解释运行错误、回答编程问题。</p>
-                <button v-if="runResult && runResult.error" type="button" class="ai-explain-btn" @click="explainError">
+                <button v-if="runResult && runResult.error" type="button" :disabled="unavailable || !aiCapability.aiAvailable" class="ai-explain-btn" @click="explainError">
                   <Icon name="sparkles" :size="14" /> 用 AI 解释这个错误
                 </button>
               </div>
@@ -366,18 +387,17 @@
                 </div>
                 <pre v-if="aiAnswer" class="ai-answer">{{ aiAnswer }}</pre>
                 <div v-if="!aiConfigured" class="ai-unconfigured">
-                  ⚠️ AI 服务未配置：请在服务端 <code>application.yml</code> 设置有效的
-                  <code>ai.api-key</code>（或用户在个人设置中填写 API Key）后即可启用。
+                  AI 当前不可用，请稍后重试；编辑内容不会因此丢失。
                 </div>
               </div>
               <div class="ai-input-row">
                 <textarea
                   v-model="aiQuestion"
-                  class="ai-input"
+                  class="ai-input kb-textarea kb-form-control" aria-label="向 AI 提问" :disabled="unavailable || !aiCapability.aiAvailable"
                   placeholder="问 AI 任何编程问题，例如：如何优化这段代码？"
                   @keydown.ctrl.enter="askAi"
                 ></textarea>
-                <button type="button" class="ai-ask-btn" :disabled="aiAssisting" @click="askAi">
+                <button type="button" class="ai-ask-btn" :disabled="unavailable || !aiCapability.aiAvailable" @click="askAi">
                   <Icon name="send" :size="12" /> 提问
                 </button>
               </div>
@@ -385,7 +405,8 @@
 
             <!-- 调试 Tab（推进 2.1 在线调试器） -->
             <div v-show="activeTab === 'debug'" class="debug-tab">
-              <div v-if="!debugResult" class="console-empty">
+              <div v-if="debugging" class="console-empty" role="status"><span class="spinner"></span><p>正在请求调试…</p></div>
+              <div v-else-if="!debugResult" class="console-empty">
                 <Icon name="target" :size="32" style="opacity: 0.3;" />
                 <p>点击「调试运行」逐行追踪代码执行</p>
               </div>
@@ -416,9 +437,10 @@
 
             <!-- 能力评估 Tab（SC1-AI-02 自动化代码评估） -->
             <div v-show="activeTab === 'assess'" class="assess-tab">
-              <div v-if="!assessResult" class="console-empty">
+              <div v-if="assessing" class="console-empty" role="status"><span class="spinner"></span><p>正在请求评估…</p></div>
+              <div v-else-if="!assessResult" class="console-empty">
                 <Icon name="list-checks" :size="32" style="opacity: 0.3;" />
-                <p>点击「提交评估」对代码进行动态评测 + 静态检查 + AI 报告</p>
+                <p>评估需要可信开发授权，成功后才显示服务端返回的报告。</p>
               </div>
               <div v-else class="console-output">
                 <div class="assess-score" :class="assessResult.passed ? 'pass' : 'fail'">
@@ -444,7 +466,7 @@
                   <pre class="assess-ai-body">{{ assessResult.aiReport }}</pre>
                 </div>
                 <div v-else-if="!assessResult.aiConfigured" class="assess-ai-unconf">
-                  ⚠️ AI 报告未生成：服务端未配置有效的 AI Key（动态评测与静态检查仍可用）。
+                  AI 报告未生成。下方只展示服务端实际返回的评估结果。
                 </div>
               </div>
             </div>
@@ -468,31 +490,22 @@
             </span>
           </div>
           <div class="footer-right">
-            <button
-              type="button"
-              class="footer-btn ai-foot-btn"
-              :disabled="aiAnswering"
-              @click="handleAiAnswer"
-              :title="aiAnswering ? 'AI 正在生成代码...' : 'AI 自动识别题目并生成代码'"
-            >
-              <Icon name="sparkles" :size="14" />
-              <span>{{ aiAnswering ? 'AI 思考中...' : 'AI 回答' }}</span>
-            </button>
-            <button type="button" class="footer-btn debug-foot-btn" :disabled="debugging" @click="debugCode">
+            <Button v-if="workspaceMode" :disabled="unavailable || !dirty || !activeWsFile" :loading="saving" @click="saveWorkspace">保存文件</Button>
+            <button type="button" class="footer-btn debug-foot-btn" :disabled="unavailable || !canRun || selectedLanguage === 'sql'" @click="debugCode">
               <Icon name="target" :size="14" />
               <span>{{ debugging ? '调试中...' : '调试运行' }}</span>
             </button>
-            <button type="button" class="footer-btn assess-foot-btn" :disabled="assessing" @click="assessCode">
+            <button type="button" class="footer-btn assess-foot-btn" :disabled="unavailable || !canRun || selectedLanguage === 'sql'" @click="assessCode">
               <Icon name="list-checks" :size="14" />
               <span>{{ assessing ? '评估中...' : '提交评估' }}</span>
             </button>
-            <button type="button" class="footer-btn run-btn" :disabled="running" @click="runCode">
+            <button type="button" class="footer-btn run-btn" :disabled="unavailable || !canRun" @click="runCode">
               <Icon name="play" :size="14" />
-              <span>{{ running ? '运行中...' : '运行代码' }}</span>
+              <span>{{ running ? '请求处理中…' : selectedLanguage === 'sql' ? '模拟 SQL' : '请求运行' }}</span>
             </button>
-            <button type="button" class="footer-btn submit-btn" :disabled="submitting" @click="submitCode">
+            <button type="button" class="footer-btn submit-btn" disabled title="安全判题服务尚未接入，不上传客户端通过数">
               <Icon name="send" :size="14" />
-              <span>{{ submitting ? '提交中...' : '提交答案' }}</span>
+              <span>安全判题未接入</span>
             </button>
           </div>
         </div>
@@ -502,15 +515,23 @@
 </template>
 
 <script setup lang="ts">
+import Checkbox from '@/components/ui/Checkbox.vue'
+
+import ChapterResourceLinks from '@/components/Learning/ChapterResourceLinks.vue'
 /**
  * 代码练习编辑器（LeetCode 风格）
  * 左侧题目描述 + 右侧代码编辑器 + 控制台输出
- * 支持 JavaScript/TypeScript 浏览器端运行、SQL 内置模拟执行、其他语言给出友好提示
- * 题目数据从后端 /api/code-questions/{id} 加载，提交结果上报后端统计
+ * 代码编辑不等同保存；SQL 仅示例模拟，宿主运行仍由服务端显式授权。
+ * 不在主应用执行用户源码，不以客户端用例统计冒充可信判题。
  */
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { useRoute, useRouter, onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
+import Button from '@/components/ui/Button.vue'
+import StateView from '@/components/ui/StateView.vue'
+import { useAiCapabilityStore } from '@/stores/aiCapability'
+import { renderMarkdown } from '@/utils/markdown'
+import { handleCodeCopyClick } from '@/utils/codeCopy'
 import { notify, getApiError, confirmDialog, promptDialog } from '@/utils/toast'
 import { normalizeNewlines } from '@/utils/string'
 import { chatApi } from '@/api/chat'
@@ -520,17 +541,52 @@ import type { CodeAssessResultDTO, CodeDebugResultDTO, CodeMistakeCollectResultD
 import { codeWorkspaceApi } from '@/api/codeWorkspace'
 import type { CodeWorkspaceFileDTO } from '@/api/codeWorkspace'
 import { runSql } from '@/utils/sqlSimulator'
+import { useCodeFormatting } from '@/composables/useCodeFormatting'
+import { supportsFormatting } from '@/code-format/client'
 import type { CodeQuestionVO, CodeTestCase } from '@/api/types'
 
 const route = useRoute()
 const router = useRouter()
+const aiCapability = useAiCapabilityStore()
+const baselineCode = ref('')
+const previousLanguage = ref('javascript')
+const section = ref<'problem' | 'code' | 'result'>('code')
+const saving = ref(false)
+const confirming = ref(false)
+const panelWidth = ref(40)
+const workspaceError = ref('')
+const stdin = ref('')
+let questionRequest = 0
+const dirty = computed(() => userCode.value !== baselineCode.value)
+const busy = computed(() => running.value || debugging.value || assessing.value || aiAnswering.value || aiAssisting.value || saving.value || wsLoading.value || confirming.value)
+const unavailable = computed(() => busy.value || loading.value || !!loadError.value)
+const canRun = computed(() => selectedLanguage.value !== 'typescript')
+const descriptionHtml = computed(() => renderMarkdown(normalizeNewlines(question.value.description || '暂无题目说明')))
+// 在任何会覆盖编辑器的操作前保护草稿；临时模板也不标成服务端已保存。
+async function confirmOverwrite(message: string) {
+  if (confirming.value) return false
+  confirming.value = true
+  try {
+    return await confirmDialog(message, {title:'放弃未保存的修改？',confirmText:'放弃修改',cancelText:'返回编辑',icon:'log-out'})
+  } finally { confirming.value = false }
+}
+async function allowDiscard() {
+  if (busy.value) { notify('操作仍在进行，请稍后再试', 'info'); return false }
+  return !dirty.value || await confirmOverwrite('代码有未保存的修改，确定放弃这些修改？')
+}
+async function copyCode() {
+  try { await navigator.clipboard.writeText(userCode.value); notify('代码已复制（尚未保存）', 'success') }
+  catch { notify('复制失败，请选中代码手动复制', 'error') }
+}
+function beforeUnload(event: BeforeUnloadEvent) { if (dirty.value || busy.value) { event.preventDefault(); event.returnValue = '' } }
+onBeforeRouteLeave(allowDiscard)
+onBeforeRouteUpdate(allowDiscard)
 
 const question = ref<CodeQuestionVO>({} as CodeQuestionVO)
 const selectedLanguage = ref('javascript')
 const userCode = ref('')
 const showHint = ref(false)
 const running = ref(false)
-const submitting = ref(false)
 const aiAnswering = ref(false)
 const loading = ref(true)
 const loadError = ref('')
@@ -538,7 +594,7 @@ const activeTab = ref<'output' | 'testcase' | 'debug' | 'assess' | 'ai'>('output
 const runResult = ref<{ output: string; error: string | null; time: number; status?: string } | null>(null)
 const codeAreaRef = ref<HTMLTextAreaElement | null>(null)
 
-// ===== 工作区模式（SC1-IDE-02 可重置实验沙箱） =====
+// ===== 工作区模式（SC1-IDE-02 可信开发文件工作区） =====
 const workspaceMode = ref(false)
 const workspaceFiles = ref<CodeWorkspaceFileDTO[]>([])
 const activeWsFile = ref('')
@@ -569,6 +625,25 @@ const tcResults = ref<{ passed: boolean; actual: string }[]>([])
 // 控制台高度
 const consoleHeight = ref(260)
 
+const formatContext = computed(() => `${route.params.id}:${questionRequest}:${workspaceMode.value}:${activeWsFile.value}`)
+const formatter = useCodeFormatting({ source: userCode, language: selectedLanguage, context: formatContext, area: codeAreaRef, blocked: unavailable })
+const { settings: formatSettings, persistenceError: formatPersistenceError, reset: resetFormatSettings,
+  formatting, message: formatMessage, format: formatEditor } = formatter
+const formatSupported = computed(() => supportsFormatting(selectedLanguage.value))
+function formatManually() {
+  if (unavailable.value || formatting.value) return
+  codeAreaRef.value?.focus({ preventScroll: true })
+  void formatEditor('manual')
+}
+function closeFormatSettings(event: KeyboardEvent) {
+  const details = event.currentTarget as HTMLDetailsElement
+  details.open = false
+  details.querySelector('summary')?.focus()
+}
+
+
+
+
 // 默认代码模板（当后端未提供 codeTemplate 时使用）
 const DEFAULT_TEMPLATES: Record<string, string> = {
   javascript: `// 在此编写你的 JavaScript 代码
@@ -590,7 +665,7 @@ function solution(): void {
 
 solution();`,
   python: `# 在此编写你的 Python 代码
-# 注意：在线运行暂仅支持 JavaScript/TypeScript/SQL
+# 注意：运行需要可信开发授权；当前没有安全判题服务。
 
 def solution():
     # TODO: 实现你的解决方案
@@ -598,7 +673,7 @@ def solution():
 
 solution()`,
   java: `// 在此编写你的 Java 代码
-// 注意：在线运行暂仅支持 JavaScript/TypeScript/SQL
+// 注意：运行需要可信开发授权；当前没有安全判题服务。
 
 public class Solution {
     public static void main(String[] args) {
@@ -614,7 +689,7 @@ int main() {
     return 0;
 }`,
   sql: `-- 在此编写你的 SQL 代码
--- 内置示例数据库：users、orders、products
+-- SQL 示例数据（模拟）：users、orders、products
 -- 可执行 SELECT / SHOW TABLES / DESCRIBE
 
 SELECT * FROM users LIMIT 5;`,
@@ -643,7 +718,7 @@ const passRate = computed(() => {
 const runStatusClass = computed(() => {
   const r = runResult.value
   if (!r) return 'success'
-  if (r.error || (r.status && r.status !== 'SUCCESS')) return 'error'
+  if (r.error || (r.status && !['SUCCESS', 'SIMULATED'].includes(r.status))) return 'error'
   return 'success'
 })
 const runStatusIcon = computed(() => (runStatusClass.value === 'error' ? 'x-circle' : 'check-circle'))
@@ -652,6 +727,8 @@ const runStatusIcon = computed(() => (runStatusClass.value === 'error' ? 'x-circ
 const statusLabel = (s?: string) => {
   const map: Record<string, string> = {
     SUCCESS: '运行成功',
+    SIMULATED: '示例模拟完成',
+    SIMULATION_ERROR: '示例模拟错误',
     COMPILE_ERROR: '编译错误',
     RUNTIME_ERROR: '运行错误',
     TIMEOUT: '执行超时',
@@ -674,53 +751,52 @@ const langLabel = (lang?: string) => {
 }
 
 const LANG_COLORS: Record<string, string> = {
-  javascript: '#3B6FE0',
-  typescript: '#3B6FE0',
-  python: '#10B981',
-  java: '#F59E0B',
-  cpp: '#06B6D4',
-  sql: '#EF4444',
+  javascript: 'var(--kb-primary)',
+  typescript: 'var(--kb-primary)',
+  python: 'var(--kb-success)',
+  java: 'var(--kb-warning)',
+  cpp: 'var(--kb-primary)',
+  sql: 'var(--kb-danger)',
 }
 const langColor = (lang?: string) => LANG_COLORS[lang || ''] || 'var(--kb-muted-foreground)'
 const langColorBg = (lang?: string) => {
   const hex = LANG_COLORS[lang || '']
-  return hex ? `${hex}14` : 'var(--kb-muted)'
+  return hex ? `color-mix(in srgb, ${hex} 10%, var(--kb-card))` : 'var(--kb-muted)'
 }
 
-const onLanguageChange = () => {
+const onLanguageChange = async (event: Event) => {
+  const select = event.target as HTMLSelectElement
+  const target = select.value
+  select.value = selectedLanguage.value
+  if (!(await allowDiscard())) return
+  selectedLanguage.value = target
+  previousLanguage.value = target
   if (workspaceMode.value) {
-    // 沙箱模式下语言由当前文件扩展名决定，切换下拉不改变文件内容
+    // 工作区模式下语言由当前文件扩展名决定，切换下拉不改变文件内容
     return
   }
   userCode.value = DEFAULT_TEMPLATES[selectedLanguage.value] || DEFAULT_TEMPLATES.javascript
+  baselineCode.value = userCode.value
   runResult.value = null
   tcResults.value = []
 }
 
-const resetCode = () => {
+const resetCode = async () => {
+  if (unavailable.value || !(await confirmOverwrite('确定重置代码？当前编辑内容将被模板替换。'))) return
   if (workspaceMode.value) {
-    notify('沙箱模式下请使用工作区的「重置沙箱」按钮', 'info')
+    notify('工作区模式下请使用「重置工作区」按钮', 'info')
     return
   }
   // 优先使用题目自带的代码模板
-  if (question.value.codeTemplate) {
+  if (question.value.codeTemplate && selectedLanguage.value === question.value.language) {
     userCode.value = normalizeNewlines(question.value.codeTemplate)
   } else {
     userCode.value = DEFAULT_TEMPLATES[selectedLanguage.value] || DEFAULT_TEMPLATES.javascript
   }
   runResult.value = null
   tcResults.value = []
-  notify('代码已重置', 'info')
-}
-
-const formatCode = () => {
-  const lines = userCode.value.split('\n')
-  const formatted = lines
-    .map((line) => line.replace(/\s+$/, ''))
-    .join('\n')
-    .replace(/\n{3,}/g, '\n\n')
-  userCode.value = formatted
-  notify('代码已格式化', 'success')
+  baselineCode.value = userCode.value
+  notify('代码已重置为临时模板，尚未保存', 'info')
 }
 
 const clearConsole = () => {
@@ -731,19 +807,22 @@ const clearConsole = () => {
   mistakeResult.value = null
 }
 
-/** Tab 键支持：插入两个空格而非切换焦点 */
-const handleKeydown = (e: KeyboardEvent) => {
-  if (e.key === 'Tab') {
-    e.preventDefault()
-    const el = codeAreaRef.value
-    if (!el) return
-    const start = el.selectionStart
-    const end = el.selectionEnd
-    userCode.value = userCode.value.substring(0, start) + '  ' + userCode.value.substring(end)
-    nextTick(() => {
-      el.selectionStart = el.selectionEnd = start + 2
-    })
+/** Tab/Shift+Tab 保留自然焦点导航；Ctrl+] 为明确的缩进快捷键。 */
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.isComposing || event.keyCode === 229) return
+  if (formatter.handleHistory(event)) return
+  if (event.shiftKey && event.altKey && !event.ctrlKey && !event.metaKey && (event.code === 'KeyF' || event.key.toLowerCase() === 'f')) {
+    event.preventDefault()
+    if (!formatting.value) void formatEditor('manual')
+    return
   }
+  if (event.key !== ']' || !event.ctrlKey) return
+  event.preventDefault()
+  const el = codeAreaRef.value
+  if (!el) return
+  const start = el.selectionStart
+  userCode.value = userCode.value.slice(0, start) + '  ' + userCode.value.slice(el.selectionEnd)
+  void nextTick(() => { el.selectionStart = el.selectionEnd = start + 2 })
 }
 
 /** 同步行号滚动 */
@@ -755,56 +834,17 @@ const syncScroll = (e: Event) => {
   }
 }
 
-/** 运行 JavaScript 代码（浏览器端实际执行） */
-const runJavaScript = (code: string): { output: string; error: string | null } => {
-  const logs: string[] = []
-  const originalLog = console.log
-  const originalError = console.error
-  const originalWarn = console.warn
-
-  console.log = (...args: unknown[]) => {
-    logs.push(args.map((a) => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' '))
-  }
-  console.error = (...args: unknown[]) => {
-    logs.push('[ERROR] ' + args.map((a) => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' '))
-  }
-  console.warn = (...args: unknown[]) => {
-    logs.push('[WARN] ' + args.map((a) => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' '))
-  }
-
-  try {
-    // eslint-disable-next-line no-new-func
-    const fn = new Function(code)
-    const result = fn()
-    if (result !== undefined) {
-      logs.push(String(result))
-    }
-    return { output: logs.join('\n') || '(无输出)', error: null }
-  } catch (e) {
-    return {
-      output: logs.join('\n'),
-      error: e instanceof Error ? e.message : String(e),
-    }
-  } finally {
-    console.log = originalLog
-    console.error = originalError
-    console.warn = originalWarn
-  }
-}
-
-/**
- * 运行代码：
- * - Python / Java / JavaScript / C++ → 调后端真实沙箱 /api/code/run
- * - SQL → 前端模拟执行器（sqlSimulator）
- * - TypeScript 等 → 浏览器端 JS 执行（TS 类型语法可能报错，属预期）
- */
+/** 只复用现有受控宿主接口或 SQL 示例解析器；不在应用进程执行代码。 */
 const runCode = async () => {
+  if (unavailable.value || !canRun.value) return
   if (!userCode.value.trim()) {
     notify('请先编写代码', 'warning')
     return
   }
   running.value = true
+  runResult.value = null
   activeTab.value = 'output'
+  section.value = 'result'
   const startTime = performance.now()
   const lang = selectedLanguage.value
 
@@ -820,7 +860,11 @@ const runCode = async () => {
         running.value = false
         return
       }
+      if (!(await formatter.beforeSave())) { notify('格式化未完成，本次未保存或运行，请检查代码或关闭保存前格式化', 'warning'); return }
       await codeWorkspaceApi.save({ path: activeWsFile.value, content: userCode.value })
+      baselineCode.value = userCode.value
+      const file = workspaceFiles.value.find(item => item.path === activeWsFile.value)
+      if (file) file.content = userCode.value
       const ext = (activeWsFile.value.split('.').pop() || '').toLowerCase()
       const langByExt: Record<string, string> = {
         py: 'python', js: 'javascript', ts: 'typescript', java: 'java',
@@ -837,8 +881,8 @@ const runCode = async () => {
       error = res.error || null
       status = res.status
     } else if (['python', 'java', 'javascript', 'cpp'].includes(lang)) {
-      // 真实沙箱：后端基于系统运行时执行（支持 stdin / 超时 / 编译错误）
-      const res = await codeRunApi.run({ language: lang, code: userCode.value })
+      // 可信开发宿主进程，非沙盒；服务端检查启用状态、身份和授权名单。
+      const res = await codeRunApi.run({ language: lang, code: userCode.value, stdin: stdin.value })
       output = res.output || ''
       error = res.error || null
       status = res.status
@@ -846,11 +890,9 @@ const runCode = async () => {
       const result = runSql(userCode.value)
       output = result.output
       error = result.error
+      status = result.error ? 'SIMULATION_ERROR' : 'SIMULATED'
     } else {
-      // TypeScript 等：浏览器端 JS 直执行
-      const result = runJavaScript(userCode.value)
-      output = result.output
-      error = result.error
+      throw new Error('当前语言未接入安全执行服务，可继续编辑和复制代码')
     }
 
     const elapsed = Math.round(performance.now() - startTime)
@@ -870,80 +912,13 @@ const runCode = async () => {
   }
 }
 
-/**
- * 提交答案：对所有测试用例执行用户代码并校验输出。
- * - JS/TS：浏览器端 new Function 执行，捕获 console 输出
- * - SQL：调用 sqlSimulator 执行每条用例的 input（用例 input 即为待执行的 SQL）
- * - 其他语言：标记为「暂不支持在线评测」
- * 校验完成后调用后端 /submit 接口记录统计。
- */
-const submitCode = async () => {
-  if (!userCode.value.trim()) {
-    notify('请先编写代码', 'warning')
-    return
-  }
-  if (testCases.value.length === 0) {
-    notify('该题目暂无测试用例，无法提交', 'warning')
-    return
-  }
-  submitting.value = true
-  activeTab.value = 'testcase'
-
-  await new Promise((r) => setTimeout(r, 200))
-
-  const results: { passed: boolean; actual: string }[] = []
-
-  for (const tc of testCases.value) {
-    if (selectedLanguage.value === 'javascript' || selectedLanguage.value === 'typescript') {
-      // 拼装代码：用户代码 + 测试用例的 input（input 可调用函数或为表达式）
-      // 简化策略：执行用户代码 + input，捕获 console 输出，与 expected 比对
-      const wrapped = `${userCode.value}\ntry { ${tc.input} } catch(e) { console.error(e.message); }`
-      const result = runJavaScript(wrapped)
-      const actual = result.output.trim()
-      const expected = (tc.expected || '').trim()
-      // 通过条件：实际输出与期望完全一致，或包含期望
-      const passed = !result.error && (actual === expected || Boolean(expected && actual.includes(expected)))
-      results.push({ passed, actual: result.error ? result.error : actual })
-    } else if (selectedLanguage.value === 'sql') {
-      // SQL 题目：用例的 input 即为要执行的 SQL；执行后比较 output
-      const result = runSql(tc.input || userCode.value)
-      const actual = result.output.trim()
-      const expected = (tc.expected || '').trim()
-      const passed = !result.error && (actual === expected || Boolean(expected && actual.includes(expected)))
-      results.push({ passed, actual: result.error ? result.error : actual })
-    } else {
-      results.push({ passed: false, actual: '(暂不支持该语言在线评测)' })
-    }
-  }
-  tcResults.value = results
-
-  const passed = results.filter((r) => r.passed).length
-  const total = results.length
-
-  // 上报到后端记录统计
-  try {
-    await codeQuestionApi.submit(Number(route.params.id), {
-      code: userCode.value,
-      language: selectedLanguage.value,
-      total,
-      passCount: passed,
-    })
-  } catch (e: unknown) {
-    // 上报失败不影响用户验证结果展示，仅提示
-    console.warn('提交统计上报失败：', getApiError(e))
-  }
-
-  if (passed === total) {
-    notify(`恭喜！全部 ${total} 个测试用例通过`, 'success')
-  } else {
-    notify(`${passed}/${total} 个测试用例通过，请继续努力`, 'warning')
-  }
-  submitting.value = false
-}
-
+// 旧 submit 接口只接收客户端统计，不是可信 Judge；本阶段不调用、不伪造通过记录。
 /** AI 回答：识别左侧题目，自动生成代码并填入编辑器 */
 const handleAiAnswer = async () => {
-  if (aiAnswering.value) return
+  if (unavailable.value || !aiCapability.aiAvailable) return
+  if (!(await allowDiscard())) return
+  const original = userCode.value
+  const request = questionRequest
   if (!question.value.title) {
     notify('题目尚未加载', 'warning')
     return
@@ -991,8 +966,9 @@ ${question.value.solutionHint ? '解题提示：' + question.value.solutionHint 
       code = code.replace(/^```[a-zA-Z]*\n?/, '').replace(/\n?```$/, '')
     }
 
+    if (request !== questionRequest || userCode.value !== original) { notify('编辑内容已改变，未覆盖当前草稿', 'info'); return }
     userCode.value = code.trim()
-    notify('AI 已生成代码并填入编辑器，点击「运行代码」查看结果', 'success')
+    notify('AI 代码已填入临时草稿，请检查后再使用', 'success')
   } catch (e: unknown) {
     notify('AI 回答失败：' + getApiError(e), 'error')
   } finally {
@@ -1000,14 +976,18 @@ ${question.value.solutionHint ? '解题提示：' + question.value.solutionHint 
   }
 }
 
-// ================= 工作区模式（SC1-IDE-02 可重置实验沙箱） =================
+// ================= 工作区模式（SC1-IDE-02 可信开发文件工作区） =================
 
-/** 切换沙箱/练习模式 */
+/** 切换工作区/练习模式 */
 const toggleWorkspace = async () => {
+  if (unavailable.value || !(await allowDiscard())) return
+  workspaceError.value = ''
   workspaceMode.value = !workspaceMode.value
   if (workspaceMode.value) {
     await loadWorkspace()
-    notify('已进入沙箱模式：文件持久保存在你的工作区，可随时「重置沙箱」', 'info')
+  } else {
+    selectedLanguage.value = previousLanguage.value = (question.value.language || 'javascript').toLowerCase()
+    userCode.value = baselineCode.value = normalizeNewlines(question.value.codeTemplate || DEFAULT_TEMPLATES[selectedLanguage.value] || '')
   }
 }
 
@@ -1015,16 +995,15 @@ const toggleWorkspace = async () => {
 const loadWorkspace = async () => {
   wsLoading.value = true
   try {
-    let files = await codeWorkspaceApi.list()
-    if (files.length === 0) {
-      await codeWorkspaceApi.save({ path: 'main.py', content: 'print("Hello from workspace!")\n' })
-      files = await codeWorkspaceApi.list()
-    }
+    const files = await codeWorkspaceApi.list()
     workspaceFiles.value = files
     const target = files.find((f) => f.path === activeWsFile.value) || files[0]
     if (target) await openWsFile(target.path)
+    else { activeWsFile.value = ''; userCode.value = baselineCode.value = '' }
   } catch (e: unknown) {
-    notify('加载工作区失败：' + getApiError(e), 'error')
+    workspaceError.value = '工作区不可用：' + getApiError(e)
+    workspaceMode.value = false
+    notify(workspaceError.value, 'error')
   } finally {
     wsLoading.value = false
   }
@@ -1032,15 +1011,31 @@ const loadWorkspace = async () => {
 
 /** 打开（切换）工作区文件，将内容载入编辑器 */
 const openWsFile = async (path: string) => {
+  if (running.value || saving.value || debugging.value || assessing.value || aiAnswering.value || aiAssisting.value) return
   const f = workspaceFiles.value.find((x) => x.path === path)
-  if (!f) return
+  if (!f || (dirty.value && !(await confirmDialog('切换文件将放弃未保存修改，确定继续？', {"title":"放弃未保存的修改？","confirmText":"放弃并离开","cancelText":"返回编辑","icon":"log-out","variant":"default"})))) return
   activeWsFile.value = path
-  userCode.value = normalizeNewlines(f.content || '')
+  userCode.value = baselineCode.value = normalizeNewlines(f.content || '')
   runResult.value = null
   tcResults.value = []
   const ext = (path.split('.').pop() || '').toLowerCase()
-  const map: Record<string, string> = { py: 'python', java: 'java', js: 'javascript', cpp: 'cpp' }
-  if (map[ext]) selectedLanguage.value = map[ext]
+  const map: Record<string, string> = { py: 'python', java: 'java', js: 'javascript', ts: 'typescript', cpp: 'cpp', cc: 'cpp', cxx: 'cpp', c: 'cpp', sql: 'sql', go: 'go', rs: 'rust' }
+  selectedLanguage.value = previousLanguage.value = map[ext] || 'text'
+}
+
+async function saveWorkspace() {
+  if (unavailable.value || !workspaceMode.value || !activeWsFile.value) return
+  saving.value = true
+  try {
+    if (!(await formatter.beforeSave())) { notify('格式化未完成，本次未保存，请检查代码或关闭保存前格式化', 'warning'); return }
+    const snapshot = userCode.value
+    await codeWorkspaceApi.save({ path: activeWsFile.value, content: snapshot })
+    baselineCode.value = snapshot
+    const file = workspaceFiles.value.find(item => item.path === activeWsFile.value)
+    if (file) file.content = snapshot
+    notify('工作区文件已保存', 'success')
+  } catch (e) { notify('保存失败，草稿仍保留：' + getApiError(e), 'error') }
+  finally { saving.value = false }
 }
 
 /** 新建工作区文件（弹窗输入文件名，按扩展名给起步模板） */
@@ -1071,31 +1066,33 @@ const createWsFilePrompt = async () => {
 
 /** 删除工作区文件 */
 const deleteWsFile = async (path: string) => {
-  if (!(await confirmDialog('确定删除文件 ' + path + ' ？'))) return
-  try {
-    await codeWorkspaceApi.remove(path)
-    if (activeWsFile.value === path) activeWsFile.value = ''
-    await loadWorkspace()
-    if (workspaceFiles.value.length) await openWsFile(workspaceFiles.value[0].path)
-    notify('已删除 ' + path, 'success')
-  } catch (e: unknown) {
-    notify('删除失败：' + getApiError(e), 'error')
-  }
+  await confirmDialog('确定删除文件 ' + path + ' ？', { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          try {
+              await codeWorkspaceApi.remove(path);
+              if (activeWsFile.value === path)
+                  activeWsFile.value = '';
+              await loadWorkspace();
+              if (workspaceFiles.value.length)
+                  await openWsFile(workspaceFiles.value[0].path);
+              notify('已删除 ' + path, 'success');
+          }
+          catch (e: unknown) {
+              notify('删除失败：' + getApiError(e), 'error');
+              throw e;
+          }
+      } });
 }
 
 /** 重置工作区：清空全部文件 */
 const resetWorkspace = async () => {
-  if (!(await confirmDialog('确定重置工作区？将清空你保存的全部文件（不可恢复）。'))) return
-  try {
-    await codeWorkspaceApi.reset()
-    workspaceFiles.value = []
-    activeWsFile.value = ''
-    userCode.value = ''
-    runResult.value = null
-    notify('工作区已重置', 'success')
-  } catch (e: unknown) {
-    notify('重置失败：' + getApiError(e), 'error')
-  }
+  await confirmDialog('确定重置工作区？将清空你保存的全部文件（不可恢复）。', {
+    title:'清空工作区？',confirmText:'确认清空',cancelText:'取消',icon:'trash-2',variant:'danger',
+    onConfirm:async()=>{
+      await codeWorkspaceApi.reset()
+      workspaceFiles.value=[];activeWsFile.value='';userCode.value='';runResult.value=null
+      notify('工作区已重置','success')
+    }
+  })
 }
 
 /** 工作区文件图标 */
@@ -1129,8 +1126,10 @@ const askAi = async () => {
 
 /** 统一调用后端 AI 助手 */
 const doAiAssist = async (error: string | null, output: string | null, question?: string) => {
+  if (unavailable.value || !aiCapability.aiAvailable) return
   aiAssisting.value = true
   activeTab.value = 'ai'
+  section.value = 'result'
   try {
     const res = await codeRunApi.aiAssist({
       language: selectedLanguage.value,
@@ -1157,12 +1156,15 @@ const goBack = () => {
 
 /** 调试运行：逐行追踪（Python）或错误行号定位（其他语言） */
 const debugCode = async () => {
+  if (unavailable.value || !canRun.value || selectedLanguage.value === 'sql') return
   if (!userCode.value.trim()) {
     notify('请先编写代码', 'warning')
     return
   }
   debugging.value = true
+  debugResult.value = null
   activeTab.value = 'debug'
+  section.value = 'result'
   try {
     const res = await codeRunApi.debug({ language: selectedLanguage.value, code: userCode.value })
     debugResult.value = res
@@ -1182,12 +1184,15 @@ const debugCode = async () => {
 
 /** 提交评估：动态评测 + 静态检查 + AI 报告（加权评分） */
 const assessCode = async () => {
+  if (unavailable.value || !canRun.value || selectedLanguage.value === 'sql') return
   if (!userCode.value.trim()) {
     notify('请先编写代码', 'warning')
     return
   }
   assessing.value = true
+  assessResult.value = null
   activeTab.value = 'assess'
+  section.value = 'result'
   try {
     const res = await codeRunApi.assess({
       questionId: question.value.id ?? null,
@@ -1207,6 +1212,7 @@ const assessCode = async () => {
 
 /** 将当前运行错误归集到错题本，并匹配关联知识库文档 */
 const collectMistake = async () => {
+  if (collectingMistake.value || unavailable.value) return
   if (!runResult.value || !runResult.value.error) {
     notify('当前没有运行错误可归集', 'info')
     return
@@ -1234,6 +1240,11 @@ const collectMistake = async () => {
 
 /** 从后端加载题目详情 */
 const loadQuestion = async () => {
+  const request = ++questionRequest
+  question.value = {} as CodeQuestionVO
+  runResult.value = null; debugResult.value = null; assessResult.value = null; aiAnswer.value = ''; workspaceMode.value = false
+  workspaceFiles.value = []; activeWsFile.value = ''; workspaceError.value = ''; testCases.value = []; tcResults.value = []
+  userCode.value = baselineCode.value = ''
   loading.value = true
   loadError.value = ''
   try {
@@ -1243,11 +1254,13 @@ const loadQuestion = async () => {
       return
     }
     const data = await codeQuestionApi.detail(id)
+    if (request !== questionRequest) return
     question.value = data
     // 设置语言：优先用题目主语言
-    selectedLanguage.value = (data.language || 'javascript').toLowerCase()
+    selectedLanguage.value = previousLanguage.value = (data.language || 'javascript').toLowerCase()
     // 设置初始代码：优先用题目模板
     userCode.value = normalizeNewlines(data.codeTemplate || DEFAULT_TEMPLATES[selectedLanguage.value] || DEFAULT_TEMPLATES.javascript)
+    baselineCode.value = userCode.value
     // 解析测试用例
     try {
       const parsed = data.testCases ? JSON.parse(data.testCases) : []
@@ -1256,9 +1269,9 @@ const loadQuestion = async () => {
       testCases.value = []
     }
   } catch (e: unknown) {
-    loadError.value = '加载题目失败：' + getApiError(e)
+    if (request === questionRequest) loadError.value = '加载题目失败：' + getApiError(e)
   } finally {
-    loading.value = false
+    if (request === questionRequest) loading.value = false
   }
 }
 
@@ -1277,8 +1290,8 @@ const handleResize = (e: MouseEvent) => {
   if (!container) return
   const rect = container.getBoundingClientRect()
   const leftWidth = ((e.clientX - rect.left) / rect.width) * 100
-  if (leftWidth > 20 && leftWidth < 80) {
-    container.style.gridTemplateColumns = `${leftWidth}% 6px 1fr`
+  if (window.innerWidth > 900 && leftWidth > 25 && leftWidth < 65) {
+    panelWidth.value = Math.round(leftWidth)
   }
 }
 
@@ -1289,28 +1302,49 @@ const stopResize = () => {
 }
 
 onMounted(() => {
-  loadQuestion()
+  void loadQuestion()
+  void aiCapability.refresh()
+  window.addEventListener('beforeunload', beforeUnload)
   document.addEventListener('mousemove', handleResize)
   document.addEventListener('mouseup', stopResize)
 })
 
+watch(() => route.params.id, () => { void loadQuestion() })
+
 onUnmounted(() => {
+  questionRequest++
+  stopResize()
+  window.removeEventListener('beforeunload', beforeUnload)
   document.removeEventListener('mousemove', handleResize)
   document.removeEventListener('mouseup', stopResize)
 })
 </script>
 
 <style scoped>
+.format-settings { position: relative; font-size: var(--kb-fs-body-sm); }
+.format-settings summary { cursor: pointer; color: var(--kb-primary); padding: var(--kb-space-2); border-radius: var(--kb-radius-sm); }
+.format-settings summary:focus-visible { outline: var(--kb-field-focus-width) solid var(--kb-ring); }
+.format-settings-panel { position: absolute; inset-inline-end: 0; top: 100%; z-index: 30; width: min(20rem, calc(100vw - var(--kb-space-8))); padding: var(--kb-space-4); display: grid; gap: var(--kb-space-3); background: var(--kb-popover); color: var(--kb-popover-foreground); border: var(--kb-studio-rule) solid var(--kb-border); border-radius: var(--kb-radius-md); box-shadow: var(--shadow-dropdown-2); }
+.format-settings-panel label { display: flex; align-items: center; gap: var(--kb-space-2); }
+.format-settings-panel input { accent-color: var(--kb-primary); }
+.format-settings-panel p { color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption); line-height: var(--kb-lh-body-sm); }
+.format-status { overflow-wrap: anywhere; }
+.editor-toolbar, .editor-actions { flex-wrap: wrap; gap: var(--kb-space-2); }
+.editor-toolbar { overflow: visible; }
+.editor-container { overflow: visible; }
+
 .playground-page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
+  min-width: 0;
+  color: var(--kb-foreground);
   background: var(--kb-background);
 }
 
 /* 统一键盘焦点环：等价于 focus-visible:ring-2 ring-[--kb-ring] ring-offset-2
  * 覆盖本页所有可交互元素（按钮 / 下拉 / 输入 / role=button 列表项） */
-.playground-page :is(button, select, textarea, [role='button']):focus-visible {
+.playground-page :is(button, select, textarea, [role='button']):focus-visible:not(.kb-form-control, .kb-input, .kb-textarea, .kb-select, .kb-select-trigger) {
   outline: 2px solid var(--kb-ring);
   outline-offset: 2px;
   border-radius: var(--kb-radius-sm);
@@ -1321,8 +1355,10 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 56px;
-  padding: 0 20px;
+  min-height: var(--kb-notes-rail-width);
+  padding: var(--kb-space-3) var(--kb-space-5);
+  flex-wrap: wrap;
+  gap: var(--kb-space-3);
   background: var(--kb-card);
   border-bottom: 1px solid var(--kb-border);
   flex-shrink: 0;
@@ -1376,24 +1412,26 @@ onUnmounted(() => {
   gap: 8px;
   flex-shrink: 0;
 }
-.lang-select {
+.lang-select:not(.kb-form-control) {
   height: 32px;
-  padding: 0 12px;
-  font-size: var(--kb-fs-body-sm);
   border-radius: var(--kb-radius-sm);
   border: 1px solid var(--kb-border);
   background: var(--kb-card);
-  color: var(--kb-foreground);
   outline: none;
-  cursor: pointer;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.lang-select:hover {
+.lang-select {
+  padding: 0 12px;
+  font-size: var(--kb-fs-body-sm);
+  color: var(--kb-foreground);
+  cursor: pointer;
+}
+.lang-select:not(.kb-form-control):hover {
   border-color: var(--kb-primary);
 }
-.lang-select:focus {
+.lang-select:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
-  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--kb-primary) 10%, transparent);
 }
 .header-btn {
   display: inline-flex;
@@ -1425,11 +1463,11 @@ onUnmounted(() => {
 /* AI 回答按钮（头部） */
 .ai-btn {
   border-color: var(--kb-primary);
-  background: rgba(59, 111, 224, 0.08);
+  background: color-mix(in srgb, var(--kb-primary) 8%, transparent);
   color: var(--kb-primary);
 }
 .ai-btn:hover:not(:disabled) {
-  background: rgba(59, 111, 224, 0.15);
+  background: color-mix(in srgb, var(--kb-primary) 15%, transparent);
 }
 .ai-btn:disabled {
   opacity: 0.6;
@@ -1448,7 +1486,8 @@ onUnmounted(() => {
 /* ===== 主体布局 ===== */
 .playground-body {
   display: grid;
-  grid-template-columns: 40% 6px 1fr;
+  grid-template-columns: minmax(0, 2fr) var(--kb-space-1) minmax(0, 3fr);
+  min-width: 0;
   flex: 1;
   min-height: 0;
 }
@@ -1466,6 +1505,8 @@ onUnmounted(() => {
 
 /* ===== 左侧题目面板 ===== */
 .problem-panel {
+  min-width: 0;
+  min-height: 0;
   overflow-y: auto;
   padding: 20px;
   background: var(--kb-card);
@@ -1491,7 +1532,7 @@ onUnmounted(() => {
   font-size: var(--kb-fs-body-md);
   line-height: 1.7;
   color: var(--kb-foreground);
-  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 .example-block {
   background: var(--kb-background);
@@ -1520,8 +1561,8 @@ onUnmounted(() => {
   word-break: break-word;
 }
 .hint-block {
-  background: rgba(245, 158, 11, 0.06);
-  border: 1px solid rgba(245, 158, 11, 0.15);
+  background: color-mix(in srgb, var(--kb-warning) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kb-warning) 15%, transparent);
   border-radius: var(--kb-radius-sm);
   padding: 12px;
   font-size: var(--kb-fs-body-sm);
@@ -1559,11 +1600,11 @@ onUnmounted(() => {
   border-radius: 4px;
 }
 .testcase-result.pass {
-  background: rgba(16, 185, 129, 0.1);
+  background: color-mix(in srgb, var(--kb-success) 10%, transparent);
   color: var(--kb-state-success);
 }
 .testcase-result.fail {
-  background: rgba(239, 68, 68, 0.1);
+  background: color-mix(in srgb, var(--kb-danger) 10%, transparent);
   color: var(--kb-state-error);
 }
 .testcase-body {
@@ -1718,7 +1759,8 @@ onUnmounted(() => {
   flex: 1;
   display: flex;
   overflow: hidden;
-  background: #1e1e2e;
+  background: var(--kb-background);
+  min-width: 0;
   position: relative;
 }
 .line-numbers {
@@ -1728,7 +1770,7 @@ onUnmounted(() => {
   font-family: var(--font-mono);
   font-size: var(--kb-fs-body-sm);
   line-height: 1.6;
-  color: #6c7086;
+  color: var(--kb-muted-foreground);
   text-align: right;
   user-select: none;
   overflow: hidden;
@@ -1736,7 +1778,7 @@ onUnmounted(() => {
   min-width: 40px;
 }
 .line-numbers span {
-  height: 20.8px;
+  line-height: 1.6;
 }
 .code-textarea {
   flex: 1;
@@ -1745,7 +1787,8 @@ onUnmounted(() => {
   font-size: var(--kb-fs-body-sm);
   line-height: 1.6;
   background: transparent;
-  color: #cdd6f4;
+  color: var(--kb-foreground);
+  min-width: 0;
   border: none;
   outline: none;
   resize: none;
@@ -1754,7 +1797,7 @@ onUnmounted(() => {
   tab-size: 2;
 }
 .code-textarea::placeholder {
-  color: #585b70;
+  color: var(--kb-muted-foreground);
 }
 
 /* 控制台 */
@@ -1812,7 +1855,7 @@ onUnmounted(() => {
 }
 .console-tab.active {
   color: var(--kb-primary);
-  background: rgba(59, 111, 224, 0.08);
+  background: color-mix(in srgb, var(--kb-primary) 8%, transparent);
 }
 .tab-badge {
   display: inline-flex;
@@ -1824,11 +1867,11 @@ onUnmounted(() => {
   font-variant-numeric: tabular-nums;
 }
 .tab-badge.pass {
-  background: rgba(16, 185, 129, 0.15);
+  background: color-mix(in srgb, var(--kb-success) 15%, transparent);
   color: var(--kb-state-success);
 }
 .tab-badge.fail {
-  background: rgba(239, 68, 68, 0.15);
+  background: color-mix(in srgb, var(--kb-danger) 15%, transparent);
   color: var(--kb-state-error);
 }
 .console-clear {
@@ -1907,7 +1950,7 @@ onUnmounted(() => {
   margin: 0;
 }
 .output-error {
-  background: rgba(239, 68, 68, 0.06);
+  background: color-mix(in srgb, var(--kb-danger) 6%, transparent);
   border-radius: var(--kb-radius-sm);
   padding: 12px;
   font-size: var(--kb-fs-caption);
@@ -1923,8 +1966,10 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 48px;
-  padding: 0 16px;
+  min-height: var(--kb-notes-rail-width);
+  padding: var(--kb-space-3) var(--kb-space-4);
+  flex-wrap: wrap;
+  gap: var(--kb-space-3);
   border-top: 1px solid var(--kb-border);
   background: var(--kb-card);
   flex-shrink: 0;
@@ -1988,13 +2033,13 @@ onUnmounted(() => {
 
 /* AI 回答按钮（底部） */
 .ai-foot-btn {
-  background: rgba(139, 92, 246, 0.08);
-  color: #8B5CF6;
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: color-mix(in srgb, var(--kb-primary) 8%, transparent);
+  color: var(--kb-primary);
+  border: 1px solid color-mix(in srgb, var(--kb-primary) 30%, transparent);
 }
 .ai-foot-btn:hover:not(:disabled) {
-  background: rgba(139, 92, 246, 0.15);
-  border-color: rgba(139, 92, 246, 0.5);
+  background: color-mix(in srgb, var(--kb-primary) 15%, transparent);
+  border-color: color-mix(in srgb, var(--kb-primary) 50%, transparent);
 }
 .footer-btn:disabled {
   opacity: 0.5;
@@ -2012,73 +2057,58 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 .diff-0 {
-  background: rgba(16, 185, 129, 0.1);
+  background: color-mix(in srgb, var(--kb-success) 10%, transparent);
   color: var(--kb-state-success);
 }
 .diff-1 {
-  background: rgba(245, 158, 11, 0.1);
+  background: color-mix(in srgb, var(--kb-warning) 10%, transparent);
   color: var(--kb-state-warning);
 }
 .diff-2 {
-  background: rgba(239, 68, 68, 0.1);
+  background: color-mix(in srgb, var(--kb-danger) 10%, transparent);
   color: var(--kb-state-error);
 }
 
-/* 响应式 */
-@media (max-width: 768px) {
-  .playground-body {
-    grid-template-columns: 1fr;
-    grid-template-rows: 40% 1fr;
-  }
-  .resizer {
-    display: none;
-  }
-  .problem-panel {
-    border-bottom: 1px solid var(--kb-border);
-    padding: 16px;
-  }
-  /* 小屏收窄内边距（等价 px-4 md:px-6），并让工具栏可横向滚动而不撑破布局 */
-  .playground-header {
-    padding: 0 16px;
-  }
-  .header-right {
-    gap: 8px;
-    min-width: 0;
-    flex-shrink: 1;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .header-right::-webkit-scrollbar {
-    display: none;
-  }
-  .header-right > * {
-    flex-shrink: 0;
-  }
-  .editor-footer {
-    padding: 0 12px;
-    gap: 8px;
-  }
-  .footer-right {
-    flex-wrap: nowrap;
-    min-width: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .footer-right::-webkit-scrollbar {
-    display: none;
-  }
-  .footer-btn {
-    flex-shrink: 0;
-  }
+/* 小屏仅显示一个工作分区；桌面保留题目与编辑/结果并排。 */
+.workspace-sections { display: none; }
+.capability-notice, .workspace-error, .editor-status { padding: var(--kb-space-2) var(--kb-space-4); font-size: var(--kb-fs-caption); line-height: var(--kb-lh-body-md); color: var(--kb-muted-foreground); border-bottom: 1px solid var(--kb-border); }
+.workspace-error { color: var(--kb-danger); }
+.editor-status { background: var(--kb-card); }
+.stdin-field { display: flex; align-items: center; gap: var(--kb-space-3); padding: var(--kb-space-2) var(--kb-space-4); font-size: var(--kb-fs-caption); border-top: 1px solid var(--kb-border); }
+.stdin-field textarea { min-width: 0; flex: 1; background: var(--kb-background); color: var(--kb-foreground); border: 1px solid var(--kb-border); border-radius: var(--kb-radius-sm); padding: var(--kb-space-2); }
+.problem-desc :deep(pre) { max-width: 100%; overflow: auto; }
+.problem-desc :deep(table) { display: block; max-width: 100%; overflow-x: auto; }
+.playground-page button, .playground-page select { min-height: var(--kb-btn-height-sm); }
+@media (max-width: 900px) {
+  .workspace-sections { display: flex; gap: var(--kb-space-2); padding: var(--kb-space-2) var(--kb-space-4); border-bottom: 1px solid var(--kb-border); }
+  .workspace-sections button { flex: 1; padding: var(--kb-space-2); border-radius: var(--kb-radius-sm); color: var(--kb-muted-foreground); }
+  .workspace-sections button[aria-pressed="true"] { color: var(--kb-primary); background: var(--kb-muted); }
+  .playground-body { display: flex; min-height: 0; }
+  .resizer { display: none; }
+  .problem-panel, .editor-panel { flex: 1; min-height: 0; }
+  [data-section="problem"] .editor-panel, [data-section="code"] .problem-panel, [data-section="result"] .problem-panel { display: none; }
+  [data-section="code"] .console-container { display: none; }
+  [data-section="result"] .editor-container, [data-section="result"] .stdin-field { display: none; }
+  [data-section="result"] .console-container { height: auto !important; flex: 1; }
+  .playground-header { padding: var(--kb-space-3) var(--kb-space-4); }
+  .header-left, .header-right { max-width: 100%; flex-wrap: wrap; }
+  .header-info { flex: 1; }
+  .header-title { white-space: normal; overflow-wrap: anywhere; }
+  .header-right { gap: var(--kb-space-2); }
+  .editor-footer { padding: var(--kb-space-3); }
+  .footer-left { width: 100%; }
+  .footer-right { justify-content: flex-start; gap: var(--kb-space-2); }
+  .footer-btn { padding: 0 var(--kb-space-2); }
 }
-/* ===== 沙箱模式切换按钮（头部） ===== */
+@media (prefers-reduced-motion: reduce) { .playground-page *, .playground-page *::before { animation: none !important; transition: none !important; } }
+/* ===== 工作区模式切换按钮（头部） ===== */
 .ws-toggle-btn {
   border-color: var(--kb-border);
   color: var(--kb-muted-foreground);
 }
 .ws-toggle-btn.active {
   border-color: var(--kb-primary);
-  background: rgba(59, 111, 224, 0.1);
+  background: color-mix(in srgb, var(--kb-primary) 10%, transparent);
   color: var(--kb-primary);
 }
 .ws-toggle-btn:hover:not(.active) {
@@ -2158,7 +2188,7 @@ onUnmounted(() => {
   transform: scale(0.99);
 }
 .ws-file-item.active {
-  background: rgba(59, 111, 224, 0.12);
+  background: color-mix(in srgb, var(--kb-primary) 12%, transparent);
   color: var(--kb-primary);
   font-weight: 500;
 }
@@ -2192,11 +2222,11 @@ onUnmounted(() => {
 }
 .ws-del:hover {
   color: var(--kb-state-error);
-  background: rgba(239, 68, 68, 0.1);
+  background: color-mix(in srgb, var(--kb-danger) 10%, transparent);
 }
 .ws-del:active {
   transform: scale(0.9);
-  background: rgba(239, 68, 68, 0.18);
+  background: color-mix(in srgb, var(--kb-danger) 18%, transparent);
 }
 .ws-empty {
   font-size: var(--kb-fs-caption);
@@ -2230,19 +2260,19 @@ onUnmounted(() => {
   font-size: var(--kb-fs-body-sm);
   font-weight: 500;
   border-radius: var(--kb-radius-sm);
-  border: 1px solid rgba(139, 92, 246, 0.4);
-  background: rgba(139, 92, 246, 0.1);
-  color: #8B5CF6;
+  border: 1px solid color-mix(in srgb, var(--kb-primary) 40%, transparent);
+  background: color-mix(in srgb, var(--kb-primary) 10%, transparent);
+  color: var(--kb-primary);
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 .ai-explain-btn:hover {
-  background: rgba(139, 92, 246, 0.18);
-  border-color: rgba(139, 92, 246, 0.6);
+  background: color-mix(in srgb, var(--kb-primary) 18%, transparent);
+  border-color: color-mix(in srgb, var(--kb-primary) 60%, transparent);
 }
 .ai-explain-btn:active {
   transform: scale(0.98);
-  background: rgba(139, 92, 246, 0.24);
+  background: color-mix(in srgb, var(--kb-primary) 24%, transparent);
 }
 .ai-output {
   flex: 1;
@@ -2272,8 +2302,8 @@ onUnmounted(() => {
   font-size: var(--kb-fs-caption);
   line-height: 1.6;
   color: var(--kb-state-warning);
-  background: rgba(245, 158, 11, 0.08);
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  background: color-mix(in srgb, var(--kb-warning) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kb-warning) 20%, transparent);
   border-radius: var(--kb-radius-sm);
 }
 .ai-unconfigured code {
@@ -2287,27 +2317,29 @@ onUnmounted(() => {
   border-top: 1px solid var(--kb-border);
   margin-top: 8px;
 }
+.ai-input:not(.kb-form-control) {
+  height: 40px;
+  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kb-border);
+  background: var(--kb-background);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
 .ai-input {
   flex: 1;
   min-width: 0;
-  height: 40px;
   resize: none;
   padding: 8px 12px;
   font-size: var(--kb-fs-body-sm);
   font-family: inherit;
-  border-radius: var(--kb-radius-sm);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-background);
   color: var(--kb-foreground);
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.ai-input:hover {
+.ai-input:not(.kb-form-control):hover {
   border-color: var(--kb-primary);
 }
-.ai-input:focus {
+.ai-input:not(.kb-form-control):focus {
   border-color: var(--kb-primary);
-  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--kb-primary) 10%, transparent);
 }
 .ai-ask-btn {
   display: inline-flex;
@@ -2347,15 +2379,15 @@ onUnmounted(() => {
   font-size: var(--kb-fs-xs);
   font-weight: 500;
   border-radius: var(--kb-radius-md);
-  border: 1px solid rgba(139, 92, 246, 0.4);
-  background: rgba(139, 92, 246, 0.1);
-  color: #8B5CF6;
+  border: 1px solid color-mix(in srgb, var(--kb-primary) 40%, transparent);
+  background: color-mix(in srgb, var(--kb-primary) 10%, transparent);
+  color: var(--kb-primary);
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 .output-ai-btn:hover:not(:disabled) {
-  background: rgba(139, 92, 246, 0.2);
+  background: color-mix(in srgb, var(--kb-primary) 20%, transparent);
 }
 .output-ai-btn:active:not(:disabled) {
   transform: scale(0.96);
@@ -2365,12 +2397,12 @@ onUnmounted(() => {
   cursor: not-allowed;
 }
 .output-ai-btn.mistake {
-  border-color: rgba(59, 111, 224, 0.4);
-  background: rgba(59, 111, 224, 0.1);
+  border-color: color-mix(in srgb, var(--kb-primary) 40%, transparent);
+  background: color-mix(in srgb, var(--kb-primary) 10%, transparent);
   color: var(--kb-primary);
 }
 .output-ai-btn.mistake:hover:not(:disabled) {
-  background: rgba(59, 111, 224, 0.2);
+  background: color-mix(in srgb, var(--kb-primary) 20%, transparent);
 }
 
 /* ===== SC1-AI-03 错题归集结果卡片 ===== */
@@ -2397,7 +2429,7 @@ onUnmounted(() => {
   font-weight: 500;
   padding: 2px 8px;
   border-radius: 8px;
-  background: rgba(239, 68, 68, 0.12);
+  background: color-mix(in srgb, var(--kb-danger) 12%, transparent);
   color: var(--kb-state-error);
 }
 .mistake-summary {
@@ -2491,7 +2523,7 @@ onUnmounted(() => {
   border-bottom: none;
 }
 .debug-step.debug-error-line {
-  background: rgba(239, 68, 68, 0.1);
+  background: color-mix(in srgb, var(--kb-danger) 10%, transparent);
 }
 .debug-line-no {
   flex-shrink: 0;
@@ -2527,12 +2559,12 @@ onUnmounted(() => {
   margin-bottom: 12px;
 }
 .assess-score.pass {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: color-mix(in srgb, var(--kb-success) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kb-success) 25%, transparent);
 }
 .assess-score.fail {
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.25);
+  background: color-mix(in srgb, var(--kb-warning) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kb-warning) 25%, transparent);
 }
 .assess-score-num {
   font-size: var(--kb-fs-h2);
@@ -2611,7 +2643,7 @@ onUnmounted(() => {
   gap: 6px;
   font-size: var(--kb-fs-body-sm);
   font-weight: 600;
-  color: #8B5CF6;
+  color: var(--kb-primary);
   margin-bottom: 6px;
 }
 .assess-ai-body {
@@ -2632,28 +2664,28 @@ onUnmounted(() => {
   font-size: var(--kb-fs-caption);
   line-height: 1.6;
   color: var(--kb-state-warning);
-  background: rgba(245, 158, 11, 0.08);
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  background: color-mix(in srgb, var(--kb-warning) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kb-warning) 20%, transparent);
   border-radius: var(--kb-radius-sm);
 }
 
 /* 底部调试 / 评估按钮 */
 .debug-foot-btn {
-  background: rgba(239, 68, 68, 0.06);
+  background: color-mix(in srgb, var(--kb-danger) 6%, transparent);
   color: var(--kb-state-error);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid color-mix(in srgb, var(--kb-danger) 30%, transparent);
 }
 .debug-foot-btn:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.14);
-  border-color: rgba(239, 68, 68, 0.5);
+  background: color-mix(in srgb, var(--kb-danger) 14%, transparent);
+  border-color: color-mix(in srgb, var(--kb-danger) 50%, transparent);
 }
 .assess-foot-btn {
-  background: rgba(16, 185, 129, 0.06);
+  background: color-mix(in srgb, var(--kb-success) 6%, transparent);
   color: var(--kb-state-success);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  border: 1px solid color-mix(in srgb, var(--kb-success) 30%, transparent);
 }
 .assess-foot-btn:hover:not(:disabled) {
-  background: rgba(16, 185, 129, 0.14);
-  border-color: rgba(16, 185, 129, 0.5);
+  background: color-mix(in srgb, var(--kb-success) 14%, transparent);
+  border-color: color-mix(in srgb, var(--kb-success) 50%, transparent);
 }
 </style>

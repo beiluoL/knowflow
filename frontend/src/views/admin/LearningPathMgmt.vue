@@ -48,7 +48,7 @@
       <div class="rounded-xl border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(245,158,11,0.08);">
-            <Icon name="edit" :size="20" style="color: #f59e0b;" />
+            <Icon name="edit" :size="20" style="color: var(--kb-warning);" />
           </div>
           <span class="text-sm" style="color: var(--kb-muted-foreground);">草稿</span>
         </div>
@@ -77,14 +77,14 @@
           <input
             v-model="searchQuery"
             placeholder="搜索路径标题或描述..."
-            class="w-full h-10 pl-10 pr-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-            style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+            class="w-full h-10 pl-10 pr-3 text-sm outline-none transition-colors kb-input kb-form-control"
+            style="color: var(--kb-foreground)"
           />
         </div>
         <select
           v-model="filterLevel"
-          class="h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-          style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+          class="h-10 px-3 text-sm outline-none transition-colors kb-select kb-form-control"
+          style="color: var(--kb-foreground)"
         >
           <option value="">全部难度</option>
           <option value="入门">入门</option>
@@ -93,8 +93,8 @@
         </select>
         <select
           v-model="filterStatus"
-          class="h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-          style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+          class="h-10 px-3 text-sm outline-none transition-colors kb-select kb-form-control"
+          style="color: var(--kb-foreground)"
         >
           <option value="">全部状态</option>
           <option value="1">已发布</option>
@@ -206,7 +206,7 @@
                 v-else
                 type="button"
                 class="p-1.5 rounded transition-colors hover:bg-[var(--kb-warning)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="color: #f59e0b;"
+                style="color: var(--kb-warning);"
                 title="下架"
                 @click="unpublishPath(path)"
               >
@@ -248,8 +248,8 @@
             <input
               v-model="pathForm.title"
               placeholder="例如：Java 全栈工程师学习路径"
-              class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-              style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+              class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
+              style="color: var(--kb-foreground)"
             />
           </div>
           <div>
@@ -258,8 +258,8 @@
               v-model="pathForm.description"
               rows="3"
               placeholder="简要描述本路径的学习目标、适用人群..."
-              class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 resize-y"
-              style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+              class="w-full px-3 py-2 text-sm outline-none transition-colors resize-y kb-textarea kb-form-control"
+              style="color: var(--kb-foreground)"
             ></textarea>
           </div>
           <div class="grid grid-cols-2 gap-4">
@@ -267,8 +267,8 @@
               <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">难度级别</label>
               <select
                 v-model="pathForm.level"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                class="w-full h-10 px-3 text-sm outline-none transition-colors kb-select kb-form-control"
+                style="color: var(--kb-foreground)"
               >
                 <option value="入门">入门</option>
                 <option value="进阶">进阶</option>
@@ -282,8 +282,8 @@
                 type="number"
                 min="0"
                 placeholder="0"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
+                style="color: var(--kb-foreground)"
               />
             </div>
           </div>
@@ -329,8 +329,8 @@
             <input
               v-model="aiForm.topic"
               placeholder="例如：Spring Boot 微服务开发"
-              class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-              style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+              class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
+              style="color: var(--kb-foreground)"
             />
           </div>
           <div>
@@ -339,16 +339,16 @@
               v-model="aiForm.description"
               rows="2"
               placeholder="可补充学习目标、重点内容、适用人群等（可选）"
-              class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 resize-y"
-              style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+              class="w-full px-3 py-2 text-sm outline-none transition-colors resize-y kb-textarea kb-form-control"
+              style="color: var(--kb-foreground)"
             ></textarea>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">参考知识库</label>
             <select
               v-model="aiForm.categoryId"
-              class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-              style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+              class="w-full h-10 px-3 text-sm outline-none transition-colors kb-select kb-form-control"
+              style="color: var(--kb-foreground)"
             >
               <option :value="undefined">全部知识库（不筛选）</option>
               <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
@@ -362,8 +362,8 @@
               <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">目标难度</label>
               <select
                 v-model="aiForm.level"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                class="w-full h-10 px-3 text-sm outline-none transition-colors kb-select kb-form-control"
+                style="color: var(--kb-foreground)"
               >
                 <option value="入门">入门</option>
                 <option value="进阶">进阶</option>
@@ -378,8 +378,8 @@
                 min="1"
                 max="15"
                 placeholder="5"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
+                style="color: var(--kb-foreground)"
               />
               <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">建议 3-10 章，过多会影响生成质量</p>
             </div>
@@ -524,8 +524,8 @@
             <input
               v-model="chapterForm.title"
               placeholder="例如：第一章 入门基础"
-              class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-              style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+              class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
+              style="color: var(--kb-foreground)"
             />
           </div>
           <div class="grid grid-cols-2 gap-4">
@@ -536,8 +536,8 @@
                 type="number"
                 min="1"
                 placeholder="30"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
+                style="color: var(--kb-foreground)"
               />
             </div>
             <div>
@@ -547,8 +547,8 @@
                 type="number"
                 min="0"
                 placeholder="1"
-                class="w-full h-10 px-3 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+                class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
+                style="color: var(--kb-foreground)"
               />
             </div>
           </div>
@@ -587,8 +587,8 @@
               <div class="flex items-center gap-2">
                 <select
                   v-model="docPickerCategoryId"
-                  class="flex-1 h-9 px-2 rounded text-xs border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                  style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
+                  class="flex-1 h-9 px-2 text-xs outline-none transition-colors kb-select kb-form-control"
+                  style="color: var(--kb-foreground)"
                   @change="loadPickerDocs"
                 >
                   <option :value="undefined">全部知识库</option>
@@ -599,8 +599,8 @@
                   <input
                     v-model="docPickerKeyword"
                     placeholder="搜索文档..."
-                    class="w-full h-9 pl-7 pr-2 rounded text-xs border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                    style="background: var(--kb-card); border-color: var(--kb-border); color: var(--kb-foreground);"
+                    class="w-full h-9 pl-7 pr-2 text-xs outline-none transition-colors kb-input kb-form-control"
+                    style="color: var(--kb-foreground)"
                   />
                 </div>
               </div>
@@ -817,14 +817,17 @@ const savePath = async () => {
 }
 
 const removePath = async (path: LearningPathVO) => {
-  if (!(await confirmDialog(`确定要删除路径「${path.title}」吗？该操作将连同其下章节一并删除。`))) return
-  try {
-    await adminApi.removeLearningPath(path.id)
-    notify('删除成功', 'success')
-    await loadPaths()
-  } catch (e: unknown) {
-    notify('删除失败：' + getApiError(e), 'error')
-  }
+  await confirmDialog(`确定要删除路径「${path.title}」吗？该操作将连同其下章节一并删除。`, { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          try {
+              await adminApi.removeLearningPath(path.id);
+              notify('删除成功', 'success');
+              await loadPaths();
+          }
+          catch (e: unknown) {
+              notify('删除失败：' + getApiError(e), 'error');
+              throw e;
+          }
+      } });
 }
 
 const publishPath = async (path: LearningPathVO) => {
@@ -1026,15 +1029,19 @@ const saveChapter = async () => {
 }
 
 const removeChapter = async (chapter: LearningChapterVO) => {
-  if (!(await confirmDialog(`确定要删除章节「${chapter.title}」吗？`))) return
-  try {
-    await adminApi.removeChapter(chapter.id)
-    notify('删除成功', 'success')
-    if (currentPath.value) await loadChapters(currentPath.value.id)
-    await loadPaths()
-  } catch (e: unknown) {
-    notify('删除失败：' + getApiError(e), 'error')
-  }
+  await confirmDialog(`确定要删除章节「${chapter.title}」吗？`, { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          try {
+              await adminApi.removeChapter(chapter.id);
+              notify('删除成功', 'success');
+              if (currentPath.value)
+                  await loadChapters(currentPath.value.id);
+              await loadPaths();
+          }
+          catch (e: unknown) {
+              notify('删除失败：' + getApiError(e), 'error');
+              throw e;
+          }
+      } });
 }
 
 // ===== AI 生成章节内容 =====
@@ -1093,7 +1100,7 @@ const batchGenerateFlashcards = async () => {
     notify('请先添加章节', 'warning')
     return
   }
-  if (!(await confirmDialog(`将为「${currentPath.value.title}」的全部章节批量生成闪卡，是否继续？`))) return
+  if (!(await confirmDialog(`将为「${currentPath.value.title}」的全部章节批量生成闪卡，是否继续？`, {"title":"生成新内容？","confirmText":"开始生成","cancelText":"取消","icon":"sparkles","variant":"default"}))) return
   batchGenerating.value = true
   try {
     notify('AI 正在批量生成闪卡，请稍候...', 'info', 5000)

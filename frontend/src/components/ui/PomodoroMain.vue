@@ -319,9 +319,9 @@ function handleSoundToggle() {
 }
 
 const MODES: { value: PomodoroMode; label: string; icon: string; color: string; softBg: string }[] = [
-  { value: 'focus', label: '专注', icon: 'target', color: '#EF4444', softBg: 'rgba(239,68,68,0.10)' },
-  { value: 'shortBreak', label: '短休', icon: 'coffee', color: '#10B981', softBg: 'rgba(16,185,129,0.10)' },
-  { value: 'longBreak', label: '长休', icon: 'coffee-2', color: '#3B6FE0', softBg: 'rgba(59,111,224,0.10)' },
+  { value: 'focus', label: '专注', icon: 'target', color: 'var(--kb-danger)', softBg: 'rgba(239,68,68,0.10)' },
+  { value: 'shortBreak', label: '短休', icon: 'coffee', color: 'var(--kb-success)', softBg: 'rgba(16,185,129,0.10)' },
+  { value: 'longBreak', label: '长休', icon: 'coffee-2', color: 'var(--kb-primary)', softBg: 'rgba(59,111,224,0.10)' },
 ];
 
 const currentModeIcon = computed(

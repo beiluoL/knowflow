@@ -20,6 +20,9 @@ public class LearningChapterVO {
     /** 章节正文内容 */
     private String content;
 
+    /** Owner-scoped inline source image aliases; original content/hash remains unchanged. */
+    private java.util.Map<String,String> inlineSourceImages;
+
     /** 排序序号（同一路径内升序） */
     private Integer sortOrder;
 
@@ -31,6 +34,14 @@ public class LearningChapterVO {
 
     /** 关联闪卡ID，逗号分隔 */
     private String flashcardIds;
+
+    /** 私有阅读位置，仅表示阅读过程。 */
+    private String readingAnchor;
+    private Long readingRevision;
+    private java.time.LocalDateTime readingSavedAt;
+    private Boolean readingPositionStale;
+    private String contentHash;
+    private String readingPresentationHash;
 
     /** 当前用户是否已完成该章节 */
     private Boolean completed;

@@ -1,0 +1,1320 @@
+{
+  "note": "v3 B2 批次种子：新增 SPRING 20 条、DB 17 条、CACHE 10 条，共 47 条已发布词条。释义、英文解释与例句均为本项目原创撰写，未复制 JavaGuide、AIGuide 或任何词典原文；事实按 MySQL 8.0、Redis 7、Spring Framework 6 与 Spring Boot 3 校对。音标未标注，避免未经核验的数据；发音由前端 TTS 降级。加载逻辑幂等，只新增缺失词条，不覆盖已有词条、收藏、复习或关联。",
+  "terms": [
+    {
+      "headword": "Bean Lifecycle",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "meaningCn": "Bean 生命周期",
+      "definitionCn": "Spring 容器管理单个 Bean 从实例化、属性填充、初始化到销毁的完整过程。实际开发中常通过 @PostConstruct、InitializingBean 与 @PreDestroy 在正确阶段执行资源准备与释放。",
+      "definitionEn": "The sequence of steps a Spring container performs for a bean, from instantiation and dependency injection through initialization to destruction.",
+      "wordBreakdown": [
+        {"word": "Bean", "meaningCn": "由 Spring 容器创建和管理的对象"},
+        {"word": "Lifecycle", "meaningCn": "生命周期"}
+      ],
+      "breakdownNote": "它指容器在固定扩展点上按序回调的整套流程，而不只是对象从创建到销毁的时间跨度。",
+      "interviewEn": "A Spring bean is instantiated, populated with dependencies, passed through aware callbacks and bean post-processors, initialized, and finally destroyed when the context closes.",
+      "exampleEn": "The @PostConstruct method opens the cache connections only after all dependencies have been injected.",
+      "exampleCn": "只有在依赖全部注入后，@PostConstruct 方法才会建立缓存连接。",
+      "aliases": ["Bean 生命周期"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation (The IoC Container)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Bean Lifecycle", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Bean Scope", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "Bean", "targetDomain": "SPRING", "relationType": "PREREQUISITE"}
+      ]
+    },
+    {
+      "headword": "Bean Scope",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "meaningCn": "Bean 作用域",
+      "definitionCn": "定义 Bean 实例在容器中的创建数量与共享范围，如 singleton、prototype、request 与 session。单例是默认值，原型作用域每次获取都新建实例，需要自行处理销毁。",
+      "definitionEn": "The rule that determines how many bean instances a container creates and how long they are shared, such as singleton, prototype, request, or session.",
+      "wordBreakdown": [
+        {"word": "Bean", "meaningCn": "由 Spring 容器管理的对象"},
+        {"word": "Scope", "meaningCn": "作用域、范围"}
+      ],
+      "breakdownNote": "它是一套由容器执行的作用域规则，涉及代理、生命周期回调与线程安全，而不是简单的共享开关。",
+      "interviewEn": "Singleton is the default scope and creates one shared instance per container, while prototype creates a new instance on every lookup and Spring does not manage its destruction.",
+      "exampleEn": "Marking the shopping cart as prototype prevents two users from sharing the same mutable instance.",
+      "exampleCn": "把购物车标记为原型作用域，可以避免两个用户共享同一个可变实例。",
+      "aliases": ["Bean 作用域"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation (The IoC Container)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Bean Scope", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Bean Lifecycle", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "Bean", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Application Context",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "className": "org.springframework.context.ApplicationContext",
+      "meaningCn": "应用上下文",
+      "definitionCn": "Spring 的核心容器接口，负责读取配置、实例化 Bean、完成依赖注入，并提供事件、国际化与资源加载等企业级能力。Boot 应用通常在启动时创建并持有该上下文。",
+      "definitionEn": "The central Spring container interface that loads configuration, creates and wires beans, and exposes events, message resolution, and resource loading.",
+      "wordBreakdown": [
+        {"word": "Application", "meaningCn": "应用"},
+        {"word": "Context", "meaningCn": "上下文、运行环境"}
+      ],
+      "breakdownNote": "它不只是保存 Bean 的集合，还统一承载事件发布、资源定位与生命周期管理。",
+      "interviewEn": "ApplicationContext extends BeanFactory and adds events, internationalization, resource access, and automatic registration of bean post-processors.",
+      "exampleEn": "The test loads a minimal application context with only the repository and service beans.",
+      "exampleCn": "该测试只加载包含仓储与服务 Bean 的最小应用上下文。",
+      "aliases": ["应用上下文"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation (The IoC Container)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Application Context", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Bean", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "IoC", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "DispatcherServlet",
+      "termType": "WORD",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "className": "org.springframework.web.servlet.DispatcherServlet",
+      "partOfSpeech": "noun",
+      "meaningCn": "前端控制器",
+      "definitionCn": "Spring MVC 的前端控制器，统一接收 HTTP 请求，依次委托处理器映射、处理器适配器与视图解析器完成分发和渲染。Spring Boot 会自动注册并默认映射到根路径。",
+      "definitionEn": "The front controller of Spring MVC that receives every HTTP request and delegates to handler mappings, adapters, and view resolvers.",
+      "interviewEn": "DispatcherServlet is the front controller in Spring MVC; it resolves a handler through HandlerMapping, invokes it through HandlerAdapter, and renders the result through ViewResolver.",
+      "exampleEn": "DispatcherServlet routed /orders/42 to the method annotated with @GetMapping in OrderController.",
+      "exampleCn": "DispatcherServlet 把 /orders/42 路由到 OrderController 中标注 @GetMapping 的方法。",
+      "aliases": ["前端控制器"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation (DispatcherServlet)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "DispatcherServlet", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "DispatcherServlet", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Handler Mapping", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "View Resolver", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "Spring Boot", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Handler Mapping",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "className": "org.springframework.web.servlet.HandlerMapping",
+      "meaningCn": "处理器映射",
+      "definitionCn": "Spring MVC 中把请求路径、方法与参数条件映射到具体处理器方法的组件。RequestMappingHandlerMapping 负责解析 @RequestMapping 系列注解，并支持路径变量与内容协商。",
+      "definitionEn": "A Spring MVC component that matches request attributes such as path, method, and headers to a concrete handler method.",
+      "wordBreakdown": [
+        {"word": "Handler", "meaningCn": "处理器"},
+        {"word": "Mapping", "meaningCn": "映射"}
+      ],
+      "breakdownNote": "它是一套按请求条件选择处理器的解析机制，输出的是处理器执行链，而不只是键值对照表。",
+      "exampleEn": "RequestMappingHandlerMapping matched the path variable before the controller method ran.",
+      "exampleCn": "RequestMappingHandlerMapping 在控制器方法执行前完成了路径变量匹配。",
+      "aliases": ["处理器映射"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation (DispatcherServlet)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Handler Mapping", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "DispatcherServlet", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "View Resolver", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "View Resolver",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "meaningCn": "视图解析器",
+      "definitionCn": "负责把控制器返回的逻辑视图名解析为实际视图对象的组件，例如 Thymeleaf 或 JSP 模板。REST 接口使用 @ResponseBody 时通常不会经过视图解析。",
+      "definitionEn": "A component that resolves a logical view name returned by a controller into a concrete view implementation.",
+      "wordBreakdown": [
+        {"word": "View", "meaningCn": "视图"},
+        {"word": "Resolver", "meaningCn": "解析器"}
+      ],
+      "breakdownNote": "它把逻辑名称解析为可渲染对象，并参与内容协商与模板选择，而不只是字符串替换。",
+      "exampleEn": "The Thymeleaf view resolver prefixed the template name with /templates/ before rendering.",
+      "exampleCn": "Thymeleaf 视图解析器在渲染前给模板名加上了 /templates/ 前缀。",
+      "aliases": ["视图解析器"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation (DispatcherServlet)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "View Resolver", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "DispatcherServlet", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "Handler Mapping", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Controller Advice",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "className": "org.springframework.web.bind.annotation.ControllerAdvice",
+      "meaningCn": "控制器全局增强",
+      "definitionCn": "Spring MVC 中作用于所有控制器的全局增强类，常用 @ExceptionHandler 统一异常响应，用 @ModelAttribute 或 @InitBinder 做公共预处理，需要注意作用范围与响应状态码。",
+      "definitionEn": "A Spring MVC component that applies cross-cutting behavior such as exception handling or model preparation to every controller.",
+      "wordBreakdown": [
+        {"word": "Controller", "meaningCn": "控制器"},
+        {"word": "Advice", "meaningCn": "增强、通知"}
+      ],
+      "breakdownNote": "Advice 在此指 AOP 意义上的横切增强，而不是普通建议，全局异常处理只是它的一种用法。",
+      "interviewEn": "A class annotated with @ControllerAdvice centralizes exception handling; a method annotated with @ExceptionHandler maps a specific exception type to an HTTP response.",
+      "exampleEn": "The @ControllerAdvice class converted every IllegalArgumentException into a 400 response.",
+      "exampleCn": "该 @ControllerAdvice 类把每个 IllegalArgumentException 统一转换为 400 响应。",
+      "aliases": ["全局异常处理", "控制器增强"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation (Controller Advice)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Controller Advice", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Advice", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "DispatcherServlet", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Data Binding",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "meaningCn": "数据绑定",
+      "definitionCn": "把 HTTP 请求参数、表单字段或路径变量转换为方法参数对象的过程，由 WebDataBinder 和转换器完成。类型不匹配会进入校验错误，需要 BindingResult 或全局异常处理接住。",
+      "definitionEn": "The process of converting request parameters, form fields, or path variables into method arguments using converters and a data binder.",
+      "wordBreakdown": [
+        {"word": "Data", "meaningCn": "数据"},
+        {"word": "Binding", "meaningCn": "绑定"}
+      ],
+      "breakdownNote": "绑定包含类型转换、格式化与校验错误收集，而不只是把字符串赋值给字段。",
+      "exampleEn": "Data binding failed because the request sent an empty string for a required Long field.",
+      "exampleCn": "由于请求给必填的 Long 字段传了空字符串，数据绑定失败。",
+      "aliases": ["数据绑定"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Data Binding", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Controller Advice", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Transaction Propagation",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "meaningCn": "事务传播",
+      "definitionCn": "定义事务方法被另一个事务方法调用时如何加入或新建事务，如 REQUIRED、REQUIRES_NEW 与 NESTED。传播行为配置错误会导致内层异常回滚外层，或独立事务被意外合并。",
+      "definitionEn": "The rule that decides whether a transactional method joins an existing transaction, starts a new one, or fails when no transaction exists.",
+      "wordBreakdown": [
+        {"word": "Transaction", "meaningCn": "事务"},
+        {"word": "Propagation", "meaningCn": "传播"}
+      ],
+      "breakdownNote": "传播行为描述的是事务边界的嵌套与复用规则，涉及回滚标记与连接绑定，而非异常在方法间的传递。",
+      "interviewEn": "With REQUIRED the inner method joins the caller's transaction, while REQUIRES_NEW suspends it and commits or rolls back independently.",
+      "exampleEn": "The audit writer uses REQUIRES_NEW so its insert survives even when the main order transaction rolls back.",
+      "exampleCn": "审计写入使用 REQUIRES_NEW，使主订单事务回滚时其插入记录仍能保留。",
+      "aliases": ["事务传播"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation (Transaction Management)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Transaction Propagation", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Transaction", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Declarative Transaction", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Declarative Transaction",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "className": "org.springframework.transaction.annotation.Transactional",
+      "meaningCn": "声明式事务",
+      "definitionCn": "通过注解或 XML 声明事务边界，而不是手写提交与回滚代码。Spring 用 @Transactional 配合 AOP 代理实现，需要注意自调用、非公共方法与异常类型导致事务不生效的场景。",
+      "definitionEn": "A style of transaction management that declares boundaries through annotations or XML metadata instead of explicit commit and rollback calls.",
+      "wordBreakdown": [
+        {"word": "Declarative", "meaningCn": "声明式的"},
+        {"word": "Transaction", "meaningCn": "事务"}
+      ],
+      "breakdownNote": "声明式事务依赖 AOP 代理织入提交与回滚，其生效范围受代理方式与调用路径限制，不等于简单加注解。",
+      "exampleEn": "Calling the transactional method from inside the same class bypassed the proxy and left the update uncommitted.",
+      "exampleCn": "在同一类内部调用事务方法绕过了代理，导致更新没有提交。",
+      "aliases": ["声明式事务"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation (Transaction Management)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Declarative Transaction", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Transaction", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Transaction Propagation", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "JDK Dynamic Proxy", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "JDK Dynamic Proxy",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "className": "java.lang.reflect.Proxy",
+      "meaningCn": "JDK 动态代理",
+      "definitionCn": "基于 java.lang.reflect.Proxy 在运行时为目标接口生成代理类的机制，Spring AOP 默认优先使用。要求目标对象实现接口，代理只能拦截接口中声明的方法。",
+      "definitionEn": "A runtime proxy mechanism built on java.lang.reflect.Proxy that implements target interfaces and can intercept interface method calls.",
+      "wordBreakdown": [
+        {"word": "JDK", "meaningCn": "Java 开发工具包"},
+        {"word": "Dynamic", "meaningCn": "动态的"},
+        {"word": "Proxy", "meaningCn": "代理"}
+      ],
+      "breakdownNote": "它要求基于接口生成代理，方法调用会被转发到 InvocationHandler，而不是直接执行目标方法。",
+      "interviewEn": "Spring AOP uses a JDK dynamic proxy when the target implements an interface, and falls back to CGLIB when it does not.",
+      "exampleEn": "Because OrderService implements an interface, Spring created a JDK dynamic proxy and applied the transaction advice.",
+      "exampleCn": "由于 OrderService 实现了接口，Spring 创建了 JDK 动态代理并应用了事务增强。",
+      "aliases": ["JDK 动态代理"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation (Proxying Mechanisms)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "JDK Dynamic Proxy", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "CGLIB Proxy", "targetDomain": "SPRING", "relationType": "CONTRAST"},
+        {"targetHeadword": "Declarative Transaction", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "CGLIB Proxy",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "className": "org.springframework.cglib.proxy.Enhancer",
+      "meaningCn": "CGLIB 代理",
+      "definitionCn": "通过字节码生成目标类子类的代理方式，可以代理没有接口的类，但无法拦截 final 方法与 private 方法。Spring Boot 默认把 proxyTargetClass 设为 true，因此更常使用它。",
+      "definitionEn": "A proxy created by generating a subclass of the target class, which allows proxying classes without interfaces but cannot override final methods.",
+      "wordBreakdown": [
+        {"word": "CGLIB", "meaningCn": "代码生成库（Code Generation Library）"},
+        {"word": "Proxy", "meaningCn": "代理"}
+      ],
+      "breakdownNote": "它通过继承生成子类并覆写方法，因此受 final、构造器与包可见性限制，不能等同于接口代理。",
+      "interviewEn": "CGLIB proxies subclass the target, so they work without interfaces but cannot intercept final methods or final classes.",
+      "exampleEn": "The final method on the repository was silently skipped because CGLIB proxies cannot override it.",
+      "exampleCn": "由于 CGLIB 代理无法覆写该方法，仓储上的 final 方法被静默跳过。",
+      "aliases": ["CGLIB 代理"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation (Proxying Mechanisms)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "CGLIB Proxy", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "JDK Dynamic Proxy", "targetDomain": "SPRING", "relationType": "CONTRAST"},
+        {"targetHeadword": "Declarative Transaction", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Pointcut",
+      "termType": "WORD",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "className": "org.aspectj.lang.Pointcut",
+      "partOfSpeech": "noun",
+      "meaningCn": "切点",
+      "definitionCn": "面向切面编程中用于匹配连接点的表达式，例如 execution(* com.example.service.*.*(..))。它决定增强在哪些方法上织入，但本身不执行任何业务逻辑。",
+      "definitionEn": "An expression in aspect-oriented programming that selects the join points where advice should be applied.",
+      "interviewEn": "A pointcut selects join points with an expression such as execution(* com.example.service.*.*(..)), and the advice runs only at the matched methods.",
+      "exampleEn": "The pointcut restricted logging advice to public service methods, excluding repositories.",
+      "exampleCn": "该切点把日志增强限制在公共服务方法上，排除了仓储层。",
+      "aliases": ["切点"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation (Aspect Oriented Programming)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Pointcut", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Pointcut", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Join Point", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "Advice", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Advice",
+      "termType": "WORD",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "className": "org.aopalliance.aop.Advice",
+      "partOfSpeech": "noun",
+      "meaningCn": "通知、增强",
+      "definitionCn": "切面在匹配到的连接点上执行的具体增强逻辑，分为前置、后置、环绕、异常与最终通知。环绕通知可以控制目标方法是否执行，并修改返回值或异常。",
+      "definitionEn": "The action taken by an aspect at a matched join point, such as before, after, around, or after-throwing behavior.",
+      "exampleEn": "The around advice measured the method duration and rethrew the original exception unchanged.",
+      "exampleCn": "环绕通知统计方法耗时，并原样重新抛出原始异常。",
+      "aliases": ["通知", "增强"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation (Aspect Oriented Programming)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Advice", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Advice", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Pointcut", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "Join Point", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "Weaving", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Join Point",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "className": "org.aspectj.lang.JoinPoint",
+      "meaningCn": "连接点",
+      "definitionCn": "程序执行过程中可以被增强的明确位置，如方法调用或异常抛出。Spring AOP 只支持方法执行连接点，字段访问与构造器调用不在其支持范围内。",
+      "definitionEn": "A well-defined point during program execution, such as a method call or exception handling, where advice can be applied.",
+      "wordBreakdown": [
+        {"word": "Join", "meaningCn": "连接"},
+        {"word": "Point", "meaningCn": "点"}
+      ],
+      "breakdownNote": "连接点是运行时执行流中的具体节点，需要与切点表达式匹配后才能被增强。",
+      "exampleEn": "The aspect read the target method name from the join point before delegating.",
+      "exampleCn": "切面在委托前从连接点读取了目标方法名。",
+      "aliases": ["连接点"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation (Aspect Oriented Programming)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Join Point", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Pointcut", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "Advice", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Weaving",
+      "termType": "WORD",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "织入",
+      "definitionCn": "把切面增强与目标代码关联起来生成代理或字节码的过程，可发生在编译期、类加载期或运行期。Spring AOP 默认在运行期通过代理完成织入。",
+      "definitionEn": "The process of linking aspects with target code to create proxies or bytecode, performed at compile time, load time, or runtime.",
+      "exampleEn": "Runtime weaving kept the build simple but added proxy creation during application startup.",
+      "exampleCn": "运行期织入让构建过程保持简单，但在应用启动时增加了代理创建开销。",
+      "aliases": ["织入"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation (AOP Concepts)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Weaving", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Weaving", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Advice", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "Pointcut", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Stereotype Annotation",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "className": "org.springframework.stereotype.Component",
+      "meaningCn": "构造型注解",
+      "definitionCn": "Spring 中用于标记组件角色的注解，如 @Component、@Service、@Repository 与 @Controller。它们都会被组件扫描发现，语义差异主要服务于分层表达与部分附加能力。",
+      "definitionEn": "A Spring annotation such as @Component, @Service, @Repository, or @Controller that marks a class as a container-managed component.",
+      "wordBreakdown": [
+        {"word": "Stereotype", "meaningCn": "类型化角色、构造型"},
+        {"word": "Annotation", "meaningCn": "注解"}
+      ],
+      "breakdownNote": "这里指按架构角色给组件分类的注解，扫描与实例化行为相同，差异在于语义与部分附加能力。",
+      "exampleEn": "The class was annotated with @Repository so component scanning picked it up and translated persistence exceptions.",
+      "exampleCn": "该类标注了 @Repository，组件扫描会发现它，并转换持久层异常。",
+      "aliases": ["构造型注解", "组件注解"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Framework 6 Reference Documentation (Classpath Scanning and Managed Components)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Stereotype Annotation", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Bean", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Auto-Configuration",
+      "termType": "WORD",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "className": "org.springframework.boot.autoconfigure.AutoConfiguration",
+      "partOfSpeech": "noun",
+      "meaningCn": "自动配置",
+      "definitionCn": "Spring Boot 根据类路径、已有 Bean 与配置属性自动装配组件的机制，由 @EnableAutoConfiguration 触发。条件注解让配置按需生效，用户自定义的 Bean 可以覆盖默认值。",
+      "definitionEn": "A Spring Boot mechanism that configures beans automatically based on the classpath, existing beans, and properties, guarded by conditional annotations.",
+      "interviewEn": "Spring Boot auto-configuration uses @Conditional annotations to register beans only when the required classes, properties, or missing beans match.",
+      "exampleEn": "Auto-configuration created a DataSource only because the H2 driver and JDBC starter were on the classpath.",
+      "exampleCn": "只有在类路径存在 H2 驱动和 JDBC starter 时，自动配置才创建了数据源。",
+      "aliases": ["自动配置"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Boot 3 Reference Documentation (Auto-configuration)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Auto-Configuration", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Auto-Configuration", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Starter Dependency", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "Spring Boot", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Starter Dependency",
+      "termType": "PHRASE",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "meaningCn": "起步依赖",
+      "definitionCn": "Spring Boot 的依赖聚合模块，把某类功能所需的库与自动配置打包成一个坐标，例如 spring-boot-starter-web。它统一版本管理，但不直接包含业务代码。",
+      "definitionEn": "A Spring Boot dependency bundle that groups the libraries and auto-configuration needed for a feature behind a single artifact.",
+      "wordBreakdown": [
+        {"word": "Starter", "meaningCn": "起步依赖、启动器"},
+        {"word": "Dependency", "meaningCn": "依赖"}
+      ],
+      "breakdownNote": "它通过传递依赖与自动配置共同提供可运行能力，版本对齐由父 BOM 统一完成，而不只是若干 jar 的集合。",
+      "interviewEn": "A starter like spring-boot-starter-data-jpa pulls in the driver, JPA API, and auto-configuration, so adding one dependency is usually enough.",
+      "exampleEn": "Adding spring-boot-starter-validation brought in Hibernate Validator and enabled method validation.",
+      "exampleCn": "引入 spring-boot-starter-validation 后，Hibernate Validator 与方法校验随即可用。",
+      "aliases": ["起步依赖", "启动器依赖"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Boot 3 Reference Documentation (Starters)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Starter Dependency", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Auto-Configuration", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "Spring Boot", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Actuator",
+      "termType": "WORD",
+      "domain": "SPRING",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "监控端点模块",
+      "definitionCn": "Spring Boot 的生产级监控扩展，通过 HTTP 或 JMX 暴露健康检查、指标、环境信息与日志级别等端点。端点需要显式开放，避免泄露敏感配置与内部状态。",
+      "definitionEn": "A Spring Boot module that exposes production-ready endpoints over HTTP or JMX for health, metrics, environment, and logging.",
+      "interviewEn": "Spring Boot Actuator exposes endpoints such as /actuator/health and /actuator/metrics, and most endpoints must be explicitly exposed for security.",
+      "exampleEn": "The /actuator/health endpoint reported DOWN after the database health indicator timed out.",
+      "exampleCn": "数据库健康指示器超时后，/actuator/health 端点报告了 DOWN。",
+      "aliases": ["监控端点", "Actuator 模块"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Spring Boot 3 Reference Documentation (Actuator)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Actuator", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Actuator", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Spring Boot", "targetDomain": "SPRING", "relationType": "RELATED"},
+        {"targetHeadword": "Auto-Configuration", "targetDomain": "SPRING", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "B+ Tree",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "meaningCn": "B+ 树",
+      "definitionCn": "一种多路平衡查找树，所有数据存放在叶子节点并以链表相连，适合范围查询与磁盘顺序读。InnoDB 的聚簇索引与二级索引都用 B+ 树组织。",
+      "definitionEn": "A balanced multi-way search tree that stores all records in linked leaf nodes, which favors range scans and sequential disk access.",
+      "wordBreakdown": [
+        {"word": "B+", "meaningCn": "B 树的变体标识，数据只存叶子节点"},
+        {"word": "Tree", "meaningCn": "树形索引结构"}
+      ],
+      "breakdownNote": "它不只是 B 树加一个加号，而是一种所有记录集中在叶子层、并用链表支持范围遍历的多路平衡树。",
+      "interviewEn": "InnoDB stores both the primary key and secondary index entries in B+ trees, and secondary index leaves point back to the primary key.",
+      "exampleEn": "The B+ tree leaf level made the range scan over order_id sequential instead of random.",
+      "exampleCn": "B+ 树的叶子层让 order_id 上的范围扫描变成顺序访问，而不是随机读。",
+      "aliases": ["B+ 树"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (InnoDB Indexes)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "B+ Tree", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Clustered Index", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Non-Clustered Index", "targetDomain": "DB", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Clustered Index",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "meaningCn": "聚簇索引",
+      "definitionCn": "决定表中数据行物理存储顺序的索引，叶子节点直接保存整行记录。InnoDB 每张表只能有一个聚簇索引，通常由主键承担，没有主键时使用隐藏行 ID。",
+      "definitionEn": "An index whose leaf nodes contain the full row data, so the table rows are physically ordered by the index key.",
+      "wordBreakdown": [
+        {"word": "Clustered", "meaningCn": "聚簇的、聚集的"},
+        {"word": "Index", "meaningCn": "索引"}
+      ],
+      "breakdownNote": "聚簇指数据行与索引键在物理上组织在一起，因此按主键查询可以直接拿到整行，而不只是索引项。",
+      "interviewEn": "A clustered index stores the entire row in its leaf nodes, so InnoDB can return a row from the primary key lookup without an extra table access.",
+      "exampleEn": "Because the primary key is the clustered index, selecting a row by id required no additional lookup.",
+      "exampleCn": "由于主键就是聚簇索引，按 id 查询一行不需要额外回表。",
+      "aliases": ["聚簇索引", "聚集索引"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (InnoDB Indexes)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Clustered Index", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Non-Clustered Index", "targetDomain": "DB", "relationType": "CONTRAST"},
+        {"targetHeadword": "Primary Key", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "B+ Tree", "targetDomain": "DB", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Non-Clustered Index",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "meaningCn": "非聚簇索引",
+      "definitionCn": "叶子节点只保存索引列与指向数据行的主键值，查询非索引列时需要回表。InnoDB 的二级索引都属于非聚簇索引，回表成本直接影响查询性能。",
+      "definitionEn": "An index whose leaf nodes store the indexed columns and a pointer to the row, requiring a lookup of the base table for other columns.",
+      "wordBreakdown": [
+        {"word": "Non-Clustered", "meaningCn": "非聚簇的"},
+        {"word": "Index", "meaningCn": "索引"}
+      ],
+      "breakdownNote": "它与数据行的物理顺序解耦，叶子节点保存的是索引键加主键值，因此读取其他列需要再次查找聚簇索引。",
+      "interviewEn": "A non-clustered index leaf holds the key plus the primary key value, so reading a non-indexed column needs an extra lookup in the clustered index.",
+      "exampleEn": "The query read the email column, forcing a table lookup from the non-clustered index.",
+      "exampleCn": "该查询读取 email 列，因此必须从非聚簇索引回表取数。",
+      "aliases": ["非聚簇索引", "二级索引"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (InnoDB Indexes)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Non-Clustered Index", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Clustered Index", "targetDomain": "DB", "relationType": "CONTRAST"},
+        {"targetHeadword": "Covering Index", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "B+ Tree", "targetDomain": "DB", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Covering Index",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "meaningCn": "覆盖索引",
+      "definitionCn": "查询所需的所有列都包含在索引中，无需回表即可返回结果。可以把常用查询列加入联合索引来实现，代价是索引体积与写入开销上升。",
+      "definitionEn": "An index that contains every column a query needs, allowing the database to answer the query without reading the base table.",
+      "wordBreakdown": [
+        {"word": "Covering", "meaningCn": "覆盖的"},
+        {"word": "Index", "meaningCn": "索引"}
+      ],
+      "breakdownNote": "覆盖指索引本身就能满足查询的列需求，从而省去回表，而不是索引覆盖了整张表的数据。",
+      "interviewEn": "A covering index answers the query entirely from the index, which removes the table lookup but increases index size and write cost.",
+      "exampleEn": "Adding status and created_at to the index made the dashboard query a covering index scan.",
+      "exampleCn": "把 status 与 created_at 加入索引后，仪表盘查询变成了覆盖索引扫描。",
+      "aliases": ["覆盖索引"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (InnoDB Indexes)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Covering Index", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Non-Clustered Index", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Composite Index", "targetDomain": "DB", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Composite Index",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "meaningCn": "联合索引",
+      "definitionCn": "由多个列按固定顺序组成的索引，遵循最左前缀原则。列顺序决定哪些查询条件能命中索引，顺序设计不当会让部分条件无法使用索引。",
+      "definitionEn": "An index built from multiple columns in a fixed order, usable by a query only when the leading columns of that order are constrained.",
+      "wordBreakdown": [
+        {"word": "Composite", "meaningCn": "复合的、组合的"},
+        {"word": "Index", "meaningCn": "索引"}
+      ],
+      "breakdownNote": "联合索引的可用性由列顺序与最左前缀共同决定，并非把所有相关列放进索引就一定能被命中。",
+      "interviewEn": "A composite index on (tenant_id, created_at) serves filters on tenant_id alone or both columns, but not created_at alone.",
+      "exampleEn": "The composite index on (tenant_id, status) served the tenant filter but not the status-only query.",
+      "exampleCn": "该联合索引包含 tenant_id 与 status，能支持租户过滤，却无法支持只按 status 的查询。",
+      "aliases": ["联合索引", "复合索引"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (Multiple-Column Indexes)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Composite Index", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Covering Index", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Index", "targetDomain": "DB", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Query Execution Plan",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "meaningCn": "查询执行计划",
+      "definitionCn": "数据库优化器为某条 SQL 选择的访问路径说明，包含索引使用、连接顺序与估算行数。通过 EXPLAIN 查看，是定位慢查询和验证索引是否生效的第一步。",
+      "definitionEn": "The access path chosen by the optimizer for a SQL statement, including index usage, join order, and estimated row counts.",
+      "wordBreakdown": [
+        {"word": "Query", "meaningCn": "查询"},
+        {"word": "Execution", "meaningCn": "执行"},
+        {"word": "Plan", "meaningCn": "计划"}
+      ],
+      "breakdownNote": "执行计划描述优化器实际选择的访问路径与代价估算，而不是用户书写的 SQL 字面结构。",
+      "interviewEn": "EXPLAIN shows the chosen access type, used indexes, and estimated rows, which tells you whether the optimizer will scan or seek.",
+      "exampleEn": "EXPLAIN revealed a full scan on the orders table despite an available index.",
+      "exampleCn": "EXPLAIN 显示 orders 表虽然有可用索引，优化器却选择了全表扫描。",
+      "aliases": ["执行计划"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (EXPLAIN Output Format)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Query Execution Plan", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Full Table Scan", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Slow Query Log", "targetDomain": "DB", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Full Table Scan",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "meaningCn": "全表扫描",
+      "definitionCn": "逐行读取整张表的访问方式，在无可用索引、过滤条件选择性低或表很小时可能优于索引扫描。大表上的全表扫描通常说明索引缺失、失效或选择性不足。",
+      "definitionEn": "An access method that reads every row of a table, chosen when no suitable index exists or when scanning is estimated to be cheaper.",
+      "wordBreakdown": [
+        {"word": "Full", "meaningCn": "完整的、全部的"},
+        {"word": "Table", "meaningCn": "表"},
+        {"word": "Scan", "meaningCn": "扫描"}
+      ],
+      "breakdownNote": "全表扫描是优化器基于代价做出的访问方式选择，并不必然代表 SQL 写错，也不总是性能问题。",
+      "exampleEn": "The function call on the indexed column caused a full table scan because the index could not be used.",
+      "exampleCn": "对索引列使用函数导致索引失效，查询退化为全表扫描。",
+      "aliases": ["全表扫描"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (EXPLAIN Output Format)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Full Table Scan", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Query Execution Plan", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Index", "targetDomain": "DB", "relationType": "CONTRAST"}
+      ]
+    },
+    {
+      "headword": "Slow Query Log",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "meaningCn": "慢查询日志",
+      "definitionCn": "MySQL 记录执行时间超过阈值的语句的日志，由 slow_query_log 与 long_query_time 控制。结合 EXPLAIN 与性能模式可以定位高开销查询及其执行细节。",
+      "definitionEn": "A MySQL log that records statements whose execution time exceeds a configured threshold, used to find expensive queries.",
+      "wordBreakdown": [
+        {"word": "Slow", "meaningCn": "慢的"},
+        {"word": "Query", "meaningCn": "查询"},
+        {"word": "Log", "meaningCn": "日志"}
+      ],
+      "breakdownNote": "它记录的是超过时间阈值的语句样本与统计，需要配合执行计划和索引分析才能得出优化结论。",
+      "exampleEn": "The slow query log captured the nightly report that scanned ten million rows.",
+      "exampleCn": "慢查询日志记录下了那个扫描千万行的夜间报表语句。",
+      "aliases": ["慢查询日志"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (The Slow Query Log)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Slow Query Log", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Query Execution Plan", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Full Table Scan", "targetDomain": "DB", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Dirty Read",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "meaningCn": "脏读",
+      "definitionCn": "一个事务读取到另一个事务尚未提交的修改，一旦对方回滚就会得到从未存在的数据。READ UNCOMMITTED 允许该现象，实际业务几乎不会使用这一级别。",
+      "definitionEn": "A read that sees uncommitted changes from another transaction, which may later be rolled back.",
+      "wordBreakdown": [
+        {"word": "Dirty", "meaningCn": "脏的、未提交的"},
+        {"word": "Read", "meaningCn": "读取"}
+      ],
+      "breakdownNote": "脏读的关键在于读到了未提交的数据，数据本身可能没有错，但事务一旦回滚就会失去依据。",
+      "interviewEn": "A dirty read sees another transaction's uncommitted data, so the value may never become committed and can disappear after a rollback.",
+      "exampleEn": "At READ UNCOMMITTED the report showed a discount that the pricing transaction later rolled back.",
+      "exampleCn": "在 READ UNCOMMITTED 下，报表看到了定价事务随后回滚掉的折扣。",
+      "aliases": ["脏读"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (InnoDB Transaction Isolation Levels)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Dirty Read", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Phantom Read", "targetDomain": "DB", "relationType": "CONTRAST"},
+        {"targetHeadword": "Non-Repeatable Read", "targetDomain": "DB", "relationType": "CONTRAST"},
+        {"targetHeadword": "Isolation Level", "targetDomain": "DB", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Phantom Read",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "meaningCn": "幻读",
+      "definitionCn": "同一事务内两次执行相同范围查询，第二次看到其他事务新插入并提交的行，像出现了幻影。InnoDB 在可重复读下用间隙锁与一致性读抑制当前读中的幻读。",
+      "definitionEn": "A repeatable range query returns additional rows because another transaction inserted and committed new rows between the two reads.",
+      "wordBreakdown": [
+        {"word": "Phantom", "meaningCn": "幻影"},
+        {"word": "Read", "meaningCn": "读取"}
+      ],
+      "breakdownNote": "幻读关注的是结果集行数变化，而不是同一行值的改变，因此单靠行锁无法完全阻止。",
+      "interviewEn": "A phantom read appears when a range query returns new rows committed by another transaction, which row locks alone cannot prevent.",
+      "exampleEn": "The second count included a row inserted by another session, producing a phantom read.",
+      "exampleCn": "第二次计数包含了另一会话插入的行，产生了幻读。",
+      "aliases": ["幻读"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (InnoDB Transaction Isolation Levels)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Phantom Read", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Dirty Read", "targetDomain": "DB", "relationType": "CONTRAST"},
+        {"targetHeadword": "Non-Repeatable Read", "targetDomain": "DB", "relationType": "CONTRAST"},
+        {"targetHeadword": "MVCC", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Isolation Level", "targetDomain": "DB", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Non-Repeatable Read",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "meaningCn": "不可重复读",
+      "definitionCn": "同一事务内两次读取同一行得到不同结果，因为其他事务在两次读取之间修改并提交了该行。REPEATABLE READ 通过一致性读避免这一现象。",
+      "definitionEn": "Reading the same row twice within one transaction yields different values because another transaction updated and committed it in between.",
+      "wordBreakdown": [
+        {"word": "Non-Repeatable", "meaningCn": "不可重复的"},
+        {"word": "Read", "meaningCn": "读取"}
+      ],
+      "breakdownNote": "它针对同一行的值发生变化，与幻读关注结果集新增行有本质区别，修复手段也不同。",
+      "interviewEn": "A non-repeatable read means the same row returns a different value on the second read, while a phantom read means the row set itself changes.",
+      "exampleEn": "The second read returned a higher balance because the transfer committed between the two selects.",
+      "exampleCn": "两次查询之间转账已提交，第二次读取返回了更高的余额。",
+      "aliases": ["不可重复读"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (InnoDB Transaction Isolation Levels)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Non-Repeatable Read", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Dirty Read", "targetDomain": "DB", "relationType": "CONTRAST"},
+        {"targetHeadword": "Phantom Read", "targetDomain": "DB", "relationType": "CONTRAST"},
+        {"targetHeadword": "Isolation Level", "targetDomain": "DB", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Lost Update",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "meaningCn": "丢失更新",
+      "definitionCn": "两个事务基于同一个旧值更新同一行，后提交者覆盖前者的修改，导致一次更新丢失。可以用乐观锁版本号、SELECT FOR UPDATE 或原子更新语句防止。",
+      "definitionEn": "Two transactions read the same value and both write back an update, so the later commit silently overwrites the earlier one.",
+      "wordBreakdown": [
+        {"word": "Lost", "meaningCn": "丢失的"},
+        {"word": "Update", "meaningCn": "更新"}
+      ],
+      "breakdownNote": "丢失更新不是数据库丢失了写入，而是业务语义上先提交的修改被后来的整行覆盖掉了。",
+      "exampleEn": "Two concurrent increment statements overwrote each other because both read the counter before either wrote.",
+      "exampleCn": "两条并发自增语句都先读取了计数器，导致彼此的写入被覆盖。",
+      "aliases": ["丢失更新"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (InnoDB Locking Reads)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Lost Update", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Isolation Level", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Transaction", "targetDomain": "DB", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Two-Phase Locking",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "meaningCn": "两阶段锁",
+      "definitionCn": "事务先进入加锁阶段获取所需锁，再进入解锁阶段释放锁，中间不允许交错。该协议保证冲突可串行化，但可能引入死锁并降低并发度。",
+      "definitionEn": "A locking protocol in which a transaction acquires all needed locks before releasing any, guaranteeing conflict serializability at the cost of possible deadlocks.",
+      "wordBreakdown": [
+        {"word": "Two-Phase", "meaningCn": "两阶段的"},
+        {"word": "Locking", "meaningCn": "加锁"}
+      ],
+      "breakdownNote": "它约束的是加锁与解锁的先后阶段，而不是把事务简单拆成两个执行步骤。",
+      "interviewEn": "Two-phase locking guarantees serializability because a transaction cannot release locks before acquiring all it needs, but it can cause deadlocks.",
+      "exampleEn": "Two-phase locking made the two transfers serializable but produced a deadlock under opposite lock order.",
+      "exampleCn": "两阶段锁让两笔转账具备可串行化，但在相反加锁顺序下引发了死锁。",
+      "aliases": ["两阶段锁", "两阶段锁定"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (InnoDB Locking)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Two-Phase Locking", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Deadlock", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Isolation Level", "targetDomain": "DB", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Isolation Level",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "meaningCn": "隔离级别",
+      "definitionCn": "事务隔离级别定义并发事务之间的可见性与相互影响程度，SQL 标准包含读未提交、读已提交、可重复读与串行化四级。级别越高一致性越强，并发性能越低。",
+      "definitionEn": "A setting that controls how much one transaction can observe the changes of concurrent transactions, from read uncommitted to serializable.",
+      "wordBreakdown": [
+        {"word": "Isolation", "meaningCn": "隔离"},
+        {"word": "Level", "meaningCn": "级别"}
+      ],
+      "breakdownNote": "隔离级别是一组并发异常与性能之间的权衡约定，不同数据库的默认级别与实现细节并不相同。",
+      "interviewEn": "MySQL InnoDB defaults to REPEATABLE READ, while many other databases default to READ COMMITTED, so phantom read behavior differs.",
+      "exampleEn": "Raising the isolation level to SERIALIZABLE removed the anomaly but sharply reduced throughput.",
+      "exampleCn": "把隔离级别提升到 SERIALIZABLE 消除了异常，却大幅降低了吞吐量。",
+      "aliases": ["隔离级别", "事务隔离级别"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (InnoDB Transaction Isolation Levels)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Isolation Level", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Isolation", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Dirty Read", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Phantom Read", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Non-Repeatable Read", "targetDomain": "DB", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Buffer Pool",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "meaningCn": "缓冲池",
+      "definitionCn": "InnoDB 在内存中缓存数据页与索引页的区域，读写先经过缓冲池以减少磁盘 IO。命中率、脏页比例与刷盘策略直接影响事务延迟与崩溃恢复时间。",
+      "definitionEn": "An InnoDB memory area that caches data and index pages so reads and writes avoid disk access, with dirty pages flushed in the background.",
+      "wordBreakdown": [
+        {"word": "Buffer", "meaningCn": "缓冲区"},
+        {"word": "Pool", "meaningCn": "池"}
+      ],
+      "breakdownNote": "它缓存的是按页组织的数据与索引，并参与脏页刷盘和崩溃恢复，而不是简单的查询结果缓存。",
+      "interviewEn": "The InnoDB buffer pool caches pages in memory; a small pool causes frequent disk reads, while too many dirty pages can stall checkpoints.",
+      "exampleEn": "The buffer pool hit ratio fell below ninety percent after the analytics job touched cold tables.",
+      "exampleCn": "分析任务访问冷表后，缓冲池命中率跌到九成以下。",
+      "aliases": ["缓冲池"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (InnoDB Buffer Pool)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Buffer Pool", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Redo Log", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Index", "targetDomain": "DB", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Binlog",
+      "termType": "WORD",
+      "domain": "DB",
+      "senseKey": "default",
+      "partOfSpeech": "noun",
+      "meaningCn": "二进制日志",
+      "definitionCn": "MySQL 服务层记录的二进制日志，按事件记录数据变更，用于主从复制与基于时间点的恢复。它与 InnoDB 的 redo log 不同，属于逻辑层面的变更记录。",
+      "definitionEn": "A server-layer binary log of data-changing events, used for replication and point-in-time recovery.",
+      "exampleEn": "The replica applied the binlog events and caught up with the primary within seconds.",
+      "exampleCn": "从库应用 binlog 事件后，在数秒内追上了主库。",
+      "aliases": ["二进制日志", "binlog"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (Binary Log)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Binlog", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"},
+        {"variant": "WORD_UK", "readingText": "Binlog", "locale": "en-GB", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Redo Log", "targetDomain": "DB", "relationType": "CONTRAST"},
+        {"targetHeadword": "Replication", "targetDomain": "DISTRIBUTED", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Write-Ahead Logging",
+      "termType": "PHRASE",
+      "domain": "DB",
+      "senseKey": "default",
+      "meaningCn": "预写日志",
+      "definitionCn": "修改数据页前先把变更写入日志并持久化，使崩溃后可以重放日志恢复数据。InnoDB 通过 redo log 实现 WAL，提交只需日志落盘而不必等待数据页落盘。",
+      "definitionEn": "A durability technique that writes changes to a log before the data pages, so recovery can replay committed changes after a crash.",
+      "wordBreakdown": [
+        {"word": "Write-Ahead", "meaningCn": "提前写入的"},
+        {"word": "Logging", "meaningCn": "日志记录"}
+      ],
+      "breakdownNote": "它是一套持久化与恢复协议，规定日志与数据页的写入顺序，而不只是把操作记录到某个日志文件。",
+      "exampleEn": "Write-ahead logging let InnoDB confirm the commit before the dirty page reached the tablespace.",
+      "exampleCn": "预写日志让 InnoDB 在脏页写入表空间前就确认了提交。",
+      "aliases": ["预写日志", "WAL"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "MySQL 8.0 Reference Manual (InnoDB Redo Log)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Write-Ahead Logging", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Redo Log", "targetDomain": "DB", "relationType": "RELATED"},
+        {"targetHeadword": "Buffer Pool", "targetDomain": "DB", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Cache Hit Ratio",
+      "termType": "PHRASE",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "meaningCn": "缓存命中率",
+      "definitionCn": "缓存命中次数占总请求次数的比例，是评估缓存有效性的核心指标。命中率过低通常意味着容量不足、键设计不合理或 TTL 过短，需要结合监控与业务访问模式调整。",
+      "definitionEn": "The share of cache lookups that return a value, used to judge whether the cache actually reduces backend load.",
+      "wordBreakdown": [
+        {"word": "Cache", "meaningCn": "缓存"},
+        {"word": "Hit", "meaningCn": "命中"},
+        {"word": "Ratio", "meaningCn": "比率"}
+      ],
+      "breakdownNote": "它是衡量缓存收益的统计比率，需要和请求量、回源成本一起看，单看百分比容易得出错误结论。",
+      "interviewEn": "A low cache hit ratio usually points to undersized capacity, poor key design, or overly short TTLs rather than a problem in Redis itself.",
+      "exampleEn": "The cache hit ratio dropped to forty percent after the key prefix changed during the release.",
+      "exampleCn": "发布时键前缀变化后，缓存命中率跌到四成。",
+      "aliases": ["缓存命中率"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Microsoft Azure Architecture Center (Caching guidance)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Cache Hit Ratio", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Cache Miss", "targetDomain": "CACHE", "relationType": "CONTRAST"},
+        {"targetHeadword": "Cache", "targetDomain": "CACHE", "relationType": "RELATED"},
+        {"targetHeadword": "TTL", "targetDomain": "CACHE", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Cache Miss",
+      "termType": "PHRASE",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "meaningCn": "缓存未命中",
+      "definitionCn": "请求的键在缓存中不存在或已经过期，需要回源到数据库并回填缓存。大量未命中会放大数据库压力，需要区分冷启动未命中与针对不存在键的异常穿透。",
+      "definitionEn": "A lookup that finds no valid entry in the cache, forcing the application to read the source of truth and repopulate the cache.",
+      "wordBreakdown": [
+        {"word": "Cache", "meaningCn": "缓存"},
+        {"word": "Miss", "meaningCn": "未命中"}
+      ],
+      "breakdownNote": "未命中本身是缓存的正常状态，只有持续、集中地未命中才会演变为穿透或击穿问题。",
+      "interviewEn": "A cache miss is normal; cache penetration is repeated misses for keys that do not exist even in the database.",
+      "exampleEn": "The first request after deployment was a cache miss and took three hundred milliseconds.",
+      "exampleCn": "发布后的第一个请求发生缓存未命中，耗时三百毫秒。",
+      "aliases": ["缓存未命中"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Microsoft Azure Architecture Center (Caching guidance)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Cache Miss", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Cache Hit Ratio", "targetDomain": "CACHE", "relationType": "CONTRAST"},
+        {"targetHeadword": "Cache Penetration", "targetDomain": "CACHE", "relationType": "CONFUSABLE"}
+      ]
+    },
+    {
+      "headword": "Cache Aside",
+      "termType": "PHRASE",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "meaningCn": "旁路缓存",
+      "definitionCn": "应用同时操作缓存与数据库的旁路模式：读时先查缓存、未命中再查库并回填，写时先更新数据库再删除缓存。实现简单，但要处理并发下短暂不一致与删除失败的问题。",
+      "definitionEn": "An application-managed caching pattern that reads through the cache and updates the database first, then invalidates the cache.",
+      "wordBreakdown": [
+        {"word": "Cache", "meaningCn": "缓存"},
+        {"word": "Aside", "meaningCn": "在一旁、旁路"}
+      ],
+      "breakdownNote": "旁路指缓存不在数据库的写入路径上，而是由应用显式协调，因此一致性责任落在业务代码。",
+      "interviewEn": "In cache aside the application updates the database first and then deletes the cache key; deleting instead of updating avoids most stale-write races.",
+      "exampleEn": "The service followed cache aside and deleted the product key after the database update committed.",
+      "exampleCn": "该服务采用旁路缓存，在数据库更新提交后删除商品键。",
+      "aliases": ["旁路缓存", "Cache-Aside"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Microsoft Azure Architecture Center (Cache-Aside pattern)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Cache Aside", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Write Through", "targetDomain": "CACHE", "relationType": "CONTRAST"},
+        {"targetHeadword": "Write Behind", "targetDomain": "CACHE", "relationType": "CONTRAST"},
+        {"targetHeadword": "Cache", "targetDomain": "CACHE", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Write Through",
+      "termType": "PHRASE",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "meaningCn": "写穿透",
+      "definitionCn": "写操作同时写入缓存与数据库，由缓存层保证两者同步完成后再返回结果。读命中率高且一致性较好，但每次写都有双份开销，适合写少读多且一致性要求高的场景。",
+      "definitionEn": "A write strategy that updates the cache and the database synchronously before the write is acknowledged.",
+      "wordBreakdown": [
+        {"word": "Write", "meaningCn": "写"},
+        {"word": "Through", "meaningCn": "穿过、经由"}
+      ],
+      "breakdownNote": "写穿透强调写请求必须穿过缓存同步到达数据库，因此返回成功时两边已经一致。",
+      "interviewEn": "Write through keeps cache and database in sync at the cost of write latency, while write behind acknowledges early and flushes asynchronously.",
+      "exampleEn": "Write through doubled the write latency but guaranteed that readers never saw an outdated price.",
+      "exampleCn": "写穿透让写延迟翻倍，但保证读取方不会看到过期价格。",
+      "aliases": ["写穿透", "Write-Through"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "AWS Database Caching Strategies Using Redis whitepaper",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Write Through", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Write Behind", "targetDomain": "CACHE", "relationType": "CONTRAST"},
+        {"targetHeadword": "Cache Aside", "targetDomain": "CACHE", "relationType": "CONTRAST"},
+        {"targetHeadword": "Cache", "targetDomain": "CACHE", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Write Behind",
+      "termType": "PHRASE",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "meaningCn": "写回",
+      "definitionCn": "写操作先更新缓存并立即返回，再由后台异步批量写回数据库。写吞吐高，但缓存故障时可能丢失尚未落库的数据，需要持久化与补偿机制兜底。",
+      "definitionEn": "A write strategy that updates the cache immediately and flushes changes to the database asynchronously in batches.",
+      "wordBreakdown": [
+        {"word": "Write", "meaningCn": "写"},
+        {"word": "Behind", "meaningCn": "在后面"}
+      ],
+      "breakdownNote": "写回把数据库写入推迟到缓存之后，用户看到的是缓存状态，因此必须接受异步落库带来的数据风险。",
+      "interviewEn": "Write behind returns as soon as the cache is updated and flushes to the database asynchronously, which improves write throughput but risks losing unflushed data.",
+      "exampleEn": "Write behind batched counter updates every second, so a cache crash could lose the last second of increments.",
+      "exampleCn": "写回策略每秒批量写入计数，因此缓存崩溃可能丢失最后一秒的增量。",
+      "aliases": ["写回", "Write-Behind"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "AWS Database Caching Strategies Using Redis whitepaper",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Write Behind", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Write Through", "targetDomain": "CACHE", "relationType": "CONTRAST"},
+        {"targetHeadword": "Cache Aside", "targetDomain": "CACHE", "relationType": "CONTRAST"},
+        {"targetHeadword": "Cache", "targetDomain": "CACHE", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Hot Key",
+      "termType": "PHRASE",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "meaningCn": "热键",
+      "definitionCn": "访问频率远高于其他键的单个键，会把流量集中在某一个缓存节点上。常用本地缓存、键拆分或读副本分散压力，并需防止热点过期瞬间击穿后端。",
+      "definitionEn": "A single cache key that receives disproportionately high traffic, concentrating load on one node or shard.",
+      "wordBreakdown": [
+        {"word": "Hot", "meaningCn": "热的、高频的"},
+        {"word": "Key", "meaningCn": "键"}
+      ],
+      "breakdownNote": "热键的危害来自流量集中而非数据量大小，因此即使键值很小也可能压垮单个分片。",
+      "interviewEn": "A hot key concentrates traffic on one Redis node, so local caching or key splitting is used to spread the read load.",
+      "exampleEn": "The flash-sale item id became a hot key and saturated one Redis shard.",
+      "exampleCn": "秒杀商品 id 成为热键，把单个 Redis 分片压满。",
+      "aliases": ["热键", "热点键"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Redis Documentation",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Hot Key", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Cache Stampede", "targetDomain": "CACHE", "relationType": "RELATED"},
+        {"targetHeadword": "Consistent Hashing", "targetDomain": "CACHE", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Cache Stampede",
+      "termType": "PHRASE",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "meaningCn": "缓存击穿",
+      "definitionCn": "热点键过期或失效的瞬间，大量并发请求同时未命中并一起回源，瞬间压垮数据库。常见于秒杀与首页热点数据，可以用互斥重建、逻辑过期或提前刷新来缓解。",
+      "definitionEn": "A burst of concurrent requests that all miss the same hot key at once and hit the backend together when it expires.",
+      "wordBreakdown": [
+        {"word": "Cache", "meaningCn": "缓存"},
+        {"word": "Stampede", "meaningCn": "蜂拥、踩踏"}
+      ],
+      "breakdownNote": "击穿针对单个热点键失效后的并发回源，与大量键同时失效的雪崩、查询不存在键的穿透是不同问题。",
+      "interviewEn": "A cache stampede happens when a hot key expires and many requests rebuild it simultaneously, which is mitigated with a mutex or logical expiration.",
+      "exampleEn": "The mutex around cache rebuilding prevented a stampede when the homepage key expired.",
+      "exampleCn": "缓存重建的互斥锁避免了首页键过期时发生击穿式并发回源。",
+      "aliases": ["缓存击穿"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Redis Documentation",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Cache Stampede", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Cache Avalanche", "targetDomain": "CACHE", "relationType": "CONFUSABLE"},
+        {"targetHeadword": "Cache Penetration", "targetDomain": "CACHE", "relationType": "CONFUSABLE"},
+        {"targetHeadword": "Hot Key", "targetDomain": "CACHE", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Bloom Filter",
+      "termType": "PHRASE",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "meaningCn": "布隆过滤器",
+      "definitionCn": "用位数组与多个哈希函数判断元素是否可能存在的概率结构，存在假阳性但没有假阴性。常放在缓存前拦截不存在的键，以缓解缓存穿透。",
+      "definitionEn": "A probabilistic data structure that can rule out membership but may return false positives, often placed before the cache to block nonexistent keys.",
+      "wordBreakdown": [
+        {"word": "Bloom", "meaningCn": "布隆（提出者姓氏）"},
+        {"word": "Filter", "meaningCn": "过滤器"}
+      ],
+      "breakdownNote": "它只保证“一定不存在”的否定判断可靠，判断存在时仍可能是假阳性，因此不能替代真实数据校验。",
+      "interviewEn": "A bloom filter may return a false positive but never a false negative, so it is used to reject nonexistent keys before hitting Redis or MySQL.",
+      "exampleEn": "The bloom filter rejected invalid order ids before any Redis lookup happened.",
+      "exampleCn": "布隆过滤器在任何 Redis 查询发生前就拒绝了非法订单号。",
+      "aliases": ["布隆过滤器"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Redis Stack Documentation (Probabilistic data structures)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Bloom Filter", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Cache Penetration", "targetDomain": "CACHE", "relationType": "RELATED"},
+        {"targetHeadword": "Redis", "targetDomain": "CACHE", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "AOF",
+      "termType": "ACRONYM",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "fullForm": "Append Only File",
+      "meaningCn": "追加日志持久化",
+      "definitionCn": "Redis 的追加日志持久化方式，把每条写命令追加到文件，重启时重放命令恢复数据。可选择每秒刷盘等策略，在性能与可能丢失的写入量之间取舍。",
+      "definitionEn": "A Redis persistence mode that appends every write command to a log file and replays it on restart to rebuild the dataset.",
+      "wordBreakdown": [
+        {"word": "Append", "meaningCn": "追加"},
+        {"word": "Only", "meaningCn": "仅、只"},
+        {"word": "File", "meaningCn": "文件"}
+      ],
+      "breakdownNote": "它是一套带重写与刷盘策略的持久化机制，记录的是命令流而非某一时刻的内存快照。",
+      "interviewEn": "AOF logs write commands and replays them on restart; with appendfsync everysec Redis can lose about one second of writes.",
+      "exampleEn": "With appendfsync everysec, the AOF rewrite kept the file compact without blocking the main thread.",
+      "exampleCn": "启用每秒刷盘后，AOF 重写在不阻塞主线程的情况下压缩了文件。",
+      "aliases": ["追加日志", "AOF 持久化"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Redis Documentation (Redis persistence)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "ABBR", "readingText": "A O F", "locale": "en-US", "readingMode": "LETTER_BY_LETTER", "verificationStatus": "VERIFIED"},
+        {"variant": "FULL_FORM", "readingText": "Append Only File", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Redis", "targetDomain": "CACHE", "relationType": "PART_OF"},
+        {"targetHeadword": "Cache", "targetDomain": "CACHE", "relationType": "RELATED"}
+      ]
+    },
+    {
+      "headword": "Distributed Lock",
+      "termType": "PHRASE",
+      "domain": "CACHE",
+      "senseKey": "default",
+      "meaningCn": "分布式锁",
+      "definitionCn": "在多个进程或节点之间保证同一资源互斥访问的锁，常用 Redis 的 SET NX PX 加唯一持有者值实现，释放时用 Lua 脚本校验后再删除。需要处理锁超时、续期与主节点切换风险。",
+      "definitionEn": "A lock that provides mutual exclusion for a shared resource across processes or nodes, commonly implemented with Redis and a unique owner token.",
+      "wordBreakdown": [
+        {"word": "Distributed", "meaningCn": "分布式的"},
+        {"word": "Lock", "meaningCn": "锁"}
+      ],
+      "breakdownNote": "它不仅是加锁调用，还涉及唯一持有者、超时续期与释放原子性等跨节点协调语义。",
+      "interviewEn": "A Redis distributed lock uses SET key value NX PX timeout and releases with a Lua script that compares the owner token before deleting.",
+      "exampleEn": "The job acquired a distributed lock with a thirty-second TTL so only one instance ran the settlement.",
+      "exampleCn": "该任务获取了三十秒 TTL 的分布式锁，确保只有一个实例执行结算。",
+      "aliases": ["分布式锁"],
+      "contentStatus": "PUBLISHED",
+      "referenceSource": "Redis Documentation (Distributed Locks with Redis)",
+      "licenseNote": "释义与例句为本项目原创撰写，未复制来源原文",
+      "pronunciations": [
+        {"variant": "WORD_US", "readingText": "Distributed Lock", "locale": "en-US", "readingMode": "SPOKEN_WORD", "verificationStatus": "VERIFIED"}
+      ],
+      "relations": [
+        {"targetHeadword": "Redis", "targetDomain": "CACHE", "relationType": "RELATED"}
+      ]
+    }
+  ]
+}

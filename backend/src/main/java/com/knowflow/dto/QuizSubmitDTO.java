@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 public class QuizSubmitDTO {
 
+    private String requestId;
     private List<Item> answers;
 
     @Data
@@ -19,6 +20,12 @@ public class QuizSubmitDTO {
 
         /** 用户答案：选择题为选项索引（"0" / "0,2"），判断题为 true/false，其余为文本 */
         private String userAnswer;
+
+        @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+        private String expectedContentHash;
+
+        @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+        private Long baselineAnswerRecordId;
 
         /** 答题耗时（秒），可选 */
         private Integer timeCost;

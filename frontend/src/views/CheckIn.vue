@@ -208,7 +208,8 @@ const doCheckin = async () => {
     }
     checkinExp.value = res.rewardExp
     user.value.streakDays = res.continuousDays
-    user.value.exp = Math.min(user.value.maxExp, user.value.exp + res.rewardExp)
+    // Architecture-2：移除前端乐观累加 exp（§12/§102）——XP 由后端 RewardEngine 经 CHECK_IN 事件入账，
+    // 刷新 /user/stats（读 wallet）后自然可见；前端禁止自己改 XP。
     // 将今日标记进本月打卡日历
     if (!monthCheckedDays.value.includes(now.getDate())) {
       monthCheckedDays.value = [...monthCheckedDays.value, now.getDate()]

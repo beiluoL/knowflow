@@ -8,7 +8,7 @@ export const codeQuestionApi = {
     apiGet<CodeQuestionVO[]>('/code-questions', params),
   /** 题目详情（仅已发布） */
   detail: (id: number) => apiGet<CodeQuestionVO>(`/code-questions/${id}`),
-  /** 提交答案：后端运行测试用例校验，并累计 submitCount/passCount */
+  /** 旧版记录接口：接收客户端统计并累计记录，不是可信服务端判题；工作台不以此上报通过结果。 */
   submit: (id: number, payload: { code: string; language: string; total?: number; passCount?: number }) =>
     apiPost<CodeSubmitResultVO>(`/code-questions/${id}/submit`, payload),
 }

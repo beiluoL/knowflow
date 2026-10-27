@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { authApi } from '@/api'
 import type { UserVO, LoginPayload, RegisterPayload } from '@/api/types'
+import { useOnboardingStore } from './onboarding'
 
 const TOKEN_KEY = 'token'
 const USER_KEY = 'user'
@@ -36,6 +37,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function register(payload: RegisterPayload) {
     const res = await authApi.register(payload)
+    useOnboardingStore().markNewUser(res.user.id)
     setSession(res.token, res.user)
     return res.user
   }

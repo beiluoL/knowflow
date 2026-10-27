@@ -1,15 +1,19 @@
 // 应用入口：挂载 Vue 应用、注册路由与 Pinia，并在启动时恢复登录态。
 import { createApp } from 'vue'
 import './style.css'
+import '@/styles/ui-tokens.css'
 import '@/assets/iconfont/iconfont.css'
 import App from './App.vue'
 import router from './router'
 import pinia from './stores'
 import { useAuthStore } from './stores/auth'
+import { installInputModality } from '@/utils/input-modality'
 import { initTheme } from './composables/useTheme'
 
 // P3-1：在挂载前同步应用主题，避免深色模式首屏闪烁（FOUC）
 initTheme()
+const stopInputModality=installInputModality()
+if(import.meta.hot)import.meta.hot.dispose(stopInputModality)
 
 const app = createApp(App)
 

@@ -1,0 +1,10 @@
+import java.util.*;
+public class RagMetricsRebuild {
+    public static void main(String[] args){
+        Set<String> relevant=Set.of("a","b");List<String> ranked=List.of("x","a","b");
+        long hits=ranked.stream().limit(3).filter(relevant::contains).count();double recall=(double)hits/relevant.size();double rr=0;
+        for(int i=0;i<ranked.size();i++)if(relevant.contains(ranked.get(i))){rr=1.0/(i+1);break;}
+        System.out.printf(Locale.ROOT,"recall@3=%.2f%nrr=%.2f%n",recall,rr);
+        System.out.println("answer correctness requires separate labels");
+    }
+}

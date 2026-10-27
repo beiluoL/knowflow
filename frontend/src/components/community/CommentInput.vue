@@ -14,7 +14,7 @@
         :maxlength="maxLength"
         :placeholder="placeholder"
         :disabled="submitting"
-        class="flex-1 px-3 py-2 rounded-lg border text-sm resize-none transition-colors focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
+        class="flex-1 px-3 py-2 text-sm resize-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed kb-textarea kb-form-control"
         :class="overLimit ? 'border-danger-400 focus:border-danger-500' : 'border-border hover:border-border focus:border-primary-400'"
         @keydown.ctrl.enter.prevent="handleSubmit"
         @keydown.meta.enter.prevent="handleSubmit"

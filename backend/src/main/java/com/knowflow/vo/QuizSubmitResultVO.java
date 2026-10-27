@@ -31,6 +31,9 @@ public class QuizSubmitResultVO {
     @Data
     public static class Item {
         private Long questionId;
+        private Long answerRecordId;
+        private Integer questionVersion;
+        private String contentHash;
 
         private String userAnswer;
 

@@ -136,10 +136,10 @@ public class DrawingServiceImpl implements DrawingService {
 
     private Drawing requireOwn(Drawing e, Long userId) {
         if (e == null) {
-            throw new BusinessException("绘图不存在");
+            throw new BusinessException(404, "绘图不存在");
         }
         if (!Objects.equals(e.getUserId(), userId)) {
-            throw new BusinessException("无权操作该记录");
+            throw new BusinessException(403, "无权操作该记录");
         }
         return e;
     }

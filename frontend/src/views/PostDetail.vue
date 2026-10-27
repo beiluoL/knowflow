@@ -1,19 +1,13 @@
 <template>
   <div class="space-y-6 animate-fade-in">
+    <!-- UI/UX 5.1 §十二：返回统一由 PageHeader 左侧承担（不再把「返回」当主行动塞进 #actions）。
+         §十四：动作区只保留真正的任务动作，导航不属于 Primary CTA。 -->
     <PageHeader
       :crumbs="[{ label: '社区讨论', to: '/community' }, { label: '帖子详情' }]"
       title="帖子详情"
-    >
-      <template #actions>
-        <button
-          @click="goBack"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground border border-border hover:bg-muted active:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-        >
-          <Icon name="chevron-left" :size="16" />
-          <span>返回</span>
-        </button>
-      </template>
-    </PageHeader>
+      back
+      back-label="返回社区"
+    />
 
     <SkeletonList v-if="loading" :rows="4" type="list" />
 
@@ -21,10 +15,11 @@
       v-else-if="!post"
       icon="message-square"
       title="帖子不存在或已删除"
+      description="它可能已被作者删除，或链接已经失效。可以回到社区列表继续浏览其他讨论。"
     >
         <button
           @click="goBack"
-          class="mt-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 active:bg-primary-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="pd-empty-back"
         >返回社区</button>
     </EmptyState>
 
@@ -136,7 +131,7 @@
 <script setup lang="ts">
 // 帖子详情页：从社区列表跳转而来，独立页面承载正文、点赞与评论，支持返回社区。
 import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SkeletonList from '@/components/ui/SkeletonList.vue'
@@ -146,10 +141,11 @@ import { communityApi } from '@/api/community'
 import type { PostVO } from '@/api/types'
 import { useAuthStore } from '@/stores/auth'
 import { notify } from '@/utils/toast'
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const route = useRoute()
-const router = useRouter()
 const authStore = useAuthStore()
+const nav = usePageNavigation()
 
 const post = ref<PostVO | null>(null)
 const loading = ref(true)
@@ -176,8 +172,7 @@ async function loadPost() {
 }
 
 function goBack() {
-  if (window.history.length > 1) router.back()
-  else router.push('/community')
+  nav.goBack('/community')
 }
 
 // ===== 点赞 =====
@@ -254,6 +249,30 @@ function formatViewCount(count?: number): string {
 </script>
 
 <style scoped>
+/* UI/UX 5.1 §十四/§十八：空态行动按钮走 --kb-* 令牌（原 text-white/bg-primary-500
+   是 Tailwind 原色板硬编码，深色模式会与设计系统分叉） */
+.pd-empty-back {
+  margin-top: 8px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: var(--kb-radius-sm);
+  background: var(--kb-primary);
+  color: var(--kb-primary-foreground);
+  font-size: var(--kb-fs-body-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.pd-empty-back:hover {
+  opacity: 0.9;
+}
+
+.pd-empty-back:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--kb-ring);
+}
+
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
 }

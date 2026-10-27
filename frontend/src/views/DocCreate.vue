@@ -25,7 +25,7 @@
                 v-model="form.title"
                 type="text"
                 placeholder="请输入文档标题..."
-                class="w-full h-10 px-3 rounded-lg text-sm border field-input"
+                class="w-full h-10 px-3 text-sm field-input kb-input kb-form-control"
               />
             </div>
 
@@ -73,7 +73,7 @@
                   v-model="tagInput"
                   type="text"
                   placeholder="输入标签后回车添加..."
-                  class="flex-1 min-w-[120px] h-6 text-sm outline-none border-none tag-text-input"
+                  class="flex-1 min-w-[120px] h-6 text-sm outline-none tag-text-input kb-input kb-form-control"
                   @keydown.enter.prevent="addTag"
                   @keydown.delete="popTag"
                 />
@@ -154,7 +154,7 @@
                 v-model="form.summary"
                 rows="3"
                 placeholder="简要描述文档内容..."
-                class="w-full h-20 px-3 py-2 rounded-lg text-sm border field-input resize-none"
+                class="w-full h-20 px-3 py-2 text-sm field-input resize-none kb-textarea kb-form-control"
               ></textarea>
             </div>
 
@@ -232,8 +232,10 @@ import {
   isImageFile,
 } from '@/utils/editorImage';
 import type { CategoryVO } from '@/api/types';
+import { usePageNavigation } from '@/composables/usePageNavigation'
 
 const router = useRouter();
+const nav = usePageNavigation()
 const submitting = ref(false);
 const isPreview = ref(false);
 const categories = ref<CategoryVO[]>([]);
@@ -436,7 +438,7 @@ function handleSaveDraft() {
 }
 
 function handleCancel() {
-  router.back();
+  nav.goBack();
 }
 
 // AI 写作入口（跳转智能写作页并携带当前标题）
@@ -524,18 +526,20 @@ onUnmounted(() => {
 .field-label {
   color: var(--kb-foreground);
 }
-.field-input {
+.field-input:not(.kb-form-control) {
   background: var(--kb-background);
   border-color: var(--kb-border);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-md);
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.field-input:hover {
+.field-input {
+  color: var(--kb-foreground);
+  font-size: var(--kb-fs-body-md);
+}
+.field-input:not(.kb-form-control):hover {
   border-color: var(--kb-primary);
 }
-.field-input:focus {
+.field-input:not(.kb-form-control):focus {
   border-color: var(--kb-ring);
   background: var(--kb-card);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
@@ -572,13 +576,12 @@ onUnmounted(() => {
 
 /* 标签输入 */
 .tags-input {
-  background: var(--kb-background);
-  border-color: var(--kb-border);
+  background: var(--kb-field-surface);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  border: 0;
 }
 .tags-input:focus-within {
-  border-color: var(--kb-ring);
-  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+  background: var(--kb-field-active);
 }
 .tag-chip {
   background: rgba(59, 111, 224, 0.08);
@@ -609,8 +612,10 @@ onUnmounted(() => {
   outline: 2px solid var(--kb-ring);
   outline-offset: 2px;
 }
-.tag-text-input {
+.tag-text-input:not(.kb-form-control) {
   background: transparent;
+}
+.tag-text-input {
   color: var(--kb-foreground);
   font-size: var(--kb-fs-body-md);
 }
@@ -653,8 +658,10 @@ onUnmounted(() => {
   outline: 2px solid var(--kb-ring);
   outline-offset: 2px;
 }
-.content-textarea {
+.content-textarea:not(.kb-form-control) {
   background: var(--kb-card);
+}
+.content-textarea {
   color: var(--kb-foreground);
   font-family: 'Noto Sans SC', 'Inter', ui-monospace, monospace;
   font-size: var(--kb-fs-body-md);
@@ -835,4 +842,8 @@ onUnmounted(() => {
   word-break: break-word;
   tab-size: 4;
 }
+</style>
+
+<style scoped>
+.tags-input:has(input:focus-visible){outline:0}.tags-input input.kb-form-control,.tags-input input.kb-form-control:focus,.tags-input input.kb-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
 </style>

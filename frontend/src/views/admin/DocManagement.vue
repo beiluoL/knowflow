@@ -75,7 +75,7 @@
       </div>
       <!-- 状态筛选（后端查询） -->
       <div class="filter-category">
-        <select v-model="selectedStatus" class="category-select focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @change="onFilterChange">
+        <select v-model="selectedStatus" class="category-select transition-colors kb-select kb-form-control" @change="onFilterChange">
           <option :value="undefined">全部状态</option>
           <option :value="0">草稿</option>
           <option :value="1">已发布</option>
@@ -97,7 +97,7 @@
       <div class="filter-right">
         <div class="sort-group">
           <span class="sort-label">排序:</span>
-          <select v-model="sortBy" class="sort-select focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+          <select v-model="sortBy" class="sort-select transition-colors kb-select kb-form-control">
             <option value="modified">修改时间</option>
             <option value="name">名称</option>
             <option value="size">大小</option>
@@ -109,7 +109,7 @@
             v-model="searchQuery"
             type="text"
             placeholder="搜索标题..."
-            class="search-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="search-input transition-colors kb-input kb-form-control"
             @keyup.enter="onFilterChange"
           />
           <button class="search-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="onFilterChange">搜索</button>
@@ -126,13 +126,10 @@
       </div>
       <!-- 表头 -->
       <div class="table-row table-head">
-        <label v-if="batchMode" class="checkbox-cell">
-            <input
-              type="checkbox"
+        <label v-if="batchMode" class="checkbox-cell kb-checkbox-row">
+            <Checkbox as="span"
               :checked="allChecked"
-              @change="toggleAll"
-              class="checkbox focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
-            />
+              @native-change="toggleAll" />
         </label>
         <div class="col-name">文件名</div>
         <div class="col-category">分类</div>
@@ -150,13 +147,10 @@
         :key="doc.id"
         class="table-row table-body"
       >
-        <label v-if="batchMode" class="checkbox-cell">
-          <input
-            type="checkbox"
+        <label v-if="batchMode" class="checkbox-cell kb-checkbox-row">
+          <Checkbox as="span"
             v-model="checkedIds"
-            :value="doc.id"
-            class="checkbox focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
-          />
+            :value="doc.id" />
         </label>
         <div class="col-name">
           <div class="file-name-cell">
@@ -212,13 +206,10 @@
         :class="{ 'card-checked': batchMode && checkedIds.includes(doc.id) }"
       >
         <div class="card-head">
-          <label v-if="batchMode" class="card-checkbox">
-            <input
-              type="checkbox"
+          <label v-if="batchMode" class="card-checkbox kb-checkbox-row">
+            <Checkbox as="span"
               v-model="checkedIds"
-              :value="doc.id"
-              class="checkbox focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
-            />
+              :value="doc.id" />
           </label>
           <div class="card-icon" :style="{ background: doc.iconBg || '' }">
             <Icon :name="doc.icon || ''" :size="20" :style="{ color: doc.iconColor || '' }" />
@@ -285,7 +276,7 @@
       </div>
       <div class="page-size">
         <span class="page-size-label">每页:</span>
-        <select v-model.number="pageSize" class="page-size-select focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+        <select v-model.number="pageSize" class="page-size-select transition-colors kb-select kb-form-control">
           <option :value="10">10</option>
           <option :value="20">20</option>
           <option :value="50">50</option>
@@ -374,6 +365,8 @@
 </template>
 
 <script setup lang="ts">
+import Checkbox from '@/components/ui/Checkbox.vue'
+
 // 管理后台-文档管理：文档列表/网格展示、知识库筛选、类型筛选、排序、分页、批量选择、编辑/删除/下载。
 import { confirmDialog, getApiError, notify } from '@/utils/toast'
 import { ref, computed, onMounted, watch } from 'vue'
@@ -446,23 +439,23 @@ const loading = ref(false)
 const iconOptions = ['file-text', 'file-code', 'book-open', 'pencil', 'code', 'brain', 'layout', 'database', 'server', 'lightbulb']
 
 const iconColors: Record<string, string> = {
-  'file-text': '#3B6FE0',
-  'file-code': '#10B981',
+  'file-text': 'var(--kb-primary)',
+  'file-code': 'var(--kb-success)',
   'book-open': '#8B5CF6',
-  'pencil': '#F59E0B',
-  'code': '#3B6FE0',
+  'pencil': 'var(--kb-warning)',
+  'code': 'var(--kb-primary)',
   'brain': '#8B5CF6',
   'layout': '#EC4899',
-  'database': '#F59E0B',
-  'server': '#10B981',
-  'lightbulb': '#F59E0B',
+  'database': 'var(--kb-warning)',
+  'server': 'var(--kb-success)',
+  'lightbulb': 'var(--kb-warning)',
 }
 
 /** 更多操作菜单 */
 const menuDoc = ref<DocRow | null>(null)
 
 /** 颜色池：用于分类徽标 */
-const categoryColors = ['#F59E0B', '#3B6FE0', '#10B981', '#EF4444', '#6B7280']
+const categoryColors = ['var(--kb-warning)', 'var(--kb-primary)', 'var(--kb-success)', 'var(--kb-danger)', 'var(--kb-muted-foreground)']
 
 /** 根据文档标题推断文件类型图标与颜色；若设置过自定义图标则优先使用 */
 const inferIcon = (title: string, customIcon?: string): { icon: string; bg: string; color: string } => {
@@ -470,7 +463,7 @@ const inferIcon = (title: string, customIcon?: string): { icon: string; bg: stri
   if (customIcon) {
     const { name, color } = resolveIconForRender(customIcon)
     if (name && getIconByKey(parseIconValue(customIcon).key)) {
-      const finalColor = color || '#6B7280'
+      const finalColor = color || 'var(--kb-muted-foreground)'
       return {
         icon: name,
         bg: hexToRgba(finalColor, 0.1),
@@ -479,20 +472,20 @@ const inferIcon = (title: string, customIcon?: string): { icon: string; bg: stri
     }
     // 2. 旧版系统图标名
     if (iconOptions.includes(customIcon)) {
-      const c = iconColors[customIcon] || '#6B7280'
+      const c = iconColors[customIcon] || 'var(--kb-muted-foreground)'
       return { icon: customIcon, bg: hexToRgba(c, 0.1), color: c }
     }
   }
   // 3. 根据标题推断
   const lower = title.toLowerCase()
   if (lower.endsWith('.pdf')) {
-    return { icon: 'file-text', bg: 'rgba(239,68,68,0.1)', color: '#EF4444' }
+    return { icon: 'file-text', bg: 'rgba(239,68,68,0.1)', color: 'var(--kb-danger)' }
   }
   if (lower.endsWith('.md')) {
-    return { icon: 'file-code', bg: 'rgba(59,111,224,0.08)', color: '#3B6FE0' }
+    return { icon: 'file-code', bg: 'rgba(59,111,224,0.08)', color: 'var(--kb-primary)' }
   }
   if (lower.endsWith('.docx') || lower.endsWith('.doc')) {
-    return { icon: 'file-text', bg: 'rgba(59,111,224,0.08)', color: '#3B6FE0' }
+    return { icon: 'file-text', bg: 'rgba(59,111,224,0.08)', color: 'var(--kb-primary)' }
   }
   // 笔记类
   return { icon: 'pencil', bg: 'var(--kb-muted)', color: 'var(--kb-muted-foreground)' }
@@ -597,16 +590,19 @@ const batchDelete = async () => {
     notify('请选择要删除的文档', 'warning')
     return
   }
-  if (!(await confirmDialog(`确定删除选中的 ${checkedIds.value.length} 个文档吗？此操作不可恢复。`))) return
-  try {
-    await adminApi.batchDeleteDocs(checkedIds.value)
-    notify(`已删除 ${checkedIds.value.length} 个文档`, 'success')
-    checkedIds.value = []
-    batchMode.value = false
-    await loadDocs()
-  } catch (e: unknown) {
-    notify('批量删除失败：' + getApiError(e), 'error')
-  }
+  await confirmDialog(`确定删除选中的 ${checkedIds.value.length} 个文档吗？此操作不可恢复。`, { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          try {
+              await adminApi.batchDeleteDocs(checkedIds.value);
+              notify(`已删除 ${checkedIds.value.length} 个文档`, 'success');
+              checkedIds.value = [];
+              batchMode.value = false;
+              await loadDocs();
+          }
+          catch (e: unknown) {
+              notify('批量删除失败：' + getApiError(e), 'error');
+              throw e;
+          }
+      } });
 }
 
 /** 打开批量移动弹窗 */
@@ -697,14 +693,17 @@ const publishDoc = async (doc: DocRow) => {
 }
 
 const deprecateDoc = async (doc: DocRow) => {
-  if (!(await confirmDialog(`确定废弃文档《${doc.title}》吗？`))) return
-  try {
-    await adminApi.deprecateDoc(doc.id)
-    notify('文档已废弃', 'success')
-    await loadDocs()
-  } catch (e: unknown) {
-    notify('操作失败：' + getApiError(e), 'error')
-  }
+  await confirmDialog(`确定废弃文档《${doc.title}》吗？`, { "title": "废弃文档？", "confirmText": "确认废弃", "cancelText": "取消", "icon": "alert-circle", "variant": "default", onConfirm: async () => {
+          try {
+              await adminApi.deprecateDoc(doc.id);
+              notify('文档已废弃', 'success');
+              await loadDocs();
+          }
+          catch (e: unknown) {
+              notify('操作失败：' + getApiError(e), 'error');
+              throw e;
+          }
+      } });
 }
 
 const draftDoc = async (doc: DocRow) => {
@@ -720,25 +719,28 @@ const draftDoc = async (doc: DocRow) => {
 /** 获取文档状态标签 */
 const statusLabel = (status?: number): { text: string; color: string } => {
   switch (status) {
-    case 1: return { text: '已发布', color: '#10B981' }
-    case 2: return { text: '已禁用', color: '#EF4444' }
-    case 3: return { text: '已废弃', color: '#6B7280' }
-    default: return { text: '草稿', color: '#F59E0B' }
+    case 1: return { text: '已发布', color: 'var(--kb-success)' }
+    case 2: return { text: '已禁用', color: 'var(--kb-danger)' }
+    case 3: return { text: '已废弃', color: 'var(--kb-muted-foreground)' }
+    default: return { text: '草稿', color: 'var(--kb-warning)' }
   }
 }
 
 const removeDoc = async (doc: DocRow) => {
-  if (!(await confirmDialog(`确定删除文档《${doc.title}》吗？此操作不可恢复。`))) return
-  try {
-    await adminApi.removeDoc(doc.id)
-    notify('删除成功', 'success')
-    if (pagedDocs.value.length === 1 && currentPage.value > 1) {
-      currentPage.value -= 1
-    }
-    await loadDocs()
-  } catch (e: unknown) {
-    notify('删除失败：' + getApiError(e), 'error')
-  }
+  await confirmDialog(`确定删除文档《${doc.title}》吗？此操作不可恢复。`, { "title": "确认删除", "confirmText": "确认删除", "cancelText": "取消", "icon": "trash-2", "variant": "danger", onConfirm: async () => {
+          try {
+              await adminApi.removeDoc(doc.id);
+              notify('删除成功', 'success');
+              if (pagedDocs.value.length === 1 && currentPage.value > 1) {
+                  currentPage.value -= 1;
+              }
+              await loadDocs();
+          }
+          catch (e: unknown) {
+              notify('删除失败：' + getApiError(e), 'error');
+              throw e;
+          }
+      } });
 }
 
 const shareDoc = (_doc: DocRow) => {
@@ -799,7 +801,7 @@ const loadDocs = async () => {
 
     const records = (docPage.records ?? []) as DocVO[]
     allDocs.value = records.map((d) => {
-      const cat = catMap.get(d.categoryId ?? -1) ?? { name: '未分类', color: '#6B7280' }
+      const cat = catMap.get(d.categoryId ?? -1) ?? { name: '未分类', color: 'var(--kb-muted-foreground)' }
       const iconInfo = inferIcon(d.title ?? '', d.icon)
       return {
         id: d.id,
@@ -877,6 +879,9 @@ onMounted(() => {
   padding: 24px 28px 40px;
   position: relative;
   animation: fadeIn 0.4s ease-out;
+
+  padding-inline: 0;
+  padding-top: 0;
 }
 
 @keyframes fadeIn {
@@ -989,21 +994,24 @@ onMounted(() => {
   align-items: center;
 }
 
-.category-select {
+.category-select:not(.kb-form-control) {
   height: 32px;
-  padding: 0 28px 0 10px;
   border-radius: 6px;
-  font-size: 13px;
   background: var(--kb-card);
-  color: var(--kb-foreground);
   border: 1px solid var(--kb-border);
   outline: none;
-  cursor: pointer;
   transition: border-color 0.15s;
+}
+
+.category-select {
+  padding: 0 28px 0 10px;
+  font-size: 13px;
+  color: var(--kb-foreground);
+  cursor: pointer;
   min-width: 140px;
 }
 
-.category-select:focus {
+.category-select:not(.kb-form-control):focus {
   border-color: var(--kb-ring);
 }
 
@@ -1052,15 +1060,18 @@ onMounted(() => {
   color: var(--kb-muted-foreground);
 }
 
-.sort-select {
+.sort-select:not(.kb-form-control) {
   height: 32px;
-  padding: 0 10px;
   border-radius: 6px;
-  font-size: 13px;
   background: var(--kb-card);
-  color: var(--kb-foreground);
   border: 1px solid var(--kb-border);
   outline: none;
+}
+
+.sort-select {
+  padding: 0 10px;
+  font-size: 13px;
+  color: var(--kb-foreground);
   cursor: pointer;
 }
 
@@ -1077,20 +1088,23 @@ onMounted(() => {
   pointer-events: none;
 }
 
-.search-input {
+.search-input:not(.kb-form-control) {
   height: 32px;
-  width: 160px;
-  padding: 0 12px 0 32px;
   border-radius: 6px;
-  font-size: 13px;
   background: var(--kb-background);
-  color: var(--kb-foreground);
   border: 1px solid var(--kb-border);
   outline: none;
   transition: border-color 0.15s;
 }
 
-.search-input:focus {
+.search-input {
+  width: 160px;
+  padding: 0 12px 0 32px;
+  font-size: 13px;
+  color: var(--kb-foreground);
+}
+
+.search-input:not(.kb-form-control):focus {
   border-color: var(--kb-ring);
 }
 
@@ -1513,15 +1527,18 @@ onMounted(() => {
   color: var(--kb-muted-foreground);
 }
 
-.page-size-select {
+.page-size-select:not(.kb-form-control) {
   height: 32px;
-  padding: 0 10px;
   border-radius: 6px;
-  font-size: 13px;
   background: var(--kb-card);
-  color: var(--kb-foreground);
   border: 1px solid var(--kb-border);
   outline: none;
+}
+
+.page-size-select {
+  padding: 0 10px;
+  font-size: 13px;
+  color: var(--kb-foreground);
   cursor: pointer;
 }
 
@@ -1780,7 +1797,7 @@ onMounted(() => {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  background: #EF4444;
+  background: var(--kb-danger);
   color: #fff;
   border: none;
   cursor: pointer;
