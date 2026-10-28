@@ -7,6 +7,8 @@ public final class JudgeStatus {
     }
 
     public static final String QUEUED = "QUEUED";
+    public static final String COMPILING = "COMPILING";
+    public static final String RUNNING = "RUNNING";
     public static final String ACCEPTED = "ACCEPTED";
     public static final String WRONG_ANSWER = "WRONG_ANSWER";
     public static final String COMPILE_ERROR = "COMPILE_ERROR";
