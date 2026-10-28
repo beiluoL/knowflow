@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class CodeBankController {
 
     private final CodeProblemService codeProblemService;
+    @org.springframework.beans.factory.annotation.Value("${knowflow.product.java-practice.enabled:false}")
+    private boolean javaPracticeEnabled;
 
     @Operation(summary = "知识点分类树")
     @GetMapping("/topics")
@@ -52,6 +54,8 @@ public class CodeBankController {
     @Operation(summary = "保存/更新代码草稿（与正式提交分离）")
     @PostMapping("/problems/{id}/draft")
     public Result<?> saveDraft(@PathVariable Long id, @RequestBody CodingVos.DraftRequest req) {
+        // 新工作台只允许带修订号的保存，旧入口不得绕过CAS或制造无历史写入。
+        if (javaPracticeEnabled) throw new com.knowflow.exception.BusinessException(409,"请使用Java工作台的版本化保存接口");
         codeProblemService.saveDraft(SecurityUtils.getCurrentUserId(), id, req);
         return Result.success(java.util.Map.of("saved", true));
     }

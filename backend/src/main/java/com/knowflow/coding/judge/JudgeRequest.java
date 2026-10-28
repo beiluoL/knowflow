@@ -13,7 +13,14 @@ public record JudgeRequest(
         String sourceCode,
         boolean submitAll,
         CodeProblem problem,
-        List<CodeTestCase> cases) {
+        List<CodeTestCase> cases,
+        String requestId) {
+
+    /** 兼容原考试入口；工作台显式传入冻结任务编号供Runner去重。 */
+    public JudgeRequest(Long userId, Long questionId, String language, String sourceCode, boolean submitAll,
+                        CodeProblem problem, List<CodeTestCase> cases) {
+        this(userId, questionId, language, sourceCode, submitAll, problem, cases, null);
+    }
 
     public List<CodeTestCase> effectiveCases() {
         if (submitAll) {

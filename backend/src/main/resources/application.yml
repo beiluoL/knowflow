@@ -40,6 +40,10 @@ spring:
 # config-file 指定的外置文件，其优先级高于此处的 type。
 # ============================================================
 knowflow:
+  # F11默认关闭；开启工作台不等于授予宿主代码执行权限。
+  product:
+    java-practice:
+      enabled: ${KNOWFLOW_PRODUCT_JAVA_PRACTICE_ENABLED:false}
   # 默认关闭；仅 local 配置显式开启的本机浏览器开发工具认证。
   developer-tools:
     enabled: false

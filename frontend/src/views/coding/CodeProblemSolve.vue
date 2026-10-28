@@ -1,5 +1,6 @@
 <template>
-  <div class="code-solve min-h-screen flex flex-col bg-gray-50">
+  <JavaPracticeWorkspace v-if="javaWorkspace" :key="String(route.params.id)" :problem-id="Number(route.params.id)" />
+  <div v-else class="code-solve min-h-screen flex flex-col bg-gray-50">
     <!-- 顶栏 -->
     <header class="h-14 bg-white border-b border-border flex items-center px-4 gap-3 shrink-0">
       <button
@@ -455,6 +456,8 @@
 </template>
 
 <script setup lang="ts">
+import JavaPracticeWorkspace from './JavaPracticeWorkspace.vue'
+const javaWorkspace = import.meta.env.VITE_PRODUCT_JAVA_PRACTICE === 'true'
 import Checkbox from '@/components/ui/Checkbox.vue'
 
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
@@ -807,6 +810,7 @@ function beforeUnload() {
 }
 
 onMounted(() => {
+  if (javaWorkspace) return
   load()
   window.addEventListener('mousemove', onDragMove)
   window.addEventListener('mouseup', endDrag)

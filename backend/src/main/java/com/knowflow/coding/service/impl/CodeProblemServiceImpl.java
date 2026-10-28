@@ -67,6 +67,19 @@ public class CodeProblemServiceImpl implements CodeProblemService {
     private final CodeDraftMapper draftMapper;
     private final QuestionTopicMapper topicMapper;
     private final CodeJudgeGateway judgeGateway;
+    @org.springframework.beans.factory.annotation.Value("${knowflow.product.java-practice.enabled:false}")
+    private boolean javaPracticeEnabled;
+    private final com.knowflow.learning.actions.PersonalLearningResourceScope personalScope;
+    private final com.knowflow.mapper.DocDocumentMapper sourceDocuments;
+
+    /** 所有用户入口共享个人学习资格；ADMIN管理权限不能用来旁路私人来源。 */
+    private QuizQuestion requirePersonalQuestion(Long questionId, Long userId) {
+        QuizQuestion q = requireVisibleQuestion(questionId);
+        if (javaPracticeEnabled && (!personalScope.category(q.getCategoryId(), userId)
+                || (q.getDocId()!=null && !personalScope.document(sourceDocuments.selectById(q.getDocId()), userId))))
+            throw new BusinessException(404,"算法题不存在或无权访问");
+        return q;
+    }
     private final MistakeService mistakeService;
     private final LearningEventService learningEventService;
     private final ObjectMapper objectMapper;
@@ -123,7 +136,7 @@ public class CodeProblemServiceImpl implements CodeProblemService {
 
     @Override
     public CodingVos.ProblemDetail detailForUser(Long questionId, Long userId) {
-        QuizQuestion q = requireVisibleQuestion(questionId);
+        QuizQuestion q = requirePersonalQuestion(questionId, userId);
         CodeProblem problem = problemMapper.selectOne(new LambdaQueryWrapper<CodeProblem>()
                 .eq(CodeProblem::getQuestionId, questionId));
         if (problem == null) {
@@ -190,7 +203,7 @@ public class CodeProblemServiceImpl implements CodeProblemService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveDraft(Long userId, Long questionId, CodingVos.DraftRequest req) {
-        requireVisibleQuestion(questionId);
+        requirePersonalQuestion(questionId, userId);
         String lang = normalizeLanguage(req.getLanguage());
         String code = req.getSourceCode() == null ? "" : req.getSourceCode();
         if (code.getBytes().length > MAX_SOURCE_BYTES) {
@@ -227,7 +240,7 @@ public class CodeProblemServiceImpl implements CodeProblemService {
 
     @Override
     public CodingVos.SubmitResult submitPractice(Long userId, Long questionId, CodingVos.SubmitRequest req) {
-        requireVisibleQuestion(questionId);
+        requirePersonalQuestion(questionId, userId);
         boolean runOnly = CodeSubmission.TYPE_RUN.equalsIgnoreCase(req.getType());
         CodeSubmission saved = judgeForContext(userId, questionId,
                 normalizeLanguage(req.getLanguage()), req.getSourceCode(),
@@ -316,8 +329,15 @@ public class CodeProblemServiceImpl implements CodeProblemService {
 
         JudgeVerdict verdict;
         try {
-            verdict = judgeGateway.judge(new JudgeRequest(userId, questionId, lang, sourceCode,
-                    submitAll, problem, allCases));
+            // F11开启后，旧提交/考试入口也不能绕过独立隔离门禁调用宿主或mock。
+            if (javaPracticeEnabled && !("ISOLATED".equals(judgeGateway.mode())
+                    && judgeGateway.executionEnabled() && judgeGateway.isolatedExecutionVerified())) {
+                verdict = new JudgeVerdict(JudgeStatus.JUDGE_UNAVAILABLE, null, 0, 0,
+                        null, null, null, List.of(), judgeGateway.mode(), Map.of("reason", "ISOLATION_NOT_VERIFIED"));
+            } else {
+                verdict = judgeGateway.judge(new JudgeRequest(userId, questionId, lang, sourceCode,
+                        submitAll, problem, allCases));
+            }
         } catch (Exception e) {
             log.warn("[Judge] 网关异常 questionId={}: {}", questionId, e.getMessage());
             verdict = new JudgeVerdict(JudgeStatus.SYSTEM_ERROR, null, 0,
@@ -386,6 +406,7 @@ public class CodeProblemServiceImpl implements CodeProblemService {
         if (s == null || !Objects.equals(s.getUserId(), userId)) {
             throw new BusinessException(404, "提交记录不存在");
         }
+        if (javaPracticeEnabled) requirePersonalQuestion(s.getQuestionId(), userId);
         return toSubmissionVO(s, true);
     }
 
@@ -396,6 +417,7 @@ public class CodeProblemServiceImpl implements CodeProblemService {
                 || Objects.equals(submissionAId, submissionBId)) {
             throw new BusinessException(400, "请选择两条不同的提交进行对比");
         }
+        if (javaPracticeEnabled) requirePersonalQuestion(questionId, userId);
         CodeSubmission a = submissionMapper.selectById(submissionAId);
         CodeSubmission b = submissionMapper.selectById(submissionBId);
         // 归属与范围校验：必须都是本人、本题、正式提交（RUN 临时运行不进对比）
@@ -444,7 +466,7 @@ public class CodeProblemServiceImpl implements CodeProblemService {
 
     @Override
     public CodingVos.AiAssistVO aiAssist(Long userId, Long questionId, CodingVos.AiAssistRequest req) {
-        QuizQuestion q = requireVisibleQuestion(questionId);
+        QuizQuestion q = requirePersonalQuestion(questionId, userId);
         CodeProblem problem = problemMapper.selectOne(new LambdaQueryWrapper<CodeProblem>()
                 .eq(CodeProblem::getQuestionId, questionId));
         if (problem == null) {
