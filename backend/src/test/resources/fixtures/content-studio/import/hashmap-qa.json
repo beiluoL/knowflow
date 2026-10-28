@@ -1,0 +1,182 @@
+{
+  "version": "java-ai-interview-v2/hashmap/2.0.2-qa",
+  "status": "pending_review",
+  "humanApproved": false,
+  "machineReview": "PASS",
+  "scope": "isolated_qa_only",
+  "title": "合成HashMap迁移测试",
+  "body": "仅供权限、幂等和回滚测试，不是发布教材。",
+  "categoryKey": "shared/java-core/category",
+  "chapterKey": "shared/java-core/chapter/java-core.hashmap/chapter",
+  "knowledgeKeys": [
+    "shared/java-core/chapter/java-core.hashmap/knowledge/java-core.hashmap.k1",
+    "shared/java-core/chapter/java-core.hashmap/knowledge/java-core.hashmap.k2",
+    "shared/java-core/chapter/java-core.hashmap/knowledge/java-core.hashmap.k3"
+  ],
+  "questions": [
+    {
+      "key": "synthetic-q0",
+      "canonicalKey": "v1-test-hashmap-0",
+      "title": "合成题0",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 1,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q1",
+      "canonicalKey": "v1-test-hashmap-1",
+      "title": "合成题1",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 2,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q2",
+      "canonicalKey": "v1-test-hashmap-2",
+      "title": "合成题2",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 3,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q3",
+      "canonicalKey": "v1-test-hashmap-3",
+      "title": "合成题3",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 1,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q4",
+      "canonicalKey": "v1-test-hashmap-4",
+      "title": "合成题4",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 2,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q5",
+      "canonicalKey": "v1-test-hashmap-5",
+      "title": "合成题5",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 3,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q6",
+      "canonicalKey": "v1-test-hashmap-6",
+      "title": "合成题6",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 1,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q7",
+      "canonicalKey": "v1-test-hashmap-7",
+      "title": "合成题7",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 2,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q8",
+      "canonicalKey": "v1-test-hashmap-8",
+      "title": "合成题8",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 3,
+      "parentKey": null
+    }
+  ],
+  "cards": [
+    {
+      "key": "synthetic-c0",
+      "front": "合成卡0",
+      "back": "合成答案",
+      "knowledge": 1
+    },
+    {
+      "key": "synthetic-c1",
+      "front": "合成卡1",
+      "back": "合成答案",
+      "knowledge": 2
+    },
+    {
+      "key": "synthetic-c2",
+      "front": "合成卡2",
+      "back": "合成答案",
+      "knowledge": 3
+    },
+    {
+      "key": "synthetic-c3",
+      "front": "合成卡3",
+      "back": "合成答案",
+      "knowledge": 1
+    },
+    {
+      "key": "synthetic-c4",
+      "front": "合成卡4",
+      "back": "合成答案",
+      "knowledge": 2
+    },
+    {
+      "key": "synthetic-c5",
+      "front": "合成卡5",
+      "back": "合成答案",
+      "knowledge": 3
+    }
+  ],
+  "experiments": [
+    {
+      "key": "synthetic-e0",
+      "title": "合成实验0",
+      "description": "合成结构，仅存储，不执行。{chapterId}",
+      "code": "// synthetic fixture; never execute",
+      "output": "",
+      "knowledge": 1
+    },
+    {
+      "key": "synthetic-e1",
+      "title": "合成实验1",
+      "description": "合成结构，仅存储，不执行。{chapterId}",
+      "code": "// synthetic fixture; never execute",
+      "output": "",
+      "knowledge": 2
+    }
+  ]
+}

@@ -65,6 +65,13 @@
       <NextActionCard :action="nextAction" dismissible />
     </section>
 
+    <section v-if="studyPackEnabled" class="lc-section" aria-label="课程资料学习">
+      <div class="lc-section-head">
+        <h2 class="lc-section-title">从课程资料开始</h2>
+        <router-link to="/learning/study-packs" class="lc-link">上传资料，生成学习包</router-link>
+      </div>
+    </section>
+
     <AdaptiveLearningPanel />
 
     <!-- ══════════ 2. Today：今日任务 + 待复习（真实数据，可操作）══════════ -->
@@ -380,6 +387,7 @@ const appStore = useAppStore()
 /** UI/UX 5.0：全站唯一学习状态来源（§三） */
 const learning = useLearningStore()
 const updatingTasks = ref(new Set<string>())
+const studyPackEnabled = import.meta.env.VITE_PRODUCT_STUDY_PACK === 'true'
 const router = useRouter()
 const statsResource = useAsyncResource(() => userApi.stats(), () => false, '学习统计加载失败', 'section')
 const { status: statsStatus, error: statsError } = statsResource

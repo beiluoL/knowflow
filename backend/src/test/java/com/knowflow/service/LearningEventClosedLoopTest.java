@@ -51,6 +51,8 @@ class LearningEventClosedLoopTest {
 
     private static final Long UID = 70001L;
 
+    @Autowired private com.knowflow.mapper.DocDocumentMapper documentMapper;
+    @Autowired private com.knowflow.mapper.KgEntityMapper knowledgeMapper;
     @Autowired private QuizService quizService;
     @Autowired private LearningService learningService;
     @Autowired private WorkbenchService workbenchService;
@@ -184,7 +186,19 @@ class LearningEventClosedLoopTest {
         card.setDifficulty(1);
         flashcardMapper.insert(card);
 
-        long knowledgeId = 888001L;
+        // 复习证据必须引用真实知识点；不能依赖未初始化的固定888001。
+        var document = new com.knowflow.entity.DocDocument();
+        document.setTitle("闪卡证据合成来源");
+        document.setContent("仅供事件闭环测试");
+        document.setStatus(1);
+        documentMapper.insert(document);
+        var knowledge = new com.knowflow.entity.KgEntity();
+        knowledge.setDocId(document.getId());
+        knowledge.setName("闪卡事件合成知识点-" + java.util.UUID.randomUUID());
+        knowledge.setType("CONCEPT");
+        knowledge.setWeight(1);
+        knowledgeMapper.insert(knowledge);
+        long knowledgeId = knowledge.getId();
         long chapterId = 888002L;
         card.setChapterId(chapterId);
         flashcardMapper.updateById(card);

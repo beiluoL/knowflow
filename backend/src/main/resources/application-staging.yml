@@ -1,0 +1,35 @@
+# V1 isolated staging: explicit database and deterministic AI credentials required.
+server:
+  address: ${STAGING_ADDRESS:127.0.0.1}
+  port: ${STAGING_PORT:18080}
+knowflow:
+  host-capabilities:
+    enabled: false
+  developer-tools:
+    enabled: false
+  datasource:
+    type: mysql
+    allow-runtime-switch: false
+    config-file: ${STAGING_DATASOURCE_CONFIG:./config/staging-datasource.json}
+    mysql:
+      url: ${STAGING_MYSQL_URL}
+      username: ${STAGING_MYSQL_USERNAME}
+      password: ${STAGING_MYSQL_PASSWORD}
+      init-mode: auto
+  product:
+    private-quiz:
+      enabled: true
+    tutor:
+      enabled: true
+    study-pack:
+      enabled: true
+    tutor-coaching:
+      enabled: true
+    interview-learning:
+      enabled: true
+    adaptive-learning:
+      enabled: true
+ai:
+  base-url: ${STAGING_AI_BASE_URL}
+  api-key: ${STAGING_AI_API_KEY}
+  model: ${STAGING_AI_MODEL}

@@ -20,17 +20,21 @@ public class ContentStudioHashMapService {
  @org.springframework.beans.factory.annotation.Autowired private HashMapAuthorPreview authorPreview;
  public static final String KEY="java-ai-interview-v2/hashmap/2.0.2-qa";
  private final JdbcTemplate jdbc; private final ObjectMapper json; private final Environment env;
- private final JsonNode source; private final String sourceHash; private final String key; private final int questionCount,cardCount,experimentCount;
+ private JsonNode source; private String sourceHash; private final String topic; private final String key; private final int questionCount,cardCount,experimentCount;
  @org.springframework.beans.factory.annotation.Autowired
  public ContentStudioHashMapService(JdbcTemplate jdbc,ObjectMapper json,Environment env)throws Exception {this(jdbc,json,env,"hashmap");}
  ContentStudioHashMapService(JdbcTemplate jdbc,ObjectMapper json,Environment env,String topic)throws Exception {
   if(!Set.of("hashmap","threadpool").contains(topic))throw new IllegalArgumentException("Unknown isolated QA topic");
   this.key=topic.equals("hashmap")?KEY:"java-ai-interview-v2/threadpool/2.0.3-qa";
   this.questionCount=topic.equals("hashmap")?9:30;this.cardCount=topic.equals("hashmap")?6:8;this.experimentCount=topic.equals("hashmap")?2:4;
-  this.jdbc=jdbc;this.json=json;this.env=env;
-  byte[] bytes=Files.readAllBytes(Path.of(env.getRequiredProperty("knowflow.content-studio.qa.package")).resolve("import/"+topic+"-qa.json"));source=json.readTree(bytes);sourceHash=hash(new String(bytes,StandardCharsets.UTF_8));
-  if(!key.equals(source.path("version").asText())||!"pending_review".equals(source.path("status").asText())||source.path("humanApproved").asBoolean()||!"PASS".equals(source.path("machineReview").asText())||!"isolated_qa_only".equals(source.path("scope").asText()))throw new IllegalStateException("Not a reviewed isolated QA bundle");
-  if(source.path("questions").size()!=questionCount||source.path("cards").size()!=cardCount||source.path("experiments").size()!=experimentCount)throw new IllegalStateException("Incomplete pilot bundle");
+  this.jdbc=jdbc;this.json=json;this.env=env;this.topic=topic;
+ }
+ private synchronized void loadBundle() throws java.io.IOException {
+  if(source!=null)return;
+  byte[] bytes=Files.readAllBytes(Path.of(env.getRequiredProperty("knowflow.content-studio.qa.package")).resolve("import/"+topic+"-qa.json"));JsonNode candidate=json.readTree(bytes);sourceHash=hash(new String(bytes,StandardCharsets.UTF_8));
+  if(!key.equals(candidate.path("version").asText())||!"pending_review".equals(candidate.path("status").asText())||candidate.path("humanApproved").asBoolean()||!"PASS".equals(candidate.path("machineReview").asText())||!"isolated_qa_only".equals(candidate.path("scope").asText()))throw new IllegalStateException("Not a reviewed isolated QA bundle");
+  if(candidate.path("questions").size()!=questionCount||candidate.path("cards").size()!=cardCount||candidate.path("experiments").size()!=experimentCount)throw new IllegalStateException("Incomplete pilot bundle");
+  source=candidate;
  }
  @Transactional(readOnly=true) public Map<String,Object> authorPreview(long actor){actor(actor);context(actor);return authorPreview.preview(actor,chapter(),List.of(kid(1),kid(2),kid(3)));}
  public Map<String,Object> importAuthor(long actor){actor(actor);throw new BusinessException(409,"BLOCKED_BY_HUMAN_REVIEW: 作者稿未获得人工批准，无正式导入");}
@@ -51,7 +55,7 @@ public class ContentStudioHashMapService {
    Path db=Path.of(p+".mv.db");return Files.isRegularFile(db,LinkOption.NOFOLLOW_LINKS)&&data.toRealPath().equals(data)&&parent.toRealPath().equals(parent)&&db.toRealPath().equals(db);
   }catch(java.io.IOException|java.nio.file.InvalidPathException e){return false;}
  }
- private void actor(long actor){guard();var rows=jdbc.queryForList("SELECT role FROM sys_user WHERE id=? AND deleted=0",actor);if(rows.isEmpty())throw new BusinessException(401,"未登录");if(!"USER".equals(rows.get(0).get("role")))throw new BusinessException(403,"普通用户本人隔离试点");}
+ private void actor(long actor){guard();var rows=jdbc.queryForList("SELECT role FROM sys_user WHERE id=? AND deleted=0",actor);if(rows.isEmpty())throw new BusinessException(401,"未登录");if(!"USER".equals(rows.get(0).get("role")))throw new BusinessException(403,"普通用户本人隔离试点");try{loadBundle();}catch(java.io.IOException e){throw new IllegalStateException("Isolated QA bundle unavailable",e);}}
  private long old(String key){var ids=jdbc.queryForList("SELECT resource_id FROM interview_seed_resource WHERE seed_key=? AND resource_key=?",Long.class,InterviewSeedCatalog.KEY,key);if(ids.size()!=1)throw new BusinessException(409,"Missing stable original identity: "+key);return ids.get(0);}
  private Long find(String key){var ids=jdbc.queryForList("SELECT resource_id FROM interview_seed_resource WHERE seed_key=? AND resource_key=?",Long.class,this.key,key);return ids.isEmpty()?null:ids.get(0);}
  private long chapter(){return old(source.required("chapterKey").asText());}

@@ -1,0 +1,462 @@
+{
+  "version": "java-ai-interview-v2/threadpool/2.0.3-qa",
+  "status": "pending_review",
+  "humanApproved": false,
+  "machineReview": "PASS",
+  "scope": "isolated_qa_only",
+  "title": "合成线程池迁移测试",
+  "body": "仅供权限、幂等和回滚测试，不是发布教材。",
+  "categoryKey": "shared/java-core/category",
+  "chapterKey": "shared/concurrency/chapter/concurrency.threadpool/chapter",
+  "knowledgeKeys": [
+    "shared/concurrency/chapter/concurrency.threadpool/knowledge/concurrency.threadpool.k1",
+    "shared/concurrency/chapter/concurrency.threadpool/knowledge/concurrency.threadpool.k2",
+    "shared/concurrency/chapter/concurrency.threadpool/knowledge/concurrency.threadpool.k3"
+  ],
+  "questions": [
+    {
+      "key": "synthetic-q0",
+      "canonicalKey": "v1-test-threadpool-0",
+      "title": "合成题0",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 1,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q1",
+      "canonicalKey": "v1-test-threadpool-1",
+      "title": "合成题1",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 2,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q2",
+      "canonicalKey": "v1-test-threadpool-2",
+      "title": "合成题2",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 3,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q3",
+      "canonicalKey": "v1-test-threadpool-3",
+      "title": "合成题3",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 1,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q4",
+      "canonicalKey": "v1-test-threadpool-4",
+      "title": "合成题4",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 2,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q5",
+      "canonicalKey": "v1-test-threadpool-5",
+      "title": "合成题5",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 3,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q6",
+      "canonicalKey": "v1-test-threadpool-6",
+      "title": "合成题6",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 1,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q7",
+      "canonicalKey": "v1-test-threadpool-7",
+      "title": "合成题7",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 2,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q8",
+      "canonicalKey": "v1-test-threadpool-8",
+      "title": "合成题8",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 3,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q9",
+      "canonicalKey": "v1-test-threadpool-9",
+      "title": "合成题9",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 1,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q10",
+      "canonicalKey": "v1-test-threadpool-10",
+      "title": "合成题10",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 2,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q11",
+      "canonicalKey": "v1-test-threadpool-11",
+      "title": "合成题11",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 3,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q12",
+      "canonicalKey": "v1-test-threadpool-12",
+      "title": "合成题12",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 1,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q13",
+      "canonicalKey": "v1-test-threadpool-13",
+      "title": "合成题13",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 2,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q14",
+      "canonicalKey": "v1-test-threadpool-14",
+      "title": "合成题14",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 3,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q15",
+      "canonicalKey": "v1-test-threadpool-15",
+      "title": "合成题15",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 1,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q16",
+      "canonicalKey": "v1-test-threadpool-16",
+      "title": "合成题16",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 2,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q17",
+      "canonicalKey": "v1-test-threadpool-17",
+      "title": "合成题17",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 3,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q18",
+      "canonicalKey": "v1-test-threadpool-18",
+      "title": "合成题18",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 1,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q19",
+      "canonicalKey": "v1-test-threadpool-19",
+      "title": "合成题19",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 2,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q20",
+      "canonicalKey": "v1-test-threadpool-20",
+      "title": "合成题20",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 3,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q21",
+      "canonicalKey": "v1-test-threadpool-21",
+      "title": "合成题21",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 1,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q22",
+      "canonicalKey": "v1-test-threadpool-22",
+      "title": "合成题22",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 2,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q23",
+      "canonicalKey": "v1-test-threadpool-23",
+      "title": "合成题23",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 3,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q24",
+      "canonicalKey": "v1-test-threadpool-24",
+      "title": "合成题24",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 1,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q25",
+      "canonicalKey": "v1-test-threadpool-25",
+      "title": "合成题25",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 2,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q26",
+      "canonicalKey": "v1-test-threadpool-26",
+      "title": "合成题26",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 3,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q27",
+      "canonicalKey": "v1-test-threadpool-27",
+      "title": "合成题27",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 1,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q28",
+      "canonicalKey": "v1-test-threadpool-28",
+      "title": "合成题28",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 2,
+      "parentKey": null
+    },
+    {
+      "key": "synthetic-q29",
+      "canonicalKey": "v1-test-threadpool-29",
+      "title": "合成题29",
+      "type": "TRUE_FALSE",
+      "options": [],
+      "answer": "true",
+      "explanation": "合成解释",
+      "difficulty": 1,
+      "knowledge": 3,
+      "parentKey": null
+    }
+  ],
+  "cards": [
+    {
+      "key": "synthetic-c0",
+      "front": "合成卡0",
+      "back": "合成答案",
+      "knowledge": 1
+    },
+    {
+      "key": "synthetic-c1",
+      "front": "合成卡1",
+      "back": "合成答案",
+      "knowledge": 2
+    },
+    {
+      "key": "synthetic-c2",
+      "front": "合成卡2",
+      "back": "合成答案",
+      "knowledge": 3
+    },
+    {
+      "key": "synthetic-c3",
+      "front": "合成卡3",
+      "back": "合成答案",
+      "knowledge": 1
+    },
+    {
+      "key": "synthetic-c4",
+      "front": "合成卡4",
+      "back": "合成答案",
+      "knowledge": 2
+    },
+    {
+      "key": "synthetic-c5",
+      "front": "合成卡5",
+      "back": "合成答案",
+      "knowledge": 3
+    },
+    {
+      "key": "synthetic-c6",
+      "front": "合成卡6",
+      "back": "合成答案",
+      "knowledge": 1
+    },
+    {
+      "key": "synthetic-c7",
+      "front": "合成卡7",
+      "back": "合成答案",
+      "knowledge": 2
+    }
+  ],
+  "experiments": [
+    {
+      "key": "synthetic-e0",
+      "title": "合成实验0",
+      "description": "合成结构，仅存储，不执行。{chapterId}",
+      "code": "// synthetic fixture; never execute",
+      "output": "",
+      "knowledge": 1
+    },
+    {
+      "key": "synthetic-e1",
+      "title": "合成实验1",
+      "description": "合成结构，仅存储，不执行。{chapterId}",
+      "code": "// synthetic fixture; never execute",
+      "output": "",
+      "knowledge": 2
+    },
+    {
+      "key": "synthetic-e2",
+      "title": "合成实验2",
+      "description": "合成结构，仅存储，不执行。{chapterId}",
+      "code": "// synthetic fixture; never execute",
+      "output": "",
+      "knowledge": 3
+    },
+    {
+      "key": "synthetic-e3",
+      "title": "合成实验3",
+      "description": "合成结构，仅存储，不执行。{chapterId}",
+      "code": "// synthetic fixture; never execute",
+      "output": "",
+      "knowledge": 1
+    }
+  ]
+}

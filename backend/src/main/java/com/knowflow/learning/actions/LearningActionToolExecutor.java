@@ -12,7 +12,7 @@ public class LearningActionToolExecutor {
   if(actor==null)throw new BusinessException(401,"未登录");
   LearningActionTools.requireReadOnlyModelCall(name);
   if(args==null||!args.isObject())throw new BusinessException(400,"工具参数必须为对象");
-  Set<String> allowed=name.equals("updateTaskStatus")?Set.of("taskId","source","status","zoneId","date"):Set.of("date","zoneId","availableMinutes","focusTopics","includePractice","includeInterview","useAi","instruction");
+  Set<String> allowed=name.equals("updateTaskStatus")?Set.of("taskId","source","status","zoneId","date"):Set.of("date","zoneId","availableMinutes","focusTopics","includePractice","includeInterview","useAi","instruction","smartReorder","pathId","taskMinutes","protectedTaskIds");
   args.fieldNames().forEachRemaining(key->{if(!allowed.contains(key))throw new BusinessException(400,"工具参数不允许身份、SQL或未知字段");});
   if(name.equals("updateTaskStatus")){if(!args.path("taskId").isIntegralNumber()||!args.path("source").isTextual()||!args.path("status").isIntegralNumber())throw new BusinessException(400,"缺少任务状态预览参数");var r=new PlanModels.Request();if(args.has("zoneId"))r.setZoneId(args.path("zoneId").asText());if(args.has("date")){try{r.setDate(java.time.LocalDate.parse(args.path("date").asText()));}catch(java.time.DateTimeException e){throw new BusinessException(400,"无效日期");}}return plans.previewStatus(actor,args.path("taskId").asLong(),args.path("source").asText(),args.path("status").asInt(),r);}
   PlanModels.Request request;

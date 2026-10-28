@@ -1,0 +1,62 @@
+name: V1 release gates
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      JWT_SECRET: v1-ci-synthetic-jwt-key-at-least-thirty-two-bytes
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - run: mvn -B -f backend/pom.xml test
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.12.0'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npx vitest run && npx vue-tsc --noEmit && npm run build && npm run build -- --mode staging
+        working-directory: frontend
+  mysql:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ephemeral-ci-only
+        ports: ['13316:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h127.0.0.1 -pephemeral-ci-only"
+          --health-interval=10s --health-timeout=5s --health-retries=12
+    env:
+      MYSQL_PWD: ephemeral-ci-only
+      V1_MYSQL_URL: jdbc:mysql://127.0.0.1:13316/knowflow_v1_ci?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
+      V1_MYSQL_USER: root
+      V1_MYSQL_PASSWORD: ephemeral-ci-only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - run: |
+          mysql --default-character-set=utf8mb4 -h127.0.0.1 -P13316 -uroot -e "CREATE DATABASE knowflow_v1_ci CHARACTER SET utf8mb4; CREATE DATABASE knowflow_v1_restore CHARACTER SET utf8mb4;"
+          mysql --default-character-set=utf8mb4 -h127.0.0.1 -P13316 -uroot knowflow_v1_ci < backend/src/main/resources/db/mysql/schema.sql
+          mvn -B -f backend/pom.xml -Dtest=ProductMySqlReleaseTest test
+          mysqldump --default-character-set=utf8mb4 -h127.0.0.1 -P13316 -uroot --single-transaction --skip-comments --no-tablespaces knowflow_v1_ci > /tmp/v1-backup.sql
+          mysql --default-character-set=utf8mb4 -h127.0.0.1 -P13316 -uroot knowflow_v1_restore < /tmp/v1-backup.sql
+          mysqldump --default-character-set=utf8mb4 -h127.0.0.1 -P13316 -uroot --no-tablespaces --no-create-info --skip-comments --skip-extended-insert --compact knowflow_v1_ci > /tmp/v1-before.sql
+          mysqldump --default-character-set=utf8mb4 -h127.0.0.1 -P13316 -uroot --no-tablespaces --no-create-info --skip-comments --skip-extended-insert --compact knowflow_v1_restore > /tmp/v1-after.sql
+          cmp /tmp/v1-before.sql /tmp/v1-after.sql
+      - run: mvn -B -f backend/pom.xml -Dtest=ProductMySqlReleaseTest test
+        env:
+          V1_MYSQL_URL: jdbc:mysql://127.0.0.1:13316/knowflow_v1_restore?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
+          V1_MYSQL_VERIFY_ONLY: 'true'

@@ -20,8 +20,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest @AutoConfigureMockMvc @ActiveProfiles("local") @Import(FakeAiConfiguration.class)
-@TestPropertySource(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:phase3a-qa-test;DB_CLOSE_DELAY=-1;MODE=MySQL", "knowflow.content-studio.qa.enabled=true", "knowflow.content-studio.qa.package=/Users/beiluo/Documents/alProject/qoderProject/knowflow/content-studio/java-ai-interview-v2", "server.address=127.0.0.1", "knowflow.datasource.allow-runtime-switch=false"})
+@TestPropertySource(properties={"knowflow.datasource.h2.url=jdbc:h2:mem:phase3a-qa-test;DB_CLOSE_DELAY=-1;MODE=MySQL", "knowflow.content-studio.qa.enabled=true", "server.address=127.0.0.1", "knowflow.datasource.allow-runtime-switch=false"})
 class ContentStudioThreadPoolIntegrationTest {
+ @org.springframework.test.context.DynamicPropertySource
+ static void syntheticBundle(org.springframework.test.context.DynamicPropertyRegistry registry) {
+  registry.add("knowflow.content-studio.qa.package", () -> {
+   try { return new org.springframework.core.io.ClassPathResource("fixtures/content-studio/import/threadpool-qa.json").getFile().getParentFile().getParent(); }
+   catch(java.io.IOException e) { throw new IllegalStateException(e); }
+  });
+ }
+
  @Autowired MockMvc mvc; @Autowired JdbcTemplate jdbc; @Autowired ObjectMapper json;
  @Autowired SysUserMapper users; @Autowired JwtUtils jwt; @Autowired InterviewSeedService seed;
  String root="/api/learning/content-studio/qa/threadpool";
