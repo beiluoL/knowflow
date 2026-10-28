@@ -69,7 +69,7 @@ describe('格式化编辑事务', () => {
     expect(f.state.handleHistory(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true }))).toBe(false)
   })
   it('不支持语言保存原文，但明确说明跳过格式化', async () => {
-    const f = setup(); f.language.value = 'java'
+    const f = setup(); f.language.value = 'python'
     expect(await f.state.format('manual')).toBe(false)
     expect(await f.state.beforeSave()).toBe(true)
     expect(f.state.message.value).toContain('暂不支持')

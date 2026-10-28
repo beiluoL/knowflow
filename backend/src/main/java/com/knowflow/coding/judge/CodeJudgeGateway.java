@@ -18,6 +18,9 @@ public interface CodeJudgeGateway {
     /** 网关是否能真实执行代码（false 时提交应落 JUDGE_UNAVAILABLE/PENDING）。 */
     boolean executionEnabled();
 
-    /** DISABLED / MOCK / LOCAL_HOST。 */
+    /** 独立Runner隔离验收证明；已有宿主与mock实现始终不具备普通用户执行资格。 */
+    default boolean isolatedExecutionVerified() { return false; }
+
+    /** DISABLED / MOCK / LOCAL_HOST / ISOLATED。 */
     String mode();
 }
