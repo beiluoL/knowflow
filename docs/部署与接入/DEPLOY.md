@@ -1,13 +1,13 @@
 # 部署指南 (Deployment)
 
-本文说明 `knowflow` 的生产环境部署方式：后端打 jar 运行（可切换 MySQL），前端构建后由 Nginx 托管，并给出 Docker 一键部署示例。
+> REFERENCE · 2026-10-24：本文是部署模板，不代表已存在检入的Dockerfile/compose或生产部署、备份恢复/监控认证。当前发布NOT_READY；先满足[发布门禁](../roadmap/07_TEST_AND_RELEASE_GATES.md)与[架构配置说明](../PROJECT_ARCHITECTURE.md#10-配置启动部署与运维)。示例中的skipTests只用于门禁已通过后的打包，不能跳过发布测试。
 
-> 开发态启动方式见根目录 [README.md](./README.md)。本文聚焦生产部署。
+> 开发态启动方式见根目录 [README.md](../../README.md)。本文聚焦生产部署。
 
 ## 1. 环境要求
 
-- **后端**：JDK 17、Maven 3.8+（或用 `backend/.mvn` 内置包装器）
-- **前端**：Node.js 20+、npm
+- **后端**：JDK 17、Maven 3.8+（本次未发现backend/mvnw入口，不能仅凭.mvn目录声称wrapper可执行）
+- **前端**：满足锁定Vite包engines的Node.js、npm
 - **可选**：MySQL 8、Docker / Docker Compose
 
 ## 2. 后端部署
@@ -16,7 +16,7 @@
 
 ```bash
 cd backend
-./mvnw clean package -DskipTests        # 生成 target/knowflow-backend-1.0.0.jar
+mvn clean package -DskipTests        # 生成 target/knowflow-backend-1.0.0.jar
 # 或：mvn clean package -DskipTests
 ```
 
@@ -26,7 +26,7 @@ cd backend
 java -jar target/knowflow-backend-1.0.0.jar
 ```
 
-默认监听 `8080`。低权限/无外部数据库时可直接跑起来（数据在内存，重启即清空）。
+默认监听8080。真实数据源受外部datasource JSON、profile、环境和DataSourceManager影响；不能仅从默认配置推断一定为内存或重启清空，启动前核对。不得以生产数据验证。
 
 ### 2.3 生产配置（切换 MySQL）
 
@@ -36,8 +36,7 @@ java -jar target/knowflow-backend-1.0.0.jar
 CREATE DATABASE knowflow DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-再编辑 `backend/src/main/resources/application.yml`，**只需把 `type` 改为 `mysql`**，
-系统启动时会自动加载 MySQL 驱动与 `db/mysql/` 方言脚本，无需改动任何代码：
+切换前核对外部datasource JSON优先级、profile/环境、密钥、init-mode和所有动态schema helper；指定目标MySQL版本并先完成隔离升级/恢复/回滚演练。**只改type=mysql不足以完成生产配置或认证**。下方仅示例，不授权创建/修改正式数据库；AI/runtime switch/Host/Judge须按批准范围显式配置：
 
 ```yaml
 knowflow:

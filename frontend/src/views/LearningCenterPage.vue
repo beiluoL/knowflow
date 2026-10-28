@@ -105,7 +105,13 @@
             <option value="review">复习</option>
             <option value="other">其他</option>
           </select>
-          <input v-model="newTask.deadline" type="datetime-local" class="lc-select" />
+          <div class="lc-deadline">
+            <DateTimePicker
+              v-model="newTask.deadline"
+              placeholder="截止时间（可选）"
+              clearable
+            />
+          </div>
           <div class="flex-1"></div>
           <Button variant="ghost" size="sm" @click="resetAddTask">取消</Button>
           <Button size="sm" :loading="creatingTask" :disabled="!newTask.title.trim()" @click="handleCreateTask">
@@ -356,6 +362,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Icon from '@/components/ui/Icon.vue'
 import Button from '@/components/ui/Button.vue'
+import DateTimePicker from '@/components/ui/DateTimePicker.vue'
+import { parseLocalDateTime, serializeLocalDateTime } from '@/components/ui/date-time-format'
 import { notify, confirmDialog, getApiError } from '@/utils/toast'
 import { userApi, learningApi } from '@/api'
 import { useAppStore } from '@/stores/apps'
@@ -658,7 +666,10 @@ const handleCreateTask = async () => {
       type: newTask.value.type || 'study',
     }
     if (newTask.value.deadline) {
-      payload.deadline = new Date(newTask.value.deadline).toISOString()
+      // 后端 LearningTask.deadline 是 LocalDateTime：提交本地墙钟合同，
+      // 不能把 toISOString() 的 UTC 时刻写进去，否则用户选的 09:00 会被存成 01:00。
+      const parts = parseLocalDateTime(newTask.value.deadline)
+      if (parts) payload.deadline = serializeLocalDateTime(parts, 'minute')
     }
     await learningApi.createTask(payload)
     notify('计划添加成功', 'success')
@@ -960,6 +971,12 @@ onMounted(() => {
   align-items: center;
   gap: var(--kb-space-2, 8px);
   flex-wrap: wrap;
+}
+/** 截止时间复用 DateTimePicker（FormField 内部 width:100%），此处只约束外层宽度。 */
+.lc-deadline {
+  flex: 0 0 auto;
+  width: 200px;
+  min-width: 0;
 }
 .lc-input:not(.kb-form-control) {
   border: 1px solid var(--kb-border);

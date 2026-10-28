@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
-# 双击本文件即可停止 KnowFlow 前后端开发环境
-cd /Users/beiluo/Documents/alProject/qoderProject/knowflow
-clear
-echo "=== KnowFlow 停止器 ==="
+cd "$(dirname "$0")" || exit 1
+echo '=== KnowFlow 停止器 ==='
 ./knowflow-dev.sh stop
-echo ""
-echo "按 Enter 关闭窗口..."
-read
+result=$?
+if [ -t 0 ]; then echo '按 Enter 关闭窗口…'; read -r; fi
+exit "$result"

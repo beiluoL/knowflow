@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
-# 双击本文件即可启动（或重启）KnowFlow 前后端开发环境
-cd /Users/beiluo/Documents/alProject/qoderProject/knowflow
-clear
-echo "=== KnowFlow 启动器 ==="
-./knowflow-dev.sh start
-echo ""
-echo "（项目已在后台运行。可以关闭此窗口；再次双击本文件即可重启。）"
-echo "按 Enter 关闭窗口..."
-read
+cd "$(dirname "$0")" || exit 1
+echo '=== KnowFlow 启动器 ==='
+./knowflow-dev.sh "${1:-start}"
+result=$?
+if [ "$result" -eq 0 ]; then
+  echo '项目已在后台运行。可以关闭此窗口；前端固定 5173，后端固定 8080；重复双击会复用已就绪服务，端口冲突会先清理。'
+else
+  echo '项目启动失败。请查看上方诊断与 .dev-logs/backend.log、.dev-logs/frontend.log。'
+fi
+if [ -t 0 ]; then
+  echo '按 Enter 关闭窗口…'; read -r
+fi
+exit "$result"

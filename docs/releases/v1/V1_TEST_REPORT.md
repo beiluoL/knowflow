@@ -17,3 +17,6 @@ Final full suite including portable fixtures:1190 total,1180 passed,0 failures,0
 Independent bounded code review: no actionable defect found; existing-table column definitions are not changed by CREATE IF NOT EXISTS. MySQL8, all-module historical migration and production readiness remain unverified. Workflow YAML and all embedded shell blocks parse successfully; this is static validation only.
 
 Final base MySQL schema import after Diff correction: exit0 (`mysql-base-final.log`). Original CURRENT_TIMESTAMP defaults preserved; only six previously implicit nullable timestamp columns changed. Runtime services created by this run were stopped; port check confirms no listeners on13316/15173/18080/18081/19091. Original release worktree still has only the exact unchanged888001 fixture diff. git diff --check exit0; cached content diff empty.
+
+## 后续分支统一测试（2026-10-28）
+首次整合全量1209项中，作者预览2项因缺少可移植作者包失败；完整合成作者包及显式author-root补齐，原9项回归通过。最终完整Maven1209项1199通过、0失败、0错误、10跳过，退出0（13:44:16结束）。前端241文件1768项、vue-tsc、build均退出0；启动器25项通过。原断言全部保留。日志位于/private/tmp/knowflow-main-consolidation-20261028/maven-final.log、vitest-all.log、types.log、build.log、launcher-tests.log。此为合并版本的新结果，不覆盖此前历史记录，也不等同MySQL8或完整Staging验收。

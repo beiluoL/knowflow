@@ -46,7 +46,7 @@ const timeValue=ref('09:30'),timeSecondValue=ref('09:30:45')
 const dateTimeValue=ref('2026-10-25T09:30'),dateTimeSecondValue=ref('2026-10-25T09:30:45')
 const dateRangeValue=ref({start:'2026-10-05',end:'2026-10-15'})
 const timeRangeValue=ref({start:'09:00',end:'18:00'})
-const dateTimeRangeValue=ref({start:'2026-10-25T09:30',end:'2026-10-25T11:30'})
+const dateTimeRangeValue=ref({start:'2026-10-28T09:30',end:'2026-11-05T11:30'})
 type RangeFixture={start:string;end:string}
 function onModelUpdate(value:unknown):void{
  switch(name.value){
@@ -91,7 +91,7 @@ const demoProps=computed(()=>{
  case 'DateTimePickerSeconds':return {...common,modelValue:dateTimeSecondValue.value,label:'日期时间（秒）',precision:'second',clearable:!!s.clearable,min:String(s.min||'2026-10-01T00:00:00'),max:String(s.max||'2026-10-31T23:59:59')}
  case 'DateRangePicker':return {...common,modelValue:dateRangeValue.value,label:'日期范围',clearable:!!s.clearable,min:String(s.min||'2026-10-01'),max:String(s.max||'2026-10-31')}
  case 'TimeRangePicker':return {...common,modelValue:timeRangeValue.value,label:'时间范围',precision:'minute',allowOvernight:!!s.allowOvernight,clearable:!!s.clearable,min:String(s.min||'08:00'),max:String(s.max||'22:00')}
- case 'DateTimeRangePicker':return {...common,modelValue:dateTimeRangeValue.value,label:'日期时间范围',precision:'minute',clearable:!!s.clearable,min:String(s.min||'2026-10-01T00:00'),max:String(s.max||'2026-10-31T23:59')}
+ case 'DateTimeRangePicker':return {...common,modelValue:dateTimeRangeValue.value,label:'日期时间范围',precision:'minute',clearable:!!s.clearable,min:String(s.min||'2026-09-01T00:00'),max:String(s.max||'2026-12-31T23:59')}
  case 'Progress':return {percentage:Number(s.percentage??64),showLabel:s.showLabel!==false,label:'Fixture进度',variant:s.variant||'primary'}
  case 'SkeletonList':return {rows:Number(s.rows)||2,type:['list','card','line'].includes(String(s.type))?s.type:'line'}
  case 'Badge':return {variant:s.variant||'success'}

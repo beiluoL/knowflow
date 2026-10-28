@@ -30,3 +30,6 @@ Additional actual validation: READER/EDITOR source membership HTTP200 for quiz/T
 
 ## Final verification
 Final Maven1190 total/1180 passed/0 failures/0 errors/10 skipped, exit0; frontend1758 tests/type/default+staging build exit0. All21 changed/new files remain uncommitted at detached3216b609. Temporary services stopped; original release worktree and F11 untouched. G04/G05/G10 PASS; other aggregate gates remain NOT_VERIFIED. Final NOT_READY / NO-GO.
+
+## 2026-10-28 后续用户授权：统一main
+用户另行授权整合全部分支并推送两个远端，保留最新代码；批准删除仓库内三个已迁移目录。此后阶段已合入F11源码但执行默认关闭，不改变首发安全边界或NOT_READY。保留main独有内容并合并日期选择器与学习包入口，补全脚本依赖与可移植测试Fixture。后端1209项1199通过/0失败/0错误/10跳过；前端1768项/类型/build通过；启动器25项通过。分支统一状态以当前git refs为准，备份和本阶段日志位于/private/tmp/knowflow-main-consolidation-20261028。

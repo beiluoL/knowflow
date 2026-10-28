@@ -45,3 +45,12 @@ code-workspaces/
 
 # CodeBuddy project data (do NOT commit)
 .codebuddy/
+
+# Isolated content import verification databases and backups (never publish)
+backend/data/rebuild-v1-*/
+
+# Phase 3A isolated QA databases and private backups (never publish)
+backend/data/phase3a-qa-*/
+
+# KnowFlow UI component library — independent nested git repository (never track from parent)
+/knowflow-ui/

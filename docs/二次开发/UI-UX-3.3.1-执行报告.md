@@ -1,0 +1,247 @@
+# UI/UX 3.3.1 执行报告 — Visual Acceptance + Sidebar + 全局界面修复
+
+> 阶段：UI/UX 3.3.1 · 一键实施（Vibe Coding）· 直接改码，本地 **未 commit / 未 push**
+> 质量门：Vitest **235/235** · TypeScript **0 errors** · Vite Build **PASS** · Backend **71/71 BUILD SUCCESS**
+> 配套验收文档：`UI-UX-3.3.1-Visual-Acceptance.md`
+> 本阶段 **STOP**：不进入 AI Coach / Agent / MCP / Tool Calling / Architecture-7（§45）
+
+---
+
+## 1. 当前真实问题
+
+3.3 报告明确：代码实现完成 ≠ 用户实际体验完成；3.3 全部浏览器验收为 ⚠️ Not verified。本阶段不新增业务功能，只做真实页面验收与修复。
+
+扫描真实代码后确认的真实缺口（非假设）：
+
+- 约 28 处非 App 顶层视图散写 `router.back()`；直接 URL / 刷新 / 书签进入时返回会把用户带离应用。
+- 侧边栏折叠态：二级 App 图标不可见、分组标题点击是「死按钮」、宽度未真正切换、主内容未同步、不持久化、激活态仅浅背景、Tooltip 可能 `undefined`。
+- 图标单一来源已建（`APP_ICONS` + Icon.vue），但旧业务页仍有未定义图标名与少量 iconfont 依赖。
+- 令牌体系已建（`ui-tokens.css`），但各页仍有硬编码字号/间距/按钮/卡片。
+
+---
+
+## 2. Sidebar 改动（P0，§3–§12）
+
+文件：`frontend/src/components/layout/CSidebar.vue`、`CLayout.vue`
+
+- **折叠宽度真正切换**：`CSidebar.width` 240px ↔ 64px（`is-collapsed`）；`CLayout .clayout-main` `padding-left` 240px ↔ 64px，主内容区同步扩大。
+- **折叠≠隐藏**：折叠态渲染图标 rail（`.csidebar-subrail-item`），二级 App 图标全部可见，`:title` 提供全称 Tooltip。
+- **修死按钮（§9）**：折叠态点击分组标题由「切换不可见子项」改为直达工作区首页（`router.push(group.children[0].path)` + `emit('navigate')`）；展开态保持原切换行为。
+- **防抖动（§7）**：`.csidebar-item` 加 `position: relative` + `overflow: hidden`，240→64 过渡期间裁切溢出文字，不飞出。
+- **激活指示条（§12）**：`.csidebar-item.is-active::before` 主色左侧 3px 指示条（height 60%），`hover`/`active`/`focus-visible` 三态齐备。
+- **持久化（§8）**：`CLayout` 读/写 `localStorage['csidebar-collapsed']`，`onMounted` 读取、`watch(collapsed)` 落盘；F5 保持，且仅写该键（测试断言 `keys === ['csidebar-collapsed']`，不污染 UserApp）。
+- **折叠按钮真实可见**：`CSidebar` footer 内 `csidebar-collapse` 按钮，`title`/`aria-label` 随状态切换「收起/展开侧边栏」，footer `flex-shrink:0` + 顶部边框，不被内容挤出。
+
+---
+
+## 3. 返回体验改动（P0，§16）
+
+文件：`usePageNavigation.ts` + 13 个独立顶层视图
+
+- `goBack(fallback?: string)` 扩展：真实 history（`window.history.state.back`）→ `router.back()`；否则 `fallback`（且不等于当前路径）→ `router.push(fallback)`；再否则 `goToParent()`。
+- 统一 13 个独立顶层视图的返回入口（裸 `router.back()` / `history.back()` 全部替换为 `nav.goBack(fallback)`）：
+  - Certificate、Chat、DocCreate、DocDetail(`/docs`)、DocEdit(`/doc/:id`)、KnowledgeCreate(`/knowledge`)、KnowledgeUpload(`/knowledge`)、LearningPrefs、ObsidianImport、WeeklyReport、admin/ChapterEdit、PostEdit(`/community`)、PostDetail(`/community`)、KnowledgeMasteryDetail(`/learning/mastery`)。
+- 文档链路返回正确：列表 → 详情 → 编辑 各自兜底到上一级，不粗暴回学习首页。
+- 12 个 `MiniAppShell` 包裹的 App 视图本地 `goBack` 为死代码，返回已由 MiniAppShell 内部 `nav.goBack()` 接管，**不重复改造**（避免双重返回）。
+- `WorkbenchNoteEdit` 保留「未保存内容 → confirmDialog 确认」特殊返回逻辑，按 §16 不破坏。
+
+> 注：本会话接续上一轮，修复了上一轮批量脚本漏改的 3 个文件（PostEdit / PostDetail / KnowledgeMasteryDetail），并清理了批量脚本插入 import 时造成的语法损坏与未使用变量（`DocEdit` / `WeeklyReport` 的 `import {` 错位、`router` 未使用告警）。
+
+---
+
+## 4. PageHeader
+
+文件：`frontend/src/components/ui/PageHeader.vue`
+
+已统一结构：面包屑（可点击返回）、标题、数量徽标、描述区、右侧 Actions 插槽；全部令牌化。
+现状：全站 81 视图仅 9 个复用（🟡 见 Remaining Issues）。本阶段未强制全量迁移。
+
+---
+
+## 5. Icon
+
+文件：`frontend/src/apps/icon-registry.ts` + `apps/__tests__/icon-registry.spec.ts`
+
+- 严格执行 `App → APP_ICONS → Icon.vue` 单一来源。
+- `icon-registry.spec.ts`（3 例）校验所有 `APP_ICONS` 值均存在于 Icon.vue → 保证 Sidebar / App 图标无空白。
+- 残留：少量旧业务页使用了 Icon.vue 未定义图标名（如 `activity`/`network`/`square` 等）及 3 处 iconfont 依赖，会渲染空白（⚠️ 待下阶段清零）。
+
+---
+
+## 6. Typography
+
+文件：`frontend/src/styles/ui-tokens.css`
+
+建立语义层级 `kb-text-page-title / section-title / card-title / body / secondary / caption` + 间距工具类（4px 基线），全部引用 `--kb-*` 令牌。
+残留：旧页面非阶梯硬编码字号待逐页替换（🟡）。
+
+---
+
+## 7. Button
+
+文件：`frontend/src/components/ui/Button.vue`
+
+统一变体 `primary / secondary / text / ghost / danger / iconOnly` 已具备。
+尺寸 Small/Medium/Large 全站统一待各页面自查（🟡）。
+
+---
+
+## 8. Card
+
+令牌体系（`--kb-radius-sm` / `--kb-border` / `--kb-card` / `--kb-muted`）已建立。各页面卡片圆角/边框/padding 收敛待逐页复核（🟡，遵循 §23「视觉安静」）。
+
+---
+
+## 9. Responsive
+
+`CLayout.vue`：桌面 `>=1024px` Sidebar 常驻 + Main `max-width:1280px` 居中 + 仅 Main 滚动；移动 `<1024px` Sidebar 转抽屉 + 底部导航（≤5 个 `mobilePrimary`）。390px 真机视觉未复核（⚠️）。
+
+---
+
+## 10. Dark Mode
+
+全部颜色走 `--kb-*` 令牌，深色模式自动跟随。真实对比度/图标可见性未做真机复核（⚠️）。
+
+---
+
+## 11. 修改文件
+
+**本阶段新增/修改（frontend）：**
+
+| 文件 | 改动 |
+|------|------|
+| `components/layout/CSidebar.vue` | 折叠死按钮修复、防抖动、激活指示条 |
+| `components/layout/CLayout.vue` | 折叠持久化（已含，本次核查确认） |
+| `composables/usePageNavigation.ts` | `goBack(fallback?)` 上下文兜底 |
+| `views/Certificate.vue` | 返回统一 + 清理未用 router |
+| `views/Chat.vue` | 返回统一（上轮） |
+| `views/DocCreate.vue` | 返回统一（上轮） |
+| `views/DocDetail.vue` | 返回统一 `/docs` |
+| `views/DocEdit.vue` | 返回统一 `/doc/:id` + 修复 import 错位 |
+| `views/KnowledgeCreate.vue` | 返回统一 `/knowledge` |
+| `views/KnowledgeUpload.vue` | 返回统一 `/knowledge` |
+| `views/LearningPrefs.vue` | 返回统一 + 清理未用 router |
+| `views/ObsidianImport.vue` | 返回统一（上轮） |
+| `views/WeeklyReport.vue` | 返回统一 + 清理未用 router + 修复 import 错位 |
+| `views/admin/ChapterEdit.vue` | 返回统一 + 清理未用 router |
+| `views/PostEdit.vue` | 返回统一 `/community`（本会话） |
+| `views/PostDetail.vue` | 返回统一 `/community`（本会话） |
+| `views/KnowledgeMasteryDetail.vue` | 返回统一 `/learning/mastery` + 清理未用 router（本会话） |
+
+**本阶段新增测试 / 资源：**
+
+| 文件 | 说明 |
+|------|------|
+| `components/layout/__tests__/CSidebar.spec.ts` | 11 例（折叠/rail/active/持久化/死按钮修复） |
+| `components/layout/__tests__/CLayout.spec.ts` | 6 例（折叠持久化 + 不污染 UserApp） |
+| `composables/__tests__/usePageNavigation.spec.ts` | 9 例（返回 fallback 链路） |
+| `apps/icon-registry.ts` + `apps/__tests__/icon-registry.spec.ts` | 图标单一来源校验（3 例） |
+| `styles/ui-tokens.css` | 字体/间距语义令牌（上轮建立，本次核查） |
+
+**未改动（保持）：** `apps/registry.ts`、`config/navigation.ts`、`apps/navigation.ts`、`MiniAppShell.vue`、`learning/route.ts`、`main.ts`、`WorkbenchNoteEdit.vue`、所有 `MiniAppShell` 包裹视图的本地 `goBack`。
+
+---
+
+## 12. 自动化测试（§41，四门验证）
+
+| 门 | 命令 | 结果 |
+|----|------|------|
+| Vitest | `./node_modules/.bin/vitest run` | **230/230** ✅（19 文件） |
+| TypeScript | `vue-tsc -b` | **0 errors** ✅ |
+| Vite Build | `vite build` | **PASS** ✅ |
+| Backend | `mvn -o test`（JDK17 / Maven 3.9.16） | **71/71 BUILD SUCCESS** ✅ |
+
+扩展测试覆盖（§42）：Sidebar 折叠/展开/持久化/折叠态 App 导航/Tooltip/Active、返回 Workspace/App/Deep/Direct-URL fallback、图标 Registry 生效。
+
+自动修复轮次：本会话第 1 轮发现批量脚本 import 错位 + 未用变量（TS6133），已修复并复跑通过（共 1 轮实质修复）。
+
+---
+
+## 13. 浏览器验收（§35–§38，§43）
+
+> ⚠️ **Not verified** — 执行环境无可用的真实浏览器引擎（agent-browser 未安装；`node_modules` 无 playwright/playwright-core Chromium 缓存；沙箱 Chromium 历史白屏不可靠）。依据 §43 硬规则，纯视觉/交互层不伪称通过。
+
+真实达成的验证（强于纯读源码，非像素级）：
+
+- happy-dom 组件测试覆盖折叠宽度切换、图标 rail、active 指示条、Tooltip `:title`、F5 持久化、分组点击直达、返回 fallback 链路。
+- 源码核查 CLayout 折叠联动、CSidebar 图标来源、icon-registry 校验。
+- 类型检查 + 生产构建通过（无语法/类型损坏）。
+
+待用户本地浏览器复核：§36 折叠完整操作流、§37 返回完整链路、§38 逐页视觉一致性。
+
+---
+
+## 14. Remaining Issues
+
+1. PageHeader 复用 9/81，自定义头部返回一致性待下阶段统一。
+2. ~~旧业务页存在 Icon.vue 未定义图标名 + 3 处 iconfont 依赖（空白图标）。~~ **已清零（见 §16 3.3.2 图标清零）**：29 处未定义静态 `<Icon name>` 已替换为 Icon.vue 已定义的近义图标；3 处 `icon-*` 走 iconfont 分支（非空白）。
+3. 旧页面硬编码字号/圆角残留 → 已建**冻结基线回归守卫**（`styles/__tests__/typography-tokens.spec.ts` + `typography-baseline.json`）：全站 111 文件 / 728 处非阶梯命中已冻结，禁止新增漂移；逐页令牌化（改用 `ui-tokens.css` 或 `--kb-*`）留作人工视觉复核待办（⚠️ 见 §17）。
+4. 390px 移动端、深色模式对比度、键盘可达性未做真机视觉复核。
+
+---
+
+## 15. 下一阶段建议
+
+1. **3.3.2 PageHeader 统一**：81 视图头部收敛到 `PageHeader`（返回+标题+描述+Actions），逐页比对不破坏业务布局。
+2. ~~图标清零（P1）~~ → 已完成（见 §16）。
+3. **令牌化扫尾（先守后改）**：已建回归守卫冻结当前债务面；后续逐页将硬编码字号/圆角改为 `ui-tokens.css` 语义类 / `--kb-*` 令牌，改进时守卫测试自动通过、重算基线用 `/tmp/gen_typography_baseline.mjs`。
+4. **真机视觉验收**：本地浏览器对 §36/§37/§38 逐条截图复核，补齐 ⚠️ 项。
+5. 上述完成后才评估进入 AI Coach / Agent / MCP / Tool Calling / Architecture-7。
+
+---
+
+## 16. 3.3.2 进展：图标清零（P1，已完成）
+
+> 用户「continue」后启动的 3.3.2 首个子任务：消除全站空白图标方块。
+
+**诊断（精确锚定 `<Icon` 标签扫描）：**
+- Icon.vue 共定义 **210** 个系统 SVG 图标（`name === 'xxx'`）。
+- 全站静态 `<Icon name="字面量">` 用法中，**32 个未定义**会渲染空白方块；其中 3 个为 `icon-*`（走 iconfont 分支，非空白），真实需修复 **29 个**。
+
+**修复（零渲染风险策略）：**
+- 不手写新增 SVG 路径（避免路径错误比空白更糟），改用 Icon.vue 已定义的近义图标替换每个未定义名。
+- 映射示例：`activity→trending-up`、`alert-triangle→alert-circle`、`trash→trash-2`、`robot→bot`、`network→share-2`、`globe→map`、`user-x→user`、`video→play`、`waves→wind`、`zap-off→zap`、`check-circle-2→check-circle`、`calendar-range→calendar`、`edit-3→pencil`、`bookmark-plus→bookmark`、`columns→layout`、`sliders→settings`、`grip-vertical→menu`、`key→lock`、`link-2→link`、`loader-2→loader`、`plus-circle→plus`、`share→share-2`、`smile→message-circle`、`square→layout`、`box→archive`、`bar-chart→layout`、`folder-question→help-circle`、`highlighter→pencil`、`at-sign→send`、`database-import→database`。
+- 涉及 29 个文件（views/ 与 components/immersive、components/workflow、components/ui 等）。
+
+**防回归：新增 `components/ui/__tests__/icon-usage.spec.ts`**
+- 用 Vite 原生 `?raw` + `import.meta.glob` 扫描全站静态 `<Icon name>`，断言每个名字 ∈ Icon.vue 定义集合 或以 `icon-` 开头；Icon.vue 定义数断言 ≥ 200（防误删）。
+- 任何新增未定义 `<Icon name>` 将导致测试失败。
+
+**验证：Vitest 232/232（含图标测试 2 例）、vue-tsc 0 errors、Vite Build PASS。**
+
+---
+
+## 17. 3.3.2 进展：Typography / Radius 令牌化守护（已完成守卫，逐页改造待办）
+
+> 用户第二次「continue」后启动的 3.3.2 第二子任务：消灭随机字号 / 圆角（§18/§20/§22）。
+
+**先测缺口（精确锚定扫描，同源 icon-usage 思路）：**
+- 字号阶梯（`--kb-fs-*`）：11/12/13/14/16/20/24/32/40px；圆角阶梯（`--kb-radius-*`）：4/6/10/16px。
+- 排除 `var(--kb-*)`（非 px 字面量，自动不命中）与意图明确的全圆角 `999/9999px`（胶囊 / 头像，非一致性问题）。
+- 诊断结果：**864 处总命中 / 121 文件**；排除全圆角后真实债务面 **728 处 / 111 文件**（字号 284、圆角 444）。
+- 高频非阶梯值：字号 `15(56)/10(55)/18(47)/22(23)/28(22)/12.5·13.5·11.5(分数值)`；圆角 `8(185)/12(87)/3(46)/14(40)/9(27)/2(19)`。
+
+**为什么只建守卫、不全量改（诚实边界）：**
+- 728 处散落于 111 文件，逐处改会引发无法在本环境视觉验证（§43 无可用浏览器引擎）的布局回归风险，违反「最小改动 / 不破坏业务布局」。
+- 故采用设计系统落地通用做法：**冻结当前债务面 + 回归守卫阻止新增漂移**，逐页令牌化留给人工视觉复核（⚠️ Not verified）。
+
+**交付物：**
+- `frontend/src/styles/__tests__/typography.helpers.ts`：纯函数 `countViolations()` + Vite `import.meta.glob` 加载器，正则与基线生成脚本单源。
+- `frontend/src/styles/__tests__/typography-baseline.json`：一次性冻结的基线（`gen_typography_baseline.mjs` 生成，111 文件 / fs=284 / r=444）；含 `_meta` 说明阶梯与意图值。
+- `frontend/src/styles/__tests__/typography-tokens.spec.ts`：**3 例守卫**
+  1. 基线外新文件不得携带非阶梯字号/圆角（阻止新增漂移）；
+  2. 基线文件非阶梯计数不得增加（允许下降 = 改进）；
+  3. `ui-tokens.css` 语义类不得写死 px（仅引用 `--kb-*`）。
+
+**验证（已做）：**
+- 守卫测试对「植入非阶梯值的新文件」会**真实失败**（已用 `__typography_probe__.vue` 探测并清理验证），非空过。
+- Vitest **235/235**（含本任务 3 例）、`vue-tsc -b` 0 errors、Vite Build PASS。
+
+**待办（⚠️ 需用户本地浏览器逐页复核 + 令牌化）：**
+- 按风险从低到高逐页将 `15/18/22/28px` 等改为 `kb-text-*` 语义类 / `--kb-fs-*`、`8/12/14px` 圆角改为 `--kb-radius-*`，改完守卫自动通过；若某文件计数下降后可重算基线。
+
+---
+
+## STOP
+
+本阶段（3.3.1 + 3.3.2 图标清零）已停止。未 push（本地个人项目硬规则）。所有改动已本地 commit，待用户本地浏览器复核后自行决策。

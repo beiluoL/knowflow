@@ -1,5 +1,0 @@
-Page({
-  goBack() {
-    wx.navigateBack()
-  }
-})

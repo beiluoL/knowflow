@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  M01 JDK 动态代理与 SPI —— 独立验证工程
+  范围声明：验证「代理调用必转发到 InvocationHandler」「返回值透传」「SPI 加载多实现」
+            「handler 内调用 proxy 自身方法会无限递归(StackOverflow)」。
+  不验证：CGlib/ByteBuddy 对比、代理类字节码生成细节（见章节 §20 事实标记）。
+  环境：OpenJDK 17.0.14 + Maven 3.8.3
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.2.5</version>
+    <relativePath/>
+  </parent>
+  <groupId>com.knowflow.interview</groupId>
+  <artifactId>dynamic-proxy-verify</artifactId>
+  <version>1.0.0</version>
+  <name>dynamic-proxy-verify</name>
+  <description>M01 JDK 动态代理与 SPI：InvocationHandler 转发/透传/SPI 发现/递归</description>
+  <properties>
+    <java.version>17</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

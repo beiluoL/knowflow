@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "files": [
+    {
+      "kind": "markdown",
+      "sourceFile": "synthetic/jvm.md",
+      "rawMarkdown": "合成面试题：说明JVM垃圾回收的用途。\n参考答案：回收不再可达的对象。",
+      "sourceHash": "ff5b13aa813a09a113592ffcf34ff10a57b053e39ac3befe3a1e9d8bfd6976a9",
+      "title": "合成JVM来源"
+    }
+  ],
+  "mergedQuestions": [
+    {
+      "identity": "synthetic:Q001",
+      "sourceNamespace": "synthetic",
+      "sourceQuestionId": "Q001",
+      "sources": [
+        {
+          "sourceFile": "synthetic/jvm.md",
+          "sourceHash": "ff5b13aa813a09a113592ffcf34ff10a57b053e39ac3befe3a1e9d8bfd6976a9"
+        }
+      ],
+      "answerCandidates": [
+        "回收不再可达的对象。"
+      ]
+    }
+  ]
+}

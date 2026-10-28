@@ -1,0 +1,94 @@
+{
+  "topicId": "JAVA-COLLECTIONS-HASHMAP",
+  "humanApproved": false,
+  "technicalReview": "SYNTHETIC_FIXTURE_ONLY",
+  "bodyPath": "body.md",
+  "bodySha256": "9b796fd370f30b8ad831e3c36952cffb4c9bd2fafda90b3687ea10021d7c95c8",
+  "chapterIdentity": "synthetic-hashmap",
+  "questions": [
+    {
+      "canonicalKey": "learning-product-v1/JAVA-COLLECTIONS-HASHMAP/q01",
+      "version": "synthetic-v1",
+      "content": "合成作者题1"
+    },
+    {
+      "canonicalKey": "learning-product-v1/JAVA-COLLECTIONS-HASHMAP/q02",
+      "version": "synthetic-v1",
+      "content": "合成作者题2"
+    },
+    {
+      "canonicalKey": "learning-product-v1/JAVA-COLLECTIONS-HASHMAP/q03",
+      "version": "synthetic-v1",
+      "content": "合成作者题3"
+    },
+    {
+      "canonicalKey": "learning-product-v1/JAVA-COLLECTIONS-HASHMAP/q04",
+      "version": "synthetic-v1",
+      "content": "合成作者题4"
+    },
+    {
+      "canonicalKey": "learning-product-v1/JAVA-COLLECTIONS-HASHMAP/q05",
+      "version": "synthetic-v1",
+      "content": "合成作者题5"
+    },
+    {
+      "canonicalKey": "learning-product-v1/JAVA-COLLECTIONS-HASHMAP/q06",
+      "version": "synthetic-v1",
+      "content": "合成作者题6"
+    },
+    {
+      "canonicalKey": "learning-product-v1/JAVA-COLLECTIONS-HASHMAP/q07",
+      "version": "synthetic-v1",
+      "content": "合成作者题7"
+    },
+    {
+      "canonicalKey": "learning-product-v1/JAVA-COLLECTIONS-HASHMAP/q08",
+      "version": "synthetic-v1",
+      "content": "合成作者题8"
+    },
+    {
+      "canonicalKey": "learning-product-v1/JAVA-COLLECTIONS-HASHMAP/q09",
+      "version": "synthetic-v1",
+      "content": "合成作者题9"
+    },
+    {
+      "canonicalKey": "learning-product-v1/JAVA-COLLECTIONS-HASHMAP/q10",
+      "version": "synthetic-v1",
+      "content": "合成作者题10"
+    }
+  ],
+  "flashcards": [
+    {
+      "front": "合成问题0",
+      "back": "合成答案"
+    },
+    {
+      "front": "合成问题1",
+      "back": "合成答案"
+    },
+    {
+      "front": "合成问题2",
+      "back": "合成答案"
+    },
+    {
+      "front": "合成问题3",
+      "back": "合成答案"
+    },
+    {
+      "front": "合成问题4",
+      "back": "合成答案"
+    },
+    {
+      "front": "合成问题5",
+      "back": "合成答案"
+    },
+    {
+      "front": "合成问题6",
+      "back": "合成答案"
+    },
+    {
+      "front": "合成问题7",
+      "back": "合成答案"
+    }
+  ]
+}
