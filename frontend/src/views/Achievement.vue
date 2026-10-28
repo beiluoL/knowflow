@@ -3,19 +3,19 @@
     <!-- ===== 页面头部 ===== -->
     <div class="flex items-start justify-between gap-6 mb-6 flex-wrap">
       <div class="min-w-0 flex-1">
-        <h1 class="kb-h1 mb-2">成就系统</h1>
-        <p class="kb-body" style="color: var(--kb-muted-foreground);">解锁里程碑，记录你的成长足迹</p>
+        <h1 class="kf-h1 mb-2">成就系统</h1>
+        <p class="kf-body" style="color: var(--kf-muted-foreground);">解锁里程碑，记录你的成长足迹</p>
       </div>
       <!-- 总成就进度卡 -->
-      <div class="shrink-0 w-full sm:w-72 rounded-lg border p-4 progress-card" style="background: var(--kb-card); border-color: var(--kb-border);">
+      <div class="shrink-0 w-full sm:w-72 rounded-lg border p-4 progress-card" style="background: var(--kf-card); border-color: var(--kf-border);">
         <div class="flex items-center justify-between gap-2 mb-2">
-          <span class="kb-body-sm min-w-0 truncate">总成就进度</span>
-          <span class="kb-h4 shrink-0 tabular-nums" style="color: var(--kb-primary);">{{ unlockedCount }} / {{ achievements.length }}</span>
+          <span class="kf-body-sm min-w-0 truncate">总成就进度</span>
+          <span class="kf-h4 shrink-0 tabular-nums" style="color: var(--kf-primary);">{{ unlockedCount }} / {{ achievements.length }}</span>
         </div>
         <div class="ach-progress-track">
           <div class="ach-progress-fill" :style="{ width: `${totalPercent}%` }"></div>
         </div>
-        <div class="kb-body-sm mt-2 tabular-nums">已解锁 {{ totalPercent }}%</div>
+        <div class="kf-body-sm mt-2 tabular-nums">已解锁 {{ totalPercent }}%</div>
       </div>
     </div>
 
@@ -75,8 +75,8 @@
                 {{ ach.unlocked ? '已解锁' : '未解锁' }}
               </span>
             </div>
-            <div class="kb-h4 mb-1 ach-title">{{ ach.name }}</div>
-            <p class="kb-body-sm mb-3 ach-desc">{{ ach.description }}</p>
+            <div class="kf-h4 mb-1 ach-title">{{ ach.name }}</div>
+            <p class="kf-body-sm mb-3 ach-desc">{{ ach.description }}</p>
 
             <!-- 进度条（未解锁时显示，用 highlight 色暗示「接近解锁」） -->
             <template v-if="!ach.unlocked && ach.target > 0">
@@ -85,17 +85,17 @@
               </div>
               <div class="flex items-center justify-between gap-2 mb-3">
                 <!-- 正面表述：还差多少就解锁，而非「你才完成多少」 -->
-                <span class="kb-body-sm highlight-text min-w-0">
+                <span class="kf-body-sm highlight-text min-w-0">
                   <Icon name="zap" :size="12" />
                   再努力 {{ Math.max(0, ach.target - ach.current) }} 即可解锁
                 </span>
-                <span class="kb-body-sm tabular-nums shrink-0">{{ ach.percent }}%</span>
+                <span class="kf-body-sm tabular-nums shrink-0">{{ ach.percent }}%</span>
               </div>
             </template>
 
-            <div class="flex items-center justify-between gap-2 pt-3 border-t reward-row" style="border-color: var(--kb-border);">
-              <span class="kb-body-sm flex items-center gap-1 min-w-0 tabular-nums">
-                <Icon name="zap" :size="14" style="color: var(--kb-accent);" />
+            <div class="flex items-center justify-between gap-2 pt-3 border-t reward-row" style="border-color: var(--kf-border);">
+              <span class="kf-body-sm flex items-center gap-1 min-w-0 tabular-nums">
+                <Icon name="zap" :size="14" style="color: var(--kf-accent);" />
                 +{{ ach.rewardExp }} EXP
               </span>
               <span v-if="ach.unlocked && ach.rewardExp > 0" class="ach-badge unlocked">
@@ -106,18 +106,18 @@
         </div>
 
         <!-- 空态 -->
-        <div v-if="filteredAchievements.length === 0" class="rounded-lg border p-12 text-center empty-state" style="background: var(--kb-card); border-color: var(--kb-border);">
-          <Icon name="trophy" :size="32" style="color: var(--kb-muted-foreground);" />
-          <p class="kb-body-sm mt-3">该分类下暂无成就</p>
+        <div v-if="filteredAchievements.length === 0" class="rounded-lg border p-12 text-center empty-state" style="background: var(--kf-card); border-color: var(--kf-border);">
+          <Icon name="trophy" :size="32" style="color: var(--kf-muted-foreground);" />
+          <p class="kf-body-sm mt-3">该分类下暂无成就</p>
         </div>
       </div>
 
       <!-- 右侧：最近解锁时间线 -->
       <aside class="lg:w-auto">
-        <div class="rounded-lg border p-5 timeline-card" style="background: var(--kb-card); border-color: var(--kb-border);">
+        <div class="rounded-lg border p-5 timeline-card" style="background: var(--kf-card); border-color: var(--kf-border);">
           <div class="flex items-center gap-2 mb-4">
-            <Icon name="clock" :size="16" style="color: var(--kb-primary);" />
-            <h2 class="kb-h3">最近解锁</h2>
+            <Icon name="clock" :size="16" style="color: var(--kf-primary);" />
+            <h2 class="kf-h3">最近解锁</h2>
           </div>
           <div>
             <div
@@ -134,10 +134,10 @@
                 >
                   <Icon :name="item.icon" :size="14" :style="`color: ${item.color};`" />
                 </div>
-                <span class="kb-body font-semibold min-w-0 truncate">{{ item.name }}</span>
+                <span class="kf-body font-semibold min-w-0 truncate">{{ item.name }}</span>
               </div>
-              <p class="kb-body-sm timeline-text">{{ item.desc }}</p>
-              <p class="kb-body-sm mt-1 timeline-text tabular-nums">{{ item.time }} · +{{ item.exp }} EXP</p>
+              <p class="kf-body-sm timeline-text">{{ item.desc }}</p>
+              <p class="kf-body-sm mt-1 timeline-text tabular-nums">{{ item.time }} · +{{ item.exp }} EXP</p>
             </div>
           </div>
         </div>
@@ -186,10 +186,10 @@ const filteredAchievements = computed(() => {
 const unlockedCount = computed(() => pageData.value?.unlockedCount || 0)
 const totalPercent = computed(() => pageData.value?.totalPercent || 0)
 const overviewStats = computed(() => [
-  { label: '已解锁成就', value: String(unlockedCount.value), icon: 'trophy', bg: 'rgba(59,111,224,0.1)', color: 'var(--kb-primary)' },
-  { label: '成就经验值', value: String(pageData.value?.totalAchievementExp || 0), icon: 'zap', bg: 'rgba(16,185,129,0.12)', color: 'var(--kb-accent)' },
-  { label: '成就总数', value: String(pageData.value?.totalCount || 0), icon: 'medal', bg: 'rgba(245,158,11,0.14)', color: 'var(--kb-warning)' },
-  { label: '尚未解锁', value: String((pageData.value?.totalCount || 0) - unlockedCount.value), icon: 'lock', bg: 'rgba(239,68,68,0.12)', color: 'var(--kb-destructive)' },
+  { label: '已解锁成就', value: String(unlockedCount.value), icon: 'trophy', bg: 'rgba(59,111,224,0.1)', color: 'var(--kf-primary)' },
+  { label: '成就经验值', value: String(pageData.value?.totalAchievementExp || 0), icon: 'zap', bg: 'rgba(16,185,129,0.12)', color: 'var(--kf-accent)' },
+  { label: '成就总数', value: String(pageData.value?.totalCount || 0), icon: 'medal', bg: 'rgba(245,158,11,0.14)', color: 'var(--kf-warning)' },
+  { label: '尚未解锁', value: String((pageData.value?.totalCount || 0) - unlockedCount.value), icon: 'lock', bg: 'rgba(239,68,68,0.12)', color: 'var(--kf-destructive)' },
 ])
 
 // ===== 最近解锁时间线 =====
@@ -200,7 +200,7 @@ const recentUnlocked = computed(() => pageData.value?.recentUnlocks.map((r) => (
   exp: r.exp,
   icon: r.icon,
   bg: 'rgba(59,111,224,0.1)',
-  color: 'var(--kb-primary)',
+  color: 'var(--kf-primary)',
 })) || [])
 
 const loadAchievements = async () => {
@@ -255,13 +255,13 @@ onMounted(loadAchievements)
 .ach-progress-track {
   height: 8px;
   border-radius: 4px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 .ach-progress-fill {
   height: 100%;
   border-radius: 4px;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   transition: width 0.5s ease;
 }
 
@@ -270,51 +270,51 @@ onMounted(loadAchievements)
   display: inline-flex;
   align-items: center;
   padding: 6px 14px;
-  border-radius: var(--kb-radius-md);
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
+  border-radius: var(--kf-radius-md);
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
   font-weight: 500;
-  color: var(--kb-muted-foreground);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  color: var(--kf-muted-foreground);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
 }
 .category-tab:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 .category-tab:active {
   transform: scale(0.98);
 }
 .category-tab:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 .category-tab.active {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
-  border-color: var(--kb-primary);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
+  border-color: var(--kf-primary);
 }
 .category-tab.active:hover {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   opacity: 0.9;
 }
 
 /* ===== 成就卡 ===== */
 .ach-card {
   padding: 16px;
-  border-radius: var(--kb-radius-lg);
-  background: var(--kb-card);
+  border-radius: var(--kf-radius-lg);
+  background: var(--kf-card);
   transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 .ach-card.unlocked {
-  border: 1.5px solid var(--kb-primary);
+  border: 1.5px solid var(--kf-primary);
 }
 .ach-card.locked {
-  border: 1px dashed var(--kb-border);
+  border: 1px dashed var(--kf-border);
   /* 不再用全局 opacity 压暗，改用剪影效果保留可读性 */
 }
 .ach-card:hover {
@@ -328,22 +328,22 @@ onMounted(loadAchievements)
   justify-content: center;
   width: 48px;
   height: 48px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   flex-shrink: 0;
 }
 .ach-icon-wrap.unlocked {
   background: rgba(59, 111, 224, 0.1);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .ach-icon-wrap.locked {
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 
 /* P1-2：未解锁剪影效果 —— 保留图标但降饱和度 + 轻模糊，比纯 lock 更有期待感 */
 .ach-icon-wrap.silhouette {
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
   filter: saturate(0.4) blur(0.3px);
   opacity: 0.6;
   position: relative;
@@ -357,8 +357,8 @@ onMounted(loadAchievements)
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--kb-muted-foreground);
-  border: 2px solid var(--kb-card);
+  background: var(--kf-muted-foreground);
+  border: 2px solid var(--kf-card);
 }
 
 /* 卡片文本：小屏下允许换行，避免长标题/描述横向溢出 */
@@ -370,45 +370,45 @@ onMounted(loadAchievements)
 
 /* P1-2：未解锁进度条用 highlight 色，暗示「接近解锁」的期待感 */
 .ach-progress-fill.highlight-fill {
-  background: linear-gradient(90deg, var(--kb-highlight), #FF9A59);
+  background: linear-gradient(90deg, var(--kf-highlight), #FF9A59);
 }
 
 /* 高光文字（再努力 X 即可解锁） */
 .highlight-text {
-  color: var(--kb-highlight);
+  color: var(--kf-highlight);
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-space-1);
+  gap: var(--kf-space-1);
   font-weight: 500;
 }
 
 .ach-badge {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-space-1);
+  gap: var(--kf-space-1);
   padding: 3px 8px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-xs);
-  line-height: var(--kb-lh-xs);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-xs);
+  line-height: var(--kf-lh-xs);
   font-weight: 600;
   white-space: nowrap;
   flex-shrink: 0;
 }
 .ach-badge.unlocked {
   background: rgba(16, 185, 129, 0.1);
-  color: var(--kb-accent);
+  color: var(--kf-accent);
 }
 .ach-badge.locked {
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 .ach-badge.epic {
   background: rgba(245, 158, 11, 0.12);
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 .ach-badge.normal {
   background: rgba(245, 158, 11, 0.12);
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 
 .reward-row {
@@ -424,7 +424,7 @@ onMounted(loadAchievements)
 .timeline-item {
   position: relative;
   padding: 12px 0 12px 20px;
-  border-left: 2px solid var(--kb-border);
+  border-left: 2px solid var(--kf-border);
   margin-left: 6px;
 }
 .timeline-item:last-child {
@@ -445,9 +445,9 @@ onMounted(loadAchievements)
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--kb-primary);
-  border: 2px solid var(--kb-card);
-  box-shadow: 0 0 0 1px var(--kb-primary);
+  background: var(--kf-primary);
+  border: 2px solid var(--kf-card);
+  box-shadow: 0 0 0 1px var(--kf-primary);
 }
 
 /* ===== 响应式 ===== */

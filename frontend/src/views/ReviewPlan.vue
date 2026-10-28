@@ -13,13 +13,13 @@
       <template #actions>
         <button
           type="button"
-          class="h-9 w-9 inline-flex items-center justify-center rounded-lg border transition-colors hover:bg-muted self-start md:self-auto focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
-          style="border-color: var(--kb-input);"
+          class="h-9 w-9 inline-flex items-center justify-center rounded-lg border transition-colors hover:bg-muted self-start md:self-auto focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kf-ring)]"
+          style="border-color: var(--kf-input);"
           :disabled="loading"
           title="刷新" aria-label="刷新复习计划"
           @click="loadFlashcards"
         >
-          <Icon name="refresh-cw" :size="16" :class="loading ? 'animate-spin' : ''" style="color: var(--kb-muted-foreground);" />
+          <Icon name="refresh-cw" :size="16" :class="loading ? 'animate-spin' : ''" style="color: var(--kf-muted-foreground);" />
         </button>
       </template>
     </PageHeader>
@@ -28,54 +28,54 @@
     <div
       v-if="errorDesc"
       class="rounded-xl border p-6 flex flex-col items-center justify-center gap-3"
-      style="background: var(--kb-card); border-color: var(--kb-border);"
+      style="background: var(--kf-card); border-color: var(--kf-border);"
       role="alert"
       data-test="review-error"
     >
-      <Icon name="alert-circle" :size="32" style="color: var(--kb-destructive);" aria-hidden="true" />
+      <Icon name="alert-circle" :size="32" style="color: var(--kf-destructive);" aria-hidden="true" />
       <h3 class="rp-error-title">{{ errorDesc.title }}</h3>
-      <p class="text-sm" style="color: var(--kb-muted-foreground);">{{ errorDesc.scope }}</p>
-      <p class="text-sm" style="color: var(--kb-muted-foreground);">{{ errorDesc.hint }}</p>
+      <p class="text-sm" style="color: var(--kf-muted-foreground);">{{ errorDesc.scope }}</p>
+      <p class="text-sm" style="color: var(--kf-muted-foreground);">{{ errorDesc.hint }}</p>
       <button
         type="button"
-        class="px-3 py-1.5 rounded-lg text-sm font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
-        style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
+        class="px-3 py-1.5 rounded-lg text-sm font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kf-ring)]"
+        style="background: var(--kf-primary); color: var(--kf-primary-foreground);"
         @click="loadFlashcards"
       >重新加载</button>
     </div>
 
     <!-- Loading state -->
     <template v-else-if="loading">
-      <div class="rounded-xl border p-6 animate-pulse" style="background: var(--kb-card); border-color: var(--kb-border);">
+      <div class="rounded-xl border p-6 animate-pulse" style="background: var(--kf-card); border-color: var(--kf-border);">
         <div class="flex flex-col md:flex-row md:items-center gap-6">
           <div class="flex-1">
-            <div class="flex items-center gap-2 mb-2"><div class="w-5 h-5 rounded" style="background: var(--kb-muted);"></div><div class="h-5 w-20 rounded" style="background: var(--kb-muted);"></div></div>
-            <div class="h-3 w-48 rounded mb-4" style="background: var(--kb-muted);"></div>
+            <div class="flex items-center gap-2 mb-2"><div class="w-5 h-5 rounded" style="background: var(--kf-muted);"></div><div class="h-5 w-20 rounded" style="background: var(--kf-muted);"></div></div>
+            <div class="h-3 w-48 rounded mb-4" style="background: var(--kf-muted);"></div>
             <div class="flex items-center gap-8 mb-4">
-              <div><div class="h-8 w-12 rounded mb-1" style="background: var(--kb-muted);"></div><div class="h-3 w-10 rounded" style="background: var(--kb-muted);"></div></div>
-              <div><div class="h-8 w-12 rounded mb-1" style="background: var(--kb-muted);"></div><div class="h-3 w-10 rounded" style="background: var(--kb-muted);"></div></div>
+              <div><div class="h-8 w-12 rounded mb-1" style="background: var(--kf-muted);"></div><div class="h-3 w-10 rounded" style="background: var(--kf-muted);"></div></div>
+              <div><div class="h-8 w-12 rounded mb-1" style="background: var(--kf-muted);"></div><div class="h-3 w-10 rounded" style="background: var(--kf-muted);"></div></div>
             </div>
-            <div class="h-2 rounded w-full" style="background: var(--kb-muted);"></div>
+            <div class="h-2 rounded w-full" style="background: var(--kf-muted);"></div>
           </div>
           <div class="md:border-l md:border-border md:pl-6 md:py-2">
-            <div class="h-10 w-24 rounded-lg" style="background: var(--kb-muted);"></div>
+            <div class="h-10 w-24 rounded-lg" style="background: var(--kf-muted);"></div>
           </div>
         </div>
       </div>
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2">
-          <div class="rounded-xl border p-6 animate-pulse" style="background: var(--kb-card); border-color: var(--kb-border);">
+          <div class="rounded-xl border p-6 animate-pulse" style="background: var(--kf-card); border-color: var(--kf-border);">
             <div class="flex items-center justify-between mb-4">
-              <div class="flex items-center gap-2"><div class="w-5 h-5 rounded" style="background: var(--kb-muted);"></div><div class="h-5 w-24 rounded" style="background: var(--kb-muted);"></div></div>
-              <div class="flex items-center gap-2"><div class="w-8 h-8 rounded" style="background: var(--kb-muted);"></div><div class="w-20 h-5 rounded" style="background: var(--kb-muted);"></div><div class="w-8 h-8 rounded" style="background: var(--kb-muted);"></div></div>
+              <div class="flex items-center gap-2"><div class="w-5 h-5 rounded" style="background: var(--kf-muted);"></div><div class="h-5 w-24 rounded" style="background: var(--kf-muted);"></div></div>
+              <div class="flex items-center gap-2"><div class="w-8 h-8 rounded" style="background: var(--kf-muted);"></div><div class="w-20 h-5 rounded" style="background: var(--kf-muted);"></div><div class="w-8 h-8 rounded" style="background: var(--kf-muted);"></div></div>
             </div>
-            <div class="grid grid-cols-7 gap-1 mb-2"><div v-for="i in 7" :key="i" class="h-6 rounded" style="background: var(--kb-muted);"></div></div>
-            <div class="grid grid-cols-7 gap-1"><div v-for="i in 28" :key="i" class="h-16 rounded" style="background: var(--kb-muted);"></div></div>
+            <div class="grid grid-cols-7 gap-1 mb-2"><div v-for="i in 7" :key="i" class="h-6 rounded" style="background: var(--kf-muted);"></div></div>
+            <div class="grid grid-cols-7 gap-1"><div v-for="i in 28" :key="i" class="h-16 rounded" style="background: var(--kf-muted);"></div></div>
           </div>
         </div>
-        <div class="rounded-xl border p-6 animate-pulse" style="background: var(--kb-card); border-color: var(--kb-border);">
-          <div class="h-5 w-24 rounded mb-4" style="background: var(--kb-muted);"></div>
-          <div class="space-y-3"><div v-for="i in 4" :key="i" class="h-16 rounded" style="background: var(--kb-muted);"></div></div>
+        <div class="rounded-xl border p-6 animate-pulse" style="background: var(--kf-card); border-color: var(--kf-border);">
+          <div class="h-5 w-24 rounded mb-4" style="background: var(--kf-muted);"></div>
+          <div class="space-y-3"><div v-for="i in 4" :key="i" class="h-16 rounded" style="background: var(--kf-muted);"></div></div>
         </div>
       </div>
     </template>
@@ -140,7 +140,7 @@
               <div class="flex items-center gap-2">
                 <button
                   aria-label="上一月" @click="prevMonth"
-                  class="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
+                  class="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kf-ring)]"
                 >
                   <Icon name="chevron-left" :size="20" />
                 </button>
@@ -150,7 +150,7 @@
                 <button
                   @click="nextMonth"
                   aria-label="下一月"
-                  class="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
+                  class="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kf-ring)]"
                 >
                   <Icon name="chevron-right" :size="20" />
                 </button>
@@ -636,18 +636,18 @@ const goToFlashCards = () => {
   margin: 10px 0 0;
   padding: 4px 10px;
   border-radius: 999px;
-  background: var(--kb-primary-soft);
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-caption);
+  background: var(--kf-primary-soft);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-caption);
   line-height: 1.4;
 }
 
 .rp-error-title {
   margin: 0;
-  font-size: var(--kb-fs-body-lg);
-  line-height: var(--kb-lh-body-lg);
+  font-size: var(--kf-fs-body-lg);
+  line-height: var(--kf-lh-body-lg);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .animate-fade-in {
@@ -676,14 +676,14 @@ const goToFlashCards = () => {
   margin-left: 52px;
 }
 .phase-c-review { min-width:0; }
-.phase-c-review :deep(h1) { font-family:inherit;font-size:var(--kb-page-title-size); }
-.review-queue { display:grid;gap:var(--kb-space-3);padding:var(--kb-space-5);border:1px solid var(--kb-border);background:var(--kb-card);border-radius:var(--kb-radius-lg); }
-.review-queue h2 { font-size:var(--kb-section-title-size);font-weight:600; }
-.review-queue ul { list-style:none;padding:0;margin:0;display:grid;gap:var(--kb-space-2); }
-.review-queue li { display:flex;justify-content:space-between;gap:var(--kb-space-3);border-bottom:1px solid var(--kb-border);padding:var(--kb-space-2) 0; }
+.phase-c-review :deep(h1) { font-family:inherit;font-size:var(--kf-page-title-size); }
+.review-queue { display:grid;gap:var(--kf-space-3);padding:var(--kf-space-5);border:1px solid var(--kf-border);background:var(--kf-card);border-radius:var(--kf-radius-lg); }
+.review-queue h2 { font-size:var(--kf-section-title-size);font-weight:600; }
+.review-queue ul { list-style:none;padding:0;margin:0;display:grid;gap:var(--kf-space-2); }
+.review-queue li { display:flex;justify-content:space-between;gap:var(--kf-space-3);border-bottom:1px solid var(--kf-border);padding:var(--kf-space-2) 0; }
 .review-queue li span:first-child { min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
-.review-queue li span+span,.review-queue-hint { color:var(--kb-muted-foreground);font-size:var(--kb-fs-body-sm); }
-.phase-c-review :is(button,a):focus-visible { outline:2px solid var(--kb-ring);outline-offset:2px; }
-.phase-c-review :deep(button.bg-primary-500.text-white) { color:var(--kb-primary-foreground); }
-@media(max-width:640px){.phase-c-review .ml-13{margin-left:0}.phase-c-review :deep(.kb-card){min-width:0}.review-queue{padding:var(--kb-space-4)}}
+.review-queue li span+span,.review-queue-hint { color:var(--kf-muted-foreground);font-size:var(--kf-fs-body-sm); }
+.phase-c-review :is(button,a):focus-visible { outline:2px solid var(--kf-ring);outline-offset:2px; }
+.phase-c-review :deep(button.bg-primary-500.text-white) { color:var(--kf-primary-foreground); }
+@media(max-width:640px){.phase-c-review .ml-13{margin-left:0}.phase-c-review :deep(.kf-card){min-width:0}.review-queue{padding:var(--kf-space-4)}}
 </style>

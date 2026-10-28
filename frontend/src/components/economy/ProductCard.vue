@@ -1,7 +1,7 @@
 <template>
-  <article class="product-card" :style="{ borderColor: 'var(--kb-border)' }">
+  <article class="product-card" :style="{ borderColor: 'var(--kf-border)' }">
     <div class="pc-head">
-      <span class="pc-icon" :style="{ background: 'var(--kb-primary-soft)', color: 'var(--kb-primary)' }" aria-hidden="true">
+      <span class="pc-icon" :style="{ background: 'var(--kf-primary-soft)', color: 'var(--kf-primary)' }" aria-hidden="true">
         <Icon name="gift" :size="18" />
       </span>
       <div class="min-w-0 flex-1">
@@ -70,9 +70,9 @@ defineEmits<{
   flex-direction: column;
   gap: 12px;
   padding: 16px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
 }
 .pc-head {
   display: flex;
@@ -86,18 +86,18 @@ defineEmits<{
   justify-content: center;
   width: 38px;
   height: 38px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   flex-shrink: 0;
 }
 .pc-name {
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .pc-desc {
   margin-top: 2px;
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-muted-foreground);
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -114,14 +114,14 @@ defineEmits<{
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 600;
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 .pc-price.owned {
-  color: var(--kb-success);
+  color: var(--kf-success);
 }
 .pc-price.free {
-  color: var(--kb-success);
+  color: var(--kf-success);
 }
 </style>

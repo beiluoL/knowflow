@@ -11,7 +11,7 @@
         <button
           v-for="tab in tabs"
           :key="tab.key"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)]"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)]"
           :class="mode === tab.key
             ? 'bg-primary-500 text-white border-primary-500'
             : 'bg-card text-foreground border-border hover:border-primary-300'"
@@ -96,10 +96,10 @@
             </div>
           </div>
 
-          <div class="kb-form-row kb-form-row--three">
+          <div class="kf-form-row kf-form-row--three">
             <Select v-model="selectedPreset" label="练习目的" aria-label="练习目的" :help="practicePresetDescription" :options="presetOptions" :panel-width="240" @change="applyPracticePreset" />
             <Select v-model="form.strategy" label="组卷策略" aria-label="组卷策略" :help="strategyHint" :options="strategies" value-key="key" :panel-width="240" />
-            <FormField control-id="rule-seed" label="随机种子（可复现）"><div class="exam-seed"><input id="rule-seed" v-model.number="form.seed" type="number" class="kb-input kb-form-control" /><button type="button" title="换一批题目" @click="rerollSeed"><Icon name="refresh-cw" :size="15" /></button></div></FormField>
+            <FormField control-id="rule-seed" label="随机种子（可复现）"><div class="exam-seed"><input id="rule-seed" v-model.number="form.seed" type="number" class="kf-input kf-form-control" /><button type="button" title="换一批题目" @click="rerollSeed"><Icon name="refresh-cw" :size="15" /></button></div></FormField>
           </div>
 
           <div>
@@ -112,7 +112,7 @@
                 :class="{ 'opacity-60': bankAvail && (bankAvail.available[t.key] || 0) === 0 }"
               >
                 <span class="w-16 text-sm text-foreground shrink-0">{{ t.label }}</span>
-                <div class="kb-stepper">
+                <div class="kf-stepper">
                   <button class="px-3 py-1.5 text-muted-foreground hover:bg-gray-50" @click="bump(t.key, -1)">
                     <Icon name="minus" :size="14" />
                   </button>
@@ -120,7 +120,7 @@
                     v-model.number="form.typeDistribution[t.key]"
                     type="number"
                     min="0"
-                    :aria-label="t.label+'数量'" class="kb-input kb-stepper__input"
+                    :aria-label="t.label+'数量'" class="kf-input kf-stepper__input"
                   />
                   <button class="px-3 py-1.5 text-muted-foreground hover:bg-gray-50" @click="bump(t.key, 1)">
                     <Icon name="plus" :size="14" />
@@ -139,10 +139,10 @@
             </div>
           </div>
 
-          <div class="kb-form-row kb-form-row--three">
-            <FormField control-id="rule-score" label="总分"><input id="rule-score" v-model.number="form.totalScore" type="number" min="1" class="kb-input kb-form-control" /></FormField>
-            <FormField control-id="rule-duration" label="时长（分钟）"><input id="rule-duration" v-model.number="form.durationMinutes" type="number" min="1" max="600" class="kb-input kb-form-control" /></FormField>
-            <FormField control-id="rule-pass" label="及格分"><input id="rule-pass" v-model.number="form.passScore" type="number" min="0" class="kb-input kb-form-control" /></FormField>
+          <div class="kf-form-row kf-form-row--three">
+            <FormField control-id="rule-score" label="总分"><input id="rule-score" v-model.number="form.totalScore" type="number" min="1" class="kf-input kf-form-control" /></FormField>
+            <FormField control-id="rule-duration" label="时长（分钟）"><input id="rule-duration" v-model.number="form.durationMinutes" type="number" min="1" max="600" class="kf-input kf-form-control" /></FormField>
+            <FormField control-id="rule-pass" label="及格分"><input id="rule-pass" v-model.number="form.passScore" type="number" min="0" class="kf-input kf-form-control" /></FormField>
           </div>
 
           <div class="grid grid-cols-2 gap-4">
@@ -168,20 +168,20 @@
           </div>
 
           <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-foreground">
-            <label class="flex items-center gap-2 text-xs text-foreground kb-checkbox-row"><Checkbox as="span" v-model="form.includeAnswered" />包含已作答题目（关闭后按真实练习与考试记录排除同身份题目）</label>
-            <label class="inline-flex items-center gap-2 cursor-pointer kb-checkbox-row">
+            <label class="flex items-center gap-2 text-xs text-foreground kf-checkbox-row"><Checkbox as="span" v-model="form.includeAnswered" />包含已作答题目（关闭后按真实练习与考试记录排除同身份题目）</label>
+            <label class="inline-flex items-center gap-2 cursor-pointer kf-checkbox-row">
               <Checkbox as="span" v-model="form.shuffleQuestion"   :true-value="1" :false-value="0" />
               题目乱序
             </label>
-            <label class="inline-flex items-center gap-2 cursor-pointer kb-checkbox-row">
+            <label class="inline-flex items-center gap-2 cursor-pointer kf-checkbox-row">
               <Checkbox as="span" v-model="form.shuffleOption"   :true-value="1" :false-value="0" />
               选项乱序
             </label>
-            <label class="inline-flex items-center gap-2 cursor-pointer kb-checkbox-row">
+            <label class="inline-flex items-center gap-2 cursor-pointer kf-checkbox-row">
               <Checkbox as="span" v-model="form.allowPause"   :true-value="1" :false-value="0" />
               允许暂停
             </label>
-            <label class="inline-flex items-center gap-2 cursor-pointer kb-checkbox-row">
+            <label class="inline-flex items-center gap-2 cursor-pointer kf-checkbox-row">
               <Checkbox as="span" v-model="form.allowChange"   :true-value="1" :false-value="0" />
               交卷前可修改
             </label>
@@ -209,7 +209,7 @@
             </div>
             <button
               :disabled="submitting || totalCount === 0"
-              class="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:bg-gray-200 disabled:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)]"
+              class="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 disabled:bg-gray-200 disabled:text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)]"
               @click="submitCompose"
             >
               <Icon :name="submitting ? 'loader' : 'play'" :size="16" :class="submitting ? 'animate-spin' : ''" />
@@ -227,13 +227,13 @@
         <section class="lg:col-span-2 border rounded-[10px] bg-card border-border p-5 space-y-5">
           <div class="exam-ai-fields">
             <Input v-model="aiForm.name" label="试卷名称" maxlength="60" placeholder="例如：RAG 工程化 AI 出卷" />
-            <div class="kb-form-row kb-form-row--two">
+            <div class="kf-form-row kf-form-row--two">
               <Select v-model="aiForm.topic" label="知识点 / 主题" aria-label="知识点 / 主题" :options="aiTopicOptions" :panel-width="240" />
-              <FormField control-id="ai-count" label="题目数量"><input id="ai-count" v-model.number="aiForm.count" type="number" min="1" max="30" class="kb-input kb-form-control" /></FormField>
+              <FormField control-id="ai-count" label="题目数量"><input id="ai-count" v-model.number="aiForm.count" type="number" min="1" max="30" class="kf-input kf-form-control" /></FormField>
             </div>
-            <div class="kb-form-row kb-form-row--three">
-              <FormField control-id="ai-total-score" label="总分"><input id="ai-total-score" v-model.number="aiForm.totalScore" type="number" class="kb-input kb-form-control" /></FormField>
-              <FormField control-id="ai-duration" label="时长（分钟）"><input id="ai-duration" v-model.number="aiForm.durationMinutes" type="number" class="kb-input kb-form-control" /></FormField>
+            <div class="kf-form-row kf-form-row--three">
+              <FormField control-id="ai-total-score" label="总分"><input id="ai-total-score" v-model.number="aiForm.totalScore" type="number" class="kf-input kf-form-control" /></FormField>
+              <FormField control-id="ai-duration" label="时长（分钟）"><input id="ai-duration" v-model.number="aiForm.durationMinutes" type="number" class="kf-input kf-form-control" /></FormField>
               <Select v-model="aiForm.mode" label="模式" aria-label="AI 出卷模式" :options="examModeOptions" :panel-width="240" />
             </div>
           </div>
@@ -616,7 +616,7 @@ onBeforeUnmount(() => { availabilityRequest++; clearTimeout(timer) })
 
 <style scoped>
 .exam-compose-page :deep(.select-control),.exam-compose-page .grid>div{min-width:0}
-.exam-ai-fields{display:grid;gap:var(--kb-space-5)}
-.exam-seed{display:flex;gap:var(--kb-space-2);min-width:0}.exam-seed input{flex:1;min-width:0}.exam-seed button{display:flex;align-items:center;justify-content:center;flex:none;width:var(--kb-input-height);height:var(--kb-input-height);border-radius:var(--kb-field-radius);background:var(--kb-field-surface)}
-.kb-stepper{display:flex;align-items:center;flex:none;width:calc(var(--kb-input-height) * 3);border-radius:var(--kb-field-radius);background:var(--kb-field-surface);overflow:hidden}.kb-stepper button{height:var(--kb-input-height);padding:var(--kb-space-3)}.kb-stepper .kb-stepper__input{min-width:0;width:0;flex:1;background:transparent;border-radius:0;text-align:center;padding-inline:0;outline:0}.kb-stepper:has(:focus-visible:not(.kb-form-control)){outline:0}
+.exam-ai-fields{display:grid;gap:var(--kf-space-5)}
+.exam-seed{display:flex;gap:var(--kf-space-2);min-width:0}.exam-seed input{flex:1;min-width:0}.exam-seed button{display:flex;align-items:center;justify-content:center;flex:none;width:var(--kf-input-height);height:var(--kf-input-height);border-radius:var(--kf-field-radius);background:var(--kf-field-surface)}
+.kf-stepper{display:flex;align-items:center;flex:none;width:calc(var(--kf-input-height) * 3);border-radius:var(--kf-field-radius);background:var(--kf-field-surface);overflow:hidden}.kf-stepper button{height:var(--kf-input-height);padding:var(--kf-space-3)}.kf-stepper .kf-stepper__input{min-width:0;width:0;flex:1;background:transparent;border-radius:0;text-align:center;padding-inline:0;outline:0}.kf-stepper:has(:focus-visible:not(.kf-form-control)){outline:0}
 </style>

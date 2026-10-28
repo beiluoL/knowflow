@@ -391,7 +391,7 @@ onMounted(() => {
         <Icon name="arrow-left" :size="16" /> 返回
       </button>
       <div>
-        <h1 class="kb-h1">生成学习内容</h1>
+        <h1 class="kf-h1">生成学习内容</h1>
         <p class="lcg-sub">知识 → AI 建议 → 你审核 → 保存 → 真正开始学习。AI 只产出 Draft，不会直接改写任何学习记录。</p>
       </div>
       <button type="button" class="lcg-gen" :disabled="running || !knowledgeId" @click="run">
@@ -414,21 +414,21 @@ onMounted(() => {
       <div class="lcg-grid">
         <label class="lcg-field">
           <span class="lcg-field-label">关联学习目标（可选）</span>
-          <select class="lcg-input kb-select kb-form-control" :value="goalId ?? ''" @change="goalId = ($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null">
+          <select class="lcg-input kf-select kf-form-control" :value="goalId ?? ''" @change="goalId = ($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null">
             <option value="">不关联目标</option>
             <option v-for="g in goals" :key="g.id" :value="g.id">{{ g.title }}</option>
           </select>
         </label>
         <label class="lcg-field">
           <span class="lcg-field-label">学习路径（可选）</span>
-          <select class="lcg-input kb-select kb-form-control" :value="selectedPathId ?? ''" @change="onPathChange(($event.target as HTMLSelectElement).value)">
+          <select class="lcg-input kf-select kf-form-control" :value="selectedPathId ?? ''" @change="onPathChange(($event.target as HTMLSelectElement).value)">
             <option value="">不关联路径</option>
             <option v-for="p in paths" :key="p.id" :value="p.id">{{ p.title }}</option>
           </select>
         </label>
         <label class="lcg-field">
           <span class="lcg-field-label">学习节点 / 章节（可选）</span>
-          <select class="lcg-input kb-select kb-form-control" :value="learningNodeId ?? ''" :disabled="!selectedPathId || chaptersLoading" @change="learningNodeId = ($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null">
+          <select class="lcg-input kf-select kf-form-control" :value="learningNodeId ?? ''" :disabled="!selectedPathId || chaptersLoading" @change="learningNodeId = ($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null">
             <option value="">{{ !selectedPathId ? '先选择路径' : chaptersLoading ? '加载中…' : '不关联节点' }}</option>
             <option v-for="c in chapters" :key="c.id" :value="c.id">{{ c.title }}</option>
           </select>
@@ -436,20 +436,20 @@ onMounted(() => {
       </div>
 
       <div class="lcg-types">
-        <label class="lcg-type kb-checkbox-row" :class="{ off: !wantFlashcards }">
+        <label class="lcg-type kf-checkbox-row" :class="{ off: !wantFlashcards }">
           <Checkbox as="span" v-model="wantFlashcards" />
           <Icon name="layers" :size="15" />
           <span><b>闪卡</b><small>Q&A 自测卡，接受后进入闪卡复习</small></span>
-          <select v-if="wantFlashcards" class="lcg-count kb-select kb-form-control" :value="flashcardCount" @change="flashcardCount = Number(($event.target as HTMLSelectElement).value) as 3 | 5 | 8">
+          <select v-if="wantFlashcards" class="lcg-count kf-select kf-form-control" :value="flashcardCount" @change="flashcardCount = Number(($event.target as HTMLSelectElement).value) as 3 | 5 | 8">
             <option v-for="n in COUNT_OPTIONS" :key="n" :value="n">{{ n }} 张</option>
           </select>
         </label>
-        <label class="lcg-type kb-checkbox-row" :class="{ off: !wantFeynman }">
+        <label class="lcg-type kf-checkbox-row" :class="{ off: !wantFeynman }">
           <Checkbox as="span" v-model="wantFeynman" />
           <Icon name="message-square" :size="15" />
           <span><b>费曼</b><small>1 个表达引导，你去解释（AI 不代答）</small></span>
         </label>
-        <label class="lcg-type kb-checkbox-row" :class="{ off: !wantScenario }">
+        <label class="lcg-type kf-checkbox-row" :class="{ off: !wantScenario }">
           <Checkbox as="span" v-model="wantScenario" />
           <Icon name="target" :size="15" />
           <span><b>场景</b><small>1 个真实业务场景，你去作答</small></span>
@@ -480,7 +480,7 @@ onMounted(() => {
       <section class="lcg-card">
         <div class="lcg-result-head">
           <div class="lcg-result-title">
-            <Icon name="check-circle" :size="16" style="color: var(--kb-success)" />
+            <Icon name="check-circle" :size="16" style="color: var(--kf-success)" />
             已生成：闪卡 {{ cards.filter((c) => c.state !== 'ignored').length }} · 费曼 {{ feynman ? 1 : 0 }} · 场景 {{ scenario ? 1 : 0 }}
             <span class="lcg-meta">{{ result.model || '默认模型' }} · {{ result.promptVersion }} · {{ Math.round((result.processingTimeMs || 0) / 1000) }}s</span>
           </div>
@@ -517,10 +517,10 @@ onMounted(() => {
             <div v-else-if="row.state === 'accepted'" class="lcg-ok"><Icon name="check-circle" :size="14" /> 已接受</div>
           </template>
           <template v-else>
-            <textarea v-model="row.editFront" rows="2" class="lcg-input lcg-area kb-textarea kb-form-control" placeholder="问题"></textarea>
-            <textarea v-model="row.editBack" rows="3" class="lcg-input lcg-area kb-textarea kb-form-control" placeholder="答案"></textarea>
+            <textarea v-model="row.editFront" rows="2" class="lcg-input lcg-area kf-textarea kf-form-control" placeholder="问题"></textarea>
+            <textarea v-model="row.editBack" rows="3" class="lcg-input lcg-area kf-textarea kf-form-control" placeholder="答案"></textarea>
             <div class="lcg-edit-row">
-              <select v-model.number="row.editDifficulty" class="lcg-input lcg-select-sm kb-select kb-form-control">
+              <select v-model.number="row.editDifficulty" class="lcg-input lcg-select-sm kf-select kf-form-control">
                 <option :value="1">简单</option><option :value="2">中等</option><option :value="3">困难</option>
               </select>
               <button type="button" class="lcg-btn lcg-btn-primary" :disabled="!row.editFront.trim() || !row.editBack.trim()" @click="acceptCard(row)"><Icon name="check" :size="13" /> 接受</button>
@@ -549,8 +549,8 @@ onMounted(() => {
           </div>
         </template>
         <template v-else>
-          <input v-model="feynman.editTopic" class="lcg-input kb-input kb-form-control" placeholder="表达主题（如：JVM GC）" />
-          <textarea v-model="feynman.editQuestion" rows="3" class="lcg-input lcg-area kb-textarea kb-form-control" placeholder="这次的费曼引导问题"></textarea>
+          <input v-model="feynman.editTopic" class="lcg-input kf-input kf-form-control" placeholder="表达主题（如：JVM GC）" />
+          <textarea v-model="feynman.editQuestion" rows="3" class="lcg-input lcg-area kf-textarea kf-form-control" placeholder="这次的费曼引导问题"></textarea>
           <div class="lcg-edit-row">
             <button type="button" class="lcg-btn lcg-btn-primary" :disabled="!feynman.editTopic.trim() || !feynman.editQuestion.trim()" @click="acceptFeynman"><Icon name="check" :size="13" /> 接受并去表达</button>
             <button type="button" class="lcg-btn" @click="feynman.editing = false; feynman.editTopic = feynman.topic; feynman.editQuestion = feynman.question">取消</button>
@@ -577,11 +577,11 @@ onMounted(() => {
           </div>
         </template>
         <template v-else>
-          <input v-model="scenario.editTitle" class="lcg-input kb-input kb-form-control" placeholder="标题" />
-          <textarea v-model="scenario.editContext" rows="3" class="lcg-input lcg-area kb-textarea kb-form-control" placeholder="情景背景"></textarea>
-          <textarea v-model="scenario.editQuestion" rows="3" class="lcg-input lcg-area kb-textarea kb-form-control" placeholder="开放问题"></textarea>
+          <input v-model="scenario.editTitle" class="lcg-input kf-input kf-form-control" placeholder="标题" />
+          <textarea v-model="scenario.editContext" rows="3" class="lcg-input lcg-area kf-textarea kf-form-control" placeholder="情景背景"></textarea>
+          <textarea v-model="scenario.editQuestion" rows="3" class="lcg-input lcg-area kf-textarea kf-form-control" placeholder="开放问题"></textarea>
           <div class="lcg-edit-row">
-            <select v-model.number="scenario.editDifficulty" class="lcg-input lcg-select-sm kb-select kb-form-control">
+            <select v-model.number="scenario.editDifficulty" class="lcg-input lcg-select-sm kf-select kf-form-control">
               <option :value="1">简单</option><option :value="2">中等</option><option :value="3">困难</option>
             </select>
             <button type="button" class="lcg-btn lcg-btn-primary" :disabled="!scenario.editTitle.trim() || !scenario.editContext.trim() || !scenario.editQuestion.trim()" @click="acceptScenario(scenario)"><Icon name="check" :size="13" /> 接受</button>
@@ -617,82 +617,82 @@ onMounted(() => {
   padding-top: 0;
 }
 .lcg-head { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
-.lcg-back { display: inline-flex; align-items: center; gap: 5px; font-size: var(--kb-fs-13); font-weight: 500; border: none; background: transparent; color: var(--kb-primary); cursor: pointer; padding: 0; }
+.lcg-back { display: inline-flex; align-items: center; gap: 5px; font-size: var(--kf-fs-13); font-weight: 500; border: none; background: transparent; color: var(--kf-primary); cursor: pointer; padding: 0; }
 .lcg-head > div { flex: 1; min-width: 240px; }
-.lcg-sub { font-size: var(--kb-fs-13); color: var(--kb-muted-foreground); margin-top: 4px; line-height: 1.6; }
-.lcg-gen { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; font-size: var(--kb-fs-13); font-weight: 600; border: none; border-radius: var(--kb-radius-md); background: var(--kb-primary); color: #fff; cursor: pointer; }
+.lcg-sub { font-size: var(--kf-fs-13); color: var(--kf-muted-foreground); margin-top: 4px; line-height: 1.6; }
+.lcg-gen { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; font-size: var(--kf-fs-13); font-weight: 600; border: none; border-radius: var(--kf-radius-md); background: var(--kf-primary); color: #fff; cursor: pointer; }
 .lcg-gen:hover:not(:disabled) { opacity: 0.92; }
 .lcg-gen:disabled { opacity: 0.55; cursor: default; }
 
-.lcg-card { padding: 18px; border-radius: var(--kb-radius-lg); background: var(--kb-card); border: 1px solid var(--kb-border); margin-bottom: 14px; }
-.lcg-card-title { display: flex; align-items: center; gap: 7px; font-size: var(--kb-fs-16); font-weight: 600; color: var(--kb-foreground); margin-bottom: 10px; flex-wrap: wrap; }
+.lcg-card { padding: 18px; border-radius: var(--kf-radius-lg); background: var(--kf-card); border: 1px solid var(--kf-border); margin-bottom: 14px; }
+.lcg-card-title { display: flex; align-items: center; gap: 7px; font-size: var(--kf-fs-16); font-weight: 600; color: var(--kf-foreground); margin-bottom: 10px; flex-wrap: wrap; }
 .lcg-kno { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.lcg-kno-tag { font-size: var(--kb-fs-14); font-weight: 600; color: var(--kb-primary); background: color-mix(in srgb, var(--kb-primary) 10%, transparent); padding: 5px 12px; border-radius: var(--kb-radius-md); }
-.lcg-kno-id { font-size: var(--kb-fs-12); color: var(--kb-muted-foreground); }
+.lcg-kno-tag { font-size: var(--kf-fs-14); font-weight: 600; color: var(--kf-primary); background: color-mix(in srgb, var(--kf-primary) 10%, transparent); padding: 5px 12px; border-radius: var(--kf-radius-md); }
+.lcg-kno-id { font-size: var(--kf-fs-12); color: var(--kf-muted-foreground); }
 
 .lcg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 14px; }
 .lcg-field { display: flex; flex-direction: column; gap: 6px; }
-.lcg-field-label { font-size: var(--kb-fs-12); color: var(--kb-muted-foreground); }
-.lcg-input:not(.kb-form-control) { height: 36px; background: var(--kb-background); border: 1px solid var(--kb-border); border-radius: var(--kb-radius-md); }
-.lcg-input { width: 100%; padding: 0 10px; font-size: var(--kb-fs-13); color: var(--kb-foreground); box-sizing: border-box; }
-.lcg-input:not(.kb-form-control):focus { outline: none; border-color: var(--kb-primary); }
-.lcg-area:not(.kb-form-control) { height: auto; }
+.lcg-field-label { font-size: var(--kf-fs-12); color: var(--kf-muted-foreground); }
+.lcg-input:not(.kf-form-control) { height: 36px; background: var(--kf-background); border: 1px solid var(--kf-border); border-radius: var(--kf-radius-md); }
+.lcg-input { width: 100%; padding: 0 10px; font-size: var(--kf-fs-13); color: var(--kf-foreground); box-sizing: border-box; }
+.lcg-input:not(.kf-form-control):focus { outline: none; border-color: var(--kf-primary); }
+.lcg-area:not(.kf-form-control) { height: auto; }
 .lcg-area { padding: 8px 10px; line-height: 1.6; resize: vertical; margin-bottom: 8px; height: auto; }
 .lcg-select-sm { width: 120px; }
 
 .lcg-types { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-.lcg-type { display: flex; align-items: center; gap: var(--kb-checkbox-gap); padding: 10px 12px; border: 1px solid var(--kb-border); border-radius: var(--kb-radius-md); background: var(--kb-background); cursor: pointer; color: var(--kb-foreground); }
+.lcg-type { display: flex; align-items: center; gap: var(--kf-checkbox-gap); padding: 10px 12px; border: 1px solid var(--kf-border); border-radius: var(--kf-radius-md); background: var(--kf-background); cursor: pointer; color: var(--kf-foreground); }
 .lcg-type.off { opacity: 0.55; }
-.lcg-type input { accent-color: var(--kb-primary); }
+.lcg-type input { accent-color: var(--kf-primary); }
 .lcg-type span { display: flex; flex-direction: column; gap: 2px; }
-.lcg-type b { font-size: var(--kb-fs-14); font-weight: 600; }
-.lcg-type small { font-size: var(--kb-fs-12); color: var(--kb-muted-foreground); }
-.lcg-count:not(.kb-form-control) { height: 30px; border: 1px solid var(--kb-border); border-radius: var(--kb-radius-sm); background: var(--kb-card); }
-.lcg-count { margin-left: auto; font-size: var(--kb-fs-12); color: var(--kb-foreground); }
+.lcg-type b { font-size: var(--kf-fs-14); font-weight: 600; }
+.lcg-type small { font-size: var(--kf-fs-12); color: var(--kf-muted-foreground); }
+.lcg-count:not(.kf-form-control) { height: 30px; border: 1px solid var(--kf-border); border-radius: var(--kf-radius-sm); background: var(--kf-card); }
+.lcg-count { margin-left: auto; font-size: var(--kf-fs-12); color: var(--kf-foreground); }
 
-.lcg-primary { display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 18px; font-size: var(--kb-fs-14); font-weight: 600; border: none; border-radius: var(--kb-radius-md); background: var(--kb-primary); color: #fff; cursor: pointer; }
+.lcg-primary { display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 18px; font-size: var(--kf-fs-14); font-weight: 600; border: none; border-radius: var(--kf-radius-md); background: var(--kf-primary); color: #fff; cursor: pointer; }
 .lcg-primary:hover:not(:disabled) { opacity: 0.92; }
 .lcg-primary:disabled { opacity: 0.55; cursor: default; }
-.lcg-running { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: var(--kb-fs-13); color: var(--kb-muted-foreground); }
+.lcg-running { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: var(--kf-fs-13); color: var(--kf-muted-foreground); }
 .lcg-spin { animation: lcg-rotate 0.8s linear infinite; }
 @keyframes lcg-rotate { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 
-.lcg-error { border-color: color-mix(in srgb, var(--kb-destructive) 40%, transparent); }
-.lcg-error-head { display: flex; align-items: center; gap: 6px; font-size: var(--kb-fs-14); font-weight: 600; color: var(--kb-destructive); margin-bottom: 8px; }
-.lcg-error-msg { font-size: var(--kb-fs-13); color: var(--kb-foreground); margin-bottom: 10px; line-height: 1.7; }
+.lcg-error { border-color: color-mix(in srgb, var(--kf-destructive) 40%, transparent); }
+.lcg-error-head { display: flex; align-items: center; gap: 6px; font-size: var(--kf-fs-14); font-weight: 600; color: var(--kf-destructive); margin-bottom: 8px; }
+.lcg-error-msg { font-size: var(--kf-fs-13); color: var(--kf-foreground); margin-bottom: 10px; line-height: 1.7; }
 
 .lcg-result-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.lcg-result-title { display: flex; align-items: center; gap: 7px; font-size: var(--kb-fs-16); font-weight: 600; color: var(--kb-foreground); flex-wrap: wrap; }
-.lcg-meta { font-size: var(--kb-fs-12); font-weight: 400; color: var(--kb-muted-foreground); }
+.lcg-result-title { display: flex; align-items: center; gap: 7px; font-size: var(--kf-fs-16); font-weight: 600; color: var(--kf-foreground); flex-wrap: wrap; }
+.lcg-meta { font-size: var(--kf-fs-12); font-weight: 400; color: var(--kf-muted-foreground); }
 .lcg-toolbar { display: flex; gap: 8px; }
-.lcg-bar { margin-top: 10px; font-size: var(--kb-fs-13); color: var(--kb-muted-foreground); background: var(--kb-muted); padding: 8px 12px; border-radius: var(--kb-radius-sm); }
-.lcg-bar b { color: var(--kb-foreground); }
+.lcg-bar { margin-top: 10px; font-size: var(--kf-fs-13); color: var(--kf-muted-foreground); background: var(--kf-muted); padding: 8px 12px; border-radius: var(--kf-radius-sm); }
+.lcg-bar b { color: var(--kf-foreground); }
 .lcg-warn { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
-.lcg-warn li { display: flex; align-items: flex-start; gap: 5px; font-size: var(--kb-fs-12); color: var(--kb-warning); list-style: none; }
-.lcg-count-badge { font-size: var(--kb-fs-11); font-weight: 500; color: var(--kb-primary); background: color-mix(in srgb, var(--kb-primary) 10%, transparent); padding: 2px 8px; border-radius: var(--kb-radius-sm); }
+.lcg-warn li { display: flex; align-items: flex-start; gap: 5px; font-size: var(--kf-fs-12); color: var(--kf-warning); list-style: none; }
+.lcg-count-badge { font-size: var(--kf-fs-11); font-weight: 500; color: var(--kf-primary); background: color-mix(in srgb, var(--kf-primary) 10%, transparent); padding: 2px 8px; border-radius: var(--kf-radius-sm); }
 
-.lcg-tip { font-size: var(--kb-fs-12); color: var(--kb-muted-foreground); margin-bottom: 12px; line-height: 1.6; }
-.lcg-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border: 1px solid var(--kb-border); border-radius: var(--kb-radius-md); background: var(--kb-background); margin-bottom: 10px; flex-wrap: wrap; }
-.lcg-item.accepted { border-color: color-mix(in srgb, var(--kb-success) 45%, transparent); background: color-mix(in srgb, var(--kb-success) 5%, transparent); }
+.lcg-tip { font-size: var(--kf-fs-12); color: var(--kf-muted-foreground); margin-bottom: 12px; line-height: 1.6; }
+.lcg-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px; border: 1px solid var(--kf-border); border-radius: var(--kf-radius-md); background: var(--kf-background); margin-bottom: 10px; flex-wrap: wrap; }
+.lcg-item.accepted { border-color: color-mix(in srgb, var(--kf-success) 45%, transparent); background: color-mix(in srgb, var(--kf-success) 5%, transparent); }
 .lcg-item.gone { opacity: 0.35; }
 .lcg-item-main { flex: 1; min-width: 200px; }
-.lcg-q { font-size: var(--kb-fs-14); line-height: 1.6; color: var(--kb-foreground); margin-bottom: 4px; }
-.lcg-a { font-size: var(--kb-fs-13); line-height: 1.7; color: var(--kb-muted-foreground); white-space: pre-wrap; }
-.lcg-ctx { font-size: var(--kb-fs-13); line-height: 1.7; color: var(--kb-muted-foreground); white-space: pre-wrap; margin-bottom: 4px; }
-.lcg-diff { font-size: var(--kb-fs-11); color: var(--kb-muted-foreground); border: 1px solid var(--kb-border); padding: 2px 8px; border-radius: var(--kb-radius-sm); flex-shrink: 0; }
+.lcg-q { font-size: var(--kf-fs-14); line-height: 1.6; color: var(--kf-foreground); margin-bottom: 4px; }
+.lcg-a { font-size: var(--kf-fs-13); line-height: 1.7; color: var(--kf-muted-foreground); white-space: pre-wrap; }
+.lcg-ctx { font-size: var(--kf-fs-13); line-height: 1.7; color: var(--kf-muted-foreground); white-space: pre-wrap; margin-bottom: 4px; }
+.lcg-diff { font-size: var(--kf-fs-11); color: var(--kf-muted-foreground); border: 1px solid var(--kf-border); padding: 2px 8px; border-radius: var(--kf-radius-sm); flex-shrink: 0; }
 .lcg-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .lcg-actions-left { margin-top: 10px; }
-.lcg-btn { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 12px; font-size: var(--kb-fs-13); font-weight: 500; border-radius: var(--kb-radius-sm); border: 1px solid var(--kb-border); background: var(--kb-card); color: var(--kb-foreground); cursor: pointer; }
-.lcg-btn:hover:not(:disabled) { border-color: var(--kb-primary); color: var(--kb-primary); }
+.lcg-btn { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 12px; font-size: var(--kf-fs-13); font-weight: 500; border-radius: var(--kf-radius-sm); border: 1px solid var(--kf-border); background: var(--kf-card); color: var(--kf-foreground); cursor: pointer; }
+.lcg-btn:hover:not(:disabled) { border-color: var(--kf-primary); color: var(--kf-primary); }
 .lcg-btn:disabled { opacity: 0.55; cursor: default; }
-.lcg-btn-primary { border-color: var(--kb-primary); background: var(--kb-primary); color: #fff; }
+.lcg-btn-primary { border-color: var(--kf-primary); background: var(--kf-primary); color: #fff; }
 .lcg-btn-primary:hover:not(:disabled) { opacity: 0.92; color: #fff; }
-.lcg-btn-ghost { border-color: transparent; color: var(--kb-muted-foreground); }
-.lcg-ok { display: inline-flex; align-items: center; gap: 5px; font-size: var(--kb-fs-13); font-weight: 600; color: var(--kb-success); }
+.lcg-btn-ghost { border-color: transparent; color: var(--kf-muted-foreground); }
+.lcg-ok { display: inline-flex; align-items: center; gap: 5px; font-size: var(--kf-fs-13); font-weight: 600; color: var(--kf-success); }
 .lcg-edit-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%; }
 .lcg-chips { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-.lcg-chip-lbl { font-size: var(--kb-fs-11); color: var(--kb-muted-foreground); margin-right: 2px; }
-.lcg-chip { font-size: var(--kb-fs-12); color: var(--kb-foreground); background: var(--kb-muted); padding: 2px 10px; border-radius: var(--kb-radius-sm); }
-.lcg-empty-cta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: var(--kb-fs-14); color: var(--kb-foreground); }
+.lcg-chip-lbl { font-size: var(--kf-fs-11); color: var(--kf-muted-foreground); margin-right: 2px; }
+.lcg-chip { font-size: var(--kf-fs-12); color: var(--kf-foreground); background: var(--kf-muted); padding: 2px 10px; border-radius: var(--kf-radius-sm); }
+.lcg-empty-cta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: var(--kf-fs-14); color: var(--kf-foreground); }
 .lcg-empty-cta .lcg-btn { margin-left: auto; }
 </style>

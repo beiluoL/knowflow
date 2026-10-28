@@ -28,7 +28,7 @@ const memorialOpen = ref(false)
 /** 图例：四类日期标记 + 休/班（与后端颜色常量保持一致）。 */
 const legendItems = [
   { label: '休', color: '#E5484D', shape: 'badge' as const },
-  { label: '班', color: 'var(--kb-warning)', shape: 'badge' as const },
+  { label: '班', color: 'var(--kf-warning)', shape: 'badge' as const },
   { label: '传统节日', color: '#E11D48', shape: 'dot' as const },
   { label: '现代节日', color: '#0EA5E9', shape: 'dot' as const },
   { label: '纪念日', color: '#8B5CF6', shape: 'dot' as const },
@@ -105,8 +105,8 @@ onMounted(async () => {
     <!-- 头部 -->
     <div class="cal-head">
       <div class="cal-head-left">
-        <h1 class="kb-h1 mb-1">日历</h1>
-        <p class="kb-body-sm" style="font-size: 14px;">管理你的任务与时间安排</p>
+        <h1 class="kf-h1 mb-1">日历</h1>
+        <p class="kf-body-sm" style="font-size: 14px;">管理你的任务与时间安排</p>
       </div>
       <div class="cal-head-actions">
         <button class="cal-memorial" @click="memorialOpen = true">
@@ -265,7 +265,7 @@ onMounted(async () => {
   flex-wrap: wrap;
   padding: 6px 2px 10px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .cal-legend-title {
   font-weight: 600;
@@ -298,7 +298,7 @@ onMounted(async () => {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
   border: none;
   font-size: 14px;
@@ -338,8 +338,8 @@ onMounted(async () => {
   transition: all 0.15s;
 }
 .cal-nav-btn:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .cal-today {
   border: 1px solid #e5e7eb;
@@ -353,8 +353,8 @@ onMounted(async () => {
   transition: all 0.15s;
 }
 .cal-today:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .cal-title {
   font-size: 17px;
@@ -380,7 +380,7 @@ onMounted(async () => {
   gap: 5px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 13px;
   font-weight: 600;
   padding: 7px 13px;
@@ -390,7 +390,7 @@ onMounted(async () => {
 }
 .cal-seg-btn.active {
   background: #fff;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 .cal-filter {
@@ -412,7 +412,7 @@ onMounted(async () => {
   cursor: pointer;
 }
 .cal-select:focus {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 .cal-reset {
   width: 30px;
@@ -427,8 +427,8 @@ onMounted(async () => {
   justify-content: center;
 }
 .cal-reset:hover {
-  color: var(--kb-danger);
-  border-color: var(--kb-danger-tint);
+  color: var(--kf-danger);
+  border-color: var(--kf-danger-tint);
 }
 .cal-main {
   flex: 1;

@@ -82,7 +82,7 @@ function showHistory(q:PrivateQuiz){activeQuiz.value=q;historyOpen.value=true;hi
 function openAttempt(a:PrivateAttempt){historyOpen.value=false;attempt.value=a;answers.value=[]}
 </script>
 <style scoped>
-.kf-private-quiz{--kf-space:var(--kb-space-3);--kf-text:var(--kb-foreground);display:grid;gap:var(--kf-space);color:var(--kf-text)}
-.kf-private-quiz__entry,fieldset{display:grid;gap:var(--kf-space);padding:var(--kb-space-4);border:0;background:var(--kb-surface-2);border-radius:var(--kb-radius-sm)}
-label,form{display:grid;gap:var(--kf-space)}article{margin-block:var(--kb-space-3)}p{color:var(--kb-muted-foreground)}[role=alert]{color:var(--kb-danger-text)}
+.kf-private-quiz{--kf-space:var(--kf-space-3);--kf-text:var(--kf-foreground);display:grid;gap:var(--kf-space);color:var(--kf-text)}
+.kf-private-quiz__entry,fieldset{display:grid;gap:var(--kf-space);padding:var(--kf-space-4);border:0;background:var(--kf-surface-2);border-radius:var(--kf-radius-sm)}
+label,form{display:grid;gap:var(--kf-space)}article{margin-block:var(--kf-space-3)}p{color:var(--kf-muted-foreground)}[role=alert]{color:var(--kf-danger-text)}
 </style>

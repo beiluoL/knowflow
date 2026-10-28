@@ -15,17 +15,17 @@ export interface DocTypeInfo {
 }
 
 const EXT_MAP: Record<string, DocTypeInfo> = {
-  pdf: { ext: 'PDF', label: 'PDF', color: 'var(--kb-danger-hover)', bg: 'var(--kb-danger-soft-strong)', isFile: true },
+  pdf: { ext: 'PDF', label: 'PDF', color: 'var(--kf-danger-hover)', bg: 'var(--kf-danger-soft-strong)', isFile: true },
   doc: { ext: 'DOC', label: 'DOC', color: '#2563EB', bg: '#DBEAFE', isFile: true },
   docx: { ext: 'DOC', label: 'DOC', color: '#2563EB', bg: '#DBEAFE', isFile: true },
-  ppt: { ext: 'PPT', label: 'PPT', color: 'var(--kb-warning-hover)', bg: 'var(--kb-warning-soft-strong)', isFile: true },
-  pptx: { ext: 'PPT', label: 'PPT', color: 'var(--kb-warning-hover)', bg: 'var(--kb-warning-soft-strong)', isFile: true },
+  ppt: { ext: 'PPT', label: 'PPT', color: 'var(--kf-warning-hover)', bg: 'var(--kf-warning-soft-strong)', isFile: true },
+  pptx: { ext: 'PPT', label: 'PPT', color: 'var(--kf-warning-hover)', bg: 'var(--kf-warning-soft-strong)', isFile: true },
   txt: { ext: 'TXT', label: 'TXT', color: '#4B5563', bg: '#F3F4F6', isFile: true },
-  md: { ext: 'MD', label: 'MD', color: 'var(--kb-success-hover)', bg: 'var(--kb-success-soft-strong)', isFile: true },
-  markdown: { ext: 'MD', label: 'MD', color: 'var(--kb-success-hover)', bg: 'var(--kb-success-soft-strong)', isFile: true },
+  md: { ext: 'MD', label: 'MD', color: 'var(--kf-success-hover)', bg: 'var(--kf-success-soft-strong)', isFile: true },
+  markdown: { ext: 'MD', label: 'MD', color: 'var(--kf-success-hover)', bg: 'var(--kf-success-soft-strong)', isFile: true },
 }
 
-const FALLBACK_MD: DocTypeInfo = { ext: 'MD', label: 'MD', color: 'var(--kb-success-hover)', bg: 'var(--kb-success-soft-strong)', isFile: false }
+const FALLBACK_MD: DocTypeInfo = { ext: 'MD', label: 'MD', color: 'var(--kf-success-hover)', bg: 'var(--kf-success-soft-strong)', isFile: false }
 const FALLBACK_DOC: DocTypeInfo = { ext: 'DOC', label: 'DOC', color: '#7C3AED', bg: '#EDE9FE', isFile: false }
 
 /** 从文件地址中提取小写后缀（忽略 query 与路径）。 */

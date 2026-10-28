@@ -3,8 +3,8 @@
     <!-- ===== 页面标题 ===== -->
     <header class="lev-header">
       <div>
-        <h1 class="kb-h1">学习行为事件</h1>
-        <p class="kb-body-sm mt-1">统一记录你的每一次学习行为，是掌握度引擎、AI 教练与学习计划的数据底座（Phase 1）</p>
+        <h1 class="kf-h1">学习行为事件</h1>
+        <p class="kf-body-sm mt-1">统一记录你的每一次学习行为，是掌握度引擎、AI 教练与学习计划的数据底座（Phase 1）</p>
       </div>
       <button type="button" class="lev-refresh" :disabled="loading" @click="loadData">
         <Icon name="refresh-cw" :size="14" :class="{ spin: loading }" />
@@ -14,8 +14,8 @@
 
     <!-- ===== 错误态 ===== -->
     <div v-if="error" class="lev-error">
-      <Icon name="alert-circle" :size="28" style="color: var(--kb-destructive);" />
-      <p class="text-sm" style="color: var(--kb-muted-foreground);">{{ error }}</p>
+      <Icon name="alert-circle" :size="28" style="color: var(--kf-destructive);" />
+      <p class="text-sm" style="color: var(--kf-muted-foreground);">{{ error }}</p>
       <button type="button" class="lev-retry" @click="loadData">重新加载</button>
     </div>
 
@@ -30,7 +30,7 @@
       <section class="lev-stats">
         <StatCard
           icon="activity"
-          icon-color="var(--kb-primary)"
+          icon-color="var(--kf-primary)"
           icon-bg="rgba(59,111,224,.1)"
           :icon-size="18"
           :value="page?.total ?? 0"
@@ -39,7 +39,7 @@
         />
         <StatCard
           icon="list"
-          icon-color="var(--kb-success)"
+          icon-color="var(--kf-success)"
           icon-bg="rgba(16,185,129,.12)"
           :icon-size="18"
           :value="filteredLabel"
@@ -48,7 +48,7 @@
         />
         <StatCard
           icon="calendar"
-          icon-color="var(--kb-warning)"
+          icon-color="var(--kf-warning)"
           icon-bg="rgba(245,158,11,.12)"
           :icon-size="18"
           :value="records.length"
@@ -69,8 +69,8 @@
 
       <!-- 空态 -->
       <div v-if="records.length === 0" class="lev-empty">
-        <Icon name="inbox" :size="40" style="color: var(--kb-muted-foreground); opacity: .5;" />
-        <p class="text-sm mt-2" style="color: var(--kb-muted-foreground);">
+        <Icon name="inbox" :size="40" style="color: var(--kf-muted-foreground); opacity: .5;" />
+        <p class="text-sm mt-2" style="color: var(--kf-muted-foreground);">
           {{ eventType ? '该类型暂时没有事件记录' : '还没有学习行为记录，去学习、做题或签到试试~' }}
         </p>
       </div>
@@ -152,28 +152,28 @@ const eventLabel = (v: string) => labelMap.get(v) ?? v
 
 // 事件类型 → 徽章配色（与整体 token 体系一致）
 const badgeColors: Record<string, string> = {
-  DOCUMENT_READ: 'var(--kb-primary)',
-  CHAPTER_START: 'var(--kb-primary)',
-  CHAPTER_COMPLETE: 'var(--kb-success)',
-  QUESTION_ANSWERED: 'var(--kb-muted-foreground)',
-  QUESTION_CORRECT: 'var(--kb-success)',
-  QUESTION_WRONG: 'var(--kb-danger)',
-  CODE_SUBMITTED: 'var(--kb-muted-foreground)',
-  CODE_PASSED: 'var(--kb-success)',
-  CODE_FAILED: 'var(--kb-danger)',
-  FLASHCARD_REVIEWED: 'var(--kb-primary)',
-  RECALL_COMPLETED: 'var(--kb-success)',
-  AI_CHAT: 'var(--kb-primary)',
+  DOCUMENT_READ: 'var(--kf-primary)',
+  CHAPTER_START: 'var(--kf-primary)',
+  CHAPTER_COMPLETE: 'var(--kf-success)',
+  QUESTION_ANSWERED: 'var(--kf-muted-foreground)',
+  QUESTION_CORRECT: 'var(--kf-success)',
+  QUESTION_WRONG: 'var(--kf-danger)',
+  CODE_SUBMITTED: 'var(--kf-muted-foreground)',
+  CODE_PASSED: 'var(--kf-success)',
+  CODE_FAILED: 'var(--kf-danger)',
+  FLASHCARD_REVIEWED: 'var(--kf-primary)',
+  RECALL_COMPLETED: 'var(--kf-success)',
+  AI_CHAT: 'var(--kf-primary)',
   KNOWLEDGE_VIEWED: '#8B5CF6',
-  PATH_COMPLETED: 'var(--kb-success)',
-  CHECK_IN: 'var(--kb-warning)',
-  MISTAKE: 'var(--kb-danger)',
-  MISTAKE_REVIEW: 'var(--kb-success)',
+  PATH_COMPLETED: 'var(--kf-success)',
+  CHECK_IN: 'var(--kf-warning)',
+  MISTAKE: 'var(--kf-danger)',
+  MISTAKE_REVIEW: 'var(--kf-success)',
   SCENARIO_COMPLETED: '#8B5CF6',
   FEYNMAN_EXPRESSED: '#EC4899',
 }
 const badgeStyle = (v: string) => {
-  const c = badgeColors[v] ?? 'var(--kb-muted-foreground)'
+  const c = badgeColors[v] ?? 'var(--kf-muted-foreground)'
   return { color: c, background: `${c}1A`, borderColor: `${c}33` }
 }
 
@@ -259,9 +259,9 @@ onMounted(loadData)
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   border-radius: 8px;
   padding: 7px 12px;
   font-size: 13px;
@@ -271,8 +271,8 @@ onMounted(loadData)
 .lev-refresh:hover:not(:disabled),
 .lev-retry:hover,
 .lev-page-btn:hover:not(:disabled) {
-  background: var(--kb-primary-soft);
-  border-color: var(--kb-primary);
+  background: var(--kf-primary-soft);
+  border-color: var(--kf-primary);
 }
 .lev-refresh:disabled,
 .lev-page-btn:disabled {
@@ -296,8 +296,8 @@ onMounted(loadData)
   justify-content: center;
   gap: 8px;
   padding: 48px 16px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 12px;
   text-align: center;
 }
@@ -310,8 +310,8 @@ onMounted(loadData)
 .lev-skel-row {
   height: 44px;
   border-radius: 10px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
 }
 
 .lev-stats {
@@ -333,30 +333,30 @@ onMounted(loadData)
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .lev-select {
   height: 34px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 8px;
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   padding: 0 10px;
   font-size: 13px;
   cursor: pointer;
 }
 .lev-select:focus {
   outline: none;
-  border-color: var(--kb-ring);
-  box-shadow: 0 0 0 3px var(--kb-primary-soft);
+  border-color: var(--kf-ring);
+  box-shadow: 0 0 0 3px var(--kf-primary-soft);
 }
 .lev-filter-hint {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .lev-table-wrap {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 12px;
   overflow: hidden;
 }
@@ -368,32 +368,32 @@ onMounted(loadData)
 .lev-table thead th {
   text-align: left;
   padding: 12px 14px;
-  background: var(--kb-background);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-background);
+  color: var(--kf-muted-foreground);
   font-weight: 600;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
   white-space: nowrap;
 }
 .lev-table tbody td {
   padding: 11px 14px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
   vertical-align: top;
 }
 .lev-table tbody tr:last-child td {
   border-bottom: none;
 }
 .lev-table tbody tr:hover {
-  background: var(--kb-primary-soft);
+  background: var(--kf-primary-soft);
 }
 .lev-time {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   white-space: nowrap;
 }
 .lev-muted {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .lev-meta {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 12px;
   word-break: break-all;
 }
@@ -415,6 +415,6 @@ onMounted(loadData)
   margin-top: 16px;
 }
 .lev-page-info {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 </style>

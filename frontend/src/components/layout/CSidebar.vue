@@ -117,7 +117,7 @@
  *  - 所在分组自动展开（isGroupActive → 默认展开）
  *  - 整体折叠（64px 纯图标），折叠后每个图标仍有 title + aria-label（§17/§54）
  *  - 键盘可达：分组用 button（Enter/Space 可展开），链接用 router-link（Enter 可跳转）
- *  - 颜色全部使用 --kb-* 令牌（§56），深色模式自动跟随
+ *  - 颜色全部使用 --kf-* 令牌（§56），深色模式自动跟随
  *  - 分组展开状态持久化到 localStorage（§47，不新建状态系统）
  */
 import { computed, ref, watch } from 'vue'
@@ -238,8 +238,8 @@ const sidebarStyle = computed(() => {
     }
   }
   return {
-    background: 'var(--kb-sidebar)',
-    borderRight: '1px solid var(--kb-border)',
+    background: 'var(--kf-sidebar)',
+    borderRight: '1px solid var(--kf-border)',
   }
 })
 
@@ -260,14 +260,14 @@ watch(
 .csidebar {
   display: flex;
   flex-direction: column;
-  width: var(--kb-sidebar-width);
+  width: var(--kf-sidebar-width);
   height: 100%;
   flex-shrink: 0;
-  transition: width var(--kb-shell-transition) ease;
+  transition: width var(--kf-shell-transition) ease;
 }
 
 .csidebar.is-collapsed {
-  width: var(--kb-sidebar-collapsed-width);
+  width: var(--kf-sidebar-collapsed-width);
 }
 
 .csidebar-nav {
@@ -276,14 +276,14 @@ watch(
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: var(--kb-nav-item-gap);
-  padding: var(--kb-space-3) var(--kb-space-2);
+  gap: var(--kf-nav-item-gap);
+  padding: var(--kf-space-3) var(--kf-space-2);
 }
 
 .csidebar-footer {
   flex-shrink: 0;
-  padding: var(--kb-space-3);
-  border-top: 1px solid var(--kb-border);
+  padding: var(--kf-space-3);
+  border-top: 1px solid var(--kf-border);
 }
 
 .csidebar-item {
@@ -292,16 +292,16 @@ watch(
   align-items: center;
   gap: 10px;
   width: 100%;
-  min-height: var(--kb-nav-item-height);
-  padding: 0 var(--kb-space-3);
+  min-height: var(--kf-nav-item-height);
+  padding: 0 var(--kf-space-3);
   /* 3.3.1 §7：240px→64px 过渡期间裁掉溢出文字，避免内容“飞出”/闪烁 */
   overflow: hidden;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   border: none;
   background: transparent;
-  color: var(--kb-sidebar-foreground);
-  font-size: var(--kb-fs-body-md);
-  font-weight: var(--kb-fw-label);
+  color: var(--kf-sidebar-foreground);
+  font-size: var(--kf-fs-body-md);
+  font-weight: var(--kf-fw-label);
   line-height: 1.4;
   text-align: left;
   text-decoration: none;
@@ -310,19 +310,19 @@ watch(
 }
 
 .csidebar-item:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 
 .csidebar-item:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--kb-ring);
+  box-shadow: 0 0 0 2px var(--kf-ring);
 }
 
 .csidebar-icon {
-  width: var(--kb-icon-slot);
-  height: var(--kb-icon-slot);
-  flex: 0 0 var(--kb-icon-slot);
+  width: var(--kf-icon-slot);
+  height: var(--kf-icon-slot);
+  flex: 0 0 var(--kf-icon-slot);
 }
 
 .csidebar-label {
@@ -339,14 +339,14 @@ watch(
 
 /* 父级高亮：当前路由落在分组内 */
 .csidebar-top.is-parent-active {
-  color: var(--kb-primary);
-  background: var(--kb-primary-soft);
+  color: var(--kf-primary);
+  background: var(--kf-primary-soft);
 }
 
 /* 当前页面精确命中 */
 .csidebar-item.is-active {
-  color: var(--kb-primary);
-  background: var(--kb-primary-soft);
+  color: var(--kf-primary);
+  background: var(--kf-primary-soft);
   font-weight: 600;
 }
 
@@ -360,7 +360,7 @@ watch(
   width: 3px;
   height: 60%;
   border-radius: 0 2px 2px 0;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
 }
 
 .csidebar-chevron {
@@ -378,26 +378,26 @@ watch(
   gap: 1px;
   margin: 2px 0 6px;
   padding-left: 8px;
-  border-left: 1px solid var(--kb-border);
+  border-left: 1px solid var(--kf-border);
   margin-left: 19px;
 }
 
 .csidebar-child {
-  min-height: var(--kb-nav-item-height-sm);
-  padding: 0 var(--kb-space-2);
+  min-height: var(--kf-nav-item-height-sm);
+  padding: 0 var(--kf-space-2);
   gap: 10px;
   font-weight: 400;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .csidebar-child .csidebar-icon {
-  width: var(--kb-icon-md);
-  height: var(--kb-icon-md);
-  flex-basis: var(--kb-icon-md);
+  width: var(--kf-icon-md);
+  height: var(--kf-icon-md);
+  flex-basis: var(--kf-icon-md);
 }
 
 .csidebar-child:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 /* 折叠态：图标居中，保证点击热区 */
@@ -421,6 +421,6 @@ watch(
 }
 
 .csidebar-collapse {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 </style>

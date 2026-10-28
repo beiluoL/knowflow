@@ -1,9 +1,9 @@
 <template>
-  <div class="kb-input-surface note-editor flex flex-col min-w-0">
+  <div class="kf-input-surface note-editor flex flex-col min-w-0">
     <div class="flex flex-wrap items-center gap-2 p-2 border-b">
       <button
         type="button"
-        class="kb-btn"
+        class="kf-btn"
         :aria-pressed="mode === 'source'"
         @click="showSource"
       >
@@ -11,16 +11,16 @@
       </button>
       <button
         type="button"
-        class="kb-btn"
+        class="kf-btn"
         :aria-pressed="mode === 'visual'"
         @click="showVisual"
       >
         可视化编辑
       </button>
-      <button type="button" class="kb-btn" :aria-pressed="mode==='read'" @click="showRead">阅读模式</button>
+      <button type="button" class="kf-btn" :aria-pressed="mode==='read'" @click="showRead">阅读模式</button>
       <span class="note-mode-spacer"/>
-      <button type="button" class="kb-btn" title="撤销 (⌘/Ctrl+Z)" aria-label="撤销" @mousedown.prevent="undo">↶</button>
-      <button type="button" class="kb-btn" title="重做 (⌘/Ctrl+Shift+Z)" aria-label="重做" @mousedown.prevent="redo">↷</button>
+      <button type="button" class="kf-btn" title="撤销 (⌘/Ctrl+Z)" aria-label="撤销" @mousedown.prevent="undo">↶</button>
+      <button type="button" class="kf-btn" title="重做 (⌘/Ctrl+Shift+Z)" aria-label="重做" @mousedown.prevent="redo">↷</button>
       <span v-if="loading" role="status">加载编辑器…</span>
     </div>
     <p v-if="failure" role="alert" class="p-3">
@@ -41,9 +41,9 @@
           <pre>{{ conversion }}</pre>
         </div>
       </details>
-      <button type="button" class="kb-btn" @click="acceptConversion">
+      <button type="button" class="kf-btn" @click="acceptConversion">
         我已核对，接受格式转换</button
-      ><button type="button" class="kb-btn" @click="showSource">
+      ><button type="button" class="kf-btn" @click="showSource">
         保留原文，使用源码
       </button>
     </section>
@@ -245,27 +245,27 @@ defineExpose({textarea,showSource,showVisual,showRead,jumpToHeading,applySelecti
 </script>
 <style scoped>
 .note-mode-spacer{flex:1}
-.note-read-view {max-width:var(--kb-notes-reading-width);width:100%;margin:auto;padding:var(--kb-space-5);line-height:var(--kb-notes-leading);font-size:var(--kb-notes-body-size);overflow-wrap:anywhere}
-.note-editor :deep(.milkdown-top-bar){position:sticky;top:0;z-index:5;background:var(--kb-card);border-bottom:1px solid var(--kb-border);padding:var(--kb-space-2);font-family:inherit}
+.note-read-view {max-width:var(--kf-notes-reading-width);width:100%;margin:auto;padding:var(--kf-space-5);line-height:var(--kf-notes-leading);font-size:var(--kf-notes-body-size);overflow-wrap:anywhere}
+.note-editor :deep(.milkdown-top-bar){position:sticky;top:0;z-index:5;background:var(--kf-card);border-bottom:1px solid var(--kf-border);padding:var(--kf-space-2);font-family:inherit}
 .note-editor :deep(.milkdown-top-bar .top-bar-content){flex-wrap:wrap}
-.note-editor .kb-btn {
-  padding: var(--kb-space-2) var(--kb-space-3);
-  border-radius: var(--kb-radius-md);
-  color: var(--kb-muted-foreground);
+.note-editor .kf-btn {
+  padding: var(--kf-space-2) var(--kf-space-3);
+  border-radius: var(--kf-radius-md);
+  color: var(--kf-muted-foreground);
 }
-.note-editor .kb-btn[aria-pressed="true"] {
-  background: var(--kb-primary-soft);
-  color: var(--kb-primary);
+.note-editor .kf-btn[aria-pressed="true"] {
+  background: var(--kf-primary-soft);
+  color: var(--kf-primary);
 }
 .note-editor > div:first-child {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--kb-space-2);
-  padding: var(--kb-space-2);
+  gap: var(--kf-space-2);
+  padding: var(--kf-space-2);
 }
 .note-editor {
   flex: 1;
-  min-height: calc(var(--kb-space-8) * 8);
+  min-height: calc(var(--kf-space-8) * 8);
 }
 .content-textarea:focus {
   border-color: transparent !important;
@@ -276,23 +276,23 @@ defineExpose({textarea,showSource,showVisual,showRead,jumpToHeading,applySelecti
   flex: 1;
   resize: vertical;
   width: 100%;
-  min-height: calc(var(--kb-space-8) * 14);
-  padding: var(--kb-space-5);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  min-height: calc(var(--kf-space-8) * 14);
+  padding: var(--kf-space-5);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   outline: none;
-  font-family: var(--kb-font-mono, monospace);
+  font-family: var(--kf-font-mono, monospace);
   line-height: 1.8;
 }
 .note-crepe {
   min-width: 0;
   overflow-wrap: anywhere;
-  --crepe-font-title: var(--kb-font-sans, inherit);
-  --crepe-font-default: var(--kb-font-sans, inherit);
-  --crepe-color-background: var(--kb-card);
-  --crepe-color-on-background: var(--kb-foreground);
-  --crepe-color-primary: var(--kb-primary);
-  --crepe-color-surface: var(--kb-muted);
+  --crepe-font-title: var(--kf-font-sans, inherit);
+  --crepe-font-default: var(--kf-font-sans, inherit);
+  --crepe-color-background: var(--kf-card);
+  --crepe-color-on-background: var(--kf-foreground);
+  --crepe-color-primary: var(--kf-primary);
+  --crepe-color-surface: var(--kf-muted);
 }
 .note-crepe :deep(.milkdown h1),
 .note-crepe :deep(.milkdown h2),
@@ -300,12 +300,12 @@ defineExpose({textarea,showSource,showVisual,showRead,jumpToHeading,applySelecti
   font-family: inherit;
 }
 .note-crepe :deep(.milkdown) {
-  max-width: var(--kb-notes-reading-width);
+  max-width: var(--kf-notes-reading-width);
   margin: auto;
 }
 .note-crepe :deep(.ProseMirror) {
-  padding: var(--kb-space-5);
-  min-height: calc(var(--kb-space-8) * 14);
+  padding: var(--kf-space-5);
+  min-height: calc(var(--kf-space-8) * 14);
 }
 pre {
   white-space: pre-wrap;
@@ -316,14 +316,14 @@ pre {
 </style>
 
 <style scoped>
-.note-editor :deep(.milkdown .ProseMirror),.note-read-view{font-family:inherit;font-size:var(--kb-notes-body-size);line-height:var(--kb-notes-leading)}
-.note-editor :deep(.ProseMirror h1),.note-read-view :deep(h1){font-size:var(--kb-notes-h1-size);line-height:1.4}
-.note-editor :deep(.ProseMirror h2),.note-read-view :deep(h2){font-size:var(--kb-notes-h2-size);line-height:1.45}
-.note-editor :deep(.ProseMirror h3),.note-read-view :deep(h3){font-size:var(--kb-notes-h3-size);line-height:1.5}
-.note-editor :deep(.ProseMirror h1),.note-editor :deep(.ProseMirror h2),.note-editor :deep(.ProseMirror h3),.note-read-view :deep(h1),.note-read-view :deep(h2),.note-read-view :deep(h3){font-weight:650;scroll-margin-top:calc(var(--kb-notes-toolbar-height) + var(--kb-space-6));margin:var(--kb-space-6) 0 var(--kb-space-3)}
-.note-editor :deep(.cm-editor),.note-read-view :deep(pre){font-size:var(--kb-notes-code-size);max-width:100%;overflow-x:auto}
+.note-editor :deep(.milkdown .ProseMirror),.note-read-view{font-family:inherit;font-size:var(--kf-notes-body-size);line-height:var(--kf-notes-leading)}
+.note-editor :deep(.ProseMirror h1),.note-read-view :deep(h1){font-size:var(--kf-notes-h1-size);line-height:1.4}
+.note-editor :deep(.ProseMirror h2),.note-read-view :deep(h2){font-size:var(--kf-notes-h2-size);line-height:1.45}
+.note-editor :deep(.ProseMirror h3),.note-read-view :deep(h3){font-size:var(--kf-notes-h3-size);line-height:1.5}
+.note-editor :deep(.ProseMirror h1),.note-editor :deep(.ProseMirror h2),.note-editor :deep(.ProseMirror h3),.note-read-view :deep(h1),.note-read-view :deep(h2),.note-read-view :deep(h3){font-weight:650;scroll-margin-top:calc(var(--kf-notes-toolbar-height) + var(--kf-space-6));margin:var(--kf-space-6) 0 var(--kf-space-3)}
+.note-editor :deep(.cm-editor),.note-read-view :deep(pre){font-size:var(--kf-notes-code-size);max-width:100%;overflow-x:auto}
 .note-editor :deep(table),.note-read-view :deep(table){max-width:100%;border-collapse:collapse}
-.note-read-view :deep(td),.note-read-view :deep(th){padding:var(--kb-space-2) var(--kb-space-3);border:1px solid var(--kb-border)}
+.note-read-view :deep(td),.note-read-view :deep(th){padding:var(--kf-space-2) var(--kf-space-3);border:1px solid var(--kf-border)}
 .note-read-view :deep(img){max-width:100%;height:auto}
-.note-read-view :deep(blockquote){border-left:var(--kb-space-1) solid var(--kb-primary);background:var(--kb-primary-soft);padding:var(--kb-space-3) var(--kb-space-4);margin:var(--kb-space-4) 0;border-radius:var(--kb-radius-sm)}
+.note-read-view :deep(blockquote){border-left:var(--kf-space-1) solid var(--kf-primary);background:var(--kf-primary-soft);padding:var(--kf-space-3) var(--kf-space-4);margin:var(--kf-space-4) 0;border-radius:var(--kf-radius-sm)}
 </style>

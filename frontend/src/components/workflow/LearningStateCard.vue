@@ -93,11 +93,11 @@ function typeIcon(t: DiagnosisType): string {
   }
 }
 
-/** 严重度 → 颜色（复用 --kb-*，不新建独立色系，§209-211） */
+/** 严重度 → 颜色（复用 --kf-*，不新建独立色系，§209-211） */
 function iconColor(s: Severity): string {
-  if (s === 'HIGH') return 'var(--kb-warning)'
-  if (s === 'MEDIUM') return 'var(--kb-primary)'
-  return 'var(--kb-muted-foreground)'
+  if (s === 'HIGH') return 'var(--kf-warning)'
+  if (s === 'MEDIUM') return 'var(--kf-primary)'
+  return 'var(--kf-muted-foreground)'
 }
 
 function severityLabel(s: Severity): string {
@@ -109,9 +109,9 @@ function severityLabel(s: Severity): string {
 
 <style scoped>
 .learning-state-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   padding: 16px 18px;
   display: flex;
   flex-direction: column;
@@ -130,26 +130,26 @@ function severityLabel(s: Severity): string {
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.03em;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .ls-count {
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   font-weight: 500;
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 .ls-count.ls-ok {
-  color: var(--kb-accent);
+  color: var(--kf-accent);
 }
 .ls-healthy {
   margin: 0;
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-accent);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-accent);
 }
 .ls-healthy svg {
-  color: var(--kb-accent);
+  color: var(--kf-accent);
 }
 .ls-list {
   list-style: none;
@@ -163,18 +163,18 @@ function severityLabel(s: Severity): string {
   display: flex;
   gap: 10px;
   padding: 10px 12px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-background);
-  border: 1px solid var(--kb-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-background);
+  border: 1px solid var(--kf-border);
 }
 .ls-item.sev-high {
-  border-left: 3px solid var(--kb-warning);
+  border-left: 3px solid var(--kf-warning);
 }
 .ls-item.sev-medium {
-  border-left: 3px solid var(--kb-primary);
+  border-left: 3px solid var(--kf-primary);
 }
 .ls-item.sev-low {
-  border-left: 3px solid var(--kb-border);
+  border-left: 3px solid var(--kf-border);
 }
 .ls-icon {
   flex-shrink: 0;
@@ -195,20 +195,20 @@ function severityLabel(s: Severity): string {
 }
 .ls-title {
   margin: 0;
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .ls-sev {
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   font-weight: 600;
   white-space: nowrap;
 }
 .ls-why {
   margin: 0;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1.5;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .ls-evidence {
   display: flex;
@@ -216,20 +216,20 @@ function severityLabel(s: Severity): string {
   gap: 6px;
 }
 .ls-chip {
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   font-weight: 500;
   padding: 2px 8px;
   border-radius: 999px;
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 .ls-how {
   margin: 0;
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-primary);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-primary);
 }
 .ls-how svg {
   opacity: 0.8;

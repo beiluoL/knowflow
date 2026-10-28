@@ -14,7 +14,7 @@
           class="task-item"
           :class="{ done: task.status === 1 }"
         >
-          <label class="task-check kb-checkbox-row">
+          <label class="task-check kf-checkbox-row">
               <Checkbox as="span"
 
                 :checked="task.status === 1"
@@ -31,7 +31,7 @@
         :inner-progress="store.progress"
         :outer-progress="store.setProgress"
         :inner-color="store.modeColor.stroke"
-        outer-color="var(--kb-success)"
+        outer-color="var(--kf-success)"
         :size="260"
       >
         <div class="center">
@@ -46,15 +46,15 @@
       </DualRingProgress>
 
       <div class="controls">
-        <button type="button" class="ctrl-btn primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleToggle">
+        <button type="button" class="ctrl-btn primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleToggle">
           <Icon :name="store.runtime.isRunning ? 'pause' : 'play'" :size="18" aria-hidden="true" />
           <span>{{ store.runtime.isRunning ? '暂停' : '开始' }}</span>
         </button>
-        <button type="button" class="ctrl-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="store.skip()">
+        <button type="button" class="ctrl-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="store.skip()">
           <Icon name="skip-forward" :size="16" aria-hidden="true" />
           <span>跳过</span>
         </button>
-        <button type="button" class="ctrl-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="store.resetCurrentMode()">
+        <button type="button" class="ctrl-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="store.resetCurrentMode()">
           <Icon name="rotate-ccw" :size="16" aria-hidden="true" />
           <span>重置</span>
         </button>
@@ -87,7 +87,7 @@
       <div class="stat-card">
         <div class="stat-label-row">
           <span class="stat-label">分心次数</span>
-          <button type="button" class="distract-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="recordDistraction">
+          <button type="button" class="distract-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="recordDistraction">
             <Icon name="alert-circle" :size="14" aria-hidden="true" />
             <span>记录分心</span>
           </button>
@@ -107,7 +107,7 @@
 
         <button
           type="button"
-          class="noise-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="noise-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ 'is-on': noisePlayingState }"
           :title="noiseBtnTitle"
           @click="toggleNoise"
@@ -322,14 +322,14 @@ onUnmounted(async () => {
   gap: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0 0 14px;
 }
 .section-title .task-count {
   margin-left: auto;
   font-size: 12px;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-variant-numeric: tabular-nums;
 }
 .task-list {
@@ -350,29 +350,29 @@ onUnmounted(async () => {
   background: rgba(255, 255, 255, 0.06);
 }
 .task-item.done .task-title {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   text-decoration: line-through;
 }
 .task-check {
   display: flex;
   align-items: center;
-  gap: var(--kb-checkbox-gap);
+  gap: var(--kf-checkbox-gap);
   cursor: pointer;
 }
 .task-check input[type='checkbox'] {
   width: 16px;
   height: 16px;
-  accent-color: var(--kb-primary);
+  accent-color: var(--kf-primary);
   cursor: pointer;
 }
 .task-title {
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1.4;
 }
 .task-empty {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 4px 2px;
 }
 
@@ -392,7 +392,7 @@ onUnmounted(async () => {
 .time-display {
   font-size: 52px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1;
   letter-spacing: -0.02em;
 }
@@ -402,7 +402,7 @@ onUnmounted(async () => {
 }
 .rounds {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.04em;
   margin-top: 2px;
@@ -420,7 +420,7 @@ onUnmounted(async () => {
   padding: 0 18px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
@@ -431,9 +431,9 @@ onUnmounted(async () => {
   background: rgba(255, 255, 255, 0.1);
 }
 .ctrl-btn.primary {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 .ctrl-btn.primary:hover {
   filter: brightness(1.05);
@@ -451,7 +451,7 @@ onUnmounted(async () => {
   transition: background 0.3s ease, transform 0.3s ease;
 }
 .dot.done {
-  background: var(--kb-accent);
+  background: var(--kf-accent);
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
 }
 
@@ -468,7 +468,7 @@ onUnmounted(async () => {
 }
 .stat-label {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-bottom: 6px;
   letter-spacing: 0.02em;
 }
@@ -481,7 +481,7 @@ onUnmounted(async () => {
 .stat-value {
   font-size: 26px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1.2;
 }
 .stat-value.with-badge {
@@ -499,7 +499,7 @@ onUnmounted(async () => {
   padding: 3px 8px;
   font-size: 11px;
   font-weight: 500;
-  color: var(--kb-warning);
+  color: var(--kf-warning);
   background: rgba(245, 158, 11, 0.1);
   border: 1px solid rgba(245, 158, 11, 0.2);
   border-radius: 999px;
@@ -521,13 +521,13 @@ onUnmounted(async () => {
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   margin-bottom: 8px;
 }
 .ai-text {
   margin: 0;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.6;
 }
 .noise-btn {
@@ -538,8 +538,8 @@ onUnmounted(async () => {
   height: 38px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-primary-foreground);
-  background: var(--kb-primary);
+  color: var(--kf-primary-foreground);
+  background: var(--kf-primary);
   border: none;
   border-radius: 10px;
   cursor: pointer;
@@ -549,7 +549,7 @@ onUnmounted(async () => {
   filter: brightness(1.05);
 }
 .noise-btn.is-on {
-  background: var(--kb-highlight, var(--kb-highlight));
+  background: var(--kf-highlight, var(--kf-highlight));
   box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
 }
 

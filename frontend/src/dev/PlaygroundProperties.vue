@@ -11,4 +11,4 @@ const copyNotice=ref('复制当前Props')
 const propGroups=computed(()=>[{title:'状态',props:props.entry.props.filter(p=>p.editable&&['disabled','readonly','loading','busy','error'].includes(p.name))},{title:'内容与外观',props:props.entry.props.filter(p=>p.editable&&!['disabled','readonly','loading','busy','error'].includes(p.name))}].filter(g=>g.props.length))
 async function copyProps(){try{await navigator.clipboard.writeText(JSON.stringify(Object.fromEntries(props.entry.props.map(p=>[p.name,props.settings[p.name]??p.default])),null,2));copyNotice.value='Props已复制'}catch{copyNotice.value='剪贴板不可用'}}
 </script>
-<style scoped>.pg5-props{display:grid;gap:var(--kb-space-4)}.pg5-props details> :not(summary){display:flex;margin-block-start:var(--kb-space-3)}.pg5-props summary{font-weight:var(--kb-fw-label)}</style>
+<style scoped>.pg5-props{display:grid;gap:var(--kf-space-4)}.pg5-props details> :not(summary){display:flex;margin-block-start:var(--kf-space-3)}.pg5-props summary{font-weight:var(--kf-fw-label)}</style>

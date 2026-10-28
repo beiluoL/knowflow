@@ -206,7 +206,7 @@ describe('专业英语词汇大厅', () => {
     api.searchTerms.mockResolvedValue(page([SUMMARY_AQS], 25))
     const { wrapper, router } = await render('/learning/english')
     const acronym = wrapper
-      .findAll('.kb-filter-group button')
+      .findAll('.kf-filter-group button')
       .find((button) => button.text().startsWith('缩写'))
     expect(acronym).toBeTruthy()
     await acronym!.trigger('click')
@@ -231,7 +231,7 @@ describe('专业英语词汇大厅', () => {
     const alert = wrapper.get('[role="alert"]')
     expect(alert.text()).toContain('词库加载失败')
     expect(alert.text()).not.toContain('暂无词条')
-    await alert.get('.kb-state-retry').trigger('click')
+    await alert.get('.kf-state-retry').trigger('click')
     await flushPromises()
     await flushPromises()
     expect(wrapper.text()).toContain('AQS')

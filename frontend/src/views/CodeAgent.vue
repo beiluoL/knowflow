@@ -1979,7 +1979,7 @@ function buildPreviewDoc(lang: string, code: string): string {
     return `<!DOCTYPE html><html><head><meta charset="utf-8">
 <style>body{font-family:sans-serif;max-width:760px;margin:0 auto;padding:20px;color:#333;line-height:1.7}
 pre{background:#f5f5f5;padding:12px;border-radius:6px;overflow:auto}code{background:#f5f5f5;padding:2px 6px;border-radius:3px}
-table{border-collapse:collapse}th,td{border:1px solid #ddd;padding:6px 12px}blockquote{border-left:4px solid var(--kb-primary);margin:0;padding-left:16px;color:#666}</style>
+table{border-collapse:collapse}th,td{border:1px solid #ddd;padding:6px 12px}blockquote{border-left:4px solid var(--kf-primary);margin:0;padding-left:16px;color:#666}</style>
 </head><body>${html}</body></html>`
   }
   if (lang === 'json') {
@@ -1987,7 +1987,7 @@ table{border-collapse:collapse}th,td{border:1px solid #ddd;padding:6px 12px}bloc
     try {
       pretty = JSON.stringify(JSON.parse(code), null, 2)
     } catch {
-      return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:monospace;padding:16px;color:var(--kb-danger-hover)}</style></head>
+      return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:monospace;padding:16px;color:var(--kf-danger-hover)}</style></head>
 <body>JSON 解析失败：格式不正确</body></html>`
     }
     return `<!DOCTYPE html><html><head><meta charset="utf-8">
@@ -2782,7 +2782,7 @@ watch(activeTab, (tab) => {
                   </div>
                 </div>
 
-                <!-- P2 歧义标签：结构/语义歧义高亮提示（复用 --kb-warning 色变量） -->
+                <!-- P2 歧义标签：结构/语义歧义高亮提示（复用 --kf-warning 色变量） -->
                 <div v-if="msg.ambiguity && msg.ambiguity.length" class="ambig-tags">
                   <span class="ambig-tag" v-for="(a, i) in msg.ambiguity" :key="i" :title="a.reason">
                     <Icon name="alert-circle" size="xxs" />
@@ -2793,7 +2793,7 @@ watch(activeTab, (tab) => {
                   </span>
                 </div>
 
-                <!-- P3 匹配度徽标：让用户可见本次生成/回答与意图的匹配程度（复用 --kb-accent） -->
+                <!-- P3 匹配度徽标：让用户可见本次生成/回答与意图的匹配程度（复用 --kf-accent） -->
                 <div v-if="msg.evalScore != null" class="eval-badge" :class="evalScoreClass(msg.evalScore)">
                   <Icon name="target" size="xxs" />
                   匹配度 {{ Math.round(msg.evalScore * 100) }}%
@@ -2905,7 +2905,7 @@ watch(activeTab, (tab) => {
             <div class="clarify-input-row">
               <input
                 v-model="clarifyText"
-                class="clarify-input kb-input kb-form-control"
+                class="clarify-input kf-input kf-form-control"
                 placeholder="或直接输入你的补充说明…"
                 @keydown.enter="onClarifyKeydown"
                 @compositionstart="onInputCompositionStart"
@@ -2919,11 +2919,11 @@ watch(activeTab, (tab) => {
           <div class="input-area">
             <div class="input-toolbar">
               <div class="toolbar-group">
-                <label class="ctx-toggle kb-checkbox-row" title="将当前/选中文件作为上下文一并发送给模型">
+                <label class="ctx-toggle kf-checkbox-row" title="将当前/选中文件作为上下文一并发送给模型">
                   <Checkbox as="span"  v-model="includeFileContext" />
                   <span>附带文件上下文</span>
                 </label>
-                <label class="ctx-toggle kb-checkbox-row" title="开启后，「帮我写一个 HTML demo」这类指令将调用本地模型生成代码并保存到目录">
+                <label class="ctx-toggle kf-checkbox-row" title="开启后，「帮我写一个 HTML demo」这类指令将调用本地模型生成代码并保存到目录">
                   <Checkbox as="span"  v-model="localCodeGenEnabled" />
                   <span>本地生成并保存文件</span>
                 </label>
@@ -2937,7 +2937,7 @@ watch(activeTab, (tab) => {
                   <Icon name="folder-plus" size="xxs" /> 设置默认目录
                 </button>
                 <label
-                  class="ctx-toggle kb-checkbox-row"
+                  class="ctx-toggle kf-checkbox-row"
                   title="开启后由模型自主决定调用工具（代码执行/文件读写/数据查询），高危工具需二次确认"
                 >
                   <Checkbox as="span"  v-model="agentToolMode" :disabled="streaming" />
@@ -2979,7 +2979,7 @@ watch(activeTab, (tab) => {
               <AgentCallChain ref="callChainRef" :session-id="currentSessionId" />
             </div>
             <div class="input-row">
-              <textarea class="kb-textarea kb-form-control"
+              <textarea class="kf-textarea kf-form-control"
                 v-model="input"
                 :disabled="streaming || generating"
                 placeholder="输入编程问题，或让我生成代码，例如：替我写一个 html demo 案例 (Enter 发送, Shift+Enter 换行)"
@@ -3050,7 +3050,7 @@ watch(activeTab, (tab) => {
 
               <section class="settings-section">
                 <h4 class="settings-section-title">自动生成与保存</h4>
-                <label class="settings-switch kb-checkbox-row">
+                <label class="settings-switch kf-checkbox-row">
                   <Checkbox as="span"  v-model="localCodeGenEnabled" />
                   <span>开启后，识别到「写/生成代码」类指令即自动调用本地模型并落盘</span>
                 </label>
@@ -3058,11 +3058,11 @@ watch(activeTab, (tab) => {
 
               <section class="settings-section">
                 <h4 class="settings-section-title">文件树自动刷新</h4>
-                <label class="settings-switch kb-checkbox-row">
+                <label class="settings-switch kf-checkbox-row">
                   <Checkbox as="span"  v-model="autoRefreshTree" />
                   <span>代码生成并保存后，自动刷新项目目录结构（新增/修改/删除立即可见）</span>
                 </label>
-                <label class="settings-switch kb-checkbox-row">
+                <label class="settings-switch kf-checkbox-row">
                   <Checkbox as="span"  v-model="watchTree" />
                   <span>持续监听目录变化（轮询式，捕捉生成之外的外部改动；会占用少量资源）</span>
                 </label>
@@ -3142,7 +3142,7 @@ watch(activeTab, (tab) => {
         <div class="toolbar-right">
           <input
             v-model="sessionKeyword"
-            class="kb-input kb-input-sm session-search kb-form-control"
+            class="kf-input kf-input-sm session-search kf-form-control"
             type="search"
             placeholder="搜索会话标题..."
             @input="onSessionSearch"
@@ -3344,14 +3344,14 @@ watch(activeTab, (tab) => {
           <div class="chart-card">
             <div class="chart-title">调用次数趋势</div>
             <svg v-if="callsTrendPath" class="trend-chart" viewBox="0 0 100 40" preserveAspectRatio="none">
-              <path :d="callsTrendPath" fill="none" stroke="var(--kb-primary)" stroke-width="1.5" />
+              <path :d="callsTrendPath" fill="none" stroke="var(--kf-primary)" stroke-width="1.5" />
             </svg>
             <div v-else class="chart-empty">数据不足</div>
           </div>
           <div class="chart-card">
             <div class="chart-title">响应时间趋势</div>
             <svg v-if="latencyTrendPath" class="trend-chart" viewBox="0 0 100 40" preserveAspectRatio="none">
-              <path :d="latencyTrendPath" fill="none" stroke="var(--kb-highlight, var(--kb-highlight))" stroke-width="1.5" />
+              <path :d="latencyTrendPath" fill="none" stroke="var(--kf-highlight, var(--kf-highlight))" stroke-width="1.5" />
             </svg>
             <div v-else class="chart-empty">数据不足</div>
           </div>
@@ -3461,7 +3461,7 @@ watch(activeTab, (tab) => {
         >
           <div class="model-card-header">
             <!-- 勾选框 -->
-            <label class="kb-checkbox-row" @click.stop="toggleModelCheck(m)">
+            <label class="kf-checkbox-row" @click.stop="toggleModelCheck(m)">
               <Checkbox as="span"
                 :checked="selectedModelIds.includes(m.id!)"
                 :readonly="selectionMode === 'single'"
@@ -3469,7 +3469,7 @@ watch(activeTab, (tab) => {
 
             </label>
             <div
-              class="model-icon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="model-icon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
               role="button"
               tabindex="0"
               @click.stop="openParamsModal(m)"
@@ -3478,7 +3478,7 @@ watch(activeTab, (tab) => {
               <Icon name="cpu" size="md" />
             </div>
             <div
-              class="model-info focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="model-info focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
               role="button"
               tabindex="0"
               @click.stop="openParamsModal(m)"
@@ -3495,7 +3495,7 @@ watch(activeTab, (tab) => {
           </div>
           <!-- 参数摘要 -->
           <div
-            class="model-card-params focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="model-card-params focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             role="button"
             tabindex="0"
             @click.stop="openParamsModal(m)"
@@ -3654,7 +3654,7 @@ watch(activeTab, (tab) => {
             <input
               v-model="ollamaConfig.baseUrl"
               type="text"
-              class="kb-input kb-form-control"
+              class="kf-input kf-form-control"
               placeholder="http://localhost:11434"
             />
             <Button variant="secondary" size="sm" @click="testOllamaConnection" :disabled="ollamaTesting">
@@ -3666,7 +3666,7 @@ watch(activeTab, (tab) => {
             <input
               v-model="ollamaConfig.defaultModel"
               type="text"
-              class="kb-input kb-form-control"
+              class="kf-input kf-form-control"
               placeholder="如 llama3.1:8b"
             />
             <Button variant="primary" size="sm" @click="saveOllamaConfig" :disabled="ollamaLoading">
@@ -3677,15 +3677,15 @@ watch(activeTab, (tab) => {
           <div class="form-row-3">
             <div class="param-field">
               <label>温度</label>
-              <input v-model.number="ollamaConfig.temperature" type="number" min="0" max="2" step="0.1" class="kb-input kb-form-control" />
+              <input v-model.number="ollamaConfig.temperature" type="number" min="0" max="2" step="0.1" class="kf-input kf-form-control" />
             </div>
             <div class="param-field">
               <label>Top-P</label>
-              <input v-model.number="ollamaConfig.topP" type="number" min="0" max="1" step="0.05" class="kb-input kb-form-control" />
+              <input v-model.number="ollamaConfig.topP" type="number" min="0" max="1" step="0.05" class="kf-input kf-form-control" />
             </div>
             <div class="param-field">
               <label>Max Tokens</label>
-              <input v-model.number="ollamaConfig.maxTokens" type="number" min="256" max="8000" step="256" class="kb-input kb-form-control" />
+              <input v-model.number="ollamaConfig.maxTokens" type="number" min="256" max="8000" step="256" class="kf-input kf-form-control" />
             </div>
           </div>
         </div>
@@ -3812,26 +3812,26 @@ watch(activeTab, (tab) => {
             </div>
             <div class="form-row" v-if="!platformModels.find(p => p.provider === configForm.provider)?.providerType?.includes('LOCAL')">
               <label>API Key</label>
-              <input v-model="configForm.apiKey" type="password" placeholder="sk-..." class="kb-input kb-form-control" />
+              <input v-model="configForm.apiKey" type="password" placeholder="sk-..." class="kf-input kf-form-control" />
             </div>
             <div class="form-row">
               <label>Base URL</label>
-              <input v-model="configForm.baseUrl" placeholder="留空使用默认" class="kb-input kb-form-control" />
+              <input v-model="configForm.baseUrl" placeholder="留空使用默认" class="kf-input kf-form-control" />
             </div>
             <div class="form-row">
               <label>模型名</label>
-              <input v-model="configForm.model" placeholder="如 deepseek-chat / llama3.1" class="kb-input kb-form-control" />
+              <input v-model="configForm.model" placeholder="如 deepseek-chat / llama3.1" class="kf-input kf-form-control" />
             </div>
             <div class="form-row">
               <label>显示名（可选）</label>
-              <input v-model="configForm.displayName" placeholder="如 我的本地 Llama3" class="kb-input kb-form-control" />
+              <input v-model="configForm.displayName" placeholder="如 我的本地 Llama3" class="kf-input kf-form-control" />
             </div>
             <div class="form-row">
               <label>能力等级</label>
               <Select v-model="configForm.capability" :options="[{ value: 'LIGHT', label: '轻量（简单补全/解释）' }, { value: 'STANDARD', label: '标准（常规编程问答）' }, { value: 'POWERFUL', label: '强力（复杂推理/重构）' }]" aria-label="模型能力" />
             </div>
             <div class="form-row" v-if="!configForm.id">
-              <label class="checkbox-label kb-checkbox-row">
+              <label class="checkbox-label kf-checkbox-row">
                 <Checkbox as="span"  :checked="configForm.isActive === 1" @native-change="configForm.isActive = ($event.target as HTMLInputElement).checked ? 1 : 0" />
                 <span>设为通用 Chat 的激活配置</span>
               </label>
@@ -3856,7 +3856,7 @@ watch(activeTab, (tab) => {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 56px);
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
 
 /* ===== P4：历史消息分页 ===== */
@@ -3871,17 +3871,17 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 4px;
   padding: 4px 12px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 999px;
-  background: var(--kb-card);
-  color: var(--kb-text-muted);
+  background: var(--kf-card);
+  color: var(--kf-text-muted);
   font-size: 12px;
   cursor: pointer;
 }
 
 .load-earlier-btn:hover:not(:disabled) {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 
 .load-earlier-btn:disabled {
@@ -3891,22 +3891,22 @@ watch(activeTab, (tab) => {
 
 /* ===== P4：对话流中的工具执行卡片 ===== */
 .tool-card {
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
   overflow: hidden;
 }
 
 .tool-card.running {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 
 .tool-card.success {
-  border-color: var(--kb-success, #22c55e);
+  border-color: var(--kf-success, #22c55e);
 }
 
 .tool-card.failed {
-  border-color: var(--kb-danger, var(--kb-danger));
+  border-color: var(--kf-danger, var(--kf-danger));
 }
 
 .tool-card-head {
@@ -3920,7 +3920,7 @@ watch(activeTab, (tab) => {
   cursor: pointer;
   text-align: left;
   font-size: 12px;
-  color: var(--kb-text);
+  color: var(--kf-text);
 }
 
 .tool-card-name {
@@ -3929,22 +3929,22 @@ watch(activeTab, (tab) => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: var(--kb-font-mono, monospace);
+  font-family: var(--kf-font-mono, monospace);
   font-weight: 600;
 }
 
 .tool-card-status,
 .tool-card-latency {
   font-size: 11px;
-  color: var(--kb-text-muted);
+  color: var(--kf-text-muted);
 }
 
 .tool-card.success .tool-card-status {
-  color: var(--kb-success, #22c55e);
+  color: var(--kf-success, #22c55e);
 }
 
 .tool-card.failed .tool-card-status {
-  color: var(--kb-danger, var(--kb-danger));
+  color: var(--kf-danger, var(--kf-danger));
 }
 
 .tool-card-detail {
@@ -3962,7 +3962,7 @@ watch(activeTab, (tab) => {
 
 .tool-card-label {
   font-size: 11px;
-  color: var(--kb-text-muted);
+  color: var(--kf-text-muted);
 }
 
 .tool-card-code {
@@ -3970,9 +3970,9 @@ watch(activeTab, (tab) => {
   padding: 8px 10px;
   max-height: 220px;
   overflow: auto;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-background);
-  font-family: var(--kb-font-mono, monospace);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-background);
+  font-family: var(--kf-font-mono, monospace);
   font-size: 11px;
   line-height: 1.6;
   white-space: pre-wrap;
@@ -3991,7 +3991,7 @@ watch(activeTab, (tab) => {
   gap: 4px;
   margin-bottom: 4px;
   font-size: 11px;
-  color: var(--kb-text-muted);
+  color: var(--kf-text-muted);
 }
 
 /* ===== P4：调用链抽屉 ===== */
@@ -4000,9 +4000,9 @@ watch(activeTab, (tab) => {
   padding: 12px;
   max-height: 320px;
   overflow: auto;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
 }
 
 /* ===== P4：工具管理标签页 ===== */
@@ -4020,9 +4020,9 @@ watch(activeTab, (tab) => {
 
 .tools-col {
   padding: 14px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
 }
 
 @media (max-width: 960px) {
@@ -4052,7 +4052,7 @@ watch(activeTab, (tab) => {
 
 .session-count {
   font-size: 12px;
-  color: var(--kb-text-muted);
+  color: var(--kf-text-muted);
 }
 
 /* ===== 顶部标签栏 ===== */
@@ -4061,8 +4061,8 @@ watch(activeTab, (tab) => {
   align-items: center;
   justify-content: space-between;
   padding: 6px 16px;
-  background: var(--kb-card);
-  border-bottom: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border-bottom: 1px solid var(--kf-border);
   flex-shrink: 0;
   flex-wrap: wrap;
   gap: 8px;
@@ -4076,7 +4076,7 @@ watch(activeTab, (tab) => {
   font-size: 16px;
   font-weight: 600;
   margin: 0;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .tab-list {
   display: flex;
@@ -4089,7 +4089,7 @@ watch(activeTab, (tab) => {
   padding: 6px 12px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 13px;
   border-radius: 6px;
   cursor: pointer;
@@ -4097,12 +4097,12 @@ watch(activeTab, (tab) => {
   position: relative;
 }
 .tab-btn:hover {
-  background: var(--kb-accent);
-  color: var(--kb-foreground);
+  background: var(--kf-accent);
+  color: var(--kf-foreground);
 }
 .tab-btn.active {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 .tab-badge {
   display: inline-flex;
@@ -4112,7 +4112,7 @@ watch(activeTab, (tab) => {
   height: 16px;
   padding: 0 4px;
   border-radius: 8px;
-  background: var(--kb-highlight, var(--kb-highlight));
+  background: var(--kf-highlight, var(--kf-highlight));
   color: #fff;
   font-size: 10px;
   font-weight: 600;
@@ -4140,7 +4140,7 @@ watch(activeTab, (tab) => {
 
 /* 顶部右侧模型选择：图标 + 下拉一体化，去掉冗余「管理」按钮 */
 .tabs-right .model-icon {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* 对话区顶部会话头：标题 + 模型标签 + 清空（对齐 Cursor/Copilot 风格） */
@@ -4149,8 +4149,8 @@ watch(activeTab, (tab) => {
   align-items: center;
   justify-content: space-between;
   padding: 8px 16px;
-  border-bottom: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-bottom: 1px solid var(--kf-border);
+  background: var(--kf-card);
   flex-shrink: 0;
 }
 .chat-title {
@@ -4158,16 +4158,16 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 8px;
   min-width: 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .chat-title > .icon {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   flex-shrink: 0;
 }
 .chat-session-name {
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -4176,9 +4176,9 @@ watch(activeTab, (tab) => {
 .chat-model-tag {
   font-size: 11px;
   font-weight: 500;
-  color: var(--kb-primary);
-  background: var(--kb-highlight-soft, rgba(59, 111, 224, 0.1));
-  border: 1px solid var(--kb-highlight-border, rgba(59, 111, 224, 0.25));
+  color: var(--kf-primary);
+  background: var(--kf-highlight-soft, rgba(59, 111, 224, 0.1));
+  border: 1px solid var(--kf-highlight-border, rgba(59, 111, 224, 0.25));
   padding: 1px 8px;
   border-radius: 999px;
   white-space: nowrap;
@@ -4193,17 +4193,17 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 4px;
   padding: 5px 10px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
   font-size: 12px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   cursor: pointer;
   transition: all 0.15s;
 }
 .header-btn:hover:not(:disabled) {
-  color: var(--kb-destructive);
-  border-color: var(--kb-destructive);
+  color: var(--kf-destructive);
+  border-color: var(--kf-destructive);
 }
 .header-btn:disabled {
   opacity: 0.45;
@@ -4212,8 +4212,8 @@ watch(activeTab, (tab) => {
 
 /* 左栏：文件树 */
 .agent-sidebar {
-  background: var(--kb-card);
-  border-right: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border-right: 1px solid var(--kf-border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -4223,12 +4223,12 @@ watch(activeTab, (tab) => {
   display: flex;
   align-items: center;
   gap: 8px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
   flex-shrink: 0;
 }
 .root-name {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -4236,7 +4236,7 @@ watch(activeTab, (tab) => {
 .fs-warning {
   padding: 12px;
   font-size: 12px;
-  color: var(--kb-warning);
+  color: var(--kf-warning);
   display: flex;
   align-items: flex-start;
   gap: 6px;
@@ -4248,7 +4248,7 @@ watch(activeTab, (tab) => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 12px;
   padding: 16px;
   text-align: center;
@@ -4265,15 +4265,15 @@ watch(activeTab, (tab) => {
   padding: 4px 8px;
   cursor: pointer;
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   user-select: none;
 }
 .file-node:hover {
-  background: var(--kb-accent);
+  background: var(--kf-accent);
 }
 .file-node.active {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 .node-name {
   flex: 1;
@@ -4284,7 +4284,7 @@ watch(activeTab, (tab) => {
 
 /* 会话快捷区 */
 .sidebar-sessions {
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
   max-height: 200px;
   display: flex;
   flex-direction: column;
@@ -4296,7 +4296,7 @@ watch(activeTab, (tab) => {
   justify-content: space-between;
   padding: 8px 12px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-weight: 600;
 }
 .sidebar-session-list {
@@ -4312,15 +4312,15 @@ watch(activeTab, (tab) => {
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   transition: background 0.1s;
 }
 .sidebar-session-item:hover {
-  background: var(--kb-accent);
+  background: var(--kf-accent);
 }
 .sidebar-session-item.active {
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.1));
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.1));
+  color: var(--kf-primary);
 }
 .session-title {
   flex: 1;
@@ -4332,14 +4332,14 @@ watch(activeTab, (tab) => {
   padding: 12px;
   text-align: center;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* 中栏：对话区 */
 .agent-chat {
   display: flex;
   flex-direction: column;
-  background: var(--kb-background);
+  background: var(--kf-background);
   overflow: hidden;
   position: relative;
 }
@@ -4368,12 +4368,12 @@ watch(activeTab, (tab) => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 .message.user .message-avatar {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 .message-body {
   flex: 1;
@@ -4388,31 +4388,31 @@ watch(activeTab, (tab) => {
 }
 /* 气泡容器：带背景与圆角，区分发送者 */
 .bubble {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   padding: 10px 14px;
-  box-shadow: var(--kb-shadow-sm);
+  box-shadow: var(--kf-shadow-sm);
   min-width: 0;
   width: fit-content;
   max-width: 100%;
 }
 .message.user .bubble {
-  background: var(--kb-accent);
+  background: var(--kf-accent);
   border-color: transparent;
-  color: var(--kb-accent-foreground);
+  color: var(--kf-accent-foreground);
 }
 .message-content {
   font-size: 14px;
   line-height: 1.6;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   word-break: break-word;
 }
 .message.user .message-content {
-  color: var(--kb-accent-foreground);
+  color: var(--kf-accent-foreground);
 }
 .message-content :deep(pre) {
-  background: var(--kb-foreground);
+  background: var(--kf-foreground);
   color: #e6e6e6;
   padding: 12px;
   border-radius: 8px;
@@ -4426,7 +4426,7 @@ watch(activeTab, (tab) => {
   margin: 0.5em 0;
 }
 .message.error .message-content {
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 .message-actions {
   margin-top: 6px;
@@ -4437,9 +4437,9 @@ watch(activeTab, (tab) => {
 /* ===== 本地代码生成产物 ===== */
 .gen-files {
   margin-top: 10px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-background);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-background);
   overflow: hidden;
 }
 .gen-files-head {
@@ -4447,11 +4447,11 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 6px;
   padding: 8px 10px;
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   font-weight: 600;
-  color: var(--kb-foreground);
-  background: var(--kb-card);
-  border-bottom: 1px solid var(--kb-border);
+  color: var(--kf-foreground);
+  background: var(--kf-card);
+  border-bottom: 1px solid var(--kf-border);
 }
 .gen-saved-tag {
   display: inline-flex;
@@ -4460,10 +4460,10 @@ watch(activeTab, (tab) => {
   margin-left: auto;
   padding: 1px 6px;
   border-radius: 10px;
-  font-size: var(--kb-fs-xs);
+  font-size: var(--kf-fs-xs);
   font-weight: 500;
-  color: var(--kb-accent);
-  background: color-mix(in srgb, var(--kb-accent) 12%, transparent);
+  color: var(--kf-accent);
+  background: color-mix(in srgb, var(--kf-accent) 12%, transparent);
 }
 .gen-file-list {
   list-style: none;
@@ -4480,13 +4480,13 @@ watch(activeTab, (tab) => {
   background: transparent;
   border-radius: 5px;
   cursor: pointer;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-foreground);
   text-align: left;
   transition: background 0.1s;
 }
 .gen-file-btn:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .gen-file-name {
   font-family: 'JetBrains Mono', monospace;
@@ -4496,8 +4496,8 @@ watch(activeTab, (tab) => {
 }
 .gen-file-meta {
   margin-left: auto;
-  font-size: var(--kb-fs-xs);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-xs);
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 .gen-files-actions {
@@ -4505,27 +4505,27 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
   flex-wrap: wrap;
 }
 .gen-tip {
-  font-size: var(--kb-fs-xs);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-xs);
+  color: var(--kf-muted-foreground);
 }
 
 /* ===== 行级 diff 审阅 ===== */
 .diff-card {
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
   margin: 4px 0;
   overflow: hidden;
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
 .diff-card.adopted {
-  border-color: color-mix(in srgb, var(--kb-success, #3ba55d) 50%, var(--kb-border));
+  border-color: color-mix(in srgb, var(--kf-success, #3ba55d) 50%, var(--kf-border));
 }
 .diff-card.reverted {
-  border-color: color-mix(in srgb, var(--kb-warning, #e0a800) 50%, var(--kb-border));
+  border-color: color-mix(in srgb, var(--kf-warning, #e0a800) 50%, var(--kf-border));
   opacity: 0.92;
 }
 .diff-head {
@@ -4533,8 +4533,8 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 8px;
   padding: 5px 8px;
-  background: var(--kb-card);
-  border-bottom: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border-bottom: 1px solid var(--kf-border);
 }
 .diff-head .gen-file-btn {
   flex: 1;
@@ -4544,32 +4544,32 @@ watch(activeTab, (tab) => {
   display: inline-flex;
   gap: 6px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: var(--kb-fs-xs);
+  font-size: var(--kf-fs-xs);
   flex-shrink: 0;
 }
 .diff-add {
-  color: var(--kb-success, #3ba55d);
+  color: var(--kf-success, #3ba55d);
 }
 .diff-del {
-  color: var(--kb-danger, #e5484d);
+  color: var(--kf-danger, #e5484d);
 }
 .diff-state {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-size: var(--kb-fs-xs);
+  font-size: var(--kf-fs-xs);
   font-weight: 600;
   padding: 1px 6px;
   border-radius: 10px;
   flex-shrink: 0;
 }
 .diff-state.adopted {
-  color: var(--kb-success, #3ba55d);
-  background: color-mix(in srgb, var(--kb-success, #3ba55d) 12%, transparent);
+  color: var(--kf-success, #3ba55d);
+  background: color-mix(in srgb, var(--kf-success, #3ba55d) 12%, transparent);
 }
 .diff-state.reverted {
-  color: var(--kb-warning, #e0a800);
-  background: color-mix(in srgb, var(--kb-warning, #e0a800) 12%, transparent);
+  color: var(--kf-warning, #e0a800);
+  background: color-mix(in srgb, var(--kf-warning, #e0a800) 12%, transparent);
 }
 .diff-view {
   display: grid;
@@ -4578,22 +4578,22 @@ watch(activeTab, (tab) => {
   max-height: 320px;
   overflow: auto;
   font-family: 'JetBrains Mono', monospace;
-  font-size: var(--kb-fs-xs);
+  font-size: var(--kf-fs-xs);
   line-height: 1.5;
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
 .diff-col-head {
   position: sticky;
   top: 0;
   padding: 3px 8px;
-  font-size: var(--kb-fs-xs);
-  color: var(--kb-muted-foreground);
-  background: var(--kb-card);
-  border-bottom: 1px solid var(--kb-border);
+  font-size: var(--kf-fs-xs);
+  color: var(--kf-muted-foreground);
+  background: var(--kf-card);
+  border-bottom: 1px solid var(--kf-border);
   z-index: 1;
 }
 .diff-old .diff-col-head {
-  border-right: 1px solid var(--kb-border);
+  border-right: 1px solid var(--kf-border);
 }
 .diff-line {
   display: flex;
@@ -4603,14 +4603,14 @@ watch(activeTab, (tab) => {
   word-break: break-all;
 }
 .diff-old .diff-line {
-  border-right: 1px solid var(--kb-border);
+  border-right: 1px solid var(--kf-border);
 }
 .diff-line .diff-no {
   width: 28px;
   flex-shrink: 0;
   text-align: right;
   padding-right: 8px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   user-select: none;
 }
 .diff-line .diff-text {
@@ -4618,27 +4618,27 @@ watch(activeTab, (tab) => {
   white-space: pre-wrap;
 }
 .diff-line.add {
-  background: color-mix(in srgb, var(--kb-success, #3ba55d) 16%, transparent);
+  background: color-mix(in srgb, var(--kf-success, #3ba55d) 16%, transparent);
 }
 .diff-line.add .diff-no {
-  color: color-mix(in srgb, var(--kb-success, #3ba55d) 70%, var(--kb-foreground));
+  color: color-mix(in srgb, var(--kf-success, #3ba55d) 70%, var(--kf-foreground));
 }
 .diff-line.del {
-  background: color-mix(in srgb, var(--kb-danger, #e5484d) 16%, transparent);
+  background: color-mix(in srgb, var(--kf-danger, #e5484d) 16%, transparent);
 }
 .diff-line.del .diff-no {
-  color: color-mix(in srgb, var(--kb-danger, #e5484d) 70%, var(--kb-foreground));
+  color: color-mix(in srgb, var(--kf-danger, #e5484d) 70%, var(--kf-foreground));
 }
 .diff-actions {
   display: flex;
   gap: 8px;
   padding: 6px 8px;
-  border-top: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-top: 1px solid var(--kf-border);
+  background: var(--kf-card);
 }
 .gen-saved-tag.review {
-  color: var(--kb-warning, #e0a800);
-  background: color-mix(in srgb, var(--kb-warning, #e0a800) 12%, transparent);
+  color: var(--kf-warning, #e0a800);
+  background: color-mix(in srgb, var(--kf-warning, #e0a800) 12%, transparent);
 }
 
 /* ===== 生成进度 ===== */
@@ -4647,17 +4647,17 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-muted-foreground);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-muted-foreground);
 }
 .gen-spinner {
   width: 13px;
   height: 13px;
-  border: 2px solid var(--kb-border);
-  border-top-color: var(--kb-primary);
+  border: 2px solid var(--kf-border);
+  border-top-color: var(--kf-primary);
   border-radius: 50%;
   animation: gen-spin 0.7s linear infinite;
   flex-shrink: 0;
@@ -4685,19 +4685,19 @@ watch(activeTab, (tab) => {
   padding: 0;
 }
 .bubble > .reasoning .reasoning-head {
-  background: color-mix(in srgb, var(--kb-foreground) 6%, transparent);
-  border-radius: var(--kb-radius-sm) var(--kb-radius-sm) 0 0;
+  background: color-mix(in srgb, var(--kf-foreground) 6%, transparent);
+  border-radius: var(--kf-radius-sm) var(--kf-radius-sm) 0 0;
 }
 .bubble .gen-files-actions {
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
   padding: 8px 0 0;
 }
 
 /* ===== 推理过程步骤链 ===== */
 .reasoning {
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
   overflow: hidden;
 }
 .reasoning-head {
@@ -4705,11 +4705,11 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   font-weight: 600;
-  color: var(--kb-foreground);
-  background: var(--kb-background);
-  border-bottom: 1px solid var(--kb-border);
+  color: var(--kf-foreground);
+  background: var(--kf-background);
+  border-bottom: 1px solid var(--kf-border);
 }
 .reasoning-steps {
   list-style: none;
@@ -4724,8 +4724,8 @@ watch(activeTab, (tab) => {
   align-items: flex-start;
   gap: 8px;
   padding: 5px 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .reasoning-step-icon {
   display: inline-flex;
@@ -4736,8 +4736,8 @@ watch(activeTab, (tab) => {
   border-radius: 50%;
   flex-shrink: 0;
   margin-top: 1px;
-  color: var(--kb-muted-foreground);
-  background: var(--kb-muted);
+  color: var(--kf-muted-foreground);
+  background: var(--kf-muted);
 }
 .reasoning-step-body {
   display: flex;
@@ -4746,12 +4746,12 @@ watch(activeTab, (tab) => {
   min-width: 0;
 }
 .reasoning-step-title {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-weight: 500;
 }
 .reasoning-step-detail {
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-xs);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-xs);
   line-height: 1.4;
   word-break: break-word;
 }
@@ -4760,40 +4760,40 @@ watch(activeTab, (tab) => {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 /* 状态着色 */
 .reasoning-step.active .reasoning-step-icon {
-  color: var(--kb-primary);
-  background: color-mix(in srgb, var(--kb-primary) 14%, transparent);
+  color: var(--kf-primary);
+  background: color-mix(in srgb, var(--kf-primary) 14%, transparent);
 }
 .reasoning-step.active .reasoning-step-title {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .reasoning-step.done .reasoning-step-icon {
-  color: var(--kb-accent);
-  background: color-mix(in srgb, var(--kb-accent) 14%, transparent);
+  color: var(--kf-accent);
+  background: color-mix(in srgb, var(--kf-accent) 14%, transparent);
 }
 .reasoning-step.done .reasoning-step-state {
-  color: var(--kb-accent);
+  color: var(--kf-accent);
 }
 .reasoning-step.error .reasoning-step-icon {
-  color: var(--kb-destructive);
-  background: color-mix(in srgb, var(--kb-destructive) 14%, transparent);
+  color: var(--kf-destructive);
+  background: color-mix(in srgb, var(--kf-destructive) 14%, transparent);
 }
 .reasoning-step.error .reasoning-step-title,
 .reasoning-step.error .reasoning-step-state {
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 .reasoning-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   animation: reasoning-pulse 1s ease-in-out infinite;
 }
 .reasoning-dot.pending {
-  background: var(--kb-border);
+  background: var(--kf-border);
   animation: none;
 }
 @keyframes reasoning-pulse {
@@ -4805,9 +4805,9 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border-top: 1px solid var(--kb-border);
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  border-top: 1px solid var(--kf-border);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 @media (prefers-reduced-motion: reduce) {
   .reasoning-dot {
@@ -4825,15 +4825,15 @@ watch(activeTab, (tab) => {
   justify-content: center;
   width: 26px;
   height: 26px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
 }
 .sidebar-refresh:hover {
-  color: var(--kb-primary);
-  border-color: var(--kb-primary);
+  color: var(--kf-primary);
+  border-color: var(--kf-primary);
 }
 
 /* 设置：刷新延迟滑块 */
@@ -4842,17 +4842,17 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 10px;
   margin: 12px 0 4px;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-foreground);
 }
 .settings-delay input[type='range'] {
   flex: 1;
-  accent-color: var(--kb-primary);
+  accent-color: var(--kf-primary);
 }
 .settings-delay-val {
   min-width: 56px;
   text-align: right;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-variant-numeric: tabular-nums;
 }
 
@@ -4864,8 +4864,8 @@ watch(activeTab, (tab) => {
   bottom: 0;
   width: 340px;
   max-width: 86vw;
-  background: var(--kb-card);
-  border-left: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border-left: 1px solid var(--kf-border);
   box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
@@ -4876,26 +4876,26 @@ watch(activeTab, (tab) => {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 .settings-title {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-weight: 600;
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body);
 }
 .settings-close {
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   font-size: 14px;
   line-height: 1;
 }
 .settings-close:hover {
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 .settings-body {
   padding: 16px;
@@ -4906,30 +4906,30 @@ watch(activeTab, (tab) => {
 }
 .settings-section-title {
   margin: 0 0 8px;
-  font-size: var(--kb-fs-body);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body);
+  color: var(--kf-foreground);
 }
 .settings-desc {
   margin: 0 0 12px;
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   line-height: 1.6;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .settings-dir-row {
   display: flex;
   align-items: center;
   padding: 8px 10px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-background);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-background);
   margin-bottom: 10px;
 }
 .settings-dir-name {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-foreground);
   word-break: break-all;
 }
 .settings-dir-actions {
@@ -4938,15 +4938,15 @@ watch(activeTab, (tab) => {
 }
 .settings-tip {
   margin: 10px 0 0;
-  font-size: var(--kb-fs-xs);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-xs);
+  color: var(--kf-muted-foreground);
 }
 .settings-switch {
   display: flex;
   align-items: center;
-  gap: var(--kb-checkbox-gap);
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-muted-foreground);
+  gap: var(--kf-checkbox-gap);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-muted-foreground);
   line-height: 1.5;
   cursor: pointer;
 }
@@ -4968,9 +4968,9 @@ watch(activeTab, (tab) => {
 }
 
 .input-area {
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
   padding: 12px;
-  background: var(--kb-card);
+  background: var(--kf-card);
   flex-shrink: 0;
 }
 .input-toolbar {
@@ -4980,7 +4980,7 @@ watch(activeTab, (tab) => {
   gap: 12px;
   margin-bottom: 8px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   flex-wrap: wrap;
 }
 .toolbar-group {
@@ -4995,17 +4995,17 @@ watch(activeTab, (tab) => {
 .ctx-toggle {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-checkbox-gap);
+  gap: var(--kf-checkbox-gap);
   cursor: pointer;
   user-select: none;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   transition: color 0.15s;
 }
 .ctx-toggle:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .ctx-toggle input {
-  accent-color: var(--kb-primary);
+  accent-color: var(--kf-primary);
   cursor: pointer;
 }
 /* 次要操作（调用链/设置）收敛为图标按钮，减少视觉噪音 */
@@ -5015,21 +5015,21 @@ watch(activeTab, (tab) => {
   justify-content: center;
   width: 28px;
   height: 28px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
-  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
+  border-radius: var(--kf-radius-sm);
   cursor: pointer;
   transition: all 0.15s;
 }
 .toolbar-icon-btn:hover {
-  color: var(--kb-foreground);
-  border-color: var(--kb-primary);
+  color: var(--kf-foreground);
+  border-color: var(--kf-primary);
 }
 .toolbar-icon-btn.active {
-  color: var(--kb-primary);
-  border-color: var(--kb-primary);
-  background: var(--kb-highlight-soft, rgba(59, 111, 224, 0.1));
+  color: var(--kf-primary);
+  border-color: var(--kf-primary);
+  background: var(--kf-highlight-soft, rgba(59, 111, 224, 0.1));
 }
 /* 高频配置前置：未设置默认目录时的快捷设置按钮 */
 .quick-dir-btn {
@@ -5037,16 +5037,16 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  border: 1px dashed var(--kb-primary);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-highlight-soft, rgba(59, 111, 224, 0.08));
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-caption);
+  border: 1px dashed var(--kf-primary);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-highlight-soft, rgba(59, 111, 224, 0.08));
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-caption);
   cursor: pointer;
   transition: all 0.15s;
 }
 .quick-dir-btn:hover:not(:disabled) {
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
 }
 .quick-dir-btn:disabled {
@@ -5057,15 +5057,15 @@ watch(activeTab, (tab) => {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .ctx-file.hint {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .ctx-clear {
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   font-size: 10px;
   line-height: 1;
@@ -5073,8 +5073,8 @@ watch(activeTab, (tab) => {
   border-radius: 4px;
 }
 .ctx-clear:hover {
-  color: var(--kb-destructive);
-  background: color-mix(in srgb, var(--kb-destructive) 12%, transparent);
+  color: var(--kf-destructive);
+  background: color-mix(in srgb, var(--kf-destructive) 12%, transparent);
 }
 .input-row {
   display: flex;
@@ -5083,24 +5083,24 @@ watch(activeTab, (tab) => {
 }
 .input-row textarea {
   flex: 1;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 14px;
   resize: none;
   outline: none;
-  background: var(--kb-background);
-  color: var(--kb-foreground);
+  background: var(--kf-background);
+  color: var(--kf-foreground);
   font-family: inherit;
 }
-.input-row textarea:focus:not(.kb-form-control) {
-  border-color: var(--kb-primary);
+.input-row textarea:focus:not(.kf-form-control) {
+  border-color: var(--kf-primary);
 }
 
 /* 右栏：代码编辑区 */
 .agent-code {
-  background: var(--kb-card);
-  border-left: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border-left: 1px solid var(--kf-border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -5110,7 +5110,7 @@ watch(activeTab, (tab) => {
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
   flex-shrink: 0;
 }
 .code-filename {
@@ -5118,7 +5118,7 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 4px;
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -5130,7 +5130,7 @@ watch(activeTab, (tab) => {
   flex-shrink: 0;
 }
 .unsaved-dot {
-  color: var(--kb-highlight, var(--kb-highlight));
+  color: var(--kf-highlight, var(--kf-highlight));
   font-size: 10px;
   margin-left: 2px;
 }
@@ -5142,7 +5142,7 @@ watch(activeTab, (tab) => {
   font-size: 13px;
   line-height: 1.5;
   resize: none;
-  background: var(--kb-foreground);
+  background: var(--kf-foreground);
   color: #e6e6e6;
   outline: none;
   white-space: pre;
@@ -5150,7 +5150,7 @@ watch(activeTab, (tab) => {
 }
 .run-result {
   padding: 12px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
   max-height: 200px;
   overflow-y: auto;
   flex-shrink: 0;
@@ -5173,15 +5173,15 @@ watch(activeTab, (tab) => {
   font-family: 'JetBrains Mono', monospace;
 }
 .result-output {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .result-error-msg {
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 .result-preview-iframe {
   width: 100%;
   min-height: 240px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 6px;
   background: #fff;
 }
@@ -5202,14 +5202,14 @@ watch(activeTab, (tab) => {
   font-size: 18px;
   font-weight: 600;
   margin: 0;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .range-selector {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .loading-state, .empty-state {
   display: flex;
@@ -5218,7 +5218,7 @@ watch(activeTab, (tab) => {
   justify-content: center;
   gap: 12px;
   padding: 60px 20px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 14px;
 }
 
@@ -5233,7 +5233,7 @@ watch(activeTab, (tab) => {
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-bottom: 10px;
 }
 .recent-chips {
@@ -5247,22 +5247,22 @@ watch(activeTab, (tab) => {
   gap: 6px;
   max-width: 240px;
   padding: 6px 12px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 999px;
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.15s;
 }
 .recent-chip:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .recent-chip.active {
-  border-color: var(--kb-primary);
-  background: var(--kb-highlight-soft, rgba(59, 111, 224, 0.1));
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  background: var(--kf-highlight-soft, rgba(59, 111, 224, 0.1));
+  color: var(--kf-primary);
 }
 .recent-chip-name {
   overflow: hidden;
@@ -5271,7 +5271,7 @@ watch(activeTab, (tab) => {
 }
 .recent-chip-time {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 /* 时间分组 */
@@ -5281,7 +5281,7 @@ watch(activeTab, (tab) => {
 .session-group-title {
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   letter-spacing: 0.04em;
   margin-bottom: 10px;
   padding-left: 2px;
@@ -5292,20 +5292,20 @@ watch(activeTab, (tab) => {
   gap: 16px;
 }
 .session-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 10px;
   padding: 16px;
   cursor: pointer;
   transition: all 0.15s;
 }
 .session-card:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 .session-card.active {
-  border-color: var(--kb-primary);
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.05));
+  border-color: var(--kf-primary);
+  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.05));
 }
 .session-card-header {
   display: flex;
@@ -5317,7 +5317,7 @@ watch(activeTab, (tab) => {
   flex: 1;
   font-size: 15px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -5327,7 +5327,7 @@ watch(activeTab, (tab) => {
   flex-wrap: wrap;
   gap: 12px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-bottom: 8px;
 }
 .meta-item {
@@ -5337,7 +5337,7 @@ watch(activeTab, (tab) => {
 }
 .session-card-preview {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.5;
   margin-bottom: 10px;
   display: -webkit-box;
@@ -5349,7 +5349,7 @@ watch(activeTab, (tab) => {
   display: flex;
   gap: 12px;
   padding-top: 8px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 
 /* ===== 模型监测仪表盘 ===== */
@@ -5360,8 +5360,8 @@ watch(activeTab, (tab) => {
   margin-bottom: 20px;
 }
 .stat-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 10px;
   padding: 16px;
   display: flex;
@@ -5370,31 +5370,31 @@ watch(activeTab, (tab) => {
   gap: 4px;
 }
 .stat-card.success {
-  border-color: var(--kb-success);
+  border-color: var(--kf-success);
 }
 .stat-card.danger {
-  border-color: var(--kb-destructive);
+  border-color: var(--kf-destructive);
 }
 .stat-icon {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-bottom: 4px;
 }
-.stat-card.success .stat-icon { color: var(--kb-success); }
-.stat-card.danger .stat-icon { color: var(--kb-destructive); }
+.stat-card.success .stat-icon { color: var(--kf-success); }
+.stat-card.danger .stat-icon { color: var(--kf-destructive); }
 .stat-value {
   font-size: 28px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .stat-value .unit {
   font-size: 14px;
   font-weight: 400;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-left: 2px;
 }
 .stat-label {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .charts-row {
@@ -5404,8 +5404,8 @@ watch(activeTab, (tab) => {
   margin-bottom: 20px;
 }
 .chart-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 10px;
   padding: 16px;
 }
@@ -5415,7 +5415,7 @@ watch(activeTab, (tab) => {
 .chart-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 12px;
 }
 .trend-chart {
@@ -5426,7 +5426,7 @@ watch(activeTab, (tab) => {
 .chart-empty {
   text-align: center;
   padding: 20px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 13px;
 }
 
@@ -5453,23 +5453,23 @@ watch(activeTab, (tab) => {
   width: 100%;
   display: flex;
   align-items: flex-end;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   border-radius: 2px 2px 0 0;
   overflow: hidden;
 }
 .bar-fill {
   width: 100%;
-  background: var(--kb-success);
+  background: var(--kf-success);
   border-radius: 2px 2px 0 0;
   min-height: 2px;
   transition: height 0.3s;
 }
 .bar-fill.has-error {
-  background: var(--kb-destructive);
+  background: var(--kf-destructive);
 }
 .bar-label {
   font-size: 10px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-top: 4px;
   white-space: nowrap;
 }
@@ -5483,18 +5483,18 @@ watch(activeTab, (tab) => {
 .stats-table th, .stats-table td {
   padding: 8px 12px;
   text-align: left;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 .stats-table th {
   font-weight: 600;
-  color: var(--kb-muted-foreground);
-  background: var(--kb-muted);
+  color: var(--kf-muted-foreground);
+  background: var(--kf-muted);
 }
 .stats-table td {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
-.text-success { color: var(--kb-success); }
-.text-danger { color: var(--kb-destructive); }
+.text-success { color: var(--kf-success); }
+.text-danger { color: var(--kf-destructive); }
 
 /* ===== 模型管理 ===== */
 .model-grid {
@@ -5503,19 +5503,19 @@ watch(activeTab, (tab) => {
   gap: 16px;
 }
 .model-card {
-  background: var(--kb-card);
-  border: 2px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 2px solid var(--kf-border);
   border-radius: 10px;
   padding: 16px;
   cursor: pointer;
   transition: all 0.15s;
 }
 .model-card:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 .model-card.active {
-  border-color: var(--kb-primary);
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.05));
+  border-color: var(--kf-primary);
+  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.05));
 }
 .model-card-header {
   display: flex;
@@ -5527,8 +5527,8 @@ watch(activeTab, (tab) => {
   width: 40px;
   height: 40px;
   border-radius: 8px;
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.1));
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.1));
+  color: var(--kf-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5541,11 +5541,11 @@ watch(activeTab, (tab) => {
 .model-name {
   font-size: 15px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .model-provider {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-top: 2px;
 }
 .model-badges {
@@ -5560,14 +5560,14 @@ watch(activeTab, (tab) => {
   flex-wrap: wrap;
   gap: 10px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-bottom: 10px;
 }
 .model-card-actions {
   display: flex;
   gap: 12px;
   padding-top: 10px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 
 /* ===== 模型勾选 & 参数配置样式 ===== */
@@ -5580,25 +5580,25 @@ watch(activeTab, (tab) => {
 /* 分段控件（单选/多选切换） */
 .seg-control {
   display: inline-flex;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-xs, 6px);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-xs, 6px);
   overflow: hidden;
-  background: var(--kb-card);
+  background: var(--kf-card);
 }
 .seg-btn {
   padding: 6px 14px;
   font-size: 13px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: all 0.15s;
 }
 .seg-btn:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .seg-btn.active {
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
 }
 
@@ -5609,29 +5609,29 @@ watch(activeTab, (tab) => {
   gap: 8px;
   padding: 10px 16px;
   margin-bottom: 16px;
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.08));
-  border: 1px solid var(--kb-primary);
+  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.08));
+  border: 1px solid var(--kf-primary);
   border-radius: 8px;
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   flex-wrap: wrap;
 }
 .selection-bar strong {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .selection-bar-params {
   margin-left: auto;
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* 勾选框 */
 
 /* 已勾选卡片样式 */
 .model-card.checked {
-  border-color: var(--kb-primary);
-  box-shadow: 0 0 0 1px var(--kb-primary);
+  border-color: var(--kf-primary);
+  box-shadow: 0 0 0 1px var(--kf-primary);
 }
 
 /* 参数摘要行 */
@@ -5641,11 +5641,11 @@ watch(activeTab, (tab) => {
   gap: 6px;
   padding: 8px 12px;
   margin-top: 8px;
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.05));
+  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.05));
   border-radius: 6px;
   font-size: 12px;
   font-family: 'JetBrains Mono', monospace;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -5658,7 +5658,7 @@ watch(activeTab, (tab) => {
 .params-edit-btn {
   border: none;
   background: transparent;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   cursor: pointer;
   padding: 2px;
   display: flex;
@@ -5676,18 +5676,18 @@ watch(activeTab, (tab) => {
 }
 .params-model-info {
   padding: 14px 16px;
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.06));
+  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.06));
   border-radius: 8px;
   margin-bottom: 20px;
 }
 .params-model-name {
   font-size: 16px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .params-model-sub {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-top: 4px;
 }
 
@@ -5710,12 +5710,12 @@ watch(activeTab, (tab) => {
 .param-label label {
   font-size: 14px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .param-value {
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-family: 'JetBrains Mono', monospace;
   min-width: 50px;
   text-align: right;
@@ -5725,7 +5725,7 @@ watch(activeTab, (tab) => {
   height: 6px;
   -webkit-appearance: none;
   appearance: none;
-  background: var(--kb-border);
+  background: var(--kf-border);
   border-radius: 3px;
   outline: none;
   cursor: pointer;
@@ -5736,7 +5736,7 @@ watch(activeTab, (tab) => {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   cursor: pointer;
   border: 2px solid #fff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
@@ -5745,7 +5745,7 @@ watch(activeTab, (tab) => {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   cursor: pointer;
   border: 2px solid #fff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
@@ -5754,7 +5754,7 @@ watch(activeTab, (tab) => {
   display: flex;
   justify-content: space-between;
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* 默认值提示 */
@@ -5767,7 +5767,7 @@ watch(activeTab, (tab) => {
   background: rgba(107, 114, 128, 0.08);
   border-radius: 6px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* 弹层底部 */
@@ -5776,7 +5776,7 @@ watch(activeTab, (tab) => {
   justify-content: space-between;
   align-items: center;
   padding: 14px 20px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 .modal-footer .footer-right {
   display: flex;
@@ -5788,30 +5788,30 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 6px;
   padding: 7px 14px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 6px;
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.15s;
 }
 .btn-reset:hover {
-  color: var(--kb-foreground);
-  border-color: var(--kb-foreground);
+  color: var(--kf-foreground);
+  border-color: var(--kf-foreground);
 }
 .btn-cancel {
   padding: 7px 14px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 6px;
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.15s;
 }
 .btn-cancel:hover {
-  background: var(--kb-border);
+  background: var(--kf-border);
 }
 
 .health-result {
@@ -5825,11 +5825,11 @@ watch(activeTab, (tab) => {
 }
 .health-result.ok {
   background: rgba(16, 185, 129, 0.1);
-  color: var(--kb-success);
+  color: var(--kf-success);
 }
 .health-result.fail {
   background: rgba(239, 68, 68, 0.1);
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 
 /* ===== 通用组件 ===== */
@@ -5840,17 +5840,17 @@ watch(activeTab, (tab) => {
   padding: 2px 6px;
   border: none;
   background: transparent;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-size: 12px;
   cursor: pointer;
   border-radius: 4px;
   transition: background 0.1s;
 }
 .link-btn:hover {
-  background: var(--kb-accent);
+  background: var(--kf-accent);
 }
 .link-btn.danger {
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 .link-btn:disabled {
   opacity: 0.5;
@@ -5869,7 +5869,7 @@ watch(activeTab, (tab) => {
   padding: 20px;
 }
 .modal-content {
-  background: var(--kb-card);
+  background: var(--kf-card);
   border-radius: 12px;
   width: 100%;
   max-width: 560px;
@@ -5883,7 +5883,7 @@ watch(activeTab, (tab) => {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 .modal-header h2 {
   font-size: 16px;
@@ -5895,7 +5895,7 @@ watch(activeTab, (tab) => {
   background: transparent;
   font-size: 24px;
   cursor: pointer;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1;
 }
 .modal-body {
@@ -5905,7 +5905,7 @@ watch(activeTab, (tab) => {
 }
 .config-list {
   margin-bottom: 16px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -5914,7 +5914,7 @@ watch(activeTab, (tab) => {
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 .config-item:last-child {
   border-bottom: none;
@@ -5930,7 +5930,7 @@ watch(activeTab, (tab) => {
 }
 .config-meta {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .config-ops {
   display: flex;
@@ -5944,27 +5944,27 @@ watch(activeTab, (tab) => {
 }
 .config-form label {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-weight: 500;
 }
-.kb-input:not(.kb-form-control) {
-  border: 1px solid var(--kb-border);
+.kf-input:not(.kf-form-control) {
+  border: 1px solid var(--kf-border);
   border-radius: 6px;
   outline: none;
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
-.kb-input {
+.kf-input {
   padding: 8px 12px;
   font-size: 14px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
-.kb-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.kf-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 .checkbox-label {
   display: flex !important;
   align-items: center;
-  gap: var(--kb-checkbox-gap);
+  gap: var(--kf-checkbox-gap);
   cursor: pointer;
   flex-direction: row !important;
 }
@@ -5973,7 +5973,7 @@ watch(activeTab, (tab) => {
   justify-content: flex-end;
   gap: 8px;
   padding: 16px 20px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 
 /* ===== 移动端响应式 ===== */
@@ -5990,11 +5990,11 @@ watch(activeTab, (tab) => {
   .agent-sidebar {
     max-height: 160px;
     border-right: none;
-    border-bottom: 1px solid var(--kb-border);
+    border-bottom: 1px solid var(--kf-border);
   }
   .agent-code {
     border-left: none;
-    border-top: 1px solid var(--kb-border);
+    border-top: 1px solid var(--kf-border);
     max-height: 240px;
   }
   .sidebar-sessions {
@@ -6034,8 +6034,8 @@ watch(activeTab, (tab) => {
   max-width: 960px;
 }
 .ollama-section {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 10px;
   padding: 20px;
 }
@@ -6055,9 +6055,9 @@ watch(activeTab, (tab) => {
   flex-shrink: 0;
   font-size: 14px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
-.ollama-config-form .form-row > .kb-input {
+.ollama-config-form .form-row > .kf-input {
   flex: 1;
   min-width: 200px;
 }
@@ -6073,9 +6073,9 @@ watch(activeTab, (tab) => {
 }
 .ollama-config-form .param-field > label {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
-.ollama-config-form .param-field > .kb-input {
+.ollama-config-form .param-field > .kf-input {
   width: 100%;
 }
 .ollama-test-result {
@@ -6094,7 +6094,7 @@ watch(activeTab, (tab) => {
 }
 .ollama-test-result.fail {
   background: rgba(239, 68, 68, 0.1);
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 .ollama-loading {
@@ -6103,15 +6103,15 @@ watch(activeTab, (tab) => {
   justify-content: center;
   gap: 8px;
   padding: 40px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 14px;
 }
 .empty-hint {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .empty-hint code {
-  background: var(--kb-accent);
+  background: var(--kf-accent);
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 12px;
@@ -6122,14 +6122,14 @@ watch(activeTab, (tab) => {
   gap: 12px;
 }
 .ollama-model-card {
-  background: var(--kb-background);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-background);
+  border: 1px solid var(--kf-border);
   border-radius: 8px;
   padding: 14px 16px;
   transition: border-color 0.15s;
 }
 .ollama-model-card:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 .ollama-model-header {
   display: flex;
@@ -6141,8 +6141,8 @@ watch(activeTab, (tab) => {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.1));
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.1));
+  color: var(--kf-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6155,12 +6155,12 @@ watch(activeTab, (tab) => {
 .ollama-model-name {
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   word-break: break-all;
 }
 .ollama-model-meta {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-top: 2px;
 }
 .ollama-model-badges {
@@ -6174,17 +6174,17 @@ watch(activeTab, (tab) => {
   display: flex;
   gap: 8px;
   padding-top: 10px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
   flex-wrap: wrap;
 }
 .link-btn.primary {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-weight: 500;
 }
 .ollama-tips {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-left: 3px solid var(--kb-primary);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-left: 3px solid var(--kf-primary);
   border-radius: 8px;
   padding: 14px 16px;
 }
@@ -6194,18 +6194,18 @@ watch(activeTab, (tab) => {
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 8px;
 }
 .ollama-tips ul {
   margin: 0;
   padding-left: 20px;
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.8;
 }
 .ollama-tips code {
-  background: var(--kb-accent);
+  background: var(--kf-accent);
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 12px;
@@ -6216,8 +6216,8 @@ watch(activeTab, (tab) => {
   margin: 0 auto 10px;
   max-width: 820px;
   width: calc(100% - 32px);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-warning, var(--kb-warning));
+  background: var(--kf-card);
+  border: 1px solid var(--kf-warning, var(--kf-warning));
   border-radius: 12px;
   padding: 14px 16px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
@@ -6227,7 +6227,7 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 6px;
   font-weight: 600;
-  color: var(--kb-warning, var(--kb-warning));
+  color: var(--kf-warning, var(--kf-warning));
   margin-bottom: 10px;
 }
 .clarify-question {
@@ -6235,7 +6235,7 @@ watch(activeTab, (tab) => {
 }
 .clarify-q-text {
   font-size: 13px;
-  color: var(--kb-text, #1e293b);
+  color: var(--kf-text, #1e293b);
   margin-bottom: 6px;
 }
 .clarify-options {
@@ -6244,9 +6244,9 @@ watch(activeTab, (tab) => {
   gap: 8px;
 }
 .clarify-opt {
-  border: 1px solid var(--kb-border);
-  background: var(--kb-bg, #fff);
-  color: var(--kb-text, #1e293b);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-bg, #fff);
+  color: var(--kf-text, #1e293b);
   border-radius: 999px;
   padding: 5px 14px;
   font-size: 13px;
@@ -6254,12 +6254,12 @@ watch(activeTab, (tab) => {
   transition: all 0.15s;
 }
 .clarify-opt:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .clarify-opt.selected {
-  border-color: var(--kb-primary);
-  background: var(--kb-primary, #2563eb);
+  border-color: var(--kf-primary);
+  background: var(--kf-primary, #2563eb);
   color: #fff;
 }
 .clarify-input-row {
@@ -6268,19 +6268,19 @@ watch(activeTab, (tab) => {
   align-items: center;
   margin-top: 4px;
 }
-.clarify-input:not(.kb-form-control) {
-  border: 1px solid var(--kb-border);
+.clarify-input:not(.kf-form-control) {
+  border: 1px solid var(--kf-border);
   border-radius: 8px;
-  background: var(--kb-bg, #fff);
+  background: var(--kf-bg, #fff);
 }
 .clarify-input {
   flex: 1;
   padding: 7px 10px;
   font-size: 13px;
-  color: var(--kb-text, #1e293b);
+  color: var(--kf-text, #1e293b);
 }
 
-/* P2 歧义标签（复用 --kb-warning 色变量） */
+/* P2 歧义标签（复用 --kf-warning 色变量） */
 .ambig-tags {
   display: flex;
   flex-wrap: wrap;
@@ -6293,18 +6293,18 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: var(--kb-warning, var(--kb-warning));
-  background: color-mix(in srgb, var(--kb-warning, var(--kb-warning)) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--kb-warning, var(--kb-warning)) 40%, transparent);
+  color: var(--kf-warning, var(--kf-warning));
+  background: color-mix(in srgb, var(--kf-warning, var(--kf-warning)) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kf-warning, var(--kf-warning)) 40%, transparent);
   border-radius: 999px;
   padding: 2px 10px;
 }
 .ambig-suggest {
   font-size: 12px;
-  color: var(--kb-muted, #64748b);
+  color: var(--kf-muted, #64748b);
 }
 
-/* P3 匹配度徽标（复用 --kb-accent 色变量） */
+/* P3 匹配度徽标（复用 --kf-accent 色变量） */
 .eval-badge {
   display: inline-flex;
   align-items: center;
@@ -6316,23 +6316,23 @@ watch(activeTab, (tab) => {
   margin-top: 6px;
 }
 .eval-badge.high {
-  color: var(--kb-accent, var(--kb-success));
-  background: color-mix(in srgb, var(--kb-accent, var(--kb-success)) 12%, transparent);
+  color: var(--kf-accent, var(--kf-success));
+  background: color-mix(in srgb, var(--kf-accent, var(--kf-success)) 12%, transparent);
 }
 .eval-badge.mid {
-  color: var(--kb-warning, var(--kb-warning));
-  background: color-mix(in srgb, var(--kb-warning, var(--kb-warning)) 12%, transparent);
+  color: var(--kf-warning, var(--kf-warning));
+  background: color-mix(in srgb, var(--kf-warning, var(--kf-warning)) 12%, transparent);
 }
 .eval-badge.low {
-  color: var(--kb-danger, var(--kb-danger));
-  background: color-mix(in srgb, var(--kb-danger, var(--kb-danger)) 12%, transparent);
+  color: var(--kf-danger, var(--kf-danger));
+  background: color-mix(in srgb, var(--kf-danger, var(--kf-danger)) 12%, transparent);
 }
 
 /* =====================================================================
  * 交互状态补齐：hover / active / focus-visible
  * ---------------------------------------------------------------------
  * 本区块只“补缺”，不覆盖既有配色与布局：
- * 1. focus-visible 统一用 --kb-ring 令牌画 2px 焦点环，仅键盘导航时出现，
+ * 1. focus-visible 统一用 --kf-ring 令牌画 2px 焦点环，仅键盘导航时出现，
  *    鼠标点击不显示，避免影响原有观感；
  * 2. active 统一按压反馈——紧凑按钮用 scale(0.98)，卡片用 scale(0.99)，
  *    满宽行用 inset 蒙层（与背景色无关，浅/深色模式都可见）；
@@ -6360,10 +6360,10 @@ watch(activeTab, (tab) => {
 .session-card:focus-visible,
 .model-card:focus-visible,
 .model-card-params:focus-visible,
-.clarify-input:focus-visible:not(.kb-form-control),
+.clarify-input:focus-visible:not(.kf-form-control),
 .code-editor:focus-visible,
 .param-slider:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -6371,7 +6371,7 @@ watch(activeTab, (tab) => {
 .file-node:focus-visible,
 .sidebar-session-item:focus-visible,
 .tool-card-head:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: -2px;
 }
 
@@ -6415,13 +6415,13 @@ watch(activeTab, (tab) => {
   background: color-mix(in srgb, currentColor 8%, transparent);
 }
 .close-btn:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .model-icon:hover {
-  background: color-mix(in srgb, var(--kb-primary) 18%, transparent);
+  background: color-mix(in srgb, var(--kf-primary) 18%, transparent);
 }
 .model-info:hover .model-name {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 /* --- 4. 补齐缺失的过渡，使 hover / active 平滑（仅列出原先无 transition 者） --- */

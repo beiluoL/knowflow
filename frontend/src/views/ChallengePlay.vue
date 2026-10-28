@@ -5,30 +5,30 @@
       <div class="flex items-center gap-3 min-w-0">
         <button
           type="button"
-          class="w-9 h-9 shrink-0 rounded-lg border border-[var(--kb-border)] bg-[var(--kb-card)] flex items-center justify-center transition-colors hover:bg-[var(--kb-muted)] hover:border-[var(--kb-primary)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-          style="color: var(--kb-foreground);"
+          class="w-9 h-9 shrink-0 rounded-lg border border-[var(--kf-border)] bg-[var(--kf-card)] flex items-center justify-center transition-colors hover:bg-[var(--kf-muted)] hover:border-[var(--kf-primary)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+          style="color: var(--kf-foreground);"
           @click="router.push('/challenge')"
         >
           <Icon name="arrow-left" :size="18" />
         </button>
         <div class="min-w-0">
-          <h1 class="kb-h2 truncate" style="color: var(--kb-foreground);">{{ detail?.title || '编程挑战' }}</h1>
-          <p class="kb-body-sm truncate">
+          <h1 class="kf-h2 truncate" style="color: var(--kf-foreground);">{{ detail?.title || '编程挑战' }}</h1>
+          <p class="kf-body-sm truncate">
             {{ detail ? `${detail.clearedLevels}/${detail.levelCount} 关 · 逐关解锁，通关得星` : '加载中...' }}
           </p>
         </div>
       </div>
       <div v-if="detail" class="flex items-center flex-wrap gap-4">
-        <span class="flex items-center gap-2 text-sm font-semibold tabular-nums" style="color: var(--kb-state-warning);">
+        <span class="flex items-center gap-2 text-sm font-semibold tabular-nums" style="color: var(--kf-state-warning);">
           <Icon name="star" :size="16" />{{ detail.earnedStars }}/{{ detail.levelCount * 3 }}
         </span>
-        <span class="flex items-center gap-2 text-sm font-semibold tabular-nums" style="color: var(--kb-primary);">
+        <span class="flex items-center gap-2 text-sm font-semibold tabular-nums" style="color: var(--kf-primary);">
           <Icon name="zap" :size="16" />{{ detail.earnedPoints }}/{{ detail.totalPoints }} 分
         </span>
         <span
           v-if="detail.completed"
-          class="flex items-center gap-1 text-[length:var(--kb-fs-caption)] font-medium px-3 py-1 rounded-full"
-          style="background: rgba(16, 185, 129, 0.1); color: var(--kb-state-success);"
+          class="flex items-center gap-1 text-[length:var(--kf-fs-caption)] font-medium px-3 py-1 rounded-full"
+          style="background: rgba(16, 185, 129, 0.1); color: var(--kf-state-success);"
         >
           <Icon name="trophy" :size="12" />已通关
         </span>
@@ -36,18 +36,18 @@
     </div>
 
     <!-- 加载态 -->
-    <div v-if="loading" class="rounded-xl border p-6" style="background: var(--kb-card); border-color: var(--kb-border);">
+    <div v-if="loading" class="rounded-xl border p-6" style="background: var(--kf-card); border-color: var(--kf-border);">
       <div class="animate-pulse space-y-3">
-        <div class="h-4 rounded" style="background: var(--kb-muted); width: 40%;"></div>
-        <div class="h-16 rounded" style="background: var(--kb-muted);"></div>
-        <div class="h-4 rounded" style="background: var(--kb-muted); width: 70%;"></div>
+        <div class="h-4 rounded" style="background: var(--kf-muted); width: 40%;"></div>
+        <div class="h-16 rounded" style="background: var(--kf-muted);"></div>
+        <div class="h-4 rounded" style="background: var(--kf-muted); width: 70%;"></div>
       </div>
     </div>
 
     <template v-else-if="detail">
       <!-- 关卡地图 -->
-      <div class="rounded-xl border p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
-        <h3 class="kb-h3 mb-4">关卡地图</h3>
+      <div class="rounded-xl border p-4" style="background: var(--kf-card); border-color: var(--kf-border);">
+        <h3 class="kf-h3 mb-4">关卡地图</h3>
         <div class="level-map">
           <template v-for="(lv, idx) in detail.levels" :key="lv.id">
             <div
@@ -65,7 +65,7 @@
               <div class="level-circle" :style="levelCircleStyle(lv)">
                 <Icon v-if="lv.locked" name="lock" :size="16" />
                 <Icon v-else-if="lv.passed" name="check" :size="18" />
-                <span v-else class="text-[length:var(--kb-fs-body-md)] font-bold tabular-nums">{{ lv.levelNo }}</span>
+                <span v-else class="text-[length:var(--kf-fs-body-md)] font-bold tabular-nums">{{ lv.levelNo }}</span>
               </div>
               <div class="flex items-center gap-1 mt-2">
                 <Icon
@@ -73,17 +73,17 @@
                   :key="s"
                   name="star"
                   :size="12"
-                  :style="{ color: s <= lv.stars ? 'var(--kb-warning)' : 'var(--kb-muted)' }"
+                  :style="{ color: s <= lv.stars ? 'var(--kf-warning)' : 'var(--kf-muted)' }"
                 />
               </div>
-              <p class="text-[length:var(--kb-fs-caption)] mt-1 truncate max-w-[72px] text-center" style="color: var(--kb-muted-foreground);">
+              <p class="text-[length:var(--kf-fs-caption)] mt-1 truncate max-w-[72px] text-center" style="color: var(--kf-muted-foreground);">
                 {{ lv.title }}
               </p>
             </div>
             <div
               v-if="idx < detail.levels.length - 1"
               class="level-link"
-              :style="{ background: lv.passed ? themeColor : 'var(--kb-muted)' }"
+              :style="{ background: lv.passed ? themeColor : 'var(--kf-muted)' }"
             ></div>
           </template>
         </div>
@@ -93,28 +93,28 @@
       <div v-if="currentLevel" class="flex gap-4 flex-col lg:flex-row items-start">
         <!-- 左：题目 -->
         <div class="w-full lg:w-2/5 shrink-0 space-y-4">
-          <div class="rounded-xl border p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
+          <div class="rounded-xl border p-4" style="background: var(--kf-card); border-color: var(--kf-border);">
             <div class="flex items-center justify-between mb-3">
-              <h3 class="kb-h3 min-w-0 truncate">第 {{ currentLevel.levelNo }} 关 · {{ currentLevel.title }}</h3>
+              <h3 class="kf-h3 min-w-0 truncate">第 {{ currentLevel.levelNo }} 关 · {{ currentLevel.title }}</h3>
               <div class="flex items-center gap-2 shrink-0">
                 <span class="diff-badge" :class="`diff-${currentLevel.difficulty ?? 0}`">
                   {{ difficultyLabel(currentLevel.difficulty) }}
                 </span>
-                <span class="flex items-center gap-1 text-[length:var(--kb-fs-body-sm)] font-semibold tabular-nums" style="color: var(--kb-primary);">
+                <span class="flex items-center gap-1 text-[length:var(--kf-fs-body-sm)] font-semibold tabular-nums" style="color: var(--kf-primary);">
                   <Icon name="zap" :size="14" />{{ currentLevel.points }} 分
                 </span>
               </div>
             </div>
-            <p class="kb-body whitespace-pre-wrap mb-4" style="color: var(--kb-foreground);">
+            <p class="kf-body whitespace-pre-wrap mb-4" style="color: var(--kf-foreground);">
               {{ currentLevel.description }}
             </p>
 
             <div v-if="currentLevel.exampleInput" class="mb-3">
-              <p class="kb-body-sm font-medium mb-1">示例输入</p>
+              <p class="kf-body-sm font-medium mb-1">示例输入</p>
               <pre class="example-block">{{ currentLevel.exampleInput }}</pre>
             </div>
             <div v-if="currentLevel.exampleOutput" class="mb-3">
-              <p class="kb-body-sm font-medium mb-1">示例输出</p>
+              <p class="kf-body-sm font-medium mb-1">示例输出</p>
               <pre class="example-block">{{ currentLevel.exampleOutput }}</pre>
             </div>
 
@@ -122,22 +122,22 @@
             <div v-if="currentLevel.hint">
               <button
                 type="button"
-                class="flex items-center gap-2 text-[length:var(--kb-fs-body-sm)] font-medium rounded-[var(--kb-radius-sm)] transition-opacity hover:opacity-80 active:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="color: var(--kb-state-warning);"
+                class="flex items-center gap-2 text-[length:var(--kf-fs-body-sm)] font-medium rounded-[var(--kf-radius-sm)] transition-opacity hover:opacity-80 active:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+                style="color: var(--kf-state-warning);"
                 @click="showHint = !showHint"
               >
                 <Icon name="lightbulb" :size="14" />{{ showHint ? '收起提示' : '查看提示' }}
               </button>
               <p
                 v-if="showHint"
-                class="mt-2 text-[length:var(--kb-fs-body-sm)] rounded-lg p-3"
-                style="background: rgba(245, 158, 11, 0.08); color: var(--kb-foreground);"
+                class="mt-2 text-[length:var(--kf-fs-body-sm)] rounded-lg p-3"
+                style="background: rgba(245, 158, 11, 0.08); color: var(--kf-foreground);"
               >{{ currentLevel.hint }}</p>
             </div>
           </div>
 
           <!-- 本关状态 -->
-          <div class="rounded-xl border p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
+          <div class="rounded-xl border p-4" style="background: var(--kf-card); border-color: var(--kf-border);">
             <div class="grid grid-cols-3 gap-3 text-center">
               <div>
                 <div class="flex items-center justify-center gap-1">
@@ -146,18 +146,18 @@
                     :key="s"
                     name="star"
                     :size="16"
-                    :style="{ color: s <= currentLevel.stars ? 'var(--kb-warning)' : 'var(--kb-muted)' }"
+                    :style="{ color: s <= currentLevel.stars ? 'var(--kf-warning)' : 'var(--kf-muted)' }"
                   />
                 </div>
-                <p class="kb-body-sm mt-1">已获星级</p>
+                <p class="kf-body-sm mt-1">已获星级</p>
               </div>
               <div>
-                <p class="text-lg font-bold tabular-nums" style="color: var(--kb-primary);">{{ currentLevel.pointsEarned }}</p>
-                <p class="kb-body-sm">已获积分</p>
+                <p class="text-lg font-bold tabular-nums" style="color: var(--kf-primary);">{{ currentLevel.pointsEarned }}</p>
+                <p class="kf-body-sm">已获积分</p>
               </div>
               <div>
-                <p class="text-lg font-bold tabular-nums" style="color: var(--kb-foreground);">{{ currentLevel.attempts }}</p>
-                <p class="kb-body-sm">提交次数</p>
+                <p class="text-lg font-bold tabular-nums" style="color: var(--kf-foreground);">{{ currentLevel.attempts }}</p>
+                <p class="kf-body-sm">提交次数</p>
               </div>
             </div>
           </div>
@@ -165,14 +165,14 @@
 
         <!-- 右：编辑器 + 测试结果 -->
         <div class="flex-1 min-w-0 space-y-4 w-full">
-          <div class="rounded-xl border overflow-hidden" style="background: var(--kb-card); border-color: var(--kb-border);">
-            <div class="flex items-center justify-between gap-3 px-4 py-3 border-b" style="border-color: var(--kb-border);">
-              <span class="min-w-0 truncate text-[length:var(--kb-fs-body-sm)] font-medium" style="color: var(--kb-foreground);">
+          <div class="rounded-xl border overflow-hidden" style="background: var(--kf-card); border-color: var(--kf-border);">
+            <div class="flex items-center justify-between gap-3 px-4 py-3 border-b" style="border-color: var(--kf-border);">
+              <span class="min-w-0 truncate text-[length:var(--kf-fs-body-sm)] font-medium" style="color: var(--kf-foreground);">
                 {{ langLabel(currentLevel.language || detail.language) }} 编辑器
               </span>
               <button
                 type="button"
-                class="flex items-center gap-1 shrink-0 rounded-[var(--kb-radius-sm)] text-[length:var(--kb-fs-body-sm)] text-[color:var(--kb-muted-foreground)] transition-colors hover:text-[color:var(--kb-primary)] active:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="flex items-center gap-1 shrink-0 rounded-[var(--kf-radius-sm)] text-[length:var(--kf-fs-body-sm)] text-[color:var(--kf-muted-foreground)] transition-colors hover:text-[color:var(--kf-primary)] active:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                 @click="resetCode"
               >
                 <Icon name="refresh-cw" :size="14" />重置模板
@@ -186,13 +186,13 @@
               placeholder="在这里编写你的代码..."
               @keydown="handleKeydown"
             ></textarea>
-            <div class="flex items-center justify-between flex-wrap gap-3 px-4 py-3 border-t" style="border-color: var(--kb-border);">
-              <span class="min-w-0 flex-1 text-[length:var(--kb-fs-caption)]" style="color: var(--kb-muted-foreground);">
+            <div class="flex items-center justify-between flex-wrap gap-3 px-4 py-3 border-t" style="border-color: var(--kf-border);">
+              <span class="min-w-0 flex-1 text-[length:var(--kf-fs-caption)]" style="color: var(--kf-muted-foreground);">
                 共 {{ testCases.length }} 个测试用例，全部通过即可通关
               </span>
               <button
                 type="button"
-                class="flex items-center gap-2 shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90 active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:opacity-60"
+                class="flex items-center gap-2 shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90 active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:opacity-60"
                 :style="{ background: themeColor, color: '#fff' }"
                 :disabled="submitting"
                 @click="submitLevel"
@@ -206,13 +206,13 @@
           <div
             v-if="tcResults.length > 0"
             class="rounded-xl border p-4 space-y-2"
-            style="background: var(--kb-card); border-color: var(--kb-border);"
+            style="background: var(--kf-card); border-color: var(--kf-border);"
           >
-            <h3 class="kb-h3 mb-2">测试结果（{{ passedCount }}/{{ tcResults.length }} 通过）</h3>
+            <h3 class="kf-h3 mb-2">测试结果（{{ passedCount }}/{{ tcResults.length }} 通过）</h3>
             <div
               v-for="(r, i) in tcResults"
               :key="i"
-              class="rounded-lg p-3 break-words text-[length:var(--kb-fs-body-sm)]"
+              class="rounded-lg p-3 break-words text-[length:var(--kf-fs-body-sm)]"
               :style="{
                 background: r.passed ? 'rgba(16, 185, 129, 0.06)' : 'rgba(239, 68, 68, 0.06)',
                 border: `1px solid ${r.passed ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)'}`,
@@ -222,12 +222,12 @@
                 <Icon
                   :name="r.passed ? 'check' : 'x'"
                   :size="14"
-                  :style="{ color: r.passed ? 'var(--kb-state-success)' : 'var(--kb-state-error)' }"
+                  :style="{ color: r.passed ? 'var(--kf-state-success)' : 'var(--kf-state-error)' }"
                 />
-                <span class="font-medium" style="color: var(--kb-foreground);">用例 {{ i + 1 }}</span>
+                <span class="font-medium" style="color: var(--kf-foreground);">用例 {{ i + 1 }}</span>
               </div>
-              <p style="color: var(--kb-muted-foreground);">期望：{{ r.expected }}</p>
-              <p style="color: var(--kb-muted-foreground);">实际：{{ r.actual || '(无输出)' }}</p>
+              <p style="color: var(--kf-muted-foreground);">期望：{{ r.expected }}</p>
+              <p style="color: var(--kf-muted-foreground);">实际：{{ r.actual || '(无输出)' }}</p>
             </div>
           </div>
         </div>
@@ -242,15 +242,15 @@
             class="w-14 h-14 rounded-full mx-auto flex items-center justify-center mb-3"
             :style="{
               background: resultModal.passed ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)',
-              color: resultModal.passed ? 'var(--kb-state-success)' : 'var(--kb-state-warning)',
+              color: resultModal.passed ? 'var(--kf-state-success)' : 'var(--kf-state-warning)',
             }"
           >
             <Icon :name="resultModal.passed ? 'trophy' : 'zap'" :size="24" />
           </div>
-          <h3 class="kb-h3 mb-1">
+          <h3 class="kf-h3 mb-1">
             {{ resultModal.challengeCompleted ? '恭喜通关全部关卡！' : resultModal.passed ? '恭喜通关本关！' : '再接再厉！' }}
           </h3>
-          <p class="text-sm mb-4" style="color: var(--kb-muted-foreground);">
+          <p class="text-sm mb-4" style="color: var(--kf-muted-foreground);">
             {{ resultModal.passCount }}/{{ resultModal.total }} 个用例通过
             {{ resultModal.passed && !resultModal.firstPass ? '（本关已通关，不重复计分）' : '' }}
           </p>
@@ -262,31 +262,31 @@
               :key="s"
               name="star"
               :size="32"
-              :style="{ color: s <= resultModal.stars ? 'var(--kb-warning)' : 'var(--kb-muted)' }"
+              :style="{ color: s <= resultModal.stars ? 'var(--kf-warning)' : 'var(--kf-muted)' }"
             />
           </div>
-          <p v-if="resultModal.firstPass" class="text-sm font-semibold mb-4" style="color: var(--kb-primary);">
+          <p v-if="resultModal.firstPass" class="text-sm font-semibold mb-4" style="color: var(--kf-primary);">
             +{{ resultModal.pointsEarned }} 积分（累计 {{ resultModal.totalPoints }} 分 · {{ resultModal.totalStars }} 星）
           </p>
 
           <div class="flex items-center justify-center flex-wrap gap-3">
             <button
               type="button"
-              class="px-4 py-2 rounded-lg text-sm font-medium border border-[var(--kb-border)] bg-[var(--kb-card)] transition-colors hover:bg-[var(--kb-muted)] hover:border-[var(--kb-primary)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-              style="color: var(--kb-foreground);"
+              class="px-4 py-2 rounded-lg text-sm font-medium border border-[var(--kf-border)] bg-[var(--kf-card)] transition-colors hover:bg-[var(--kf-muted)] hover:border-[var(--kf-primary)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+              style="color: var(--kf-foreground);"
               @click="closeModal"
             >{{ resultModal.passed ? '留在本关' : '继续尝试' }}</button>
             <button
               v-if="resultModal.passed && resultModal.unlockedNext"
               type="button"
-              class="px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90 active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90 active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
               :style="{ background: themeColor, color: '#fff' }"
               @click="goNextLevel"
             >挑战下一关</button>
             <button
               v-if="resultModal.challengeCompleted"
               type="button"
-              class="px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90 active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90 active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
               :style="{ background: themeColor, color: '#fff' }"
               @click="router.push('/challenge')"
             >返回挑战列表</button>
@@ -332,7 +332,7 @@ const resultModal = ref<ChallengeSubmitResultVO | null>(null)
 const codeAreaRef = ref<HTMLTextAreaElement | null>(null)
 
 const challengeId = computed(() => Number(route.params.id))
-const themeColor = computed(() => detail.value?.themeColor || 'var(--kb-primary)')
+const themeColor = computed(() => detail.value?.themeColor || 'var(--kf-primary)')
 const passedCount = computed(() => tcResults.value.filter((r) => r.passed).length)
 
 /** 当前关卡的测试用例（JSON 解析） */
@@ -362,13 +362,13 @@ const langLabel = (lang?: string) => {
 /** 关卡节点圆圈配色：锁定灰 / 已通关主题色实底 / 当前描边 */
 const levelCircleStyle = (lv: ChallengeLevelVO) => {
   if (lv.locked) {
-    return { background: 'var(--kb-muted)', color: 'var(--kb-muted-foreground)' }
+    return { background: 'var(--kf-muted)', color: 'var(--kf-muted-foreground)' }
   }
   if (lv.passed) {
     return { background: themeColor.value, color: '#fff' }
   }
   return {
-    background: (detail.value?.themeColor || 'var(--kb-primary)') + '14',
+    background: (detail.value?.themeColor || 'var(--kf-primary)') + '14',
     color: themeColor.value,
     border: `2px solid ${themeColor.value}`,
   }
@@ -571,7 +571,7 @@ onMounted(() => {
   align-items: center;
   cursor: pointer;
   min-width: 72px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
 }
 
 .level-node.locked {
@@ -581,7 +581,7 @@ onMounted(() => {
 
 /* 键盘焦点环：role="button" 节点可 Tab 聚焦 */
 .level-node:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -619,33 +619,33 @@ onMounted(() => {
 .code-editor {
   width: 100%;
   min-height: 300px;
-  padding: var(--kb-space-4);
+  padding: var(--kf-space-4);
   border: none;
   outline: none;
   resize: vertical;
-  background: var(--kb-background);
-  color: var(--kb-foreground);
+  background: var(--kf-background);
+  color: var(--kf-foreground);
   font-family: var(--font-mono);
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1.65;
   tab-size: 2;
 }
 
 .code-editor:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: -2px;
 }
 
 /* 示例块 */
 .example-block {
-  background: var(--kb-background);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-background);
+  border: 1px solid var(--kf-border);
   border-radius: 8px;
-  padding: var(--kb-space-3);
+  padding: var(--kf-space-3);
   font-family: var(--font-mono);
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1.6;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   white-space: pre-wrap;
   word-break: break-all;
 }
@@ -659,14 +659,14 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   z-index: 50;
-  padding: var(--kb-space-4);
+  padding: var(--kf-space-4);
 }
 
 .modal-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
-  padding: var(--kb-space-6) var(--kb-space-8);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
+  padding: var(--kf-space-6) var(--kf-space-8);
   width: 100%;
   max-width: 400px;
   animation: popIn 0.25s ease-out;
@@ -684,45 +684,45 @@ onMounted(() => {
   white-space: nowrap;
   padding: 2px 8px;
   border-radius: 4px;
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   font-weight: 500;
 }
 
 .diff-0 {
   background: rgba(16, 185, 129, 0.1);
-  color: var(--kb-state-success);
+  color: var(--kf-state-success);
 }
 
 .diff-1 {
   background: rgba(245, 158, 11, 0.1);
-  color: var(--kb-state-warning);
+  color: var(--kf-state-warning);
 }
 
 .diff-2 {
   background: rgba(239, 68, 68, 0.1);
-  color: var(--kb-state-error);
+  color: var(--kf-state-error);
 }
 
-.kb-h2 {
-  font-size: var(--kb-fs-h4);
+.kf-h2 {
+  font-size: var(--kf-fs-h4);
   font-weight: 700;
   line-height: 1.35;
 }
 
-.kb-h3 {
-  font-size: var(--kb-fs-body-lg);
+.kf-h3 {
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
   line-height: 1.4;
 }
 
-.kb-body {
-  font-size: var(--kb-fs-body-md);
+.kf-body {
+  font-size: var(--kf-fs-body-md);
   line-height: 1.7;
 }
 
-.kb-body-sm {
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
-  color: var(--kb-muted-foreground);
+.kf-body-sm {
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
+  color: var(--kf-muted-foreground);
 }
 </style>

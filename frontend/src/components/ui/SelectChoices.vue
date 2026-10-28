@@ -2,7 +2,7 @@
   <div
     :id="id"
     ref="list"
-    class="kb-select-list"
+    class="kf-select-list"
     role="listbox"
     :aria-label="label"
     :aria-multiselectable="multiple || undefined"
@@ -30,7 +30,7 @@
         :aria-selected="values.includes(choice.value)"
         :title="choice.label"
         :disabled="choice.disabled"
-        class="kb-select-option"
+        class="kf-select-option"
         :class="{
           'select-option-focused': keyboardActive && activeKey === choice.key,
         }"
@@ -193,18 +193,18 @@ defineExpose({ focus, navigate });
 </script>
 <style scoped>
 .select-choice-group + .select-choice-group {
-  margin-top: var(--kb-space-1);
-  padding-top: var(--kb-space-1);
-  border-top: 1px solid var(--kb-border);
+  margin-top: var(--kf-space-1);
+  padding-top: var(--kf-space-1);
+  border-top: 1px solid var(--kf-border);
 }
 .select-choice-heading {
-  padding: var(--kb-space-2) var(--kb-space-3);
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  padding: var(--kf-space-2) var(--kf-space-3);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
-.kb-select-option {
-  min-height: var(--kb-select-option-height);
-  padding-block: var(--kb-space-2);
+.kf-select-option {
+  min-height: var(--kf-select-option-height);
+  padding-block: var(--kf-space-2);
 }
 .select-option-copy :deep(.select-option-label) {
   display: block;
@@ -220,20 +220,20 @@ defineExpose({ focus, navigate });
 }
 .select-option-copy small {
   display: block;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
-  line-height: var(--kb-lh-caption);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
+  line-height: var(--kf-lh-caption);
 }
 .select-color-swatch {
-  width: var(--kb-space-4);
-  height: var(--kb-space-4);
-  border-radius: var(--kb-radius-full);
-  border: 1px solid var(--kb-border);
+  width: var(--kf-space-4);
+  height: var(--kf-space-4);
+  border-radius: var(--kf-radius-full);
+  border: 1px solid var(--kf-border);
   flex-shrink: 0;
 }
 .select-option-focused:not(:disabled) {
-  background: var(--kb-menu-hover);
-  outline: var(--kb-field-focus-width) solid var(--kb-ring);
-  outline-offset: calc(-1 * var(--kb-field-focus-width));
+  background: var(--kf-menu-hover);
+  outline: var(--kf-field-focus-width) solid var(--kf-ring);
+  outline-offset: calc(-1 * var(--kf-field-focus-width));
 }
 </style>

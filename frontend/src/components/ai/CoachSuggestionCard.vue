@@ -60,7 +60,7 @@ function onCta() {
 <template>
   <div v-if="app && actionState" class="coach-suggestion-card">
     <div class="cs-head">
-      <Icon :name="app.icon" :size="16" style="color: var(--kb-primary);" />
+      <Icon :name="app.icon" :size="16" style="color: var(--kf-primary);" />
       <span class="cs-title">{{ app.name }}</span>
     </div>
     <p v-if="validation.reason" class="cs-reason">{{ validation.reason }}</p>
@@ -74,7 +74,7 @@ function onCta() {
 
 <style scoped>
 .coach-suggestion-card {
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   background: rgba(59, 111, 224, 0.06);
   border-radius: 12px;
   padding: 10px 12px;
@@ -90,11 +90,11 @@ function onCta() {
 .cs-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .cs-reason {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.5;
 }
 .cs-cta {
@@ -107,8 +107,8 @@ function onCta() {
   border: none;
   font-size: 13px;
   cursor: pointer;
-  color: var(--kb-primary-foreground);
-  background: var(--kb-primary);
+  color: var(--kf-primary-foreground);
+  background: var(--kf-primary);
   transition: opacity 0.15s;
 }
 .cs-cta.is-disabled {
@@ -117,6 +117,6 @@ function onCta() {
 }
 .cs-hint {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 </style>

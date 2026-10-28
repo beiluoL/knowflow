@@ -95,10 +95,10 @@
       <!-- 添加计划表单 -->
       <div v-if="showAddTask" class="lc-add-task">
         <input v-model="newTask.title" type="text" placeholder="计划标题，如：阅读《JavaScript 高级程序设计》第3章"
-               class="lc-input kb-input kb-form-control" @keydown.enter="handleCreateTask" />
-        <textarea v-model="newTask.description" placeholder="描述（可选）" rows="2" class="lc-input kb-textarea kb-form-control"></textarea>
+               class="lc-input kf-input kf-form-control" @keydown.enter="handleCreateTask" />
+        <textarea v-model="newTask.description" placeholder="描述（可选）" rows="2" class="lc-input kf-textarea kf-form-control"></textarea>
         <div class="lc-add-task-row">
-          <select v-model="newTask.type" class="lc-select kb-select kb-form-control">
+          <select v-model="newTask.type" class="lc-select kf-select kf-form-control">
             <option value="study">学习</option>
             <option value="reading">阅读</option>
             <option value="practice">练习</option>
@@ -584,16 +584,16 @@ const QUICK_NAV_LIMIT = 8
 
 const quickNavItems = [
   // ── 学习核心能力（页面内部，始终可用）
-  { label: '今日计划', icon: 'calendar-check', color: 'var(--kb-primary)', to: '/learning/today-plan' },
-  { label: '学习路径', icon: 'route', color: 'var(--kb-primary)', to: '/learning/paths' },
-  { label: '复习计划', icon: 'calendar-check', color: 'var(--kb-warning)', to: '/learning/review' },
+  { label: '今日计划', icon: 'calendar-check', color: 'var(--kf-primary)', to: '/learning/today-plan' },
+  { label: '学习路径', icon: 'route', color: 'var(--kf-primary)', to: '/learning/paths' },
+  { label: '复习计划', icon: 'calendar-check', color: 'var(--kf-warning)', to: '/learning/review' },
   { label: '掌握分布', icon: 'pie-chart', color: '#06B6D4', to: '/learning/mastery' },
-  { label: '学习报告', icon: 'bar-chart-2', color: 'var(--kb-accent)', to: '/learning/report' },
-  { label: '番茄钟专注', icon: 'timer', color: 'var(--kb-danger)', to: '/learning/pomodoro' },
+  { label: '学习报告', icon: 'bar-chart-2', color: 'var(--kf-accent)', to: '/learning/report' },
+  { label: '番茄钟专注', icon: 'timer', color: 'var(--kf-danger)', to: '/learning/pomodoro' },
   { label: '编程 Agent', icon: 'cpu', color: '#8B5CF6', to: '/coding/agent' },
   { label: '学习工作台', icon: 'brain', color: '#8B5CF6', to: '/workbench' },
   // ── 更多工具（含 App 类，按启用态过滤；与 Sidebar 动态菜单同源，不冲突 §127）
-  { label: '代码练习', icon: 'code', color: 'var(--kb-warning)', to: '/learning/code-practice' },
+  { label: '代码练习', icon: 'code', color: 'var(--kf-warning)', to: '/learning/code-practice' },
   { label: '编程挑战', icon: 'rocket', color: '#8B5CF6', to: '/challenge' },
   // Architecture-4.0-4：场景练习（Scenario Lab，Practice 节点，非 App 无需启用态过滤）
   { label: '场景练习', icon: 'pen-tool', color: '#06B6D4', to: '/learning/scenario' },
@@ -601,9 +601,9 @@ const quickNavItems = [
   { label: '费曼表达', icon: 'book-open', color: '#8B5CF6', to: '/learning/feynman' },
   // Architecture-4.1：第一性原理推导（Understanding 节点：六环节结构完整度，非 App 无需启用态过滤）
   { label: '第一性原理', icon: 'compass', color: '#8B5CF6', to: '/learning/first-principles' },
-  { label: '闪卡复习', icon: 'layers', color: 'var(--kb-success)', to: '/learning/flashcards' },
+  { label: '闪卡复习', icon: 'layers', color: 'var(--kf-success)', to: '/learning/flashcards' },
   { label: '知识图谱', icon: 'share-2', color: '#8B5CF6', to: '/learning/knowledge-graph' },
-  { label: '行为事件', icon: 'activity', color: 'var(--kb-primary)', to: '/learning/events' },
+  { label: '行为事件', icon: 'activity', color: 'var(--kf-primary)', to: '/learning/events' },
   { label: 'AI 问答', icon: 'message-square-sparkles', color: '#06B6D4', to: '/chat' },
 ]
 
@@ -794,7 +794,7 @@ onMounted(() => {
   margin-inline: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-8, 32px);
+  gap: var(--kf-space-8, 32px);
 
   width: 100%;
   min-width: 0;
@@ -807,53 +807,53 @@ onMounted(() => {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: var(--kb-space-4, 16px);
+  gap: var(--kf-space-4, 16px);
   flex-wrap: wrap;
 }
 .lc-title {
   margin: 0;
-  font-size: var(--kb-fs-h2, 24px);
+  font-size: var(--kf-fs-h2, 24px);
   font-weight: 600;
   line-height: 1.3;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .lc-subtitle {
   margin: 2px 0 0;
-  font-size: var(--kb-fs-body-sm, 13px);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm, 13px);
+  color: var(--kf-muted-foreground);
 }
 
 /* ══════════ 通用 section ══════════ */
 .lc-section {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-3, 12px);
+  gap: var(--kf-space-3, 12px);
 }
 .lc-section-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-3, 12px);
+  gap: var(--kf-space-3, 12px);
   flex-wrap: wrap;
 }
 .lc-section-title {
   margin: 0;
-  font-size: var(--kb-fs-h4, 16px);
+  font-size: var(--kf-fs-h4, 16px);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .lc-head-actions {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2, 8px);
+  gap: var(--kf-space-2, 8px);
 }
 .lc-link,
 .lc-link-inline {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: var(--kb-fs-body-sm, 13px);
-  color: var(--kb-primary);
+  font-size: var(--kf-fs-body-sm, 13px);
+  color: var(--kf-primary);
   text-decoration: none;
   transition: opacity 0.15s ease;
 }
@@ -862,41 +862,41 @@ onMounted(() => {
   opacity: 0.8;
 }
 .lc-count {
-  font-size: var(--kb-fs-caption, 12px);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption, 12px);
+  color: var(--kf-muted-foreground);
 }
 
 /* ══════════ 错误条 ══════════ */
 .lc-error {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-3, 12px);
-  padding: var(--kb-space-3, 12px) var(--kb-space-4, 16px);
-  border: 1px solid var(--kb-destructive);
-  border-radius: var(--kb-radius-md, 8px);
-  background: var(--kb-danger-subtle);
+  gap: var(--kf-space-3, 12px);
+  padding: var(--kf-space-3, 12px) var(--kf-space-4, 16px);
+  border: 1px solid var(--kf-destructive);
+  border-radius: var(--kf-radius-md, 8px);
+  background: var(--kf-danger-subtle);
 }
 .lc-error :deep(svg) {
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
   flex-shrink: 0;
 }
 .lc-error-text {
   flex: 1;
   margin: 0;
-  font-size: var(--kb-fs-body-sm, 13px);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-sm, 13px);
+  color: var(--kf-foreground);
 }
 
 /* ══════════ 1. 当前目标 ══════════ */
 .lc-goal {
   display: flex;
   align-items: flex-start;
-  gap: var(--kb-space-3, 12px);
-  padding: var(--kb-space-4, 16px);
-  border: 1px solid var(--kb-border);
-  border-left: 3px solid var(--kb-primary);
-  border-radius: var(--kb-radius-md, 8px);
-  background: var(--kb-card);
+  gap: var(--kf-space-3, 12px);
+  padding: var(--kf-space-4, 16px);
+  border: 1px solid var(--kf-border);
+  border-left: 3px solid var(--kf-primary);
+  border-radius: var(--kf-radius-md, 8px);
+  background: var(--kf-card);
 }
 .lc-goal-icon {
   display: inline-flex;
@@ -905,9 +905,9 @@ onMounted(() => {
   width: 28px;
   height: 28px;
   flex-shrink: 0;
-  border-radius: var(--kb-radius-md, 8px);
-  background: var(--kb-primary-subtle);
-  color: var(--kb-primary);
+  border-radius: var(--kf-radius-md, 8px);
+  background: var(--kf-primary-subtle);
+  color: var(--kf-primary);
 }
 .lc-goal-main {
   flex: 1;
@@ -919,57 +919,57 @@ onMounted(() => {
 .lc-goal-top {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2, 8px);
+  gap: var(--kf-space-2, 8px);
 }
 .lc-goal-title {
-  font-size: var(--kb-fs-body-lg, 16px);
+  font-size: var(--kf-fs-body-lg, 16px);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   text-decoration: none;
 }
 .lc-goal-title:hover {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .lc-goal-pct {
-  font-size: var(--kb-fs-caption, 12px);
+  font-size: var(--kf-fs-caption, 12px);
   font-weight: 600;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .lc-goal-sub {
   display: flex;
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
-  font-size: var(--kb-fs-body-sm, 13px);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm, 13px);
+  color: var(--kf-muted-foreground);
 }
 
 /* ══════════ 2. 今日 ══════════ */
 .lc-progress {
   height: 6px;
   border-radius: 999px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 .lc-progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   transition: width 0.3s ease;
 }
 .lc-add-task {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-2, 8px);
-  padding: var(--kb-space-3, 12px);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md, 8px);
-  background: var(--kb-card);
+  gap: var(--kf-space-2, 8px);
+  padding: var(--kf-space-3, 12px);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md, 8px);
+  background: var(--kf-card);
 }
 .lc-add-task-row {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2, 8px);
+  gap: var(--kf-space-2, 8px);
   flex-wrap: wrap;
 }
 /** 截止时间复用 DateTimePicker（FormField 内部 width:100%），此处只约束外层宽度。 */
@@ -978,30 +978,30 @@ onMounted(() => {
   width: 200px;
   min-width: 0;
 }
-.lc-input:not(.kb-form-control) {
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md, 8px);
-  background: var(--kb-background);
+.lc-input:not(.kf-form-control) {
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md, 8px);
+  background: var(--kf-background);
 }
 .lc-input {
   width: 100%;
-  padding: 8px var(--kb-space-3, 12px);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-sm, 13px);
+  padding: 8px var(--kf-space-3, 12px);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-sm, 13px);
 }
-.lc-input:not(.kb-form-control):focus-visible {
+.lc-input:not(.kf-form-control):focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--kb-ring);
+  box-shadow: 0 0 0 2px var(--kf-ring);
 }
-.lc-select:not(.kb-form-control) {
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm, 6px);
-  background: var(--kb-background);
+.lc-select:not(.kf-form-control) {
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm, 6px);
+  background: var(--kf-background);
 }
 .lc-select {
   padding: 6px 8px;
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-sm, 13px);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-sm, 13px);
 }
 .lc-tasks {
   display: flex;
@@ -1011,13 +1011,13 @@ onMounted(() => {
 .lc-task {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-3, 12px);
-  padding: 10px var(--kb-space-3, 12px);
-  border-radius: var(--kb-radius-md, 8px);
+  gap: var(--kf-space-3, 12px);
+  padding: 10px var(--kf-space-3, 12px);
+  border-radius: var(--kf-radius-md, 8px);
   transition: background-color 0.15s ease;
 }
 .lc-task:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .lc-task-check {
   display: inline-flex;
@@ -1026,20 +1026,20 @@ onMounted(() => {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 4px;
   background: transparent;
   color: transparent;
   cursor: pointer;
 }
 .lc-task-check.done {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 .lc-task-check:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--kb-ring);
+  box-shadow: 0 0 0 2px var(--kf-ring);
 }
 .lc-task-main {
   flex: 1;
@@ -1047,80 +1047,80 @@ onMounted(() => {
 }
 .lc-task-title {
   margin: 0;
-  font-size: var(--kb-fs-body-md, 14px);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-md, 14px);
+  color: var(--kf-foreground);
 }
 .lc-task-title.done {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   text-decoration: line-through;
 }
 .lc-task-desc {
   margin: 2px 0 0;
-  font-size: var(--kb-fs-caption, 12px);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption, 12px);
+  color: var(--kf-muted-foreground);
 }
 .lc-task-del {
   flex-shrink: 0;
   padding: 4px;
   border: none;
-  border-radius: var(--kb-radius-sm, 6px);
+  border-radius: var(--kf-radius-sm, 6px);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
 }
 .lc-task-del:hover {
-  background: var(--kb-danger-subtle);
-  color: var(--kb-destructive);
+  background: var(--kf-danger-subtle);
+  color: var(--kf-destructive);
 }
 
 /* ══════════ chips（待复习 / 待补强场景）══════════ */
 .lc-chips {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2, 8px);
+  gap: var(--kf-space-2, 8px);
   flex-wrap: wrap;
-  padding-top: var(--kb-space-2, 8px);
-  border-top: 1px solid var(--kb-border);
+  padding-top: var(--kf-space-2, 8px);
+  border-top: 1px solid var(--kf-border);
 }
 .lc-chips-label {
-  font-size: var(--kb-fs-caption, 12px);
+  font-size: var(--kf-fs-caption, 12px);
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .lc-chip {
   padding: 4px 10px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 999px;
-  background: var(--kb-card);
-  font-size: var(--kb-fs-caption, 12px);
-  color: var(--kb-foreground);
+  background: var(--kf-card);
+  font-size: var(--kf-fs-caption, 12px);
+  color: var(--kf-foreground);
   cursor: pointer;
   transition: border-color 0.15s ease, color 0.15s ease;
 }
 .lc-chip:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .lc-chip:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--kb-ring);
+  box-shadow: 0 0 0 2px var(--kf-ring);
 }
 .lc-chip-more {
-  font-size: var(--kb-fs-caption, 12px);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption, 12px);
+  color: var(--kf-muted-foreground);
 }
 
 /* ══════════ 4. 路径进度 ══════════ */
 .lc-paths {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--kb-space-3, 12px);
+  gap: var(--kf-space-3, 12px);
 }
 .lc-path {
-  padding: var(--kb-space-4, 16px);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md, 8px);
-  background: var(--kb-card);
+  padding: var(--kf-space-4, 16px);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md, 8px);
+  background: var(--kf-card);
   cursor: pointer;
   transition: box-shadow 0.2s ease;
 }
@@ -1135,24 +1135,24 @@ onMounted(() => {
 .lc-path-badge {
   align-self: flex-start;
   padding: 2px 8px;
-  border-radius: var(--kb-radius-sm, 6px);
-  background: var(--kb-muted);
-  font-size: var(--kb-fs-caption, 12px);
-  color: var(--kb-muted-foreground);
+  border-radius: var(--kf-radius-sm, 6px);
+  background: var(--kf-muted);
+  font-size: var(--kf-fs-caption, 12px);
+  color: var(--kf-muted-foreground);
 }
 .lc-path-title {
   margin: 0;
-  font-size: var(--kb-fs-body-lg, 16px);
+  font-size: var(--kf-fs-body-lg, 16px);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .lc-path-desc {
   margin: 0;
-  font-size: var(--kb-fs-body-sm, 13px);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm, 13px);
+  color: var(--kf-muted-foreground);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -1161,20 +1161,20 @@ onMounted(() => {
 .lc-path-meta {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-3, 12px);
-  font-size: var(--kb-fs-caption, 12px);
-  color: var(--kb-muted-foreground);
+  gap: var(--kf-space-3, 12px);
+  font-size: var(--kf-fs-caption, 12px);
+  color: var(--kf-muted-foreground);
 }
 .lc-path-bar {
   height: 6px;
   border-radius: 999px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 .lc-path-bar-fill {
   height: 100%;
   border-radius: 999px;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   transition: width 0.3s ease;
 }
 
@@ -1188,38 +1188,38 @@ onMounted(() => {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto 140px;
   align-items: center;
-  gap: var(--kb-space-3, 12px);
-  padding: 10px var(--kb-space-3, 12px);
-  border-radius: var(--kb-radius-md, 8px);
+  gap: var(--kf-space-3, 12px);
+  padding: 10px var(--kf-space-3, 12px);
+  border-radius: var(--kf-radius-md, 8px);
   text-decoration: none;
   transition: background-color 0.15s ease;
 }
 .lc-weak-item:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .lc-weak-name {
-  font-size: var(--kb-fs-body-md, 14px);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-md, 14px);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .lc-weak-score {
-  font-size: var(--kb-fs-body-sm, 13px);
+  font-size: var(--kf-fs-body-sm, 13px);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .lc-weak-bar {
   height: 6px;
   border-radius: 999px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 .lc-weak-bar-fill {
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: var(--kb-warning);
+  background: var(--kf-warning);
 }
 
 /* ══════════ 当前情况（Evidence）═════════ */
@@ -1227,31 +1227,31 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: var(--kb-space-4, 16px);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md, 8px);
-  background: var(--kb-card);
+  padding: var(--kf-space-4, 16px);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md, 8px);
+  background: var(--kf-card);
 }
 .lc-evidence-row {
   display: flex;
   align-items: baseline;
-  gap: var(--kb-space-3, 12px);
+  gap: var(--kf-space-3, 12px);
 }
 .lc-evidence-key {
   flex-shrink: 0;
   width: 72px;
-  font-size: var(--kb-fs-caption, 12px);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption, 12px);
+  color: var(--kf-muted-foreground);
 }
 .lc-evidence-val {
-  font-size: var(--kb-fs-body-sm, 13px);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-sm, 13px);
+  color: var(--kf-foreground);
 }
 .lc-evidence-val.good {
-  color: var(--kb-success);
+  color: var(--kf-success);
 }
 .lc-evidence-val.bad {
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 
 /* ══════════ 热力图 ══════════ */
@@ -1267,59 +1267,59 @@ onMounted(() => {
 }
 .lc-heat-empty {
   margin: 0;
-  font-size: var(--kb-fs-caption, 12px);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption, 12px);
+  color: var(--kf-muted-foreground);
 }
 
 /* ══════════ 工具 ══════════ */
 .lc-tools {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: var(--kb-space-2, 8px);
+  gap: var(--kf-space-2, 8px);
 }
 .lc-tool {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2, 8px);
-  padding: 10px var(--kb-space-3, 12px);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md, 8px);
-  background: var(--kb-card);
-  font-size: var(--kb-fs-body-sm, 13px);
-  color: var(--kb-foreground);
+  gap: var(--kf-space-2, 8px);
+  padding: 10px var(--kf-space-3, 12px);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md, 8px);
+  background: var(--kf-card);
+  font-size: var(--kf-fs-body-sm, 13px);
+  color: var(--kf-foreground);
   text-decoration: none;
   transition: border-color 0.15s ease, color 0.15s ease;
 }
 .lc-tool:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .lc-tool:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--kb-ring);
+  box-shadow: 0 0 0 2px var(--kf-ring);
 }
 .lc-tools-more {
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px var(--kb-space-3, 12px);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md, 8px);
+  padding: 6px var(--kf-space-3, 12px);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md, 8px);
   background: transparent;
-  font-size: var(--kb-fs-body-sm, 13px);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm, 13px);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
 }
 .lc-tools-more:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 /* ══════════ 响应式 ══════════ */
 @media (max-width: 640px) {
   .learning-center {
     padding: 16px;
-    gap: var(--kb-space-6, 24px);
+    gap: var(--kf-space-6, 24px);
   }
   .lc-weak-item {
     grid-template-columns: minmax(0, 1fr) auto;
@@ -1329,7 +1329,7 @@ onMounted(() => {
   }
 }
 .lc-path { text-align: left; min-width: 0; font: inherit; color: inherit; }
-.lc-path:focus-visible { outline: var(--kb-studio-focus) solid var(--kb-ring); outline-offset: var(--kb-space-1); }
-.lc-task-description summary { color: var(--kb-muted-foreground); font-size: var(--kb-fs-body-sm); cursor: pointer; }
-.lc-task-description[open] summary { color: var(--kb-primary); }
+.lc-path:focus-visible { outline: var(--kf-studio-focus) solid var(--kf-ring); outline-offset: var(--kf-space-1); }
+.lc-task-description summary { color: var(--kf-muted-foreground); font-size: var(--kf-fs-body-sm); cursor: pointer; }
+.lc-task-description[open] summary { color: var(--kf-primary); }
 </style>

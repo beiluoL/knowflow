@@ -5,9 +5,9 @@ import Button from '@/components/ui/Button.vue'
 describe('Button V3',()=>{
  it('supports explicit outline and reserves an invariant icon slot during loading',async()=>{
   const w=mount(Button,{props:{variant:'outline',iconName:'plus'},slots:{default:'新增'}})
-  expect(w.classes()).toContain('kb-button--outline')
-  expect(w.find('.kb-button__icon').exists()).toBe(true)
-  await w.setProps({loading:true});expect(w.find('.kb-button__icon').exists()).toBe(true)
+  expect(w.classes()).toContain('kf-button--outline')
+  expect(w.find('.kf-button__icon').exists()).toBe(true)
+  await w.setProps({loading:true});expect(w.find('.kf-button__icon').exists()).toBe(true)
   expect(w.attributes('aria-busy')).toBe('true');expect(w.attributes('disabled')).toBeDefined()
   expect(w.text()).toContain('新增')
  })

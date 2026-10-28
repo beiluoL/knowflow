@@ -425,12 +425,12 @@ header {
   margin-bottom: 20px;
 }
 h1 {
-  font-size: var(--kb-fs-h3);
+  font-size: var(--kf-fs-h3);
   font-weight: 650;
   flex: 1;
 }
 h2 {
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
   margin: 10px 0;
 }
@@ -447,7 +447,7 @@ p {
   background: #fff8e8;
   border: 1px solid #e8ce8e;
   padding: 16px;
-  border-radius: var(--kb-radius-lg);
+  border-radius: var(--kf-radius-lg);
   margin-bottom: 18px;
 }
 main {
@@ -461,7 +461,7 @@ main {
 .result {
   background: white;
   border: 1px solid #e1e5eb;
-  border-radius: var(--kb-radius-lg);
+  border-radius: var(--kf-radius-lg);
   padding: 20px;
   min-width: 0;
 }
@@ -469,7 +469,7 @@ main {
   flex: 1;
 }
 .preferences {
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   margin: 12px 0;
 }
 .preferences label {
@@ -483,7 +483,7 @@ textarea {
   resize: vertical;
   background: #f9fafc;
   border: 1px solid #ccd3dd;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   padding: 16px;
   font:
     14px/1.7 ui-monospace,

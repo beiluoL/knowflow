@@ -10,7 +10,7 @@
           切换 H2（开发测试）与 MySQL（生产）数据源。切换前会自动校验目标库连通性，失败则保持当前数据库不变。
         </p>
       </div>
-      <button class="db-btn db-btn--ghost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="loading" @click="loadStatus">
+      <button class="db-btn db-btn--ghost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="loading" @click="loadStatus">
         <Icon name="refresh-cw" size="sm" aria-hidden="true" />
         刷新
       </button>
@@ -67,7 +67,7 @@
         <button
           v-for="opt in status.options"
           :key="opt.code"
-          class="db-option focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="db-option focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ 'is-selected': form.type === opt.code, 'is-active': opt.active }"
           type="button"
           @click="selectType(opt)"
@@ -81,19 +81,19 @@
       <div class="db-form">
         <label class="db-field">
           <span class="db-field__label">连接地址（JDBC URL）</span>
-          <input v-model.trim="form.url" class="db-input transition-colors kb-input kb-form-control" type="text" placeholder="留空则使用服务端配置" />
+          <input v-model.trim="form.url" class="db-input transition-colors kf-input kf-form-control" type="text" placeholder="留空则使用服务端配置" />
         </label>
         <div class="db-field-row">
           <label class="db-field">
             <span class="db-field__label">用户名</span>
-            <input v-model.trim="form.username" class="db-input transition-colors kb-input kb-form-control" type="text" placeholder="留空沿用服务端配置" />
+            <input v-model.trim="form.username" class="db-input transition-colors kf-input kf-form-control" type="text" placeholder="留空沿用服务端配置" />
           </label>
           <label class="db-field">
             <span class="db-field__label">密码</span>
-            <input v-model="form.password" class="db-input transition-colors kb-input kb-form-control" type="password" placeholder="留空沿用服务端配置" />
+            <input v-model="form.password" class="db-input transition-colors kf-input kf-form-control" type="password" placeholder="留空沿用服务端配置" />
           </label>
         </div>
-        <label class="db-field db-field--check kb-checkbox-row">
+        <label class="db-field db-field--check kf-checkbox-row">
           <Checkbox as="span" v-model="form.initSchema" />
           <span>
             切换后执行初始化脚本（建表 + 演示数据）
@@ -103,12 +103,12 @@
       </div>
 
       <div class="db-actions">
-        <button class="db-btn db-btn--ghost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="testing || switching" @click="handleTest">
+        <button class="db-btn db-btn--ghost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="testing || switching" @click="handleTest">
           <Icon name="link" size="sm" aria-hidden="true" />
           {{ testing ? '测试中…' : '测试连接' }}
         </button>
         <button
-          class="db-btn db-btn--primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="db-btn db-btn--primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="switching || testing || !canSwitch"
           @click="handleSwitch"
         >
@@ -136,7 +136,7 @@
         对当前生效的数据库强制执行方言脚本（db/{{ status.currentType }}/schema.sql 与 data.sql）。
         用于新库建表或重建演示数据，请谨慎在生产环境使用。
       </p>
-      <button class="db-btn db-btn--ghost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="initializing" @click="handleInit">
+      <button class="db-btn db-btn--ghost focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="initializing" @click="handleInit">
         <Icon name="cpu" size="sm" aria-hidden="true" />
         {{ initializing ? '执行中…' : '执行初始化脚本' }}
       </button>
@@ -325,20 +325,20 @@ onMounted(loadStatus);
   margin: 0 0 6px;
   font-size: 20px;
   font-weight: 600;
-  color: var(--kb-text);
+  color: var(--kf-text);
 }
 
 .db-settings__desc {
   margin: 0;
   font-size: 13px;
   line-height: 1.6;
-  color: var(--kb-text-secondary);
+  color: var(--kf-text-secondary);
 }
 
 .db-card {
-  background: var(--kb-surface);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg, 12px);
+  background: var(--kf-surface);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg, 12px);
   padding: 20px;
 }
 
@@ -346,19 +346,19 @@ onMounted(loadStatus);
   margin: 0 0 14px;
   font-size: 15px;
   font-weight: 600;
-  color: var(--kb-text);
+  color: var(--kf-text);
 }
 
 .db-card__desc {
   margin: 0 0 12px;
   font-size: 13px;
   line-height: 1.6;
-  color: var(--kb-text-secondary);
+  color: var(--kf-text-secondary);
 }
 
 .db-empty {
   font-size: 13px;
-  color: var(--kb-text-secondary);
+  color: var(--kf-text-secondary);
 }
 
 .db-status__badge {
@@ -373,13 +373,13 @@ onMounted(loadStatus);
 }
 
 .db-status__badge.is-healthy {
-  background: var(--kb-success-bg, rgba(34, 197, 94, 0.12));
-  color: var(--kb-success, #16a34a);
+  background: var(--kf-success-bg, rgba(34, 197, 94, 0.12));
+  color: var(--kf-success, #16a34a);
 }
 
 .db-status__badge.is-error {
-  background: var(--kb-danger-bg, rgba(239, 68, 68, 0.12));
-  color: var(--kb-danger, var(--kb-danger-hover));
+  background: var(--kf-danger-bg, rgba(239, 68, 68, 0.12));
+  color: var(--kf-danger, var(--kf-danger-hover));
 }
 
 .db-grid {
@@ -395,19 +395,19 @@ onMounted(loadStatus);
 
 .db-grid dt {
   font-size: 12px;
-  color: var(--kb-text-secondary);
+  color: var(--kf-text-secondary);
   margin-bottom: 4px;
 }
 
 .db-grid dd {
   margin: 0;
   font-size: 14px;
-  color: var(--kb-text);
+  color: var(--kf-text);
   word-break: break-all;
 }
 
 .db-mono {
-  font-family: var(--kb-font-mono, ui-monospace, monospace);
+  font-family: var(--kf-font-mono, ui-monospace, monospace);
   font-size: 12px;
 }
 
@@ -423,21 +423,21 @@ onMounted(loadStatus);
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius, 8px);
-  background: var(--kb-bg);
-  color: var(--kb-text);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius, 8px);
+  background: var(--kf-bg);
+  color: var(--kf-text);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .db-option:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 
 .db-option.is-selected {
-  border-color: var(--kb-primary);
-  background: var(--kb-primary-bg, rgba(59, 130, 246, 0.08));
+  border-color: var(--kf-primary);
+  background: var(--kf-primary-bg, rgba(59, 130, 246, 0.08));
 }
 
 .db-option__name {
@@ -449,8 +449,8 @@ onMounted(loadStatus);
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 999px;
-  background: var(--kb-success-bg, rgba(34, 197, 94, 0.12));
-  color: var(--kb-success, #16a34a);
+  background: var(--kf-success-bg, rgba(34, 197, 94, 0.12));
+  color: var(--kf-success, #16a34a);
 }
 
 .db-form {
@@ -468,20 +468,20 @@ onMounted(loadStatus);
 .db-field {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-checkbox-gap);
+  gap: var(--kf-checkbox-gap);
 }
 
 .db-field__label {
   font-size: 12px;
-  color: var(--kb-text-secondary);
+  color: var(--kf-text-secondary);
 }
 
 .db-field--check {
   flex-direction: row;
   align-items: center;
-  gap: var(--kb-checkbox-gap);
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-text);
+  gap: var(--kf-checkbox-gap);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-text);
 }
 
 .db-hint {
@@ -489,24 +489,24 @@ onMounted(loadStatus);
   margin-top: 2px;
   font-size: 12px;
   font-style: normal;
-  color: var(--kb-text-secondary);
+  color: var(--kf-text-secondary);
 }
 
-.db-input:not(.kb-form-control) {
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius, 8px);
-  background: var(--kb-bg);
+.db-input:not(.kf-form-control) {
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius, 8px);
+  background: var(--kf-bg);
   outline: none;
 }
 
 .db-input {
   padding: 8px 12px;
-  color: var(--kb-text);
+  color: var(--kf-text);
   font-size: 13px;
 }
 
-.db-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.db-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 
 .db-actions {
@@ -520,17 +520,17 @@ onMounted(loadStatus);
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  border-radius: var(--kb-radius, 8px);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-bg);
-  color: var(--kb-text);
+  border-radius: var(--kf-radius, 8px);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-bg);
+  color: var(--kf-text);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .db-btn:hover:not(:disabled) {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 
 .db-btn:disabled {
@@ -539,32 +539,32 @@ onMounted(loadStatus);
 }
 
 .db-btn--primary {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
   color: #fff;
 }
 
 .db-alert {
   margin: 14px 0 0;
   padding: 10px 12px;
-  border-radius: var(--kb-radius, 8px);
+  border-radius: var(--kf-radius, 8px);
   font-size: 13px;
   line-height: 1.6;
 }
 
 .db-alert--ok {
-  background: var(--kb-success-bg, rgba(34, 197, 94, 0.12));
-  color: var(--kb-success, #16a34a);
+  background: var(--kf-success-bg, rgba(34, 197, 94, 0.12));
+  color: var(--kf-success, #16a34a);
 }
 
 .db-alert--error {
-  background: var(--kb-danger-bg, rgba(239, 68, 68, 0.12));
-  color: var(--kb-danger, var(--kb-danger-hover));
+  background: var(--kf-danger-bg, rgba(239, 68, 68, 0.12));
+  color: var(--kf-danger, var(--kf-danger-hover));
 }
 
 .db-alert--warn {
-  background: var(--kb-warning-bg, rgba(245, 158, 11, 0.12));
-  color: var(--kb-warning, var(--kb-warning-hover));
+  background: var(--kf-warning-bg, rgba(245, 158, 11, 0.12));
+  color: var(--kf-warning, var(--kf-warning-hover));
 }
 
 @media (max-width: 640px) {

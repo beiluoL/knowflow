@@ -1,7 +1,7 @@
 <template>
   <section class="exam-diagnosis" aria-label="考试观察与专项复测">
     <header>
-      <h2 class="kb-h2">考试观察与专项复测</h2>
+      <h2 class="kf-h2">考试观察与专项复测</h2>
       <p class="diagnosis-note">以下仅是本次考试观察，不等于全局掌握度。样本不足时不下能力结论，未答与未评分别保留。</p>
     </header>
     <StateView :status="state" error-title="考试观察加载失败" :error-description="error" error-hint="请检查网络后重试；原有成绩与解析仍可查看。" empty-title="没有可展示的考试观察" empty-description="本次报告没有可归类的真实题目证据，不推测学习状态。" @retry="load">
@@ -13,15 +13,15 @@
         </div>
         <p class="diagnosis-note">客观题正确率仅统计已作答且已评分的客观题；无此类样本时不显示 0%。</p>
         <section v-for="topic in diagnosis.topics" :key="topic.topicCode" class="diagnosis-topic">
-          <header class="diagnosis-topic-header"><h3 class="kb-h3">{{ TOPIC_LABELS[topic.topicCode] || topic.topicCode }}</h3><span class="diagnosis-evidence-level">{{ topic.evidenceLevel === 'INSUFFICIENT' ? '样本不足' : '已有考试观察' }}</span></header>
+          <header class="diagnosis-topic-header"><h3 class="kf-h3">{{ TOPIC_LABELS[topic.topicCode] || topic.topicCode }}</h3><span class="diagnosis-evidence-level">{{ topic.evidenceLevel === 'INSUFFICIENT' ? '样本不足' : '已有考试观察' }}</span></header>
           <p class="diagnosis-note">已答 {{ topic.answeredCount }} · 已评 {{ topic.gradedCount }} · 答错 {{ topic.wrongCount }} · 未答 {{ topic.unansweredCount }} · 未评 {{ topic.ungradedCount }}</p>
           <ul v-if="topic.observations.length" class="diagnosis-observations"><li v-for="(observation, index) in topic.observations" :key="index">{{ observation }}</li></ul>
-          <h4 class="kb-h4">考试证据（含历史）</h4>
+          <h4 class="kf-h4">考试证据（含历史）</h4>
           <ul v-if="topic.evidence.length" class="diagnosis-evidence">
             <li v-for="item in topic.evidence" :key="`${item.attemptId}:${item.paperQuestionId}`"><span>{{ item.title }}</span><small>考试 #{{ item.attemptId }} · 试卷题 #{{ item.paperQuestionId }} · {{ difficultyText(item.difficulty) }} · {{ evidenceStatus(item) }}</small></li>
           </ul>
           <p v-else class="diagnosis-note">没有可展示的题目证据，不推测结论。</p>
-          <div class="diagnosis-materials"><h4 class="kb-h4">关联学习资料</h4>
+          <div class="diagnosis-materials"><h4 class="kf-h4">关联学习资料</h4>
             <div v-if="topic.materials.length" class="diagnosis-material-links"><Button v-for="material in topic.materials" :key="material.knowledgeId" variant="ghost" :disabled="!validId(material.knowledgeId)" @click="openMaterial(material)">{{ material.name }}</Button></div>
             <p v-else class="diagnosis-note">暂无关联学习资料：该主题尚未映射真实知识点，不能制造学习深链。</p>
           </div>
@@ -33,7 +33,7 @@
           <p v-if="practiceErrorTopic === topic.topicCode && practiceError" class="diagnosis-error" role="alert">{{ practiceError }} <button type="button" :disabled="!!busyTopic" @click="startPractice(topic)">重试专项复测</button></p>
         </section>
         <section class="diagnosis-comparison" aria-label="报告对比">
-          <h3 class="kb-h3">报告对比</h3>
+          <h3 class="kf-h3">报告对比</h3>
           <p>{{ diagnosis.comparison.note }}</p>
           <p v-if="diagnosis.comparison.comparable" class="diagnosis-note">本次客观题正确率 {{ accuracyText(diagnosis.comparison.currentObjectiveAccuracy) }} · 上次 {{ accuracyText(diagnosis.comparison.previousObjectiveAccuracy) }}</p>
           <p v-else class="diagnosis-note">{{ diagnosis.comparison.previousAttemptId ? '两次报告暂不可直接比较，不推断能力变化。' : '没有可用于比较的上次考试报告。' }}</p>
@@ -115,17 +115,17 @@ watch(() => [props.attemptId, props.refreshKey] as const, () => { practiceReques
 onBeforeUnmount(() => { loadRequest++; practiceRequest++ })
 </script>
 <style scoped>
-.exam-diagnosis { background: var(--kb-card); border: 1px solid var(--kb-border); border-radius: var(--kb-radius-md); padding: var(--kb-space-5); display: flex; flex-direction: column; gap: var(--kb-space-4); }
-.diagnosis-note, .diagnosis-rule, .diagnosis-evidence small { color: var(--kb-muted-foreground); font-size: var(--kb-fs-body-sm); }
-.diagnosis-summary, .diagnosis-topic-header, .diagnosis-material-links { display: flex; flex-wrap: wrap; gap: var(--kb-space-3); }
-.diagnosis-summary { background: var(--kb-muted); padding: var(--kb-space-3); border-radius: var(--kb-radius-sm); }
-.diagnosis-topic { padding-block: var(--kb-space-4); border-bottom: 1px solid var(--kb-border); display: flex; flex-direction: column; align-items: flex-start; gap: var(--kb-space-3); }
+.exam-diagnosis { background: var(--kf-card); border: 1px solid var(--kf-border); border-radius: var(--kf-radius-md); padding: var(--kf-space-5); display: flex; flex-direction: column; gap: var(--kf-space-4); }
+.diagnosis-note, .diagnosis-rule, .diagnosis-evidence small { color: var(--kf-muted-foreground); font-size: var(--kf-fs-body-sm); }
+.diagnosis-summary, .diagnosis-topic-header, .diagnosis-material-links { display: flex; flex-wrap: wrap; gap: var(--kf-space-3); }
+.diagnosis-summary { background: var(--kf-muted); padding: var(--kf-space-3); border-radius: var(--kf-radius-sm); }
+.diagnosis-topic { padding-block: var(--kf-space-4); border-bottom: 1px solid var(--kf-border); display: flex; flex-direction: column; align-items: flex-start; gap: var(--kf-space-3); }
 .diagnosis-topic-header { justify-content: space-between; width: 100%; align-items: center; }
-.diagnosis-evidence-level { color: var(--kb-warning); font-size: var(--kb-fs-body-sm); }
-.diagnosis-observations, .diagnosis-candidates ul { list-style: disc; padding-left: var(--kb-space-5); }
-.diagnosis-evidence { width: 100%; display: flex; flex-direction: column; gap: var(--kb-space-2); }
+.diagnosis-evidence-level { color: var(--kf-warning); font-size: var(--kf-fs-body-sm); }
+.diagnosis-observations, .diagnosis-candidates ul { list-style: disc; padding-left: var(--kf-space-5); }
+.diagnosis-evidence { width: 100%; display: flex; flex-direction: column; gap: var(--kf-space-2); }
 .diagnosis-evidence small { display: block; }
-.diagnosis-comparison { display: flex; flex-direction: column; align-items: flex-start; gap: var(--kb-space-3); }
-.diagnosis-error, .diagnosis-error button { color: var(--kb-destructive); }
+.diagnosis-comparison { display: flex; flex-direction: column; align-items: flex-start; gap: var(--kf-space-3); }
+.diagnosis-error, .diagnosis-error button { color: var(--kf-destructive); }
 .diagnosis-error button { text-decoration: underline; }
 </style>

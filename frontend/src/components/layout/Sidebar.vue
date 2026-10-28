@@ -18,19 +18,19 @@
     <div
       class="h-14 shrink-0 flex items-center border-b"
       :class="collapsed ? 'justify-center px-0' : 'px-5'"
-      style="border-color: var(--kb-border);"
+      style="border-color: var(--kf-border);"
     >
       <router-link
         to="/admin/overview"
         class="flex items-center min-w-0"
-        :style="{ gap: 'var(--kb-nav-gap)' }"
+        :style="{ gap: 'var(--kf-nav-gap)' }"
         @click="$emit('close')"
       >
         <Icon name="icon-AIbeikezhushou" size="xl" class="text-primary-500 shrink-0" />
         <span
           v-if="!collapsed"
           class="truncate"
-          :style="{ fontSize: 'var(--kb-logo-text-fs)', fontWeight: 'var(--kb-logo-text-fw)' }"
+          :style="{ fontSize: 'var(--kf-logo-text-fs)', fontWeight: 'var(--kf-logo-text-fw)' }"
         >KnowFlow</span>
       </router-link>
     </div>
@@ -64,15 +64,15 @@
     </nav>
 
     <!-- Bottom: Back to frontend + collapse -->
-    <div class="shrink-0 border-t" style="border-color: var(--kb-border);">
+    <div class="shrink-0 border-t" style="border-color: var(--kf-border);">
       <router-link
         to="/"
         class="flex items-center px-5 py-3 transition-colors hover:bg-gray-100"
         :class="collapsed ? 'justify-center px-0' : ''"
         :style="{
-          gap: 'var(--kb-sidebar-gap)',
-          color: 'var(--kb-muted-foreground)',
-          fontSize: 'var(--kb-sidebar-bottom-fs)',
+          gap: 'var(--kf-sidebar-gap)',
+          color: 'var(--kf-muted-foreground)',
+          fontSize: 'var(--kf-sidebar-bottom-fs)',
         }"
         :title="collapsed ? '返回前台' : ''"
         @click="$emit('close')"
@@ -86,9 +86,9 @@
         class="w-full flex items-center py-2.5 text-muted-foreground hover:text-foreground hover:bg-gray-100 transition-colors border-t"
         :class="collapsed ? 'justify-center' : 'px-4'"
         :style="{
-          gap: 'var(--kb-sidebar-gap)',
-          borderColor: 'var(--kb-border)',
-          fontSize: 'var(--kb-sidebar-bottom-fs)',
+          gap: 'var(--kf-sidebar-gap)',
+          borderColor: 'var(--kf-border)',
+          fontSize: 'var(--kf-sidebar-bottom-fs)',
         }"
         :title="collapsed ? '展开菜单' : '收起菜单'"
         @click="$emit('toggle-collapse')"
@@ -126,7 +126,7 @@ const sidebarStyle = computed(() => {
       WebkitBackdropFilter: 'blur(16px)',
     }
   }
-  return { background: 'var(--kb-sidebar)', borderRight: '1px solid var(--kb-border)' }
+  return { background: 'var(--kf-sidebar)', borderRight: '1px solid var(--kf-border)' }
 })
 
 defineEmits<{

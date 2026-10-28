@@ -6,7 +6,7 @@
   >
     <header class="immersive-topbar">
       <div class="topbar-left">
-        <button type="button" class="exit-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleExit">
+        <button type="button" class="exit-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleExit">
           <Icon name="arrow-left" :size="16" aria-hidden="true" />
           <span>退出</span>
         </button>
@@ -18,7 +18,7 @@
       <div class="topbar-right">
         <button
           type="button"
-          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: drawerExpanded && leftDrawerTab === 'rank' }"
           title="排行榜"
           @click="handleToggleLeaderboard"
@@ -27,7 +27,7 @@
         </button>
         <button
           type="button"
-          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           title="生成分享卡"
           @click="shareCardVisible = true"
         >
@@ -35,7 +35,7 @@
         </button>
         <button
           type="button"
-          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: graphVisible }"
           title="知识图谱"
           @click="graphVisible = !graphVisible"
@@ -44,7 +44,7 @@
         </button>
         <button
           type="button"
-          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: noiseVisible }"
           title="白噪音"
           @click="toggleNoiseVisible"
@@ -53,7 +53,7 @@
         </button>
         <button
           type="button"
-          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: themePanelVisible }"
           title="主题切换"
           @click="handleThemeToggle"
@@ -62,7 +62,7 @@
         </button>
         <button
           type="button"
-          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: settingsPanelVisible }"
           title="设置"
           @click="openSettings"
@@ -73,14 +73,14 @@
     </header>
 
     <aside class="left-drawer" :class="{ expanded: drawerExpanded }">
-      <button type="button" class="drawer-toggle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="drawerExpanded = !drawerExpanded">
+      <button type="button" class="drawer-toggle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="drawerExpanded = !drawerExpanded">
         <Icon :name="drawerExpanded ? 'chevron-left' : 'chevron-right'" :size="16" />
       </button>
       <div v-if="drawerExpanded" class="drawer-content">
         <div class="drawer-tabs">
           <button
             type="button"
-            class="dtab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="dtab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             :class="{ active: leftDrawerTab === 'nav' }"
             @click="leftDrawerTab = 'nav'"
           >
@@ -89,7 +89,7 @@
           </button>
           <button
             type="button"
-            class="dtab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="dtab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             :class="{ active: leftDrawerTab === 'rank' }"
             @click="leftDrawerTab = 'rank'"
           >
@@ -130,27 +130,27 @@
     </main>
 
     <footer class="immersive-toolbar">
-      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleNote">
+      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleNote">
         <Icon name="file-text" :size="16" aria-hidden="true" />
         <span>笔记</span>
       </button>
-      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleHighlight">
+      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleHighlight">
         <Icon name="pencil" :size="16" aria-hidden="true" />
         <span>重点</span>
       </button>
-      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleReadAloud">
+      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleReadAloud">
         <Icon name="mic" :size="16" aria-hidden="true" />
         <span>朗读</span>
       </button>
-      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleGraph">
+      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleGraph">
         <Icon name="share-2" :size="16" aria-hidden="true" />
         <span>知识图谱</span>
       </button>
-      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleAi">
+      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleAi">
         <Icon name="bot" :size="16" aria-hidden="true" />
         <span>AI助手</span>
       </button>
-      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="toggleNoiseVisible">
+      <button type="button" class="tool-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="toggleNoiseVisible">
         <Icon name="music" :size="16" aria-hidden="true" />
         <span>白噪音</span>
       </button>
@@ -165,18 +165,18 @@
         <div class="note-panel">
           <header class="note-panel-head">
             <span class="note-panel-title">快速笔记</span>
-            <button type="button" class="icon-btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="notePanelOpen = false">
+            <button type="button" class="icon-btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="notePanelOpen = false">
               <Icon name="x" :size="14" />
             </button>
           </header>
           <textarea
             v-model="noteText"
-            class="note-input transition-colors kb-textarea kb-form-control"
+            class="note-input transition-colors kf-textarea kf-form-control"
             placeholder="在这里记录你的专注心得…"
             rows="8"
           />
           <footer class="note-panel-foot">
-            <button type="button" class="save-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="saveNote">保存</button>
+            <button type="button" class="save-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="saveNote">保存</button>
           </footer>
         </div>
       </div>
@@ -301,10 +301,10 @@ const shareCardData = computed(() => {
     (a) => ({ name: a.name || '微成就', icon: a.icon || 'star' }),
   );
   const primaryColor =
-    document.documentElement.style.getPropertyValue('--kb-primary').trim() || '#3B82F6';
+    document.documentElement.style.getPropertyValue('--kf-primary').trim() || '#3B82F6';
   const themeDef = IMMERSIVE_THEMES.find((t) => t.id === currentTheme.value);
-  const bg1 = themeDef?.tokens['--kb-bg-1'] || '#1e293b';
-  const bg2 = themeDef?.tokens['--kb-bg-0'] || '#0f172a';
+  const bg1 = themeDef?.tokens['--kf-bg-1'] || '#1e293b';
+  const bg2 = themeDef?.tokens['--kf-bg-0'] || '#0f172a';
   const dailyRank = Math.max(1, 999 - Math.floor(minutes * 2));
   const dateStr = new Date().toLocaleDateString('zh-CN', {
     year: 'numeric',
@@ -416,8 +416,8 @@ const handleExit = async () => {
   if (resetThemeOnExit.value) {
     setTheme(originalTheme.value as 'light' | 'dark');
     try {
-      document.documentElement.style.removeProperty('--kb-primary');
-      document.documentElement.style.removeProperty('--kb-base-font-size');
+      document.documentElement.style.removeProperty('--kf-primary');
+      document.documentElement.style.removeProperty('--kf-base-font-size');
     } catch {
       // ignore
     }
@@ -479,16 +479,16 @@ onUnmounted(() => {
   min-height: 100vh;
   background: linear-gradient(
     135deg,
-    var(--kb-bg-0, #0f172a) 0%,
-    var(--kb-bg-1, #1e293b) 60%,
-    var(--kb-bg-0, #0f172a) 100%
+    var(--kf-bg-0, #0f172a) 0%,
+    var(--kf-bg-1, #1e293b) 60%,
+    var(--kf-bg-0, #0f172a) 100%
   );
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  font-size: var(--kb-base-font-size, 14px);
+  font-size: var(--kf-base-font-size, 14px);
 }
 
 .immersive-topbar {
@@ -502,10 +502,10 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  background: var(--kb-bg-2, rgba(15, 23, 42, 0.55));
+  background: var(--kf-bg-2, rgba(15, 23, 42, 0.55));
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
+  border-bottom: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
 }
 .topbar-left,
 .topbar-right {
@@ -521,9 +521,9 @@ onUnmounted(() => {
   padding: 0 14px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   cursor: pointer;
   transition: background 0.15s ease;
@@ -539,7 +539,7 @@ onUnmounted(() => {
 }
 .mode-subtitle {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-weight: 500;
   letter-spacing: 0.02em;
 }
@@ -548,15 +548,15 @@ onUnmounted(() => {
   padding: 0 10px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 8px;
   cursor: pointer;
   outline: none;
 }
 .mode-select:focus {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 .icon-btn {
   display: inline-flex;
@@ -564,21 +564,21 @@ onUnmounted(() => {
   justify-content: center;
   width: 38px;
   height: 38px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
   border-radius: 10px;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
 .icon-btn:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .icon-btn.active {
-  color: var(--kb-primary);
-  background: color-mix(in srgb, var(--kb-primary) 14%, transparent);
-  border-color: color-mix(in srgb, var(--kb-primary) 30%, rgba(255, 255, 255, 0.06));
+  color: var(--kf-primary);
+  background: color-mix(in srgb, var(--kf-primary) 14%, transparent);
+  border-color: color-mix(in srgb, var(--kf-primary) 30%, rgba(255, 255, 255, 0.06));
 }
 
 .left-drawer {
@@ -588,9 +588,9 @@ onUnmounted(() => {
   bottom: 64px;
   z-index: 40;
   width: 0;
-  background: var(--kb-bg-2, rgba(15, 23, 42, 0.6));
+  background: var(--kf-bg-2, rgba(15, 23, 42, 0.6));
   backdrop-filter: blur(12px);
-  border-right: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.05));
+  border-right: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.05));
   transition: width 0.25s ease;
   overflow: hidden;
 }
@@ -606,10 +606,10 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--kb-muted-foreground);
-  background: var(--kb-bg-2, rgba(15, 23, 42, 0.7));
+  color: var(--kf-muted-foreground);
+  background: var(--kf-bg-2, rgba(15, 23, 42, 0.7));
   backdrop-filter: blur(8px);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
   border-left: none;
   border-radius: 0 10px 10px 0;
   cursor: pointer;
@@ -617,7 +617,7 @@ onUnmounted(() => {
   z-index: 2;
 }
 .drawer-toggle:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .drawer-content {
   height: 100%;
@@ -645,7 +645,7 @@ onUnmounted(() => {
   height: 32px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 12px;
   font-weight: 500;
   border-radius: 8px;
@@ -653,13 +653,13 @@ onUnmounted(() => {
   transition: background 0.15s ease, color 0.15s ease;
 }
 .dtab:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .dtab.active {
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
   font-weight: 600;
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--kb-primary) 30%, transparent);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--kf-primary) 30%, transparent);
 }
 .rank-tab-panel {
   flex: 1;
@@ -679,7 +679,7 @@ onUnmounted(() => {
   transition: background 0.15s ease;
 }
 .drawer-item.placeholder {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: rgba(255, 255, 255, 0.03);
   opacity: 0.7;
   cursor: not-allowed;
@@ -702,10 +702,10 @@ onUnmounted(() => {
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  background: var(--kb-bg-2, rgba(15, 23, 42, 0.6));
+  background: var(--kf-bg-2, rgba(15, 23, 42, 0.6));
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 14px;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
 }
@@ -717,17 +717,17 @@ onUnmounted(() => {
   padding: 0 14px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.05));
   border-radius: 10px;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 .tool-btn:hover {
-  background: color-mix(in srgb, var(--kb-primary) 12%, transparent);
-  color: var(--kb-primary);
-  border-color: color-mix(in srgb, var(--kb-primary) 25%, rgba(255, 255, 255, 0.05));
+  background: color-mix(in srgb, var(--kf-primary) 12%, transparent);
+  color: var(--kf-primary);
+  border-color: color-mix(in srgb, var(--kf-primary) 25%, rgba(255, 255, 255, 0.05));
 }
 
 .note-panel-overlay {
@@ -743,8 +743,8 @@ onUnmounted(() => {
 .note-panel {
   width: 100%;
   max-width: 480px;
-  background: var(--kb-bg-1, #1e293b);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.1));
+  background: var(--kf-bg-1, #1e293b);
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.1));
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
@@ -754,12 +754,12 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
-  border-bottom: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.1));
+  border-bottom: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.1));
 }
 .note-panel-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .icon-btn-sm {
   display: inline-flex;
@@ -767,7 +767,7 @@ onUnmounted(() => {
   justify-content: center;
   width: 28px;
   height: 28px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: transparent;
   border: none;
   border-radius: 8px;
@@ -776,9 +776,9 @@ onUnmounted(() => {
 }
 .icon-btn-sm:hover {
   background: rgba(255, 255, 255, 0.08);
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
-.note-input:not(.kb-form-control) {
+.note-input:not(.kf-form-control) {
   background: transparent;
   border: none;
   outline: none;
@@ -789,7 +789,7 @@ onUnmounted(() => {
   padding: 14px 16px;
   font-size: 14px;
   line-height: 1.6;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   resize: none;
   font-family: inherit;
 }
@@ -804,7 +804,7 @@ onUnmounted(() => {
   font-size: 13px;
   font-weight: 600;
   color: #fff;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   border: none;
   border-radius: 8px;
   cursor: pointer;

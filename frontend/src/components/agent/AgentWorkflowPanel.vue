@@ -178,11 +178,11 @@ onMounted(load)
         <div class="wf-modal-title">{{ editing ? '编辑工作流' : '新建工作流' }}</div>
         <label class="wf-field">
           <span>名称</span>
-          <input v-model="form.name" placeholder="如：审查代码风格" maxlength="100" class="transition-colors kb-input kb-form-control" />
+          <input v-model="form.name" placeholder="如：审查代码风格" maxlength="100" class="transition-colors kf-input kf-form-control" />
         </label>
         <label class="wf-field">
           <span>触发方式</span>
-          <select v-model="form.triggerType" class="transition-colors kb-select kb-form-control">
+          <select v-model="form.triggerType" class="transition-colors kf-select kf-form-control">
             <option value="keyword">关键词（消息含关键词即生效）</option>
             <option value="intent">按意图（兜底按关键词匹配）</option>
             <option value="manual">手动（仅手动触发）</option>
@@ -190,11 +190,11 @@ onMounted(load)
         </label>
         <label v-if="form.triggerType !== 'manual'" class="wf-field">
           <span>触发值（逗号分隔）</span>
-          <input v-model="form.triggerValue" placeholder="如：审查,review,优化" class="transition-colors kb-input kb-form-control" />
+          <input v-model="form.triggerValue" placeholder="如：审查,review,优化" class="transition-colors kf-input kf-form-control" />
         </label>
         <label class="wf-field">
           <span>Prompt 模板</span>
-          <textarea v-model="form.promptTemplate" rows="6" placeholder="在回答时遵循以下约定：{input} 为用户需求" class="transition-colors kb-textarea kb-form-control"></textarea>
+          <textarea v-model="form.promptTemplate" rows="6" placeholder="在回答时遵循以下约定：{input} 为用户需求" class="transition-colors kf-textarea kf-form-control"></textarea>
         </label>
         <div class="wf-modal-actions">
           <Button size="sm" variant="ghost" @click="showForm = false">取消</Button>
@@ -220,21 +220,21 @@ onMounted(load)
   align-items: center;
   gap: 6px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .wf-count {
-  font-size: var(--kb-fs-xs);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-xs);
+  color: var(--kf-muted-foreground);
   font-weight: 400;
 }
 .wf-hint {
-  font-size: var(--kb-fs-xs);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-xs);
+  color: var(--kf-muted-foreground);
   line-height: 1.6;
   margin: 4px 0 10px;
 }
 .wf-hint code {
-  background: var(--kb-card);
+  background: var(--kf-card);
   padding: 0 4px;
   border-radius: 4px;
 }
@@ -247,10 +247,10 @@ onMounted(load)
   gap: 8px;
 }
 .wf-item {
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
   padding: 8px;
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
 .wf-item.off {
   opacity: 0.62;
@@ -266,24 +266,24 @@ onMounted(load)
   font-weight: 600;
 }
 .wf-tag {
-  font-size: var(--kb-fs-xs);
-  color: var(--kb-primary);
-  background: color-mix(in srgb, var(--kb-primary) 12%, transparent);
+  font-size: var(--kf-fs-xs);
+  color: var(--kf-primary);
+  background: color-mix(in srgb, var(--kf-primary) 12%, transparent);
   padding: 0 6px;
   border-radius: 10px;
 }
 .wf-val {
-  font-size: var(--kb-fs-xs);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-xs);
+  color: var(--kf-muted-foreground);
 }
 .wf-tpl {
-  font-size: var(--kb-fs-xs);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-xs);
+  color: var(--kf-muted-foreground);
   white-space: pre-wrap;
   word-break: break-all;
   max-height: 96px;
   overflow: auto;
-  background: var(--kb-card);
+  background: var(--kf-card);
   border-radius: 4px;
   padding: 6px;
   margin: 0 0 6px;
@@ -293,13 +293,13 @@ onMounted(load)
   gap: 6px;
 }
 .wf-empty {
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-sm);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-sm);
   padding: 16px 4px;
   text-align: center;
 }
 .wf-loading {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 12px;
 }
 .wf-modal-mask {
@@ -314,9 +314,9 @@ onMounted(load)
 .wf-modal {
   width: 480px;
   max-width: 92vw;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius);
   padding: 16px;
 }
 .wf-modal-title {
@@ -328,16 +328,16 @@ onMounted(load)
   flex-direction: column;
   gap: 4px;
   margin-bottom: 10px;
-  font-size: var(--kb-fs-sm);
+  font-size: var(--kf-fs-sm);
 }
 .wf-field input,
 .wf-field select,
 .wf-field textarea {
-  background: var(--kb-background);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
+  background: var(--kf-background);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
   padding: 6px 8px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-family: inherit;
 }
 .wf-modal-actions {

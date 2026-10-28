@@ -17,7 +17,7 @@
         <div class="sc-dialog">
           <header class="sc-header">
             <h3 class="sc-title">进度分享卡片</h3>
-            <button type="button" class="sc-icon-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" aria-label="关闭" @click="close">
+            <button type="button" class="sc-icon-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" aria-label="关闭" @click="close">
               <Icon name="x" :size="18" aria-hidden="true" />
             </button>
           </header>
@@ -27,7 +27,7 @@
           </div>
 
           <footer class="sc-actions">
-            <button type="button" class="sc-btn sc-btn-ghost transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="close">关闭</button>
+            <button type="button" class="sc-btn sc-btn-ghost transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" @click="close">关闭</button>
             <button type="button" class="sc-btn sc-btn-primary" :disabled="saving" @click="saveImage">
               <Icon name="download" :size="16" aria-hidden="true" />
               <span>{{ saving ? '生成中…' : '保存图片' }}</span>
@@ -129,10 +129,10 @@ function drawCard(): void {
   canvas.height = CARD_H;
   ctx.clearRect(0, 0, CARD_W, CARD_H);
 
-  // 1. 背景渐变（var(--kb-primary) → var(--kb-primary-muted)）
+  // 1. 背景渐变（var(--kf-primary) → var(--kf-primary-muted)）
   const grad = ctx.createLinearGradient(0, 0, CARD_W, CARD_H);
-  grad.addColorStop(0, 'var(--kb-primary)');
-  grad.addColorStop(1, 'var(--kb-primary-muted)');
+  grad.addColorStop(0, 'var(--kf-primary)');
+  grad.addColorStop(1, 'var(--kf-primary-muted)');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, CARD_W, CARD_H);
 
@@ -260,7 +260,7 @@ function drawCard(): void {
   ctx.fill();
 
   // 点阵
-  ctx.fillStyle = 'var(--kb-primary)';
+  ctx.fillStyle = 'var(--kf-primary)';
   const cell = 6;
   const gridOff = (qrSize - cell * QR_PATTERN.length) / 2;
   for (let r = 0; r < QR_PATTERN.length; r++) {
@@ -272,7 +272,7 @@ function drawCard(): void {
   }
   // 三个定位角
   const drawFinder = (fx: number, fy: number) => {
-    ctx.fillStyle = 'var(--kb-primary)';
+    ctx.fillStyle = 'var(--kf-primary)';
     ctx.fillRect(fx, fy, 16, 16);
     ctx.fillStyle = '#fff';
     ctx.fillRect(fx + 4, fy + 4, 8, 8);
@@ -393,8 +393,8 @@ onUnmounted(() => {
   max-height: calc(100vh - 48px);
   display: flex;
   flex-direction: column;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 16px;
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
   overflow: hidden;
@@ -405,14 +405,14 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 14px 18px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .sc-title {
   margin: 0;
   font-size: 15px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .sc-icon-btn {
@@ -424,14 +424,14 @@ onUnmounted(() => {
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
 .sc-icon-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 
 .sc-canvas-wrap {
@@ -439,7 +439,7 @@ onUnmounted(() => {
   overflow: auto;
   display: flex;
   justify-content: center;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 .sc-canvas {
@@ -454,7 +454,7 @@ onUnmounted(() => {
   display: flex;
   gap: 10px;
   padding: 14px 18px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 
 .sc-btn {
@@ -480,19 +480,19 @@ onUnmounted(() => {
 .sc-btn-ghost {
   flex: 0 0 auto;
   background: transparent;
-  color: var(--kb-muted-foreground);
-  border-color: var(--kb-border);
+  color: var(--kf-muted-foreground);
+  border-color: var(--kf-border);
 }
 
 .sc-btn-ghost:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 
 .sc-btn-primary {
   flex: 1 1 auto;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 
 .sc-btn-primary:hover:not(:disabled) {

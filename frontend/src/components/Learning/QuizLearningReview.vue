@@ -24,8 +24,8 @@
         <ul v-else><li v-for="card in report.cards" :key="card.cardId"><router-link :to="cardRoute(card.cardId,card.knowledgeId)" data-related-card>{{ card.front }} · 进入闪卡复习</router-link></li></ul>
         <details v-if="report.practiceAvailable && report.baselineAnswerRecordId && !report.cards.length">
           <summary>从真实错题准备本人卡片</summary>
-          <label>正面<input v-model="front" class="form-input kb-input kb-form-control" aria-label="错题闪卡正面" :disabled="saving" /></label>
-          <label>背面<textarea v-model="back" class="form-input kb-textarea kb-form-control" aria-label="错题闪卡背面" :disabled="saving"></textarea></label>
+          <label>正面<input v-model="front" class="form-input kf-input kf-form-control" aria-label="错题闪卡正面" :disabled="saving" /></label>
+          <label>背面<textarea v-model="back" class="form-input kf-textarea kf-form-control" aria-label="错题闪卡背面" :disabled="saving"></textarea></label>
           <p>保存内容后仅创建 PENDING 知识映射候选，不自动成为已确认关联卡。</p>
           <Button :disabled="saving || saved || !front.trim() || !back.trim()" @click="saveCard">{{ saving ? '保存中…' : '确认保存本人卡片' }}</Button>
           <p v-if="saveError" role="alert">{{ saveError }}。输入已保留，可重试。</p><p v-if="saved" role="status">本人卡片已保存，知识映射状态：{{ savedMappingStatus }}。</p><router-link v-if="savedCardId" :to="cardRoute(savedCardId)" data-saved-private-card>进入本人卡片（未确认知识映射不计关联证据）</router-link>
@@ -63,10 +63,10 @@ const chapterRoute=(id:number)=>resolveContextualRoute(stampActionContext({type:
 async function saveCard(){const id=report.value?.baselineAnswerRecordId;if(!id||saving.value||!await confirmDialog('确认保存这张本人卡片？知识映射仍需单独审核。', {"title":"保存复习卡？","confirmText":"保存卡片","cancelText":"返回编辑","icon":"check-circle","variant":"default"}))return;saving.value=true;saveError.value='';try{const result=await quizApi.createReviewCard(id,front.value,back.value);savedCardId.value=result.cardId;savedMappingStatus.value=result.mappingStatus;saved.value=true;await load()}catch(e:unknown){const desc=describePageError(e,{subject:'卡片保存失败'});saveError.value=desc.title+'：'+desc.hint}finally{saving.value=false}}
 </script>
 <style scoped>
-.learning-review{background:var(--kb-card);border-radius:var(--kb-radius-md);padding:var(--kb-space-4);margin-block:var(--kb-space-4);color:var(--kb-foreground);overflow-wrap:anywhere}
-.learning-review h3,.learning-review h4{font-weight:var(--kb-fw-semibold);margin-block:var(--kb-space-3)}
-.learning-review p,.attempt-list li{margin-block:var(--kb-space-2)}
-.review-actions{display:flex;gap:var(--kb-space-3);align-items:center;flex-wrap:wrap;margin-block:var(--kb-space-3)}
-.learning-review a{color:var(--kb-primary)}
-.learning-review label{display:block;margin-block:var(--kb-space-3)}
+.learning-review{background:var(--kf-card);border-radius:var(--kf-radius-md);padding:var(--kf-space-4);margin-block:var(--kf-space-4);color:var(--kf-foreground);overflow-wrap:anywhere}
+.learning-review h3,.learning-review h4{font-weight:var(--kf-fw-semibold);margin-block:var(--kf-space-3)}
+.learning-review p,.attempt-list li{margin-block:var(--kf-space-2)}
+.review-actions{display:flex;gap:var(--kf-space-3);align-items:center;flex-wrap:wrap;margin-block:var(--kf-space-3)}
+.learning-review a{color:var(--kf-primary)}
+.learning-review label{display:block;margin-block:var(--kf-space-3)}
 </style>

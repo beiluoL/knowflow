@@ -487,44 +487,44 @@ watch(
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   width: 100%;
-  height: var(--kb-input-height);
-  padding: 0 var(--kb-field-padding);
+  height: var(--kf-input-height);
+  padding: 0 var(--kf-field-padding);
   border: 0;
-  border-radius: var(--kb-field-radius);
-  background: var(--kb-field-surface);
-  color: var(--kb-foreground);
+  border-radius: var(--kf-field-radius);
+  background: var(--kf-field-surface);
+  color: var(--kf-foreground);
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease;
 }
 
 .dtp-trigger:hover {
-  background: var(--kb-field-hover);
+  background: var(--kf-field-hover);
 }
 
 .dtp-trigger--focus,
 .dtp-trigger--open {
-  background: var(--kb-field-active);
+  background: var(--kf-field-active);
 }
 
 .dtp-control--error .dtp-trigger {
-  background: var(--kb-field-error-bg);
+  background: var(--kf-field-error-bg);
 }
 
 .dtp-control--disabled .dtp-trigger {
-  background: var(--kb-field-disabled);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-field-disabled);
+  color: var(--kf-muted-foreground);
   cursor: not-allowed;
 }
 
 .dtp-control--readonly .dtp-trigger {
-  background: var(--kb-field-readonly);
+  background: var(--kf-field-readonly);
 }
 
 .dtp-icon {
   flex-shrink: 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .dtp-text {
@@ -538,8 +538,8 @@ watch(
   box-shadow: none;
   outline: 0;
   font: inherit;
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   color: inherit;
   cursor: inherit;
   font-variant-numeric: tabular-nums;
@@ -547,7 +547,7 @@ watch(
 }
 
 .dtp-text::placeholder {
-  color: var(--kb-field-placeholder);
+  color: var(--kf-field-placeholder);
   opacity: 1;
 }
 
@@ -565,22 +565,22 @@ watch(
 
 .dtp-hint {
   flex-shrink: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 
 .dtp-panel {
-  --dtp-pad-x: var(--kb-space-4);
-  --dtp-pad-y: var(--kb-space-4);
+  --dtp-pad-x: var(--kf-space-4);
+  --dtp-pad-y: var(--kf-space-4);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   padding: var(--dtp-pad-y) var(--dtp-pad-x);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
-  background: var(--kb-popover);
-  color: var(--kb-popover-foreground);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
+  background: var(--kf-popover);
+  color: var(--kf-popover-foreground);
   box-shadow: var(--shadow-dropdown-3);
   overflow: auto;
   font-family: var(--font-sans);
@@ -590,24 +590,24 @@ watch(
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
 }
 
 .dtp-title {
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   white-space: nowrap;
 }
 
 .dtp-preview {
   min-width: 0;
   overflow: hidden;
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
   font-variant-numeric: tabular-nums;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -616,7 +616,7 @@ watch(
 .dtp-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
   align-items: start;
 }
 
@@ -627,10 +627,10 @@ watch(
 .dtp-time {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   width: 200px;
-  padding-left: var(--kb-space-4);
-  border-left: 1px solid var(--kb-border);
+  padding-left: var(--kf-space-4);
+  border-left: 1px solid var(--kf-border);
 }
 
 .dtp-panel--second:not(.dtp-panel--compact) .dtp-time {
@@ -638,22 +638,22 @@ watch(
 }
 
 .dtp-time-label {
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
+  color: var(--kf-muted-foreground);
 }
 
 .dtp-panel--compact .dtp-body {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
 }
 
 .dtp-panel--compact .dtp-time {
   width: 100%;
-  padding-top: var(--kb-space-3);
+  padding-top: var(--kf-space-3);
   padding-left: 0;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
   border-left: 0;
 }
 
@@ -661,8 +661,8 @@ watch(
   display: inline-flex;
   gap: 2px;
   padding: 2px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-field-surface);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-field-surface);
 }
 
 .dtp-tab {
@@ -671,30 +671,30 @@ watch(
   justify-content: center;
   min-width: 64px;
   height: 30px;
-  padding: 0 var(--kb-space-3);
+  padding: 0 var(--kf-space-3);
   border: 0;
-  border-radius: var(--kb-radius-xs);
+  border-radius: var(--kf-radius-xs);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font: inherit;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1;
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease, color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
 }
 
 .dtp-tab:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .dtp-tab--active {
-  background: var(--kb-popover);
-  color: var(--kb-foreground);
+  background: var(--kf-popover);
+  color: var(--kf-foreground);
   font-weight: 600;
 }
 
 .dtp-tab:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: -2px;
 }
 
@@ -706,11 +706,11 @@ watch(
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   margin: 0 calc(-1 * var(--dtp-pad-x)) calc(-1 * var(--dtp-pad-y));
-  padding: var(--kb-space-3) var(--dtp-pad-x);
-  border-top: 1px solid var(--kb-border);
-  background: var(--kb-popover);
+  padding: var(--kf-space-3) var(--dtp-pad-x);
+  border-top: 1px solid var(--kf-border);
+  background: var(--kf-popover);
 }
 
 .dtp-foot-spacer {
@@ -720,7 +720,7 @@ watch(
 .dtp-actions {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   margin-left: auto;
 }
 
@@ -729,57 +729,57 @@ watch(
   align-items: center;
   justify-content: center;
   height: 32px;
-  padding: 0 var(--kb-space-3);
+  padding: 0 var(--kf-space-3);
   border: 0;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font: inherit;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1;
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease, color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
 }
 
 .dtp-btn:hover {
-  background: var(--kb-menu-hover);
+  background: var(--kf-menu-hover);
 }
 
 .dtp-btn--link {
   height: auto;
-  padding: var(--kb-space-1) var(--kb-space-2);
-  color: var(--kb-muted-foreground);
+  padding: var(--kf-space-1) var(--kf-space-2);
+  color: var(--kf-muted-foreground);
 }
 
 .dtp-btn--ghost {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .dtp-btn--primary {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   font-weight: 600;
 }
 
 .dtp-btn--primary:hover {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   opacity: 0.92;
 }
 
 .dtp-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 1px;
 }
 
 /* 视口高度受限时先压缩纵向留白，避免为十几像素出现整体滚动条。 */
 @media (max-height: 800px) {
   .dtp-panel {
-    --dtp-pad-y: var(--kb-space-2);
-    gap: var(--kb-space-2);
+    --dtp-pad-y: var(--kf-space-2);
+    gap: var(--kf-space-2);
   }
   .dtp-foot {
-    padding: var(--kb-space-2) var(--dtp-pad-x);
+    padding: var(--kf-space-2) var(--dtp-pad-x);
   }
 }
 

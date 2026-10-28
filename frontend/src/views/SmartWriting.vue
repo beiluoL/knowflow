@@ -30,7 +30,7 @@
 
     <!-- ===== Row 2: 模板选择（5 列网格） ===== -->
     <div class="template-section">
-      <h3 class="kb-h3">选择写作模板</h3>
+      <h3 class="kf-h3">选择写作模板</h3>
       <div class="template-grid">
         <button
           v-for="tpl in templates"
@@ -52,7 +52,7 @@
     <div class="editor-layout">
       <!-- 左侧：写作配置面板 -->
       <aside class="config-panel">
-        <h4 class="kb-h4 mb-4">写作配置</h4>
+        <h4 class="kf-h4 mb-4">写作配置</h4>
         <div class="config-form">
           <!-- 目标知识库 -->
           <div>
@@ -88,7 +88,7 @@
                 min="100"
                 max="10000"
                 step="100"
-                class="form-input kb-input kb-form-control"
+                class="form-input kf-input kf-form-control"
               />
               <span class="word-target-suffix">字</span>
             </div>
@@ -119,14 +119,14 @@
       </aside>
 
       <!-- 右侧：编辑器卡片 -->
-      <div class="editor-card kb-input-surface">
+      <div class="editor-card kf-input-surface">
         <!-- 标题输入 -->
         <div class="title-area">
           <input
             v-model="title"
             type="text"
             placeholder="输入文档标题…"
-            class="title-input kb-input kb-form-control"
+            class="title-input kf-input kf-form-control"
           />
         </div>
         <!-- 工具栏 -->
@@ -193,7 +193,7 @@
     <!-- ===== Row 4: 历史草稿 ===== -->
     <div class="drafts-section">
       <div class="drafts-header">
-        <h3 class="kb-h3">历史草稿</h3>
+        <h3 class="kf-h3">历史草稿</h3>
         <span class="drafts-count tabular-nums">{{ history.length }} 篇</span>
       </div>
       <div v-if="history.length > 0" class="drafts-grid">
@@ -258,7 +258,7 @@
           </div>
           <!-- 评分结果 -->
           <div v-else-if="scoreResult" class="score-result">
-            <p class="kb-text-caption">AI 写作建议，仅针对本次文章；不作为客观考试成绩或掌握度证据。</p>
+            <p class="kf-text-caption">AI 写作建议，仅针对本次文章；不作为客观考试成绩或掌握度证据。</p>
             <!-- 总分卡 -->
             <div class="score-summary" :style="{ background: scoreBgColor }">
               <div class="score-number">
@@ -275,7 +275,7 @@
             </div>
             <!-- 维度评分 -->
             <div class="score-dimensions">
-              <h4 class="kb-h4">维度分析</h4>
+              <h4 class="kf-h4">维度分析</h4>
               <div class="dim-list">
                 <div v-for="dim in scoreResult.dimensions" :key="dim.name" class="dim-item">
                   <span class="dim-name">{{ dim.name }}</span>
@@ -289,7 +289,7 @@
             </div>
             <!-- 改进建议 -->
             <div v-if="scoreResult.suggestions && scoreResult.suggestions.length" class="score-suggestions">
-              <h4 class="kb-h4">
+              <h4 class="kf-h4">
                 <Icon name="lightbulb" :size="14" />
                 <span>改进建议</span>
               </h4>
@@ -460,12 +460,12 @@ const scoreBgColor = computed(() => {
 });
 
 const scoreTextColor = computed(() => {
-  if (!scoreResult.value) return 'var(--kb-primary)';
+  if (!scoreResult.value) return 'var(--kf-primary)';
   const s = scoreResult.value.score;
-  if (s >= 90) return 'var(--kb-success)';
-  if (s >= 80) return 'var(--kb-primary)';
-  if (s >= 60) return 'var(--kb-warning)';
-  return 'var(--kb-danger)';
+  if (s >= 90) return 'var(--kf-success)';
+  if (s >= 80) return 'var(--kf-primary)';
+  if (s >= 60) return 'var(--kf-warning)';
+  return 'var(--kf-danger)';
 });
 
 const renderedMarkdown = computed(() => renderMarkdown(content.value));
@@ -688,7 +688,7 @@ async function scoreWithAI(): Promise<void> {
         - grade: 等级（A+/A/B+/B/C/D）
         - gradeDescription: 等级描述（如"优秀"、"良好"、"中等"、"及格"、"需改进"）
         - overallComment: 总体评价（50字以内）
-        - dimensions: 数组，每个元素包含 name(维度名)、score(0-100)、color(颜色代码)、comment(简短评价)。维度包括：内容质量、结构逻辑、语言表达、原创性。颜色参考：优秀用var(--kb-success)，良好用var(--kb-primary)，中等用var(--kb-warning)，需改进用var(--kb-danger)
+        - dimensions: 数组，每个元素包含 name(维度名)、score(0-100)、color(颜色代码)、comment(简短评价)。维度包括：内容质量、结构逻辑、语言表达、原创性。颜色参考：优秀用var(--kf-success)，良好用var(--kf-primary)，中等用var(--kf-warning)，需改进用var(--kf-danger)
         - suggestions: 改进建议数组，3条具体建议
 
         文章：
@@ -854,11 +854,11 @@ function printPdf(): void {
   gap: 6px;
   height: 34px;
   padding: 0 14px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   font-size: 14px;
   font-weight: 500;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
   transition: opacity 0.15s;
@@ -872,16 +872,16 @@ function printPdf(): void {
   gap: 6px;
   height: 34px;
   padding: 0 14px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   font-size: 14px;
   font-weight: 500;
-  background: var(--kb-card);
-  color: var(--kb-sidebar-foreground);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  color: var(--kf-sidebar-foreground);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   transition: background 0.15s;
 }
-.btn-secondary:hover { background: var(--kb-muted); }
+.btn-secondary:hover { background: var(--kf-muted); }
 
 /* ===== Row 2: 模板选择 ===== */
 .template-section {
@@ -905,32 +905,32 @@ function printPdf(): void {
   align-items: center;
   gap: 8px;
   padding: 14px 12px;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   transition: border-color 0.15s, background-color 0.15s;
   text-align: center;
 }
-.template-option:hover { border-color: var(--kb-primary); }
+.template-option:hover { border-color: var(--kf-primary); }
 .template-option.active {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.04);
 }
 .template-icon {
   width: 40px;
   height: 40px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(59, 111, 224, 0.08);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .template-label {
   font-size: 14px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 /* ===== Row 3: 编辑器布局 ===== */
@@ -947,9 +947,9 @@ function printPdf(): void {
 .config-panel {
   width: 288px;
   flex-shrink: 0;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   padding: 20px;
 }
 @media (max-width: 1024px) {
@@ -966,7 +966,7 @@ function printPdf(): void {
   display: block;
   font-size: 14px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 6px;
 }
 
@@ -974,11 +974,11 @@ function printPdf(): void {
   width: 100%;
   height: 36px;
   padding: 0 32px 0 12px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   font-size: 14px;
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  border: 1px solid var(--kf-border);
   outline: none;
   cursor: pointer;
   appearance: none;
@@ -987,17 +987,17 @@ function printPdf(): void {
   background-position: right 10px center;
   transition: border-color 0.15s;
 }
-.form-select:focus { border-color: var(--kb-ring); }
+.form-select:focus { border-color: var(--kf-ring); }
 .form-select:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
-.form-input:not(.kb-form-control) {
+.form-input:not(.kf-form-control) {
   height: 36px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   outline: none;
   transition: border-color 0.15s;
 }
@@ -1006,11 +1006,11 @@ function printPdf(): void {
   width: 100%;
   padding: 0 12px;
   font-size: 14px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
-.form-input:not(.kb-form-control):focus { border-color: var(--kb-ring); }
-.form-input:not(.kb-form-control):focus-visible {
-  outline: 2px solid var(--kb-ring);
+.form-input:not(.kf-form-control):focus { border-color: var(--kf-ring); }
+.form-input:not(.kf-form-control):focus-visible {
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1021,7 +1021,7 @@ function printPdf(): void {
 }
 .word-target-suffix {
   font-size: 14px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 
@@ -1029,38 +1029,38 @@ function printPdf(): void {
   margin-top: 8px;
   height: 4px;
   border-radius: 2px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 .word-progress-bar {
   height: 100%;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   transition: width 0.3s;
 }
 .word-progress-text {
   margin-top: 4px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* AI 辅助写作区 */
 .ai-helper {
   margin-top: 8px;
   padding-top: 16px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 .ai-helper-title {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   margin-bottom: 8px;
   font-size: 14px;
   font-weight: 500;
 }
 .ai-helper-desc {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.5;
   margin-bottom: 12px;
 }
@@ -1073,9 +1073,9 @@ function printPdf(): void {
 .editor-card {
   flex: 1;
   min-width: 0;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   display: flex;
   flex-direction: column;
   height: calc(100vh - 16rem);
@@ -1083,9 +1083,9 @@ function printPdf(): void {
 
 .title-area {
   padding: 16px 20px 8px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
-.title-input:not(.kb-form-control) {
+.title-input:not(.kf-form-control) {
   background: transparent;
   border: none;
   outline: none;
@@ -1094,13 +1094,13 @@ function printPdf(): void {
   width: 100%;
   font-size: 18px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
-.title-input::placeholder { color: var(--kb-muted-foreground); }
-.title-input:not(.kb-form-control):focus-visible {
+.title-input::placeholder { color: var(--kf-muted-foreground); }
+.title-input:not(.kf-form-control):focus-visible {
   outline: none;
   box-shadow: none;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
 }
 
 /* 编辑器工具栏 */
@@ -1109,7 +1109,7 @@ function printPdf(): void {
   align-items: center;
   gap: 2px;
   padding: 8px 16px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
   flex-wrap: wrap;
 }
 .toolbar-btn {
@@ -1122,19 +1122,19 @@ function printPdf(): void {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--kb-sidebar-foreground);
+  color: var(--kf-sidebar-foreground);
   transition: background 0.15s;
 }
-.toolbar-btn:hover { background: var(--kb-muted); }
+.toolbar-btn:hover { background: var(--kf-muted); }
 .toolbar-divider {
   width: 1px;
   height: 20px;
   margin: 0 6px;
-  background: var(--kb-border);
+  background: var(--kf-border);
 }
 
 /* 文本编辑区 */
-.content-textarea:not(.kb-form-control) {
+.content-textarea:not(.kf-form-control) {
   background: transparent;
   border: none;
   outline: none;
@@ -1146,14 +1146,14 @@ function printPdf(): void {
   resize: none;
   font-size: 14px;
   line-height: 1.7;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-family: var(--font-sans, inherit);
 }
-.content-textarea::placeholder { color: var(--kb-muted-foreground); }
-.content-textarea:not(.kb-form-control):focus-visible {
+.content-textarea::placeholder { color: var(--kf-muted-foreground); }
+.content-textarea:not(.kf-form-control):focus-visible {
   outline: none;
   box-shadow: none;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
 }
 
 /* 底部操作栏 */
@@ -1162,7 +1162,7 @@ function printPdf(): void {
   align-items: center;
   justify-content: space-between;
   padding: 12px 20px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
   gap: 12px;
   flex-wrap: wrap;
 }
@@ -1171,13 +1171,13 @@ function printPdf(): void {
   align-items: center;
   gap: 12px;
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .status-saved {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--kb-state-success);
+  color: var(--kf-state-success);
 }
 .footer-actions {
   display: flex;
@@ -1188,9 +1188,9 @@ function printPdf(): void {
 
 /* ===== Row 4: 历史草稿 ===== */
 .drafts-section {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   padding: 20px;
 }
 .drafts-header {
@@ -1201,7 +1201,7 @@ function printPdf(): void {
 }
 .drafts-count {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .drafts-grid {
   display: grid;
@@ -1212,13 +1212,13 @@ function printPdf(): void {
 }
 .draft-card {
   padding: 12px 14px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
   cursor: pointer;
   transition: border-color 0.15s, background-color 0.15s;
 }
 .draft-card:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.04);
 }
 .draft-card-header {
@@ -1231,7 +1231,7 @@ function printPdf(): void {
 .draft-title {
   font-size: 14px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1241,15 +1241,15 @@ function printPdf(): void {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 2px;
   border-radius: 4px;
   transition: color 0.15s, background-color 0.15s;
 }
-.draft-delete:hover { color: var(--kb-state-error); background: rgba(239, 68, 68, 0.08); }
+.draft-delete:hover { color: var(--kf-state-error); background: rgba(239, 68, 68, 0.08); }
 .draft-meta {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .drafts-empty {
   display: flex;
@@ -1257,9 +1257,9 @@ function printPdf(): void {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
-.empty-icon { color: var(--kb-muted-foreground); opacity: 0.5; }
+.empty-icon { color: var(--kf-muted-foreground); opacity: 0.5; }
 .empty-text { margin-top: 8px; font-size: 14px; }
 
 /* ===== 弹窗 ===== */
@@ -1275,8 +1275,8 @@ function printPdf(): void {
 }
 .modal-content {
   width: 100%;
-  background: var(--kb-card);
-  border-radius: var(--kb-radius-lg);
+  background: var(--kf-card);
+  border-radius: var(--kf-radius-lg);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   max-height: 85vh;
   overflow: hidden;
@@ -1291,7 +1291,7 @@ function printPdf(): void {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 .modal-title {
   display: flex;
@@ -1299,19 +1299,19 @@ function printPdf(): void {
   gap: 8px;
   font-size: 16px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
-.modal-title svg { color: var(--kb-primary); }
+.modal-title svg { color: var(--kf-primary); }
 .modal-close {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 4px;
   border-radius: 4px;
   transition: color 0.15s, background-color 0.15s;
 }
-.modal-close:hover { color: var(--kb-foreground); background: var(--kb-muted); }
+.modal-close:hover { color: var(--kf-foreground); background: var(--kf-muted); }
 .modal-body {
   padding: 20px;
   overflow-y: auto;
@@ -1319,7 +1319,7 @@ function printPdf(): void {
 }
 
 /* ===== Markdown 预览样式 ===== */
-.prose-preview { line-height: 1.7; color: var(--kb-foreground); }
+.prose-preview { line-height: 1.7; color: var(--kf-foreground); }
 .prose-preview h1 { font-size: 1.6rem; font-weight: 700; margin: 0.8em 0 0.4em; }
 .prose-preview h2 { font-size: 1.35rem; font-weight: 700; margin: 0.8em 0 0.4em; }
 .prose-preview h3 { font-size: 1.15rem; font-weight: 600; margin: 0.7em 0 0.3em; }
@@ -1327,13 +1327,13 @@ function printPdf(): void {
 .prose-preview ul, .prose-preview ol { margin: 0.5em 0; padding-left: 1.4em; }
 .prose-preview li { margin: 0.25em 0; }
 .prose-preview blockquote {
-  border-left: 3px solid var(--kb-primary);
+  border-left: 3px solid var(--kf-primary);
   padding-left: 0.8em;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin: 0.6em 0;
 }
 .prose-preview code {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   padding: 0.1em 0.35em;
   border-radius: 4px;
   font-size: 0.9em;
@@ -1346,7 +1346,7 @@ function printPdf(): void {
   overflow-x: auto;
 }
 .prose-preview pre code { background: transparent; padding: 0; }
-.prose-preview a { color: var(--kb-primary); text-decoration: underline; }
+.prose-preview a { color: var(--kf-primary); text-decoration: underline; }
 
 /* ===== AI 评分弹窗 ===== */
 .score-loading {
@@ -1355,14 +1355,14 @@ function printPdf(): void {
   align-items: center;
   gap: 12px;
   padding: 32px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 14px;
 }
 .loading-spinner {
   width: 28px;
   height: 28px;
-  border: 2px solid var(--kb-muted);
-  border-top-color: var(--kb-primary);
+  border: 2px solid var(--kf-muted);
+  border-top-color: var(--kf-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -1375,7 +1375,7 @@ function printPdf(): void {
   align-items: center;
   gap: 16px;
   padding: 16px 20px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
 }
 .score-number {
   display: flex;
@@ -1391,17 +1391,17 @@ function printPdf(): void {
   gap: 8px;
   margin-bottom: 8px;
 }
-.grade-label { font-size: 14px; font-weight: 600; color: var(--kb-foreground); }
+.grade-label { font-size: 14px; font-weight: 600; color: var(--kf-foreground); }
 .grade-desc {
   font-size: 12px;
   padding: 2px 8px;
   border-radius: 4px;
   background: rgba(59, 111, 224, 0.1);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .score-comment {
   font-size: 14px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -1415,12 +1415,12 @@ function printPdf(): void {
   align-items: center;
   gap: 12px;
 }
-.dim-name { width: 80px; font-size: 14px; color: var(--kb-muted-foreground); flex-shrink: 0; }
+.dim-name { width: 80px; font-size: 14px; color: var(--kf-muted-foreground); flex-shrink: 0; }
 .dim-bar {
   flex: 1;
   height: 8px;
   border-radius: 4px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 .dim-bar-fill {
@@ -1428,12 +1428,12 @@ function printPdf(): void {
   border-radius: 4px;
   transition: width 0.5s;
 }
-.dim-score { width: 32px; font-size: 14px; font-weight: 500; color: var(--kb-foreground); text-align: right; }
-.dim-comment { font-size: 12px; color: var(--kb-muted-foreground); }
+.dim-score { width: 32px; font-size: 14px; font-weight: 500; color: var(--kf-foreground); text-align: right; }
+.dim-comment { font-size: 12px; color: var(--kf-muted-foreground); }
 
 .score-suggestions {
   padding: 16px 20px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   background: rgba(245, 158, 11, 0.05);
   border: 1px solid rgba(245, 158, 11, 0.15);
 }
@@ -1444,7 +1444,7 @@ function printPdf(): void {
   margin-bottom: 12px;
   color: #92400e;
 }
-.score-suggestions h4 svg { color: var(--kb-warning); }
+.score-suggestions h4 svg { color: var(--kf-warning); }
 .suggestion-list { display: flex; flex-direction: column; gap: 8px; }
 .suggestion-item {
   display: flex;
@@ -1470,7 +1470,7 @@ function printPdf(): void {
 .score-empty {
   padding: 32px;
   text-align: center;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 14px;
   line-height: 1.6;
 }

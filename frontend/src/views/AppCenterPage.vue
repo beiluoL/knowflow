@@ -521,41 +521,41 @@ function goLearn(): void {
 .app-center {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
 }
 
 .tabs {
   display: inline-flex;
   gap: 4px;
   padding: 4px;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-muted);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-muted);
   width: fit-content;
 }
 .tab-btn {
   padding: 6px 16px;
   border: none;
   border-radius: 6px;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: transparent;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 .tab-btn:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .tab-btn.active {
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
 }
 
 /* ===== 分组（§15-19：最多两个状态组） ===== */
 .group {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
 }
 .group-head {
   display: flex;
@@ -564,13 +564,13 @@ function goLearn(): void {
   gap: 12px;
 }
 .group-title {
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .group-hint {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 
 /* 离线降级提示（§232）：本地缓存可读，但服务端未确认 */
@@ -579,31 +579,31 @@ function goLearn(): void {
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-muted);
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-muted);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 
 /* ===== 可排序列表 ===== */
 .app-list {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
 }
 .app-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   transition: opacity 0.15s, box-shadow 0.15s;
 }
 .app-row.is-dragging {
   opacity: 0.5;
 }
 .app-row.is-over {
-  box-shadow: inset 0 0 0 2px var(--kb-primary);
+  box-shadow: inset 0 0 0 2px var(--kf-primary);
 }
 .app-row-main {
   flex: 1;
@@ -615,12 +615,12 @@ function goLearn(): void {
   justify-content: center;
   width: 24px;
   flex-shrink: 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: grab;
 }
 .app-row:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--kb-ring);
+  box-shadow: 0 0 0 2px var(--kf-ring);
 }
 
 .sort-actions {
@@ -635,16 +635,16 @@ function goLearn(): void {
   justify-content: center;
   width: 32px;
   height: 32px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 .sort-btn:hover:not(:disabled) {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 .sort-btn:disabled {
   opacity: 0.4;
@@ -652,7 +652,7 @@ function goLearn(): void {
 }
 .sort-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--kb-ring);
+  box-shadow: 0 0 0 2px var(--kf-ring);
 }
 
 .discover-more {
@@ -668,29 +668,29 @@ function goLearn(): void {
 }
 .filter-chip {
   padding: 4px 12px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 999px;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
-  background: var(--kb-card);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
+  background: var(--kf-card);
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
 }
 .filter-chip:hover {
-  border-color: var(--kb-primary-muted, var(--kb-primary));
-  color: var(--kb-foreground);
+  border-color: var(--kf-primary-muted, var(--kf-primary));
+  color: var(--kf-foreground);
 }
 .filter-chip.active {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
-  background: var(--kb-primary-subtle);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
+  background: var(--kf-primary-subtle);
   font-weight: 500;
 }
 
 .app-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
 }
 
 /* 付费精选 */
@@ -704,19 +704,19 @@ function goLearn(): void {
   margin-bottom: 12px;
 }
 .featured-title {
-  font-size: var(--kb-fs-h4);
-  line-height: var(--kb-lh-h4);
-  font-weight: var(--kb-fw-h4);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-h4);
+  line-height: var(--kf-lh-h4);
+  font-weight: var(--kf-fw-h4);
+  color: var(--kf-foreground);
 }
 .featured-hint {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
 }
 .product-wrap {
   display: flex;

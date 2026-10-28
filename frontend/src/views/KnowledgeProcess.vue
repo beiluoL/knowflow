@@ -304,7 +304,7 @@ onMounted(() => {
               v-model="keyword"
               type="text"
               placeholder="输入标题关键词检索文档（回车搜索）"
-              class="kp-input kb-input kb-form-control"
+              class="kp-input kf-input kf-form-control"
               @keyup.enter="searchDocs"
             />
           </div>
@@ -332,12 +332,12 @@ onMounted(() => {
       </div>
 
       <div v-else>
-        <input v-model="pasteTitle" type="text" placeholder="资料标题（如：JVM GC 原理）" class="kp-input kp-mb kb-input kb-form-control" />
+        <input v-model="pasteTitle" type="text" placeholder="资料标题（如：JVM GC 原理）" class="kp-input kp-mb kf-input kf-form-control" />
         <textarea
           v-model="pasteContent"
           rows="7"
           placeholder="粘贴学习资料正文（Markdown / 纯文本均可）。示例：MVCC 通过 Undo Log 与 Read View 实现快照读…"
-          class="kp-input kp-area kb-textarea kb-form-control"
+          class="kp-input kp-area kf-textarea kf-form-control"
         ></textarea>
         <button
           type="button"
@@ -367,7 +367,7 @@ onMounted(() => {
       </div>
       <div class="kp-node-row">
         <select
-          class="kp-input kp-select kb-select kb-form-control"
+          class="kp-input kp-select kf-select kf-form-control"
           :value="selectedPathId ?? ''"
           @change="onPathChange(($event.target as HTMLSelectElement).value)"
         >
@@ -375,7 +375,7 @@ onMounted(() => {
           <option v-for="p in paths" :key="p.id" :value="p.id">{{ p.title }}</option>
         </select>
         <select
-          class="kp-input kp-select kb-select kb-form-control"
+          class="kp-input kp-select kf-select kf-form-control"
           :value="selectedChapterId ?? ''"
           :disabled="!selectedPathId || chaptersLoading"
           @change="selectedChapterId = ($event.target as HTMLSelectElement).value ? Number(($event.target as HTMLSelectElement).value) : null"
@@ -494,14 +494,14 @@ onMounted(() => {
                 <span v-else class="kp-badge new">新增</span>
                 <input
                   :value="edits.get(c.candidateId) ?? c.name"
-                  class="kp-name-input kb-input kb-form-control"
+                  class="kp-name-input kf-input kf-form-control"
                   :class="{ locked: !editableConcept(c) }"
                   :readonly="!editableConcept(c)"
                   @input="c.status === 'NEW' && edits.set(c.candidateId, ($event.target as HTMLInputElement).value)"
                 />
                 <select
                   :value="typeOf(c)"
-                  class="kp-type-select kb-select kb-form-control"
+                  class="kp-type-select kf-select kf-form-control"
                   :disabled="c.status === 'EXISTING'"
                   @change="typeSel.set(c.candidateId, ($event.target as HTMLSelectElement).value)"
                 >
@@ -616,8 +616,8 @@ onMounted(() => {
   max-width: none;
   margin-inline: 0;
   padding: 24px 20px 80px;
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-14);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-14);
 
   width: 100%;
   min-width: 0;
@@ -633,34 +633,34 @@ onMounted(() => {
 .kp-back {
   width: 34px;
   height: 34px;
-  border-radius: var(--kb-radius-md);;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-radius: var(--kf-radius-md);;
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   transition: all 0.15s ease;
 }
 .kp-back:hover {
-  color: var(--kb-primary);
-  border-color: var(--kb-primary);
+  color: var(--kf-primary);
+  border-color: var(--kf-primary);
 }
 .kp-title {
-  font-size: var(--kb-fs-20);
+  font-size: var(--kf-fs-20);
   font-weight: 700;
   margin: 0;
 }
 .kp-subtitle {
   margin: 4px 0 0;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-13);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-13);
 }
 .kp-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);;
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);;
   padding: 16px 18px;
   margin-bottom: 14px;
 }
@@ -669,7 +669,7 @@ onMounted(() => {
   align-items: baseline;
   gap: 8px;
   font-weight: 600;
-  font-size: var(--kb-fs-14);
+  font-size: var(--kf-fs-14);
   margin-bottom: 12px;
   flex-wrap: wrap;
 }
@@ -679,8 +679,8 @@ onMounted(() => {
   height: 20px;
   border-radius: 50%;
   background: rgba(59, 111, 224, 0.1);
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-12);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-12);
   align-items: center;
   justify-content: center;
   transform: translateY(2px);
@@ -691,8 +691,8 @@ onMounted(() => {
 }
 .kp-hint {
   font-weight: 400;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-12);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-12);
 }
 .kp-mt {
   margin-top: 16px;
@@ -704,18 +704,18 @@ onMounted(() => {
 }
 .kp-tab {
   padding: 6px 14px;
-  border-radius: var(--kb-radius-md);;
-  font-size: var(--kb-fs-13);
-  border: 1px solid var(--kb-border);
+  border-radius: var(--kf-radius-md);;
+  font-size: var(--kf-fs-13);
+  border: 1px solid var(--kf-border);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .kp-tab.active {
   background: rgba(59, 111, 224, 0.08);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
   font-weight: 600;
 }
 .kp-search-row {
@@ -732,28 +732,28 @@ onMounted(() => {
 .kp-search-ic {
   position: absolute;
   left: 10px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
-.kp-input:not(.kb-form-control) {
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+.kp-input:not(.kf-form-control) {
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   outline: none;
-  background: var(--kb-card);
+  background: var(--kf-card);
   transition: border-color 0.15s ease;
 }
 .kp-input {
   width: 100%;;
   padding: 8px 10px 8px 32px;
-  font-size: var(--kb-fs-13);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-13);
+  color: var(--kf-foreground);
 }
-.kp-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.kp-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 .kp-mb {
   margin-bottom: 10px;
 }
-.kp-area:not(.kb-form-control) {
+.kp-area:not(.kf-form-control) {
   min-height: 120px;
 }
 .kp-area {
@@ -770,28 +770,28 @@ onMounted(() => {
   gap: 6px;
   height: 36px;
   padding: 0 14px;
-  border-radius: var(--kb-radius-md);;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-13);
+  border-radius: var(--kf-radius-md);;
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-13);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
 }
 .kp-btn:hover:not(:disabled) {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .kp-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 .kp-btn-primary {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary-foreground, #fff);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary-foreground, #fff);
 }
 .kp-btn-primary:hover:not(:disabled) {
   color: #fff;
@@ -809,22 +809,22 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  border-radius: var(--kb-radius-md);;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-radius: var(--kf-radius-md);;
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   cursor: pointer;
   text-align: left;
   transition: all 0.15s ease;
 }
 .kp-doc-item:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 .kp-doc-item.active {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.06);
 }
 .kp-doc-ic {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 .kp-doc-title {
@@ -832,15 +832,15 @@ onMounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: var(--kb-fs-13);
+  font-size: var(--kf-fs-13);
 }
 .kp-doc-check {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   display: inline-flex;
 }
 .kp-empty {
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-13);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-13);
   padding: 14px 0;
   text-align: center;
 }
@@ -850,7 +850,7 @@ onMounted(() => {
   gap: 6px;
   margin-top: 10px;
   color: #0f9d6e;
-  font-size: var(--kb-fs-13);
+  font-size: var(--kf-fs-13);
 }
 .kp-selected {
   display: flex;
@@ -858,10 +858,10 @@ onMounted(() => {
   gap: 6px;
   margin-top: 12px;
   padding: 8px 10px;
-  border-radius: var(--kb-radius-md);;
+  border-radius: var(--kf-radius-md);;
   background: rgba(59, 111, 224, 0.05);
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-13);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-13);
 }
 .kp-node-row {
   display: flex;
@@ -884,23 +884,23 @@ onMounted(() => {
   gap: 4px;
   text-align: left;
   padding: 10px 12px;
-  border-radius: var(--kb-radius-md);;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-radius: var(--kf-radius-md);;
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   cursor: pointer;
-  font-size: var(--kb-fs-13);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-13);
+  color: var(--kf-muted-foreground);
   transition: all 0.15s ease;
 }
 .kp-mode.active {
-  border-color: var(--kb-primary);
-  color: var(--kb-foreground);
+  border-color: var(--kf-primary);
+  color: var(--kf-foreground);
   background: rgba(59, 111, 224, 0.05);
 }
 .kp-error {
   border: 1px solid rgba(239, 68, 68, 0.4);
   background: rgba(239, 68, 68, 0.05);
-  border-radius: var(--kb-radius-md);;
+  border-radius: var(--kf-radius-md);;
   padding: 12px 14px;
   margin-bottom: 14px;
   display: flex;
@@ -917,8 +917,8 @@ onMounted(() => {
 }
 .kp-error-msg {
   margin: 0;
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-13);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-13);
 }
 .kp-run-row {
   display: flex;
@@ -928,10 +928,10 @@ onMounted(() => {
 .kp-run {
   height: 42px;
   padding: 0 22px;
-  font-size: var(--kb-fs-14);
+  font-size: var(--kf-fs-14);
 }
 .kp-summary {
-  border-left: 3px solid var(--kb-primary);
+  border-left: 3px solid var(--kf-primary);
   background: rgba(59, 111, 224, 0.04);
   border-radius: 0 8px 8px 0;
   padding: 10px 12px;
@@ -941,17 +941,17 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-weight: 600;
-  font-size: var(--kb-fs-12);
+  font-size: var(--kf-fs-12);
   margin-bottom: 4px;
 }
 .kp-summary p,
 .kp-summary-text {
   margin: 0;
   line-height: 1.7;
-  font-size: var(--kb-fs-13);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-13);
+  color: var(--kf-foreground);
 }
 .kp-summary-text {
   padding: 6px 0;
@@ -965,12 +965,12 @@ onMounted(() => {
 .kp-stat {
   padding: 3px 10px;
   border-radius: 999px;
-  font-size: var(--kb-fs-12);
+  font-size: var(--kf-fs-12);
   font-weight: 600;
 }
 .kp-stat.good {
   background: rgba(59, 111, 224, 0.08);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .kp-stat.new {
   background: rgba(16, 185, 129, 0.1);
@@ -985,8 +985,8 @@ onMounted(() => {
   color: #dc2626;
 }
 .kp-stat.meta {
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
   font-weight: 400;
 }
 .kp-warnings {
@@ -998,7 +998,7 @@ onMounted(() => {
   gap: 6px;
   margin: 3px 0;
   color: #b45309;
-  font-size: var(--kb-fs-12);
+  font-size: var(--kf-fs-12);
 }
 .kp-cand-head,
 .kp-sub-head {
@@ -1006,7 +1006,7 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   font-weight: 600;
-  font-size: var(--kb-fs-13);
+  font-size: var(--kf-fs-13);
   margin-bottom: 8px;
 }
 .kp-cand-actions {
@@ -1016,8 +1016,8 @@ onMounted(() => {
 .kp-link-btn {
   border: none;
   background: none;
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-12);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-12);
   cursor: pointer;
   padding: 2px 4px;
 }
@@ -1031,8 +1031,8 @@ onMounted(() => {
   gap: 10px;
   align-items: flex-start;
   padding: 10px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);;
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);;
   transition: opacity 0.15s ease;
 }
 .kp-cand-item.off {
@@ -1041,9 +1041,9 @@ onMounted(() => {
 .kp-check {
   width: 20px;
   height: 20px;
-  border-radius: var(--kb-radius-sm);;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-radius: var(--kf-radius-sm);;
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1054,8 +1054,8 @@ onMounted(() => {
   transition: all 0.15s ease;
 }
 .kp-check.on {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
 }
 .kp-cand-main {
   flex: 1;
@@ -1070,7 +1070,7 @@ onMounted(() => {
 .kp-badge {
   padding: 1px 8px;
   border-radius: 999px;
-  font-size: var(--kb-fs-11);
+  font-size: var(--kf-fs-11);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -1082,42 +1082,42 @@ onMounted(() => {
   background: rgba(245, 158, 11, 0.14);
   color: #b45309;
 }
-.kp-name-input:not(.kb-form-control) {
+.kp-name-input:not(.kf-form-control) {
   border: 1px solid transparent;
   background: transparent;
   outline: none;
-  border-radius: var(--kb-radius-sm);;
+  border-radius: var(--kf-radius-sm);;
   transition: all 0.15s ease;
 }
 .kp-name-input {
   flex: 1;
   min-width: 120px;
-  font-size: var(--kb-fs-14);
+  font-size: var(--kf-fs-14);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   padding: 2px 4px;
 }
-.kp-name-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
-  background: var(--kb-card);
+.kp-name-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
+  background: var(--kf-card);
 }
 .kp-name-input.locked {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
-.kp-type-select:not(.kb-form-control) {
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  border-radius: var(--kb-radius-sm);
+.kp-type-select:not(.kf-form-control) {
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  border-radius: var(--kf-radius-sm);
 }
 .kp-type-select {;
-  font-size: var(--kb-fs-11);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-11);
+  color: var(--kf-muted-foreground);
   padding: 2px 4px;
 }
 .kp-cand-desc {
   margin: 4px 2px 0;
-  font-size: var(--kb-fs-12);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-12);
+  color: var(--kf-muted-foreground);
   line-height: 1.5;
 }
 .kp-rel-block {
@@ -1125,8 +1125,8 @@ onMounted(() => {
 }
 .kp-rel-note {
   margin: 0 0 8px;
-  font-size: var(--kb-fs-12);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-12);
+  color: var(--kf-muted-foreground);
 }
 .kp-rel-list {
   display: flex;
@@ -1139,25 +1139,25 @@ onMounted(() => {
   gap: 8px;
   flex-wrap: wrap;
   padding: 6px 10px;
-  border-radius: var(--kb-radius-md);;
-  background: var(--kb-muted);
-  font-size: var(--kb-fs-13);
+  border-radius: var(--kf-radius-md);;
+  background: var(--kf-muted);
+  font-size: var(--kf-fs-13);
 }
 .kp-rel-node {
   font-weight: 600;
 }
 .kp-rel-arrow {
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-12);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-12);
 }
 .kp-rel-arrow.pre {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-weight: 600;
 }
 .kp-invalid-note {
   margin-top: 8px;
-  font-size: var(--kb-fs-12);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-12);
+  color: var(--kf-muted-foreground);
 }
 .kp-accept {
   margin-top: 16px;
@@ -1167,8 +1167,8 @@ onMounted(() => {
 }
 .kp-accept-note {
   margin: 8px 0 0;
-  font-size: var(--kb-fs-12);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-12);
+  color: var(--kf-muted-foreground);
 }
 .kp-done {
   border-color: rgba(16, 185, 129, 0.35);
@@ -1185,8 +1185,8 @@ onMounted(() => {
   gap: 10px;
   flex-wrap: wrap;
   padding: 8px 10px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);;
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);;
 }
 .kp-activity-k {
   display: flex;
@@ -1205,21 +1205,21 @@ onMounted(() => {
   gap: 4px;
   padding: 4px 10px;
   border-radius: 999px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-12);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-12);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .kp-link-chip:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .kp-footnote {
   text-align: center;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-13);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-13);
   margin-top: 30px;
 }
 </style>

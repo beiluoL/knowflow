@@ -1,12 +1,12 @@
 <template>
   <form class="catalog-basic" @submit.prevent="save">
-    <h3 class="kb-h3">统一基本信息</h3>
+    <h3 class="kf-h3">统一基本信息</h3>
     <Input v-model="form.title" label="标题" :disabled="saving" required />
-    <label>难度<select v-model="form.difficulty" class="kb-select kb-form-control" :disabled="saving"><option value="1">简单</option><option value="2">中等</option><option value="3">困难</option></select></label>
+    <label>难度<select v-model="form.difficulty" class="kf-select kf-form-control" :disabled="saving"><option value="1">简单</option><option value="2">中等</option><option value="3">困难</option></select></label>
     <Input v-model="form.tags" label="标签（逗号分隔）" :disabled="saving || question.sourceType === 'SCENARIO'" />
     <p v-if="question.sourceType === 'SCENARIO'" class="text-muted-foreground">场景来源没有标签字段。</p>
     <template v-if="hasQuizMetadata">
-      <label>知识库<select v-model="form.categoryId" class="kb-select kb-form-control" :disabled="saving"><option value="">未关联（清除）</option><option v-for="category in categories" :key="category.id" :value="String(category.id)">{{ category.name }}</option></select></label>
+      <label>知识库<select v-model="form.categoryId" class="kf-select kf-form-control" :disabled="saving"><option value="">未关联（清除）</option><option v-for="category in categories" :key="category.id" :value="String(category.id)">{{ category.name }}</option></select></label>
       <Input v-model="form.topicCode" label="知识点编码（现有 topicCode）" placeholder="输入已存在的编码，留空清除" :disabled="saving" />
       <p class="text-muted-foreground">知识点编码与知识图谱实体 ID 是不同字段，由服务端验证真实编码。</p>
     </template>
@@ -53,7 +53,7 @@ async function save() {
 onBeforeUnmount(() => { request++ })
 </script>
 <style scoped>
-.catalog-basic { display: flex; flex-direction: column; gap: var(--kb-space-3); padding-block: var(--kb-space-4); border-block: 1px solid var(--kb-border); }
-.catalog-basic label { display: flex; flex-direction: column; gap: var(--kb-space-2); }
-.catalog-basic p { font-size: var(--kb-fs-body-sm); }
+.catalog-basic { display: flex; flex-direction: column; gap: var(--kf-space-3); padding-block: var(--kf-space-4); border-block: 1px solid var(--kf-border); }
+.catalog-basic label { display: flex; flex-direction: column; gap: var(--kf-space-2); }
+.catalog-basic p { font-size: var(--kf-fs-body-sm); }
 </style>

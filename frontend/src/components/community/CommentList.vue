@@ -1,9 +1,9 @@
 <template>
-  <section class="border rounded-[10px]" style="background: var(--kb-card); border-color: var(--kb-border);">
+  <section class="border rounded-[10px]" style="background: var(--kf-card); border-color: var(--kf-border);">
     <!-- 头部：总数 + 排序切换 -->
     <header
       class="flex items-center justify-between gap-3 px-4 py-3"
-      style="border-bottom: 1px solid var(--kb-border);"
+      style="border-bottom: 1px solid var(--kf-border);"
     >
       <h2 class="text-[14px] font-medium text-foreground">
         全部评论
@@ -14,7 +14,7 @@
           v-for="opt in sortOptions"
           :key="opt.value"
           type="button"
-          class="px-2.5 py-1 rounded-md text-[12px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="px-2.5 py-1 rounded-md text-[12px] font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
           :class="sortBy === opt.value
             ? 'bg-card text-primary-600 shadow-sm'
             : 'text-muted-foreground hover:text-foreground'"
@@ -25,7 +25,7 @@
     </header>
 
     <!-- 发表评论 -->
-    <div class="px-4 py-3" style="border-bottom: 1px solid var(--kb-border);">
+    <div class="px-4 py-3" style="border-bottom: 1px solid var(--kf-border);">
       <CommentInput
         ref="inputRef"
         mode="create"
@@ -47,7 +47,7 @@
         <p class="text-sm text-muted-foreground">来抢沙发，说说你的看法吧</p>
       </EmptyState>
 
-      <ul v-else class="divide-y" style="border-color: var(--kb-border);">
+      <ul v-else class="divide-y" style="border-color: var(--kf-border);">
         <CommentItem
           v-for="comment in comments"
           :key="comment.id"

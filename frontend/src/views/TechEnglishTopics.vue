@@ -124,77 +124,77 @@ onMounted(load)
 <style scoped>
 .te-page {
   display: grid;
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
   min-width: 0;
 }
 .te-note {
   margin: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .te-topic-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
 }
 .te-topic-card {
   display: grid;
-  gap: var(--kb-space-2);
-  padding: var(--kb-space-4);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
-  background: var(--kb-card);
+  gap: var(--kf-space-2);
+  padding: var(--kf-space-4);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
+  background: var(--kf-card);
   min-width: 0;
 }
 .te-topic-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
 }
 .te-topic-title {
   margin: 0;
-  font-size: var(--kb-fs-body-lg);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-lg);
+  color: var(--kf-foreground);
 }
 .te-topic-total {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   font-variant-numeric: tabular-nums;
 }
 .te-topic-desc {
   margin: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   line-height: 1.6;
 }
 .te-topic-track {
   height: 6px;
   border-radius: 999px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 .te-topic-track > span {
   display: block;
   height: 100%;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
 }
 .te-topic-meta {
   display: flex;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   flex-wrap: wrap;
   margin: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   font-variant-numeric: tabular-nums;
 }
 .te-topic-due {
-  color: var(--kb-state-warning);
+  color: var(--kf-state-warning);
 }
 .te-topic-enter {
   justify-self: start;
 }
 .te-muted {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 </style>

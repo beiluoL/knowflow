@@ -140,10 +140,10 @@ defineExpose({ clear })
   justify-content: center;
   gap: 6px;
   padding: 0 10px;
-  border-radius: var(--kb-radius-sm, 8px);
-  background: var(--kb-card, #ffffff);
-  color: var(--kb-foreground, #1a1d23);
-  border: 1px solid var(--kb-border, #e2e6ec);
+  border-radius: var(--kf-radius-sm, 8px);
+  background: var(--kf-card, #ffffff);
+  color: var(--kf-foreground, #1a1d23);
+  border: 1px solid var(--kf-border, #e2e6ec);
   box-shadow: var(--shadow-dropdown-2, 0 4px 12px rgba(0, 0, 0, 0.08));
   font-size: 12px;
   font-weight: 500;
@@ -154,12 +154,12 @@ defineExpose({ clear })
 }
 
 .selection-term-trigger:hover {
-  color: var(--kb-primary, #3b6fe0);
-  background: var(--kb-primary-soft, #eef3fd);
+  color: var(--kf-primary, #3b6fe0);
+  background: var(--kf-primary-soft, #eef3fd);
 }
 
 .selection-term-trigger:focus-visible {
-  outline: 2px solid var(--kb-ring, #3b6fe0);
+  outline: 2px solid var(--kf-ring, #3b6fe0);
   outline-offset: 2px;
 }
 </style>

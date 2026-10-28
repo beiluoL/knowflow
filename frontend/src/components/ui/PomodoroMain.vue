@@ -12,7 +12,7 @@
           class="pmd-mode-tab"
           :class="{ active: store.runtime.currentMode === m.value }"
           :style="{
-            color: store.runtime.currentMode === m.value ? m.color : 'var(--kb-muted-foreground)',
+            color: store.runtime.currentMode === m.value ? m.color : 'var(--kf-muted-foreground)',
             background: store.runtime.currentMode === m.value ? m.softBg : 'transparent',
           }"
           @click="store.switchMode(m.value)"
@@ -319,9 +319,9 @@ function handleSoundToggle() {
 }
 
 const MODES: { value: PomodoroMode; label: string; icon: string; color: string; softBg: string }[] = [
-  { value: 'focus', label: '专注', icon: 'target', color: 'var(--kb-danger)', softBg: 'rgba(239,68,68,0.10)' },
-  { value: 'shortBreak', label: '短休', icon: 'coffee', color: 'var(--kb-success)', softBg: 'rgba(16,185,129,0.10)' },
-  { value: 'longBreak', label: '长休', icon: 'coffee-2', color: 'var(--kb-primary)', softBg: 'rgba(59,111,224,0.10)' },
+  { value: 'focus', label: '专注', icon: 'target', color: 'var(--kf-danger)', softBg: 'rgba(239,68,68,0.10)' },
+  { value: 'shortBreak', label: '短休', icon: 'coffee', color: 'var(--kf-success)', softBg: 'rgba(16,185,129,0.10)' },
+  { value: 'longBreak', label: '长休', icon: 'coffee-2', color: 'var(--kf-primary)', softBg: 'rgba(59,111,224,0.10)' },
 ];
 
 const currentModeIcon = computed(
@@ -449,7 +449,7 @@ function clampInt(n: number, min: number, max: number): number {
 <style scoped>
 .pmd-main {
   width: 100%;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   max-height: calc(100vh - 100px); /* 与 popover 同步上限 */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -459,7 +459,7 @@ function clampInt(n: number, min: number, max: number): number {
   width: 6px;
 }
 .pmd-main::-webkit-scrollbar-thumb {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   border-radius: 3px;
 }
 .pmd-main::-webkit-scrollbar-track {
@@ -473,13 +473,13 @@ function clampInt(n: number, min: number, max: number): number {
   justify-content: space-between;
   padding: 10px 12px;
   gap: 8px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 .pmd-mode-tabs {
   display: inline-flex;
   padding: 2px;
   border-radius: 8px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   gap: 1px;
 }
 .pmd-mode-tab {
@@ -495,11 +495,11 @@ function clampInt(n: number, min: number, max: number): number {
   background: transparent;
   cursor: pointer;
   transition: all 0.15s ease;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   white-space: nowrap;
 }
 .pmd-mode-tab:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .pmd-mode-tab.active {
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
@@ -519,16 +519,16 @@ function clampInt(n: number, min: number, max: number): number {
   border-radius: 6px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .pmd-icon-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 .pmd-icon-btn.is-on {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.08);
 }
 
@@ -552,7 +552,7 @@ function clampInt(n: number, min: number, max: number): number {
   inset: 0;
   width: 100%;
   height: 100%;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .pmd-ring-progress {
   transition: stroke-dashoffset 0.7s cubic-bezier(0.22, 1, 0.36, 1);
@@ -591,7 +591,7 @@ function clampInt(n: number, min: number, max: number): number {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 10px;
   font-weight: 500;
 }
@@ -604,7 +604,7 @@ function clampInt(n: number, min: number, max: number): number {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--kb-border);
+  background: var(--kf-border);
   transition: background 0.25s ease;
 }
 .pmd-dot.filled {
@@ -628,9 +628,9 @@ function clampInt(n: number, min: number, max: number): number {
   gap: 12px;
 }
 .pmd-ctrl {
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -642,8 +642,8 @@ function clampInt(n: number, min: number, max: number): number {
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 .pmd-ctrl:hover {
-  color: var(--kb-foreground);
-  border-color: var(--kb-primary);
+  color: var(--kf-foreground);
+  border-color: var(--kf-primary);
   box-shadow: 0 3px 10px rgba(59, 111, 224, 0.12);
   transform: translateY(-1px);
 }
@@ -662,8 +662,8 @@ function clampInt(n: number, min: number, max: number): number {
 
 /* 设置面板 */
 .pmd-settings {
-  border-top: 1px solid var(--kb-border);
-  background: var(--kb-background);
+  border-top: 1px solid var(--kf-border);
+  background: var(--kf-background);
   padding: 12px 14px 14px;
 }
 .pmd-settings-head {
@@ -675,7 +675,7 @@ function clampInt(n: number, min: number, max: number): number {
 .pmd-settings-head h4 {
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .pmd-fields {
   display: grid;
@@ -688,7 +688,7 @@ function clampInt(n: number, min: number, max: number): number {
   flex-direction: column;
   gap: 3px;
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-weight: 500;
 }
 .pmd-field-label-with-icon {
@@ -698,10 +698,10 @@ function clampInt(n: number, min: number, max: number): number {
 }
 .pmd-field > input {
   height: 30px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 6px;
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   padding: 0 8px;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
@@ -709,7 +709,7 @@ function clampInt(n: number, min: number, max: number): number {
 }
 .pmd-field > input:focus {
   outline: none;
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
 }
 .pmd-switch-row {
@@ -724,13 +724,13 @@ function clampInt(n: number, min: number, max: number): number {
   height: 20px;
   border-radius: 999px;
   border: none;
-  background: var(--kb-border);
+  background: var(--kf-border);
   cursor: pointer;
   padding: 0;
   transition: background 0.2s ease;
 }
 .pmd-switch.on {
-  background: var(--kb-primary);
+  background: var(--kf-primary);
 }
 .pmd-switch-thumb {
   position: absolute;
@@ -763,8 +763,8 @@ function clampInt(n: number, min: number, max: number): number {
   transition: all 0.15s ease;
 }
 .pmd-btn-primary {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 .pmd-btn-primary:hover {
   filter: brightness(1.05);
@@ -772,21 +772,21 @@ function clampInt(n: number, min: number, max: number): number {
 }
 .pmd-btn-ghost {
   background: transparent;
-  border-color: var(--kb-border);
-  color: var(--kb-muted-foreground);
+  border-color: var(--kf-border);
+  color: var(--kf-muted-foreground);
 }
 .pmd-btn-ghost:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 
 /* 白噪音音效设置区块 */
 .pmd-noise-section {
   margin-bottom: 12px;
   padding: 10px 12px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 8px;
-  background: var(--kb-card);
+  background: var(--kf-card);
 }
 .pmd-noise-head {
   display: flex;
@@ -794,7 +794,7 @@ function clampInt(n: number, min: number, max: number): number {
   justify-content: space-between;
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .pmd-noise-body {
   margin-top: 10px;
@@ -813,29 +813,29 @@ function clampInt(n: number, min: number, max: number): number {
   align-items: center;
   gap: 3px;
   padding: 6px 2px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 6px;
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
   font-size: 10px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .pmd-noise-type:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 .pmd-noise-type.active {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 .pmd-noise-volume {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .pmd-noise-slider {
   -webkit-appearance: none;
@@ -843,7 +843,7 @@ function clampInt(n: number, min: number, max: number): number {
   flex: 1 1 auto;
   height: 4px;
   border-radius: 999px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   outline: none;
   cursor: pointer;
 }
@@ -853,16 +853,16 @@ function clampInt(n: number, min: number, max: number): number {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--kb-primary);
-  border: 2px solid var(--kb-card);
+  background: var(--kf-primary);
+  border: 2px solid var(--kf-card);
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
 }
 .pmd-noise-slider::-moz-range-thumb {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--kb-primary);
-  border: 2px solid var(--kb-card);
+  background: var(--kf-primary);
+  border: 2px solid var(--kf-card);
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
 }
 .pmd-noise-vol-num {
@@ -870,7 +870,7 @@ function clampInt(n: number, min: number, max: number): number {
   text-align: right;
   font-size: 11px;
   font-variant-numeric: tabular-nums;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .pmd-noise-toggle {
   margin-bottom: 0;

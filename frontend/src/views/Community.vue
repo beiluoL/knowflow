@@ -7,7 +7,7 @@
       <template #actions>
         <button
           @click="goCreate"
-          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 active:bg-primary-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 active:bg-primary-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
           aria-label="发布新帖子"
         >
           <Icon name="pen-line" :size="16" />
@@ -22,7 +22,7 @@
         :key="sort.value"
         @click="handleSortChange(sort.value)"
         :class="[
-          'shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 active:opacity-90',
+          'shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 active:opacity-90',
           currentSort === sort.value
             ? 'bg-primary-500 text-white border-primary-500 font-medium'
             : 'bg-card text-foreground border-border hover:border-border',
@@ -54,7 +54,7 @@
               tabindex="0"
               @keydown.enter.prevent="($event.target as HTMLElement).click()"
               @keydown.space.prevent="($event.target as HTMLElement).click()"
-              class="border rounded-[10px] p-5 bg-card border-border hover:shadow-sm active:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-shadow cursor-pointer"
+              class="border rounded-[10px] p-5 bg-card border-border hover:shadow-sm active:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-shadow cursor-pointer"
             >
               <div class="flex items-center gap-2.5 mb-3">
                 <div
@@ -120,7 +120,7 @@
               href="#"
               @click.prevent="handleCategoryClick(cat.value)"
               :class="[
-                'flex items-center justify-between px-2 py-1.5 rounded-lg text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
+                'flex items-center justify-between px-2 py-1.5 rounded-lg text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2',
                 selectedCategory === cat.value
                   ? 'bg-primary-50 text-primary-500 font-medium'
                   : 'text-foreground hover:bg-muted',
@@ -139,7 +139,7 @@
               v-for="(topic, index) in trendingTopics"
               :key="index"
               href="#"
-              class="flex items-start gap-2 hover:bg-muted rounded-lg p-1 -mx-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="flex items-start gap-2 hover:bg-muted rounded-lg p-1 -mx-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
             >
               <span
                 :class="[
@@ -177,7 +177,7 @@
               </div>
               <button
                 type="button"
-                class="text-xs font-medium px-3 py-1 rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 active:opacity-90"
+                class="text-xs font-medium px-3 py-1 rounded-md border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 active:opacity-90"
                 :class="user.followed
                   ? 'text-muted-foreground border-border bg-muted'
                   : 'text-primary-500 border-primary-500 hover:bg-primary-50'"

@@ -15,16 +15,16 @@
       </div>
       <div class="dag-tools">
         <span class="zoom-label">{{ Math.round(scale * 100) }}%</span>
-        <button type="button" class="tool-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="缩小" @click="zoomByCenter(1 / ZOOM_STEP)">
+        <button type="button" class="tool-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="缩小" @click="zoomByCenter(1 / ZOOM_STEP)">
           <Icon name="zoom-out" :size="15" aria-hidden="true" />
         </button>
-        <button type="button" class="tool-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="放大" @click="zoomByCenter(ZOOM_STEP)">
+        <button type="button" class="tool-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="放大" @click="zoomByCenter(ZOOM_STEP)">
           <Icon name="zoom-in" :size="15" aria-hidden="true" />
         </button>
-        <button type="button" class="tool-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="适应画布" @click="fitView">
+        <button type="button" class="tool-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="适应画布" @click="fitView">
           <Icon name="target" :size="15" aria-hidden="true" />
         </button>
-        <button type="button" class="tool-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" :title="expanded ? '退出全屏' : '全屏查看'" @click="toggleExpand">
+        <button type="button" class="tool-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" :title="expanded ? '退出全屏' : '全屏查看'" @click="toggleExpand">
           <Icon name="maximize" :size="15" aria-hidden="true" />
         </button>
       </div>
@@ -487,8 +487,8 @@ onBeforeUnmount(() => {
 <style scoped>
 /* ===== 容器 ===== */
 .dag-graph {
-  --dag-completed: var(--kb-accent);
-  --dag-available: var(--kb-primary);
+  --dag-completed: var(--kf-accent);
+  --dag-available: var(--kf-primary);
   --dag-locked: #94a3b8;
   display: flex;
   flex-direction: column;
@@ -499,7 +499,7 @@ onBeforeUnmount(() => {
   inset: 0;
   z-index: 900;
   padding: 16px;
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
 .dag-graph.expanded .dag-viewport {
   flex: 1;
@@ -519,7 +519,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 14px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .legend-item {
   display: inline-flex;
@@ -545,7 +545,7 @@ onBeforeUnmount(() => {
   text-align: right;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .tool-btn {
   display: inline-flex;
@@ -553,16 +553,16 @@ onBeforeUnmount(() => {
   justify-content: center;
   width: 28px;
   height: 28px;
-  border-radius: var(--kb-radius-sm);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
+  border-radius: var(--kf-radius-sm);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 .tool-btn:hover {
-  color: var(--kb-primary);
-  border-color: var(--kb-primary);
+  color: var(--kf-primary);
+  border-color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.06);
 }
 
@@ -570,9 +570,9 @@ onBeforeUnmount(() => {
 .dag-viewport {
   position: relative;
   overflow: hidden;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md, 10px);
-  background-color: var(--kb-background);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md, 10px);
+  background-color: var(--kf-background);
   /* 点阵底纹，营造「画布」质感 */
   background-image: radial-gradient(circle, rgba(100, 116, 139, 0.18) 1px, transparent 1px);
   background-size: 18px 18px;
@@ -622,7 +622,7 @@ onBeforeUnmount(() => {
 .arrow-completed { fill: var(--dag-completed); }
 .arrow-available { fill: var(--dag-available); }
 .arrow-locked { fill: var(--dag-locked); }
-.arrow-active { fill: var(--kb-primary); }
+.arrow-active { fill: var(--kf-primary); }
 
 /* ===== 节点 ===== */
 .dag-node {
@@ -633,8 +633,8 @@ onBeforeUnmount(() => {
   padding: 0 12px;
   box-sizing: border-box;
   border-radius: 12px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
   cursor: pointer;
   opacity: 0;
@@ -655,12 +655,12 @@ onBeforeUnmount(() => {
 .node-completed .node-badge { background: var(--dag-completed); color: #fff; }
 .node-available { border-color: rgba(59, 111, 224, 0.45); }
 .node-available .node-badge { background: var(--dag-available); color: #fff; }
-.node-locked { background: var(--kb-muted); }
+.node-locked { background: var(--kf-muted); }
 .node-locked .node-badge { background: #e2e8f0; color: var(--dag-locked); }
-.node-locked .node-title { color: var(--kb-muted-foreground); }
+.node-locked .node-title { color: var(--kf-muted-foreground); }
 
 .dag-node.current {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.16);
 }
 
@@ -689,7 +689,7 @@ onBeforeUnmount(() => {
   font-size: 13px;
   font-weight: 600;
   line-height: 1.35;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -699,7 +699,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .node-dep { white-space: nowrap; }
 
@@ -710,9 +710,9 @@ onBeforeUnmount(() => {
   max-width: 260px;
   transform: translateX(-50%);
   padding: 8px 10px;
-  border-radius: var(--kb-radius-sm);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-radius: var(--kf-radius-sm);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
   pointer-events: none;
   animation: dag-tip-in 0.15s ease-out;
@@ -725,7 +725,7 @@ onBeforeUnmount(() => {
   font-size: 12px;
   font-weight: 600;
   line-height: 1.4;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .tip-row {
   display: flex;
@@ -733,7 +733,7 @@ onBeforeUnmount(() => {
   gap: 8px;
   margin-top: 4px;
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .tip-status {
   padding: 1px 6px;
@@ -742,12 +742,12 @@ onBeforeUnmount(() => {
 }
 .tip-completed { background: rgba(16, 185, 129, 0.12); color: var(--dag-completed); }
 .tip-available { background: rgba(59, 111, 224, 0.12); color: var(--dag-available); }
-.tip-locked { background: var(--kb-muted); color: var(--kb-muted-foreground); }
+.tip-locked { background: var(--kf-muted); color: var(--kf-muted-foreground); }
 .tip-deps {
   margin-top: 4px;
   font-size: 11px;
   line-height: 1.5;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* ===== 空态 / 提示 ===== */
@@ -760,7 +760,7 @@ onBeforeUnmount(() => {
   justify-content: center;
   gap: 8px;
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   opacity: 0.7;
 }
 .dag-tips {
@@ -768,7 +768,7 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 @media (max-width: 640px) {

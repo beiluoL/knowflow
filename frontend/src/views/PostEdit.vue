@@ -22,20 +22,20 @@
 
     <div class="w-full min-w-0 flex flex-col gap-5">
       <!-- 标题 -->
-      <section class="border rounded-[10px] p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
+      <section class="border rounded-[10px] p-5" style="background: var(--kf-card); border-color: var(--kf-border);">
         <label class="block text-sm font-medium text-foreground mb-2">标题</label>
         <input
           v-model="form.title"
           type="text"
           maxlength="60"
           placeholder="一句话概括你的主题，例如：大模型微调踩坑记录"
-          class="w-full px-3 py-2.5 text-sm kb-input kb-form-control"
+          class="w-full px-3 py-2.5 text-sm kf-input kf-form-control"
         />
         <p class="text-[12px] text-muted-foreground mt-1.5 text-right">{{ form.title.length }}/60</p>
       </section>
 
       <!-- 分类 -->
-      <section class="border rounded-[10px] p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
+      <section class="border rounded-[10px] p-5" style="background: var(--kf-card); border-color: var(--kf-border);">
         <label class="block text-sm font-medium text-foreground mb-3">分类</label>
         <div class="flex flex-wrap gap-2">
           <button
@@ -44,7 +44,7 @@
             @click="form.category = cat.value"
             type="button"
             :class="[
-              'px-3 py-1.5 rounded-lg text-sm border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 active:opacity-90',
+              'px-3 py-1.5 rounded-lg text-sm border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 active:opacity-90',
               form.category === cat.value
                 ? 'bg-primary-50 text-primary-600 border-primary-300 font-medium'
                 : 'bg-card text-muted-foreground border-border hover:border-border',
@@ -54,13 +54,13 @@
       </section>
 
       <!-- 正文 -->
-      <section class="border rounded-[10px] p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
+      <section class="border rounded-[10px] p-5" style="background: var(--kf-card); border-color: var(--kf-border);">
         <label class="block text-sm font-medium text-foreground mb-2">正文</label>
         <textarea
           v-model="form.content"
           rows="14"
           placeholder="分享你的经验、问题或资源，支持换行..."
-          class="w-full px-3 py-2.5 text-sm leading-relaxed resize-none kb-textarea kb-form-control"
+          class="w-full px-3 py-2.5 text-sm leading-relaxed resize-none kf-textarea kf-form-control"
         ></textarea>
       </section>
 
@@ -69,7 +69,7 @@
         <button
           @click="goBack"
           type="button"
-          class="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted active:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted active:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
         >取消</button>
         <button
           @click="handleSubmit"
@@ -142,7 +142,7 @@ async function handleSubmit() {
 </script>
 
 <style scoped>
-/* UI/UX 5.1 §十四：按钮层级走 --kb-* 令牌
+/* UI/UX 5.1 §十四：按钮层级走 --kf-* 令牌
    （原写法 text-white/bg-primary-500 是 Tailwind 原色板硬编码，深色模式会分叉） */
 .post-submit-btn {
   display: inline-flex;
@@ -150,10 +150,10 @@ async function handleSubmit() {
   gap: 6px;
   padding: 8px 16px;
   border: none;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
-  font-size: var(--kb-fs-body-sm);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
   cursor: pointer;
   transition: opacity 0.15s ease, background-color 0.15s ease;
@@ -170,18 +170,18 @@ async function handleSubmit() {
 
 .post-submit-btn:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--kb-ring);
+  box-shadow: 0 0 0 2px var(--kf-ring);
 }
 
 /* Secondary：页头快捷入口，不与底部主行动争夺视觉权重 */
 .post-submit-btn--secondary {
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  border: 1px solid var(--kf-border);
 }
 
 .post-submit-btn--secondary:hover:not(:disabled) {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   opacity: 1;
 }
 

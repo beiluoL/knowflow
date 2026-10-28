@@ -111,9 +111,9 @@ function downloadCode() {
 
 <style scoped>
 .chat-code {
-  margin-block: var(--kb-space-3);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm, 8px);
+  margin-block: var(--kf-space-3);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm, 8px);
   overflow: hidden;
   background: #1a1d23;
 }
@@ -130,7 +130,7 @@ function downloadCode() {
   font-size: 12px;
   letter-spacing: 0.02em;
   color: #9aa4b2;
-  font-family: var(--kb-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--kf-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
 }
 .chat-code-actions { display: flex; align-items: center; gap: 2px; }
 .chat-code-btn {
@@ -148,7 +148,7 @@ function downloadCode() {
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 .chat-code-btn:hover { background: rgba(255, 255, 255, 0.08); color: #eef2f7; }
-.chat-code-btn:focus-visible { outline: 2px solid var(--kb-primary); outline-offset: 1px; }
+.chat-code-btn:focus-visible { outline: 2px solid var(--kf-primary); outline-offset: 1px; }
 .chat-code-btn.is-done { color: #4ec9a5; }
 .chat-code-btn.is-active { color: #7ba7ff; }
 
@@ -178,7 +178,7 @@ function downloadCode() {
   padding: 12px 8px 12px 12px;
   text-align: right;
   user-select: none;
-  font-family: var(--kb-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--kf-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 13px;
   line-height: 1.55;
   color: #5a6473;
@@ -193,7 +193,7 @@ function downloadCode() {
 }
 .chat-code-pre code {
   display: block;
-  font-family: var(--kb-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--kf-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 13px;
   line-height: 1.55;
   color: #e6edf3;

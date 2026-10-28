@@ -1,5 +1,5 @@
 <template>
-  <div class="ai-composer kb-input-surface" :aria-busy="busy || undefined" :class="{'ai-composer--disabled':disabled,'ai-composer--error':!!error}" :style="maxHeight?{'--ai-composer-max-height':maxHeight+'px'}:undefined" ref="container">
+  <div class="ai-composer kf-input-surface" :aria-busy="busy || undefined" :class="{'ai-composer--disabled':disabled,'ai-composer--error':!!error}" :style="maxHeight?{'--ai-composer-max-height':maxHeight+'px'}:undefined" ref="container">
     <div v-if="attachments.length" class="ai-composer__attachments" aria-label="待发送附件">
       <div v-for="attachment in attachments" :key="attachment.id" class="ai-composer__attachment">
         <img v-if="attachment.previewUrl" :src="attachment.previewUrl" :alt="attachment.name" /><span v-else>{{attachment.name}}</span>
@@ -19,7 +19,7 @@
         <button v-if="modelLabel" type="button" class="ai-composer__model" aria-label="模型设置" :title="modelLabel+' · 打开已有模型配置'" :disabled="disabled" @click="emit('modelSettings')"><span>{{modelLabel}}</span><Icon name="chevron-down" :size="12" /></button>
         <label v-if="modelOptions && modelOptions.length>1" class="ai-composer__model-picker">
           <span class="ai-composer__sr">选择模型</span>
-          <select class="kb-select kb-select-sm" :value="selectedModel" :disabled="disabled" aria-label="选择对话模型" @change="onModelChange">
+          <select class="kf-select kf-select-sm" :value="selectedModel" :disabled="disabled" aria-label="选择对话模型" @change="onModelChange">
             <option v-for="m in modelOptions" :key="m.value" :value="m.value">{{m.label}}</option>
           </select>
         </label>
@@ -57,18 +57,18 @@ onUnmounted(()=>{disposed=true;observer?.disconnect();window.removeEventListener
 defineExpose({focus,resize})
 </script>
 <style scoped>
-.ai-composer{min-width:0;padding:var(--kb-space-3) var(--kb-space-4);border:1px solid var(--kb-border);border-radius:var(--kb-composer-radius);background:var(--kb-card);color:var(--kb-foreground);box-shadow:none;transition:border-color .16s ease}
-.ai-composer:focus-within{border-color:var(--kb-field-border);box-shadow:none}
-.ai-composer .ai-composer__input,.ai-composer .ai-composer__input:focus,.ai-composer .ai-composer__input:focus-visible{display:block;width:100%;min-height:2.75rem;max-height:var(--ai-composer-max-height,var(--kb-composer-max-height));resize:none;outline:none;padding:var(--kb-space-2) 0;border:0;border-radius:0;background:transparent;color:inherit;box-shadow:none;font:inherit;font-size:var(--kb-fs-body-md);line-height:var(--kb-lh-body-md)}
-.ai-composer__toolbar,.ai-composer__tools,.ai-composer__actions{display:flex;align-items:center;gap:var(--kb-space-2);min-width:0}.ai-composer__toolbar{justify-content:space-between;flex-wrap:wrap;gap:var(--kb-space-2)}.ai-composer__tools{flex:1;flex-wrap:wrap}.ai-composer__actions{margin-inline-start:auto;flex-shrink:0}
-.ai-composer button{display:inline-flex;align-items:center;justify-content:center;gap:var(--kb-space-1);min-height:2rem;padding:var(--kb-space-1) var(--kb-space-2);border-radius:var(--kb-radius-md);color:var(--kb-muted-foreground);font-size:var(--kb-fs-body-sm)}.ai-composer button:hover:not(:disabled){background:var(--kb-muted)}.ai-composer button:focus-visible{outline:2px solid var(--kb-ring);outline-offset:2px}.ai-composer button:disabled{opacity:.5;cursor:not-allowed}.ai-composer button[aria-pressed=true],.ai-composer button[aria-checked=true]{color:var(--kb-primary);background:var(--kb-primary-soft)}
-.ai-composer .ai-composer__send{background:var(--kb-primary);color:var(--kb-primary-foreground);border-radius:var(--kb-radius-full);width:var(--kb-composer-send-size);height:var(--kb-composer-send-size);min-height:var(--kb-composer-send-size);padding:0;flex-shrink:0}.ai-composer .ai-composer__send:hover:not(:disabled){background:color-mix(in srgb,var(--kb-primary) 88%,black);opacity:1}.ai-composer .ai-composer__send:disabled{background:var(--kb-muted);color:var(--kb-muted-foreground);opacity:1;cursor:not-allowed}.ai-composer__model span{font-family:var(--font-mono);max-width:12rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ai-composer{min-width:0;padding:var(--kf-space-3) var(--kf-space-4);border:1px solid var(--kf-border);border-radius:var(--kf-composer-radius);background:var(--kf-card);color:var(--kf-foreground);box-shadow:none;transition:border-color .16s ease}
+.ai-composer:focus-within{border-color:var(--kf-field-border);box-shadow:none}
+.ai-composer .ai-composer__input,.ai-composer .ai-composer__input:focus,.ai-composer .ai-composer__input:focus-visible{display:block;width:100%;min-height:2.75rem;max-height:var(--ai-composer-max-height,var(--kf-composer-max-height));resize:none;outline:none;padding:var(--kf-space-2) 0;border:0;border-radius:0;background:transparent;color:inherit;box-shadow:none;font:inherit;font-size:var(--kf-fs-body-md);line-height:var(--kf-lh-body-md)}
+.ai-composer__toolbar,.ai-composer__tools,.ai-composer__actions{display:flex;align-items:center;gap:var(--kf-space-2);min-width:0}.ai-composer__toolbar{justify-content:space-between;flex-wrap:wrap;gap:var(--kf-space-2)}.ai-composer__tools{flex:1;flex-wrap:wrap}.ai-composer__actions{margin-inline-start:auto;flex-shrink:0}
+.ai-composer button{display:inline-flex;align-items:center;justify-content:center;gap:var(--kf-space-1);min-height:2rem;padding:var(--kf-space-1) var(--kf-space-2);border-radius:var(--kf-radius-md);color:var(--kf-muted-foreground);font-size:var(--kf-fs-body-sm)}.ai-composer button:hover:not(:disabled){background:var(--kf-muted)}.ai-composer button:focus-visible{outline:2px solid var(--kf-ring);outline-offset:2px}.ai-composer button:disabled{opacity:.5;cursor:not-allowed}.ai-composer button[aria-pressed=true],.ai-composer button[aria-checked=true]{color:var(--kf-primary);background:var(--kf-primary-soft)}
+.ai-composer .ai-composer__send{background:var(--kf-primary);color:var(--kf-primary-foreground);border-radius:var(--kf-radius-full);width:var(--kf-composer-send-size);height:var(--kf-composer-send-size);min-height:var(--kf-composer-send-size);padding:0;flex-shrink:0}.ai-composer .ai-composer__send:hover:not(:disabled){background:color-mix(in srgb,var(--kf-primary) 88%,black);opacity:1}.ai-composer .ai-composer__send:disabled{background:var(--kf-muted);color:var(--kf-muted-foreground);opacity:1;cursor:not-allowed}.ai-composer__model span{font-family:var(--font-mono);max-width:12rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ai-composer__send :deep(svg){display:block;stroke-width:2.5}
-.ai-composer__attachments{display:flex;gap:var(--kb-space-2);flex-wrap:wrap;margin-bottom:var(--kb-space-2)}.ai-composer__attachment{position:relative;max-width:100%;padding:var(--kb-space-1)}.ai-composer__attachment img{display:block;width:4rem;height:4rem;object-fit:cover;border-radius:var(--kb-radius-md)}.ai-composer__attachment button{position:absolute;right:0;top:0;background:var(--kb-card);border:1px solid var(--kb-border);min-height:1.25rem;padding:var(--kb-space-1)}.ai-composer__error{color:var(--kb-danger-text);font-size:var(--kb-fs-body-sm);margin-top:var(--kb-space-2)}.ai-composer__sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-.ai-composer.ai-composer--error{border-color:var(--kb-destructive)}
-.ai-composer.ai-composer--error:focus-within{border-color:var(--kb-destructive);box-shadow:none}
-.ai-composer__input::placeholder{color:var(--kb-field-placeholder);opacity:1}
-@media(max-width:639px){.ai-composer{padding:var(--kb-space-2) var(--kb-space-3)}.ai-composer__model span{font-family:var(--font-mono);max-width:6rem}.ai-composer__toolbar{gap:var(--kb-space-1)}.ai-composer__tools,.ai-composer__actions{gap:var(--kb-space-1)}}
+.ai-composer__attachments{display:flex;gap:var(--kf-space-2);flex-wrap:wrap;margin-bottom:var(--kf-space-2)}.ai-composer__attachment{position:relative;max-width:100%;padding:var(--kf-space-1)}.ai-composer__attachment img{display:block;width:4rem;height:4rem;object-fit:cover;border-radius:var(--kf-radius-md)}.ai-composer__attachment button{position:absolute;right:0;top:0;background:var(--kf-card);border:1px solid var(--kf-border);min-height:1.25rem;padding:var(--kf-space-1)}.ai-composer__error{color:var(--kf-danger-text);font-size:var(--kf-fs-body-sm);margin-top:var(--kf-space-2)}.ai-composer__sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.ai-composer.ai-composer--error{border-color:var(--kf-destructive)}
+.ai-composer.ai-composer--error:focus-within{border-color:var(--kf-destructive);box-shadow:none}
+.ai-composer__input::placeholder{color:var(--kf-field-placeholder);opacity:1}
+@media(max-width:639px){.ai-composer{padding:var(--kf-space-2) var(--kf-space-3)}.ai-composer__model span{font-family:var(--font-mono);max-width:6rem}.ai-composer__toolbar{gap:var(--kf-space-1)}.ai-composer__tools,.ai-composer__actions{gap:var(--kf-space-1)}}
 
 @media(prefers-reduced-motion:reduce){.ai-composer{transition:none}}
 </style>

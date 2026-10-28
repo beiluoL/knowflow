@@ -85,24 +85,24 @@
           <div class="wr-stats">
             <StatCard
               icon="clock"
-              icon-color="var(--kb-primary)"
-              icon-bg="color-mix(in srgb, var(--kb-primary) 10%, transparent)"
+              icon-color="var(--kf-primary)"
+              icon-bg="color-mix(in srgb, var(--kf-primary) 10%, transparent)"
               :icon-size="18"
               :value="currentReport.studyMinutes ?? 0"
               label="学习分钟"
             />
             <StatCard
               icon="check-circle"
-              icon-color="var(--kb-accent)"
-              icon-bg="color-mix(in srgb, var(--kb-accent) 10%, transparent)"
+              icon-color="var(--kf-accent)"
+              icon-bg="color-mix(in srgb, var(--kf-accent) 10%, transparent)"
               :icon-size="18"
               :value="currentReport.checkinDays ?? 0"
               label="打卡天数"
             />
             <StatCard
               icon="layers"
-              icon-color="var(--kb-warning)"
-              icon-bg="color-mix(in srgb, var(--kb-warning) 10%, transparent)"
+              icon-color="var(--kf-warning)"
+              icon-bg="color-mix(in srgb, var(--kf-warning) 10%, transparent)"
               :icon-size="18"
               :value="currentReport.flashcardReviewed ?? 0"
               label="复习闪卡"
@@ -328,7 +328,7 @@
     <!-- 分享 fallback textbox -->
     <textarea
       ref="shareTaRef"
-      class="wr-share-fallback-ta kb-textarea kb-form-control"
+      class="wr-share-fallback-ta kf-textarea kf-form-control"
       readonly
       aria-hidden="true"
     />
@@ -381,11 +381,11 @@ const renderedSummary = computed(() =>
 );
 
 const MODE_COLORS: Record<string, string> = {
-  POMODORO: 'var(--kb-danger)',
+  POMODORO: 'var(--kf-danger)',
   FLOW: '#06B6D4',
   DEEP: '#8B5CF6',
-  SPACED: 'var(--kb-success)',
-  BUDDY: 'var(--kb-warning)',
+  SPACED: 'var(--kf-success)',
+  BUDDY: 'var(--kf-warning)',
 };
 const MODE_LABELS: Record<string, string> = {
   POMODORO: '番茄',
@@ -428,9 +428,9 @@ const weekHeatMini = computed<number[]>(() => {
 function miniHeatColor(minutes: number): string {
   const clamped = Math.max(0, Math.min(120, minutes));
   const t = clamped / 120;
-  if (t <= 0) return 'var(--kb-muted)';
+  if (t <= 0) return 'var(--kf-muted)';
   const alpha = 0.2 + t * 0.8;
-  return `color-mix(in srgb, var(--kb-primary) ${alpha * 100}%, transparent)`;
+  return `color-mix(in srgb, var(--kf-primary) ${alpha * 100}%, transparent)`;
 }
 
 const aiInsights = computed<AiInsight[]>(() => {
@@ -567,7 +567,7 @@ async function handleDownloadPdf(): Promise<void> {
     const insightsHtml = insights
       .map((it, i) => {
         const y = 520 + i * 110;
-        const toneColor = it.tone === 'positive' ? 'var(--kb-success)' : it.tone === 'warning' ? 'var(--kb-warning)' : 'var(--kb-primary)';
+        const toneColor = it.tone === 'positive' ? 'var(--kf-success)' : it.tone === 'warning' ? 'var(--kf-warning)' : 'var(--kf-primary)';
         const toneBg = it.tone === 'positive' ? 'rgba(16,185,129,0.08)' : it.tone === 'warning' ? 'rgba(245,158,11,0.08)' : 'rgba(59,111,224,0.08)';
         const contentLines = splitText(it.content, 32);
         const contentText = contentLines
@@ -577,7 +577,7 @@ async function handleDownloadPdf(): Promise<void> {
         return `<rect x="40" y="${y}" width="${w - 80}" height="96" rx="12" fill="${toneBg}" stroke="${toneColor}22" stroke-width="1" />
 <circle cx="66" cy="${y + 30}" r="18" fill="${toneColor}18" />
 <text x="66" y="${y + 36}" text-anchor="middle" font-size="18" fill="${toneColor}" font-family="Noto Sans SC, sans-serif">★</text>
-<text x="92" y="${y + 28}" font-size="14" font-weight="600" fill="var(--kb-foreground)" font-family="Noto Sans SC, -apple-system, sans-serif">${escapeXml(it.title)}</text>
+<text x="92" y="${y + 28}" font-size="14" font-weight="600" fill="var(--kf-foreground)" font-family="Noto Sans SC, -apple-system, sans-serif">${escapeXml(it.title)}</text>
 ${contentText}`;
       })
       .join('\n');
@@ -587,7 +587,7 @@ ${contentText}`;
       .map((a, i) => {
         const y = 380 + i * 32;
         return `<circle cx="58" cy="${y}" r="8" fill="rgba(245,158,11,0.18)" />
-<text x="58" y="${y + 4}" text-anchor="middle" font-size="11" fill="var(--kb-warning)">★</text>
+<text x="58" y="${y + 4}" text-anchor="middle" font-size="11" fill="var(--kf-warning)">★</text>
 <text x="78" y="${y + 4}" font-size="13" fill="#374151" font-family="Noto Sans SC, -apple-system, sans-serif">${escapeXml(a)}</text>`;
       })
       .join('\n');
@@ -600,8 +600,8 @@ ${contentText}`;
       <stop offset="100%" stop-color="#F0F4FF"/>
     </linearGradient>
     <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="var(--kb-primary)"/>
-      <stop offset="100%" stop-color="var(--kb-primary-muted)"/>
+      <stop offset="0%" stop-color="var(--kf-primary)"/>
+      <stop offset="100%" stop-color="var(--kf-primary-muted)"/>
     </linearGradient>
   </defs>
 
@@ -617,20 +617,20 @@ ${contentText}`;
 
   <rect x="40" y="190" width="${w - 80}" height="140" rx="16" fill="#FFFFFF" stroke="rgba(59,111,224,0.1)" stroke-width="1"/>
   <rect x="76" y="220" width="${(w - 80 - 80) / 3 - 12}" height="80" rx="12" fill="rgba(59,111,224,0.06)"/>
-  <text x="${76 + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="var(--kb-muted-foreground)" font-family="Noto Sans SC, sans-serif">学习分钟</text>
-  <text x="${76 + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="var(--kb-foreground)" font-family="Noto Sans SC, sans-serif">${minutes}</text>
+  <text x="${76 + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="var(--kf-muted-foreground)" font-family="Noto Sans SC, sans-serif">学习分钟</text>
+  <text x="${76 + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="var(--kf-foreground)" font-family="Noto Sans SC, sans-serif">${minutes}</text>
 
   <rect x="${76 + (w - 80 - 80) / 3}" y="220" width="${(w - 80 - 80) / 3 - 12}" height="80" rx="12" fill="rgba(16,185,129,0.06)"/>
-  <text x="${76 + (w - 80 - 80) / 3 + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="var(--kb-muted-foreground)" font-family="Noto Sans SC, sans-serif">打卡天数</text>
-  <text x="${76 + (w - 80 - 80) / 3 + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="var(--kb-foreground)" font-family="Noto Sans SC, sans-serif">${days}</text>
+  <text x="${76 + (w - 80 - 80) / 3 + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="var(--kf-muted-foreground)" font-family="Noto Sans SC, sans-serif">打卡天数</text>
+  <text x="${76 + (w - 80 - 80) / 3 + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="var(--kf-foreground)" font-family="Noto Sans SC, sans-serif">${days}</text>
 
   <rect x="${76 + 2 * ((w - 80 - 80) / 3)}" y="220" width="${(w - 80 - 80) / 3 - 12}" height="80" rx="12" fill="rgba(245,158,11,0.06)"/>
-  <text x="${76 + 2 * ((w - 80 - 80) / 3) + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="var(--kb-muted-foreground)" font-family="Noto Sans SC, sans-serif">复习闪卡</text>
-  <text x="${76 + 2 * ((w - 80 - 80) / 3) + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="var(--kb-foreground)" font-family="Noto Sans SC, sans-serif">${cards}</text>
+  <text x="${76 + 2 * ((w - 80 - 80) / 3) + ((w - 80 - 80) / 3 - 12) / 2}" y="252" text-anchor="middle" font-size="12" fill="var(--kf-muted-foreground)" font-family="Noto Sans SC, sans-serif">复习闪卡</text>
+  <text x="${76 + 2 * ((w - 80 - 80) / 3) + ((w - 80 - 80) / 3 - 12) / 2}" y="282" text-anchor="middle" font-size="24" font-weight="700" fill="var(--kf-foreground)" font-family="Noto Sans SC, sans-serif">${cards}</text>
 
-  ${achievements.length ? `<text x="40" y="360" font-size="16" font-weight="600" fill="var(--kb-foreground)" font-family="Noto Sans SC, sans-serif">🏆 本周成就</text>\n${achHtml}` : ''}
+  ${achievements.length ? `<text x="40" y="360" font-size="16" font-weight="600" fill="var(--kf-foreground)" font-family="Noto Sans SC, sans-serif">🏆 本周成就</text>\n${achHtml}` : ''}
 
-  <text x="40" y="500" font-size="16" font-weight="600" fill="var(--kb-foreground)" font-family="Noto Sans SC, sans-serif">✨ AI 深度洞见</text>
+  <text x="40" y="500" font-size="16" font-weight="600" fill="var(--kf-foreground)" font-family="Noto Sans SC, sans-serif">✨ AI 深度洞见</text>
   ${insightsHtml}
 
   <text x="${w / 2}" y="${h - 32}" text-anchor="middle" font-size="12" font-weight="600" fill="#9AA1AC" letter-spacing="2" font-family="Noto Sans SC, sans-serif">knowflow.cn</text>
@@ -719,35 +719,35 @@ onMounted(() => {
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   border: none;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .wr-back-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-primary);
+  background: var(--kf-muted);
+  color: var(--kf-primary);
 }
 
 .wr-back-btn:active {
-  background: var(--kb-muted);
-  color: var(--kb-primary);
+  background: var(--kf-muted);
+  color: var(--kf-primary);
   transform: scale(0.96);
 }
 
 .wr-back-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
 .wr-title {
-  font-size: var(--kb-fs-h3);
-  line-height: var(--kb-lh-h3);
+  font-size: var(--kf-fs-h3);
+  line-height: var(--kf-lh-h3);
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
 }
 
@@ -759,8 +759,8 @@ onMounted(() => {
   height: 18px;
   padding: 2px 4px;
   border-radius: 5px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
 }
 .wr-heat-dot {
   width: 6px;
@@ -776,11 +776,11 @@ onMounted(() => {
   gap: 6px;
   height: 38px;
   padding: 0 18px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-body-md);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
   transition: opacity 0.15s ease, transform 0.15s ease;
@@ -796,7 +796,7 @@ onMounted(() => {
 }
 
 .wr-generate-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -811,28 +811,28 @@ onMounted(() => {
   gap: 6px;
   height: 38px;
   padding: 0 14px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-body-sm);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 600;
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .wr-secondary-btn:hover:not(:disabled) {
-  background: var(--kb-muted);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  background: var(--kf-muted);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .wr-secondary-btn:active:not(:disabled) {
-  background: var(--kb-muted);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  background: var(--kf-muted);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
   transform: scale(0.98);
 }
 .wr-secondary-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 .wr-secondary-btn:disabled {
@@ -850,15 +850,15 @@ onMounted(() => {
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  font-size: var(--kb-fs-h4);
-  line-height: var(--kb-lh-h4);
+  font-size: var(--kf-fs-h4);
+  line-height: var(--kf-lh-h4);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0 0 12px;
 }
 
 .wr-section-title svg {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 .wr-count-badge {
@@ -869,23 +869,23 @@ onMounted(() => {
   height: 20px;
   padding: 0 6px;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--kb-primary) 10%, transparent);
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-caption);
+  background: color-mix(in srgb, var(--kf-primary) 10%, transparent);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-caption);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
 /* ========== 卡片 ========== */
 .wr-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 14px;
   padding: 20px;
 }
 
 .wr-current-card {
-  box-shadow: 0 4px 16px color-mix(in srgb, var(--kb-primary) 4%, transparent);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--kf-primary) 4%, transparent);
 }
 
 .wr-card-head {
@@ -902,13 +902,13 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   min-width: 0;
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .wr-period svg {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 /* ========== 统计 ========== */
@@ -929,7 +929,7 @@ onMounted(() => {
 .wr-block {
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 
 .wr-block:first-of-type {
@@ -944,23 +944,23 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 6px;
   min-width: 0;
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0 0 8px;
 }
 
 .wr-block-title svg {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   flex-shrink: 0;
 }
 
 .wr-week-minutes {
   margin-left: auto;
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-variant-numeric: tabular-nums;
 }
 
@@ -970,9 +970,9 @@ onMounted(() => {
   border-radius: 10px;
   background: linear-gradient(
     90deg,
-    var(--kb-muted) 0%,
-    color-mix(in srgb, var(--kb-muted) 60%, transparent) 50%,
-    var(--kb-muted) 100%
+    var(--kf-muted) 0%,
+    color-mix(in srgb, var(--kf-muted) 60%, transparent) 50%,
+    var(--kf-muted) 100%
   );
   background-size: 200% 100%;
   animation: wr-pulse 1.4s ease-in-out infinite;
@@ -984,7 +984,7 @@ onMounted(() => {
   height: 18px;
   border-radius: 999px;
   overflow: hidden;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   margin-bottom: 12px;
 }
 .wr-stacked-seg {
@@ -1004,9 +1004,9 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   min-width: 0;
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
+  color: var(--kf-foreground);
 }
 .wr-legend-dot {
   width: 10px;
@@ -1018,22 +1018,22 @@ onMounted(() => {
   font-weight: 500;
 }
 .wr-legend-pct {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-weight: 500;
 }
 
 .wr-empty-mini {
   padding: 16px 0;
   text-align: center;
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-muted-foreground);
 }
 
 /* ========== 总结 / 列表 ========== */
 .wr-summary {
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   line-height: 1.7;
-  color: var(--kb-card-foreground, var(--kb-foreground));
+  color: var(--kf-card-foreground, var(--kf-foreground));
   word-break: break-word;
 }
 
@@ -1058,8 +1058,8 @@ onMounted(() => {
 .wr-summary :deep(code) {
   padding: 1px 5px;
   border-radius: 4px;
-  background: var(--kb-muted);
-  font-size: var(--kb-fs-body-sm);
+  background: var(--kf-muted);
+  font-size: var(--kf-fs-body-sm);
   font-family: var(--font-mono);
 }
 
@@ -1076,12 +1076,12 @@ onMounted(() => {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
+  color: var(--kf-foreground);
   padding: 8px 12px;
   border-radius: 8px;
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
 
 .wr-list-item > span {
@@ -1091,7 +1091,7 @@ onMounted(() => {
 }
 
 .wr-list-icon {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -1107,9 +1107,9 @@ onMounted(() => {
   border-radius: 12px;
   background: linear-gradient(
     90deg,
-    var(--kb-muted) 0%,
-    color-mix(in srgb, var(--kb-muted) 60%, transparent) 50%,
-    var(--kb-muted) 100%
+    var(--kf-muted) 0%,
+    color-mix(in srgb, var(--kf-muted) 60%, transparent) 50%,
+    var(--kf-muted) 100%
   );
   background-size: 200% 100%;
   animation: wr-pulse 1.4s ease-in-out infinite;
@@ -1136,58 +1136,58 @@ onMounted(() => {
   gap: 8px;
   padding: 16px;
   border-radius: 12px;
-  background: var(--kb-background);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-background);
+  border: 1px solid var(--kf-border);
   min-width: 0;
 }
 .wr-insight-card.positive {
-  border-color: color-mix(in srgb, var(--kb-accent) 22%, transparent);
+  border-color: color-mix(in srgb, var(--kf-accent) 22%, transparent);
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--kb-accent) 6%, transparent),
-    color-mix(in srgb, var(--kb-accent) 2%, transparent)
+    color-mix(in srgb, var(--kf-accent) 6%, transparent),
+    color-mix(in srgb, var(--kf-accent) 2%, transparent)
   );
 }
 .wr-insight-card.warning {
-  border-color: color-mix(in srgb, var(--kb-warning) 22%, transparent);
+  border-color: color-mix(in srgb, var(--kf-warning) 22%, transparent);
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--kb-warning) 6%, transparent),
-    color-mix(in srgb, var(--kb-warning) 2%, transparent)
+    color-mix(in srgb, var(--kf-warning) 6%, transparent),
+    color-mix(in srgb, var(--kf-warning) 2%, transparent)
   );
 }
 .wr-insight-card.info {
-  border-color: color-mix(in srgb, var(--kb-primary) 22%, transparent);
+  border-color: color-mix(in srgb, var(--kf-primary) 22%, transparent);
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--kb-primary) 6%, transparent),
-    color-mix(in srgb, var(--kb-primary) 2%, transparent)
+    color-mix(in srgb, var(--kf-primary) 6%, transparent),
+    color-mix(in srgb, var(--kf-primary) 2%, transparent)
   );
 }
 .wr-insight-icon {
   width: 32px;
   height: 32px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: color-mix(in srgb, var(--kb-primary) 12%, transparent);
-  color: var(--kb-primary);
+  background: color-mix(in srgb, var(--kf-primary) 12%, transparent);
+  color: var(--kf-primary);
 }
 .wr-insight-card.positive .wr-insight-icon {
-  color: var(--kb-accent);
-  background: color-mix(in srgb, var(--kb-accent) 14%, transparent);
+  color: var(--kf-accent);
+  background: color-mix(in srgb, var(--kf-accent) 14%, transparent);
 }
 .wr-insight-card.warning .wr-insight-icon {
-  color: var(--kb-warning);
-  background: color-mix(in srgb, var(--kb-warning) 14%, transparent);
+  color: var(--kf-warning);
+  background: color-mix(in srgb, var(--kf-warning) 14%, transparent);
 }
 .wr-insight-title {
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   word-break: break-word;
 }
 .wr-insight-body {
@@ -1197,9 +1197,9 @@ onMounted(() => {
   min-width: 0;
 }
 .wr-insight-content {
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   line-height: 1.6;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   word-break: break-word;
 }
 
@@ -1211,9 +1211,9 @@ onMounted(() => {
   justify-content: center;
   gap: 8px;
   padding: 48px 24px;
-  color: var(--kb-muted-foreground);
-  background: var(--kb-card);
-  border: 1px dashed var(--kb-border);
+  color: var(--kf-muted-foreground);
+  background: var(--kf-card);
+  border: 1px dashed var(--kf-border);
   border-radius: 14px;
   text-align: center;
 }
@@ -1223,8 +1223,8 @@ onMounted(() => {
 }
 
 .wr-empty p {
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   margin: 0;
 }
 
@@ -1238,25 +1238,25 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 40px 24px;
-  color: var(--kb-muted-foreground);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  color: var(--kf-muted-foreground);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 14px;
   text-align: center;
 }
 
 .wr-error svg {
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 
 .wr-retry-btn {
   height: 36px;
   padding: 0 16px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-body-sm);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 600;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
   transition: opacity 0.15s ease, transform 0.15s ease;
@@ -1272,7 +1272,7 @@ onMounted(() => {
 }
 
 .wr-retry-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1286,7 +1286,7 @@ onMounted(() => {
 .wr-skeleton-card {
   height: 220px;
   border-radius: 14px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   animation: wr-pulse 1.4s ease-in-out infinite;
 }
 
@@ -1303,15 +1303,15 @@ onMounted(() => {
 }
 
 .wr-history-item {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 12px;
   overflow: hidden;
   transition: border-color 0.15s ease;
 }
 
 .wr-history-item:hover {
-  border-color: color-mix(in srgb, var(--kb-primary) 30%, transparent);
+  border-color: color-mix(in srgb, var(--kf-primary) 30%, transparent);
 }
 
 .wr-history-head {
@@ -1330,15 +1330,15 @@ onMounted(() => {
 }
 
 .wr-history-head:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 .wr-history-head:active {
-  background: color-mix(in srgb, var(--kb-primary) 8%, var(--kb-muted));
+  background: color-mix(in srgb, var(--kf-primary) 8%, var(--kf-muted));
 }
 
 .wr-history-head:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: -2px;
 }
 
@@ -1348,13 +1348,13 @@ onMounted(() => {
   gap: 6px;
   min-width: 0;
   flex: 1;
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .wr-history-period svg {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   flex-shrink: 0;
 }
 
@@ -1379,15 +1379,15 @@ onMounted(() => {
   gap: 4px;
   padding: 4px 8px;
   border-radius: 12px;
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   font-weight: 500;
   white-space: nowrap;
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 
 .wr-chevron {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
   transition: transform 0.2s ease;
 }
@@ -1402,9 +1402,9 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 0 16px 12px;
-  font-size: var(--kb-fs-xs);
-  line-height: var(--kb-lh-xs);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-xs);
+  line-height: var(--kf-lh-xs);
+  color: var(--kf-muted-foreground);
   flex-wrap: wrap;
 }
 .wr-mini-stat {
@@ -1413,7 +1413,7 @@ onMounted(() => {
   gap: 4px;
   padding: 4px 8px;
   border-radius: 999px;
-  background: var(--kb-background);
+  background: var(--kf-background);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -1423,12 +1423,12 @@ onMounted(() => {
 .wr-mini-stat-sep {
   width: 1px;
   height: 12px;
-  background: var(--kb-border);
+  background: var(--kf-border);
 }
 
 .wr-history-body {
   padding: 4px 16px 16px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 
 .wr-history-body .wr-block:first-child {
@@ -1477,7 +1477,7 @@ onMounted(() => {
 }
 
 /* 分享 textarea fallback */
-.wr-share-fallback-ta:not(.kb-form-control) {
+.wr-share-fallback-ta:not(.kf-form-control) {
   height: 1px;
 }
 .wr-share-fallback-ta {

@@ -94,7 +94,7 @@ const getNodeIcon = (type: TreeNode['type']) => {
 }
 
 .node-row:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 .expand-icon {
@@ -103,7 +103,7 @@ const getNodeIcon = (type: TreeNode['type']) => {
   justify-content: center;
   width: 14px;
   flex-shrink: 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
 }
 
@@ -117,24 +117,24 @@ const getNodeIcon = (type: TreeNode['type']) => {
 }
 
 .node-icon.dir {
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 
 .node-icon.doc {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 .node-icon.image {
-  color: var(--kb-success);
+  color: var(--kf-success);
 }
 
 .node-icon.other {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .node-name {
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -146,7 +146,7 @@ const getNodeIcon = (type: TreeNode['type']) => {
 }
 
 .node-name.other {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .node-badge {
@@ -161,12 +161,12 @@ const getNodeIcon = (type: TreeNode['type']) => {
 
 .node-badge.doc {
   background: rgba(59, 111, 224, 0.1);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 .node-badge.img {
   background: rgba(16, 185, 129, 0.1);
-  color: var(--kb-success);
+  color: var(--kf-success);
 }
 
 .node-children {

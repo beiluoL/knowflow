@@ -27,7 +27,7 @@
         </div>
         <h1 class="title">登录失败</h1>
         <p class="desc">{{ errorMessage }}</p>
-        <button class="primary-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="goLogin">返回登录</button>
+        <button class="primary-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="goLogin">返回登录</button>
       </template>
     </div>
   </main>
@@ -109,15 +109,15 @@ function goLogin() {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
 .callback-card {
   width: 100%;
   max-width: 420px;
   padding: 48px 32px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -134,8 +134,8 @@ function goLogin() {
   margin-bottom: 8px;
 }
 .icon-loading {
-  background: var(--kb-primary-soft, rgba(59, 130, 246, 0.1));
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft, rgba(59, 130, 246, 0.1));
+  color: var(--kf-primary);
 }
 .icon-success {
   background: rgba(34, 197, 94, 0.1);
@@ -143,16 +143,16 @@ function goLogin() {
 }
 .icon-error {
   background: rgba(239, 68, 68, 0.1);
-  color: var(--kb-danger);
+  color: var(--kf-danger);
 }
 .title {
   font-size: 20px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .desc {
   font-size: 14px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.5;
 }
 .primary-btn {
@@ -160,9 +160,9 @@ function goLogin() {
   padding: 10px 24px;
   font-size: 14px;
   font-weight: 500;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
   transition: opacity 0.15s;
@@ -173,8 +173,8 @@ function goLogin() {
 .spinner {
   width: 28px;
   height: 28px;
-  border: 3px solid var(--kb-border);
-  border-top-color: var(--kb-primary);
+  border: 3px solid var(--kf-border);
+  border-top-color: var(--kf-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }

@@ -1,194 +1,194 @@
 /* UI/UX 3.3：Typography / Spacing / 图标对齐 统一工具类
  *
- * 全部引用 style.css 的 --kb-* 令牌，禁止写死像素值。
+ * 全部引用 style.css 的 --kf-* 令牌，禁止写死像素值。
  * 供 PageHeader / MiniAppShell / 工作区页面复用，消灭随机字号 / 间距（§16-§17）。
- * 旧页面中出现的 15px / 17px / 19px 等非阶梯字号应改为下列语义类或对应 --kb-fs-*。
+ * 旧页面中出现的 15px / 17px / 19px 等非阶梯字号应改为下列语义类或对应 --kf-fs-*。
  */
 
 /* ── Typography 语义层级 ── */
 :root {
-  --kb-interview-answer-height: 22rem;
-  --kb-interview-nav-width: 11rem;
-  --kb-interview-support-width: 14rem;
-  --kb-notes-directory-width: 280px;
-  --kb-notes-panel-width: 280px;
-  --kb-notes-title-size: 30px;
-  --kb-notes-h1-size: 26px;
-  --kb-notes-h2-size: 22px;
-  --kb-notes-h3-size: 18px;
-  --kb-notes-body-size: 16px;
-  --kb-notes-control-size: 13px;
-  --kb-notes-meta-size: 12px;
-  --kb-notes-code-size: 13px;
-  --kb-notes-leading: 1.8;
-  --kb-notes-toolbar-height: 48px;
-  --kb-notes-modal-width: 48rem;
-  --kb-notes-reading-width: 832px;
-  --kb-notes-rail-width: 56px;
-  --kb-notes-tags-height: 96px;
-  --kb-notes-menu-width: 160px;
-  --kb-notes-cell-width: 10rem;
-  --kb-notes-bottom-nav-height: 68px;
-  --kb-search-height: 54px;
-  --kb-search-hero-height: 60px;
-  --kb-search-hero-button-width: 112px;
-  --kb-search-width: 752px;
-  --kb-search-filter-height: 34px;
-  --kb-field-radius: 10px;
-  --kb-field-focus-width: 2px;
-  --kb-field-focus-color: var(--kb-field-focus-indicator);
-  --kb-field-focus-shadow: 0 0 0 var(--kb-field-focus-width) var(--kb-field-focus-color);
-  --kb-field-error-shadow: 0 0 0 var(--kb-field-focus-width) color-mix(in srgb, var(--kb-destructive) 14%, transparent);
-  --kb-answer-height: 132px;
-  --kb-answer-font-size: 15px;
-  --kb-chapter-reading-width: 50rem;
-  --kb-chapter-outline-width: 16rem;
-  --kb-chapter-sticky-offset: 5rem;
-  --kb-chapter-action-height: 6rem;
-  --kb-chapter-content-width: 70rem;
-  --kb-chapter-body-size: 1rem;
-  --kb-chapter-body-leading: 1.8;
-  --kb-chapter-h1-size: 2rem;
-  --kb-chapter-h2-size: 1.5rem;
-  --kb-chapter-h3-size: 1.25rem;
-  --kb-chapter-code-size: .875rem;
-  --kb-chapter-column-gap: 2rem;
-  --kb-chapter-button-height: 2.5rem;
-  --kb-studio-art-width: 192px;
-  --kb-studio-art-height: 104px;
-  --kb-studio-rule: 1px;
-  --kb-studio-focus: 2px;
-  --kb-studio-reading-width: 1180px;
-  --kb-studio-panel-padding: 24px;
-  --kb-studio-motion: 160ms;
-  --kb-wb-motion: 200ms;
-  --kb-wb-drawer-width: 520px;
-  --kb-wb-preview-height: 440px;
-  --kb-wb-editor-height: 320px;
-  --kb-wb-cue-width: 28%;
-  --kb-wb-content-width: 1440px;
-  --kb-wb-writing-height: 240px;
-  --kb-wb-list-width: 360px;
+  --kf-interview-answer-height: 22rem;
+  --kf-interview-nav-width: 11rem;
+  --kf-interview-support-width: 14rem;
+  --kf-notes-directory-width: 280px;
+  --kf-notes-panel-width: 280px;
+  --kf-notes-title-size: 30px;
+  --kf-notes-h1-size: 26px;
+  --kf-notes-h2-size: 22px;
+  --kf-notes-h3-size: 18px;
+  --kf-notes-body-size: 16px;
+  --kf-notes-control-size: 13px;
+  --kf-notes-meta-size: 12px;
+  --kf-notes-code-size: 13px;
+  --kf-notes-leading: 1.8;
+  --kf-notes-toolbar-height: 48px;
+  --kf-notes-modal-width: 48rem;
+  --kf-notes-reading-width: 832px;
+  --kf-notes-rail-width: 56px;
+  --kf-notes-tags-height: 96px;
+  --kf-notes-menu-width: 160px;
+  --kf-notes-cell-width: 10rem;
+  --kf-notes-bottom-nav-height: 68px;
+  --kf-search-height: 54px;
+  --kf-search-hero-height: 60px;
+  --kf-search-hero-button-width: 112px;
+  --kf-search-width: 752px;
+  --kf-search-filter-height: 34px;
+  --kf-field-radius: 10px;
+  --kf-field-focus-width: 2px;
+  --kf-field-focus-color: var(--kf-field-focus-indicator);
+  --kf-field-focus-shadow: 0 0 0 var(--kf-field-focus-width) var(--kf-field-focus-color);
+  --kf-field-error-shadow: 0 0 0 var(--kf-field-focus-width) color-mix(in srgb, var(--kf-destructive) 14%, transparent);
+  --kf-answer-height: 132px;
+  --kf-answer-font-size: 15px;
+  --kf-chapter-reading-width: 50rem;
+  --kf-chapter-outline-width: 16rem;
+  --kf-chapter-sticky-offset: 5rem;
+  --kf-chapter-action-height: 6rem;
+  --kf-chapter-content-width: 70rem;
+  --kf-chapter-body-size: 1rem;
+  --kf-chapter-body-leading: 1.8;
+  --kf-chapter-h1-size: 2rem;
+  --kf-chapter-h2-size: 1.5rem;
+  --kf-chapter-h3-size: 1.25rem;
+  --kf-chapter-code-size: .875rem;
+  --kf-chapter-column-gap: 2rem;
+  --kf-chapter-button-height: 2.5rem;
+  --kf-studio-art-width: 192px;
+  --kf-studio-art-height: 104px;
+  --kf-studio-rule: 1px;
+  --kf-studio-focus: 2px;
+  --kf-studio-reading-width: 1180px;
+  --kf-studio-panel-padding: 24px;
+  --kf-studio-motion: 160ms;
+  --kf-wb-motion: 200ms;
+  --kf-wb-drawer-width: 520px;
+  --kf-wb-preview-height: 440px;
+  --kf-wb-editor-height: 320px;
+  --kf-wb-cue-width: 28%;
+  --kf-wb-content-width: 1440px;
+  --kf-wb-writing-height: 240px;
+  --kf-wb-list-width: 360px;
 }
-.kb-text-page-title {
-  font-size: var(--kb-fs-h1);
-  font-weight: var(--kb-fw-h2);
-  line-height: var(--kb-lh-h2);
-  color: var(--kb-foreground);
+.kf-text-page-title {
+  font-size: var(--kf-fs-h1);
+  font-weight: var(--kf-fw-h2);
+  line-height: var(--kf-lh-h2);
+  color: var(--kf-foreground);
 }
-.kb-text-section-title {
-  font-size: var(--kb-fs-h3);
-  font-weight: var(--kb-fw-h3);
-  line-height: var(--kb-lh-h3);
-  color: var(--kb-foreground);
+.kf-text-section-title {
+  font-size: var(--kf-fs-h3);
+  font-weight: var(--kf-fw-h3);
+  line-height: var(--kf-lh-h3);
+  color: var(--kf-foreground);
 }
-.kb-text-card-title {
-  font-size: var(--kb-fs-h4);
-  font-weight: var(--kb-fw-h4);
-  line-height: var(--kb-lh-h4);
-  color: var(--kb-foreground);
+.kf-text-card-title {
+  font-size: var(--kf-fs-h4);
+  font-weight: var(--kf-fw-h4);
+  line-height: var(--kf-lh-h4);
+  color: var(--kf-foreground);
 }
-.kb-text-body {
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
-  color: var(--kb-foreground);
+.kf-text-body {
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
+  color: var(--kf-foreground);
 }
-.kb-text-secondary {
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
-  color: var(--kb-muted-foreground);
+.kf-text-secondary {
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
+  color: var(--kf-muted-foreground);
 }
-.kb-text-caption {
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
-  color: var(--kb-muted-foreground);
+.kf-text-caption {
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
+  color: var(--kf-muted-foreground);
 }
 
 /* ── icon + text 垂直对齐（禁止图标偏上 / 偏下，§27）── */
-.kb-icon-text {
+.kf-icon-text {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
 }
 
 /* ── 间距工具（4px 基线网格，§17）── */
-.kb-gap-1 { gap: var(--kb-space-1); }
-.kb-gap-2 { gap: var(--kb-space-2); }
-.kb-gap-3 { gap: var(--kb-space-3); }
-.kb-gap-4 { gap: var(--kb-space-4); }
-.kb-gap-6 { gap: var(--kb-space-6); }
-.kb-gap-8 { gap: var(--kb-space-8); }
-.kb-p-4 { padding: var(--kb-space-4); }
-.kb-p-6 { padding: var(--kb-space-6); }
+.kf-gap-1 { gap: var(--kf-space-1); }
+.kf-gap-2 { gap: var(--kf-space-2); }
+.kf-gap-3 { gap: var(--kf-space-3); }
+.kf-gap-4 { gap: var(--kf-space-4); }
+.kf-gap-6 { gap: var(--kf-space-6); }
+.kf-gap-8 { gap: var(--kf-space-8); }
+.kf-p-4 { padding: var(--kf-space-4); }
+.kf-p-6 { padding: var(--kf-space-6); }
 
 /* ── 页面级间距 ── */
-.kb-gap-section { gap: var(--kb-space-section); }
-.kb-mt-section { margin-top: var(--kb-space-section); }
-.kb-mb-section { margin-bottom: var(--kb-space-section); }
+.kf-gap-section { gap: var(--kf-space-section); }
+.kf-mt-section { margin-top: var(--kf-space-section); }
+.kf-mb-section { margin-bottom: var(--kf-space-section); }
 
 /* =====================================================================
  * UI/UX 6.0 — Surface 层级工具类（减少 Card-in-Card）
  * 用 flat surface 替代嵌套 Card，降低视觉噪音。
- * - .kb-surface：白底 + 边框，无阴影（默认容器）
- * - .kb-surface-flat：灰底无边框（Card 内部分区）
- * - .kb-surface-raised：白底 + 轻阴影（需要视觉强调时）
- * - .kb-divider：水平分隔线
+ * - .kf-surface：白底 + 边框，无阴影（默认容器）
+ * - .kf-surface-flat：灰底无边框（Card 内部分区）
+ * - .kf-surface-raised：白底 + 轻阴影（需要视觉强调时）
+ * - .kf-divider：水平分隔线
  * ===================================================================== */
-.kb-surface {
-  background: var(--kb-surface-1);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+.kf-surface {
+  background: var(--kf-surface-1);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
 }
-.kb-surface-flat {
-  background: var(--kb-surface-2);
-  border-radius: var(--kb-radius-sm);
+.kf-surface-flat {
+  background: var(--kf-surface-2);
+  border-radius: var(--kf-radius-sm);
 }
-.kb-surface-raised {
-  background: var(--kb-surface-1);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+.kf-surface-raised {
+  background: var(--kf-surface-1);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   box-shadow: var(--shadow-card);
 }
-.kb-divider {
+.kf-divider {
   height: 1px;
-  background: var(--kb-border);
+  background: var(--kf-border);
   border: none;
-  margin: var(--kb-space-4) 0;
+  margin: var(--kf-space-4) 0;
 }
 
 /* =====================================================================
  * UI/UX 6.0 — Section 区块工具类
  * 用于页面内分区，比 Card 更轻量。
- * - .kb-section：带标题的区块容器
- * - .kb-section-header：区块头（标题 + 描述 + 操作区）
- * - .kb-section-title：区块标题
- * - .kb-section-desc：区块描述
- * - .kb-section-action：区块右侧操作区
+ * - .kf-section：带标题的区块容器
+ * - .kf-section-header：区块头（标题 + 描述 + 操作区）
+ * - .kf-section-title：区块标题
+ * - .kf-section-desc：区块描述
+ * - .kf-section-action：区块右侧操作区
  * ===================================================================== */
-.kb-section {
+.kf-section {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
 }
-.kb-section-header {
+.kf-section-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
 }
-.kb-section-title {
-  font-size: var(--kb-fs-h4);
-  font-weight: var(--kb-fw-h4);
-  line-height: var(--kb-lh-h4);
-  color: var(--kb-foreground);
+.kf-section-title {
+  font-size: var(--kf-fs-h4);
+  font-weight: var(--kf-fw-h4);
+  line-height: var(--kf-lh-h4);
+  color: var(--kf-foreground);
 }
-.kb-section-desc {
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
-  color: var(--kb-muted-foreground);
-  margin-top: var(--kb-space-1);
+.kf-section-desc {
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
+  color: var(--kf-muted-foreground);
+  margin-top: var(--kf-space-1);
 }
-.kb-section-action {
+.kf-section-action {
   flex-shrink: 0;
 }
 
@@ -196,15 +196,15 @@
  * UI/UX 6.0 — 内容容器
  * 统一页面内容最大宽度和内边距。
  * ===================================================================== */
-.kb-content {
+.kf-content {
   width: 100%;
   max-width: none;
   min-width: 0;
-  padding: var(--kb-space-page-y) var(--kb-space-4);
+  padding: var(--kf-space-page-y) var(--kf-space-4);
 }
 @media (min-width: 640px) {
-  .kb-content {
-    padding: var(--kb-space-page-y) var(--kb-space-page-x);
+  .kf-content {
+    padding: var(--kf-space-page-y) var(--kf-space-page-x);
   }
 }
 
@@ -212,188 +212,188 @@
  * UI/UX 6.0 — Badge 工具类
  * 统一状态徽标样式，替代各页面手写 badge。
  * ===================================================================== */
-.kb-badge {
+.kf-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: var(--kb-badge-height);
-  padding: 0 var(--kb-badge-padding-x);
-  border-radius: var(--kb-badge-radius);
-  font-size: var(--kb-badge-font);
+  height: var(--kf-badge-height);
+  padding: 0 var(--kf-badge-padding-x);
+  border-radius: var(--kf-badge-radius);
+  font-size: var(--kf-badge-font);
   font-weight: 500;
   line-height: 1;
   white-space: nowrap;
 }
-.kb-badge-primary {
-  background: var(--kb-primary-soft);
-  color: var(--kb-primary);
+.kf-badge-primary {
+  background: var(--kf-primary-soft);
+  color: var(--kf-primary);
 }
-.kb-badge-success {
-  background: var(--kb-success-subtle);
-  color: var(--kb-state-success);
+.kf-badge-success {
+  background: var(--kf-success-subtle);
+  color: var(--kf-state-success);
 }
-.kb-badge-warning {
-  background: var(--kb-warning-subtle);
-  color: var(--kb-state-warning);
+.kf-badge-warning {
+  background: var(--kf-warning-subtle);
+  color: var(--kf-state-warning);
 }
-.kb-badge-danger {
-  background: var(--kb-danger-subtle);
-  color: var(--kb-state-error);
+.kf-badge-danger {
+  background: var(--kf-danger-subtle);
+  color: var(--kf-state-error);
 }
-.kb-badge-neutral {
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+.kf-badge-neutral {
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 
 /* =====================================================================
  * UI/UX 6.0 — Progress 工具类
  * 统一进度条样式。
  * ===================================================================== */
-.kb-progress {
+.kf-progress {
   width: 100%;
   height: 6px;
   border-radius: 999px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
-.kb-progress-bar {
+.kf-progress-bar {
   height: 100%;
   border-radius: 999px;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   transition: width 0.3s ease;
 }
-.kb-progress-bar.kb-progress-success {
-  background: var(--kb-accent);
+.kf-progress-bar.kf-progress-success {
+  background: var(--kf-accent);
 }
-.kb-progress-bar.kb-progress-warning {
-  background: var(--kb-warning);
+.kf-progress-bar.kf-progress-warning {
+  background: var(--kf-warning);
 }
-.kb-progress-bar.kb-progress-danger {
-  background: var(--kb-destructive);
+.kf-progress-bar.kf-progress-danger {
+  background: var(--kf-destructive);
 }
 
 /* 知识画布列表：思维导图 / 绘图共用的目录尺寸。 */
-:root { --kb-canvas-list-width: 280px; }
+:root { --kf-canvas-list-width: 280px; }
 
 /* UI V2 compatibility aliases; old tokens remain the source, including dark overrides. */
 :root {
-  --kb-surface: var(--kb-card);
-  --kb-surface-elevated: var(--kb-popover);
-  --kb-text-primary: var(--kb-foreground);
-  --kb-text-secondary-v2: var(--kb-muted-foreground);
-  --kb-text-muted-v2: var(--kb-muted-foreground);
-  --kb-info: var(--kb-state-info);
-  --kb-focus-ring: var(--kb-ring);
-  --kb-page-title-size: var(--kb-fs-h1);
-  --kb-section-title-size: var(--kb-fs-h4);
-  --kb-body-size: var(--kb-fs-body-md);
-  --kb-dashboard-column-min: 20rem;
-  --kb-control-hit-size: 2.5rem;
+  --kf-surface: var(--kf-card);
+  --kf-surface-elevated: var(--kf-popover);
+  --kf-text-primary: var(--kf-foreground);
+  --kf-text-secondary-v2: var(--kf-muted-foreground);
+  --kf-text-muted-v2: var(--kf-muted-foreground);
+  --kf-info: var(--kf-state-info);
+  --kf-focus-ring: var(--kf-ring);
+  --kf-page-title-size: var(--kf-fs-h1);
+  --kf-section-title-size: var(--kf-fs-h4);
+  --kf-body-size: var(--kf-fs-body-md);
+  --kf-dashboard-column-min: 20rem;
+  --kf-control-hit-size: 2.5rem;
 }
 
 /* Phase B: semantic alias of the existing shared Markdown code palette. */
-:root { --kb-content-code-background: #1a1d23; }
+:root { --kf-content-code-background: #1a1d23; }
 
 /* Modern AI Workspace: semantic aliases, no parallel palette. */
 :root {
-  --kb-shadow-md: var(--shadow-dropdown-2);
-  --kb-border-hover: color-mix(in srgb, var(--kb-border) 65%, var(--kb-muted-foreground));
-  --kb-field-surface: var(--kb-muted);
-  --kb-field-placeholder: var(--kb-muted-foreground);
-  --kb-menu-surface: var(--kb-popover);
-  --kb-menu-hover: var(--kb-muted);
-  --kb-menu-selected: var(--kb-muted);
-  --kb-menu-radius: var(--kb-radius-md);
-  --kb-menu-shadow: var(--kb-shadow-md);
-  --kb-menu-item-height: 38px;
-  --kb-composer-radius: var(--kb-radius-xl);
-  --kb-composer-max-height: 12rem;
-  --kb-composer-send-size: 36px;
-  --kb-chat-content-max-width: 64rem;
-  --kb-coach-panel-width:340px;
-  --kb-coach-min-chat-width:520px;
-  --kb-coach-panel-padding:20px;
-  --kb-heading-tracking:-0.015em;
-  --kb-control-motion: 160ms;
+  --kf-shadow-md: var(--shadow-dropdown-2);
+  --kf-border-hover: color-mix(in srgb, var(--kf-border) 65%, var(--kf-muted-foreground));
+  --kf-field-surface: var(--kf-muted);
+  --kf-field-placeholder: var(--kf-muted-foreground);
+  --kf-menu-surface: var(--kf-popover);
+  --kf-menu-hover: var(--kf-muted);
+  --kf-menu-selected: var(--kf-muted);
+  --kf-menu-radius: var(--kf-radius-md);
+  --kf-menu-shadow: var(--kf-shadow-md);
+  --kf-menu-item-height: 38px;
+  --kf-composer-radius: var(--kf-radius-xl);
+  --kf-composer-max-height: 12rem;
+  --kf-composer-send-size: 36px;
+  --kf-chat-content-max-width: 64rem;
+  --kf-coach-panel-width:340px;
+  --kf-coach-min-chat-width:520px;
+  --kf-coach-panel-padding:20px;
+  --kf-heading-tracking:-0.015em;
+  --kf-control-motion: 160ms;
 }
 
 /* Unified select variants share the existing field/menu palette. */
 :root {
-  --kb-select-trigger-bg: var(--kb-muted);
-  --kb-select-trigger-hover: color-mix(in srgb, var(--kb-muted) 80%, var(--kb-border));
-  --kb-select-content-radius: var(--kb-radius-lg);
-  --kb-select-list-max-height: 18rem;
-  --kb-select-search-height: 42px;
-  --kb-select-option-height: 42px;
-  --kb-select-panel-max-height: 352px;
+  --kf-select-trigger-bg: var(--kf-muted);
+  --kf-select-trigger-hover: color-mix(in srgb, var(--kf-muted) 80%, var(--kf-border));
+  --kf-select-content-radius: var(--kf-radius-lg);
+  --kf-select-list-max-height: 18rem;
+  --kf-select-search-height: 42px;
+  --kf-select-option-height: 42px;
+  --kf-select-panel-max-height: 352px;
 }
 
-.kb-font-display{font-family:var(--font-serif);font-size:var(--text-display);line-height:var(--kb-lh-display);font-weight:var(--kb-fw-display)}
-.kb-font-technical{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.kf-font-display{font-family:var(--font-serif);font-size:var(--text-display);line-height:var(--kf-lh-display);font-weight:var(--kf-fw-display)}
+.kf-font-technical{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
 
 /* Shared secondary confirmation geometry; existing colors remain canonical. */
 :root {
-  --kb-confirm-width: 560px;
-  --kb-confirm-radius: 22px;
-  --kb-confirm-padding: 28px;
-  --kb-confirm-button-height: 44px;
-  --kb-confirm-button-min-width: 120px;
-  --kb-confirm-overlay: color-mix(in srgb, var(--kb-foreground) 36%, transparent);
-  --kb-confirm-shadow: 0 12px 40px color-mix(in srgb, var(--kb-foreground) 12%, transparent);
+  --kf-confirm-width: 560px;
+  --kf-confirm-radius: 22px;
+  --kf-confirm-padding: 28px;
+  --kf-confirm-button-height: 44px;
+  --kf-confirm-button-min-width: 120px;
+  --kf-confirm-overlay: color-mix(in srgb, var(--kf-foreground) 36%, transparent);
+  --kf-confirm-shadow: 0 12px 40px color-mix(in srgb, var(--kf-foreground) 12%, transparent);
 }
 
 /* Ordinary form controls share surfaces and aligned label/control/meta tracks. */
 :root {
-  --kb-field-hover: color-mix(in srgb, var(--kb-muted) 80%, var(--kb-border));
-  --kb-field-active: color-mix(in srgb, var(--kb-muted) 65%, var(--kb-border));
-  --kb-field-focus-indicator: var(--kb-muted-foreground);
-  --kb-field-readonly: color-mix(in srgb, var(--kb-muted) 85%, var(--kb-card));
-  --kb-field-disabled: color-mix(in srgb, var(--kb-muted) 75%, var(--kb-card));
-  --kb-field-error-bg: color-mix(in srgb, var(--kb-destructive) 5%, var(--kb-muted));
-  --kb-field-padding: 12px;
-  --kb-field-label-gap: 8px;
-  --kb-field-grid-gap: 16px;
-  --kb-textarea-min-height: 96px;
+  --kf-field-hover: color-mix(in srgb, var(--kf-muted) 80%, var(--kf-border));
+  --kf-field-active: color-mix(in srgb, var(--kf-muted) 65%, var(--kf-border));
+  --kf-field-focus-indicator: var(--kf-muted-foreground);
+  --kf-field-readonly: color-mix(in srgb, var(--kf-muted) 85%, var(--kf-card));
+  --kf-field-disabled: color-mix(in srgb, var(--kf-muted) 75%, var(--kf-card));
+  --kf-field-error-bg: color-mix(in srgb, var(--kf-destructive) 5%, var(--kf-muted));
+  --kf-field-padding: 12px;
+  --kf-field-label-gap: 8px;
+  --kf-field-grid-gap: 16px;
+  --kf-textarea-min-height: 96px;
 }
-.kb-form-field{display:grid;grid-template-rows:none;row-gap:var(--kb-field-label-gap);min-width:0;width:100%;align-content:start}
-.kb-form-label{grid-row:1;display:block;min-width:0;margin:0;min-height:calc(var(--kb-fs-body-sm) * var(--kb-lh-body-sm));font-size:var(--kb-fs-body-sm);line-height:var(--kb-lh-body-sm);font-weight:var(--kb-fw-label);color:var(--kb-foreground);overflow-wrap:anywhere}
-.kb-form-field__control,.select-control>.kb-select-trigger{grid-row:2;min-width:0}
-.kb-form-field__meta{grid-row:3;min-width:0;display:grid;gap:var(--kb-space-1);font-size:var(--kb-fs-caption);line-height:var(--kb-lh-caption);overflow-wrap:anywhere}
-.kb-form-required,.kb-form-error{color:var(--kb-danger-text)}.kb-form-help,.kb-form-count{color:var(--kb-muted-foreground)}.kb-form-count{justify-self:end;font-variant-numeric:tabular-nums}
-.kb-form-row{display:grid;grid-template-columns:repeat(var(--kb-form-columns,2),minmax(0,1fr));column-gap:var(--kb-field-grid-gap);row-gap:var(--kb-field-label-gap);align-items:start}
-.kb-form-row--three{--kb-form-columns:3}.kb-form-row--two{--kb-form-columns:2}
-@supports(grid-template-rows:subgrid){.kb-form-row>.kb-form-field{grid-row:span 3;grid-template-rows:subgrid}}
-@media(max-width:639px){.kb-form-row{--kb-form-columns:1;row-gap:var(--kb-field-label-gap)}}
+.kf-form-field{display:grid;grid-template-rows:none;row-gap:var(--kf-field-label-gap);min-width:0;width:100%;align-content:start}
+.kf-form-label{grid-row:1;display:block;min-width:0;margin:0;min-height:calc(var(--kf-fs-body-sm) * var(--kf-lh-body-sm));font-size:var(--kf-fs-body-sm);line-height:var(--kf-lh-body-sm);font-weight:var(--kf-fw-label);color:var(--kf-foreground);overflow-wrap:anywhere}
+.kf-form-field__control,.select-control>.kf-select-trigger{grid-row:2;min-width:0}
+.kf-form-field__meta{grid-row:3;min-width:0;display:grid;gap:var(--kf-space-1);font-size:var(--kf-fs-caption);line-height:var(--kf-lh-caption);overflow-wrap:anywhere}
+.kf-form-required,.kf-form-error{color:var(--kf-danger-text)}.kf-form-help,.kf-form-count{color:var(--kf-muted-foreground)}.kf-form-count{justify-self:end;font-variant-numeric:tabular-nums}
+.kf-form-row{display:grid;grid-template-columns:repeat(var(--kf-form-columns,2),minmax(0,1fr));column-gap:var(--kf-field-grid-gap);row-gap:var(--kf-field-label-gap);align-items:start}
+.kf-form-row--three{--kf-form-columns:3}.kf-form-row--two{--kf-form-columns:2}
+@supports(grid-template-rows:subgrid){.kf-form-row>.kf-form-field{grid-row:span 3;grid-template-rows:subgrid}}
+@media(max-width:639px){.kf-form-row{--kf-form-columns:1;row-gap:var(--kf-field-label-gap)}}
 
-.kb-form-field--unlabelled>.kb-form-field__control,.select-control.kb-form-field--unlabelled>.kb-select-trigger{grid-row:1}
-.kb-form-field--unlabelled>.kb-form-field__meta{grid-row:2}
-@supports(grid-template-rows:subgrid){.kb-form-row>.kb-form-field--unlabelled>.kb-form-field__control,.kb-form-row>.select-control.kb-form-field--unlabelled>.kb-select-trigger{grid-row:2}.kb-form-row>.kb-form-field--unlabelled>.kb-form-field__meta{grid-row:3}}
-select.kb-form-control{padding-inline-end:var(--kb-space-8)}
-.kb-input.font-mono,.kb-textarea.font-mono{font-family:var(--font-mono)}
+.kf-form-field--unlabelled>.kf-form-field__control,.select-control.kf-form-field--unlabelled>.kf-select-trigger{grid-row:1}
+.kf-form-field--unlabelled>.kf-form-field__meta{grid-row:2}
+@supports(grid-template-rows:subgrid){.kf-form-row>.kf-form-field--unlabelled>.kf-form-field__control,.kf-form-row>.select-control.kf-form-field--unlabelled>.kf-select-trigger{grid-row:2}.kf-form-row>.kf-form-field--unlabelled>.kf-form-field__meta{grid-row:3}}
+select.kf-form-control{padding-inline-end:var(--kf-space-8)}
+.kf-input.font-mono,.kf-textarea.font-mono{font-family:var(--font-mono)}
 
 /* 2026-10-24 Focus V2：中性边界与柔和单层键盘提示；菜单/按钮继续使用原ring。 */
 :root {
-  --kb-field-border-width: 1px;
-  --kb-field-border: var(--kb-border);
-  --kb-field-focus-color: color-mix(in srgb,var(--kb-muted-foreground) 45%,transparent);
+  --kf-field-border-width: 1px;
+  --kf-field-border: var(--kf-border);
+  --kf-field-focus-color: color-mix(in srgb,var(--kf-muted-foreground) 45%,transparent);
 }
 
 /* Checkbox V3: square visual proxy; native input retains form/keyboard semantics. */
 :root {
-  --kb-checkbox-size:20px;
-  --kb-checkbox-radius:3px;
-  --kb-checkbox-border-width:1px;
-  --kb-checkbox-mark-size:14px;
-  --kb-checkbox-gap:var(--kb-space-2);
-  --kb-checkbox-hit-size:32px;
-  --kb-checkbox-touch-size:44px;
-  --kb-checkbox-focus-width:2px;
-  --kb-checkbox-focus-offset:2px;
+  --kf-checkbox-size:20px;
+  --kf-checkbox-radius:3px;
+  --kf-checkbox-border-width:1px;
+  --kf-checkbox-mark-size:14px;
+  --kf-checkbox-gap:var(--kf-space-2);
+  --kf-checkbox-hit-size:32px;
+  --kf-checkbox-touch-size:44px;
+  --kf-checkbox-focus-width:2px;
+  --kf-checkbox-focus-offset:2px;
 }
 
 /* UI V3 button semantics; reuse the existing size/colour/type scales. */
 :root {
-  --kb-button-gap: var(--kb-space-2);
-  --kb-button-line-height: 20px;
-  --kb-button-icon-slot: 18px;
+  --kf-button-gap: var(--kf-space-2);
+  --kf-button-line-height: 20px;
+  --kf-button-icon-slot: 18px;
 }

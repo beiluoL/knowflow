@@ -1,5 +1,5 @@
 <template>
-  <div class="wb-page workbench-space animate-fade-in recall-page" :style="{ '--mc': 'var(--kb-state-warning)' }">
+  <div class="wb-page workbench-space animate-fade-in recall-page" :style="{ '--mc': 'var(--kf-state-warning)' }">
     <!-- ============ Module Hero ============ -->
     <section class="wb-hero">
       <div class="wb-hero-bg" aria-hidden="true">
@@ -23,10 +23,10 @@
             </p>
           </div>
           <div class="recall-hero-actions">
-            <router-link to="/workbench/review" class="kb-btn recall-ghost-btn">
+            <router-link to="/workbench/review" class="kf-btn recall-ghost-btn">
               <Icon name="repeat" :size="15" aria-hidden="true" /> 间隔重复
             </router-link>
-            <button class="kb-btn kb-btn-primary" data-test="recall-create" @click="openCreate">
+            <button class="kf-btn kf-btn-primary" data-test="recall-create" @click="openCreate">
               <Icon name="plus" :size="16" aria-hidden="true" /> 新建默写
             </button>
           </div>
@@ -51,7 +51,7 @@
     <section class="recall-list-section">
       <div class="recall-list-head">
         <h2 class="wb-section-title">
-          <Icon name="list" :size="18" style="color: var(--kb-state-warning);" />
+          <Icon name="list" :size="18" style="color: var(--kf-state-warning);" />
           默写会话记录
           <span class="wb-section-hint">{{ visibleSessions.length }} / {{ sessions.length }} 个会话</span>
         </h2>
@@ -95,7 +95,7 @@
         <div class="recall-empty-icon"><Icon name="alert-circle" :size="34" /></div>
         <h3 class="recall-empty-title">会话列表加载失败</h3>
         <p class="recall-empty-desc">{{ loadError }}</p>
-        <button class="kb-btn recall-ghost-btn" @click="loadSessions">
+        <button class="kf-btn recall-ghost-btn" @click="loadSessions">
           <Icon name="refresh-cw" :size="14" aria-hidden="true" /> 重试
         </button>
       </div>
@@ -106,7 +106,7 @@
         <p class="recall-empty-desc">
           {{ sessions.length === 0 ? '粘贴一段要记忆的内容，开始三轮闭卷默写。' : '换个筛选条件或清空搜索再试试。' }}
         </p>
-        <button v-if="sessions.length === 0" class="kb-btn kb-btn-primary" @click="openCreate">
+        <button v-if="sessions.length === 0" class="kf-btn kf-btn-primary" @click="openCreate">
           <Icon name="plus" :size="15" aria-hidden="true" /> 新建默写
         </button>
       </div>
@@ -510,40 +510,40 @@ onBeforeUnmount(() => {
 .recall-page { gap: 24px; }
 .recall-hero-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .recall-ghost-btn {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  color: var(--kb-foreground);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  color: var(--kf-foreground);
 }
-.recall-ghost-btn:hover { border-color: var(--kb-state-warning); color: var(--kb-state-warning); }
-.recall-list-section { display: flex; flex-direction: column; gap: var(--kb-space-4); }
+.recall-ghost-btn:hover { border-color: var(--kf-state-warning); color: var(--kf-state-warning); }
+.recall-list-section { display: flex; flex-direction: column; gap: var(--kf-space-4); }
 .recall-list-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
   flex-wrap: wrap;
 }
-.recall-list-tools { display: flex; align-items: center; gap: var(--kb-space-3); flex-wrap: wrap; }
+.recall-list-tools { display: flex; align-items: center; gap: var(--kf-space-3); flex-wrap: wrap; }
 .recall-search {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0 var(--kb-space-3);
-  height: var(--kb-btn-height-sm);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  color: var(--kb-muted-foreground);
+  padding: 0 var(--kf-space-3);
+  height: var(--kf-btn-height-sm);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  color: var(--kf-muted-foreground);
 }
 .recall-search input {
   border: none;
   outline: none;
   background: transparent;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-foreground);
   width: 180px;
 }
-.recall-search:focus-within { outline: 2px solid var(--kb-ring); outline-offset: 1px; }
+.recall-search:focus-within { outline: 2px solid var(--kf-ring); outline-offset: 1px; }
 .recall-filters { display: flex; gap: 4px; flex-wrap: wrap; }
 .recall-filter {
   display: inline-flex;
@@ -553,18 +553,18 @@ onBeforeUnmount(() => {
   border-radius: 999px;
   border: 1px solid transparent;
   background: transparent;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
 }
-.recall-filter:hover { background: var(--kb-background); }
+.recall-filter:hover { background: var(--kf-background); }
 .recall-filter.is-active {
-  background: var(--kb-primary-soft);
-  border-color: color-mix(in srgb, var(--kb-primary) 30%, transparent);
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft);
+  border-color: color-mix(in srgb, var(--kf-primary) 30%, transparent);
+  color: var(--kf-primary);
   font-weight: 600;
 }
-.recall-filter:focus-visible { outline: 2px solid var(--kb-ring); outline-offset: 1px; }
+.recall-filter:focus-visible { outline: 2px solid var(--kf-ring); outline-offset: 1px; }
 .recall-filter-count {
   font-family: var(--font-mono);
   font-size: 10px;
@@ -573,24 +573,24 @@ onBeforeUnmount(() => {
 .recall-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
 }
 .recall-card {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-3);
-  padding: var(--kb-space-4);
-  border-radius: var(--kb-radius-lg);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  gap: var(--kf-space-3);
+  padding: var(--kf-space-4);
+  border-radius: var(--kf-radius-lg);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 .recall-card:hover {
-  border-color: color-mix(in srgb, var(--kb-state-warning) 35%, var(--kb-border));
+  border-color: color-mix(in srgb, var(--kf-state-warning) 35%, var(--kf-border));
   box-shadow: var(--shadow-card-hover);
 }
 .recall-card.is-archived { opacity: 0.72; }
-.recall-card-head { display: flex; align-items: center; gap: var(--kb-space-2); }
+.recall-card-head { display: flex; align-items: center; gap: var(--kf-space-2); }
 .recall-status {
   display: inline-flex;
   align-items: center;
@@ -599,22 +599,22 @@ onBeforeUnmount(() => {
   border-radius: 999px;
   font-size: 11px;
   font-weight: 600;
-  background: var(--kb-background);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-background);
+  color: var(--kf-muted-foreground);
   white-space: nowrap;
 }
-.recall-status.is-DRAFT { background: var(--kb-background); color: var(--kb-muted-foreground); }
+.recall-status.is-DRAFT { background: var(--kf-background); color: var(--kf-muted-foreground); }
 .recall-status.is-ROUND1,
-.recall-status.is-ROUND2 { background: var(--kb-primary-soft); color: var(--kb-primary); }
-.recall-status.is-WAITING { background: color-mix(in srgb, var(--kb-state-warning) 12%, transparent); color: var(--kb-state-warning); }
-.recall-status.is-DUE { background: color-mix(in srgb, var(--kb-state-error) 12%, transparent); color: var(--kb-state-error); }
-.recall-status.is-COMPLETED { background: color-mix(in srgb, var(--kb-state-success) 12%, transparent); color: var(--kb-state-success); }
+.recall-status.is-ROUND2 { background: var(--kf-primary-soft); color: var(--kf-primary); }
+.recall-status.is-WAITING { background: color-mix(in srgb, var(--kf-state-warning) 12%, transparent); color: var(--kf-state-warning); }
+.recall-status.is-DUE { background: color-mix(in srgb, var(--kf-state-error) 12%, transparent); color: var(--kf-state-error); }
+.recall-status.is-COMPLETED { background: color-mix(in srgb, var(--kf-state-success) 12%, transparent); color: var(--kf-state-success); }
 .recall-status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .recall-progress-text {
   margin-left: auto;
   font-family: var(--font-mono);
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .recall-more {
   display: inline-flex;
@@ -623,13 +623,13 @@ onBeforeUnmount(() => {
   width: 26px;
   height: 26px;
   border: none;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
 }
-.recall-more:hover { background: var(--kb-background); color: var(--kb-foreground); }
-.recall-more:focus-visible { outline: 2px solid var(--kb-ring); outline-offset: 1px; }
+.recall-more:hover { background: var(--kf-background); color: var(--kf-foreground); }
+.recall-more:focus-visible { outline: 2px solid var(--kf-ring); outline-offset: 1px; }
 .recall-card-main {
   display: flex;
   flex-direction: column;
@@ -641,13 +641,13 @@ onBeforeUnmount(() => {
   cursor: pointer;
   flex: 1;
 }
-.recall-card-main:focus-visible { outline: 2px solid var(--kb-ring); outline-offset: 2px; border-radius: var(--kb-radius-sm); }
+.recall-card-main:focus-visible { outline: 2px solid var(--kf-ring); outline-offset: 2px; border-radius: var(--kf-radius-sm); }
 .recall-card-title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--kb-fs-h4);
+  font-size: var(--kf-fs-h4);
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -657,14 +657,14 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 4px;
   margin: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .recall-card-excerpt {
   margin: 0;
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   line-height: 1.6;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -676,32 +676,32 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   padding: 3px 9px;
-  border-radius: var(--kb-radius-sm);
-  background: color-mix(in srgb, var(--kb-state-warning) 8%, transparent);
+  border-radius: var(--kf-radius-sm);
+  background: color-mix(in srgb, var(--kf-state-warning) 8%, transparent);
 }
-.recall-round-chip.is-null { background: var(--kb-background); opacity: 0.7; }
-.recall-round-chip.is-current { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kb-state-warning) 45%, transparent); }
-.recall-round-label { font-family: var(--font-mono); font-size: 9px; color: var(--kb-muted-foreground); }
-.recall-round-value { font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--kb-state-warning); }
-.recall-round-chip.is-null .recall-round-value { color: var(--kb-muted-foreground); }
+.recall-round-chip.is-null { background: var(--kf-background); opacity: 0.7; }
+.recall-round-chip.is-current { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kf-state-warning) 45%, transparent); }
+.recall-round-label { font-family: var(--font-mono); font-size: 9px; color: var(--kf-muted-foreground); }
+.recall-round-value { font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--kf-state-warning); }
+.recall-round-chip.is-null .recall-round-value { color: var(--kf-muted-foreground); }
 .recall-card-foot {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: var(--kb-space-2);
-  padding-top: var(--kb-space-2);
-  border-top: 1px solid var(--kb-border);
+  gap: var(--kf-space-2);
+  padding-top: var(--kf-space-2);
+  border-top: 1px solid var(--kf-border);
 }
 .recall-card-meta {
   display: flex;
   flex-direction: column;
   gap: 2px;
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .recall-card-meta span { display: inline-flex; align-items: center; gap: 4px; }
-.recall-due-hint { color: var(--kb-state-warning); font-weight: 600; }
-.recall-due-hint.is-ready { color: var(--kb-state-error); }
+.recall-due-hint { color: var(--kf-state-warning); font-weight: 600; }
+.recall-due-hint.is-ready { color: var(--kf-state-error); }
 .recall-primary-link {
   display: inline-flex;
   align-items: center;
@@ -709,8 +709,8 @@ onBeforeUnmount(() => {
   padding: 0;
   border: none;
   background: transparent;
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-caption);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-caption);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -720,20 +720,20 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   padding: 48px 20px;
-  border-radius: var(--kb-radius-lg);
-  border: 1px dashed var(--kb-border);
-  background: var(--kb-card);
+  border-radius: var(--kf-radius-lg);
+  border: 1px dashed var(--kf-border);
+  background: var(--kf-card);
   text-align: center;
 }
-.recall-empty-icon { color: var(--kb-state-warning); }
-.recall-empty-title { margin: 0; font-size: var(--kb-fs-h4); font-weight: 700; color: var(--kb-foreground); }
-.recall-empty-desc { margin: 0; font-size: var(--kb-fs-body-sm); color: var(--kb-muted-foreground); max-width: 420px; }
+.recall-empty-icon { color: var(--kf-state-warning); }
+.recall-empty-title { margin: 0; font-size: var(--kf-fs-h4); font-weight: 700; color: var(--kf-foreground); }
+.recall-empty-desc { margin: 0; font-size: var(--kf-fs-body-sm); color: var(--kf-muted-foreground); max-width: 420px; }
 .recall-skeleton { min-height: 190px; }
 .recall-skel-line {
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--kb-background), var(--kb-muted));
+  background: linear-gradient(90deg, var(--kf-background), var(--kf-muted));
   animation: recall-pulse 1.4s ease-in-out infinite;
 }
 @keyframes recall-pulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }

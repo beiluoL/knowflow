@@ -26,7 +26,7 @@ beforeEach(() => {
 })
 
 describe('证明任务提供真实练习入口', () => {
-  it.each([['看板', TaskKanban, '.kb-act'], ['四象限', TaskQuadrant, '.qm-check']] as const)('%s不显示可手动完成入口，保留去练习', async (_name, component, selector) => {
+  it.each([['看板', TaskKanban, '.kf-act'], ['四象限', TaskQuadrant, '.qm-check']] as const)('%s不显示可手动完成入口，保留去练习', async (_name, component, selector) => {
     const wrapper = mount(component, options); await flushPromises()
     expect(wrapper.get(selector).attributes('disabled')).toBeDefined()
     expect(wrapper.get('[data-test="proof-resource"]').attributes('href')).toContain('cardId=42')

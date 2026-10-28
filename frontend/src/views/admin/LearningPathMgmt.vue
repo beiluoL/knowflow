@@ -1,17 +1,17 @@
 <template>
   <div class="space-y-6 animate-fade-in">
     <!-- 面包屑 -->
-    <nav class="flex items-center gap-2 text-sm" style="color: var(--kb-muted-foreground);">
-      <span style="color: var(--kb-primary);" class="font-medium">学习管理</span>
+    <nav class="flex items-center gap-2 text-sm" style="color: var(--kf-muted-foreground);">
+      <span style="color: var(--kf-primary);" class="font-medium">学习管理</span>
       <Icon name="chevron-right" :size="14" />
-      <span style="color: var(--kb-foreground);" class="font-medium">学习路径</span>
+      <span style="color: var(--kf-foreground);" class="font-medium">学习路径</span>
     </nav>
 
     <!-- 页面标题 -->
     <div class="flex items-center justify-between flex-wrap gap-4">
       <div>
-        <h1 class="text-2xl font-bold" style="color: var(--kb-foreground);">学习路径管理</h1>
-        <p class="text-sm mt-1" style="color: var(--kb-muted-foreground);">
+        <h1 class="text-2xl font-bold" style="color: var(--kf-foreground);">学习路径管理</h1>
+        <p class="text-sm mt-1" style="color: var(--kf-muted-foreground);">
           配置学习路径、发布章节，或使用 AI 基于知识库自动生成路径与章节
         </p>
       </div>
@@ -23,68 +23,68 @@
 
     <!-- 统计卡片 -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="rounded-xl border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
+      <div class="rounded-xl border p-5" style="background: var(--kf-card); border-color: var(--kf-border);">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(59,111,224,0.08);">
-            <Icon name="route" :size="20" style="color: var(--kb-primary);" />
+            <Icon name="route" :size="20" style="color: var(--kf-primary);" />
           </div>
-          <span class="text-sm" style="color: var(--kb-muted-foreground);">路径总数</span>
+          <span class="text-sm" style="color: var(--kf-muted-foreground);">路径总数</span>
         </div>
-        <p class="text-2xl font-bold tabular-nums" style="color: var(--kb-foreground);">
-          {{ stats.total }} <span class="text-sm font-normal" style="color: var(--kb-muted-foreground);">条</span>
+        <p class="text-2xl font-bold tabular-nums" style="color: var(--kf-foreground);">
+          {{ stats.total }} <span class="text-sm font-normal" style="color: var(--kf-muted-foreground);">条</span>
         </p>
       </div>
-      <div class="rounded-xl border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
+      <div class="rounded-xl border p-5" style="background: var(--kf-card); border-color: var(--kf-border);">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(16,185,129,0.08);">
-            <Icon name="check-circle" :size="20" style="color: var(--kb-accent);" />
+            <Icon name="check-circle" :size="20" style="color: var(--kf-accent);" />
           </div>
-          <span class="text-sm" style="color: var(--kb-muted-foreground);">已发布</span>
+          <span class="text-sm" style="color: var(--kf-muted-foreground);">已发布</span>
         </div>
-        <p class="text-2xl font-bold tabular-nums" style="color: var(--kb-foreground);">
-          {{ stats.published }} <span class="text-sm font-normal" style="color: var(--kb-muted-foreground);">条</span>
+        <p class="text-2xl font-bold tabular-nums" style="color: var(--kf-foreground);">
+          {{ stats.published }} <span class="text-sm font-normal" style="color: var(--kf-muted-foreground);">条</span>
         </p>
       </div>
-      <div class="rounded-xl border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
+      <div class="rounded-xl border p-5" style="background: var(--kf-card); border-color: var(--kf-border);">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(245,158,11,0.08);">
-            <Icon name="edit" :size="20" style="color: var(--kb-warning);" />
+            <Icon name="edit" :size="20" style="color: var(--kf-warning);" />
           </div>
-          <span class="text-sm" style="color: var(--kb-muted-foreground);">草稿</span>
+          <span class="text-sm" style="color: var(--kf-muted-foreground);">草稿</span>
         </div>
-        <p class="text-2xl font-bold tabular-nums" style="color: var(--kb-foreground);">
-          {{ stats.draft }} <span class="text-sm font-normal" style="color: var(--kb-muted-foreground);">条</span>
+        <p class="text-2xl font-bold tabular-nums" style="color: var(--kf-foreground);">
+          {{ stats.draft }} <span class="text-sm font-normal" style="color: var(--kf-muted-foreground);">条</span>
         </p>
       </div>
-      <div class="rounded-xl border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
+      <div class="rounded-xl border p-5" style="background: var(--kf-card); border-color: var(--kf-border);">
         <div class="flex items-center gap-3 mb-3">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(139,92,246,0.08);">
             <Icon name="list-ordered" :size="20" style="color: #8b5cf6;" />
           </div>
-          <span class="text-sm" style="color: var(--kb-muted-foreground);">章节总数</span>
+          <span class="text-sm" style="color: var(--kf-muted-foreground);">章节总数</span>
         </div>
-        <p class="text-2xl font-bold tabular-nums" style="color: var(--kb-foreground);">
-          {{ stats.totalChapters }} <span class="text-sm font-normal" style="color: var(--kb-muted-foreground);">节</span>
+        <p class="text-2xl font-bold tabular-nums" style="color: var(--kf-foreground);">
+          {{ stats.totalChapters }} <span class="text-sm font-normal" style="color: var(--kf-muted-foreground);">节</span>
         </p>
       </div>
     </div>
 
     <!-- 筛选栏 -->
-    <div class="rounded-xl border p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
+    <div class="rounded-xl border p-4" style="background: var(--kf-card); border-color: var(--kf-border);">
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="flex-1 relative">
-          <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--kb-muted-foreground);" />
+          <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--kf-muted-foreground);" />
           <input
             v-model="searchQuery"
             placeholder="搜索路径标题或描述..."
-            class="w-full h-10 pl-10 pr-3 text-sm outline-none transition-colors kb-input kb-form-control"
-            style="color: var(--kb-foreground)"
+            class="w-full h-10 pl-10 pr-3 text-sm outline-none transition-colors kf-input kf-form-control"
+            style="color: var(--kf-foreground)"
           />
         </div>
         <select
           v-model="filterLevel"
-          class="h-10 px-3 text-sm outline-none transition-colors kb-select kb-form-control"
-          style="color: var(--kb-foreground)"
+          class="h-10 px-3 text-sm outline-none transition-colors kf-select kf-form-control"
+          style="color: var(--kf-foreground)"
         >
           <option value="">全部难度</option>
           <option value="入门">入门</option>
@@ -93,8 +93,8 @@
         </select>
         <select
           v-model="filterStatus"
-          class="h-10 px-3 text-sm outline-none transition-colors kb-select kb-form-control"
-          style="color: var(--kb-foreground)"
+          class="h-10 px-3 text-sm outline-none transition-colors kf-select kf-form-control"
+          style="color: var(--kf-foreground)"
         >
           <option value="">全部状态</option>
           <option value="1">已发布</option>
@@ -104,26 +104,26 @@
     </div>
 
     <!-- 路径列表 -->
-    <div class="rounded-xl border overflow-hidden" style="background: var(--kb-card); border-color: var(--kb-border);">
+    <div class="rounded-xl border overflow-hidden" style="background: var(--kf-card); border-color: var(--kf-border);">
       <!-- 加载状态 -->
       <div v-if="loading" class="p-12 flex flex-col items-center justify-center gap-3">
-        <div class="w-8 h-8 border-2 rounded-full animate-spin" style="border-color: var(--kb-border); border-top-color: var(--kb-primary);"></div>
-        <p class="text-sm" style="color: var(--kb-muted-foreground);">加载学习路径...</p>
+        <div class="w-8 h-8 border-2 rounded-full animate-spin" style="border-color: var(--kf-border); border-top-color: var(--kf-primary);"></div>
+        <p class="text-sm" style="color: var(--kf-muted-foreground);">加载学习路径...</p>
       </div>
 
       <!-- 空状态 -->
       <div v-else-if="filteredPaths.length === 0" class="p-12 flex flex-col items-center justify-center gap-3">
-        <div class="w-14 h-14 rounded-full flex items-center justify-center" style="background: var(--kb-muted);">
-          <Icon name="route" :size="28" style="color: var(--kb-muted-foreground);" />
+        <div class="w-14 h-14 rounded-full flex items-center justify-center" style="background: var(--kf-muted);">
+          <Icon name="route" :size="28" style="color: var(--kf-muted-foreground);" />
         </div>
-        <p class="text-sm" style="color: var(--kb-muted-foreground);">
+        <p class="text-sm" style="color: var(--kf-muted-foreground);">
           {{ paths.length === 0 ? '暂无学习路径，点击「新建路径」或「AI 生成路径」开始' : '没有符合条件的路径' }}
         </p>
       </div>
 
       <!-- 表头 -->
       <div v-else>
-        <div class="px-6 py-3 grid grid-cols-12 gap-4 text-xs font-medium border-b" style="color: var(--kb-muted-foreground); border-color: var(--kb-border); background: var(--kb-muted);">
+        <div class="px-6 py-3 grid grid-cols-12 gap-4 text-xs font-medium border-b" style="color: var(--kf-muted-foreground); border-color: var(--kf-border); background: var(--kf-muted);">
           <div class="col-span-4">路径标题</div>
           <div class="col-span-1 text-center">难度</div>
           <div class="col-span-2 text-center">章节/时长</div>
@@ -131,16 +131,16 @@
           <div class="col-span-1 text-center">状态</div>
           <div class="col-span-2 text-center">操作</div>
         </div>
-        <div class="divide-y" style="border-color: var(--kb-border);">
+        <div class="divide-y" style="border-color: var(--kf-border);">
           <div
             v-for="path in filteredPaths"
             :key="path.id"
-            class="px-6 py-4 grid grid-cols-12 gap-4 items-center transition-colors hover:bg-[var(--kb-muted)]/40"
+            class="px-6 py-4 grid grid-cols-12 gap-4 items-center transition-colors hover:bg-[var(--kf-muted)]/40"
           >
             <!-- 标题 -->
             <div class="col-span-4 min-w-0">
-              <p class="font-medium truncate" style="color: var(--kb-foreground);">{{ path.title }}</p>
-              <p class="text-xs truncate mt-0.5" style="color: var(--kb-muted-foreground);">
+              <p class="font-medium truncate" style="color: var(--kf-foreground);">{{ path.title }}</p>
+              <p class="text-xs truncate mt-0.5" style="color: var(--kf-muted-foreground);">
                 {{ path.description || '暂无描述' }}
               </p>
             </div>
@@ -152,16 +152,16 @@
               >{{ path.level || '入门' }}</span>
             </div>
             <!-- 章节/时长 -->
-            <div class="col-span-2 text-center text-sm tabular-nums" style="color: var(--kb-foreground);">
+            <div class="col-span-2 text-center text-sm tabular-nums" style="color: var(--kf-foreground);">
               <div>{{ path.chapterCount || 0 }} 章节</div>
-              <div class="text-xs" style="color: var(--kb-muted-foreground);">
+              <div class="text-xs" style="color: var(--kf-muted-foreground);">
                 {{ Math.round((path.totalDuration || 0) / 60) || 0 }} 小时
               </div>
             </div>
             <!-- 报名人数 -->
             <div class="col-span-2 text-center">
-              <span class="inline-flex items-center gap-1 text-sm tabular-nums" style="color: var(--kb-foreground);">
-                <Icon name="users" :size="14" style="color: var(--kb-muted-foreground);" />
+              <span class="inline-flex items-center gap-1 text-sm tabular-nums" style="color: var(--kf-foreground);">
+                <Icon name="users" :size="14" style="color: var(--kf-muted-foreground);" />
                 {{ path.enrolledCount || 0 }}
               </span>
             </div>
@@ -169,15 +169,15 @@
             <div class="col-span-1 text-center">
               <span
                 class="inline-block px-2 py-0.5 rounded-full text-xs font-medium"
-                :style="path.status === 1 ? { background: 'rgba(16,185,129,0.1)', color: 'var(--kb-accent)' } : { background: 'var(--kb-muted)', color: 'var(--kb-muted-foreground)' }"
+                :style="path.status === 1 ? { background: 'rgba(16,185,129,0.1)', color: 'var(--kf-accent)' } : { background: 'var(--kf-muted)', color: 'var(--kf-muted-foreground)' }"
               >{{ path.status === 1 ? '已发布' : '草稿' }}</span>
             </div>
             <!-- 操作 -->
             <div class="col-span-2 flex items-center justify-center gap-1">
               <button
                 type="button"
-                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-primary)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="color: var(--kb-primary);"
+                class="p-1.5 rounded transition-colors hover:bg-[var(--kf-primary)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+                style="color: var(--kf-primary);"
                 title="管理章节"
                 @click="openChapterMgmt(path)"
               >
@@ -185,8 +185,8 @@
               </button>
               <button
                 type="button"
-                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-primary)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="color: var(--kb-primary);"
+                class="p-1.5 rounded transition-colors hover:bg-[var(--kf-primary)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+                style="color: var(--kf-primary);"
                 title="编辑"
                 @click="openEditPath(path)"
               >
@@ -195,8 +195,8 @@
               <button
                 v-if="path.status !== 1"
                 type="button"
-                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-accent)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="color: var(--kb-accent);"
+                class="p-1.5 rounded transition-colors hover:bg-[var(--kf-accent)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+                style="color: var(--kf-accent);"
                 title="发布"
                 @click="publishPath(path)"
               >
@@ -205,8 +205,8 @@
               <button
                 v-else
                 type="button"
-                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-warning)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="color: var(--kb-warning);"
+                class="p-1.5 rounded transition-colors hover:bg-[var(--kf-warning)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+                style="color: var(--kf-warning);"
                 title="下架"
                 @click="unpublishPath(path)"
               >
@@ -214,8 +214,8 @@
               </button>
               <button
                 type="button"
-                class="p-1.5 rounded transition-colors hover:bg-[var(--kb-destructive)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="color: var(--kb-destructive);"
+                class="p-1.5 rounded transition-colors hover:bg-[var(--kf-destructive)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+                style="color: var(--kf-destructive);"
                 title="删除"
                 @click="removePath(path)"
               >
@@ -233,42 +233,42 @@
       class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
       @click.self="closePathModal"
     >
-      <div class="rounded-xl w-full max-w-2xl shadow-xl animate-dropdown" style="background: var(--kb-card); border: 1px solid var(--kb-border);">
-        <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color: var(--kb-border);">
-          <h3 class="text-lg font-semibold" style="color: var(--kb-foreground);">
+      <div class="rounded-xl w-full max-w-2xl shadow-xl animate-dropdown" style="background: var(--kf-card); border: 1px solid var(--kf-border);">
+        <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color: var(--kf-border);">
+          <h3 class="text-lg font-semibold" style="color: var(--kf-foreground);">
             {{ editingPathId ? '编辑学习路径' : '新建学习路径' }}
           </h3>
-          <button class="p-1 rounded transition-colors hover:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="closePathModal">
-            <Icon name="x" :size="20" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
+          <button class="p-1 rounded transition-colors hover:bg-[var(--kf-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" @click="closePathModal">
+            <Icon name="x" :size="20" style="color: var(--kf-muted-foreground);" aria-hidden="true" />
           </button>
         </div>
         <div class="px-6 py-4 space-y-4">
           <div>
-            <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">路径标题 <span style="color: var(--kb-destructive);">*</span></label>
+            <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">路径标题 <span style="color: var(--kf-destructive);">*</span></label>
             <input
               v-model="pathForm.title"
               placeholder="例如：Java 全栈工程师学习路径"
-              class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
-              style="color: var(--kb-foreground)"
+              class="w-full h-10 px-3 text-sm outline-none transition-colors kf-input kf-form-control"
+              style="color: var(--kf-foreground)"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">路径描述</label>
+            <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">路径描述</label>
             <textarea
               v-model="pathForm.description"
               rows="3"
               placeholder="简要描述本路径的学习目标、适用人群..."
-              class="w-full px-3 py-2 text-sm outline-none transition-colors resize-y kb-textarea kb-form-control"
-              style="color: var(--kb-foreground)"
+              class="w-full px-3 py-2 text-sm outline-none transition-colors resize-y kf-textarea kf-form-control"
+              style="color: var(--kf-foreground)"
             ></textarea>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">难度级别</label>
+              <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">难度级别</label>
               <select
                 v-model="pathForm.level"
-                class="w-full h-10 px-3 text-sm outline-none transition-colors kb-select kb-form-control"
-                style="color: var(--kb-foreground)"
+                class="w-full h-10 px-3 text-sm outline-none transition-colors kf-select kf-form-control"
+                style="color: var(--kf-foreground)"
               >
                 <option value="入门">入门</option>
                 <option value="进阶">进阶</option>
@@ -276,19 +276,19 @@
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">排序权重</label>
+              <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">排序权重</label>
               <input
                 v-model.number="pathForm.sortOrder"
                 type="number"
                 min="0"
                 placeholder="0"
-                class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
-                style="color: var(--kb-foreground)"
+                class="w-full h-10 px-3 text-sm outline-none transition-colors kf-input kf-form-control"
+                style="color: var(--kf-foreground)"
               />
             </div>
           </div>
         </div>
-        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t" style="border-color: var(--kb-border);">
+        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t" style="border-color: var(--kf-border);">
           <Button variant="secondary" @click="closePathModal">取消</Button>
           <Button :disabled="savingPath" @click="savePath">{{ savingPath ? '保存中...' : '保存' }}</Button>
         </div>
@@ -301,69 +301,69 @@
       class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
       @click.self="closeAiModal"
     >
-      <div class="rounded-xl w-full max-w-2xl shadow-xl animate-dropdown" style="background: var(--kb-card); border: 1px solid var(--kb-border);">
-        <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color: var(--kb-border);">
+      <div class="rounded-xl w-full max-w-2xl shadow-xl animate-dropdown" style="background: var(--kf-card); border: 1px solid var(--kf-border);">
+        <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color: var(--kf-border);">
           <div class="flex items-center gap-3">
             <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: rgba(59,111,224,0.1);">
-              <Icon name="sparkles" :size="18" style="color: var(--kb-primary);" />
+              <Icon name="sparkles" :size="18" style="color: var(--kf-primary);" />
             </div>
             <div>
-              <h3 class="text-lg font-semibold" style="color: var(--kb-foreground);">AI 自动生成学习路径</h3>
-              <p class="text-xs" style="color: var(--kb-muted-foreground);">基于知识库文档内容，AI 将自动设计路径与章节</p>
+              <h3 class="text-lg font-semibold" style="color: var(--kf-foreground);">AI 自动生成学习路径</h3>
+              <p class="text-xs" style="color: var(--kf-muted-foreground);">基于知识库文档内容，AI 将自动设计路径与章节</p>
             </div>
           </div>
-          <button class="p-1 rounded transition-colors hover:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="closeAiModal">
-            <Icon name="x" :size="20" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
+          <button class="p-1 rounded transition-colors hover:bg-[var(--kf-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" @click="closeAiModal">
+            <Icon name="x" :size="20" style="color: var(--kf-muted-foreground);" aria-hidden="true" />
           </button>
         </div>
         <div class="px-6 py-4 space-y-4">
           <!-- 提示信息 -->
           <div class="rounded-lg p-3 flex items-start gap-2" style="background: rgba(59,111,224,0.06);">
-            <Icon name="lightbulb" :size="16" class="mt-0.5 shrink-0" style="color: var(--kb-primary);" />
-            <p class="text-xs leading-relaxed" style="color: var(--kb-foreground);">
+            <Icon name="lightbulb" :size="16" class="mt-0.5 shrink-0" style="color: var(--kf-primary);" />
+            <p class="text-xs leading-relaxed" style="color: var(--kf-foreground);">
               AI 将从知识库中检索相关文档作为参考，自动生成符合主题的学习路径与章节。生成结果默认为「草稿」状态，可在章节管理中进一步编辑后发布。
             </p>
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">学习主题 <span style="color: var(--kb-destructive);">*</span></label>
+            <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">学习主题 <span style="color: var(--kf-destructive);">*</span></label>
             <input
               v-model="aiForm.topic"
               placeholder="例如：Spring Boot 微服务开发"
-              class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
-              style="color: var(--kb-foreground)"
+              class="w-full h-10 px-3 text-sm outline-none transition-colors kf-input kf-form-control"
+              style="color: var(--kf-foreground)"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">补充说明</label>
+            <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">补充说明</label>
             <textarea
               v-model="aiForm.description"
               rows="2"
               placeholder="可补充学习目标、重点内容、适用人群等（可选）"
-              class="w-full px-3 py-2 text-sm outline-none transition-colors resize-y kb-textarea kb-form-control"
-              style="color: var(--kb-foreground)"
+              class="w-full px-3 py-2 text-sm outline-none transition-colors resize-y kf-textarea kf-form-control"
+              style="color: var(--kf-foreground)"
             ></textarea>
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">参考知识库</label>
+            <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">参考知识库</label>
             <select
               v-model="aiForm.categoryId"
-              class="w-full h-10 px-3 text-sm outline-none transition-colors kb-select kb-form-control"
-              style="color: var(--kb-foreground)"
+              class="w-full h-10 px-3 text-sm outline-none transition-colors kf-select kf-form-control"
+              style="color: var(--kf-foreground)"
             >
               <option :value="undefined">全部知识库（不筛选）</option>
               <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
             </select>
-            <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">
+            <p class="text-xs mt-1" style="color: var(--kf-muted-foreground);">
               选择知识库后，AI 将基于该库中的文档生成路径，内容更精准
             </p>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">目标难度</label>
+              <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">目标难度</label>
               <select
                 v-model="aiForm.level"
-                class="w-full h-10 px-3 text-sm outline-none transition-colors kb-select kb-form-control"
-                style="color: var(--kb-foreground)"
+                class="w-full h-10 px-3 text-sm outline-none transition-colors kf-select kf-form-control"
+                style="color: var(--kf-foreground)"
               >
                 <option value="入门">入门</option>
                 <option value="进阶">进阶</option>
@@ -371,21 +371,21 @@
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">章节数量</label>
+              <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">章节数量</label>
               <input
                 v-model.number="aiForm.chapterCount"
                 type="number"
                 min="1"
                 max="15"
                 placeholder="5"
-                class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
-                style="color: var(--kb-foreground)"
+                class="w-full h-10 px-3 text-sm outline-none transition-colors kf-input kf-form-control"
+                style="color: var(--kf-foreground)"
               />
-              <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">建议 3-10 章，过多会影响生成质量</p>
+              <p class="text-xs mt-1" style="color: var(--kf-muted-foreground);">建议 3-10 章，过多会影响生成质量</p>
             </div>
           </div>
         </div>
-        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t" style="border-color: var(--kb-border);">
+        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t" style="border-color: var(--kf-border);">
           <Button variant="secondary" @click="closeAiModal">取消</Button>
           <Button :disabled="generatingAi || !aiForm.topic.trim()" @click="generatePathByAi">
             {{ generatingAi ? 'AI 生成中，请稍候...' : '开始生成' }}
@@ -400,11 +400,11 @@
       class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
       @click.self="closeChapterModal"
     >
-      <div class="rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-xl animate-dropdown" style="background: var(--kb-card); border: 1px solid var(--kb-border);">
-        <div class="flex items-center justify-between px-6 py-4 border-b shrink-0" style="border-color: var(--kb-border);">
+      <div class="rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-xl animate-dropdown" style="background: var(--kf-card); border: 1px solid var(--kf-border);">
+        <div class="flex items-center justify-between px-6 py-4 border-b shrink-0" style="border-color: var(--kf-border);">
           <div class="min-w-0">
-            <h3 class="text-lg font-semibold truncate" style="color: var(--kb-foreground);">章节管理</h3>
-            <p class="text-xs mt-0.5 truncate" style="color: var(--kb-muted-foreground);">
+            <h3 class="text-lg font-semibold truncate" style="color: var(--kf-foreground);">章节管理</h3>
+            <p class="text-xs mt-0.5 truncate" style="color: var(--kf-muted-foreground);">
               {{ currentPath?.title }} · 共 {{ chapters.length }} 章
             </p>
           </div>
@@ -412,8 +412,8 @@
             <Button size="sm" variant="secondary" icon-name="sparkles" @click="batchGenerateFlashcards" :disabled="batchGenerating">
               {{ batchGenerating ? '生成闪卡中...' : 'AI 批量生成闪卡' }}
             </Button>
-            <button class="p-1 rounded transition-colors hover:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="closeChapterModal">
-              <Icon name="x" :size="20" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
+            <button class="p-1 rounded transition-colors hover:bg-[var(--kf-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" @click="closeChapterModal">
+              <Icon name="x" :size="20" style="color: var(--kf-muted-foreground);" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -421,16 +421,16 @@
         <div class="overflow-y-auto flex-1 px-6 py-4">
           <!-- 加载状态 -->
           <div v-if="loadingChapters" class="py-12 flex flex-col items-center gap-3">
-            <div class="w-8 h-8 border-2 rounded-full animate-spin" style="border-color: var(--kb-border); border-top-color: var(--kb-primary);"></div>
-            <p class="text-sm" style="color: var(--kb-muted-foreground);">加载章节...</p>
+            <div class="w-8 h-8 border-2 rounded-full animate-spin" style="border-color: var(--kf-border); border-top-color: var(--kf-primary);"></div>
+            <p class="text-sm" style="color: var(--kf-muted-foreground);">加载章节...</p>
           </div>
 
           <!-- 空状态 -->
           <div v-else-if="chapters.length === 0" class="py-12 flex flex-col items-center gap-3">
-            <div class="w-14 h-14 rounded-full flex items-center justify-center" style="background: var(--kb-muted);">
-              <Icon name="list-ordered" :size="28" style="color: var(--kb-muted-foreground);" />
+            <div class="w-14 h-14 rounded-full flex items-center justify-center" style="background: var(--kf-muted);">
+              <Icon name="list-ordered" :size="28" style="color: var(--kf-muted-foreground);" />
             </div>
-            <p class="text-sm" style="color: var(--kb-muted-foreground);">该路径暂无章节</p>
+            <p class="text-sm" style="color: var(--kf-muted-foreground);">该路径暂无章节</p>
             <Button size="sm" icon-name="plus" @click="openCreateChapter">添加第一章</Button>
           </div>
 
@@ -440,29 +440,29 @@
               v-for="(chapter, idx) in chapters"
               :key="chapter.id"
               class="rounded-lg border p-4 transition-colors"
-              style="border-color: var(--kb-border); background: var(--kb-background);"
+              style="border-color: var(--kf-border); background: var(--kf-background);"
             >
               <div class="flex items-start gap-3">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm font-bold tabular-nums" style="background: rgba(59,111,224,0.1); color: var(--kb-primary);">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-sm font-bold tabular-nums" style="background: rgba(59,111,224,0.1); color: var(--kf-primary);">
                   {{ chapter.sortOrder ?? idx + 1 }}
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2 flex-wrap mb-1">
-                    <p class="font-medium" style="color: var(--kb-foreground);">{{ chapter.title }}</p>
-                    <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full" style="background: var(--kb-muted); color: var(--kb-muted-foreground);">
+                    <p class="font-medium" style="color: var(--kf-foreground);">{{ chapter.title }}</p>
+                    <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full" style="background: var(--kf-muted); color: var(--kf-muted-foreground);">
                       <Icon name="clock" :size="12" />
                       {{ chapter.duration || 30 }} 分钟
                     </span>
                   </div>
-                  <p v-if="chapter.content" class="text-xs line-clamp-2 mt-1" style="color: var(--kb-muted-foreground);">
+                  <p v-if="chapter.content" class="text-xs line-clamp-2 mt-1" style="color: var(--kf-muted-foreground);">
                     {{ chapter.content }}
                   </p>
                 </div>
                 <div class="flex items-center gap-1 shrink-0">
                   <button
                     type="button"
-                    class="p-1.5 rounded transition-colors hover:bg-[var(--kb-primary)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                    style="color: var(--kb-primary);"
+                    class="p-1.5 rounded transition-colors hover:bg-[var(--kf-primary)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+                    style="color: var(--kf-primary);"
                     title="AI 生成内容"
                     :disabled="generatingChapterId === chapter.id"
                     @click="generateChapterContent(chapter)"
@@ -471,8 +471,8 @@
                   </button>
                   <button
                     type="button"
-                    class="p-1.5 rounded transition-colors hover:bg-[var(--kb-primary)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                    style="color: var(--kb-primary);"
+                    class="p-1.5 rounded transition-colors hover:bg-[var(--kf-primary)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+                    style="color: var(--kf-primary);"
                     title="编辑"
                     @click="openEditChapter(chapter)"
                   >
@@ -480,8 +480,8 @@
                   </button>
                   <button
                     type="button"
-                    class="p-1.5 rounded transition-colors hover:bg-[var(--kb-destructive)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                    style="color: var(--kb-destructive);"
+                    class="p-1.5 rounded transition-colors hover:bg-[var(--kf-destructive)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+                    style="color: var(--kf-destructive);"
                     title="删除"
                     @click="removeChapter(chapter)"
                   >
@@ -493,8 +493,8 @@
           </div>
         </div>
 
-        <div v-if="!loadingChapters" class="flex items-center justify-between px-6 py-4 border-t shrink-0" style="border-color: var(--kb-border);">
-          <p class="text-xs" style="color: var(--kb-muted-foreground);">
+        <div v-if="!loadingChapters" class="flex items-center justify-between px-6 py-4 border-t shrink-0" style="border-color: var(--kf-border);">
+          <p class="text-xs" style="color: var(--kf-muted-foreground);">
             <Icon name="lightbulb" :size="12" class="inline mr-1" />
             点击 <Icon name="sparkles" :size="12" class="inline" /> 让 AI 为章节生成详细内容
           </p>
@@ -509,63 +509,63 @@
       class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
       @click.self="closeChapterFormModal"
     >
-      <div class="rounded-xl w-full max-w-2xl shadow-xl animate-dropdown" style="background: var(--kb-card); border: 1px solid var(--kb-border);">
-        <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color: var(--kb-border);">
-          <h3 class="text-lg font-semibold" style="color: var(--kb-foreground);">
+      <div class="rounded-xl w-full max-w-2xl shadow-xl animate-dropdown" style="background: var(--kf-card); border: 1px solid var(--kf-border);">
+        <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color: var(--kf-border);">
+          <h3 class="text-lg font-semibold" style="color: var(--kf-foreground);">
             {{ editingChapterId ? '编辑章节' : '新增章节' }}
           </h3>
-          <button class="p-1 rounded transition-colors hover:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="closeChapterFormModal">
-            <Icon name="x" :size="20" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
+          <button class="p-1 rounded transition-colors hover:bg-[var(--kf-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" @click="closeChapterFormModal">
+            <Icon name="x" :size="20" style="color: var(--kf-muted-foreground);" aria-hidden="true" />
           </button>
         </div>
         <div class="px-6 py-4 space-y-4 max-h-[60vh] overflow-y-auto">
           <div>
-            <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">章节标题 <span style="color: var(--kb-destructive);">*</span></label>
+            <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">章节标题 <span style="color: var(--kf-destructive);">*</span></label>
             <input
               v-model="chapterForm.title"
               placeholder="例如：第一章 入门基础"
-              class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
-              style="color: var(--kb-foreground)"
+              class="w-full h-10 px-3 text-sm outline-none transition-colors kf-input kf-form-control"
+              style="color: var(--kf-foreground)"
             />
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">学习时长（分钟）</label>
+              <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">学习时长（分钟）</label>
               <input
                 v-model.number="chapterForm.duration"
                 type="number"
                 min="1"
                 placeholder="30"
-                class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
-                style="color: var(--kb-foreground)"
+                class="w-full h-10 px-3 text-sm outline-none transition-colors kf-input kf-form-control"
+                style="color: var(--kf-foreground)"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">排序序号</label>
+              <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">排序序号</label>
               <input
                 v-model.number="chapterForm.sortOrder"
                 type="number"
                 min="0"
                 placeholder="1"
-                class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
-                style="color: var(--kb-foreground)"
+                class="w-full h-10 px-3 text-sm outline-none transition-colors kf-input kf-form-control"
+                style="color: var(--kf-foreground)"
               />
             </div>
           </div>
           <!-- 参考文档选择 -->
           <div>
             <div class="flex items-center justify-between mb-1.5">
-              <label class="text-sm font-medium" style="color: var(--kb-foreground);">参考文档（可选）</label>
+              <label class="text-sm font-medium" style="color: var(--kf-foreground);">参考文档（可选）</label>
               <button
                 type="button"
-                class="text-xs font-medium hover:opacity-80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-                style="color: var(--kb-primary);"
+                class="text-xs font-medium hover:opacity-80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+                style="color: var(--kf-primary);"
                 @click="showDocPicker = !showDocPicker"
               >
                 {{ showDocPicker ? '收起选择' : '选择文档' }}
               </button>
             </div>
-            <p class="text-xs mb-2" style="color: var(--kb-muted-foreground);">
+            <p class="text-xs mb-2" style="color: var(--kf-muted-foreground);">
               选择知识库文档后，AI 将基于这些文档内容生成章节内容，质量更高
             </p>
             <!-- 已选文档 -->
@@ -574,33 +574,33 @@
                 v-for="doc in selectedDocs"
                 :key="doc.id"
                 class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs"
-                style="background: rgba(59,111,224,0.1); color: var(--kb-primary);"
+                style="background: rgba(59,111,224,0.1); color: var(--kf-primary);"
               >
                 {{ doc.title }}
-                <button type="button" class="hover:opacity-70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="removeSelectedDoc(doc.id)">
+                <button type="button" class="hover:opacity-70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" @click="removeSelectedDoc(doc.id)">
                   <Icon name="x" :size="12" aria-hidden="true" />
                 </button>
               </span>
             </div>
             <!-- 文档选择器 -->
-            <div v-if="showDocPicker" class="rounded-lg border p-3 space-y-3" style="border-color: var(--kb-border); background: var(--kb-background);">
+            <div v-if="showDocPicker" class="rounded-lg border p-3 space-y-3" style="border-color: var(--kf-border); background: var(--kf-background);">
               <div class="flex items-center gap-2">
                 <select
                   v-model="docPickerCategoryId"
-                  class="flex-1 h-9 px-2 text-xs outline-none transition-colors kb-select kb-form-control"
-                  style="color: var(--kb-foreground)"
+                  class="flex-1 h-9 px-2 text-xs outline-none transition-colors kf-select kf-form-control"
+                  style="color: var(--kf-foreground)"
                   @change="loadPickerDocs"
                 >
                   <option :value="undefined">全部知识库</option>
                   <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
                 </select>
                 <div class="relative flex-1">
-                  <Icon name="search" :size="14" class="absolute left-2 top-1/2 -translate-y-1/2" style="color: var(--kb-muted-foreground);" />
+                  <Icon name="search" :size="14" class="absolute left-2 top-1/2 -translate-y-1/2" style="color: var(--kf-muted-foreground);" />
                   <input
                     v-model="docPickerKeyword"
                     placeholder="搜索文档..."
-                    class="w-full h-9 pl-7 pr-2 text-xs outline-none transition-colors kb-input kb-form-control"
-                    style="color: var(--kb-foreground)"
+                    class="w-full h-9 pl-7 pr-2 text-xs outline-none transition-colors kf-input kf-form-control"
+                    style="color: var(--kf-foreground)"
                   />
                 </div>
               </div>
@@ -608,7 +608,7 @@
                 <div
                   v-for="doc in filteredPickerDocs"
                   :key="doc.id"
-                  class="flex items-center gap-2 p-2 rounded cursor-pointer transition-colors hover:bg-[var(--kb-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                  class="flex items-center gap-2 p-2 rounded cursor-pointer transition-colors hover:bg-[var(--kf-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                   :style="isDocSelected(doc.id) ? { background: 'rgba(59,111,224,0.08)' } : {}"
                   role="button"
                   tabindex="0"
@@ -618,34 +618,34 @@
                   <div
                     class="w-4 h-4 rounded border flex items-center justify-center shrink-0"
                     :style="isDocSelected(doc.id)
-                      ? { background: 'var(--kb-primary)', borderColor: 'var(--kb-primary)' }
-                      : { borderColor: 'var(--kb-border)' }"
+                      ? { background: 'var(--kf-primary)', borderColor: 'var(--kf-primary)' }
+                      : { borderColor: 'var(--kf-border)' }"
                   >
                     <Icon v-if="isDocSelected(doc.id)" name="check" :size="12" style="color: white;" aria-hidden="true" />
                   </div>
                   <div class="flex-1 min-w-0">
-                    <p class="text-xs font-medium truncate" style="color: var(--kb-foreground);">{{ doc.title }}</p>
-                    <p class="text-xs truncate" style="color: var(--kb-muted-foreground);">{{ doc.summary || '暂无摘要' }}</p>
+                    <p class="text-xs font-medium truncate" style="color: var(--kf-foreground);">{{ doc.title }}</p>
+                    <p class="text-xs truncate" style="color: var(--kf-muted-foreground);">{{ doc.summary || '暂无摘要' }}</p>
                   </div>
                 </div>
-                <p v-if="pickerDocs.length === 0" class="text-xs text-center py-6" style="color: var(--kb-muted-foreground);">
+                <p v-if="pickerDocs.length === 0" class="text-xs text-center py-6" style="color: var(--kf-muted-foreground);">
                   暂无文档
                 </p>
               </div>
             </div>
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">章节内容</label>
+            <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">章节内容</label>
             <textarea
               v-model="chapterForm.content"
               rows="8"
               placeholder="可填写章节描述，或选择上方参考文档后点击「AI 生成」让 AI 自动生成详细内容（支持 Markdown）"
-              class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kb-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 resize-y font-mono"
-              style="background: var(--kb-background); border-color: var(--kb-border); color: var(--kb-foreground);"
+              class="w-full px-3 py-2 rounded-lg text-sm border outline-none transition-colors focus:border-[var(--kf-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 resize-y font-mono"
+              style="background: var(--kf-background); border-color: var(--kf-border); color: var(--kf-foreground);"
             ></textarea>
           </div>
         </div>
-        <div class="flex items-center justify-between gap-3 px-6 py-4 border-t" style="border-color: var(--kb-border);">
+        <div class="flex items-center justify-between gap-3 px-6 py-4 border-t" style="border-color: var(--kf-border);">
           <Button
             size="sm"
             variant="ghost"
@@ -737,13 +737,13 @@ const filteredPaths = computed(() => {
 const getLevelStyle = (level?: string) => {
   switch (level) {
     case '入门':
-      return { background: 'rgba(16,185,129,0.1)', color: 'var(--kb-accent)' }
+      return { background: 'rgba(16,185,129,0.1)', color: 'var(--kf-accent)' }
     case '进阶':
-      return { background: 'rgba(59,111,224,0.1)', color: 'var(--kb-primary)' }
+      return { background: 'rgba(59,111,224,0.1)', color: 'var(--kf-primary)' }
     case '高级':
-      return { background: 'rgba(239,68,68,0.1)', color: 'var(--kb-destructive)' }
+      return { background: 'rgba(239,68,68,0.1)', color: 'var(--kf-destructive)' }
     default:
-      return { background: 'var(--kb-muted)', color: 'var(--kb-muted-foreground)' }
+      return { background: 'var(--kf-muted)', color: 'var(--kf-muted-foreground)' }
   }
 }
 

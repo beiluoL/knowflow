@@ -12,7 +12,7 @@
       <span>加载评分准则…</span>
     </div>
     <div v-else-if="loadError" class="fn-state">
-      <Icon name="alert-circle" :size="20" style="color: var(--kb-danger)" />
+      <Icon name="alert-circle" :size="20" style="color: var(--kf-danger)" />
       <p>{{ loadError }}</p>
       <button type="button" class="fn-btn-ghost" @click="loadRubric">
         <Icon name="refresh-cw" :size="14" /><span>重试</span>
@@ -22,7 +22,7 @@
     <template v-else-if="rubric">
       <!-- Architecture-4.2 §9：深链聚焦知识点时展示上下文条 -->
       <div v-if="activeKnowledgeId" class="fn-ctx-banner">
-        <Icon name="target" :size="14" style="color: var(--kb-primary)" />
+        <Icon name="target" :size="14" style="color: var(--kf-primary)" />
         <span class="fn-ctx-text">
           正在围绕知识点：<strong>{{ activeKnowledgeName || '#' + activeKnowledgeId }}</strong> 练习表达
         </span>
@@ -30,7 +30,7 @@
       </div>
       <!-- Architecture-4.4：AI 生成的学习 Draft 引导（接受费曼后由 sessionStorage 注入，使用后清除） -->
       <div v-if="draftGuide" class="fn-draft">
-        <div class="fn-draft-head"><Icon name="sparkles" :size="14" style="color: var(--kb-primary)" /> 本次费曼引导（来自 AI 生成的学习素材）</div>
+        <div class="fn-draft-head"><Icon name="sparkles" :size="14" style="color: var(--kf-primary)" /> 本次费曼引导（来自 AI 生成的学习素材）</div>
         <p class="fn-draft-q">{{ draftGuide }}</p>
         <div v-if="draftHints.length" class="fn-draft-hints">
           <span class="fn-draft-hint" v-for="(h, i) in draftHints" :key="i">{{ h }}</span>
@@ -42,7 +42,7 @@
         <div class="fn-title-wrap">
           <span class="fn-title-icon"><Icon name="book-open" :size="18" /></span>
           <div>
-            <h1 class="kb-h1">费曼表达</h1>
+            <h1 class="kf-h1">费曼表达</h1>
             <p class="fn-subtitle">以教代学：挑一个刚学的主题，用「讲给完全不懂的人听」的方式写下来，再按四维准则自检。</p>
           </div>
         </div>
@@ -51,7 +51,7 @@
       <!-- 结果面板 -->
       <section v-if="result" class="fn-result" role="status" aria-live="polite">
         <div class="fn-result-head">
-          <span class="fn-result-title"><Icon name="check-circle" :size="16" style="color: var(--kb-success)" />自检结果：{{ result.topic }}</span>
+          <span class="fn-result-title"><Icon name="check-circle" :size="16" style="color: var(--kf-success)" />自检结果：{{ result.topic }}</span>
           <span class="fn-result-score" :class="scoreClass(result.overall)">{{ result.overall }}<em>/100</em></span>
         </div>
         <p class="fn-result-comment">{{ result.comment }}</p>
@@ -87,12 +87,12 @@
         <!-- 主题 -->
         <section class="fn-block">
           <div class="fn-block-head">
-            <Icon name="target" :size="16" style="color: var(--kb-primary)" />
+            <Icon name="target" :size="16" style="color: var(--kf-primary)" />
             <span class="fn-block-title">表达主题 *</span>
           </div>
           <input
             v-model="topic"
-            class="fn-input kb-input kb-form-control" aria-label="表达主题" :disabled="submitting"
+            class="fn-input kf-input kf-form-control" aria-label="表达主题" :disabled="submitting"
             maxlength="200"
             placeholder="如：JVM 年轻代 GC 是怎么工作的"
           />
@@ -101,13 +101,13 @@
         <!-- 解释正文 -->
         <section class="fn-block">
           <div class="fn-block-head">
-            <Icon name="pen-line" :size="16" style="color: var(--kb-primary)" />
+            <Icon name="pen-line" :size="16" style="color: var(--kf-primary)" />
             <span class="fn-block-title">你的解释 *</span>
             <span class="fn-count">{{ explanation.length }}/10000</span>
           </div>
           <textarea
             v-model="explanation"
-            class="fn-textarea kb-textarea kb-form-control" aria-label="你的解释" :disabled="submitting"
+            class="fn-textarea kf-textarea kf-form-control" aria-label="你的解释" :disabled="submitting"
             rows="10"
             maxlength="10000"
             placeholder="把刚学的知识点讲给一个完全不懂的人听：先一句话概括，再展开机制，配类比 / 例子，最后自问自答验证。"
@@ -121,7 +121,7 @@
         <!-- 四维自检 -->
         <section class="fn-block">
           <div class="fn-block-head">
-            <Icon name="list-checks" :size="16" style="color: var(--kb-primary)" />
+            <Icon name="list-checks" :size="16" style="color: var(--kf-primary)" />
             <span class="fn-block-title">四维自检评分 *</span>
             <span class="fn-count">{{ checked.length }}/{{ rubric.dimensions.reduce((sum,dim)=>sum+dim.items.length,0) }} 已勾选</span>
           </div>
@@ -319,14 +319,14 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.phase-d-lab { max-width:var(--kb-notes-reading-width);margin-inline:auto;min-width:0; }
-.lab-steps { display:flex;flex-wrap:wrap;list-style:none;gap:var(--kb-space-4);padding:0;margin:0 0 var(--kb-space-3);font-size:var(--kb-fs-body-sm);color:var(--kb-muted-foreground); }
-.lab-steps [aria-current="step"] { color:var(--kb-primary);font-weight:600; }
-.lab-contract { font-size:var(--kb-fs-body-sm);line-height:1.7;color:var(--kb-muted-foreground);padding-block:var(--kb-space-3);margin:0 0 var(--kb-space-5);border-bottom:var(--kb-studio-rule) solid var(--kb-border); }
-.phase-d-lab :focus-visible:not(.kb-form-control, .kb-input, .kb-textarea, .kb-select, .kb-select-trigger) { outline:var(--kb-studio-focus) solid var(--kb-ring);outline-offset:var(--kb-studio-focus); }
-.phase-d-lab .fn-title-wrap h1 { font-family:inherit;font-size:var(--kb-page-title-size); }
-.phase-d-lab .fn-textarea { font-size:var(--kb-fs-body-lg);line-height:1.75; }
-.phase-d-lab button { min-height:var(--kb-control-hit-size); }
+.phase-d-lab { max-width:var(--kf-notes-reading-width);margin-inline:auto;min-width:0; }
+.lab-steps { display:flex;flex-wrap:wrap;list-style:none;gap:var(--kf-space-4);padding:0;margin:0 0 var(--kf-space-3);font-size:var(--kf-fs-body-sm);color:var(--kf-muted-foreground); }
+.lab-steps [aria-current="step"] { color:var(--kf-primary);font-weight:600; }
+.lab-contract { font-size:var(--kf-fs-body-sm);line-height:1.7;color:var(--kf-muted-foreground);padding-block:var(--kf-space-3);margin:0 0 var(--kf-space-5);border-bottom:var(--kf-studio-rule) solid var(--kf-border); }
+.phase-d-lab :focus-visible:not(.kf-form-control, .kf-input, .kf-textarea, .kf-select, .kf-select-trigger) { outline:var(--kf-studio-focus) solid var(--kf-ring);outline-offset:var(--kf-studio-focus); }
+.phase-d-lab .fn-title-wrap h1 { font-family:inherit;font-size:var(--kf-page-title-size); }
+.phase-d-lab .fn-textarea { font-size:var(--kf-fs-body-lg);line-height:1.75; }
+.phase-d-lab button { min-height:var(--kf-control-hit-size); }
 .phase-d-lab p { overflow-wrap:anywhere; }
 @media(prefers-reduced-motion:reduce){.phase-d-lab {animation:none;}}
 
@@ -358,16 +358,16 @@ onMounted(() => {
   width: 36px;
   height: 36px;
   flex-shrink: 0;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 
 .fn-subtitle {
   margin-top: 4px;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1.6;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* Architecture-4.2 §9：知识点聚焦上下文条 */
@@ -377,29 +377,29 @@ onMounted(() => {
   gap: 8px;
   padding: 10px 14px;
   margin-bottom: 16px;
-  border: 1px solid var(--kb-primary-subtle);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-primary-subtle);
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-foreground);
+  border: 1px solid var(--kf-primary-subtle);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-primary-subtle);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-foreground);
 }
 .fn-ctx-text strong {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .fn-ctx-clear {
   margin-left: auto;
   padding: 4px 12px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-caption);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .fn-ctx-clear:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 
 .fn-state {
@@ -408,18 +408,18 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   padding: 56px 16px;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
   text-align: center;
 }
 
 .fn-block {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
   padding: 18px;
   margin-bottom: 16px;
-  box-shadow: var(--kb-shadow-sm);
+  box-shadow: var(--kf-shadow-sm);
 }
 
 .fn-block-head {
@@ -430,22 +430,22 @@ onMounted(() => {
 }
 
 .fn-block-title {
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   flex: 1;
 }
 
 .fn-count {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 
-.fn-input:not(.kb-form-control),
-.fn-textarea:not(.kb-form-control) {
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  border-radius: var(--kb-radius-md);
+.fn-input:not(.kf-form-control),
+.fn-textarea:not(.kf-form-control) {
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  border-radius: var(--kf-radius-md);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -453,8 +453,8 @@ onMounted(() => {
 .fn-textarea {
   width: 100%;
   box-sizing: border-box;
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-md);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-md);
   line-height: 1.7;
 }
 
@@ -462,7 +462,7 @@ onMounted(() => {
   padding: 10px 14px;
 }
 
-.fn-textarea:not(.kb-form-control) {
+.fn-textarea:not(.kf-form-control) {
   min-height: 160px;
 }
 
@@ -473,11 +473,11 @@ onMounted(() => {
   min-height: 160px;
 }
 
-.fn-input:not(.kb-form-control):focus,
-.fn-textarea:not(.kb-form-control):focus {
+.fn-input:not(.kf-form-control):focus,
+.fn-textarea:not(.kf-form-control):focus {
   outline: none;
-  border-color: var(--kb-primary);
-  box-shadow: 0 0 0 3px var(--kb-ring);
+  border-color: var(--kf-primary);
+  box-shadow: 0 0 0 3px var(--kf-ring);
 }
 
 .fn-tip {
@@ -485,8 +485,8 @@ onMounted(() => {
   align-items: flex-start;
   gap: 6px;
   margin-top: 10px;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   line-height: 1.6;
 }
 
@@ -498,10 +498,10 @@ onMounted(() => {
 }
 
 .fn-dim-card {
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   padding: 14px;
-  background: var(--kb-bg);
+  background: var(--kf-bg);
 }
 
 .fn-dim-head {
@@ -512,14 +512,14 @@ onMounted(() => {
 }
 
 .fn-dim-name {
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .fn-dim-progress {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-primary);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-primary);
   font-weight: 600;
 }
 
@@ -535,7 +535,7 @@ onMounted(() => {
   gap: 8px;
   padding: 8px 10px;
   border: 1px solid transparent;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   text-align: left;
   background: transparent;
   cursor: pointer;
@@ -543,18 +543,18 @@ onMounted(() => {
 }
 
 .fn-criterion:hover {
-  background: var(--kb-primary-soft);
-  border-color: var(--kb-border);
+  background: var(--kf-primary-soft);
+  border-color: var(--kf-border);
 }
 
 .fn-criterion:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--kb-ring);
+  box-shadow: 0 0 0 3px var(--kf-ring);
 }
 
 .fn-criterion-on {
-  background: var(--kb-primary-soft);
-  border-color: var(--kb-primary-subtle);
+  background: var(--kf-primary-soft);
+  border-color: var(--kf-primary-subtle);
 }
 
 .fn-check {
@@ -565,22 +565,22 @@ onMounted(() => {
   height: 18px;
   flex-shrink: 0;
   margin-top: 1px;
-  border-radius: var(--kb-radius-xs);
-  border: 1px solid var(--kb-border);
+  border-radius: var(--kf-radius-xs);
+  border: 1px solid var(--kf-border);
   color: transparent;
   transition: all 0.15s ease;
 }
 
 .fn-criterion-on .fn-check {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 
 .fn-criterion-text {
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   line-height: 1.55;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .fn-submit-row {
@@ -592,8 +592,8 @@ onMounted(() => {
 }
 
 .fn-submit-error {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-danger);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-danger);
 }
 
 .fn-btn-primary {
@@ -602,17 +602,17 @@ onMounted(() => {
   gap: 6px;
   padding: 9px 18px;
   border: none;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
-  font-size: var(--kb-fs-body-md);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease;
 }
 
 .fn-btn-primary:hover:not(:disabled) {
-  background: var(--kb-primary-hover);
+  background: var(--kf-primary-hover);
 }
 
 .fn-btn-primary:disabled {
@@ -625,27 +625,27 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   padding: 7px 14px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-sm);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-sm);
   cursor: pointer;
   transition: border-color 0.15s ease, color 0.15s ease;
 }
 
 .fn-btn-ghost:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 
 /* 结果面板 */
 .fn-result {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
   padding: 22px;
-  box-shadow: var(--kb-shadow-sm);
+  box-shadow: var(--kf-shadow-sm);
 }
 
 .fn-result-head {
@@ -659,40 +659,40 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .fn-result-score {
-  font-size: var(--kb-fs-h2);
+  font-size: var(--kf-fs-h2);
   font-weight: 700;
   line-height: 1;
 }
 
 .fn-result-score em {
   font-style: normal;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .fn-score-good {
-  color: var(--kb-success);
+  color: var(--kf-success);
 }
 
 .fn-score-mid {
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 
 .fn-score-low {
-  color: var(--kb-danger);
+  color: var(--kf-danger);
 }
 
 .fn-result-comment {
   margin-top: 10px;
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-muted-foreground);
   line-height: 1.7;
 }
 
@@ -713,18 +713,18 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-foreground);
 }
 
 .fn-dim-bar-meta {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .fn-dim-bar-track {
   height: 8px;
   border-radius: 999px;
-  background: var(--kb-border);
+  background: var(--kf-border);
   overflow: hidden;
 }
 
@@ -735,32 +735,32 @@ onMounted(() => {
 }
 
 .fn-dim-bar-fill.fn-score-good {
-  background: var(--kb-success);
+  background: var(--kf-success);
 }
 
 .fn-dim-bar-fill.fn-score-mid {
-  background: var(--kb-warning);
+  background: var(--kf-warning);
 }
 
 .fn-dim-bar-fill.fn-score-low {
-  background: var(--kb-danger);
+  background: var(--kf-danger);
 }
 
 .fn-missed {
   margin-top: 16px;
   padding: 12px 14px;
-  border: 1px dashed var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-bg);
+  border: 1px dashed var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-bg);
 }
 
 .fn-missed-title {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   font-weight: 600;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .fn-missed-list {
@@ -773,9 +773,9 @@ onMounted(() => {
 }
 
 .fn-missed-list li {
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   line-height: 1.55;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .fn-result-actions {
@@ -809,12 +809,12 @@ onMounted(() => {
   }
 }
 
-.fn-draft { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; margin-bottom: 14px; border: 1px solid color-mix(in srgb, var(--kb-primary) 35%, transparent); background: color-mix(in srgb, var(--kb-primary) 6%, transparent); border-radius: var(--kb-radius-md); }
-.fn-draft-head { display: flex; align-items: center; gap: 6px; font-size: var(--kb-fs-13); font-weight: 600; color: var(--kb-primary); }
-.fn-draft-q { font-size: var(--kb-fs-14); line-height: 1.7; color: var(--kb-foreground); white-space: pre-wrap; }
+.fn-draft { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; margin-bottom: 14px; border: 1px solid color-mix(in srgb, var(--kf-primary) 35%, transparent); background: color-mix(in srgb, var(--kf-primary) 6%, transparent); border-radius: var(--kf-radius-md); }
+.fn-draft-head { display: flex; align-items: center; gap: 6px; font-size: var(--kf-fs-13); font-weight: 600; color: var(--kf-primary); }
+.fn-draft-q { font-size: var(--kf-fs-14); line-height: 1.7; color: var(--kf-foreground); white-space: pre-wrap; }
 .fn-draft-hints { display: flex; flex-wrap: wrap; gap: 6px; }
-.fn-draft-hint { font-size: var(--kb-fs-12); color: var(--kb-foreground); background: var(--kb-card); border: 1px solid var(--kb-border); padding: 3px 10px; border-radius: var(--kb-radius-sm); }
+.fn-draft-hint { font-size: var(--kf-fs-12); color: var(--kf-foreground); background: var(--kf-card); border: 1px solid var(--kf-border); padding: 3px 10px; border-radius: var(--kf-radius-sm); }
 .fn-draft .fn-ctx-clear { align-self: flex-start; }
 
-.fn-page.phase-d-lab { max-width:var(--kb-notes-reading-width);margin-inline:auto; }
+.fn-page.phase-d-lab { max-width:var(--kf-notes-reading-width);margin-inline:auto; }
 </style>

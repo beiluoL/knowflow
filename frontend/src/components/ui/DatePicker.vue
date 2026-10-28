@@ -345,44 +345,44 @@ watch(
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   width: 100%;
-  height: var(--kb-input-height);
-  padding: 0 var(--kb-field-padding);
+  height: var(--kf-input-height);
+  padding: 0 var(--kf-field-padding);
   border: 0;
-  border-radius: var(--kb-field-radius);
-  background: var(--kb-field-surface);
-  color: var(--kb-foreground);
+  border-radius: var(--kf-field-radius);
+  background: var(--kf-field-surface);
+  color: var(--kf-foreground);
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease;
 }
 
 .dp-trigger:hover {
-  background: var(--kb-field-hover);
+  background: var(--kf-field-hover);
 }
 
 .dp-trigger--focus,
 .dp-trigger--open {
-  background: var(--kb-field-active);
+  background: var(--kf-field-active);
 }
 
 .dp-control--error .dp-trigger {
-  background: var(--kb-field-error-bg);
+  background: var(--kf-field-error-bg);
 }
 
 .dp-control--disabled .dp-trigger {
-  background: var(--kb-field-disabled);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-field-disabled);
+  color: var(--kf-muted-foreground);
   cursor: not-allowed;
 }
 
 .dp-control--readonly .dp-trigger {
-  background: var(--kb-field-readonly);
+  background: var(--kf-field-readonly);
 }
 
 .dp-icon {
   flex-shrink: 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .dp-text {
@@ -396,14 +396,14 @@ watch(
   box-shadow: none;
   outline: 0;
   font: inherit;
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   color: inherit;
   cursor: inherit;
 }
 
 .dp-text::placeholder {
-  color: var(--kb-field-placeholder);
+  color: var(--kf-field-placeholder);
   opacity: 1;
 }
 
@@ -421,19 +421,19 @@ watch(
 
 .dp-hint {
   flex-shrink: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 
 .dp-panel {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  padding: var(--kb-space-4);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
-  background: var(--kb-popover);
-  color: var(--kb-popover-foreground);
+  padding: var(--kf-space-4);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
+  background: var(--kf-popover);
+  color: var(--kf-popover-foreground);
   box-shadow: var(--shadow-dropdown-3);
   overflow: auto;
   font-family: var(--font-sans);

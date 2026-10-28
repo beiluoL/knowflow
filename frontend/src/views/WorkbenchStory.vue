@@ -1,19 +1,19 @@
 <template>
   <WorkbenchShell stage="story" title="知识输出" :revision="revision" @ready="load">
-    <template #actions><RouterLink to="/workbench/story/new" class="kb-btn kb-btn-primary"><Icon name="plus" :size="16" /> 新建输出</RouterLink></template>
-    <div class="workbench-toolbar"><button v-for="tab in tabs" :key="tab.value" class="kb-btn" :class="{ 'kb-btn-primary': activeStatus === tab.value }" :aria-pressed="activeStatus === tab.value" @click="activeStatus = tab.value; load()">{{ tab.label }}</button><input v-model="keyword" class="kb-input workbench-search kb-form-control" aria-label="搜索输出" placeholder="搜索作品标题…" @input="load" /></div>
-    <div v-if="error" role="alert" class="workbench-inline-error">{{ error }}<button class="kb-btn" @click="load">重试</button></div>
+    <template #actions><RouterLink to="/workbench/story/new" class="kf-btn kf-btn-primary"><Icon name="plus" :size="16" /> 新建输出</RouterLink></template>
+    <div class="workbench-toolbar"><button v-for="tab in tabs" :key="tab.value" class="kf-btn" :class="{ 'kf-btn-primary': activeStatus === tab.value }" :aria-pressed="activeStatus === tab.value" @click="activeStatus = tab.value; load()">{{ tab.label }}</button><input v-model="keyword" class="kf-input workbench-search kf-form-control" aria-label="搜索输出" placeholder="搜索作品标题…" @input="load" /></div>
+    <div v-if="error" role="alert" class="workbench-inline-error">{{ error }}<button class="kf-btn" @click="load">重试</button></div>
     <div v-else-if="loading" class="workbench-empty" role="status">正在读取输出作品…</div>
-    <section v-else-if="!list.length" class="workbench-panel workbench-empty"><h2 class="kb-text-card-title">{{ keyword || activeStatus ? '没有符合筛选的作品' : '把知识讲给别人听' }}</h2><p>一段简单讲解、一个故事或一个实例，都可以成为你的输出。</p><RouterLink to="/workbench/story/new" class="kb-btn">写第一篇</RouterLink></section>
+    <section v-else-if="!list.length" class="workbench-panel workbench-empty"><h2 class="kf-text-card-title">{{ keyword || activeStatus ? '没有符合筛选的作品' : '把知识讲给别人听' }}</h2><p>一段简单讲解、一个故事或一个实例，都可以成为你的输出。</p><RouterLink to="/workbench/story/new" class="kf-btn">写第一篇</RouterLink></section>
     <div v-else class="workbench-split">
       <div class="workbench-list"><button v-for="story in list" :key="story.id" class="workbench-row" :class="{ selected: selected?.id === story.id }" :aria-pressed="selected?.id === story.id" @click="selectedId = story.id"><span class="workbench-badge">{{ statusLabel(story.status) }} · {{ story.wordCount || 0 }} 字</span><strong>{{ story.title }}</strong><small class="line-clamp-2">{{ story.content || '还没有正文' }}</small><small v-if="story.gapNote">有待补充的卡点</small></button></div>
       <section v-if="selected" class="workbench-panel">
-        <header class="workbench-detail-head"><h2 class="kb-text-section-title">{{ selected.title }}</h2><RouterLink :to="'/workbench/story/' + selected.id" class="kb-btn kb-btn-primary">继续写作</RouterLink></header>
+        <header class="workbench-detail-head"><h2 class="kf-text-section-title">{{ selected.title }}</h2><RouterLink :to="'/workbench/story/' + selected.id" class="kf-btn kf-btn-primary">继续写作</RouterLink></header>
         <p class="workbench-muted">讲给{{ audienceLabel(selected.audience) }}听 · 自评讲清程度 {{ selected.clarityScore || 0 }}%（不是掌握度）</p>
         <p v-if="selected.metaphor" class="workbench-muted">类比：{{ selected.metaphor }}</p><div class="workbench-preview">{{ selected.content || '还没有正文' }}</div>
-        <div v-if="selected.gapNote" class="workbench-gap"><h3 class="kb-text-card-title">还没讲清的地方</h3><p class="workbench-preview">{{ selected.gapNote }}</p><RouterLink v-if="selected.noteId" :to="'/workbench/notes/' + selected.noteId" class="kb-btn">补充关联笔记</RouterLink><RouterLink :to="'/workbench/story/' + selected.id" class="kb-btn">处理卡点</RouterLink></div>
+        <div v-if="selected.gapNote" class="workbench-gap"><h3 class="kf-text-card-title">还没讲清的地方</h3><p class="workbench-preview">{{ selected.gapNote }}</p><RouterLink v-if="selected.noteId" :to="'/workbench/notes/' + selected.noteId" class="kf-btn">补充关联笔记</RouterLink><RouterLink :to="'/workbench/story/' + selected.id" class="kf-btn">处理卡点</RouterLink></div>
         <WorkbenchRelations :key="selected.id" :capture-id="selected.captureId" :note-id="selected.noteId" />
-        <button class="kb-btn" @click="remove(selected)">删除作品</button>
+        <button class="kf-btn" @click="remove(selected)">删除作品</button>
       </section>
     </div>
   </WorkbenchShell>

@@ -5,7 +5,7 @@
       <div class="header-left">
         <button
           type="button"
-          class="back-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="back-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           title="返回"
           @click="goBack"
         >
@@ -52,7 +52,7 @@
               v-model="chapterForm.title"
               type="text"
               placeholder="例如：第一章 入门基础"
-              class="form-input transition-colors kb-input kb-form-control"
+              class="form-input transition-colors kf-input kf-form-control"
             />
           </div>
           <div class="form-grid-2">
@@ -63,7 +63,7 @@
                 type="number"
                 min="1"
                 placeholder="30"
-                class="form-input transition-colors kb-input kb-form-control"
+                class="form-input transition-colors kf-input kf-form-control"
               />
             </div>
             <div class="form-row">
@@ -73,7 +73,7 @@
                 type="number"
                 min="0"
                 placeholder="1"
-                class="form-input transition-colors kb-input kb-form-control"
+                class="form-input transition-colors kf-input kf-form-control"
               />
             </div>
           </div>
@@ -99,7 +99,7 @@
               <span class="chip-title">{{ doc.title }}</span>
               <button
                 type="button"
-                class="chip-remove focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                class="chip-remove focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
                 title="移除"
                 @click="removeSelectedDoc(doc.id)"
               >
@@ -112,7 +112,7 @@
           <div class="doc-filters">
             <select
               v-model="docPickerCategoryId"
-              class="form-select transition-colors kb-select kb-form-control"
+              class="form-select transition-colors kf-select kf-form-control"
               @change="loadPickerDocs"
             >
               <option :value="undefined">全部知识库</option>
@@ -128,7 +128,7 @@
                 v-model="docPickerKeyword"
                 type="text"
                 placeholder="搜索文档标题或摘要..."
-                class="form-input search-input transition-colors kb-input kb-form-control"
+                class="form-input search-input transition-colors kf-input kf-form-control"
               />
             </div>
           </div>
@@ -146,7 +146,7 @@
               <label
                 v-for="doc in filteredPickerDocs"
                 :key="doc.id"
-                class="doc-item kb-checkbox-row"
+                class="doc-item kf-checkbox-row"
                 :class="{ 'is-selected': isDocSelected(doc.id) }"
               >
                 <Checkbox as="span"
@@ -183,7 +183,7 @@
             v-model="chapterForm.content"
             rows="15"
             placeholder="可填写章节内容，或选择参考文档后点击「AI 生成内容」自动生成（支持 Markdown）"
-            class="form-textarea mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="form-textarea mono focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           ></textarea>
         </section>
       </template>
@@ -449,7 +449,7 @@ onMounted(async () => {
 <style scoped>
 .chapter-edit-page {
   min-height: 100%;
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
 
 /* 顶部固定栏：fullscreen 模式下直接贴顶，无需负 margin */
@@ -462,8 +462,8 @@ onMounted(async () => {
   justify-content: space-between;
   gap: 12px;
   padding: 12px 24px;
-  background: var(--kb-card);
-  border-bottom: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .header-left {
@@ -480,16 +480,16 @@ onMounted(async () => {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-background);
-  color: var(--kb-foreground);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-background);
+  color: var(--kf-foreground);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
 
 .back-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-primary);
+  background: var(--kf-muted);
+  color: var(--kf-primary);
 }
 
 .breadcrumb {
@@ -507,16 +507,16 @@ onMounted(async () => {
 }
 
 .crumb.muted {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .crumb.current {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-weight: 600;
 }
 
 .crumb-sep {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 
@@ -543,8 +543,8 @@ onMounted(async () => {
 }
 
 .card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 12px;
   padding: 20px;
 }
@@ -553,7 +553,7 @@ onMounted(async () => {
   margin: 0 0 16px;
   font-size: 16px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .card-header-row {
@@ -574,11 +574,11 @@ onMounted(async () => {
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .hint-icon {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 /* 表单 */
@@ -594,20 +594,20 @@ onMounted(async () => {
   display: block;
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 6px;
 }
 
 .required {
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 
-.form-input:not(.kb-form-control),
-.form-select:not(.kb-form-control) {
+.form-input:not(.kf-form-control),
+.form-select:not(.kf-form-control) {
   height: 38px;
   border-radius: 8px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-background);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-background);
   outline: none;
   transition: border-color 0.2s;
 }
@@ -616,13 +616,13 @@ onMounted(async () => {
 .form-select {
   width: 100%;
   padding: 0 12px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-size: 14px;
 }
 
-.form-input:not(.kb-form-control):focus,
-.form-select:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.form-input:not(.kf-form-control):focus,
+.form-select:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 
 .form-grid-2 {
@@ -631,10 +631,10 @@ onMounted(async () => {
   gap: 16px;
 }
 
-.form-textarea:not(.kb-form-control) {
+.form-textarea:not(.kf-form-control) {
   border-radius: 8px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-background);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-background);
   outline: none;
   transition: border-color 0.2s;
 }
@@ -642,14 +642,14 @@ onMounted(async () => {
 .form-textarea {
   width: 100%;
   padding: 12px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-size: 14px;
   line-height: 1.6;
   resize: vertical;
 }
 
-.form-textarea:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.form-textarea:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 
 .form-textarea.mono {
@@ -659,7 +659,7 @@ onMounted(async () => {
 .content-hint {
   margin: 0 0 8px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* 已选文档 chips */
@@ -678,7 +678,7 @@ onMounted(async () => {
   border-radius: 999px;
   font-size: 12px;
   background: rgba(59, 111, 224, 0.1);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 .chip-title {
@@ -728,7 +728,7 @@ onMounted(async () => {
   left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   pointer-events: none;
 }
 
@@ -738,9 +738,9 @@ onMounted(async () => {
 
 /* 文档列表 */
 .doc-list {
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 8px;
-  background: var(--kb-background);
+  background: var(--kf-background);
   max-height: 280px;
   overflow-y: auto;
 }
@@ -756,10 +756,10 @@ onMounted(async () => {
 .doc-item {
   display: flex;
   align-items: center;
-  gap: var(--kb-checkbox-gap);
+  gap: var(--kf-checkbox-gap);
   padding: 10px 12px;
   cursor: pointer;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
   transition: background 0.15s;
 }
 
@@ -768,7 +768,7 @@ onMounted(async () => {
 }
 
 .doc-item:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 .doc-item.is-selected {
@@ -784,7 +784,7 @@ onMounted(async () => {
   margin: 0;
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -793,7 +793,7 @@ onMounted(async () => {
 .doc-summary {
   margin: 2px 0 0;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -811,15 +811,15 @@ onMounted(async () => {
 
 .state-text {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin: 0;
 }
 
 .spinner {
   width: 28px;
   height: 28px;
-  border: 2px solid var(--kb-border);
-  border-top-color: var(--kb-primary);
+  border: 2px solid var(--kf-border);
+  border-top-color: var(--kf-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }

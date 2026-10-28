@@ -3,7 +3,7 @@
     <summary>来源与关联内容</summary>
     <div class="workbench-relation-body">
       <p v-if="loading" role="status">正在读取关联…</p>
-      <div v-else-if="error" role="alert">{{ error }} <button class="kb-btn" @click="load">重试</button></div>
+      <div v-else-if="error" role="alert">{{ error }} <button class="kf-btn" @click="load">重试</button></div>
       <template v-else>
         <div v-if="source"><strong>原始来源：{{ source.title }}</strong><p class="workbench-preview workbench-muted">{{ source.content }}</p><a v-if="sourceLink" :href="sourceLink" target="_blank" rel="noopener noreferrer">打开来源网页</a><p v-else-if="source.sourceUrl" class="workbench-muted">来源地址不可安全打开</p></div>
         <RouterLink v-for="note in notes" :key="note.id" :to="'/workbench/notes/' + note.id">笔记 · {{ note.title }}</RouterLink>

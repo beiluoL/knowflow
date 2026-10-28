@@ -84,12 +84,12 @@
  * C 端 App Shell（Phase UI-2 重构）。
  *
  * 结构（§36）：Header（固定） + Sidebar（固定） + Main（滚动）
- *  - Header 固定 h-14（--kb-nav-height），不随页面滚动（§48 避免三层滚动）
+ *  - Header 固定 h-14（--kf-nav-height），不随页面滚动（§48 避免三层滚动）
  *  - Sidebar 固定 left-0 / top-14 / bottom-0，仅 >=1024px 常驻
  *  - 只有 Main 区域滚动
  *  - 移动端（<1024px）：侧边栏改为抽屉，底部提供最多 5 个顶级入口（§31-§33）
  *
- * 布局参数统一收口到 --kb-* 令牌（§56），深色模式自动跟随。
+ * 布局参数统一收口到 --kf-* 令牌（§56），深色模式自动跟随。
  * 折叠状态沿用 localStorage 持久化（§47），不新建状态系统。
  */
 import { computed, nextTick, onMounted, onBeforeUnmount, ref, watch, provide } from 'vue'
@@ -157,7 +157,7 @@ watch(isMobileDrawer, async open => {
 
 
 const rootStyle = computed(() => ({
-  background: bg.isActive ? 'transparent' : 'var(--kb-background)',
+  background: bg.isActive ? 'transparent' : 'var(--kf-background)',
 }))
 
 /** 底部导航：取标记 mobilePrimary 的顶级入口，最多 5 个（§32）；与桌面侧边栏共用同一 Resolver（§21） */
@@ -219,8 +219,8 @@ watch(() => route.fullPath, () => {
 
 <style scoped>
 /* 笔记工作台独占顶栏下方视口，模式切换只影响布局，不卸载编辑器。 */
-.pc-studio.notes-shell .clayout-container {padding:0; height:calc(100dvh - var(--kb-nav-height));overflow:hidden}
-.pc-studio.notes-shell .clayout-main {height:calc(100dvh - var(--kb-nav-height));min-height:0;overflow:hidden}
+.pc-studio.notes-shell .clayout-container {padding:0; height:calc(100dvh - var(--kf-nav-height));overflow:hidden}
+.pc-studio.notes-shell .clayout-main {height:calc(100dvh - var(--kf-nav-height));min-height:0;overflow:hidden}
 .pc-studio.notes-shell-wide .clayout-sidebar {display:none}
 .pc-studio.notes-shell-wide .clayout-main {padding-left:0}
 .pc-studio.notes-shell .clayout-bottomnav {display:none}
@@ -228,12 +228,12 @@ watch(() => route.fullPath, () => {
 
 /* Header 为 fixed，故主体整体下移其高度 */
 .clayout-body {
-  padding-top: var(--kb-nav-height);
+  padding-top: var(--kf-nav-height);
 }
 
 /* 桌面：为固定侧边栏预留宽度；移动端：不预留 */
 .clayout-main {
-  min-height: calc(100vh - var(--kb-nav-height));
+  min-height: calc(100vh - var(--kf-nav-height));
   min-width: 0;
   transition: padding-left 200ms ease;
 }
@@ -242,28 +242,28 @@ watch(() => route.fullPath, () => {
   width: 100%;
   max-width: none;
   min-width: 0;
-  padding: var(--kb-page-padding-y) var(--kb-page-padding-x);
+  padding: var(--kf-page-padding-y) var(--kf-page-padding-x);
 }
 
 /* >=1024px：侧边栏常驻，主内容留出对应宽度 */
 @media (min-width: 1024px) {
   .clayout-main {
-    padding-left: var(--kb-sidebar-width);
+    padding-left: var(--kf-sidebar-width);
   }
 
   .clayout-main.is-collapsed {
-    padding-left: var(--kb-sidebar-collapsed-width);
+    padding-left: var(--kf-sidebar-collapsed-width);
   }
 }
 
 .clayout-sidebar {
-  height: calc(100dvh - var(--kb-nav-height));
+  height: calc(100dvh - var(--kf-nav-height));
   position: fixed;
-  top: var(--kb-nav-height);
+  top: var(--kf-nav-height);
   left: 0;
   bottom: 0;
   z-index: 40;
-  /* 宽度由 .csidebar 自身定义（var(--kb-sidebar-width) / var(--kb-sidebar-collapsed-width)）；
+  /* 宽度由 .csidebar 自身定义（var(--kf-sidebar-width) / var(--kf-sidebar-collapsed-width)）；
      不使用 fit-content，否则 scoped CSS 优先级会覆盖 .csidebar 的 width 导致宽度坍缩 */
   /* 移动端默认收进屏幕外，抽屉打开时滑入 */
   transform: translateX(-100%);
@@ -303,8 +303,8 @@ watch(() => route.fullPath, () => {
   z-index: 45;
   display: flex;
   align-items: stretch;
-  border-top: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-top: 1px solid var(--kf-border);
+  background: var(--kf-card);
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
@@ -325,25 +325,25 @@ watch(() => route.fullPath, () => {
   padding: 6px 4px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-xs);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-xs);
   text-decoration: none;
   cursor: pointer;
   transition: color 200ms ease, background-color 200ms ease;
 }
 
 .bottomnav-item:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .bottomnav-item:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 2px var(--kb-ring);
+  box-shadow: inset 0 0 0 2px var(--kf-ring);
 }
 
 .bottomnav-item.is-active,
 .bottomnav-item.is-parent-active {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 .bottomnav-label {

@@ -6,7 +6,7 @@
         :key="`${item.id}_${item.at}`"
         class="ach-toast"
       >
-        <div class="ach-icon-wrap" :style="{ background: iconBgMap[item.id] ?? 'var(--kb-primary)' }">
+        <div class="ach-icon-wrap" :style="{ background: iconBgMap[item.id] ?? 'var(--kf-primary)' }">
           <Icon :name="getIcon(item.id)" :size="28" />
         </div>
         <div class="ach-body">
@@ -42,9 +42,9 @@ const visibleEvents = ref<InternalEvent[]>([]);
 const defsMap = new Map<MicroAchievementId, MicroAchievementDef>();
 
 const iconBgMap: Partial<Record<MicroAchievementId, string>> = {
-  FIRST_FOCUS: 'var(--kb-warning)',
-  POMODORO_X3: 'var(--kb-success)',
-  POMODORO_X5: 'var(--kb-danger)',
+  FIRST_FOCUS: 'var(--kf-warning)',
+  POMODORO_X3: 'var(--kf-success)',
+  POMODORO_X5: 'var(--kf-danger)',
   FLOW_45MIN: '#0EA5E9',
   FLOW_90MIN: '#8B5CF6',
   NO_DISTRACT: '#14B8A6',
@@ -127,7 +127,7 @@ watch(
   box-shadow:
     0 12px 36px rgba(0, 0, 0, 0.38),
     0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .ach-icon-wrap {
   width: 54px;
@@ -154,7 +154,7 @@ watch(
 }
 .ach-tag {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-weight: 500;
 }
 

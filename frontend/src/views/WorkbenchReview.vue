@@ -1,10 +1,10 @@
 <template>
   <WorkbenchShell stage="review" :revision="revision" @ready="initialize">
     <template #actions>
-      <button data-test="review-create" class="kb-btn" :class="{ 'kb-btn-active': dialogOpen }" @click="openCreate()">
+      <button data-test="review-create" class="kf-btn" :class="{ 'kf-btn-active': dialogOpen }" @click="openCreate()">
         <Icon name="pencil" :size="16" aria-hidden="true" />新建复习卡
       </button>
-      <button data-test="review-start" class="kb-btn kb-btn-primary" :disabled="loading || !!error || active || grading || !dueCards.length" @click="startReview(false)">
+      <button data-test="review-start" class="kf-btn kf-btn-primary" :disabled="loading || !!error || active || grading || !dueCards.length" @click="startReview(false)">
         开始到期复习 · {{ dueCards.length }}
       </button>
     </template>
@@ -12,12 +12,12 @@
 
     <div v-if="noteId" class="workbench-panel workbench-toolbar">
       <span>当前笔记：{{ sourceNote?.title || '正在读取来源' }}</span>
-      <RouterLink :to="'/workbench/notes/' + noteId" class="kb-btn">补充笔记</RouterLink>
-      <RouterLink to="/workbench/review" class="kb-btn">查看全部复习卡</RouterLink>
+      <RouterLink :to="'/workbench/notes/' + noteId" class="kf-btn">补充笔记</RouterLink>
+      <RouterLink to="/workbench/review" class="kf-btn">查看全部复习卡</RouterLink>
       <p v-if="sourceError" role="status">{{ sourceError }}</p>
     </div>
 
-    <div v-if="error" role="alert" class="workbench-inline-error">{{ error }}<button class="kb-btn" @click="load">重试</button></div>
+    <div v-if="error" role="alert" class="workbench-inline-error">{{ error }}<button class="kf-btn" @click="load">重试</button></div>
     <div v-else-if="loading" class="workbench-empty" role="status">正在加载复习队列…</div>
 
     <template v-else>
@@ -32,11 +32,11 @@
         <header class="workbench-detail-head">
           <div class="review-session-heading">
             <span class="review-type-badge" :class="'is-' + currentType.toLowerCase()">{{ typeLabel(current) }}</span>
-            <h2 class="kb-text-section-title">先回忆，再看答案</h2>
+            <h2 class="kf-text-section-title">先回忆，再看答案</h2>
           </div>
           <div class="review-session-tools">
             <span>{{ index + 1 }} / {{ queue.length }}</span>
-            <button data-test="review-pause" class="kb-btn" :disabled="grading" @click="pauseReview">暂停 / 退出</button>
+            <button data-test="review-pause" class="kf-btn" :disabled="grading" @click="pauseReview">暂停 / 退出</button>
           </div>
         </header>
         <progress class="workbench-progress" :value="completedCount" :max="queue.length" aria-label="本轮复习进度"></progress>
@@ -49,15 +49,15 @@
             <button v-if="current.hint && !showHint" class="review-hint-toggle" @click="showHint = true">查看提示</button>
             <p v-if="showHint && current.hint" class="review-hint">提示：{{ current.hint }}</p>
             <template v-if="!revealed">
-              <button data-test="review-reveal" class="kb-btn kb-btn-primary" @click="reveal">显示答案</button>
+              <button data-test="review-reveal" class="kf-btn kf-btn-primary" @click="reveal">显示答案</button>
             </template>
             <template v-else>
-              <hr class="kb-divider" />
+              <hr class="kf-divider" />
               <span class="workbench-badge">标准答案</span>
               <p class="workbench-preview">{{ current.back }}</p>
               <p class="workbench-muted">按实际回忆情况自评，系统将安排下次复习。</p>
               <div class="workbench-grades">
-                <button v-for="choice in grades" :key="choice.value" :data-quality="choice.value" class="kb-btn" :class="{ 'kb-btn-primary': choice.value === 3 }" :disabled="grading" @click="grade(choice.value)">{{ grading ? '提交中…' : choice.label }}</button>
+                <button v-for="choice in grades" :key="choice.value" :data-quality="choice.value" class="kf-btn" :class="{ 'kf-btn-primary': choice.value === 3 }" :disabled="grading" @click="grade(choice.value)">{{ grading ? '提交中…' : choice.label }}</button>
               </div>
             </template>
           </template>
@@ -69,17 +69,17 @@
             <div v-if="currentCloze.blanks.length" class="review-cloze-fields">
               <label v-for="(blank, i) in currentCloze.blanks" :key="i" class="review-cloze-field">
                 <span>空 {{ i + 1 }}</span>
-                <input v-model="clozeAnswers[i]" class="kb-input" :placeholder="revealed ? blank.answer : '回忆缺失内容…'" :disabled="revealed || grading" />
+                <input v-model="clozeAnswers[i]" class="kf-input" :placeholder="revealed ? blank.answer : '回忆缺失内容…'" :disabled="revealed || grading" />
               </label>
             </div>
             <p v-else class="workbench-muted">这张挖空卡没有可识别的挖空标记，请编辑卡片补充。</p>
             <button v-if="current.hint && !showHint" class="review-hint-toggle" @click="showHint = true">查看提示</button>
             <p v-if="showHint && current.hint" class="review-hint">提示：{{ current.hint }}</p>
             <template v-if="!revealed">
-              <button data-test="review-reveal" class="kb-btn kb-btn-primary" @click="reveal">显示答案</button>
+              <button data-test="review-reveal" class="kf-btn kf-btn-primary" @click="reveal">显示答案</button>
             </template>
             <template v-else>
-              <hr class="kb-divider" />
+              <hr class="kf-divider" />
               <span class="workbench-badge">完整内容</span>
               <p class="workbench-preview review-cloze-full">
                 <template v-for="(segment, i) in currentCloze.segments" :key="i"><mark v-if="segment.answer" class="review-cloze-answer">{{ segment.text }}</mark><template v-else>{{ segment.text }}</template></template>
@@ -89,7 +89,7 @@
               <p v-if="current.back" class="workbench-preview">{{ current.back }}</p>
               <p class="workbench-muted">按实际回忆情况自评，系统将安排下次复习。</p>
               <div class="workbench-grades">
-                <button v-for="choice in grades" :key="choice.value" :data-quality="choice.value" class="kb-btn" :class="{ 'kb-btn-primary': choice.value === 3 }" :disabled="grading" @click="grade(choice.value)">{{ grading ? '提交中…' : choice.label }}</button>
+                <button v-for="choice in grades" :key="choice.value" :data-quality="choice.value" class="kf-btn" :class="{ 'kf-btn-primary': choice.value === 3 }" :disabled="grading" @click="grade(choice.value)">{{ grading ? '提交中…' : choice.label }}</button>
               </div>
             </template>
           </template>
@@ -100,9 +100,9 @@
             <p class="workbench-study-text">{{ current.front }}</p>
             <button v-if="current.hint && !showHint" class="review-hint-toggle" @click="showHint = true">查看提示</button>
             <p v-if="showHint && current.hint" class="review-hint">提示：{{ current.hint }}</p>
-            <textarea v-model="recallDraft" class="kb-input kb-textarea review-recall-draft" rows="5" placeholder="不看资料，写下你的复述。内容仅保留在本次会话，不写入复习记录。" :disabled="revealed || grading"></textarea>
+            <textarea v-model="recallDraft" class="kf-input kf-textarea review-recall-draft" rows="5" placeholder="不看资料，写下你的复述。内容仅保留在本次会话，不写入复习记录。" :disabled="revealed || grading"></textarea>
             <template v-if="!recallCheckpointsShown">
-              <button data-test="review-reveal" class="kb-btn kb-btn-primary" @click="recallCheckpointsShown = true">完成回忆，查看要点</button>
+              <button data-test="review-reveal" class="kf-btn kf-btn-primary" @click="recallCheckpointsShown = true">完成回忆，查看要点</button>
             </template>
             <template v-else>
               <div v-if="currentCheckpoints.length" class="review-checkpoints">
@@ -112,15 +112,15 @@
               </div>
               <p v-else class="workbench-muted">这张卡没有登记检查要点，可直接查看参考讲解。</p>
               <template v-if="!revealed">
-                <button data-test="review-reveal-answer" class="kb-btn kb-btn-primary" @click="reveal">查看参考讲解</button>
+                <button data-test="review-reveal-answer" class="kf-btn kf-btn-primary" @click="reveal">查看参考讲解</button>
               </template>
               <template v-else>
-                <hr class="kb-divider" />
+                <hr class="kf-divider" />
                 <span class="workbench-badge">参考讲解</span>
                 <p class="workbench-preview">{{ current.back || '暂无参考讲解。' }}</p>
                 <p class="workbench-muted">根据复述和要点核对情况自评，系统将安排下次复习。</p>
                 <div class="workbench-grades">
-                  <button v-for="choice in grades" :key="choice.value" :data-quality="choice.value" class="kb-btn" :class="{ 'kb-btn-primary': choice.value === 3 }" :disabled="grading" @click="grade(choice.value)">{{ grading ? '提交中…' : choice.label }}</button>
+                  <button v-for="choice in grades" :key="choice.value" :data-quality="choice.value" class="kf-btn" :class="{ 'kf-btn-primary': choice.value === 3 }" :disabled="grading" @click="grade(choice.value)">{{ grading ? '提交中…' : choice.label }}</button>
                 </div>
               </template>
             </template>
@@ -132,15 +132,15 @@
 
       <section v-else-if="sessionCompleted" data-test="review-complete" class="workbench-panel workbench-state" aria-live="polite">
         <Icon name="check-circle" :size="32" />
-        <h2 class="kb-text-section-title">本轮复习完成</h2>
+        <h2 class="kf-text-section-title">本轮复习完成</h2>
         <p>已完成 {{ completedCount }} 张，反馈已保存。下次复习按新的排程进行。</p>
         <p v-if="dueCards.length" class="workbench-muted">还有 {{ dueCards.length }} 张到期卡片，可以开始下一轮。</p>
-        <RouterLink v-if="noteId" :to="'/workbench/notes/' + noteId" class="kb-btn">返回关联笔记</RouterLink>
-        <RouterLink to="/workbench/story" class="kb-btn">去输出</RouterLink>
+        <RouterLink v-if="noteId" :to="'/workbench/notes/' + noteId" class="kf-btn">返回关联笔记</RouterLink>
+        <RouterLink to="/workbench/story" class="kf-btn">去输出</RouterLink>
       </section>
 
       <section v-else-if="!dueCards.length" class="workbench-panel workbench-empty">
-        <h2 class="kb-text-section-title">{{ cards.length ? '今天的复习已完成' : '还没有复习卡' }}</h2>
+        <h2 class="kf-text-section-title">{{ cards.length ? '今天的复习已完成' : '还没有复习卡' }}</h2>
         <p>{{ cards.length ? '没有到期的卡片。也可以自主练习，或继续整理和输出。' : '把笔记中的问题整理成卡片，也可以直接新建。' }}</p>
       </section>
 
@@ -154,7 +154,7 @@
       <div class="review-filters">
         <label class="review-search">
           <Icon name="search" :size="16" aria-hidden="true" />
-          <input v-model="keyword" class="kb-input" type="search" placeholder="搜索问题、答案或标签…" aria-label="搜索复习卡" />
+          <input v-model="keyword" class="kf-input" type="search" placeholder="搜索问题、答案或标签…" aria-label="搜索复习卡" />
         </label>
         <Select v-model="typeFilter" :options="TYPE_FILTER_OPTIONS" :searchable="false" aria-label="按类型筛选" />
         <Select v-model="statusFilter" :options="STATUS_FILTER_OPTIONS" :searchable="false" aria-label="按状态筛选" />
@@ -167,7 +167,7 @@
 
       <div v-if="active || grading" class="review-note">复习进行中，列表操作暂不可用。</div>
       <div v-else-if="!filteredCards.length" class="workbench-panel workbench-empty">
-        <h2 class="kb-text-section-title">{{ cards.length ? '没有匹配的复习卡' : '还没有复习卡' }}</h2>
+        <h2 class="kf-text-section-title">{{ cards.length ? '没有匹配的复习卡' : '还没有复习卡' }}</h2>
         <p>{{ cards.length ? '调整搜索、类型或状态筛选后再试。' : '点击右上角新建复习卡，把重要知识变成可复习的问题。' }}</p>
       </div>
 
@@ -221,7 +221,7 @@
       <div v-if="filteredCards.length" class="review-pagination">
         <Pagination :page-num="page" :page-size="pageSize" :total="filteredCards.length" :max-visible-pages="5" @change="page = $event" />
         <label class="review-page-size">每页
-          <select v-model.number="pageSize" class="kb-select kb-select-sm" aria-label="每页条数">
+          <select v-model.number="pageSize" class="kf-select kf-select-sm" aria-label="每页条数">
             <option v-for="size in PAGE_SIZES" :key="size" :value="size">{{ size }}</option>
           </select>
           条
@@ -229,24 +229,24 @@
       </div>
 
       <div class="review-method-actions">
-        <button class="kb-btn" :disabled="active || grading || !usableCards.length" @click="startReview(true)">开始自主练习 · {{ usableCards.length }}</button>
-        <RouterLink to="/workbench/recall" class="kb-btn">三轮主动回忆</RouterLink>
+        <button class="kf-btn" :disabled="active || grading || !usableCards.length" @click="startReview(true)">开始自主练习 · {{ usableCards.length }}</button>
+        <RouterLink to="/workbench/recall" class="kf-btn">三轮主动回忆</RouterLink>
       </div>
 
       <details class="workbench-panel" @toggle="onCurveToggle">
         <summary>复习记录与遗忘反馈趋势</summary>
         <p class="workbench-muted">统计真实评分记录，不预测你的掌握度。</p>
-        <div class="workbench-toolbar"><button v-for="days in [14, 30, 90]" :key="days" class="kb-btn" @click="curveDays = days; loadCurve()">{{ days }} 天</button></div>
+        <div class="workbench-toolbar"><button v-for="days in [14, 30, 90]" :key="days" class="kf-btn" @click="curveDays = days; loadCurve()">{{ days }} 天</button></div>
         <p v-if="curveLoading">加载统计中…</p>
-        <p v-else-if="curveError" role="alert">{{ curveError }}<button class="kb-btn" @click="loadCurve">重试</button></p>
+        <p v-else-if="curveError" role="alert">{{ curveError }}<button class="kf-btn" @click="loadCurve">重试</button></p>
         <template v-else-if="curve">
           <p class="workbench-muted">复习 {{ curve.totalReviews }} 次 · 遗忘反馈比例 {{ (curve.overallLapseRate * 100).toFixed(1) }}%</p>
           <svg v-if="curve.points.some(p => p.reviews)" viewBox="0 0 720 180" class="workbench-chart" role="img" aria-label="每日复习量与遗忘反馈比例">
-            <line x1="24" y1="150" x2="700" y2="150" stroke="var(--kb-border)" />
-            <rect v-for="(p, i) in chartPoints" :key="i" :x="p.x" :y="p.y" :width="p.width" :height="150 - p.y" fill="var(--kb-primary)" opacity=".3" />
-            <polyline :points="chartPoints.map(p => p.x + ',' + p.lapseY).join(' ')" fill="none" stroke="var(--kb-warning)" stroke-width="2" />
-            <text x="24" y="175" fill="var(--kb-muted-foreground)" font-size="12">{{ curve.points[0]?.date }}</text>
-            <text x="700" y="175" text-anchor="end" fill="var(--kb-muted-foreground)" font-size="12">{{ curve.points.at(-1)?.date }}</text>
+            <line x1="24" y1="150" x2="700" y2="150" stroke="var(--kf-border)" />
+            <rect v-for="(p, i) in chartPoints" :key="i" :x="p.x" :y="p.y" :width="p.width" :height="150 - p.y" fill="var(--kf-primary)" opacity=".3" />
+            <polyline :points="chartPoints.map(p => p.x + ',' + p.lapseY).join(' ')" fill="none" stroke="var(--kf-warning)" stroke-width="2" />
+            <text x="24" y="175" fill="var(--kf-muted-foreground)" font-size="12">{{ curve.points[0]?.date }}</text>
+            <text x="700" y="175" text-anchor="end" fill="var(--kf-muted-foreground)" font-size="12">{{ curve.points.at(-1)?.date }}</text>
           </svg>
           <p v-else>暂无复习记录。</p>
           <p class="workbench-muted">蓝色：每日复习量 · 橙色：遗忘反馈比例</p>
@@ -278,12 +278,12 @@
         <template v-if="form.type === 'BASIC'">
           <div class="review-field">
             <label class="review-label" for="review-card-front">问题 / 线索 <span class="review-req">*</span></label>
-            <textarea id="review-card-front" ref="firstFieldEl" v-model="form.front" data-test="review-front" class="kb-input kb-textarea review-textarea" rows="4" placeholder="输入一个明确的问题，例如：HashMap 为什么使用扰动函数？" :class="{ 'is-error': errors.front }" @input="errors.front = ''"></textarea>
+            <textarea id="review-card-front" ref="firstFieldEl" v-model="form.front" data-test="review-front" class="kf-input kf-textarea review-textarea" rows="4" placeholder="输入一个明确的问题，例如：HashMap 为什么使用扰动函数？" :class="{ 'is-error': errors.front }" @input="errors.front = ''"></textarea>
             <span v-if="errors.front" class="review-field-error">{{ errors.front }}</span>
           </div>
           <div class="review-field">
             <label class="review-label" for="review-card-answer">标准答案 <span class="review-req">*</span></label>
-            <textarea id="review-card-answer" v-model="form.back" data-test="review-back" class="kb-input kb-textarea review-textarea" rows="5" placeholder="输入完整答案、关键原理或解题步骤…" :class="{ 'is-error': errors.back }" @input="errors.back = ''"></textarea>
+            <textarea id="review-card-answer" v-model="form.back" data-test="review-back" class="kf-input kf-textarea review-textarea" rows="5" placeholder="输入完整答案、关键原理或解题步骤…" :class="{ 'is-error': errors.back }" @input="errors.back = ''"></textarea>
             <div class="review-field-foot"><span v-if="errors.back" class="review-field-error">{{ errors.back }}</span><span v-else class="review-field-hint">支持多行文本、代码片段与中英文</span><span class="review-counter">{{ form.back.length }} 字</span></div>
           </div>
         </template>
@@ -291,7 +291,7 @@
         <template v-else-if="form.type === 'CLOZE'">
           <div class="review-field">
             <label class="review-label" for="review-card-cloze">完整知识内容 <span class="review-req">*</span></label>
-            <textarea id="review-card-cloze" ref="firstFieldEl" v-model="form.front" data-test="review-cloze" class="kb-input kb-textarea review-textarea" rows="5" placeholder="输入完整句子，例如：HashMap 的默认负载因子是 0.75。" :class="{ 'is-error': errors.front || errors.cloze }" @input="errors.front = ''; errors.cloze = ''"></textarea>
+            <textarea id="review-card-cloze" ref="firstFieldEl" v-model="form.front" data-test="review-cloze" class="kf-input kf-textarea review-textarea" rows="5" placeholder="输入完整句子，例如：HashMap 的默认负载因子是 0.75。" :class="{ 'is-error': errors.front || errors.cloze }" @input="errors.front = ''; errors.cloze = ''"></textarea>
             <div class="review-toolbar">
               <button type="button" class="review-ghost-btn" @click="makeCloze"><Icon name="pencil" :size="14" aria-hidden="true" />设为挖空</button>
               <button type="button" class="review-ghost-btn" :disabled="!clozeBlanks.length" @click="form.front = stripAllCloze(form.front)">移除全部挖空</button>
@@ -312,21 +312,21 @@
           </div>
           <div class="review-field">
             <label class="review-label" for="review-card-cloze-explain">补充解释（可选）</label>
-            <textarea id="review-card-cloze-explain" v-model="form.back" data-test="review-back" class="kb-input kb-textarea review-textarea" rows="3" placeholder="解释该知识点的作用、背景或工程影响…"></textarea>
+            <textarea id="review-card-cloze-explain" v-model="form.back" data-test="review-back" class="kf-input kf-textarea review-textarea" rows="3" placeholder="解释该知识点的作用、背景或工程影响…"></textarea>
           </div>
         </template>
 
         <template v-else>
           <div class="review-field">
             <label class="review-label" for="review-card-recall">回忆任务 <span class="review-req">*</span></label>
-            <textarea id="review-card-recall" ref="firstFieldEl" v-model="form.front" data-test="review-recall-task" class="kb-input kb-textarea review-textarea" rows="3" placeholder="例如：不看资料，解释 MySQL MVCC 如何实现一致性读。" :class="{ 'is-error': errors.front }" @input="errors.front = ''"></textarea>
+            <textarea id="review-card-recall" ref="firstFieldEl" v-model="form.front" data-test="review-recall-task" class="kf-input kf-textarea review-textarea" rows="3" placeholder="例如：不看资料，解释 MySQL MVCC 如何实现一致性读。" :class="{ 'is-error': errors.front }" @input="errors.front = ''"></textarea>
             <span v-if="errors.front" class="review-field-error">{{ errors.front }}</span>
           </div>
           <div class="review-field">
             <span class="review-label">关键检查要点 <span class="review-req">*</span></span>
             <div class="review-checkpoint-list">
               <div v-for="(point, i) in form.checkpoints" :key="i" class="review-checkpoint-row">
-                <input :value="point" class="kb-input" :placeholder="'要点 ' + (i + 1) + '，例如：Undo Log'" @input="updateCheckpoint(i, $event)" />
+                <input :value="point" class="kf-input" :placeholder="'要点 ' + (i + 1) + '，例如：Undo Log'" @input="updateCheckpoint(i, $event)" />
                 <button type="button" class="review-icon-btn" :disabled="i === 0" aria-label="上移要点" @click="moveCheckpoint(i, -1)"><Icon name="arrow-up" :size="14" /></button>
                 <button type="button" class="review-icon-btn" :disabled="i === form.checkpoints.length - 1" aria-label="下移要点" @click="moveCheckpoint(i, 1)"><Icon name="arrow-down" :size="14" /></button>
                 <button type="button" class="review-icon-btn" :disabled="form.checkpoints.length === 1" aria-label="删除要点" @click="removeCheckpoint(i)"><Icon name="x" :size="14" /></button>
@@ -337,13 +337,13 @@
           </div>
           <div class="review-field">
             <label class="review-label" for="review-card-recall-explain">参考讲解（可选）</label>
-            <textarea id="review-card-recall-explain" v-model="form.back" data-test="review-back" class="kb-input kb-textarea review-textarea" rows="4" placeholder="输入完整解释，复习时先隐藏…"></textarea>
+            <textarea id="review-card-recall-explain" v-model="form.back" data-test="review-back" class="kf-input kf-textarea review-textarea" rows="4" placeholder="输入完整解释，复习时先隐藏…"></textarea>
           </div>
         </template>
 
         <div class="review-field">
           <label class="review-label" for="review-card-hint">记忆提示（可选）</label>
-          <input id="review-card-hint" v-model="form.hint" class="kb-input" placeholder="输入帮助回忆的轻量提示…" maxlength="500" />
+          <input id="review-card-hint" v-model="form.hint" class="kf-input" placeholder="输入帮助回忆的轻量提示…" maxlength="500" />
         </div>
 
         <div class="review-field">
@@ -868,110 +868,110 @@ onBeforeUnmount(() => { disposed = true; sequence++; sourceSequence++; curveSequ
 </script>
 
 <style scoped>
-.review-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--kb-space-3); }
-.review-stat { display: flex; flex-direction: column; gap: var(--kb-space-1); padding: var(--kb-space-4); background: var(--kb-card); border: 1px solid var(--kb-border); border-radius: var(--kb-radius-md); box-shadow: var(--shadow-card); min-width: 0; }
-.review-stat-label { font-size: var(--kb-fs-caption); color: var(--kb-muted-foreground); }
-.review-stat-value { font-size: var(--kb-fs-h2); line-height: var(--kb-lh-h2); color: var(--kb-foreground); overflow-wrap: anywhere; }
-.review-stat-value--time { font-size: var(--kb-fs-h4); line-height: var(--kb-lh-h4); }
-.review-stat small { font-size: var(--kb-fs-caption); color: var(--kb-muted-foreground); }
+.review-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--kf-space-3); }
+.review-stat { display: flex; flex-direction: column; gap: var(--kf-space-1); padding: var(--kf-space-4); background: var(--kf-card); border: 1px solid var(--kf-border); border-radius: var(--kf-radius-md); box-shadow: var(--shadow-card); min-width: 0; }
+.review-stat-label { font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); }
+.review-stat-value { font-size: var(--kf-fs-h2); line-height: var(--kf-lh-h2); color: var(--kf-foreground); overflow-wrap: anywhere; }
+.review-stat-value--time { font-size: var(--kf-fs-h4); line-height: var(--kf-lh-h4); }
+.review-stat small { font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); }
 
-.review-session-heading { display: flex; align-items: center; gap: var(--kb-space-3); min-width: 0; flex-wrap: wrap; }
+.review-session-heading { display: flex; align-items: center; gap: var(--kf-space-3); min-width: 0; flex-wrap: wrap; }
 .review-session-heading h2 { margin: 0; }
-.review-session-tools { display: flex; align-items: center; gap: var(--kb-space-3); color: var(--kb-muted-foreground); font-size: var(--kb-fs-body-sm); }
-.review-type-badge { display: inline-flex; align-items: center; gap: var(--kb-space-1); padding: 2px var(--kb-space-2); border-radius: var(--kb-radius-sm); background: color-mix(in srgb, var(--kb-primary) 12%, var(--kb-card)); color: var(--kb-primary); font-size: var(--kb-fs-caption); font-weight: 600; white-space: nowrap; }
-.review-type-badge.is-cloze { background: color-mix(in srgb, var(--kb-warning) 16%, var(--kb-card)); color: var(--kb-warning); }
-.review-type-badge.is-recall { background: color-mix(in srgb, var(--kb-state-success) 14%, var(--kb-card)); color: var(--kb-state-success); }
-.review-hint-toggle { border: 0; background: transparent; color: var(--kb-primary); font-size: var(--kb-fs-body-sm); cursor: pointer; padding: 0; width: fit-content; }
-.review-hint { margin: 0; padding: var(--kb-space-3); border-left: 2px solid var(--kb-primary); background: var(--kb-muted); border-radius: var(--kb-radius-sm); color: var(--kb-muted-foreground); font-size: var(--kb-fs-body-sm); white-space: pre-wrap; overflow-wrap: anywhere; }
+.review-session-tools { display: flex; align-items: center; gap: var(--kf-space-3); color: var(--kf-muted-foreground); font-size: var(--kf-fs-body-sm); }
+.review-type-badge { display: inline-flex; align-items: center; gap: var(--kf-space-1); padding: 2px var(--kf-space-2); border-radius: var(--kf-radius-sm); background: color-mix(in srgb, var(--kf-primary) 12%, var(--kf-card)); color: var(--kf-primary); font-size: var(--kf-fs-caption); font-weight: 600; white-space: nowrap; }
+.review-type-badge.is-cloze { background: color-mix(in srgb, var(--kf-warning) 16%, var(--kf-card)); color: var(--kf-warning); }
+.review-type-badge.is-recall { background: color-mix(in srgb, var(--kf-state-success) 14%, var(--kf-card)); color: var(--kf-state-success); }
+.review-hint-toggle { border: 0; background: transparent; color: var(--kf-primary); font-size: var(--kf-fs-body-sm); cursor: pointer; padding: 0; width: fit-content; }
+.review-hint { margin: 0; padding: var(--kf-space-3); border-left: 2px solid var(--kf-primary); background: var(--kf-muted); border-radius: var(--kf-radius-sm); color: var(--kf-muted-foreground); font-size: var(--kf-fs-body-sm); white-space: pre-wrap; overflow-wrap: anywhere; }
 .review-cloze-text { white-space: pre-wrap; }
-.review-cloze-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--kb-space-3); width: 100%; }
-.review-cloze-field { display: flex; align-items: center; gap: var(--kb-space-2); font-size: var(--kb-fs-body-sm); color: var(--kb-muted-foreground); min-width: 0; }
+.review-cloze-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--kf-space-3); width: 100%; }
+.review-cloze-field { display: flex; align-items: center; gap: var(--kf-space-2); font-size: var(--kf-fs-body-sm); color: var(--kf-muted-foreground); min-width: 0; }
 .review-cloze-field input { flex: 1; min-width: 0; }
 .review-cloze-full { white-space: pre-wrap; }
-.review-cloze-answer { background: color-mix(in srgb, var(--kb-primary) 18%, var(--kb-card)); color: var(--kb-primary); padding: 0 2px; border-radius: 3px; }
+.review-cloze-answer { background: color-mix(in srgb, var(--kf-primary) 18%, var(--kf-card)); color: var(--kf-primary); padding: 0 2px; border-radius: 3px; }
 .review-compare { margin: 0; }
 .review-recall-draft { width: 100%; min-height: 120px; resize: vertical; }
-.review-checkpoints { display: flex; flex-direction: column; gap: var(--kb-space-2); width: 100%; }
+.review-checkpoints { display: flex; flex-direction: column; gap: var(--kf-space-2); width: 100%; }
 .review-checkpoints p { margin: 0; }
 
-.review-tabs { display: flex; gap: var(--kb-space-2); flex-wrap: wrap; align-items: center; }
-.review-tab { display: inline-flex; align-items: center; gap: var(--kb-space-2); padding: var(--kb-space-2) var(--kb-space-4); border: 1px solid var(--kb-border); border-radius: var(--kb-radius-sm); background: var(--kb-card); color: var(--kb-foreground); font-size: var(--kb-fs-body-md); cursor: pointer; text-decoration: none; }
-.review-tab:hover { background: var(--kb-muted); }
-.review-tab.active { background: var(--kb-primary); border-color: var(--kb-primary); color: var(--kb-primary-foreground); }
-.review-tab span { font-size: var(--kb-fs-caption); opacity: .75; }
+.review-tabs { display: flex; gap: var(--kf-space-2); flex-wrap: wrap; align-items: center; }
+.review-tab { display: inline-flex; align-items: center; gap: var(--kf-space-2); padding: var(--kf-space-2) var(--kf-space-4); border: 1px solid var(--kf-border); border-radius: var(--kf-radius-sm); background: var(--kf-card); color: var(--kf-foreground); font-size: var(--kf-fs-body-md); cursor: pointer; text-decoration: none; }
+.review-tab:hover { background: var(--kf-muted); }
+.review-tab.active { background: var(--kf-primary); border-color: var(--kf-primary); color: var(--kf-primary-foreground); }
+.review-tab span { font-size: var(--kf-fs-caption); opacity: .75; }
 .review-tab-link { margin-left: auto; }
 
-.review-filters { display: flex; align-items: center; gap: var(--kb-space-2); flex-wrap: wrap; }
-.review-search { display: flex; align-items: center; gap: var(--kb-space-2); flex: 1 1 220px; min-width: 180px; padding: 0 var(--kb-space-3); background: var(--kb-card); border: 1px solid var(--kb-border); border-radius: var(--kb-radius-sm); color: var(--kb-muted-foreground); }
+.review-filters { display: flex; align-items: center; gap: var(--kf-space-2); flex-wrap: wrap; }
+.review-search { display: flex; align-items: center; gap: var(--kf-space-2); flex: 1 1 220px; min-width: 180px; padding: 0 var(--kf-space-3); background: var(--kf-card); border: 1px solid var(--kf-border); border-radius: var(--kf-radius-sm); color: var(--kf-muted-foreground); }
 .review-search input { border: 0; background: transparent; flex: 1; min-width: 0; padding-inline: 0; }
 .review-search input:focus { outline: none; }
-.review-search:focus-within { border-color: var(--kb-primary); outline: 2px solid var(--kb-ring); outline-offset: 1px; }
+.review-search:focus-within { border-color: var(--kf-primary); outline: 2px solid var(--kf-ring); outline-offset: 1px; }
 .review-filters :deep(.select-control) { width: 148px; }
-.review-view-toggle { display: inline-flex; border: 1px solid var(--kb-border); border-radius: var(--kb-radius-sm); overflow: hidden; background: var(--kb-card); }
-.review-view-btn { display: inline-flex; align-items: center; justify-content: center; width: var(--kb-btn-height-md); height: var(--kb-btn-height-md); border: 0; background: transparent; color: var(--kb-muted-foreground); cursor: pointer; }
-.review-view-btn.active { background: var(--kb-primary); color: var(--kb-primary-foreground); }
-.review-note { font-size: var(--kb-fs-body-sm); color: var(--kb-muted-foreground); }
+.review-view-toggle { display: inline-flex; border: 1px solid var(--kf-border); border-radius: var(--kf-radius-sm); overflow: hidden; background: var(--kf-card); }
+.review-view-btn { display: inline-flex; align-items: center; justify-content: center; width: var(--kf-btn-height-md); height: var(--kf-btn-height-md); border: 0; background: transparent; color: var(--kf-muted-foreground); cursor: pointer; }
+.review-view-btn.active { background: var(--kf-primary); color: var(--kf-primary-foreground); }
+.review-note { font-size: var(--kf-fs-body-sm); color: var(--kf-muted-foreground); }
 
-.review-row { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--kb-space-4); padding: var(--kb-space-4); border-bottom: 1px solid var(--kb-border); }
+.review-row { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--kf-space-4); padding: var(--kf-space-4); border-bottom: 1px solid var(--kf-border); }
 .review-row:last-child { border-bottom: 0; }
-.review-row:hover { background: color-mix(in srgb, var(--kb-primary) 5%, var(--kb-card)); }
-.review-row-main { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: var(--kb-space-1); }
-.review-row-top { display: flex; align-items: center; gap: var(--kb-space-2); flex-wrap: wrap; }
-.review-row-title, .review-card-title { border: 0; background: transparent; padding: 0; text-align: left; color: var(--kb-foreground); font-size: var(--kb-fs-body-md); font-weight: 600; cursor: pointer; overflow-wrap: anywhere; }
-.review-row-title:hover, .review-card-title:hover { color: var(--kb-primary); }
-.review-row-excerpt { margin: 0; color: var(--kb-muted-foreground); font-size: var(--kb-fs-body-sm); line-height: var(--kb-lh-body-sm); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
-.review-row-meta { display: flex; align-items: center; gap: var(--kb-space-3); flex-wrap: wrap; color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption); }
-.review-row-actions { display: flex; align-items: center; gap: var(--kb-space-1); flex-shrink: 0; }
-.review-icon-btn { display: inline-flex; align-items: center; justify-content: center; width: var(--kb-btn-height-sm); height: var(--kb-btn-height-sm); border: 0; border-radius: var(--kb-radius-sm); background: transparent; color: var(--kb-muted-foreground); cursor: pointer; }
-.review-icon-btn:hover { background: var(--kb-muted); color: var(--kb-foreground); }
+.review-row:hover { background: color-mix(in srgb, var(--kf-primary) 5%, var(--kf-card)); }
+.review-row-main { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: var(--kf-space-1); }
+.review-row-top { display: flex; align-items: center; gap: var(--kf-space-2); flex-wrap: wrap; }
+.review-row-title, .review-card-title { border: 0; background: transparent; padding: 0; text-align: left; color: var(--kf-foreground); font-size: var(--kf-fs-body-md); font-weight: 600; cursor: pointer; overflow-wrap: anywhere; }
+.review-row-title:hover, .review-card-title:hover { color: var(--kf-primary); }
+.review-row-excerpt { margin: 0; color: var(--kf-muted-foreground); font-size: var(--kf-fs-body-sm); line-height: var(--kf-lh-body-sm); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.review-row-meta { display: flex; align-items: center; gap: var(--kf-space-3); flex-wrap: wrap; color: var(--kf-muted-foreground); font-size: var(--kf-fs-caption); }
+.review-row-actions { display: flex; align-items: center; gap: var(--kf-space-1); flex-shrink: 0; }
+.review-icon-btn { display: inline-flex; align-items: center; justify-content: center; width: var(--kf-btn-height-sm); height: var(--kf-btn-height-sm); border: 0; border-radius: var(--kf-radius-sm); background: transparent; color: var(--kf-muted-foreground); cursor: pointer; }
+.review-icon-btn:hover { background: var(--kf-muted); color: var(--kf-foreground); }
 .review-icon-btn:disabled { opacity: .45; cursor: not-allowed; }
-.review-status { display: inline-flex; align-items: center; padding: 1px var(--kb-space-2); border-radius: var(--kb-radius-sm); background: var(--kb-muted); color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption); }
-.review-status.is-due { background: color-mix(in srgb, var(--kb-primary) 12%, var(--kb-card)); color: var(--kb-primary); }
-.review-status.is-suspended { background: color-mix(in srgb, var(--kb-state-warning) 14%, var(--kb-card)); color: var(--kb-state-warning); }
-.review-tag { display: inline-flex; align-items: center; gap: 2px; color: var(--kb-muted-foreground); background: var(--kb-muted); border-radius: var(--kb-radius-sm); padding: 1px var(--kb-space-2); font-size: var(--kb-fs-caption); }
+.review-status { display: inline-flex; align-items: center; padding: 1px var(--kf-space-2); border-radius: var(--kf-radius-sm); background: var(--kf-muted); color: var(--kf-muted-foreground); font-size: var(--kf-fs-caption); }
+.review-status.is-due { background: color-mix(in srgb, var(--kf-primary) 12%, var(--kf-card)); color: var(--kf-primary); }
+.review-status.is-suspended { background: color-mix(in srgb, var(--kf-state-warning) 14%, var(--kf-card)); color: var(--kf-state-warning); }
+.review-tag { display: inline-flex; align-items: center; gap: 2px; color: var(--kf-muted-foreground); background: var(--kf-muted); border-radius: var(--kf-radius-sm); padding: 1px var(--kf-space-2); font-size: var(--kf-fs-caption); }
 
-.review-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--kb-space-4); }
-.review-card { display: flex; flex-direction: column; gap: var(--kb-space-2); padding: var(--kb-space-4); background: var(--kb-card); border: 1px solid var(--kb-border); border-radius: var(--kb-radius-md); min-width: 0; }
-.review-card-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--kb-space-2); margin-top: auto; padding-top: var(--kb-space-2); border-top: 1px solid var(--kb-border); color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption); }
+.review-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--kf-space-4); }
+.review-card { display: flex; flex-direction: column; gap: var(--kf-space-2); padding: var(--kf-space-4); background: var(--kf-card); border: 1px solid var(--kf-border); border-radius: var(--kf-radius-md); min-width: 0; }
+.review-card-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--kf-space-2); margin-top: auto; padding-top: var(--kf-space-2); border-top: 1px solid var(--kf-border); color: var(--kf-muted-foreground); font-size: var(--kf-fs-caption); }
 
-.review-pagination { display: flex; align-items: center; justify-content: space-between; gap: var(--kb-space-3); flex-wrap: wrap; }
-.review-page-size { display: inline-flex; align-items: center; gap: var(--kb-space-2); color: var(--kb-muted-foreground); font-size: var(--kb-fs-body-sm); }
-.review-method-actions { display: flex; gap: var(--kb-space-2); flex-wrap: wrap; }
+.review-pagination { display: flex; align-items: center; justify-content: space-between; gap: var(--kf-space-3); flex-wrap: wrap; }
+.review-page-size { display: inline-flex; align-items: center; gap: var(--kf-space-2); color: var(--kf-muted-foreground); font-size: var(--kf-fs-body-sm); }
+.review-method-actions { display: flex; gap: var(--kf-space-2); flex-wrap: wrap; }
 
 /* ============================ 弹窗 ============================ */
-.review-form { display: flex; flex-direction: column; gap: var(--kb-space-4); }
-.review-field { display: flex; flex-direction: column; gap: var(--kb-space-2); min-width: 0; }
-.review-label { font-size: var(--kb-fs-body-sm); font-weight: 600; color: var(--kb-foreground); }
-.review-req { color: var(--kb-destructive); }
+.review-form { display: flex; flex-direction: column; gap: var(--kf-space-4); }
+.review-field { display: flex; flex-direction: column; gap: var(--kf-space-2); min-width: 0; }
+.review-label { font-size: var(--kf-fs-body-sm); font-weight: 600; color: var(--kf-foreground); }
+.review-req { color: var(--kf-destructive); }
 .review-textarea { width: 100%; resize: vertical; }
-.review-field-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--kb-space-2); font-size: var(--kb-fs-caption); color: var(--kb-muted-foreground); }
-.review-field-hint { font-size: var(--kb-fs-caption); color: var(--kb-muted-foreground); }
-.review-field-error { font-size: var(--kb-fs-caption); color: var(--kb-destructive); }
-.review-counter { margin-left: auto; color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption); }
-.review-textarea.is-error { border-color: var(--kb-destructive); }
-.review-types { display: flex; gap: var(--kb-space-2); flex-wrap: wrap; }
-.review-type-option { display: inline-flex; align-items: center; gap: var(--kb-space-2); padding: var(--kb-space-2) var(--kb-space-4); border: 1px solid var(--kb-border); border-radius: var(--kb-radius-sm); background: var(--kb-card); color: var(--kb-foreground); font-size: var(--kb-fs-body-sm); cursor: pointer; }
-.review-type-option.active { border-color: var(--kb-primary); background: color-mix(in srgb, var(--kb-primary) 10%, var(--kb-card)); color: var(--kb-primary); }
-.review-toolbar { display: flex; align-items: center; gap: var(--kb-space-2); flex-wrap: wrap; }
-.review-ghost-btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--kb-space-2); min-height: var(--kb-btn-height-sm); padding: var(--kb-space-1) var(--kb-space-3); border: 1px solid var(--kb-border); border-radius: var(--kb-radius-sm); background: var(--kb-card); color: var(--kb-foreground); font-size: var(--kb-fs-body-sm); cursor: pointer; }
-.review-ghost-btn:hover { background: var(--kb-muted); }
+.review-field-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--kf-space-2); font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); }
+.review-field-hint { font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); }
+.review-field-error { font-size: var(--kf-fs-caption); color: var(--kf-destructive); }
+.review-counter { margin-left: auto; color: var(--kf-muted-foreground); font-size: var(--kf-fs-caption); }
+.review-textarea.is-error { border-color: var(--kf-destructive); }
+.review-types { display: flex; gap: var(--kf-space-2); flex-wrap: wrap; }
+.review-type-option { display: inline-flex; align-items: center; gap: var(--kf-space-2); padding: var(--kf-space-2) var(--kf-space-4); border: 1px solid var(--kf-border); border-radius: var(--kf-radius-sm); background: var(--kf-card); color: var(--kf-foreground); font-size: var(--kf-fs-body-sm); cursor: pointer; }
+.review-type-option.active { border-color: var(--kf-primary); background: color-mix(in srgb, var(--kf-primary) 10%, var(--kf-card)); color: var(--kf-primary); }
+.review-toolbar { display: flex; align-items: center; gap: var(--kf-space-2); flex-wrap: wrap; }
+.review-ghost-btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--kf-space-2); min-height: var(--kf-btn-height-sm); padding: var(--kf-space-1) var(--kf-space-3); border: 1px solid var(--kf-border); border-radius: var(--kf-radius-sm); background: var(--kf-card); color: var(--kf-foreground); font-size: var(--kf-fs-body-sm); cursor: pointer; }
+.review-ghost-btn:hover { background: var(--kf-muted); }
 .review-ghost-btn:disabled { opacity: .5; cursor: not-allowed; }
-.review-primary-btn { display: inline-flex; align-items: center; justify-content: center; min-height: var(--kb-btn-height-md); padding: var(--kb-space-2) var(--kb-space-5); border: 1px solid var(--kb-primary); border-radius: var(--kb-radius-sm); background: var(--kb-primary); color: var(--kb-primary-foreground); font-size: var(--kb-fs-body-md); font-weight: 600; cursor: pointer; }
-.review-primary-btn:hover { background: var(--kb-primary-hover); }
+.review-primary-btn { display: inline-flex; align-items: center; justify-content: center; min-height: var(--kf-btn-height-md); padding: var(--kf-space-2) var(--kf-space-5); border: 1px solid var(--kf-primary); border-radius: var(--kf-radius-sm); background: var(--kf-primary); color: var(--kf-primary-foreground); font-size: var(--kf-fs-body-md); font-weight: 600; cursor: pointer; }
+.review-primary-btn:hover { background: var(--kf-primary-hover); }
 .review-primary-btn:disabled { opacity: .6; cursor: not-allowed; }
-.review-cloze-preview { padding: var(--kb-space-4); background: var(--kb-muted); border: 1px dashed var(--kb-border); border-radius: var(--kb-radius-md); min-height: 64px; display: flex; flex-direction: column; gap: var(--kb-space-2); }
-.review-cloze-preview-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--kb-foreground); font-size: var(--kb-fs-body-md); }
-.review-blank-list { display: flex; gap: var(--kb-space-2); flex-wrap: wrap; }
-.review-blank-chip { display: inline-flex; align-items: center; gap: var(--kb-space-1); padding: 2px var(--kb-space-2); border-radius: var(--kb-radius-sm); background: var(--kb-card); border: 1px solid var(--kb-border); font-size: var(--kb-fs-caption); color: var(--kb-muted-foreground); overflow-wrap: anywhere; }
+.review-cloze-preview { padding: var(--kf-space-4); background: var(--kf-muted); border: 1px dashed var(--kf-border); border-radius: var(--kf-radius-md); min-height: 64px; display: flex; flex-direction: column; gap: var(--kf-space-2); }
+.review-cloze-preview-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--kf-foreground); font-size: var(--kf-fs-body-md); }
+.review-blank-list { display: flex; gap: var(--kf-space-2); flex-wrap: wrap; }
+.review-blank-chip { display: inline-flex; align-items: center; gap: var(--kf-space-1); padding: 2px var(--kf-space-2); border-radius: var(--kf-radius-sm); background: var(--kf-card); border: 1px solid var(--kf-border); font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); overflow-wrap: anywhere; }
 .review-chip-x { display: inline-flex; align-items: center; justify-content: center; border: 0; background: transparent; color: inherit; cursor: pointer; padding: 0; opacity: .7; }
 .review-chip-x:hover { opacity: 1; }
-.review-checkpoint-list { display: flex; flex-direction: column; gap: var(--kb-space-2); }
-.review-checkpoint-row { display: flex; align-items: center; gap: var(--kb-space-1); }
+.review-checkpoint-list { display: flex; flex-direction: column; gap: var(--kf-space-2); }
+.review-checkpoint-row { display: flex; align-items: center; gap: var(--kf-space-1); }
 .review-checkpoint-row input { flex: 1; min-width: 0; }
 .review-add-point { width: fit-content; }
-.review-source-note { display: inline-flex; align-items: center; gap: var(--kb-space-2); margin: 0; color: var(--kb-muted-foreground); font-size: var(--kb-fs-body-sm); }
-.review-dialog-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--kb-space-3); width: 100%; flex-wrap: wrap; }
-.review-dialog-actions { display: flex; align-items: center; gap: var(--kb-space-2); margin-left: auto; }
+.review-source-note { display: inline-flex; align-items: center; gap: var(--kf-space-2); margin: 0; color: var(--kf-muted-foreground); font-size: var(--kf-fs-body-sm); }
+.review-dialog-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--kf-space-3); width: 100%; flex-wrap: wrap; }
+.review-dialog-actions { display: flex; align-items: center; gap: var(--kf-space-2); margin-left: auto; }
 
 @media (max-width: 1024px) {
   .review-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -985,7 +985,7 @@ onBeforeUnmount(() => { disposed = true; sequence++; sourceSequence++; curveSequ
 }
 @media (max-width: 639px) {
   .review-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .review-stat { padding: var(--kb-space-3); }
+  .review-stat { padding: var(--kf-space-3); }
   .workbench-grades { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .review-tab-link { margin-left: 0; }
   .review-dialog-foot { flex-direction: column; align-items: stretch; }

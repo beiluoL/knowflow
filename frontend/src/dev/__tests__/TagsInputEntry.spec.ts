@@ -44,6 +44,6 @@ describe('TagsInput playground entry',()=>{
  })
 
  it('keeps the inspector target aligned with the single-surface focus contract',()=>{
-  expect(entry.designSpecs).toMatchObject({minHeight:44,padding:'8px 12px',borderWidth:0,borderStyle:'none',outlineWidth:0,outlineStyle:'none',boxShadow:'none',backgroundColor:'var(--kb-field-surface)'})
+  expect(entry.designSpecs).toMatchObject({minHeight:44,padding:'8px 12px',borderWidth:0,borderStyle:'none',outlineWidth:0,outlineStyle:'none',boxShadow:'none',backgroundColor:'var(--kf-field-surface)'})
  })
 })

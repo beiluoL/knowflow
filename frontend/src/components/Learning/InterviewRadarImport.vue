@@ -44,6 +44,6 @@ async function apply() {
 </script>
 
 <style scoped>
-.radar-import-content { display: grid; gap: var(--kb-space-3); min-width: 0; }
+.radar-import-content { display: grid; gap: var(--kf-space-3); min-width: 0; }
 .radar-import-content input { min-width: 0; max-width: 100%; width: 100%; box-sizing: border-box; }
 </style>

@@ -89,9 +89,9 @@ const whyLabel = computed(() =>
 
 <style scoped>
 .learning-result-panel {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   padding: 16px 18px;
   display: flex;
   flex-direction: column;
@@ -101,16 +101,16 @@ const whyLabel = computed(() =>
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .lrp-head svg {
-  color: var(--kb-accent);
+  color: var(--kf-accent);
 }
 .lrp-result {
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-foreground);
 }
 .lrp-result-text {
   margin: 0;
@@ -119,45 +119,45 @@ const whyLabel = computed(() =>
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 600;
-  color: var(--kb-warning);
+  color: var(--kf-warning);
   background: rgba(245, 158, 11, 0.08);
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   padding: 6px 10px;
   width: fit-content;
 }
 .lrp-reward svg {
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 .lrp-mastery {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-muted-foreground);
 }
 .lrp-mastery svg {
-  color: var(--kb-accent);
+  color: var(--kf-accent);
 }
 .lrp-why {
   display: inline-flex;
   align-items: flex-start;
   gap: 6px;
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-muted-foreground);
   background: rgba(59, 111, 224, 0.06);
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   padding: 8px 12px;
   width: 100%;
 }
 .lrp-why svg {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   flex-shrink: 0;
   margin-top: 2px;
 }
 .lrp-why b {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-weight: 600;
 }
 </style>

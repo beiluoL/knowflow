@@ -21,7 +21,7 @@ describe("select presentation separates selection and focus", () => {
     const selected = document.querySelector<HTMLElement>(
       "[role=option][aria-selected=true]",
     )!;
-    expect(selected.classList.contains("kb-select-option-active")).toBe(false);
+    expect(selected.classList.contains("kf-select-option-active")).toBe(false);
     expect(selected.querySelector("[name=check]")).not.toBeNull();
     expect(selected.classList.contains("select-option-focused")).toBe(false);
     await w.get("button").trigger("keydown", { key: "ArrowDown" });

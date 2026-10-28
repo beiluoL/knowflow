@@ -1,6 +1,6 @@
 <template>
   <AppDialog open scrollable icon="settings" title="闪卡复习设置" description="先设定记忆目标与每日上限，按需调整高级参数。"
-             width="calc(var(--kb-space-8) * 16.25)" :persistent="busy" @cancel="close">
+             width="calc(var(--kf-space-8) * 16.25)" :persistent="busy" @cancel="close">
     <div v-if="loading" class="settings-loading" role="status" aria-busy="true">
       <span class="sr-only">正在读取复习设置…</span><span aria-hidden="true" /><span aria-hidden="true" /><span aria-hidden="true" />
     </div>
@@ -10,7 +10,7 @@
         <h4 id="flash-memory-title">记忆目标</h4>
         <div class="settings-field retention-field">
           <label for="flash-retention-percent">目标保持率</label>
-          <div class="unit-control"><input id="flash-retention-percent" :value="draft.retention" @input="draft.retention = ($event.target as HTMLInputElement).value" class="kb-input settings-number kb-form-control" type="number" min="70" max="99" step="any" inputmode="decimal" :disabled="locked" :aria-invalid="!!errors.retention" :aria-describedby="describedBy('retention')" @blur="checkField('retention')" /><span aria-hidden="true">%</span></div>
+          <div class="unit-control"><input id="flash-retention-percent" :value="draft.retention" @input="draft.retention = ($event.target as HTMLInputElement).value" class="kf-input settings-number kf-form-control" type="number" min="70" max="99" step="any" inputmode="decimal" :disabled="locked" :aria-invalid="!!errors.retention" :aria-describedby="describedBy('retention')" @blur="checkField('retention')" /><span aria-hidden="true">%</span></div>
           <p id="flash-retention-percent-hint" class="field-hint">到期复习时，希望仍能记住的目标概率。提高目标通常会增加复习频率。支持70%–99%。</p>
           <p v-if="errors.retention" id="flash-retention-percent-error" class="field-error" role="alert">{{ errors.retention }}</p>
         </div>
@@ -19,8 +19,8 @@
       <section aria-labelledby="flash-limits-title">
         <h4 id="flash-limits-title">每日学习限制</h4>
         <div class="settings-grid">
-          <div class="settings-field"><label for="flash-new-limit">每日新卡上限</label><div class="unit-control"><input id="flash-new-limit" :value="draft.newLimit" @input="draft.newLimit = ($event.target as HTMLInputElement).value" class="kb-input settings-number kb-form-control" type="number" min="0" max="1000" step="1" inputmode="numeric" :disabled="locked" :aria-invalid="!!errors.newLimit" :aria-describedby="describedBy('newLimit')" @blur="checkField('newLimit')" /><span>张/天</span></div><p id="flash-new-limit-hint" class="field-hint">当天首次评分的新卡上限。0表示不引入新卡。</p><p v-if="errors.newLimit" id="flash-new-limit-error" class="field-error" role="alert">{{ errors.newLimit }}</p></div>
-          <div class="settings-field"><label for="flash-review-limit">每日复习上限</label><div class="unit-control"><input id="flash-review-limit" :value="draft.reviewLimit" @input="draft.reviewLimit = ($event.target as HTMLInputElement).value" class="kb-input settings-number kb-form-control" type="number" min="0" max="10000" step="1" inputmode="numeric" :disabled="locked" :aria-invalid="!!errors.reviewLimit" :aria-describedby="describedBy('reviewLimit')" @blur="checkField('reviewLimit')" /><span>次/天</span></div><p id="flash-review-limit-hint" class="field-hint">其余评分按次数计数，同一张卡多次评分会分别计数。0表示暂停复习评分。</p><p v-if="errors.reviewLimit" id="flash-review-limit-error" class="field-error" role="alert">{{ errors.reviewLimit }}</p></div>
+          <div class="settings-field"><label for="flash-new-limit">每日新卡上限</label><div class="unit-control"><input id="flash-new-limit" :value="draft.newLimit" @input="draft.newLimit = ($event.target as HTMLInputElement).value" class="kf-input settings-number kf-form-control" type="number" min="0" max="1000" step="1" inputmode="numeric" :disabled="locked" :aria-invalid="!!errors.newLimit" :aria-describedby="describedBy('newLimit')" @blur="checkField('newLimit')" /><span>张/天</span></div><p id="flash-new-limit-hint" class="field-hint">当天首次评分的新卡上限。0表示不引入新卡。</p><p v-if="errors.newLimit" id="flash-new-limit-error" class="field-error" role="alert">{{ errors.newLimit }}</p></div>
+          <div class="settings-field"><label for="flash-review-limit">每日复习上限</label><div class="unit-control"><input id="flash-review-limit" :value="draft.reviewLimit" @input="draft.reviewLimit = ($event.target as HTMLInputElement).value" class="kf-input settings-number kf-form-control" type="number" min="0" max="10000" step="1" inputmode="numeric" :disabled="locked" :aria-invalid="!!errors.reviewLimit" :aria-describedby="describedBy('reviewLimit')" @blur="checkField('reviewLimit')" /><span>次/天</span></div><p id="flash-review-limit-hint" class="field-hint">其余评分按次数计数，同一张卡多次评分会分别计数。0表示暂停复习评分。</p><p v-if="errors.reviewLimit" id="flash-review-limit-error" class="field-error" role="alert">{{ errors.reviewLimit }}</p></div>
         </div>
       </section>
 
@@ -28,13 +28,13 @@
         <summary><span>高级参数</span><span class="field-hint">调度、时区与学习日</span><Icon name="chevron-down" :size="16" class="advanced-chevron" /></summary>
         <div class="advanced-body">
           <section aria-labelledby="flash-schedule-title"><h4 id="flash-schedule-title">调度参数</h4>
-            <div class="settings-field"><label for="flash-maximum-interval">最大间隔</label><div class="unit-control"><input id="flash-maximum-interval" :value="draft.maximumInterval" @input="draft.maximumInterval = ($event.target as HTMLInputElement).value" class="kb-input settings-number kb-form-control" type="number" min="1" max="36500" step="1" inputmode="numeric" :disabled="locked" :aria-invalid="!!errors.maximumInterval" :aria-describedby="describedBy('maximumInterval')" @blur="checkField('maximumInterval')" /><span>天</span></div><p id="flash-maximum-interval-hint" class="field-hint">用于限制卡片复习间隔的最大值，支持1–36500天。</p><p v-if="errors.maximumInterval" id="flash-maximum-interval-error" class="field-error" role="alert">{{ errors.maximumInterval }}</p></div>
-            <div class="settings-field"><label for="flash-learning-steps">学习步长</label><input id="flash-learning-steps" v-model="draft.learningSteps" class="kb-input kb-form-control" type="text" :disabled="locked" :aria-invalid="!!errors.learningSteps" :aria-describedby="describedBy('learningSteps')" @blur="checkField('learningSteps')" /><p id="flash-learning-steps-hint" class="field-hint">新卡初始学习的间隔，单位为分钟。用逗号分隔，如1,10；可留空，否则最多6项、严格递增，每项1–1440。</p><p v-if="errors.learningSteps" id="flash-learning-steps-error" class="field-error" role="alert">{{ errors.learningSteps }}</p></div>
-            <div class="settings-field"><label for="flash-relearning-steps">重学步长</label><input id="flash-relearning-steps" v-model="draft.relearningSteps" class="kb-input kb-form-control" type="text" :disabled="locked" :aria-invalid="!!errors.relearningSteps" :aria-describedby="describedBy('relearningSteps')" @blur="checkField('relearningSteps')" /><p id="flash-relearning-steps-hint" class="field-hint">遗忘后重新学习的短期步骤，单位为分钟。格式和范围与学习步长相同，可留空。</p><p v-if="errors.relearningSteps" id="flash-relearning-steps-error" class="field-error" role="alert">{{ errors.relearningSteps }}</p></div>
+            <div class="settings-field"><label for="flash-maximum-interval">最大间隔</label><div class="unit-control"><input id="flash-maximum-interval" :value="draft.maximumInterval" @input="draft.maximumInterval = ($event.target as HTMLInputElement).value" class="kf-input settings-number kf-form-control" type="number" min="1" max="36500" step="1" inputmode="numeric" :disabled="locked" :aria-invalid="!!errors.maximumInterval" :aria-describedby="describedBy('maximumInterval')" @blur="checkField('maximumInterval')" /><span>天</span></div><p id="flash-maximum-interval-hint" class="field-hint">用于限制卡片复习间隔的最大值，支持1–36500天。</p><p v-if="errors.maximumInterval" id="flash-maximum-interval-error" class="field-error" role="alert">{{ errors.maximumInterval }}</p></div>
+            <div class="settings-field"><label for="flash-learning-steps">学习步长</label><input id="flash-learning-steps" v-model="draft.learningSteps" class="kf-input kf-form-control" type="text" :disabled="locked" :aria-invalid="!!errors.learningSteps" :aria-describedby="describedBy('learningSteps')" @blur="checkField('learningSteps')" /><p id="flash-learning-steps-hint" class="field-hint">新卡初始学习的间隔，单位为分钟。用逗号分隔，如1,10；可留空，否则最多6项、严格递增，每项1–1440。</p><p v-if="errors.learningSteps" id="flash-learning-steps-error" class="field-error" role="alert">{{ errors.learningSteps }}</p></div>
+            <div class="settings-field"><label for="flash-relearning-steps">重学步长</label><input id="flash-relearning-steps" v-model="draft.relearningSteps" class="kf-input kf-form-control" type="text" :disabled="locked" :aria-invalid="!!errors.relearningSteps" :aria-describedby="describedBy('relearningSteps')" @blur="checkField('relearningSteps')" /><p id="flash-relearning-steps-hint" class="field-hint">遗忘后重新学习的短期步骤，单位为分钟。格式和范围与学习步长相同，可留空。</p><p v-if="errors.relearningSteps" id="flash-relearning-steps-error" class="field-error" role="alert">{{ errors.relearningSteps }}</p></div>
           </section>
           <section aria-labelledby="flash-time-title"><h4 id="flash-time-title">时间与日期</h4>
-            <div class="settings-field"><label for="flash-timezone">时区</label><input id="flash-timezone" v-model="draft.timezone" class="kb-input kb-form-control" type="text" list="flash-timezones" autocomplete="off" :disabled="locked" :aria-invalid="!!errors.timezone" :aria-describedby="describedBy('timezone')" @blur="checkField('timezone')" /><datalist id="flash-timezones"><option v-for="zone in timezoneOptions" :key="zone" :value="zone" :label="zone === 'Asia/Shanghai' ? '中国标准时间（Asia/Shanghai）' : zone" /></datalist><p id="flash-timezone-hint" class="field-hint">{{ draft.timezone === 'Asia/Shanghai' ? '中国标准时间。' : '' }}可搜索时区或直接输入已有标识；有效性将在保存时核对。</p><p v-if="errors.timezone" id="flash-timezone-error" class="field-error" role="alert">{{ errors.timezone }}</p></div>
-            <div class="settings-field"><label for="flash-day-start">每日切换时间</label><select id="flash-day-start" v-model="draft.dayStart" class="kb-select settings-hour kb-form-control" :disabled="locked" :aria-invalid="!!errors.dayStart" :aria-describedby="describedBy('dayStart')" @blur="checkField('dayStart')"><option v-for="hour in 24" :key="hour" :value="String(hour - 1)">{{ String(hour - 1).padStart(2, '0') }}:00</option></select><p id="flash-day-start-hint" class="field-hint">以所选时区的本地时间作为新学习日的开始，保存后采用该时区，不随浏览器时区自动切换。</p><p v-if="errors.dayStart" id="flash-day-start-error" class="field-error" role="alert">{{ errors.dayStart }}</p></div>
+            <div class="settings-field"><label for="flash-timezone">时区</label><input id="flash-timezone" v-model="draft.timezone" class="kf-input kf-form-control" type="text" list="flash-timezones" autocomplete="off" :disabled="locked" :aria-invalid="!!errors.timezone" :aria-describedby="describedBy('timezone')" @blur="checkField('timezone')" /><datalist id="flash-timezones"><option v-for="zone in timezoneOptions" :key="zone" :value="zone" :label="zone === 'Asia/Shanghai' ? '中国标准时间（Asia/Shanghai）' : zone" /></datalist><p id="flash-timezone-hint" class="field-hint">{{ draft.timezone === 'Asia/Shanghai' ? '中国标准时间。' : '' }}可搜索时区或直接输入已有标识；有效性将在保存时核对。</p><p v-if="errors.timezone" id="flash-timezone-error" class="field-error" role="alert">{{ errors.timezone }}</p></div>
+            <div class="settings-field"><label for="flash-day-start">每日切换时间</label><select id="flash-day-start" v-model="draft.dayStart" class="kf-select settings-hour kf-form-control" :disabled="locked" :aria-invalid="!!errors.dayStart" :aria-describedby="describedBy('dayStart')" @blur="checkField('dayStart')"><option v-for="hour in 24" :key="hour" :value="String(hour - 1)">{{ String(hour - 1).padStart(2, '0') }}:00</option></select><p id="flash-day-start-hint" class="field-hint">以所选时区的本地时间作为新学习日的开始，保存后采用该时区，不随浏览器时区自动切换。</p><p v-if="errors.dayStart" id="flash-day-start-error" class="field-error" role="alert">{{ errors.dayStart }}</p></div>
           </section>
         </div>
       </details>
@@ -163,44 +163,44 @@ onUnmounted(() => { active = false; generation++ })
 </script>
 
 <style scoped>
-.settings-form { display:grid;gap:var(--kb-space-5);color:var(--kb-foreground);font-size:var(--kb-fs-body-sm);line-height:var(--kb-lh-body-sm);min-width:0; }
+.settings-form { display:grid;gap:var(--kf-space-5);color:var(--kf-foreground);font-size:var(--kf-fs-body-sm);line-height:var(--kf-lh-body-sm);min-width:0; }
 .settings-form section { min-width:0; }
-h4 { font-size:var(--kb-fs-body-md);font-weight:var(--kb-fw-h4);line-height:var(--kb-lh-body-md);margin-bottom:var(--kb-space-3); }
-.settings-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--kb-space-4); }
-.settings-field { display:grid;gap:var(--kb-space-2);min-width:0; }
-.settings-field+.settings-field { margin-top:var(--kb-space-4); }
+h4 { font-size:var(--kf-fs-body-md);font-weight:var(--kf-fw-h4);line-height:var(--kf-lh-body-md);margin-bottom:var(--kf-space-3); }
+.settings-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--kf-space-4); }
+.settings-field { display:grid;gap:var(--kf-space-2);min-width:0; }
+.settings-field+.settings-field { margin-top:var(--kf-space-4); }
 .settings-grid>.settings-field { margin:0; }
-label { font-weight:var(--kb-fw-h4); }
-.unit-control { display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--kb-space-2); }
-.unit-control>span { color:var(--kb-muted-foreground);white-space:nowrap;font-size:var(--kb-fs-caption); }
-.retention-field>.unit-control { max-width:calc(var(--kb-space-8) * 6); }
-.settings-field input,.settings-hour { width:100%;min-width:0;max-width:100%;font-size:var(--kb-fs-body-sm);color:var(--kb-foreground); }
-.settings-field input:not(.kb-form-control),.settings-hour:not(.kb-form-control) { height:var(--kb-btn-height-md);background:var(--kb-card); }
-.settings-hour:not(.kb-form-control) { border:var(--kb-studio-rule) solid var(--kb-border);border-radius:var(--kb-field-radius); }
-.settings-hour {padding-inline:var(--kb-space-3); }
+label { font-weight:var(--kf-fw-h4); }
+.unit-control { display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--kf-space-2); }
+.unit-control>span { color:var(--kf-muted-foreground);white-space:nowrap;font-size:var(--kf-fs-caption); }
+.retention-field>.unit-control { max-width:calc(var(--kf-space-8) * 6); }
+.settings-field input,.settings-hour { width:100%;min-width:0;max-width:100%;font-size:var(--kf-fs-body-sm);color:var(--kf-foreground); }
+.settings-field input:not(.kf-form-control),.settings-hour:not(.kf-form-control) { height:var(--kf-btn-height-md);background:var(--kf-card); }
+.settings-hour:not(.kf-form-control) { border:var(--kf-studio-rule) solid var(--kf-border);border-radius:var(--kf-field-radius); }
+.settings-hour {padding-inline:var(--kf-space-3); }
 .settings-number { appearance:textfield;-moz-appearance:textfield; }
 .settings-number::-webkit-inner-spin-button,.settings-number::-webkit-outer-spin-button { appearance:none;margin:0; }
-.settings-field [aria-invalid="true"] { border-color:var(--kb-destructive); }
+.settings-field [aria-invalid="true"] { border-color:var(--kf-destructive); }
 .settings-field :disabled { opacity:.6;cursor:not-allowed; }
-.field-hint,.footer-note { color:var(--kb-muted-foreground);font-size:var(--kb-fs-caption);line-height:var(--kb-lh-body-sm);overflow-wrap:anywhere; }
-.field-error { color:var(--kb-destructive);font-size:var(--kb-fs-caption);overflow-wrap:anywhere; }
-.advanced-settings { border-top:var(--kb-studio-rule) solid var(--kb-border);padding-top:var(--kb-space-4);min-width:0; }
-.advanced-settings>summary { display:flex;align-items:center;gap:var(--kb-space-2);cursor:pointer;list-style:none;font-weight:var(--kb-fw-h4); }
+.field-hint,.footer-note { color:var(--kf-muted-foreground);font-size:var(--kf-fs-caption);line-height:var(--kf-lh-body-sm);overflow-wrap:anywhere; }
+.field-error { color:var(--kf-destructive);font-size:var(--kf-fs-caption);overflow-wrap:anywhere; }
+.advanced-settings { border-top:var(--kf-studio-rule) solid var(--kf-border);padding-top:var(--kf-space-4);min-width:0; }
+.advanced-settings>summary { display:flex;align-items:center;gap:var(--kf-space-2);cursor:pointer;list-style:none;font-weight:var(--kf-fw-h4); }
 .advanced-settings>summary::-webkit-details-marker { display:none; }
 .advanced-settings>summary>.field-hint { font-weight:normal; }
 .advanced-chevron { margin-inline-start:auto;flex-shrink:0;transition:transform .15s; }
-.advanced-settings[open]>summary { margin-bottom:var(--kb-space-4); }
+.advanced-settings[open]>summary { margin-bottom:var(--kf-space-4); }
 .advanced-settings[open] .advanced-chevron { transform:rotate(180deg); }
-.advanced-body { display:grid;gap:var(--kb-space-5);padding-top:var(--kb-space-4); }
-.advanced-body h4 { color:var(--kb-muted-foreground);font-size:var(--kb-fs-body-sm); }
-.settings-notice { display:grid;gap:var(--kb-space-3);margin-top:var(--kb-space-4);padding:var(--kb-space-3);border:var(--kb-studio-rule) solid var(--kb-border);border-inline-start-color:var(--kb-destructive);border-radius:var(--kb-radius-sm);font-size:var(--kb-fs-body-sm);line-height:var(--kb-lh-body-sm);color:var(--kb-foreground);overflow-wrap:anywhere; }
+.advanced-body { display:grid;gap:var(--kf-space-5);padding-top:var(--kf-space-4); }
+.advanced-body h4 { color:var(--kf-muted-foreground);font-size:var(--kf-fs-body-sm); }
+.settings-notice { display:grid;gap:var(--kf-space-3);margin-top:var(--kf-space-4);padding:var(--kf-space-3);border:var(--kf-studio-rule) solid var(--kf-border);border-inline-start-color:var(--kf-destructive);border-radius:var(--kf-radius-sm);font-size:var(--kf-fs-body-sm);line-height:var(--kf-lh-body-sm);color:var(--kf-foreground);overflow-wrap:anywhere; }
 .settings-notice button { justify-self:start; }
 .footer-note { flex:1 1 40%; }
-.settings-actions { display:flex;justify-content:flex-end;gap:var(--kb-space-2);margin-inline-start:auto; }
-.settings-loading { min-height:calc(var(--kb-space-8) * 8); }
-.settings-loading>span:not(.sr-only) { display:block;background:var(--kb-muted);height:var(--kb-space-8);border-radius:var(--kb-radius-sm);margin-block:var(--kb-space-5); }
+.settings-actions { display:flex;justify-content:flex-end;gap:var(--kf-space-2);margin-inline-start:auto; }
+.settings-loading { min-height:calc(var(--kf-space-8) * 8); }
+.settings-loading>span:not(.sr-only) { display:block;background:var(--kf-muted);height:var(--kf-space-8);border-radius:var(--kf-radius-sm);margin-block:var(--kf-space-5); }
 .settings-loading>span:last-child { width:70%; }
-.advanced-settings>summary:focus-visible,.settings-hour:focus-visible:not(.kb-form-control) { outline:var(--kb-field-focus-width) solid var(--kb-ring);outline-offset:var(--kb-space-1); }
+.advanced-settings>summary:focus-visible,.settings-hour:focus-visible:not(.kf-form-control) { outline:var(--kf-field-focus-width) solid var(--kf-ring);outline-offset:var(--kf-space-1); }
 @media (max-width:30rem) { .settings-grid { grid-template-columns:minmax(0,1fr); }.advanced-settings>summary>.field-hint { display:none; } }
 @media (prefers-reduced-motion:reduce) { .advanced-chevron { transition:none; } }
 </style>

@@ -3,7 +3,7 @@
     <PageHeader title="用户管理" description="检索账号、维护用户信息与角色。数据来自管理员接口。"><template #actions><Button icon-name="user-plus" @click="openCreate">新增用户</Button></template></PageHeader>
     <section class="user-panel" aria-label="用户列表">
       <form class="user-toolbar" role="search" @submit.prevent="applyFilters">
-        <label class="user-search"><Icon name="search" :size="18" aria-hidden="true" /><input class="kb-input kb-form-control" v-model="searchQuery" type="search" aria-label="搜索用户" placeholder="用户名、昵称或邮箱" @keydown.enter="onSearchEnter" /></label>
+        <label class="user-search"><Icon name="search" :size="18" aria-hidden="true" /><input class="kf-input kf-form-control" v-model="searchQuery" type="search" aria-label="搜索用户" placeholder="用户名、昵称或邮箱" @keydown.enter="onSearchEnter" /></label>
         <Select v-model="selectedRole" aria-label="角色筛选" :options="roleFilterOptions" @change="applyFilters" />
         <Button type="submit" :loading="loading">搜索</Button><Button variant="ghost" @click="resetFilters">重置</Button>
       </form>
@@ -18,7 +18,7 @@
       <section ref="panel" class="user-modal" role="dialog" aria-modal="true" aria-labelledby="user-form-title" tabindex="-1" @keydown="onFormKey">
         <header><div><h2 id="user-form-title">{{ editingId == null ? '新增用户' : '编辑用户' }}</h2><p>必填信息与角色由原有服务端规则校验。</p></div><Button variant="ghost" icon-name="x" icon-only aria-label="关闭用户表单" :disabled="saving || confirming" @click="requestClose" /></header>
         <form aria-label="用户信息表单" @submit.prevent="save">
-          <fieldset :disabled="saving || confirming"><label>用户名 <span>*</span><input class="kb-input kb-form-control" v-model="form.username" autocomplete="username" required :disabled="editingId != null" maxlength="50" /></label><label>邮箱<input class="kb-input kb-form-control" v-model="form.email" type="email" autocomplete="email" /></label><label>昵称<input class="kb-input kb-form-control" v-model="form.nickname" autocomplete="nickname" /></label><label>角色<Select v-model="form.role" aria-label="用户角色" :options="roleOptions" :disabled="saving || confirming" /></label><label v-if="editingId == null">初始密码 <span>*</span><input class="kb-input kb-form-control" v-model="form.password" type="password" autocomplete="new-password" required /></label></fieldset>
+          <fieldset :disabled="saving || confirming"><label>用户名 <span>*</span><input class="kf-input kf-form-control" v-model="form.username" autocomplete="username" required :disabled="editingId != null" maxlength="50" /></label><label>邮箱<input class="kf-input kf-form-control" v-model="form.email" type="email" autocomplete="email" /></label><label>昵称<input class="kf-input kf-form-control" v-model="form.nickname" autocomplete="nickname" /></label><label>角色<Select v-model="form.role" aria-label="用户角色" :options="roleOptions" :disabled="saving || confirming" /></label><label v-if="editingId == null">初始密码 <span>*</span><input class="kf-input kf-form-control" v-model="form.password" type="password" autocomplete="new-password" required /></label></fieldset>
           <p v-if="formError" class="user-form-error" role="alert">{{ formError }}</p>
           <footer><span role="status" aria-live="polite">{{ saving ? '正在保存，请等待服务端确认…' : dirty ? '有未保存修改' : '' }}</span><Button variant="secondary" :disabled="saving || confirming" @click="requestClose">取消</Button><Button type="submit" :loading="saving" :disabled="confirming">保存</Button></footer>
         </form>
@@ -150,30 +150,30 @@ onMounted(() => { void loadUsers(); window.addEventListener('beforeunload', befo
 onBeforeUnmount(() => { sequence++; window.removeEventListener('beforeunload', beforeUnload) })
 </script>
 <style scoped>
-.admin-users { min-width:0; color:var(--kb-foreground); display:grid; gap:var(--kb-space-5); }
-.user-panel { min-width:0; background:var(--kb-card); border:1px solid var(--kb-border); border-radius:var(--kb-radius-md); padding:var(--kb-space-4); }
-.user-toolbar { display:flex; gap:var(--kb-space-3); align-items:center; flex-wrap:wrap; }
-.user-search { display:flex; align-items:center; gap:var(--kb-space-2); border-radius:var(--kb-radius-md); padding:var(--kb-space-3); flex:1; min-width:12rem; border:0; }
-.user-search:focus-within { background:var(--kb-field-active); }
-.user-search input { flex:1; min-width:0; border:0; outline:0; box-shadow:none; padding:0; background:transparent; color:var(--kb-foreground); }
-.user-toolbar select, .user-modal :is(input,select) { padding:var(--kb-space-3); background:var(--kb-card); border:1px solid var(--kb-border); border-radius:var(--kb-radius-sm); color:var(--kb-foreground); }
-.user-result-count, .user-source-note { margin-block:var(--kb-space-3); color:var(--kb-muted-foreground); font-size:var(--kb-fs-body-sm); }
-.user-table-scroll { overflow-x:auto; max-width:100%; margin-bottom:var(--kb-space-4); }
-table { width:100%; min-width:48rem; border-collapse:collapse; font-size:var(--kb-fs-body-sm); }
-th,td { padding:var(--kb-space-3); text-align:left; border-bottom:1px solid var(--kb-border); }
-th { background:var(--kb-muted); color:var(--kb-muted-foreground); font-weight:500; }
-tbody tr:hover { background:var(--kb-muted); }
-.user-identity { display:flex; gap:var(--kb-space-2); align-items:center; max-width:18rem; overflow-wrap:anywhere; }.user-identity small { display:block; color:var(--kb-muted-foreground); margin-top:var(--kb-space-1); }
-.user-row-actions { display:flex; gap:var(--kb-space-2); }
-.user-modal-mask { position:fixed; inset:0; z-index:100; background:color-mix(in srgb,var(--kb-foreground) 30%,transparent); display:flex; align-items:center; justify-content:center; padding:var(--kb-space-4); }
-.user-modal { width:min(100%,30rem); max-height:90dvh; overflow-y:auto; background:var(--kb-card); border:1px solid var(--kb-border); border-radius:var(--kb-radius-lg); box-shadow:var(--kb-shadow-lg); }
-.user-modal header { display:flex; align-items:center; justify-content:space-between; gap:var(--kb-space-3); padding:var(--kb-space-5); border-bottom:1px solid var(--kb-border); }.user-modal h2 { font-size:var(--kb-fs-h3); font-weight:600; }.user-modal header p { color:var(--kb-muted-foreground); font-size:var(--kb-fs-body-sm); margin-top:var(--kb-space-2); }
-.user-modal fieldset { display:grid; gap:var(--kb-space-4); padding:var(--kb-space-5); min-width:0; }.user-modal label { display:grid; gap:var(--kb-space-2); font-size:var(--kb-fs-body-sm); }.user-modal label span { color:var(--kb-danger); }.user-modal input { min-width:0; width:100%; }
-.user-modal footer { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:var(--kb-space-3); padding:var(--kb-space-4); border-top:1px solid var(--kb-border); align-items:center; }.user-modal footer span { color:var(--kb-muted-foreground); font-size:var(--kb-fs-body-sm); margin-right:auto; }.user-form-error { color:var(--kb-danger); font-size:var(--kb-fs-body-sm); padding-inline:var(--kb-space-5); }
-.admin-users :is(button,a,input,select,summary,[tabindex]):focus-visible:not(.kb-form-control, .kb-input, .kb-textarea, .kb-select, .kb-select-trigger) { outline:var(--kb-field-focus-width) solid var(--kb-ring); outline-offset:var(--kb-space-1); }
-@media(max-width:600px) { .user-search { flex-basis:100%; border:0; }.user-panel { padding:var(--kb-space-3); } }
+.admin-users { min-width:0; color:var(--kf-foreground); display:grid; gap:var(--kf-space-5); }
+.user-panel { min-width:0; background:var(--kf-card); border:1px solid var(--kf-border); border-radius:var(--kf-radius-md); padding:var(--kf-space-4); }
+.user-toolbar { display:flex; gap:var(--kf-space-3); align-items:center; flex-wrap:wrap; }
+.user-search { display:flex; align-items:center; gap:var(--kf-space-2); border-radius:var(--kf-radius-md); padding:var(--kf-space-3); flex:1; min-width:12rem; border:0; }
+.user-search:focus-within { background:var(--kf-field-active); }
+.user-search input { flex:1; min-width:0; border:0; outline:0; box-shadow:none; padding:0; background:transparent; color:var(--kf-foreground); }
+.user-toolbar select, .user-modal :is(input,select) { padding:var(--kf-space-3); background:var(--kf-card); border:1px solid var(--kf-border); border-radius:var(--kf-radius-sm); color:var(--kf-foreground); }
+.user-result-count, .user-source-note { margin-block:var(--kf-space-3); color:var(--kf-muted-foreground); font-size:var(--kf-fs-body-sm); }
+.user-table-scroll { overflow-x:auto; max-width:100%; margin-bottom:var(--kf-space-4); }
+table { width:100%; min-width:48rem; border-collapse:collapse; font-size:var(--kf-fs-body-sm); }
+th,td { padding:var(--kf-space-3); text-align:left; border-bottom:1px solid var(--kf-border); }
+th { background:var(--kf-muted); color:var(--kf-muted-foreground); font-weight:500; }
+tbody tr:hover { background:var(--kf-muted); }
+.user-identity { display:flex; gap:var(--kf-space-2); align-items:center; max-width:18rem; overflow-wrap:anywhere; }.user-identity small { display:block; color:var(--kf-muted-foreground); margin-top:var(--kf-space-1); }
+.user-row-actions { display:flex; gap:var(--kf-space-2); }
+.user-modal-mask { position:fixed; inset:0; z-index:100; background:color-mix(in srgb,var(--kf-foreground) 30%,transparent); display:flex; align-items:center; justify-content:center; padding:var(--kf-space-4); }
+.user-modal { width:min(100%,30rem); max-height:90dvh; overflow-y:auto; background:var(--kf-card); border:1px solid var(--kf-border); border-radius:var(--kf-radius-lg); box-shadow:var(--kf-shadow-lg); }
+.user-modal header { display:flex; align-items:center; justify-content:space-between; gap:var(--kf-space-3); padding:var(--kf-space-5); border-bottom:1px solid var(--kf-border); }.user-modal h2 { font-size:var(--kf-fs-h3); font-weight:600; }.user-modal header p { color:var(--kf-muted-foreground); font-size:var(--kf-fs-body-sm); margin-top:var(--kf-space-2); }
+.user-modal fieldset { display:grid; gap:var(--kf-space-4); padding:var(--kf-space-5); min-width:0; }.user-modal label { display:grid; gap:var(--kf-space-2); font-size:var(--kf-fs-body-sm); }.user-modal label span { color:var(--kf-danger); }.user-modal input { min-width:0; width:100%; }
+.user-modal footer { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:var(--kf-space-3); padding:var(--kf-space-4); border-top:1px solid var(--kf-border); align-items:center; }.user-modal footer span { color:var(--kf-muted-foreground); font-size:var(--kf-fs-body-sm); margin-right:auto; }.user-form-error { color:var(--kf-danger); font-size:var(--kf-fs-body-sm); padding-inline:var(--kf-space-5); }
+.admin-users :is(button,a,input,select,summary,[tabindex]):focus-visible:not(.kf-form-control, .kf-input, .kf-textarea, .kf-select, .kf-select-trigger) { outline:var(--kf-field-focus-width) solid var(--kf-ring); outline-offset:var(--kf-space-1); }
+@media(max-width:600px) { .user-search { flex-basis:100%; border:0; }.user-panel { padding:var(--kf-space-3); } }
 </style>
 
 <style scoped>
-.user-search:has(input:focus-visible){outline:0}.user-search input.kb-form-control,.user-search input.kb-form-control:focus,.user-search input.kb-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
+.user-search:has(input:focus-visible){outline:0}.user-search input.kf-form-control,.user-search input.kf-form-control:focus,.user-search input.kf-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
 </style>

@@ -3,14 +3,14 @@
   <div class="tag-mgmt-wrap">
     <!-- 页面标题 -->
     <div class="page-head">
-      <h1 class="kb-h1">标签管理</h1>
+      <h1 class="kf-h1">标签管理</h1>
     </div>
 
     <!-- 标签云卡片 -->
     <div class="cloud-card">
       <div class="cloud-head">
-        <h3 class="kb-h3">标签云</h3>
-        <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="openCreate">
+        <h3 class="kf-h3">标签云</h3>
+        <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="openCreate">
           <Icon name="plus" :size="16" aria-hidden="true" />
           <span>新建标签</span>
         </button>
@@ -19,7 +19,7 @@
         <span
           v-for="tag in tags"
           :key="tag.id"
-          class="cloud-tag focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="cloud-tag focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="cloudSizeClass(tag.count)"
           :style="cloudStyle(tag.color)"
           role="button"
@@ -54,10 +54,10 @@
         <div class="col-usage">{{ tag.count }} 次使用</div>
         <div class="col-creator">{{ tag.creator }}</div>
         <div class="col-actions">
-          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="编辑" @click="openEdit(tag)">
+          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" title="编辑" @click="openEdit(tag)">
             <Icon name="edit" :size="14" aria-hidden="true" />
           </button>
-          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="删除" @click="removeTag(tag)">
+          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" title="删除" @click="removeTag(tag)">
             <Icon name="trash-2" :size="14" aria-hidden="true" />
           </button>
         </div>
@@ -66,11 +66,11 @@
     </div>
 
     <!-- 新建/编辑弹窗 -->
-    <div v-if="showModal" class="modal-mask focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @click.self="closeModal" @keydown.enter.prevent="($event.target as HTMLElement).click()">
+    <div v-if="showModal" class="modal-mask focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @click.self="closeModal" @keydown.enter.prevent="($event.target as HTMLElement).click()">
       <div class="modal-card">
         <div class="modal-head">
-          <h3 class="kb-h3">{{ editingId ? '编辑标签' : '新建标签' }}</h3>
-          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="关闭" @click="closeModal">
+          <h3 class="kf-h3">{{ editingId ? '编辑标签' : '新建标签' }}</h3>
+          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" title="关闭" @click="closeModal">
             <Icon name="x" :size="18" aria-hidden="true" />
           </button>
         </div>
@@ -80,7 +80,7 @@
             <input
               v-model="form.name"
               type="text"
-              class="form-input transition-colors hover:border-[var(--kb-ring)] kb-input kb-form-control"
+              class="form-input transition-colors hover:border-[var(--kf-ring)] kf-input kf-form-control"
               placeholder="请输入标签名称"
             />
           </div>
@@ -90,13 +90,13 @@
               <input
                 v-model="form.color"
                 type="color"
-                class="color-picker focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors hover:border-[var(--kb-ring)]"
+                class="color-picker focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors hover:border-[var(--kf-ring)]"
               />
               <input
                 v-model="form.color"
                 type="text"
-                class="form-input transition-colors hover:border-[var(--kb-ring)] kb-input kb-form-control"
-                placeholder="var(--kb-primary)"
+                class="form-input transition-colors hover:border-[var(--kf-ring)] kf-input kf-form-control"
+                placeholder="var(--kf-primary)"
               />
             </div>
             <div class="color-presets">
@@ -104,7 +104,7 @@
                 v-for="color in colorPresets"
                 :key="color"
                 type="button"
-                class="color-preset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                class="color-preset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
                 :class="{ active: form.color === color }"
                 :style="{ backgroundColor: color }"
                 @click="form.color = color"
@@ -113,8 +113,8 @@
           </div>
         </div>
         <div class="modal-foot">
-          <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="closeModal">取消</button>
-          <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving" @click="save">
+          <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="closeModal">取消</button>
+          <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving" @click="save">
             {{ saving ? '保存中...' : '保存' }}
           </button>
         </div>
@@ -139,31 +139,31 @@ interface Tag {
 
 /** 标签列表（演示数据） */
 const tags = ref<Tag[]>([
-  { id: '1', name: 'Python', color: 'var(--kb-primary)', count: 45, creator: '张三' },
-  { id: '2', name: '机器学习', color: 'var(--kb-success)', count: 38, creator: '李四' },
-  { id: '3', name: '前端开发', color: 'var(--kb-warning)', count: 32, creator: '王五' },
-  { id: '4', name: 'React', color: 'var(--kb-danger)', count: 28, creator: '张三' },
-  { id: '5', name: 'Node.js', color: 'var(--kb-muted-foreground)', count: 22, creator: '赵六' },
-  { id: '6', name: '数据分析', color: 'var(--kb-primary)', count: 24, creator: '赵六' },
-  { id: '7', name: 'Vue', color: 'var(--kb-success)', count: 19, creator: '王五' },
-  { id: '8', name: 'TypeScript', color: 'var(--kb-warning)', count: 17, creator: '张三' },
-  { id: '9', name: 'Docker', color: 'var(--kb-danger)', count: 18, creator: '李四' },
-  { id: '10', name: 'API 设计', color: 'var(--kb-muted-foreground)', count: 15, creator: '王五' },
-  { id: '11', name: '数据库', color: 'var(--kb-primary)', count: 14, creator: '张三' },
-  { id: '12', name: '微服务', color: 'var(--kb-success)', count: 12, creator: '张三' },
-  { id: '13', name: '产品需求', color: 'var(--kb-warning)', count: 10, creator: '王五' },
-  { id: '14', name: 'UI 设计', color: 'var(--kb-danger)', count: 9, creator: '赵六' },
-  { id: '15', name: '性能优化', color: 'var(--kb-muted-foreground)', count: 8, creator: '李四' },
-  { id: '16', name: '算法', color: 'var(--kb-primary)', count: 7, creator: '张三' },
-  { id: '17', name: '深度学习', color: 'var(--kb-success)', count: 6, creator: '赵六' },
-  { id: '18', name: 'Kubernetes', color: 'var(--kb-warning)', count: 5, creator: '王五' },
-  { id: '19', name: 'Go 语言', color: 'var(--kb-danger)', count: 4, creator: '李四' },
-  { id: '20', name: '安全', color: 'var(--kb-muted-foreground)', count: 3, creator: '张三' },
+  { id: '1', name: 'Python', color: 'var(--kf-primary)', count: 45, creator: '张三' },
+  { id: '2', name: '机器学习', color: 'var(--kf-success)', count: 38, creator: '李四' },
+  { id: '3', name: '前端开发', color: 'var(--kf-warning)', count: 32, creator: '王五' },
+  { id: '4', name: 'React', color: 'var(--kf-danger)', count: 28, creator: '张三' },
+  { id: '5', name: 'Node.js', color: 'var(--kf-muted-foreground)', count: 22, creator: '赵六' },
+  { id: '6', name: '数据分析', color: 'var(--kf-primary)', count: 24, creator: '赵六' },
+  { id: '7', name: 'Vue', color: 'var(--kf-success)', count: 19, creator: '王五' },
+  { id: '8', name: 'TypeScript', color: 'var(--kf-warning)', count: 17, creator: '张三' },
+  { id: '9', name: 'Docker', color: 'var(--kf-danger)', count: 18, creator: '李四' },
+  { id: '10', name: 'API 设计', color: 'var(--kf-muted-foreground)', count: 15, creator: '王五' },
+  { id: '11', name: '数据库', color: 'var(--kf-primary)', count: 14, creator: '张三' },
+  { id: '12', name: '微服务', color: 'var(--kf-success)', count: 12, creator: '张三' },
+  { id: '13', name: '产品需求', color: 'var(--kf-warning)', count: 10, creator: '王五' },
+  { id: '14', name: 'UI 设计', color: 'var(--kf-danger)', count: 9, creator: '赵六' },
+  { id: '15', name: '性能优化', color: 'var(--kf-muted-foreground)', count: 8, creator: '李四' },
+  { id: '16', name: '算法', color: 'var(--kf-primary)', count: 7, creator: '张三' },
+  { id: '17', name: '深度学习', color: 'var(--kf-success)', count: 6, creator: '赵六' },
+  { id: '18', name: 'Kubernetes', color: 'var(--kf-warning)', count: 5, creator: '王五' },
+  { id: '19', name: 'Go 语言', color: 'var(--kf-danger)', count: 4, creator: '李四' },
+  { id: '20', name: '安全', color: 'var(--kf-muted-foreground)', count: 3, creator: '张三' },
 ])
 
 /** 预设颜色 */
 const colorPresets = [
-  'var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', 'var(--kb-muted-foreground)',
+  'var(--kf-primary)', 'var(--kf-success)', 'var(--kf-warning)', 'var(--kf-danger)', 'var(--kf-muted-foreground)',
   '#06B6D4', '#EC4899', '#84CC16', '#F97316', '#6366F1',
 ]
 
@@ -173,7 +173,7 @@ const editingId = ref<string | null>(null)
 const saving = ref(false)
 const form = reactive({
   name: '',
-  color: 'var(--kb-primary)',
+  color: 'var(--kf-primary)',
 })
 
 /** 根据使用次数返回标签云尺寸类 */
@@ -213,7 +213,7 @@ const selectTag = (tag: Tag) => {
 const openCreate = () => {
   editingId.value = null
   form.name = ''
-  form.color = 'var(--kb-primary)'
+  form.color = 'var(--kf-primary)'
   showModal.value = true
 }
 
@@ -309,27 +309,27 @@ const removeTag = async (tag: Tag) => {
   margin-bottom: 24px;
 }
 
-.kb-h1 {
+.kf-h1 {
   font-size: 28px;
   font-weight: 700;
   line-height: 1.3;
   letter-spacing: -0.02em;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
 }
 
-.kb-h3 {
+.kf-h3 {
   font-size: 18px;
   font-weight: 600;
   line-height: 1.4;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
 }
 
 /* 标签云卡片 */
 .cloud-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 10px;
   padding: 20px;
   margin-bottom: 20px;
@@ -379,15 +379,15 @@ const removeTag = async (tag: Tag) => {
 .cloud-empty {
   width: 100%;
   text-align: center;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 24px 0;
   margin: 0;
 }
 
 /* 表格卡片 */
 .table-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -398,7 +398,7 @@ const removeTag = async (tag: Tag) => {
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .table-row:last-child {
@@ -406,17 +406,17 @@ const removeTag = async (tag: Tag) => {
 }
 
 .table-head {
-  background: var(--kb-background);
+  background: var(--kf-background);
   padding: 10px 16px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .table-body:hover {
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
 
 /* 表格列宽 */
@@ -430,7 +430,7 @@ const removeTag = async (tag: Tag) => {
   flex-shrink: 0;
   text-align: center;
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .col-creator {
@@ -438,7 +438,7 @@ const removeTag = async (tag: Tag) => {
   flex-shrink: 0;
   text-align: center;
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .col-actions {
@@ -470,20 +470,20 @@ const removeTag = async (tag: Tag) => {
   border-radius: 6px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
 .icon-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-primary);
+  background: var(--kf-muted);
+  color: var(--kf-primary);
 }
 
 /* 表格空态 */
 .table-empty {
   text-align: center;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 48px 0;
   margin: 0;
 }
@@ -498,8 +498,8 @@ const removeTag = async (tag: Tag) => {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
   transition: opacity 0.15s;
@@ -524,15 +524,15 @@ const removeTag = async (tag: Tag) => {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  background: var(--kb-card);
-  color: var(--kb-sidebar-foreground);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  color: var(--kf-sidebar-foreground);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .btn-secondary:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 /* 弹窗 */
@@ -548,7 +548,7 @@ const removeTag = async (tag: Tag) => {
 }
 
 .modal-card {
-  background: var(--kb-card);
+  background: var(--kf-card);
   border-radius: 12px;
   width: 100%;
   max-width: 420px;
@@ -572,7 +572,7 @@ const removeTag = async (tag: Tag) => {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .modal-body {
@@ -587,7 +587,7 @@ const removeTag = async (tag: Tag) => {
   justify-content: flex-end;
   gap: 8px;
   padding: 16px 20px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 
 /* 表单 */
@@ -600,26 +600,26 @@ const removeTag = async (tag: Tag) => {
 .form-label {
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
-.form-input:not(.kb-form-control) {
+.form-input:not(.kf-form-control) {
   height: 36px;
   border-radius: 6px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .form-input {
   padding: 0 12px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-size: 13px;
 }
 
-.form-input:not(.kb-form-control):focus {
-  border-color: var(--kb-ring);
+.form-input:not(.kf-form-control):focus {
+  border-color: var(--kf-ring);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
 
@@ -634,7 +634,7 @@ const removeTag = async (tag: Tag) => {
   width: 36px;
   height: 36px;
   padding: 0;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 6px;
   background: transparent;
   cursor: pointer;
@@ -660,7 +660,7 @@ const removeTag = async (tag: Tag) => {
 }
 
 .color-preset.active {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 
 /* 响应式：移动端 */

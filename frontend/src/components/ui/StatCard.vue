@@ -1,13 +1,13 @@
 <template>
-  <div :class="['kb-stat-card', layout === 'horizontal' ? 'kb-stat-card-horizontal' : '']">
-    <div v-if="icon" class="kb-stat-icon" :style="{ background: iconBg, color: iconColor }">
+  <div :class="['kf-stat-card', layout === 'horizontal' ? 'kf-stat-card-horizontal' : '']">
+    <div v-if="icon" class="kf-stat-icon" :style="{ background: iconBg, color: iconColor }">
       <Icon :name="icon" :size="iconSize" />
     </div>
-    <div :class="layout === 'horizontal' ? 'kb-stat-info' : ''">
-      <div class="kb-stat-value tabular-nums" :style="valueStyle">
-        <template v-if="prefix">{{ prefix }}</template>{{ displayValue }}<span v-if="unit" class="kb-stat-unit">{{ unit }}</span>
+    <div :class="layout === 'horizontal' ? 'kf-stat-info' : ''">
+      <div class="kf-stat-value tabular-nums" :style="valueStyle">
+        <template v-if="prefix">{{ prefix }}</template>{{ displayValue }}<span v-if="unit" class="kf-stat-unit">{{ unit }}</span>
       </div>
-      <div v-if="label" class="kb-stat-label">{{ label }}</div>
+      <div v-if="label" class="kf-stat-label">{{ label }}</div>
     </div>
     <slot />
   </div>
@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 // U4：通用统计卡片组件，消除 Habits/PomodoroMode/AgentCallChain/Home 等页面的 stat-card 重复实现。
-// 使用全局 .kb-stat-* CSS 类（定义于 style.css），样式与主题 token 自动适配。
+// 使用全局 .kf-stat-* CSS 类（定义于 style.css），样式与主题 token 自动适配。
 // 支持 vertical（默认，图标在上）和 horizontal（图标在左，数值/标签在右）两种布局。
 import { computed } from 'vue'
 import Icon from './Icon.vue'
@@ -23,7 +23,7 @@ import Icon from './Icon.vue'
 interface Props {
   /** 图标名（Icon 组件 name），不传则不显示图标区块 */
   icon?: string
-  /** 图标颜色，默认 var(--kb-primary) */
+  /** 图标颜色，默认 var(--kf-primary) */
   iconColor?: string
   /** 图标背景色，默认 rgba(59,111,224,0.12) */
   iconBg?: string
@@ -45,7 +45,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   icon: undefined,
-  iconColor: 'var(--kb-primary)',
+  iconColor: 'var(--kf-primary)',
   iconBg: 'rgba(59,111,224,0.12)',
   iconSize: 20,
   prefix: '',

@@ -148,9 +148,9 @@ function toggle() {
 <style scoped>
 .tool-panel {
   margin-bottom: 12px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
   overflow: hidden;
 }
 .tool-head {
@@ -162,23 +162,23 @@ function toggle() {
   padding: 8px 12px;
   border: 0;
   background: transparent;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
   text-align: left;
   cursor: pointer;
 }
-.tool-head:hover { color: var(--kb-foreground); }
+.tool-head:hover { color: var(--kf-foreground); }
 .tool-head:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: -2px;
 }
 .tool-icon { flex-shrink: 0; }
-.tool-title { font-weight: var(--kb-fw-label); white-space: nowrap; }
+.tool-title { font-weight: var(--kf-fw-label); white-space: nowrap; }
 .tool-badge {
   padding: 1px 6px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-muted);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-muted);
   font-size: 12px;
   line-height: 18px;
   white-space: nowrap;
@@ -200,33 +200,33 @@ function toggle() {
 }
 .tool-list { margin: 0; padding: 0; list-style: none; }
 .tool-item { padding: 6px 0; }
-.tool-item + .tool-item { border-top: 1px dashed var(--kb-border); }
+.tool-item + .tool-item { border-top: 1px dashed var(--kf-border); }
 .tool-row {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
 }
 .tool-dot {
   width: 8px;
   height: 8px;
   flex-shrink: 0;
-  border-radius: var(--kb-radius-full);
-  background: var(--kb-border);
+  border-radius: var(--kf-radius-full);
+  background: var(--kf-border);
 }
-.tool-dot.is-running { background: var(--kb-primary); }
-.tool-dot.is-success { background: var(--kb-state-success, var(--kb-primary)); }
+.tool-dot.is-running { background: var(--kf-primary); }
+.tool-dot.is-success { background: var(--kf-state-success, var(--kf-primary)); }
 .tool-dot.is-failed,
-.tool-dot.is-error { background: var(--kb-state-error, var(--kb-destructive)); }
+.tool-dot.is-error { background: var(--kf-state-error, var(--kf-destructive)); }
 .tool-dot.is-timeout,
-.tool-dot.is-confirm { background: var(--kb-state-warning, var(--kb-muted-foreground)); }
-.tool-name { color: var(--kb-foreground); font-weight: var(--kb-fw-label); }
-.tool-state { color: var(--kb-muted-foreground); font-size: 12px; }
+.tool-dot.is-confirm { background: var(--kf-state-warning, var(--kf-muted-foreground)); }
+.tool-name { color: var(--kf-foreground); font-weight: var(--kf-fw-label); }
+.tool-state { color: var(--kf-muted-foreground); font-size: 12px; }
 .tool-duration {
   margin-left: auto;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
@@ -234,38 +234,38 @@ function toggle() {
   min-height: 24px;
   padding: 0 6px;
   border: 0;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-size: 12px;
   cursor: pointer;
 }
-.tool-detail-toggle:hover { background: var(--kb-muted); }
-.tool-detail-toggle:focus-visible { outline: 2px solid var(--kb-ring); outline-offset: 1px; }
+.tool-detail-toggle:hover { background: var(--kf-muted); }
+.tool-detail-toggle:focus-visible { outline: 2px solid var(--kf-ring); outline-offset: 1px; }
 .tool-desc {
   margin: 2px 0 0 16px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 12px;
   line-height: 1.6;
 }
 .tool-detail {
   margin: 6px 0 0 16px;
   padding: 8px 10px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-muted);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-muted);
 }
 .tool-detail-label {
   display: block;
   margin-bottom: 2px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 12px;
 }
 .tool-detail-pre {
   margin: 0 0 6px;
   max-height: 160px;
   overflow: auto;
-  color: var(--kb-foreground);
-  font-family: var(--kb-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  color: var(--kf-foreground);
+  font-family: var(--kf-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 12px;
   line-height: 1.55;
   white-space: pre-wrap;

@@ -2,10 +2,10 @@
   <Teleport to="body">
     <div v-if="guide.open" class="welcome-overlay">
       <section ref="dialog" role="dialog" aria-modal="true" aria-labelledby="welcome-title" aria-describedby="welcome-description" tabindex="-1" class="welcome-dialog" @keydown="onKeydown">
-        <div class="welcome-top"><span class="kb-caption">快速上手 · {{ step + 1 }} / {{ steps.length }}</span><button type="button" class="welcome-text-btn" @click="guide.dismiss()">跳过引导</button></div>
+        <div class="welcome-top"><span class="kf-caption">快速上手 · {{ step + 1 }} / {{ steps.length }}</span><button type="button" class="welcome-text-btn" @click="guide.dismiss()">跳过引导</button></div>
         <Icon :name="current.icon" size="2xl" aria-hidden="true" />
-        <h2 id="welcome-title" class="kb-h2">{{ current.title }}</h2>
-        <p id="welcome-description" class="kb-body">{{ current.description }}</p>
+        <h2 id="welcome-title" class="kf-h2">{{ current.title }}</h2>
+        <p id="welcome-description" class="kf-body">{{ current.description }}</p>
         <ol class="welcome-progress" aria-label="引导进度"><li v-for="(item,index) in steps" :key="item.title" :aria-current="index === step ? 'step' : undefined" :class="{ active:index===step }"><span>{{ index+1 }}</span>{{ item.label }}</li></ol>
         <p class="welcome-hint">{{ current.hint }}</p>
         <footer><button v-if="step>0" type="button" class="welcome-text-btn" @click="step--">上一步</button><span v-else /><Button @click="advance">{{ step === steps.length-1 ? '开始收集' : '下一步' }}</Button></footer>
@@ -36,10 +36,10 @@ function onKeydown(event:KeyboardEvent){if(event.key==='Escape'){event.preventDe
 onUnmounted(restore)
 </script>
 <style scoped>
-.welcome-overlay{position:fixed;inset:0;z-index:var(--kb-z-modal,1000);display:grid;place-items:center;padding:var(--kb-space-4);background:color-mix(in srgb,var(--kb-foreground) 45%,transparent)}
-.welcome-dialog{width:min(100%,calc(var(--kb-content-max-width) / 2));max-height:90dvh;overflow:auto;background:var(--kb-card);color:var(--kb-foreground);border:1px solid var(--kb-border);border-radius:var(--kb-radius-lg);padding:var(--kb-space-6);box-shadow:var(--shadow-dropdown-3);outline:none;display:grid;gap:var(--kb-space-4)}
-.welcome-top,.welcome-dialog footer{display:flex;align-items:center;justify-content:space-between;gap:var(--kb-space-4)}
-.welcome-dialog :deep(svg){color:var(--kb-primary)}.welcome-text-btn{color:var(--kb-muted-foreground);font-size:var(--kb-fs-body-sm);padding:var(--kb-space-2);border-radius:var(--kb-radius-sm)}
-.welcome-text-btn:focus-visible{outline:2px solid var(--kb-primary)}.welcome-progress{display:flex;flex-wrap:wrap;gap:var(--kb-space-3);list-style:none;padding:0}.welcome-progress li{display:flex;gap:var(--kb-space-1);align-items:center;font-size:var(--kb-fs-caption);color:var(--kb-muted-foreground)}.welcome-progress li.active{color:var(--kb-primary);font-weight:600}.welcome-hint{background:var(--kb-primary-soft);padding:var(--kb-space-3);border-radius:var(--kb-radius-md);font-size:var(--kb-fs-body-sm);color:var(--kb-muted-foreground)}
-@media(prefers-reduced-motion:no-preference){.welcome-dialog{animation:welcome-in 180ms ease-out}@keyframes welcome-in{from{opacity:0;transform:translateY(var(--kb-space-2))}to{opacity:1;transform:translateY(0)}}}
+.welcome-overlay{position:fixed;inset:0;z-index:var(--kf-z-modal,1000);display:grid;place-items:center;padding:var(--kf-space-4);background:color-mix(in srgb,var(--kf-foreground) 45%,transparent)}
+.welcome-dialog{width:min(100%,calc(var(--kf-content-max-width) / 2));max-height:90dvh;overflow:auto;background:var(--kf-card);color:var(--kf-foreground);border:1px solid var(--kf-border);border-radius:var(--kf-radius-lg);padding:var(--kf-space-6);box-shadow:var(--shadow-dropdown-3);outline:none;display:grid;gap:var(--kf-space-4)}
+.welcome-top,.welcome-dialog footer{display:flex;align-items:center;justify-content:space-between;gap:var(--kf-space-4)}
+.welcome-dialog :deep(svg){color:var(--kf-primary)}.welcome-text-btn{color:var(--kf-muted-foreground);font-size:var(--kf-fs-body-sm);padding:var(--kf-space-2);border-radius:var(--kf-radius-sm)}
+.welcome-text-btn:focus-visible{outline:2px solid var(--kf-primary)}.welcome-progress{display:flex;flex-wrap:wrap;gap:var(--kf-space-3);list-style:none;padding:0}.welcome-progress li{display:flex;gap:var(--kf-space-1);align-items:center;font-size:var(--kf-fs-caption);color:var(--kf-muted-foreground)}.welcome-progress li.active{color:var(--kf-primary);font-weight:600}.welcome-hint{background:var(--kf-primary-soft);padding:var(--kf-space-3);border-radius:var(--kf-radius-md);font-size:var(--kf-fs-body-sm);color:var(--kf-muted-foreground)}
+@media(prefers-reduced-motion:no-preference){.welcome-dialog{animation:welcome-in 180ms ease-out}@keyframes welcome-in{from{opacity:0;transform:translateY(var(--kf-space-2))}to{opacity:1;transform:translateY(0)}}}
 </style>

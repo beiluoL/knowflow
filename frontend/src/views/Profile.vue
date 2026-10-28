@@ -1,9 +1,9 @@
 <template>
   <div class="animate-fade-in">
     <!-- ===== User Profile Hero Card ===== -->
-    <section class="rounded-xl border overflow-hidden mb-6 hero-card" style="background: var(--kb-card); border-color: var(--kb-border);">
+    <section class="rounded-xl border overflow-hidden mb-6 hero-card" style="background: var(--kf-card); border-color: var(--kf-border);">
       <!-- Banner -->
-      <div class="h-28 relative" style="background: linear-gradient(135deg, var(--kb-primary), rgba(59,111,224,0.6));">
+      <div class="h-28 relative" style="background: linear-gradient(135deg, var(--kf-primary), rgba(59,111,224,0.6));">
         <div class="absolute inset-0 banner-dots"></div>
         <!-- 装饰圆 -->
         <div class="deco-circle deco-1"></div>
@@ -16,42 +16,42 @@
             <div
               v-if="user.avatar"
               class="w-[100px] h-[100px] rounded-full border-4 overflow-hidden"
-              style="border-color: var(--kb-card);"
+              style="border-color: var(--kf-card);"
             >
               <img :src="user.avatar" :alt="user.nickname" width="80" height="80" class="w-full h-full object-cover" />
             </div>
             <div
               v-else
               class="w-[100px] h-[100px] rounded-full border-4 flex items-center justify-center text-3xl font-bold"
-              style="border-color: var(--kb-card); background: linear-gradient(135deg, var(--kb-primary), rgba(107,156,254,1)); color: var(--kb-primary-foreground);"
+              style="border-color: var(--kf-card); background: linear-gradient(135deg, var(--kf-primary), rgba(107,156,254,1)); color: var(--kf-primary-foreground);"
             >{{ avatarText }}</div>
             <button
               type="button"
               aria-label="修改头像"
-              class="absolute bottom-1 right-1 w-7 h-7 rounded-full flex items-center justify-center border-2 shadow-sm transition-colors hover:opacity-80 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-primary)]"
-              style="background: var(--kb-card); border-color: var(--kb-card);"
+              class="absolute bottom-1 right-1 w-7 h-7 rounded-full flex items-center justify-center border-2 shadow-sm transition-colors hover:opacity-80 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kf-primary)]"
+              style="background: var(--kf-card); border-color: var(--kf-card);"
               @click="openSettings"
             >
-              <Icon name="camera" :size="14" style="color: var(--kb-muted-foreground);" />
+              <Icon name="camera" :size="14" style="color: var(--kf-muted-foreground);" />
             </button>
           </div>
           <div class="flex-1 min-w-0 pb-1">
             <div class="flex items-center gap-3 mb-1 flex-wrap">
-              <h1 class="kb-h2 truncate" style="word-break: keep-all; overflow-wrap: break-word;">{{ user.nickname || '探索者' }}</h1>
+              <h1 class="kf-h2 truncate" style="word-break: keep-all; overflow-wrap: break-word;">{{ user.nickname || '探索者' }}</h1>
               <span class="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full whitespace-nowrap shrink-0 font-medium level-pill">
                 <Icon name="award" :size="12" />
                 Lv.{{ user.level ?? 1 }} {{ levelTitle }}
               </span>
             </div>
             <div class="flex items-center gap-4 mb-2 flex-wrap">
-              <span v-if="user.email" class="flex items-center gap-2 text-sm" style="color: var(--kb-muted-foreground);">
+              <span v-if="user.email" class="flex items-center gap-2 text-sm" style="color: var(--kf-muted-foreground);">
                 <Icon name="mail" :size="14" />{{ user.email }}
               </span>
-              <span v-if="user.createTime" class="flex items-center gap-2 text-sm" style="color: var(--kb-muted-foreground);">
+              <span v-if="user.createTime" class="flex items-center gap-2 text-sm" style="color: var(--kf-muted-foreground);">
                 <Icon name="calendar" :size="14" />{{ formatDate(user.createTime) }} 注册
               </span>
             </div>
-            <p class="kb-body line-clamp-2" style="color: var(--kb-muted-foreground);">
+            <p class="kf-body line-clamp-2" style="color: var(--kf-muted-foreground);">
               {{ user.bio || '热爱技术，专注于持续学习与个人成长。' }}
             </p>
 
@@ -59,13 +59,13 @@
             <div class="mt-4 rounded-lg p-3.5 exp-progress-box">
               <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-2">
-                  <Icon name="zap" :size="14" style="color: var(--kb-accent);" />
-                  <span class="text-xs font-semibold" style="color: var(--kb-foreground);">经验值</span>
-                  <span class="text-xs tabular-nums" style="color: var(--kb-muted-foreground);">Lv.{{ user.level ?? 1 }} → Lv.{{ (user.level ?? 1) + 1 }}</span>
+                  <Icon name="zap" :size="14" style="color: var(--kf-accent);" />
+                  <span class="text-xs font-semibold" style="color: var(--kf-foreground);">经验值</span>
+                  <span class="text-xs tabular-nums" style="color: var(--kf-muted-foreground);">Lv.{{ user.level ?? 1 }} → Lv.{{ (user.level ?? 1) + 1 }}</span>
                 </div>
                 <div class="flex items-center gap-3 text-xs">
-                  <span class="font-semibold tabular-nums" style="color: var(--kb-primary);">{{ formatExp(currentExp) }} / {{ formatExp(nextLevelExp) }} EXP</span>
-                  <span class="px-2 py-0.5 rounded-full font-semibold tabular-nums" style="background: rgba(59,111,224,0.1); color: var(--kb-primary);">{{ expPercent }}%</span>
+                  <span class="font-semibold tabular-nums" style="color: var(--kf-primary);">{{ formatExp(currentExp) }} / {{ formatExp(nextLevelExp) }} EXP</span>
+                  <span class="px-2 py-0.5 rounded-full font-semibold tabular-nums" style="background: rgba(59,111,224,0.1); color: var(--kf-primary);">{{ expPercent }}%</span>
                 </div>
               </div>
               <div class="exp-bar-track">
@@ -77,17 +77,17 @@
                 </div>
               </div>
               <div class="flex items-center justify-between mt-2 text-xs">
-                <span style="color: var(--kb-muted-foreground);">距升级还需 <span class="font-semibold tabular-nums" style="color: var(--kb-primary);">{{ formatExp(remainingExp) }} EXP</span></span>
-                <router-link to="/tasks" class="flex items-center gap-2 font-medium hover:opacity-80 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-primary)]" style="color: var(--kb-primary);">
+                <span style="color: var(--kf-muted-foreground);">距升级还需 <span class="font-semibold tabular-nums" style="color: var(--kf-primary);">{{ formatExp(remainingExp) }} EXP</span></span>
+                <router-link to="/tasks" class="flex items-center gap-2 font-medium hover:opacity-80 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kf-primary)]" style="color: var(--kf-primary);">
                   去获取 EXP <Icon name="arrow-right" :size="12" />
                 </router-link>
               </div>
               <!-- Architecture-2：钱包（Coin 与流水入口；余额来自后端 wallet，§98/§119） -->
-              <div class="flex items-center justify-between mt-3 pt-3 border-t text-xs" style="border-color: var(--kb-border);">
-                <span class="flex items-center gap-2 font-semibold" style="color: var(--kb-warning);">
+              <div class="flex items-center justify-between mt-3 pt-3 border-t text-xs" style="border-color: var(--kf-border);">
+                <span class="flex items-center gap-2 font-semibold" style="color: var(--kf-warning);">
                   <Icon name="credit-card" :size="14" />{{ formatCoin(walletStore.wallet) }} Coin
                 </span>
-                <router-link to="/wallet" class="flex items-center gap-2 font-medium hover:opacity-80 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-primary)]" style="color: var(--kb-primary);">
+                <router-link to="/wallet" class="flex items-center gap-2 font-medium hover:opacity-80 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kf-primary)]" style="color: var(--kf-primary);">
                   钱包与流水 <Icon name="arrow-right" :size="12" />
                 </router-link>
               </div>
@@ -99,11 +99,11 @@
 
     <!-- ===== Learning Data Overview (4 cards) ===== -->
     <section class="mb-6">
-      <h2 class="kb-h3 mb-4">学习数据概览</h2>
+      <h2 class="kf-h3 mb-4">学习数据概览</h2>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon="clock"
-          icon-color="var(--kb-primary)"
+          icon-color="var(--kf-primary)"
           icon-bg="rgba(59,111,224,0.1)"
           :icon-size="16"
           :value="user.totalStudyHours ?? 0"
@@ -112,7 +112,7 @@
         />
         <StatCard
           icon="graduation-cap"
-          icon-color="var(--kb-accent)"
+          icon-color="var(--kf-accent)"
           icon-bg="rgba(16,185,129,0.1)"
           :icon-size="16"
           :value="user.completedPaths ?? 0"
@@ -121,7 +121,7 @@
         />
         <StatCard
           icon="brain"
-          icon-color="var(--kb-warning)"
+          icon-color="var(--kf-warning)"
           icon-bg="rgba(245,158,11,0.1)"
           :icon-size="16"
           :value="user.totalFlashcards ?? 0"
@@ -130,7 +130,7 @@
         />
         <StatCard
           icon="flame"
-          icon-color="var(--kb-destructive)"
+          icon-color="var(--kf-destructive)"
           icon-bg="rgba(239,68,68,0.1)"
           :icon-size="16"
           :value="user.streakDays ?? 0"
@@ -141,13 +141,13 @@
     </section>
 
     <!-- ===== 等级奖励路径（新增模块） ===== -->
-    <section class="rounded-xl border p-6 mb-6 reward-path-card" style="background: var(--kb-card); border-color: var(--kb-border);">
+    <section class="rounded-xl border p-6 mb-6 reward-path-card" style="background: var(--kf-card); border-color: var(--kf-border);">
       <div class="flex items-center justify-between mb-5 flex-wrap gap-2">
         <div class="flex items-center gap-2">
-          <Icon name="trending-up" :size="18" style="color: var(--kb-primary);" />
-          <h2 class="kb-h3">等级奖励路径</h2>
+          <Icon name="trending-up" :size="18" style="color: var(--kf-primary);" />
+          <h2 class="kf-h3">等级奖励路径</h2>
         </div>
-        <router-link to="/kb-titles" class="text-sm font-medium flex items-center gap-2 hover:opacity-80 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-primary)]" style="color: var(--kb-primary);">
+        <router-link to="/kb-titles" class="text-sm font-medium flex items-center gap-2 hover:opacity-80 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kf-primary)]" style="color: var(--kf-primary);">
           查看知识库称号 <Icon name="chevron-right" :size="14" />
         </router-link>
       </div>
@@ -160,9 +160,9 @@
               <Icon name="check" :size="20" />
             </div>
             <div>
-              <div class="text-xs mb-0.5" style="color: var(--kb-muted-foreground);">当前等级</div>
+              <div class="text-xs mb-0.5" style="color: var(--kf-muted-foreground);">当前等级</div>
               <div class="flex items-center gap-2">
-                <span class="kb-h4 tabular-nums">Lv.{{ user.level ?? 1 }}</span>
+                <span class="kf-h4 tabular-nums">Lv.{{ user.level ?? 1 }}</span>
                 <span class="reward-name">{{ levelTitle }}</span>
               </div>
             </div>
@@ -183,7 +183,7 @@
         <div class="reward-arrow">
           <div class="arrow-line"></div>
           <div class="arrow-head">
-            <Icon name="chevron-right" :size="20" style="color: var(--kb-primary);" />
+            <Icon name="chevron-right" :size="20" style="color: var(--kf-primary);" />
           </div>
         </div>
 
@@ -194,9 +194,9 @@
               <Icon name="lock" :size="20" />
             </div>
             <div>
-              <div class="text-xs mb-0.5" style="color: var(--kb-muted-foreground);">下一级解锁</div>
+              <div class="text-xs mb-0.5" style="color: var(--kf-muted-foreground);">下一级解锁</div>
               <div class="flex items-center gap-2">
-                <span class="kb-h4 tabular-nums">Lv.{{ (user.level ?? 1) + 1 }}</span>
+                <span class="kf-h4 tabular-nums">Lv.{{ (user.level ?? 1) + 1 }}</span>
                 <span class="reward-name">{{ nextLevelTitle }}</span>
               </div>
             </div>
@@ -217,20 +217,20 @@
               <div class="mini-progress-fill" :style="{ width: `${expPercent}%` }"></div>
             </div>
             <div class="flex items-center justify-between mt-1.5 text-xs">
-              <span style="color: var(--kb-muted-foreground);">完成 <span class="font-semibold tabular-nums" style="color: var(--kb-primary);">{{ expPercent }}%</span></span>
-              <span style="color: var(--kb-muted-foreground);">还需 <span class="font-semibold tabular-nums" style="color: var(--kb-primary);">{{ formatExp(remainingExp) }} EXP</span></span>
+              <span style="color: var(--kf-muted-foreground);">完成 <span class="font-semibold tabular-nums" style="color: var(--kf-primary);">{{ expPercent }}%</span></span>
+              <span style="color: var(--kf-muted-foreground);">还需 <span class="font-semibold tabular-nums" style="color: var(--kf-primary);">{{ formatExp(remainingExp) }} EXP</span></span>
             </div>
           </div>
         </div>
       </div>
 
       <!-- CTA：去任务中心 -->
-      <div class="mt-5 pt-5 border-t flex items-center justify-between flex-wrap gap-3" style="border-color: var(--kb-border);">
-        <div class="flex items-center gap-2 text-sm" style="color: var(--kb-muted-foreground);">
-          <Icon name="sparkles" :size="14" style="color: var(--kb-warning);" />
+      <div class="mt-5 pt-5 border-t flex items-center justify-between flex-wrap gap-3" style="border-color: var(--kf-border);">
+        <div class="flex items-center gap-2 text-sm" style="color: var(--kf-muted-foreground);">
+          <Icon name="sparkles" :size="14" style="color: var(--kf-warning);" />
           <span>完成每日任务、打卡、学习路径均可获得 EXP，加速升级</span>
         </div>
-        <router-link to="/tasks" class="btn-primary focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-primary)]">
+        <router-link to="/tasks" class="btn-primary focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kf-primary)]">
           <Icon name="target" :size="14" />
           去任务中心
           <Icon name="arrow-right" :size="14" />
@@ -239,16 +239,16 @@
     </section>
 
     <!-- ===== Achievement Badges (Horizontal) ===== -->
-    <section class="rounded-xl border p-6 mb-6" style="background: var(--kb-card); border-color: var(--kb-border);">
+    <section class="rounded-xl border p-6 mb-6" style="background: var(--kf-card); border-color: var(--kf-border);">
       <div class="flex items-center justify-between mb-5">
-        <h2 class="kb-h3">学习成就</h2>
-        <router-link to="/achievements" class="text-sm font-medium flex items-center gap-2 hover:opacity-80 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-primary)]" style="color: var(--kb-primary);">
+        <h2 class="kf-h3">学习成就</h2>
+        <router-link to="/achievements" class="text-sm font-medium flex items-center gap-2 hover:opacity-80 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kf-primary)]" style="color: var(--kf-primary);">
           查看全部 <Icon name="chevron-right" :size="14" />
         </router-link>
       </div>
       <div v-if="badges.length === 0" class="badges-empty">
-        <Icon name="award" :size="32" style="color: var(--kb-muted-foreground);" />
-        <p class="text-sm mt-2" style="color: var(--kb-muted-foreground);">暂无徽章，继续努力吧！</p>
+        <Icon name="award" :size="32" style="color: var(--kf-muted-foreground);" />
+        <p class="text-sm mt-2" style="color: var(--kf-muted-foreground);">暂无徽章，继续努力吧！</p>
       </div>
       <div v-else class="flex items-center gap-5 overflow-x-auto no-scrollbar pb-1">
         <div
@@ -258,55 +258,55 @@
         >
           <div
             class="w-16 h-16 rounded-full flex items-center justify-center shadow-sm"
-            :style="badge.unlocked ? { background: badge.gradient } : { background: 'var(--kb-muted)' }"
+            :style="badge.unlocked ? { background: badge.gradient } : { background: 'var(--kf-muted)' }"
           >
-            <Icon :name="badge.unlocked ? badge.icon : 'lock'" :size="28" :style="badge.unlocked ? { color: 'var(--kb-card)' } : { color: 'var(--kb-muted-foreground)' }" />
+            <Icon :name="badge.unlocked ? badge.icon : 'lock'" :size="28" :style="badge.unlocked ? { color: 'var(--kf-card)' } : { color: 'var(--kf-muted-foreground)' }" />
           </div>
-          <span class="text-xs font-medium text-center" :style="badge.unlocked ? { color: 'var(--kb-foreground)' } : { color: 'var(--kb-muted-foreground)' }">{{ badge.label }}</span>
-          <span class="text-xs" style="color: var(--kb-muted-foreground);">{{ badge.unlocked ? badge.date : '未解锁' }}</span>
+          <span class="text-xs font-medium text-center" :style="badge.unlocked ? { color: 'var(--kf-foreground)' } : { color: 'var(--kf-muted-foreground)' }">{{ badge.label }}</span>
+          <span class="text-xs" style="color: var(--kf-muted-foreground);">{{ badge.unlocked ? badge.date : '未解锁' }}</span>
         </div>
       </div>
     </section>
 
     <!-- ===== My Certificates (G-CERT-01) ===== -->
-    <section class="rounded-xl border p-6 mb-6" style="background: var(--kb-card); border-color: var(--kb-border);">
+    <section class="rounded-xl border p-6 mb-6" style="background: var(--kf-card); border-color: var(--kf-border);">
       <div class="flex items-center justify-between mb-5">
-        <h2 class="kb-h3">我的证书</h2>
-        <span class="text-sm" style="color: var(--kb-muted-foreground);">完成学习路径即可获得</span>
+        <h2 class="kf-h3">我的证书</h2>
+        <span class="text-sm" style="color: var(--kf-muted-foreground);">完成学习路径即可获得</span>
       </div>
       <div v-if="certificates.length === 0" class="py-8 text-center">
-        <Icon name="medal" :size="32" style="color: var(--kb-muted-foreground);" />
-        <p class="text-sm mt-2" style="color: var(--kb-muted-foreground);">暂无证书，完成学习路径后自动颁发</p>
+        <Icon name="medal" :size="32" style="color: var(--kf-muted-foreground);" />
+        <p class="text-sm mt-2" style="color: var(--kf-muted-foreground);">暂无证书，完成学习路径后自动颁发</p>
       </div>
       <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <router-link
           v-for="c in certificates"
           :key="c.id"
           :to="`/certificate/${c.id}`"
-          class="flex items-center gap-3 p-4 rounded-lg border hover:bg-[var(--kb-muted)] transition-colors"
-          style="border-color: var(--kb-border);"
+          class="flex items-center gap-3 p-4 rounded-lg border hover:bg-[var(--kf-muted)] transition-colors"
+          style="border-color: var(--kf-border);"
         >
           <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background: rgba(245, 185, 64, 0.15);">
             <Icon name="award" :size="22" style="color: #f5b940;" />
           </div>
           <div class="min-w-0">
-            <p class="text-sm font-medium truncate" style="color: var(--kb-foreground);">{{ c.pathTitle }}</p>
-            <p class="text-xs mt-0.5 truncate" style="color: var(--kb-muted-foreground);">{{ formatCertDate(c.issueDate) }} · {{ c.certNo }}</p>
+            <p class="text-sm font-medium truncate" style="color: var(--kf-foreground);">{{ c.pathTitle }}</p>
+            <p class="text-xs mt-0.5 truncate" style="color: var(--kf-muted-foreground);">{{ formatCertDate(c.issueDate) }} · {{ c.certNo }}</p>
           </div>
-          <Icon name="chevron-right" :size="14" class="ml-auto shrink-0" style="color: var(--kb-muted-foreground);" />
+          <Icon name="chevron-right" :size="14" class="ml-auto shrink-0" style="color: var(--kf-muted-foreground);" />
         </router-link>
       </div>
     </section>
 
     <!-- ===== Recent Activity Timeline ===== -->
-    <section class="rounded-xl border p-6 mb-6" style="background: var(--kb-card); border-color: var(--kb-border);">
+    <section class="rounded-xl border p-6 mb-6" style="background: var(--kf-card); border-color: var(--kf-border);">
       <div class="flex items-center justify-between mb-5">
-        <h2 class="kb-h3">最近活动</h2>
-        <button type="button" class="text-sm font-medium flex items-center gap-2 hover:opacity-80 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-primary)]" style="color: var(--kb-primary);" @click="notify('活动记录完善中', 'info')">
+        <h2 class="kf-h3">最近活动</h2>
+        <button type="button" class="text-sm font-medium flex items-center gap-2 hover:opacity-80 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kf-primary)]" style="color: var(--kf-primary);" @click="notify('活动记录完善中', 'info')">
           查看全部 <Icon name="chevron-right" :size="14" />
         </button>
       </div>
-      <div v-if="activities.length === 0" class="py-8 text-center text-sm" style="color: var(--kb-muted-foreground);">
+      <div v-if="activities.length === 0" class="py-8 text-center text-sm" style="color: var(--kf-muted-foreground);">
         暂无活动记录，开始学习后会显示在这里
       </div>
       <div v-else class="flex flex-col gap-0">
@@ -314,40 +314,40 @@
           v-for="(act, idx) in activities"
           :key="idx"
           class="flex items-start gap-3 py-3.5"
-          :style="idx < activities.length - 1 ? { borderBottom: '1px solid var(--kb-border)' } : {}"
+          :style="idx < activities.length - 1 ? { borderBottom: '1px solid var(--kf-border)' } : {}"
         >
           <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5" :style="{ background: `${act.color}1A` }">
             <Icon :name="act.icon" :size="16" :style="{ color: act.color }" />
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium" style="color: var(--kb-foreground);">{{ act.text }}</p>
-            <p class="text-xs mt-0.5" style="color: var(--kb-muted-foreground);">{{ act.time }}</p>
+            <p class="text-sm font-medium" style="color: var(--kf-foreground);">{{ act.text }}</p>
+            <p class="text-xs mt-0.5" style="color: var(--kf-muted-foreground);">{{ act.time }}</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- ===== Settings Shortcuts ===== -->
-    <section class="rounded-xl border p-6" style="background: var(--kb-card); border-color: var(--kb-border);">
-      <h2 class="kb-h3 mb-4">快捷设置</h2>
+    <section class="rounded-xl border p-6" style="background: var(--kf-card); border-color: var(--kf-border);">
+      <h2 class="kf-h3 mb-4">快捷设置</h2>
       <div class="grid grid-cols-3 gap-4">
-        <button type="button" class="quick-setting focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-primary)]" @click="openSettings">
+        <button type="button" class="quick-setting focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kf-primary)]" @click="openSettings">
           <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: rgba(59,111,224,0.1);">
-            <Icon name="camera" :size="20" style="color: var(--kb-primary);" />
+            <Icon name="camera" :size="20" style="color: var(--kf-primary);" />
           </div>
-          <span class="text-sm font-medium" style="color: var(--kb-foreground);">修改头像</span>
+          <span class="text-sm font-medium" style="color: var(--kf-foreground);">修改头像</span>
         </button>
-        <button type="button" class="quick-setting focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-primary)]" @click="openSettings">
+        <button type="button" class="quick-setting focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kf-primary)]" @click="openSettings">
           <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: rgba(16,185,129,0.1);">
-            <Icon name="pencil" :size="20" style="color: var(--kb-accent);" />
+            <Icon name="pencil" :size="20" style="color: var(--kf-accent);" />
           </div>
-          <span class="text-sm font-medium" style="color: var(--kb-foreground);">编辑资料</span>
+          <span class="text-sm font-medium" style="color: var(--kf-foreground);">编辑资料</span>
         </button>
-        <button type="button" class="quick-setting focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-primary)]" @click="openSettings">
+        <button type="button" class="quick-setting focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kf-primary)]" @click="openSettings">
           <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: rgba(245,158,11,0.1);">
-            <Icon name="key-round" :size="20" style="color: var(--kb-warning);" />
+            <Icon name="key-round" :size="20" style="color: var(--kf-warning);" />
           </div>
-          <span class="text-sm font-medium" style="color: var(--kb-foreground);">修改密码</span>
+          <span class="text-sm font-medium" style="color: var(--kf-foreground);">修改密码</span>
         </button>
       </div>
     </section>
@@ -355,36 +355,36 @@
     <!-- ===== Settings Drawer (Modal) ===== -->
     <div v-if="settingsOpen" class="settings-mask" @click.self="settingsOpen = false">
       <div class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
-        <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid var(--kb-border);">
-          <h3 id="settings-title" class="text-base font-semibold" style="color: var(--kb-foreground);">编辑资料</h3>
-          <button type="button" aria-label="关闭" class="p-1 rounded hover:opacity-70 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-primary)]" @click="settingsOpen = false">
-            <Icon name="x" :size="18" style="color: var(--kb-muted-foreground);" />
+        <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid var(--kf-border);">
+          <h3 id="settings-title" class="text-base font-semibold" style="color: var(--kf-foreground);">编辑资料</h3>
+          <button type="button" aria-label="关闭" class="p-1 rounded hover:opacity-70 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kf-primary)]" @click="settingsOpen = false">
+            <Icon name="x" :size="18" style="color: var(--kf-muted-foreground);" />
           </button>
         </div>
         <div class="p-5 space-y-4">
           <div>
-            <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">昵称</label>
-            <input v-model="settingsForm.nickname" type="text" name="nickname" autocomplete="nickname" class="kb-input kb-form-control" />
+            <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">昵称</label>
+            <input v-model="settingsForm.nickname" type="text" name="nickname" autocomplete="nickname" class="kf-input kf-form-control" />
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">用户名</label>
-            <input v-model="settingsForm.username" type="text" name="username" autocomplete="username" class="kb-input kb-form-control" disabled />
-            <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">用户名不可修改</p>
+            <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">用户名</label>
+            <input v-model="settingsForm.username" type="text" name="username" autocomplete="username" class="kf-input kf-form-control" disabled />
+            <p class="text-xs mt-1" style="color: var(--kf-muted-foreground);">用户名不可修改</p>
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">邮箱</label>
-            <input v-model="settingsForm.email" type="email" name="email" autocomplete="email" class="kb-input kb-form-control" />
+            <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">邮箱</label>
+            <input v-model="settingsForm.email" type="email" name="email" autocomplete="email" class="kf-input kf-form-control" />
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">头像地址</label>
-            <input v-model="settingsForm.avatar" type="text" name="avatar" autocomplete="off" placeholder="https://…" class="kb-input kb-form-control" />
+            <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">头像地址</label>
+            <input v-model="settingsForm.avatar" type="text" name="avatar" autocomplete="off" placeholder="https://…" class="kf-input kf-form-control" />
           </div>
           <div>
-            <label class="block text-sm font-medium mb-1.5" style="color: var(--kb-foreground);">个人简介</label>
-            <textarea v-model="settingsForm.bio" rows="3" name="bio" autocomplete="off" class="kb-input kb-textarea kb-form-control" placeholder="介绍一下你自己…"></textarea>
+            <label class="block text-sm font-medium mb-1.5" style="color: var(--kf-foreground);">个人简介</label>
+            <textarea v-model="settingsForm.bio" rows="3" name="bio" autocomplete="off" class="kf-input kf-textarea kf-form-control" placeholder="介绍一下你自己…"></textarea>
           </div>
         </div>
-        <div class="flex justify-end gap-3 px-5 py-4" style="border-top: 1px solid var(--kb-border);">
+        <div class="flex justify-end gap-3 px-5 py-4" style="border-top: 1px solid var(--kf-border);">
           <button type="button" class="btn-secondary" @click="resetSettings">重置</button>
           <button type="button" class="btn-primary" :disabled="saving" @click="saveSettings">
             {{ saving ? '保存中…' : '保存修改' }}
@@ -550,9 +550,9 @@ interface Badge {
 
 // 成就徽章（含已解锁与未解锁）
 const badges = ref<Badge[]>([
-  { id: 1, label: '连续学习7天', icon: 'flame', gradient: 'linear-gradient(135deg, var(--kb-warning), #FBBF24)', unlocked: true, date: '2025-06-01 获得' },
-  { id: 2, label: '完成第一个路径', icon: 'map', gradient: 'linear-gradient(135deg, var(--kb-primary), #6B9CFA)', unlocked: true, date: '2025-04-20 获得' },
-  { id: 3, label: '代码达人', icon: 'code', gradient: 'linear-gradient(135deg, var(--kb-success), #34D399)', unlocked: true, date: '2025-05-10 获得' },
+  { id: 1, label: '连续学习7天', icon: 'flame', gradient: 'linear-gradient(135deg, var(--kf-warning), #FBBF24)', unlocked: true, date: '2025-06-01 获得' },
+  { id: 2, label: '完成第一个路径', icon: 'map', gradient: 'linear-gradient(135deg, var(--kf-primary), #6B9CFA)', unlocked: true, date: '2025-04-20 获得' },
+  { id: 3, label: '代码达人', icon: 'code', gradient: 'linear-gradient(135deg, var(--kf-success), #34D399)', unlocked: true, date: '2025-05-10 获得' },
   { id: 4, label: '知识大师', icon: 'lock', gradient: '', unlocked: false, date: '' },
 ])
 
@@ -627,19 +627,19 @@ const saveSettings = async () => {
 function buildActivities(stats: UserStatsVO): Activity[] {
   const list: Activity[] = []
   if ((stats.completedPaths ?? 0) > 0) {
-    list.push({ icon: 'check-circle', text: `完成了 ${stats.completedPaths} 个学习路径`, time: '累计', color: 'var(--kb-success)' })
+    list.push({ icon: 'check-circle', text: `完成了 ${stats.completedPaths} 个学习路径`, time: '累计', color: 'var(--kf-success)' })
   }
   if ((stats.readDocsCount ?? 0) > 0) {
-    list.push({ icon: 'bookmark', text: `收藏/阅读了 ${stats.readDocsCount} 篇文档`, time: '累计', color: 'var(--kb-primary)' })
+    list.push({ icon: 'bookmark', text: `收藏/阅读了 ${stats.readDocsCount} 篇文档`, time: '累计', color: 'var(--kf-primary)' })
   }
   if ((stats.streakDays ?? 0) > 0) {
-    list.push({ icon: 'flame', text: `连续打卡第 ${stats.streakDays} 天`, time: '今天', color: 'var(--kb-warning)' })
+    list.push({ icon: 'flame', text: `连续打卡第 ${stats.streakDays} 天`, time: '今天', color: 'var(--kf-warning)' })
   }
   if ((stats.totalFlashcards ?? 0) > 0) {
-    list.push({ icon: 'layers', text: `共学习了 ${stats.totalFlashcards} 张闪卡`, time: '累计', color: 'var(--kb-primary)' })
+    list.push({ icon: 'layers', text: `共学习了 ${stats.totalFlashcards} 张闪卡`, time: '累计', color: 'var(--kf-primary)' })
   }
   if ((stats.totalStudyHours ?? 0) > 0) {
-    list.push({ icon: 'clock', text: `累计学习 ${stats.totalStudyHours} 小时`, time: '累计', color: 'var(--kb-primary)' })
+    list.push({ icon: 'clock', text: `累计学习 ${stats.totalStudyHours} 小时`, time: '累计', color: 'var(--kf-primary)' })
   }
   return list.slice(0, 5)
 }
@@ -694,10 +694,10 @@ onMounted(async () => {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.kb-h2 { font-size: var(--kb-fs-h2); font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; color: var(--kb-foreground); }
-.kb-h3 { font-size: var(--kb-fs-h4); font-weight: 600; line-height: 1.4; color: var(--kb-foreground); }
-.kb-h4 { font-size: var(--kb-fs-body-emphasis); font-weight: 600; line-height: 1.45; color: var(--kb-foreground); }
-.kb-body { font-size: var(--kb-fs-body-md); line-height: 1.6; color: var(--kb-card-foreground); }
+.kf-h2 { font-size: var(--kf-fs-h2); font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; color: var(--kf-foreground); }
+.kf-h3 { font-size: var(--kf-fs-h4); font-weight: 600; line-height: 1.4; color: var(--kf-foreground); }
+.kf-h4 { font-size: var(--kf-fs-body-emphasis); font-weight: 600; line-height: 1.45; color: var(--kf-foreground); }
+.kf-body { font-size: var(--kf-fs-body-md); line-height: 1.6; color: var(--kf-card-foreground); }
 
 .line-clamp-2 {
   display: -webkit-box;
@@ -726,26 +726,26 @@ onMounted(async () => {
 /* 等级标签 pill */
 .level-pill {
   background: rgba(59, 111, 224, 0.1);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 /* ===== 紧凑型经验值进度条（融合在 Hero Card 内） ===== */
 .exp-progress-box {
   background: linear-gradient(135deg, rgba(59, 111, 224, 0.04), rgba(16, 185, 129, 0.03));
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
 }
 .exp-bar-track {
   position: relative;
   height: 10px;
   border-radius: 6px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 .exp-bar-fill {
   position: relative;
   height: 100%;
   border-radius: 6px;
-  background: linear-gradient(90deg, var(--kb-primary) 0%, var(--kb-accent) 100%);
+  background: linear-gradient(90deg, var(--kf-primary) 0%, var(--kf-accent) 100%);
   transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 0 8px rgba(59, 111, 224, 0.3);
   display: flex;
@@ -756,32 +756,32 @@ onMounted(async () => {
   padding-right: 6px;
   font-size: 10px;
   font-weight: 700;
-  color: var(--kb-card);
+  color: var(--kf-card);
 }
 
 /* ===== 等级奖励路径卡片 ===== */
 .reward-path-card {
-  background: linear-gradient(135deg, var(--kb-card) 0%, rgba(59, 111, 224, 0.02) 100%);
+  background: linear-gradient(135deg, var(--kf-card) 0%, rgba(59, 111, 224, 0.02) 100%);
 }
 
 .reward-step {
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   padding: 1.25rem;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   transition: box-shadow 0.2s;
 }
 .reward-step:hover {
   box-shadow: 0 2px 12px rgba(59, 111, 224, 0.06);
 }
 .reward-current {
-  border-color: var(--kb-accent);
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.04), var(--kb-card));
+  border-color: var(--kf-accent);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.04), var(--kf-card));
 }
 .reward-next {
   border-style: dashed;
-  border-color: var(--kb-primary);
-  background: linear-gradient(135deg, rgba(59, 111, 224, 0.04), var(--kb-card));
+  border-color: var(--kf-primary);
+  background: linear-gradient(135deg, rgba(59, 111, 224, 0.04), var(--kf-card));
 }
 
 .reward-step-header {
@@ -801,17 +801,17 @@ onMounted(async () => {
 }
 .reward-icon-wrap.current {
   background: rgba(16, 185, 129, 0.12);
-  color: var(--kb-accent);
+  color: var(--kf-accent);
 }
 .reward-icon-wrap.next {
   background: rgba(59, 111, 224, 0.12);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 .reward-name {
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 600;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 .reward-meta {
@@ -826,16 +826,16 @@ onMounted(async () => {
   gap: 6px;
   padding: 4px 10px;
   border-radius: 9999px;
-  font-size: var(--kb-fs-xs);
+  font-size: var(--kf-fs-xs);
   font-weight: 600;
 }
 .reward-chip.unlocked {
   background: rgba(16, 185, 129, 0.12);
-  color: var(--kb-accent);
+  color: var(--kf-accent);
 }
 .reward-chip.locked {
   background: rgba(59, 111, 224, 0.1);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 /* 中间箭头 */
@@ -853,14 +853,14 @@ onMounted(async () => {
   left: 0;
   right: 0;
   height: 2px;
-  background-image: linear-gradient(to right, var(--kb-border) 50%, transparent 50%);
+  background-image: linear-gradient(to right, var(--kf-border) 50%, transparent 50%);
   background-size: 8px 2px;
   background-repeat: repeat-x;
 }
 .arrow-head {
   position: relative;
   z-index: 1;
-  background: var(--kb-card);
+  background: var(--kf-card);
   padding: 4px;
   border-radius: 50%;
   display: flex;
@@ -872,13 +872,13 @@ onMounted(async () => {
 .mini-progress-track {
   height: 6px;
   border-radius: 3px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 .mini-progress-fill {
   height: 100%;
   border-radius: 3px;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   transition: width 0.5s ease;
 }
 
@@ -898,15 +898,15 @@ onMounted(async () => {
   align-items: center;
   gap: 12px;
   padding: 20px;
-  border-radius: var(--kb-radius-md);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-radius: var(--kf-radius-md);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   cursor: pointer;
   transition: box-shadow 0.2s, border-color 0.2s;
 }
 .quick-setting:hover {
   box-shadow: 0 2px 12px rgba(59, 111, 224, 0.08);
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 
 /* Settings drawer */
@@ -922,7 +922,7 @@ onMounted(async () => {
 .settings-panel {
   width: 100%;
   max-width: 440px;
-  background: var(--kb-card);
+  background: var(--kf-card);
   height: 100%;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -933,31 +933,31 @@ onMounted(async () => {
   to { transform: translateX(0); }
 }
 
-.kb-input:not(.kb-form-control) {
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
+.kf-input:not(.kf-form-control) {
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.kb-input {
+.kf-input {
   width: 100%;
   padding: 8px 12px;
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-foreground);
 }
-.kb-input:not(.kb-form-control):focus {
+.kf-input:not(.kf-form-control):focus {
   outline: none;
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
 }
-.kb-input:not(.kb-form-control):focus-visible {
-  outline: 2px solid var(--kb-primary);
+.kf-input:not(.kf-form-control):focus-visible {
+  outline: 2px solid var(--kf-primary);
   outline-offset: 2px;
 }
-.kb-input:disabled {
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+.kf-input:disabled {
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
   cursor: not-allowed;
 }
 
@@ -966,11 +966,11 @@ onMounted(async () => {
   align-items: center;
   gap: 8px;
   padding: 8px 18px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-body-sm);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 600;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
   transition: opacity 0.15s, transform 0.15s;
@@ -984,14 +984,14 @@ onMounted(async () => {
   align-items: center;
   gap: 6px;
   padding: 8px 18px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-body-sm);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 600;
-  background: var(--kb-card);
-  color: var(--kb-primary);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  color: var(--kf-primary);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   transition: background-color 0.15s;
 }
-.btn-secondary:hover { background: var(--kb-muted); }
+.btn-secondary:hover { background: var(--kf-muted); }
 </style>

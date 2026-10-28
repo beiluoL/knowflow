@@ -31,4 +31,4 @@ async function confirm(r:VariantSet){const saved=await run(()=>api.confirm(r.id,
 async function begin(r:VariantSet){const a=await run(()=>api.begin(r.id,attemptKey));if(a){activeSet.value=r.id;attempt.value=a;answers.value=[];attemptKey=crypto.randomUUID()}}
 async function submit(){if(!activeSet.value||!attempt.value)return;const a=await run(()=>api.submit(activeSet.value!,attempt.value!.id,answers.value));if(a){attempt.value=a;await load()}}
 </script>
-<style scoped>.kf-variants,.kf-variants form,.kf-variants fieldset{display:grid;gap:var(--kb-space-3);min-width:0}.kf-variants article{padding-block:var(--kb-space-3)}.kf-variants fieldset{border:0;padding:var(--kb-space-3);background:var(--kb-surface-2)}.kf-variants [role=alert]{color:var(--kb-danger-text)}</style>
+<style scoped>.kf-variants,.kf-variants form,.kf-variants fieldset{display:grid;gap:var(--kf-space-3);min-width:0}.kf-variants article{padding-block:var(--kf-space-3)}.kf-variants fieldset{border:0;padding:var(--kf-space-3);background:var(--kf-surface-2)}.kf-variants [role=alert]{color:var(--kf-danger-text)}</style>

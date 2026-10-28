@@ -1,10 +1,10 @@
 <template>
-  <div class="wallet-card" :style="{ borderColor: 'var(--kb-border)' }">
+  <div class="wallet-card" :style="{ borderColor: 'var(--kf-border)' }">
     <div class="wallet-head">
-      <span class="level-badge" :style="{ background: 'var(--kb-primary-soft)', color: 'var(--kb-primary)' }">
+      <span class="level-badge" :style="{ background: 'var(--kf-primary-soft)', color: 'var(--kf-primary)' }">
         Lv.{{ wallet?.level ?? 1 }}
       </span>
-      <span class="coin-badge" :style="{ background: 'var(--kb-warning-subtle)', color: 'var(--kb-warning)' }">
+      <span class="coin-badge" :style="{ background: 'var(--kf-warning-subtle)', color: 'var(--kf-warning)' }">
         <Icon name="credit-card" :size="14" />
         {{ formatCoin(wallet) }} Coin
       </span>
@@ -44,9 +44,9 @@ const xpPercent = computed(() => {
   flex-direction: column;
   gap: 12px;
   padding: 16px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
 }
 .wallet-head {
   display: flex;
@@ -61,7 +61,7 @@ const xpPercent = computed(() => {
   gap: 4px;
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   font-weight: 600;
 }
 .xp-row {
@@ -73,18 +73,18 @@ const xpPercent = computed(() => {
   flex: 1;
   height: 6px;
   border-radius: 999px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 .xp-fill {
   height: 100%;
   border-radius: 999px;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   transition: width 0.3s ease;
 }
 .xp-text {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   white-space: nowrap;
 }
 </style>

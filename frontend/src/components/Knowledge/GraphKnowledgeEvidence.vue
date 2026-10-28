@@ -17,4 +17,4 @@ const props=defineProps<{knowledgeId:number}>(),data=ref<GraphInsight|null>(null
 watch(()=>props.knowledgeId,()=>{epoch++;data.value=null;void load()},{immediate:true});onBeforeUnmount(()=>epoch++)
 async function load(){const seq=epoch;loading.value=true;error.value='';try{const result=await graphInsightApi.detail(props.knowledgeId);if(seq===epoch)data.value=result}catch(e){if(seq===epoch)error.value=getApiError(e,'来源不可访问或证据读取失败')}finally{if(seq===epoch)loading.value=false}}
 </script>
-<style scoped>.kf-graph-evidence{display:grid;gap:var(--kb-space-3);min-width:0}.kf-graph-evidence pre{white-space:pre-wrap;overflow-wrap:anywhere}.kf-graph-evidence [role=alert]{color:var(--kb-danger-text)}</style>
+<style scoped>.kf-graph-evidence{display:grid;gap:var(--kf-space-3);min-width:0}.kf-graph-evidence pre{white-space:pre-wrap;overflow-wrap:anywhere}.kf-graph-evidence [role=alert]{color:var(--kf-danger-text)}</style>

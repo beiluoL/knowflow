@@ -254,7 +254,7 @@ describe('Habits reminder migration', () => {
         name: '拉伸',
         description: '',
         icon: 'repeat',
-        color: 'var(--kb-primary)',
+        color: 'var(--kf-primary)',
         frequency: 'daily',
         targetCount: 1,
         reminderTime: '23:30',

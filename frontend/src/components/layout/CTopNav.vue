@@ -3,43 +3,43 @@
     <!-- Left：菜单开关（移动端） + Logo -->
     <button
       type="button"
-      class="lg:hidden w-9 h-9 mr-1 rounded-lg flex items-center justify-center transition-colors hover:bg-[var(--kb-muted)]"
+      class="lg:hidden w-9 h-9 mr-1 rounded-lg flex items-center justify-center transition-colors hover:bg-[var(--kf-muted)]"
       aria-label="打开导航菜单"
       aria-controls="knowflow-navigation"
       :aria-expanded="drawerOpen"
       @click="$emit('toggle-sidebar')"
     >
-      <Icon :name="drawerOpen ? 'x' : 'menu'" size="xl" style="color: var(--kb-sidebar-foreground);" />
+      <Icon :name="drawerOpen ? 'x' : 'menu'" size="xl" style="color: var(--kf-sidebar-foreground);" />
     </button>
 
     <router-link
       to="/"
       class="flex items-center shrink-0"
-      style="color: var(--kb-primary); gap: var(--kb-nav-gap);"
+      style="color: var(--kf-primary); gap: var(--kf-nav-gap);"
       aria-label="KnowFlow 首页"
     >
       <Icon name="icon-AIbeikezhushou" size="xl" />
       <span
         class="hidden sm:inline"
-        :style="{ fontSize: 'var(--kb-logo-text-fs)', fontWeight: 'var(--kb-logo-text-fw)' }"
+        :style="{ fontSize: 'var(--kf-logo-text-fs)', fontWeight: 'var(--kf-logo-text-fw)' }"
       >KnowFlow</span>
     </router-link>
 
     <!-- Center：搜索（桌面） -->
     <div class="topnav-search hidden md:flex w-56 lg:w-72 ml-6">
-      <Icon name="search" size="md" class="topnav-search__icon" style="color: var(--kb-muted-foreground);" />
+      <Icon name="search" size="md" class="topnav-search__icon" style="color: var(--kf-muted-foreground);" />
       <input
         v-model="searchKw"
         type="text"
         placeholder="搜索知识、笔记、闪卡…"
-        class="topnav-search__input kb-input kb-form-control"
-        style="font-size: var(--kb-fs-body-md)"
+        class="topnav-search__input kf-input kf-form-control"
+        style="font-size: var(--kf-fs-body-md)"
         @keydown.enter="submitSearch"
         aria-label="全局搜索"
       />
       <button type="button" aria-label="打开命令面板"
         class="topnav-search__shortcut px-1.5 py-0.5 rounded cursor-pointer transition-colors"
-        style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-xs); font-weight: var(--kb-fw-xs);"
+        style="color: var(--kf-muted-foreground); font-size: var(--kf-fs-xs); font-weight: var(--kf-fw-xs);"
         title="打开命令面板（⌘K / Ctrl+K）"
         @click="openPalette"
       >⌘K</button>
@@ -59,8 +59,8 @@
       <router-link
         v-if="showComponentCenter"
         to="/dev/ui-components"
-        class="w-9 h-9 rounded-lg flex items-center justify-center border transition-colors hover:bg-[var(--kb-primary-soft)]"
-        style="border-color: var(--kb-border); color: var(--kb-muted-foreground);"
+        class="w-9 h-9 rounded-lg flex items-center justify-center border transition-colors hover:bg-[var(--kf-primary-soft)]"
+        style="border-color: var(--kf-border); color: var(--kf-muted-foreground);"
         title="公共组件开发中心"
         aria-label="公共组件开发中心"
       >
@@ -125,7 +125,7 @@
         <span
           v-if="unreadCount > 0"
           class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
-          style="background: var(--kb-destructive);"
+          style="background: var(--kf-destructive);"
         ></span>
       </button>
 
@@ -134,7 +134,7 @@
         v-if="isLoggedIn"
         type="button"
         class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-opacity hover:opacity-90"
-        style="background: var(--kb-primary); color: var(--kb-primary-foreground); font-size: var(--kb-fs-caption); font-weight: 600;"
+        style="background: var(--kf-primary); color: var(--kf-primary-foreground); font-size: var(--kf-fs-caption); font-weight: 600;"
         :aria-label="`用户菜单：${displayName}`"
         data-test="onboarding-trigger"
         @click="toggleUserMenu"
@@ -145,7 +145,7 @@
         v-else
         type="button"
         class="px-3 h-9 rounded-lg transition-colors"
-        style="background: var(--kb-primary); color: var(--kb-primary-foreground); font-size: var(--kb-fs-body-md); font-weight: 500;"
+        style="background: var(--kf-primary); color: var(--kf-primary-foreground); font-size: var(--kf-fs-body-md); font-weight: 500;"
         @click="goTo('/login')"
       >
         登录
@@ -157,15 +157,15 @@
     <div
       v-if="isLoggedIn && showNotifications"
       class="fixed right-2 left-2 sm:left-auto sm:right-4 top-16 sm:w-80 rounded-lg shadow-xl z-50 border"
-      style="background: var(--kb-card); border-color: var(--kb-border);"
+      style="background: var(--kf-card); border-color: var(--kf-border);"
     >
-      <div class="flex items-center justify-between px-4 py-3 border-b" style="border-color: var(--kb-border);">
-        <h3 style="color: var(--kb-foreground); font-size: var(--kb-fs-body-md); font-weight: 600;">通知</h3>
+      <div class="flex items-center justify-between px-4 py-3 border-b" style="border-color: var(--kf-border);">
+        <h3 style="color: var(--kf-foreground); font-size: var(--kf-fs-body-md); font-weight: 600;">通知</h3>
         <button
           v-if="unreadCount > 0"
           type="button"
           class="hover:underline"
-          style="color: var(--kb-primary); font-size: var(--kb-fs-caption);"
+          style="color: var(--kf-primary); font-size: var(--kf-fs-caption);"
           @click="handleMarkAllRead"
         >全部已读</button>
       </div>
@@ -173,8 +173,8 @@
         <div
           v-for="notification in notificationStore.unreadList.slice(0, 5)"
           :key="notification.id"
-          class="px-4 py-3 hover:bg-[var(--kb-muted)] border-b cursor-pointer transition-colors"
-          style="border-color: var(--kb-muted);"
+          class="px-4 py-3 hover:bg-[var(--kf-muted)] border-b cursor-pointer transition-colors"
+          style="border-color: var(--kf-muted);"
           @click="handleNotificationClick(notification.id)"
         >
           <div class="flex items-start gap-3">
@@ -182,21 +182,21 @@
               <Icon :name="getNotifIcon(notification.type)" size="md" :class="getNotifColor(notification.type)" />
             </div>
             <div class="flex-1 min-w-0">
-              <div style="color: var(--kb-foreground); font-size: var(--kb-fs-body-md); font-weight: 500;">{{ notification.title }}</div>
-              <div class="mt-0.5 line-clamp-2" style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption); line-height: var(--kb-lh-caption);">{{ notification.content }}</div>
-              <div class="mt-1" style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption);">{{ formatTime(notification.createTime) }}</div>
+              <div style="color: var(--kf-foreground); font-size: var(--kf-fs-body-md); font-weight: 500;">{{ notification.title }}</div>
+              <div class="mt-0.5 line-clamp-2" style="color: var(--kf-muted-foreground); font-size: var(--kf-fs-caption); line-height: var(--kf-lh-caption);">{{ notification.content }}</div>
+              <div class="mt-1" style="color: var(--kf-muted-foreground); font-size: var(--kf-fs-caption);">{{ formatTime(notification.createTime) }}</div>
             </div>
           </div>
         </div>
-        <div v-if="notificationStore.unreadList.length === 0" class="px-4 py-8 text-center" style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-body-md);">
+        <div v-if="notificationStore.unreadList.length === 0" class="px-4 py-8 text-center" style="color: var(--kf-muted-foreground); font-size: var(--kf-fs-body-md);">
           暂无未读通知
         </div>
       </div>
-      <div class="px-4 py-2 border-t" style="border-color: var(--kb-border);">
+      <div class="px-4 py-2 border-t" style="border-color: var(--kf-border);">
         <button
           type="button"
           class="w-full text-center hover:underline"
-          style="color: var(--kb-primary); font-size: var(--kb-fs-body-md);"
+          style="color: var(--kf-primary); font-size: var(--kf-fs-body-md);"
           @click="goTo('/notifications')"
         >查看全部通知</button>
       </div>
@@ -207,22 +207,22 @@
     <div
       v-if="isLoggedIn && showQuickMenu"
       class="absolute right-2 sm:right-6 top-16 min-w-[196px] rounded-lg shadow-lg py-1 z-50 border"
-      style="background: var(--kb-card); border-color: var(--kb-border);"
+      style="background: var(--kf-card); border-color: var(--kf-border);"
       role="menu"
       data-test="pc-quick-menu"
     >
-      <p class="user-menu-title" style="color: var(--kb-muted-foreground);">快捷操作</p>
+      <p class="user-menu-title" style="color: var(--kf-muted-foreground);">快捷操作</p>
       <button
         v-for="action in quickActions"
         :key="action.key"
         type="button"
         role="menuitem"
-        class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]"
-        style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);"
+        class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]"
+        style="color: var(--kf-foreground); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);"
         :aria-current="isActive(action.path) ? 'page' : undefined"
         @click="goTo(action.path)"
       >
-        <Icon :name="action.icon" size="md" style="color: var(--kb-muted-foreground);" />
+        <Icon :name="action.icon" size="md" style="color: var(--kf-muted-foreground);" />
         {{ action.label }}
       </button>
     </div>
@@ -232,93 +232,93 @@
     <div
       v-if="showUserMenu"
       class="absolute right-2 sm:right-6 top-16 min-w-[208px] max-h-[80vh] overflow-y-auto rounded-lg shadow-lg py-1 z-50 border"
-      style="background: var(--kb-card); border-color: var(--kb-border);"
+      style="background: var(--kf-card); border-color: var(--kf-border);"
       role="menu"
     >
-      <p class="user-menu-title" style="color: var(--kb-muted-foreground);">个人</p>
+      <p class="user-menu-title" style="color: var(--kf-muted-foreground);">个人</p>
       <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2" @click="showUserMenu = false; $emit('show-guide')"><Icon name="book-open" size="md" />新手引导</button>
-      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]" style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);" @click="goTo('/profile')">
-        <Icon name="user-circle" size="md" style="color: var(--kb-muted-foreground);" />
+      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]" style="color: var(--kf-foreground); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);" @click="goTo('/profile')">
+        <Icon name="user-circle" size="md" style="color: var(--kf-muted-foreground);" />
         个人中心
       </button>
-      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]" style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);" @click="goTo('/wallet')">
-        <Icon name="credit-card" size="md" style="color: var(--kb-muted-foreground);" />
+      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]" style="color: var(--kf-foreground); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);" @click="goTo('/wallet')">
+        <Icon name="credit-card" size="md" style="color: var(--kf-muted-foreground);" />
         钱包
       </button>
-      <div class="user-menu-sep" style="border-color: var(--kb-border);"></div>
-      <p class="user-menu-title" style="color: var(--kb-muted-foreground);">学习</p>
-      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]" style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);" @click="goTo('/tasks')">
-        <Icon name="target" size="md" style="color: var(--kb-muted-foreground);" />
+      <div class="user-menu-sep" style="border-color: var(--kf-border);"></div>
+      <p class="user-menu-title" style="color: var(--kf-muted-foreground);">学习</p>
+      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]" style="color: var(--kf-foreground); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);" @click="goTo('/tasks')">
+        <Icon name="target" size="md" style="color: var(--kf-muted-foreground);" />
         我的任务
       </button>
-      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]" style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);" @click="goTo('/task-list')">
-        <Icon name="list-checks" size="md" style="color: var(--kb-muted-foreground);" />
+      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]" style="color: var(--kf-foreground); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);" @click="goTo('/task-list')">
+        <Icon name="list-checks" size="md" style="color: var(--kf-muted-foreground);" />
         任务清单
       </button>
-      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]" style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);" @click="goTo('/calendar')">
-        <Icon name="calendar" size="md" style="color: var(--kb-muted-foreground);" />
+      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]" style="color: var(--kf-foreground); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);" @click="goTo('/calendar')">
+        <Icon name="calendar" size="md" style="color: var(--kf-muted-foreground);" />
         日历
       </button>
-      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]" style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);" @click="goTo('/check-in')">
-        <Icon name="flame" size="md" style="color: var(--kb-muted-foreground);" />
+      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]" style="color: var(--kf-foreground); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);" @click="goTo('/check-in')">
+        <Icon name="flame" size="md" style="color: var(--kf-muted-foreground);" />
         每日打卡
       </button>
-      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]" style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);" @click="goTo('/habits')">
-        <Icon name="repeat" size="md" style="color: var(--kb-muted-foreground);" />
+      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]" style="color: var(--kf-foreground); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);" @click="goTo('/habits')">
+        <Icon name="repeat" size="md" style="color: var(--kf-muted-foreground);" />
         习惯打卡
       </button>
-      <div class="user-menu-sep" style="border-color: var(--kb-border);"></div>
-      <p class="user-menu-title" style="color: var(--kb-muted-foreground);">成长</p>
-      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]" style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);" @click="goTo('/achievements')">
-        <Icon name="medal" size="md" style="color: var(--kb-muted-foreground);" />
+      <div class="user-menu-sep" style="border-color: var(--kf-border);"></div>
+      <p class="user-menu-title" style="color: var(--kf-muted-foreground);">成长</p>
+      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]" style="color: var(--kf-foreground); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);" @click="goTo('/achievements')">
+        <Icon name="medal" size="md" style="color: var(--kf-muted-foreground);" />
         成就
       </button>
-      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]" style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);" @click="goTo('/kb-titles')">
-        <Icon name="award" size="md" style="color: var(--kb-muted-foreground);" />
+      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]" style="color: var(--kf-foreground); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);" @click="goTo('/kb-titles')">
+        <Icon name="award" size="md" style="color: var(--kf-muted-foreground);" />
         称号
       </button>
-      <div class="user-menu-sep" style="border-color: var(--kb-border);"></div>
-      <p class="user-menu-title" style="color: var(--kb-muted-foreground);">内容</p>
-      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]" style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);" @click="goTo('/favorites')">
-        <Icon name="bookmark" size="md" style="color: var(--kb-muted-foreground);" />
+      <div class="user-menu-sep" style="border-color: var(--kf-border);"></div>
+      <p class="user-menu-title" style="color: var(--kf-muted-foreground);">内容</p>
+      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]" style="color: var(--kf-foreground); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);" @click="goTo('/favorites')">
+        <Icon name="bookmark" size="md" style="color: var(--kf-muted-foreground);" />
         收藏夹
       </button>
-      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]" style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);" @click="goTo('/notes')">
-        <Icon name="notebook-pen" size="md" style="color: var(--kb-muted-foreground);" />
+      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]" style="color: var(--kf-foreground); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);" @click="goTo('/notes')">
+        <Icon name="notebook-pen" size="md" style="color: var(--kf-muted-foreground);" />
         笔记
       </button>
-      <div class="user-menu-sep" style="border-color: var(--kb-border);"></div>
-      <p class="user-menu-title" style="color: var(--kb-muted-foreground);">社区</p>
-      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]" style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);" @click="goTo('/community')">
-        <Icon name="message-circle" size="md" style="color: var(--kb-muted-foreground);" />
+      <div class="user-menu-sep" style="border-color: var(--kf-border);"></div>
+      <p class="user-menu-title" style="color: var(--kf-muted-foreground);">社区</p>
+      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]" style="color: var(--kf-foreground); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);" @click="goTo('/community')">
+        <Icon name="message-circle" size="md" style="color: var(--kf-muted-foreground);" />
         社区讨论
       </button>
-      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]" style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);" @click="goTo('/study-group')">
-        <Icon name="users" size="md" style="color: var(--kb-muted-foreground);" />
+      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]" style="color: var(--kf-foreground); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);" @click="goTo('/study-group')">
+        <Icon name="users" size="md" style="color: var(--kf-muted-foreground);" />
         学习小组
       </button>
-      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]" style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);" @click="goTo('/messages')">
-        <Icon name="message-square" size="md" style="color: var(--kb-muted-foreground);" />
+      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]" style="color: var(--kf-foreground); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);" @click="goTo('/messages')">
+        <Icon name="message-square" size="md" style="color: var(--kf-muted-foreground);" />
         私信
       </button>
-      <div class="user-menu-sep" style="border-color: var(--kb-border);"></div>
-      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]" style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);" @click="goTo('/settings/background')">
-        <Icon name="image" size="md" style="color: var(--kb-muted-foreground);" />
+      <div class="user-menu-sep" style="border-color: var(--kf-border);"></div>
+      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]" style="color: var(--kf-foreground); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);" @click="goTo('/settings/background')">
+        <Icon name="image" size="md" style="color: var(--kf-muted-foreground);" />
         背景设置
       </button>
       <button
         v-if="isAdmin"
         type="button"
         role="menuitem"
-        class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]"
-        style="color: var(--kb-primary); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);"
+        class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]"
+        style="color: var(--kf-primary); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);"
         @click="goTo('/admin/overview')"
       >
         <Icon name="settings" size="md" />
         管理后台
       </button>
-      <div class="user-menu-sep" style="border-color: var(--kb-border);"></div>
-      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]" style="color: var(--kb-destructive); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);" @click="handleLogout">
+      <div class="user-menu-sep" style="border-color: var(--kf-border);"></div>
+      <button type="button" role="menuitem" class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kf-muted)]" style="color: var(--kf-destructive); font-size: var(--kf-dropdown-text-fs); gap: var(--kf-nav-gap);" @click="handleLogout">
         <Icon name="log-out" size="md" />
         退出登录
       </button>
@@ -337,7 +337,7 @@
  *  2. 导航数据改由 @/config/navigation.ts 统一提供，杜绝「Sidebar 一套、Router 一套」。
  *  3. Logo 文案由「知识库」统一为「KnowFlow」（与后台侧栏一致，§22 命名统一）。
  *  4. 移动端汉堡按钮改为向父级 CLayout 派发 toggle-sidebar，打开侧边栏抽屉。
- *  5. 所有颜色走 --kb-* 令牌（§56），深色模式自动跟随。
+ *  5. 所有颜色走 --kf-* 令牌（§56），深色模式自动跟随。
  */
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -378,7 +378,7 @@ const navStyle = computed(() => {
       WebkitBackdropFilter: 'blur(16px)',
     }
   }
-  return { background: 'var(--kb-card)', borderColor: 'var(--kb-border)' }
+  return { background: 'var(--kf-card)', borderColor: 'var(--kf-border)' }
 })
 
 const showNotifications = ref(false)
@@ -499,19 +499,19 @@ function getNotifIcon(type: string): string {
 
 function getNotifBg(type: string): string {
   switch (type) {
-    case 'SYSTEM': return 'bg-[var(--kb-primary-subtle)]'
-    case 'LEARNING': return 'bg-[var(--kb-success-subtle)]'
-    case 'COMMUNITY': return 'bg-[var(--kb-highlight-subtle)]'
-    default: return 'bg-[var(--kb-muted)]'
+    case 'SYSTEM': return 'bg-[var(--kf-primary-subtle)]'
+    case 'LEARNING': return 'bg-[var(--kf-success-subtle)]'
+    case 'COMMUNITY': return 'bg-[var(--kf-highlight-subtle)]'
+    default: return 'bg-[var(--kf-muted)]'
   }
 }
 
 function getNotifColor(type: string): string {
   switch (type) {
-    case 'SYSTEM': return 'text-[var(--kb-state-info)]'
-    case 'LEARNING': return 'text-[var(--kb-state-success)]'
-    case 'COMMUNITY': return 'text-[var(--kb-highlight)]'
-    default: return 'text-[var(--kb-muted-foreground)]'
+    case 'SYSTEM': return 'text-[var(--kf-state-info)]'
+    case 'LEARNING': return 'text-[var(--kf-state-success)]'
+    case 'COMMUNITY': return 'text-[var(--kf-highlight)]'
+    default: return 'text-[var(--kf-muted-foreground)]'
   }
 }
 
@@ -551,18 +551,18 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.topnav-search { background:var(--kb-field-surface);border-radius:var(--kb-field-radius);align-items:center;gap:var(--kb-space-3);min-width:0;padding-inline:var(--kb-field-padding); }
+.topnav-search { background:var(--kf-field-surface);border-radius:var(--kf-field-radius);align-items:center;gap:var(--kf-space-3);min-width:0;padding-inline:var(--kf-field-padding); }
 .topnav-search__icon,.topnav-search__shortcut { flex-shrink:0; }
 .topnav-search .topnav-search__input { flex:1;min-width:0;width:0;padding-inline:0;background:transparent;outline:0;box-shadow:none; }
 .topnav-search__shortcut { background:transparent; }
 
 .pc-topnav {
-  height: var(--kb-nav-height);
+  height: var(--kf-nav-height);
 }
 .pc-topnav :deep(button:focus-visible),
 .pc-topnav :deep(a:focus-visible) {
   /* UI/UX V1.0：焦点环收窄到 2px，与全站其他焦点指示保持同一视觉重量 */
-  outline: var(--kb-studio-focus) solid var(--kb-ring);
+  outline: var(--kf-studio-focus) solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -570,30 +570,30 @@ onMounted(() => {
 .topnav-quick {
   display: flex;
   align-items: center;
-  gap: var(--kb-quick-action-gap);
+  gap: var(--kf-quick-action-gap);
 }
 .topnav-action {
-  width: var(--kb-quick-action-size);
-  height: var(--kb-quick-action-size);
+  width: var(--kf-quick-action-size);
+  height: var(--kf-quick-action-size);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   padding: 0;
   border: 1px solid transparent;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
 }
 .topnav-action:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 .topnav-action.is-active {
-  background: var(--kb-primary-soft);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .topnav-quick__primary { display: none; }
 @media (min-width: 1280px) {

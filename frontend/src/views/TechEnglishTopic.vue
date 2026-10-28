@@ -43,12 +43,12 @@
     </section>
 
     <section class="te-toolbar" aria-label="专题学习操作">
-      <div class="kb-filter-group" role="group" aria-label="按学习状态筛选">
+      <div class="kf-filter-group" role="group" aria-label="按学习状态筛选">
         <button
           v-for="option in statusOptions"
           :key="option.value || 'ALL'"
           type="button"
-          class="kb-filter-btn"
+          class="kf-filter-btn"
           :class="{ 'is-active': statusFilter === option.value }"
           :aria-pressed="statusFilter === option.value"
           @click="statusFilter = option.value"
@@ -302,18 +302,18 @@ void load()
 <style scoped>
 .te-page {
   display: grid;
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
   min-width: 0;
 }
 .te-topic-summary {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
   flex-wrap: wrap;
-  padding: var(--kb-space-4);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
-  background: var(--kb-card);
+  padding: var(--kf-space-4);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
+  background: var(--kf-card);
 }
 .te-summary-item {
   display: grid;
@@ -321,28 +321,28 @@ void load()
   min-width: 72px;
 }
 .te-summary-value {
-  font-size: var(--kb-fs-h3, 24px);
+  font-size: var(--kf-fs-h3, 24px);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-variant-numeric: tabular-nums;
 }
 .te-summary-value.is-due {
-  color: var(--kb-state-warning);
+  color: var(--kf-state-warning);
 }
 .te-summary-label {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .te-summary-note {
   margin: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .te-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   flex-wrap: wrap;
 }
 .te-toolbar-actions {
@@ -353,17 +353,17 @@ void load()
 }
 .te-inline-error {
   margin: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-state-error);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-state-error);
 }
 .te-note {
   margin: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .te-path {
   display: grid;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -371,11 +371,11 @@ void load()
 .te-path-item {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-3);
-  padding: var(--kb-space-3);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
+  gap: var(--kf-space-3);
+  padding: var(--kf-space-3);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
   min-width: 0;
 }
 .te-path-index {
@@ -386,9 +386,9 @@ void load()
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-caption);
   font-variant-numeric: tabular-nums;
 }
 .te-path-main {
@@ -400,47 +400,47 @@ void load()
 .te-path-head {
   display: flex;
   align-items: baseline;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   flex-wrap: wrap;
 }
 .te-path-word {
-  font-size: var(--kb-fs-body);
+  font-size: var(--kf-fs-body);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow-wrap: anywhere;
 }
 .te-path-type {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .te-path-tag {
-  padding: 1px var(--kb-space-2);
-  border-radius: var(--kb-radius-xs);
-  background: var(--kb-muted);
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  padding: 1px var(--kf-space-2);
+  border-radius: var(--kf-radius-xs);
+  background: var(--kf-muted);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .te-path-tag.is-due {
-  color: var(--kb-state-warning);
+  color: var(--kf-state-warning);
 }
 .te-path-meaning {
   margin: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   overflow-wrap: anywhere;
 }
 .te-path-meta {
   display: flex;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   flex-wrap: wrap;
   margin: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .te-path-actions {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   flex-wrap: wrap;
   flex: none;
 }
@@ -448,30 +448,30 @@ void load()
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--kb-btn-height-sm, 32px);
-  height: var(--kb-btn-height-sm, 32px);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  width: var(--kf-btn-height-sm, 32px);
+  height: var(--kf-btn-height-sm, 32px);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   cursor: pointer;
 }
 .te-icon-btn:hover:not(:disabled) {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .te-icon-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
 .te-icon-btn.is-playing {
-  background: var(--kb-primary-soft);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .te-icon-btn:focus-visible {
-  outline: var(--kb-field-focus-width) solid var(--kb-ring);
-  outline-offset: var(--kb-space-1);
+  outline: var(--kf-field-focus-width) solid var(--kf-ring);
+  outline-offset: var(--kf-space-1);
 }
 .te-add-review {
   white-space: nowrap;

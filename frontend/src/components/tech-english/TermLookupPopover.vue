@@ -331,10 +331,10 @@ onBeforeUnmount(() => {
 .term-lookup-popover {
   position: fixed;
   z-index: 1200;
-  background: var(--kb-popover, #ffffff);
-  color: var(--kb-foreground, #1a1d23);
-  border: 1px solid var(--kb-border, #e2e6ec);
-  border-radius: var(--kb-radius-lg, 16px);
+  background: var(--kf-popover, #ffffff);
+  color: var(--kf-foreground, #1a1d23);
+  border: 1px solid var(--kf-border, #e2e6ec);
+  border-radius: var(--kf-radius-lg, 16px);
   box-shadow: var(--shadow-dropdown-3, 0 12px 32px rgba(0, 0, 0, 0.12));
   padding: 14px 16px 16px;
   display: flex;
@@ -355,7 +355,7 @@ onBeforeUnmount(() => {
 
 .tlp-title {
   font-size: 12px;
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
   letter-spacing: 0.02em;
 }
 
@@ -365,18 +365,18 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--kb-radius-sm, 6px);
-  color: var(--kb-muted-foreground, #6b7280);
+  border-radius: var(--kf-radius-sm, 6px);
+  color: var(--kf-muted-foreground, #6b7280);
   background: transparent;
 }
 
 .tlp-icon-btn:hover {
-  background: var(--kb-muted, #f3f4f6);
-  color: var(--kb-foreground, #1a1d23);
+  background: var(--kf-muted, #f3f4f6);
+  color: var(--kf-foreground, #1a1d23);
 }
 
 .tlp-icon-btn:focus-visible {
-  outline: 2px solid var(--kb-ring, #3b6fe0);
+  outline: 2px solid var(--kf-ring, #3b6fe0);
   outline-offset: 1px;
 }
 
@@ -389,8 +389,8 @@ onBeforeUnmount(() => {
 
 .tlp-bar {
   height: 12px;
-  border-radius: var(--kb-radius-sm, 6px);
-  background: var(--kb-muted, #f3f4f6);
+  border-radius: var(--kf-radius-sm, 6px);
+  background: var(--kf-muted, #f3f4f6);
   display: block;
   animation: tlp-pulse 1.2s ease-in-out infinite;
 }
@@ -424,7 +424,7 @@ onBeforeUnmount(() => {
 
 .tlp-state-text {
   margin: 0;
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
   font-size: 13px;
 }
 
@@ -449,22 +449,22 @@ onBeforeUnmount(() => {
   align-items: flex-start;
   gap: 1px;
   padding: 6px 10px;
-  border-radius: var(--kb-radius-md, 10px);
-  border: 1px solid var(--kb-border, #e2e6ec);
+  border-radius: var(--kf-radius-md, 10px);
+  border: 1px solid var(--kf-border, #e2e6ec);
   background: transparent;
   text-align: left;
   font-size: 12px;
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
 }
 
 .tlp-sense.is-active {
-  border-color: var(--kb-primary, #3b6fe0);
-  background: var(--kb-primary-soft, #eef4ff);
-  color: var(--kb-foreground, #1a1d23);
+  border-color: var(--kf-primary, #3b6fe0);
+  background: var(--kf-primary-soft, #eef4ff);
+  color: var(--kf-foreground, #1a1d23);
 }
 
 .tlp-sense:focus-visible {
-  outline: 2px solid var(--kb-ring, #3b6fe0);
+  outline: 2px solid var(--kf-ring, #3b6fe0);
   outline-offset: 1px;
 }
 
@@ -480,7 +480,7 @@ onBeforeUnmount(() => {
 .tlp-hint {
   margin: 0;
   font-size: 12px;
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
 }
 
 .tlp-body {
@@ -496,7 +496,7 @@ onBeforeUnmount(() => {
 }
 
 .tlp-word {
-  font-size: var(--kb-fs-h2);
+  font-size: var(--kf-fs-h2);
   font-weight: 700;
   line-height: 1.25;
   word-break: break-word;
@@ -510,15 +510,15 @@ onBeforeUnmount(() => {
 .tlp-badge {
   font-size: 11px;
   padding: 1px 6px;
-  border-radius: var(--kb-radius-xs, 4px);
-  background: var(--kb-primary-soft, #eef4ff);
-  color: var(--kb-primary, #3b6fe0);
+  border-radius: var(--kf-radius-xs, 4px);
+  background: var(--kf-primary-soft, #eef4ff);
+  color: var(--kf-primary, #3b6fe0);
 }
 
 .tlp-fullform {
   margin: 0;
   font-size: 14px;
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
   word-break: break-word;
 }
 
@@ -531,13 +531,13 @@ onBeforeUnmount(() => {
 .tlp-no-audio {
   margin: 0;
   font-size: 12px;
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
 }
 
 .tlp-definition {
   margin: 0;
   font-size: 13px;
-  color: var(--kb-foreground, #1a1d23);
+  color: var(--kf-foreground, #1a1d23);
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
@@ -552,7 +552,7 @@ onBeforeUnmount(() => {
 
 .tlp-links-title {
   font-size: 12px;
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
 }
 
 .tlp-link-list {
@@ -566,23 +566,23 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 4px;
   padding: 3px 8px;
-  border-radius: var(--kb-radius-sm, 6px);
-  background: var(--kb-muted, #f3f4f6);
-  color: var(--kb-primary, #3b6fe0);
+  border-radius: var(--kf-radius-sm, 6px);
+  background: var(--kf-muted, #f3f4f6);
+  color: var(--kf-primary, #3b6fe0);
   font-size: 12px;
   text-decoration: none;
 }
 
 .tlp-link.is-static {
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
 }
 
 .tlp-link:hover {
-  background: var(--kb-primary-soft, #eef4ff);
+  background: var(--kf-primary-soft, #eef4ff);
 }
 
 .tlp-link:focus-visible {
-  outline: 2px solid var(--kb-ring, #3b6fe0);
+  outline: 2px solid var(--kf-ring, #3b6fe0);
   outline-offset: 1px;
 }
 
@@ -599,17 +599,17 @@ onBeforeUnmount(() => {
   gap: 6px;
   padding: 7px 12px;
   min-height: 34px;
-  border-radius: var(--kb-radius-md, 10px);
-  border: 1px solid var(--kb-border, #e2e6ec);
+  border-radius: var(--kf-radius-md, 10px);
+  border: 1px solid var(--kf-border, #e2e6ec);
   background: transparent;
-  color: var(--kb-foreground, #1a1d23);
+  color: var(--kf-foreground, #1a1d23);
   font-size: 13px;
   text-decoration: none;
   cursor: pointer;
 }
 
 .tlp-btn:hover:not(:disabled) {
-  background: var(--kb-muted, #f3f4f6);
+  background: var(--kf-muted, #f3f4f6);
 }
 
 .tlp-btn:disabled {
@@ -618,24 +618,24 @@ onBeforeUnmount(() => {
 }
 
 .tlp-btn:focus-visible {
-  outline: 2px solid var(--kb-ring, #3b6fe0);
+  outline: 2px solid var(--kf-ring, #3b6fe0);
   outline-offset: 1px;
 }
 
 .tlp-btn-primary {
-  border-color: var(--kb-primary, #3b6fe0);
-  background: var(--kb-primary, #3b6fe0);
+  border-color: var(--kf-primary, #3b6fe0);
+  background: var(--kf-primary, #3b6fe0);
   color: #fff;
 }
 
 .tlp-btn-primary:hover:not(:disabled) {
-  background: var(--kb-primary, #3b6fe0);
+  background: var(--kf-primary, #3b6fe0);
   opacity: 0.92;
 }
 
 .tlp-foot-link {
   font-size: 12px;
-  color: var(--kb-primary, #3b6fe0);
+  color: var(--kf-primary, #3b6fe0);
   text-decoration: none;
 }
 

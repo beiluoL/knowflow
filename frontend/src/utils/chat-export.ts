@@ -85,7 +85,7 @@ export async function exportChatPng(snapshot: ChatExportSnapshot): Promise<void>
   const context = canvas.getContext('2d')
   if (!context) throw new Error('浏览器不支持 PNG 导出')
   const styles = getComputedStyle(document.documentElement)
-  const fontFamily = styles.getPropertyValue('--kb-font-family').trim() || getComputedStyle(document.body).fontFamily || 'sans-serif'
+  const fontFamily = styles.getPropertyValue('--kf-font-family').trim() || getComputedStyle(document.body).fontFamily || 'sans-serif'
   const font = `18px ${fontFamily}`
   context.font = font
   const lines: string[] = []
@@ -104,9 +104,9 @@ export async function exportChatPng(snapshot: ChatExportSnapshot): Promise<void>
   const pages: Blob[] = []
   for (let page = 0; page < pageCount; page++) {
     canvas.height = 1400
-    context.fillStyle = styles.getPropertyValue('--kb-background').trim() || 'white'
+    context.fillStyle = styles.getPropertyValue('--kf-background').trim() || 'white'
     context.fillRect(0, 0, canvas.width, canvas.height)
-    context.fillStyle = styles.getPropertyValue('--kb-foreground').trim() || 'black'
+    context.fillStyle = styles.getPropertyValue('--kf-foreground').trim() || 'black'
     context.font = font
     context.textBaseline = 'top'
     lines.slice(page * linesPerPage, (page + 1) * linesPerPage).forEach((line, index) => context.fillText(line, 48, 48 + index * 29))

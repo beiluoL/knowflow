@@ -114,14 +114,14 @@
             <line v-for="g in [25, 50, 75, 100]" :key="g"
               :x1="0" :x2="chartWidth"
               :y1="chartHeight - (g / 100) * plotHeight" :y2="chartHeight - (g / 100) * plotHeight"
-              stroke="var(--kb-border)" stroke-width="1" stroke-dasharray="3 3" />
+              stroke="var(--kf-border)" stroke-width="1" stroke-dasharray="3 3" />
             <rect v-for="(p, i) in data.dailyTrend" :key="p.date"
               :x="barX(i)" :y="barY(p.answered)"
               :width="barWidth" :height="Math.max(0, chartHeight - barY(p.answered))"
               rx="2" fill="rgba(59,111,224,0.55)" />
             <polyline
               :points="rateLinePoints"
-              fill="none" stroke="var(--kb-success)" stroke-width="2"
+              fill="none" stroke="var(--kf-success)" stroke-width="2"
               stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" />
           </svg>
           <div class="flex justify-between text-[11px] text-muted-foreground mt-1">

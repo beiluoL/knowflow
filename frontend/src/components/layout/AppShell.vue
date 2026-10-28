@@ -14,11 +14,11 @@
     >
       <BTopbar @toggle-sidebar="toggleSidebar" />
       <!-- fullscreen 模式：移除 padding 和 max-width，让编辑页面等全宽贴顶 -->
-      <main v-if="isFullscreen" class="flex-1 overflow-y-auto kb-region-content">
+      <main v-if="isFullscreen" class="flex-1 overflow-y-auto kf-region-content">
         <slot />
       </main>
       <!-- 默认页面占满右侧可用区域，保留统一内边距 -->
-      <main v-else class="flex-1 overflow-y-auto p-4 sm:p-6 kb-region-content">
+      <main v-else class="flex-1 overflow-y-auto p-4 sm:p-6 kf-region-content">
         <div class="w-full min-w-0">
           <slot />
         </div>
@@ -60,7 +60,7 @@ onBeforeUnmount(() => { window.removeEventListener('resize', onResize); document
 const sidebarCollapsed = ref(false);
 
 const rootStyle = computed(() => ({
-  background: bg.isActive ? 'transparent' : 'var(--kb-background)',
+  background: bg.isActive ? 'transparent' : 'var(--kf-background)',
 }));
 
 /** fullscreen 模式：路由 meta.fullscreen 为 true 时，main 移除 padding 和 max-width */

@@ -16,7 +16,7 @@
           v-model="searchKeyword"
           type="text"
           placeholder="搜索会话..."
-          class="search-input kb-input kb-form-control"
+          class="search-input kf-input kf-form-control"
         />
       </div>
 
@@ -196,7 +196,7 @@
                 v-model="userSearchKeyword"
                 type="text"
                 placeholder="输入关键词..."
-                class="form-input kb-input kb-form-control"
+                class="form-input kf-input kf-form-control"
                 @input="searchUsersDebounced"
               />
             </div>
@@ -572,7 +572,7 @@ function scrollToBottom() {
 }
 
 function getUserColor(name: string): string {
-  const colors = ['var(--kb-primary)', '#8B5CF6', '#EC4899', 'var(--kb-warning)', 'var(--kb-success)', '#06B6D4', 'var(--kb-danger)']
+  const colors = ['var(--kf-primary)', '#8B5CF6', '#EC4899', 'var(--kf-warning)', 'var(--kf-success)', '#06B6D4', 'var(--kf-danger)']
   let hash = 0
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash)
@@ -616,13 +616,13 @@ onUnmounted(() => {
   display: flex;
   height: calc(100vh - 56px);
   margin: -24px -24px 0;
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
 
 .conv-sidebar {
   width: 300px;
-  border-right: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-right: 1px solid var(--kf-border);
+  background: var(--kf-card);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -630,13 +630,13 @@ onUnmounted(() => {
 
 .sidebar-header {
   padding: 16px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .sidebar-title {
   font-size: 18px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0 0 12px;
 }
 
@@ -647,10 +647,10 @@ onUnmounted(() => {
   width: 100%;
   height: 36px;
   border-radius: 8px;
-  border: 1px dashed var(--kb-border);
+  border: 1px dashed var(--kf-border);
   background: transparent;
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
@@ -658,7 +658,7 @@ onUnmounted(() => {
 
 .new-chat-btn:hover {
   background: rgba(59, 111, 224, 0.08);
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 
 .new-chat-btn:active {
@@ -666,7 +666,7 @@ onUnmounted(() => {
 }
 
 .new-chat-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -680,26 +680,26 @@ onUnmounted(() => {
   left: 28px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
-.search-input:not(.kb-form-control) {
+.search-input:not(.kf-form-control) {
   height: 36px;
   border-radius: 8px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-background);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-background);
   outline: none;
 }
 
 .search-input {
   width: 100%;
   padding: 0 12px 0 36px;
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-sm);
 }
 
-.search-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.search-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 
 .conv-section {
@@ -725,7 +725,7 @@ onUnmounted(() => {
 }
 
 .conv-item:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 .conv-item.active {
@@ -737,7 +737,7 @@ onUnmounted(() => {
 }
 
 .conv-item:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -749,7 +749,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -764,9 +764,9 @@ onUnmounted(() => {
 }
 
 .conv-name {
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -777,8 +777,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   margin: 2px 0 0;
   white-space: nowrap;
   overflow: hidden;
@@ -794,26 +794,26 @@ onUnmounted(() => {
 }
 
 .unread-badge {
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: white;
   padding: 2px 6px;
   border-radius: 10px;
-  font-size: var(--kb-fs-xs);
+  font-size: var(--kf-fs-xs);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
 .empty-tip {
   text-align: center;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-caption);
   padding: 12px;
 }
 
 .loading-placeholder {
   text-align: center;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-caption);
   padding: 12px;
 }
 
@@ -830,14 +830,14 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .empty-icon {
   width: 80px;
   height: 80px;
   border-radius: 20px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -847,12 +847,12 @@ onUnmounted(() => {
 .chat-empty h3 {
   font-size: 18px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0 0 8px;
 }
 
 .chat-empty p {
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   margin: 0;
 }
 
@@ -861,8 +861,8 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  border-bottom: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-bottom: 1px solid var(--kf-border);
+  background: var(--kf-card);
 }
 
 .header-info {
@@ -879,9 +879,9 @@ onUnmounted(() => {
 }
 
 .conv-title {
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -889,8 +889,8 @@ onUnmounted(() => {
 }
 
 .conv-desc {
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-muted-foreground);
   margin: 2px 0 0;
 }
 
@@ -910,15 +910,15 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 40px;
 }
 
 .loading-spinner {
   width: 24px;
   height: 24px;
-  border: 2px solid var(--kb-border);
-  border-top-color: var(--kb-primary);
+  border: 2px solid var(--kf-border);
+  border-top-color: var(--kf-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -950,7 +950,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -962,26 +962,26 @@ onUnmounted(() => {
 }
 
 .message-sender {
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .message-bubble {
   padding: 10px 14px;
   border-radius: 12px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
 }
 
 .message-item.mine .message-bubble {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
 }
 
 .message-text {
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-foreground);
   margin: 0;
   line-height: 1.5;
   word-break: break-word;
@@ -1008,7 +1008,7 @@ onUnmounted(() => {
 }
 
 .message-image:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1017,17 +1017,17 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: var(--kb-background);
+  background: var(--kf-background);
   border-radius: 8px;
   text-decoration: none;
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-sm);
   min-width: 0;
   transition: background 0.15s ease, transform 0.1s ease;
 }
 
 .message-file:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 .message-file:active {
@@ -1035,7 +1035,7 @@ onUnmounted(() => {
 }
 
 .message-file:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1047,13 +1047,13 @@ onUnmounted(() => {
 }
 
 .file-size {
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-caption);
   flex-shrink: 0;
 }
 
 .message-code {
-  background: var(--kb-background);
+  background: var(--kf-background);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -1062,42 +1062,42 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   padding: 8px 12px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 .code-lang {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 
 .message-code pre {
   margin: 0;
   padding: 12px;
   overflow-x: auto;
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-foreground);
 }
 
 .message-time {
-  font-size: var(--kb-fs-xs);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-xs);
+  color: var(--kf-muted-foreground);
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
 .msg-read {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 .msg-recall {
   cursor: pointer;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   transition: color 0.15s ease;
 }
 
 .msg-recall:hover {
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 
 .msg-recall:active {
@@ -1105,7 +1105,7 @@ onUnmounted(() => {
 }
 
 .msg-recall:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -1117,14 +1117,14 @@ onUnmounted(() => {
 
 .typing-indicator {
   padding: 8px 24px;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 
 .chat-footer {
   padding: 12px 24px 16px;
-  border-top: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-top: 1px solid var(--kf-border);
+  background: var(--kf-card);
 }
 
 .input-toolbar {
@@ -1141,15 +1141,15 @@ onUnmounted(() => {
   justify-content: center;
   background: transparent;
   border: none;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   border-radius: 6px;
   transition: all 0.15s;
 }
 
 .tool-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-primary);
+  background: var(--kf-muted);
+  color: var(--kf-primary);
 }
 
 .tool-btn:active {
@@ -1157,7 +1157,7 @@ onUnmounted(() => {
 }
 
 .tool-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1171,20 +1171,20 @@ onUnmounted(() => {
   gap: 8px;
   padding: 10px 14px;
   border-radius: 12px;
-  background: var(--kb-field-surface);
+  background: var(--kf-field-surface);
   border: 0;
 }
 
 .input-wrapper:focus-within {
-  background: var(--kb-field-active);
+  background: var(--kf-field-active);
 }
 
 .message-input {
   flex: 1;
   border: none;
   background: transparent;
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-foreground);
   resize: none;
   outline: none;
   min-height: 24px;
@@ -1196,7 +1196,7 @@ onUnmounted(() => {
   height: 36px;
   border-radius: 8px;
   border: none;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: white;
   cursor: pointer;
   display: flex;
@@ -1214,7 +1214,7 @@ onUnmounted(() => {
 }
 
 .send-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1234,7 +1234,7 @@ onUnmounted(() => {
 }
 
 .new-chat-dialog {
-  background: var(--kb-card);
+  background: var(--kf-card);
   border-radius: 16px;
   width: 90%;
   max-width: 420px;
@@ -1246,29 +1246,29 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .dialog-header h3 {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .dialog-close {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 4px;
   border-radius: 6px;
   transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
 }
 
 .dialog-close:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 
 .dialog-close:active {
@@ -1276,7 +1276,7 @@ onUnmounted(() => {
 }
 
 .dialog-close:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1290,29 +1290,29 @@ onUnmounted(() => {
 
 .form-group label {
   display: block;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 8px;
 }
 
-.form-input:not(.kb-form-control) {
+.form-input:not(.kf-form-control) {
   border-radius: 10px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-background);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-background);
   outline: none;
 }
 
 .form-input {
   width: 100%;
   padding: 10px 14px;
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-md);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-md);
   box-sizing: border-box;
 }
 
-.form-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.form-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 
 .user-search-list {
@@ -1334,16 +1334,16 @@ onUnmounted(() => {
 }
 
 .user-search-item:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 .user-search-item:active {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   transform: scale(0.99);
 }
 
 .user-search-item:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1355,17 +1355,17 @@ onUnmounted(() => {
 }
 
 .user-search-name {
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .user-search-username {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1391,5 +1391,5 @@ onUnmounted(() => {
 </style>
 
 <style scoped>
-.input-wrapper:has(input:focus-visible){outline:0}.input-wrapper input.kb-form-control,.input-wrapper input.kb-form-control:focus,.input-wrapper input.kb-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
+.input-wrapper:has(input:focus-visible){outline:0}.input-wrapper input.kf-form-control,.input-wrapper input.kf-form-control:focus,.input-wrapper input.kf-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
 </style>

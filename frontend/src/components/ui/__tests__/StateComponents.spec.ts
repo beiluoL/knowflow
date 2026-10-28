@@ -32,17 +32,17 @@ describe('EmptyState（§25-27 空态三要素）', () => {
 describe('ErrorState（§29-30 错误 + 重试）', () => {
   it('renders default title 加载失败 when not provided', () => {
     const w = mount(ErrorState)
-    expect(w.find('.kb-state-title').text()).toBe('加载失败')
+    expect(w.find('.kf-state-title').text()).toBe('加载失败')
   })
 
   it('renders provided title', () => {
     const w = mount(ErrorState, { props: { title: '出了一点问题' } })
-    expect(w.find('.kb-state-title').text()).toBe('出了一点问题')
+    expect(w.find('.kf-state-title').text()).toBe('出了一点问题')
   })
 
   it('shows retry button by default and emits retry', async () => {
     const w = mount(ErrorState)
-    const btn = w.find('.kb-state-retry')
+    const btn = w.find('.kf-state-retry')
     expect(btn.exists()).toBe(true)
     await btn.trigger('click')
     expect(w.emitted('retry')).toBeTruthy()
@@ -50,7 +50,7 @@ describe('ErrorState（§29-30 错误 + 重试）', () => {
 
   it('hides retry when showRetry=false (§30 不暴露内部错误)', () => {
     const w = mount(ErrorState, { props: { showRetry: false } })
-    expect(w.find('.kb-state-retry').exists()).toBe(false)
+    expect(w.find('.kf-state-retry').exists()).toBe(false)
   })
 })
 
@@ -62,7 +62,7 @@ describe('StateView 四态容器（§18 统一 Loading/Empty/Error）', () => {
 
   it('error → 渲染 ErrorState + 重试', () => {
     const w = mount(StateView, { props: { status: 'error' } })
-    expect(w.find('.kb-state-error').exists()).toBe(true)
+    expect(w.find('.kf-state-error').exists()).toBe(true)
   })
 
   it('empty → 渲染 EmptyState（默认标题 暂无数据）', () => {
@@ -111,19 +111,19 @@ describe('ErrorState §六 —— 三段式：发生了什么 / 影响范围 / �
     const w = mount(ErrorState, {
       props: { title: '服务暂时不可用', scope: '这个页面的内容暂时无法加载。', hint: '稍后重试。' },
     })
-    expect(w.find('.kb-state-scope').text()).toContain('这个页面的内容暂时无法加载。')
-    expect(w.find('.kb-state-hint').text()).toContain('稍后重试。')
+    expect(w.find('.kf-state-scope').text()).toContain('这个页面的内容暂时无法加载。')
+    expect(w.find('.kf-state-hint').text()).toContain('稍后重试。')
   })
 
   it('缺省 scope / hint 时不渲染空行（向后兼容既有调用方）', () => {
     const w = mount(ErrorState, { props: { title: 'X' } })
-    expect(w.find('.kb-state-scope').exists()).toBe(false)
-    expect(w.find('.kb-state-hint').exists()).toBe(false)
+    expect(w.find('.kf-state-scope').exists()).toBe(false)
+    expect(w.find('.kf-state-hint').exists()).toBe(false)
   })
 
   it('§二十一：错误是断言型状态 → role=alert + aria-live=assertive', () => {
     const w = mount(ErrorState)
-    const root = w.find('.kb-state-error')
+    const root = w.find('.kf-state-error')
     expect(root.attributes('role')).toBe('alert')
     expect(root.attributes('aria-live')).toBe('assertive')
   })
@@ -132,8 +132,8 @@ describe('ErrorState §六 —— 三段式：发生了什么 / 影响范围 / �
     const w = mount(StateView, {
       props: { status: 'error', errorScope: '只坏了这一块', errorHint: '请重试' },
     })
-    expect(w.find('.kb-state-scope').text()).toContain('只坏了这一块')
-    expect(w.find('.kb-state-hint').text()).toContain('请重试')
+    expect(w.find('.kf-state-scope').text()).toContain('只坏了这一块')
+    expect(w.find('.kf-state-hint').text()).toContain('请重试')
   })
 })
 
@@ -161,7 +161,7 @@ describe('StateView §六 —— 状态互斥（不允许同时出现两个状�
       slots: { default: '<p class="real-content">真实内容</p>' },
     })
     expect(w.find('.real-content').exists()).toBe(false)
-    expect(w.find('.kb-state-error').exists()).toBe(true)
+    expect(w.find('.kf-state-error').exists()).toBe(true)
   })
 
   it('empty 态不会同时渲染 error 或 ready 内容', () => {
@@ -170,6 +170,6 @@ describe('StateView §六 —— 状态互斥（不允许同时出现两个状�
       slots: { default: '<p class="real-content">真实内容</p>' },
     })
     expect(w.find('.real-content').exists()).toBe(false)
-    expect(w.find('.kb-state-error').exists()).toBe(false)
+    expect(w.find('.kf-state-error').exists()).toBe(false)
   })
 })

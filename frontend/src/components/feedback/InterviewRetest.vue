@@ -47,4 +47,4 @@ async function submit(){const p=plan.value,s=p?.session;if(!p||!s)return;if(!sub
 async function repeat(){if(plan.value)await run(()=>api.repeat(plan.value!.id,repeatKey))}
 async function finish(){if(plan.value)await run(()=>api.finish(plan.value!.id))}
 </script>
-<style scoped>.kf-retest{display:grid;gap:var(--kb-space-3);min-width:0}.kf-retest form{display:grid;gap:var(--kb-space-3)}.kf-retest pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:var(--kb-text-sm)}.kf-retest [role=alert]{color:var(--kb-danger-text)}</style>
+<style scoped>.kf-retest{display:grid;gap:var(--kf-space-3);min-width:0}.kf-retest form{display:grid;gap:var(--kf-space-3)}.kf-retest pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:var(--kf-text-sm)}.kf-retest [role=alert]{color:var(--kf-danger-text)}</style>

@@ -118,17 +118,17 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   transition: background 0.15s ease, border-color 0.15s ease;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .pmd-nav-btn:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .pmd-nav-btn.is-active {
-  background: var(--kb-muted);
-  border-color: var(--kb-border);
+  background: var(--kf-muted);
+  border-color: var(--kf-border);
 }
 .pmd-nav-btn.is-running {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .pmd-nav-ring {
@@ -186,8 +186,8 @@ onUnmounted(() => {
   width: 340px;
   max-width: calc(100vw - 32px);
   max-height: calc(100vh - 100px); /* 留出顶部导航栏与下边距 */
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 16px;
   box-shadow:
     0 12px 40px rgba(15, 23, 42, 0.16),
@@ -204,9 +204,9 @@ onUnmounted(() => {
   right: 14px;
   width: 12px;
   height: 12px;
-  background: var(--kb-card);
-  border-left: 1px solid var(--kb-border);
-  border-top: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border-left: 1px solid var(--kf-border);
+  border-top: 1px solid var(--kf-border);
   transform: rotate(45deg);
   border-radius: 3px 0 0 0;
 }

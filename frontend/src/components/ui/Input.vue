@@ -1,11 +1,11 @@
 <template>
   <FormField :class="$attrs.class" :style="$attrs.style as any" :control-id="inputId" :label="label" :required="required" :help="help" :error="error">
-    <div class="kb-field kb-input-shell" :class="{'kb-field--error':error,'kb-field--disabled':disabled}">
+    <div class="kf-field kf-input-shell" :class="{'kf-field--error':error,'kf-field--disabled':disabled}">
       <Icon
         v-if="prefixIconName"
         :name="prefixIconName"
         :size="16"
-        class="kb-input-shell__icon text-muted-foreground pointer-events-none"
+        class="kf-input-shell__icon text-muted-foreground pointer-events-none"
       />
       <input
         v-bind="controlAttrs()"
@@ -18,10 +18,10 @@
         :disabled="disabled"
         :aria-invalid="error ? 'true' : undefined"
         :class="[
-          'kb-input w-full px-3 py-2 text-sm transition-colors duration-200',
-          prefixIconName ? 'kb-input--prefix' : '',
-          suffixIconName ? 'kb-input--suffix' : '',
-          error ? 'kb-input-error' : '',
+          'kf-input w-full px-3 py-2 text-sm transition-colors duration-200',
+          prefixIconName ? 'kf-input--prefix' : '',
+          suffixIconName ? 'kf-input--suffix' : '',
+          error ? 'kf-input-error' : '',
           disabled ? 'text-muted-foreground cursor-not-allowed' : '',
         ]"
         @input="handleInput"
@@ -32,7 +32,7 @@
         v-if="suffixIconName"
         :name="suffixIconName"
         :size="16"
-        class="kb-input-shell__icon text-muted-foreground pointer-events-none"
+        class="kf-input-shell__icon text-muted-foreground pointer-events-none"
       />
     </div>
   </FormField>
@@ -86,7 +86,7 @@ const handleInput = (e: Event) => {
 </script>
 
 <style scoped>
-.kb-input-shell{display:flex;align-items:center;gap:var(--kb-space-3);padding-inline:var(--kb-field-padding);min-width:0;background:var(--kb-field-surface);border-radius:var(--kb-field-radius)}
-.kb-input-shell .kb-input-shell__icon{flex:none}
-.kb-input-shell input.kb-input{flex:1;min-width:0;width:100%;padding-inline:0;background:transparent}
+.kf-input-shell{display:flex;align-items:center;gap:var(--kf-space-3);padding-inline:var(--kf-field-padding);min-width:0;background:var(--kf-field-surface);border-radius:var(--kf-field-radius)}
+.kf-input-shell .kf-input-shell__icon{flex:none}
+.kf-input-shell input.kf-input{flex:1;min-width:0;width:100%;padding-inline:0;background:transparent}
 </style>

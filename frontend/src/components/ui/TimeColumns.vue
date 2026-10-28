@@ -224,7 +224,7 @@ defineExpose({ focusActive, focusColumn, scrollIntoView })
 .tp-columns {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   min-width: 0;
 }
 
@@ -235,15 +235,15 @@ defineExpose({ focusActive, focusColumn, scrollIntoView })
 .tp-col {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-1);
+  gap: var(--kf-space-1);
   min-width: 0;
 }
 
 .tp-col-label {
   text-align: center;
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
+  color: var(--kf-muted-foreground);
 }
 
 .tp-list {
@@ -253,8 +253,8 @@ defineExpose({ focusActive, focusColumn, scrollIntoView })
   gap: 2px;
   max-height: 168px;
   padding: 4px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-field-surface);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-field-surface);
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
@@ -268,35 +268,35 @@ defineExpose({ focusActive, focusColumn, scrollIntoView })
   height: 30px;
   padding: 0;
   border: 0;
-  border-radius: var(--kb-radius-xs);
+  border-radius: var(--kf-radius-xs);
   background: transparent;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font: inherit;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-variant-numeric: tabular-nums;
   line-height: 1;
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease, color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
 }
 
 .tp-option:hover {
-  background: var(--kb-menu-hover);
+  background: var(--kf-menu-hover);
 }
 
 .tp-option--selected,
 .tp-option--selected:hover {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   font-weight: 600;
 }
 
 .tp-option:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: -2px;
 }
 
 .tp-option--selected:focus-visible {
-  outline-color: var(--kb-primary-foreground);
+  outline-color: var(--kf-primary-foreground);
 }
 
 @media (forced-colors: active) {

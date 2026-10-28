@@ -8,14 +8,14 @@
     <div class="space-y-4 animate-fade-in">
       <!-- 筛选栏：查询条件可恢复（同步 URL query） -->
       <div class="code-bank-filters" role="group" aria-label="算法题筛选">
-        <div class="relative kb-field code-bank-search">
+        <div class="relative kf-field code-bank-search">
           <Icon name="search" :size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             v-model="keyword"
             type="text"
             aria-label="搜索算法题"
             placeholder="搜索题目标题 / 内容"
-            class="kb-input pl-9 pr-3 text-sm kb-form-control"
+            class="kf-input pl-9 pr-3 text-sm kf-form-control"
             @keyup.enter="applySearch"
           />
         </div>
@@ -271,11 +271,11 @@ onMounted(load)
 </script>
 
 <style scoped>
-.code-bank-filters { display:flex; flex-wrap:wrap; align-items:center; gap:var(--kb-space-3); min-width:0; }
+.code-bank-filters { display:flex; flex-wrap:wrap; align-items:center; gap:var(--kf-space-3); min-width:0; }
 .code-bank-search { flex:1 1 16rem; max-width:22rem; min-width:0; }
 .code-bank-filter { flex:0 1 auto; width:fit-content; min-width:8rem; max-width:16rem; }
 @media(max-width:640px) {
   .code-bank-search { flex-basis:100%; max-width:none; }
-  .code-bank-filter { flex:1 1 calc(50% - var(--kb-space-3)); min-width:0; max-width:100%; }
+  .code-bank-filter { flex:1 1 calc(50% - var(--kf-space-3)); min-width:0; max-width:100%; }
 }
 </style>

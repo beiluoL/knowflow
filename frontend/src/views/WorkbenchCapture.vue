@@ -4,7 +4,7 @@
       <button
         type="button"
         data-test="capture-quick-toggle"
-        class="kb-btn capture-action-btn"
+        class="kf-btn capture-action-btn"
         :class="{ 'is-active': quickOpen }"
         :aria-expanded="quickOpen"
         aria-controls="capture-quick-panel"
@@ -14,7 +14,7 @@
         快速记录
         <span v-if="quickDirty && !quickOpen" class="capture-draft-dot" aria-label="有未保存的快速记录草稿"></span>
       </button>
-      <button type="button" data-test="capture-new" class="kb-btn kb-btn-primary capture-action-btn" @click="openCreate">
+      <button type="button" data-test="capture-new" class="kf-btn kf-btn-primary capture-action-btn" @click="openCreate">
         <Icon name="plus" :size="16" aria-hidden="true" /> 新建条目
       </button>
     </template>
@@ -43,22 +43,22 @@
           </div>
 
           <div class="capture-quick-primary">
-            <div class="kb-field">
+            <div class="kf-field">
               <input
                 v-model="quick.title"
                 data-test="capture-quick-title"
-                class="kb-input kb-form-control"
+                class="kf-input kf-form-control"
                 maxlength="200"
                 placeholder="标题（可选，默认取正文第一行）"
                 aria-label="快速记录标题"
               />
             </div>
-            <div class="kb-field">
+            <div class="kf-field">
               <textarea
                 ref="quickInput"
                 v-model="quick.content"
                 data-test="capture-quick-input"
-                class="kb-textarea capture-quick-textarea kb-form-control"
+                class="kf-textarea capture-quick-textarea kf-form-control"
                 rows="4"
                 placeholder="输入想法、问题、摘录或链接…"
                 aria-label="快速记录内容"
@@ -84,16 +84,16 @@
             </div>
             <div class="capture-quick-field">
               <span class="capture-label">标签</span>
-              <div class="kb-field">
-                <input v-model="quick.tags" class="kb-input kb-form-control" placeholder="逗号分隔，可选" aria-label="快速记录标签" />
+              <div class="kf-field">
+                <input v-model="quick.tags" class="kf-input kf-form-control" placeholder="逗号分隔，可选" aria-label="快速记录标签" />
               </div>
             </div>
             <div class="capture-quick-field">
               <span class="capture-label">来源链接</span>
-              <div class="kb-field">
+              <div class="kf-field">
                 <input
                   v-model="quick.sourceUrl"
-                  class="kb-input kb-form-control"
+                  class="kf-input kf-form-control"
                   inputmode="url"
                   placeholder="https://…（可选）"
                   aria-label="快速记录来源链接"
@@ -116,12 +116,12 @@
       </Transition>
 
       <div class="capture-toolbar">
-        <div class="kb-filter-group capture-status-tabs" role="group" aria-label="按整理状态筛选">
+        <div class="kf-filter-group capture-status-tabs" role="group" aria-label="按整理状态筛选">
           <button
             v-for="tab in statusTabs"
             :key="tab.value || 'ALL'"
             type="button"
-            class="kb-filter-btn"
+            class="kf-filter-btn"
             :class="{ active: activeStatus === tab.value }"
             :aria-pressed="activeStatus === tab.value"
             :data-test="`capture-status-${tab.value || 'ALL'}`"
@@ -133,12 +133,12 @@
 
         <div class="capture-toolbar-right">
           <span v-if="loading" class="capture-sync" role="status">同步中…</span>
-          <div class="kb-field capture-search">
+          <div class="kf-field capture-search">
             <Icon name="search" :size="16" class="capture-search-icon" aria-hidden="true" />
             <input
               v-model="keyword"
               data-test="capture-search"
-              class="kb-input capture-search-input kb-form-control"
+              class="kf-input capture-search-input kf-form-control"
               placeholder="搜索标题、内容或标签…"
               aria-label="搜索收集条目"
               @input="page = 1"
@@ -184,7 +184,7 @@
       </div>
 
       <div v-if="error" data-test="capture-error" role="alert" class="workbench-inline-error">
-        {{ error }}<button type="button" class="kb-btn" @click="load">重试</button>
+        {{ error }}<button type="button" class="kf-btn" @click="load">重试</button>
       </div>
 
       <div v-if="selectedIds.length" class="capture-batch" role="status">
@@ -206,19 +206,19 @@
       <div v-if="loading && !rawItems.length" class="workbench-empty" role="status">正在加载收集内容…</div>
       <div v-else-if="!rawItems.length" class="capture-empty">
         <span class="capture-empty-icon"><Icon name="inbox" :size="28" aria-hidden="true" /></span>
-        <h2 class="kb-text-card-title">{{ error ? '收集内容暂时无法读取' : activeCategory ? '这个分类还没有条目' : '收集箱还是空的' }}</h2>
+        <h2 class="kf-text-card-title">{{ error ? '收集内容暂时无法读取' : activeCategory ? '这个分类还没有条目' : '收集箱还是空的' }}</h2>
         <p>{{ error ? '请检查连接后重试，已有内容不会丢失。' : '先记录一个想法，之后再慢慢整理。' }}</p>
         <div v-if="!error" class="capture-empty-actions">
-          <button type="button" class="kb-btn" @click="toggleQuick"><Icon name="pencil" :size="15" aria-hidden="true" /> 快速记录</button>
-          <button type="button" class="kb-btn kb-btn-primary" @click="openCreate"><Icon name="plus" :size="15" aria-hidden="true" /> 新建条目</button>
+          <button type="button" class="kf-btn" @click="toggleQuick"><Icon name="pencil" :size="15" aria-hidden="true" /> 快速记录</button>
+          <button type="button" class="kf-btn kf-btn-primary" @click="openCreate"><Icon name="plus" :size="15" aria-hidden="true" /> 新建条目</button>
         </div>
       </div>
       <div v-else-if="!total" class="capture-empty">
         <span class="capture-empty-icon"><Icon name="filter" :size="28" aria-hidden="true" /></span>
-        <h2 class="kb-text-card-title">没有符合条件的条目</h2>
+        <h2 class="kf-text-card-title">没有符合条件的条目</h2>
         <p>可以换个关键词或状态，也可以清除筛选查看全部内容。</p>
         <div class="capture-empty-actions">
-          <button type="button" class="kb-btn" @click="clearFilters">清除筛选</button>
+          <button type="button" class="kf-btn" @click="clearFilters">清除筛选</button>
         </div>
       </div>
       <template v-else>
@@ -315,7 +315,7 @@
         <div class="capture-pagination">
           <label class="capture-page-size">
             每页
-            <select v-model.number="pageSize" class="kb-select kb-select-sm kb-form-control" aria-label="每页条数" @change="page = 1">
+            <select v-model.number="pageSize" class="kf-select kf-select-sm kf-form-control" aria-label="每页条数" @change="page = 1">
               <option v-for="size in PAGE_SIZES" :key="size" :value="size">{{ size }}</option>
             </select>
             条
@@ -339,13 +339,13 @@
       <form class="capture-form" data-test="capture-dialog" @submit.prevent="saveEntry">
         <div class="capture-form-field">
           <label class="capture-label" for="capture-entry-title">标题 <span class="capture-req">*</span></label>
-          <div class="kb-field" :class="{ 'kb-field--error': errors.title }">
+          <div class="kf-field" :class="{ 'kf-field--error': errors.title }">
             <input
               id="capture-entry-title"
               ref="titleInput"
               v-model="form.title"
               data-test="capture-title"
-              class="kb-input kb-form-control"
+              class="kf-input kf-form-control"
               maxlength="200"
               placeholder="请输入标题，例如：RAG 在企业知识库中的实践"
               :aria-invalid="errors.title ? true : undefined"
@@ -413,12 +413,12 @@
 
         <div v-if="form.mode !== 'FILE'" class="capture-form-field">
           <label class="capture-label" for="capture-entry-content">{{ form.mode === 'LINK' ? '补充说明' : '正文' }}</label>
-          <div class="kb-field">
+          <div class="kf-field">
             <textarea
               id="capture-entry-content"
               v-model="form.content"
               data-test="capture-content"
-              class="kb-textarea capture-content kb-form-control"
+              class="kf-textarea capture-content kf-form-control"
               rows="5"
               :placeholder="form.mode === 'LINK' ? '可选，记录链接里的关键内容或摘要…' : '输入或粘贴内容，支持长文、代码片段与中英文…'"
             ></textarea>
@@ -433,12 +433,12 @@
           <label class="capture-label" for="capture-entry-url">
             来源链接 <span v-if="form.mode === 'LINK'" class="capture-req">*</span>
           </label>
-          <div class="kb-field" :class="{ 'kb-field--error': errors.sourceUrl }">
+          <div class="kf-field" :class="{ 'kf-field--error': errors.sourceUrl }">
             <input
               id="capture-entry-url"
               v-model="form.sourceUrl"
               data-test="capture-source-url"
-              class="kb-input kb-form-control"
+              class="kf-input kf-form-control"
               inputmode="url"
               placeholder="https://…"
               :aria-invalid="errors.sourceUrl ? true : undefined"
@@ -470,12 +470,12 @@
 
         <div class="capture-form-field">
           <label class="capture-label" for="capture-entry-tags">标签</label>
-          <div class="kb-field capture-tags-field">
+          <div class="kf-field capture-tags-field">
             <Icon name="hash" :size="15" class="capture-tags-icon" aria-hidden="true" />
             <input
               id="capture-entry-tags"
               v-model="tagInput"
-              class="kb-input kb-form-control"
+              class="kf-input kf-form-control"
               placeholder="输入标签后按 Enter 或逗号"
               @keydown="onTagKey"
               @blur="addTag"
@@ -1328,27 +1328,27 @@ onBeforeUnmount(() => {
 <style scoped>
 /* ============================ 页面头部操作 ============================ */
 .capture-action-btn {
-  gap: var(--kb-space-2);
-  padding-inline: var(--kb-space-4);
+  gap: var(--kf-space-2);
+  padding-inline: var(--kf-space-4);
 }
 .capture-action-btn.is-active {
-  background: var(--kb-primary-soft);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .capture-draft-dot {
-  width: var(--kb-space-2);
-  height: var(--kb-space-2);
+  width: var(--kf-space-2);
+  height: var(--kf-space-2);
   border-radius: 999px;
-  background: var(--kb-highlight);
-  box-shadow: 0 0 0 2px var(--kb-highlight-soft);
+  background: var(--kf-highlight);
+  box-shadow: 0 0 0 2px var(--kf-highlight-soft);
 }
 
 /* ============================ 页面容器 ============================ */
 .capture-page {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
   min-width: 0;
 }
 
@@ -1356,71 +1356,71 @@ onBeforeUnmount(() => {
 .capture-quick {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-4);
-  padding: var(--kb-space-5);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
+  gap: var(--kf-space-4);
+  padding: var(--kf-space-5);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
   box-shadow: var(--shadow-card);
 }
 .capture-quick-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
 }
 .capture-quick-heading {
   display: flex;
   align-items: flex-start;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   min-width: 0;
 }
 .capture-quick-heading strong {
   display: block;
-  font-size: var(--kb-fs-body-lg);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-lg);
+  color: var(--kf-foreground);
 }
 .capture-quick-heading p {
-  margin: var(--kb-space-1) 0 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  margin: var(--kf-space-1) 0 0;
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .capture-quick-icon {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: var(--kb-btn-height-lg);
-  height: var(--kb-btn-height-lg);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-primary-soft);
-  color: var(--kb-primary);
+  width: var(--kf-btn-height-lg);
+  height: var(--kf-btn-height-lg);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-primary-soft);
+  color: var(--kf-primary);
 }
 .capture-quick-collapse {
   flex-shrink: 0;
-  height: var(--kb-btn-height-sm);
-  font-size: var(--kb-fs-caption);
+  height: var(--kf-btn-height-sm);
+  font-size: var(--kf-fs-caption);
 }
 .capture-quick-primary {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
 }
 .capture-quick-textarea {
-  line-height: var(--kb-lh-body-md);
+  line-height: var(--kf-lh-body-md);
 }
 .capture-quick-meta {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
 }
 .capture-quick-field {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-1);
+  gap: var(--kf-space-1);
   min-width: 0;
 }
 .capture-quick-field .capture-label {
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
 }
 .capture-quick-error {
   margin: 0;
@@ -1428,20 +1428,20 @@ onBeforeUnmount(() => {
 .capture-quick-foot {
   display: flex;
   justify-content: flex-end;
-  gap: var(--kb-space-2);
-  border-top: 1px solid var(--kb-border);
-  padding-top: var(--kb-space-3);
+  gap: var(--kf-space-2);
+  border-top: 1px solid var(--kf-border);
+  padding-top: var(--kf-space-3);
 }
 
 /* 展开 / 收起动效 */
 .capture-reveal-enter-active,
 .capture-reveal-leave-active {
-  transition: opacity var(--kb-control-motion) ease, transform var(--kb-control-motion) ease;
+  transition: opacity var(--kf-control-motion) ease, transform var(--kf-control-motion) ease;
 }
 .capture-reveal-enter-from,
 .capture-reveal-leave-to {
   opacity: 0;
-  transform: translateY(calc(-1 * var(--kb-space-2)));
+  transform: translateY(calc(-1 * var(--kf-space-2)));
 }
 
 /* ============================ 工具栏 ============================ */
@@ -1449,78 +1449,78 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   flex-wrap: wrap;
 }
 .capture-toolbar-right {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   flex-wrap: nowrap;
   min-width: 0;
 }
 .capture-sync {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .capture-search {
   position: relative;
-  width: min(100%, calc(var(--kb-space-8) * 7));
-  min-width: calc(var(--kb-space-8) * 4);
+  width: min(100%, calc(var(--kf-space-8) * 7));
+  min-width: calc(var(--kf-space-8) * 4);
   display: flex;
   align-items: center;
 }
 .capture-search-icon {
   position: absolute;
-  left: var(--kb-space-3);
+  left: var(--kf-space-3);
   top: 50%;
   transform: translateY(-50%);
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   pointer-events: none;
 }
 .capture-search .capture-search-input {
-  padding-inline-start: calc(var(--kb-space-8) - var(--kb-space-1));
+  padding-inline-start: calc(var(--kf-space-8) - var(--kf-space-1));
 }
 .capture-filter {
-  width: calc(var(--kb-space-8) * 4);
-  min-width: calc(var(--kb-space-8) * 3);
+  width: calc(var(--kf-space-8) * 4);
+  min-width: calc(var(--kf-space-8) * 3);
 }
 .capture-filter-sort {
-  width: calc(var(--kb-space-8) * 3.4);
+  width: calc(var(--kf-space-8) * 3.4);
 }
 .capture-view {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-space-1);
-  padding: var(--kb-space-1);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
+  gap: var(--kf-space-1);
+  padding: var(--kf-space-1);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
 }
 .capture-view-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--kb-btn-height-sm);
-  height: var(--kb-btn-height-sm);
+  width: var(--kf-btn-height-sm);
+  height: var(--kf-btn-height-sm);
   border: 0;
-  border-radius: var(--kb-radius-xs);
+  border-radius: var(--kf-radius-xs);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: background var(--kb-control-motion) ease, color var(--kb-control-motion) ease;
+  transition: background var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
 }
 .capture-view-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 .capture-view-btn.active {
-  background: var(--kb-primary-soft);
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft);
+  color: var(--kf-primary);
 }
-.capture-toolbar :deep(.kb-select-trigger) {
-  height: var(--kb-btn-height-md);
-  font-size: var(--kb-fs-body-sm);
+.capture-toolbar :deep(.kf-select-trigger) {
+  height: var(--kf-btn-height-md);
+  font-size: var(--kf-fs-body-sm);
 }
 
 /* ============================ 批量操作 ============================ */
@@ -1528,33 +1528,33 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   flex-wrap: wrap;
-  padding: var(--kb-space-3) var(--kb-space-4);
-  border: 1px solid var(--kb-primary);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-primary-soft);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-sm);
+  padding: var(--kf-space-3) var(--kf-space-4);
+  border: 1px solid var(--kf-primary);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-primary-soft);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-sm);
 }
 .capture-batch-actions {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   flex-wrap: wrap;
 }
 .capture-batch .capture-ghost-btn {
-  height: var(--kb-btn-height-sm);
-  padding-inline: var(--kb-space-3);
-  font-size: var(--kb-fs-caption);
-  background: var(--kb-card);
+  height: var(--kf-btn-height-sm);
+  padding-inline: var(--kf-space-3);
+  font-size: var(--kf-fs-caption);
+  background: var(--kf-card);
 }
 .capture-danger-btn {
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 .capture-danger-btn:hover:not(:disabled) {
-  border-color: var(--kb-destructive);
-  background: color-mix(in srgb, var(--kb-destructive) 8%, var(--kb-card));
+  border-color: var(--kf-destructive);
+  background: color-mix(in srgb, var(--kf-destructive) 8%, var(--kf-card));
 }
 
 /* ============================ 通用按钮 ============================ */
@@ -1563,31 +1563,31 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--kb-space-2);
-  height: var(--kb-btn-height-md);
-  padding-inline: var(--kb-space-4);
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-body-md);
+  gap: var(--kf-space-2);
+  height: var(--kf-btn-height-md);
+  padding-inline: var(--kf-space-4);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
-  line-height: var(--kb-lh-body-md);
+  line-height: var(--kf-lh-body-md);
   cursor: pointer;
-  transition: background var(--kb-control-motion) ease, border-color var(--kb-control-motion) ease, opacity var(--kb-control-motion) ease;
+  transition: background var(--kf-control-motion) ease, border-color var(--kf-control-motion) ease, opacity var(--kf-control-motion) ease;
 }
 .capture-primary-btn {
-  border: 1px solid var(--kb-primary);
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  border: 1px solid var(--kf-primary);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 .capture-primary-btn:hover:not(:disabled) {
-  background: var(--kb-primary-hover);
+  background: var(--kf-primary-hover);
 }
 .capture-ghost-btn {
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
 }
 .capture-ghost-btn:hover:not(:disabled) {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .capture-primary-btn:disabled,
 .capture-ghost-btn:disabled {
@@ -1608,44 +1608,44 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--kb-space-2);
-  padding: var(--kb-space-8);
+  gap: var(--kf-space-2);
+  padding: var(--kf-space-8);
   text-align: center;
-  color: var(--kb-muted-foreground);
-  background: var(--kb-card);
-  border: 1px dashed var(--kb-border);
-  border-radius: var(--kb-radius-lg);
+  color: var(--kf-muted-foreground);
+  background: var(--kf-card);
+  border: 1px dashed var(--kf-border);
+  border-radius: var(--kf-radius-lg);
 }
 .capture-empty h2 {
   margin: 0;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .capture-empty p {
   margin: 0;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
 }
 .capture-empty-icon {
   display: grid;
   place-items: center;
-  width: calc(var(--kb-space-8) * 1.6);
-  height: calc(var(--kb-space-8) * 1.6);
+  width: calc(var(--kf-space-8) * 1.6);
+  height: calc(var(--kf-space-8) * 1.6);
   border-radius: 999px;
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 .capture-empty-actions {
   display: flex;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   flex-wrap: wrap;
   justify-content: center;
-  margin-top: var(--kb-space-2);
+  margin-top: var(--kf-space-2);
 }
 
 /* ============================ 列表 ============================ */
 .capture-list {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
   box-shadow: var(--shadow-card);
   overflow: hidden;
 }
@@ -1654,43 +1654,43 @@ onBeforeUnmount(() => {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) minmax(0, 9rem) minmax(0, 7rem) minmax(0, 8.5rem) auto;
   align-items: center;
-  gap: var(--kb-space-3);
-  padding: var(--kb-space-3) var(--kb-space-4);
+  gap: var(--kf-space-3);
+  padding: var(--kf-space-3) var(--kf-space-4);
 }
 .capture-list-head {
-  border-bottom: 1px solid var(--kb-border);
-  background: color-mix(in srgb, var(--kb-muted) 40%, var(--kb-card));
-  font-size: var(--kb-fs-caption);
+  border-bottom: 1px solid var(--kf-border);
+  background: color-mix(in srgb, var(--kf-muted) 40%, var(--kf-card));
+  font-size: var(--kf-fs-caption);
   font-weight: 600;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .capture-head-actions {
   text-align: right;
-  padding-inline-end: var(--kb-space-1);
+  padding-inline-end: var(--kf-space-1);
 }
 .capture-row {
-  border-bottom: 1px solid var(--kb-border);
-  transition: background var(--kb-control-motion) ease;
+  border-bottom: 1px solid var(--kf-border);
+  transition: background var(--kf-control-motion) ease;
 }
 .capture-row:last-child {
   border-bottom: 0;
 }
 .capture-row:hover {
-  background: color-mix(in srgb, var(--kb-muted) 45%, var(--kb-card));
+  background: color-mix(in srgb, var(--kf-muted) 45%, var(--kf-card));
 }
 .capture-row.is-selected {
-  background: var(--kb-primary-soft);
+  background: var(--kf-primary-soft);
 }
 .capture-main {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-1);
+  gap: var(--kf-space-1);
 }
 .capture-title-line {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   min-width: 0;
   flex-wrap: wrap;
 }
@@ -1698,26 +1698,26 @@ onBeforeUnmount(() => {
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-md);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
   text-align: left;
   cursor: pointer;
   overflow-wrap: anywhere;
 }
 .capture-title:hover {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
-.capture-title:focus-visible:not(.kb-form-control) {
-  outline: var(--kb-field-focus-width) solid var(--kb-ring);
-  outline-offset: var(--kb-space-1);
-  border-radius: var(--kb-radius-xs);
+.capture-title:focus-visible:not(.kf-form-control) {
+  outline: var(--kf-field-focus-width) solid var(--kf-ring);
+  outline-offset: var(--kf-space-1);
+  border-radius: var(--kf-radius-xs);
 }
 .capture-excerpt {
   margin: 0;
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-muted-foreground);
-  line-height: var(--kb-lh-body-sm);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-muted-foreground);
+  line-height: var(--kf-lh-body-sm);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -1727,47 +1727,47 @@ onBeforeUnmount(() => {
 .capture-mobile-meta {
   display: none;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   flex-wrap: wrap;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .capture-mobile-source {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-space-1);
+  gap: var(--kf-space-1);
 }
 .capture-tags {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-1);
+  gap: var(--kf-space-1);
   flex-wrap: wrap;
   min-width: 0;
 }
 .capture-tag {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-space-1);
-  padding: 0 var(--kb-space-2);
-  min-height: var(--kb-btn-height-sm);
+  gap: var(--kf-space-1);
+  padding: 0 var(--kf-space-2);
+  min-height: var(--kf-btn-height-sm);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--kb-primary) 8%, var(--kb-card));
-  color: var(--kb-state-info);
-  font-size: var(--kb-fs-caption);
+  background: color-mix(in srgb, var(--kf-primary) 8%, var(--kf-card));
+  color: var(--kf-state-info);
+  font-size: var(--kf-fs-caption);
   font-weight: 500;
   max-width: 100%;
   overflow-wrap: anywhere;
 }
 .capture-muted {
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-caption);
 }
 .capture-source {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-space-1);
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  gap: var(--kf-space-1);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
   min-width: 0;
 }
 .capture-source span {
@@ -1776,8 +1776,8 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 .capture-time {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -1785,85 +1785,85 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--kb-space-1);
+  gap: var(--kf-space-1);
 }
 .capture-icon-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--kb-btn-height-sm);
-  height: var(--kb-btn-height-sm);
+  width: var(--kf-btn-height-sm);
+  height: var(--kf-btn-height-sm);
   border: 0;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: background var(--kb-control-motion) ease, color var(--kb-control-motion) ease;
+  transition: background var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
 }
 .capture-icon-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
-.capture-icon-btn:focus-visible:not(.kb-form-control) {
-  outline: var(--kb-field-focus-width) solid var(--kb-ring);
+.capture-icon-btn:focus-visible:not(.kf-form-control) {
+  outline: var(--kf-field-focus-width) solid var(--kf-ring);
   outline-offset: 1px;
 }
 .capture-status {
   display: inline-flex;
   align-items: center;
-  padding: 0 var(--kb-space-2);
-  min-height: calc(var(--kb-space-5) - var(--kb-space-1));
+  padding: 0 var(--kf-space-2);
+  min-height: calc(var(--kf-space-5) - var(--kf-space-1));
   border-radius: 999px;
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   font-weight: 500;
   white-space: nowrap;
 }
 .capture-status.is-inbox {
-  background: color-mix(in srgb, var(--kb-warning) 14%, var(--kb-card));
-  color: var(--kb-state-warning);
+  background: color-mix(in srgb, var(--kf-warning) 14%, var(--kf-card));
+  color: var(--kf-state-warning);
 }
 .capture-status.is-processed {
-  background: color-mix(in srgb, var(--kb-accent) 14%, var(--kb-card));
-  color: var(--kb-state-success);
+  background: color-mix(in srgb, var(--kf-accent) 14%, var(--kf-card));
+  color: var(--kf-state-success);
 }
 .capture-status.is-archived {
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 .capture-star {
   display: inline-flex;
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 
 /* ============================ 卡片 ============================ */
 .capture-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(calc(var(--kb-space-8) * 7), 1fr));
-  gap: var(--kb-space-3);
+  grid-template-columns: repeat(auto-fill, minmax(calc(var(--kf-space-8) * 7), 1fr));
+  gap: var(--kf-space-3);
 }
 .capture-card {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   min-width: 0;
-  padding: var(--kb-space-4);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
+  padding: var(--kf-space-4);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
   box-shadow: var(--shadow-card);
-  transition: border-color var(--kb-control-motion) ease, box-shadow var(--kb-control-motion) ease;
+  transition: border-color var(--kf-control-motion) ease, box-shadow var(--kf-control-motion) ease;
 }
 .capture-card:hover {
-  border-color: color-mix(in srgb, var(--kb-primary) 35%, var(--kb-border));
+  border-color: color-mix(in srgb, var(--kf-primary) 35%, var(--kf-border));
 }
 .capture-card.is-selected {
-  border-color: var(--kb-primary);
-  box-shadow: 0 0 0 1px var(--kb-primary);
+  border-color: var(--kf-primary);
+  box-shadow: 0 0 0 1px var(--kf-primary);
 }
 .capture-card-top {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
 }
 .capture-card-top .capture-icon-btn {
   margin-left: auto;
@@ -1872,26 +1872,26 @@ onBeforeUnmount(() => {
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-md);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-md);
   font-weight: 650;
   text-align: left;
   cursor: pointer;
   overflow-wrap: anywhere;
 }
 .capture-card-title:hover {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
-.capture-card-title:focus-visible:not(.kb-form-control) {
-  outline: var(--kb-field-focus-width) solid var(--kb-ring);
-  outline-offset: var(--kb-space-1);
-  border-radius: var(--kb-radius-xs);
+.capture-card-title:focus-visible:not(.kf-form-control) {
+  outline: var(--kf-field-focus-width) solid var(--kf-ring);
+  outline-offset: var(--kf-space-1);
+  border-radius: var(--kf-radius-xs);
 }
 .capture-card-excerpt {
   margin: 0;
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-muted-foreground);
-  line-height: var(--kb-lh-body-sm);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-muted-foreground);
+  line-height: var(--kf-lh-body-sm);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -1902,15 +1902,15 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   margin-top: auto;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .capture-card-source {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-space-1);
+  gap: var(--kf-space-1);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1919,19 +1919,19 @@ onBeforeUnmount(() => {
 .capture-card-note {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-space-1);
+  gap: var(--kf-space-1);
   align-self: flex-start;
-  padding: var(--kb-space-1) var(--kb-space-2);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-caption);
+  padding: var(--kf-space-1) var(--kf-space-2);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-caption);
   cursor: pointer;
 }
 .capture-card-note:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 
 /* ============================ 分页 ============================ */
@@ -1939,15 +1939,15 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   flex-wrap: wrap;
 }
 .capture-page-size {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-space-2);
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  gap: var(--kf-space-2);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .capture-page-size select {
   width: auto;
@@ -1957,97 +1957,97 @@ onBeforeUnmount(() => {
 .capture-form {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
   min-width: 0;
 }
 .capture-form-field {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   min-width: 0;
 }
 .capture-label {
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .capture-req {
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 .capture-field-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-2);
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  gap: var(--kf-space-2);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .capture-field-hint {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .capture-field-error {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-state-error);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-state-error);
 }
 .capture-counter {
   font-family: var(--font-mono);
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   white-space: nowrap;
 }
 .capture-content {
-  line-height: var(--kb-lh-body-md);
+  line-height: var(--kf-lh-body-md);
 }
 .capture-modes {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
 }
 .capture-mode {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-space-2);
-  min-height: var(--kb-btn-height-md);
-  padding-inline: var(--kb-space-3);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  gap: var(--kf-space-2);
+  min-height: var(--kf-btn-height-md);
+  padding-inline: var(--kf-space-3);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
   cursor: pointer;
-  transition: background var(--kb-control-motion) ease, border-color var(--kb-control-motion) ease, color var(--kb-control-motion) ease;
+  transition: background var(--kf-control-motion) ease, border-color var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
 }
 .capture-mode:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .capture-mode.active {
-  background: var(--kb-primary-soft);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .capture-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
 }
 .capture-tags-field {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
-  padding-inline: var(--kb-field-padding);
+  gap: var(--kf-space-2);
+  padding-inline: var(--kf-field-padding);
 }
-.capture-tags-field .kb-input {
+.capture-tags-field .kf-input {
   padding-inline: 0;
 }
 .capture-tags-icon {
   flex-shrink: 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .capture-tag-list {
-  margin-top: var(--kb-space-1);
+  margin-top: var(--kf-space-1);
 }
 .capture-tag-remove {
   display: inline-flex;
@@ -2069,50 +2069,50 @@ onBeforeUnmount(() => {
 .capture-file {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-3);
-  padding: var(--kb-space-3);
-  border: 1px dashed var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-field-surface);
-  color: var(--kb-muted-foreground);
+  gap: var(--kf-space-3);
+  padding: var(--kf-space-3);
+  border: 1px dashed var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-field-surface);
+  color: var(--kf-muted-foreground);
 }
 .capture-file.is-error {
-  border-color: var(--kb-destructive);
-  background: var(--kb-field-error-bg);
+  border-color: var(--kf-destructive);
+  background: var(--kf-field-error-bg);
 }
 .capture-file-info {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-1);
+  gap: var(--kf-space-1);
   min-width: 0;
   flex: 1;
 }
 .capture-file-info strong {
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-sm);
   overflow-wrap: anywhere;
 }
 .capture-file-info small {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .capture-dialog-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   width: 100%;
   flex-wrap: wrap;
 }
 .capture-continue {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
 }
 .capture-dialog-actions {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   margin-left: auto;
 }
 
@@ -2156,9 +2156,9 @@ onBeforeUnmount(() => {
   }
   .capture-filter,
   .capture-filter-sort {
-    flex: 1 1 calc(50% - var(--kb-space-2));
+    flex: 1 1 calc(50% - var(--kf-space-2));
     width: auto;
-    min-width: calc(var(--kb-space-8) * 3);
+    min-width: calc(var(--kf-space-8) * 3);
   }
   .capture-view {
     margin-left: auto;
@@ -2204,7 +2204,7 @@ onBeforeUnmount(() => {
     margin-left: 0;
   }
   .capture-row {
-    padding-inline: var(--kb-space-3);
+    padding-inline: var(--kf-space-3);
   }
   .capture-row-note-btn {
     display: none;

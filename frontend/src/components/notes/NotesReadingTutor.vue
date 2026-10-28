@@ -25,6 +25,6 @@ onBeforeUnmount(()=>{if(open.value)emit('openChange',false)})
 function ask(seed:string){if(!anchor.value)return;question.value=seed;questionNonce.value++;open.value=true;emit('openChange',true)}
 </script>
 <style scoped>
-.kf-reading{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--kb-space-3);min-width:0}.kf-reading__content{min-width:0}.kf-reading__actions{display:flex;gap:var(--kb-space-2);flex-wrap:wrap;grid-column:1/-1}.kf-reading__tutor{padding:var(--kb-space-3);background:var(--kb-surface-2);border-radius:var(--kb-radius-md);min-width:0;max-height:80vh;overflow:auto}.kf-reading blockquote{overflow-wrap:anywhere;padding:var(--kb-space-3);background:var(--kb-card)}.kf-reading [role=alert]{color:var(--kb-danger-text)}
+.kf-reading{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--kf-space-3);min-width:0}.kf-reading__content{min-width:0}.kf-reading__actions{display:flex;gap:var(--kf-space-2);flex-wrap:wrap;grid-column:1/-1}.kf-reading__tutor{padding:var(--kf-space-3);background:var(--kf-surface-2);border-radius:var(--kf-radius-md);min-width:0;max-height:80vh;overflow:auto}.kf-reading blockquote{overflow-wrap:anywhere;padding:var(--kf-space-3);background:var(--kf-card)}.kf-reading [role=alert]{color:var(--kf-danger-text)}
 @media(min-width:80rem){.kf-reading--open{grid-template-columns:minmax(0,1fr) minmax(18rem,0.8fr);align-items:start}.kf-reading__tutor{grid-column:2;grid-row:1}}
 </style>

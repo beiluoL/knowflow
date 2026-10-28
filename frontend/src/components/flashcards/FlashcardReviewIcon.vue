@@ -19,7 +19,7 @@
     <template v-else-if="name === 'book'">
       <path d="M2 4c3.8-1.5 6.8-1 10 1.5V21c-3.2-2.4-6.2-2.8-10-1.3Z" fill="currentColor" opacity=".62" stroke="none" />
       <path d="M12 5.5C15.2 3 18.2 2.5 22 4v15.7c-3.8-1.5-6.8-1.1-10 1.3Z" fill="currentColor" stroke="none" />
-      <path d="M12 6v15" stroke="var(--kb-card)" stroke-width="1" />
+      <path d="M12 6v15" stroke="var(--kf-card)" stroke-width="1" />
     </template>
   </svg>
 </template>

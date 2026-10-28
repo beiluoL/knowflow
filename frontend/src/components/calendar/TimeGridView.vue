@@ -99,7 +99,7 @@ function layoutTimed(day: Date): Placed[] {
 }
 
 function chipColor(ev: CalendarEvent): string {
-  return ev.listColor || (ev.important ? 'var(--kb-warning)' : 'var(--kb-primary)')
+  return ev.listColor || (ev.important ? 'var(--kf-warning)' : 'var(--kf-primary)')
 }
 
 // ===== 日期标记（节假日 / 节日 / 纪念日） =====
@@ -306,7 +306,7 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
 }
 .tg-dh-w {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .tg-dh-date-row {
   display: flex;
@@ -325,7 +325,7 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
   border-radius: 50%;
 }
 .tg-dh-d.today-num {
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
 }
 /* 「休/班」角标 */
@@ -342,7 +342,7 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
   background: #e5484d;
 }
 .c-badge.is-work {
-  background: var(--kb-warning);
+  background: var(--kf-warning);
 }
 /* 节日标签行 */
 .tg-dh-marks {
@@ -370,7 +370,7 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
 }
 .c-mark-name {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -445,7 +445,7 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--kb-danger);
+  background: var(--kf-danger);
   z-index: 5;
   pointer-events: none;
 }
@@ -456,7 +456,7 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--kb-danger);
+  background: var(--kf-danger);
 }
 
 .c-event {
@@ -465,7 +465,7 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
   padding: 3px 6px;
   font-size: 12px;
   color: #fff;
-  background: var(--c, var(--kb-primary));
+  background: var(--c, var(--kf-primary));
   overflow: hidden;
   cursor: pointer;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
@@ -497,7 +497,7 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
   border-radius: 6px;
   font-size: 12px;
   color: #fff;
-  background: var(--c, var(--kb-primary));
+  background: var(--c, var(--kf-primary));
   cursor: pointer;
   overflow: hidden;
 }

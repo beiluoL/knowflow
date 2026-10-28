@@ -99,10 +99,10 @@ const validIcons = [
 
 const iconColorMap: Record<string, string> = {
   '人工智能': '#8B5CF6',
-  '前端开发': 'var(--kb-primary)',
-  '后端技术': 'var(--kb-success)',
-  '数据科学': 'var(--kb-warning)',
-  '移动开发': 'var(--kb-danger)',
+  '前端开发': 'var(--kf-primary)',
+  '后端技术': 'var(--kf-success)',
+  '数据科学': 'var(--kf-warning)',
+  '移动开发': 'var(--kf-danger)',
   '数据库': '#06B6D4',
   'DevOps': '#F97316',
   '网络安全': '#6366F1',
@@ -133,11 +133,11 @@ function getIconName(icon?: string): string {
 }
 
 function getIconColor(icon?: string): string {
-  if (!icon) return 'var(--kb-muted-foreground)'
+  if (!icon) return 'var(--kf-muted-foreground)'
   for (const [name, color] of Object.entries(iconColorMap)) {
     if (icon.includes(name) || nameIconMap[name] === icon) return color
   }
-  return 'var(--kb-primary)'
+  return 'var(--kf-primary)'
 }
 </script>
 
@@ -153,7 +153,7 @@ function getIconColor(icon?: string): string {
   padding: 8px 10px;
   border-radius: 8px;
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   cursor: pointer;
   transition: background-color 0.15s, color 0.15s;
   user-select: none;
@@ -162,12 +162,12 @@ function getIconColor(icon?: string): string {
 
 .sidebar-item:hover {
   background: rgba(59, 111, 224, 0.06);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 .sidebar-item.active {
   background: rgba(59, 111, 224, 0.1);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-weight: 500;
 }
 
@@ -183,7 +183,7 @@ function getIconColor(icon?: string): string {
 
 .expand-icon {
   flex-shrink: 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   width: 12px;
 }
@@ -206,8 +206,8 @@ function getIconColor(icon?: string): string {
 .category-count {
   flex-shrink: 0;
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-left: auto;
 }
-.sidebar-item:focus-visible { outline:var(--kb-studio-focus) solid var(--kb-ring);outline-offset:calc(-1 * var(--kb-studio-focus)); }
+.sidebar-item:focus-visible { outline:var(--kf-studio-focus) solid var(--kf-ring);outline-offset:calc(-1 * var(--kf-studio-focus)); }
 </style>

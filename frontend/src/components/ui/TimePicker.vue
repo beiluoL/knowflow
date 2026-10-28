@@ -409,44 +409,44 @@ watch(
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   width: 100%;
-  height: var(--kb-input-height);
-  padding: 0 var(--kb-field-padding);
+  height: var(--kf-input-height);
+  padding: 0 var(--kf-field-padding);
   border: 0;
-  border-radius: var(--kb-field-radius);
-  background: var(--kb-field-surface);
-  color: var(--kb-foreground);
+  border-radius: var(--kf-field-radius);
+  background: var(--kf-field-surface);
+  color: var(--kf-foreground);
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease;
 }
 
 .tp-trigger:hover {
-  background: var(--kb-field-hover);
+  background: var(--kf-field-hover);
 }
 
 .tp-trigger--focus,
 .tp-trigger--open {
-  background: var(--kb-field-active);
+  background: var(--kf-field-active);
 }
 
 .tp-control--error .tp-trigger {
-  background: var(--kb-field-error-bg);
+  background: var(--kf-field-error-bg);
 }
 
 .tp-control--disabled .tp-trigger {
-  background: var(--kb-field-disabled);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-field-disabled);
+  color: var(--kf-muted-foreground);
   cursor: not-allowed;
 }
 
 .tp-control--readonly .tp-trigger {
-  background: var(--kb-field-readonly);
+  background: var(--kf-field-readonly);
 }
 
 .tp-icon {
   flex-shrink: 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .tp-text {
@@ -460,15 +460,15 @@ watch(
   box-shadow: none;
   outline: 0;
   font: inherit;
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   color: inherit;
   cursor: inherit;
   font-variant-numeric: tabular-nums;
 }
 
 .tp-text::placeholder {
-  color: var(--kb-field-placeholder);
+  color: var(--kf-field-placeholder);
   opacity: 1;
 }
 
@@ -486,20 +486,20 @@ watch(
 
 .tp-hint {
   flex-shrink: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 
 .tp-panel {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-3);
-  padding: var(--kb-space-4);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
-  background: var(--kb-popover);
-  color: var(--kb-popover-foreground);
+  gap: var(--kf-space-3);
+  padding: var(--kf-space-4);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
+  background: var(--kf-popover);
+  color: var(--kf-popover-foreground);
   box-shadow: var(--shadow-dropdown-3);
   overflow: auto;
   font-family: var(--font-sans);
@@ -509,43 +509,43 @@ watch(
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
 }
 
 .tp-title {
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .tp-preview {
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   font-variant-numeric: tabular-nums;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-weight: 600;
 }
 
 .tp-range {
   margin: 0;
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
-  color: var(--kb-state-error);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
+  color: var(--kf-state-error);
 }
 
 .tp-foot {
   position: sticky;
-  bottom: calc(-1 * var(--kb-space-4));
+  bottom: calc(-1 * var(--kf-space-4));
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-2);
-  margin: 0 calc(-1 * var(--kb-space-4)) calc(-1 * var(--kb-space-4));
-  padding: var(--kb-space-3) var(--kb-space-4);
-  border-top: 1px solid var(--kb-border);
-  background: var(--kb-popover);
+  gap: var(--kf-space-2);
+  margin: 0 calc(-1 * var(--kf-space-4)) calc(-1 * var(--kf-space-4));
+  padding: var(--kf-space-3) var(--kf-space-4);
+  border-top: 1px solid var(--kf-border);
+  background: var(--kf-popover);
 }
 
 .tp-foot-spacer {
@@ -555,7 +555,7 @@ watch(
 .tp-actions {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   margin-left: auto;
 }
 
@@ -564,58 +564,58 @@ watch(
   align-items: center;
   justify-content: center;
   height: 32px;
-  padding: 0 var(--kb-space-3);
+  padding: 0 var(--kf-space-3);
   border: 0;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font: inherit;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1;
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease, color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
 }
 
 .tp-btn:hover {
-  background: var(--kb-menu-hover);
+  background: var(--kf-menu-hover);
 }
 
 .tp-btn--link {
   height: auto;
-  padding: var(--kb-space-1) var(--kb-space-2);
-  color: var(--kb-muted-foreground);
+  padding: var(--kf-space-1) var(--kf-space-2);
+  color: var(--kf-muted-foreground);
 }
 
 .tp-btn--ghost {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .tp-btn--primary {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   font-weight: 600;
 }
 
 .tp-btn--primary:hover {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   opacity: 0.92;
 }
 
 .tp-btn:disabled {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   opacity: 0.45;
   cursor: not-allowed;
 }
 
 .tp-btn--link:disabled {
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .tp-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 1px;
 }
 

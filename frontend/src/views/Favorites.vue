@@ -4,10 +4,10 @@
     <!-- ===== 页头：标题 + 收藏数 ===== -->
     <div class="page-header">
       <div class="title-group">
-        <h1 class="kb-h1">收藏夹</h1>
+        <h1 class="kf-h1">收藏夹</h1>
         <span class="count-pill">{{ total }} 个收藏</span>
       </div>
-      <button type="button" class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="toggleBatchMode">
+      <button type="button" class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="toggleBatchMode">
         <Icon name="check-square" :size="14" aria-hidden="true" />
         <span>{{ batchMode ? '取消' : '批量管理' }}</span>
       </button>
@@ -19,7 +19,7 @@
         <button
           v-for="tab in typeTabs"
           :key="tab.value"
-          class="filter-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="filter-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: selectedType === tab.value }"
           @click="handleTypeChange(tab.value)"
         >
@@ -28,7 +28,7 @@
         </button>
         <div class="tab-divider"></div>
         <button
-          class="filter-tab sort-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="filter-tab sort-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: showSortMenu }"
           @click="toggleSortMenu"
         >
@@ -40,7 +40,7 @@
           <button
             v-for="opt in sortOptions"
             :key="opt.value"
-            class="sort-menu-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="sort-menu-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             :class="{ active: selectedSort === opt.value }"
             @click="selectSort(opt.value)"
           >
@@ -71,7 +71,7 @@
       <div
         v-for="item in pagedItems"
         :key="item.id"
-        class="fav-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="fav-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ selected: batchMode && selectedIds.has(item.id) }"
         role="button"
         tabindex="0"
@@ -84,7 +84,7 @@
             <Icon :name="getItemIcon(item)" :size="20" aria-hidden="true" />
           </div>
           <button
-            class="fav-unstar-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="fav-unstar-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             type="button"
             aria-label="取消收藏"
             title="已收藏，点击取消收藏"
@@ -122,7 +122,7 @@
     <!-- ===== 分页器 ===== -->
     <div v-if="!loading && filteredItems.length > 0" class="pagination-wrap">
       <button
-        class="pagination-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="pagination-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         :disabled="pageNum <= 1"
         @click="goToPage(pageNum - 1)"
         aria-label="上一页"
@@ -132,7 +132,7 @@
       <button
         v-for="page in visiblePages"
         :key="page"
-        class="pagination-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="pagination-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: page === pageNum, ellipsis: page === -1 }"
         :disabled="page === -1"
         @click="goToPage(page)"
@@ -140,7 +140,7 @@
         {{ page === -1 ? '...' : page }}
       </button>
       <button
-        class="pagination-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="pagination-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         :disabled="pageNum >= totalPages"
         @click="goToPage(pageNum + 1)"
         aria-label="下一页"
@@ -410,8 +410,8 @@ onUnmounted(() => {
   font-size: 13px;
   padding: 4px 12px;
   border-radius: 999px;
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 
 /* 通用按钮 */
@@ -421,16 +421,16 @@ onUnmounted(() => {
   gap: 6px;
   height: 34px;
   padding: 0 14px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   font-size: 13px;
   font-weight: 500;
-  background: var(--kb-card);
-  color: var(--kb-sidebar-foreground);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  color: var(--kf-sidebar-foreground);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   transition: background 0.15s;
 }
-.btn-secondary:hover { background: var(--kb-muted); }
+.btn-secondary:hover { background: var(--kf-muted); }
 
 /* ===== 筛选栏（设计稿 filter-tab + 排序按钮） ===== */
 .filter-bar {
@@ -444,51 +444,51 @@ onUnmounted(() => {
   align-items: center;
   gap: 4px;
   padding: 4px;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-muted);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-muted);
 }
 .filter-tab {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   font-size: 13px;
   font-weight: 500;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   border: none;
   cursor: pointer;
   transition: all 0.15s;
 }
-.filter-tab:hover { color: var(--kb-foreground); }
+.filter-tab:hover { color: var(--kf-foreground); }
 .filter-tab.active {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 .tab-count {
   font-size: 11px;
   padding: 1px 6px;
   border-radius: 999px;
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 .tab-count.active {
   background: rgba(255, 255, 255, 0.2);
-  color: var(--kb-primary-foreground);
+  color: var(--kf-primary-foreground);
 }
 .tab-divider {
   width: 1px;
   height: 20px;
   margin: 0 8px;
-  background: var(--kb-border);
+  background: var(--kf-border);
 }
 .sort-tab {
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
 }
-.sort-tab:hover { color: var(--kb-primary); }
-.sort-tab.active { color: var(--kb-primary); }
+.sort-tab:hover { color: var(--kf-primary); }
+.sort-tab.active { color: var(--kf-primary); }
 
 /* 排序下拉菜单 */
 .sort-menu {
@@ -496,9 +496,9 @@ onUnmounted(() => {
   top: calc(100% + 4px);
   right: 0;
   min-width: 140px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   padding: 4px;
   z-index: 10;
@@ -514,12 +514,12 @@ onUnmounted(() => {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   text-align: left;
   transition: background 0.15s;
 }
-.sort-menu-item:hover { background: var(--kb-muted); }
-.sort-menu-item.active { color: var(--kb-primary); font-weight: 500; }
+.sort-menu-item:hover { background: var(--kf-muted); }
+.sort-menu-item.active { color: var(--kf-primary); font-weight: 500; }
 
 /* ===== 状态区（加载/空） ===== */
 .state-area {
@@ -528,29 +528,29 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   padding: 64px 24px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .loading-spinner {
   width: 28px;
   height: 28px;
-  border: 2px solid var(--kb-muted);
-  border-top-color: var(--kb-primary);
+  border: 2px solid var(--kf-muted);
+  border-top-color: var(--kf-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .state-text { margin-top: 12px; font-size: 14px; }
-.state-title { margin-top: 12px; font-size: 15px; font-weight: 500; color: var(--kb-foreground); }
+.state-title { margin-top: 12px; font-size: 15px; font-weight: 500; color: var(--kf-foreground); }
 .empty-icon-box {
   width: 64px;
   height: 64px;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-muted);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-muted);
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.empty-icon { color: var(--kb-muted-foreground); opacity: 0.6; }
+.empty-icon { color: var(--kf-muted-foreground); opacity: 0.6; }
 
 /* ===== 收藏卡片网格（设计稿 fav-card 3 列） ===== */
 .fav-grid {
@@ -566,9 +566,9 @@ onUnmounted(() => {
 }
 
 .fav-card {
-  border-radius: var(--kb-radius-md);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-radius: var(--kf-radius-md);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   padding: 20px;
   cursor: pointer;
   transition: box-shadow 0.2s, transform 0.15s, border-color 0.15s;
@@ -578,7 +578,7 @@ onUnmounted(() => {
   transform: translateY(-1px);
 }
 .fav-card.selected {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 2px rgba(59, 111, 224, 0.15);
 }
 
@@ -590,39 +590,39 @@ onUnmounted(() => {
   margin-bottom: 12px;
 }
 .fav-icon {
-  width: calc(var(--kb-space-8) + var(--kb-space-2));
-  height: calc(var(--kb-space-8) + var(--kb-space-2));
-  border-radius: var(--kb-radius-sm);
+  width: calc(var(--kf-space-8) + var(--kf-space-2));
+  height: calc(var(--kf-space-8) + var(--kf-space-2));
+  border-radius: var(--kf-radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.fav-icon--doc { background: var(--kb-primary-soft); color: var(--kb-primary); }
-.fav-icon--note { background: color-mix(in srgb, var(--kb-state-warning) 10%, transparent); color: var(--kb-state-warning); }
-.fav-icon--flashcard { background: color-mix(in srgb, var(--kb-state-success) 10%, transparent); color: var(--kb-state-success); }
+.fav-icon--doc { background: var(--kf-primary-soft); color: var(--kf-primary); }
+.fav-icon--note { background: color-mix(in srgb, var(--kf-state-warning) 10%, transparent); color: var(--kf-state-warning); }
+.fav-icon--flashcard { background: color-mix(in srgb, var(--kf-state-success) 10%, transparent); color: var(--kf-state-success); }
 
 .fav-unstar-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: var(--kb-control-hit-size);
-  height: var(--kb-control-hit-size);
-  padding: var(--kb-space-2);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-primary-soft);
+  width: var(--kf-control-hit-size);
+  height: var(--kf-control-hit-size);
+  padding: var(--kf-space-2);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-primary-soft);
   border: none;
   cursor: pointer;
-  color: var(--kb-primary);
-  transition: background-color var(--kb-control-motion) ease;
+  color: var(--kf-primary);
+  transition: background-color var(--kf-control-motion) ease;
 }
-.fav-unstar-btn:hover { background: color-mix(in srgb, var(--kb-primary) 16%, var(--kb-card)); }
+.fav-unstar-btn:hover { background: color-mix(in srgb, var(--kf-primary) 16%, var(--kf-card)); }
 
 /* 标题 */
 .fav-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 6px;
   line-height: 1.4;
   display: -webkit-box;
@@ -634,7 +634,7 @@ onUnmounted(() => {
 /* 摘要 */
 .fav-summary {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.5;
   margin-bottom: 12px;
   display: -webkit-box;
@@ -657,10 +657,10 @@ onUnmounted(() => {
   border-radius: 4px;
   white-space: nowrap;
 }
-.tag-doc { background: rgba(59, 111, 224, 0.1); color: var(--kb-primary); }
-.tag-note { background: rgba(245, 158, 11, 0.1); color: var(--kb-state-warning); }
-.tag-flashcard { background: rgba(16, 185, 129, 0.1); color: var(--kb-state-success); }
-.tag-default { background: var(--kb-muted); color: var(--kb-muted-foreground); }
+.tag-doc { background: rgba(59, 111, 224, 0.1); color: var(--kf-primary); }
+.tag-note { background: rgba(245, 158, 11, 0.1); color: var(--kf-state-warning); }
+.tag-flashcard { background: rgba(16, 185, 129, 0.1); color: var(--kf-state-success); }
+.tag-default { background: var(--kf-muted); color: var(--kf-muted-foreground); }
 
 /* 底部分隔线 + 来源 + 收藏时间 */
 .fav-card-bottom {
@@ -669,14 +669,14 @@ onUnmounted(() => {
   justify-content: space-between;
   gap: 8px;
   padding-top: 12px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 .fav-source {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -684,7 +684,7 @@ onUnmounted(() => {
 }
 .fav-time {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 
@@ -703,22 +703,22 @@ onUnmounted(() => {
   min-width: 32px;
   height: 32px;
   padding: 0 8px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   font-size: 13px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: all 0.15s;
 }
 .pagination-btn:hover:not(:disabled):not(.ellipsis) {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .pagination-btn.active {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
-  border-color: var(--kb-primary);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
+  border-color: var(--kf-primary);
 }
 .pagination-btn:disabled {
   opacity: 0.4;

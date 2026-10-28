@@ -65,7 +65,7 @@
                 name="username"
                 autocomplete="username"
                 placeholder="请输入邮箱或手机号"
-                class="form-input kb-input kb-form-control"
+                class="form-input kf-input kf-form-control"
               />
             </div>
           </div>
@@ -82,7 +82,7 @@
                 name="password"
                 autocomplete="current-password"
                 placeholder="请输入密码"
-                class="form-input kb-input kb-form-control"
+                class="form-input kf-input kf-form-control"
               />
               <button
                 type="button"
@@ -95,7 +95,7 @@
             </div>
           </div>
           <div class="form-row">
-            <label class="checkbox-label kb-checkbox-row">
+            <label class="checkbox-label kf-checkbox-row">
               <Checkbox as="span"
                 v-model="loginForm.rememberMe" />
               <span>记住我</span>
@@ -141,7 +141,7 @@
                 name="username"
                 autocomplete="username"
                 placeholder="请输入用户名"
-                class="form-input kb-input kb-form-control"
+                class="form-input kf-input kf-form-control"
               />
             </div>
           </div>
@@ -158,7 +158,7 @@
                 name="email"
                 autocomplete="email"
                 placeholder="请输入邮箱地址"
-                class="form-input kb-input kb-form-control"
+                class="form-input kf-input kf-form-control"
               />
             </div>
           </div>
@@ -175,7 +175,7 @@
                 name="new-password"
                 autocomplete="new-password"
                 placeholder="请设置密码（至少8位）"
-                class="form-input kb-input kb-form-control"
+                class="form-input kf-input kf-form-control"
               />
               <button
                 type="button"
@@ -200,7 +200,7 @@
                 name="confirm-password"
                 autocomplete="new-password"
                 placeholder="请再次输入密码"
-                class="form-input kb-input kb-form-control"
+                class="form-input kf-input kf-form-control"
               />
               <button
                 type="button"
@@ -212,7 +212,7 @@
               </button>
             </div>
           </div>
-          <label class="agreement-label kb-checkbox-row">
+          <label class="agreement-label kf-checkbox-row">
             <Checkbox as="span"
               v-model="registerForm.agreed" />
             <span>
@@ -343,7 +343,7 @@ async function handleRegister(): Promise<void> {
   width: 55%;
   min-height: 100vh;
   padding: 60px 80px;
-  background: linear-gradient(145deg, var(--kb-primary) 0%, #4A7DE8 50%, var(--kb-primary) 100%);
+  background: linear-gradient(145deg, var(--kf-primary) 0%, #4A7DE8 50%, var(--kf-primary) 100%);
   overflow: hidden;
   animation: slideInLeft 0.8s ease-out;
 }
@@ -523,7 +523,7 @@ async function handleRegister(): Promise<void> {
   align-items: center;
   justify-content: center;
   padding: 48px 32px;
-  background: var(--kb-card);
+  background: var(--kf-card);
   animation: slideInRight 0.8s ease-out;
 }
 
@@ -549,11 +549,11 @@ async function handleRegister(): Promise<void> {
   width: 64px;
   height: 64px;
   border-radius: 16px;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--kb-primary-foreground);
+  color: var(--kf-primary-foreground);
   margin-bottom: 16px;
 }
 
@@ -561,14 +561,14 @@ async function handleRegister(): Promise<void> {
   font-family: var(--font-serif);
   font-size: 28px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .tab-switch {
   display: flex;
   margin-bottom: 40px;
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
   animation: fadeInUp 0.5s ease-out 0.4s both;
 }
 
@@ -577,7 +577,7 @@ async function handleRegister(): Promise<void> {
   padding: 8px 0;
   font-size: 16px;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -586,11 +586,11 @@ async function handleRegister(): Promise<void> {
 }
 
 .tab-btn:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .tab-btn.active {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-weight: 600;
 }
 
@@ -601,7 +601,7 @@ async function handleRegister(): Promise<void> {
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   animation: slideInX 0.3s ease-out;
 }
 
@@ -630,7 +630,7 @@ async function handleRegister(): Promise<void> {
   display: block;
   font-size: 14px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 10px;
 }
 
@@ -643,15 +643,15 @@ async function handleRegister(): Promise<void> {
 .input-prefix {
   position: absolute;
   left: 16px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   pointer-events: none;
 }
 
-.form-input:not(.kb-form-control) {
+.form-input:not(.kf-form-control) {
   height: 48px;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-background);
-  border: 1px solid var(--kb-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-background);
+  border: 1px solid var(--kf-border);
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -660,21 +660,21 @@ async function handleRegister(): Promise<void> {
   width: 100%;
   padding: 0 48px;
   font-size: 15px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-family: inherit;
 }
 
 .form-input::placeholder {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
-.form-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.form-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.08);
 }
 
-.form-input:not(.kb-form-control):focus-visible {
-  outline: 2px solid var(--kb-primary);
+.form-input:not(.kf-form-control):focus-visible {
+  outline: 2px solid var(--kf-primary);
   outline-offset: 2px;
 }
 
@@ -683,14 +683,14 @@ async function handleRegister(): Promise<void> {
   right: 16px;
   background: transparent;
   border: none;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   padding: 0;
   transition: color 0.2s ease;
 }
 
 .input-suffix:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .form-row {
@@ -703,16 +703,16 @@ async function handleRegister(): Promise<void> {
 .checkbox-label {
   display: flex;
   align-items: center;
-  gap: var(--kb-checkbox-gap);
+  gap: var(--kf-checkbox-gap);
   cursor: pointer;
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-muted-foreground);
 }
 
 .custom-checkbox {
   width: 18px;
   height: 18px;
-  accent-color: var(--kb-primary);
+  accent-color: var(--kf-primary);
   cursor: pointer;
   border-radius: 4px;
 }
@@ -720,7 +720,7 @@ async function handleRegister(): Promise<void> {
 .link-text {
   font-size: 14px;
   font-weight: 500;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -733,7 +733,7 @@ async function handleRegister(): Promise<void> {
 }
 
 .link-text:focus-visible {
-  outline: 2px solid var(--kb-primary);
+  outline: 2px solid var(--kf-primary);
   outline-offset: 2px;
   border-radius: 2px;
 }
@@ -743,9 +743,9 @@ async function handleRegister(): Promise<void> {
   height: 48px;
   font-size: 15px;
   font-weight: 600;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
   display: flex;
@@ -794,12 +794,12 @@ async function handleRegister(): Promise<void> {
 .divider-line {
   flex: 1;
   height: 1px;
-  background: var(--kb-border);
+  background: var(--kf-border);
 }
 
 .divider-text {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   white-space: nowrap;
 }
 
@@ -814,9 +814,9 @@ async function handleRegister(): Promise<void> {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: var(--kb-background);
-  border: 1px solid var(--kb-border);
-  color: var(--kb-foreground);
+  background: var(--kf-background);
+  border: 1px solid var(--kf-border);
+  color: var(--kf-foreground);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -825,16 +825,16 @@ async function handleRegister(): Promise<void> {
 }
 
 .social-btn:hover {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
-  border-color: var(--kb-primary);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
+  border-color: var(--kf-primary);
   transform: translateY(-2px);
 }
 
 .switch-text {
   text-align: center;
   font-size: 14px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-top: 8px;
   animation: fadeInUp 0.5s ease-out 0.95s both;
 }
@@ -842,7 +842,7 @@ async function handleRegister(): Promise<void> {
 .link-btn {
   font-size: 14px;
   font-weight: 500;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -856,10 +856,10 @@ async function handleRegister(): Promise<void> {
 .agreement-label {
   display: flex;
   align-items: center;
-  gap: var(--kb-checkbox-gap);
+  gap: var(--kf-checkbox-gap);
   cursor: pointer;
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-muted-foreground);
   line-height: 1.6;
   animation: fadeInUp 0.5s ease-out 0.75s both;
 }

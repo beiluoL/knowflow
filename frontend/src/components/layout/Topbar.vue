@@ -1,5 +1,5 @@
 <template>
-  <header class="sticky top-0 z-30 h-14 kb-region-topbar flex items-center justify-between px-4 lg:px-8">
+  <header class="sticky top-0 z-30 h-14 kf-region-topbar flex items-center justify-between px-4 lg:px-8">
     <div class="flex items-center gap-3">
       <button
         type="button"
@@ -16,7 +16,7 @@
           v-model="searchQuery"
           type="text"
           placeholder="搜索知识库、文档..."
-          class="w-56 lg:w-72 h-9 pl-9 pr-4 text-[13px] text-foreground placeholder-gray-400 transition-all kb-input kb-form-control"
+          class="w-56 lg:w-72 h-9 pl-9 pr-4 text-[13px] text-foreground placeholder-gray-400 transition-all kf-input kf-form-control"
           @keyup.enter="handleSearch"
           aria-label="搜索"
         />

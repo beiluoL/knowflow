@@ -5,7 +5,7 @@
         v-for="t in TABS"
         :key="t.key"
         type="button"
-        class="ip-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="ip-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: activeTab === t.key }"
         @click="activeTab = t.key"
       >
@@ -399,17 +399,17 @@ const totalDistractions = computed(() => {
 function heatColor(minutes: number): string {
   const clamped = Math.max(0, Math.min(120, minutes));
   const t = clamped / 120;
-  if (t <= 0) return 'var(--kb-muted)';
+  if (t <= 0) return 'var(--kf-muted)';
   const alpha = 0.15 + t * 0.85;
-  return `color-mix(in srgb, var(--kb-primary) ${alpha * 100}%, transparent)`;
+  return `color-mix(in srgb, var(--kf-primary) ${alpha * 100}%, transparent)`;
 }
 
 const MODE_COLORS: Record<string, string> = {
-  POMODORO: 'var(--kb-danger)',
+  POMODORO: 'var(--kf-danger)',
   FLOW: '#06B6D4',
   DEEP: '#8B5CF6',
-  SPACED: 'var(--kb-success)',
-  BUDDY: 'var(--kb-warning)',
+  SPACED: 'var(--kf-success)',
+  BUDDY: 'var(--kf-warning)',
 };
 
 const MODE_LABELS: Record<string, string> = {
@@ -421,7 +421,7 @@ const MODE_LABELS: Record<string, string> = {
 };
 
 function modeColor(mode?: FocusModeType | string): string {
-  return MODE_COLORS[mode ?? 'POMODORO'] ?? 'var(--kb-primary)';
+  return MODE_COLORS[mode ?? 'POMODORO'] ?? 'var(--kf-primary)';
 }
 function modeColorSoft(mode?: FocusModeType | string): string {
   const c = modeColor(mode);
@@ -643,7 +643,7 @@ const TabSkeleton = defineComponent({
   padding: 0 4px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 11px;
   font-weight: 500;
   border-radius: 8px;
@@ -655,13 +655,13 @@ const TabSkeleton = defineComponent({
   transition: background 0.15s ease, color 0.15s ease;
 }
 .ip-tab:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .ip-tab.active {
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
   font-weight: 600;
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--kb-primary) 30%, transparent);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--kf-primary) 30%, transparent);
 }
 
 .ip-content {
@@ -709,7 +709,7 @@ const TabSkeleton = defineComponent({
   gap: 5px;
   font-size: 11px;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   letter-spacing: 0.02em;
 }
 .ip-card-label svg {
@@ -719,7 +719,7 @@ const TabSkeleton = defineComponent({
 .ip-bignum {
   font-size: 24px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1.1;
   display: inline-flex;
   align-items: baseline;
@@ -728,11 +728,11 @@ const TabSkeleton = defineComponent({
 .ip-unit {
   font-size: 12px;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .ip-sub-minutes {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-weight: 500;
   margin-left: 4px;
 }
@@ -745,24 +745,24 @@ const TabSkeleton = defineComponent({
   font-weight: 500;
 }
 .ip-compare.up {
-  color: var(--kb-accent);
+  color: var(--kf-accent);
 }
 .ip-compare.down {
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 .ip-compare.flat {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .ip-progress {
   height: 6px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   border-radius: 999px;
   overflow: hidden;
 }
 .ip-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--kb-primary), var(--kb-primary-muted));
+  background: linear-gradient(90deg, var(--kf-primary), var(--kf-primary-muted));
   border-radius: 999px;
   transition: width 0.4s ease;
 }
@@ -775,15 +775,15 @@ const TabSkeleton = defineComponent({
 }
 .ip-q-label {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .ip-stars {
   display: inline-flex;
   gap: 2px;
-  color: var(--kb-muted);
+  color: var(--kf-muted);
 }
 .ip-stars svg.filled {
-  color: var(--kb-warning);
+  color: var(--kf-warning);
   fill: currentColor;
 }
 
@@ -796,11 +796,11 @@ const TabSkeleton = defineComponent({
   flex: 1;
   height: 6px;
   border-radius: 3px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   transition: background 0.2s ease;
 }
 .ip-streak-dot.active {
-  background: linear-gradient(90deg, var(--kb-highlight), var(--kb-warning));
+  background: linear-gradient(90deg, var(--kf-highlight), var(--kf-warning));
 }
 
 .ip-block {
@@ -818,16 +818,16 @@ const TabSkeleton = defineComponent({
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .ip-block-title svg {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .ip-week-minutes {
   margin-left: auto;
   font-size: 11px;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .ip-heat-row {
@@ -851,7 +851,7 @@ const TabSkeleton = defineComponent({
   align-items: center;
   gap: 8px;
   font-size: 10px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .ip-heat-legend-bar {
   flex: 1;
@@ -859,9 +859,9 @@ const TabSkeleton = defineComponent({
   border-radius: 3px;
   background: linear-gradient(
     90deg,
-    var(--kb-muted) 0%,
-    color-mix(in srgb, var(--kb-primary) 50%, transparent) 50%,
-    var(--kb-primary) 100%
+    var(--kf-muted) 0%,
+    color-mix(in srgb, var(--kf-primary) 50%, transparent) 50%,
+    var(--kf-primary) 100%
   );
 }
 
@@ -889,13 +889,13 @@ const TabSkeleton = defineComponent({
 .ip-week-bar {
   width: 100%;
   min-height: 4px;
-  background: linear-gradient(180deg, var(--kb-primary), var(--kb-primary-muted));
+  background: linear-gradient(180deg, var(--kf-primary), var(--kf-primary-muted));
   border-radius: 4px 4px 2px 2px;
   transition: height 0.3s ease;
 }
 .ip-week-label {
   font-size: 10px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-weight: 500;
 }
 
@@ -903,7 +903,7 @@ const TabSkeleton = defineComponent({
   padding: 18px 0;
   text-align: center;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .ip-timeline {
@@ -928,7 +928,7 @@ const TabSkeleton = defineComponent({
 .ip-tl-time {
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .ip-tl-mode-badge {
   display: inline-flex;
@@ -940,7 +940,7 @@ const TabSkeleton = defineComponent({
 }
 .ip-tl-duration {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-weight: 500;
 }
 
@@ -950,7 +950,7 @@ const TabSkeleton = defineComponent({
   height: 14px;
   border-radius: 999px;
   overflow: hidden;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .ip-stacked-seg {
   height: 100%;
@@ -990,11 +990,11 @@ const TabSkeleton = defineComponent({
   justify-self: start;
 }
 .ip-mode-minutes {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-weight: 500;
 }
 .ip-mode-percent {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-weight: 500;
 }
 
@@ -1044,14 +1044,14 @@ const TabSkeleton = defineComponent({
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.06);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .ip-insight-card.positive .ip-insight-icon {
-  color: var(--kb-accent);
+  color: var(--kf-accent);
   background: rgba(16, 185, 129, 0.14);
 }
 .ip-insight-card.warning .ip-insight-icon {
-  color: var(--kb-warning);
+  color: var(--kf-warning);
   background: rgba(245, 158, 11, 0.14);
 }
 .ip-insight-body {
@@ -1063,12 +1063,12 @@ const TabSkeleton = defineComponent({
 .ip-insight-title {
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .ip-insight-content {
   font-size: 11px;
   line-height: 1.55;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .ip-achieve-list {
@@ -1092,8 +1092,8 @@ const TabSkeleton = defineComponent({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--kb-highlight-soft);
-  color: var(--kb-highlight);
+  background: var(--kf-highlight-soft);
+  color: var(--kf-highlight);
 }
 .ip-achieve-body {
   display: flex;
@@ -1104,22 +1104,22 @@ const TabSkeleton = defineComponent({
 .ip-achieve-name {
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .ip-achieve-desc {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.4;
 }
 
 .ip-hint {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.4;
 }
 
 .highlight-text {
-  color: var(--kb-highlight);
+  color: var(--kf-highlight);
 }
 
 .tabular-nums {

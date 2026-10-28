@@ -1,6 +1,6 @@
 <template>
-  <div ref="rootRef" class="select-control kb-form-field w-full" :class="{'kb-form-field--unlabelled':!label}">
-    <label v-if="label" :for="triggerId" class="select-label kb-form-label"
+  <div ref="rootRef" class="select-control kf-form-field w-full" :class="{'kf-form-field--unlabelled':!label}">
+    <label v-if="label" :for="triggerId" class="select-label kf-form-label"
       >{{ label }}<span v-if="required" class="select-required" aria-hidden="true"> *</span></label
     >
     <button
@@ -14,12 +14,12 @@
       :aria-invalid="!!error || undefined"
       :aria-describedby="descriptionIds"
       :disabled="disabled"
-      class="kb-select-trigger"
+      class="kf-select-trigger"
       :class="[
         'select-trigger--' + variant,
         {
-          'kb-select-trigger-error': error,
-          'kb-select-trigger-disabled': disabled,
+          'kf-select-trigger-error': error,
+          'kf-select-trigger-disabled': disabled,
         },
       ]"
       @click.stop="toggle"
@@ -29,10 +29,10 @@
         v-if="prefixIcon"
         :name="prefixIcon"
         :size="16"
-        class="kb-select-prefix"
+        class="kf-select-prefix"
       />
       <span
-        :class="selectedLabel ? 'kb-select-value' : 'kb-select-placeholder'"
+        :class="selectedLabel ? 'kf-select-value' : 'kf-select-placeholder'"
         >{{ selectedLabel || placeholder }}</span
       >
       <Icon
@@ -40,9 +40,9 @@
         :size="14"
         :class="{
           'animate-spin': effectiveLoading,
-          'kb-select-arrow-up': open,
+          'kf-select-arrow-up': open,
         }"
-        class="kb-select-arrow shrink-0"
+        class="kf-select-arrow shrink-0"
       />
     </button>
     <select
@@ -74,13 +74,13 @@
         v-if="open"
         ref="panelRef"
         tabindex="-1"
-        class="kb-select-panel select-panel-v2"
+        class="kf-select-panel select-panel-v2"
         :class="{ 'select-panel--searchable': searchEnabled }"
         :style="panelStyle"
         @keydown="onPanelKey"
         @click.stop
       >
-        <div v-if="searchEnabled" class="select-search kb-input-surface">
+        <div v-if="searchEnabled" class="select-search kf-input-surface">
           <Icon name="search" :size="16" aria-hidden="true" />
           <input
             ref="searchInputRef"
@@ -159,8 +159,8 @@
         </template>
       </div>
     </Teleport>
-    <div v-if="error || missing || help" class="kb-form-field__meta">
-      <p v-if="help" :id="triggerId+'-help'" class="kb-form-help">{{help}}</p>
+    <div v-if="error || missing || help" class="kf-form-field__meta">
+      <p v-if="help" :id="triggerId+'-help'" class="kf-form-help">{{help}}</p>
     <p v-if="error" :id="errorId" class="select-error select-help">
       {{ error }}
     </p>
@@ -430,7 +430,7 @@ function position() {
           : Math.max(r.width, 208),
       available,
     ),
-    list = panelRef.value?.querySelector<HTMLElement>(".kb-select-list"),
+    list = panelRef.value?.querySelector<HTMLElement>(".kf-select-list"),
     listLimit = list ? parseFloat(getComputedStyle(list).maxHeight) : 280,
     natural = list
       ? Math.min(
@@ -443,7 +443,7 @@ function position() {
           ?.offsetHeight || 0)
       : Math.max(panelRef.value?.scrollHeight || 0, 48),
     panelLimit = searchEnabled.value
-      ? parseFloat(getComputedStyle(panelRef.value!).getPropertyValue("--kb-select-panel-max-height")) || 352
+      ? parseFloat(getComputedStyle(panelRef.value!).getPropertyValue("--kf-select-panel-max-height")) || 352
       : Infinity,
     placed = placeSelect(r, width, Math.min(natural + (searchEnabled.value ? 2 : 8), panelLimit), {
       width: window.innerWidth,
@@ -647,23 +647,23 @@ onBeforeUnmount(() => {
 .select-label {
   display: block;
   margin-bottom: 0;
-  font-size: var(--kb-fs-body-sm);
-  line-height:var(--kb-lh-body-sm);
-  font-weight:var(--kb-fw-label);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-sm);
+  line-height:var(--kf-lh-body-sm);
+  font-weight:var(--kf-fw-label);
+  color: var(--kf-foreground);
 }
 .select-required,
 .select-error {
-  color: var(--kb-danger-text);
+  color: var(--kf-danger-text);
 }
 .select-help {
-  margin-top: var(--kb-space-1);
-  font-size: var(--kb-fs-caption);
+  margin-top: var(--kf-space-1);
+  font-size: var(--kf-fs-caption);
 }
 .select-trigger--pill {
   border-color: transparent;
-  border-radius: var(--kb-radius-full);
-  background: var(--kb-select-trigger-bg);
+  border-radius: var(--kf-radius-full);
+  background: var(--kf-select-trigger-bg);
 }
 .select-trigger--subtle {
   border-color: transparent;
@@ -671,44 +671,44 @@ onBeforeUnmount(() => {
 }
 .select-trigger--pill:hover:not(:disabled),
 .select-trigger--subtle:hover:not(:disabled) {
-  background: var(--kb-select-trigger-hover);
+  background: var(--kf-select-trigger-hover);
   border-color: transparent;
 }
-.kb-select-trigger:focus-visible {
+.kf-select-trigger:focus-visible {
   outline: 0;
   box-shadow: none;
 }
-.kb-select-trigger-error:focus-visible {
-  outline-color: var(--kb-destructive);
+.kf-select-trigger-error:focus-visible {
+  outline-color: var(--kf-destructive);
 }
 .select-panel-v2 {
   display: flex;
   flex-direction: column;
-  border-radius: var(--kb-select-content-radius);
-  background: var(--kb-menu-surface);
-  box-shadow: var(--kb-menu-shadow);
+  border-radius: var(--kf-select-content-radius);
+  background: var(--kf-menu-surface);
+  box-shadow: var(--kf-menu-shadow);
   overflow: hidden;
   min-width: 0;
 }
-.select-panel-v2 :deep(.kb-select-list) {
+.select-panel-v2 :deep(.kf-select-list) {
   min-height: 0;
-  max-height: var(--kb-select-list-max-height);
+  max-height: var(--kf-select-list-max-height);
   overflow: auto;
   flex: 1;
 }
-.select-panel--searchable :deep(.kb-select-list) {
-  max-height: calc(var(--kb-select-panel-max-height) - var(--kb-select-search-height));
+.select-panel--searchable :deep(.kf-select-list) {
+  max-height: calc(var(--kf-select-panel-max-height) - var(--kf-select-search-height));
 }
 .select-search {
   box-sizing: border-box;
-  height: var(--kb-select-search-height);
+  height: var(--kf-select-search-height);
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
-  padding: 0 var(--kb-space-3);
-  border-bottom: 1px solid var(--kb-border);
+  gap: var(--kf-space-2);
+  padding: 0 var(--kf-space-3);
+  border-bottom: 1px solid var(--kf-border);
   flex-shrink: 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .select-search > svg { flex-shrink: 0; }
 .select-search input,
@@ -727,32 +727,32 @@ onBeforeUnmount(() => {
   outline: 0;
   border-radius: 0;
   font: inherit;
-  line-height: var(--kb-lh-body-md);
-  color: var(--kb-foreground);
+  line-height: var(--kf-lh-body-md);
+  color: var(--kf-foreground);
 }
 .select-message {
-  padding: var(--kb-space-4);
-  font-size: var(--kb-fs-body-sm);
+  padding: var(--kf-space-4);
+  font-size: var(--kf-fs-body-sm);
   overflow: auto;
 }
 .select-retry {
   display: block;
-  margin-top: var(--kb-space-2);
-  color: var(--kb-primary);
+  margin-top: var(--kf-space-2);
+  color: var(--kf-primary);
 }
 .select-bulk {
   display: flex;
   justify-content: space-between;
-  gap: var(--kb-space-3);
-  padding: var(--kb-space-2) var(--kb-space-3);
-  border-bottom: 1px solid var(--kb-border);
-  font-size: var(--kb-fs-body-sm);
+  gap: var(--kf-space-3);
+  padding: var(--kf-space-2) var(--kf-space-3);
+  border-bottom: 1px solid var(--kf-border);
+  font-size: var(--kf-fs-body-sm);
   flex-shrink: 0;
 }
 .select-description {
   display: block;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 @media (forced-colors: active) {
   .select-search:focus-within {

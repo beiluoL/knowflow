@@ -15,7 +15,7 @@ function render(props: Record<string, unknown> = {}) {
   });
 }
 async function open(w: ReturnType<typeof render>) {
-  await w.get(".kb-select-trigger").trigger("click");
+  await w.get(".kf-select-trigger").trigger("click");
   await flushPromises();
 }
 describe("Select V2 value and overlay contract", () => {
@@ -36,7 +36,7 @@ describe("Select V2 value and overlay contract", () => {
     expect(w.get("[role=listbox]").attributes("aria-multiselectable")).toBe(
       "true",
     );
-    expect(w.get(".kb-select-trigger").attributes("aria-expanded")).toBe(
+    expect(w.get(".kf-select-trigger").attributes("aria-expanded")).toBe(
       "true",
     );
     w.unmount();
@@ -80,7 +80,7 @@ describe("Select V2 value and overlay contract", () => {
     await w.findAll("[role=option]")[2]!.trigger("click");
     expect(w.emitted("update:modelValue")).toBeUndefined();
     await w.setProps({ modelValue: null });
-    expect(w.get(".kb-select-trigger").text()).toContain("请选择");
+    expect(w.get(".kf-select-trigger").text()).toContain("请选择");
     w.unmount();
   });
   it("removes listeners and pending focus work after unmount", async () => {
@@ -113,7 +113,7 @@ it("navigates grouped choices in their rendered order", async () => {
     },
     global: { stubs: { Icon: true } },
   });
-  await w.get(".kb-select-trigger").trigger("keydown", { key: "ArrowDown" });
+  await w.get(".kf-select-trigger").trigger("keydown", { key: "ArrowDown" });
   await flushPromises();
   document
     .querySelector("[role=listbox]")!

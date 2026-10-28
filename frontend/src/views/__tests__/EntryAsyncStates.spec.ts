@@ -31,11 +31,11 @@ describe('actual routed entry views', () => {
   })
   it('knowledge homepage main load failure has inline retry rather than erased arrays', async () => {
     api.categories.tree.mockRejectedValueOnce(new Error('Network Error'));
-    const w = mount(KnowledgeHome, { global: { plugins: [createPinia()], stubs: { KnowledgeSidebar: true, RouterLink: true } } }); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(true); await w.find('.kb-state-retry').trigger('click'); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(false); expect(w.find('[role="status"]').text()).toContain('还没有知识资料'); w.unmount();
+    const w = mount(KnowledgeHome, { global: { plugins: [createPinia()], stubs: { KnowledgeSidebar: true, RouterLink: true } } }); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(true); await w.find('.kf-state-retry').trigger('click'); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(false); expect(w.find('[role="status"]').text()).toContain('还没有知识资料'); w.unmount();
   })
   it('routed report has an actionable error and genuine empty state', async () => {
     api.learning.getReport.mockRejectedValueOnce(new Error('Network Error')).mockResolvedValueOnce(null);
-    const w = mount(LearningReportPage, { global: { stubs: { RouterLink: true } } }); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(true); await w.find('.kb-state-retry').trigger('click'); await flushPromises(); expect(w.find('[role="status"]').text()).toContain('还没有学习报告'); w.unmount();
+    const w = mount(LearningReportPage, { global: { stubs: { RouterLink: true } } }); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(true); await w.find('.kf-state-retry').trigger('click'); await flushPromises(); expect(w.find('[role="status"]').text()).toContain('还没有学习报告'); w.unmount();
   })
   it('learning heatmap rejection never claims no learning records', async () => {
     api.learning.dailyActivity.mockRejectedValueOnce(new Error('Network Error'));

@@ -1,5 +1,5 @@
 <template>
-  <div class="learning-mode h-screen flex flex-col" style="background: var(--kb-background);">
+  <div class="learning-mode h-screen flex flex-col" style="background: var(--kf-background);">
     <!-- ===== 精简顶部栏 ===== -->
     <div class="h-14 flex items-center justify-between gap-3 px-4 md:px-6 shrink-0 topbar">
       <button type="button" class="flex items-center gap-2 shrink-0 text-sm font-medium topbar-back" @click="exitLearning">
@@ -7,7 +7,7 @@
         <span>返回</span>
       </button>
       <div class="flex items-center gap-4 min-w-0">
-        <span class="text-sm truncate" style="color: var(--kb-muted-foreground);">{{ courseTitle }}</span>
+        <span class="text-sm truncate" style="color: var(--kf-muted-foreground);">{{ courseTitle }}</span>
         <span class="px-2 py-0.5 rounded text-xs shrink-0 tabular-nums progress-chip">{{ total ? `第 ${currentIndex + 1}/${total} 题` : '等待学习内容' }}</span>
       </div>
       <div class="flex items-center gap-3 shrink-0">
@@ -24,11 +24,11 @@
     <!-- ===== 主内容区 ===== -->
     <div class="flex-1 flex flex-col items-center justify-center px-4 md:px-6 relative overflow-y-auto">
       <StateView :status="cardStatus" :error-title="cardError?.title" :error-scope="cardError?.scope" :error-hint="cardError?.hint" :show-retry="cardError?.retryable" empty-title="还没有可学习的闪卡" empty-description="先在学习中心选择路径或创建闪卡，再开始专注学习。" @retry="loadCards(true)">
-      <template #empty-action><button type="button" class="kb-state-retry" @click="exitLearning">返回学习中心</button></template>
+      <template #empty-action><button type="button" class="kf-state-retry" @click="exitLearning">返回学习中心</button></template>
       <template #skeleton>
       <div class="w-full max-w-xl">
         <SkeletonList type="card" :rows="2" :cols="1" />
-        <p class="text-sm" style="color: var(--kb-muted-foreground);">正在准备学习内容...</p>
+        <p class="text-sm" style="color: var(--kf-muted-foreground);">正在准备学习内容...</p>
       </div>
       </template>
 
@@ -38,9 +38,9 @@
         <div class="mb-8 text-center">
           <div class="relative inline-flex items-center justify-center mb-4">
             <svg class="w-56 h-56 -rotate-90" viewBox="0 0 200 200">
-              <circle cx="100" cy="100" r="90" fill="none" stroke="var(--kb-muted)" stroke-width="4" />
+              <circle cx="100" cy="100" r="90" fill="none" stroke="var(--kf-muted)" stroke-width="4" />
               <circle
-                cx="100" cy="100" r="90" fill="none" stroke="var(--kb-primary)" stroke-width="4"
+                cx="100" cy="100" r="90" fill="none" stroke="var(--kf-primary)" stroke-width="4"
                 stroke-linecap="round"
                 :stroke-dasharray="timerCircumference"
                 :stroke-dashoffset="timerDashoffset"
@@ -48,15 +48,15 @@
               />
             </svg>
             <div class="absolute inset-0 flex flex-col items-center justify-center">
-              <div class="timer-display" style="color: var(--kb-foreground);">{{ formatTime(timeLeft) }}</div>
-              <div class="text-sm mt-1" style="color: var(--kb-muted-foreground);">专注时间</div>
+              <div class="timer-display" style="color: var(--kf-foreground);">{{ formatTime(timeLeft) }}</div>
+              <div class="text-sm mt-1" style="color: var(--kf-muted-foreground);">专注时间</div>
             </div>
           </div>
         </div>
 
         <!-- 当前题目 / 背诵内容 -->
         <div class="w-full max-w-3xl mb-10">
-          <div class="p-8 rounded-2xl border question-card" style="background: var(--kb-card); border-color: var(--kb-border);">
+          <div class="p-8 rounded-2xl border question-card" style="background: var(--kf-card); border-color: var(--kf-border);">
             <!-- 标签组 -->
             <div class="flex items-center gap-2 mb-4">
               <span
@@ -67,26 +67,26 @@
               >{{ tag.label }}</span>
             </div>
             <!-- 题目标题 -->
-            <h2 class="font-bold mb-4" style="color: var(--kb-foreground); font-size: var(--kb-fs-h3); line-height: var(--kb-lh-h3);">{{ currentCard?.front }}</h2>
+            <h2 class="font-bold mb-4" style="color: var(--kf-foreground); font-size: var(--kf-fs-h3); line-height: var(--kf-lh-h3);">{{ currentCard?.front }}</h2>
             <!-- 引导文案 -->
-            <p class="leading-relaxed" style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-body-md);">
+            <p class="leading-relaxed" style="color: var(--kf-muted-foreground); font-size: var(--kf-fs-body-md);">
               请在脑海中组织答案，回想相关知识点。准备好后点击下方按钮，也可查看答案与提示。
             </p>
             <!-- 展开的答案 -->
             <div v-if="showAnswer" class="mt-5 p-4 rounded-lg" style="background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2);">
               <div class="flex items-center gap-2 mb-2">
-                <Icon name="check-circle" :size="16" style="color: var(--kb-accent);" />
-                <span class="text-xs font-medium" style="color: var(--kb-accent);">参考答案</span>
+                <Icon name="check-circle" :size="16" style="color: var(--kf-accent);" />
+                <span class="text-xs font-medium" style="color: var(--kf-accent);">参考答案</span>
               </div>
-              <p class="text-sm leading-relaxed" style="color: var(--kb-card-foreground);">{{ currentCard?.back }}</p>
+              <p class="text-sm leading-relaxed" style="color: var(--kf-card-foreground);">{{ currentCard?.back }}</p>
             </div>
             <!-- 提示 -->
-            <div v-else class="mt-5 p-4 rounded-lg" style="background: var(--kb-background);">
+            <div v-else class="mt-5 p-4 rounded-lg" style="background: var(--kf-background);">
               <div class="flex items-center gap-2 mb-2">
-                <Icon name="lightbulb" :size="16" style="color: var(--kb-warning);" />
-                <span class="text-xs font-medium" style="color: var(--kb-warning);">提示</span>
+                <Icon name="lightbulb" :size="16" style="color: var(--kf-warning);" />
+                <span class="text-xs font-medium" style="color: var(--kf-warning);">提示</span>
               </div>
-              <p class="text-sm" style="color: var(--kb-muted-foreground);">思考相关知识点的核心概念、应用场景与常见误区</p>
+              <p class="text-sm" style="color: var(--kf-muted-foreground);">思考相关知识点的核心概念、应用场景与常见误区</p>
             </div>
           </div>
         </div>
@@ -114,11 +114,11 @@
         <!-- 底部进度 -->
         <div class="w-full max-w-xl">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-sm" style="color: var(--kb-muted-foreground);">学习进度</span>
-            <span class="text-sm font-medium tabular-nums" style="color: var(--kb-primary);">{{ currentIndex + 1 }} / {{ total }}</span>
+            <span class="text-sm" style="color: var(--kf-muted-foreground);">学习进度</span>
+            <span class="text-sm font-medium tabular-nums" style="color: var(--kf-primary);">{{ currentIndex + 1 }} / {{ total }}</span>
           </div>
-          <div class="h-2 rounded-full overflow-hidden" style="background: var(--kb-muted);">
-            <div class="h-full rounded-full transition-[width] duration-500" :style="{ width: `${progressPercent}%`, background: 'var(--kb-primary)' }"></div>
+          <div class="h-2 rounded-full overflow-hidden" style="background: var(--kf-muted);">
+            <div class="h-full rounded-full transition-[width] duration-500" :style="{ width: `${progressPercent}%`, background: 'var(--kf-primary)' }"></div>
           </div>
         </div>
       </template>
@@ -127,12 +127,12 @@
 
     <!-- ===== 右下角设置浮动面板 ===== -->
     <div class="fixed bottom-6 right-6">
-      <div v-if="showSettings" class="mb-3 p-5 rounded-xl border shadow-xl w-72 max-w-[calc(100vw-3rem)] settings-panel" style="background: var(--kb-card); border-color: var(--kb-border);">
-        <h4 class="text-sm font-semibold mb-4" style="color: var(--kb-foreground);">学习设置</h4>
+      <div v-if="showSettings" class="mb-3 p-5 rounded-xl border shadow-xl w-72 max-w-[calc(100vw-3rem)] settings-panel" style="background: var(--kf-card); border-color: var(--kf-border);">
+        <h4 class="text-sm font-semibold mb-4" style="color: var(--kf-foreground);">学习设置</h4>
         <div class="space-y-4">
           <!-- 学习目标时长 -->
           <div>
-            <label class="text-xs font-medium mb-2 block" style="color: var(--kb-muted-foreground);">学习目标</label>
+            <label class="text-xs font-medium mb-2 block" style="color: var(--kf-muted-foreground);">学习目标</label>
             <div class="flex items-center gap-2">
               <button
                 v-for="d in durationOptions"
@@ -146,15 +146,15 @@
           </div>
           <!-- 题目数量 -->
           <div>
-            <label class="text-xs font-medium mb-2 block" style="color: var(--kb-muted-foreground);">题目数量</label>
+            <label class="text-xs font-medium mb-2 block" style="color: var(--kf-muted-foreground);">题目数量</label>
             <Select v-model="settings.questionCount" :options="[{ value: 10, label: '10 题' }, { value: 20, label: '20 题' }, { value: 0, label: '全部' }, { value: 50, label: '50 题' }]" aria-label="题目数量" />
           </div>
           <!-- 退出按钮 -->
           <div class="pt-2 flex gap-2">
-            <button type="button" class="flex-1 min-w-0 h-9 rounded-lg text-sm font-medium border panel-btn" style="border-color: var(--kb-border); color: var(--kb-foreground); background: var(--kb-card);" @click="togglePause">
+            <button type="button" class="flex-1 min-w-0 h-9 rounded-lg text-sm font-medium border panel-btn" style="border-color: var(--kf-border); color: var(--kf-foreground); background: var(--kf-card);" @click="togglePause">
               {{ isPaused ? '继续' : '暂停' }}
             </button>
-            <button type="button" class="flex-1 min-w-0 h-9 rounded-lg text-sm font-medium panel-btn-danger" style="background: var(--kb-destructive); color: var(--kb-destructive-foreground);" @click="exitLearning">退出学习</button>
+            <button type="button" class="flex-1 min-w-0 h-9 rounded-lg text-sm font-medium panel-btn-danger" style="background: var(--kf-destructive); color: var(--kf-destructive-foreground);" @click="exitLearning">退出学习</button>
           </div>
         </div>
       </div>
@@ -207,10 +207,10 @@ const courseTitle = computed(() => (route.query.title as string) || '沉浸学�
 const currentTags = computed(() => {
   const tags: { label: string; color: string }[] = [];
   if (route.query.category) {
-    tags.push({ label: String(route.query.category), color: 'var(--kb-primary)' });
+    tags.push({ label: String(route.query.category), color: 'var(--kf-primary)' });
   }
-  tags.push({ label: '核心概念', color: 'var(--kb-success)' });
-  tags.push({ label: '重要', color: 'var(--kb-warning)' });
+  tags.push({ label: '核心概念', color: 'var(--kf-success)' });
+  tags.push({ label: '重要', color: 'var(--kf-warning)' });
   return tags;
 });
 
@@ -305,46 +305,46 @@ onUnmounted(() => {
 <style scoped>
 /* 顶部栏 */
 .topbar {
-  background: var(--kb-card);
-  border-bottom: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border-bottom: 1px solid var(--kf-border);
 }
 .topbar-back {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   transition: color 0.15s ease, transform 0.15s ease;
 }
 .topbar-back:hover {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .topbar-back:active {
   transform: scale(0.98);
 }
 .progress-chip {
   background: rgba(59, 111, 224, 0.08);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .pause-btn {
-  border: 1px solid var(--kb-border);
-  color: var(--kb-foreground);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  color: var(--kf-foreground);
+  background: var(--kf-card);
   transition: background 0.15s ease, transform 0.15s ease;
 }
 .pause-btn:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .pause-btn:active {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   transform: scale(0.98);
 }
 .settings-trigger {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 .settings-trigger:hover {
-  background: var(--kb-muted);
-  color: var(--kb-primary);
+  background: var(--kf-muted);
+  color: var(--kf-primary);
 }
 .settings-trigger:active {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   transform: scale(0.98);
 }
 
@@ -362,7 +362,7 @@ onUnmounted(() => {
 
 /* 计时器数字 */
 .timer-display {
-  font-size: var(--kb-fs-h1);
+  font-size: var(--kf-fs-h1);
   font-weight: 700;
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
@@ -379,8 +379,8 @@ onUnmounted(() => {
 
 /* 大按钮 */
 .review-btn {
-  border-color: var(--kb-warning);
-  color: var(--kb-warning);
+  border-color: var(--kf-warning);
+  color: var(--kf-warning);
   background: transparent;
   transition: transform 0.15s ease, background 0.15s ease;
 }
@@ -393,8 +393,8 @@ onUnmounted(() => {
   background: rgba(245, 158, 11, 0.12);
 }
 .memorized-btn {
-  background: var(--kb-accent);
-  color: var(--kb-accent-foreground);
+  background: var(--kf-accent);
+  color: var(--kf-accent-foreground);
   transition: transform 0.15s ease, opacity 0.2s ease;
 }
 .memorized-btn:hover {
@@ -421,22 +421,22 @@ onUnmounted(() => {
   }
 }
 .duration-btn {
-  border-color: var(--kb-border);
-  color: var(--kb-muted-foreground);
-  background: var(--kb-card);
+  border-color: var(--kf-border);
+  color: var(--kf-muted-foreground);
+  background: var(--kf-card);
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 .duration-btn:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
-  background: var(--kb-muted);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
+  background: var(--kf-muted);
 }
 .duration-btn:active {
   background: rgba(59, 111, 224, 0.12);
 }
 .duration-btn.active {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.08);
 }
 
@@ -445,11 +445,11 @@ onUnmounted(() => {
   transition: background 0.15s ease, color 0.15s ease;
 }
 .panel-btn:hover {
-  background: var(--kb-muted) !important;
-  color: var(--kb-primary);
+  background: var(--kf-muted) !important;
+  color: var(--kf-primary);
 }
 .panel-btn:active {
-  background: var(--kb-muted) !important;
+  background: var(--kf-muted) !important;
   transform: scale(0.98);
 }
 .panel-btn-danger {
@@ -464,30 +464,30 @@ onUnmounted(() => {
 }
 
 .settings-select {
-  background: var(--kb-background);
-  border-color: var(--kb-border);
-  color: var(--kb-foreground);
+  background: var(--kf-background);
+  border-color: var(--kf-border);
+  color: var(--kf-foreground);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .settings-select:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 .settings-select:focus-visible {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
 .settings-fab {
-  background: var(--kb-card);
-  border-color: var(--kb-border);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-card);
+  border-color: var(--kf-border);
+  color: var(--kf-muted-foreground);
   transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 .settings-fab:hover {
-  background: var(--kb-muted);
-  color: var(--kb-primary);
+  background: var(--kf-muted);
+  color: var(--kf-primary);
 }
 .settings-fab:active {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   transform: scale(0.98);
 }
 
@@ -502,7 +502,7 @@ onUnmounted(() => {
 .panel-btn:focus-visible,
 .panel-btn-danger:focus-visible,
 .settings-fab:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -512,7 +512,7 @@ onUnmounted(() => {
   .memorized-btn {
     height: 56px;
     padding: 0 32px;
-    font-size: var(--kb-fs-body-lg);
+    font-size: var(--kf-fs-body-lg);
   }
 }
 </style>

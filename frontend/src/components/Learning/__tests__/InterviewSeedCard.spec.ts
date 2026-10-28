@@ -16,7 +16,7 @@ it('does not activate merely by loading; explicit action enables pack',async()=>
 it('status error displays retry instead of treating pack as absent',async()=>{
  api.status.mockRejectedValueOnce(new Error('Network Error'));
  const w=mount(InterviewSeedCard,{global:{stubs:{RouterLink:true}}});await flushPromises();expect(w.find('[role="alert"]').exists()).toBe(true);
- await w.find('.kb-state-retry').trigger('click');await flushPromises();expect(w.text()).toContain('开始 Java + AI 面试学习');w.unmount()
+ await w.find('.kf-state-retry').trigger('click');await flushPromises();expect(w.text()).toContain('开始 Java + AI 面试学习');w.unmount()
 })
 it('failed activation retains opt-in and can safely retry',async()=>{
  api.activate.mockRejectedValueOnce(new Error('初始化事务失败'));

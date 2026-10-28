@@ -9,4 +9,4 @@ const categories=[{id:1,name:'Java',children:[{id:2,name:'并发',children:[{id:
 const options=Array.from({length:30},(_,i)=>({value:i,label:'选项 '+i}))
 async function load(query:string,signal:AbortSignal){requests.value.push(query);await new Promise<void>((resolve,reject)=>{const timer=setTimeout(resolve,query==='old'?300:40);signal.addEventListener('abort',()=>{clearTimeout(timer);reject(new DOMException('aborted','AbortError'))},{once:true})});if(query==='error')throw Error('远程加载失败');return [{value:42,label:query||'远程选项'}]}
 </script>
-<style scoped>main{padding:var(--kb-space-6);display:grid;gap:var(--kb-space-6);max-width:42rem}.normal{margin-top:var(--kb-space-5)}.edge{position:fixed;right:var(--kb-space-2);bottom:var(--kb-space-2);width:min(15rem,80vw);overflow:hidden}output{overflow-wrap:anywhere}</style>
+<style scoped>main{padding:var(--kf-space-6);display:grid;gap:var(--kf-space-6);max-width:42rem}.normal{margin-top:var(--kf-space-5)}.edge{position:fixed;right:var(--kf-space-2);bottom:var(--kf-space-2);width:min(15rem,80vw);overflow:hidden}output{overflow-wrap:anywhere}</style>

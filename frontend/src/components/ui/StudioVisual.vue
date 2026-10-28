@@ -9,10 +9,10 @@ const failed = ref(false)
 
 <style scoped>
 .studio-visual {
-  width: var(--kb-studio-art-width);
-  height: var(--kb-studio-art-height);
+  width: var(--kf-studio-art-width);
+  height: var(--kf-studio-art-height);
   object-fit: cover;
-  border-radius: var(--kb-radius-lg);
+  border-radius: var(--kf-radius-lg);
   flex-shrink: 0;
   pointer-events: none;
 }

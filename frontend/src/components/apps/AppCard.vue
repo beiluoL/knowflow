@@ -1,5 +1,5 @@
 <template>
-  <article class="app-card" :style="{ borderColor: 'var(--kb-border)' }">
+  <article class="app-card" :style="{ borderColor: 'var(--kf-border)' }">
     <div class="app-card-head">
       <span class="app-icon" :style="{ background: iconBg, color: iconColor }" aria-hidden="true">
         <Icon :name="app.icon" :size="20" />
@@ -77,25 +77,25 @@ defineEmits<{
   (e: 'primary', app: AppDefinition): void
 }>()
 
-/** 图标底色：按分类给低饱和底色（全部走 --kb-* 令牌，§56 不新增 rgb()/hex） */
+/** 图标底色：按分类给低饱和底色（全部走 --kf-* 令牌，§56 不新增 rgb()/hex） */
 const iconBg = computed(() => {
   switch (props.app.category) {
     case 'PRACTICE':
-      return 'var(--kb-success-subtle)'
+      return 'var(--kf-success-subtle)'
     case 'UNDERSTANDING':
-      return 'var(--kb-warning-subtle)'
+      return 'var(--kf-warning-subtle)'
     default:
-      return 'var(--kb-primary-soft)'
+      return 'var(--kf-primary-soft)'
   }
 })
 const iconColor = computed(() => {
   switch (props.app.category) {
     case 'PRACTICE':
-      return 'var(--kb-success)'
+      return 'var(--kf-success)'
     case 'UNDERSTANDING':
-      return 'var(--kb-warning)'
+      return 'var(--kf-warning)'
     default:
-      return 'var(--kb-primary)'
+      return 'var(--kf-primary)'
   }
 })
 
@@ -125,13 +125,13 @@ const statusClass = computed(() => {
   flex-direction: column;
   gap: 12px;
   padding: 16px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .app-card:hover {
-  border-color: var(--kb-primary-muted);
+  border-color: var(--kf-primary-muted);
 }
 .app-card-head {
   display: flex;
@@ -145,20 +145,20 @@ const statusClass = computed(() => {
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   flex-shrink: 0;
 }
 .app-name {
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1.4;
 }
 .app-desc {
   margin-top: 2px;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1.5;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -182,16 +182,16 @@ const statusClass = computed(() => {
   gap: 4px;
   padding: 2px 8px;
   border-radius: 999px;
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   line-height: 1.6;
 }
 .chip-enabled {
-  background: var(--kb-success-subtle);
-  color: var(--kb-success);
+  background: var(--kf-success-subtle);
+  color: var(--kf-success);
 }
 .chip-neutral {
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 
 /* §255-256：移动端操作按钮最小 44px 热区 */

@@ -107,11 +107,11 @@ function downloadHtml() {
 
 <style scoped>
 .html-preview {
-  margin-block: var(--kb-space-3);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm, 8px);
+  margin-block: var(--kf-space-3);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm, 8px);
   overflow: hidden;
-  background: var(--kb-card);
+  background: var(--kf-card);
 }
 .html-preview.is-fullscreen {
   position: fixed;
@@ -127,24 +127,24 @@ function downloadHtml() {
   justify-content: space-between;
   gap: 12px;
   padding: 6px 8px 6px 12px;
-  border-bottom: 1px solid var(--kb-border);
-  background: var(--kb-muted, #f6f7f9);
+  border-bottom: 1px solid var(--kf-border);
+  background: var(--kf-muted, #f6f7f9);
 }
 .html-preview-title {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .html-preview-actions { display: flex; align-items: center; gap: 2px; }
 .html-device-switch {
   display: inline-flex;
   padding: 2px;
   margin-inline-end: 4px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 999px;
-  background: var(--kb-card);
+  background: var(--kf-card);
 }
 .html-device-switch button {
   display: inline-flex;
@@ -155,12 +155,12 @@ function downloadHtml() {
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
 }
 .html-device-switch button.is-active {
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.12));
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.12));
+  color: var(--kf-primary);
 }
 .html-preview-btn {
   display: inline-flex;
@@ -171,23 +171,23 @@ function downloadHtml() {
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
 }
-.html-preview-btn:hover { background: var(--kb-border); color: var(--kb-foreground); }
-.html-preview-btn:focus-visible { outline: 2px solid var(--kb-primary); outline-offset: 1px; }
-.html-preview-btn.is-done { color: var(--kb-state-success, #1a9f6a); }
+.html-preview-btn:hover { background: var(--kf-border); color: var(--kf-foreground); }
+.html-preview-btn:focus-visible { outline: 2px solid var(--kf-primary); outline-offset: 1px; }
+.html-preview-btn.is-done { color: var(--kf-state-success, #1a9f6a); }
 .html-preview-notice {
   padding: 6px 12px;
   font-size: 11px;
-  color: var(--kb-muted-foreground);
-  background: var(--kb-muted, #f6f7f9);
-  border-bottom: 1px solid var(--kb-border);
+  color: var(--kf-muted-foreground);
+  background: var(--kf-muted, #f6f7f9);
+  border-bottom: 1px solid var(--kf-border);
 }
 .html-preview-stage {
   display: flex;
   justify-content: center;
-  background: var(--kb-muted, #f6f7f9);
+  background: var(--kf-muted, #f6f7f9);
 }
 .html-preview-stage.is-fullscreen,
 .html-preview.is-fullscreen .html-preview-stage { flex: 1; min-height: 0; }
@@ -203,8 +203,8 @@ function downloadHtml() {
   max-width: 100%;
   height: 640px;
   margin: 12px 0;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 }
 </style>

@@ -8,7 +8,7 @@
  *
  * 为什么是守护而非全量改造：全站 111 文件 / 728 处非阶梯命中，直接改会引发大量
  * 无法在本环境视觉验证（§43）的布局回归风险。故先冻结面、阻止新增漂移，
- * 逐页令牌化（改用 ui-tokens.css 语义类或 --kb-* 令牌）留作人工视觉复核待办。
+ * 逐页令牌化（改用 ui-tokens.css 语义类或 --kf-* 令牌）留作人工视觉复核待办。
  *
  * 降低某文件计数 = 合法改进（测试通过）。需重算基线时重跑 /tmp/gen_typography_baseline.mjs。
  */
@@ -43,11 +43,11 @@ describe('3.3.2 Typography/Radius 令牌化守护', () => {
     ).toHaveLength(0)
   })
 
-  it('ui-tokens.css 语义类不得写死 px（仅引用 --kb-* 令牌）', () => {
+  it('ui-tokens.css 语义类不得写死 px（仅引用 --kf-* 令牌）', () => {
     const raw = current['styles/ui-tokens.css'] !== undefined
       ? loadRawSourcesViaGlob()['styles/ui-tokens.css']
       : ''
-    // ui-tokens.css 只允许 var(--kb-*)；若出现 font-size:/border-radius: 后接数字 px 即违规
+    // ui-tokens.css 只允许 var(--kf-*)；若出现 font-size:/border-radius: 后接数字 px 即违规
     const bad = /(?:font-size|border-radius)\s*:\s*\d/.test(raw ?? '')
     expect(bad, 'ui-tokens.css 出现硬编码 px，违反令牌化契约').toBe(false)
   })

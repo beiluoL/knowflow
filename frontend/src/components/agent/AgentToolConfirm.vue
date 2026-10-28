@@ -71,5 +71,5 @@ function decide(approved: boolean) {
   </ConfirmDialog>
 </template>
 <style scoped>
-.tool-args{display:grid;gap:var(--kb-space-2);margin-top:var(--kb-space-4)}.tool-args span,.countdown{font-size:var(--kb-fs-caption);color:var(--kb-muted-foreground)}.tool-args pre{max-height:35dvh;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:var(--kb-space-3);background:var(--kb-muted);border-radius:var(--kb-radius-md)}code,pre{font-family:var(--font-mono)}.countdown{margin-top:var(--kb-space-3)}
+.tool-args{display:grid;gap:var(--kf-space-2);margin-top:var(--kf-space-4)}.tool-args span,.countdown{font-size:var(--kf-fs-caption);color:var(--kf-muted-foreground)}.tool-args pre{max-height:35dvh;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;padding:var(--kf-space-3);background:var(--kf-muted);border-radius:var(--kf-radius-md)}code,pre{font-family:var(--font-mono)}.countdown{margin-top:var(--kf-space-3)}
 </style>

@@ -93,9 +93,9 @@ export const entries:(PlaygroundEntry & {production:ProductionMetadata})[]=[...b
 export function searchEntries(query:string,category='全部'){const q=query.trim().toLowerCase();return entries.filter(e=>(category==='全部'||e.category===category)&&`${e.name} ${e.title} ${e.category} ${e.description} ${e.props.map(p=>p.name).join(' ')} ${Object.keys(e.designSpecs).join(' ')}`.toLowerCase().includes(q))}
 // Names only; every value is read from the existing computed CSS, never copied into another theme.
 export const tokenGroups:Record<string,string[]>={
- 颜色:['--kb-primary','--kb-foreground','--kb-background','--kb-card','--kb-border','--kb-muted','--kb-state-success','--kb-state-warning','--kb-state-error','--kb-danger-text'],
- 字体:['--font-sans','--font-mono','--kb-fs-h1','--kb-fs-h2','--kb-fs-h3','--kb-fs-h4','--kb-fs-body-lg','--kb-fs-body-md','--kb-fs-body-sm','--kb-fs-caption','--kb-lh-body-md','--kb-lh-h1','--kb-fw-label','--kb-fw-h1'],
- 尺寸:['--kb-btn-height-sm','--kb-btn-height-md','--kb-btn-height-lg','--kb-input-height','--kb-checkbox-size','--kb-button-icon-slot'],
- 间距:['--kb-space-1','--kb-space-2','--kb-space-3','--kb-space-4','--kb-space-5','--kb-space-6','--kb-space-8'],
- 圆角:['--kb-radius-xs','--kb-radius-sm','--kb-radius-md','--kb-radius-lg','--kb-radius-xl','--kb-radius-full'],
- 阴影:['--shadow-dropdown-2','--shadow-dropdown-3','--kb-shadow-md']}
+ 颜色:['--kf-primary','--kf-foreground','--kf-background','--kf-card','--kf-border','--kf-muted','--kf-state-success','--kf-state-warning','--kf-state-error','--kf-danger-text'],
+ 字体:['--font-sans','--font-mono','--kf-fs-h1','--kf-fs-h2','--kf-fs-h3','--kf-fs-h4','--kf-fs-body-lg','--kf-fs-body-md','--kf-fs-body-sm','--kf-fs-caption','--kf-lh-body-md','--kf-lh-h1','--kf-fw-label','--kf-fw-h1'],
+ 尺寸:['--kf-btn-height-sm','--kf-btn-height-md','--kf-btn-height-lg','--kf-input-height','--kf-checkbox-size','--kf-button-icon-slot'],
+ 间距:['--kf-space-1','--kf-space-2','--kf-space-3','--kf-space-4','--kf-space-5','--kf-space-6','--kf-space-8'],
+ 圆角:['--kf-radius-xs','--kf-radius-sm','--kf-radius-md','--kf-radius-lg','--kf-radius-xl','--kf-radius-full'],
+ 阴影:['--shadow-dropdown-2','--shadow-dropdown-3','--kf-shadow-md']}

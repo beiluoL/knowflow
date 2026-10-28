@@ -34,11 +34,11 @@
 
       <!-- 操作按钮 -->
       <div class="notfound-actions">
-      <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="goHome">
+      <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="goHome">
         <Icon name="home" :size="16" aria-hidden="true" />
         <span>返回首页</span>
       </button>
-      <button class="btn-outline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="goSearch">
+      <button class="btn-outline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="goSearch">
         <Icon name="search" :size="16" aria-hidden="true" />
         <span>搜索知识库</span>
       </button>
@@ -73,7 +73,7 @@ const goSearch = () => {
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
 
 .notfound-inner {
@@ -98,7 +98,7 @@ const goSearch = () => {
   height: 112px;
   border-radius: 6px;
   overflow: hidden;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 /* 书脊（左侧蓝色竖条） */
@@ -110,7 +110,7 @@ const goSearch = () => {
   width: 8px;
   border-top-left-radius: 6px;
   border-bottom-left-radius: 6px;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   opacity: 0.5;
 }
 
@@ -129,7 +129,7 @@ const goSearch = () => {
 .book-line {
   height: 4px;
   border-radius: 999px;
-  background: var(--kb-border);
+  background: var(--kf-border);
 }
 
 .book-line.w-full {
@@ -155,7 +155,7 @@ const goSearch = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   box-shadow: 0 4px 12px rgba(59, 111, 224, 0.3);
 }
 
@@ -172,7 +172,7 @@ const goSearch = () => {
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.04em;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   opacity: 0.18;
   margin: 0;
 }
@@ -183,7 +183,7 @@ const goSearch = () => {
   font-weight: 600;
   line-height: 1.35;
   letter-spacing: -0.01em;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 16px 0 0 0;
 }
 
@@ -192,7 +192,7 @@ const goSearch = () => {
   font-size: 14px;
   font-weight: 400;
   line-height: 1.6;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin: 12px 0 0 0;
 }
 
@@ -222,8 +222,8 @@ const goSearch = () => {
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
   transition: opacity 0.15s;
@@ -243,13 +243,13 @@ const goSearch = () => {
   font-size: 14px;
   font-weight: 500;
   background: transparent;
-  color: var(--kb-foreground);
-  border: 1px solid var(--kb-border);
+  color: var(--kf-foreground);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .btn-outline:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 </style>

@@ -23,13 +23,13 @@
           v-model="filters.keyword"
           type="text"
           placeholder="标题 / canonicalKey"
-          class="w-56 pl-9 pr-3 py-2 text-sm outline-none kb-input kb-form-control"
+          class="w-56 pl-9 pr-3 py-2 text-sm outline-none kf-input kf-form-control"
           @keyup.enter="reload(1)"
         />
       </div>
       <select
         v-model="filters.reviewStatus"
-        class="px-3 py-2 text-sm outline-none kb-select kb-form-control"
+        class="px-3 py-2 text-sm outline-none kf-select kf-form-control"
         @change="reload(1)"
       >
         <option value="">全部审核状态</option>
@@ -39,7 +39,7 @@
       </select>
       <select
         v-model.number="filters.status"
-        class="px-3 py-2 text-sm outline-none kb-select kb-form-control"
+        class="px-3 py-2 text-sm outline-none kf-select kf-form-control"
         @change="reload(1)"
       >
         <option :value="-1">全部上下架</option>
@@ -157,19 +157,19 @@
         <div class="grid grid-cols-2 gap-3">
           <label class="text-sm">
             <span class="block text-xs text-muted-foreground mb-1">标题 *</span>
-            <input v-model="form.title" class="w-full px-3 py-2 text-sm outline-none kb-input kb-form-control" />
+            <input v-model="form.title" class="w-full px-3 py-2 text-sm outline-none kf-input kf-form-control" />
           </label>
           <label class="text-sm">
             <span class="block text-xs text-muted-foreground mb-1">canonicalKey（语义去重键）</span>
-            <input v-model="form.canonicalKey" placeholder="如 ALGO_TWO_SUM" class="w-full px-3 py-2 text-sm outline-none font-mono kb-input kb-form-control" />
+            <input v-model="form.canonicalKey" placeholder="如 ALGO_TWO_SUM" class="w-full px-3 py-2 text-sm outline-none font-mono kf-input kf-form-control" />
           </label>
           <label class="text-sm">
             <span class="block text-xs text-muted-foreground mb-1">分类 topicCode *</span>
-            <input v-model="form.topicCode" placeholder="如 ALGO_HASH" class="w-full px-3 py-2 text-sm outline-none font-mono kb-input kb-form-control" />
+            <input v-model="form.topicCode" placeholder="如 ALGO_HASH" class="w-full px-3 py-2 text-sm outline-none font-mono kf-input kf-form-control" />
           </label>
           <label class="text-sm">
             <span class="block text-xs text-muted-foreground mb-1">难度 *</span>
-            <select v-model.number="form.difficulty" class="w-full px-3 py-2 text-sm outline-none kb-select kb-form-control">
+            <select v-model.number="form.difficulty" class="w-full px-3 py-2 text-sm outline-none kf-select kf-form-control">
               <option :value="1">简单</option>
               <option :value="2">中等</option>
               <option :value="3">困难</option>
@@ -179,25 +179,25 @@
 
         <label class="block text-sm">
           <span class="block text-xs text-muted-foreground mb-1">题面（Markdown）*</span>
-          <textarea v-model="form.content" rows="6" class="w-full px-3 py-2 text-sm leading-6 outline-none kb-textarea kb-form-control"></textarea>
+          <textarea v-model="form.content" rows="6" class="w-full px-3 py-2 text-sm leading-6 outline-none kf-textarea kf-form-control"></textarea>
         </label>
 
         <div class="grid grid-cols-2 gap-3">
           <label class="text-sm">
             <span class="block text-xs text-muted-foreground mb-1">函数签名 *</span>
-            <input v-model="form.functionSignature" class="w-full px-3 py-2 text-sm font-mono kb-input kb-form-control" />
+            <input v-model="form.functionSignature" class="w-full px-3 py-2 text-sm font-mono kf-input kf-form-control" />
           </label>
           <label class="text-sm">
             <span class="block text-xs text-muted-foreground mb-1">标签（逗号分隔）</span>
-            <input v-model="form.tags" class="w-full px-3 py-2 text-sm kb-input kb-form-control" />
+            <input v-model="form.tags" class="w-full px-3 py-2 text-sm kf-input kf-form-control" />
           </label>
           <label class="text-sm">
             <span class="block text-xs text-muted-foreground mb-1">时间限制 ms</span>
-            <input v-model.number="form.timeLimitMs" type="number" class="w-full px-3 py-2 text-sm kb-input kb-form-control" />
+            <input v-model.number="form.timeLimitMs" type="number" class="w-full px-3 py-2 text-sm kf-input kf-form-control" />
           </label>
           <label class="text-sm">
             <span class="block text-xs text-muted-foreground mb-1">内存限制 MB</span>
-            <input v-model.number="form.memoryLimitMb" type="number" class="w-full px-3 py-2 text-sm kb-input kb-form-control" />
+            <input v-model.number="form.memoryLimitMb" type="number" class="w-full px-3 py-2 text-sm kf-input kf-form-control" />
           </label>
         </div>
 
@@ -209,11 +209,11 @@
         <div class="grid grid-cols-2 gap-3">
           <label class="text-sm">
             <span class="block text-xs text-muted-foreground mb-1">约束 constraints</span>
-            <textarea v-model="form.constraints" rows="3" class="w-full px-3 py-2 text-sm kb-textarea kb-form-control"></textarea>
+            <textarea v-model="form.constraints" rows="3" class="w-full px-3 py-2 text-sm kf-textarea kf-form-control"></textarea>
           </label>
           <label class="text-sm">
             <span class="block text-xs text-muted-foreground mb-1">示例 examples（JSON 数组）</span>
-            <textarea v-model="form.examples" rows="3" placeholder='[{"input":"...","output":"..."}]' class="w-full px-3 py-2 text-xs font-mono kb-textarea kb-form-control"></textarea>
+            <textarea v-model="form.examples" rows="3" placeholder='[{"input":"...","output":"..."}]' class="w-full px-3 py-2 text-xs font-mono kf-textarea kf-form-control"></textarea>
           </label>
         </div>
 
@@ -224,19 +224,19 @@
         <div class="grid grid-cols-2 gap-3">
           <label class="text-sm">
             <span class="block text-xs text-muted-foreground mb-1">题解</span>
-            <textarea v-model="form.solutionExplanation" rows="4" class="w-full px-3 py-2 text-sm kb-textarea kb-form-control"></textarea>
+            <textarea v-model="form.solutionExplanation" rows="4" class="w-full px-3 py-2 text-sm kf-textarea kf-form-control"></textarea>
           </label>
           <label class="text-sm">
             <span class="block text-xs text-muted-foreground mb-1">复杂度分析</span>
-            <textarea v-model="form.complexityAnalysis" rows="4" class="w-full px-3 py-2 text-sm kb-textarea kb-form-control"></textarea>
+            <textarea v-model="form.complexityAnalysis" rows="4" class="w-full px-3 py-2 text-sm kf-textarea kf-form-control"></textarea>
           </label>
           <label class="text-sm">
             <span class="block text-xs text-muted-foreground mb-1">面试追问</span>
-            <textarea v-model="form.followUps" rows="3" class="w-full px-3 py-2 text-sm kb-textarea kb-form-control"></textarea>
+            <textarea v-model="form.followUps" rows="3" class="w-full px-3 py-2 text-sm kf-textarea kf-form-control"></textarea>
           </label>
           <label class="text-sm">
             <span class="block text-xs text-muted-foreground mb-1">常见错误</span>
-            <textarea v-model="form.commonMistakes" rows="3" class="w-full px-3 py-2 text-sm kb-textarea kb-form-control"></textarea>
+            <textarea v-model="form.commonMistakes" rows="3" class="w-full px-3 py-2 text-sm kf-textarea kf-form-control"></textarea>
           </label>
         </div>
 
@@ -251,27 +251,27 @@
           <div v-for="(c, i) in form.cases" :key="i" class="rounded-lg border border-border p-3 mb-2 space-y-2">
             <div class="flex items-center gap-2">
               <span class="text-xs text-muted-foreground w-14">#{{ i + 1 }}</span>
-              <select v-model="c.visibility" class="px-2 py-1 text-xs kb-select kb-form-control">
+              <select v-model="c.visibility" class="px-2 py-1 text-xs kf-select kf-form-control">
                 <option value="PUBLIC">公开</option>
                 <option value="HIDDEN">隐藏</option>
               </select>
               <label class="text-xs text-muted-foreground inline-flex items-center gap-1">
                 权重
-                <input v-model.number="c.weight" type="number" min="1" class="w-16 px-2 py-1 text-xs kb-input kb-form-control" />
+                <input v-model.number="c.weight" type="number" min="1" class="w-16 px-2 py-1 text-xs kf-input kf-form-control" />
               </label>
               <button class="ml-auto text-xs text-red-500" @click="removeCase(i)">
                 <Icon name="trash-2" :size="14" />
               </button>
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <input v-model="c.input" placeholder="输入" class="px-2 py-1.5 text-xs font-mono kb-input kb-form-control" />
-              <input v-model="c.expectedOutput" placeholder="期望输出" class="px-2 py-1.5 text-xs font-mono kb-input kb-form-control" />
+              <input v-model="c.input" placeholder="输入" class="px-2 py-1.5 text-xs font-mono kf-input kf-form-control" />
+              <input v-model="c.expectedOutput" placeholder="期望输出" class="px-2 py-1.5 text-xs font-mono kf-input kf-form-control" />
             </div>
           </div>
         </div>
 
         <div class="flex items-center gap-3 border-t border-border pt-4">
-          <label class="text-sm inline-flex items-center gap-2 kb-checkbox-row">
+          <label class="text-sm inline-flex items-center gap-2 kf-checkbox-row">
             <Checkbox as="span" v-model.number="form.status"  :checked="form.status === 1"
               @native-change="form.status = ($event.target as HTMLInputElement).checked ? 1 : 0" />
             管理员确认内容后发布（等同审核通过）

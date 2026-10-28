@@ -4,7 +4,7 @@
       <span class="mermaid-spinner" />
       <span>图解生成中…</span>
     </div>
-    <div v-else-if="error" class="mermaid-error" :style="{ color: 'var(--kb-destructive)' }">
+    <div v-else-if="error" class="mermaid-error" :style="{ color: 'var(--kf-destructive)' }">
       <Icon name="alert-circle" :size="16" />
       <span>{{ error }}</span>
     </div>
@@ -52,7 +52,7 @@ const render = async () => {
         themeVariables: {
           primaryColor: '#e8f0fe',
           primaryTextColor: '#1e293b',
-          primaryBorderColor: 'var(--kb-primary)',
+          primaryBorderColor: 'var(--kf-primary)',
           lineColor: '#94a3b8',
           fontFamily: 'inherit',
           fontSize: '14px',
@@ -101,7 +101,7 @@ watch(() => props.code, render)
   display: inline-block;
   width: 16px;
   height: 16px;
-  border: 2px solid var(--kb-primary);
+  border: 2px solid var(--kf-primary);
   border-top-color: transparent;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;

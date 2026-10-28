@@ -1,63 +1,63 @@
 <template>
-  <transition name="kb-palette">
-    <div v-if="isOpen" class="kb-palette-overlay" @mousedown.self="close">
+  <transition name="kf-palette">
+    <div v-if="isOpen" class="kf-palette-overlay" @mousedown.self="close">
       <div
         ref="panelRef"
-        class="kb-palette-card"
+        class="kf-palette-card"
         role="dialog"
         aria-modal="true"
         aria-label="命令面板"
         @mousedown.self="close"
       >
         <!-- 搜索输入 -->
-        <div class="kb-palette-input-wrap">
-          <Icon name="search" :size="16" class="kb-palette-search-icon" />
+        <div class="kf-palette-input-wrap">
+          <Icon name="search" :size="16" class="kf-palette-search-icon" />
           <input
             ref="inputRef"
             v-model="query"
             type="text"
-            class="kb-palette-input"
+            class="kf-palette-input"
             placeholder="输入命令、页面名或关键词…"
             autocomplete="off"
             spellcheck="false"
             @keydown="onKeydown"
           />
-          <kbd class="kb-palette-esc" @click="close">Esc</kbd>
+          <kbd class="kf-palette-esc" @click="close">Esc</kbd>
         </div>
 
         <!-- 命令列表 -->
-        <div class="kb-palette-list">
+        <div class="kf-palette-list">
           <template v-for="group in grouped" :key="group.key">
-            <div class="kb-palette-group">{{ group.label }}</div>
+            <div class="kf-palette-group">{{ group.label }}</div>
             <button
               v-for="item in group.items"
               :key="item.id"
               :ref="el => setItemRef(el as HTMLElement | null, item.id)"
               type="button"
-              :class="['kb-palette-item', activeId === item.id ? 'kb-palette-item-active' : '']"
+              :class="['kf-palette-item', activeId === item.id ? 'kf-palette-item-active' : '']"
               @click="execute(item)"
               @mouseenter="activeId = item.id"
             >
-              <Icon v-if="item.icon" :name="item.icon" :size="16" class="kb-palette-item-icon" />
-              <span class="kb-palette-item-title" v-html="highlight(item.title)" />
-              <span v-if="item.subtitle" class="kb-palette-item-sub" v-html="highlight(item.subtitle)" />
-              <span v-if="item.shortcut" class="kb-palette-item-shortcut">
+              <Icon v-if="item.icon" :name="item.icon" :size="16" class="kf-palette-item-icon" />
+              <span class="kf-palette-item-title" v-html="highlight(item.title)" />
+              <span v-if="item.subtitle" class="kf-palette-item-sub" v-html="highlight(item.subtitle)" />
+              <span v-if="item.shortcut" class="kf-palette-item-shortcut">
                 <kbd v-for="(k, i) in item.shortcut" :key="i">{{ k }}</kbd>
               </span>
             </button>
           </template>
-          <div v-if="grouped.length === 0" class="kb-palette-empty">无匹配命令</div>
+          <div v-if="grouped.length === 0" class="kf-palette-empty">无匹配命令</div>
         </div>
 
         <!-- 底部提示 -->
-        <div class="kb-palette-footer">
-          <span class="kb-palette-hint">
+        <div class="kf-palette-footer">
+          <span class="kf-palette-hint">
             <kbd>↑</kbd><kbd>↓</kbd> 导航
           </span>
-          <span class="kb-palette-hint">
+          <span class="kf-palette-hint">
             <kbd>↵</kbd> 执行
           </span>
-          <span class="kb-palette-hint">
+          <span class="kf-palette-hint">
             <kbd>Esc</kbd> 关闭
           </span>
         </div>
@@ -225,12 +225,12 @@ function highlight(text: string): string {
   const before = escaped.slice(0, idx)
   const matched = escaped.slice(idx, idx + ql.length)
   const after = escaped.slice(idx + ql.length)
-  return `${before}<mark class="kb-palette-mark">${matched}</mark>${after}`
+  return `${before}<mark class="kf-palette-mark">${matched}</mark>${after}`
 }
 </script>
 
 <style scoped>
-.kb-palette-overlay {
+.kf-palette-overlay {
   position: fixed;
   inset: 0;
   z-index: 100;
@@ -241,69 +241,69 @@ function highlight(text: string): string {
   justify-content: center;
   padding-top: 12vh;
 }
-.kb-palette-card {
+.kf-palette-card {
   width: 640px;
   max-width: 92vw;
   max-height: 70vh;
   display: flex;
   flex-direction: column;
   border-radius: 14px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
   overflow: hidden;
 }
-.kb-palette-input-wrap {
+.kf-palette-input-wrap {
   position: relative;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
-.kb-palette-search-icon {
+.kf-palette-search-icon {
   position: absolute;
   left: 16px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   pointer-events: none;
 }
-.kb-palette-input {
+.kf-palette-input {
   width: 100%;
   height: 56px;
   padding: 0 60px 0 44px;
   border: none;
   background: transparent;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-size: 16px;
   outline: none;
 }
-.kb-palette-input::placeholder {
-  color: var(--kb-muted-foreground);
+.kf-palette-input::placeholder {
+  color: var(--kf-muted-foreground);
 }
-.kb-palette-esc {
+.kf-palette-esc {
   position: absolute;
   right: 14px;
   padding: 2px 8px;
   border-radius: 6px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
   font-size: 12px;
   cursor: pointer;
-  font-family: var(--kb-font-mono, monospace);
+  font-family: var(--kf-font-mono, monospace);
 }
-.kb-palette-list {
+.kf-palette-list {
   flex: 1;
   overflow-y: auto;
   padding: 6px;
 }
-.kb-palette-group {
+.kf-palette-group {
   padding: 8px 12px 4px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
-.kb-palette-item {
+.kf-palette-item {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -312,23 +312,23 @@ function highlight(text: string): string {
   border-radius: 8px;
   text-align: left;
   cursor: pointer;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   background: transparent;
   border: none;
   transition: background 0.12s ease;
 }
-.kb-palette-item:hover,
-.kb-palette-item-active {
-  background: var(--kb-muted);
+.kf-palette-item:hover,
+.kf-palette-item-active {
+  background: var(--kf-muted);
 }
-.kb-palette-item-icon {
-  color: var(--kb-muted-foreground);
+.kf-palette-item-icon {
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
-.kb-palette-item-active .kb-palette-item-icon {
-  color: var(--kb-primary);
+.kf-palette-item-active .kf-palette-item-icon {
+  color: var(--kf-primary);
 }
-.kb-palette-item-title {
+.kf-palette-item-title {
   font-size: 14px;
   font-weight: 500;
   flex: 1;
@@ -336,78 +336,78 @@ function highlight(text: string): string {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.kb-palette-item-sub {
+.kf-palette-item-sub {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.kb-palette-item-shortcut {
+.kf-palette-item-shortcut {
   display: inline-flex;
   gap: 4px;
   flex-shrink: 0;
 }
-.kb-palette-item-shortcut kbd {
+.kf-palette-item-shortcut kbd {
   padding: 1px 6px;
   border-radius: 4px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
   font-size: 11px;
-  font-family: var(--kb-font-mono, monospace);
+  font-family: var(--kf-font-mono, monospace);
 }
-.kb-palette-empty {
+.kf-palette-empty {
   padding: 32px;
   text-align: center;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 14px;
 }
-.kb-palette-footer {
+.kf-palette-footer {
   display: flex;
   gap: 16px;
   padding: 8px 14px;
-  border-top: 1px solid var(--kb-border);
-  background: var(--kb-muted);
+  border-top: 1px solid var(--kf-border);
+  background: var(--kf-muted);
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
-.kb-palette-hint {
+.kf-palette-hint {
   display: inline-flex;
   align-items: center;
   gap: 4px;
 }
-.kb-palette-hint kbd {
+.kf-palette-hint kbd {
   padding: 1px 6px;
   border-radius: 4px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   font-size: 11px;
-  font-family: var(--kb-font-mono, monospace);
+  font-family: var(--kf-font-mono, monospace);
 }
-:deep(.kb-palette-mark) {
+:deep(.kf-palette-mark) {
   background: rgba(59, 111, 224, 0.16);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   border-radius: 2px;
   padding: 0 1px;
 }
 /* 进出过渡 */
-.kb-palette-enter-from,
-.kb-palette-leave-to {
+.kf-palette-enter-from,
+.kf-palette-leave-to {
   opacity: 0;
 }
-.kb-palette-enter-active,
-.kb-palette-leave-active {
+.kf-palette-enter-active,
+.kf-palette-leave-active {
   transition: opacity 0.15s ease;
 }
-.kb-palette-enter-from .kb-palette-card,
-.kb-palette-leave-to .kb-palette-card {
+.kf-palette-enter-from .kf-palette-card,
+.kf-palette-leave-to .kf-palette-card {
   transform: translateY(-8px);
 }
-.kb-palette-enter-active .kb-palette-card,
-.kb-palette-leave-active .kb-palette-card {
+.kf-palette-enter-active .kf-palette-card,
+.kf-palette-leave-active .kf-palette-card {
   transition: transform 0.15s ease;
 }
 </style>

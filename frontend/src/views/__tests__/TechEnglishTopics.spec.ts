@@ -84,7 +84,7 @@ describe('TechEnglishTopics', () => {
     const wrapper = await mountPage()
     expect(wrapper.text()).toContain('专题加载失败')
     api.getTopics.mockResolvedValue(TOPICS)
-    await wrapper.get('.kb-state-retry').trigger('click')
+    await wrapper.get('.kf-state-retry').trigger('click')
     await flushPromises()
     expect(wrapper.findAll('.te-topic-card').length).toBe(TOPICS.length)
   })

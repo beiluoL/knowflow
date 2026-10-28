@@ -353,7 +353,7 @@ const onRowClick = () => {
 }
 
 .node-row.active .active-indicator {
-  background: var(--kb-primary, var(--kb-primary));
+  background: var(--kf-primary, var(--kf-primary));
 }
 
 .node-row:hover {
@@ -361,23 +361,23 @@ const onRowClick = () => {
 }
 
 .node-row.active {
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.1));
-  color: var(--kb-primary, var(--kb-primary));
+  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.1));
+  color: var(--kf-primary, var(--kf-primary));
   font-weight: 600;
 }
 
 .node-row.is-dir {
-  color: var(--kb-foreground, var(--kb-foreground));
+  color: var(--kf-foreground, var(--kf-foreground));
   font-weight: 500;
 }
 
 .node-row.is-doc {
-  color: var(--kb-muted-foreground, var(--kb-muted-foreground));
+  color: var(--kf-muted-foreground, var(--kf-muted-foreground));
   font-weight: 400;
 }
 
 .node-row.active.is-doc {
-  color: var(--kb-primary, var(--kb-primary));
+  color: var(--kf-primary, var(--kf-primary));
 }
 
 /* ===== 展开/折叠图标 ===== */
@@ -388,14 +388,14 @@ const onRowClick = () => {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
-  color: var(--kb-muted-foreground, var(--kb-muted-foreground));
+  color: var(--kf-muted-foreground, var(--kf-muted-foreground));
   border-radius: 3px;
   transition: color 0.12s, background 0.12s, transform 0.12s;
   cursor: pointer;
 }
 
 .expand-icon:hover {
-  color: var(--kb-primary, var(--kb-primary));
+  color: var(--kf-primary, var(--kf-primary));
   background: rgba(59, 111, 224, 0.08);
 }
 
@@ -416,10 +416,10 @@ const onRowClick = () => {
 }
 
 .node-icon.cat-dir {
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 .node-icon.cat-dir-open {
-  color: var(--kb-warning-hover);
+  color: var(--kf-warning-hover);
 }
 .node-icon.cat-markdown {
   color: #1d4ed8;
@@ -431,13 +431,13 @@ const onRowClick = () => {
   color: #ec4899;
 }
 .node-icon.cat-pdf {
-  color: var(--kb-danger-hover);
+  color: var(--kf-danger-hover);
 }
 .node-icon.cat-table {
-  color: var(--kb-success-hover);
+  color: var(--kf-success-hover);
 }
 .node-icon.cat-text {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .node-icon.cat-archive {
   color: #ea580c;
@@ -447,7 +447,7 @@ const onRowClick = () => {
 }
 
 .node-row.active .node-icon {
-  color: var(--kb-primary, var(--kb-primary)) !important;
+  color: var(--kf-primary, var(--kf-primary)) !important;
 }
 
 /* ===== 名称 ===== */
@@ -470,13 +470,13 @@ const onRowClick = () => {
   border-radius: 9px;
   font-size: 11px;
   font-weight: 500;
-  color: var(--kb-muted-foreground, var(--kb-muted-foreground));
-  background: var(--kb-muted, var(--kb-sidebar));
+  color: var(--kf-muted-foreground, var(--kf-muted-foreground));
+  background: var(--kf-muted, var(--kf-sidebar));
 }
 
 .node-row:hover .node-count {
   background: rgba(59, 111, 224, 0.12);
-  color: var(--kb-primary, var(--kb-primary));
+  color: var(--kf-primary, var(--kf-primary));
 }
 
 /* ===== 子节点展开/折叠过渡 ===== */

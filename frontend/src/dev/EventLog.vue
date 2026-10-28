@@ -3,4 +3,4 @@
 import Button from '@/components/ui/Button.vue'
 defineProps<{events:{time:string;name:string;value:string}[]}>();defineEmits<{clear:[]}>()
 </script>
-<style scoped>.pg5-events ol{list-style:none;padding:0}.pg5-events li{padding-block:var(--kb-space-2);border-bottom:1px solid var(--kb-border)}.pg5-events time{color:var(--kb-muted-foreground);font-size:var(--kb-fs-caption)}.pg5-events pre{max-height:12rem;overflow:auto}</style>
+<style scoped>.pg5-events ol{list-style:none;padding:0}.pg5-events li{padding-block:var(--kf-space-2);border-bottom:1px solid var(--kf-border)}.pg5-events time{color:var(--kf-muted-foreground);font-size:var(--kf-fs-caption)}.pg5-events pre{max-height:12rem;overflow:auto}</style>

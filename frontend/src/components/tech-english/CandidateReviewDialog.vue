@@ -10,7 +10,7 @@
   >
     <section class="cr">
       <div class="cr-bar">
-        <label class="cr-publish kb-checkbox-row">
+        <label class="cr-publish kf-checkbox-row">
           <Checkbox as="span" v-model="publishOnApprove" />
           <span>审核通过时同时发布到公共词库（PUBLISHED）</span>
         </label>
@@ -43,7 +43,7 @@
             <span class="cr-field-label">中文释义</span>
             <input
               v-model="meanings[item.id]"
-              class="kb-input cr-meaning-input"
+              class="kf-input cr-meaning-input"
               maxlength="200"
               aria-label="中文释义"
               placeholder="审核通过前必须补全中文释义"
@@ -57,7 +57,7 @@
           <div class="cr-actions">
             <input
               v-model="notes[item.id]"
-              class="kb-input cr-note"
+              class="kf-input cr-note"
               maxlength="200"
               :placeholder="`审核备注（可选）`"
               :aria-label="`${item.headword} 审核备注`"
@@ -166,21 +166,21 @@ watch(
 .cr-publish {
   display: flex;
   align-items: center;
-  gap: var(--kb-checkbox-gap);
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-muted-foreground, #6b7280);
+  gap: var(--kf-checkbox-gap);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-muted-foreground, #6b7280);
 }
 
 .cr-state {
   margin: 0;
   padding: 24px 0;
   text-align: center;
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
   font-size: 13px;
 }
 
 .cr-error {
-  color: var(--kb-danger, #d93025);
+  color: var(--kf-danger, #d93025);
 }
 
 .cr-list {
@@ -197,8 +197,8 @@ watch(
   flex-direction: column;
   gap: 6px;
   padding: 12px;
-  border: 1px solid var(--kb-border, #e2e6ec);
-  border-radius: var(--kb-radius-md, 12px);
+  border: 1px solid var(--kf-border, #e2e6ec);
+  border-radius: var(--kf-radius-md, 12px);
 }
 
 .cr-head {
@@ -220,18 +220,18 @@ watch(
 .cr-tag {
   padding: 1px 6px;
   border-radius: 6px;
-  background: var(--kb-muted, #f7f8fa);
-  color: var(--kb-muted-foreground, #6b7280);
+  background: var(--kf-muted, #f7f8fa);
+  color: var(--kf-muted-foreground, #6b7280);
   font-size: 11px;
 }
 
 .cr-tag.is-ai {
-  color: var(--kb-primary, #3b6fe0);
-  background: var(--kb-primary-soft, #eef3fd);
+  color: var(--kf-primary, #3b6fe0);
+  background: var(--kf-primary-soft, #eef3fd);
 }
 
 .cr-tag.is-warn {
-  color: var(--kb-warning, #b45309);
+  color: var(--kf-warning, #b45309);
 }
 
 .cr-full,
@@ -239,7 +239,7 @@ watch(
 .cr-meta {
   margin: 0;
   font-size: 12px;
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
   line-height: 1.6;
 }
 
@@ -252,7 +252,7 @@ watch(
 .cr-field-label {
   flex: 0 0 auto;
   font-size: 12px;
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
 }
 
 .cr-meaning-input {
@@ -283,22 +283,22 @@ watch(
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border-radius: var(--kb-radius-sm, 8px);
-  border: 1px solid var(--kb-border, #e2e6ec);
-  background: var(--kb-card, #ffffff);
-  color: var(--kb-foreground, #1a1d23);
+  border-radius: var(--kf-radius-sm, 8px);
+  border: 1px solid var(--kf-border, #e2e6ec);
+  background: var(--kf-card, #ffffff);
+  color: var(--kf-foreground, #1a1d23);
   font-size: 12px;
   cursor: pointer;
 }
 
 .cr-btn-approve {
   border-color: transparent;
-  background: var(--kb-primary, #3b6fe0);
+  background: var(--kf-primary, #3b6fe0);
   color: #ffffff;
 }
 
 .cr-btn-reject {
-  color: var(--kb-danger, #d93025);
+  color: var(--kf-danger, #d93025);
 }
 
 .cr-btn:disabled {
@@ -309,7 +309,7 @@ watch(
 .cr-link {
   border: none;
   background: none;
-  color: var(--kb-primary, #3b6fe0);
+  color: var(--kf-primary, #3b6fe0);
   cursor: pointer;
   font-size: 13px;
 }

@@ -6,7 +6,7 @@
           <Icon name="share-2" :size="16" aria-hidden="true" />
           <span class="sidebar-title">知识图谱</span>
         </div>
-        <button type="button" class="close-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="$emit('close')">
+        <button type="button" class="close-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="$emit('close')">
           <Icon name="x" :size="14" />
         </button>
       </header>
@@ -16,7 +16,7 @@
           v-for="tab in tabs"
           :key="tab.id"
           type="button"
-          class="tab-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="tab-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: activeTab === tab.id }"
           @click="activeTab = tab.id"
         >
@@ -31,13 +31,13 @@
             <input
               v-model="conceptInput"
               type="text"
-              class="concept-input transition-colors kb-input kb-form-control"
+              class="concept-input transition-colors kf-input kf-form-control"
               placeholder="输入概念名，生成图解"
               @keyup.enter="handleGenerateConcept"
             />
         <button
           type="button"
-          class="generate-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="generate-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="conceptLoading"
           @click="handleGenerateConcept"
         >
@@ -75,7 +75,7 @@
             <div v-if="conceptDiagram.explanation" class="expl-section">
               <button
                 type="button"
-                class="expand-toggle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                class="expand-toggle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
                 @click="explExpanded = !explExpanded"
               >
                 <Icon :name="explExpanded ? 'chevron-down' : 'chevron-right'" :size="14" aria-hidden="true" />
@@ -92,7 +92,7 @@
                 <span
                   v-for="(rc, idx) in conceptDiagram.relatedConcepts"
                   :key="idx"
-                  class="chip rel-chip focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                  class="chip rel-chip focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
                   role="button"
                   tabindex="0"
                   @click="handleRelatedClick(rc)"
@@ -103,7 +103,7 @@
 
             <div v-if="conceptDiagram.mermaidCode" class="mermaid-section">
               <div class="section-label">Mermaid 代码</div>
-              <pre class="mermaid-pre focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @click="handleCopyMermaid" @keydown.enter.prevent.self="($event.target as HTMLElement).click()">{{ conceptDiagram.mermaidCode }}</pre>
+              <pre class="mermaid-pre focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @click="handleCopyMermaid" @keydown.enter.prevent.self="($event.target as HTMLElement).click()">{{ conceptDiagram.mermaidCode }}</pre>
               <p class="mermaid-hint">点击代码可复制，可粘贴到 Mermaid 查看器渲染</p>
             </div>
           </div>
@@ -132,7 +132,7 @@
               <div
                 v-for="node in entityNodesPreview"
                 :key="node.id"
-                class="entity-node-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                class="entity-node-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
                 role="button"
                 tabindex="0"
                 @click="handleEntityNodeClick(node.name)"
@@ -168,7 +168,7 @@
                 <Icon
                   :name="node.type === 'category' ? 'folder' : 'file-text'"
                   :size="14"
-                  :color="node.type === 'category' ? 'var(--kb-warning)' : 'var(--kb-primary)'"
+                  :color="node.type === 'category' ? 'var(--kf-warning)' : 'var(--kf-primary)'"
                   aria-hidden="true"
                 />
                 <span class="doc-node-name">{{ node.label }}</span>
@@ -374,10 +374,10 @@ watch(activeTab, (tab) => {
   bottom: 88px;
   width: 320px;
   z-index: 60;
-  background: var(--kb-bg-2, rgba(15, 23, 42, 0.72));
+  background: var(--kf-bg-2, rgba(15, 23, 42, 0.72));
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  border-left: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border-left: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   display: flex;
   flex-direction: column;
   box-shadow: -12px 0 32px rgba(0, 0, 0, 0.3);
@@ -388,13 +388,13 @@ watch(activeTab, (tab) => {
   align-items: center;
   justify-content: space-between;
   padding: 16px 16px 12px;
-  border-bottom: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
+  border-bottom: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
 }
 .title-row {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-weight: 600;
   font-size: 14px;
 }
@@ -408,22 +408,22 @@ watch(activeTab, (tab) => {
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
   border-radius: 8px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 .close-btn:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .tab-nav {
   display: flex;
   gap: 4px;
   padding: 10px 12px;
-  border-bottom: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
+  border-bottom: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
 }
 .tab-btn {
   flex: 1;
@@ -434,7 +434,7 @@ watch(activeTab, (tab) => {
   gap: 6px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: transparent;
   border: 1px solid transparent;
   border-radius: 8px;
@@ -443,12 +443,12 @@ watch(activeTab, (tab) => {
 }
 .tab-btn:hover {
   background: rgba(255, 255, 255, 0.04);
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .tab-btn.active {
-  background: color-mix(in srgb, var(--kb-primary) 14%, transparent);
-  color: var(--kb-primary);
-  border-color: color-mix(in srgb, var(--kb-primary) 25%, transparent);
+  background: color-mix(in srgb, var(--kf-primary) 14%, transparent);
+  color: var(--kf-primary);
+  border-color: color-mix(in srgb, var(--kf-primary) 25%, transparent);
 }
 
 .tab-content {
@@ -475,10 +475,10 @@ watch(activeTab, (tab) => {
   gap: 8px;
   margin-bottom: 4px;
 }
-.concept-input:not(.kb-form-control) {
+.concept-input:not(.kf-form-control) {
   height: 38px;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   outline: none;
   transition: border-color 0.15s;
@@ -487,10 +487,10 @@ watch(activeTab, (tab) => {
   flex: 1;
   padding: 0 12px;
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
-.concept-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.concept-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 .generate-btn {
   height: 38px;
@@ -501,7 +501,7 @@ watch(activeTab, (tab) => {
   font-size: 13px;
   font-weight: 600;
   color: #fff;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   border: none;
   border-radius: 10px;
   cursor: pointer;
@@ -536,20 +536,20 @@ watch(activeTab, (tab) => {
   font-size: 11px;
   padding: 3px 8px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--kb-primary) 16%, transparent);
-  color: var(--kb-primary);
+  background: color-mix(in srgb, var(--kf-primary) 16%, transparent);
+  color: var(--kf-primary);
   font-weight: 600;
   letter-spacing: 0.02em;
 }
 .concept-name {
   font-size: 15px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .section-label {
   font-size: 11px;
   font-weight: 600;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   letter-spacing: 0.04em;
   margin-bottom: 6px;
 }
@@ -586,7 +586,7 @@ watch(activeTab, (tab) => {
 .desc-text {
   margin: 0;
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1.6;
 }
 .expand-toggle {
@@ -596,23 +596,23 @@ watch(activeTab, (tab) => {
   padding: 0;
   background: none;
   border: none;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   margin-bottom: 6px;
 }
 .expand-toggle:hover {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .expl-text {
   padding: 10px 12px;
   font-size: 12.5px;
   line-height: 1.65;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   background: rgba(255, 255, 255, 0.03);
   border-radius: 10px;
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
 }
 .mermaid-pre {
   max-height: 180px;
@@ -623,7 +623,7 @@ watch(activeTab, (tab) => {
   line-height: 1.5;
   color: #94A3B8;
   background: #0B1120;
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   cursor: pointer;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -631,12 +631,12 @@ watch(activeTab, (tab) => {
   word-break: break-all;
 }
 .mermaid-pre:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 .mermaid-hint {
   margin: 6px 0 0;
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .entity-result {
@@ -655,18 +655,18 @@ watch(activeTab, (tab) => {
   align-items: center;
   padding: 10px;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
   border-radius: 10px;
 }
 .stat-num {
   font-size: 22px;
   font-weight: 700;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   line-height: 1.1;
 }
 .stat-label {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-top: 4px;
 }
 .node-list {
@@ -677,14 +677,14 @@ watch(activeTab, (tab) => {
 .entity-node-card {
   padding: 10px 12px;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.15s;
 }
 .entity-node-card:hover {
   background: rgba(255, 255, 255, 0.06);
-  border-color: color-mix(in srgb, var(--kb-primary) 30%, transparent);
+  border-color: color-mix(in srgb, var(--kf-primary) 30%, transparent);
 }
 .node-head {
   display: flex;
@@ -696,7 +696,7 @@ watch(activeTab, (tab) => {
 .node-name {
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .type-badge {
   font-size: 10px;
@@ -709,13 +709,13 @@ watch(activeTab, (tab) => {
 .type-concept { background: rgba(59, 130, 246, 0.15); color: #60A5FA; }
 .type-technique { background: rgba(16, 185, 129, 0.15); color: #34D399; }
 .type-term { background: rgba(245, 158, 11, 0.15); color: #FBBF24; }
-.type-principle { background: rgba(239, 68, 68, 0.15); color: var(--kb-danger-muted); }
+.type-principle { background: rgba(239, 68, 68, 0.15); color: var(--kf-danger-muted); }
 .type-tool { background: rgba(139, 92, 246, 0.15); color: #A78BFA; }
 .type-other { background: rgba(148, 163, 184, 0.15); color: #94A3B8; }
 .node-desc {
   margin: 0;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.5;
 }
 
@@ -737,7 +737,7 @@ watch(activeTab, (tab) => {
   gap: 8px;
   height: 32px;
   font-size: 12.5px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   border-radius: 8px;
   transition: background 0.15s;
 }
@@ -752,7 +752,7 @@ watch(activeTab, (tab) => {
 }
 .doc-node-type {
   font-size: 10px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   opacity: 0.7;
   flex-shrink: 0;
 }
@@ -783,7 +783,7 @@ watch(activeTab, (tab) => {
 .rel-parent { background: rgba(59, 130, 246, 0.15); color: #60A5FA; }
 .rel-contains { background: rgba(16, 185, 129, 0.15); color: #34D399; }
 .edge-text {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   opacity: 0.88;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -800,7 +800,7 @@ watch(activeTab, (tab) => {
   justify-content: center;
   gap: 10px;
   padding: 48px 16px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 12.5px;
   text-align: center;
   opacity: 0.75;

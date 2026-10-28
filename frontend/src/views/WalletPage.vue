@@ -7,7 +7,7 @@
     />
     <div class="wallet-grid">
       <WalletCard :wallet="store.wallet" />
-      <div class="wallet-tip" :style="{ borderColor: 'var(--kb-border)' }">
+      <div class="wallet-tip" :style="{ borderColor: 'var(--kf-border)' }">
         <Icon name="sparkles" :size="16" />
         <p>完成章节、答题、复习、打卡都能获得 XP 与 Coin。Coin 不可提现、不可转账，只能在学习平台内使用。</p>
       </div>
@@ -59,11 +59,11 @@ onMounted(() => {
   align-items: flex-start;
   gap: 10px;
   padding: 16px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1.6;
 }
 .wallet-tip p {
@@ -78,13 +78,13 @@ onMounted(() => {
 .section-title {
   font-size: 16px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .refresh-btn {
   border: none;
   background: transparent;
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-body-sm);
   cursor: pointer;
 }
 .refresh-btn:disabled {

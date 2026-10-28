@@ -2,7 +2,7 @@
   <section class="te-pron" aria-label="发音">
     <div class="te-pron-head">
       <h3 class="te-section-title">发音</h3>
-      <label v-if="hasTtsVariant" class="te-slow kb-checkbox-row">
+      <label v-if="hasTtsVariant" class="te-slow kf-checkbox-row">
         <Checkbox as="span" v-model="slow"  :disabled="!!speakingKey" />
         <span>慢速朗读</span>
       </label>
@@ -113,120 +113,120 @@ async function play(p: PronunciationVO) {
 <style scoped>
 .te-pron {
   display: grid;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
 }
 .te-pron-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   flex-wrap: wrap;
 }
 .te-section-title {
   margin: 0;
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .te-slow {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-checkbox-gap);
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-muted-foreground);
+  gap: var(--kf-checkbox-gap);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
 }
 .te-slow input {
-  accent-color: var(--kb-primary);
+  accent-color: var(--kf-primary);
 }
 .te-pron-list {
   display: grid;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
 }
 .te-pron-item {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   flex-wrap: wrap;
-  padding: var(--kb-space-3);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-background);
+  padding: var(--kf-space-3);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-background);
 }
 .te-pron-btn {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-space-2);
-  min-height: var(--kb-btn-height-sm);
-  padding: 0 var(--kb-space-3);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-caption);
+  gap: var(--kf-space-2);
+  min-height: var(--kf-btn-height-sm);
+  padding: 0 var(--kf-space-3);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-caption);
   font-weight: 600;
   cursor: pointer;
 }
 .te-pron-btn:hover:not(:disabled) {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .te-pron-btn.is-playing {
-  background: var(--kb-primary-soft);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .te-pron-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 .te-pron-btn:focus-visible {
-  outline: var(--kb-field-focus-width) solid var(--kb-ring);
-  outline-offset: var(--kb-space-1);
+  outline: var(--kf-field-focus-width) solid var(--kf-ring);
+  outline-offset: var(--kf-space-1);
 }
 .te-pron-meta {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   flex-wrap: wrap;
   min-width: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .te-reading {
   font-family: var(--font-mono);
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow-wrap: anywhere;
 }
 .te-pron-tag {
-  padding: 1px var(--kb-space-2);
-  border-radius: var(--kb-radius-xs);
-  background: var(--kb-muted);
+  padding: 1px var(--kf-space-2);
+  border-radius: var(--kf-radius-xs);
+  background: var(--kf-muted);
 }
 .te-pron-status {
-  padding: 1px var(--kb-space-2);
-  border-radius: var(--kb-radius-xs);
+  padding: 1px var(--kf-space-2);
+  border-radius: var(--kf-radius-xs);
 }
 .te-pron-status.is-verified {
-  color: var(--kb-state-success);
-  background: var(--kb-state-success-soft, var(--kb-muted));
+  color: var(--kf-state-success);
+  background: var(--kf-state-success-soft, var(--kf-muted));
 }
 .te-pron-status.is-pending {
-  color: var(--kb-state-warning);
-  background: var(--kb-state-warning-soft, var(--kb-muted));
+  color: var(--kf-state-warning);
+  background: var(--kf-state-warning-soft, var(--kf-muted));
 }
 .te-pron-status.is-unavailable {
-  color: var(--kb-state-error);
-  background: var(--kb-state-error-soft, var(--kb-muted));
+  color: var(--kf-state-error);
+  background: var(--kf-state-error-soft, var(--kf-muted));
 }
 .te-pron-error {
   margin: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-state-error);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-state-error);
 }
 .te-muted {
   margin: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 </style>

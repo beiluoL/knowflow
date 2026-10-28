@@ -1,9 +1,9 @@
 <template>
-  <div class="kb-page">
-    <header class="kb-head">
+  <div class="kf-page">
+    <header class="kf-head">
       <div>
-        <h2 class="kb-h2">看板</h2>
-        <p class="kb-sub">拖动任务卡片，在「待办 / 进行中 / 已完成」之间流转，状态实时保存。</p>
+        <h2 class="kf-h2">看板</h2>
+        <p class="kf-sub">拖动任务卡片，在「待办 / 进行中 / 已完成」之间流转，状态实时保存。</p>
       </div>
       <div class="kbn-progress">
         <div class="kbn-progress-bar"><div class="kbn-progress-fill" :style="{ width: donePercent + '%' }" /></div>
@@ -11,64 +11,64 @@
       </div>
     </header>
 
-    <div v-if="loading" class="kb-loading"><Icon name="loader" :size="18" class="spin" /> 加载中…</div>
-    <div v-else-if="error" class="kb-error">
-      <Icon name="alert-circle" :size="22" style="color: var(--kb-destructive);" />
+    <div v-if="loading" class="kf-loading"><Icon name="loader" :size="18" class="spin" /> 加载中…</div>
+    <div v-else-if="error" class="kf-error">
+      <Icon name="alert-circle" :size="22" style="color: var(--kf-destructive);" />
       <p>{{ error }}</p>
-      <button class="kb-retry" @click="reload">重试</button>
+      <button class="kf-retry" @click="reload">重试</button>
     </div>
 
-    <div v-else class="kb-board">
+    <div v-else class="kf-board">
       <section
         v-for="col in columns"
         :key="col.key"
-        class="kb-col"
+        class="kf-col"
         :class="{ over: dragOverStage === col.key }"
         @dragover.prevent="dragOverStage = col.key"
         @dragleave="onDragLeave(col.key)"
         @drop.prevent="onDrop(col.key)"
       >
-        <div class="kb-col-head">
-          <span class="kb-col-dot" :style="{ background: col.color }" />
-          <span class="kb-col-title">{{ col.label }}</span>
-          <span class="kb-col-count">{{ grouped[col.key].length }}</span>
+        <div class="kf-col-head">
+          <span class="kf-col-dot" :style="{ background: col.color }" />
+          <span class="kf-col-title">{{ col.label }}</span>
+          <span class="kf-col-count">{{ grouped[col.key].length }}</span>
         </div>
 
-        <div class="kb-cards">
+        <div class="kf-cards">
           <div
             v-for="t in grouped[col.key]"
             :key="t.id"
-            class="kb-card"
+            class="kf-card"
             :class="{ done: t.status === 1 }"
             :draggable="!t.completionRequirement"
             @dragstart="onDragStart(t, $event)"
             @dragend="onDragEnd"
           >
-            <div class="kb-card-title">{{ t.title }}</div>
+            <div class="kf-card-title">{{ t.title }}</div>
             <TaskCompletionAction :requirement="t.completionRequirement" :title="t.title" />
-            <div class="kb-card-foot">
-              <span v-if="t.important === 1" class="kb-chip imp" title="重要"><Icon name="star" :size="11" /> 重要</span>
-              <span v-if="t.urgent === 1" class="kb-chip urg" title="紧急"><Icon name="alert-circle" :size="11" /> 紧急</span>
-              <span class="kb-card-actions">
+            <div class="kf-card-foot">
+              <span v-if="t.important === 1" class="kf-chip imp" title="重要"><Icon name="star" :size="11" /> 重要</span>
+              <span v-if="t.urgent === 1" class="kf-chip urg" title="紧急"><Icon name="alert-circle" :size="11" /> 紧急</span>
+              <span class="kf-card-actions">
                 <button
-                  class="kb-act"
+                  class="kf-act"
                   :disabled="!!t.completionRequirement"
                   :title="t.status === 1 ? '标记为未完成' : '标记为完成'"
                   @click="toggleDone(t)"
                 >
                   <Icon :name="t.status === 1 ? 'rotate-ccw' : 'check'" :size="13" />
                 </button>
-                <button class="kb-act del" title="删除" @click="remove(t)">
+                <button class="kf-act del" title="删除" @click="remove(t)">
                   <Icon name="trash-2" :size="13" />
                 </button>
               </span>
             </div>
           </div>
 
-          <div v-if="!grouped[col.key].length" class="kb-empty">拖动卡片到此处</div>
+          <div v-if="!grouped[col.key].length" class="kf-empty">拖动卡片到此处</div>
         </div>
 
-        <button class="kb-add" @click="addInColumn(col)">
+        <button class="kf-add" @click="addInColumn(col)">
           <Icon name="plus" :size="14" /> 新建任务
         </button>
       </section>
@@ -90,8 +90,8 @@ type Stage = 0 | 1 | 2
 
 const columns = [
   { key: 0 as Stage, label: '待办', color: '#94A3B8' },
-  { key: 1 as Stage, label: '进行中', color: 'var(--kb-primary)' },
-  { key: 2 as Stage, label: '已完成', color: 'var(--kb-success)' },
+  { key: 1 as Stage, label: '进行中', color: 'var(--kf-primary)' },
+  { key: 2 as Stage, label: '已完成', color: 'var(--kf-success)' },
 ]
 
 const tasks = ref<TaskNode[]>([])
@@ -211,82 +211,82 @@ onMounted(reload)
 </script>
 
 <style scoped>
-.kb-page { display: flex; flex-direction: column; height: 100%; }
-.kb-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
-.kb-h2 { font-size: 18px; font-weight: 700; color: var(--kb-foreground); }
-.kb-sub { font-size: 13px; color: var(--kb-muted-foreground); margin-top: 2px; }
+.kf-page { display: flex; flex-direction: column; height: 100%; }
+.kf-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+.kf-h2 { font-size: 18px; font-weight: 700; color: var(--kf-foreground); }
+.kf-sub { font-size: 13px; color: var(--kf-muted-foreground); margin-top: 2px; }
 
-/* 局部前缀 kbn-：避免与全局工具类 .kb-progress（高 6px + overflow:hidden）同名导致进度行被裁切 */
+/* 局部前缀 kbn-：避免与全局工具类 .kf-progress（高 6px + overflow:hidden）同名导致进度行被裁切 */
 .kbn-progress { display: flex; align-items: center; gap: 10px; min-width: 200px; flex: 0 1 320px; }
-.kbn-progress-bar { flex: 1 1 auto; height: 8px; border-radius: 999px; background: var(--kb-muted); overflow: hidden; }
-.kbn-progress-fill { height: 100%; border-radius: 999px; background: var(--kb-success); transition: width 0.3s ease; }
-.kbn-progress-text { font-size: 12px; color: var(--kb-muted-foreground); white-space: nowrap; }
+.kbn-progress-bar { flex: 1 1 auto; height: 8px; border-radius: 999px; background: var(--kf-muted); overflow: hidden; }
+.kbn-progress-fill { height: 100%; border-radius: 999px; background: var(--kf-success); transition: width 0.3s ease; }
+.kbn-progress-text { font-size: 12px; color: var(--kf-muted-foreground); white-space: nowrap; }
 
-.kb-loading, .kb-error {
+.kf-loading, .kf-error {
   display: flex; flex-direction: column; align-items: center; gap: 10px;
-  padding: 60px 20px; color: var(--kb-muted-foreground); font-size: 14px;
+  padding: 60px 20px; color: var(--kf-muted-foreground); font-size: 14px;
 }
-.kb-error { color: var(--kb-destructive); }
-.kb-retry { margin-top: 4px; padding: 6px 16px; border-radius: 8px; border: none; background: var(--kb-primary); color: #fff; font-size: 13px; cursor: pointer; }
-.spin { animation: kb-spin 0.8s linear infinite; }
-@keyframes kb-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+.kf-error { color: var(--kf-destructive); }
+.kf-retry { margin-top: 4px; padding: 6px 16px; border-radius: 8px; border: none; background: var(--kf-primary); color: #fff; font-size: 13px; cursor: pointer; }
+.spin { animation: kf-spin 0.8s linear infinite; }
+@keyframes kf-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 
-.kb-board { flex: 1 1 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; min-height: 0; }
+.kf-board { flex: 1 1 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; min-height: 0; }
 
-.kb-col {
+.kf-col {
   display: flex; flex-direction: column; min-height: 0;
-  background: var(--kb-card); border: 1px solid var(--kb-border); border-radius: 12px; padding: 12px;
+  background: var(--kf-card); border: 1px solid var(--kf-border); border-radius: 12px; padding: 12px;
   transition: border-color 0.12s ease, background 0.12s ease;
 }
-.kb-col.over { border-color: var(--kb-primary); background: rgba(59, 111, 224, 0.04); }
+.kf-col.over { border-color: var(--kf-primary); background: rgba(59, 111, 224, 0.04); }
 
-.kb-col-head { display: flex; align-items: center; gap: 8px; padding: 2px 2px 10px; }
-.kb-col-dot { width: 9px; height: 9px; border-radius: 50%; }
-.kb-col-title { font-size: 14px; font-weight: 600; color: var(--kb-foreground); flex: 1 1 auto; }
-.kb-col-count { font-size: 11px; color: var(--kb-muted-foreground); background: var(--kb-muted); border-radius: 999px; min-width: 20px; text-align: center; padding: 1px 6px; }
+.kf-col-head { display: flex; align-items: center; gap: 8px; padding: 2px 2px 10px; }
+.kf-col-dot { width: 9px; height: 9px; border-radius: 50%; }
+.kf-col-title { font-size: 14px; font-weight: 600; color: var(--kf-foreground); flex: 1 1 auto; }
+.kf-col-count { font-size: 11px; color: var(--kf-muted-foreground); background: var(--kf-muted); border-radius: 999px; min-width: 20px; text-align: center; padding: 1px 6px; }
 
-.kb-cards { flex: 1 1 auto; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; min-height: 40px; }
+.kf-cards { flex: 1 1 auto; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; min-height: 40px; }
 
-.kb-card {
-  background: var(--kb-muted); border: 1px solid transparent; border-radius: 9px; padding: 10px;
+.kf-card {
+  background: var(--kf-muted); border: 1px solid transparent; border-radius: 9px; padding: 10px;
   cursor: grab; transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.06s ease;
 }
-.kb-card:hover { border-color: var(--kb-border); }
-.kb-card:active { cursor: grabbing; }
-.kb-card.done { opacity: 0.7; }
-.kb-card-title { font-size: 13.5px; color: var(--kb-foreground); line-height: 1.45; word-break: break-word; }
-.kb-card.done .kb-card-title { text-decoration: line-through; color: var(--kb-muted-foreground); }
+.kf-card:hover { border-color: var(--kf-border); }
+.kf-card:active { cursor: grabbing; }
+.kf-card.done { opacity: 0.7; }
+.kf-card-title { font-size: 13.5px; color: var(--kf-foreground); line-height: 1.45; word-break: break-word; }
+.kf-card.done .kf-card-title { text-decoration: line-through; color: var(--kf-muted-foreground); }
 
-.kb-card-foot { display: flex; align-items: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
-.kb-chip {
+.kf-card-foot { display: flex; align-items: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.kf-chip {
   display: inline-flex; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 500;
   padding: 1px 7px; border-radius: 999px;
 }
-.kb-chip.imp { color: var(--kb-warning); background: rgba(245, 158, 11, 0.12); }
-.kb-chip.urg { color: var(--kb-danger); background: rgba(239, 68, 68, 0.12); }
+.kf-chip.imp { color: var(--kf-warning); background: rgba(245, 158, 11, 0.12); }
+.kf-chip.urg { color: var(--kf-danger); background: rgba(239, 68, 68, 0.12); }
 
-.kb-card-actions { margin-left: auto; display: flex; gap: 2px; opacity: 0; transition: opacity 0.12s ease; }
-.kb-card:hover .kb-card-actions { opacity: 1; }
-.kb-act {
-  width: 24px; height: 24px; border: none; background: var(--kb-card); color: var(--kb-muted-foreground);
+.kf-card-actions { margin-left: auto; display: flex; gap: 2px; opacity: 0; transition: opacity 0.12s ease; }
+.kf-card:hover .kf-card-actions { opacity: 1; }
+.kf-act {
+  width: 24px; height: 24px; border: none; background: var(--kf-card); color: var(--kf-muted-foreground);
   border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.12s ease;
 }
-.kb-act:hover { color: var(--kb-primary); }
-.kb-act.del:hover { color: var(--kb-destructive); background: rgba(239, 68, 68, 0.1); }
+.kf-act:hover { color: var(--kf-primary); }
+.kf-act.del:hover { color: var(--kf-destructive); background: rgba(239, 68, 68, 0.1); }
 
-.kb-empty {
-  font-size: 12px; color: var(--kb-muted-foreground); text-align: center;
-  padding: 18px 0; border: 1px dashed var(--kb-border); border-radius: 9px;
+.kf-empty {
+  font-size: 12px; color: var(--kf-muted-foreground); text-align: center;
+  padding: 18px 0; border: 1px dashed var(--kf-border); border-radius: 9px;
 }
 
-.kb-add {
+.kf-add {
   flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  width: 100%; padding: 8px; border-radius: 8px; border: 1px dashed var(--kb-border);
-  background: transparent; color: var(--kb-muted-foreground); font-size: 12.5px; cursor: pointer; transition: all 0.12s ease;
+  width: 100%; padding: 8px; border-radius: 8px; border: 1px dashed var(--kf-border);
+  background: transparent; color: var(--kf-muted-foreground); font-size: 12.5px; cursor: pointer; transition: all 0.12s ease;
 }
-.kb-add:hover { border-color: var(--kb-primary); color: var(--kb-primary); }
+.kf-add:hover { border-color: var(--kf-primary); color: var(--kf-primary); }
 
 @media (max-width: 860px) {
-  .kb-board { grid-template-columns: 1fr; grid-auto-rows: minmax(240px, auto); }
+  .kf-board { grid-template-columns: 1fr; grid-auto-rows: minmax(240px, auto); }
 }
 </style>

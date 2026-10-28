@@ -10,7 +10,7 @@ function score(value: unknown): number {
   if (typeof value !== 'number' || !Number.isInteger(value) || value < 0 || value > 100) throw invalid()
   return value
 }
-function colour(value: number) { return value >= 85 ? 'var(--kb-success)' : value >= 75 ? 'var(--kb-primary)' : value >= 60 ? 'var(--kb-warning)' : 'var(--kb-danger)' }
+function colour(value: number) { return value >= 85 ? 'var(--kf-success)' : value >= 75 ? 'var(--kf-primary)' : value >= 60 ? 'var(--kf-warning)' : 'var(--kf-danger)' }
 /** Strict model-output validation: absence and failure never become a generated grade. */
 export function parseWritingScore(raw: string): WritingScore {
   let data: Record<string, unknown>

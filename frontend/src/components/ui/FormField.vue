@@ -1,10 +1,10 @@
 <template>
-  <div class="kb-form-field" :class="{'kb-form-field--unlabelled':!label}">
-    <label v-if="label" :for="controlId" class="kb-form-label">{{label}}<span v-if="required" class="kb-form-required" aria-hidden="true"> *</span></label>
-    <div class="kb-form-field__control"><slot /></div>
-    <div v-if="help || error || $slots.meta" class="kb-form-field__meta">
-      <p v-if="help" :id="controlId+'-help'" class="kb-form-help">{{help}}</p>
-      <p v-if="error" :id="controlId+'-error'" class="kb-form-error">{{error}}</p>
+  <div class="kf-form-field" :class="{'kf-form-field--unlabelled':!label}">
+    <label v-if="label" :for="controlId" class="kf-form-label">{{label}}<span v-if="required" class="kf-form-required" aria-hidden="true"> *</span></label>
+    <div class="kf-form-field__control"><slot /></div>
+    <div v-if="help || error || $slots.meta" class="kf-form-field__meta">
+      <p v-if="help" :id="controlId+'-help'" class="kf-form-help">{{help}}</p>
+      <p v-if="error" :id="controlId+'-error'" class="kf-form-error">{{error}}</p>
       <slot name="meta" />
     </div>
   </div>

@@ -82,7 +82,7 @@ const router = useRouter();
 const CONFETTI_COUNT = 24;
 
 /** 彩带配色（有限庆祝色板，与设计稿 golden/green/blue/purple 一致）。 */
-const CONFETTI_COLORS = ['#F5B940', 'var(--kb-success)', 'var(--kb-primary)', '#A855F7', 'var(--kb-warning)'];
+const CONFETTI_COLORS = ['#F5B940', 'var(--kf-success)', 'var(--kf-primary)', '#A855F7', 'var(--kf-warning)'];
 
 // 彩带随机布局与动画参数（固定取值避免每次渲染抖动）
 const confettiStyle = (n: number): Record<string, string> => {
@@ -166,7 +166,7 @@ const goToCertificate = (item: CelebrationItem) => {
   border: 1px solid rgba(245, 185, 64, 0.45);
   background:
     linear-gradient(160deg, rgba(245, 185, 64, 0.12), rgba(255, 255, 255, 0.02) 45%),
-    var(--kb-card);
+    var(--kf-card);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35), 0 0 40px rgba(245, 185, 64, 0.18);
 }
 .card-glow {
@@ -192,13 +192,13 @@ const goToCertificate = (item: CelebrationItem) => {
   border: none;
   border-radius: 50%;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
 .close-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 
 /* 金色奖章 */
@@ -246,19 +246,19 @@ const goToCertificate = (item: CelebrationItem) => {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.28em;
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 .celebrate-title {
   margin: 0 0 6px;
   font-size: 24px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .celebrate-subtitle {
   margin: 0 0 18px;
   font-size: 14px;
   line-height: 1.6;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* 证书信息行 */
@@ -268,8 +268,8 @@ const goToCertificate = (item: CelebrationItem) => {
   gap: 8px;
   padding: 14px 16px;
   border-radius: 10px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-background);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-background);
 }
 .cert-meta-row {
   display: flex;
@@ -279,12 +279,12 @@ const goToCertificate = (item: CelebrationItem) => {
 }
 .meta-label {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .meta-value {
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -320,18 +320,18 @@ const goToCertificate = (item: CelebrationItem) => {
 }
 .later-btn {
   height: 40px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 10px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: transparent;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
 .later-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 
 /* 入场/离场过渡 */

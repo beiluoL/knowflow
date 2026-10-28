@@ -10,7 +10,7 @@
     </nav>
 
     <!-- 页面标题 -->
-    <h1 class="kb-h1 mb-6">新增文档</h1>
+    <h1 class="kf-h1 mb-6">新增文档</h1>
 
     <!-- 左右两栏：左侧编辑区 + 右侧辅助面板 -->
     <div class="flex gap-6 doc-layout">
@@ -25,7 +25,7 @@
                 v-model="form.title"
                 type="text"
                 placeholder="请输入文档标题..."
-                class="w-full h-10 px-3 text-sm field-input kb-input kb-form-control"
+                class="w-full h-10 px-3 text-sm field-input kf-input kf-form-control"
               />
             </div>
 
@@ -73,7 +73,7 @@
                   v-model="tagInput"
                   type="text"
                   placeholder="输入标签后回车添加..."
-                  class="flex-1 min-w-[120px] h-6 text-sm outline-none tag-text-input kb-input kb-form-control"
+                  class="flex-1 min-w-[120px] h-6 text-sm outline-none tag-text-input kf-input kf-form-control"
                   @keydown.enter.prevent="addTag"
                   @keydown.delete="popTag"
                 />
@@ -154,7 +154,7 @@
                 v-model="form.summary"
                 rows="3"
                 placeholder="简要描述文档内容..."
-                class="w-full h-20 px-3 py-2 text-sm field-input resize-none kb-textarea kb-form-control"
+                class="w-full h-20 px-3 py-2 text-sm field-input resize-none kf-textarea kf-form-control"
               ></textarea>
             </div>
 
@@ -182,7 +182,7 @@
           <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-3 ai-icon-wrap">
             <Icon name="sparkles" :size="20" />
           </div>
-          <h3 class="kb-h3 mb-2">使用 AI 辅助写作</h3>
+          <h3 class="kf-h3 mb-2">使用 AI 辅助写作</h3>
           <p class="text-sm mb-4 ai-desc">
             利用 AI 智能生成文档大纲、扩写内容、优化表达，提升写作效率。
           </p>
@@ -194,7 +194,7 @@
 
         <!-- 写作提示卡 -->
         <div class="rounded-lg border p-5 mt-4 tips-card">
-          <h4 class="kb-h4 mb-3">写作提示</h4>
+          <h4 class="kf-h4 mb-3">写作提示</h4>
           <ul class="flex flex-col gap-3 text-sm tips-list">
             <li v-for="(tip, idx) in writingTips" :key="idx" class="flex items-start gap-2 tip-item">
               <Icon name="check-circle" :size="16" class="mt-0.5 shrink-0 tip-icon" />
@@ -381,7 +381,7 @@ const insertMarkdown = (prefix: string, suffix: string) => {
 
 // Markdown 预览：先归一化字面换行符，再调用通用渲染器
 const renderedContent = computed(() => {
-  return renderMarkdown(normalizeNewlines(form.value.content || '')) || '<p style="color:var(--kb-muted-foreground);">暂无内容</p>';
+  return renderMarkdown(normalizeNewlines(form.value.content || '')) || '<p style="color:var(--kf-muted-foreground);">暂无内容</p>';
 });
 
 async function fetchCategories() {
@@ -488,105 +488,105 @@ onUnmounted(() => {
 
 /* 面包屑 */
 .breadcrumb-bar {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .breadcrumb-link {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   text-decoration: none;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   transition: color 0.15s ease, opacity 0.15s ease;
 }
 .breadcrumb-link:hover {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .breadcrumb-link:active {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   opacity: 0.8;
 }
 .breadcrumb-link:focus-visible {
-  color: var(--kb-primary);
-  outline: 2px solid var(--kb-ring);
+  color: var(--kf-primary);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 .breadcrumb-sep {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .breadcrumb-current {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-weight: 500;
 }
 
 /* 编辑器卡片 */
 .editor-card {
-  background: var(--kb-card);
-  border-color: var(--kb-border);
+  background: var(--kf-card);
+  border-color: var(--kf-border);
 }
 
 /* 表单字段通用 */
 .field-label {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
-.field-input:not(.kb-form-control) {
-  background: var(--kb-background);
-  border-color: var(--kb-border);
+.field-input:not(.kf-form-control) {
+  background: var(--kf-background);
+  border-color: var(--kf-border);
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .field-input {
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-md);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-md);
 }
-.field-input:not(.kb-form-control):hover {
-  border-color: var(--kb-primary);
+.field-input:not(.kf-form-control):hover {
+  border-color: var(--kf-primary);
 }
-.field-input:not(.kb-form-control):focus {
-  border-color: var(--kb-ring);
-  background: var(--kb-card);
+.field-input:not(.kf-form-control):focus {
+  border-color: var(--kf-ring);
+  background: var(--kf-card);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
 
 /* 文档类型切换 */
 .type-switch {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .type-switch-btn {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   transition: all 0.15s ease;
 }
 .type-switch-btn.active {
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 .type-switch-btn:hover:not(.active) {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   background: rgba(59, 111, 224, 0.08);
 }
 .type-switch-btn:active {
   transform: scale(0.98);
 }
 .type-switch-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
 /* 标签输入 */
 .tags-input {
-  background: var(--kb-field-surface);
+  background: var(--kf-field-surface);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   border: 0;
 }
 .tags-input:focus-within {
-  background: var(--kb-field-active);
+  background: var(--kf-field-active);
 }
 .tag-chip {
   background: rgba(59, 111, 224, 0.08);
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-caption);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-caption);
 }
 .tag-remove {
   display: inline-flex;
@@ -594,7 +594,7 @@ onUnmounted(() => {
   justify-content: center;
   background: transparent;
   border: none;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   color: inherit;
   cursor: pointer;
   opacity: 0.7;
@@ -609,66 +609,66 @@ onUnmounted(() => {
 }
 .tag-remove:focus-visible {
   opacity: 1;
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
-.tag-text-input:not(.kb-form-control) {
+.tag-text-input:not(.kf-form-control) {
   background: transparent;
 }
 .tag-text-input {
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-md);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-md);
 }
 
 /* 内容编辑器 */
 .content-editor {
-  border-color: var(--kb-border);
+  border-color: var(--kf-border);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .content-editor:focus-within {
-  border-color: var(--kb-ring);
+  border-color: var(--kf-ring);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
 .content-editor.drag-over {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 2px rgba(59, 111, 224, 0.15);
 }
 .toolbar {
-  background: var(--kb-background);
-  border-color: var(--kb-border);
+  background: var(--kf-background);
+  border-color: var(--kf-border);
 }
 .toolbar-btn {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: transparent;
   border: none;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 .toolbar-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-primary);
+  background: var(--kf-muted);
+  color: var(--kf-primary);
 }
 .toolbar-btn:active {
-  background: var(--kb-muted);
-  color: var(--kb-primary);
+  background: var(--kf-muted);
+  color: var(--kf-primary);
   transform: scale(0.94);
 }
 .toolbar-btn:focus-visible {
-  color: var(--kb-primary);
-  outline: 2px solid var(--kb-ring);
+  color: var(--kf-primary);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
-.content-textarea:not(.kb-form-control) {
-  background: var(--kb-card);
+.content-textarea:not(.kf-form-control) {
+  background: var(--kf-card);
 }
 .content-textarea {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-family: 'Noto Sans SC', 'Inter', ui-monospace, monospace;
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   line-height: 1.7;
 }
 .preview-area {
-  background: var(--kb-card);
+  background: var(--kf-card);
 }
 /* 拖拽提示遮罩 */
 .drag-hint {
@@ -681,20 +681,20 @@ onUnmounted(() => {
   gap: 8px;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(2px);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   pointer-events: none;
   z-index: 10;
 }
 .drag-hint p {
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
   margin: 0;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .drag-hint .drag-hint-sub {
-  font-size: var(--kb-fs-xs);
+  font-size: var(--kf-fs-xs);
   font-weight: 400;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 /* 上传状态条 */
 .upload-status-bar {
@@ -703,28 +703,28 @@ onUnmounted(() => {
   gap: 8px;
   padding: 8px 16px;
   background: rgba(59, 111, 224, 0.06);
-  border-top: 1px solid var(--kb-border);
-  color: var(--kb-primary);
+  border-top: 1px solid var(--kf-border);
+  color: var(--kf-primary);
 }
 .upload-spinner {
   border-color: rgba(59, 111, 224, 0.2);
-  border-top-color: var(--kb-primary);
+  border-top-color: var(--kf-primary);
 }
 .preview-toggle {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   transition: all 0.15s ease;
 }
 .preview-toggle.active {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 .preview-toggle:hover:not(.active) {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 .preview-toggle.active:hover {
   opacity: 0.9;
@@ -733,13 +733,13 @@ onUnmounted(() => {
   transform: scale(0.98);
 }
 .preview-toggle:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
 /* 操作栏 */
 .action-bar {
-  border-color: var(--kb-border);
+  border-color: var(--kf-border);
 }
 
 /* 按钮 */
@@ -749,11 +749,11 @@ onUnmounted(() => {
   gap: 6px;
   height: 34px;
   padding: 0 14px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-body-sm);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
   transition: opacity 0.15s ease, transform 0.15s ease;
@@ -766,7 +766,7 @@ onUnmounted(() => {
   transform: scale(0.98);
 }
 .btn-primary:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 .btn-primary:disabled {
@@ -779,50 +779,50 @@ onUnmounted(() => {
   gap: 6px;
   height: 34px;
   padding: 0 14px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-body-sm);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
-  background: var(--kb-card);
-  color: var(--kb-sidebar-foreground);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  color: var(--kf-sidebar-foreground);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 .btn-secondary:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .btn-secondary:active {
-  background: var(--kb-muted);
-  border-color: var(--kb-primary);
+  background: var(--kf-muted);
+  border-color: var(--kf-primary);
   transform: scale(0.98);
 }
 .btn-secondary:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
 /* 右侧辅助面板 */
 .side-panel {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .ai-card,
 .tips-card {
-  background: var(--kb-card);
-  border-color: var(--kb-border);
+  background: var(--kf-card);
+  border-color: var(--kf-border);
 }
 .ai-icon-wrap {
   background: rgba(59, 111, 224, 0.08);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .ai-desc {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.6;
 }
 .tips-list {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .tip-icon {
-  color: var(--kb-state-success);
+  color: var(--kf-state-success);
 }
 
 /* 响应式：移动端折叠右侧面板 */
@@ -845,5 +845,5 @@ onUnmounted(() => {
 </style>
 
 <style scoped>
-.tags-input:has(input:focus-visible){outline:0}.tags-input input.kb-form-control,.tags-input input.kb-form-control:focus,.tags-input input.kb-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
+.tags-input:has(input:focus-visible){outline:0}.tags-input input.kf-form-control,.tags-input input.kf-form-control:focus,.tags-input input.kf-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
 </style>

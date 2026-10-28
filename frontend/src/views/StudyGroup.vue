@@ -17,7 +17,7 @@
           v-model="searchKeyword"
           type="text"
           placeholder="搜索小组..."
-          class="search-input kb-input kb-form-control"
+          class="search-input kf-input kf-form-control"
         />
       </div>
 
@@ -36,7 +36,7 @@
             @click="selectGroup(group.id)"
             @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
           >
-            <div class="group-avatar" :style="{ background: group.color || 'var(--kb-primary)' }">
+            <div class="group-avatar" :style="{ background: group.color || 'var(--kf-primary)' }">
               {{ group.name.charAt(0) }}
             </div>
             <div class="group-info">
@@ -98,7 +98,7 @@
         <!-- 聊天头部 -->
         <header class="chat-header">
           <div class="header-info">
-            <div class="group-avatar large" :style="{ background: activeGroup?.color || 'var(--kb-primary)' }">
+            <div class="group-avatar large" :style="{ background: activeGroup?.color || 'var(--kf-primary)' }">
               {{ activeGroup?.name.charAt(0) }}
             </div>
             <div class="header-text">
@@ -251,7 +251,7 @@
             <textarea
               v-model="messageInput"
               placeholder="输入消息，按 Enter 发送..."
-              class="message-input kb-textarea kb-form-control"
+              class="message-input kf-textarea kf-form-control"
               rows="1"
               @keydown.enter.exact.prevent="sendMessage"
               @input="handleTyping"
@@ -305,11 +305,11 @@
           <div class="dialog-body">
             <div class="form-group">
               <label>小组名称 <span class="required">*</span></label>
-              <input v-model="createForm.name" type="text" placeholder="输入小组名称" class="form-input kb-input kb-form-control" />
+              <input v-model="createForm.name" type="text" placeholder="输入小组名称" class="form-input kf-input kf-form-control" />
             </div>
             <div class="form-group">
               <label>小组描述</label>
-              <textarea v-model="createForm.description" placeholder="介绍小组的学习主题..." class="form-textarea kb-textarea kb-form-control"></textarea>
+              <textarea v-model="createForm.description" placeholder="介绍小组的学习主题..." class="form-textarea kf-textarea kf-form-control"></textarea>
             </div>
             <div class="form-group">
               <label>小组颜色</label>
@@ -373,7 +373,7 @@
             <p class="invite-desc">邀请成员加入「{{ activeGroup?.name }}」学习小组</p>
             <div class="form-group">
               <label>成员邮箱</label>
-              <input v-model="inviteForm.email" type="email" placeholder="请输入成员邮箱" class="form-input kb-input kb-form-control" />
+              <input v-model="inviteForm.email" type="email" placeholder="请输入成员邮箱" class="form-input kf-input kf-form-control" />
             </div>
             <div class="form-group">
               <label>成员角色</label>
@@ -431,7 +431,7 @@
     <Teleport to="body">
       <div v-if="detailDialogVisible" class="panel-overlay" @click.self="detailDialogVisible = false">
         <div class="detail-dialog">
-          <div class="detail-header" :style="{ background: detailGroup?.color || 'var(--kb-primary)' }">
+          <div class="detail-header" :style="{ background: detailGroup?.color || 'var(--kf-primary)' }">
             <div class="detail-avatar">{{ detailGroup?.name.charAt(0) }}</div>
             <h2 class="detail-name">{{ detailGroup?.name }}</h2>
             <p class="detail-desc">{{ detailGroup?.description || '暂无描述' }}</p>
@@ -473,7 +473,7 @@
               <textarea
                 v-model="settingsForm.announcement"
                 placeholder="输入小组公告..."
-                class="form-textarea kb-textarea kb-form-control"
+                class="form-textarea kf-textarea kf-form-control"
                 rows="4"
               ></textarea>
               <button type="button" class="btn-save" @click="updateAnnouncement">保存公告</button>
@@ -561,7 +561,7 @@ let typingTimeout: number | null = null
 const createForm = ref({
   name: '',
   description: '',
-  color: 'var(--kb-primary)',
+  color: 'var(--kf-primary)',
   type: 'PUBLIC' as 'PUBLIC' | 'PRIVATE',
 })
 
@@ -579,7 +579,7 @@ const settingsForm = ref({
   announcement: '',
 })
 
-const availableColors = ['var(--kb-primary)', '#8B5CF6', '#EC4899', 'var(--kb-danger)', 'var(--kb-warning)', 'var(--kb-success)', '#06B6D4', '#6366F1']
+const availableColors = ['var(--kf-primary)', '#8B5CF6', '#EC4899', 'var(--kf-danger)', 'var(--kf-warning)', 'var(--kf-success)', '#06B6D4', '#6366F1']
 
 // 计算属性
 const filteredMyGroups = computed(() => {
@@ -999,7 +999,7 @@ async function handleJoinGroup() {
 
 // 创建小组
 function openCreateDialog() {
-  createForm.value = { name: '', description: '', color: 'var(--kb-primary)', type: 'PUBLIC' }
+  createForm.value = { name: '', description: '', color: 'var(--kf-primary)', type: 'PUBLIC' }
   createDialogVisible.value = true
 }
 
@@ -1211,7 +1211,7 @@ function scrollToBottom() {
 }
 
 function getMemberColor(name: string): string {
-  const colors = ['var(--kb-primary)', '#8B5CF6', '#EC4899', 'var(--kb-warning)', 'var(--kb-success)', '#06B6D4', 'var(--kb-danger)']
+  const colors = ['var(--kf-primary)', '#8B5CF6', '#EC4899', 'var(--kf-warning)', 'var(--kf-success)', '#06B6D4', 'var(--kf-danger)']
   let hash = 0
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash)
@@ -1327,13 +1327,13 @@ watch(activeGroupId, (_, oldId) => {
   display: flex;
   height: calc(100vh - 56px);
   margin: -24px -24px 0;
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
 
 .group-sidebar {
   width: 280px;
-  border-right: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-right: 1px solid var(--kf-border);
+  background: var(--kf-card);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
@@ -1341,14 +1341,14 @@ watch(activeGroupId, (_, oldId) => {
 
 .sidebar-header {
   padding: 16px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .sidebar-title {
-  font-size: var(--kb-fs-h4);
-  line-height: var(--kb-lh-h4);
+  font-size: var(--kf-fs-h4);
+  line-height: var(--kf-lh-h4);
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0 0 12px;
 }
 
@@ -1359,10 +1359,10 @@ watch(activeGroupId, (_, oldId) => {
   width: 100%;
   height: 36px;
   border-radius: 8px;
-  border: 1px dashed var(--kb-border);
+  border: 1px dashed var(--kf-border);
   background: transparent;
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
@@ -1370,7 +1370,7 @@ watch(activeGroupId, (_, oldId) => {
 
 .create-group-btn:hover {
   background: rgba(59, 111, 224, 0.08);
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 
 .create-group-btn:active {
@@ -1379,7 +1379,7 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .create-group-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1393,14 +1393,14 @@ watch(activeGroupId, (_, oldId) => {
   left: 28px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
-.search-input:not(.kb-form-control) {
+.search-input:not(.kf-form-control) {
   height: 36px;
   border-radius: 8px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-background);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-background);
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -1408,17 +1408,17 @@ watch(activeGroupId, (_, oldId) => {
 .search-input {
   width: 100%;
   padding: 0 12px 0 36px;
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-sm);
 }
 
-.search-input:not(.kb-form-control):hover {
-  border-color: var(--kb-primary);
+.search-input:not(.kf-form-control):hover {
+  border-color: var(--kf-primary);
 }
 
-.search-input:not(.kb-form-control):focus,
-.search-input:not(.kb-form-control):focus-visible {
-  border-color: var(--kb-primary);
+.search-input:not(.kf-form-control):focus,
+.search-input:not(.kf-form-control):focus-visible {
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
 
@@ -1429,10 +1429,10 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .section-label {
-  font-size: var(--kb-fs-xs);
-  line-height: var(--kb-lh-xs);
+  font-size: var(--kf-fs-xs);
+  line-height: var(--kf-lh-xs);
   font-weight: 600;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin: 0 0 8px;
@@ -1456,7 +1456,7 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .group-item:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 .group-item:active {
@@ -1465,7 +1465,7 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .group-item:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1481,7 +1481,7 @@ watch(activeGroupId, (_, oldId) => {
   align-items: center;
   justify-content: center;
   color: #FFFFFF;
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -1489,7 +1489,7 @@ watch(activeGroupId, (_, oldId) => {
 .group-avatar.large {
   width: 48px;
   height: 48px;
-  font-size: var(--kb-fs-h4);
+  font-size: var(--kf-fs-h4);
 }
 
 .group-info {
@@ -1498,10 +1498,10 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .group-name {
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -1514,9 +1514,9 @@ watch(activeGroupId, (_, oldId) => {
   flex-wrap: wrap;
   gap: 8px;
   min-width: 0;
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
+  color: var(--kf-muted-foreground);
   margin: 4px 0 0;
 }
 
@@ -1525,11 +1525,11 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .unread-badge {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   padding: 2px 8px;
   border-radius: 10px;
-  font-size: var(--kb-fs-xs);
+  font-size: var(--kf-fs-xs);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -1537,13 +1537,13 @@ watch(activeGroupId, (_, oldId) => {
 .group-type {
   padding: 2px 8px;
   border-radius: 4px;
-  font-size: var(--kb-fs-xs);
+  font-size: var(--kf-fs-xs);
   font-weight: 500;
 }
 
 .group-type.public {
   background: rgba(16, 185, 129, 0.1);
-  color: var(--kb-accent);
+  color: var(--kf-accent);
 }
 
 .group-type.private {
@@ -1555,18 +1555,18 @@ watch(activeGroupId, (_, oldId) => {
   flex-shrink: 0;
   padding: 4px 12px;
   border-radius: 6px;
-  border: 1px solid var(--kb-primary);
+  border: 1px solid var(--kf-primary);
   background: transparent;
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-caption);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-caption);
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .join-btn:hover {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 
 .join-btn:active {
@@ -1575,21 +1575,21 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .join-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
 .empty-tip {
   text-align: center;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-caption);
   padding: 12px;
 }
 
 .loading-placeholder {
   text-align: center;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-caption);
   padding: 12px;
 }
 
@@ -1607,14 +1607,14 @@ watch(activeGroupId, (_, oldId) => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .empty-icon {
   width: 80px;
   height: 80px;
   border-radius: 20px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1622,16 +1622,16 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .chat-empty h3 {
-  font-size: var(--kb-fs-h4);
-  line-height: var(--kb-lh-h4);
+  font-size: var(--kf-fs-h4);
+  line-height: var(--kf-lh-h4);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0 0 8px;
 }
 
 .chat-empty p {
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   margin: 0;
   padding: 0 16px;
   text-align: center;
@@ -1644,8 +1644,8 @@ watch(activeGroupId, (_, oldId) => {
   justify-content: space-between;
   gap: 12px;
   padding: 16px 24px;
-  border-bottom: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-bottom: 1px solid var(--kf-border);
+  background: var(--kf-card);
 }
 
 .header-info {
@@ -1663,10 +1663,10 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .group-title {
-  font-size: var(--kb-fs-body-lg);
-  line-height: var(--kb-lh-h4);
+  font-size: var(--kf-fs-body-lg);
+  line-height: var(--kf-lh-h4);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1674,9 +1674,9 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .group-desc {
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
+  color: var(--kf-muted-foreground);
   margin: 4px 0 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1695,10 +1695,10 @@ watch(activeGroupId, (_, oldId) => {
   gap: 4px;
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
   cursor: pointer;
   transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
 }
@@ -1708,8 +1708,8 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .action-btn:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 
 .action-btn:active {
@@ -1718,7 +1718,7 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .action-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1739,15 +1739,15 @@ watch(activeGroupId, (_, oldId) => {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 40px;
 }
 
 .loading-spinner {
   width: 24px;
   height: 24px;
-  border: 2px solid var(--kb-border);
-  border-top-color: var(--kb-primary);
+  border: 2px solid var(--kf-border);
+  border-top-color: var(--kf-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -1792,7 +1792,7 @@ watch(activeGroupId, (_, oldId) => {
   align-items: center;
   justify-content: center;
   color: #FFFFFF;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -1805,35 +1805,35 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .message-sender {
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .message-bubble {
   padding: 12px 16px;
   border-radius: 12px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   min-width: 0;
 }
 
 .message-item.mine .message-bubble {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
 }
 
 .message-text {
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-foreground);
   margin: 0;
-  line-height: var(--kb-lh-body-md);
+  line-height: var(--kf-lh-body-md);
   word-break: break-word;
 }
 
 .message-item.mine .message-text {
-  color: var(--kb-primary-foreground);
+  color: var(--kf-primary-foreground);
 }
 
 .message-image {
@@ -1854,7 +1854,7 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .message-image:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1864,18 +1864,18 @@ watch(activeGroupId, (_, oldId) => {
   gap: 8px;
   max-width: 100%;
   padding: 8px 12px;
-  background: var(--kb-background);
+  background: var(--kf-background);
   border: 1px solid transparent;
   border-radius: 8px;
   text-decoration: none;
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-sm);
   transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 
 .message-file:hover {
-  background: var(--kb-muted);
-  border-color: var(--kb-primary);
+  background: var(--kf-muted);
+  border-color: var(--kf-primary);
 }
 
 .message-file:active {
@@ -1883,7 +1883,7 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .message-file:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1897,13 +1897,13 @@ watch(activeGroupId, (_, oldId) => {
 
 .file-size {
   flex-shrink: 0;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-caption);
   font-variant-numeric: tabular-nums;
 }
 
 .message-code {
-  background: var(--kb-background);
+  background: var(--kf-background);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -1913,20 +1913,20 @@ watch(activeGroupId, (_, oldId) => {
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 .code-lang {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   font-family: var(--font-mono);
 }
 
 .copy-btn {
   background: transparent;
   border: none;
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-caption);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-caption);
   padding: 2px 8px;
   border-radius: 4px;
   cursor: pointer;
@@ -1942,7 +1942,7 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .copy-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1950,13 +1950,13 @@ watch(activeGroupId, (_, oldId) => {
   margin: 0;
   padding: 12px;
   overflow-x: auto;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-family: var(--font-mono);
 }
 
 .message-time {
-  font-size: var(--kb-fs-xs);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-xs);
+  color: var(--kf-muted-foreground);
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -1976,14 +1976,14 @@ watch(activeGroupId, (_, oldId) => {
   flex-shrink: 0;
 }
 .status-dot.sending {
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   animation: pulse 1s ease-in-out infinite;
 }
 .status-dot.error {
-  background: var(--kb-destructive);
+  background: var(--kf-destructive);
 }
 .status-fail {
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
   cursor: pointer;
   border-radius: 4px;
   text-decoration: underline dotted;
@@ -1997,7 +1997,7 @@ watch(activeGroupId, (_, oldId) => {
   opacity: 0.65;
 }
 .status-fail:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -2005,18 +2005,18 @@ watch(activeGroupId, (_, oldId) => {
 .msg-recall {
   cursor: pointer;
   border-radius: 4px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   transition: color 0.15s ease, opacity 0.15s ease;
 }
 .msg-recall:hover {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   text-decoration: underline;
 }
 .msg-recall:active {
   opacity: 0.7;
 }
 .msg-recall:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -2026,7 +2026,7 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .mention {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.1);
   padding: 1px 4px;
   border-radius: 4px;
@@ -2035,15 +2035,15 @@ watch(activeGroupId, (_, oldId) => {
 /* 正在输入提示 */
 .typing-indicator {
   padding: 8px 24px;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 
 /* 输入区 */
 .chat-footer {
   padding: 12px 24px 16px;
-  border-top: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-top: 1px solid var(--kf-border);
+  background: var(--kf-card);
 }
 
 .input-toolbar {
@@ -2063,7 +2063,7 @@ watch(activeGroupId, (_, oldId) => {
   justify-content: center;
   background: transparent;
   border: none;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   border-radius: 6px;
   flex-shrink: 0;
@@ -2071,8 +2071,8 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .tool-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-primary);
+  background: var(--kf-muted);
+  color: var(--kf-primary);
 }
 
 .tool-btn:active {
@@ -2081,11 +2081,11 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .tool-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
-/* @提及下拉：与设计系统 .kb-dropdown-panel 保持一致 */
+/* @提及下拉：与设计系统 .kf-dropdown-panel 保持一致 */
 .mention-popover {
   display: flex;
   flex-direction: column;
@@ -2093,9 +2093,9 @@ watch(activeGroupId, (_, oldId) => {
   max-height: 200px;
   overflow-y: auto;
   padding: 4px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-popover);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-popover);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
@@ -2105,19 +2105,19 @@ watch(activeGroupId, (_, oldId) => {
   text-align: left;
   padding: 8px 12px;
   border: none;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
   cursor: pointer;
   white-space: nowrap;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .mention-item:hover {
-  background: var(--kb-muted);
-  color: var(--kb-primary);
+  background: var(--kf-muted);
+  color: var(--kf-primary);
 }
 
 .mention-item:active {
@@ -2125,7 +2125,7 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .mention-item:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: -2px;
 }
 
@@ -2139,16 +2139,16 @@ watch(activeGroupId, (_, oldId) => {
   gap: 8px;
   padding: 12px 16px;
   border-radius: 12px;
-  background: var(--kb-field-surface);
+  background: var(--kf-field-surface);
   transition: border-color 0.15s;
   border: 0;
 }
 
 .input-wrapper:focus-within {
-  background: var(--kb-field-active);
+  background: var(--kf-field-active);
 }
 
-.message-input:not(.kb-form-control) {
+.message-input:not(.kf-form-control) {
   border: none;
   background: transparent;
   outline: none;
@@ -2158,14 +2158,14 @@ watch(activeGroupId, (_, oldId) => {
 .message-input {
   flex: 1;
   min-width: 0;
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-foreground);
   resize: none;
   max-height: 120px;
 }
 
 .message-input::placeholder {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .send-btn {
@@ -2174,8 +2174,8 @@ watch(activeGroupId, (_, oldId) => {
   flex-shrink: 0;
   border-radius: 8px;
   border: none;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2198,7 +2198,7 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .send-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -2218,7 +2218,7 @@ watch(activeGroupId, (_, oldId) => {
 .code-dialog,
 .detail-dialog,
 .settings-dialog {
-  background: var(--kb-card);
+  background: var(--kf-card);
   border-radius: 16px;
   width: 90%;
   max-width: 420px;
@@ -2231,17 +2231,17 @@ watch(activeGroupId, (_, oldId) => {
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .panel-header h3,
 .dialog-header h3 {
   margin: 0;
   min-width: 0;
-  font-size: var(--kb-fs-h4);
-  line-height: var(--kb-lh-h4);
+  font-size: var(--kf-fs-h4);
+  line-height: var(--kf-lh-h4);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .panel-close,
@@ -2249,7 +2249,7 @@ watch(activeGroupId, (_, oldId) => {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 4px;
   border-radius: 6px;
   flex-shrink: 0;
@@ -2258,8 +2258,8 @@ watch(activeGroupId, (_, oldId) => {
 
 .panel-close:hover,
 .dialog-close:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 
 .panel-close:active,
@@ -2270,7 +2270,7 @@ watch(activeGroupId, (_, oldId) => {
 
 .panel-close:focus-visible,
 .dialog-close:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -2296,7 +2296,7 @@ watch(activeGroupId, (_, oldId) => {
   align-items: center;
   justify-content: center;
   color: #FFFFFF;
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -2309,29 +2309,29 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .member-name {
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .member-role {
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
+  color: var(--kf-muted-foreground);
 }
 
-.member-role.owner { color: var(--kb-warning); }
-.member-role.admin { color: var(--kb-accent); }
+.member-role.owner { color: var(--kf-warning); }
+.member-role.admin { color: var(--kf-accent); }
 
 .member-action {
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 6px;
   border-radius: 6px;
   flex-shrink: 0;
@@ -2340,7 +2340,7 @@ watch(activeGroupId, (_, oldId) => {
 
 .member-action:hover {
   background: rgba(239, 68, 68, 0.1);
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 
 .member-action:active {
@@ -2349,7 +2349,7 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .member-action:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -2363,14 +2363,14 @@ watch(activeGroupId, (_, oldId) => {
 
 .form-group label {
   display: block;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 8px;
 }
 
 .form-group .required {
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 
 .form-input,
@@ -2379,16 +2379,16 @@ watch(activeGroupId, (_, oldId) => {
   width: 100%;
   padding: 12px 16px;
   border-radius: 10px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-background);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-md);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-background);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-md);
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   box-sizing: border-box;
 }
 
-.form-textarea:not(.kb-form-control) {
+.form-textarea:not(.kf-form-control) {
   min-height: 80px;
 }
 
@@ -2399,16 +2399,16 @@ watch(activeGroupId, (_, oldId) => {
 .form-input:hover,
 .form-textarea:hover,
 .form-select:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 
-.form-input:focus:not(.kb-form-control),
-.form-textarea:focus:not(.kb-form-control),
+.form-input:focus:not(.kf-form-control),
+.form-textarea:focus:not(.kf-form-control),
 .form-select:focus,
-.form-input:focus-visible:not(.kb-form-control),
-.form-textarea:focus-visible:not(.kb-form-control),
+.form-input:focus-visible:not(.kf-form-control),
+.form-textarea:focus-visible:not(.kf-form-control),
 .form-select:focus-visible {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
 
@@ -2450,12 +2450,12 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .color-item:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
 .color-item.active {
-  border-color: var(--kb-foreground);
+  border-color: var(--kf-foreground);
 }
 
 .type-options {
@@ -2470,13 +2470,13 @@ watch(activeGroupId, (_, oldId) => {
   gap: 12px;
   padding: 12px 16px;
   border-radius: 10px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
 }
 
 .type-option:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 
 .type-option:active {
@@ -2485,13 +2485,13 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .type-option:focus-within {
-  border-color: var(--kb-primary);
-  outline: 2px solid var(--kb-ring);
+  border-color: var(--kf-primary);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
 .type-option.active {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.08);
 }
 
@@ -2519,14 +2519,14 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .type-name {
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .type-desc {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 
 .role-options {
@@ -2540,14 +2540,14 @@ watch(activeGroupId, (_, oldId) => {
   min-width: 0;
   padding: 12px;
   border-radius: 8px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   text-align: center;
   cursor: pointer;
   transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
 }
 
 .role-option:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 
 .role-option:active {
@@ -2556,26 +2556,26 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .role-option:focus-within {
-  border-color: var(--kb-primary);
-  outline: 2px solid var(--kb-ring);
+  border-color: var(--kf-primary);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
 .role-option.active {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.08);
 }
 
 .role-name {
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .invite-desc {
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
+  color: var(--kf-muted-foreground);
   margin: 0 0 16px;
 }
 
@@ -2584,7 +2584,7 @@ watch(activeGroupId, (_, oldId) => {
   display: flex;
   gap: 12px;
   padding: 20px 24px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 
 .btn-secondary,
@@ -2593,7 +2593,7 @@ watch(activeGroupId, (_, oldId) => {
   min-width: 0;
   height: 40px;
   border-radius: 10px;
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
@@ -2602,28 +2602,28 @@ watch(activeGroupId, (_, oldId) => {
 
 .btn-secondary:focus-visible,
 .btn-primary:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
 .btn-secondary {
-  background: var(--kb-background);
-  color: var(--kb-foreground);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-background);
+  color: var(--kf-foreground);
+  border: 1px solid var(--kf-border);
 }
 
 .btn-secondary:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 .btn-secondary:active {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   transform: scale(0.98);
 }
 
 .btn-primary {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 
 .btn-primary:disabled {
@@ -2661,16 +2661,16 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .detail-name {
-  font-size: var(--kb-fs-h4);
-  line-height: var(--kb-lh-h4);
+  font-size: var(--kf-fs-h4);
+  line-height: var(--kf-lh-h4);
   font-weight: 700;
   margin: 0 0 8px;
   word-break: break-word;
 }
 
 .detail-desc {
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   opacity: 0.9;
   margin: 0;
   word-break: break-word;
@@ -2691,8 +2691,8 @@ watch(activeGroupId, (_, oldId) => {
   align-items: center;
   gap: 12px;
   min-width: 0;
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-foreground);
 }
 
 @media (max-width: 768px) {
@@ -2704,7 +2704,7 @@ watch(activeGroupId, (_, oldId) => {
     width: 100%;
     height: 40%;
     border-right: none;
-    border-bottom: 1px solid var(--kb-border);
+    border-bottom: 1px solid var(--kf-border);
   }
 
   .chat-main {
@@ -2748,18 +2748,18 @@ watch(activeGroupId, (_, oldId) => {
   margin-top: 12px;
   padding: 12px 16px;
   border-radius: 8px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-md);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-md);
   cursor: pointer;
   transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
 }
 
 .btn-save:hover,
 .btn-link:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 
 .btn-save:active,
@@ -2770,7 +2770,7 @@ watch(activeGroupId, (_, oldId) => {
 
 .btn-save:focus-visible,
 .btn-link:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -2782,19 +2782,19 @@ watch(activeGroupId, (_, oldId) => {
   padding: 12px;
   background: rgba(59, 111, 224, 0.08);
   border-radius: 8px;
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-md);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-md);
   word-break: break-word;
 }
 
 .plan-empty {
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
   padding: 12px 0;
 }
 
 .danger-zone {
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
   padding-top: 20px;
   margin-top: 20px;
 }
@@ -2806,10 +2806,10 @@ watch(activeGroupId, (_, oldId) => {
   width: 100%;
   padding: 12px;
   border-radius: 8px;
-  border: 1px solid var(--kb-destructive);
+  border: 1px solid var(--kf-destructive);
   background: transparent;
-  color: var(--kb-destructive);
-  font-size: var(--kb-fs-body-md);
+  color: var(--kf-destructive);
+  font-size: var(--kf-fs-body-md);
   cursor: pointer;
   transition: background-color 0.15s ease, transform 0.15s ease;
 }
@@ -2824,11 +2824,11 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .btn-leave:focus-visible {
-  outline: 2px solid var(--kb-destructive);
+  outline: 2px solid var(--kf-destructive);
   outline-offset: 2px;
 }
 </style>
 
 <style scoped>
-.input-wrapper:has(input:focus-visible){outline:0}.input-wrapper input.kb-form-control,.input-wrapper input.kb-form-control:focus,.input-wrapper input.kb-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
+.input-wrapper:has(input:focus-visible){outline:0}.input-wrapper input.kf-form-control,.input-wrapper input.kf-form-control:focus,.input-wrapper input.kf-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
 </style>

@@ -7,7 +7,7 @@
         @click.self="handleClose"
       >
         <div class="sharecard-panel">
-          <button type="button" class="close-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleClose" aria-label="关闭">
+          <button type="button" class="close-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleClose" aria-label="关闭">
             <Icon name="x" :size="18" aria-hidden="true" />
           </button>
 
@@ -89,11 +89,11 @@
           </div>
 
           <div class="actions">
-            <button type="button" class="action-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleDownload">
+            <button type="button" class="action-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleDownload">
               <Icon name="download" :size="16" aria-hidden="true" />
               下载图片
             </button>
-            <button type="button" class="action-btn primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleCopyText">
+            <button type="button" class="action-btn primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleCopyText">
               <Icon name="copy" :size="16" aria-hidden="true" />
               复制文案
             </button>
@@ -369,7 +369,7 @@ watch(
   background: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 20px;
   padding: 20px 20px 18px;
   box-shadow: 0 32px 80px rgba(0, 0, 0, 0.45);
@@ -384,7 +384,7 @@ watch(
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid transparent;
   border-radius: 10px;
@@ -393,7 +393,7 @@ watch(
 }
 .close-btn:hover {
   background: rgba(255, 255, 255, 0.09);
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   border-color: rgba(255, 255, 255, 0.08);
 }
 
@@ -404,7 +404,7 @@ watch(
   margin: 0 0 16px;
   font-size: 16px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .card-preview {
@@ -589,9 +589,9 @@ watch(
   padding: 0 16px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 12px;
   cursor: pointer;
   transition: background 0.15s ease, filter 0.15s ease;
@@ -600,13 +600,13 @@ watch(
   background: rgba(255, 255, 255, 0.1);
 }
 .action-btn.primary {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary-foreground, #fff);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary-foreground, #fff);
 }
 .action-btn.primary:hover {
   filter: brightness(1.06);
-  background: var(--kb-primary);
+  background: var(--kf-primary);
 }
 
 .tabular-nums {

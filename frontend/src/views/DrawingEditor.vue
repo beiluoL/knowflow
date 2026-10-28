@@ -5,10 +5,10 @@
     <!-- ============ 侧边：流程图列表 ============ -->
     <aside class="dw-side" aria-label="我的流程图">
       <div class="dw-side-head">
-        <Icon name="pen-tool" :size="18" style="color: var(--kb-primary)" />
+        <Icon name="pen-tool" :size="18" style="color: var(--kf-primary)" />
         <span class="dw-side-title">我的流程图</span>
       </div>
-      <button :disabled="saving" :class="{ secondary: drawings.length === 0 }" class="dw-new-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="newDrawing">
+      <button :disabled="saving" :class="{ secondary: drawings.length === 0 }" class="dw-new-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" @click="newDrawing">
         <Icon name="file-plus" :size="16" /> 新建流程图
       </button>
       <div class="dw-list">
@@ -40,7 +40,7 @@
         <div class="dw-toolbar">
           <input
             v-model="title"
-            class="dw-title kb-input kb-form-control"
+            class="dw-title kf-input kf-form-control"
             placeholder="流程图标题"
             aria-label="流程图标题"
             @input="markDirty"
@@ -74,7 +74,7 @@
                 <input
                   v-if="editingId === np.id"
                   :value="np.data?.label"
-                  class="dw-node-edit kb-input kb-form-control"
+                  class="dw-node-edit kf-input kf-form-control"
                   @mousedown.stop
                   @dblclick.stop
                   @blur="editingId = null"
@@ -94,7 +94,7 @@
 
           <!-- 提示：空画布 -->
           <div v-if="nodes.length === 0" class="dw-empty">
-            <Icon name="pen-tool" :size="40" style="color: var(--kb-muted-foreground)" />
+            <Icon name="pen-tool" :size="40" style="color: var(--kf-muted-foreground)" />
             <p>画布为空。点击工具栏「＋」添加第一个节点，拖拽节点右侧圆点连线。</p>
           </div>
         </div>
@@ -110,7 +110,7 @@
 
       <!-- 未选择任何图 -->
       <div v-else class="dw-blank">
-        <Icon name="pen-tool" :size="48" style="color: var(--kb-muted-foreground)" />
+        <Icon name="pen-tool" :size="48" style="color: var(--kf-muted-foreground)" />
         <h2>流程图</h2>
         <p>用节点和连线把流程画出来：拖拽添加、自由连线、双击编辑文字，数据自动保存。</p>
         <button v-if="!drawings.length" :disabled="saving || loadingList || listError" class="dw-new-btn lg" @click="newDrawing"><Icon name="file-plus" :size="16" /> 新建第一个流程图</button>
@@ -371,32 +371,32 @@ onMounted(loadList)
 <style scoped>
 .dw-root {
   display: flex;
-  height: calc(100dvh - var(--kb-nav-height) - var(--kb-space-section) - var(--kb-space-section));
+  height: calc(100dvh - var(--kf-nav-height) - var(--kf-space-section) - var(--kf-space-section));
   min-height: 0;
-  background: var(--kb-background);
-  gap: var(--kb-space-3);
-  padding: var(--kb-space-3);
+  background: var(--kf-background);
+  gap: var(--kf-space-3);
+  padding: var(--kf-space-3);
   box-sizing: border-box;
   overflow: hidden;
 }
 .dw-side {
-  width: var(--kb-canvas-list-width);
-  flex: 0 0 var(--kb-canvas-list-width);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
+  width: var(--kf-canvas-list-width);
+  flex: 0 0 var(--kf-canvas-list-width);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
   display: flex;
   flex-direction: column;
-  padding: var(--kb-space-4);
+  padding: var(--kf-space-4);
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
 }
 .dw-side-head {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   font-weight: 700;
-  color: var(--kb-foreground);
-  margin-bottom: var(--kb-space-3);
+  color: var(--kf-foreground);
+  margin-bottom: var(--kf-space-3);
 }
 .dw-new-btn {
   display: flex;
@@ -405,16 +405,16 @@ onMounted(loadList)
   gap: 6px;
   width: 100%;
   padding: 9px 12px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   border: none;
-  background: var(--kb-primary, var(--kb-primary));
-  color: var(--kb-card);
+  background: var(--kf-primary, var(--kf-primary));
+  color: var(--kf-card);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
 }
 .dw-new-btn:hover {
-  background: var(--kb-primary-hover);
+  background: var(--kf-primary-hover);
 }
 .dw-new-btn.lg {
   width: auto;
@@ -431,49 +431,49 @@ onMounted(loadList)
   gap: 6px;
 }
 .dw-hint {
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
   padding: 8px 4px;
 }
 .dw-list-item {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   padding: 9px 10px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   border: 1px solid transparent;
-  background: var(--kb-surface-2);
+  background: var(--kf-surface-2);
   cursor: pointer;
   text-align: left;
   transition: all 0.15s;
 }
 .dw-list-item:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .dw-list-item.active {
-  border-color: var(--kb-primary, var(--kb-primary));
-  background: var(--kb-primary-soft);
+  border-color: var(--kf-primary, var(--kf-primary));
+  background: var(--kf-primary-soft);
 }
 .dw-list-ico {
-  color: var(--kb-primary, var(--kb-primary));
+  color: var(--kf-primary, var(--kf-primary));
   flex: 0 0 auto;
 }
 .dw-list-name {
   flex: 1;
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .dw-list-time {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   flex: 0 0 auto;
 }
 .dw-list-del {
   flex: 0 0 auto;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   display: none;
   padding: 2px;
   border-radius: 6px;
@@ -482,8 +482,8 @@ onMounted(loadList)
   display: inline-flex;
 }
 .dw-list-del:hover {
-  color: var(--kb-danger);
-  background: var(--kb-danger-soft-strong);
+  color: var(--kf-danger);
+  background: var(--kf-danger-soft-strong);
 }
 
 .dw-main {
@@ -493,23 +493,23 @@ onMounted(loadList)
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
 }
 .dw-toolbar {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   padding: 10px 14px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
-.dw-title:not(.kb-form-control) {
+.dw-title:not(.kf-form-control) {
   border: none;
   border-radius: 8px;
-  background: var(--kb-surface-2);
+  background: var(--kf-surface-2);
 }
 .dw-title {
   min-width: 0;
@@ -517,11 +517,11 @@ onMounted(loadList)
   flex: 1;
   font-size: 16px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   padding: 6px 8px;
 }
-.dw-title:not(.kb-form-control):focus {
-  background: var(--kb-primary-soft);
+.dw-title:not(.kf-form-control):focus {
+  background: var(--kf-primary-soft);
 }
 .dw-tools {
   display: flex;
@@ -534,25 +534,25 @@ onMounted(loadList)
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   border-radius: 9px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: all 0.15s;
 }
 .dw-tool-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-primary, var(--kb-primary));
-  border-color: var(--kb-border);
+  background: var(--kf-muted);
+  color: var(--kf-primary, var(--kf-primary));
+  border-color: var(--kf-border);
 }
 .dw-tool-btn.dw-save {
-  color: var(--kb-card);
-  background: var(--kb-primary, var(--kb-primary));
-  border-color: var(--kb-primary, var(--kb-primary));
+  color: var(--kf-card);
+  background: var(--kf-primary, var(--kf-primary));
+  border-color: var(--kf-primary, var(--kf-primary));
 }
 .dw-tool-btn.dw-save:hover {
-  background: var(--kb-primary-hover);
+  background: var(--kf-primary-hover);
 }
 .dw-tool-btn:disabled {
   opacity: 0.5;
@@ -561,7 +561,7 @@ onMounted(loadList)
 .dw-tool-sep {
   width: 1px;
   height: 22px;
-  background: var(--kb-border);
+  background: var(--kf-border);
   margin: 0 4px;
 }
 
@@ -570,7 +570,7 @@ onMounted(loadList)
   position: relative;
   flex: 1;
   overflow: hidden;
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
 .dw-empty {
   position: absolute;
@@ -580,10 +580,10 @@ onMounted(loadList)
   align-items: center;
   justify-content: center;
   gap: 10px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   text-align: center;
   pointer-events: none;
-  padding: var(--kb-space-6);
+  padding: var(--kf-space-6);
 }
 
 .dw-node {
@@ -593,14 +593,14 @@ onMounted(loadList)
   max-width: 220px;
   padding: 8px 12px;
   box-sizing: border-box;
-  background: var(--kb-card);
-  border: 2px solid var(--kb-primary, var(--kb-primary));
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 2px solid var(--kf-primary, var(--kf-primary));
+  border-radius: var(--kf-radius-md);
   box-shadow: 0 2px 8px rgba(16, 24, 40, 0.08);
   position: relative;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .dw-node.editing {
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.25);
@@ -613,7 +613,7 @@ onMounted(loadList)
   white-space: nowrap;
   user-select: none;
 }
-.dw-node-edit:not(.kb-form-control) {
+.dw-node-edit:not(.kf-form-control) {
   border: none;
   outline: none;
   background: transparent;
@@ -621,9 +621,9 @@ onMounted(loadList)
 .dw-node-edit {
   flex: 1;
   width: 100%;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-family: inherit;
 }
 .dw-node-del {
@@ -636,8 +636,8 @@ onMounted(loadList)
   align-items: center;
   justify-content: center;
   border: none;
-  background: var(--kb-danger-soft-strong);
-  color: var(--kb-danger);
+  background: var(--kf-danger-soft-strong);
+  color: var(--kf-danger);
   border-radius: 50%;
   cursor: pointer;
 }
@@ -650,23 +650,23 @@ onMounted(loadList)
   align-items: center;
   gap: 16px;
   padding: 8px 14px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
   font-size: 12px;
-  color: var(--kb-muted-foreground);
-  background: var(--kb-background);
+  color: var(--kf-muted-foreground);
+  background: var(--kf-background);
 }
 .dw-dirty {
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 .dw-saved {
-  color: var(--kb-success);
+  color: var(--kf-success);
 }
 .dw-sav-dot {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .dw-tip {
   margin-left: auto;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .dw-blank {
@@ -676,41 +676,41 @@ onMounted(loadList)
   align-items: center;
   justify-content: center;
   gap: 10px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   text-align: center;
-  padding: var(--kb-space-6);
+  padding: var(--kf-space-6);
 }
 .dw-blank h2 {
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-h4);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-h4);
   margin: 0;
 }
 .dw-blank p {
   max-width: 360px;
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   line-height: 1.6;
   margin: 0;
 }
 
-.dw-new-btn.secondary { background: var(--kb-surface-2); color: var(--kb-foreground); border: 1px solid var(--kb-border); }
+.dw-new-btn.secondary { background: var(--kf-surface-2); color: var(--kf-foreground); border: 1px solid var(--kf-border); }
 .dw-new-btn:disabled { opacity: .5; cursor: not-allowed; }
 .dw-side { min-width: 0; }
-.dw-blank { position: static; flex: 1; min-height: 0; gap: var(--kb-space-4); }
+.dw-blank { position: static; flex: 1; min-height: 0; gap: var(--kf-space-4); }
 .dw-blank h2 { max-width: 100%; }
 .dw-list-item { min-width: 0; flex-shrink: 0; }
 .dw-tools, .dw-status { flex-wrap: wrap; }
-.dw-directory-toggle { display: none; align-items: center; gap: var(--kb-space-2); height: var(--kb-btn-height-sm); padding: 0 var(--kb-space-3); background: var(--kb-card); border: 1px solid var(--kb-border); border-radius: var(--kb-radius-sm); }
+.dw-directory-toggle { display: none; align-items: center; gap: var(--kf-space-2); height: var(--kf-btn-height-sm); padding: 0 var(--kf-space-3); background: var(--kf-card); border: 1px solid var(--kf-border); border-radius: var(--kf-radius-sm); }
 .dw-list-item:focus-within .dw-list-del { display: inline-flex; }
 @media (max-width: 1100px) {
  .dw-directory-toggle { display: inline-flex; }
- .dw-root { position: relative; padding: 0; height: calc(100dvh - var(--kb-nav-height) - var(--kb-space-section) - var(--kb-space-section) - var(--kb-space-section)); }
+ .dw-root { position: relative; padding: 0; height: calc(100dvh - var(--kf-nav-height) - var(--kf-space-section) - var(--kf-space-section) - var(--kf-space-section)); }
  .dw-side { display: none; }
- .dw-root.side-open .dw-side { display: flex; position: absolute; z-index: 5; inset: 0 auto 0 0; max-width: 85%; box-shadow: var(--kb-shadow-lg); }
+ .dw-root.side-open .dw-side { display: flex; position: absolute; z-index: 5; inset: 0 auto 0 0; max-width: 85%; box-shadow: var(--kf-shadow-lg); }
  .dw-toolbar { flex-wrap: wrap; }
  .dw-title { flex-basis: 100%; }
 }
-.dw-list-row { display: flex; align-items: center; gap: var(--kb-space-1); }
+.dw-list-row { display: flex; align-items: center; gap: var(--kf-space-1); }
 .dw-list-item { flex: 1; }
 .dw-list-del { display: inline-flex; background: transparent; border: 0; }
-.dw-root button:focus-visible { outline: 2px solid var(--kb-ring); outline-offset: 2px; }
+.dw-root button:focus-visible { outline: 2px solid var(--kf-ring); outline-offset: 2px; }
 </style>

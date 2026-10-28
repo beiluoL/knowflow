@@ -10,7 +10,7 @@
 
     <div v-if="loading" class="qm-loading"><Icon name="loader" :size="18" class="spin" /> 加载中…</div>
     <div v-else-if="error" class="qm-error">
-      <Icon name="alert-circle" :size="22" style="color: var(--kb-destructive);" />
+      <Icon name="alert-circle" :size="22" style="color: var(--kf-destructive);" />
       <p>{{ error }}</p>
       <button class="qm-retry" @click="reload">重试</button>
     </div>
@@ -92,9 +92,9 @@ const loading = ref(false)
 const error = ref('')
 
 const quadrants = [
-  { key: 'q1' as QKey, label: '重要且紧急', icon: 'alert-octagon', color: 'var(--kb-danger)', cls: 'q-important-urgent', tip: '立即处理 · 优先做' },
-  { key: 'q2' as QKey, label: '重要不紧急', icon: 'star', color: 'var(--kb-primary)', cls: 'q-important', tip: '制定计划 · 重点做' },
-  { key: 'q3' as QKey, label: '紧急不重要', icon: 'zap', color: 'var(--kb-warning)', cls: 'q-urgent', tip: '尽量委托 · 快速做' },
+  { key: 'q1' as QKey, label: '重要且紧急', icon: 'alert-octagon', color: 'var(--kf-danger)', cls: 'q-important-urgent', tip: '立即处理 · 优先做' },
+  { key: 'q2' as QKey, label: '重要不紧急', icon: 'star', color: 'var(--kf-primary)', cls: 'q-important', tip: '制定计划 · 重点做' },
+  { key: 'q3' as QKey, label: '紧急不重要', icon: 'zap', color: 'var(--kf-warning)', cls: 'q-urgent', tip: '尽量委托 · 快速做' },
   { key: 'q4' as QKey, label: '不重要不紧急', icon: 'minus-circle', color: '#94A3B8', cls: 'q-normal', tip: '减少投入 · 有空做' },
 ]
 
@@ -195,17 +195,17 @@ onMounted(reload)
 <style scoped>
 .qm-page { display: flex; flex-direction: column; height: 100%; }
 .qm-head { margin-bottom: 14px; }
-.qm-h2 { font-size: 18px; font-weight: 700; color: var(--kb-foreground); }
-.qm-sub { font-size: 13px; color: var(--kb-muted-foreground); margin-top: 2px; }
+.qm-h2 { font-size: 18px; font-weight: 700; color: var(--kf-foreground); }
+.qm-sub { font-size: 13px; color: var(--kf-muted-foreground); margin-top: 2px; }
 
 .qm-loading, .qm-error {
   display: flex; flex-direction: column; align-items: center; gap: 10px;
-  padding: 60px 20px; color: var(--kb-muted-foreground); font-size: 14px;
+  padding: 60px 20px; color: var(--kf-muted-foreground); font-size: 14px;
 }
-.qm-error { color: var(--kb-destructive); }
+.qm-error { color: var(--kf-destructive); }
 .qm-retry {
   margin-top: 4px; padding: 6px 16px; border-radius: 8px; border: none;
-  background: var(--kb-primary); color: #fff; font-size: 13px; cursor: pointer;
+  background: var(--kf-primary); color: #fff; font-size: 13px; cursor: pointer;
 }
 .spin { animation: qm-spin 0.8s linear infinite; }
 @keyframes qm-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
@@ -222,68 +222,68 @@ onMounted(reload)
 .qm-quad {
   display: flex;
   flex-direction: column;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 12px;
   padding: 14px;
   min-height: 0;
-  border-top: 3px solid var(--kb-border);
+  border-top: 3px solid var(--kf-border);
 }
-.qm-quad.q-important-urgent { border-top-color: var(--kb-danger); }
-.qm-quad.q-important { border-top-color: var(--kb-primary); }
-.qm-quad.q-urgent { border-top-color: var(--kb-warning); }
+.qm-quad.q-important-urgent { border-top-color: var(--kf-danger); }
+.qm-quad.q-important { border-top-color: var(--kf-primary); }
+.qm-quad.q-urgent { border-top-color: var(--kf-warning); }
 .qm-quad.q-normal { border-top-color: #94A3B8; }
 
 .qm-quad-head { display: flex; align-items: center; justify-content: space-between; }
-.qm-quad-title { display: flex; align-items: center; gap: 7px; font-size: 14.5px; font-weight: 600; color: var(--kb-foreground); }
+.qm-quad-title { display: flex; align-items: center; gap: 7px; font-size: 14.5px; font-weight: 600; color: var(--kf-foreground); }
 .qm-quad-count {
-  font-size: 11px; color: var(--kb-muted-foreground);
-  background: var(--kb-muted); border-radius: 999px; min-width: 20px; text-align: center; padding: 1px 6px;
+  font-size: 11px; color: var(--kf-muted-foreground);
+  background: var(--kf-muted); border-radius: 999px; min-width: 20px; text-align: center; padding: 1px 6px;
 }
-.qm-quad-tip { font-size: 11.5px; color: var(--kb-muted-foreground); margin: 3px 0 10px; }
+.qm-quad-tip { font-size: 11.5px; color: var(--kf-muted-foreground); margin: 3px 0 10px; }
 
 .qm-cards { flex: 1 1 auto; overflow-y: auto; display: flex; flex-direction: column; gap: 7px; margin-bottom: 8px; }
 
 .qm-card {
   display: flex; align-items: center; gap: 9px;
   padding: 8px 10px; border-radius: 9px;
-  background: var(--kb-muted); border: 1px solid transparent;
+  background: var(--kf-muted); border: 1px solid transparent;
   transition: background 0.12s ease, border-color 0.12s ease;
 }
-.qm-card:hover { border-color: var(--kb-border); }
+.qm-card:hover { border-color: var(--kf-border); }
 .qm-card.done { opacity: 0.6; }
 
 .qm-check {
   flex: 0 0 auto; width: 17px; height: 17px; border-radius: 50%;
-  border: 1.8px solid var(--kb-border); background: var(--kb-card);
+  border: 1.8px solid var(--kf-border); background: var(--kf-card);
   cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s ease;
 }
-.qm-check:hover { border-color: var(--kb-primary); }
-.qm-check.done { background: var(--kb-primary); border-color: var(--kb-primary); }
+.qm-check:hover { border-color: var(--kf-primary); }
+.qm-check.done { background: var(--kf-primary); border-color: var(--kf-primary); }
 
 .qm-card-body { flex: 1 1 auto; min-width: 0; }
-.qm-card-title { font-size: 13.5px; color: var(--kb-foreground); line-height: 1.4; word-break: break-word; }
-.qm-card-title.done { color: var(--kb-muted-foreground); text-decoration: line-through; }
+.qm-card-title { font-size: 13.5px; color: var(--kf-foreground); line-height: 1.4; word-break: break-word; }
+.qm-card-title.done { color: var(--kf-muted-foreground); text-decoration: line-through; }
 
 .qm-card-flags { flex: 0 0 auto; display: flex; align-items: center; gap: 2px; }
 .qm-flag {
   width: 24px; height: 24px; border: none; background: transparent;
-  color: var(--kb-muted-foreground); border-radius: 6px; cursor: pointer;
+  color: var(--kf-muted-foreground); border-radius: 6px; cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center; transition: all 0.12s ease;
 }
-.qm-flag:hover { background: var(--kb-card); color: var(--kb-foreground); }
-.qm-flag.on { color: var(--kb-warning); }
-.qm-flag.del:hover { color: var(--kb-destructive); background: rgba(239, 68, 68, 0.1); }
+.qm-flag:hover { background: var(--kf-card); color: var(--kf-foreground); }
+.qm-flag.on { color: var(--kf-warning); }
+.qm-flag.del:hover { color: var(--kf-destructive); background: rgba(239, 68, 68, 0.1); }
 
-.qm-empty { font-size: 12px; color: var(--kb-muted-foreground); text-align: center; padding: 16px 0; }
+.qm-empty { font-size: 12px; color: var(--kf-muted-foreground); text-align: center; padding: 16px 0; }
 
 .qm-add {
   flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   width: 100%; padding: 7px; border-radius: 8px;
-  border: 1px dashed var(--kb-border); background: transparent;
-  color: var(--kb-muted-foreground); font-size: 12.5px; cursor: pointer; transition: all 0.12s ease;
+  border: 1px dashed var(--kf-border); background: transparent;
+  color: var(--kf-muted-foreground); font-size: 12.5px; cursor: pointer; transition: all 0.12s ease;
 }
-.qm-add:hover { border-color: var(--kb-primary); color: var(--kb-primary); }
+.qm-add:hover { border-color: var(--kf-primary); color: var(--kf-primary); }
 
 @media (max-width: 720px) {
   .qm-grid { grid-template-columns: 1fr; grid-template-rows: none; grid-auto-rows: minmax(220px, auto); }

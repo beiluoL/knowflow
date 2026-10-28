@@ -4,19 +4,19 @@
     <!-- 页面标题 + 操作按钮 -->
     <div class="page-head">
       <div class="title-group">
-        <h1 class="kb-h1">文档管理</h1>
-        <span class="kb-body-sm">共 {{ totalDocs }} 个</span>
+        <h1 class="kf-h1">文档管理</h1>
+        <span class="kf-body-sm">共 {{ totalDocs }} 个</span>
       </div>
       <div class="head-actions">
-        <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="goToUpload">
+        <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="goToUpload">
           <Icon name="upload" :size="16" aria-hidden="true" />
           <span>上传</span>
         </button>
-        <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="goToCreate">
+        <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="goToCreate">
           <Icon name="file-plus" :size="16" aria-hidden="true" />
           <span>新建</span>
         </button>
-        <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="toggleBatch">
+        <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="toggleBatch">
           <Icon name="check-square" :size="16" aria-hidden="true" />
           <span>{{ batchMode ? '退出批量' : '批量操作' }}</span>
         </button>
@@ -26,7 +26,7 @@
     <!-- 视图切换 -->
     <div class="view-switcher">
       <button
-        class="view-btn hover:bg-[var(--kb-card)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="view-btn hover:bg-[var(--kf-card)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: viewMode === 'list' }"
         @click="viewMode = 'list'"
       >
@@ -34,7 +34,7 @@
         <span>列表视图</span>
       </button>
       <button
-        class="view-btn hover:bg-[var(--kb-card)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="view-btn hover:bg-[var(--kf-card)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: viewMode === 'grid' }"
         @click="viewMode = 'grid'"
       >
@@ -48,14 +48,14 @@
       <div class="batch-info">
         <Icon name="check-square" :size="16" />
         <span>已选择 <strong>{{ checkedIds.length }}</strong> 个文档</span>
-        <button v-if="checkedIds.length > 0" class="link-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="checkedIds = []">取消选择</button>
+        <button v-if="checkedIds.length > 0" class="link-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="checkedIds = []">取消选择</button>
       </div>
       <div class="batch-actions">
-        <button class="btn-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="!checkedIds.length" @click="batchDelete">
+        <button class="btn-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="!checkedIds.length" @click="batchDelete">
           <Icon name="trash-2" :size="14" aria-hidden="true" />
           <span>批量删除</span>
         </button>
-        <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="!checkedIds.length" @click="openMoveModal">
+        <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="!checkedIds.length" @click="openMoveModal">
           <Icon name="move" :size="14" aria-hidden="true" />
           <span>批量移动</span>
         </button>
@@ -75,7 +75,7 @@
       </div>
       <!-- 状态筛选（后端查询） -->
       <div class="filter-category">
-        <select v-model="selectedStatus" class="category-select transition-colors kb-select kb-form-control" @change="onFilterChange">
+        <select v-model="selectedStatus" class="category-select transition-colors kf-select kf-form-control" @change="onFilterChange">
           <option :value="undefined">全部状态</option>
           <option :value="0">草稿</option>
           <option :value="1">已发布</option>
@@ -87,7 +87,7 @@
         <button
           v-for="t in fileTypes"
           :key="t.value"
-          class="filter-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="filter-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: selectedType === t.value }"
           @click="selectedType = t.value"
         >
@@ -97,7 +97,7 @@
       <div class="filter-right">
         <div class="sort-group">
           <span class="sort-label">排序:</span>
-          <select v-model="sortBy" class="sort-select transition-colors kb-select kb-form-control">
+          <select v-model="sortBy" class="sort-select transition-colors kf-select kf-form-control">
             <option value="modified">修改时间</option>
             <option value="name">名称</option>
             <option value="size">大小</option>
@@ -109,10 +109,10 @@
             v-model="searchQuery"
             type="text"
             placeholder="搜索标题..."
-            class="search-input transition-colors kb-input kb-form-control"
+            class="search-input transition-colors kf-input kf-form-control"
             @keyup.enter="onFilterChange"
           />
-          <button class="search-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="onFilterChange">搜索</button>
+          <button class="search-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="onFilterChange">搜索</button>
         </div>
       </div>
     </div>
@@ -126,7 +126,7 @@
       </div>
       <!-- 表头 -->
       <div class="table-row table-head">
-        <label v-if="batchMode" class="checkbox-cell kb-checkbox-row">
+        <label v-if="batchMode" class="checkbox-cell kf-checkbox-row">
             <Checkbox as="span"
               :checked="allChecked"
               @native-change="toggleAll" />
@@ -147,7 +147,7 @@
         :key="doc.id"
         class="table-row table-body"
       >
-        <label v-if="batchMode" class="checkbox-cell kb-checkbox-row">
+        <label v-if="batchMode" class="checkbox-cell kf-checkbox-row">
           <Checkbox as="span"
             v-model="checkedIds"
             :value="doc.id" />
@@ -157,7 +157,7 @@
             <div class="file-icon" :style="{ background: doc.iconBg || '' }">
               <Icon :name="doc.icon || ''" :size="16" :style="{ color: doc.iconColor || '' }" />
             </div>
-            <span class="file-name-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :title="doc.title" role="button" tabindex="0" @click="goToDetail(doc)" @keydown.enter.prevent="($event.target as HTMLElement).click()">{{ doc.title }}</span>
+            <span class="file-name-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :title="doc.title" role="button" tabindex="0" @click="goToDetail(doc)" @keydown.enter.prevent="($event.target as HTMLElement).click()">{{ doc.title }}</span>
           </div>
         </div>
         <div class="col-category">
@@ -181,13 +181,13 @@
           <span class="progress-text">{{ doc.progress }}%</span>
         </div>
         <div class="col-actions">
-          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="分享" @click="shareDoc(doc)">
+          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" title="分享" @click="shareDoc(doc)">
               <Icon name="share-2" :size="14" aria-hidden="true" />
           </button>
-          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="下载" @click="downloadDoc(doc)">
+          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" title="下载" @click="downloadDoc(doc)">
               <Icon name="download" :size="14" aria-hidden="true" />
           </button>
-          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="更多" @click="openMenu(doc)">
+          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" title="更多" @click="openMenu(doc)">
               <Icon name="more-vertical" :size="14" aria-hidden="true" />
           </button>
         </div>
@@ -206,7 +206,7 @@
         :class="{ 'card-checked': batchMode && checkedIds.includes(doc.id) }"
       >
         <div class="card-head">
-          <label v-if="batchMode" class="card-checkbox kb-checkbox-row">
+          <label v-if="batchMode" class="card-checkbox kf-checkbox-row">
             <Checkbox as="span"
               v-model="checkedIds"
               :value="doc.id" />
@@ -215,15 +215,15 @@
             <Icon :name="doc.icon || ''" :size="20" :style="{ color: doc.iconColor || '' }" />
           </div>
           <div class="card-actions">
-            <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="编辑" @click="openEdit(doc)">
+            <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" title="编辑" @click="openEdit(doc)">
               <Icon name="edit" :size="14" aria-hidden="true" />
             </button>
-            <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="删除" @click="removeDoc(doc)">
+            <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" title="删除" @click="removeDoc(doc)">
               <Icon name="trash-2" :size="14" aria-hidden="true" />
             </button>
           </div>
         </div>
-        <div class="card-title focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :title="doc.title" role="button" tabindex="0" @click="goToDetail(doc)" @keydown.enter.prevent="($event.target as HTMLElement).click()">{{ doc.title }}</div>
+        <div class="card-title focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :title="doc.title" role="button" tabindex="0" @click="goToDetail(doc)" @keydown.enter.prevent="($event.target as HTMLElement).click()">{{ doc.title }}</div>
         <div class="card-meta">
           <span class="category-badge" :style="categoryStyle(doc.categoryColor)">{{ doc.category }}</span>
           <span class="card-date">{{ doc.modified }}</span>
@@ -247,7 +247,7 @@
       <span class="page-info">显示 {{ rangeStart }}-{{ rangeEnd }} / 共 {{ totalDocs }} 个</span>
       <div class="page-buttons">
         <button
-          class="page-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="page-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="currentPage === 1"
           @click="currentPage = Math.max(1, currentPage - 1)"
         >
@@ -256,7 +256,7 @@
         <button
           v-for="page in visiblePages"
           :key="page"
-          class="page-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="page-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{
             active: page === currentPage,
             ellipsis: page === -1,
@@ -267,7 +267,7 @@
           {{ page === -1 ? '...' : page }}
         </button>
         <button
-          class="page-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="page-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="currentPage === totalPages"
           @click="currentPage = Math.min(totalPages, currentPage + 1)"
         >
@@ -276,7 +276,7 @@
       </div>
       <div class="page-size">
         <span class="page-size-label">每页:</span>
-        <select v-model.number="pageSize" class="page-size-select transition-colors kb-select kb-form-control">
+        <select v-model.number="pageSize" class="page-size-select transition-colors kf-select kf-form-control">
           <option :value="10">10</option>
           <option :value="20">20</option>
           <option :value="50">50</option>
@@ -287,30 +287,30 @@
     <!-- 更多操作下拉菜单 -->
     <div
       v-if="menuDoc"
-      class="menu-mask focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+      class="menu-mask focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
       role="button"
       tabindex="0"
       @click="menuDoc = null"
       @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
     >
       <div class="menu-popover" @click.stop>
-        <button class="menu-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="openEdit(menuDoc); menuDoc = null">
+        <button class="menu-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="openEdit(menuDoc); menuDoc = null">
           <Icon name="edit" :size="14" aria-hidden="true" />
           <span>修订</span>
         </button>
-        <button v-if="menuDoc.raw.status !== 1" class="menu-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="publishDoc(menuDoc); menuDoc = null">
+        <button v-if="menuDoc.raw.status !== 1" class="menu-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="publishDoc(menuDoc); menuDoc = null">
           <Icon name="check-circle" :size="14" aria-hidden="true" />
           <span>发布</span>
         </button>
-        <button v-if="menuDoc.raw.status !== 0" class="menu-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="draftDoc(menuDoc); menuDoc = null">
+        <button v-if="menuDoc.raw.status !== 0" class="menu-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="draftDoc(menuDoc); menuDoc = null">
           <Icon name="edit-2" :size="14" aria-hidden="true" />
           <span>转为草稿</span>
         </button>
-        <button v-if="menuDoc.raw.status !== 3" class="menu-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="deprecateDoc(menuDoc); menuDoc = null">
+        <button v-if="menuDoc.raw.status !== 3" class="menu-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="deprecateDoc(menuDoc); menuDoc = null">
           <Icon name="archive" :size="14" aria-hidden="true" />
           <span>废弃</span>
         </button>
-        <button class="menu-item danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="removeDoc(menuDoc); menuDoc = null">
+        <button class="menu-item danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="removeDoc(menuDoc); menuDoc = null">
           <Icon name="trash-2" :size="14" aria-hidden="true" />
           <span>删除</span>
         </button>
@@ -318,11 +318,11 @@
     </div>
 
     <!-- 移动文档到知识库 弹窗 -->
-    <div v-if="showMoveModal" class="modal-overlay focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @click="showMoveModal = false" @keydown.enter.prevent.self="($event.target as HTMLElement).click()">
+    <div v-if="showMoveModal" class="modal-overlay focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @click="showMoveModal = false" @keydown.enter.prevent.self="($event.target as HTMLElement).click()">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
           <h3>移动文档到知识库</h3>
-          <button class="modal-close focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showMoveModal = false">
+          <button class="modal-close focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="showMoveModal = false">
             <Icon name="x" :size="18" />
           </button>
         </div>
@@ -331,30 +331,30 @@
             <Icon name="info" :size="14" />
             <span>将选中的 <strong>{{ checkedIds.length }}</strong> 个文档移动到以下知识库：</span>
           </p>
-          <div class="kb-list">
+          <div class="kf-list">
             <label
               v-for="cat in categoryOptions"
               :key="cat.id"
-              class="kb-item"
+              class="kf-item"
               :class="{ active: targetCategoryId === cat.id }"
             >
               <input
                 type="radio"
                 v-model="targetCategoryId"
                 :value="cat.id"
-                class="radio-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                class="radio-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
               />
               <Icon name="folder" :size="18" />
-              <div class="kb-info">
-                <div class="kb-name">{{ cat.name }}</div>
-                <div class="kb-desc">{{ cat.description || '暂无描述' }}</div>
+              <div class="kf-info">
+                <div class="kf-name">{{ cat.name }}</div>
+                <div class="kf-desc">{{ cat.description || '暂无描述' }}</div>
               </div>
             </label>
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showMoveModal = false">取消</button>
-          <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="!targetCategoryId || moving" @click="batchMove">
+          <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="showMoveModal = false">取消</button>
+          <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="!targetCategoryId || moving" @click="batchMove">
             <Icon name="check" :size="14" aria-hidden="true" />
             <span>{{ moving ? '移动中...' : '确认移动' }}</span>
           </button>
@@ -439,23 +439,23 @@ const loading = ref(false)
 const iconOptions = ['file-text', 'file-code', 'book-open', 'pencil', 'code', 'brain', 'layout', 'database', 'server', 'lightbulb']
 
 const iconColors: Record<string, string> = {
-  'file-text': 'var(--kb-primary)',
-  'file-code': 'var(--kb-success)',
+  'file-text': 'var(--kf-primary)',
+  'file-code': 'var(--kf-success)',
   'book-open': '#8B5CF6',
-  'pencil': 'var(--kb-warning)',
-  'code': 'var(--kb-primary)',
+  'pencil': 'var(--kf-warning)',
+  'code': 'var(--kf-primary)',
   'brain': '#8B5CF6',
   'layout': '#EC4899',
-  'database': 'var(--kb-warning)',
-  'server': 'var(--kb-success)',
-  'lightbulb': 'var(--kb-warning)',
+  'database': 'var(--kf-warning)',
+  'server': 'var(--kf-success)',
+  'lightbulb': 'var(--kf-warning)',
 }
 
 /** 更多操作菜单 */
 const menuDoc = ref<DocRow | null>(null)
 
 /** 颜色池：用于分类徽标 */
-const categoryColors = ['var(--kb-warning)', 'var(--kb-primary)', 'var(--kb-success)', 'var(--kb-danger)', 'var(--kb-muted-foreground)']
+const categoryColors = ['var(--kf-warning)', 'var(--kf-primary)', 'var(--kf-success)', 'var(--kf-danger)', 'var(--kf-muted-foreground)']
 
 /** 根据文档标题推断文件类型图标与颜色；若设置过自定义图标则优先使用 */
 const inferIcon = (title: string, customIcon?: string): { icon: string; bg: string; color: string } => {
@@ -463,7 +463,7 @@ const inferIcon = (title: string, customIcon?: string): { icon: string; bg: stri
   if (customIcon) {
     const { name, color } = resolveIconForRender(customIcon)
     if (name && getIconByKey(parseIconValue(customIcon).key)) {
-      const finalColor = color || 'var(--kb-muted-foreground)'
+      const finalColor = color || 'var(--kf-muted-foreground)'
       return {
         icon: name,
         bg: hexToRgba(finalColor, 0.1),
@@ -472,23 +472,23 @@ const inferIcon = (title: string, customIcon?: string): { icon: string; bg: stri
     }
     // 2. 旧版系统图标名
     if (iconOptions.includes(customIcon)) {
-      const c = iconColors[customIcon] || 'var(--kb-muted-foreground)'
+      const c = iconColors[customIcon] || 'var(--kf-muted-foreground)'
       return { icon: customIcon, bg: hexToRgba(c, 0.1), color: c }
     }
   }
   // 3. 根据标题推断
   const lower = title.toLowerCase()
   if (lower.endsWith('.pdf')) {
-    return { icon: 'file-text', bg: 'rgba(239,68,68,0.1)', color: 'var(--kb-danger)' }
+    return { icon: 'file-text', bg: 'rgba(239,68,68,0.1)', color: 'var(--kf-danger)' }
   }
   if (lower.endsWith('.md')) {
-    return { icon: 'file-code', bg: 'rgba(59,111,224,0.08)', color: 'var(--kb-primary)' }
+    return { icon: 'file-code', bg: 'rgba(59,111,224,0.08)', color: 'var(--kf-primary)' }
   }
   if (lower.endsWith('.docx') || lower.endsWith('.doc')) {
-    return { icon: 'file-text', bg: 'rgba(59,111,224,0.08)', color: 'var(--kb-primary)' }
+    return { icon: 'file-text', bg: 'rgba(59,111,224,0.08)', color: 'var(--kf-primary)' }
   }
   // 笔记类
-  return { icon: 'pencil', bg: 'var(--kb-muted)', color: 'var(--kb-muted-foreground)' }
+  return { icon: 'pencil', bg: 'var(--kf-muted)', color: 'var(--kf-muted-foreground)' }
 }
 
 /** 根据字数计算文件大小显示（1 字符 ≈ 2 字节） */
@@ -652,10 +652,10 @@ const categoryStyle = (color: string) => ({
 
 /** 进度条颜色：根据进度变化 */
 const progressColor = (p: number): string => {
-  if (p >= 80) return 'var(--kb-state-success)'
-  if (p >= 40) return 'var(--kb-primary)'
-  if (p >= 20) return 'var(--kb-state-warning)'
-  return 'var(--kb-state-error)'
+  if (p >= 80) return 'var(--kf-state-success)'
+  if (p >= 40) return 'var(--kf-primary)'
+  if (p >= 20) return 'var(--kf-state-warning)'
+  return 'var(--kf-state-error)'
 }
 
 const hexToRgba = (hex: string, alpha: number): string => {
@@ -719,10 +719,10 @@ const draftDoc = async (doc: DocRow) => {
 /** 获取文档状态标签 */
 const statusLabel = (status?: number): { text: string; color: string } => {
   switch (status) {
-    case 1: return { text: '已发布', color: 'var(--kb-success)' }
-    case 2: return { text: '已禁用', color: 'var(--kb-danger)' }
-    case 3: return { text: '已废弃', color: 'var(--kb-muted-foreground)' }
-    default: return { text: '草稿', color: 'var(--kb-warning)' }
+    case 1: return { text: '已发布', color: 'var(--kf-success)' }
+    case 2: return { text: '已禁用', color: 'var(--kf-danger)' }
+    case 3: return { text: '已废弃', color: 'var(--kf-muted-foreground)' }
+    default: return { text: '草稿', color: 'var(--kf-warning)' }
   }
 }
 
@@ -801,7 +801,7 @@ const loadDocs = async () => {
 
     const records = (docPage.records ?? []) as DocVO[]
     allDocs.value = records.map((d) => {
-      const cat = catMap.get(d.categoryId ?? -1) ?? { name: '未分类', color: 'var(--kb-muted-foreground)' }
+      const cat = catMap.get(d.categoryId ?? -1) ?? { name: '未分类', color: 'var(--kf-muted-foreground)' }
       const iconInfo = inferIcon(d.title ?? '', d.icon)
       return {
         id: d.id,
@@ -911,28 +911,28 @@ onMounted(() => {
   gap: 12px;
 }
 
-.kb-h1 {
+.kf-h1 {
   font-size: 28px;
   font-weight: 700;
   line-height: 1.3;
   letter-spacing: -0.02em;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
 }
 
-.kb-h3 {
+.kf-h3 {
   font-size: 18px;
   font-weight: 600;
   line-height: 1.4;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
 }
 
-.kb-body-sm {
+.kf-body-sm {
   font-size: 12px;
   font-weight: 400;
   line-height: 1.5;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .head-actions {
@@ -948,7 +948,7 @@ onMounted(() => {
   align-items: center;
   gap: 4px;
   padding: 4px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   border-radius: 8px;
   margin-bottom: 16px;
 }
@@ -963,22 +963,22 @@ onMounted(() => {
   font-size: 13px;
   font-weight: 500;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   border: none;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
 .view-btn.active {
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 /* 筛选条 */
 .filter-bar {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 10px;
   padding: 16px;
   margin-bottom: 20px;
@@ -994,11 +994,11 @@ onMounted(() => {
   align-items: center;
 }
 
-.category-select:not(.kb-form-control) {
+.category-select:not(.kf-form-control) {
   height: 32px;
   border-radius: 6px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   outline: none;
   transition: border-color 0.15s;
 }
@@ -1006,13 +1006,13 @@ onMounted(() => {
 .category-select {
   padding: 0 28px 0 10px;
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   cursor: pointer;
   min-width: 140px;
 }
 
-.category-select:not(.kb-form-control):focus {
-  border-color: var(--kb-ring);
+.category-select:not(.kf-form-control):focus {
+  border-color: var(--kf-ring);
 }
 
 .filter-types {
@@ -1028,17 +1028,17 @@ onMounted(() => {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
 .filter-btn.active {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
-  border-color: var(--kb-primary);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
+  border-color: var(--kf-primary);
 }
 
 .filter-right {
@@ -1057,21 +1057,21 @@ onMounted(() => {
 
 .sort-label {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
-.sort-select:not(.kb-form-control) {
+.sort-select:not(.kf-form-control) {
   height: 32px;
   border-radius: 6px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   outline: none;
 }
 
 .sort-select {
   padding: 0 10px;
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   cursor: pointer;
 }
 
@@ -1084,15 +1084,15 @@ onMounted(() => {
 .search-icon {
   position: absolute;
   left: 10px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   pointer-events: none;
 }
 
-.search-input:not(.kb-form-control) {
+.search-input:not(.kf-form-control) {
   height: 32px;
   border-radius: 6px;
-  background: var(--kb-background);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-background);
+  border: 1px solid var(--kf-border);
   outline: none;
   transition: border-color 0.15s;
 }
@@ -1101,11 +1101,11 @@ onMounted(() => {
   width: 160px;
   padding: 0 12px 0 32px;
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
-.search-input:not(.kb-form-control):focus {
-  border-color: var(--kb-ring);
+.search-input:not(.kf-form-control):focus {
+  border-color: var(--kf-ring);
 }
 
 .search-btn {
@@ -1115,8 +1115,8 @@ onMounted(() => {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
   transition: opacity 0.15s;
@@ -1133,14 +1133,14 @@ onMounted(() => {
   justify-content: center;
   gap: 10px;
   padding: 40px 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 13px;
 }
 .loading-spinner {
   width: 28px;
   height: 28px;
-  border: 3px solid var(--kb-muted);
-  border-top-color: var(--kb-primary);
+  border: 3px solid var(--kf-muted);
+  border-top-color: var(--kf-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -1150,8 +1150,8 @@ onMounted(() => {
 
 /* 表格卡片 */
 .table-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -1162,7 +1162,7 @@ onMounted(() => {
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .table-row:last-child {
@@ -1170,17 +1170,17 @@ onMounted(() => {
 }
 
 .table-head {
-  background: var(--kb-background);
+  background: var(--kf-background);
   padding: 10px 16px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .table-body:hover {
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
 
 /* 复选框 */
@@ -1194,7 +1194,7 @@ onMounted(() => {
 .checkbox {
   width: 16px;
   height: 16px;
-  accent-color: var(--kb-primary);
+  accent-color: var(--kf-primary);
   cursor: pointer;
 }
 
@@ -1214,21 +1214,21 @@ onMounted(() => {
   flex-shrink: 0;
   text-align: right;
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .col-modified {
   width: 112px;
   flex-shrink: 0;
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .col-owner {
   width: 80px;
   flex-shrink: 0;
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1286,7 +1286,7 @@ onMounted(() => {
 .file-name-text {
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1295,7 +1295,7 @@ onMounted(() => {
 }
 
 .file-name-text:hover {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 /* 分类徽标 */
@@ -1314,7 +1314,7 @@ onMounted(() => {
   flex: 1;
   height: 6px;
   border-radius: 3px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 
@@ -1326,7 +1326,7 @@ onMounted(() => {
 
 .progress-text {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 
@@ -1340,20 +1340,20 @@ onMounted(() => {
   border-radius: 6px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
 .icon-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-primary);
+  background: var(--kf-muted);
+  color: var(--kf-primary);
 }
 
 /* 表格空态 */
 .table-empty {
   text-align: center;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 48px 0;
   margin: 0;
 }
@@ -1366,8 +1366,8 @@ onMounted(() => {
 }
 
 .doc-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 10px;
   padding: 16px;
   display: flex;
@@ -1377,7 +1377,7 @@ onMounted(() => {
 }
 
 .doc-card:hover {
-  border-color: var(--kb-ring);
+  border-color: var(--kf-ring);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
 }
@@ -1413,7 +1413,7 @@ onMounted(() => {
 .card-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1.4;
   cursor: pointer;
   display: -webkit-box;
@@ -1425,7 +1425,7 @@ onMounted(() => {
 }
 
 .card-title:hover {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 .card-meta {
@@ -1438,7 +1438,7 @@ onMounted(() => {
 
 .card-date {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .card-footer {
@@ -1446,7 +1446,7 @@ onMounted(() => {
   align-items: center;
   gap: 12px;
   padding-top: 8px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 
 .card-stat {
@@ -1454,7 +1454,7 @@ onMounted(() => {
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* 分页 */
@@ -1469,7 +1469,7 @@ onMounted(() => {
 
 .page-info {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .page-buttons {
@@ -1488,21 +1488,21 @@ onMounted(() => {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .page-btn:hover:not(:disabled):not(.ellipsis) {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 .page-btn.active {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
-  border-color: var(--kb-primary);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
+  border-color: var(--kf-primary);
 }
 
 .page-btn:disabled {
@@ -1524,21 +1524,21 @@ onMounted(() => {
 
 .page-size-label {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
-.page-size-select:not(.kb-form-control) {
+.page-size-select:not(.kf-form-control) {
   height: 32px;
   border-radius: 6px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   outline: none;
 }
 
 .page-size-select {
   padding: 0 10px;
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   cursor: pointer;
 }
 
@@ -1554,8 +1554,8 @@ onMounted(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   padding: 4px;
@@ -1572,7 +1572,7 @@ onMounted(() => {
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -1581,11 +1581,11 @@ onMounted(() => {
 }
 
 .menu-item:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 .menu-item.danger {
-  color: var(--kb-state-error);
+  color: var(--kf-state-error);
 }
 
 .menu-item.danger:hover {
@@ -1605,7 +1605,7 @@ onMounted(() => {
 }
 
 .modal-card {
-  background: var(--kb-card);
+  background: var(--kf-card);
   border-radius: 12px;
   width: 100%;
   max-width: 720px;
@@ -1631,7 +1631,7 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .modal-body {
@@ -1646,7 +1646,7 @@ onMounted(() => {
   justify-content: flex-end;
   gap: 8px;
   padding: 16px 20px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 
 /* 表单 */
@@ -1665,16 +1665,16 @@ onMounted(() => {
 .form-label {
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .form-input {
   height: 36px;
   padding: 0 12px;
   border-radius: 6px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   font-size: 13px;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -1682,7 +1682,7 @@ onMounted(() => {
 }
 
 .form-input:focus {
-  border-color: var(--kb-ring);
+  border-color: var(--kf-ring);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
 
@@ -1700,18 +1700,18 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
 }
 
 .icon-option:hover {
-  border-color: var(--kb-muted-foreground);
+  border-color: var(--kf-muted-foreground);
 }
 
 .icon-option.active {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.08);
 }
 
@@ -1720,9 +1720,9 @@ onMounted(() => {
   width: 100%;
   padding: 12px;
   border-radius: 6px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   font-size: 13px;
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
   line-height: 1.6;
@@ -1733,7 +1733,7 @@ onMounted(() => {
 }
 
 .form-textarea:focus {
-  border-color: var(--kb-ring);
+  border-color: var(--kf-ring);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
 
@@ -1747,8 +1747,8 @@ onMounted(() => {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
   transition: opacity 0.15s;
@@ -1772,15 +1772,15 @@ onMounted(() => {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  background: var(--kb-card);
-  color: var(--kb-sidebar-foreground);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  color: var(--kf-sidebar-foreground);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .btn-secondary:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 .btn-secondary:disabled {
@@ -1797,7 +1797,7 @@ onMounted(() => {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  background: var(--kb-danger);
+  background: var(--kf-danger);
   color: #fff;
   border: none;
   cursor: pointer;
@@ -1821,7 +1821,7 @@ onMounted(() => {
   gap: 12px;
   padding: 12px 16px;
   margin-bottom: 16px;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
   border-radius: 8px;
   animation: fadeIn 0.2s ease-out;
@@ -1888,7 +1888,7 @@ onMounted(() => {
   width: 16px;
   height: 16px;
   cursor: pointer;
-  accent-color: var(--kb-primary);
+  accent-color: var(--kf-primary);
 }
 
 /* 网格视图复选框 */
@@ -1904,7 +1904,7 @@ onMounted(() => {
 }
 
 .doc-card.card-checked {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 2px rgba(59, 111, 224, 0.15);
 }
 
@@ -1921,7 +1921,7 @@ onMounted(() => {
 }
 
 .modal-content {
-  background: var(--kb-card);
+  background: var(--kf-card);
   border-radius: 10px;
   width: 90%;
   max-width: 560px;
@@ -1936,20 +1936,20 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .modal-header h3 {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .modal-close {
   background: transparent;
   border: none;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
@@ -1959,8 +1959,8 @@ onMounted(() => {
 }
 
 .modal-close:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 
 .modal-body {
@@ -1973,16 +1973,16 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin: 0 0 12px;
 }
 
 .modal-tip strong {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   margin: 0 2px;
 }
 
-.kb-list {
+.kf-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -1990,23 +1990,23 @@ onMounted(() => {
   overflow-y: auto;
 }
 
-.kb-item {
+.kf-item {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s;
 }
 
-.kb-item:hover {
-  background: var(--kb-muted);
+.kf-item:hover {
+  background: var(--kf-muted);
 }
 
-.kb-item.active {
-  border-color: var(--kb-primary);
+.kf-item.active {
+  border-color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.05);
 }
 
@@ -2014,25 +2014,25 @@ onMounted(() => {
   width: 16px;
   height: 16px;
   cursor: pointer;
-  accent-color: var(--kb-primary);
+  accent-color: var(--kf-primary);
   flex-shrink: 0;
 }
 
-.kb-info {
+.kf-info {
   flex: 1;
   min-width: 0;
 }
 
-.kb-name {
+.kf-name {
   font-size: 14px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 2px;
 }
 
-.kb-desc {
+.kf-desc {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2043,7 +2043,7 @@ onMounted(() => {
   justify-content: flex-end;
   gap: 8px;
   padding: 12px 20px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 
 /* 响应式：移动端 */

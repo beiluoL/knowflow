@@ -4,19 +4,19 @@
     <!-- ===== 标题行：管理后台 + 时间筛选 + 操作按钮 ===== -->
     <div class="page-header">
       <div class="header-left">
-        <h1 class="kb-h1">管理后台</h1>
-        <button type="button" class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+        <h1 class="kf-h1">管理后台</h1>
+        <button type="button" class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors">
           <Icon name="calendar" :size="14" aria-hidden="true" />
           <span>最近 7 天</span>
           <Icon name="chevron-down" :size="12" aria-hidden="true" />
         </button>
       </div>
       <div class="header-right">
-        <button type="button" class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="loadData">
+        <button type="button" class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="loadData">
           <Icon name="refresh-cw" :size="14" aria-hidden="true" />
           <span>刷新数据</span>
         </button>
-        <button type="button" class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">
+        <button type="button" class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors">
           <Icon name="download" :size="14" aria-hidden="true" />
           <span>导出报表</span>
         </button>
@@ -28,7 +28,7 @@
       <!-- 1. 活跃用户 -->
       <div class="metric-card">
         <div class="metric-head">
-          <span class="kb-body-sm">活跃用户</span>
+          <span class="kf-body-sm">活跃用户</span>
           <div class="metric-icon-box metric-icon-primary">
             <Icon name="users" :size="16" />
           </div>
@@ -43,7 +43,7 @@
       <!-- 2. 新增文档 -->
       <div class="metric-card">
         <div class="metric-head">
-          <span class="kb-body-sm">新增文档</span>
+          <span class="kf-body-sm">新增文档</span>
           <div class="metric-icon-box metric-icon-primary">
             <Icon name="file-plus" :size="16" />
           </div>
@@ -54,7 +54,7 @@
       <!-- 3. AI 问答 -->
       <div class="metric-card">
         <div class="metric-head">
-          <span class="kb-body-sm">AI 问答</span>
+          <span class="kf-body-sm">AI 问答</span>
           <div class="metric-icon-box metric-icon-primary">
             <Icon name="message-square" :size="16" />
           </div>
@@ -65,7 +65,7 @@
       <!-- 4. 学习完成 -->
       <div class="metric-card">
         <div class="metric-head">
-          <span class="kb-body-sm">学习完成</span>
+          <span class="kf-body-sm">学习完成</span>
           <div class="metric-icon-box metric-icon-success">
             <Icon name="graduation-cap" :size="16" />
           </div>
@@ -79,7 +79,7 @@
       <!-- 5. 系统存储 -->
       <div class="metric-card">
         <div class="metric-head">
-          <span class="kb-body-sm">系统存储</span>
+          <span class="kf-body-sm">系统存储</span>
           <div class="metric-icon-box metric-icon-primary">
             <Icon name="hard-drive" :size="16" />
           </div>
@@ -99,7 +99,7 @@
       <!-- 左 3 列：用户活跃度趋势 - 双柱状图 -->
       <div class="dash-card col-3">
         <div class="card-head">
-          <h3 class="kb-h3">用户活跃度趋势</h3>
+          <h3 class="kf-h3">用户活跃度趋势</h3>
           <div class="legend-group">
             <div class="legend-item">
               <span class="legend-dot legend-doc"></span>
@@ -128,8 +128,8 @@
       <!-- 右 2 列：最近操作日志 -->
       <div class="dash-card col-2">
         <div class="card-head">
-          <h3 class="kb-h3">最近操作日志</h3>
-          <a href="#" class="link-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">查看全部</a>
+          <h3 class="kf-h3">最近操作日志</h3>
+          <a href="#" class="link-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors">查看全部</a>
         </div>
         <ul class="log-list">
           <li
@@ -154,8 +154,8 @@
       <!-- 左 3 列：内容分类统计 - 横向条形图 -->
       <div class="dash-card col-3">
         <div class="card-head">
-          <h3 class="kb-h3">内容分类统计</h3>
-          <a href="#" class="link-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">管理分类</a>
+          <h3 class="kf-h3">内容分类统计</h3>
+          <a href="#" class="link-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors">管理分类</a>
         </div>
         <div class="hbar-list">
           <div
@@ -175,8 +175,8 @@
       <!-- 右 2 列：热门学习路径 -->
       <div class="dash-card col-2">
         <div class="card-head">
-          <h3 class="kb-h3">热门学习路径</h3>
-          <a href="#" class="link-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">查看全部</a>
+          <h3 class="kf-h3">热门学习路径</h3>
+          <a href="#" class="link-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors">查看全部</a>
         </div>
         <ul class="rank-list">
           <li
@@ -203,7 +203,7 @@
     <div class="row-3-equal">
       <!-- 列 1：系统健康 -->
       <div class="dash-card">
-        <h3 class="kb-h3 card-title">系统健康</h3>
+        <h3 class="kf-h3 card-title">系统健康</h3>
         <div class="health-list">
           <div v-for="item in systemHealth" :key="item.label" class="health-item">
             <div class="health-head">
@@ -221,7 +221,7 @@
       </div>
       <!-- 列 2：AI 使用统计 -->
       <div class="dash-card">
-        <h3 class="kb-h3 card-title">AI 使用统计</h3>
+        <h3 class="kf-h3 card-title">AI 使用统计</h3>
         <div class="ai-total">
           <Icon name="sparkles" :size="16" class="ai-icon" />
           <span class="ai-total-label">本月总调用</span>
@@ -240,7 +240,7 @@
       <!-- 列 3：待处理事项 -->
       <div class="dash-card">
         <div class="card-head">
-          <h3 class="kb-h3">待处理事项</h3>
+          <h3 class="kf-h3">待处理事项</h3>
           <span class="pending-count">{{ pendingItems.length }} 项</span>
         </div>
         <div class="pending-list">
@@ -254,7 +254,7 @@
               <p class="pending-text">{{ item.text }}</p>
               <p class="pending-sub">{{ item.sub }}</p>
             </div>
-            <button type="button" class="btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors">处理</button>
+            <button type="button" class="btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors">处理</button>
           </div>
         </div>
       </div>
@@ -315,12 +315,12 @@ interface LogItem {
   badgeText: string
 }
 const logTypeMap: Record<string, { bg: string; color: string; text: string }> = {
-  upload: { bg: 'rgba(59,111,224,0.08)', color: 'var(--kb-primary)', text: '上传' },
-  edit: { bg: 'rgba(245,158,11,0.08)', color: 'var(--kb-warning)', text: '编辑' },
-  delete: { bg: 'rgba(239,68,68,0.1)', color: 'var(--kb-destructive)', text: '删除' },
-  learn: { bg: 'rgba(16,185,129,0.08)', color: 'var(--kb-accent)', text: '学习' },
-  post: { bg: 'rgba(59,111,224,0.08)', color: 'var(--kb-primary)', text: '发帖' },
-  register: { bg: 'rgba(16,185,129,0.08)', color: 'var(--kb-accent)', text: '注册' },
+  upload: { bg: 'rgba(59,111,224,0.08)', color: 'var(--kf-primary)', text: '上传' },
+  edit: { bg: 'rgba(245,158,11,0.08)', color: 'var(--kf-warning)', text: '编辑' },
+  delete: { bg: 'rgba(239,68,68,0.1)', color: 'var(--kf-destructive)', text: '删除' },
+  learn: { bg: 'rgba(16,185,129,0.08)', color: 'var(--kf-accent)', text: '学习' },
+  post: { bg: 'rgba(59,111,224,0.08)', color: 'var(--kf-primary)', text: '发帖' },
+  register: { bg: 'rgba(16,185,129,0.08)', color: 'var(--kf-accent)', text: '注册' },
 }
 const recentLogs = computed<LogItem[]>(() => {
   const list = overview.value?.recentActivities ?? []
@@ -365,24 +365,24 @@ const hotPaths = ref([
 
 // ===== 系统健康（来自后端 healthMetrics，回退静态数据） =====
 const healthColorMap: Record<string, string> = {
-  good: 'var(--kb-accent)',
-  warn: 'var(--kb-warning)',
-  bad: 'var(--kb-destructive)',
+  good: 'var(--kf-accent)',
+  warn: 'var(--kf-warning)',
+  bad: 'var(--kf-destructive)',
 }
 const systemHealth = computed(() => {
   const metrics = (overview.value?.healthMetrics ?? []) as HealthMetric[]
   if (metrics.length === 0) {
     // 后端无数据时回退静态值
     return [
-      { label: 'CPU', value: 32, color: 'var(--kb-accent)', icon: 'cpu' },
-      { label: '内存', value: 58, color: 'var(--kb-warning)', icon: 'memory-stick' },
-      { label: 'API 调用', value: 30, color: 'var(--kb-primary)', icon: 'zap' },
+      { label: 'CPU', value: 32, color: 'var(--kf-accent)', icon: 'cpu' },
+      { label: '内存', value: 58, color: 'var(--kf-warning)', icon: 'memory-stick' },
+      { label: 'API 调用', value: 30, color: 'var(--kf-primary)', icon: 'zap' },
     ]
   }
   return metrics.slice(0, 3).map((m) => ({
     label: m.label,
     value: m.value,
-    color: healthColorMap[m.level] ?? 'var(--kb-primary)',
+    color: healthColorMap[m.level] ?? 'var(--kf-primary)',
     icon: m.icon || 'cpu',
   }))
 })
@@ -390,9 +390,9 @@ const systemHealth = computed(() => {
 // ===== AI 使用统计（后端暂无字段，使用静态数据） =====
 const aiTotal = computed(() => 8450)
 const aiStats = ref([
-  { label: '润色', count: 3200, color: 'var(--kb-primary)' },
-  { label: '出题', count: 1860, color: 'var(--kb-accent)' },
-  { label: '摘要', count: 2100, color: 'var(--kb-warning)' },
+  { label: '润色', count: 3200, color: 'var(--kf-primary)' },
+  { label: '出题', count: 1860, color: 'var(--kf-accent)' },
+  { label: '摘要', count: 2100, color: 'var(--kf-warning)' },
   { label: '代码注释', count: 1290, color: 'rgba(59,111,224,0.35)' },
 ])
 
@@ -462,10 +462,10 @@ onMounted(loadData)
   gap: 6px;
   height: 34px;
   padding: 0 14px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   border: none;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -478,26 +478,26 @@ onMounted(loadData)
   gap: 6px;
   height: 34px;
   padding: 0 14px;
-  border-radius: var(--kb-radius-sm);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-sidebar-foreground);
+  border-radius: var(--kf-radius-sm);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-sidebar-foreground);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s;
 }
-.btn-secondary:hover { background: var(--kb-muted); }
+.btn-secondary:hover { background: var(--kf-muted); }
 .btn-sm {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   height: 28px;
   padding: 0 12px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   border: none;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -513,9 +513,9 @@ onMounted(loadData)
 }
 .metric-card {
   padding: 20px;
-  border-radius: var(--kb-radius-lg);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-radius: var(--kf-radius-lg);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
 }
 .metric-head {
   display: flex;
@@ -526,23 +526,23 @@ onMounted(loadData)
 .metric-icon-box {
   width: 32px;
   height: 32px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .metric-icon-primary {
   background: rgba(59, 111, 224, 0.08);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .metric-icon-success {
   background: rgba(16, 185, 129, 0.08);
-  color: var(--kb-accent);
+  color: var(--kf-accent);
 }
 .metric-value {
   font-size: 24px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1.2;
   margin-bottom: 4px;
 }
@@ -554,7 +554,7 @@ onMounted(loadData)
 }
 .metric-sub {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .metric-trend {
   display: inline-flex;
@@ -563,26 +563,26 @@ onMounted(loadData)
   font-size: 12px;
   font-weight: 500;
 }
-.trend-up { color: var(--kb-accent); }
+.trend-up { color: var(--kf-accent); }
 .storage-bar {
   height: 6px;
   border-radius: 3px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 .storage-bar-fill {
   height: 100%;
   border-radius: 3px;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   transition: width 0.4s ease;
 }
 
 /* ===== 通用卡片 ===== */
 .dash-card {
   padding: 20px;
-  border-radius: var(--kb-radius-lg);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-radius: var(--kf-radius-lg);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
 }
 .card-head {
   display: flex;
@@ -596,7 +596,7 @@ onMounted(loadData)
 .link-text {
   font-size: 12px;
   font-weight: 500;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   text-decoration: none;
 }
 .link-text:hover { opacity: 0.8; }
@@ -626,11 +626,11 @@ onMounted(loadData)
   height: 12px;
   border-radius: 2px;
 }
-.legend-doc { background: var(--kb-primary); }
+.legend-doc { background: var(--kf-primary); }
 .legend-ai { background: rgba(59, 111, 224, 0.35); }
 .legend-text {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .bar-chart {
   display: flex;
@@ -661,11 +661,11 @@ onMounted(loadData)
   min-height: 4px;
   transition: height 0.3s ease;
 }
-.bar-doc { background: var(--kb-primary); }
+.bar-doc { background: var(--kf-primary); }
 .bar-ai { background: rgba(59, 111, 224, 0.35); }
 .bar-label {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 
@@ -680,7 +680,7 @@ onMounted(loadData)
   align-items: center;
   gap: 12px;
   padding: 10px 0;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 .log-item:last-child { border-bottom: none; }
 .log-avatar {
@@ -700,7 +700,7 @@ onMounted(loadData)
 }
 .log-text {
   font-size: 14px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -708,7 +708,7 @@ onMounted(loadData)
 }
 .log-time {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin: 2px 0 0 0;
 }
 .log-badge {
@@ -719,16 +719,16 @@ onMounted(loadData)
   white-space: nowrap;
   flex-shrink: 0;
 }
-.log-badge-upload { background: rgba(59, 111, 224, 0.1); color: var(--kb-primary); }
-.log-badge-edit { background: rgba(245, 158, 11, 0.08); color: var(--kb-warning); }
-.log-badge-delete { background: rgba(239, 68, 68, 0.1); color: var(--kb-destructive); }
-.log-badge-learn { background: rgba(16, 185, 129, 0.08); color: var(--kb-accent); }
-.log-badge-post { background: rgba(59, 111, 224, 0.1); color: var(--kb-primary); }
-.log-badge-register { background: rgba(16, 185, 129, 0.08); color: var(--kb-accent); }
+.log-badge-upload { background: rgba(59, 111, 224, 0.1); color: var(--kf-primary); }
+.log-badge-edit { background: rgba(245, 158, 11, 0.08); color: var(--kf-warning); }
+.log-badge-delete { background: rgba(239, 68, 68, 0.1); color: var(--kf-destructive); }
+.log-badge-learn { background: rgba(16, 185, 129, 0.08); color: var(--kf-accent); }
+.log-badge-post { background: rgba(59, 111, 224, 0.1); color: var(--kf-primary); }
+.log-badge-register { background: rgba(16, 185, 129, 0.08); color: var(--kf-accent); }
 .log-empty {
   text-align: center;
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 20px 0;
 }
 
@@ -745,7 +745,7 @@ onMounted(loadData)
 }
 .hbar-label {
   font-size: 14px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   width: 72px;
   flex-shrink: 0;
 }
@@ -753,19 +753,19 @@ onMounted(loadData)
   flex: 1;
   height: 8px;
   border-radius: 4px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 .hbar-fill {
   height: 100%;
   border-radius: 4px;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   transition: width 0.4s ease;
 }
 .hbar-value {
   font-size: 14px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   width: 36px;
   text-align: right;
   flex-shrink: 0;
@@ -794,13 +794,13 @@ onMounted(loadData)
   justify-content: center;
   font-size: 12px;
   font-weight: 700;
-  background: var(--kb-muted);
-  color: var(--kb-sidebar-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-sidebar-foreground);
   flex-shrink: 0;
 }
 .rank-top {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 .rank-body {
   flex: 1;
@@ -815,7 +815,7 @@ onMounted(loadData)
 .rank-title {
   font-size: 14px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -823,20 +823,20 @@ onMounted(loadData)
 }
 .rank-count {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-left: 8px;
   flex-shrink: 0;
 }
 .rank-bar {
   height: 6px;
   border-radius: 3px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 .rank-bar-fill {
   height: 100%;
   border-radius: 3px;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   transition: width 0.4s ease;
 }
 
@@ -867,9 +867,9 @@ onMounted(loadData)
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
-.health-icon { color: var(--kb-muted-foreground); }
+.health-icon { color: var(--kf-muted-foreground); }
 .health-value {
   font-size: 14px;
   font-weight: 600;
@@ -877,7 +877,7 @@ onMounted(loadData)
 .health-bar {
   height: 8px;
   border-radius: 4px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 .health-bar-fill {
@@ -893,15 +893,15 @@ onMounted(loadData)
   gap: 8px;
   margin-bottom: 16px;
 }
-.ai-icon { color: var(--kb-primary); }
+.ai-icon { color: var(--kf-primary); }
 .ai-total-label {
   font-size: 14px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .ai-total-value {
   font-size: 18px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-left: auto;
 }
 .ai-list {
@@ -913,7 +913,7 @@ onMounted(loadData)
   align-items: center;
   justify-content: space-between;
   padding: 8px 0;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 .ai-row:last-child { border-bottom: none; }
 .ai-label {
@@ -921,7 +921,7 @@ onMounted(loadData)
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .ai-dot {
   width: 8px;
@@ -931,7 +931,7 @@ onMounted(loadData)
 .ai-value {
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 /* ===== 待处理事项 ===== */
@@ -941,7 +941,7 @@ onMounted(loadData)
   padding: 2px 8px;
   border-radius: 4px;
   background: rgba(239, 68, 68, 0.1);
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 .pending-list {
   display: flex;
@@ -952,7 +952,7 @@ onMounted(loadData)
   align-items: flex-start;
   gap: 12px;
   padding: 12px 0;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 .pending-item:last-child { border-bottom: none; }
 .priority-badge {
@@ -964,16 +964,16 @@ onMounted(loadData)
   flex-shrink: 0;
   margin-top: 2px;
 }
-.badge-high { background: rgba(239, 68, 68, 0.1); color: var(--kb-destructive); }
-.badge-medium { background: rgba(245, 158, 11, 0.08); color: var(--kb-warning); }
-.badge-low { background: rgba(16, 185, 129, 0.08); color: var(--kb-accent); }
+.badge-high { background: rgba(239, 68, 68, 0.1); color: var(--kf-destructive); }
+.badge-medium { background: rgba(245, 158, 11, 0.08); color: var(--kf-warning); }
+.badge-low { background: rgba(16, 185, 129, 0.08); color: var(--kf-accent); }
 .pending-body {
   flex: 1;
   min-width: 0;
 }
 .pending-text {
   font-size: 14px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -981,7 +981,7 @@ onMounted(loadData)
 }
 .pending-sub {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin: 2px 0 0 0;
 }
 

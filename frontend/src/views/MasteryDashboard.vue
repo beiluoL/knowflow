@@ -3,8 +3,8 @@
     <!-- ===== 页面标题 ===== -->
     <header class="mmd-header">
       <div>
-        <h1 class="kb-h1">掌握分布看板</h1>
-        <p class="kb-body-sm mt-1">从难度、复习与分类维度透视你的知识掌握情况</p>
+        <h1 class="kf-h1">掌握分布看板</h1>
+        <p class="kf-body-sm mt-1">从难度、复习与分类维度透视你的知识掌握情况</p>
       </div>
       <button type="button" class="mmd-refresh" :disabled="loading" @click="loadData">
         <Icon name="refresh-cw" :size="14" :class="{ 'spin': loading }" />
@@ -47,7 +47,7 @@
         <section class="mmd-stats">
           <StatCard
             icon="layers"
-            icon-color="var(--kb-primary)"
+            icon-color="var(--kf-primary)"
             icon-bg="rgba(59,111,224,.1)"
             :icon-size="18"
             :value="d.flashcardTotal"
@@ -56,8 +56,8 @@
           />
           <StatCard
             icon="clock"
-            icon-color="var(--kb-warning)"
-            icon-bg="color-mix(in srgb, var(--kb-warning) 12%, transparent)"
+            icon-color="var(--kf-warning)"
+            icon-bg="color-mix(in srgb, var(--kf-warning) 12%, transparent)"
             :icon-size="18"
             :value="d.flashcardDue"
             label="待复习"
@@ -65,8 +65,8 @@
           />
           <StatCard
             icon="check-circle"
-            icon-color="var(--kb-success)"
-            icon-bg="color-mix(in srgb, var(--kb-success) 12%, transparent)"
+            icon-color="var(--kf-success)"
+            icon-bg="color-mix(in srgb, var(--kf-success) 12%, transparent)"
             :icon-size="18"
             :value="d.flashcardReviewed"
             label="已复习"
@@ -74,8 +74,8 @@
           />
           <StatCard
             icon="award"
-            icon-color="var(--kb-success)"
-            icon-bg="color-mix(in srgb, var(--kb-success) 12%, transparent)"
+            icon-color="var(--kf-success)"
+            icon-bg="color-mix(in srgb, var(--kf-success) 12%, transparent)"
             :icon-size="18"
             :value="d.mistakeMastered"
             label="错题已掌握"
@@ -83,8 +83,8 @@
           />
           <StatCard
             icon="alert-triangle"
-            icon-color="var(--kb-danger)"
-            icon-bg="color-mix(in srgb, var(--kb-danger) 12%, transparent)"
+            icon-color="var(--kf-danger)"
+            icon-bg="color-mix(in srgb, var(--kf-danger) 12%, transparent)"
             :icon-size="18"
             :value="d.mistakePending"
             label="错题待巩固"
@@ -100,14 +100,14 @@
               <Icon name="bar-chart-2" :size="16" /> 难度分布
             </h3>
             <div class="mmd-bar-track">
-              <div class="mmd-bar-seg" :style="{ width: pct(d.flashcardDiffEasy, diffTotal) + '%', background: 'var(--kb-success)' }"></div>
-              <div class="mmd-bar-seg" :style="{ width: pct(d.flashcardDiffMedium, diffTotal) + '%', background: 'var(--kb-warning)' }"></div>
-              <div class="mmd-bar-seg" :style="{ width: pct(d.flashcardDiffHard, diffTotal) + '%', background: 'var(--kb-danger)' }"></div>
+              <div class="mmd-bar-seg" :style="{ width: pct(d.flashcardDiffEasy, diffTotal) + '%', background: 'var(--kf-success)' }"></div>
+              <div class="mmd-bar-seg" :style="{ width: pct(d.flashcardDiffMedium, diffTotal) + '%', background: 'var(--kf-warning)' }"></div>
+              <div class="mmd-bar-seg" :style="{ width: pct(d.flashcardDiffHard, diffTotal) + '%', background: 'var(--kf-danger)' }"></div>
             </div>
             <div class="mmd-legend">
-              <span class="mmd-legend-item"><i style="background:var(--kb-success)"></i>简单 {{ d.flashcardDiffEasy }}（{{ pct(d.flashcardDiffEasy, diffTotal) }}%）</span>
-              <span class="mmd-legend-item"><i style="background:var(--kb-warning)"></i>中等 {{ d.flashcardDiffMedium }}（{{ pct(d.flashcardDiffMedium, diffTotal) }}%）</span>
-              <span class="mmd-legend-item"><i style="background:var(--kb-danger)"></i>困难 {{ d.flashcardDiffHard }}（{{ pct(d.flashcardDiffHard, diffTotal) }}%）</span>
+              <span class="mmd-legend-item"><i style="background:var(--kf-success)"></i>简单 {{ d.flashcardDiffEasy }}（{{ pct(d.flashcardDiffEasy, diffTotal) }}%）</span>
+              <span class="mmd-legend-item"><i style="background:var(--kf-warning)"></i>中等 {{ d.flashcardDiffMedium }}（{{ pct(d.flashcardDiffMedium, diffTotal) }}%）</span>
+              <span class="mmd-legend-item"><i style="background:var(--kf-danger)"></i>困难 {{ d.flashcardDiffHard }}（{{ pct(d.flashcardDiffHard, diffTotal) }}%）</span>
             </div>
           </div>
 
@@ -117,12 +117,12 @@
               <Icon name="target" :size="16" /> 错题掌握
             </h3>
             <div class="mmd-bar-track mmd-bar-track-2">
-              <div class="mmd-bar-seg" :style="{ width: pct(d.mistakeMastered, mistakeTotal) + '%', background: 'var(--kb-success)' }"></div>
-              <div class="mmd-bar-seg" :style="{ width: pct(d.mistakePending, mistakeTotal) + '%', background: 'var(--kb-danger)' }"></div>
+              <div class="mmd-bar-seg" :style="{ width: pct(d.mistakeMastered, mistakeTotal) + '%', background: 'var(--kf-success)' }"></div>
+              <div class="mmd-bar-seg" :style="{ width: pct(d.mistakePending, mistakeTotal) + '%', background: 'var(--kf-danger)' }"></div>
             </div>
             <div class="mmd-legend">
-              <span class="mmd-legend-item"><i style="background:var(--kb-success)"></i>已掌握 {{ d.mistakeMastered }}</span>
-              <span class="mmd-legend-item"><i style="background:var(--kb-danger)"></i>待巩固 {{ d.mistakePending }}</span>
+              <span class="mmd-legend-item"><i style="background:var(--kf-success)"></i>已掌握 {{ d.mistakeMastered }}</span>
+              <span class="mmd-legend-item"><i style="background:var(--kf-danger)"></i>待巩固 {{ d.mistakePending }}</span>
             </div>
           </div>
         </section>
@@ -166,14 +166,14 @@
                     {{ c.category }}
                     <span v-if="c.weak" class="mmd-weak-tag">薄弱</span>
                   </span>
-                  <span class="mmd-cat-rate" :style="{ color: c.weak ? 'var(--kb-danger)' : 'var(--kb-primary)' }">
-                    {{ c.rate }}% <small style="color:var(--kb-muted-foreground)">· {{ c.correct }}/{{ c.total }}</small>
+                  <span class="mmd-cat-rate" :style="{ color: c.weak ? 'var(--kf-danger)' : 'var(--kf-primary)' }">
+                    {{ c.rate }}% <small style="color:var(--kf-muted-foreground)">· {{ c.correct }}/{{ c.total }}</small>
                   </span>
                 </div>
                 <div class="mmd-cat-track">
                   <div
                     class="mmd-cat-fill"
-                    :style="{ width: c.rate + '%', background: c.weak ? 'var(--kb-danger)' : 'linear-gradient(90deg,var(--kb-primary-muted),var(--kb-primary))' }"
+                    :style="{ width: c.rate + '%', background: c.weak ? 'var(--kf-danger)' : 'linear-gradient(90deg,var(--kf-primary-muted),var(--kf-primary))' }"
                   ></div>
                 </div>
               </li>
@@ -243,7 +243,7 @@
                 <span class="mmd-kp-status" :style="{ background: statusMeta(kp.learningStatus).bg, color: statusMeta(kp.learningStatus).fg }">
                   {{ statusMeta(kp.learningStatus).label }}
                 </span>
-                <Icon name="chevron-right" :size="16" style="color: var(--kb-muted-foreground); flex-shrink: 0;" />
+                <Icon name="chevron-right" :size="16" style="color: var(--kf-muted-foreground); flex-shrink: 0;" />
               </li>
             </ul>
           </StateView>
@@ -339,11 +339,11 @@ const pct = (v: number, total: number) => (total > 0 ? Math.round((v / total) * 
 
 
 const STATUS_META: Record<MasteryStatus, { label: string; bg: string; fg: string }> = {
-  NOT_STARTED: { label: '未学习', bg: 'var(--kb-muted)', fg: 'var(--kb-muted-foreground)' },
-  LEARNING: { label: '学习中', bg: 'color-mix(in srgb, var(--kb-primary) 12%, transparent)', fg: 'var(--kb-primary)' },
-  WEAK: { label: '薄弱', bg: 'color-mix(in srgb, var(--kb-danger) 12%, transparent)', fg: 'var(--kb-danger)' },
-  MASTERED: { label: '已掌握', bg: 'color-mix(in srgb, var(--kb-success) 12%, transparent)', fg: 'var(--kb-success)' },
-  REVIEW_REQUIRED: { label: '需复习', bg: 'color-mix(in srgb, var(--kb-warning) 12%, transparent)', fg: 'var(--kb-warning)' },
+  NOT_STARTED: { label: '未学习', bg: 'var(--kf-muted)', fg: 'var(--kf-muted-foreground)' },
+  LEARNING: { label: '学习中', bg: 'color-mix(in srgb, var(--kf-primary) 12%, transparent)', fg: 'var(--kf-primary)' },
+  WEAK: { label: '薄弱', bg: 'color-mix(in srgb, var(--kf-danger) 12%, transparent)', fg: 'var(--kf-danger)' },
+  MASTERED: { label: '已掌握', bg: 'color-mix(in srgb, var(--kf-success) 12%, transparent)', fg: 'var(--kf-success)' },
+  REVIEW_REQUIRED: { label: '需复习', bg: 'color-mix(in srgb, var(--kf-warning) 12%, transparent)', fg: 'var(--kf-warning)' },
 }
 const TYPE_LABELS: Record<string, string> = {
   CONCEPT: '概念', TECHNIQUE: '技术', TERM: '术语', PRINCIPLE: '原理', TOOL: '工具', OTHER: '其他',
@@ -355,9 +355,9 @@ const STATUS_LABEL: Record<string, string> = {
 const statusMeta = (s: MasteryStatus) => STATUS_META[s] || STATUS_META.NOT_STARTED
 const typeLabel = (t?: string | null) => TYPE_LABELS[t || 'OTHER'] || '其他'
 const weaknessShort = (ws: string[]) => ws.map((w) => STATUS_LABEL[w] || w).slice(0, 2).join('·')
-const scoreColor = (v: number) => (v >= 80 ? 'var(--kb-success)' : v >= 60 ? 'var(--kb-primary)' : v >= 40 ? 'var(--kb-warning)' : 'var(--kb-danger)')
-const confColor = (v: number) => (v >= 50 ? 'var(--kb-success)' : v >= 30 ? 'var(--kb-warning)' : 'var(--kb-danger)')
-const riskColor = (v: number) => (v >= 70 ? 'var(--kb-danger)' : v >= 60 ? 'var(--kb-warning)' : 'var(--kb-success)')
+const scoreColor = (v: number) => (v >= 80 ? 'var(--kf-success)' : v >= 60 ? 'var(--kf-primary)' : v >= 40 ? 'var(--kf-warning)' : 'var(--kf-danger)')
+const confColor = (v: number) => (v >= 50 ? 'var(--kf-success)' : v >= 30 ? 'var(--kf-warning)' : 'var(--kf-danger)')
+const riskColor = (v: number) => (v >= 70 ? 'var(--kf-danger)' : v >= 60 ? 'var(--kf-warning)' : 'var(--kf-success)')
 const openDetail = (id: number) => router.push(`/learning/knowledge-mastery/${id}`)
 
 async function loadData() {
@@ -452,13 +452,13 @@ onMounted(loadData)
   font-size: 13px;
   font-weight: 500;
   border-radius: 10px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   cursor: pointer;
   transition: all 0.15s ease;
 }
-.mmd-refresh:hover:not(:disabled) { border-color: var(--kb-primary); color: var(--kb-primary); }
+.mmd-refresh:hover:not(:disabled) { border-color: var(--kf-primary); color: var(--kf-primary); }
 .mmd-refresh:disabled { opacity: .6; cursor: default; }
 .spin { animation: mmd-spin 0.6s linear infinite; }
 @keyframes mmd-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
@@ -470,16 +470,16 @@ onMounted(loadData)
   align-items: center;
   gap: 10px;
   padding: 48px 20px;
-  border: 1px dashed var(--kb-border);
+  border: 1px dashed var(--kf-border);
   border-radius: 14px;
-  background: var(--kb-card);
+  background: var(--kf-card);
 }
 .mmd-retry {
   margin-top: 4px;
   padding: 6px 16px;
   border-radius: 8px;
   border: none;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
   font-size: 13px;
   cursor: pointer;
@@ -492,8 +492,8 @@ onMounted(loadData)
 .mmd-skel-card {
   height: 96px;
   border-radius: 14px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
 }
 
 /* 指标卡片 */
@@ -513,8 +513,8 @@ onMounted(loadData)
 .mmd-card {
   padding: 18px;
   border-radius: 14px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
 }
 .mmd-card-head {
   display: flex;
@@ -529,7 +529,7 @@ onMounted(loadData)
   gap: 7px;
   font-size: 15px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .mmd-weak-badge {
   font-size: 12px;
@@ -537,7 +537,7 @@ onMounted(loadData)
   padding: 3px 10px;
   border-radius: 999px;
   background: rgba(239,68,68,.1);
-  color: var(--kb-danger);
+  color: var(--kf-danger);
 }
 
 /* 条形图 */
@@ -546,7 +546,7 @@ onMounted(loadData)
   height: 18px;
   border-radius: 9px;
   overflow: hidden;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .mmd-bar-track-2 { margin-bottom: 12px; }
 .mmd-bar-seg { height: 100%; transition: width 0.5s ease; }
@@ -561,7 +561,7 @@ onMounted(loadData)
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .mmd-legend-item i {
   display: inline-block;
@@ -571,7 +571,7 @@ onMounted(loadData)
 }
 
 /* 分类维度 */
-.mmd-sub-empty { font-size: 13px; color: var(--kb-muted-foreground); padding: 8px 0; }
+.mmd-sub-empty { font-size: 13px; color: var(--kf-muted-foreground); padding: 8px 0; }
 .mmd-cat-list { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
 .mmd-cat-item { display: flex; flex-direction: column; gap: 7px; }
 .mmd-cat-top {
@@ -580,20 +580,20 @@ onMounted(loadData)
   justify-content: space-between;
   gap: 12px;
 }
-.mmd-cat-name { font-size: 14px; font-weight: 500; color: var(--kb-foreground); display: inline-flex; align-items: center; gap: 8px; }
+.mmd-cat-name { font-size: 14px; font-weight: 500; color: var(--kf-foreground); display: inline-flex; align-items: center; gap: 8px; }
 .mmd-weak-tag {
   font-size: 11px;
   font-weight: 600;
   padding: 1px 7px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--kb-danger) 12%, transparent);
-  color: var(--kb-danger);
+  background: color-mix(in srgb, var(--kf-danger) 12%, transparent);
+  color: var(--kf-danger);
 }
 .mmd-cat-rate { font-size: 14px; font-weight: 700; flex-shrink: 0; }
 .mmd-cat-track {
   height: 8px;
   border-radius: 4px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 .mmd-cat-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
@@ -601,31 +601,31 @@ onMounted(loadData)
 /* 知识点掌握度列表（Phase 2-B） */
 .mmd-recalk {
   display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 12px;
-  font-size: 12px; font-weight: 600; border-radius: 8px; border: 1px solid var(--kb-border);
-  background: var(--kb-card); color: var(--kb-foreground); cursor: pointer; transition: all 0.15s ease;
+  font-size: 12px; font-weight: 600; border-radius: 8px; border: 1px solid var(--kf-border);
+  background: var(--kf-card); color: var(--kf-foreground); cursor: pointer; transition: all 0.15s ease;
 }
-.mmd-recalk:hover:not(:disabled) { border-color: var(--kb-primary); color: var(--kb-primary); }
+.mmd-recalk:hover:not(:disabled) { border-color: var(--kf-primary); color: var(--kf-primary); }
 .mmd-recalk:disabled { opacity: .6; cursor: default; }
 .mmd-kp-list { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
 .mmd-kp-item {
   display: flex; align-items: center; gap: 16px; padding: 12px 14px; border-radius: 12px;
-  background: var(--kb-muted); cursor: pointer; transition: all 0.15s ease;
+  background: var(--kf-muted); cursor: pointer; transition: all 0.15s ease;
 }
 .mmd-kp-item:hover { background: rgba(59,111,224,.06); border: 1px solid rgba(59,111,224,.2); }
 .mmd-kp-main { flex: 1; min-width: 0; }
-.mmd-kp-name { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--kb-foreground); }
-.mmd-kp-type { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: rgba(59,111,224,.1); color: var(--kb-primary); }
-.mmd-kp-weak { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: color-mix(in srgb, var(--kb-danger) 12%, transparent); color: var(--kb-danger); }
-.mmd-kp-sub { font-size: 12px; color: var(--kb-muted-foreground); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mmd-kp-name { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--kf-foreground); }
+.mmd-kp-type { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: rgba(59,111,224,.1); color: var(--kf-primary); }
+.mmd-kp-weak { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: color-mix(in srgb, var(--kf-danger) 12%, transparent); color: var(--kf-danger); }
+.mmd-kp-sub { font-size: 12px; color: var(--kf-muted-foreground); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mmd-kp-score { display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0; }
 .mmd-kp-score-val { font-size: 22px; font-weight: 800; line-height: 1; }
-.mmd-kp-score-lbl { font-size: 11px; color: var(--kb-muted-foreground); }
+.mmd-kp-score-lbl { font-size: 11px; color: var(--kf-muted-foreground); }
 .mmd-kp-bars { display: flex; flex-direction: column; gap: 5px; width: 160px; flex-shrink: 0; }
 .mmd-kp-bar-row { display: flex; align-items: center; gap: 6px; }
-.mmd-kp-bar-lbl { font-size: 11px; color: var(--kb-muted-foreground); width: 24px; flex-shrink: 0; }
-.mmd-kp-bar-track { flex: 1; height: 6px; border-radius: 3px; background: var(--kb-border); overflow: hidden; }
+.mmd-kp-bar-lbl { font-size: 11px; color: var(--kf-muted-foreground); width: 24px; flex-shrink: 0; }
+.mmd-kp-bar-track { flex: 1; height: 6px; border-radius: 3px; background: var(--kf-border); overflow: hidden; }
 .mmd-kp-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
-.mmd-kp-bar-num { font-size: 11px; font-weight: 600; color: var(--kb-foreground); width: 34px; text-align: right; flex-shrink: 0; }
+.mmd-kp-bar-num { font-size: 11px; font-weight: 600; color: var(--kf-foreground); width: 34px; text-align: right; flex-shrink: 0; }
 .mmd-kp-status { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; flex-shrink: 0; }
 
 @media (max-width: 720px) {
@@ -634,6 +634,6 @@ onMounted(loadData)
   .mmd-kp-bars { width: 100%; order: 3; }
 }
 
-.mmd-evidence-note { color:var(--kb-muted-foreground); font-size:var(--kb-fs-body-sm); line-height:var(--kb-lh-body-md); margin-bottom:var(--kb-space-4); }.mmd-kp-item:focus-visible { outline:var(--kb-field-focus-width) solid var(--kb-ring); outline-offset:var(--kb-space-1); }
+.mmd-evidence-note { color:var(--kf-muted-foreground); font-size:var(--kf-fs-body-sm); line-height:var(--kf-lh-body-md); margin-bottom:var(--kf-space-4); }.mmd-kp-item:focus-visible { outline:var(--kf-field-focus-width) solid var(--kf-ring); outline-offset:var(--kf-space-1); }
 @media(prefers-reduced-motion:reduce) { .mmd-page * { transition:none; animation:none; } }
 </style>

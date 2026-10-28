@@ -125,7 +125,7 @@ defineExpose({ loadChain })
           <Icon :name="statusIcon(call.status)" size="xs" />
         </div>
         <div class="timeline-body">
-          <button type="button" class="timeline-head transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="toggleExpand(call.id)">
+          <button type="button" class="timeline-head transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" @click="toggleExpand(call.id)">
             <span class="step-no">#{{ idx + 1 }}</span>
             <span class="tool-name">{{ call.toolName }}</span>
             <span class="perm-tag" :class="call.permission.toLowerCase()">{{ call.permission }}</span>
@@ -167,13 +167,13 @@ defineExpose({ loadChain })
   margin: 0;
   font-size: 15px;
   font-weight: 600;
-  color: var(--kb-text);
+  color: var(--kf-text);
 }
 
 .hint {
   margin: 4px 0 0;
   font-size: 12px;
-  color: var(--kb-text-muted);
+  color: var(--kf-text-muted);
 }
 
 .stat-grid {
@@ -184,16 +184,16 @@ defineExpose({ loadChain })
 
 .stat-card {
   padding: 10px 12px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-surface);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-surface);
 }
 
 .stat-tool {
-  font-family: var(--kb-font-mono, monospace);
+  font-family: var(--kf-font-mono, monospace);
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-text);
+  color: var(--kf-text);
 }
 
 .stat-nums {
@@ -205,21 +205,21 @@ defineExpose({ loadChain })
 }
 
 .stat-total {
-  color: var(--kb-text-muted);
+  color: var(--kf-text-muted);
 }
 
 .stat-ok {
-  color: var(--kb-success);
+  color: var(--kf-success);
 }
 
 .stat-fail {
-  color: var(--kb-danger);
+  color: var(--kf-danger);
 }
 
 .stat-latency {
   margin-top: 2px;
   font-size: 11px;
-  color: var(--kb-text-muted);
+  color: var(--kf-text-muted);
 }
 
 .chain-empty {
@@ -228,7 +228,7 @@ defineExpose({ loadChain })
   align-items: center;
   gap: 8px;
   padding: 32px 0;
-  color: var(--kb-text-muted);
+  color: var(--kf-text-muted);
   font-size: 13px;
 }
 
@@ -255,7 +255,7 @@ defineExpose({ loadChain })
   top: 24px;
   bottom: 0;
   width: 1px;
-  background: var(--kb-border);
+  background: var(--kf-border);
 }
 
 .timeline-marker {
@@ -266,23 +266,23 @@ defineExpose({ loadChain })
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: var(--kb-bg-subtle);
-  color: var(--kb-text-muted);
+  background: var(--kf-bg-subtle);
+  color: var(--kf-text-muted);
 }
 
 .timeline-marker.success {
-  background: var(--kb-success-soft);
-  color: var(--kb-success);
+  background: var(--kf-success-soft);
+  color: var(--kf-success);
 }
 
 .timeline-marker.failed {
-  background: var(--kb-danger-soft);
-  color: var(--kb-danger);
+  background: var(--kf-danger-soft);
+  color: var(--kf-danger);
 }
 
 .timeline-marker.cancelled {
-  background: var(--kb-warning-soft);
-  color: var(--kb-warning);
+  background: var(--kf-warning-soft);
+  color: var(--kf-warning);
 }
 
 .timeline-body {
@@ -296,21 +296,21 @@ defineExpose({ loadChain })
   gap: 8px;
   width: 100%;
   padding: 5px 10px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-surface);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-surface);
   cursor: pointer;
   text-align: left;
   font-size: 12px;
-  color: var(--kb-text);
+  color: var(--kf-text);
 }
 
 .timeline-head:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 
 .step-no {
-  color: var(--kb-text-muted);
+  color: var(--kf-text-muted);
   font-size: 11px;
 }
 
@@ -320,34 +320,34 @@ defineExpose({ loadChain })
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: var(--kb-font-mono, monospace);
+  font-family: var(--kf-font-mono, monospace);
   font-weight: 600;
 }
 
 .perm-tag {
   padding: 1px 5px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   font-size: 10px;
 }
 
 .perm-tag.safe {
-  background: var(--kb-success-soft);
-  color: var(--kb-success);
+  background: var(--kf-success-soft);
+  color: var(--kf-success);
 }
 
 .perm-tag.write {
-  background: var(--kb-warning-soft);
-  color: var(--kb-warning);
+  background: var(--kf-warning-soft);
+  color: var(--kf-warning);
 }
 
 .perm-tag.dangerous {
-  background: var(--kb-danger-soft);
-  color: var(--kb-danger);
+  background: var(--kf-danger-soft);
+  color: var(--kf-danger);
 }
 
 .latency,
 .time {
-  color: var(--kb-text-muted);
+  color: var(--kf-text-muted);
   font-size: 11px;
 }
 
@@ -366,7 +366,7 @@ defineExpose({ loadChain })
 
 .detail-label {
   font-size: 11px;
-  color: var(--kb-text-muted);
+  color: var(--kf-text-muted);
 }
 
 .detail-code {
@@ -374,12 +374,12 @@ defineExpose({ loadChain })
   padding: 8px 10px;
   max-height: 220px;
   overflow: auto;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-bg-subtle);
-  font-family: var(--kb-font-mono, monospace);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-bg-subtle);
+  font-family: var(--kf-font-mono, monospace);
   font-size: 11px;
   line-height: 1.6;
-  color: var(--kb-text);
+  color: var(--kf-text);
   white-space: pre-wrap;
   word-break: break-all;
 }

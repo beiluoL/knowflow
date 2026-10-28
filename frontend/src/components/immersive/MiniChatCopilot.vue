@@ -3,7 +3,7 @@
       <button
         v-if="!visible"
         type="button"
-        class="copilot-fab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="copilot-fab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         @click="handleToggleVisible"
       >
       <Icon name="bot" :size="22" />
@@ -19,7 +19,7 @@
           <div class="head-actions">
             <button
               type="button"
-              class="head-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="head-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
               title="新建会话"
               @click="handleNewConversation"
             >
@@ -27,7 +27,7 @@
             </button>
             <button
               type="button"
-              class="head-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="head-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
               title="关闭"
               @click="handleToggleVisible"
             >
@@ -39,7 +39,7 @@
         <div class="conv-row">
           <select
             v-model="activeConversationId"
-            class="conv-select transition-colors kb-select kb-form-control"
+            class="conv-select transition-colors kf-select kf-form-control"
             @change="handleConvChange"
           >
             <option :value="undefined">💬 临时会话（不保存）</option>
@@ -51,7 +51,7 @@
           </select>
           <button
             type="button"
-            class="conv-refresh focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="conv-refresh focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             title="刷新会话列表"
             @click="() => loadConversations()"
           >
@@ -86,7 +86,7 @@
         <footer class="copilot-input-row">
           <textarea
             v-model="inputText"
-            class="chat-input transition-colors kb-textarea kb-form-control"
+            class="chat-input transition-colors kf-textarea kf-form-control"
             rows="2"
             placeholder="Enter 发送 / Ctrl+Enter 换行"
             @keydown="handleInputKeydown"
@@ -94,7 +94,7 @@
           />
           <button
             type="button"
-            class="send-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="send-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             :disabled="!inputText.trim() || sending"
             @click="handleSend"
           >
@@ -293,7 +293,7 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--kb-primary), #8B5CF6);
+  background: linear-gradient(135deg, var(--kf-primary), #8B5CF6);
   color: #fff;
   border: none;
   cursor: pointer;
@@ -318,8 +318,8 @@ onMounted(() => {
 .copilot-panel {
   width: 360px;
   height: 480px;
-  background: var(--kb-bg-1, #1e293b);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.1));
+  background: var(--kf-bg-1, #1e293b);
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.1));
   border-radius: 18px;
   display: flex;
   flex-direction: column;
@@ -333,7 +333,7 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
-  border-bottom: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border-bottom: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(14, 165, 233, 0.06));
 }
 .head-title {
@@ -342,7 +342,7 @@ onMounted(() => {
   gap: 8px;
   font-size: 13.5px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .head-actions {
   display: inline-flex;
@@ -356,15 +356,15 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
   border-radius: 8px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: all 0.15s;
 }
 .head-btn:hover {
   background: rgba(255, 255, 255, 0.1);
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .conv-row {
@@ -372,12 +372,12 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  border-bottom: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
+  border-bottom: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
 }
-.conv-select:not(.kb-form-control) {
+.conv-select:not(.kf-form-control) {
   height: 34px;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 9px;
   outline: none;
 }
@@ -385,11 +385,11 @@ onMounted(() => {
   flex: 1;
   padding: 0 10px;
   font-size: 12.5px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   cursor: pointer;
 }
-.conv-select:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.conv-select:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 .conv-refresh {
   width: 34px;
@@ -397,16 +397,16 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 9px;
   cursor: pointer;
   transition: all 0.15s;
 }
 .conv-refresh:hover {
-  color: var(--kb-primary);
-  border-color: color-mix(in srgb, var(--kb-primary) 30%, transparent);
+  color: var(--kf-primary);
+  border-color: color-mix(in srgb, var(--kf-primary) 30%, transparent);
 }
 
 .messages-wrap {
@@ -442,20 +442,20 @@ onMounted(() => {
   border-radius: 14px;
   font-size: 13px;
   line-height: 1.55;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   word-break: break-word;
 }
 .bubble.ai {
   background: linear-gradient(135deg,
-    color-mix(in srgb, var(--kb-primary) 18%, var(--kb-card, #1e293b)),
-    color-mix(in srgb, #8B5CF6 14%, var(--kb-card, #1e293b))
+    color-mix(in srgb, var(--kf-primary) 18%, var(--kf-card, #1e293b)),
+    color-mix(in srgb, #8B5CF6 14%, var(--kf-card, #1e293b))
   );
-  border: 1px solid color-mix(in srgb, var(--kb-primary) 25%, rgba(255, 255, 255, 0.06));
+  border: 1px solid color-mix(in srgb, var(--kf-primary) 25%, rgba(255, 255, 255, 0.06));
   border-top-left-radius: 4px;
 }
 .bubble.user {
-  background: color-mix(in srgb, var(--kb-primary) 18%, transparent);
-  border: 1px solid color-mix(in srgb, var(--kb-primary) 30%, transparent);
+  background: color-mix(in srgb, var(--kf-primary) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kf-primary) 30%, transparent);
   border-top-right-radius: 4px;
 }
 .bubble-content {
@@ -469,7 +469,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 12.5px;
   padding: 20px;
   text-align: center;
@@ -489,12 +489,12 @@ onMounted(() => {
   align-items: flex-end;
   gap: 8px;
   padding: 10px 12px;
-  border-top: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
-  background: var(--kb-bg-2, #1e293b);
+  border-top: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
+  background: var(--kf-bg-2, #1e293b);
 }
-.chat-input:not(.kb-form-control) {
+.chat-input:not(.kf-form-control) {
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   outline: none;
   transition: border-color 0.15s;
@@ -506,12 +506,12 @@ onMounted(() => {
   font-size: 13px;
   line-height: 1.5;
   font-family: inherit;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   resize: none;
   max-height: 96px;
 }
-.chat-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.chat-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 .chat-input:disabled {
   opacity: 0.5;
@@ -524,7 +524,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
   border: none;
   border-radius: 10px;

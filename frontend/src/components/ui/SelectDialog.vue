@@ -195,14 +195,14 @@ function onSearchKey(event: KeyboardEvent) {
 .select-dialog {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
   min-width: 0;
 }
-.select-dialog :deep(.kb-select-list) {
-  max-height: var(--kb-select-list-max-height);
+.select-dialog :deep(.kf-select-list) {
+  max-height: var(--kf-select-list-max-height);
   overflow-y: auto;
 }
 .select-dialog [role="alert"] {
-  color: var(--kb-danger-text);
+  color: var(--kf-danger-text);
 }
 </style>

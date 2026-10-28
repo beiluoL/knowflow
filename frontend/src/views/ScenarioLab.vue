@@ -11,7 +11,7 @@
     <template v-if="!current">
       <!-- Architecture-4.2 §15：深链聚焦知识点时展示上下文条 -->
       <div v-if="activeKnowledgeId" class="sc-ctx-banner">
-        <Icon name="target" :size="14" style="color: var(--kb-primary)" />
+        <Icon name="target" :size="14" style="color: var(--kf-primary)" />
         <span class="sc-ctx-text">
           正在聚焦知识点：<strong>{{ activeKnowledgeName || '#' + activeKnowledgeId }}</strong>
         </span>
@@ -22,7 +22,7 @@
 
       <div class="sc-header">
         <div>
-          <h1 class="kb-h1">场景练习</h1>
+          <h1 class="kf-h1">场景练习</h1>
           <p class="sc-subtitle">用真实业务场景检验输出能力 —— 先凭记忆写出思路，再对照要点覆盖度查漏补缺。</p>
         </div>
       </div>
@@ -47,7 +47,7 @@
       </div>
 
       <div v-else-if="listError" class="sc-state-box">
-        <Icon name="alert-circle" :size="20" style="color: var(--kb-danger)" />
+        <Icon name="alert-circle" :size="20" style="color: var(--kf-danger)" />
         <p>{{ listError }}</p>
         <button type="button" class="sc-btn-ghost" @click="loadList">
           <Icon name="refresh-cw" :size="14" /><span>重试</span>
@@ -55,7 +55,7 @@
       </div>
 
       <div v-else-if="filtered.length === 0" class="sc-state-box">
-        <Icon name="inbox" :size="24" style="color: var(--kb-muted-foreground)" />
+        <Icon name="inbox" :size="24" style="color: var(--kf-muted-foreground)" />
         <p>该难度暂时没有上架场景，换个难度或稍后再来。</p>
       </div>
 
@@ -91,7 +91,7 @@
         <span>加载场景…</span>
       </div>
       <div v-else-if="detailError" class="sc-state-box">
-        <Icon name="alert-circle" :size="20" style="color: var(--kb-danger)" />
+        <Icon name="alert-circle" :size="20" style="color: var(--kf-danger)" />
         <p>{{ detailError }}</p>
       </div>
 
@@ -101,7 +101,7 @@
         <!-- 情景 -->
         <section v-if="detail.contextText" class="sc-block">
           <div class="sc-block-head">
-            <Icon name="book-open" :size="16" style="color: var(--kb-primary)" />
+            <Icon name="book-open" :size="16" style="color: var(--kf-primary)" />
             <span class="sc-block-title">情景背景</span>
           </div>
           <p class="sc-block-body sc-context">{{ detail.contextText }}</p>
@@ -110,7 +110,7 @@
         <!-- 问题 -->
         <section class="sc-block">
           <div class="sc-block-head">
-            <Icon name="target" :size="16" style="color: var(--kb-primary)" />
+            <Icon name="target" :size="16" style="color: var(--kf-primary)" />
             <span class="sc-block-title">要解决的问题</span>
           </div>
           <p class="sc-block-body sc-question">{{ detail.questionText }}</p>
@@ -123,14 +123,14 @@
         <!-- 作答 -->
         <section class="sc-block">
           <div class="sc-block-head">
-            <Icon name="pen-line" :size="16" style="color: var(--kb-primary)" />
+            <Icon name="pen-line" :size="16" style="color: var(--kf-primary)" />
             <span class="sc-block-title">你的思路</span>
             <span v-if="!result" class="sc-elapsed"><Icon name="clock" :size="12" /> 已用时 {{ elapsed }}s</span>
           </div>
           <textarea
             ref="answerRef"
             v-model="answer"
-            class="sc-textarea kb-textarea kb-form-control" aria-label="你的思路"
+            class="sc-textarea kf-textarea kf-form-control" aria-label="你的思路"
             rows="8"
             maxlength="10000"
             placeholder="描述你的排查 / 回答思路：先做什么、用什么、为什么、怎么验证…"
@@ -174,7 +174,7 @@
               <p class="sc-point-col-title sc-hit"><Icon name="check" :size="13" />已覆盖（{{ result.matchedLabels.length }}）</p>
               <ul class="sc-point-list">
                 <li v-for="lb in result.matchedLabels" :key="lb" class="sc-point-item sc-point-hit">
-                  <Icon name="check-circle" :size="14" style="color: var(--kb-success)" />{{ lb }}
+                  <Icon name="check-circle" :size="14" style="color: var(--kf-success)" />{{ lb }}
                 </li>
               </ul>
               <p v-if="result.matchedLabels.length === 0" class="sc-point-none">本次未命中要点 —— 建议回到资料复习后再答。</p>
@@ -183,7 +183,7 @@
               <p class="sc-point-col-title"><Icon name="x" :size="13" />待补强（{{ result.missedLabels.length }}）</p>
               <ul class="sc-point-list">
                 <li v-for="lb in result.missedLabels" :key="lb" class="sc-point-item">
-                  <Icon name="x" :size="14" style="color: var(--kb-warning)" />{{ lb }}
+                  <Icon name="x" :size="14" style="color: var(--kf-warning)" />{{ lb }}
                 </li>
               </ul>
               <p v-if="result.missedLabels.length === 0" class="sc-point-none sc-all-done">要点全部覆盖，干得漂亮。</p>
@@ -244,10 +244,10 @@ function diffClass(d?: number): string {
   return d === 3 ? 'sc-diff-3' : d === 2 ? 'sc-diff-2' : 'sc-diff-1'
 }
 function scoreColor(score: number): string {
-  if (score >= 80) return 'var(--kb-success)'
-  if (score >= 60) return 'var(--kb-primary)'
-  if (score >= 40) return 'var(--kb-warning)'
-  return 'var(--kb-danger)'
+  if (score >= 80) return 'var(--kf-success)'
+  if (score >= 60) return 'var(--kf-primary)'
+  if (score >= 40) return 'var(--kf-warning)'
+  return 'var(--kf-danger)'
 }
 
 async function loadList() {
@@ -404,14 +404,14 @@ onUnmounted(() => {
 
 <style scoped>
 .phase-d-lab { min-width:0; }
-.phase-d-lab .sc-solve-title { font-family:inherit;font-size:var(--kb-page-title-size);overflow-wrap:anywhere; }
-.phase-d-lab .sc-block,.phase-d-lab .sc-result,.phase-d-lab .sc-solve-title,.phase-d-lab .sc-solve-head,.phase-d-lab .sc-action-row { width:100%;max-width:var(--kb-notes-reading-width);margin-inline:auto; }
-.lab-steps { display:flex;flex-wrap:wrap;list-style:none;gap:var(--kb-space-4);padding:0;margin:0 0 var(--kb-space-3);font-size:var(--kb-fs-body-sm);color:var(--kb-muted-foreground); }
-.lab-steps [aria-current="step"] { color:var(--kb-primary);font-weight:600; }
-.lab-contract { font-size:var(--kb-fs-body-sm);line-height:1.7;color:var(--kb-muted-foreground);padding-block:var(--kb-space-3);margin:0 0 var(--kb-space-5);border-bottom:var(--kb-studio-rule) solid var(--kb-border); }
-.phase-d-lab :focus-visible:not(.kb-form-control, .kb-input, .kb-textarea, .kb-select, .kb-select-trigger) { outline:var(--kb-studio-focus) solid var(--kb-ring);outline-offset:var(--kb-studio-focus); }
-.phase-d-lab .sc-block-body,.phase-d-lab .sc-textarea { font-size:var(--kb-fs-body-lg);line-height:1.75;overflow-wrap:anywhere; }
-.phase-d-lab button { min-height:var(--kb-control-hit-size); }
+.phase-d-lab .sc-solve-title { font-family:inherit;font-size:var(--kf-page-title-size);overflow-wrap:anywhere; }
+.phase-d-lab .sc-block,.phase-d-lab .sc-result,.phase-d-lab .sc-solve-title,.phase-d-lab .sc-solve-head,.phase-d-lab .sc-action-row { width:100%;max-width:var(--kf-notes-reading-width);margin-inline:auto; }
+.lab-steps { display:flex;flex-wrap:wrap;list-style:none;gap:var(--kf-space-4);padding:0;margin:0 0 var(--kf-space-3);font-size:var(--kf-fs-body-sm);color:var(--kf-muted-foreground); }
+.lab-steps [aria-current="step"] { color:var(--kf-primary);font-weight:600; }
+.lab-contract { font-size:var(--kf-fs-body-sm);line-height:1.7;color:var(--kf-muted-foreground);padding-block:var(--kf-space-3);margin:0 0 var(--kf-space-5);border-bottom:var(--kf-studio-rule) solid var(--kf-border); }
+.phase-d-lab :focus-visible:not(.kf-form-control, .kf-input, .kf-textarea, .kf-select, .kf-select-trigger) { outline:var(--kf-studio-focus) solid var(--kf-ring);outline-offset:var(--kf-studio-focus); }
+.phase-d-lab .sc-block-body,.phase-d-lab .sc-textarea { font-size:var(--kf-fs-body-lg);line-height:1.75;overflow-wrap:anywhere; }
+.phase-d-lab button { min-height:var(--kf-control-hit-size); }
 @media(prefers-reduced-motion:reduce){.phase-d-lab,.phase-d-lab .reveal-item {animation:none;}}
 
 .sc-page {
@@ -433,9 +433,9 @@ onUnmounted(() => {
 }
 .sc-subtitle {
   margin-top: 4px;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1.6;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .sc-filters {
   display: flex;
@@ -449,21 +449,21 @@ onUnmounted(() => {
   gap: 6px;
   padding: 6px 14px;
   border-radius: 999px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-caption);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .sc-chip:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .sc-chip-on {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 /* Architecture-4.2 §15：知识点聚焦上下文条 */
 .sc-ctx-banner {
@@ -472,29 +472,29 @@ onUnmounted(() => {
   gap: 8px;
   padding: 10px 14px;
   margin-bottom: 16px;
-  border: 1px solid var(--kb-primary-subtle);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-primary-subtle);
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-foreground);
+  border: 1px solid var(--kf-primary-subtle);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-primary-subtle);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-foreground);
 }
 .sc-ctx-text strong {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .sc-ctx-clear {
   margin-left: auto;
   padding: 4px 12px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-caption);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .sc-ctx-clear:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .sc-loading {
   display: flex;
@@ -502,8 +502,8 @@ onUnmounted(() => {
   gap: 8px;
   justify-content: center;
   padding: 56px 0;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
 }
 .spin {
   animation: sc-spin 1s linear infinite;
@@ -519,8 +519,8 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   padding: 48px 16px;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
   text-align: center;
 }
 .sc-grid {
@@ -532,15 +532,15 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
   padding: 18px;
-  box-shadow: var(--kb-shadow-sm);
+  box-shadow: var(--kf-shadow-sm);
   transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 .sc-card:hover {
-  box-shadow: var(--kb-shadow-lg);
+  box-shadow: var(--kf-shadow-lg);
   transform: translateY(-2px);
 }
 .sc-card-head {
@@ -555,39 +555,39 @@ onUnmounted(() => {
   padding: 2px 10px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: var(--kb-fw-body-md);
+  font-weight: var(--kf-fw-body-md);
   line-height: 20px;
 }
 .sc-diff-1 {
-  background: var(--kb-success);
+  background: var(--kf-success);
   color: #fff;
 }
 .sc-diff-2 {
-  background: var(--kb-warning);
+  background: var(--kf-warning);
   color: #fff;
 }
 .sc-diff-3 {
-  background: var(--kb-danger);
+  background: var(--kf-danger);
   color: #fff;
 }
 .sc-points {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .sc-card-title {
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
   line-height: 1.5;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .sc-card-question {
   flex: 1;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1.7;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -603,16 +603,16 @@ onUnmounted(() => {
   gap: 6px;
   padding: 8px 16px;
   border: none;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
-  font-size: var(--kb-fs-body-sm);
-  font-weight: var(--kb-fw-body-md);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
+  font-size: var(--kf-fs-body-sm);
+  font-weight: var(--kf-fw-body-md);
   cursor: pointer;
   transition: background 0.15s ease, opacity 0.15s ease;
 }
 .sc-btn-primary:hover:not(:disabled) {
-  background: var(--kb-primary-hover);
+  background: var(--kf-primary-hover);
 }
 .sc-btn-primary:disabled {
   opacity: 0.55;
@@ -623,17 +623,17 @@ onUnmounted(() => {
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   background: transparent;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .sc-btn-ghost:hover:not(:disabled) {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .sc-btn-ghost:disabled {
   opacity: 0.55;
@@ -652,31 +652,31 @@ onUnmounted(() => {
   gap: 6px;
   padding: 6px 12px;
   border: none;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-bg-subtle);
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-bg-subtle);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
   cursor: pointer;
   transition: color 0.15s ease, background 0.15s ease;
 }
 .sc-btn-back:hover {
-  color: var(--kb-primary);
-  background: var(--kb-primary-tint);
+  color: var(--kf-primary);
+  background: var(--kf-primary-tint);
 }
 .sc-solve-title {
-  font-size: var(--kb-fs-h4);
+  font-size: var(--kf-fs-h4);
   font-weight: 700;
   line-height: 1.4;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 16px;
 }
 .sc-block {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
   padding: 18px 20px;
   margin-bottom: 16px;
-  box-shadow: var(--kb-shadow-sm);
+  box-shadow: var(--kf-shadow-sm);
 }
 .sc-block-head {
   display: flex;
@@ -686,20 +686,20 @@ onUnmounted(() => {
 }
 .sc-block-title {
   font-size: 14px;
-  font-weight: var(--kb-fw-body-md);
-  color: var(--kb-foreground);
+  font-weight: var(--kf-fw-body-md);
+  color: var(--kf-foreground);
 }
 .sc-block-body {
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1.8;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .sc-context {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .sc-question {
-  font-size: var(--kb-fs-body-lg);
-  font-weight: var(--kb-fw-body-md);
+  font-size: var(--kf-fs-body-lg);
+  font-weight: var(--kf-fw-body-md);
   white-space: pre-wrap;
 }
 .sc-tip {
@@ -708,9 +708,9 @@ onUnmounted(() => {
   gap: 6px;
   margin-top: 12px;
   padding: 10px 12px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-primary-subtle);
-  color: var(--kb-muted-foreground);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-primary-subtle);
+  color: var(--kf-muted-foreground);
   font-size: 12px;
   line-height: 1.6;
 }
@@ -719,15 +719,15 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
-.sc-textarea:not(.kb-form-control) {
+.sc-textarea:not(.kf-form-control) {
   min-height: 160px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -736,15 +736,15 @@ onUnmounted(() => {
   box-sizing: border-box;
   resize: vertical;
   padding: 12px 14px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-size: 14px;
   line-height: 1.8;
   font-family: inherit;
   min-height: 160px;
 }
-.sc-textarea:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
-  box-shadow: 0 0 0 3px var(--kb-ring);
+.sc-textarea:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
+  box-shadow: 0 0 0 3px var(--kf-ring);
 }
 .sc-textarea:disabled {
   opacity: 0.6;
@@ -757,11 +757,11 @@ onUnmounted(() => {
 }
 .sc-count {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-variant-numeric: tabular-nums;
 }
 .sc-submit-error {
-  color: var(--kb-danger);
+  color: var(--kf-danger);
   font-size: 12px;
 }
 .sc-actions {
@@ -772,7 +772,7 @@ onUnmounted(() => {
 }
 /* 结果 */
 .sc-result {
-  border-color: var(--kb-neutral-border-strong);
+  border-color: var(--kf-neutral-border-strong);
 }
 .sc-result-top {
   display: flex;
@@ -787,13 +787,13 @@ onUnmounted(() => {
   min-width: 92px;
 }
 .sc-score-num {
-  font-size: var(--kb-fs-h1);
+  font-size: var(--kf-fs-h1);
   font-weight: 700;
   line-height: 1;
 }
 .sc-score-max {
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-muted-foreground);
 }
 .sc-result-main {
   flex: 1;
@@ -802,24 +802,24 @@ onUnmounted(() => {
   gap: 6px;
 }
 .sc-comment {
-  font-size: var(--kb-fs-body-lg);
-  font-weight: var(--kb-fw-body-md);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-lg);
+  font-weight: var(--kf-fw-body-md);
+  color: var(--kf-foreground);
 }
 .sc-result-meta {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .sc-progress {
   height: 6px;
   border-radius: 999px;
-  background: var(--kb-bg-subtle);
+  background: var(--kf-bg-subtle);
   overflow: hidden;
 }
 .sc-progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--kb-primary), var(--kb-success));
+  background: linear-gradient(90deg, var(--kf-primary), var(--kf-success));
   transition: width 0.4s ease;
 }
 .sc-points-grid {
@@ -828,7 +828,7 @@ onUnmounted(() => {
   gap: 16px;
 }
 .sc-point-col {
-  border-top: 1px dashed var(--kb-border);
+  border-top: 1px dashed var(--kf-border);
   padding-top: 12px;
 }
 .sc-point-col-title {
@@ -836,12 +836,12 @@ onUnmounted(() => {
   align-items: center;
   gap: 5px;
   font-size: 13px;
-  font-weight: var(--kb-fw-body-md);
-  color: var(--kb-foreground);
+  font-weight: var(--kf-fw-body-md);
+  color: var(--kf-foreground);
   margin-bottom: 8px;
 }
 .sc-point-col-title.sc-hit {
-  color: var(--kb-success);
+  color: var(--kf-success);
 }
 .sc-point-list {
   list-style: none;
@@ -855,20 +855,20 @@ onUnmounted(() => {
   display: flex;
   align-items: flex-start;
   gap: 6px;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1.5;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .sc-point-item.sc-point-hit {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .sc-point-none {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin: 4px 0 0;
 }
 .sc-point-none.sc-all-done {
-  color: var(--kb-success);
+  color: var(--kf-success);
 }
 @media (max-width: 720px) {
   .sc-grid {

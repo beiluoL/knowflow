@@ -25,7 +25,7 @@
     <div v-show="mode === 'online'" class="online-quiz">
       <!-- 答题配置 -->
       <div class="config-card mb-6">
-        <h3 class="kb-h3 mb-4">答题配置</h3>
+        <h3 class="kf-h3 mb-4">答题配置</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           <div>
             <label class="form-label">题型</label>
@@ -37,7 +37,7 @@
           </div>
           <div>
             <label class="form-label">题目数量</label>
-            <input aria-label="题库题目数量" :disabled="submitting || onlineLoading" v-model.number="onlineConfig.count" type="number" min="1" max="50" class="form-input kb-input kb-form-control" />
+            <input aria-label="题库题目数量" :disabled="submitting || onlineLoading" v-model.number="onlineConfig.count" type="number" min="1" max="50" class="form-input kf-input kf-form-control" />
           </div>
           <div class="flex items-end">
             <button type="button" class="btn-primary generate-btn w-full" @click="startOnlineQuiz" :disabled="onlineLoading || submitting">
@@ -48,12 +48,12 @@
         </div>
 
         <!-- Phase 3H：确定性智能推荐（规则引擎，零模型调用；AI 关闭同样可用） -->
-        <div class="flex items-center gap-3 mt-4 pt-4 flex-wrap" style="border-top: 1px solid var(--kb-border);">
+        <div class="flex items-center gap-3 mt-4 pt-4 flex-wrap" style="border-top: 1px solid var(--kf-border);">
           <button type="button" class="btn-outline inline-flex items-center gap-1.5" @click="startSmartRecommend" :disabled="onlineLoading || submitting">
             <Icon name="zap" :size="15" />
             <span>智能推荐练习</span>
           </button>
-          <span class="text-xs" style="color: var(--kb-muted-foreground);">
+          <span class="text-xs" style="color: var(--kf-muted-foreground);">
             基于你的到期复习题、高频错题与薄弱知识点确定性抽题（规则引擎，不消耗 AI 额度）
           </span>
         </div>
@@ -69,7 +69,7 @@
               {{ smartMeta.sufficient ? `规则引擎推荐 ${onlineQuestions.length} 题（${smartMeta.ruleVersion}）` : '题库题量不足' }}
             </p>
             <p v-if="smartMeta.message" class="mt-0.5" :class="smartMeta.sufficient ? 'text-primary-700/80' : 'text-warning-700'">{{ smartMeta.message }}</p>
-            <p v-if="smartMeta.reasonCounts" class="mt-1 flex flex-wrap gap-x-3 gap-y-0.5" style="color: var(--kb-muted-foreground);">
+            <p v-if="smartMeta.reasonCounts" class="mt-1 flex flex-wrap gap-x-3 gap-y-0.5" style="color: var(--kf-muted-foreground);">
               <span v-for="(cnt, reason) in smartMeta.reasonCounts" :key="reason">{{ smartReasonLabel(String(reason)) }} {{ cnt }} 题</span>
             </p>
           </div>
@@ -163,7 +163,7 @@
             <label
               v-for="(opt, oi) in q.options"
               :key="oi"
-              class="q-option option-clickable kb-checkbox-row"
+              class="q-option option-clickable kf-checkbox-row"
               :class="{ selected: q.questionType === 'SINGLE_CHOICE' ? onlineAnswers[q.id] === String(oi) : isMultiSelected(q.id, String(oi)) }"
             >
               <input
@@ -201,7 +201,7 @@
           <div v-else class="mb-3">
             <textarea
               v-model="onlineAnswers[q.id]"
-              class="form-input kb-textarea kb-form-control"
+              class="form-input kf-textarea kf-form-control"
               rows="2"
               :disabled="submitting || !!onlineResult || !!onlineSubmitError"
               :aria-label="`第 ${idx + 1} 题答案`"
@@ -215,11 +215,11 @@
               <span class="q-answer-label">正确答案：</span>
               <span class="q-answer-text">{{ resultOf(q.id)?.correctAnswer || formatAnswer(q) }}</span>
             </div>
-            <div v-if="q.explanation" class="mt-1 text-xs" style="color: var(--kb-muted-foreground);">解析：{{ q.explanation }}</div>
+            <div v-if="q.explanation" class="mt-1 text-xs" style="color: var(--kf-muted-foreground);">解析：{{ q.explanation }}</div>
           </div>
         </div>
 
-        <p v-if="!canAutoGrade" class="kb-hint" role="status">当前题目包含不支持自动判分的题型。本页可查看题目与参考答案；请选择单选、多选、判断或填空题后开始新一轮答题。</p>
+        <p v-if="!canAutoGrade" class="kf-hint" role="status">当前题目包含不支持自动判分的题型。本页可查看题目与参考答案；请选择单选、多选、判断或填空题后开始新一轮答题。</p>
         <!-- 提交判分 -->
         <div v-if="onlineSubmitError" role="alert" data-test="quiz-submit-error" class="quiz-submit-error"><p>{{ onlineSubmitError }}。答案已保留，可再次提交。</p></div>
         <p v-if="submitting" role="status" aria-live="polite">正在提交并保存答题结果，请稍候…</p>
@@ -236,7 +236,7 @@
     <div v-show="mode === 'generate'">
     <!-- ===== 题目配置面板 ===== -->
     <div class="config-card mb-6">
-      <h3 class="kb-h3 mb-4">题目配置</h3>
+      <h3 class="kf-h3 mb-4">题目配置</h3>
       <!-- UI/UX 5.0 §十：默认模式只暴露「知识范围 / 难度 / 数量」，高级设置折叠 -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
         <!-- 知识范围 -->
@@ -252,7 +252,7 @@
         <!-- 数量 -->
         <div>
           <label class="form-label">题目数量</label>
-          <input v-model.number="config.count" type="number" min="1" max="50" class="form-input kb-input kb-form-control" />
+          <input v-model.number="config.count" type="number" min="1" max="50" class="form-input kf-input kf-form-control" />
         </div>
       </div>
 
@@ -352,7 +352,7 @@
       <!-- 左侧：已生成题目（占 2 列） -->
       <div class="lg:col-span-2">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="kb-h3">已生成题目</h3>
+          <h3 class="kf-h3">已生成题目</h3>
           <span class="count-text tabular-nums">共 {{ quizzes.length }} 题</span>
         </div>
         <div class="flex flex-col gap-3">
@@ -424,7 +424,7 @@
       <!-- 右侧：生成历史 -->
       <div class="lg:col-span-1">
         <div class="config-card history-card">
-          <h3 class="kb-h3 mb-4">生成历史</h3>
+          <h3 class="kf-h3 mb-4">生成历史</h3>
           <div v-if="history.length === 0" class="history-empty">
             <Icon name="history" :size="32" class="history-empty-icon" />
             <p class="state-text mt-2">暂无生成历史</p>
@@ -445,16 +445,16 @@
 
         <!-- 测验统计卡（保留原有统计能力） -->
         <div class="config-card mt-4 stats-card">
-          <h3 class="kb-h3 mb-4">测验统计</h3>
+          <h3 class="kf-h3 mb-4">测验统计</h3>
           <div class="text-center mb-4">
             <div class="relative w-24 h-24 mx-auto mb-2">
               <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="45" :stroke="'var(--kb-muted)'" stroke-width="8" fill="none" />
+                <circle cx="50" cy="50" r="45" :stroke="'var(--kf-muted)'" stroke-width="8" fill="none" />
                 <circle
                   cx="50"
                   cy="50"
                   r="45"
-                  stroke="var(--kb-primary)"
+                  stroke="var(--kf-primary)"
                   stroke-width="8"
                   fill="none"
                   stroke-linecap="round"
@@ -1139,9 +1139,9 @@ onUnmounted(() => {
 
 /* 配置卡 */
 .config-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   padding: 20px 24px;
 }
 
@@ -1150,8 +1150,8 @@ onUnmounted(() => {
   display: inline-flex;
   gap: 4px;
   padding: 4px;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-muted);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-muted);
 }
 .mode-tab {
   display: inline-flex;
@@ -1159,21 +1159,21 @@ onUnmounted(() => {
   gap: 6px;
   height: 34px;
   padding: 0 16px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-body-md);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-body-md);
   font-weight: 500;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   border: none;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
 .mode-tab:hover {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .mode-tab.active {
-  background: var(--kb-card);
-  color: var(--kb-primary);
+  background: var(--kf-card);
+  color: var(--kf-primary);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
@@ -1183,10 +1183,10 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   background: rgba(59, 111, 224, 0.08);
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-body-md);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-body-md);
   font-weight: 500;
 }
 
@@ -1200,8 +1200,8 @@ onUnmounted(() => {
 }
 .q-option.selected {
   background: rgba(59, 111, 224, 0.1);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
   font-weight: 500;
 }
 
@@ -1211,30 +1211,30 @@ onUnmounted(() => {
 /* 表单元素 */
 .form-label {
   display: block;
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 6px;
 }
-.form-input:not(.kb-form-control) {
+.form-input:not(.kf-form-control) {
   height: 36px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   outline: none;
   transition: border-color 0.15s ease;
 }
 .form-input {
   width: 100%;
   padding: 0 12px;
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-foreground);
 }
-.form-input:not(.kb-form-control):focus {
-  border-color: var(--kb-ring);
+.form-input:not(.kf-form-control):focus {
+  border-color: var(--kf-ring);
 }
-.form-input:not(.kb-form-control):focus-visible {
-  outline: 2px solid var(--kb-ring);
+.form-input:not(.kf-form-control):focus-visible {
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1245,22 +1245,22 @@ onUnmounted(() => {
   gap: 4px;
   height: 32px;
   padding: 0 12px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-body-md);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-body-md);
   font-weight: 500;
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
   border: none;
   cursor: pointer;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 .type-option:hover {
   background: rgba(59, 111, 224, 0.08);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .type-option.active {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 
 /* 按钮 */
@@ -1270,11 +1270,11 @@ onUnmounted(() => {
   gap: 6px;
   height: 34px;
   padding: 0 14px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-body-md);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-body-md);
   font-weight: 500;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
   transition: opacity 0.15s ease;
@@ -1289,12 +1289,12 @@ onUnmounted(() => {
 .header-action {
   height: 38px;
   padding: 0 18px;
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
 }
 .generate-btn {
   height: 38px;
   padding: 0 24px;
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
 }
 .btn-ghost {
   display: inline-flex;
@@ -1302,17 +1302,17 @@ onUnmounted(() => {
   gap: 4px;
   height: 28px;
   padding: 0 10px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-body-sm);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
   background: transparent;
-  color: var(--kb-sidebar-foreground);
+  color: var(--kf-sidebar-foreground);
   border: none;
   cursor: pointer;
   transition: background 0.15s ease;
 }
 .btn-ghost:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .btn-danger-ghost {
   display: inline-flex;
@@ -1320,11 +1320,11 @@ onUnmounted(() => {
   gap: 4px;
   height: 28px;
   padding: 0 10px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-body-sm);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
   background: transparent;
-  color: var(--kb-state-error);
+  color: var(--kf-state-error);
   border: none;
   cursor: pointer;
   transition: background 0.15s ease;
@@ -1345,8 +1345,8 @@ onUnmounted(() => {
 .loading-spinner {
   width: 36px;
   height: 36px;
-  border: 3px solid var(--kb-muted);
-  border-top-color: var(--kb-primary);
+  border: 3px solid var(--kf-muted);
+  border-top-color: var(--kf-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -1354,28 +1354,28 @@ onUnmounted(() => {
   to { transform: rotate(360deg); }
 }
 .state-text {
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-md);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-md);
 }
 .state-title {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-weight: 500;
-  font-size: var(--kb-fs-body-emphasis);
+  font-size: var(--kf-fs-body-emphasis);
 }
 .state-error-icon {
-  color: var(--kb-state-error);
+  color: var(--kf-state-error);
 }
 .empty-icon-box {
   width: 80px;
   height: 80px;
   border-radius: 20px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .empty-icon {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* 主体网格 */
@@ -1383,30 +1383,30 @@ onUnmounted(() => {
   align-items: start;
 }
 .count-text {
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-md);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-md);
 }
 
 /* 题目卡 */
 .question-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   padding: 16px 20px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .question-card:hover {
-  border-color: var(--kb-ring);
+  border-color: var(--kf-ring);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 .q-index {
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
 }
 .q-stem {
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-md);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-md);
   line-height: 1.6;
 }
 .q-options {
@@ -1417,17 +1417,17 @@ onUnmounted(() => {
 .q-option {
   display: flex;
   align-items: center;
-  gap: var(--kb-checkbox-gap);
+  gap: var(--kf-checkbox-gap);
   padding: 8px 12px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-background);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-md);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-background);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-md);
   transition: background 0.15s ease;
 }
 .q-option.correct {
   background: rgba(16, 185, 129, 0.08);
-  color: var(--kb-state-success);
+  color: var(--kf-state-success);
   font-weight: 500;
 }
 .q-option-label {
@@ -1437,43 +1437,43 @@ onUnmounted(() => {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-caption);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-caption);
   font-weight: 600;
   flex-shrink: 0;
 }
 .q-option.correct .q-option-label {
-  background: var(--kb-state-success);
-  color: var(--kb-state-success-foreground);
+  background: var(--kf-state-success);
+  color: var(--kf-state-success-foreground);
 }
 .q-option-check {
   margin-left: auto;
-  color: var(--kb-state-success);
+  color: var(--kf-state-success);
 }
 .q-answer {
   padding: 12px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-muted);
-  color: var(--kb-sidebar-foreground);
-  font-size: var(--kb-fs-body-sm);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-muted);
+  color: var(--kf-sidebar-foreground);
+  font-size: var(--kf-fs-body-sm);
 }
 .q-answer-label {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-weight: 600;
 }
 .q-answer-text {
-  color: var(--kb-sidebar-foreground);
+  color: var(--kf-sidebar-foreground);
 }
 .q-answer-hint {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 12px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-background);
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-background);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
 }
 
 /* 徽标 */
@@ -1482,29 +1482,29 @@ onUnmounted(() => {
   align-items: center;
   height: 22px;
   padding: 0 8px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-caption);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-caption);
   font-weight: 500;
 }
 .badge-primary {
   background: rgba(59, 111, 224, 0.08);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .badge-muted {
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 .badge-success {
   background: rgba(16, 185, 129, 0.08);
-  color: var(--kb-state-success);
+  color: var(--kf-state-success);
 }
 .badge-warning {
   background: rgba(245, 158, 11, 0.08);
-  color: var(--kb-state-warning);
+  color: var(--kf-state-warning);
 }
 .badge-error {
   background: rgba(239, 68, 68, 0.08);
-  color: var(--kb-state-error);
+  color: var(--kf-state-error);
 }
 
 /* 生成历史 */
@@ -1520,14 +1520,14 @@ onUnmounted(() => {
   text-align: center;
 }
 .history-empty-icon {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .history-item {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 0;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 .history-item:last-child {
   border-bottom: none;
@@ -1535,9 +1535,9 @@ onUnmounted(() => {
 .history-icon-wrap {
   width: 32px;
   height: 32px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   background: rgba(59, 111, 224, 0.08);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1547,32 +1547,32 @@ onUnmounted(() => {
   min-width: 0;
 }
 .history-title {
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .history-time {
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-muted-foreground);
   margin-top: 2px;
 }
 
 /* 测验统计 */
 .stats-accuracy {
-  font-size: var(--kb-fs-h3);
+  font-size: var(--kf-fs-h3);
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .stats-label {
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-muted-foreground);
 }
 .stats-cell {
   padding: 8px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
 }
 .stats-correct {
   background: rgba(16, 185, 129, 0.08);
@@ -1581,24 +1581,24 @@ onUnmounted(() => {
   background: rgba(239, 68, 68, 0.08);
 }
 .stats-remaining {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .stats-num {
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 700;
 }
 .stats-correct .stats-num {
-  color: var(--kb-state-success);
+  color: var(--kf-state-success);
 }
 .stats-wrong .stats-num {
-  color: var(--kb-state-error);
+  color: var(--kf-state-error);
 }
 .stats-remaining .stats-num {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .stats-cell-label {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   margin-top: 2px;
 }
 
@@ -1617,26 +1617,26 @@ onUnmounted(() => {
   padding: 4px 8px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption, 12px);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-caption, 12px);
   cursor: pointer;
   transition: color 0.15s ease;
 }
 .advanced-toggle:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .advanced-toggle:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--kb-ring);
-  border-radius: var(--kb-radius-sm, 6px);
+  box-shadow: 0 0 0 2px var(--kf-ring);
+  border-radius: var(--kf-radius-sm, 6px);
 }
 /* 唯一主操作行的生成提示 */
 .generated-hint {
-  font-size: var(--kb-fs-body-sm, 13px);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm, 13px);
+  color: var(--kf-muted-foreground);
 }
 .generated-hint b {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-weight: 600;
 }
 
@@ -1647,20 +1647,20 @@ onUnmounted(() => {
   width: 100%;
   max-width: 640px;
   margin: 0 auto;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 .quiz-skeleton .sk-line {
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-border);
   animation: sk-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
-.quiz-skeleton .sk-tag { width: 72px; height: 20px; background: var(--kb-muted); }
+.quiz-skeleton .sk-tag { width: 72px; height: 20px; background: var(--kf-muted); }
 .quiz-skeleton .sk-title { width: 80%; height: 16px; }
 .quiz-skeleton .sk-option { width: 100%; height: 40px; }
 .quiz-skeleton .sk-option.short { width: 60%; }
@@ -1676,20 +1676,20 @@ onUnmounted(() => {
   gap: 6px;
   height: 34px;
   padding: 0 14px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-body-md);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-body-md);
   font-weight: 500;
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 .btn-outline:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .btn-outline:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 /* §十四：每个区域最多一个 Primary CTA；空态出口不超过两个 */
@@ -1701,16 +1701,16 @@ onUnmounted(() => {
   flex-wrap: wrap;
   margin-top: 16px;
 }
-.phase-c-quiz :deep(.mini-app-title) { font-family:inherit;font-size:var(--kb-page-title-size); }
-.quiz-question-nav { display:flex;flex-wrap:wrap;align-items:center;gap:var(--kb-space-2);padding:var(--kb-space-3);background:var(--kb-card);border:1px solid var(--kb-border);border-radius:var(--kb-radius-md); }
-.quiz-question-nav a { min-width:var(--kb-control-hit-size);min-height:var(--kb-control-hit-size);display:inline-flex;align-items:center;justify-content:center;border-radius:var(--kb-radius-sm);border:1px solid var(--kb-border); }
-.quiz-question-nav span { margin-right:auto;color:var(--kb-muted-foreground); }
-.question-card { min-width:0;scroll-margin-top:calc(var(--kb-nav-height) + var(--kb-space-4)); }
-.q-stem { font-size:var(--kb-fs-body-lg);line-height:1.75;overflow-wrap:anywhere; }
-.q-option { min-height:var(--kb-control-hit-size);align-items:center;overflow-wrap:anywhere; }
+.phase-c-quiz :deep(.mini-app-title) { font-family:inherit;font-size:var(--kf-page-title-size); }
+.quiz-question-nav { display:flex;flex-wrap:wrap;align-items:center;gap:var(--kf-space-2);padding:var(--kf-space-3);background:var(--kf-card);border:1px solid var(--kf-border);border-radius:var(--kf-radius-md); }
+.quiz-question-nav a { min-width:var(--kf-control-hit-size);min-height:var(--kf-control-hit-size);display:inline-flex;align-items:center;justify-content:center;border-radius:var(--kf-radius-sm);border:1px solid var(--kf-border); }
+.quiz-question-nav span { margin-right:auto;color:var(--kf-muted-foreground); }
+.question-card { min-width:0;scroll-margin-top:calc(var(--kf-nav-height) + var(--kf-space-4)); }
+.q-stem { font-size:var(--kf-fs-body-lg);line-height:1.75;overflow-wrap:anywhere; }
+.q-option { min-height:var(--kf-control-hit-size);align-items:center;overflow-wrap:anywhere; }
 .q-answer { line-height:1.75;overflow-wrap:anywhere; }
-.quiz-submit-error { padding:var(--kb-space-4);background:var(--kb-card);border:1px solid var(--kb-destructive);border-radius:var(--kb-radius-md); }
-.phase-c-quiz :is(button,a,input,select,textarea):focus-visible:not(.kb-form-control, .kb-input, .kb-textarea, .kb-select, .kb-select-trigger) { outline:2px solid var(--kb-ring);outline-offset:2px; }
+.quiz-submit-error { padding:var(--kf-space-4);background:var(--kf-card);border:1px solid var(--kf-destructive);border-radius:var(--kf-radius-md); }
+.phase-c-quiz :is(button,a,input,select,textarea):focus-visible:not(.kf-form-control, .kf-input, .kf-textarea, .kf-select, .kf-select-trigger) { outline:2px solid var(--kf-ring);outline-offset:2px; }
 .markdown-body :deep(pre),.markdown-body :deep(table) { min-width:0;max-width:100%;overflow-x:auto; }
-@media(max-width:640px){.question-card > div:first-child{flex-wrap:wrap;gap:var(--kb-space-3)}.question-card > div:first-child > div{flex-wrap:wrap}.quiz-question-nav{position:static}.q-option{padding:var(--kb-space-3)}}
+@media(max-width:640px){.question-card > div:first-child{flex-wrap:wrap;gap:var(--kf-space-3)}.question-card > div:first-child > div{flex-wrap:wrap}.quiz-question-nav{position:static}.q-option{padding:var(--kf-space-3)}}
 </style>

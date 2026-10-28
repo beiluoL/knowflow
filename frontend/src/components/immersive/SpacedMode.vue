@@ -16,7 +16,7 @@
         :show-retry="false"
       >
         <template #action>
-          <button type="button" class="kb-state-retry" data-test="due-retry" @click="loadQueue">
+          <button type="button" class="kf-state-retry" data-test="due-retry" @click="loadQueue">
             <Icon name="refresh-cw" :size="14" aria-hidden="true" />
             <span>重新加载</span>
           </button>
@@ -27,7 +27,7 @@
         <li
           v-for="(card, idx) in queue"
           :key="card.id"
-          class="queue-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="queue-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: idx === currentIndex, done: idx < currentIndex }"
           role="button"
           tabindex="0"
@@ -43,7 +43,7 @@
       <div class="queue-actions">
         <button
           type="button"
-          class="act-btn primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="act-btn primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="!queue.length || currentIndex >= queue.length"
           @click="toggleTimer"
         >
@@ -64,7 +64,7 @@
     <section class="flashcard-area">
       <div class="card-stage" :style="{ perspective: '1400px' }">
         <div
-          class="flashcard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="flashcard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ flipped: isFlipped, loading: loadingCard }"
           role="button"
           tabindex="0"
@@ -94,7 +94,7 @@
                 v-for="r in ratings"
                 :key="r.quality"
                 type="button"
-                  class="rate-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                  class="rate-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
                   :class="`rate-${r.quality}`"
                   @click.stop="submitRating(r.quality)"
               >
@@ -380,13 +380,13 @@ onUnmounted(async () => {
   gap: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0 0 14px;
 }
 
 .queue-empty {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 16px 4px;
   text-align: center;
 }
@@ -426,15 +426,15 @@ onUnmounted(async () => {
   background: rgba(255, 255, 255, 0.07);
 }
 .queue-item.active {
-  background: color-mix(in srgb, var(--kb-primary) 18%, transparent);
-  border-color: color-mix(in srgb, var(--kb-primary) 35%, rgba(255, 255, 255, 0.06));
+  background: color-mix(in srgb, var(--kf-primary) 18%, transparent);
+  border-color: color-mix(in srgb, var(--kf-primary) 35%, rgba(255, 255, 255, 0.06));
 }
 .queue-item.done {
   opacity: 0.5;
 }
 .queue-card-name {
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1.4;
   flex: 1;
   min-width: 0;
@@ -459,7 +459,7 @@ onUnmounted(async () => {
   height: 38px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
@@ -470,9 +470,9 @@ onUnmounted(async () => {
   background: rgba(255, 255, 255, 0.1);
 }
 .act-btn.primary {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 .act-btn.primary:hover {
   filter: brightness(1.05);
@@ -487,7 +487,7 @@ onUnmounted(async () => {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .queue-timer {
@@ -501,7 +501,7 @@ onUnmounted(async () => {
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   width: 100%;
   justify-content: center;
 }
@@ -568,7 +568,7 @@ onUnmounted(async () => {
   text-align: center;
   font-size: 20px;
   line-height: 1.7;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   padding: 16px 8px;
   overflow: hidden;
   word-break: break-word;
@@ -583,7 +583,7 @@ onUnmounted(async () => {
 .flip-hint {
   text-align: center;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 8px 0 2px;
 }
 
@@ -594,13 +594,13 @@ onUnmounted(async () => {
   align-items: center;
   justify-content: center;
   gap: 14px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .card-empty p {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .rating-row {
@@ -634,7 +634,7 @@ onUnmounted(async () => {
 .rate-label {
   font-size: 11px;
   font-weight: 600;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .rate-1:hover {
   border-color: rgba(239, 68, 68, 0.4);
@@ -666,14 +666,14 @@ onUnmounted(async () => {
 }
 .stat-label {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-bottom: 6px;
   letter-spacing: 0.02em;
 }
 .stat-value {
   font-size: 26px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1.2;
 }
 
@@ -686,7 +686,7 @@ onUnmounted(async () => {
 .progress-pct {
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .progress-bar {
   height: 8px;
@@ -696,7 +696,7 @@ onUnmounted(async () => {
 }
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--kb-primary), #0EA5E9);
+  background: linear-gradient(90deg, var(--kf-primary), #0EA5E9);
   border-radius: 999px;
   transition: width 0.5s ease;
 }
@@ -705,7 +705,7 @@ onUnmounted(async () => {
   margin: 0;
   font-size: 12px;
   line-height: 1.6;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .next-ach-card {
@@ -725,7 +725,7 @@ onUnmounted(async () => {
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   margin-bottom: 12px;
 }
 .na-item {
@@ -753,12 +753,12 @@ onUnmounted(async () => {
 .na-name {
   font-size: 13px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .na-desc {
   font-size: 11px;
   line-height: 1.4;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .na-all-done {
   display: inline-flex;
@@ -766,7 +766,7 @@ onUnmounted(async () => {
   gap: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-success);
+  color: var(--kf-success);
 }
 
 .tabular-nums {

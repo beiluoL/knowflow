@@ -1,6 +1,6 @@
 <template>
   <FormField :class="$attrs.class" :style="$attrs.style as any" :control-id="textareaId" :label="label" :required="required" :help="help" :error="error">
-    <div class="kb-field" :class="{'kb-field--error':error,'kb-field--disabled':disabled}">
+    <div class="kf-field" :class="{'kf-field--error':error,'kf-field--disabled':disabled}">
     <textarea
       v-bind="controlAttrs()"
       :id="textareaId"
@@ -14,10 +14,10 @@
       :disabled="disabled"
       :aria-invalid="error ? 'true' : undefined"
       :class="[
-        'kb-textarea',
-        autoResize ? 'kb-textarea-autoresize' : '',
-        error ? 'kb-textarea-error' : '',
-        disabled ? 'kb-textarea-disabled' : '',
+        'kf-textarea',
+        autoResize ? 'kf-textarea-autoresize' : '',
+        error ? 'kf-textarea-error' : '',
+        disabled ? 'kf-textarea-disabled' : '',
       ]"
       :style="autoResize ? { height: 'auto', minHeight: minHeight + 'px' } : undefined"
       @input="handleInput"
@@ -25,13 +25,13 @@
       @focus="$emit('focus', $event)"
     />
     </div>
-    <template v-if="maxlength && showCount" #meta><span class="kb-form-count">{{count}}/{{maxlength}}</span></template>
+    <template v-if="maxlength && showCount" #meta><span class="kf-form-count">{{count}}/{{maxlength}}</span></template>
   </FormField>
 </template>
 
 <script setup lang="ts">
 // U6：通用文本域，封装 label/placeholder/rows/auto-resize/字数统计/错误态，v-model 双绑。
-// 复用全局 .kb-textarea 类，与 Input.vue 视觉一致；autoResize 时根据内容自动撑高。
+// 复用全局 .kf-textarea 类，与 Input.vue 视觉一致；autoResize 时根据内容自动撑高。
 import FormField from './FormField.vue'
 import { computed, nextTick, onMounted, ref, watch, useAttrs, useId } from 'vue'
 

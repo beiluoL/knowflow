@@ -15,7 +15,7 @@
           </div>
           <button
             type="button"
-            class="wn-icon-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+            class="wn-icon-btn transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
             aria-label="收起"
             title="收起"
             @click="expanded = false"
@@ -29,7 +29,7 @@
             v-for="t in TYPES"
             :key="t.id"
             type="button"
-            class="wn-type transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+            class="wn-type transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
             :class="{ active: type === t.id && playing }"
             :aria-pressed="type === t.id && playing"
             @click="toggle(t.id)"
@@ -47,7 +47,7 @@
             max="100"
             step="1"
             :value="volumePct"
-            class="wn-slider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="wn-slider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             aria-label="音量"
             @input="onVolumeInput"
           />
@@ -61,7 +61,7 @@
       <button
         v-if="!expanded"
         type="button"
-        class="wn-chip transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+        class="wn-chip transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
         :class="{ playing: playing }"
         :aria-label="`展开白噪音${playing ? '（正在播放' + typeLabel + '）' : ''}`"
         @click="expanded = true"
@@ -331,8 +331,8 @@ onUnmounted(() => {
 
 .wn-panel {
   width: 248px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 14px;
   box-shadow:
     0 12px 32px rgba(15, 23, 42, 0.16),
@@ -345,7 +345,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .wn-title {
@@ -354,7 +354,7 @@ onUnmounted(() => {
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .wn-status {
@@ -363,8 +363,8 @@ onUnmounted(() => {
   border-radius: 999px;
   font-size: 11px;
   font-weight: 500;
-  color: var(--kb-primary);
-  background: color-mix(in srgb, var(--kb-primary) 12%, transparent);
+  color: var(--kf-primary);
+  background: color-mix(in srgb, var(--kf-primary) 12%, transparent);
 }
 
 .wn-icon-btn {
@@ -376,14 +376,14 @@ onUnmounted(() => {
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
 .wn-icon-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 
 .wn-types {
@@ -399,10 +399,10 @@ onUnmounted(() => {
   align-items: center;
   gap: 5px;
   padding: 10px 4px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 12px;
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -410,14 +410,14 @@ onUnmounted(() => {
 }
 
 .wn-type:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 
 .wn-type.active {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 
 .wn-volume {
@@ -425,7 +425,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 10px 14px 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .wn-slider {
@@ -434,7 +434,7 @@ onUnmounted(() => {
   flex: 1 1 auto;
   height: 4px;
   border-radius: 999px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   outline: none;
   cursor: pointer;
 }
@@ -445,8 +445,8 @@ onUnmounted(() => {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--kb-primary);
-  border: 2px solid var(--kb-card);
+  background: var(--kf-primary);
+  border: 2px solid var(--kf-card);
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
 }
 
@@ -454,8 +454,8 @@ onUnmounted(() => {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--kb-primary);
-  border: 2px solid var(--kb-card);
+  background: var(--kf-primary);
+  border: 2px solid var(--kf-card);
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
 }
 
@@ -464,7 +464,7 @@ onUnmounted(() => {
   text-align: right;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* 收起态芯片 */
@@ -475,23 +475,23 @@ onUnmounted(() => {
   justify-content: center;
   width: 44px;
   height: 44px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 12px;
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.14);
   transition: background 0.15s ease, color 0.15s ease;
 }
 
 .wn-chip:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 
 .wn-chip.playing {
-  color: var(--kb-primary);
-  border-color: color-mix(in srgb, var(--kb-primary) 40%, var(--kb-border));
+  color: var(--kf-primary);
+  border-color: color-mix(in srgb, var(--kf-primary) 40%, var(--kf-border));
 }
 
 .wn-chip-pulse {
@@ -501,7 +501,7 @@ onUnmounted(() => {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   animation: wn-breathe 1.6s ease-in-out infinite;
 }
 

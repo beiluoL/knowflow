@@ -80,20 +80,20 @@
           <div class="form-card">
             <h3 class="card-title">选择目标知识库</h3>
             <p class="card-desc">导入的文档将作为该知识库的子分类组织</p>
-            <div class="kb-select-grid">
+            <div class="kf-select-grid">
               <div
                 v-for="cat in kbCategories"
                 :key="cat.id"
-                class="kb-select-item"
+                class="kf-select-item"
                 :class="{ selected: selectedKbId === cat.id }"
                 @click="selectedKbId = cat.id"
               >
-                <div class="kb-select-icon" :style="{ background: getKbColor(cat.id) }">
+                <div class="kf-select-icon" :style="{ background: getKbColor(cat.id) }">
                   <Icon :name="getCategoryIcon(cat.icon)" :size="20" />
                 </div>
-                <div class="kb-select-info">
-                  <p class="kb-name">{{ cat.name }}</p>
-                  <p class="kb-count">{{ cat.docCount || 0 }} 篇文档</p>
+                <div class="kf-select-info">
+                  <p class="kf-name">{{ cat.name }}</p>
+                  <p class="kf-count">{{ cat.docCount || 0 }} 篇文档</p>
                 </div>
                 <Icon v-if="selectedKbId === cat.id" name="check-circle" :size="20" class="check-icon" />
               </div>
@@ -173,7 +173,7 @@
               <input
                 v-model="pathInput"
                 type="text"
-                class="path-input kb-input kb-form-control"
+                class="path-input kf-input kf-form-control"
                 placeholder="输入绝对路径（如 /Users/xxx/docs）或相对路径（如 ./src）"
                 @keyup.enter="scanPath"
               />
@@ -265,7 +265,7 @@
             <h3 class="card-title">导入选项</h3>
             <div class="options-list">
               <!-- 按目录创建子分类 -->
-              <label class="option-item kb-checkbox-row">
+              <label class="option-item kf-checkbox-row">
                 <div class="option-info">
                   <p class="option-label">按目录层级创建子分类</p>
                   <p class="option-desc">将目录路径映射为知识库的分类树（最多 3 级，超出部分转为标签）</p>
@@ -274,7 +274,7 @@
               </label>
 
               <!-- 自动生成标签 -->
-              <label class="option-item kb-checkbox-row">
+              <label class="option-item kf-checkbox-row">
                 <div class="option-info">
                   <p class="option-label">自动生成标签</p>
                   <p class="option-desc">从目录路径、文件名、正文关键词自动提取标签</p>
@@ -283,7 +283,7 @@
               </label>
 
               <!-- AI 智能打标 -->
-              <label class="option-item kb-checkbox-row">
+              <label class="option-item kf-checkbox-row">
                 <div class="option-info">
                   <p class="option-label">AI 智能打标</p>
                   <p class="option-desc">调用大模型基于正文内容生成精准标签（较慢，消耗 token）</p>
@@ -292,7 +292,7 @@
               </label>
 
               <!-- 增量去重 -->
-              <label class="option-item kb-checkbox-row">
+              <label class="option-item kf-checkbox-row">
                 <div class="option-info">
                   <p class="option-label">增量去重</p>
                   <p class="option-desc">按来源路径 + 内容哈希判断，跳过未变更文件</p>
@@ -530,7 +530,7 @@ const selectedKbName = computed(() => {
   return kb?.name || ''
 })
 
-const kbColors = ['var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16']
+const kbColors = ['var(--kf-primary)', 'var(--kf-success)', 'var(--kf-warning)', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16']
 const getKbColor = (id: number) => {
   const idx = (id - 1) % kbColors.length
   const color = kbColors[Math.max(0, idx)]
@@ -1015,9 +1015,9 @@ onMounted(loadCategories)
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   font-size: 13px;
   font-weight: 500;
   text-decoration: none;
@@ -1034,20 +1034,20 @@ onMounted(loadCategories)
   gap: 6px;
   background: transparent;
   border: none;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   font-size: 13px;
   transition: color 0.15s;
 }
 
 .back-btn:hover {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 .page-title {
-  font-size: var(--kb-fs-h4);
-  font-weight: var(--kb-fw-h4);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-h4);
+  font-weight: var(--kf-fw-h4);
+  color: var(--kf-foreground);
 }
 
 /* ===== 步骤指示器 ===== */
@@ -1072,8 +1072,8 @@ onMounted(loadCategories)
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
   font-size: 13px;
   font-weight: 600;
   transition: all 0.2s;
@@ -1081,30 +1081,30 @@ onMounted(loadCategories)
 }
 
 .step-item.active .step-circle {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 
 .step-item.done .step-circle {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 
 .step-label {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   white-space: nowrap;
 }
 
 .step-item.active .step-label {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-weight: 500;
 }
 
 .step-connector {
   width: 40px;
   height: 2px;
-  background: var(--kb-border);
+  background: var(--kf-border);
   margin: 0 8px;
 }
 
@@ -1117,9 +1117,9 @@ onMounted(loadCategories)
 
 /* ===== 导入指南卡片 ===== */
 .guide-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   overflow: hidden;
 }
 
@@ -1129,17 +1129,17 @@ onMounted(loadCategories)
   gap: 8px;
   padding: 16px 20px;
   background: rgba(59, 111, 224, 0.06);
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .guide-icon {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 .guide-header h3 {
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .guide-body {
@@ -1157,7 +1157,7 @@ onMounted(loadCategories)
 .guide-section h4 {
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 8px;
 }
 
@@ -1169,7 +1169,7 @@ onMounted(loadCategories)
 
 .guide-section li {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.8;
   padding-left: 16px;
   position: relative;
@@ -1179,115 +1179,115 @@ onMounted(loadCategories)
   content: '·';
   position: absolute;
   left: 4px;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-weight: bold;
 }
 
 .guide-section code {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   padding: 2px 6px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-caption);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-caption);
   font-family: var(--font-mono);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 /* ===== 表单卡片 ===== */
 .form-card,
 .summary-card,
 .preview-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   padding: 20px;
 }
 
 .card-title {
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 4px;
 }
 
 .card-desc {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-bottom: 16px;
 }
 
 /* ===== 知识库选择网格 ===== */
-.kb-select-grid {
+.kf-select-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 12px;
 }
 
-.kb-select-item {
+.kf-select-item {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px;
-  border: 2px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  border: 2px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   cursor: pointer;
   transition: all 0.15s;
   position: relative;
 }
 
-.kb-select-item:hover {
+.kf-select-item:hover {
   border-color: rgba(59, 111, 224, 0.4);
 }
 
-.kb-select-item.selected {
-  border-color: var(--kb-primary);
+.kf-select-item.selected {
+  border-color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.04);
 }
 
-.kb-select-icon {
+.kf-select-icon {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   flex-shrink: 0;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
-.kb-select-info {
+.kf-select-info {
   flex: 1;
   min-width: 0;
 }
 
-.kb-name {
+.kf-name {
   font-size: 14px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.kb-count {
+.kf-count {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-top: 2px;
 }
 
 .check-icon {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   flex-shrink: 0;
 }
 
 .empty-hint {
   font-size: 14px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   text-align: center;
   padding: 24px;
 }
 
 .link-btn {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   text-decoration: underline;
 }
 
@@ -1298,15 +1298,15 @@ onMounted(loadCategories)
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  border: 2px dashed var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  border: 2px dashed var(--kf-border);
+  border-radius: var(--kf-radius-md);
   cursor: pointer;
   transition: all 0.15s;
-  background: var(--kb-card);
+  background: var(--kf-card);
 }
 
 .dir-select-zone:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.02);
 }
 
@@ -1315,20 +1315,20 @@ onMounted(loadCategories)
 }
 
 .dir-select-icon {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   margin-bottom: 12px;
 }
 
 .dir-select-title {
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 8px;
 }
 
 .dir-select-hint {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* ===== 导入方式 Tab 切换 ===== */
@@ -1336,8 +1336,8 @@ onMounted(loadCategories)
   display: flex;
   gap: 4px;
   padding: 4px;
-  background: var(--kb-muted);
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-muted);
+  border-radius: var(--kf-radius-md);
   margin-bottom: 16px;
 }
 
@@ -1350,21 +1350,21 @@ onMounted(loadCategories)
   padding: 8px 12px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 13px;
   font-weight: 500;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .mode-tab:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .mode-tab.active {
-  background: var(--kb-card);
-  color: var(--kb-primary);
+  background: var(--kf-card);
+  color: var(--kf-primary);
   box-shadow: var(--shadow-sm);
 }
 
@@ -1378,14 +1378,14 @@ onMounted(loadCategories)
   align-items: center;
   gap: 8px;
   padding: 6px;
-  background: var(--kb-card);
-  border: 2px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 2px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   transition: border-color 0.15s;
 }
 
 .path-input-row:focus-within {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 
 .path-input-icon {
@@ -1394,11 +1394,11 @@ onMounted(loadCategories)
   justify-content: center;
   width: 36px;
   height: 36px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 
-.path-input:not(.kb-form-control) {
+.path-input:not(.kf-form-control) {
   border: none;
   outline: none;
   background: transparent;
@@ -1407,13 +1407,13 @@ onMounted(loadCategories)
 .path-input {
   flex: 1;
   font-size: 14px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-family: var(--font-mono);
   padding: 8px 4px;
 }
 
 .path-input::placeholder {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .btn-scan {
@@ -1422,11 +1422,11 @@ onMounted(loadCategories)
   gap: 6px;
   padding: 8px 16px;
   border: none;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   font-size: 13px;
   font-weight: 500;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   cursor: pointer;
   transition: all 0.15s;
   flex-shrink: 0;
@@ -1444,7 +1444,7 @@ onMounted(loadCategories)
 .path-input-hint {
   margin-top: 8px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.5;
 }
 
@@ -1456,8 +1456,8 @@ onMounted(loadCategories)
   font-size: 11px;
   font-weight: 500;
   background: rgba(59, 111, 224, 0.1);
-  color: var(--kb-primary);
-  border-radius: var(--kb-radius-sm);
+  color: var(--kf-primary);
+  border-radius: var(--kf-radius-sm);
 }
 
 .path-files-list {
@@ -1472,25 +1472,25 @@ onMounted(loadCategories)
   gap: 8px;
   padding: 6px 12px;
   font-size: 13px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .path-file-item:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 .path-file-item.image .file-ext-icon {
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 
 .path-file-item .file-ext-icon {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   flex-shrink: 0;
 }
 
 .file-path-text {
   flex: 1;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-family: var(--font-mono);
   white-space: nowrap;
   overflow: hidden;
@@ -1498,7 +1498,7 @@ onMounted(loadCategories)
 }
 
 .file-size {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 11px;
   flex-shrink: 0;
 }
@@ -1507,7 +1507,7 @@ onMounted(loadCategories)
   padding: 12px;
   text-align: center;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* ===== 预览卡片 ===== */
@@ -1534,17 +1534,17 @@ onMounted(loadCategories)
 
 .stat-badge.doc {
   background: rgba(59, 111, 224, 0.1);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 .stat-badge.img {
   background: rgba(16, 185, 129, 0.1);
-  color: var(--kb-accent);
+  color: var(--kf-accent);
 }
 
 .stat-badge.dir {
   background: rgba(245, 158, 11, 0.1);
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 
 .preview-tree-container {
@@ -1565,8 +1565,8 @@ onMounted(loadCategories)
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -1582,19 +1582,19 @@ onMounted(loadCategories)
 .option-label {
   font-size: 14px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 2px;
 }
 
 .option-desc {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .option-checkbox {
   width: 18px;
   height: 18px;
-  accent-color: var(--kb-primary);
+  accent-color: var(--kf-primary);
   cursor: pointer;
 }
 
@@ -1609,19 +1609,19 @@ onMounted(loadCategories)
   display: flex;
   justify-content: space-between;
   padding: 12px 16px;
-  background: var(--kb-muted);
-  border-radius: var(--kb-radius-sm);
+  background: var(--kf-muted);
+  border-radius: var(--kf-radius-sm);
 }
 
 .summary-label {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .summary-value {
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 /* ===== 步骤操作按钮 ===== */
@@ -1638,7 +1638,7 @@ onMounted(loadCategories)
   align-items: center;
   gap: 6px;
   padding: 10px 20px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -1647,8 +1647,8 @@ onMounted(loadCategories)
 }
 
 .btn-primary {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -1661,12 +1661,12 @@ onMounted(loadCategories)
 }
 
 .btn-secondary {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 
 .btn-secondary:hover {
-  background: var(--kb-border);
+  background: var(--kf-border);
 }
 
 /* ===== 导入进度 ===== */
@@ -1674,9 +1674,9 @@ onMounted(loadCategories)
   display: flex;
   flex-direction: column;
   padding: 24px 20px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   gap: 16px;
 }
 
@@ -1687,7 +1687,7 @@ onMounted(loadCategories)
 }
 
 .progress-spinner {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   flex-shrink: 0;
 }
 
@@ -1706,15 +1706,15 @@ onMounted(loadCategories)
 }
 
 .progress-title {
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 4px;
 }
 
 .progress-hint {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -1722,7 +1722,7 @@ onMounted(loadCategories)
 }
 
 .progress-hint .current-file {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-family: var(--font-mono);
   font-size: 12px;
 }
@@ -1733,10 +1733,10 @@ onMounted(loadCategories)
   gap: 6px;
   padding: 6px 12px;
   font-size: 13px;
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
   background: rgba(239, 68, 68, 0.08);
   border: 1px solid rgba(239, 68, 68, 0.25);
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   cursor: pointer;
   transition: all 0.15s;
   flex-shrink: 0;
@@ -1755,14 +1755,14 @@ onMounted(loadCategories)
 .progress-bar-container {
   width: 100%;
   height: 8px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   border-radius: 999px;
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   border-radius: 999px;
   transition: width 0.3s ease;
 }
@@ -1776,8 +1776,8 @@ onMounted(loadCategories)
 
 .progress-percent {
   font-weight: 600;
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-body-lg);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-body-lg);
 }
 
 .progress-counts {
@@ -1786,13 +1786,13 @@ onMounted(loadCategories)
   font-size: 12px;
 }
 
-.progress-counts .cnt-success { color: var(--kb-accent); }
-.progress-counts .cnt-skipped { color: var(--kb-warning); }
-.progress-counts .cnt-failed { color: var(--kb-destructive); }
+.progress-counts .cnt-success { color: var(--kf-accent); }
+.progress-counts .cnt-skipped { color: var(--kf-warning); }
+.progress-counts .cnt-failed { color: var(--kf-destructive); }
 
 .file-progress-list {
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
   overflow: hidden;
 }
 
@@ -1800,9 +1800,9 @@ onMounted(loadCategories)
   padding: 8px 12px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-muted-foreground);
-  background: var(--kb-muted);
-  border-bottom: 1px solid var(--kb-border);
+  color: var(--kf-muted-foreground);
+  background: var(--kf-muted);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .file-progress-body {
@@ -1816,28 +1816,28 @@ onMounted(loadCategories)
   gap: 8px;
   padding: 8px 12px;
   font-size: 12px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .file-progress-item:last-child {
   border-bottom: none;
 }
 
-.file-progress-item.success .file-status-icon { color: var(--kb-accent); }
-.file-progress-item.skipped .file-status-icon { color: var(--kb-warning); }
-.file-progress-item.failed .file-status-icon { color: var(--kb-destructive); }
+.file-progress-item.success .file-status-icon { color: var(--kf-accent); }
+.file-progress-item.skipped .file-status-icon { color: var(--kf-warning); }
+.file-progress-item.failed .file-status-icon { color: var(--kf-destructive); }
 
 .file-progress-item .file-path {
   flex: 1;
   font-family: var(--font-mono);
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .file-progress-item .file-message {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 11px;
   flex-shrink: 0;
   max-width: 200px;
@@ -1848,9 +1848,9 @@ onMounted(loadCategories)
 
 /* ===== 导入结果 ===== */
 .result-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   padding: 24px;
 }
 
@@ -1872,18 +1872,18 @@ onMounted(loadCategories)
 
 .result-icon.success {
   background: rgba(16, 185, 129, 0.1);
-  color: var(--kb-accent);
+  color: var(--kf-accent);
 }
 
 .result-icon.partial {
   background: rgba(245, 158, 11, 0.1);
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 
 .result-title {
-  font-size: var(--kb-fs-h4);
-  font-weight: var(--kb-fw-h4);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-h4);
+  font-weight: var(--kf-fw-h4);
+  color: var(--kf-foreground);
 }
 
 .result-stats {
@@ -1898,7 +1898,7 @@ onMounted(loadCategories)
   flex-direction: column;
   align-items: center;
   padding: 16px 8px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
 }
 
 .stat-item.success {
@@ -1920,17 +1920,17 @@ onMounted(loadCategories)
 .stat-num {
   font-size: 24px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
-.stat-item.success .stat-num { color: var(--kb-accent); }
-.stat-item.skipped .stat-num { color: var(--kb-primary); }
-.stat-item.failed .stat-num { color: var(--kb-destructive); }
-.stat-item.images .stat-num { color: var(--kb-warning); }
+.stat-item.success .stat-num { color: var(--kf-accent); }
+.stat-item.skipped .stat-num { color: var(--kf-primary); }
+.stat-item.failed .stat-num { color: var(--kf-destructive); }
+.stat-item.images .stat-num { color: var(--kf-warning); }
 
 .stat-text {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-top: 4px;
 }
 
@@ -1942,7 +1942,7 @@ onMounted(loadCategories)
 .section-subtitle {
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 8px;
 }
 
@@ -1958,8 +1958,8 @@ onMounted(loadCategories)
   gap: 4px;
   padding: 4px 10px;
   background: rgba(59, 111, 224, 0.08);
-  color: var(--kb-primary);
-  border-radius: var(--kb-radius-sm);
+  color: var(--kf-primary);
+  border-radius: var(--kf-radius-sm);
   font-size: 12px;
 }
 
@@ -1968,7 +1968,7 @@ onMounted(loadCategories)
   display: flex;
   gap: 4px;
   margin-bottom: 12px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .log-tab {
@@ -1979,19 +1979,19 @@ onMounted(loadCategories)
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .log-tab:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .log-tab.active {
-  color: var(--kb-primary);
-  border-bottom-color: var(--kb-primary);
+  color: var(--kf-primary);
+  border-bottom-color: var(--kf-primary);
   font-weight: 500;
 }
 
@@ -2003,15 +2003,15 @@ onMounted(loadCategories)
   height: 18px;
   padding: 0 6px;
   border-radius: 999px;
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
   font-size: 11px;
   font-weight: 600;
 }
 
 .log-tab.active .tab-count {
   background: rgba(59, 111, 224, 0.15);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 /* ===== 日志列表 ===== */
@@ -2025,7 +2025,7 @@ onMounted(loadCategories)
   align-items: flex-start;
   gap: 8px;
   padding: 8px 0;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .log-item:last-child {
@@ -2038,15 +2038,15 @@ onMounted(loadCategories)
 }
 
 .log-item.success .log-item-icon {
-  color: var(--kb-accent);
+  color: var(--kf-accent);
 }
 
 .log-item.skipped .log-item-icon {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 .log-item.failed .log-item-icon {
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 
 .log-item-info {
@@ -2056,31 +2056,31 @@ onMounted(loadCategories)
 
 .log-item-path {
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-family: var(--font-mono);
   word-break: break-all;
 }
 
 .log-item-msg {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-top: 2px;
 }
 
 .log-item-cat {
   flex-shrink: 0;
   padding: 2px 8px;
-  background: var(--kb-muted);
-  border-radius: var(--kb-radius-sm);
+  background: var(--kf-muted);
+  border-radius: var(--kf-radius-sm);
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   white-space: nowrap;
 }
 
 .log-empty {
   text-align: center;
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 20px;
 }
 
@@ -2098,7 +2098,7 @@ onMounted(loadCategories)
     width: 24px;
   }
 
-  .kb-select-grid {
+  .kf-select-grid {
     grid-template-columns: 1fr;
   }
 

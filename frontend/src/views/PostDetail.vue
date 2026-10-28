@@ -27,7 +27,7 @@
     <div v-else class="flex gap-8">
       <article class="flex-1 min-w-0 space-y-4">
         <!-- 帖子正文 -->
-        <div class="border rounded-[10px] p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
+        <div class="border rounded-[10px] p-5" style="background: var(--kf-card); border-color: var(--kf-border);">
           <div class="flex items-center gap-2.5 mb-3">
             <div
               class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold text-white shrink-0"
@@ -55,11 +55,11 @@
           </div>
 
           <!-- 互动数据 + 点赞 -->
-          <div class="flex items-center gap-5 mt-4 pt-4" style="border-top: 1px solid var(--kb-border);">
+          <div class="flex items-center gap-5 mt-4 pt-4" style="border-top: 1px solid var(--kf-border);">
             <button
               @click="toggleLike"
               :disabled="liking"
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium border transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 active:bg-primary-100"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium border transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 active:bg-primary-100"
               :class="likedByMe
                 ? 'text-primary-600 border-primary-300 bg-primary-50'
                 : 'text-muted-foreground border-border hover:border-primary-300 hover:text-primary-600'"
@@ -89,7 +89,7 @@
 
       <!-- 右侧信息边栏：作者信息 + 帖子数据（lg 及以上展示，移动端自动隐藏） -->
       <aside class="hidden lg:block w-56 flex-shrink-0">
-        <div class="sticky top-20 rounded-xl border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
+        <div class="sticky top-20 rounded-xl border p-5" style="background: var(--kf-card); border-color: var(--kf-border);">
           <!-- 作者信息 -->
           <h3 class="text-[13px] font-medium text-foreground mb-3">作者</h3>
           <div class="flex items-center gap-3">
@@ -104,7 +104,7 @@
           </div>
 
           <!-- 帖子数据 -->
-          <div class="mt-4 pt-4 space-y-2 text-xs" style="border-top: 1px solid var(--kb-border);">
+          <div class="mt-4 pt-4 space-y-2 text-xs" style="border-top: 1px solid var(--kf-border);">
             <div class="flex items-center justify-between">
               <span class="flex items-center gap-1.5 text-muted-foreground"><Icon name="eye" :size="12" />浏览</span>
               <span class="tabular-nums text-foreground">{{ formatViewCount(post.viewCount) }}</span>
@@ -249,16 +249,16 @@ function formatViewCount(count?: number): string {
 </script>
 
 <style scoped>
-/* UI/UX 5.1 §十四/§十八：空态行动按钮走 --kb-* 令牌（原 text-white/bg-primary-500
+/* UI/UX 5.1 §十四/§十八：空态行动按钮走 --kf-* 令牌（原 text-white/bg-primary-500
    是 Tailwind 原色板硬编码，深色模式会与设计系统分叉） */
 .pd-empty-back {
   margin-top: 8px;
   padding: 8px 16px;
   border: none;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
-  font-size: var(--kb-fs-body-sm);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
   cursor: pointer;
   transition: opacity 0.15s ease;
@@ -270,7 +270,7 @@ function formatViewCount(count?: number): string {
 
 .pd-empty-back:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--kb-ring);
+  box-shadow: 0 0 0 2px var(--kf-ring);
 }
 
 .animate-fade-in {

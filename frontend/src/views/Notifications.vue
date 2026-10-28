@@ -4,12 +4,12 @@
     <!-- ===== 页头：标题 + 未读徽章 + 全部已读按钮 ===== -->
     <div class="page-header">
       <div class="title-group">
-        <h1 class="kb-h1">消息中心</h1>
+        <h1 class="kf-h1">消息中心</h1>
         <span v-if="unreadCount > 0" class="unread-pill">{{ unreadCount }} 条未读</span>
       </div>
       <button
         type="button"
-        class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         :disabled="unreadCount === 0"
         @click="handleMarkAllRead"
       >
@@ -23,7 +23,7 @@
       <button
         v-for="tab in typeTabs"
         :key="tab.value"
-        class="tab-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="tab-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: selectedType === tab.value }"
         @click="handleTypeChange(tab.value)"
       >
@@ -52,7 +52,7 @@
         <div
           v-for="item in notificationList"
           :key="item.id"
-          class="notif-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="notif-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ unread: item.isRead === 0 }"
           role="button"
           tabindex="0"
@@ -78,7 +78,7 @@
       <div v-if="hasMore" class="load-more-wrap">
         <button
           type="button"
-          class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="loadingMore"
           @click="handleLoadMore"
         >
@@ -210,13 +210,13 @@ function getTypeIcon(type: string): string {
 function getTypeIconStyle(type: string): Record<string, string> {
   switch (type) {
     case 'SYSTEM':
-      return { background: 'rgba(59,111,224,0.08)', color: 'var(--kb-primary)' };
+      return { background: 'rgba(59,111,224,0.08)', color: 'var(--kf-primary)' };
     case 'LEARNING':
-      return { background: 'rgba(16,185,129,0.08)', color: 'var(--kb-accent)' };
+      return { background: 'rgba(16,185,129,0.08)', color: 'var(--kf-accent)' };
     case 'COMMUNITY':
-      return { background: 'rgba(239,68,68,0.08)', color: 'var(--kb-destructive)' };
+      return { background: 'rgba(239,68,68,0.08)', color: 'var(--kf-destructive)' };
     default:
-      return { background: 'rgba(59,111,224,0.08)', color: 'var(--kb-primary)' };
+      return { background: 'rgba(59,111,224,0.08)', color: 'var(--kf-primary)' };
   }
 }
 
@@ -278,7 +278,7 @@ onMounted(() => {
   font-weight: 500;
   padding: 2px 10px;
   border-radius: 999px;
-  background: var(--kb-destructive);
+  background: var(--kf-destructive);
   color: #fff;
 }
 
@@ -289,29 +289,29 @@ onMounted(() => {
   gap: 6px;
   height: 34px;
   padding: 0 14px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   font-size: 13px;
   font-weight: 500;
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   transition: background 0.15s, opacity 0.15s;
 }
-.btn-secondary:hover:not(:disabled) { background: var(--kb-muted); }
+.btn-secondary:hover:not(:disabled) { background: var(--kf-muted); }
 .btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ===== 下划线 Tabs ===== */
 .tab-bar {
   display: flex;
   gap: 0;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 .tab-item {
   padding: 10px 20px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
@@ -319,10 +319,10 @@ onMounted(() => {
   transition: color 0.15s, border-color 0.15s;
   margin-bottom: -1px;
 }
-.tab-item:hover { color: var(--kb-primary); }
+.tab-item:hover { color: var(--kf-primary); }
 .tab-item.active {
-  color: var(--kb-primary);
-  border-bottom-color: var(--kb-primary);
+  color: var(--kf-primary);
+  border-bottom-color: var(--kf-primary);
 }
 
 /* ===== 加载 / 空态 ===== */
@@ -337,8 +337,8 @@ onMounted(() => {
 .loading-spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid var(--kb-muted);
-  border-top-color: var(--kb-primary);
+  border: 3px solid var(--kf-muted);
+  border-top-color: var(--kf-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -347,21 +347,21 @@ onMounted(() => {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
-.empty-icon { color: var(--kb-muted-foreground); }
+.empty-icon { color: var(--kf-muted-foreground); }
 .state-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .state-text {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* ===== 通知列表（设计稿 notif-item） ===== */
@@ -374,9 +374,9 @@ onMounted(() => {
   display: flex;
   gap: 12px;
   padding: 16px 20px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
   transition: box-shadow 0.15s, transform 0.15s;
   cursor: pointer;
 }
@@ -385,7 +385,7 @@ onMounted(() => {
 }
 /* 未读：左侧 4px 主题色边 + 极淡蓝色背景 */
 .notif-item.unread {
-  border-left: 4px solid var(--kb-primary);
+  border-left: 4px solid var(--kf-primary);
   background: rgba(59, 111, 224, 0.02);
 }
 
@@ -413,7 +413,7 @@ onMounted(() => {
 .notif-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -424,12 +424,12 @@ onMounted(() => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
 }
 .notif-content {
   font-size: 14px;
   line-height: 1.6;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-bottom: 6px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -439,7 +439,7 @@ onMounted(() => {
 .notif-time {
   font-size: 12px;
   line-height: 1.5;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* ===== 加载更多 ===== */

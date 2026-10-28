@@ -3,9 +3,9 @@
   <div class="file-mgmt-wrap">
     <!-- 页面标题 -->
     <div class="page-head">
-      <h1 class="kb-h1">文件管理</h1>
+      <h1 class="kf-h1">文件管理</h1>
       <div class="flex items-center gap-2">
-        <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="loadData">
+        <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="loadData">
           <Icon name="refresh-cw" :size="14" aria-hidden="true" />
           <span>刷新</span>
         </button>
@@ -15,7 +15,7 @@
     <!-- 存储统计卡片 -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon" style="background: rgba(59,111,224,0.1); color: var(--kb-primary);">
+        <div class="stat-icon" style="background: rgba(59,111,224,0.1); color: var(--kf-primary);">
           <Icon name="file" :size="20" />
         </div>
         <div class="stat-info">
@@ -24,7 +24,7 @@
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: var(--kb-success);">
+        <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: var(--kf-success);">
           <Icon name="hard-drive" :size="20" />
         </div>
         <div class="stat-info">
@@ -33,7 +33,7 @@
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: var(--kb-warning);">
+        <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: var(--kf-warning);">
           <Icon name="image" :size="20" />
         </div>
         <div class="stat-info">
@@ -55,13 +55,13 @@
     <!-- 上传目录配置卡片 -->
     <div class="config-card">
       <div class="config-head">
-        <h3 class="kb-h3">
-          <Icon name="folder" :size="18" class="mr-2" style="color: var(--kb-primary);" />
+        <h3 class="kf-h3">
+          <Icon name="folder" :size="18" class="mr-2" style="color: var(--kf-primary);" />
           上传目录配置
         </h3>
         <button
           v-if="!editingDir"
-          class="btn-secondary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="btn-secondary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           @click="startEditDir"
         >
           <Icon name="pencil" :size="14" aria-hidden="true" />
@@ -86,10 +86,10 @@
           <input
             v-model="newDir"
             type="text"
-            class="dir-input transition-colors kb-input kb-form-control"
+            class="dir-input transition-colors kf-input kf-form-control"
             placeholder="输入上传目录的绝对路径，如 /Users/xxx/knowflow/uploads"
           />
-          <button class="btn-secondary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="pickDirectory" title="选择本地文件夹">
+          <button class="btn-secondary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="pickDirectory" title="选择本地文件夹">
             <Icon name="folder" :size="14" aria-hidden="true" />
             <span>选择文件夹</span>
           </button>
@@ -99,11 +99,11 @@
           <span>修改目录后需重启后端才能让 /uploads 静态资源映射生效。已有文件不会自动迁移。</span>
         </div>
         <div class="flex items-center gap-2 mt-3">
-          <button class="btn-primary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="savingDir" @click="saveDir">
+          <button class="btn-primary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="savingDir" @click="saveDir">
             <Icon name="check" :size="14" aria-hidden="true" />
             <span>{{ savingDir ? '保存中...' : '保存配置' }}</span>
           </button>
-          <button class="btn-secondary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="editingDir = false">取消</button>
+          <button class="btn-secondary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="editingDir = false">取消</button>
         </div>
       </div>
     </div>
@@ -111,7 +111,7 @@
     <!-- 文件列表 -->
     <div class="section-card">
       <div class="section-head">
-        <h3 class="kb-h3">文件列表（共 {{ total }} 个）</h3>
+        <h3 class="kf-h3">文件列表（共 {{ total }} 个）</h3>
       </div>
       <!-- 筛选栏 -->
       <div class="filter-bar">
@@ -119,7 +119,7 @@
           <button
             v-for="t in typeFilters"
             :key="t.value"
-            class="kb-filter-btn hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="kf-filter-btn hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             :class="{ active: filterType === t.value }"
             @click="filterType = t.value"
           >{{ t.label }}</button>
@@ -127,11 +127,11 @@
           <input
             v-model="keyword"
             type="text"
-            class="search-input transition-colors kb-input kb-form-control"
+            class="search-input transition-colors kf-input kf-form-control"
             placeholder="搜索文件名..."
             @keydown.enter="applyFilter"
           />
-        <button class="btn-secondary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="applyFilter">
+        <button class="btn-secondary btn-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="applyFilter">
           <Icon name="search" :size="14" aria-hidden="true" />
           <span>搜索</span>
         </button>
@@ -145,7 +145,7 @@
 
       <!-- 空状态 -->
       <div v-else-if="files.length === 0" class="empty-tip">
-        <Icon name="inbox" :size="32" style="color: var(--kb-muted-foreground);" />
+        <Icon name="inbox" :size="32" style="color: var(--kf-muted-foreground);" />
         <span>暂无上传文件</span>
       </div>
 
@@ -153,7 +153,7 @@
       <div v-else class="file-grid">
         <div v-for="file in files" :key="file.fileUrl" class="file-card">
           <!-- 文件预览 -->
-          <div class="file-preview focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @click="previewFile(file)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
+          <div class="file-preview focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @click="previewFile(file)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
             <img v-if="file.isImage" :src="file.fileUrl" :alt="file.fileName" loading="lazy" />
             <div v-else class="file-icon-large">
               <Icon :name="getFileIcon(file.extension)" :size="36" />
@@ -173,7 +173,7 @@
           <!-- 操作按钮 -->
           <div class="file-actions">
             <button
-              class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
               title="复制链接"
               @click="copyUrl(file.fileUrl)"
             >
@@ -184,13 +184,13 @@
               :href="file.fileUrl"
               target="_blank"
               rel="noopener"
-              class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
               title="新窗口打开"
             >
               <Icon name="external-link" :size="14" aria-hidden="true" />
             </a>
             <button
-              class="icon-btn danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="icon-btn danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
               title="删除"
               @click="deleteFile(file)"
             >
@@ -203,13 +203,13 @@
       <!-- 分页 -->
       <div v-if="total > pageSize" class="pagination-bar">
         <button
-          class="page-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="page-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="page <= 1"
           @click="page--; loadData()"
         >上一页</button>
         <span class="page-info">第 {{ page }} / {{ totalPages }} 页</span>
         <button
-          class="page-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="page-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="page >= totalPages"
           @click="page++; loadData()"
         >下一页</button>
@@ -224,7 +224,7 @@
       directory
       multiple
       style="display: none"
-      class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+      class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
       @change="onDirectoryPicked"
     />
   </div>
@@ -427,7 +427,7 @@ onMounted(() => {
 .page-head h1 {
   font-size: 28px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
 }
 
@@ -443,8 +443,8 @@ onMounted(() => {
   align-items: center;
   gap: 14px;
   padding: 18px 20px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 12px;
   box-shadow: var(--shadow-card);
 }
@@ -465,18 +465,18 @@ onMounted(() => {
 .stat-value {
   font-size: 22px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1.2;
 }
 .stat-label {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* 目录配置卡片 */
 .config-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 12px;
   padding: 20px 24px;
   margin-bottom: 24px;
@@ -493,7 +493,7 @@ onMounted(() => {
   align-items: center;
   font-size: 16px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
 }
 .config-body {
@@ -508,14 +508,14 @@ onMounted(() => {
   font-size: 13px;
 }
 .config-label {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 .config-value {
   font-family: var(--font-mono);
   font-size: 13px;
-  color: var(--kb-foreground);
-  background: var(--kb-muted);
+  color: var(--kf-foreground);
+  background: var(--kf-muted);
   padding: 3px 8px;
   border-radius: 4px;
   word-break: break-all;
@@ -524,25 +524,25 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--kb-success);
+  color: var(--kf-success);
   font-size: 13px;
 }
 .status-warn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--kb-warning);
+  color: var(--kf-warning);
   font-size: 13px;
 }
 .config-edit {
   display: flex;
   flex-direction: column;
 }
-.dir-input:not(.kb-form-control) {
+.dir-input:not(.kf-form-control) {
   height: 38px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 8px;
-  background: var(--kb-card);
+  background: var(--kf-card);
   outline: none;
   transition: border-color 0.15s;
 }
@@ -551,10 +551,10 @@ onMounted(() => {
   padding: 0 12px;
   font-size: 13px;
   font-family: var(--font-mono);
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
-.dir-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.dir-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
 .config-tip {
@@ -562,7 +562,7 @@ onMounted(() => {
   align-items: flex-start;
   gap: 6px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-top: 8px;
 }
 .config-tip svg {
@@ -585,7 +585,7 @@ onMounted(() => {
   transition: all 0.15s ease;
 }
 .btn-primary {
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
 }
 .btn-primary:hover {
@@ -596,12 +596,12 @@ onMounted(() => {
   cursor: not-allowed;
 }
 .btn-secondary {
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  border: 1px solid var(--kf-border);
 }
 .btn-secondary:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .btn-sm {
   height: 30px;
@@ -611,8 +611,8 @@ onMounted(() => {
 
 /* 文件列表区 */
 .section-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 12px;
   padding: 20px 24px;
   box-shadow: var(--shadow-card);
@@ -623,7 +623,7 @@ onMounted(() => {
 .section-head h3 {
   font-size: 16px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
 }
 
@@ -638,32 +638,32 @@ onMounted(() => {
 .filter-group {
   display: flex;
   gap: 4px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   border-radius: 8px;
   padding: 3px;
 }
-.kb-filter-btn {
+.kf-filter-btn {
   height: 28px;
   padding: 0 12px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 12px;
   font-weight: 500;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.15s;
 }
-.kb-filter-btn.active {
-  background: var(--kb-card);
-  color: var(--kb-primary);
+.kf-filter-btn.active {
+  background: var(--kf-card);
+  color: var(--kf-primary);
   box-shadow: var(--shadow-sm);
 }
-.search-input:not(.kb-form-control) {
+.search-input:not(.kf-form-control) {
   height: 32px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 8px;
-  background: var(--kb-card);
+  background: var(--kf-card);
   outline: none;
 }
 .search-input {
@@ -671,10 +671,10 @@ onMounted(() => {
   min-width: 200px;
   padding: 0 12px;
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
-.search-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.search-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 
 /* 空状态 */
@@ -685,7 +685,7 @@ onMounted(() => {
   justify-content: center;
   gap: 10px;
   padding: 60px 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 14px;
 }
 
@@ -696,10 +696,10 @@ onMounted(() => {
   gap: 16px;
 }
 .file-card {
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 10px;
   overflow: hidden;
-  background: var(--kb-card);
+  background: var(--kf-card);
   transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 .file-card:hover {
@@ -709,7 +709,7 @@ onMounted(() => {
 .file-preview {
   width: 100%;
   height: 120px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -726,7 +726,7 @@ onMounted(() => {
   transform: scale(1.05);
 }
 .file-icon-large {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .file-info {
   padding: 10px 12px;
@@ -734,7 +734,7 @@ onMounted(() => {
 .file-name {
   font-size: 12px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -745,7 +745,7 @@ onMounted(() => {
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .meta-dot {
   opacity: 0.5;
@@ -762,22 +762,22 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 6px;
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: all 0.15s;
 }
 .icon-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-primary);
-  border-color: var(--kb-primary);
+  background: var(--kf-muted);
+  color: var(--kf-primary);
+  border-color: var(--kf-primary);
 }
 .icon-btn.danger:hover {
   background: rgba(239, 68, 68, 0.08);
-  color: var(--kb-destructive);
-  border-color: var(--kb-destructive);
+  color: var(--kf-destructive);
+  border-color: var(--kf-destructive);
 }
 
 /* 分页 */
@@ -791,17 +791,17 @@ onMounted(() => {
 .page-btn {
   height: 32px;
   padding: 0 14px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 8px;
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.15s;
 }
 .page-btn:hover:not(:disabled) {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .page-btn:disabled {
   opacity: 0.4;
@@ -809,6 +809,6 @@ onMounted(() => {
 }
 .page-info {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 </style>

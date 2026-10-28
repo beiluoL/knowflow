@@ -46,4 +46,4 @@ async function begin(){if(!active.value)return;const row=await run('begin',()=>m
 async function saveDraft(){if(!active.value)return;const row=await run('draft',()=>microApi.draft(active.value!.id,answer.value));if(row)active.value=row}
 async function submit(){if(!active.value||!answer.value)return;const row=await run('submit',()=>microApi.submit(active.value!.id,answer.value));if(row){resume(row);if(row.state==='COMPLETED')emit('completed',row)}}
 </script>
-<style scoped>.kf-micro{display:grid;gap:var(--kb-space-3)}.kf-micro form{display:grid;gap:var(--kb-space-3)}.kf-micro article{padding-block:var(--kb-space-3)}.kf-micro blockquote{padding:var(--kb-space-3);background:var(--kb-surface-2)}.kf-micro [role=alert]{color:var(--kb-danger-text)}</style>
+<style scoped>.kf-micro{display:grid;gap:var(--kf-space-3)}.kf-micro form{display:grid;gap:var(--kf-space-3)}.kf-micro article{padding-block:var(--kf-space-3)}.kf-micro blockquote{padding:var(--kf-space-3);background:var(--kf-surface-2)}.kf-micro [role=alert]{color:var(--kf-danger-text)}</style>

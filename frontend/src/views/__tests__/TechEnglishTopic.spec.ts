@@ -146,7 +146,7 @@ describe('TechEnglishTopic 专题学习路径', () => {
 
   it('待学 / 已学 / 待复习筛选只影响列表展示', async () => {
     const { wrapper } = await mountPage()
-    const buttons = wrapper.findAll('.kb-filter-btn')
+    const buttons = wrapper.findAll('.kf-filter-btn')
 
     await buttons.find((b) => b.text() === '待复习')!.trigger('click')
     await flushPromises()
@@ -203,7 +203,7 @@ describe('TechEnglishTopic 专题学习路径', () => {
     const { wrapper } = await mountPage()
     expect(wrapper.text()).toContain('专题加载失败')
     api.getTopic.mockResolvedValue(JSON.parse(JSON.stringify(TOPIC)))
-    await wrapper.get('.kb-state-retry').trigger('click')
+    await wrapper.get('.kf-state-retry').trigger('click')
     await flushPromises()
     expect(wrapper.findAll('.te-path-word').length).toBe(3)
   })

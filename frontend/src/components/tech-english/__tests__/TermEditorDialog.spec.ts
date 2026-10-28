@@ -112,15 +112,15 @@ describe('专业英语新建/编辑词条弹窗', () => {
       expect(labels.some((text) => text.startsWith(name)), `缺少字段：${name}`).toBe(true)
     }
 
-    // 控件必须与 Label 同级（不在灰底容器内部），且 Select 走全局 .kb-select
+    // 控件必须与 Label 同级（不在灰底容器内部），且 Select 走全局 .kf-select
     for (const item of wrapper.findAll('.te-field')) {
       expect(item.find('.te-label').exists()).toBe(true)
       const control = item.find('input, select, textarea')
       expect(control.exists()).toBe(true)
       expect(control.element.parentElement?.classList.contains('te-field')).toBe(true)
     }
-    expect(wrapper.findAll('select.kb-select').length).toBeGreaterThan(0)
-    expect(wrapper.find('.kb-field').exists()).toBe(false)
+    expect(wrapper.findAll('select.kf-select').length).toBeGreaterThan(0)
+    expect(wrapper.find('.kf-field').exists()).toBe(false)
     wrapper.unmount()
   })
 

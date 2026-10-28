@@ -13,13 +13,13 @@
       <Icon :name="icon" :size="32" :class="iconClass" />
     </div>
     <!-- ① 发生了什么 -->
-    <h3 class="mb-2 font-semibold text-foreground" :style="{ fontSize: 'var(--kb-fs-body-lg)' }">
+    <h3 class="mb-2 font-semibold text-foreground" :style="{ fontSize: 'var(--kf-fs-body-lg)' }">
       {{ title }}
     </h3>
     <!-- ② 为什么为空（+ ③ 下一步由 action 插槽表达，见下） -->
     <div
       class="max-w-sm text-muted-foreground"
-      :style="{ fontSize: 'var(--kb-fs-body-md)', lineHeight: 'var(--kb-lh-body-md)' }"
+      :style="{ fontSize: 'var(--kf-fs-body-md)', lineHeight: 'var(--kf-lh-body-md)' }"
     >
       <slot>
         <p>{{ description }}</p>
@@ -41,8 +41,8 @@
 //
 // Phase UI-1 变更：
 //   原先使用 Tailwind 原色板硬编码（bg-blue-50 / bg-yellow-50 / bg-green-50 / text-warning-500…），
-//   与同级的 ErrorState.vue（走 .kb-state-* 令牌类）实现不一致，深色模式必然分叉。
-//   现全部改为 --kb-* 语义令牌，与 ErrorState 视觉体系对齐。
+//   与同级的 ErrorState.vue（走 .kf-state-* 令牌类）实现不一致，深色模式必然分叉。
+//   现全部改为 --kf-* 语义令牌，与 ErrorState 视觉体系对齐。
 import { computed } from 'vue'
 import Icon from '@/components/ui/Icon.vue'
 
@@ -63,26 +63,26 @@ const props = withDefaults(defineProps<Props>(), {
 const iconBgClass = computed(() => {
   switch (props.variant) {
     case 'info':
-      return 'bg-[var(--kb-primary-subtle)]'
+      return 'bg-[var(--kf-primary-subtle)]'
     case 'warning':
-      return 'bg-[var(--kb-warning-subtle)]'
+      return 'bg-[var(--kf-warning-subtle)]'
     case 'success':
-      return 'bg-[var(--kb-success-subtle)]'
+      return 'bg-[var(--kf-success-subtle)]'
     default:
-      return 'bg-[var(--kb-muted)]'
+      return 'bg-[var(--kf-muted)]'
   }
 })
 
 const iconClass = computed(() => {
   switch (props.variant) {
     case 'info':
-      return 'text-[var(--kb-state-info)]'
+      return 'text-[var(--kf-state-info)]'
     case 'warning':
-      return 'text-[var(--kb-state-warning)]'
+      return 'text-[var(--kf-state-warning)]'
     case 'success':
-      return 'text-[var(--kb-state-success)]'
+      return 'text-[var(--kf-state-success)]'
     default:
-      return 'text-[var(--kb-muted-foreground)]'
+      return 'text-[var(--kf-muted-foreground)]'
   }
 })
 </script>

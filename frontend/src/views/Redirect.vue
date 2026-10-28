@@ -8,14 +8,14 @@
       <p class="text-[14px] text-muted-foreground mb-6">
         {{ message }}
       </p>
-      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-card border border-[var(--kb-border)] text-[13px] text-muted-foreground">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-card border border-[var(--kf-border)] text-[13px] text-muted-foreground">
         <span class="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
         {{ countdown }} 秒后自动跳转
       </div>
       <div class="mt-6">
         <router-link
           to="/"
-          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-[14px] font-medium bg-primary-500 text-white hover:bg-primary-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-[14px] font-medium bg-primary-500 text-white hover:bg-primary-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
         >
           <Icon name="home" :size="16" aria-hidden="true" />
           立即返回首页

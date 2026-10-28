@@ -51,9 +51,9 @@ function onClick(event: MouseEvent) {
 
 <style scoped>
 .chat-markdown {
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   line-height: 1.72;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow-wrap: anywhere;
 }
 .chat-markdown-html { display: block; }
@@ -62,13 +62,13 @@ function onClick(event: MouseEvent) {
 .chat-markdown :deep(:is(h1, h2, h3, h4)) {
   margin: 1.35em 0 0.6em;
   line-height: 1.35;
-  font-weight: var(--kb-fw-h3);
+  font-weight: var(--kf-fw-h3);
   letter-spacing: -0.01em;
 }
 /* UI/UX V1.0：AI 正文标题改走语义字号令牌，不再用 1.45em/1.25em 等非阶梯值 */
-.chat-markdown :deep(h1) { font-size: var(--kb-fs-h3); }
-.chat-markdown :deep(h2) { font-size: var(--kb-fs-h4); }
-.chat-markdown :deep(h3) { font-size: var(--kb-fs-body-lg); }
+.chat-markdown :deep(h1) { font-size: var(--kf-fs-h3); }
+.chat-markdown :deep(h2) { font-size: var(--kf-fs-h4); }
+.chat-markdown :deep(h3) { font-size: var(--kf-fs-body-lg); }
 .chat-markdown :deep(h4) { font-size: 1em; }
 .chat-markdown :deep(:is(ul, ol)) {
   margin: 0.5em 0 0.9em;
@@ -79,11 +79,11 @@ function onClick(event: MouseEvent) {
 .chat-markdown :deep(blockquote) {
   margin: 0.8em 0;
   padding: 0.2em 0 0.2em 0.9em;
-  border-inline-start: 3px solid var(--kb-border);
-  color: var(--kb-muted-foreground);
+  border-inline-start: 3px solid var(--kf-border);
+  color: var(--kf-muted-foreground);
 }
 .chat-markdown :deep(a) {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   text-decoration: underline;
   text-underline-offset: 2px;
   word-break: break-word;
@@ -91,13 +91,13 @@ function onClick(event: MouseEvent) {
 .chat-markdown :deep(hr) {
   margin: 1.2em 0;
   border: 0;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 .chat-markdown :deep(code:not(pre code)) {
   padding: 0.12em 0.36em;
-  border-radius: var(--kb-radius-xs);
-  background: var(--kb-muted, rgba(15, 23, 42, 0.06));
-  font-family: var(--kb-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  border-radius: var(--kf-radius-xs);
+  background: var(--kf-muted, rgba(15, 23, 42, 0.06));
+  font-family: var(--kf-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 0.88em;
 }
 .chat-markdown :deep(pre) { margin: 0; }
@@ -112,18 +112,18 @@ function onClick(event: MouseEvent) {
 .chat-markdown :deep(th),
 .chat-markdown :deep(td) {
   padding: 7px 11px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   text-align: left;
   vertical-align: top;
 }
 .chat-markdown :deep(th) {
-  background: var(--kb-muted, #f6f7f9);
+  background: var(--kf-muted, #f6f7f9);
   font-weight: 600;
 }
 .chat-markdown :deep(img) {
   max-width: 100%;
   height: auto;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   cursor: zoom-in;
   margin-block: 0.4em;
 }
@@ -132,8 +132,8 @@ function onClick(event: MouseEvent) {
 .chat-markdown :deep(.template-variable) {
   padding: 0 3px;
   border-radius: 4px;
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.12));
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.12));
+  color: var(--kf-primary);
 }
 .chat-markdown-cursor {
   display: inline-block;
@@ -141,7 +141,7 @@ function onClick(event: MouseEvent) {
   height: 1.05em;
   margin-inline-start: 2px;
   vertical-align: text-bottom;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   animation: chat-cursor-blink 1s steps(2, start) infinite;
 }
 @keyframes chat-cursor-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }

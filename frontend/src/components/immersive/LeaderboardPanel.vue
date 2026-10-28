@@ -3,7 +3,7 @@
     <header class="lb-tabs">
       <button
         type="button"
-        class="lb-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="lb-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: activeTab === 'week' }"
         @click="activeTab = 'week'"
       >
@@ -11,7 +11,7 @@
       </button>
       <button
         type="button"
-        class="lb-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="lb-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: activeTab === 'duration' }"
         @click="activeTab = 'duration'"
       >
@@ -19,7 +19,7 @@
       </button>
       <button
         type="button"
-        class="lb-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="lb-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: activeTab === 'group' }"
         @click="activeTab = 'group'"
       >
@@ -397,7 +397,7 @@ const RankList = defineComponent({
   height: 32px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 12px;
   font-weight: 500;
   border-radius: 8px;
@@ -405,13 +405,13 @@ const RankList = defineComponent({
   transition: background 0.15s ease, color 0.15s ease;
 }
 .lb-tab:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .lb-tab.active {
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
   font-weight: 600;
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--kb-primary) 30%, transparent);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--kf-primary) 30%, transparent);
 }
 
 .lb-content {
@@ -481,7 +481,7 @@ const RankList = defineComponent({
   font-size: 18px;
   font-weight: 700;
   color: #fff;
-  background: linear-gradient(135deg, var(--kb-primary), #8B5CF6);
+  background: linear-gradient(135deg, var(--kf-primary), #8B5CF6);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 .podium-avatar.empty {
@@ -491,7 +491,7 @@ const RankList = defineComponent({
 .podium-name {
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -499,7 +499,7 @@ const RankList = defineComponent({
 }
 .podium-sub {
   font-size: 10px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-top: -2px;
 }
 .podium-bar {
@@ -532,7 +532,7 @@ const RankList = defineComponent({
 .lb-empty {
   padding: 40px 16px;
   text-align: center;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 13px;
 }
 
@@ -558,8 +558,8 @@ const RankList = defineComponent({
   background: rgba(255, 255, 255, 0.05);
 }
 .lb-row.is-me {
-  background: color-mix(in srgb, var(--kb-primary) 12%, transparent);
-  border-color: color-mix(in srgb, var(--kb-primary) 30%, transparent);
+  background: color-mix(in srgb, var(--kf-primary) 12%, transparent);
+  border-color: color-mix(in srgb, var(--kf-primary) 30%, transparent);
 }
 
 .lb-rank {
@@ -568,11 +568,11 @@ const RankList = defineComponent({
   text-align: center;
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-variant-numeric: tabular-nums;
 }
 .lb-rank.me-rank {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-weight: 700;
   font-size: 10px;
   letter-spacing: 0.04em;
@@ -590,7 +590,7 @@ const RankList = defineComponent({
   font-size: 12px;
   font-weight: 700;
   color: #fff;
-  background: linear-gradient(135deg, var(--kb-primary), #8B5CF6);
+  background: linear-gradient(135deg, var(--kf-primary), #8B5CF6);
 }
 
 .lb-main {
@@ -609,7 +609,7 @@ const RankList = defineComponent({
 .lb-name {
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -619,8 +619,8 @@ const RankList = defineComponent({
   font-size: 10px;
   font-weight: 600;
   padding: 1px 6px;
-  color: var(--kb-primary);
-  background: color-mix(in srgb, var(--kb-primary) 15%, transparent);
+  color: var(--kf-primary);
+  background: color-mix(in srgb, var(--kf-primary) 15%, transparent);
   border-radius: 4px;
 }
 .type-tag {
@@ -643,7 +643,7 @@ const RankList = defineComponent({
   align-items: center;
   gap: 4px;
   font-size: 10px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -662,7 +662,7 @@ const RankList = defineComponent({
   gap: 2px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-variant-numeric: tabular-nums;
 }
 .lb-stat.time {

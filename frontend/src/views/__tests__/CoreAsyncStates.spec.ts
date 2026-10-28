@@ -13,10 +13,10 @@ describe('core loading failure never means empty',()=>{
   it('Docs shows failure then pending retry and genuine empty',async()=>{
     api.categories.tree.mockRejectedValueOnce(new Error('Network Error'));
     const w=mount(Docs,{global:{plugins:[createPinia()],stubs:{RouterLink:true}}});await flushPromises();expect(w.find('[role="alert"]').exists()).toBe(true);expect(w.text()).not.toContain('暂无分类文档');
-    let resolve!:(v:[])=>void;api.categories.tree.mockImplementationOnce(()=>new Promise(r=>{resolve=r}));await w.find('.kb-state-retry').trigger('click');expect(w.find('[role="status"]').text()).toContain('重新加载');resolve([]);await flushPromises();expect(w.find('[role="alert"]').exists()).toBe(false);expect(w.find('[role="status"]').text()).toContain('还没有可浏览的分类资料');w.unmount();
+    let resolve!:(v:[])=>void;api.categories.tree.mockImplementationOnce(()=>new Promise(r=>{resolve=r}));await w.find('.kf-state-retry').trigger('click');expect(w.find('[role="status"]').text()).toContain('重新加载');resolve([]);await flushPromises();expect(w.find('[role="alert"]').exists()).toBe(false);expect(w.find('[role="status"]').text()).toContain('还没有可浏览的分类资料');w.unmount();
   })
   it('LearningMode shows failure then retry loads a real card',async()=>{
     api.learning.flashcards.mockRejectedValueOnce(new Error('Network Error')).mockResolvedValueOnce([{id:1,front:'真实问题',back:'真实答案',difficulty:1}]);
-    const w=mount(LearningMode);await flushPromises();expect(w.find('[role="alert"]').exists()).toBe(true);expect(w.text()).not.toContain('暂无学习卡片');await w.find('.kb-state-retry').trigger('click');await flushPromises();expect(w.find('[role="alert"]').exists()).toBe(false);expect(w.text()).toContain('真实问题');w.unmount();
+    const w=mount(LearningMode);await flushPromises();expect(w.find('[role="alert"]').exists()).toBe(true);expect(w.text()).not.toContain('暂无学习卡片');await w.find('.kf-state-retry').trigger('click');await flushPromises();expect(w.find('[role="alert"]').exists()).toBe(false);expect(w.text()).toContain('真实问题');w.unmount();
   })
 })

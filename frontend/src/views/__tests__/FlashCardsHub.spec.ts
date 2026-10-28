@@ -1304,7 +1304,7 @@ describe('26 我的闪卡服务端分页与筛选联动', () => {
 
     await wrapper.findAll('.view-btn').find(b => b.text().includes('列表'))!.trigger('click')
     await flushPromises()
-    await wrapper.find('.kb-table tbody input[type=checkbox]').setValue(true)
+    await wrapper.find('.kf-table tbody input[type=checkbox]').setValue(true)
     expect(wrapper.text()).toContain('已选 1 张（当前页）')
 
     wrapper.findComponent(Pagination).vm.$emit('change', 2)

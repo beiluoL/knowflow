@@ -36,7 +36,7 @@ describe('unified question catalog', () => {
   it('a rejected request is an error, retry can reach a genuine empty result', async () => {
     api.list.mockRejectedValueOnce(new Error('网络异常')); const { wrapper } = await open()
     expect(wrapper.find('[role="alert"]').text()).toContain('网络异常'); expect(wrapper.text()).not.toContain('没有符合条件的题目')
-    api.list.mockResolvedValueOnce(result([])); await wrapper.find('.kb-state-retry').trigger('click'); await flushPromises()
+    api.list.mockResolvedValueOnce(result([])); await wrapper.find('.kf-state-retry').trigger('click'); await flushPromises()
     expect(wrapper.text()).toContain('没有符合条件的题目'); wrapper.unmount()
   })
   it('late previous response never replaces newest filter results', async () => {
@@ -59,16 +59,16 @@ describe('unified question catalog', () => {
     api.audit.mockRejectedValueOnce(new Error('审计加载失败')).mockResolvedValueOnce({ records: [{ id: 4, actorId: 9, sourceType: 'QUIZ', sourceQuestionId: 90, action: 'BASIC_EDIT', beforeState: '{"title":"原题"}', afterState: '{"title":"新题"}', createdAt: '2026-10-13T15:01:21.123456' }], total: 21, pageNum: 1, pageSize: 20, pages: 2 }).mockRejectedValueOnce(new Error('第二页失败')).mockResolvedValueOnce({ records: [{ id: 5, actorId: 9, sourceType: 'QUIZ', sourceQuestionId: 90, action: 'PUBLISH', beforeState: null, afterState: '{"status":1}', createdAt: '2026-10-13T15:02:21' }], total: 21, pageNum: 2, pageSize: 20, pages: 2 })
     const { wrapper } = await open('?view=versions')
     expect(wrapper.find('.catalog-audit [role="alert"]').text()).toContain('审计加载失败')
-    await wrapper.find('.catalog-audit .kb-state-retry').trigger('click'); await flushPromises()
+    await wrapper.find('.catalog-audit .kf-state-retry').trigger('click'); await flushPromises()
     const text = wrapper.find('.catalog-audit').text(); expect(text).toContain('#9'); expect(text).toContain('BASIC_EDIT'); expect(text).toContain('原题'); expect(text).toContain('新题'); expect(text).toContain('2026-10-13 15:01'); expect(text).not.toContain('123456'); expect(text).toContain('共 21 项')
-    await wrapper.find('.catalog-audit button[aria-label="下一页"]').trigger('click'); await flushPromises(); expect(api.audit).toHaveBeenLastCalledWith(2, 20); await wrapper.find('.catalog-audit .kb-state-retry').trigger('click'); await flushPromises(); expect(api.audit).toHaveBeenLastCalledWith(2, 20); expect(wrapper.find('.catalog-audit').text()).toContain('PUBLISH'); wrapper.unmount()
+    await wrapper.find('.catalog-audit button[aria-label="下一页"]').trigger('click'); await flushPromises(); expect(api.audit).toHaveBeenLastCalledWith(2, 20); await wrapper.find('.catalog-audit .kf-state-retry').trigger('click'); await flushPromises(); expect(api.audit).toHaveBeenLastCalledWith(2, 20); expect(wrapper.find('.catalog-audit').text()).toContain('PUBLISH'); wrapper.unmount()
   })
   it('judge view reports real disabled execution and retries actual status API', async () => {
     api.judgeStatus.mockRejectedValueOnce(new Error('状态服务不可用')).mockResolvedValueOnce({ mode: 'READ_ONLY', executionEnabled: false, productionSandboxReady: false })
     const { wrapper } = await open('?view=judge')
     expect(api.list).not.toHaveBeenCalled(); expect(api.categories).not.toHaveBeenCalled()
     expect(wrapper.find('[role="alert"]').text()).toContain('状态服务不可用')
-    await wrapper.find('.kb-state-retry').trigger('click'); await flushPromises()
+    await wrapper.find('.kf-state-retry').trigger('click'); await flushPromises()
     expect(wrapper.text()).toContain('READ_ONLY'); expect(wrapper.text()).toContain('已禁用'); expect(wrapper.text()).toContain('未就绪'); wrapper.unmount()
   })
   it('only supported source rows can be selected and bulk errors stay visible', async () => {

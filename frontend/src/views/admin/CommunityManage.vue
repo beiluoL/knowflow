@@ -3,8 +3,8 @@
     <!-- Page Header -->
     <div class="flex items-center justify-between flex-wrap gap-3">
       <div>
-        <h1 class="kb-h1">社区管理</h1>
-        <p class="text-sm mt-1" style="color: var(--kb-muted-foreground);">审核帖子、管理话题与处理举报</p>
+        <h1 class="kf-h1">社区管理</h1>
+        <p class="text-sm mt-1" style="color: var(--kf-muted-foreground);">审核帖子、管理话题与处理举报</p>
       </div>
     </div>
 
@@ -14,27 +14,27 @@
         v-for="stat in stats"
         :key="stat.label"
         class="rounded-xl border p-4"
-        style="background: var(--kb-card); border-color: var(--kb-border);"
+        style="background: var(--kf-card); border-color: var(--kf-border);"
       >
         <div class="flex items-center gap-2 mb-2">
           <div class="w-8 h-8 rounded-lg flex items-center justify-center" :style="`background: ${stat.bg};`">
             <Icon :name="stat.icon" :size="16" :style="`color: ${stat.color};`" />
           </div>
-          <span class="text-xs" style="color: var(--kb-muted-foreground);">{{ stat.label }}</span>
+          <span class="text-xs" style="color: var(--kf-muted-foreground);">{{ stat.label }}</span>
         </div>
-        <p class="text-2xl font-bold" style="color: var(--kb-foreground);">
-          {{ stat.value }}<span v-if="stat.unit" class="text-sm font-normal ml-0.5" style="color: var(--kb-muted-foreground);">{{ stat.unit }}</span>
+        <p class="text-2xl font-bold" style="color: var(--kf-foreground);">
+          {{ stat.value }}<span v-if="stat.unit" class="text-sm font-normal ml-0.5" style="color: var(--kf-muted-foreground);">{{ stat.unit }}</span>
         </p>
       </div>
     </section>
 
     <!-- Tabs -->
-    <div class="flex items-center gap-1 p-1 rounded-lg w-fit" style="background: var(--kb-muted);">
+    <div class="flex items-center gap-1 p-1 rounded-lg w-fit" style="background: var(--kf-muted);">
       <button
         v-for="tab in tabs"
         :key="tab.value"
         type="button"
-        class="community-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="community-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="activeTab === tab.value ? 'active' : ''"
         @click="activeTab = tab.value"
       >
@@ -49,28 +49,28 @@
     </div>
 
     <!-- Posts Management Tab -->
-    <section v-if="activeTab === 'posts'" class="rounded-xl border overflow-hidden" style="background: var(--kb-card); border-color: var(--kb-border);">
-      <div class="p-4 border-b flex flex-col sm:flex-row sm:items-center gap-3" style="border-color: var(--kb-border);">
+    <section v-if="activeTab === 'posts'" class="rounded-xl border overflow-hidden" style="background: var(--kf-card); border-color: var(--kf-border);">
+      <div class="p-4 border-b flex flex-col sm:flex-row sm:items-center gap-3" style="border-color: var(--kf-border);">
         <div class="relative flex-1">
-          <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--kb-muted-foreground);" />
+          <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2" style="color: var(--kf-muted-foreground);" />
           <input
             v-model="postSearch"
             type="text"
             placeholder="搜索帖子标题、作者..."
-            class="w-full h-9 pl-9 pr-4 text-sm outline-none transition-colors kb-input kb-form-control"
-            style="color: var(--kb-foreground)"
+            class="w-full h-9 pl-9 pr-4 text-sm outline-none transition-colors kf-input kf-form-control"
+            style="color: var(--kf-foreground)"
           />
         </div>
         <div class="flex items-center gap-2 flex-wrap">
           <Select v-model="postStatusFilter" aria-label="帖子状态筛选" :options="postStatusOptions" />
           <button
             type="button"
-            class="h-9 px-3 rounded-lg text-sm border inline-flex items-center gap-1.5 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-            style="background: var(--kb-card); border-color: var(--kb-input); color: var(--kb-foreground);"
+            class="h-9 px-3 rounded-lg text-sm border inline-flex items-center gap-1.5 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+            style="background: var(--kf-card); border-color: var(--kf-input); color: var(--kf-foreground);"
             :disabled="postLoading"
             @click="loadPosts"
           >
-            <Icon name="refresh-cw" :size="14" :class="postLoading ? 'animate-spin' : ''" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
+            <Icon name="refresh-cw" :size="14" :class="postLoading ? 'animate-spin' : ''" style="color: var(--kf-muted-foreground);" aria-hidden="true" />
             刷新
           </button>
         </div>
@@ -78,26 +78,26 @@
 
       <!-- Loading -->
       <div v-if="postLoading" class="p-10 flex items-center justify-center">
-        <Icon name="refresh-cw" :size="20" class="animate-spin" style="color: var(--kb-primary);" />
-        <span class="ml-2 text-sm" style="color: var(--kb-muted-foreground);">加载帖子列表...</span>
+        <Icon name="refresh-cw" :size="20" class="animate-spin" style="color: var(--kf-primary);" />
+        <span class="ml-2 text-sm" style="color: var(--kf-muted-foreground);">加载帖子列表...</span>
       </div>
 
       <!-- Error -->
       <div v-else-if="postError" class="p-10 flex flex-col items-center justify-center gap-3">
-        <Icon name="alert-circle" :size="32" style="color: var(--kb-destructive);" />
-        <p class="text-sm" style="color: var(--kb-muted-foreground);">{{ postError }}</p>
+        <Icon name="alert-circle" :size="32" style="color: var(--kf-destructive);" />
+        <p class="text-sm" style="color: var(--kf-muted-foreground);">{{ postError }}</p>
         <button
           type="button"
-          class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-          style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
+          class="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+          style="background: var(--kf-primary); color: var(--kf-primary-foreground);"
           @click="loadPosts"
         >重新加载</button>
       </div>
 
       <!-- Empty -->
       <div v-else-if="filteredPosts.length === 0" class="p-10 flex flex-col items-center justify-center gap-2">
-        <Icon name="inbox" :size="32" style="color: var(--kb-muted-foreground);" />
-        <p class="text-sm" style="color: var(--kb-muted-foreground);">
+        <Icon name="inbox" :size="32" style="color: var(--kf-muted-foreground);" />
+        <p class="text-sm" style="color: var(--kf-muted-foreground);">
           {{ postSearch || postStatusFilter ? '没有匹配的帖子' : '暂无帖子' }}
         </p>
       </div>
@@ -105,18 +105,18 @@
       <!-- Table -->
       <div v-else class="overflow-x-auto">
         <table class="w-full">
-          <thead style="background: var(--kb-background);">
+          <thead style="background: var(--kf-background);">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-medium" style="color: var(--kb-muted-foreground);">帖子</th>
-              <th class="px-4 py-3 text-left text-xs font-medium" style="color: var(--kb-muted-foreground);">作者</th>
-              <th class="px-4 py-3 text-left text-xs font-medium" style="color: var(--kb-muted-foreground);">话题</th>
-              <th class="px-4 py-3 text-left text-xs font-medium" style="color: var(--kb-muted-foreground);">互动</th>
-              <th class="px-4 py-3 text-left text-xs font-medium" style="color: var(--kb-muted-foreground);">状态</th>
-              <th class="px-4 py-3 text-left text-xs font-medium" style="color: var(--kb-muted-foreground);">发布时间</th>
-              <th class="px-4 py-3 text-left text-xs font-medium" style="color: var(--kb-muted-foreground);">操作</th>
+              <th class="px-4 py-3 text-left text-xs font-medium" style="color: var(--kf-muted-foreground);">帖子</th>
+              <th class="px-4 py-3 text-left text-xs font-medium" style="color: var(--kf-muted-foreground);">作者</th>
+              <th class="px-4 py-3 text-left text-xs font-medium" style="color: var(--kf-muted-foreground);">话题</th>
+              <th class="px-4 py-3 text-left text-xs font-medium" style="color: var(--kf-muted-foreground);">互动</th>
+              <th class="px-4 py-3 text-left text-xs font-medium" style="color: var(--kf-muted-foreground);">状态</th>
+              <th class="px-4 py-3 text-left text-xs font-medium" style="color: var(--kf-muted-foreground);">发布时间</th>
+              <th class="px-4 py-3 text-left text-xs font-medium" style="color: var(--kf-muted-foreground);">操作</th>
             </tr>
           </thead>
-          <tbody class="divide-y" style="border-color: var(--kb-border);">
+          <tbody class="divide-y" style="border-color: var(--kf-border);">
             <tr
               v-for="post in filteredPosts"
               :key="post.id"
@@ -124,23 +124,23 @@
             >
               <td class="px-4 py-3">
                 <div class="flex items-center gap-2">
-                  <Icon v-if="post.pinned" name="pin" :size="14" style="color: var(--kb-warning);" />
-                  <p class="text-sm font-medium truncate max-w-[200px]" style="color: var(--kb-foreground);">{{ post.title }}</p>
+                  <Icon v-if="post.pinned" name="pin" :size="14" style="color: var(--kf-warning);" />
+                  <p class="text-sm font-medium truncate max-w-[200px]" style="color: var(--kf-foreground);">{{ post.title }}</p>
                 </div>
               </td>
               <td class="px-4 py-3">
                 <div class="flex items-center gap-2">
-                  <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold" style="background: var(--kb-primary); color: var(--kb-primary-foreground);">
+                  <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold" style="background: var(--kf-primary); color: var(--kf-primary-foreground);">
                     {{ post.author.charAt(0).toUpperCase() }}
                   </div>
-                  <span class="text-sm" style="color: var(--kb-foreground);">{{ post.author }}</span>
+                  <span class="text-sm" style="color: var(--kf-foreground);">{{ post.author }}</span>
                 </div>
               </td>
               <td class="px-4 py-3">
-                <span class="text-xs px-2 py-0.5 rounded-md" style="background: rgba(59,111,224,0.08); color: var(--kb-primary);">{{ post.topic }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-md" style="background: rgba(59,111,224,0.08); color: var(--kf-primary);">{{ post.topic }}</span>
               </td>
               <td class="px-4 py-3">
-                <div class="flex items-center gap-3 text-xs" style="color: var(--kb-muted-foreground);">
+                <div class="flex items-center gap-3 text-xs" style="color: var(--kf-muted-foreground);">
                   <span class="flex items-center gap-0.5"><Icon name="heart" :size="12" /> {{ post.likes }}</span>
                   <span class="flex items-center gap-0.5"><Icon name="message-circle" :size="12" /> {{ post.comments }}</span>
                 </div>
@@ -150,14 +150,14 @@
                   {{ statusLabel(post.status) }}
                 </span>
               </td>
-              <td class="px-4 py-3 text-xs" style="color: var(--kb-muted-foreground);">{{ post.time }}</td>
+              <td class="px-4 py-3 text-xs" style="color: var(--kf-muted-foreground);">{{ post.time }}</td>
               <td class="px-4 py-3">
                 <div class="flex items-center gap-1">
                   <button
                     type="button"
-                    class="p-1.5 rounded-md transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                    class="p-1.5 rounded-md transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                     :title="post.pinned ? '取消置顶' : '置顶'"
-                    style="color: var(--kb-muted-foreground);"
+                    style="color: var(--kf-muted-foreground);"
                     @click="togglePin(post)"
                   >
                     <Icon name="pin" :size="14" />
@@ -165,9 +165,9 @@
                   <button
                     v-if="post.status === 'pending'"
                     type="button"
-                    class="p-1.5 rounded-md transition-colors hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                    class="p-1.5 rounded-md transition-colors hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                     title="通过"
-                    style="color: var(--kb-accent);"
+                    style="color: var(--kf-accent);"
                     @click="approvePost(post)"
                   >
                     <Icon name="check" :size="14" />
@@ -175,9 +175,9 @@
                   <button
                     v-if="post.status !== 'hidden'"
                     type="button"
-                    class="p-1.5 rounded-md transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                    class="p-1.5 rounded-md transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                     title="隐藏"
-                    style="color: var(--kb-destructive);"
+                    style="color: var(--kf-destructive);"
                     @click="hidePost(post)"
                   >
                     <Icon name="eye-off" :size="14" />
@@ -188,7 +188,7 @@
           </tbody>
         </table>
         <!-- Pagination info -->
-        <div class="px-4 py-3 border-t flex items-center justify-between text-xs" style="border-color: var(--kb-border); color: var(--kb-muted-foreground);">
+        <div class="px-4 py-3 border-t flex items-center justify-between text-xs" style="border-color: var(--kf-border); color: var(--kf-muted-foreground);">
           <span>共 {{ postTotal }} 篇 · 当前展示 {{ filteredPosts.length }} 篇</span>
           <span class="flex items-center gap-1">
             <Icon name="info" :size="12" />
@@ -199,13 +199,13 @@
     </section>
 
     <!-- Topics Management Tab -->
-    <section v-else-if="activeTab === 'topics'" class="rounded-xl border p-6" style="background: var(--kb-card); border-color: var(--kb-border);">
+    <section v-else-if="activeTab === 'topics'" class="rounded-xl border p-6" style="background: var(--kf-card); border-color: var(--kf-border);">
       <div class="flex items-center justify-between mb-5">
-        <h2 class="kb-h3">话题列表</h2>
+        <h2 class="kf-h3">话题列表</h2>
         <button
           type="button"
-          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-          style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
+          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+          style="background: var(--kf-primary); color: var(--kf-primary-foreground);"
           @click="notify('新建话题功能开发中', 'info')"
         >
           <Icon name="plus" :size="14" aria-hidden="true" />
@@ -217,21 +217,21 @@
           v-for="topic in topics"
           :key="topic.name"
           class="rounded-lg border p-4 transition-shadow hover:shadow-sm"
-          style="border-color: var(--kb-border); background: var(--kb-background);"
+          style="border-color: var(--kf-border); background: var(--kf-background);"
         >
           <div class="flex items-start justify-between mb-2">
-            <span class="text-sm font-semibold px-2 py-1 rounded-md" style="background: rgba(59,111,224,0.08); color: var(--kb-primary);">#{{ topic.name }}</span>
+            <span class="text-sm font-semibold px-2 py-1 rounded-md" style="background: rgba(59,111,224,0.08); color: var(--kf-primary);">#{{ topic.name }}</span>
             <button
               type="button"
-              class="p-1 rounded transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-              style="color: var(--kb-muted-foreground);"
+              class="p-1 rounded transition-colors hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+              style="color: var(--kf-muted-foreground);"
               @click="notify(`编辑话题 #${topic.name}`, 'info')"
             >
               <Icon name="edit" :size="14" />
             </button>
           </div>
-          <p class="text-xs mb-3" style="color: var(--kb-muted-foreground);">{{ topic.desc }}</p>
-          <div class="flex items-center justify-between text-xs" style="color: var(--kb-muted-foreground);">
+          <p class="text-xs mb-3" style="color: var(--kf-muted-foreground);">{{ topic.desc }}</p>
+          <div class="flex items-center justify-between text-xs" style="color: var(--kf-muted-foreground);">
             <span class="flex items-center gap-1"><Icon name="file-text" :size="12" /> {{ topic.count }} 篇</span>
             <span>{{ topic.time }}</span>
           </div>
@@ -240,49 +240,49 @@
     </section>
 
     <!-- Reports Handling Tab -->
-    <section v-else-if="activeTab === 'reports'" class="rounded-xl border overflow-hidden" style="background: var(--kb-card); border-color: var(--kb-border);">
-      <div class="p-4 border-b flex items-center justify-between" style="border-color: var(--kb-border);">
-        <h2 class="kb-h3">举报处理</h2>
-        <span class="text-xs px-2 py-0.5 rounded-md" style="background: rgba(239,68,68,0.1); color: var(--kb-destructive);">
+    <section v-else-if="activeTab === 'reports'" class="rounded-xl border overflow-hidden" style="background: var(--kf-card); border-color: var(--kf-border);">
+      <div class="p-4 border-b flex items-center justify-between" style="border-color: var(--kf-border);">
+        <h2 class="kf-h3">举报处理</h2>
+        <span class="text-xs px-2 py-0.5 rounded-md" style="background: rgba(239,68,68,0.1); color: var(--kf-destructive);">
           {{ pendingReports }} 条待处理
         </span>
       </div>
-      <div class="divide-y" style="border-color: var(--kb-border);">
+      <div class="divide-y" style="border-color: var(--kf-border);">
         <div
           v-for="report in reports"
           :key="report.id"
           class="p-4 flex items-start gap-3"
         >
           <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background: rgba(239,68,68,0.1);">
-            <Icon name="flag" :size="16" style="color: var(--kb-destructive);" />
+            <Icon name="flag" :size="16" style="color: var(--kf-destructive);" />
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-1 flex-wrap">
-              <span class="text-sm font-medium" style="color: var(--kb-foreground);">{{ report.targetTitle }}</span>
-              <span class="text-xs px-1.5 py-0.5 rounded" style="background: var(--kb-muted); color: var(--kb-muted-foreground);">{{ report.targetType }}</span>
+              <span class="text-sm font-medium" style="color: var(--kf-foreground);">{{ report.targetTitle }}</span>
+              <span class="text-xs px-1.5 py-0.5 rounded" style="background: var(--kf-muted); color: var(--kf-muted-foreground);">{{ report.targetType }}</span>
             </div>
-            <p class="text-xs mb-2" style="color: var(--kb-muted-foreground);">
+            <p class="text-xs mb-2" style="color: var(--kf-muted-foreground);">
               举报人 {{ report.reporter }} · 原因：{{ report.reason }} · {{ report.time }}
             </p>
-            <p v-if="report.detail" class="text-xs mb-2 p-2 rounded" style="background: var(--kb-background); color: var(--kb-foreground);">
+            <p v-if="report.detail" class="text-xs mb-2 p-2 rounded" style="background: var(--kf-background); color: var(--kf-foreground);">
               {{ report.detail }}
             </p>
           </div>
           <div class="flex items-center gap-1.5 shrink-0" v-if="report.status === 'pending'">
             <button
               type="button"
-              class="px-2.5 py-1 rounded-md text-xs font-medium transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-              style="background: var(--kb-destructive); color: var(--kb-primary-foreground);"
+              class="px-2.5 py-1 rounded-md text-xs font-medium transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+              style="background: var(--kf-destructive); color: var(--kf-primary-foreground);"
               @click="handleReport(report, 'removed')"
             >删除内容</button>
             <button
               type="button"
-              class="px-2.5 py-1 rounded-md text-xs font-medium border transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-              style="border-color: var(--kb-border); color: var(--kb-foreground);"
+              class="px-2.5 py-1 rounded-md text-xs font-medium border transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+              style="border-color: var(--kf-border); color: var(--kf-foreground);"
               @click="handleReport(report, 'dismissed')"
             >驳回</button>
           </div>
-          <span v-else class="text-xs px-2 py-0.5 rounded-md" :style="report.status === 'removed' ? 'background: rgba(239,68,68,0.1); color: var(--kb-destructive);' : 'background: var(--kb-muted); color: var(--kb-muted-foreground);'">
+          <span v-else class="text-xs px-2 py-0.5 rounded-md" :style="report.status === 'removed' ? 'background: rgba(239,68,68,0.1); color: var(--kf-destructive);' : 'background: var(--kf-muted); color: var(--kf-muted-foreground);'">
             {{ report.status === 'removed' ? '已删除' : '已驳回' }}
           </span>
         </div>
@@ -316,7 +316,7 @@ interface Tab {
 const tabs: Tab[] = [
   { label: '帖子管理', value: 'posts', icon: 'file-text' },
   { label: '话题管理', value: 'topics', icon: 'hash' },
-  { label: '举报处理', value: 'reports', icon: 'flag', badge: '3', badgeBg: 'rgba(239,68,68,0.1)', badgeColor: 'var(--kb-destructive)' },
+  { label: '举报处理', value: 'reports', icon: 'flag', badge: '3', badgeBg: 'rgba(239,68,68,0.1)', badgeColor: 'var(--kf-destructive)' },
 ];
 const activeTab = ref<TabValue>('posts');
 
@@ -330,10 +330,10 @@ interface StatItem {
 }
 
 const stats = ref<StatItem[]>([
-  { label: '帖子总数', value: '-', icon: 'file-text', bg: 'rgba(59,111,224,0.08)', color: 'var(--kb-primary)' },
-  { label: '今日新增', value: '-', unit: '篇', icon: 'trending-up', bg: 'rgba(16,185,129,0.08)', color: 'var(--kb-accent)' },
-  { label: '话题数量', value: '36', icon: 'hash', bg: 'rgba(245,158,11,0.08)', color: 'var(--kb-warning)' },
-  { label: '待处理举报', value: '3', unit: '条', icon: 'flag', bg: 'rgba(239,68,68,0.08)', color: 'var(--kb-destructive)' },
+  { label: '帖子总数', value: '-', icon: 'file-text', bg: 'rgba(59,111,224,0.08)', color: 'var(--kf-primary)' },
+  { label: '今日新增', value: '-', unit: '篇', icon: 'trending-up', bg: 'rgba(16,185,129,0.08)', color: 'var(--kf-accent)' },
+  { label: '话题数量', value: '36', icon: 'hash', bg: 'rgba(245,158,11,0.08)', color: 'var(--kf-warning)' },
+  { label: '待处理举报', value: '3', unit: '条', icon: 'flag', bg: 'rgba(239,68,68,0.08)', color: 'var(--kf-destructive)' },
 ]);
 
 interface Post {
@@ -422,9 +422,9 @@ function statusLabel(status: PostStatus): string {
 
 function statusStyle(status: PostStatus): string {
   const map: Record<PostStatus, string> = {
-    published: 'background: rgba(16,185,129,0.1); color: var(--kb-accent);',
-    pending: 'background: rgba(245,158,11,0.1); color: var(--kb-warning);',
-    hidden: 'background: rgba(239,68,68,0.1); color: var(--kb-destructive);',
+    published: 'background: rgba(16,185,129,0.1); color: var(--kf-accent);',
+    pending: 'background: rgba(245,158,11,0.1); color: var(--kf-warning);',
+    hidden: 'background: rgba(239,68,68,0.1); color: var(--kf-destructive);',
   };
   return map[status];
 }
@@ -518,21 +518,21 @@ function handleReport(report: Report, action: 'removed' | 'dismissed'): void {
   align-items: center;
   gap: 0.375rem;
   padding: 0.375rem 0.875rem;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .community-tab.active {
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 .community-tab:not(.active):hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 </style>

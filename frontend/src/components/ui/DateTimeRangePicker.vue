@@ -548,44 +548,44 @@ watch(open, (value) => {
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   width: 100%;
-  height: var(--kb-input-height);
-  padding: 0 var(--kb-field-padding);
+  height: var(--kf-input-height);
+  padding: 0 var(--kf-field-padding);
   border: 0;
-  border-radius: var(--kb-field-radius);
-  background: var(--kb-field-surface);
-  color: var(--kb-foreground);
+  border-radius: var(--kf-field-radius);
+  background: var(--kf-field-surface);
+  color: var(--kf-foreground);
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease;
 }
 
 .dtrp-trigger:hover {
-  background: var(--kb-field-hover);
+  background: var(--kf-field-hover);
 }
 
 .dtrp-trigger--focus,
 .dtrp-trigger--open {
-  background: var(--kb-field-active);
+  background: var(--kf-field-active);
 }
 
 .dtrp-control--error .dtrp-trigger {
-  background: var(--kb-field-error-bg);
+  background: var(--kf-field-error-bg);
 }
 
 .dtrp-control--disabled .dtrp-trigger {
-  background: var(--kb-field-disabled);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-field-disabled);
+  color: var(--kf-muted-foreground);
   cursor: not-allowed;
 }
 
 .dtrp-control--readonly .dtrp-trigger {
-  background: var(--kb-field-readonly);
+  background: var(--kf-field-readonly);
 }
 
 .dtrp-icon {
   flex-shrink: 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .dtrp-text {
@@ -599,8 +599,8 @@ watch(open, (value) => {
   box-shadow: none;
   outline: 0;
   font: inherit;
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   color: inherit;
   cursor: inherit;
   font-variant-numeric: tabular-nums;
@@ -608,7 +608,7 @@ watch(open, (value) => {
 }
 
 .dtrp-text::placeholder {
-  color: var(--kb-field-placeholder);
+  color: var(--kf-field-placeholder);
   opacity: 1;
 }
 
@@ -622,20 +622,20 @@ watch(open, (value) => {
 
 .dtrp-hint {
   flex-shrink: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 
 .dtrp-panel {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-3);
-  padding: var(--kb-space-4);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
-  background: var(--kb-popover);
-  color: var(--kb-popover-foreground);
+  gap: var(--kf-space-3);
+  padding: var(--kf-space-4);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
+  background: var(--kf-popover);
+  color: var(--kf-popover-foreground);
   box-shadow: var(--shadow-dropdown-3);
   overflow: auto;
   font-family: var(--font-sans);
@@ -645,25 +645,25 @@ watch(open, (value) => {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   min-width: 0;
 }
 
 .dtrp-title {
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   white-space: nowrap;
 }
 
 .dtrp-preview {
   min-width: 0;
   overflow: hidden;
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
   font-variant-numeric: tabular-nums;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -672,7 +672,7 @@ watch(open, (value) => {
 .dtrp-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
   align-items: start;
   min-width: 0;
 }
@@ -684,10 +684,10 @@ watch(open, (value) => {
 .dtrp-time {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   width: 200px;
-  padding-left: var(--kb-space-4);
-  border-left: 1px solid var(--kb-border);
+  padding-left: var(--kf-space-4);
+  border-left: 1px solid var(--kf-border);
 }
 
 .dtrp-panel--second:not(.dtrp-panel--compact) .dtrp-time {
@@ -698,8 +698,8 @@ watch(open, (value) => {
   display: flex;
   gap: 2px;
   padding: 2px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-field-surface);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-field-surface);
 }
 
 .dtrp-tab {
@@ -709,30 +709,30 @@ watch(open, (value) => {
   justify-content: center;
   min-width: 64px;
   height: 30px;
-  padding: 0 var(--kb-space-3);
+  padding: 0 var(--kf-space-3);
   border: 0;
-  border-radius: var(--kb-radius-xs);
+  border-radius: var(--kf-radius-xs);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font: inherit;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1;
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease, color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
 }
 
 .dtrp-tab:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .dtrp-tab--active {
-  background: var(--kb-popover);
-  color: var(--kb-foreground);
+  background: var(--kf-popover);
+  color: var(--kf-foreground);
   font-weight: 600;
 }
 
 .dtrp-tab:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: -2px;
 }
 
@@ -740,8 +740,8 @@ watch(open, (value) => {
   display: inline-flex;
   gap: 2px;
   padding: 2px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-field-surface);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-field-surface);
 }
 
 .dtrp-subtab {
@@ -750,71 +750,71 @@ watch(open, (value) => {
   justify-content: center;
   min-width: 64px;
   height: 30px;
-  padding: 0 var(--kb-space-3);
+  padding: 0 var(--kf-space-3);
   border: 0;
-  border-radius: var(--kb-radius-xs);
+  border-radius: var(--kf-radius-xs);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font: inherit;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1;
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease, color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
 }
 
 .dtrp-subtab:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .dtrp-subtab--active {
-  background: var(--kb-popover);
-  color: var(--kb-foreground);
+  background: var(--kf-popover);
+  color: var(--kf-foreground);
   font-weight: 600;
 }
 
 .dtrp-subtab:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: -2px;
 }
 
 .dtrp-panel--compact .dtrp-body {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
 }
 
 .dtrp-panel--compact .dtrp-time {
   width: 100%;
-  padding-top: var(--kb-space-3);
+  padding-top: var(--kf-space-3);
   padding-left: 0;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
   border-left: 0;
 }
 
 .dtrp-status {
   margin: 0;
-  min-height: var(--kb-lh-caption);
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
-  color: var(--kb-muted-foreground);
+  min-height: var(--kf-lh-caption);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
+  color: var(--kf-muted-foreground);
 }
 
 .dtrp-status--error {
-  color: var(--kb-state-error);
+  color: var(--kf-state-error);
 }
 
 .dtrp-foot {
   position: sticky;
-  bottom: calc(-1 * var(--kb-space-4));
+  bottom: calc(-1 * var(--kf-space-4));
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-2);
-  margin: 0 calc(-1 * var(--kb-space-4)) calc(-1 * var(--kb-space-4));
-  padding: var(--kb-space-3) var(--kb-space-4);
-  border-top: 1px solid var(--kb-border);
-  background: var(--kb-popover);
+  gap: var(--kf-space-2);
+  margin: 0 calc(-1 * var(--kf-space-4)) calc(-1 * var(--kf-space-4));
+  padding: var(--kf-space-3) var(--kf-space-4);
+  border-top: 1px solid var(--kf-border);
+  background: var(--kf-popover);
 }
 
 .dtrp-foot-spacer {
@@ -824,7 +824,7 @@ watch(open, (value) => {
 .dtrp-actions {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   margin-left: auto;
 }
 
@@ -833,52 +833,52 @@ watch(open, (value) => {
   align-items: center;
   justify-content: center;
   height: 32px;
-  padding: 0 var(--kb-space-3);
+  padding: 0 var(--kf-space-3);
   border: 0;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font: inherit;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1;
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease, color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
 }
 
 .dtrp-btn:hover {
-  background: var(--kb-menu-hover);
+  background: var(--kf-menu-hover);
 }
 
 .dtrp-btn--link {
-  padding: 0 var(--kb-space-2);
-  color: var(--kb-muted-foreground);
+  padding: 0 var(--kf-space-2);
+  color: var(--kf-muted-foreground);
 }
 
 .dtrp-btn--ghost {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .dtrp-btn--primary {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   font-weight: 600;
 }
 
 .dtrp-btn--primary:hover {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   opacity: 0.92;
 }
 
 .dtrp-btn:disabled {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   opacity: 0.45;
   cursor: not-allowed;
 }
 
 .dtrp-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 1px;
 }
 

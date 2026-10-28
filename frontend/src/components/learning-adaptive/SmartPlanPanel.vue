@@ -26,6 +26,6 @@ async function preview(){if(busy.value)return;const current=epoch;busy.value=tru
 watch(()=>auth.user?.id,()=>{epoch++;tasks.value=[];history.value=[];planId.value='';void load()},{immediate:true})
 </script>
 <style scoped>
-.smart-plan{padding:var(--kb-space-4);margin-block:var(--kb-space-4);background:var(--kb-card);border-radius:var(--kb-radius-md)}
-.smart-plan ul{display:grid;gap:var(--kb-space-3);padding-block:var(--kb-space-3)}.smart-plan li{display:flex;align-items:center;flex-wrap:wrap;gap:var(--kb-space-3)}.smart-plan label{display:flex;align-items:center;gap:var(--kb-space-2)}.smart-plan label :deep(input){max-width:var(--kb-panel-width-xs,8rem)}.smart-plan p,.smart-plan small{color:var(--kb-muted-foreground)}
+.smart-plan{padding:var(--kf-space-4);margin-block:var(--kf-space-4);background:var(--kf-card);border-radius:var(--kf-radius-md)}
+.smart-plan ul{display:grid;gap:var(--kf-space-3);padding-block:var(--kf-space-3)}.smart-plan li{display:flex;align-items:center;flex-wrap:wrap;gap:var(--kf-space-3)}.smart-plan label{display:flex;align-items:center;gap:var(--kf-space-2)}.smart-plan label :deep(input){max-width:var(--kf-panel-width-xs,8rem)}.smart-plan p,.smart-plan small{color:var(--kf-muted-foreground)}
 </style>

@@ -78,12 +78,12 @@ const practiceQuestions=computed<InterviewQuestion[]>(()=>data.value?.revision?.
 watch(practiceQuestions,value=>emit('questions',value),{immediate:true})
 </script>
 <style scoped>
-.seed-chapter{margin-top:var(--kb-space-6);padding-top:var(--kb-space-4);border-top:var(--kb-border-width,1px) solid var(--kb-border)}
-.seed-chapter p{color:var(--kb-muted-foreground)}
-.seed-actions{display:flex;flex-wrap:wrap;gap:var(--kb-space-4);margin-block:var(--kb-space-4)}
-.seed-chapter a{color:var(--kb-primary)}
-.seed-chapter details{margin-block:var(--kb-space-3);padding:var(--kb-space-3);border-radius:var(--kb-radius-sm);background:var(--kb-background)}
-.seed-chapter summary{cursor:pointer;color:var(--kb-foreground)}
-.upgrade-content{padding:var(--kb-space-4);border:1px solid var(--kb-border);border-radius:var(--kb-radius-md);margin-block:var(--kb-space-4)}
-.upgrade-content button{background:var(--kb-primary);color:var(--kb-primary-foreground);padding:var(--kb-space-2) var(--kb-space-4);border-radius:var(--kb-radius-sm)}
+.seed-chapter{margin-top:var(--kf-space-6);padding-top:var(--kf-space-4);border-top:var(--kf-border-width,1px) solid var(--kf-border)}
+.seed-chapter p{color:var(--kf-muted-foreground)}
+.seed-actions{display:flex;flex-wrap:wrap;gap:var(--kf-space-4);margin-block:var(--kf-space-4)}
+.seed-chapter a{color:var(--kf-primary)}
+.seed-chapter details{margin-block:var(--kf-space-3);padding:var(--kf-space-3);border-radius:var(--kf-radius-sm);background:var(--kf-background)}
+.seed-chapter summary{cursor:pointer;color:var(--kf-foreground)}
+.upgrade-content{padding:var(--kf-space-4);border:1px solid var(--kf-border);border-radius:var(--kf-radius-md);margin-block:var(--kf-space-4)}
+.upgrade-content button{background:var(--kf-primary);color:var(--kf-primary-foreground);padding:var(--kf-space-2) var(--kf-space-4);border-radius:var(--kf-radius-sm)}
 </style>

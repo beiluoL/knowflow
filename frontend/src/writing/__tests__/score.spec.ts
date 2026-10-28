@@ -6,7 +6,7 @@ describe('honest writing assessment', () => {
   it('preserves a real zero and derives safe token colours locally', () => {
     const result = parseWritingScore(JSON.stringify(valid()))
     expect(result.score).toBe(0)
-    expect(result.dimensions.every(d => d.color === 'var(--kb-danger)')).toBe(true)
+    expect(result.dimensions.every(d => d.color === 'var(--kf-danger)')).toBe(true)
   })
   it('accepts a single JSON fence but never arbitrary surrounding prose', () => {
     expect(parseWritingScore('```json\n' + JSON.stringify(valid()) + '\n```').score).toBe(0)

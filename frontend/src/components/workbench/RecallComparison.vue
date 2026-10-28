@@ -47,7 +47,7 @@
       </div>
       <p v-if="missingList.length === 0" class="recall-gap-empty">文本层面未发现明显遗漏；仍建议用语义判断再核对一遍。</p>
       <div v-else class="recall-gap-list">
-        <label v-for="token in missingList" :key="token" class="recall-gap-chip kb-checkbox-row" :class="{ 'is-picked': selected.includes(token) }">
+        <label v-for="token in missingList" :key="token" class="recall-gap-chip kf-checkbox-row" :class="{ 'is-picked': selected.includes(token) }">
           <Checkbox as="span"
             v-if="editable"
             v-model="selected"
@@ -194,21 +194,21 @@ const sourceSegments = computed<Segment[]>(() => {
 .recall-compare {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-4);
-  padding: var(--kb-space-5);
-  border-radius: var(--kb-radius-lg);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  gap: var(--kf-space-4);
+  padding: var(--kf-space-5);
+  border-radius: var(--kf-radius-lg);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
 }
 .recall-compare-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
   flex-wrap: wrap;
 }
-.recall-compare-title { margin: 0; font-size: var(--kb-fs-h4); font-weight: 700; color: var(--kb-foreground); }
-.recall-compare-note { margin: var(--kb-space-1) 0 0; font-size: var(--kb-fs-caption); color: var(--kb-muted-foreground); line-height: 1.6; max-width: 560px; }
+.recall-compare-title { margin: 0; font-size: var(--kf-fs-h4); font-weight: 700; color: var(--kf-foreground); }
+.recall-compare-note { margin: var(--kf-space-1) 0 0; font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); line-height: 1.6; max-width: 560px; }
 .recall-coverage {
   display: flex;
   flex-direction: column;
@@ -216,93 +216,93 @@ const sourceSegments = computed<Segment[]>(() => {
   gap: 2px;
   flex: none;
 }
-.recall-coverage-value { font-family: var(--font-mono); font-size: var(--kb-fs-h1); font-weight: 800; color: var(--kb-primary); line-height: 1; }
-.recall-coverage-label { font-size: var(--kb-fs-caption); color: var(--kb-muted-foreground); }
+.recall-coverage-value { font-family: var(--font-mono); font-size: var(--kf-fs-h1); font-weight: 800; color: var(--kf-primary); line-height: 1; }
+.recall-coverage-label { font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); }
 .recall-compare-columns {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
 }
-.recall-compare-col { display: flex; flex-direction: column; gap: var(--kb-space-2); min-width: 0; }
-.recall-col-label { font-size: var(--kb-fs-caption); font-weight: 600; color: var(--kb-muted-foreground); }
+.recall-compare-col { display: flex; flex-direction: column; gap: var(--kf-space-2); min-width: 0; }
+.recall-col-label { font-size: var(--kf-fs-caption); font-weight: 600; color: var(--kf-muted-foreground); }
 .recall-text {
-  padding: var(--kb-space-3);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-background);
-  border: 1px solid var(--kb-border);
-  font-size: var(--kb-fs-body-md);
+  padding: var(--kf-space-3);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-background);
+  border: 1px solid var(--kf-border);
+  font-size: var(--kf-fs-body-md);
   line-height: 1.8;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   max-height: 340px;
   overflow-y: auto;
 }
-.recall-text-recall { background: var(--kb-card); }
+.recall-text-recall { background: var(--kf-card); }
 .recall-miss {
-  background: color-mix(in srgb, var(--kb-state-error) 16%, transparent);
-  color: var(--kb-state-error);
-  border-radius: var(--kb-radius-xs);
+  background: color-mix(in srgb, var(--kf-state-error) 16%, transparent);
+  color: var(--kf-state-error);
+  border-radius: var(--kf-radius-xs);
   font-weight: 600;
 }
 .recall-gap-block {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-2);
-  padding: var(--kb-space-4);
-  border-radius: var(--kb-radius-md);
-  background: color-mix(in srgb, var(--kb-state-warning) 6%, transparent);
-  border: 1px dashed color-mix(in srgb, var(--kb-state-warning) 45%, var(--kb-border));
+  gap: var(--kf-space-2);
+  padding: var(--kf-space-4);
+  border-radius: var(--kf-radius-md);
+  background: color-mix(in srgb, var(--kf-state-warning) 6%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--kf-state-warning) 45%, var(--kf-border));
 }
-.recall-gap-head { display: flex; align-items: center; justify-content: space-between; gap: var(--kb-space-3); flex-wrap: wrap; }
+.recall-gap-head { display: flex; align-items: center; justify-content: space-between; gap: var(--kf-space-3); flex-wrap: wrap; }
 .recall-gap-title {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .recall-gap-list { display: flex; flex-wrap: wrap; gap: 6px; }
 .recall-gap-chip {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-checkbox-gap);
+  gap: var(--kf-checkbox-gap);
   padding: 3px 9px;
   border-radius: 999px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-foreground);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-foreground);
   cursor: pointer;
 }
 .recall-gap-chip.is-picked {
-  border-color: var(--kb-state-warning);
-  background: color-mix(in srgb, var(--kb-state-warning) 15%, var(--kb-card));
+  border-color: var(--kf-state-warning);
+  background: color-mix(in srgb, var(--kf-state-warning) 15%, var(--kf-card));
 }
-.recall-gap-check { margin: 0; accent-color: var(--kb-primary); }
-.recall-gap-empty { margin: 0; font-size: var(--kb-fs-caption); color: var(--kb-muted-foreground); }
-.recall-gap-hint { margin: 0; font-size: var(--kb-fs-caption); color: var(--kb-state-warning); }
+.recall-gap-check { margin: 0; accent-color: var(--kf-primary); }
+.recall-gap-empty { margin: 0; font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); }
+.recall-gap-hint { margin: 0; font-size: var(--kf-fs-caption); color: var(--kf-state-warning); }
 .recall-save-gaps {
   padding: 5px 12px;
-  border-radius: var(--kb-radius-md);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-caption);
+  border-radius: var(--kf-radius-md);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-caption);
   font-weight: 600;
   cursor: pointer;
 }
 .recall-save-gaps:disabled { opacity: 0.55; cursor: not-allowed; }
-.recall-save-gaps:focus-visible { outline: 2px solid var(--kb-ring); outline-offset: 2px; }
-.recall-extra-block { display: flex; flex-direction: column; gap: var(--kb-space-2); }
+.recall-save-gaps:focus-visible { outline: 2px solid var(--kf-ring); outline-offset: 2px; }
+.recall-extra-block { display: flex; flex-direction: column; gap: var(--kf-space-2); }
 .recall-extra-list { display: flex; flex-wrap: wrap; gap: 6px; }
 .recall-extra-chip {
   padding: 2px 8px;
   border-radius: 999px;
-  background: var(--kb-background);
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-background);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 @media (max-width: 900px) {
   .recall-compare-columns { grid-template-columns: 1fr; }

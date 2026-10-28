@@ -5,10 +5,10 @@
     <!-- ============ 侧边：思维导图列表 ============ -->
     <aside class="mm-side" aria-label="我的思维导图">
       <div class="mm-side-head">
-        <Icon name="git-branch" :size="18" style="color: var(--kb-primary)" />
+        <Icon name="git-branch" :size="18" style="color: var(--kf-primary)" />
         <span class="mm-side-title">我的思维导图</span>
       </div>
-      <button :disabled="saving" :class="{ secondary: maps.length === 0 }" class="mm-new-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="newMap">
+      <button :disabled="saving" :class="{ secondary: maps.length === 0 }" class="mm-new-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" @click="newMap">
         <Icon name="file-plus" :size="16" /> 新建思维导图
       </button>
       <div class="mm-list">
@@ -19,7 +19,7 @@
           v-for="m in maps"
           :key="m.id"
         ><button
-          class="mm-list-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)]"
+          class="mm-list-item focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)]"
           :class="{ active: currentId === m.id }"
           @click="selectMap(m.id)"
         >
@@ -40,7 +40,7 @@
         <div class="mm-toolbar">
           <input
             v-model="title"
-            class="mm-title kb-input kb-form-control"
+            class="mm-title kf-input kf-form-control"
             placeholder="思维导图标题"
             aria-label="思维导图标题"
             @input="markDirty"
@@ -90,7 +90,7 @@
                   xmlns="http://www.w3.org/1999/xhtml"
                   class="mm-card focus-visible:outline-none"
                   :class="{ selected: selectedId === n.id, 'is-source': connectMode && connectFrom === n.id }"
-                  :style="{ borderColor: n.color || 'var(--kb-primary)' }"
+                  :style="{ borderColor: n.color || 'var(--kf-primary)' }"
                   tabindex="0"
                   @pointerdown="onNodeDown(n, $event)"
                   @dblclick="onNodeDblClick(n)"
@@ -100,7 +100,7 @@
                   <textarea
                     v-if="editingId === n.id"
                     :id="'mm-edit-' + n.id"
-                    class="mm-edit kb-textarea kb-form-control"
+                    class="mm-edit kf-textarea kf-form-control"
                     v-model="n.text"
                     @input="markDirty"
                     @pointerdown.stop
@@ -127,7 +127,7 @@
 
           <!-- 提示：空画布 -->
           <div v-if="visibleNodes.length === 0" class="mm-empty">
-            <Icon name="git-branch" :size="40" style="color: var(--kb-muted-foreground)" />
+            <Icon name="git-branch" :size="40" style="color: var(--kf-muted-foreground)" />
             <p>画布为空。点击工具栏「＋」添加根主题，或双击节点编辑文字。</p>
           </div>
         </div>
@@ -146,7 +146,7 @@
 
       <!-- 未选择任何图 -->
       <div v-else class="mm-blank">
-        <Icon name="git-branch" :size="48" style="color: var(--kb-muted-foreground)" />
+        <Icon name="git-branch" :size="48" style="color: var(--kf-muted-foreground)" />
         <h2>{{ maps.length ? '选择一张思维导图' : '把知识整理成思维导图' }}</h2>
         <p>从一个中心主题开始，添加分支节点，建立知识之间的联系。</p>
         <button v-if="!maps.length" :disabled="saving || loadingList || listError" class="mm-new-btn lg" @click="newMap"><Icon name="file-plus" :size="16" /> 新建思维导图</button>
@@ -183,7 +183,7 @@ function goBack() {
 
 const NODE_W = 184
 const NODE_H = 48
-const PALETTE = ['var(--kb-primary)', '#8B5CF6', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#0EA5E9']
+const PALETTE = ['var(--kf-primary)', '#8B5CF6', 'var(--kf-success)', 'var(--kf-warning)', 'var(--kf-danger)', '#0EA5E9']
 
 interface RenderedEdge extends MindMapEdge {
   hierarchy?: boolean
@@ -670,32 +670,32 @@ onMounted(loadList)
   display: flex;
   /* 全屏页外壳：导航 pt-14(56px) + 内容区 py-6(48px)，这里用视口高度扣除余量，
      保证 SVG 画布获得确定高度（百分比高度链成立），并截断溢出防止页面级滚动。 */
-  height: calc(100dvh - var(--kb-nav-height) - var(--kb-space-section) - var(--kb-space-section));
+  height: calc(100dvh - var(--kf-nav-height) - var(--kf-space-section) - var(--kf-space-section));
   min-height: 0;
-  background: var(--kb-background);
-  gap: var(--kb-space-3);
-  padding: var(--kb-space-3);
+  background: var(--kf-background);
+  gap: var(--kf-space-3);
+  padding: var(--kf-space-3);
   box-sizing: border-box;
   overflow: hidden;
 }
 .mm-side {
-  width: var(--kb-canvas-list-width);
-  flex: 0 0 var(--kb-canvas-list-width);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
+  width: var(--kf-canvas-list-width);
+  flex: 0 0 var(--kf-canvas-list-width);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
   display: flex;
   flex-direction: column;
-  padding: var(--kb-space-4);
+  padding: var(--kf-space-4);
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
 }
 .mm-side-head {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   font-weight: 700;
-  color: var(--kb-foreground);
-  margin-bottom: var(--kb-space-3);
+  color: var(--kf-foreground);
+  margin-bottom: var(--kf-space-3);
 }
 .mm-new-btn {
   display: flex;
@@ -704,16 +704,16 @@ onMounted(loadList)
   gap: 6px;
   width: 100%;
   padding: 9px 12px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   border: none;
-  background: var(--kb-primary, var(--kb-primary));
-  color: var(--kb-card);
+  background: var(--kf-primary, var(--kf-primary));
+  color: var(--kf-card);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
 }
 .mm-new-btn:hover {
-  background: var(--kb-primary-hover);
+  background: var(--kf-primary-hover);
 }
 .mm-new-btn.lg {
   width: auto;
@@ -730,49 +730,49 @@ onMounted(loadList)
   gap: 6px;
 }
 .mm-hint {
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
   padding: 8px 4px;
 }
 .mm-list-item {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   padding: 9px 10px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   border: 1px solid transparent;
-  background: var(--kb-surface-2);
+  background: var(--kf-surface-2);
   cursor: pointer;
   text-align: left;
   transition: all 0.15s;
 }
 .mm-list-item:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .mm-list-item.active {
-  border-color: var(--kb-primary, var(--kb-primary));
-  background: var(--kb-primary-soft);
+  border-color: var(--kf-primary, var(--kf-primary));
+  background: var(--kf-primary-soft);
 }
 .mm-list-ico {
-  color: var(--kb-primary, var(--kb-primary));
+  color: var(--kf-primary, var(--kf-primary));
   flex: 0 0 auto;
 }
 .mm-list-name {
   flex: 1;
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .mm-list-time {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   flex: 0 0 auto;
 }
 .mm-list-del {
   flex: 0 0 auto;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   display: none;
   padding: 2px;
   border-radius: 6px;
@@ -781,8 +781,8 @@ onMounted(loadList)
   display: inline-flex;
 }
 .mm-list-del:hover {
-  color: var(--kb-danger);
-  background: var(--kb-danger-soft-strong);
+  color: var(--kf-danger);
+  background: var(--kf-danger-soft-strong);
 }
 
 .mm-main {
@@ -792,23 +792,23 @@ onMounted(loadList)
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
 }
 .mm-toolbar {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   padding: 10px 14px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
-.mm-title:not(.kb-form-control) {
+.mm-title:not(.kf-form-control) {
   border: none;
   border-radius: 8px;
-  background: var(--kb-surface-2);
+  background: var(--kf-surface-2);
 }
 .mm-title {
   min-width: 0;
@@ -816,11 +816,11 @@ onMounted(loadList)
   flex: 1;
   font-size: 16px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   padding: 6px 8px;
 }
-.mm-title:not(.kb-form-control):focus {
-  background: var(--kb-primary-soft);
+.mm-title:not(.kf-form-control):focus {
+  background: var(--kf-primary-soft);
 }
 .mm-tools {
   display: flex;
@@ -833,30 +833,30 @@ onMounted(loadList)
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   border-radius: 9px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: all 0.15s;
 }
 .mm-tool-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-primary, var(--kb-primary));
-  border-color: var(--kb-border);
+  background: var(--kf-muted);
+  color: var(--kf-primary, var(--kf-primary));
+  border-color: var(--kf-border);
 }
 .mm-tool-btn.active {
-  background: var(--kb-primary-soft);
-  color: var(--kb-primary, var(--kb-primary));
-  border-color: var(--kb-primary, var(--kb-primary));
+  background: var(--kf-primary-soft);
+  color: var(--kf-primary, var(--kf-primary));
+  border-color: var(--kf-primary, var(--kf-primary));
 }
 .mm-tool-btn.mm-save {
-  color: var(--kb-card);
-  background: var(--kb-primary, var(--kb-primary));
-  border-color: var(--kb-primary, var(--kb-primary));
+  color: var(--kf-card);
+  background: var(--kf-primary, var(--kf-primary));
+  border-color: var(--kf-primary, var(--kf-primary));
 }
 .mm-tool-btn.mm-save:hover {
-  background: var(--kb-primary-hover);
+  background: var(--kf-primary-hover);
 }
 .mm-tool-btn:disabled {
   opacity: 0.5;
@@ -865,7 +865,7 @@ onMounted(loadList)
 .mm-tool-sep {
   width: 1px;
   height: 22px;
-  background: var(--kb-border);
+  background: var(--kf-border);
   margin: 0 4px;
 }
 
@@ -875,8 +875,8 @@ onMounted(loadList)
   flex: 1;
   overflow: hidden;
   background:
-    radial-gradient(circle, var(--kb-border) 1px, transparent 1px) 0 0 / 22px 22px,
-    var(--kb-background);
+    radial-gradient(circle, var(--kf-border) 1px, transparent 1px) 0 0 / 22px 22px,
+    var(--kf-background);
 }
 .mm-svg {
   width: 100%;
@@ -890,16 +890,16 @@ onMounted(loadList)
 }
 .mm-edge {
   fill: none;
-  stroke: var(--kb-muted-foreground);
+  stroke: var(--kf-muted-foreground);
   stroke-width: 2;
   cursor: pointer;
 }
 .mm-edge-free {
-  stroke: var(--kb-warning);
+  stroke: var(--kf-warning);
   stroke-dasharray: 6 4;
 }
 .mm-edge-hl {
-  stroke: var(--kb-primary, var(--kb-primary));
+  stroke: var(--kf-primary, var(--kf-primary));
   stroke-width: 3;
 }
 .mm-fo {
@@ -911,16 +911,16 @@ onMounted(loadList)
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  background: var(--kb-card);
-  border: 2px solid var(--kb-primary, var(--kb-primary));
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 2px solid var(--kf-primary, var(--kf-primary));
+  border-radius: var(--kf-radius-md);
   padding: 0 10px;
   cursor: grab;
   box-shadow: 0 2px 8px rgba(16, 24, 40, 0.08);
   position: relative;
   user-select: none;
 }
-.mm-card:focus-visible { outline: 2px solid var(--kb-ring); outline-offset: 2px; }
+.mm-card:focus-visible { outline: 2px solid var(--kf-ring); outline-offset: 2px; }
 .mm-card:focus-within .mm-card-tools { display: flex; }
 .mm-card.selected {
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.25);
@@ -929,8 +929,8 @@ onMounted(loadList)
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.5);
 }
 .mm-card-text {
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-foreground);
   font-weight: 600;
   line-height: 1.3;
   overflow: hidden;
@@ -940,7 +940,7 @@ onMounted(loadList)
   -webkit-box-orient: vertical;
   padding-right: 46px;
 }
-.mm-edit:not(.kb-form-control) {
+.mm-edit:not(.kf-form-control) {
   border: none;
   outline: none;
   background: transparent;
@@ -949,9 +949,9 @@ onMounted(loadList)
   flex: 1;
   width: 100%;
   resize: none;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-family: inherit;
   line-height: 1.3;
   padding-right: 46px;
@@ -974,18 +974,18 @@ onMounted(loadList)
   align-items: center;
   justify-content: center;
   border: none;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   border-radius: 6px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
 }
 .mm-card-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-primary, var(--kb-primary));
+  background: var(--kf-muted);
+  color: var(--kf-primary, var(--kf-primary));
 }
 .mm-card-btn.mm-danger:hover {
-  background: var(--kb-danger-soft-strong);
-  color: var(--kb-danger);
+  background: var(--kf-danger-soft-strong);
+  color: var(--kf-danger);
 }
 
 .mm-empty,
@@ -997,22 +997,22 @@ onMounted(loadList)
   align-items: center;
   justify-content: center;
   gap: 10px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   text-align: center;
   pointer-events: none;
-  padding: var(--kb-space-6);
+  padding: var(--kf-space-6);
 }
 .mm-blank {
   pointer-events: auto;
 }
 .mm-blank h2 {
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-h4);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-h4);
   margin: 0;
 }
 .mm-blank p {
   max-width: 360px;
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   line-height: 1.6;
   margin: 0;
 }
@@ -1022,44 +1022,44 @@ onMounted(loadList)
   align-items: center;
   gap: 16px;
   padding: 8px 14px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
   font-size: 12px;
-  color: var(--kb-muted-foreground);
-  background: var(--kb-background);
+  color: var(--kf-muted-foreground);
+  background: var(--kf-background);
 }
 .mm-dirty {
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 .mm-saved {
-  color: var(--kb-success);
+  color: var(--kf-success);
 }
 .mm-sav-dot {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .mm-connect-hint {
-  color: var(--kb-warning);
+  color: var(--kf-warning);
   margin-left: auto;
 }
 
-.mm-new-btn.secondary { background: var(--kb-surface-2); color: var(--kb-foreground); border: 1px solid var(--kb-border); }
+.mm-new-btn.secondary { background: var(--kf-surface-2); color: var(--kf-foreground); border: 1px solid var(--kf-border); }
 .mm-new-btn:disabled { opacity: .5; cursor: not-allowed; }
 .mm-side { min-width: 0; }
-.mm-blank { position: static; flex: 1; min-height: 0; gap: var(--kb-space-4); }
+.mm-blank { position: static; flex: 1; min-height: 0; gap: var(--kf-space-4); }
 .mm-blank h2 { max-width: 100%; }
 .mm-list-item { min-width: 0; flex-shrink: 0; }
 .mm-tools, .mm-status { flex-wrap: wrap; }
-.mm-directory-toggle { display: none; align-items: center; gap: var(--kb-space-2); height: var(--kb-btn-height-sm); padding: 0 var(--kb-space-3); background: var(--kb-card); border: 1px solid var(--kb-border); border-radius: var(--kb-radius-sm); }
+.mm-directory-toggle { display: none; align-items: center; gap: var(--kf-space-2); height: var(--kf-btn-height-sm); padding: 0 var(--kf-space-3); background: var(--kf-card); border: 1px solid var(--kf-border); border-radius: var(--kf-radius-sm); }
 .mm-list-item:focus-within .mm-list-del { display: inline-flex; }
 @media (max-width: 1100px) {
  .mm-directory-toggle { display: inline-flex; }
- .mm-root { position: relative; padding: 0; height: calc(100dvh - var(--kb-nav-height) - var(--kb-space-section) - var(--kb-space-section) - var(--kb-space-section)); }
+ .mm-root { position: relative; padding: 0; height: calc(100dvh - var(--kf-nav-height) - var(--kf-space-section) - var(--kf-space-section) - var(--kf-space-section)); }
  .mm-side { display: none; }
- .mm-root.side-open .mm-side { display: flex; position: absolute; z-index: 5; inset: 0 auto 0 0; max-width: 85%; box-shadow: var(--kb-shadow-lg); }
+ .mm-root.side-open .mm-side { display: flex; position: absolute; z-index: 5; inset: 0 auto 0 0; max-width: 85%; box-shadow: var(--kf-shadow-lg); }
  .mm-toolbar { flex-wrap: wrap; }
  .mm-title { flex-basis: 100%; }
 }
-.mm-list-row { display: flex; align-items: center; gap: var(--kb-space-1); }
+.mm-list-row { display: flex; align-items: center; gap: var(--kf-space-1); }
 .mm-list-item { flex: 1; }
 .mm-list-del { display: inline-flex; background: transparent; border: 0; }
-.mm-root button:focus-visible { outline: 2px solid var(--kb-ring); outline-offset: 2px; }
+.mm-root button:focus-visible { outline: 2px solid var(--kf-ring); outline-offset: 2px; }
 </style>

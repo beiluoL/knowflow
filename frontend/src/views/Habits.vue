@@ -1,16 +1,16 @@
 <template>
   <div class="animate-fade-in habits-page">
     <!-- ===== 面包屑 + 标题 ===== -->
-    <div class="flex items-center gap-2 text-xs mb-4" style="color: var(--kb-muted-foreground);">
-      <router-link to="/tasks" class="hover:underline" style="color: var(--kb-primary);">任务中心</router-link>
+    <div class="flex items-center gap-2 text-xs mb-4" style="color: var(--kf-muted-foreground);">
+      <router-link to="/tasks" class="hover:underline" style="color: var(--kf-primary);">任务中心</router-link>
       <Icon name="chevron-right" :size="12" />
       <span>习惯打卡</span>
     </div>
 
     <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
       <div>
-        <h1 class="kb-h1 mb-1">习惯打卡</h1>
-        <p class="kb-body-sm" style="font-size: 14px;">坚持微习惯，复利成长</p>
+        <h1 class="kf-h1 mb-1">习惯打卡</h1>
+        <p class="kf-body-sm" style="font-size: 14px;">坚持微习惯，复利成长</p>
       </div>
       <button type="button" class="btn-primary" @click="openCreate">
         <Icon name="plus" :size="16" />
@@ -20,15 +20,15 @@
 
     <!-- ===== 概览统计 ===== -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <StatCard icon="repeat" icon-color="var(--kb-primary)" icon-bg="rgba(59,111,224,0.12)" :value="habits.length" label="进行中习惯" />
-      <StatCard icon="check-circle" icon-color="var(--kb-accent)" icon-bg="rgba(16,185,129,0.12)" :value="`${todayDoneCount}/${habits.length}`" label="今日已达标" />
-      <StatCard icon="flame" icon-color="var(--kb-warning)" icon-bg="rgba(245,158,11,0.12)" :value="maxStreak" label="最长连续" />
+      <StatCard icon="repeat" icon-color="var(--kf-primary)" icon-bg="rgba(59,111,224,0.12)" :value="habits.length" label="进行中习惯" />
+      <StatCard icon="check-circle" icon-color="var(--kf-accent)" icon-bg="rgba(16,185,129,0.12)" :value="`${todayDoneCount}/${habits.length}`" label="今日已达标" />
+      <StatCard icon="flame" icon-color="var(--kf-warning)" icon-bg="rgba(245,158,11,0.12)" :value="maxStreak" label="最长连续" />
       <StatCard icon="award" icon-color="#8B5CF6" icon-bg="rgba(139,92,246,0.12)" :value="totalCheckins" label="累计达标天数" />
     </div>
 
     <!-- ===== 空状态 ===== -->
     <div v-if="!loading && habits.length === 0" class="empty-state">
-      <Icon name="repeat" :size="40" style="color: var(--kb-muted-foreground); opacity: 0.5;" />
+      <Icon name="repeat" :size="40" style="color: var(--kf-muted-foreground); opacity: 0.5;" />
       <p class="mb-2">还没有习惯，点击右上角「新建习惯」开始坚持</p>
       <p class="empty-hint">建议从「每日阅读 30 分钟」「每日 8 杯水」等小习惯开始</p>
     </div>
@@ -60,10 +60,10 @@
         <div class="habit-body">
           <div class="progress-ring">
             <svg class="ring-svg" viewBox="0 0 80 80">
-              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--kb-muted)" stroke-width="7" />
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--kf-muted)" stroke-width="7" />
               <circle
                 cx="40" cy="40" r="34" fill="none"
-                :stroke="h.completedToday ? 'var(--kb-accent)' : 'var(--kb-primary)'"
+                :stroke="h.completedToday ? 'var(--kf-accent)' : 'var(--kf-primary)'"
                 stroke-width="7" stroke-linecap="round"
                 :stroke-dasharray="ringCircumference"
                 :stroke-dashoffset="ringCircumference - ringCircumference * ringPercent(h)"
@@ -78,22 +78,22 @@
 
           <div class="habit-stats">
             <div class="hs-row">
-              <Icon name="flame" :size="14" style="color: var(--kb-warning);" />
+              <Icon name="flame" :size="14" style="color: var(--kf-warning);" />
               <span class="hs-label">连续</span>
               <span class="hs-val tabular-nums">{{ h.streak }} {{ h.frequency === 'weekly' ? '周' : '天' }}</span>
             </div>
             <div class="hs-row">
-              <Icon name="trophy" :size="14" style="color: var(--kb-warning);" />
+              <Icon name="trophy" :size="14" style="color: var(--kf-warning);" />
               <span class="hs-label">最佳</span>
               <span class="hs-val tabular-nums">{{ h.bestStreak }} {{ h.frequency === 'weekly' ? '周' : '天' }}</span>
             </div>
             <div class="hs-row">
-              <Icon name="calendar" :size="14" style="color: var(--kb-muted-foreground);" />
+              <Icon name="calendar" :size="14" style="color: var(--kf-muted-foreground);" />
               <span class="hs-label">累计</span>
               <span class="hs-val tabular-nums">{{ h.totalDays }} 天</span>
             </div>
             <div v-if="h.reminderTime" class="hs-row">
-              <Icon name="bell" :size="14" style="color: var(--kb-primary);" />
+              <Icon name="bell" :size="14" style="color: var(--kf-primary);" />
               <span class="hs-label">提醒</span>
               <span class="hs-val tabular-nums">{{ h.reminderTime }}</span>
             </div>
@@ -139,7 +139,7 @@
               <label class="hm-label">习惯名称 <span class="req">*</span></label>
               <input
                 v-model="form.name"
-                class="hm-input kb-input kb-form-control"
+                class="hm-input kf-input kf-form-control"
                 placeholder="如：每日阅读 30 分钟"
                 maxlength="50"
               />
@@ -148,7 +148,7 @@
               <label class="hm-label">描述（可选）</label>
               <input
                 v-model="form.description"
-                class="hm-input kb-input kb-form-control"
+                class="hm-input kf-input kf-form-control"
                 placeholder="坚持的意义与目标"
                 maxlength="120"
               />
@@ -163,7 +163,7 @@
               </div>
               <div class="hm-field">
                 <label class="hm-label">目标次数</label>
-                <input v-model.number="form.targetCount" type="number" min="1" max="99" class="hm-input kb-input kb-form-control" />
+                <input v-model.number="form.targetCount" type="number" min="1" max="99" class="hm-input kf-input kf-form-control" />
               </div>
             </div>
             <div class="hm-field">
@@ -247,14 +247,14 @@ const form = ref<HabitPayload & { name: string }>({
   name: '',
   description: '',
   icon: 'repeat',
-  color: 'var(--kb-primary)',
+  color: 'var(--kf-primary)',
   frequency: 'daily',
   targetCount: 1,
   reminderTime: null,
 })
 
 const iconPresets = ['repeat', 'book-open', 'droplets', 'dumbbell', 'coffee', 'moon', 'sun', 'pen-tool', 'music', 'heart']
-const colorPresets = ['var(--kb-primary)', 'var(--kb-accent)', 'var(--kb-warning)', '#8B5CF6', '#EC4899', '#0EA5E9']
+const colorPresets = ['var(--kf-primary)', 'var(--kf-accent)', 'var(--kf-warning)', '#8B5CF6', '#EC4899', '#0EA5E9']
 
 function openCreate() {
   editing.value = null
@@ -262,7 +262,7 @@ function openCreate() {
     name: '',
     description: '',
     icon: 'repeat',
-    color: 'var(--kb-primary)',
+    color: 'var(--kf-primary)',
     frequency: 'daily',
     targetCount: 1,
     reminderTime: null,
@@ -451,7 +451,7 @@ function freqLabel(h: HabitVO): string {
   return h.frequency === 'weekly' ? `每周目标 ${h.targetCount} 次` : `每日目标 ${h.targetCount} 次`
 }
 function hexBg(color: string): string {
-  // 把 var(--kb-primary) 等映射为带透明度的背景
+  // 把 var(--kf-primary) 等映射为带透明度的背景
   if (color.startsWith('var(')) {
     return 'rgba(59,111,224,0.12)'
   }
@@ -463,13 +463,13 @@ function hexBg(color: string): string {
 .animate-fade-in { animation: fadeIn 0.4s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* UI/UX V1.0：移除页面内对 .kb-h1 的局部覆盖（原 28px/700），统一走全局语义字号/字重令牌 */
-.kb-body-sm { font-size: 12px; line-height: 1.5; color: var(--kb-muted-foreground); }
+/* UI/UX V1.0：移除页面内对 .kf-h1 的局部覆盖（原 28px/700），统一走全局语义字号/字重令牌 */
+.kf-body-sm { font-size: 12px; line-height: 1.5; color: var(--kf-muted-foreground); }
 
 .btn-primary {
   display: inline-flex; align-items: center; gap: 8px;
-  padding: 10px 18px; border-radius: var(--kb-radius-lg);
-  background: var(--kb-primary); color: var(--kb-primary-foreground);
+  padding: 10px 18px; border-radius: var(--kf-radius-lg);
+  background: var(--kf-primary); color: var(--kf-primary-foreground);
   border: none; cursor: pointer; font-size: 14px; font-weight: 600;
   transition: opacity 0.15s, transform 0.15s;
 }
@@ -478,7 +478,7 @@ function hexBg(color: string): string {
 /* ===== 空状态 / 加载态 ===== */
 .empty-state, .loading-state {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 60px 20px; color: var(--kb-muted-foreground); text-align: center;
+  padding: 60px 20px; color: var(--kf-muted-foreground); text-align: center;
 }
 .empty-state p { font-size: 14px; }
 .empty-hint { font-size: 12px; opacity: 0.8; }
@@ -489,8 +489,8 @@ function hexBg(color: string): string {
 
 /* ===== 习惯卡片 ===== */
 .habit-card {
-  padding: 20px; border-radius: var(--kb-radius-lg);
-  background: var(--kb-card); border: 1px solid var(--kb-border);
+  padding: 20px; border-radius: var(--kf-radius-lg);
+  background: var(--kf-card); border: 1px solid var(--kf-border);
   transition: box-shadow 0.2s, border-color 0.2s;
 }
 .habit-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.05); border-color: rgba(59,111,224,0.3); }
@@ -498,21 +498,21 @@ function hexBg(color: string): string {
 
 .habit-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
 .habit-icon {
-  width: 44px; height: 44px; border-radius: var(--kb-radius-md);
+  width: 44px; height: 44px; border-radius: var(--kf-radius-md);
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .habit-meta { flex: 1; min-width: 0; }
-.habit-title { font-size: 16px; font-weight: 600; color: var(--kb-foreground); margin-bottom: 2px; }
-.habit-desc { font-size: 12px; color: var(--kb-muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.habit-title { font-size: 16px; font-weight: 600; color: var(--kf-foreground); margin-bottom: 2px; }
+.habit-desc { font-size: 12px; color: var(--kf-muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .habit-actions { display: flex; gap: 2px; opacity: 0; transition: opacity 0.15s; }
 .habit-card:hover .habit-actions { opacity: 1; }
 .habit-actions button {
   width: 28px; height: 28px; border: none; background: transparent;
-  color: var(--kb-muted-foreground); border-radius: var(--kb-radius-sm); cursor: pointer;
+  color: var(--kf-muted-foreground); border-radius: var(--kf-radius-sm); cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center; transition: all 0.12s;
 }
-.habit-actions button:hover { background: var(--kb-muted); color: var(--kb-foreground); }
-.habit-actions button.danger:hover { color: var(--kb-destructive); background: rgba(239,68,68,0.1); }
+.habit-actions button:hover { background: var(--kf-muted); color: var(--kf-foreground); }
+.habit-actions button.danger:hover { color: var(--kf-destructive); background: rgba(239,68,68,0.1); }
 
 .habit-body { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
 .progress-ring { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
@@ -522,42 +522,42 @@ function hexBg(color: string): string {
   position: absolute; inset: 0; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
 }
-.ring-count { font-size: 18px; font-weight: 700; color: var(--kb-foreground); }
-.ring-target { font-size: 12px; font-weight: 500; color: var(--kb-muted-foreground); }
-.ring-label { font-size: 10px; color: var(--kb-muted-foreground); }
+.ring-count { font-size: 18px; font-weight: 700; color: var(--kf-foreground); }
+.ring-target { font-size: 12px; font-weight: 500; color: var(--kf-muted-foreground); }
+.ring-label { font-size: 10px; color: var(--kf-muted-foreground); }
 
 .habit-stats { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .hs-row { display: flex; align-items: center; gap: 6px; font-size: 12px; }
-.hs-label { color: var(--kb-muted-foreground); }
-.hs-val { color: var(--kb-foreground); font-weight: 600; margin-left: auto; }
+.hs-label { color: var(--kf-muted-foreground); }
+.hs-val { color: var(--kf-foreground); font-weight: 600; margin-left: auto; }
 
 .btn-checkin {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 10px 20px; border-radius: var(--kb-radius-md);
-  background: var(--kb-primary); color: var(--kb-primary-foreground);
+  padding: 10px 20px; border-radius: var(--kf-radius-md);
+  background: var(--kf-primary); color: var(--kf-primary-foreground);
   border: none; cursor: pointer; font-size: 13px; font-weight: 600;
   transition: opacity 0.15s; flex-shrink: 0;
 }
 .btn-checkin:hover:not(:disabled) { opacity: 0.9; }
 .btn-checkin:disabled { opacity: 0.6; cursor: not-allowed; }
-.habit-card.done .btn-checkin { background: rgba(16,185,129,0.12); color: var(--kb-accent); }
+.habit-card.done .btn-checkin { background: rgba(16,185,129,0.12); color: var(--kf-accent); }
 
 /* ===== 周进度条 ===== */
 .weekly-bars {
   display: flex; gap: 6px; padding-top: 16px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 .wb-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .wb-track {
   width: 100%; height: 48px; border-radius: 4px;
-  background: var(--kb-muted); display: flex; align-items: flex-end; overflow: hidden;
+  background: var(--kf-muted); display: flex; align-items: flex-end; overflow: hidden;
 }
 .wb-fill {
   width: 100%; border-radius: 4px; background: rgba(59,111,224,0.4);
   transition: height 0.4s ease, background 0.2s;
 }
-.wb-fill.done { background: var(--kb-accent); }
-.wb-label { font-size: 10px; color: var(--kb-muted-foreground); }
+.wb-fill.done { background: var(--kf-accent); }
+.wb-label { font-size: 10px; color: var(--kf-muted-foreground); }
 
 /* ===== 弹窗 ===== */
 .habit-modal-mask {
@@ -567,69 +567,69 @@ function hexBg(color: string): string {
 }
 .habit-modal {
   width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
-  background: var(--kb-card); border-radius: var(--kb-radius-lg);
-  border: 1px solid var(--kb-border); box-shadow: var(--shadow-dropdown-3);
+  background: var(--kf-card); border-radius: var(--kf-radius-lg);
+  border: 1px solid var(--kf-border); box-shadow: var(--shadow-dropdown-3);
 }
 .hm-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 20px; border-bottom: 1px solid var(--kb-border);
+  padding: 18px 20px; border-bottom: 1px solid var(--kf-border);
 }
-.hm-title { font-size: 16px; font-weight: 600; color: var(--kb-foreground); }
+.hm-title { font-size: 16px; font-weight: 600; color: var(--kf-foreground); }
 .hm-close {
   width: 30px; height: 30px; border: none; background: transparent;
-  color: var(--kb-muted-foreground); border-radius: var(--kb-radius-sm); cursor: pointer;
+  color: var(--kf-muted-foreground); border-radius: var(--kf-radius-sm); cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center;
 }
-.hm-close:hover { background: var(--kb-muted); color: var(--kb-foreground); }
+.hm-close:hover { background: var(--kf-muted); color: var(--kf-foreground); }
 .hm-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
 .hm-field { display: flex; flex-direction: column; gap: 6px; }
 .hm-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .hm-timepicker { width: 100%; }
-.hm-label { font-size: 12px; font-weight: 600; color: var(--kb-foreground); }
-.req { color: var(--kb-destructive); }
-.hm-input:not(.kb-form-control) { border-radius: var(--kb-radius-sm);
-  border: 1px solid var(--kb-border); background: var(--kb-background); outline: none; transition: border-color 0.15s;
+.hm-label { font-size: 12px; font-weight: 600; color: var(--kf-foreground); }
+.req { color: var(--kf-destructive); }
+.hm-input:not(.kf-form-control) { border-radius: var(--kf-radius-sm);
+  border: 1px solid var(--kf-border); background: var(--kf-background); outline: none; transition: border-color 0.15s;
 }
 .hm-input {
   padding: 9px 12px;
-  color: var(--kb-foreground); font-size: 14px;
+  color: var(--kf-foreground); font-size: 14px;
 }
-.hm-input:not(.kb-form-control):focus { border-color: var(--kb-primary); }
+.hm-input:not(.kf-form-control):focus { border-color: var(--kf-primary); }
 .seg-control {
-  display: inline-flex; background: var(--kb-muted); padding: 3px; border-radius: var(--kb-radius-sm);
+  display: inline-flex; background: var(--kf-muted); padding: 3px; border-radius: var(--kf-radius-sm);
 }
 .seg-control button {
   flex: 1; padding: 7px 12px; border: none; background: transparent;
-  border-radius: calc(var(--kb-radius-sm) - 2px); cursor: pointer; font-size: 13px;
-  color: var(--kb-muted-foreground); transition: all 0.12s;
+  border-radius: calc(var(--kf-radius-sm) - 2px); cursor: pointer; font-size: 13px;
+  color: var(--kf-muted-foreground); transition: all 0.12s;
 }
-.seg-control button.active { background: var(--kb-card); color: var(--kb-primary); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.seg-control button.active { background: var(--kf-card); color: var(--kf-primary); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
 
 .icon-picker, .color-picker { display: flex; flex-wrap: wrap; gap: 8px; }
 .ip-btn {
-  width: 36px; height: 36px; border: 1.5px solid var(--kb-border); background: var(--kb-background);
-  color: var(--kb-muted-foreground); border-radius: var(--kb-radius-sm); cursor: pointer;
+  width: 36px; height: 36px; border: 1.5px solid var(--kf-border); background: var(--kf-background);
+  color: var(--kf-muted-foreground); border-radius: var(--kf-radius-sm); cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center; transition: all 0.12s;
 }
-.ip-btn:hover { border-color: var(--kb-primary); color: var(--kb-primary); }
-.ip-btn.active { border-color: var(--kb-primary); color: var(--kb-primary); background: rgba(59,111,224,0.08); }
+.ip-btn:hover { border-color: var(--kf-primary); color: var(--kf-primary); }
+.ip-btn.active { border-color: var(--kf-primary); color: var(--kf-primary); background: rgba(59,111,224,0.08); }
 .cp-btn {
   width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent;
   cursor: pointer; transition: transform 0.12s, border-color 0.12s;
 }
 .cp-btn:hover { transform: scale(1.12); }
-.cp-btn.active { border-color: var(--kb-foreground); }
+.cp-btn.active { border-color: var(--kf-foreground); }
 
 .hm-foot {
   display: flex; justify-content: flex-end; gap: 10px;
-  padding: 16px 20px; border-top: 1px solid var(--kb-border);
+  padding: 16px 20px; border-top: 1px solid var(--kf-border);
 }
 .hm-btn {
-  padding: 9px 18px; border-radius: var(--kb-radius-sm); border: none; cursor: pointer;
+  padding: 9px 18px; border-radius: var(--kf-radius-sm); border: none; cursor: pointer;
   font-size: 14px; font-weight: 600; transition: all 0.15s;
 }
-.hm-btn.ghost { background: var(--kb-muted); color: var(--kb-foreground); }
-.hm-btn.ghost:hover { background: var(--kb-border); }
-.hm-btn.primary { background: var(--kb-primary); color: var(--kb-primary-foreground); }
+.hm-btn.ghost { background: var(--kf-muted); color: var(--kf-foreground); }
+.hm-btn.ghost:hover { background: var(--kf-border); }
+.hm-btn.primary { background: var(--kf-primary); color: var(--kf-primary-foreground); }
 .hm-btn.primary:disabled { opacity: 0.6; cursor: not-allowed; }
 </style>

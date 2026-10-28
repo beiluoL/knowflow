@@ -9,34 +9,34 @@
 :root {
   /* =====================================================================
    * F-07 设计令牌单一来源（Single Source of Truth）
-   * 本文件 :root 的 --kb-* 是全项目唯一颜色令牌定义处。
-   * 1. 旧版 --color-* 变量一律引用 --kb-*，禁止再写死色值；
+   * 本文件 :root 的 --kf-* 是全项目唯一颜色令牌定义处。
+   * 1. 旧版 --color-* 变量一律引用 --kf-*，禁止再写死色值；
    * 2. tailwind.config.js 的 primary/success/warning/danger 色板必须与
-   *    此处 --kb-* 保持一致（主色 #3B6FE0）；改主题时先改这里再同步 tailwind。
+   *    此处 --kf-* 保持一致（主色 #3B6FE0）；改主题时先改这里再同步 tailwind。
    * ===================================================================== */
 
-  /* ===== Design-system tokens (--kb-* 与设计稿统一) ===== */
-  --kb-background: #F7F8FA;
-  --kb-foreground: #1A1D23;
-  --kb-card: #FFFFFF;
-  --kb-card-foreground: #1A1D23;
-  --kb-popover: #FFFFFF;
-  --kb-popover-foreground: #1A1D23;
-  --kb-primary: #3B6FE0;
-  --kb-primary-foreground: #FFFFFF;
-  --kb-muted: #E8ECF1;
-  --kb-muted-foreground: #6B7280;
-  --kb-border: #E2E6EC;
-  --kb-input: #E2E6EC;
-  --kb-ring: #3B6FE0;
-  --kb-sidebar: #F0F2F5;
-  --kb-sidebar-foreground: #374151;
-  --kb-accent: #10B981;
-  --kb-accent-foreground: #FFFFFF;
-  --kb-destructive: #EF4444;
-  --kb-destructive-foreground: #FFFFFF;
-  --kb-warning: #F59E0B;
-  --kb-warning-foreground: #FFFFFF;
+  /* ===== Design-system tokens (--kf-* 与设计稿统一) ===== */
+  --kf-background: #F7F8FA;
+  --kf-foreground: #1A1D23;
+  --kf-card: #FFFFFF;
+  --kf-card-foreground: #1A1D23;
+  --kf-popover: #FFFFFF;
+  --kf-popover-foreground: #1A1D23;
+  --kf-primary: #3B6FE0;
+  --kf-primary-foreground: #FFFFFF;
+  --kf-muted: #E8ECF1;
+  --kf-muted-foreground: #6B7280;
+  --kf-border: #E2E6EC;
+  --kf-input: #E2E6EC;
+  --kf-ring: #3B6FE0;
+  --kf-sidebar: #F0F2F5;
+  --kf-sidebar-foreground: #374151;
+  --kf-accent: #10B981;
+  --kf-accent-foreground: #FFFFFF;
+  --kf-destructive: #EF4444;
+  --kf-destructive-foreground: #FFFFFF;
+  --kf-warning: #F59E0B;
+  --kf-warning-foreground: #FFFFFF;
 
   /* ===== Signature Highlight（高光时刻标识色） =====
    * 暖橘 #FF6B35 是 KnowFlow 的 signature accent，区别于主蓝，
@@ -44,78 +44,78 @@
    * 与主色 #3B6FE0 形成 80/20 主辅关系，制造视觉惊喜与记忆点。
    * 使用建议：不大面积铺色，仅用于徽章、图标、动效高光、强调数字。
    */
-  --kb-highlight: #FF6B35;
-  --kb-highlight-foreground: #FFFFFF;
-  --kb-highlight-soft: rgba(255, 107, 53, 0.10); /* 软背景：徽章底色、卡片高光 */
-  --kb-highlight-border: rgba(255, 107, 53, 0.30);
+  --kf-highlight: #FF6B35;
+  --kf-highlight-foreground: #FFFFFF;
+  --kf-highlight-soft: rgba(255, 107, 53, 0.10); /* 软背景：徽章底色、卡片高光 */
+  --kf-highlight-border: rgba(255, 107, 53, 0.30);
 
   /* ===== 语义状态色（success / warning / error / info）=====
    * 用于状态徽标、进度数字、通过/失败标记、复习状态等。
-   * 与 --kb-accent / --kb-warning / --kb-destructive 色族一致，
+   * 与 --kf-accent / --kf-warning / --kf-destructive 色族一致，
    * 但取稍深一档以保证在浅色软背景上的文字对比度（满足 WCAG AA）。
-   * --kb-state-info 复用主蓝，用于提示性文字。
+   * --kf-state-info 复用主蓝，用于提示性文字。
    */
-  --kb-state-success: #047857;   /* emerald-700，软绿底上的深绿文字 */
-  --kb-state-warning: #B45309;   /* amber-700，软琥珀底上的深琥珀文字 */
-  --kb-state-error: #B91C1C;     /* red-700，软红底上的深红文字 */
-  --kb-state-info: #2F59B3;      /* primary-600，软蓝底上的深蓝文字 */
+  --kf-state-success: #047857;   /* emerald-700，软绿底上的深绿文字 */
+  --kf-state-warning: #B45309;   /* amber-700，软琥珀底上的深琥珀文字 */
+  --kf-state-error: #B91C1C;     /* red-700，软红底上的深红文字 */
+  --kf-state-info: #2F59B3;      /* primary-600，软蓝底上的深蓝文字 */
 
   /* ===== 主色软背景 / 下拉阴影令牌 =====
-   * --kb-primary-soft：主色 8% 透明度，用于选中态背景、聚焦光晕；
+   * --kf-primary-soft：主色 8% 透明度，用于选中态背景、聚焦光晕；
    * --shadow-dropdown-*：自定义下拉/浮层的分层阴影（2=轻、3=重）。
    */
-  --kb-primary-soft: rgba(59, 111, 224, 0.08);
+  --kf-primary-soft: rgba(59, 111, 224, 0.08);
   --shadow-dropdown-2: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-dropdown-3: 0 12px 32px rgba(0, 0, 0, 0.12);
 
   /* ===== Phase UI-1：语义色阶令牌（hover / active / soft-strong / subtle）=====
    * 背景：tailwind.config.js 原先把 primary/success/warning/danger/highlight
    * 写成硬编码 hex 色板（如 primary-500: #3B6FE0），导致深色模式下
-   * --kb-primary 变成 #4F86F9 而 primary-500 仍是 #3B6FE0 —— 主色漂移。
+   * --kf-primary 变成 #4F86F9 而 primary-500 仍是 #3B6FE0 —— 主色漂移。
    * 解决：色板每一档改为引用本处令牌，class 名（bg-primary-500 等）保持不变，
    * 因此无需改动任何页面代码即可让深色模式正确跟随。
    * 浅色档位数值与原色板逐档一致，保证视觉效果不变。
    */
-  --kb-primary-hover: #2F59B3;          /* primary-600 */
-  --kb-primary-active: #234386;         /* primary-700 */
-  --kb-primary-soft-strong: #DBE6FC;    /* primary-100 */
-  --kb-primary-subtle: #EFF4FE;         /* primary-50  */
-  --kb-primary-tint: #B7CDF9;           /* primary-200 */
-  --kb-primary-tint-strong: #93B3F5;    /* primary-300 */
-  --kb-primary-muted: #6F9AF2;          /* primary-400 */
+  --kf-primary-hover: #2F59B3;          /* primary-600 */
+  --kf-primary-active: #234386;         /* primary-700 */
+  --kf-primary-soft-strong: #DBE6FC;    /* primary-100 */
+  --kf-primary-subtle: #EFF4FE;         /* primary-50  */
+  --kf-primary-tint: #B7CDF9;           /* primary-200 */
+  --kf-primary-tint-strong: #93B3F5;    /* primary-300 */
+  --kf-primary-muted: #6F9AF2;          /* primary-400 */
 
-  --kb-success-hover: #059669;          /* success-600 */
-  --kb-success-active: #047857;         /* success-700 */
-  --kb-success-soft-strong: #D1FAE5;    /* success-100 */
-  --kb-success-subtle: #ECFDF5;         /* success-50  */
+  --kf-success-hover: #059669;          /* success-600 */
+  --kf-success-active: #047857;         /* success-700 */
+  --kf-success-soft-strong: #D1FAE5;    /* success-100 */
+  --kf-success-subtle: #ECFDF5;         /* success-50  */
 
-  --kb-warning-hover: #D97706;          /* warning-600 */
-  --kb-warning-active: #B45309;         /* warning-700 */
-  --kb-warning-soft-strong: #FEF3C7;    /* warning-100 */
-  --kb-warning-subtle: #FFFBEB;         /* warning-50  */
+  --kf-warning-hover: #D97706;          /* warning-600 */
+  --kf-warning-active: #B45309;         /* warning-700 */
+  --kf-warning-soft-strong: #FEF3C7;    /* warning-100 */
+  --kf-warning-subtle: #FFFBEB;         /* warning-50  */
 
-  --kb-danger-hover: #DC2626;           /* danger-600 */
-  --kb-danger-active: #B91C1C;          /* danger-700 */
-  --kb-danger-soft-strong: #FEE2E2;     /* danger-100 */
-  --kb-danger-subtle: #FEF2F2;          /* danger-50  */
-  --kb-danger-tint: #FCA5A5;            /* danger-300 */
-  --kb-danger-muted: #F87171;           /* danger-400 */
+  --kf-danger-hover: #DC2626;           /* danger-600 */
+  --kf-danger-active: #B91C1C;          /* danger-700 */
+  --kf-danger-soft-strong: #FEE2E2;     /* danger-100 */
+  --kf-danger-subtle: #FEF2F2;          /* danger-50  */
+  --kf-danger-tint: #FCA5A5;            /* danger-300 */
+  --kf-danger-muted: #F87171;           /* danger-400 */
 
-  --kb-highlight-hover: #E85420;        /* highlight-600 */
-  --kb-highlight-active: #BF4214;       /* highlight-700 */
-  --kb-highlight-soft-strong: #FFE6D5;  /* highlight-100 */
-  --kb-highlight-subtle: #FFF4EE;       /* highlight-50  */
+  --kf-highlight-hover: #E85420;        /* highlight-600 */
+  --kf-highlight-active: #BF4214;       /* highlight-700 */
+  --kf-highlight-soft-strong: #FFE6D5;  /* highlight-100 */
+  --kf-highlight-subtle: #FFF4EE;       /* highlight-50  */
 
   /* 中性色阶（补充 Tailwind gray 之外的语义命名，供新代码优先使用） */
-  --kb-neutral-soft: var(--kb-muted);
-  --kb-neutral-border-strong: #CBD2DB;
+  --kf-neutral-soft: var(--kf-muted);
+  --kf-neutral-border-strong: #CBD2DB;
 
-  --kb-radius-sm: 6px;
-  --kb-radius-md: 10px;
-  --kb-radius-lg: 16px;
-  --kb-radius-xl: 20px;
-  --kb-radius-full: 999px;
-  --kb-danger-text: var(--kb-danger-active);
+  --kf-radius-sm: 6px;
+  --kf-radius-md: 10px;
+  --kf-radius-lg: 16px;
+  --kf-radius-xl: 20px;
+  --kf-radius-full: 999px;
+  --kf-danger-text: var(--kf-danger-active);
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -138,23 +138,23 @@
    * Body16/28、14/22、Label13/20、Caption12/18、Meta11/16。
    * kb-* 为唯一真源；Tailwind 与 text-* 语义别名均引用此处。
    * ===================================================================== */
-  --kb-fs-display:32px; --kb-lh-display:1.25; --kb-fw-display:700;
-  --kb-fs-h1:28px; --kb-lh-h1:1.285714; --kb-fw-h1:600;
-  --kb-fs-h2:24px; --kb-lh-h2:1.333333; --kb-fw-h2:600;
-  --kb-fs-h3:20px; --kb-lh-h3:1.4; --kb-fw-h3:600;
-  --kb-fs-h4:18px; --kb-lh-h4:1.444444; --kb-fw-h4:500;
-  --kb-fs-body-lg:16px; --kb-lh-body-lg:1.75; --kb-fw-body-lg:400;
-  --kb-fs-body-emphasis:15px;
-  --kb-fs-body-md:14px; --kb-lh-body-md:1.571429; --kb-fw-body-md:400;
-  --kb-fs-body-sm:13px; --kb-lh-body-sm:1.538462; --kb-fw-body-sm:400;
-  --kb-fw-label:500;
-  --kb-fs-caption:12px; --kb-lh-caption:1.5; --kb-fw-caption:400;
-  --kb-fs-xs:11px; --kb-lh-xs:1.454545; --kb-fw-xs:500;
+  --kf-fs-display:32px; --kf-lh-display:1.25; --kf-fw-display:700;
+  --kf-fs-h1:28px; --kf-lh-h1:1.285714; --kf-fw-h1:600;
+  --kf-fs-h2:24px; --kf-lh-h2:1.333333; --kf-fw-h2:600;
+  --kf-fs-h3:20px; --kf-lh-h3:1.4; --kf-fw-h3:600;
+  --kf-fs-h4:18px; --kf-lh-h4:1.444444; --kf-fw-h4:500;
+  --kf-fs-body-lg:16px; --kf-lh-body-lg:1.75; --kf-fw-body-lg:400;
+  --kf-fs-body-emphasis:15px;
+  --kf-fs-body-md:14px; --kf-lh-body-md:1.571429; --kf-fw-body-md:400;
+  --kf-fs-body-sm:13px; --kf-lh-body-sm:1.538462; --kf-fw-body-sm:400;
+  --kf-fw-label:500;
+  --kf-fs-caption:12px; --kf-lh-caption:1.5; --kf-fw-caption:400;
+  --kf-fs-xs:11px; --kf-lh-xs:1.454545; --kf-fw-xs:500;
   /* Public semantic aliases refer to the canonical kb scale. */
-  --text-display:var(--kb-fs-display); --text-h1:var(--kb-fs-h1);
-  --text-h2:var(--kb-fs-h2); --text-h3:var(--kb-fs-h3);
-  --text-body-lg:var(--kb-fs-body-lg); --text-body:var(--kb-fs-body-md);
-  --text-label:var(--kb-fs-body-sm); --text-caption:var(--kb-fs-caption);
+  --text-display:var(--kf-fs-display); --text-h1:var(--kf-fs-h1);
+  --text-h2:var(--kf-fs-h2); --text-h3:var(--kf-fs-h3);
+  --text-body-lg:var(--kf-fs-body-lg); --text-body:var(--kf-fs-body-md);
+  --text-label:var(--kf-fs-body-sm); --text-caption:var(--kf-fs-caption);
 
   /* =====================================================================
    * Icon 图标尺寸阶梯（偶数 + 语义化，避免魔法数字）
@@ -167,27 +167,27 @@
    * 2xl  24px  超大（卡片 / Hero 区域）
    * 3xl  32px  巨大（空状态 / 节日插画）
    * ===================================================================== */
-  --kb-icon-xxs: 10px;
-  --kb-icon-xs:  12px;
-  --kb-icon-sm:  14px;
-  --kb-icon-md:  16px;   /* 默认 */
-  --kb-icon-lg:  18px;
-  --kb-icon-xl:  20px;
-  --kb-icon-2xl: 24px;
-  --kb-icon-3xl: 32px;
+  --kf-icon-xxs: 10px;
+  --kf-icon-xs:  12px;
+  --kf-icon-sm:  14px;
+  --kf-icon-md:  16px;   /* 默认 */
+  --kf-icon-lg:  18px;
+  --kf-icon-xl:  20px;
+  --kf-icon-2xl: 24px;
+  --kf-icon-3xl: 32px;
 
   /* =====================================================================
    * Spacing 间距阶梯（基于 4px 网格，统一 gap / padding / margin）
    * 0  0px | 1  4px | 2  8px | 3  12px | 4  16px
    * 5  20px | 6  24px | 8  32px | 10 40px | 12 48px
    * ===================================================================== */
-  --kb-space-1: 4px;
-  --kb-space-2: 8px;
-  --kb-space-3: 12px;
-  --kb-space-4: 16px;
-  --kb-space-5: 20px;
-  --kb-space-6: 24px;
-  --kb-space-8: 32px;
+  --kf-space-1: 4px;
+  --kf-space-2: 8px;
+  --kf-space-3: 12px;
+  --kf-space-4: 16px;
+  --kf-space-5: 20px;
+  --kf-space-6: 24px;
+  --kf-space-8: 32px;
 
   /* =====================================================================
    * Layout 布局专用语义化尺寸
@@ -196,52 +196,52 @@
    * 下拉菜单项：图标 md(16px) + 文字 body-sm(13px) + 间距 gap-2(8px)
    * 移动端菜单项：图标 lg(18px) + 文字 body-md(14px) + 间距 gap-2(8px)
    * ===================================================================== */
-  --kb-nav-height: 56px;
-  --kb-nav-icon: var(--kb-icon-md);        /* 桌面导航图标 */
-  --kb-nav-chevron: var(--kb-icon-sm);     /* 下拉箭头 */
-  --kb-nav-text-fs: var(--kb-fs-body-md);  /* 桌面导航文字 14px */
-  --kb-nav-text-fw: 500;                   /* 导航文字字重 Medium */
-  --kb-nav-gap: var(--kb-space-2);         /* 图标 ↔ 文字间距 8px */
-  --kb-dropdown-icon: var(--kb-icon-md);   /* 下拉菜单图标 */
-  --kb-dropdown-text-fs: var(--kb-fs-body-sm); /* 下拉菜单文字 13px */
-  --kb-mobile-icon: var(--kb-icon-lg);     /* 移动端菜单图标 18px */
-  --kb-logo-icon: var(--kb-icon-xl);       /* Logo 图标 20px */
-  --kb-logo-text-fs: var(--kb-fs-h4);      /* Logo 文字 20px */
-  --kb-logo-text-fw: 600;                  /* Logo 文字字重 */
+  --kf-nav-height: 56px;
+  --kf-nav-icon: var(--kf-icon-md);        /* 桌面导航图标 */
+  --kf-nav-chevron: var(--kf-icon-sm);     /* 下拉箭头 */
+  --kf-nav-text-fs: var(--kf-fs-body-md);  /* 桌面导航文字 14px */
+  --kf-nav-text-fw: 500;                   /* 导航文字字重 Medium */
+  --kf-nav-gap: var(--kf-space-2);         /* 图标 ↔ 文字间距 8px */
+  --kf-dropdown-icon: var(--kf-icon-md);   /* 下拉菜单图标 */
+  --kf-dropdown-text-fs: var(--kf-fs-body-sm); /* 下拉菜单文字 13px */
+  --kf-mobile-icon: var(--kf-icon-lg);     /* 移动端菜单图标 18px */
+  --kf-logo-icon: var(--kf-icon-xl);       /* Logo 图标 20px */
+  --kf-logo-text-fs: var(--kf-fs-h4);      /* Logo 文字 20px */
+  --kf-logo-text-fw: 600;                  /* Logo 文字字重 */
 
   /* =====================================================================
    * UI/UX 6.1 — Shell 布局令牌
    * 统一侧边栏宽度、顶栏高度、内容宽度，消除各组件硬编码 px。
    * ===================================================================== */
-  --kb-sidebar-width: 224px;        /* 侧边栏展开宽度 */
-  --kb-sidebar-collapsed-width: 68px; /* 侧边栏折叠宽度 */
-  --kb-shell-transition: 200ms;     /* 侧边栏宽度过渡时长 */
+  --kf-sidebar-width: 224px;        /* 侧边栏展开宽度 */
+  --kf-sidebar-collapsed-width: 68px; /* 侧边栏折叠宽度 */
+  --kf-shell-transition: 200ms;     /* 侧边栏宽度过渡时长 */
 
   /* 侧边栏（管理后台 Sidebar）专用语义化尺寸 */
-  --kb-sidebar-icon: var(--kb-icon-md);       /* 侧边栏导航项图标 16px */
-  --kb-sidebar-text-fs: var(--kb-fs-body-sm); /* 侧边栏导航文字 13px */
-  --kb-sidebar-text-fw: 500;                  /* 侧边栏导航字重 */
-  --kb-sidebar-gap: var(--kb-space-3);        /* 侧边栏图标↔文字间距 12px */
-  --kb-sidebar-label-fs: var(--kb-fs-xs);     /* 侧边栏分组标题 11px */
-  --kb-sidebar-label-fw: 500;                 /* 侧边栏分组标题字重 */
-  --kb-sidebar-chevron: var(--kb-icon-md);    /* 侧边栏折叠/展开箭头 16px */
-  --kb-sidebar-bottom-icon: var(--kb-icon-sm);/* 侧边栏底部辅助图标 14px */
-  --kb-sidebar-bottom-fs: var(--kb-fs-caption); /* 侧边栏底部文字 12px */
+  --kf-sidebar-icon: var(--kf-icon-md);       /* 侧边栏导航项图标 16px */
+  --kf-sidebar-text-fs: var(--kf-fs-body-sm); /* 侧边栏导航文字 13px */
+  --kf-sidebar-text-fw: 500;                  /* 侧边栏导航字重 */
+  --kf-sidebar-gap: var(--kf-space-3);        /* 侧边栏图标↔文字间距 12px */
+  --kf-sidebar-label-fs: var(--kf-fs-xs);     /* 侧边栏分组标题 11px */
+  --kf-sidebar-label-fw: 500;                 /* 侧边栏分组标题字重 */
+  --kf-sidebar-chevron: var(--kf-icon-md);    /* 侧边栏折叠/展开箭头 16px */
+  --kf-sidebar-bottom-icon: var(--kf-icon-sm);/* 侧边栏底部辅助图标 14px */
+  --kf-sidebar-bottom-fs: var(--kf-fs-caption); /* 侧边栏底部文字 12px */
 
   /* =====================================================================
    * UI/UX V1.0 — 全站视觉标准（导航节奏 / 页面留白 / 快捷入口）
-   * 只做语义收口，不新增第二套主题；旧 --kb-* 令牌继续有效。
+   * 只做语义收口，不新增第二套主题；旧 --kf-* 令牌继续有效。
    * ===================================================================== */
-  --kb-icon-slot: var(--kb-icon-lg);          /* 导航/菜单图标固定容器 18px */
-  --kb-icon-slot-sm: var(--kb-icon-md);       /* 按钮/表单图标固定容器 16px */
-  --kb-nav-item-height: 38px;                 /* 一级导航项高度 */
-  --kb-nav-item-height-sm: 32px;              /* 二级导航项高度 */
-  --kb-nav-item-gap: 2px;                     /* 导航项之间的垂直节奏 */
-  --kb-page-padding-x: 24px;                  /* 内容区左右留白 */
-  --kb-page-padding-y: 24px;                  /* 内容区上下留白 */
-  --kb-quick-action-size: 36px;               /* 顶栏快捷入口统一热区 */
-  --kb-quick-action-gap: var(--kb-space-1);
-  --kb-content-reading: 72ch;                 /* 长文阅读宽度上限 */
+  --kf-icon-slot: var(--kf-icon-lg);          /* 导航/菜单图标固定容器 18px */
+  --kf-icon-slot-sm: var(--kf-icon-md);       /* 按钮/表单图标固定容器 16px */
+  --kf-nav-item-height: 38px;                 /* 一级导航项高度 */
+  --kf-nav-item-height-sm: 32px;              /* 二级导航项高度 */
+  --kf-nav-item-gap: 2px;                     /* 导航项之间的垂直节奏 */
+  --kf-page-padding-x: 24px;                  /* 内容区左右留白 */
+  --kf-page-padding-y: 24px;                  /* 内容区上下留白 */
+  --kf-quick-action-size: 36px;               /* 顶栏快捷入口统一热区 */
+  --kf-quick-action-gap: var(--kf-space-1);
+  --kf-content-reading: 72ch;                 /* 长文阅读宽度上限 */
 
   /* =====================================================================
    * UI/UX 6.0 — Surface 层级令牌（减少 Card-in-Card）
@@ -251,162 +251,162 @@
    * - surface-2：嵌套区域背景（略灰，用于 Card 内部分区）
    * - surface-3：悬浮/弹出背景（最顶层）
    * ===================================================================== */
-  --kb-surface-0: var(--kb-background);
-  --kb-surface-1: var(--kb-card);
-  --kb-surface-2: var(--kb-muted);
-  --kb-surface-3: var(--kb-popover);
+  --kf-surface-0: var(--kf-background);
+  --kf-surface-1: var(--kf-card);
+  --kf-surface-2: var(--kf-muted);
+  --kf-surface-3: var(--kf-popover);
 
   /* =====================================================================
    * UI/UX 6.0 — 组件尺寸令牌（Button / Input / Badge 统一高度）
    * 消除各页面自定义 36px / 38px / 40px / 42px 按钮高度不一致问题。
    * ===================================================================== */
-  --kb-btn-height-sm: 32px;
-  --kb-btn-height-md: 38px;
-  --kb-btn-height-lg: 44px;
-  --kb-btn-padding-sm: 12px;
-  --kb-btn-padding-md: 16px;
-  --kb-btn-padding-lg: 24px;
-  --kb-btn-font-sm: var(--kb-fs-body-sm);
-  --kb-btn-font-md: var(--kb-fs-body-md);
-  --kb-btn-font-lg: var(--kb-fs-body-lg);
-  --kb-btn-radius: var(--kb-radius-sm);
+  --kf-btn-height-sm: 32px;
+  --kf-btn-height-md: 38px;
+  --kf-btn-height-lg: 44px;
+  --kf-btn-padding-sm: 12px;
+  --kf-btn-padding-md: 16px;
+  --kf-btn-padding-lg: 24px;
+  --kf-btn-font-sm: var(--kf-fs-body-sm);
+  --kf-btn-font-md: var(--kf-fs-body-md);
+  --kf-btn-font-lg: var(--kf-fs-body-lg);
+  --kf-btn-radius: var(--kf-radius-sm);
 
-  --kb-input-height: 44px;
-  --kb-input-padding-x: 12px;
-  --kb-input-radius: var(--kb-radius-md);
-  --kb-input-focus-ring: 0 0 0 3px var(--kb-primary-soft);
+  --kf-input-height: 44px;
+  --kf-input-padding-x: 12px;
+  --kf-input-radius: var(--kf-radius-md);
+  --kf-input-focus-ring: 0 0 0 3px var(--kf-primary-soft);
 
-  --kb-badge-height: 22px;
-  --kb-badge-padding-x: 8px;
-  --kb-badge-radius: 999px;
-  --kb-badge-font: var(--kb-fs-xs);
+  --kf-badge-height: 22px;
+  --kf-badge-padding-x: 8px;
+  --kf-badge-radius: 999px;
+  --kf-badge-font: var(--kf-fs-xs);
 
   /* =====================================================================
    * UI/UX 6.0 — 间距令牌补充（Section / Page 级别）
-   * 原有 --kb-space-* 面向组件内间距，此处补充页面级间距。
+   * 原有 --kf-space-* 面向组件内间距，此处补充页面级间距。
    * ===================================================================== */
-  --kb-space-section: 48px;   /* 区块间距（section ↔ section） */
-  --kb-space-page-x: 32px;    /* 页面左右内边距（桌面） */
-  --kb-space-page-y: 32px;    /* 页面上下内边距 */
-  --kb-content-max-width: 1280px;
+  --kf-space-section: 48px;   /* 区块间距（section ↔ section） */
+  --kf-space-page-x: 32px;    /* 页面左右内边距（桌面） */
+  --kf-space-page-y: 32px;    /* 页面上下内边距 */
+  --kf-content-max-width: 1280px;
 
-  /* ===== 旧版 --color-* 变量：全部引用 --kb-*，不再各自写死（F-07） ===== */
-  --color-primary: var(--kb-primary);
+  /* ===== 旧版 --color-* 变量：全部引用 --kf-*，不再各自写死（F-07） ===== */
+  --color-primary: var(--kf-primary);
   --color-primary-light: #6F9AF2;
   --color-primary-dark: #2F59B3;
-  --color-success: var(--kb-accent);
-  --color-warning: var(--kb-warning);
-  --color-danger: var(--kb-destructive);
-  --color-background: var(--kb-background);
-  --color-surface: var(--kb-card);
-  --color-text-primary: var(--kb-foreground);
-  --color-text-secondary: var(--kb-muted-foreground);
+  --color-success: var(--kf-accent);
+  --color-warning: var(--kf-warning);
+  --color-danger: var(--kf-destructive);
+  --color-background: var(--kf-background);
+  --color-surface: var(--kf-card);
+  --color-text-primary: var(--kf-foreground);
+  --color-text-secondary: var(--kf-muted-foreground);
   --color-border: #E5E7EB;
   --color-border-light: #F3F4F6;
-  --radius-sm: var(--kb-radius-sm);
-  --radius-md: var(--kb-radius-md);
-  --radius-lg: var(--kb-radius-lg);
+  --radius-sm: var(--kf-radius-sm);
+  --radius-md: var(--kf-radius-md);
+  --radius-lg: var(--kf-radius-lg);
 
   /* ===== 命名别名（兼容各页面历史用法，统一指向 canonical token）=====
-   * 避免逐文件替换 var(--kb-text) → var(--kb-foreground) 等大量改动，
+   * 避免逐文件替换 var(--kf-text) → var(--kf-foreground) 等大量改动，
    * 在此集中提供别名，深色模式自动跟随其引用的 canonical token。
    */
-  --kb-text: var(--kb-foreground);                 /* 正文文字色 */
-  --kb-text-muted: var(--kb-muted-foreground);     /* 次要文字色 */
-  --kb-text-secondary: var(--kb-muted-foreground); /* 次要文字色（旧名） */
-  --kb-bg: var(--kb-background);                  /* 页面背景 */
-  --kb-bg-subtle: var(--kb-muted);                /* 次级背景（卡片间分区） */
-  --kb-surface: var(--kb-card);                   /* 卡片表面 */
-  --kb-success: var(--kb-accent);                 /* 成功色（旧名，复用 accent） */
-  --kb-danger: var(--kb-destructive);             /* 危险色（旧名，复用 destructive） */
-  --kb-success-soft: rgba(16, 185, 129, 0.10);     /* 成功软背景 */
-  --kb-danger-soft: rgba(239, 68, 68, 0.10);      /* 危险软背景 */
-  --kb-warning-soft: rgba(245, 158, 11, 0.10);    /* 警告软背景 */
-  --kb-state-success-foreground: #FFFFFF;         /* 成功态前景色（白字） */
-  --kb-radius: var(--kb-radius-md);               /* 通用圆角（默认中） */
-  --kb-radius-xs: 4px;                            /* 超小圆角（tag/角标） */
-  --kb-shadow-sm: var(--shadow-sm);               /* 小阴影（旧名） */
-  --kb-shadow-lg: var(--shadow-lg);               /* 大阴影（旧名） */
-  --kb-fs-body: var(--kb-fs-body-md);             /* 正文字号（旧名，默认中） */
-  --kb-fs-sm: var(--kb-fs-body-sm);               /* 小字号（旧名） */
+  --kf-text: var(--kf-foreground);                 /* 正文文字色 */
+  --kf-text-muted: var(--kf-muted-foreground);     /* 次要文字色 */
+  --kf-text-secondary: var(--kf-muted-foreground); /* 次要文字色（旧名） */
+  --kf-bg: var(--kf-background);                  /* 页面背景 */
+  --kf-bg-subtle: var(--kf-muted);                /* 次级背景（卡片间分区） */
+  --kf-surface: var(--kf-card);                   /* 卡片表面 */
+  --kf-success: var(--kf-accent);                 /* 成功色（旧名，复用 accent） */
+  --kf-danger: var(--kf-destructive);             /* 危险色（旧名，复用 destructive） */
+  --kf-success-soft: rgba(16, 185, 129, 0.10);     /* 成功软背景 */
+  --kf-danger-soft: rgba(239, 68, 68, 0.10);      /* 危险软背景 */
+  --kf-warning-soft: rgba(245, 158, 11, 0.10);    /* 警告软背景 */
+  --kf-state-success-foreground: #FFFFFF;         /* 成功态前景色（白字） */
+  --kf-radius: var(--kf-radius-md);               /* 通用圆角（默认中） */
+  --kf-radius-xs: 4px;                            /* 超小圆角（tag/角标） */
+  --kf-shadow-sm: var(--shadow-sm);               /* 小阴影（旧名） */
+  --kf-shadow-lg: var(--shadow-lg);               /* 大阴影（旧名） */
+  --kf-fs-body: var(--kf-fs-body-md);             /* 正文字号（旧名，默认中） */
+  --kf-fs-sm: var(--kf-fs-body-sm);               /* 小字号（旧名） */
 }
 
 /* =====================================================================
  * P3-1：深色模式（data-theme="dark"）
- * 策略：重写 --kb-* 令牌为深色色板，所有引用 var(--kb-*) 的组件自动响应；
+ * 策略：重写 --kf-* 令牌为深色色板，所有引用 var(--kf-*) 的组件自动响应；
  * 同时对高频 Tailwind 工具类（.bg-white/.text-gray-800/.border-gray-200 等）
  * 做全局兜底映射，使未改造的页面也能瞬间变深色。
  * 主色保持 #3B6FE0 家族，仅在深底下提亮以保证对比度。
  * ===================================================================== */
 :root[data-theme='dark'] {
-  --kb-background: #0F1115;
-  --kb-foreground: #E6E8EC;
-  --kb-card: #1A1D23;
-  --kb-card-foreground: #E6E8EC;
-  --kb-popover: #1A1D23;
-  --kb-popover-foreground: #E6E8EC;
-  --kb-primary: #4F86F9;
-  --kb-primary-foreground: #0F1115;
-  --kb-muted: #252932;
-  --kb-muted-foreground: #9AA1AC;
-  --kb-border: #2A2F38;
-  --kb-input: #2A2F38;
-  --kb-ring: #4F86F9;
-  --kb-sidebar: #15171C;
-  --kb-sidebar-foreground: #C5CAD3;
-  --kb-accent: #34D399;
-  --kb-accent-foreground: #0F1115;
-  --kb-destructive: #F8716E;
-  --kb-danger-text: var(--kb-destructive);
-  --kb-destructive-foreground: #0F1115;
-  --kb-warning: #FBBF24;
-  --kb-warning-foreground: #0F1115;
+  --kf-background: #0F1115;
+  --kf-foreground: #E6E8EC;
+  --kf-card: #1A1D23;
+  --kf-card-foreground: #E6E8EC;
+  --kf-popover: #1A1D23;
+  --kf-popover-foreground: #E6E8EC;
+  --kf-primary: #4F86F9;
+  --kf-primary-foreground: #0F1115;
+  --kf-muted: #252932;
+  --kf-muted-foreground: #9AA1AC;
+  --kf-border: #2A2F38;
+  --kf-input: #2A2F38;
+  --kf-ring: #4F86F9;
+  --kf-sidebar: #15171C;
+  --kf-sidebar-foreground: #C5CAD3;
+  --kf-accent: #34D399;
+  --kf-accent-foreground: #0F1115;
+  --kf-destructive: #F8716E;
+  --kf-danger-text: var(--kf-destructive);
+  --kf-destructive-foreground: #0F1115;
+  --kf-warning: #FBBF24;
+  --kf-warning-foreground: #0F1115;
 
-  --kb-highlight: #FF8556;
-  --kb-highlight-foreground: #0F1115;
-  --kb-highlight-soft: rgba(255, 133, 86, 0.16);
-  --kb-highlight-border: rgba(255, 133, 86, 0.40);
+  --kf-highlight: #FF8556;
+  --kf-highlight-foreground: #0F1115;
+  --kf-highlight-soft: rgba(255, 133, 86, 0.16);
+  --kf-highlight-border: rgba(255, 133, 86, 0.40);
 
   /* 深色模式状态色：提亮一档以在深色软背景上保持对比度 */
-  --kb-state-success: #34D399;
-  --kb-state-warning: #FBBF24;
-  --kb-state-error: #F8716E;
-  --kb-state-info: #7BA3F5;
+  --kf-state-success: #34D399;
+  --kf-state-warning: #FBBF24;
+  --kf-state-error: #F8716E;
+  --kf-state-info: #7BA3F5;
 
-  --kb-primary-soft: rgba(79, 134, 249, 0.16);
+  --kf-primary-soft: rgba(79, 134, 249, 0.16);
 
   /* Phase UI-1：深色模式语义色阶（hover 提亮、active 压暗、soft 用深底染色） */
-  --kb-primary-hover: #6B9BFA;
-  --kb-primary-active: #3D6FD6;
-  --kb-primary-soft-strong: #1E3A6B;
-  --kb-primary-subtle: #16233D;
-  --kb-primary-tint: #2A4A85;
-  --kb-primary-tint-strong: #3A5F9E;
-  --kb-primary-muted: #5A87D8;
+  --kf-primary-hover: #6B9BFA;
+  --kf-primary-active: #3D6FD6;
+  --kf-primary-soft-strong: #1E3A6B;
+  --kf-primary-subtle: #16233D;
+  --kf-primary-tint: #2A4A85;
+  --kf-primary-tint-strong: #3A5F9E;
+  --kf-primary-muted: #5A87D8;
 
-  --kb-success-hover: #5BE3B0;
-  --kb-success-active: #2BB886;
-  --kb-success-soft-strong: #14402F;
-  --kb-success-subtle: #0F2E22;
+  --kf-success-hover: #5BE3B0;
+  --kf-success-active: #2BB886;
+  --kf-success-soft-strong: #14402F;
+  --kf-success-subtle: #0F2E22;
 
-  --kb-warning-hover: #FCCB4D;
-  --kb-warning-active: #D9A017;
-  --kb-warning-soft-strong: #43330F;
-  --kb-warning-subtle: #2E2309;
+  --kf-warning-hover: #FCCB4D;
+  --kf-warning-active: #D9A017;
+  --kf-warning-soft-strong: #43330F;
+  --kf-warning-subtle: #2E2309;
 
-  --kb-danger-hover: #FA8F8C;
-  --kb-danger-active: #D95754;
-  --kb-danger-soft-strong: #4A1F1E;
-  --kb-danger-subtle: #331514;
-  --kb-danger-tint: #7A3A38;
-  --kb-danger-muted: #C25A57;
+  --kf-danger-hover: #FA8F8C;
+  --kf-danger-active: #D95754;
+  --kf-danger-soft-strong: #4A1F1E;
+  --kf-danger-subtle: #331514;
+  --kf-danger-tint: #7A3A38;
+  --kf-danger-muted: #C25A57;
 
-  --kb-highlight-hover: #FF9E77;
-  --kb-highlight-active: #DB6B3E;
-  --kb-highlight-soft-strong: #4A2A18;
-  --kb-highlight-subtle: #331C10;
+  --kf-highlight-hover: #FF9E77;
+  --kf-highlight-active: #DB6B3E;
+  --kf-highlight-soft-strong: #4A2A18;
+  --kf-highlight-subtle: #331C10;
 
-  --kb-neutral-border-strong: #3A4150;
+  --kf-neutral-border-strong: #3A4150;
 
   --shadow-dropdown-2: 0 4px 12px rgba(0, 0, 0, 0.4);
   --shadow-dropdown-3: 0 12px 32px rgba(0, 0, 0, 0.55);
@@ -424,67 +424,67 @@
 }
 
 /* 全局兜底：将高频 Tailwind 工具类映射到深色令牌，
- * 让未显式使用 var(--kb-*) 的旧组件也能在深色模式下基本可用。 */
-:root[data-theme='dark'] .bg-white { background-color: var(--kb-card) !important; }
+ * 让未显式使用 var(--kf-*) 的旧组件也能在深色模式下基本可用。 */
+:root[data-theme='dark'] .bg-white { background-color: var(--kf-card) !important; }
 :root[data-theme='dark'] .bg-gray-50,
-:root[data-theme='dark'] .bg-gray-100 { background-color: var(--kb-muted) !important; }
+:root[data-theme='dark'] .bg-gray-100 { background-color: var(--kf-muted) !important; }
 :root[data-theme='dark'] .bg-gray-50\/30 { background-color: rgba(37, 41, 50, 0.5) !important; }
 /* U1-Step2：补全 gray 200~900 背景梯度兜底 */
-:root[data-theme='dark'] .bg-gray-200 { background-color: var(--kb-border) !important; }
+:root[data-theme='dark'] .bg-gray-200 { background-color: var(--kf-border) !important; }
 :root[data-theme='dark'] .bg-gray-300,
-:root[data-theme='dark'] .bg-gray-400 { background-color: var(--kb-muted-foreground) !important; }
+:root[data-theme='dark'] .bg-gray-400 { background-color: var(--kf-muted-foreground) !important; }
 :root[data-theme='dark'] .bg-gray-500,
 :root[data-theme='dark'] .bg-gray-600,
 :root[data-theme='dark'] .bg-gray-700,
 :root[data-theme='dark'] .bg-gray-800,
-:root[data-theme='dark'] .bg-gray-900 { background-color: var(--kb-foreground) !important; }
+:root[data-theme='dark'] .bg-gray-900 { background-color: var(--kf-foreground) !important; }
 
-:root[data-theme='dark'] .text-gray-900 { color: var(--kb-foreground) !important; }
-:root[data-theme='dark'] .text-gray-800 { color: var(--kb-foreground) !important; }
+:root[data-theme='dark'] .text-gray-900 { color: var(--kf-foreground) !important; }
+:root[data-theme='dark'] .text-gray-800 { color: var(--kf-foreground) !important; }
 :root[data-theme='dark'] .text-gray-700 { color: #C5CAD3 !important; }
-:root[data-theme='dark'] .text-gray-600 { color: var(--kb-muted-foreground) !important; }
-:root[data-theme='dark'] .text-gray-500 { color: var(--kb-muted-foreground) !important; }
+:root[data-theme='dark'] .text-gray-600 { color: var(--kf-muted-foreground) !important; }
+:root[data-theme='dark'] .text-gray-500 { color: var(--kf-muted-foreground) !important; }
 :root[data-theme='dark'] .text-gray-400 { color: #6B7280 !important; }
 /* U1-Step2：补全 gray 100~300 文本梯度兜底 */
 :root[data-theme='dark'] .text-gray-300 { color: #9AA1AC !important; }
 :root[data-theme='dark'] .text-gray-200 { color: #6B7280 !important; }
-:root[data-theme='dark'] .text-gray-100 { color: var(--kb-muted) !important; }
+:root[data-theme='dark'] .text-gray-100 { color: var(--kf-muted) !important; }
 
 :root[data-theme='dark'] .border-gray-200,
-:root[data-theme='dark'] .border-gray-300 { border-color: var(--kb-border) !important; }
+:root[data-theme='dark'] .border-gray-300 { border-color: var(--kf-border) !important; }
 :root[data-theme='dark'] .border-gray-100,
-:root[data-theme='dark'] .border-gray-50 { border-color: var(--kb-muted) !important; }
+:root[data-theme='dark'] .border-gray-50 { border-color: var(--kf-muted) !important; }
 /* U1-Step2：补全 gray 400~900 边框梯度兜底 */
-:root[data-theme='dark'] .border-gray-400 { border-color: var(--kb-muted-foreground) !important; }
+:root[data-theme='dark'] .border-gray-400 { border-color: var(--kf-muted-foreground) !important; }
 :root[data-theme='dark'] .border-gray-500,
 :root[data-theme='dark'] .border-gray-600,
 :root[data-theme='dark'] .border-gray-700,
 :root[data-theme='dark'] .border-gray-800,
-:root[data-theme='dark'] .border-gray-900 { border-color: var(--kb-sidebar-foreground) !important; }
+:root[data-theme='dark'] .border-gray-900 { border-color: var(--kf-sidebar-foreground) !important; }
 
-:root[data-theme='dark'] .hover\:bg-gray-50:hover { background-color: var(--kb-muted) !important; }
+:root[data-theme='dark'] .hover\:bg-gray-50:hover { background-color: var(--kf-muted) !important; }
 :root[data-theme='dark'] .hover\:bg-gray-100:hover { background-color: #2A2F38 !important; }
-:root[data-theme='dark'] .hover\:bg-gray-200:hover { background-color: var(--kb-border) !important; }
-:root[data-theme='dark'] .hover\:text-gray-700:hover { color: var(--kb-foreground) !important; }
-:root[data-theme='dark'] .hover\:text-gray-900:hover { color: var(--kb-foreground) !important; }
+:root[data-theme='dark'] .hover\:bg-gray-200:hover { background-color: var(--kf-border) !important; }
+:root[data-theme='dark'] .hover\:text-gray-700:hover { color: var(--kf-foreground) !important; }
+:root[data-theme='dark'] .hover\:text-gray-900:hover { color: var(--kf-foreground) !important; }
 
 /* U1-Step2：divide / placeholder / ring 兜底 */
 :root[data-theme='dark'] .divide-gray-100 > * + *,
 :root[data-theme='dark'] .divide-gray-200 > * + *,
-:root[data-theme='dark'] .divide-gray-300 > * + * { border-color: var(--kb-border) !important; }
+:root[data-theme='dark'] .divide-gray-300 > * + * { border-color: var(--kf-border) !important; }
 :root[data-theme='dark'] .placeholder-gray-400::placeholder,
 :root[data-theme='dark'] .placeholder-gray-500::placeholder { color: #6B7280 !important; }
 :root[data-theme='dark'] .ring-gray-200,
-:root[data-theme='dark'] .ring-gray-300 { --tw-ring-color: var(--kb-border) !important; }
-:root[data-theme='dark'] .ring-gray-400 { --tw-ring-color: var(--kb-muted-foreground) !important; }
+:root[data-theme='dark'] .ring-gray-300 { --tw-ring-color: var(--kf-border) !important; }
+:root[data-theme='dark'] .ring-gray-400 { --tw-ring-color: var(--kf-muted-foreground) !important; }
 
 /* 输入框深色化 */
 :root[data-theme='dark'] input,
 :root[data-theme='dark'] textarea,
 :root[data-theme='dark'] select {
-  background-color: var(--kb-card);
-  color: var(--kb-foreground);
-  border-color: var(--kb-border);
+  background-color: var(--kf-card);
+  color: var(--kf-foreground);
+  border-color: var(--kf-border);
 }
 :root[data-theme='dark'] input::placeholder,
 :root[data-theme='dark'] textarea::placeholder {
@@ -495,33 +495,33 @@
  * P3-2：功能区背景色调差异化（语义化区域背景）
  * 通过为不同功能区分配差异化的背景色调，打破「全白/全灰一片」的扁平感，
  * 建立侧栏 → 顶栏 → 内容区 → 强调区 的视觉层次。
- * 所有类都基于 --kb-* 令牌，深色模式下自动响应。
+ * 所有类都基于 --kf-* 令牌，深色模式下自动响应。
  * ===================================================================== */
 /* 顶栏：与卡片同色，靠底部边线与内容区区分 */
-.kb-region-topbar {
-  background: var(--kb-card);
-  border-bottom: 1px solid var(--kb-border);
+.kf-region-topbar {
+  background: var(--kf-card);
+  border-bottom: 1px solid var(--kf-border);
 }
 /* 侧栏：比内容区略深/略浅，制造「抽屉」感 */
-.kb-region-sidebar {
-  background: var(--kb-sidebar);
-  border-right: 1px solid var(--kb-border);
+.kf-region-sidebar {
+  background: var(--kf-sidebar);
+  border-right: 1px solid var(--kf-border);
 }
 /* 主内容区：纵向微妙渐变，顶部稍亮、底部稍沉，制造空间纵深 */
-.kb-region-content {
+.kf-region-content {
   background:
-    linear-gradient(180deg, var(--kb-card) 0%, var(--kb-background) 280px);
+    linear-gradient(180deg, var(--kf-card) 0%, var(--kf-background) 280px);
 }
 /* 强调区：主色调氛围背景，用于 Hero、AI 对话等 signature 区域 */
-.kb-region-accent {
+.kf-region-accent {
   background:
     radial-gradient(120% 80% at 0% 0%, rgba(59, 111, 224, 0.08) 0%, transparent 60%),
     radial-gradient(100% 60% at 100% 0%, rgba(255, 107, 53, 0.06) 0%, transparent 50%),
-    var(--kb-card);
+    var(--kf-card);
 }
-:root[data-theme='dark'] .kb-region-content {
+:root[data-theme='dark'] .kf-region-content {
   background:
-    linear-gradient(180deg, var(--kb-card) 0%, var(--kb-background) 320px);
+    linear-gradient(180deg, var(--kf-card) 0%, var(--kf-background) 320px);
 }
 
 /* 全局背景激活时：布局容器透明，让 z-index:-1 的背景层可见 */
@@ -529,14 +529,14 @@ html.has-global-bg body {
   background-color: transparent;
   background-image: none;
 }
-html.has-global-bg .kb-region-content {
+html.has-global-bg .kf-region-content {
   background: transparent;
 }
-:root[data-theme='dark'] .kb-region-accent {
+:root[data-theme='dark'] .kf-region-accent {
   background:
     radial-gradient(120% 80% at 0% 0%, rgba(79, 134, 249, 0.12) 0%, transparent 60%),
     radial-gradient(100% 60% at 100% 0%, rgba(255, 133, 86, 0.08) 0%, transparent 50%),
-    var(--kb-card);
+    var(--kf-card);
 }
 
 * {
@@ -547,8 +547,8 @@ html.has-global-bg .kb-region-content {
 
 html {
   font-family: var(--font-sans);
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   /* 开启字体光学尺寸自动调整（变体字体特性，让大字号更紧凑、小字号更舒展） */
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
@@ -683,73 +683,73 @@ button:focus-visible,
   }
 
   /* ===== Design-system typography scale（杂志感衬线展示标题） =====
-   * 常规标题用 Sans，展示标题显式使用 kb-display；统一字号与行高，
+   * 常规标题用 Sans，展示标题显式使用 kf-display；统一字号与行高，
    * 让大字号在中文场景下呈现「杂志大标题」的精致感，而非默认松散状态。
    * 正文与 H4 保持 Noto Sans SC，兼顾功能性与阅读舒适度。
    */
-  .kb-display {
+  .kf-display {
     font-family: var(--font-display);
-    font-size: var(--kb-fs-display);
-    font-weight: var(--kb-fw-display);
-    line-height: var(--kb-lh-display);
-    letter-spacing: var(--kb-heading-tracking);
-    color: var(--kb-foreground);
+    font-size: var(--kf-fs-display);
+    font-weight: var(--kf-fw-display);
+    line-height: var(--kf-lh-display);
+    letter-spacing: var(--kf-heading-tracking);
+    color: var(--kf-foreground);
     text-wrap: balance; /* 标题自动平衡换行，避免孤行 */
   }
-  .kb-h1 {
+  .kf-h1 {
     font-family: var(--font-sans);
-    font-size: var(--kb-fs-h1);
-    font-weight: var(--kb-fw-h1);
-    line-height: var(--kb-lh-h1);
-    letter-spacing: var(--kb-heading-tracking);
-    color: var(--kb-foreground);
+    font-size: var(--kf-fs-h1);
+    font-weight: var(--kf-fw-h1);
+    line-height: var(--kf-lh-h1);
+    letter-spacing: var(--kf-heading-tracking);
+    color: var(--kf-foreground);
     text-wrap: balance;
   }
-  .kb-h2 {
+  .kf-h2 {
     font-family: var(--font-sans);
-    font-size: var(--kb-fs-h2);
-    font-weight: var(--kb-fw-h2);
-    line-height: var(--kb-lh-h2);
-    letter-spacing: var(--kb-heading-tracking);
-    color: var(--kb-foreground);
+    font-size: var(--kf-fs-h2);
+    font-weight: var(--kf-fw-h2);
+    line-height: var(--kf-lh-h2);
+    letter-spacing: var(--kf-heading-tracking);
+    color: var(--kf-foreground);
     text-wrap: balance;
   }
-  .kb-h3 {
+  .kf-h3 {
     font-family: var(--font-sans);
-    font-size: var(--kb-fs-h3);
-    font-weight: var(--kb-fw-h3);
-    line-height: var(--kb-lh-h3);
-    letter-spacing: var(--kb-heading-tracking);
-    color: var(--kb-foreground);
+    font-size: var(--kf-fs-h3);
+    font-weight: var(--kf-fw-h3);
+    line-height: var(--kf-lh-h3);
+    letter-spacing: var(--kf-heading-tracking);
+    color: var(--kf-foreground);
     text-wrap: pretty; /* 三级标题用 pretty 避免孤行 */
   }
-  .kb-h4 {
+  .kf-h4 {
     font-family: var(--font-sans);
-    font-size: var(--kb-fs-h4);
-    font-weight: var(--kb-fw-h4);
-    line-height: var(--kb-lh-h4);
-    color: var(--kb-foreground);
+    font-size: var(--kf-fs-h4);
+    font-weight: var(--kf-fw-h4);
+    line-height: var(--kf-lh-h4);
+    color: var(--kf-foreground);
   }
-  .kb-body {
+  .kf-body {
     font-family: var(--font-sans);
-    font-size: var(--kb-fs-body-md);
-    font-weight: var(--kb-fw-body-md);
-    line-height: var(--kb-lh-body-md);
-    color: var(--kb-card-foreground);
+    font-size: var(--kf-fs-body-md);
+    font-weight: var(--kf-fw-body-md);
+    line-height: var(--kf-lh-body-md);
+    color: var(--kf-card-foreground);
   }
-  .kb-body-sm {
+  .kf-body-sm {
     font-family: var(--font-sans);
-    font-size: var(--kb-fs-body-sm);
-    font-weight: var(--kb-fw-body-sm);
-    line-height: var(--kb-lh-body-sm);
-    color: var(--kb-muted-foreground);
+    font-size: var(--kf-fs-body-sm);
+    font-weight: var(--kf-fw-body-sm);
+    line-height: var(--kf-lh-body-sm);
+    color: var(--kf-muted-foreground);
   }
-  .kb-caption {
+  .kf-caption {
     font-family: var(--font-sans);
-    font-size: var(--kb-fs-caption);
-    font-weight: var(--kb-fw-caption);
-    line-height: var(--kb-lh-caption);
-    color: var(--kb-muted-foreground);
+    font-size: var(--kf-fs-caption);
+    font-weight: var(--kf-fw-caption);
+    line-height: var(--kf-lh-caption);
+    color: var(--kf-muted-foreground);
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
@@ -760,11 +760,11 @@ button:focus-visible,
     align-items: center;
     gap: 6px;
     padding: 8px 14px;
-    border-radius: var(--kb-radius-sm);
+    border-radius: var(--kf-radius-sm);
     font-size: 13px;
     font-weight: 500;
-    color: var(--kb-primary-foreground);
-    background: var(--kb-primary);
+    color: var(--kf-primary-foreground);
+    background: var(--kf-primary);
     transition: opacity 0.2s ease;
   }
   .btn-primary:hover {
@@ -783,53 +783,53 @@ button:focus-visible,
     border-radius: 999px;
     font-size: 11px;
     font-weight: 600;
-    color: var(--kb-highlight);
-    background: var(--kb-highlight-soft);
-    border: 1px solid var(--kb-highlight-border);
+    color: var(--kf-highlight);
+    background: var(--kf-highlight-soft);
+    border: 1px solid var(--kf-highlight-border);
   }
   .highlight-text {
-    color: var(--kb-highlight);
+    color: var(--kf-highlight);
   }
   .highlight-glow {
     /* 高光阴影：用于解锁动效、强调数字 */
-    box-shadow: 0 0 0 4px var(--kb-highlight-soft);
+    box-shadow: 0 0 0 4px var(--kf-highlight-soft);
   }
   .btn-secondary {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 8px 14px;
-    border-radius: var(--kb-radius-sm);
+    border-radius: var(--kf-radius-sm);
     font-size: 13px;
     font-weight: 500;
-    color: var(--kb-foreground);
-    background: var(--kb-card);
-    border: 1px solid var(--kb-border);
+    color: var(--kf-foreground);
+    background: var(--kf-card);
+    border: 1px solid var(--kf-border);
     transition: background 0.2s ease;
   }
   .btn-secondary:hover {
-    background: var(--kb-muted);
+    background: var(--kf-muted);
   }
 
   /* =====================================================================
-   * 统一下拉选择器 .kb-select（原生 <select> 美化）
+   * 统一下拉选择器 .kf-select（原生 <select> 美化）
    * 全项目所有筛选/表单下拉统一使用此类，保证视觉与交互一致。
    * - 移除浏览器默认外观，统一箭头图标（SVG 内联，无额外资源请求）
-   * - 38px 高度 / 10px 圆角 / --kb-border 边框 / focus 主色高亮环
+   * - 38px 高度 / 10px 圆角 / --kf-border 边框 / focus 主色高亮环
    * - min-width 140px 防止选中值被截断；option 文本浏览器自动撑宽
-   * - 深色模式自动响应（所有色值均引用 --kb-* 令牌）
+   * - 深色模式自动响应（所有色值均引用 --kf-* 令牌）
    * ===================================================================== */
-  .kb-select {
+  .kf-select {
     display: inline-block;
-    height: var(--kb-input-height);
+    height: var(--kf-input-height);
     padding: 0 32px 0 12px;
-    border-radius: var(--kb-radius-md);
+    border-radius: var(--kf-radius-md);
     border: 0;
-    background-color: var(--kb-field-surface);
-    color: var(--kb-foreground);
-    font-size: var(--kb-fs-body-md);
+    background-color: var(--kf-field-surface);
+    color: var(--kf-foreground);
+    font-size: var(--kf-fs-body-md);
     font-family: inherit;
-    line-height: var(--kb-lh-body-md);
+    line-height: var(--kf-lh-body-md);
     min-width: 140px;
     max-width: 100%;
     outline: none;
@@ -844,140 +844,140 @@ button:focus-visible,
     background-size: 14px;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
-  .kb-select:hover {background-color:var(--kb-field-hover);border-color:transparent;}
-  .kb-select:focus {border-color:transparent;box-shadow:none;background-color:var(--kb-field-active);}
-  .kb-select:focus-visible{outline:0;}
-  .kb-select:disabled {
+  .kf-select:hover {background-color:var(--kf-field-hover);border-color:transparent;}
+  .kf-select:focus {border-color:transparent;box-shadow:none;background-color:var(--kf-field-active);}
+  .kf-select:focus-visible{outline:0;}
+  .kf-select:disabled {
     opacity: 0.55;
     cursor: not-allowed;
-    background-color: var(--kb-muted);
+    background-color: var(--kf-muted);
   }
   /* 选项文本：确保完整可读，浏览器会自动按最长 option 撑宽面板 */
-  .kb-select option {
+  .kf-select option {
     padding: 8px 12px;
-    color: var(--kb-foreground);
-    background-color: var(--kb-card);
-    font-size: var(--kb-fs-body-md);
-    line-height: var(--kb-lh-body-md);
+    color: var(--kf-foreground);
+    background-color: var(--kf-card);
+    font-size: var(--kf-fs-body-md);
+    line-height: var(--kf-lh-body-md);
     word-break: break-word;
   }
   /* 紧凑变体：用于空间受限的工具栏 */
-  .kb-select.kb-select-sm {
+  .kf-select.kf-select-sm {
     height: 32px;
     padding: 0 28px 0 10px;
-    font-size: var(--kb-fs-body-sm);
+    font-size: var(--kf-fs-body-sm);
     min-width: 110px;
   }
 
   /* =====================================================================
-   * 统一筛选按钮组 .kb-filter-btn / .kb-filter-group
+   * 统一筛选按钮组 .kf-filter-btn / .kf-filter-group
    * 用于分类筛选、排序切换、视图切换等分段控件。
    * - 默认态：白底灰字灰边；悬停/激活：主色软背景 + 主色字 + 主色边
    * - 12px 字号 / 6px 14px 内边距 / 6px 圆角，紧凑适合工具栏
-   * - .kb-filter-group 容器提供统一间距与换行
+   * - .kf-filter-group 容器提供统一间距与换行
    * ===================================================================== */
-  .kb-filter-group {
+  .kf-filter-group {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--kb-space-2);
+    gap: var(--kf-space-2);
   }
-  .kb-filter-btn {
+  .kf-filter-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 6px 14px;
-    border-radius: var(--kb-radius-sm);
-    font-size: var(--kb-fs-body-sm);
+    border-radius: var(--kf-radius-sm);
+    font-size: var(--kf-fs-body-sm);
     font-weight: 500;
-    line-height: var(--kb-lh-body-sm);
-    border: 1px solid var(--kb-border);
-    background: var(--kb-card);
-    color: var(--kb-muted-foreground);
+    line-height: var(--kf-lh-body-sm);
+    border: 1px solid var(--kf-border);
+    background: var(--kf-card);
+    color: var(--kf-muted-foreground);
     cursor: pointer;
     white-space: nowrap;
     transition: all 0.15s ease;
   }
-  .kb-filter-btn:hover {
-    border-color: var(--kb-primary);
-    color: var(--kb-primary);
+  .kf-filter-btn:hover {
+    border-color: var(--kf-primary);
+    color: var(--kf-primary);
   }
-  .kb-filter-btn.active {
-    background: var(--kb-menu-selected);
-    color: var(--kb-primary);
-    border-color: var(--kb-primary);
+  .kf-filter-btn.active {
+    background: var(--kf-menu-selected);
+    color: var(--kf-primary);
+    border-color: var(--kf-primary);
   }
-  .kb-filter-btn:disabled {
+  .kf-filter-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
   /* 计数徽章：筛选按钮内的小数字 */
-  .kb-filter-btn .filter-count {
+  .kf-filter-btn .filter-count {
     font-size: 11px;
     opacity: 0.7;
     font-variant-numeric: tabular-nums;
   }
-  .kb-filter-btn.active .filter-count {
+  .kf-filter-btn.active .filter-count {
     opacity: 0.9;
   }
 
   /* =====================================================================
-   * 统一自定义下拉面板 .kb-dropdown（非原生 <select> 的弹出选择）
+   * 统一自定义下拉面板 .kf-dropdown（非原生 <select> 的弹出选择）
    * 用于章节下拉、排序下拉、角色筛选等需要自定义渲染的场景。
-   * - trigger 复用 .kb-select 视觉（38px 高、主色高亮环）
+   * - trigger 复用 .kf-select 视觉（38px 高、主色高亮环）
    * - panel：max-height 320px + overflow-y auto 防止选项过多溢出
    * - item：white-space: normal 允许长文本换行，确保完整可读
    * - 键盘导航：聚焦项有主色软背景高亮
    * ===================================================================== */
-  .kb-dropdown {
+  .kf-dropdown {
     position: relative;
     display: inline-block;
   }
-  .kb-dropdown-trigger {
+  .kf-dropdown-trigger {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--kb-space-2);
+    gap: var(--kf-space-2);
     height: 38px;
     padding: 0 12px;
-    border-radius: var(--kb-radius-md);
-    border: 1px solid var(--kb-border);
-    background: var(--kb-card);
-    color: var(--kb-foreground);
-    font-size: var(--kb-fs-body-md);
+    border-radius: var(--kf-radius-md);
+    border: 1px solid var(--kf-border);
+    background: var(--kf-card);
+    color: var(--kf-foreground);
+    font-size: var(--kf-fs-body-md);
     cursor: pointer;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
     min-width: 140px;
   }
-  .kb-dropdown-trigger:hover:not(.disabled):not(:disabled) {
-    border-color: var(--kb-primary);
+  .kf-dropdown-trigger:hover:not(.disabled):not(:disabled) {
+    border-color: var(--kf-primary);
   }
-  .kb-dropdown-trigger.active {
-    border-color: var(--kb-primary);
+  .kf-dropdown-trigger.active {
+    border-color: var(--kf-primary);
     box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
   }
-  .kb-dropdown-trigger.disabled {
+  .kf-dropdown-trigger.disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
-  .kb-dropdown-trigger .trigger-label {
+  .kf-dropdown-trigger .trigger-label {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     flex: 1;
   }
-  .kb-dropdown-trigger .trigger-placeholder {
-    color: var(--kb-muted-foreground);
+  .kf-dropdown-trigger .trigger-placeholder {
+    color: var(--kf-muted-foreground);
   }
-  .kb-dropdown-trigger .trigger-arrow {
-    color: var(--kb-muted-foreground);
+  .kf-dropdown-trigger .trigger-arrow {
+    color: var(--kf-muted-foreground);
     flex-shrink: 0;
     transition: transform 0.2s ease;
   }
-  .kb-dropdown-trigger.active .trigger-arrow {
+  .kf-dropdown-trigger.active .trigger-arrow {
     transform: rotate(180deg);
   }
-  .kb-dropdown-panel {
+  .kf-dropdown-panel {
     position: absolute;
     top: calc(100% + 4px);
     left: 0;
@@ -985,42 +985,42 @@ button:focus-visible,
     z-index: 50;
     max-height: 320px;
     overflow-y: auto;
-    border: 1px solid var(--kb-border);
-    border-radius: var(--kb-radius-md);
-    background: var(--kb-popover);
-    box-shadow: var(--kb-menu-shadow);
+    border: 1px solid var(--kf-border);
+    border-radius: var(--kf-radius-md);
+    background: var(--kf-popover);
+    box-shadow: var(--kf-menu-shadow);
     padding: 4px;
   }
   /* 面板宽度自适应内容：确保长文本选项完整显示 */
-  .kb-dropdown-panel.kb-dropdown-wide {
+  .kf-dropdown-panel.kf-dropdown-wide {
     width: max-content;
     max-width: 360px;
   }
-  .kb-dropdown-item {
+  .kf-dropdown-item {
     display: flex;
     align-items: center;
-    gap: var(--kb-space-2);
+    gap: var(--kf-space-2);
     padding: 8px 12px;
-    border-radius: var(--kb-radius-sm);
-    font-size: var(--kb-fs-body-sm);
-    color: var(--kb-foreground);
+    border-radius: var(--kf-radius-sm);
+    font-size: var(--kf-fs-body-sm);
+    color: var(--kf-foreground);
     cursor: pointer;
     transition: background 0.12s ease;
     /* 关键：允许长文本换行，避免截断 */
     white-space: normal;
     word-break: break-word;
   }
-  .kb-dropdown-item:hover,
-  .kb-dropdown-item.focused {
-    background: var(--kb-muted);
+  .kf-dropdown-item:hover,
+  .kf-dropdown-item.focused {
+    background: var(--kf-muted);
   }
-  .kb-dropdown-item.selected {
-    color: var(--kb-primary);
+  .kf-dropdown-item.selected {
+    color: var(--kf-primary);
     font-weight: 500;
-    background: var(--kb-menu-selected);
+    background: var(--kf-menu-selected);
   }
-  .kb-dropdown-item.disabled {
-    color: var(--kb-muted-foreground);
+  .kf-dropdown-item.disabled {
+    color: var(--kf-muted-foreground);
     cursor: not-allowed;
     opacity: 0.5;
   }
@@ -1033,9 +1033,9 @@ button:focus-visible,
     transform: translateX(-50%) translateY(6px);
     margin-top: 6px;
     min-width: 168px;
-    background: var(--kb-popover);
-    border: 1px solid var(--kb-border);
-    border-radius: var(--kb-radius-md);
+    background: var(--kf-popover);
+    border: 1px solid var(--kf-border);
+    border-radius: var(--kf-radius-md);
     box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.08);
     padding: 6px;
     z-index: 60;
@@ -1053,43 +1053,43 @@ button:focus-visible,
   .nav-dropdown a {
     display: flex;
     align-items: center;
-    gap: var(--kb-nav-gap);
+    gap: var(--kf-nav-gap);
     padding: 8px 10px;
-    border-radius: var(--kb-radius-sm);
-    font-size: var(--kb-dropdown-text-fs);
-    color: var(--kb-foreground);
+    border-radius: var(--kf-radius-sm);
+    font-size: var(--kf-dropdown-text-fs);
+    color: var(--kf-foreground);
     transition: background 0.15s ease;
   }
   .nav-dropdown a:hover {
-    background: var(--kb-muted);
+    background: var(--kf-muted);
   }
 
   /* B-end sidebar nav item */
   .sidebar-group-label {
     padding: 10px 12px 6px;
-    font-size: var(--kb-sidebar-label-fs);
-    font-weight: var(--kb-sidebar-label-fw);
-    color: var(--kb-muted-foreground);
+    font-size: var(--kf-sidebar-label-fs);
+    font-weight: var(--kf-sidebar-label-fw);
+    color: var(--kf-muted-foreground);
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
   .sidebar-nav-item {
     display: flex;
     align-items: center;
-    gap: var(--kb-sidebar-gap);
+    gap: var(--kf-sidebar-gap);
     padding: 8px 12px;
-    border-radius: var(--kb-radius-sm);
-    font-size: var(--kb-sidebar-text-fs);
-    font-weight: var(--kb-sidebar-text-fw);
-    color: var(--kb-sidebar-foreground);
+    border-radius: var(--kf-radius-sm);
+    font-size: var(--kf-sidebar-text-fs);
+    font-weight: var(--kf-sidebar-text-fw);
+    color: var(--kf-sidebar-foreground);
     transition: background 0.15s ease, color 0.15s ease;
   }
   .sidebar-nav-item:hover {
-    background: var(--kb-menu-selected);
+    background: var(--kf-menu-selected);
   }
   .sidebar-nav-item.active {
-    background: var(--kb-primary);
-    color: var(--kb-primary-foreground);
+    background: var(--kf-primary);
+    color: var(--kf-primary-foreground);
   }
 
   /* B-end topbar search */
@@ -1098,14 +1098,14 @@ button:focus-visible,
     height: 36px;
     padding: 0 12px 0 36px;
     font-size: 13px;
-    color: var(--kb-foreground);
-    background: var(--kb-background);
-    border: 1px solid var(--kb-border);
-    border-radius: var(--kb-radius-sm);
+    color: var(--kf-foreground);
+    background: var(--kf-background);
+    border: 1px solid var(--kf-border);
+    border-radius: var(--kf-radius-sm);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
   .topbar-search:focus {
-    border-color: var(--kb-primary);
+    border-color: var(--kf-primary);
     box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
     outline: none;
   }
@@ -1174,7 +1174,7 @@ button:focus-visible,
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--kb-highlight);
+  background: var(--kf-highlight);
   pointer-events: none;
   opacity: 0;
 }
@@ -1192,15 +1192,15 @@ button:focus-visible,
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
     box-shadow:
-      0 0 0 0 var(--kb-highlight),
-      12px 0 0 0 var(--kb-highlight),
-      -12px 0 0 0 var(--kb-highlight),
-      0 12px 0 0 var(--kb-highlight),
-      0 -12px 0 0 var(--kb-highlight),
-      9px 9px 0 0 var(--kb-highlight),
-      -9px 9px 0 0 var(--kb-highlight),
-      9px -9px 0 0 var(--kb-highlight),
-      -9px -9px 0 0 var(--kb-highlight);
+      0 0 0 0 var(--kf-highlight),
+      12px 0 0 0 var(--kf-highlight),
+      -12px 0 0 0 var(--kf-highlight),
+      0 12px 0 0 var(--kf-highlight),
+      0 -12px 0 0 var(--kf-highlight),
+      9px 9px 0 0 var(--kf-highlight),
+      -9px 9px 0 0 var(--kf-highlight),
+      9px -9px 0 0 var(--kf-highlight),
+      -9px -9px 0 0 var(--kf-highlight);
   }
   100% {
     opacity: 0;
@@ -1225,7 +1225,7 @@ button:focus-visible,
 
 @keyframes highlightPulse {
   0% {
-    box-shadow: 0 0 0 0 var(--kb-highlight-soft);
+    box-shadow: 0 0 0 0 var(--kf-highlight-soft);
   }
   50% {
     box-shadow: 0 0 0 12px transparent;
@@ -1236,25 +1236,25 @@ button:focus-visible,
 }
 
 /* =====================================================================
- * U4：通用统计卡片 .kb-stat-*
+ * U4：通用统计卡片 .kf-stat-*
  * 消除 Habits/PomodoroMode/AgentCallChain/Home 等页面的 stat-card 重复样式。
  * 配合 components/ui/StatCard.vue 使用，也可单独用于业务页面。
  * ===================================================================== */
-.kb-stat-card {
+.kf-stat-card {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 4px;
   padding: 18px 20px;
-  border-radius: var(--kb-radius-lg, 12px);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  border-radius: var(--kf-radius-lg, 12px);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
 }
 
-.kb-stat-icon {
+.kf-stat-icon {
   width: 36px;
   height: 36px;
-  border-radius: var(--kb-radius-md, 8px);
+  border-radius: var(--kf-radius-md, 8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1262,64 +1262,64 @@ button:focus-visible,
   flex-shrink: 0;
 }
 
-.kb-stat-value {
+.kf-stat-value {
   font-size: 24px;
   font-weight: 700;
   line-height: 1.2;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
-.kb-stat-unit {
+.kf-stat-unit {
   font-size: 13px;
   font-weight: 500;
   margin-left: 4px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
-.kb-stat-label {
+.kf-stat-label {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   letter-spacing: 0.02em;
 }
 
 /* 水平布局变体：图标在左，数值/标签在右 */
-.kb-stat-card.kb-stat-card-horizontal {
+.kf-stat-card.kf-stat-card-horizontal {
   flex-direction: row;
   align-items: center;
   gap: 14px;
 }
 
-.kb-stat-card-horizontal .kb-stat-icon {
+.kf-stat-card-horizontal .kf-stat-icon {
   margin-bottom: 0;
 }
 
-.kb-stat-info {
+.kf-stat-info {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
 /* =====================================================================
- * U5：状态视图 .kb-state-*
+ * U5：状态视图 .kf-state-*
  * 统一 loading/empty/error 三态视觉，与 EmptyState/ErrorState 组件配合。
- * - .kb-state：通用容器（居中、纵向堆叠、内边距）
- * - .kb-state-icon：圆形图标背景区
- * - .kb-state-title / .kb-state-desc / .kb-state-action：标题/描述/操作区
- * - .kb-state-retry：重试按钮（主色边框 + hover 填充）
- * - .kb-state-error：错误态变体（红/橘色调）
+ * - .kf-state：通用容器（居中、纵向堆叠、内边距）
+ * - .kf-state-icon：圆形图标背景区
+ * - .kf-state-title / .kf-state-desc / .kf-state-action：标题/描述/操作区
+ * - .kf-state-retry：重试按钮（主色边框 + hover 填充）
+ * - .kf-state-error：错误态变体（红/橘色调）
  * - fade-in 过渡：状态切换平滑过渡
  * ===================================================================== */
-.kb-state {
+.kf-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: 64px 16px;
-  animation: kb-state-fade-in 0.2s ease-out;
+  animation: kf-state-fade-in 0.2s ease-out;
 }
 
-.kb-state-icon {
+.kf-state-icon {
   width: 64px;
   height: 64px;
   border-radius: 50%;
@@ -1328,53 +1328,53 @@ button:focus-visible,
   justify-content: center;
   margin-bottom: 16px;
   flex-shrink: 0;
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 
-.kb-state-error .kb-state-icon {
+.kf-state-error .kf-state-icon {
   background: rgba(239, 68, 68, 0.1);
   color: #ef4444;
 }
 
-.kb-state-title {
+.kf-state-title {
   font-size: 18px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 8px;
 }
 
-.kb-state-desc {
+.kf-state-desc {
   font-size: 14px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   max-width: 320px;
 }
 
-.kb-state-action {
+.kf-state-action {
   margin-top: 24px;
 }
 
-.kb-state-retry {
+.kf-state-retry {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  border-radius: var(--kb-radius-md, 8px);
-  border: 1px solid var(--kb-primary);
-  background: var(--kb-card);
-  color: var(--kb-primary);
+  border-radius: var(--kf-radius-md, 8px);
+  border: 1px solid var(--kf-primary);
+  background: var(--kf-card);
+  color: var(--kf-primary);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.kb-state-retry:hover {
-  background: var(--kb-primary);
+.kf-state-retry:hover {
+  background: var(--kf-primary);
   color: #fff;
 }
 
-@keyframes kb-state-fade-in {
+@keyframes kf-state-fade-in {
   from {
     opacity: 0;
     transform: translateY(4px);
@@ -1386,170 +1386,170 @@ button:focus-visible,
 }
 
 /* =====================================================================
- * U6：表单组件 .kb-textarea / .kb-checkbox / .kb-select-*
+ * U6：表单组件 .kf-textarea / .kf-checkbox / .kf-select-*
  * 与 Input.vue 共用浅灰表面、44px 高度，无常规聚焦外框。
  * ===================================================================== */
-.kb-field{min-width:0;width:100%;border:0;border-radius:var(--kb-field-radius);background:var(--kb-field-surface);color:var(--kb-foreground);transition:background-color var(--kb-control-motion) ease}
-.kb-field:hover:not(.kb-field--disabled){background:var(--kb-field-hover)}
-.kb-field:focus-within{background:var(--kb-field-active);box-shadow:none}
-.kb-field:has(:focus-visible){outline:0}
-.kb-field.kb-field--error{background:var(--kb-field-error-bg)}
-.kb-field.kb-field--error:has(:focus-visible){outline-color:var(--kb-destructive)}
-.kb-field.kb-field--disabled{background:var(--kb-field-disabled);color:var(--kb-muted-foreground);cursor:not-allowed;box-shadow:none}
-.kb-field input.kb-input,.kb-field textarea.kb-textarea,.kb-field input.kb-input:focus,.kb-field textarea.kb-textarea:focus,.kb-field input.kb-input:focus-visible,.kb-field textarea.kb-textarea:focus-visible{display:block;min-width:0;width:100%;border:0;border-radius:inherit;background:transparent;color:inherit;box-shadow:none;outline:0}
-.kb-field input.kb-input{height:var(--kb-input-height);padding-block:0}
-.kb-field textarea.kb-textarea{margin:0}
-.kb-field input.kb-input::placeholder,.kb-field textarea.kb-textarea::placeholder{color:var(--kb-field-placeholder);opacity:1}
-.kb-field input.kb-input[readonly],.kb-field textarea.kb-textarea[readonly]{cursor:text}
-.kb-field textarea.kb-textarea-disabled{opacity:1}
+.kf-field{min-width:0;width:100%;border:0;border-radius:var(--kf-field-radius);background:var(--kf-field-surface);color:var(--kf-foreground);transition:background-color var(--kf-control-motion) ease}
+.kf-field:hover:not(.kf-field--disabled){background:var(--kf-field-hover)}
+.kf-field:focus-within{background:var(--kf-field-active);box-shadow:none}
+.kf-field:has(:focus-visible){outline:0}
+.kf-field.kf-field--error{background:var(--kf-field-error-bg)}
+.kf-field.kf-field--error:has(:focus-visible){outline-color:var(--kf-destructive)}
+.kf-field.kf-field--disabled{background:var(--kf-field-disabled);color:var(--kf-muted-foreground);cursor:not-allowed;box-shadow:none}
+.kf-field input.kf-input,.kf-field textarea.kf-textarea,.kf-field input.kf-input:focus,.kf-field textarea.kf-textarea:focus,.kf-field input.kf-input:focus-visible,.kf-field textarea.kf-textarea:focus-visible{display:block;min-width:0;width:100%;border:0;border-radius:inherit;background:transparent;color:inherit;box-shadow:none;outline:0}
+.kf-field input.kf-input{height:var(--kf-input-height);padding-block:0}
+.kf-field textarea.kf-textarea{margin:0}
+.kf-field input.kf-input::placeholder,.kf-field textarea.kf-textarea::placeholder{color:var(--kf-field-placeholder);opacity:1}
+.kf-field input.kf-input[readonly],.kf-field textarea.kf-textarea[readonly]{cursor:text}
+.kf-field textarea.kf-textarea-disabled{opacity:1}
 
-@media(forced-colors:active){.kb-field:focus-within{outline:var(--kb-field-focus-width) solid Highlight;box-shadow:none;}}
-@media(prefers-reduced-motion:reduce){.kb-field{transition:none;}}
+@media(forced-colors:active){.kf-field:focus-within{outline:var(--kf-field-focus-width) solid Highlight;box-shadow:none;}}
+@media(prefers-reduced-motion:reduce){.kf-field{transition:none;}}
 
-.kb-input,.kb-textarea{box-sizing:border-box;width:100%;min-width:0;border:0;border-radius:var(--kb-field-radius);background:var(--kb-field-surface);color:var(--kb-foreground);font-family:var(--font-sans);font-size:var(--kb-fs-body-md);line-height:var(--kb-lh-body-md);box-shadow:none;outline:0;transition:background-color var(--kb-control-motion) ease}
-input.kb-input{height:var(--kb-input-height)}
-.kb-input:hover:not(:disabled),.kb-textarea:hover:not(:disabled){background:var(--kb-field-hover)}
-.kb-input:focus,.kb-textarea:focus{border:0;background:var(--kb-field-active);box-shadow:none;outline:0}
-.kb-input:focus-visible,.kb-textarea:focus-visible{outline:0}
-.kb-input.kb-input-error,.kb-textarea.kb-textarea-error,.kb-input[aria-invalid=true],.kb-textarea[aria-invalid=true]{background:var(--kb-field-error-bg)}
-.kb-input.kb-input-error:focus-visible,.kb-textarea.kb-textarea-error:focus-visible{outline-color:var(--kb-destructive)}
-.kb-input:disabled,.kb-textarea:disabled{background:var(--kb-field-disabled);color:var(--kb-muted-foreground);cursor:not-allowed;box-shadow:none}
-.kb-input[readonly],.kb-textarea[readonly]{cursor:text}
-.kb-input::placeholder,.kb-textarea::placeholder{color:var(--kb-field-placeholder);opacity:1}
-textarea.kb-input,.kb-textarea{height:auto;min-height:var(--kb-textarea-min-height);padding:var(--kb-field-padding);resize:vertical}
-.kb-textarea-autoresize{resize:none;overflow-y:hidden}
-:where(.kb-form-control){padding-inline:var(--kb-field-padding)}
-@media(forced-colors:active){.kb-input:focus-visible,.kb-textarea:focus-visible,.kb-field:has(:focus-visible){outline:var(--kb-field-focus-width) solid Highlight;outline-offset:var(--kb-space-1);box-shadow:none}}
+.kf-input,.kf-textarea{box-sizing:border-box;width:100%;min-width:0;border:0;border-radius:var(--kf-field-radius);background:var(--kf-field-surface);color:var(--kf-foreground);font-family:var(--font-sans);font-size:var(--kf-fs-body-md);line-height:var(--kf-lh-body-md);box-shadow:none;outline:0;transition:background-color var(--kf-control-motion) ease}
+input.kf-input{height:var(--kf-input-height)}
+.kf-input:hover:not(:disabled),.kf-textarea:hover:not(:disabled){background:var(--kf-field-hover)}
+.kf-input:focus,.kf-textarea:focus{border:0;background:var(--kf-field-active);box-shadow:none;outline:0}
+.kf-input:focus-visible,.kf-textarea:focus-visible{outline:0}
+.kf-input.kf-input-error,.kf-textarea.kf-textarea-error,.kf-input[aria-invalid=true],.kf-textarea[aria-invalid=true]{background:var(--kf-field-error-bg)}
+.kf-input.kf-input-error:focus-visible,.kf-textarea.kf-textarea-error:focus-visible{outline-color:var(--kf-destructive)}
+.kf-input:disabled,.kf-textarea:disabled{background:var(--kf-field-disabled);color:var(--kf-muted-foreground);cursor:not-allowed;box-shadow:none}
+.kf-input[readonly],.kf-textarea[readonly]{cursor:text}
+.kf-input::placeholder,.kf-textarea::placeholder{color:var(--kf-field-placeholder);opacity:1}
+textarea.kf-input,.kf-textarea{height:auto;min-height:var(--kf-textarea-min-height);padding:var(--kf-field-padding);resize:vertical}
+.kf-textarea-autoresize{resize:none;overflow-y:hidden}
+:where(.kf-form-control){padding-inline:var(--kf-field-padding)}
+@media(forced-colors:active){.kf-input:focus-visible,.kf-textarea:focus-visible,.kf-field:has(:focus-visible){outline:var(--kf-field-focus-width) solid Highlight;outline-offset:var(--kf-space-1);box-shadow:none}}
 
 /* 复选框：自定义方框 + 对勾/横线指示器 */
 /* Checkbox V3: no native chrome or gray halo; focus belongs only to the visible square. */
-.kb-checkbox {display:inline-flex;align-items:center;gap:var(--kb-checkbox-gap);min-height:var(--kb-checkbox-hit-size);min-width:var(--kb-checkbox-hit-size);max-width:100%;background:transparent;border:0;box-shadow:none;filter:none;cursor:pointer;user-select:none;font-size:var(--kb-fs-body-md);font-weight:400;line-height:var(--kb-lh-body-md)}
-.kb-checkbox.kb-checkbox--embedded{min-width:var(--kb-checkbox-size);min-height:var(--kb-checkbox-size)}
-.kb-checkbox-box {position:relative;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;flex:none;width:var(--kb-checkbox-size);height:var(--kb-checkbox-size);border:var(--kb-checkbox-border-width) solid var(--kb-border);border-radius:var(--kb-checkbox-radius);background:var(--kb-card);box-shadow:none;filter:none;outline:0;transition:border-color var(--kb-control-motion),background-color var(--kb-control-motion)}
-.kb-checkbox-box:has(input:checked),.kb-checkbox-box-checked,.kb-checkbox-box-mixed {background:var(--kb-primary);border-color:var(--kb-primary)}
-.kb-checkbox-input,.kb-checkbox-input:focus,.kb-checkbox-input:focus-visible {position:absolute;inset:0;opacity:0;appearance:none;box-sizing:border-box;width:100%;height:100%;min-width:0;min-height:0;margin:0;padding:0;border:0;border-radius:inherit;background:transparent;box-shadow:none;filter:none;outline:0;cursor:inherit}
-.kb-checkbox-mark {width:var(--kb-checkbox-mark-size);height:var(--kb-checkbox-mark-size);flex:none;display:block;color:var(--kb-primary-foreground);pointer-events:none}
-.kb-checkbox-check {visibility:hidden}.kb-checkbox-box:has(input:checked)>.kb-checkbox-check{visibility:visible}
-.kb-checkbox-label {min-width:0;font-size:var(--kb-fs-body-md);font-weight:400;line-height:var(--kb-lh-body-md);color:var(--kb-foreground);overflow-wrap:anywhere}
-.kb-checkbox:hover:not(.kb-checkbox-disabled) .kb-checkbox-box {border-color:var(--kb-primary)}
-.kb-checkbox-box:has(input:focus-visible:not(:disabled)) {outline:var(--kb-checkbox-focus-width) solid var(--kb-primary);outline-offset:var(--kb-checkbox-focus-offset);box-shadow:none}
-.kb-checkbox-disabled {cursor:not-allowed}.kb-checkbox-disabled .kb-checkbox-box {background:var(--kb-muted);border-color:var(--kb-border)}.kb-checkbox-disabled .kb-checkbox-box:has(input:checked),.kb-checkbox-disabled .kb-checkbox-box-mixed {background:var(--kb-muted-foreground);border-color:var(--kb-muted-foreground)}.kb-checkbox-disabled .kb-checkbox-label{color:var(--kb-muted-foreground)}
-.kb-checkbox-row {min-height:var(--kb-checkbox-hit-size);min-width:var(--kb-checkbox-hit-size);display:flex;align-items:center;gap:var(--kb-checkbox-gap);font-size:var(--kb-fs-body-md);font-weight:400;line-height:var(--kb-lh-body-md)}
-@media(pointer:coarse){.kb-checkbox,.kb-checkbox-row{min-height:var(--kb-checkbox-touch-size);min-width:var(--kb-checkbox-touch-size)}.kb-checkbox.kb-checkbox--embedded{min-width:var(--kb-checkbox-size);min-height:var(--kb-checkbox-size)}}
-@media(forced-colors:active){.kb-checkbox-box{forced-color-adjust:none;background:Canvas;border-color:CanvasText}.kb-checkbox-box:has(input:checked),.kb-checkbox-box-mixed{background:Highlight;border-color:Highlight}.kb-checkbox-mark{color:HighlightText}.kb-checkbox-box:has(input:focus-visible){outline:var(--kb-checkbox-focus-width) solid Highlight;outline-offset:var(--kb-checkbox-focus-offset)}.kb-checkbox-disabled .kb-checkbox-box{border-color:GrayText}.kb-checkbox-disabled .kb-checkbox-label{color:GrayText}}
+.kf-checkbox {display:inline-flex;align-items:center;gap:var(--kf-checkbox-gap);min-height:var(--kf-checkbox-hit-size);min-width:var(--kf-checkbox-hit-size);max-width:100%;background:transparent;border:0;box-shadow:none;filter:none;cursor:pointer;user-select:none;font-size:var(--kf-fs-body-md);font-weight:400;line-height:var(--kf-lh-body-md)}
+.kf-checkbox.kf-checkbox--embedded{min-width:var(--kf-checkbox-size);min-height:var(--kf-checkbox-size)}
+.kf-checkbox-box {position:relative;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;flex:none;width:var(--kf-checkbox-size);height:var(--kf-checkbox-size);border:var(--kf-checkbox-border-width) solid var(--kf-border);border-radius:var(--kf-checkbox-radius);background:var(--kf-card);box-shadow:none;filter:none;outline:0;transition:border-color var(--kf-control-motion),background-color var(--kf-control-motion)}
+.kf-checkbox-box:has(input:checked),.kf-checkbox-box-checked,.kf-checkbox-box-mixed {background:var(--kf-primary);border-color:var(--kf-primary)}
+.kf-checkbox-input,.kf-checkbox-input:focus,.kf-checkbox-input:focus-visible {position:absolute;inset:0;opacity:0;appearance:none;box-sizing:border-box;width:100%;height:100%;min-width:0;min-height:0;margin:0;padding:0;border:0;border-radius:inherit;background:transparent;box-shadow:none;filter:none;outline:0;cursor:inherit}
+.kf-checkbox-mark {width:var(--kf-checkbox-mark-size);height:var(--kf-checkbox-mark-size);flex:none;display:block;color:var(--kf-primary-foreground);pointer-events:none}
+.kf-checkbox-check {visibility:hidden}.kf-checkbox-box:has(input:checked)>.kf-checkbox-check{visibility:visible}
+.kf-checkbox-label {min-width:0;font-size:var(--kf-fs-body-md);font-weight:400;line-height:var(--kf-lh-body-md);color:var(--kf-foreground);overflow-wrap:anywhere}
+.kf-checkbox:hover:not(.kf-checkbox-disabled) .kf-checkbox-box {border-color:var(--kf-primary)}
+.kf-checkbox-box:has(input:focus-visible:not(:disabled)) {outline:var(--kf-checkbox-focus-width) solid var(--kf-primary);outline-offset:var(--kf-checkbox-focus-offset);box-shadow:none}
+.kf-checkbox-disabled {cursor:not-allowed}.kf-checkbox-disabled .kf-checkbox-box {background:var(--kf-muted);border-color:var(--kf-border)}.kf-checkbox-disabled .kf-checkbox-box:has(input:checked),.kf-checkbox-disabled .kf-checkbox-box-mixed {background:var(--kf-muted-foreground);border-color:var(--kf-muted-foreground)}.kf-checkbox-disabled .kf-checkbox-label{color:var(--kf-muted-foreground)}
+.kf-checkbox-row {min-height:var(--kf-checkbox-hit-size);min-width:var(--kf-checkbox-hit-size);display:flex;align-items:center;gap:var(--kf-checkbox-gap);font-size:var(--kf-fs-body-md);font-weight:400;line-height:var(--kf-lh-body-md)}
+@media(pointer:coarse){.kf-checkbox,.kf-checkbox-row{min-height:var(--kf-checkbox-touch-size);min-width:var(--kf-checkbox-touch-size)}.kf-checkbox.kf-checkbox--embedded{min-width:var(--kf-checkbox-size);min-height:var(--kf-checkbox-size)}}
+@media(forced-colors:active){.kf-checkbox-box{forced-color-adjust:none;background:Canvas;border-color:CanvasText}.kf-checkbox-box:has(input:checked),.kf-checkbox-box-mixed{background:Highlight;border-color:Highlight}.kf-checkbox-mark{color:HighlightText}.kf-checkbox-box:has(input:focus-visible){outline:var(--kf-checkbox-focus-width) solid Highlight;outline-offset:var(--kf-checkbox-focus-offset)}.kf-checkbox-disabled .kf-checkbox-box{border-color:GrayText}.kf-checkbox-disabled .kf-checkbox-label{color:GrayText}}
 
-/* 自定义下拉选择 .kb-select-*（替代原生 select，支持搜索） */
-.kb-select-trigger{display:flex;align-items:center;gap:var(--kb-space-2);width:100%;min-width:0;height:var(--kb-input-height);padding:0 var(--kb-field-padding);border:0;border-radius:var(--kb-field-radius);background:var(--kb-field-surface);color:var(--kb-foreground);font-size:var(--kb-fs-body-md);line-height:var(--kb-lh-body-md);cursor:pointer;outline:0;text-align:left;transition:background-color var(--kb-control-motion) ease}
-.kb-select-trigger:hover:not(:disabled){background:var(--kb-field-hover)}
-.kb-select-trigger:focus{border:0;background:var(--kb-field-active);box-shadow:none}
-.kb-select-trigger:focus-visible{outline:0}
-.kb-select-trigger.kb-select-trigger-error{background:var(--kb-field-error-bg)}
-.kb-select-trigger.kb-select-trigger-error:focus-visible{outline-color:var(--kb-destructive)}
-.kb-select-trigger:disabled{background:var(--kb-field-disabled);cursor:not-allowed}
+/* 自定义下拉选择 .kf-select-*（替代原生 select，支持搜索） */
+.kf-select-trigger{display:flex;align-items:center;gap:var(--kf-space-2);width:100%;min-width:0;height:var(--kf-input-height);padding:0 var(--kf-field-padding);border:0;border-radius:var(--kf-field-radius);background:var(--kf-field-surface);color:var(--kf-foreground);font-size:var(--kf-fs-body-md);line-height:var(--kf-lh-body-md);cursor:pointer;outline:0;text-align:left;transition:background-color var(--kf-control-motion) ease}
+.kf-select-trigger:hover:not(:disabled){background:var(--kf-field-hover)}
+.kf-select-trigger:focus{border:0;background:var(--kf-field-active);box-shadow:none}
+.kf-select-trigger:focus-visible{outline:0}
+.kf-select-trigger.kf-select-trigger-error{background:var(--kf-field-error-bg)}
+.kf-select-trigger.kf-select-trigger-error:focus-visible{outline-color:var(--kf-destructive)}
+.kf-select-trigger:disabled{background:var(--kf-field-disabled);cursor:not-allowed}
 @media (forced-colors: active) {
-  .kb-select-trigger:focus-visible {outline:var(--kb-field-focus-width) solid Highlight;outline-offset:var(--kb-field-focus-width);box-shadow:none;}
+  .kf-select-trigger:focus-visible {outline:var(--kf-field-focus-width) solid Highlight;outline-offset:var(--kf-field-focus-width);box-shadow:none;}
 }
-.kb-select-trigger-error {
-  border-color: var(--kb-destructive);
+.kf-select-trigger-error {
+  border-color: var(--kf-destructive);
 }
-.kb-select-trigger-disabled {
+.kf-select-trigger-disabled {
   opacity: 0.55;
   cursor: not-allowed;
-  background: var(--kb-field-disabled);
+  background: var(--kf-field-disabled);
 }
-.kb-select-prefix {
-  color: var(--kb-muted-foreground);
+.kf-select-prefix {
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
-.kb-select-value {
+.kf-select-value {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.kb-select-placeholder {
+.kf-select-placeholder {
   flex: 1;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
-.kb-select-arrow {
-  color: var(--kb-muted-foreground);
+.kf-select-arrow {
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
   transition: transform 0.15s ease;
 }
-.kb-select-arrow-up {
+.kf-select-arrow-up {
   transform: rotate(180deg);
 }
 
 /* 下拉面板：浮层 + 阴影 + 滚动 */
-.kb-select-panel {
+.kf-select-panel {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
   right: 0;
   z-index: 50;
-  border-radius: var(--kb-radius-md, 8px);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  box-shadow: var(--kb-menu-shadow);
+  border-radius: var(--kf-radius-md, 8px);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  box-shadow: var(--kf-menu-shadow);
   overflow: hidden;
 }
-.kb-select-search {
+.kf-select-search {
   position: relative;
   padding: 8px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
-.kb-select-search-icon {
+.kf-select-search-icon {
   position: absolute;
   left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   pointer-events: none;
 }
-.kb-select-search-input {
+.kf-select-search-input {
   width: 100%;
   height: 32px;
   padding: 0 10px 0 32px;
   border-radius: 6px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
   font-size: 13px;
   outline: none;
 }
-.kb-select-search-input:focus {
-  border-color: var(--kb-primary);
+.kf-select-search-input:focus {
+  border-color: var(--kf-primary);
 }
-.kb-select-list {
+.kf-select-list {
   max-height: 240px;
   overflow-y: auto;
   padding: 4px;
 }
-.kb-select-option {
+.kf-select-option {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-2);
-  min-height: var(--kb-menu-item-height);
+  gap: var(--kf-space-2);
+  min-height: var(--kf-menu-item-height);
   width: 100%;
   text-align: left;
   padding: 8px 12px;
   border-radius: 6px;
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-md);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-md);
   cursor: pointer;
   transition: background 0.15s ease;
 }
-.kb-select-option:hover {
-  background: var(--kb-muted);
+.kf-select-option:hover {
+  background: var(--kf-muted);
 }
-.kb-select-option[aria-selected="true"] {
-  color: var(--kb-foreground);
+.kf-select-option[aria-selected="true"] {
+  color: var(--kf-foreground);
 }
-.kb-select-empty {
+.kf-select-empty {
   padding: 16px;
   text-align: center;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 13px;
 }
 
@@ -1705,8 +1705,8 @@ textarea.kb-input,.kb-textarea{height:auto;min-height:var(--kb-textarea-min-heig
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 0.875em;
-  background: var(--kb-muted);
-  color: var(--kb-primary);
+  background: var(--kf-muted);
+  color: var(--kf-primary);
   font-family: var(--font-mono);
 }
 
@@ -1776,54 +1776,54 @@ textarea.kb-input,.kb-textarea{height:auto;min-height:var(--kb-textarea-min-heig
 }
 
 /* Button owns one keyboard ring; pages must not stack a second Tailwind ring. */
-.kb-button:focus-visible {outline:var(--kb-field-focus-width) solid var(--kb-ring);outline-offset:var(--kb-space-1);}
-.kb-select-option:focus-visible,.kb-dropdown-item:focus-visible {outline:var(--kb-field-focus-width) solid var(--kb-field-focus-indicator);outline-offset:calc(-1 * var(--kb-field-focus-width));}
-.kb-select-option:disabled {color:var(--kb-muted-foreground);cursor:not-allowed;}
-.kb-select-option:disabled:hover {background:transparent;}
+.kf-button:focus-visible {outline:var(--kf-field-focus-width) solid var(--kf-ring);outline-offset:var(--kf-space-1);}
+.kf-select-option:focus-visible,.kf-dropdown-item:focus-visible {outline:var(--kf-field-focus-width) solid var(--kf-field-focus-indicator);outline-offset:calc(-1 * var(--kf-field-focus-width));}
+.kf-select-option:disabled {color:var(--kf-muted-foreground);cursor:not-allowed;}
+.kf-select-option:disabled:hover {background:transparent;}
 
 /* Readonly is editable-looking enough to select/copy, but visually distinct from disabled. */
-.kb-field:has(input[readonly]),.kb-field:has(textarea[readonly]),.kb-input[readonly],.kb-textarea[readonly]{background:var(--kb-field-readonly)}
+.kf-field:has(input[readonly]),.kf-field:has(textarea[readonly]),.kf-input[readonly],.kf-textarea[readonly]{background:var(--kf-field-readonly)}
 
 /* Focus V2：仅管理文本类字段。组合控件由外壳绘制，内部不重复绘制。 */
-.kb-select-trigger:not(.select-trigger--pill,.select-trigger--subtle,.cascade-trigger--pill,.cascade-trigger--subtle) {border:var(--kb-field-border-width) solid var(--kb-field-border)}
-.kb-field {border:var(--kb-field-border-width) solid var(--kb-field-border)}
-.kb-field input.kb-input {height:calc(var(--kb-input-height) - 2 * var(--kb-field-border-width))}
-:is(input.kb-input,textarea.kb-input,textarea.kb-textarea,select.kb-select) {border:var(--kb-field-border-width) solid var(--kb-field-border)}
-:is(input.kb-input,textarea.kb-input,textarea.kb-textarea,select.kb-select):focus {border-color:var(--kb-field-border);box-shadow:none;outline:none}
-.kb-field :is(input.kb-input,textarea.kb-textarea),.kb-field :is(input.kb-input,textarea.kb-textarea):focus-visible {border:0;outline:none;box-shadow:none}
-html[data-kb-input-modality="keyboard"] :is(.kb-field:not(.kb-field--disabled),.kb-input-surface:not(.ai-composer--disabled)):has(:is(input,textarea,[contenteditable="true"]):focus-visible) {outline:none;box-shadow:var(--kb-field-focus-shadow)}
-html[data-kb-input-modality="keyboard"] :is(input.kb-input,textarea.kb-input,textarea.kb-textarea,select.kb-select,.kb-select-trigger):focus-visible:not(:disabled):not(.kb-field *, .kb-input-surface *) {outline:none;box-shadow:var(--kb-field-focus-shadow)}
-.kb-input-surface :is(input.kb-input,textarea.kb-input,textarea.kb-textarea),.kb-input-surface :is(input.kb-input,textarea.kb-input,textarea.kb-textarea):focus {border:0;outline:none;box-shadow:none;background:transparent}
-html :is(input:not([type="checkbox"],[type="radio"],[type="range"],[type="file"],[type="color"],[type="button"],[type="submit"],[type="reset"],[type="image"],[type="hidden"]),textarea,select):focus:not(.code-editor) {border-color:var(--kb-field-border);outline:none;box-shadow:none}
-html[data-kb-input-modality="keyboard"] :where(input:not([type="checkbox"],[type="radio"],[type="range"],[type="file"],[type="color"],[type="button"],[type="submit"],[type="reset"],[type="image"],[type="hidden"]),textarea,select):focus-visible:not(:disabled):not(.kb-field *, .kb-input-surface *, .code-editor) {outline:none;box-shadow:var(--kb-field-focus-shadow)}
+.kf-select-trigger:not(.select-trigger--pill,.select-trigger--subtle,.cascade-trigger--pill,.cascade-trigger--subtle) {border:var(--kf-field-border-width) solid var(--kf-field-border)}
+.kf-field {border:var(--kf-field-border-width) solid var(--kf-field-border)}
+.kf-field input.kf-input {height:calc(var(--kf-input-height) - 2 * var(--kf-field-border-width))}
+:is(input.kf-input,textarea.kf-input,textarea.kf-textarea,select.kf-select) {border:var(--kf-field-border-width) solid var(--kf-field-border)}
+:is(input.kf-input,textarea.kf-input,textarea.kf-textarea,select.kf-select):focus {border-color:var(--kf-field-border);box-shadow:none;outline:none}
+.kf-field :is(input.kf-input,textarea.kf-textarea),.kf-field :is(input.kf-input,textarea.kf-textarea):focus-visible {border:0;outline:none;box-shadow:none}
+html[data-kf-input-modality="keyboard"] :is(.kf-field:not(.kf-field--disabled),.kf-input-surface:not(.ai-composer--disabled)):has(:is(input,textarea,[contenteditable="true"]):focus-visible) {outline:none;box-shadow:var(--kf-field-focus-shadow)}
+html[data-kf-input-modality="keyboard"] :is(input.kf-input,textarea.kf-input,textarea.kf-textarea,select.kf-select,.kf-select-trigger):focus-visible:not(:disabled):not(.kf-field *, .kf-input-surface *) {outline:none;box-shadow:var(--kf-field-focus-shadow)}
+.kf-input-surface :is(input.kf-input,textarea.kf-input,textarea.kf-textarea),.kf-input-surface :is(input.kf-input,textarea.kf-input,textarea.kf-textarea):focus {border:0;outline:none;box-shadow:none;background:transparent}
+html :is(input:not([type="checkbox"],[type="radio"],[type="range"],[type="file"],[type="color"],[type="button"],[type="submit"],[type="reset"],[type="image"],[type="hidden"]),textarea,select):focus:not(.code-editor) {border-color:var(--kf-field-border);outline:none;box-shadow:none}
+html[data-kf-input-modality="keyboard"] :where(input:not([type="checkbox"],[type="radio"],[type="range"],[type="file"],[type="color"],[type="button"],[type="submit"],[type="reset"],[type="image"],[type="hidden"]),textarea,select):focus-visible:not(:disabled):not(.kf-field *, .kf-input-surface *, .code-editor) {outline:none;box-shadow:var(--kf-field-focus-shadow)}
 /* 即使控件有kb-input语义类，也不能在外壳与内部各绘制一次。 */
-html[data-kb-input-modality="keyboard"] :is(.kb-field,.kb-input-surface) :is(input,textarea):focus-visible {outline:none;box-shadow:none}
-html[data-kb-input-modality="keyboard"] :is(.kb-field--error,.kb-input-surface:has([aria-invalid="true"])):has(:is(input,textarea):focus-visible) {box-shadow:var(--kb-field-error-shadow)}
-html[data-kb-input-modality="keyboard"] :is(input.kb-input,textarea.kb-input,textarea.kb-textarea):is([aria-invalid="true"],.kb-input-error):focus-visible:not(.kb-field *, .kb-input-surface *) {box-shadow:var(--kb-field-error-shadow)}
-html :is(.kb-field--error,.kb-input-surface:has([aria-invalid="true"])) {border-color:var(--kb-destructive)}
-html :is(input.kb-input,textarea.kb-input,textarea.kb-textarea):is([aria-invalid="true"],.kb-input-error) {border-color:var(--kb-destructive)}
-html :is(.kb-field--disabled,.ai-composer--disabled):focus-within {outline:none;box-shadow:none;border-color:var(--kb-field-border)}
-html :is(input.kb-input,textarea.kb-input,textarea.kb-textarea,select.kb-select):disabled {outline:none;box-shadow:none}
+html[data-kf-input-modality="keyboard"] :is(.kf-field,.kf-input-surface) :is(input,textarea):focus-visible {outline:none;box-shadow:none}
+html[data-kf-input-modality="keyboard"] :is(.kf-field--error,.kf-input-surface:has([aria-invalid="true"])):has(:is(input,textarea):focus-visible) {box-shadow:var(--kf-field-error-shadow)}
+html[data-kf-input-modality="keyboard"] :is(input.kf-input,textarea.kf-input,textarea.kf-textarea):is([aria-invalid="true"],.kf-input-error):focus-visible:not(.kf-field *, .kf-input-surface *) {box-shadow:var(--kf-field-error-shadow)}
+html :is(.kf-field--error,.kf-input-surface:has([aria-invalid="true"])) {border-color:var(--kf-destructive)}
+html :is(input.kf-input,textarea.kf-input,textarea.kf-textarea):is([aria-invalid="true"],.kf-input-error) {border-color:var(--kf-destructive)}
+html :is(.kf-field--disabled,.ai-composer--disabled):focus-within {outline:none;box-shadow:none;border-color:var(--kf-field-border)}
+html :is(input.kf-input,textarea.kf-input,textarea.kf-textarea,select.kf-select):disabled {outline:none;box-shadow:none}
 /* 强制颜色不依赖阴影；只让一个所有者显示系统轮廓。 */
 @media(forced-colors:active) {
-  html[data-kb-input-modality] :is(.kb-field:not(.kb-field--disabled),.kb-input-surface:not(.ai-composer--disabled)):has(:is(input,textarea,[contenteditable="true"]):focus) {outline:var(--kb-field-focus-width) solid Highlight;outline-offset:var(--kb-space-1);box-shadow:none}
-  html[data-kb-input-modality] :is(input.kb-input,textarea.kb-input,textarea.kb-textarea,select.kb-select,.kb-select-trigger):focus-visible:not(:disabled):not(.kb-field *, .kb-input-surface *) {outline:var(--kb-field-focus-width) solid Highlight;outline-offset:var(--kb-space-1);box-shadow:none}
-  html[data-kb-input-modality] :is(.kb-field,.kb-input-surface) :is(input,textarea):focus-visible {outline:none;box-shadow:none}
-  html[data-kb-input-modality] :is(.kb-field--disabled,.ai-composer--disabled):focus-within {outline:none;box-shadow:none}
+  html[data-kf-input-modality] :is(.kf-field:not(.kf-field--disabled),.kf-input-surface:not(.ai-composer--disabled)):has(:is(input,textarea,[contenteditable="true"]):focus) {outline:var(--kf-field-focus-width) solid Highlight;outline-offset:var(--kf-space-1);box-shadow:none}
+  html[data-kf-input-modality] :is(input.kf-input,textarea.kf-input,textarea.kf-textarea,select.kf-select,.kf-select-trigger):focus-visible:not(:disabled):not(.kf-field *, .kf-input-surface *) {outline:var(--kf-field-focus-width) solid Highlight;outline-offset:var(--kf-space-1);box-shadow:none}
+  html[data-kf-input-modality] :is(.kf-field,.kf-input-surface) :is(input,textarea):focus-visible {outline:none;box-shadow:none}
+  html[data-kf-input-modality] :is(.kf-field--disabled,.ai-composer--disabled):focus-within {outline:none;box-shadow:none}
 }
 
 @media(forced-colors:active) {
- html[data-kb-input-modality] :where(input:not([type="checkbox"],[type="radio"],[type="range"],[type="file"],[type="color"],[type="button"],[type="submit"],[type="reset"],[type="image"],[type="hidden"]),textarea,select):focus-visible:not(:disabled):not(.kb-field *, .kb-input-surface *, .code-editor) {outline:var(--kb-field-focus-width) solid Highlight;outline-offset:var(--kb-space-1);box-shadow:none}
+ html[data-kf-input-modality] :where(input:not([type="checkbox"],[type="radio"],[type="range"],[type="file"],[type="color"],[type="button"],[type="submit"],[type="reset"],[type="image"],[type="hidden"]),textarea,select):focus-visible:not(:disabled):not(.kf-field *, .kf-input-surface *, .code-editor) {outline:var(--kf-field-focus-width) solid Highlight;outline-offset:var(--kf-space-1);box-shadow:none}
 }
 
-html :is(input.kb-input,textarea.kb-input,textarea.kb-textarea):is([aria-invalid="true"],.kb-input-error):focus {border-color:var(--kb-destructive)}
+html :is(input.kf-input,textarea.kf-input,textarea.kf-textarea):is([aria-invalid="true"],.kf-input-error):focus {border-color:var(--kf-destructive)}
 
 /* =====================================================================
  * 专业英语（技术英语）模块操作按钮 V4
  * 仅本模块使用 te-action-btn，不改动全局按钮体系：
  * - 图标与文字始终横向居中，不被 flex 容器压缩换行；
  * - 图标固定 16×16，避免被文字挤压；
- * - 高度统一 38px，与 --kb-btn-height-md 保持一致。
+ * - 高度统一 38px，与 --kf-btn-height-md 保持一致。
  * ===================================================================== */
 .te-action-btn {
   display: inline-flex;
@@ -1831,25 +1831,25 @@ html :is(input.kb-input,textarea.kb-input,textarea.kb-textarea):is([aria-invalid
   justify-content: center;
   gap: 8px;
   flex: 0 0 auto;
-  min-height: var(--kb-btn-height-md);
-  padding: 0 var(--kb-btn-padding-md);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  min-height: var(--kf-btn-height-md);
+  padding: 0 var(--kf-btn-padding-md);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   font-family: var(--font-sans);
-  font-size: var(--kb-btn-font-md);
+  font-size: var(--kf-btn-font-md);
   font-weight: 500;
-  line-height: var(--kb-lh-body-md);
+  line-height: var(--kf-lh-body-md);
   white-space: nowrap;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
-.te-action-btn:hover:not(:disabled) { background: var(--kb-muted); }
-.te-action-btn:active:not(:disabled) { background: var(--kb-background); }
+.te-action-btn:hover:not(:disabled) { background: var(--kf-muted); }
+.te-action-btn:active:not(:disabled) { background: var(--kf-background); }
 .te-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .te-action-btn:focus-visible {
-  outline: var(--kb-field-focus-width) solid var(--kb-ring);
+  outline: var(--kf-field-focus-width) solid var(--kf-ring);
   outline-offset: 2px;
 }
 .te-action-btn > svg {
@@ -1859,29 +1859,29 @@ html :is(input.kb-input,textarea.kb-input,textarea.kb-textarea):is([aria-invalid
   flex: 0 0 16px;
 }
 .te-action-btn-primary {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 .te-action-btn-primary:hover:not(:disabled) {
-  background: var(--kb-primary-hover);
-  border-color: var(--kb-primary-hover);
+  background: var(--kf-primary-hover);
+  border-color: var(--kf-primary-hover);
 }
 .te-action-btn.is-active {
-  background: var(--kb-primary-soft);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .te-action-btn-sm {
   gap: 6px;
-  min-height: var(--kb-btn-height-sm);
-  padding: 0 var(--kb-space-3);
-  font-size: var(--kb-fs-body-sm);
+  min-height: var(--kf-btn-height-sm);
+  padding: 0 var(--kf-space-3);
+  font-size: var(--kf-fs-body-sm);
 }
 .te-action-label {
   display: inline-block;
   white-space: nowrap;
-  line-height: var(--kb-lh-body-md);
+  line-height: var(--kf-lh-body-md);
 }
 .te-action-badge {
   display: inline-flex;
@@ -1891,20 +1891,20 @@ html :is(input.kb-input,textarea.kb-input,textarea.kb-textarea):is([aria-invalid
   height: 20px;
   padding: 0 6px;
   border-radius: 999px;
-  background: var(--kb-primary-soft);
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-caption);
+  background: var(--kf-primary-soft);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-caption);
   font-weight: 600;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 .te-action-btn.is-active .te-action-badge {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 @media (forced-colors: active) {
   .te-action-btn:focus-visible {
-    outline: var(--kb-field-focus-width) solid Highlight;
+    outline: var(--kf-field-focus-width) solid Highlight;
   }
   .te-action-badge {
     border: 1px solid CanvasText;
@@ -1913,26 +1913,26 @@ html :is(input.kb-input,textarea.kb-input,textarea.kb-textarea):is([aria-invalid
 
 /* =====================================================================
  * 专业英语模块页头 V4
- * 1) 页面标题沿用官方令牌 --kb-page-title-size（28px）；
- *    pc-studio.css 全局把 .kb-page-header h1 压到 24px 且允许逐字换行，
+ * 1) 页面标题沿用官方令牌 --kf-page-title-size（28px）；
+ *    pc-studio.css 全局把 .kf-page-header h1 压到 24px 且允许逐字换行，
  *    这里只在本模块按令牌覆盖，避免与全站页头规范冲突。
  * 2) PageHeader 操作容器默认 shrink-0（宽度=内容最大宽），词汇大厅五个按钮
  *    会把窄屏视口撑破；≤1100px 改为独占整行，由 .te-head-actions 内部换行。
  * ===================================================================== */
-#app .te-page .kb-page-header h1 {
-  font-size: var(--kb-page-title-size);
-  line-height: var(--kb-lh-h1);
+#app .te-page .kf-page-header h1 {
+  font-size: var(--kf-page-title-size);
+  line-height: var(--kf-lh-h1);
   white-space: nowrap;
 }
 @media (max-width: 1100px) {
-  .te-page .kb-page-header > div:last-child > div:last-child {
+  .te-page .kf-page-header > div:last-child > div:last-child {
     flex: 1 1 100%;
     width: 100%;
     min-width: 0;
   }
 }
 @media (max-width: 639px) {
-  #app .te-page .kb-page-header h1 {
+  #app .te-page .kf-page-header h1 {
     white-space: normal;
   }
 }
@@ -1945,45 +1945,45 @@ html :is(input.kb-input,textarea.kb-input,textarea.kb-textarea):is([aria-invalid
  * 3) 页头节奏：标题 / 描述 / 操作区使用同一 8px 基线。
  * ===================================================================== */
 @media (max-width: 639px) {
-  :root { --kb-page-padding-x: 16px; --kb-page-padding-y: 16px; }
+  :root { --kf-page-padding-x: 16px; --kf-page-padding-y: 16px; }
 }
 @media (min-width: 1280px) {
-  :root { --kb-page-padding-x: 32px; --kb-page-padding-y: 28px; }
+  :root { --kf-page-padding-x: 32px; --kf-page-padding-y: 28px; }
 }
 
-.kb-icon {
+.kf-icon {
   display: inline-block;
   vertical-align: middle;
   flex: 0 0 auto;
   line-height: 1;
 }
-.kb-icon.iconfont {
+.kf-icon.iconfont {
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
-.kb-page-header {
+.kf-page-header {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   min-width: 0;
 }
-.kb-page-header__title {
-  font-size: var(--kb-fs-h2);
-  line-height: var(--kb-lh-h2);
-  font-weight: var(--kb-fw-h2);
-  color: var(--kb-foreground);
+.kf-page-header__title {
+  font-size: var(--kf-fs-h2);
+  line-height: var(--kf-lh-h2);
+  font-weight: var(--kf-fw-h2);
+  color: var(--kf-foreground);
   letter-spacing: -0.02em;
 }
-.kb-page-header__title--lg {
-  font-size: var(--kb-fs-h1);
-  line-height: var(--kb-lh-h1);
+.kf-page-header__title--lg {
+  font-size: var(--kf-fs-h1);
+  line-height: var(--kf-lh-h1);
 }
-.kb-page-header__desc {
-  margin-top: var(--kb-space-1);
-  max-width: var(--kb-content-reading);
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
-  color: var(--kb-muted-foreground);
+.kf-page-header__desc {
+  margin-top: var(--kf-space-1);
+  max-width: var(--kf-content-reading);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
+  color: var(--kf-muted-foreground);
 }

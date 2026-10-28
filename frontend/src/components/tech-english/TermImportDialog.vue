@@ -17,7 +17,7 @@
         <span class="te-label">JSON 词条数组（UTF-8）</span>
         <textarea
           v-model="raw"
-          class="kb-textarea kb-form-control te-json"
+          class="kf-textarea kf-form-control te-json"
           rows="10"
           spellcheck="false"
           placeholder='[{"headword":"AQS","termType":"ACRONYM","domain":"CONCURRENCY","fullForm":"AbstractQueuedSynchronizer","meaningCn":"抽象队列同步器","contentStatus":"DRAFT"}]'
@@ -181,54 +181,54 @@ function formatTime(value: string): string {
 <style scoped>
 .te-import {
   display: grid;
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
 }
 .te-field {
   display: grid;
-  gap: calc(var(--kb-space-3) / 2);
+  gap: calc(var(--kf-space-3) / 2);
   min-width: 0;
 }
 .te-label {
   display: block;
   margin: 0;
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
-  font-weight: var(--kb-fw-label);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
+  font-weight: var(--kf-fw-label);
+  color: var(--kf-foreground);
 }
 .te-json {
   min-width: 0;
   font-family: var(--font-mono);
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   resize: vertical;
 }
 .te-import-actions {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   flex-wrap: wrap;
 }
 .te-preview {
   display: grid;
-  gap: var(--kb-space-2);
-  padding-top: var(--kb-space-3);
-  border-top: 1px solid var(--kb-border);
+  gap: var(--kf-space-2);
+  padding-top: var(--kf-space-3);
+  border-top: 1px solid var(--kf-border);
 }
 .te-section-title {
   margin: 0;
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .te-muted {
   margin: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   overflow-wrap: anywhere;
 }
 .te-items {
   display: grid;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -238,30 +238,30 @@ function formatTime(value: string): string {
 .te-items li {
   display: flex;
   align-items: baseline;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   flex-wrap: wrap;
-  padding: var(--kb-space-2);
-  border-radius: var(--kb-radius-xs);
-  background: var(--kb-background);
-  font-size: var(--kb-fs-caption);
+  padding: var(--kf-space-2);
+  border-radius: var(--kf-radius-xs);
+  background: var(--kf-background);
+  font-size: var(--kf-fs-caption);
 }
 .te-item-index {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .te-item-word {
   font-family: var(--font-mono);
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .te-item-domain {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .te-item-action.is-new {
-  color: var(--kb-state-success);
+  color: var(--kf-state-success);
 }
 .te-item-action.is-update {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .te-item-action.is-invalid {
-  color: var(--kb-state-error);
+  color: var(--kf-state-error);
 }
 </style>

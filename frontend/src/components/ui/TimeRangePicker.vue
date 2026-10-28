@@ -409,44 +409,44 @@ watch(open, (value) => {
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   width: 100%;
-  height: var(--kb-input-height);
-  padding: 0 var(--kb-field-padding);
+  height: var(--kf-input-height);
+  padding: 0 var(--kf-field-padding);
   border: 0;
-  border-radius: var(--kb-field-radius);
-  background: var(--kb-field-surface);
-  color: var(--kb-foreground);
+  border-radius: var(--kf-field-radius);
+  background: var(--kf-field-surface);
+  color: var(--kf-foreground);
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease;
 }
 
 .trp-trigger:hover {
-  background: var(--kb-field-hover);
+  background: var(--kf-field-hover);
 }
 
 .trp-trigger--focus,
 .trp-trigger--open {
-  background: var(--kb-field-active);
+  background: var(--kf-field-active);
 }
 
 .trp-control--error .trp-trigger {
-  background: var(--kb-field-error-bg);
+  background: var(--kf-field-error-bg);
 }
 
 .trp-control--disabled .trp-trigger {
-  background: var(--kb-field-disabled);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-field-disabled);
+  color: var(--kf-muted-foreground);
   cursor: not-allowed;
 }
 
 .trp-control--readonly .trp-trigger {
-  background: var(--kb-field-readonly);
+  background: var(--kf-field-readonly);
 }
 
 .trp-icon {
   flex-shrink: 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .trp-text {
@@ -460,8 +460,8 @@ watch(open, (value) => {
   box-shadow: none;
   outline: 0;
   font: inherit;
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   color: inherit;
   cursor: inherit;
   font-variant-numeric: tabular-nums;
@@ -469,7 +469,7 @@ watch(open, (value) => {
 }
 
 .trp-text::placeholder {
-  color: var(--kb-field-placeholder);
+  color: var(--kf-field-placeholder);
   opacity: 1;
 }
 
@@ -483,20 +483,20 @@ watch(open, (value) => {
 
 .trp-hint {
   flex-shrink: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 
 .trp-panel {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-3);
-  padding: var(--kb-space-4);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
-  background: var(--kb-popover);
-  color: var(--kb-popover-foreground);
+  gap: var(--kf-space-3);
+  padding: var(--kf-space-4);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
+  background: var(--kf-popover);
+  color: var(--kf-popover-foreground);
   box-shadow: var(--shadow-dropdown-3);
   overflow: auto;
   font-family: var(--font-sans);
@@ -506,23 +506,23 @@ watch(open, (value) => {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   flex-wrap: wrap;
 }
 
 .trp-title {
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   white-space: nowrap;
 }
 
 .trp-preview {
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
   font-variant-numeric: tabular-nums;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -531,8 +531,8 @@ watch(open, (value) => {
   display: flex;
   gap: 2px;
   padding: 2px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-field-surface);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-field-surface);
 }
 
 .trp-tab {
@@ -540,28 +540,28 @@ watch(open, (value) => {
   flex: 1;
   align-items: center;
   justify-content: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   min-width: 0;
   height: 30px;
-  padding: 0 var(--kb-space-2);
+  padding: 0 var(--kf-space-2);
   border: 0;
-  border-radius: var(--kb-radius-xs);
+  border-radius: var(--kf-radius-xs);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font: inherit;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1;
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease, color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
 }
 
 .trp-tab:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .trp-tab--active {
-  background: var(--kb-popover);
-  color: var(--kb-foreground);
+  background: var(--kf-popover);
+  color: var(--kf-foreground);
   font-weight: 600;
 }
 
@@ -570,34 +570,34 @@ watch(open, (value) => {
 }
 
 .trp-tab:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: -2px;
 }
 
 .trp-status {
   margin: 0;
-  min-height: var(--kb-lh-caption);
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
-  color: var(--kb-muted-foreground);
+  min-height: var(--kf-lh-caption);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
+  color: var(--kf-muted-foreground);
 }
 
 .trp-status--error {
-  color: var(--kb-state-error);
+  color: var(--kf-state-error);
 }
 
 .trp-foot {
   position: sticky;
-  bottom: calc(-1 * var(--kb-space-4));
+  bottom: calc(-1 * var(--kf-space-4));
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-2);
-  margin: 0 calc(-1 * var(--kb-space-4)) calc(-1 * var(--kb-space-4));
-  padding: var(--kb-space-3) var(--kb-space-4);
-  border-top: 1px solid var(--kb-border);
-  background: var(--kb-popover);
+  gap: var(--kf-space-2);
+  margin: 0 calc(-1 * var(--kf-space-4)) calc(-1 * var(--kf-space-4));
+  padding: var(--kf-space-3) var(--kf-space-4);
+  border-top: 1px solid var(--kf-border);
+  background: var(--kf-popover);
 }
 
 .trp-foot-spacer {
@@ -607,7 +607,7 @@ watch(open, (value) => {
 .trp-actions {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   margin-left: auto;
 }
 
@@ -616,53 +616,53 @@ watch(open, (value) => {
   align-items: center;
   justify-content: center;
   height: 32px;
-  padding: 0 var(--kb-space-3);
+  padding: 0 var(--kf-space-3);
   border: 0;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font: inherit;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1;
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease, color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
 }
 
 .trp-btn:hover {
-  background: var(--kb-menu-hover);
+  background: var(--kf-menu-hover);
 }
 
 .trp-btn--link {
   height: 32px;
-  padding: 0 var(--kb-space-2);
-  color: var(--kb-muted-foreground);
+  padding: 0 var(--kf-space-2);
+  color: var(--kf-muted-foreground);
 }
 
 .trp-btn--ghost {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .trp-btn--primary {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   font-weight: 600;
 }
 
 .trp-btn--primary:hover {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   opacity: 0.92;
 }
 
 .trp-btn:disabled {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   opacity: 0.45;
   cursor: not-allowed;
 }
 
 .trp-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 1px;
 }
 

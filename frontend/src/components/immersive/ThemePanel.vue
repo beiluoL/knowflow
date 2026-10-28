@@ -7,7 +7,7 @@
   >
     <div class="panel-header">
       <span class="panel-title">个性化偏好</span>
-      <button type="button" class="close-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="$emit('close')">
+      <button type="button" class="close-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="$emit('close')">
         <Icon name="x" :size="14" />
       </button>
     </div>
@@ -19,7 +19,7 @@
           v-for="theme in IMMERSIVE_THEMES"
           :key="theme.id"
           type="button"
-          class="theme-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="theme-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: currentTheme === theme.id }"
           @click="handleSelectTheme(theme.id)"
         >
@@ -36,7 +36,7 @@
           v-for="accent in ACCENT_PALETTE"
           :key="accent.id"
           type="button"
-          class="accent-dot focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="accent-dot focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: currentAccent === accent.id }"
           :style="{ background: accent.color }"
           :title="accent.name"
@@ -52,7 +52,7 @@
           v-for="fs in FONT_SIZES"
           :key="fs.id"
           type="button"
-          class="fontsize-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="fontsize-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: currentFontSize === fs.id }"
           @click="handleSelectFontSize(fs.id)"
         >
@@ -68,7 +68,7 @@
           v-for="rp in RHYTHM_PRESETS_UI"
           :key="rp.id"
           type="button"
-          class="rhythm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="rhythm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: currentRhythm === rp.id }"
           @click="handleSelectRhythm(rp.id)"
         >
@@ -82,7 +82,7 @@
     </div>
 
     <div class="panel-section reset-section">
-      <button type="button" class="reset-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleReset">
+      <button type="button" class="reset-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="handleReset">
         <Icon name="rotate-ccw" :size="14" aria-hidden="true" />
         <span>还原默认主题</span>
       </button>
@@ -195,14 +195,14 @@ onUnmounted(() => {
   max-width: calc(100vw - 48px);
   max-height: calc(100vh - 120px);
   overflow-y: auto;
-  background: var(--kb-bg-2, rgba(15, 23, 42, 0.72));
+  background: var(--kf-bg-2, rgba(15, 23, 42, 0.72));
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 16px;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
   padding: 16px;
-  color: var(--kb-foreground, #f8fafc);
+  color: var(--kf-foreground, #f8fafc);
   animation: panelIn 0.18s ease;
 }
 
@@ -223,7 +223,7 @@ onUnmounted(() => {
   justify-content: space-between;
   padding-bottom: 12px;
   margin-bottom: 12px;
-  border-bottom: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border-bottom: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
 }
 .panel-title {
   font-size: 14px;
@@ -236,7 +236,7 @@ onUnmounted(() => {
   justify-content: center;
   width: 28px;
   height: 28px;
-  color: var(--kb-muted-foreground, #94a3b8);
+  color: var(--kf-muted-foreground, #94a3b8);
   background: transparent;
   border: none;
   border-radius: 8px;
@@ -245,7 +245,7 @@ onUnmounted(() => {
 }
 .close-btn:hover {
   background: rgba(255, 255, 255, 0.06);
-  color: var(--kb-foreground, #f8fafc);
+  color: var(--kf-foreground, #f8fafc);
 }
 
 .panel-section {
@@ -257,7 +257,7 @@ onUnmounted(() => {
 .section-label {
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-muted-foreground, #94a3b8);
+  color: var(--kf-muted-foreground, #94a3b8);
   margin-bottom: 10px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -299,20 +299,20 @@ onUnmounted(() => {
   transform: translateY(-1px);
 }
 .theme-card.active {
-  border-color: var(--kb-primary, #3b82f6);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--kb-primary, #3b82f6) 25%, transparent);
+  border-color: var(--kf-primary, #3b82f6);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--kf-primary, #3b82f6) 25%, transparent);
 }
 .theme-preview {
   width: 100%;
   height: 54px;
   border-radius: 8px;
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
 }
 .theme-name {
   text-align: center;
   font-size: 12px;
   font-weight: 500;
-  color: var(--kb-foreground, #f8fafc);
+  color: var(--kf-foreground, #f8fafc);
 }
 
 .accent-row {
@@ -335,8 +335,8 @@ onUnmounted(() => {
   transform: scale(1.08);
 }
 .accent-dot.active {
-  border-color: var(--kb-foreground, #fff);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--kb-primary, #3b82f6) 40%, transparent);
+  border-color: var(--kf-foreground, #fff);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--kf-primary, #3b82f6) 40%, transparent);
 }
 
 .fontsize-row {
@@ -351,21 +351,21 @@ onUnmounted(() => {
   justify-content: center;
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-muted-foreground, #94a3b8);
+  color: var(--kf-muted-foreground, #94a3b8);
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .fontsize-btn:hover {
   background: rgba(255, 255, 255, 0.08);
-  color: var(--kb-foreground, #f8fafc);
+  color: var(--kf-foreground, #f8fafc);
 }
 .fontsize-btn.active {
-  color: var(--kb-primary-foreground, #fff);
-  background: var(--kb-primary, #3b82f6);
-  border-color: var(--kb-primary, #3b82f6);
+  color: var(--kf-primary-foreground, #fff);
+  background: var(--kf-primary, #3b82f6);
+  border-color: var(--kf-primary, #3b82f6);
 }
 
 .rhythm-card {
@@ -374,7 +374,7 @@ onUnmounted(() => {
   text-align: left;
   padding: 12px;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -384,9 +384,9 @@ onUnmounted(() => {
   transform: translateY(-1px);
 }
 .rhythm-card.active {
-  border-color: var(--kb-primary, #3b82f6);
-  background: color-mix(in srgb, var(--kb-primary, #3b82f6) 10%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--kb-primary, #3b82f6) 30%, transparent);
+  border-color: var(--kf-primary, #3b82f6);
+  background: color-mix(in srgb, var(--kf-primary, #3b82f6) 10%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--kf-primary, #3b82f6) 30%, transparent);
 }
 .rhythm-head {
   display: flex;
@@ -397,7 +397,7 @@ onUnmounted(() => {
 .rhythm-name {
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground, #f8fafc);
+  color: var(--kf-foreground, #f8fafc);
 }
 .rhythm-tag {
   font-size: 11px;
@@ -405,18 +405,18 @@ onUnmounted(() => {
   padding: 2px 6px;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.08);
-  color: var(--kb-muted-foreground, #94a3b8);
+  color: var(--kf-muted-foreground, #94a3b8);
 }
 .rhythm-desc {
   margin: 0;
   font-size: 11px;
   line-height: 1.5;
-  color: var(--kb-muted-foreground, #94a3b8);
+  color: var(--kf-muted-foreground, #94a3b8);
 }
 
 .reset-section {
   padding-top: 14px;
-  border-top: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border-top: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
 }
 .reset-btn {
   width: 100%;
@@ -427,17 +427,17 @@ onUnmounted(() => {
   height: 38px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-muted-foreground, #94a3b8);
+  color: var(--kf-muted-foreground, #94a3b8);
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .reset-btn:hover {
   background: rgba(255, 255, 255, 0.08);
-  color: var(--kb-foreground, #f8fafc);
-  border-color: var(--kb-primary, #3b82f6);
+  color: var(--kf-foreground, #f8fafc);
+  border-color: var(--kf-primary, #3b82f6);
 }
 
 @media (max-width: 480px) {

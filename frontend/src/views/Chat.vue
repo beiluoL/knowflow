@@ -27,7 +27,7 @@
       </div>
 
       <div class="p-3 border-b border-border space-y-3">
-        <div class="chat-search kb-input-surface">
+        <div class="chat-search kf-input-surface">
           <Icon name="search" :size="16" class="chat-search__icon" />
           <input
             v-model="searchQuery"
@@ -36,7 +36,7 @@
             name="search"
             autocomplete="off"
             placeholder="搜索对话…"
-            class="chat-search__input kb-input kb-form-control"
+            class="chat-search__input kf-input kf-form-control"
           />
         </div>
       </div>
@@ -69,11 +69,11 @@
       </div>
 
       <!-- 侧边栏底部：AI 设置入口 -->
-      <div class="p-3 border-t" style="border-color: var(--kb-border);">
+      <div class="p-3 border-t" style="border-color: var(--kf-border);">
         <button
           type="button"
           class="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm transition-colors hover:bg-[rgba(59,111,224,0.06)]"
-          style="color: var(--kb-muted-foreground);"
+          style="color: var(--kf-muted-foreground);"
           @click="showAiConfigModal = true"
         >
           <Icon name="settings" :size="16" />
@@ -81,7 +81,7 @@
           <span
             v-if="userAiActive"
             class="ml-auto px-1.5 py-0.5 rounded text-[10px] font-medium"
-            style="background: rgba(16,185,129,0.1); color: var(--kb-accent, var(--kb-success));"
+            style="background: rgba(16,185,129,0.1); color: var(--kf-accent, var(--kf-success));"
           >已配置</span>
           <Icon v-else name="chevron-right" :size="14" class="ml-auto" />
         </button>
@@ -120,17 +120,17 @@
           </div>
         </div>
         <!-- Architecture-7：模式切换（普通助手 / 学习教练，同一套 AI Chat，§297） -->
-        <div class="flex items-center gap-1 p-1 rounded-lg" style="background: var(--kb-muted);">
+        <div class="flex items-center gap-1 p-1 rounded-lg" style="background: var(--kf-muted);">
           <button
             type="button"
             class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
-            :style="mode === 'GENERAL' ? 'background: var(--kb-card); color: var(--kb-foreground); box-shadow: 0 1px 2px rgba(0,0,0,0.06);' : 'color: var(--kb-muted-foreground);'"
+            :style="mode === 'GENERAL' ? 'background: var(--kf-card); color: var(--kf-foreground); box-shadow: 0 1px 2px rgba(0,0,0,0.06);' : 'color: var(--kf-muted-foreground);'"
             :aria-pressed="mode === 'GENERAL'" @click="setMode('GENERAL')"
           >普通助手</button>
           <button
             type="button"
             class="px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1"
-            :style="mode === 'LEARNING_COACH' ? 'background: var(--kb-card); color: var(--kb-primary); box-shadow: 0 1px 2px rgba(0,0,0,0.06);' : 'color: var(--kb-muted-foreground);'"
+            :style="mode === 'LEARNING_COACH' ? 'background: var(--kf-card); color: var(--kf-primary); box-shadow: 0 1px 2px rgba(0,0,0,0.06);' : 'color: var(--kf-muted-foreground);'"
             :aria-pressed="mode === 'LEARNING_COACH'" @click="setMode('LEARNING_COACH')"
           >
             <Icon name="graduation-cap" :size="13" /> 学习教练
@@ -149,7 +149,7 @@
         class="history-rail-collapsed"
         @click="historyHovered = !historyHovered"
       >
-        <Icon name="list" :size="14" style="color: var(--kb-muted-foreground);" />
+        <Icon name="list" :size="14" style="color: var(--kf-muted-foreground);" />
         <span class="history-count">{{ userQuestions.length }}</span>
       </button>
 
@@ -158,9 +158,9 @@
         v-if="historyHovered"
         class="history-rail-expanded"
       >
-        <div class="flex items-center justify-between px-4 py-3 border-b" style="border-color: var(--kb-border);">
-          <span class="text-sm font-medium flex items-center gap-2" style="color: var(--kb-foreground);">
-            <Icon name="list" :size="14" style="color: var(--kb-primary);" />
+        <div class="flex items-center justify-between px-4 py-3 border-b" style="border-color: var(--kf-border);">
+          <span class="text-sm font-medium flex items-center gap-2" style="color: var(--kf-foreground);">
+            <Icon name="list" :size="14" style="color: var(--kf-primary);" />
             本次对话提问
           </span>
           <button
@@ -169,7 +169,7 @@
             class="p-1 rounded transition-colors hover:bg-gray-100"
             @click="historyHovered = false"
           >
-            <Icon name="x" :size="14" style="color: var(--kb-muted-foreground);" />
+            <Icon name="x" :size="14" style="color: var(--kf-muted-foreground);" />
           </button>
         </div>
 
@@ -182,10 +182,10 @@
           >
             <span class="history-item-num">{{ idx + 1 }}</span>
             <div class="flex-1 min-w-0 text-left">
-              <div class="text-xs truncate" style="color: var(--kb-foreground);">{{ q.text }}</div>
+              <div class="text-xs truncate" style="color: var(--kf-foreground);">{{ q.text }}</div>
             </div>
           </button>
-          <div v-if="userQuestions.length === 0" class="p-4 text-center text-xs" style="color: var(--kb-muted-foreground);">
+          <div v-if="userQuestions.length === 0" class="p-4 text-center text-xs" style="color: var(--kf-muted-foreground);">
             还没有提问记录
           </div>
         </div>
@@ -214,17 +214,17 @@
         <div v-if="!loading && !historyError && (!activeChat || messages.length === 0)" class="chat-empty flex items-center justify-center">
           <div class="text-center px-6">
             <div class="w-16 h-16 mx-auto mb-5 rounded-2xl flex items-center justify-center" style="background: rgba(59,111,224,0.08);">
-              <Icon name="sparkles" :size="32" style="color: var(--kb-primary);" />
+              <Icon name="sparkles" :size="32" style="color: var(--kf-primary);" />
             </div>
-            <h3 class="text-2xl font-bold mb-3" style="color: var(--kb-foreground); ">{{ mode==='LEARNING_COACH' ? '把今天的学习理清楚' : '今天，想弄懂什么？' }}</h3>
-            <p class="text-sm max-w-md mx-auto" style="color: var(--kb-muted-foreground);">基于知识库的 AI 问答，帮你快速找到答案。输入问题开始对话吧。</p>
+            <h3 class="text-2xl font-bold mb-3" style="color: var(--kf-foreground); ">{{ mode==='LEARNING_COACH' ? '把今天的学习理清楚' : '今天，想弄懂什么？' }}</h3>
+            <p class="text-sm max-w-md mx-auto" style="color: var(--kf-muted-foreground);">基于知识库的 AI 问答，帮你快速找到答案。输入问题开始对话吧。</p>
             <div class="mt-6 flex flex-wrap items-center justify-center gap-2">
               <button
                 v-for="s in suggestionList"
                 :key="s"
                 type="button"
                 class="px-3 py-1.5 rounded-full text-xs border transition-colors hover:bg-[rgba(59,111,224,0.06)]"
-                style="border-color: var(--kb-border); color: var(--kb-muted-foreground);"
+                style="border-color: var(--kf-border); color: var(--kf-muted-foreground);"
                 @click="useSuggestion(s)"
               >{{ s }}</button>
             </div>
@@ -351,7 +351,7 @@
                   v-if="message.sources && message.sources.length > 0 && isMessageComplete(index)"
                   class="mt-3"
                 >
-                  <div class="text-xs mb-1.5 flex items-center gap-1.5" style="color: var(--kb-muted-foreground);">
+                  <div class="text-xs mb-1.5 flex items-center gap-1.5" style="color: var(--kf-muted-foreground);">
                     <Icon name="file-text" :size="12" />
                     参考来源
                   </div>
@@ -371,9 +371,9 @@
                 <div
                   v-if="isMessageComplete(index)"
                   class="mt-3 pt-3 border-t flex flex-wrap items-center gap-2"
-                  style="border-color: var(--kb-border);"
+                  style="border-color: var(--kf-border);"
                 >
-                  <span class="text-xs mr-1" style="color: var(--kb-muted-foreground);">接下来：</span>
+                  <span class="text-xs mr-1" style="color: var(--kf-muted-foreground);">接下来：</span>
                   <router-link to="/learning/center" class="chat-learn-action" aria-label="继续学习">
                     <Icon name="play" :size="13" /> 继续学习
                   </router-link>
@@ -412,12 +412,12 @@
                     v-if="abortController"
                     type="button"
                     class="ml-2 px-2.5 py-1 rounded-md text-xs font-medium transition-colors"
-                    style="background: var(--kb-muted); color: var(--kb-foreground); border: 1px solid var(--kb-border);"
+                    style="background: var(--kf-muted); color: var(--kf-foreground); border: 1px solid var(--kf-border);"
                     title="停止生成"
                     @click="stopGeneration"
                   >
                     <span class="inline-flex items-center gap-1">
-                      <span class="inline-block w-2 h-2 rounded-sm" style="background: var(--kb-destructive);"></span>
+                      <span class="inline-block w-2 h-2 rounded-sm" style="background: var(--kf-destructive);"></span>
                       停止生成
                     </span>
                   </button>
@@ -460,7 +460,7 @@
       <aside v-if="!coachOverlay" v-show="mode==='LEARNING_COACH' && coachPanelExpanded" class="chat-coach-aside">
         <LearningCoachPanel v-bind="coachPanelProps" @close="coachPanelExpanded=false" @retry="onCoachEnter" @start="startCoachNextAction" @ask="useSuggestion" />
       </aside>
-      <AppDialog v-else :open="mode==='LEARNING_COACH' && coachPanelExpanded" placement="right" hide-footer scrollable width="var(--kb-coach-panel-width)" title="学习教练" icon="graduation-cap" @cancel="coachPanelExpanded=false">
+      <AppDialog v-else :open="mode==='LEARNING_COACH' && coachPanelExpanded" placement="right" hide-footer scrollable width="var(--kf-coach-panel-width)" title="学习教练" icon="graduation-cap" @cancel="coachPanelExpanded=false">
         <LearningCoachPanel v-bind="coachPanelProps" hide-heading @retry="onCoachEnter" @start="startCoachNextAction" @ask="useSuggestion" />
         <template #footer />
       </AppDialog>
@@ -474,7 +474,7 @@
   <ContextMenu label="消息操作" :open="messageMenu!=null" :x="messageMenuPosition.x" :y="messageMenuPosition.y" :items="messageMenuItems" @close="closeMessageMenu" @select="runMessageMenuAction" />
   <ContextMenu label="对话操作" :open="conversationMenu!=null" :x="menuPosition.x" :y="menuPosition.y" :items="conversationMenuItems" @close="closeConversationMenu" @select="runConversationAction" />
   <AppDialog v-if="renameId!=null" open title="重命名对话" :persistent="renameSaving" @cancel="renameId=null" @confirm="saveRename">
-    <form @submit.prevent="saveRename"><input ref="renameInput" v-model="renameText" aria-label="对话标题" class="kb-input w-full kb-form-control" maxlength="200" :disabled="renameSaving" /><p v-if="renameError" role="alert">{{renameError}}</p></form>
+    <form @submit.prevent="saveRename"><input ref="renameInput" v-model="renameText" aria-label="对话标题" class="kf-input w-full kf-form-control" maxlength="200" :disabled="renameSaving" /><p v-if="renameError" role="alert">{{renameError}}</p></form>
     <template #footer><Button variant="text" :disabled="renameSaving" @click="renameId=null">取消</Button><Button :loading="renameSaving" :disabled="renameSaving" @click="saveRename">保存标题</Button></template>
   </AppDialog>
   <ConfirmDialog v-if="deleteId!=null" open title="删除对话" icon="trash-2" variant="danger" :loading="deleteSaving" :error="deleteError" confirm-text="确认删除" cancel-text="取消" @cancel="deleteId=null" @confirm="confirmDelete">
@@ -486,13 +486,13 @@
   </AppDialog>
   <AppDialog v-if="showShareModal" open scrollable title="分享与导出对话" :show-cancel="false" :persistent="shareBusy||exportBusy" confirm-text="关闭" @confirm="showShareModal=false" @cancel="showShareModal=false">
     <div class="share-workspace">
-      <h3>{{shareChat?.title||'对话'}}</h3><label for="share-link">本人访问链接</label><div class="share-link-row"><input id="share-link" :value="shareLink" readonly aria-label="本人访问链接" class="kb-input kb-form-control" /><Button @click="copyShareLink">复制本人链接</Button></div><p class="share-note">仅本人登录后可查看；这不是公开分享链接。归档对话也可通过此入口读取。</p>
+      <h3>{{shareChat?.title||'对话'}}</h3><label for="share-link">本人访问链接</label><div class="share-link-row"><input id="share-link" :value="shareLink" readonly aria-label="本人访问链接" class="kf-input kf-form-control" /><Button @click="copyShareLink">复制本人链接</Button></div><p class="share-note">仅本人登录后可查看；这不是公开分享链接。归档对话也可通过此入口读取。</p>
       <div class="share-export-buttons"><Button :disabled="exportBusy" @click="exportConversation('md')">导出 Markdown</Button><Button :disabled="exportBusy" @click="exportConversation('txt')">导出 TXT</Button><Button :disabled="exportBusy" @click="exportConversation('png')">导出 PNG</Button></div>
       <p class="share-note">从服务器读取完整已保存记录。PNG 为纯文本分页导出，不含附件图片，最多20页；多页可能需要允许多个文件下载。</p>
       <hr /><h3>公开只读快照</h3><p>持有公开链接的任何人均可阅读。请先核对隐私；创建后新增消息不会同步。关联过知识库的会话不支持公开；分享后若新增知识库引用，链接也会失效。图片附件、内部任务数据和敏感内容不会直接公开，无法安全处理时将拒绝创建。</p>
-      <label class="kb-checkbox-row"><Checkbox as="span" v-model="shareConfirmed"  :disabled="shareBusy" /> 我已核对内容，同意公开允许分享的文本快照</label>
+      <label class="kf-checkbox-row"><Checkbox as="span" v-model="shareConfirmed"  :disabled="shareBusy" /> 我已核对内容，同意公开允许分享的文本快照</label>
       <label>有效期 <Select v-model="shareHours" aria-label="分享有效期" variant="pill" :disabled="shareBusy" :options="[{value:24,label:'24小时'},{value:168,label:'7天'},{value:720,label:'30天'}]" /></label><Button :disabled="!shareConfirmed||shareBusy" @click="createPublicShare">创建公开分享链接</Button>
-      <div v-if="createdPublicUrl" class="share-link-row"><input :value="createdPublicUrl" readonly aria-label="公开分享链接" class="kb-input kb-form-control" /><Button @click="copyPublicShare">复制公开链接</Button></div>
+      <div v-if="createdPublicUrl" class="share-link-row"><input :value="createdPublicUrl" readonly aria-label="公开分享链接" class="kf-input kf-form-control" /><Button @click="copyPublicShare">复制公开链接</Button></div>
       <p v-for="note in shareRedactions" :key="note" class="share-note">{{note}}</p><p class="share-note">公开链接仅创建时提供，请复制保存；刷新后仍可撤销。撤销不会删除原对话。</p>
       <p v-if="exportBusy" role="status">正在读取完整记录并生成导出文件…</p><p v-if="shareLoading" role="status">正在读取分享记录…</p><p v-if="!shareLoading&&!shareError&&shareRecords.length===0" class="share-note">暂无公开分享记录。</p><p v-if="shareError" role="alert">{{shareError}} <button type="button" @click="loadShares">重新读取</button></p><p v-if="exportError" role="alert">{{exportError}}</p>
       <ul><li v-for="share in shareRecords" :key="share.id">有效期至 {{new Date(share.expiresAt).toLocaleString()}} · {{share.revoked?'已撤销':'未撤销'}} <button v-if="!share.revoked" type="button" :disabled="shareBusy" @click="revokePublicShare(share.id)">撤销公开链接</button></li></ul>
@@ -504,8 +504,8 @@
       <div class="space-y-5">
         <!-- 当前状态 -->
         <div v-if="aiConfigLoading" class="flex items-center justify-center py-8">
-          <Icon name="loader" :size="24" class="animate-spin" style="color: var(--kb-primary);" />
-          <span class="ml-2 text-sm" style="color: var(--kb-muted-foreground);">加载配置中…</span>
+          <Icon name="loader" :size="24" class="animate-spin" style="color: var(--kf-primary);" />
+          <span class="ml-2 text-sm" style="color: var(--kf-muted-foreground);">加载配置中…</span>
         </div>
 
         <p v-else-if="aiConfigError" role="alert">{{ aiConfigError }} <button type="button" @click="loadAiConfig">重新读取配置</button></p>
@@ -525,14 +525,14 @@
               <Icon
                 :name="userAiActive ? 'check-circle' : 'info'"
                 :size="16"
-                :style="{ color: userAiActive ? 'var(--kb-success)' : 'var(--kb-primary)' }"
+                :style="{ color: userAiActive ? 'var(--kf-success)' : 'var(--kf-primary)' }"
               />
             </div>
             <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium" style="color: var(--kb-foreground);">
+              <div class="text-sm font-medium" style="color: var(--kf-foreground);">
                 {{ userAiActive ? '自定义配置（使用你的 API Key）' : '平台默认模型（系统配置）' }}
               </div>
-              <div class="text-xs mt-0.5 truncate" style="color: var(--kb-muted-foreground);">
+              <div class="text-xs mt-0.5 truncate" style="color: var(--kf-muted-foreground);">
                 <template v-if="userAiActive">
                   {{ currentProviderLabel }} · {{ aiForm.model || '未设置模型' }} · {{ aiExistingKey || 'Key 已隐藏' }}
                 </template>
@@ -545,28 +545,28 @@
 
           <!-- 提供商选择 -->
           <div>
-            <label class="block text-sm font-medium mb-2.5" style="color: var(--kb-foreground);">模型提供商</label>
+            <label class="block text-sm font-medium mb-2.5" style="color: var(--kf-foreground);">模型提供商</label>
             <Select :model-value="aiForm.provider" aria-label="选择模型提供商" searchable variant="pill" :options="aiProviders.map(p=>({value:p.id,label:p.label,description:p.model || '自定义模型名称与API地址'}))" @update:modelValue="selectAiProvider" />
             <!-- 选中提供商的自动填充信息预览 -->
-            <div v-if="selectedProviderInfo" class="mt-2 p-2.5 rounded-lg flex items-center gap-2 text-xs" style="background: rgba(59,111,224,0.04); color: var(--kb-muted-foreground);">
-              <Icon name="zap" :size="12" style="color: var(--kb-primary);" />
+            <div v-if="selectedProviderInfo" class="mt-2 p-2.5 rounded-lg flex items-center gap-2 text-xs" style="background: rgba(59,111,224,0.04); color: var(--kf-muted-foreground);">
+              <Icon name="zap" :size="12" style="color: var(--kf-primary);" />
               <span>已自动填充：{{ selectedProviderInfo.baseUrl || '需手动输入' }} / {{ selectedProviderInfo.model || '需手动输入' }}</span>
             </div>
           </div>
 
           <!-- API Key -->
           <div>
-            <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground);">
+            <label class="block text-sm font-medium mb-2" style="color: var(--kf-foreground);">
               API Key
-              <span v-if="aiExistingKey" class="ml-2 text-xs" style="color: var(--kb-muted-foreground);">当前: {{ aiExistingKey }}</span>
+              <span v-if="aiExistingKey" class="ml-2 text-xs" style="color: var(--kf-muted-foreground);">当前: {{ aiExistingKey }}</span>
             </label>
             <div class="relative">
               <input
                 v-model="aiForm.apiKey"
                 :type="aiShowKey ? 'text' : 'password'"
                 :placeholder="aiExistingKey ? '输入新 Key 替换' : '输入你的 API Key'"
-                class="w-full h-10 px-3 pr-10 text-sm outline-none transition-colors kb-input kb-form-control"
-                style="color: var(--kb-foreground)"
+                class="w-full h-10 px-3 pr-10 text-sm outline-none transition-colors kf-input kf-form-control"
+                style="color: var(--kf-foreground)"
                 autocomplete="off"
               />
               <button
@@ -575,41 +575,41 @@
                 @click="aiShowKey = !aiShowKey"
                 :aria-label="aiShowKey ? '隐藏' : '显示'"
               >
-                <Icon :name="aiShowKey ? 'eye-off' : 'eye'" :size="16" style="color: var(--kb-muted-foreground);" />
+                <Icon :name="aiShowKey ? 'eye-off' : 'eye'" :size="16" style="color: var(--kf-muted-foreground);" />
               </button>
             </div>
-            <p class="text-xs mt-1" style="color: var(--kb-muted-foreground);">Key 提交至服务器保存；请勿向他人分享。</p>
+            <p class="text-xs mt-1" style="color: var(--kf-muted-foreground);">Key 提交至服务器保存；请勿向他人分享。</p>
           </div>
 
           <!-- Base URL -->
           <div>
-            <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground);">API 地址</label>
+            <label class="block text-sm font-medium mb-2" style="color: var(--kf-foreground);">API 地址</label>
             <input
               v-model="aiForm.baseUrl"
               type="text"
               placeholder="https://api.deepseek.com/v1"
-              class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
-              style="color: var(--kb-foreground)"
+              class="w-full h-10 px-3 text-sm outline-none transition-colors kf-input kf-form-control"
+              style="color: var(--kf-foreground)"
             />
           </div>
 
           <!-- Model -->
           <div>
-            <label class="block text-sm font-medium mb-2" style="color: var(--kb-foreground);">模型名称</label>
+            <label class="block text-sm font-medium mb-2" style="color: var(--kf-foreground);">模型名称</label>
             <input
               v-model="aiForm.model"
               type="text"
               placeholder="deepseek-chat"
-              class="w-full h-10 px-3 text-sm outline-none transition-colors kb-input kb-form-control"
-              style="color: var(--kb-foreground)"
+              class="w-full h-10 px-3 text-sm outline-none transition-colors kf-input kf-form-control"
+              style="color: var(--kf-foreground)"
             />
           </div>
 
           <!-- 启用开关 -->
-          <div class="flex items-center justify-between p-3 rounded-lg border" style="border-color: var(--kb-border);">
+          <div class="flex items-center justify-between p-3 rounded-lg border" style="border-color: var(--kf-border);">
             <div>
-              <h4 class="text-sm font-medium" style="color: var(--kb-foreground);">启用自定义配置</h4>
-              <p class="text-xs mt-0.5" style="color: var(--kb-muted-foreground);">开启后使用你自己的 Key 调用 AI</p>
+              <h4 class="text-sm font-medium" style="color: var(--kf-foreground);">启用自定义配置</h4>
+              <p class="text-xs mt-0.5" style="color: var(--kf-muted-foreground);">开启后使用你自己的 Key 调用 AI</p>
             </div>
             <button
               type="button"
@@ -617,7 +617,7 @@
               :aria-checked="aiForm.isActive === 1"
               :class="[
                 'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200',
-                aiForm.isActive === 1 ? 'bg-[var(--kb-primary)]' : 'bg-gray-200'
+                aiForm.isActive === 1 ? 'bg-[var(--kf-primary)]' : 'bg-gray-200'
               ]"
               @click="aiForm.isActive = aiForm.isActive === 1 ? 0 : 1"
             >
@@ -632,41 +632,41 @@
 
           <!-- 平台模型提示 -->
           <div class="p-3 rounded-lg flex items-start gap-2" style="background: rgba(59,111,224,0.04);">
-            <Icon name="info" :size="14" style="color: var(--kb-primary); margin-top: 2px;" />
-            <p class="text-xs" style="color: var(--kb-muted-foreground);">不配置时默认使用平台模型。配置自己的 Key 后可无限制使用，平台模型免费额度用完需订阅。</p>
+            <Icon name="info" :size="14" style="color: var(--kf-primary); margin-top: 2px;" />
+            <p class="text-xs" style="color: var(--kf-muted-foreground);">不配置时默认使用平台模型。配置自己的 Key 后可无限制使用，平台模型免费额度用完需订阅。</p>
           </div>
 
           <!-- 获取 API Key 引导 -->
-          <div class="rounded-lg border overflow-hidden" style="border-color: var(--kb-border);">
+          <div class="rounded-lg border overflow-hidden" style="border-color: var(--kf-border);">
             <button
               type="button"
               class="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium transition-colors hover:bg-muted"
-              style="color: var(--kb-foreground);"
+              style="color: var(--kf-foreground);"
               @click="showKeyGuide = !showKeyGuide"
             >
               <span class="flex items-center gap-2">
-                <Icon name="help-circle" :size="15" style="color: var(--kb-primary);" />
+                <Icon name="help-circle" :size="15" style="color: var(--kf-primary);" />
                 如何获取 API Key？
               </span>
-              <Icon name="chevron-down" :size="14" :class="showKeyGuide ? 'rotate-180 transition-transform' : 'transition-transform'" style="color: var(--kb-muted-foreground);" />
+              <Icon name="chevron-down" :size="14" :class="showKeyGuide ? 'rotate-180 transition-transform' : 'transition-transform'" style="color: var(--kf-muted-foreground);" />
             </button>
-            <div v-if="showKeyGuide" class="px-3 pb-3 space-y-2.5 border-t" style="border-color: var(--kb-border);">
+            <div v-if="showKeyGuide" class="px-3 pb-3 space-y-2.5 border-t" style="border-color: var(--kf-border);">
               <div class="text-xs space-y-2 pt-2.5">
                 <div v-for="guide in keyGuides" :key="guide.name" class="guide-item">
                   <div class="flex items-center justify-between mb-0.5">
-                    <span class="font-medium" style="color: var(--kb-foreground);">{{ guide.name }}</span>
+                    <span class="font-medium" style="color: var(--kf-foreground);">{{ guide.name }}</span>
                     <a
                       :href="guide.url"
                       target="_blank"
                       rel="noopener"
                       class="flex items-center gap-1 text-xs hover:underline"
-                      style="color: var(--kb-primary);"
+                      style="color: var(--kf-primary);"
                     >
                       {{ guide.urlLabel }}
                       <Icon name="external-link" :size="11" />
                     </a>
                   </div>
-                  <p style="color: var(--kb-muted-foreground);">{{ guide.steps }}</p>
+                  <p style="color: var(--kf-muted-foreground);">{{ guide.steps }}</p>
                 </div>
               </div>
             </div>
@@ -676,12 +676,12 @@
 
     <template #footer>
       <!-- 底部操作 -->
-      <div class="flex items-center justify-between px-5 py-4 border-t" style="border-color: var(--kb-border);">
+      <div class="flex items-center justify-between px-5 py-4 border-t" style="border-color: var(--kf-border);">
         <button
           v-if="userAiActive"
           type="button"
           class="px-3 h-8 rounded-lg text-xs font-medium border transition-colors hover:bg-muted"
-          style="border-color: var(--kb-border); color: var(--kb-muted-foreground);"
+          style="border-color: var(--kf-border); color: var(--kf-muted-foreground);"
           @click="handleDeleteAiConfig"
         >
           删除配置
@@ -691,7 +691,7 @@
           <button
             type="button"
             class="px-4 h-9 rounded-lg text-sm font-medium border transition-colors hover:bg-muted"
-            style="border-color: var(--kb-border); color: var(--kb-foreground);"
+            style="border-color: var(--kf-border); color: var(--kf-foreground);"
             @click="showAiConfigModal = false"
           >
             取消
@@ -699,7 +699,7 @@
           <button
             type="button"
             class="px-4 h-9 rounded-lg text-sm font-medium transition-colors hover:opacity-90"
-            style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
+            style="background: var(--kf-primary); color: var(--kf-primary-foreground);"
             :disabled="aiSaving"
             @click="handleSaveAiConfig"
           >
@@ -943,8 +943,8 @@ function updateCoachLayout() {
   const el = workspaceBodyRef.value
   if (!el || !el.clientWidth) return
   const style = getComputedStyle(el)
-  const panel = parseFloat(style.getPropertyValue('--kb-coach-panel-width'))
-  const chat = parseFloat(style.getPropertyValue('--kb-coach-min-chat-width'))
+  const panel = parseFloat(style.getPropertyValue('--kf-coach-panel-width'))
+  const chat = parseFloat(style.getPropertyValue('--kf-coach-min-chat-width'))
   coachOverlay.value = el.clientWidth < panel + chat
 }
 
@@ -2267,14 +2267,14 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.phase-d-chat { color:var(--kb-foreground); }
-.chat-state,.chat-capability { margin:0;padding:var(--kb-space-3) var(--kb-space-5);font-size:var(--kb-fs-body-sm);background:var(--kb-card);border-bottom:var(--kb-studio-rule) solid var(--kb-border);overflow-wrap:anywhere; }
-.chat-state button { color:var(--kb-primary);margin-inline-start:var(--kb-space-3);text-decoration:underline; }
-.prose-chat { font-size:var(--kb-fs-body-lg);line-height:1.75;overflow-wrap:anywhere; }
-.prose-chat :deep(pre) { max-width:100%;overflow:auto;background:var(--kb-content-code-background); }
+.phase-d-chat { color:var(--kf-foreground); }
+.chat-state,.chat-capability { margin:0;padding:var(--kf-space-3) var(--kf-space-5);font-size:var(--kf-fs-body-sm);background:var(--kf-card);border-bottom:var(--kf-studio-rule) solid var(--kf-border);overflow-wrap:anywhere; }
+.chat-state button { color:var(--kf-primary);margin-inline-start:var(--kf-space-3);text-decoration:underline; }
+.prose-chat { font-size:var(--kf-fs-body-lg);line-height:1.75;overflow-wrap:anywhere; }
+.prose-chat :deep(pre) { max-width:100%;overflow:auto;background:var(--kf-content-code-background); }
 .prose-chat :deep(table) { display:block;max-width:100%;overflow-x:auto; }
 .prose-chat :deep(img) { max-width:100%; }
-.phase-d-chat :focus-visible:not(input, textarea, select, [contenteditable], .kb-form-control, .kb-input, .kb-textarea, .kb-select, .kb-select-trigger) { outline:var(--kb-studio-focus) solid var(--kb-ring);outline-offset:var(--kb-studio-focus); }
+.phase-d-chat :focus-visible:not(input, textarea, select, [contenteditable], .kf-form-control, .kf-input, .kf-textarea, .kf-select, .kf-select-trigger) { outline:var(--kf-studio-focus) solid var(--kf-ring);outline-offset:var(--kf-studio-focus); }
 .phase-d-chat button:disabled { cursor:wait; }
 @media(prefers-reduced-motion:reduce){.phase-d-chat * { animation:none!important;scroll-behavior:auto!important; }}
 
@@ -2284,9 +2284,9 @@ onUnmounted(() => {
 }
 .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
 
-.chat-container {min-width:0;margin-inline:calc(-1 * var(--kb-page-padding-x));margin-block:calc(-1 * var(--kb-page-padding-y));height:calc(100dvh - var(--kb-nav-height));}
-@media (max-width:1023px){.chat-container {height:calc(100dvh - var(--kb-nav-height) - var(--kb-notes-bottom-nav-height));}}
-@media (max-width:639px){.chat-container {margin-inline:calc(-1 * var(--kb-page-padding-x));}}
+.chat-container {min-width:0;margin-inline:calc(-1 * var(--kf-page-padding-x));margin-block:calc(-1 * var(--kf-page-padding-y));height:calc(100dvh - var(--kf-nav-height));}
+@media (max-width:1023px){.chat-container {height:calc(100dvh - var(--kf-nav-height) - var(--kf-notes-bottom-nav-height));}}
+@media (max-width:639px){.chat-container {margin-inline:calc(-1 * var(--kf-page-padding-x));}}
 
 /* ===== 消息列表区域 ===== */
 .chat-scroll-area {
@@ -2294,10 +2294,10 @@ onUnmounted(() => {
 }
 
 .chat-messages-wrapper {
-  width: calc(100% - 2 * var(--kb-space-4));
-  max-width: var(--kb-chat-content-max-width);
+  width: calc(100% - 2 * var(--kf-space-4));
+  max-width: var(--kf-chat-content-max-width);
   margin: 0 auto;
-  padding: var(--kb-space-6) 0 var(--kb-space-8);
+  padding: var(--kf-space-6) 0 var(--kf-space-8);
 }
 
 /* 单条消息行 */
@@ -2315,8 +2315,8 @@ onUnmounted(() => {
   max-width: 70%;
   padding: 10px 14px;
   border-radius: 16px 16px 4px 16px;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   font-size: 14px;
   line-height: 1.6;
   word-break: break-word;
@@ -2334,7 +2334,7 @@ onUnmounted(() => {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--kb-muted-foreground);
+  background: var(--kf-muted-foreground);
   animation: typing-bounce 1.2s infinite ease-in-out;
 }
 
@@ -2353,26 +2353,26 @@ onUnmounted(() => {
   min-height: 28px;
   padding: 4px 6px;
   border-radius: 6px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: transparent;
   border: none;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 .msg-action-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
-.msg-action-btn:active { background: var(--kb-border); }
+.msg-action-btn:active { background: var(--kf-border); }
 .msg-action-btn:focus-visible {
-  outline: 2px solid var(--kb-primary);
+  outline: 2px solid var(--kf-primary);
   outline-offset: 1px;
 }
 .msg-action-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 /* Phase UI-6：AI 回答后的学习动作条 */
 .chat-learn-action {
@@ -2380,23 +2380,23 @@ onUnmounted(() => {
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  border-radius: var(--kb-radius-sm);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
+  border-radius: var(--kf-radius-sm);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-caption);
   font-weight: 500;
   text-decoration: none;
   transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 .chat-learn-action:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
-  background: var(--kb-primary-soft);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
+  background: var(--kf-primary-soft);
 }
 .chat-learn-action:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--kb-ring);
+  box-shadow: 0 0 0 2px var(--kf-ring);
 }
 /* ===== Markdown 渲染样式 ===== */
 .prose-chat {
@@ -2433,21 +2433,21 @@ onUnmounted(() => {
   margin-left: 20px;
 }
 .prose-chat :deep(.md-link) {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 .prose-chat :deep(.md-quote) {
-  border-left: 3px solid var(--kb-primary);
+  border-left: 3px solid var(--kf-primary);
   padding: 6px 12px;
   margin: 8px 0;
   background: rgba(59, 111, 224, 0.04);
   border-radius: 0 6px 6px 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .prose-chat :deep(.md-hr) {
   border: none;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
   margin: 12px 0;
 }
 .prose-chat :deep(.md-inline-code) {
@@ -2455,7 +2455,7 @@ onUnmounted(() => {
   padding: 2px 6px;
   border-radius: 4px;
   background: rgba(59, 111, 224, 0.08);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-size: 13px;
 }
 
@@ -2508,7 +2508,7 @@ onUnmounted(() => {
   overflow-x: auto;
   margin: 10px 0;
   border-radius: 8px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
 }
 .prose-chat :deep(.md-table) {
   width: 100%;
@@ -2520,13 +2520,13 @@ onUnmounted(() => {
   text-align: left;
   font-weight: 600;
   background: rgba(59, 111, 224, 0.04);
-  border-bottom: 1px solid var(--kb-border);
-  color: var(--kb-foreground);
+  border-bottom: 1px solid var(--kf-border);
+  color: var(--kf-foreground);
 }
 .prose-chat :deep(.md-table td) {
   padding: 8px 12px;
-  border-bottom: 1px solid var(--kb-border);
-  color: var(--kb-foreground);
+  border-bottom: 1px solid var(--kf-border);
+  color: var(--kf-foreground);
 }
 .prose-chat :deep(.md-table tr:last-child td) {
   border-bottom: none;
@@ -2543,9 +2543,9 @@ onUnmounted(() => {
   gap: 6px;
   padding: 6px 12px;
   border-radius: 6px;
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  color: var(--kb-foreground);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  color: var(--kf-foreground);
   cursor: pointer;
 }
 .chat-overlay {
@@ -2567,15 +2567,15 @@ onUnmounted(() => {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   background: transparent;
   border: none;
   transition: background 0.15s, color 0.15s;
 }
 .chat-sidebar-toggle-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 .chat-close-btn {
   display: none;
@@ -2584,13 +2584,13 @@ onUnmounted(() => {
   width: 32px;
   height: 32px;
   border-radius: 6px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   background: transparent;
   border: none;
   margin-left: 8px;
 }
-.chat-close-btn:hover { background: var(--kb-muted); }
+.chat-close-btn:hover { background: var(--kf-muted); }
 .chat-header-menu {
   display: none;
   align-items: center;
@@ -2598,12 +2598,12 @@ onUnmounted(() => {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   background: transparent;
   border: none;
 }
-.chat-header-menu:hover { background: var(--kb-muted); }
+.chat-header-menu:hover { background: var(--kf-muted); }
 
 @media (max-width: 767px) {
   .chat-sidebar {
@@ -2622,14 +2622,14 @@ onUnmounted(() => {
   .chat-sidebar-toggle { display: flex; }
   .chat-header-menu { display: flex; }
   .chat-user-bubble { max-width: 85%; }
-  .chat-messages-wrapper { padding-block: var(--kb-space-4) var(--kb-space-6); }
+  .chat-messages-wrapper { padding-block: var(--kf-space-4) var(--kf-space-6); }
 }
 
 /* ===== 弹窗面板 ===== */
 .share-modal-panel { overscroll-behavior: contain; }
 .ai-config-panel { overscroll-behavior: contain; }
 
-/* Input focus is owned by the shared kb-input rule (including forced colors). */
+/* Input focus is owned by the shared kf-input rule (including forced colors). */
 
 /* ===== 右侧悬浮历史栏 ===== */
 .chat-history-rail {
@@ -2654,9 +2654,9 @@ onUnmounted(() => {
   padding: 8px 10px;
   margin: 12px 8px 0 0;
   cursor: pointer;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 20px;
-  background: var(--kb-card);
+  background: var(--kf-card);
   transition: border-color 0.2s, background 0.2s;
   height: fit-content;
   /* 子元素恢复接收鼠标事件 */
@@ -2664,20 +2664,20 @@ onUnmounted(() => {
 }
 .history-rail-collapsed:hover {
   background: rgba(59, 111, 224, 0.06);
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 .history-count {
   font-size: 11px;
   font-weight: 600;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* 展开态 */
 .history-rail-expanded {
   width: 280px;
   height: 100%;
-  background: var(--kb-card);
-  border-left: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border-left: 1px solid var(--kf-border);
   box-shadow: -4px 0 16px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
@@ -2719,8 +2719,8 @@ onUnmounted(() => {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
   font-size: 10px;
   font-weight: 600;
   display: flex;
@@ -2728,7 +2728,7 @@ onUnmounted(() => {
   justify-content: center;
 }
 .history-item-active .history-item-num {
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
 }
 
@@ -2746,88 +2746,88 @@ onUnmounted(() => {
 .chat-workspace { min-height:0; }
 .chat-workspace-header { flex-shrink:0; }
 .chat-workspace-header h2 { overflow-wrap:anywhere; }
-.chat-header-action,.chat-coach-bar button,.chat-capability button,.chat-source { padding:var(--kb-space-2);border-radius:var(--kb-radius-sm);color:var(--kb-primary);font-size:var(--kb-fs-body-sm); }
-.chat-capability { display:flex;align-items:center;gap:var(--kb-space-2);flex-wrap:wrap;flex-shrink:0; }
+.chat-header-action,.chat-coach-bar button,.chat-capability button,.chat-source { padding:var(--kf-space-2);border-radius:var(--kf-radius-sm);color:var(--kf-primary);font-size:var(--kf-fs-body-sm); }
+.chat-capability { display:flex;align-items:center;gap:var(--kf-space-2);flex-wrap:wrap;flex-shrink:0; }
 .chat-capability span {flex:1 1 60%;}
-.chat-coach-bar {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;flex-shrink:0;gap:var(--kb-space-2);padding:var(--kb-space-1) var(--kb-space-4);background:var(--kb-card);border-bottom:var(--kb-studio-rule) solid var(--kb-border);}
-.chat-coach-bar button:first-child {display:flex;align-items:center;gap:var(--kb-space-2);}
+.chat-coach-bar {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;flex-shrink:0;gap:var(--kf-space-2);padding:var(--kf-space-1) var(--kf-space-4);background:var(--kf-card);border-bottom:var(--kf-studio-rule) solid var(--kf-border);}
+.chat-coach-bar button:first-child {display:flex;align-items:center;gap:var(--kf-space-2);}
 .chat-scroll-area {min-height:0;overscroll-behavior:contain;scroll-behavior:auto;}
-.chat-history-loading {padding:var(--kb-space-4);color:var(--kb-muted-foreground);}
-.chat-empty {min-height: min(100%, 24rem);padding-block:var(--kb-space-6);}
-.chat-composer {min-width:0;padding:var(--kb-space-3) var(--kb-space-4);}
-.chat-search {display:flex;align-items:center;gap:var(--kb-space-2);padding-inline:var(--kb-space-3);background:var(--kb-field-surface);border-radius:var(--kb-radius-md);transition:border-color .16s ease,box-shadow .16s ease;border:0;}
-.chat-search:focus-within { background:var(--kb-field-active);}
-.chat-search__icon {flex-shrink:0;color:var(--kb-muted-foreground);}
-.chat-search__input:not(.kb-form-control),.chat-search__input:not(.kb-form-control):focus,.chat-search__input:not(.kb-form-control):focus-visible {border:0;outline:none;box-shadow:none;background:transparent;}
-.chat-search__input,.chat-search__input:focus,.chat-search__input:focus-visible {flex:1;min-width:0;padding-block:var(--kb-space-2);color:var(--kb-foreground);font-size:var(--kb-fs-body-sm);}
-.chat-search__input::placeholder {color:var(--kb-field-placeholder);opacity:1;}
-@media(forced-colors:active){.chat-search:focus-within { background:var(--kb-field-active);}}
-.chat-source {border:var(--kb-studio-rule) solid var(--kb-border);background:var(--kb-card);}
+.chat-history-loading {padding:var(--kf-space-4);color:var(--kf-muted-foreground);}
+.chat-empty {min-height: min(100%, 24rem);padding-block:var(--kf-space-6);}
+.chat-composer {min-width:0;padding:var(--kf-space-3) var(--kf-space-4);}
+.chat-search {display:flex;align-items:center;gap:var(--kf-space-2);padding-inline:var(--kf-space-3);background:var(--kf-field-surface);border-radius:var(--kf-radius-md);transition:border-color .16s ease,box-shadow .16s ease;border:0;}
+.chat-search:focus-within { background:var(--kf-field-active);}
+.chat-search__icon {flex-shrink:0;color:var(--kf-muted-foreground);}
+.chat-search__input:not(.kf-form-control),.chat-search__input:not(.kf-form-control):focus,.chat-search__input:not(.kf-form-control):focus-visible {border:0;outline:none;box-shadow:none;background:transparent;}
+.chat-search__input,.chat-search__input:focus,.chat-search__input:focus-visible {flex:1;min-width:0;padding-block:var(--kf-space-2);color:var(--kf-foreground);font-size:var(--kf-fs-body-sm);}
+.chat-search__input::placeholder {color:var(--kf-field-placeholder);opacity:1;}
+@media(forced-colors:active){.chat-search:focus-within { background:var(--kf-field-active);}}
+.chat-source {border:var(--kf-studio-rule) solid var(--kf-border);background:var(--kf-card);}
 .chat-sidebar button[aria-label="删除会话"]:focus-visible {opacity:1;}
-.prose-chat :deep(:is(h1,h2,h3)) {margin-block:var(--kb-space-5) var(--kb-space-3);line-height:1.4;}
-.prose-chat :deep(:is(p,ul,ol,blockquote,table,.code-block-wrapper)) {margin-block:var(--kb-space-3);}
-.prose-chat :deep(blockquote) {border-inline-start:var(--kb-space-1) solid var(--kb-border);padding-inline-start:var(--kb-space-3);color:var(--kb-muted-foreground);}
+.prose-chat :deep(:is(h1,h2,h3)) {margin-block:var(--kf-space-5) var(--kf-space-3);line-height:1.4;}
+.prose-chat :deep(:is(p,ul,ol,blockquote,table,.code-block-wrapper)) {margin-block:var(--kf-space-3);}
+.prose-chat :deep(blockquote) {border-inline-start:var(--kf-space-1) solid var(--kf-border);padding-inline-start:var(--kf-space-3);color:var(--kf-muted-foreground);}
 .prose-chat :deep(.code-block-body) {min-width:0;max-width:100%;}
 .prose-chat :deep(pre) {min-width:0;}
 
-@media(max-width:767px){.chat-sidebar {top:var(--kb-nav-height);bottom:var(--kb-notes-bottom-nav-height);width:min(85vw,18rem);}.chat-workspace-header {gap:var(--kb-space-2);padding:var(--kb-space-2);}.chat-workspace-header>div:first-child {width:100%;}.chat-workspace-header h2 {font-size:var(--kb-fs-body-md);}.chat-composer {padding:var(--kb-space-2);}.chat-composer-meta>span {display:none;}.chat-coach-bar {padding-inline:var(--kb-space-2);}}
+@media(max-width:767px){.chat-sidebar {top:var(--kf-nav-height);bottom:var(--kf-notes-bottom-nav-height);width:min(85vw,18rem);}.chat-workspace-header {gap:var(--kf-space-2);padding:var(--kf-space-2);}.chat-workspace-header>div:first-child {width:100%;}.chat-workspace-header h2 {font-size:var(--kf-fs-body-md);}.chat-composer {padding:var(--kf-space-2);}.chat-composer-meta>span {display:none;}.chat-coach-bar {padding-inline:var(--kf-space-2);}}
 .chat-history-rail {position:relative;inset:auto;display:block;pointer-events:auto;}
-.history-rail-collapsed {margin:0;padding:var(--kb-space-2);border-radius:var(--kb-radius-sm);gap:var(--kb-space-2);}
-.history-rail-expanded {position:absolute;top:calc(100% + var(--kb-space-2));right:0;width:20rem;max-width:calc(100vw - var(--kb-space-8));height:auto;max-height:60dvh;border:var(--kb-studio-rule) solid var(--kb-border);border-radius:var(--kb-radius-md);box-shadow:var(--shadow-dropdown-2);}
+.history-rail-collapsed {margin:0;padding:var(--kf-space-2);border-radius:var(--kf-radius-sm);gap:var(--kf-space-2);}
+.history-rail-expanded {position:absolute;top:calc(100% + var(--kf-space-2));right:0;width:20rem;max-width:calc(100vw - var(--kf-space-8));height:auto;max-height:60dvh;border:var(--kf-studio-rule) solid var(--kf-border);border-radius:var(--kf-radius-md);box-shadow:var(--shadow-dropdown-2);}
 .history-list {min-height:0;overflow-y:auto;}
 @media(max-width:768px){.chat-history-rail {display:none;}}
 
-.quote-question {margin-top:.5rem;font-size:var(--kb-fs-caption);color:var(--kb-muted-foreground);opacity:.65;}
-.quote-question:hover,.quote-question:focus-visible {opacity:1;color:var(--kb-primary);}
+.quote-question {margin-top:.5rem;font-size:var(--kf-fs-caption);color:var(--kf-muted-foreground);opacity:.65;}
+.quote-question:hover,.quote-question:focus-visible {opacity:1;color:var(--kf-primary);}
 /* V2 workbench: reading and writing stay independent of the context drawer. */
-.chat-workbench .chat-workspace { background:var(--kb-card); }
+.chat-workbench .chat-workspace { background:var(--kf-card); }
 .chat-workspace-body { display:flex; flex:1; min-height:0; min-width:0; position:relative; }
 .chat-conversation-column { display:flex; flex-direction:column; flex:1; min-height:0; min-width:0; position:relative; }
 .chat-conversation-scroll { display:flex; flex-direction:column; flex:1; min-height:0; min-width:0; position:relative; }
 .chat-scroll-bottom {
-  position:absolute; left:50%; bottom:var(--kb-space-3, .75rem); transform:translateX(-50%);
+  position:absolute; left:50%; bottom:var(--kf-space-3, .75rem); transform:translateX(-50%);
   z-index:20; display:inline-flex; align-items:center; justify-content:center;
   width:2.25rem; height:2.25rem; border-radius:999px;
-  border:var(--kb-studio-rule) solid var(--kb-border); background:var(--kb-card);
-  color:var(--kb-foreground); box-shadow:var(--shadow-dropdown-2);
+  border:var(--kf-studio-rule) solid var(--kf-border); background:var(--kf-card);
+  color:var(--kf-foreground); box-shadow:var(--shadow-dropdown-2);
   transition:transform .15s ease, background .15s ease;
 }
-.chat-scroll-bottom:hover { background:var(--kb-muted); transform:translateX(-50%) translateY(-1px); }
-.chat-scroll-bottom:focus-visible { outline:2px solid var(--kb-primary); outline-offset:2px; }
+.chat-scroll-bottom:hover { background:var(--kf-muted); transform:translateX(-50%) translateY(-1px); }
+.chat-scroll-bottom:focus-visible { outline:2px solid var(--kf-primary); outline-offset:2px; }
 .chat-workbench .chat-sidebar.sidebar-expanded { width:15rem; }
-.chat-workbench .chat-sidebar { background:var(--kb-background); }
-.chat-workbench .chat-sidebar > .overflow-y-auto { padding:var(--kb-space-2, .5rem); }
-.chat-workbench .chat-sidebar .group { border:0; border-radius:var(--kb-radius-lg, .75rem); margin-bottom:.25rem; padding:.625rem .75rem; }
-.chat-workbench .chat-sidebar .group p { font-size:var(--kb-fs-caption); }
+.chat-workbench .chat-sidebar { background:var(--kf-background); }
+.chat-workbench .chat-sidebar > .overflow-y-auto { padding:var(--kf-space-2, .5rem); }
+.chat-workbench .chat-sidebar .group { border:0; border-radius:var(--kf-radius-lg, .75rem); margin-bottom:.25rem; padding:.625rem .75rem; }
+.chat-workbench .chat-sidebar .group p { font-size:var(--kf-fs-caption); }
 .conversation-menu-anchor { position:relative; flex-shrink:0; }
-.conversation-more { display:flex; padding:.375rem; border-radius:.375rem; color:var(--kb-muted-foreground); }
-.conversation-more:hover { background:var(--kb-muted); }
-.conversation-menu { position:absolute; right:0; top:100%; z-index:30; min-width:10rem; padding:.375rem; border:1px solid var(--kb-border); border-radius:.75rem; background:var(--kb-card); box-shadow:var(--kb-shadow-md); }
+.conversation-more { display:flex; padding:.375rem; border-radius:.375rem; color:var(--kf-muted-foreground); }
+.conversation-more:hover { background:var(--kf-muted); }
+.conversation-menu { position:absolute; right:0; top:100%; z-index:30; min-width:10rem; padding:.375rem; border:1px solid var(--kf-border); border-radius:.75rem; background:var(--kf-card); box-shadow:var(--kf-shadow-md); }
 .conversation-menu button { display:block; width:100%; text-align:left; padding:.625rem .75rem; font-size:.8125rem; border-radius:.375rem; }
-.conversation-menu button:hover:not(:disabled) { background:var(--kb-muted); }
-.conversation-menu button:disabled { color:var(--kb-muted-foreground); opacity:.6; cursor:not-allowed; }
+.conversation-menu button:hover:not(:disabled) { background:var(--kf-muted); }
+.conversation-menu button:disabled { color:var(--kf-muted-foreground); opacity:.6; cursor:not-allowed; }
 .chat-workbench .chat-workspace-header { padding:.625rem 1rem; gap:.625rem; border-bottom-color:transparent; }
-.chat-workbench .chat-workspace-header h2 { max-width:18rem; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; font-size:var(--kb-fs-body-lg); }
-.chat-workbench .chat-workspace-header p { font-size:var(--kb-fs-caption); }
-.chat-workbench .chat-coach-bar { margin:0 1rem; border-radius:.625rem; padding:.375rem .625rem; font-size:var(--kb-fs-body-sm); }
-.chat-coach-aside { flex:0 0 var(--kb-coach-panel-width); min-height:0; overflow-y:auto; border-left:var(--kb-studio-rule) solid var(--kb-border); background:var(--kb-card); }
+.chat-workbench .chat-workspace-header h2 { max-width:18rem; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; font-size:var(--kf-fs-body-lg); }
+.chat-workbench .chat-workspace-header p { font-size:var(--kf-fs-caption); }
+.chat-workbench .chat-coach-bar { margin:0 1rem; border-radius:.625rem; padding:.375rem .625rem; font-size:var(--kf-fs-body-sm); }
+.chat-coach-aside { flex:0 0 var(--kf-coach-panel-width); min-height:0; overflow-y:auto; border-left:var(--kf-studio-rule) solid var(--kf-border); background:var(--kf-card); }
 .chat-workbench .chat-scroll-area { min-height:0; }
 .chat-workbench .chat-empty { height:100%; min-height:12rem; }
-.chat-workbench .chat-empty h3 { font-size:var(--kb-fs-h1); font-weight:600; letter-spacing:-.025em; }
+.chat-workbench .chat-empty h3 { font-size:var(--kf-fs-h1); font-weight:600; letter-spacing:-.025em; }
 .chat-workbench .chat-msg-ai { background:transparent; }
-.chat-workbench .chat-user-bubble { background:var(--kb-muted); color:var(--kb-foreground); border-radius:1.25rem; box-shadow:none; }
-.chat-user-text {font-size:var(--kb-fs-body-lg);line-height:var(--kb-lh-body-lg);}
-.chat-workbench .prose-chat { line-height:var(--kb-lh-body-lg); }
-.chat-workbench .chat-composer { width:calc(100% - 2 * var(--kb-space-4)); max-width:var(--kb-chat-content-max-width); margin:0 auto var(--kb-space-4); }
+.chat-workbench .chat-user-bubble { background:var(--kf-muted); color:var(--kf-foreground); border-radius:1.25rem; box-shadow:none; }
+.chat-user-text {font-size:var(--kf-fs-body-lg);line-height:var(--kf-lh-body-lg);}
+.chat-workbench .prose-chat { line-height:var(--kf-lh-body-lg); }
+.chat-workbench .chat-composer { width:calc(100% - 2 * var(--kf-space-4)); max-width:var(--kf-chat-content-max-width); margin:0 auto var(--kf-space-4); }
 @media(max-width:1279px) { .chat-workbench .chat-sidebar.sidebar-expanded {width:13rem;} }
-@media(max-width:639px) { .chat-workbench .chat-workspace-header h2 {max-width:10rem;} .chat-workbench .chat-workspace-header {gap:.375rem;padding:.5rem .75rem;} .chat-workbench .chat-messages-wrapper {width:calc(100% - 2 * var(--kb-space-2));padding:var(--kb-space-4) 0;} .chat-workbench .chat-composer {width:calc(100% - 2 * var(--kb-space-2));margin-bottom:var(--kb-space-2);padding:var(--kb-space-2) var(--kb-space-3);} .chat-workbench .chat-composer-meta {flex-wrap:wrap;} .chat-workbench .chat-empty h3 {font-size:var(--kb-fs-h3);} }
+@media(max-width:639px) { .chat-workbench .chat-workspace-header h2 {max-width:10rem;} .chat-workbench .chat-workspace-header {gap:.375rem;padding:.5rem .75rem;} .chat-workbench .chat-messages-wrapper {width:calc(100% - 2 * var(--kf-space-2));padding:var(--kf-space-4) 0;} .chat-workbench .chat-composer {width:calc(100% - 2 * var(--kf-space-2));margin-bottom:var(--kf-space-2);padding:var(--kf-space-2) var(--kf-space-3);} .chat-workbench .chat-composer-meta {flex-wrap:wrap;} .chat-workbench .chat-empty h3 {font-size:var(--kf-fs-h3);} }
 
 
-.message-options{font-size:var(--kb-fs-body-sm);color:var(--kb-muted-foreground);margin-top:var(--kb-space-2)}.message-options button,.message-options span{display:block;padding:var(--kb-space-2);text-align:left}.message-options summary{cursor:pointer}.chat-list-tabs{display:flex;gap:var(--kb-space-2);padding:var(--kb-space-2) var(--kb-space-3)}.chat-list-tabs button{flex:1;padding:var(--kb-space-2);border-radius:var(--kb-radius-md);font-size:var(--kb-fs-body-sm);color:var(--kb-muted-foreground)}.chat-list-tabs button[aria-pressed=true]{background:var(--kb-muted);color:var(--kb-foreground)}.chat-list-error{padding:var(--kb-space-3);font-size:var(--kb-fs-body-sm);color:var(--kb-destructive)}.share-workspace{display:grid;gap:var(--kb-space-3);font-size:var(--kb-fs-body-sm);overflow-wrap:anywhere}.share-workspace h3{font-weight:600}.share-note{color:var(--kb-muted-foreground);font-size:var(--kb-fs-body-sm)}.share-link-row{display:flex;gap:var(--kb-space-2);min-width:0}.share-link-row input{flex:1;min-width:0}.share-export-buttons{display:flex;flex-wrap:wrap;gap:var(--kb-space-2)}.share-workspace li{padding-block:var(--kb-space-2)}.share-workspace li button{color:var(--kb-destructive)}.share-workspace [role=alert]{color:var(--kb-destructive)}
+.message-options{font-size:var(--kf-fs-body-sm);color:var(--kf-muted-foreground);margin-top:var(--kf-space-2)}.message-options button,.message-options span{display:block;padding:var(--kf-space-2);text-align:left}.message-options summary{cursor:pointer}.chat-list-tabs{display:flex;gap:var(--kf-space-2);padding:var(--kf-space-2) var(--kf-space-3)}.chat-list-tabs button{flex:1;padding:var(--kf-space-2);border-radius:var(--kf-radius-md);font-size:var(--kf-fs-body-sm);color:var(--kf-muted-foreground)}.chat-list-tabs button[aria-pressed=true]{background:var(--kf-muted);color:var(--kf-foreground)}.chat-list-error{padding:var(--kf-space-3);font-size:var(--kf-fs-body-sm);color:var(--kf-destructive)}.share-workspace{display:grid;gap:var(--kf-space-3);font-size:var(--kf-fs-body-sm);overflow-wrap:anywhere}.share-workspace h3{font-weight:600}.share-note{color:var(--kf-muted-foreground);font-size:var(--kf-fs-body-sm)}.share-link-row{display:flex;gap:var(--kf-space-2);min-width:0}.share-link-row input{flex:1;min-width:0}.share-export-buttons{display:flex;flex-wrap:wrap;gap:var(--kf-space-2)}.share-workspace li{padding-block:var(--kf-space-2)}.share-workspace li button{color:var(--kf-destructive)}.share-workspace [role=alert]{color:var(--kf-destructive)}
 </style>
 
 <style scoped>
-.chat-search:has(input:focus-visible){outline:0}.chat-search input.kb-form-control,.chat-search input.kb-form-control:focus,.chat-search input.kb-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
+.chat-search:has(input:focus-visible){outline:0}.chat-search input.kf-form-control,.chat-search input.kf-form-control:focus,.chat-search input.kf-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
 
 /* ===== V2.0：用户消息悬浮工具栏 / 编辑 / 引用 ===== */
 .chat-user-block { display:flex; flex-direction:column; align-items:flex-end; max-width:min(70%, 720px); min-width:0; }
@@ -2840,45 +2840,45 @@ onUnmounted(() => {
 .chat-edit-input {
   width:min(560px, 72vw); min-height:76px; resize:vertical;
   padding:8px 10px; border-radius:10px;
-  border:1px solid var(--kb-border); background:var(--kb-card); color:var(--kb-foreground);
+  border:1px solid var(--kf-border); background:var(--kf-card); color:var(--kf-foreground);
   font:inherit; line-height:1.6;
 }
-.chat-edit-input:focus-visible { outline:2px solid var(--kb-primary); outline-offset:1px; }
+.chat-edit-input:focus-visible { outline:2px solid var(--kf-primary); outline-offset:1px; }
 .chat-edit-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:8px; }
 .chat-mini-btn {
-  padding:4px 10px; border-radius:6px; border:1px solid var(--kb-border);
-  background:transparent; color:var(--kb-foreground); font-size:12px; cursor:pointer;
+  padding:4px 10px; border-radius:6px; border:1px solid var(--kf-border);
+  background:transparent; color:var(--kf-foreground); font-size:12px; cursor:pointer;
 }
-.chat-mini-btn.is-primary { background:var(--kb-primary); border-color:var(--kb-primary); color:var(--kb-primary-foreground); }
+.chat-mini-btn.is-primary { background:var(--kf-primary); border-color:var(--kf-primary); color:var(--kf-primary-foreground); }
 .chat-mini-btn:disabled { opacity:.55; cursor:not-allowed; }
 .chat-composer-area { display:flex; flex-direction:column; align-items:center; }
 .chat-quote-card {
   display:flex; align-items:center; gap:10px;
-  width:calc(100% - 2 * var(--kb-space-4)); max-width:var(--kb-chat-content-max-width);
+  width:calc(100% - 2 * var(--kf-space-4)); max-width:var(--kf-chat-content-max-width);
   margin:0 auto 8px; padding:10px 12px;
-  border:1px solid var(--kb-border); border-inline-start:3px solid var(--kb-primary);
-  border-radius:var(--kb-radius-md); background:var(--kb-card);
+  border:1px solid var(--kf-border); border-inline-start:3px solid var(--kf-primary);
+  border-radius:var(--kf-radius-md); background:var(--kf-card);
   box-shadow:0 1px 2px rgba(15, 23, 42, 0.04);
   animation:chat-quote-in .16s ease-out;
 }
 .chat-quote-card-body { flex:1; min-width:0; }
 .chat-quote-card-label {
   display:flex; align-items:center; gap:4px;
-  margin-bottom:2px; font-size:var(--kb-fs-xs); font-weight:600; color:var(--kb-primary);
+  margin-bottom:2px; font-size:var(--kf-fs-xs); font-weight:600; color:var(--kf-primary);
 }
 .chat-quote-card-text {
   margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
-  overflow:hidden; font-size:var(--kb-fs-caption); line-height:1.55;
-  color:var(--kb-muted-foreground); white-space:normal; overflow-wrap:anywhere;
+  overflow:hidden; font-size:var(--kf-fs-caption); line-height:1.55;
+  color:var(--kf-muted-foreground); white-space:normal; overflow-wrap:anywhere;
 }
 .chat-quote-card-close {
   flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center;
-  width:28px; height:28px; border:0; border-radius:var(--kb-radius-sm);
-  background:transparent; color:var(--kb-muted-foreground); cursor:pointer;
+  width:28px; height:28px; border:0; border-radius:var(--kf-radius-sm);
+  background:transparent; color:var(--kf-muted-foreground); cursor:pointer;
   transition:background .15s ease, color .15s ease;
 }
-.chat-quote-card-close:hover { background:var(--kb-muted); color:var(--kb-foreground); }
-.chat-quote-card-close:focus-visible { outline:2px solid var(--kb-primary); outline-offset:1px; }
+.chat-quote-card-close:hover { background:var(--kf-muted); color:var(--kf-foreground); }
+.chat-quote-card-close:focus-visible { outline:2px solid var(--kf-primary); outline-offset:1px; }
 @keyframes chat-quote-in {
   from { opacity:0; transform:translateY(4px); }
   to { opacity:1; transform:none; }

@@ -18,7 +18,7 @@ describe('PageHeader shared header without back button', () => {
       slots: { actions: '<button class="refresh-action">刷新</button>' },
       global: { stubs: { RouterLink: { props: ['to'], template: '<a :href="to"><slot /></a>' } } },
     })
-    expect(wrapper.find('.kb-page-back').exists()).toBe(false)
+    expect(wrapper.find('.kf-page-back').exists()).toBe(false)
     expect(wrapper.find('button[aria-label^="返回"]').exists()).toBe(false)
     expect(wrapper.get('h1').text()).toBe('学习分析')
     expect(wrapper.text()).toContain('查看学习进展')

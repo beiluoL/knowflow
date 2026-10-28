@@ -1,25 +1,25 @@
 <template>
   <section class="graph-explorer" :aria-label="title">
     <GraphToolbar label="图谱画布操作">
-      <template v-if="searchable" #search><div class="kb-field"><input v-model="search" type="search" class="kb-input kb-form-control" aria-label="搜索图谱节点" placeholder="搜索全部节点名称…" @keydown.enter="searchFocus" /></div></template>
+      <template v-if="searchable" #search><div class="kf-field"><input v-model="search" type="search" class="kf-input kf-form-control" aria-label="搜索图谱节点" placeholder="搜索全部节点名称…" @keydown.enter="searchFocus" /></div></template>
       <template #filters><Select v-model="scope" aria-label="节点关联筛选" :options="scopeOptions" variant="pill" :panel-width="240" /><Select v-model="type" aria-label="节点类型筛选" :options="typeOptions" variant="pill" :panel-width="240" /></template>
       <template #actions><Button class="graph-icon-action" variant="secondary" icon-name="zoom-out" icon-only aria-label="缩小图谱" title="缩小图谱（−）" :disabled="!scene.nodes.length || camera.scale <= 0.05" @click="zoomAt(0.8)" /><output aria-label="画布缩放">{{ Math.round(camera.scale * 100) }}%</output><Button class="graph-icon-action" variant="secondary" icon-name="zoom-in" icon-only aria-label="放大图谱" title="放大图谱（+）" :disabled="!scene.nodes.length || camera.scale >= 2.5" @click="zoomAt(1.25)" /><Button variant="secondary" icon-name="maximize" aria-label="适应画布" title="显示当前子图全部节点与连线" :disabled="!scene.nodes.length" @click="schedule('fit')">适应画布</Button><Button variant="secondary" icon-name="rotate-ccw" aria-label="重置视图" title="恢复默认可读密度并取消选择" :disabled="!scene.nodes.length" @click="resetView">重置</Button></template>
     </GraphToolbar>
     <p class="graph-count" role="status" aria-live="polite">显示 {{ scene.nodes.length }} / {{ nodes.length }} 个节点 · {{ scene.edges.length }} / {{ edges.length }} 条关系 · 孤立 {{ inspection.isolated }} 个<span v-if="searchText"> · 名称匹配 {{ scene.matches }} 个</span></p>
     <div ref="viewport" class="graph-viewport" tabindex="0" aria-label="图谱画布，可拖拽平移，滚轮缩放" @wheel="wheel" @pointerdown="startPan" @pointermove="movePan" @pointerup="endPan" @pointercancel="endPan" @keydown="canvasKey">
       <svg width="100%" height="100%" :viewBox="`0 0 ${size.width || 800} ${size.height || 520}`" :aria-label="title" role="group">
-        <defs><marker :id="markerId" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--kb-muted-foreground)" /></marker></defs>
+        <defs><marker :id="markerId" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--kf-muted-foreground)" /></marker></defs>
         <g class="graph-camera" :transform="`translate(${camera.x},${camera.y}) scale(${camera.scale})`">
           <g v-for="(edge,i) in paths" :key="i" class="graph-edge" :opacity="selectedId && edge.source !== selectedId && edge.target !== selectedId ? 0.12 : selectedId ? 0.9 : 0.5">
-            <path :d="edge.path" fill="none" :stroke="selectedId && (edge.source === selectedId || edge.target === selectedId) ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)'" :stroke-dasharray="edge.relation === 'COMPONENT' ? '5 4' : undefined" :stroke-width="selectedId && (edge.source === selectedId || edge.target === selectedId) ? 2 : 1.2" :marker-end="edge.directed ? `url(#${markerId})` : undefined" />
+            <path :d="edge.path" fill="none" :stroke="selectedId && (edge.source === selectedId || edge.target === selectedId) ? 'var(--kf-primary)' : 'var(--kf-muted-foreground)'" :stroke-dasharray="edge.relation === 'COMPONENT' ? '5 4' : undefined" :stroke-width="selectedId && (edge.source === selectedId || edge.target === selectedId) ? 2 : 1.2" :marker-end="edge.directed ? `url(#${markerId})` : undefined" />
             <title>{{ edge.label || edge.relation }}</title>
 
           </g>
-          <g v-for="label in edgeLabels" :key="label.index" class="graph-edge-label" pointer-events="none"><rect :x="label.x-label.width/2" :y="label.y-label.height/2" :width="label.width" :height="label.height" rx="4" fill="var(--kb-card)" stroke="var(--kb-border)" /><text :x="label.x" :y="label.y" dominant-baseline="central" text-anchor="middle" class="edge-label">{{ label.displayText }}</text><title>{{ label.text }}</title></g>
+          <g v-for="label in edgeLabels" :key="label.index" class="graph-edge-label" pointer-events="none"><rect :x="label.x-label.width/2" :y="label.y-label.height/2" :width="label.width" :height="label.height" rx="4" fill="var(--kf-card)" stroke="var(--kf-border)" /><text :x="label.x" :y="label.y" dominant-baseline="central" text-anchor="middle" class="edge-label">{{ label.displayText }}</text><title>{{ label.text }}</title></g>
           <g v-for="node in scene.positioned" :key="node.id" class="graph-node" role="button" tabindex="0" :aria-label="node.label" :aria-pressed="selectedId === node.id" :opacity="selectedId && selectedId !== node.id && !inspection.neighbors.get(selectedId)?.has(node.id) ? 0.3 : 1" @click.stop="choose(node.id)" @keydown.enter.stop.prevent="choose(node.id)" @keydown.space.stop.prevent="choose(node.id)">
             <title>{{ node.label }} · {{ node.typeLabel || node.type }}</title>
-            <rect :x="node.x-node.width/2" :y="node.y-node.height/2" :width="node.width" :height="node.height" rx="10" :fill="selectedId === node.id ? 'var(--kb-primary-soft)' : 'var(--kb-card)'" :stroke="selectedId === node.id ? 'var(--kb-primary)' : 'var(--kb-border)'" :stroke-width="selectedId === node.id ? 1.75 : 1.25" />
-            <rect :x="node.x-node.width/2+10" :y="node.y-node.height/2+12" width="3" height="48" rx="1.5" :fill="node.color || 'var(--kb-primary)'" />
+            <rect :x="node.x-node.width/2" :y="node.y-node.height/2" :width="node.width" :height="node.height" rx="10" :fill="selectedId === node.id ? 'var(--kf-primary-soft)' : 'var(--kf-card)'" :stroke="selectedId === node.id ? 'var(--kf-primary)' : 'var(--kf-border)'" :stroke-width="selectedId === node.id ? 1.75 : 1.25" />
+            <rect :x="node.x-node.width/2+10" :y="node.y-node.height/2+12" width="3" height="48" rx="1.5" :fill="node.color || 'var(--kf-primary)'" />
             <text class="node-label" :x="node.x" :y="node.y-12" text-anchor="middle"><tspan v-for="(line,i) in graphLabelLines(node.label)" :key="i" :x="node.x" :dy="i ? 18 : 0">{{ line }}</tspan></text>
             <text class="node-type" :x="node.x-node.width/2+22" :y="node.y+27">{{ node.typeLabel || node.type }} · {{ inspection.degree.get(node.id) || 0 }} 条关系</text>
             <text v-if="node.annotation" class="node-type" :x="node.x+node.width/2-12" :y="node.y+27" text-anchor="end">{{ node.annotation }}</text>
@@ -103,22 +103,22 @@ defineExpose({schedule,scene,camera,size})
 </script>
 <style scoped>
 .graph-explorer { min-width:0; }
-.graph-count { margin-block:var(--kb-space-3); color:var(--kb-muted-foreground); font-size:var(--kb-fs-caption); }
-.graph-viewport { position:relative; width:100%; height:clamp(22rem,50dvh,36rem); min-width:0; overflow:hidden; border:1px solid var(--kb-border); border-radius:var(--kb-radius-md); background:var(--kb-background); touch-action:none; user-select:none; cursor:grab; }
+.graph-count { margin-block:var(--kf-space-3); color:var(--kf-muted-foreground); font-size:var(--kf-fs-caption); }
+.graph-viewport { position:relative; width:100%; height:clamp(22rem,50dvh,36rem); min-width:0; overflow:hidden; border:1px solid var(--kf-border); border-radius:var(--kf-radius-md); background:var(--kf-background); touch-action:none; user-select:none; cursor:grab; }
 .graph-viewport:active { cursor:grabbing; }
 .graph-viewport svg { display:block; }
-.node-label { fill:var(--kb-foreground); font-size:var(--kb-fs-body-md); font-weight:600; }
-.node-type,.edge-label { fill:var(--kb-muted-foreground); font-size:var(--kb-fs-xs); }
+.node-label { fill:var(--kf-foreground); font-size:var(--kf-fs-body-md); font-weight:600; }
+.node-type,.edge-label { fill:var(--kf-muted-foreground); font-size:var(--kf-fs-xs); }
 .graph-node { cursor:pointer; }
 .graph-node:focus { outline:none; }
-.graph-node:focus-visible rect:first-of-type { stroke:var(--kb-ring); stroke-width:3; }
-.graph-footer { display:flex; flex-wrap:wrap; align-items:center; gap:var(--kb-space-2); margin-top:var(--kb-space-3); font-size:var(--kb-fs-caption); color:var(--kb-muted-foreground); }
+.graph-node:focus-visible rect:first-of-type { stroke:var(--kf-ring); stroke-width:3; }
+.graph-footer { display:flex; flex-wrap:wrap; align-items:center; gap:var(--kf-space-2); margin-top:var(--kf-space-3); font-size:var(--kf-fs-caption); color:var(--kf-muted-foreground); }
 .graph-footer > span { flex:1; min-width:12rem; }
-.graph-footer :deep(button:focus-visible),.graph-viewport:focus-visible { box-shadow:none; outline:2px solid var(--kb-ring); outline-offset:2px; }
-.graph-empty { position:absolute; inset:40% var(--kb-space-4) auto; text-align:center; color:var(--kb-muted-foreground); }
-.graph-relation-list { margin-top:var(--kb-space-3); font-size:var(--kb-fs-body-sm); }
-.graph-relation-list summary { cursor:pointer; color:var(--kb-muted-foreground); }
-.graph-relation-list ul { max-height:12rem; overflow:auto; list-style:none; padding:0; margin-block:var(--kb-space-2); }
-.graph-relation-list li { display:flex; gap:var(--kb-space-2); flex-wrap:wrap; padding-block:var(--kb-space-2); border-bottom:1px solid var(--kb-border); overflow-wrap:anywhere; }
-.graph-relation-list strong { font-weight:500; color:var(--kb-muted-foreground); }
+.graph-footer :deep(button:focus-visible),.graph-viewport:focus-visible { box-shadow:none; outline:2px solid var(--kf-ring); outline-offset:2px; }
+.graph-empty { position:absolute; inset:40% var(--kf-space-4) auto; text-align:center; color:var(--kf-muted-foreground); }
+.graph-relation-list { margin-top:var(--kf-space-3); font-size:var(--kf-fs-body-sm); }
+.graph-relation-list summary { cursor:pointer; color:var(--kf-muted-foreground); }
+.graph-relation-list ul { max-height:12rem; overflow:auto; list-style:none; padding:0; margin-block:var(--kf-space-2); }
+.graph-relation-list li { display:flex; gap:var(--kf-space-2); flex-wrap:wrap; padding-block:var(--kf-space-2); border-bottom:1px solid var(--kf-border); overflow-wrap:anywhere; }
+.graph-relation-list strong { font-weight:500; color:var(--kf-muted-foreground); }
 </style>

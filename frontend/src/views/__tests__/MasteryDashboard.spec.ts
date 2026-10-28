@@ -128,7 +128,7 @@ describe('P1-D 成功路径 —— 数据 / 真实空 / 错误必须三态可分
 
     expect(w.find('[data-test="category-panel"]').text()).toContain('前端开发')
     expect(w.find('[data-test="knowledge-panel"]').text()).toContain('JVM G1 回收器')
-    expect(w.find('.kb-state-error').exists()).toBe(false)
+    expect(w.find('.kf-state-error').exists()).toBe(false)
     expect(w.find('[data-test="mastery-empty"]').exists()).toBe(false)
   })
 
@@ -142,7 +142,7 @@ describe('P1-D 成功路径 —— 数据 / 真实空 / 错误必须三态可分
     expect(w.find('[data-test="mastery-empty"]').exists()).toBe(true)
     expect(w.text()).toContain('还没有足够的学习数据')
     // 真·空 与 失败 必须可区分：确实没数据时不允许出现错误态
-    expect(w.find('.kb-state-error').exists()).toBe(false)
+    expect(w.find('.kf-state-error').exists()).toBe(false)
   })
 
   it('有闪卡数据但确实没有答题记录 → 面板级安静空态（不是错误态）', async () => {
@@ -157,7 +157,7 @@ describe('P1-D 成功路径 —— 数据 / 真实空 / 错误必须三态可分
     expect(catEmpty.text()).toContain('暂无分类掌握数据')
     expect(w.find('[data-test="knowledge-empty"]').exists()).toBe(true)
     // 面板空 ≠ 面板错
-    expect(w.find('.kb-state-error').exists()).toBe(false)
+    expect(w.find('.kf-state-error').exists()).toBe(false)
   })
 })
 
@@ -170,8 +170,8 @@ describe('P1-D 失败路径 —— 面板失败必须显示错误态，绝不伪
     const w = await mountPage()
 
     const catPanel = w.find('[data-test="category-panel"]')
-    expect(catPanel.find('.kb-state-error').exists()).toBe(true)
-    expect(catPanel.find('.kb-state-title').text()).toBe('服务暂时不可用')
+    expect(catPanel.find('.kf-state-error').exists()).toBe(true)
+    expect(catPanel.find('.kf-state-title').text()).toBe('服务暂时不可用')
     // 关键：失败 ≠ 空
     expect(catPanel.text()).not.toContain('暂无分类掌握数据')
     // 一个面板失败不影响另一个面板（§六）
@@ -192,7 +192,7 @@ describe('P1-D 失败路径 —— 面板失败必须显示错误态，绝不伪
     const w = await mountPage()
 
     const kpPanel = w.find('[data-test="knowledge-panel"]')
-    expect(kpPanel.find('.kb-state-error').exists()).toBe(true)
+    expect(kpPanel.find('.kf-state-error').exists()).toBe(true)
     expect(kpPanel.text()).not.toContain('暂无知识点掌握度')
     expect(w.find('[data-test="category-panel"]').text()).toContain('前端开发')
   })
@@ -220,7 +220,7 @@ describe('P1-D 失败路径 —— 面板失败必须显示错误态，绝不伪
     // 修复前：categories 被吞成 []、核心指标全 0 → showPageEmpty 会显示「还没有足够的学习数据」，
     // 把系统故障说成「你没有数据」。
     expect(w.find('[data-test="mastery-empty"]').exists()).toBe(false)
-    expect(w.find('[data-test="category-panel"]').find('.kb-state-error').exists()).toBe(true)
+    expect(w.find('[data-test="category-panel"]').find('.kf-state-error').exists()).toBe(true)
   })
 })
 
@@ -240,7 +240,7 @@ describe('P1-D §九 —— 状态码语义：401/403/404/400/500/网络各自�
     const w = await mountPage()
 
     const catPanel = w.find('[data-test="category-panel"]')
-    expect(catPanel.find('.kb-state-title').text()).toBe(title)
+    expect(catPanel.find('.kf-state-title').text()).toBe(title)
   })
 
   it('403 不得被归类成「服务暂时不可用」；500 才允许', async () => {
@@ -248,12 +248,12 @@ describe('P1-D §九 —— 状态码语义：401/403/404/400/500/网络各自�
     categoryMasteryMock.mockRejectedValue(httpError(403))
     knowledgeMasteryMock.mockResolvedValue([])
     let w = await mountPage()
-    expect(w.find('[data-test="category-panel"]').find('.kb-state-title').text()).not.toBe('服务暂时不可用')
+    expect(w.find('[data-test="category-panel"]').find('.kf-state-title').text()).not.toBe('服务暂时不可用')
 
     categoryMasteryMock.mockReset()
     categoryMasteryMock.mockRejectedValue(httpError(500))
     w = await mountPage()
-    expect(w.find('[data-test="category-panel"]').find('.kb-state-title').text()).toBe('服务暂时不可用')
+    expect(w.find('[data-test="category-panel"]').find('.kf-state-title').text()).toBe('服务暂时不可用')
   })
 
   it('离线（Network Error）→ 无法连接到服务，且错误态可重试', async () => {
@@ -266,8 +266,8 @@ describe('P1-D §九 —— 状态码语义：401/403/404/400/500/网络各自�
     const w = await mountPage()
 
     const catPanel = w.find('[data-test="category-panel"]')
-    expect(catPanel.find('.kb-state-title').text()).toBe('无法连接到服务')
-    expect(catPanel.find('.kb-state-retry').exists()).toBe(true)
+    expect(catPanel.find('.kf-state-title').text()).toBe('无法连接到服务')
+    expect(catPanel.find('.kf-state-retry').exists()).toBe(true)
   })
 })
 
@@ -280,21 +280,21 @@ describe('P1-D §八 —— 重试：只重新请求失败的那一块', () => {
     const w = await mountPage()
 
     const catPanel = w.find('[data-test="category-panel"]')
-    expect(catPanel.find('.kb-state-error').exists()).toBe(true)
+    expect(catPanel.find('.kf-state-error').exists()).toBe(true)
 
     const callsBefore = categoryMasteryMock.mock.calls.length
     const masteryCallsBefore = masteryMock.mock.calls.length
 
     // 让重试成功
     categoryMasteryMock.mockResolvedValue(CATEGORIES)
-    await catPanel.find('.kb-state-retry').trigger('click')
+    await catPanel.find('.kf-state-retry').trigger('click')
     await flushPromises()
     await flushPromises()
 
     expect(categoryMasteryMock.mock.calls.length).toBe(callsBefore + 1)
     // 不刷新整页：核心指标接口不应被再次调用
     expect(masteryMock.mock.calls.length).toBe(masteryCallsBefore)
-    expect(w.find('[data-test="category-panel"]').find('.kb-state-error').exists()).toBe(false)
+    expect(w.find('[data-test="category-panel"]').find('.kf-state-error').exists()).toBe(false)
     expect(w.find('[data-test="category-panel"]').text()).toContain('前端开发')
   })
 
@@ -304,12 +304,12 @@ describe('P1-D §八 —— 重试：只重新请求失败的那一块', () => {
     knowledgeMasteryMock.mockResolvedValue([])
 
     const w = await mountPage()
-    await w.find('[data-test="category-panel"]').find('.kb-state-retry').trigger('click')
+    await w.find('[data-test="category-panel"]').find('.kf-state-retry').trigger('click')
     await flushPromises()
     await flushPromises()
 
     const catPanel = w.find('[data-test="category-panel"]')
-    expect(catPanel.find('.kb-state-error').exists()).toBe(true)
+    expect(catPanel.find('.kf-state-error').exists()).toBe(true)
     expect(catPanel.text()).not.toContain('暂无分类掌握数据')
   })
 })

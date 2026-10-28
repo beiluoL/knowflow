@@ -1,7 +1,7 @@
 <template>
   <WorkbenchShell stage="review" app-key="memory-palace" title="知识复习 · 记忆宫殿" subtitle="把知识放进熟悉的空间，沿位点顺序主动回忆。" help="选择熟悉的房间或街道，为知识添加位点和联想图像。宫殿用于空间回忆，不替代间隔重复排程，也不自动代表掌握度。" :revision="revision" @ready="load">
     <template #actions>
-      <button class="kb-btn kb-btn-primary wb-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" data-test="palace-create" @click="showCreate = true">
+      <button class="kf-btn kf-btn-primary wb-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" data-test="palace-create" @click="showCreate = true">
         <Icon name="plus" :size="16" aria-hidden="true" /> 新建宫殿
       </button>
     </template>
@@ -10,7 +10,7 @@
     <div class="wb-page" :style="{ '--mc': themeColor }">
     <!-- ============ Palace Grid ============ -->
     <section>
-      <div v-if="error" role="alert" class="workbench-inline-error">{{ error }} <button class="kb-btn" @click="load">重试</button></div>
+      <div v-if="error" role="alert" class="workbench-inline-error">{{ error }} <button class="kf-btn" @click="load">重试</button></div>
       <div v-else-if="loading" class="wb-palace-grid">
         <div v-for="n in 3" :key="n" class="wb-palace-card wb-skeleton">
           <div class="wb-skel-line" style="width: 40px; height: 40px; border-radius: 10px;"></div>
@@ -23,7 +23,7 @@
         <div class="wb-empty-icon"><Icon name="map-pin" :size="40" /></div>
         <h3 class="wb-empty-title">还没有记忆宫殿</h3>
         <p class="wb-empty-desc">创建一个你熟悉的空间场景，开始挂靠知识点。</p>
-        <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = true">
+        <button class="kf-btn kf-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = true">
           <Icon name="plus" :size="15" aria-hidden="true" /> 创建第一个
         </button>
       </div>
@@ -32,8 +32,8 @@
         <article
           v-for="p in list"
           :key="p.id"
-          class="wb-palace-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
-          :style="{ '--pc': p.coverColor || 'var(--kb-primary)' }"
+          class="wb-palace-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
+          :style="{ '--pc': p.coverColor || 'var(--kf-primary)' }"
           role="button"
           tabindex="0"
           @keydown.enter.prevent="($event.target as HTMLElement).click()"
@@ -61,7 +61,7 @@
               进入编辑
               <Icon name="arrow-right" :size="13" aria-hidden="true" />
             </span>
-            <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="删除" @click.stop="remove(p)">
+            <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" title="删除" @click.stop="remove(p)">
               <Icon name="trash-2" :size="14" aria-hidden="true" />
             </button>
           </div>
@@ -70,28 +70,28 @@
     </section>
 
     <!-- ============ 新建宫殿 Drawer ============ -->
-    <Teleport to="body"><div v-if="showCreate" class="workbench-drawer-mask focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @keydown.enter.prevent="($event.target as HTMLElement).click()" @click.self="showCreate = false">
+    <Teleport to="body"><div v-if="showCreate" class="workbench-drawer-mask focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" role="button" tabindex="0" @keydown.enter.prevent="($event.target as HTMLElement).click()" @click.self="showCreate = false">
       <div class="wb-drawer workbench-drawer" role="dialog" aria-modal="true" aria-label="新建记忆宫殿">
         <header class="wb-drawer-head">
           <div>
             <span class="wb-eyebrow wb-eyebrow-sm">New Palace</span>
             <h2 class="wb-drawer-title">新建记忆宫殿</h2>
           </div>
-          <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = false"><Icon name="x" :size="18" aria-hidden="true" /></button>
+          <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = false"><Icon name="x" :size="18" aria-hidden="true" /></button>
         </header>
         <div class="wb-drawer-body">
           <div class="wb-field">
             <label class="wb-label">名称 <span class="wb-req">*</span></label>
-            <input v-model="form.name" class="kb-input transition-colors kb-form-control" placeholder="如：我的书房" />
+            <input v-model="form.name" class="kf-input transition-colors kf-form-control" placeholder="如：我的书房" />
           </div>
           <div class="wb-field">
             <label class="wb-label">描述</label>
-            <input v-model="form.description" class="kb-input transition-colors kb-form-control" placeholder="场景描述" />
+            <input v-model="form.description" class="kf-input transition-colors kf-form-control" placeholder="场景描述" />
           </div>
           <div class="wb-field-row">
             <div class="wb-field">
               <label class="wb-label">主题</label>
-              <select v-model="form.theme" class="kb-input transition-colors kb-select kb-form-control">
+              <select v-model="form.theme" class="kf-input transition-colors kf-select kf-form-control">
                 <option value="ROOM">房间</option>
                 <option value="STREET">街道</option>
                 <option value="CAMPUS">校园</option>
@@ -104,7 +104,7 @@
                 <button
                   v-for="c in colorPresets"
                   :key="c"
-                  class="wb-color-dot focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                  class="wb-color-dot focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
                   :class="{ 'is-active': form.coverColor === c }"
                   :style="{ background: c }"
                   @click="form.coverColor = c"
@@ -114,8 +114,8 @@
           </div>
         </div>
         <footer class="wb-drawer-foot">
-          <button class="kb-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = false">取消</button>
-          <button class="kb-btn kb-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" data-test="palace-save" :disabled="saving" @click="save">
+          <button class="kf-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = false">取消</button>
+          <button class="kf-btn kf-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" data-test="palace-save" :disabled="saving" @click="save">
             <Icon name="check" :size="15" aria-hidden="true" /> 保存
           </button>
         </footer>
@@ -139,15 +139,15 @@ import type { WbPalace, WbPalacePayload } from '@/api/types'
 const router = useRouter()
 
 
-const themeColor = 'var(--kb-primary)'
+const themeColor = 'var(--kf-primary)'
 
 const list = ref<WbPalace[]>([])
 const loading = ref(true), error = ref(''), saving = ref(false), revision = ref(0)
 let request = 0
 const showCreate = ref(false)
-const form = reactive<WbPalacePayload>({ name: '', description: '', theme: 'ROOM', coverColor: 'var(--kb-primary)' })
+const form = reactive<WbPalacePayload>({ name: '', description: '', theme: 'ROOM', coverColor: 'var(--kf-primary)' })
 
-const colorPresets = ['var(--kb-primary)', 'var(--kb-accent)', 'var(--kb-warning)', 'var(--kb-success)', 'var(--kb-highlight)', 'var(--kb-danger)']
+const colorPresets = ['var(--kf-primary)', 'var(--kf-accent)', 'var(--kf-warning)', 'var(--kf-success)', 'var(--kf-highlight)', 'var(--kf-danger)']
 
 
 async function load() {
@@ -173,7 +173,7 @@ async function save() {
     await createPalace({ ...form })
     notify('已创建', 'success')
     showCreate.value = false
-    Object.assign(form, { name: '', description: '', theme: 'ROOM', coverColor: 'var(--kb-primary)' })
+    Object.assign(form, { name: '', description: '', theme: 'ROOM', coverColor: 'var(--kf-primary)' })
     revision.value++; await load()
   } catch (e) {
     notify(getApiError(e, '保存失败，草稿已保留'), 'error')
@@ -207,9 +207,9 @@ onBeforeUnmount(() => { request++ })
   flex-wrap: wrap;
 }
 .wb-ghost-btn {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  color: var(--kb-foreground);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  color: var(--kf-foreground);
 }
 .wb-ghost-btn:hover { border-color: var(--mc); color: var(--mc); }
 
@@ -222,15 +222,15 @@ onBeforeUnmount(() => { request++ })
 .wb-palace-card {
   display: flex;
   flex-direction: column;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   transition: all 0.2s ease;
   overflow: hidden;
 }
 .wb-palace-card:hover {
-  border-color: color-mix(in srgb, var(--pc) 40%, var(--kb-border));
+  border-color: color-mix(in srgb, var(--pc) 40%, var(--kf-border));
   box-shadow: var(--shadow-card-hover);
   transform: translateY(-3px);
 }
@@ -242,7 +242,7 @@ onBeforeUnmount(() => { request++ })
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--pc), color-mix(in srgb, var(--pc) 60%, var(--kb-foreground)));
+  background: linear-gradient(135deg, var(--pc), color-mix(in srgb, var(--pc) 60%, var(--kf-foreground)));
   overflow: hidden;
 }
 .wb-palace-cover-icon {
@@ -300,13 +300,13 @@ onBeforeUnmount(() => { request++ })
   font-family: var(--font-serif);
   font-size: 18px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
 }
 .wb-palace-desc {
   font-size: 13px;
   line-height: 1.6;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -320,8 +320,8 @@ onBeforeUnmount(() => { request++ })
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  border-top: 1px solid var(--kb-border);
-  background: var(--kb-background);
+  border-top: 1px solid var(--kf-border);
+  background: var(--kf-background);
 }
 .wb-palace-cta {
   display: inline-flex;
@@ -351,8 +351,8 @@ onBeforeUnmount(() => { request++ })
 }
 .wb-color-dot:hover { transform: scale(1.1); }
 .wb-color-dot.is-active {
-  border-color: var(--kb-foreground);
-  box-shadow: 0 0 0 2px var(--kb-card);
+  border-color: var(--kf-foreground);
+  box-shadow: 0 0 0 2px var(--kf-card);
 }
 
 @media (max-width: 1100px) {

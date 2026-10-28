@@ -64,7 +64,7 @@
               <td class="px-4 py-3 whitespace-nowrap">
                 <div class="flex items-center gap-1">
                   <button
-                    class="p-1 hover:bg-gray-100 rounded text-muted-foreground hover:text-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                    class="p-1 hover:bg-gray-100 rounded text-muted-foreground hover:text-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
                     :title="row.status === 1 ? '下架（学习端不再可见）' : '上架'"
                     :aria-label="row.status === 1 ? '下架' : '上架'"
                     @click.stop="toggleStatus(row)"
@@ -72,7 +72,7 @@
                     <Icon :name="row.status === 1 ? 'eye-off' : 'eye'" :size="16" aria-hidden="true" />
                   </button>
                   <button
-                    class="p-1 hover:bg-gray-100 rounded text-muted-foreground hover:text-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                    class="p-1 hover:bg-gray-100 rounded text-muted-foreground hover:text-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
                     title="编辑"
                     aria-label="编辑"
                     @click.stop="openEdit(row)"
@@ -80,7 +80,7 @@
                     <Icon name="edit" :size="16" aria-hidden="true" />
                   </button>
                   <button
-                    class="p-1 hover:bg-gray-100 rounded text-muted-foreground hover:text-danger-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                    class="p-1 hover:bg-gray-100 rounded text-muted-foreground hover:text-danger-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
                     title="删除"
                     aria-label="删除"
                     @click.stop="onDelete(row)"
@@ -106,7 +106,7 @@
         <div class="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
           <h3 id="scenario-editor-title" class="text-lg font-semibold text-foreground">{{ editingId ? '编辑场景' : '新建场景' }}</h3>
           <button
-            class="p-1 hover:bg-gray-100 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+            class="p-1 hover:bg-gray-100 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
             :aria-label="'关闭'" :disabled="saving || confirming"
             @click="closeModal"
           >
@@ -137,7 +137,7 @@
               id="scenario-context" v-model="form.contextText"
               rows="2"
               placeholder="给用户一段贴近真实工作 / 学习的情景描述，便于代入作答"
-              class="w-full px-3 py-2 text-sm hover:border-primary-300 transition-colors kb-textarea kb-form-control"
+              class="w-full px-3 py-2 text-sm hover:border-primary-300 transition-colors kf-textarea kf-form-control"
             ></textarea>
           </div>
 
@@ -148,7 +148,7 @@
               rows="2"
               placeholder="如：请描述你的排查思路（覆盖要点关键词即可命中）"
               :maxlength="1000"
-              class="w-full px-3 py-2 text-sm hover:border-primary-300 transition-colors kb-textarea kb-form-control"
+              class="w-full px-3 py-2 text-sm hover:border-primary-300 transition-colors kf-textarea kf-form-control"
             ></textarea>
           </div>
 
@@ -175,7 +175,7 @@
                   class="sm:flex-[1.6]"
                 />
                 <button
-                  class="p-2 hover:bg-gray-100 rounded shrink-0 text-muted-foreground hover:text-danger-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                  class="p-2 hover:bg-gray-100 rounded shrink-0 text-muted-foreground hover:text-danger-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
                   :aria-label="'删除要点 ' + (index + 1)"
                   :title="'删除该要点'"
                   @click="form.points.splice(index, 1)"
@@ -185,14 +185,14 @@
               </div>
             </div>
             <button
-              class="mt-2 inline-flex items-center gap-1 text-sm text-primary-500 hover:text-primary-600 px-2 py-1 rounded hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="mt-2 inline-flex items-center gap-1 text-sm text-primary-500 hover:text-primary-600 px-2 py-1 rounded hover:bg-primary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
               @click="form.points.push({ label: '', keywordsLine: '' })"
             >
               <Icon name="plus" :size="16" aria-hidden="true" />添加要点
             </button>
           </div>
         </fieldset>
-        <p v-if="formError" class="px-6 py-2 text-sm" style="color:var(--kb-danger)" role="alert">{{ formError }}</p>
+        <p v-if="formError" class="px-6 py-2 text-sm" style="color:var(--kf-danger)" role="alert">{{ formError }}</p>
         <p class="px-6 text-sm" role="status" aria-live="polite">{{ saving ? '正在保存，等待服务端确认…' : dirty ? '有未保存修改' : '' }}</p>
         <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border shrink-0">
           <Button variant="secondary" :disabled="saving || confirming" @click="closeModal">取消</Button>
@@ -516,7 +516,7 @@ onBeforeUnmount(() => { catalogRequest++; listRequest++ })
 
 <style scoped>
 .scenario-admin { min-width:0; }
-.scenario-admin :deep(tbody tr:hover) { background:var(--kb-muted); }
+.scenario-admin :deep(tbody tr:hover) { background:var(--kf-muted); }
 @media(prefers-reduced-motion:reduce) { .scenario-admin, .scenario-admin * { animation:none; transition:none; } }
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out;

@@ -24,7 +24,7 @@ describe('real exam observation panel', () => {
   it('shows API failure and retries rather than inventing an empty diagnosis', async () => {
     api.diagnosis.mockRejectedValueOnce(new Error('诊断网络失败')); const { wrapper } = await open()
     expect(wrapper.find('[role="alert"]').text()).toContain('诊断网络失败'); expect(wrapper.text()).not.toContain('没有可展示的考试观察')
-    await wrapper.find('.kb-state-retry').trigger('click'); await flushPromises(); expect(wrapper.text()).toContain('GC 的观察题'); wrapper.unmount()
+    await wrapper.find('.kf-state-retry').trigger('click'); await flushPromises(); expect(wrapper.text()).toContain('GC 的观察题'); wrapper.unmount()
   })
   it('renders truthful unknown accuracy, missing material mappings and no candidate disabled action', async () => {
     api.diagnosis.mockResolvedValueOnce({ ...diagnosis, objectiveAccuracy: null, topics: [{ ...topic, materials: [], practiceCandidates: [], recommendedCount: 0, retestAfter: null }] })

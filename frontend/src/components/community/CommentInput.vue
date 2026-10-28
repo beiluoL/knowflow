@@ -14,7 +14,7 @@
         :maxlength="maxLength"
         :placeholder="placeholder"
         :disabled="submitting"
-        class="flex-1 px-3 py-2 text-sm resize-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed kb-textarea kb-form-control"
+        class="flex-1 px-3 py-2 text-sm resize-none transition-colors disabled:opacity-60 disabled:cursor-not-allowed kf-textarea kf-form-control"
         :class="overLimit ? 'border-danger-400 focus:border-danger-500' : 'border-border hover:border-border focus:border-primary-400'"
         @keydown.ctrl.enter.prevent="handleSubmit"
         @keydown.meta.enter.prevent="handleSubmit"
@@ -26,13 +26,13 @@
           v-if="cancelable"
           type="button"
           :disabled="submitting"
-          class="px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground border border-border transition-colors hover:bg-muted active:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 disabled:opacity-50"
+          class="px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground border border-border transition-colors hover:bg-muted active:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 disabled:opacity-50"
           @click="handleCancel"
         >取消</button>
         <button
           type="button"
           :disabled="!canSubmit"
-          class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 transition-colors hover:bg-primary-600 active:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 transition-colors hover:bg-primary-600 active:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           @click="handleSubmit"
         >{{ submitting ? '提交中…' : submitText }}</button>
       </div>

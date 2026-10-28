@@ -1,6 +1,6 @@
 <template>
   <nav class="workbench-toolbar" aria-label="复习方式">
-    <RouterLink v-for="item in methods" :key="item.key" :to="item.route" class="kb-btn" :class="{ 'kb-btn-primary': active === item.key }" :aria-current="active === item.key ? 'page' : undefined"><Icon :name="item.icon" :size="16" />{{ item.key === 'spaced-review' ? '间隔重复' : item.name }}</RouterLink>
+    <RouterLink v-for="item in methods" :key="item.key" :to="item.route" class="kf-btn" :class="{ 'kf-btn-primary': active === item.key }" :aria-current="active === item.key ? 'page' : undefined"><Icon :name="item.icon" :size="16" />{{ item.key === 'spaced-review' ? '间隔重复' : item.name }}</RouterLink>
   </nav>
 </template>
 <script setup lang="ts">

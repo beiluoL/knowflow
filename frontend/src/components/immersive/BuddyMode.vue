@@ -8,7 +8,7 @@
         </h3>
         <button
         type="button"
-        class="join-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="join-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         @click="handleJoinGroup"
       >
           <Icon name="plus" :size="14" aria-hidden="true" />
@@ -30,14 +30,14 @@
         <li
           v-for="g in groups"
           :key="g.id"
-          class="group-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="group-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: activeGroupId === g.id }"
           role="button"
           tabindex="0"
           @click="selectGroup(g.id)"
           @keydown.enter.prevent.self="($event.target as HTMLElement).click()"
         >
-          <div class="group-icon" :style="{ background: g.color || 'var(--kb-primary)' }">
+          <div class="group-icon" :style="{ background: g.color || 'var(--kf-primary)' }">
             <span>{{ g.name.charAt(0) }}</span>
           </div>
           <div class="group-main">
@@ -64,7 +64,7 @@
       <template v-if="activeGroup">
         <header class="focus-head">
           <div class="active-group-info">
-            <div class="group-avatar" :style="{ background: activeGroup.color || 'var(--kb-primary)' }">
+            <div class="group-avatar" :style="{ background: activeGroup.color || 'var(--kf-primary)' }">
               <span>{{ activeGroup.name.charAt(0) }}</span>
             </div>
             <div>
@@ -82,7 +82,7 @@
             :inner-progress="pomodoroStore.progress"
             :outer-progress="groupProgress"
             :inner-color="pomodoroStore.modeColor.stroke"
-            outer-color="var(--kb-warning)"
+            outer-color="var(--kf-warning)"
             :size="280"
           >
             <div class="timer-center">
@@ -98,7 +98,7 @@
           <div class="controls">
             <button
             type="button"
-            class="ctrl-btn primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="ctrl-btn primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             @click="handleToggle"
           >
               <Icon :name="pomodoroStore.runtime.isRunning ? 'pause' : 'play'" :size="18" aria-hidden="true" />
@@ -106,7 +106,7 @@
             </button>
             <button
               type="button"
-              class="ctrl-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="ctrl-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
               @click="pomodoroStore.skip()"
             >
               <Icon name="skip-forward" :size="16" aria-hidden="true" />
@@ -114,7 +114,7 @@
             </button>
             <button
               type="button"
-              class="ctrl-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="ctrl-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
               @click="pomodoroStore.resetCurrentMode()"
             >
               <Icon name="rotate-ccw" :size="16" aria-hidden="true" />
@@ -202,14 +202,14 @@
           <div class="chat-input-wrap">
             <textarea
               v-model="chatInput"
-              class="chat-input transition-colors kb-textarea kb-form-control"
+              class="chat-input transition-colors kf-textarea kf-form-control"
               rows="2"
               placeholder="发一条鼓励的消息…"
               @keydown.enter.ctrl="handleSendMessage"
             />
             <button
               type="button"
-              class="send-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="send-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
               :disabled="!chatInput.trim()"
               @click="handleSendMessage"
             >
@@ -467,7 +467,7 @@ onUnmounted(async () => {
   gap: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
 }
 
@@ -479,21 +479,21 @@ onUnmounted(async () => {
   padding: 0 10px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--kb-primary);
-  background: color-mix(in srgb, var(--kb-primary) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--kb-primary) 25%, transparent);
+  color: var(--kf-primary);
+  background: color-mix(in srgb, var(--kf-primary) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kf-primary) 25%, transparent);
   border-radius: 999px;
   cursor: pointer;
   transition: background 0.15s ease;
 }
 .join-btn:hover {
-  background: color-mix(in srgb, var(--kb-primary) 20%, transparent);
+  background: color-mix(in srgb, var(--kf-primary) 20%, transparent);
 }
 
 .group-switch {
   font-size: 12px;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 3px 8px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 999px;
@@ -508,7 +508,7 @@ onUnmounted(async () => {
   justify-content: center;
   gap: 8px;
   padding: 24px 8px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 13px;
 }
 .empty-illustration {
@@ -517,7 +517,7 @@ onUnmounted(async () => {
 }
 .empty-text {
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
 }
 .empty-sub {
@@ -570,8 +570,8 @@ onUnmounted(async () => {
   background: rgba(255, 255, 255, 0.06);
 }
 .group-card.active {
-  background: color-mix(in srgb, var(--kb-primary) 10%, transparent);
-  border-color: color-mix(in srgb, var(--kb-primary) 30%, transparent);
+  background: color-mix(in srgb, var(--kf-primary) 10%, transparent);
+  border-color: color-mix(in srgb, var(--kf-primary) 30%, transparent);
 }
 
 .group-icon,
@@ -610,7 +610,7 @@ onUnmounted(async () => {
 .group-name {
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -626,7 +626,7 @@ onUnmounted(async () => {
   font-size: 10px;
   font-weight: 700;
   color: #fff;
-  background: var(--kb-danger);
+  background: var(--kf-danger);
   border-radius: 999px;
   flex-shrink: 0;
 }
@@ -634,7 +634,7 @@ onUnmounted(async () => {
 .group-desc {
   margin: 0 0 6px;
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -654,7 +654,7 @@ onUnmounted(async () => {
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .role-badge {
@@ -664,7 +664,7 @@ onUnmounted(async () => {
   border-radius: 4px;
 }
 .role-badge.owner {
-  color: var(--kb-warning);
+  color: var(--kf-warning);
   background: rgba(245, 158, 11, 0.15);
 }
 .role-badge.admin {
@@ -704,7 +704,7 @@ onUnmounted(async () => {
 .active-group-name {
   font-size: 16px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0 0 2px;
 }
 
@@ -714,14 +714,14 @@ onUnmounted(async () => {
   gap: 6px;
   margin: 0;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .online-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--kb-success);
+  background: var(--kf-success);
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
 
@@ -743,14 +743,14 @@ onUnmounted(async () => {
 .time-display {
   font-size: 52px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1;
   letter-spacing: -0.02em;
 }
 
 .sub-label {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   letter-spacing: 0.04em;
 }
 
@@ -759,7 +759,7 @@ onUnmounted(async () => {
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: var(--kb-warning);
+  color: var(--kf-warning);
   margin-top: 4px;
 }
 
@@ -777,7 +777,7 @@ onUnmounted(async () => {
   padding: 0 18px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
@@ -788,9 +788,9 @@ onUnmounted(async () => {
   background: rgba(255, 255, 255, 0.1);
 }
 .ctrl-btn.primary {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary-foreground, #fff);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary-foreground, #fff);
 }
 .ctrl-btn.primary:hover {
   filter: brightness(1.05);
@@ -809,7 +809,7 @@ onUnmounted(async () => {
   transition: background 0.3s ease, transform 0.3s ease;
 }
 .dot.done {
-  background: var(--kb-accent, var(--kb-success));
+  background: var(--kf-accent, var(--kf-success));
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
 }
 
@@ -831,19 +831,19 @@ onUnmounted(async () => {
   align-items: center;
   justify-content: center;
   background: rgba(255, 255, 255, 0.05);
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   opacity: 0.6;
   margin-bottom: 8px;
 }
 .guide-title {
   font-size: 20px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
 }
 .guide-text {
   font-size: 14px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin: 0;
 }
 
@@ -879,7 +879,7 @@ onUnmounted(async () => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--kb-primary), #8B5CF6);
+  background: linear-gradient(135deg, var(--kf-primary), #8B5CF6);
   color: #fff;
   font-size: 12px;
   font-weight: 700;
@@ -892,7 +892,7 @@ onUnmounted(async () => {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--kb-success);
+  background: var(--kf-success);
   border: 2px solid rgba(15, 23, 42, 1);
   animation: pulse 2s infinite;
 }
@@ -917,7 +917,7 @@ onUnmounted(async () => {
 .member-name {
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -933,19 +933,19 @@ onUnmounted(async () => {
 .status-tag {
   font-size: 10px;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 1px 5px;
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.05);
 }
 .status-tag.studying {
-  color: var(--kb-success);
+  color: var(--kf-success);
   background: rgba(16, 185, 129, 0.12);
 }
 
 .focus-time {
   font-size: 10px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .chat-box {
@@ -962,14 +962,14 @@ onUnmounted(async () => {
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 8px;
 }
 
 .chat-empty {
   padding: 10px 6px;
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   text-align: center;
 }
 .chat-empty p {
@@ -1011,11 +1011,11 @@ onUnmounted(async () => {
 }
 .chat-sender {
   font-weight: 600;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   margin-right: 4px;
 }
 .chat-content {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .chat-input-wrap {
@@ -1024,7 +1024,7 @@ onUnmounted(async () => {
   gap: 6px;
 }
 
-.chat-input:not(.kb-form-control) {
+.chat-input:not(.kf-form-control) {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
@@ -1036,13 +1036,13 @@ onUnmounted(async () => {
   box-sizing: border-box;
   padding: 8px 10px;
   font-size: 12px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   resize: none;
   font-family: inherit;
   line-height: 1.5;
 }
-.chat-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.chat-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 
 .send-btn {
@@ -1055,7 +1055,7 @@ onUnmounted(async () => {
   font-size: 12px;
   font-weight: 600;
   color: #fff;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   border: none;
   border-radius: 8px;
   cursor: pointer;

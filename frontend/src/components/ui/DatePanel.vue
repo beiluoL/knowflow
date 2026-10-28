@@ -370,23 +370,23 @@ defineExpose({ syncTo, refreshToday, focusActive })
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-2);
-  margin-bottom: var(--kb-space-3);
+  gap: var(--kf-space-2);
+  margin-bottom: var(--kf-space-3);
 }
 
 .dp-title {
   margin: 0;
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   white-space: nowrap;
 }
 
 .dp-nav {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-1);
+  gap: var(--kf-space-1);
 }
 
 .dp-nav-btn {
@@ -397,20 +397,20 @@ defineExpose({ syncTo, refreshToday, focusActive })
   height: 32px;
   padding: 0;
   border: 0;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease, color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
 }
 
 .dp-nav-btn:hover {
-  background: var(--kb-menu-hover);
-  color: var(--kb-foreground);
+  background: var(--kf-menu-hover);
+  color: var(--kf-foreground);
 }
 
 .dp-nav-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: -2px;
 }
 
@@ -421,7 +421,7 @@ defineExpose({ syncTo, refreshToday, focusActive })
 }
 
 .dp-weekdays {
-  margin-bottom: var(--kb-space-1);
+  margin-bottom: var(--kf-space-1);
 }
 
 .dp-weekday {
@@ -429,9 +429,9 @@ defineExpose({ syncTo, refreshToday, focusActive })
   align-items: center;
   justify-content: center;
   height: 28px;
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
+  color: var(--kf-muted-foreground);
 }
 
 .dp-grid {
@@ -451,17 +451,17 @@ defineExpose({ syncTo, refreshToday, focusActive })
 }
 
 .dp-cell--in-range {
-  background: var(--kb-primary-soft);
+  background: var(--kf-primary-soft);
 }
 
 .dp-cell--range-start {
-  border-top-left-radius: var(--kb-radius-sm);
-  border-bottom-left-radius: var(--kb-radius-sm);
+  border-top-left-radius: var(--kf-radius-sm);
+  border-bottom-left-radius: var(--kf-radius-sm);
 }
 
 .dp-cell--range-end {
-  border-top-right-radius: var(--kb-radius-sm);
-  border-bottom-right-radius: var(--kb-radius-sm);
+  border-top-right-radius: var(--kf-radius-sm);
+  border-bottom-right-radius: var(--kf-radius-sm);
 }
 
 .dp-day {
@@ -473,34 +473,34 @@ defineExpose({ syncTo, refreshToday, focusActive })
   height: 36px;
   padding: 0;
   border: 0;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font: inherit;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1;
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease, color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
 }
 
 .dp-day:hover {
-  background: var(--kb-menu-hover);
+  background: var(--kf-menu-hover);
 }
 
 .dp-day--outside {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   opacity: 0.55;
 }
 
 .dp-day--today {
-  background: var(--kb-primary-soft);
+  background: var(--kf-primary-soft);
   font-weight: 600;
 }
 
 .dp-day--selected,
 .dp-day--selected:hover {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   font-weight: 600;
 }
 
@@ -508,30 +508,30 @@ defineExpose({ syncTo, refreshToday, focusActive })
 .dp-day--range-start:hover,
 .dp-day--range-end,
 .dp-day--range-end:hover {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   font-weight: 600;
 }
 
 .dp-day--disabled,
 .dp-day--disabled:hover {
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   opacity: 0.38;
   cursor: not-allowed;
 }
 
 .dp-day:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: -2px;
 }
 
 .dp-day--selected:focus-visible {
-  outline-color: var(--kb-primary-foreground);
+  outline-color: var(--kf-primary-foreground);
 }
 
 .dp-day--disabled:focus-visible {
-  outline-color: var(--kb-muted-foreground);
+  outline-color: var(--kf-muted-foreground);
 }
 
 .dp-today-dot {
@@ -542,20 +542,20 @@ defineExpose({ syncTo, refreshToday, focusActive })
   height: 3px;
   margin-left: -1.5px;
   border-radius: 50%;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
 }
 
 .dp-day--selected .dp-today-dot {
-  background: var(--kb-primary-foreground);
+  background: var(--kf-primary-foreground);
 }
 
 .dp-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: var(--kb-space-3);
-  padding-top: var(--kb-space-3);
-  border-top: 1px solid var(--kb-border);
+  margin-top: var(--kf-space-3);
+  padding-top: var(--kf-space-3);
+  border-top: 1px solid var(--kf-border);
 }
 
 .dp-foot-spacer {
@@ -565,34 +565,34 @@ defineExpose({ syncTo, refreshToday, focusActive })
 .dp-link {
   display: inline-flex;
   align-items: center;
-  padding: var(--kb-space-1) var(--kb-space-2);
+  padding: var(--kf-space-1) var(--kf-space-2);
   border: 0;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
   cursor: pointer;
 }
 
 .dp-link:hover {
-  background: var(--kb-menu-hover);
-  color: var(--kb-foreground);
+  background: var(--kf-menu-hover);
+  color: var(--kf-foreground);
 }
 
 .dp-link--primary {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 .dp-link:disabled {
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   opacity: 0.5;
   cursor: not-allowed;
 }
 
 .dp-link:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 1px;
 }
 

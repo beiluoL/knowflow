@@ -2,10 +2,10 @@
   <Card padding="md">
     <!-- Loading -->
     <div v-if="loading" class="animate-pulse">
-      <div class="h-4 w-20 rounded" style="background: var(--kb-muted);"></div>
-      <div class="mt-4 h-8 w-24 rounded" style="background: var(--kb-muted);"></div>
-      <div class="mt-3 h-3 w-40 rounded" style="background: var(--kb-muted);"></div>
-      <div class="mt-5 h-9 w-28 rounded-[var(--kb-radius-sm)]" style="background: var(--kb-muted);"></div>
+      <div class="h-4 w-20 rounded" style="background: var(--kf-muted);"></div>
+      <div class="mt-4 h-8 w-24 rounded" style="background: var(--kf-muted);"></div>
+      <div class="mt-3 h-3 w-40 rounded" style="background: var(--kf-muted);"></div>
+      <div class="mt-5 h-9 w-28 rounded-[var(--kf-radius-sm)]" style="background: var(--kf-muted);"></div>
     </div>
 
     <!-- Error：独立错误态，不阻塞首页其他区块 -->
@@ -20,14 +20,14 @@
     <div v-else-if="count === 0" class="text-center py-2">
       <div
         class="w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center"
-        style="background: var(--kb-success-subtle);"
+        style="background: var(--kf-success-subtle);"
       >
-        <Icon name="check" :size="24" style="color: var(--kb-state-success);" />
+        <Icon name="check" :size="24" style="color: var(--kf-state-success);" />
       </div>
-      <h3 class="font-semibold" style="color: var(--kb-foreground); font-size: var(--kb-fs-body-lg);">
+      <h3 class="font-semibold" style="color: var(--kf-foreground); font-size: var(--kf-fs-body-lg);">
         今日复习已完成
       </h3>
-      <p class="mt-1.5" style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-body-md);">
+      <p class="mt-1.5" style="color: var(--kf-muted-foreground); font-size: var(--kf-fs-body-md);">
         目前没有需要立即复习的知识点。
       </p>
       <div class="mt-4">
@@ -41,25 +41,25 @@
     <div v-else>
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
-          <h3 class="font-semibold" style="color: var(--kb-foreground); font-size: var(--kb-fs-body-lg);">
+          <h3 class="font-semibold" style="color: var(--kf-foreground); font-size: var(--kf-fs-body-lg);">
             今日待复习
           </h3>
-          <p class="mt-0.5" style="color: var(--kb-muted-foreground); font-size: var(--kb-fs-caption);">
+          <p class="mt-0.5" style="color: var(--kf-muted-foreground); font-size: var(--kf-fs-caption);">
             根据遗忘曲线，以下知识点需要巩固
           </p>
         </div>
         <span
-          class="shrink-0 inline-flex items-center rounded-[var(--kb-radius-sm)] px-2 py-1 font-semibold"
-          style="background: var(--kb-warning-subtle); color: var(--kb-state-warning); font-size: var(--kb-fs-caption);"
+          class="shrink-0 inline-flex items-center rounded-[var(--kf-radius-sm)] px-2 py-1 font-semibold"
+          style="background: var(--kf-warning-subtle); color: var(--kf-state-warning); font-size: var(--kf-fs-caption);"
         >
           <Icon name="rotate-ccw" :size="12" class="mr-1" />
           待复习
         </span>
       </div>
 
-      <p class="mt-4" style="color: var(--kb-foreground);">
-        <span class="font-bold tabular-nums" style="font-size: var(--kb-fs-h3);">{{ count }}</span>
-        <span class="ml-1.5" style="font-size: var(--kb-fs-body-md); color: var(--kb-muted-foreground);">
+      <p class="mt-4" style="color: var(--kf-foreground);">
+        <span class="font-bold tabular-nums" style="font-size: var(--kf-fs-h3);">{{ count }}</span>
+        <span class="ml-1.5" style="font-size: var(--kf-fs-body-md); color: var(--kf-muted-foreground);">
           个知识点
         </span>
       </p>
@@ -70,10 +70,10 @@
           v-for="cat in topCategories"
           :key="cat.name"
           class="flex items-center justify-between"
-          style="font-size: var(--kb-fs-body-sm);"
+          style="font-size: var(--kf-fs-body-sm);"
         >
-          <span class="truncate" style="color: var(--kb-muted-foreground);">{{ cat.name }}</span>
-          <span class="tabular-nums" style="color: var(--kb-foreground);">{{ cat.count }}</span>
+          <span class="truncate" style="color: var(--kf-muted-foreground);">{{ cat.name }}</span>
+          <span class="tabular-nums" style="color: var(--kf-foreground);">{{ cat.count }}</span>
         </li>
       </ul>
 

@@ -6,9 +6,9 @@ import Textarea from '../Textarea.vue'
 it('uses a single semantic focus owner instead of Tailwind rings',()=>{
  const w=mount(Input,{props:{error:'无效输入'}})
  const input=w.find('input')
- expect(input.classes()).toContain('kb-input')
+ expect(input.classes()).toContain('kf-input')
  expect(input.classes()).not.toContain('focus:ring-2')
- expect(input.classes()).toContain('kb-input-error')
+ expect(input.classes()).toContain('kf-input-error')
  expect(input.attributes('aria-invalid')).toBe('true');w.unmount()
 })
 it('exposes textarea error to assistive technology without changing its events',async()=>{

@@ -111,10 +111,10 @@ function downloadJson() {
 
 <style scoped>
 .json-viewer {
-  margin-block: var(--kb-space-3);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm, 8px);
-  background: var(--kb-card);
+  margin-block: var(--kf-space-3);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm, 8px);
+  background: var(--kf-card);
   overflow: hidden;
 }
 .json-viewer-bar {
@@ -123,38 +123,38 @@ function downloadJson() {
   justify-content: space-between;
   gap: 12px;
   padding: 6px 8px 6px 12px;
-  border-bottom: 1px solid var(--kb-border);
-  background: var(--kb-muted, #f6f7f9);
+  border-bottom: 1px solid var(--kf-border);
+  background: var(--kf-muted, #f6f7f9);
 }
 .json-viewer-title {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
-  font-family: var(--kb-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  color: var(--kf-muted-foreground);
+  font-family: var(--kf-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
 }
 .json-viewer-actions { display: flex; align-items: center; gap: 2px; }
 .json-view-switch {
   display: inline-flex;
   padding: 2px;
   margin-inline-end: 4px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 999px;
-  background: var(--kb-card);
+  background: var(--kf-card);
 }
 .json-view-switch button {
   padding: 2px 9px;
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-xs);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-xs);
   cursor: pointer;
 }
 .json-view-switch button.is-active {
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.12));
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.12));
+  color: var(--kf-primary);
 }
 .json-btn {
   display: inline-flex;
@@ -165,19 +165,19 @@ function downloadJson() {
   border: 0;
   border-radius: 6px;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
 }
-.json-btn:hover { background: var(--kb-border); color: var(--kb-foreground); }
-.json-btn:focus-visible { outline: 2px solid var(--kb-primary); outline-offset: 1px; }
-.json-btn.is-done { color: var(--kb-state-success, #1a9f6a); }
+.json-btn:hover { background: var(--kf-border); color: var(--kf-foreground); }
+.json-btn:focus-visible { outline: 2px solid var(--kf-primary); outline-offset: 1px; }
+.json-btn.is-done { color: var(--kf-state-success, #1a9f6a); }
 .json-tree { padding: 12px 14px; max-height: 520px; overflow: auto; }
 .json-raw { max-height: 520px; overflow: auto; background: #1a1d23; }
 .json-raw pre {
   margin: 0;
   padding: 14px;
-  font-family: var(--kb-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: var(--kb-fs-caption);
+  font-family: var(--kf-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: var(--kf-fs-caption);
   line-height: 1.6;
   color: #e6edf3;
   white-space: pre-wrap;
@@ -186,33 +186,33 @@ function downloadJson() {
 
 .grading-card {
   padding: 14px 16px;
-  border-bottom: 1px solid var(--kb-border);
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.06));
+  border-bottom: 1px solid var(--kf-border);
+  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.06));
 }
 .grading-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .grading-score { display: inline-flex; align-items: baseline; gap: 6px; }
-.grading-score-value { font-size: var(--kb-fs-h2); font-weight: 700; color: var(--kb-primary); line-height: 1.1; }
-.grading-grade { font-size: 13px; font-weight: 600; color: var(--kb-foreground); }
-.grading-desc { margin: 0; font-size: var(--kb-fs-caption); color: var(--kb-muted-foreground); }
-.grading-comment { margin: 8px 0 0; font-size: var(--kb-fs-body-sm); color: var(--kb-foreground); line-height: 1.7; }
+.grading-score-value { font-size: var(--kf-fs-h2); font-weight: 700; color: var(--kf-primary); line-height: 1.1; }
+.grading-grade { font-size: 13px; font-weight: 600; color: var(--kf-foreground); }
+.grading-desc { margin: 0; font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); }
+.grading-comment { margin: 8px 0 0; font-size: var(--kf-fs-body-sm); color: var(--kf-foreground); line-height: 1.7; }
 .grading-dims { margin-top: 10px; display: grid; gap: 8px; }
 .grading-dim {
   padding: 8px 10px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
 }
 .grading-dim-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.grading-dim-name { font-size: 13px; font-weight: 600; color: var(--kb-foreground); }
-.grading-dim-score { font-size: 13px; color: var(--kb-primary); font-variant-numeric: tabular-nums; }
-.grading-dim-comment { margin: 4px 0 0; font-size: var(--kb-fs-caption); color: var(--kb-muted-foreground); line-height: 1.65; }
+.grading-dim-name { font-size: 13px; font-weight: 600; color: var(--kf-foreground); }
+.grading-dim-score { font-size: 13px; color: var(--kf-primary); font-variant-numeric: tabular-nums; }
+.grading-dim-comment { margin: 4px 0 0; font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); line-height: 1.65; }
 .grading-raw-toggle {
   margin-top: 10px;
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-caption);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-caption);
   cursor: pointer;
 }
 .grading-raw-toggle:hover { text-decoration: underline; }

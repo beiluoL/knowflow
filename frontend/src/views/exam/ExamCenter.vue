@@ -31,7 +31,7 @@
         <!-- 主操作 -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
-            class="group text-left border rounded-xl p-5 bg-gradient-to-br from-primary-500 to-primary-600 text-white hover:shadow-lg hover:shadow-primary-100 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+            class="group text-left border rounded-xl p-5 bg-gradient-to-br from-primary-500 to-primary-600 text-white hover:shadow-lg hover:shadow-primary-100 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
             @click="goCompose"
           >
             <div class="flex items-center justify-between mb-3">
@@ -42,7 +42,7 @@
             <p class="text-xs opacity-85 mt-1 leading-relaxed">按知识点 / 题型 / 难度 / 策略确定性组卷，支持种子复现</p>
           </button>
           <button
-            class="group text-left border rounded-xl p-5 bg-card border-border hover:border-primary-300 hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+            class="group text-left border rounded-xl p-5 bg-card border-border hover:border-primary-300 hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
             @click="goAiCompose"
           >
             <div class="flex items-center justify-between mb-3">
@@ -53,7 +53,7 @@
             <p class="text-xs text-muted-foreground mt-1 leading-relaxed">按岗位 / 场景 / 错题变式生成个人临时试卷（不进共享题库）</p>
           </button>
           <button
-            class="group text-left border rounded-xl p-5 bg-card border-border hover:border-primary-300 hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+            class="group text-left border rounded-xl p-5 bg-card border-border hover:border-primary-300 hover:shadow-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
             @click="goMistakes"
           >
             <div class="flex items-center justify-between mb-3">
@@ -147,7 +147,7 @@
               </div>
               <button
                 :disabled="!t.available || starting === t.templateKey"
-                class="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 disabled:bg-gray-200 disabled:text-muted-foreground disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 disabled:bg-gray-200 disabled:text-muted-foreground disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                 @click="startTemplate(t)"
               >
                 <Icon :name="starting === t.templateKey ? 'loader' : 'play'" :size="15" :class="starting === t.templateKey ? 'animate-spin' : ''" />

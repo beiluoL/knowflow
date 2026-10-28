@@ -18,7 +18,7 @@ describe('learning path experience', () => {
     const w = mount(LearningPaths); await flushPromises()
     expect(w.find('[role="alert"]').exists()).toBe(true)
     expect(w.text()).not.toContain('暂无学习路径')
-    await w.find('.kb-state-retry').trigger('click'); await flushPromises()
+    await w.find('.kf-state-retry').trigger('click'); await flushPromises()
     expect(w.text()).toContain('Java 核心'); expect(w.text()).not.toContain('4.8')
     expect(w.find('.cover-tag').text()).toBe('难度未提供')
     w.unmount()
@@ -29,7 +29,7 @@ describe('learning path experience', () => {
     expect(w.find('[role="alert"]').exists()).toBe(true)
     expect(w.text()).not.toContain('0 / 0')
     expect(w.text()).toContain('50')
-    await w.find('.kb-state-retry').trigger('click'); await flushPromises()
+    await w.find('.kf-state-retry').trigger('click'); await flushPromises()
     expect(w.text()).toContain('HashMap'); w.unmount()
   })
   it('route changes ignore stale path responses', async () => {

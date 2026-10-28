@@ -1,26 +1,26 @@
 <template>
-  <!-- §二十五：错误态视觉沿用既有 .kb-state-* 令牌类，与 EmptyState 同源（禁止再造一套） -->
-  <div class="kb-state kb-state-error" role="alert" aria-live="assertive">
-    <div class="kb-state-icon">
+  <!-- §二十五：错误态视觉沿用既有 .kf-state-* 令牌类，与 EmptyState 同源（禁止再造一套） -->
+  <div class="kf-state kf-state-error" role="alert" aria-live="assertive">
+    <div class="kf-state-icon">
       <Icon :name="icon" :size="32" aria-hidden="true" />
     </div>
     <!-- ① 发生了什么 -->
-    <h3 class="kb-state-title">{{ title }}</h3>
-    <div class="kb-state-desc">
+    <h3 class="kf-state-title">{{ title }}</h3>
+    <div class="kf-state-desc">
       <slot>
         <p>{{ description }}</p>
       </slot>
     </div>
     <!-- ② 是否影响当前页面（Interaction OS §六：没有这一行，用户无法判断要不要离开页面） -->
-    <p v-if="scope" class="kb-state-scope">
+    <p v-if="scope" class="kf-state-scope">
       <Icon name="info" :size="13" aria-hidden="true" />
       <span>{{ scope }}</span>
     </p>
     <!-- ③ 怎么解决 -->
-    <p v-if="hint" class="kb-state-hint">{{ hint }}</p>
-    <div v-if="$slots.action || showRetry" class="kb-state-action">
+    <p v-if="hint" class="kf-state-hint">{{ hint }}</p>
+    <div v-if="$slots.action || showRetry" class="kf-state-action">
       <slot name="action">
-        <button v-if="showRetry" type="button" class="kb-state-retry" @click="$emit('retry')">
+        <button v-if="showRetry" type="button" class="kf-state-retry" @click="$emit('retry')">
           <Icon name="refresh-cw" :size="14" aria-hidden="true" />
           <span>{{ retryText }}</span>
         </button>
@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 // U5：错误态组件，与 EmptyState/SkeletonList 同级，配合 StateView 统一三态。
-// 复用全局 .kb-state-* CSS 类，与 EmptyState 视觉一致；默认提供「重试」按钮。
+// 复用全局 .kf-state-* CSS 类，与 EmptyState 视觉一致；默认提供「重试」按钮。
 //
 // Interaction OS（UI/UX 5.1）§六 增强：
 //   错误态必须回答三件事 —— ① 发生了什么（title）② 是否影响当前页面（scope）
@@ -76,20 +76,20 @@ defineEmits<{
 
 <style scoped>
 /* §二 ②：影响范围与解决建议 —— 弱化层级，保持「专业、安静」的视觉（§二十二） */
-.kb-state-scope {
+.kf-state-scope {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   margin: 10px 0 0;
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-muted-foreground);
   max-width: 360px;
   text-align: left;
 }
-.kb-state-hint {
+.kf-state-hint {
   margin: 6px 0 0;
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-muted-foreground);
   max-width: 360px;
   text-align: left;
 }

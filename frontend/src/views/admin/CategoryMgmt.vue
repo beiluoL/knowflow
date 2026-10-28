@@ -20,7 +20,7 @@
     </div>
 
     <!-- 搜索框 -->
-    <div class="bg-card border border-[var(--kb-border)] rounded-xl px-6 py-4 mb-4">
+    <div class="bg-card border border-[var(--kf-border)] rounded-xl px-6 py-4 mb-4">
       <div class="max-w-md">
         <Input v-model="searchKeyword" placeholder="搜索分类名称..." icon-name="search" />
       </div>
@@ -36,9 +36,9 @@
     </div>
 
     <!-- 树形列表 -->
-    <div class="bg-card border border-[var(--kb-border)] rounded-xl overflow-hidden">
+    <div class="bg-card border border-[var(--kf-border)] rounded-xl overflow-hidden">
       <!-- 表头 -->
-      <div class="px-6 py-3 border-b border-[var(--kb-border)]">
+      <div class="px-6 py-3 border-b border-[var(--kf-border)]">
         <div class="grid grid-cols-12 gap-4 text-xs text-muted-foreground font-medium items-center">
           <div class="col-span-5">分类名称</div>
           <div class="col-span-2 text-center">层级</div>
@@ -48,7 +48,7 @@
       </div>
 
       <!-- 树行 -->
-      <div v-if="flatTreeNodes.length" class="divide-y divide-[var(--kb-border)]/50">
+      <div v-if="flatTreeNodes.length" class="divide-y divide-[var(--kf-border)]/50">
         <div
           v-for="node in flatTreeNodes"
           :key="node.cat.id"
@@ -67,17 +67,17 @@
           <!-- before 指示线 -->
           <div
             v-if="dropTargetId === node.cat.id && dropPosition === 'before'"
-            class="absolute top-[-2px] left-6 right-6 h-[3px] bg-[var(--kb-primary)] rounded-full z-10"
+            class="absolute top-[-2px] left-6 right-6 h-[3px] bg-[var(--kf-primary)] rounded-full z-10"
           />
           <!-- after 指示线 -->
           <div
             v-if="dropTargetId === node.cat.id && dropPosition === 'after'"
-            class="absolute bottom-[-2px] left-6 right-6 h-[3px] bg-[var(--kb-primary)] rounded-full z-10"
+            class="absolute bottom-[-2px] left-6 right-6 h-[3px] bg-[var(--kf-primary)] rounded-full z-10"
           />
           <!-- inside 高亮 -->
           <div
             v-if="dropTargetId === node.cat.id && dropPosition === 'inside'"
-            class="absolute inset-y-1 inset-x-3 bg-[var(--kb-primary)]/[0.06] border border-[var(--kb-primary)]/30 rounded-lg z-0 pointer-events-none"
+            class="absolute inset-y-1 inset-x-3 bg-[var(--kf-primary)]/[0.06] border border-[var(--kf-primary)]/30 rounded-lg z-0 pointer-events-none"
           />
 
           <div class="grid grid-cols-12 gap-4 items-center relative z-[1]">
@@ -86,7 +86,7 @@
               <!-- 展开箭头 / 占位 -->
               <button
                 v-if="node.hasChildren"
-                class="w-5 h-5 flex items-center justify-center text-muted-foreground hover:text-foreground flex-shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="w-5 h-5 flex items-center justify-center text-muted-foreground hover:text-foreground flex-shrink-0 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                 :style="{ marginLeft: node.level * 24 + 'px' }"
                 @click="toggleExpand(node.cat.id)"
                 :title="expandedIds.has(node.cat.id) ? '折叠' : '展开'"
@@ -106,7 +106,7 @@
               <!-- 拖拽提示 -->
               <span
                 v-if="dropTargetId === node.cat.id && dropPosition === 'inside'"
-                class="text-xs text-[var(--kb-primary)] font-medium ml-1"
+                class="text-xs text-[var(--kf-primary)] font-medium ml-1"
               >放入</span>
             </div>
             <!-- 层级标签 -->
@@ -122,28 +122,28 @@
             <!-- 操作 -->
             <div class="col-span-3 flex items-center justify-center gap-1">
               <button
-                class="p-1.5 text-muted-foreground hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="p-1.5 text-muted-foreground hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                 @click="openCreate(node.cat)"
                 title="新增子分类"
               >
                 <Icon name="folder-plus" :size="15" aria-hidden="true" />
               </button>
               <button
-                class="p-1.5 text-muted-foreground hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="p-1.5 text-muted-foreground hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                 @click="openEdit(node.cat)"
                 title="编辑"
               >
                 <Icon name="edit-2" :size="15" aria-hidden="true" />
               </button>
               <button
-                class="p-1.5 text-muted-foreground hover:text-blue-500 hover:bg-blue-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="p-1.5 text-muted-foreground hover:text-blue-500 hover:bg-blue-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                 @click="openMove(node.cat)"
                 title="移动"
               >
                 <Icon name="move" :size="15" aria-hidden="true" />
               </button>
               <button
-                class="p-1.5 text-muted-foreground hover:text-danger-500 hover:bg-danger-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="p-1.5 text-muted-foreground hover:text-danger-500 hover:bg-danger-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                 @click="deleteCategory(node.cat)"
                 title="删除"
               >
@@ -161,7 +161,7 @@
       </div>
 
       <!-- 底部统计 -->
-      <div v-if="flatTreeNodes.length" class="px-6 py-3 text-center border-t border-[var(--kb-border)]/50">
+      <div v-if="flatTreeNodes.length" class="px-6 py-3 text-center border-t border-[var(--kf-border)]/50">
         <span class="text-sm text-muted-foreground">显示 {{ flatTreeNodes.length }} / {{ allFlatCats.length }} 个分类</span>
       </div>
     </div>
@@ -169,7 +169,7 @@
     <!-- ========== 新增/编辑弹窗 ========== -->
     <div
       v-if="showFormModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
       role="button"
       tabindex="0"
       @click.self="closeFormModal"
@@ -211,23 +211,23 @@
               <button
                 v-for="cat in presetIconCategories"
                 :key="cat.key"
-                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                 @click="activeIconCategory = cat.key"
                 :class="[
                   'px-2.5 py-1 text-xs rounded-md border transition-colors',
                   activeIconCategory === cat.key
                     ? 'border-primary-500 bg-primary-50 text-primary-600 font-medium'
-                    : 'border-[var(--kb-border)] text-muted-foreground hover:border-border',
+                    : 'border-[var(--kf-border)] text-muted-foreground hover:border-border',
                 ]"
               >
                 {{ cat.label }}
               </button>
             </div>
-            <div class="grid grid-cols-8 gap-2 max-h-44 overflow-y-auto p-1 border border-[var(--kb-border)] rounded-lg">
+            <div class="grid grid-cols-8 gap-2 max-h-44 overflow-y-auto p-1 border border-[var(--kf-border)] rounded-lg">
               <button
                 v-for="icon in filteredPresetIcons"
                 :key="icon.key"
-                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                 @click="selectPresetIcon(icon.key)"
                 :title="`${icon.name}（${icon.key}）`"
                 :class="[
@@ -247,7 +247,7 @@
                 v-for="c in iconColorPresets"
                 :key="c"
                 type="button"
-                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                 @click="selectIconColor(c)"
                 :class="[
                   'w-6 h-6 rounded-full border-2 transition-colors',
@@ -260,7 +260,7 @@
                 <input
                   :value="selectedIconColor"
                   type="color"
-                  class="w-6 h-6 rounded cursor-pointer border border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                  class="w-6 h-6 rounded cursor-pointer border border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                   @input="selectIconColor(($event.target as HTMLInputElement).value)"
                 />
                 <span>自定义</span>
@@ -268,7 +268,7 @@
               <button
                 v-if="selectedIconColor"
                 type="button"
-                class="text-xs text-muted-foreground hover:text-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+                class="text-xs text-muted-foreground hover:text-red-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                 @click="selectIconColor('')"
               >清除</button>
               <div class="ml-auto flex items-center gap-2">
@@ -298,7 +298,7 @@
     <!-- ========== 移动弹窗 ========== -->
     <div
       v-if="showMoveModal"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
       role="button"
       tabindex="0"
       @click.self="closeMoveModal"
@@ -420,9 +420,9 @@ const getCatIconName = (raw?: string): string => {
   return name || 'folder'
 }
 const getCatColor = (raw?: string): string => {
-  if (!raw) return 'var(--kb-muted-foreground)'
+  if (!raw) return 'var(--kf-muted-foreground)'
   const { color } = resolveIconForRender(raw)
-  return color || 'var(--kb-muted-foreground)'
+  return color || 'var(--kf-muted-foreground)'
 }
 
 // ========== 层级标签样式 ==========
@@ -453,7 +453,7 @@ const filteredPresetIcons = computed(() =>
 )
 const selectedIconKey = computed(() => parseIconValue(form.icon).key)
 const selectedIconColor = computed(() => parseIconValue(form.icon).color)
-const currentPresetDefaultColor = computed(() => getIconByKey(selectedIconKey.value)?.color || 'var(--kb-muted-foreground)')
+const currentPresetDefaultColor = computed(() => getIconByKey(selectedIconKey.value)?.color || 'var(--kf-muted-foreground)')
 const currentRenderIconName = computed(() => {
   const preset = getIconByKey(selectedIconKey.value)
   return preset?.svg || selectedIconKey.value || 'folder'

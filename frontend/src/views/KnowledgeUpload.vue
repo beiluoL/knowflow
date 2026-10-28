@@ -142,7 +142,7 @@
               <input
                 v-model="pathInput"
                 type="text"
-                class="path-input kb-input kb-form-control"
+                class="path-input kf-input kf-form-control"
                 placeholder="输入绝对路径（如 /Users/xxx/docs）或相对路径（如 ./src），也可指定单个文件"
                 :disabled="pathImporting"
                 @keyup.enter="scanPath"
@@ -230,13 +230,13 @@
               v-model="formData.title"
               type="text"
               placeholder="请输入文档标题"
-              class="form-input kb-input kb-form-control"
+              class="form-input kf-input kf-form-control"
             />
             <p class="form-hint">默认取第一个文件名，可手动修改</p>
           </div>
 
           <!-- 目标知识库：卡片选择（与 KnowledgeImport 保持一致） -->
-          <div class="form-row kb-select-wrap">
+          <div class="form-row kf-select-wrap">
             <label class="form-label">
               目标知识库 <span class="required-mark">*</span>
             </label>
@@ -274,7 +274,7 @@
                 v-model="tagInput"
                 type="text"
                 placeholder="添加标签后回车"
-                class="tag-text-input kb-input kb-form-control"
+                class="tag-text-input kf-input kf-form-control"
                 @keydown.enter.prevent="addTag"
               />
             </div>
@@ -287,7 +287,7 @@
               v-model="formData.description"
               rows="3"
               placeholder="请输入文档描述..."
-              class="form-textarea kb-textarea kb-form-control"
+              class="form-textarea kf-textarea kf-form-control"
             ></textarea>
           </div>
         </div>
@@ -316,7 +316,7 @@
         <h3 class="modal-title">新建子分类</h3>
         <div class="form-row">
           <label class="form-label">分类名称</label>
-          <input v-model="newCategoryName" type="text" placeholder="请输入分类名称" class="form-input kb-input kb-form-control" />
+          <input v-model="newCategoryName" type="text" placeholder="请输入分类名称" class="form-input kf-input kf-form-control" />
         </div>
         <div class="form-row">
           <label class="form-label">分类图标</label>
@@ -927,8 +927,8 @@ onMounted(loadCategories)
 
 /* ===== 整体导入进度条 ===== */
 .global-progress-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 14px;
   padding: 16px;
   margin-bottom: 16px;
@@ -948,35 +948,35 @@ onMounted(loadCategories)
   align-items: center;
   gap: 8px;
   min-width: 0;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .global-progress-count {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-primary);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-primary);
   font-weight: 600;
 }
 
 .global-progress-bar {
   height: 8px;
   border-radius: 4px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 
 .global-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--kb-primary), #6366F1);
+  background: linear-gradient(90deg, var(--kf-primary), #6366F1);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
 
 .global-progress-file {
   margin: 8px 0 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   font-family: var(--font-mono);
   white-space: nowrap;
   overflow: hidden;
@@ -988,7 +988,7 @@ onMounted(loadCategories)
   display: flex;
   gap: 4px;
   padding: 4px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   border-radius: 12px;
   margin-bottom: 16px;
 }
@@ -1003,10 +1003,10 @@ onMounted(loadCategories)
   padding: 8px 16px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
-  line-height: var(--kb-lh-body-sm);
+  line-height: var(--kf-lh-body-sm);
   border-radius: 10px;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
@@ -1015,7 +1015,7 @@ onMounted(loadCategories)
 
 .mode-tab:hover:not(:disabled) {
   background: rgba(59, 111, 224, 0.06);
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .mode-tab:active:not(:disabled) {
@@ -1023,7 +1023,7 @@ onMounted(loadCategories)
 }
 
 .mode-tab:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1033,14 +1033,14 @@ onMounted(loadCategories)
 }
 
 .mode-tab.active {
-  background: var(--kb-card);
-  color: var(--kb-primary);
+  background: var(--kf-card);
+  color: var(--kf-primary);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .mode-tab.active:hover:not(:disabled) {
-  background: var(--kb-card);
-  color: var(--kb-primary);
+  background: var(--kf-card);
+  color: var(--kf-primary);
 }
 
 .page-header {
@@ -1067,20 +1067,20 @@ onMounted(loadCategories)
   gap: 8px;
   padding: 8px 16px;
   border-radius: 8px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-sm);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
-  line-height: var(--kb-lh-body-sm);
+  line-height: var(--kf-lh-body-sm);
   cursor: pointer;
   white-space: nowrap;
   transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
 
 .back-btn:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.06);
 }
 
@@ -1089,15 +1089,15 @@ onMounted(loadCategories)
 }
 
 .back-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
 .page-title {
-  font-size: var(--kb-fs-h4);
-  font-weight: var(--kb-fw-h4);
-  line-height: var(--kb-lh-h4);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-h4);
+  font-weight: var(--kf-fw-h4);
+  line-height: var(--kf-lh-h4);
+  color: var(--kf-foreground);
   margin: 0;
 }
 
@@ -1121,7 +1121,7 @@ onMounted(loadCategories)
 }
 
 .upload-zone {
-  border: 2px dashed var(--kb-border);
+  border: 2px dashed var(--kf-border);
   border-radius: 16px;
   padding: 48px 24px;
   text-align: center;
@@ -1130,7 +1130,7 @@ onMounted(loadCategories)
 }
 
 .upload-zone:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.03);
 }
 
@@ -1139,13 +1139,13 @@ onMounted(loadCategories)
 }
 
 .upload-zone:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 
 .upload-zone.dragging {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.06);
 }
 
@@ -1158,21 +1158,21 @@ onMounted(loadCategories)
   justify-content: center;
   margin: 0 auto 16px;
   background: rgba(59, 111, 224, 0.08);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 
 .upload-zone-title {
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 500;
-  line-height: var(--kb-lh-body-lg);
-  color: var(--kb-foreground);
+  line-height: var(--kf-lh-body-lg);
+  color: var(--kf-foreground);
   margin-bottom: 4px;
 }
 
 .upload-zone-hint {
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
+  color: var(--kf-muted-foreground);
 }
 
 .hidden-file-input {
@@ -1180,8 +1180,8 @@ onMounted(loadCategories)
 }
 
 .file-list-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 14px;
   overflow: hidden;
 }
@@ -1193,22 +1193,22 @@ onMounted(loadCategories)
   flex-wrap: wrap;
   gap: 8px;
   padding: 16px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .list-title {
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
-  line-height: var(--kb-lh-body-md);
-  color: var(--kb-foreground);
+  line-height: var(--kf-lh-body-md);
+  color: var(--kf-foreground);
   min-width: 0;
   margin: 0;
 }
 
 .file-list-count {
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
+  color: var(--kf-muted-foreground);
 }
 
 .file-list-body {
@@ -1221,7 +1221,7 @@ onMounted(loadCategories)
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 
 .file-item:last-child {
@@ -1238,11 +1238,11 @@ onMounted(loadCategories)
   flex-shrink: 0;
 }
 
-.type-pdf { background: rgba(239, 68, 68, 0.1); color: var(--kb-destructive); }
-.type-md { background: rgba(16, 185, 129, 0.1); color: var(--kb-accent); }
-.type-doc { background: rgba(59, 111, 224, 0.08); color: var(--kb-primary); }
-.type-ppt { background: rgba(245, 158, 11, 0.1); color: var(--kb-warning); }
-.type-default { background: rgba(107, 114, 128, 0.1); color: var(--kb-muted-foreground); }
+.type-pdf { background: rgba(239, 68, 68, 0.1); color: var(--kf-destructive); }
+.type-md { background: rgba(16, 185, 129, 0.1); color: var(--kf-accent); }
+.type-doc { background: rgba(59, 111, 224, 0.08); color: var(--kf-primary); }
+.type-ppt { background: rgba(245, 158, 11, 0.1); color: var(--kf-warning); }
+.type-default { background: rgba(107, 114, 128, 0.1); color: var(--kf-muted-foreground); }
 
 .file-info {
   flex: 1;
@@ -1250,10 +1250,10 @@ onMounted(loadCategories)
 }
 
 .file-name {
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
-  line-height: var(--kb-lh-body-sm);
-  color: var(--kb-foreground);
+  line-height: var(--kf-lh-body-sm);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1261,9 +1261,9 @@ onMounted(loadCategories)
 }
 
 .file-size {
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
+  color: var(--kf-muted-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1278,7 +1278,7 @@ onMounted(loadCategories)
 .upload-bar {
   height: 6px;
   border-radius: 3px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 
@@ -1288,21 +1288,21 @@ onMounted(loadCategories)
   transition: width 0.3s;
 }
 
-.fill-primary { background: var(--kb-primary); }
-.fill-success { background: var(--kb-accent); }
-.fill-error { background: var(--kb-destructive); }
+.fill-primary { background: var(--kf-primary); }
+.fill-success { background: var(--kf-accent); }
+.fill-error { background: var(--kf-destructive); }
 
 .file-status {
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
   flex-shrink: 0;
   min-width: 48px;
   text-align: right;
 }
 
-.status-success { color: var(--kb-accent); }
-.status-error { color: var(--kb-destructive); }
-.status-muted { color: var(--kb-muted-foreground); }
+.status-success { color: var(--kf-accent); }
+.status-error { color: var(--kf-destructive); }
+.status-muted { color: var(--kf-muted-foreground); }
 
 .file-remove-btn {
   width: 28px;
@@ -1313,7 +1313,7 @@ onMounted(loadCategories)
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   border-radius: 6px;
   flex-shrink: 0;
   transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
@@ -1321,7 +1321,7 @@ onMounted(loadCategories)
 
 .file-remove-btn:hover {
   background: rgba(239, 68, 68, 0.08);
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 
 .file-remove-btn:active {
@@ -1330,13 +1330,13 @@ onMounted(loadCategories)
 }
 
 .file-remove-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
 .upload-right {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 16px;
   padding: 20px;
   position: sticky;
@@ -1344,10 +1344,10 @@ onMounted(loadCategories)
 }
 
 .form-title {
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
-  line-height: var(--kb-lh-h4);
-  color: var(--kb-foreground);
+  line-height: var(--kf-lh-h4);
+  color: var(--kf-foreground);
   margin: 0 0 20px;
 }
 
@@ -1364,28 +1364,28 @@ onMounted(loadCategories)
 }
 
 .form-label {
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
-  line-height: var(--kb-lh-body-sm);
-  color: var(--kb-foreground);
+  line-height: var(--kf-lh-body-sm);
+  color: var(--kf-foreground);
 }
 
 .required-mark {
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
 }
 
 .form-hint {
-  font-size: var(--kb-fs-xs);
-  line-height: var(--kb-lh-xs);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-xs);
+  line-height: var(--kf-lh-xs);
+  color: var(--kf-muted-foreground);
   margin: 0;
 }
 
-.form-input:not(.kb-form-control) {
+.form-input:not(.kf-form-control) {
   height: 38px;
   border-radius: 8px;
-  background: var(--kb-background);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-background);
+  border: 1px solid var(--kf-border);
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -1393,25 +1393,25 @@ onMounted(loadCategories)
 .form-input {
   width: 100%;
   padding: 0 12px;
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-foreground);
   font-family: inherit;
 }
 
-.form-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.form-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 
-.form-input:not(.kb-form-control):focus-visible,
-.form-textarea:not(.kb-form-control):focus-visible {
-  border-color: var(--kb-primary);
+.form-input:not(.kf-form-control):focus-visible,
+.form-textarea:not(.kf-form-control):focus-visible {
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
 
-.form-textarea:not(.kb-form-control) {
+.form-textarea:not(.kf-form-control) {
   border-radius: 8px;
-  background: var(--kb-background);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-background);
+  border: 1px solid var(--kf-border);
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -1419,15 +1419,15 @@ onMounted(loadCategories)
 .form-textarea {
   width: 100%;
   padding: 8px 12px;
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
+  color: var(--kf-foreground);
   resize: none;
   font-family: inherit;
 }
 
-.form-textarea:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.form-textarea:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 
 .create-category-link {
@@ -1436,11 +1436,11 @@ onMounted(loadCategories)
   gap: 4px;
   padding: 4px 8px;
   border-radius: 6px;
-  border: 1px dashed var(--kb-border);
+  border: 1px dashed var(--kf-border);
   background: transparent;
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
   align-self: flex-start;
@@ -1448,7 +1448,7 @@ onMounted(loadCategories)
 
 .create-category-link:hover {
   background: rgba(59, 111, 224, 0.06);
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 
 .create-category-link:active {
@@ -1457,7 +1457,7 @@ onMounted(loadCategories)
 }
 
 .create-category-link:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1468,18 +1468,18 @@ onMounted(loadCategories)
   flex-wrap: wrap;
   padding: 8px 12px;
   border-radius: 8px;
-  background: var(--kb-field-surface);
+  background: var(--kf-field-surface);
   min-height: 38px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   border: 0;
 }
 
 .tags-input:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 
 .tags-input:focus-within {
-  background: var(--kb-field-active);
+  background: var(--kf-field-active);
 }
 
 .tag-chip {
@@ -1489,11 +1489,11 @@ onMounted(loadCategories)
   height: 24px;
   padding: 0 8px;
   border-radius: 6px;
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
   font-weight: 500;
   background: rgba(59, 111, 224, 0.1);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   max-width: 100%;
 }
 
@@ -1502,7 +1502,7 @@ onMounted(loadCategories)
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   padding: 0;
   display: inline-flex;
   align-items: center;
@@ -1521,11 +1521,11 @@ onMounted(loadCategories)
 
 .tag-remove:focus-visible {
   opacity: 1;
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
-.tag-text-input:not(.kb-form-control) {
+.tag-text-input:not(.kf-form-control) {
   height: 24px;
   background: transparent;
   border: none;
@@ -1535,13 +1535,13 @@ onMounted(loadCategories)
 .tag-text-input {
   flex: 1;
   min-width: 80px;
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-foreground);
   font-family: inherit;
 }
 
 .tag-text-input::placeholder {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .form-actions {
@@ -1562,9 +1562,9 @@ onMounted(loadCategories)
   height: 38px;
   padding: 0 16px;
   border-radius: 8px;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
-  line-height: var(--kb-lh-body-sm);
+  line-height: var(--kf-lh-body-sm);
   cursor: pointer;
   transition: background 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
   border: none;
@@ -1573,13 +1573,13 @@ onMounted(loadCategories)
 
 .btn-primary:focus-visible,
 .btn-secondary:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
 .btn-primary {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -1597,19 +1597,19 @@ onMounted(loadCategories)
 }
 
 .btn-secondary {
-  background: var(--kb-background);
-  color: var(--kb-foreground);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-background);
+  color: var(--kf-foreground);
+  border: 1px solid var(--kf-border);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 
 .btn-secondary:active:not(:disabled) {
   transform: scale(0.98);
-  background: var(--kb-muted);
-  border-color: var(--kb-primary);
+  background: var(--kf-muted);
+  border-color: var(--kf-primary);
 }
 
 .btn-secondary:disabled {
@@ -1629,7 +1629,7 @@ onMounted(loadCategories)
 }
 
 .modal-content {
-  background: var(--kb-card);
+  background: var(--kf-card);
   border-radius: 16px;
   padding: 24px;
   width: 400px;
@@ -1638,10 +1638,10 @@ onMounted(loadCategories)
 }
 
 .modal-title {
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
-  line-height: var(--kb-lh-h4);
-  color: var(--kb-foreground);
+  line-height: var(--kf-lh-h4);
+  color: var(--kf-foreground);
   margin: 0 0 16px;
 }
 
@@ -1665,15 +1665,15 @@ onMounted(loadCategories)
   height: 36px;
   border-radius: 8px;
   cursor: pointer;
-  color: var(--kb-foreground);
-  background: var(--kb-background);
+  color: var(--kf-foreground);
+  background: var(--kf-background);
   border: 1px solid transparent;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .icon-item:hover {
-  background: var(--kb-muted);
-  border-color: var(--kb-border);
+  background: var(--kf-muted);
+  border-color: var(--kf-border);
 }
 
 .icon-item:active {
@@ -1681,14 +1681,14 @@ onMounted(loadCategories)
 }
 
 .icon-item:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
 .icon-item.active {
   background: rgba(59, 111, 224, 0.1);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 
 .modal-actions {
@@ -1738,19 +1738,19 @@ onMounted(loadCategories)
   flex-wrap: wrap;
   gap: 8px;
   padding: 8px;
-  background: var(--kb-card);
-  border: 2px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 2px solid var(--kf-border);
   border-radius: 14px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .path-input-row:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 
 .path-input-row:focus-within,
 .path-input-row.scanning {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
 
@@ -1760,11 +1760,11 @@ onMounted(loadCategories)
   justify-content: center;
   width: 40px;
   height: 40px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 
-.path-input:not(.kb-form-control) {
+.path-input:not(.kf-form-control) {
   border: none;
   outline: none;
   background: transparent;
@@ -1773,14 +1773,14 @@ onMounted(loadCategories)
 .path-input {
   flex: 1;
   min-width: 0;
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-md);
+  color: var(--kf-foreground);
   font-family: var(--font-mono);
   padding: 8px 4px;
 }
 
 .path-input::placeholder {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .path-input:disabled {
@@ -1794,11 +1794,11 @@ onMounted(loadCategories)
   gap: 8px;
   padding: 8px 16px;
   border: none;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
-  font-size: var(--kb-fs-body-sm);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
-  line-height: var(--kb-lh-body-sm);
+  line-height: var(--kf-lh-body-sm);
   border-radius: 10px;
   cursor: pointer;
   transition: background 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
@@ -1817,7 +1817,7 @@ onMounted(loadCategories)
 }
 
 .btn-scan:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 
@@ -1828,8 +1828,8 @@ onMounted(loadCategories)
 
 .path-input-hint {
   margin: 12px 2px 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   line-height: 1.6;
 }
 
@@ -1838,30 +1838,30 @@ onMounted(loadCategories)
   display: inline-block;
   margin-left: 8px;
   padding: 2px 8px;
-  font-size: var(--kb-fs-xs);
+  font-size: var(--kf-fs-xs);
   font-weight: 500;
   background: rgba(59, 111, 224, 0.1);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   border-radius: 4px;
 }
 
 .path-file-list .file-name {
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
 }
 
 .path-file-list .file-size {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-family: var(--font-mono);
-  font-size: var(--kb-fs-xs);
+  font-size: var(--kf-fs-xs);
 }
 
 .more-files-hint {
   padding: 12px;
   text-align: center;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
-  border-top: 1px solid var(--kb-border);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
+  border-top: 1px solid var(--kf-border);
 }
 
 .spin-icon {
@@ -1873,21 +1873,21 @@ onMounted(loadCategories)
 }
 
 /* ===== 知识库卡片选择（与 KnowledgeImport 保持一致） ===== */
-.kb-select-wrap {
+.kf-select-wrap {
   display: block;
 }
 
-.kb-select-wrap .form-label {
+.kf-select-wrap .form-label {
   margin-bottom: 12px;
   display: block;
 }
 
 .empty-hint {
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
+  color: var(--kf-muted-foreground);
   padding: 16px;
-  border: 1px dashed var(--kb-border);
+  border: 1px dashed var(--kf-border);
   border-radius: 10px;
   text-align: center;
   margin: 0;
@@ -1896,7 +1896,7 @@ onMounted(loadCategories)
 .link-btn {
   display: inline-block;
   border-radius: 4px;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   text-decoration: underline;
   text-underline-offset: 2px;
   transition: color 0.15s ease, opacity 0.15s ease;
@@ -1911,11 +1911,11 @@ onMounted(loadCategories)
 }
 
 .link-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 </style>
 
 <style scoped>
-.tags-input:has(input:focus-visible){outline:0}.tags-input input.kb-form-control,.tags-input input.kb-form-control:focus,.tags-input input.kb-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
+.tags-input:has(input:focus-visible){outline:0}.tags-input input.kf-form-control,.tags-input input.kf-form-control:focus,.tags-input input.kf-form-control:focus-visible{background:transparent;outline:0;box-shadow:none;border:0}
 </style>

@@ -103,7 +103,7 @@ defineExpose({ loadTools })
         </div>
         <button
           type="button"
-          class="switch transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="switch transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
           :class="{ on: tool.enabled }"
           :disabled="savingSet.has(tool.name)"
           :aria-label="`${tool.enabled ? '禁用' : '启用'} ${tool.name}`"
@@ -134,13 +134,13 @@ defineExpose({ loadTools })
   margin: 0;
   font-size: 15px;
   font-weight: 600;
-  color: var(--kb-text);
+  color: var(--kf-text);
 }
 
 .hint {
   margin: 4px 0 0;
   font-size: 12px;
-  color: var(--kb-text-muted);
+  color: var(--kf-text-muted);
 }
 
 .tool-empty {
@@ -149,7 +149,7 @@ defineExpose({ loadTools })
   align-items: center;
   gap: 8px;
   padding: 32px 0;
-  color: var(--kb-text-muted);
+  color: var(--kf-text-muted);
   font-size: 13px;
 }
 
@@ -168,15 +168,15 @@ defineExpose({ loadTools })
   justify-content: space-between;
   gap: 12px;
   padding: 12px 14px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-surface);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-surface);
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .tool-item.on {
-  border-color: var(--kb-primary);
-  background: var(--kb-primary-soft);
+  border-color: var(--kf-primary);
+  background: var(--kf-primary-soft);
 }
 
 .tool-main {
@@ -191,38 +191,38 @@ defineExpose({ loadTools })
 }
 
 .tool-name {
-  font-family: var(--kb-font-mono, monospace);
+  font-family: var(--kf-font-mono, monospace);
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-text);
+  color: var(--kf-text);
 }
 
 .perm-tag {
   padding: 1px 6px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   font-size: 11px;
   line-height: 1.6;
 }
 
 .perm-tag.safe {
-  background: var(--kb-success-soft);
-  color: var(--kb-success);
+  background: var(--kf-success-soft);
+  color: var(--kf-success);
 }
 
 .perm-tag.write {
-  background: var(--kb-warning-soft);
-  color: var(--kb-warning);
+  background: var(--kf-warning-soft);
+  color: var(--kf-warning);
 }
 
 .perm-tag.dangerous {
-  background: var(--kb-danger-soft);
-  color: var(--kb-danger);
+  background: var(--kf-danger-soft);
+  color: var(--kf-danger);
 }
 
 .tool-desc {
   margin: 4px 0 0;
   font-size: 12px;
-  color: var(--kb-text-muted);
+  color: var(--kf-text-muted);
   line-height: 1.5;
 }
 
@@ -235,10 +235,10 @@ defineExpose({ loadTools })
 
 .param-chip {
   padding: 1px 6px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-bg-subtle);
-  color: var(--kb-text-muted);
-  font-family: var(--kb-font-mono, monospace);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-bg-subtle);
+  color: var(--kf-text-muted);
+  font-family: var(--kf-font-mono, monospace);
   font-size: 11px;
 }
 
@@ -249,13 +249,13 @@ defineExpose({ loadTools })
   height: 22px;
   border: none;
   border-radius: 11px;
-  background: var(--kb-border);
+  background: var(--kf-border);
   cursor: pointer;
   transition: background 0.2s ease;
 }
 
 .switch.on {
-  background: var(--kb-primary);
+  background: var(--kf-primary);
 }
 
 .switch:disabled {

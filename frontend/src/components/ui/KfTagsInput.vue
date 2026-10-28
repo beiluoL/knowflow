@@ -235,26 +235,26 @@ function onCompositionEnd(event: CompositionEvent): void {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   width: 100%;
   min-width: 0;
-  min-height: var(--kb-input-height);
-  padding: var(--kb-space-2) var(--kb-field-padding);
+  min-height: var(--kf-input-height);
+  padding: var(--kf-space-2) var(--kf-field-padding);
   border: 0;
-  border-radius: var(--kb-field-radius);
-  background: var(--kb-field-surface);
-  color: var(--kb-foreground);
+  border-radius: var(--kf-field-radius);
+  background: var(--kf-field-surface);
+  color: var(--kf-foreground);
   box-shadow: none;
   outline: 0;
   cursor: text;
-  transition: background-color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease;
 }
 .kf-tags-input--sm {
-  min-height: var(--kb-btn-height-md);
-  padding-block: var(--kb-space-1);
+  min-height: var(--kf-btn-height-md);
+  padding-block: var(--kf-space-1);
 }
 .kf-tags-input--lg {
-  min-height: calc(var(--kb-input-height) + var(--kb-space-1));
+  min-height: calc(var(--kf-input-height) + var(--kf-space-1));
 }
 /* 与公共 Input 一致：单一浅灰表面，聚焦只保留文本光标，不改变表面色、宽度或外框。 */
 .kf-tags-input:focus-within {
@@ -263,8 +263,8 @@ function onCompositionEnd(event: CompositionEvent): void {
   outline: 0;
 }
 .kf-tags-input--disabled {
-  background: var(--kb-field-disabled);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-field-disabled);
+  color: var(--kf-muted-foreground);
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -272,22 +272,22 @@ function onCompositionEnd(event: CompositionEvent): void {
   cursor: text;
 }
 .kf-tags-input--error {
-  background: var(--kb-field-error-bg);
+  background: var(--kf-field-error-bg);
 }
 
 .kf-tags-input__chip {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   max-width: 100%;
   min-width: 0;
-  height: var(--kb-space-6);
-  padding-inline: var(--kb-space-2);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
+  height: var(--kf-space-6);
+  padding-inline: var(--kf-space-2);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
 }
 .kf-tags-input__chip-label {
   min-width: 0;
@@ -301,40 +301,40 @@ function onCompositionEnd(event: CompositionEvent): void {
   align-items: center;
   justify-content: center;
   flex: none;
-  width: var(--kb-space-5);
-  height: var(--kb-space-5);
+  width: var(--kf-space-5);
+  height: var(--kf-space-5);
   padding: 0;
   border: 0;
-  border-radius: var(--kb-radius-xs);
+  border-radius: var(--kf-radius-xs);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: background-color var(--kb-control-motion) ease, color var(--kb-control-motion) ease;
+  transition: background-color var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
 }
 .kf-tags-input__chip-remove:hover,
 .kf-tags-input__clear:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 .kf-tags-input__chip-remove:focus-visible,
 .kf-tags-input__clear:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 1px;
 }
 
 .kf-tags-input__control {
   flex: 1 1 8rem;
   min-width: 0;
-  height: var(--kb-space-6);
+  height: var(--kf-space-6);
   margin: 0;
   padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-family: var(--font-sans);
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   box-shadow: none;
   outline: 0;
 }
@@ -346,11 +346,11 @@ function onCompositionEnd(event: CompositionEvent): void {
   outline: 0;
 }
 .kf-tags-input__control::placeholder {
-  color: var(--kb-field-placeholder);
+  color: var(--kf-field-placeholder);
   opacity: 1;
 }
 /* 外壳是唯一的焦点绘制层：屏蔽 style.css 键盘模态对裸 input 的通用外环。 */
-html[data-kb-input-modality="keyboard"] .kf-tags-input .kf-tags-input__control:focus-visible {
+html[data-kf-input-modality="keyboard"] .kf-tags-input .kf-tags-input__control:focus-visible {
   border: 0;
   background: transparent;
   box-shadow: none;
@@ -361,10 +361,10 @@ html[data-kb-input-modality="keyboard"] .kf-tags-input .kf-tags-input__control:f
 }
 
 .kf-tags-input__error {
-  margin: var(--kb-space-1) 0 0;
-  color: var(--kb-danger-text);
-  font-size: var(--kb-fs-caption);
-  line-height: var(--kb-lh-caption);
+  margin: var(--kf-space-1) 0 0;
+  color: var(--kf-danger-text);
+  font-size: var(--kf-fs-caption);
+  line-height: var(--kf-lh-caption);
 }
 .kf-tags-input__status {
   position: absolute;
@@ -384,7 +384,7 @@ html[data-kb-input-modality="keyboard"] .kf-tags-input .kf-tags-input__control:f
     outline-offset: 1px;
     box-shadow: none;
   }
-  html[data-kb-input-modality] .kf-tags-input .kf-tags-input__control:focus-visible {
+  html[data-kf-input-modality] .kf-tags-input .kf-tags-input__control:focus-visible {
     outline: 0;
     box-shadow: none;
   }

@@ -1,6 +1,6 @@
 <template>
   <section class="kf-evidence" aria-labelledby="kf-evidence-title" :aria-busy="loading">
-    <header class="kf-evidence-head"><div><h2 id="kf-evidence-title" class="kb-h2">学习证据记录</h2><p>保留原答与后续记录；AI建议、复习自评不代表客观掌握度。</p></div><Button variant="text" :disabled="loading" @click="load(page)">刷新记录</Button></header>
+    <header class="kf-evidence-head"><div><h2 id="kf-evidence-title" class="kf-h2">学习证据记录</h2><p>保留原答与后续记录；AI建议、复习自评不代表客观掌握度。</p></div><Button variant="text" :disabled="loading" @click="load(page)">刷新记录</Button></header>
     <p>这里展示已捕获的真实业务回执。旧记录不会自动补造快照，也不改变上方报告统计。</p>
     <p v-if="loading" role="status">正在读取学习证据…</p>
     <div v-else-if="error"><p role="alert">{{ error }}</p><Button @click="load(page)">重试</Button></div>
@@ -55,12 +55,12 @@ onMounted(() => void load(1))
 onBeforeUnmount(() => { active = false; request++ })
 </script>
 <style scoped>
-.kf-evidence { margin-top: var(--kb-space-6); padding: var(--kb-space-4); border-radius: var(--kb-radius-md); background: var(--kb-card); color: var(--kb-foreground); font-size: var(--kb-fs-body-sm); overflow-wrap: anywhere; }
-.kf-evidence-head { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:var(--kb-space-3); }
-.kf-evidence p { margin-block: var(--kb-space-2); }
-.kf-evidence-list { list-style:none; padding:0; display:grid; gap:var(--kb-space-4); }
-.kf-evidence-list li { padding-block:var(--kb-space-3); border-bottom:var(--kb-border-width, 1px) solid var(--kb-border); }
+.kf-evidence { margin-top: var(--kf-space-6); padding: var(--kf-space-4); border-radius: var(--kf-radius-md); background: var(--kf-card); color: var(--kf-foreground); font-size: var(--kf-fs-body-sm); overflow-wrap: anywhere; }
+.kf-evidence-head { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:var(--kf-space-3); }
+.kf-evidence p { margin-block: var(--kf-space-2); }
+.kf-evidence-list { list-style:none; padding:0; display:grid; gap:var(--kf-space-4); }
+.kf-evidence-list li { padding-block:var(--kf-space-3); border-bottom:var(--kf-border-width, 1px) solid var(--kf-border); }
 .kf-evidence-answer { white-space:pre-wrap; }
-.kf-evidence pre { white-space:pre-wrap; overflow-wrap:anywhere; font-family:var(--kb-font-mono); }
+.kf-evidence pre { white-space:pre-wrap; overflow-wrap:anywhere; font-family:var(--kf-font-mono); }
 .kf-evidence summary { cursor:pointer; }
 </style>

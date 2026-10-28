@@ -336,8 +336,8 @@ const dashOffset = computed(() => {
 })
 
 const scoreColor = computed(() => {
-  if (result.value?.passed) return 'var(--kb-success, #22c55e)'
-  return 'var(--kb-danger, #f87171)'
+  if (result.value?.passed) return 'var(--kf-success, #22c55e)'
+  return 'var(--kf-danger, #f87171)'
 })
 
 const durationText = computed(() => {

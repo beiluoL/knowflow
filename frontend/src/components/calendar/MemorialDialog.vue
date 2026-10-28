@@ -22,7 +22,7 @@ const emit = defineEmits<{
 }>()
 
 /** 纪念日主题色预设（与视图渲染共用，首项为默认）。 */
-const PRESET_COLORS = ['#8B5CF6', '#EC4899', '#E5484D', 'var(--kb-warning)', 'var(--kb-success)', '#0EA5E9', '#14B8A6', '#A16207']
+const PRESET_COLORS = ['#8B5CF6', '#EC4899', '#E5484D', 'var(--kf-warning)', 'var(--kf-success)', '#0EA5E9', '#14B8A6', '#A16207']
 
 interface Form {
   name: string
@@ -171,7 +171,7 @@ async function onDelete(m: Memorial) {
         <!-- 表单 -->
         <div v-if="isEdit || memorials.length === 0" class="mem-form">
           <div class="mem-form-title">{{ titleText }}</div>
-          <input v-model="form.name" class="mem-input kb-input kb-form-control" placeholder="纪念日名称（如：结婚纪念日）" maxlength="100" />
+          <input v-model="form.name" class="mem-input kf-input kf-form-control" placeholder="纪念日名称（如：结婚纪念日）" maxlength="100" />
 
           <div class="mem-type-row">
             <button
@@ -192,10 +192,10 @@ async function onDelete(m: Memorial) {
 
           <div v-if="form.type === 'yearly'" class="mem-field">
             <Icon name="calendar" :size="15" class="mem-ic" />
-            <select v-model.number="form.month" class="mem-input mem-select-sm kb-select kb-form-control">
+            <select v-model.number="form.month" class="mem-input mem-select-sm kf-select kf-form-control">
               <option v-for="m in 12" :key="m" :value="m">{{ m }} 月</option>
             </select>
-            <select v-model.number="form.day" class="mem-input mem-select-sm kb-select kb-form-control">
+            <select v-model.number="form.day" class="mem-input mem-select-sm kf-select kf-form-control">
               <option v-for="d in 31" :key="d" :value="d">{{ d }} 日</option>
             </select>
             <span class="mem-hint">每年这一天</span>
@@ -224,7 +224,7 @@ async function onDelete(m: Memorial) {
             ></button>
           </div>
 
-          <textarea v-model="form.note" class="mem-input mem-textarea kb-textarea kb-form-control" placeholder="备注（可选）" rows="2"></textarea>
+          <textarea v-model="form.note" class="mem-input mem-textarea kf-textarea kf-form-control" placeholder="备注（可选）" rows="2"></textarea>
 
           <p v-if="error" class="mem-error">{{ error }}</p>
 
@@ -335,7 +335,7 @@ async function onDelete(m: Memorial) {
   font-weight: 700;
   color: #374151;
 }
-.mem-input:not(.kb-form-control) {
+.mem-input:not(.kf-form-control) {
   border: 1px solid #e5e7eb;
   border-radius: 9px;
   background: #fff;
@@ -348,8 +348,8 @@ async function onDelete(m: Memorial) {
   color: #1f2937;
   font-family: inherit;
 }
-.mem-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.mem-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
 }
 .mem-select-sm {
@@ -364,7 +364,7 @@ async function onDelete(m: Memorial) {
   flex: 1;
   border: 1px solid #e5e7eb;
   background: #fff;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 13px;
   font-weight: 600;
   padding: 8px 10px;
@@ -373,8 +373,8 @@ async function onDelete(m: Memorial) {
   transition: all 0.15s;
 }
 .mem-type-btn.on {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
   background: #f0f5ff;
 }
 .mem-field {
@@ -411,13 +411,13 @@ async function onDelete(m: Memorial) {
   transform: scale(1.12);
 }
 .mem-color.on {
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--kb-primary);
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--kf-primary);
 }
 .mem-textarea {
   resize: vertical;
 }
 .mem-error {
-  color: var(--kb-danger);
+  color: var(--kf-danger);
   font-size: 13px;
   margin: 0;
 }
@@ -440,7 +440,7 @@ async function onDelete(m: Memorial) {
 }
 .mem-save {
   border: none;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
   font-size: 14px;
   font-weight: 600;
@@ -500,7 +500,7 @@ async function onDelete(m: Memorial) {
 }
 .mem-item-note {
   margin-left: 6px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .mem-item-actions {
   display: flex;
@@ -512,7 +512,7 @@ async function onDelete(m: Memorial) {
   height: 30px;
   border: 1px solid #e5e7eb;
   background: #fff;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   border-radius: 8px;
   cursor: pointer;
   display: flex;
@@ -521,12 +521,12 @@ async function onDelete(m: Memorial) {
   transition: all 0.15s;
 }
 .mem-op:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .mem-op-del:hover {
-  border-color: var(--kb-danger-tint);
-  color: var(--kb-danger);
+  border-color: var(--kf-danger-tint);
+  color: var(--kf-danger);
 }
 .mem-foot {
   display: flex;
@@ -545,7 +545,7 @@ async function onDelete(m: Memorial) {
   align-items: center;
   gap: 5px;
   border: none;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
   font-size: 13px;
   font-weight: 600;

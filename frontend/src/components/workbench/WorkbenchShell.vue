@@ -2,9 +2,9 @@
   <div class="workbench-space">
     <header class="workbench-header">
       <div>
-        <RouterLink to="/workbench" class="kb-text-caption workbench-eyebrow"><Icon name="layers" :size="14" />学习工作台</RouterLink>
-        <h1 class="kb-text-page-title">{{ title || current?.label }}</h1>
-        <p class="kb-text-secondary">{{ subtitle || current?.app.description }}</p>
+        <RouterLink to="/workbench" class="kf-text-caption workbench-eyebrow"><Icon name="layers" :size="14" />学习工作台</RouterLink>
+        <h1 class="kf-text-page-title">{{ title || current?.label }}</h1>
+        <p class="kf-text-secondary">{{ subtitle || current?.app.description }}</p>
       </div>
       <div v-if="available" class="workbench-actions"><slot name="actions" /></div>
     </header>
@@ -16,7 +16,7 @@
         <Icon v-if="!isEnabled(step.appKey)" name="lock" :size="14" aria-label="未启用" />
       </RouterLink>
     </nav>
-    <div v-if="statsError" class="workbench-inline-error" role="status">统计加载失败，不影响已启用的内容操作。<button class="kb-btn" @click="loadOverview">重试统计</button></div>
+    <div v-if="statsError" class="workbench-inline-error" role="status">统计加载失败，不影响已启用的内容操作。<button class="kf-btn" @click="loadOverview">重试统计</button></div>
     <details class="workbench-help">
       <summary><Icon name="info" :size="14" /> 使用方法</summary>
       <p>{{ help || current?.help }}</p>
@@ -24,12 +24,12 @@
     <div v-if="!settled" class="workbench-state" role="status">正在同步应用状态…</div>
     <section v-else-if="!available" class="workbench-state">
       <Icon :name="current?.app.icon || 'grid'" :size="32" />
-      <h2 class="kb-text-section-title">{{ current?.app.name }}</h2>
+      <h2 class="kf-text-section-title">{{ current?.app.name }}</h2>
       <p>{{ current?.app.description }}</p>
-      <p class="kb-text-caption">独立使用，也能串联四步流程。停用不会删除已有内容。</p>
+      <p class="kf-text-caption">独立使用，也能串联四步流程。停用不会删除已有内容。</p>
       <p v-if="installError || apps.error" role="alert" class="workbench-inline-error">{{ installError || apps.error }}</p>
-      <button data-test="workbench-install" class="kb-btn kb-btn-primary" :disabled="busy || productLoading" @click="activate">{{ busy || productLoading ? '正在处理…' : productError ? '重试应用信息' : needsRedeem ? '去应用中心获取' : apps.stateOf(current!.appKey).installed ? `启用${current?.app.name}` : `安装${current?.app.name}` }}</button>
-      <RouterLink to="/apps" class="kb-btn">应用中心</RouterLink>
+      <button data-test="workbench-install" class="kf-btn kf-btn-primary" :disabled="busy || productLoading" @click="activate">{{ busy || productLoading ? '正在处理…' : productError ? '重试应用信息' : needsRedeem ? '去应用中心获取' : apps.stateOf(current!.appKey).installed ? `启用${current?.app.name}` : `安装${current?.app.name}` }}</button>
+      <RouterLink to="/apps" class="kf-btn">应用中心</RouterLink>
     </section>
     <div v-else class="workbench-content"><slot /></div>
   </div>

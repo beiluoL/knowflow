@@ -41,7 +41,7 @@
  * 让各学习工具（测验 / 闪卡 / 错题 / 费曼 / 编程 …）只专注自身内容，不再各自造一套 Header（§95-96/§213-216）。
  *  - 页头不展示统一返回按钮；动作区用 slot 透传业务按钮。
  *  - 上下文仅在有 knowledgeName 时显示，无则不渲染空状态（§101）。
- *  - 全部颜色走 --kb-* 令牌，深色模式自动跟随（§308-310）。
+ *  - 全部颜色走 --kf-* 令牌，深色模式自动跟随（§308-310）。
  */
 import Icon from '@/components/ui/Icon.vue';
 
@@ -80,16 +80,16 @@ defineEmits<{
 }
 
 .mini-app-title {
-  font-size: var(--kb-fs-h1);
-  font-weight: var(--kb-fw-h1);
-  color: var(--kb-foreground);
-  line-height: var(--kb-lh-h1);
+  font-size: var(--kf-fs-h1);
+  font-weight: var(--kf-fw-h1);
+  color: var(--kf-foreground);
+  line-height: var(--kf-lh-h1);
   margin: 0;
 }
 
 .mini-app-subtitle {
-  font-size: var(--kb-fs-body-sm, 13px);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm, 13px);
+  color: var(--kf-muted-foreground);
   margin: 2px 0 0;
 }
 
@@ -99,9 +99,9 @@ defineEmits<{
   gap: 6px;
   padding: 4px 10px;
   border-radius: 999px;
-  background: var(--kb-primary-soft);
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-caption, 12px);
+  background: var(--kf-primary-soft);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-caption, 12px);
   flex-shrink: 0;
 }
 .mini-app-context-clear {
@@ -110,13 +110,13 @@ defineEmits<{
   justify-content: center;
   border: none;
   background: transparent;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   cursor: pointer;
   padding: 0;
 }
 .mini-app-context-clear:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--kb-ring);
+  box-shadow: 0 0 0 2px var(--kf-ring);
 }
 
 .mini-app-actions {

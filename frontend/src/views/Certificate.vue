@@ -15,8 +15,8 @@
 
     <!-- 证书主体 -->
     <div v-if="loading" class="loading-state">
-      <div class="h-6 w-40 rounded animate-pulse" style="background: var(--kb-muted);"></div>
-      <div class="h-[360px] w-full max-w-2xl rounded-xl animate-pulse mt-6" style="background: var(--kb-muted);"></div>
+      <div class="h-6 w-40 rounded animate-pulse" style="background: var(--kf-muted);"></div>
+      <div class="h-[360px] w-full max-w-2xl rounded-xl animate-pulse mt-6" style="background: var(--kf-muted);"></div>
     </div>
 
     <div v-else-if="cert" class="cert-body">
@@ -46,7 +46,7 @@
     </div>
 
     <p v-else class="empty-state">
-      <Icon name="award" :size="32" style="color: var(--kb-muted-foreground);" />
+      <Icon name="award" :size="32" style="color: var(--kf-muted-foreground);" />
       证书不存在或已被移除
     </p>
 
@@ -58,7 +58,7 @@
           v-model="verifyNo"
           type="text"
           placeholder="输入证书验证码（如 KC-20260731-1234）"
-          class="verify-input kb-input kb-form-control"
+          class="verify-input kf-input kf-form-control"
         />
         <button type="button" class="verify-btn" :disabled="verifying" @click="doVerify">
           <Icon name="shield" :size="16" />
@@ -98,8 +98,8 @@ const loading = ref(false);
 
 const CERT_W = 1200;
 const CERT_H = 850;
-const PRIMARY = 'var(--kb-primary)';
-const ACCENT = 'var(--kb-success)';
+const PRIMARY = 'var(--kf-primary)';
+const ACCENT = 'var(--kf-success)';
 
 const formatDate = (d?: string) => {
   if (!d) return '';
@@ -243,7 +243,7 @@ onMounted(loadCert);
   max-width: none;
   margin-inline: 0;
   /* 4px 网格：小屏 16px，≥768px 恢复桌面 24px（等价 px-4 md:px-6） */
-  padding: var(--kb-space-4);
+  padding: var(--kf-space-4);
 
   width: 100%;
   min-width: 0;
@@ -252,7 +252,7 @@ onMounted(loadCert);
 }
 @media (min-width: 768px) {
   .certificate-page {
-    padding: var(--kb-space-6);
+    padding: var(--kf-space-6);
   }
 }
 .page-header {
@@ -260,52 +260,52 @@ onMounted(loadCert);
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: var(--kb-space-3);
-  margin-bottom: var(--kb-space-6);
+  gap: var(--kf-space-3);
+  margin-bottom: var(--kf-space-6);
 }
 .back-btn {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-space-2);
-  padding: var(--kb-space-2) var(--kb-space-4);
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
-  color: var(--kb-muted-foreground);
+  gap: var(--kf-space-2);
+  padding: var(--kf-space-2) var(--kf-space-4);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
+  color: var(--kf-muted-foreground);
   background: transparent;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
 }
 .back-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 .back-btn:active {
   transform: scale(0.98);
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .back-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 .page-title {
   min-width: 0;
-  font-size: var(--kb-fs-h4);
-  line-height: var(--kb-lh-h4);
-  font-weight: var(--kb-fw-h4);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-h4);
+  line-height: var(--kf-lh-h4);
+  font-weight: var(--kf-fw-h4);
+  color: var(--kf-foreground);
 }
 .download-btn {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   padding: 10px 20px;
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   font-weight: 500;
-  color: var(--kb-primary-foreground);
-  background: var(--kb-primary);
+  color: var(--kf-primary-foreground);
+  background: var(--kf-primary);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -319,7 +319,7 @@ onMounted(loadCert);
   transform: scale(0.98);
 }
 .download-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 .download-btn:disabled {
@@ -332,12 +332,12 @@ onMounted(loadCert);
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px var(--kb-space-4);
-  gap: var(--kb-space-4);
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  padding: 60px var(--kf-space-4);
+  gap: var(--kf-space-4);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   text-align: center;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .cert-viewer {
   border-radius: 12px;
@@ -350,61 +350,61 @@ onMounted(loadCert);
   display: block;
 }
 .cert-info-card {
-  margin-top: var(--kb-space-6);
-  padding: var(--kb-space-5);
-  border: 1px solid var(--kb-border);
+  margin-top: var(--kf-space-6);
+  padding: var(--kf-space-5);
+  border: 1px solid var(--kf-border);
   border-radius: 12px;
-  background: var(--kb-card);
+  background: var(--kf-card);
 }
 .info-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   padding: 10px 0;
-  border-bottom: 1px dashed var(--kb-border);
+  border-bottom: 1px dashed var(--kf-border);
 }
 .info-row:last-child {
   border-bottom: none;
 }
 .info-label {
   flex-shrink: 0;
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
+  color: var(--kf-muted-foreground);
 }
 .info-value {
   /* 小屏防溢出：允许收缩换行而非撑破卡片 */;
   min-width: 0;
   text-align: right;
   word-break: break-word;
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .info-value.mono {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 .verify-section {
-  margin-top: var(--kb-space-6);
+  margin-top: var(--kf-space-6);
 }
 .verify-title {
-  font-size: var(--kb-fs-body-lg);
-  line-height: var(--kb-lh-body-lg);
+  font-size: var(--kf-fs-body-lg);
+  line-height: var(--kf-lh-body-lg);
   font-weight: 600;
-  color: var(--kb-foreground);
-  margin-bottom: var(--kb-space-3);
+  color: var(--kf-foreground);
+  margin-bottom: var(--kf-space-3);
 }
 .verify-box {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
 }
-.verify-input:not(.kb-form-control) {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+.verify-input:not(.kf-form-control) {
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 8px;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -412,30 +412,30 @@ onMounted(loadCert);
 .verify-input {
   flex: 1 1 240px;
   min-width: 0;
-  padding: 10px var(--kb-space-3);
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
-  color: var(--kb-foreground);
+  padding: 10px var(--kf-space-3);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
+  color: var(--kf-foreground);
 }
-.verify-input:not(.kb-form-control):hover {
-  border-color: var(--kb-primary);
+.verify-input:not(.kf-form-control):hover {
+  border-color: var(--kf-primary);
 }
-.verify-input:not(.kb-form-control):focus,
-.verify-input:not(.kb-form-control):focus-visible {
-  border-color: var(--kb-primary);
+.verify-input:not(.kf-form-control):focus,
+.verify-input:not(.kf-form-control):focus-visible {
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.15);
 }
 .verify-btn {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   padding: 10px 20px;
-  font-size: var(--kb-fs-body-md);
-  line-height: var(--kb-lh-body-md);
+  font-size: var(--kf-fs-body-md);
+  line-height: var(--kf-lh-body-md);
   font-weight: 500;
-  color: var(--kb-primary-foreground);
-  background: var(--kb-primary);
+  color: var(--kf-primary-foreground);
+  background: var(--kf-primary);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -449,7 +449,7 @@ onMounted(loadCert);
   transform: scale(0.98);
 }
 .verify-btn:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 .verify-btn:disabled {
@@ -460,11 +460,11 @@ onMounted(loadCert);
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--kb-space-2);
-  margin-top: var(--kb-space-3);
-  padding: var(--kb-space-3) var(--kb-space-4);
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
+  gap: var(--kf-space-2);
+  margin-top: var(--kf-space-3);
+  padding: var(--kf-space-3) var(--kf-space-4);
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
   border-radius: 8px;
 }
 /* 结果图标不被压缩，文案可收缩换行，避免小屏横向溢出 */
@@ -477,20 +477,20 @@ onMounted(loadCert);
   word-break: break-word;
 }
 .verify-ok {
-  color: color-mix(in srgb, var(--kb-accent) 78%, #000);
-  background: color-mix(in srgb, var(--kb-accent) 10%, transparent);
+  color: color-mix(in srgb, var(--kf-accent) 78%, #000);
+  background: color-mix(in srgb, var(--kf-accent) 10%, transparent);
 }
 .verify-fail {
-  color: color-mix(in srgb, var(--kb-destructive) 82%, #000);
-  background: color-mix(in srgb, var(--kb-destructive) 10%, transparent);
+  color: color-mix(in srgb, var(--kf-destructive) 82%, #000);
+  background: color-mix(in srgb, var(--kf-destructive) 10%, transparent);
 }
 .verify-link {
   margin-left: auto;
   flex-shrink: 0;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   text-decoration: none;
   font-weight: 500;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   transition: color 0.15s ease, opacity 0.15s ease;
 }
 .verify-link:hover {
@@ -501,7 +501,7 @@ onMounted(loadCert);
   text-decoration: underline;
 }
 .verify-link:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
   text-decoration: underline;
 }

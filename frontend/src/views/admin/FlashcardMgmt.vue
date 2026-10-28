@@ -72,14 +72,14 @@
             <div class="flex items-center gap-3 flex-wrap">
               <select
                 v-model="filterCategory"
-                class="px-3 py-2 text-sm hover:border-primary-300 transition-colors kb-select kb-form-control"
+                class="px-3 py-2 text-sm hover:border-primary-300 transition-colors kf-select kf-form-control"
               >
                 <option value="">全部分类</option>
                 <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
               </select>
               <select
                 v-model="filterStatus"
-                class="px-3 py-2 text-sm hover:border-primary-300 transition-colors kb-select kb-form-control"
+                class="px-3 py-2 text-sm hover:border-primary-300 transition-colors kf-select kf-form-control"
               >
                 <option value="">全部状态</option>
                 <option value="mastered">已掌握</option>
@@ -93,7 +93,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
           <div
             v-for="card in filteredCards" :key="card.id"
-            class="group border border-border rounded-xl p-4 hover:shadow-md transition-colors transition-shadow duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+            class="group border border-border rounded-xl p-4 hover:shadow-md transition-colors transition-shadow duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
             :class="{ 'border-primary-300 bg-primary-50': selectedCard?.id === card.id }"
             role="button"
             tabindex="0"
@@ -103,10 +103,10 @@
             <div class="flex items-start justify-between mb-3">
               <Badge :variant="getStatusVariant(card.status)">{{ getStatusText(card.status) }}</Badge>
               <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button class="p-1 hover:bg-gray-100 rounded text-muted-foreground hover:text-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click.stop="openEdit(card)">
+                <button class="p-1 hover:bg-gray-100 rounded text-muted-foreground hover:text-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click.stop="openEdit(card)">
                   <Icon name="edit" :size="16" aria-hidden="true" />
                 </button>
-                <button class="p-1 hover:bg-gray-100 rounded text-muted-foreground hover:text-danger-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click.stop="deleteCard(card)">
+                <button class="p-1 hover:bg-gray-100 rounded text-muted-foreground hover:text-danger-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click.stop="deleteCard(card)">
                   <Icon name="trash-2" :size="16" aria-hidden="true" />
                 </button>
               </div>
@@ -138,18 +138,18 @@
       <div class="bg-card rounded-xl w-full max-w-2xl shadow-xl animate-dropdown">
         <div class="flex items-center justify-between px-6 py-4 border-b border-border">
           <h3 class="text-lg font-semibold text-foreground">{{ editingId ? '编辑卡片' : '新增卡片' }}</h3>
-          <button class="p-1 hover:bg-gray-100 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="closeModal">
+          <button class="p-1 hover:bg-gray-100 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" @click="closeModal">
             <Icon name="x" :size="20" aria-hidden="true" />
           </button>
         </div>
         <div class="px-6 py-4 space-y-4">
           <div>
             <label class="block text-sm font-medium text-foreground mb-1.5">正面（问题）</label>
-            <textarea v-model="form.front" rows="3" placeholder="请输入问题" class="w-full px-3 py-2 text-sm hover:border-primary-300 font-mono transition-colors kb-textarea kb-form-control"></textarea>
+            <textarea v-model="form.front" rows="3" placeholder="请输入问题" class="w-full px-3 py-2 text-sm hover:border-primary-300 font-mono transition-colors kf-textarea kf-form-control"></textarea>
           </div>
           <div>
             <label class="block text-sm font-medium text-foreground mb-1.5">背面（答案）</label>
-            <textarea v-model="form.back" rows="3" placeholder="请输入答案" class="w-full px-3 py-2 text-sm hover:border-primary-300 font-mono transition-colors kb-textarea kb-form-control"></textarea>
+            <textarea v-model="form.back" rows="3" placeholder="请输入答案" class="w-full px-3 py-2 text-sm hover:border-primary-300 font-mono transition-colors kf-textarea kf-form-control"></textarea>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -158,7 +158,7 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-foreground mb-1.5">难度</label>
-              <select v-model.number="form.difficulty" class="w-full px-3 py-2 text-sm hover:border-primary-300 transition-colors kb-select kb-form-control">
+              <select v-model.number="form.difficulty" class="w-full px-3 py-2 text-sm hover:border-primary-300 transition-colors kf-select kf-form-control">
                 <option :value="1">简单</option>
                 <option :value="2">中等</option>
                 <option :value="3">困难</option>
@@ -182,7 +182,7 @@
       <div class="bg-card rounded-xl w-full max-w-md shadow-xl animate-dropdown">
         <div class="flex items-center justify-between px-6 py-4 border-b border-border">
           <h3 class="text-lg font-semibold text-foreground">AI 生成知识卡片</h3>
-          <button class="p-1 hover:bg-gray-100 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="closeAiModal">
+          <button class="p-1 hover:bg-gray-100 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" @click="closeAiModal">
             <Icon name="x" :size="20" aria-hidden="true" />
           </button>
         </div>
@@ -191,11 +191,11 @@
             <label class="block text-sm font-medium text-foreground mb-1.5">生成来源</label>
             <div class="flex items-center gap-4">
               <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" v-model="aiSource" value="kb" class="text-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @change="onAiSourceChange" />
+                <input type="radio" v-model="aiSource" value="kb" class="text-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @change="onAiSourceChange" />
                 <span class="text-sm text-foreground">按知识库</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" v-model="aiSource" value="doc" class="text-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @change="onAiSourceChange" />
+                <input type="radio" v-model="aiSource" value="doc" class="text-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @change="onAiSourceChange" />
                 <span class="text-sm text-foreground">按文档</span>
               </label>
             </div>
@@ -204,7 +204,7 @@
             <label class="block text-sm font-medium text-foreground mb-1.5">知识库</label>
             <select
               v-model="aiCategoryId"
-              class="w-full px-3 py-2 text-sm hover:border-primary-300 transition-colors kb-select kb-form-control"
+              class="w-full px-3 py-2 text-sm hover:border-primary-300 transition-colors kf-select kf-form-control"
               @change="onAiCategoryChange"
             >
               <option :value="null">请选择知识库</option>
@@ -215,7 +215,7 @@
             <label class="block text-sm font-medium text-foreground mb-1.5">文档</label>
             <select
               v-model="aiDocId"
-              class="w-full px-3 py-2 text-sm hover:border-primary-300 transition-colors kb-select kb-form-control"
+              class="w-full px-3 py-2 text-sm hover:border-primary-300 transition-colors kf-select kf-form-control"
               :disabled="!aiCategoryId"
             >
               <option :value="null">{{ aiLoadingDocs ? '文档加载中...' : '请选择文档' }}</option>
@@ -230,7 +230,7 @@
               min="3"
               max="30"
               placeholder="请输入生成数量"
-              class="w-full px-3 py-2 text-sm hover:border-primary-300 transition-colors kb-input kb-form-control"
+              class="w-full px-3 py-2 text-sm hover:border-primary-300 transition-colors kf-input kf-form-control"
             />
           </div>
         </div>

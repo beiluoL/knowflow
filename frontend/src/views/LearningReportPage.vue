@@ -7,16 +7,16 @@
       title-color="text-foreground"
     >
       <template #actions>
-        <div class="flex items-center gap-1 p-1 rounded-lg border" style="border-color: var(--kb-border); background: var(--kb-card);">
+        <div class="flex items-center gap-1 p-1 rounded-lg border" style="border-color: var(--kf-border); background: var(--kf-card);">
           <button
             v-for="opt in periodOptions"
             :key="opt.value"
             type="button"
-            class="px-3 py-1.5 text-sm font-medium rounded-md whitespace-nowrap transition duration-150 hover:opacity-90 hover:bg-[var(--kb-muted)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kb-ring)]"
+            class="px-3 py-1.5 text-sm font-medium rounded-md whitespace-nowrap transition duration-150 hover:opacity-90 hover:bg-[var(--kf-muted)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--kf-ring)]"
             :aria-pressed="period === opt.value"
             :style="period === opt.value
-              ? { background: 'var(--kb-primary)', color: 'var(--kb-primary-foreground)' }
-              : { color: 'var(--kb-muted-foreground)' }"
+              ? { background: 'var(--kf-primary)', color: 'var(--kf-primary-foreground)' }
+              : { color: 'var(--kf-muted-foreground)' }"
             @click="switchPeriod(opt.value)"
           >{{ opt.label }}</button>
         </div>
@@ -25,7 +25,7 @@
 
     <EvidenceReportPanel v-if="evidenceReportEnabled" />
     <StateView :status="reportStatus" :error-title="reportError?.title" :error-scope="reportError?.scope" :error-hint="reportError?.hint" :show-retry="reportError?.retryable ?? true" empty-title="还没有学习报告" empty-description="先阅读、复习或练习，真实学习记录会形成你的报告。" @retry="loadData(true)">
-    <template #empty-action><router-link class="kb-btn kb-btn-primary" to="/learning/center">返回学习首页</router-link></template>
+    <template #empty-action><router-link class="kf-btn kf-btn-primary" to="/learning/center">返回学习首页</router-link></template>
     <template #skeleton><div class="mt-6 space-y-4">
       <SkeletonList :rows="1" type="card" :cols="3" />
       <SkeletonList :rows="3" type="line" />
@@ -34,7 +34,7 @@
     <!-- 内容 -->
     <template #default><div v-if="report">
       <!-- 周期信息 -->
-      <p class="mt-4 text-sm" style="color: var(--kb-muted-foreground);">
+      <p class="mt-4 text-sm" style="color: var(--kf-muted-foreground);">
         统计周期：<span class="tabular-nums">{{ report.startDate }}</span> 至 <span class="tabular-nums">{{ report.endDate }}</span>
       </p>
 
@@ -47,13 +47,13 @@
           class="border rounded-[10px] p-5 bg-card border-border report-card"
         >
           <div class="flex items-center justify-between mb-3">
-            <div class="w-9 h-9 rounded-lg flex items-center justify-center" :style="{ background: `color-mix(in srgb, ${card.color} 10%, var(--kb-card))` }">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center" :style="{ background: `color-mix(in srgb, ${card.color} 10%, var(--kf-card))` }">
               <Icon :name="card.icon" :size="18" :style="{ color: card.color }" />
             </div>
           </div>
           <p class="text-[28px] font-bold tabular-nums leading-none" :style="{ color: card.color }">{{ card.value }}</p>
-          <p class="mt-2 text-[length:var(--kb-fs-body-sm)] truncate" style="color: var(--kb-muted-foreground);">{{ card.label }}</p>
-          <p v-if="card.sub" class="mt-1 text-[length:var(--kb-fs-caption)] truncate" style="color: var(--kb-muted-foreground);">{{ card.sub }}</p>
+          <p class="mt-2 text-[length:var(--kf-fs-body-sm)] truncate" style="color: var(--kf-muted-foreground);">{{ card.label }}</p>
+          <p v-if="card.sub" class="mt-1 text-[length:var(--kf-fs-caption)] truncate" style="color: var(--kf-muted-foreground);">{{ card.sub }}</p>
         </div>
       </section>
 
@@ -63,8 +63,8 @@
         <div class="lg:col-span-2 border rounded-[10px] p-5 bg-card border-border">
           <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
             <h2 class="report-h2 min-w-0">阅读时长与学习活动</h2>
-            <span class="text-sm tabular-nums" style="color: var(--kb-muted-foreground);">
-              最近 30 天 · 共 <span style="color: var(--kb-primary);">{{ dailyTotalMinutes }}</span> 分钟
+            <span class="text-sm tabular-nums" style="color: var(--kf-muted-foreground);">
+              最近 30 天 · 共 <span style="color: var(--kf-primary);">{{ dailyTotalMinutes }}</span> 分钟
             </span>
           </div>
           <EmptyState
@@ -98,7 +98,7 @@
         <div class="border rounded-[10px] p-5 bg-card border-border">
           <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
             <h2 class="report-h2 min-w-0">卡片与错题掌握快照</h2>
-            <span class="text-sm shrink-0" style="color: var(--kb-muted-foreground);">Top 5</span>
+            <span class="text-sm shrink-0" style="color: var(--kf-muted-foreground);">Top 5</span>
           </div>
           <EmptyState
             v-if="(report.categoryMastery ?? []).length === 0"
@@ -111,16 +111,16 @@
           <ul v-else class="space-y-4">
             <li v-for="(item, idx) in report.categoryMastery ?? []" :key="idx">
               <div class="flex items-center justify-between gap-2 mb-2">
-                <span class="text-sm font-medium truncate min-w-0 flex-1" style="color: var(--kb-foreground);">{{ item.categoryName }}</span>
-                <span class="text-sm font-semibold tabular-nums shrink-0" style="color: var(--kb-primary);">{{ item.percent }}%</span>
+                <span class="text-sm font-medium truncate min-w-0 flex-1" style="color: var(--kf-foreground);">{{ item.categoryName }}</span>
+                <span class="text-sm font-semibold tabular-nums shrink-0" style="color: var(--kf-primary);">{{ item.percent }}%</span>
               </div>
-              <div class="w-full h-2 rounded-full overflow-hidden" style="background: var(--kb-muted);">
+              <div class="w-full h-2 rounded-full overflow-hidden" style="background: var(--kf-muted);">
                 <div
                   class="h-full rounded-full transition-[width] duration-500"
-                  :style="{ width: `${item.percent}%`, background: 'linear-gradient(90deg, var(--kb-primary), var(--kb-accent))' }"
+                  :style="{ width: `${item.percent}%`, background: 'linear-gradient(90deg, var(--kf-primary), var(--kf-accent))' }"
                 ></div>
               </div>
-              <p class="mt-1 text-[length:var(--kb-fs-caption)] tabular-nums" style="color: var(--kb-muted-foreground);">
+              <p class="mt-1 text-[length:var(--kf-fs-caption)] tabular-nums" style="color: var(--kf-muted-foreground);">
                 已掌握 {{ item.mastered }} / {{ item.total }}
               </p>
             </li>
@@ -134,12 +134,12 @@
           <h2 class="report-h2 min-w-0">最近 8 周趋势</h2>
           <div class="flex items-center flex-wrap gap-x-4 gap-y-2 text-sm">
             <span class="flex items-center gap-2">
-              <span class="w-3 h-3 rounded-sm shrink-0" style="background: var(--kb-primary);"></span>
-              <span style="color: var(--kb-muted-foreground);">阅读记录时长(分钟)</span>
+              <span class="w-3 h-3 rounded-sm shrink-0" style="background: var(--kf-primary);"></span>
+              <span style="color: var(--kf-muted-foreground);">阅读记录时长(分钟)</span>
             </span>
             <span class="flex items-center gap-2">
-              <span class="w-3 h-3 rounded-sm shrink-0" style="background: var(--kb-accent);"></span>
-              <span style="color: var(--kb-muted-foreground);">签到天数</span>
+              <span class="w-3 h-3 rounded-sm shrink-0" style="background: var(--kf-accent);"></span>
+              <span style="color: var(--kf-muted-foreground);">签到天数</span>
             </span>
           </div>
         </div>
@@ -181,28 +181,28 @@
         <div class="border rounded-[10px] p-5 bg-card border-border">
           <h3 class="report-h3 mb-3">闪卡 & 错题</h3>
           <dl class="space-y-2 text-sm">
-            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">期内复习过的卡片</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-foreground);">{{ report.flashcardReviewed }}</dd></div>
-            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">已掌握闪卡</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-accent);">{{ report.flashcardMastered }}</dd></div>
-            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">错题总数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-foreground);">{{ report.mistakeCount }}</dd></div>
-            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">已掌握错题</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-accent);">{{ report.mistakeMastered }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kf-muted-foreground);">期内复习过的卡片</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kf-foreground);">{{ report.flashcardReviewed }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kf-muted-foreground);">已掌握闪卡</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kf-accent);">{{ report.flashcardMastered }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kf-muted-foreground);">错题总数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kf-foreground);">{{ report.mistakeCount }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kf-muted-foreground);">已掌握错题</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kf-accent);">{{ report.mistakeMastered }}</dd></div>
           </dl>
         </div>
         <div class="border rounded-[10px] p-5 bg-card border-border">
           <h3 class="report-h3 mb-3">代码 & 测验</h3>
           <dl class="space-y-2 text-sm">
-            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">代码提交次数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-foreground);">{{ report.codeSubmissions }}</dd></div>
-            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">代码通过次数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-accent);">{{ report.codePassed }}</dd></div>
-            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">测验答题数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-foreground);">{{ report.quizAnswered }}</dd></div>
-            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">测验答对数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-accent);">{{ report.quizCorrect }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kf-muted-foreground);">代码提交次数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kf-foreground);">{{ report.codeSubmissions }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kf-muted-foreground);">代码通过次数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kf-accent);">{{ report.codePassed }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kf-muted-foreground);">测验答题数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kf-foreground);">{{ report.quizAnswered }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kf-muted-foreground);">测验答对数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kf-accent);">{{ report.quizCorrect }}</dd></div>
           </dl>
         </div>
         <div class="border rounded-[10px] p-5 bg-card border-border">
           <h3 class="report-h3 mb-3">累计阅读与签到</h3>
           <dl class="space-y-2 text-sm">
-            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">累计阅读文档数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-foreground);">{{ report.docsRead }}</dd></div>
-            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">阅读记录时长(分钟)</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-primary);">{{ report.studyMinutes }}</dd></div>
-            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">签到天数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-foreground);">{{ report.checkinDays }}</dd></div>
-            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kb-muted-foreground);">当前连续打卡</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kb-warning);">{{ report.continuousDays }} 天</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kf-muted-foreground);">累计阅读文档数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kf-foreground);">{{ report.docsRead }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kf-muted-foreground);">阅读记录时长(分钟)</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kf-primary);">{{ report.studyMinutes }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kf-muted-foreground);">签到天数</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kf-foreground);">{{ report.checkinDays }}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="min-w-0 truncate" style="color: var(--kf-muted-foreground);">当前连续打卡</dt><dd class="tabular-nums font-medium shrink-0" style="color: var(--kf-warning);">{{ report.continuousDays }} 天</dd></div>
           </dl>
         </div>
       </section>
@@ -257,12 +257,12 @@ const overviewCards = computed(() => {
   const r = report.value
   if (!r) return []
   return [
-    { label: '签到天数', value: r.checkinDays, icon: 'calendar-check', color: 'var(--kb-primary)', sub: `连续 ${r.continuousDays} 天` },
-    { label: '当前连续打卡', value: r.continuousDays, icon: 'flame', color: 'var(--kb-warning)', sub: '保持下去' },
-    { label: '累计阅读时长(分)', value: r.studyMinutes, icon: 'clock', color: 'var(--kb-accent)', sub: `阅读 ${r.docsRead} 篇` },
-    { label: '期内复习过的卡片', value: r.flashcardReviewed, icon: 'layers', color: 'var(--kb-primary)', sub: `当前掌握快照 ${r.flashcardMastered}` },
-    { label: '当前已掌握错题', value: r.mistakeMastered, icon: 'check-circle', color: 'var(--kb-accent)', sub: `期内新增 ${r.mistakeCount} 题` },
-    { label: '代码提交', value: r.codeSubmissions, icon: 'code', color: 'var(--kb-highlight)', sub: `通过 ${r.codePassed}` },
+    { label: '签到天数', value: r.checkinDays, icon: 'calendar-check', color: 'var(--kf-primary)', sub: `连续 ${r.continuousDays} 天` },
+    { label: '当前连续打卡', value: r.continuousDays, icon: 'flame', color: 'var(--kf-warning)', sub: '保持下去' },
+    { label: '累计阅读时长(分)', value: r.studyMinutes, icon: 'clock', color: 'var(--kf-accent)', sub: `阅读 ${r.docsRead} 篇` },
+    { label: '期内复习过的卡片', value: r.flashcardReviewed, icon: 'layers', color: 'var(--kf-primary)', sub: `当前掌握快照 ${r.flashcardMastered}` },
+    { label: '当前已掌握错题', value: r.mistakeMastered, icon: 'check-circle', color: 'var(--kf-accent)', sub: `期内新增 ${r.mistakeCount} 题` },
+    { label: '代码提交', value: r.codeSubmissions, icon: 'code', color: 'var(--kf-highlight)', sub: `通过 ${r.codePassed}` },
   ]
 })
 
@@ -318,17 +318,17 @@ onMounted(() => {
 
 /* 标题字体：衬线 */
 .report-h2 {
-  font-size: var(--kb-fs-h4);
-  font-weight: var(--kb-fw-h4);
-  line-height: var(--kb-lh-h4);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-h4);
+  font-weight: var(--kf-fw-h4);
+  line-height: var(--kf-lh-h4);
+  color: var(--kf-foreground);
   font-family: var(--font-serif, 'Noto Serif SC', Georgia, serif);
 }
 .report-h3 {
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
-  line-height: var(--kb-lh-h4);
-  color: var(--kb-foreground);
+  line-height: var(--kf-lh-h4);
+  color: var(--kf-foreground);
   font-family: var(--font-serif, 'Noto Serif SC', Georgia, serif);
 }
 
@@ -344,9 +344,9 @@ onMounted(() => {
 .daily-chart {
   display: flex;
   align-items: flex-end;
-  gap: var(--kb-space-1);
+  gap: var(--kf-space-1);
   height: 180px;
-  padding-top: var(--kb-space-2);
+  padding-top: var(--kf-space-2);
   overflow-x: auto;
 }
 .daily-bar-wrap {
@@ -370,7 +370,7 @@ onMounted(() => {
   width: 70%;
   min-height: 2px;
   border-radius: 4px 4px 0 0;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   transition: height 0.3s ease, opacity 0.15s ease;
   cursor: pointer;
 }
@@ -381,15 +381,15 @@ onMounted(() => {
   opacity: 0.6;
 }
 .daily-bar:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 .daily-bar-label {
   position: absolute;
   bottom: -18px;
-  font-size: var(--kb-fs-xs);
-  line-height: var(--kb-lh-xs);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-xs);
+  line-height: var(--kf-lh-xs);
+  color: var(--kf-muted-foreground);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
@@ -398,9 +398,9 @@ onMounted(() => {
 .weekly-chart {
   display: flex;
   align-items: flex-end;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   height: 200px;
-  padding-top: var(--kb-space-2);
+  padding-top: var(--kf-space-2);
   overflow-x: auto;
 }
 .weekly-col {
@@ -417,7 +417,7 @@ onMounted(() => {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: var(--kb-space-1);
+  gap: var(--kf-space-1);
 }
 .weekly-bar {
   width: 18px;
@@ -433,20 +433,20 @@ onMounted(() => {
   opacity: 0.6;
 }
 .weekly-bar:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: 2px;
 }
 .weekly-bar-minutes {
-  background: var(--kb-primary);
+  background: var(--kf-primary);
 }
 .weekly-bar-checkins {
-  background: var(--kb-accent);
+  background: var(--kf-accent);
 }
 .weekly-label {
-  margin-top: var(--kb-space-2);
-  font-size: var(--kb-fs-xs);
-  line-height: var(--kb-lh-xs);
-  color: var(--kb-muted-foreground);
+  margin-top: var(--kf-space-2);
+  font-size: var(--kf-fs-xs);
+  line-height: var(--kf-lh-xs);
+  color: var(--kf-muted-foreground);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -457,11 +457,11 @@ onMounted(() => {
     width: 12px;
   }
   .weekly-chart {
-    gap: var(--kb-space-2);
+    gap: var(--kf-space-2);
   }
 }
 
-.report-method, .report-data { margin-block:var(--kb-space-5); padding:var(--kb-space-4); border:1px solid var(--kb-border); border-radius:var(--kb-radius-md); background:var(--kb-card); color:var(--kb-muted-foreground); font-size:var(--kb-fs-body-sm); line-height:var(--kb-lh-body-md); }
-.report-context { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:var(--kb-space-3); }.report-context .report-method { margin-block:var(--kb-space-4); flex:1; min-width:0; }.report-method summary { cursor:pointer; color:var(--kb-foreground); }.report-mastery-link { color:var(--kb-primary); font-size:var(--kb-fs-body-sm); }.report-method p { margin-top:var(--kb-space-3); }.report-method h2 { color:var(--kb-foreground); font-weight:600; margin-bottom:var(--kb-space-2); }.report-method a { display:inline-block; margin-top:var(--kb-space-2); color:var(--kb-primary); }.report-data-scroll { max-width:100%; overflow:auto; }.report-data table { width:100%; margin-block:var(--kb-space-3); border-collapse:collapse; }.report-data th,.report-data td { padding:var(--kb-space-2); text-align:left; border-bottom:1px solid var(--kb-border); }.report-data summary { cursor:pointer; color:var(--kb-foreground); }.daily-count { font-size:var(--kb-fs-caption); color:var(--kb-muted-foreground); white-space:nowrap; }
+.report-method, .report-data { margin-block:var(--kf-space-5); padding:var(--kf-space-4); border:1px solid var(--kf-border); border-radius:var(--kf-radius-md); background:var(--kf-card); color:var(--kf-muted-foreground); font-size:var(--kf-fs-body-sm); line-height:var(--kf-lh-body-md); }
+.report-context { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:var(--kf-space-3); }.report-context .report-method { margin-block:var(--kf-space-4); flex:1; min-width:0; }.report-method summary { cursor:pointer; color:var(--kf-foreground); }.report-mastery-link { color:var(--kf-primary); font-size:var(--kf-fs-body-sm); }.report-method p { margin-top:var(--kf-space-3); }.report-method h2 { color:var(--kf-foreground); font-weight:600; margin-bottom:var(--kf-space-2); }.report-method a { display:inline-block; margin-top:var(--kf-space-2); color:var(--kf-primary); }.report-data-scroll { max-width:100%; overflow:auto; }.report-data table { width:100%; margin-block:var(--kf-space-3); border-collapse:collapse; }.report-data th,.report-data td { padding:var(--kf-space-2); text-align:left; border-bottom:1px solid var(--kf-border); }.report-data summary { cursor:pointer; color:var(--kf-foreground); }.daily-count { font-size:var(--kf-fs-caption); color:var(--kf-muted-foreground); white-space:nowrap; }
 @media(prefers-reduced-motion:reduce) { .learning-report * { animation:none; transition:none; } }
 </style>

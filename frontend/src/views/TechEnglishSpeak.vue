@@ -17,7 +17,7 @@
         <Icon name="search" :size="16" class="te-search-icon" aria-hidden="true" />
         <input
           v-model="q"
-          class="kb-input te-search-input"
+          class="kf-input te-search-input"
           type="search"
           placeholder="搜索要跟读的术语，例如 Idempotency"
           aria-label="搜索跟读词条"
@@ -397,12 +397,12 @@ void loadDetail()
 <style scoped>
 .te-page {
   display: grid;
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
   min-width: 0;
 }
 .te-picker {
   display: grid;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
 }
 .te-search {
   position: relative;
@@ -410,23 +410,23 @@ void loadDetail()
 }
 .te-search-icon {
   position: absolute;
-  left: var(--kb-space-3);
+  left: var(--kf-space-3);
   top: 50%;
   transform: translateY(-50%);
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   pointer-events: none;
 }
 .te-search-input {
-  padding-left: calc(var(--kb-space-3) * 2 + 16px);
+  padding-left: calc(var(--kf-space-3) * 2 + 16px);
 }
 .te-inline-error {
   margin: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-state-error);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-state-error);
 }
 .te-search-results {
   display: grid;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -435,116 +435,116 @@ void loadDetail()
 .te-result {
   display: flex;
   align-items: baseline;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   width: 100%;
-  padding: var(--kb-space-2) var(--kb-space-3);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
+  padding: var(--kf-space-2) var(--kf-space-3);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
   text-align: left;
   cursor: pointer;
 }
 .te-result:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 .te-result-word {
   font-weight: 600;
   overflow-wrap: anywhere;
 }
 .te-result-meaning {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .te-practice {
   display: grid;
-  gap: var(--kb-space-4);
-  padding: var(--kb-space-4);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
-  background: var(--kb-card);
+  gap: var(--kf-space-4);
+  padding: var(--kf-space-4);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
+  background: var(--kf-card);
 }
 .te-practice-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   flex-wrap: wrap;
 }
 .te-practice-head > div {
   display: grid;
-  gap: var(--kb-space-1);
+  gap: var(--kf-space-1);
   min-width: 0;
 }
 .te-word {
   margin: 0;
-  font-size: var(--kb-fs-h2, 28px);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-h2, 28px);
+  color: var(--kf-foreground);
   overflow-wrap: anywhere;
 }
 .te-meaning {
   margin: 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .te-meta {
   margin: 0;
   display: flex;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   flex-wrap: wrap;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .te-record {
   display: grid;
-  gap: var(--kb-space-3);
-  padding: var(--kb-space-4);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
-  background: var(--kb-background);
+  gap: var(--kf-space-3);
+  padding: var(--kf-space-4);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
+  background: var(--kf-background);
 }
 .te-record-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--kb-space-3);
+  gap: var(--kf-space-3);
   flex-wrap: wrap;
 }
 .te-section-title {
   margin: 0;
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .te-record-state {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .te-record-state.is-recording {
-  color: var(--kb-state-error);
+  color: var(--kf-state-error);
 }
 .te-note {
   margin: 0;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .te-warning {
   margin: 0;
-  padding: var(--kb-space-3);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-muted);
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-state-warning);
+  padding: var(--kf-space-3);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-muted);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-state-warning);
 }
 .te-record-actions {
   display: flex;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   flex-wrap: wrap;
 }
 .te-playback {
   display: grid;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
 }
 .te-playback audio {
   width: 100%;
@@ -552,10 +552,10 @@ void loadDetail()
 }
 .te-steps {
   margin: 0;
-  padding-left: var(--kb-space-5, 20px);
+  padding-left: var(--kf-space-5, 20px);
   display: grid;
-  gap: var(--kb-space-1);
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  gap: var(--kf-space-1);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 </style>

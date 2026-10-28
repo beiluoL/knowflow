@@ -38,6 +38,6 @@ async function load(){
 watch(()=>[chapterId.value,props.resourceKind,props.resourceId],()=>void load(),{immediate:true})
 </script>
 <style scoped>
-.chapter-resource-links{display:flex;flex-wrap:wrap;align-items:center;gap:var(--kb-space-3);padding:var(--kb-space-3);margin-block:var(--kb-space-3);border:var(--kb-border-width,1px) solid var(--kb-border);border-radius:var(--kb-radius-sm);color:var(--kb-muted-foreground)}
-.chapter-resource-links a,.chapter-resource-links button{color:var(--kb-primary)}
+.chapter-resource-links{display:flex;flex-wrap:wrap;align-items:center;gap:var(--kf-space-3);padding:var(--kf-space-3);margin-block:var(--kf-space-3);border:var(--kf-border-width,1px) solid var(--kf-border);border-radius:var(--kf-radius-sm);color:var(--kf-muted-foreground)}
+.chapter-resource-links a,.chapter-resource-links button{color:var(--kf-primary)}
 </style>

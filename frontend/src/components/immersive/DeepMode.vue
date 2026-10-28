@@ -9,13 +9,13 @@
         <input
           v-model="topicInput"
           type="text"
-          class="topic-input transition-colors kb-input kb-form-control"
+          class="topic-input transition-colors kf-input kf-form-control"
           placeholder="输入主题关键词进行深潜"
           @keyup.enter="handleGenerateTechGraph"
         />
         <button
           type="button"
-          class="topic-gen-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="topic-gen-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="graphLoading"
           @click="handleGenerateTechGraph"
         >
@@ -32,7 +32,7 @@
           <li
             v-for="node in techGraph.nodes"
             :key="node.id"
-            class="topic-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="topic-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             :class="{ active: currentTopic?.id === node.id }"
             role="button"
             tabindex="0"
@@ -71,7 +71,7 @@
         <div class="tts-toolbar">
           <button
             type="button"
-            class="tts-btn primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="tts-btn primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             :disabled="isSpeaking"
             @click="handleSpeakTopic"
           >
@@ -80,7 +80,7 @@
           </button>
           <button
             type="button"
-            class="tts-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="tts-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             :disabled="!isSpeaking"
             @click="stop"
           >
@@ -94,7 +94,7 @@
               v-for="r in rateSteps"
               :key="r.v"
               type="button"
-              class="rate-chip focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="rate-chip focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
               :class="{ active: Math.abs(rate - r.v) < 0.05 }"
               @click="setRate(r.v)"
             >{{ r.label }}</button>
@@ -106,7 +106,7 @@
               v-for="p in pitchSteps"
               :key="p.v"
               type="button"
-              class="rate-chip focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="rate-chip focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
               :class="{ active: Math.abs(pitch - p.v) < 0.05 }"
               @click="setPitch(p.v)"
             >{{ p.label }}</button>
@@ -114,7 +114,7 @@
           <select
             v-if="voices.length"
             :value="selectedVoiceName"
-            class="voice-select transition-colors kb-select kb-form-control"
+            class="voice-select transition-colors kf-select kf-form-control"
             @change="(e) => setVoice((e.target as HTMLSelectElement).value)"
           >
             <option v-for="v in voices" :key="v.name" :value="v.name">
@@ -177,7 +177,7 @@
             <h3>深潜笔记区</h3>
           <textarea
             v-model="deepNote"
-            class="note-textarea transition-colors kb-textarea kb-form-control"
+            class="note-textarea transition-colors kf-textarea kf-form-control"
             rows="6"
             placeholder="在这里记下你的深潜思考…"
           />
@@ -189,8 +189,8 @@
         <DualRingProgress
           :inner-progress="innerProgress"
           :outer-progress="outerProgress"
-          inner-color="var(--kb-warning)"
-          outer-color="var(--kb-danger)"
+          inner-color="var(--kf-warning)"
+          outer-color="var(--kf-danger)"
           :size="180"
         >
           <div class="ring-center">
@@ -216,8 +216,8 @@
         <DualRingProgress
           :inner-progress="innerProgress"
           :outer-progress="outerProgress"
-          inner-color="var(--kb-warning)"
-          outer-color="var(--kb-danger)"
+          inner-color="var(--kf-warning)"
+          outer-color="var(--kf-danger)"
           :size="180"
         >
           <div class="ring-center">
@@ -241,7 +241,7 @@
           min="0"
           max="100"
           v-model.number="masteryPercent"
-          class="mastery-slider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="mastery-slider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         />
         <div class="mastery-hint">
           手动标记当前对主题的理解程度
@@ -288,7 +288,7 @@
         </div>
           <button
             type="button"
-            class="end-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="end-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             @click="handleEndSession"
           >
           <Icon name="log-out" :size="14" aria-hidden="true" />
@@ -299,7 +299,7 @@
       <div class="insight-card actions">
           <button
             type="button"
-            class="action-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="action-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             @click="$emit('toggle-graph')"
           >
           <Icon name="share-2" :size="14" aria-hidden="true" />
@@ -307,7 +307,7 @@
         </button>
           <button
             type="button"
-            class="action-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="action-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             @click="$emit('toggle-copilot')"
           >
           <Icon name="message-square-sparkles" :size="14" aria-hidden="true" />
@@ -399,8 +399,8 @@ const timeFormatted = computed(() => {
 const stageInfo = computed(() => {
   const m = elapsedSec.value / 60;
   if (m < 20) return { label: '探索阶段', color: '#60A5FA', icon: 'search' };
-  if (m <= 60) return { label: '专注阶段', color: 'var(--kb-warning)', icon: 'target' };
-  return { label: '掌握阶段', color: 'var(--kb-success)', icon: 'award' };
+  if (m <= 60) return { label: '专注阶段', color: 'var(--kf-warning)', icon: 'target' };
+  return { label: '掌握阶段', color: 'var(--kf-success)', icon: 'award' };
 });
 
 const prerequisiteChips = computed<string[]>(() => {
@@ -589,7 +589,7 @@ onUnmounted(async () => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-weight: 600;
   font-size: 14px;
   padding: 4px 2px;
@@ -604,10 +604,10 @@ onUnmounted(async () => {
   gap: 8px;
   margin-bottom: 4px;
 }
-.topic-input:not(.kb-form-control) {
+.topic-input:not(.kf-form-control) {
   height: 40px;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   outline: none;
   transition: border-color 0.15s;
@@ -615,10 +615,10 @@ onUnmounted(async () => {
 .topic-input {
   padding: 0 12px;
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
-.topic-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.topic-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 .topic-gen-btn {
   height: 40px;
@@ -629,7 +629,7 @@ onUnmounted(async () => {
   font-size: 13px;
   font-weight: 600;
   color: #fff;
-  background: linear-gradient(135deg, var(--kb-primary), #8B5CF6);
+  background: linear-gradient(135deg, var(--kf-primary), #8B5CF6);
   border: none;
   border-radius: 10px;
   cursor: pointer;
@@ -669,18 +669,18 @@ onUnmounted(async () => {
 .topic-card {
   padding: 11px 12px;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.15s;
 }
 .topic-card:hover {
   background: rgba(255, 255, 255, 0.06);
-  border-color: color-mix(in srgb, var(--kb-primary) 25%, transparent);
+  border-color: color-mix(in srgb, var(--kf-primary) 25%, transparent);
 }
 .topic-card.active {
-  background: color-mix(in srgb, var(--kb-primary) 12%, transparent);
-  border-color: color-mix(in srgb, var(--kb-primary) 45%, transparent);
+  background: color-mix(in srgb, var(--kf-primary) 12%, transparent);
+  border-color: color-mix(in srgb, var(--kf-primary) 45%, transparent);
 }
 .topic-card-head {
   display: flex;
@@ -692,7 +692,7 @@ onUnmounted(async () => {
 .topic-name {
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -704,7 +704,7 @@ onUnmounted(async () => {
 }
 .diff-badge.easy { color: #34D399; }
 .diff-badge.medium { color: #FBBF24; }
-.diff-badge.hard { color: var(--kb-danger-muted); }
+.diff-badge.hard { color: var(--kf-danger-muted); }
 .topic-card-meta {
   display: flex;
   align-items: center;
@@ -727,19 +727,19 @@ onUnmounted(async () => {
 .cat-framework { background: rgba(59, 130, 246, 0.15); color: #60A5FA; }
 .cat-tool { background: rgba(139, 92, 246, 0.15); color: #A78BFA; }
 .cat-database { background: rgba(245, 158, 11, 0.15); color: #FBBF24; }
-.cat-algorithm { background: rgba(239, 68, 68, 0.15); color: var(--kb-danger-muted); }
+.cat-algorithm { background: rgba(239, 68, 68, 0.15); color: var(--kf-danger-muted); }
 .cat-platform { background: rgba(236, 72, 153, 0.15); color: #F472B6; }
 .doc-count {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .topic-desc {
   margin: 0;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -754,7 +754,7 @@ onUnmounted(async () => {
   justify-content: center;
   gap: 10px;
   padding: 40px 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 12.5px;
   text-align: center;
   opacity: 0.8;
@@ -782,9 +782,9 @@ onUnmounted(async () => {
   flex-wrap: wrap;
   gap: 10px;
   padding: 12px 14px;
-  background: var(--kb-bg-2, rgba(15, 23, 42, 0.6));
+  background: var(--kf-bg-2, rgba(15, 23, 42, 0.6));
   backdrop-filter: blur(12px);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 14px;
 }
 .tts-btn {
@@ -795,24 +795,24 @@ onUnmounted(async () => {
   padding: 0 13px;
   font-size: 12.5px;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
   border-radius: 9px;
   cursor: pointer;
   transition: all 0.15s;
 }
 .tts-btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.08);
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .tts-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
 .tts-btn.primary {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
   color: #fff;
 }
 .tts-btn.primary:hover:not(:disabled) {
@@ -821,7 +821,7 @@ onUnmounted(async () => {
 .tts-sep {
   width: 1px;
   height: 20px;
-  background: var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  background: var(--kf-elev-border, rgba(255, 255, 255, 0.08));
 }
 .rate-group,
 .pitch-group {
@@ -831,7 +831,7 @@ onUnmounted(async () => {
 }
 .rate-label {
   font-size: 11.5px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-weight: 500;
   margin-right: 2px;
 }
@@ -841,45 +841,45 @@ onUnmounted(async () => {
   padding: 0 8px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
   border-radius: 7px;
   cursor: pointer;
   transition: all 0.15s;
 }
 .rate-chip:hover {
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .rate-chip.active {
-  background: color-mix(in srgb, var(--kb-primary) 16%, transparent);
-  color: var(--kb-primary);
-  border-color: color-mix(in srgb, var(--kb-primary) 35%, transparent);
+  background: color-mix(in srgb, var(--kf-primary) 16%, transparent);
+  color: var(--kf-primary);
+  border-color: color-mix(in srgb, var(--kf-primary) 35%, transparent);
 }
-.voice-select:not(.kb-form-control) {
+.voice-select:not(.kf-form-control) {
   height: 30px;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 7px;
   outline: none;
 }
 .voice-select {
   padding: 0 8px;
   font-size: 11.5px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   cursor: pointer;
   max-width: 160px;
 }
-.voice-select:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.voice-select:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 
 .reader-body {
   flex: 1;
   overflow-y: auto;
-  background: var(--kb-card, rgba(30, 41, 59, 0.5));
+  background: var(--kf-card, rgba(30, 41, 59, 0.5));
   backdrop-filter: blur(10px);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 18px;
   padding: 24px 28px;
 }
@@ -897,13 +897,13 @@ onUnmounted(async () => {
   gap: 10px 12px;
   padding-bottom: 18px;
   margin-bottom: 18px;
-  border-bottom: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
+  border-bottom: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
 }
 .topic-title {
   margin: 0;
   font-size: 26px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   letter-spacing: -0.01em;
 }
 .difficulty-stars {
@@ -920,7 +920,7 @@ onUnmounted(async () => {
   margin: 0 0 10px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   letter-spacing: 0.02em;
   display: inline-flex;
   align-items: center;
@@ -932,16 +932,16 @@ onUnmounted(async () => {
   width: 3px;
   height: 14px;
   border-radius: 2px;
-  background: linear-gradient(180deg, var(--kb-primary), #8B5CF6);
+  background: linear-gradient(180deg, var(--kf-primary), #8B5CF6);
 }
 .content-block {
   margin: 0;
   padding: 12px 14px;
   font-size: 14px;
   line-height: 1.75;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   background: rgba(255, 255, 255, 0.03);
-  border-left: 3px solid var(--kb-primary);
+  border-left: 3px solid var(--kf-primary);
   border-radius: 0 10px 10px 0;
 }
 .chips-group {
@@ -981,7 +981,7 @@ onUnmounted(async () => {
   margin: 0;
   padding: 10px 12px;
   font-size: 12.5px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   background: rgba(255, 255, 255, 0.02);
   border-radius: 10px;
 }
@@ -990,9 +990,9 @@ onUnmounted(async () => {
   font-size: 11.5px;
 }
 
-.note-textarea:not(.kb-form-control) {
+.note-textarea:not(.kf-form-control) {
   background: rgba(0, 0, 0, 0.18);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 12px;
   outline: none;
   transition: border-color 0.15s;
@@ -1005,13 +1005,13 @@ onUnmounted(async () => {
   padding: 12px 14px;
   font-size: 13.5px;
   line-height: 1.65;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-family: inherit;
   resize: vertical;
   min-height: 120px;
 }
-.note-textarea:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.note-textarea:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 
 .no-topic {
@@ -1027,7 +1027,7 @@ onUnmounted(async () => {
 .no-topic-hint {
   margin: 0;
   font-size: 13.5px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   text-align: center;
   line-height: 1.6;
 }
@@ -1042,12 +1042,12 @@ onUnmounted(async () => {
 .ring-time {
   font-size: 26px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1;
 }
 .ring-label {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   letter-spacing: 0.05em;
   font-weight: 500;
 }
@@ -1068,7 +1068,7 @@ onUnmounted(async () => {
 .insight-card {
   padding: 13px;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
   border-radius: 13px;
 }
 .insight-label {
@@ -1077,7 +1077,7 @@ onUnmounted(async () => {
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 10px;
 }
 .insight-label-row {
@@ -1092,18 +1092,18 @@ onUnmounted(async () => {
 .insight-num {
   font-size: 18px;
   font-weight: 700;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .mastery-slider {
   width: 100%;
   height: 6px;
-  accent-color: var(--kb-primary);
+  accent-color: var(--kf-primary);
   cursor: pointer;
   margin-bottom: 8px;
 }
 .mastery-hint {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.5;
 }
 .explored-chips {
@@ -1127,8 +1127,8 @@ onUnmounted(async () => {
   padding: 12px 8px;
   border-radius: 11px;
   background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.05));
-  color: var(--kb-muted-foreground);
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.05));
+  color: var(--kf-muted-foreground);
   opacity: 0.55;
   transition: all 0.25s;
 }
@@ -1152,7 +1152,7 @@ onUnmounted(async () => {
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.25);
   border-radius: 10px;
@@ -1161,7 +1161,7 @@ onUnmounted(async () => {
 }
 .end-btn:hover {
   background: rgba(239, 68, 68, 0.18);
-  color: var(--kb-danger-muted);
+  color: var(--kf-danger-muted);
 }
 
 .insight-card.actions {
@@ -1177,17 +1177,17 @@ onUnmounted(async () => {
   padding: 0 12px;
   font-size: 12.5px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.15s;
 }
 .action-btn:hover {
-  background: color-mix(in srgb, var(--kb-primary) 12%, transparent);
-  color: var(--kb-primary);
-  border-color: color-mix(in srgb, var(--kb-primary) 28%, transparent);
+  background: color-mix(in srgb, var(--kf-primary) 12%, transparent);
+  color: var(--kf-primary);
+  border-color: color-mix(in srgb, var(--kf-primary) 28%, transparent);
 }
 
 .tabular-nums {

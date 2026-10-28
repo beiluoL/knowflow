@@ -16,7 +16,7 @@ describe('report and graph failures are visible and recoverable', () => {
     api.knowledge.conceptDiagram.mockResolvedValue(diagram); api.knowledge.regenerateConceptDiagram.mockRejectedValueOnce(new Error('Network Error')).mockResolvedValueOnce({ ...diagram, description: '新图解' });
     const w = mount(KnowledgeGraph, { global: { stubs: { MiniAppShell: { template: '<div><slot /></div>' }, MermaidDiagram: true } } }); await flushPromises(); await w.findAll('button').find(b => b.text() === '概念图解')!.trigger('click');
     await w.findAll('button').find(b => b.text() === 'AI 生成图解')!.trigger('click'); await flushPromises(); await w.findAll('button').find(b => b.text() === '重新生成')!.trigger('click'); await flushPromises();
-    await w.find('.kb-state-retry').trigger('click'); await flushPromises(); expect(api.knowledge.regenerateConceptDiagram).toHaveBeenCalledTimes(2); expect(w.text()).toContain('新图解'); w.unmount();
+    await w.find('.kf-state-retry').trigger('click'); await flushPromises(); expect(api.knowledge.regenerateConceptDiagram).toHaveBeenCalledTimes(2); expect(w.text()).toContain('新图解'); w.unmount();
   })
   it('failed mastery refresh never presents a prior score as current', async () => {
     api.knowledge.entityGraph.mockResolvedValue({ nodes: [{ id: 1, name: '实体', type: 'CONCEPT', weight: 1 }], edges: [] });
@@ -38,17 +38,17 @@ describe('report and graph failures are visible and recoverable', () => {
   it('weekly primary failure is not an empty week, retry recovers', async () => {
     api.learning.getWeeklyReport.mockRejectedValueOnce(new Error('Network Error'));
     const w = mount(WeeklyReport); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(true);
-    expect(w.text()).not.toContain('暂无本周周报'); await w.find('.kb-state-retry').trigger('click'); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(false); expect(w.find('[role="status"]').text()).toContain('还没有学习周报'); w.unmount();
+    expect(w.text()).not.toContain('暂无本周周报'); await w.find('.kf-state-retry').trigger('click'); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(false); expect(w.find('[role="status"]').text()).toContain('还没有学习周报'); w.unmount();
   })
   it('enhanced metrics never return fabricated empty data after failure', async () => {
     api.focus.stats.mockRejectedValueOnce(new Error('Network Error')); await expect(aggregateWeeklyMetrics()).rejects.toThrow('Network Error');
   })
   it('category graph failure and retry are distinct from genuine empty', async () => {
     api.knowledge.graph.mockRejectedValueOnce(new Error('Network Error'));
-    const w = mount(KnowledgeGraph, { global: { stubs: { MiniAppShell: { template: '<div><slot /></div>' }, MermaidDiagram: true } } }); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(true); await w.find('.kb-state-retry').trigger('click'); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(false); expect(w.find('[role="status"]').text()).toContain('还没有知识图谱'); w.unmount();
+    const w = mount(KnowledgeGraph, { global: { stubs: { MiniAppShell: { template: '<div><slot /></div>' }, MermaidDiagram: true } } }); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(true); await w.find('.kf-state-retry').trigger('click'); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(false); expect(w.find('[role="status"]').text()).toContain('还没有知识图谱'); w.unmount();
   })
   it('entity graph load failure does not claim it was never built', async () => {
     api.knowledge.entityGraph.mockRejectedValueOnce(new Error('Network Error'));
-    const w = mount(KnowledgeGraph, { global: { stubs: { MiniAppShell: { template: '<div><slot /></div>' }, MermaidDiagram: true } } }); await flushPromises(); await w.findAll('button').find(b => b.text() === '知识实体图')!.trigger('click'); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(true); expect(w.text()).not.toContain('知识图谱尚未构建'); await w.find('.kb-state-retry').trigger('click'); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(false); expect(w.find('[role="status"]').text()).toContain('还没有知识实体'); w.unmount();
+    const w = mount(KnowledgeGraph, { global: { stubs: { MiniAppShell: { template: '<div><slot /></div>' }, MermaidDiagram: true } } }); await flushPromises(); await w.findAll('button').find(b => b.text() === '知识实体图')!.trigger('click'); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(true); expect(w.text()).not.toContain('知识图谱尚未构建'); await w.find('.kf-state-retry').trigger('click'); await flushPromises(); expect(w.find('[role="alert"]').exists()).toBe(false); expect(w.find('[role="status"]').text()).toContain('还没有知识实体'); w.unmount();
   })
 })

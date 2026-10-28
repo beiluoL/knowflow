@@ -1,8 +1,8 @@
 <template>
   <WorkbenchShell stage="review" app-key="memory-palace" :title="palace?.name || '记忆宫殿'" subtitle="布置位点、绑定知识与联想图像，沿固定顺序回忆。" help="拖拽位点调整空间布局，点击位点查看知识。编号表示回忆顺序；位置保存仍使用原有宫殿接口。" :revision="revision" @ready="initialize">
-    <template #actions><RouterLink to="/workbench/palace" class="kb-btn">宫殿列表</RouterLink><button class="kb-btn kb-btn-primary" :disabled="loading || !!error" @click="openCreateLoci"><Icon name="plus" :size="16" />添加位点</button></template>
+    <template #actions><RouterLink to="/workbench/palace" class="kf-btn">宫殿列表</RouterLink><button class="kf-btn kf-btn-primary" :disabled="loading || !!error" @click="openCreateLoci"><Icon name="plus" :size="16" />添加位点</button></template>
     <WorkbenchReviewMethods active="memory-palace" />
-    <div v-if="error" role="alert" class="workbench-inline-error">{{ error }} <button class="kb-btn" @click="load">重试</button></div>
+    <div v-if="error" role="alert" class="workbench-inline-error">{{ error }} <button class="kf-btn" @click="load">重试</button></div>
     <div v-else-if="loading" role="status" class="workbench-empty">正在读取宫殿与位点…</div>
     <div v-else class="space-y-4">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -10,8 +10,8 @@
       <div class="lg:col-span-2">
         <div
           ref="canvasRef"
-          class="relative w-full rounded-xl border overflow-hidden select-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-          style="background: var(--kb-card); border-color: var(--kb-border); aspect-ratio: 4 / 3;"
+          class="relative w-full rounded-xl border overflow-hidden select-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+          style="background: var(--kf-card); border-color: var(--kf-border); aspect-ratio: 4 / 3;"
           role="button"
           tabindex="0"
           aria-label="宫殿画布，回车可取消选中位点"
@@ -19,14 +19,14 @@
           @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
         >
           <!-- 主题背景提示 -->
-          <div class="absolute top-3 left-3 flex items-center gap-1.5 text-[12px]" style="color: var(--kb-muted-foreground);">
+          <div class="absolute top-3 left-3 flex items-center gap-1.5 text-[12px]" style="color: var(--kf-muted-foreground);">
             <Icon name="layout-grid" :size="14" aria-hidden="true" /> {{ themeLabel(palace?.theme) }} 场景
           </div>
 
           <div
             v-for="(l, i) in loci"
             :key="l.id"
-            class="absolute -translate-x-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+            class="absolute -translate-x-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
             :style="{ left: (l.posX || 50) + '%', top: (l.posY || 50) + '%', zIndex: selectedId === l.id ? 20 : 10 }"
             role="button"
             tabindex="0"
@@ -38,9 +38,9 @@
             <div
               class="w-9 h-9 rounded-full flex items-center justify-center shadow-sm border-2 transition-transform"
               :style="{
-                background: selectedId === l.id ? 'var(--kb-primary)' : 'var(--kb-background)',
-                borderColor: 'var(--kb-primary)',
-                color: selectedId === l.id ? '#fff' : 'var(--kb-primary)',
+                background: selectedId === l.id ? 'var(--kf-primary)' : 'var(--kf-background)',
+                borderColor: 'var(--kf-primary)',
+                color: selectedId === l.id ? '#fff' : 'var(--kf-primary)',
                 transform: selectedId === l.id ? 'scale(1.15)' : 'scale(1)',
               }"
             >
@@ -48,57 +48,57 @@
             </div>
             <div
               class="absolute left-1/2 -translate-x-1/2 mt-1 px-2 py-0.5 rounded text-[11px] whitespace-nowrap"
-              style="background: var(--kb-foreground); color: var(--kb-background);"
+              style="background: var(--kf-foreground); color: var(--kf-background);"
             >{{ i + 1 }}. {{ l.name }}</div>
           </div>
 
           <div v-if="loci.length === 0" class="absolute inset-0 flex items-center justify-center">
-            <p class="kb-body-sm" style="color: var(--kb-muted-foreground);">点击「添加位点」开始布置空间</p>
+            <p class="kf-body-sm" style="color: var(--kf-muted-foreground);">点击「添加位点」开始布置空间</p>
           </div>
         </div>
-        <p class="text-[12px] mt-2" style="color: var(--kb-muted-foreground);">提示：拖动点位调整位置，点击点位编辑。编号即记忆漫游顺序。</p>
+        <p class="text-[12px] mt-2" style="color: var(--kf-muted-foreground);">提示：拖动点位调整位置，点击点位编辑。编号即记忆漫游顺序。</p>
       </div>
 
       <!-- 位点列表 / 详情 -->
       <div class="space-y-3">
-        <div class="rounded-xl border p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
-          <h3 class="kb-h4 mb-3" style="color: var(--kb-foreground);">位点清单（漫游顺序）</h3>
-          <div v-if="loci.length === 0" class="kb-body-sm" style="color: var(--kb-muted-foreground);">暂无位点</div>
+        <div class="rounded-xl border p-4" style="background: var(--kf-card); border-color: var(--kf-border);">
+          <h3 class="kf-h4 mb-3" style="color: var(--kf-foreground);">位点清单（漫游顺序）</h3>
+          <div v-if="loci.length === 0" class="kf-body-sm" style="color: var(--kf-muted-foreground);">暂无位点</div>
           <div v-else class="space-y-2">
             <div
               v-for="(l, i) in loci"
               :key="l.id"
-              class="flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-              :style="{ background: selectedId === l.id ? 'var(--kb-muted)' : 'var(--kb-background)' }"
+              class="flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+              :style="{ background: selectedId === l.id ? 'var(--kf-muted)' : 'var(--kf-background)' }"
               role="button"
               tabindex="0"
               :aria-label="'选择位点 ' + (i + 1) + '：' + l.name"
               @click="selectLoci(l)"
               @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
             >
-              <span class="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold" style="background: var(--kb-primary); color:#fff;">{{ i + 1 }}</span>
+              <span class="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold" style="background: var(--kf-primary); color:#fff;">{{ i + 1 }}</span>
               <div class="flex-1 min-w-0">
-                <p class="kb-body-sm truncate" style="color: var(--kb-foreground);">{{ l.name }}</p>
-                <p class="text-[11px] truncate" style="color: var(--kb-muted-foreground);">{{ l.knowledgePoint || '未绑定知识点' }}</p>
+                <p class="kf-body-sm truncate" style="color: var(--kf-foreground);">{{ l.name }}</p>
+                <p class="text-[11px] truncate" style="color: var(--kf-muted-foreground);">{{ l.knowledgePoint || '未绑定知识点' }}</p>
               </div>
-              <button class="icon-btn hover:bg-[var(--kb-muted)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="删除" aria-label="删除位点" @click.stop="removeLoci(l)"><Icon name="trash-2" :size="14" aria-hidden="true" /></button>
+              <button class="icon-btn hover:bg-[var(--kf-muted)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="删除" aria-label="删除位点" @click.stop="removeLoci(l)"><Icon name="trash-2" :size="14" aria-hidden="true" /></button>
             </div>
           </div>
         </div>
 
         <!-- 选中位点详情 -->
-        <div v-if="selected" class="rounded-xl border p-4" style="background: var(--kb-card); border-color: var(--kb-border);">
-          <h3 class="kb-h4 mb-2" style="color: var(--kb-foreground);">位点详情</h3>
-          <p class="text-[12px] mb-2" style="color: var(--kb-muted-foreground);">名称：{{ selected.name }}</p>
-          <p class="kb-body-sm mb-1" style="color: var(--kb-foreground);">归类分类</p>
-          <p class="text-[12px] mb-2" style="color: var(--kb-muted-foreground);">
-            <span v-if="categoryName(selected.categoryId)" class="px-1.5 py-0.5 rounded" style="background: rgba(59,111,224,0.10); color: var(--kb-primary);">{{ categoryName(selected.categoryId) }}</span>
+        <div v-if="selected" class="rounded-xl border p-4" style="background: var(--kf-card); border-color: var(--kf-border);">
+          <h3 class="kf-h4 mb-2" style="color: var(--kf-foreground);">位点详情</h3>
+          <p class="text-[12px] mb-2" style="color: var(--kf-muted-foreground);">名称：{{ selected.name }}</p>
+          <p class="kf-body-sm mb-1" style="color: var(--kf-foreground);">归类分类</p>
+          <p class="text-[12px] mb-2" style="color: var(--kf-muted-foreground);">
+            <span v-if="categoryName(selected.categoryId)" class="px-1.5 py-0.5 rounded" style="background: rgba(59,111,224,0.10); color: var(--kf-primary);">{{ categoryName(selected.categoryId) }}</span>
             <span v-else>（未归类）</span>
           </p>
-          <p class="kb-body-sm mb-1" style="color: var(--kb-foreground);">知识点</p>
-          <p class="text-[12px] mb-2" style="color: var(--kb-muted-foreground);">{{ selected.knowledgePoint || '（空）' }}</p>
-          <p class="kb-body-sm mb-1" style="color: var(--kb-foreground);">联想图像</p>
-          <p class="text-[12px]" style="color: var(--kb-muted-foreground);">{{ selected.imageHint || '（空）' }}</p>
+          <p class="kf-body-sm mb-1" style="color: var(--kf-foreground);">知识点</p>
+          <p class="text-[12px] mb-2" style="color: var(--kf-muted-foreground);">{{ selected.knowledgePoint || '（空）' }}</p>
+          <p class="kf-body-sm mb-1" style="color: var(--kf-foreground);">联想图像</p>
+          <p class="text-[12px]" style="color: var(--kf-muted-foreground);">{{ selected.imageHint || '（空）' }}</p>
         </div>
       </div>
     </div>
@@ -106,7 +106,7 @@
     <!-- 位点编辑抽屉 -->
     <Teleport to="body"><div
       v-if="showLociForm"
-      class="workbench-drawer-mask transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+      class="workbench-drawer-mask transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
       role="button"
       tabindex="0"
       aria-label="关闭位点编辑抽屉"
@@ -114,28 +114,28 @@
       @keydown.enter.self.prevent="($event.target as HTMLElement).click()"
     >
 
-      <div role="dialog" aria-modal="true" aria-label="位点编辑" class="workbench-drawer" style="border-color: var(--kb-border);">
+      <div role="dialog" aria-modal="true" aria-label="位点编辑" class="workbench-drawer" style="border-color: var(--kf-border);">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="kb-h3" style="color: var(--kb-foreground);">{{ editingLociId ? '编辑位点' : '添加位点' }}</h2>
-          <button class="icon-btn hover:bg-[var(--kb-muted)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" aria-label="关闭" @click="showLociForm = false"><Icon name="x" :size="18" aria-hidden="true" /></button>
+          <h2 class="kf-h3" style="color: var(--kf-foreground);">{{ editingLociId ? '编辑位点' : '添加位点' }}</h2>
+          <button class="icon-btn hover:bg-[var(--kf-muted)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" aria-label="关闭" @click="showLociForm = false"><Icon name="x" :size="18" aria-hidden="true" /></button>
         </div>
         <div class="space-y-3">
           <div>
-            <label class="kb-label">位点名称 *</label>
-            <input v-model="lociForm.name" class="kb-input transition-colors kb-form-control" placeholder="如：书桌左上角" />
+            <label class="kf-label">位点名称 *</label>
+            <input v-model="lociForm.name" class="kf-input transition-colors kf-form-control" placeholder="如：书桌左上角" />
           </div>
           <div>
-            <label class="kb-label">绑定的知识点</label>
-            <textarea v-model="lociForm.knowledgePoint" class="kb-input transition-colors kb-textarea kb-form-control" rows="3" placeholder="这个位置要记住的内容…"></textarea>
+            <label class="kf-label">绑定的知识点</label>
+            <textarea v-model="lociForm.knowledgePoint" class="kf-input transition-colors kf-textarea kf-form-control" rows="3" placeholder="这个位置要记住的内容…"></textarea>
           </div>
           <div>
-            <label class="kb-label">联想图像描述</label>
-            <input v-model="lociForm.imageHint" class="kb-input transition-colors kb-form-control" placeholder="越夸张越好记，如「一只大象在背单词」" />
+            <label class="kf-label">联想图像描述</label>
+            <input v-model="lociForm.imageHint" class="kf-input transition-colors kf-form-control" placeholder="越夸张越好记，如「一只大象在背单词」" />
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="kb-label">图标</label>
-              <select v-model="lociForm.icon" class="kb-input transition-colors kb-select kb-form-control">
+              <label class="kf-label">图标</label>
+              <select v-model="lociForm.icon" class="kf-input transition-colors kf-select kf-form-control">
                 <option value="map-pin">map-pin</option>
                 <option value="book">book</option>
                 <option value="lightbulb">lightbulb</option>
@@ -145,21 +145,21 @@
               </select>
             </div>
             <div>
-              <label class="kb-label">漫游顺序</label>
-              <input type="number" v-model.number="lociForm.sortOrder" class="kb-input transition-colors kb-form-control" />
+              <label class="kf-label">漫游顺序</label>
+              <input type="number" v-model.number="lociForm.sortOrder" class="kf-input transition-colors kf-form-control" />
             </div>
           </div>
           <div>
-            <label class="kb-label">归类知识库分类</label>
-            <select v-model="lociForm.categoryId" class="kb-input transition-colors kb-select kb-form-control">
+            <label class="kf-label">归类知识库分类</label>
+            <select v-model="lociForm.categoryId" class="kf-input transition-colors kf-select kf-form-control">
               <option :value="undefined">未归类</option>
               <option v-for="c in flatCategories" :key="c.id" :value="c.id">{{ '　'.repeat(c.depth) }}{{ c.name }}</option>
             </select>
           </div>
         </div>
         <div class="flex justify-end gap-2 mt-5">
-          <button class="kb-btn hover:bg-[var(--kb-muted)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="showLociForm = false">取消</button>
-          <button class="kb-btn kb-btn-primary hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" @click="saveLoci">保存</button>
+          <button class="kf-btn hover:bg-[var(--kf-muted)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" @click="showLociForm = false">取消</button>
+          <button class="kf-btn kf-btn-primary hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" @click="saveLoci">保存</button>
         </div>
       </div>
     </div></Teleport>

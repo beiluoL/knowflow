@@ -1,4 +1,4 @@
-<template><div class="kb-search-input"><Input :model-value="modelValue" :label="label" :placeholder="placeholder" :disabled="disabled" :readonly="readonly||loading" :error="error" type="search" prefix-icon-name="search" @update:model-value="update" @compositionstart="composing=true" @compositionend="composing=false" @keydown="keydown"/><div class="kb-search-input__actions"><Button v-if="modelValue" size="sm" variant="text" :disabled="disabled||readonly||loading" aria-label="清空搜索" @click="clear">清空</Button><Button size="sm" :loading="loading" :disabled="disabled||readonly" @click="search">搜索</Button></div></div></template>
+<template><div class="kf-search-input"><Input :model-value="modelValue" :label="label" :placeholder="placeholder" :disabled="disabled" :readonly="readonly||loading" :error="error" type="search" prefix-icon-name="search" @update:model-value="update" @compositionstart="composing=true" @compositionend="composing=false" @keydown="keydown"/><div class="kf-search-input__actions"><Button v-if="modelValue" size="sm" variant="text" :disabled="disabled||readonly||loading" aria-label="清空搜索" @click="clear">清空</Button><Button size="sm" :loading="loading" :disabled="disabled||readonly" @click="search">搜索</Button></div></div></template>
 <script setup lang="ts">
 import {ref} from 'vue'
 import Input from './Input.vue'
@@ -10,4 +10,4 @@ function search(){if(!props.disabled&&!props.readonly&&!props.loading&&!composin
 function keydown(e:KeyboardEvent){if(e.key==='Enter'&&!e.isComposing&&!composing.value){e.preventDefault();search()}}
 function clear(){if(props.disabled||props.readonly||props.loading)return;emit('update:modelValue','');emit('clear')}
 </script>
-<style scoped>.kb-search-input{display:grid;gap:var(--kb-space-2);min-width:0}.kb-search-input__actions{display:flex;justify-content:flex-end;gap:var(--kb-space-2)}</style>
+<style scoped>.kf-search-input{display:grid;gap:var(--kf-space-2);min-width:0}.kf-search-input__actions{display:flex;justify-content:flex-end;gap:var(--kf-space-2)}</style>

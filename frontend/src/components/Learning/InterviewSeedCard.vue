@@ -1,8 +1,8 @@
 <template>
  <section v-if="auth.isLoggedIn" class="interview-seed" aria-label="Java + AI 面试学习包">
   <StateView :status="status" :error-title="error?.title" :error-hint="error?.hint" error-scope="仅学习包入口不可用，已有学习数据不受影响。" :rows="2" @retry="run(true)">
-   <p class="kb-caption">内置学习包 · v1</p>
-   <h2 class="kb-h3">Java + AI 工程师面试冲刺</h2>
+   <p class="kf-caption">内置学习包 · v1</p>
+   <h2 class="kf-h3">Java + AI 工程师面试冲刺</h2>
    <p>8 条路径 · 32 个章节 · 128 张主动回忆卡。从 Java 核心到 RAG、Agent 与真实个人项目表达。</p>
    <template v-if="!data?.activated">
     <p class="seed-hint">启用后创建你自己的目标、零进度路径、闪卡、速记与7天待完成任务。不自动学习，不预设成绩。</p>
@@ -34,12 +34,12 @@ async function activate(){if(activating.value)return;const actor=auth.user?.id;a
 function pathRoute(id:number){return resolveContextualRoute(stampActionContext({type:'LEARNING_PATH',title:'学习包路径',reason:'用户选择路径',route:`/learning/path/${id}`},{}))}
 </script>
 <style scoped>
-.interview-seed{padding:var(--kb-space-6);margin-block:var(--kb-space-6);border:var(--kb-border-width,1px) solid var(--kb-border);border-radius:var(--kb-radius-md);background:var(--kb-card)}
-.interview-seed p{margin-block:var(--kb-space-2);color:var(--kb-muted-foreground)}
-.interview-seed h2{color:var(--kb-foreground)}
-.seed-hint{font-size:var(--kb-text-small)}
-.interview-seed summary{cursor:pointer;color:var(--kb-primary)}
-.interview-seed ol{padding-inline-start:var(--kb-space-6);display:grid;gap:var(--kb-space-2)}
-.interview-seed a{color:var(--kb-primary)}
-.interview-seed .seed-error{color:var(--kb-destructive)}
+.interview-seed{padding:var(--kf-space-6);margin-block:var(--kf-space-6);border:var(--kf-border-width,1px) solid var(--kf-border);border-radius:var(--kf-radius-md);background:var(--kf-card)}
+.interview-seed p{margin-block:var(--kf-space-2);color:var(--kf-muted-foreground)}
+.interview-seed h2{color:var(--kf-foreground)}
+.seed-hint{font-size:var(--kf-text-small)}
+.interview-seed summary{cursor:pointer;color:var(--kf-primary)}
+.interview-seed ol{padding-inline-start:var(--kf-space-6);display:grid;gap:var(--kf-space-2)}
+.interview-seed a{color:var(--kf-primary)}
+.interview-seed .seed-error{color:var(--kf-destructive)}
 </style>

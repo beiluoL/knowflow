@@ -19,7 +19,7 @@
         :style="{
           background:
             breakType === 'shortBreak'
-              ? 'linear-gradient(135deg, var(--kb-success) 0%, var(--kb-success-hover) 50%, var(--kb-state-success) 100%)'
+              ? 'linear-gradient(135deg, var(--kf-success) 0%, var(--kf-success-hover) 50%, var(--kf-state-success) 100%)'
               : 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #EC4899 100%)',
         }"
       >
@@ -29,7 +29,7 @@
 
       <button
         type="button"
-        class="continue-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="continue-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         @click="handleDismiss"
       >
         我已休息，继续学习
@@ -141,12 +141,12 @@ onUnmounted(() => {
 .break-card {
   width: 100%;
   max-width: 460px;
-  background: var(--kb-bg-1, #1e293b);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.1));
+  background: var(--kf-bg-1, #1e293b);
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.1));
   border-radius: 20px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
   padding: 28px 26px;
-  color: var(--kb-foreground, #f8fafc);
+  color: var(--kf-foreground, #f8fafc);
   text-align: center;
   animation: cardIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -191,7 +191,7 @@ onUnmounted(() => {
   font-size: 17px;
   line-height: 1.55;
   font-weight: 600;
-  color: var(--kb-foreground, #f8fafc);
+  color: var(--kf-foreground, #f8fafc);
 }
 
 .countdown-wrap {
@@ -202,14 +202,14 @@ onUnmounted(() => {
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1;
-  color: var(--kb-primary, #3b82f6);
+  color: var(--kf-primary, #3b82f6);
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 32px color-mix(in srgb, var(--kb-primary, #3b82f6) 30%, transparent);
+  text-shadow: 0 0 32px color-mix(in srgb, var(--kf-primary, #3b82f6) 30%, transparent);
 }
 .countdown-label {
   margin-top: 8px;
   font-size: 12px;
-  color: var(--kb-muted-foreground, #94a3b8);
+  color: var(--kf-muted-foreground, #94a3b8);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   font-weight: 600;
@@ -247,13 +247,13 @@ onUnmounted(() => {
   justify-content: center;
   font-size: 14px;
   font-weight: 700;
-  color: var(--kb-primary-foreground, #fff);
-  background: var(--kb-primary, #3b82f6);
+  color: var(--kf-primary-foreground, #fff);
+  background: var(--kf-primary, #3b82f6);
   border: none;
   border-radius: 12px;
   cursor: pointer;
   transition: filter 0.15s ease, transform 0.1s ease;
-  box-shadow: 0 8px 22px color-mix(in srgb, var(--kb-primary, #3b82f6) 35%, transparent);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--kf-primary, #3b82f6) 35%, transparent);
 }
 .continue-btn:hover {
   filter: brightness(1.06);

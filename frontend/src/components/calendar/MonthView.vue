@@ -85,7 +85,7 @@ function festivalCount(day: Date): number {
 }
 
 function chipColor(ev: CalendarEvent): string {
-  return ev.listColor || (ev.important ? 'var(--kb-warning)' : 'var(--kb-primary)')
+  return ev.listColor || (ev.important ? 'var(--kf-warning)' : 'var(--kf-primary)')
 }
 </script>
 
@@ -196,10 +196,10 @@ function chipColor(ev: CalendarEvent): string {
   text-align: center;
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .c-month-head-cell.weekend {
-  color: var(--kb-danger);
+  color: var(--kf-danger);
 }
 .c-month-grid {
   flex: 1;
@@ -256,7 +256,7 @@ function chipColor(ev: CalendarEvent): string {
   flex-shrink: 0;
 }
 .c-month-date.today-num {
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
 }
 /* 「休/班」角标：Apple 日历风格的小徽章 */
@@ -273,7 +273,7 @@ function chipColor(ev: CalendarEvent): string {
   background: #e5484d;
 }
 .c-badge.is-work {
-  background: var(--kb-warning);
+  background: var(--kf-warning);
 }
 /* 节日标签行（传统/现代/纪念日）：彩色圆点 + 名称 */
 .c-month-marks {
@@ -299,7 +299,7 @@ function chipColor(ev: CalendarEvent): string {
 }
 .c-mark-name {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -326,7 +326,7 @@ function chipColor(ev: CalendarEvent): string {
 }
 .c-month-add:hover {
   background: #e6ecff;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .c-month-events {
   display: flex;
@@ -343,7 +343,7 @@ function chipColor(ev: CalendarEvent): string {
   font-size: 12px;
   line-height: 1.3;
   color: #fff;
-  background: var(--c, var(--kb-primary));
+  background: var(--c, var(--kf-primary));
   cursor: pointer;
   overflow: hidden;
   white-space: nowrap;
@@ -363,11 +363,11 @@ function chipColor(ev: CalendarEvent): string {
 }
 .c-more {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 1px 6px;
   cursor: pointer;
 }
 .c-more:hover {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 </style>

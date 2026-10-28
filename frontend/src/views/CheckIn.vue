@@ -1,20 +1,20 @@
 <template>
   <div class="animate-fade-in check-in-page">
     <!-- ===== 面包屑 + 标题 ===== -->
-    <div class="flex items-center gap-2 text-xs mb-4" style="color: var(--kb-muted-foreground);">
-      <router-link to="/tasks" class="hover:underline" style="color: var(--kb-primary);">任务中心</router-link>
+    <div class="flex items-center gap-2 text-xs mb-4" style="color: var(--kf-muted-foreground);">
+      <router-link to="/tasks" class="hover:underline" style="color: var(--kf-primary);">任务中心</router-link>
       <Icon name="chevron-right" :size="12" />
       <span>每日打卡</span>
     </div>
 
     <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
       <div>
-        <h1 class="kb-h1 mb-1">每日打卡</h1>
-        <p class="kb-body-sm" style="font-size: 14px;">坚持学习，持续成长</p>
+        <h1 class="kf-h1 mb-1">每日打卡</h1>
+        <p class="kf-body-sm" style="font-size: 14px;">坚持学习，持续成长</p>
       </div>
       <div class="text-right">
-        <div class="text-sm font-semibold" style="color: var(--kb-foreground);">{{ todayText }}</div>
-        <div class="text-xs" style="color: var(--kb-muted-foreground);">{{ weekdayText }}</div>
+        <div class="text-sm font-semibold" style="color: var(--kf-foreground);">{{ todayText }}</div>
+        <div class="text-xs" style="color: var(--kf-muted-foreground);">{{ weekdayText }}</div>
       </div>
     </div>
 
@@ -62,28 +62,28 @@
     </div>
 
     <!-- ===== 升级进度 ===== -->
-    <div class="rounded-xl border p-6 mb-6" style="background: var(--kb-card); border-color: var(--kb-border);">
+    <div class="rounded-xl border p-6 mb-6" style="background: var(--kf-card); border-color: var(--kf-border);">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="kb-h4">升级进度</h3>
+        <h3 class="kf-h4">升级进度</h3>
         <div v-if="checkinExp > 0" class="exp-toast">
           <Icon name="zap" :size="14" />
           <span class="tabular-nums">本次打卡 +{{ checkinExp }} EXP</span>
         </div>
       </div>
-      <div class="flex items-center justify-between text-xs mb-2" style="color: var(--kb-muted-foreground);">
+      <div class="flex items-center justify-between text-xs mb-2" style="color: var(--kf-muted-foreground);">
         <span class="flex items-center gap-2">
           <Icon name="award" :size="14" />
           <span class="tabular-nums">Lv.{{ user.level }} {{ user.title }}</span>
         </span>
         <span class="tabular-nums">{{ formatExp(user.exp) }} / {{ formatExp(user.maxExp) }} EXP</span>
       </div>
-      <div class="h-3 rounded-full overflow-hidden" style="background: var(--kb-muted);">
+      <div class="h-3 rounded-full overflow-hidden" style="background: var(--kf-muted);">
         <div
           class="h-full rounded-full transition-[width] duration-1000"
-          :style="{ width: `${expPercent}%`, background: 'var(--kb-primary)' }"
+          :style="{ width: `${expPercent}%`, background: 'var(--kf-primary)' }"
         ></div>
       </div>
-      <div class="flex items-center justify-between text-xs mt-2" style="color: var(--kb-muted-foreground);">
+      <div class="flex items-center justify-between text-xs mt-2" style="color: var(--kf-muted-foreground);">
         <span class="tabular-nums">{{ expPercent }}%</span>
         <span class="tabular-nums">距 Lv.{{ user.level + 1 }} 还需 {{ formatExp(user.maxExp - user.exp) }} EXP</span>
       </div>
@@ -91,7 +91,7 @@
 
     <!-- ===== 连续打卡里程碑 ===== -->
     <div class="mb-6">
-      <h3 class="kb-h4 mb-4">连续打卡里程碑</h3>
+      <h3 class="kf-h4 mb-4">连续打卡里程碑</h3>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div
           v-for="m in milestones"
@@ -105,9 +105,9 @@
           <div class="milestone-icon">
             <Icon :name="m.achieved ? m.icon : 'lock'" :size="24" />
           </div>
-          <div class="text-sm font-bold mb-1 tabular-nums" :style="m.achieved ? 'color: var(--kb-primary);' : ''">{{ m.days }} 天</div>
-          <div class="text-xs font-semibold mb-2 tabular-nums" :style="m.achieved ? 'color: var(--kb-warning);' : 'color: var(--kb-muted-foreground);'">+{{ m.exp }} EXP</div>
-          <div class="text-xs" style="color: var(--kb-muted-foreground);">{{ m.desc }}</div>
+          <div class="text-sm font-bold mb-1 tabular-nums" :style="m.achieved ? 'color: var(--kf-primary);' : ''">{{ m.days }} 天</div>
+          <div class="text-xs font-semibold mb-2 tabular-nums" :style="m.achieved ? 'color: var(--kf-warning);' : 'color: var(--kf-muted-foreground);'">+{{ m.exp }} EXP</div>
+          <div class="text-xs" style="color: var(--kf-muted-foreground);">{{ m.desc }}</div>
         </div>
       </div>
     </div>
@@ -115,10 +115,10 @@
     <!-- ===== 本月打卡日历 + 排行榜 ===== -->
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6">
       <!-- 月历 -->
-      <div class="rounded-xl border p-6" style="background: var(--kb-card); border-color: var(--kb-border);">
+      <div class="rounded-xl border p-6" style="background: var(--kf-card); border-color: var(--kf-border);">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="kb-h4">{{ currentMonthText }}打卡日历</h3>
-          <span class="text-sm font-semibold tabular-nums" style="color: var(--kb-primary);">{{ monthCheckedCount }}/{{ monthTotalDays }} 天</span>
+          <h3 class="kf-h4">{{ currentMonthText }}打卡日历</h3>
+          <span class="text-sm font-semibold tabular-nums" style="color: var(--kf-primary);">{{ monthCheckedCount }}/{{ monthTotalDays }} 天</span>
         </div>
         <div class="calendar-grid mb-2">
           <div v-for="day in weekdayLabels" :key="day" class="cal-header">{{ day }}</div>
@@ -134,10 +134,10 @@
       </div>
 
       <!-- 打卡排行榜 -->
-      <div class="rounded-xl border p-5" style="background: var(--kb-card); border-color: var(--kb-border);">
+      <div class="rounded-xl border p-5" style="background: var(--kf-card); border-color: var(--kf-border);">
         <div class="flex items-center gap-2 mb-4">
-          <Icon name="trophy" :size="16" style="color: var(--kb-warning);" />
-          <h3 class="kb-h4">本周打卡榜</h3>
+          <Icon name="trophy" :size="16" style="color: var(--kf-warning);" />
+          <h3 class="kf-h4">本周打卡榜</h3>
         </div>
         <div class="space-y-1">
           <div
@@ -281,11 +281,11 @@ const monthTotalDays = computed(() => new Date().getDate())
 
 // ===== 排行榜 =====
 const rankList = [
-  { rank: 1, initial: 'LW', name: '李伟', streakDays: 365, bg: 'rgba(245,158,11,0.15)', color: 'var(--kb-warning)', isSelf: false },
-  { rank: 2, initial: 'ZC', name: '张晨', streakDays: 128, bg: 'rgba(148,163,184,0.15)', color: 'var(--kb-muted-foreground)', isSelf: false },
+  { rank: 1, initial: 'LW', name: '李伟', streakDays: 365, bg: 'rgba(245,158,11,0.15)', color: 'var(--kf-warning)', isSelf: false },
+  { rank: 2, initial: 'ZC', name: '张晨', streakDays: 128, bg: 'rgba(148,163,184,0.15)', color: 'var(--kf-muted-foreground)', isSelf: false },
   { rank: 3, initial: 'WF', name: '王芳', streakDays: 96, bg: 'rgba(180,120,80,0.15)', color: '#A0724A', isSelf: false },
-  { rank: 4, initial: 'YU', name: '探索者 YU', streakDays: 42, bg: 'rgba(59,111,224,0.12)', color: 'var(--kb-primary)', isSelf: true },
-  { rank: 5, initial: 'CX', name: '陈雪', streakDays: 38, bg: 'rgba(16,185,129,0.12)', color: 'var(--kb-accent)', isSelf: false },
+  { rank: 4, initial: 'YU', name: '探索者 YU', streakDays: 42, bg: 'rgba(59,111,224,0.12)', color: 'var(--kf-primary)', isSelf: true },
+  { rank: 5, initial: 'CX', name: '陈雪', streakDays: 38, bg: 'rgba(16,185,129,0.12)', color: 'var(--kf-accent)', isSelf: false },
 ]
 
 // ===== 拉取用户信息与打卡状态 =====
@@ -339,13 +339,13 @@ onMounted(() => {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* UI/UX V1.0：移除页面内对 .kb-h1/.kb-h3/.kb-h4 的局部覆盖，统一使用全局语义字号令牌 */
-.kb-body-sm { font-size: 12px; line-height: 1.5; color: var(--kb-muted-foreground); }
+/* UI/UX V1.0：移除页面内对 .kf-h1/.kf-h3/.kf-h4 的局部覆盖，统一使用全局语义字号令牌 */
+.kf-body-sm { font-size: 12px; line-height: 1.5; color: var(--kf-muted-foreground); }
 
 /* ===== 打卡主卡片 ===== */
 .checkin-main-card {
-  background: linear-gradient(135deg, var(--kb-primary), rgba(59, 111, 224, 0.75));
-  color: var(--kb-primary-foreground);
+  background: linear-gradient(135deg, var(--kf-primary), rgba(59, 111, 224, 0.75));
+  color: var(--kf-primary-foreground);
 }
 .deco-circle {
   position: absolute;
@@ -364,11 +364,11 @@ onMounted(() => {
   justify-content: center;
   gap: 8px;
   padding: 14px 40px;
-  border-radius: var(--kb-radius-lg);
+  border-radius: var(--kf-radius-lg);
   font-size: 16px;
   font-weight: 700;
-  background: var(--kb-card);
-  color: var(--kb-primary);
+  background: var(--kf-card);
+  color: var(--kf-primary);
   border: none;
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
@@ -393,7 +393,7 @@ onMounted(() => {
   font-size: 12px;
   font-weight: 600;
   background: rgba(16, 185, 129, 0.12);
-  color: var(--kb-accent);
+  color: var(--kf-accent);
   animation: pop 0.3s ease-out;
 }
 @keyframes pop {
@@ -403,16 +403,16 @@ onMounted(() => {
 
 /* ===== 里程碑卡片 ===== */
 .milestone-card {
-  border-radius: var(--kb-radius-md);
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border-radius: var(--kf-radius-md);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   padding: 20px 16px;
   text-align: center;
   transition: border-color 0.15s, background-color 0.15s;
   position: relative;
 }
 .milestone-card.achieved {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   background: rgba(59, 111, 224, 0.04);
 }
 .milestone-card.locked {
@@ -429,11 +429,11 @@ onMounted(() => {
 }
 .milestone-card.achieved .milestone-icon {
   background: rgba(59, 111, 224, 0.12);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .milestone-card.locked .milestone-icon {
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 .milestone-card .milestone-check {
   position: absolute;
@@ -445,8 +445,8 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 
 /* ===== 月历 ===== */
@@ -460,7 +460,7 @@ onMounted(() => {
   font-size: 12px;
   font-weight: 600;
   padding: 6px 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .cal-day {
   aspect-ratio: 1;
@@ -468,9 +468,9 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   font-size: 12px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-background);
-  color: var(--kb-foreground);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-background);
+  color: var(--kf-foreground);
   transition: background 0.15s;
 }
 .cal-day.empty {
@@ -478,14 +478,14 @@ onMounted(() => {
 }
 .cal-day.checked {
   background: rgba(59, 111, 224, 0.12);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   font-weight: 600;
 }
 .cal-day.today {
-  border: 2px solid var(--kb-primary);
+  border: 2px solid var(--kf-primary);
 }
 .cal-day.future {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   opacity: 0.5;
 }
 
@@ -495,11 +495,11 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   padding: 8px 10px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   transition: background 0.15s;
 }
 .rank-item:hover {
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
 .rank-item.self {
   background: rgba(59, 111, 224, 0.06);
@@ -514,16 +514,16 @@ onMounted(() => {
   font-size: 12px;
   font-weight: 700;
   border-radius: 50%;
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 .rank-num.top1 {
   background: rgba(245, 158, 11, 0.15);
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 .rank-num.top2 {
   background: rgba(148, 163, 184, 0.2);
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .rank-num.top3 {
   background: rgba(180, 120, 80, 0.15);

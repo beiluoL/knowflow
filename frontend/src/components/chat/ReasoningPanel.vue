@@ -105,9 +105,9 @@ function toggle() {
 <style scoped>
 .reasoning-panel {
   margin-bottom: 12px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
   overflow: hidden;
 }
 .reasoning-head {
@@ -119,28 +119,28 @@ function toggle() {
   padding: 8px 12px;
   border: 0;
   background: transparent;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
-  line-height: var(--kb-lh-body-sm);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
+  line-height: var(--kf-lh-body-sm);
   text-align: left;
   cursor: pointer;
 }
-.reasoning-head:hover { color: var(--kb-foreground); }
+.reasoning-head:hover { color: var(--kf-foreground); }
 .reasoning-head:focus-visible {
-  outline: 2px solid var(--kb-ring);
+  outline: 2px solid var(--kf-ring);
   outline-offset: -2px;
 }
 .reasoning-icon { flex-shrink: 0; }
 .is-thinking .reasoning-icon { animation: reasoning-pulse 1.6s ease-in-out infinite; }
 .reasoning-title {
-  font-weight: var(--kb-fw-label);
+  font-weight: var(--kf-fw-label);
   white-space: nowrap;
 }
 .reasoning-badge {
   padding: 1px 6px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
   font-size: 12px;
   line-height: 18px;
   white-space: nowrap;
@@ -159,24 +159,24 @@ function toggle() {
   max-height: 320px;
   overflow: auto;
   padding: 0 12px 10px;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1.7;
   overflow-wrap: anywhere;
 }
 .reasoning-body :deep(.chat-markdown) {
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1.7;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .reasoning-body :deep(.chat-markdown p) { margin: 0 0 0.6em; }
 .reasoning-empty {
   margin: 0;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
 }
-.is-failed .reasoning-title { color: var(--kb-danger-text); }
-.is-failed .reasoning-icon { color: var(--kb-danger-text); }
+.is-failed .reasoning-title { color: var(--kf-danger-text); }
+.is-failed .reasoning-icon { color: var(--kf-danger-text); }
 @keyframes reasoning-pulse {
   0%, 100% { opacity: .55; }
   50% { opacity: 1; }

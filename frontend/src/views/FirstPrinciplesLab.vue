@@ -10,7 +10,7 @@
       <span>加载推导环节…</span>
     </div>
     <div v-else-if="loadError" class="fp-state">
-      <Icon name="alert-circle" :size="20" style="color: var(--kb-danger)" />
+      <Icon name="alert-circle" :size="20" style="color: var(--kf-danger)" />
       <p>{{ loadError }}</p>
       <button type="button" class="fp-btn-ghost" @click="loadRubric">
         <Icon name="refresh-cw" :size="14" /><span>重试</span>
@@ -20,7 +20,7 @@
     <template v-else>
       <!-- Architecture-4.2 §11：深链聚焦知识点时展示上下文条 -->
       <div v-if="activeKnowledgeId" class="fp-ctx-banner">
-        <Icon name="target" :size="14" style="color: var(--kb-primary)" />
+        <Icon name="target" :size="14" style="color: var(--kf-primary)" />
         <span class="fp-ctx-text">
           正在围绕知识点：<strong>{{ activeKnowledgeName || '#' + activeKnowledgeId }}</strong> 做推导
         </span>
@@ -31,7 +31,7 @@
         <div class="fp-title-wrap">
           <span class="fp-title-icon"><Icon name="compass" :size="18" /></span>
           <div>
-            <h1 class="kb-h1">第一性原理</h1>
+            <h1 class="kf-h1">第一性原理</h1>
             <p class="fp-subtitle">
               忘掉结论，从可验证的事实和绕不开的约束出发，把结论重新推一遍。
               <strong>系统不会替你判断对错</strong>——它只检查这套推导是否写全了。
@@ -44,7 +44,7 @@
       <section v-if="result" class="fp-result">
         <div class="fp-result-head">
           <span class="fp-result-title">
-            <Icon name="check-circle" :size="16" style="color: var(--kb-success)" />结构完整度：{{ result.topic }}
+            <Icon name="check-circle" :size="16" style="color: var(--kf-success)" />结构完整度：{{ result.topic }}
           </span>
           <span class="fp-result-score" :class="scoreClass(result.completeness)">
             {{ result.completeness }}<em>/100</em>
@@ -93,12 +93,12 @@
       <template v-else>
         <section class="fp-block">
           <div class="fp-block-head">
-            <Icon name="target" :size="16" style="color: var(--kb-primary)" />
+            <Icon name="target" :size="16" style="color: var(--kf-primary)" />
             <span class="fp-block-title">推导主题 *</span>
           </div>
           <input
             v-model="topic"
-            class="fp-input kb-input kb-form-control"
+            class="fp-input kf-input kf-form-control"
             maxlength="200"
             placeholder="如：为什么 JVM 要分代回收"
           />
@@ -120,7 +120,7 @@
           <p class="fp-tip"><Icon name="info" :size="12" /> {{ s.hint }}</p>
           <textarea
             v-model="draft[s.key]"
-            class="fp-textarea kb-textarea kb-form-control"
+            class="fp-textarea kf-textarea kf-form-control"
             :maxlength="4000"
             :placeholder="s.placeholder"
           />
@@ -307,7 +307,7 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   padding: 48px 0;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .spin {
@@ -339,16 +339,16 @@ onMounted(() => {
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-primary-soft);
-  color: var(--kb-primary);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-primary-soft);
+  color: var(--kf-primary);
   flex-shrink: 0;
 }
 
 .fp-subtitle {
   margin-top: 4px;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   line-height: 1.7;
 }
 
@@ -359,35 +359,35 @@ onMounted(() => {
   gap: 8px;
   padding: 10px 14px;
   margin-bottom: 16px;
-  border: 1px solid var(--kb-primary-subtle);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-primary-subtle);
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-foreground);
+  border: 1px solid var(--kf-primary-subtle);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-primary-subtle);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-foreground);
 }
 .fp-ctx-text strong {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .fp-ctx-clear {
   margin-left: auto;
   padding: 4px 12px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-caption);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .fp-ctx-clear:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 
 .fp-block {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
   padding: 16px 18px;
 }
 
@@ -404,18 +404,18 @@ onMounted(() => {
   justify-content: center;
   width: 20px;
   height: 20px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-primary-soft);
-  color: var(--kb-primary);
-  font-size: var(--kb-fs-caption);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-primary-soft);
+  color: var(--kf-primary);
+  font-size: var(--kf-fs-caption);
   font-weight: 600;
   flex-shrink: 0;
 }
 
 .fp-block-title {
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .fp-step-flag {
@@ -424,30 +424,30 @@ onMounted(() => {
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-caption);
 }
 
 .fp-step-flag-ok {
-  background: var(--kb-primary-soft);
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft);
+  color: var(--kf-primary);
 }
 
-.fp-input:not(.kb-form-control),
-.fp-textarea:not(.kb-form-control) {
-  border: 1px solid var(--kb-border);
-  background: var(--kb-bg);
-  border-radius: var(--kb-radius-md);
+.fp-input:not(.kf-form-control),
+.fp-textarea:not(.kf-form-control) {
+  border: 1px solid var(--kf-border);
+  background: var(--kf-bg);
+  border-radius: var(--kf-radius-md);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .fp-input,
 .fp-textarea {
   width: 100%;
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-md);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-md);
   line-height: 1.7;
 }
 
@@ -455,7 +455,7 @@ onMounted(() => {
   padding: 10px 14px;
 }
 
-.fp-textarea:not(.kb-form-control) {
+.fp-textarea:not(.kf-form-control) {
   min-height: 110px;
 }
 
@@ -466,10 +466,10 @@ onMounted(() => {
   min-height: 110px;
 }
 
-.fp-input:not(.kb-form-control):focus,
-.fp-textarea:not(.kb-form-control):focus {
+.fp-input:not(.kf-form-control):focus,
+.fp-textarea:not(.kf-form-control):focus {
   outline: none;
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   box-shadow: none;
 }
 
@@ -478,8 +478,8 @@ onMounted(() => {
   align-items: flex-start;
   gap: 6px;
   margin-bottom: 8px;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   line-height: 1.6;
 }
 
@@ -488,11 +488,11 @@ onMounted(() => {
   align-items: flex-start;
   gap: 6px;
   padding: 10px 12px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-bg);
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-bg);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   line-height: 1.7;
 }
 
@@ -505,13 +505,13 @@ onMounted(() => {
 
 .fp-progress {
   margin-right: auto;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 
 .fp-submit-error {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-danger);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-danger);
 }
 
 .fp-btn-primary {
@@ -520,17 +520,17 @@ onMounted(() => {
   gap: 6px;
   padding: 9px 18px;
   border: none;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
-  font-size: var(--kb-fs-body-md);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease;
 }
 
 .fp-btn-primary:hover:not(:disabled) {
-  background: var(--kb-primary-hover);
+  background: var(--kf-primary-hover);
 }
 
 .fp-btn-primary:disabled {
@@ -543,28 +543,28 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   padding: 7px 14px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-sm);
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-sm);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  font-size: var(--kf-fs-body-sm);
   cursor: pointer;
   text-decoration: none;
   transition: border-color 0.15s ease, color 0.15s ease;
 }
 
 .fp-btn-ghost:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
 
 /* 结果面板 */
 .fp-result {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
   padding: 20px;
-  box-shadow: var(--kb-shadow-sm);
+  box-shadow: var(--kf-shadow-sm);
 }
 
 .fp-result-head {
@@ -579,39 +579,39 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .fp-result-score {
-  font-size: var(--kb-fs-h2);
+  font-size: var(--kf-fs-h2);
   font-weight: 700;
   line-height: 1;
 }
 
 .fp-result-score em {
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   font-style: normal;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .fp-score-high {
-  color: var(--kb-success);
+  color: var(--kf-success);
 }
 
 .fp-score-mid {
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 
 .fp-score-low {
-  color: var(--kb-danger);
+  color: var(--kf-danger);
 }
 
 .fp-result-comment {
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-muted-foreground);
   line-height: 1.7;
   margin-bottom: 14px;
 }
@@ -628,18 +628,18 @@ onMounted(() => {
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  border-radius: var(--kb-radius-sm);
-  font-size: var(--kb-fs-caption);
+  border-radius: var(--kf-radius-sm);
+  font-size: var(--kf-fs-caption);
 }
 
 .fp-step-chip-ok {
-  background: var(--kb-primary-soft);
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft);
+  color: var(--kf-primary);
 }
 
 .fp-step-chip-miss {
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 
 .fp-missed {
@@ -650,17 +650,17 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: var(--kb-fs-caption);
+  font-size: var(--kf-fs-caption);
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 6px;
 }
 
 .fp-missed-list {
   margin: 0;
   padding-left: 18px;
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   line-height: 1.8;
 }
 
@@ -672,8 +672,8 @@ onMounted(() => {
 }
 
 .fp-note {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   line-height: 1.7;
 }
 </style>

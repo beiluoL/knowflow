@@ -50,7 +50,7 @@
         <span class="te-label">候选上限</span>
         <input
           v-model.number="limit"
-          class="te-limit kb-input"
+          class="te-limit kf-input"
           type="number"
           min="5"
           max="60"
@@ -60,7 +60,7 @@
         <span class="te-hint">最多 60 条，超出会截断</span>
       </div>
 
-      <label class="te-ai kb-checkbox-row">
+      <label class="te-ai kf-checkbox-row">
         <Checkbox as="span" v-model="useAi" />
         <span>
           使用 AI 建议释义
@@ -94,7 +94,7 @@
 
       <ul v-else class="te-list">
         <li v-for="row in rows" :key="row.key" class="te-item" :class="{ 'is-unchecked': !row.checked }">
-          <label class="te-check kb-checkbox-row">
+          <label class="te-check kf-checkbox-row">
             <Checkbox as="span" v-model="row.checked"  :aria-label="`选择 ${row.headword}`" />
           </label>
           <div class="te-item-main">
@@ -108,18 +108,18 @@
             <div class="te-fields">
               <label class="te-field">
                 <span>中文释义</span>
-                <input v-model="row.meaningCn" class="kb-input" maxlength="120" placeholder="人工补全释义" />
+                <input v-model="row.meaningCn" class="kf-input" maxlength="120" placeholder="人工补全释义" />
               </label>
               <label class="te-field te-field-sm">
                 <span>技术分类</span>
-                <select v-model="row.domain" class="kb-input">
+                <select v-model="row.domain" class="kf-input">
                   <option v-for="(label, key) in DOMAIN_LABELS" :key="key" :value="key">{{ label }}</option>
                 </select>
               </label>
             </div>
             <label v-if="row.termType === 'ACRONYM'" class="te-field">
               <span>英文全称（未核验）</span>
-              <input v-model="row.fullForm" class="kb-input" maxlength="160" placeholder="不确定时留空，不猜测" />
+              <input v-model="row.fullForm" class="kf-input" maxlength="160" placeholder="不确定时留空，不猜测" />
             </label>
             <p v-if="row.sourceContext" class="te-context">原文：{{ row.sourceContext }}</p>
           </div>
@@ -392,7 +392,7 @@ watch(
 .te-label {
   width: 68px;
   flex: none;
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
 }
 
 .te-chips {
@@ -404,18 +404,18 @@ watch(
 .te-chip {
   height: 30px;
   padding: 0 12px;
-  border-radius: var(--kb-radius-sm, 8px);
-  border: 1px solid var(--kb-border, #e2e6ec);
-  background: var(--kb-card, #ffffff);
-  color: var(--kb-foreground, #1a1d23);
+  border-radius: var(--kf-radius-sm, 8px);
+  border: 1px solid var(--kf-border, #e2e6ec);
+  background: var(--kf-card, #ffffff);
+  color: var(--kf-foreground, #1a1d23);
   font-size: 13px;
   cursor: pointer;
 }
 
 .te-chip.is-active {
-  border-color: var(--kb-primary, #3b6fe0);
-  color: var(--kb-primary, #3b6fe0);
-  background: var(--kb-primary-soft, #eef3fd);
+  border-color: var(--kf-primary, #3b6fe0);
+  color: var(--kf-primary, #3b6fe0);
+  background: var(--kf-primary-soft, #eef3fd);
 }
 
 .te-chip:disabled {
@@ -428,24 +428,24 @@ watch(
 }
 
 .te-hint {
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
   font-size: 12px;
 }
 
 .te-ai {
   display: flex;
   align-items: center;
-  gap: var(--kb-checkbox-gap);
+  gap: var(--kf-checkbox-gap);
   padding: 10px 12px;
-  border-radius: var(--kb-radius-sm, 8px);
-  background: var(--kb-muted, #f7f8fa);
-  font-size: var(--kb-fs-body-md);
+  border-radius: var(--kf-radius-sm, 8px);
+  background: var(--kf-muted, #f7f8fa);
+  font-size: var(--kf-fs-body-md);
 }
 
 .te-ai small {
   display: block;
   margin-top: 2px;
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -462,22 +462,22 @@ watch(
   padding: 2px 8px;
   border-radius: 999px;
   font-size: 12px;
-  border: 1px solid var(--kb-border, #e2e6ec);
+  border: 1px solid var(--kf-border, #e2e6ec);
 }
 
 .te-badge.is-ai {
-  color: var(--kb-primary, #3b6fe0);
-  background: var(--kb-primary-soft, #eef3fd);
+  color: var(--kf-primary, #3b6fe0);
+  background: var(--kf-primary-soft, #eef3fd);
   border-color: transparent;
 }
 
 .te-badge.is-rule {
-  color: var(--kb-muted-foreground, #6b7280);
-  background: var(--kb-muted, #f7f8fa);
+  color: var(--kf-muted-foreground, #6b7280);
+  background: var(--kf-muted, #f7f8fa);
 }
 
 .te-summary-text {
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
   flex: 1;
   min-width: 160px;
 }
@@ -486,7 +486,7 @@ watch(
   border: none;
   background: none;
   padding: 0;
-  color: var(--kb-primary, #3b6fe0);
+  color: var(--kf-primary, #3b6fe0);
   font-size: 13px;
   cursor: pointer;
 }
@@ -494,9 +494,9 @@ watch(
 .te-note {
   margin: 0;
   padding: 8px 12px;
-  border-radius: var(--kb-radius-sm, 8px);
-  background: var(--kb-muted, #f7f8fa);
-  color: var(--kb-muted-foreground, #6b7280);
+  border-radius: var(--kf-radius-sm, 8px);
+  background: var(--kf-muted, #f7f8fa);
+  color: var(--kf-muted-foreground, #6b7280);
   font-size: 12px;
   line-height: 1.6;
 }
@@ -514,9 +514,9 @@ watch(
   display: flex;
   gap: 10px;
   padding: 12px;
-  border: 1px solid var(--kb-border, #e2e6ec);
-  border-radius: var(--kb-radius-md, 12px);
-  background: var(--kb-card, #ffffff);
+  border: 1px solid var(--kf-border, #e2e6ec);
+  border-radius: var(--kf-radius-md, 12px);
+  background: var(--kf-card, #ffffff);
 }
 
 .te-item.is-unchecked {
@@ -545,7 +545,7 @@ watch(
 .te-word {
   font-size: 16px;
   font-weight: 600;
-  color: var(--kb-foreground, #1a1d23);
+  color: var(--kf-foreground, #1a1d23);
 }
 
 .te-word.is-acronym {
@@ -555,13 +555,13 @@ watch(
 .te-type {
   padding: 1px 6px;
   border-radius: 6px;
-  background: var(--kb-muted, #f7f8fa);
-  color: var(--kb-muted-foreground, #6b7280);
+  background: var(--kf-muted, #f7f8fa);
+  color: var(--kf-muted-foreground, #6b7280);
   font-size: 11px;
 }
 
 .te-dup {
-  color: var(--kb-warning, #b45309);
+  color: var(--kf-warning, #b45309);
   font-size: 12px;
 }
 
@@ -578,21 +578,21 @@ watch(
   flex: 1;
   min-width: 180px;
   font-size: 12px;
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
 }
 
 .te-field-sm {
   flex: 0 0 150px;
 }
 
-.te-field .kb-input {
+.te-field .kf-input {
   height: 32px;
   font-size: 13px;
 }
 
 .te-context {
   margin: 0;
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
   font-size: 12px;
   line-height: 1.5;
   display: -webkit-box;
@@ -611,32 +611,32 @@ watch(
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
   cursor: pointer;
 }
 
 .te-remove:hover {
-  background: var(--kb-muted, #f7f8fa);
-  color: var(--kb-danger, #d93025);
+  background: var(--kf-muted, #f7f8fa);
+  color: var(--kf-danger, #d93025);
 }
 
 .te-empty {
   margin: 0;
   padding: 28px 0;
   text-align: center;
-  color: var(--kb-muted-foreground, #6b7280);
+  color: var(--kf-muted-foreground, #6b7280);
   font-size: 13px;
 }
 
 .te-error {
   margin: 0;
-  color: var(--kb-danger, #d93025);
+  color: var(--kf-danger, #d93025);
   font-size: 13px;
 }
 
 .te-success {
   margin: 0;
-  color: var(--kb-success, #1a7f5a);
+  color: var(--kf-success, #1a7f5a);
   font-size: 13px;
 }
 
@@ -649,17 +649,17 @@ watch(
 .te-btn {
   height: 34px;
   padding: 0 14px;
-  border-radius: var(--kb-radius-sm, 8px);
-  border: 1px solid var(--kb-border, #e2e6ec);
-  background: var(--kb-card, #ffffff);
-  color: var(--kb-foreground, #1a1d23);
+  border-radius: var(--kf-radius-sm, 8px);
+  border: 1px solid var(--kf-border, #e2e6ec);
+  background: var(--kf-card, #ffffff);
+  color: var(--kf-foreground, #1a1d23);
   font-size: 13px;
   cursor: pointer;
 }
 
 .te-btn-primary {
   border-color: transparent;
-  background: var(--kb-primary, #3b6fe0);
+  background: var(--kf-primary, #3b6fe0);
   color: #ffffff;
 }
 

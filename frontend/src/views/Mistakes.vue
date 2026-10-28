@@ -7,7 +7,7 @@
   >
     <template #actions>
       <button
-        class="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border border-border text-foreground bg-card hover:border-primary-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+        class="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border border-border text-foreground bg-card hover:border-primary-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
         aria-label="查看学习分析"
         @click="router.push('/learning/analytics')"
       >
@@ -16,7 +16,7 @@
       </button>
       <button
         @click="startPractice"
-        class="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+        class="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
         aria-label="配置题库错题练习" title="仅对已关联题库身份的错题组卷，其他错题继续使用原复习入口"
       >
         <Icon name="play" :size="16" aria-hidden="true" />
@@ -33,7 +33,7 @@
         :aria-pressed="selectedCategory === cat.value"
         @click="handleCategoryChange(cat.value)"
         :class="[
-          'shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2',
+          'shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm border whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2',
           selectedCategory === cat.value
             ? 'bg-primary-500 text-white border-primary-500'
             : 'bg-card text-foreground border-border hover:border-border',
@@ -124,8 +124,8 @@
               />
               <defs>
                 <linearGradient id="mistake-mastery-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="var(--kb-primary)" />
-                  <stop offset="100%" stop-color="var(--kb-success)" />
+                  <stop offset="0%" stop-color="var(--kf-primary)" />
+                  <stop offset="100%" stop-color="var(--kf-success)" />
                 </linearGradient>
               </defs>
             </svg>
@@ -183,7 +183,7 @@
     <p v-if="actionError" role="alert" class="mistake-state">{{ actionError }}；原错题状态保留，可重新操作。</p>
     <SkeletonList v-if="loading" :rows="5" type="list" />
 
-    <div v-else-if="listError" role="alert" class="mistake-state"><h2>{{ listError.title }}</h2><p>{{ listError.hint }}</p><button type="button" data-test="mistakes-retry" class="kb-state-retry" @click="fetchList">重试</button></div>
+    <div v-else-if="listError" role="alert" class="mistake-state"><h2>{{ listError.title }}</h2><p>{{ listError.hint }}</p><button type="button" data-test="mistakes-retry" class="kf-state-retry" @click="fetchList">重试</button></div>
     <template v-else>
       <EmptyState
         v-if="mistakeList.length === 0"
@@ -247,7 +247,7 @@
               :disabled="markingIds.has(mistake.id)"
               v-if="mistake.mastered !== 1"
               @click="handleMarkMastered(mistake.id)"
-              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border text-success-500 border-success-500 bg-card hover:bg-success-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+              class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border text-success-500 border-success-500 bg-card hover:bg-success-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
             >
               <Icon name="check" :size="14" aria-hidden="true" />
               <span>{{ markingIds.has(mistake.id) ? '正在提交…' : '标记已掌握' }}</span>
@@ -397,7 +397,7 @@ const categoryFilters = ref([
   { value: 'all', label: '全部', count: 0, color: '' },
   { value: 'AI', label: 'AI', count: 0, color: 'rgba(139, 92, 246, 0.8)' },
   { value: '前端', label: '前端', count: 0, color: 'rgba(59, 111, 224, 0.8)' },
-  { value: '算法', label: '算法', count: 0, color: 'var(--kb-warning)' },
+  { value: '算法', label: '算法', count: 0, color: 'var(--kf-warning)' },
   { value: '后端', label: '后端', count: 0, color: 'rgba(16, 185, 129, 0.8)' },
 ])
 
@@ -500,9 +500,9 @@ function getDifficultyStyle(diff?: number): string {
 // P2-2：按分类获取色条颜色，与 categoryFilters 的颜色保持一致
 // 视觉上让用户一眼区分错题类型：AI=紫、前端=蓝、算法=橙、后端=绿
 function getCategoryColor(category?: string): string {
-  if (!category) return 'var(--kb-muted-foreground)'
+  if (!category) return 'var(--kf-muted-foreground)'
   const found = categoryFilters.value.find((c) => c.value === category || category.includes(c.value))
-  return found?.color || 'var(--kb-muted-foreground)'
+  return found?.color || 'var(--kf-muted-foreground)'
 }
 
 function formatTime(time?: string): string {
@@ -525,17 +525,17 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.mistake-filters{display:flex;flex-direction:column;gap:var(--kb-space-3);min-width:0;}
-.mistake-status-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--kb-space-1);}
-.mistake-filter-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--kb-space-2);min-width:0;}
+.mistake-filters{display:flex;flex-direction:column;gap:var(--kf-space-3);min-width:0;}
+.mistake-status-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--kf-space-1);}
+.mistake-filter-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--kf-space-2);min-width:0;}
 .mistake-filter-control{flex:0 1 auto;width:fit-content;min-width:8.75rem;max-width:100%;}
-.mistake-filter-reset{display:inline-flex;align-items:center;gap:var(--kb-space-1);min-height:var(--kb-menu-item-height);padding:var(--kb-space-2);border-radius:var(--kb-radius-md);color:var(--kb-muted-foreground);font-size:var(--kb-fs-body-sm);}
-.mistake-filter-reset:hover{color:var(--kb-foreground);background:var(--kb-menu-hover);}
-.mistake-filter-summary{display:flex;flex-wrap:wrap;align-items:center;gap:var(--kb-space-2);font-size:var(--kb-fs-caption);}
-.mistake-filter-chip{display:inline-flex;align-items:center;gap:var(--kb-space-1);max-width:100%;overflow-wrap:anywhere;padding:var(--kb-space-1) var(--kb-space-2);border:1px solid var(--kb-border);border-radius:var(--kb-radius-full);background:var(--kb-card);}
-.mistake-filter-chip:hover{background:var(--kb-menu-hover);}
-.mistake-filter-count{color:var(--kb-muted-foreground);}
-@media(max-width:640px){.mistake-filter-control{flex:1 1 calc(50% - var(--kb-space-2));min-width:0;}.mistake-filter-summary{align-items:flex-start;}.mistake-filter-count{flex-basis:100%;}}
+.mistake-filter-reset{display:inline-flex;align-items:center;gap:var(--kf-space-1);min-height:var(--kf-menu-item-height);padding:var(--kf-space-2);border-radius:var(--kf-radius-md);color:var(--kf-muted-foreground);font-size:var(--kf-fs-body-sm);}
+.mistake-filter-reset:hover{color:var(--kf-foreground);background:var(--kf-menu-hover);}
+.mistake-filter-summary{display:flex;flex-wrap:wrap;align-items:center;gap:var(--kf-space-2);font-size:var(--kf-fs-caption);}
+.mistake-filter-chip{display:inline-flex;align-items:center;gap:var(--kf-space-1);max-width:100%;overflow-wrap:anywhere;padding:var(--kf-space-1) var(--kf-space-2);border:1px solid var(--kf-border);border-radius:var(--kf-radius-full);background:var(--kf-card);}
+.mistake-filter-chip:hover{background:var(--kf-menu-hover);}
+.mistake-filter-count{color:var(--kf-muted-foreground);}
+@media(max-width:640px){.mistake-filter-control{flex:1 1 calc(50% - var(--kf-space-2));min-width:0;}.mistake-filter-summary{align-items:flex-start;}.mistake-filter-count{flex-basis:100%;}}
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -565,24 +565,24 @@ onMounted(() => {
   left: 0;
   bottom: 0;
   width: 4px;
-  background: var(--category-color, var(--kb-muted-foreground));
+  background: var(--category-color, var(--kf-muted-foreground));
   border-radius: 4px 0 0 4px;
 }
 .mistake-card:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
-.phase-c-mistakes :deep(.mini-app-title) { font-family:inherit;font-size:var(--kb-page-title-size); }
-.mistake-state { padding:var(--kb-space-5);border:1px solid var(--kb-border);border-radius:var(--kb-radius-lg);background:var(--kb-card);display:grid;gap:var(--kb-space-3); }
-.mistake-question { min-width:0;flex:1;font-size:var(--kb-fs-body-lg);line-height:1.7;overflow-wrap:anywhere; }
+.phase-c-mistakes :deep(.mini-app-title) { font-family:inherit;font-size:var(--kf-page-title-size); }
+.mistake-state { padding:var(--kf-space-5);border:1px solid var(--kf-border);border-radius:var(--kf-radius-lg);background:var(--kf-card);display:grid;gap:var(--kf-space-3); }
+.mistake-question { min-width:0;flex:1;font-size:var(--kf-fs-body-lg);line-height:1.7;overflow-wrap:anywhere; }
 .mistake-card > div:first-child { flex-wrap:wrap;align-items:start; }
-.mistake-card > div:last-child { flex-wrap:wrap;gap:var(--kb-space-3); }
-.mistake-answer summary { cursor:pointer;padding:var(--kb-space-3) 0;font-size:var(--kb-fs-body-md);font-weight:600; }
-.mistake-repractice { color:var(--kb-primary);min-height:var(--kb-control-hit-size);padding:var(--kb-space-2); }
-.phase-c-mistakes :is(button,select,summary):focus-visible { outline:2px solid var(--kb-ring);outline-offset:2px; }
-.phase-c-mistakes :deep(button.bg-primary-500.text-white) { color:var(--kb-primary-foreground); }
-.mistake-card .bg-red-50 { background:color-mix(in srgb,var(--kb-destructive) 8%,var(--kb-card)); }
-.mistake-card .bg-green-50 { background:color-mix(in srgb,var(--kb-success) 8%,var(--kb-card)); }
+.mistake-card > div:last-child { flex-wrap:wrap;gap:var(--kf-space-3); }
+.mistake-answer summary { cursor:pointer;padding:var(--kf-space-3) 0;font-size:var(--kf-fs-body-md);font-weight:600; }
+.mistake-repractice { color:var(--kf-primary);min-height:var(--kf-control-hit-size);padding:var(--kf-space-2); }
+.phase-c-mistakes :is(button,select,summary):focus-visible { outline:2px solid var(--kf-ring);outline-offset:2px; }
+.phase-c-mistakes :deep(button.bg-primary-500.text-white) { color:var(--kf-primary-foreground); }
+.mistake-card .bg-red-50 { background:color-mix(in srgb,var(--kf-destructive) 8%,var(--kf-card)); }
+.mistake-card .bg-green-50 { background:color-mix(in srgb,var(--kf-success) 8%,var(--kf-card)); }
 .markdown-body :deep(pre),.markdown-body :deep(table) { max-width:100%;overflow-x:auto; }
 .markdown-body :deep(img) { max-width:100%;height:auto; }
 </style>

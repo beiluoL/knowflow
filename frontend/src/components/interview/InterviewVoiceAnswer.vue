@@ -21,8 +21,8 @@ function confirm(){if(result.value?.status==='TRANSCRIBED'&&edited.value.trim())
 <template>
 <section class="voice" aria-label="语音回答" :aria-busy="busy||capLoading">
  <h4>语音转写辅助</h4>
- <p class="kb-text-caption">录音 → 转写 → 校对并填入 → 最后确认提交回答。也可直接使用上方文字输入。</p>
- <p class="kb-text-caption">语音仅临时用于转写，不永久保存音频。确认文字前不会提交回答。</p>
+ <p class="kf-text-caption">录音 → 转写 → 校对并填入 → 最后确认提交回答。也可直接使用上方文字输入。</p>
+ <p class="kf-text-caption">语音仅临时用于转写，不永久保存音频。确认文字前不会提交回答。</p>
  <p v-if="failure||r.error.value" role="alert">{{failure||r.error.value}}</p>
  <p v-if="capLoading" role="status">正在检查语音能力…</p>
  <button v-else-if="!cap" class="btn-secondary" @click="capability">重试语音能力</button>
@@ -42,7 +42,7 @@ function confirm(){if(result.value?.status==='TRANSCRIBED'&&edited.value.trim())
  </div>
  <template v-if="result?.status==='TRANSCRIBED'">
  <details><summary>查看原始转写</summary><p>{{result.rawText}}</p></details>
- <label>校对转写<textarea class="kb-textarea kb-form-control" v-model="edited" :disabled="disabled" rows="5" /></label>
+ <label>校对转写<textarea class="kf-textarea kf-form-control" v-model="edited" :disabled="disabled" rows="5" /></label>
  <button class="btn-primary" :disabled="disabled||!edited.trim()" @click="confirm">确认文字，填入回答</button>
  </template>
  <button v-else-if="result" class="btn-secondary" :disabled="busy" @click="transcribe">重试转写</button>
@@ -50,7 +50,7 @@ function confirm(){if(result.value?.status==='TRANSCRIBED'&&edited.value.trim())
 </section>
 </template>
 <style scoped>
-.voice { border-radius:var(--kb-radius-md);font-size:var(--kb-fs-body-sm);line-height:1.7; }.voice h4 { margin:0 0 var(--kb-space-2);font-weight:600; }.voice p { overflow-wrap:anywhere; }.voice button { min-height:var(--kb-control-hit-size); }.voice :focus-visible:not(.kb-form-control, .kb-input, .kb-textarea, .kb-select, .kb-select-trigger) { outline:var(--kb-studio-focus) solid var(--kb-ring);outline-offset:var(--kb-studio-focus); }
+.voice { border-radius:var(--kf-radius-md);font-size:var(--kf-fs-body-sm);line-height:1.7; }.voice h4 { margin:0 0 var(--kf-space-2);font-weight:600; }.voice p { overflow-wrap:anywhere; }.voice button { min-height:var(--kf-control-hit-size); }.voice :focus-visible:not(.kf-form-control, .kf-input, .kf-textarea, .kf-select, .kf-select-trigger) { outline:var(--kf-studio-focus) solid var(--kf-ring);outline-offset:var(--kf-studio-focus); }
 
-.voice{border-top:var(--kb-studio-rule) solid var(--kb-border);padding-top:var(--kb-space-4);margin-top:var(--kb-space-4)}.voice-actions{display:flex;align-items:center;flex-wrap:wrap;gap:var(--kb-space-2)}textarea{display:block;width:100%;padding:var(--kb-space-3);background:var(--kb-card);color:var(--kb-foreground);border:var(--kb-studio-rule) solid var(--kb-border);border-radius:var(--kb-radius-md)}
+.voice{border-top:var(--kf-studio-rule) solid var(--kf-border);padding-top:var(--kf-space-4);margin-top:var(--kf-space-4)}.voice-actions{display:flex;align-items:center;flex-wrap:wrap;gap:var(--kf-space-2)}textarea{display:block;width:100%;padding:var(--kf-space-3);background:var(--kf-card);color:var(--kf-foreground);border:var(--kf-studio-rule) solid var(--kf-border);border-radius:var(--kf-radius-md)}
 </style>

@@ -140,7 +140,7 @@
                   :class="aiCapability.aiAvailable ? 'bg-success-100 text-success-700' : 'bg-gray-100 text-muted-foreground'"
                 >{{ aiCapability.aiAvailable ? 'AI 可用' : aiStatusText }}</span>
               </h3>
-              <label class="text-[11px] text-muted-foreground inline-flex items-center gap-1 cursor-pointer select-none kb-checkbox-row">
+              <label class="text-[11px] text-muted-foreground inline-flex items-center gap-1 cursor-pointer select-none kf-checkbox-row">
                 <Checkbox as="span"
 
                   :checked="aiCapability.userEnabled"
@@ -266,7 +266,7 @@
               <div class="flex items-center gap-1.5 flex-wrap">
                 <select
                   v-model.number="diffAId"
-                  class="flex-1 min-w-0 px-2 py-1 text-[11px] outline-none kb-select kb-form-control"
+                  class="flex-1 min-w-0 px-2 py-1 text-[11px] outline-none kf-select kf-form-control"
                 >
                   <option :value="null" disabled>选择提交 A</option>
                   <option v-for="s in history" :key="s.id" :value="s.id">{{ diffOptionLabel(s) }}</option>
@@ -274,7 +274,7 @@
                 <span class="text-muted-foreground text-xs">↔</span>
                 <select
                   v-model.number="diffBId"
-                  class="flex-1 min-w-0 px-2 py-1 text-[11px] outline-none kb-select kb-form-control"
+                  class="flex-1 min-w-0 px-2 py-1 text-[11px] outline-none kf-select kf-form-control"
                 >
                   <option :value="null" disabled>选择提交 B</option>
                   <option v-for="s in history" :key="s.id" :value="s.id">{{ diffOptionLabel(s) }}</option>
@@ -338,7 +338,7 @@
         <div class="shrink-0 border-b border-border px-4 py-2.5 flex items-center gap-2 flex-wrap">
           <select
             v-model="language"
-            class="px-2.5 py-1.5 text-sm outline-none kb-select kb-form-control"
+            class="px-2.5 py-1.5 text-sm outline-none kf-select kf-form-control"
           >
             <option v-for="l in languages" :key="l" :value="l">Java 17</option>
           </select>

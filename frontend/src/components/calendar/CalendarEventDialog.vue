@@ -162,14 +162,14 @@ function onDelete() {
         <div class="ev-field">
           <input
             v-model="form.title"
-            class="ev-input ev-title-input kb-input kb-form-control"
+            class="ev-input ev-title-input kf-input kf-form-control"
             placeholder="添加标题"
             @keyup.enter="onSave"
           />
         </div>
 
         <!-- 全天开关 -->
-        <label class="ev-switch kb-checkbox-row">
+        <label class="ev-switch kf-checkbox-row">
           <Checkbox as="span"  v-model="form.allDay" />
           <span>全天事件</span>
         </label>
@@ -210,7 +210,7 @@ function onDelete() {
         <!-- 清单 -->
         <div class="ev-field">
           <Icon name="list" :size="15" class="ev-ic" />
-          <select v-model="form.listId" class="ev-input kb-select kb-form-control">
+          <select v-model="form.listId" class="ev-input kf-select kf-form-control">
             <option :value="null">无清单</option>
             <option v-for="l in lists" :key="l.id" :value="l.id">{{ l.name }}</option>
           </select>
@@ -243,7 +243,7 @@ function onDelete() {
 
         <!-- 备注 -->
         <div class="ev-field">
-          <textarea v-model="form.notes" class="ev-input ev-textarea kb-textarea kb-form-control" placeholder="备注（可选）" rows="3"></textarea>
+          <textarea v-model="form.notes" class="ev-input ev-textarea kf-textarea kf-form-control" placeholder="备注（可选）" rows="3"></textarea>
         </div>
 
         <p v-if="error" class="ev-error">{{ error }}</p>
@@ -345,7 +345,7 @@ function onDelete() {
     display: none;
   }
 }
-.ev-input:not(.kb-form-control) {
+.ev-input:not(.kf-form-control) {
   border: 1px solid #e5e7eb;
   border-radius: 9px;
   background: #fff;
@@ -358,8 +358,8 @@ function onDelete() {
   font-size: 14px;
   color: #1f2937;
 }
-.ev-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.ev-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.12);
 }
 .ev-title-input {
@@ -376,8 +376,8 @@ function onDelete() {
 .ev-switch {
   display: inline-flex;
   align-items: center;
-  gap: var(--kb-checkbox-gap);
-  font-size: var(--kb-fs-body-md);
+  gap: var(--kf-checkbox-gap);
+  font-size: var(--kf-fs-body-md);
   color: #4b5563;
   cursor: pointer;
 }
@@ -392,7 +392,7 @@ function onDelete() {
   gap: 4px;
   border: 1px solid #e5e7eb;
   background: #fff;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 13px;
   padding: 6px 10px;
   border-radius: 9px;
@@ -400,12 +400,12 @@ function onDelete() {
   transition: all 0.15s;
 }
 .ev-tag.on {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
   background: #f0f5ff;
 }
 .ev-error {
-  color: var(--kb-danger);
+  color: var(--kf-danger);
   font-size: 13px;
   margin: 0;
 }
@@ -420,16 +420,16 @@ function onDelete() {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  border: 1px solid var(--kb-danger-tint);
+  border: 1px solid var(--kf-danger-tint);
   background: #fff;
-  color: var(--kb-danger);
+  color: var(--kf-danger);
   font-size: 13px;
   padding: 8px 12px;
   border-radius: 9px;
   cursor: pointer;
 }
 .ev-del:hover {
-  background: var(--kb-danger-subtle);
+  background: var(--kf-danger-subtle);
 }
 .ev-foot-right {
   display: flex;
@@ -449,7 +449,7 @@ function onDelete() {
 }
 .ev-save {
   border: none;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
   font-size: 14px;
   font-weight: 600;

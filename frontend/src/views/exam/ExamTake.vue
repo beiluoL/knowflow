@@ -68,7 +68,7 @@
           <button
             v-for="q in attempt.questions"
             :key="q.paperQuestionId"
-            class="relative h-9 rounded-lg text-xs font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)]"
+            class="relative h-9 rounded-lg text-xs font-medium border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)]"
             :class="navBtnClass(q)"
             :title="`第 ${q.ordinal} 题`"
             @click="jumpTo(q)"
@@ -178,7 +178,7 @@
               @input="scheduleSave"
               type="text"
               placeholder="请输入答案"
-              class="w-full px-4 py-3 text-sm outline-none kb-input kb-form-control"
+              class="w-full px-4 py-3 text-sm outline-none kf-input kf-form-control"
             />
           </div>
 
@@ -239,7 +239,7 @@
               @input="scheduleSave"
               rows="16"
               placeholder="请有条理地作答，可分点陈述原理、排查过程与结论…"
-              class="w-full px-4 py-3 text-sm leading-7 outline-none resize-y font-mono kb-textarea kb-form-control"
+              class="w-full px-4 py-3 text-sm leading-7 outline-none resize-y font-mono kf-textarea kf-form-control"
             ></textarea>
             <p class="text-[11px] text-muted-foreground text-right">
               {{ (answers[current.paperQuestionId] || '').length }} 字 · 草稿自动保存
@@ -303,7 +303,7 @@
         </div>
 
         <button
-          class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
           @click="requestSubmit"
         >
           <Icon name="check-circle" :size="17" />
@@ -617,13 +617,13 @@ document.addEventListener('visibilitychange', visibilityHandler)
 
 <style scoped>
 .exam-take :deep(textarea) {
-  font-family: var(--kb-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-family: var(--kf-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
 }
 </style>
 
 <style scoped>
 .exam-editable {min-width:0;padding:0;margin:0;border:0}
-.draft-error {padding:var(--kb-space-4);background:var(--kb-muted);border-block-end:1px solid var(--kb-border);color:var(--kb-foreground)}
-.draft-error p {margin-block:var(--kb-space-2)}
-.draft-saving {padding:var(--kb-space-2) var(--kb-space-4);color:var(--kb-muted-foreground)}
+.draft-error {padding:var(--kf-space-4);background:var(--kf-muted);border-block-end:1px solid var(--kf-border);color:var(--kf-foreground)}
+.draft-error p {margin-block:var(--kf-space-2)}
+.draft-saving {padding:var(--kf-space-2) var(--kf-space-4);color:var(--kf-muted-foreground)}
 </style>

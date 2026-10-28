@@ -235,10 +235,10 @@ async function doAction(): Promise<void> {
 
 <style scoped>
 .next-action-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-left: 3px solid var(--kb-primary);
-  border-radius: var(--kb-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-left: 3px solid var(--kf-primary);
+  border-radius: var(--kf-radius-md);
   padding: 16px 18px;
   display: flex;
   flex-direction: column;
@@ -261,7 +261,7 @@ async function doAction(): Promise<void> {
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.03em;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .na-dismiss {
   display: inline-flex;
@@ -270,29 +270,29 @@ async function doAction(): Promise<void> {
   width: 26px;
   height: 26px;
   border: none;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 .na-dismiss:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 
 .na-title {
   margin: 0;
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kf-fs-body-lg);
   font-weight: 600;
   line-height: 1.4;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .na-reason {
   margin: 0;
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   line-height: 1.55;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 /* UI/UX 5.0 §七：方式 / 预计 / 知识点 —— 用分隔线而非再套一层卡片（§六：减少卡片化） */
 .na-meta {
@@ -302,7 +302,7 @@ async function doAction(): Promise<void> {
   gap: 4px 16px;
   margin: 2px 0 0;
   padding: 8px 0 0;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
 }
 .na-meta-item {
   display: inline-flex;
@@ -311,14 +311,14 @@ async function doAction(): Promise<void> {
   min-width: 0;
 }
 .na-meta-item dt {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
   font-weight: 500;
 }
 .na-meta-item dd {
   margin: 0;
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-foreground);
+  font-size: var(--kf-fs-body-sm);
+  color: var(--kf-foreground);
   font-weight: 500;
 }
 .na-meta-knowledge {
@@ -336,8 +336,8 @@ async function doAction(): Promise<void> {
   margin-top: 2px;
 }
 .na-hint {
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-warning);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-warning);
   font-weight: 500;
 }
 </style>

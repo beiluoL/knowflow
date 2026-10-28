@@ -1,12 +1,12 @@
 <template>
   <WorkbenchShell stage="notes" :title="isNew ? '新建笔记' : '整理笔记'" :revision="revision" @ready="initialize">
-  <div v-if="loadError" role="alert" class="workbench-inline-error">{{ loadError }}<button class="kb-btn" @click="loadNote">重试</button></div>
+  <div v-if="loadError" role="alert" class="workbench-inline-error">{{ loadError }}<button class="kf-btn" @click="loadNote">重试</button></div>
   <div v-else-if="!noteLoaded" class="workbench-empty" role="status">正在读取笔记与来源…</div>
   <div v-else class="wb-page" :style="{ '--mc': themeColor }">
     <!-- ============ Sticky Top Bar ============ -->
     <header class="note-topbar">
       <div class="note-topbar-left">
-        <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="返回列表" @click="goBack">
+        <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="返回列表" @click="goBack">
           <Icon name="chevron-left" :size="18" aria-hidden="true" />
         </button>
         <div class="note-topbar-title">
@@ -35,10 +35,10 @@
       </div>
 
       <div class="note-topbar-right">
-        <button class="kb-btn wb-ghost-btn note-export-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="exporting" @click="exportImage">
+        <button class="kf-btn wb-ghost-btn note-export-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="exporting" @click="exportImage">
           <Icon name="image" :size="14" aria-hidden="true" /> 导出图片
         </button>
-        <button class="kb-btn wb-ghost-btn note-export-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="exporting" @click="exportPDF">
+        <button class="kf-btn wb-ghost-btn note-export-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="exporting" @click="exportPDF">
           <Icon name="file-text" :size="14" aria-hidden="true" /> 导出PDF
         </button>
       </div>
@@ -51,7 +51,7 @@
           <label class="wb-label">笔记标题 <span class="wb-req">*</span></label>
           <input
             v-model="form.title"
-            class="kb-input note-title-input transition-colors kb-form-control"
+            class="kf-input note-title-input transition-colors kf-form-control"
             placeholder="给这则笔记起个名字…"
             @blur="validateField('title')"
           />
@@ -60,7 +60,7 @@
 
         <div class="note-meta-field">
           <label class="wb-label">所属科目 / 分类</label>
-          <select v-model="form.categoryId" class="kb-input transition-colors kb-select kb-form-control">
+          <select v-model="form.categoryId" class="kf-input transition-colors kf-select kf-form-control">
             <option :value="undefined">未归类</option>
             <option v-for="c in flatCategories" :key="c.id" :value="c.id">{{ '　'.repeat(c.depth) }}{{ c.name }}</option>
           </select>
@@ -72,7 +72,7 @@
             <Icon name="hash" :size="14" class="note-tags-icon" />
             <input
               v-model="tagInput"
-              class="kb-input note-tags-field transition-colors kb-form-control"
+              class="kf-input note-tags-field transition-colors kf-form-control"
               placeholder="输入标签后回车"
               @keydown.enter.prevent="addTag"
               @keydown.delete="removeLastTag"
@@ -81,14 +81,14 @@
           <div v-if="tags.length" class="note-tags-list">
             <span v-for="(t, i) in tags" :key="i" class="note-tag-chip">
               {{ t }}
-              <button class="note-tag-remove focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="tags.splice(i, 1)"><Icon name="x" :size="11" aria-hidden="true" /></button>
+              <button class="note-tag-remove focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="tags.splice(i, 1)"><Icon name="x" :size="11" aria-hidden="true" /></button>
             </span>
           </div>
         </div>
 
         <div class="note-meta-field note-meta-mastery">
           <label class="wb-label">我的自评 <span class="note-mastery-val">{{ form.mastery }}%</span></label>
-          <input type="range" min="0" max="100" step="5" v-model.number="form.mastery" class="note-mastery-slider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" />
+          <input type="range" min="0" max="100" step="5" v-model.number="form.mastery" class="note-mastery-slider focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" />
         </div>
       </div>
 
@@ -105,7 +105,7 @@
           </div>
           <textarea
             v-model="form.cueColumn"
-            class="kb-input cornell-textarea cornell-cue-input transition-colors kb-textarea kb-form-control"
+            class="kf-input cornell-textarea cornell-cue-input transition-colors kf-textarea kf-form-control"
             placeholder="例如：&#10;- 什么是 SM-2 算法？&#10;- 间隔重复的原理是什么？"
             rows="4"
           ></textarea>
@@ -123,27 +123,27 @@
 
           <!-- Rich Text Toolbar -->
           <div class="rte-toolbar">
-            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="加粗 (Ctrl+B)" @mousedown.prevent="exec('bold')">
+            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="加粗 (Ctrl+B)" @mousedown.prevent="exec('bold')">
               <Icon name="bold" :size="15" aria-hidden="true" />
             </button>
-            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="斜体 (Ctrl+I)" @mousedown.prevent="exec('italic')">
+            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="斜体 (Ctrl+I)" @mousedown.prevent="exec('italic')">
               <Icon name="italic" :size="15" aria-hidden="true" />
             </button>
-            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="下划线" @mousedown.prevent="exec('underline')">
+            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="下划线" @mousedown.prevent="exec('underline')">
               <Icon name="underline" :size="15" aria-hidden="true" />
             </button>
             <span class="rte-divider"></span>
-            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="无序列表" @mousedown.prevent="exec('insertUnorderedList')">
+            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="无序列表" @mousedown.prevent="exec('insertUnorderedList')">
               <Icon name="list" :size="15" aria-hidden="true" />
             </button>
-            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="有序列表" @mousedown.prevent="exec('insertOrderedList')">
+            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="有序列表" @mousedown.prevent="exec('insertOrderedList')">
               <Icon name="list-ordered" :size="15" aria-hidden="true" />
             </button>
             <span class="rte-divider"></span>
-            <button class="rte-btn rte-highlight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="高亮" @mousedown.prevent="toggleHighlight">
+            <button class="rte-btn rte-highlight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="高亮" @mousedown.prevent="toggleHighlight">
               <span class="rte-hl-mark">H</span>
             </button>
-            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2" title="清除格式" @mousedown.prevent="exec('removeFormat')">
+            <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="清除格式" @mousedown.prevent="exec('removeFormat')">
               <Icon name="x" :size="15" aria-hidden="true" />
             </button>
           </div>
@@ -168,7 +168,7 @@
           </div>
           <textarea
             v-model="form.summaryColumn"
-            class="kb-input cornell-textarea cornell-summary-input transition-colors kb-textarea kb-form-control"
+            class="kf-input cornell-textarea cornell-summary-input transition-colors kf-textarea kf-form-control"
             placeholder="一句话讲清这个概念…"
             rows="4"
           ></textarea>
@@ -184,14 +184,14 @@
         </span>
       </div>
       <div class="note-action-right">
-        <button data-test="note-save" class="kb-btn note-draft-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving || autoSaving" @click="saveDraft">
+        <button data-test="note-save" class="kf-btn note-draft-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving || autoSaving" @click="saveDraft">
           <Icon name="save" :size="15" aria-hidden="true" /> 保存笔记
         </button>
-        <button class="kb-btn kb-btn-primary note-publish-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving" @click="publish">
+        <button class="kf-btn kf-btn-primary note-publish-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving" @click="publish">
           <Icon name="check" :size="15" aria-hidden="true" /> 完成整理
         </button>
-        <button class="kb-btn" :disabled="saving || autoSaving" @click="continueTo('review')">创建复习卡</button>
-        <button class="kb-btn" :disabled="saving || autoSaving" @click="continueTo('story')">开始输出</button>
+        <button class="kf-btn" :disabled="saving || autoSaving" @click="continueTo('review')">创建复习卡</button>
+        <button class="kf-btn" :disabled="saving || autoSaving" @click="continueTo('story')">开始输出</button>
       </div>
     </footer>
     <WorkbenchRelations :capture-id="form.captureId" :note-id="noteId || undefined" :revision="revision" />
@@ -214,7 +214,7 @@ import type { WbNotePayload, CategoryTreeNodeVO } from '@/api/types'
 
 const route = useRoute()
 const router = useRouter()
-const themeColor = 'var(--kb-primary)'
+const themeColor = 'var(--kf-primary)'
 const { sanitize } = useSanitize()
 const revision = ref(0), loadError = ref(''), saveError = ref('')
 
@@ -595,9 +595,9 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   justify-content: space-between;
   gap: 12px;
   padding: 10px 16px;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   box-shadow: var(--shadow-card);
   flex-wrap: wrap;
 }
@@ -616,7 +616,7 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   font-family: var(--font-serif);
   font-size: 18px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
   white-space: nowrap;
 }
@@ -640,12 +640,12 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   color: var(--mc);
 }
 .note-save-done {
-  background: color-mix(in srgb, var(--kb-success) 10%, transparent);
-  color: var(--kb-success);
+  background: color-mix(in srgb, var(--kf-success) 10%, transparent);
+  color: var(--kf-success);
 }
 .note-save-idle {
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 .note-topbar-right {
   display: flex;
@@ -657,9 +657,9 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   padding: 6px 12px;
 }
 .wb-ghost-btn {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  color: var(--kb-foreground);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  color: var(--kf-foreground);
 }
 .wb-ghost-btn:hover:not(:disabled) {
   border-color: var(--mc);
@@ -672,10 +672,10 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
 
 /* ===== Metadata Card ===== */
 .note-meta-card {
-  padding: var(--kb-space-6);
-  border-radius: var(--kb-radius-lg);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  padding: var(--kf-space-6);
+  border-radius: var(--kf-radius-lg);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   box-shadow: var(--shadow-card);
 }
 .note-meta-grid {
@@ -684,7 +684,7 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   gap: 16px;
   margin-bottom: 20px;
   padding-bottom: 20px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 .note-meta-title-field {
   display: flex;
@@ -710,7 +710,7 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
 .note-tags-icon {
   position: absolute;
   left: 10px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   pointer-events: none;
 }
 .note-tags-field {
@@ -760,51 +760,51 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
 }
 .note-err {
   font-size: 12px;
-  color: var(--kb-destructive);
+  color: var(--kf-destructive);
   font-weight: 500;
 }
 
 /* ===== Cornell Three-Column ===== */
 .cornell-grid {
   display: grid;
-  grid-template-columns: var(--kb-wb-cue-width) minmax(0, 1fr);
-  gap: var(--kb-space-4);
+  grid-template-columns: var(--kf-wb-cue-width) minmax(0, 1fr);
+  gap: var(--kf-space-4);
 }
 .cornell-col {
   display: flex;
   flex-direction: column;
-  border-radius: var(--kb-radius-md);
-  border: 1px solid var(--kb-border);
+  border-radius: var(--kf-radius-md);
+  border: 1px solid var(--kf-border);
   overflow: hidden;
 }
-.cornell-cue { border-top: 3px solid var(--kb-warning); }
+.cornell-cue { border-top: 3px solid var(--kf-warning); }
 .cornell-note { border-top: 3px solid var(--mc); }
-.cornell-summary { border-top: 3px solid var(--kb-success); grid-column: 1 / -1; }
+.cornell-summary { border-top: 3px solid var(--kf-success); grid-column: 1 / -1; }
 
 .cornell-col-head {
   display: flex;
   align-items: flex-start;
   gap: 8px;
   padding: 12px 14px 8px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
-.cornell-cue .cornell-col-head { color: var(--kb-warning); }
-.cornell-summary .cornell-col-head { color: var(--kb-success); }
+.cornell-cue .cornell-col-head { color: var(--kf-warning); }
+.cornell-summary .cornell-col-head { color: var(--kf-success); }
 .cornell-col-title {
   font-family: var(--font-sans);
-  font-size: var(--kb-fs-body-md);
+  font-size: var(--kf-fs-body-md);
   font-weight: 700;
   color: inherit;
   margin: 0;
 }
 .cornell-col-hint {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin: 2px 0 0;
   line-height: 1.4;
 }
-.cornell-textarea:not(.kb-form-control) {
-  min-height: var(--kb-wb-writing-height);
+.cornell-textarea:not(.kf-form-control) {
+  min-height: var(--kf-wb-writing-height);
   border: none;
   border-radius: 0;
   background: transparent;
@@ -815,14 +815,14 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   font-family: var(--font-sans);
   font-size: 14px;
   line-height: 1.7;
-  min-height: var(--kb-wb-writing-height);
+  min-height: var(--kf-wb-writing-height);
 }
-.cornell-cue-input:not(.kb-form-control) {
-  background: color-mix(in srgb, var(--kb-warning) 2%, transparent);
+.cornell-cue-input:not(.kf-form-control) {
+  background: color-mix(in srgb, var(--kf-warning) 2%, transparent);
 }
-.cornell-summary-input:not(.kb-form-control) {
-  background: color-mix(in srgb, var(--kb-success) 2%, transparent);
-  min-height: calc(var(--kb-space-8) * 3);
+.cornell-summary-input:not(.kf-form-control) {
+  background: color-mix(in srgb, var(--kf-success) 2%, transparent);
+  min-height: calc(var(--kf-space-8) * 3);
 }
 
 /* ===== Rich Text Editor ===== */
@@ -831,9 +831,9 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   align-items: center;
   gap: 2px;
   padding: 6px 10px;
-  border-top: 1px solid var(--kb-border);
-  border-bottom: 1px solid var(--kb-border);
-  background: var(--kb-background);
+  border-top: 1px solid var(--kf-border);
+  border-bottom: 1px solid var(--kf-border);
+  background: var(--kf-background);
   flex-wrap: wrap;
 }
 .rte-btn {
@@ -842,15 +842,15 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   justify-content: center;
   width: 30px;
   height: 30px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .rte-btn:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 .rte-btn:active {
   background: color-mix(in srgb, var(--mc) 20%, transparent);
@@ -859,7 +859,7 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
 .rte-divider {
   width: 1px;
   height: 18px;
-  background: var(--kb-border);
+  background: var(--kf-border);
   margin: 0 4px;
 }
 .rte-highlight {
@@ -876,17 +876,17 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
 }
 .cornell-editor {
   flex: 1;
-  min-height: var(--kb-wb-writing-height);
-  padding: var(--kb-space-4);
-  font-size: var(--kb-fs-body-md);
+  min-height: var(--kf-wb-writing-height);
+  padding: var(--kf-space-4);
+  font-size: var(--kf-fs-body-md);
   line-height: 1.8;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   outline: none;
   overflow-y: auto;
 }
 .cornell-editor:empty::before {
   content: '详细记录知识点…支持加粗、斜体、列表、高亮';
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   opacity: 0.6;
 }
 .cornell-editor :deep(strong) { font-weight: 700; }
@@ -918,9 +918,9 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   justify-content: space-between;
   gap: 12px;
   padding: 12px 16px;
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   box-shadow: var(--shadow-card);
 }
 .note-action-left {
@@ -972,5 +972,5 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   .note-action-right { justify-content: flex-end; }
 }
 .cornell-summary-input {
-  min-height: calc(var(--kb-space-8) * 3); }
+  min-height: calc(var(--kf-space-8) * 3); }
 </style>

@@ -4,13 +4,13 @@
   <div v-else-if="loadError" role="alert">{{ loadError }} <button type="button" @click="load">重试</button></div>
   <template v-else-if="plan">
    <header class="plan-head"><div><h3>{{ plan.action==='STATUS'?'任务状态确认':plan.action==='UPDATE'?'学习计划调整':'今日学习计划' }}</h3><p>{{ plan.date }} · {{ plan.zoneId }} · {{ plan.source==='AI_ASSISTED'?'AI 增强':'规则生成' }}</p></div><span role="status">{{ stateLabel }}</span></header>
-   <template v-if="plan.action!=='STATUS'"><div class="plan-budget"><label>学习预算（分钟）<input class="kb-input kb-form-control" v-model.number="budget" type="number" min="1" max="720" :disabled="busy || plan.state==='CONFIRMED'" aria-label="学习预算" /></label><span>{{ rows.length }} 项 · 总计 {{ total }} 分钟</span></div><p v-if="budget!==plan.availableMinutes" role="status">预算已调整，请先重新生成草案。</p><p v-if="total>budget" role="alert">总时长超出预算，请调整或重新生成。</p></template>
+   <template v-if="plan.action!=='STATUS'"><div class="plan-budget"><label>学习预算（分钟）<input class="kf-input kf-form-control" v-model.number="budget" type="number" min="1" max="720" :disabled="busy || plan.state==='CONFIRMED'" aria-label="学习预算" /></label><span>{{ rows.length }} 项 · 总计 {{ total }} 分钟</span></div><p v-if="budget!==plan.availableMinutes" role="status">预算已调整，请先重新生成草案。</p><p v-if="total>budget" role="alert">总时长超出预算，请调整或重新生成。</p></template>
    <ul v-if="visibleWarnings.length" class="plan-warnings"><li v-for="warning in visibleWarnings" :key="warning">{{ warning }}</li></ul>
    <details class="plan-details"><summary>编辑与查看任务清单（{{ rows.length }} 项）</summary>
    <ol class="plan-items">
     <li v-for="(row,index) in rows" :key="row.key" class="plan-item">
-     <label>任务标题<input class="kb-input kb-form-control" v-model="row.title" :aria-label="`任务${index+1}标题`" maxlength="200" :disabled="!editable || smart || plan.action==='STATUS'" /></label>
-     <div v-if="plan.action!=='STATUS'" class="plan-item-controls"><label>预计分钟<input class="kb-input kb-form-control" v-model.number="row.estimatedMinutes" :aria-label="`任务${index+1}时长`" type="number" min="1" max="720" :disabled="!editable || smart" /></label><label>优先级<select class="kb-select kb-form-control" v-model="row.priority" :aria-label="`任务${index+1}优先级`" :disabled="!editable || smart"><option value="HIGH">高</option><option value="MEDIUM">中</option><option value="LOW">低</option></select></label><div class="plan-order"><button type="button" :aria-label="`上移任务${index+1}`" :disabled="!editable || smart || index===0" @click="move(index,-1)">上移</button><button type="button" :aria-label="`下移任务${index+1}`" :disabled="!editable || smart || index===rows.length-1" @click="move(index,1)">下移</button><button type="button" :aria-label="`删除候选任务${index+1}`" :disabled="!editable || smart" @click="rows.splice(index,1)">移除</button></div></div>
+     <label>任务标题<input class="kf-input kf-form-control" v-model="row.title" :aria-label="`任务${index+1}标题`" maxlength="200" :disabled="!editable || smart || plan.action==='STATUS'" /></label>
+     <div v-if="plan.action!=='STATUS'" class="plan-item-controls"><label>预计分钟<input class="kf-input kf-form-control" v-model.number="row.estimatedMinutes" :aria-label="`任务${index+1}时长`" type="number" min="1" max="720" :disabled="!editable || smart" /></label><label>优先级<select class="kf-select kf-form-control" v-model="row.priority" :aria-label="`任务${index+1}优先级`" :disabled="!editable || smart"><option value="HIGH">高</option><option value="MEDIUM">中</option><option value="LOW">低</option></select></label><div class="plan-order"><button type="button" :aria-label="`上移任务${index+1}`" :disabled="!editable || smart || index===0" @click="move(index,-1)">上移</button><button type="button" :aria-label="`下移任务${index+1}`" :disabled="!editable || smart || index===rows.length-1" @click="move(index,1)">下移</button><button type="button" :aria-label="`删除候选任务${index+1}`" :disabled="!editable || smart" @click="rows.splice(index,1)">移除</button></div></div>
      <slot name="item-details" :item="row"><p>{{ row.reason }}</p><p>完成条件：{{ row.completionCondition }}</p></slot>
      <button v-if="plan.action!=='STATUS'" type="button" class="plan-link" @click="openResource(row)">查看学习资源</button>
     </li>
@@ -70,19 +70,19 @@ async function cancel(){
 }
 </script>
 <style scoped>
-.task-plan-card { width:100%;min-width:0;padding:var(--kb-space-4);margin-block:var(--kb-space-4);background:var(--kb-card);border:var(--kb-studio-rule) solid var(--kb-border);border-radius:var(--kb-radius-md);color:var(--kb-foreground); }
-.plan-head,.plan-budget,.plan-actions,.plan-item-controls,.plan-order {display:flex;align-items:center;gap:var(--kb-space-3);flex-wrap:wrap;min-width:0;}
-.plan-head {justify-content:space-between;margin-bottom:var(--kb-space-4)}
-h3 {font-size:var(--kb-fs-body-lg);font-weight:600}p,.plan-warnings {font-size:var(--kb-fs-body-sm);line-height:var(--kb-lh-body-sm);overflow-wrap:anywhere}
-.plan-head p,.plan-item p {color:var(--kb-muted-foreground);margin-block:var(--kb-space-2)}
-label {display:flex;flex-direction:column;gap:var(--kb-space-1);min-width:0;font-size:var(--kb-fs-caption)}
-input,select {max-width:100%;min-width:0;padding:var(--kb-space-2);border:var(--kb-studio-rule) solid var(--kb-border);border-radius:var(--kb-radius-sm);background:var(--kb-background);color:var(--kb-foreground)}
-input:focus:not(.kb-form-control),select:focus:not(.kb-form-control) {border-color:var(--kb-primary);box-shadow:none}
-.plan-item>label {width:100%}.plan-item-controls label {flex:1 1 20%;}.plan-item-controls {margin-block:var(--kb-space-2)}
-.plan-budget {margin-bottom:var(--kb-space-3)}.plan-warnings {padding-left:var(--kb-space-4);color:var(--kb-muted-foreground);margin-bottom:var(--kb-space-3)}
-.plan-items {display:flex;flex-direction:column;gap:var(--kb-space-3);list-style:none}.plan-item {padding:var(--kb-space-3);border:var(--kb-studio-rule) solid var(--kb-border);border-radius:var(--kb-radius-sm)}
-button {padding:var(--kb-space-2) var(--kb-space-3);border:var(--kb-studio-rule) solid var(--kb-border);border-radius:var(--kb-radius-sm);font-size:var(--kb-fs-body-sm)}button:disabled {opacity:.5;cursor:not-allowed}
-.plan-confirm {background:var(--kb-primary);color:var(--kb-primary-foreground)}.plan-link {color:var(--kb-primary)}.plan-actions {margin-top:var(--kb-space-4)}.plan-error {color:var(--kb-destructive)}.plan-created {font-size:var(--kb-fs-body-sm);overflow-wrap:anywhere}
-@media (max-width:640px){.plan-item-controls {align-items:stretch}.plan-item-controls label {flex-basis:40%}.plan-order {width:100%}.plan-actions button {flex:1 1 auto}.task-plan-card {padding:var(--kb-space-3)}}
-.plan-details summary {cursor:pointer;color:var(--kb-primary);font-size:var(--kb-fs-body-sm);padding-block:var(--kb-space-3);}.plan-details[open] {margin-bottom:var(--kb-space-3);}
+.task-plan-card { width:100%;min-width:0;padding:var(--kf-space-4);margin-block:var(--kf-space-4);background:var(--kf-card);border:var(--kf-studio-rule) solid var(--kf-border);border-radius:var(--kf-radius-md);color:var(--kf-foreground); }
+.plan-head,.plan-budget,.plan-actions,.plan-item-controls,.plan-order {display:flex;align-items:center;gap:var(--kf-space-3);flex-wrap:wrap;min-width:0;}
+.plan-head {justify-content:space-between;margin-bottom:var(--kf-space-4)}
+h3 {font-size:var(--kf-fs-body-lg);font-weight:600}p,.plan-warnings {font-size:var(--kf-fs-body-sm);line-height:var(--kf-lh-body-sm);overflow-wrap:anywhere}
+.plan-head p,.plan-item p {color:var(--kf-muted-foreground);margin-block:var(--kf-space-2)}
+label {display:flex;flex-direction:column;gap:var(--kf-space-1);min-width:0;font-size:var(--kf-fs-caption)}
+input,select {max-width:100%;min-width:0;padding:var(--kf-space-2);border:var(--kf-studio-rule) solid var(--kf-border);border-radius:var(--kf-radius-sm);background:var(--kf-background);color:var(--kf-foreground)}
+input:focus:not(.kf-form-control),select:focus:not(.kf-form-control) {border-color:var(--kf-primary);box-shadow:none}
+.plan-item>label {width:100%}.plan-item-controls label {flex:1 1 20%;}.plan-item-controls {margin-block:var(--kf-space-2)}
+.plan-budget {margin-bottom:var(--kf-space-3)}.plan-warnings {padding-left:var(--kf-space-4);color:var(--kf-muted-foreground);margin-bottom:var(--kf-space-3)}
+.plan-items {display:flex;flex-direction:column;gap:var(--kf-space-3);list-style:none}.plan-item {padding:var(--kf-space-3);border:var(--kf-studio-rule) solid var(--kf-border);border-radius:var(--kf-radius-sm)}
+button {padding:var(--kf-space-2) var(--kf-space-3);border:var(--kf-studio-rule) solid var(--kf-border);border-radius:var(--kf-radius-sm);font-size:var(--kf-fs-body-sm)}button:disabled {opacity:.5;cursor:not-allowed}
+.plan-confirm {background:var(--kf-primary);color:var(--kf-primary-foreground)}.plan-link {color:var(--kf-primary)}.plan-actions {margin-top:var(--kf-space-4)}.plan-error {color:var(--kf-destructive)}.plan-created {font-size:var(--kf-fs-body-sm);overflow-wrap:anywhere}
+@media (max-width:640px){.plan-item-controls {align-items:stretch}.plan-item-controls label {flex-basis:40%}.plan-order {width:100%}.plan-actions button {flex:1 1 auto}.task-plan-card {padding:var(--kf-space-3)}}
+.plan-details summary {cursor:pointer;color:var(--kf-primary);font-size:var(--kf-fs-body-sm);padding-block:var(--kf-space-3);}.plan-details[open] {margin-bottom:var(--kf-space-3);}
 </style>

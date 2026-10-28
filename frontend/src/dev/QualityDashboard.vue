@@ -42,13 +42,13 @@ onBeforeUnmount(() => { for (const url of urls) URL.revokeObjectURL(url); urls.c
   </section>
 </template>
 <style scoped>
-.pg5-quality{display:grid;gap:var(--kb-space-4);min-width:0;color:var(--kb-foreground);font-size:var(--kb-fs-body-sm)}
-.pg5-quality__heading,.pg5-quality__actions{display:flex;align-items:center;justify-content:space-between;gap:var(--kb-space-3);flex-wrap:wrap}
-.pg5-quality h2,.pg5-quality h3,.pg5-quality h4,.pg5-quality p{margin:0}.pg5-quality h2{font-size:var(--kb-fs-h3)}.pg5-quality h3{font-size:var(--kb-fs-h4)}
-.pg5-quality__metrics{display:flex;flex-wrap:wrap;gap:var(--kb-space-6);margin:0;padding-block:var(--kb-space-4);border-block:thin solid var(--kb-border)}
-.pg5-quality dt,.pg5-quality small,.pg5-quality__notice{color:var(--kb-muted-foreground)}.pg5-quality dd{margin:0;font-size:var(--kb-fs-h3);font-weight:var(--kb-fw-label)}
-.pg5-quality__scroll{overflow:auto}.pg5-quality table{width:100%;border-collapse:collapse;white-space:nowrap}.pg5-quality caption{text-align:left;padding-block:var(--kb-space-3)}
-.pg5-quality td,.pg5-quality th{text-align:left;padding:var(--kb-space-3);border-bottom:thin solid var(--kb-border);font-size:var(--kb-fs-caption)}.pg5-quality small{display:block;font-weight:normal}.pg5-quality th button{color:var(--kb-primary);font:inherit;background:none;border:0;cursor:pointer;padding:0}.pg5-quality button:focus-visible{outline:medium solid var(--kb-primary);outline-offset:var(--kb-space-1)}
-.pg5-quality [data-status='FAIL']{color:var(--kb-danger-text)}.pg5-quality [data-status='PASS']{color:var(--kb-state-success)}.pg5-quality [data-status='NOT VERIFIED']{color:var(--kb-muted-foreground)}
-.pg5-quality__defect{display:grid;gap:var(--kb-space-2);padding-block:var(--kb-space-4);border-top:thin solid var(--kb-border);overflow-wrap:anywhere}.pg5-quality code{white-space:normal}.pg5-quality details{padding-block:var(--kb-space-3)}
+.pg5-quality{display:grid;gap:var(--kf-space-4);min-width:0;color:var(--kf-foreground);font-size:var(--kf-fs-body-sm)}
+.pg5-quality__heading,.pg5-quality__actions{display:flex;align-items:center;justify-content:space-between;gap:var(--kf-space-3);flex-wrap:wrap}
+.pg5-quality h2,.pg5-quality h3,.pg5-quality h4,.pg5-quality p{margin:0}.pg5-quality h2{font-size:var(--kf-fs-h3)}.pg5-quality h3{font-size:var(--kf-fs-h4)}
+.pg5-quality__metrics{display:flex;flex-wrap:wrap;gap:var(--kf-space-6);margin:0;padding-block:var(--kf-space-4);border-block:thin solid var(--kf-border)}
+.pg5-quality dt,.pg5-quality small,.pg5-quality__notice{color:var(--kf-muted-foreground)}.pg5-quality dd{margin:0;font-size:var(--kf-fs-h3);font-weight:var(--kf-fw-label)}
+.pg5-quality__scroll{overflow:auto}.pg5-quality table{width:100%;border-collapse:collapse;white-space:nowrap}.pg5-quality caption{text-align:left;padding-block:var(--kf-space-3)}
+.pg5-quality td,.pg5-quality th{text-align:left;padding:var(--kf-space-3);border-bottom:thin solid var(--kf-border);font-size:var(--kf-fs-caption)}.pg5-quality small{display:block;font-weight:normal}.pg5-quality th button{color:var(--kf-primary);font:inherit;background:none;border:0;cursor:pointer;padding:0}.pg5-quality button:focus-visible{outline:medium solid var(--kf-primary);outline-offset:var(--kf-space-1)}
+.pg5-quality [data-status='FAIL']{color:var(--kf-danger-text)}.pg5-quality [data-status='PASS']{color:var(--kf-state-success)}.pg5-quality [data-status='NOT VERIFIED']{color:var(--kf-muted-foreground)}
+.pg5-quality__defect{display:grid;gap:var(--kf-space-2);padding-block:var(--kf-space-4);border-top:thin solid var(--kf-border);overflow-wrap:anywhere}.pg5-quality code{white-space:normal}.pg5-quality details{padding-block:var(--kf-space-3)}
 </style>

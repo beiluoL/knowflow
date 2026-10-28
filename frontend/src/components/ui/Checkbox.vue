@@ -3,16 +3,16 @@
     :is="as"
     v-bind="rootAttrs"
     :for="as === 'label' ? controlId : undefined"
-    :class="['kb-checkbox', $attrs.class, { 'kb-checkbox-disabled': disabled, 'kb-checkbox--embedded': as === 'span' }]"
+    :class="['kf-checkbox', $attrs.class, { 'kf-checkbox-disabled': disabled, 'kf-checkbox--embedded': as === 'span' }]"
     :style="$attrs.style"
   >
-    <span class="kb-checkbox-box" :class="{ 'kb-checkbox-box-mixed': indeterminate }">
+    <span class="kf-checkbox-box" :class="{ 'kf-checkbox-box-mixed': indeterminate }">
       <input
         v-bind="inputAttrs"
         :id="controlId"
         v-model="model"
         type="checkbox"
-        class="kb-checkbox-input"
+        class="kf-checkbox-input"
         :value="value === undefined ? 'on' : value"
         :true-value="trueValue === undefined ? true : trueValue"
         :false-value="falseValue === undefined ? false : falseValue"
@@ -20,10 +20,10 @@
         :disabled="disabled"
         @change="handleChange"
       />
-      <Icon v-if="indeterminate" name="minus" :size="14" class="kb-checkbox-mark" aria-hidden="true" />
-      <Icon v-else name="check" :size="14" class="kb-checkbox-mark kb-checkbox-check" aria-hidden="true" />
+      <Icon v-if="indeterminate" name="minus" :size="14" class="kf-checkbox-mark" aria-hidden="true" />
+      <Icon v-else name="check" :size="14" class="kf-checkbox-mark kf-checkbox-check" aria-hidden="true" />
     </span>
-    <span v-if="label || $slots.default" class="kb-checkbox-label"><slot>{{ label }}</slot></span>
+    <span v-if="label || $slots.default" class="kf-checkbox-label"><slot>{{ label }}</slot></span>
   </component>
 </template>
 

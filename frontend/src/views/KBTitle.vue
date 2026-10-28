@@ -1,16 +1,16 @@
 <template>
-  <div class="animate-fade-in kb-title-page">
+  <div class="animate-fade-in kf-title-page">
     <!-- ===== 页面头部 ===== -->
     <div class="flex items-start justify-between gap-6 mb-6 flex-wrap">
       <div>
-        <h1 class="kb-h1 mb-2">知识库进阶称号</h1>
-        <p class="kb-body" style="color: var(--kb-muted-foreground);">深耕不同知识领域，获得专属进阶称号</p>
+        <h1 class="kf-h1 mb-2">知识库进阶称号</h1>
+        <p class="kf-body" style="color: var(--kf-muted-foreground);">深耕不同知识领域，获得专属进阶称号</p>
       </div>
-      <div class="shrink-0 rounded-lg border p-3 flex items-center gap-3 exp-card" style="background: var(--kb-card); border-color: var(--kb-border);">
-        <Icon name="zap" :size="20" style="color: var(--kb-accent);" aria-hidden="true" />
+      <div class="shrink-0 rounded-lg border p-3 flex items-center gap-3 exp-card" style="background: var(--kf-card); border-color: var(--kf-border);">
+        <Icon name="zap" :size="20" style="color: var(--kf-accent);" aria-hidden="true" />
         <div>
-          <div class="kb-body-sm">当前总经验值</div>
-          <div class="kb-h4" style="color: var(--kb-foreground);">{{ formatExp(user.totalExp) }} EXP</div>
+          <div class="kf-body-sm">当前总经验值</div>
+          <div class="kf-h4" style="color: var(--kf-foreground);">{{ formatExp(user.totalExp) }} EXP</div>
         </div>
       </div>
     </div>
@@ -18,12 +18,12 @@
     <!-- ===== 用户当前称号横幅 ===== -->
     <div class="rounded-lg p-6 mb-6 flex items-center gap-6 flex-wrap banner-card">
       <div class="shrink-0 w-20 h-20 rounded-lg flex flex-col items-center justify-center banner-level-box">
-        <Icon name="award" :size="28" style="color: var(--kb-primary-foreground);" aria-hidden="true" />
-        <span class="text-xs font-semibold" style="color: var(--kb-primary-foreground);">Lv.{{ user.level }}</span>
+        <Icon name="award" :size="28" style="color: var(--kf-primary-foreground);" aria-hidden="true" />
+        <span class="text-xs font-semibold" style="color: var(--kf-primary-foreground);">Lv.{{ user.level }}</span>
       </div>
       <div class="flex-1 min-w-0 banner-info">
         <div class="flex items-center gap-2 mb-1">
-          <span class="text-base font-semibold" style="color: var(--kb-primary-foreground);">{{ user.displayName }}</span>
+          <span class="text-base font-semibold" style="color: var(--kf-primary-foreground);">{{ user.displayName }}</span>
           <span class="banner-tag">综合等级</span>
         </div>
         <div class="flex items-center gap-4 mb-2">
@@ -34,12 +34,12 @@
         </div>
         <div class="flex items-center justify-between">
           <span class="text-xs" style="color: rgba(255,255,255,0.85);">距下一大等级 Lv.{{ user.level + 1 }} 需 {{ formatExp(user.nextLevelExp) }} EXP</span>
-          <span class="text-xs font-semibold" style="color: var(--kb-primary-foreground);">{{ levelPercent }}%</span>
+          <span class="text-xs font-semibold" style="color: var(--kf-primary-foreground);">{{ levelPercent }}%</span>
         </div>
       </div>
       <div class="shrink-0 pl-6 border-l banner-count" style="border-color: rgba(255,255,255,0.2);">
         <div class="text-xs mb-1" style="color: rgba(255,255,255,0.85);">已获得称号</div>
-        <div class="text-2xl font-bold" style="color: var(--kb-primary-foreground);">
+        <div class="text-2xl font-bold" style="color: var(--kf-primary-foreground);">
           {{ totalUnlockedTitles }}
           <span class="text-sm font-normal" style="color: rgba(255,255,255,0.85);">/ {{ totalTitles }}</span>
         </div>
@@ -52,7 +52,7 @@
         v-for="kb in knowledgeBases"
         :key="kb.id"
         type="button"
-        class="kb-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+        class="kf-tab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         :class="{ active: currentKb === kb.id }"
         @click="currentKb = kb.id"
       >
@@ -61,10 +61,10 @@
     </div>
 
     <!-- ===== 当前知识库称号进阶路径 ===== -->
-    <div class="rounded-lg border p-6 mb-6 path-card" style="background: var(--kb-card); border-color: var(--kb-border);">
+    <div class="rounded-lg border p-6 mb-6 path-card" style="background: var(--kf-card); border-color: var(--kf-border);">
       <div class="flex items-center gap-2 mb-5">
-        <Icon :name="currentKbData.icon" :size="20" style="color: var(--kb-primary);" aria-hidden="true" />
-        <h2 class="kb-h2">{{ currentKbData.name }} · 称号进阶路径</h2>
+        <Icon :name="currentKbData.icon" :size="20" style="color: var(--kf-primary);" aria-hidden="true" />
+        <h2 class="kf-h2">{{ currentKbData.name }} · 称号进阶路径</h2>
       </div>
 
       <div>
@@ -87,14 +87,14 @@
             <div class="flex items-start justify-between mb-1 flex-wrap gap-2">
               <div>
                 <div class="flex items-center gap-2 mb-1">
-                  <span class="kb-body-sm" style="color: var(--kb-muted-foreground);">Lv.{{ title.level }}</span>
-                  <span class="kb-h4">{{ title.name }}</span>
+                  <span class="kf-body-sm" style="color: var(--kf-muted-foreground);">Lv.{{ title.level }}</span>
+                  <span class="kf-h4">{{ title.name }}</span>
                   <span v-if="title.isCurrent" class="status-tag current">
                     <Icon name="award" :size="12" aria-hidden="true" />
                     当前称号
                   </span>
                 </div>
-                <p class="kb-body-sm">{{ title.desc }}</p>
+                <p class="kf-body-sm">{{ title.desc }}</p>
               </div>
               <span class="status-tag" :class="title.unlocked ? 'unlocked' : (title.inProgress ? 'current' : 'locked')">
                 <Icon :name="title.unlocked ? 'check' : (title.inProgress ? 'loader' : 'lock')" :size="12" aria-hidden="true" />
@@ -108,17 +108,17 @@
                 <div class="mini-progress-fill" :style="{ width: `${title.progress.percent}%` }"></div>
               </div>
               <div class="flex items-center justify-between mb-2">
-                <span class="kb-body-sm">{{ formatExp(title.progress.current) }} / {{ formatExp(title.progress.target) }} EXP</span>
-                <span class="kb-body-sm" style="color: var(--kb-primary); font-weight: 600;">{{ title.progress.percent }}%</span>
+                <span class="kf-body-sm">{{ formatExp(title.progress.current) }} / {{ formatExp(title.progress.target) }} EXP</span>
+                <span class="kf-body-sm" style="color: var(--kf-primary); font-weight: 600;">{{ title.progress.percent }}%</span>
               </div>
             </template>
 
-            <div class="flex items-center gap-4 pt-2 border-t reward-row" style="border-color: var(--kb-border);">
-              <span class="kb-body-sm flex items-center gap-1">
-                <Icon name="zap" :size="14" :style="title.unlocked ? 'color: var(--kb-accent);' : 'color: var(--kb-muted-foreground);'" aria-hidden="true" />
+            <div class="flex items-center gap-4 pt-2 border-t reward-row" style="border-color: var(--kf-border);">
+              <span class="kf-body-sm flex items-center gap-1">
+                <Icon name="zap" :size="14" :style="title.unlocked ? 'color: var(--kf-accent);' : 'color: var(--kf-muted-foreground);'" aria-hidden="true" />
                 {{ formatExp(title.requiredExp) }} EXP 解锁
               </span>
-              <span v-if="title.inProgress && title.progress" class="kb-body-sm" style="color: var(--kb-primary);">
+              <span v-if="title.inProgress && title.progress" class="kf-body-sm" style="color: var(--kf-primary);">
                 还需 {{ formatExp(title.progress.target - title.progress.current) }} EXP
               </span>
             </div>
@@ -128,18 +128,18 @@
     </div>
 
     <!-- ===== 当前等级详情卡 ===== -->
-    <div class="rounded-lg border p-6 mb-6 detail-card" style="background: var(--kb-card); border-color: var(--kb-border);">
+    <div class="rounded-lg border p-6 mb-6 detail-card" style="background: var(--kf-card); border-color: var(--kf-border);">
       <div class="flex items-start justify-between gap-6 mb-5 flex-wrap">
         <div class="flex items-center gap-4">
           <div class="w-16 h-16 rounded-lg flex items-center justify-center" style="background: rgba(59, 111, 224, 0.1);">
-            <Icon :name="currentTitleData.icon" :size="32" style="color: var(--kb-primary);" aria-hidden="true" />
+            <Icon :name="currentTitleData.icon" :size="32" style="color: var(--kf-primary);" aria-hidden="true" />
           </div>
           <div>
             <div class="flex items-center gap-2 mb-1">
-              <h2 class="kb-h2">{{ currentTitleData.name }}</h2>
+              <h2 class="kf-h2">{{ currentTitleData.name }}</h2>
               <span class="level-tag">Lv.{{ currentTitleData.level }}</span>
             </div>
-            <p class="kb-body-sm">{{ currentKbData.name }} · 当前称号</p>
+            <p class="kf-body-sm">{{ currentKbData.name }} · 当前称号</p>
           </div>
         </div>
         <span class="status-tag unlocked">
@@ -151,24 +151,24 @@
       <!-- 三栏统计 -->
       <div class="grid grid-cols-3 gap-4 mb-5">
         <div class="rounded-lg p-3 stat-box">
-          <div class="kb-body-sm mb-1">获得时间</div>
-          <div class="kb-h4" style="color: var(--kb-foreground);">{{ currentTitleData.obtainDate }}</div>
+          <div class="kf-body-sm mb-1">获得时间</div>
+          <div class="kf-h4" style="color: var(--kf-foreground);">{{ currentTitleData.obtainDate }}</div>
         </div>
         <div class="rounded-lg p-3 stat-box">
-          <div class="kb-body-sm mb-1">累计学习时长</div>
-          <div class="kb-h4" style="color: var(--kb-foreground);">{{ currentTitleData.studyHours }} 小时</div>
+          <div class="kf-body-sm mb-1">累计学习时长</div>
+          <div class="kf-h4" style="color: var(--kf-foreground);">{{ currentTitleData.studyHours }} 小时</div>
         </div>
         <div class="rounded-lg p-3 stat-box">
-          <div class="kb-body-sm mb-1">掌握文档数</div>
-          <div class="kb-h4" style="color: var(--kb-foreground);">{{ currentTitleData.docCount }} 篇</div>
+          <div class="kf-body-sm mb-1">掌握文档数</div>
+          <div class="kf-h4" style="color: var(--kf-foreground);">{{ currentTitleData.docCount }} 篇</div>
         </div>
       </div>
 
       <!-- 下一级进度 -->
       <div class="rounded-lg p-4 next-level-box">
         <div class="flex items-center justify-between mb-2">
-          <span class="kb-body font-semibold">下一级进度</span>
-          <span class="kb-body-sm" style="color: var(--kb-primary); font-weight: 600;">
+          <span class="kf-body font-semibold">下一级进度</span>
+          <span class="kf-body-sm" style="color: var(--kf-primary); font-weight: 600;">
             {{ formatExp(nextTitle.progress?.current ?? 0) }} / {{ formatExp(nextTitle.progress?.target ?? 0) }} EXP · {{ nextTitle.progress?.percent ?? 0 }}%
           </span>
         </div>
@@ -176,19 +176,19 @@
           <div class="mini-progress-fill" :style="{ width: `${nextTitle.progress?.percent ?? 0}%` }"></div>
         </div>
         <div class="flex items-center justify-between">
-          <span class="kb-body-sm">距离下一级还需 <span style="color: var(--kb-primary); font-weight: 600;">{{ formatExp((nextTitle.progress?.target ?? 0) - (nextTitle.progress?.current ?? 0)) }} EXP</span></span>
+          <span class="kf-body-sm">距离下一级还需 <span style="color: var(--kf-primary); font-weight: 600;">{{ formatExp((nextTitle.progress?.target ?? 0) - (nextTitle.progress?.current ?? 0)) }} EXP</span></span>
         </div>
       </div>
 
       <!-- 下一级预览 -->
-      <div class="mt-4 rounded-lg p-4 border-2 border-dashed preview-box" style="border-color: var(--kb-border);">
+      <div class="mt-4 rounded-lg p-4 border-2 border-dashed preview-box" style="border-color: var(--kf-border);">
         <div class="flex items-center gap-2 mb-1">
-          <Icon name="eye" :size="16" style="color: var(--kb-muted-foreground);" aria-hidden="true" />
-          <span class="kb-body-sm" style="color: var(--kb-muted-foreground);">下一级预览</span>
+          <Icon name="eye" :size="16" style="color: var(--kf-muted-foreground);" aria-hidden="true" />
+          <span class="kf-body-sm" style="color: var(--kf-muted-foreground);">下一级预览</span>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
-          <span class="kb-h4">Lv.{{ nextTitle.level }} {{ nextTitle.name }}</span>
-          <span class="kb-body-sm">· {{ nextTitle.desc }} · 需 {{ formatExp(nextTitle.requiredExp) }} EXP</span>
+          <span class="kf-h4">Lv.{{ nextTitle.level }} {{ nextTitle.name }}</span>
+          <span class="kf-body-sm">· {{ nextTitle.desc }} · 需 {{ formatExp(nextTitle.requiredExp) }} EXP</span>
         </div>
       </div>
     </div>
@@ -196,38 +196,38 @@
     <!-- ===== 其他知识库称号速览 ===== -->
     <div>
       <div class="flex items-center gap-2 mb-4">
-        <Icon name="grid-3x3" :size="20" style="color: var(--kb-primary);" aria-hidden="true" />
-        <h2 class="kb-h2">其他知识库称号速览</h2>
+        <Icon name="grid-3x3" :size="20" style="color: var(--kf-primary);" aria-hidden="true" />
+        <h2 class="kf-h2">其他知识库称号速览</h2>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div
           v-for="kb in otherKbList"
           :key="kb.id"
-          class="rounded-lg border p-4 kb-summary-card"
-          style="background: var(--kb-card); border-color: var(--kb-border);"
+          class="rounded-lg border p-4 kf-summary-card"
+          style="background: var(--kf-card); border-color: var(--kf-border);"
         >
           <div class="flex items-center gap-2 mb-3">
             <div
               class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
               style="background: rgba(59, 111, 224, 0.1);"
             >
-              <Icon :name="kb.icon" :size="18" style="color: var(--kb-primary);" aria-hidden="true" />
+              <Icon :name="kb.icon" :size="18" style="color: var(--kf-primary);" aria-hidden="true" />
             </div>
             <div class="min-w-0">
-              <div class="kb-body-sm">{{ kb.name }}</div>
-              <div class="kb-h4 truncate">{{ kb.currentTitle }} <span style="color: var(--kb-primary);">Lv.{{ kb.currentLevel }}</span></div>
+              <div class="kf-body-sm">{{ kb.name }}</div>
+              <div class="kf-h4 truncate">{{ kb.currentTitle }} <span style="color: var(--kf-primary);">Lv.{{ kb.currentLevel }}</span></div>
             </div>
           </div>
           <div class="mini-progress-track mb-1.5">
             <div class="mini-progress-fill" :style="{ width: `${kb.percent}%` }"></div>
           </div>
           <div class="flex items-center justify-between mb-3">
-            <span class="kb-body-sm">{{ formatExp(kb.currentExp) }} / {{ formatExp(kb.targetExp) }} EXP</span>
-            <span class="kb-body-sm">{{ kb.percent }}%</span>
+            <span class="kf-body-sm">{{ formatExp(kb.currentExp) }} / {{ formatExp(kb.targetExp) }} EXP</span>
+            <span class="kf-body-sm">{{ kb.percent }}%</span>
           </div>
           <button
             type="button"
-            class="flex items-center justify-center gap-1 w-full py-2 rounded text-sm font-medium border detail-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="flex items-center justify-center gap-1 w-full py-2 rounded text-sm font-medium border detail-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             @click="switchToKb(kb.id)"
           >
             查看详情
@@ -440,19 +440,19 @@ const getNodeStyle = (title: Title): Record<string, string> => {
     const intensity = Math.min(0.3, 0.08 + title.level * 0.04)
     return {
       background: `rgba(59,111,224,${intensity})`,
-      color: 'var(--kb-primary)',
+      color: 'var(--kf-primary)',
     }
   }
   if (title.inProgress) {
     return {
       background: 'rgba(59,111,224,0.1)',
-      border: '2px dashed var(--kb-primary)',
-      color: 'var(--kb-primary)',
+      border: '2px dashed var(--kf-primary)',
+      color: 'var(--kf-primary)',
     }
   }
   return {
-    background: 'var(--kb-muted)',
-    color: 'var(--kb-muted-foreground)',
+    background: 'var(--kf-muted)',
+    color: 'var(--kf-muted-foreground)',
   }
 }
 </script>
@@ -471,18 +471,18 @@ const getNodeStyle = (title: Title): Record<string, string> => {
 
 /* ===== 横幅卡 ===== */
 .banner-card {
-  background: linear-gradient(135deg, var(--kb-primary) 0%, #2B5BC9 100%);
+  background: linear-gradient(135deg, var(--kf-primary) 0%, #2B5BC9 100%);
 }
 .banner-level-box {
   background: rgba(255, 255, 255, 0.18);
 }
 .banner-tag {
   padding: 2px 8px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   font-size: 12px;
   font-weight: 600;
   background: rgba(255, 255, 255, 0.2);
-  color: var(--kb-primary-foreground);
+  color: var(--kf-primary-foreground);
 }
 
 .title-progress-track {
@@ -494,33 +494,33 @@ const getNodeStyle = (title: Title): Record<string, string> => {
 .title-progress-fill {
   height: 100%;
   border-radius: 4px;
-  background: var(--kb-primary-foreground);
+  background: var(--kf-primary-foreground);
   transition: width 0.5s ease;
 }
 
 /* ===== 知识库 Tab ===== */
-.kb-tab {
+.kf-tab {
   display: inline-flex;
   align-items: center;
   padding: 8px 16px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  color: var(--kf-muted-foreground);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.15s;
 }
-.kb-tab:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+.kf-tab:hover {
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
-.kb-tab.active {
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
-  border-color: var(--kb-primary);
+.kf-tab.active {
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
+  border-color: var(--kf-primary);
 }
 
 /* ===== 进阶路径 ===== */
@@ -540,7 +540,7 @@ const getNodeStyle = (title: Title): Record<string, string> => {
   top: 48px;
   bottom: 0;
   width: 2px;
-  background: var(--kb-border);
+  background: var(--kf-border);
 }
 .path-step:last-child::before,
 .path-step.last::before {
@@ -556,19 +556,19 @@ const getNodeStyle = (title: Title): Record<string, string> => {
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: var(--kb-radius-md);
+  border-radius: var(--kf-radius-md);
   z-index: 1;
 }
 
 .path-card {
   padding: 16px;
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  background: var(--kf-card);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .path-card.current {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   box-shadow: 0 2px 8px rgba(59, 111, 224, 0.08);
 }
 .path-card.locked {
@@ -578,13 +578,13 @@ const getNodeStyle = (title: Title): Record<string, string> => {
 .mini-progress-track {
   height: 6px;
   border-radius: 3px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   overflow: hidden;
 }
 .mini-progress-fill {
   height: 100%;
   border-radius: 3px;
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   transition: width 0.5s ease;
 }
 
@@ -594,56 +594,56 @@ const getNodeStyle = (title: Title): Record<string, string> => {
   align-items: center;
   gap: 4px;
   padding: 3px 8px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
 }
 .status-tag.unlocked {
   background: rgba(16, 185, 129, 0.1);
-  color: var(--kb-accent);
+  color: var(--kf-accent);
 }
 .status-tag.current {
   background: rgba(59, 111, 224, 0.12);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .status-tag.locked {
-  background: var(--kb-muted);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
 }
 
 /* ===== 详情卡 ===== */
 .level-tag {
   padding: 2px 8px;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   font-size: 12px;
   font-weight: 600;
   background: rgba(59, 111, 224, 0.12);
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .stat-box {
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
 .next-level-box {
-  background: var(--kb-background);
+  background: var(--kf-background);
 }
 .preview-box {
   background: transparent;
 }
 
 /* ===== 知识库速览卡 ===== */
-.kb-summary-card {
+.kf-summary-card {
   transition: transform 0.2s, box-shadow 0.2s;
 }
-.kb-summary-card:hover {
+.kf-summary-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .detail-btn {
   background: transparent;
-  color: var(--kb-primary);
-  border-color: var(--kb-border);
+  color: var(--kf-primary);
+  border-color: var(--kf-border);
   cursor: pointer;
   transition: background-color 0.15s;
 }

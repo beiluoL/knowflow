@@ -3,7 +3,7 @@
     <button
       ref="trigger"
       type="button"
-      class="kb-select-trigger cascade-trigger"
+      class="kf-select-trigger cascade-trigger"
       :class="'cascade-trigger--' + variant"
       :aria-label="label"
       aria-haspopup="tree"
@@ -61,7 +61,7 @@
           </div>
           <div
             v-if="column.depth === 0 && searchEnabled"
-            class="cascade-search kb-input-surface"
+            class="cascade-search kf-input-surface"
           >
             <Icon name="search" :size="16" /><input
               :ref="setSearch"
@@ -346,7 +346,7 @@ function position() {
     const list=el.querySelector<HTMLElement>('.cascade-list');
     const header=el.querySelector<HTMLElement>('.cascade-search, .cascade-mobile-head');
     const padding=parseFloat(getComputedStyle(el).paddingTop)||0;
-    const limit=parseFloat(getComputedStyle(el).getPropertyValue('--kb-select-panel-max-height'))||352;
+    const limit=parseFloat(getComputedStyle(el).getPropertyValue('--kf-select-panel-max-height'))||352;
     const height = Math.min((list?.scrollHeight||el.scrollHeight)+(header?.offsetHeight||0)+padding*2,limit);
     const placed = placeSelect(
       anchor,
@@ -585,19 +585,19 @@ onBeforeUnmount(() => {
 }
 .cascade-trigger--pill {
   border-color: transparent;
-  border-radius: var(--kb-radius-full);
-  background: var(--kb-select-trigger-bg);
+  border-radius: var(--kf-radius-full);
+  background: var(--kf-select-trigger-bg);
 }
 .cascade-trigger--subtle {
   border-color: transparent;
   background: transparent;
 }
 .cascade-trigger:hover:not(:disabled) {
-  background: var(--kb-select-trigger-hover);
+  background: var(--kf-select-trigger-hover);
 }
 .cascade-trigger:focus-visible {
   outline: 0;
-  outline-offset: var(--kb-space-1);
+  outline-offset: var(--kf-space-1);
   box-shadow: none;
 }
 .cascade-panel {
@@ -605,12 +605,12 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: var(--kb-space-2);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-select-content-radius);
-  background: var(--kb-menu-surface);
-  color: var(--kb-foreground);
-  box-shadow: var(--kb-menu-shadow);
+  padding: var(--kf-space-2);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-select-content-radius);
+  background: var(--kf-menu-surface);
+  color: var(--kf-foreground);
+  box-shadow: var(--kf-menu-shadow);
   overflow: hidden;
 }
 .cascade-list {
@@ -622,20 +622,20 @@ onBeforeUnmount(() => {
 .cascade-row {
   display: flex;
   align-items: stretch;
-  gap: var(--kb-space-1);
+  gap: var(--kf-space-1);
 }
 .cascade-row > [role="treeitem"],
 .cascade-empty {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
   min-width: 0;
   flex: 1;
   text-align: left;
-  min-height: var(--kb-menu-item-height);
-  padding: var(--kb-space-2) var(--kb-space-3);
-  border-radius: var(--kb-radius-md);
-  font-size: var(--kb-fs-body-sm);
+  min-height: var(--kf-menu-item-height);
+  padding: var(--kf-space-2) var(--kf-space-3);
+  border-radius: var(--kf-radius-md);
+  font-size: var(--kf-fs-body-sm);
 }
 .cascade-row > [role="treeitem"] > span {
   flex: 1;
@@ -644,28 +644,28 @@ onBeforeUnmount(() => {
 }
 .cascade-row small {
   display: block;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-caption);
 }
 .cascade-row button:hover:not(:disabled),
 .cascade-empty:hover {
-  background: var(--kb-menu-hover);
+  background: var(--kf-menu-hover);
 }
 .cascade-row .is-selected {
-  background: var(--kb-primary-soft);
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft);
+  color: var(--kf-primary);
 }
 .cascade-row button:focus-visible,
 .cascade-empty:focus-visible,
 .cascade-mobile-head button:focus-visible {
-  outline: var(--kb-field-focus-width) solid var(--kb-field-focus-indicator);
-  outline-offset: calc(-1 * var(--kb-field-focus-width));
+  outline: var(--kf-field-focus-width) solid var(--kf-field-focus-indicator);
+  outline-offset: calc(-1 * var(--kf-field-focus-width));
 }
 .cascade-parent-select {
-  padding: var(--kb-space-2);
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
-  border-radius: var(--kb-radius-md);
+  padding: var(--kf-space-2);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
+  border-radius: var(--kf-radius-md);
 }
 .cascade-row button:disabled {
   opacity: 0.5;
@@ -676,11 +676,11 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
 }
 .cascade-search {
-  display:flex;align-items:center;gap:var(--kb-space-2);flex-shrink:0;
-  height:calc(var(--kb-space-8) + var(--kb-space-1));
-  padding:0 var(--kb-space-3);margin-bottom:var(--kb-space-2);
-  border:1px solid var(--kb-border);border-radius:var(--kb-radius-md);
-  background:var(--kb-menu-surface);color:var(--kb-muted-foreground);
+  display:flex;align-items:center;gap:var(--kf-space-2);flex-shrink:0;
+  height:calc(var(--kf-space-8) + var(--kf-space-1));
+  padding:0 var(--kf-space-3);margin-bottom:var(--kf-space-2);
+  border:1px solid var(--kf-border);border-radius:var(--kf-radius-md);
+  background:var(--kf-menu-surface);color:var(--kf-muted-foreground);
 }
 .cascade-search > svg {flex-shrink:0}
 .cascade-search input,
@@ -688,34 +688,34 @@ onBeforeUnmount(() => {
 .cascade-search input:focus-visible {
   flex:1;width:0;min-width:0;height:100%;min-height:0;padding:0;
   border:0;border-radius:0;background:transparent;
-  font-family:inherit;font-size:var(--kb-fs-body-sm);line-height:normal;
-  color:var(--kb-foreground);box-shadow:none;outline:none;
+  font-family:inherit;font-size:var(--kf-fs-body-sm);line-height:normal;
+  color:var(--kf-foreground);box-shadow:none;outline:none;
 }
 .cascade-search:focus-within {
-  border-color:var(--kb-field-border);
+  border-color:var(--kf-field-border);
   box-shadow:none;
 }
-.cascade-retry {color:var(--kb-primary);padding:var(--kb-space-2);border-radius:var(--kb-radius-sm)}
+.cascade-retry {color:var(--kf-primary);padding:var(--kf-space-2);border-radius:var(--kf-radius-sm)}
 .cascade-help {
-  padding: var(--kb-space-2);
-  font-size: var(--kb-fs-caption);
-  color: var(--kb-muted-foreground);
+  padding: var(--kf-space-2);
+  font-size: var(--kf-fs-caption);
+  color: var(--kf-muted-foreground);
 }
 .cascade-mobile-head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--kb-space-2);
-  padding: var(--kb-space-2);
-  font-size: var(--kb-fs-caption);
-  border-bottom: 1px solid var(--kb-border);
+  gap: var(--kf-space-2);
+  padding: var(--kf-space-2);
+  font-size: var(--kf-fs-caption);
+  border-bottom: 1px solid var(--kf-border);
 }
 .cascade-mobile-head button {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-1);
-  padding: var(--kb-space-2);
-  border-radius: var(--kb-radius-md);
+  gap: var(--kf-space-1);
+  padding: var(--kf-space-2);
+  border-radius: var(--kf-radius-md);
 }
 .cascade-mobile-head span {
   overflow-wrap: anywhere;

@@ -7,7 +7,7 @@
   >
     <div class="panel-header">
       <span class="panel-title">沉浸工作台设置</span>
-      <button type="button" class="close-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="emit('close')">
+      <button type="button" class="close-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="emit('close')">
         <Icon name="x" :size="14" />
       </button>
     </div>
@@ -19,7 +19,7 @@
           v-for="rp in RHYTHM_PRESETS_UI"
           :key="rp.id"
           type="button"
-          class="rhythm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="rhythm-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: currentRhythm === rp.id }"
           @click="handleSelectRhythm(rp.id)"
         >
@@ -41,7 +41,7 @@
       </div>
       <button
         type="button"
-          class="toggle-switch focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="toggle-switch focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ on: breakGuideEnabled }"
           :aria-pressed="breakGuideEnabled"
           @click="breakGuideEnabled = !breakGuideEnabled"
@@ -57,7 +57,7 @@
       </div>
       <button
         type="button"
-          class="toggle-switch focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="toggle-switch focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ on: pomodoroStore.settings.autoNext }"
           :aria-pressed="pomodoroStore.settings.autoNext"
           @click="toggleAutoNext"
@@ -76,7 +76,7 @@
       </div>
       <button
         type="button"
-          class="toggle-switch focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="toggle-switch focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ on: pomodoroStore.settings.soundEnabled }"
           :title="pomodoroStore.settings.soundEnabled ? '点击关闭：阶段结束不播放提示音' : '点击开启：阶段结束播放提示音'"
           :aria-pressed="pomodoroStore.settings.soundEnabled"
@@ -94,7 +94,7 @@
       <div class="number-adjust">
         <button
           type="button"
-          class="num-btn minus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="num-btn minus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="pomodoroStore.settings.roundsPerSet <= 2"
           @click="decrementRounds"
         >
@@ -103,7 +103,7 @@
         <span class="num-value">{{ pomodoroStore.settings.roundsPerSet }}</span>
         <button
           type="button"
-          class="num-btn plus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="num-btn plus focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="pomodoroStore.settings.roundsPerSet >= 10"
           @click="incrementRounds"
         >
@@ -119,7 +119,7 @@
       </div>
       <button
         type="button"
-          class="toggle-switch focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="toggle-switch focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ on: resetThemeOnExit }"
           :aria-pressed="resetThemeOnExit"
           @click="resetThemeOnExit = !resetThemeOnExit"
@@ -225,14 +225,14 @@ onUnmounted(() => {
   max-width: calc(100vw - 48px);
   max-height: calc(100vh - 120px);
   overflow-y: auto;
-  background: var(--kb-bg-2, rgba(15, 23, 42, 0.72));
+  background: var(--kf-bg-2, rgba(15, 23, 42, 0.72));
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 16px;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
   padding: 16px;
-  color: var(--kb-foreground, #f8fafc);
+  color: var(--kf-foreground, #f8fafc);
   animation: panelIn 0.18s ease;
 }
 
@@ -253,7 +253,7 @@ onUnmounted(() => {
   justify-content: space-between;
   padding-bottom: 12px;
   margin-bottom: 12px;
-  border-bottom: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border-bottom: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
 }
 .panel-title {
   font-size: 14px;
@@ -266,7 +266,7 @@ onUnmounted(() => {
   justify-content: center;
   width: 28px;
   height: 28px;
-  color: var(--kb-muted-foreground, #94a3b8);
+  color: var(--kf-muted-foreground, #94a3b8);
   background: transparent;
   border: none;
   border-radius: 8px;
@@ -275,7 +275,7 @@ onUnmounted(() => {
 }
 .close-btn:hover {
   background: rgba(255, 255, 255, 0.06);
-  color: var(--kb-foreground, #f8fafc);
+  color: var(--kf-foreground, #f8fafc);
 }
 
 .panel-section {
@@ -284,7 +284,7 @@ onUnmounted(() => {
 .section-label {
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-muted-foreground, #94a3b8);
+  color: var(--kf-muted-foreground, #94a3b8);
   margin-bottom: 10px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -312,7 +312,7 @@ onUnmounted(() => {
   text-align: left;
   padding: 12px;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -322,9 +322,9 @@ onUnmounted(() => {
   transform: translateY(-1px);
 }
 .rhythm-card.active {
-  border-color: var(--kb-primary, #3b82f6);
-  background: color-mix(in srgb, var(--kb-primary, #3b82f6) 10%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--kb-primary, #3b82f6) 30%, transparent);
+  border-color: var(--kf-primary, #3b82f6);
+  background: color-mix(in srgb, var(--kf-primary, #3b82f6) 10%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--kf-primary, #3b82f6) 30%, transparent);
 }
 .rhythm-head {
   display: flex;
@@ -335,7 +335,7 @@ onUnmounted(() => {
 .rhythm-name {
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground, #f8fafc);
+  color: var(--kf-foreground, #f8fafc);
 }
 .rhythm-tag {
   font-size: 11px;
@@ -343,18 +343,18 @@ onUnmounted(() => {
   padding: 2px 6px;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.08);
-  color: var(--kb-muted-foreground, #94a3b8);
+  color: var(--kf-muted-foreground, #94a3b8);
 }
 .rhythm-desc {
   margin: 0;
   font-size: 11px;
   line-height: 1.5;
-  color: var(--kb-muted-foreground, #94a3b8);
+  color: var(--kf-muted-foreground, #94a3b8);
 }
 
 .panel-divider {
   height: 1px;
-  background: var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  background: var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   margin: 14px 0 10px;
 }
 
@@ -375,7 +375,7 @@ onUnmounted(() => {
 .setting-title {
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground, #f8fafc);
+  color: var(--kf-foreground, #f8fafc);
 }
 .setting-title-with-icon {
   display: inline-flex;
@@ -385,7 +385,7 @@ onUnmounted(() => {
 .setting-desc {
   font-size: 11px;
   line-height: 1.5;
-  color: var(--kb-muted-foreground, #94a3b8);
+  color: var(--kf-muted-foreground, #94a3b8);
 }
 
 .toggle-switch {
@@ -401,7 +401,7 @@ onUnmounted(() => {
   transition: background 0.2s ease;
 }
 .toggle-switch.on {
-  background: var(--kb-primary, #3b82f6);
+  background: var(--kf-primary, #3b82f6);
 }
 .toggle-knob {
   position: absolute;
@@ -428,7 +428,7 @@ onUnmounted(() => {
   gap: 2px;
   padding: 2px;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--kb-elev-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
 }
 .num-btn {
@@ -439,7 +439,7 @@ onUnmounted(() => {
   justify-content: center;
   font-size: 16px;
   font-weight: 600;
-  color: var(--kb-foreground, #f8fafc);
+  color: var(--kf-foreground, #f8fafc);
   background: transparent;
   border: none;
   border-radius: 8px;
@@ -458,7 +458,7 @@ onUnmounted(() => {
   text-align: center;
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground, #f8fafc);
+  color: var(--kf-foreground, #f8fafc);
 }
 
 @media (max-width: 480px) {

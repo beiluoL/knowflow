@@ -25,9 +25,9 @@
 
         <div v-if="progress" class="focus-progress-area" :title="progressDescription">
           <span class="focus-progress-text">{{ progress.current }} / {{ progress.total }}</span>
-          <div class="kb-progress" style="width:var(--focus-progress-width, 120px);" role="progressbar" aria-label="本轮已保存评价" :aria-valuenow="progress.current" :aria-valuemin="0" :aria-valuemax="progress.total">
+          <div class="kf-progress" style="width:var(--focus-progress-width, 120px);" role="progressbar" aria-label="本轮已保存评价" :aria-valuenow="progress.current" :aria-valuemin="0" :aria-valuemax="progress.total">
             <div
-              class="kb-progress-bar"
+              class="kf-progress-bar"
               :style="{ width: progressPercent + '%' }"
             />
           </div>
@@ -174,7 +174,7 @@ watch(() => props.hasUnsavedProgress, () => {})
   z-index: 100;
   display: flex;
   flex-direction: column;
-  background: var(--kb-background);
+  background: var(--kf-background);
   animation: focus-enter 200ms ease forwards;
 }
 
@@ -198,11 +198,11 @@ watch(() => props.hasUnsavedProgress, () => {})
 .focus-header {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-4);
+  gap: var(--kf-space-4);
   height: 48px;
-  padding: 0 var(--kb-space-4);
-  border-bottom: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  padding: 0 var(--kf-space-4);
+  border-bottom: 1px solid var(--kf-border);
+  background: var(--kf-card);
   flex-shrink: 0;
 }
 
@@ -213,22 +213,22 @@ watch(() => props.hasUnsavedProgress, () => {})
   height: 32px;
   padding: 0 12px;
   border: none;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
-  color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-body-sm);
+  color: var(--kf-muted-foreground);
+  font-size: var(--kf-fs-body-sm);
   cursor: pointer;
   transition: background-color 200ms ease, color 200ms ease;
 }
 
 .focus-exit:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 
 .focus-exit:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--kb-ring);
+  box-shadow: 0 0 0 2px var(--kf-ring);
 }
 
 .focus-exit-label {
@@ -243,9 +243,9 @@ watch(() => props.hasUnsavedProgress, () => {})
 }
 
 .focus-progress-text {
-  font-size: var(--kb-fs-body-sm);
+  font-size: var(--kf-fs-body-sm);
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -261,7 +261,7 @@ watch(() => props.hasUnsavedProgress, () => {})
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--kb-space-6);
+  padding: var(--kf-space-6);
 }
 
 .focus-actions {
@@ -269,10 +269,10 @@ watch(() => props.hasUnsavedProgress, () => {})
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--kb-space-4);
-  padding: var(--kb-space-4) var(--kb-space-6);
-  border-top: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  gap: var(--kf-space-4);
+  padding: var(--kf-space-4) var(--kf-space-6);
+  border-top: 1px solid var(--kf-border);
+  background: var(--kf-card);
 }
 
 /* 移动端：进度条隐藏，只保留数字 */
@@ -287,54 +287,54 @@ watch(() => props.hasUnsavedProgress, () => {})
   }
 
   .focus-body {
-    padding: var(--kb-space-4);
+    padding: var(--kf-space-4);
   }
 
   .focus-actions {
-    padding: var(--kb-space-3) var(--kb-space-4);
-  gap: var(--kb-space-3);
-  padding-bottom: calc(var(--kb-space-4) + env(safe-area-inset-bottom, 0));
+    padding: var(--kf-space-3) var(--kf-space-4);
+  gap: var(--kf-space-3);
+  padding-bottom: calc(var(--kf-space-4) + env(safe-area-inset-bottom, 0));
   }
 }
 /* Opt-in study sessions can wrap status without clipping the header. */
-.is-focus-managed .focus-header { height:auto;min-height:var(--kb-nav-height);padding-block:var(--kb-space-2);flex-wrap:wrap; }
+.is-focus-managed .focus-header { height:auto;min-height:var(--kf-nav-height);padding-block:var(--kf-space-2);flex-wrap:wrap; }
 .is-reading-layout .focus-body { min-height:0;justify-content:flex-start;overflow-x:hidden;overscroll-behavior:contain; }
-.is-reading-layout .focus-progress-area { flex-wrap:wrap;gap:var(--kb-space-2); }
+.is-reading-layout .focus-progress-area { flex-wrap:wrap;gap:var(--kf-space-2); }
 .is-reading-layout .focus-status { min-width:0; }
-.is-reading-layout .focus-actions { padding-bottom:calc(var(--kb-space-3) + env(safe-area-inset-bottom, 0px)); }
+.is-reading-layout .focus-actions { padding-bottom:calc(var(--kf-space-3) + env(safe-area-inset-bottom, 0px)); }
 @media(max-width:640px) {
-  .is-reading-layout .focus-header { gap:var(--kb-space-2); }
+  .is-reading-layout .focus-header { gap:var(--kf-space-2); }
   .is-reading-layout .focus-progress-area { margin-inline:auto 0; }
-  .is-reading-layout .focus-progress-area .kb-progress { display:none; }
+  .is-reading-layout .focus-progress-area .kf-progress { display:none; }
   .is-reading-layout .focus-status { width:100%; }
 }
-.is-focus-managed .focus-status { min-width:0;font-size:var(--kb-fs-caption); }
+.is-focus-managed .focus-status { min-width:0;font-size:var(--kf-fs-caption); }
 @media(max-width:640px){
- .is-focus-managed .focus-header { gap:var(--kb-space-2); }
+ .is-focus-managed .focus-header { gap:var(--kf-space-2); }
  .is-focus-managed .focus-progress-area { margin-left:0; }
- .is-focus-managed .focus-progress-area .kb-progress { display:none; }
+ .is-focus-managed .focus-progress-area .kf-progress { display:none; }
  .is-focus-managed .focus-status { flex:1; }
 }
 /* V4 is opt-in; other study shells keep their original geometry. */
-.is-flashcard-layout { background:var(--kb-background); }
-.is-flashcard-layout .focus-header { min-height:calc(var(--kb-space-8) * 2 + var(--kb-space-3));padding:var(--kb-space-3) var(--kb-space-6);display:flex;flex-wrap:nowrap;gap:var(--kb-space-4); }
-.is-flashcard-layout .focus-exit { height:var(--kb-control-hit-size);padding-inline:var(--kb-space-3);gap:var(--kb-space-3);font-size:var(--kb-fs-body-lg);flex-shrink:0; }
-.is-flashcard-layout .focus-progress-area { --focus-progress-width:clamp(6rem,20vw,22rem);margin-inline:auto;flex-wrap:nowrap;gap:var(--kb-space-4); }
-.is-flashcard-layout .focus-progress-text { color:var(--kb-foreground);font-size:var(--kb-fs-body-lg);font-weight:600; }
-.is-flashcard-layout .kb-progress { height:var(--kb-space-2);border-radius:var(--kb-radius-lg); }
+.is-flashcard-layout { background:var(--kf-background); }
+.is-flashcard-layout .focus-header { min-height:calc(var(--kf-space-8) * 2 + var(--kf-space-3));padding:var(--kf-space-3) var(--kf-space-6);display:flex;flex-wrap:nowrap;gap:var(--kf-space-4); }
+.is-flashcard-layout .focus-exit { height:var(--kf-control-hit-size);padding-inline:var(--kf-space-3);gap:var(--kf-space-3);font-size:var(--kf-fs-body-lg);flex-shrink:0; }
+.is-flashcard-layout .focus-progress-area { --focus-progress-width:clamp(6rem,20vw,22rem);margin-inline:auto;flex-wrap:nowrap;gap:var(--kf-space-4); }
+.is-flashcard-layout .focus-progress-text { color:var(--kf-foreground);font-size:var(--kf-fs-body-lg);font-weight:600; }
+.is-flashcard-layout .kf-progress { height:var(--kf-space-2);border-radius:var(--kf-radius-lg); }
 .is-flashcard-layout .focus-status { flex-shrink:0;width:auto;margin-left:0; }
-.is-flashcard-layout .focus-body { padding:var(--kb-space-8) var(--kb-space-6); }
-.is-flashcard-layout .focus-actions { padding:var(--kb-space-6) var(--kb-space-6) calc(var(--kb-space-6) + env(safe-area-inset-bottom,0px));border-radius:var(--kb-space-6) var(--kb-space-6) 0 0;box-shadow:0 calc(var(--kb-space-2) * -1) var(--kb-space-6) color-mix(in srgb,var(--kb-primary) 4%,transparent); }
+.is-flashcard-layout .focus-body { padding:var(--kf-space-8) var(--kf-space-6); }
+.is-flashcard-layout .focus-actions { padding:var(--kf-space-6) var(--kf-space-6) calc(var(--kf-space-6) + env(safe-area-inset-bottom,0px));border-radius:var(--kf-space-6) var(--kf-space-6) 0 0;box-shadow:0 calc(var(--kf-space-2) * -1) var(--kf-space-6) color-mix(in srgb,var(--kf-primary) 4%,transparent); }
 @media(max-width:1100px) {
- .is-flashcard-layout .focus-header { gap:var(--kb-space-3);padding-inline:var(--kb-space-4); }
+ .is-flashcard-layout .focus-header { gap:var(--kf-space-3);padding-inline:var(--kf-space-4); }
  .is-flashcard-layout .focus-progress-area { --focus-progress-width:clamp(6rem,18vw,12rem); }
 }
 @media(max-width:640px) {
- .is-flashcard-layout .focus-header { min-height:calc(var(--kb-space-8) * 2);padding:var(--kb-space-2) var(--kb-space-3);gap:var(--kb-space-2); }
- .is-flashcard-layout .focus-exit { width:var(--kb-control-hit-size);padding:0;justify-content:center; }
+ .is-flashcard-layout .focus-header { min-height:calc(var(--kf-space-8) * 2);padding:var(--kf-space-2) var(--kf-space-3);gap:var(--kf-space-2); }
+ .is-flashcard-layout .focus-exit { width:var(--kf-control-hit-size);padding:0;justify-content:center; }
  .is-flashcard-layout .focus-progress-area { margin-inline:auto; }
- .is-flashcard-layout .focus-progress-text { font-size:var(--kb-fs-body-md); }
- .is-flashcard-layout .focus-body { padding:var(--kb-space-4) var(--kb-space-3); }
- .is-flashcard-layout .focus-actions { padding:var(--kb-space-3) var(--kb-space-3) calc(var(--kb-space-3) + env(safe-area-inset-bottom,0px));border-radius:var(--kb-space-4) var(--kb-space-4) 0 0; }
+ .is-flashcard-layout .focus-progress-text { font-size:var(--kf-fs-body-md); }
+ .is-flashcard-layout .focus-body { padding:var(--kf-space-4) var(--kf-space-3); }
+ .is-flashcard-layout .focus-actions { padding:var(--kf-space-3) var(--kf-space-3) calc(var(--kf-space-3) + env(safe-area-inset-bottom,0px));border-radius:var(--kf-space-4) var(--kf-space-4) 0 0; }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <header class="kb-page-header">
+  <header class="kf-page-header">
     <!-- 面包屑：有 to 的层级可点击跳转（原先 to 被声明却未使用，导致面包屑不可导航） -->
     <nav
       v-if="crumbs && crumbs.length > 0"
@@ -11,13 +11,13 @@
           v-if="crumb.to && index < crumbs.length - 1"
           :to="crumb.to"
           class="text-sm text-muted-foreground transition-colors hover:text-primary-500"
-          :style="{ fontSize: 'var(--kb-fs-body-sm)' }"
+          :style="{ fontSize: 'var(--kf-fs-body-sm)' }"
         >{{ crumb.label }}</router-link>
         <span
           v-else
           class="text-sm"
           :class="index === crumbs.length - 1 ? 'text-foreground font-medium' : 'text-muted-foreground'"
-          :style="{ fontSize: 'var(--kb-fs-body-sm)' }"
+          :style="{ fontSize: 'var(--kf-fs-body-sm)' }"
           :aria-current="index === crumbs.length - 1 ? 'page' : undefined"
         >{{ crumb.label }}</span>
         <Icon
@@ -33,20 +33,20 @@
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-3 min-w-0">
           <h1
-            class="kb-page-header__title truncate"
-            :class="{ 'kb-page-header__title--lg': size === 'lg' }"
+            class="kf-page-header__title truncate"
+            :class="{ 'kf-page-header__title--lg': size === 'lg' }"
             :style="titleColor ? { color: titleColor } : undefined"
           >{{ title }}</h1>
           <span
             v-if="count != null"
-            class="kb-badge kb-badge-neutral shrink-0"
-            :style="{ height: '22px', paddingInline: 'var(--kb-space-2)' }"
+            class="kf-badge kf-badge-neutral shrink-0"
+            :style="{ height: '22px', paddingInline: 'var(--kf-space-2)' }"
           >{{ count }} 项</span>
         </div>
         <!-- Phase UI-1：新增描述区（页面标题下的「这个页面是干什么的」说明） -->
         <p
           v-if="description || $slots.description"
-          class="kb-page-header__desc"
+          class="kf-page-header__desc"
         >
           <slot name="description">{{ description }}</slot>
         </p>
@@ -64,7 +64,7 @@
 // Phase UI-1 变更：
 //   1. 新增 description 属性 / #description 插槽 —— 标准页面应回答「这个页面是干什么的」。
 //   2. 面包屑 crumbs.to 原先声明但未使用，现在有 to 的层级渲染为 router-link，可点击返回。
-//   3. 数量徽章底色由 bg-gray-100 改为 --kb-muted 令牌（二者同值，但显式令牌化避免漂移）。
+//   3. 数量徽章底色由 bg-gray-100 改为 --kf-muted 令牌（二者同值，但显式令牌化避免漂移）。
 //
 // 不适用（保持各自特殊布局）：Dashboard / AI Chat / 编辑器 / 全屏知识图谱 / 沉浸式学习页。
 import Icon from '@/components/ui/Icon.vue'

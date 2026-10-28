@@ -1,6 +1,6 @@
 <template>
  <div class="nw-sidebar-top"><h1>我的笔记</h1><button class="nw-primary nw-icon" aria-label="新建笔记" title="新建笔记" @click="$emit('new')"><Icon name="plus" :size="18" /></button></div>
- <div class="nw-search kb-input-surface"><Icon name="search" :size="16"/><input :value="search" aria-label="搜索笔记" placeholder="搜索标题、正文、标签" @input="$emit('search',($event.target as HTMLInputElement).value)"/></div>
+ <div class="nw-search kf-input-surface"><Icon name="search" :size="16"/><input :value="search" aria-label="搜索笔记" placeholder="搜索标题、正文、标签" @input="$emit('search',($event.target as HTMLInputElement).value)"/></div>
  <nav class="nw-nav" aria-label="笔记分类">
   <button v-for="item in views" :key="item.key" :class="{active:view===item.key && folderId===undefined}" :aria-current="view===item.key && folderId===undefined?'page':undefined" @click="$emit('view',item.key)"><Icon :name="item.icon" :size="16"/><span>{{ item.label }}</span><small>{{ stats?.[item.count]??'—' }}</small></button>
  </nav>

@@ -3,7 +3,7 @@
     v-if="scan.entries.length || scan.errors.length"
     class="legacy-notes p-3 border rounded-lg"
   >
-    <button v-if="!embedded" class="kb-btn" @click="open = !open">
+    <button v-if="!embedded" class="kf-btn" @click="open = !open">
       检测到旧版本地笔记（{{ scan.entries.length }} 项）
     </button>
     <div v-if="open" class="flex flex-col gap-3">
@@ -15,12 +15,12 @@
         项。原始数据不会删除。
       </p>
       <p v-for="error in scan.errors" :key="error" role="alert">{{ error }}</p>
-      <button class="kb-btn" @click="backup">导出原始备份</button>
+      <button class="kf-btn" @click="backup">导出原始备份</button>
       <p v-if="account">
         目标账户：{{ account.username }}（ID {{ account.id }}）
       </p>
       <p v-if="accountError" role="alert">{{ accountError }}</p>
-      <label class="kb-checkbox-row"
+      <label class="kf-checkbox-row"
         ><Checkbox as="span"
           v-model="confirmed"
           :disabled="busy" />我确认这些本地数据属于此账户，并同意上传</label
@@ -36,7 +36,7 @@
         </details>
       </div>
       <button
-        class="kb-btn kb-btn-primary"
+        class="kf-btn kf-btn-primary"
         :disabled="!confirmed || !account || busy"
         @click="migrate"
       >
@@ -160,20 +160,20 @@ async function migrate() {
 
 <style scoped>
 .legacy-notes {
-  padding: var(--kb-space-3);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+  padding: var(--kf-space-3);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
 }
 .legacy-notes > div {
   display: flex;
   flex-direction: column;
-  gap: var(--kb-space-3);
-  padding-top: var(--kb-space-3);
+  gap: var(--kf-space-3);
+  padding-top: var(--kf-space-3);
 }
-.legacy-notes .kb-btn {
-  padding: var(--kb-space-2) var(--kb-space-3);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-md);
+.legacy-notes .kf-btn {
+  padding: var(--kf-space-2) var(--kf-space-3);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
   text-align: left;
 }
 .legacy-notes button:disabled {
@@ -191,6 +191,6 @@ async function migrate() {
 .legacy-notes label {
   display: flex;
   align-items: flex-start;
-  gap: var(--kb-space-2);
+  gap: var(--kf-space-2);
 }
 </style>

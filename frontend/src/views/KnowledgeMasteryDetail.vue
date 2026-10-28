@@ -6,8 +6,8 @@
         <button type="button" class="kmd-back" @click="goBack">
           <Icon name="arrow-left" :size="14" /> 返回
         </button>
-        <h1 class="kb-h1 mt-2">知识点详情</h1>
-        <p class="kb-body-sm mt-1">先理解概念与关联，再根据真实学习证据安排下一步。</p>
+        <h1 class="kf-h1 mt-2">知识点详情</h1>
+        <p class="kf-body-sm mt-1">先理解概念与关联，再根据真实学习证据安排下一步。</p>
       </div>
       <div class="kmd-head-actions">
         <!-- Architecture-4.4：知识 → AI 学习内容 Draft 的唯一入口（不进侧边栏，§61/§62） -->
@@ -25,15 +25,15 @@
     <ChapterResourceLinks resource-kind="knowledge" :resource-id="Number(route.params.id)" />
     <!-- 错误态 -->
     <div v-if="error" class="kmd-state" role="alert">
-      <Icon name="alert-circle" :size="28" style="color: var(--kb-destructive);" />
-      <p class="text-sm" style="color: var(--kb-muted-foreground);">{{ error }}</p>
+      <Icon name="alert-circle" :size="28" style="color: var(--kf-destructive);" />
+      <p class="text-sm" style="color: var(--kf-muted-foreground);">{{ error }}</p>
       <button type="button" class="kmd-retry" @click="load">重新加载</button>
     </div>
 
     <!-- 加载态 -->
     <div v-else-if="loading" class="kmd-state" role="status" aria-live="polite">
-      <span class="inline-block w-6 h-6 border-2 rounded-full animate-spin" style="border-color: var(--kb-primary); border-top-color: transparent;" />
-      <p class="text-sm" style="color: var(--kb-muted-foreground);">正在计算掌握度…</p>
+      <span class="inline-block w-6 h-6 border-2 rounded-full animate-spin" style="border-color: var(--kf-primary); border-top-color: transparent;" />
+      <p class="text-sm" style="color: var(--kf-muted-foreground);">正在计算掌握度…</p>
     </div>
 
     <template v-else-if="d">
@@ -44,8 +44,8 @@
             {{ (d?.name || '?').slice(0, 2) }}
           </span>
           <div>
-            <h2 class="kb-h2">{{ d.name || '未命名知识点' }}</h2>
-            <p class="kb-body-sm" style="color: var(--kb-muted-foreground);">
+            <h2 class="kf-h2">{{ d.name || '未命名知识点' }}</h2>
+            <p class="kf-body-sm" style="color: var(--kf-muted-foreground);">
               {{ typeLabel(d.type) }} · {{ d.categoryName || '未分类' }}
             </p>
           </div>
@@ -194,7 +194,7 @@ const error = ref('')
 const d = ref<KnowledgeMasteryDetailVO | null>(null)
 
 const TYPE_COLORS: Record<string, string> = {
-  CONCEPT: 'var(--kb-primary)', TECHNIQUE: 'var(--kb-success)', TERM: 'var(--kb-warning)',
+  CONCEPT: 'var(--kf-primary)', TECHNIQUE: 'var(--kf-success)', TERM: 'var(--kf-warning)',
   PRINCIPLE: '#8b5cf6', TOOL: '#06b6d4', OTHER: '#64748b',
 }
 const TYPE_LABELS: Record<string, string> = {
@@ -202,10 +202,10 @@ const TYPE_LABELS: Record<string, string> = {
 }
 const STATUS_META: Record<MasteryStatus, { label: string; bg: string; fg: string }> = {
   NOT_STARTED: { label: '未学习', bg: 'rgba(100,116,139,.12)', fg: '#64748b' },
-  LEARNING: { label: '学习中', bg: 'rgba(59,111,224,.12)', fg: 'var(--kb-primary)' },
-  WEAK: { label: '薄弱', bg: 'rgba(239,68,68,.12)', fg: 'var(--kb-danger)' },
-  MASTERED: { label: '已掌握', bg: 'rgba(16,185,129,.12)', fg: 'var(--kb-success)' },
-  REVIEW_REQUIRED: { label: '需复习', bg: 'rgba(245,158,11,.12)', fg: 'var(--kb-warning)' },
+  LEARNING: { label: '学习中', bg: 'rgba(59,111,224,.12)', fg: 'var(--kf-primary)' },
+  WEAK: { label: '薄弱', bg: 'rgba(239,68,68,.12)', fg: 'var(--kf-danger)' },
+  MASTERED: { label: '已掌握', bg: 'rgba(16,185,129,.12)', fg: 'var(--kf-success)' },
+  REVIEW_REQUIRED: { label: '需复习', bg: 'rgba(245,158,11,.12)', fg: 'var(--kf-warning)' },
 }
 const WEAK_LABELS: Record<string, string> = {
   LOW_MASTERY: '掌握度偏低', CODING_WEAK: '编程通过率低', RECALL_WEAK: '主动回忆得分低',
@@ -217,9 +217,9 @@ const typeLabel = (t?: string | null) => TYPE_LABELS[t || 'OTHER'] || '其他'
 const statusMeta = (s: MasteryStatus) => STATUS_META[s] || STATUS_META.NOT_STARTED
 const weaknessLabel = (w: string) => WEAK_LABELS[w] || w
 const formatWeight = (w: number) => (w != null ? w.toFixed(2) : '0.00')
-const scoreColor = (v: number) => (v >= 80 ? 'var(--kb-success)' : v >= 60 ? 'var(--kb-primary)' : v >= 40 ? 'var(--kb-warning)' : 'var(--kb-danger)')
-const confColor = (v: number) => (v >= 50 ? 'var(--kb-success)' : v >= 30 ? 'var(--kb-warning)' : 'var(--kb-danger)')
-const riskColor = (v: number) => (v >= 70 ? 'var(--kb-danger)' : v >= 60 ? 'var(--kb-warning)' : 'var(--kb-success)')
+const scoreColor = (v: number) => (v >= 80 ? 'var(--kf-success)' : v >= 60 ? 'var(--kf-primary)' : v >= 40 ? 'var(--kf-warning)' : 'var(--kf-danger)')
+const confColor = (v: number) => (v >= 50 ? 'var(--kf-success)' : v >= 30 ? 'var(--kf-warning)' : 'var(--kf-danger)')
+const riskColor = (v: number) => (v >= 70 ? 'var(--kf-danger)' : v >= 60 ? 'var(--kf-warning)' : 'var(--kf-success)')
 const fmt = (s?: string | null) => (s ? String(s).replace('T', ' ').slice(0, 19) : '—')
 
 // Architecture-4.4：唯一内容生成入口 → /knowledge/content?knowledgeId=&knowledgeName=
@@ -272,31 +272,31 @@ onMounted(() => {void relationsResource.run();void learning.load()})
 .kmd-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
 .kmd-back {
   display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 500;
-  border: none; background: transparent; color: var(--kb-primary); cursor: pointer; padding: 0;
+  border: none; background: transparent; color: var(--kf-primary); cursor: pointer; padding: 0;
 }
 .kmd-refresh {
   display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px;
-  font-size: 13px; font-weight: 500; border-radius: 10px; border: 1px solid var(--kb-border);
-  background: var(--kb-card); color: var(--kb-foreground); cursor: pointer; transition: all 0.15s ease;
+  font-size: 13px; font-weight: 500; border-radius: 10px; border: 1px solid var(--kf-border);
+  background: var(--kf-card); color: var(--kf-foreground); cursor: pointer; transition: all 0.15s ease;
 }
-.kmd-refresh:hover:not(:disabled) { border-color: var(--kb-primary); color: var(--kb-primary); }
+.kmd-refresh:hover:not(:disabled) { border-color: var(--kf-primary); color: var(--kf-primary); }
 .kmd-refresh:disabled { opacity: .6; cursor: default; }
 .kmd-head-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .kmd-content {
   display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px;
-  font-size: var(--kb-fs-13); font-weight: 600; border: none; border-radius: var(--kb-radius-md);
-  background: var(--kb-primary); color: #fff; cursor: pointer;
+  font-size: var(--kf-fs-13); font-weight: 600; border: none; border-radius: var(--kf-radius-md);
+  background: var(--kf-primary); color: #fff; cursor: pointer;
 }
 .kmd-content:hover:not(:disabled) { opacity: 0.92; }
 .kmd-content:disabled { opacity: 0.55; cursor: default; }
 .spin { animation: kmd-spin 0.6s linear infinite; }
 @keyframes kmd-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 
-.kmd-state { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 48px 20px; border: 1px dashed var(--kb-border); border-radius: 14px; background: var(--kb-card); }
-.kmd-retry { margin-top: 4px; padding: 6px 16px; border-radius: 8px; border: none; background: var(--kb-primary); color: #fff; font-size: 13px; cursor: pointer; }
+.kmd-state { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 48px 20px; border: 1px dashed var(--kf-border); border-radius: 14px; background: var(--kf-card); }
+.kmd-retry { margin-top: 4px; padding: 6px 16px; border-radius: 8px; border: none; background: var(--kf-primary); color: #fff; font-size: 13px; cursor: pointer; }
 
-.kmd-card { padding: 18px; border-radius: 14px; background: var(--kb-card); border: 1px solid var(--kb-border); margin-bottom: 16px; }
-.kmd-card-title { display: flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 600; color: var(--kb-foreground); margin-bottom: 12px; }
+.kmd-card { padding: 18px; border-radius: 14px; background: var(--kf-card); border: 1px solid var(--kf-border); margin-bottom: 16px; }
+.kmd-card-title { display: flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 600; color: var(--kf-foreground); margin-bottom: 12px; }
 
 .kmd-top { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
 .kmd-id { display: flex; align-items: center; gap: 14px; }
@@ -304,55 +304,55 @@ onMounted(() => {void relationsResource.run();void learning.load()})
 .kmd-metrics { display: flex; gap: 28px; flex-wrap: wrap; }
 .kmd-metric { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .kmd-metric-val { font-size: 26px; font-weight: 800; line-height: 1; }
-.kmd-metric-lbl { font-size: 12px; color: var(--kb-muted-foreground); }
+.kmd-metric-lbl { font-size: 12px; color: var(--kf-muted-foreground); }
 .kmd-status { font-size: 13px; font-weight: 600; padding: 5px 12px; border-radius: 999px; }
 
-.kmd-scorebar { height: 10px; border-radius: 5px; background: var(--kb-muted); overflow: hidden; margin-bottom: 16px; }
+.kmd-scorebar { height: 10px; border-radius: 5px; background: var(--kf-muted); overflow: hidden; margin-bottom: 16px; }
 .kmd-scorebar-fill { height: 100%; border-radius: 5px; transition: width 0.6s ease; }
 
 .kmd-weak { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
-.kmd-weak-title { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: var(--kb-danger); }
-.kmd-weak-tag { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: rgba(239,68,68,.1); color: var(--kb-danger); }
+.kmd-weak-title { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: var(--kf-danger); }
+.kmd-weak-tag { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: rgba(239,68,68,.1); color: var(--kf-danger); }
 
-.kmd-explain { font-size: 14px; line-height: 1.7; color: var(--kb-foreground); }
+.kmd-explain { font-size: 14px; line-height: 1.7; color: var(--kf-foreground); }
 
-.kmd-sub-empty { font-size: 13px; color: var(--kb-muted-foreground); padding: 6px 0; }
+.kmd-sub-empty { font-size: 13px; color: var(--kf-muted-foreground); padding: 6px 0; }
 .kmd-sig-list { display: flex; flex-direction: column; gap: 14px; }
 .kmd-sig-item { display: flex; flex-direction: column; gap: 6px; }
 .kmd-sig-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.kmd-sig-label { font-size: 14px; font-weight: 500; color: var(--kb-foreground); }
-.kmd-sig-num { font-size: 12px; color: var(--kb-muted-foreground); }
-.kmd-sig-track { height: 8px; border-radius: 4px; background: var(--kb-muted); overflow: hidden; }
+.kmd-sig-label { font-size: 14px; font-weight: 500; color: var(--kf-foreground); }
+.kmd-sig-num { font-size: 12px; color: var(--kf-muted-foreground); }
+.kmd-sig-track { height: 8px; border-radius: 4px; background: var(--kf-muted); overflow: hidden; }
 .kmd-sig-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
-.kmd-sig-meta { font-size: 11px; color: var(--kb-muted-foreground); }
+.kmd-sig-meta { font-size: 11px; color: var(--kf-muted-foreground); }
 
 .kmd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
-.kmd-gcell { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 10px; background: var(--kb-muted); }
-.kmd-gcell span { font-size: 12px; color: var(--kb-muted-foreground); }
-.kmd-gcell b { font-size: 16px; font-weight: 700; color: var(--kb-foreground); }
+.kmd-gcell { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 10px; background: var(--kf-muted); }
+.kmd-gcell span { font-size: 12px; color: var(--kf-muted-foreground); }
+.kmd-gcell b { font-size: 16px; font-weight: 700; color: var(--kf-foreground); }
 
 .kmd-times { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
 .kmd-times div { display: flex; flex-direction: column; gap: 4px; }
-.kmd-times span { font-size: 12px; color: var(--kb-muted-foreground); }
-.kmd-times b { font-size: 14px; font-weight: 600; color: var(--kb-foreground); }
+.kmd-times span { font-size: 12px; color: var(--kf-muted-foreground); }
+.kmd-times b { font-size: 14px; font-weight: 600; color: var(--kf-foreground); }
 
 @media (max-width: 720px) {
   .kmd-top { flex-direction: column; align-items: flex-start; }
   .kmd-metrics { gap: 18px; }
 }
 .kmd-page :is(h1,h2,h3) { font-family:inherit; }
-.kmd-page h1 { font-size:var(--kb-page-title-size); }
-.kmd-id { min-width:0; }.kmd-id h2 { overflow-wrap:anywhere;font-size:var(--kb-section-title-size); }
-.kmd-content { color:var(--kb-primary-foreground); }
-.knowledge-explanation .kmd-explain { font-size:var(--kb-fs-body-lg);line-height:1.75;white-space:pre-line; }
-.kmd-evidence-heading { margin-block:var(--kb-space-6) var(--kb-space-3); }
-.kmd-evidence-heading h2 { font-size:var(--kb-section-title-size);font-weight:600; }
-.kmd-evidence-heading p { margin-top:var(--kb-space-2);color:var(--kb-muted-foreground); }
-.kmd-relations { list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:var(--kb-space-3); }
-.kmd-relations a { display:flex;justify-content:space-between;gap:var(--kb-space-3);padding:var(--kb-space-3);border:1px solid var(--kb-border);border-radius:var(--kb-radius-md);overflow-wrap:anywhere; }
-.kmd-relations a span+span { color:var(--kb-muted-foreground);font-size:var(--kb-fs-caption);flex-shrink:0; }
-.kmd-page :is(a,button):focus-visible { outline:2px solid var(--kb-ring);outline-offset:2px; }
-.kmd-page :deep(button.bg-primary-500.text-white) { color:var(--kb-primary-foreground); }
+.kmd-page h1 { font-size:var(--kf-page-title-size); }
+.kmd-id { min-width:0; }.kmd-id h2 { overflow-wrap:anywhere;font-size:var(--kf-section-title-size); }
+.kmd-content { color:var(--kf-primary-foreground); }
+.knowledge-explanation .kmd-explain { font-size:var(--kf-fs-body-lg);line-height:1.75;white-space:pre-line; }
+.kmd-evidence-heading { margin-block:var(--kf-space-6) var(--kf-space-3); }
+.kmd-evidence-heading h2 { font-size:var(--kf-section-title-size);font-weight:600; }
+.kmd-evidence-heading p { margin-top:var(--kf-space-2);color:var(--kf-muted-foreground); }
+.kmd-relations { list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:var(--kf-space-3); }
+.kmd-relations a { display:flex;justify-content:space-between;gap:var(--kf-space-3);padding:var(--kf-space-3);border:1px solid var(--kf-border);border-radius:var(--kf-radius-md);overflow-wrap:anywhere; }
+.kmd-relations a span+span { color:var(--kf-muted-foreground);font-size:var(--kf-fs-caption);flex-shrink:0; }
+.kmd-page :is(a,button):focus-visible { outline:2px solid var(--kf-ring);outline-offset:2px; }
+.kmd-page :deep(button.bg-primary-500.text-white) { color:var(--kf-primary-foreground); }
 .kmd-sig-top { flex-wrap:wrap; }.kmd-sig-num { overflow-wrap:anywhere; }
-@media(max-width:640px){.kmd-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.kmd-card{padding:var(--kb-space-4)}.kmd-id{align-items:flex-start}.kmd-times b{overflow-wrap:anywhere}}
+@media(max-width:640px){.kmd-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.kmd-card{padding:var(--kf-space-4)}.kmd-id{align-items:flex-start}.kmd-times b{overflow-wrap:anywhere}}
 </style>

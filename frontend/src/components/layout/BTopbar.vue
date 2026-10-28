@@ -7,8 +7,8 @@
     <div class="flex items-center gap-3 flex-1 min-w-0 max-w-md">
       <button
         type="button"
-        class="w-9 h-9 rounded-lg flex items-center justify-center border transition-colors hover:bg-muted lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-        style="border-color: var(--kb-border);"
+        class="w-9 h-9 rounded-lg flex items-center justify-center border transition-colors hover:bg-muted lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+        style="border-color: var(--kf-border);"
         @click="$emit('toggle-sidebar')"
         aria-label="切换侧边栏"
       >
@@ -21,7 +21,7 @@
           v-model="searchQuery"
           type="text"
           placeholder="搜索功能、文档或用户..."
-          class="topbar-search kb-input kb-form-control"
+          class="topbar-search kf-input kf-form-control"
           @keyup.enter="handleSearch"
           aria-label="搜索"
         />
@@ -32,8 +32,8 @@
     <div class="flex items-center gap-4 shrink-0 ml-4 sm:ml-6">
       <button
         type="button"
-        class="relative p-2 rounded-lg transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-        style="color: var(--kb-sidebar-foreground);"
+        class="relative p-2 rounded-lg transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+        style="color: var(--kf-sidebar-foreground);"
         @click="toggleNotifications"
         :aria-label="`消息通知，${unreadCount} 条未读`"
       >
@@ -41,14 +41,14 @@
         <span
           v-if="unreadCount > 0"
           class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
-          style="background: var(--kb-destructive);"
+          style="background: var(--kf-destructive);"
         ></span>
       </button>
 
-      <div class="flex items-center gap-2.5 pl-4 border-l" style="border-color: var(--kb-border);">
+      <div class="flex items-center gap-2.5 pl-4 border-l" style="border-color: var(--kf-border);">
         <div
           class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
-          style="background: var(--kb-primary); color: var(--kb-primary-foreground);"
+          style="background: var(--kf-primary); color: var(--kf-primary-foreground);"
         >{{ initials }}</div>
         <div class="hidden sm:block min-w-0">
           <p class="text-[13px] font-medium truncate text-foreground">{{ displayName }}</p>
@@ -63,14 +63,14 @@
     <div
       v-if="showNotifications"
       class="fixed right-2 left-2 sm:left-auto sm:right-4 top-16 sm:w-80 rounded-lg shadow-xl z-50 border"
-      style="background: var(--kb-card); border-color: var(--kb-border);"
+      style="background: var(--kf-card); border-color: var(--kf-border);"
     >
-      <div class="flex items-center justify-between px-4 py-3 border-b" style="border-color: var(--kb-border);">
+      <div class="flex items-center justify-between px-4 py-3 border-b" style="border-color: var(--kf-border);">
         <h3 class="font-semibold text-foreground text-sm">通知</h3>
         <button
           v-if="unreadCount > 0"
           type="button"
-          class="text-xs text-primary-600 hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="text-xs text-primary-600 hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
           @click="handleMarkAllRead"
         >全部已读</button>
       </div>
@@ -78,8 +78,8 @@
         <div
           v-for="notification in notificationStore.unreadList.slice(0, 5)"
           :key="notification.id"
-          class="px-4 py-3 hover:bg-muted border-b cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
-          style="border-color: var(--kb-muted);"
+          class="px-4 py-3 hover:bg-muted border-b cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
+          style="border-color: var(--kf-muted);"
           role="button"
           tabindex="0"
           @click="handleNotificationClick(notification.id)"
@@ -100,10 +100,10 @@
           暂无未读通知
         </div>
       </div>
-      <div class="px-4 py-2 border-t" style="border-color: var(--kb-border);">
+      <div class="px-4 py-2 border-t" style="border-color: var(--kf-border);">
         <button
           type="button"
-          class="w-full text-center text-sm text-primary-600 hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2"
+          class="w-full text-center text-sm text-primary-600 hover:underline transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
           @click="goTo('/admin/overview')"
         >查看全部通知</button>
       </div>
@@ -137,7 +137,7 @@ const topbarStyle = computed(() => {
       WebkitBackdropFilter: 'blur(16px)',
     }
   }
-  return { background: 'var(--kb-card)', borderColor: 'var(--kb-border)' }
+  return { background: 'var(--kf-card)', borderColor: 'var(--kf-border)' }
 })
 
 const router = useRouter();

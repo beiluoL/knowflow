@@ -65,7 +65,7 @@
               <!-- 环形进度 -->
               <div class="progress-ring">
                 <svg class="ring-svg" viewBox="0 0 120 120">
-                  <circle cx="60" cy="60" r="52" stroke="var(--kb-border)" stroke-width="8" fill="none" />
+                  <circle cx="60" cy="60" r="52" stroke="var(--kf-border)" stroke-width="8" fill="none" />
                   <circle
                     cx="60" cy="60" r="52"
                     stroke="url(#dashGradient)"
@@ -78,8 +78,8 @@
                   />
                   <defs>
                     <linearGradient id="dashGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" style="stop-color:var(--kb-primary)" />
-                      <stop offset="100%" style="stop-color:var(--kb-primary-muted)" />
+                      <stop offset="0%" style="stop-color:var(--kf-primary)" />
+                      <stop offset="100%" style="stop-color:var(--kf-primary-muted)" />
                     </linearGradient>
                   </defs>
                 </svg>
@@ -147,7 +147,7 @@
                   <Icon name="bar-chart-2" :size="20" />
                   <h2>本周学习时长</h2>
                 </div>
-                <span class="text-sm" style="color: var(--kb-muted-foreground);">
+                <span class="text-sm" style="color: var(--kf-muted-foreground);">
                   总计 {{ weeklyTotal }} 分钟
                 </span>
               </div>
@@ -293,7 +293,7 @@
                 v-model="resourceSearch"
                 type="text"
                 placeholder="搜索学习资源、文档、教程..."
-                class="search-input kb-input kb-form-control"
+                class="search-input kf-input kf-form-control"
               />
               <button v-if="resourceSearch" class="search-clear" @click="resourceSearch = ''">
                 <Icon name="x" :size="16" />
@@ -305,7 +305,7 @@
             <button
               v-for="cat in resourceCategories"
               :key="cat"
-              :class="['kb-filter-btn', { active: activeCategory === cat }]"
+              :class="['kf-filter-btn', { active: activeCategory === cat }]"
               @click="activeCategory = cat"
             >
               {{ cat }}
@@ -362,10 +362,10 @@
               </div>
               <div class="level-ring">
                 <svg viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="46" stroke="var(--kb-border)" stroke-width="4" fill="none" />
+                  <circle cx="50" cy="50" r="46" stroke="var(--kf-border)" stroke-width="4" fill="none" />
                   <circle
                     cx="50" cy="50" r="46"
-                    stroke="var(--kb-primary)"
+                    stroke="var(--kf-primary)"
                     stroke-width="4"
                     fill="none"
                     stroke-linecap="round"
@@ -455,7 +455,7 @@
                 v-model="communitySearch"
                 type="text"
                 placeholder="搜索讨论话题..."
-                class="search-input kb-input kb-form-control"
+                class="search-input kf-input kf-form-control"
               />
             </div>
             <Button variant="primary" @click="showPostDialog = true">
@@ -467,7 +467,7 @@
             <button
               v-for="tag in communityTags"
               :key="tag"
-              :class="['kb-filter-btn', { active: activeCommunityTag === tag }]"
+              :class="['kf-filter-btn', { active: activeCommunityTag === tag }]"
               @click="activeCommunityTag = tag"
             >
               {{ tag }}
@@ -559,10 +559,10 @@
                 >
                   <div class="absolute inset-2 rounded-full bg-card shadow-inner" />
                   <div class="relative z-10 text-center">
-                    <div class="text-5xl font-bold font-mono" style="color: var(--kb-foreground);">
+                    <div class="text-5xl font-bold font-mono" style="color: var(--kf-foreground);">
                       {{ formatTime(timeLeft) }}
                     </div>
-                    <div class="text-sm mt-1" style="color: var(--kb-muted-foreground);">
+                    <div class="text-sm mt-1" style="color: var(--kf-muted-foreground);">
                       {{ modeLabels[currentMode] }}
                     </div>
                   </div>
@@ -1091,9 +1091,9 @@ const pomodoroModes = [
 ]
 const modeLabels: Record<PomodoroMode, string> = { focus: '专注时间', shortBreak: '短休息', longBreak: '长休息' }
 const modeColors: Record<PomodoroMode, { bg: string; stroke: string }> = {
-  focus: { bg: 'bg-red-50', stroke: 'var(--kb-danger)' },
-  shortBreak: { bg: 'bg-green-50', stroke: 'var(--kb-success)' },
-  longBreak: { bg: 'bg-blue-50', stroke: 'var(--kb-primary)' },
+  focus: { bg: 'bg-red-50', stroke: 'var(--kf-danger)' },
+  shortBreak: { bg: 'bg-green-50', stroke: 'var(--kf-success)' },
+  longBreak: { bg: 'bg-blue-50', stroke: 'var(--kf-primary)' },
 }
 const currentMode = ref<PomodoroMode>('focus')
 const isRunning = ref(false)
@@ -1236,16 +1236,16 @@ onUnmounted(() => {
   flex-wrap: wrap;
 }
 .page-title {
-  font-size: var(--kb-fs-h1);
-  font-weight: var(--kb-fw-h1);
-  line-height: var(--kb-lh-h1);
-  letter-spacing: var(--kb-heading-tracking);
-  color: var(--kb-foreground);
-  margin-bottom: var(--kb-space-1);
+  font-size: var(--kf-fs-h1);
+  font-weight: var(--kf-fw-h1);
+  line-height: var(--kf-lh-h1);
+  letter-spacing: var(--kf-heading-tracking);
+  color: var(--kf-foreground);
+  margin-bottom: var(--kf-space-1);
 }
 .page-subtitle {
   font-size: 14px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .header-stats {
   display: flex;
@@ -1257,15 +1257,15 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   padding: 10px 18px;
-  background: var(--kb-card);
+  background: var(--kf-card);
   border-radius: 12px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 .hs-icon {
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
-.hs-icon-flame { color: var(--kb-warning); }
+.hs-icon-flame { color: var(--kf-warning); }
 .hs-icon-star { color: #EAB308; }
 .hs-item > div {
   display: flex;
@@ -1274,18 +1274,18 @@ onUnmounted(() => {
 .hs-value {
   font-size: 20px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1.2;
 }
 .hs-value small {
   font-size: 12px;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-left: 2px;
 }
 .hs-label {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* ===== Tab 导航 ===== */
@@ -1294,9 +1294,9 @@ onUnmounted(() => {
   gap: 6px;
   margin-bottom: 24px;
   padding: 6px;
-  background: var(--kb-card);
+  background: var(--kf-card);
   border-radius: 14px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   overflow-x: auto;
 }
 .lc-tab {
@@ -1309,18 +1309,18 @@ onUnmounted(() => {
   border-radius: 10px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s;
   position: relative;
 }
 .lc-tab:hover {
-  background: var(--kb-muted);
-  color: var(--kb-foreground);
+  background: var(--kf-muted);
+  color: var(--kf-foreground);
 }
 .lc-tab.active {
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
   box-shadow: 0 2px 8px rgba(59, 111, 224, 0.3);
 }
@@ -1336,8 +1336,8 @@ onUnmounted(() => {
   height: 18px;
   padding: 0 5px;
   border-radius: 9px;
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.1));
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.1));
+  color: var(--kf-primary);
   font-size: 11px;
   font-weight: 600;
 }
@@ -1378,12 +1378,12 @@ onUnmounted(() => {
 .card-header-title h2 {
   font-size: 16px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .card-header-title h3 {
   font-size: 15px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 /* ===== 仪表盘：英雄区 ===== */
@@ -1417,11 +1417,11 @@ onUnmounted(() => {
 .ring-value {
   font-size: 28px;
   font-weight: 700;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .ring-label {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .hero-stats {
   flex: 1;
@@ -1436,21 +1436,21 @@ onUnmounted(() => {
   gap: 4px;
   padding: 12px;
   border-radius: 10px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
 }
-.stat-icon-green { color: var(--kb-success); }
-.stat-icon-blue { color: var(--kb-primary); }
-.stat-icon-orange { color: var(--kb-warning); }
+.stat-icon-green { color: var(--kf-success); }
+.stat-icon-blue { color: var(--kf-primary); }
+.stat-icon-orange { color: var(--kf-warning); }
 .stat-icon-purple { color: #8B5CF6; }
 .stat-num {
   font-size: 22px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1;
 }
 .stat-text {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* ===== 快捷入口 ===== */
@@ -1465,14 +1465,14 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 16px 8px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 12px;
-  background: var(--kb-card);
+  background: var(--kf-card);
   cursor: pointer;
   transition: all 0.2s;
 }
 .qa-btn:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   box-shadow: 0 4px 12px rgba(59, 111, 224, 0.12);
   transform: translateY(-2px);
 }
@@ -1485,17 +1485,17 @@ onUnmounted(() => {
   border-radius: 12px;
   color: #fff;
 }
-.qa-red { background: linear-gradient(135deg, var(--kb-danger), var(--kb-danger-muted)); }
-.qa-blue { background: linear-gradient(135deg, var(--kb-primary), var(--kb-primary-muted)); }
-.qa-green { background: linear-gradient(135deg, var(--kb-success), #34D399); }
-.qa-orange { background: linear-gradient(135deg, var(--kb-warning), #FBBF24); }
+.qa-red { background: linear-gradient(135deg, var(--kf-danger), var(--kf-danger-muted)); }
+.qa-blue { background: linear-gradient(135deg, var(--kf-primary), var(--kf-primary-muted)); }
+.qa-green { background: linear-gradient(135deg, var(--kf-success), #34D399); }
+.qa-orange { background: linear-gradient(135deg, var(--kf-warning), #FBBF24); }
 .qa-purple { background: linear-gradient(135deg, #8B5CF6, #A78BFA); }
 .qa-cyan { background: linear-gradient(135deg, #06B6D4, #22D3EE); }
 .qa-indigo { background: linear-gradient(135deg, #6366F1, #818CF8); }
 .qa-label {
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 /* ===== 周学习图表 ===== */
@@ -1525,7 +1525,7 @@ onUnmounted(() => {
   width: 60%;
   max-width: 40px;
   min-height: 4px;
-  background: linear-gradient(180deg, var(--kb-primary-muted), var(--kb-primary));
+  background: linear-gradient(180deg, var(--kf-primary-muted), var(--kf-primary));
   border-radius: 6px 6px 0 0;
   position: relative;
   transition: height 0.6s ease-out;
@@ -1533,18 +1533,18 @@ onUnmounted(() => {
   justify-content: center;
 }
 .chart-bar.is-today {
-  background: linear-gradient(180deg, #FBBF24, var(--kb-warning));
+  background: linear-gradient(180deg, #FBBF24, var(--kf-warning));
 }
 .chart-bar-value {
   position: absolute;
   top: -20px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .chart-label {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-top: 6px;
 }
 
@@ -1559,7 +1559,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 12px;
   padding: 8px 0;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 .timeline-item:last-child {
   border-bottom: none;
@@ -1574,9 +1574,9 @@ onUnmounted(() => {
   flex-shrink: 0;
   color: #fff;
 }
-.timeline-dot.study { background: var(--kb-primary); }
-.timeline-dot.task { background: var(--kb-success); }
-.timeline-dot.start { background: var(--kb-warning); }
+.timeline-dot.study { background: var(--kf-primary); }
+.timeline-dot.task { background: var(--kf-success); }
+.timeline-dot.start { background: var(--kf-warning); }
 .timeline-body {
   flex: 1;
   min-width: 0;
@@ -1584,17 +1584,17 @@ onUnmounted(() => {
 .timeline-title {
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 2px;
 }
 .timeline-time {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .timeline-points {
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-warning);
+  color: var(--kf-warning);
 }
 
 /* ===== Section Header ===== */
@@ -1607,14 +1607,14 @@ onUnmounted(() => {
 .section-header h3 {
   font-size: 16px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   display: flex;
   align-items: center;
   gap: 6px;
 }
 .section-count {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* ===== AI 推荐横幅 ===== */
@@ -1634,7 +1634,7 @@ onUnmounted(() => {
   width: 56px;
   height: 56px;
   border-radius: 14px;
-  background: linear-gradient(135deg, var(--kb-primary), #8B5CF6);
+  background: linear-gradient(135deg, var(--kf-primary), #8B5CF6);
   color: #fff;
   flex-shrink: 0;
 }
@@ -1644,12 +1644,12 @@ onUnmounted(() => {
 .banner-text h2 {
   font-size: 18px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 4px;
 }
 .banner-text p {
   font-size: 14px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* ===== 学习路径卡片 ===== */
@@ -1688,12 +1688,12 @@ onUnmounted(() => {
 .path-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 6px;
 }
 .path-desc {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.5;
   margin-bottom: 10px;
   display: -webkit-box;
@@ -1703,7 +1703,7 @@ onUnmounted(() => {
 }
 .path-suitable {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -1718,26 +1718,26 @@ onUnmounted(() => {
 .progress-bar {
   flex: 1;
   height: 6px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   border-radius: 3px;
   overflow: hidden;
 }
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--kb-primary), var(--kb-primary-muted));
+  background: linear-gradient(90deg, var(--kf-primary), var(--kf-primary-muted));
   border-radius: 3px;
   transition: width 0.6s ease-out;
 }
 .progress-text {
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .path-meta {
   display: flex;
   gap: 14px;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .path-meta span {
   display: flex;
@@ -1757,13 +1757,13 @@ onUnmounted(() => {
 .search-icon {
   position: absolute;
   left: 14px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   pointer-events: none;
 }
-.search-input:not(.kb-form-control) {
-  border: 1px solid var(--kb-border);
+.search-input:not(.kf-form-control) {
+  border: 1px solid var(--kf-border);
   border-radius: 10px;
-  background: var(--kb-card);
+  background: var(--kf-card);
   outline: none;
   transition: border-color 0.2s;
 }
@@ -1771,10 +1771,10 @@ onUnmounted(() => {
   width: 100%;
   padding: 12px 40px 12px 44px;
   font-size: 14px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
-.search-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.search-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
 }
 .search-clear {
   position: absolute;
@@ -1785,9 +1785,9 @@ onUnmounted(() => {
   width: 24px;
   height: 24px;
   border: none;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   border-radius: 50%;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
 }
 .resource-filters {
@@ -1795,24 +1795,24 @@ onUnmounted(() => {
   gap: 8px;
   flex-wrap: wrap;
 }
-.kb-filter-btn {
+.kf-filter-btn {
   padding: 6px 14px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   border-radius: 20px;
-  background: var(--kb-card);
+  background: var(--kf-card);
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: all 0.2s;
 }
-.kb-filter-btn:hover {
-  border-color: var(--kb-primary);
-  color: var(--kb-primary);
+.kf-filter-btn:hover {
+  border-color: var(--kf-primary);
+  color: var(--kf-primary);
 }
-.kb-filter-btn.active {
-  background: var(--kb-primary);
+.kf-filter-btn.active {
+  background: var(--kf-primary);
   color: #fff;
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
 }
 .resource-grid {
   display: grid;
@@ -1841,22 +1841,22 @@ onUnmounted(() => {
   border-radius: 10px;
   color: #fff;
 }
-.r-green { background: var(--kb-success); }
-.r-blue { background: var(--kb-primary); }
-.r-orange { background: var(--kb-warning); }
+.r-green { background: var(--kf-success); }
+.r-blue { background: var(--kf-primary); }
+.r-orange { background: var(--kf-warning); }
 .r-purple { background: #8B5CF6; }
 .r-cyan { background: #06B6D4; }
-.r-red { background: var(--kb-danger); }
+.r-red { background: var(--kf-danger); }
 .r-indigo { background: #6366F1; }
 .resource-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 6px;
 }
 .resource-desc {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.5;
   margin-bottom: 12px;
   display: -webkit-box;
@@ -1869,12 +1869,12 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .resource-cat {
   padding: 2px 8px;
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.08));
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.08));
+  color: var(--kf-primary);
   border-radius: 4px;
   font-size: 11px;
   font-weight: 500;
@@ -1898,18 +1898,18 @@ onUnmounted(() => {
   text-align: center;
 }
 .empty-icon {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   opacity: 0.4;
   margin-bottom: 16px;
 }
 .empty-text {
   font-size: 15px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 6px;
 }
 .empty-hint {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* ===== 成就积分 ===== */
@@ -1935,7 +1935,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--kb-primary), #8B5CF6);
+  background: linear-gradient(135deg, var(--kf-primary), #8B5CF6);
   border-radius: 50%;
   color: #fff;
   z-index: 1;
@@ -1968,30 +1968,30 @@ onUnmounted(() => {
 .points-info h2 {
   font-size: 18px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 6px;
 }
 .points-current {
   font-size: 14px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-bottom: 8px;
 }
 .points-bar {
   height: 8px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 8px;
 }
 .points-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--kb-primary), #8B5CF6);
+  background: linear-gradient(90deg, var(--kf-primary), #8B5CF6);
   border-radius: 4px;
   transition: width 0.8s ease-out;
 }
 .points-hint {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -2009,11 +2009,11 @@ onUnmounted(() => {
 .ps-value {
   font-size: 22px;
   font-weight: 700;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
 }
 .ps-label {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* ===== 徽章墙 ===== */
@@ -2029,8 +2029,8 @@ onUnmounted(() => {
   gap: 6px;
   padding: 16px 8px;
   border-radius: 12px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   text-align: center;
   transition: transform 0.2s;
 }
@@ -2051,18 +2051,18 @@ onUnmounted(() => {
   color: #fff;
   margin-bottom: 4px;
 }
-.badge-common { background: linear-gradient(135deg, var(--kb-muted-foreground), #9CA3AF); }
-.badge-rare { background: linear-gradient(135deg, var(--kb-primary), var(--kb-primary-muted)); }
+.badge-common { background: linear-gradient(135deg, var(--kf-muted-foreground), #9CA3AF); }
+.badge-rare { background: linear-gradient(135deg, var(--kf-primary), var(--kf-primary-muted)); }
 .badge-epic { background: linear-gradient(135deg, #8B5CF6, #A78BFA); }
-.badge-legendary { background: linear-gradient(135deg, var(--kb-warning), #FBBF24); }
+.badge-legendary { background: linear-gradient(135deg, var(--kf-warning), #FBBF24); }
 .badge-name {
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .badge-desc {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.3;
 }
 
@@ -2077,7 +2077,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 12px;
   padding: 8px 0;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
 }
 .ph-item:last-child {
   border-bottom: none;
@@ -2092,27 +2092,27 @@ onUnmounted(() => {
   flex-shrink: 0;
   color: #fff;
 }
-.ph-plus { background: var(--kb-success); }
-.ph-minus { background: var(--kb-danger); }
+.ph-plus { background: var(--kf-success); }
+.ph-minus { background: var(--kf-danger); }
 .ph-body {
   flex: 1;
 }
 .ph-title {
   font-size: 14px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 2px;
 }
 .ph-time {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .ph-amount {
   font-size: 15px;
   font-weight: 700;
 }
-.ph-amount.plus { color: var(--kb-success); }
-.ph-amount.minus { color: var(--kb-danger); }
+.ph-amount.plus { color: var(--kf-success); }
+.ph-amount.minus { color: var(--kf-danger); }
 
 /* ===== 社区讨论 ===== */
 .community-header {
@@ -2132,7 +2132,7 @@ onUnmounted(() => {
 .community-search .search-icon {
   position: absolute;
   left: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   pointer-events: none;
 }
 .community-search .search-input {
@@ -2164,21 +2164,21 @@ onUnmounted(() => {
 .topic-author {
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .topic-time {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .topic-title {
   font-size: 16px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin-bottom: 6px;
 }
 .topic-excerpt {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.5;
   margin-bottom: 10px;
   display: -webkit-box;
@@ -2193,8 +2193,8 @@ onUnmounted(() => {
 }
 .topic-tag {
   padding: 2px 10px;
-  background: var(--kb-primary-soft, rgba(59, 111, 224, 0.08));
-  color: var(--kb-primary);
+  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.08));
+  color: var(--kf-primary);
   border-radius: 4px;
   font-size: 11px;
   font-weight: 500;
@@ -2209,14 +2209,14 @@ onUnmounted(() => {
   align-items: center;
   gap: 4px;
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 .topic-join-btn {
   margin-left: auto;
   padding: 6px 14px;
-  border: 1px solid var(--kb-primary);
+  border: 1px solid var(--kf-primary);
   background: transparent;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
@@ -2224,7 +2224,7 @@ onUnmounted(() => {
   transition: all 0.2s;
 }
 .topic-join-btn:hover {
-  background: var(--kb-primary);
+  background: var(--kf-primary);
   color: #fff;
 }
 
@@ -2235,7 +2235,7 @@ onUnmounted(() => {
   border: none;
   border-radius: 50%;
   background: #F3F4F6;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2259,12 +2259,12 @@ onUnmounted(() => {
   flex-shrink: 0;
   color: #fff;
 }
-.rank-1 { background: linear-gradient(135deg, #FCD34D, var(--kb-warning)); }
+.rank-1 { background: linear-gradient(135deg, #FCD34D, var(--kf-warning)); }
 .rank-2 { background: linear-gradient(135deg, #D1D5DB, #9CA3AF); }
 .rank-3 { background: linear-gradient(135deg, #FDBA74, #F97316); }
 .rank-circle:not(.rank-1):not(.rank-2):not(.rank-3) {
   background: #F3F4F6;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* ===== 猫头鹰宠物动画 ===== */
@@ -2346,7 +2346,7 @@ onUnmounted(() => {
   height: 0;
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
-  border-top: 8px solid var(--kb-warning);
+  border-top: 8px solid var(--kf-warning);
   position: absolute;
   top: 38px;
   left: 50%;
@@ -2393,7 +2393,7 @@ onUnmounted(() => {
 .owl-foot {
   width: 14px;
   height: 8px;
-  background: var(--kb-warning);
+  background: var(--kf-warning);
   border-radius: 4px;
 }
 

@@ -5,7 +5,7 @@
     :src="name"
     :width="iconSizePx"
     :height="iconSizePx"
-    :class="['kb-icon', iconClass]"
+    :class="['kf-icon', iconClass]"
     :aria-hidden="decorative ? 'true' : undefined"
     :aria-label="decorative ? undefined : ariaLabel"
     :role="decorative ? undefined : (ariaLabel ? 'img' : undefined)"
@@ -14,7 +14,7 @@
   <!-- 自定义图标 - iconfont Unicode code 或 iconfont class 名：渲染为 <i> 标签 -->
   <i
     v-else-if="isIconfontIcon"
-    class="iconfont kb-icon"
+    class="iconfont kf-icon"
     :class="[iconfontClassName, iconClass]"
     :style="{ fontSize: iconSizeCss, color: color || undefined }"
     :aria-hidden="decorative ? 'true' : undefined"
@@ -25,7 +25,7 @@
   <!-- 自定义图标 - SVG 代码：渲染为 div v-html -->
   <div
     v-else-if="isSvgCodeIcon"
-    :class="['kb-icon', iconClass]"
+    :class="['kf-icon', iconClass]"
     :style="{ width: iconSizeCss, height: iconSizeCss, color: color || undefined, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }"
     :aria-hidden="decorative ? 'true' : undefined"
     :aria-label="decorative ? undefined : ariaLabel"
@@ -44,7 +44,7 @@
     stroke-width="2"
     stroke-linecap="round"
     stroke-linejoin="round"
-    :class="['kb-icon', iconClass]"
+    :class="['kf-icon', iconClass]"
     :style="{ color: color || undefined }"
     :aria-hidden="decorative ? 'true' : undefined"
     :aria-label="decorative ? undefined : ariaLabel"
@@ -1439,7 +1439,7 @@ const iconClass = computed(() => {
 /* ======================================================================
  * 语义化 size 映射（企业级 2x 网格）
  * - size 为语义化关键词（'xxs'/'xs'/'sm'/'md'/'lg'/'xl'/'2xl'/'3xl'）时，
- *   映射到对应的 --kb-icon-xxx CSS 变量与实际像素值；
+ *   映射到对应的 --kf-icon-xxx CSS 变量与实际像素值；
  * - size 为数字或其他字符串（如 '24px'/'1.5rem'）时，保持原样向后兼容。
  * ====================================================================== */
 const SEMANTIC_PX: Record<string, number> = {
@@ -1453,14 +1453,14 @@ const SEMANTIC_PX: Record<string, number> = {
   '3xl': 32,
 }
 const SEMANTIC_CSS_VAR: Record<string, string> = {
-  xxs: 'var(--kb-icon-xxs)',
-  xs:  'var(--kb-icon-xs)',
-  sm:  'var(--kb-icon-sm)',
-  md:  'var(--kb-icon-md)',
-  lg:  'var(--kb-icon-lg)',
-  xl:  'var(--kb-icon-xl)',
-  '2xl': 'var(--kb-icon-2xl)',
-  '3xl': 'var(--kb-icon-3xl)',
+  xxs: 'var(--kf-icon-xxs)',
+  xs:  'var(--kf-icon-xs)',
+  sm:  'var(--kf-icon-sm)',
+  md:  'var(--kf-icon-md)',
+  lg:  'var(--kf-icon-lg)',
+  xl:  'var(--kf-icon-xl)',
+  '2xl': 'var(--kf-icon-2xl)',
+  '3xl': 'var(--kf-icon-3xl)',
 }
 
 /** 用于 SVG / img 的 width/height 属性（需要纯数字，不能是 var()） */
@@ -1484,7 +1484,7 @@ const iconSizeCss = computed<string>(() => {
     if (SEMANTIC_CSS_VAR[s] != null) return SEMANTIC_CSS_VAR[s]
     return s
   }
-  return 'var(--kb-icon-md)'
+  return 'var(--kf-icon-md)'
 })
 
 /** 图片类型图标：data URI 或 URL */

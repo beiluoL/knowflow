@@ -3,8 +3,8 @@
   <div class="icon-mgmt-wrap">
     <!-- 页面标题 -->
     <div class="page-head">
-      <h1 class="kb-h1">图标管理</h1>
-      <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="openUploadModal">
+      <h1 class="kf-h1">图标管理</h1>
+      <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="openUploadModal">
         <Icon name="upload" :size="16" />
         <span>添加图标</span>
       </button>
@@ -13,7 +13,7 @@
     <!-- 预置图标库（按分类） -->
     <div class="section-card">
       <div class="section-head">
-        <h3 class="kb-h3">预置图标库（共 {{ presetIcons.length }} 个）</h3>
+        <h3 class="kf-h3">预置图标库（共 {{ presetIcons.length }} 个）</h3>
         <span class="section-tip">编程语言 / 框架 / AI / 数据库 / 文件格式 / 开发工具，点击可复制图标 key</span>
       </div>
       <!-- 分类标签页 -->
@@ -21,7 +21,7 @@
         <button
           v-for="cat in presetIconCategories"
           :key="cat.key"
-          class="preset-tab-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="preset-tab-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :class="{ active: activeCategory === cat.key }"
           @click="activeCategory = cat.key"
         >
@@ -34,7 +34,7 @@
         <div
           v-for="icon in filteredPresetIcons"
           :key="icon.key"
-          class="icon-cell preset-cell focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="icon-cell preset-cell focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :title="`${icon.name}（${icon.key}）点击复制`"
           role="button"
           tabindex="0"
@@ -53,14 +53,14 @@
     <!-- 系统图标 -->
     <div class="section-card">
       <div class="section-head">
-        <h3 class="kb-h3">系统图标（共 {{ systemIcons.length }} 个）</h3>
+        <h3 class="kf-h3">系统图标（共 {{ systemIcons.length }} 个）</h3>
         <span class="section-tip">内置 SVG 图标，可直接在知识库/文档中通过名称引用</span>
       </div>
       <div class="icon-grid">
         <div
           v-for="name in systemIcons"
           :key="name"
-          class="icon-cell focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="icon-cell focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :title="name"
           role="button"
           tabindex="0"
@@ -78,7 +78,7 @@
     <!-- 自定义图标 -->
     <div class="section-card">
       <div class="section-head">
-        <h3 class="kb-h3">自定义图标</h3>
+        <h3 class="kf-h3">自定义图标</h3>
         <span class="section-tip">支持图片上传、iconfont code、SVG 代码三种方式</span>
       </div>
       <div v-if="loading" class="empty-tip">加载中...</div>
@@ -90,7 +90,7 @@
           class="icon-cell custom-cell"
         >
           <button
-            class="delete-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+            class="delete-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
             title="删除"
             @click="removeIcon(icon)"
           >
@@ -109,8 +109,8 @@
     <div v-if="showModal" class="modal-mask" @click.self="closeModal">
       <div class="modal-card">
         <div class="modal-head">
-          <h3 class="kb-h3">添加图标</h3>
-          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" title="关闭" @click="closeModal">
+          <h3 class="kf-h3">添加图标</h3>
+          <button class="icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" title="关闭" @click="closeModal">
             <Icon name="x" :size="18" />
           </button>
         </div>
@@ -120,7 +120,7 @@
             <button
               v-for="tab in tabs"
               :key="tab.key"
-              class="tab-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="tab-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
               :class="{ active: form.type === tab.key }"
               @click="switchTab(tab.key)"
             >
@@ -135,7 +135,7 @@
             <input
               v-model="form.name"
               type="text"
-              class="form-input transition-colors kb-input kb-form-control"
+              class="form-input transition-colors kf-input kf-form-control"
               placeholder="请输入图标名称（如：学习笔记）"
             />
           </div>
@@ -146,7 +146,7 @@
             <input
               ref="fileInputRef"
               type="file"
-              class="form-input file-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+              class="form-input file-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
               accept=".png,.jpg,.jpeg,.svg,.ico,.gif,.webp"
               @change="onFileChange"
             />
@@ -159,7 +159,7 @@
             <input
               v-model="form.content"
               type="text"
-              class="form-input transition-colors kb-input kb-form-control"
+              class="form-input transition-colors kf-input kf-form-control"
               placeholder="输入 iconfont code，如 e601 或 &#xe601;"
             />
             <span class="form-hint">在 iconfont.cn 图标详情页可查看 Unicode code（如 e601）。需项目已引入对应 iconfont 字体才能正确显示。</span>
@@ -170,7 +170,7 @@
             <label class="form-label">SVG 代码 <span class="required">*</span></label>
               <textarea
                 v-model="form.content"
-                class="form-input svg-textarea transition-colors kb-textarea kb-form-control"
+                class="form-input svg-textarea transition-colors kf-textarea kf-form-control"
                 placeholder='<svg viewBox="0 0 24 24" fill="currentColor"><path d="..." /></svg>'
                 rows="6"
               />
@@ -186,7 +186,7 @@
                   v-for="c in presetColors"
                   :key="c"
                   type="button"
-                  class="swatch focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                  class="swatch focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
                   :class="{ active: form.color === c }"
                   :style="{ background: c }"
                   :title="c"
@@ -197,7 +197,7 @@
                 <input
                   v-model="form.color"
                   type="color"
-                  class="custom-color-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                  class="custom-color-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
                 />
                 <Icon name="palette" :size="14" class="custom-color-icon" />
                 <span class="custom-color-text">{{ form.color || '自定义' }}</span>
@@ -205,7 +205,7 @@
               <button
                 v-if="form.color"
                 type="button"
-                class="clear-color-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+                class="clear-color-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
                 @click="form.color = ''"
               >清除</button>
             </div>
@@ -229,8 +229,8 @@
           </div>
         </div>
         <div class="modal-foot">
-          <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" @click="closeModal">取消</button>
-          <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving" @click="save">
+          <button class="btn-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="closeModal">取消</button>
+          <button class="btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving" @click="save">
             {{ saving ? '保存中...' : '保存' }}
           </button>
         </div>
@@ -290,7 +290,7 @@ const systemIcons = [
 
 /** 预设颜色 */
 const presetColors = [
-  'var(--kb-primary)', 'var(--kb-success)', 'var(--kb-warning)', 'var(--kb-danger)', '#8B5CF6',
+  'var(--kf-primary)', 'var(--kf-success)', 'var(--kf-warning)', 'var(--kf-danger)', '#8B5CF6',
   '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
   '#14B8A6', '#64748B',
 ]
@@ -481,27 +481,27 @@ onMounted(() => {
   margin-bottom: 24px;
 }
 
-.kb-h1 {
+.kf-h1 {
   font-size: 28px;
   font-weight: 700;
   line-height: 1.3;
   letter-spacing: -0.02em;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
 }
 
-.kb-h3 {
+.kf-h3 {
   font-size: 18px;
   font-weight: 600;
   line-height: 1.4;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0;
 }
 
 /* 区块卡片 */
 .section-card {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 10px;
   padding: 20px;
   margin-bottom: 20px;
@@ -518,7 +518,7 @@ onMounted(() => {
 
 .section-tip {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 /* 图标网格 */
@@ -539,16 +539,16 @@ onMounted(() => {
   height: 88px;
   padding: 8px 4px;
   border-radius: 8px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-background);
-  color: var(--kb-foreground);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-background);
+  color: var(--kf-foreground);
   transition: background 0.15s, border-color 0.15s, transform 0.15s;
   overflow: hidden;
   cursor: pointer;
 }
 
 .icon-cell:hover {
-  border-color: var(--kb-primary);
+  border-color: var(--kf-primary);
   transform: translateY(-1px);
 }
 
@@ -565,7 +565,7 @@ onMounted(() => {
   margin-top: 6px;
   font-size: 11px;
   line-height: 1.2;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   text-align: center;
   max-width: 100%;
   overflow: hidden;
@@ -585,8 +585,8 @@ onMounted(() => {
   line-height: 1.3;
 }
 .badge-custom { background: #DBEAFE; color: #1D4ED8; }
-.badge-iconfont { background: var(--kb-warning-soft-strong); color: var(--kb-state-warning); }
-.badge-svg { background: var(--kb-success-soft-strong); color: var(--kb-state-success); }
+.badge-iconfont { background: var(--kf-warning-soft-strong); color: var(--kf-state-warning); }
+.badge-svg { background: var(--kf-success-soft-strong); color: var(--kf-state-success); }
 
 /* 自定义图标图片 */
 .custom-img {
@@ -607,8 +607,8 @@ onMounted(() => {
   justify-content: center;
   border-radius: 5px;
   border: none;
-  background: var(--kb-card);
-  color: var(--kb-muted-foreground);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.15s, background 0.15s, color 0.15s;
@@ -620,14 +620,14 @@ onMounted(() => {
 }
 
 .custom-cell .delete-btn:hover {
-  background: var(--kb-danger);
+  background: var(--kf-danger);
   color: #fff;
 }
 
 /* 空态 */
 .empty-tip {
   text-align: center;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 32px 0;
   margin: 0;
   font-size: 13px;
@@ -643,8 +643,8 @@ onMounted(() => {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  background: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
   transition: opacity 0.15s;
@@ -663,14 +663,14 @@ onMounted(() => {
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
-  background: var(--kb-card);
-  color: var(--kb-foreground);
-  border: 1px solid var(--kb-border);
+  background: var(--kf-card);
+  color: var(--kf-foreground);
+  border: 1px solid var(--kf-border);
   cursor: pointer;
   transition: background 0.15s;
 }
 
-.btn-secondary:hover { background: var(--kb-muted); }
+.btn-secondary:hover { background: var(--kf-muted); }
 
 /* 图标按钮（关闭） */
 .icon-btn {
@@ -682,12 +682,12 @@ onMounted(() => {
   border-radius: 6px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
-.icon-btn:hover { background: var(--kb-muted); color: var(--kb-primary); }
+.icon-btn:hover { background: var(--kf-muted); color: var(--kf-primary); }
 
 /* 弹窗 */
 .modal-mask {
@@ -702,7 +702,7 @@ onMounted(() => {
 }
 
 .modal-card {
-  background: var(--kb-card);
+  background: var(--kf-card);
   border-radius: 12px;
   width: 100%;
   max-width: 520px;
@@ -722,10 +722,10 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--kb-border);
+  border-bottom: 1px solid var(--kf-border);
   position: sticky;
   top: 0;
-  background: var(--kb-card);
+  background: var(--kf-card);
   z-index: 1;
 }
 
@@ -741,10 +741,10 @@ onMounted(() => {
   justify-content: flex-end;
   gap: 8px;
   padding: 16px 20px;
-  border-top: 1px solid var(--kb-border);
+  border-top: 1px solid var(--kf-border);
   position: sticky;
   bottom: 0;
-  background: var(--kb-card);
+  background: var(--kf-card);
 }
 
 /* Tab 切换 */
@@ -752,7 +752,7 @@ onMounted(() => {
   display: flex;
   gap: 4px;
   padding: 4px;
-  background: var(--kb-muted);
+  background: var(--kf-muted);
   border-radius: 8px;
 }
 
@@ -767,18 +767,18 @@ onMounted(() => {
   border-radius: 6px;
   border: none;
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
-.tab-btn:hover { color: var(--kb-foreground); }
+.tab-btn:hover { color: var(--kf-foreground); }
 
 .tab-btn.active {
-  background: var(--kb-card);
-  color: var(--kb-primary);
+  background: var(--kf-card);
+  color: var(--kf-primary);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
@@ -792,38 +792,38 @@ onMounted(() => {
 .form-label {
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 
 .required {
-  color: var(--kb-danger);
+  color: var(--kf-danger);
 }
 
 .form-hint {
   font-size: 11px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.4;
 }
 
-.form-input:not(.kb-form-control) {
+.form-input:not(.kf-form-control) {
   height: 36px;
   border-radius: 6px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .form-input {
   padding: 0 12px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   font-size: 13px;
   width: 100%;
   box-sizing: border-box;
 }
 
-.form-input:not(.kb-form-control):focus {
-  border-color: var(--kb-primary);
+.form-input:not(.kf-form-control):focus {
+  border-color: var(--kf-primary);
   box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
 }
 
@@ -832,7 +832,7 @@ onMounted(() => {
   height: auto;
 }
 
-.svg-textarea:not(.kb-form-control) {
+.svg-textarea:not(.kf-form-control) {
   height: auto;
   min-height: 120px;
 }
@@ -874,7 +874,7 @@ onMounted(() => {
 .swatch:hover { transform: scale(1.1); }
 
 .swatch.active {
-  border-color: var(--kb-foreground);
+  border-color: var(--kf-foreground);
   transform: scale(1.1);
 }
 
@@ -885,16 +885,16 @@ onMounted(() => {
   height: 28px;
   padding: 0 8px;
   border-radius: 6px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   cursor: pointer;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   position: relative;
   transition: border-color 0.15s;
 }
 
-.custom-color-wrap:hover { border-color: var(--kb-primary); }
+.custom-color-wrap:hover { border-color: var(--kf-primary); }
 
 .custom-color-input {
   position: absolute;
@@ -906,7 +906,7 @@ onMounted(() => {
 }
 
 .custom-color-icon {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
 }
 
 .custom-color-text {
@@ -920,17 +920,17 @@ onMounted(() => {
   height: 28px;
   padding: 0 8px;
   border-radius: 6px;
-  border: 1px solid var(--kb-border);
+  border: 1px solid var(--kf-border);
   background: transparent;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-size: 12px;
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
 }
 
 .clear-color-btn:hover {
-  color: var(--kb-danger);
-  border-color: var(--kb-danger);
+  color: var(--kf-danger);
+  border-color: var(--kf-danger);
 }
 
 /* 预览 */
@@ -951,7 +951,7 @@ onMounted(() => {
   justify-content: center;
   width: 56px;
   height: 56px;
-  border: 1px dashed var(--kb-border);
+  border: 1px dashed var(--kf-border);
   border-radius: 8px;
 }
 
@@ -973,7 +973,7 @@ onMounted(() => {
   gap: 8px;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px dashed var(--kb-border, var(--kb-muted));
+  border-bottom: 1px dashed var(--kf-border, var(--kf-muted));
 }
 
 .preset-tab-btn {
@@ -983,24 +983,24 @@ onMounted(() => {
   padding: 6px 14px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-muted-foreground, var(--kb-muted-foreground));
-  background: var(--kb-card, #F8FAFC);
-  border: 1px solid var(--kb-border, var(--kb-muted));
+  color: var(--kf-muted-foreground, var(--kf-muted-foreground));
+  background: var(--kf-card, #F8FAFC);
+  border: 1px solid var(--kf-border, var(--kf-muted));
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .preset-tab-btn:hover {
-  color: var(--kb-primary, var(--kb-primary));
-  border-color: var(--kb-primary, var(--kb-primary));
+  color: var(--kf-primary, var(--kf-primary));
+  border-color: var(--kf-primary, var(--kf-primary));
   background: rgba(59, 111, 224, 0.06);
 }
 
 .preset-tab-btn.active {
   color: #fff;
-  background: var(--kb-primary, var(--kb-primary));
-  border-color: var(--kb-primary, var(--kb-primary));
+  background: var(--kf-primary, var(--kf-primary));
+  border-color: var(--kf-primary, var(--kf-primary));
   box-shadow: 0 2px 6px rgba(59, 111, 224, 0.25);
 }
 
@@ -1035,15 +1035,15 @@ onMounted(() => {
   align-items: center;
   gap: 6px;
   padding: 14px 8px;
-  border: 1px solid var(--kb-border, var(--kb-muted));
+  border: 1px solid var(--kf-border, var(--kf-muted));
   border-radius: 10px;
-  background: var(--kb-card, #FFFFFF);
+  background: var(--kf-card, #FFFFFF);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .preset-cell:hover {
-  border-color: var(--kb-primary, var(--kb-primary));
+  border-color: var(--kf-primary, var(--kf-primary));
   background: rgba(59, 111, 224, 0.04);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 111, 224, 0.12);
@@ -1053,7 +1053,7 @@ onMounted(() => {
   width: 48px;
   height: 48px;
   border-radius: 10px;
-  background: var(--kb-muted, #F1F5F9);
+  background: var(--kf-muted, #F1F5F9);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1062,8 +1062,8 @@ onMounted(() => {
 .icon-key-badge {
   font-size: 10px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  color: var(--kb-muted-foreground, #94A3B8);
-  background: var(--kb-muted, #F1F5F9);
+  color: var(--kf-muted-foreground, #94A3B8);
+  background: var(--kf-muted, #F1F5F9);
   padding: 2px 6px;
   border-radius: 4px;
   max-width: 100%;

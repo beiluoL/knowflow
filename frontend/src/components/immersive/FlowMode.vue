@@ -14,7 +14,7 @@
           class="task-item"
           :class="{ done: task.status === 1 }"
         >
-          <label class="task-check kb-checkbox-row">
+          <label class="task-check kf-checkbox-row">
             <Checkbox as="span"
 
               :checked="task.status === 1"
@@ -47,7 +47,7 @@
       <div class="controls">
         <button
           type="button"
-          class="ctrl-btn primary big focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="ctrl-btn primary big focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="isRunning"
           @click="handleStart"
         >
@@ -56,7 +56,7 @@
         </button>
         <button
           type="button"
-          class="ctrl-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="ctrl-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="!isRunning"
           @click="handlePause"
         >
@@ -65,7 +65,7 @@
         </button>
         <button
           type="button"
-          class="ctrl-btn danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kb-ring)] focus-visible:ring-offset-2 transition-colors"
+          class="ctrl-btn danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
           :disabled="elapsedSec === 0 && !isRunning"
           @click="handleEnd"
         >
@@ -211,7 +211,7 @@ const totalFormatted = computed(() => formatHM(elapsedSec.value));
 const flowStage = computed(() => {
   const m = elapsedSec.value / 60;
   if (m < 15) {
-    return { label: '热身阶段', color: 'var(--kb-warning)', icon: 'coffee' };
+    return { label: '热身阶段', color: 'var(--kf-warning)', icon: 'coffee' };
   }
   if (m <= 60) {
     return { label: 'Flow 状态', color: '#0EA5E9', icon: 'waves' };
@@ -375,14 +375,14 @@ onUnmounted(async () => {
   gap: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   margin: 0 0 14px;
 }
 .section-title .task-count {
   margin-left: auto;
   font-size: 12px;
   font-weight: 500;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-variant-numeric: tabular-nums;
 }
 .task-list {
@@ -403,29 +403,29 @@ onUnmounted(async () => {
   background: rgba(255, 255, 255, 0.06);
 }
 .task-item.done .task-title {
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   text-decoration: line-through;
 }
 .task-check {
   display: flex;
   align-items: center;
-  gap: var(--kb-checkbox-gap);
+  gap: var(--kf-checkbox-gap);
   cursor: pointer;
 }
 .task-check input[type='checkbox'] {
   width: 16px;
   height: 16px;
-  accent-color: var(--kb-primary);
+  accent-color: var(--kf-primary);
   cursor: pointer;
 }
 .task-title {
   font-size: 13px;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1.4;
 }
 .task-empty {
   font-size: 13px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   padding: 4px 2px;
 }
 
@@ -445,14 +445,14 @@ onUnmounted(async () => {
 .time-display {
   font-size: 56px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1;
   letter-spacing: -0.02em;
 }
 .mode-label {
   font-size: 14px;
   letter-spacing: 0.04em;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   font-weight: 500;
 }
 .flow-stage {
@@ -478,7 +478,7 @@ onUnmounted(async () => {
   padding: 0 20px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
@@ -493,9 +493,9 @@ onUnmounted(async () => {
   cursor: not-allowed;
 }
 .ctrl-btn.primary {
-  background: var(--kb-primary);
-  border-color: var(--kb-primary);
-  color: var(--kb-primary-foreground);
+  background: var(--kf-primary);
+  border-color: var(--kf-primary);
+  color: var(--kf-primary-foreground);
 }
 .ctrl-btn.primary:hover:not(:disabled) {
   filter: brightness(1.05);
@@ -508,7 +508,7 @@ onUnmounted(async () => {
 }
 .ctrl-btn.danger:hover:not(:disabled) {
   border-color: rgba(239, 68, 68, 0.5);
-  color: var(--kb-danger-muted);
+  color: var(--kf-danger-muted);
 }
 
 .motivation {
@@ -521,7 +521,7 @@ onUnmounted(async () => {
   border-radius: 999px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   max-width: 460px;
   text-align: center;
 }
@@ -542,14 +542,14 @@ onUnmounted(async () => {
 }
 .stat-label {
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   margin-bottom: 6px;
   letter-spacing: 0.02em;
 }
 .stat-value {
   font-size: 26px;
   font-weight: 700;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   line-height: 1.2;
 }
 .stat-value.with-badge {
@@ -566,7 +566,7 @@ onUnmounted(async () => {
 .progress-pct {
   font-size: 12px;
   font-weight: 600;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
 }
 .progress-bar {
   height: 8px;
@@ -576,7 +576,7 @@ onUnmounted(async () => {
 }
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--kb-primary), #0EA5E9);
+  background: linear-gradient(90deg, var(--kf-primary), #0EA5E9);
   border-radius: 999px;
   transition: width 0.5s ease;
 }
@@ -587,7 +587,7 @@ onUnmounted(async () => {
   padding: 3px 8px;
   font-size: 11px;
   font-weight: 500;
-  color: var(--kb-warning);
+  color: var(--kf-warning);
   background: rgba(245, 158, 11, 0.1);
   border: 1px solid rgba(245, 158, 11, 0.2);
   border-radius: 999px;
@@ -610,13 +610,13 @@ onUnmounted(async () => {
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--kb-primary);
+  color: var(--kf-primary);
   margin-bottom: 8px;
 }
 .tip-text {
   margin: 0;
   font-size: 12px;
-  color: var(--kb-muted-foreground);
+  color: var(--kf-muted-foreground);
   line-height: 1.6;
 }
 

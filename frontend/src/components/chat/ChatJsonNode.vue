@@ -90,7 +90,7 @@ const valueClass = computed(() => {
 </script>
 
 <style scoped>
-.json-node { font-family: var(--kb-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace); font-size: var(--kb-fs-caption); line-height: 1.65; }
+.json-node { font-family: var(--kf-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace); font-size: var(--kf-fs-caption); line-height: 1.65; }
 .json-toggle {
   display: inline-flex;
   align-items: center;
@@ -98,23 +98,23 @@ const valueClass = computed(() => {
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--kb-foreground);
+  color: var(--kf-foreground);
   cursor: pointer;
   text-align: left;
 }
-.json-toggle:hover .json-summary { color: var(--kb-primary); }
-.json-toggle:focus-visible { outline: 2px solid var(--kb-primary); outline-offset: 2px; border-radius: 4px; }
+.json-toggle:hover .json-summary { color: var(--kf-primary); }
+.json-toggle:focus-visible { outline: 2px solid var(--kf-primary); outline-offset: 2px; border-radius: 4px; }
 .json-children {
   margin-inline-start: 14px;
   padding-inline-start: 10px;
-  border-inline-start: 1px solid var(--kb-border);
+  border-inline-start: 1px solid var(--kf-border);
 }
-.json-key { color: var(--kb-primary); margin-inline-end: 4px; }
-.json-summary { color: var(--kb-muted-foreground); }
+.json-key { color: var(--kf-primary); margin-inline-end: 4px; }
+.json-summary { color: var(--kf-muted-foreground); }
 .json-leaf { display: flex; gap: 4px; word-break: break-word; white-space: pre-wrap; }
-.json-string { color: var(--kb-state-success, #1a7f5a); }
-.json-number { color: var(--kb-state-info, #1f6feb); }
-.json-boolean { color: var(--kb-state-warning, #b35c00); }
-.json-null { color: var(--kb-muted-foreground); font-style: italic; }
-.json-more { color: var(--kb-muted-foreground); font-size: var(--kb-fs-xs); }
+.json-string { color: var(--kf-state-success, #1a7f5a); }
+.json-number { color: var(--kf-state-info, #1f6feb); }
+.json-boolean { color: var(--kf-state-warning, #b35c00); }
+.json-null { color: var(--kf-muted-foreground); font-style: italic; }
+.json-more { color: var(--kf-muted-foreground); font-size: var(--kf-fs-xs); }
 </style>

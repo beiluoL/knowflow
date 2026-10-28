@@ -2,12 +2,12 @@
  * 3.3.2 Typography / Radius 令牌化守护 —— 纯函数 + glob 加载器
  *
  * 设计目标（与 icon-usage.helpers.ts 同源）：
- *  - 判定「非阶梯」硬编码 font-size / border-radius（排除 var(--kb-*) 与意图明确的圆形/胶囊 999/9999px）。
+ *  - 判定「非阶梯」硬编码 font-size / border-radius（排除 var(--kf-*) 与意图明确的圆形/胶囊 999/9999px）。
  *  - 提供单一真相源 countViolations()，供 Vitest 守卫测试与一次性基线生成脚本共用同一套正则。
  *
- * 字号阶梯（style.css --kb-fs-*）：11 12 13 14 16 20 24 32 40
- * 圆角阶梯（style.css --kb-radius-*）：4 6 10 16
- * 其余 px 字面量视为非阶梯，应改用 --kb-* 令牌或 ui-tokens.css 语义类。
+ * 字号阶梯（style.css --kf-fs-*）：11 12 13 14 16 20 24 32 40
+ * 圆角阶梯（style.css --kf-radius-*）：4 6 10 16
+ * 其余 px 字面量视为非阶梯，应改用 --kf-* 令牌或 ui-tokens.css 语义类。
  */
 
 export const FS_LADDER = new Set([11, 12, 13, 14, 16, 20, 24, 32, 40])
