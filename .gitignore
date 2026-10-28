@@ -54,3 +54,6 @@ backend/data/phase3a-qa-*/
 
 # KnowFlow UI component library — independent nested git repository (never track from parent)
 /knowflow-ui/
+
+# Generated output of the textbook Maven verification modules (keep local).
+content-studio/**/target/
