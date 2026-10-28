@@ -49,12 +49,11 @@
     <div data-test="pc-user-utilities" class="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
       <button
         type="button"
-        class="md:hidden w-9 h-9 rounded-lg flex items-center justify-center border transition-colors hover:bg-[var(--kb-muted)]"
-        style="border-color: var(--kb-border);"
+        class="topnav-action md:hidden"
         aria-label="搜索"
         @click="goTo('/search')"
       >
-        <Icon name="search" size="lg" style="color: var(--kb-muted-foreground);" />
+        <Icon name="search" size="lg" />
       </button>
 
       <router-link
@@ -72,15 +71,44 @@
       <router-link
         v-if="isLoggedIn"
         to="/chat"
-        class="w-9 h-9 rounded-lg flex items-center justify-center border transition-colors hover:bg-[var(--kb-primary-soft)]"
-        :class="isActive('/chat') ? 'is-ai-active' : ''"
-        style="border-color: var(--kb-border);"
+        class="topnav-action"
+        :class="{ 'is-active': isActive('/chat') }"
         title="AI 助手"
         aria-label="AI 助手"
         :aria-current="isActive('/chat') ? 'page' : undefined"
       >
-        <Icon name="message-square-sparkles" size="lg" :style="{ color: isActive('/chat') ? 'var(--kb-primary)' : 'var(--kb-muted-foreground)' }" />
+        <Icon name="message-square-sparkles" size="lg" />
       </router-link>
+
+      <!-- UI/UX V1.0：高频快捷操作（任务 / 签到 / 习惯），其余收进「更多」 -->
+      <div v-if="isLoggedIn" class="topnav-quick" data-test="pc-quick-actions">
+        <button
+          v-for="action in primaryQuickActions"
+          :key="action.key"
+          type="button"
+          class="topnav-action topnav-quick__primary"
+          :class="{ 'is-active': isActive(action.path) }"
+          :title="action.label"
+          :aria-label="action.label"
+          :aria-current="isActive(action.path) ? 'page' : undefined"
+          @click="goTo(action.path)"
+        >
+          <Icon :name="action.icon" size="lg" />
+        </button>
+        <button
+          type="button"
+          class="topnav-action topnav-quick__more"
+          :class="{ 'is-active': showQuickMenu }"
+          title="更多快捷操作"
+          aria-label="更多快捷操作"
+          aria-haspopup="menu"
+          :aria-expanded="showQuickMenu"
+          data-test="pc-quick-more"
+          @click="toggleQuickMenu"
+        >
+          <Icon name="more-horizontal" size="lg" />
+        </button>
+      </div>
 
       <PomodoroFloating v-if="showPomodoro" />
 
@@ -88,12 +116,12 @@
       <button
         v-if="isLoggedIn"
         type="button"
-        class="relative p-2 rounded-lg transition-colors hover:bg-[var(--kb-muted)]"
-        style="color: var(--kb-muted-foreground);"
+        class="topnav-action relative"
+        :class="{ 'is-active': showNotifications }"
         :aria-label="`消息通知，${unreadCount} 条未读`"
         @click="toggleNotifications"
       >
-        <Icon name="bell" size="xl" />
+        <Icon name="bell" size="lg" />
         <span
           v-if="unreadCount > 0"
           class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full"
@@ -172,6 +200,31 @@
           @click="goTo('/notifications')"
         >查看全部通知</button>
       </div>
+    </div>
+
+    <!-- 快捷操作面板（UI/UX V1.0）：统一收纳低频工具入口，不重复建立业务系统 -->
+    <div v-if="isLoggedIn && showQuickMenu" class="fixed inset-0 z-40" @click="showQuickMenu = false"></div>
+    <div
+      v-if="isLoggedIn && showQuickMenu"
+      class="absolute right-2 sm:right-6 top-16 min-w-[196px] rounded-lg shadow-lg py-1 z-50 border"
+      style="background: var(--kb-card); border-color: var(--kb-border);"
+      role="menu"
+      data-test="pc-quick-menu"
+    >
+      <p class="user-menu-title" style="color: var(--kb-muted-foreground);">快捷操作</p>
+      <button
+        v-for="action in quickActions"
+        :key="action.key"
+        type="button"
+        role="menuitem"
+        class="w-full flex items-center gap-2 px-3 py-2 transition-colors hover:bg-[var(--kb-muted)]"
+        style="color: var(--kb-foreground); font-size: var(--kb-dropdown-text-fs); gap: var(--kb-nav-gap);"
+        :aria-current="isActive(action.path) ? 'page' : undefined"
+        @click="goTo(action.path)"
+      >
+        <Icon :name="action.icon" size="md" style="color: var(--kb-muted-foreground);" />
+        {{ action.label }}
+      </button>
     </div>
 
     <!-- 用户菜单：UI/UX 2.0 将「我的」与「社区」全部能力收进头像下拉（§20-21/§110-112），不再设一级导航 -->
@@ -330,6 +383,7 @@ const navStyle = computed(() => {
 
 const showNotifications = ref(false)
 const showUserMenu = ref(false)
+const showQuickMenu = ref(false)
 const searchKw = ref('')
 watch(() => route.query?.q, q => { searchKw.value = typeof q === 'string' ? q : '' }, { immediate: true })
 
@@ -345,6 +399,27 @@ const initials = computed(() => {
 })
 const unreadCount = computed(() => notificationStore.unreadCount)
 
+/**
+ * UI/UX V1.0：顶栏快捷操作（只放真实路由，不重建签到/任务/习惯业务）。
+ * 桌面 ≥1280px 显示前 3 个高频图标，其余统一收进「更多快捷操作」。
+ */
+interface QuickAction {
+  key: string
+  label: string
+  path: string
+  icon: string
+}
+
+const quickActions: QuickAction[] = [
+  { key: 'tasks', label: '任务', path: '/tasks', icon: 'list-todo' },
+  { key: 'check-in', label: '签到', path: '/check-in', icon: 'calendar-check' },
+  { key: 'habits', label: '习惯打卡', path: '/habits', icon: 'check-check' },
+  { key: 'today-plan', label: '今日计划', path: '/learning/today-plan', icon: 'list-checks' },
+  { key: 'calendar', label: '日历', path: '/calendar', icon: 'calendar' },
+  { key: 'focus', label: '专注', path: '/learning/pomodoro', icon: 'timer' },
+]
+const primaryQuickActions = quickActions.slice(0, 3)
+
 function isActive(path: string): boolean {
   if (path === '/') return route.path === '/'
   return route.path === path || route.path.startsWith(path + '/')
@@ -353,7 +428,14 @@ function isActive(path: string): boolean {
 function goTo(path: string) {
   showNotifications.value = false
   showUserMenu.value = false
+  showQuickMenu.value = false
   router.push(path)
+}
+
+function toggleQuickMenu() {
+  showNotifications.value = false
+  showUserMenu.value = false
+  showQuickMenu.value = !showQuickMenu.value
 }
 
 function submitSearch(event?: KeyboardEvent) {
@@ -364,6 +446,7 @@ function submitSearch(event?: KeyboardEvent) {
 
 function toggleNotifications() {
   showUserMenu.value = false
+  showQuickMenu.value = false
   showNotifications.value = !showNotifications.value
   if (showNotifications.value && isLoggedIn.value) {
     notificationStore.fetchList({ pageNum: 1, pageSize: 20 }).catch(() => {
@@ -374,6 +457,7 @@ function toggleNotifications() {
 
 function toggleUserMenu() {
   showNotifications.value = false
+  showQuickMenu.value = false
   showUserMenu.value = !showUserMenu.value
 }
 
@@ -458,6 +542,7 @@ watch(isLoggedIn, (loggedIn) => {
 watch(() => route.fullPath, () => {
   showNotifications.value = false
   showUserMenu.value = false
+  showQuickMenu.value = false
 })
 
 onMounted(() => {
@@ -476,12 +561,43 @@ onMounted(() => {
 }
 .pc-topnav :deep(button:focus-visible),
 .pc-topnav :deep(a:focus-visible) {
-  outline: var(--kb-space-1) solid var(--kb-ring);
-  outline-offset: var(--kb-space-1);
+  /* UI/UX V1.0：焦点环收窄到 2px，与全站其他焦点指示保持同一视觉重量 */
+  outline: var(--kb-studio-focus) solid var(--kb-ring);
+  outline-offset: 2px;
 }
-.is-ai-active {
+
+/* UI/UX V1.0：顶栏快捷操作统一容器（36px / 18px 图标 / 统一 hover + active） */
+.topnav-quick {
+  display: flex;
+  align-items: center;
+  gap: var(--kb-quick-action-gap);
+}
+.topnav-action {
+  width: var(--kb-quick-action-size);
+  height: var(--kb-quick-action-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--kb-radius-md);
+  background: transparent;
+  color: var(--kb-muted-foreground);
+  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+.topnav-action:hover {
+  background: var(--kb-muted);
+  color: var(--kb-foreground);
+}
+.topnav-action.is-active {
   background: var(--kb-primary-soft);
-  border-color: var(--kb-primary) !important;
+  border-color: var(--kb-primary);
+  color: var(--kb-primary);
+}
+.topnav-quick__primary { display: none; }
+@media (min-width: 1280px) {
+  .topnav-quick__primary { display: inline-flex; }
 }
 
 .user-menu-title {

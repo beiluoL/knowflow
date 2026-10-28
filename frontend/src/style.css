@@ -229,6 +229,21 @@
   --kb-sidebar-bottom-fs: var(--kb-fs-caption); /* 侧边栏底部文字 12px */
 
   /* =====================================================================
+   * UI/UX V1.0 — 全站视觉标准（导航节奏 / 页面留白 / 快捷入口）
+   * 只做语义收口，不新增第二套主题；旧 --kb-* 令牌继续有效。
+   * ===================================================================== */
+  --kb-icon-slot: var(--kb-icon-lg);          /* 导航/菜单图标固定容器 18px */
+  --kb-icon-slot-sm: var(--kb-icon-md);       /* 按钮/表单图标固定容器 16px */
+  --kb-nav-item-height: 38px;                 /* 一级导航项高度 */
+  --kb-nav-item-height-sm: 32px;              /* 二级导航项高度 */
+  --kb-nav-item-gap: 2px;                     /* 导航项之间的垂直节奏 */
+  --kb-page-padding-x: 24px;                  /* 内容区左右留白 */
+  --kb-page-padding-y: 24px;                  /* 内容区上下留白 */
+  --kb-quick-action-size: 36px;               /* 顶栏快捷入口统一热区 */
+  --kb-quick-action-gap: var(--kb-space-1);
+  --kb-content-reading: 72ch;                 /* 长文阅读宽度上限 */
+
+  /* =====================================================================
    * UI/UX 6.0 — Surface 层级令牌（减少 Card-in-Card）
    * 用于区分页面内的背景层级，避免到处用 Card 包裹造成视觉噪音。
    * - surface-0：页面背景（最底层）
@@ -1920,4 +1935,55 @@ html :is(input.kb-input,textarea.kb-input,textarea.kb-textarea):is([aria-invalid
   #app .te-page .kb-page-header h1 {
     white-space: normal;
   }
+}
+
+/* =====================================================================
+ * UI/UX V1.0 — 全站统一基线
+ * 1) 内容区留白：小屏 16 / 桌面 24 / 宽屏 32，避免页面顶部过高留白。
+ * 2) 图标基线：所有 Icon 统一 inline-block + vertical-align:middle，
+ *    从组件根解决「有的偏上有的偏下」，禁止页面里再写 top:-2px 补丁。
+ * 3) 页头节奏：标题 / 描述 / 操作区使用同一 8px 基线。
+ * ===================================================================== */
+@media (max-width: 639px) {
+  :root { --kb-page-padding-x: 16px; --kb-page-padding-y: 16px; }
+}
+@media (min-width: 1280px) {
+  :root { --kb-page-padding-x: 32px; --kb-page-padding-y: 28px; }
+}
+
+.kb-icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex: 0 0 auto;
+  line-height: 1;
+}
+.kb-icon.iconfont {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kb-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kb-space-2);
+  min-width: 0;
+}
+.kb-page-header__title {
+  font-size: var(--kb-fs-h2);
+  line-height: var(--kb-lh-h2);
+  font-weight: var(--kb-fw-h2);
+  color: var(--kb-foreground);
+  letter-spacing: -0.02em;
+}
+.kb-page-header__title--lg {
+  font-size: var(--kb-fs-h1);
+  line-height: var(--kb-lh-h1);
+}
+.kb-page-header__desc {
+  margin-top: var(--kb-space-1);
+  max-width: var(--kb-content-reading);
+  font-size: var(--kb-fs-body-md);
+  line-height: var(--kb-lh-body-md);
+  color: var(--kb-muted-foreground);
 }

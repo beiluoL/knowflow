@@ -16,6 +16,7 @@ export type AppCategory =
   | 'ORGANIZATION' // 整理
   | 'FOCUS' // 专注
   | 'CODING' // 实战
+  | 'PRODUCTIVITY' // 效率（任务 / 签到 / 习惯 / 日历 / 计划）
   | 'AI' // AI
 
 /**

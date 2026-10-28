@@ -1,7 +1,20 @@
 <template>
   <div class="tm-page">
-    <header class="tm-page-head"><div><h1>任务中心</h1><p>安排待办，执行学习任务；完成状态以服务端记录为准。</p></div><RouterLink to="/learning/today-plan" class="tm-plan-link">查看今日计划 <Icon name="arrow-right" :size="14" /></RouterLink></header>
-    <!-- 顶部模式切换：列表 / 四象限 / 看板 -->
+    <header class="tm-page-head">
+      <div class="tm-page-title">
+        <h1>任务中心</h1>
+        <p>安排待办，执行学习任务；完成状态以服务端记录为准。</p>
+      </div>
+      <div class="tm-page-actions">
+        <RouterLink to="/learning/today-plan" class="tm-plan-link">
+          <Icon name="calendar-check" :size="16" />
+          <span>今日计划</span>
+        </RouterLink>
+        <Button size="sm" variant="primary" icon-name="plus" @click="focusQuickAdd">新建任务</Button>
+      </div>
+    </header>
+
+    <!-- 工具栏：视图切换 + 当前列表搜索（始终可访问，不随列表滚动） -->
     <div class="tm-toolbar">
       <div class="tm-modes" role="group" aria-label="任务视图">
         <button class="tm-mode" :class="{ active: mode === 'list' }" :aria-pressed="mode === 'list'" @click="mode = 'list'">
@@ -14,6 +27,10 @@
           <Icon name="layout" :size="15" /> <span>看板</span>
         </button>
       </div>
+      <label v-if="mode === 'list'" class="tm-search">
+        <Icon name="search" :size="16" />
+        <input v-model="keyword" type="search" aria-label="搜索当前任务" placeholder="搜索当前列表标题或备注" />
+      </label>
     </div>
 
     <!-- 列表模式：保留原有左栏 + 任务树 -->
@@ -83,21 +100,23 @@
     <!-- 右栏：任务列表 -->
     <section class="tm-content">
       <header class="tm-content-head">
-        <div>
-          <h1 class="tm-h1">{{ currentTitle }}</h1>
-          <p class="tm-sub">
-            {{
-              viewMode === 'smart' && smart === 'logbook'
-                ? `已完成 ${flatten(tasks).filter(t => t.status === 1).length} 项`
-                : `共 ${openCount} 个未完成任务`
-            }}
-          </p>
+        <div class="tm-content-title">
+          <h2 class="tm-h1">{{ currentTitle }}</h2>
+          <span class="tm-count">{{ loading ? '…' : flatten(visibleTasks).length }} 项</span>
         </div>
+        <p class="tm-sub">
+          {{
+            viewMode === 'smart' && smart === 'logbook'
+              ? `已完成 ${flatten(tasks).filter(t => t.status === 1).length} 项`
+              : `共 ${openCount} 个未完成任务`
+          }}
+        </p>
       </header>
 
       <p v-if="auxError" class="tm-aux-error" role="alert">{{ auxError }} <button @click="reload">重试导航数据</button></p>
-      <label class="tm-search"><Icon name="search" :size="16" /><input class="kb-input kb-form-control" v-model="keyword" type="search" aria-label="搜索当前任务" placeholder="搜索当前列表标题或备注" /></label>
-      <p class="tm-sub" role="status" aria-live="polite">{{ loading ? '正在加载任务…' : error ? '任务加载中断' : `当前显示 ${flatten(visibleTasks).length} 项` }}</p>
+      <p class="tm-sub tm-status" role="status" aria-live="polite">
+        {{ loading ? '正在加载任务…' : error ? '任务加载中断' : keyword ? `筛选出 ${flatten(visibleTasks).length} 项` : '' }}
+      </p>
       <div v-if="loading" class="tm-loading" role="status">
         <Icon name="loader" :size="18" class="spin" /> 加载中…
       </div>
@@ -121,6 +140,7 @@
         <div v-if="viewMode !== 'tag' && !(viewMode === 'smart' && smart === 'logbook')" class="tm-add">
           <Icon name="plus" :size="15" style="color: var(--kb-muted-foreground);" />
           <input
+            ref="quickAddRef"
             v-model="newTitle"
             class="tm-add-input kb-input kb-form-control" aria-label="新任务标题" :disabled="creating"
             :placeholder="addPlaceholder"
@@ -139,7 +159,7 @@
 
 <script setup lang="ts">
 // Things3 式任务清单：左栏智能列表 + 清单/项目/领域，右栏任务树（勾选/内联编辑/子任务/安排/某天也许/删除）。
-import { ref, computed, onMounted, onBeforeUnmount, provide } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, provide, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import Button from '@/components/ui/Button.vue'
 import Icon from '@/components/ui/Icon.vue'
@@ -192,6 +212,7 @@ const creating = ref(false)
 const createError = ref('')
 const auxError = ref('')
 const keyword = ref('')
+const quickAddRef = ref<HTMLInputElement | null>(null)
 let taskRequest = 0
 const visibleTasks = computed(() => {
   const query = keyword.value.trim().toLocaleLowerCase()
@@ -422,6 +443,20 @@ async function addTask() {
   finally { creating.value = false }
 }
 
+/** 页面级「新建任务」：切到可新建的列表视图并聚焦底部快速输入，复用既有创建逻辑。 */
+async function focusQuickAdd() {
+  if (mode.value !== 'list') mode.value = 'list'
+  if (viewMode.value === 'tag') {
+    viewMode.value = 'smart'
+    smart.value = 'inbox'
+    selectedTagId.value = null
+    void loadTasks()
+  }
+  await nextTick()
+  quickAddRef.value?.scrollIntoView({ block: 'nearest' })
+  quickAddRef.value?.focus()
+}
+
 async function createList() {
   const name = await dialog.prompt({
     title: '新建清单',
@@ -469,51 +504,71 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* 页面容器：标题与工具栏不再被外层卡片包裹，只保留列表工作区一层表面 */
 .tm-page {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 104px);
+  height: calc(100vh - var(--kb-nav-height) - (var(--kb-page-padding-y) * 2));
+}
+
+/* ===== 顶部模式切换 + 搜索工具条 ===== */
+.tm-toolbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--kb-space-3);
+  padding-bottom: var(--kb-space-3);
+}
+.tm-modes { display: inline-flex; gap: 2px; background: var(--kb-muted); padding: 2px; border-radius: var(--kb-radius-md); }
+.tm-mode {
+  display: inline-flex; align-items: center; gap: 6px; height: 30px;
+  padding: 0 12px; border: none; background: transparent;
+  border-radius: var(--kb-radius-sm); cursor: pointer; font-size: var(--kb-fs-body-sm); font-weight: 500;
+  color: var(--kb-muted-foreground); transition: background 0.12s ease, color 0.12s ease;
+}
+.tm-mode:hover { color: var(--kb-foreground); }
+.tm-mode.active { background: var(--kb-card); color: var(--kb-primary); box-shadow: var(--shadow-sm); }
+
+/* 列表模式容器（左栏 + 右栏横向排列）：整页唯一的内容表面 */
+.tm-list-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
   background: var(--kb-card);
   border: 1px solid var(--kb-border);
-  border-radius: 14px;
+  border-radius: var(--kb-radius-lg);
   overflow: hidden;
 }
 
-/* ===== 顶部模式切换 ===== */
-.tm-toolbar { flex: 0 0 auto; padding: 12px 16px; border-bottom: 1px solid var(--kb-border); }
-.tm-modes { display: inline-flex; gap: 4px; background: var(--kb-muted); padding: 3px; border-radius: 10px; }
-.tm-mode {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 14px; border: none; background: transparent;
-  border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500;
-  color: var(--kb-muted-foreground); transition: all 0.12s ease;
-}
-.tm-mode:hover { color: var(--kb-foreground); }
-.tm-mode.active { background: var(--kb-card); color: var(--kb-primary); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); }
-
-/* 列表模式容器（左栏 + 右栏横向排列） */
-.tm-list-wrap { flex: 1 1 auto; min-height: 0; display: flex; }
-
 /* 四象限 / 看板特性视图容器 */
-.tm-feature { flex: 1 1 auto; min-height: 0; padding: 16px; }
+.tm-feature {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--kb-space-4);
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-lg);
+  overflow: auto;
+}
 
 /* ===== 左栏 ===== */
 .tm-side {
-  flex: 0 0 248px;
+  flex: 0 0 232px;
   border-right: 1px solid var(--kb-border);
-  padding: 16px 12px;
+  padding: var(--kb-space-3) var(--kb-space-2);
   overflow-y: auto;
   background: var(--kb-card);
 }
-.tm-side-section + .tm-side-section { margin-top: 18px; }
+.tm-side-section + .tm-side-section { margin-top: var(--kb-space-4); }
 .tm-side-title {
-  font-size: 11px;
+  font-size: var(--kb-fs-xs);
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--kb-muted-foreground);
   text-transform: uppercase;
-  padding: 0 8px 6px;
+  padding: 0 var(--kb-space-2) var(--kb-space-1);
 }
 .tm-side-head { display: flex; align-items: center; justify-content: space-between; }
 .tm-add-list {
@@ -522,7 +577,7 @@ onMounted(async () => {
   border: none;
   background: transparent;
   color: var(--kb-muted-foreground);
-  border-radius: 6px;
+  border-radius: var(--kb-radius-sm);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -533,32 +588,37 @@ onMounted(async () => {
 .tm-nav {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: var(--kb-space-2);
   width: 100%;
-  padding: 7px 8px;
-  margin-top: 2px;
+  height: 32px;
+  padding: 0 var(--kb-space-2);
+  margin-top: 1px;
   border: none;
   background: transparent;
-  border-radius: 8px;
+  border-radius: var(--kb-radius-sm);
   cursor: pointer;
   text-align: left;
   color: var(--kb-foreground);
   transition: background 0.12s ease;
 }
 .tm-nav:hover { background: var(--kb-muted); }
-.tm-nav.active { background: rgba(59, 111, 224, 0.1); }
-.tm-nav-label { flex: 1 1 auto; font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tm-nav.active { background: var(--kb-primary-subtle); }
+.tm-nav-label { flex: 1 1 auto; font-size: var(--kb-fs-body-sm); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tm-nav.active .tm-nav-label { color: var(--kb-primary); }
 .tm-nav-count {
   flex: 0 0 auto;
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 18px;
+  padding: 0 6px;
+  font-size: var(--kb-fs-xs);
   color: var(--kb-muted-foreground);
   background: var(--kb-muted);
-  border-radius: 999px;
-  min-width: 20px;
-  text-align: center;
-  padding: 1px 6px;
+  border-radius: var(--kb-radius-full);
 }
+.tm-nav.active .tm-nav-count { color: var(--kb-primary); background: var(--kb-primary-soft); }
 .tag-nav .tag-del {
   flex: 0 0 auto;
   width: 18px;
@@ -566,7 +626,7 @@ onMounted(async () => {
   border: none;
   background: transparent;
   color: var(--kb-muted-foreground);
-  border-radius: 4px;
+  border-radius: var(--kb-radius-xs);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -575,8 +635,8 @@ onMounted(async () => {
   transition: opacity 0.12s ease, color 0.12s ease;
 }
 .tag-nav:hover .tag-del { opacity: 0.7; }
-.tag-nav .tag-del:hover { opacity: 1; color: var(--kb-destructive); background: rgba(239, 68, 68, 0.1); }
-.tm-side-empty { font-size: 12px; color: var(--kb-muted-foreground); padding: 8px; line-height: 1.5; }
+.tag-nav .tag-del:hover { opacity: 1; color: var(--kb-destructive); background: var(--kb-danger-soft); }
+.tm-side-empty { font-size: var(--kb-fs-caption); color: var(--kb-muted-foreground); padding: var(--kb-space-2); line-height: 1.5; }
 
 /* ===== 右栏 ===== */
 .tm-content {
@@ -585,11 +645,19 @@ onMounted(async () => {
   flex-direction: column;
   min-width: 0;
   overflow-y: auto;
-  padding: 22px 26px;
+  padding: var(--kb-space-4) var(--kb-space-5);
 }
-.tm-content-head { margin-bottom: 14px; }
-.tm-h1 { font-size: 22px; font-weight: 700; color: var(--kb-foreground); }
-.tm-sub { font-size: 13px; color: var(--kb-muted-foreground); margin-top: 2px; }
+.tm-content-head { margin-bottom: var(--kb-space-3); display: flex; align-items: baseline; justify-content: space-between; gap: var(--kb-space-3); flex-wrap: wrap; }
+.tm-content-title { display: flex; align-items: center; gap: var(--kb-space-2); min-width: 0; }
+.tm-h1 { font-size: var(--kb-fs-h3); line-height: var(--kb-lh-h3); font-weight: var(--kb-fw-h3); color: var(--kb-foreground); }
+.tm-count {
+  display: inline-flex; align-items: center; height: 20px; padding: 0 8px;
+  border-radius: var(--kb-radius-full); background: var(--kb-muted);
+  color: var(--kb-muted-foreground); font-size: var(--kb-fs-xs); font-variant-numeric: tabular-nums;
+}
+.tm-sub { font-size: var(--kb-fs-body-sm); color: var(--kb-muted-foreground); margin-top: var(--kb-space-1); }
+.tm-status { min-height: 18px; margin: 0; }
+.tm-status:empty { display: none; }
 
 .tm-loading, .tm-error, .tm-empty {
   display: flex;
@@ -642,24 +710,52 @@ onMounted(async () => {
 
 /* 响应式：窄屏时左栏收窄 */
 @media (max-width: 720px) {
-  .tm-page { height: calc(100vh - 104px); flex-direction: column; }
-  .tm-side { flex: 0 0 auto; border-right: none; border-bottom: 1px solid var(--kb-border); display: flex; gap: 4px; overflow-x: auto; }
-  .tm-side-section { display: flex; gap: 4px; }
+  .tm-page { height: calc(100dvh - var(--kb-nav-height) - (var(--kb-page-padding-y) * 2)); flex-direction: column; }
+  .tm-side { flex: 0 0 auto; border-right: none; border-bottom: 1px solid var(--kb-border); display: flex; gap: 2px; overflow-x: auto; }
+  .tm-side-section { display: flex; gap: 2px; }
   .tm-side-title, .tm-side-head, .tm-side-empty { display: none; }
-  .tm-nav { width: auto; }
+  .tm-nav { width: auto; padding-inline: var(--kb-space-2); }
 }
 
-.tm-page-head { display:flex; align-items:center; justify-content:space-between; gap:var(--kb-space-4); flex-wrap:wrap; padding:var(--kb-space-5); border-bottom:1px solid var(--kb-border); }
-.tm-page-head h1 { font-size:var(--kb-fs-h2); font-weight:700; color:var(--kb-foreground); }
-.tm-page-head p { color:var(--kb-muted-foreground); font-size:var(--kb-fs-body-sm); margin-top:var(--kb-space-2); }
-.tm-plan-link { display:flex; align-items:center; gap:var(--kb-space-2); color:var(--kb-primary); font-size:var(--kb-fs-body-sm); }
-.tm-search { display:flex; align-items:center; gap:var(--kb-space-2); padding:var(--kb-space-3); border:1px solid var(--kb-border); border-radius:var(--kb-radius-md); background:var(--kb-card); margin-block:var(--kb-space-3); }
-.tm-search input, .tm-add-input { min-width:0; flex:1; background:transparent; color:var(--kb-foreground); outline:none; border:0; box-shadow:none; }
-.tm-aux-error { color:var(--kb-danger); font-size:var(--kb-fs-body-sm); margin-block:var(--kb-space-2); }
-.tag-nav-wrap { display:flex; align-items:center; }.tag-nav-wrap .tm-nav { min-width:0; }.tag-del { color:var(--kb-muted-foreground); }
-.tm-page :is(button,a,input):focus-visible:not(.kb-form-control, .kb-input, .kb-textarea, .kb-select, .kb-select-trigger) { outline:var(--kb-field-focus-width) solid var(--kb-ring); outline-offset:var(--kb-space-1); }
-@media(max-width:768px) { .tm-list-wrap { flex-direction:column; }.tm-side { width:100%; max-height:12rem; flex-shrink:0; border-right:0; border-bottom:1px solid var(--kb-border); }.tm-side-section { min-width:0; }.tm-content { padding:var(--kb-space-4); }.tm-add { flex-wrap:wrap; border: 0; } }
-@media(prefers-reduced-motion:reduce) { .tm-page * { transition:none; animation:none; } }
+.tm-page-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--kb-space-4); flex-wrap: wrap;
+  padding-bottom: var(--kb-space-3);
+}
+.tm-page-title h1 { font-size: var(--kb-fs-h1); line-height: var(--kb-lh-h1); font-weight: var(--kb-fw-h1); color: var(--kb-foreground); letter-spacing: -.02em; }
+.tm-page-title p { color: var(--kb-muted-foreground); font-size: var(--kb-fs-body-md); margin-top: var(--kb-space-1); }
+.tm-page-actions { display: flex; align-items: center; gap: var(--kb-space-2); padding-top: var(--kb-space-1); }
+.tm-plan-link { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 var(--kb-space-3); border-radius: var(--kb-radius-sm); color: var(--kb-primary); font-size: var(--kb-fs-body-sm); font-weight: 500; text-decoration: none; }
+.tm-plan-link:hover { background: var(--kb-primary-subtle); }
+.tm-search {
+  display: flex; align-items: center; gap: var(--kb-space-2);
+  width: 280px; height: 40px; padding: 0 var(--kb-space-3);
+  border: 0; border-radius: var(--kb-radius-md);
+  background: var(--kb-muted);
+  color: var(--kb-muted-foreground);
+}
+.tm-search:focus-within { background: var(--kb-field-active, var(--kb-muted)); }
+.tm-search input, .tm-add-input { min-width: 0; flex: 1; background: transparent; color: var(--kb-foreground); outline: none; border: 0; box-shadow: none; }
+.tm-search input::placeholder { color: var(--kb-muted-foreground); }
+.tm-aux-error { color: var(--kb-danger); font-size: var(--kb-fs-body-sm); margin-block: var(--kb-space-2); }
+.tag-nav-wrap { display: flex; align-items: center; }
+.tag-nav-wrap .tm-nav { min-width: 0; }
+.tag-del { color: var(--kb-muted-foreground); }
+.tm-page :is(button, a):focus-visible { outline: var(--kb-field-focus-width) solid var(--kb-ring); outline-offset: var(--kb-space-1); }
+@media (max-width: 720px) {
+  .tm-page-head { align-items: center; }
+  .tm-page-title p { font-size: var(--kb-fs-body-sm); }
+}
+@media (max-width: 768px) {
+  .tm-list-wrap { flex-direction: column; }
+  .tm-side { width: 100%; max-height: 12rem; flex-shrink: 0; border-right: 0; border-bottom: 1px solid var(--kb-border); }
+  .tm-side-section { min-width: 0; }
+  .tm-content { padding: var(--kb-space-4); }
+  .tm-add { flex-wrap: wrap; border: 0; }
+  .tm-search { width: 100%; }
+  .tm-toolbar { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { .tm-page * { transition: none; animation: none; } }
 </style>
 
 <style scoped>

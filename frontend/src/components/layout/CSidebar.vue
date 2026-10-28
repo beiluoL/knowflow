@@ -63,7 +63,7 @@
               :aria-current="isChildActive(child) ? 'page' : undefined"
               @click="$emit('navigate')"
             >
-              <Icon :name="child.icon" :size="16" class="csidebar-icon" />
+              <Icon :name="child.icon" :size="18" class="csidebar-icon" />
               <span class="csidebar-label">{{ child.label }}</span>
             </router-link>
           </div>
@@ -274,7 +274,10 @@ watch(
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: var(--kb-space-4) var(--kb-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--kb-nav-item-gap);
+  padding: var(--kb-space-3) var(--kb-space-2);
 }
 
 .csidebar-footer {
@@ -287,17 +290,18 @@ watch(
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--kb-space-3);
+  gap: 10px;
   width: 100%;
-  padding: var(--kb-space-3);
+  min-height: var(--kb-nav-item-height);
+  padding: 0 var(--kb-space-3);
   /* 3.3.1 §7：240px→64px 过渡期间裁掉溢出文字，避免内容“飞出”/闪烁 */
   overflow: hidden;
-  border-radius: var(--kb-radius-sm);
+  border-radius: var(--kb-radius-md);
   border: none;
   background: transparent;
   color: var(--kb-sidebar-foreground);
-  font-size: var(--kb-fs-body-sm);
-  font-weight: 500;
+  font-size: var(--kb-fs-body-md);
+  font-weight: var(--kb-fw-label);
   line-height: 1.4;
   text-align: left;
   text-decoration: none;
@@ -316,7 +320,9 @@ watch(
 }
 
 .csidebar-icon {
-  flex-shrink: 0;
+  width: var(--kb-icon-slot);
+  height: var(--kb-icon-slot);
+  flex: 0 0 var(--kb-icon-slot);
 }
 
 .csidebar-label {
@@ -367,16 +373,27 @@ watch(
 }
 
 .csidebar-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
   margin: 2px 0 6px;
-  padding-left: 12px;
+  padding-left: 8px;
   border-left: 1px solid var(--kb-border);
-  margin-left: 18px;
+  margin-left: 19px;
 }
 
 .csidebar-child {
-  padding: 6px 10px;
+  min-height: var(--kb-nav-item-height-sm);
+  padding: 0 var(--kb-space-2);
+  gap: 10px;
   font-weight: 400;
   color: var(--kb-muted-foreground);
+}
+
+.csidebar-child .csidebar-icon {
+  width: var(--kb-icon-md);
+  height: var(--kb-icon-md);
+  flex-basis: var(--kb-icon-md);
 }
 
 .csidebar-child:hover {
@@ -386,7 +403,7 @@ watch(
 /* 折叠态：图标居中，保证点击热区 */
 .csidebar.is-collapsed .csidebar-item {
   justify-content: center;
-  padding: 8px 0;
+  padding: 0;
 }
 
 .csidebar.is-collapsed .csidebar-sub {
@@ -396,7 +413,8 @@ watch(
 /* 折叠态图标 rail：单个 App 图标的点击热区，tooltip 由 :title 提供 */
 .csidebar-subrail-item {
   justify-content: center;
-  padding: 7px 0;
+  padding: 0;
+  min-height: 34px;
 }
 .csidebar-subrail-item .csidebar-label {
   display: none;

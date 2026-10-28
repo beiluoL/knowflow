@@ -30,13 +30,13 @@
           @keyup.enter="saveEdit"
           @blur="saveEdit"
         />
-        <div v-else class="tr-title" role="button" tabindex="0" :aria-label="`编辑任务标题：${task.title}`" @keydown.enter="startEdit" :class="{ done: task.status === 1 }" @dblclick="startEdit">
+        <div v-else class="tr-title" role="button" tabindex="0" :title="task.title" :aria-label="`编辑任务标题：${task.title}`" :class="{ done: task.status === 1 }" @keydown.enter="startEdit" @dblclick="startEdit">
           {{ task.title }}
         </div>
-        <span v-if="task.estimatedMinutes" class="tr-tag">预计 {{ task.estimatedMinutes }} 分钟</span>
-        <span v-if="pending" class="tr-tag" role="status">正在提交…</span>
-        <span v-else class="tr-tag">{{ task.status === 1 ? '已完成' : task.stage === 1 ? '进行中' : '待开始' }}</span>
-        <span v-if="task.important" class="tr-tag">重要</span><span v-if="task.urgent" class="tr-tag overdue">紧急</span>
+        <span v-if="pending" class="tr-status is-doing" role="status">正在提交…</span>
+        <span v-else class="tr-status" :class="statusInfo.cls">{{ statusInfo.label }}</span>
+        <span v-if="task.important" class="tr-tag is-important">重要</span>
+        <span v-if="task.urgent" class="tr-tag is-urgent">紧急</span>
         <span v-if="task.learningPlanRef" class="tr-tag" :title="task.learningPlanRef">来自学习计划</span>
         <TaskCompletionAction :requirement="task.completionRequirement" :title="task.title" />
         <!-- 标签 -->
@@ -46,17 +46,21 @@
           class="tr-chip"
           :style="{ color: tag.color, background: chipBg(tag.color) }"
         >{{ tag.name }}</span>
-        <!-- 计划日期 -->
-        <div v-if="task.scheduledDate && task.status !== 1" class="tr-tag">
-          <Icon name="calendar" :size="11" /> {{ task.scheduledDate }}
-        </div>
-        <!-- 截止日期 -->
-        <div v-if="task.dueDate && task.status !== 1" class="tr-tag" :class="{ overdue: isOverdue }">
-          <Icon name="flag" :size="11" /> {{ task.dueDate }}
-        </div>
-        <div v-else-if="task.someday && task.status !== 1" class="tr-tag someday">
-          <Icon name="cloud" :size="11" /> 某天也许
-        </div>
+        <!-- 时间 / 日期信息固定在行尾，避免随标签数量漂移 -->
+        <span class="tr-dates">
+          <span v-if="task.estimatedMinutes" class="tr-date">
+            <Icon name="timer" :size="11" />{{ task.estimatedMinutes }} 分钟
+          </span>
+          <span v-if="task.scheduledDate && task.status !== 1" class="tr-date">
+            <Icon name="calendar" :size="11" />{{ task.scheduledDate }}
+          </span>
+          <span v-if="task.dueDate && task.status !== 1" class="tr-date" :class="{ overdue: isOverdue }">
+            <Icon name="flag" :size="11" />{{ task.dueDate }}
+          </span>
+          <span v-else-if="task.someday && task.status !== 1" class="tr-date someday">
+            <Icon name="cloud" :size="11" />某天也许
+          </span>
+        </span>
       </div>
 
       <div class="tr-actions" :inert="pending || undefined">
@@ -117,6 +121,13 @@ const isToday = computed(() => !!props.task.scheduledDate && props.task.schedule
 const isOverdue = computed(() => {
   if (!props.task.dueDate) return false
   return props.task.dueDate < todayStr()
+})
+/** 状态只用文字 + 浅色标签表达，不新造后端状态。 */
+const statusInfo = computed(() => {
+  if (props.task.status === 1) return { label: '已完成', cls: 'is-done' }
+  if (isOverdue.value) return { label: '已延期', cls: 'is-overdue' }
+  if (props.task.stage === 1) return { label: '进行中', cls: 'is-doing' }
+  return { label: '待开始', cls: 'is-todo' }
 })
 
 async function toggle() {
@@ -299,10 +310,11 @@ function chipBg(color: string): string {
 .tr-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 38px;
-  padding-right: 12px;
-  border-radius: 8px;
+  gap: var(--kb-space-2);
+  min-height: 46px;
+  padding-right: var(--kb-space-3);
+  border-bottom: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-sm);
   transition: background 0.12s ease;
 }
 .tr-row:hover { background: var(--kb-muted); }
@@ -312,14 +324,15 @@ function chipBg(color: string): string {
   flex: 0 0 auto;
   width: 14px;
   color: var(--kb-muted-foreground);
-  opacity: 0.4;
+  opacity: 0;
   cursor: grab;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: opacity 0.12s ease;
 }
+.tr-row:hover .tr-grip, .tr-row:focus-within .tr-grip { opacity: 0.5; }
 .tr-grip:active { cursor: grabbing; }
-.tr-row:hover .tr-grip { opacity: 0.8; }
 
 .tr-check {
   flex: 0 0 auto;
@@ -332,7 +345,7 @@ function chipBg(color: string): string {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 .tr-check:hover { border-color: var(--kb-primary); }
 .tr-check.done {
@@ -340,17 +353,22 @@ function chipBg(color: string): string {
   border-color: var(--kb-primary);
 }
 
-.tr-body { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.tr-body { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
 .tr-title {
-  font-size: 14px;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 52%;
+  font-size: var(--kb-fs-body-md);
   color: var(--kb-foreground);
-  line-height: 1.4;
+  line-height: 1.45;
   cursor: text;
-  word-break: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .tr-title.done { color: var(--kb-muted-foreground); text-decoration: line-through; }
 .tr-edit:not(.kb-form-control) {
-  border-radius: 6px;
+  border-radius: var(--kb-radius-sm);
   border: 1px solid var(--kb-primary);
   background: var(--kb-card);
   outline: none;
@@ -358,31 +376,69 @@ function chipBg(color: string): string {
 .tr-edit {
   flex: 1 1 auto;
   min-width: 120px;
-  font-size: 14px;
+  font-size: var(--kb-fs-body-md);
   padding: 4px 8px;
   color: var(--kb-foreground);
 }
 .tr-chip {
   display: inline-flex;
   align-items: center;
-  font-size: 11px;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--kb-fs-xs);
   font-weight: 600;
   padding: 1px 8px;
-  border-radius: 999px;
+  border-radius: var(--kb-radius-full);
   white-space: nowrap;
 }
+.tr-status {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: var(--kb-radius-full);
+  font-size: var(--kb-fs-xs);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.tr-status.is-todo { background: var(--kb-muted); color: var(--kb-muted-foreground); }
+.tr-status.is-doing { background: var(--kb-primary-subtle); color: var(--kb-primary); }
+.tr-status.is-done { background: var(--kb-success-soft); color: var(--kb-success); }
+.tr-status.is-overdue { background: var(--kb-danger-soft); color: var(--kb-destructive); }
+
 .tr-tag {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  font-size: 11px;
+  height: 20px;
+  padding: 0 7px;
+  font-size: var(--kb-fs-xs);
   color: var(--kb-muted-foreground);
-  padding: 1px 7px;
-  border-radius: 999px;
+  border-radius: var(--kb-radius-full);
   background: var(--kb-muted);
+  white-space: nowrap;
 }
-.tr-tag.overdue { color: var(--kb-destructive); background: rgba(239,68,68,0.1); font-weight: 600; }
-.tr-tag.someday { color: #8B5CF6; background: rgba(139, 92, 246, 0.1); }
+.tr-tag.is-important { color: var(--kb-warning); background: var(--kb-warning-soft); }
+.tr-tag.is-urgent { color: var(--kb-destructive); background: var(--kb-danger-soft); font-weight: 600; }
+
+/* 行尾时间与日期：固定位置，不与标题、标签争夺空间 */
+.tr-dates {
+  flex: 0 0 auto;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--kb-space-2);
+  font-size: var(--kb-fs-xs);
+  color: var(--kb-muted-foreground);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.tr-date { display: inline-flex; align-items: center; gap: 3px; }
+.tr-date.overdue { color: var(--kb-destructive); font-weight: 600; }
+.tr-date.someday { color: var(--kb-accent); }
 
 .tr-actions {
   flex: 0 0 auto;
@@ -414,5 +470,5 @@ function chipBg(color: string): string {
 
 .tr-body { min-width:0; }.tr-title { overflow-wrap:anywhere; }.tr-check:disabled { opacity:.6; cursor:wait; }
 .tr-node :is(button,input,[role="button"]):focus-visible:not(.kb-form-control, .kb-input, .kb-textarea, .kb-select, .kb-select-trigger) { outline:var(--kb-field-focus-width) solid var(--kb-ring); outline-offset:var(--kb-space-1); }
-@media(max-width:768px) { .tr-row { flex-wrap:wrap; padding-block:var(--kb-space-3); }.tr-actions { width:100%; justify-content:flex-end; opacity:1; visibility:visible; }.tr-body { flex:1; }.tr-actions button { min-width:var(--kb-btn-height-sm); min-height:var(--kb-btn-height-sm); } }
+@media(max-width:768px) { .tr-row { flex-wrap:wrap; padding-block:var(--kb-space-3); }.tr-actions { width:100%; justify-content:flex-end; opacity:1; visibility:visible; }.tr-body { flex:1; flex-wrap:wrap; }.tr-title { max-width:100%; flex:1 1 100%; white-space:normal; }.tr-dates { margin-left:0; }.tr-actions button { min-width:var(--kb-btn-height-sm); min-height:var(--kb-btn-height-sm); } }
 </style>

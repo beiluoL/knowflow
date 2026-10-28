@@ -521,7 +521,7 @@ function goLearn(): void {
 .app-center {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--kb-space-4);
 }
 
 .tabs {
@@ -555,7 +555,7 @@ function goLearn(): void {
 .group {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--kb-space-3);
 }
 .group-head {
   display: flex;
@@ -590,7 +590,7 @@ function goLearn(): void {
 .app-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--kb-space-3);
 }
 .app-row {
   display: flex;
@@ -690,7 +690,7 @@ function goLearn(): void {
 .app-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 14px;
+  gap: var(--kb-space-4);
 }
 
 /* 付费精选 */
@@ -704,8 +704,9 @@ function goLearn(): void {
   margin-bottom: 12px;
 }
 .featured-title {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: var(--kb-fs-h4);
+  line-height: var(--kb-lh-h4);
+  font-weight: var(--kb-fw-h4);
   color: var(--kb-foreground);
 }
 .featured-hint {
@@ -715,7 +716,7 @@ function goLearn(): void {
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 14px;
+  gap: var(--kb-space-4);
 }
 .product-wrap {
   display: flex;

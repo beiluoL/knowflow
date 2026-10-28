@@ -62,12 +62,13 @@ function onClick(event: MouseEvent) {
 .chat-markdown :deep(:is(h1, h2, h3, h4)) {
   margin: 1.35em 0 0.6em;
   line-height: 1.35;
-  font-weight: 650;
+  font-weight: var(--kb-fw-h3);
   letter-spacing: -0.01em;
 }
-.chat-markdown :deep(h1) { font-size: 1.45em; }
-.chat-markdown :deep(h2) { font-size: 1.25em; }
-.chat-markdown :deep(h3) { font-size: 1.1em; }
+/* UI/UX V1.0：AI 正文标题改走语义字号令牌，不再用 1.45em/1.25em 等非阶梯值 */
+.chat-markdown :deep(h1) { font-size: var(--kb-fs-h3); }
+.chat-markdown :deep(h2) { font-size: var(--kb-fs-h4); }
+.chat-markdown :deep(h3) { font-size: var(--kb-fs-body-lg); }
 .chat-markdown :deep(h4) { font-size: 1em; }
 .chat-markdown :deep(:is(ul, ol)) {
   margin: 0.5em 0 0.9em;

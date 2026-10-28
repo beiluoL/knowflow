@@ -1,16 +1,16 @@
 <template>
   <div class="today-plan animate-fade-in">
-    <!-- UI/UX 5.1 §十二：PageHeader 的副标题统一走 `description`。
-         旧写法 `:subtitle` / `icon` 在本组件里**并不存在**，会被当作普通 DOM 属性渲染，
-         结果就是「今日计划」下方那句说明从来没显示出来。 -->
     <PageHeader
       title="今日计划"
       :description="subtitleText"
-      back
     >
       <template #actions>
         <div class="today-plan-actions">
-          <span class="today-plan-date"><Icon name="calendar" :size="14" />{{ plan?.date || '服务端今日' }}</span>
+          <span class="today-plan-date"><Icon name="calendar" :size="16" />{{ plan?.date || '服务端今日' }}</span>
+          <RouterLink to="/tasks" class="today-plan-all">
+            <Icon name="list" :size="14" />
+            查看全部任务
+          </RouterLink>
           <Button
             variant="secondary"
             size="sm"
@@ -21,7 +21,7 @@
             生成下周计划
           </Button>
           <Button
-            variant="primary"
+            variant="secondary"
             size="sm"
             :loading="exporting"
             @click="handleExport"
@@ -77,104 +77,117 @@
         </Button>
       </template>
 
-      <!-- Ready 态内容 -->
-      <div class="today-plan-overview">
-        <StatCard
-          class="today-plan-progress-card"
-          layout="horizontal"
-          icon="target"
-          label="今日完成度"
-          :value="displayRatio"
-          unit="%"
-        >
-          <div class="today-plan-subhint">
-            已完成 {{ plan?.completedItems ?? 0 }} / {{ plan?.totalItems ?? 0 }} 项
-          </div>
-          <Progress
-            :percentage="displayRatio"
-            variant="primary"
-            label="完成进度"
-            :show-label="true"
-            class="today-plan-progress"
-          />
-        </StatCard>
+      <!-- Ready 态：左侧时间线 + 右侧今日概览 -->
+      <div class="plan-layout">
+        <div class="plan-main">
+          <section
+            v-for="block in (plan?.blocks ?? defaultBlocks)"
+            :key="block.timeSlot"
+            class="plan-block"
+            :class="`block-${block.timeSlot}`"
+          >
+            <header class="plan-block-head">
+              <div class="plan-block-title">
+                <span class="plan-block-icon">
+                  <Icon :name="slotIcon(block.timeSlot)" :size="16" />
+                </span>
+                <div class="plan-block-name-wrap">
+                  <h2 class="plan-block-name">{{ slotName(block) }}</h2>
+                  <span class="plan-block-time">
+                    {{ block.startTime ?? slotDefaultStart(block.timeSlot) }} – {{ block.endTime ?? slotDefaultEnd(block.timeSlot) }}
+                  </span>
+                </div>
+              </div>
+              <span class="plan-block-count" :class="{ complete: block.items.length > 0 && completedCount(block) === block.items.length }">
+                {{ completedCount(block) }}/{{ block.items.length }}
+              </span>
+            </header>
 
-        <div class="today-plan-meta">
-          <div class="today-plan-meta-row">
-            <Icon name="calendar-check" :size="14" />
-            <span>计划日期：<b>{{ plan?.date ?? todayStr }}</b></span>
-          </div>
-          <div class="today-plan-meta-row">
-            <Icon name="layers" :size="14" />
-            <span>
-              {{ summaryMorning() }} · {{ summaryAfternoon() }} · {{ summaryEvening() }}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="today-plan-blocks">
-        <div
-          v-for="block in (plan?.blocks ?? defaultBlocks)"
-          :key="block.timeSlot"
-          class="today-plan-block"
-          :class="`block-${block.timeSlot}`"
-        >
-          <div class="block-header">
-            <div class="block-title-wrap">
-              <span class="block-emo">{{ slotEmoji(block.timeSlot) }}</span>
-              <h3 class="block-title">{{ block.label ?? slotDefaultLabel(block.timeSlot) }}</h3>
+            <div v-if="!block.items.length" class="plan-block-empty">
+              <Icon name="coffee" :size="16" />
+              <span>本段留白，可自由安排。</span>
             </div>
-            <Badge :variant="badgeVariant(block)">
-              {{ completedCount(block) }}/{{ block.items.length }}
-            </Badge>
-          </div>
-          <div class="block-time">
-            <Icon name="clock" :size="12" />
-            <span>{{ block.startTime ?? slotDefaultStart(block.timeSlot) }} – {{ block.endTime ?? slotDefaultEnd(block.timeSlot) }}</span>
-          </div>
-
-          <div v-if="!block.items.length" class="block-empty">
-            <Icon name="coffee" :size="16" />
-            <span>本段留白，可自由安排。</span>
-          </div>
-          <ul v-else class="block-items">
-            <li
-              v-for="(item, i) in block.items"
-              :key="`${block.timeSlot}-${i}-${item.type}-${itemId(item)}`"
-              class="block-item"
-              :class="{ 'item-done': item.completed }"
-            >
-              <Checkbox
-                :model-value="!!item.completed"
-                :disabled="updating || !!item._loading || !!item.completionRequirement || !['learningTask','todo','habit'].includes(item.type)"
-                class="item-check"
-                @change="(v: boolean) => toggleItem(item, v, block)"
+            <ul v-else class="plan-items">
+              <li
+                v-for="(item, i) in block.items"
+                :key="`${block.timeSlot}-${i}-${item.type}-${itemId(item)}`"
+                class="plan-item"
+                :class="{ 'item-done': item.completed, current: nextItem === item }"
               >
-                <span class="item-left">
-                  <span
-                    class="item-type-tag"
-                    :class="`tag-${item.type}`"
-                  >
-                    <Icon :name="typeIcon(item.type)" :size="12" />
-                    <span>{{ typeLabel(item.type) }}</span>
+                <Checkbox
+                  :model-value="!!item.completed"
+                  :disabled="updating || !!item._loading || !!item.completionRequirement || !['learningTask','todo','habit'].includes(item.type)"
+                  class="item-check"
+                  @change="(v: boolean) => toggleItem(item, v, block)"
+                >
+                  <span class="item-main">
+                    <span class="item-title">{{ item.title }}</span>
+                    <span class="item-sub">
+                      <span
+                        class="item-type-tag"
+                        :class="`tag-${item.type}`"
+                      >
+                        <Icon :name="typeIcon(item.type)" :size="12" />
+                        <span>{{ typeLabel(item.type) }}</span>
+                      </span>
+                      <span v-if="item.startTime" class="item-time">
+                        {{ item.startTime }}{{ item.endTime ? `–${item.endTime}` : '' }}
+                      </span>
+                      <span v-if="item.duration" class="item-dur">
+                        <Icon name="timer" :size="12" />
+                        {{ item.duration }} 分钟
+                      </span>
+                      <span v-if="nextItem === item" class="item-current-flag">下一项</span>
+                    </span>
                   </span>
-                  <span class="item-title">{{ item.title }}</span>
-                </span>
-                <span class="item-meta">
-                  <span v-if="item.startTime" class="item-time">
-                    {{ item.startTime }}{{ item.endTime ? `–${item.endTime}` : '' }}
-                  </span>
-                  <span v-if="item.duration" class="item-dur">
-                    <Icon name="timer" :size="12" />
-                    {{ item.duration }}min
-                  </span>
-                </span>
-              </Checkbox>
-              <TaskCompletionAction :requirement="item.completionRequirement" :title="item.title" />
-            </li>
-          </ul>
+                </Checkbox>
+                <TaskCompletionAction :requirement="item.completionRequirement" :title="item.title" />
+              </li>
+            </ul>
+          </section>
         </div>
+
+        <aside class="plan-side" aria-label="今日概览">
+          <section class="plan-side-card">
+            <h2 class="plan-side-title">今日进度</h2>
+            <div class="plan-progress-head">
+              <span class="plan-progress-value">{{ displayRatio }}<small>%</small></span>
+              <span class="plan-progress-count">已完成 {{ plan?.completedItems ?? 0 }} / {{ plan?.totalItems ?? 0 }} 项</span>
+            </div>
+            <Progress
+              :percentage="displayRatio"
+              variant="primary"
+              label="完成进度"
+            />
+            <dl class="plan-stats">
+              <div>
+                <dt>待完成</dt>
+                <dd>{{ remaining }} 项</dd>
+              </div>
+              <div>
+                <dt>计划时长</dt>
+                <dd>{{ totalMinutes ? `${totalMinutes} 分钟` : '未估算' }}</dd>
+              </div>
+            </dl>
+            <p class="plan-slot-summary">{{ summaryMorning() }} · {{ summaryAfternoon() }} · {{ summaryEvening() }}</p>
+          </section>
+
+          <section class="plan-side-card">
+            <h2 class="plan-side-title">下一项</h2>
+            <div v-if="nextItem" class="plan-next">
+              <span class="plan-next-title">{{ nextItem.title }}</span>
+              <span class="plan-next-meta">
+                <span class="item-type-tag" :class="`tag-${nextItem.type}`">
+                  <Icon :name="typeIcon(nextItem.type)" :size="12" />
+                  <span>{{ typeLabel(nextItem.type) }}</span>
+                </span>
+                <span v-if="nextItem.startTime" class="item-time">{{ nextItem.startTime }}</span>
+                <span v-if="nextItem.duration" class="item-dur">{{ nextItem.duration }} 分钟</span>
+              </span>
+            </div>
+            <p v-else class="plan-next-empty">今天的任务都已完成。</p>
+          </section>
+        </aside>
       </div>
     </StateView>
   </div>
@@ -193,9 +206,7 @@ import Button from '@/components/ui/Button.vue'
 import Icon from '@/components/ui/Icon.vue'
 import StateView from '@/components/ui/StateView.vue'
 import Checkbox from '@/components/ui/Checkbox.vue'
-import Badge from '@/components/ui/Badge.vue'
 import Progress from '@/components/ui/Progress.vue'
-import StatCard from '@/components/ui/StatCard.vue'
 import { learningApi } from '@/api/learning'
 import { setTaskStatus } from '@/api/task'
 import TaskCompletionAction from '@/components/learning-actions/TaskCompletionAction.vue'
@@ -217,9 +228,9 @@ let planRequest = 0
 
 // 默认空 block（在 empty/loading 下展示骨架结构，便于 TDD 类型）
 const defaultBlocks: PlanBlockVO[] = [
-  { timeSlot: 'morning', label: '上午 🌅', startTime: '07:00', endTime: '12:00', items: [] },
-  { timeSlot: 'afternoon', label: '下午 ☀️', startTime: '13:00', endTime: '18:00', items: [] },
-  { timeSlot: 'evening', label: '晚间 🌙', startTime: '19:00', endTime: '23:00', items: [] },
+  { timeSlot: 'morning', label: '上午', startTime: '07:00', endTime: '12:00', items: [] },
+  { timeSlot: 'afternoon', label: '下午', startTime: '13:00', endTime: '18:00', items: [] },
+  { timeSlot: 'evening', label: '晚间', startTime: '19:00', endTime: '23:00', items: [] },
 ]
 
 const subtitleText = computed(() => {
@@ -242,18 +253,29 @@ const displayRatio = computed(() => {
   return Math.max(0, Math.min(100, Math.round(raw)))
 })
 
+// 右侧概览使用的派生数据：全部来自服务端计划项，不伪造推荐。
+const allItems = computed(() => (plan.value?.blocks ?? []).flatMap((b) => b.items))
+const totalMinutes = computed(() => allItems.value.reduce((sum, it) => sum + (it.duration ?? 0), 0))
+const remaining = computed(() => Math.max((plan.value?.totalItems ?? 0) - (plan.value?.completedItems ?? 0), 0))
+const nextItem = computed(() => allItems.value.find((it) => !it.completed) ?? null)
+
 // -------- Helpers --------
-function slotDefaultLabel(slot: string) {
-  if (slot === 'morning') return '上午 🌅'
-  if (slot === 'afternoon') return '下午 ☀️'
-  if (slot === 'evening') return '晚间 🌙'
-  return slot
+const EMOJI_PATTERN = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu
+
+/** 时间段名称：优先用服务端 label，去掉历史遗留的重复 Emoji。 */
+function slotName(block: PlanBlockVO) {
+  const label = (block.label || '').replace(EMOJI_PATTERN, '').trim()
+  if (label) return label
+  if (block.timeSlot === 'morning') return '上午'
+  if (block.timeSlot === 'afternoon') return '下午'
+  if (block.timeSlot === 'evening') return '晚间'
+  return block.timeSlot
 }
-function slotEmoji(slot: string) {
-  if (slot === 'morning') return '🌅'
-  if (slot === 'afternoon') return '☀️'
-  if (slot === 'evening') return '🌙'
-  return '📅'
+/** 每个时间段只保留一个语义图标，不再重复装饰 Emoji。 */
+function slotIcon(slot: string) {
+  if (slot === 'morning') return 'coffee'
+  if (slot === 'evening') return 'moon'
+  return 'sun'
 }
 function slotDefaultStart(slot: string) {
   if (slot === 'morning') return '07:00'
@@ -266,7 +288,7 @@ function slotDefaultEnd(slot: string) {
   return '23:00'
 }
 function typeIcon(type: string) {
-  if (type === 'habit') return 'activity'
+  if (type === 'habit') return 'repeat'
   if (type === 'todo') return 'check-square'
   return 'book-open'
 }
@@ -277,12 +299,6 @@ function typeLabel(type: string) {
 }
 function completedCount(block: PlanBlockVO) {
   return block.items.filter((it) => it.completed).length
-}
-function badgeVariant(block: PlanBlockVO): 'primary' | 'success' | 'warning' | 'danger' | 'default' {
-  if (!block.items.length) return 'default'
-  if (completedCount(block) === block.items.length) return 'success'
-  if (completedCount(block) === 0) return 'warning'
-  return 'primary'
 }
 function summaryMorning() {
   const b = (plan.value?.blocks ?? []).find((x) => x.timeSlot === 'morning')
@@ -386,20 +402,18 @@ onMounted(loadPlan)
 
 <style scoped>
 .today-plan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kb-space-4);
   width: 100%;
-  max-width: none;
-  margin-inline: 0;
-  padding: var(--kb-space-6);
-
   min-width: 0;
-  padding-inline: 0;
-  padding-top: 0;
+  padding-bottom: var(--kb-space-4);
 }
 
 .today-plan-actions {
   display: flex;
   align-items: center;
-  gap: var(--kb-space-3);
+  gap: var(--kb-space-2);
   flex-wrap: wrap;
   justify-content: flex-end;
 }
@@ -408,202 +422,306 @@ onMounted(loadPlan)
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 10px;
-  border: 1px solid var(--kb-border);
-  background: var(--kb-card);
+  height: 32px;
+  padding: 0 10px;
   border-radius: var(--kb-radius-md);
+  background: var(--kb-muted);
   color: var(--kb-muted-foreground);
   font-size: var(--kb-fs-body-sm);
+  font-variant-numeric: tabular-nums;
 }
-.today-plan-date input[type="date"] {
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--kb-foreground);
+.today-plan-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: var(--kb-radius-md);
+  color: var(--kb-primary);
   font-size: var(--kb-fs-body-sm);
-  color-scheme: light dark;
+  text-decoration: none;
+  white-space: nowrap;
 }
+.today-plan-all:hover { background: var(--kb-primary-soft); }
 .today-plan-link {
   color: var(--kb-primary);
   text-decoration: none;
 }
 .today-plan-link:hover { text-decoration: underline; }
 
-.today-plan-overview {
+/* 时间线 + 概览侧栏：桌面约 2:1，时间段内容自适应高度，不再三列等高。 */
+.plan-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
   gap: var(--kb-space-4);
-  margin: var(--kb-space-5) 0 var(--kb-space-4);
+  align-items: start;
 }
-.today-plan-subhint {
-  margin-top: var(--kb-space-2);
-  font-size: var(--kb-fs-body-sm);
-  color: var(--kb-muted-foreground);
-}
-.today-plan-progress-card { padding: var(--kb-space-4); }
-.today-plan-progress { margin-top: var(--kb-space-3); }
-.today-plan-meta {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--kb-space-3);
-  padding: var(--kb-space-4);
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
-}
-.today-plan-meta-row {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--kb-space-2);
-  color: var(--kb-foreground);
-  font-size: var(--kb-fs-body-md);
-}
-
-.today-plan-blocks {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--kb-space-4);
-}
-.today-plan-block {
-  background: var(--kb-card);
-  border: 1px solid var(--kb-border);
-  border-radius: var(--kb-radius-lg);
-  padding: var(--kb-space-4);
+.plan-main {
   display: flex;
   flex-direction: column;
   gap: var(--kb-space-3);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  min-width: 0;
 }
-.today-plan-block:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--kb-primary) 30%, var(--kb-border));
-  box-shadow: var(--kb-shadow-sm);
+.plan-block {
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-lg);
+  overflow: hidden;
 }
-.block-morning {
-  border-top: 3px solid color-mix(in oklab, var(--kb-warning) 70%, transparent);
-}
-.block-afternoon {
-  border-top: 3px solid color-mix(in oklab, var(--kb-primary) 70%, transparent);
-}
-.block-evening {
-  border-top: 3px solid color-mix(in oklab, var(--kb-accent) 70%, transparent);
-}
-
-.block-header {
+.plan-block-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--kb-space-3);
+  padding: 10px var(--kb-space-4);
 }
-.block-title-wrap {
+.plan-block-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.plan-block-icon {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--kb-radius-sm);
+  background: var(--kb-muted);
+  color: var(--kb-muted-foreground);
 }
-.block-emo { font-size: var(--kb-fs-h3); }
-.block-title {
+.block-morning .plan-block-icon { background: var(--kb-warning-soft); color: var(--kb-warning); }
+.block-afternoon .plan-block-icon { background: var(--kb-primary-soft); color: var(--kb-primary); }
+.block-evening .plan-block-icon { background: var(--kb-muted); color: var(--kb-muted-foreground); }
+.plan-block-name-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.plan-block-name {
   margin: 0;
-  font-size: var(--kb-fs-body-lg);
+  font-size: var(--kb-fs-h4);
+  line-height: 1.3;
   font-weight: 600;
   color: var(--kb-foreground);
 }
-.block-time {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.plan-block-time {
   font-size: var(--kb-fs-caption);
   color: var(--kb-muted-foreground);
+  font-variant-numeric: tabular-nums;
 }
-.block-empty {
+.plan-block-count {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--kb-muted);
+  color: var(--kb-muted-foreground);
+  font-size: var(--kb-fs-caption);
+  font-variant-numeric: tabular-nums;
+}
+.plan-block-count.complete { background: var(--kb-success-soft); color: var(--kb-success); }
+.plan-block-empty {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
-  padding: var(--kb-space-4) var(--kb-space-3);
-  border-radius: var(--kb-radius-md);
-  background: var(--kb-muted);
+  padding: 12px var(--kb-space-4);
+  border-top: 1px solid var(--kb-border);
   color: var(--kb-muted-foreground);
   font-size: var(--kb-fs-body-sm);
 }
-.block-items {
+.plan-items {
   list-style: none;
-  padding: 0;
   margin: 0;
+  padding: 0;
+}
+.plan-item {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
   gap: var(--kb-space-2);
+  padding: 10px var(--kb-space-4);
+  border-top: 1px solid var(--kb-border);
+  transition: background-color 0.15s ease;
 }
-.block-item {
-  border-radius: var(--kb-radius-md);
-  border: 1px solid var(--kb-border);
-  padding: var(--kb-space-2) var(--kb-space-3);
-  background: var(--kb-card);
-  transition: border-color 0.15s ease, background 0.15s ease;
+.plan-item:hover { background: color-mix(in oklab, var(--kb-muted) 45%, var(--kb-card)); }
+/* 当前任务只用浅蓝底 + 左侧强调条，不使用整块高饱和背景。 */
+.plan-item.current {
+  background: var(--kb-primary-subtle);
+  box-shadow: inset 3px 0 0 var(--kb-primary);
 }
-.block-item:hover {
-  border-color: color-mix(in oklab, var(--kb-primary) 35%, var(--kb-border));
-  background: var(--kb-accent);
+/* 任务行：Checkbox + 标题主体 + 类型/时间/耗时，轻分割线，无整块高饱和底色。 */
+.item-check {
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: flex-start;
+  gap: var(--kb-space-3);
+  padding: 0;
 }
 .item-check .kb-checkbox-label {
-  width: 100%;
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.item-title {
+  font-size: var(--kb-fs-body-md);
+  line-height: 1.45;
+  color: var(--kb-foreground);
+  overflow-wrap: anywhere;
+}
+.item-sub {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--kb-space-3);
-}
-.item-left {
-  display: inline-flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: var(--kb-space-2);
-  min-width: 0;
-  flex: 1 1 auto;
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-muted-foreground);
+  font-variant-numeric: tabular-nums;
 }
 .item-type-tag {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: var(--kb-fs-xs);
-  padding: 2px 8px;
+  gap: 3px;
+  padding: 1px 6px;
   border-radius: 999px;
+  font-size: var(--kb-fs-xs);
   font-weight: 500;
+  line-height: 1.5;
   white-space: nowrap;
 }
-.tag-learningTask {
-  background: color-mix(in oklab, var(--kb-primary) 18%, transparent);
-  color: var(--kb-primary);
-}
-.tag-todo {
-  background: color-mix(in oklab, var(--kb-accent-blue, var(--kb-primary)) 18%, transparent);
-  color: var(--kb-accent-blue, #0284c7);
-}
-.tag-habit {
-  background: color-mix(in oklab, var(--kb-success) 18%, transparent);
-  color: var(--kb-success);
-}
-.item-title {
-  font-size: var(--kb-fs-body-md);
-  color: var(--kb-foreground);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.item-meta {
+.tag-learningTask { background: var(--kb-primary-soft); color: var(--kb-primary); }
+.tag-todo { background: var(--kb-muted); color: var(--kb-muted-foreground); }
+.tag-habit { background: var(--kb-success-soft); color: var(--kb-success); }
+.item-time,
+.item-dur { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+.item-current-flag {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--kb-primary-soft);
+  color: var(--kb-primary);
+  font-size: var(--kb-fs-xs);
+  font-weight: 600;
+}
+.item-done .item-title {
   color: var(--kb-muted-foreground);
-  font-size: var(--kb-fs-caption);
+  text-decoration: line-through;
+}
+:deep(.task-completion-action) { flex-basis: 100%; }
+
+/* 右侧今日概览 */
+.plan-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kb-space-3);
+  min-width: 0;
+}
+.plan-side-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kb-space-3);
+  padding: var(--kb-space-4);
+  background: var(--kb-card);
+  border: 1px solid var(--kb-border);
+  border-radius: var(--kb-radius-lg);
+}
+.plan-side-title {
+  margin: 0;
+  font-size: var(--kb-fs-body-md);
+  font-weight: 600;
+  color: var(--kb-foreground);
+}
+.plan-progress-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--kb-space-3);
+}
+.plan-progress-value {
+  font-size: var(--kb-fs-h1);
+  line-height: 1.1;
+  font-weight: 600;
+  color: var(--kb-foreground);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.item-dur { display: inline-flex; align-items: center; gap: 3px; }
-
-.item-done .item-title {
-  text-decoration: line-through;
+.plan-progress-value small {
+  margin-left: 1px;
+  font-size: var(--kb-fs-body-md);
+  font-weight: 500;
+  color: var(--kb-muted-foreground);
+}
+.plan-progress-count {
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-muted-foreground);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.plan-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--kb-space-2);
+  margin: 0;
+  padding-top: var(--kb-space-3);
+  border-top: 1px solid var(--kb-border);
+}
+.plan-stats > div { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.plan-stats dt { font-size: var(--kb-fs-caption); color: var(--kb-muted-foreground); }
+.plan-stats dd {
+  margin: 0;
+  font-size: var(--kb-fs-body-sm);
+  font-weight: 500;
+  color: var(--kb-foreground);
+  font-variant-numeric: tabular-nums;
+}
+.plan-slot-summary {
+  margin: 0;
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-muted-foreground);
+  font-variant-numeric: tabular-nums;
+}
+.plan-next { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.plan-next-title {
+  font-size: var(--kb-fs-body-md);
+  font-weight: 500;
+  color: var(--kb-foreground);
+  overflow-wrap: anywhere;
+}
+.plan-next-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--kb-space-2);
+  font-size: var(--kb-fs-caption);
+  color: var(--kb-muted-foreground);
+}
+.plan-next-empty {
+  margin: 0;
+  font-size: var(--kb-fs-body-sm);
   color: var(--kb-muted-foreground);
 }
 
-@media (max-width: 960px) {
-  .today-plan-overview { grid-template-columns: 1fr; }
-  .today-plan-blocks { grid-template-columns: 1fr; }
+/* 中等屏：概览改为双栏卡片，时间线单列。 */
+@media (max-width: 1100px) {
+  .plan-layout { grid-template-columns: minmax(0, 1fr); }
+  .plan-side { display: grid; grid-template-columns: 1fr 1fr; align-items: start; }
+}
+/* 手机：全部单列，任务卡铺满可用宽度。 */
+@media (max-width: 768px) {
+  /* 页头操作区独占整行，避免四个按钮在窄屏撑出横向溢出。 */
+  .today-plan :deep(.kb-page-header > div > div:last-child) { flex: 1 1 100%; width: 100%; min-width: 0; }
+  .plan-side { grid-template-columns: 1fr; }
+  .plan-block-head { padding: 10px var(--kb-space-3); }
+  .plan-item { padding: 10px var(--kb-space-3); }
+  .today-plan-actions { width: 100%; justify-content: flex-start; }
 }
 </style>

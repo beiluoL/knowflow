@@ -91,7 +91,7 @@
 
     <!-- ===== 连续打卡里程碑 ===== -->
     <div class="mb-6">
-      <h3 class="kb-h3 mb-4">连续打卡里程碑</h3>
+      <h3 class="kb-h4 mb-4">连续打卡里程碑</h3>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div
           v-for="m in milestones"
@@ -339,9 +339,7 @@ onMounted(() => {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.kb-h1 { font-size: 28px; font-weight: 700; line-height: 1.3; letter-spacing: -0.02em; color: var(--kb-foreground); }
-.kb-h3 { font-size: 18px; font-weight: 600; line-height: 1.4; color: var(--kb-foreground); }
-.kb-h4 { font-size: 15px; font-weight: 600; line-height: 1.45; color: var(--kb-foreground); }
+/* UI/UX V1.0：移除页面内对 .kb-h1/.kb-h3/.kb-h4 的局部覆盖，统一使用全局语义字号令牌 */
 .kb-body-sm { font-size: 12px; line-height: 1.5; color: var(--kb-muted-foreground); }
 
 /* ===== 打卡主卡片 ===== */

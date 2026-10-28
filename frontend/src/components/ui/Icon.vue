@@ -5,7 +5,7 @@
     :src="name"
     :width="iconSizePx"
     :height="iconSizePx"
-    :class="iconClass"
+    :class="['kb-icon', iconClass]"
     :aria-hidden="decorative ? 'true' : undefined"
     :aria-label="decorative ? undefined : ariaLabel"
     :role="decorative ? undefined : (ariaLabel ? 'img' : undefined)"
@@ -14,7 +14,7 @@
   <!-- 自定义图标 - iconfont Unicode code 或 iconfont class 名：渲染为 <i> 标签 -->
   <i
     v-else-if="isIconfontIcon"
-    class="iconfont"
+    class="iconfont kb-icon"
     :class="[iconfontClassName, iconClass]"
     :style="{ fontSize: iconSizeCss, color: color || undefined }"
     :aria-hidden="decorative ? 'true' : undefined"
@@ -25,7 +25,7 @@
   <!-- 自定义图标 - SVG 代码：渲染为 div v-html -->
   <div
     v-else-if="isSvgCodeIcon"
-    :class="iconClass"
+    :class="['kb-icon', iconClass]"
     :style="{ width: iconSizeCss, height: iconSizeCss, color: color || undefined, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }"
     :aria-hidden="decorative ? 'true' : undefined"
     :aria-label="decorative ? undefined : ariaLabel"
@@ -44,7 +44,7 @@
     stroke-width="2"
     stroke-linecap="round"
     stroke-linejoin="round"
-    :class="iconClass"
+    :class="['kb-icon', iconClass]"
     :style="{ color: color || undefined }"
     :aria-hidden="decorative ? 'true' : undefined"
     :aria-label="decorative ? undefined : ariaLabel"

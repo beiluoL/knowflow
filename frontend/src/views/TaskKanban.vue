@@ -5,9 +5,9 @@
         <h2 class="kb-h2">看板</h2>
         <p class="kb-sub">拖动任务卡片，在「待办 / 进行中 / 已完成」之间流转，状态实时保存。</p>
       </div>
-      <div class="kb-progress">
-        <div class="kb-progress-bar"><div class="kb-progress-fill" :style="{ width: donePercent + '%' }" /></div>
-        <span class="kb-progress-text">{{ doneCount }} / {{ totalCount }} 已完成</span>
+      <div class="kbn-progress">
+        <div class="kbn-progress-bar"><div class="kbn-progress-fill" :style="{ width: donePercent + '%' }" /></div>
+        <span class="kbn-progress-text">{{ doneCount }} / {{ totalCount }} 已完成</span>
       </div>
     </header>
 
@@ -216,10 +216,11 @@ onMounted(reload)
 .kb-h2 { font-size: 18px; font-weight: 700; color: var(--kb-foreground); }
 .kb-sub { font-size: 13px; color: var(--kb-muted-foreground); margin-top: 2px; }
 
-.kb-progress { display: flex; align-items: center; gap: 10px; min-width: 200px; }
-.kb-progress-bar { flex: 1 1 auto; height: 8px; border-radius: 999px; background: var(--kb-muted); overflow: hidden; }
-.kb-progress-fill { height: 100%; border-radius: 999px; background: var(--kb-success); transition: width 0.3s ease; }
-.kb-progress-text { font-size: 12px; color: var(--kb-muted-foreground); white-space: nowrap; }
+/* 局部前缀 kbn-：避免与全局工具类 .kb-progress（高 6px + overflow:hidden）同名导致进度行被裁切 */
+.kbn-progress { display: flex; align-items: center; gap: 10px; min-width: 200px; flex: 0 1 320px; }
+.kbn-progress-bar { flex: 1 1 auto; height: 8px; border-radius: 999px; background: var(--kb-muted); overflow: hidden; }
+.kbn-progress-fill { height: 100%; border-radius: 999px; background: var(--kb-success); transition: width 0.3s ease; }
+.kbn-progress-text { font-size: 12px; color: var(--kb-muted-foreground); white-space: nowrap; }
 
 .kb-loading, .kb-error {
   display: flex; flex-direction: column; align-items: center; gap: 10px;

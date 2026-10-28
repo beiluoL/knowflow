@@ -12,9 +12,13 @@
   margin: var(--kb-space-2) var(--kb-space-3); padding: var(--kb-space-2) var(--kb-space-3);
   color: var(--kb-foreground); font-size: var(--kb-body-size); text-align: left;
 }
-.pc-studio.ui-v2-shell .csidebar-nav { padding-top: var(--kb-space-4); }
+.pc-studio.ui-v2-shell .csidebar-nav { padding-top: var(--kb-space-3); }
 .pc-studio.ui-v2-shell .csidebar-top { font-weight: var(--kb-fw-caption); }
-.pc-studio.ui-v2-shell .csidebar-child { padding-block: var(--kb-space-2); color: var(--kb-sidebar-foreground); }
+.pc-studio.ui-v2-shell .csidebar-child {
+  min-height: var(--kb-nav-item-height-sm);
+  padding-block: 0;
+  color: var(--kb-sidebar-foreground);
+}
 .pc-studio.ui-v2-shell .csidebar-child.is-active { color: var(--kb-primary); }
 .pc-studio.ui-v2-shell .pc-topnav { box-shadow: none; }
 .pc-studio.ui-v2-shell .ui-v2-home, .pc-studio.ui-v2-shell .ui-v2-center {

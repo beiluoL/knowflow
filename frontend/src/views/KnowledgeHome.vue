@@ -1279,7 +1279,8 @@ onUnmounted(() => {
 .greeting-title {
   font-size: var(--kb-fs-h3);
   line-height: var(--kb-lh-h3);
-  font-weight: 700;
+  /* UI/UX V1.0：页面主标题字重改走令牌（原 700），与全站 h1 一致 */
+  font-weight: var(--kb-fw-h1);
   color: var(--kb-foreground);
   margin-bottom: 16px;
 }

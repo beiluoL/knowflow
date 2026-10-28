@@ -1236,10 +1236,12 @@ onUnmounted(() => {
   flex-wrap: wrap;
 }
 .page-title {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: var(--kb-fs-h1);
+  font-weight: var(--kb-fw-h1);
+  line-height: var(--kb-lh-h1);
+  letter-spacing: var(--kb-heading-tracking);
   color: var(--kb-foreground);
-  margin-bottom: 4px;
+  margin-bottom: var(--kb-space-1);
 }
 .page-subtitle {
   font-size: 14px;

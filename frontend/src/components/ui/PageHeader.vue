@@ -1,5 +1,5 @@
 <template>
-  <header class="space-y-3 kb-page-header">
+  <header class="kb-page-header">
     <!-- 面包屑：有 to 的层级可点击跳转（原先 to 被声明却未使用，导致面包屑不可导航） -->
     <nav
       v-if="crumbs && crumbs.length > 0"
@@ -33,22 +33,20 @@
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-3 min-w-0">
           <h1
-            :class="[
-              'font-semibold truncate',
-              size === 'lg' ? 'text-3xl' : 'text-2xl',
-              titleColor,
-            ]"
+            class="kb-page-header__title truncate"
+            :class="{ 'kb-page-header__title--lg': size === 'lg' }"
+            :style="titleColor ? { color: titleColor } : undefined"
           >{{ title }}</h1>
           <span
             v-if="count != null"
-            class="shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-[var(--kb-muted)] text-muted-foreground"
+            class="kb-badge kb-badge-neutral shrink-0"
+            :style="{ height: '22px', paddingInline: 'var(--kb-space-2)' }"
           >{{ count }} 项</span>
         </div>
         <!-- Phase UI-1：新增描述区（页面标题下的「这个页面是干什么的」说明） -->
         <p
           v-if="description || $slots.description"
-          class="mt-1.5 text-muted-foreground"
-          :style="{ fontSize: 'var(--kb-fs-body-md)', lineHeight: 'var(--kb-lh-body-md)' }"
+          class="kb-page-header__desc"
         >
           <slot name="description">{{ description }}</slot>
         </p>

@@ -1,7 +1,16 @@
 /* Ordinary-user visual layer only. Login/admin and data/route contracts stay untouched. */
 .pc-studio .clayout-container {
   max-width: none;
-  padding-inline: var(--kb-space-6);
+  padding-inline: var(--kb-page-padding-x);
+}
+.pc-studio .kb-page-header {
+  padding-bottom: var(--kb-space-4);
+  border-bottom: var(--kb-studio-rule) solid var(--kb-border);
+}
+.pc-studio .kb-page-header h1 {
+  letter-spacing: -.02em;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .pc-studio .pc-topnav {
   background: var(--kb-card);
@@ -21,9 +30,15 @@
   background: var(--kb-card) !important;
   border-right: var(--kb-studio-rule) solid var(--kb-border);
 }
-.pc-studio .csidebar-nav { padding: var(--kb-space-5) var(--kb-space-3); }
+.pc-studio .csidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kb-nav-item-gap);
+  padding: var(--kb-space-3) var(--kb-space-2);
+}
 .pc-studio .csidebar-top {
   border-radius: var(--kb-radius-md);
+  min-height: var(--kb-nav-item-height);
   font-size: var(--kb-fs-body-md);
   font-weight: 600;
 }
@@ -33,23 +48,13 @@
   color: var(--kb-primary);
 }
 .pc-studio .csidebar-child {
+  min-height: var(--kb-nav-item-height-sm);
   font-size: var(--kb-fs-body-sm);
   border-radius: var(--kb-radius-sm);
 }
 .pc-studio .csidebar-collapse {
   color: var(--kb-muted-foreground);
   background: var(--kb-card);
-}
-.pc-studio .kb-page-header {
-  padding-bottom: var(--kb-space-5);
-  border-bottom: var(--kb-studio-rule) solid var(--kb-border);
-}
-.pc-studio .kb-page-header h1 {
-  font-size: var(--kb-fs-h2);
-  line-height: var(--kb-lh-h2);
-  letter-spacing: -.035em;
-  white-space: normal;
-  overflow-wrap: anywhere;
 }
 .pc-studio .home-container { gap: var(--kb-space-6); }
 .pc-studio .home-greeting {
@@ -60,7 +65,8 @@
 .pc-studio .home-greeting-main { min-width: 0; flex: 1; }
 .pc-studio .home-greeting-title {
   font-family: var(--font-display);
-  font-size: var(--kb-fs-h2);
+  font-size: var(--kb-fs-h1);
+  line-height: var(--kb-lh-h1);
   letter-spacing: -.035em;
   overflow-wrap: anywhere;
 }
@@ -128,7 +134,8 @@
 }
 .pc-studio .lc-title {
   font-family: var(--font-display);
-  font-size: var(--kb-fs-h2);
+  font-size: var(--kb-fs-h1);
+  line-height: var(--kb-lh-h1);
   letter-spacing: -.035em;
 }
 .pc-studio .lc-section {

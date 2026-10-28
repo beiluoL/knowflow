@@ -44,6 +44,12 @@ public class OfficialAppRegistry {
         APP_STATUS.put("ai-writing", "ACTIVE");
         APP_STATUS.put("notes", "ACTIVE");
         APP_STATUS.put("tech-english", "ACTIVE"); // Java + AI 专业英语（P0 词汇大厅，与前端 registry 保持同步）
+        // UI/UX V1.0：效率工具应用化（复用既有任务/签到/习惯/日历/计划页面，与前端 registry 保持同步）
+        APP_STATUS.put("tasks", "ACTIVE");
+        APP_STATUS.put("check-in", "ACTIVE");
+        APP_STATUS.put("habits", "ACTIVE");
+        APP_STATUS.put("calendar", "ACTIVE");
+        APP_STATUS.put("today-plan", "ACTIVE");
     }
 
     /** appKey 是否属于官方注册表（白名单，§34/§124） */

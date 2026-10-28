@@ -29,4 +29,10 @@ export const APP_ICONS: Record<string, string> = {
   'ai-writing': 'wand-2', // 智能写作：AI 魔法
   notes: 'file-text', // 笔记：文档
   'tech-english': 'book-open', // 专业英语：打开的书本
+  // ── UI/UX V1.0 效率工具（工具工作区）
+  tasks: 'list-todo', // 任务：待办清单
+  'check-in': 'calendar-check', // 签到：日历打勾
+  habits: 'check-check', // 习惯打卡：连续勾选
+  calendar: 'calendar', // 日历：日历
+  'today-plan': 'list-checks', // 今日计划：今日清单
 }

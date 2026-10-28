@@ -242,13 +242,7 @@ watch(() => route.fullPath, () => {
   width: 100%;
   max-width: none;
   min-width: 0;
-  padding: var(--kb-space-6) var(--kb-space-4);
-}
-
-@media (min-width: 640px) {
-  .clayout-container {
-    padding: var(--kb-space-6);
-  }
+  padding: var(--kb-page-padding-y) var(--kb-page-padding-x);
 }
 
 /* >=1024px：侧边栏常驻，主内容留出对应宽度 */

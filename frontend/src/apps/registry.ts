@@ -12,7 +12,7 @@ import type { AppCategory, AppDefinition, AppNavSection } from './types'
 import { APP_ICONS } from './icon-registry'
 
 /** 分类展示顺序与中文标签（§70） */
-export const CATEGORY_ORDER: AppCategory[] = ['MEMORY', 'PRACTICE', 'UNDERSTANDING', 'ORGANIZATION', 'FOCUS', 'CODING', 'AI']
+export const CATEGORY_ORDER: AppCategory[] = ['MEMORY', 'PRACTICE', 'UNDERSTANDING', 'ORGANIZATION', 'FOCUS', 'PRODUCTIVITY', 'CODING', 'AI']
 
 export const CATEGORY_LABELS: Record<AppCategory, string> = {
   MEMORY: '记忆',
@@ -20,6 +20,7 @@ export const CATEGORY_LABELS: Record<AppCategory, string> = {
   UNDERSTANDING: '理解',
   ORGANIZATION: '整理',
   FOCUS: '专注',
+  PRODUCTIVITY: '效率',
   CODING: '实战',
   AI: 'AI',
 }
@@ -246,6 +247,72 @@ export const APP_DEFINITIONS: AppDefinition[] = [
     defaultInstalled: false,
     capabilities: ['knowledge.read'],
   },
+  // ── UI/UX V1.0：效率工具应用化（复用既有页面与业务接口，不新建第二套状态）
+  {
+    key: 'tasks',
+    name: '任务',
+    description: '查看待办、按优先级推进，把学习计划落到今天。',
+    icon: 'list-todo',
+    category: 'PRODUCTIVITY',
+    categoryLabel: '效率',
+    route: '/tasks',
+    version: '1.0.0',
+    status: 'ACTIVE',
+    defaultInstalled: false,
+    capabilities: [],
+  },
+  {
+    key: 'check-in',
+    name: '签到',
+    description: '每日签到记录连续学习天数，保持稳定节奏。',
+    icon: 'calendar-check',
+    category: 'PRODUCTIVITY',
+    categoryLabel: '效率',
+    route: '/check-in',
+    version: '1.0.0',
+    status: 'ACTIVE',
+    defaultInstalled: false,
+    capabilities: [],
+  },
+  {
+    key: 'habits',
+    name: '习惯打卡',
+    description: '管理每日习惯并完成真实打卡，长期跟踪坚持情况。',
+    icon: 'check-check',
+    category: 'PRODUCTIVITY',
+    categoryLabel: '效率',
+    route: '/habits',
+    version: '1.0.0',
+    status: 'ACTIVE',
+    defaultInstalled: false,
+    capabilities: [],
+  },
+  {
+    key: 'calendar',
+    name: '日历',
+    description: '按日期查看学习任务与安排，规划每天节奏。',
+    icon: 'calendar',
+    category: 'PRODUCTIVITY',
+    categoryLabel: '效率',
+    route: '/calendar',
+    version: '1.0.0',
+    status: 'ACTIVE',
+    defaultInstalled: false,
+    capabilities: [],
+  },
+  {
+    key: 'today-plan',
+    name: '今日计划',
+    description: '聚焦今天要完成的学习任务，逐项推进。',
+    icon: 'list-checks',
+    category: 'PRODUCTIVITY',
+    categoryLabel: '效率',
+    route: '/learning/today-plan',
+    version: '1.0.0',
+    status: 'ACTIVE',
+    defaultInstalled: false,
+    capabilities: ['learning-path.read'],
+  },
 ]
 
 /** 新用户默认安装（§88：闪卡 / 练习 / 错题 / 专注） */
@@ -291,6 +358,12 @@ export const APP_NAV_META: Record<string, { navSection: AppNavSection; order: nu
   capture: { navSection: 'knowledge', order: 6 },
   'spaced-review': { navSection: 'learning', order: 7 },
   focus: { navSection: 'tools', order: 1 },
+  // ── 工具工作区（UI/UX V1.0：效率工具 App，由用户在应用中心启用后进入左侧菜单）
+  tasks: { navSection: 'tools', order: 2 },
+  'check-in': { navSection: 'tools', order: 3 },
+  habits: { navSection: 'tools', order: 4 },
+  calendar: { navSection: 'tools', order: 5 },
+  'today-plan': { navSection: 'tools', order: 6 },
   // ── 学习工作区（固定入口「学习首页」之后的动态 App，3.2 §28）
   flashcard: { navSection: 'learning', order: 1 },
   quiz: { navSection: 'learning', order: 2 },

@@ -211,7 +211,7 @@ describe('Category → Workspace 映射（§177）', () => {
     learning: ['MEMORY', 'PRACTICE', 'UNDERSTANDING', 'CODING'],
     knowledge: ['ORGANIZATION', 'UNDERSTANDING'],
     ai: ['AI'],
-    tools: ['FOCUS'],
+    tools: ['FOCUS', 'PRODUCTIVITY'],
   }
 
   it('每个进导航的 App，其 category 都落在其工作区允许范围内', () => {

@@ -463,7 +463,7 @@ function hexBg(color: string): string {
 .animate-fade-in { animation: fadeIn 0.4s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.kb-h1 { font-size: 28px; font-weight: 700; line-height: 1.3; letter-spacing: -0.02em; color: var(--kb-foreground); }
+/* UI/UX V1.0：移除页面内对 .kb-h1 的局部覆盖（原 28px/700），统一走全局语义字号/字重令牌 */
 .kb-body-sm { font-size: 12px; line-height: 1.5; color: var(--kb-muted-foreground); }
 
 .btn-primary {

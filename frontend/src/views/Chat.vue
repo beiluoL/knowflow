@@ -2284,9 +2284,9 @@ onUnmounted(() => {
 }
 .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
 
-.chat-container {min-width:0;margin-inline:calc(-1 * var(--kb-space-6));margin-block:calc(-1 * var(--kb-space-6));height:calc(100dvh - var(--kb-nav-height));}
+.chat-container {min-width:0;margin-inline:calc(-1 * var(--kb-page-padding-x));margin-block:calc(-1 * var(--kb-page-padding-y));height:calc(100dvh - var(--kb-nav-height));}
 @media (max-width:1023px){.chat-container {height:calc(100dvh - var(--kb-nav-height) - var(--kb-notes-bottom-nav-height));}}
-@media (max-width:639px){.chat-container {margin-inline:calc(-1 * var(--kb-space-4));}}
+@media (max-width:639px){.chat-container {margin-inline:calc(-1 * var(--kb-page-padding-x));}}
 
 /* ===== 消息列表区域 ===== */
 .chat-scroll-area {

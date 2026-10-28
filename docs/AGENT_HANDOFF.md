@@ -4022,3 +4022,15 @@ F06/F01/F14/F15/F12五个最小切片DONE，完整高级规格PARTIAL、开关�
 用户明确授权本地、GitHub和Gitee统一main，并批准保留desktopApp/mobile/miniprogram267项既有删除。已对账并保留main独有教材/文档与最新日期控件增量、V1修复、F11源码及两边提交历史；F11执行默认关闭，发布NOT_READY不变。新增可移植HashMap/Radar合成测试资源，补全启动helper及对应测试；不复制真实本地密钥或编译产物。
 
 最终验证：Maven1209总计/1199通过/0失败/0错误/10跳过，退出0；Vitest241文件1768项/类型检查/构建退出0；启动器25项通过。证据及分支bundle/未提交文件备份：/private/tmp/knowflow-main-consolidation-20261028。原F11工作区由所属聊天归档；原V1主工作区保留未提交Fixture且切换同HEAD detached，释放分支。分支统一不代表RC_READY；MySQL8、完整发布门禁仍独立。
+
+### 2026-10-28 · UI/UX V1.0 全站视觉基线 + 效率 Mini App + 顶栏快捷入口
+
+- 目标/范围：统一全站字号/图标基线/页面留白；把既有任务/签到/习惯/日历/今日计划页面注册为 Mini App；顶栏新增高频快捷入口。未改 FSRS/Evidence/NextAction/评分/Tutor/MySQL 迁移/F11，未改正式库；Git main，保留既有 dirty，无 commit/push/merge/reset/clean/stash。
+- 令牌：`style.css` 新增 `--kb-icon-slot(18)/--kb-icon-slot-sm(16)/--kb-nav-item-height(38)/--kb-nav-item-height-sm(32)/--kb-nav-item-gap(2)/--kb-page-padding-x·y(16~32)/--kb-quick-action-size(36)/--kb-quick-action-gap(4)/--kb-content-reading(72ch)`，旧令牌全保留。
+- 组件：`Icon.vue` 全分支统一 `.kb-icon`（inline-block/vertical-align）；`PageHeader.vue` 语义类 + 28/600（md 24）；`CSidebar.vue` 一级38/二级32 + 18/16 图标容器；`CTopNav.vue` `.topnav-action` 36×36 + 快捷组 + 更多面板 + 焦点环 2px；`CLayout.vue` padding 收口；AppCenter 间距令牌化；TaskManager 高度/圆角/14px + 列表标题 h2。
+- 逐页根因修复：ChatMarkdownRenderer（em 标题→20/18/16）、PomodoroPage（24/700→28/600）、AdaptiveLearningPanel（今日行动 20→18）、CheckIn（删页面内 .kb-h* 覆盖）、Habits（删 .kb-h1 700）、KnowledgeHome（h1 700→600）、TaskManager（双 h1）。
+- Mini App：`tasks /tasks`、`check-in /check-in`、`habits /habits`、`calendar /calendar`、`today-plan /learning/today-plan`，category PRODUCTIVITY（效率），默认不安装，tools order 2–6；后端 `OfficialAppRegistry` 同步登记 ACTIVE；`app-management.spec.ts` 允许 tools 分类追加 PRODUCTIVITY。
+- 顶栏：6 项真实路由，≥1280 显示前 3（任务/签到/习惯）+「更多快捷操作」，390 只留搜索/AI/更多/通知；真实浏览器实测 36×36、top=10、iconDy=0、无溢出、active 与 aria 正确。
+- 验证：Vitest 241 文件/1768 用例通过；`vue-tsc --noEmit` exit 0；`npm run build` 成功 5.53s；后端 3 个 App 集成测试 10 用例通过。浏览器 5 视口 26 张截图全部 ox=0；Mini App E2E 21 断言通过（安装→工具组→进入→排序→收起 68px→停用二次确认→刷新/重登恢复→重新启用）；深色 4 页、焦点环、reduced-motion、390 抽屉通过。
+- 未验证/风险：无改前截图（工作树已改且禁止 stash）；未断言 API HTTP 码；未跑后端全量 mvn；沉浸式阅读/编辑器、社区、代码练习、知识图谱、工作台、后台子页、今日计划未逐页实拍；notes/chat/paths 12–13px 密集工具条保留；系统字体缩放未测。
+- 下一任务：优先抽紧凑工具条容器统一 12–13px 按钮，并补沉浸式页面多视口回归。详见 `docs/ui-ux/v1/UI_NEXT_STEPS.md`。

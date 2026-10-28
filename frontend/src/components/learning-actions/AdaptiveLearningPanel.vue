@@ -187,7 +187,7 @@ onUnmounted(() => { active = false; confirmationBudget = null; generation++; pre
 .action-header,.action-toolbar,.time-budget,.section-heading,.suggestion-meta,.suggestion-footer,.action-notice { display:flex;align-items:center;gap:var(--kb-space-3);flex-wrap:wrap;min-width:0; }
 .action-header,.section-heading { justify-content:space-between; }
 .action-header { align-items:flex-start;gap:var(--kb-space-4); }
-.action-heading h2 { font-size:var(--kb-fs-h3);font-weight:var(--kb-fw-h3);line-height:var(--kb-lh-h3); }
+.action-heading h2 { font-size:var(--kb-fs-h4);font-weight:var(--kb-fw-h3);line-height:var(--kb-lh-h4); }
 .action-heading p { margin-top:var(--kb-space-1); }
 .action-toolbar { gap:var(--kb-space-2); }
 .time-budget { gap:var(--kb-space-2); }
