@@ -289,7 +289,7 @@ async function onDelete(m: Memorial) {
 .mem-modal {
   width: 100%;
   max-width: 520px;
-  background: #fff;
+  background: var(--kf-card);
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
   overflow: hidden;
@@ -301,27 +301,27 @@ async function onDelete(m: Memorial) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 18px;
-  border-bottom: 1px solid #f1f3f6;
+  padding: var(--kf-space-4) var(--kf-space-5);
+  border-bottom: 1px solid var(--kf-border);
 }
 .mem-title {
   font-size: 16px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--kf-foreground);
 }
 .mem-x {
   border: none;
   background: transparent;
-  color: #9aa3b2;
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   padding: 4px;
-  border-radius: 8px;
+  border-radius: var(--kf-radius-sm);
 }
 .mem-x:hover {
-  background: #f1f3f6;
+  background: var(--kf-border);
 }
 .mem-body {
-  padding: 16px 18px;
+  padding: var(--kf-space-4) var(--kf-space-5);
   overflow-y: auto;
   flex: 1;
 }
@@ -333,19 +333,19 @@ async function onDelete(m: Memorial) {
 .mem-form-title {
   font-size: 14px;
   font-weight: 700;
-  color: #374151;
+  color: var(--kf-foreground);
 }
 .mem-input:not(.kf-form-control) {
-  border: 1px solid #e5e7eb;
-  border-radius: 9px;
-  background: #fff;
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color var(--kf-motion-fast) var(--kf-ease-standard), background-color var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .mem-input {
-  padding: 9px 11px;
+  padding: var(--kf-space-2) var(--kf-space-3);
   font-size: 14px;
-  color: #1f2937;
+  color: var(--kf-foreground);
   font-family: inherit;
 }
 .mem-input:not(.kf-form-control):focus {
@@ -362,20 +362,20 @@ async function onDelete(m: Memorial) {
 }
 .mem-type-btn {
   flex: 1;
-  border: 1px solid #e5e7eb;
-  background: #fff;
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   color: var(--kf-muted-foreground);
   font-size: 13px;
   font-weight: 600;
-  padding: 8px 10px;
-  border-radius: 9px;
+  padding: var(--kf-space-2);
+  border-radius: var(--kf-radius-sm);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background-color var(--kf-motion-fast) var(--kf-ease-standard), border-color var(--kf-motion-fast) var(--kf-ease-standard), color var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .mem-type-btn.on {
   border-color: var(--kf-primary);
   color: var(--kf-primary);
-  background: #f0f5ff;
+  background: var(--kf-primary-soft);
 }
 .mem-field {
   display: flex;
@@ -387,12 +387,12 @@ async function onDelete(m: Memorial) {
   min-width: 0;
 }
 .mem-ic {
-  color: #9aa3b2;
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 .mem-hint {
   font-size: 12px;
-  color: #9aa3b2;
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 .mem-color-row {
@@ -404,14 +404,14 @@ async function onDelete(m: Memorial) {
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
-  transition: transform 0.12s, box-shadow 0.12s;
+  transition: transform var(--kf-motion-fast) var(--kf-ease-standard), background-color var(--kf-motion-fast) var(--kf-ease-standard);
   padding: 0;
 }
 .mem-color:hover {
   transform: scale(1.12);
 }
 .mem-color.on {
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--kf-primary);
+  box-shadow: 0 0 0 2px var(--kf-card), 0 0 0 4px var(--kf-primary);
 }
 .mem-textarea {
   resize: vertical;
@@ -424,28 +424,28 @@ async function onDelete(m: Memorial) {
 .mem-form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: var(--kf-space-3);
 }
 .mem-cancel {
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  color: #4b5563;
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
   font-size: 14px;
-  padding: 8px 16px;
-  border-radius: 9px;
+  padding: var(--kf-space-2) var(--kf-space-4);
+  border-radius: var(--kf-radius-sm);
   cursor: pointer;
 }
 .mem-cancel:hover {
-  background: #f9fafb;
+  background: var(--kf-muted);
 }
 .mem-save {
   border: none;
   background: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   font-size: 14px;
   font-weight: 600;
-  padding: 8px 20px;
-  border-radius: 9px;
+  padding: var(--kf-space-2) var(--kf-space-5);
+  border-radius: var(--kf-radius-sm);
   cursor: pointer;
 }
 .mem-save:hover {
@@ -457,26 +457,26 @@ async function onDelete(m: Memorial) {
 }
 .mem-empty {
   text-align: center;
-  color: #9aa3b2;
+  color: var(--kf-muted-foreground);
   font-size: 13px;
   padding: 40px 0;
 }
 .mem-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--kf-space-2);
 }
 .mem-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border: 1px solid #eef0f4;
-  border-radius: 12px;
-  transition: background 0.15s;
+  gap: var(--kf-space-3);
+  padding: var(--kf-space-3);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-md);
+  transition: background-color var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .mem-item:hover {
-  background: #f9fafb;
+  background: var(--kf-muted);
 }
 .mem-dot {
   width: 10px;
@@ -491,11 +491,11 @@ async function onDelete(m: Memorial) {
 .mem-item-name {
   font-size: 14px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--kf-foreground);
 }
 .mem-item-date {
   font-size: 12px;
-  color: #9aa3b2;
+  color: var(--kf-muted-foreground);
   margin-top: 2px;
 }
 .mem-item-note {
@@ -510,15 +510,15 @@ async function onDelete(m: Memorial) {
 .mem-op {
   width: 30px;
   height: 30px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   color: var(--kf-muted-foreground);
-  border-radius: 8px;
+  border-radius: var(--kf-radius-sm);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s;
+  transition: background-color var(--kf-motion-fast) var(--kf-ease-standard), border-color var(--kf-motion-fast) var(--kf-ease-standard), color var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .mem-op:hover {
   border-color: var(--kf-primary);
@@ -532,25 +532,25 @@ async function onDelete(m: Memorial) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 14px 18px;
-  border-top: 1px solid #f1f3f6;
+  gap: var(--kf-space-3);
+  padding: var(--kf-space-3) var(--kf-space-5);
+  border-top: 1px solid var(--kf-border);
 }
 .mem-foot-note {
   font-size: 12px;
-  color: #9aa3b2;
+  color: var(--kf-muted-foreground);
 }
 .mem-add {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--kf-space-1);
   border: none;
   background: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   font-size: 13px;
   font-weight: 600;
-  padding: 8px 14px;
-  border-radius: 9px;
+  padding: var(--kf-space-2) var(--kf-space-4);
+  border-radius: var(--kf-radius-sm);
   cursor: pointer;
   white-space: nowrap;
 }

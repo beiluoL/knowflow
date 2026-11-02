@@ -24,6 +24,8 @@
   --kf-popover-foreground: #1A1D23;
   --kf-primary: #3B6FE0;
   --kf-primary-foreground: #FFFFFF;
+  /* 饱和强调色（事件分类色、警告/危险徽标）上的文字，深浅主题均保持白色。 */
+  --kf-accent-foreground: #FFFFFF;
   --kf-muted: #E8ECF1;
   --kf-muted-foreground: #6B7280;
   --kf-border: #E2E6EC;
@@ -144,7 +146,7 @@
   --kf-fs-h3:20px; --kf-lh-h3:1.4; --kf-fw-h3:600;
   --kf-fs-h4:18px; --kf-lh-h4:1.444444; --kf-fw-h4:500;
   --kf-fs-body-lg:16px; --kf-lh-body-lg:1.75; --kf-fw-body-lg:400;
-  --kf-fs-body-emphasis:15px;
+  --kf-fs-body-emphasis:15px; --kf-lh-body-emphasis:1.6;
   --kf-fs-body-md:14px; --kf-lh-body-md:1.571429; --kf-fw-body-md:400;
   --kf-fs-body-sm:13px; --kf-lh-body-sm:1.538462; --kf-fw-body-sm:400;
   --kf-fw-label:500;
@@ -216,6 +218,32 @@
   --kf-sidebar-width: 224px;        /* 侧边栏展开宽度 */
   --kf-sidebar-collapsed-width: 68px; /* 侧边栏折叠宽度 */
   --kf-shell-transition: 200ms;     /* 侧边栏宽度过渡时长 */
+  --kf-bottom-nav-height: 68px;     /* 移动端底部导航高度（主内容为其预留空间） */
+
+  /* =====================================================================
+   * Motion 动效令牌（2026-11-01）
+   * 统一 transition/animation 时长与缓动，避免页面各自写 0.12s/0.15s/0.2s/0.35s。
+   * fast 用于 hover/按压等微反馈；base 用于常规状态切换；slow 用于浮层进出；
+   * reduced-motion 由全局媒体查询统一降级，不改业务动画语义。
+   * ===================================================================== */
+  --kf-motion-fast: 120ms;
+  --kf-motion-base: 160ms;
+  --kf-motion-slow: 240ms;
+  --kf-motion-slower: 320ms;
+  --kf-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --kf-ease-entrance: cubic-bezier(0.16, 1, 0.3, 1);
+  --kf-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  /* 交互控件（按钮/标签/卡片）的标准过渡组合，替代 transition: all */
+  --kf-transition-interactive:
+    background-color var(--kf-motion-base) var(--kf-ease-standard),
+    border-color var(--kf-motion-base) var(--kf-ease-standard),
+    color var(--kf-motion-base) var(--kf-ease-standard),
+    box-shadow var(--kf-motion-base) var(--kf-ease-standard),
+    opacity var(--kf-motion-base) var(--kf-ease-standard),
+    transform var(--kf-motion-base) var(--kf-ease-standard),
+    width var(--kf-motion-base) var(--kf-ease-standard),
+    height var(--kf-motion-base) var(--kf-ease-standard),
+    stroke-dashoffset var(--kf-motion-base) var(--kf-ease-standard);
 
   /* 侧边栏（管理后台 Sidebar）专用语义化尺寸 */
   --kf-sidebar-icon: var(--kf-icon-md);       /* 侧边栏导航项图标 16px */
@@ -326,6 +354,7 @@
   --kf-radius: var(--kf-radius-md);               /* 通用圆角（默认中） */
   --kf-radius-xs: 4px;                            /* 超小圆角（tag/角标） */
   --kf-shadow-sm: var(--shadow-sm);               /* 小阴影（旧名） */
+  --kf-shadow-md: var(--shadow-md);               /* 中阴影（悬浮抬升） */
   --kf-shadow-lg: var(--shadow-lg);               /* 大阴影（旧名） */
   --kf-fs-body: var(--kf-fs-body-md);             /* 正文字号（旧名，默认中） */
   --kf-fs-sm: var(--kf-fs-body-sm);               /* 小字号（旧名） */

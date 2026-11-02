@@ -1,6 +1,7 @@
 <template>
  <div ref="host" class="pg-preview" data-testid="component-preview">
-  <ProductionControlsPreview v-if="['Radio','Switch','Tabs','SearchInput'].includes(entry.name)" :name="entry.name" :settings="settings" @event="record"/>
+  <GlideSelectBridge v-if="['Shredder','SwipeRow','SpringCheck','ThoughtLine','FolderFloat','BellToggle','HoldButton','FuseButton','StatusMark','CallChip','LineSidebar','GlideSelect','PromptBar','LatticeLoader','TextType','BranchedMenu'].includes(entry.name)" :component-id="entry.name==='Shredder'?'shredder':entry.name==='SwipeRow'?'swiperow':entry.name==='SpringCheck'?'springcheck':entry.name==='ThoughtLine'?'thoughtline':entry.name==='FolderFloat'?'folderfloat':entry.name==='BellToggle'?'belltoggle':entry.name==='HoldButton'?'holdbutton':entry.name==='FuseButton'?'fusebutton':entry.name==='StatusMark'?'statusmark':entry.name==='CallChip'?'callchip':entry.name==='LineSidebar'?'linesidebar':entry.name==='BranchedMenu'?'branchedmenu':entry.name==='TextType'?'texttype':entry.name==='LatticeLoader'?'latticeloader':entry.name==='PromptBar'?'promptbar':'glideselect'" :events="entry.events" :settings="settings" @event="record"/>
+  <ProductionControlsPreview v-else-if="['Radio','Switch','Tabs','SearchInput'].includes(entry.name)" :name="entry.name" :settings="settings" @event="record"/>
   <ExtensionDemos v-else-if="extensionNames.includes(entry.name)" :key="entry.name" :name="entry.name" :settings="settings" @event="record"/>
   <ScenarioPreview v-else-if="scenarios.includes(entry.name)" :name="entry.name" :fixture="settings" @event="record"/>
   <ReferenceDemos v-else-if="entry.implementationStatus==='仅有内部演示'" :key="entry.name" :name="entry.name" :disabled="disabled" :fixture="settings" @event="record"/>
@@ -30,6 +31,7 @@ import Select from '@/components/ui/Select.vue'
 import KfTagsInput from '@/components/ui/KfTagsInput.vue'
 import AIComposer from '@/components/ai/AIComposer.vue'
 import Pagination from '@/components/ui/Pagination.vue'
+import GlideSelectBridge from './GlideSelectBridge.vue'
 import ProductionControlsPreview from './ProductionControlsPreview.vue'
 import ReferenceDemos from './ReferenceDemos.vue'
 import ExtensionDemos from './ExtensionDemos.vue'

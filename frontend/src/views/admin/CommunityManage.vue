@@ -522,7 +522,7 @@ function handleReport(report: Report, action: 'removed' | 'dismissed'): void {
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
   border: none;
   background: transparent;
   color: var(--kf-muted-foreground);

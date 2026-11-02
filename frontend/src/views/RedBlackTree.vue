@@ -688,7 +688,7 @@ onMounted(() => {
   font-size: 28px;
   font-weight: 700;
   color: var(--kf-foreground);
-  margin: 0 0 6px;
+  margin: 0 0 8px;
 }
 
 .page-subtitle {
@@ -711,12 +711,12 @@ onMounted(() => {
 }
 
 .node-input:not(.kf-form-control) {
-  height: 36px;
+  height: var(--kf-input-height);
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-xs);
-  background: white;
+  background: var(--kf-field-surface);
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color var(--kf-motion-slow) var(--kf-ease-standard);
 }
 
 .node-input {
@@ -747,7 +747,7 @@ onMounted(() => {
 
 /* ===== 树可视化 ===== */
 .tree-container {
-  background: white;
+  background: var(--kf-card);
   border-radius: var(--kf-radius-xs);
   box-shadow: var(--shadow-dropdown-2);
   padding: 20px;
@@ -762,7 +762,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #fafbfc 0%, #f4f6f9 100%);
+  background: linear-gradient(180deg, var(--kf-muted) 0%, var(--kf-background) 100%);
   border-radius: var(--kf-radius-xs);
   border: 1px solid var(--kf-border);
   overflow: hidden;
@@ -778,10 +778,10 @@ onMounted(() => {
 
 /* 连线 */
 .tree-edge {
-  stroke: #cbd5e1;
+  stroke: var(--kf-border);
   stroke-width: 2;
   fill: none;
-  transition: stroke 0.3s, stroke-width 0.3s;
+  transition: stroke var(--kf-motion-slower) var(--kf-ease-standard),  stroke-width var(--kf-motion-slower) var(--kf-ease-standard);
 }
 
 .tree-edge.highlight-edge {
@@ -793,7 +793,7 @@ onMounted(() => {
 /* 节点 */
 .tree-node {
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: transform var(--kf-motion-slower) var(--kf-ease-standard);
 }
 
 .node-shadow {
@@ -806,13 +806,13 @@ onMounted(() => {
 }
 
 .node-shadow.shadow-black {
-  fill: #1e293b;
+  fill: var(--kf-foreground);
   opacity: 0.3;
 }
 
 .node-circle {
   stroke-width: 3;
-  transition: fill 0.3s ease, stroke 0.3s ease, r 0.3s ease;
+  transition: fill var(--kf-motion-slower) var(--kf-ease-standard), stroke var(--kf-motion-slower) var(--kf-ease-standard), r var(--kf-motion-slower) var(--kf-ease-standard);
 }
 
 .node-circle.node-red {
@@ -821,27 +821,27 @@ onMounted(() => {
 }
 
 .node-circle.node-black {
-  fill: #1e293b;
-  stroke: #0f172a;
+  fill: var(--kf-foreground);
+  stroke: var(--kf-foreground);
 }
 
 .node-circle.highlight-ring {
-  stroke: #fbbf24;
+  stroke: var(--kf-warning);
   stroke-width: 4;
-  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+  filter: drop-shadow(0 0 8px var(--kf-warning-soft));
 }
 
 .node-value {
   font-family: 'JetBrains Mono', monospace;
   font-size: 14px;
   font-weight: 700;
-  fill: white;
+  fill: var(--kf-accent-foreground);
   user-select: none;
   pointer-events: none;
 }
 
 .node-value.value-white {
-  fill: white;
+  fill: var(--kf-card);
 }
 
 /* 图例 */
@@ -849,7 +849,7 @@ onMounted(() => {
   display: flex;
   gap: 20px;
   padding: 12px 16px;
-  background: #f8fafc;
+  background: var(--kf-muted);
   border-radius: var(--kf-radius-xs);
   border: 1px solid var(--kf-border);
 }
@@ -857,7 +857,7 @@ onMounted(() => {
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   color: var(--kf-muted-foreground);
 }
@@ -873,7 +873,7 @@ onMounted(() => {
 }
 
 .black-dot {
-  background: #1e293b;
+  background: var(--kf-foreground);
 }
 
 /* ===== 节点统计 ===== */
@@ -888,7 +888,7 @@ onMounted(() => {
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .red-dot-inline {
@@ -901,7 +901,7 @@ onMounted(() => {
 .black-dot-inline {
   width: 10px;
   height: 10px;
-  background: #1e293b;
+  background: var(--kf-foreground);
   border-radius: 50%;
 }
 
@@ -927,7 +927,7 @@ onMounted(() => {
 }
 
 .card-header h3 {
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   font-weight: 600;
   color: var(--kf-foreground);
   margin: 0;
@@ -966,7 +966,7 @@ onMounted(() => {
 
 /* 播放控制 */
 .control-card {
-  background: white;
+  background: var(--kf-card);
   border-radius: var(--kf-radius-xs);
   box-shadow: var(--shadow-dropdown-2);
 }
@@ -985,22 +985,22 @@ onMounted(() => {
 }
 
 .ctrl-btn {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: var(--kf-btn-height-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f1f5f9;
+  background: var(--kf-muted);
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-xs);
   color: var(--kf-foreground);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color var(--kf-motion-slow) var(--kf-ease-standard), border-color var(--kf-motion-slow) var(--kf-ease-standard), color var(--kf-motion-slow) var(--kf-ease-standard), box-shadow var(--kf-motion-slow) var(--kf-ease-standard), opacity var(--kf-motion-slow) var(--kf-ease-standard), transform var(--kf-motion-slow) var(--kf-ease-standard), width var(--kf-motion-slow) var(--kf-ease-standard), height var(--kf-motion-slow) var(--kf-ease-standard), stroke-dashoffset var(--kf-motion-slow) var(--kf-ease-standard);
 }
 
 .ctrl-btn:hover:not(:disabled) {
   background: var(--kf-primary);
-  color: white;
+  color: var(--kf-accent-foreground);
   border-color: var(--kf-primary);
 }
 
@@ -1010,10 +1010,10 @@ onMounted(() => {
 }
 
 .ctrl-btn.play-btn {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: var(--kf-btn-height-lg);
   background: var(--kf-primary);
-  color: white;
+  color: var(--kf-accent-foreground);
   border-color: var(--kf-primary);
 }
 
@@ -1029,7 +1029,7 @@ onMounted(() => {
 .progress-track {
   position: relative;
   height: 8px;
-  background: #e2e8f0;
+  background: var(--kf-muted);
   border-radius: 4px;
   cursor: pointer;
   overflow: visible;
@@ -1042,7 +1042,7 @@ onMounted(() => {
   height: 100%;
   background: linear-gradient(90deg, var(--kf-primary), var(--kf-highlight));
   border-radius: 4px;
-  transition: width 0.3s;
+  transition: width var(--kf-motion-slower) var(--kf-ease-standard);
 }
 
 .progress-marker {
@@ -1050,12 +1050,12 @@ onMounted(() => {
   top: 50%;
   width: 10px;
   height: 10px;
-  background: white;
-  border: 2px solid #94a3b8;
+  background: var(--kf-card);
+  border: 2px solid var(--kf-muted-foreground);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color var(--kf-motion-slow) var(--kf-ease-standard), border-color var(--kf-motion-slow) var(--kf-ease-standard), color var(--kf-motion-slow) var(--kf-ease-standard), box-shadow var(--kf-motion-slow) var(--kf-ease-standard), opacity var(--kf-motion-slow) var(--kf-ease-standard), transform var(--kf-motion-slow) var(--kf-ease-standard), width var(--kf-motion-slow) var(--kf-ease-standard), height var(--kf-motion-slow) var(--kf-ease-standard), stroke-dashoffset var(--kf-motion-slow) var(--kf-ease-standard);
 }
 
 .progress-marker.active {
@@ -1078,25 +1078,25 @@ onMounted(() => {
 }
 
 .speed-btn {
-  padding: 4px 10px;
+  padding: 4px 12px;
   font-size: 12px;
-  background: #f1f5f9;
+  background: var(--kf-muted);
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-xs);
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color var(--kf-motion-slow) var(--kf-ease-standard), border-color var(--kf-motion-slow) var(--kf-ease-standard), color var(--kf-motion-slow) var(--kf-ease-standard), box-shadow var(--kf-motion-slow) var(--kf-ease-standard), opacity var(--kf-motion-slow) var(--kf-ease-standard), transform var(--kf-motion-slow) var(--kf-ease-standard), width var(--kf-motion-slow) var(--kf-ease-standard), height var(--kf-motion-slow) var(--kf-ease-standard), stroke-dashoffset var(--kf-motion-slow) var(--kf-ease-standard);
 }
 
 .speed-btn.active {
   background: var(--kf-primary);
-  color: white;
+  color: var(--kf-accent-foreground);
   border-color: var(--kf-primary);
 }
 
 /* ===== 规则面板 ===== */
 .rules-card {
-  background: white;
+  background: var(--kf-card);
   border-radius: var(--kf-radius-xs);
   box-shadow: var(--shadow-dropdown-2);
 }
@@ -1110,12 +1110,12 @@ onMounted(() => {
 .rule-item {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 10px 12px;
-  background: #f8fafc;
+  gap: 12px;
+  padding: 12px 12px;
+  background: var(--kf-muted);
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-xs);
-  transition: all 0.2s;
+  transition: background-color var(--kf-motion-slow) var(--kf-ease-standard), border-color var(--kf-motion-slow) var(--kf-ease-standard), color var(--kf-motion-slow) var(--kf-ease-standard), box-shadow var(--kf-motion-slow) var(--kf-ease-standard), opacity var(--kf-motion-slow) var(--kf-ease-standard), transform var(--kf-motion-slow) var(--kf-ease-standard), width var(--kf-motion-slow) var(--kf-ease-standard), height var(--kf-motion-slow) var(--kf-ease-standard), stroke-dashoffset var(--kf-motion-slow) var(--kf-ease-standard);
   position: relative;
 }
 
@@ -1144,7 +1144,7 @@ onMounted(() => {
   width: 22px;
   height: 22px;
   background: var(--kf-primary);
-  color: white;
+  color: var(--kf-accent-foreground);
   font-size: 11px;
   font-weight: 700;
   border-radius: 50%;
@@ -1201,7 +1201,7 @@ onMounted(() => {
 .violations-title {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   font-weight: 600;
   color: var(--kf-danger-hover);
@@ -1214,20 +1214,20 @@ onMounted(() => {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .violations-list li {
   font-size: 12px;
-  color: #7f1d1d;
+  color: var(--kf-danger-hover);
   line-height: 1.5;
 }
 
 .violation-rule {
   display: inline-block;
-  padding: 1px 6px;
+  padding: 1px 8px;
   background: var(--kf-danger-hover);
-  color: white;
+  color: var(--kf-accent-foreground);
   font-size: 11px;
   font-weight: 600;
   border-radius: 3px;
@@ -1237,19 +1237,19 @@ onMounted(() => {
 .no-violations {
   margin-top: 12px;
   padding: 12px;
-  background: #f0fdf4;
-  border: 1px solid #86efac;
+  background: var(--kf-success-soft);
+  border: 1px solid var(--kf-success);
   border-radius: var(--kf-radius-xs);
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: #166534;
+  color: var(--kf-success);
 }
 
 /* ===== 操作历史 ===== */
 .history-card {
-  background: white;
+  background: var(--kf-card);
   border-radius: var(--kf-radius-xs);
   box-shadow: var(--shadow-dropdown-2);
 }
@@ -1257,7 +1257,7 @@ onMounted(() => {
 .history-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   max-height: 200px;
   overflow-y: auto;
 }
@@ -1265,13 +1265,13 @@ onMounted(() => {
 .history-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 8px 12px;
-  background: #f8fafc;
+  background: var(--kf-muted);
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-xs);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color var(--kf-motion-slow) var(--kf-ease-standard), border-color var(--kf-motion-slow) var(--kf-ease-standard), color var(--kf-motion-slow) var(--kf-ease-standard), box-shadow var(--kf-motion-slow) var(--kf-ease-standard), opacity var(--kf-motion-slow) var(--kf-ease-standard), transform var(--kf-motion-slow) var(--kf-ease-standard), width var(--kf-motion-slow) var(--kf-ease-standard), height var(--kf-motion-slow) var(--kf-ease-standard), stroke-dashoffset var(--kf-motion-slow) var(--kf-ease-standard);
 }
 
 .history-item:hover {
@@ -1290,8 +1290,8 @@ onMounted(() => {
   justify-content: center;
   width: 22px;
   height: 22px;
-  background: #cbd5e1;
-  color: #475569;
+  background: var(--kf-muted);
+  color: var(--kf-muted-foreground);
   font-size: 11px;
   font-weight: 700;
   border-radius: 50%;
@@ -1299,7 +1299,7 @@ onMounted(() => {
 }
 
 .history-item.active .history-step-num {
-  background: white;
+  background: var(--kf-primary-foreground);
   color: var(--kf-primary);
 }
 
@@ -1309,7 +1309,7 @@ onMounted(() => {
 }
 
 .history-item.active .history-type {
-  color: white;
+  color: var(--kf-accent-foreground);
 }
 
 /* ===== 响应式 ===== */

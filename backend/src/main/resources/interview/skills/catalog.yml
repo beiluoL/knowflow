@@ -1,0 +1,292 @@
+# KnowFlow 面试 Skill Registry（Phase 1）
+# 每个条目等价于 InterviewGuide 的 SKILL.md + skill.meta.yml + question/evaluation/followup 规则。
+# 只登记既有题库方向（trackCode 来自 InterviewQuestionBank.TRACKS），不重新生成或覆盖题目 ID。
+version: v1
+skills:
+  - id: java-backend
+    name: Java 后端工程师
+    category: java
+    level: 中级
+    roles: [Java 后端工程师, Java 开发工程师, 后端开发工程师]
+    minYears: 2
+    maxYears: 5
+    difficulty: MEDIUM
+    trackCode: JAVA_BASIC
+    tags: [Java, 集合, 异常, 泛型, IO]
+    jdKeywords: [Java, Spring Boot, MySQL, Redis, MyBatis, 并发, 后端]
+    instructions: 考察 Java 语言基础、集合与异常契约、常用框架和数据访问；要求候选人讲清原理、使用场景与边界，不接受只背结论。
+    questionRules:
+      - 从 Java 基础方向既有题库抽题，保留原题 ID 与来源。
+      - 每题至少覆盖一个原理点和一个工程场景。
+    followupRules:
+      - 只追问回答中缺失的因果或边界，不提前给出答案。
+      - 同一知识点最多连续追问两层。
+    rubric:
+      level1: 只能复述结论，无法解释原因
+      level3: 能讲清核心原理与常见用法
+      level5: 能说明源码/参数、失效边界与真实排障经验
+    references: [Java 基础题库, Spring 官方文档, JDK 源码]
+
+  - id: java-senior
+    name: Java 高级开发
+    category: java
+    level: 高级
+    roles: [Java 高级开发工程师, 资深后端工程师, 技术专家]
+    minYears: 5
+    maxYears: 12
+    difficulty: HARD
+    trackCode: JAVA_CONCURRENCY
+    tags: [并发, JUC, 线程池, 锁, JMM]
+    jdKeywords: [并发编程, JUC, 线程池, 高性能, 高并发, 分布式]
+    instructions: 考察并发模型、锁与线程池设计、内存可见性和线上故障处理；重点是取舍与验证，不鼓励堆砌名词。
+    questionRules:
+      - 优先从并发方向题库抽题，必要时结合 JVM 与框架题。
+      - 至少一道题要求给出可验证的排障或压测方案。
+    followupRules:
+      - 追问失败条件、因果链与恢复过程。
+      - 不引入候选人未提及的具体实现方案作为前提。
+    rubric:
+      level1: 概念混淆，无法说明并发风险
+      level3: 能解释主要机制并给出常见方案
+      level5: 能结合真实故障、指标与取舍说明设计边界
+    references: [Java 并发题库, JUC 源码, JMM 规范]
+
+  - id: java-ai-engineer
+    name: Java + AI 工程师
+    category: ai
+    level: 高级
+    roles: [Java + AI 工程师, AI 应用开发工程师, 全栈 AI 工程师]
+    minYears: 3
+    maxYears: 10
+    difficulty: HARD
+    trackCode: JAVA_AI_SCENE
+    tags: [Spring AI, LangChain4j, RAG, 模型接入, 降级]
+    jdKeywords: [RAG, LLM, 大模型, Spring AI, LangChain4j, Embedding, 向量, Agent]
+    instructions: 考察 Java 服务中集成 LLM 的分层设计、超时重试降级、Prompt 版本、密钥隔离与可观测性；AI 必须作为增强层而非唯一路径。
+    questionRules:
+      - 从 Java + AI 项目实战方向抽题，保留原题 ID。
+      - 必须包含一道无 AI 时业务仍可完成的降级题。
+    followupRules:
+      - 追问模型失败、限流、成本与数据出境边界。
+      - 对没有真实证据的项目经历，只提问不判定为事实。
+    rubric:
+      level1: 只谈调用 SDK，没有工程边界
+      level3: 能说明分层、失败分类和基础降级
+      level5: 能给出可观测、成本控制与安全边界的完整方案
+    references: [Java + AI 实战题库, RAG 题库, Agent / MCP 题库]
+
+  - id: spring-boot
+    name: Spring / Spring Boot
+    category: framework
+    level: 中级
+    roles: [Spring Boot 开发工程师, Java 后端工程师]
+    minYears: 2
+    maxYears: 8
+    difficulty: MEDIUM
+    trackCode: FRAMEWORK_STORAGE
+    tags: [Spring, Bean 生命周期, 事务, AOP, 循环依赖]
+    jdKeywords: [Spring, Spring Boot, Spring MVC, 事务, AOP, Bean]
+    instructions: 考察 Bean 生命周期、循环依赖、事务传播、AOP 代理与自调用失效等框架原理，要求结合真实项目说明。
+    questionRules:
+      - 从 Spring / MySQL / Redis 方向抽取框架题。
+      - 至少一道题要求说明事务或代理的失效场景。
+    followupRules:
+      - 追问失效原因和最小复现方式。
+      - 不把框架默认行为当成候选人已掌握。
+    rubric:
+      level1: 只会使用注解，不知道生效条件
+      level3: 能讲清生命周期和事务基本机制
+      level5: 能解释三级缓存、代理与失效边界并给出验证方法
+    references: [Spring 框架题库, Spring 官方文档]
+
+  - id: jvm-gc
+    name: JVM / GC
+    category: java
+    level: 高级
+    roles: [Java 高级开发工程师, 性能优化工程师]
+    minYears: 3
+    maxYears: 12
+    difficulty: HARD
+    trackCode: JVM
+    tags: [JVM, GC, 类加载, 内存模型, 调优]
+    jdKeywords: [JVM, GC, 垃圾回收, 内存泄漏, 调优, 类加载]
+    instructions: 考察内存区域、GC 算法与收集器、类加载和故障排查；要求用真实工具与指标说明，不背参数。
+    questionRules:
+      - 从 JVM 方向抽题，覆盖内存、GC 和类加载。
+      - 至少一道题要求给出从现象到根因的排查路径。
+    followupRules:
+      - 追问观测指标、工具输出和验证步骤。
+      - 不提示具体参数值作为答案。
+    rubric:
+      level1: 混淆内存区域或收集器定位
+      level3: 能说明 GC 流程与常见排查工具
+      level5: 能基于日志/堆转储给出可验证的调优结论
+    references: [JVM 题库, OpenJDK 源码, GC 日志规范]
+
+  - id: mysql-redis
+    name: MySQL / Redis
+    category: storage
+    level: 中级
+    roles: [Java 后端工程师, 数据库开发工程师]
+    minYears: 2
+    maxYears: 8
+    difficulty: MEDIUM
+    trackCode: FRAMEWORK_STORAGE
+    tags: [MySQL, 索引, 事务, Redis, 缓存]
+    jdKeywords: [MySQL, InnoDB, 索引, 事务, Redis, 缓存, 分库分表]
+    instructions: 考察 B+ 树索引、最左前缀、事务隔离、缓存穿透/击穿/雪崩与一致性方案；要求区分已验证结论与猜测。
+    questionRules:
+      - 抽取索引与缓存相关题，避免与 Spring 题重复。
+      - 至少一道题要求说明一致性或失效边界。
+    followupRules:
+      - 追问执行计划、命中率或一致性验证。
+      - 不把未验证的线上数据说成事实。
+    rubric:
+      level1: 只会背索引名词
+      level3: 能解释索引结构与缓存问题
+      level5: 能结合 EXPLAIN、命中率与一致性方案说明取舍
+    references: [MySQL / Redis 题库, InnoDB 文档]
+
+  - id: concurrency
+    name: 并发编程
+    category: java
+    level: 高级
+    roles: [Java 高级开发工程师, 中间件开发工程师]
+    minYears: 3
+    maxYears: 12
+    difficulty: HARD
+    trackCode: JAVA_CONCURRENCY
+    tags: [JMM, volatile, CAS, AQS, 线程池]
+    jdKeywords: [并发, 多线程, volatile, CAS, AQS, 线程池, 锁]
+    instructions: 考察 JMM、volatile、CAS、AQS 与线程池；要求说明原子性、可见性、有序性边界和真实故障场景。
+    questionRules:
+      - 从并发方向抽题，覆盖锁、线程池和内存可见性。
+      - 至少一道题要求说明复合操作的非原子性风险。
+    followupRules:
+      - 追问 happens-before 关系和失败后果。
+      - 不把单个关键字命中当成掌握。
+    rubric:
+      level1: 只能说出关键字名称
+      level3: 能解释可见性与原子性边界
+      level5: 能结合压测或故障说明设计与验证
+    references: [Java 并发题库, JUC 源码]
+
+  - id: rag
+    name: RAG 检索增强
+    category: ai
+    level: 高级
+    roles: [AI 应用开发工程师, RAG 工程师]
+    minYears: 2
+    maxYears: 10
+    difficulty: HARD
+    trackCode: RAG
+    tags: [分块, Embedding, 检索, 重排, 评测]
+    jdKeywords: [RAG, 检索增强, Embedding, 向量检索, Rerank, 召回, 知识库]
+    instructions: 考察文档解析、分块、嵌入、混合检索、重排、引用与评测；重点是权限过滤和忠实度，而不是堆模型名。
+    questionRules:
+      - 从 RAG 方向抽题。
+      - 至少一道题要求说明多租户权限过滤与评测方法。
+    followupRules:
+      - 追问召回指标、引用准确率与失败模式。
+      - 证据不足时明确说明未验证。
+    rubric:
+      level1: 只描述“向量库 + 大模型”
+      level3: 能讲清检索链路与常见失败
+      level5: 能给出评测集、权限过滤与重排取舍的工程方案
+    references: [RAG 题库, 向量检索文档]
+
+  - id: embedding-vectordb
+    name: Embedding / VectorDB
+    category: ai
+    level: 中级
+    roles: [AI 应用开发工程师, 检索工程师]
+    minYears: 1
+    maxYears: 8
+    difficulty: MEDIUM
+    trackCode: RAG
+    tags: [Embedding, 向量索引, HNSW, 相似度, 维度]
+    jdKeywords: [Embedding, 向量数据库, VectorDB, HNSW, 余弦相似度, 向量索引]
+    instructions: 考察嵌入模型选型、维度与距离度量、索引参数与召回/延迟权衡；要求说明语种和领域适配。
+    questionRules:
+      - 从 RAG 方向抽取与向量检索相关的题。
+      - 至少一道题要求解释索引参数对召回的影响。
+    followupRules:
+      - 追问维度、归一化和索引更新策略。
+      - 不把更高维度等同于更好效果。
+    rubric:
+      level1: 只会说“用向量数据库”
+      level3: 能解释相似度与索引基本参数
+      level5: 能结合召回率、延迟和更新成本做取舍
+    references: [RAG 题库, HNSW 文档]
+
+  - id: agent-tool
+    name: Agent / Tool Calling / MCP
+    category: ai
+    level: 高级
+    roles: [AI 应用开发工程师, Agent 开发工程师]
+    minYears: 2
+    maxYears: 10
+    difficulty: HARD
+    trackCode: AGENT_MCP
+    tags: [Agent, Tool Calling, MCP, 规划, 记忆]
+    jdKeywords: [Agent, Tool Calling, Function Calling, MCP, 工具调用, 多步推理]
+    instructions: 考察工具 schema、服务端执行边界、幂等与权限、失败重试与终止条件；要求区分确定性工作流与模型环节。
+    questionRules:
+      - 从 Agent / MCP 方向抽题。
+      - 至少一道题要求说明危险操作的人审与审计。
+    followupRules:
+      - 追问工具失败、越权与成本上限。
+      - 不把模型自述当作执行证据。
+    rubric:
+      level1: 只会说“让模型调用工具”
+      level3: 能说明工具链路与基本失败处理
+      level5: 能给出最小权限、审计、幂等与终止条件的完整设计
+    references: [Agent / MCP 题库, MCP 协议文档]
+
+  - id: system-design
+    name: 系统设计
+    category: architecture
+    level: 高级
+    roles: [Java 高级开发工程师, 架构师]
+    minYears: 4
+    maxYears: 15
+    difficulty: SENIOR
+    trackCode: JAVA_AI_SCENE
+    tags: [架构, 容量, 一致性, 可用性, 可观测]
+    jdKeywords: [系统设计, 架构设计, 高可用, 高并发, 容量规划, 一致性]
+    instructions: 考察需求澄清、容量估算、数据模型、故障域与可观测性；要求给出取舍和验证计划，而不是万能方案。
+    questionRules:
+      - 以 Java + AI 实战方向的项目链路题为骨架。
+      - 至少一道题要求说明容量或故障恢复指标。
+    followupRules:
+      - 追问瓶颈、降级和监控指标。
+      - 不接受没有测量依据的性能结论。
+    rubric:
+      level1: 直接堆组件，没有需求澄清
+      level3: 能给出分层方案与主要风险
+      level5: 能说明容量、故障域、降级与验证路径
+    references: [Java + AI 实战题库, RAG 题库]
+
+  - id: project-defense
+    name: 项目答辩
+    category: project
+    level: 中级
+    roles: [Java 后端工程师, Java + AI 工程师]
+    minYears: 1
+    maxYears: 15
+    difficulty: MEDIUM
+    trackCode: PROJECT
+    tags: [项目经历, 职责边界, 证据, 复盘]
+    jdKeywords: [项目经历, 项目答辩, 技术难点, 个人职责, 复盘]
+    instructions: 只依据用户提供的真实资料提问，区分已实现与规划；没有证据的内容不判定为事实，也不编造 QPS 或个人贡献。
+    questionRules:
+      - 使用项目专项题，必须携带用户授权的资料证据。
+      - 至少一道题要求指出可核对证据与未验证部分。
+    followupRules:
+      - 追问设计取舍、故障处理和本人实际职责。
+      - 资料不足时明确提示“证据不足”。
+    rubric:
+      level1: 无法说明本人职责或项目边界
+      level3: 能讲清链路与部分取舍
+      level5: 能用真实资料说明取舍、边界与验证结果
+    references: [用户授权项目资料]

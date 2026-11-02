@@ -688,7 +688,7 @@ onUnmounted(() => {
   line-height: 1.6;
   /* 超长无空格标题不撑破侧栏 */
   overflow-wrap: anywhere;
-  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard), background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .toc-link:hover {
   color: var(--kf-primary);
@@ -712,8 +712,8 @@ onUnmounted(() => {
 .action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
+  gap: 8px;
+  padding: 8px 12px;
   border-radius: 8px;
   font-size: var(--kf-fs-body-sm);
   font-weight: 500;
@@ -721,7 +721,7 @@ onUnmounted(() => {
   background: var(--kf-muted);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-fast) var(--kf-ease-standard);
 }
 
 .action-btn:hover {
@@ -775,7 +775,7 @@ onUnmounted(() => {
 
 /* 章节选择下拉面板 */
 .chapter-dropdown-header {
-  padding: 6px 10px 8px;
+  padding: 8px 12px 8px;
   font-size: var(--kf-fs-xs);
   font-weight: 600;
   color: var(--kf-muted-foreground);
@@ -786,7 +786,7 @@ onUnmounted(() => {
 /* 下拉项：全局 .kf-dropdown-item 仅有 hover，此处补齐按下与键盘焦点反馈 */
 .chapter-dropdown .kf-dropdown-item {
   text-align: left;
-  transition: background 0.12s ease, color 0.12s ease;
+  transition: background var(--kf-motion-fast) var(--kf-ease-standard), color var(--kf-motion-fast) var(--kf-ease-standard);
 }
 
 .chapter-dropdown .kf-dropdown-item:active {
@@ -802,7 +802,7 @@ onUnmounted(() => {
 
 /* 相关推荐卡片：补齐按下反馈（hover 已由 Tailwind 提供） */
 .related-card {
-  transition: opacity 0.2s ease, border-color 0.2s ease, transform 0.12s ease;
+  transition: opacity var(--kf-motion-slow) var(--kf-ease-standard), border-color var(--kf-motion-slow) var(--kf-ease-standard), transform var(--kf-motion-fast) var(--kf-ease-standard);
 }
 
 .related-card:hover {
@@ -836,7 +836,7 @@ onUnmounted(() => {
 
 :deep(.doc-content) {
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   line-height: 1.75;
   color: var(--kf-card-foreground);
   word-break: break-word;
@@ -848,11 +848,11 @@ onUnmounted(() => {
 /* 标题层级：H1/H2 用衬线体，H3/H4 用无衬线体 */
 :deep(.doc-content h1) {
   font-family: var(--font-serif);
-  font-size: 26px;
+  font-size: var(--kf-fs-h2);
   font-weight: 700;
   line-height: 1.35;
   letter-spacing: -0.02em;
-  margin: 8px 0 14px;
+  margin: 8px 0 12px;
   color: var(--kf-foreground);
   text-wrap: balance;
   white-space: normal;
@@ -860,7 +860,7 @@ onUnmounted(() => {
 
 :deep(.doc-content h2) {
   font-family: var(--font-serif);
-  font-size: 22px;
+  font-size: var(--kf-fs-h3);
   font-weight: 600;
   line-height: 1.35;
   letter-spacing: -0.01em;
@@ -878,7 +878,7 @@ onUnmounted(() => {
   font-size: 18px;
   font-weight: 600;
   line-height: 1.4;
-  margin: 18px 0 8px;
+  margin: 16px 0 8px;
   color: var(--kf-foreground);
   scroll-margin-top: 80px;
   white-space: normal;
@@ -888,14 +888,14 @@ onUnmounted(() => {
   font-size: 16px;
   font-weight: 600;
   line-height: 1.45;
-  margin: 14px 0 6px;
+  margin: 12px 0 8px;
   color: var(--kf-foreground);
   white-space: normal;
 }
 
 /* 正文段落 */
 :deep(.doc-content p) {
-  margin: 10px 0;
+  margin: 12px 0;
   line-height: 1.75;
   color: var(--kf-card-foreground);
   white-space: normal;
@@ -910,7 +910,7 @@ onUnmounted(() => {
 }
 
 :deep(.doc-content li) {
-  margin: 3px 0;
+  margin: 4px 0;
   line-height: 1.65;
   color: var(--kf-card-foreground);
   white-space: normal;
@@ -924,7 +924,7 @@ onUnmounted(() => {
 :deep(.doc-content blockquote) {
   border-left: 4px solid var(--kf-primary);
   background: color-mix(in srgb, var(--kf-primary) 5%, var(--kf-card));
-  padding: 10px 16px;
+  padding: 12px 16px;
   margin: 12px 0;
   border-radius: 0 8px 8px 0;
   color: var(--kf-card-foreground);
@@ -939,7 +939,7 @@ onUnmounted(() => {
 /* 行内代码 */
 :deep(.doc-content :not(pre) > code) {
   background: var(--kf-muted);
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 4px;
   font-size: var(--kf-fs-body-sm);
   font-family: var(--font-mono);
@@ -979,15 +979,15 @@ onUnmounted(() => {
 :deep(.doc-content .code-copy-btn) {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 8px;
+  gap: 4px;
+  padding: 4px 8px;
   border-radius: 4px;
   font-size: var(--kf-fs-caption);
   color: rgba(255, 255, 255, 0.5);
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard), background var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-fast) var(--kf-ease-standard);
   font-family: var(--font-sans);
 }
 
@@ -1016,7 +1016,7 @@ onUnmounted(() => {
   padding: 16px 20px;
   background: var(--kf-foreground);
   overflow-x: auto;
-  font-size: 13.5px;
+  font-size: var(--kf-fs-body-sm);
   line-height: 1.6;
 }
 
@@ -1025,7 +1025,7 @@ onUnmounted(() => {
   padding: 0;
   color: #e6e8ec;
   font-family: var(--font-mono);
-  font-size: 13.5px;
+  font-size: var(--kf-fs-body-sm);
   line-height: 1.6;
 }
 
@@ -1051,14 +1051,14 @@ onUnmounted(() => {
   background: var(--kf-muted);
   font-weight: 600;
   text-align: left;
-  padding: 8px 14px;
+  padding: 8px 12px;
   border-bottom: 2px solid var(--kf-border);
   color: var(--kf-foreground);
   white-space: normal;
 }
 
 :deep(.doc-content td) {
-  padding: 8px 14px;
+  padding: 8px 12px;
   border-bottom: 1px solid var(--kf-border);
   color: var(--kf-card-foreground);
   white-space: normal;
@@ -1076,7 +1076,7 @@ onUnmounted(() => {
 :deep(.doc-content a) {
   color: var(--kf-primary);
   text-decoration: none;
-  transition: opacity 0.15s;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 :deep(.doc-content a:hover) {
@@ -1108,7 +1108,7 @@ onUnmounted(() => {
   border-radius: 8px;
   margin: 8px 0;
   cursor: zoom-in;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform var(--kf-motion-slow) var(--kf-ease-standard), box-shadow var(--kf-motion-slow) var(--kf-ease-standard);
 }
 
 :deep(.doc-content img:active) {
@@ -1127,22 +1127,22 @@ onUnmounted(() => {
     font-size: 14px;
   }
   :deep(.doc-content h1) {
-    font-size: 22px;
+    font-size: var(--kf-fs-h3);
   }
   :deep(.doc-content h2) {
-    font-size: 19px;
+    font-size: var(--kf-fs-h4);
     margin: 24px 0 12px;
   }
   :deep(.doc-content h3) {
     font-size: 16px;
-    margin: 20px 0 10px;
+    margin: 20px 0 12px;
   }
   :deep(.doc-content pre) {
-    padding: 12px 14px;
-    font-size: 12.5px;
+    padding: 12px 12px;
+    font-size: var(--kf-fs-caption);
   }
   :deep(.doc-content .code-block-header) {
-    padding: 6px 12px;
+    padding: 8px 12px;
   }
 }
 

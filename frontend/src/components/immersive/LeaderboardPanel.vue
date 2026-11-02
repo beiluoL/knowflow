@@ -402,14 +402,14 @@ const RankList = defineComponent({
   font-weight: 500;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .lb-tab:hover {
   color: var(--kf-foreground);
 }
 .lb-tab.active {
   background: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   font-weight: 600;
   box-shadow: 0 4px 12px color-mix(in srgb, var(--kf-primary) 30%, transparent);
 }
@@ -423,7 +423,7 @@ const RankList = defineComponent({
 
 .lb-fade-enter-active,
 .lb-fade-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity var(--kf-motion-slow) var(--kf-ease-standard), transform var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .lb-fade-enter-from,
 .lb-fade-leave-to {
@@ -458,7 +458,7 @@ const RankList = defineComponent({
 .podium {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
   align-items: end;
   padding: 20px 4px 12px;
 }
@@ -466,7 +466,7 @@ const RankList = defineComponent({
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   position: relative;
 }
 .podium-item.gold { transform: translateY(-12px); }
@@ -480,7 +480,7 @@ const RankList = defineComponent({
   justify-content: center;
   font-size: 18px;
   font-weight: 700;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   background: linear-gradient(135deg, var(--kf-primary), #8B5CF6);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
@@ -498,7 +498,7 @@ const RankList = defineComponent({
   white-space: nowrap;
 }
 .podium-sub {
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   color: var(--kf-muted-foreground);
   margin-top: -2px;
 }
@@ -539,20 +539,20 @@ const RankList = defineComponent({
 .lb-list {
   list-style: none;
   margin: 0;
-  padding: 6px 0 8px;
+  padding: 8px 0 8px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .lb-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
+  gap: 12px;
+  padding: 8px 12px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid transparent;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .lb-row:hover {
   background: rgba(255, 255, 255, 0.05);
@@ -574,7 +574,7 @@ const RankList = defineComponent({
 .lb-rank.me-rank {
   color: var(--kf-primary);
   font-weight: 700;
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   letter-spacing: 0.04em;
 }
 
@@ -589,7 +589,7 @@ const RankList = defineComponent({
   justify-content: center;
   font-size: 12px;
   font-weight: 700;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   background: linear-gradient(135deg, var(--kf-primary), #8B5CF6);
 }
 
@@ -604,7 +604,7 @@ const RankList = defineComponent({
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 8px;
 }
 .lb-name {
   font-size: 12px;
@@ -616,18 +616,18 @@ const RankList = defineComponent({
 }
 .lb-level {
   flex-shrink: 0;
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   font-weight: 600;
-  padding: 1px 6px;
+  padding: 1px 8px;
   color: var(--kf-primary);
   background: color-mix(in srgb, var(--kf-primary) 15%, transparent);
   border-radius: 4px;
 }
 .type-tag {
   flex-shrink: 0;
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   font-weight: 600;
-  padding: 1px 6px;
+  padding: 1px 8px;
   border-radius: 4px;
 }
 .type-tag.public {
@@ -642,7 +642,7 @@ const RankList = defineComponent({
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   color: var(--kf-muted-foreground);
   overflow: hidden;
   text-overflow: ellipsis;

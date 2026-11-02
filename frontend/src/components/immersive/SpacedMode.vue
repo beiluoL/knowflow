@@ -136,7 +136,7 @@
         </div>
         <div v-if="nextLockedAchievement" class="na-item">
           <div class="na-icon" :style="{ background: '#0EA5E9' }">
-            <Icon :name="nextLockedAchievement.icon" :size="22" />
+            <Icon :name="nextLockedAchievement.icon" :size="24" />
           </div>
           <div class="na-info">
             <div class="na-name">{{ nextLockedAchievement.name }}</div>
@@ -370,7 +370,7 @@ onUnmounted(async () => {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-  padding: 18px;
+  padding: 16px;
   backdrop-filter: blur(8px);
 }
 
@@ -381,7 +381,7 @@ onUnmounted(async () => {
   font-size: 14px;
   font-weight: 600;
   color: var(--kf-foreground);
-  margin: 0 0 14px;
+  margin: 0 0 12px;
 }
 
 .queue-empty {
@@ -397,7 +397,7 @@ onUnmounted(async () => {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   max-height: 380px;
   overflow-y: auto;
   padding-right: 4px;
@@ -415,11 +415,11 @@ onUnmounted(async () => {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 10px 12px;
+  padding: 12px 12px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.03);
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard);
   border: 1px solid transparent;
 }
 .queue-item:hover {
@@ -455,8 +455,8 @@ onUnmounted(async () => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  height: 38px;
+  gap: 8px;
+  height: var(--kf-btn-height-md);
   font-size: 13px;
   font-weight: 600;
   color: var(--kf-foreground);
@@ -464,7 +464,7 @@ onUnmounted(async () => {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .act-btn:hover {
   background: rgba(255, 255, 255, 0.1);
@@ -492,13 +492,13 @@ onUnmounted(async () => {
 
 .queue-timer {
   margin-top: 8px;
-  padding: 10px 12px;
+  padding: 12px 12px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 10px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   font-weight: 600;
   color: var(--kf-foreground);
@@ -574,7 +574,7 @@ onUnmounted(async () => {
   word-break: break-word;
 }
 .card-a {
-  font-size: 17px;
+  font-size: var(--kf-fs-body-lg);
   text-align: left;
   align-items: flex-start;
   justify-content: flex-start;
@@ -593,7 +593,7 @@ onUnmounted(async () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
   color: var(--kf-muted-foreground);
 }
 .card-empty p {
@@ -606,7 +606,7 @@ onUnmounted(async () => {
 .rating-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 12px;
   padding-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   margin-top: 12px;
@@ -616,19 +616,19 @@ onUnmounted(async () => {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 12px 6px;
+  padding: 12px 8px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .rate-btn:hover {
   transform: translateY(-2px);
   background: rgba(255, 255, 255, 0.08);
 }
 .rate-emoji {
-  font-size: 22px;
+  font-size: var(--kf-fs-h3);
   line-height: 1;
 }
 .rate-label {
@@ -659,7 +659,7 @@ onUnmounted(async () => {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 12px 12px;
 }
 .stat-card.big .stat-value {
   font-size: 36px;
@@ -671,7 +671,7 @@ onUnmounted(async () => {
   letter-spacing: 0.02em;
 }
 .stat-value {
-  font-size: 26px;
+  font-size: var(--kf-fs-h2);
   font-weight: 700;
   color: var(--kf-foreground);
   line-height: 1.2;
@@ -698,7 +698,7 @@ onUnmounted(async () => {
   height: 100%;
   background: linear-gradient(90deg, var(--kf-primary), #0EA5E9);
   border-radius: 999px;
-  transition: width 0.5s ease;
+  transition: width 0.5s var(--kf-ease-standard);
 }
 
 .sm2-card .sm2-hint {
@@ -717,12 +717,12 @@ onUnmounted(async () => {
   );
   border: 1px solid rgba(139, 92, 246, 0.2);
   border-radius: 12px;
-  padding: 14px;
+  padding: 12px;
 }
 .na-title {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 12px;
   font-weight: 600;
   color: var(--kf-primary);
@@ -740,7 +740,7 @@ onUnmounted(async () => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   flex-shrink: 0;
   opacity: 0.55;
 }

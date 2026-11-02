@@ -49,6 +49,15 @@ class StudyPackHttpTest {
   failCards.set(false);call("POST","/api/learning/study-packs/"+id+"/retry",Map.of("step","CARDS"),owner,200);var done=terminal(id);assertEquals("DRAFT_READY",done.path("state").asText());assertEquals(note,done.path("note").path("id").asLong());
   assertEquals(1,sql.queryForObject("SELECT run_count FROM study_pack_step WHERE job_id=? AND kind='NOTE'",Integer.class,id));assertEquals(2,sql.queryForObject("SELECT run_count FROM study_pack_step WHERE job_id=? AND kind='CARDS'",Integer.class,id));
  }
+ @Test void cancellationIsOwnedIdempotentAndKeepsCommittedArtifacts()throws Exception{
+  long id=upload("cancel.txt","取消回归：JVM提供GC，Spring管理Bean。").path("id").asLong();var ready=terminal(id);long note=ready.path("note").path("id").asLong();
+  call("POST","/api/learning/study-packs/"+id+"/cancel",null,owner,409);
+  sql.update("UPDATE study_pack_job SET state='QUEUED' WHERE id=?",id);
+  for(long user:new long[]{98502,98503})call("POST","/api/learning/study-packs/"+id+"/cancel",null,user,404);
+  var cancelled=call("POST","/api/learning/study-packs/"+id+"/cancel",null,owner,200);assertEquals("CANCELLED",cancelled.path("state").asText());assertEquals(note,cancelled.path("note").path("id").asLong());
+  assertEquals("CANCELLED",call("POST","/api/learning/study-packs/"+id+"/cancel",null,owner,200).path("state").asText());
+  call("POST","/api/learning/study-packs/"+id+"/retry",Map.of("step","NOTE"),owner,409);
+ }
  @Test void unsupportedFilesAndAnonymousAreRejectedWithoutFakeJobs()throws Exception{
   mvc.perform(multipart("/api/learning/study-packs").file(new MockMultipartFile("file","x.txt","text/plain","x".getBytes()))).andExpect(status().isUnauthorized());
   mvc.perform(multipart("/api/learning/study-packs").file(new MockMultipartFile("file","x.exe","application/octet-stream","x".getBytes())).header("Authorization",auth(owner))).andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value(400));

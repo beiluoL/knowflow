@@ -371,7 +371,7 @@ watch(
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 20px;
-  padding: 20px 20px 18px;
+  padding: 20px 20px 16px;
   box-shadow: 0 32px 80px rgba(0, 0, 0, 0.45);
 }
 
@@ -389,7 +389,7 @@ watch(
   border: 1px solid transparent;
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .close-btn:hover {
   background: rgba(255, 255, 255, 0.09);
@@ -419,7 +419,7 @@ watch(
   max-width: 100%;
   aspect-ratio: 375 / 520;
   border-radius: 20px;
-  padding: 28px 28px 24px;
+  padding: 24px 24px 24px;
   box-sizing: border-box;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   display: flex;
@@ -446,7 +446,7 @@ watch(
 .user-section {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   margin-bottom: 36px;
 }
 .user-avatar {
@@ -457,26 +457,26 @@ watch(
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: var(--kf-fs-h3);
   font-weight: 700;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   flex-shrink: 0;
 }
 .user-info {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .user-name {
   font-size: 18px;
   font-weight: 700;
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 .streak-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 10px;
+  padding: 4px 12px;
   font-size: 12px;
   font-weight: 600;
   color: #fbbf24;
@@ -492,7 +492,7 @@ watch(
 .hero-numbers {
   font-size: 40px;
   font-weight: 700;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   line-height: 1.1;
   margin-bottom: 10px;
 }
@@ -501,25 +501,25 @@ watch(
   color: rgba(255, 255, 255, 0.9);
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 .hero-sub strong {
   font-weight: 700;
   font-size: 18px;
 }
 .mode-badge {
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 
 .stats-row {
   display: flex;
   background: rgba(255, 255, 255, 0.08);
   border-radius: 14px;
-  padding: 14px 0;
+  padding: 12px 0;
   margin-bottom: 20px;
 }
 .stat-box {
@@ -544,13 +544,13 @@ watch(
 .stat-val {
   font-size: 20px;
   font-weight: 700;
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 
 .achievements-row {
   display: flex;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
   margin-bottom: auto;
 }
 .ach-icon {
@@ -561,7 +561,7 @@ watch(
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 
 .card-footer {
@@ -577,15 +577,15 @@ watch(
 
 .actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 .action-btn {
   flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  height: 42px;
+  gap: 8px;
+  height: var(--kf-btn-height-md);
   padding: 0 16px;
   font-size: 14px;
   font-weight: 600;
@@ -594,7 +594,7 @@ watch(
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 12px;
   cursor: pointer;
-  transition: background 0.15s ease, filter 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), filter var(--kf-motion-base) var(--kf-ease-standard);
 }
 .action-btn:hover {
   background: rgba(255, 255, 255, 0.1);
@@ -615,11 +615,11 @@ watch(
 
 .sc-fade-enter-active,
 .sc-fade-leave-active {
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition: opacity var(--kf-motion-slow) var(--kf-ease-standard), transform var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .sc-fade-enter-active .sharecard-panel,
 .sc-fade-leave-active .sharecard-panel {
-  transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2), opacity 0.18s ease;
+  transition: transform var(--kf-motion-slow) cubic-bezier(0.2, 0.9, 0.3, 1.2), opacity var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .sc-fade-enter-from,
 .sc-fade-leave-to {
@@ -634,10 +634,10 @@ watch(
 @media (max-width: 520px) {
   .share-card {
     width: 100%;
-    padding: 22px 20px;
+    padding: 20px 20px;
   }
   .hero-numbers {
-    font-size: 34px;
+    font-size: var(--kf-fs-display);
   }
 }
 </style>

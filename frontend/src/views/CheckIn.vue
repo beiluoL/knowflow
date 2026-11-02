@@ -363,7 +363,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 40px;
+  padding: 12px 40px;
   border-radius: var(--kf-radius-lg);
   font-size: 16px;
   font-weight: 700;
@@ -372,7 +372,7 @@ onMounted(() => {
   border: none;
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition: transform var(--kf-motion-base) var(--kf-ease-standard),  box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 .btn-checkin-action:hover:not(:disabled) {
   transform: translateY(-1px);
@@ -388,11 +388,11 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 9999px;
   font-size: 12px;
   font-weight: 600;
-  background: rgba(16, 185, 129, 0.12);
+  background: var(--kf-success-soft);
   color: var(--kf-accent);
   animation: pop 0.3s ease-out;
 }
@@ -408,12 +408,12 @@ onMounted(() => {
   background: var(--kf-card);
   padding: 20px 16px;
   text-align: center;
-  transition: border-color 0.15s, background-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard),  background-color var(--kf-motion-base) var(--kf-ease-standard);
   position: relative;
 }
 .milestone-card.achieved {
   border-color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.04);
+  background: var(--kf-primary-soft);
 }
 .milestone-card.locked {
   opacity: 0.6;
@@ -459,7 +459,7 @@ onMounted(() => {
   text-align: center;
   font-size: 12px;
   font-weight: 600;
-  padding: 6px 0;
+  padding: 8px 0;
   color: var(--kf-muted-foreground);
 }
 .cal-day {
@@ -471,7 +471,7 @@ onMounted(() => {
   border-radius: var(--kf-radius-sm);
   background: var(--kf-background);
   color: var(--kf-foreground);
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .cal-day.empty {
   background: transparent;
@@ -493,16 +493,16 @@ onMounted(() => {
 .rank-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
+  gap: 12px;
+  padding: 8px 12px;
   border-radius: var(--kf-radius-sm);
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .rank-item:hover {
   background: var(--kf-muted);
 }
 .rank-item.self {
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
   border: 1px solid rgba(59, 111, 224, 0.2);
 }
 .rank-num {

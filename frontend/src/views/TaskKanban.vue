@@ -13,7 +13,7 @@
 
     <div v-if="loading" class="kf-loading"><Icon name="loader" :size="18" class="spin" /> 加载中…</div>
     <div v-else-if="error" class="kf-error">
-      <Icon name="alert-circle" :size="22" style="color: var(--kf-destructive);" />
+      <Icon name="alert-circle" :size="24" style="color: var(--kf-destructive);" />
       <p>{{ error }}</p>
       <button class="kf-retry" @click="reload">重试</button>
     </div>
@@ -47,8 +47,8 @@
             <div class="kf-card-title">{{ t.title }}</div>
             <TaskCompletionAction :requirement="t.completionRequirement" :title="t.title" />
             <div class="kf-card-foot">
-              <span v-if="t.important === 1" class="kf-chip imp" title="重要"><Icon name="star" :size="11" /> 重要</span>
-              <span v-if="t.urgent === 1" class="kf-chip urg" title="紧急"><Icon name="alert-circle" :size="11" /> 紧急</span>
+              <span v-if="t.important === 1" class="kf-chip imp" title="重要"><Icon name="star" :size="12" /> 重要</span>
+              <span v-if="t.urgent === 1" class="kf-chip urg" title="紧急"><Icon name="alert-circle" :size="12" /> 紧急</span>
               <span class="kf-card-actions">
                 <button
                   class="kf-act"
@@ -56,10 +56,10 @@
                   :title="t.status === 1 ? '标记为未完成' : '标记为完成'"
                   @click="toggleDone(t)"
                 >
-                  <Icon :name="t.status === 1 ? 'rotate-ccw' : 'check'" :size="13" />
+                  <Icon :name="t.status === 1 ? 'rotate-ccw' : 'check'" :size="14" />
                 </button>
                 <button class="kf-act del" title="删除" @click="remove(t)">
-                  <Icon name="trash-2" :size="13" />
+                  <Icon name="trash-2" :size="14" />
                 </button>
               </span>
             </div>
@@ -217,17 +217,17 @@ onMounted(reload)
 .kf-sub { font-size: 13px; color: var(--kf-muted-foreground); margin-top: 2px; }
 
 /* 局部前缀 kbn-：避免与全局工具类 .kf-progress（高 6px + overflow:hidden）同名导致进度行被裁切 */
-.kbn-progress { display: flex; align-items: center; gap: 10px; min-width: 200px; flex: 0 1 320px; }
+.kbn-progress { display: flex; align-items: center; gap: 12px; min-width: 200px; flex: 0 1 320px; }
 .kbn-progress-bar { flex: 1 1 auto; height: 8px; border-radius: 999px; background: var(--kf-muted); overflow: hidden; }
-.kbn-progress-fill { height: 100%; border-radius: 999px; background: var(--kf-success); transition: width 0.3s ease; }
+.kbn-progress-fill { height: 100%; border-radius: 999px; background: var(--kf-success); transition: width var(--kf-motion-slower) var(--kf-ease-standard); }
 .kbn-progress-text { font-size: 12px; color: var(--kf-muted-foreground); white-space: nowrap; }
 
 .kf-loading, .kf-error {
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
   padding: 60px 20px; color: var(--kf-muted-foreground); font-size: 14px;
 }
 .kf-error { color: var(--kf-destructive); }
-.kf-retry { margin-top: 4px; padding: 6px 16px; border-radius: 8px; border: none; background: var(--kf-primary); color: #fff; font-size: 13px; cursor: pointer; }
+.kf-retry { margin-top: 4px; padding: 8px 16px; border-radius: 8px; border: none; background: var(--kf-primary); color: var(--kf-accent-foreground); font-size: 13px; cursor: pointer; }
 .spin { animation: kf-spin 0.8s linear infinite; }
 @keyframes kf-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 
@@ -236,53 +236,53 @@ onMounted(reload)
 .kf-col {
   display: flex; flex-direction: column; min-height: 0;
   background: var(--kf-card); border: 1px solid var(--kf-border); border-radius: 12px; padding: 12px;
-  transition: border-color 0.12s ease, background 0.12s ease;
+  transition: border-color var(--kf-motion-fast) var(--kf-ease-standard), background var(--kf-motion-fast) var(--kf-ease-standard);
 }
-.kf-col.over { border-color: var(--kf-primary); background: rgba(59, 111, 224, 0.04); }
+.kf-col.over { border-color: var(--kf-primary); background: var(--kf-primary-soft); }
 
-.kf-col-head { display: flex; align-items: center; gap: 8px; padding: 2px 2px 10px; }
+.kf-col-head { display: flex; align-items: center; gap: 8px; padding: 2px 2px 12px; }
 .kf-col-dot { width: 9px; height: 9px; border-radius: 50%; }
 .kf-col-title { font-size: 14px; font-weight: 600; color: var(--kf-foreground); flex: 1 1 auto; }
-.kf-col-count { font-size: 11px; color: var(--kf-muted-foreground); background: var(--kf-muted); border-radius: 999px; min-width: 20px; text-align: center; padding: 1px 6px; }
+.kf-col-count { font-size: 11px; color: var(--kf-muted-foreground); background: var(--kf-muted); border-radius: 999px; min-width: 20px; text-align: center; padding: 1px 8px; }
 
 .kf-cards { flex: 1 1 auto; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; min-height: 40px; }
 
 .kf-card {
-  background: var(--kf-muted); border: 1px solid transparent; border-radius: 9px; padding: 10px;
-  cursor: grab; transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.06s ease;
+  background: var(--kf-muted); border: 1px solid transparent; border-radius: 9px; padding: 12px;
+  cursor: grab; transition: border-color var(--kf-motion-fast) var(--kf-ease-standard), box-shadow var(--kf-motion-fast) var(--kf-ease-standard), transform var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .kf-card:hover { border-color: var(--kf-border); }
 .kf-card:active { cursor: grabbing; }
 .kf-card.done { opacity: 0.7; }
-.kf-card-title { font-size: 13.5px; color: var(--kf-foreground); line-height: 1.45; word-break: break-word; }
+.kf-card-title { font-size: var(--kf-fs-body-sm); color: var(--kf-foreground); line-height: 1.45; word-break: break-word; }
 .kf-card.done .kf-card-title { text-decoration: line-through; color: var(--kf-muted-foreground); }
 
-.kf-card-foot { display: flex; align-items: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.kf-card-foot { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
 .kf-chip {
-  display: inline-flex; align-items: center; gap: 3px; font-size: 10.5px; font-weight: 500;
-  padding: 1px 7px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 4px; font-size: var(--kf-fs-xs); font-weight: 500;
+  padding: 1px 8px; border-radius: 999px;
 }
-.kf-chip.imp { color: var(--kf-warning); background: rgba(245, 158, 11, 0.12); }
-.kf-chip.urg { color: var(--kf-danger); background: rgba(239, 68, 68, 0.12); }
+.kf-chip.imp { color: var(--kf-warning); background: var(--kf-warning-soft); }
+.kf-chip.urg { color: var(--kf-danger); background: var(--kf-danger-soft); }
 
-.kf-card-actions { margin-left: auto; display: flex; gap: 2px; opacity: 0; transition: opacity 0.12s ease; }
+.kf-card-actions { margin-left: auto; display: flex; gap: 2px; opacity: 0; transition: opacity var(--kf-motion-fast) var(--kf-ease-standard); }
 .kf-card:hover .kf-card-actions { opacity: 1; }
 .kf-act {
   width: 24px; height: 24px; border: none; background: var(--kf-card); color: var(--kf-muted-foreground);
-  border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.12s ease;
+  border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: background-color var(--kf-motion-fast) var(--kf-ease-standard), border-color var(--kf-motion-fast) var(--kf-ease-standard), color var(--kf-motion-fast) var(--kf-ease-standard), box-shadow var(--kf-motion-fast) var(--kf-ease-standard), opacity var(--kf-motion-fast) var(--kf-ease-standard), transform var(--kf-motion-fast) var(--kf-ease-standard), width var(--kf-motion-fast) var(--kf-ease-standard), height var(--kf-motion-fast) var(--kf-ease-standard), stroke-dashoffset var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .kf-act:hover { color: var(--kf-primary); }
-.kf-act.del:hover { color: var(--kf-destructive); background: rgba(239, 68, 68, 0.1); }
+.kf-act.del:hover { color: var(--kf-destructive); background: var(--kf-danger-soft); }
 
 .kf-empty {
   font-size: 12px; color: var(--kf-muted-foreground); text-align: center;
-  padding: 18px 0; border: 1px dashed var(--kf-border); border-radius: 9px;
+  padding: 16px 0; border: 1px dashed var(--kf-border); border-radius: 9px;
 }
 
 .kf-add {
-  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   width: 100%; padding: 8px; border-radius: 8px; border: 1px dashed var(--kf-border);
-  background: transparent; color: var(--kf-muted-foreground); font-size: 12.5px; cursor: pointer; transition: all 0.12s ease;
+  background: transparent; color: var(--kf-muted-foreground); font-size: var(--kf-fs-caption); cursor: pointer; transition: background-color var(--kf-motion-fast) var(--kf-ease-standard), border-color var(--kf-motion-fast) var(--kf-ease-standard), color var(--kf-motion-fast) var(--kf-ease-standard), box-shadow var(--kf-motion-fast) var(--kf-ease-standard), opacity var(--kf-motion-fast) var(--kf-ease-standard), transform var(--kf-motion-fast) var(--kf-ease-standard), width var(--kf-motion-fast) var(--kf-ease-standard), height var(--kf-motion-fast) var(--kf-ease-standard), stroke-dashoffset var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .kf-add:hover { border-color: var(--kf-primary); color: var(--kf-primary); }
 

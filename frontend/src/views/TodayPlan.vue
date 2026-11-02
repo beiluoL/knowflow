@@ -234,8 +234,7 @@ const defaultBlocks: PlanBlockVO[] = [
 ]
 
 const subtitleText = computed(() => {
-  const d = plan.value?.date ?? todayStr
-  return `日期：${d}　自动合并学习任务 · Todo · 习惯打卡`
+  return '自动合并学习任务 · Todo · 习惯打卡'
 })
 
 // 状态派生
@@ -560,7 +559,7 @@ onMounted(loadPlan)
   gap: var(--kf-space-3);
   padding: 0;
 }
-.item-check .kf-checkbox-label {
+.item-check :deep(.kf-checkbox-label) {
   display: block;
   flex: 1 1 auto;
   min-width: 0;
@@ -643,6 +642,7 @@ onMounted(loadPlan)
 .plan-progress-head {
   display: flex;
   align-items: baseline;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: var(--kf-space-3);
 }

@@ -173,7 +173,7 @@ function getIconColor(icon?: string): string {
 
 .sidebar-item.sub-item {
   padding-left: 26px;
-  font-size: 12.5px;
+  font-size: var(--kf-fs-caption);
 }
 
 .sidebar-item.sub-sub-item {

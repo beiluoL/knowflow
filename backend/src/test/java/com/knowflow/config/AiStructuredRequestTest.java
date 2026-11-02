@@ -22,4 +22,17 @@ class AiStructuredRequestTest {
    server.enqueue(new MockResponse().setBody(response));ai.complete("ordinary","case",(String)null,7L);body=new ObjectMapper().readTree(server.takeRequest().getBody().readUtf8());assertFalse(body.has("thinking"));assertFalse(body.has("response_format"));
   }
  }
+ @Test void structuredStreamingUsesUserScopeAndTrueProviderFrames()throws Exception{
+  try(var server=new MockWebServer()){
+   server.start();var mapper=mock(UserAiConfigMapper.class);var cfg=new UserAiConfig();cfg.setProvider("deepseek");cfg.setApiKey("offline-user-secret");cfg.setModel("user-stream-model");cfg.setBaseUrl(server.url("/v1").toString());when(mapper.selectOne(any())).thenReturn(cfg);
+   var executor=mock(AiCapabilityExecutor.class);when(executor.execute(eq("deepseek:user-stream-model"),eq(false),any())).thenAnswer(i->((AiCapabilityExecutor.AiCall)i.getArgument(2)).invoke());
+   var factory=mock(ModelAdapterFactory.class);var adapter=mock(com.knowflow.ai.ModelAdapter.class);when(factory.getAdapter("deepseek")).thenReturn(adapter);when(adapter.protocol()).thenReturn(AiProviderRegistry.Protocol.OPENAI);
+   var global=new AiConfig();global.setApiKey("unused-platform-secret");global.setModel("unused-platform-model");
+   var ai=new AiServiceImpl(global,mapper,mock(AiProviderRegistry.class),factory,executor,mock(AiCapabilityStateService.class),new AiCapabilityProperties());
+   server.enqueue(new MockResponse().setHeader("Content-Type","text/event-stream").setBody("data: {\"choices\":[{\"delta\":{\"content\":\"first\"}}]}\n\ndata: {\"choices\":[{\"delta\":{\"content\":\"second\"}}]}\n\ndata: [DONE]\n\n"));
+   var tokens=new java.util.ArrayList<String>();assertEquals("firstsecond",ai.streamStructured("JSON only","case",7L,tokens::add,()->false));assertEquals(java.util.List.of("first","second"),tokens);
+   var request=server.takeRequest();assertEquals("Bearer offline-user-secret",request.getHeader("Authorization"));var body=new ObjectMapper().readTree(request.getBody().readUtf8());assertEquals("user-stream-model",body.path("model").asText());assertTrue(body.path("stream").asBoolean());assertEquals("disabled",body.path("thinking").path("type").asText());assertEquals("json_object",body.path("response_format").path("type").asText());
+  }
+ }
+
 }

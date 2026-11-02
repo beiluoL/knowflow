@@ -643,9 +643,9 @@ onUnmounted(() => {
 .new-chat-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
-  height: 36px;
+  height: var(--kf-btn-height-md);
   border-radius: 8px;
   border: 1px dashed var(--kf-border);
   background: transparent;
@@ -653,11 +653,11 @@ onUnmounted(() => {
   font-size: var(--kf-fs-body-sm);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 
 .new-chat-btn:hover {
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   border-color: var(--kf-primary);
 }
 
@@ -684,7 +684,7 @@ onUnmounted(() => {
 }
 
 .search-input:not(.kf-form-control) {
-  height: 36px;
+  height: var(--kf-input-height);
   border-radius: 8px;
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
@@ -717,11 +717,11 @@ onUnmounted(() => {
 .conv-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: 12px;
+  padding: 12px 12px;
   border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.15s, transform 0.1s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard),  transform var(--kf-motion-fast) var(--kf-ease-standard);
 }
 
 .conv-item:hover {
@@ -729,7 +729,7 @@ onUnmounted(() => {
 }
 
 .conv-item.active {
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
 }
 
 .conv-item:active {
@@ -748,7 +748,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--kf-accent-foreground);
   font-size: var(--kf-fs-body-lg);
   font-weight: 600;
   flex-shrink: 0;
@@ -776,7 +776,7 @@ onUnmounted(() => {
 .conv-last {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: var(--kf-fs-caption);
   color: var(--kf-muted-foreground);
   margin: 2px 0 0;
@@ -786,17 +786,17 @@ onUnmounted(() => {
 }
 
 .group-tag {
-  padding: 1px 5px;
+  padding: 1px 4px;
   border-radius: 4px;
   background: rgba(139, 92, 246, 0.12);
   color: #8B5CF6;
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
 }
 
 .unread-badge {
   background: var(--kf-primary);
-  color: white;
-  padding: 2px 6px;
+  color: var(--kf-accent-foreground);
+  padding: 2px 8px;
   border-radius: 10px;
   font-size: var(--kf-fs-xs);
   font-weight: 600;
@@ -929,7 +929,7 @@ onUnmounted(() => {
 
 .message-item {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   max-width: 70%;
 }
 
@@ -949,7 +949,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--kf-accent-foreground);
   font-size: var(--kf-fs-body-sm);
   font-weight: 600;
   flex-shrink: 0;
@@ -968,7 +968,7 @@ onUnmounted(() => {
 }
 
 .message-bubble {
-  padding: 10px 14px;
+  padding: 12px 12px;
   border-radius: 12px;
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
@@ -989,14 +989,14 @@ onUnmounted(() => {
 }
 
 .message-item.mine .message-text {
-  color: white;
+  color: var(--kf-accent-foreground);
 }
 
 .message-image {
   max-width: 240px;
   border-radius: 8px;
   cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .message-image:hover {
@@ -1023,7 +1023,7 @@ onUnmounted(() => {
   color: var(--kf-foreground);
   font-size: var(--kf-fs-body-sm);
   min-width: 0;
-  transition: background 0.15s ease, transform 0.1s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-fast) var(--kf-ease-standard);
 }
 
 .message-file:hover {
@@ -1083,7 +1083,7 @@ onUnmounted(() => {
   color: var(--kf-muted-foreground);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .msg-read {
@@ -1093,7 +1093,7 @@ onUnmounted(() => {
 .msg-recall {
   cursor: pointer;
   color: var(--kf-muted-foreground);
-  transition: color 0.15s ease;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .msg-recall:hover {
@@ -1144,7 +1144,7 @@ onUnmounted(() => {
   color: var(--kf-muted-foreground);
   cursor: pointer;
   border-radius: 6px;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 
 .tool-btn:hover {
@@ -1169,7 +1169,7 @@ onUnmounted(() => {
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  padding: 10px 14px;
+  padding: 12px 12px;
   border-radius: 12px;
   background: var(--kf-field-surface);
   border: 0;
@@ -1192,17 +1192,17 @@ onUnmounted(() => {
 }
 
 .send-btn {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: var(--kf-btn-height-md);
   border-radius: 8px;
   border: none;
   background: var(--kf-primary);
-  color: white;
+  color: var(--kf-accent-foreground);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.15s ease, transform 0.1s ease;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-fast) var(--kf-ease-standard);
 }
 
 .send-btn:hover:not(:disabled) {
@@ -1263,7 +1263,7 @@ onUnmounted(() => {
   color: var(--kf-muted-foreground);
   padding: 4px;
   border-radius: 6px;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-fast) var(--kf-ease-standard);
 }
 
 .dialog-close:hover {
@@ -1305,7 +1305,7 @@ onUnmounted(() => {
 
 .form-input {
   width: 100%;
-  padding: 10px 14px;
+  padding: 12px 12px;
   color: var(--kf-foreground);
   font-size: var(--kf-fs-body-md);
   box-sizing: border-box;
@@ -1327,10 +1327,10 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px;
+  padding: 12px;
   border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.15s, transform 0.1s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard),  transform var(--kf-motion-fast) var(--kf-ease-standard);
 }
 
 .user-search-item:hover {

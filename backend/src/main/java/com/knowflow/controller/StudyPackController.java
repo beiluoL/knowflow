@@ -20,6 +20,7 @@ public class StudyPackController {
  @PostMapping(consumes="multipart/form-data") public Result<Map<String,Object>> upload(@RequestPart("file") MultipartFile file){return Result.success(packs.upload(user(),file));}
  @GetMapping("/{id}") public Result<Map<String,Object>> detail(@PathVariable long id){return Result.success(packs.detail(id,user()));}
  @PostMapping("/{id}/retry") public Result<Map<String,Object>> retry(@PathVariable long id,@Valid @RequestBody Retry input){return Result.success(packs.retry(id,user(),input.step()));}
+ @PostMapping("/{id}/cancel") public Result<Map<String,Object>> cancel(@PathVariable long id){return Result.success(packs.cancel(id,user()));}
  @PutMapping("/{id}/draft") public Result<Map<String,Object>> draft(@PathVariable long id,@Valid @RequestBody Cards input){return Result.success(packs.saveCards(id,user(),input.expectedRevision(),input.cards()));}
  @PostMapping("/{id}/accept") public Result<Map<String,Object>> accept(@PathVariable long id,@Valid @RequestBody Cards input){return Result.success(packs.accept(id,user(),input.expectedRevision(),input.cards()));}
 }

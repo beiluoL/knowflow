@@ -299,7 +299,7 @@ onMounted(() => {
       <div v-if="sourceTab === 'existing'">
         <div class="kp-search-row">
           <div class="kp-search-input-wrap">
-            <Icon name="search" :size="15" class="kp-search-ic" />
+            <Icon name="search" :size="16" class="kp-search-ic" />
             <input
               v-model="keyword"
               type="text"
@@ -323,9 +323,9 @@ onMounted(() => {
             :class="{ active: selectedDoc?.id === d.id }"
             @click="selectedDoc = d"
           >
-            <Icon name="file-text" :size="15" class="kp-doc-ic" />
+            <Icon name="file-text" :size="16" class="kp-doc-ic" />
             <span class="kp-doc-title">{{ d.title }}</span>
-            <span v-if="selectedDoc?.id === d.id" class="kp-doc-check"><Icon name="check" :size="13" /></span>
+            <span v-if="selectedDoc?.id === d.id" class="kp-doc-check"><Icon name="check" :size="14" /></span>
           </button>
         </div>
         <div v-else-if="!searching" class="kp-empty">暂无匹配文档，可切换到「粘贴新资料」直接创建文本资料</div>
@@ -354,7 +354,7 @@ onMounted(() => {
       </div>
 
       <div v-if="selectedDoc" class="kp-selected">
-        <Icon name="file-text" :size="15" />
+        <Icon name="file-text" :size="16" />
         当前资料：<b>{{ selectedDoc.title }}</b>
       </div>
     </section>
@@ -424,7 +424,7 @@ onMounted(() => {
         :disabled="!canRun"
         @click="run"
       >
-        <Icon name="sparkles" :size="15" />
+        <Icon name="sparkles" :size="16" />
         {{ running ? (mode === 'SUMMARY' ? 'AI 正在总结…' : 'AI 正在整理知识…') : '开始 AI 整理' }}
       </button>
       <button v-if="result && mode === 'KNOWLEDGE_EXTRACTION'" type="button" class="kp-btn" :disabled="running" @click="run">
@@ -442,7 +442,7 @@ onMounted(() => {
 
         <!-- 摘要 -->
         <div v-if="result.summary" class="kp-summary">
-          <div class="kp-summary-label"><Icon name="align-left" :size="13" /> 摘要</div>
+          <div class="kp-summary-label"><Icon name="align-left" :size="14" /> 摘要</div>
           <p>{{ result.summary }}</p>
         </div>
 
@@ -458,7 +458,7 @@ onMounted(() => {
           <span class="kp-stat meta">{{ Math.round((result.processingTimeMs ?? 0) / 1000) }}s · {{ result.promptVersion }}</span>
         </div>
         <div v-if="result.warnings.length > 0" class="kp-warnings">
-          <p v-for="(w, i) in result.warnings" :key="i" class="kp-warn-line"><Icon name="info" :size="13" /> {{ w }}</p>
+          <p v-for="(w, i) in result.warnings" :key="i" class="kp-warn-line"><Icon name="info" :size="14" /> {{ w }}</p>
         </div>
 
         <!-- 概念候选 -->
@@ -538,7 +538,7 @@ onMounted(() => {
           :disabled="running || conceptKeptCount === 0"
           @click="acceptSelected"
         >
-          <Icon name="check-circle" :size="15" />
+          <Icon name="check-circle" :size="16" />
           {{ running ? '提交中…' : `接受所选知识（${conceptKeptCount}）进入知识库` }}
         </button>
         <p class="kp-accept-note">
@@ -592,7 +592,7 @@ onMounted(() => {
               class="kp-link-chip"
               @click="go(l.path)"
             >
-              <Icon :name="l.icon" :size="13" /> {{ l.label }}
+              <Icon :name="l.icon" :size="14" /> {{ l.label }}
             </button>
             <button
               v-if="nodeFlashcardLink"
@@ -600,7 +600,7 @@ onMounted(() => {
               class="kp-link-chip"
               @click="go(nodeFlashcardLink)"
             >
-              <Icon name="layers" :size="13" /> 本章节闪卡
+              <Icon name="layers" :size="14" /> 本章节闪卡
             </button>
           </div>
         </div>
@@ -641,7 +641,7 @@ onMounted(() => {
   justify-content: center;
   cursor: pointer;
   color: var(--kf-muted-foreground);
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .kp-back:hover {
   color: var(--kf-primary);
@@ -661,7 +661,7 @@ onMounted(() => {
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-lg);;
-  padding: 16px 18px;
+  padding: 16px 16px;
   margin-bottom: 14px;
 }
 .kp-card-title {
@@ -678,7 +678,7 @@ onMounted(() => {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
   font-size: var(--kf-fs-12);
   align-items: center;
@@ -686,8 +686,8 @@ onMounted(() => {
   transform: translateY(2px);
 }
 .kp-step.ok {
-  background: rgba(16, 185, 129, 0.12);
-  color: #0f9d6e;
+  background: var(--kf-success-soft);
+  color: var(--kf-success);
 }
 .kp-hint {
   font-weight: 400;
@@ -703,17 +703,17 @@ onMounted(() => {
   margin-bottom: 12px;
 }
 .kp-tab {
-  padding: 6px 14px;
+  padding: 8px 12px;
   border-radius: var(--kf-radius-md);;
   font-size: var(--kf-fs-13);
   border: 1px solid var(--kf-border);
   background: transparent;
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .kp-tab.active {
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   border-color: var(--kf-primary);
   color: var(--kf-primary);
   font-weight: 600;
@@ -739,11 +739,11 @@ onMounted(() => {
   border-radius: var(--kf-radius-md);
   outline: none;
   background: var(--kf-card);
-  transition: border-color 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .kp-input {
   width: 100%;;
-  padding: 8px 10px 8px 32px;
+  padding: 8px 12px 8px 32px;
   font-size: var(--kf-fs-13);
   color: var(--kf-foreground);
 }
@@ -767,9 +767,9 @@ onMounted(() => {
 .kp-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-md);
+  padding: 0 12px;
   border-radius: var(--kf-radius-md);;
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
@@ -777,7 +777,7 @@ onMounted(() => {
   font-size: var(--kf-fs-13);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
   white-space: nowrap;
 }
 .kp-btn:hover:not(:disabled) {
@@ -794,13 +794,13 @@ onMounted(() => {
   color: var(--kf-primary-foreground, #fff);
 }
 .kp-btn-primary:hover:not(:disabled) {
-  color: #fff;
+  color: var(--kf-accent-foreground);
   opacity: 0.9;
 }
 .kp-doc-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   max-height: 260px;
   overflow: auto;
 }
@@ -808,20 +808,20 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px;
+  padding: 8px 12px;
   border-radius: var(--kf-radius-md);;
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
   cursor: pointer;
   text-align: left;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .kp-doc-item:hover {
   border-color: var(--kf-primary);
 }
 .kp-doc-item.active {
   border-color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
 }
 .kp-doc-ic {
   color: var(--kf-muted-foreground);
@@ -841,23 +841,23 @@ onMounted(() => {
 .kp-empty {
   color: var(--kf-muted-foreground);
   font-size: var(--kf-fs-13);
-  padding: 14px 0;
+  padding: 12px 0;
   text-align: center;
 }
 .kp-okline {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin-top: 10px;
-  color: #0f9d6e;
+  color: var(--kf-success);
   font-size: var(--kf-fs-13);
 }
 .kp-selected {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin-top: 12px;
-  padding: 8px 10px;
+  padding: 8px 12px;
   border-radius: var(--kf-radius-md);;
   background: rgba(59, 111, 224, 0.05);
   color: var(--kf-primary);
@@ -865,7 +865,7 @@ onMounted(() => {
 }
 .kp-node-row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 .kp-node-row .kp-input {
@@ -873,7 +873,7 @@ onMounted(() => {
 }
 .kp-mode-row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 .kp-mode {
@@ -883,14 +883,14 @@ onMounted(() => {
   flex-direction: column;
   gap: 4px;
   text-align: left;
-  padding: 10px 12px;
+  padding: 12px 12px;
   border-radius: var(--kf-radius-md);;
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
   cursor: pointer;
   font-size: var(--kf-fs-13);
   color: var(--kf-muted-foreground);
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .kp-mode.active {
   border-color: var(--kf-primary);
@@ -901,7 +901,7 @@ onMounted(() => {
   border: 1px solid rgba(239, 68, 68, 0.4);
   background: rgba(239, 68, 68, 0.05);
   border-radius: var(--kf-radius-md);;
-  padding: 12px 14px;
+  padding: 12px 12px;
   margin-bottom: 14px;
   display: flex;
   flex-direction: column;
@@ -911,7 +911,7 @@ onMounted(() => {
 .kp-error-head {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-weight: 600;
   color: #dc2626;
 }
@@ -922,25 +922,25 @@ onMounted(() => {
 }
 .kp-run-row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   margin: 4px 0 16px;
 }
 .kp-run {
   height: 42px;
-  padding: 0 22px;
+  padding: 0 20px;
   font-size: var(--kf-fs-14);
 }
 .kp-summary {
   border-left: 3px solid var(--kf-primary);
-  background: rgba(59, 111, 224, 0.04);
+  background: var(--kf-primary-soft);
   border-radius: 0 8px 8px 0;
-  padding: 10px 12px;
+  padding: 12px 12px;
   margin-bottom: 12px;
 }
 .kp-summary-label {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: var(--kf-primary);
   font-weight: 600;
   font-size: var(--kf-fs-12);
@@ -954,34 +954,34 @@ onMounted(() => {
   color: var(--kf-foreground);
 }
 .kp-summary-text {
-  padding: 6px 0;
+  padding: 8px 0;
 }
 .kp-stat-row {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 10px 0 12px;
+  margin: 12px 0 12px;
 }
 .kp-stat {
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
   font-size: var(--kf-fs-12);
   font-weight: 600;
 }
 .kp-stat.good {
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
 }
 .kp-stat.new {
-  background: rgba(16, 185, 129, 0.1);
-  color: #0f9d6e;
+  background: var(--kf-success-soft);
+  color: var(--kf-success);
 }
 .kp-stat.exist {
-  background: rgba(245, 158, 11, 0.12);
+  background: var(--kf-warning-soft);
   color: #b45309;
 }
 .kp-stat.warn {
-  background: rgba(239, 68, 68, 0.08);
+  background: var(--kf-danger-soft);
   color: #dc2626;
 }
 .kp-stat.meta {
@@ -995,8 +995,8 @@ onMounted(() => {
 .kp-warn-line {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
-  margin: 3px 0;
+  gap: 8px;
+  margin: 4px 0;
   color: #b45309;
   font-size: var(--kf-fs-12);
 }
@@ -1028,12 +1028,12 @@ onMounted(() => {
 }
 .kp-cand-item {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: flex-start;
-  padding: 10px;
+  padding: 12px;
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-md);;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 .kp-cand-item.off {
   opacity: 0.45;
@@ -1048,10 +1048,10 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   margin-top: 2px;
   flex-shrink: 0;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .kp-check.on {
   background: var(--kf-primary);
@@ -1075,8 +1075,8 @@ onMounted(() => {
   white-space: nowrap;
 }
 .kp-badge.new {
-  background: rgba(16, 185, 129, 0.12);
-  color: #0f9d6e;
+  background: var(--kf-success-soft);
+  color: var(--kf-success);
 }
 .kp-badge.exist {
   background: rgba(245, 158, 11, 0.14);
@@ -1087,7 +1087,7 @@ onMounted(() => {
   background: transparent;
   outline: none;
   border-radius: var(--kf-radius-sm);;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .kp-name-input {
   flex: 1;
@@ -1131,14 +1131,14 @@ onMounted(() => {
 .kp-rel-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .kp-rel-item {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: var(--kf-radius-md);;
   background: var(--kf-muted);
   font-size: var(--kf-fs-13);
@@ -1182,35 +1182,35 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
-  padding: 8px 10px;
+  padding: 8px 12px;
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-md);;
 }
 .kp-activity-k {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
 }
 .kp-activity-links {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 .kp-link-chip {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
   color: var(--kf-foreground);
   font-size: var(--kf-fs-12);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .kp-link-chip:hover {
   border-color: var(--kf-primary);

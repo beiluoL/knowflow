@@ -9,7 +9,7 @@
       <!-- 筛选栏：查询条件可恢复（同步 URL query） -->
       <div class="code-bank-filters" role="group" aria-label="算法题筛选">
         <div class="relative kf-field code-bank-search">
-          <Icon name="search" :size="15" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Icon name="search" :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             v-model="keyword"
             type="text"
@@ -99,7 +99,7 @@
               v-if="p.myStatus === 'SOLVED'"
               class="text-[11px] px-2 py-0.5 rounded-full bg-success-100 text-success-700 inline-flex items-center gap-1"
             >
-              <Icon name="check-circle" :size="11" /> 已通过
+              <Icon name="check-circle" :size="12" /> 已通过
             </span>
             <span
               v-else-if="p.myStatus === 'ATTEMPTED'"

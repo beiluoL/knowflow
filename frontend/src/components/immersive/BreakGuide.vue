@@ -145,7 +145,7 @@ onUnmounted(() => {
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.1));
   border-radius: 20px;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
-  padding: 28px 26px;
+  padding: 24px 24px;
   color: var(--kf-foreground, #f8fafc);
   text-align: center;
   animation: cardIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
@@ -168,8 +168,8 @@ onUnmounted(() => {
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
+  gap: 8px;
+  padding: 8px 12px;
   font-size: 12px;
   font-weight: 700;
   border-radius: 999px;
@@ -188,7 +188,7 @@ onUnmounted(() => {
 
 .break-title {
   margin: 0 0 20px;
-  font-size: 17px;
+  font-size: var(--kf-fs-body-lg);
   line-height: 1.55;
   font-weight: 600;
   color: var(--kf-foreground, #f8fafc);
@@ -225,13 +225,13 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 .gif-text {
   font-size: 18px;
   font-weight: 700;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 .gif-subtext {
@@ -241,7 +241,7 @@ onUnmounted(() => {
 
 .continue-btn {
   width: 100%;
-  height: 44px;
+  height: var(--kf-btn-height-lg);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -252,7 +252,7 @@ onUnmounted(() => {
   border: none;
   border-radius: 12px;
   cursor: pointer;
-  transition: filter 0.15s ease, transform 0.1s ease;
+  transition: filter var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-fast) var(--kf-ease-standard);
   box-shadow: 0 8px 22px color-mix(in srgb, var(--kf-primary, #3b82f6) 35%, transparent);
 }
 .continue-btn:hover {

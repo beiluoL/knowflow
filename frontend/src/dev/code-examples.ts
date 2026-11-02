@@ -2,6 +2,22 @@ import {controlExample} from './control-examples-v6'
 import type {PlaygroundEntry} from './registry'
 const quoteAttr=(value:string)=>'\"'+value.replaceAll('&','&amp;').replaceAll('\"','&quot;').replaceAll('<','&lt;')+'\"'
 export function createExample(entry:PlaygroundEntry,settings:Record<string,unknown>):string{
+ if(entry.name==='ThoughtLine')return `<script setup lang="ts">import GlideSelectBridge from '@/dev/GlideSelectBridge.vue'<`+`/script><template><GlideSelectBridge component-id="thoughtline" /></template>`
+ if(entry.name==='FolderFloat')return `<script setup lang="ts">import GlideSelectBridge from '@/dev/GlideSelectBridge.vue'<`+`/script><template><GlideSelectBridge component-id="folderfloat" /></template>`
+ if(entry.name==='BellToggle')return `<script setup lang="ts">import GlideSelectBridge from '@/dev/GlideSelectBridge.vue'<`+`/script><template><GlideSelectBridge component-id="belltoggle" /></template>`
+ if(entry.name==='SpringCheck')return `<script setup lang="ts">import GlideSelectBridge from '@/dev/GlideSelectBridge.vue'<`+`/script><template><GlideSelectBridge component-id="springcheck" /></template>`
+ if(entry.name==='SwipeRow')return `<script setup lang="ts">import GlideSelectBridge from '@/dev/GlideSelectBridge.vue'<`+`/script><template><GlideSelectBridge component-id="swiperow" /></template>`
+ if(entry.name==='Shredder')return `<script setup lang="ts">import GlideSelectBridge from '@/dev/GlideSelectBridge.vue'<`+`/script><template><GlideSelectBridge component-id="shredder" /></template>`
+ if(entry.name==='HoldButton')return `<script setup lang="ts">import GlideSelectBridge from '@/dev/GlideSelectBridge.vue'<`+`/script><template><GlideSelectBridge component-id="holdbutton" /></template>`
+ if(entry.name==='FuseButton')return `<script setup lang="ts">import GlideSelectBridge from '@/dev/GlideSelectBridge.vue'<`+`/script><template><GlideSelectBridge component-id="fusebutton" /></template>`
+ if(entry.name==='StatusMark')return `<script setup lang="ts">import GlideSelectBridge from '@/dev/GlideSelectBridge.vue'<`+`/script><template><GlideSelectBridge component-id="statusmark" /></template>`
+ if(entry.name==='CallChip')return `<script setup lang="ts">import GlideSelectBridge from '@/dev/GlideSelectBridge.vue'<`+`/script><template><GlideSelectBridge component-id="callchip" /></template>`
+ if(entry.name==='LineSidebar')return `<script setup lang="ts">import GlideSelectBridge from '@/dev/GlideSelectBridge.vue'<`+`/script><template><GlideSelectBridge component-id="linesidebar" /></template>`
+ if(entry.name==='BranchedMenu')return `<script setup lang="ts">import GlideSelectBridge from '@/dev/GlideSelectBridge.vue'<`+`/script><template><GlideSelectBridge component-id="branchedmenu" /></template>`
+ if(entry.name==='TextType')return `<script setup lang="ts">import GlideSelectBridge from '@/dev/GlideSelectBridge.vue'<`+`/script><template><GlideSelectBridge component-id="texttype" /></template>`
+ if(entry.name==='LatticeLoader')return `<script setup lang="ts">import GlideSelectBridge from '@/dev/GlideSelectBridge.vue'<`+`/script><template><GlideSelectBridge component-id="latticeloader" /></template>`
+ if(entry.name==='PromptBar')return `<script setup lang="ts">\n// DEV adapter; public AI package example in Studio.\nimport GlideSelectBridge from '@/dev/GlideSelectBridge.vue'\n<`+`/script>\n<template><GlideSelectBridge component-id="promptbar" /></template>`
+ if(entry.name==='GlideSelect')return `<script setup lang="ts">\n// DEV嵌入适配；公共包使用示例见独立Studio和消费者。\nimport GlideSelectBridge from '@/dev/GlideSelectBridge.vue'\n<`+`/script>\n<template><GlideSelectBridge /></template>`
  const control=controlExample(entry,settings);if(control)return control
  if(entry.implementationStatus==='尚未实现')return '<!-- 尚未实现；没有可运行组件，不生成虚假使用代码。 -->'
  if(entry.implementationStatus==='仅有内部演示'){

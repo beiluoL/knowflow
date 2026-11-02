@@ -104,7 +104,7 @@
               </div>
               <div class="goal-strip-sub">
                 <template v-if="activeGoal?.pathId">
-                  <Icon name="route" :size="13" />
+                  <Icon name="route" :size="14" />
                   <span>{{ activeGoal.pathTitle || '学习路线' }}</span>
                   <span v-if="goalLearningNodeTitle" class="goal-node">· 当前：{{ goalLearningNodeTitle }}</span>
                   <span v-if="goalKnowledgeTitle" class="goal-node">· 知识点：{{ goalKnowledgeTitle }}</span>
@@ -650,9 +650,9 @@ onMounted(async () => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border: 1px solid var(--kf-border);
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
   background: var(--kf-card);
   font-size: var(--kf-fs-caption, 12px);
   color: var(--kf-muted-foreground);
@@ -682,18 +682,18 @@ onMounted(async () => {
 }
 .section-title {
   margin: 0;
-  font-size: var(--kf-fs-h4, 16px);
-  font-weight: 600;
+  font-size: var(--kf-fs-h4);
+  font-weight: var(--kf-fw-h4);
   color: var(--kf-foreground);
 }
 .section-link {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: var(--kf-fs-body-sm, 13px);
+  gap: var(--kf-space-2);
+  font-size: var(--kf-fs-body-sm);
   color: var(--kf-primary);
   text-decoration: none;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .section-link:hover {
   opacity: 0.8;
@@ -707,7 +707,7 @@ onMounted(async () => {
   padding: var(--kf-space-4, 16px);
   border: 1px solid var(--kf-border);
   border-left: 3px solid var(--kf-primary);
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
   background: var(--kf-card);
 }
 .goal-strip-icon {
@@ -717,7 +717,7 @@ onMounted(async () => {
   width: 32px;
   height: 32px;
   flex-shrink: 0;
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
   background: var(--kf-primary-subtle);
   color: var(--kf-primary);
 }
@@ -758,7 +758,7 @@ onMounted(async () => {
 .goal-strip-sub {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
   font-size: var(--kf-fs-body-sm, 13px);
   color: var(--kf-muted-foreground);
@@ -784,12 +784,12 @@ onMounted(async () => {
   height: 100%;
   border-radius: 999px;
   background: var(--kf-primary);
-  transition: width 0.3s ease;
+  transition: width var(--kf-motion-slower) var(--kf-ease-standard);
 }
 
 /* ══════════ 2. NextAction：首页视觉重心（§七）═════════ */
 .next-section :deep(.next-action-card) {
-  border-radius: var(--kf-radius-lg, 12px);
+  border-radius: var(--kf-radius-lg);
 }
 
 /* ══════════ 3. 今日学习状态 ══════════ */
@@ -811,15 +811,15 @@ onMounted(async () => {
 .status-head {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: var(--kf-fs-caption, 12px);
+  gap: var(--kf-space-2);
+  font-size: var(--kf-fs-caption);
   color: var(--kf-muted-foreground);
 }
 .status-head :deep(svg) {
   color: var(--kf-muted-foreground);
 }
 .status-value {
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   font-size: var(--kf-fs-h3, 20px);
   font-weight: 600;
   line-height: 1.2;
@@ -844,15 +844,15 @@ onMounted(async () => {
   align-items: center;
   gap: var(--kf-space-2, 8px);
   width: 100%;
-  padding: 6px 8px;
+  padding: 8px 8px;
   border: none;
-  border-radius: var(--kf-radius-sm, 6px);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
   text-align: left;
   cursor: pointer;
   font-size: var(--kf-fs-body-sm, 13px);
   color: var(--kf-foreground);
-  transition: background-color 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .today-task:hover {
   background: var(--kf-muted);
@@ -889,7 +889,7 @@ onMounted(async () => {
 .today-reward-line {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin: 0;
   font-size: var(--kf-fs-caption, 12px);
   color: var(--kf-muted-foreground);
@@ -904,7 +904,7 @@ onMounted(async () => {
   flex-wrap: wrap;
   padding: var(--kf-space-4, 16px);
   border: 1px solid var(--kf-border);
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
   background: var(--kf-card);
 }
 .path-row-main {
@@ -952,12 +952,12 @@ onMounted(async () => {
   height: 100%;
   border-radius: 999px;
   background: var(--kf-primary);
-  transition: width 0.3s ease;
+  transition: width var(--kf-motion-slower) var(--kf-ease-standard);
 }
 .path-badge {
   align-self: flex-start;
   padding: 2px 8px;
-  border-radius: var(--kf-radius-sm, 6px);
+  border-radius: var(--kf-radius-sm);
   font-size: var(--kf-fs-caption, 12px);
   font-weight: 500;
   background: var(--kf-muted);
@@ -986,10 +986,10 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: var(--kf-space-3, 12px);
-  padding: 10px var(--kf-space-3, 12px);
-  border-radius: var(--kf-radius-md, 8px);
+  padding: 12px var(--kf-space-3, 12px);
+  border-radius: var(--kf-radius-md);
   text-decoration: none;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .recent-item:hover {
   background: var(--kf-muted);
@@ -1005,7 +1005,7 @@ onMounted(async () => {
   width: 32px;
   height: 32px;
   flex-shrink: 0;
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
 }
 .recent-main {
   flex: 1;
@@ -1046,10 +1046,10 @@ onMounted(async () => {
   grid-template-columns: minmax(0, 1fr) auto 120px;
   align-items: center;
   gap: var(--kf-space-3, 12px);
-  padding: 10px var(--kf-space-3, 12px);
-  border-radius: var(--kf-radius-md, 8px);
+  padding: 12px var(--kf-space-3, 12px);
+  border-radius: var(--kf-radius-md);
   text-decoration: none;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .weak-item:hover {
   background: var(--kf-muted);

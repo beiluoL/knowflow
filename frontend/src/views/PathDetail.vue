@@ -597,7 +597,7 @@ watch(pathId, () => { void loadPath(); }, { immediate: true });
   color: var(--kf-muted-foreground);
   text-decoration: none;
   border-radius: var(--kf-radius-sm);
-  transition: color 0.15s ease, opacity 0.15s ease;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard), opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 .crumb-link:hover { color: var(--kf-primary); }
 .crumb-link:active { color: var(--kf-primary); opacity: 0.75; }
@@ -667,7 +667,7 @@ watch(pathId, () => { void loadPath(); }, { immediate: true });
   height: 64px;
   flex-shrink: 0;
   border-radius: var(--kf-radius-lg);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   background: linear-gradient(140deg, rgba(var(--theme-rgb), 1), rgba(var(--theme-rgb), 0.72));
   box-shadow: 0 8px 20px rgba(var(--theme-rgb), 0.28);
 }
@@ -690,7 +690,7 @@ watch(pathId, () => { void loadPath(); }, { immediate: true });
   font-size: var(--kf-fs-caption);
   line-height: var(--kf-lh-caption);
   font-weight: 500;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
   white-space: nowrap;
 }
@@ -741,7 +741,7 @@ watch(pathId, () => { void loadPath(); }, { immediate: true });
   align-items: center;
   gap: 4px;
   height: 24px;
-  padding: 0 10px;
+  padding: 0 12px;
   border-radius: 999px;
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
@@ -816,20 +816,20 @@ watch(pathId, () => { void loadPath(); }, { immediate: true });
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
-  min-width: 132px;
-  height: 40px;
+  min-width: 38px;
+  height: var(--kf-btn-height-md);
   padding: 0 20px;
   border-radius: var(--kf-radius-sm);
   font-size: var(--kf-fs-body-md);
   font-weight: 500;
   background: var(--theme);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   border: none;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(var(--theme-rgb), 0.26);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+  transition: transform var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard), opacity var(--kf-motion-base) var(--kf-ease-standard), background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .primary-btn:hover:not(:disabled) {
   transform: translateY(-1px);
@@ -868,10 +868,10 @@ watch(pathId, () => { void loadPath(); }, { immediate: true });
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
-  min-width: 132px;
-  height: 40px;
+  min-width: 38px;
+  height: var(--kf-btn-height-md);
   margin-top: 8px;
   padding: 0 20px;
   border-radius: var(--kf-radius-sm);
@@ -882,7 +882,7 @@ watch(pathId, () => { void loadPath(); }, { immediate: true });
   border: 1px solid rgba(245, 158, 11, 0.4);
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .cert-btn:hover {
   background: rgba(245, 158, 11, 0.22);
@@ -923,21 +923,21 @@ watch(pathId, () => { void loadPath(); }, { immediate: true });
 .enroll-banner-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   height: 32px;
   padding: 0 16px;
   flex-shrink: 0;
   border: none;
   border-radius: var(--kf-radius-sm);
   background: var(--theme);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   font-size: var(--kf-fs-body-sm);
   line-height: var(--kf-lh-body-sm);
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
   box-shadow: 0 3px 10px rgba(var(--theme-rgb), 0.26);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  transition: transform var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard), opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 .enroll-banner-btn:hover:not(:disabled) {
   transform: translateY(-1px);
@@ -971,7 +971,7 @@ watch(pathId, () => { void loadPath(); }, { immediate: true });
   border-radius: var(--kf-radius-md);
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
-  transition: transform 0.18s, box-shadow 0.18s;
+  transition: transform var(--kf-motion-slow) var(--kf-ease-standard),  box-shadow var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .metric-card:hover {
   transform: translateY(-2px);
@@ -1108,7 +1108,7 @@ watch(pathId, () => { void loadPath(); }, { immediate: true });
   opacity: 0;
   border-radius: var(--kf-radius-md);
   animation: tlIn 0.35s ease-out forwards;
-  transition: background 0.18s ease;
+  transition: background var(--kf-motion-slow) var(--kf-ease-standard);
 }
 @keyframes tlIn {
   from { opacity: 0; transform: translateX(-8px); }
@@ -1149,8 +1149,8 @@ watch(pathId, () => { void loadPath(); }, { immediate: true });
   height: 30px;
   border-radius: 50%;
   flex-shrink: 0;
-  color: #fff;
-  transition: transform 0.18s, box-shadow 0.18s;
+  color: var(--kf-accent-foreground);
+  transition: transform var(--kf-motion-slow) var(--kf-ease-standard),  box-shadow var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .rail-dot.status-completed { background: var(--kf-accent); }
 .rail-dot.status-current {
@@ -1178,7 +1178,7 @@ watch(pathId, () => { void loadPath(); }, { immediate: true });
   padding: 12px 16px;
   border-radius: var(--kf-radius-md);
   border: 1px solid transparent;
-  transition: background 0.18s, border-color 0.18s, transform 0.18s;
+  transition: background var(--kf-motion-slow) var(--kf-ease-standard),  border-color var(--kf-motion-slow) var(--kf-ease-standard),  transform var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .timeline-item:hover:not(.locked) .timeline-card {
   background: rgba(var(--theme-rgb), 0.04);
@@ -1269,7 +1269,7 @@ watch(pathId, () => { void loadPath(); }, { immediate: true });
   align-self: center;
   color: var(--kf-muted-foreground);
   flex-shrink: 0;
-  transition: transform 0.18s, color 0.18s;
+  transition: transform var(--kf-motion-slow) var(--kf-ease-standard),  color var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .timeline-item:hover:not(.locked) .tl-arrow {
   color: var(--theme);

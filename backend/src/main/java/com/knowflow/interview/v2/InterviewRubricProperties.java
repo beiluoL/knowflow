@@ -7,6 +7,8 @@ import java.util.*;
 /** 权重与版本属于服务端，可按部署配置调整；前端不可决定成绩。 */
 @Data @Component @ConfigurationProperties(prefix="knowflow.interview.rubric")
 public class InterviewRubricProperties {
+ /** 雷达训练的部署级通关阈值；每次评价保存实际使用值。 */
+ private double radarPassThreshold=8.5;
  private String version="interview-5d-v1";
  private int evaluationTimeoutSeconds=45;
  private Map<String,Integer> weights=new LinkedHashMap<>(Map.of(

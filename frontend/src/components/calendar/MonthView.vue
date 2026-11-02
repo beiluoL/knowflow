@@ -180,16 +180,16 @@ function chipColor(ev: CalendarEvent): string {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #fff;
-  border: 1px solid #eef0f4;
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: 16px;
   overflow: hidden;
 }
 .c-month-head {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  border-bottom: 1px solid #eef0f4;
-  background: #fafbfc;
+  border-bottom: 1px solid var(--kf-border);
+  background: var(--kf-muted);
 }
 .c-month-head-cell {
   padding: 10px 0;
@@ -209,8 +209,8 @@ function chipColor(ev: CalendarEvent): string {
   min-height: 560px;
 }
 .c-month-cell {
-  border-right: 1px solid #f1f3f6;
-  border-bottom: 1px solid #f1f3f6;
+  border-right: 1px solid var(--kf-border);
+  border-bottom: 1px solid var(--kf-border);
   padding: 6px 6px 4px;
   display: flex;
   flex-direction: column;
@@ -221,16 +221,16 @@ function chipColor(ev: CalendarEvent): string {
   overflow: hidden;
 }
 .c-month-cell:hover {
-  background: #f7f9ff;
+  background: var(--kf-muted);
 }
 .c-month-cell:nth-child(7n) {
   border-right: none;
 }
 .c-month-cell.is-other .c-month-date {
-  color: #c4c9d4;
+  color: var(--kf-border);
 }
 .c-month-cell.is-today {
-  background: #f0f5ff;
+  background: var(--kf-primary-soft);
 }
 .c-month-cell-top {
   display: flex;
@@ -246,7 +246,7 @@ function chipColor(ev: CalendarEvent): string {
 .c-month-date {
   font-size: 13px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--kf-foreground);
   width: 24px;
   height: 24px;
   display: flex;
@@ -257,20 +257,20 @@ function chipColor(ev: CalendarEvent): string {
 }
 .c-month-date.today-num {
   background: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 /* 「休/班」角标：Apple 日历风格的小徽章 */
 .c-badge {
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   font-weight: 700;
   line-height: 1;
   padding: 2px 4px;
   border-radius: 4px;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   flex-shrink: 0;
 }
 .c-badge.is-rest {
-  background: #e5484d;
+  background: var(--kf-danger);
 }
 .c-badge.is-work {
   background: var(--kf-warning);
@@ -307,15 +307,15 @@ function chipColor(ev: CalendarEvent): string {
   max-width: 56px;
 }
 .c-mark-more {
-  font-size: 10px;
-  color: #9aa3b2;
+  font-size: var(--kf-fs-xs);
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 .c-month-add {
   opacity: 0;
   border: none;
   background: transparent;
-  color: #9aa3b2;
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   padding: 2px;
   border-radius: 6px;
@@ -325,7 +325,7 @@ function chipColor(ev: CalendarEvent): string {
   opacity: 1;
 }
 .c-month-add:hover {
-  background: #e6ecff;
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
 }
 .c-month-events {
@@ -342,7 +342,7 @@ function chipColor(ev: CalendarEvent): string {
   border-radius: 6px;
   font-size: 12px;
   line-height: 1.3;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   background: var(--c, var(--kf-primary));
   cursor: pointer;
   overflow: hidden;

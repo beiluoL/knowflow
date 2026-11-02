@@ -294,7 +294,7 @@
         <div class="bg-card border border-[var(--kf-border)] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="openImport()" @keydown.enter.prevent="($event.target as HTMLElement).click()">
           <div class="flex items-start gap-4">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-primary-50 flex-shrink-0">
-              <Icon name="upload" :size="22" class="text-primary-500" />
+              <Icon name="upload" :size="24" class="text-primary-500" />
             </div>
             <div>
               <h4 class="font-medium text-foreground mb-1">批量导入文档</h4>
@@ -306,7 +306,7 @@
         <div class="bg-card border border-[var(--kf-border)] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="firstKb && openMembers(firstKb)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
           <div class="flex items-start gap-4">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-blue-50 flex-shrink-0">
-              <Icon name="shield" :size="22" class="text-blue-500" />
+              <Icon name="shield" :size="24" class="text-blue-500" />
             </div>
             <div>
               <h4 class="font-medium text-foreground mb-1">设置权限管理</h4>
@@ -318,7 +318,7 @@
         <div class="bg-card border border-[var(--kf-border)] rounded-xl p-5 cursor-pointer hover:border-primary-500/30 hover:shadow-md transition-colors transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" role="button" tabindex="0" @click="firstKb && openExport(firstKb)" @keydown.enter.prevent="($event.target as HTMLElement).click()">
           <div class="flex items-start gap-4">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center bg-purple-50 flex-shrink-0">
-              <Icon name="download" :size="22" class="text-purple-500" />
+              <Icon name="download" :size="24" class="text-purple-500" />
             </div>
             <div>
               <h4 class="font-medium text-foreground mb-1">导出知识库</h4>
@@ -398,7 +398,7 @@
                     : 'border-transparent hover:border-border hover:bg-muted',
                 ]"
               >
-                <Icon :name="icon.svg" :size="22" aria-hidden="true" />
+                <Icon :name="icon.svg" :size="24" aria-hidden="true" />
               </button>
             </div>
             <div v-if="selectedIconKey" class="mt-3 flex items-center gap-2 flex-wrap">

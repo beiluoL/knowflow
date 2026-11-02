@@ -6,7 +6,7 @@
         class="copilot-fab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors"
         @click="handleToggleVisible"
       >
-      <Icon name="bot" :size="22" />
+      <Icon name="bot" :size="24" />
     </button>
 
     <transition name="copilot-anim">
@@ -294,11 +294,11 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--kf-primary), #8B5CF6);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   border: none;
   cursor: pointer;
   box-shadow: 0 10px 28px rgba(139, 92, 246, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform var(--kf-motion-slow) var(--kf-ease-standard), box-shadow var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .copilot-fab:hover {
   transform: translateY(-2px) scale(1.04);
@@ -307,7 +307,7 @@ onMounted(() => {
 
 .copilot-anim-enter-active,
 .copilot-anim-leave-active {
-  transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity var(--kf-motion-slow) var(--kf-ease-standard), transform var(--kf-motion-slow) cubic-bezier(0.4, 0, 0.2, 1);
 }
 .copilot-anim-enter-from,
 .copilot-anim-leave-to {
@@ -332,7 +332,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(14, 165, 233, 0.06));
 }
@@ -340,18 +340,18 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 13.5px;
+  font-size: var(--kf-fs-body-sm);
   font-weight: 600;
   color: var(--kf-foreground);
 }
 .head-actions {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 .head-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -360,7 +360,7 @@ onMounted(() => {
   border-radius: 8px;
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .head-btn:hover {
   background: rgba(255, 255, 255, 0.1);
@@ -371,7 +371,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 12px;
+  padding: 12px 12px;
   border-bottom: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
 }
 .conv-select:not(.kf-form-control) {
@@ -383,8 +383,8 @@ onMounted(() => {
 }
 .conv-select {
   flex: 1;
-  padding: 0 10px;
-  font-size: 12.5px;
+  padding: 0 12px;
+  font-size: var(--kf-fs-caption);
   color: var(--kf-foreground);
   cursor: pointer;
 }
@@ -402,7 +402,7 @@ onMounted(() => {
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 9px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .conv-refresh:hover {
   color: var(--kf-primary);
@@ -412,7 +412,7 @@ onMounted(() => {
 .messages-wrap {
   flex: 1;
   overflow-y: auto;
-  padding: 14px 12px;
+  padding: 12px 12px;
   background: rgba(0, 0, 0, 0.18);
 }
 .messages-wrap::-webkit-scrollbar {
@@ -426,7 +426,7 @@ onMounted(() => {
 .messages-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .bubble-row {
@@ -438,7 +438,7 @@ onMounted(() => {
 
 .bubble {
   max-width: 82%;
-  padding: 10px 13px;
+  padding: 12px 13px;
   border-radius: 14px;
   font-size: 13px;
   line-height: 1.55;
@@ -468,9 +468,9 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   color: var(--kf-muted-foreground);
-  font-size: 12.5px;
+  font-size: var(--kf-fs-caption);
   padding: 20px;
   text-align: center;
 }
@@ -478,7 +478,7 @@ onMounted(() => {
   margin: 0;
 }
 .empty-hint {
-  font-size: 11.5px;
+  font-size: var(--kf-fs-xs);
   opacity: 0.7;
   max-width: 280px;
   line-height: 1.5;
@@ -488,7 +488,7 @@ onMounted(() => {
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  padding: 10px 12px;
+  padding: 12px 12px;
   border-top: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   background: var(--kf-bg-2, #1e293b);
 }
@@ -497,7 +497,7 @@ onMounted(() => {
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .chat-input {
   flex: 1;
@@ -518,18 +518,18 @@ onMounted(() => {
   cursor: not-allowed;
 }
 .send-btn {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: var(--kf-btn-height-md);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   background: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: filter 0.15s;
+  transition: filter var(--kf-motion-base) var(--kf-ease-standard);
 }
 .send-btn:hover:not(:disabled) {
   filter: brightness(1.08);

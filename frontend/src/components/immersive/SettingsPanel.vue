@@ -264,14 +264,14 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   color: var(--kf-muted-foreground, #94a3b8);
   background: transparent;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .close-btn:hover {
   background: rgba(255, 255, 255, 0.06);
@@ -292,7 +292,7 @@ onUnmounted(() => {
 
 .rhythm-scroll {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   overflow-x: auto;
   padding-bottom: 4px;
   -webkit-overflow-scrolling: touch;
@@ -315,7 +315,7 @@ onUnmounted(() => {
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .rhythm-card:hover {
   background: rgba(255, 255, 255, 0.06);
@@ -340,7 +340,7 @@ onUnmounted(() => {
 .rhythm-tag {
   font-size: 11px;
   font-weight: 600;
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.08);
   color: var(--kf-muted-foreground, #94a3b8);
@@ -355,14 +355,14 @@ onUnmounted(() => {
 .panel-divider {
   height: 1px;
   background: var(--kf-elev-border, rgba(255, 255, 255, 0.08));
-  margin: 14px 0 10px;
+  margin: 12px 0 12px;
 }
 
 .setting-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 4px;
+  padding: 12px 4px;
 }
 .setting-info {
   display: flex;
@@ -380,7 +380,7 @@ onUnmounted(() => {
 .setting-title-with-icon {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 .setting-desc {
   font-size: 11px;
@@ -398,7 +398,7 @@ onUnmounted(() => {
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.14);
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .toggle-switch.on {
   background: var(--kf-primary, #3b82f6);
@@ -412,7 +412,7 @@ onUnmounted(() => {
   border-radius: 50%;
   background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
-  transition: transform 0.2s ease;
+  transition: transform var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .toggle-switch.on .toggle-knob {
   transform: translateX(18px);
@@ -432,8 +432,8 @@ onUnmounted(() => {
   border-radius: 10px;
 }
 .num-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -444,7 +444,7 @@ onUnmounted(() => {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .num-btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.08);

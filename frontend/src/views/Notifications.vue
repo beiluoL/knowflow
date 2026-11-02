@@ -276,19 +276,19 @@ onMounted(() => {
 .unread-pill {
   font-size: 12px;
   font-weight: 500;
-  padding: 2px 10px;
+  padding: 2px 12px;
   border-radius: 999px;
   background: var(--kf-destructive);
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 
 /* 通用次按钮 */
 .btn-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   border-radius: var(--kf-radius-sm);
   font-size: 13px;
   font-weight: 500;
@@ -296,7 +296,7 @@ onMounted(() => {
   color: var(--kf-foreground);
   border: 1px solid var(--kf-border);
   cursor: pointer;
-  transition: background 0.15s, opacity 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard),  opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 .btn-secondary:hover:not(:disabled) { background: var(--kf-muted); }
 .btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -308,7 +308,7 @@ onMounted(() => {
   border-bottom: 1px solid var(--kf-border);
 }
 .tab-item {
-  padding: 10px 20px;
+  padding: 12px 20px;
   font-size: 14px;
   font-weight: 500;
   color: var(--kf-muted-foreground);
@@ -316,7 +316,7 @@ onMounted(() => {
   border: none;
   border-bottom: 2px solid transparent;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard),  border-color var(--kf-motion-base) var(--kf-ease-standard);
   margin-bottom: -1px;
 }
 .tab-item:hover { color: var(--kf-primary); }
@@ -355,7 +355,7 @@ onMounted(() => {
 }
 .empty-icon { color: var(--kf-muted-foreground); }
 .state-title {
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   font-weight: 600;
   color: var(--kf-foreground);
 }
@@ -377,11 +377,11 @@ onMounted(() => {
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-md);
   background: var(--kf-card);
-  transition: box-shadow 0.15s, transform 0.15s;
+  transition: box-shadow var(--kf-motion-base) var(--kf-ease-standard),  transform var(--kf-motion-base) var(--kf-ease-standard);
   cursor: pointer;
 }
 .notif-item:hover {
-  box-shadow: 0 2px 8px rgba(59, 111, 224, 0.06);
+  box-shadow: 0 2px 8px var(--kf-primary-soft);
 }
 /* 未读：左侧 4px 主题色边 + 极淡蓝色背景 */
 .notif-item.unread {
@@ -411,7 +411,7 @@ onMounted(() => {
   margin-bottom: 4px;
 }
 .notif-title {
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   font-weight: 600;
   color: var(--kf-foreground);
   overflow: hidden;
@@ -456,11 +456,11 @@ onMounted(() => {
     align-items: flex-start;
   }
   .tab-item {
-    padding: 10px 14px;
+    padding: 12px 12px;
     font-size: 13px;
   }
   .notif-item {
-    padding: 12px 14px;
+    padding: 12px 12px;
   }
   .notif-title {
     font-size: 14px;

@@ -90,7 +90,7 @@ interface Props {
 
 withDefaults(defineProps<Props>(), {
   size: 'lg',
-  titleColor: 'text-foreground',
+  titleColor: undefined,
   back: false,
 })
 

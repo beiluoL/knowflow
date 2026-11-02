@@ -1,47 +1,49 @@
 <template>
   <!-- 搜索结果页：搜索框 + 筛选按钮组 + 单容器分隔列表 + 分页器，支持关键词高亮（含 XSS 防护）与收藏 -->
   <div class="search-result-page animate-fade-in">
-    <!-- ===== 未搜索态：引导标题 + 大搜索框 + 热门标签 ===== -->
-    <div v-if="!hasSearched" class="search-hero">
-      <h1 class="kf-h1 text-center">知识搜索</h1>
-      <p class="hero-subtitle">输入关键词，在知识库中快速找到你需要的内容</p>
-      <form class="hero-search-box" role="search" :aria-busy="heroSubmitting" @submit.prevent="submitHeroSearch">
-        <Icon name="search" :size="20" class="hero-search-icon" />
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="搜索知识库、文档、笔记..."
-          class="hero-search-input kf-input kf-form-control"
-          @keydown.enter="handleHeroEnter"
-          @compositionstart="composing = true"
-          @compositionend="composing = false"
-          aria-label="搜索"
-        />
-        <button
-          v-if="searchQuery"
-          class="hero-clear-btn"
-          type="button"
-          @click="clearInput"
-          aria-label="清空输入"
-        >
-          <Icon name="x" :size="16" />
-        </button>
-        <button class="hero-search-btn" type="submit" :disabled="!searchQuery.trim() || heroSubmitting" >
-          {{ heroSubmitting ? '搜索中…' : '搜索' }}
-        </button>
-      </form>
-      <!-- 热门搜索标签 -->
-      <div class="hot-tags-grid">
-        <button
-          v-for="tag in hotTags"
-          :key="tag"
-          class="hot-tag"
-          @click="searchTag(tag)"
-        >
-          {{ tag }}
-        </button>
+    <!-- ===== 未搜索态：整个搜索首页内容组在主工作区内水平+垂直居中 ===== -->
+    <div v-if="!hasSearched" class="search-page">
+      <div class="search-hero">
+        <h1 class="kf-h1 text-center">知识搜索</h1>
+        <p class="hero-subtitle">输入关键词，在知识库中快速找到你需要的内容</p>
+        <form class="hero-search-box" role="search" :aria-busy="heroSubmitting" @submit.prevent="submitHeroSearch">
+          <Icon name="search" :size="20" class="hero-search-icon" />
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="搜索知识库、文档、笔记..."
+            class="hero-search-input kf-input kf-form-control"
+            @keydown.enter="handleHeroEnter"
+            @compositionstart="composing = true"
+            @compositionend="composing = false"
+            aria-label="搜索"
+          />
+          <button
+            v-if="searchQuery"
+            class="hero-clear-btn"
+            type="button"
+            @click="clearInput"
+            aria-label="清空输入"
+          >
+            <Icon name="x" :size="16" />
+          </button>
+          <button class="hero-search-btn" type="submit" :disabled="!searchQuery.trim() || heroSubmitting" >
+            {{ heroSubmitting ? '搜索中…' : '搜索' }}
+          </button>
+        </form>
+        <!-- 热门搜索标签 -->
+        <div class="hot-tags-grid">
+          <button
+            v-for="tag in hotTags"
+            :key="tag"
+            class="hot-tag"
+            @click="searchTag(tag)"
+          >
+            {{ tag }}
+          </button>
+        </div>
+        <p class="hot-tags-label">热门搜索</p>
       </div>
-      <p class="hot-tags-label">热门搜索</p>
     </div>
 
     <!-- ===== 已搜索态：紧凑搜索框 + 筛选 + 列表 + 分页 ===== -->
@@ -497,10 +499,32 @@ onBeforeUnmount(() => { requestVersion++; });
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ===== 未搜索态：引导区 ===== */
+/* ===== 未搜索态：搜索首页内容组在主工作区内居中 ===== */
+/* 根容器占满主工作区（视口 - 固定顶栏 - 页面上下留白），整组做水平+垂直居中 */
+.search-page {
+  width: 100%;
+  min-height: calc(100dvh - var(--kf-nav-height) - var(--kf-page-padding-y) * 2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding-block: var(--kf-space-8);
+}
+/* 移动端底部导航固定占位，扣除其高度，避免整组下移并产生多余纵向滚动 */
+@media (max-width: 1023px) {
+  .search-page {
+    min-height: calc(100dvh - var(--kf-nav-height) - var(--kf-page-padding-y) * 2 - var(--kf-bottom-nav-height));
+  }
+}
+
+/* 内容独立居中容器：标题 / 描述 / 搜索框 / 推荐词共用同一中轴线 */
 .search-hero {
-  padding-top: 48px;
-  padding-bottom: 80px;
+  width: 100%;
+  max-width: var(--kf-search-content-width);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
 }
 .hero-subtitle {
@@ -534,8 +558,9 @@ onBeforeUnmount(() => { requestVersion++; });
   color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
-.hero-search-input:not(.kf-form-control),
-.hero-search-input:not(.kf-form-control):focus {
+/* 输入框铺满搜索框整行高度，使图标、输入文字、按钮文字处于同一条垂直中轴线 */
+.hero-search-box .hero-search-input,
+.hero-search-box .hero-search-input:focus {
   height: 100%;
   background: transparent;
   border: 0;
@@ -603,13 +628,14 @@ onBeforeUnmount(() => { requestVersion++; });
 
 .hot-tags-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  max-width: 480px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  max-width: var(--kf-search-suggestions-width);
   margin: 32px auto 0;
 }
 @media (min-width: 768px) {
-  .hot-tags-grid { grid-template-columns: repeat(3, 1fr); }
+  .hot-tags-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 .hot-tag {
   padding: 10px 16px;
@@ -673,7 +699,7 @@ onBeforeUnmount(() => { requestVersion++; });
 .compact-search-input {
   flex: 1;
   min-width: 0;
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   color: var(--kf-foreground);
 }
 .compact-search-input::placeholder { color: var(--kf-muted-foreground); }
@@ -788,7 +814,7 @@ onBeforeUnmount(() => { requestVersion++; });
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .state-text { margin-top: 12px; font-size: var(--kf-fs-body-md); }
-.state-title { margin-top: 12px; font-size: 15px; font-weight: 500; color: var(--kf-foreground); }
+.state-title { margin-top: 12px; font-size: var(--kf-fs-body-emphasis); font-weight: 500; color: var(--kf-foreground); }
 .empty-icon-box {
   width: 64px;
   height: 64px;
@@ -1011,7 +1037,7 @@ onBeforeUnmount(() => { requestVersion++; });
   .result-meta-info { gap: 8px; }
   .result-meta-bottom { flex-wrap: wrap; }
   /* 窄屏收紧内边距，避免内容贴边或横向溢出 */
-  .search-hero { padding-top: 32px; padding-bottom: 48px; }
+  .search-page { padding-block: var(--kf-space-6); }
   .compact-search-box { padding: 12px 16px; border: 0; }
   .result-item { padding: 16px; }
 }

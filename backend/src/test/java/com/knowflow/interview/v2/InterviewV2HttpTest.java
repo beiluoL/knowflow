@@ -29,8 +29,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc @ActiveProfiles("local")
 class InterviewV2HttpTest {
  @Autowired MockMvc mvc; @Autowired ObjectMapper json; @Autowired JdbcTemplate jdbc; @Autowired JwtUtils jwt;
+ @Autowired InterviewV2Service v2Service;
  @MockBean com.knowflow.service.impl.AiServiceImpl ai;
- @BeforeEach void configure(){when(ai.isConfigured(anyLong())).thenReturn(false);}
+ @MockBean com.knowflow.interview.speech.InterviewStreamingAsrProvider realtimeAsr;
+ @Autowired com.knowflow.interview.voice.VoiceTransportProperties voiceConfig;
+ @BeforeEach void configure(){
+  when(ai.isConfigured(anyLong())).thenReturn(false);
+  when(realtimeAsr.capabilities()).thenReturn(new com.knowflow.interview.speech.SpeechStreamCapabilities(false,"QWEN_REALTIME_ASR","PCM16",16000));
+ }
  String token(long uid){return "Bearer "+jwt.generateToken(uid,"phase4i-"+uid,uid==1?"ADMIN":"USER");}
  String key(){return UUID.randomUUID().toString();}
  JsonNode postJson(String path,Object body,long uid,int status)throws Exception{
@@ -59,6 +65,17 @@ class InterviewV2HttpTest {
   // 反向校验：管理员也不能读取普通用户的私有面试。
   var own=postJson("/api/interview/v2/sessions",Map.of("requestId",key(),"track","RAG","mode","STRICT","role","JAVA_AI"),2,200);
   state(own.path("sessionId").asLong(),1,404);
+ }
+ @Test void cancelledStreamingPreservesDurableConfirmedAnswerWithoutFakeGrade()throws Exception{
+  var state=create(key());long sid=state.path("sessionId").asLong();
+  var stopped=new java.util.concurrent.atomic.AtomicBoolean(true);
+  var deltas=new ArrayList<String>();
+  String confirmed="确认答案必须在流式生成取消后继续保留";
+  v2Service.answerStreaming(1L,sid,new InterviewV2Service.Answer(state.path("version").asLong(),key(),confirmed,null,null),deltas::add,stopped::get);
+  settled(sid);
+  assertEquals(confirmed,jdbc.queryForObject("SELECT answer FROM mock_interview_v2_turn WHERE session_id=?",String.class,sid));
+  assertNull(jdbc.queryForObject("SELECT evaluation_json FROM mock_interview_v2_turn WHERE session_id=?",String.class,sid));
+  assertTrue(deltas.isEmpty());verify(ai,never()).streamStructured(anyString(),anyString(),anyLong(),any(),any());
  }
  @Test void confirmedAnswerUsesVersionAndIdempotencyThenFallsBackWithoutFakeScore()throws Exception{
   JsonNode s=create(key());long sid=s.path("sessionId").asLong();String request=key();
@@ -181,6 +198,53 @@ class InterviewV2HttpTest {
   var result=mvc.perform(get(path+"/remediation").header("Authorization",token(1))).andExpect(status().isOk()).andReturn();
   var resource=json.readTree(result.getResponse().getContentAsString(java.nio.charset.StandardCharsets.UTF_8)).path("data").path("resources").get(0);
   assertEquals(name,resource.path("title").asText());assertTrue(resource.path("sourceCitations").get(0).asText().endsWith(":missingKnowledge"));
+ }
+
+ @Test void reevaluationIsAppendOnlyIdempotentAndOwnerScoped()throws Exception{
+  JsonNode original=create(key());long sid=original.path("sessionId").asLong();
+  postJson("/api/interview/v2/sessions/"+sid+"/answers",Map.of("version",original.path("version").asLong(),"requestId",key(),"answer","这是需要保留的原始回答"),1,200);
+  JsonNode current=settled(sid);
+  postJson("/api/interview/v2/sessions/"+sid+"/finish",Map.of("version",current.path("version").asLong(),"requestId",key()),1,200);
+  long turn=jdbc.queryForObject("SELECT id FROM mock_interview_v2_turn WHERE session_id=?",Long.class,sid);
+  String before=jdbc.queryForObject("SELECT evaluation_json FROM mock_interview_v2_turn WHERE id=?",String.class,turn);
+  String path="/api/interview/v2/sessions/"+sid+"/turns/"+turn+"/evaluations",request=key();
+  postJson(path,Map.of("requestId",request),1,200);
+  postJson(path,Map.of("requestId",request),1,200);
+  assertEquals(1,jdbc.queryForObject("SELECT COUNT(*) FROM interview_evaluation_run WHERE session_id=?",Integer.class,sid));
+  assertEquals(before,jdbc.queryForObject("SELECT evaluation_json FROM mock_interview_v2_turn WHERE id=?",String.class,turn));
+  assertEquals("这是需要保留的原始回答",jdbc.queryForObject("SELECT answer FROM mock_interview_v2_turn WHERE id=?",String.class,turn));
+  postJson(path,Map.of("requestId",key()),2,404);
+  mvc.perform(get("/api/interview/v2/sessions/"+sid+"/evaluations").header("Authorization",token(1)))
+   .andExpect(status().isOk()).andExpect(jsonPath("$.data[0].status").value("NOT_EVALUATED"));
+ }
+ @Test void realtimeVoiceRestPreservesAuthenticationOwnershipDisabledAndOriginContracts()throws Exception{
+  long sid=create(key()).path("sessionId").asLong();
+  String path="/api/interview/v2/sessions/"+sid+"/voice";
+  boolean enabled=voiceConfig.isEnabled();var origins=voiceConfig.getAllowedOrigins();
+  try{
+   voiceConfig.setEnabled(false);voiceConfig.setAllowedOrigins(List.of("http://localhost:15173"));
+   mvc.perform(get(path+"/capabilities")).andExpect(status().isUnauthorized()).andExpect(jsonPath("$.code").value(401));
+   mvc.perform(post(path+"/ticket").header("Origin","http://localhost:15173"))
+    .andExpect(status().isUnauthorized()).andExpect(jsonPath("$.code").value(401));
+   // 与原V2一致：他人私有记录按404遮蔽，管理员身份不能绕过归属。
+   mvc.perform(get(path+"/capabilities").header("Authorization",token(2)))
+    .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value(404));
+   mvc.perform(post(path+"/ticket").header("Authorization",token(2)).header("Origin","http://localhost:15173"))
+    .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value(404));
+   mvc.perform(get(path+"/capabilities").header("Authorization",token(1)))
+    .andExpect(status().isOk()).andExpect(jsonPath("$.code").value(200)).andExpect(jsonPath("$.data.enabled").value(false))
+    .andExpect(jsonPath("$.data.asr.available").value(false));
+   mvc.perform(post(path+"/ticket").header("Authorization",token(1)).header("Origin","http://localhost:15173"))
+    .andExpect(status().isServiceUnavailable()).andExpect(jsonPath("$.code").value(503));
+   voiceConfig.setEnabled(true);
+   when(realtimeAsr.capabilities()).thenReturn(new com.knowflow.interview.speech.SpeechStreamCapabilities(true,"QWEN_REALTIME_ASR","PCM16",16000));
+   mvc.perform(post(path+"/ticket").header("Authorization",token(1)).header("Origin","https://attacker.example"))
+    .andExpect(status().isForbidden()).andExpect(jsonPath("$.code").value(403));
+   assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM interview_voice_ticket WHERE session_id=?",Integer.class,sid));
+   verify(realtimeAsr,never()).open(anyString(),any());
+  }finally{
+   voiceConfig.setEnabled(enabled);voiceConfig.setAllowedOrigins(origins);
+  }
  }
 
 }

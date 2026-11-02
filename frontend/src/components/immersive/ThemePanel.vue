@@ -234,14 +234,14 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   color: var(--kf-muted-foreground, #94a3b8);
   background: transparent;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .close-btn:hover {
   background: rgba(255, 255, 255, 0.06);
@@ -266,7 +266,7 @@ onUnmounted(() => {
 .theme-scroll,
 .rhythm-scroll {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   overflow-x: auto;
   padding-bottom: 4px;
   -webkit-overflow-scrolling: touch;
@@ -287,13 +287,13 @@ onUnmounted(() => {
   width: 92px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   padding: 8px;
   background: rgba(255, 255, 255, 0.02);
   border: 2px solid transparent;
   border-radius: 12px;
   cursor: pointer;
-  transition: border-color 0.15s ease, transform 0.12s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .theme-card:hover {
   transform: translateY(-1px);
@@ -328,7 +328,7 @@ onUnmounted(() => {
   border: 2px solid transparent;
   cursor: pointer;
   padding: 0;
-  transition: transform 0.12s ease, border-color 0.15s ease;
+  transition: transform var(--kf-motion-fast) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 .accent-dot:hover {
@@ -345,7 +345,7 @@ onUnmounted(() => {
 }
 .fontsize-btn {
   flex: 1;
-  height: 36px;
+  height: var(--kf-btn-height-md);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -356,7 +356,7 @@ onUnmounted(() => {
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .fontsize-btn:hover {
   background: rgba(255, 255, 255, 0.08);
@@ -377,7 +377,7 @@ onUnmounted(() => {
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .rhythm-card:hover {
   background: rgba(255, 255, 255, 0.06);
@@ -402,7 +402,7 @@ onUnmounted(() => {
 .rhythm-tag {
   font-size: 11px;
   font-weight: 600;
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.08);
   color: var(--kf-muted-foreground, #94a3b8);
@@ -424,7 +424,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 38px;
+  height: var(--kf-btn-height-md);
   font-size: 13px;
   font-weight: 600;
   color: var(--kf-muted-foreground, #94a3b8);
@@ -432,7 +432,7 @@ onUnmounted(() => {
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .reset-btn:hover {
   background: rgba(255, 255, 255, 0.08);

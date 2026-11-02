@@ -108,7 +108,7 @@
           <div class="capture-quick-foot">
             <button type="button" class="capture-ghost-btn" :disabled="quickSaving || !quickDirty" @click="clearQuick">清空</button>
             <button type="submit" data-test="capture-quick-save" class="capture-primary-btn" :disabled="quickSaving">
-              <Icon v-if="quickSaving" name="loader" :size="15" class="capture-spin" aria-hidden="true" />
+              <Icon v-if="quickSaving" name="loader" :size="16" class="capture-spin" aria-hidden="true" />
               {{ quickSaving ? '保存中…' : '保存到收集箱' }}
             </button>
           </div>
@@ -209,8 +209,8 @@
         <h2 class="kf-text-card-title">{{ error ? '收集内容暂时无法读取' : activeCategory ? '这个分类还没有条目' : '收集箱还是空的' }}</h2>
         <p>{{ error ? '请检查连接后重试，已有内容不会丢失。' : '先记录一个想法，之后再慢慢整理。' }}</p>
         <div v-if="!error" class="capture-empty-actions">
-          <button type="button" class="kf-btn" @click="toggleQuick"><Icon name="pencil" :size="15" aria-hidden="true" /> 快速记录</button>
-          <button type="button" class="kf-btn kf-btn-primary" @click="openCreate"><Icon name="plus" :size="15" aria-hidden="true" /> 新建条目</button>
+          <button type="button" class="kf-btn" @click="toggleQuick"><Icon name="pencil" :size="16" aria-hidden="true" /> 快速记录</button>
+          <button type="button" class="kf-btn kf-btn-primary" @click="openCreate"><Icon name="plus" :size="16" aria-hidden="true" /> 新建条目</button>
         </div>
       </div>
       <div v-else-if="!total" class="capture-empty">
@@ -246,12 +246,12 @@
               <div class="capture-title-line">
                 <button type="button" class="capture-title" data-test="capture-edit" @click="openEdit(item)">{{ item.title }}</button>
                 <span v-if="!activeStatus" class="capture-status" :class="`is-${(item.status || 'INBOX').toLowerCase()}`">{{ statusLabel(item.status) }}</span>
-                <span v-if="item.starred" class="capture-star" aria-label="已标星"><Icon name="star" :size="13" aria-hidden="true" /></span>
+                <span v-if="item.starred" class="capture-star" aria-label="已标星"><Icon name="star" :size="14" aria-hidden="true" /></span>
               </div>
               <p class="capture-excerpt">{{ excerpt(item) }}</p>
               <div class="capture-mobile-meta">
                 <span v-for="tag in splitTags(item.tags)" :key="tag" class="capture-tag">{{ tag }}</span>
-                <span class="capture-mobile-source"><Icon :name="sourceIcon(item.sourceType)" :size="13" aria-hidden="true" />{{ sourceLabel(item.sourceType) }}</span>
+                <span class="capture-mobile-source"><Icon :name="sourceIcon(item.sourceType)" :size="14" aria-hidden="true" />{{ sourceLabel(item.sourceType) }}</span>
                 <time>{{ formatDate(item.updateTime || item.createTime) }}</time>
               </div>
             </div>
@@ -292,7 +292,7 @@
             <div class="capture-card-top">
               <Checkbox :model-value="selectedIds.includes(item.id)" @update:model-value="(value) => toggleSelect(item.id, value)" />
               <span v-if="!activeStatus" class="capture-status" :class="`is-${(item.status || 'INBOX').toLowerCase()}`">{{ statusLabel(item.status) }}</span>
-              <span v-if="item.starred" class="capture-star" aria-label="已标星"><Icon name="star" :size="13" aria-hidden="true" /></span>
+              <span v-if="item.starred" class="capture-star" aria-label="已标星"><Icon name="star" :size="14" aria-hidden="true" /></span>
               <button type="button" class="capture-icon-btn" title="更多操作" aria-label="更多操作" @click="openMenu($event, item)">
                 <Icon name="more-horizontal" :size="16" aria-hidden="true" />
               </button>
@@ -303,7 +303,7 @@
               <span v-for="tag in splitTags(item.tags)" :key="tag" class="capture-tag">{{ tag }}</span>
             </div>
             <div class="capture-card-foot">
-              <span class="capture-card-source"><Icon :name="sourceIcon(item.sourceType)" :size="13" aria-hidden="true" />{{ sourceLabel(item.sourceType) }}</span>
+              <span class="capture-card-source"><Icon :name="sourceIcon(item.sourceType)" :size="14" aria-hidden="true" />{{ sourceLabel(item.sourceType) }}</span>
               <time>{{ formatDate(item.updateTime || item.createTime) }}</time>
             </div>
             <button type="button" class="capture-card-note" @click="toNote(item)">
@@ -371,7 +371,7 @@
               :aria-pressed="form.mode === mode.value"
               @click="form.mode = mode.value"
             >
-              <Icon :name="mode.icon" :size="15" aria-hidden="true" /> {{ mode.label }}
+              <Icon :name="mode.icon" :size="16" aria-hidden="true" /> {{ mode.label }}
             </button>
           </div>
         </div>
@@ -387,7 +387,7 @@
                 <small>{{ formatSize(form.file.size) }}</small>
               </div>
               <button type="button" class="capture-icon-btn" aria-label="移除文件" @click="clearFile">
-                <Icon name="x" :size="15" aria-hidden="true" />
+                <Icon name="x" :size="16" aria-hidden="true" />
               </button>
             </template>
             <template v-else-if="editingDocId">
@@ -471,7 +471,7 @@
         <div class="capture-form-field">
           <label class="capture-label" for="capture-entry-tags">标签</label>
           <div class="kf-field capture-tags-field">
-            <Icon name="hash" :size="15" class="capture-tags-icon" aria-hidden="true" />
+            <Icon name="hash" :size="16" class="capture-tags-icon" aria-hidden="true" />
             <input
               id="capture-entry-tags"
               v-model="tagInput"
@@ -485,7 +485,7 @@
             <span v-for="(tag, index) in form.tags" :key="tag" class="capture-tag">
               {{ tag }}
               <button type="button" class="capture-tag-remove" :aria-label="`移除标签 ${tag}`" @click="removeTag(index)">
-                <Icon name="x" :size="11" aria-hidden="true" />
+                <Icon name="x" :size="12" aria-hidden="true" />
               </button>
             </span>
           </div>
@@ -503,7 +503,7 @@
           <div class="capture-dialog-actions">
             <button type="button" class="capture-ghost-btn" :disabled="dialogSaving" @click="requestDialogClose">取消</button>
             <button type="button" data-test="capture-dialog-save" class="capture-primary-btn" :disabled="dialogSaving" @click="saveEntry">
-              <Icon v-if="dialogSaving" name="loader" :size="15" class="capture-spin" aria-hidden="true" />
+              <Icon v-if="dialogSaving" name="loader" :size="16" class="capture-spin" aria-hidden="true" />
               {{ dialogSaving ? '保存中…' : editingId ? '保存修改' : '保存到收集箱' }}
             </button>
           </div>
@@ -1436,7 +1436,7 @@ onBeforeUnmount(() => {
 /* 展开 / 收起动效 */
 .capture-reveal-enter-active,
 .capture-reveal-leave-active {
-  transition: opacity var(--kf-control-motion) ease, transform var(--kf-control-motion) ease;
+  transition: opacity var(--kf-control-motion) var(--kf-ease-standard), transform var(--kf-control-motion) var(--kf-ease-standard);
 }
 .capture-reveal-enter-from,
 .capture-reveal-leave-to {
@@ -1508,7 +1508,7 @@ onBeforeUnmount(() => {
   background: transparent;
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: background var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
+  transition: background var(--kf-control-motion) var(--kf-ease-standard), color var(--kf-control-motion) var(--kf-ease-standard);
 }
 .capture-view-btn:hover {
   background: var(--kf-muted);
@@ -1571,7 +1571,7 @@ onBeforeUnmount(() => {
   font-weight: 600;
   line-height: var(--kf-lh-body-md);
   cursor: pointer;
-  transition: background var(--kf-control-motion) ease, border-color var(--kf-control-motion) ease, opacity var(--kf-control-motion) ease;
+  transition: background var(--kf-control-motion) var(--kf-ease-standard), border-color var(--kf-control-motion) var(--kf-ease-standard), opacity var(--kf-control-motion) var(--kf-ease-standard);
 }
 .capture-primary-btn {
   border: 1px solid var(--kf-primary);
@@ -1670,7 +1670,7 @@ onBeforeUnmount(() => {
 }
 .capture-row {
   border-bottom: 1px solid var(--kf-border);
-  transition: background var(--kf-control-motion) ease;
+  transition: background var(--kf-control-motion) var(--kf-ease-standard);
 }
 .capture-row:last-child {
   border-bottom: 0;
@@ -1798,7 +1798,7 @@ onBeforeUnmount(() => {
   background: transparent;
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: background var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
+  transition: background var(--kf-control-motion) var(--kf-ease-standard), color var(--kf-control-motion) var(--kf-ease-standard);
 }
 .capture-icon-btn:hover {
   background: var(--kf-muted);
@@ -1851,7 +1851,7 @@ onBeforeUnmount(() => {
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-lg);
   box-shadow: var(--shadow-card);
-  transition: border-color var(--kf-control-motion) ease, box-shadow var(--kf-control-motion) ease;
+  transition: border-color var(--kf-control-motion) var(--kf-ease-standard), box-shadow var(--kf-control-motion) var(--kf-ease-standard);
 }
 .capture-card:hover {
   border-color: color-mix(in srgb, var(--kf-primary) 35%, var(--kf-border));
@@ -2017,7 +2017,7 @@ onBeforeUnmount(() => {
   font-size: var(--kf-fs-body-sm);
   font-weight: 500;
   cursor: pointer;
-  transition: background var(--kf-control-motion) ease, border-color var(--kf-control-motion) ease, color var(--kf-control-motion) ease;
+  transition: background var(--kf-control-motion) var(--kf-ease-standard), border-color var(--kf-control-motion) var(--kf-ease-standard), color var(--kf-control-motion) var(--kf-ease-standard);
 }
 .capture-mode:hover {
   border-color: var(--kf-primary);

@@ -80,7 +80,7 @@
               v-if="problem.solved"
               class="text-xs px-2 py-0.5 rounded-full bg-success-100 text-success-700 inline-flex items-center gap-1"
             >
-              <Icon name="check-circle" :size="11" /> 已通过
+              <Icon name="check-circle" :size="12" /> 已通过
             </span>
           </div>
 
@@ -133,7 +133,7 @@
           <div class="rounded-xl border border-primary-200 bg-primary-50/40 p-4 space-y-3">
             <div class="flex items-center justify-between gap-2 flex-wrap">
               <h3 class="text-sm font-semibold text-foreground inline-flex items-center gap-1.5">
-                <Icon name="sparkles" :size="15" class="text-primary-500" />
+                <Icon name="sparkles" :size="16" class="text-primary-500" />
                 AI 辅助
                 <span
                   class="text-[11px] font-normal px-1.5 py-0.5 rounded-full"
@@ -218,7 +218,7 @@
           <!-- 题解：仅本人通过后开放 -->
           <div v-if="problem.solved && (problem.solutionExplanation || problem.complexityAnalysis)" class="space-y-3">
             <h3 class="text-sm font-semibold text-foreground inline-flex items-center gap-1.5">
-              <Icon name="book-open" :size="15" /> 题解（通过后解锁）
+              <Icon name="book-open" :size="16" /> 题解（通过后解锁）
             </h3>
             <div v-if="problem.solutionExplanation" class="rounded-xl border border-success-200 bg-success-50/50 p-4">
               <p class="text-[13px] text-foreground/90 whitespace-pre-wrap leading-7">{{ problem.solutionExplanation }}</p>
@@ -240,7 +240,7 @@
           <!-- 历史提交 -->
           <div class="space-y-2 pb-6">
             <h3 class="text-sm font-semibold text-foreground inline-flex items-center gap-1.5">
-              <Icon name="clock" :size="15" /> 我的提交
+              <Icon name="clock" :size="16" /> 我的提交
             </h3>
             <p v-if="!history.length" class="text-xs text-muted-foreground">暂无正式提交记录（「运行示例」不计入历史）。</p>
             <div
@@ -346,14 +346,14 @@
             class="px-2.5 py-1.5 rounded-lg text-xs border border-border text-muted-foreground hover:border-primary-300 inline-flex items-center gap-1"
             @click="resetCode"
           >
-            <Icon name="refresh-cw" :size="13" /> 重置
+            <Icon name="refresh-cw" :size="14" /> 重置
           </button>
           <button
             class="px-2.5 py-1.5 rounded-lg text-xs border border-border text-foreground hover:border-primary-300 inline-flex items-center gap-1"
             :disabled="savingDraft"
             @click="manualSaveDraft"
           >
-            <Icon name="check" :size="13" /> {{ savingDraft ? '保存中…' : '保存草稿' }}
+            <Icon name="check" :size="14" /> {{ savingDraft ? '保存中…' : '保存草稿' }}
           </button>
           <span class="text-[11px] text-muted-foreground ml-1">{{ draftStatus }}</span>
 
@@ -364,14 +364,14 @@
               :title="problem.judgeExecutionEnabled ? '仅运行公开用例' : '判题服务未就绪'"
               @click="runCode"
             >
-              <Icon name="play" :size="13" /> 运行示例
+              <Icon name="play" :size="14" /> 运行示例
             </button>
             <button
               class="px-3 py-1.5 rounded-lg text-xs bg-primary-500 text-white hover:bg-primary-600 inline-flex items-center gap-1 disabled:opacity-50"
               :disabled="busy"
               @click="submitCode"
             >
-              <Icon name="send" :size="13" /> {{ submitting ? '判题中…' : '提交判题' }}
+              <Icon name="send" :size="14" /> {{ submitting ? '判题中…' : '提交判题' }}
             </button>
           </div>
         </div>
@@ -392,7 +392,7 @@
           :class="{ 'hidden lg:block': mobileTab !== 'result' }"
         >
           <div v-if="!result" class="p-6 text-center text-xs text-muted-foreground">
-            <Icon name="play-circle" :size="22" class="mx-auto mb-2 opacity-60" />
+            <Icon name="play-circle" :size="24" class="mx-auto mb-2 opacity-60" />
             点击「运行示例」验证公开用例，或「提交判题」运行全部用例
           </div>
           <div v-else class="p-4 space-y-3">
@@ -433,7 +433,7 @@
                 :class="c.passed ? 'border-success-200 bg-success-50/50' : 'border-red-200 bg-red-50/60'"
               >
                 <div class="flex items-center gap-2">
-                  <Icon :name="c.passed ? 'check-circle' : 'x'" :size="13" :class="c.passed ? 'text-success-600' : 'text-red-500'" />
+                  <Icon :name="c.passed ? 'check-circle' : 'x'" :size="14" :class="c.passed ? 'text-success-600' : 'text-red-500'" />
                   <span class="font-medium">{{ c.hidden ? `隐藏用例 #${c.orderNo + 1}` : `用例 #${c.orderNo + 1}` }}</span>
                   <span class="text-muted-foreground">{{ c.status }}</span>
                   <span v-if="c.timeMs" class="ml-auto text-muted-foreground tabular-nums">{{ c.timeMs }}ms</span>

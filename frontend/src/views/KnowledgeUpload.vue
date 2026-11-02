@@ -970,7 +970,7 @@ onMounted(loadCategories)
   height: 100%;
   background: linear-gradient(90deg, var(--kf-primary), #6366F1);
   border-radius: 4px;
-  transition: width 0.3s ease;
+  transition: width var(--kf-motion-slower) var(--kf-ease-standard);
 }
 
 .global-progress-file {
@@ -1009,12 +1009,12 @@ onMounted(loadCategories)
   line-height: var(--kf-lh-body-sm);
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
   font-family: inherit;
 }
 
 .mode-tab:hover:not(:disabled) {
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
   color: var(--kf-foreground);
 }
 
@@ -1075,13 +1075,13 @@ onMounted(loadCategories)
   line-height: var(--kf-lh-body-sm);
   cursor: pointer;
   white-space: nowrap;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), background var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .back-btn:hover {
   border-color: var(--kf-primary);
   color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
 }
 
 .back-btn:active {
@@ -1126,7 +1126,7 @@ onMounted(loadCategories)
   padding: 48px 24px;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.2s ease, background 0.2s ease;
+  transition: border-color var(--kf-motion-slow) var(--kf-ease-standard), background var(--kf-motion-slow) var(--kf-ease-standard);
 }
 
 .upload-zone:hover {
@@ -1135,7 +1135,7 @@ onMounted(loadCategories)
 }
 
 .upload-zone:active {
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
 }
 
 .upload-zone:focus-visible {
@@ -1146,7 +1146,7 @@ onMounted(loadCategories)
 
 .upload-zone.dragging {
   border-color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
 }
 
 .upload-zone-icon {
@@ -1157,7 +1157,7 @@ onMounted(loadCategories)
   align-items: center;
   justify-content: center;
   margin: 0 auto 16px;
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
 }
 
@@ -1238,10 +1238,10 @@ onMounted(loadCategories)
   flex-shrink: 0;
 }
 
-.type-pdf { background: rgba(239, 68, 68, 0.1); color: var(--kf-destructive); }
-.type-md { background: rgba(16, 185, 129, 0.1); color: var(--kf-accent); }
-.type-doc { background: rgba(59, 111, 224, 0.08); color: var(--kf-primary); }
-.type-ppt { background: rgba(245, 158, 11, 0.1); color: var(--kf-warning); }
+.type-pdf { background: var(--kf-danger-soft); color: var(--kf-destructive); }
+.type-md { background: var(--kf-success-soft); color: var(--kf-accent); }
+.type-doc { background: var(--kf-primary-soft); color: var(--kf-primary); }
+.type-ppt { background: var(--kf-warning-soft); color: var(--kf-warning); }
 .type-default { background: rgba(107, 114, 128, 0.1); color: var(--kf-muted-foreground); }
 
 .file-info {
@@ -1285,7 +1285,7 @@ onMounted(loadCategories)
 .upload-bar-fill {
   height: 100%;
   border-radius: 3px;
-  transition: width 0.3s;
+  transition: width var(--kf-motion-slower) var(--kf-ease-standard);
 }
 
 .fill-primary { background: var(--kf-primary); }
@@ -1305,8 +1305,8 @@ onMounted(loadCategories)
 .status-muted { color: var(--kf-muted-foreground); }
 
 .file-remove-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1316,11 +1316,11 @@ onMounted(loadCategories)
   color: var(--kf-muted-foreground);
   border-radius: 6px;
   flex-shrink: 0;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .file-remove-btn:hover {
-  background: rgba(239, 68, 68, 0.08);
+  background: var(--kf-danger-soft);
   color: var(--kf-destructive);
 }
 
@@ -1382,12 +1382,12 @@ onMounted(loadCategories)
 }
 
 .form-input:not(.kf-form-control) {
-  height: 38px;
+  height: var(--kf-input-height);
   border-radius: 8px;
   background: var(--kf-background);
   border: 1px solid var(--kf-border);
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .form-input {
@@ -1413,7 +1413,7 @@ onMounted(loadCategories)
   background: var(--kf-background);
   border: 1px solid var(--kf-border);
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .form-textarea {
@@ -1442,12 +1442,12 @@ onMounted(loadCategories)
   font-size: var(--kf-fs-caption);
   line-height: var(--kf-lh-caption);
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
   align-self: flex-start;
 }
 
 .create-category-link:hover {
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
   border-color: var(--kf-primary);
 }
 
@@ -1469,8 +1469,8 @@ onMounted(loadCategories)
   padding: 8px 12px;
   border-radius: 8px;
   background: var(--kf-field-surface);
-  min-height: 38px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  min-height: var(--kf-input-height);
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
   border: 0;
 }
 
@@ -1492,7 +1492,7 @@ onMounted(loadCategories)
   font-size: var(--kf-fs-caption);
   line-height: var(--kf-lh-caption);
   font-weight: 500;
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
   max-width: 100%;
 }
@@ -1507,7 +1507,7 @@ onMounted(loadCategories)
   display: inline-flex;
   align-items: center;
   opacity: 0.7;
-  transition: opacity 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard), background var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .tag-remove:hover {
@@ -1559,14 +1559,14 @@ onMounted(loadCategories)
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 38px;
+  height: var(--kf-btn-height-md);
   padding: 0 16px;
   border-radius: 8px;
   font-size: var(--kf-fs-body-sm);
   font-weight: 500;
   line-height: var(--kf-lh-body-sm);
   cursor: pointer;
-  transition: background 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), opacity var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
   border: none;
   font-family: inherit;
 }
@@ -1668,7 +1668,7 @@ onMounted(loadCategories)
   color: var(--kf-foreground);
   background: var(--kf-background);
   border: 1px solid transparent;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .icon-item:hover {
@@ -1686,7 +1686,7 @@ onMounted(loadCategories)
 }
 
 .icon-item.active {
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
   border-color: var(--kf-primary);
   color: var(--kf-primary);
 }
@@ -1741,7 +1741,7 @@ onMounted(loadCategories)
   background: var(--kf-card);
   border: 2px solid var(--kf-border);
   border-radius: 14px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .path-input-row:hover {
@@ -1758,8 +1758,8 @@ onMounted(loadCategories)
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: var(--kf-input-height);
   color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
@@ -1801,7 +1801,7 @@ onMounted(loadCategories)
   line-height: var(--kf-lh-body-sm);
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard), opacity var(--kf-motion-base) var(--kf-ease-standard);
   flex-shrink: 0;
   white-space: nowrap;
   font-family: inherit;
@@ -1840,7 +1840,7 @@ onMounted(loadCategories)
   padding: 2px 8px;
   font-size: var(--kf-fs-xs);
   font-weight: 500;
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
   border-radius: 4px;
 }
@@ -1899,7 +1899,7 @@ onMounted(loadCategories)
   color: var(--kf-primary);
   text-decoration: underline;
   text-underline-offset: 2px;
-  transition: color 0.15s ease, opacity 0.15s ease;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard), opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .link-btn:hover {

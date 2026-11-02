@@ -179,7 +179,7 @@ const goSearch = () => {
 
 /* 副标题 */
 .notfound-title {
-  font-size: 22px;
+  font-size: var(--kf-fs-h3);
   font-weight: 600;
   line-height: 1.35;
   letter-spacing: -0.01em;

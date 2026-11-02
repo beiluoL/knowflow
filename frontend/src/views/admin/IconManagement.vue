@@ -461,7 +461,7 @@ onMounted(() => {
 <style scoped>
 /* 页面容器 */
 .icon-mgmt-wrap {
-  padding: 24px 28px 40px;
+  padding: 24px 24px 40px;
   animation: fadeIn 0.4s ease-out;
 
   padding-inline: 0;
@@ -542,7 +542,7 @@ onMounted(() => {
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
   color: var(--kf-foreground);
-  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard),  border-color var(--kf-motion-base) var(--kf-ease-standard),  transform var(--kf-motion-base) var(--kf-ease-standard);
   overflow: hidden;
   cursor: pointer;
 }
@@ -578,8 +578,8 @@ onMounted(() => {
   position: absolute;
   bottom: 3px;
   right: 3px;
-  font-size: 9px;
-  padding: 1px 5px;
+  font-size: var(--kf-fs-xs);
+  padding: 1px 4px;
   border-radius: 3px;
   font-weight: 500;
   line-height: 1.3;
@@ -611,7 +611,7 @@ onMounted(() => {
   color: var(--kf-muted-foreground);
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.15s, background 0.15s, color 0.15s;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard),  background var(--kf-motion-base) var(--kf-ease-standard),  color var(--kf-motion-base) var(--kf-ease-standard);
   z-index: 1;
 }
 
@@ -621,7 +621,7 @@ onMounted(() => {
 
 .custom-cell .delete-btn:hover {
   background: var(--kf-danger);
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 
 /* 空态 */
@@ -637,9 +637,9 @@ onMounted(() => {
 .btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
@@ -647,7 +647,7 @@ onMounted(() => {
   color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .btn-primary:hover { opacity: 0.9; }
@@ -657,9 +657,9 @@ onMounted(() => {
 .btn-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
@@ -667,15 +667,15 @@ onMounted(() => {
   color: var(--kf-foreground);
   border: 1px solid var(--kf-border);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .btn-secondary:hover { background: var(--kf-muted); }
 
 /* 图标按钮（关闭） */
 .icon-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -684,7 +684,7 @@ onMounted(() => {
   background: transparent;
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard),  color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .icon-btn:hover { background: var(--kf-muted); color: var(--kf-primary); }
@@ -761,7 +761,7 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   height: 32px;
   padding: 0 8px;
   border-radius: 6px;
@@ -771,7 +771,7 @@ onMounted(() => {
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard),  color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .tab-btn:hover { color: var(--kf-foreground); }
@@ -786,7 +786,7 @@ onMounted(() => {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .form-label {
@@ -806,12 +806,12 @@ onMounted(() => {
 }
 
 .form-input:not(.kf-form-control) {
-  height: 36px;
+  height: var(--kf-input-height);
   border-radius: 6px;
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard),  box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .form-input {
@@ -824,7 +824,7 @@ onMounted(() => {
 
 .form-input:not(.kf-form-control):focus {
   border-color: var(--kf-primary);
-  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+  box-shadow: 0 0 0 3px var(--kf-primary-soft);
 }
 
 .file-input {
@@ -838,7 +838,7 @@ onMounted(() => {
 }
 
 .svg-textarea {
-  padding: 10px 12px;
+  padding: 12px 12px;
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
   font-size: 12px;
   line-height: 1.5;
@@ -851,13 +851,13 @@ onMounted(() => {
 .color-picker-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .color-swatches {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
@@ -867,7 +867,7 @@ onMounted(() => {
   border-radius: 5px;
   border: 2px solid transparent;
   cursor: pointer;
-  transition: transform 0.15s, border-color 0.15s;
+  transition: transform var(--kf-motion-base) var(--kf-ease-standard),  border-color var(--kf-motion-base) var(--kf-ease-standard);
   padding: 0;
 }
 
@@ -891,7 +891,7 @@ onMounted(() => {
   font-size: 12px;
   color: var(--kf-muted-foreground);
   position: relative;
-  transition: border-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .custom-color-wrap:hover { border-color: var(--kf-primary); }
@@ -917,7 +917,7 @@ onMounted(() => {
 }
 
 .clear-color-btn {
-  height: 28px;
+  height: var(--kf-btn-height-sm);
   padding: 0 8px;
   border-radius: 6px;
   border: 1px solid var(--kf-border);
@@ -925,7 +925,7 @@ onMounted(() => {
   color: var(--kf-muted-foreground);
   font-size: 12px;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard),  border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .clear-color-btn:hover {
@@ -937,12 +937,12 @@ onMounted(() => {
 .preview-box {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .preview-row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 .preview-glyph {
@@ -956,7 +956,7 @@ onMounted(() => {
 }
 
 .preview-light { background: #fff; }
-.preview-dark { background: #1e293b; color: #fff; }
+.preview-dark { background: #1e293b; color: var(--kf-accent-foreground); }
 .preview-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 
 /* 响应式：移动端 */
@@ -979,8 +979,8 @@ onMounted(() => {
 .preset-tab-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
+  gap: 8px;
+  padding: 8px 12px;
   font-size: 13px;
   font-weight: 500;
   color: var(--kf-muted-foreground, var(--kf-muted-foreground));
@@ -988,17 +988,17 @@ onMounted(() => {
   border: 1px solid var(--kf-border, var(--kf-muted));
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 
 .preset-tab-btn:hover {
   color: var(--kf-primary, var(--kf-primary));
   border-color: var(--kf-primary, var(--kf-primary));
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
 }
 
 .preset-tab-btn.active {
-  color: #fff;
+  color: var(--kf-accent-foreground);
   background: var(--kf-primary, var(--kf-primary));
   border-color: var(--kf-primary, var(--kf-primary));
   box-shadow: 0 2px 6px rgba(59, 111, 224, 0.25);
@@ -1010,7 +1010,7 @@ onMounted(() => {
   justify-content: center;
   min-width: 18px;
   height: 18px;
-  padding: 0 5px;
+  padding: 0 4px;
   font-size: 11px;
   font-weight: 600;
   border-radius: 9px;
@@ -1020,7 +1020,7 @@ onMounted(() => {
 
 .preset-tab-btn.active .preset-tab-count {
   background: rgba(255, 255, 255, 0.25);
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 
 /* 预置图标网格 */
@@ -1033,18 +1033,18 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 14px 8px;
+  gap: 8px;
+  padding: 12px 8px;
   border: 1px solid var(--kf-border, var(--kf-muted));
   border-radius: 10px;
   background: var(--kf-card, #FFFFFF);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 
 .preset-cell:hover {
   border-color: var(--kf-primary, var(--kf-primary));
-  background: rgba(59, 111, 224, 0.04);
+  background: var(--kf-primary-soft);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 111, 224, 0.12);
 }
@@ -1060,11 +1060,11 @@ onMounted(() => {
 }
 
 .icon-key-badge {
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   color: var(--kf-muted-foreground, #94A3B8);
   background: var(--kf-muted, #F1F5F9);
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 4px;
   max-width: 100%;
   overflow: hidden;

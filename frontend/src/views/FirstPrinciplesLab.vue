@@ -65,7 +65,7 @@
         </div>
 
         <div v-if="result.missing.length > 0" class="fp-missed">
-          <p class="fp-missed-title"><Icon name="lightbulb" :size="13" /> 还没写全的环节：</p>
+          <p class="fp-missed-title"><Icon name="lightbulb" :size="14" /> 还没写全的环节：</p>
           <ul class="fp-missed-list">
             <li v-for="k in result.missing" :key="k">
               {{ stepTitle(k) }} —— {{ stepHint(k) }}
@@ -74,7 +74,7 @@
         </div>
 
         <p class="fp-honest">
-          <Icon name="info" :size="13" />
+          <Icon name="info" :size="14" />
           这个分数只说明「推导过程写全了没有」，<strong>不代表你的结论是对的</strong>。
           建议对照资料逐条检查「底层机制」与「因果关系」是否站得住。
         </p>
@@ -113,7 +113,7 @@
             <span class="fp-step-index">{{ s.index }}</span>
             <span class="fp-block-title">{{ s.title }}</span>
             <span class="fp-step-flag" :class="isFilled(s.key) ? 'fp-step-flag-ok' : ''">
-              <Icon :name="isFilled(s.key) ? 'check' : 'minus'" :size="11" />
+              <Icon :name="isFilled(s.key) ? 'check' : 'minus'" :size="12" />
               {{ isFilled(s.key) ? '已填写' : '待填写' }}
             </span>
           </div>
@@ -127,7 +127,7 @@
         </section>
 
         <p class="fp-honest">
-          <Icon name="info" :size="13" />
+          <Icon name="info" :size="14" />
           每个环节至少写 {{ minLength }} 个字（不含空白）才算填写合格。
           六个环节都合格 = 结构完整度 100。
         </p>
@@ -293,7 +293,7 @@ onMounted(() => {
   padding: 24px 20px 56px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 
   width: 100%;
   min-width: 0;
@@ -305,7 +305,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 48px 0;
   color: var(--kf-muted-foreground);
 }
@@ -357,7 +357,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px;
+  padding: 12px 12px;
   margin-bottom: 16px;
   border: 1px solid var(--kf-primary-subtle);
   border-radius: var(--kf-radius-md);
@@ -377,7 +377,7 @@ onMounted(() => {
   color: var(--kf-muted-foreground);
   font-size: var(--kf-fs-caption);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .fp-ctx-clear:hover {
   border-color: var(--kf-primary);
@@ -388,7 +388,7 @@ onMounted(() => {
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-lg);
-  padding: 16px 18px;
+  padding: 16px 16px;
 }
 
 .fp-block-head {
@@ -440,7 +440,7 @@ onMounted(() => {
   border: 1px solid var(--kf-border);
   background: var(--kf-bg);
   border-radius: var(--kf-radius-md);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .fp-input,
@@ -452,7 +452,7 @@ onMounted(() => {
 }
 
 .fp-input {
-  padding: 10px 14px;
+  padding: 12px 12px;
 }
 
 .fp-textarea:not(.kf-form-control) {
@@ -460,7 +460,7 @@ onMounted(() => {
 }
 
 .fp-textarea {
-  padding: 12px 14px;
+  padding: 12px 12px;
   resize: vertical;
   font-family: inherit;
   min-height: 110px;
@@ -476,7 +476,7 @@ onMounted(() => {
 .fp-tip {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: 8px;
   margin-bottom: 8px;
   font-size: var(--kf-fs-caption);
   color: var(--kf-muted-foreground);
@@ -486,8 +486,8 @@ onMounted(() => {
 .fp-honest {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
-  padding: 10px 12px;
+  gap: 8px;
+  padding: 12px 12px;
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-md);
   background: var(--kf-bg);
@@ -517,8 +517,8 @@ onMounted(() => {
 .fp-btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 9px 18px;
+  gap: 8px;
+  padding: 8px 16px;
   border: none;
   border-radius: var(--kf-radius-md);
   background: var(--kf-primary);
@@ -526,7 +526,7 @@ onMounted(() => {
   font-size: var(--kf-fs-body-md);
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .fp-btn-primary:hover:not(:disabled) {
@@ -541,8 +541,8 @@ onMounted(() => {
 .fp-btn-ghost {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
+  gap: 8px;
+  padding: 8px 12px;
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-sm);
   background: var(--kf-card);
@@ -550,7 +550,7 @@ onMounted(() => {
   font-size: var(--kf-fs-body-sm);
   cursor: pointer;
   text-decoration: none;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .fp-btn-ghost:hover {
@@ -578,7 +578,7 @@ onMounted(() => {
 .fp-result-title {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: var(--kf-fs-body-md);
   font-weight: 600;
   color: var(--kf-foreground);
@@ -627,7 +627,7 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: var(--kf-radius-sm);
   font-size: var(--kf-fs-caption);
 }
@@ -649,7 +649,7 @@ onMounted(() => {
 .fp-missed-title {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   font-size: var(--kf-fs-caption);
   font-weight: 600;
   color: var(--kf-foreground);
@@ -667,7 +667,7 @@ onMounted(() => {
 .fp-result-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-top: 14px;
 }
 

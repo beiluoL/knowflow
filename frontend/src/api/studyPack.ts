@@ -8,6 +8,7 @@ export const studyPackApi={
  list:()=>apiGet<StudyPack[]>(root),
  upload:(file:File)=>apiUpload<StudyPack>(root,file,{}),
  detail:(id:number)=>apiGet<StudyPack>(`${root}/${id}`),
+ cancel:(id:number)=>apiPost<StudyPack>(`${root}/${id}/cancel`,{}),
  retry:(id:number,step:string)=>apiPost<StudyPack>(`${root}/${id}/retry`,{step}),
  saveCards:(id:number,expectedRevision:number,cards:PackCard[])=>apiPut<StudyPack>(`${root}/${id}/draft`,{expectedRevision,cards}),
  accept:(id:number,expectedRevision:number,cards:PackCard[])=>apiPost<StudyPack>(`${root}/${id}/accept`,{expectedRevision,cards}),

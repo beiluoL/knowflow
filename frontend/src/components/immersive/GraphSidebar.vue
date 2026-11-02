@@ -359,7 +359,7 @@ watch(activeTab, (tab) => {
 <style scoped>
 .sidebar-slide-enter-active,
 .sidebar-slide-leave-active {
-  transition: transform 0.3s ease, opacity 0.25s ease;
+  transition: transform var(--kf-motion-slower) var(--kf-ease-standard), opacity var(--kf-motion-slower) var(--kf-ease-standard);
 }
 .sidebar-slide-enter-from,
 .sidebar-slide-leave-to {
@@ -399,11 +399,11 @@ watch(activeTab, (tab) => {
   font-size: 14px;
 }
 .sidebar-title {
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
 }
 .close-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -412,7 +412,7 @@ watch(activeTab, (tab) => {
   border-radius: 8px;
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard),  color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .close-btn:hover {
   background: rgba(255, 255, 255, 0.1);
@@ -422,16 +422,16 @@ watch(activeTab, (tab) => {
 .tab-nav {
   display: flex;
   gap: 4px;
-  padding: 10px 12px;
+  padding: 12px 12px;
   border-bottom: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
 }
 .tab-btn {
   flex: 1;
-  height: 34px;
+  height: var(--kf-btn-height-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 12px;
   font-weight: 500;
   color: var(--kf-muted-foreground);
@@ -439,7 +439,7 @@ watch(activeTab, (tab) => {
   border: 1px solid transparent;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .tab-btn:hover {
   background: rgba(255, 255, 255, 0.04);
@@ -454,7 +454,7 @@ watch(activeTab, (tab) => {
 .tab-content {
   flex: 1;
   overflow-y: auto;
-  padding: 14px 14px 16px;
+  padding: 12px 12px 16px;
 }
 .tab-content::-webkit-scrollbar {
   width: 6px;
@@ -476,12 +476,12 @@ watch(activeTab, (tab) => {
   margin-bottom: 4px;
 }
 .concept-input:not(.kf-form-control) {
-  height: 38px;
+  height: var(--kf-input-height);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .concept-input {
   flex: 1;
@@ -493,19 +493,19 @@ watch(activeTab, (tab) => {
   border-color: var(--kf-primary);
 }
 .generate-btn {
-  height: 38px;
-  padding: 0 14px;
+  height: var(--kf-btn-height-md);
+  padding: 0 12px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   background: var(--kf-primary);
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: filter 0.15s;
+  transition: filter var(--kf-motion-base) var(--kf-ease-standard);
   flex-shrink: 0;
 }
 .generate-btn:hover:not(:disabled) {
@@ -534,7 +534,7 @@ watch(activeTab, (tab) => {
 }
 .diagram-type {
   font-size: 11px;
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--kf-primary) 16%, transparent);
   color: var(--kf-primary);
@@ -542,7 +542,7 @@ watch(activeTab, (tab) => {
   letter-spacing: 0.02em;
 }
 .concept-name {
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   font-weight: 700;
   color: var(--kf-foreground);
 }
@@ -556,13 +556,13 @@ watch(activeTab, (tab) => {
 .chips-wrap {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 .chip {
   display: inline-flex;
   align-items: center;
-  height: 26px;
-  padding: 0 10px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   font-size: 12px;
   font-weight: 500;
   border-radius: 999px;
@@ -578,7 +578,7 @@ watch(activeTab, (tab) => {
   color: #A78BFA;
   border: 1px solid rgba(139, 92, 246, 0.2);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .rel-chip:hover {
   background: rgba(139, 92, 246, 0.2);
@@ -592,7 +592,7 @@ watch(activeTab, (tab) => {
 .expand-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 0;
   background: none;
   border: none;
@@ -606,8 +606,8 @@ watch(activeTab, (tab) => {
   color: var(--kf-primary);
 }
 .expl-text {
-  padding: 10px 12px;
-  font-size: 12.5px;
+  padding: 12px 12px;
+  font-size: var(--kf-fs-caption);
   line-height: 1.65;
   color: var(--kf-foreground);
   background: rgba(255, 255, 255, 0.03);
@@ -617,9 +617,9 @@ watch(activeTab, (tab) => {
 .mermaid-pre {
   max-height: 180px;
   overflow: auto;
-  padding: 10px 12px;
+  padding: 12px 12px;
   margin: 0;
-  font-size: 11.5px;
+  font-size: var(--kf-fs-xs);
   line-height: 1.5;
   color: #94A3B8;
   background: #0B1120;
@@ -634,7 +634,7 @@ watch(activeTab, (tab) => {
   border-color: var(--kf-primary);
 }
 .mermaid-hint {
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   font-size: 11px;
   color: var(--kf-muted-foreground);
 }
@@ -653,13 +653,13 @@ watch(activeTab, (tab) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
   border-radius: 10px;
 }
 .stat-num {
-  font-size: 22px;
+  font-size: var(--kf-fs-h3);
   font-weight: 700;
   color: var(--kf-primary);
   line-height: 1.1;
@@ -675,12 +675,12 @@ watch(activeTab, (tab) => {
   gap: 8px;
 }
 .entity-node-card {
-  padding: 10px 12px;
+  padding: 12px 12px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .entity-node-card:hover {
   background: rgba(255, 255, 255, 0.06);
@@ -699,8 +699,8 @@ watch(activeTab, (tab) => {
   color: var(--kf-foreground);
 }
 .type-badge {
-  font-size: 10px;
-  padding: 2px 7px;
+  font-size: var(--kf-fs-xs);
+  padding: 2px 8px;
   border-radius: 999px;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -736,10 +736,10 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 8px;
   height: 32px;
-  font-size: 12.5px;
+  font-size: var(--kf-fs-caption);
   color: var(--kf-foreground);
   border-radius: 8px;
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .doc-node-item:hover {
   background: rgba(255, 255, 255, 0.04);
@@ -751,7 +751,7 @@ watch(activeTab, (tab) => {
   white-space: nowrap;
 }
 .doc-node-type {
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   color: var(--kf-muted-foreground);
   opacity: 0.7;
   flex-shrink: 0;
@@ -762,21 +762,21 @@ watch(activeTab, (tab) => {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .doc-edge-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 10px;
+  padding: 8px 12px;
   background: rgba(255, 255, 255, 0.02);
   border-radius: 8px;
-  font-size: 11.5px;
+  font-size: var(--kf-fs-xs);
 }
 .edge-rel {
   flex-shrink: 0;
-  font-size: 10px;
-  padding: 2px 7px;
+  font-size: var(--kf-fs-xs);
+  padding: 2px 8px;
   border-radius: 6px;
   font-weight: 600;
 }
@@ -798,10 +798,10 @@ watch(activeTab, (tab) => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   padding: 48px 16px;
   color: var(--kf-muted-foreground);
-  font-size: 12.5px;
+  font-size: var(--kf-fs-caption);
   text-align: center;
   opacity: 0.75;
 }

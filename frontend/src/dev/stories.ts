@@ -1,3 +1,19 @@
+import {shredContract} from './shred-contract'
+import {swipeContract} from './swipe-contract'
+import {springContract} from './spring-contract'
+import {thoughtContract} from './thought-contract'
+import {folderContract} from './folder-contract'
+import {bellContract} from './bell-contract'
+import {holdContract} from './hold-contract'
+import {fuseContract} from './fuse-contract'
+import {markContract} from './mark-contract'
+import {callContract} from './call-contract'
+import {lineContract} from './line-contract'
+import {branchContract} from './branch-contract'
+import {textContract} from './text-contract'
+import {latticeContract} from './lattice-contract'
+import {promptContract} from './prompt-contract'
+import {glideContract} from './glide-contract'
 import {scenarioLinks,scenarioStates} from './scenarios-v6'
 import {entries,type PlaygroundEntry} from './registry'
 export interface ComponentStory {
@@ -5,6 +21,22 @@ export interface ComponentStory {
 }
 function story(entry:PlaygroundEntry,id:string,title:string,initialProps:Record<string,unknown>={},category:ComponentStory['category']='States',extra:Partial<ComponentStory>={}):ComponentStory{return{storyId:id,componentId:entry.id,title,description:`${entry.title} · ${title}，局部状态，非业务请求。`,category,implementationStatus:entry.implementationStatus,initialProps,slots:{},fixture:{},expectedEvents:entry.events,interactionSteps:['Tab进入真实控件','按其语义操作；观察本地事件'],expectedVisualState:'NOT VERIFIED · 需客观测量或独立交互证据',supportedViewport:['desktop','tablet','mobile'],accessibilityNotes:entry.accessibilityNotes,...extra}}
 export function buildStories(catalog:PlaygroundEntry[]):ComponentStory[]{return catalog.flatMap(entry=>{
+ if(entry.name==='ThoughtLine')return thoughtContract.stories.map(id=>story(entry,id,id,Object.fromEntries(Object.entries({...thoughtContract.props,...thoughtContract.storyProps[id]}).filter(([,value])=>value!==null)),'Basic'))
+ if(entry.name==='FolderFloat')return folderContract.stories.map(id=>story(entry,id,id,Object.fromEntries(Object.entries({...folderContract.props,...folderContract.storyProps[id]}).filter(([,value])=>value!==null)),'Basic'))
+ if(entry.name==='BellToggle')return bellContract.stories.map(id=>story(entry,id,id,Object.fromEntries(Object.entries({...bellContract.props,...bellContract.storyProps[id]}).filter(([,value])=>value!==null)),'Basic'))
+ if(entry.name==='SpringCheck')return springContract.stories.map(id=>story(entry,id,id,Object.fromEntries(Object.entries({...springContract.props,...springContract.storyProps[id]}).filter(([,value])=>value!==null)),'Basic'))
+ if(entry.name==='SwipeRow')return swipeContract.stories.map(id=>story(entry,id,id,Object.fromEntries(Object.entries({...swipeContract.props,...swipeContract.storyProps[id]}).filter(([,value])=>value!==null)),'Basic'))
+ if(entry.name==='Shredder')return shredContract.stories.map(id=>story(entry,id,id,Object.fromEntries(Object.entries({...shredContract.props,...shredContract.storyProps[id]}).filter(([,value])=>value!==null)),'Basic'))
+    if(entry.name==='HoldButton')return holdContract.stories.map(id=>story(entry,id,id,JSON.parse(JSON.stringify({...holdContract.props,...holdContract.storyProps[id]})),'Basic'))
+    if(entry.name==='FuseButton')return fuseContract.stories.map(id=>story(entry,id,id,JSON.parse(JSON.stringify({...fuseContract.props,...fuseContract.storyProps[id]})),'Basic'))
+    if(entry.name==='StatusMark')return markContract.stories.map(id=>story(entry,id,id,JSON.parse(JSON.stringify({...markContract.props,...markContract.storyProps[id]})),'Basic'))
+    if(entry.name==='CallChip')return callContract.stories.map(id=>story(entry,id,id,JSON.parse(JSON.stringify({...callContract.props,...callContract.storyProps[id]})),'Basic'))
+    if(entry.name==='LineSidebar')return lineContract.stories.map(id=>story(entry,id,id,JSON.parse(JSON.stringify(lineContract.storyProps[id])),'Basic'))
+    if(entry.name==='BranchedMenu')return branchContract.stories.map(id=>story(entry,id,id,JSON.parse(JSON.stringify(branchContract.storyProps[id])),'Basic'))
+ if(entry.name==='TextType')return textContract.stories.map(id=>story(entry,id,id,JSON.parse(JSON.stringify(textContract.storyProps[id])),'Basic'))
+ if(entry.name==='LatticeLoader')return latticeContract.stories.map(id=>story(entry,id,id,JSON.parse(JSON.stringify(latticeContract.storyProps[id])),'Basic'))
+ if(entry.name==='PromptBar')return promptContract.stories.map(id=>story(entry,id,id,JSON.parse(JSON.stringify(promptContract.storyProps[id])),'Basic'))
+ if(entry.name==='GlideSelect')return glideContract.stories.map(id=>story(entry,id,id,JSON.parse(JSON.stringify(glideContract.storyProps[id])),'Basic'))
  const result=[story(entry,'basic','基础预览',{},'Basic')],supports=(name:string)=>entry.props.some(p=>p.name===name)
  for(const key of ['disabled','loading','readonly','required','indeterminate'])if(supports(key))result.push(story(entry,key,key,{[key]:true}))
  if(scenarioLinks.some(s=>s.id===entry.name))for(const state of scenarioStates)result.push(story(entry,'scene-'+state,state+' · 业务Fixture',{},'Real-world Example',{fixture:{ui:{scenarioState:state}}}))

@@ -188,7 +188,7 @@
               <Icon name="brain" :size="16" /> 我的知识点掌握度
             </h3>
             <button type="button" class="mmd-recalk" :disabled="recalcLoading" @click="recalculate">
-              <Icon name="refresh-cw" :size="13" :class="{ spin: recalcLoading }" /> 重新计算
+              <Icon name="refresh-cw" :size="14" :class="{ spin: recalcLoading }" /> 重新计算
             </button>
           </div>
 
@@ -446,9 +446,9 @@ onMounted(loadData)
 .mmd-refresh {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   height: 34px;
-  padding: 0 14px;
+  padding: 0 12px;
   font-size: 13px;
   font-weight: 500;
   border-radius: 10px;
@@ -456,7 +456,7 @@ onMounted(loadData)
   background: var(--kf-card);
   color: var(--kf-foreground);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .mmd-refresh:hover:not(:disabled) { border-color: var(--kf-primary); color: var(--kf-primary); }
 .mmd-refresh:disabled { opacity: .6; cursor: default; }
@@ -468,7 +468,7 @@ onMounted(loadData)
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 48px 20px;
   border: 1px dashed var(--kf-border);
   border-radius: 14px;
@@ -476,11 +476,11 @@ onMounted(loadData)
 }
 .mmd-retry {
   margin-top: 4px;
-  padding: 6px 16px;
+  padding: 8px 16px;
   border-radius: 8px;
   border: none;
   background: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   font-size: 13px;
   cursor: pointer;
 }
@@ -500,7 +500,7 @@ onMounted(loadData)
 .mmd-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 14px;
+  gap: 12px;
   margin-bottom: 16px;
 }
 /* 卡片通用 */
@@ -511,7 +511,7 @@ onMounted(loadData)
   margin-bottom: 16px;
 }
 .mmd-card {
-  padding: 18px;
+  padding: 16px;
   border-radius: 14px;
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
@@ -526,15 +526,15 @@ onMounted(loadData)
 .mmd-card-title {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 15px;
+  gap: 8px;
+  font-size: var(--kf-fs-body-emphasis);
   font-weight: 600;
   color: var(--kf-foreground);
 }
 .mmd-weak-badge {
   font-size: 12px;
   font-weight: 600;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
   background: rgba(239,68,68,.1);
   color: var(--kf-danger);
@@ -549,7 +549,7 @@ onMounted(loadData)
   background: var(--kf-muted);
 }
 .mmd-bar-track-2 { margin-bottom: 12px; }
-.mmd-bar-seg { height: 100%; transition: width 0.5s ease; }
+.mmd-bar-seg { height: 100%; transition: width 0.5s var(--kf-ease-standard); }
 .mmd-legend {
   display: flex;
   flex-wrap: wrap;
@@ -559,7 +559,7 @@ onMounted(loadData)
 .mmd-legend-item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 12px;
   color: var(--kf-muted-foreground);
 }
@@ -572,8 +572,8 @@ onMounted(loadData)
 
 /* 分类维度 */
 .mmd-sub-empty { font-size: 13px; color: var(--kf-muted-foreground); padding: 8px 0; }
-.mmd-cat-list { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
-.mmd-cat-item { display: flex; flex-direction: column; gap: 7px; }
+.mmd-cat-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.mmd-cat-item { display: flex; flex-direction: column; gap: 8px; }
 .mmd-cat-top {
   display: flex;
   align-items: center;
@@ -584,7 +584,7 @@ onMounted(loadData)
 .mmd-weak-tag {
   font-size: 11px;
   font-weight: 600;
-  padding: 1px 7px;
+  padding: 1px 8px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--kf-danger) 12%, transparent);
   color: var(--kf-danger);
@@ -596,41 +596,41 @@ onMounted(loadData)
   background: var(--kf-muted);
   overflow: hidden;
 }
-.mmd-cat-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.mmd-cat-fill { height: 100%; border-radius: 4px; transition: width 0.6s var(--kf-ease-standard); }
 
 /* 知识点掌握度列表（Phase 2-B） */
 .mmd-recalk {
-  display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 12px;
+  display: inline-flex; align-items: center; gap: 4px; height: 30px; padding: 0 12px;
   font-size: 12px; font-weight: 600; border-radius: 8px; border: 1px solid var(--kf-border);
-  background: var(--kf-card); color: var(--kf-foreground); cursor: pointer; transition: all 0.15s ease;
+  background: var(--kf-card); color: var(--kf-foreground); cursor: pointer; transition: var(--kf-transition-interactive);
 }
 .mmd-recalk:hover:not(:disabled) { border-color: var(--kf-primary); color: var(--kf-primary); }
 .mmd-recalk:disabled { opacity: .6; cursor: default; }
-.mmd-kp-list { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.mmd-kp-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
 .mmd-kp-item {
-  display: flex; align-items: center; gap: 16px; padding: 12px 14px; border-radius: 12px;
-  background: var(--kf-muted); cursor: pointer; transition: all 0.15s ease;
+  display: flex; align-items: center; gap: 16px; padding: 12px 12px; border-radius: 12px;
+  background: var(--kf-muted); cursor: pointer; transition: var(--kf-transition-interactive);
 }
 .mmd-kp-item:hover { background: rgba(59,111,224,.06); border: 1px solid rgba(59,111,224,.2); }
 .mmd-kp-main { flex: 1; min-width: 0; }
 .mmd-kp-name { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--kf-foreground); }
-.mmd-kp-type { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: rgba(59,111,224,.1); color: var(--kf-primary); }
-.mmd-kp-weak { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: color-mix(in srgb, var(--kf-danger) 12%, transparent); color: var(--kf-danger); }
+.mmd-kp-type { font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; background: rgba(59,111,224,.1); color: var(--kf-primary); }
+.mmd-kp-weak { font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, var(--kf-danger) 12%, transparent); color: var(--kf-danger); }
 .mmd-kp-sub { font-size: 12px; color: var(--kf-muted-foreground); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mmd-kp-score { display: flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0; }
-.mmd-kp-score-val { font-size: 22px; font-weight: 800; line-height: 1; }
+.mmd-kp-score-val { font-size: var(--kf-fs-h3); font-weight: 800; line-height: 1; }
 .mmd-kp-score-lbl { font-size: 11px; color: var(--kf-muted-foreground); }
-.mmd-kp-bars { display: flex; flex-direction: column; gap: 5px; width: 160px; flex-shrink: 0; }
-.mmd-kp-bar-row { display: flex; align-items: center; gap: 6px; }
+.mmd-kp-bars { display: flex; flex-direction: column; gap: 4px; width: 160px; flex-shrink: 0; }
+.mmd-kp-bar-row { display: flex; align-items: center; gap: 8px; }
 .mmd-kp-bar-lbl { font-size: 11px; color: var(--kf-muted-foreground); width: 24px; flex-shrink: 0; }
 .mmd-kp-bar-track { flex: 1; height: 6px; border-radius: 3px; background: var(--kf-border); overflow: hidden; }
-.mmd-kp-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.mmd-kp-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s var(--kf-ease-standard); }
 .mmd-kp-bar-num { font-size: 11px; font-weight: 600; color: var(--kf-foreground); width: 34px; text-align: right; flex-shrink: 0; }
-.mmd-kp-status { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; flex-shrink: 0; }
+.mmd-kp-status { font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 999px; flex-shrink: 0; }
 
 @media (max-width: 720px) {
   .mmd-row { grid-template-columns: 1fr; }
-  .mmd-kp-item { flex-wrap: wrap; gap: 10px; }
+  .mmd-kp-item { flex-wrap: wrap; gap: 12px; }
   .mmd-kp-bars { width: 100%; order: 3; }
 }
 

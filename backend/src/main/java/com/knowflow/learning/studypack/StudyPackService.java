@@ -49,6 +49,8 @@ public class StudyPackService {
  private static final String COLUMNS="id,owner_id,source_hash,file_name,state,revision,doc_id,parsed_hash,create_time,update_time";
  private final ThreadPoolExecutor workers=new ThreadPoolExecutor(2,2,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(20),r->{var t=new Thread(r,"study-pack-worker");t.setDaemon(true);return t;},new ThreadPoolExecutor.AbortPolicy());
  @PostConstruct void initialize(){sql.execute((ConnectionCallback<Void>)c->{StudyPackSchema.migrate(c);return null;});
+  sql.update("UPDATE study_pack_step SET state='CANCELLED',error_message='取消期间进程中断，模型调用结果与费用未知' WHERE job_id IN (SELECT id FROM study_pack_job WHERE state='CANCEL_REQUESTED') AND state IN ('PENDING','BLOCKED','RUNNING')");
+  sql.update("UPDATE study_pack_job SET state='CANCELLED',update_time=CURRENT_TIMESTAMP WHERE state='CANCEL_REQUESTED'");
   // A stopped process cannot claim that an interrupted paid model call never ran.
   sql.update("UPDATE study_pack_step SET state='FAILED',error_message='进程中断，生成结果未知；明确重试可能再次调用模型' WHERE state='RUNNING'");
   for(long job:sql.queryForList("SELECT id FROM study_pack_job WHERE state IN ('RUNNING','QUEUED')",Long.class)){
@@ -79,7 +81,7 @@ public class StudyPackService {
   String filename=name;
   var result=tx(user,()->{
    var existing=sql.queryForList("SELECT "+COLUMNS+" FROM study_pack_job WHERE owner_id=? AND source_hash=?",user,hash);if(!existing.isEmpty())return Map.<String,Object>of("id",existing.get(0).get("id"),"reused",true);
-   if(sql.queryForObject("SELECT COUNT(*) FROM study_pack_job WHERE owner_id=? AND state IN ('QUEUED','RUNNING')",Integer.class,user)>0)throw new BusinessException(429,"请等待当前资料生成结束后再上传");
+   if(sql.queryForObject("SELECT COUNT(*) FROM study_pack_job WHERE owner_id=? AND state IN ('QUEUED','RUNNING','CANCEL_REQUESTED')",Integer.class,user)>0)throw new BusinessException(429,"请等待当前资料生成结束后再上传");
    sql.update("INSERT INTO study_pack_job(owner_id,source_hash,file_name,source_bytes,state,revision,create_time,update_time) VALUES(?,?,?,?,'QUEUED',1,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)",user,hash,filename,bytes);
    long id=sql.queryForObject("SELECT id FROM study_pack_job WHERE owner_id=? AND source_hash=?",Long.class,user,hash);for(String kind:KINDS)sql.update("INSERT INTO study_pack_step(job_id,kind,state,run_count) VALUES(?,?,'PENDING',0)",id,kind);event(id,"JOB","QUEUED",null,null);return Map.<String,Object>of("id",id,"reused",false);
   });
@@ -87,8 +89,8 @@ public class StudyPackService {
  }
  private void schedule(long id,long user){var context=SecurityContextHolder.createEmptyContext();context.setAuthentication(SecurityContextHolder.getContext().getAuthentication());try{workers.execute(new DelegatingSecurityContextRunnable(()->run(id,user),context));}catch(RejectedExecutionException e){sql.update("UPDATE study_pack_job SET state='FAILED' WHERE id=?",id);sql.update("UPDATE study_pack_step SET state='FAILED',error_message='生成队列已满，请重试' WHERE job_id=? AND kind='PARSE' AND state='PENDING'",id);}}
  private void run(long id,long user){
-  try{tx(user,()->{var job=owned(id,user,true);if(!Set.of("QUEUED","PARTIAL_READY").contains(job.get("state").toString()))return null;sql.update("UPDATE study_pack_job SET state='RUNNING',update_time=CURRENT_TIMESTAMP WHERE id=?",id);return null;});
-   for(String kind:KINDS){var s=step(id,kind);if(!Set.of("PENDING","BLOCKED").contains(s.get("state").toString()))continue;
+  try{boolean claimed=tx(user,()->{var job=owned(id,user,true);if(!Set.of("QUEUED","PARTIAL_READY").contains(job.get("state").toString()))return false;sql.update("UPDATE study_pack_job SET state='RUNNING',update_time=CURRENT_TIMESTAMP WHERE id=?",id);return true;});if(!claimed)return;
+   for(String kind:KINDS){if(finishCancellation(id,user))return;var s=step(id,kind);if(!Set.of("PENDING","BLOCKED").contains(s.get("state").toString()))continue;
     if(!kind.equals("PARSE")&&ref(id,"PARSE")==null||Set.of("QUIZ","TUTOR").contains(kind)&&ref(id,"NOTE")==null){sql.update("UPDATE study_pack_step SET state='BLOCKED',error_message='等待来源或笔记步骤完成' WHERE job_id=? AND kind=?",id,kind);continue;}
     boolean committedArtifact=kind.equals("CARDS")?s.get("draft_json")!=null:s.get("resource_id")!=null;
     if(committedArtifact){tx(user,()->{owned(id,user,true);sql.update("UPDATE study_pack_step SET state='SUCCEEDED',error_message=NULL WHERE job_id=? AND kind=?",id,kind);event(id,kind,"RECOVERED",ref(id,kind),null);return null;});continue;}
@@ -96,6 +98,7 @@ public class StudyPackService {
     try{generate(id,user,kind);long elapsed=TimeUnit.NANOSECONDS.toMillis(System.nanoTime()-started);tx(user,()->{owned(id,user,true);sql.update("UPDATE study_pack_step SET state='SUCCEEDED',elapsed_ms=? WHERE job_id=? AND kind=?",elapsed,id,kind);event(id,kind,"SUCCEEDED",ref(id,kind),elapsed);return null;});}
     catch(Exception e){String message=e instanceof BusinessException?e.getMessage():"生成失败，请检查AI配置或来源后重试该步骤";long elapsed=TimeUnit.NANOSECONDS.toMillis(System.nanoTime()-started);sql.update("UPDATE study_pack_step SET state='FAILED',error_message=?,elapsed_ms=? WHERE job_id=? AND kind=?",message.substring(0,Math.min(message.length(),500)),elapsed,id,kind);event(id,kind,"FAILED",ref(id,kind),elapsed);}
    }
+   if(finishCancellation(id,user))return;
    tx(user,()->{var states=sql.queryForList("SELECT state FROM study_pack_step WHERE job_id=?",String.class,id);String state=states.stream().allMatch("SUCCEEDED"::equals)?"DRAFT_READY":states.contains("SUCCEEDED")?"PARTIAL_READY":"FAILED";sql.update("UPDATE study_pack_job SET state=?,update_time=CURRENT_TIMESTAMP WHERE id=?",state,id);event(id,"JOB",state,null,null);return null;});
   }catch(Exception e){sql.update("UPDATE study_pack_step SET state='FAILED',error_message='来源权限或任务执行中断，请核定后重试' WHERE job_id=? AND state='RUNNING'",id);sql.update("UPDATE study_pack_job SET state='FAILED',update_time=CURRENT_TIMESTAMP WHERE id=? AND owner_id=?",id,user);}
  }
@@ -124,7 +127,10 @@ public class StudyPackService {
   job.put("quizId",ref(id,"QUIZ"));job.put("conversationId",ref(id,"TUTOR"));return camel(job);
  }
  private Map<String,Object> camel(Map<String,Object> raw){var out=new LinkedHashMap<String,Object>();for(var entry:raw.entrySet()){String key=entry.getKey();if(key.equals(key.toUpperCase(Locale.ROOT))||key.contains("_"))key=key.toLowerCase(Locale.ROOT);StringBuilder name=new StringBuilder();boolean upper=false;for(char c:key.toCharArray()){if(c=='_'){upper=true;continue;}name.append(upper?Character.toUpperCase(c):c);upper=false;}out.put(name.toString(),entry.getValue());}return out;}
- public Map<String,Object> retry(long id,long user,String kind){if(!KINDS.contains(kind))throw new BusinessException(400,"重试步骤无效");tx(user,()->{var job=owned(id,user,true);if(Set.of("QUEUED","RUNNING","READY").contains(job.get("state").toString()))throw new BusinessException(409,"当前学习包不能重试");var s=step(id,kind);if(!Set.of("FAILED","BLOCKED").contains(s.get("state").toString())){
+ /** Cancellation is cooperative: an in-flight provider call may finish and incur cost. */
+ public Map<String,Object> cancel(long id,long user){tx(user,()->{var job=owned(id,user,true);String state=job.get("state").toString();if(Set.of("CANCEL_REQUESTED","CANCELLED").contains(state))return null;if(!Set.of("QUEUED","RUNNING").contains(state))throw new BusinessException(409,"任务已结束，不能取消");String next=state.equals("QUEUED")?"CANCELLED":"CANCEL_REQUESTED";sql.update("UPDATE study_pack_job SET state=?,update_time=CURRENT_TIMESTAMP WHERE id=?",next,id);if(next.equals("CANCELLED"))sql.update("UPDATE study_pack_step SET state='CANCELLED' WHERE job_id=? AND state IN ('PENDING','BLOCKED')",id);event(id,"JOB",next,null,null);return null;});return detail(id,user);}
+ private boolean finishCancellation(long id,long user){return tx(user,()->{var job=owned(id,user,true);if(!Set.of("CANCEL_REQUESTED","CANCELLED").contains(job.get("state").toString()))return false;sql.update("UPDATE study_pack_step SET state='CANCELLED' WHERE job_id=? AND state IN ('PENDING','BLOCKED')",id);if(!job.get("state").equals("CANCELLED")){sql.update("UPDATE study_pack_job SET state='CANCELLED',update_time=CURRENT_TIMESTAMP WHERE id=?",id);event(id,"JOB","CANCELLED",null,null);}return true;});}
+ public Map<String,Object> retry(long id,long user,String kind){if(!KINDS.contains(kind))throw new BusinessException(400,"重试步骤无效");tx(user,()->{var job=owned(id,user,true);if(Set.of("QUEUED","RUNNING","READY","CANCEL_REQUESTED","CANCELLED").contains(job.get("state").toString()))throw new BusinessException(409,"当前学习包不能重试");if(sql.queryForObject("SELECT COUNT(*) FROM study_pack_job WHERE owner_id=? AND id<>? AND state IN ('QUEUED','RUNNING','CANCEL_REQUESTED')",Integer.class,user,id)>0)throw new BusinessException(409,"请等待当前资料生成结束后重试");var s=step(id,kind);if(!Set.of("FAILED","BLOCKED").contains(s.get("state").toString())){
    boolean staleQuiz=false;
    if(kind.equals("QUIZ")&&s.get("resource_id")!=null){var q=quizzes.detail(user,((Number)s.get("resource_id")).longValue());staleQuiz=((Number)q.get("sourceRevision")).longValue()!=notes.detail(ref(id,"NOTE"),user,false).getRevision();}
    if(!staleQuiz)throw new BusinessException(409,"成功产物不会重复生成");

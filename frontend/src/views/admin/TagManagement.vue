@@ -283,7 +283,7 @@ const removeTag = async (tag: Tag) => {
 <style scoped>
 /* 页面容器 */
 .tag-mgmt-wrap {
-  padding: 24px 28px 40px;
+  padding: 24px 24px 40px;
   animation: fadeIn 0.4s ease-out;
 
   padding-inline: 0;
@@ -352,11 +352,11 @@ const removeTag = async (tag: Tag) => {
 .cloud-tag {
   display: inline-flex;
   align-items: center;
-  padding: 6px 12px;
+  padding: 8px 12px;
   border-radius: 999px;
   font-weight: 500;
   cursor: pointer;
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition: transform var(--kf-motion-base) var(--kf-ease-standard),  box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .cloud-tag:hover {
@@ -369,11 +369,11 @@ const removeTag = async (tag: Tag) => {
 }
 
 .cloud-tag.size-md {
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
 }
 
 .cloud-tag.size-lg {
-  font-size: 17px;
+  font-size: var(--kf-fs-body-lg);
 }
 
 .cloud-empty {
@@ -407,7 +407,7 @@ const removeTag = async (tag: Tag) => {
 
 .table-head {
   background: var(--kf-background);
-  padding: 10px 16px;
+  padding: 12px 16px;
   font-size: 12px;
   font-weight: 600;
   color: var(--kf-muted-foreground);
@@ -454,7 +454,7 @@ const removeTag = async (tag: Tag) => {
   display: inline-flex;
   align-items: center;
   height: 24px;
-  padding: 0 10px;
+  padding: 0 12px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
@@ -462,8 +462,8 @@ const removeTag = async (tag: Tag) => {
 
 /* 操作按钮 */
 .icon-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -472,7 +472,7 @@ const removeTag = async (tag: Tag) => {
   background: transparent;
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard),  color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .icon-btn:hover {
@@ -492,9 +492,9 @@ const removeTag = async (tag: Tag) => {
 .btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
@@ -502,7 +502,7 @@ const removeTag = async (tag: Tag) => {
   color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .btn-primary:hover {
@@ -518,9 +518,9 @@ const removeTag = async (tag: Tag) => {
 .btn-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
@@ -528,7 +528,7 @@ const removeTag = async (tag: Tag) => {
   color: var(--kf-sidebar-foreground);
   border: 1px solid var(--kf-border);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .btn-secondary:hover {
@@ -594,7 +594,7 @@ const removeTag = async (tag: Tag) => {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .form-label {
@@ -604,12 +604,12 @@ const removeTag = async (tag: Tag) => {
 }
 
 .form-input:not(.kf-form-control) {
-  height: 36px;
+  height: var(--kf-input-height);
   border-radius: 6px;
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard),  box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .form-input {
@@ -620,7 +620,7 @@ const removeTag = async (tag: Tag) => {
 
 .form-input:not(.kf-form-control):focus {
   border-color: var(--kf-ring);
-  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+  box-shadow: 0 0 0 3px var(--kf-primary-soft);
 }
 
 /* 颜色选择 */
@@ -652,7 +652,7 @@ const removeTag = async (tag: Tag) => {
   border-radius: 6px;
   border: 2px solid transparent;
   cursor: pointer;
-  transition: transform 0.15s, border-color 0.15s;
+  transition: transform var(--kf-motion-base) var(--kf-ease-standard),  border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .color-preset:hover {

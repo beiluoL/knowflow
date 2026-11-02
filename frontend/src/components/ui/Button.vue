@@ -19,7 +19,7 @@ defineEmits<{click:[event:MouseEvent]}>()
 <style scoped>
 .kf-button{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:var(--kf-button-gap);height:var(--kf-btn-height-md);padding:0 var(--kf-btn-padding-md);border:1px solid transparent;border-radius:var(--kf-btn-radius);font-family:var(--font-sans);font-size:var(--kf-fs-body-md);line-height:var(--kf-button-line-height);font-weight:var(--kf-fw-label);white-space:nowrap;box-shadow:none;cursor:pointer;transition:background-color .16s,color .16s,border-color .16s}
 .kf-button--sm{height:var(--kf-btn-height-sm);padding-inline:var(--kf-btn-padding-sm)}.kf-button--lg{height:var(--kf-btn-height-lg)}
-.kf-button__icon{display:inline-flex;align-items:center;justify-content:center;width:var(--kf-button-icon-slot);flex:0 0 var(--kf-button-icon-slot)}.kf-button__icon--trailing{order:1}.kf-button__label{min-width:0;white-space:nowrap}
+.kf-button__icon{display:inline-flex;align-items:center;justify-content:center;width:var(--kf-button-icon-slot);flex:0 0 var(--kf-button-icon-slot)}.kf-button__icon--trailing{order:1}.kf-button__label{display:inline-flex;align-items:center;justify-content:center;gap:var(--kf-button-gap);min-width:0;white-space:nowrap}
 /* Loading without an icon overlays the preserved label box. */
 .kf-button--loading-text .kf-button__icon{position:absolute;inset:0;width:auto}.kf-button--loading-text .kf-button__label{color:transparent}
 .kf-button[aria-busy=true]:not(:has(.kf-button__icon + .kf-button__label)){cursor:wait}

@@ -312,7 +312,7 @@ onUnmounted(async () => {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-  padding: 18px 18px;
+  padding: 16px 16px;
   backdrop-filter: blur(8px);
 }
 
@@ -323,7 +323,7 @@ onUnmounted(async () => {
   font-size: 14px;
   font-weight: 600;
   color: var(--kf-foreground);
-  margin: 0 0 14px;
+  margin: 0 0 12px;
 }
 .section-title .task-count {
   margin-left: auto;
@@ -341,10 +341,10 @@ onUnmounted(async () => {
   gap: 8px;
 }
 .task-item {
-  padding: 10px 12px;
+  padding: 12px 12px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.03);
-  transition: background 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .task-item:hover {
   background: rgba(255, 255, 255, 0.06);
@@ -380,14 +380,14 @@ onUnmounted(async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 22px;
+  gap: 20px;
 }
 .center {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
 }
 .time-display {
   font-size: 52px;
@@ -415,9 +415,9 @@ onUnmounted(async () => {
 .ctrl-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 40px;
-  padding: 0 18px;
+  gap: 8px;
+  height: var(--kf-btn-height-md);
+  padding: 0 16px;
   font-size: 14px;
   font-weight: 600;
   color: var(--kf-foreground);
@@ -425,7 +425,7 @@ onUnmounted(async () => {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .ctrl-btn:hover {
   background: rgba(255, 255, 255, 0.1);
@@ -441,14 +441,14 @@ onUnmounted(async () => {
 .pomodoro-dots {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 .dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.12);
-  transition: background 0.3s ease, transform 0.3s ease;
+  transition: background var(--kf-motion-slower) var(--kf-ease-standard), transform var(--kf-motion-slower) var(--kf-ease-standard);
 }
 .dot.done {
   background: var(--kf-accent);
@@ -464,7 +464,7 @@ onUnmounted(async () => {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 12px 12px;
 }
 .stat-label {
   font-size: 12px;
@@ -479,7 +479,7 @@ onUnmounted(async () => {
   margin-bottom: 6px;
 }
 .stat-value {
-  font-size: 26px;
+  font-size: var(--kf-fs-h2);
   font-weight: 700;
   color: var(--kf-foreground);
   line-height: 1.2;
@@ -496,7 +496,7 @@ onUnmounted(async () => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
+  padding: 4px 8px;
   font-size: 11px;
   font-weight: 500;
   color: var(--kf-warning);
@@ -504,7 +504,7 @@ onUnmounted(async () => {
   border: 1px solid rgba(245, 158, 11, 0.2);
   border-radius: 999px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .distract-btn:hover {
   background: rgba(245, 158, 11, 0.18);
@@ -513,12 +513,12 @@ onUnmounted(async () => {
   background: linear-gradient(135deg, rgba(79, 134, 249, 0.08), rgba(52, 211, 153, 0.06));
   border: 1px solid rgba(79, 134, 249, 0.15);
   border-radius: 12px;
-  padding: 14px;
+  padding: 12px;
 }
 .ai-title {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   font-weight: 600;
   color: var(--kf-primary);
@@ -534,8 +534,8 @@ onUnmounted(async () => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  height: 38px;
+  gap: 8px;
+  height: var(--kf-btn-height-md);
   font-size: 13px;
   font-weight: 600;
   color: var(--kf-primary-foreground);
@@ -543,7 +543,7 @@ onUnmounted(async () => {
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: filter 0.15s ease;
+  transition: filter var(--kf-motion-base) var(--kf-ease-standard);
 }
 .noise-btn:hover {
   filter: brightness(1.05);

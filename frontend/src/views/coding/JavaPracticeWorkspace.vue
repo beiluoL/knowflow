@@ -408,17 +408,17 @@ onBeforeUnmount(() => {
 </script>
 <style scoped>
 .java-workspace {
-  background: #f7f8fa;
+  background: var(--kf-background);
   min-height: 100vh;
   padding: 24px;
-  color: #202936;
+  color: var(--kf-foreground);
 }
 header,
 .toolbar,
 .preferences {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 header {
@@ -432,7 +432,7 @@ h1 {
 h2 {
   font-size: var(--kf-fs-body-lg);
   font-weight: 600;
-  margin: 10px 0;
+  margin: 12px 0;
 }
 h3 {
   font-weight: 600;
@@ -444,8 +444,8 @@ p {
   margin: 8px 0;
 }
 .notice {
-  background: #fff8e8;
-  border: 1px solid #e8ce8e;
+  background: var(--kf-warning-soft);
+  border: 1px solid var(--kf-warning);
   padding: 16px;
   border-radius: var(--kf-radius-lg);
   margin-bottom: 18px;
@@ -459,8 +459,8 @@ main {
 .editor,
 .history,
 .result {
-  background: white;
-  border: 1px solid #e1e5eb;
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-lg);
   padding: 20px;
   min-width: 0;
@@ -475,14 +475,14 @@ main {
 .preferences label {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 }
 textarea {
   width: 100%;
   min-height: 420px;
   resize: vertical;
-  background: #f9fafc;
-  border: 1px solid #ccd3dd;
+  background: var(--kf-muted);
+  border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-md);
   padding: 16px;
   font:
@@ -493,7 +493,7 @@ textarea {
 pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  background: #f4f6f9;
+  background: var(--kf-muted);
   padding: 12px;
   border-radius: 6px;
   font:
@@ -510,7 +510,7 @@ pre {
   margin-top: 20px;
 }
 [role="alert"] {
-  color: #b42318;
+  color: var(--kf-danger);
 }
 @media (max-width: 850px) {
   .java-workspace {

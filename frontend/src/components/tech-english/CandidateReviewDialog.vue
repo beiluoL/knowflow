@@ -186,7 +186,7 @@ watch(
 .cr-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--kf-space-3);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -195,10 +195,10 @@ watch(
 .cr-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--kf-space-2);
   padding: 12px;
   border: 1px solid var(--kf-border, #e2e6ec);
-  border-radius: var(--kf-radius-md, 12px);
+  border-radius: var(--kf-radius-md);
 }
 
 .cr-head {
@@ -218,8 +218,8 @@ watch(
 }
 
 .cr-tag {
-  padding: 1px 6px;
-  border-radius: 6px;
+  padding: 1px 8px;
+  border-radius: var(--kf-radius-sm);
   background: var(--kf-muted, #f7f8fa);
   color: var(--kf-muted-foreground, #6b7280);
   font-size: 11px;
@@ -258,7 +258,7 @@ watch(
 .cr-meaning-input {
   flex: 1;
   min-width: 200px;
-  height: 30px;
+  height: var(--kf-btn-height-sm);
   font-size: 13px;
 }
 
@@ -273,17 +273,17 @@ watch(
 .cr-note {
   flex: 1;
   min-width: 200px;
-  height: 30px;
+  height: var(--kf-btn-height-sm);
   font-size: 12px;
 }
 
 .cr-btn {
-  height: 30px;
+  height: var(--kf-btn-height-sm);
   padding: 0 12px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  border-radius: var(--kf-radius-sm, 8px);
+  gap: var(--kf-space-2);
+  border-radius: var(--kf-radius-sm);
   border: 1px solid var(--kf-border, #e2e6ec);
   background: var(--kf-card, #ffffff);
   color: var(--kf-foreground, #1a1d23);
@@ -294,7 +294,7 @@ watch(
 .cr-btn-approve {
   border-color: transparent;
   background: var(--kf-primary, #3b6fe0);
-  color: #ffffff;
+  color: var(--kf-accent-foreground);
 }
 
 .cr-btn-reject {

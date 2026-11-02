@@ -100,7 +100,7 @@ const innerDashoffset = computed(() =>
   transform: rotate(-90deg);
 }
 .ring-progress {
-  transition: stroke-dashoffset 0.6s ease, stroke 0.3s ease;
+  transition: stroke-dashoffset 0.6s var(--kf-ease-standard), stroke var(--kf-motion-slower) var(--kf-ease-standard);
 }
 .ring-center {
   position: relative;

@@ -10,7 +10,7 @@
 
     <div v-if="loading" class="qm-loading"><Icon name="loader" :size="18" class="spin" /> 加载中…</div>
     <div v-else-if="error" class="qm-error">
-      <Icon name="alert-circle" :size="22" style="color: var(--kf-destructive);" />
+      <Icon name="alert-circle" :size="24" style="color: var(--kf-destructive);" />
       <p>{{ error }}</p>
       <button class="qm-retry" @click="reload">重试</button>
     </div>
@@ -48,7 +48,7 @@
                 title="重要"
                 @click="toggleImportant(t)"
               >
-                <Icon name="star" :size="13" />
+                <Icon name="star" :size="14" />
               </button>
               <button
                 class="qm-flag"
@@ -56,10 +56,10 @@
                 title="紧急"
                 @click="toggleUrgent(t)"
               >
-                <Icon name="alert-circle" :size="13" />
+                <Icon name="alert-circle" :size="14" />
               </button>
               <button class="qm-flag del" title="删除" @click="remove(t)">
-                <Icon name="trash-2" :size="13" />
+                <Icon name="trash-2" :size="14" />
               </button>
             </div>
           </div>
@@ -199,13 +199,13 @@ onMounted(reload)
 .qm-sub { font-size: 13px; color: var(--kf-muted-foreground); margin-top: 2px; }
 
 .qm-loading, .qm-error {
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
   padding: 60px 20px; color: var(--kf-muted-foreground); font-size: 14px;
 }
 .qm-error { color: var(--kf-destructive); }
 .qm-retry {
-  margin-top: 4px; padding: 6px 16px; border-radius: 8px; border: none;
-  background: var(--kf-primary); color: #fff; font-size: 13px; cursor: pointer;
+  margin-top: 4px; padding: 8px 16px; border-radius: 8px; border: none;
+  background: var(--kf-primary); color: var(--kf-accent-foreground); font-size: 13px; cursor: pointer;
 }
 .spin { animation: qm-spin 0.8s linear infinite; }
 @keyframes qm-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
@@ -225,7 +225,7 @@ onMounted(reload)
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   border-radius: 12px;
-  padding: 14px;
+  padding: 12px;
   min-height: 0;
   border-top: 3px solid var(--kf-border);
 }
@@ -235,20 +235,20 @@ onMounted(reload)
 .qm-quad.q-normal { border-top-color: #94A3B8; }
 
 .qm-quad-head { display: flex; align-items: center; justify-content: space-between; }
-.qm-quad-title { display: flex; align-items: center; gap: 7px; font-size: 14.5px; font-weight: 600; color: var(--kf-foreground); }
+.qm-quad-title { display: flex; align-items: center; gap: 8px; font-size: var(--kf-fs-body-emphasis); font-weight: 600; color: var(--kf-foreground); }
 .qm-quad-count {
   font-size: 11px; color: var(--kf-muted-foreground);
-  background: var(--kf-muted); border-radius: 999px; min-width: 20px; text-align: center; padding: 1px 6px;
+  background: var(--kf-muted); border-radius: 999px; min-width: 20px; text-align: center; padding: 1px 8px;
 }
-.qm-quad-tip { font-size: 11.5px; color: var(--kf-muted-foreground); margin: 3px 0 10px; }
+.qm-quad-tip { font-size: var(--kf-fs-xs); color: var(--kf-muted-foreground); margin: 4px 0 12px; }
 
-.qm-cards { flex: 1 1 auto; overflow-y: auto; display: flex; flex-direction: column; gap: 7px; margin-bottom: 8px; }
+.qm-cards { flex: 1 1 auto; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
 
 .qm-card {
-  display: flex; align-items: center; gap: 9px;
-  padding: 8px 10px; border-radius: 9px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: 9px;
   background: var(--kf-muted); border: 1px solid transparent;
-  transition: background 0.12s ease, border-color 0.12s ease;
+  transition: background var(--kf-motion-fast) var(--kf-ease-standard), border-color var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .qm-card:hover { border-color: var(--kf-border); }
 .qm-card.done { opacity: 0.6; }
@@ -256,32 +256,32 @@ onMounted(reload)
 .qm-check {
   flex: 0 0 auto; width: 17px; height: 17px; border-radius: 50%;
   border: 1.8px solid var(--kf-border); background: var(--kf-card);
-  cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s ease;
+  cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: var(--kf-transition-interactive);
 }
 .qm-check:hover { border-color: var(--kf-primary); }
 .qm-check.done { background: var(--kf-primary); border-color: var(--kf-primary); }
 
 .qm-card-body { flex: 1 1 auto; min-width: 0; }
-.qm-card-title { font-size: 13.5px; color: var(--kf-foreground); line-height: 1.4; word-break: break-word; }
+.qm-card-title { font-size: var(--kf-fs-body-sm); color: var(--kf-foreground); line-height: 1.4; word-break: break-word; }
 .qm-card-title.done { color: var(--kf-muted-foreground); text-decoration: line-through; }
 
 .qm-card-flags { flex: 0 0 auto; display: flex; align-items: center; gap: 2px; }
 .qm-flag {
   width: 24px; height: 24px; border: none; background: transparent;
   color: var(--kf-muted-foreground); border-radius: 6px; cursor: pointer;
-  display: inline-flex; align-items: center; justify-content: center; transition: all 0.12s ease;
+  display: inline-flex; align-items: center; justify-content: center; transition: background-color var(--kf-motion-fast) var(--kf-ease-standard), border-color var(--kf-motion-fast) var(--kf-ease-standard), color var(--kf-motion-fast) var(--kf-ease-standard), box-shadow var(--kf-motion-fast) var(--kf-ease-standard), opacity var(--kf-motion-fast) var(--kf-ease-standard), transform var(--kf-motion-fast) var(--kf-ease-standard), width var(--kf-motion-fast) var(--kf-ease-standard), height var(--kf-motion-fast) var(--kf-ease-standard), stroke-dashoffset var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .qm-flag:hover { background: var(--kf-card); color: var(--kf-foreground); }
 .qm-flag.on { color: var(--kf-warning); }
-.qm-flag.del:hover { color: var(--kf-destructive); background: rgba(239, 68, 68, 0.1); }
+.qm-flag.del:hover { color: var(--kf-destructive); background: var(--kf-danger-soft); }
 
 .qm-empty { font-size: 12px; color: var(--kf-muted-foreground); text-align: center; padding: 16px 0; }
 
 .qm-add {
-  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  width: 100%; padding: 7px; border-radius: 8px;
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 8px; border-radius: 8px;
   border: 1px dashed var(--kf-border); background: transparent;
-  color: var(--kf-muted-foreground); font-size: 12.5px; cursor: pointer; transition: all 0.12s ease;
+  color: var(--kf-muted-foreground); font-size: var(--kf-fs-caption); cursor: pointer; transition: background-color var(--kf-motion-fast) var(--kf-ease-standard), border-color var(--kf-motion-fast) var(--kf-ease-standard), color var(--kf-motion-fast) var(--kf-ease-standard), box-shadow var(--kf-motion-fast) var(--kf-ease-standard), opacity var(--kf-motion-fast) var(--kf-ease-standard), transform var(--kf-motion-fast) var(--kf-ease-standard), width var(--kf-motion-fast) var(--kf-ease-standard), height var(--kf-motion-fast) var(--kf-ease-standard), stroke-dashoffset var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .qm-add:hover { border-color: var(--kf-primary); color: var(--kf-primary); }
 

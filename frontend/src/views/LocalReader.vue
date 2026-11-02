@@ -1572,7 +1572,7 @@ watch(currentDoc, () => {
 }
 
 .doc-count {
-  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.1));
+  background: var(--kf-primary-soft, var(--kf-primary-soft));
   color: var(--kf-primary, var(--kf-primary));
   padding: 1px 8px;
   border-radius: 999px;
@@ -1587,14 +1587,14 @@ watch(currentDoc, () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: var(--kf-btn-height-md);
   border: none;
   border-radius: 8px;
   background: transparent;
   color: var(--kf-muted-foreground, var(--kf-muted-foreground));
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 
 .icon-btn:hover:not(:disabled) {
@@ -1664,7 +1664,7 @@ watch(currentDoc, () => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 28px;
+  padding: 12px 24px;
   border: none;
   border-radius: 10px;
   background: var(--kf-primary, var(--kf-primary));
@@ -1672,7 +1672,7 @@ watch(currentDoc, () => {
   font-size: var(--kf-fs-body-lg, 16px);
   font-weight: 500;
   cursor: pointer;
-  transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard),  transform var(--kf-motion-base) var(--kf-ease-standard),  box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .select-btn:hover {
@@ -1711,7 +1711,7 @@ watch(currentDoc, () => {
   font-size: var(--kf-fs-body-sm, 13px);
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, transform 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard),  color var(--kf-motion-base) var(--kf-ease-standard),  transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .load-tab:hover {
@@ -1752,7 +1752,7 @@ watch(currentDoc, () => {
 }
 
 .load-hint code {
-  padding: 1px 6px;
+  padding: 1px 8px;
   background: var(--kf-muted, var(--kf-sidebar));
   border-radius: 4px;
   font-family: var(--font-mono, 'JetBrains Mono', monospace);
@@ -1777,12 +1777,12 @@ watch(currentDoc, () => {
 }
 
 .path-input:not(.kf-form-control) {
-  height: 44px;
+  height: var(--kf-input-height);
   border: 1px solid var(--kf-border, var(--kf-muted));
   border-radius: 10px;
   background: var(--kf-card, #fff);
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard),  box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .path-input {
@@ -1800,7 +1800,7 @@ watch(currentDoc, () => {
 
 .path-input:not(.kf-form-control):focus {
   border-color: var(--kf-primary, var(--kf-primary));
-  box-shadow: 0 0 0 3px var(--kf-primary-soft, rgba(59, 111, 224, 0.1));
+  box-shadow: 0 0 0 3px var(--kf-primary-soft, var(--kf-primary-soft));
 }
 
 /* ===== 历史记录下拉 ===== */
@@ -1834,9 +1834,9 @@ watch(currentDoc, () => {
   color: var(--kf-muted-foreground, var(--kf-muted-foreground));
   font-size: var(--kf-fs-caption, 12px);
   cursor: pointer;
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 4px;
-  transition: background 0.15s, color 0.15s, transform 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard),  color var(--kf-motion-base) var(--kf-ease-standard),  transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .history-clear-btn:hover {
@@ -1860,7 +1860,7 @@ watch(currentDoc, () => {
   padding: var(--kf-space-3, 12px) var(--kf-space-4, 16px);
   min-width: 0;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .history-item:hover {
@@ -1868,7 +1868,7 @@ watch(currentDoc, () => {
 }
 
 .history-item:active {
-  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.1));
+  background: var(--kf-primary-soft, var(--kf-primary-soft));
 }
 
 .history-item:focus-visible {
@@ -1910,7 +1910,7 @@ watch(currentDoc, () => {
   color: var(--kf-muted-foreground, var(--kf-muted-foreground));
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.15s, background 0.15s, color 0.15s, transform 0.15s;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard),  background var(--kf-motion-base) var(--kf-ease-standard),  color var(--kf-motion-base) var(--kf-ease-standard),  transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .history-item:hover .history-remove-btn {
@@ -1994,7 +1994,7 @@ watch(currentDoc, () => {
   border-right: 1px solid var(--kf-border, var(--kf-muted));
   display: flex;
   flex-direction: column;
-  transition: width 0.2s, min-width 0.2s;
+  transition: width var(--kf-motion-slow) var(--kf-ease-standard),  min-width var(--kf-motion-slow) var(--kf-ease-standard);
   overflow: hidden;
 }
 
@@ -2040,14 +2040,14 @@ watch(currentDoc, () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   border: none;
-  border-radius: var(--kf-radius-sm, 6px);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
   color: var(--kf-muted-foreground, var(--kf-muted-foreground));
   cursor: pointer;
-  transition: background 0.12s ease, color 0.12s ease, transform 0.12s ease;
+  transition: background var(--kf-motion-fast) var(--kf-ease-standard), color var(--kf-motion-fast) var(--kf-ease-standard), transform var(--kf-motion-fast) var(--kf-ease-standard);
 }
 
 .action-btn:hover {
@@ -2056,7 +2056,7 @@ watch(currentDoc, () => {
 }
 
 .action-btn:active {
-  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.1));
+  background: var(--kf-primary-soft, var(--kf-primary-soft));
   transform: scale(0.94);
 }
 
@@ -2143,7 +2143,7 @@ watch(currentDoc, () => {
 
 /* ===== 文章正文（Markdown 渲染样式，阅读体验优化） ===== */
 .article-content {
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   line-height: 1.75;
   color: var(--kf-foreground, var(--kf-foreground));
   letter-spacing: 0.01em;
@@ -2154,9 +2154,9 @@ watch(currentDoc, () => {
 }
 
 .article-content :deep(h1) {
-  font-size: 26px;
+  font-size: var(--kf-fs-h2);
   font-weight: 700;
-  margin: 8px 0 14px;
+  margin: 8px 0 12px;
   line-height: 1.35;
   color: var(--kf-foreground, var(--kf-foreground));
   letter-spacing: -0.01em;
@@ -2164,7 +2164,7 @@ watch(currentDoc, () => {
 }
 
 .article-content :deep(h2) {
-  font-size: 22px;
+  font-size: var(--kf-fs-h3);
   font-weight: 600;
   margin: 24px 0 12px;
   padding-bottom: 8px;
@@ -2178,7 +2178,7 @@ watch(currentDoc, () => {
 .article-content :deep(h3) {
   font-size: 18px;
   font-weight: 600;
-  margin: 18px 0 8px;
+  margin: 16px 0 8px;
   line-height: 1.4;
   color: var(--kf-foreground, var(--kf-foreground));
   scroll-margin-top: 80px;
@@ -2188,7 +2188,7 @@ watch(currentDoc, () => {
 .article-content :deep(h4) {
   font-size: 16px;
   font-weight: 600;
-  margin: 14px 0 6px;
+  margin: 12px 0 8px;
   line-height: 1.45;
   color: var(--kf-foreground, var(--kf-foreground));
   scroll-margin-top: 80px;
@@ -2196,9 +2196,9 @@ watch(currentDoc, () => {
 }
 
 .article-content :deep(h5) {
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   font-weight: 600;
-  margin: 12px 0 6px;
+  margin: 12px 0 8px;
   color: var(--kf-foreground, var(--kf-foreground));
   scroll-margin-top: 80px;
   white-space: normal;
@@ -2207,7 +2207,7 @@ watch(currentDoc, () => {
 .article-content :deep(h6) {
   font-size: 14px;
   font-weight: 600;
-  margin: 10px 0 6px;
+  margin: 12px 0 8px;
   color: var(--kf-muted-foreground, var(--kf-muted-foreground));
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -2216,7 +2216,7 @@ watch(currentDoc, () => {
 }
 
 .article-content :deep(p) {
-  margin: 10px 0;
+  margin: 12px 0;
   white-space: normal;
 }
 
@@ -2228,7 +2228,7 @@ watch(currentDoc, () => {
 }
 
 .article-content :deep(li) {
-  margin: 3px 0;
+  margin: 4px 0;
   line-height: 1.65;
   white-space: normal;
 }
@@ -2242,7 +2242,7 @@ watch(currentDoc, () => {
   margin: 12px 0;
   padding: 12px 16px;
   border-left: 4px solid var(--kf-primary, var(--kf-primary));
-  background: rgba(59, 111, 224, 0.04);
+  background: var(--kf-primary-soft);
   border-radius: 0 8px 8px 0;
   color: var(--kf-muted-foreground, var(--kf-muted-foreground));
   font-style: normal;
@@ -2258,7 +2258,7 @@ watch(currentDoc, () => {
   color: var(--kf-primary, var(--kf-primary));
   text-decoration: none;
   border-bottom: 1px solid transparent;
-  transition: border-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .article-content :deep(a:hover) {
@@ -2279,7 +2279,7 @@ watch(currentDoc, () => {
 .article-content :deep(.wiki-link) {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   padding: 1px 8px;
   background: rgba(255, 107, 53, 0.08);
   color: #e85d20;
@@ -2288,7 +2288,7 @@ watch(currentDoc, () => {
   font-size: 0.9em;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
   border-bottom: 1px solid rgba(255, 107, 53, 0.2);
 }
 
@@ -2318,13 +2318,13 @@ watch(currentDoc, () => {
 .article-content :deep(.obsidian-tag) {
   display: inline-block;
   padding: 1px 8px;
-  background: rgba(16, 185, 129, 0.1);
+  background: var(--kf-success-soft);
   color: var(--kf-success-hover);
   border-radius: 999px;
   font-size: 0.85em;
   font-weight: 500;
   cursor: default;
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .article-content :deep(.obsidian-tag:hover) {
@@ -2338,19 +2338,19 @@ watch(currentDoc, () => {
   gap: var(--kf-space-3, 12px);
   padding: var(--kf-space-4, 16px) var(--kf-space-5, 20px);
   margin: 20px 0;
-  background: linear-gradient(135deg, rgba(59, 111, 224, 0.06), rgba(139, 92, 246, 0.06));
+  background: linear-gradient(135deg, var(--kf-primary-soft), rgba(139, 92, 246, 0.06));
   border: 1px solid rgba(59, 111, 224, 0.2);
   border-left: 4px solid var(--kf-primary, var(--kf-primary));
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 
 .article-content :deep(.obsidian-embed:hover) {
-  background: linear-gradient(135deg, rgba(59, 111, 224, 0.1), rgba(139, 92, 246, 0.1));
+  background: linear-gradient(135deg, var(--kf-primary-soft), rgba(139, 92, 246, 0.1));
   border-color: rgba(59, 111, 224, 0.4);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(59, 111, 224, 0.1);
+  box-shadow: 0 2px 8px var(--kf-primary-soft);
 }
 
 .article-content :deep(.obsidian-embed:active) {
@@ -2392,7 +2392,7 @@ watch(currentDoc, () => {
   margin: 8px 0;
   cursor: zoom-in;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: box-shadow 0.15s, transform 0.15s;
+  transition: box-shadow var(--kf-motion-base) var(--kf-ease-standard),  transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .article-content :deep(img:hover) {
@@ -2440,14 +2440,14 @@ watch(currentDoc, () => {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border: none;
   border-radius: 4px;
   background: transparent;
   color: rgba(255, 255, 255, 0.5);
   font-size: var(--kf-fs-xs, 11px);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 
 .article-content :deep(.code-copy-btn:hover) {
@@ -2495,9 +2495,9 @@ watch(currentDoc, () => {
 
 /* 行内代码 */
 .article-content :deep(:not(pre) > code) {
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary, var(--kf-primary));
-  padding: 2px 7px;
+  padding: 2px 8px;
   border-radius: 4px;
   font-size: 0.875em;
   font-family: var(--font-mono, 'JetBrains Mono', monospace);
@@ -2564,18 +2564,18 @@ watch(currentDoc, () => {
   border-radius: 10px;
   background: var(--kf-card, #fff);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
   max-width: 48%;
 }
 
 .nav-btn:hover:not(:disabled) {
   border-color: var(--kf-primary, var(--kf-primary));
-  background: rgba(59, 111, 224, 0.04);
+  background: var(--kf-primary-soft);
 }
 
 .nav-btn:active:not(:disabled) {
   transform: scale(0.98);
-  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.1));
+  background: var(--kf-primary-soft, var(--kf-primary-soft));
 }
 
 .nav-btn:focus-visible {
@@ -2652,12 +2652,12 @@ watch(currentDoc, () => {
 
 .outline-item {
   display: block;
-  padding: 6px 16px;
+  padding: 8px 16px;
   font-size: var(--kf-fs-body-sm, 13px);
   line-height: 1.5;
   color: var(--kf-muted-foreground, var(--kf-muted-foreground));
   cursor: pointer;
-  transition: all 0.12s;
+  transition: background-color var(--kf-motion-fast) var(--kf-ease-standard), border-color var(--kf-motion-fast) var(--kf-ease-standard), color var(--kf-motion-fast) var(--kf-ease-standard), box-shadow var(--kf-motion-fast) var(--kf-ease-standard), opacity var(--kf-motion-fast) var(--kf-ease-standard), transform var(--kf-motion-fast) var(--kf-ease-standard), width var(--kf-motion-fast) var(--kf-ease-standard), height var(--kf-motion-fast) var(--kf-ease-standard), stroke-dashoffset var(--kf-motion-fast) var(--kf-ease-standard);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2667,11 +2667,11 @@ watch(currentDoc, () => {
 
 .outline-item:hover {
   color: var(--kf-primary, var(--kf-primary));
-  background: rgba(59, 111, 224, 0.04);
+  background: var(--kf-primary-soft);
 }
 
 .outline-item:active {
-  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.1));
+  background: var(--kf-primary-soft, var(--kf-primary-soft));
 }
 
 .outline-item:focus-visible {
@@ -2684,7 +2684,7 @@ watch(currentDoc, () => {
   color: var(--kf-primary, var(--kf-primary));
   font-weight: 600;
   border-left-color: var(--kf-primary, var(--kf-primary));
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
 }
 
 /* 大纲层级缩进 */
@@ -2743,12 +2743,12 @@ watch(currentDoc, () => {
   }
 
   .article-content {
-    font-size: 15px;
+    font-size: var(--kf-fs-body-emphasis);
   }
 
   .article-content :deep(h1) {
     font-size: 24px;
-    margin: 28px 0 16px;
+    margin: 24px 0 16px;
   }
 
   .article-content :deep(h2) {
@@ -2761,7 +2761,7 @@ watch(currentDoc, () => {
   }
 
   .article-content :deep(p) {
-    margin: 14px 0;
+    margin: 12px 0;
   }
 
   .article-nav {

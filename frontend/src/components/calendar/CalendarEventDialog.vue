@@ -276,7 +276,7 @@ function onDelete() {
 .ev-modal {
   width: 100%;
   max-width: 460px;
-  background: #fff;
+  background: var(--kf-card);
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
   overflow: hidden;
@@ -288,27 +288,27 @@ function onDelete() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 18px;
-  border-bottom: 1px solid #f1f3f6;
+  padding: var(--kf-space-4) var(--kf-space-5);
+  border-bottom: 1px solid var(--kf-border);
 }
 .ev-title {
   font-size: 16px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--kf-foreground);
 }
 .ev-x {
   border: none;
   background: transparent;
-  color: #9aa3b2;
+  color: var(--kf-muted-foreground);
   cursor: pointer;
   padding: 4px;
-  border-radius: 8px;
+  border-radius: var(--kf-radius-sm);
 }
 .ev-x:hover {
-  background: #f1f3f6;
+  background: var(--kf-border);
 }
 .ev-body {
-  padding: 16px 18px;
+  padding: var(--kf-space-4) var(--kf-space-5);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -320,7 +320,7 @@ function onDelete() {
   gap: 8px;
 }
 .ev-ic {
-  color: #9aa3b2;
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 .ev-datepicker {
@@ -339,24 +339,24 @@ function onDelete() {
 @media (max-width: 560px) {
   .ev-datetime-row {
     grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
+    gap: var(--kf-space-3);
   }
   .ev-datetime-row .ev-sep {
     display: none;
   }
 }
 .ev-input:not(.kf-form-control) {
-  border: 1px solid #e5e7eb;
-  border-radius: 9px;
-  background: #fff;
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-sm);
+  background: var(--kf-card);
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color var(--kf-motion-fast) var(--kf-ease-standard), background-color var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .ev-input {
   flex: 1;
-  padding: 9px 11px;
+  padding: var(--kf-space-2) var(--kf-space-3);
   font-size: 14px;
-  color: #1f2937;
+  color: var(--kf-foreground);
 }
 .ev-input:not(.kf-form-control):focus {
   border-color: var(--kf-primary);
@@ -366,7 +366,7 @@ function onDelete() {
   font-weight: 600;
 }
 .ev-sep {
-  color: #9aa3b2;
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 .ev-textarea {
@@ -378,7 +378,7 @@ function onDelete() {
   align-items: center;
   gap: var(--kf-checkbox-gap);
   font-size: var(--kf-fs-body-md);
-  color: #4b5563;
+  color: var(--kf-muted-foreground);
   cursor: pointer;
 }
 .ev-row {
@@ -390,19 +390,19 @@ function onDelete() {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
   color: var(--kf-muted-foreground);
   font-size: 13px;
-  padding: 6px 10px;
-  border-radius: 9px;
+  padding: var(--kf-space-1) var(--kf-space-2);
+  border-radius: var(--kf-radius-sm);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background-color var(--kf-motion-fast) var(--kf-ease-standard), border-color var(--kf-motion-fast) var(--kf-ease-standard), color var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .ev-tag.on {
   border-color: var(--kf-primary);
   color: var(--kf-primary);
-  background: #f0f5ff;
+  background: var(--kf-primary-soft);
 }
 .ev-error {
   color: var(--kf-danger);
@@ -413,19 +413,19 @@ function onDelete() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
-  border-top: 1px solid #f1f3f6;
+  padding: var(--kf-space-3) var(--kf-space-5);
+  border-top: 1px solid var(--kf-border);
 }
 .ev-del {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--kf-space-1);
   border: 1px solid var(--kf-danger-tint);
-  background: #fff;
+  background: var(--kf-card);
   color: var(--kf-danger);
   font-size: 13px;
-  padding: 8px 12px;
-  border-radius: 9px;
+  padding: var(--kf-space-2) var(--kf-space-3);
+  border-radius: var(--kf-radius-sm);
   cursor: pointer;
 }
 .ev-del:hover {
@@ -433,28 +433,28 @@ function onDelete() {
 }
 .ev-foot-right {
   display: flex;
-  gap: 10px;
+  gap: var(--kf-space-3);
 }
 .ev-cancel {
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  color: #4b5563;
+  border: 1px solid var(--kf-border);
+  background: var(--kf-card);
+  color: var(--kf-muted-foreground);
   font-size: 14px;
-  padding: 9px 18px;
-  border-radius: 9px;
+  padding: var(--kf-space-2) var(--kf-space-4);
+  border-radius: var(--kf-radius-sm);
   cursor: pointer;
 }
 .ev-cancel:hover {
-  background: #f9fafb;
+  background: var(--kf-muted);
 }
 .ev-save {
   border: none;
   background: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   font-size: 14px;
   font-weight: 600;
-  padding: 9px 20px;
-  border-radius: 9px;
+  padding: var(--kf-space-2) var(--kf-space-5);
+  border-radius: var(--kf-radius-sm);
   cursor: pointer;
 }
 .ev-save:hover {

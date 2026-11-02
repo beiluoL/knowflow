@@ -133,7 +133,7 @@
             :style="mode === 'LEARNING_COACH' ? 'background: var(--kf-card); color: var(--kf-primary); box-shadow: 0 1px 2px rgba(0,0,0,0.06);' : 'color: var(--kf-muted-foreground);'"
             :aria-pressed="mode === 'LEARNING_COACH'" @click="setMode('LEARNING_COACH')"
           >
-            <Icon name="graduation-cap" :size="13" /> 学习教练
+            <Icon name="graduation-cap" :size="14" /> 学习教练
           </button>
         </div>
         <div class="flex items-center gap-2">
@@ -375,16 +375,16 @@
                 >
                   <span class="text-xs mr-1" style="color: var(--kf-muted-foreground);">接下来：</span>
                   <router-link to="/learning/center" class="chat-learn-action" aria-label="继续学习">
-                    <Icon name="play" :size="13" /> 继续学习
+                    <Icon name="play" :size="14" /> 继续学习
                   </router-link>
                   <router-link to="/learning/quiz" class="chat-learn-action" aria-label="智能测验">
-                    <Icon name="check-circle" :size="13" /> 智能测验
+                    <Icon name="check-circle" :size="14" /> 智能测验
                   </router-link>
                   <router-link to="/learning/review" class="chat-learn-action" aria-label="复习计划">
-                    <Icon name="rotate-ccw" :size="13" /> 复习计划
+                    <Icon name="rotate-ccw" :size="14" /> 复习计划
                   </router-link>
                   <router-link to="/learning/mastery" class="chat-learn-action" aria-label="掌握度">
-                    <Icon name="layout" :size="13" /> 掌握度
+                    <Icon name="layout" :size="14" /> 掌握度
                   </router-link>
                 </div>
                 <!-- Architecture-7：教练结构化建议卡片（仅当 AI 返回合法建议且通过本地校验时展示，§125/§416） -->
@@ -645,7 +645,7 @@
               @click="showKeyGuide = !showKeyGuide"
             >
               <span class="flex items-center gap-2">
-                <Icon name="help-circle" :size="15" style="color: var(--kf-primary);" />
+                <Icon name="help-circle" :size="16" style="color: var(--kf-primary);" />
                 如何获取 API Key？
               </span>
               <Icon name="chevron-down" :size="14" :class="showKeyGuide ? 'rotate-180 transition-transform' : 'transition-transform'" style="color: var(--kf-muted-foreground);" />
@@ -663,7 +663,7 @@
                       style="color: var(--kf-primary);"
                     >
                       {{ guide.urlLabel }}
-                      <Icon name="external-link" :size="11" />
+                      <Icon name="external-link" :size="12" />
                     </a>
                   </div>
                   <p style="color: var(--kf-muted-foreground);">{{ guide.steps }}</p>
@@ -2302,7 +2302,7 @@ onUnmounted(() => {
 
 /* 单条消息行 */
 .chat-msg-row {
-  padding: 10px 0;
+  padding: 12px 0;
 }
 
 /* 用户消息：右对齐气泡 */
@@ -2313,7 +2313,7 @@ onUnmounted(() => {
 
 .chat-user-bubble {
   max-width: 70%;
-  padding: 10px 14px;
+  padding: 12px 12px;
   border-radius: 16px 16px 4px 16px;
   background: var(--kf-primary);
   color: var(--kf-primary-foreground);
@@ -2349,15 +2349,15 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  min-width: 28px;
-  min-height: 28px;
-  padding: 4px 6px;
+  min-width: 32px;
+  min-height: var(--kf-btn-height-sm);
+  padding: 4px 8px;
   border-radius: 6px;
   color: var(--kf-muted-foreground);
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .msg-action-btn:hover {
   background: var(--kf-muted);
@@ -2379,7 +2379,7 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: var(--kf-radius-sm);
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
@@ -2387,7 +2387,7 @@ onUnmounted(() => {
   font-size: var(--kf-fs-caption);
   font-weight: 500;
   text-decoration: none;
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .chat-learn-action:hover {
   border-color: var(--kf-primary);
@@ -2400,25 +2400,25 @@ onUnmounted(() => {
 }
 /* ===== Markdown 渲染样式 ===== */
 .prose-chat {
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   line-height: 1.75;
   word-break: break-word;
 }
 .prose-chat :deep(.md-h1) {
   font-size: 20px;
   font-weight: 700;
-  margin: 16px 0 10px;
+  margin: 16px 0 12px;
 
 }
 .prose-chat :deep(.md-h2) {
   font-size: 18px;
   font-weight: 600;
-  margin: 14px 0 8px;
+  margin: 12px 0 8px;
 }
 .prose-chat :deep(.md-h3) {
   font-size: 16px;
   font-weight: 600;
-  margin: 12px 0 6px;
+  margin: 12px 0 8px;
 }
 .prose-chat :deep(.md-li) {
   margin: 4px 0;
@@ -2439,7 +2439,7 @@ onUnmounted(() => {
 }
 .prose-chat :deep(.md-quote) {
   border-left: 3px solid var(--kf-primary);
-  padding: 6px 12px;
+  padding: 8px 12px;
   margin: 8px 0;
   background: rgba(59, 111, 224, 0.04);
   border-radius: 0 6px 6px 0;
@@ -2452,7 +2452,7 @@ onUnmounted(() => {
 }
 .prose-chat :deep(.md-inline-code) {
   font-family: 'SF Mono', Monaco, 'Cascadia Code', source-code-pro, Menlo, monospace;
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 4px;
   background: rgba(59, 111, 224, 0.08);
   color: var(--kf-primary);
@@ -2461,7 +2461,7 @@ onUnmounted(() => {
 
 /* 代码块 */
 .prose-chat :deep(.md-code-block) {
-  margin: 10px 0;
+  margin: 12px 0;
   border-radius: 10px;
   overflow: hidden;
   background: #1e293b;
@@ -2471,7 +2471,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 12px;
+  padding: 8px 12px;
   background: #0f172a;
   font-size: 12px;
   color: #94a3b8;
@@ -2484,7 +2484,7 @@ onUnmounted(() => {
   border-radius: 4px;
   font-size: 11px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .prose-chat :deep(.md-code-copy:hover) {
   background: #1e293b;
@@ -2493,7 +2493,7 @@ onUnmounted(() => {
 }
 .prose-chat :deep(.md-code-pre) {
   margin: 0;
-  padding: 12px 14px;
+  padding: 12px 12px;
   overflow-x: auto;
   font-size: 13px;
   line-height: 1.6;
@@ -2506,7 +2506,7 @@ onUnmounted(() => {
 /* 表格 */
 .prose-chat :deep(.md-table-wrap) {
   overflow-x: auto;
-  margin: 10px 0;
+  margin: 12px 0;
   border-radius: 8px;
   border: 1px solid var(--kf-border);
 }
@@ -2540,8 +2540,8 @@ onUnmounted(() => {
   left: 12px;
   z-index: 10;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: 8px;
+  padding: 8px 12px;
   border-radius: 6px;
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
@@ -2555,7 +2555,7 @@ onUnmounted(() => {
   background: rgba(0, 0, 0, 0.4);
   z-index: 30;
 }
-.chat-sidebar { transition: width 0.25s ease, transform 0.3s ease; }
+.chat-sidebar { transition: width var(--kf-motion-slower) var(--kf-ease-standard), transform var(--kf-motion-slower) var(--kf-ease-standard); }
 .sidebar-expanded { width: 288px; }
 .sidebar-collapsed { width: 0; overflow: hidden; border-right: none; }
 
@@ -2571,7 +2571,7 @@ onUnmounted(() => {
   cursor: pointer;
   background: transparent;
   border: none;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .chat-sidebar-toggle-btn:hover {
   background: var(--kf-muted);
@@ -2650,14 +2650,14 @@ onUnmounted(() => {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 5px;
-  padding: 8px 10px;
+  gap: 4px;
+  padding: 8px 12px;
   margin: 12px 8px 0 0;
   cursor: pointer;
   border: 1px solid var(--kf-border);
   border-radius: 20px;
   background: var(--kf-card);
-  transition: border-color 0.2s, background 0.2s;
+  transition: border-color var(--kf-motion-slow) var(--kf-ease-standard), background var(--kf-motion-slow) var(--kf-ease-standard);
   height: fit-content;
   /* 子元素恢复接收鼠标事件 */
   pointer-events: auto;
@@ -2702,10 +2702,10 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 7px 10px;
+  padding: 8px 12px;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
   margin-bottom: 2px;
 }
 .history-item:hover {
@@ -2721,7 +2721,7 @@ onUnmounted(() => {
   border-radius: 50%;
   background: var(--kf-muted);
   color: var(--kf-muted-foreground);
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -2729,7 +2729,7 @@ onUnmounted(() => {
 }
 .history-item-active .history-item-num {
   background: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 
 /* 移动端隐藏右侧悬浮栏（移动端已有左侧抽屉） */
@@ -2739,7 +2739,7 @@ onUnmounted(() => {
 
 /* 用户消息被定位时的脉冲高亮 */
 .chat-msg-row.chat-msg-user:has(.chat-user-bubble) {
-  transition: background 0.3s;
+  transition: background var(--kf-motion-slower) var(--kf-ease-standard);
 }
 
 .chat-container { overflow:hidden; min-height:0; }
@@ -2755,7 +2755,7 @@ onUnmounted(() => {
 .chat-history-loading {padding:var(--kf-space-4);color:var(--kf-muted-foreground);}
 .chat-empty {min-height: min(100%, 24rem);padding-block:var(--kf-space-6);}
 .chat-composer {min-width:0;padding:var(--kf-space-3) var(--kf-space-4);}
-.chat-search {display:flex;align-items:center;gap:var(--kf-space-2);padding-inline:var(--kf-space-3);background:var(--kf-field-surface);border-radius:var(--kf-radius-md);transition:border-color .16s ease,box-shadow .16s ease;border:0;}
+.chat-search {display:flex;align-items:center;gap:var(--kf-space-2);padding-inline:var(--kf-space-3);background:var(--kf-field-surface);border-radius:var(--kf-radius-md);transition:border-color var(--kf-motion-base) var(--kf-ease-standard),box-shadow var(--kf-motion-base) var(--kf-ease-standard);border:0;}
 .chat-search:focus-within { background:var(--kf-field-active);}
 .chat-search__icon {flex-shrink:0;color:var(--kf-muted-foreground);}
 .chat-search__input:not(.kf-form-control),.chat-search__input:not(.kf-form-control):focus,.chat-search__input:not(.kf-form-control):focus-visible {border:0;outline:none;box-shadow:none;background:transparent;}
@@ -2790,7 +2790,7 @@ onUnmounted(() => {
   width:2.25rem; height:2.25rem; border-radius:999px;
   border:var(--kf-studio-rule) solid var(--kf-border); background:var(--kf-card);
   color:var(--kf-foreground); box-shadow:var(--shadow-dropdown-2);
-  transition:transform .15s ease, background .15s ease;
+  transition:transform var(--kf-motion-base) var(--kf-ease-standard), background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .chat-scroll-bottom:hover { background:var(--kf-muted); transform:translateX(-50%) translateY(-1px); }
 .chat-scroll-bottom:focus-visible { outline:2px solid var(--kf-primary); outline-offset:2px; }
@@ -2832,30 +2832,30 @@ onUnmounted(() => {
 /* ===== V2.0：用户消息悬浮工具栏 / 编辑 / 引用 ===== */
 .chat-user-block { display:flex; flex-direction:column; align-items:flex-end; max-width:min(70%, 720px); min-width:0; }
 .chat-user-block .chat-user-bubble { max-width:100%; }
-.chat-msg-toolbar { display:flex; align-items:center; gap:1px; margin-top:4px; opacity:0; transition:opacity .15s ease; }
+.chat-msg-toolbar { display:flex; align-items:center; gap:1px; margin-top:4px; opacity:0; transition:opacity var(--kf-motion-base) var(--kf-ease-standard); }
 .chat-msg-row:hover .chat-msg-toolbar,
 .chat-msg-row:focus-within .chat-msg-toolbar { opacity:1; }
 @media (hover:none) { .chat-msg-toolbar { opacity:1; } }
 .chat-msg-toolbar .msg-action-btn:disabled { opacity:.4; cursor:not-allowed; }
 .chat-edit-input {
   width:min(560px, 72vw); min-height:76px; resize:vertical;
-  padding:8px 10px; border-radius:10px;
+  padding:8px 12px; border-radius:10px;
   border:1px solid var(--kf-border); background:var(--kf-card); color:var(--kf-foreground);
   font:inherit; line-height:1.6;
 }
 .chat-edit-input:focus-visible { outline:2px solid var(--kf-primary); outline-offset:1px; }
 .chat-edit-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:8px; }
 .chat-mini-btn {
-  padding:4px 10px; border-radius:6px; border:1px solid var(--kf-border);
+  padding:4px 12px; border-radius:6px; border:1px solid var(--kf-border);
   background:transparent; color:var(--kf-foreground); font-size:12px; cursor:pointer;
 }
 .chat-mini-btn.is-primary { background:var(--kf-primary); border-color:var(--kf-primary); color:var(--kf-primary-foreground); }
 .chat-mini-btn:disabled { opacity:.55; cursor:not-allowed; }
 .chat-composer-area { display:flex; flex-direction:column; align-items:center; }
 .chat-quote-card {
-  display:flex; align-items:center; gap:10px;
+  display:flex; align-items:center; gap:12px;
   width:calc(100% - 2 * var(--kf-space-4)); max-width:var(--kf-chat-content-max-width);
-  margin:0 auto 8px; padding:10px 12px;
+  margin:0 auto 8px; padding:12px 12px;
   border:1px solid var(--kf-border); border-inline-start:3px solid var(--kf-primary);
   border-radius:var(--kf-radius-md); background:var(--kf-card);
   box-shadow:0 1px 2px rgba(15, 23, 42, 0.04);
@@ -2875,7 +2875,7 @@ onUnmounted(() => {
   flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center;
   width:28px; height:28px; border:0; border-radius:var(--kf-radius-sm);
   background:transparent; color:var(--kf-muted-foreground); cursor:pointer;
-  transition:background .15s ease, color .15s ease;
+  transition:background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .chat-quote-card-close:hover { background:var(--kf-muted); color:var(--kf-foreground); }
 .chat-quote-card-close:focus-visible { outline:2px solid var(--kf-primary); outline-offset:1px; }

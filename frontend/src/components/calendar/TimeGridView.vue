@@ -273,24 +273,24 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: #fff;
-  border: 1px solid #eef0f4;
-  border-radius: 16px;
+  background: var(--kf-card);
+  border: 1px solid var(--kf-border);
+  border-radius: var(--kf-radius-lg);
   overflow: hidden;
 }
 .tg-top {
   display: grid;
-  border-bottom: 1px solid #eef0f4;
-  background: #fafbfc;
+  border-bottom: 1px solid var(--kf-border);
+  background: var(--kf-muted);
   flex-shrink: 0;
 }
 .tg-corner {
-  border-right: 1px solid #f1f3f6;
+  border-right: 1px solid var(--kf-border);
 }
 .tg-dayhead {
   text-align: center;
-  padding: 8px 4px 6px;
-  border-right: 1px solid #f1f3f6;
+  padding: 8px 4px 8px;
+  border-right: 1px solid var(--kf-border);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -299,10 +299,10 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
   overflow: hidden;
 }
 .tg-dayhead:hover {
-  background: #f0f5ff;
+  background: var(--kf-primary-soft);
 }
 .tg-dayhead.is-today {
-  background: #f0f5ff;
+  background: var(--kf-primary-soft);
 }
 .tg-dh-w {
   font-size: 11px;
@@ -316,7 +316,7 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
 .tg-dh-d {
   font-size: 16px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--kf-foreground);
   width: 28px;
   height: 28px;
   display: flex;
@@ -326,20 +326,20 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
 }
 .tg-dh-d.today-num {
   background: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 /* 「休/班」角标 */
 .c-badge {
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   font-weight: 700;
   line-height: 1;
   padding: 2px 4px;
-  border-radius: 4px;
-  color: #fff;
+  border-radius: var(--kf-radius-xs);
+  color: var(--kf-accent-foreground);
   flex-shrink: 0;
 }
 .c-badge.is-rest {
-  background: #e5484d;
+  background: var(--kf-danger);
 }
 .c-badge.is-work {
   background: var(--kf-warning);
@@ -349,7 +349,7 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   flex-wrap: wrap;
   min-height: 15px;
   max-width: 100%;
@@ -357,7 +357,7 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
 .c-mark {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   min-width: 0;
   cursor: default;
 }
@@ -378,8 +378,8 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
   max-width: 60px;
 }
 .c-mark-more {
-  font-size: 10px;
-  color: #9aa3b2;
+  font-size: var(--kf-fs-xs);
+  color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
 .tg-allday-label {
@@ -387,18 +387,18 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
   align-items: center;
   justify-content: center;
   font-size: 11px;
-  color: #9aa3b2;
-  border-right: 1px solid #f1f3f6;
-  border-top: 1px solid #f1f3f6;
+  color: var(--kf-muted-foreground);
+  border-right: 1px solid var(--kf-border);
+  border-top: 1px solid var(--kf-border);
 }
 .tg-allday-cell {
-  border-right: 1px solid #f1f3f6;
-  border-top: 1px solid #f1f3f6;
-  padding: 3px 4px;
+  border-right: 1px solid var(--kf-border);
+  border-top: 1px solid var(--kf-border);
+  padding: 4px 4px;
   min-height: 30px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   cursor: pointer;
 }
 
@@ -412,26 +412,27 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
   position: relative;
 }
 .tg-hours {
-  border-right: 1px solid #f1f3f6;
+  border-right: 1px solid var(--kf-border);
 }
 .tg-hour {
   position: relative;
-  border-top: 1px solid #f1f3f6;
+  border-top: 1px solid var(--kf-border);
 }
 .tg-hour-label {
   position: absolute;
-  top: -7px;
-  right: 6px;
-  font-size: 10px;
-  color: #9aa3b2;
+  top: 0;
+  right: var(--kf-space-2);
+  transform: translateY(-50%);
+  font-size: var(--kf-fs-xs);
+  color: var(--kf-muted-foreground);
 }
 .tg-day {
   position: relative;
-  border-right: 1px solid #f1f3f6;
+  border-right: 1px solid var(--kf-border);
   background-image: repeating-linear-gradient(
     to bottom,
-    #f1f3f6 0,
-    #f1f3f6 1px,
+    var(--kf-border) 0,
+    var(--kf-border) 1px,
     transparent 1px,
     transparent 100%
   );
@@ -451,25 +452,26 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
 }
 .tg-now-dot {
   position: absolute;
-  left: -4px;
-  top: -3px;
+  left: 0;
+  top: 50%;
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  transform: translate(-50%, -50%);
   background: var(--kf-danger);
 }
 
 .c-event {
   position: absolute;
-  border-radius: 7px;
-  padding: 3px 6px;
+  border-radius: var(--kf-radius-sm);
+  padding: 4px 8px;
   font-size: 12px;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   background: var(--c, var(--kf-primary));
   overflow: hidden;
   cursor: pointer;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-  transition: filter 0.12s;
+  transition: filter var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .c-event:hover {
   filter: brightness(1.05);
@@ -493,10 +495,10 @@ const hours = Array.from({ length: 24 }, (_, i) => i)
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 2px 6px;
-  border-radius: 6px;
+  padding: 2px 8px;
+  border-radius: var(--kf-radius-sm);
   font-size: 12px;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   background: var(--c, var(--kf-primary));
   cursor: pointer;
   overflow: hidden;

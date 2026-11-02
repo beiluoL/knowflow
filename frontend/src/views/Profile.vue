@@ -287,7 +287,7 @@
           style="border-color: var(--kf-border);"
         >
           <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background: rgba(245, 185, 64, 0.15);">
-            <Icon name="award" :size="22" style="color: #f5b940;" />
+            <Icon name="award" :size="24" style="color: #f5b940;" />
           </div>
           <div class="min-w-0">
             <p class="text-sm font-medium truncate" style="color: var(--kf-foreground);">{{ c.pathTitle }}</p>
@@ -725,13 +725,13 @@ onMounted(async () => {
 
 /* 等级标签 pill */
 .level-pill {
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
 }
 
 /* ===== 紧凑型经验值进度条（融合在 Hero Card 内） ===== */
 .exp-progress-box {
-  background: linear-gradient(135deg, rgba(59, 111, 224, 0.04), rgba(16, 185, 129, 0.03));
+  background: linear-gradient(135deg, var(--kf-primary-soft), rgba(16, 185, 129, 0.03));
   border: 1px solid var(--kf-border);
 }
 .exp-bar-track {
@@ -754,7 +754,7 @@ onMounted(async () => {
 }
 .exp-bar-text {
   padding-right: 6px;
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   font-weight: 700;
   color: var(--kf-card);
 }
@@ -769,10 +769,10 @@ onMounted(async () => {
   padding: 1.25rem;
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
-  transition: box-shadow 0.2s;
+  transition: box-shadow var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .reward-step:hover {
-  box-shadow: 0 2px 12px rgba(59, 111, 224, 0.06);
+  box-shadow: 0 2px 12px var(--kf-primary-soft);
 }
 .reward-current {
   border-color: var(--kf-accent);
@@ -781,7 +781,7 @@ onMounted(async () => {
 .reward-next {
   border-style: dashed;
   border-color: var(--kf-primary);
-  background: linear-gradient(135deg, rgba(59, 111, 224, 0.04), var(--kf-card));
+  background: linear-gradient(135deg, var(--kf-primary-soft), var(--kf-card));
 }
 
 .reward-step-header {
@@ -800,7 +800,7 @@ onMounted(async () => {
   flex-shrink: 0;
 }
 .reward-icon-wrap.current {
-  background: rgba(16, 185, 129, 0.12);
+  background: var(--kf-success-soft);
   color: var(--kf-accent);
 }
 .reward-icon-wrap.next {
@@ -823,18 +823,18 @@ onMounted(async () => {
 .reward-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
+  gap: 8px;
+  padding: 4px 12px;
   border-radius: 9999px;
   font-size: var(--kf-fs-xs);
   font-weight: 600;
 }
 .reward-chip.unlocked {
-  background: rgba(16, 185, 129, 0.12);
+  background: var(--kf-success-soft);
   color: var(--kf-accent);
 }
 .reward-chip.locked {
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
 }
 
@@ -879,7 +879,7 @@ onMounted(async () => {
   height: 100%;
   border-radius: 3px;
   background: var(--kf-primary);
-  transition: width 0.5s ease;
+  transition: width 0.5s var(--kf-ease-standard);
 }
 
 .badges-empty {
@@ -902,10 +902,10 @@ onMounted(async () => {
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
   cursor: pointer;
-  transition: box-shadow 0.2s, border-color 0.2s;
+  transition: box-shadow var(--kf-motion-slow) var(--kf-ease-standard),  border-color var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .quick-setting:hover {
-  box-shadow: 0 2px 12px rgba(59, 111, 224, 0.08);
+  box-shadow: 0 2px 12px var(--kf-primary-soft);
   border-color: var(--kf-primary);
 }
 
@@ -937,7 +937,7 @@ onMounted(async () => {
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-sm);
   background: var(--kf-card);
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard),  box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .kf-input {
@@ -965,7 +965,7 @@ onMounted(async () => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 18px;
+  padding: 8px 16px;
   border-radius: var(--kf-radius-sm);
   font-size: var(--kf-fs-body-sm);
   font-weight: 600;
@@ -973,7 +973,7 @@ onMounted(async () => {
   color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s, transform 0.15s;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard),  transform var(--kf-motion-base) var(--kf-ease-standard);
   text-decoration: none;
 }
 .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
@@ -982,8 +982,8 @@ onMounted(async () => {
 .btn-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 18px;
+  gap: 8px;
+  padding: 8px 16px;
   border-radius: var(--kf-radius-sm);
   font-size: var(--kf-fs-body-sm);
   font-weight: 600;
@@ -991,7 +991,7 @@ onMounted(async () => {
   color: var(--kf-primary);
   border: 1px solid var(--kf-border);
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .btn-secondary:hover { background: var(--kf-muted); }
 </style>

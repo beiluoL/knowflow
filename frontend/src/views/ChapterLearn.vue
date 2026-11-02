@@ -1164,7 +1164,7 @@ onBeforeUnmount(() => { chapterRequest++; window.removeEventListener('scroll',up
 }
 .complete-btn-inline:hover:not(:disabled) {
   background: var(--kf-accent);
-  color: #ffffff;
+  color: var(--kf-accent-foreground);
   transform: translateY(-1px);
 }
 .complete-btn-inline:disabled {

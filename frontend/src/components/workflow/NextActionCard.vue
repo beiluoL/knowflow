@@ -239,14 +239,14 @@ async function doAction(): Promise<void> {
   border: 1px solid var(--kf-border);
   border-left: 3px solid var(--kf-primary);
   border-radius: var(--kf-radius-md);
-  padding: 16px 18px;
+  padding: var(--kf-space-4) var(--kf-space-5);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  transition: box-shadow 0.2s ease;
+  gap: var(--kf-space-2);
+  transition: box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 .next-action-card:hover {
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--kf-shadow-md);
 }
 
 .na-head {
@@ -257,8 +257,8 @@ async function doAction(): Promise<void> {
 .na-badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 12px;
+  gap: var(--kf-space-2);
+  font-size: var(--kf-fs-caption);
   font-weight: 600;
   letter-spacing: 0.03em;
   color: var(--kf-primary);
@@ -267,14 +267,14 @@ async function doAction(): Promise<void> {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: var(--kf-space-8);
+  height: var(--kf-space-8);
   border: none;
   border-radius: var(--kf-radius-sm);
   background: transparent;
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--kf-motion-fast) var(--kf-ease-standard), color var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .na-dismiss:hover {
   background: var(--kf-muted);
@@ -299,15 +299,15 @@ async function doAction(): Promise<void> {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 16px;
-  margin: 2px 0 0;
-  padding: 8px 0 0;
+  gap: var(--kf-space-1) var(--kf-space-4);
+  margin: 0;
+  padding: var(--kf-space-2) 0 0;
   border-top: 1px solid var(--kf-border);
 }
 .na-meta-item {
   display: inline-flex;
   align-items: baseline;
-  gap: 6px;
+  gap: var(--kf-space-2);
   min-width: 0;
 }
 .na-meta-item dt {
@@ -331,9 +331,9 @@ async function doAction(): Promise<void> {
 .na-foot {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--kf-space-3);
   flex-wrap: wrap;
-  margin-top: 2px;
+  margin-top: 0;
 }
 .na-hint {
   font-size: var(--kf-fs-caption);

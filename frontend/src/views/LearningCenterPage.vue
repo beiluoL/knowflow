@@ -36,7 +36,7 @@
           </div>
           <div class="lc-goal-sub">
             <template v-if="activeGoal.pathId">
-              <Icon name="route" :size="13" />
+              <Icon name="route" :size="14" />
               <span>{{ activeGoal.pathTitle || '学习路线' }}</span>
               <span v-if="knowledgeContext.learningNodeTitle">· 当前：{{ knowledgeContext.learningNodeTitle }}</span>
               <span v-if="knowledgeContext.knowledgeTitle">· 知识点：{{ knowledgeContext.knowledgeTitle }}</span>
@@ -855,7 +855,7 @@ onMounted(() => {
   font-size: var(--kf-fs-body-sm, 13px);
   color: var(--kf-primary);
   text-decoration: none;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 .lc-link:hover,
 .lc-link-inline:hover {
@@ -873,7 +873,7 @@ onMounted(() => {
   gap: var(--kf-space-3, 12px);
   padding: var(--kf-space-3, 12px) var(--kf-space-4, 16px);
   border: 1px solid var(--kf-destructive);
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
   background: var(--kf-danger-subtle);
 }
 .lc-error :deep(svg) {
@@ -895,7 +895,7 @@ onMounted(() => {
   padding: var(--kf-space-4, 16px);
   border: 1px solid var(--kf-border);
   border-left: 3px solid var(--kf-primary);
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
   background: var(--kf-card);
 }
 .lc-goal-icon {
@@ -905,7 +905,7 @@ onMounted(() => {
   width: 28px;
   height: 28px;
   flex-shrink: 0;
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
   background: var(--kf-primary-subtle);
   color: var(--kf-primary);
 }
@@ -938,7 +938,7 @@ onMounted(() => {
 .lc-goal-sub {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
   font-size: var(--kf-fs-body-sm, 13px);
   color: var(--kf-muted-foreground);
@@ -947,15 +947,15 @@ onMounted(() => {
 /* ══════════ 2. 今日 ══════════ */
 .lc-progress {
   height: 6px;
-  border-radius: 999px;
+  border-radius: var(--kf-radius-full);
   background: var(--kf-muted);
   overflow: hidden;
 }
 .lc-progress-fill {
   height: 100%;
-  border-radius: 999px;
+  border-radius: var(--kf-radius-full);
   background: var(--kf-primary);
-  transition: width 0.3s ease;
+  transition: width var(--kf-motion-slower) var(--kf-ease-standard);
 }
 .lc-add-task {
   display: flex;
@@ -963,7 +963,7 @@ onMounted(() => {
   gap: var(--kf-space-2, 8px);
   padding: var(--kf-space-3, 12px);
   border: 1px solid var(--kf-border);
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
   background: var(--kf-card);
 }
 .lc-add-task-row {
@@ -980,7 +980,7 @@ onMounted(() => {
 }
 .lc-input:not(.kf-form-control) {
   border: 1px solid var(--kf-border);
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
   background: var(--kf-background);
 }
 .lc-input {
@@ -995,11 +995,11 @@ onMounted(() => {
 }
 .lc-select:not(.kf-form-control) {
   border: 1px solid var(--kf-border);
-  border-radius: var(--kf-radius-sm, 6px);
+  border-radius: var(--kf-radius-sm);
   background: var(--kf-background);
 }
 .lc-select {
-  padding: 6px 8px;
+  padding: 8px 8px;
   color: var(--kf-foreground);
   font-size: var(--kf-fs-body-sm, 13px);
 }
@@ -1012,9 +1012,9 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: var(--kf-space-3, 12px);
-  padding: 10px var(--kf-space-3, 12px);
-  border-radius: var(--kf-radius-md, 8px);
-  transition: background-color 0.15s ease;
+  padding: 12px var(--kf-space-3, 12px);
+  border-radius: var(--kf-radius-md);
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .lc-task:hover {
   background: var(--kf-muted);
@@ -1027,7 +1027,7 @@ onMounted(() => {
   height: 16px;
   flex-shrink: 0;
   border: 1px solid var(--kf-border);
-  border-radius: 4px;
+  border-radius: var(--kf-radius-xs);
   background: transparent;
   color: transparent;
   cursor: pointer;
@@ -1063,7 +1063,7 @@ onMounted(() => {
   flex-shrink: 0;
   padding: 4px;
   border: none;
-  border-radius: var(--kf-radius-sm, 6px);
+  border-radius: var(--kf-radius-sm);
   background: transparent;
   color: var(--kf-muted-foreground);
   cursor: pointer;
@@ -1088,14 +1088,14 @@ onMounted(() => {
   color: var(--kf-muted-foreground);
 }
 .lc-chip {
-  padding: 4px 10px;
+  padding: 4px 12px;
   border: 1px solid var(--kf-border);
-  border-radius: 999px;
+  border-radius: var(--kf-radius-full);
   background: var(--kf-card);
   font-size: var(--kf-fs-caption, 12px);
   color: var(--kf-foreground);
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .lc-chip:hover {
   border-color: var(--kf-primary);
@@ -1119,10 +1119,10 @@ onMounted(() => {
 .lc-path {
   padding: var(--kf-space-4, 16px);
   border: 1px solid var(--kf-border);
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
   background: var(--kf-card);
   cursor: pointer;
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .lc-path:hover {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
@@ -1130,12 +1130,12 @@ onMounted(() => {
 .lc-path-main {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .lc-path-badge {
   align-self: flex-start;
   padding: 2px 8px;
-  border-radius: var(--kf-radius-sm, 6px);
+  border-radius: var(--kf-radius-sm);
   background: var(--kf-muted);
   font-size: var(--kf-fs-caption, 12px);
   color: var(--kf-muted-foreground);
@@ -1167,15 +1167,15 @@ onMounted(() => {
 }
 .lc-path-bar {
   height: 6px;
-  border-radius: 999px;
+  border-radius: var(--kf-radius-full);
   background: var(--kf-muted);
   overflow: hidden;
 }
 .lc-path-bar-fill {
   height: 100%;
-  border-radius: 999px;
+  border-radius: var(--kf-radius-full);
   background: var(--kf-primary);
-  transition: width 0.3s ease;
+  transition: width var(--kf-motion-slower) var(--kf-ease-standard);
 }
 
 /* ══════════ 5. 薄弱知识 ══════════ */
@@ -1189,10 +1189,10 @@ onMounted(() => {
   grid-template-columns: minmax(0, 1fr) auto 140px;
   align-items: center;
   gap: var(--kf-space-3, 12px);
-  padding: 10px var(--kf-space-3, 12px);
-  border-radius: var(--kf-radius-md, 8px);
+  padding: 12px var(--kf-space-3, 12px);
+  border-radius: var(--kf-radius-md);
   text-decoration: none;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .lc-weak-item:hover {
   background: var(--kf-muted);
@@ -1211,14 +1211,14 @@ onMounted(() => {
 }
 .lc-weak-bar {
   height: 6px;
-  border-radius: 999px;
+  border-radius: var(--kf-radius-full);
   background: var(--kf-muted);
   overflow: hidden;
 }
 .lc-weak-bar-fill {
   display: block;
   height: 100%;
-  border-radius: 999px;
+  border-radius: var(--kf-radius-full);
   background: var(--kf-warning);
 }
 
@@ -1226,10 +1226,10 @@ onMounted(() => {
 .lc-evidence {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   padding: var(--kf-space-4, 16px);
   border: 1px solid var(--kf-border);
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
   background: var(--kf-card);
 }
 .lc-evidence-row {
@@ -1257,13 +1257,13 @@ onMounted(() => {
 /* ══════════ 热力图 ══════════ */
 .lc-heat {
   display: flex;
-  gap: 3px;
+  gap: 4px;
   flex-wrap: wrap;
 }
 .lc-heat-col {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 .lc-heat-empty {
   margin: 0;
@@ -1281,14 +1281,14 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: var(--kf-space-2, 8px);
-  padding: 10px var(--kf-space-3, 12px);
+  padding: 12px var(--kf-space-3, 12px);
   border: 1px solid var(--kf-border);
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
   background: var(--kf-card);
   font-size: var(--kf-fs-body-sm, 13px);
   color: var(--kf-foreground);
   text-decoration: none;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .lc-tool:hover {
   border-color: var(--kf-primary);
@@ -1302,10 +1302,10 @@ onMounted(() => {
   align-self: flex-start;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px var(--kf-space-3, 12px);
+  gap: 8px;
+  padding: 8px var(--kf-space-3, 12px);
   border: 1px solid var(--kf-border);
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
   background: transparent;
   font-size: var(--kf-fs-body-sm, 13px);
   color: var(--kf-muted-foreground);

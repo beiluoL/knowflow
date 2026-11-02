@@ -500,7 +500,7 @@ async function handleRegister(): Promise<void> {
   display: flex;
   align-items: center;
   gap: 14px;
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   color: rgba(255, 255, 255, 0.9);
   animation: fadeInUp 0.5s ease-out both;
 }
@@ -659,7 +659,7 @@ async function handleRegister(): Promise<void> {
 .form-input {
   width: 100%;
   padding: 0 48px;
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   color: var(--kf-foreground);
   font-family: inherit;
 }
@@ -741,7 +741,7 @@ async function handleRegister(): Promise<void> {
 .submit-btn {
   width: 100%;
   height: 48px;
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   font-weight: 600;
   border-radius: var(--kf-radius-md);
   background: var(--kf-primary);

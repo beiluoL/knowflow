@@ -15,5 +15,8 @@ public class InterviewV2Controller {
  @PostMapping("/{id}/pause") public Result<?> pause(@PathVariable Long id,@RequestBody InterviewV2Service.Command req){return Result.success(service.command(SecurityUtils.getCurrentUserId(),id,"pause",req));}
  @PostMapping("/{id}/resume") public Result<?> resume(@PathVariable Long id,@RequestBody InterviewV2Service.Command req){return Result.success(service.command(SecurityUtils.getCurrentUserId(),id,"resume",req));}
  @PostMapping("/{id}/finish") public Result<?> finish(@PathVariable Long id,@RequestBody InterviewV2Service.Command req){return Result.success(service.command(SecurityUtils.getCurrentUserId(),id,"finish",req));}
+ public record Reevaluation(String requestId){}
+ @GetMapping("/{id}/evaluations") public Result<?> evaluations(@PathVariable Long id){return Result.success(service.evaluationHistory(SecurityUtils.getCurrentUserId(),id));}
+ @PostMapping("/{id}/turns/{turn}/evaluations") public Result<?> reevaluate(@PathVariable Long id,@PathVariable Long turn,@RequestBody Reevaluation body){return Result.success(service.reevaluate(SecurityUtils.getCurrentUserId(),id,turn,body==null?null:body.requestId()));}
  @ExceptionHandler(BusinessException.class) public ResponseEntity<Result<?>> business(BusinessException e){int code=e.getCode();if(code<400||code>599)code=500;return ResponseEntity.status(code).body(Result.error(code,e.getMessage()));}
 }

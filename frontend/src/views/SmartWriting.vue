@@ -851,9 +851,9 @@ function printPdf(): void {
 .btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   border-radius: var(--kf-radius-sm);
   font-size: 14px;
   font-weight: 500;
@@ -861,7 +861,7 @@ function printPdf(): void {
   color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 .btn-primary:hover { opacity: 0.9; }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -869,9 +869,9 @@ function printPdf(): void {
 .btn-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   border-radius: var(--kf-radius-sm);
   font-size: 14px;
   font-weight: 500;
@@ -879,7 +879,7 @@ function printPdf(): void {
   color: var(--kf-sidebar-foreground);
   border: 1px solid var(--kf-border);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .btn-secondary:hover { background: var(--kf-muted); }
 
@@ -904,18 +904,18 @@ function printPdf(): void {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 14px 12px;
+  padding: 12px 12px;
   border-radius: var(--kf-radius-md);
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   cursor: pointer;
-  transition: border-color 0.15s, background-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard),  background-color var(--kf-motion-base) var(--kf-ease-standard);
   text-align: center;
 }
 .template-option:hover { border-color: var(--kf-primary); }
 .template-option.active {
   border-color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.04);
+  background: var(--kf-primary-soft);
 }
 .template-icon {
   width: 40px;
@@ -924,7 +924,7 @@ function printPdf(): void {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
 }
 .template-label {
@@ -972,7 +972,7 @@ function printPdf(): void {
 
 .form-select {
   width: 100%;
-  height: 36px;
+  height: var(--kf-input-height);
   padding: 0 32px 0 12px;
   border-radius: var(--kf-radius-sm);
   font-size: 14px;
@@ -985,7 +985,7 @@ function printPdf(): void {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
-  transition: border-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .form-select:focus { border-color: var(--kf-ring); }
 .form-select:focus-visible {
@@ -994,12 +994,12 @@ function printPdf(): void {
 }
 
 .form-input:not(.kf-form-control) {
-  height: 36px;
+  height: var(--kf-input-height);
   border-radius: var(--kf-radius-sm);
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .form-input {
@@ -1035,7 +1035,7 @@ function printPdf(): void {
 .word-progress-bar {
   height: 100%;
   background: var(--kf-primary);
-  transition: width 0.3s;
+  transition: width var(--kf-motion-slower) var(--kf-ease-standard);
 }
 .word-progress-text {
   margin-top: 4px;
@@ -1052,7 +1052,7 @@ function printPdf(): void {
 .ai-helper-title {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: var(--kf-primary);
   margin-bottom: 8px;
   font-size: 14px;
@@ -1116,20 +1116,20 @@ function printPdf(): void {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   border-radius: 4px;
   background: transparent;
   border: none;
   cursor: pointer;
   color: var(--kf-sidebar-foreground);
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .toolbar-btn:hover { background: var(--kf-muted); }
 .toolbar-divider {
   width: 1px;
   height: 20px;
-  margin: 0 6px;
+  margin: 0 8px;
   background: var(--kf-border);
 }
 
@@ -1176,7 +1176,7 @@ function printPdf(): void {
 .status-saved {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: var(--kf-state-success);
 }
 .footer-actions {
@@ -1211,15 +1211,15 @@ function printPdf(): void {
   overflow-y: auto;
 }
 .draft-card {
-  padding: 12px 14px;
+  padding: 12px 12px;
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-sm);
   cursor: pointer;
-  transition: border-color 0.15s, background-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard),  background-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .draft-card:hover {
   border-color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.04);
+  background: var(--kf-primary-soft);
 }
 .draft-card-header {
   display: flex;
@@ -1244,9 +1244,9 @@ function printPdf(): void {
   color: var(--kf-muted-foreground);
   padding: 2px;
   border-radius: 4px;
-  transition: color 0.15s, background-color 0.15s;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard),  background-color var(--kf-motion-base) var(--kf-ease-standard);
 }
-.draft-delete:hover { color: var(--kf-state-error); background: rgba(239, 68, 68, 0.08); }
+.draft-delete:hover { color: var(--kf-state-error); background: var(--kf-danger-soft); }
 .draft-meta {
   font-size: 12px;
   color: var(--kf-muted-foreground);
@@ -1309,7 +1309,7 @@ function printPdf(): void {
   color: var(--kf-muted-foreground);
   padding: 4px;
   border-radius: 4px;
-  transition: color 0.15s, background-color 0.15s;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard),  background-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .modal-close:hover { color: var(--kf-foreground); background: var(--kf-muted); }
 .modal-body {
@@ -1396,7 +1396,7 @@ function printPdf(): void {
   font-size: 12px;
   padding: 2px 8px;
   border-radius: 4px;
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
 }
 .score-comment {
@@ -1440,7 +1440,7 @@ function printPdf(): void {
 .score-suggestions h4 {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin-bottom: 12px;
   color: #92400e;
 }

@@ -1357,7 +1357,7 @@ watch(activeGroupId, (_, oldId) => {
   align-items: center;
   gap: 8px;
   width: 100%;
-  height: 36px;
+  height: var(--kf-btn-height-md);
   border-radius: 8px;
   border: 1px dashed var(--kf-border);
   background: transparent;
@@ -1365,11 +1365,11 @@ watch(activeGroupId, (_, oldId) => {
   font-size: var(--kf-fs-body-sm);
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .create-group-btn:hover {
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   border-color: var(--kf-primary);
 }
 
@@ -1397,12 +1397,12 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .search-input:not(.kf-form-control) {
-  height: 36px;
+  height: var(--kf-input-height);
   border-radius: 8px;
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .search-input {
@@ -1452,7 +1452,7 @@ watch(activeGroupId, (_, oldId) => {
   padding: 12px;
   border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .group-item:hover {
@@ -1470,7 +1470,7 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .group-item.active {
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
 }
 
 .group-avatar {
@@ -1480,7 +1480,7 @@ watch(activeGroupId, (_, oldId) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #FFFFFF;
+  color: var(--kf-accent-foreground);
   font-size: var(--kf-fs-body-lg);
   font-weight: 600;
   flex-shrink: 0;
@@ -1542,7 +1542,7 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .group-type.public {
-  background: rgba(16, 185, 129, 0.1);
+  background: var(--kf-success-soft);
   color: var(--kf-accent);
 }
 
@@ -1561,7 +1561,7 @@ watch(activeGroupId, (_, oldId) => {
   font-size: var(--kf-fs-caption);
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .join-btn:hover {
@@ -1700,7 +1700,7 @@ watch(activeGroupId, (_, oldId) => {
   color: var(--kf-muted-foreground);
   font-size: var(--kf-fs-body-sm);
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), background-color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .action-btn .action-count {
@@ -1713,7 +1713,7 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .action-btn:active {
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   transform: scale(0.98);
 }
 
@@ -1791,7 +1791,7 @@ watch(activeGroupId, (_, oldId) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #FFFFFF;
+  color: var(--kf-accent-foreground);
   font-size: var(--kf-fs-body-sm);
   font-weight: 600;
   flex-shrink: 0;
@@ -1841,7 +1841,7 @@ watch(activeGroupId, (_, oldId) => {
   width: 100%;
   border-radius: 8px;
   cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .message-image:hover {
@@ -1870,7 +1870,7 @@ watch(activeGroupId, (_, oldId) => {
   text-decoration: none;
   color: var(--kf-foreground);
   font-size: var(--kf-fs-body-sm);
-  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .message-file:hover {
@@ -1930,11 +1930,11 @@ watch(activeGroupId, (_, oldId) => {
   padding: 2px 8px;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.15s ease, opacity 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard), opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .copy-btn:hover {
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
 }
 
 .copy-btn:active {
@@ -1987,7 +1987,7 @@ watch(activeGroupId, (_, oldId) => {
   cursor: pointer;
   border-radius: 4px;
   text-decoration: underline dotted;
-  transition: opacity 0.15s ease, text-decoration-color 0.15s ease;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard), text-decoration-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .status-fail:hover {
   opacity: 0.8;
@@ -2006,7 +2006,7 @@ watch(activeGroupId, (_, oldId) => {
   cursor: pointer;
   border-radius: 4px;
   color: var(--kf-muted-foreground);
-  transition: color 0.15s ease, opacity 0.15s ease;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard), opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 .msg-recall:hover {
   color: var(--kf-primary);
@@ -2027,7 +2027,7 @@ watch(activeGroupId, (_, oldId) => {
 
 .mention {
   color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
   padding: 1px 4px;
   border-radius: 4px;
 }
@@ -2067,7 +2067,7 @@ watch(activeGroupId, (_, oldId) => {
   cursor: pointer;
   border-radius: 6px;
   flex-shrink: 0;
-  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .tool-btn:hover {
@@ -2112,7 +2112,7 @@ watch(activeGroupId, (_, oldId) => {
   line-height: var(--kf-lh-body-sm);
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .mention-item:hover {
@@ -2140,7 +2140,7 @@ watch(activeGroupId, (_, oldId) => {
   padding: 12px 16px;
   border-radius: 12px;
   background: var(--kf-field-surface);
-  transition: border-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
   border: 0;
 }
 
@@ -2169,8 +2169,8 @@ watch(activeGroupId, (_, oldId) => {
 }
 
 .send-btn {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: var(--kf-btn-height-md);
   flex-shrink: 0;
   border-radius: 8px;
   border: none;
@@ -2180,7 +2180,7 @@ watch(activeGroupId, (_, oldId) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .send-btn:disabled {
@@ -2253,7 +2253,7 @@ watch(activeGroupId, (_, oldId) => {
   padding: 4px;
   border-radius: 6px;
   flex-shrink: 0;
-  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .panel-close:hover,
@@ -2295,7 +2295,7 @@ watch(activeGroupId, (_, oldId) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #FFFFFF;
+  color: var(--kf-accent-foreground);
   font-size: var(--kf-fs-body-md);
   font-weight: 600;
   flex-shrink: 0;
@@ -2332,14 +2332,14 @@ watch(activeGroupId, (_, oldId) => {
   border: none;
   cursor: pointer;
   color: var(--kf-muted-foreground);
-  padding: 6px;
+  padding: 8px;
   border-radius: 6px;
   flex-shrink: 0;
-  transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .member-action:hover {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--kf-danger-soft);
   color: var(--kf-destructive);
 }
 
@@ -2384,7 +2384,7 @@ watch(activeGroupId, (_, oldId) => {
   color: var(--kf-foreground);
   font-size: var(--kf-fs-body-md);
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
   box-sizing: border-box;
 }
 
@@ -2436,9 +2436,9 @@ watch(activeGroupId, (_, oldId) => {
   align-items: center;
   justify-content: center;
   border: 2px solid transparent;
-  color: #FFFFFF;
+  color: var(--kf-accent-foreground);
   flex-shrink: 0;
-  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: transform var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .color-item:hover {
@@ -2472,7 +2472,7 @@ watch(activeGroupId, (_, oldId) => {
   border-radius: 10px;
   border: 1px solid var(--kf-border);
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), background-color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .type-option:hover {
@@ -2481,7 +2481,7 @@ watch(activeGroupId, (_, oldId) => {
 
 .type-option:active {
   transform: scale(0.99);
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
 }
 
 .type-option:focus-within {
@@ -2492,7 +2492,7 @@ watch(activeGroupId, (_, oldId) => {
 
 .type-option.active {
   border-color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
 }
 
 /* 单选框视觉隐藏但保留键盘可聚焦（配合 :focus-within 焦点环） */
@@ -2543,7 +2543,7 @@ watch(activeGroupId, (_, oldId) => {
   border: 1px solid var(--kf-border);
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), background-color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .role-option:hover {
@@ -2552,7 +2552,7 @@ watch(activeGroupId, (_, oldId) => {
 
 .role-option:active {
   transform: scale(0.99);
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
 }
 
 .role-option:focus-within {
@@ -2563,7 +2563,7 @@ watch(activeGroupId, (_, oldId) => {
 
 .role-option.active {
   border-color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
 }
 
 .role-name {
@@ -2591,12 +2591,12 @@ watch(activeGroupId, (_, oldId) => {
 .btn-primary {
   flex: 1;
   min-width: 0;
-  height: 40px;
+  height: var(--kf-btn-height-md);
   border-radius: 10px;
   font-size: var(--kf-fs-body-md);
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard), opacity var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
   border: none;
 }
 
@@ -2643,7 +2643,7 @@ watch(activeGroupId, (_, oldId) => {
 /* 小组详情 */
 .detail-header {
   padding: 32px 24px;
-  color: #FFFFFF;
+  color: var(--kf-accent-foreground);
   text-align: center;
 }
 
@@ -2753,7 +2753,7 @@ watch(activeGroupId, (_, oldId) => {
   color: var(--kf-foreground);
   font-size: var(--kf-fs-body-md);
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), background-color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .btn-save:hover,
@@ -2764,7 +2764,7 @@ watch(activeGroupId, (_, oldId) => {
 
 .btn-save:active,
 .btn-link:active {
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   transform: scale(0.98);
 }
 
@@ -2780,7 +2780,7 @@ watch(activeGroupId, (_, oldId) => {
   gap: 8px;
   min-width: 0;
   padding: 12px;
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   border-radius: 8px;
   color: var(--kf-foreground);
   font-size: var(--kf-fs-body-md);
@@ -2811,11 +2811,11 @@ watch(activeGroupId, (_, oldId) => {
   color: var(--kf-destructive);
   font-size: var(--kf-fs-body-md);
   cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .btn-leave:hover {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--kf-danger-soft);
 }
 
 .btn-leave:active {

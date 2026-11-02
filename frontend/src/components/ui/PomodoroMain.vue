@@ -471,7 +471,7 @@ function clampInt(n: number, min: number, max: number): number {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
+  padding: 12px 12px;
   gap: 8px;
   border-bottom: 1px solid var(--kf-border);
 }
@@ -486,7 +486,7 @@ function clampInt(n: number, min: number, max: number): number {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
@@ -494,7 +494,7 @@ function clampInt(n: number, min: number, max: number): number {
   border: none;
   background: transparent;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
   color: var(--kf-muted-foreground);
   white-space: nowrap;
 }
@@ -511,8 +511,8 @@ function clampInt(n: number, min: number, max: number): number {
   gap: 1px;
 }
 .pmd-icon-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -521,7 +521,7 @@ function clampInt(n: number, min: number, max: number): number {
   background: transparent;
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .pmd-icon-btn:hover {
   background: var(--kf-muted);
@@ -529,7 +529,7 @@ function clampInt(n: number, min: number, max: number): number {
 }
 .pmd-icon-btn.is-on {
   color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
 }
 
 /* 主体 */
@@ -537,7 +537,7 @@ function clampInt(n: number, min: number, max: number): number {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 14px 16px 12px;
+  padding: 12px 16px 12px;
   gap: 12px;
 }
 
@@ -581,7 +581,7 @@ function clampInt(n: number, min: number, max: number): number {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
   line-height: 1.1;
-  transition: color 0.3s ease;
+  transition: color var(--kf-motion-slower) var(--kf-ease-standard);
 }
 .pmd-time.is-running {
   text-shadow: 0 0 16px currentColor;
@@ -590,22 +590,22 @@ function clampInt(n: number, min: number, max: number): number {
   margin-top: 4px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   color: var(--kf-muted-foreground);
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   font-weight: 500;
 }
 .pmd-rounds {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
 }
 .pmd-dot {
   width: 5px;
   height: 5px;
   border-radius: 50%;
   background: var(--kf-border);
-  transition: background 0.25s ease;
+  transition: background var(--kf-motion-slower) var(--kf-ease-standard);
 }
 .pmd-dot.filled {
   box-shadow: 0 0 4px currentColor;
@@ -613,12 +613,12 @@ function clampInt(n: number, min: number, max: number): number {
 .pmd-rounds-text {
   margin-left: 2px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
 }
 .pmd-today {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
 }
 
 /* 控制按钮 */
@@ -638,7 +638,7 @@ function clampInt(n: number, min: number, max: number): number {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 .pmd-ctrl:hover {
@@ -651,11 +651,11 @@ function clampInt(n: number, min: number, max: number): number {
   width: 52px;
   height: 52px;
   border: none;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .pmd-play:hover {
-  color: #fff;
+  color: var(--kf-accent-foreground);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transform: translateY(-2px) scale(1.04);
 }
@@ -664,7 +664,7 @@ function clampInt(n: number, min: number, max: number): number {
 .pmd-settings {
   border-top: 1px solid var(--kf-border);
   background: var(--kf-background);
-  padding: 12px 14px 14px;
+  padding: 12px 12px 12px;
 }
 .pmd-settings-head {
   display: flex;
@@ -686,7 +686,7 @@ function clampInt(n: number, min: number, max: number): number {
 .pmd-field {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   font-size: 11px;
   color: var(--kf-muted-foreground);
   font-weight: 500;
@@ -694,7 +694,7 @@ function clampInt(n: number, min: number, max: number): number {
 .pmd-field-label-with-icon {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 }
 .pmd-field > input {
   height: 30px;
@@ -705,7 +705,7 @@ function clampInt(n: number, min: number, max: number): number {
   padding: 0 8px;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard),  box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 .pmd-field > input:focus {
   outline: none;
@@ -727,7 +727,7 @@ function clampInt(n: number, min: number, max: number): number {
   background: var(--kf-border);
   cursor: pointer;
   padding: 0;
-  transition: background 0.2s ease;
+  transition: background var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .pmd-switch.on {
   background: var(--kf-primary);
@@ -741,7 +741,7 @@ function clampInt(n: number, min: number, max: number): number {
   border-radius: 50%;
   background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform var(--kf-motion-slow) cubic-bezier(0.22, 1, 0.36, 1);
 }
 .pmd-switch.on .pmd-switch-thumb {
   transform: translateX(16px);
@@ -749,18 +749,18 @@ function clampInt(n: number, min: number, max: number): number {
 
 .pmd-settings-actions {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   justify-content: flex-end;
 }
 .pmd-btn {
-  height: 30px;
+  height: var(--kf-btn-height-sm);
   padding: 0 12px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .pmd-btn-primary {
   background: var(--kf-primary);
@@ -783,7 +783,7 @@ function clampInt(n: number, min: number, max: number): number {
 /* 白噪音音效设置区块 */
 .pmd-noise-section {
   margin-bottom: 12px;
-  padding: 10px 12px;
+  padding: 12px 12px;
   border: 1px solid var(--kf-border);
   border-radius: 8px;
   background: var(--kf-card);
@@ -800,27 +800,27 @@ function clampInt(n: number, min: number, max: number): number {
   margin-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 .pmd-noise-types {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  gap: 8px;
 }
 .pmd-noise-type {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 6px 2px;
+  gap: 4px;
+  padding: 8px 2px;
   border: 1px solid var(--kf-border);
   border-radius: 6px;
   background: var(--kf-card);
   color: var(--kf-muted-foreground);
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .pmd-noise-type:hover {
   background: var(--kf-muted);
@@ -879,7 +879,7 @@ function clampInt(n: number, min: number, max: number): number {
 /* 过渡 */
 .pmd-slide-enter-active,
 .pmd-slide-leave-active {
-  transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: background-color var(--kf-motion-slow) cubic-bezier(0.22, 1, 0.36, 1), border-color var(--kf-motion-slow) cubic-bezier(0.22, 1, 0.36, 1), color var(--kf-motion-slow) cubic-bezier(0.22, 1, 0.36, 1), box-shadow var(--kf-motion-slow) cubic-bezier(0.22, 1, 0.36, 1), opacity var(--kf-motion-slow) cubic-bezier(0.22, 1, 0.36, 1), transform var(--kf-motion-slow) cubic-bezier(0.22, 1, 0.36, 1), width var(--kf-motion-slow) cubic-bezier(0.22, 1, 0.36, 1), height var(--kf-motion-slow) cubic-bezier(0.22, 1, 0.36, 1), stroke-dashoffset var(--kf-motion-slow) cubic-bezier(0.22, 1, 0.36, 1);
   overflow: hidden;
 }
 .pmd-slide-enter-from,

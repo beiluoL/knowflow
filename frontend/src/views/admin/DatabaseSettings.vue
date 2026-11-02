@@ -322,7 +322,7 @@ onMounted(loadStatus);
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   font-size: 20px;
   font-weight: 600;
   color: var(--kf-text);
@@ -338,13 +338,13 @@ onMounted(loadStatus);
 .db-card {
   background: var(--kf-surface);
   border: 1px solid var(--kf-border);
-  border-radius: var(--kf-radius-lg, 12px);
+  border-radius: var(--kf-radius-lg);
   padding: 20px;
 }
 
 .db-card__title {
-  margin: 0 0 14px;
-  font-size: 15px;
+  margin: 0 0 12px;
+  font-size: var(--kf-fs-body-emphasis);
   font-weight: 600;
   color: var(--kf-text);
 }
@@ -364,8 +364,8 @@ onMounted(loadStatus);
 .db-status__badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
+  gap: 8px;
+  padding: 4px 12px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 500;
@@ -385,7 +385,7 @@ onMounted(loadStatus);
 .db-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
+  gap: 12px;
   margin: 0;
 }
 
@@ -428,7 +428,7 @@ onMounted(loadStatus);
   background: var(--kf-bg);
   color: var(--kf-text);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 
 .db-option:hover {
@@ -456,13 +456,13 @@ onMounted(loadStatus);
 .db-form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .db-field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 12px;
 }
 
 .db-field {
@@ -518,7 +518,7 @@ onMounted(loadStatus);
 .db-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 8px 16px;
   border-radius: var(--kf-radius, 8px);
   border: 1px solid var(--kf-border);
@@ -526,7 +526,7 @@ onMounted(loadStatus);
   color: var(--kf-text);
   font-size: 13px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 
 .db-btn:hover:not(:disabled) {
@@ -541,12 +541,12 @@ onMounted(loadStatus);
 .db-btn--primary {
   background: var(--kf-primary);
   border-color: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 
 .db-alert {
-  margin: 14px 0 0;
-  padding: 10px 12px;
+  margin: 12px 0 0;
+  padding: 12px 12px;
   border-radius: var(--kf-radius, 8px);
   font-size: 13px;
   line-height: 1.6;

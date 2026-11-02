@@ -16,4 +16,10 @@ class RadarRubricTest {
  @Test void invalidScoresAreRejectedRatherThanClamped(){
   assertThrows(IllegalArgumentException.class,()->RadarRubric.grade(Map.of("TECHNICAL_CORRECTNESS",101,"KNOWLEDGE_COVERAGE",100,"ENGINEERING_PRACTICE",100,"EXPRESSION_STRUCTURE",100)));
  }
+ @Test void configuredThresholdDoesNotChangeScoresAndRejectsInvalidConfig(){
+  var dimensions=Map.of("TECHNICAL_CORRECTNESS",90,"KNOWLEDGE_COVERAGE",90,"ENGINEERING_PRACTICE",90,"EXPRESSION_STRUCTURE",90);
+  assertFalse(RadarRubric.grade(dimensions,9.5).passed());
+  assertEquals(9.0,RadarRubric.grade(dimensions,9.5).score());
+  assertThrows(IllegalArgumentException.class,()->RadarRubric.grade(dimensions,Double.NaN));
+ }
 }

@@ -365,7 +365,7 @@ onUnmounted(async () => {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-  padding: 18px;
+  padding: 16px;
   backdrop-filter: blur(8px);
 }
 
@@ -376,7 +376,7 @@ onUnmounted(async () => {
   font-size: 14px;
   font-weight: 600;
   color: var(--kf-foreground);
-  margin: 0 0 14px;
+  margin: 0 0 12px;
 }
 .section-title .task-count {
   margin-left: auto;
@@ -394,10 +394,10 @@ onUnmounted(async () => {
   gap: 8px;
 }
 .task-item {
-  padding: 10px 12px;
+  padding: 12px 12px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.03);
-  transition: background 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .task-item:hover {
   background: rgba(255, 255, 255, 0.06);
@@ -458,7 +458,7 @@ onUnmounted(async () => {
 .flow-stage {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -473,8 +473,8 @@ onUnmounted(async () => {
 .ctrl-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 44px;
+  gap: 8px;
+  height: var(--kf-btn-height-lg);
   padding: 0 20px;
   font-size: 14px;
   font-weight: 600;
@@ -483,7 +483,7 @@ onUnmounted(async () => {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, filter 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard), filter var(--kf-motion-base) var(--kf-ease-standard);
 }
 .ctrl-btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.1);
@@ -502,8 +502,8 @@ onUnmounted(async () => {
 }
 .ctrl-btn.primary.big {
   height: 52px;
-  padding: 0 28px;
-  font-size: 15px;
+  padding: 0 24px;
+  font-size: var(--kf-fs-body-emphasis);
   border-radius: 14px;
 }
 .ctrl-btn.danger:hover:not(:disabled) {
@@ -515,7 +515,7 @@ onUnmounted(async () => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 18px;
+  padding: 12px 16px;
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(14, 165, 233, 0.1));
   border: 1px solid rgba(139, 92, 246, 0.22);
   border-radius: 999px;
@@ -535,7 +535,7 @@ onUnmounted(async () => {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 12px 12px;
 }
 .stat-card.big .stat-value {
   font-size: 36px;
@@ -547,7 +547,7 @@ onUnmounted(async () => {
   letter-spacing: 0.02em;
 }
 .stat-value {
-  font-size: 26px;
+  font-size: var(--kf-fs-h2);
   font-weight: 700;
   color: var(--kf-foreground);
   line-height: 1.2;
@@ -578,13 +578,13 @@ onUnmounted(async () => {
   height: 100%;
   background: linear-gradient(90deg, var(--kf-primary), #0EA5E9);
   border-radius: 999px;
-  transition: width 0.5s ease;
+  transition: width 0.5s var(--kf-ease-standard);
 }
 .distract-btn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
+  padding: 4px 8px;
   font-size: 11px;
   font-weight: 500;
   color: var(--kf-warning);
@@ -592,7 +592,7 @@ onUnmounted(async () => {
   border: 1px solid rgba(245, 158, 11, 0.2);
   border-radius: 999px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .distract-btn:hover {
   background: rgba(245, 158, 11, 0.18);
@@ -602,12 +602,12 @@ onUnmounted(async () => {
   background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(139, 92, 246, 0.06));
   border: 1px solid rgba(14, 165, 233, 0.15);
   border-radius: 12px;
-  padding: 14px;
+  padding: 12px;
 }
 .tip-title {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   font-weight: 600;
   color: var(--kf-primary);

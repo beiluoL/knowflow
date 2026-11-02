@@ -441,8 +441,8 @@ onMounted(() => {
 .stat-card {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 18px 20px;
+  gap: 12px;
+  padding: 16px 20px;
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   border-radius: 12px;
@@ -463,7 +463,7 @@ onMounted(() => {
   gap: 2px;
 }
 .stat-value {
-  font-size: 22px;
+  font-size: var(--kf-fs-h3);
   font-weight: 700;
   color: var(--kf-foreground);
   line-height: 1.2;
@@ -499,7 +499,7 @@ onMounted(() => {
 .config-body {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 .config-row {
   display: flex;
@@ -516,7 +516,7 @@ onMounted(() => {
   font-size: 13px;
   color: var(--kf-foreground);
   background: var(--kf-muted);
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 4px;
   word-break: break-all;
 }
@@ -539,12 +539,12 @@ onMounted(() => {
   flex-direction: column;
 }
 .dir-input:not(.kf-form-control) {
-  height: 38px;
+  height: var(--kf-input-height);
   border: 1px solid var(--kf-border);
   border-radius: 8px;
   background: var(--kf-card);
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .dir-input {
   flex: 1;
@@ -555,12 +555,12 @@ onMounted(() => {
 }
 .dir-input:not(.kf-form-control):focus {
   border-color: var(--kf-primary);
-  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+  box-shadow: 0 0 0 3px var(--kf-primary-soft);
 }
 .config-tip {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: 8px;
   font-size: 12px;
   color: var(--kf-muted-foreground);
   margin-top: 8px;
@@ -574,19 +574,19 @@ onMounted(() => {
 .btn-primary, .btn-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-md);
+  padding: 0 12px;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   border: none;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .btn-primary {
   background: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 .btn-primary:hover {
   opacity: 0.9;
@@ -604,8 +604,8 @@ onMounted(() => {
   background: var(--kf-muted);
 }
 .btn-sm {
-  height: 30px;
-  padding: 0 10px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   font-size: 12px;
 }
 
@@ -631,7 +631,7 @@ onMounted(() => {
 .filter-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 18px;
   flex-wrap: wrap;
 }
@@ -640,10 +640,10 @@ onMounted(() => {
   gap: 4px;
   background: var(--kf-muted);
   border-radius: 8px;
-  padding: 3px;
+  padding: 4px;
 }
 .kf-filter-btn {
-  height: 28px;
+  height: var(--kf-btn-height-sm);
   padding: 0 12px;
   border: none;
   background: transparent;
@@ -652,7 +652,7 @@ onMounted(() => {
   font-weight: 500;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .kf-filter-btn.active {
   background: var(--kf-card);
@@ -683,7 +683,7 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   padding: 60px 0;
   color: var(--kf-muted-foreground);
   font-size: 14px;
@@ -700,7 +700,7 @@ onMounted(() => {
   border-radius: 10px;
   overflow: hidden;
   background: var(--kf-card);
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  transition: box-shadow var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .file-card:hover {
   box-shadow: var(--shadow-card-hover);
@@ -720,7 +720,7 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.2s;
+  transition: transform var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .file-preview:hover img {
   transform: scale(1.05);
@@ -729,7 +729,7 @@ onMounted(() => {
   color: var(--kf-muted-foreground);
 }
 .file-info {
-  padding: 10px 12px;
+  padding: 12px 12px;
 }
 .file-name {
   font-size: 12px;
@@ -754,11 +754,11 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 0 12px 10px;
+  padding: 0 12px 12px;
 }
 .icon-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -767,7 +767,7 @@ onMounted(() => {
   background: var(--kf-card);
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .icon-btn:hover {
   background: var(--kf-muted);
@@ -775,7 +775,7 @@ onMounted(() => {
   border-color: var(--kf-primary);
 }
 .icon-btn.danger:hover {
-  background: rgba(239, 68, 68, 0.08);
+  background: var(--kf-danger-soft);
   color: var(--kf-destructive);
   border-color: var(--kf-destructive);
 }
@@ -790,14 +790,14 @@ onMounted(() => {
 }
 .page-btn {
   height: 32px;
-  padding: 0 14px;
+  padding: 0 12px;
   border: 1px solid var(--kf-border);
   border-radius: 8px;
   background: var(--kf-card);
   color: var(--kf-foreground);
   font-size: 13px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .page-btn:hover:not(:disabled) {
   border-color: var(--kf-primary);

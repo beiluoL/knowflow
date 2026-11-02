@@ -926,14 +926,14 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: var(--kf-btn-height-md);
   border-radius: var(--kf-radius-sm);
   background: transparent;
   color: var(--kf-muted-foreground);
   border: none;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .back-btn:hover {
   background: var(--kf-muted);
@@ -954,7 +954,7 @@ onUnmounted(() => {
 .crumb-link {
   color: var(--kf-muted-foreground);
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .crumb-link:hover {
   color: var(--kf-primary);
@@ -982,17 +982,17 @@ onUnmounted(() => {
   align-items: center;
   gap: 4px;
   height: 24px;
-  padding: 0 10px;
+  padding: 0 12px;
   border-radius: var(--kf-radius-sm);
   font-size: var(--kf-fs-caption);
   font-weight: 500;
 }
 .status-published {
-  background: rgba(16, 185, 129, 0.08);
+  background: var(--kf-success-soft);
   color: var(--kf-state-success);
 }
 .status-draft {
-  background: rgba(245, 158, 11, 0.08);
+  background: var(--kf-warning-soft);
   color: var(--kf-state-warning);
 }
 .status-archived {
@@ -1004,9 +1004,9 @@ onUnmounted(() => {
 .header-btn-ghost {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-md);
+  padding: 0 12px;
   border-radius: var(--kf-radius-sm);
   font-size: var(--kf-fs-body-sm);
   font-weight: 500;
@@ -1014,7 +1014,7 @@ onUnmounted(() => {
   color: var(--kf-foreground);
   border: 1px solid var(--kf-border);
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .header-btn-ghost:hover {
   background: var(--kf-muted);
@@ -1031,8 +1031,8 @@ onUnmounted(() => {
 .header-btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 36px;
+  gap: 8px;
+  height: var(--kf-btn-height-md);
   padding: 0 16px;
   border-radius: var(--kf-radius-sm);
   font-size: var(--kf-fs-body-sm);
@@ -1041,7 +1041,7 @@ onUnmounted(() => {
   color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .header-btn-primary:hover:not(:disabled) {
   opacity: 0.9;
@@ -1062,14 +1062,14 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: var(--kf-btn-height-md);
   border-radius: var(--kf-radius-sm);
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .header-btn-icon:hover {
   background: var(--kf-muted);
@@ -1111,10 +1111,10 @@ onUnmounted(() => {
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .more-menu-item:hover {
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
 }
 .more-menu-item:active {
@@ -1157,7 +1157,7 @@ onUnmounted(() => {
 .title-input {
   width: 100%;
   font-family: var(--font-sans);
-  font-size: 22px;
+  font-size: var(--kf-fs-h3);
   font-weight: 600;
   color: var(--kf-foreground);
   line-height: 1.35;
@@ -1174,7 +1174,7 @@ onUnmounted(() => {
 .meta-item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
   font-size: var(--kf-fs-caption);
   color: var(--kf-muted-foreground);
@@ -1189,14 +1189,14 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   border-radius: var(--kf-radius-sm);
   color: var(--kf-muted-foreground);
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .toolbar-btn:hover {
   background: var(--kf-muted);
@@ -1221,7 +1221,7 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 .editor-textarea-wrap.drag-over {
-  background: rgba(59, 111, 224, 0.04);
+  background: var(--kf-primary-soft);
   box-shadow: inset 0 0 0 2px var(--kf-primary);
 }
 .content-textarea:not(.kf-form-control) {
@@ -1275,8 +1275,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 24px;
-  background: rgba(59, 111, 224, 0.06);
+  padding: 8px 24px;
+  background: var(--kf-primary-soft);
   border-top: 1px solid var(--kf-border);
   color: var(--kf-primary);
 }
@@ -1321,7 +1321,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 6px 0;
+  padding: 8px 0;
   font-size: var(--kf-fs-body-sm);
 }
 .prop-label {
@@ -1346,16 +1346,16 @@ onUnmounted(() => {
   border: 1px dashed var(--kf-border);
   background: var(--kf-background);
   color: var(--kf-muted-foreground);
-  transition: border-color 0.15s ease, color 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .icon-preview.active {
   border-style: solid;
   border-color: var(--kf-primary);
   color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
 }
 .icon-pick-btn {
-  height: 28px;
+  height: var(--kf-btn-height-sm);
   padding: 0 12px;
   font-size: var(--kf-fs-caption);
   font-weight: 500;
@@ -1364,7 +1364,7 @@ onUnmounted(() => {
   background: var(--kf-card);
   color: var(--kf-foreground);
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .icon-pick-btn:hover {
   background: var(--kf-muted);
@@ -1382,22 +1382,22 @@ onUnmounted(() => {
   outline-offset: 2px;
 }
 .icon-clear-btn {
-  height: 28px;
-  padding: 0 10px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   font-size: var(--kf-fs-caption);
   border-radius: var(--kf-radius-sm);
   border: none;
   background: transparent;
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard), background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .icon-clear-btn:hover {
   color: var(--kf-destructive);
 }
 .icon-clear-btn:active {
   color: var(--kf-destructive);
-  background: rgba(239, 68, 68, 0.08);
+  background: var(--kf-danger-soft);
 }
 .icon-clear-btn:focus-visible {
   outline: 2px solid var(--kf-ring);
@@ -1419,7 +1419,7 @@ onUnmounted(() => {
 .icon-grid-picker {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: 6px;
+  gap: 8px;
 }
 .icon-grid-item {
   display: flex;
@@ -1431,12 +1431,12 @@ onUnmounted(() => {
   background: var(--kf-card);
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .icon-grid-item:hover {
   border-color: var(--kf-primary);
   color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
 }
 .icon-grid-item:active {
   border-color: var(--kf-primary);
@@ -1451,7 +1451,7 @@ onUnmounted(() => {
 .icon-grid-item.selected {
   border-color: var(--kf-primary);
   color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
 }
 
 /* 标签管理 */
@@ -1463,11 +1463,11 @@ onUnmounted(() => {
   align-items: center;
   gap: 4px;
   height: 24px;
-  padding: 0 10px;
+  padding: 0 12px;
   border-radius: var(--kf-radius-sm);
   font-size: var(--kf-fs-caption);
   font-weight: 500;
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
   max-width: 100%;
   min-width: 0;
@@ -1481,7 +1481,7 @@ onUnmounted(() => {
   color: inherit;
   cursor: pointer;
   opacity: 0.7;
-  transition: opacity 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .tag-remove:hover {
   opacity: 1;
@@ -1507,7 +1507,7 @@ onUnmounted(() => {
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .tag-add-input {
   width: 100%;
@@ -1538,7 +1538,7 @@ onUnmounted(() => {
   cursor: pointer;
   color: var(--kf-foreground);
   border-radius: var(--kf-radius-sm);
-  transition: color 0.15s ease, opacity 0.15s ease;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard), opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 .collapse-header:hover,
 .collapse-header:hover .collapse-icon {
@@ -1554,7 +1554,7 @@ onUnmounted(() => {
 }
 .collapse-icon {
   color: var(--kf-muted-foreground);
-  transition: transform 0.2s ease;
+  transition: transform var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .collapse-icon.collapsed {
   transform: rotate(-90deg);
@@ -1570,7 +1570,7 @@ onUnmounted(() => {
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .collapse-textarea {
   width: 100%;
@@ -1595,7 +1595,7 @@ onUnmounted(() => {
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .collapse-input {
   width: 100%;
@@ -1616,7 +1616,7 @@ onUnmounted(() => {
 
 /* AI 辅助 */
 .ai-icon-wrap {
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
 }
 .ai-action-btn {
@@ -1624,7 +1624,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   width: 100%;
-  height: 36px;
+  height: var(--kf-btn-height-md);
   padding: 0 12px;
   border-radius: var(--kf-radius-sm);
   font-size: var(--kf-fs-body-sm);
@@ -1633,14 +1633,14 @@ onUnmounted(() => {
   color: var(--kf-foreground);
   border: 1px solid var(--kf-border);
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .ai-action-btn:hover:not(:disabled) {
   background: var(--kf-muted);
   border-color: var(--kf-primary);
 }
 .ai-action-btn:active:not(:disabled) {
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
   border-color: var(--kf-primary);
   transform: scale(0.98);
 }
@@ -1676,7 +1676,7 @@ onUnmounted(() => {
 .version-line {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: var(--kf-foreground);
   font-weight: 500;
   font-size: var(--kf-fs-body-sm);
@@ -1685,10 +1685,10 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   height: 16px;
-  padding: 0 6px;
+  padding: 0 8px;
   border-radius: 4px;
-  font-size: 10px;
-  background: rgba(16, 185, 129, 0.08);
+  font-size: var(--kf-fs-xs);
+  background: var(--kf-success-soft);
   color: var(--kf-state-success);
 }
 .version-meta {
@@ -1708,7 +1708,7 @@ onUnmounted(() => {
   border: none;
   border-radius: var(--kf-radius-sm);
   cursor: pointer;
-  transition: opacity 0.15s ease, text-decoration-color 0.15s ease;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard), text-decoration-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .view-all-versions:hover {
   opacity: 0.8;
@@ -1740,7 +1740,7 @@ onUnmounted(() => {
     padding: 16px;
   }
   .upload-status-bar {
-    padding: 6px 16px;
+    padding: 8px 16px;
   }
   .icon-grid-picker {
     grid-template-columns: repeat(6, 1fr);
@@ -1749,7 +1749,7 @@ onUnmounted(() => {
 
 /* prose 预览样式 */
 .prose {
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   line-height: 1.75;
   /* 覆盖全局 .prose * { white-space: pre-wrap }：
      渲染后的 HTML 块级元素之间的源码换行不应被渲染为额外空白行 */
@@ -1758,15 +1758,15 @@ onUnmounted(() => {
   tab-size: 4;
 }
 .prose :deep(h1) {
-  font-size: 26px;
+  font-size: var(--kf-fs-h2);
   font-weight: 700;
   line-height: 1.35;
-  margin: 8px 0 14px;
+  margin: 8px 0 12px;
   color: var(--kf-foreground);
   white-space: normal;
 }
 .prose :deep(h2) {
-  font-size: 22px;
+  font-size: var(--kf-fs-h3);
   font-weight: 600;
   line-height: 1.35;
   margin: 24px 0 12px;
@@ -1779,7 +1779,7 @@ onUnmounted(() => {
   font-size: 18px;
   font-weight: 600;
   line-height: 1.4;
-  margin: 18px 0 8px;
+  margin: 16px 0 8px;
   color: var(--kf-foreground);
   white-space: normal;
 }
@@ -1787,12 +1787,12 @@ onUnmounted(() => {
   font-size: 16px;
   font-weight: 600;
   line-height: 1.45;
-  margin: 14px 0 6px;
+  margin: 12px 0 8px;
   color: var(--kf-foreground);
   white-space: normal;
 }
 .prose :deep(p) {
-  margin: 10px 0;
+  margin: 12px 0;
   line-height: 1.75;
   color: var(--kf-foreground);
   white-space: normal;
@@ -1811,13 +1811,13 @@ onUnmounted(() => {
   list-style: decimal;
 }
 .prose :deep(li) {
-  margin: 3px 0;
+  margin: 4px 0;
   line-height: 1.65;
   white-space: normal;
 }
 .prose :deep(blockquote) {
   margin: 12px 0;
-  padding: 10px 16px;
+  padding: 12px 16px;
   border-left: 4px solid var(--kf-primary);
   background: var(--kf-muted);
   color: var(--kf-muted-foreground);
@@ -1830,7 +1830,7 @@ onUnmounted(() => {
   white-space: normal;
 }
 .prose :deep(code) {
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 4px;
   font-size: 0.875em;
   background: var(--kf-muted);
@@ -1848,7 +1848,7 @@ onUnmounted(() => {
 }
 .prose :deep(th),
 .prose :deep(td) {
-  padding: 8px 14px;
+  padding: 8px 12px;
   border: 1px solid var(--kf-border);
   text-align: left;
   white-space: normal;
@@ -1869,7 +1869,7 @@ onUnmounted(() => {
 .prose :deep(a) {
   color: var(--kf-primary);
   text-decoration: underline;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 .prose :deep(a):hover {
   opacity: 0.8;
@@ -1896,7 +1896,7 @@ onUnmounted(() => {
   margin-bottom: 8px;
 }
 .preset-cat-btn {
-  padding: 3px 8px;
+  padding: 4px 8px;
   font-size: var(--kf-fs-xs);
   font-weight: 500;
   color: var(--kf-muted-foreground);
@@ -1904,7 +1904,7 @@ onUnmounted(() => {
   border: 1px solid var(--kf-border);
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .preset-cat-btn:hover {
   color: var(--kf-primary);
@@ -1930,7 +1930,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   margin-top: 8px;
   padding-top: 8px;
   border-top: 1px dashed var(--kf-border);
@@ -1946,7 +1946,7 @@ onUnmounted(() => {
   border: 2px solid var(--kf-card);
   box-shadow: 0 0 0 1px var(--kf-border);
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 .doc-color-swatch:hover {
   transform: scale(1.15);
@@ -1967,7 +1967,7 @@ onUnmounted(() => {
   display: inline-flex;
   border-radius: 4px;
   cursor: pointer;
-  transition: box-shadow 0.15s ease;
+  transition: box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 .doc-color-custom:hover {
   box-shadow: 0 0 0 1px var(--kf-primary);
@@ -1999,7 +1999,7 @@ onUnmounted(() => {
   border-radius: var(--kf-radius-sm);
   cursor: pointer;
   padding: 0 4px;
-  transition: color 0.15s ease, opacity 0.15s ease;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard), opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 .doc-color-clear:hover {
   color: var(--kf-destructive);

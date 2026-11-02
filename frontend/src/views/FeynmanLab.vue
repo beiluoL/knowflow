@@ -71,7 +71,7 @@
           </div>
         </div>
         <div v-if="missedItems.length > 0" class="fn-missed">
-          <p class="fn-missed-title"><Icon name="lightbulb" :size="13" /> 下次可补强（本轮未勾选）：</p>
+          <p class="fn-missed-title"><Icon name="lightbulb" :size="14" /> 下次可补强（本轮未勾选）：</p>
           <ul class="fn-missed-list">
             <li v-for="m in missedItems" :key="m.id">「{{ m.dim }}」{{ m.text }}</li>
           </ul>
@@ -113,7 +113,7 @@
             placeholder="把刚学的知识点讲给一个完全不懂的人听：先一句话概括，再展开机制，配类比 / 例子，最后自问自答验证。"
           ></textarea>
           <p class="fn-tip">
-            <Icon name="lightbulb" :size="13" />
+            <Icon name="lightbulb" :size="14" />
             写作顺序参考：是什么 → 为什么这样 → 怎么做 / 边界 → 用一个问题验证自己真懂。
           </p>
         </section>
@@ -161,7 +161,7 @@
             :disabled="submitting || !topic.trim() || !explanation.trim()"
             @click="submit"
           >
-            <Icon name="check-circle" :size="15" />
+            <Icon name="check-circle" :size="16" />
             <span>{{ submitting ? '提交评分中…' : '提交自检评分' }}</span>
           </button>
         </div>
@@ -375,7 +375,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px;
+  padding: 12px 12px;
   margin-bottom: 16px;
   border: 1px solid var(--kf-primary-subtle);
   border-radius: var(--kf-radius-md);
@@ -395,7 +395,7 @@ onMounted(() => {
   color: var(--kf-muted-foreground);
   font-size: var(--kf-fs-caption);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .fn-ctx-clear:hover {
   border-color: var(--kf-primary);
@@ -406,7 +406,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 56px 16px;
   color: var(--kf-muted-foreground);
   font-size: var(--kf-fs-body-sm);
@@ -417,7 +417,7 @@ onMounted(() => {
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-lg);
-  padding: 18px;
+  padding: 16px;
   margin-bottom: 16px;
   box-shadow: var(--kf-shadow-sm);
 }
@@ -446,7 +446,7 @@ onMounted(() => {
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
   border-radius: var(--kf-radius-md);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .fn-input,
@@ -459,7 +459,7 @@ onMounted(() => {
 }
 
 .fn-input {
-  padding: 10px 14px;
+  padding: 12px 12px;
 }
 
 .fn-textarea:not(.kf-form-control) {
@@ -467,7 +467,7 @@ onMounted(() => {
 }
 
 .fn-textarea {
-  padding: 12px 14px;
+  padding: 12px 12px;
   resize: vertical;
   font-family: inherit;
   min-height: 160px;
@@ -483,7 +483,7 @@ onMounted(() => {
 .fn-tip {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: 8px;
   margin-top: 10px;
   font-size: var(--kf-fs-caption);
   color: var(--kf-muted-foreground);
@@ -493,14 +493,14 @@ onMounted(() => {
 .fn-dims {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 14px;
+  gap: 12px;
   margin-top: 4px;
 }
 
 .fn-dim-card {
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-md);
-  padding: 14px;
+  padding: 12px;
   background: var(--kf-bg);
 }
 
@@ -526,20 +526,20 @@ onMounted(() => {
 .fn-criteria {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .fn-criterion {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  padding: 8px 10px;
+  padding: 8px 12px;
   border: 1px solid transparent;
   border-radius: var(--kf-radius-sm);
   text-align: left;
   background: transparent;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .fn-criterion:hover {
@@ -568,7 +568,7 @@ onMounted(() => {
   border-radius: var(--kf-radius-xs);
   border: 1px solid var(--kf-border);
   color: transparent;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 
 .fn-criterion-on .fn-check {
@@ -599,8 +599,8 @@ onMounted(() => {
 .fn-btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 9px 18px;
+  gap: 8px;
+  padding: 8px 16px;
   border: none;
   border-radius: var(--kf-radius-md);
   background: var(--kf-primary);
@@ -608,7 +608,7 @@ onMounted(() => {
   font-size: var(--kf-fs-body-md);
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .fn-btn-primary:hover:not(:disabled) {
@@ -623,15 +623,15 @@ onMounted(() => {
 .fn-btn-ghost {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
+  gap: 8px;
+  padding: 8px 12px;
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-sm);
   background: var(--kf-card);
   color: var(--kf-foreground);
   font-size: var(--kf-fs-body-sm);
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .fn-btn-ghost:hover {
@@ -644,7 +644,7 @@ onMounted(() => {
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-lg);
-  padding: 22px;
+  padding: 20px;
   box-shadow: var(--kf-shadow-sm);
 }
 
@@ -700,7 +700,7 @@ onMounted(() => {
   margin-top: 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .fn-dim-bar-row {
@@ -731,7 +731,7 @@ onMounted(() => {
 .fn-dim-bar-fill {
   height: 100%;
   border-radius: 999px;
-  transition: width 0.3s ease;
+  transition: width var(--kf-motion-slower) var(--kf-ease-standard);
 }
 
 .fn-dim-bar-fill.fn-score-good {
@@ -748,7 +748,7 @@ onMounted(() => {
 
 .fn-missed {
   margin-top: 16px;
-  padding: 12px 14px;
+  padding: 12px 12px;
   border: 1px dashed var(--kf-border);
   border-radius: var(--kf-radius-sm);
   background: var(--kf-bg);
@@ -757,7 +757,7 @@ onMounted(() => {
 .fn-missed-title {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: var(--kf-fs-caption);
   font-weight: 600;
   color: var(--kf-muted-foreground);
@@ -769,7 +769,7 @@ onMounted(() => {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .fn-missed-list li {
@@ -809,11 +809,11 @@ onMounted(() => {
   }
 }
 
-.fn-draft { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; margin-bottom: 14px; border: 1px solid color-mix(in srgb, var(--kf-primary) 35%, transparent); background: color-mix(in srgb, var(--kf-primary) 6%, transparent); border-radius: var(--kf-radius-md); }
-.fn-draft-head { display: flex; align-items: center; gap: 6px; font-size: var(--kf-fs-13); font-weight: 600; color: var(--kf-primary); }
+.fn-draft { display: flex; flex-direction: column; gap: 8px; padding: 12px 12px; margin-bottom: 14px; border: 1px solid color-mix(in srgb, var(--kf-primary) 35%, transparent); background: color-mix(in srgb, var(--kf-primary) 6%, transparent); border-radius: var(--kf-radius-md); }
+.fn-draft-head { display: flex; align-items: center; gap: 8px; font-size: var(--kf-fs-13); font-weight: 600; color: var(--kf-primary); }
 .fn-draft-q { font-size: var(--kf-fs-14); line-height: 1.7; color: var(--kf-foreground); white-space: pre-wrap; }
-.fn-draft-hints { display: flex; flex-wrap: wrap; gap: 6px; }
-.fn-draft-hint { font-size: var(--kf-fs-12); color: var(--kf-foreground); background: var(--kf-card); border: 1px solid var(--kf-border); padding: 3px 10px; border-radius: var(--kf-radius-sm); }
+.fn-draft-hints { display: flex; flex-wrap: wrap; gap: 8px; }
+.fn-draft-hint { font-size: var(--kf-fs-12); color: var(--kf-foreground); background: var(--kf-card); border: 1px solid var(--kf-border); padding: 4px 12px; border-radius: var(--kf-radius-sm); }
 .fn-draft .fn-ctx-clear { align-self: flex-start; }
 
 .fn-page.phase-d-lab { max-width:var(--kf-notes-reading-width);margin-inline:auto; }

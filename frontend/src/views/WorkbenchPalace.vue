@@ -24,7 +24,7 @@
         <h3 class="wb-empty-title">还没有记忆宫殿</h3>
         <p class="wb-empty-desc">创建一个你熟悉的空间场景，开始挂靠知识点。</p>
         <button class="kf-btn kf-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = true">
-          <Icon name="plus" :size="15" aria-hidden="true" /> 创建第一个
+          <Icon name="plus" :size="16" aria-hidden="true" /> 创建第一个
         </button>
       </div>
 
@@ -59,7 +59,7 @@
           <div class="wb-palace-foot">
             <span class="wb-palace-cta">
               进入编辑
-              <Icon name="arrow-right" :size="13" aria-hidden="true" />
+              <Icon name="arrow-right" :size="14" aria-hidden="true" />
             </span>
             <button class="wb-icon-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" title="删除" @click.stop="remove(p)">
               <Icon name="trash-2" :size="14" aria-hidden="true" />
@@ -116,7 +116,7 @@
         <footer class="wb-drawer-foot">
           <button class="kf-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="showCreate = false">取消</button>
           <button class="kf-btn kf-btn-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" data-test="palace-save" :disabled="saving" @click="save">
-            <Icon name="check" :size="15" aria-hidden="true" /> 保存
+            <Icon name="check" :size="16" aria-hidden="true" /> 保存
           </button>
         </footer>
       </div>
@@ -226,7 +226,7 @@ onBeforeUnmount(() => { request++ })
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color var(--kf-motion-slow) var(--kf-ease-standard), border-color var(--kf-motion-slow) var(--kf-ease-standard), color var(--kf-motion-slow) var(--kf-ease-standard), box-shadow var(--kf-motion-slow) var(--kf-ease-standard), opacity var(--kf-motion-slow) var(--kf-ease-standard), transform var(--kf-motion-slow) var(--kf-ease-standard), width var(--kf-motion-slow) var(--kf-ease-standard), height var(--kf-motion-slow) var(--kf-ease-standard), stroke-dashoffset var(--kf-motion-slow) var(--kf-ease-standard);
   overflow: hidden;
 }
 .wb-palace-card:hover {
@@ -255,7 +255,7 @@ onBeforeUnmount(() => { request++ })
   border-radius: 50%;
   background: rgba(255,255,255,0.18);
   backdrop-filter: blur(6px);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   border: 1px solid rgba(255,255,255,0.25);
 }
 .wb-palace-cover-grid {
@@ -277,13 +277,13 @@ onBeforeUnmount(() => { request++ })
   position: absolute;
   top: 10px; right: 10px;
   z-index: 1;
-  padding: 3px 9px;
+  padding: 4px 8px;
   border-radius: 999px;
   background: rgba(0,0,0,0.35);
   backdrop-filter: blur(4px);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   font-weight: 600;
   letter-spacing: 0.04em;
 }
@@ -294,7 +294,7 @@ onBeforeUnmount(() => { request++ })
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .wb-palace-title {
   font-family: var(--font-serif);
@@ -319,7 +319,7 @@ onBeforeUnmount(() => { request++ })
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
+  padding: 12px 16px;
   border-top: 1px solid var(--kf-border);
   background: var(--kf-background);
 }
@@ -331,23 +331,23 @@ onBeforeUnmount(() => { request++ })
   font-weight: 600;
   color: var(--pc);
 }
-.wb-palace-cta :deep(svg) { transition: transform 0.18s ease; }
+.wb-palace-cta :deep(svg) { transition: transform var(--kf-motion-slow) var(--kf-ease-standard); }
 .wb-palace-card:hover .wb-palace-cta :deep(svg) { transform: translateX(3px); }
 
 /* Color picker */
 .wb-color-picker {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
-  padding: 6px 0;
+  padding: 8px 0;
 }
 .wb-color-dot {
   width: 24px; height: 24px;
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .wb-color-dot:hover { transform: scale(1.1); }
 .wb-color-dot.is-active {

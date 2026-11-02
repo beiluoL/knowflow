@@ -1978,7 +1978,7 @@ function buildPreviewDoc(lang: string, code: string): string {
     const html = renderMarkdown(code)
     return `<!DOCTYPE html><html><head><meta charset="utf-8">
 <style>body{font-family:sans-serif;max-width:760px;margin:0 auto;padding:20px;color:#333;line-height:1.7}
-pre{background:#f5f5f5;padding:12px;border-radius:6px;overflow:auto}code{background:#f5f5f5;padding:2px 6px;border-radius:3px}
+pre{background:#f5f5f5;padding:12px;border-radius:6px;overflow:auto}code{background:#f5f5f5;padding:2px 8px;border-radius:3px}
 table{border-collapse:collapse}th,td{border:1px solid #ddd;padding:6px 12px}blockquote{border-left:4px solid var(--kf-primary);margin:0;padding-left:16px;color:#666}</style>
 </head><body>${html}</body></html>`
   }
@@ -3914,7 +3914,7 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 6px 10px;
+  padding: 8px 12px;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -3951,13 +3951,13 @@ watch(activeTab, (tab) => {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 0 10px 10px;
+  padding: 0 12px 12px;
 }
 
 .tool-card-block {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .tool-card-label {
@@ -3967,7 +3967,7 @@ watch(activeTab, (tab) => {
 
 .tool-card-code {
   margin: 0;
-  padding: 8px 10px;
+  padding: 8px 12px;
   max-height: 220px;
   overflow: auto;
   border-radius: var(--kf-radius-sm);
@@ -4019,7 +4019,7 @@ watch(activeTab, (tab) => {
 }
 
 .tools-col {
-  padding: 14px;
+  padding: 12px;
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-md);
   background: var(--kf-card);
@@ -4060,7 +4060,7 @@ watch(activeTab, (tab) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 16px;
+  padding: 8px 16px;
   background: var(--kf-card);
   border-bottom: 1px solid var(--kf-border);
   flex-shrink: 0;
@@ -4086,14 +4086,14 @@ watch(activeTab, (tab) => {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
+  padding: 8px 12px;
   border: none;
   background: transparent;
   color: var(--kf-muted-foreground);
   font-size: 13px;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
   position: relative;
 }
 .tab-btn:hover {
@@ -4113,8 +4113,8 @@ watch(activeTab, (tab) => {
   padding: 0 4px;
   border-radius: 8px;
   background: var(--kf-highlight, var(--kf-highlight));
-  color: #fff;
-  font-size: 10px;
+  color: var(--kf-accent-foreground);
+  font-size: var(--kf-fs-xs);
   font-weight: 600;
 }
 .tab-btn.active .tab-badge {
@@ -4177,7 +4177,7 @@ watch(activeTab, (tab) => {
   font-size: 11px;
   font-weight: 500;
   color: var(--kf-primary);
-  background: var(--kf-highlight-soft, rgba(59, 111, 224, 0.1));
+  background: var(--kf-highlight-soft, var(--kf-primary-soft));
   border: 1px solid var(--kf-highlight-border, rgba(59, 111, 224, 0.25));
   padding: 1px 8px;
   border-radius: 999px;
@@ -4192,14 +4192,14 @@ watch(activeTab, (tab) => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 5px 10px;
+  padding: 4px 12px;
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
   color: var(--kf-muted-foreground);
   font-size: 12px;
   border-radius: var(--kf-radius-sm);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .header-btn:hover:not(:disabled) {
   color: var(--kf-destructive);
@@ -4239,7 +4239,7 @@ watch(activeTab, (tab) => {
   color: var(--kf-warning);
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: 8px;
 }
 .empty-tip {
   flex: 1;
@@ -4307,19 +4307,19 @@ watch(activeTab, (tab) => {
 .sidebar-session-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 8px;
+  gap: 8px;
+  padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
   color: var(--kf-foreground);
-  transition: background 0.1s;
+  transition: background var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .sidebar-session-item:hover {
   background: var(--kf-accent);
 }
 .sidebar-session-item.active {
-  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.1));
+  background: var(--kf-primary-soft, var(--kf-primary-soft));
   color: var(--kf-primary);
 }
 .session-title {
@@ -4391,7 +4391,7 @@ watch(activeTab, (tab) => {
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-md);
-  padding: 10px 14px;
+  padding: 12px 12px;
   box-shadow: var(--kf-shadow-sm);
   min-width: 0;
   width: fit-content;
@@ -4445,8 +4445,8 @@ watch(activeTab, (tab) => {
 .gen-files-head {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 10px;
+  gap: 8px;
+  padding: 8px 12px;
   font-size: var(--kf-fs-caption);
   font-weight: 600;
   color: var(--kf-foreground);
@@ -4456,9 +4456,9 @@ watch(activeTab, (tab) => {
 .gen-saved-tag {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   margin-left: auto;
-  padding: 1px 6px;
+  padding: 1px 8px;
   border-radius: 10px;
   font-size: var(--kf-fs-xs);
   font-weight: 500;
@@ -4473,9 +4473,9 @@ watch(activeTab, (tab) => {
 .gen-file-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
-  padding: 5px 8px;
+  padding: 4px 8px;
   border: none;
   background: transparent;
   border-radius: 5px;
@@ -4483,7 +4483,7 @@ watch(activeTab, (tab) => {
   font-size: var(--kf-fs-caption);
   color: var(--kf-foreground);
   text-align: left;
-  transition: background 0.1s;
+  transition: background var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .gen-file-btn:hover {
   background: var(--kf-muted);
@@ -4504,7 +4504,7 @@ watch(activeTab, (tab) => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px;
+  padding: 8px 12px;
   border-top: 1px solid var(--kf-border);
   flex-wrap: wrap;
 }
@@ -4532,7 +4532,7 @@ watch(activeTab, (tab) => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 8px;
+  padding: 4px 8px;
   background: var(--kf-card);
   border-bottom: 1px solid var(--kf-border);
 }
@@ -4542,7 +4542,7 @@ watch(activeTab, (tab) => {
 }
 .diff-stats {
   display: inline-flex;
-  gap: 6px;
+  gap: 8px;
   font-family: 'JetBrains Mono', monospace;
   font-size: var(--kf-fs-xs);
   flex-shrink: 0;
@@ -4556,10 +4556,10 @@ watch(activeTab, (tab) => {
 .diff-state {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   font-size: var(--kf-fs-xs);
   font-weight: 600;
-  padding: 1px 6px;
+  padding: 1px 8px;
   border-radius: 10px;
   flex-shrink: 0;
 }
@@ -4585,7 +4585,7 @@ watch(activeTab, (tab) => {
 .diff-col-head {
   position: sticky;
   top: 0;
-  padding: 3px 8px;
+  padding: 4px 8px;
   font-size: var(--kf-fs-xs);
   color: var(--kf-muted-foreground);
   background: var(--kf-card);
@@ -4632,7 +4632,7 @@ watch(activeTab, (tab) => {
 .diff-actions {
   display: flex;
   gap: 8px;
-  padding: 6px 8px;
+  padding: 8px 8px;
   border-top: 1px solid var(--kf-border);
   background: var(--kf-card);
 }
@@ -4703,7 +4703,7 @@ watch(activeTab, (tab) => {
 .reasoning-head {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 8px 12px;
   font-size: var(--kf-fs-caption);
   font-weight: 600;
@@ -4714,7 +4714,7 @@ watch(activeTab, (tab) => {
 .reasoning-steps {
   list-style: none;
   margin: 0;
-  padding: 6px 12px;
+  padding: 8px 12px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -4723,7 +4723,7 @@ watch(activeTab, (tab) => {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  padding: 5px 0;
+  padding: 4px 0;
   font-size: var(--kf-fs-caption);
   color: var(--kf-muted-foreground);
 }
@@ -4840,7 +4840,7 @@ watch(activeTab, (tab) => {
 .settings-delay {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin: 12px 0 4px;
   font-size: var(--kf-fs-caption);
   color: var(--kf-foreground);
@@ -4881,7 +4881,7 @@ watch(activeTab, (tab) => {
 .settings-title {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-weight: 600;
   color: var(--kf-foreground);
   font-size: var(--kf-fs-body);
@@ -4918,7 +4918,7 @@ watch(activeTab, (tab) => {
 .settings-dir-row {
   display: flex;
   align-items: center;
-  padding: 8px 10px;
+  padding: 8px 12px;
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-sm);
   background: var(--kf-background);
@@ -4927,7 +4927,7 @@ watch(activeTab, (tab) => {
 .settings-dir-name {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: var(--kf-fs-caption);
   color: var(--kf-foreground);
   word-break: break-all;
@@ -4937,7 +4937,7 @@ watch(activeTab, (tab) => {
   gap: 8px;
 }
 .settings-tip {
-  margin: 10px 0 0;
+  margin: 12px 0 0;
   font-size: var(--kf-fs-xs);
   color: var(--kf-muted-foreground);
 }
@@ -4953,7 +4953,7 @@ watch(activeTab, (tab) => {
 /* 抽屉过渡 */
 .drawer-enter-active,
 .drawer-leave-active {
-  transition: transform 0.22s ease, opacity 0.22s ease;
+  transition: transform var(--kf-motion-slow) var(--kf-ease-standard), opacity var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .drawer-enter-from,
 .drawer-leave-to {
@@ -4986,7 +4986,7 @@ watch(activeTab, (tab) => {
 .toolbar-group {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 .toolbar-group-right {
@@ -4999,7 +4999,7 @@ watch(activeTab, (tab) => {
   cursor: pointer;
   user-select: none;
   color: var(--kf-muted-foreground);
-  transition: color 0.15s;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .ctx-toggle:hover {
   color: var(--kf-foreground);
@@ -5013,14 +5013,14 @@ watch(activeTab, (tab) => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
   color: var(--kf-muted-foreground);
   border-radius: var(--kf-radius-sm);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .toolbar-icon-btn:hover {
   color: var(--kf-foreground);
@@ -5029,25 +5029,25 @@ watch(activeTab, (tab) => {
 .toolbar-icon-btn.active {
   color: var(--kf-primary);
   border-color: var(--kf-primary);
-  background: var(--kf-highlight-soft, rgba(59, 111, 224, 0.1));
+  background: var(--kf-highlight-soft, var(--kf-primary-soft));
 }
 /* 高频配置前置：未设置默认目录时的快捷设置按钮 */
 .quick-dir-btn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border: 1px dashed var(--kf-primary);
   border-radius: var(--kf-radius-sm);
-  background: var(--kf-highlight-soft, rgba(59, 111, 224, 0.08));
+  background: var(--kf-highlight-soft, var(--kf-primary-soft));
   color: var(--kf-primary);
   font-size: var(--kf-fs-caption);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .quick-dir-btn:hover:not(:disabled) {
   background: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 .quick-dir-btn:disabled {
   opacity: 0.5;
@@ -5067,9 +5067,9 @@ watch(activeTab, (tab) => {
   background: transparent;
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   line-height: 1;
-  padding: 1px 3px;
+  padding: 1px 4px;
   border-radius: 4px;
 }
 .ctx-clear:hover {
@@ -5126,12 +5126,12 @@ watch(activeTab, (tab) => {
 .code-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-shrink: 0;
 }
 .unsaved-dot {
   color: var(--kf-highlight, var(--kf-highlight));
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   margin-left: 2px;
 }
 .code-editor {
@@ -5161,7 +5161,7 @@ watch(activeTab, (tab) => {
 .result-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   margin-bottom: 6px;
 }
@@ -5230,7 +5230,7 @@ watch(activeTab, (tab) => {
 .recent-strip-title {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   font-weight: 600;
   color: var(--kf-muted-foreground);
@@ -5244,16 +5244,16 @@ watch(activeTab, (tab) => {
 .recent-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   max-width: 240px;
-  padding: 6px 12px;
+  padding: 8px 12px;
   border: 1px solid var(--kf-border);
   border-radius: 999px;
   background: var(--kf-card);
   color: var(--kf-foreground);
   font-size: 13px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .recent-chip:hover {
   border-color: var(--kf-primary);
@@ -5261,7 +5261,7 @@ watch(activeTab, (tab) => {
 }
 .recent-chip.active {
   border-color: var(--kf-primary);
-  background: var(--kf-highlight-soft, rgba(59, 111, 224, 0.1));
+  background: var(--kf-highlight-soft, var(--kf-primary-soft));
   color: var(--kf-primary);
 }
 .recent-chip-name {
@@ -5297,7 +5297,7 @@ watch(activeTab, (tab) => {
   border-radius: 10px;
   padding: 16px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .session-card:hover {
   border-color: var(--kf-primary);
@@ -5315,7 +5315,7 @@ watch(activeTab, (tab) => {
 }
 .session-card-title {
   flex: 1;
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   font-weight: 600;
   color: var(--kf-foreground);
   overflow: hidden;
@@ -5333,7 +5333,7 @@ watch(activeTab, (tab) => {
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
 }
 .session-card-preview {
   font-size: 13px;
@@ -5462,13 +5462,13 @@ watch(activeTab, (tab) => {
   background: var(--kf-success);
   border-radius: 2px 2px 0 0;
   min-height: 2px;
-  transition: height 0.3s;
+  transition: height var(--kf-motion-slower) var(--kf-ease-standard);
 }
 .bar-fill.has-error {
   background: var(--kf-destructive);
 }
 .bar-label {
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   color: var(--kf-muted-foreground);
   margin-top: 4px;
   white-space: nowrap;
@@ -5508,7 +5508,7 @@ watch(activeTab, (tab) => {
   border-radius: 10px;
   padding: 16px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .model-card:hover {
   border-color: var(--kf-primary);
@@ -5527,7 +5527,7 @@ watch(activeTab, (tab) => {
   width: 40px;
   height: 40px;
   border-radius: 8px;
-  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.1));
+  background: var(--kf-primary-soft, var(--kf-primary-soft));
   color: var(--kf-primary);
   display: flex;
   align-items: center;
@@ -5539,7 +5539,7 @@ watch(activeTab, (tab) => {
   min-width: 0;
 }
 .model-name {
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   font-weight: 600;
   color: var(--kf-foreground);
 }
@@ -5558,7 +5558,7 @@ watch(activeTab, (tab) => {
 .model-card-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   font-size: 12px;
   color: var(--kf-muted-foreground);
   margin-bottom: 10px;
@@ -5586,20 +5586,20 @@ watch(activeTab, (tab) => {
   background: var(--kf-card);
 }
 .seg-btn {
-  padding: 6px 14px;
+  padding: 8px 12px;
   font-size: 13px;
   border: none;
   background: transparent;
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .seg-btn:hover {
   color: var(--kf-foreground);
 }
 .seg-btn.active {
   background: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 
 /* 已选摘要条 */
@@ -5607,9 +5607,9 @@ watch(activeTab, (tab) => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   margin-bottom: 16px;
-  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.08));
+  background: var(--kf-primary-soft, var(--kf-primary-soft));
   border: 1px solid var(--kf-primary);
   border-radius: 8px;
   font-size: 13px;
@@ -5638,7 +5638,7 @@ watch(activeTab, (tab) => {
 .model-card-params {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 8px 12px;
   margin-top: 8px;
   background: var(--kf-primary-soft, rgba(59, 111, 224, 0.05));
@@ -5647,7 +5647,7 @@ watch(activeTab, (tab) => {
   font-family: 'JetBrains Mono', monospace;
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .model-card-params:hover {
   background: rgba(59, 111, 224, 0.12);
@@ -5675,8 +5675,8 @@ watch(activeTab, (tab) => {
   width: 90%;
 }
 .params-model-info {
-  padding: 14px 16px;
-  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.06));
+  padding: 12px 16px;
+  background: var(--kf-primary-soft, var(--kf-primary-soft));
   border-radius: 8px;
   margin-bottom: 20px;
 }
@@ -5695,7 +5695,7 @@ watch(activeTab, (tab) => {
 .params-form {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 20px;
 }
 .param-row {
   display: flex;
@@ -5761,9 +5761,9 @@ watch(activeTab, (tab) => {
 .params-default-hint {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin-top: 18px;
-  padding: 10px 12px;
+  padding: 12px 12px;
   background: rgba(107, 114, 128, 0.08);
   border-radius: 6px;
   font-size: 12px;
@@ -5775,40 +5775,40 @@ watch(activeTab, (tab) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 20px;
+  padding: 12px 20px;
   border-top: 1px solid var(--kf-border);
 }
 .modal-footer .footer-right {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
 }
 .btn-reset {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
+  gap: 8px;
+  padding: 8px 12px;
   border: 1px solid var(--kf-border);
   border-radius: 6px;
   background: var(--kf-card);
   color: var(--kf-muted-foreground);
   font-size: 13px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .btn-reset:hover {
   color: var(--kf-foreground);
   border-color: var(--kf-foreground);
 }
 .btn-cancel {
-  padding: 7px 14px;
+  padding: 8px 12px;
   border: 1px solid var(--kf-border);
   border-radius: 6px;
   background: var(--kf-card);
   color: var(--kf-foreground);
   font-size: 13px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .btn-cancel:hover {
   background: var(--kf-border);
@@ -5824,11 +5824,11 @@ watch(activeTab, (tab) => {
   font-size: 14px;
 }
 .health-result.ok {
-  background: rgba(16, 185, 129, 0.1);
+  background: var(--kf-success-soft);
   color: var(--kf-success);
 }
 .health-result.fail {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--kf-danger-soft);
   color: var(--kf-destructive);
 }
 
@@ -5836,15 +5836,15 @@ watch(activeTab, (tab) => {
 .link-btn {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 2px 6px;
+  gap: 4px;
+  padding: 2px 8px;
   border: none;
   background: transparent;
   color: var(--kf-primary);
   font-size: 12px;
   cursor: pointer;
   border-radius: 4px;
-  transition: background 0.1s;
+  transition: background var(--kf-motion-fast) var(--kf-ease-standard);
 }
 .link-btn:hover {
   background: var(--kf-accent);
@@ -5913,7 +5913,7 @@ watch(activeTab, (tab) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
+  padding: 12px 12px;
   border-bottom: 1px solid var(--kf-border);
 }
 .config-item:last-child {
@@ -6069,7 +6069,7 @@ watch(activeTab, (tab) => {
 .ollama-config-form .param-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .ollama-config-form .param-field > label {
   font-size: 13px;
@@ -6083,7 +6083,7 @@ watch(activeTab, (tab) => {
   align-items: center;
   gap: 8px;
   margin-top: 16px;
-  padding: 10px 14px;
+  padding: 12px 12px;
   border-radius: 8px;
   font-size: 13px;
 }
@@ -6093,7 +6093,7 @@ watch(activeTab, (tab) => {
   border: 1px solid rgba(34, 197, 94, 0.3);
 }
 .ollama-test-result.fail {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--kf-danger-soft);
   color: var(--kf-destructive);
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
@@ -6112,7 +6112,7 @@ watch(activeTab, (tab) => {
 }
 .empty-hint code {
   background: var(--kf-accent);
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 4px;
   font-size: 12px;
 }
@@ -6125,8 +6125,8 @@ watch(activeTab, (tab) => {
   background: var(--kf-background);
   border: 1px solid var(--kf-border);
   border-radius: 8px;
-  padding: 14px 16px;
-  transition: border-color 0.15s;
+  padding: 12px 16px;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .ollama-model-card:hover {
   border-color: var(--kf-primary);
@@ -6141,7 +6141,7 @@ watch(activeTab, (tab) => {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: var(--kf-primary-soft, rgba(59, 111, 224, 0.1));
+  background: var(--kf-primary-soft, var(--kf-primary-soft));
   color: var(--kf-primary);
   display: flex;
   align-items: center;
@@ -6186,12 +6186,12 @@ watch(activeTab, (tab) => {
   border: 1px solid var(--kf-border);
   border-left: 3px solid var(--kf-primary);
   border-radius: 8px;
-  padding: 14px 16px;
+  padding: 12px 16px;
 }
 .ollama-tips .tips-title {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   font-weight: 600;
   color: var(--kf-foreground);
@@ -6206,7 +6206,7 @@ watch(activeTab, (tab) => {
 }
 .ollama-tips code {
   background: var(--kf-accent);
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 4px;
   font-size: 12px;
 }
@@ -6219,13 +6219,13 @@ watch(activeTab, (tab) => {
   background: var(--kf-card);
   border: 1px solid var(--kf-warning, var(--kf-warning));
   border-radius: 12px;
-  padding: 14px 16px;
+  padding: 12px 16px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 .clarify-head {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-weight: 600;
   color: var(--kf-warning, var(--kf-warning));
   margin-bottom: 10px;
@@ -6248,10 +6248,10 @@ watch(activeTab, (tab) => {
   background: var(--kf-bg, #fff);
   color: var(--kf-text, #1e293b);
   border-radius: 999px;
-  padding: 5px 14px;
+  padding: 4px 12px;
   font-size: 13px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .clarify-opt:hover {
   border-color: var(--kf-primary);
@@ -6260,7 +6260,7 @@ watch(activeTab, (tab) => {
 .clarify-opt.selected {
   border-color: var(--kf-primary);
   background: var(--kf-primary, #2563eb);
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 .clarify-input-row {
   display: flex;
@@ -6275,7 +6275,7 @@ watch(activeTab, (tab) => {
 }
 .clarify-input {
   flex: 1;
-  padding: 7px 10px;
+  padding: 8px 12px;
   font-size: 13px;
   color: var(--kf-text, #1e293b);
 }
@@ -6284,7 +6284,7 @@ watch(activeTab, (tab) => {
 .ambig-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
   margin: 8px 0 2px;
 }
@@ -6297,7 +6297,7 @@ watch(activeTab, (tab) => {
   background: color-mix(in srgb, var(--kf-warning, var(--kf-warning)) 12%, transparent);
   border: 1px solid color-mix(in srgb, var(--kf-warning, var(--kf-warning)) 40%, transparent);
   border-radius: 999px;
-  padding: 2px 10px;
+  padding: 2px 12px;
 }
 .ambig-suggest {
   font-size: 12px;
@@ -6312,7 +6312,7 @@ watch(activeTab, (tab) => {
   font-size: 12px;
   font-weight: 600;
   border-radius: 999px;
-  padding: 2px 10px;
+  padding: 2px 12px;
   margin-top: 6px;
 }
 .eval-badge.high {
@@ -6436,20 +6436,20 @@ watch(activeTab, (tab) => {
 .model-icon,
 .model-info .model-name {
   transition:
-    background 0.15s ease,
-    color 0.15s ease,
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    transform 0.1s ease;
+    background var(--kf-motion-base) var(--kf-ease-standard),
+    color var(--kf-motion-base) var(--kf-ease-standard),
+    border-color var(--kf-motion-base) var(--kf-ease-standard),
+    box-shadow var(--kf-motion-base) var(--kf-ease-standard),
+    transform var(--kf-motion-fast) var(--kf-ease-standard);
 }
 
 /* --- 5. 已有 transition 的元素：补上 transform 通道，让按压动效同样平滑 --- */
 .link-btn,
 .sidebar-session-item {
   transition:
-    background 0.1s ease,
-    color 0.1s ease,
-    transform 0.1s ease;
+    background var(--kf-motion-fast) var(--kf-ease-standard),
+    color var(--kf-motion-fast) var(--kf-ease-standard),
+    transform var(--kf-motion-fast) var(--kf-ease-standard);
 }
 
 /* --- 6. 尊重「减少动态效果」系统偏好 --- */

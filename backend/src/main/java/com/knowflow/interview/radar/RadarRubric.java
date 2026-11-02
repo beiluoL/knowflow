@@ -9,7 +9,10 @@ public final class RadarRubric {
  public static final Map<String,Integer> WEIGHTS;
  static {var weights=new LinkedHashMap<String,Integer>();weights.put("TECHNICAL_CORRECTNESS",40);weights.put("KNOWLEDGE_COVERAGE",30);weights.put("ENGINEERING_PRACTICE",20);weights.put("EXPRESSION_STRUCTURE",10);weights.put("FOLLOWUP_RESPONSE",0);WEIGHTS=Collections.unmodifiableMap(weights);}
  public record Grade(Double score,String level,boolean passed,Map<String,Double> points){}
- public static Grade grade(Map<String,?> dimensions){
+ public static Grade grade(Map<String,?> dimensions){return grade(dimensions,8.5);}
+ /** 通关阈值独立于技术分数，禁止调整阈值改变历史得分。 */
+ public static Grade grade(Map<String,?> dimensions,double passThreshold){
+  if(!Double.isFinite(passThreshold)||passThreshold<0||passThreshold>10)throw new IllegalArgumentException("通关阈值必须在0到10之间");
   var points=new LinkedHashMap<String,Double>();BigDecimal total=BigDecimal.ZERO;boolean complete=true;
   for(var entry:WEIGHTS.entrySet()){
    if(entry.getValue()==0)continue;
@@ -22,6 +25,6 @@ public final class RadarRubric {
   if(!complete)return new Grade(null,null,false,Collections.unmodifiableMap(points));
   double score=total.setScale(2,RoundingMode.HALF_UP).doubleValue();
   String level=score<2?"L0":score<4?"L1":score<6?"L2":score<8.5?"L3":score<9.5?"L4":"L5";
-  return new Grade(score,level,score>=8.5,Collections.unmodifiableMap(points));
+  return new Grade(score,level,score>=passThreshold,Collections.unmodifiableMap(points));
  }
 }

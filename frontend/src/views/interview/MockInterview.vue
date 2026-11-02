@@ -1,19 +1,23 @@
 <template>
   <MiniAppShell
-    :title="radarOpen ? 'Java + AI 面试雷达' : '模拟面试'"
-    :subtitle="radarOpen ? '本人来源 · 闭卷训练与四维10分评价' : v2Open ? '追问面试 · 先确认回答，再查看实际评价与复盘' : session ? `${session.trackName} · 基础模式（无 AI）` : 'Java + AI 岗位 · 基础模式（无需 AI 也能完整完成）'"
+    :title="radarOpen ? 'Java + AI 面试雷达' : trainerOpen ? 'AI 面试训练' : '模拟面试'"
+    :subtitle="radarOpen ? '本人来源 · 闭卷训练与四维10分评价' : trainerOpen ? '技能组合 · JD 推荐 · 知识库证据出题' : v2Open ? '追问面试 · 先确认回答，再查看实际评价与复盘' : session ? `${session.trackName} · 基础模式（无 AI）` : 'Java + AI 岗位 · 基础模式（无需 AI 也能完整完成）'"
     back-label="返回"
     @back="goBack"
   >
     <div v-if="!radarOpen && !session && view === 'home'" class="iv-mode-entry">
       <button v-if="!v2Open" type="button" class="btn-primary" @click="v2Open = true">进入追问面试</button>
       <Button v-if="!v2Open" variant="secondary" @click="router.replace({query:{...route.query,radar:'1'}})">Java + AI 面试雷达</Button>
+      <Button v-if="!v2Open && !radarOpen" variant="secondary" @click="careerOpen=true;trainerOpen=false">简历与岗位中心</Button>
+      <Button v-if="!v2Open && !radarOpen" variant="secondary" @click="careerOpen=false;trainerOpen = true">AI 面试训练 · 知识库出题</Button>
       <p v-if="!v2Open">可选择严格面试、项目专项和语音作答；下方基础模式始终无需 AI。</p>
     </div>
-    <ProductMockInterview v-if="productLearningEnabled&&!radarOpen&&!v2Open&&!session"/>
+    <InterviewCareerCenter v-if="careerOpen" @exit="careerOpen=false" @started="openCareerInterview" />
+    <InterviewTrainerHub v-if="trainerOpen" @exit="trainerOpen = false" @started="openGeneratedInterview" />
+    <ProductMockInterview v-if="!careerOpen&&!trainerOpen && productLearningEnabled&&!radarOpen&&!v2Open&&!session"/>
     <RadarLearningCenter v-if="radarOpen" @exit="closeRadar" />
     <InterviewV2Panel v-else-if="v2Open" :tracks="tracks" @exit="closeV2" />
-    <div v-else class="iv-wrap">
+    <div v-else-if="!trainerOpen&&!careerOpen" class="iv-wrap">
     <!-- ===================== 首页：方向 + 历史 ===================== -->
     <div v-if="view === 'home'">
       <div class="intro-banner">
@@ -35,7 +39,7 @@
         <p class="state-title">方向加载失败</p>
         <p class="state-text">{{ tracksError }}</p>
         <button type="button" class="btn-primary state-retry" @click="loadTracks">
-          <Icon name="refresh-cw" :size="15" /><span>重试</span>
+          <Icon name="refresh-cw" :size="16" /><span>重试</span>
         </button>
       </div>
       <template v-else>
@@ -51,7 +55,7 @@
           >
             <div class="track-head">
               <span class="track-name">{{ t.name }}</span>
-              <Icon name="briefcase" :size="15" class="track-ico" />
+              <Icon name="briefcase" :size="16" class="track-ico" />
             </div>
             <p class="track-desc">{{ t.description }}</p>
             <p class="track-meta">题池 {{ t.questionPoolSize }} 题</p>
@@ -69,7 +73,7 @@
               <Select class="setup-select-wide" id="iv-limit-sec" v-model="limitSec" :options="[{ value: 60, label: '1 分钟' }, { value: 120, label: '2 分钟' }, { value: 180, label: '3 分钟' }, { value: 300, label: '5 分钟' }, { value: 0, label: '不计时' }]" aria-label="每题时限" />
             </div>
             <button type="button" class="btn-primary setup-start" :disabled="starting || !selectedTrack" @click="startSession">
-              <Icon name="play" :size="15" />
+              <Icon name="play" :size="16" />
               <span>{{ starting ? '创建中…' : '开始面试' }}</span>
             </button>
           </div>
@@ -81,7 +85,7 @@
         <!-- 历史会话 -->
         <h3 class="kf-h3 section-title history-title">我的面试记录</h3>
         <div v-if="recentLoading" class="state-area state-area-soft">
-          <Icon name="loader" :size="22" class="animate-spin state-spin" />
+          <Icon name="loader" :size="24" class="animate-spin state-spin" />
         </div>
         <div v-else-if="recentError" class="state-area" role="alert"><p>记录加载失败：{{ recentError }}</p><button class="btn-outline" @click="loadRecent">重试加载记录</button></div>
         <div v-else-if="!recent.length" class="state-area state-area-soft state-area-tall">
@@ -100,7 +104,7 @@
             @keydown.enter="openSession(s.id)"
           >
             <div class="history-main">
-              <Icon :name="s.status === 'FINISHED' ? 'check-circle' : 'clock'" :size="15"
+              <Icon :name="s.status === 'FINISHED' ? 'check-circle' : 'clock'" :size="16"
                 :class="s.status === 'FINISHED' ? 'ico-ok' : 'ico-warn'" class="history-ico" />
               <span class="history-name">{{ s.trackName }}</span>
               <span class="history-badge" :class="s.status === 'FINISHED' ? 'badge-ok' : 'badge-warn'">
@@ -155,8 +159,8 @@
           @click="switchQuestion(i)"
         >
           <span>Q{{ i + 1 }}</span><span class="q-tab-title">{{ q.title }}</span>
-          <Icon v-if="marked[q.id]" name="bookmark" :size="11" class="q-tab-ico q-tab-mark" aria-label="已标记复习" />
-          <Icon v-else-if="answerMap[q.id]" name="check" :size="11" class="q-tab-ico" aria-label="已回答" />
+          <Icon v-if="marked[q.id]" name="bookmark" :size="12" class="q-tab-ico q-tab-mark" aria-label="已标记复习" />
+          <Icon v-else-if="answerMap[q.id]" name="check" :size="12" class="q-tab-ico" aria-label="已回答" />
           <span v-else-if="isPending(q.id)" class="q-tab-dot" aria-label="有未同步修改"></span>
         </button>
         <div class="q-nav-legend">
@@ -182,7 +186,7 @@
             :aria-pressed="!!marked[current.id]"
             @click="toggleMark(current.id)"
           >
-            <Icon :name="marked[current.id] ? 'bookmark-check' : 'bookmark'" :size="13" />
+            <Icon :name="marked[current.id] ? 'bookmark-check' : 'bookmark'" :size="14" />
             {{ marked[current.id] ? '已标记复习' : '标记复习' }}
           </button>
         </p>
@@ -237,9 +241,9 @@
                 :disabled="readonly && !draft.followups[fq]"
                 @click="toggleFollowup(fq)"
               >
-                <Icon :name="openFollowups[fq] ? 'chevron-down' : 'chevron-right'" :size="13" class="followup-caret" />
+                <Icon :name="openFollowups[fq] ? 'chevron-down' : 'chevron-right'" :size="14" class="followup-caret" />
                 <span class="followup-q">{{ fq }}</span>
-                <Icon v-if="draft.followups[fq]?.trim()" name="check-circle" :size="13" class="ico-ok followup-done" />
+                <Icon v-if="draft.followups[fq]?.trim()" name="check-circle" :size="14" class="ico-ok followup-done" />
               </button>
               <textarea
                 v-if="openFollowups[fq]"
@@ -258,7 +262,7 @@
         <!-- 7. 参考要点（作答前默认折叠；复盘自动展开） -->
         <div class="ref-box" :class="{ open: refOpen }">
           <button type="button" class="ref-head" :aria-expanded="refOpen" @click="refOpen = !refOpen">
-            <Icon :name="refOpen ? 'chevron-down' : 'chevron-right'" :size="13" class="followup-caret" />
+            <Icon :name="refOpen ? 'chevron-down' : 'chevron-right'" :size="14" class="followup-caret" />
             <Icon name="list" :size="14" />
             <span>参考要点（仅用于自评对照，非标准答案）</span>
           </button>
@@ -332,7 +336,7 @@
             {{ marked[current.id] ? '已标记' : '标记复习' }}
           </button>
           <button type="button" class="btn-primary" :disabled="saving || inputLocked" @click="saveCurrent(false)">
-            <Icon :name="saving ? 'loader' : (currentSaveStatus === 'error' ? 'rotate-ccw' : 'save')" :size="15"
+            <Icon :name="saving ? 'loader' : (currentSaveStatus === 'error' ? 'rotate-ccw' : 'save')" :size="16"
               :class="saving ? 'animate-spin' : ''" />
             <span>{{ saving ? '保存中…' : (currentSaveStatus === 'error' ? '重试保存' : '保存本题') }}</span>
           </button>
@@ -346,7 +350,7 @@
             下一题<Icon name="chevron-right" :size="14" />
           </button>
           <button type="button" class="btn-primary" :disabled="finishing || saving" @click="finishSession">
-            <Icon name="flag" :size="15" /><span>{{ finishing ? '提交中…' : '完成面试' }}</span>
+            <Icon name="flag" :size="16" /><span>{{ finishing ? '提交中…' : '完成面试' }}</span>
           </button>
         </div>
       </div>
@@ -355,7 +359,7 @@
       <!-- 完成结果页（Toast 之外的完整结果） -->
       <div v-if="session.status === 'FINISHED'" class="result-hero">
         <div class="result-head">
-          <Icon name="check-circle" :size="22" class="ico-ok" />
+          <Icon name="check-circle" :size="24" class="ico-ok" />
           <div>
             <h3 class="result-title">面试完成</h3>
             <p class="result-sub">{{ session.trackName }} · {{ session.mode === 'BASIC' ? '基础模式（无 AI）' : 'AI 模式' }}</p>
@@ -368,7 +372,7 @@
           <div class="stat"><span class="stat-num" :class="{ 'stat-warn': markedTitles.length > 0 }">{{ markedTitles.length }}</span><span class="stat-label">待复习题目</span></div>
         </div>
         <div v-if="markedTitles.length" class="result-review">
-          <p class="result-review-title"><Icon name="bookmark" :size="13" /> 待复习</p>
+          <p class="result-review-title"><Icon name="bookmark" :size="14" /> 待复习</p>
           <ul>
             <li v-for="(t, i) in markedTitles" :key="i">Q{{ t.no }}. {{ t.title }}</li>
           </ul>
@@ -376,7 +380,7 @@
         <div class="result-actions">
           <button type="button" class="btn-outline" @click="exitToHome">查看面试记录</button>
           <button type="button" class="btn-primary" :disabled="starting" @click="practiceSameTrack">
-            <Icon name="rotate-ccw" :size="15" /><span>{{ starting ? '创建中…' : '继续专项训练（同方向再练一场）' }}</span>
+            <Icon name="rotate-ccw" :size="16" /><span>{{ starting ? '创建中…' : '继续专项训练（同方向再练一场）' }}</span>
           </button>
         </div>
       </div>
@@ -419,6 +423,8 @@ import Select from '@/components/ui/Select.vue'
 import Icon from '@/components/ui/Icon.vue'
 import InterviewAiPanel from '@/components/interview/InterviewAiPanel.vue'
 import InterviewV2Panel from '@/components/interview/InterviewV2Panel.vue'
+import InterviewCareerCenter from '@/components/interview/InterviewCareerCenter.vue'
+import InterviewTrainerHub from '@/components/interview/InterviewTrainerHub.vue'
 import RadarLearningCenter from '@/components/interview/RadarLearningCenter.vue'
 import Button from '@/components/ui/Button.vue'
 import MiniAppShell from '@/components/layout/MiniAppShell.vue'
@@ -468,6 +474,14 @@ const route = useRoute()
 const radarOpen = computed(()=>route.query.radar==='1')
 async function closeRadar(){const query={...route.query};delete query.radar;delete query.v2Id;v2Open.value=false;await router.replace({query});void loadRecent()}
 const v2Open = ref(!!route.query.v2Id)
+async function openGeneratedInterview(sessionId:number) {
+  await router.replace({query:{...route.query,v2Id:String(sessionId)}})
+  trainerOpen.value=false
+  v2Open.value=true
+}
+const careerOpen=ref(false)
+async function openCareerInterview(id:number){careerOpen.value=false;await openGeneratedInterview(id)}
+const trainerOpen = ref(false)
 async function closeV2() {
   v2Open.value = false
   if (route.query.v2Id) { const query = { ...route.query }; delete query.v2Id; await router.replace({ query }) }
@@ -1052,9 +1066,9 @@ watch(() => route.query.id, value => {
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
   border-radius: var(--kf-radius-md);
-  padding: 14px;
+  padding: 12px;
   cursor: pointer;
-  transition: border-color .15s, box-shadow .15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard),  box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 .track-card:hover { border-color: var(--kf-primary); }
 .track-card.active {
@@ -1074,7 +1088,7 @@ watch(() => route.query.id, value => {
   padding: 16px;
 }
 .setup-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; }
-.setup-field { display: flex; flex-direction: column; gap: 6px; }
+.setup-field { display: flex; flex-direction: column; gap: 8px; }
 .setup-select { min-width: 96px; }
 .setup-select-wide { min-width: 120px; }
 .setup-start { height: 38px; }
@@ -1087,7 +1101,7 @@ watch(() => route.query.id, value => {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 14px;
+  padding: 12px 12px;
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-md);
   background: var(--kf-card);
@@ -1126,7 +1140,7 @@ watch(() => route.query.id, value => {
   min-height: 180px;
 }
 .iv-textarea {
-  padding: 10px 12px;
+  padding: 12px 12px;
   line-height: 1.7;
   resize: vertical;
   overflow-wrap: anywhere;
@@ -1134,11 +1148,11 @@ watch(() => route.query.id, value => {
   white-space: pre-wrap;
   min-height: 180px;
 }
-.iv-input:not(.kf-form-control) { height: 38px; }
+.iv-input:not(.kf-form-control) { height: var(--kf-input-height); }
 .iv-input { padding: 0 12px; }
 .iv-select {
-  height: 38px;
-  padding: 0 10px;
+  height: var(--kf-input-height);
+  padding: 0 12px;
 }
 .iv-textarea:focus:not(.kf-form-control),
 .iv-input:focus:not(.kf-form-control),
@@ -1154,9 +1168,9 @@ watch(() => route.query.id, value => {
 .btn-outline {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-md);
+  padding: 0 12px;
   border-radius: var(--kf-radius-sm);
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
@@ -1167,7 +1181,7 @@ watch(() => route.query.id, value => {
 }
 .btn-outline:hover:not(:disabled) { border-color: var(--kf-primary); color: var(--kf-primary); }
 .btn-outline:disabled { opacity: .55; cursor: not-allowed; }
-.btn-sm { height: 30px; padding: 0 10px; font-size: 12px; }
+.btn-sm { height: var(--kf-btn-height-sm); padding: 0 12px; font-size: 12px; }
 
 /* ===================== 状态/空/错（state-area 此前无样式） ===================== */
 .state-area {
@@ -1178,7 +1192,7 @@ watch(() => route.query.id, value => {
   text-align: center;
   padding: 40px 16px;
 }
-.state-area-soft { padding: 28px 16px; }
+.state-area-soft { padding: 24px 16px; }
 .state-area-tall { padding: 40px 16px; }
 .state-spin { color: var(--kf-primary); }
 .state-title { font-size: 14px; font-weight: 600; color: var(--kf-foreground); }
@@ -1202,7 +1216,7 @@ watch(() => route.query.id, value => {
 .badge-primary { background: var(--kf-primary-soft); color: var(--kf-primary); border-color: color-mix(in srgb, var(--kf-primary) 25%, transparent); }
 .badge-ok { background: var(--kf-success-subtle); color: var(--kf-state-success); border-color: color-mix(in srgb, var(--kf-state-success) 25%, transparent); }
 .badge-warn { background: var(--kf-warning-subtle); color: var(--kf-state-warning); border-color: color-mix(in srgb, var(--kf-state-warning) 25%, transparent); }
-.history-badge { padding: 1px 6px; border-radius: 4px; font-size: 11px; }
+.history-badge { padding: 1px 8px; border-radius: 4px; font-size: 11px; }
 .ico-ok { color: var(--kf-state-success); }
 .ico-warn { color: var(--kf-state-warning); }
 
@@ -1216,7 +1230,7 @@ watch(() => route.query.id, value => {
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-md);
   background: var(--kf-card);
-  padding: 10px 14px;
+  padding: 12px 12px;
   margin-bottom: 12px;
 }
 .session-id { display: flex; align-items: center; gap: 8px; min-width: 0; flex-wrap: wrap; }
@@ -1238,14 +1252,14 @@ watch(() => route.query.id, value => {
 .q-nav {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 12px;
 }
 .q-tab {
   min-width: 46px;
   height: 32px;
-  padding: 0 10px;
+  padding: 0 12px;
   border-radius: var(--kf-radius-sm);
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
@@ -1254,7 +1268,7 @@ watch(() => route.query.id, value => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 4px;
   cursor: pointer;
 }
 .q-tab.done { color: var(--kf-state-success); border-color: color-mix(in srgb, var(--kf-state-success) 35%, var(--kf-border)); }
@@ -1292,7 +1306,7 @@ watch(() => route.query.id, value => {
 .q-meta {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 11px;
   color: var(--kf-muted-foreground);
 }
@@ -1304,7 +1318,7 @@ watch(() => route.query.id, value => {
   font-size: 11px;
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 4px;
 }
 .mark-link:hover { color: var(--kf-state-warning); }
@@ -1362,14 +1376,14 @@ watch(() => route.query.id, value => {
 .followup-box {
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-sm);
-  padding: 8px 10px;
+  padding: 8px 12px;
   background: var(--kf-background);
   min-width: 0;
 }
 .followup-head {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
   text-align: left;
   color: var(--kf-foreground);
@@ -1386,8 +1400,8 @@ watch(() => route.query.id, value => {
 .score-note { font-size: 11px; color: var(--kf-muted-foreground); font-weight: 400; }
 .score-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .score-btn {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: var(--kf-btn-height-md);
   border-radius: var(--kf-radius-sm);
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
@@ -1417,8 +1431,8 @@ watch(() => route.query.id, value => {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 12px;
+  gap: 8px;
+  padding: 12px 12px;
   text-align: left;
   font-size: 13px;
   font-weight: 600;
@@ -1431,7 +1445,7 @@ watch(() => route.query.id, value => {
   color: var(--kf-state-warning);
   background: var(--kf-warning-subtle);
   border-radius: 4px;
-  padding: 6px 10px;
+  padding: 8px 12px;
   margin-bottom: 8px;
   line-height: 1.6;
 }
@@ -1464,13 +1478,13 @@ watch(() => route.query.id, value => {
   padding: 20px;
   margin-top: 12px;
 }
-.result-head { display: flex; align-items: center; gap: 10px; }
+.result-head { display: flex; align-items: center; gap: 12px; }
 .result-title { font-size: 16px; font-weight: 600; color: var(--kf-state-success); margin: 0; }
 .result-sub { font-size: 12px; color: var(--kf-muted-foreground); margin-top: 2px; }
 .result-stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 12px;
   margin-top: 16px;
 }
 .stat {
@@ -1492,20 +1506,20 @@ watch(() => route.query.id, value => {
 .result-review-title { display: flex; align-items: center; gap: 4px; font-weight: 600; color: var(--kf-state-warning); }
 .result-review ul { list-style: disc; padding-left: 20px; margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
 .result-review li { line-height: 1.7; color: var(--kf-foreground); }
-.result-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.result-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
 
 /* ===================== 复盘总览 ===================== */
 .review-summary { margin-top: 16px; }
 .summary-title { font-size: 14px; font-weight: 600; color: var(--kf-foreground); margin-bottom: 10px; }
-.summary-list { display: flex; flex-direction: column; gap: 10px; }
+.summary-list { display: flex; flex-direction: column; gap: 12px; }
 .summary-item {
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-md);
   background: var(--kf-card);
-  padding: 14px;
+  padding: 12px;
   min-width: 0;
 }
-.summary-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.summary-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .summary-q { font-size: 12px; font-weight: 600; color: var(--kf-foreground); line-height: 1.6; }
 .summary-score { flex-shrink: 0; }
 .summary-answer {
@@ -1516,7 +1530,7 @@ watch(() => route.query.id, value => {
   overflow-wrap: anywhere;
   margin-top: 8px;
 }
-.summary-followups { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.summary-followups { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
 .summary-fu { display: flex; flex-direction: column; gap: 2px; font-size: 12px; line-height: 1.7; }
 .summary-fu-q { color: var(--kf-muted-foreground); }
 .summary-fu-a { color: var(--kf-foreground); }
@@ -1527,13 +1541,13 @@ watch(() => route.query.id, value => {
   .track-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 768px) {
-  .q-card { padding: 14px; }
+  .q-card { padding: 12px; }
   .track-grid { grid-template-columns: 1fr; }
   .result-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .action-bar { flex-direction: column; align-items: stretch; }
   .action-group { justify-content: space-between; }
   .session-actions { width: 100%; justify-content: space-between; }
-  .history-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .history-row { flex-direction: column; align-items: flex-start; gap: 8px; }
   .history-meta { flex-wrap: wrap; gap: 8px; }
 }
 /* Phase 3I：桌面训练工作区，宽回答区与辅助信息分离。 */

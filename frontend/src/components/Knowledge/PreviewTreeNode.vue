@@ -154,7 +154,7 @@ const getNodeIcon = (type: TreeNode['type']) => {
   align-items: center;
   padding: 0 5px;
   border-radius: 3px;
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   font-weight: 600;
   flex-shrink: 0;
 }

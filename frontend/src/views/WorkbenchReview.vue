@@ -270,7 +270,7 @@
           <span class="review-label">类型</span>
           <div class="review-types" role="group" aria-label="复习卡类型">
             <button v-for="item in CARD_TYPES" :key="item.value" type="button" class="review-type-option" :class="{ active: form.type === item.value }" :aria-pressed="form.type === item.value" @click="form.type = item.value">
-              <Icon :name="item.icon" :size="15" aria-hidden="true" />{{ item.label }}
+              <Icon :name="item.icon" :size="16" aria-hidden="true" />{{ item.label }}
             </button>
           </div>
         </div>

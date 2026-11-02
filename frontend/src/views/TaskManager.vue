@@ -1,10 +1,7 @@
 <template>
   <div class="tm-page">
-    <header class="tm-page-head">
-      <div class="tm-page-title">
-        <h1>任务中心</h1>
-        <p>安排待办，执行学习任务；完成状态以服务端记录为准。</p>
-      </div>
+    <PageHeader title="任务中心" description="安排待办，执行学习任务；完成状态以服务端记录为准。">
+      <template #actions>
       <div class="tm-page-actions">
         <RouterLink to="/learning/today-plan" class="tm-plan-link">
           <Icon name="calendar-check" :size="16" />
@@ -12,7 +9,8 @@
         </RouterLink>
         <Button size="sm" variant="primary" icon-name="plus" @click="focusQuickAdd">新建任务</Button>
       </div>
-    </header>
+      </template>
+    </PageHeader>
 
     <!-- 工具栏：视图切换 + 当前列表搜索（始终可访问，不随列表滚动） -->
     <div class="tm-toolbar">
@@ -162,6 +160,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, provide, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import Button from '@/components/ui/Button.vue'
+import PageHeader from '@/components/ui/PageHeader.vue'
 import Icon from '@/components/ui/Icon.vue'
 import TaskRow from '@/components/TaskRow.vue'
 import TaskQuadrant from '@/views/TaskQuadrant.vue'

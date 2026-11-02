@@ -140,7 +140,7 @@ const imageStyle = computed(() => {
   z-index: -1;
   pointer-events: none;
   overflow: hidden;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--kf-motion-slower) var(--kf-ease-standard);
 }
 
 .global-bg-video {
@@ -168,7 +168,7 @@ const imageStyle = computed(() => {
 .global-bg-overlay {
   position: absolute;
   inset: 0;
-  background: #ffffff;
+  background: var(--kf-background);
   pointer-events: none;
 }
 </style>

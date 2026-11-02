@@ -301,7 +301,7 @@ defineExpose({ categories })
   }
 
   .mobile-drawer-title {
-    font-size: 15px;
+    font-size: var(--kf-fs-body-emphasis);
     font-weight: 600;
     color: var(--kf-foreground);
   }

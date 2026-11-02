@@ -92,7 +92,7 @@
             <div class="tlp-link-list">
               <template v-for="link in activeDetail.conceptLinks" :key="`${link.targetType}-${link.targetId}-${link.relationType}`">
                 <router-link v-if="link.route" class="tlp-link" :to="link.route">
-                  <Icon name="book-open" :size="13" aria-hidden="true" />
+                  <Icon name="book-open" :size="14" aria-hidden="true" />
                   <span>{{ link.label }}</span>
                 </router-link>
                 <span v-else class="tlp-link is-static">{{ link.label }}</span>
@@ -334,12 +334,12 @@ onBeforeUnmount(() => {
   background: var(--kf-popover, #ffffff);
   color: var(--kf-foreground, #1a1d23);
   border: 1px solid var(--kf-border, #e2e6ec);
-  border-radius: var(--kf-radius-lg, 16px);
+  border-radius: var(--kf-radius-lg);
   box-shadow: var(--shadow-dropdown-3, 0 12px 32px rgba(0, 0, 0, 0.12));
-  padding: 14px 16px 16px;
+  padding: var(--kf-space-3) var(--kf-space-4) var(--kf-space-4);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--kf-space-3);
   max-height: calc(100vh - 24px);
   overflow-y: auto;
   font-size: 14px;
@@ -360,12 +360,12 @@ onBeforeUnmount(() => {
 }
 
 .tlp-icon-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--kf-radius-sm, 6px);
+  border-radius: var(--kf-radius-sm);
   color: var(--kf-muted-foreground, #6b7280);
   background: transparent;
 }
@@ -389,7 +389,7 @@ onBeforeUnmount(() => {
 
 .tlp-bar {
   height: 12px;
-  border-radius: var(--kf-radius-sm, 6px);
+  border-radius: var(--kf-radius-sm);
   background: var(--kf-muted, #f3f4f6);
   display: block;
   animation: tlp-pulse 1.2s ease-in-out infinite;
@@ -412,7 +412,7 @@ onBeforeUnmount(() => {
 .tlp-state {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--kf-space-2);
   padding: 4px 0 2px;
 }
 
@@ -437,7 +437,7 @@ onBeforeUnmount(() => {
 
 .tlp-senses {
   display: flex;
-  gap: 6px;
+  gap: var(--kf-space-2);
   overflow-x: auto;
   padding-bottom: 2px;
 }
@@ -448,8 +448,8 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: flex-start;
   gap: 1px;
-  padding: 6px 10px;
-  border-radius: var(--kf-radius-md, 10px);
+  padding: 8px 12px;
+  border-radius: var(--kf-radius-md);
   border: 1px solid var(--kf-border, #e2e6ec);
   background: transparent;
   text-align: left;
@@ -509,7 +509,7 @@ onBeforeUnmount(() => {
 
 .tlp-badge {
   font-size: 11px;
-  padding: 1px 6px;
+  padding: 1px 8px;
   border-radius: var(--kf-radius-xs, 4px);
   background: var(--kf-primary-soft, #eef4ff);
   color: var(--kf-primary, #3b6fe0);
@@ -558,15 +558,15 @@ onBeforeUnmount(() => {
 .tlp-link-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--kf-space-2);
 }
 
 .tlp-link {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
-  border-radius: var(--kf-radius-sm, 6px);
+  padding: 4px 8px;
+  border-radius: var(--kf-radius-sm);
   background: var(--kf-muted, #f3f4f6);
   color: var(--kf-primary, #3b6fe0);
   font-size: 12px;
@@ -596,10 +596,10 @@ onBeforeUnmount(() => {
 .tlp-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
-  min-height: 34px;
-  border-radius: var(--kf-radius-md, 10px);
+  gap: var(--kf-space-2);
+  padding: var(--kf-space-2) var(--kf-space-3);
+  min-height: var(--kf-btn-height-md);
+  border-radius: var(--kf-radius-md);
   border: 1px solid var(--kf-border, #e2e6ec);
   background: transparent;
   color: var(--kf-foreground, #1a1d23);
@@ -625,7 +625,7 @@ onBeforeUnmount(() => {
 .tlp-btn-primary {
   border-color: var(--kf-primary, #3b6fe0);
   background: var(--kf-primary, #3b6fe0);
-  color: #fff;
+  color: var(--kf-primary-foreground);
 }
 
 .tlp-btn-primary:hover:not(:disabled) {

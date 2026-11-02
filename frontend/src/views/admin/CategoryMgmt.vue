@@ -126,28 +126,28 @@
                 @click="openCreate(node.cat)"
                 title="新增子分类"
               >
-                <Icon name="folder-plus" :size="15" aria-hidden="true" />
+                <Icon name="folder-plus" :size="16" aria-hidden="true" />
               </button>
               <button
                 class="p-1.5 text-muted-foreground hover:text-primary-500 hover:bg-primary-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                 @click="openEdit(node.cat)"
                 title="编辑"
               >
-                <Icon name="edit-2" :size="15" aria-hidden="true" />
+                <Icon name="edit-2" :size="16" aria-hidden="true" />
               </button>
               <button
                 class="p-1.5 text-muted-foreground hover:text-blue-500 hover:bg-blue-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                 @click="openMove(node.cat)"
                 title="移动"
               >
-                <Icon name="move" :size="15" aria-hidden="true" />
+                <Icon name="move" :size="16" aria-hidden="true" />
               </button>
               <button
                 class="p-1.5 text-muted-foreground hover:text-danger-500 hover:bg-danger-50 rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2"
                 @click="deleteCategory(node.cat)"
                 title="删除"
               >
-                <Icon name="trash-2" :size="15" aria-hidden="true" />
+                <Icon name="trash-2" :size="16" aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -237,7 +237,7 @@
                     : 'border-transparent hover:border-border hover:bg-muted',
                 ]"
               >
-                <Icon :name="icon.svg" :size="22" aria-hidden="true" />
+                <Icon :name="icon.svg" :size="24" aria-hidden="true" />
               </button>
             </div>
             <!-- 颜色选择 -->

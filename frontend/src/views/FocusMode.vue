@@ -516,9 +516,9 @@ onUnmounted(() => {
 .exit-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-md);
+  padding: 0 12px;
   font-size: 13px;
   font-weight: 600;
   color: var(--kf-foreground);
@@ -526,7 +526,7 @@ onUnmounted(() => {
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .exit-btn:hover {
   background: rgba(255, 255, 255, 0.1);
@@ -534,7 +534,7 @@ onUnmounted(() => {
 .mode-info {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-left: 4px;
 }
 .mode-subtitle {
@@ -545,7 +545,7 @@ onUnmounted(() => {
 }
 .mode-select {
   height: 32px;
-  padding: 0 10px;
+  padding: 0 12px;
   font-size: 13px;
   font-weight: 600;
   color: var(--kf-foreground);
@@ -563,13 +563,13 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   width: 38px;
-  height: 38px;
+  height: var(--kf-btn-height-md);
   color: var(--kf-muted-foreground);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .icon-btn:hover {
   background: rgba(255, 255, 255, 0.1);
@@ -591,7 +591,7 @@ onUnmounted(() => {
   background: var(--kf-bg-2, rgba(15, 23, 42, 0.6));
   backdrop-filter: blur(12px);
   border-right: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.05));
-  transition: width 0.25s ease;
+  transition: width var(--kf-motion-slower) var(--kf-ease-standard);
   overflow: hidden;
 }
 .left-drawer.expanded {
@@ -613,7 +613,7 @@ onUnmounted(() => {
   border-left: none;
   border-radius: 0 10px 10px 0;
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard);
   z-index: 2;
 }
 .drawer-toggle:hover {
@@ -650,14 +650,14 @@ onUnmounted(() => {
   font-weight: 500;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .dtab:hover {
   color: var(--kf-foreground);
 }
 .dtab.active {
   background: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   font-weight: 600;
   box-shadow: 0 4px 12px color-mix(in srgb, var(--kf-primary) 30%, transparent);
 }
@@ -670,13 +670,13 @@ onUnmounted(() => {
 .drawer-item {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   height: 40px;
   padding: 0 12px;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
-  transition: background 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .drawer-item.placeholder {
   color: var(--kf-muted-foreground);
@@ -701,7 +701,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
+  padding: 12px 12px;
   background: var(--kf-bg-2, rgba(15, 23, 42, 0.6));
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -712,9 +712,9 @@ onUnmounted(() => {
 .tool-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-md);
+  padding: 0 12px;
   font-size: 13px;
   font-weight: 500;
   color: var(--kf-muted-foreground);
@@ -722,7 +722,7 @@ onUnmounted(() => {
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.05));
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .tool-btn:hover {
   background: color-mix(in srgb, var(--kf-primary) 12%, transparent);
@@ -753,7 +753,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.1));
 }
 .note-panel-title {
@@ -765,14 +765,14 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   color: var(--kf-muted-foreground);
   background: transparent;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .icon-btn-sm:hover {
   background: rgba(255, 255, 255, 0.08);
@@ -786,7 +786,7 @@ onUnmounted(() => {
 .note-input {
   display: block;
   width: 100%;
-  padding: 14px 16px;
+  padding: 12px 16px;
   font-size: 14px;
   line-height: 1.6;
   color: var(--kf-foreground);
@@ -799,16 +799,16 @@ onUnmounted(() => {
   justify-content: flex-end;
 }
 .save-btn {
-  height: 34px;
-  padding: 0 18px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 16px;
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   background: var(--kf-primary);
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: filter 0.15s ease;
+  transition: filter var(--kf-motion-base) var(--kf-ease-standard);
 }
 .save-btn:hover {
   filter: brightness(1.05);
@@ -818,7 +818,7 @@ onUnmounted(() => {
 .note-fade-leave-active,
 .break-fade-enter-active,
 .break-fade-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .note-fade-enter-from,
 .note-fade-leave-to,
@@ -828,7 +828,7 @@ onUnmounted(() => {
 }
 .wn-fade-enter-active,
 .wn-fade-leave-active {
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition: opacity var(--kf-motion-slow) var(--kf-ease-standard), transform var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .wn-fade-enter-from,
 .wn-fade-leave-to {

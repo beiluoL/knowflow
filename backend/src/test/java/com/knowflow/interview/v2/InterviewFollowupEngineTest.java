@@ -20,6 +20,28 @@ class InterviewFollowupEngineTest {
   evaluation.put("coveredKnowledge",List.of("容量检查"));evaluation.put("errors",List.of());evaluation.put("strengths",List.of("说明了容量检查"));evaluation.put("gaps",List.of("HashMap"));evaluation.put("citations",List.of("检查数组容量"));evaluation.put("suggestion","结合容量边界给出一个验证过程");evaluation.put("confidence",.65);
   return new LinkedHashMap<>(Map.of("decision","FOLLOW_UP","reason","仍需要验证扩容边界","missingKnowledge",List.of("扩容"),"followupQuestion","如果容量不足，你会怎样验证扩容后的查询结果？","targetDimension","ENGINEERING_PRACTICE","evaluation",evaluation));
  }
+ @Test void streamingUsesRealDeltasThenExistingValidationAndCancellationFallback()throws Exception{
+  var props=new AiCapabilityProperties();props.setEnabled(true);
+  when(ai.isConfigured(1L)).thenReturn(true);when(ai.structuredStreamingAvailable(1L)).thenReturn(true);when(ai.currentScope(1L)).thenReturn("user:model");
+  var stopped=new java.util.concurrent.atomic.AtomicBoolean();
+  var tokens=new ArrayList<String>();
+  String raw=json.writeValueAsString(output());
+  doAnswer(invocation->{
+   java.util.function.Consumer<String> delta=invocation.getArgument(3);
+   int end=raw.indexOf("？")+1;
+   delta.accept(raw.substring(0,end));
+   assertFalse(tokens.isEmpty(),"Provider token must be visible before completion");
+   delta.accept(raw.substring(end));return raw;
+  }).when(ai).streamStructured(anyString(),anyString(),eq(1L),any(),any());
+  var engine=new InterviewFollowupEngine(ai,props,json,new InterviewRubricProperties());
+  var result=engine.evaluateStreaming(1L,question,question.title(),answer,0,2,List.of(question.title()),"Java","COACH",null,List.of(),tokens::add,stopped::get);
+  assertEquals("AI",result.source());assertEquals(output().get("followupQuestion"),String.join("",tokens));
+  verify(ai,never()).completeStructured(anyString(),anyString(),any(),anyLong());
+  stopped.set(true);tokens.clear();
+  var cancelled=engine.evaluateStreaming(1L,question,question.title(),answer,0,2,List.of(question.title()),"Java","COACH",null,List.of(),tokens::add,stopped::get);
+  assertNull(cancelled.evaluation());assertTrue(tokens.isEmpty());
+  verify(ai,times(1)).streamStructured(anyString(),anyString(),eq(1L),any(),any());
+ }
  @Test void schemaAndEvidencePreserveRealModelAndRubricButNoFirstRoundFollowupScore()throws Exception{
   var proposal=engine().parse(json.writeValueAsString(output()),answer,question,0,2,List.of(question.title()),"actual-provider:model-v1");
   assertEquals(List.of("扩容"),proposal.evaluation().get("missingKnowledge"));assertEquals("AI",proposal.source());assertEquals("actual-provider:model-v1",proposal.evaluation().get("model"));

@@ -115,8 +115,8 @@ watch(
   pointer-events: auto;
   display: inline-flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px 18px 14px 14px;
+  gap: 12px;
+  padding: 12px 16px 12px 12px;
   min-width: 260px;
   max-width: 360px;
   border-radius: 14px;
@@ -136,7 +136,7 @@ watch(
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
   flex-shrink: 0;
 }
@@ -147,7 +147,7 @@ watch(
   min-width: 0;
 }
 .ach-name {
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   font-weight: 700;
   letter-spacing: 0.01em;
   line-height: 1.2;
@@ -165,8 +165,8 @@ watch(
 }
 .ach-fly-leave-active {
   transition:
-    opacity 1s ease,
-    transform 1s ease;
+    opacity 1s var(--kf-ease-standard),
+    transform 1s var(--kf-ease-standard);
 }
 .ach-fly-enter-from {
   opacity: 0;

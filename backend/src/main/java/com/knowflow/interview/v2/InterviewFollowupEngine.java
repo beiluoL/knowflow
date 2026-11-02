@@ -25,6 +25,15 @@ public class InterviewFollowupEngine {
   return evaluate(actor,question,question.title(),confirmed,depth,maxDepth,asked,role,mode,project,history);
  }
  public Proposal evaluate(Long actor,SeedQuestion question,String evaluatedPrompt,String confirmed,int depth,int maxDepth,List<String> asked,String role,String mode,String project,List<Map<String,Object>> history){
+  return evaluateInternal(actor,question,evaluatedPrompt,confirmed,depth,maxDepth,asked,role,mode,project,history,null,()->false);
+ }
+ /** Provisional deltas do not become canonical questions until the existing validation succeeds. */
+ public boolean streamingAvailable(Long actor){return capability.isEnabled()&&ai.structuredStreamingAvailable(actor);}
+ public Proposal evaluateStreaming(Long actor,SeedQuestion question,String evaluatedPrompt,String confirmed,int depth,int maxDepth,List<String> asked,String role,String mode,String project,List<Map<String,Object>> history,java.util.function.Consumer<String> delta,java.util.function.BooleanSupplier cancelled){
+  return evaluateInternal(actor,question,evaluatedPrompt,confirmed,depth,maxDepth,asked,role,mode,project,history,delta,cancelled);
+ }
+ private Proposal evaluateInternal(Long actor,SeedQuestion question,String evaluatedPrompt,String confirmed,int depth,int maxDepth,List<String> asked,String role,String mode,String project,List<Map<String,Object>> history,java.util.function.Consumer<String> delta,java.util.function.BooleanSupplier cancelled){
+  if(cancelled.getAsBoolean())return fallback(question,depth,maxDepth,asked,confirmed,mode,"已取消生成，确认回答已保存；使用预置追问");
   if(question.id().startsWith("RADAR-")&&(capability.getMaxAttempts()>3||(radarTokenConfig!=null&&(radarTokenConfig.getMaxTokens()<1||radarTokenConfig.getMaxTokens()>8000))))return fallback(question,depth,maxDepth,asked,confirmed,mode,"雷达单次输出预算上限8000 tokens、最多3次Provider尝试；当前配置超限，未发起AI请求或生成分数");
   if("BASIC".equals(mode)||!capability.isEnabled()||!ai.isConfigured(actor))return fallback(question,depth,maxDepth,asked,confirmed,mode,"AI关闭或未配置，使用预置追问；没有生成AI评分");
   try{
@@ -36,7 +45,13 @@ public class InterviewFollowupEngine {
    input.put("rubricAnchors",question.rubric());input.put("rubricVersion",question.id().startsWith("RADAR-")?com.knowflow.interview.radar.RadarRubric.VERSION:rubric.getVersion());input.put("weights",question.id().startsWith("RADAR-")?com.knowflow.interview.radar.RadarRubric.WEIGHTS:rubric.checkedWeights());
    String prompt=json.writeValueAsString(input);
    if(prompt.length()>40000)return fallback(question,depth,maxDepth,asked,confirmed,mode,"上下文超限，回退预置追问");
-   return parse(ai.completeStructured(system,prompt,null,actor),confirmed,question,depth,maxDepth,asked,scope,"STRICT".equals(mode));
+   String output;
+   if(delta!=null&&streamingAvailable(actor)){
+    var decoder=new FollowupQuestionDelta(json,part->{if(!cancelled.getAsBoolean())delta.accept(part);});
+    output=ai.streamStructured(system,prompt,actor,decoder::accept,cancelled);
+    if(cancelled.getAsBoolean())throw new com.knowflow.ai.capability.AiCapabilityException(com.knowflow.ai.capability.AiFailureKind.CANCELLED,null);
+   }else output=ai.completeStructured(system,prompt,null,actor);
+   return parse(output,confirmed,question,depth,maxDepth,asked,scope,"STRICT".equals(mode));
   }catch(com.knowflow.ai.capability.AiCapabilityException e){
    String action=switch(e.getKind()){
     case INVALID_KEY,UNCONFIGURED->"请在个人设置的AI模型中检查当前模型配置，或检查后端继承的环境变量";
@@ -75,9 +90,27 @@ public class InterviewFollowupEngine {
    evaluation.put("weights",com.knowflow.interview.radar.RadarRubric.WEIGHTS);
    evaluation.put("promptVersion","radar-reference-training-v1");
    @SuppressWarnings("unchecked") var dimensions=(Map<String,Object>)evaluation.get("dimensions");
-   evaluation.put("radarGrade",com.knowflow.interview.radar.RadarRubric.grade(dimensions));
+   evaluation.put("radarGrade",com.knowflow.interview.radar.RadarRubric.grade(dimensions,rubric.getRadarPassThreshold()));
    evaluation.put("assessmentType","AI_REFERENCE_TRAINING_NOT_VERIFIED_MASTERY");
   }
+  // 对外提供统一契约，保留原字段以兼容历史报告和学习桥接。
+  @SuppressWarnings("unchecked") var scores=(Map<String,Object>)evaluation.get("dimensions");
+  @SuppressWarnings("unchecked") var activeWeights=(Map<String,Integer>)evaluation.get("weights");
+  boolean complete=activeWeights.entrySet().stream().filter(e->e.getValue()>0).allMatch(e->scores.get(e.getKey()) instanceof Number);
+  boolean observed=scores.values().stream().anyMatch(v->v instanceof Number);
+  evaluation.put("evaluationStatus",complete?"EVALUATED":observed?"PARTIAL":"NOT_EVALUATED");
+  evaluation.put("rubricId",question.id().startsWith("RADAR-")?"JAVA_AI_RADAR":"TECHNICAL_INTERVIEW");
+  evaluation.put("scoreSource","AI");
+  evaluation.put("passThreshold",question.id().startsWith("RADAR-")?rubric.getRadarPassThreshold():null);
+  evaluation.put("dimensionScores",scores);
+  evaluation.put("correctPoints",evaluation.getOrDefault("strengths",List.of()));
+  evaluation.put("incorrectPoints",evaluation.getOrDefault("errors",List.of()));
+  evaluation.put("evidence",evaluation.getOrDefault("citations",List.of()));
+  evaluation.put("suggestedImprovements",List.of(evaluation.getOrDefault("suggestion","")));
+  evaluation.put("modelVersion",evaluation.get("model"));
+  double total=activeWeights.entrySet().stream().filter(e->e.getValue()>0).mapToDouble(e->scores.get(e.getKey()) instanceof Number n?n.doubleValue()*e.getValue()/1000.0:0).sum();
+  evaluation.put("scoreMax",10);
+  evaluation.put("totalScore",complete?Math.round(total*100.0)/100.0:null);
   return new Proposal(decision,followup,evaluation,"AI",null);
  }
  public Proposal fallback(SeedQuestion q,int depth,int maxDepth,List<String> asked,String message){

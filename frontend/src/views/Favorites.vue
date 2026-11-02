@@ -418,9 +418,9 @@ onUnmounted(() => {
 .btn-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   border-radius: var(--kf-radius-sm);
   font-size: 13px;
   font-weight: 500;
@@ -428,7 +428,7 @@ onUnmounted(() => {
   color: var(--kf-sidebar-foreground);
   border: 1px solid var(--kf-border);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .btn-secondary:hover { background: var(--kf-muted); }
 
@@ -450,8 +450,8 @@ onUnmounted(() => {
 .filter-tab {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
+  gap: 8px;
+  padding: 8px 12px;
   border-radius: var(--kf-radius-sm);
   font-size: 13px;
   font-weight: 500;
@@ -459,7 +459,7 @@ onUnmounted(() => {
   color: var(--kf-muted-foreground);
   border: none;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .filter-tab:hover { color: var(--kf-foreground); }
 .filter-tab.active {
@@ -468,7 +468,7 @@ onUnmounted(() => {
 }
 .tab-count {
   font-size: 11px;
-  padding: 1px 6px;
+  padding: 1px 8px;
   border-radius: 999px;
   background: var(--kf-muted);
   color: var(--kf-muted-foreground);
@@ -516,7 +516,7 @@ onUnmounted(() => {
   cursor: pointer;
   color: var(--kf-foreground);
   text-align: left;
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .sort-menu-item:hover { background: var(--kf-muted); }
 .sort-menu-item.active { color: var(--kf-primary); font-weight: 500; }
@@ -540,7 +540,7 @@ onUnmounted(() => {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .state-text { margin-top: 12px; font-size: 14px; }
-.state-title { margin-top: 12px; font-size: 15px; font-weight: 500; color: var(--kf-foreground); }
+.state-title { margin-top: 12px; font-size: var(--kf-fs-body-emphasis); font-weight: 500; color: var(--kf-foreground); }
 .empty-icon-box {
   width: 64px;
   height: 64px;
@@ -571,10 +571,10 @@ onUnmounted(() => {
   background: var(--kf-card);
   padding: 20px;
   cursor: pointer;
-  transition: box-shadow 0.2s, transform 0.15s, border-color 0.15s;
+  transition: box-shadow var(--kf-motion-slow) var(--kf-ease-standard),  transform var(--kf-motion-base) var(--kf-ease-standard),  border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .fav-card:hover {
-  box-shadow: 0 4px 16px rgba(59, 111, 224, 0.08);
+  box-shadow: 0 4px 16px var(--kf-primary-soft);
   transform: translateY(-1px);
 }
 .fav-card.selected {
@@ -614,13 +614,13 @@ onUnmounted(() => {
   border: none;
   cursor: pointer;
   color: var(--kf-primary);
-  transition: background-color var(--kf-control-motion) ease;
+  transition: background-color var(--kf-control-motion) var(--kf-ease-standard);
 }
 .fav-unstar-btn:hover { background: color-mix(in srgb, var(--kf-primary) 16%, var(--kf-card)); }
 
 /* 标题 */
 .fav-title {
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   font-weight: 600;
   color: var(--kf-foreground);
   margin-bottom: 6px;
@@ -657,9 +657,9 @@ onUnmounted(() => {
   border-radius: 4px;
   white-space: nowrap;
 }
-.tag-doc { background: rgba(59, 111, 224, 0.1); color: var(--kf-primary); }
-.tag-note { background: rgba(245, 158, 11, 0.1); color: var(--kf-state-warning); }
-.tag-flashcard { background: rgba(16, 185, 129, 0.1); color: var(--kf-state-success); }
+.tag-doc { background: var(--kf-primary-soft); color: var(--kf-primary); }
+.tag-note { background: var(--kf-warning-soft); color: var(--kf-state-warning); }
+.tag-flashcard { background: var(--kf-success-soft); color: var(--kf-state-success); }
 .tag-default { background: var(--kf-muted); color: var(--kf-muted-foreground); }
 
 /* 底部分隔线 + 来源 + 收藏时间 */
@@ -674,7 +674,7 @@ onUnmounted(() => {
 .fav-source {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 12px;
   color: var(--kf-muted-foreground);
   overflow: hidden;
@@ -709,7 +709,7 @@ onUnmounted(() => {
   background: var(--kf-card);
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .pagination-btn:hover:not(:disabled):not(.ellipsis) {
   border-color: var(--kf-primary);

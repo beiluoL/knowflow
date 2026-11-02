@@ -165,7 +165,7 @@ defineExpose({ loadChain })
 
 .header-text h3 {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--kf-fs-body-emphasis);
   font-weight: 600;
   color: var(--kf-text);
 }
@@ -327,7 +327,7 @@ defineExpose({ loadChain })
 .perm-tag {
   padding: 1px 5px;
   border-radius: var(--kf-radius-sm);
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
 }
 
 .perm-tag.safe {

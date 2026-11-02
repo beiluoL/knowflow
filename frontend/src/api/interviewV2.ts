@@ -1,5 +1,5 @@
 import { apiGet, apiPost } from './request'
-export interface V2Turn { id:number; questionId:string; question:string; depth:number; answer:string; source:string; referencePoints?:string[]; selfScore:number|null; evaluation?:{dimensions:Record<string,number|null>; strengths:string[]; gaps:string[]; citations:string[]; suggestion:string; coveredKnowledge?:string[];errors?:string[];confidence:number; model:string;promptVersion?:string; rubricVersion:string;radarGrade?:{score:number|null;level:string|null;passed:boolean;points:Record<string,number|null>}}|null; decision?:string }
+export interface V2Turn { id:number; questionId:string; question:string; depth:number; answer:string; source:string; referencePoints?:string[]; selfScore:number|null; evaluation?:{evaluationStatus?:'EVALUATED'|'PARTIAL'|'NOT_EVALUATED';rubricId?:string;scoreSource?:'AI';totalScore?:number|null;scoreMax?:number;passThreshold?:number|null;modelVersion?:string;dimensions:Record<string,number|null>; strengths:string[]; gaps:string[]; citations:string[]; suggestion:string; coveredKnowledge?:string[];errors?:string[];confidence:number; model:string;promptVersion?:string; rubricVersion:string;radarGrade?:{score:number|null;level:string|null;passed:boolean;points:Record<string,number|null>}}|null; decision?:string }
 export interface V2Report {overallScore:number|null;radarOverallScore?:number|null;dimensionScores:Record<string,number|null>;evaluatedTurns:number;answeredTurns:number;rubricVersion:string;weights:Record<string,number>;coverage:unknown;historyComparison:{previousSessionId:number;previousScore:number|null;currentScore:number|null}|null}
 export interface V2Session {sessionId:number;version:number;state:string;mode:string;role:string;difficulty:string;questionIndex:number;questionCount:number;followupDepth:number;maxDepth:number;remainingSeconds:number;deadline:string;currentQuestion:{id:string;title:string;source?:'QUESTION_BANK'|'AI'|'PRESET'}|null;turns:V2Turn[];message?:string;report?:V2Report;referencePoints?:string[]}
 export interface V2Start { track:string;questionId?:string;questionCount:number;mode:'STRICT'|'TEACHING';role:string;durationMinutes:number;maxDepth:number;difficulty:string;requestId:string;projectContext?:string;projectDocumentIds?:number[] }
@@ -21,3 +21,8 @@ export const confirmRemediation=(id:number,body:{requestId:string;knowledgeIds:n
 
 export interface InterviewScenario {id:string;title:string}
 export const getTrackQuestions=(code:string)=>apiGet<InterviewScenario[]>(`/interview/tracks/${encodeURIComponent(code)}/questions`)
+
+/** 重评只追加快照；原始面试评分不被覆盖。 */
+export interface EvaluationRun { id:number; turn_id:number; status:string; evaluation:V2Turn['evaluation']; create_time:string }
+export const getEvaluationRuns=(session:number)=>apiGet<EvaluationRun[]>(`/interview/v2/sessions/${session}/evaluations`)
+export const reevaluateTurn=(session:number,turn:number,requestId:string)=>apiPost<unknown>(`/interview/v2/sessions/${session}/turns/${turn}/evaluations`,{requestId})

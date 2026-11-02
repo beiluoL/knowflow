@@ -401,7 +401,7 @@ onMounted(() => {
 
     <!-- 来源知识 -->
     <section class="lcg-card">
-      <div class="lcg-card-title"><Icon name="book-open" :size="15" /> 来源知识</div>
+      <div class="lcg-card-title"><Icon name="book-open" :size="16" /> 来源知识</div>
       <div class="lcg-kno">
         <span class="lcg-kno-tag">{{ knowledgeName }}</span>
         <span class="lcg-kno-id">knowledgeId: {{ knowledgeId }}</span>
@@ -410,7 +410,7 @@ onMounted(() => {
 
     <!-- 上下文 + 类型选择 -->
     <section class="lcg-card">
-      <div class="lcg-card-title"><Icon name="settings-2" :size="15" /> 生成设置</div>
+      <div class="lcg-card-title"><Icon name="settings-2" :size="16" /> 生成设置</div>
       <div class="lcg-grid">
         <label class="lcg-field">
           <span class="lcg-field-label">关联学习目标（可选）</span>
@@ -438,7 +438,7 @@ onMounted(() => {
       <div class="lcg-types">
         <label class="lcg-type kf-checkbox-row" :class="{ off: !wantFlashcards }">
           <Checkbox as="span" v-model="wantFlashcards" />
-          <Icon name="layers" :size="15" />
+          <Icon name="layers" :size="16" />
           <span><b>闪卡</b><small>Q&A 自测卡，接受后进入闪卡复习</small></span>
           <select v-if="wantFlashcards" class="lcg-count kf-select kf-form-control" :value="flashcardCount" @change="flashcardCount = Number(($event.target as HTMLSelectElement).value) as 3 | 5 | 8">
             <option v-for="n in COUNT_OPTIONS" :key="n" :value="n">{{ n }} 张</option>
@@ -446,12 +446,12 @@ onMounted(() => {
         </label>
         <label class="lcg-type kf-checkbox-row" :class="{ off: !wantFeynman }">
           <Checkbox as="span" v-model="wantFeynman" />
-          <Icon name="message-square" :size="15" />
+          <Icon name="message-square" :size="16" />
           <span><b>费曼</b><small>1 个表达引导，你去解释（AI 不代答）</small></span>
         </label>
         <label class="lcg-type kf-checkbox-row" :class="{ off: !wantScenario }">
           <Checkbox as="span" v-model="wantScenario" />
-          <Icon name="target" :size="15" />
+          <Icon name="target" :size="16" />
           <span><b>场景</b><small>1 个真实业务场景，你去作答</small></span>
         </label>
       </div>
@@ -462,7 +462,7 @@ onMounted(() => {
         :disabled="running || !knowledgeId || (!wantFlashcards && !wantFeynman && !wantScenario)"
         @click="run"
       >
-        <Icon name="sparkles" :size="15" />
+        <Icon name="sparkles" :size="16" />
         {{ running ? '生成中…' : result ? '重新生成' : '生成' }}
       </button>
       <p v-if="running" class="lcg-running"><Icon name="loader" :size="14" class="lcg-spin" /> AI 正在为「{{ knowledgeName }}」生成学习素材，请稍候…</p>
@@ -494,13 +494,13 @@ onMounted(() => {
           已接受 <b>{{ acceptedCount }}</b> 项；未点接受的 Draft 只存在于本页，不会进入任何学习数据。
         </div>
         <ul v-if="(result.warnings ?? []).length" class="lcg-warn">
-          <li v-for="(w, i) in result.warnings" :key="i"><Icon name="info" :size="13" /> {{ w }}</li>
+          <li v-for="(w, i) in result.warnings" :key="i"><Icon name="info" :size="14" /> {{ w }}</li>
         </ul>
       </section>
 
       <!-- 闪卡 Draft -->
       <section v-if="cards.length" class="lcg-card">
-        <div class="lcg-card-title"><Icon name="layers" :size="15" /> 闪卡 Draft <span class="lcg-count-badge">{{ pendingCards.length }} 待审核</span></div>
+        <div class="lcg-card-title"><Icon name="layers" :size="16" /> 闪卡 Draft <span class="lcg-count-badge">{{ pendingCards.length }} 待审核</span></div>
         <p class="lcg-tip">AI 建议怎么学。检查问题是否聚焦该知识点、答案是否自洽——你决定是否把它变成正式闪卡。</p>
         <div v-for="row in cards" :key="row.key" class="lcg-item" :class="{ accepted: row.state === 'accepted', gone: row.state === 'ignored' }">
           <template v-if="!row.editing">
@@ -510,9 +510,9 @@ onMounted(() => {
             </div>
             <span class="lcg-diff">{{ diffLabel(row.difficulty) }}</span>
             <div v-if="row.state === 'pending'" class="lcg-actions">
-              <button type="button" class="lcg-btn lcg-btn-primary" :disabled="accepting" @click="acceptCard(row)"><Icon name="check" :size="13" /> 接受</button>
-              <button type="button" class="lcg-btn" @click="row.editing = true; row.editFront = row.front; row.editBack = row.back; row.editDifficulty = row.difficulty"><Icon name="pencil" :size="13" /> 编辑</button>
-              <button type="button" class="lcg-btn lcg-btn-ghost" @click="ignoreCard(row)"><Icon name="x" :size="13" /> 忽略</button>
+              <button type="button" class="lcg-btn lcg-btn-primary" :disabled="accepting" @click="acceptCard(row)"><Icon name="check" :size="14" /> 接受</button>
+              <button type="button" class="lcg-btn" @click="row.editing = true; row.editFront = row.front; row.editBack = row.back; row.editDifficulty = row.difficulty"><Icon name="pencil" :size="14" /> 编辑</button>
+              <button type="button" class="lcg-btn lcg-btn-ghost" @click="ignoreCard(row)"><Icon name="x" :size="14" /> 忽略</button>
             </div>
             <div v-else-if="row.state === 'accepted'" class="lcg-ok"><Icon name="check-circle" :size="14" /> 已接受</div>
           </template>
@@ -523,7 +523,7 @@ onMounted(() => {
               <select v-model.number="row.editDifficulty" class="lcg-input lcg-select-sm kf-select kf-form-control">
                 <option :value="1">简单</option><option :value="2">中等</option><option :value="3">困难</option>
               </select>
-              <button type="button" class="lcg-btn lcg-btn-primary" :disabled="!row.editFront.trim() || !row.editBack.trim()" @click="acceptCard(row)"><Icon name="check" :size="13" /> 接受</button>
+              <button type="button" class="lcg-btn lcg-btn-primary" :disabled="!row.editFront.trim() || !row.editBack.trim()" @click="acceptCard(row)"><Icon name="check" :size="14" /> 接受</button>
               <button type="button" class="lcg-btn" @click="row.editing = false; row.editFront = row.front; row.editBack = row.back; row.editDifficulty = row.difficulty">取消</button>
             </div>
           </template>
@@ -532,7 +532,7 @@ onMounted(() => {
 
       <!-- 费曼 Draft -->
       <section v-if="feynman" class="lcg-card">
-        <div class="lcg-card-title"><Icon name="message-square" :size="15" /> 费曼 Draft <span class="lcg-count-badge">{{ feynman.state === 'pending' ? '待审核' : '已接受' }}</span></div>
+        <div class="lcg-card-title"><Icon name="message-square" :size="16" /> 费曼 Draft <span class="lcg-count-badge">{{ feynman.state === 'pending' ? '待审核' : '已接受' }}</span></div>
         <p class="lcg-tip">AI 只给你「这次的表达题目与引导」，答案要由你自己讲出来——接受后进入费曼页开始表达。</p>
         <template v-if="!feynman.editing">
           <p class="lcg-q"><b>表达主题：</b>{{ feynman.topic }}</p>
@@ -541,18 +541,18 @@ onMounted(() => {
           <div v-if="feynman.avoidTerms.length" class="lcg-chips"><span class="lcg-chip-lbl">别只堆术语</span><span v-for="(a, i) in feynman.avoidTerms" :key="i" class="lcg-chip">{{ a }}</span></div>
           <div class="lcg-actions lcg-actions-left">
             <template v-if="feynman.state === 'pending'">
-              <button type="button" class="lcg-btn lcg-btn-primary" @click="acceptFeynman"><Icon name="play" :size="13" /> 接受并去表达</button>
-              <button type="button" class="lcg-btn" @click="feynman.editing = true; feynman.editTopic = feynman.topic; feynman.editQuestion = feynman.question"><Icon name="pencil" :size="13" /> 编辑</button>
-              <button type="button" class="lcg-btn lcg-btn-ghost" @click="feynman.state = 'ignored'"><Icon name="x" :size="13" /> 忽略</button>
+              <button type="button" class="lcg-btn lcg-btn-primary" @click="acceptFeynman"><Icon name="play" :size="14" /> 接受并去表达</button>
+              <button type="button" class="lcg-btn" @click="feynman.editing = true; feynman.editTopic = feynman.topic; feynman.editQuestion = feynman.question"><Icon name="pencil" :size="14" /> 编辑</button>
+              <button type="button" class="lcg-btn lcg-btn-ghost" @click="feynman.state = 'ignored'"><Icon name="x" :size="14" /> 忽略</button>
             </template>
-            <button v-else type="button" class="lcg-btn lcg-btn-primary" @click="startFeynman"><Icon name="arrow-right" :size="13" /> 开始费曼表达</button>
+            <button v-else type="button" class="lcg-btn lcg-btn-primary" @click="startFeynman"><Icon name="arrow-right" :size="14" /> 开始费曼表达</button>
           </div>
         </template>
         <template v-else>
           <input v-model="feynman.editTopic" class="lcg-input kf-input kf-form-control" placeholder="表达主题（如：JVM GC）" />
           <textarea v-model="feynman.editQuestion" rows="3" class="lcg-input lcg-area kf-textarea kf-form-control" placeholder="这次的费曼引导问题"></textarea>
           <div class="lcg-edit-row">
-            <button type="button" class="lcg-btn lcg-btn-primary" :disabled="!feynman.editTopic.trim() || !feynman.editQuestion.trim()" @click="acceptFeynman"><Icon name="check" :size="13" /> 接受并去表达</button>
+            <button type="button" class="lcg-btn lcg-btn-primary" :disabled="!feynman.editTopic.trim() || !feynman.editQuestion.trim()" @click="acceptFeynman"><Icon name="check" :size="14" /> 接受并去表达</button>
             <button type="button" class="lcg-btn" @click="feynman.editing = false; feynman.editTopic = feynman.topic; feynman.editQuestion = feynman.question">取消</button>
           </div>
         </template>
@@ -560,7 +560,7 @@ onMounted(() => {
 
       <!-- 场景 Draft -->
       <section v-if="scenario" class="lcg-card">
-        <div class="lcg-card-title"><Icon name="target" :size="15" /> 场景 Draft <span class="lcg-count-badge">{{ scenario.state === 'pending' ? '待审核' : '已接受' }}</span></div>
+        <div class="lcg-card-title"><Icon name="target" :size="16" /> 场景 Draft <span class="lcg-count-badge">{{ scenario.state === 'pending' ? '待审核' : '已接受' }}</span></div>
         <p class="lcg-tip">一个真实业务场景 + 一个开放问题。提交后系统按考察点做确定性覆盖评分（评分口径仅服务端可见）。</p>
         <template v-if="!scenario.editing">
           <p class="lcg-q"><b>标题：</b>{{ scenario.title }}</p>
@@ -569,11 +569,11 @@ onMounted(() => {
           <div class="lcg-chips"><span class="lcg-chip-lbl">考察点</span><span v-for="(p, i) in scenario.pointLabels" :key="i" class="lcg-chip">{{ p }}</span></div>
           <div class="lcg-actions lcg-actions-left">
             <template v-if="scenario.state === 'pending'">
-              <button type="button" class="lcg-btn lcg-btn-primary" :disabled="accepting || !scenario.draftToken" @click="acceptScenario(scenario)"><Icon name="check" :size="13" /> 接受</button>
-              <button type="button" class="lcg-btn" @click="scenario.editing = true; scenario.editTitle = scenario.title; scenario.editContext = scenario.contextText; scenario.editQuestion = scenario.questionText; scenario.editDifficulty = scenario.difficulty"><Icon name="pencil" :size="13" /> 编辑</button>
-              <button type="button" class="lcg-btn lcg-btn-ghost" @click="scenario.state = 'ignored'"><Icon name="x" :size="13" /> 忽略</button>
+              <button type="button" class="lcg-btn lcg-btn-primary" :disabled="accepting || !scenario.draftToken" @click="acceptScenario(scenario)"><Icon name="check" :size="14" /> 接受</button>
+              <button type="button" class="lcg-btn" @click="scenario.editing = true; scenario.editTitle = scenario.title; scenario.editContext = scenario.contextText; scenario.editQuestion = scenario.questionText; scenario.editDifficulty = scenario.difficulty"><Icon name="pencil" :size="14" /> 编辑</button>
+              <button type="button" class="lcg-btn lcg-btn-ghost" @click="scenario.state = 'ignored'"><Icon name="x" :size="14" /> 忽略</button>
             </template>
-            <button v-else type="button" class="lcg-btn lcg-btn-primary" @click="startScenario(scenario)"><Icon name="arrow-right" :size="13" /> 开始场景练习</button>
+            <button v-else type="button" class="lcg-btn lcg-btn-primary" @click="startScenario(scenario)"><Icon name="arrow-right" :size="14" /> 开始场景练习</button>
           </div>
         </template>
         <template v-else>
@@ -584,7 +584,7 @@ onMounted(() => {
             <select v-model.number="scenario.editDifficulty" class="lcg-input lcg-select-sm kf-select kf-form-control">
               <option :value="1">简单</option><option :value="2">中等</option><option :value="3">困难</option>
             </select>
-            <button type="button" class="lcg-btn lcg-btn-primary" :disabled="!scenario.editTitle.trim() || !scenario.editContext.trim() || !scenario.editQuestion.trim()" @click="acceptScenario(scenario)"><Icon name="check" :size="13" /> 接受</button>
+            <button type="button" class="lcg-btn lcg-btn-primary" :disabled="!scenario.editTitle.trim() || !scenario.editContext.trim() || !scenario.editQuestion.trim()" @click="acceptScenario(scenario)"><Icon name="check" :size="14" /> 接受</button>
             <button type="button" class="lcg-btn" @click="scenario.editing = false; scenario.editTitle = scenario.title; scenario.editContext = scenario.contextText; scenario.editQuestion = scenario.questionText; scenario.editDifficulty = scenario.difficulty">取消</button>
           </div>
         </template>
@@ -617,31 +617,31 @@ onMounted(() => {
   padding-top: 0;
 }
 .lcg-head { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
-.lcg-back { display: inline-flex; align-items: center; gap: 5px; font-size: var(--kf-fs-13); font-weight: 500; border: none; background: transparent; color: var(--kf-primary); cursor: pointer; padding: 0; }
+.lcg-back { display: inline-flex; align-items: center; gap: 4px; font-size: var(--kf-fs-13); font-weight: 500; border: none; background: transparent; color: var(--kf-primary); cursor: pointer; padding: 0; }
 .lcg-head > div { flex: 1; min-width: 240px; }
 .lcg-sub { font-size: var(--kf-fs-13); color: var(--kf-muted-foreground); margin-top: 4px; line-height: 1.6; }
-.lcg-gen { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; font-size: var(--kf-fs-13); font-weight: 600; border: none; border-radius: var(--kf-radius-md); background: var(--kf-primary); color: #fff; cursor: pointer; }
+.lcg-gen { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; font-size: var(--kf-fs-13); font-weight: 600; border: none; border-radius: var(--kf-radius-md); background: var(--kf-primary); color: var(--kf-accent-foreground); cursor: pointer; }
 .lcg-gen:hover:not(:disabled) { opacity: 0.92; }
 .lcg-gen:disabled { opacity: 0.55; cursor: default; }
 
-.lcg-card { padding: 18px; border-radius: var(--kf-radius-lg); background: var(--kf-card); border: 1px solid var(--kf-border); margin-bottom: 14px; }
-.lcg-card-title { display: flex; align-items: center; gap: 7px; font-size: var(--kf-fs-16); font-weight: 600; color: var(--kf-foreground); margin-bottom: 10px; flex-wrap: wrap; }
+.lcg-card { padding: 16px; border-radius: var(--kf-radius-lg); background: var(--kf-card); border: 1px solid var(--kf-border); margin-bottom: 14px; }
+.lcg-card-title { display: flex; align-items: center; gap: 8px; font-size: var(--kf-fs-16); font-weight: 600; color: var(--kf-foreground); margin-bottom: 10px; flex-wrap: wrap; }
 .lcg-kno { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.lcg-kno-tag { font-size: var(--kf-fs-14); font-weight: 600; color: var(--kf-primary); background: color-mix(in srgb, var(--kf-primary) 10%, transparent); padding: 5px 12px; border-radius: var(--kf-radius-md); }
+.lcg-kno-tag { font-size: var(--kf-fs-14); font-weight: 600; color: var(--kf-primary); background: color-mix(in srgb, var(--kf-primary) 10%, transparent); padding: 4px 12px; border-radius: var(--kf-radius-md); }
 .lcg-kno-id { font-size: var(--kf-fs-12); color: var(--kf-muted-foreground); }
 
 .lcg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-bottom: 14px; }
-.lcg-field { display: flex; flex-direction: column; gap: 6px; }
+.lcg-field { display: flex; flex-direction: column; gap: 8px; }
 .lcg-field-label { font-size: var(--kf-fs-12); color: var(--kf-muted-foreground); }
-.lcg-input:not(.kf-form-control) { height: 36px; background: var(--kf-background); border: 1px solid var(--kf-border); border-radius: var(--kf-radius-md); }
-.lcg-input { width: 100%; padding: 0 10px; font-size: var(--kf-fs-13); color: var(--kf-foreground); box-sizing: border-box; }
+.lcg-input:not(.kf-form-control) { height: var(--kf-input-height); background: var(--kf-background); border: 1px solid var(--kf-border); border-radius: var(--kf-radius-md); }
+.lcg-input { width: 100%; padding: 0 12px; font-size: var(--kf-fs-13); color: var(--kf-foreground); box-sizing: border-box; }
 .lcg-input:not(.kf-form-control):focus { outline: none; border-color: var(--kf-primary); }
 .lcg-area:not(.kf-form-control) { height: auto; }
-.lcg-area { padding: 8px 10px; line-height: 1.6; resize: vertical; margin-bottom: 8px; height: auto; }
+.lcg-area { padding: 8px 12px; line-height: 1.6; resize: vertical; margin-bottom: 8px; height: auto; }
 .lcg-select-sm { width: 120px; }
 
 .lcg-types { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-.lcg-type { display: flex; align-items: center; gap: var(--kf-checkbox-gap); padding: 10px 12px; border: 1px solid var(--kf-border); border-radius: var(--kf-radius-md); background: var(--kf-background); cursor: pointer; color: var(--kf-foreground); }
+.lcg-type { display: flex; align-items: center; gap: var(--kf-checkbox-gap); padding: 12px 12px; border: 1px solid var(--kf-border); border-radius: var(--kf-radius-md); background: var(--kf-background); cursor: pointer; color: var(--kf-foreground); }
 .lcg-type.off { opacity: 0.55; }
 .lcg-type input { accent-color: var(--kf-primary); }
 .lcg-type span { display: flex; flex-direction: column; gap: 2px; }
@@ -650,7 +650,7 @@ onMounted(() => {
 .lcg-count:not(.kf-form-control) { height: 30px; border: 1px solid var(--kf-border); border-radius: var(--kf-radius-sm); background: var(--kf-card); }
 .lcg-count { margin-left: auto; font-size: var(--kf-fs-12); color: var(--kf-foreground); }
 
-.lcg-primary { display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 18px; font-size: var(--kf-fs-14); font-weight: 600; border: none; border-radius: var(--kf-radius-md); background: var(--kf-primary); color: #fff; cursor: pointer; }
+.lcg-primary { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 16px; font-size: var(--kf-fs-14); font-weight: 600; border: none; border-radius: var(--kf-radius-md); background: var(--kf-primary); color: var(--kf-accent-foreground); cursor: pointer; }
 .lcg-primary:hover:not(:disabled) { opacity: 0.92; }
 .lcg-primary:disabled { opacity: 0.55; cursor: default; }
 .lcg-running { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: var(--kf-fs-13); color: var(--kf-muted-foreground); }
@@ -658,17 +658,17 @@ onMounted(() => {
 @keyframes lcg-rotate { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 
 .lcg-error { border-color: color-mix(in srgb, var(--kf-destructive) 40%, transparent); }
-.lcg-error-head { display: flex; align-items: center; gap: 6px; font-size: var(--kf-fs-14); font-weight: 600; color: var(--kf-destructive); margin-bottom: 8px; }
+.lcg-error-head { display: flex; align-items: center; gap: 8px; font-size: var(--kf-fs-14); font-weight: 600; color: var(--kf-destructive); margin-bottom: 8px; }
 .lcg-error-msg { font-size: var(--kf-fs-13); color: var(--kf-foreground); margin-bottom: 10px; line-height: 1.7; }
 
 .lcg-result-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.lcg-result-title { display: flex; align-items: center; gap: 7px; font-size: var(--kf-fs-16); font-weight: 600; color: var(--kf-foreground); flex-wrap: wrap; }
+.lcg-result-title { display: flex; align-items: center; gap: 8px; font-size: var(--kf-fs-16); font-weight: 600; color: var(--kf-foreground); flex-wrap: wrap; }
 .lcg-meta { font-size: var(--kf-fs-12); font-weight: 400; color: var(--kf-muted-foreground); }
 .lcg-toolbar { display: flex; gap: 8px; }
 .lcg-bar { margin-top: 10px; font-size: var(--kf-fs-13); color: var(--kf-muted-foreground); background: var(--kf-muted); padding: 8px 12px; border-radius: var(--kf-radius-sm); }
 .lcg-bar b { color: var(--kf-foreground); }
 .lcg-warn { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
-.lcg-warn li { display: flex; align-items: flex-start; gap: 5px; font-size: var(--kf-fs-12); color: var(--kf-warning); list-style: none; }
+.lcg-warn li { display: flex; align-items: flex-start; gap: 4px; font-size: var(--kf-fs-12); color: var(--kf-warning); list-style: none; }
 .lcg-count-badge { font-size: var(--kf-fs-11); font-weight: 500; color: var(--kf-primary); background: color-mix(in srgb, var(--kf-primary) 10%, transparent); padding: 2px 8px; border-radius: var(--kf-radius-sm); }
 
 .lcg-tip { font-size: var(--kf-fs-12); color: var(--kf-muted-foreground); margin-bottom: 12px; line-height: 1.6; }
@@ -680,19 +680,19 @@ onMounted(() => {
 .lcg-a { font-size: var(--kf-fs-13); line-height: 1.7; color: var(--kf-muted-foreground); white-space: pre-wrap; }
 .lcg-ctx { font-size: var(--kf-fs-13); line-height: 1.7; color: var(--kf-muted-foreground); white-space: pre-wrap; margin-bottom: 4px; }
 .lcg-diff { font-size: var(--kf-fs-11); color: var(--kf-muted-foreground); border: 1px solid var(--kf-border); padding: 2px 8px; border-radius: var(--kf-radius-sm); flex-shrink: 0; }
-.lcg-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.lcg-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .lcg-actions-left { margin-top: 10px; }
-.lcg-btn { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 12px; font-size: var(--kf-fs-13); font-weight: 500; border-radius: var(--kf-radius-sm); border: 1px solid var(--kf-border); background: var(--kf-card); color: var(--kf-foreground); cursor: pointer; }
+.lcg-btn { display: inline-flex; align-items: center; gap: 4px; height: var(--kf-btn-height-sm); padding: 0 12px; font-size: var(--kf-fs-13); font-weight: 500; border-radius: var(--kf-radius-sm); border: 1px solid var(--kf-border); background: var(--kf-card); color: var(--kf-foreground); cursor: pointer; }
 .lcg-btn:hover:not(:disabled) { border-color: var(--kf-primary); color: var(--kf-primary); }
 .lcg-btn:disabled { opacity: 0.55; cursor: default; }
-.lcg-btn-primary { border-color: var(--kf-primary); background: var(--kf-primary); color: #fff; }
-.lcg-btn-primary:hover:not(:disabled) { opacity: 0.92; color: #fff; }
+.lcg-btn-primary { border-color: var(--kf-primary); background: var(--kf-primary); color: var(--kf-accent-foreground); }
+.lcg-btn-primary:hover:not(:disabled) { opacity: 0.92; color: var(--kf-accent-foreground); }
 .lcg-btn-ghost { border-color: transparent; color: var(--kf-muted-foreground); }
-.lcg-ok { display: inline-flex; align-items: center; gap: 5px; font-size: var(--kf-fs-13); font-weight: 600; color: var(--kf-success); }
+.lcg-ok { display: inline-flex; align-items: center; gap: 4px; font-size: var(--kf-fs-13); font-weight: 600; color: var(--kf-success); }
 .lcg-edit-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%; }
-.lcg-chips { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.lcg-chips { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
 .lcg-chip-lbl { font-size: var(--kf-fs-11); color: var(--kf-muted-foreground); margin-right: 2px; }
-.lcg-chip { font-size: var(--kf-fs-12); color: var(--kf-foreground); background: var(--kf-muted); padding: 2px 10px; border-radius: var(--kf-radius-sm); }
-.lcg-empty-cta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: var(--kf-fs-14); color: var(--kf-foreground); }
+.lcg-chip { font-size: var(--kf-fs-12); color: var(--kf-foreground); background: var(--kf-muted); padding: 2px 12px; border-radius: var(--kf-radius-sm); }
+.lcg-empty-cta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: var(--kf-fs-14); color: var(--kf-foreground); }
 .lcg-empty-cta .lcg-btn { margin-left: auto; }
 </style>

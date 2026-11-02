@@ -475,8 +475,8 @@ onUnmounted(async () => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 28px;
-  padding: 0 10px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   font-size: 12px;
   font-weight: 500;
   color: var(--kf-primary);
@@ -484,7 +484,7 @@ onUnmounted(async () => {
   border: 1px solid color-mix(in srgb, var(--kf-primary) 25%, transparent);
   border-radius: 999px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .join-btn:hover {
   background: color-mix(in srgb, var(--kf-primary) 20%, transparent);
@@ -494,7 +494,7 @@ onUnmounted(async () => {
   font-size: 12px;
   font-weight: 500;
   color: var(--kf-muted-foreground);
-  padding: 3px 8px;
+  padding: 4px 8px;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 999px;
 }
@@ -551,20 +551,20 @@ onUnmounted(async () => {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   overflow-y: auto;
 }
 
 .group-card {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 10px;
+  gap: 12px;
+  padding: 12px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .group-card:hover {
   background: rgba(255, 255, 255, 0.06);
@@ -583,7 +583,7 @@ onUnmounted(async () => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   font-weight: 700;
   font-size: 14px;
 }
@@ -603,7 +603,7 @@ onUnmounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 8px;
   margin-bottom: 2px;
 }
 
@@ -619,20 +619,20 @@ onUnmounted(async () => {
 .unread-dot {
   min-width: 18px;
   height: 18px;
-  padding: 0 5px;
+  padding: 0 4px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   font-weight: 700;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   background: var(--kf-danger);
   border-radius: 999px;
   flex-shrink: 0;
 }
 
 .group-desc {
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   font-size: 11px;
   color: var(--kf-muted-foreground);
   line-height: 1.4;
@@ -646,7 +646,7 @@ onUnmounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 8px;
 }
 
 .member-count {
@@ -658,9 +658,9 @@ onUnmounted(async () => {
 }
 
 .role-badge {
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   font-weight: 600;
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 4px;
 }
 .role-badge.owner {
@@ -711,7 +711,7 @@ onUnmounted(async () => {
 .online-info {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin: 0;
   font-size: 12px;
   color: var(--kf-muted-foreground);
@@ -729,7 +729,7 @@ onUnmounted(async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 22px;
+  gap: 20px;
 }
 
 .timer-center {
@@ -737,7 +737,7 @@ onUnmounted(async () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .time-display {
@@ -772,9 +772,9 @@ onUnmounted(async () => {
 .ctrl-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 40px;
-  padding: 0 18px;
+  gap: 8px;
+  height: var(--kf-btn-height-md);
+  padding: 0 16px;
   font-size: 14px;
   font-weight: 600;
   color: var(--kf-foreground);
@@ -782,7 +782,7 @@ onUnmounted(async () => {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .ctrl-btn:hover {
   background: rgba(255, 255, 255, 0.1);
@@ -806,7 +806,7 @@ onUnmounted(async () => {
   height: 10px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.12);
-  transition: background 0.3s ease, transform 0.3s ease;
+  transition: background var(--kf-motion-slower) var(--kf-ease-standard), transform var(--kf-motion-slower) var(--kf-ease-standard);
 }
 .dot.done {
   background: var(--kf-accent, var(--kf-success));
@@ -849,7 +849,7 @@ onUnmounted(async () => {
 
 .member-list {
   list-style: none;
-  margin: 0 0 14px;
+  margin: 0 0 12px;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -861,7 +861,7 @@ onUnmounted(async () => {
 .member-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 8px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.025);
@@ -880,7 +880,7 @@ onUnmounted(async () => {
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, var(--kf-primary), #8B5CF6);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   font-size: 12px;
   font-weight: 700;
 }
@@ -910,7 +910,7 @@ onUnmounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 8px;
   margin-bottom: 3px;
 }
 
@@ -927,14 +927,14 @@ onUnmounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 8px;
 }
 
 .status-tag {
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   font-weight: 500;
   color: var(--kf-muted-foreground);
-  padding: 1px 5px;
+  padding: 1px 4px;
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.05);
 }
@@ -944,7 +944,7 @@ onUnmounted(async () => {
 }
 
 .focus-time {
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   color: var(--kf-muted-foreground);
 }
 
@@ -959,7 +959,7 @@ onUnmounted(async () => {
 .chat-head {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 12px;
   font-weight: 600;
   color: var(--kf-foreground);
@@ -967,7 +967,7 @@ onUnmounted(async () => {
 }
 
 .chat-empty {
-  padding: 10px 6px;
+  padding: 12px 8px;
   font-size: 11px;
   color: var(--kf-muted-foreground);
   text-align: center;
@@ -993,11 +993,11 @@ onUnmounted(async () => {
 
 .chat-list {
   list-style: none;
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   max-height: 80px;
   overflow-y: auto;
 }
@@ -1021,7 +1021,7 @@ onUnmounted(async () => {
 .chat-input-wrap {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .chat-input:not(.kf-form-control) {
@@ -1034,7 +1034,7 @@ onUnmounted(async () => {
 .chat-input {
   width: 100%;
   box-sizing: border-box;
-  padding: 8px 10px;
+  padding: 8px 12px;
   font-size: 12px;
   color: var(--kf-foreground);
   resize: none;
@@ -1050,16 +1050,16 @@ onUnmounted(async () => {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  height: 30px;
+  height: var(--kf-btn-height-sm);
   padding: 0 12px;
   font-size: 12px;
   font-weight: 600;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   background: var(--kf-primary);
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: filter 0.15s ease;
+  transition: filter var(--kf-motion-base) var(--kf-ease-standard);
   align-self: flex-end;
 }
 .send-btn:hover:not(:disabled) {

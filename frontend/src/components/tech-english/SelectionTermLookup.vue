@@ -138,9 +138,9 @@ defineExpose({ clear })
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 0 10px;
-  border-radius: var(--kf-radius-sm, 8px);
+  gap: var(--kf-space-2);
+  padding: 0 var(--kf-space-3);
+  border-radius: var(--kf-radius-sm);
   background: var(--kf-card, #ffffff);
   color: var(--kf-foreground, #1a1d23);
   border: 1px solid var(--kf-border, #e2e6ec);
@@ -150,7 +150,7 @@ defineExpose({ clear })
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .selection-term-trigger:hover {

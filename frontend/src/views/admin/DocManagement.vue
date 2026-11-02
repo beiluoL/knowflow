@@ -876,7 +876,7 @@ onMounted(() => {
 <style scoped>
 /* 页面容器 */
 .doc-mgmt-wrap {
-  padding: 24px 28px 40px;
+  padding: 24px 24px 40px;
   position: relative;
   animation: fadeIn 0.4s ease-out;
 
@@ -956,7 +956,7 @@ onMounted(() => {
 .view-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   height: 32px;
   padding: 0 12px;
   border-radius: 6px;
@@ -966,7 +966,7 @@ onMounted(() => {
   color: var(--kf-muted-foreground);
   border: none;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard),  color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .view-btn.active {
@@ -1000,11 +1000,11 @@ onMounted(() => {
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .category-select {
-  padding: 0 28px 0 10px;
+  padding: 0 24px 0 12px;
   font-size: 13px;
   color: var(--kf-foreground);
   cursor: pointer;
@@ -1018,7 +1018,7 @@ onMounted(() => {
 .filter-types {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
@@ -1032,7 +1032,7 @@ onMounted(() => {
   color: var(--kf-foreground);
   border: 1px solid var(--kf-border);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard),  color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .filter-btn.active {
@@ -1052,7 +1052,7 @@ onMounted(() => {
 .sort-group {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .sort-label {
@@ -1069,7 +1069,7 @@ onMounted(() => {
 }
 
 .sort-select {
-  padding: 0 10px;
+  padding: 0 12px;
   font-size: 13px;
   color: var(--kf-foreground);
   cursor: pointer;
@@ -1094,7 +1094,7 @@ onMounted(() => {
   background: var(--kf-background);
   border: 1px solid var(--kf-border);
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .search-input {
@@ -1119,7 +1119,7 @@ onMounted(() => {
   color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 .search-btn:hover {
   opacity: 0.9;
@@ -1131,7 +1131,7 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   padding: 40px 0;
   color: var(--kf-muted-foreground);
   font-size: 13px;
@@ -1171,7 +1171,7 @@ onMounted(() => {
 
 .table-head {
   background: var(--kf-background);
-  padding: 10px 16px;
+  padding: 12px 16px;
   font-size: 12px;
   font-weight: 600;
   color: var(--kf-muted-foreground);
@@ -1269,7 +1269,7 @@ onMounted(() => {
 .file-name-cell {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
 }
 
@@ -1291,7 +1291,7 @@ onMounted(() => {
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
-  transition: color 0.15s;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .file-name-text:hover {
@@ -1321,7 +1321,7 @@ onMounted(() => {
 .progress-fill {
   height: 100%;
   border-radius: 3px;
-  transition: width 0.3s ease-out;
+  transition: width var(--kf-motion-slower) var(--kf-ease-entrance);
 }
 
 .progress-text {
@@ -1332,8 +1332,8 @@ onMounted(() => {
 
 /* 操作按钮 */
 .icon-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1342,7 +1342,7 @@ onMounted(() => {
   background: transparent;
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard),  color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .icon-btn:hover {
@@ -1372,8 +1372,8 @@ onMounted(() => {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  gap: 12px;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard),  box-shadow var(--kf-motion-base) var(--kf-ease-standard),  transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .doc-card:hover {
@@ -1403,7 +1403,7 @@ onMounted(() => {
   display: flex;
   gap: 2px;
   opacity: 0;
-  transition: opacity 0.15s;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .doc-card:hover .card-actions {
@@ -1421,7 +1421,7 @@ onMounted(() => {
   -webkit-box-orient: vertical;
   overflow: hidden;
   min-height: 39px;
-  transition: color 0.15s;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .card-title:hover {
@@ -1475,7 +1475,7 @@ onMounted(() => {
 .page-buttons {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .page-btn {
@@ -1492,7 +1492,7 @@ onMounted(() => {
   color: var(--kf-foreground);
   border: 1px solid var(--kf-border);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .page-btn:hover:not(:disabled):not(.ellipsis) {
@@ -1519,7 +1519,7 @@ onMounted(() => {
 .page-size {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .page-size-label {
@@ -1536,7 +1536,7 @@ onMounted(() => {
 }
 
 .page-size-select {
-  padding: 0 10px;
+  padding: 0 12px;
   font-size: 13px;
   color: var(--kf-foreground);
   cursor: pointer;
@@ -1576,7 +1576,7 @@ onMounted(() => {
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
   text-align: left;
 }
 
@@ -1589,7 +1589,7 @@ onMounted(() => {
 }
 
 .menu-item.danger:hover {
-  background: rgba(239, 68, 68, 0.08);
+  background: var(--kf-danger-soft);
 }
 
 /* 弹窗 */
@@ -1653,7 +1653,7 @@ onMounted(() => {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   flex: 1;
 }
 
@@ -1669,7 +1669,7 @@ onMounted(() => {
 }
 
 .form-input {
-  height: 36px;
+  height: var(--kf-input-height);
   padding: 0 12px;
   border-radius: 6px;
   border: 1px solid var(--kf-border);
@@ -1677,13 +1677,13 @@ onMounted(() => {
   color: var(--kf-foreground);
   font-size: 13px;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard),  box-shadow var(--kf-motion-base) var(--kf-ease-standard);
   width: 100%;
 }
 
 .form-input:focus {
   border-color: var(--kf-ring);
-  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+  box-shadow: 0 0 0 3px var(--kf-primary-soft);
 }
 
 /* 图标选择器 */
@@ -1703,7 +1703,7 @@ onMounted(() => {
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard),  background var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .icon-option:hover {
@@ -1712,7 +1712,7 @@ onMounted(() => {
 
 .icon-option.active {
   border-color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
 }
 
 /* 内容文本域 */
@@ -1728,22 +1728,22 @@ onMounted(() => {
   line-height: 1.6;
   outline: none;
   resize: vertical;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard),  box-shadow var(--kf-motion-base) var(--kf-ease-standard);
   box-sizing: border-box;
 }
 
 .form-textarea:focus {
   border-color: var(--kf-ring);
-  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+  box-shadow: 0 0 0 3px var(--kf-primary-soft);
 }
 
 /* 按钮 */
 .btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
@@ -1751,7 +1751,7 @@ onMounted(() => {
   color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .btn-primary:hover {
@@ -1766,9 +1766,9 @@ onMounted(() => {
 .btn-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
@@ -1776,7 +1776,7 @@ onMounted(() => {
   color: var(--kf-sidebar-foreground);
   border: 1px solid var(--kf-border);
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .btn-secondary:hover {
@@ -1791,17 +1791,17 @@ onMounted(() => {
 .btn-danger {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
   background: var(--kf-danger);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .btn-danger:hover {
@@ -1822,7 +1822,7 @@ onMounted(() => {
   padding: 12px 16px;
   margin-bottom: 16px;
   background: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   border-radius: 8px;
   animation: fadeIn 0.2s ease-out;
 }
@@ -1836,7 +1836,7 @@ onMounted(() => {
 
 .batch-info strong {
   font-weight: 600;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   margin: 0 2px;
 }
 
@@ -1852,7 +1852,7 @@ onMounted(() => {
 }
 
 .link-btn:hover {
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 
 .batch-actions {
@@ -1862,7 +1862,7 @@ onMounted(() => {
 
 .batch-actions .btn-secondary {
   background: rgba(255, 255, 255, 0.15);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   border-color: rgba(255, 255, 255, 0.3);
 }
 
@@ -1998,7 +1998,7 @@ onMounted(() => {
   border: 1px solid var(--kf-border);
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 
 .kf-item:hover {

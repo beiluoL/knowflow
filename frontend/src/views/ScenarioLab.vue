@@ -63,7 +63,7 @@
         <article v-for="(s, i) in filtered" :key="s.id" class="sc-card reveal-item" :style="{ '--reveal-index': i + 1 }">
           <div class="sc-card-head">
             <span class="sc-diff" :class="diffClass(s.difficulty)">{{ diffText(s.difficulty) }}</span>
-            <span class="sc-points"><Icon name="list-checks" :size="13" />{{ s.pointCount }} 个要点</span>
+            <span class="sc-points"><Icon name="list-checks" :size="14" />{{ s.pointCount }} 个要点</span>
           </div>
           <h2 class="sc-card-title">{{ s.title }}</h2>
           <p class="sc-card-question">{{ s.questionText }}</p>
@@ -81,7 +81,7 @@
     <template v-else>
       <div class="sc-solve-head">
         <button type="button" class="sc-btn-back" :disabled="submitting" @click="backToList">
-          <Icon name="arrow-left" :size="15" /><span>全部场景</span>
+          <Icon name="arrow-left" :size="16" /><span>全部场景</span>
         </button>
         <span class="sc-diff" :class="diffClass(current.difficulty)">{{ diffText(current.difficulty) }}</span>
       </div>
@@ -115,7 +115,7 @@
           </div>
           <p class="sc-block-body sc-question">{{ detail.questionText }}</p>
           <p class="sc-tip">
-            <Icon name="lightbulb" :size="13" />
+            <Icon name="lightbulb" :size="14" />
             建议闭卷作答：先凭记忆把思路完整写出来，再提交看要点覆盖度。评分按关键词命中（确定性规则），非 AI 语义评分。
           </p>
         </section>
@@ -171,7 +171,7 @@
 
           <div class="sc-points-grid">
             <div class="sc-point-col">
-              <p class="sc-point-col-title sc-hit"><Icon name="check" :size="13" />已覆盖（{{ result.matchedLabels.length }}）</p>
+              <p class="sc-point-col-title sc-hit"><Icon name="check" :size="14" />已覆盖（{{ result.matchedLabels.length }}）</p>
               <ul class="sc-point-list">
                 <li v-for="lb in result.matchedLabels" :key="lb" class="sc-point-item sc-point-hit">
                   <Icon name="check-circle" :size="14" style="color: var(--kf-success)" />{{ lb }}
@@ -180,7 +180,7 @@
               <p v-if="result.matchedLabels.length === 0" class="sc-point-none">本次未命中要点 —— 建议回到资料复习后再答。</p>
             </div>
             <div class="sc-point-col">
-              <p class="sc-point-col-title"><Icon name="x" :size="13" />待补强（{{ result.missedLabels.length }}）</p>
+              <p class="sc-point-col-title"><Icon name="x" :size="14" />待补强（{{ result.missedLabels.length }}）</p>
               <ul class="sc-point-list">
                 <li v-for="lb in result.missedLabels" :key="lb" class="sc-point-item">
                   <Icon name="x" :size="14" style="color: var(--kf-warning)" />{{ lb }}
@@ -446,15 +446,15 @@ onUnmounted(() => {
 .sc-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
+  gap: 8px;
+  padding: 8px 12px;
   border-radius: 999px;
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
   color: var(--kf-muted-foreground);
   font-size: var(--kf-fs-caption);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .sc-chip:hover {
   border-color: var(--kf-primary);
@@ -470,7 +470,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 14px;
+  padding: 12px 12px;
   margin-bottom: 16px;
   border: 1px solid var(--kf-primary-subtle);
   border-radius: var(--kf-radius-md);
@@ -490,7 +490,7 @@ onUnmounted(() => {
   color: var(--kf-muted-foreground);
   font-size: var(--kf-fs-caption);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .sc-ctx-clear:hover {
   border-color: var(--kf-primary);
@@ -517,7 +517,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   padding: 48px 16px;
   color: var(--kf-muted-foreground);
   font-size: var(--kf-fs-body-sm);
@@ -535,9 +535,9 @@ onUnmounted(() => {
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-lg);
-  padding: 18px;
+  padding: 16px;
   box-shadow: var(--kf-shadow-sm);
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  transition: box-shadow var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .sc-card:hover {
   box-shadow: var(--kf-shadow-lg);
@@ -552,7 +552,7 @@ onUnmounted(() => {
 .sc-diff {
   display: inline-flex;
   align-items: center;
-  padding: 2px 10px;
+  padding: 2px 12px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: var(--kf-fw-body-md);
@@ -560,15 +560,15 @@ onUnmounted(() => {
 }
 .sc-diff-1 {
   background: var(--kf-success);
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 .sc-diff-2 {
   background: var(--kf-warning);
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 .sc-diff-3 {
   background: var(--kf-danger);
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 .sc-points {
   display: inline-flex;
@@ -600,7 +600,7 @@ onUnmounted(() => {
 .sc-btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 8px 16px;
   border: none;
   border-radius: var(--kf-radius-md);
@@ -609,7 +609,7 @@ onUnmounted(() => {
   font-size: var(--kf-fs-body-sm);
   font-weight: var(--kf-fw-body-md);
   cursor: pointer;
-  transition: background 0.15s ease, opacity 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 .sc-btn-primary:hover:not(:disabled) {
   background: var(--kf-primary-hover);
@@ -621,15 +621,15 @@ onUnmounted(() => {
 .sc-btn-ghost {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
+  gap: 8px;
+  padding: 8px 12px;
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-md);
   background: transparent;
   color: var(--kf-muted-foreground);
   font-size: var(--kf-fs-body-sm);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .sc-btn-ghost:hover:not(:disabled) {
   border-color: var(--kf-primary);
@@ -643,21 +643,21 @@ onUnmounted(() => {
 .sc-solve-head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 16px;
 }
 .sc-btn-back {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: 8px;
+  padding: 8px 12px;
   border: none;
   border-radius: var(--kf-radius-sm);
   background: var(--kf-bg-subtle);
   color: var(--kf-muted-foreground);
   font-size: var(--kf-fs-body-sm);
   cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard), background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .sc-btn-back:hover {
   color: var(--kf-primary);
@@ -674,7 +674,7 @@ onUnmounted(() => {
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-lg);
-  padding: 18px 20px;
+  padding: 16px 20px;
   margin-bottom: 16px;
   box-shadow: var(--kf-shadow-sm);
 }
@@ -705,9 +705,9 @@ onUnmounted(() => {
 .sc-tip {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: 8px;
   margin-top: 12px;
-  padding: 10px 12px;
+  padding: 12px 12px;
   border-radius: var(--kf-radius-sm);
   background: var(--kf-primary-subtle);
   color: var(--kf-muted-foreground);
@@ -729,13 +729,13 @@ onUnmounted(() => {
   border-radius: var(--kf-radius-md);
   background: var(--kf-card);
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 .sc-textarea {
   width: 100%;
   box-sizing: border-box;
   resize: vertical;
-  padding: 12px 14px;
+  padding: 12px 12px;
   color: var(--kf-foreground);
   font-size: 14px;
   line-height: 1.8;
@@ -767,7 +767,7 @@ onUnmounted(() => {
 .sc-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-top: 12px;
 }
 /* 结果 */
@@ -776,7 +776,7 @@ onUnmounted(() => {
 }
 .sc-result-top {
   display: flex;
-  gap: 18px;
+  gap: 16px;
   align-items: center;
   margin-bottom: 14px;
 }
@@ -799,7 +799,7 @@ onUnmounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .sc-comment {
   font-size: var(--kf-fs-body-lg);
@@ -820,7 +820,7 @@ onUnmounted(() => {
   height: 100%;
   border-radius: 999px;
   background: linear-gradient(90deg, var(--kf-primary), var(--kf-success));
-  transition: width 0.4s ease;
+  transition: width 0.4s var(--kf-ease-standard);
 }
 .sc-points-grid {
   display: grid;
@@ -834,7 +834,7 @@ onUnmounted(() => {
 .sc-point-col-title {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   font-size: 13px;
   font-weight: var(--kf-fw-body-md);
   color: var(--kf-foreground);
@@ -849,12 +849,12 @@ onUnmounted(() => {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .sc-point-item {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
+  gap: 8px;
   font-size: var(--kf-fs-body-sm);
   line-height: 1.5;
   color: var(--kf-muted-foreground);

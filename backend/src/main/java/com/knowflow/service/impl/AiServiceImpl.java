@@ -174,6 +174,58 @@ public class AiServiceImpl implements AiService {
         return result.content();
     }
 
+    @Override
+    public boolean structuredStreamingAvailable(Long userId) {
+        EffectiveAiConfig effective = resolveEffectiveConfig(userId);
+        return isConfigured(effective) && adapterFactory.getAdapter(effective.provider()).protocol()
+                == AiProviderRegistry.Protocol.OPENAI;
+    }
+
+    @Override
+    public String streamStructured(String systemPrompt, String userPrompt, Long userId,
+            Consumer<String> delta, java.util.function.BooleanSupplier cancelled) {
+        requireAiEnabled();
+        EffectiveAiConfig effective = resolveEffectiveConfig(userId);
+        if (!structuredStreamingAvailable(userId)) {
+            throw new AiCapabilityException(AiFailureKind.UNSUPPORTED_CAPABILITY, null);
+        }
+        if (cancelled.getAsBoolean()) { throw new AiCapabilityException(AiFailureKind.CANCELLED, null); }
+        String scope = effective.provider() + ":" + effective.model();
+        return capabilityExecutor.execute(scope, false, () -> {
+            if (cancelled.getAsBoolean()) { throw new AiCapabilityException(AiFailureKind.CANCELLED, null); }
+            try {
+                Map<String, Object> body = new LinkedHashMap<>();
+                body.put("model", effective.model());
+                body.put("messages", List.of(Map.of("role", "system", "content", systemPrompt),
+                        Map.of("role", "user", "content", userPrompt)));
+                body.put("stream", true);
+                body.put("max_tokens", aiConfig.getMaxTokens());
+                body.put("temperature", 0.3);
+                boolean deepSeek = "deepseek".equalsIgnoreCase(effective.provider())
+                        || "api.deepseek.com".equalsIgnoreCase(URI.create(effective.baseUrl()).getHost());
+                if (deepSeek) {
+                    body.put("thinking", Map.of("type", "disabled"));
+                    body.put("response_format", Map.of("type", "json_object"));
+                }
+                String base = effective.baseUrl().replaceAll("/+$", "");
+                String endpoint = base.endsWith("/chat/completions") ? base : base + "/chat/completions";
+                var request = HttpRequest.newBuilder(URI.create(endpoint))
+                        .timeout(Duration.ofSeconds(Math.max(1, Math.min(180, aiConfig.getTimeoutSeconds()))))
+                        .header("Authorization", "Bearer " + effective.apiKey())
+                        .header("Content-Type", "application/json").header("Accept", "text/event-stream")
+                        .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body))).build();
+                requireAiEnabled();
+                String text = com.knowflow.ai.CancellableStructuredStream.invoke(httpClient, request,
+                        objectMapper, delta, () -> cancelled.getAsBoolean() || !capabilityProperties.isEnabled(),
+                        aiConfig.getTimeoutSeconds());
+                // Conservative upper-bound accounting; streaming providers need not return usage frames.
+                return new AiRawResult(text, Math.max(1, aiConfig.getMaxTokens()));
+            } catch (java.io.IOException | IllegalArgumentException invalid) {
+                throw new AiCapabilityException(AiFailureKind.INVALID_RESPONSE, "Structured stream rejected");
+            }
+        }).content();
+    }
+
     /**
      * 单次真实 HTTP 调用（重试由执行器负责）。所有供应商异常在此被分类为
      * {@link AiCapabilityException}，不再用笼统的“系统错误”。

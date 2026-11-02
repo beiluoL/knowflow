@@ -308,7 +308,7 @@ const goToCertificate = (item: CelebrationItem) => {
   border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   background: linear-gradient(135deg, #f5b940, #d99a1f);
   cursor: pointer;
   box-shadow: 0 6px 16px rgba(245, 185, 64, 0.35);

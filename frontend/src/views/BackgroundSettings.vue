@@ -631,7 +631,7 @@ vueWatch(showSaveDialog, (val) => {
   background: var(--kf-background);
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), background var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
   font-size: var(--kf-fs-body-sm);
   font-weight: 500;
   min-width: 0;
@@ -655,7 +655,7 @@ vueWatch(showSaveDialog, (val) => {
 }
 .type-tab-active {
   border-color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
 }
 
@@ -671,7 +671,7 @@ vueWatch(showSaveDialog, (val) => {
   justify-content: center;
   gap: 8px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
   overflow: hidden;
   background: var(--kf-background);
 }
@@ -729,7 +729,7 @@ vueWatch(showSaveDialog, (val) => {
   color: var(--kf-primary-foreground);
   font-size: var(--kf-fs-body-sm);
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .upload-zone:hover .upload-overlay {
   opacity: 1;
@@ -767,7 +767,7 @@ vueWatch(showSaveDialog, (val) => {
   cursor: pointer;
   background: transparent;
   padding: 2px;
-  transition: border-color 0.15s ease, transform 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .color-picker:hover {
   border-color: var(--kf-primary);
@@ -786,7 +786,7 @@ vueWatch(showSaveDialog, (val) => {
   border-radius: var(--kf-radius-sm);
   background: var(--kf-background);
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 .color-text {
   width: 90px;
@@ -813,7 +813,7 @@ vueWatch(showSaveDialog, (val) => {
   border-radius: 8px;
   border: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .color-swatch:hover {
   transform: scale(1.1);
@@ -841,7 +841,7 @@ vueWatch(showSaveDialog, (val) => {
   -webkit-appearance: none;
   appearance: none;
   cursor: pointer;
-  transition: background 0.15s ease, box-shadow 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 .slider:hover {
   background: var(--kf-border);
@@ -863,7 +863,7 @@ vueWatch(showSaveDialog, (val) => {
   cursor: pointer;
   border: 2px solid var(--kf-card);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
-  transition: transform 0.15s ease;
+  transition: transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .slider::-moz-range-thumb {
   width: 18px;
@@ -873,7 +873,7 @@ vueWatch(showSaveDialog, (val) => {
   cursor: pointer;
   border: 2px solid var(--kf-card);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
-  transition: transform 0.15s ease;
+  transition: transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 /* 渐变预览 */
@@ -892,7 +892,7 @@ vueWatch(showSaveDialog, (val) => {
   gap: 8px;
 }
 .size-mode-btn {
-  padding: 6px 14px;
+  padding: 8px 12px;
   font-size: var(--kf-fs-caption);
   font-weight: 500;
   border-radius: var(--kf-radius-sm);
@@ -901,7 +901,7 @@ vueWatch(showSaveDialog, (val) => {
   color: var(--kf-muted-foreground);
   cursor: pointer;
   white-space: nowrap;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), background var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .size-mode-btn:hover {
   border-color: var(--kf-primary);
@@ -916,7 +916,7 @@ vueWatch(showSaveDialog, (val) => {
 }
 .size-mode-active {
   border-color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
 }
 
@@ -942,7 +942,7 @@ vueWatch(showSaveDialog, (val) => {
   background: var(--kf-background);
   cursor: pointer;
   min-width: 0;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .preset-card:hover {
   border-color: var(--kf-primary);
@@ -979,20 +979,20 @@ vueWatch(showSaveDialog, (val) => {
 .clear-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: var(--kf-fs-body-sm);
   font-weight: 500;
-  padding: 8px 14px;
+  padding: 8px 12px;
   border-radius: var(--kf-radius-sm);
   border: 1px solid var(--kf-destructive);
   background: rgba(239, 68, 68, 0.06);
   color: var(--kf-destructive);
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .clear-btn:hover {
-  background: rgba(239, 68, 68, 0.12);
+  background: var(--kf-danger-soft);
 }
 .clear-btn:active {
   background: rgba(239, 68, 68, 0.18);
@@ -1021,7 +1021,7 @@ vueWatch(showSaveDialog, (val) => {
   position: absolute;
   inset: 0;
   z-index: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--kf-motion-slow) var(--kf-ease-standard);
   background-size: cover;
   background-position: center;
 }
@@ -1045,8 +1045,8 @@ vueWatch(showSaveDialog, (val) => {
   height: 32px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 10px;
+  gap: 8px;
+  padding: 0 12px;
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
@@ -1066,7 +1066,7 @@ vueWatch(showSaveDialog, (val) => {
 }
 .mock-content {
   flex: 1;
-  padding: 10px;
+  padding: 12px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
@@ -1078,7 +1078,7 @@ vueWatch(showSaveDialog, (val) => {
   padding: 8px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 .mock-line {
   height: 5px;
@@ -1137,17 +1137,17 @@ vueWatch(showSaveDialog, (val) => {
 .save-preset-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: var(--kf-fs-body-sm);
   font-weight: 500;
-  padding: 6px 12px;
+  padding: 8px 12px;
   border-radius: var(--kf-radius-sm);
   border: 1px solid var(--kf-primary);
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .save-preset-btn:hover {
   background: rgba(59, 111, 224, 0.12);
@@ -1162,9 +1162,9 @@ vueWatch(showSaveDialog, (val) => {
 }
 .preset-badge {
   font-size: var(--kf-fs-xs);
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 4px;
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
   font-weight: 500;
   margin-top: 2px;
@@ -1208,7 +1208,7 @@ vueWatch(showSaveDialog, (val) => {
   border-radius: var(--kf-radius-md);
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
-  transition: border-color 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .custom-preset-item:hover {
   border-color: var(--kf-primary);
@@ -1250,17 +1250,17 @@ vueWatch(showSaveDialog, (val) => {
   flex-shrink: 0;
 }
 .apply-btn {
-  height: 28px;
+  height: var(--kf-btn-height-sm);
   font-size: var(--kf-fs-caption);
   font-weight: 500;
   padding: 0 12px;
   border-radius: var(--kf-radius-sm);
   border: 1px solid var(--kf-primary);
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .apply-btn:hover {
   background: rgba(59, 111, 224, 0.12);
@@ -1274,8 +1274,8 @@ vueWatch(showSaveDialog, (val) => {
   outline-offset: 2px;
 }
 .delete-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1284,14 +1284,14 @@ vueWatch(showSaveDialog, (val) => {
   background: var(--kf-background);
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), background var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .delete-btn:hover {
   border-color: var(--kf-destructive);
   color: var(--kf-destructive);
 }
 .delete-btn:active {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--kf-danger-soft);
   border-color: var(--kf-destructive);
   color: var(--kf-destructive);
   transform: scale(0.98);
@@ -1332,12 +1332,12 @@ vueWatch(showSaveDialog, (val) => {
   margin-bottom: 16px;
 }
 .save-dialog-input:not(.kf-form-control) {
-  height: 40px;
+  height: var(--kf-input-height);
   border: 1px solid var(--kf-border);
   border-radius: 8px;
   background: var(--kf-background);
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .save-dialog-input {
   width: 100%;
@@ -1347,7 +1347,7 @@ vueWatch(showSaveDialog, (val) => {
 }
 .save-dialog-input:not(.kf-form-control):focus {
   border-color: var(--kf-primary);
-  box-shadow: 0 0 0 3px rgba(59, 111, 224, 0.1);
+  box-shadow: 0 0 0 3px var(--kf-primary-soft);
 }
 .save-dialog-actions {
   display: flex;
@@ -1365,7 +1365,7 @@ vueWatch(showSaveDialog, (val) => {
   background: var(--kf-background);
   color: var(--kf-foreground);
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .cancel-btn:hover {
   background: var(--kf-muted);
@@ -1387,7 +1387,7 @@ vueWatch(showSaveDialog, (val) => {
   background: var(--kf-primary);
   color: var(--kf-primary-foreground);
   cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard), transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .confirm-btn:hover:not(:disabled) {
   opacity: 0.9;

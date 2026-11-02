@@ -50,7 +50,7 @@
         <!-- Phase 3H：确定性智能推荐（规则引擎，零模型调用；AI 关闭同样可用） -->
         <div class="flex items-center gap-3 mt-4 pt-4 flex-wrap" style="border-top: 1px solid var(--kf-border);">
           <button type="button" class="btn-outline inline-flex items-center gap-1.5" @click="startSmartRecommend" :disabled="onlineLoading || submitting">
-            <Icon name="zap" :size="15" />
+            <Icon name="zap" :size="16" />
             <span>智能推荐练习</span>
           </button>
           <span class="text-xs" style="color: var(--kf-muted-foreground);">
@@ -62,7 +62,7 @@
       <!-- Phase 3H：推荐构成与题库不足提示（可解释、不偷降难度） -->
       <div v-if="smartMeta" class="mb-4 rounded-[10px] border px-4 py-3" :class="smartMeta.sufficient ? 'border-primary-200 bg-primary-50/50' : 'border-warning-200 bg-warning-50'">
         <div class="flex items-start gap-2 text-xs leading-relaxed">
-          <Icon :name="smartMeta.sufficient ? 'shield-check' : 'alert-circle'" :size="15"
+          <Icon :name="smartMeta.sufficient ? 'shield-check' : 'alert-circle'" :size="16"
             :class="smartMeta.sufficient ? 'text-primary-600 mt-0.5 shrink-0' : 'text-warning-600 mt-0.5 shrink-0'" />
           <div>
             <p :class="smartMeta.sufficient ? 'text-primary-800 font-medium' : 'text-warning-700 font-medium'">
@@ -1156,8 +1156,8 @@ onUnmounted(() => {
 .mode-tab {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
+  gap: 8px;
+  height: var(--kf-btn-height-sm);
   padding: 0 16px;
   border-radius: var(--kf-radius-sm);
   font-size: var(--kf-fs-body-md);
@@ -1166,7 +1166,7 @@ onUnmounted(() => {
   color: var(--kf-muted-foreground);
   border: none;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .mode-tab:hover {
   color: var(--kf-primary);
@@ -1184,7 +1184,7 @@ onUnmounted(() => {
   gap: 8px;
   padding: 12px 16px;
   border-radius: var(--kf-radius-md);
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
   font-size: var(--kf-fs-body-md);
   font-weight: 500;
@@ -1196,10 +1196,10 @@ onUnmounted(() => {
   border: 1px solid transparent;
 }
 .option-clickable:hover {
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
 }
 .q-option.selected {
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
   border-color: var(--kf-primary);
   color: var(--kf-primary);
   font-weight: 500;
@@ -1217,12 +1217,12 @@ onUnmounted(() => {
   margin-bottom: 6px;
 }
 .form-input:not(.kf-form-control) {
-  height: 36px;
+  height: var(--kf-input-height);
   border-radius: var(--kf-radius-sm);
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .form-input {
   width: 100%;
@@ -1252,10 +1252,10 @@ onUnmounted(() => {
   color: var(--kf-muted-foreground);
   border: none;
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .type-option:hover {
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
 }
 .type-option.active {
@@ -1267,9 +1267,9 @@ onUnmounted(() => {
 .btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   border-radius: var(--kf-radius-sm);
   font-size: var(--kf-fs-body-md);
   font-weight: 500;
@@ -1277,7 +1277,7 @@ onUnmounted(() => {
   color: var(--kf-primary-foreground);
   border: none;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 .btn-primary:hover {
   opacity: 0.9;
@@ -1288,11 +1288,11 @@ onUnmounted(() => {
 }
 .header-action {
   height: 38px;
-  padding: 0 18px;
+  padding: 0 16px;
   font-size: var(--kf-fs-body-md);
 }
 .generate-btn {
-  height: 38px;
+  height: var(--kf-btn-height-md);
   padding: 0 24px;
   font-size: var(--kf-fs-body-md);
 }
@@ -1300,8 +1300,8 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 28px;
-  padding: 0 10px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   border-radius: var(--kf-radius-sm);
   font-size: var(--kf-fs-body-sm);
   font-weight: 500;
@@ -1309,7 +1309,7 @@ onUnmounted(() => {
   color: var(--kf-sidebar-foreground);
   border: none;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .btn-ghost:hover {
   background: var(--kf-muted);
@@ -1318,8 +1318,8 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 28px;
-  padding: 0 10px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   border-radius: var(--kf-radius-sm);
   font-size: var(--kf-fs-body-sm);
   font-weight: 500;
@@ -1327,10 +1327,10 @@ onUnmounted(() => {
   color: var(--kf-state-error);
   border: none;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .btn-danger-ghost:hover {
-  background: rgba(239, 68, 68, 0.08);
+  background: var(--kf-danger-soft);
 }
 
 /* 状态区 */
@@ -1393,7 +1393,7 @@ onUnmounted(() => {
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-md);
   padding: 16px 20px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 .question-card:hover {
   border-color: var(--kf-ring);
@@ -1423,10 +1423,10 @@ onUnmounted(() => {
   background: var(--kf-background);
   color: var(--kf-foreground);
   font-size: var(--kf-fs-body-md);
-  transition: background 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .q-option.correct {
-  background: rgba(16, 185, 129, 0.08);
+  background: var(--kf-success-soft);
   color: var(--kf-state-success);
   font-weight: 500;
 }
@@ -1468,7 +1468,7 @@ onUnmounted(() => {
 .q-answer-hint {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 12px;
   border-radius: var(--kf-radius-sm);
   background: var(--kf-background);
@@ -1487,7 +1487,7 @@ onUnmounted(() => {
   font-weight: 500;
 }
 .badge-primary {
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
 }
 .badge-muted {
@@ -1495,22 +1495,22 @@ onUnmounted(() => {
   color: var(--kf-muted-foreground);
 }
 .badge-success {
-  background: rgba(16, 185, 129, 0.08);
+  background: var(--kf-success-soft);
   color: var(--kf-state-success);
 }
 .badge-warning {
-  background: rgba(245, 158, 11, 0.08);
+  background: var(--kf-warning-soft);
   color: var(--kf-state-warning);
 }
 .badge-error {
-  background: rgba(239, 68, 68, 0.08);
+  background: var(--kf-danger-soft);
   color: var(--kf-state-error);
 }
 
 /* 生成历史 */
 .history-card,
 .stats-card {
-  padding: 18px 20px;
+  padding: 16px 20px;
 }
 .history-empty {
   display: flex;
@@ -1525,8 +1525,8 @@ onUnmounted(() => {
 .history-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 0;
+  gap: 12px;
+  padding: 12px 0;
   border-bottom: 1px solid var(--kf-border);
 }
 .history-item:last-child {
@@ -1536,7 +1536,7 @@ onUnmounted(() => {
   width: 32px;
   height: 32px;
   border-radius: var(--kf-radius-sm);
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
   display: flex;
   align-items: center;
@@ -1575,10 +1575,10 @@ onUnmounted(() => {
   border-radius: var(--kf-radius-sm);
 }
 .stats-correct {
-  background: rgba(16, 185, 129, 0.08);
+  background: var(--kf-success-soft);
 }
 .stats-wrong {
-  background: rgba(239, 68, 68, 0.08);
+  background: var(--kf-danger-soft);
 }
 .stats-remaining {
   background: var(--kf-muted);
@@ -1613,14 +1613,14 @@ onUnmounted(() => {
 .advanced-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 4px 8px;
   border: none;
   background: transparent;
   color: var(--kf-muted-foreground);
   font-size: var(--kf-fs-caption, 12px);
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .advanced-toggle:hover {
   color: var(--kf-foreground);
@@ -1628,7 +1628,7 @@ onUnmounted(() => {
 .advanced-toggle:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px var(--kf-ring);
-  border-radius: var(--kf-radius-sm, 6px);
+  border-radius: var(--kf-radius-sm);
 }
 /* 唯一主操作行的生成提示 */
 .generated-hint {
@@ -1673,9 +1673,9 @@ onUnmounted(() => {
 .btn-outline {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
+  gap: 8px;
+  height: var(--kf-btn-height-sm);
+  padding: 0 12px;
   border-radius: var(--kf-radius-sm);
   font-size: var(--kf-fs-body-md);
   font-weight: 500;
@@ -1683,7 +1683,7 @@ onUnmounted(() => {
   color: var(--kf-foreground);
   border: 1px solid var(--kf-border);
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .btn-outline:hover {
   background: var(--kf-muted);
@@ -1697,7 +1697,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
   margin-top: 16px;
 }

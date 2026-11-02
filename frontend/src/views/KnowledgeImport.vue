@@ -1013,15 +1013,15 @@ onMounted(loadCategories)
 .adv-import-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
+  gap: 8px;
+  padding: 8px 12px;
   border-radius: var(--kf-radius-sm);
   background: var(--kf-primary);
   color: var(--kf-primary-foreground);
   font-size: 13px;
   font-weight: 500;
   text-decoration: none;
-  transition: opacity 0.15s;
+  transition: opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .adv-import-link:hover {
@@ -1031,13 +1031,13 @@ onMounted(loadCategories)
 .back-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   background: transparent;
   border: none;
   color: var(--kf-muted-foreground);
   cursor: pointer;
   font-size: 13px;
-  transition: color 0.15s;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .back-btn:hover {
@@ -1076,7 +1076,7 @@ onMounted(loadCategories)
   color: var(--kf-muted-foreground);
   font-size: 13px;
   font-weight: 600;
-  transition: all 0.2s;
+  transition: background-color var(--kf-motion-slow) var(--kf-ease-standard), border-color var(--kf-motion-slow) var(--kf-ease-standard), color var(--kf-motion-slow) var(--kf-ease-standard), box-shadow var(--kf-motion-slow) var(--kf-ease-standard), opacity var(--kf-motion-slow) var(--kf-ease-standard), transform var(--kf-motion-slow) var(--kf-ease-standard), width var(--kf-motion-slow) var(--kf-ease-standard), height var(--kf-motion-slow) var(--kf-ease-standard), stroke-dashoffset var(--kf-motion-slow) var(--kf-ease-standard);
   flex-shrink: 0;
 }
 
@@ -1128,7 +1128,7 @@ onMounted(loadCategories)
   align-items: center;
   gap: 8px;
   padding: 16px 20px;
-  background: rgba(59, 111, 224, 0.06);
+  background: var(--kf-primary-soft);
   border-bottom: 1px solid var(--kf-border);
 }
 
@@ -1185,7 +1185,7 @@ onMounted(loadCategories)
 
 .guide-section code {
   background: var(--kf-muted);
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: var(--kf-radius-sm);
   font-size: var(--kf-fs-caption);
   font-family: var(--font-mono);
@@ -1230,7 +1230,7 @@ onMounted(loadCategories)
   border: 2px solid var(--kf-border);
   border-radius: var(--kf-radius-md);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
   position: relative;
 }
 
@@ -1240,15 +1240,15 @@ onMounted(loadCategories)
 
 .kf-select-item.selected {
   border-color: var(--kf-primary);
-  background: rgba(59, 111, 224, 0.04);
+  background: var(--kf-primary-soft);
 }
 
 .kf-select-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: var(--kf-input-height);
   border-radius: var(--kf-radius-md);
   flex-shrink: 0;
   color: var(--kf-primary);
@@ -1301,7 +1301,7 @@ onMounted(loadCategories)
   border: 2px dashed var(--kf-border);
   border-radius: var(--kf-radius-md);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
   background: var(--kf-card);
 }
 
@@ -1346,7 +1346,7 @@ onMounted(loadCategories)
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   padding: 8px 12px;
   border: none;
   background: transparent;
@@ -1355,7 +1355,7 @@ onMounted(loadCategories)
   font-weight: 500;
   border-radius: var(--kf-radius-sm);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 
 .mode-tab:hover {
@@ -1377,11 +1377,11 @@ onMounted(loadCategories)
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px;
+  padding: 8px;
   background: var(--kf-card);
   border: 2px solid var(--kf-border);
   border-radius: var(--kf-radius-md);
-  transition: border-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .path-input-row:focus-within {
@@ -1392,8 +1392,8 @@ onMounted(loadCategories)
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: var(--kf-input-height);
   color: var(--kf-muted-foreground);
   flex-shrink: 0;
 }
@@ -1419,7 +1419,7 @@ onMounted(loadCategories)
 .btn-scan {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 8px 16px;
   border: none;
   background: var(--kf-primary);
@@ -1428,7 +1428,7 @@ onMounted(loadCategories)
   font-weight: 500;
   border-radius: var(--kf-radius-sm);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
   flex-shrink: 0;
 }
 
@@ -1455,7 +1455,7 @@ onMounted(loadCategories)
   padding: 2px 8px;
   font-size: 11px;
   font-weight: 500;
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
   border-radius: var(--kf-radius-sm);
 }
@@ -1470,7 +1470,7 @@ onMounted(loadCategories)
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
+  padding: 8px 12px;
   font-size: 13px;
   border-bottom: 1px solid var(--kf-border);
 }
@@ -1526,24 +1526,24 @@ onMounted(loadCategories)
 .stat-badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 10px;
+  padding: 2px 12px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 500;
 }
 
 .stat-badge.doc {
-  background: rgba(59, 111, 224, 0.1);
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
 }
 
 .stat-badge.img {
-  background: rgba(16, 185, 129, 0.1);
+  background: var(--kf-success-soft);
   color: var(--kf-accent);
 }
 
 .stat-badge.dir {
-  background: rgba(245, 158, 11, 0.1);
+  background: var(--kf-warning-soft);
   color: var(--kf-warning);
 }
 
@@ -1568,7 +1568,7 @@ onMounted(loadCategories)
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-md);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 
 .option-item:hover {
@@ -1636,13 +1636,13 @@ onMounted(loadCategories)
 .btn-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
+  gap: 8px;
+  padding: 12px 20px;
   border-radius: var(--kf-radius-sm);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
   border: none;
 }
 
@@ -1730,15 +1730,15 @@ onMounted(loadCategories)
 .btn-cancel {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: 8px;
+  padding: 8px 12px;
   font-size: 13px;
   color: var(--kf-destructive);
-  background: rgba(239, 68, 68, 0.08);
+  background: var(--kf-danger-soft);
   border: 1px solid rgba(239, 68, 68, 0.25);
   border-radius: var(--kf-radius-sm);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
   flex-shrink: 0;
 }
 
@@ -1764,7 +1764,7 @@ onMounted(loadCategories)
   height: 100%;
   background: var(--kf-primary);
   border-radius: 999px;
-  transition: width 0.3s ease;
+  transition: width var(--kf-motion-slower) var(--kf-ease-standard);
 }
 
 .progress-stats-row {
@@ -1871,12 +1871,12 @@ onMounted(loadCategories)
 }
 
 .result-icon.success {
-  background: rgba(16, 185, 129, 0.1);
+  background: var(--kf-success-soft);
   color: var(--kf-accent);
 }
 
 .result-icon.partial {
-  background: rgba(245, 158, 11, 0.1);
+  background: var(--kf-warning-soft);
   color: var(--kf-warning);
 }
 
@@ -1902,19 +1902,19 @@ onMounted(loadCategories)
 }
 
 .stat-item.success {
-  background: rgba(16, 185, 129, 0.08);
+  background: var(--kf-success-soft);
 }
 
 .stat-item.skipped {
-  background: rgba(59, 111, 224, 0.08);
+  background: var(--kf-primary-soft);
 }
 
 .stat-item.failed {
-  background: rgba(239, 68, 68, 0.08);
+  background: var(--kf-danger-soft);
 }
 
 .stat-item.images {
-  background: rgba(245, 158, 11, 0.08);
+  background: var(--kf-warning-soft);
 }
 
 .stat-num {
@@ -1956,8 +1956,8 @@ onMounted(loadCategories)
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 10px;
-  background: rgba(59, 111, 224, 0.08);
+  padding: 4px 12px;
+  background: var(--kf-primary-soft);
   color: var(--kf-primary);
   border-radius: var(--kf-radius-sm);
   font-size: 12px;
@@ -1974,15 +1974,15 @@ onMounted(loadCategories)
 .log-tab {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
+  gap: 8px;
+  padding: 8px 12px;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
   color: var(--kf-muted-foreground);
   font-size: 13px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 
 .log-tab:hover {
@@ -2001,7 +2001,7 @@ onMounted(loadCategories)
   justify-content: center;
   min-width: 18px;
   height: 18px;
-  padding: 0 6px;
+  padding: 0 8px;
   border-radius: 999px;
   background: var(--kf-muted);
   color: var(--kf-muted-foreground);

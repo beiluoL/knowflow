@@ -440,10 +440,10 @@ const onRowClick = () => {
   color: var(--kf-muted-foreground);
 }
 .node-icon.cat-archive {
-  color: #ea580c;
+  color: var(--kf-warning);
 }
 .node-icon.cat-other {
-  color: #9ca3af;
+  color: var(--kf-muted-foreground);
 }
 
 .node-row.active .node-icon {

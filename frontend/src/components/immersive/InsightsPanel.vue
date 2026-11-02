@@ -631,7 +631,7 @@ const TabSkeleton = defineComponent({
 .ip-tabs {
   display: flex;
   gap: 2px;
-  padding: 3px;
+  padding: 4px;
   background: rgba(255, 255, 255, 0.04);
   border-radius: 10px;
   flex-shrink: 0;
@@ -652,14 +652,14 @@ const TabSkeleton = defineComponent({
   align-items: center;
   justify-content: center;
   gap: 4px;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .ip-tab:hover {
   color: var(--kf-foreground);
 }
 .ip-tab.active {
   background: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
   font-weight: 600;
   box-shadow: 0 4px 12px color-mix(in srgb, var(--kf-primary) 30%, transparent);
 }
@@ -679,7 +679,7 @@ const TabSkeleton = defineComponent({
 
 .ip-fade-enter-active,
 .ip-fade-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity var(--kf-motion-slow) var(--kf-ease-standard), transform var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .ip-fade-enter-from,
 .ip-fade-leave-to {
@@ -690,14 +690,14 @@ const TabSkeleton = defineComponent({
 .ip-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 
 .ip-card {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
-  padding: 14px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -706,7 +706,7 @@ const TabSkeleton = defineComponent({
 .ip-card-label {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   font-size: 11px;
   font-weight: 500;
   color: var(--kf-muted-foreground);
@@ -723,7 +723,7 @@ const TabSkeleton = defineComponent({
   line-height: 1.1;
   display: inline-flex;
   align-items: baseline;
-  gap: 3px;
+  gap: 4px;
 }
 .ip-unit {
   font-size: 12px;
@@ -764,7 +764,7 @@ const TabSkeleton = defineComponent({
   height: 100%;
   background: linear-gradient(90deg, var(--kf-primary), var(--kf-primary-muted));
   border-radius: 999px;
-  transition: width 0.4s ease;
+  transition: width 0.4s var(--kf-ease-standard);
 }
 
 .ip-quality {
@@ -789,7 +789,7 @@ const TabSkeleton = defineComponent({
 
 .ip-streak-bar {
   display: flex;
-  gap: 5px;
+  gap: 4px;
   justify-content: space-between;
 }
 .ip-streak-dot {
@@ -797,7 +797,7 @@ const TabSkeleton = defineComponent({
   height: 6px;
   border-radius: 3px;
   background: var(--kf-muted);
-  transition: background 0.2s ease;
+  transition: background var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .ip-streak-dot.active {
   background: linear-gradient(90deg, var(--kf-highlight), var(--kf-warning));
@@ -807,15 +807,15 @@ const TabSkeleton = defineComponent({
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
-  padding: 14px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 .ip-block-title {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 12px;
   font-weight: 600;
   color: var(--kf-foreground);
@@ -840,7 +840,7 @@ const TabSkeleton = defineComponent({
   min-width: 0;
   height: 32px;
   border-radius: 4px;
-  transition: transform 0.15s ease;
+  transition: transform var(--kf-motion-base) var(--kf-ease-standard);
 }
 .ip-heat-cell:hover {
   transform: scaleY(1.12);
@@ -850,7 +850,7 @@ const TabSkeleton = defineComponent({
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   color: var(--kf-muted-foreground);
 }
 .ip-heat-legend-bar {
@@ -867,7 +867,7 @@ const TabSkeleton = defineComponent({
 
 .ip-week-bars {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   align-items: flex-end;
   height: 110px;
   padding: 4px 0;
@@ -877,7 +877,7 @@ const TabSkeleton = defineComponent({
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
 }
 .ip-week-bar-wrap {
@@ -891,16 +891,16 @@ const TabSkeleton = defineComponent({
   min-height: 4px;
   background: linear-gradient(180deg, var(--kf-primary), var(--kf-primary-muted));
   border-radius: 4px 4px 2px 2px;
-  transition: height 0.3s ease;
+  transition: height var(--kf-motion-slower) var(--kf-ease-standard);
 }
 .ip-week-label {
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   color: var(--kf-muted-foreground);
   font-weight: 500;
 }
 
 .ip-empty {
-  padding: 18px 0;
+  padding: 16px 0;
   text-align: center;
   font-size: 12px;
   color: var(--kf-muted-foreground);
@@ -916,7 +916,7 @@ const TabSkeleton = defineComponent({
   grid-template-columns: 8px 48px 1fr auto;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px;
+  padding: 8px 12px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
 }
@@ -935,7 +935,7 @@ const TabSkeleton = defineComponent({
   justify-self: start;
   padding: 2px 8px;
   border-radius: 10px;
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   font-weight: 600;
 }
 .ip-tl-duration {
@@ -954,7 +954,7 @@ const TabSkeleton = defineComponent({
 }
 .ip-stacked-seg {
   height: 100%;
-  transition: width 0.4s ease;
+  transition: width 0.4s var(--kf-ease-standard);
 }
 .ip-stacked-seg:first-child {
   border-radius: 999px 0 0 999px;
@@ -966,14 +966,14 @@ const TabSkeleton = defineComponent({
 .ip-mode-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .ip-mode-item {
   display: grid;
   grid-template-columns: 8px auto 1fr auto;
   align-items: center;
   gap: 8px;
-  padding: 6px 4px;
+  padding: 8px 4px;
   font-size: 12px;
 }
 .ip-mode-dot {
@@ -985,7 +985,7 @@ const TabSkeleton = defineComponent({
   display: inline-flex;
   padding: 2px 8px;
   border-radius: 8px;
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   font-weight: 600;
   justify-self: start;
 }
@@ -1018,7 +1018,7 @@ const TabSkeleton = defineComponent({
 .ip-insight-card {
   display: grid;
   grid-template-columns: 32px 1fr;
-  gap: 10px;
+  gap: 12px;
   padding: 12px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.03);
@@ -1057,7 +1057,7 @@ const TabSkeleton = defineComponent({
 .ip-insight-body {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   min-width: 0;
 }
 .ip-insight-title {
@@ -1074,13 +1074,13 @@ const TabSkeleton = defineComponent({
 .ip-achieve-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .ip-achieve-item {
   display: grid;
   grid-template-columns: 32px 1fr;
-  gap: 10px;
-  padding: 10px;
+  gap: 12px;
+  padding: 12px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 10px;
   align-items: center;
@@ -1130,7 +1130,7 @@ const TabSkeleton = defineComponent({
 .ip-skeleton {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 .ip-sk-card {
   width: 100%;

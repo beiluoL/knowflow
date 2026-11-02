@@ -24,7 +24,7 @@
           </div>
           <div class="recall-hero-actions">
             <router-link to="/workbench/review" class="kf-btn recall-ghost-btn">
-              <Icon name="repeat" :size="15" aria-hidden="true" /> 间隔重复
+              <Icon name="repeat" :size="16" aria-hidden="true" /> 间隔重复
             </router-link>
             <button class="kf-btn kf-btn-primary" data-test="recall-create" @click="openCreate">
               <Icon name="plus" :size="16" aria-hidden="true" /> 新建默写
@@ -107,7 +107,7 @@
           {{ sessions.length === 0 ? '粘贴一段要记忆的内容，开始三轮闭卷默写。' : '换个筛选条件或清空搜索再试试。' }}
         </p>
         <button v-if="sessions.length === 0" class="kf-btn kf-btn-primary" @click="openCreate">
-          <Icon name="plus" :size="15" aria-hidden="true" /> 新建默写
+          <Icon name="plus" :size="16" aria-hidden="true" /> 新建默写
         </button>
       </div>
 
@@ -527,7 +527,7 @@ onBeforeUnmount(() => {
 .recall-search {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 0 var(--kf-space-3);
   height: var(--kf-btn-height-sm);
   border-radius: var(--kf-radius-md);
@@ -549,7 +549,7 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 5px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
   border: 1px solid transparent;
   background: transparent;
@@ -567,7 +567,7 @@ onBeforeUnmount(() => {
 .recall-filter:focus-visible { outline: 2px solid var(--kf-ring); outline-offset: 1px; }
 .recall-filter-count {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   opacity: 0.75;
 }
 .recall-grid {
@@ -583,7 +583,7 @@ onBeforeUnmount(() => {
   border-radius: var(--kf-radius-lg);
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
-  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  transition: border-color var(--kf-motion-slow) var(--kf-ease-standard), box-shadow var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .recall-card:hover {
   border-color: color-mix(in srgb, var(--kf-state-warning) 35%, var(--kf-border));
@@ -594,8 +594,8 @@ onBeforeUnmount(() => {
 .recall-status {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 8px;
+  gap: 4px;
+  padding: 4px 8px;
   border-radius: 999px;
   font-size: 11px;
   font-weight: 600;
@@ -620,8 +620,8 @@ onBeforeUnmount(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: var(--kf-btn-height-sm);
+  height: var(--kf-btn-height-sm);
   border: none;
   border-radius: var(--kf-radius-sm);
   background: transparent;
@@ -670,18 +670,18 @@ onBeforeUnmount(() => {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.recall-round-chips { display: flex; gap: 6px; }
+.recall-round-chips { display: flex; gap: 8px; }
 .recall-round-chip {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  padding: 3px 9px;
+  padding: 4px 8px;
   border-radius: var(--kf-radius-sm);
   background: color-mix(in srgb, var(--kf-state-warning) 8%, transparent);
 }
 .recall-round-chip.is-null { background: var(--kf-background); opacity: 0.7; }
 .recall-round-chip.is-current { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kf-state-warning) 45%, transparent); }
-.recall-round-label { font-family: var(--font-mono); font-size: 9px; color: var(--kf-muted-foreground); }
+.recall-round-label { font-family: var(--font-mono); font-size: var(--kf-fs-xs); color: var(--kf-muted-foreground); }
 .recall-round-value { font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--kf-state-warning); }
 .recall-round-chip.is-null .recall-round-value { color: var(--kf-muted-foreground); }
 .recall-card-foot {

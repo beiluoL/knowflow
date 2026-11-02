@@ -171,7 +171,7 @@
            用户明确点「开始学习」（或 Space/Enter）后才计入一次学习会话。 -->
       <div v-else-if="showPreparation" class="prep-panel">
         <div class="prep-card">
-          <span class="prep-badge"><Icon name="play" :size="13" /><span>准备开始</span></span>
+          <span class="prep-badge"><Icon name="play" :size="14" /><span>准备开始</span></span>
           <h2 class="prep-title">你将复习 <b class="tabular-nums">{{ learnFiltered.length }}</b> 张卡片</h2>
           <p class="prep-source">
             来源：<b>{{ prepSourceLabel }}</b>
@@ -313,13 +313,13 @@
       </section>
       <!-- §二十三：提交失败必须显式告知，且不跳过该卡；提供重试（§六：不渲染原始异常） -->
       <div v-if="rateError" ref="rateErrorElement" class="rate-error" role="alert" tabindex="-1">
-        <Icon name="alert-circle" :size="15" />
+        <Icon name="alert-circle" :size="16" />
         <div class="rate-error-text">
           <b>{{ rateError.title }}</b>
           <span>{{ rateError.hint }} 这张卡仍停留在当前位置。</span>
         </div>
         <button type="button" class="btn-outline btn-sm" :disabled="reviewing" @click="retryRate">
-          <Icon name="refresh-cw" :size="13" /><span>重试</span>
+          <Icon name="refresh-cw" :size="14" /><span>重试</span>
         </button>
       </div>
 
@@ -647,20 +647,20 @@
                   <td><span class="diff-badge" :class="diffClass(c.difficulty)">{{ diffLabel(c.difficulty) }}</span></td>
                   <td>
                     <span class="source-badge" :class="sourceClass(c.sourceType)">
-                      <Icon :name="sourceIcon(c.sourceType)" :size="13" />{{ sourceLabel(c.sourceType) }}
+                      <Icon :name="sourceIcon(c.sourceType)" :size="14" />{{ sourceLabel(c.sourceType) }}
                     </span>
                   </td>
                   <td class="time-cell text-muted tabular-nums">{{ formatTime(c.updateTime || c.createTime) }}</td>
                   <td>
                     <div class="row-actions">
                       <button type="button" class="row-btn" aria-label="查看答案" @click="openDetail(c)">
-                        <Icon name="eye" :size="15" /><span>查看答案</span>
+                        <Icon name="eye" :size="16" /><span>查看答案</span>
                       </button>
                       <button type="button" class="row-btn icon-only" aria-label="编辑" title="编辑" @click="openEdit(c)">
-                        <Icon name="edit" :size="15" />
+                        <Icon name="edit" :size="16" />
                       </button>
                       <button type="button" class="row-btn icon-only danger" aria-label="删除" title="删除" @click="removeOne(c)">
-                        <Icon name="trash-2" :size="15" />
+                        <Icon name="trash-2" :size="16" />
                       </button>
                     </div>
                   </td>
@@ -684,15 +684,15 @@
                     <div class="fc-badges">
                       <span class="diff-badge" :class="diffClass(c.difficulty)">{{ diffLabel(c.difficulty) }}</span>
                       <span class="source-badge" :class="sourceClass(c.sourceType)">
-                        <Icon :name="sourceIcon(c.sourceType)" :size="13" />{{ sourceLabel(c.sourceType) }}
+                        <Icon :name="sourceIcon(c.sourceType)" :size="14" />{{ sourceLabel(c.sourceType) }}
                       </span>
                     </div>
                     <div class="fc-top-actions">
                       <button type="button" class="icon-btn" :aria-label="`编辑 ${c.front}`" title="编辑" @click.stop="openEdit(c)">
-                        <Icon name="edit" :size="15" />
+                        <Icon name="edit" :size="16" />
                       </button>
                       <button type="button" class="icon-btn danger" :aria-label="`删除 ${c.front}`" title="删除" @click.stop="removeOne(c)">
-                        <Icon name="trash-2" :size="15" />
+                        <Icon name="trash-2" :size="16" />
                       </button>
                     </div>
                   </header>
@@ -716,10 +716,10 @@
                     </div>
                     <div class="fc-top-actions">
                       <button type="button" class="icon-btn" :aria-label="`编辑 ${c.front}`" title="编辑" @click.stop="openEdit(c)">
-                        <Icon name="edit" :size="15" />
+                        <Icon name="edit" :size="16" />
                       </button>
                       <button type="button" class="icon-btn danger" :aria-label="`删除 ${c.front}`" title="删除" @click.stop="removeOne(c)">
-                        <Icon name="trash-2" :size="15" />
+                        <Icon name="trash-2" :size="16" />
                       </button>
                     </div>
                   </header>
@@ -729,7 +729,7 @@
                   </div>
                   <footer class="fc-face-bottom">
                     <div class="fc-meta">
-                      <Icon name="calendar" :size="13" /><span>更新于 {{ formatTime(c.updateTime || c.createTime) }}</span>
+                      <Icon name="calendar" :size="14" /><span>更新于 {{ formatTime(c.updateTime || c.createTime) }}</span>
                     </div>
                     <button type="button" class="fc-flip-btn" @click.stop="toggleFlip(c.id)">
                       <Icon name="rotate-ccw" :size="14" />返回正面
@@ -2350,7 +2350,7 @@ onUnmounted(() => {
   height: 100%;
   border-radius: 999px;
   background: var(--kf-primary);
-  transition: width 0.3s ease;
+  transition: width var(--kf-motion-slower) var(--kf-ease-standard);
 }
 .learn-stat {
   font-size: var(--kf-fs-caption, 12px);
@@ -2374,11 +2374,11 @@ onUnmounted(() => {
   width: 32px;
   height: 32px;
   border: 1px solid var(--kf-border);
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
   background: var(--kf-card);
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .learn-icon-btn:hover {
   color: var(--kf-foreground);
@@ -2395,7 +2395,7 @@ onUnmounted(() => {
   height: 32px;
   padding: 0 8px;
   border: 1px solid var(--kf-border);
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
   background: var(--kf-card);
   color: var(--kf-foreground);
   font-size: var(--kf-fs-caption, 12px);
@@ -2403,11 +2403,11 @@ onUnmounted(() => {
 
 /* 翻页按钮降为次要图标（§九：主区只允许一个视觉重心） */
 .action-bar .btn-ghost-icon {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: var(--kf-btn-height-md);
   padding: 0;
   border: 1px solid var(--kf-border);
-  border-radius: var(--kf-radius-md, 8px);
+  border-radius: var(--kf-radius-md);
   background: transparent;
   color: var(--kf-muted-foreground);
 }
@@ -2448,16 +2448,16 @@ onUnmounted(() => {
   background: linear-gradient(135deg, var(--kf-primary-soft), var(--kf-card));
   border: 1px solid var(--kf-border);
 }
-.hero-left { display: flex; align-items: center; gap: 14px; }
+.hero-left { display: flex; align-items: center; gap: 12px; }
 .back-btn {
-  width: 36px; height: 36px;
+  width: 38px; height: var(--kf-btn-height-md);
   border-radius: var(--kf-radius-md);
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
   color: var(--kf-muted-foreground);
   display: inline-flex; align-items: center; justify-content: center;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .back-btn:hover { color: var(--kf-primary); border-color: var(--kf-primary); }
 .title-text { display: flex; flex-direction: column; gap: 2px; }
@@ -2465,7 +2465,7 @@ onUnmounted(() => {
 .kf-body-sm { margin: 0; color: var(--kf-muted-foreground); font-size: var(--kf-fs-body-sm); }
 
 /* Hero 统计卡片组 */
-.hero-stats { display: flex; gap: 14px; flex-wrap: wrap; }
+.hero-stats { display: flex; gap: 12px; flex-wrap: wrap; }
 
 /* ========== 标签页 ========== */
 .tabs-bar {
@@ -2486,7 +2486,7 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 18px;
+  padding: 8px 16px;
   border-radius: var(--kf-radius-md);
   border: none;
   background: transparent;
@@ -2494,7 +2494,7 @@ onUnmounted(() => {
   font-size: var(--kf-fs-body-md);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
   /* §二十八：禁止 flex 压缩导致 CJK 标签逐字折行 */
   flex-shrink: 0;
   white-space: nowrap;
@@ -2506,7 +2506,7 @@ onUnmounted(() => {
   box-shadow: 0 2px 8px rgba(59, 111, 224, 0.25);
 }
 .tab-count {
-  min-width: 20px; height: 20px; padding: 0 6px;
+  min-width: 20px; height: 20px; padding: 0 8px;
   border-radius: 999px;
   background: var(--kf-muted);
   color: var(--kf-foreground);
@@ -2529,12 +2529,12 @@ onUnmounted(() => {
   color: var(--kf-muted-foreground);
 }
 .search-input:not(.kf-form-control) {
-  height: 40px;
+  height: var(--kf-input-height);
   border-radius: var(--kf-radius-md);
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 .search-input {
   width: 100%;
@@ -2560,14 +2560,14 @@ onUnmounted(() => {
 .clear-btn:hover { color: var(--kf-foreground); }
 
 /* ========== Tab 面板 ========== */
-.tab-panel { display: flex; flex-direction: column; gap: 18px; }
+.tab-panel { display: flex; flex-direction: column; gap: 16px; }
 
 /* ========== 推荐复习说明条 ========== */
 .review-intro {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 18px;
+  padding: 12px 16px;
   border-radius: var(--kf-radius-lg);
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
@@ -2600,7 +2600,7 @@ onUnmounted(() => {
 .progress-fill {
   height: 100%; border-radius: 999px;
   background: var(--kf-primary);
-  transition: width 0.3s ease;
+  transition: width var(--kf-motion-slower) var(--kf-ease-standard);
 }
 .progress-right { display: flex; align-items: center; gap: 24px; }
 .stat-cell { text-align: center; }
@@ -2625,12 +2625,12 @@ onUnmounted(() => {
  * 图标↔文字 gap 6px · 字号 14px」，只用 border/background 区分层级。
  */
 .btn-primary, .btn-secondary, .btn-ghost, .btn-outline {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  height: 36px; padding: 0 14px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: var(--kf-btn-height-md); padding: 0 12px;
   border-radius: var(--kf-radius-md);
   border: 1px solid transparent;
   font-size: var(--kf-fs-body-md); font-weight: 500;
-  cursor: pointer; transition: all 0.15s;
+  cursor: pointer; transition: var(--kf-transition-interactive);
   white-space: nowrap;
 }
 /* 图标不参与 flex 收缩：窄屏被压扁会让 icon 与文字重新错位 */
@@ -2652,12 +2652,12 @@ onUnmounted(() => {
 .btn-secondary.danger:hover { border-color: var(--kf-destructive); color: var(--kf-destructive); }
 .btn-ghost {
   background: transparent; color: var(--kf-muted-foreground);
-  padding: 0 10px; height: 36px;
+  padding: 0 12px; height: var(--kf-btn-height-md);
 }
 .btn-ghost:hover { color: var(--kf-primary); background: rgba(59,111,224,0.08); }
 .badge {
   display: inline-flex; align-items: center; justify-content: center;
-  min-width: 18px; height: 18px; padding: 0 6px;
+  min-width: 18px; height: 18px; padding: 0 8px;
   border-radius: 999px;
   background: var(--kf-primary); color: var(--kf-primary-foreground);
   font-size: var(--kf-fs-xs); font-weight: 600;
@@ -2674,7 +2674,7 @@ onUnmounted(() => {
 .state-icon { color: var(--kf-muted-foreground); opacity: 0.6; }
 .state-text { margin: 8px 0 0; font-size: var(--kf-fs-body-emphasis); color: var(--kf-foreground); font-weight: 500; }
 .state-hint { color: var(--kf-muted-foreground); font-size: var(--kf-fs-body-sm); margin: 0; }
-.empty-actions { display: inline-flex; gap: 10px; margin-top: 8px; }
+.empty-actions { display: inline-flex; gap: 12px; margin-top: 8px; }
 .loading-spinner {
   width: 32px; height: 32px;
   border: 3px solid var(--kf-muted);
@@ -2688,12 +2688,12 @@ onUnmounted(() => {
 .flip-area { display: flex; justify-content: center; }
 .flip-card {
   width: 100%; max-width: calc(var(--kf-space-8) * 32); height: clamp(24rem, 58vh, 40rem);
-  margin-inline: auto; touch-action: pan-y; transition: transform 180ms ease-out;
+  margin-inline: auto; touch-action: pan-y; transition: transform var(--kf-motion-slow) var(--kf-ease-entrance);
   perspective: 1000px; cursor: pointer;
 }
 .flip-card-inner {
   position: relative; width: 100%; height: 100%;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--kf-motion-slower) cubic-bezier(0.4, 0, 0.2, 1);
   transform-style: preserve-3d;
 }
 .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
@@ -2728,7 +2728,7 @@ onUnmounted(() => {
   justify-content: flex-start;
 }
 .face-tags { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; justify-content: center; }
-.face-tag { padding: 4px 10px; border-radius: 999px; font-size: var(--kf-fs-body-sm); font-weight: 500; }
+.face-tag { padding: 4px 12px; border-radius: 999px; font-size: var(--kf-fs-body-sm); font-weight: 500; }
 .tag-category { background: rgba(59, 111, 224, 0.08); color: var(--kf-primary); }
 .tag-sub { background: rgba(16, 185, 129, 0.08); color: var(--kf-accent); }
 .tag-source { background: rgba(245, 158, 11, 0.1); color: var(--kf-warning); }
@@ -2751,16 +2751,16 @@ onUnmounted(() => {
 .back-title { font-size: var(--kf-fs-h3); font-weight: 700; color: var(--kf-foreground); margin: 0 0 12px 0; }
 .back-text { font-size: var(--kf-fs-body-md); line-height: 1.7; color: var(--kf-foreground); margin: 0 0 16px 0; white-space: pre-line; }
 .back-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-.back-tag { padding: 4px 10px; border-radius: 999px; font-size: var(--kf-fs-body-sm); background: rgba(59, 111, 224, 0.08); color: var(--kf-primary); }
+.back-tag { padding: 4px 12px; border-radius: 999px; font-size: var(--kf-fs-body-sm); background: rgba(59, 111, 224, 0.08); color: var(--kf-primary); }
 
 /* ========== 学习侧操作按钮 ========== */
 .action-bar { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
 .action-btn {
   display: inline-flex; align-items: center; gap: 8px;
-  height: 44px; padding: 0 24px;
+  height: var(--kf-btn-height-lg); padding: 0 24px;
   border-radius: var(--kf-radius-md);
   font-size: var(--kf-fs-body-md); font-weight: 500;
-  cursor: pointer; transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  cursor: pointer; transition: background-color var(--kf-motion-base) var(--kf-ease-standard), color var(--kf-motion-base) var(--kf-ease-standard), border-color var(--kf-motion-base) var(--kf-ease-standard);
   border: none;
 }
 .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -2774,7 +2774,7 @@ onUnmounted(() => {
 
 /* ========== 反馈提示 ========== */
 .feedback-text { text-align: center; font-size: var(--kf-fs-body-md); font-weight: 500; color: var(--kf-muted-foreground); margin: 0; }
-.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+.fade-enter-active, .fade-leave-active { transition: opacity var(--kf-motion-slower) var(--kf-ease-standard); }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 
 /* ========== 我的侧工具栏 ========== */
@@ -2782,33 +2782,33 @@ onUnmounted(() => {
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-lg);
-  padding: 16px 18px;
-  display: flex; flex-direction: column; gap: 14px;
+  padding: 16px 16px;
+  display: flex; flex-direction: column; gap: 12px;
 }
 .filter-row, .action-row {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
 }
 .action-row { justify-content: space-between; }
-.action-left, .action-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.action-left, .action-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .kf-select, .kf-input {
-  height: 38px; padding: 0 12px;
+  height: var(--kf-input-height); padding: 0 12px;
   border-radius: var(--kf-radius-md);
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
   color: var(--kf-foreground);
   font-size: var(--kf-fs-body-md); outline: none;
   min-width: 140px;
-  transition: border-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .kf-select:focus, .kf-input:focus:not(.kf-form-control) { border-color: var(--kf-primary); }
 .kf-textarea:not(.kf-form-control) {
   border-radius: var(--kf-radius-md);
   border: 1px solid var(--kf-border);
   background: var(--kf-background); outline: none;
-  transition: border-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .kf-textarea {
-  width: 100%; padding: 10px 12px;
+  width: 100%; padding: 12px 12px;
   color: var(--kf-foreground);
   font-size: var(--kf-fs-body-md); line-height: 1.55;
   resize: vertical; font-family: inherit;
@@ -2816,19 +2816,19 @@ onUnmounted(() => {
 .kf-textarea:not(.kf-form-control):focus { border-color: var(--kf-primary); }
 
 .view-switch {
-  display: inline-flex; padding: 3px;
+  display: inline-flex; padding: 4px;
   border-radius: var(--kf-radius-md);
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
 }
 .view-btn {
-  height: 30px; padding: 0 12px;
+  height: var(--kf-btn-height-sm); padding: 0 12px;
   border-radius: var(--kf-radius-sm);
   border: none; background: transparent;
   color: var(--kf-muted-foreground);
   font-size: var(--kf-fs-body-sm);
-  display: inline-flex; align-items: center; gap: 5px;
-  cursor: pointer; transition: all 0.15s;
+  display: inline-flex; align-items: center; gap: 4px;
+  cursor: pointer; transition: var(--kf-transition-interactive);
 }
 .view-btn:hover { color: var(--kf-foreground); }
 .view-btn.active {
@@ -2854,7 +2854,7 @@ onUnmounted(() => {
   border-bottom: 1px solid var(--kf-border);
   white-space: nowrap;
 }
-.kf-table tbody td { padding: 14px 16px; border-bottom: 1px solid var(--kf-border); vertical-align: top; }
+.kf-table tbody td { padding: 12px 16px; border-bottom: 1px solid var(--kf-border); vertical-align: top; }
 .kf-table tbody tr:last-child td { border-bottom: none; }
 .kf-table tbody tr:hover { background: rgba(59,111,224,0.03); }
 
@@ -2868,12 +2868,12 @@ onUnmounted(() => {
 .mini-tag {
   font-size: var(--kf-fs-xs); color: var(--kf-primary);
   background: rgba(59,111,224,0.1);
-  border-radius: 6px; padding: 1px 6px;
+  border-radius: 6px; padding: 1px 8px;
 }
 
 .diff-badge {
-  display: inline-flex; align-items: center; gap: 3px;
-  padding: 2px 10px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 12px; border-radius: 999px;
   font-size: var(--kf-fs-caption); font-weight: 500;
 }
 .diff-easy { background: rgba(34,197,94,0.12); color: #16a34a; }
@@ -2882,7 +2882,7 @@ onUnmounted(() => {
 
 .source-badge {
   display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 9px; border-radius: 8px;
+  padding: 2px 8px; border-radius: 8px;
   font-size: var(--kf-fs-caption); font-weight: 500;
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
@@ -2893,13 +2893,13 @@ onUnmounted(() => {
 
 .row-actions { display: inline-flex; gap: 4px; flex-wrap: wrap; }
 .row-btn {
-  display: inline-flex; align-items: center; gap: 3px;
-  padding: 4px 10px; border-radius: 8px;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 12px; border-radius: 8px;
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
   color: var(--kf-foreground);
   font-size: var(--kf-fs-caption); cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .row-btn:hover { border-color: var(--kf-primary); color: var(--kf-primary); }
 .row-btn.danger:hover { border-color: var(--kf-destructive); color: var(--kf-destructive); }
@@ -2908,7 +2908,7 @@ onUnmounted(() => {
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 18px;
+  gap: 16px;
 }
 .fc-card { aspect-ratio: 3 / 2; perspective: 1200px; cursor: pointer; }
 .fc-card-inner {
@@ -2922,11 +2922,11 @@ onUnmounted(() => {
   border-radius: 18px;
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
-  padding: 18px;
+  padding: 16px;
   backface-visibility: hidden; -webkit-backface-visibility: hidden;
   display: flex; flex-direction: column;
   box-shadow: 0 1px 2px rgba(0,0,0,0.02), 0 8px 24px rgba(15,23,42,0.04);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color var(--kf-motion-slow) var(--kf-ease-standard), box-shadow var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .fc-card:hover .fc-face {
   border-color: rgba(59,111,224,0.35);
@@ -2936,17 +2936,17 @@ onUnmounted(() => {
 .fc-top-actions {
   margin-left: auto;
   display: inline-flex; gap: 4px;
-  opacity: 0; transition: opacity 0.2s;
+  opacity: 0; transition: opacity var(--kf-motion-slow) var(--kf-ease-standard);
 }
 .fc-card:hover .fc-top-actions { opacity: 1; }
 .icon-btn {
-  width: 28px; height: 28px;
+  width: 32px; height: var(--kf-btn-height-sm);
   border-radius: 8px;
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
   color: var(--kf-muted-foreground);
   display: inline-flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all 0.15s;
+  cursor: pointer; transition: var(--kf-transition-interactive);
 }
 .icon-btn:hover { color: var(--kf-primary); border-color: var(--kf-primary); }
 .icon-btn.danger:hover { color: var(--kf-destructive); border-color: var(--kf-destructive); }
@@ -2959,13 +2959,13 @@ onUnmounted(() => {
   overflow: hidden;
 }
 .fc-back-content {
-  flex: 1; margin: 14px 0;
-  font-size: 14.5px; line-height: 1.75;
+  flex: 1; margin: 12px 0;
+  font-size: var(--kf-fs-body-emphasis); line-height: 1.75;
   color: var(--kf-foreground);
   white-space: pre-wrap; word-break: break-word;
   overflow: auto;
 }
-.fc-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.fc-tags { display: flex; flex-wrap: wrap; gap: 4px; }
 .fc-tag {
   font-size: var(--kf-fs-caption); color: var(--kf-primary);
   background: rgba(59,111,224,0.1);
@@ -2973,17 +2973,17 @@ onUnmounted(() => {
 }
 .fc-face-bottom {
   display: flex; align-items: center; justify-content: space-between;
-  gap: 10px; padding-top: 12px;
+  gap: 12px; padding-top: 12px;
   border-top: 1px dashed var(--kf-border);
 }
 .fc-flip-btn {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 6px 12px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 8px 12px; border-radius: 999px;
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
   color: var(--kf-foreground);
-  font-size: 12.5px;
-  cursor: pointer; transition: all 0.15s;
+  font-size: var(--kf-fs-caption);
+  cursor: pointer; transition: var(--kf-transition-interactive);
 }
 .fc-flip-btn:hover {
   background: var(--kf-primary);
@@ -2991,8 +2991,8 @@ onUnmounted(() => {
   border-color: var(--kf-primary);
 }
 .fc-meta {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 12.5px; color: var(--kf-muted-foreground);
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground);
 }
 .kf-chip {
   display: inline-flex; align-items: center; gap: 4px;
@@ -3028,45 +3028,45 @@ onUnmounted(() => {
 }
 .modal-lg { max-width: 820px; }
 .modal-header {
-  padding: 18px 22px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--kf-border);
   display: flex; align-items: center; justify-content: space-between;
 }
 .modal-header h3 {
-  margin: 0; font-size: 17px; font-weight: 600;
+  margin: 0; font-size: var(--kf-fs-body-lg); font-weight: 600;
   display: inline-flex; align-items: center; gap: 8px;
 }
-.modal-body { padding: 18px 22px; overflow: auto; flex: 1; }
+.modal-body { padding: 16px 20px; overflow: auto; flex: 1; }
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px 18px;
+  gap: 12px 16px;
 }
 .col-span-2 { grid-column: span 2; }
-.form-item { display: flex; flex-direction: column; gap: 6px; }
+.form-item { display: flex; flex-direction: column; gap: 8px; }
 .form-label { font-size: var(--kf-fs-body-sm); font-weight: 500; color: var(--kf-foreground); }
 .form-label .req { color: var(--kf-destructive); margin-left: 2px; }
-.form-hint { margin: 4px 0 0; font-size: 12.5px; color: var(--kf-muted-foreground); }
+.form-hint { margin: 4px 0 0; font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); }
 .modal-footer {
-  padding: 14px 22px;
+  padding: 12px 20px;
   border-top: 1px solid var(--kf-border);
-  display: flex; justify-content: flex-end; gap: 10px;
+  display: flex; justify-content: flex-end; gap: 12px;
 }
 
 .seg-group {
-  display: inline-flex; padding: 3px;
+  display: inline-flex; padding: 4px;
   border-radius: var(--kf-radius-md);
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
   width: fit-content;
 }
 .seg-btn {
-  padding: 7px 16px;
+  padding: 8px 16px;
   border: none; background: transparent;
   color: var(--kf-muted-foreground);
-  font-size: 13.5px;
+  font-size: var(--kf-fs-body-sm);
   border-radius: 7px; cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .seg-btn.active {
   background: var(--kf-primary);
@@ -3076,13 +3076,13 @@ onUnmounted(() => {
 
 .count-stepper { display: inline-flex; align-items: center; gap: 8px; }
 .stepper-btn {
-  width: 34px; height: 34px;
+  width: 32px; height: var(--kf-btn-height-sm);
   border-radius: var(--kf-radius-md);
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
   color: var(--kf-foreground);
   font-size: var(--kf-fs-body-lg); cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .stepper-btn:hover:not(:disabled) { border-color: var(--kf-primary); color: var(--kf-primary); }
 .stepper-btn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -3093,7 +3093,7 @@ onUnmounted(() => {
 }
 .stepper-input {
   width: 72px;
-  padding: 0 10px; text-align: center;
+  padding: 0 12px; text-align: center;
   color: var(--kf-foreground);
   font-size: var(--kf-fs-body-md);
   -moz-appearance: textfield;
@@ -3103,14 +3103,14 @@ onUnmounted(() => {
 .stepper-hint { font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); }
 
 .preview-wrap {
-  display: flex; flex-direction: column; gap: 10px;
+  display: flex; flex-direction: column; gap: 12px;
   max-height: 320px; overflow: auto; padding: 4px;
 }
 .preview-card {
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 12px 12px;
   position: relative;
 }
 .preview-index {
@@ -3121,7 +3121,7 @@ onUnmounted(() => {
   padding: 2px 8px; border-radius: 999px;
 }
 .preview-front, .preview-back {
-  font-size: 13.5px; line-height: 1.6;
+  font-size: var(--kf-fs-body-sm); line-height: 1.6;
   color: var(--kf-foreground);
 }
 .preview-front { margin-bottom: 4px; font-weight: 500; }
@@ -3131,7 +3131,7 @@ onUnmounted(() => {
   background: var(--kf-background);
   border: 1px dashed var(--kf-border);
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 12px 12px;
   margin-bottom: 14px;
   font-size: var(--kf-fs-body-sm); line-height: 1.7;
   color: var(--kf-muted-foreground);
@@ -3140,16 +3140,16 @@ onUnmounted(() => {
 .import-hint code {
   background: rgba(59,111,224,0.1);
   color: var(--kf-primary);
-  padding: 1px 6px; border-radius: 5px;
-  font-size: 12.5px;
+  padding: 1px 8px; border-radius: 5px;
+  font-size: var(--kf-fs-caption);
 }
 .sample-block {
   margin: 8px 0 0;
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
-  padding: 10px 12px;
+  padding: 12px 12px;
   border-radius: 8px;
-  font-size: 12.5px;
+  font-size: var(--kf-fs-caption);
   font-family: ui-monospace, Menlo, monospace;
   overflow-x: auto;
   color: var(--kf-foreground);
@@ -3158,7 +3158,7 @@ onUnmounted(() => {
   margin: 8px 0 0;
   color: var(--kf-danger-hover);
   font-size: var(--kf-fs-body-sm);
-  display: inline-flex; align-items: center; gap: 5px;
+  display: inline-flex; align-items: center; gap: 4px;
 }
 
 /* ========== 交互反馈补齐（hover / active / focus-visible）==========
@@ -3226,7 +3226,7 @@ onUnmounted(() => {
   .flip-card-face { padding: 24px; }
   .face-question { font-size: var(--kf-fs-h3); }
   .action-bar { gap: 8px; }
-  .action-btn { height: 40px; padding: 0 14px; font-size: var(--kf-fs-body-sm); }
+  .action-btn { height: var(--kf-btn-height-md); padding: 0 12px; font-size: var(--kf-fs-body-sm); }
   .form-grid { grid-template-columns: 1fr; }
   .col-span-2 { grid-column: span 1; }
   .card-grid { grid-template-columns: 1fr; }
@@ -3240,9 +3240,9 @@ onUnmounted(() => {
 .kf-hint {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin: 0 auto 8px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: var(--kf-radius-sm);
   background: var(--kf-muted);
   color: var(--kf-muted-foreground);
@@ -3258,8 +3258,8 @@ onUnmounted(() => {
   width: 100%;
   max-width: 640px;
   min-height: 300px;
-  padding: 28px;
-  border-radius: var(--kf-radius-lg, 16px);
+  padding: 24px;
+  border-radius: var(--kf-radius-lg);
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
   display: flex;
@@ -3294,10 +3294,10 @@ onUnmounted(() => {
 .rate-error {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   max-width: 640px;
   margin: 12px auto 0;
-  padding: 10px 12px;
+  padding: 12px 12px;
   border-radius: var(--kf-radius-md);
   border: 1px solid var(--kf-destructive);
   background: var(--kf-destructive-subtle, rgba(220, 38, 38, 0.06));
@@ -3320,7 +3320,7 @@ onUnmounted(() => {
 }
 .btn-sm {
   height: 32px;
-  padding: 0 10px;
+  padding: 0 12px;
   font-size: var(--kf-fs-body-sm);
   flex-shrink: 0;
 }
@@ -3351,7 +3351,7 @@ onUnmounted(() => {
 }
 .ss-stats {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 .ss-item {
@@ -3387,12 +3387,12 @@ onUnmounted(() => {
    ══════════════════════════════════════════════════════════════════ */
 @media (max-width: 480px) {
   /* Tab：去掉图标 + 收紧内边距，让三个标签在 390px 下完整单行显示 */
-  .tab-btn { padding: 8px 10px; gap: var(--kf-space-2); font-size: var(--kf-fs-caption); }
+  .tab-btn { padding: 8px 12px; gap: var(--kf-space-2); font-size: var(--kf-fs-caption); }
   .tab-btn svg { display: none; }
   .tab-count { min-width: 18px; height: 18px; padding: 0 4px; }
   /* 操作条保持单行，避免「下一张」被挤到第二行造成视觉断层 */
-  .action-bar { gap: 6px; flex-wrap: nowrap; }
-  .action-btn { padding: 0 10px; font-size: var(--kf-fs-caption); white-space: nowrap; }
+  .action-bar { gap: 8px; flex-wrap: nowrap; }
+  .action-btn { padding: 0 12px; font-size: var(--kf-fs-caption); white-space: nowrap; }
 }
 
 /* ══════════ UI/UX 5.1 §九：准备态（准备 → 学习 → 反馈 → 完成）══════════
@@ -3431,9 +3431,9 @@ onUnmounted(() => {
 .prep-badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   align-self: flex-start;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
   background: var(--kf-primary-soft);
   color: var(--kf-primary);
@@ -3464,12 +3464,12 @@ onUnmounted(() => {
 /* 第三层：说明 / 数据（分割线以上是「学什么」，以下是「为什么」） */
 .prep-meta {
   margin: 0;
-  padding: 10px 0 0;
+  padding: 12px 0 0;
   border-top: 1px solid var(--kf-border);
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .prep-meta li {
   display: flex;
@@ -3488,7 +3488,7 @@ onUnmounted(() => {
 .prep-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
   margin-top: 4px;
 }
@@ -3500,7 +3500,7 @@ onUnmounted(() => {
   color: var(--kf-muted-foreground);
 }
 @media (max-width: 480px) {
-  .prep-card { padding: 18px; }
+  .prep-card { padding: 16px; }
   .prep-actions { gap: 8px; }
   .prep-actions button { flex: 1 1 auto; justify-content: center; }
 }
@@ -3533,7 +3533,7 @@ onUnmounted(() => {
 .session-position,.session-receipt { margin:0 0 var(--kf-space-3);font-size:var(--kf-fs-caption);color:var(--kf-muted-foreground);overflow-wrap:anywhere; }
 .session-receipt { color:var(--kf-foreground); }
 .flashcard-stage .flip-card { height:auto;max-width:none;animation:none; }
-.flashcard-stage .flip-card-inner { height:auto;transition:transform 220ms ease; }
+.flashcard-stage .flip-card-inner { height:auto;transition:transform var(--kf-motion-slow) var(--kf-ease-standard); }
 .flashcard-stage .flip-card-face { position:relative;inset:auto;min-height:calc(var(--kf-space-8) * 8);height:auto;padding:var(--kf-space-6);overflow:visible;align-items:stretch;gap:var(--kf-space-4);border-color:var(--kf-border); }
 .flashcard-stage .flip-card-face[aria-hidden="true"] { position:absolute;inset:0;visibility:hidden;overflow:hidden;pointer-events:none; }
 .flashcard-stage .face-tags { justify-content:flex-start;margin:0;gap:var(--kf-space-2); }

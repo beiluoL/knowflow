@@ -20,17 +20,17 @@
       <div class="note-topbar-center">
         <span v-if="saveError" class="note-err" role="alert">{{ saveError }}</span>
         <span v-else-if="autoSaving" class="note-save-status note-save-saving">
-          <Icon name="repeat" :size="13" class="animate-spin" /> 自动保存中…
+          <Icon name="repeat" :size="14" class="animate-spin" /> 自动保存中…
         </span>
         <span v-else-if="dirty" class="note-save-status note-save-idle">有新修改，等待保存</span>
         <span v-else-if="lastSavedAt" class="note-save-status note-save-done">
-          <Icon name="check" :size="13" /> 已自动保存 · {{ lastSavedAt }}
+          <Icon name="check" :size="14" /> 已自动保存 · {{ lastSavedAt }}
         </span>
         <span v-else-if="!isNew && noteLoaded" class="note-save-status note-save-done">
-          <Icon name="check" :size="13" /> 已同步
+          <Icon name="check" :size="14" /> 已同步
         </span>
         <span v-else class="note-save-status note-save-idle">
-          <Icon name="info" :size="13" /> {{ isNew ? '编辑后将自动保存' : '加载中…' }}
+          <Icon name="info" :size="14" /> {{ isNew ? '编辑后将自动保存' : '加载中…' }}
         </span>
       </div>
 
@@ -81,7 +81,7 @@
           <div v-if="tags.length" class="note-tags-list">
             <span v-for="(t, i) in tags" :key="i" class="note-tag-chip">
               {{ t }}
-              <button class="note-tag-remove focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="tags.splice(i, 1)"><Icon name="x" :size="11" aria-hidden="true" /></button>
+              <button class="note-tag-remove focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" @click="tags.splice(i, 1)"><Icon name="x" :size="12" aria-hidden="true" /></button>
             </span>
           </div>
         </div>
@@ -124,27 +124,27 @@
           <!-- Rich Text Toolbar -->
           <div class="rte-toolbar">
             <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="加粗 (Ctrl+B)" @mousedown.prevent="exec('bold')">
-              <Icon name="bold" :size="15" aria-hidden="true" />
+              <Icon name="bold" :size="16" aria-hidden="true" />
             </button>
             <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="斜体 (Ctrl+I)" @mousedown.prevent="exec('italic')">
-              <Icon name="italic" :size="15" aria-hidden="true" />
+              <Icon name="italic" :size="16" aria-hidden="true" />
             </button>
             <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="下划线" @mousedown.prevent="exec('underline')">
-              <Icon name="underline" :size="15" aria-hidden="true" />
+              <Icon name="underline" :size="16" aria-hidden="true" />
             </button>
             <span class="rte-divider"></span>
             <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="无序列表" @mousedown.prevent="exec('insertUnorderedList')">
-              <Icon name="list" :size="15" aria-hidden="true" />
+              <Icon name="list" :size="16" aria-hidden="true" />
             </button>
             <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="有序列表" @mousedown.prevent="exec('insertOrderedList')">
-              <Icon name="list-ordered" :size="15" aria-hidden="true" />
+              <Icon name="list-ordered" :size="16" aria-hidden="true" />
             </button>
             <span class="rte-divider"></span>
             <button class="rte-btn rte-highlight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="高亮" @mousedown.prevent="toggleHighlight">
               <span class="rte-hl-mark">H</span>
             </button>
             <button class="rte-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2" title="清除格式" @mousedown.prevent="exec('removeFormat')">
-              <Icon name="x" :size="15" aria-hidden="true" />
+              <Icon name="x" :size="16" aria-hidden="true" />
             </button>
           </div>
 
@@ -185,10 +185,10 @@
       </div>
       <div class="note-action-right">
         <button data-test="note-save" class="kf-btn note-draft-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving || autoSaving" @click="saveDraft">
-          <Icon name="save" :size="15" aria-hidden="true" /> 保存笔记
+          <Icon name="save" :size="16" aria-hidden="true" /> 保存笔记
         </button>
         <button class="kf-btn kf-btn-primary note-publish-btn focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--kf-ring)] focus-visible:ring-offset-2 transition-colors" :disabled="saving" @click="publish">
-          <Icon name="check" :size="15" aria-hidden="true" /> 完成整理
+          <Icon name="check" :size="16" aria-hidden="true" /> 完成整理
         </button>
         <button class="kf-btn" :disabled="saving || autoSaving" @click="continueTo('review')">创建复习卡</button>
         <button class="kf-btn" :disabled="saving || autoSaving" @click="continueTo('story')">开始输出</button>
@@ -594,7 +594,7 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   border-radius: var(--kf-radius-md);
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
@@ -604,7 +604,7 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
 .note-topbar-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
 }
 .note-topbar-title {
@@ -629,8 +629,8 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
 .note-save-status {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
+  gap: 4px;
+  padding: 4px 12px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 500;
@@ -650,11 +650,11 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
 .note-topbar-right {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 .note-export-btn {
   font-size: 12px;
-  padding: 6px 12px;
+  padding: 8px 12px;
 }
 .wb-ghost-btn {
   background: var(--kf-card);
@@ -689,13 +689,13 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
 .note-meta-title-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   grid-column: span 1;
 }
 .note-meta-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .note-title-input {
   font-family: var(--font-serif);
@@ -719,14 +719,14 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
 .note-tags-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 4px;
   margin-top: 2px;
 }
 .note-tag-chip {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--mc) 12%, transparent);
   color: var(--mc);
@@ -785,7 +785,7 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  padding: 12px 14px 8px;
+  padding: 12px 12px 8px;
   color: var(--kf-foreground);
 }
 .cornell-cue .cornell-col-head { color: var(--kf-warning); }
@@ -830,7 +830,7 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-top: 1px solid var(--kf-border);
   border-bottom: 1px solid var(--kf-border);
   background: var(--kf-background);
@@ -840,13 +840,13 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: var(--kf-btn-height-sm);
   border-radius: var(--kf-radius-sm);
   background: transparent;
   color: var(--kf-muted-foreground);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: var(--kf-transition-interactive);
 }
 .rte-btn:hover {
   background: var(--kf-muted);
@@ -895,14 +895,14 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
 .cornell-editor :deep(ul) {
   list-style: disc;
   padding-left: 22px;
-  margin: 6px 0;
+  margin: 8px 0;
 }
 .cornell-editor :deep(ol) {
   list-style: decimal;
   padding-left: 22px;
-  margin: 6px 0;
+  margin: 8px 0;
 }
-.cornell-editor :deep(li) { margin: 3px 0; }
+.cornell-editor :deep(li) { margin: 4px 0; }
 .cornell-editor :deep([style*="background-color"]) {
   border-radius: 2px;
   padding: 0 2px;
@@ -939,11 +939,11 @@ onBeforeUnmount(() => { loaded.value = false; if (autoSaveTimer) clearTimeout(au
   gap: 8px;
 }
 .note-draft-btn {
-  padding: 8px 18px;
+  padding: 8px 16px;
   font-size: 14px;
 }
 .note-publish-btn {
-  padding: 8px 22px;
+  padding: 8px 20px;
   font-size: 14px;
 }
 .note-draft-btn:disabled, .note-publish-btn:disabled {

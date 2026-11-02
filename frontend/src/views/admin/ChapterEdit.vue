@@ -484,7 +484,7 @@ onMounted(async () => {
   background: var(--kf-background);
   color: var(--kf-foreground);
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: background var(--kf-motion-slow) var(--kf-ease-standard),  color var(--kf-motion-slow) var(--kf-ease-standard);
 }
 
 .back-btn:hover {
@@ -495,7 +495,7 @@ onMounted(async () => {
 .breadcrumb {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 14px;
   min-width: 0;
 }
@@ -604,12 +604,12 @@ onMounted(async () => {
 
 .form-input:not(.kf-form-control),
 .form-select:not(.kf-form-control) {
-  height: 38px;
+  height: var(--kf-input-height);
   border-radius: 8px;
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color var(--kf-motion-slow) var(--kf-ease-standard);
 }
 
 .form-input,
@@ -636,7 +636,7 @@ onMounted(async () => {
   border: 1px solid var(--kf-border);
   background: var(--kf-background);
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color var(--kf-motion-slow) var(--kf-ease-standard);
 }
 
 .form-textarea {
@@ -666,7 +666,7 @@ onMounted(async () => {
 .chips-wrap {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   margin-bottom: 12px;
 }
 
@@ -674,7 +674,7 @@ onMounted(async () => {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px 3px 10px;
+  padding: 4px 8px 4px 12px;
   border-radius: 999px;
   font-size: 12px;
   background: rgba(59, 111, 224, 0.1);
@@ -699,7 +699,7 @@ onMounted(async () => {
   color: inherit;
   cursor: pointer;
   border-radius: 50%;
-  transition: background 0.2s, opacity 0.2s;
+  transition: background var(--kf-motion-slow) var(--kf-ease-standard),  opacity var(--kf-motion-slow) var(--kf-ease-standard);
 }
 
 .chip-remove:hover {
@@ -757,10 +757,10 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: var(--kf-checkbox-gap);
-  padding: 10px 12px;
+  padding: 12px 12px;
   cursor: pointer;
   border-bottom: 1px solid var(--kf-border);
-  transition: background 0.15s;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard);
 }
 
 .doc-item:last-child {
@@ -839,7 +839,7 @@ onMounted(async () => {
 /* 响应式 */
 @media (max-width: 640px) {
   .chapter-header {
-    padding: 10px 16px;
+    padding: 12px 16px;
   }
   .chapter-body {
     padding: 16px;

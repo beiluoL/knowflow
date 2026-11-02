@@ -147,7 +147,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: var(--kf-fs-xs);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.04em;

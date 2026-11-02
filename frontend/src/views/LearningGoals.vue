@@ -17,7 +17,7 @@
 
     <!-- ===== 当前目标（进行中）：NextAction 的上文 ===== -->
     <section v-if="activeGoal" class="lg-hero reveal-item" style="--reveal-index: 1">
-      <div class="lg-hero-icon"><Icon name="target" :size="22" /></div>
+      <div class="lg-hero-icon"><Icon name="target" :size="24" /></div>
       <div class="lg-hero-main">
         <div class="lg-hero-topline">
           <span class="lg-pill lg-pill-active">进行中</span>
@@ -44,11 +44,11 @@
         <!-- Architecture-4.0-3：当前节点（真实 DAG available 节点 = 下一步该学哪一节） -->
         <div v-if="activeGoal.pathId" class="lg-hero-node">
           <template v-if="nodeLoading">
-            <Icon name="sparkles" :size="13" class="spin" />
+            <Icon name="sparkles" :size="14" class="spin" />
             <span>读取路线进度…</span>
           </template>
           <template v-else-if="currentNode">
-            <Icon name="book-open" :size="13" />
+            <Icon name="book-open" :size="14" />
             <span class="lg-node-label">当前节点：</span>
             <button type="button" class="lg-node-link" @click="goChapter(currentNode.id)">
               {{ currentNode.title }}
@@ -59,11 +59,11 @@
             </template>
           </template>
           <template v-else-if="pathCompleted">
-            <Icon name="check-circle" :size="13" />
+            <Icon name="check-circle" :size="14" />
             <span>整条路线已完成，可以设置新的目标了 🎉</span>
           </template>
           <template v-else>
-            <Icon name="route" :size="13" />
+            <Icon name="route" :size="14" />
             <span>{{ nodeError ? '路线进度加载失败 ——' : '暂无可用节点（章节依赖未解锁）——' }}</span>
             <button type="button" class="lg-node-link" @click="goLearn(activeGoal)">查看路线</button>
           </template>
@@ -71,20 +71,20 @@
       </div>
       <div class="lg-hero-actions">
         <button v-if="activeGoal.pathId" type="button" class="lg-btn-primary" @click="heroPrimaryGo(activeGoal)">
-          <Icon name="play" :size="15" />
+          <Icon name="play" :size="16" />
           <span>{{ heroPrimaryLabel(activeGoal) }}</span>
         </button>
         <button v-else type="button" class="lg-btn-ghost" @click="aiGenerate(activeGoal)">
-          <Icon v-if="busyId === activeGoal.id" name="sparkles" :size="15" class="spin" />
-          <Icon v-else name="sparkles" :size="15" />
+          <Icon v-if="busyId === activeGoal.id" name="sparkles" :size="16" class="spin" />
+          <Icon v-else name="sparkles" :size="16" />
           <span>{{ busyId === activeGoal.id ? '生成中…' : 'AI 生成路线' }}</span>
         </button>
         <button type="button" class="lg-btn-ghost" @click="openEdit(activeGoal)">
-          <Icon name="pen-line" :size="15" />
+          <Icon name="pen-line" :size="16" />
           <span>编辑</span>
         </button>
         <button type="button" class="lg-btn-ghost lg-done" @click="toggleComplete(activeGoal)">
-          <Icon name="check-circle" :size="15" />
+          <Icon name="check-circle" :size="16" />
           <span>标记完成</span>
         </button>
       </div>
@@ -128,7 +128,7 @@
             <span class="lg-pill" :class="statusPillClass(g.status)">{{ statusText(g.status) }}</span>
           </div>
           <p v-if="g.target" class="lg-card-target">
-            <Icon name="check" :size="13" />
+            <Icon name="check" :size="14" />
             {{ g.target }}
           </p>
           <p v-if="g.description" class="lg-card-desc">{{ g.description }}</p>
@@ -150,32 +150,32 @@
               <div class="lg-progress"><div class="lg-progress-fill" :style="{ width: pathPercent(g) + '%' }"></div></div>
             </template>
             <div v-else class="lg-card-path-empty">
-              <Icon name="route" :size="13" />
+              <Icon name="route" :size="14" />
               <span>未关联路线</span>
             </div>
           </div>
 
           <div class="lg-card-actions">
             <button v-if="g.pathId" type="button" class="lg-act lg-act-go" @click="goLearn(g)">
-              <Icon name="play" :size="13" /><span>去学习</span>
+              <Icon name="play" :size="14" /><span>去学习</span>
             </button>
             <button v-else type="button" class="lg-act" :disabled="busyId === g.id" @click="aiGenerate(g)">
-              <Icon name="sparkles" :size="13" class="spin" v-if="busyId === g.id" />
-              <Icon name="sparkles" :size="13" v-else />
+              <Icon name="sparkles" :size="14" class="spin" v-if="busyId === g.id" />
+              <Icon name="sparkles" :size="14" v-else />
               <span>{{ busyId === g.id ? '生成中…' : 'AI 生成路线' }}</span>
             </button>
             <button type="button" class="lg-act" @click="openEdit(g)">
-              <Icon name="pen-line" :size="13" /><span>编辑</span>
+              <Icon name="pen-line" :size="14" /><span>编辑</span>
             </button>
             <button type="button" class="lg-act" @click="toggleComplete(g)">
-              <Icon name="check-circle" :size="13" />
+              <Icon name="check-circle" :size="14" />
               <span>{{ g.status === 'ACTIVE' ? '完成' : '重新开始' }}</span>
             </button>
             <button v-if="g.pathId" type="button" class="lg-act" @click="openLinkPath(g)">
-              <Icon name="route" :size="13" /><span>换路线</span>
+              <Icon name="route" :size="14" /><span>换路线</span>
             </button>
             <button type="button" class="lg-act lg-act-danger" @click="removeGoal(g)">
-              <Icon name="trash-2" :size="13" /><span>删除</span>
+              <Icon name="trash-2" :size="14" /><span>删除</span>
             </button>
           </div>
         </div>
@@ -187,7 +187,7 @@
       <div class="lg-modal">
         <div class="lg-modal-head">
           <h3 class="lg-modal-title">
-            <Icon name="target" :size="17" />
+            <Icon name="target" :size="16" />
             {{ editId ? '编辑学习目标' : '新建学习目标' }}
           </h3>
           <button type="button" class="lg-modal-close" aria-label="关闭弹窗" @click="showModal = false"><Icon name="x" :size="16" /></button>
@@ -228,7 +228,7 @@
         <div class="lg-modal-foot">
           <button type="button" class="lg-btn-cancel" @click="showModal = false">取消</button>
           <button type="button" class="lg-btn-primary" :disabled="saving" @click="saveGoal">
-            <Icon name="check" :size="15" v-if="!saving" />
+            <Icon name="check" :size="16" v-if="!saving" />
             <span>{{ saving ? '保存中…' : '保存目标' }}</span>
           </button>
         </div>
@@ -239,7 +239,7 @@
       <div class="lg-modal">
         <div class="lg-modal-head">
           <h3 class="lg-modal-title">
-            <Icon name="route" :size="17" />
+            <Icon name="route" :size="16" />
             为「{{ linkGoal.title }}」选择路线
           </h3>
           <button type="button" class="lg-modal-close" aria-label="关闭弹窗" @click="linkGoal = null"><Icon name="x" :size="16" /></button>
@@ -257,7 +257,7 @@
         <div class="lg-modal-foot">
           <button type="button" class="lg-btn-cancel" @click="linkGoal = null">取消</button>
           <button type="button" class="lg-btn-primary" :disabled="linkSaving" @click="saveLink">
-            <Icon name="check" :size="15" v-if="!linkSaving" />
+            <Icon name="check" :size="16" v-if="!linkSaving" />
             <span>{{ linkSaving ? '保存中…' : '保存关联' }}</span>
           </button>
         </div>
@@ -623,8 +623,8 @@ onMounted(() => {
 .lg-btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 9px 16px;
+  gap: 8px;
+  padding: 8px 16px;
   border-radius: var(--kf-radius-md);
   border: none;
   cursor: pointer;
@@ -632,12 +632,12 @@ onMounted(() => {
   font-weight: var(--kf-fw-body-md);
   color: var(--kf-primary-foreground);
   background: var(--kf-primary);
-  transition: background 0.15s ease, opacity 0.15s ease;
+  transition: background var(--kf-motion-base) var(--kf-ease-standard), opacity var(--kf-motion-base) var(--kf-ease-standard);
 }
 .lg-btn-primary:hover { background: var(--kf-primary-hover); }
 .lg-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 .lg-btn-cancel {
-  padding: 9px 16px;
+  padding: 8px 16px;
   border-radius: var(--kf-radius-md);
   border: 1px solid var(--kf-border);
   cursor: pointer;
@@ -649,15 +649,15 @@ onMounted(() => {
 .lg-btn-ghost {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
+  gap: 8px;
+  padding: 8px 12px;
   border-radius: var(--kf-radius-md);
   border: 1px solid var(--kf-border);
   cursor: pointer;
   font-size: var(--kf-fs-caption);
   color: var(--kf-foreground);
   background: var(--kf-card);
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .lg-btn-ghost:hover { border-color: var(--kf-primary); background: var(--kf-primary-subtle); color: var(--kf-primary); }
 .lg-done { color: var(--kf-state-success); }
@@ -668,7 +668,7 @@ onMounted(() => {
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  padding: 20px 22px;
+  padding: 20px 20px;
   border-radius: var(--kf-radius-lg);
   background: var(--kf-primary-subtle);
   border: 1px solid var(--kf-primary-tint);
@@ -686,16 +686,16 @@ onMounted(() => {
   background: var(--kf-primary-muted);
 }
 .lg-hero-main { flex: 1; min-width: 0; }
-.lg-hero-topline { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.lg-hero-topline { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .lg-hero-deadline { display: inline-flex; align-items: center; gap: 4px; font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); }
-.lg-hero-title { margin: 6px 0 4px; font-size: var(--kf-fs-h2); font-weight: var(--kf-fw-h2); color: var(--kf-foreground); }
-.lg-hero-desc { margin: 0 0 10px; font-size: var(--kf-fs-body-sm); color: var(--kf-muted-foreground); }
+.lg-hero-title { margin: 8px 0 4px; font-size: var(--kf-fs-h2); font-weight: var(--kf-fw-h2); color: var(--kf-foreground); }
+.lg-hero-desc { margin: 0 0 12px; font-size: var(--kf-fs-body-sm); color: var(--kf-muted-foreground); }
 .lg-hero-actions { display: flex; flex-wrap: wrap; gap: 8px; flex-shrink: 0; }
-.lg-hero-unlinked { display: flex; align-items: center; gap: 6px; font-size: var(--kf-fs-body-sm); color: var(--kf-muted-foreground); }
+.lg-hero-unlinked { display: flex; align-items: center; gap: 8px; font-size: var(--kf-fs-body-sm); color: var(--kf-muted-foreground); }
 
 /* 进度条 */
 .lg-progress { height: 8px; border-radius: 999px; background: var(--kf-bg-subtle); overflow: hidden; }
-.lg-progress-fill { height: 100%; border-radius: 999px; background: var(--kf-primary); transition: width 0.4s ease; }
+.lg-progress-fill { height: 100%; border-radius: 999px; background: var(--kf-primary); transition: width 0.4s var(--kf-ease-standard); }
 .lg-path-line { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: var(--kf-fs-body-sm); }
 .lg-path-name { font-weight: var(--kf-fw-body-md); color: var(--kf-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lg-path-count { color: var(--kf-muted-foreground); }
@@ -706,7 +706,7 @@ onMounted(() => {
   border: 1px dashed var(--kf-border);
   border-radius: var(--kf-radius-lg);
   background: var(--kf-card);
-  padding: 34px 20px;
+  padding: 32px 20px;
   margin-bottom: 22px;
   text-align: center;
 }
@@ -727,12 +727,12 @@ onMounted(() => {
 .lg-empty .lg-btn-primary { margin-top: 10px; }
 
 /* 列表 */
-.lg-section-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.lg-section-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
 .lg-section-badge {
   font-size: var(--kf-fs-caption);
   color: var(--kf-muted-foreground);
   background: var(--kf-bg-subtle);
-  padding: 2px 10px;
+  padding: 2px 12px;
   border-radius: 999px;
 }
 .lg-loading, .lg-list-empty {
@@ -749,34 +749,34 @@ onMounted(() => {
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-lg);
-  padding: 16px 18px;
+  padding: 16px 16px;
   box-shadow: var(--kf-shadow-sm);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard), box-shadow var(--kf-motion-base) var(--kf-ease-standard);
 }
 .lg-card:hover { border-color: var(--kf-neutral-border-strong); box-shadow: var(--kf-shadow-lg); }
 .lg-card-active { border-color: var(--kf-primary-tint-strong); }
-.lg-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.lg-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .lg-card-title { margin: 0; font-size: var(--kf-fs-h4); font-weight: var(--kf-fw-h4); color: var(--kf-foreground); line-height: 1.4; }
-.lg-card-target { display: flex; align-items: flex-start; gap: 6px; margin: 10px 0 0; font-size: var(--kf-fs-body-sm); color: var(--kf-state-info); }
+.lg-card-target { display: flex; align-items: flex-start; gap: 8px; margin: 12px 0 0; font-size: var(--kf-fs-body-sm); color: var(--kf-state-info); }
 .lg-card-desc { margin: 8px 0 0; font-size: var(--kf-fs-body-sm); color: var(--kf-muted-foreground); }
-.lg-card-meta { display: flex; align-items: center; gap: 5px; margin-top: 8px; font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); }
+.lg-card-meta { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); }
 .lg-card-path { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--kf-border); }
-.lg-card-path-empty { display: flex; align-items: center; gap: 6px; font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); }
-.lg-path-link { display: inline-flex; align-items: center; gap: 6px; min-width: 0; text-decoration: none; }
+.lg-card-path-empty { display: flex; align-items: center; gap: 8px; font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); }
+.lg-path-link { display: inline-flex; align-items: center; gap: 8px; min-width: 0; text-decoration: none; }
 .lg-path-link:hover .lg-path-name { color: var(--kf-primary); }
-.lg-card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.lg-card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .lg-act {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: var(--kf-radius-sm);
   border: none;
   cursor: pointer;
   font-size: var(--kf-fs-caption);
   color: var(--kf-muted-foreground);
   background: var(--kf-bg-subtle);
-  transition: color 0.15s ease, background 0.15s ease;
+  transition: color var(--kf-motion-base) var(--kf-ease-standard), background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .lg-act:hover { color: var(--kf-primary); background: var(--kf-primary-subtle); }
 .lg-act:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -787,7 +787,7 @@ onMounted(() => {
 .lg-pill {
   flex-shrink: 0;
   font-size: var(--kf-fs-caption);
-  padding: 2px 10px;
+  padding: 2px 12px;
   border-radius: 999px;
   white-space: nowrap;
 }
@@ -832,7 +832,7 @@ onMounted(() => {
   border-radius: var(--kf-radius-sm);
 }
 .lg-modal-close:hover { background: var(--kf-bg-subtle); color: var(--kf-foreground); }
-.lg-modal-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 6px; }
+.lg-modal-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; }
 .lg-label { font-size: var(--kf-fs-caption); font-weight: var(--kf-fw-caption); color: var(--kf-muted-foreground); margin-top: 8px; }
 .lg-req { color: var(--kf-danger); }
 .lg-input:not(.kf-form-control) {
@@ -854,13 +854,13 @@ onMounted(() => {
 /* 与同排旧表单的 .lg-label(margin-top:8px) 对齐；控件本身沿用 44px V2 规范 */
 .lg-datepicker { margin-top: 8px; }
 .lg-form-error { color: var(--kf-danger); font-size: var(--kf-fs-caption); margin-top: 4px; }
-.lg-modal-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--kf-border); }
+.lg-modal-foot { display: flex; justify-content: flex-end; gap: 12px; padding: 12px 20px; border-top: 1px solid var(--kf-border); }
 
 /* Architecture-4.0-3：当前节点行（真实 DAG available 节点） */
 .lg-hero-node {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
   margin-top: 10px;
   font-size: var(--kf-fs-body-sm);

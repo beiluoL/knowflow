@@ -33,6 +33,8 @@
   --kf-search-hero-height: 60px;
   --kf-search-hero-button-width: 112px;
   --kf-search-width: 752px;
+  --kf-search-content-width: 1000px;
+  --kf-search-suggestions-width: 640px;
   --kf-search-filter-height: 34px;
   --kf-field-radius: 10px;
   --kf-field-focus-width: 2px;

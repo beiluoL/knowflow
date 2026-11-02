@@ -66,7 +66,7 @@
           :class="stepState(step.round)"
         >
           <span class="recall-step-num">
-            <Icon v-if="isSubmitted(step.round)" name="check" :size="13" aria-hidden="true" />
+            <Icon v-if="isSubmitted(step.round)" name="check" :size="14" aria-hidden="true" />
             <template v-else>{{ step.round }}</template>
           </span>
           <span class="recall-step-text">
@@ -90,7 +90,7 @@
 
         <div v-if="writingRound === 2" class="recall-clue-block">
           <span class="recall-clue-title">
-            <Icon name="target" :size="13" aria-hidden="true" />
+            <Icon name="target" :size="14" aria-hidden="true" />
             第一轮确认的遗漏提示（仅显示关键词，不显示原文）
           </span>
           <div v-if="firstRoundGaps.length" class="recall-clue-list">
@@ -163,7 +163,7 @@
         </div>
         <div class="recall-gate-gaps">
           <span class="recall-clue-title">
-            <Icon name="target" :size="13" aria-hidden="true" />
+            <Icon name="target" :size="14" aria-hidden="true" />
             已确认的关键遗漏（{{ firstRoundGaps.length }}）
           </span>
           <div v-if="firstRoundGaps.length" class="recall-clue-list">
@@ -871,14 +871,14 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: var(--kf-space-3);
   flex-wrap: wrap;
-  min-height: 34px;
+  min-height: var(--kf-btn-height-sm);
 }
 .recall-back,
 .recall-top-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
+  gap: 8px;
+  padding: 8px 12px;
   border: 1px solid var(--kf-border);
   border-radius: var(--kf-radius-md);
   background: var(--kf-card);
@@ -905,7 +905,7 @@ onBeforeUnmount(() => {
 .recall-status {
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
   font-size: 11px;
   font-weight: 700;
@@ -932,8 +932,8 @@ onBeforeUnmount(() => {
 .recall-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 9px;
+  gap: 4px;
+  padding: 4px 8px;
   border-radius: 999px;
   background: var(--kf-card);
   border: 1px solid var(--kf-border);
@@ -985,7 +985,7 @@ onBeforeUnmount(() => {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--kf-space-2);
-  padding: 6px;
+  padding: 8px;
   border-radius: var(--kf-radius-lg);
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
@@ -1015,7 +1015,7 @@ onBeforeUnmount(() => {
   font-weight: 700;
 }
 .recall-round-step.is-current .recall-step-num { background: var(--kf-primary); color: var(--kf-primary-foreground); }
-.recall-round-step.is-done .recall-step-num { background: var(--kf-state-success); color: #fff; }
+.recall-round-step.is-done .recall-step-num { background: var(--kf-state-success); color: var(--kf-accent-foreground); }
 .recall-step-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .recall-step-text strong { font-size: var(--kf-fs-caption); color: var(--kf-foreground); }
 .recall-step-text small { font-size: 11px; color: var(--kf-muted-foreground); }
@@ -1058,7 +1058,7 @@ onBeforeUnmount(() => {
   color: var(--kf-muted-foreground);
 }
 .recall-draft-tag {
-  padding: 3px 9px;
+  padding: 4px 8px;
   border-radius: 999px;
   background: var(--kf-background);
   font-size: 11px;
@@ -1079,7 +1079,7 @@ onBeforeUnmount(() => {
   line-height: 1.9;
   resize: vertical;
   outline: none;
-  transition: box-shadow 0.15s ease, background 0.15s ease;
+  transition: box-shadow var(--kf-motion-base) var(--kf-ease-standard), background var(--kf-motion-base) var(--kf-ease-standard);
 }
 .recall-writing-input:focus-visible {
   box-shadow: 0 0 0 2px var(--kf-ring);
@@ -1109,7 +1109,7 @@ onBeforeUnmount(() => {
 .recall-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: var(--kf-space-2) var(--kf-space-4);
   border-radius: var(--kf-radius-md);
   border: 1px solid transparent;
@@ -1154,7 +1154,7 @@ onBeforeUnmount(() => {
 .recall-gate-icon.is-waiting { background: color-mix(in srgb, var(--kf-state-warning) 14%, transparent); color: var(--kf-state-warning); }
 .recall-gate-icon.is-ready { background: var(--kf-primary-soft); color: var(--kf-primary); }
 .recall-gate-title { margin: 0; font-family: var(--font-serif); font-size: var(--kf-fs-body-lg); font-weight: 800; color: var(--kf-foreground); }
-.recall-gate-desc { margin: 6px 0 0; font-size: var(--kf-fs-body-sm); line-height: 1.7; color: var(--kf-muted-foreground); max-width: 700px; }
+.recall-gate-desc { margin: 8px 0 0; font-size: var(--kf-fs-body-sm); line-height: 1.7; color: var(--kf-muted-foreground); max-width: 700px; }
 .recall-gate-gaps { display: flex; flex-direction: column; gap: var(--kf-space-2); }
 .recall-clue-block,
 .recall-clue-empty {
@@ -1171,14 +1171,14 @@ onBeforeUnmount(() => {
 .recall-clue-title {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   font-size: var(--kf-fs-caption);
   font-weight: 700;
   color: var(--kf-foreground);
 }
-.recall-clue-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.recall-clue-list { display: flex; flex-wrap: wrap; gap: 8px; }
 .recall-clue-chip {
-  padding: 3px 9px;
+  padding: 4px 8px;
   border-radius: 999px;
   border: 1px solid var(--kf-border);
   background: var(--kf-card);
@@ -1257,8 +1257,8 @@ onBeforeUnmount(() => {
 .recall-result-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 9px;
+  gap: 4px;
+  padding: 4px 8px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--kf-state-success) 12%, transparent);
   color: var(--kf-state-success);
@@ -1266,7 +1266,7 @@ onBeforeUnmount(() => {
   font-weight: 700;
 }
 .recall-result-title { margin: var(--kf-space-2) 0 0; font-family: var(--font-serif); font-size: var(--kf-fs-h3); font-weight: 800; color: var(--kf-foreground); }
-.recall-result-desc { margin: 6px 0 0; font-size: var(--kf-fs-caption); line-height: 1.7; color: var(--kf-muted-foreground); max-width: 680px; }
+.recall-result-desc { margin: 8px 0 0; font-size: var(--kf-fs-caption); line-height: 1.7; color: var(--kf-muted-foreground); max-width: 680px; }
 .recall-result-time { font-family: var(--font-mono); font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); }
 .recall-score-grid {
   display: grid;
@@ -1276,7 +1276,7 @@ onBeforeUnmount(() => {
 .recall-score-card {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   padding: var(--kf-space-4);
   border-radius: var(--kf-radius-md);
   border: 1px solid var(--kf-border);
@@ -1304,7 +1304,7 @@ onBeforeUnmount(() => {
 }
 .recall-review-panel.is-warning { background: color-mix(in srgb, var(--kf-state-error) 4%, var(--kf-card)); }
 .recall-review-panel.is-success { background: color-mix(in srgb, var(--kf-state-success) 4%, var(--kf-card)); }
-.recall-review-title { display: flex; align-items: center; gap: 5px; margin: 0; font-size: var(--kf-fs-body-sm); font-weight: 700; color: var(--kf-foreground); }
+.recall-review-title { display: flex; align-items: center; gap: 4px; margin: 0; font-size: var(--kf-fs-body-sm); font-weight: 700; color: var(--kf-foreground); }
 .recall-review-empty { margin: 0; font-size: var(--kf-fs-caption); line-height: 1.7; color: var(--kf-muted-foreground); }
 .recall-suggestion {
   display: flex;
@@ -1314,11 +1314,11 @@ onBeforeUnmount(() => {
   border-radius: var(--kf-radius-md);
   background: var(--kf-background);
 }
-.recall-suggestion-list { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 5px; font-size: var(--kf-fs-body-sm); line-height: 1.65; color: var(--kf-foreground); }
+.recall-suggestion-list { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; font-size: var(--kf-fs-body-sm); line-height: 1.65; color: var(--kf-foreground); }
 .recall-suggestion-note { margin: 0; font-size: var(--kf-fs-caption); line-height: 1.6; color: var(--kf-muted-foreground); }
 .recall-comparison-stack { display: flex; flex-direction: column; gap: var(--kf-space-4); }
 .recall-comparison-head { display: flex; flex-direction: column; gap: 4px; }
-.recall-comparison-title { display: flex; align-items: center; gap: 6px; margin: 0; font-family: var(--font-serif); font-size: var(--kf-fs-body-lg); font-weight: 800; color: var(--kf-foreground); }
+.recall-comparison-title { display: flex; align-items: center; gap: 8px; margin: 0; font-family: var(--font-serif); font-size: var(--kf-fs-body-lg); font-weight: 800; color: var(--kf-foreground); }
 .recall-comparison-desc { margin: 0; font-size: var(--kf-fs-caption); color: var(--kf-muted-foreground); }
 @media (max-width: 900px) {
   .recall-review-grid,

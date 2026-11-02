@@ -39,6 +39,48 @@ public class InterviewV2Service {
   this.jdbc=jdbc;this.json=json;this.legacy=legacy;this.engine=engine;this.rubric=rubric;this.projects=projects;this.events=events;tx=new TransactionTemplate(manager);
   tx.setIsolationLevel(org.springframework.transaction.TransactionDefinition.ISOLATION_READ_COMMITTED);
  }
+ /** 显式重评保留原回答和原成绩；模型调用不持有数据库事务。 */
+ public Map<String,Object> reevaluate(Long user,long sid,long turnId,String requestId){
+  requireCompletedForEvaluation(user,sid);
+  var original=get(user,sid); // 复用原读取链再次校验项目资料权限。
+  if(requestId==null||!requestId.matches("[A-Za-z0-9_-]{8,100}"))throw new BusinessException(400,"重评标识无效");
+  var rows=jdbc.queryForList("SELECT question_id,prompt,answer,depth FROM mock_interview_v2_turn WHERE id=? AND session_id=? AND user_id=?",turnId,sid,user);
+  if(rows.isEmpty())throw new BusinessException(404,"回答不存在");
+  var turn=rows.get(0);
+  var question=questions(sid).stream().filter(q->q.id().equals(turn.get("question_id"))).findFirst().orElseThrow(()->new BusinessException(409,"原题快照不可用"));
+  try{jdbc.update("INSERT INTO interview_evaluation_run(session_id,turn_id,user_id,request_id,status) VALUES(?,?,?,?,'PENDING')",sid,turnId,user,requestId);}
+  catch(org.springframework.dao.DuplicateKeyException duplicate){return evaluationRun(user,sid,turnId,requestId);}
+  var proposal=engine.evaluate(user,question,String.valueOf(turn.get("prompt")),String.valueOf(turn.get("answer")),((Number)turn.get("depth")).intValue(),((Number)turn.get("depth")).intValue(),List.of(),String.valueOf(original.get("role")),"STRICT","",List.of());
+  var outcome=new LinkedHashMap<String,Object>();
+  if(proposal.evaluation()!=null)outcome.putAll(proposal.evaluation());
+  outcome.put("scoreSource",proposal.source());
+  if(proposal.evaluation()==null){outcome.put("evaluationStatus","NOT_EVALUATED");outcome.put("message",proposal.message());}
+  jdbc.update("UPDATE interview_evaluation_run SET status=?,evaluation_json=?,update_time=CURRENT_TIMESTAMP WHERE session_id=? AND turn_id=? AND user_id=? AND request_id=? AND status='PENDING'",outcome.get("evaluationStatus"),write(outcome),sid,turnId,user,requestId);
+  return evaluationRun(user,sid,turnId,requestId);
+ }
+ private void requireCompletedForEvaluation(Long user,long sid){
+  legacy.getOwn(user,sid);
+  var states=jdbc.queryForList("SELECT state FROM mock_interview_v2_state WHERE session_id=? AND user_id=?",sid,user);
+  if(states.isEmpty())throw new BusinessException(404,"面试不存在");
+  if(!"COMPLETED".equals(states.get(0).get("state")))throw new BusinessException(409,"完成面试后才可重评");
+ }
+ private Map<String,Object> evaluationRun(Long user,long sid,long turn,String key){
+  return evaluationRunView(jdbc.queryForMap("SELECT id,turn_id,status,evaluation_json,create_time FROM interview_evaluation_run WHERE user_id=? AND session_id=? AND turn_id=? AND request_id=?",user,sid,turn,key));
+ }
+ /** 原轮次仍是历史报告的事实来源，以下仅展示追加的重评快照。 */
+ public List<Map<String,Object>> evaluationHistory(Long user,long sid){
+  requireCompletedForEvaluation(user,sid);
+  var history=jdbc.queryForList("SELECT id,turn_id,status,evaluation_json,create_time FROM interview_evaluation_run WHERE user_id=? AND session_id=? ORDER BY id DESC LIMIT 100",user,sid);
+  return history.stream().map(this::evaluationRunView).toList();
+ }
+ /** JDBC列名大小写因数据库而异，API显式投影为稳定契约。 */
+ private Map<String,Object> evaluationRunView(Map<String,Object> row){
+  var result=new LinkedHashMap<String,Object>();
+  for(String field:List.of("id","turn_id","status"))result.put(field,row.get(field));
+  result.put("create_time",String.valueOf(row.get("create_time")));
+  Object raw=row.get("evaluation_json");result.put("evaluation",raw==null?null:readMap(String.valueOf(raw)));
+  return result;
+ }
  public Map<String,Object> start(Long user,Start req){
   if(req!=null&&req.track()!=null&&req.track().startsWith("RADAR_"))throw new BusinessException(409,"雷达训练请通过来源确认入口创建");
   return startInternal(user,req,false);
@@ -61,13 +103,24 @@ public class InterviewV2Service {
   return startInternal(user,req,true,List.of(original));
  }
  private Map<String,Object> startInternal(Long user,Start req,boolean radar){return startInternal(user,req,radar,null);}
- private Map<String,Object> startInternal(Long user,Start req,boolean radar,List<SeedQuestion> frozen){
+ /** 已审核RAG题复用原状态机；幂等指纹同时包含冻结题目。 */
+ /** 岗位方案只适配已有状态机，时长、难度与岗位由原Start合同验证。 */
+ public Map<String,Object> startPersonalized(Long user,String requestId,String role,int duration,String difficulty,List<SeedQuestion> frozen){
+  var request=new Start(requestId,"JAVA_BASIC",frozen.size(),"STRICT",role,duration,2,difficulty,null,List.of(),null);
+  return startInternal(user,request,false,frozen,hash(Map.of("request",request,"questions",frozen)));
+ }
+ public Map<String,Object> startGenerated(Long user,String requestId,List<SeedQuestion> frozen){
+  var request=new Start(requestId,"JAVA_BASIC",frozen.size(),"STRICT","Java + AI 技术面试",20,2,"MEDIUM",null,List.of(),null);
+  return startInternal(user,request,false,frozen,hash(Map.of("request",request,"questions",frozen)));
+ }
+ private Map<String,Object> startInternal(Long user,Start req,boolean radar,List<SeedQuestion> frozen){return startInternal(user,req,radar,frozen,null);}
+ private Map<String,Object> startInternal(Long user,Start req,boolean radar,List<SeedQuestion> frozen,String fingerprintOverride){
   if(user==null)throw new BusinessException(401,"未登录");if(req==null)throw new BusinessException(400,"缺少创建参数");key(req.requestId());
   String mode=req.mode()==null?"STRICT":req.mode();if(!Set.of("BASIC","STRICT","TEACHING").contains(mode))throw new BusinessException(400,"面试模式无效");
   String role=req.role()==null?"Java + AI 高级工程师":text(req.role(),100,"目标岗位");
   String difficulty=req.difficulty()==null?"HARD":req.difficulty();if(!Set.of("EASY","MEDIUM","HARD","SENIOR").contains(difficulty))throw new BusinessException(400,"难度无效");
   int minutes=range(req.durationMinutes(),15,1,120,"时长"),depth=range(req.maxDepth(),2,0,3,"追问深度");
-  int requested=range(req.questionCount(),3,1,8,"题数");String fingerprint=hash(req);
+  int requested=range(req.questionCount(),3,1,8,"题数");String fingerprint=fingerprintOverride==null?hash(req):fingerprintOverride;
   Long sid;
   try{sid=tx.execute(status->{
    var previous=jdbc.queryForList("SELECT session_id,start_hash FROM mock_interview_v2_state WHERE user_id=? AND start_request=?",user,req.requestId());
@@ -92,6 +145,15 @@ public class InterviewV2Service {
   Map<String,Object> state=own(user,sid,false);expire(user,sid,state);return view(own(user,sid,false));
  }
  public Map<String,Object> answer(Long user,Long sid,Answer req){
+  return answerInternal(user,sid,req,null,()->false);
+ }
+ /** Readiness uses the authenticated user's existing model configuration; no remote probe. */
+ public boolean streamingAvailable(Long user){return engine.streamingAvailable(user);}
+ public Map<String,Object> answerStreaming(Long user,Long sid,Answer req,java.util.function.Consumer<String> onDelta,java.util.function.BooleanSupplier cancelled){
+  Objects.requireNonNull(onDelta);Objects.requireNonNull(cancelled);
+  return answerInternal(user,sid,req,onDelta,cancelled);
+ }
+ private Map<String,Object> answerInternal(Long user,Long sid,Answer req,java.util.function.Consumer<String> onDelta,java.util.function.BooleanSupplier cancelled){
   if(req==null)throw new BusinessException(400,"缺少确认答案");key(req.requestId());text(req.answer(),8000,"确认答案");
   if(req.selfScore()!=null&&(req.selfScore()<1||req.selfScore()>5))throw new BusinessException(400,"自评范围为1到5");
   Work work=tx.execute(status->{
@@ -125,7 +187,13 @@ public class InterviewV2Service {
   });
   if(work!=null){
    // 完成回调只能移除自己的Future，避免快速下一轮提交后误删新任务。
-   FutureTask<Void> future=new FutureTask<>(()->{apply(work,engine.evaluate(work.user(),work.question(),work.prompt(),work.answer(),work.depth(),work.maxDepth(),work.asked(),work.role(),work.mode(),work.project(),work.history()));return null;}){
+   FutureTask<Void> future=new FutureTask<>(()->{
+    Thread evaluationThread=Thread.currentThread();
+    java.util.function.BooleanSupplier stopped=()->cancelled.getAsBoolean()||evaluationThread.isInterrupted();
+    var proposal=onDelta==null?engine.evaluate(work.user(),work.question(),work.prompt(),work.answer(),work.depth(),work.maxDepth(),work.asked(),work.role(),work.mode(),work.project(),work.history())
+      :engine.evaluateStreaming(work.user(),work.question(),work.prompt(),work.answer(),work.depth(),work.maxDepth(),work.asked(),work.role(),work.mode(),work.project(),work.history(),onDelta,stopped);
+    apply(work,proposal);return null;
+   }){
     @Override protected void done(){var running=futures.get(work.sid());if(running!=null&&running.future()==this)futures.remove(work.sid(),running);}
    };
    var running=new Running(work.version(),future);futures.put(sid,running);
@@ -237,6 +305,8 @@ public class InterviewV2Service {
   result.put("evaluatedTurns",evaluated.size());result.put("answeredTurns",turns.size());result.put("rubricVersion",version);result.put("weights",weights);result.put("mixedRubric",mixed);
   result.put("coverage",turns.isEmpty()?0:(double)evaluated.size()/turns.size());result.put("historyComparison",mixed?null:history(state,overall,version,weights));
   if(com.knowflow.interview.radar.RadarRubric.VERSION.equals(version))result.put("radarOverallScore",overall==null?null:Math.round(overall*10)/100.0);
+  var derived=InterviewReportAggregator.aggregate(turns,dimensions);result.put("weaknesses",derived.weaknesses());result.put("strengths",derived.strengths());result.put("improvements",derived.improvements());result.put("missedKnowledgePoints",derived.missedKnowledgePoints());result.put("recommendedPracticeQuestionIds",derived.recommendedPracticeQuestionIds());
+  result.put("deferredCapabilities",List.of("学习章节推荐需要已登记的知识点-章节映射，本期不生成假章节关联"));
   result.put("assessmentType","AI_SUGGESTION_NOT_VERIFIED_MASTERY");result.put("evidenceIngestion","ACTIVITY_ONLY_NO_MASTERY_SCORE");return result;
  }
  private boolean completeRadarEvaluations(List<Map<String,Object>> evaluations,String version,Map<String,Integer> weights){

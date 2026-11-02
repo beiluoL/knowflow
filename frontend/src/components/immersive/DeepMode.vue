@@ -51,7 +51,7 @@
               {{ node.categoryLabel }}
             </span>
             <span v-if="node.docCount" class="doc-count">
-              <Icon name="file-text" :size="11" aria-hidden="true" />
+              <Icon name="file-text" :size="12" aria-hidden="true" />
               {{ node.docCount }}
             </span>
           </div>
@@ -250,7 +250,7 @@
 
       <div class="insight-card">
         <div class="insight-label">
-          <Icon name="bookmark" :size="13" aria-hidden="true" />
+          <Icon name="bookmark" :size="14" aria-hidden="true" />
           <span>探索过的概念</span>
         </div>
         <div v-if="exploredTopics.length" class="explored-chips">
@@ -265,7 +265,7 @@
 
       <div class="insight-card badges">
         <div class="insight-label">
-          <Icon name="award" :size="13" aria-hidden="true" />
+          <Icon name="award" :size="14" aria-hidden="true" />
           <span>解锁深度徽章</span>
         </div>
         <div class="badge-row">
@@ -573,7 +573,7 @@ onUnmounted(async () => {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   overflow: hidden;
 }
 .deep-center {
@@ -605,12 +605,12 @@ onUnmounted(async () => {
   margin-bottom: 4px;
 }
 .topic-input:not(.kf-form-control) {
-  height: 40px;
+  height: var(--kf-input-height);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
 }
 .topic-input {
   padding: 0 12px;
@@ -621,19 +621,19 @@ onUnmounted(async () => {
   border-color: var(--kf-primary);
 }
 .topic-gen-btn {
-  height: 40px;
+  height: var(--kf-btn-height-md);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
+  color: var(--kf-accent-foreground);
   background: linear-gradient(135deg, var(--kf-primary), #8B5CF6);
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: filter 0.15s;
+  transition: filter var(--kf-motion-base) var(--kf-ease-standard);
 }
 .topic-gen-btn:hover:not(:disabled) {
   filter: brightness(1.06);
@@ -672,7 +672,7 @@ onUnmounted(async () => {
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
   border-radius: 12px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .topic-card:hover {
   background: rgba(255, 255, 255, 0.06);
@@ -686,7 +686,7 @@ onUnmounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 8px;
   margin-bottom: 5px;
 }
 .topic-name {
@@ -698,7 +698,7 @@ onUnmounted(async () => {
   white-space: nowrap;
 }
 .diff-badge {
-  font-size: 10px;
+  font-size: var(--kf-fs-xs);
   letter-spacing: 0.05em;
   flex-shrink: 0;
 }
@@ -709,11 +709,11 @@ onUnmounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 8px;
   margin-bottom: 6px;
 }
 .cat-badge {
-  font-size: 10.5px;
+  font-size: var(--kf-fs-xs);
   padding: 2px 8px;
   border-radius: 999px;
   font-weight: 600;
@@ -752,10 +752,10 @@ onUnmounted(async () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   padding: 40px 12px;
   color: var(--kf-muted-foreground);
-  font-size: 12.5px;
+  font-size: var(--kf-fs-caption);
   text-align: center;
   opacity: 0.8;
 }
@@ -773,15 +773,15 @@ onUnmounted(async () => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .tts-toolbar {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
-  padding: 12px 14px;
+  gap: 12px;
+  padding: 12px 12px;
   background: var(--kf-bg-2, rgba(15, 23, 42, 0.6));
   backdrop-filter: blur(12px);
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
@@ -790,17 +790,17 @@ onUnmounted(async () => {
 .tts-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
+  gap: 8px;
+  height: var(--kf-btn-height-sm);
   padding: 0 13px;
-  font-size: 12.5px;
+  font-size: var(--kf-fs-caption);
   font-weight: 500;
   color: var(--kf-muted-foreground);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
   border-radius: 9px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .tts-btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.08);
@@ -813,7 +813,7 @@ onUnmounted(async () => {
 .tts-btn.primary {
   background: var(--kf-primary);
   border-color: var(--kf-primary);
-  color: #fff;
+  color: var(--kf-accent-foreground);
 }
 .tts-btn.primary:hover:not(:disabled) {
   filter: brightness(1.06);
@@ -827,17 +827,17 @@ onUnmounted(async () => {
 .pitch-group {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 }
 .rate-label {
-  font-size: 11.5px;
+  font-size: var(--kf-fs-xs);
   color: var(--kf-muted-foreground);
   font-weight: 500;
   margin-right: 2px;
 }
 .rate-chip {
-  min-width: 40px;
-  height: 26px;
+  min-width: 32px;
+  height: var(--kf-btn-height-sm);
   padding: 0 8px;
   font-size: 11px;
   font-weight: 600;
@@ -846,7 +846,7 @@ onUnmounted(async () => {
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
   border-radius: 7px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .rate-chip:hover {
   color: var(--kf-foreground);
@@ -865,7 +865,7 @@ onUnmounted(async () => {
 }
 .voice-select {
   padding: 0 8px;
-  font-size: 11.5px;
+  font-size: var(--kf-fs-xs);
   color: var(--kf-foreground);
   cursor: pointer;
   max-width: 160px;
@@ -881,7 +881,7 @@ onUnmounted(async () => {
   backdrop-filter: blur(10px);
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 18px;
-  padding: 24px 28px;
+  padding: 24px 24px;
 }
 .reader-body::-webkit-scrollbar {
   width: 6px;
@@ -894,14 +894,14 @@ onUnmounted(async () => {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px 12px;
+  gap: 12px 12px;
   padding-bottom: 18px;
   margin-bottom: 18px;
   border-bottom: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.06));
 }
 .topic-title {
   margin: 0;
-  font-size: 26px;
+  font-size: var(--kf-fs-h2);
   font-weight: 700;
   color: var(--kf-foreground);
   letter-spacing: -0.01em;
@@ -917,14 +917,14 @@ onUnmounted(async () => {
   margin-bottom: 22px;
 }
 .reader-section h3 {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   font-size: 14px;
   font-weight: 600;
   color: var(--kf-primary);
   letter-spacing: 0.02em;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 .reader-section h3::before {
   content: '';
@@ -936,7 +936,7 @@ onUnmounted(async () => {
 }
 .content-block {
   margin: 0;
-  padding: 12px 14px;
+  padding: 12px 12px;
   font-size: 14px;
   line-height: 1.75;
   color: var(--kf-foreground);
@@ -947,15 +947,15 @@ onUnmounted(async () => {
 .chips-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: 8px;
   padding: 4px 2px;
 }
 .chip {
   display: inline-flex;
   align-items: center;
-  height: 28px;
+  height: var(--kf-btn-height-sm);
   padding: 0 11px;
-  font-size: 12.5px;
+  font-size: var(--kf-fs-caption);
   font-weight: 500;
   border-radius: 999px;
 }
@@ -973,21 +973,21 @@ onUnmounted(async () => {
   background: rgba(16, 185, 129, 0.1);
   color: #34D399;
   border: 1px solid rgba(16, 185, 129, 0.2);
-  font-size: 11.5px;
+  font-size: var(--kf-fs-xs);
   height: 24px;
-  padding: 0 9px;
+  padding: 0 8px;
 }
 .empty-chips {
   margin: 0;
-  padding: 10px 12px;
-  font-size: 12.5px;
+  padding: 12px 12px;
+  font-size: var(--kf-fs-caption);
   color: var(--kf-muted-foreground);
   background: rgba(255, 255, 255, 0.02);
   border-radius: 10px;
 }
 .empty-chips.small {
-  padding: 8px 10px;
-  font-size: 11.5px;
+  padding: 8px 12px;
+  font-size: var(--kf-fs-xs);
 }
 
 .note-textarea:not(.kf-form-control) {
@@ -995,15 +995,15 @@ onUnmounted(async () => {
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 12px;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color var(--kf-motion-base) var(--kf-ease-standard);
   min-height: 120px;
 }
 
 .note-textarea {
   display: block;
   width: 100%;
-  padding: 12px 14px;
-  font-size: 13.5px;
+  padding: 12px 12px;
+  font-size: var(--kf-fs-body-sm);
   line-height: 1.65;
   color: var(--kf-foreground);
   font-family: inherit;
@@ -1026,7 +1026,7 @@ onUnmounted(async () => {
 }
 .no-topic-hint {
   margin: 0;
-  font-size: 13.5px;
+  font-size: var(--kf-fs-body-sm);
   color: var(--kf-muted-foreground);
   text-align: center;
   line-height: 1.6;
@@ -1040,7 +1040,7 @@ onUnmounted(async () => {
   gap: 4px;
 }
 .ring-time {
-  font-size: 26px;
+  font-size: var(--kf-fs-h2);
   font-weight: 700;
   color: var(--kf-foreground);
   line-height: 1;
@@ -1074,7 +1074,7 @@ onUnmounted(async () => {
 .insight-label {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 12px;
   font-weight: 600;
   color: var(--kf-foreground);
@@ -1109,12 +1109,12 @@ onUnmounted(async () => {
 .explored-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .badge-row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 14px;
 }
 .badge-item {
@@ -1123,14 +1123,14 @@ onUnmounted(async () => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   padding: 12px 8px;
   border-radius: 11px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.05));
   color: var(--kf-muted-foreground);
   opacity: 0.55;
-  transition: all 0.25s;
+  transition: background-color var(--kf-motion-slower) var(--kf-ease-standard), border-color var(--kf-motion-slower) var(--kf-ease-standard), color var(--kf-motion-slower) var(--kf-ease-standard), box-shadow var(--kf-motion-slower) var(--kf-ease-standard), opacity var(--kf-motion-slower) var(--kf-ease-standard), transform var(--kf-motion-slower) var(--kf-ease-standard), width var(--kf-motion-slower) var(--kf-ease-standard), height var(--kf-motion-slower) var(--kf-ease-standard), stroke-dashoffset var(--kf-motion-slower) var(--kf-ease-standard);
 }
 .badge-item.unlocked {
   opacity: 1;
@@ -1145,11 +1145,11 @@ onUnmounted(async () => {
 }
 .end-btn {
   width: 100%;
-  height: 38px;
+  height: var(--kf-btn-height-md);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   font-weight: 600;
   color: var(--kf-foreground);
@@ -1157,7 +1157,7 @@ onUnmounted(async () => {
   border: 1px solid rgba(239, 68, 68, 0.25);
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .end-btn:hover {
   background: rgba(239, 68, 68, 0.18);
@@ -1170,19 +1170,19 @@ onUnmounted(async () => {
   gap: 8px;
 }
 .action-btn {
-  height: 38px;
+  height: var(--kf-btn-height-md);
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 0 12px;
-  font-size: 12.5px;
+  font-size: var(--kf-fs-caption);
   font-weight: 600;
   color: var(--kf-foreground);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--kf-elev-border, rgba(255, 255, 255, 0.08));
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: var(--kf-transition-interactive);
 }
 .action-btn:hover {
   background: color-mix(in srgb, var(--kf-primary) 12%, transparent);
