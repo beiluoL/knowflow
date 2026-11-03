@@ -40,6 +40,41 @@ spring:
 # config-file 指定的外置文件，其优先级高于此处的 type。
 # ============================================================
 knowflow:
+  # 语音运行时：模式 LOCAL/HYBRID/CLOUD；各本机服务默认关闭，需显式开启。
+  # 本地模式不允许任何远程调用；切换模式见 PUT /api/voice/runtime/mode（ADMIN）。
+  voice:
+    mode: ${KNOWFLOW_VOICE_MODE:LOCAL}
+    capability-cache-seconds: 5
+    local-asr:
+      enabled: ${KNOWFLOW_LOCAL_ASR_ENABLED:false}
+      endpoint: ${KNOWFLOW_LOCAL_ASR_ENDPOINT:http://127.0.0.1:8008/v1/audio/transcriptions}
+      health-endpoint: ${KNOWFLOW_LOCAL_ASR_HEALTH:http://127.0.0.1:8008/health}
+      token: ${KNOWFLOW_LOCAL_ASR_TOKEN:}
+      model: ${KNOWFLOW_LOCAL_ASR_MODEL:sensevoice-small}
+      timeout-seconds: 120
+      max-seconds: 120
+    local-tts:
+      enabled: ${KNOWFLOW_LOCAL_TTS_ENABLED:false}
+      endpoint: ${KNOWFLOW_LOCAL_TTS_ENDPOINT:http://127.0.0.1:8010/v1/audio/speech}
+      health-endpoint: ${KNOWFLOW_LOCAL_TTS_HEALTH:http://127.0.0.1:8010/health}
+      token: ${KNOWFLOW_LOCAL_TTS_TOKEN:}
+      voice: ${KNOWFLOW_LOCAL_TTS_VOICE:Tingting}
+      speed: 1.0
+      timeout-seconds: 120
+    ollama:
+      enabled: ${KNOWFLOW_OLLAMA_ENABLED:false}
+      base-url: ${KNOWFLOW_OLLAMA_BASE_URL:http://127.0.0.1:11434}
+      model: ${KNOWFLOW_OLLAMA_MODEL:qwen3.5:9b}
+      # 语音链路必须关思考，否则首字延迟不可控甚至只产出 reasoning
+      think: false
+      max-tokens: 512
+      timeout-seconds: 120
+  # 面试实时语音通道：必须显式开启并配置精确 Origin，否则能力恒为不可用。
+  interview:
+    voice:
+      enabled: ${KNOWFLOW_INTERVIEW_VOICE_ENABLED:false}
+      allowed-origins: ${KNOWFLOW_INTERVIEW_VOICE_ORIGINS:}
+      max-connections-per-user: 2
   # F11默认关闭；开启工作台不等于授予宿主代码执行权限。
   product:
     java-practice:

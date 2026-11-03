@@ -8,7 +8,7 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 
 /** Qwen ASR realtime PCM16 16 kHz with server VAD; independent of batch ASR. */
-@Component
+@Component("qwenStreamingAsrProvider")
 public class QwenStreamingAsrProvider implements InterviewStreamingAsrProvider {
     private static final int SAMPLE_RATE = 16000;
     private static final int MAX_CHUNK_BYTES = 32000;

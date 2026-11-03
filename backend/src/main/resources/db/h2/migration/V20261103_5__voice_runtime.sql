@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS voice_runtime_setting (
+ id BIGINT PRIMARY KEY COMMENT '固定为1的实例级语音设置',
+ mode VARCHAR(16) NOT NULL COMMENT 'LOCAL/HYBRID/CLOUD',
+ allow_remote_fallback TINYINT NOT NULL DEFAULT 0 COMMENT '远程失败是否允许降级（本地模式禁止）',
+ update_by BIGINT NULL COMMENT '最后修改人',
+ create_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+ update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '最后修改时间',
+ deleted TINYINT NOT NULL DEFAULT 0 COMMENT '保留位，设置行只更新不删除'
+) COMMENT='语音运行模式设置，单行表';

@@ -31,6 +31,8 @@ public class InterviewTrainerSchema {
             ScriptUtils.executeSqlScript(connection,new ClassPathResource("db/" + dialect + "/migration/V20261103_2__career_v3.sql"));
             ScriptUtils.executeSqlScript(connection,new ClassPathResource("db/" + dialect + "/migration/V20261103_3__career_pipeline_events.sql"));
             ScriptUtils.executeSqlScript(connection,new ClassPathResource("db/" + dialect + "/migration/V20261103_4__resume_studio_draft.sql"));
+            // Voice Runtime：实例级语音运行模式设置（单行表，只更新不删除）
+            ScriptUtils.executeSqlScript(connection,new ClassPathResource("db/" + dialect + "/migration/V20261103_5__voice_runtime.sql"));
             // 兼容本轮已初始化过的开发数据库，不重建表或清空私人草稿。
             String draftTable = "h2".equals(dialect) ? "INTERVIEW_RESUME_DRAFT" : "interview_resume_draft";
             String createdColumn = "h2".equals(dialect) ? "CREATE_TIME" : "create_time";

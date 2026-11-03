@@ -2,6 +2,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import { createDevRoutes } from '@/dev/routes';
 import { careerRoutes } from '@/views/career/routes';
+import { voiceLabRoutes } from '@/views/voice/routes';
 import { useAuthStore } from '@/stores/auth';
 import { notify } from '@/utils/toast';
 import { findChildByPath, findGroupByPath } from '@/config/navigation';
@@ -18,6 +19,7 @@ import { findChildByPath, findGroupByPath } from '@/config/navigation';
 const routes: RouteRecordRaw[] = [
   ...(import.meta.env.VITE_PRODUCT_STUDY_PACK==='true'?[{path:'/learning/study-packs/:id?',name:'StudyPacks',component:()=>import('@/views/StudyPacksPage.vue'),meta:{layout:'c',requiresAuth:true}} satisfies RouteRecordRaw]:[]),
   ...careerRoutes,
+  ...voiceLabRoutes,
   ...(import.meta.env.DEV ? createDevRoutes(true) : []),
   {path:'/share/chat/:token',name:'PublicChatShare',component:()=>import('@/views/PublicChatShare.vue'),meta:{layout:'none',backgroundOverride:'none'}},
   // ===== 通用系统页面（无布局） =====

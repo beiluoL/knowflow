@@ -443,6 +443,22 @@ export const APP_DEFINITIONS: AppDefinition[] = [
     defaultInstalled: false,
     capabilities: ['knowledge.read'],
   },
+  // ── Voice Lab：本地优先的实时语音（识别/合成/大模型均可在本机完成）
+  //    语音只承担输入与播报，聊天复用原 Chat，面试复用原 Interview V2，不建第二套业务。
+  {
+    key: 'voice-lab',
+    name: '语音实验室',
+    description: '本机识别、本机大模型、本机合成，支持实时语音对话与语音面试。',
+    icon: 'mic',
+    category: 'AI',
+    categoryLabel: 'AI',
+    route: '/voice-lab',
+    tags: ['实时语音', '本地模型', '语音面试', '打断'],
+    version: '1.0.0',
+    status: 'ACTIVE',
+    defaultInstalled: false,
+    capabilities: ['ai.chat', 'knowledge.read'],
+  },
 ]
 
 /** 新用户默认安装（§88：闪卡 / 练习 / 错题 / 专注） */
@@ -527,6 +543,7 @@ export const APP_NAV_META: Record<string, { navSection: AppNavSection; order: nu
   drawing: { navSection: 'knowledge', order: 5 },
   // ── AI 工作区（固定入口「AI 助手」之后的动态 App，3.2 §31/§153）
   'ai-writing': { navSection: 'ai', order: 1 },
+  'voice-lab': { navSection: 'ai', order: 2 },
 }
 
 // 模块加载时一次性富化：getApps() 返回已含 navSection / navVisible / order（不修改既有 13 个字面量）

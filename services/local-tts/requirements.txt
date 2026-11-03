@@ -1,0 +1,3 @@
+# 仅 sherpa 引擎需要；say 引擎使用 macOS 系统语音，无需额外依赖。
+sherpa-onnx==1.12.40
+numpy>=1.26

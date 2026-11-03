@@ -4,6 +4,8 @@ import com.knowflow.exception.BusinessException;
 import com.knowflow.interview.speech.InterviewStreamingAsrProvider;
 import com.knowflow.interview.speech.InterviewTtsProvider;
 import com.knowflow.interview.v2.InterviewV2Service;
+import com.knowflow.voice.VoiceRuntimeSetting;
+import com.knowflow.voice.VoiceRuntimeSettingsService;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ public class VoiceAccess {
   private final VoiceTransportProperties config;
   private final InterviewStreamingAsrProvider asr;
   private final InterviewTtsProvider tts;
+  private final VoiceRuntimeSettingsService runtimeSettings;
 
   public Map<String, Object> state(long user, long session) {
     return interviews.get(user, session);
@@ -26,33 +29,39 @@ public class VoiceAccess {
   public Map<String, Object> capability(long user, long session) {
     var state = state(user, session);
     boolean active = !"COMPLETED".equals(state.get("state"));
+    var asrCapabilities = asr.capabilities();
+    var ttsCapabilities = tts.capabilities();
     boolean enabled =
       config.isEnabled() &&
-      asr.capabilities().available() &&
+      asrCapabilities.available() &&
       !config.validOrigins().isEmpty() &&
       active;
-    return Map.of(
-      "enabled",
-      enabled,
-      "asr",
-      asr.capabilities(),
-      "tts",
-      tts.capabilities(),
-      "protocolVersion",
-      1,
-      "maxDurationSeconds",
-      60,
-      "maxBytes",
-      1920000,
-      "llmStreaming",
-      interviews.streamingAvailable(user),
+    VoiceRuntimeSetting runtime = runtimeSettings.current();
+    Map<String, Object> result = new LinkedHashMap<>();
+    result.put("enabled", enabled);
+    result.put("asr", asrCapabilities);
+    result.put("tts", ttsCapabilities);
+    result.put("protocolVersion", 1);
+    result.put("maxDurationSeconds", 60);
+    result.put("maxBytes", 1920000);
+    result.put("llmStreaming", interviews.streamingAvailable(user));
+    result.put("mode", runtime.mode().name());
+    result.put("modeLabel", runtime.mode().label());
+    result.put("audioLeavesDevice", runtime.audioLeavesDevice());
+    result.put("leavesLocal", runtime.leavesLocal());
+    result.put(
+      "asrPartialSupported",
+      asrCapabilities.partialSupported()
+    );
+    result.put(
       "reason",
       enabled
-        ? interviews.streamingAvailable(user)
+        ? asrCapabilities.partialSupported()
           ? "实时候选追问仅供预览，校验完成后由原V2发布正式问题"
-          : "流式模型未配置；追问经原V2校验后完整发送"
+          : "本地识别为按句转写：停止录音后返回完整文本，校对后再提交"
         : "实时语音未配置、来源未允许或面试已结束；仍可使用原录音转写和文字作答"
     );
+    return result;
   }
 
   public Map<String, Object> ticket(long user, long session, String origin) {

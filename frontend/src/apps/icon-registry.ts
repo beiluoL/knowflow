@@ -45,4 +45,6 @@ export const APP_ICONS: Record<string, string> = {
   'career-interviews': 'mic', // 岗位面试：口述作答
   'career-resume-toolbox': 'component', // 简历工具箱：工具组件
   'career-resume-templates': 'layout', // 简历模板：版式
+  // ── Voice Lab：麦克风即语音入口
+  'voice-lab': 'mic',
 }

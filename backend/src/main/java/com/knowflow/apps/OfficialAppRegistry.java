@@ -61,6 +61,8 @@ public class OfficialAppRegistry {
         APP_STATUS.put("career-interviews", "ACTIVE");
         APP_STATUS.put("career-resume-toolbox", "ACTIVE");
         APP_STATUS.put("career-resume-templates", "ACTIVE");
+        // Voice Lab：本地优先语音实验室（与前端 registry.ts 保持同步；默认不安装）
+        APP_STATUS.put("voice-lab", "ACTIVE");
     }
 
     /**
