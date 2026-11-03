@@ -7,6 +7,9 @@
       <div class="min-w-0 flex-1">
         <h3 class="app-name">{{ app.name }}</h3>
         <p class="app-desc">{{ app.description }}</p>
+        <ul v-if="app.tags?.length" class="app-tags" aria-label="功能标签">
+          <li v-for="tag in app.tags.slice(0, 4)" :key="tag" class="app-tag">{{ tag }}</li>
+        </ul>
       </div>
     </div>
 
@@ -163,6 +166,23 @@ const statusClass = computed(() => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+.app-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.app-tag {
+  font-size: var(--kf-fs-caption);
+  line-height: 1.4;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--kf-surface-2);
+  color: var(--kf-muted-foreground);
+  white-space: nowrap;
 }
 .app-card-foot {
   display: flex;

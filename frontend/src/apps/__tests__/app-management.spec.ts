@@ -212,6 +212,7 @@ describe('Category → Workspace 映射（§177）', () => {
     knowledge: ['ORGANIZATION', 'UNDERSTANDING'],
     ai: ['AI'],
     tools: ['FOCUS', 'PRODUCTIVITY'],
+    career: ['CAREER'],
   }
 
   it('每个进导航的 App，其 category 都落在其工作区允许范围内', () => {
@@ -236,8 +237,8 @@ describe('Category → Workspace 映射（§177）', () => {
     expect(getAppByKey('knowledge-graph')!.navSection).toBe('knowledge')
   })
 
-  it('注册表工作区包含获批的工具分区', () => {
+  it('注册表工作区包含获批的工具与求职分区', () => {
     const sections = new Set(Object.values(APP_NAV_META).map((m) => m.navSection))
-    expect([...sections].sort()).toEqual(['ai', 'knowledge', 'learning', 'tools'])
+    expect([...sections].sort()).toEqual(['ai', 'career', 'knowledge', 'learning', 'tools'])
   })
 })

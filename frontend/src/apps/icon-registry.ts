@@ -35,4 +35,14 @@ export const APP_ICONS: Record<string, string> = {
   habits: 'check-check', // 习惯打卡：连续勾选
   calendar: 'calendar', // 日历：日历
   'today-plan': 'list-checks', // 今日计划：今日清单
+  'career-workbench': 'layout-grid', // 求职工作台：今日操作中心
+  // ── Career Apps V2.0（求职八应用，图标均为 Icon.vue 内置 SVG）
+  'career-overview': 'layout-dashboard', // 求职总览：数据看板
+  'career-discover': 'compass', // 岗位发现：多源探索
+  'career-resume': 'file-text', // 简历中心：文档
+  'career-jobs': 'briefcase', // 岗位中心：岗位
+  'career-matching': 'target', // 智能匹配：命中目标
+  'career-interviews': 'mic', // 岗位面试：口述作答
+  'career-resume-toolbox': 'component', // 简历工具箱：工具组件
+  'career-resume-templates': 'layout', // 简历模板：版式
 }

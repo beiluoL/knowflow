@@ -22,8 +22,19 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
         working-directory: frontend
-      - run: npx vitest run && npx vue-tsc --noEmit && npm run build && npm run build -- --mode staging
+      - run: node --test scripts/lint.test.mjs && npm run lint
         working-directory: frontend
+      - run: npm test && npx vue-tsc --noEmit && npx vue-tsc -p tsconfig.app.json --noEmit && npm run build && npm run build -- --mode staging
+        working-directory: frontend
+  engineering:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.12.0'
+      - run: node --test scripts/engineering/check.test.mjs
+      - run: node scripts/engineering/check.mjs
   mysql:
     runs-on: ubuntu-latest
     services:

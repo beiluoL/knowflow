@@ -33,6 +33,7 @@ export const NAV_SECTION_LABELS: Record<AppNavSection, string> = {
   knowledge: '知识',
   ai: 'AI',
   tools: '工具',
+  career: '求职',
 }
 
 /** App 所属工作区中文标签（Toast 文案用，§225：用户语言、不暴露技术细节）；无分区返回 '' */
@@ -82,7 +83,7 @@ export function resolveAppNavChildren(
 
   items.sort((a, b) => a.order - b.order)
 
-  const buckets: Record<AppNavSection, NavChild[]> = { learning: [], knowledge: [], ai: [], tools: [] }
+  const buckets: Record<AppNavSection, NavChild[]> = { learning: [], knowledge: [], ai: [], tools: [], career: [] }
   for (const it of items) buckets[it.section].push(it.child)
   return buckets
 }
@@ -118,5 +119,5 @@ export function resolveNavigation(
     if (apps.length === 0) return g
     // 固定工作区入口在前，动态 App 在后（§9/§10）
     return { ...g, children: [...(g.children ?? []), ...apps] }
-  }).filter((g) => g.label !== NAV_SECTION_LABELS.tools || (g.children?.length ?? 0) > 0)
+  }).filter((g) => !g.dynamicNav || (g.children?.length ?? 0) > 0)
 }

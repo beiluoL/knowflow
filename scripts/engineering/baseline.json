@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "updated": "2026-11-01",
+  "note": "棘轮基线：只允许下降，不允许上升。下调基线必须同时提交代码修复。计数口径见 scripts/engineering/check.mjs。",
+  "ratchets": {
+    "backend.java.systemOut": 2,
+    "backend.java.customThreads": 19,
+    "backend.java.selectStar": 95,
+    "backend.sql.selectStar": 72,
+    "backend.sql.foreignKey": 35,
+    "frontend.explicitAny": 60
+  }
+}

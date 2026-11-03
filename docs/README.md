@@ -24,6 +24,7 @@
 | 依赖 / 首版范围 / 门禁 | [05](roadmap/05_PHASE_DEPENDENCIES.md)、[06](roadmap/06_V1_RELEASE_SCOPE.md)、[07](roadmap/07_TEST_AND_RELEASE_GATES.md) | CURRENT；范围仍待批准，门禁未认证 |
 | 下一轮执行 | [roadmap/08](roadmap/08_NEXT_EXECUTION_PLAN.md) | CURRENT；不是重复实施已完成T1/G1/G2 |
 | 工程开发 | [DEVELOPMENT_PROTOCOL](DEVELOPMENT_PROTOCOL.md) | CURRENT，分层/权限/事务/异常/调试/测试/Git |
+| 工程规范中心 | [ENGINEERING_STANDARDS](engineering/ENGINEERING_STANDARDS.md) | CURRENT，后端/前端/安全AI/测试门禁分册与告警级别；现状见[审计](engineering/AUDIT_2026-11-01.md) |
 | UI控件与字体 | [UI_DESIGN_SYSTEM_V2第0节及正文](UI_DESIGN_SYSTEM_V2.md#0-当前有效开发规范2026-10-24) | CURRENT，V3统一组件规范已合并；浅灰输入无蓝/灰聚焦外框；实现/验收分开 |
 | 产品哲学/导航 | [UI_UX_SYSTEM](UI_UX_SYSTEM.md) | CURRENT，专项外观以V2现行规则为准 |
 | 文档维护 | [DOCUMENTATION_GOVERNANCE](DOCUMENTATION_GOVERNANCE.md) | CURRENT，状态/证据/同步/归档/校验 |
@@ -63,3 +64,9 @@
 [实施与验收报告](interview-radar-v1/REPORT.md)：当前本人H265章/65待审题/5图/4参考索引，39可参考训练；原V2四维评分与首答/复述/雷达、原FSRS/错题/任务接入。来源审核/真实Provider/MySQL/全量Evidence失败仍单列，不提升发布门禁。
 
 2026-10-26 产品优先开发已开始，首批F03/F16/F17逐切片验收。见[PRODUCT_MVP_01](roadmap/learning-v7-v8/executions/PRODUCT_MVP_01/IMPLEMENTATION_REPORT.md)。NOT_READY不变。
+
+### 2026-11-02 · 个人求职工作台 Career Workbench V1.0
+
+[PRD](career-workbench/CAREER_WORKBENCH_PRD.md)、[架构](career-workbench/CAREER_WORKBENCH_ARCHITECTURE.md)、[API](career-workbench/CAREER_WORKBENCH_API.md)、[实施报告](career-workbench/CAREER_WORKBENCH_IMPLEMENTATION_REPORT.md)、[验收报告](career-workbench/CAREER_WORKBENCH_ACCEPTANCE_REPORT.md)。
+
+独立 App `career-workbench`（`/career`，动态导航分区「求职」）；复用既有 Tika、简历/JD 版本、确定性匹配、Interview Skill Registry 与 Interview V2。核心闭环与本地前后端测试 DONE；真实付费模型 AI 解析/润色/评分报告、真实第三方 JD 链接与 MySQL 迁移 NOT_VERIFIED / PARTIAL。全局发布 NOT_READY 不变。

@@ -15,7 +15,7 @@
 | 普通文本、数字、搜索、Textarea、普通Select触发器 | 浅灰表面，默认无明显边框；鼠标/键盘聚焦均不新增border、outline、ring或box-shadow外框。可以用现有表面Token轻微反馈，不恢复蓝/灰描边 |
 | 组合输入 | 外壳统一负责背景和圆角，内部input透明；这里的内部透明不等于整块控件透明。禁止双层容器/双焦点框 |
 | 图标、文本、快捷键 | Flex/Grid与gap分隔，通常8–12px；顶部搜索已落地12px。绝对定位图标必须预留对应padding，默认样式不得覆盖 |
-| 表单对齐 | 复用Input/Textarea/Select/FormField；kb-form-row共享label/control/meta轨道，长标签、帮助、错误不推歪相邻输入；窄屏单列 |
+| 表单对齐 | 复用Input/Textarea/Select/FormField；kf-form-row共享label/control/meta轨道，长标签、帮助、错误不推歪相邻输入；窄屏单列 |
 | 尺寸 | 普通单行Input/Select默认44px、水平padding12px；普通Textarea默认最小96px，保留业务所需高度与独立滚动 |
 | 原生语义 | 保留label、aria、readonly、disabled、min/max/step、required和v-model；数字空值不能强制转0 |
 | 排除项 | 代码/Markdown编辑器、文件、日期/时间、颜色、范围等特殊控件按原实现评估，不机械套用普通输入重置 |
@@ -24,7 +24,7 @@
 
 既有开发基线（具体实现范围见对应报告）：
 
-- 颜色/字号/圆角/间距使用现有`--kb-*`；沿用Vue 3、TypeScript、现有Tailwind与Scoped CSS，不新增UI库或第二套主题。先修公共组件，禁止全局input/button重置与大面积!important。
+- 颜色/字号/圆角/间距使用现有`--kf-*`；沿用Vue 3、TypeScript、现有Tailwind与Scoped CSS，不新增UI库或第二套主题。先修公共组件，禁止全局input/button重置与大面积!important。
 - 字体角色：UI/聊天正文用Sans，少量展示标题显式用Serif，代码/技术标识用Mono；使用现有字号/行高Token，根字号保持14px。
 - 菜单为白色/主题悬浮卡片，浅灰hover；平面Select选中默认白底/透明、右侧Check，不用永久灰底或字重混充焦点；搜索区约42px，选项独立滚动，保留视口避让及键盘操作。
 - 二次确认复用ConfirmDialog/AppDialog与dialog.confirm/confirmDialog；文案具体、安全次操作优先、异步loading防重、失败留弹窗重试。不得window.confirm或每页另造确认框。
@@ -33,6 +33,29 @@
 - 保留已有未提交代码，不自动commit/push/reset/clean；功能修改按项目规则全量测试、类型、build与真实浏览器验证。纯文档修改检查链接/一致性/Diff即可，不冒称重新测试产品。
 
 **实施边界**：公共控件和组卷页已接入结构化对齐，其他历史页面主要完成外观迁移，不能宣称所有旧表单结构已迁移。AIComposer是独立组合组件：内部textarea不画框，容器保留源码现有克制边界/阴影；普通输入无聚焦外框的规则不等于本轮已经改造全部Composer容器。状态与限制见[最终输入报告](borderless-forms/no-focus-frame/REPORT.md)、[确认弹窗报告](confirm-dialog/REPORT.md)、[收藏图标报告](favorites-icons/REPORT.md)。
+
+
+### UI_NAMESPACE_MIGRATION_V1（2026-10-28）
+
+KnowFlow 官方 UI 前缀为 `kf`：变量 `--kf-*`、类 `.kf-*`，组件新命名 `Kf` + PascalCase，模板 `kf-` + kebab-case。BEM 使用 `.kf-button__icon` / `.kf-button--primary`。旧组件文件及导入路径保持兼容，Props/Emits/Slot/v-model 不变。
+
+宿主定义应用主题、布局和语义 Token，公共组件实现由组件边界负责。当前 package.json 未依赖独立 knowflow-ui 包，不能声称已验证外部库集成；Button 保持 scoped CSS，未来接库须移除重复实现并核验全局焦点规则。禁止两套同名组件叠加覆盖。
+
+| 旧规范 | 新规范 |
+| --- | --- |
+| --kb-primary | --kf-primary |
+| --kb-background | --kf-background |
+| --kb-fs-h1 | --kf-fs-h1 |
+| --kb-space-4 | --kf-space-4 |
+| .kb-button | .kf-button |
+| .kb-page-header | .kf-page-header |
+| .kb-icon | .kf-icon |
+
+Color、Typography、Spacing、Radius、Border、Shadow、Icon、Layout、Motion、Component 的完整实际 Token 清单以下述源码为准（保留原值、语义后缀、fallback 与 dark 覆盖）：[style.css](../frontend/src/style.css)、[ui-tokens.css](../frontend/src/styles/ui-tokens.css)、[pc-studio.css](../frontend/src/styles/pc-studio.css)、[ui-v2-phase-a.css](../frontend/src/styles/ui-v2-phase-a.css)。组件样式使用 scoped CSS 和现有变量，不重复定义硬编码主题；状态、变体、深色和可访问焦点合同保持。
+
+UI 品牌迁移不包含 Knowledge Base 业务：API、表名、DTO、JSON、持久化字段不改。`kb-theme`、`kb-immersive:*` 和 `kb-lcg-feynman-draft` 继续读取已有用户偏好/草稿，无需变量别名。历史报告保留原命名和原验收结果，历史命名规范，当前以 kf 为准。
+
+命名门禁：`cd frontend && npm run check:ui-prefix`。执行证据及未验项见[迁移报告](ui-ux/v1/UI_PREFIX_MIGRATION_REPORT.md)。
 
 ## 1. 设计理念与适用范围
 
@@ -61,20 +84,20 @@
 | 分类 / 优先级 | 源码证据 | 已实现事实 / 风险 | 后续处理，尚未实施 |
 |---|---|---|---|
 | 正确基础 | style.css `:root`、`[data-theme='dark']`；useTheme.ts | 品牌与语义色、主题切换、color-scheme 已存在 | 延续同一主题机制，不新增第二套 |
-| 历史字段基础 | style.css `.kb-input/.kb-textarea`、ui-tokens.css `--kb-field-*` | 当时有浅边界/低透明环；该外观已失效 | 当前改为浅灰、无聚焦外框；error/disabled/forced-colors语义保留，见第0/5节 |
+| 历史字段基础 | style.css `.kf-input/.kf-textarea`、ui-tokens.css `--kf-field-*` | 当时有浅边界/低透明环；该外观已失效 | 当前改为浅灰、无聚焦外框；error/disabled/forced-colors语义保留，见第0/5节 |
 | 正确基础 | AIComposer.vue 模板和 resize/onKey；Chat.vue 377 附近；Messages.vue 166 附近 | 输入受控、增长上限、工具事件、原业务入口已接入 | 不复制发送；继续完善视觉 Token 与错误优先级 |
 | 正确基础 | ContextMenu.vue activate/cleanup/onKey/position | Teleport、测量避让、键盘、外部/Escape 关闭、disabled/selected 已有 | 保留；视觉缺项另修，不能仅凭交互测试认定样式完整 |
-| Token 缺失 P0 | AIComposer.vue `var(--kb-radius-xl)`、`var(--kb-radius-full)`；ContextMenu.vue `var(--kb-shadow-md)`；全 frontend 搜索无对应定义 | 声明可能在计算值阶段失效，圆角/阴影不能保证；当前截图也未证明符合目标 | 优先补齐统一 Token 或改用已定义值；本轮不修代码 |
+| Token 缺失 P0 | AIComposer.vue `var(--kf-radius-xl)`、`var(--kf-radius-full)`；ContextMenu.vue `var(--kf-shadow-md)`；全 frontend 搜索无对应定义 | 声明可能在计算值阶段失效，圆角/阴影不能保证；当前截图也未证明符合目标 | 优先补齐统一 Token 或改用已定义值；本轮不修代码 |
 | 焦点冲突 P1 | Chat.vue `.phase-d-chat :focus-visible`；AIComposer 内部更具体选择器；Login.vue `.form-input:focus` + `:focus-visible` | Composer 内部双框已在前序修复，但页面宽泛规则仍在；登录键盘焦点仍叠加环和 outline | 页面只补无自有焦点的元素；每控件选单一绘制层 |
 | 规范漂移 P1 | UI_UX_SYSTEM 组件表的 Dropdown.vue、开头 styles/style.css 路径 | 实际无 ui/Dropdown.vue；主样式在 src/style.css；文档历史版本混杂 | 原文勘误并链接本专项，不创建同名空组件迎合文档 |
-| 样式重复 P1 | style.css `.kb-dropdown-*`、`.kb-select-*`；ContextMenu.vue；Chat.vue `.conversation-menu` | 有多套面板圆角、阴影、选中态；Chat 留有旧菜单 CSS | 先核对实际引用再删除死样式，提取共享浮层视觉 Token |
-| Select 可访问性 P0 | Select.vue 无 onKey/aria-expanded/listbox，label 无关联；style.css `.kb-select-panel` absolute | 外部关闭和卸载清理已有；完整选项键盘、Escape、禁用选项、视口避让缺失，可能被裁切 | 优先补齐选择语义和行为；不能直接套 action menu role |
+| 样式重复 P1 | style.css `.kf-dropdown-*`、`.kf-select-*`；ContextMenu.vue；Chat.vue `.conversation-menu` | 有多套面板圆角、阴影、选中态；Chat 留有旧菜单 CSS | 先核对实际引用再删除死样式，提取共享浮层视觉 Token |
+| Select 可访问性 P0 | Select.vue 无 onKey/aria-expanded/listbox，label 无关联；style.css `.kf-select-panel` absolute | 外部关闭和卸载清理已有；完整选项键盘、Escape、禁用选项、视口避让缺失，可能被裁切 | 优先补齐选择语义和行为；不能直接套 action menu role |
 | 字段语义 P1 | Input.vue/Textarea.vue Props、根包装 div | error 有文字与 aria-invalid，但未关联 aria-describedby；required 只画星号；readonly/name 等未明确透传到内部元素 | 规划内部 attrs 透传与 label/error ID，兼容原 v-model；不要误把包装 div 属性当作输入属性 |
 | 多行上限 P1 | Textarea.vue resize 直接使用 scrollHeight | autoResize 没有 maxHeight，长内容可无限撑开；不同于 Composer 已有上限 | 增加可配置上限和区域滚动，保持原生手动 resize 场景 |
 | 尺寸漂移 P1 | Button.vue iconOnly md=`w-9 h-9`，注释声称38；Input 用 py-2，无绑定 input-height；Select CSS 写38 | Token 不保证实际高度；icon md 实为36px；ghost 实为蓝色描边 | 统一尺寸语义与兼容变体，避免无审计改名造成全站回归 |
-| 焦点缺失静态风险 P0 | Checkbox.vue 隐藏 opacity:0 input；style.css `.kb-checkbox-*` 无视觉代理焦点 | 原生键盘能力存在，但焦点画在透明 input 上可能不可见 | 给可见 box `:has(input:focus-visible)`；需真实浏览器/高对比度验证 |
+| 焦点缺失静态风险 P0 | Checkbox.vue 隐藏 opacity:0 input；style.css `.kf-checkbox-*` 无视觉代理焦点 | 原生键盘能力存在，但焦点画在透明 input 上可能不可见 | 给可见 box `:has(input:focus-visible)`；需真实浏览器/高对比度验证 |
 | 弹窗语义 P0 | AppDialog.vue aria-label、焦点圈定/恢复只在 scrollable 分支 | 表单模式较完整；普通确认模式不保证可访问名称、焦点圈定/恢复 | 两种模式统一基本对话框合同，保留 persistent 语义 |
-| 语义色风险 P0 | ContextMenu `.is-danger`、style.css --kb-destructive | #EF4444 对白底约3.76:1，普通小字号不足4.5:1；减透明不能补救 | 拟新增 danger-text，经浅/深主题验收后用在文字；保留业务危险语义 |
+| 语义色风险 P0 | ContextMenu `.is-danger`、style.css --kf-destructive | #EF4444 对白底约3.76:1，普通小字号不足4.5:1；减透明不能补救 | 拟新增 danger-text，经浅/深主题验收后用在文字；保留业务危险语义 |
 | 状态缺口 P1 | AIComposer error 模板/样式；Button loading 模板 | Composer 有 error 文案与 aria-invalid，外层错误边界优先级未专门定义；Button loading 有spinner/disabled，未明确 aria-busy | 错误可读且不被蓝焦点盖住；loading 补播报和状态合同 |
 | 缺少统一组件 P2 | ui 文件清单；业务页面原生 radio/switch/title | 无独立通用 Radio/Switch/Tooltip/Combobox 组件；Select searchable 不是完整 Combobox | 先定义语义再按真实复用需求扩展，不为表格中每项都新建组件 |
 | 已有状态能力 | StateView/EmptyState/ErrorState/ToastHost/utils/toast | 空、错、重试和通知入口存在，不能把异常伪装成空结果 | 复用现有入口，不新建通知总线 |
@@ -87,17 +110,17 @@ P0 为下一开发批次优先项，不表示本轮已复现生产事故；静�
 
 | 语义 | 当前 Token | 浅主题值 / 规则 |
 |---|---|---|
-| 页面 / 内容 / 悬浮层 | --kb-background / --kb-card / --kb-popover | #F7F8FA / #FFFFFF / 现有主题值 |
-| 表面层级 | --kb-surface-0/1/2/3 | 对应 background/card/muted/popover；避免再造同义调色板 |
-| 正文 / 辅助 / 占位 | --kb-foreground / --kb-muted-foreground | #1A1D23 / #6B7280；placeholder 不承担唯一 label |
-| 默认边界 | --kb-border | #E2E6EC；不是输入可访问名称的替代 |
-| 品牌 / 主色文字 | --kb-primary / --kb-primary-foreground | #3B6FE0 / #FFFFFF |
-| 强调软底 | --kb-primary-soft | 使用现有值；仅小面积状态 |
-| 按钮/菜单键盘焦点 | --kb-ring；--kb-focus-ring 为别名 | 不用于恢复普通输入外框；高对比度保留系统指示 |
-| 成功 / 警告 / 错误 / 信息 | --kb-state-success/warning/error/info | 沿用；图标、文字和状态一起表达 |
-| 危险基色 | --kb-destructive | 保留现有语义，不直接推定适合任何字号 |
-| 历史字段环变量 | --kb-field-focus-shadow / --kb-field-error-shadow | 变量存在不代表普通输入应使用；普通字段聚焦禁止外环，特殊组件按真实源码评估 |
-| Composer容器 | 现有AIComposer样式与--kb-border-hover/--kb-shadow-md | 内部textarea无框；容器反馈独立评估，不复用普通字段外环 |
+| 页面 / 内容 / 悬浮层 | --kf-background / --kf-card / --kf-popover | #F7F8FA / #FFFFFF / 现有主题值 |
+| 表面层级 | --kf-surface-0/1/2/3 | 对应 background/card/muted/popover；避免再造同义调色板 |
+| 正文 / 辅助 / 占位 | --kf-foreground / --kf-muted-foreground | #1A1D23 / #6B7280；placeholder 不承担唯一 label |
+| 默认边界 | --kf-border | #E2E6EC；不是输入可访问名称的替代 |
+| 品牌 / 主色文字 | --kf-primary / --kf-primary-foreground | #3B6FE0 / #FFFFFF |
+| 强调软底 | --kf-primary-soft | 使用现有值；仅小面积状态 |
+| 按钮/菜单键盘焦点 | --kf-ring；--kf-focus-ring 为别名 | 不用于恢复普通输入外框；高对比度保留系统指示 |
+| 成功 / 警告 / 错误 / 信息 | --kf-state-success/warning/error/info | 沿用；图标、文字和状态一起表达 |
+| 危险基色 | --kf-destructive | 保留现有语义，不直接推定适合任何字号 |
+| 历史字段环变量 | --kf-field-focus-shadow / --kf-field-error-shadow | 变量存在不代表普通输入应使用；普通字段聚焦禁止外环，特殊组件按真实源码评估 |
+| Composer容器 | 现有AIComposer样式与--kf-border-hover/--kf-shadow-md | 内部textarea无框；容器反馈独立评估，不复用普通字段外环 |
 
 ### 2.2 初始Token收口计划（历史，新增前核对源码）
 
@@ -105,18 +128,18 @@ P0 为下一开发批次优先项，不表示本轮已复现生产事故；静�
 
 | 拟议 Token / 映射 | 默认目标 | 深色要求 |
 |---|---|---|
-| --kb-border-hover | 沿用现有 color-mix(border 65%, muted-foreground) | 从主题语义色混合，不写固定浅灰 |
-| --kb-field-surface / --kb-field-border | card / border | 继承主题 |
-| --kb-field-active-border | primary；error 优先 destructive | 检查非文本3:1与高对比度 |
-| --kb-menu-hover / --kb-menu-selected | muted / muted，selected 加勾选标记 | 不只靠灰度区分选择 |
-| --kb-disabled-surface/text | muted / muted-foreground | 原生 disabled 与只读不可混同；不要整块统一降低透明度影响文字 |
-| --kb-danger-text | 浅主题候选 #B91C1C，待实测后定值 | 用独立浅红文字候选并实测，不沿用深红 |
-| --kb-radius-xl / --kb-radius-full | 20px / 999px，供 Composer/圆按钮 | 必须先补定义；均为拟议值 |
-| --kb-shadow-md | 优先别名到现有 --shadow-dropdown-2 | 随主题检查，不能仅用阴影表达边界 |
-| --kb-composer-radius / --kb-menu-radius | xl / md（10px） | ContextMenu 当前 lg=16px，目标待迁移 |
-| --kb-menu-shadow | shadow-md | surface+border 必须同时存在 |
-| --kb-composer-max-height / --kb-menu-item-min-height | 12rem / 36px（桌面） | 触屏菜单热区提升至44px |
-| --kb-layer-menu/dialog/toast | 需先盘点当前层级：Select50、Dialog1000、ContextMenu1200 | Dialog 内菜单应高于所属Dialog，背景菜单不得跨越模态层；禁止盲目加z-index |
+| --kf-border-hover | 沿用现有 color-mix(border 65%, muted-foreground) | 从主题语义色混合，不写固定浅灰 |
+| --kf-field-surface / --kf-field-border | card / border | 继承主题 |
+| --kf-field-active-border | primary；error 优先 destructive | 检查非文本3:1与高对比度 |
+| --kf-menu-hover / --kf-menu-selected | muted / muted，selected 加勾选标记 | 不只靠灰度区分选择 |
+| --kf-disabled-surface/text | muted / muted-foreground | 原生 disabled 与只读不可混同；不要整块统一降低透明度影响文字 |
+| --kf-danger-text | 浅主题候选 #B91C1C，待实测后定值 | 用独立浅红文字候选并实测，不沿用深红 |
+| --kf-radius-xl / --kf-radius-full | 20px / 999px，供 Composer/圆按钮 | 必须先补定义；均为拟议值 |
+| --kf-shadow-md | 优先别名到现有 --shadow-dropdown-2 | 随主题检查，不能仅用阴影表达边界 |
+| --kf-composer-radius / --kf-menu-radius | xl / md（10px） | ContextMenu 当前 lg=16px，目标待迁移 |
+| --kf-menu-shadow | shadow-md | surface+border 必须同时存在 |
+| --kf-composer-max-height / --kf-menu-item-min-height | 12rem / 36px（桌面） | 触屏菜单热区提升至44px |
+| --kf-layer-menu/dialog/toast | 需先盘点当前层级：Select50、Dialog1000、ContextMenu1200 | Dialog 内菜单应高于所属Dialog，背景菜单不得跨越模态层；禁止盲目加z-index |
 
 主题只复用 `<html data-theme>` 与 useTheme，不新增媒体查询驱动的第二套主题状态。Token 别名应在定义处与深色覆盖一起检查，避免 root 别名解析出浅主题固定值。
 
@@ -128,15 +151,15 @@ P0 为下一开发批次优先项，不表示本轮已复现生产事故；静�
 
 | 角色 | 字号 / 行高 / 字重 | 复用Token |
 |---|---|---|
-| H1 | 28 / 36 / 600 | --kb-fs-h1 / --kb-lh-h1 / --kb-fw-h1 |
-| H2 | 24 / 32 / 600 | --kb-fs-h2 / --kb-lh-h2 / --kb-fw-h2 |
-| H3 | 20 / 28 / 600 | --kb-fs-h3 / --kb-lh-h3 / --kb-fw-h3 |
-| Section | 18 / 26 / 500 | --kb-fs-h4 / --kb-lh-h4 / --kb-fw-h4 |
-| Body Large | 16 / 28 / 400 | --kb-fs-body-lg / --kb-lh-body-lg / --kb-fw-body-lg |
-| Body | 14 / 22 / 400 | --kb-fs-body-md / --kb-lh-body-md / --kb-fw-body-md |
-| Button | 14 / 20 / 500 | --kb-fs-body-md / --kb-button-line-height / --kb-fw-label；行高语义映射已落地 |
-| Form Label | 13 / 20 / 500 | --kb-fs-body-sm / --kb-lh-body-sm / --kb-fw-label |
-| Caption | 12 / 18 / 400 | --kb-fs-caption / --kb-lh-caption / --kb-fw-caption |
+| H1 | 28 / 36 / 600 | --kf-fs-h1 / --kf-lh-h1 / --kf-fw-h1 |
+| H2 | 24 / 32 / 600 | --kf-fs-h2 / --kf-lh-h2 / --kf-fw-h2 |
+| H3 | 20 / 28 / 600 | --kf-fs-h3 / --kf-lh-h3 / --kf-fw-h3 |
+| Section | 18 / 26 / 500 | --kf-fs-h4 / --kf-lh-h4 / --kf-fw-h4 |
+| Body Large | 16 / 28 / 400 | --kf-fs-body-lg / --kf-lh-body-lg / --kf-fw-body-lg |
+| Body | 14 / 22 / 400 | --kf-fs-body-md / --kf-lh-body-md / --kf-fw-body-md |
+| Button | 14 / 20 / 500 | --kf-fs-body-md / --kf-button-line-height / --kf-fw-label；行高语义映射已落地 |
+| Form Label | 13 / 20 / 500 | --kf-fs-body-sm / --kf-lh-body-sm / --kf-fw-label |
+| Caption | 12 / 18 / 400 | --kf-fs-caption / --kf-lh-caption / --kf-fw-caption |
 
 字号与字重不在业务页重建；行高Token当前为无单位比率，上表列出对应像素目标。UI用Sans，代码用Mono；显式展示标题可少量Serif，不用于按钮/导航/表单。图标默认16px、大控件18px、紧凑14px、页面20–24px；图文默认gap8px。普通对齐使用Flex/Grid双轴居中，图标flex-shrink:0，不靠负margin、绝对定位或transform校正。既有搜索内嵌图标的定位需预留padding，后续优先迁移Flex结构。
 
@@ -154,11 +177,11 @@ P0 为下一开发批次优先项，不表示本轮已复现生产事故；静�
 | md | 38px，既有btn-height-md | 44px，既有input-height | 按Button现有尺寸Token | 默认业务表单；不要把所有按钮强制改为输入高度 |
 | lg / 触屏 | 44px，既有btn-height-lg | 44px；手机输入文字建议≥16px | ≥44px | 主要CTA及兼容触屏 |
 
-拟字段尺寸、热区须落到 Token，不将本表数字复制到每个组件。桌面密集操作至少24px可点区域，目标32–38；触屏44。旧 `--kb-control-hit-size=40px` 与上述触屏目标不等价，需按平台合同收口。
+拟字段尺寸、热区须落到 Token，不将本表数字复制到每个组件。桌面密集操作至少24px可点区域，目标32–38；触屏44。旧 `--kf-control-hit-size=40px` 与上述触屏目标不等价，需按平台合同收口。
 
 ### 4.1 Button / IconButton 统一合同（V3）
 
-- 默认38px、Small32px、Large44px，使用现有`--kb-btn-height-sm/md/lg`；默认圆角6px使用`--kb-btn-radius`。视觉居中不要求按钮与44px输入等高。
+- 默认38px、Small32px、Large44px，使用现有`--kf-btn-height-sm/md/lg`；默认圆角6px使用`--kf-btn-radius`。视觉居中不要求按钮与44px输入等高。
 - 默认14/20、500；默认图标16px，大按钮18px，紧凑14px。普通图文gap8px，显式紧凑gap6px；图标不伸缩，内容区min-width:0，inline-flex双轴居中。
 - 常规水平padding12–16px；按钮间距8–12px。上层工具栏允许换行，单个标签保持单行；不靠固定窄宽截断动作名称。长文本调整布局/合理文案，必要省略须提供完整可访问名称。
 - 常规按钮无额外装饰阴影。Hover/Active/Focus-visible/Disabled/Loading状态齐全且无无意义尺寸变化；loading保留标签与稳定图标占位，不因增加spinner而跳宽，aria-busy与防重复提交必须保留。
@@ -179,7 +202,7 @@ P0 为下一开发批次优先项，不表示本轮已复现生产事故；静�
 
 ### 5.2 字段与对齐合同
 
-- 复用FormField的label/control/meta结构；同排用kb-form-row共享轨道，长标签和帮助/错误不会推歪相邻输入；窄屏单列。
+- 复用FormField的label/control/meta结构；同排用kf-form-row共享轨道，长标签和帮助/错误不会推歪相邻输入；窄屏单列。
 - 单行Input/Select/DatePicker默认44px、文字14px、水平内边距12px；表单标签13/20、500，标签间距8px、列间距16px、字段纵向16px、组间24px、帮助/错误距离4–8px，均引用已有Token。图标/文字通常间隔8–12px，顶部搜索12px；图标不覆盖placeholder或快捷键。
 - label、name、autocomplete、inputmode、type、required、readonly、maxlength保持真实语义。readonly能选择复制，不用disabled冒充；placeholder不替代label。
 - 错误使用文字、aria-invalid与aria-describedby，保留错误语义表面；不依赖聚焦外框表达错误。
@@ -191,7 +214,7 @@ P0 为下一开发批次优先项，不表示本轮已复现生产事故；静�
 
 现有 AIComposer 是复用入口，不创建第二个“ChatGPTInput”。结构保持附件区→textarea→工具栏；左侧附件/知识库，右侧模型配置/语音/发送或停止。只用模型配置能力，不把当前入口描述为已实现独立模型选择器。
 
-容器：card表面、1px轻边界、现有--kb-composer-radius圆角、克制小阴影；padding space-3/4。textarea内部无边界、背景透明；默认可见约一行，行高body-md；增长到12rem（可配置），之后内部滚动。消息区域独立滚动，Composer不被教练面板/底部导航/软键盘遮挡。长附件名截断但保留移除按钮和可访问名称。
+容器：card表面、1px轻边界、现有--kf-composer-radius圆角、克制小阴影；padding space-3/4。textarea内部无边界、背景透明；默认可见约一行，行高body-md；增长到12rem（可配置），之后内部滚动。消息区域独立滚动，Composer不被教练面板/底部导航/软键盘遮挡。长附件名截断但保留移除按钮和可访问名称。
 
 焦点：内部textarea不绘制outline/ring/阴影；AIComposer外壳使用源码现有的克制边界和阴影反馈，不套用已废弃的“普通输入外环”规则。工具按钮保留各自键盘反馈，forced-colors保留系统指示。不得用页面宽泛focus-visible给内部textarea再加一框。
 
@@ -238,7 +261,7 @@ P0 为下一开发批次优先项，不表示本轮已复现生产事故；静�
 
 ### 8.1 Checkbox / 复选框现行规范（2026-10-24 V3）
 
-- 复用`components/ui/Checkbox.vue`，不再按页面重复绘制；正方形20×20px，3px微圆角，不做圆形或胶囊。尺寸集中在`--kb-checkbox-*`，不在页面硬编码。
+- 复用`components/ui/Checkbox.vue`，不再按页面重复绘制；正方形20×20px，3px微圆角，不做圆形或胶囊。尺寸集中在`--kf-checkbox-*`，不在页面硬编码。
 - 未选中为主题表面+1px浅边框；已选中与indeterminate为品牌蓝底/边框，白色14px Check或Minus居中。只有一个可见方框，不叠原生外观或自绘span。
 - 组件、方框默认/hover/鼠标点击都没有box-shadow、drop-shadow或灰色外圈/胶囊背景。hover仅调整边框/填充，不改变尺寸或位置。
 - 键盘Tab/Space保留原生能力；可见方框通过focus-visible显示品牌outline，不用灰影。forced-colors使用系统Canvas/Highlight/GrayText指示，不能全局outline:none。
@@ -298,7 +321,7 @@ PC主界面优先：1440×900、1280×800、1024px宽（包括侧栏展开/收�
 | D / P1 | AIComposer与ContextMenu视觉收口 | 使用补齐Token、单一错误/焦点、热区/选中、三种桌面尺寸及窄屏 | 已接入；视觉与可访问性仍有上述缺项 |
 | E / P1 | 高复用业务字段 | 知识库/笔记/学习工具的筛选搜索与表单，按路由清单逐页迁移原生标签 | 需逐页建调用清单，不能机械替换扫描总量 |
 | F / P2 | Radio/Switch/Tooltip/Combobox/Drawer | 确有复用需求再扩展组件；完整语义合同与状态演示 | 规范已定义，通用实现未完成 |
-| G / P2 | 死CSS及历史别名 | 核对未引用再清理Chat旧菜单、重复.kb-dropdown等；同步原文索引 | 待开发，不在本轮删除 |
+| G / P2 | 死CSS及历史别名 | 核对未引用再清理Chat旧菜单、重复.kf-dropdown等；同步原文索引 | 待开发，不在本轮删除 |
 
 每批先做控件状态页/测试用例→选一个真实页面→浏览器验证→扩大调用范围。设计规范进入文档不等于迁移完成。优先级可按发现的真实功能阻断提升，禁止先全站换圆角再补键盘行为。
 
@@ -367,11 +390,11 @@ PC主界面优先：1440×900、1280×800、1024px宽（包括侧栏展开/收�
 
 ### 2026-10-23 AI聊天视觉校准
 
-消息阅读区与Composer共用--kb-chat-content-max-width（64rem），窄屏按现有可用宽度和共同gutter收缩；AI消息不保留头像列，用户/助手通过对齐、轻容器和ARIA分组区分。Composer发送尺寸由--kb-composer-send-size（36px）控制，向上箭头为20px、居中；入口统一使用Icon中的message-square-sparkles SVG，路由与激活逻辑不变。实现、前后几何及未验证项见[执行报告](chat-ui-polish/REPORT.md)。
+消息阅读区与Composer共用--kf-chat-content-max-width（64rem），窄屏按现有可用宽度和共同gutter收缩；AI消息不保留头像列，用户/助手通过对齐、轻容器和ARIA分组区分。Composer发送尺寸由--kf-composer-send-size（36px）控制，向上箭头为20px、居中；入口统一使用Icon中的message-square-sparkles SVG，路由与激活逻辑不变。实现、前后几何及未验证项见[执行报告](chat-ui-polish/REPORT.md)。
 
 ## 2026-10-23：字体与学习教练工作栏实施
 
-此节记录已落地代码。字号唯一来源仍为 `frontend/src/style.css` 的 `--kb-fs-*` / `--kb-lh-*` / `--kb-fw-*`，`--text-*` 和 Tailwind fontSize 仅引用它们，不维护独立数值。根字号保持 14px，不以改变 rem 基准扩大页面。
+此节记录已落地代码。字号唯一来源仍为 `frontend/src/style.css` 的 `--kf-fs-*` / `--kf-lh-*` / `--kf-fw-*`，`--text-*` 和 Tailwind fontSize 仅引用它们，不维护独立数值。根字号保持 14px，不以改变 rem 基准扩大页面。
 
 | 角色 | 字号 / 行高 | 用途 |
 | --- | --- | --- |
@@ -397,7 +420,7 @@ PC主界面优先：1440×900、1280×800、1024px宽（包括侧栏展开/收�
 
 二次确认统一使用 `ConfirmDialog`（复用 AppDialog 的 Teleport、键盘与模态管理），`dialog.confirm` 和兼容 `confirmDialog` 共用一个队列；ToastHost 不再维护确认弹层。编辑/选择/设置/抽屉仍使用其原组件，不把所有弹窗伪装成确认。
 
-- 确认宽度默认560px，圆角22px、padding28px、标题20/28、正文14/22～28，按钮44px高、最小宽120px；均由 `--kb-confirm-*` 与现有字号/颜色Token提供。
+- 确认宽度默认560px，圆角22px、padding28px、标题20/28、正文14/22～28，按钮44px高、最小宽120px；均由 `--kf-confirm-*` 与现有字号/颜色Token提供。
 - 标题行使用已有线性Icon、标题、关闭按钮；默认白色主题表面、轻遮罩/轻阴影，无重毛玻璃。次按钮在左、品牌蓝主按钮在右；删除/清空使用语义危险色。
 - 默认聚焦安全次操作；Tab圈定在最上层，Enter/Space执行当前聚焦按钮，不用全局Enter直接批准危险操作；Escape默认取消并恢复触发焦点。业务可分别设置closeOnOverlay/closeOnEsc；loading时禁止确认、取消和关闭。
 - 异步操作通过 `onConfirm` 等待原API，成功才关闭，失败保留错误和重试；直接受控组件也可传loading/error/disabled。已有复杂流程的前置确认仍保留页面自身状态与错误管理，不移动其权限/保存/重定向决策。
@@ -408,7 +431,7 @@ PC主界面优先：1440×900、1280×800、1024px宽（包括侧栏展开/收�
 
 ## 2026-10-24：已落地输入与对齐基线
 
-普通字段的现行规则见第0、5、9、11节：统一浅灰表面，聚焦不出现蓝色或中性灰外框。FormField/kb-form-row共享label/control/meta轨道；普通Input/Select默认44px。数字、Textarea与特殊编辑器边界保持第5节合同。
+普通字段的现行规则见第0、5、9、11节：统一浅灰表面，聚焦不出现蓝色或中性灰外框。FormField/kf-form-row共享label/control/meta轨道；普通Input/Select默认44px。数字、Textarea与特殊编辑器边界保持第5节合同。
 
 历史变化仅留链接：最初的[灰色键盘环方案](borderless-forms/REPORT.md)与中途[透明表面方案](borderless-forms/transparent-update/REPORT.md)均已失效；不得拿它们作为新开发规范。最终有效实现与验证见[浅灰无聚焦外框报告](borderless-forms/no-focus-frame/REPORT.md)。397处普通控件和138处排除项为当次扫描快照，不是永久数量约束；未迁移的历史表单布局不可描述为已完成。
 
@@ -422,8 +445,8 @@ PC主界面优先：1440×900、1280×800、1024px宽（包括侧栏展开/收�
 
 - 合同：`v-model` 固定 `YYYY-MM-DD`（空字符串为未选择），全链路禁止 `toISOString()`；日期时间、日期区间使用独立变体，不混用同一 `v-model`。
 - 触发器：44px、12px 水平 padding、浅灰表面、无边框；输入区聚焦不出现蓝/灰框或外圈阴影，保留手工输入与 `aria-invalid`。
-- 面板：336px、16px 内边距、`--kb-radius-lg`、1px `--kb-border`、`--kb-popover`、`--shadow-dropdown-3`，`placeSelect` 视口避让；标题左、左右箭头右、固定七列。
-- 状态与无障碍：选中用品牌蓝底白字，今天用 `--kb-primary-soft` + 圆点；日期格/导航/底部操作使用 inset 键盘 outline，`forced-colors` 使用系统 `Highlight`；不得全局 `outline:none`。
+- 面板：336px、16px 内边距、`--kf-radius-lg`、1px `--kf-border`、`--kf-popover`、`--shadow-dropdown-3`，`placeSelect` 视口避让；标题左、左右箭头右、固定七列。
+- 状态与无障碍：选中用品牌蓝底白字，今天用 `--kf-primary-soft` + 圆点；日期格/导航/底部操作使用 inset 键盘 outline，`forced-colors` 使用系统 `Highlight`；不得全局 `outline:none`。
 - 迁移：先替换单个日期字段并核对原保存合同，不批量替换 `date/time/datetime-local`。清单与验证证据见 [DATE_PICKER_UI_V2_EXECUTION](ui-v2/DATE_PICKER_UI_V2_EXECUTION.md)。
 
 ## 2026-10-24：日期时间组件 V3（TimePicker / DateTimePicker / 统一锚定）
@@ -434,7 +457,7 @@ PC主界面优先：1440×900、1280×800、1024px宽（包括侧栏展开/收�
 - 定位：统一复用 `select-position.ts` 的 `placeAnchoredPanel` 与 `use-anchored-panel.ts`。真实输入框为 Anchor，默认下方、空间不足翻转上方并保持 4px 贴边，右侧超界左移，至少 8px 视口安全距；Teleport 到 body、`position: fixed`、`z-index: 1200`；ResizeObserver、window/visualViewport 滚动与 resize 重新测量；锚点滚出视口自动关闭；卸载解绑监听。
 - 面板：DatePanel 是日历唯一实现，TimeColumns 是时间列唯一实现。时间列宽 240px（分）/288px（秒），每列固定高度、独立滚动、选项 30px 居中；禁止在页面内展开超长列表。
 - 交互：日期/时间选择均为草稿，点「确认」才写回；「取消」「Escape」「外部点击」不污染原值；清除仅在允许的空值字段出现。底部操作区 sticky，面板被视口压缩滚动时按钮仍可见。
-- 视觉：沿用 `--kb-field-*`、`--kb-popover`、`--kb-border`、`--kb-radius-lg`、`--shadow-dropdown-3`；输入触发器 44px、浅灰、聚焦无蓝/灰外框；日期格、时间项、按钮保留 inset 键盘反馈与 `forced-colors` 系统焦点。
+- 视觉：沿用 `--kf-field-*`、`--kf-popover`、`--kf-border`、`--kf-radius-lg`、`--shadow-dropdown-3`；输入触发器 44px、浅灰、聚焦无蓝/灰外框；日期格、时间项、按钮保留 inset 键盘反馈与 `forced-colors` 系统焦点。
 - 合同：纯日期禁止 `toISOString()`；纯时间不附加虚拟日期/时区；LocalDateTime 保持本地墙钟，不加 `Z`/偏移；旧值含秒不得静默截断；非法时/分/秒与不存在日期必须拒绝。
 - 迁移边界：`Habits`、`LearningPrefs` 使用 TimePicker（`HH:mm`）；`CalendarEventDialog` 非全天用 DateTimePicker、全天继续 DatePicker；`MemorialDialog` 固定日期用 DatePicker、每年重复逻辑不变；`LearningCenterPage` 需先统一截止时间合同；`ExamMistakes` 属日期范围，待独立 DateRangePicker，禁止误用 DateTimePicker。
 
@@ -464,11 +487,11 @@ Token列表只保存真实变量名，实际值从当前主题getComputedStyle�
 
 ## 2026-10-25 · V6公共控件增量边界
 
-Radio/Switch/Tabs/SearchInput在现有components/ui提供受控API；SearchInput组合真实Input/Button，保持普通字段浅灰无聚焦外框；Radio/Switch/Tabs保留键盘轮廓与forced-colors。沿用--kb-*，未建立独立knowflow-ui/Kf主题。实现不等于完整读屏/视觉/业务集成认证，见[本轮矩阵](component-playground/v6/V6_COMPONENT_MATRIX.md)。
+Radio/Switch/Tabs/SearchInput在现有components/ui提供受控API；SearchInput组合真实Input/Button，保持普通字段浅灰无聚焦外框；Radio/Switch/Tabs保留键盘轮廓与forced-colors。沿用--kf-*，未建立独立knowflow-ui/Kf主题。实现不等于完整读屏/视觉/业务集成认证，见[本轮矩阵](component-playground/v6/V6_COMPONENT_MATRIX.md)。
 
 ### 2026-10-26 · V7–V8规划的Kf命名兼容（尚未实施）
 
-用户要求新公共API采用JS/TS `KfButton`、模板`kf-button`、CSS `kf-button`与BEM子元素、Token `--kf-*`。规划采用现有Button/Input/Select/AppDialog/Icon的单向别名或薄适配，不批量改名旧组件，不复制逻辑或第二套主题；`--kf-*`只引用既有`--kb-*`，不写另一套颜色/尺寸值。普通输入浅灰且无蓝/灰聚焦外框、按钮/菜单/Checkbox键盘反馈、原字号与尺寸合同继续有效。此为后续规划兼容方案，不代表代码已完成Kf迁移。详见[UI计划](roadmap/learning-v7-v8/06_UI_UX_DESIGN_PLAN.md)。
+用户要求新公共API采用JS/TS `KfButton`、模板`kf-button`、CSS `kf-button`与BEM子元素、Token `--kf-*`。规划采用现有Button/Input/Select/AppDialog/Icon的单向别名或薄适配，不批量改名旧组件，不复制逻辑或第二套主题；`--kf-*`只引用既有`--kf-*`，不写另一套颜色/尺寸值。普通输入浅灰且无蓝/灰聚焦外框、按钮/菜单/Checkbox键盘反馈、原字号与尺寸合同继续有效。此为后续规划兼容方案，不代表代码已完成Kf迁移。详见[UI计划](roadmap/learning-v7-v8/06_UI_UX_DESIGN_PLAN.md)。
 
 ### 2026-10-26 · PRODUCT_MVP_01 / F03隔离产品切片
 
@@ -480,3 +503,12 @@ Radio/Switch/Tabs/SearchInput在现有components/ui提供受控API；SearchInput
 ### 2026-10-27 Tutor学习闭环增量
 
 复用原KfButton/Input/Textarea/Select/AppDialog和Markdown渲染器，未创建第二套Token。阅读侧栏与课程/笔记辅助导师一次只显示一处，关闭侧栏后重读同会话；局部网格使用minmax(0,1fr)收缩。原普通输入浅灰、无聚焦外框合同不变。PC三宽度与390折叠原导航后的兼容检查已验；不宣称旧PC导航完成移动迁移。状态见PRODUCT_MVP_02报告。
+
+
+### 2026-10-29 UI V1.1 实施增量（部分完成）
+
+任务中心接入现有 PageHeader；Button 的默认文字插槽统一 Flex/gap，支持已有内嵌图标；PageHeader 默认颜色继承主题，避免无效 CSS 颜色值。今日计划完成度允许换行，Checkbox 标签通过 scoped deep 选择器保持长标题收缩，日期只在操作区显示。未更改任务 API、Store、计划收录或服务端统计。
+
+`kf` 为唯一 UI 品牌前缀，Token 使用 `--kf-*`，新增组件类使用 BEM（如 `.kf-button__icon`、`.kf-button--primary`），新组件命名 `KfButton` / `<kf-button>`；原文件路径及调用保持兼容。宿主负责主题及布局 Token，公共组件负责行为和视觉。Knowledge Base 业务 `kb` 不自动更名；旧 UI 命名仅允许明确历史或兼容记录。现有 `check:ui-prefix` 已接入 npm test；当前检查不声称覆盖全部 BEM 漂移。
+
+本次全量 Vitest 241文件/1768项通过，vue-tsc 与 build 退出0；构建有分包体积警告。浏览器自动审批因连接中断拒绝本地页面访问，双主题/四宽度/五页面及任务双向同步、刷新重登均 Not verified。V1.1 尚未完整验收。

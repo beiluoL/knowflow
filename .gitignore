@@ -57,3 +57,7 @@ backend/data/phase3a-qa-*/
 
 # Generated output of the textbook Maven verification modules (keep local).
 content-studio/**/target/
+
+# Python bytecode / caches (helper scripts)
+__pycache__/
+*.pyc

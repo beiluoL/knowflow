@@ -851,3 +851,5 @@ cd frontend && npm run build
 ---
 
 > **最后更新**：2026-08-28（v2.0 合并版）。新增功能或界面改造请同步更新本文档，确保单一真实来源始终与项目现状一致。
+
+> 历史命名规范，当前以 kf 为准；本文保持 SUPERSEDED，现行标准见 [UI_DESIGN_SYSTEM_V2](../UI_DESIGN_SYSTEM_V2.md)。

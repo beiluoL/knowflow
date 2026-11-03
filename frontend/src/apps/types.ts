@@ -17,6 +17,7 @@ export type AppCategory =
   | 'FOCUS' // 专注
   | 'CODING' // 实战
   | 'PRODUCTIVITY' // 效率（任务 / 签到 / 习惯 / 日历 / 计划）
+  | 'CAREER' // 求职（总览 / 简历 / 岗位 / 匹配 / 面试 / 工作台 / 工具箱 / 模板）
   | 'AI' // AI
 
 /**
@@ -24,7 +25,7 @@ export type AppCategory =
  * 仅 学习 / 知识 / AI 三个工作区动态挂载已启用 App；首页/应用不在此列。
  * 「应用」页本身是 App 管理中心，不展开为子菜单。
  */
-export type AppNavSection = 'learning' | 'knowledge' | 'ai' | 'tools'
+export type AppNavSection = 'learning' | 'knowledge' | 'ai' | 'tools' | 'career'
 
 /** App 状态（§71）：LEGACY 不进推荐/默认安装，但历史数据保留（§111） */
 export type AppStatus = 'ACTIVE' | 'BETA' | 'LEGACY'
@@ -61,6 +62,8 @@ export interface AppDefinition {
   defaultInstalled: boolean
   /** 能力声明（仅元数据） */
   capabilities: AppCapability[]
+  /** 功能标签（应用中心卡片展示，最多 4 个；缺省不渲染） */
+  tags?: string[]
   /**
    * UI/UX 3.0：是否允许出现在动态导航子菜单（§41）。
    * focus 等沉浸式 App 置 false，由固定入口承载（§13）。

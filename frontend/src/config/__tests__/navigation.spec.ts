@@ -7,12 +7,13 @@ import { describe, it, expect } from 'vitest'
 import { NAVIGATION } from '@/config/navigation'
 
 describe('NAVIGATION 一级导航（UI/UX 2.0 §19 / §222）', () => {
-  it('has exactly 5 top-level entries', () => {
-    expect(NAVIGATION).toHaveLength(6)
+  it('has exactly 7 top-level entries', () => {
+    expect(NAVIGATION).toHaveLength(7)
   })
 
-  it('entries are 首页 / 学习 / 知识 / AI / 应用', () => {
-    expect(NAVIGATION.map((g) => g.label)).toEqual(['首页', '学习', '知识', 'AI', '应用', '工具'])
+  it('entries are 首页 / 学习 / 知识 / AI / 应用 / 工具 / 求职', () => {
+    // 工具与求职是 dynamicNav 容器：未启用对应 App 时由 Resolver 隐藏，不占用一级入口。
+    expect(NAVIGATION.map((g) => g.label)).toEqual(['首页', '学习', '知识', 'AI', '应用', '工具', '求职'])
   })
 
   it('each top-level entry declares an icon (no missing icon)', () => {

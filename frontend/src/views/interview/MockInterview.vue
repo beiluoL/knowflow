@@ -481,7 +481,8 @@ async function openGeneratedInterview(sessionId:number) {
 }
 const careerOpen=ref(false)
 async function openCareerInterview(id:number){careerOpen.value=false;await openGeneratedInterview(id)}
-const trainerOpen = ref(false)
+const trainerOpen = ref(route.query.trainer==='1')
+watch(()=>route.query.trainer,value=>{if(value==='1'){trainerOpen.value=true;careerOpen.value=false}})
 async function closeV2() {
   v2Open.value = false
   if (route.query.v2Id) { const query = { ...route.query }; delete query.v2Id; await router.replace({ query }) }

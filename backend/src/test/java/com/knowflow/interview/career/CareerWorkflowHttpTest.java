@@ -47,7 +47,7 @@ class CareerWorkflowHttpTest {
  }
  @Test void uploadIsPrivateAndDoesNotTrustExtension()throws Exception{
   String root="/api/interview/career";
-  var file=new MockMultipartFile("file","../../resume.exe","application/octet-stream","Java 多线程练习，测试简历。".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+  var file=new MockMultipartFile("file","../../resume.txt","application/octet-stream","Java 多线程练习，测试简历。".getBytes(java.nio.charset.StandardCharsets.UTF_8));
   var response=mvc.perform(multipart(root+"/records/RESUME/upload").file(file).header("Authorization",token(1))).andExpect(status().isOk()).andReturn();
   long id=json.readTree(response.getResponse().getContentAsString(java.nio.charset.StandardCharsets.UTF_8)).path("data").path("id").asLong();
   mvc.perform(get(root+"/records/"+id+"/file").header("Authorization",token(2))).andExpect(status().isNotFound());

@@ -4034,3 +4034,148 @@ F06/F01/F14/F15/F12五个最小切片DONE，完整高级规格PARTIAL、开关�
 - 验证：Vitest 241 文件/1768 用例通过；`vue-tsc --noEmit` exit 0；`npm run build` 成功 5.53s；后端 3 个 App 集成测试 10 用例通过。浏览器 5 视口 26 张截图全部 ox=0；Mini App E2E 21 断言通过（安装→工具组→进入→排序→收起 68px→停用二次确认→刷新/重登恢复→重新启用）；深色 4 页、焦点环、reduced-motion、390 抽屉通过。
 - 未验证/风险：无改前截图（工作树已改且禁止 stash）；未断言 API HTTP 码；未跑后端全量 mvn；沉浸式阅读/编辑器、社区、代码练习、知识图谱、工作台、后台子页、今日计划未逐页实拍；notes/chat/paths 12–13px 密集工具条保留；系统字体缩放未测。
 - 下一任务：优先抽紧凑工具条容器统一 12–13px 按钮，并补沉浸式页面多视口回归。详见 `docs/ui-ux/v1/UI_NEXT_STEPS.md`。
+
+
+### 2026-10-28 · UI_NAMESPACE_MIGRATION_V1
+
+宿主 UI Token/类/动画及测试已迁移 kf，业务 kb API/存储键保留。前端241文件1768测试、类型/build及命名检查通过。真实浏览器仅匿名首页与组件中心冒烟；全页面五宽度/双主题视觉回归未完成，保持待验收及 NOT_READY。无commit/push，无后端/数据修改；下一任务补充完整浏览器验收。详见[迁移报告](ui-ux/v1/UI_PREFIX_MIGRATION_REPORT.md)。
+
+### 2026-10-29 · Folder Float V2 初步视觉增量（PARTIAL）
+仅改独立库 KfFolderFloat.vue 的表面/纸边/标题与过渡；公共API及DEV桥接保留。UI测试42文件593项、UI类型及双端静态合同检查通过；浏览器与全量双端门禁未验证，不称完成。无commit/push。详情见 knowflow-ui/docs/roadmap/folder-float/09_MOTION_UI_ASSET_UPGRADE.md；下一任务为真实双端截图与动态扇形布局验收。
+
+### 2026-10-29 · KfFolderFloat V3 视觉与双端增量
+仅独立公共组件/布局/单测、Studio动态示例及报告；宿主正式业务零修改。结构新增内腔和三层paper、外露tab、两列浅弧便签，保留API与原有交互。独立库UI600/AI152/Learning110/Studio699测试、类型/build/dist/pack/静态同步通过；宿主1768项/类型/build通过。真实Playwright16组双端主题尺寸/键盘/快速开关/Reduced Motion/无横溢出通过；综合消费者npm edgesOut失败，总体PARTIAL。HEAD与原调用链、风险和日志见 knowflow-ui/docs/roadmap/folder-float/13_V3_FOLDER_REFINEMENT.md。未commit/push/publish；下一任务补综合消费者及旧Story/拖拽回归。
+
+
+### 2026-10-29 UI V1.1 部分实施
+- 范围：TaskManager、TodayPlan、Button、PageHeader、package.json 与两份权威 UI 文档；保留接管前文档/dev未提交修改，未commit/push。
+- 调用链保持：TaskCenter→TaskManager→原 task API；TodayPlan→learningApi.getTodayPlan / setTaskStatus→服务端重读，不改收录规则。
+- 验证：check:ui-prefix通过；vitest 241文件1768项通过退出0；vue-tsc/build退出0；diff --check通过。日志 /tmp/knowflow-ui-v11-{tests,types,build}.log。
+- 风险：浏览器审批连接中断阻止localhost访问；全部视觉及跨页面持久化验收未验证。尚未完成全部组件审计、BEM增量门禁和视觉回归。
+- 下一任务：恢复获准浏览器访问后完成V1.1剩余验收与规范差异修复。
+
+
+### 2026-10-29 F17-T03 PARTIAL
+- 文件：StudyPackService、StudyPackController、StudyPackHttpTest、studyPack.ts、StudyPacksPage.vue、backend/scripts/study-pack-performance.py、F17现有规格。本地main，保留已有UI/dev修改，未提交推送，未开宿主服务、未连正式库。
+- 链路：页面→cancel/retry API→认证owner→原guard事务锁→持久job/step/event→原Worker；原Note/Quiz/Tutor/FSRS保持。
+- 验证日志：/tmp/knowflow-f17-backend-agent.log（9项通过退出0）；默认后端测试因Mockito自附加失败，默认全量同类错误中止130；/tmp/knowflow-f17-final-{full,types,build}.log为最终前端验证。性能汇总合成自检通过，非真实SLA。
+- 未完成：运行中取消故障注入、完整租约恢复/增量依赖重建、真实Provider规模实验、浏览器全流程。取消仅当前阶段结束后停止，不声称中止模型请求。
+- 下一任务：先补运行中取消与迟到响应并发回归，继续完成F17-T03；不得标DONE。
+
+### 2026-10-29 知识首页搜索框边界修复
+- 目标/原因：组合搜索内部透明，但外壳缺少公共字段表面/边界；KnowledgeHome.vue 外壳追加 kf-field，复用现有主题Token；无业务、Store/API或数据流变更。
+- 验证：全量Vitest 241文件1768项通过、vue-tsc --noEmit退出0、npm run build退出0（既有分包提示）、git diff --check通过。日志 /tmp/knowflow-knowledge-search-{tests,types,build}.log。
+- 真实浏览器：匿名 /knowledge 窄屏正常态和鼠标聚焦截图确认浅灰字段与边界、图标/Enter位置；未验证登录态、深色和全部桌面宽度，不冒称全量视觉验收。
+- 保留其他未提交修改，无commit/push。下一任务：补桌面/深色视觉回归。
+
+### 2026-10-29 KfSpringCheck V1 PARTIAL
+- 独立库新增spring-check唯一实现及Studio登记；宿主只改DEV接入/合同/示例/预览桥接，不改业务。
+- UI605/Studio714/宿主1768测试与相关类型/build通过；双目录门禁、dist/pack通过。消费者安装未完成中止；真实Studio鼠标/Space通过，宿主浏览器自动审批连接失败阻断。完整报告 knowflow-ui/docs/roadmap/spring-check/V1_REPORT.md。
+- 无提交推送，保留全部已有修改。下一任务补双端浏览器15场景与截图及独立tgz消费者验收。
+
+### 2026-10-29 KfShredder V1 PARTIAL（保留SwipeRow未收口候选）
+- 新增独立库shredder文本纸带/原生按钮/手柄拖拽/不可变排序/安全演示事件，Studio与宿主dev桥接，未改业务。
+- 最终UI619、Studio750、宿主1768测试及相关类型/build通过；dist/pack/实际tgz消费者类型与build通过，详见 knowflow-ui/docs/roadmap/shredder/V1_REPORT.md。
+- 真实Studio按钮排序/纸带/拖到入口确认已看；宿主目录与真实iframe加载已看；触摸/深色/Reduced Motion/性能及截图归档未完成。参考站自动审批连接失败，未绕过。
+- 无commit/push；下一任务补完整双端视觉和触摸/性能门禁，不能标PASS。此前SwipeRow独立记录见其V1_REPORT，状态PARTIAL。
+
+### 2026-10-29 SpringCheck/Shredder续验
+- 本轮宿主无源码改动；独立库修UI、触摸目标与ShredEmbed Proxy跨iframe错误。UI619/Studio750、类型/build、dist/pack/双目录门禁、tgz双组件消费者通过。
+- 浏览器10+2项通过；截图和本机性能见 knowflow-ui/docs/roadmap/dual-motion-v1/REPORT.md，历史失败保留，参考官方源码网络审批故障仍阻断。
+- 未提交/推送/发布。下一项解决参考源码读取；真机/heap/FPS不混写为本轮通过。
+
+### 2026-11-01 AI 面试中心 Phase 0/1（InterviewGuide 对标）
+- 范围：完成对标审计与 Phase 1（F01 Skill Registry、F02 RAG 出题、F03/F04 REUSE、F05 报告派生）；Phase 2–5 未开展。
+- 新增：`interview/skill/*`、`interview/generation/*`、`interview/v2/InterviewReportAggregator.java`、`resources/interview/skills/catalog.yml`、H2/MySQL `V20261101__interview_trainer.sql`；修改`InterviewV2Service.report()`与`MockInterview.vue`；前端`api/interviewSkills.ts`、`api/interviewGeneration.ts`、`components/interview/InterviewTrainerHub.vue`。
+- 命令与结果：后端`mvn -Dtest='com.knowflow.interview.**.*Test' test` → 26文件108项0失败退出0；前端`npx vue-tsc --noEmit`退出0、`npx vitest run` 241文件1768项通过、`npm run build`退出0（首次构建修正StateView `status`/Textarea `maxlength`后通过）。
+- 真实调用链：前端`InterviewTrainerHub` → `api/interview{Skills,Generation}` → `InterviewSkillController`/`InterviewRagGenerationController` → Service/Registry → `doc_chunk`/`AiService`/`DocumentAccessPolicy`/`quiz_question`+新增两表；身份仅`SecurityUtils`。
+- 浏览器：重启后登录`seed-personal-v1`，`/interview`入口、三分区、技能卡片、草稿空状态PASS；未在持久库提交任务，响应式/真实模型/MySQL实库NOT_VERIFIED；无commit/push。
+- 风险：任务无租约/超时/多实例互斥；发布后编辑不回写正式题库；学习章节推荐因缺映射deferred。下一任务：Phase 1 真实模型与响应式/任务失败重试补验，再进入Phase 2评分报告收口。
+
+### 2026-11-01 多 AI 智能体统一工程规范治理 V1.0（仅规范/脚本/CI）
+- 范围：Phase 0 真实扫描 Git/规范/ Skill/前后端/CI；建立 docs/engineering 规范中心；统一 Agent Skills；适配 Claude/Gemini/Cursor/Copilot 入口；新增自动检查脚本并接入 CI。未修改业务代码、未建分支、未 commit/push、未动 InterviewGuide 参考仓库。
+- 新增：`docs/engineering/{AUDIT_2026-11-01,ENGINEERING_STANDARDS,BACKEND_JAVA_STANDARD,FRONTEND_VUE_TS_STANDARD,SECURITY_AND_AI_STANDARD,TESTING_AND_AUTOMATION_GATES}.md`；`.agents/skills/knowflow-engineering/`；`CLAUDE.md`、`GEMINI.md`、`.cursor/rules/knowflow-engineering.mdc`、`.github/copilot-instructions.md`；`scripts/engineering/{check.mjs,baseline.json}`。
+- 修改：`.trae/skills/**`、`.workbuddy/skills/**` 同步为三份逐字节一致（存量 alibaba/frontend 技能 + 新 knowflow-engineering）；修正 alibaba Skill 中「已删除全部外键」的错误声明；`AGENTS.md` 增加统一入口段；`docs/README.md` 入口表新增工程规范中心；`.github/workflows/v1-release.yml` 前端改用 `npm test` 并补 `vue-tsc -p tsconfig.app.json`，新增 `engineering` 作业。
+- 命令与结果：`node scripts/engineering/check.mjs` → 11 项全 PASS、退出 0（零容忍 4 项为 0；棘轮与基线持平：systemOut 2 / threads 20 / java SELECT* 102 / sql SELECT* 72 / 外键 35 / any 60）。未运行前后端全量测试：本轮无业务代码改动，按纯文档/脚本边界不伪报业务验证；CI 改动未在本机执行 GitHub Actions。
+- 审计关键发现：`db/mysql/schema.sql:2135-2217` 存在 9 处物理外键，与 `:295` 注释及旧 Skill 声明冲突（存量保留，需单独授权处理）；CI 原先未跑 UI 前缀检查与 `tsconfig.app.json` 类型检查；无 ESLint/Checkstyle/Prettier 配置；Claude/Gemini/Cursor/Copilot 无入口文件。
+- 风险/未验证：自动检查是文本级棘轮，不等于语义正确；ESLint/Checkstyle/覆盖率/依赖扫描仍未接入；CI 新作业未实际触发。下一任务：单独授权后为前端安装 ESLint（先基线后阻断），再评估后端 Checkstyle。全局发布仍 NOT_READY。
+
+### 2026-11-01 AI 面试中心 Phase 1 工程规范整改
+- 范围：按 docs/engineering 分册复核 Phase 1 新增代码并整改，不改业务语义、不进入 Phase 2–5。
+- 后端修改：`interview/generation/InterviewRagGenerationService.java`（BJ-28 消除 9 处 `SELECT *`、BJ-38 用 `ThreadPoolTaskExecutor` 替代 `new Thread(`、BJ-45 补日志、BJ-15 时间列改 `create_time/update_time`、BJ-34 入参约束常量）、`InterviewRagGenerationController.java`、`interview/skill/InterviewSkillController.java`（`@Valid`）、`interview/v2/InterviewReportAggregator.java`（BJ-46 空 catch 补日志）、H2/MySQL `V20261101__interview_trainer.sql` 同步时间列。
+- 前端修改：`components/interview/InterviewTrainerHub.vue` 重写（`trainer-*` 前缀、`--kf-*` 间距令牌、`computed` 派生、常量提取、`seq`/`pollToken` 竞态保护）；新增 `components/interview/__tests__/InterviewTrainerHub.spec.ts`（5 用例）。
+- 门禁与基线：`node scripts/engineering/check.mjs` 全 PASS，`baseline.json` 按棘轮下调 `backend.java.customThreads` 20→19、`backend.java.selectStar` 102→95。
+- 命令与结果：后端 `mvn -B -Dtest='com.knowflow.interview.**.*Test' -DfailIfNoTests=false test` → 108 项 0 失败退出 0；前端 `vue-tsc --noEmit`、`vue-tsc -p tsconfig.app.json --noEmit`、`npm run build` 退出 0，`vitest run` 242 文件 1773 项通过。
+- 未验证/风险：真实模型出题、真实 MySQL 迁移、浏览器任务失败/重试与响应式宽度仍 NOT_VERIFIED；`deleted=1` 不释放 `UNIQUE(user_id,canonical_key)`，同题删除后重新生成会被计为“跳过重复”。本轮无 commit/push。
+- 下一任务：按用户授权后再补真实模型/MySQL/浏览器响应式验收，随后进入 Phase 2。
+
+### 2026-11-02 工程治理 V1.1 部分实施
+- 范围：既有检查器隔离入口及异常报告、7 项临时夹具自测、Git 可移植性清单；见 docs/engineering/GOVERNANCE_V1_1_REPORT.md。
+- Git：保留全部既有修改，未提交推送；关键治理文件被本地 exclude 的 /* 忽略，BLOCKED，未改 exclude。
+- 自测 7/7、工程检查、diff --check 退出 0；ESLint 安装中止 130，未接入；双类型检查退出 0。业务数据流未修改。
+- 下一任务：完成 V1.1 尚缺的 ESLint 增量门禁、基线防提高及真实 Agent 加载验证；不能将本轮标记完整完成。
+
+### 2026-11-02 V1.1-Final 追加
+- 已完成 ESLint Flat Config/172 条现状指纹基线/增量 lint；隔离 lint 6/6，工程自测扩为 12/12，加入 UI Token 与基线上调/异文件抵消反例。
+- 范围及真实限制见 docs/engineering/GOVERNANCE_V1_1_REPORT.md 追加段。Git exclude 未动，无暂存、commit、push；待用户批准定向治理文件暂存。
+- 全量前后端命令本轮重跑，证据 /tmp/knowflow-final；未收齐不能宣称通过。Agent 模型会话未执行，付费调用未授权。下一任务仍为 V1.1 阻断收口，不进入 V1.2。
+- 后续用户批准后已定向暂存治理入口和新增脚本，未修改 exclude/提交/推送；CI 已新增自测及 ESLint，YAML 解析通过，原有门禁保留。package/lock/workflow 保留工作树供审阅，未连带暂存既有修改。最终状态以报告追加段为准。
+
+### 2026-11-02 最近两天代码审计（部分实施）
+- 范围：18 后端/133 前端，mtime 不作日期证明，均 TIME_UNCERTAIN；scope JSON 与专项报告在 docs/engineering/RECENT_CODE_REVIEW_2026-11-02*。
+- 生成题编辑入口补事务与条件更新 row count；新增并发状态回归，修复前真实失败已确认。修复后相关运行曾编译失败，完整测试尚待最终核实，不宣称 PASS。
+- 保留所有其他修改及暂存内容，无新分支、commit、push；未改 UI/Schema。证据 /tmp/knowflow-review，后续继续本轮审计未完成项。
+- 追加验证：修复后隔离回归/结构/迁移测试 8/8、退出 0；本轮前端 1773 项、双类型、build、lint/工程检查均退出 0。完整 Maven 尚在运行，全部文件语义审计和事务回滚集成仍未完成，结论 NOT_VERIFIED。
+
+### 2026-11-02 最近代码审计 V1.1 续审
+- 上轮 Maven 确认 FAIL：1226/0 failures/1 error/10 skipped，TutorHttpTest SSE 请求超时，退出1；未重复启动全量。
+- R02 隔离 H2 Spring 代理真实事务提交/第二次写失败回滚/权限测试退出0；R03 延迟响应先红后绿6/6，卸载时失效三个既有列表序号。
+- 原151文件scope保留，3项重点审阅更新，其余148 PENDING；完整门禁、浏览器、MySQL、真实并发及其他异步路径未完成。不能结束专项或声称整体PASS。证据 /tmp/knowflow-review-v11，无commit/push。
+
+### 2026-11-02 AI 面试中心 V2 增量（部分）
+- 复用Registry/generation/V2/Radar/报告，参考项目只读，无复制；矩阵见 docs/engineering/INTERVIEW_V2_INCREMENT_2026-11-02.md。
+- 软删除占用唯一键回归先红；remove 原事务内两表去重键改为删除命名域，保留历史记录，校验row count，日志不输出题目原文。无Schema/API字段变更。
+- 证据 /tmp/interview-v2；第一批尚未通过完整验收，未进入第二批或简历/语音实现，无commit/push。下一步完成删除后重生成端到端和任务恢复。
+
+### 2026-11-02 P0-02 RAG 任务可靠性
+- 新增 GenerationLease 与 H2/MySQL V20261102 租约表：原子领取/唯一执行令牌/过期重领/3次预算/15分钟截止/版本；启动建表，10秒扫描。模型等待120秒，有界池，取消为协作式。
+- 复用现有Service：权限二次验证、提交栅栏、草稿与SUCCESS同事务；分类重试含Retry-After/指数抖动；队列拒绝保留可恢复状态。GET tasks返回本人最近30项；前端刷新恢复/多任务选择/轮询版本与卸载清理，无localStorage。
+- 相关14项后端和前端任务组件7项通过；最终前端全量1775、双类型/build/lint/工程检查退出0。新增双Worker/预算用例进入完整Maven运行，最终日志 /tmp/p002-full-back.log/.exit（未收齐不得称通过）。MySQL/模型/浏览器未验证。无commit/push，无历史数据批量改写；完整异常矩阵仍需扩充。
+- P0-02 最终验证：全量Maven退出0，1230项/0失败/0错误/10跳过；之后针对独立调度启用及迁移字段修正的租约/HTTP测试退出0（/tmp/p002-last-check.log）。前端1775项、双TS/build/lint/工程检查均退出0；diff --check退出0。前端证据已冻结 /tmp/p002-frontend-final。
+- 未验证：真实MySQL服务（仅发现5.7客户端，Docker daemon不可用）、付费模型、浏览器及完整超时/故障注入矩阵。客户端版本不代表服务器验证；生产local日志配置未改，无新增正文日志。下一任务补齐租约恢复/重试的异常注入及隔离浏览器/MySQL验收。
+
+### 2026-11-02 AI面试完整训练闭环V2增量
+- 后端：现有RadarRubric扩展可配置通关阈值（knowflow.interview.rubric.radar-pass-threshold），评价快照新增状态/来源/0–10总分/证据等兼容字段；原评分保留。
+- 新增H2/MySQL evaluation_run迁移与V2追加重评/本人历史API，原回答/评价不覆盖，幂等键防重复调用；修复H2 JDBC大小写导致API字段漂移，显式投影；模型调用在事务外。
+- RAG已发布题可经服务端本人/审核/来源权限检查冻结进原V2状态机；TrainerHub选择题目→MockInterview打开会话，保留严格模式。重评和发布题启动有真实HTTP/H2回归。
+- 前端：新增业务雷达组件（缺失不补零、零权重不画、点击筛选回答）；报告重评确认/历史与状态/阈值快照，历史请求加序号防覆盖，模型置信度标注为未校准自报。
+- 本轮全量Maven1232项/0失败/0错误/10跳过、退出0（早于末尾接口改动）；随后最终相关41项退出0，覆盖新增接口。前端最终243文件1777项、双TS/build/lint、工程检查退出0；原契约曾因大小写失败，修复后未改断言。证据 /tmp/interview-full-v2 与 /tmp/knowflow-final。
+- 浏览器真实进入/interview后重定向/login?redirect=/interview；无可用隔离登录态/8080后端，未绕鉴权。MySQL3306/13316未发现隔离服务、Docker socket不可用；真实模型未调用。
+- 仍非完整DONE：11类独立评分模板尚未逐一落地；生成题与正式客观补练/复测的通用来源适配未完成，现有复测继续受RADAR已审核来源和功能开关约束；重评PENDING中断恢复、完整故障注入/三题跨两次面试浏览器E2E尚未验收。不将创建任务或面试事件当掌握度；未放宽既有发布门禁、未改正式数据，无分支/worktree/commit/push。
+
+### 2026-11-02 V2.3 实时语音增量（PARTIAL，非 DONE）
+- 目标/原因：补齐原批量录音缺少的双向语音链路，复用原 V2 Session/Turn/人工确认/统一报告；不改评分公式和学习 Evidence，不永久保存原音频。
+- 主要文件：`interview/voice/*`（短票据/精确Origin/连接配额/有界串行队列/协议/控制）、`interview/speech/*`（Streaming ASR、Qwen原生VAD、TTS与原转写表持久化）、`AiService`/`AiServiceImpl`/`CancellableStructuredStream`/`InterviewFollowupEngine`/`InterviewV2Service`（用户模型配置、真实候选流、主动取消、完整校验后发布）；H2/MySQL票据迁移。前端 `useInterviewPcmCapture`/worklet/`pcmPlayback`/`useInterviewRealtimeVoice`/`InterviewRealtimeVoice` 增量接入原 `InterviewV2Panel`，共享voice-v1协议生成检查。
+- UI/数据流：明确实时能力/未配置降级、FINAL校对后幂等提交、受控朗读与VAD打断、300ms冷却期、重连最多6次、未消费最终转写刷新恢复。修复服务端状态更新误断连、无限不稳定重连、麦克风权限20秒超时/迟到资源及失败后ASR取消。
+- Git：当前工作区，无新分支/worktree/commit/push/新增暂存；保留此前未提交和已暂存改动，InterviewGuide只读。
+- 测试：`mvn -B -f backend/pom.xml test`退出0，1269项/0失败/0错误/11条件跳过，早于末尾流式改动；最终相关78项退出0，包含正常登录H2浏览器夹具，最后共享HTTP连接修正后Provider7项退出0。初次受限Mockito附加失败已由获准运行复验通过，不算业务通过。日志 `/tmp/v23-backend-full.log`、`/tmp/v23-backend-final.log`、`/tmp/v23-provider-final.log`。
+- 前端最终 `npm test`246文件1815项；双TS、Build、ESLint与工程门禁退出0；Node24构建保留既有大包告警。证据 `/tmp/v23-front-verified.log`、`/tmp/v23-build-verified.log` 等；工程与共享协议检查及diff检查通过。
+- 实库：新建独立/tmp数据目录+专用socket且禁TCP的MySQL5.7.16，票据DDL重复迁移及双连接抢领1/0通过，已关闭。未连接生产库，未验证完整业务MySQL/8.x；日志 `/tmp/v23-mysql-ddl.log`、`/tmp/v23-mysql-concurrency.log`。
+- 浏览器：正常隔离账号登录→原V2创建→REST票据→WS就绪→断连重接→WS暂停→刷新→原会话恢复→文字降级两次确认→统一报告；第二场WS结束确认通过。Console无error/warn，无法浏览器Network抓包。ASR为显式TestDouble、模型/TTS关闭。麦克风请求未获响应，真实看到20秒超时/取消；不能宣称真实语音已验。截图位于本轮visualizations下v23-browser-report.png与v23-microphone-timeout.png。夹具后端已关闭，用户5173未动。
+- 未验/下一任务：在明确授权且已有配置的测试环境完成真实麦克风→云ASR→用户模型流→TTS播放/打断→统一报告，补全429/5xx/超时/断网/重启与真实延迟/错误率指标；当前保持默认关闭和全局NOT_READY，不标V2.3 DONE。
+
+### 2026-11-02 个人求职工作台 Career Workbench V1.0
+- 范围：注册唯一 `career-workbench`（`/career`，动态「求职」分区）；新增 11 路由、18 组件、4 composable、7 API 文件与 5 份专项文档；复用现有 Tika、简历/JD 版本、CareerMatcher、Skill Registry 与 Interview V2，不建第二套。
+- 后端：扩展 Career 控制器与工作流；新增总览/岗位筛选/岗位流程/历史/方案审核/单题重生成/AI 润色建议/公开链接导入；H2/MySQL 新增 `interview_career_job_pipeline` 迁移；OfficialAppRegistry 同步白名单；8 项定向测试 PASS。
+- 前端：App Center 停用→「求职」消失、重新启用→恢复；总览/简历编辑器/岗位/匹配证据/方案审核/本岗位面试记录均真实渲染；从方案启动 `/interview?v2Id=11` 加载原 V2；1024/390 无横向溢出，Console error=0。
+- 修复：`structuredClone` 对 Vue reactive Proxy 抛 DataCloneError，改为 JSON 深拷贝工具；避免岗位详情卡在 Loading。
+- 验证：前端 248 文件 1828 项、双 TS、Build、ESLint 0 new、UI prefix、工程检查 PASS；后端全量最终 1293 项/0 失败/0 错误/12 跳过（23:06）；AI 解析/润色/评分、真实第三方 JD 链接与 MySQL 未授权/未验证。
+- Git：保留全部既有未提交/暂存修改；无新分支/worktree、无 commit/push。下一任务：用户授权后做真实模型/MySQL/浏览器完整答题报告验收，不提升全局 NOT_READY。
+
+### 2026-11-03 求职应用获取失败运行环境处理
+- 目标/原因：发现应用求职获取失败；真实浏览器复现，日志返回“无效的应用标识”。旧后端进程启动于11月2日22:49，未加载后来已编译的求职白名单。
+- 处理：确认8080属于本仓库后执行 `bash knowflow-dev.sh restart`，退出0，前后端代理就绪。未修改业务源码、UI或数据流，未commit/push，保留全部既有修改。
+- 调用链：AppCenter → stores/apps.install → PUT /api/apps/user-apps/{appKey} → AppsController → UserAppService.upsert → OfficialAppRegistry → user_app。
+- 浏览器：重启后既有工作台触发已有五应用兼容补齐；主动获取岗位发现/简历工具箱/简历模板均显示成功，刷新后全部9个求职应用已启用且菜单保留。
+- 测试/Build：本轮未改功能代码，未运行单元测试/类型/build；浏览器Network HTTP/body逐项抓包及各应用内部业务流程 Not verified。
+- 遗留/下一步：本轮仅验证获取与持久化；后续独立验收求职应用内部业务。全局发布状态不变。

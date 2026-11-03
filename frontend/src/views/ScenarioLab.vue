@@ -235,7 +235,7 @@ const filtered = computed(() =>
   difficulty.value === 0 ? list.value : list.value.filter((s) => s.difficulty === difficulty.value),
 )
 
-let timer: ReturnType<typeof setInterval> | null = null
+let timer: number | null = null
 
 function diffText(d?: number): string {
   return d === 3 ? '挑战' : d === 2 ? '进阶' : '入门'

@@ -24,7 +24,12 @@ public class CareerWorkflowService {
  private final com.knowflow.mapper.KgEntityMapper knowledge;
  private final com.knowflow.security.DocumentAccessPolicy access;
  public record MatchRequest(long resumeId,int resumeVersion,long jobId,int jobVersion,String requestId){}
- public record PlanRequest(long matchId,int projectCount,int coreCount,int gapCount,int designCount,int durationMinutes,String difficulty,String requestId){}
+ public record PlanRequest(long matchId,int projectCount,int coreCount,int gapCount,int designCount,int durationMinutes,String difficulty,List<String> focusSkills,String interviewType,String projectDepth,String requestId){}
+ /** 方案题目审核后的编辑输入；保存为新方案快照，旧方案保留可追溯。 */
+ public record PlanQuestionEdit(String questionId,String title,String questionPurpose,String evidenceReference,
+                                List<String> expectedKnowledgePoints,String targetSkill,String source,
+                                String scoringDimension,List<String> followupDirections,List<String> skillIds){}
+ public record ReviseRequest(String requestId,List<PlanQuestionEdit> questions){}
  private String write(Object value){try{return json.writeValueAsString(value);}catch(Exception invalid){throw new BusinessException(400,"快照内容无效");}}
  private Map<String,Object> read(String text){try{return json.readValue(text,new TypeReference<LinkedHashMap<String,Object>>(){});}catch(Exception invalid){throw new BusinessException(500,"快照无法读取");}}
  private List<CareerMatcher.Claim> claims(Map<String,Object> record,String key){
@@ -49,8 +54,12 @@ public class CareerWorkflowService {
   return get(user,Objects.requireNonNull(generated.getKey()).longValue(),kind);
  }
  public Map<String,Object> get(Long user,long id,String kind){
-  var rows=jdbc.queryForList("SELECT payload_json FROM interview_career_snapshot WHERE id=? AND user_id=? AND kind=?",id,user,kind);
-  if(rows.isEmpty())throw new BusinessException(404,"求职快照不存在");var result=read(String.valueOf(rows.get(0).get("payload_json")));result.put("id",id);return result;
+  var rows=jdbc.queryForList("SELECT payload_json,create_time FROM interview_career_snapshot WHERE id=? AND user_id=? AND kind=?",id,user,kind);
+  if(rows.isEmpty())throw new BusinessException(404,"求职快照不存在");
+  var result=read(String.valueOf(rows.get(0).get("payload_json")));
+  result.put("id",id);
+  result.put("createdAt",rows.get(0).get("create_time"));
+  return result;
  }
  public Map<String,Object> match(Long user,MatchRequest request){
   if(request==null)throw new BusinessException(400,"缺少匹配参数");
@@ -127,27 +136,199 @@ public class CareerWorkflowService {
   if(request==null)throw new BusinessException(400,"缺少方案配置");
   int count=request.projectCount()+request.coreCount()+request.gapCount()+request.designCount();
   if(count<1||count>8||request.projectCount()<0||request.coreCount()<0||request.gapCount()<0||request.designCount()<0||request.durationMinutes()<1||request.durationMinutes()>120||!Set.of("EASY","MEDIUM","HARD","SENIOR").contains(request.difficulty()==null?"":request.difficulty()))throw new BusinessException(400,"题量、时长或难度无效");
+  String interviewType=request.interviewType()==null?"TECHNICAL":request.interviewType();
+  if(!Set.of("TECHNICAL","PROJECT","MIXED","SYSTEM_DESIGN").contains(interviewType))throw new BusinessException(400,"面试类型无效");
+  String projectDepth=request.projectDepth()==null?"MEDIUM":request.projectDepth();
+  if(!Set.of("LOW","MEDIUM","HIGH").contains(projectDepth))throw new BusinessException(400,"项目追问强度无效");
   var match=get(user,request.matchId(),"MATCH");var resume=read(write(match.get("resume")));var job=read(write(match.get("job")));
   var projects=claims(resume,"projects");var skills=claims(job,"requiredSkills");
   if(request.projectCount()>0&&projects.isEmpty())throw new BusinessException(409,"简历没有已确认项目证据，不能假设项目经历");
   if((request.coreCount()>0||request.gapCount()>0)&&skills.isEmpty())throw new BusinessException(409,"岗位未确认必须技能");
+  var selectedSkills=selectFocusSkills(skills,request.focusSkills());
   var requiredRows=json.convertValue(match.get("required"),new TypeReference<List<CareerMatcher.Dimension>>(){});
   var gapNames=requiredRows.stream().filter(d->Set.of("MISSING","PARTIAL","UNCERTAIN").contains(d.matchStatus())).map(d->CareerMatcher.canonical(d.requirement())).collect(java.util.stream.Collectors.toSet());
   var gaps=skills.stream().filter(c->gapNames.contains(CareerMatcher.canonical(c.value()))).toList();
   if(request.gapCount()>0&&gaps.isEmpty())throw new BusinessException(409,"没有未覆盖的必须技能，不能伪造技能缺口");
+  var skillIds=skillIdsByRequirement(match);
   var angles=List.of("核心机制与适用条件","验证方法与失败边界","故障排查与恢复","性能容量取舍","安全与权限边界","一致性与幂等","观测指标与证据","扩展性和成本");
   List<Map<String,Object>> questions=new ArrayList<>();
   for(int i=0;i<count;i++){
-   String purpose;String question;String quote;
+   Map<String,Object> question=new LinkedHashMap<>();
    if(i<request.projectCount()){
-    var claim=projects.get(i%projects.size());purpose="RESUME_EVIDENCE";quote=claim.quote();question="简历原文写到“"+quote+"”。请说明你的实际职责，并解释"+angles.get(i/projects.size())+"，提供可验证依据。";
+    var claim=projects.get(i%projects.size());
+    int angleIndex=i/projects.size()%angles.size();
+    question.put("questionId","CAREER-"+UUID.nameUUIDFromBytes((request.matchId()+request.requestId()).getBytes(java.nio.charset.StandardCharsets.UTF_8))+"-"+i);
+    question.put("title","简历原文写到“"+claim.quote()+"”。请说明你的实际职责，并解释"+angles.get(angleIndex)+"，提供可验证依据。");
+    question.put("questionPurpose","RESUME_EVIDENCE");
+    question.put("evidenceReference",claim.quote());
+    question.put("targetSkill","项目经历");
+    question.put("source","RESUME_PROJECT");
+    question.put("scoringDimension","ENGINEERING_PRACTICE");
+    question.put("resumeEvidence",claim.quote());
+    question.put("requirement","");
+    question.put("expectedKnowledgePoints",List.of("项目实际职责","技术取舍","可验证依据"));
+    question.put("followupDirections",followups(angles,angleIndex,projectDepth));
+    question.put("skillIds",List.of());
    }else if(i<request.projectCount()+request.coreCount()+request.gapCount()){
-    boolean core=i<request.projectCount()+request.coreCount();var pool=core?skills:gaps;int offset=core?i-request.projectCount():i-request.projectCount()-request.coreCount();var claim=pool.get(offset%pool.size());purpose=core?"JOB_CORE":"GAP_VERIFICATION";quote=claim.quote();question="岗位要求“"+quote+"”。请解释 "+claim.value()+" 的"+angles.get(offset/pool.size())+"；没有实践经历时请明确说明。";
-   }else{purpose="SYSTEM_DESIGN";quote=String.valueOf(job.get("title"));question="针对岗位“"+quote+"”，请选择一个相关系统场景，说明"+angles.get(i-request.projectCount()-request.coreCount()-request.gapCount())+"。";}
-   questions.add(Map.of("questionId","CAREER-"+UUID.nameUUIDFromBytes((request.matchId()+request.requestId()).getBytes(java.nio.charset.StandardCharsets.UTF_8))+"-"+i,"title",question,"questionPurpose",purpose,"evidenceReference",quote,"expectedKnowledgePoints",List.of("技术原理","工程边界","可验证依据")));
+    boolean core=i<request.projectCount()+request.coreCount();
+    var pool=core?selectedSkills:gaps;
+    int offset=core?i-request.projectCount():i-request.projectCount()-request.coreCount();
+    var claim=pool.get(offset%pool.size());
+    int angleIndex=offset/pool.size()%angles.size();
+    String purpose=core?"JOB_CORE":"GAP_VERIFICATION";
+    question.put("questionId","CAREER-"+UUID.nameUUIDFromBytes((request.matchId()+request.requestId()).getBytes(java.nio.charset.StandardCharsets.UTF_8))+"-"+i);
+    question.put("title","岗位要求“"+claim.quote()+"”。请解释 "+claim.value()+" 的"+angles.get(angleIndex)+"；没有实践经历时请明确说明。");
+    question.put("questionPurpose",purpose);
+    question.put("evidenceReference",claim.quote());
+    question.put("targetSkill",claim.value());
+    question.put("source",core?"JD_REQUIRED_SKILL":"JD_GAP");
+    question.put("scoringDimension",core?"TECHNICAL_CORRECTNESS":"KNOWLEDGE_COVERAGE");
+    question.put("resumeEvidence","");
+    question.put("requirement",claim.quote());
+    question.put("expectedKnowledgePoints",List.of(claim.value(),"工程边界","可验证依据"));
+    question.put("followupDirections",followups(angles,angleIndex,"HIGH".equals(projectDepth)?"HIGH":"MEDIUM"));
+    question.put("skillIds",skillIds.getOrDefault(CareerMatcher.canonical(claim.value()),List.of()));
+   }else{
+    int angleIndex=(i-request.projectCount()-request.coreCount()-request.gapCount())%angles.size();
+    String title=String.valueOf(job.get("title"));
+    question.put("questionId","CAREER-"+UUID.nameUUIDFromBytes((request.matchId()+request.requestId()).getBytes(java.nio.charset.StandardCharsets.UTF_8))+"-"+i);
+    question.put("title","针对岗位“"+title+"”，请选择一个相关系统场景，说明"+angles.get(angleIndex)+"。");
+    question.put("questionPurpose","SYSTEM_DESIGN");
+    question.put("evidenceReference",title);
+    question.put("targetSkill","系统设计");
+    question.put("source","SYSTEM_DESIGN");
+    question.put("scoringDimension","ENGINEERING_PRACTICE");
+    question.put("resumeEvidence","");
+    question.put("requirement","");
+    question.put("expectedKnowledgePoints",List.of("系统设计","容量与边界","可验证依据"));
+    question.put("followupDirections",followups(angles,angleIndex,"HIGH"));
+    question.put("skillIds",List.of());
+   }
+   questions.add(question);
   }
-  var result=new LinkedHashMap<String,Object>();result.put("matchId",request.matchId());result.put("resume",resume);result.put("job",job);result.put("questions",questions);result.put("durationMinutes",request.durationMinutes());result.put("difficulty",request.difficulty());result.put("generationSource","DETERMINISTIC_CONFIRMED_EVIDENCE");
+  var result=new LinkedHashMap<String,Object>();
+  result.put("matchId",request.matchId());result.put("resume",resume);result.put("job",job);
+  result.put("questions",questions);result.put("durationMinutes",request.durationMinutes());
+  result.put("difficulty",request.difficulty());result.put("interviewType",interviewType);
+  result.put("projectDepth",projectDepth);
+  result.put("focusSkills",selectedSkills.stream().map(CareerMatcher.Claim::value).toList());
+  result.put("generationSource","DETERMINISTIC_CONFIRMED_EVIDENCE");
   return save(user,"PLAN",request.requestId(),request,result);
+ }
+
+ private List<CareerMatcher.Claim> selectFocusSkills(List<CareerMatcher.Claim> required,List<String> focus){
+  if(focus==null||focus.isEmpty())return required;
+  if(focus.size()>8)throw new BusinessException(400,"技术考察方向最多选择8项");
+  var byCanonical=new LinkedHashMap<String,CareerMatcher.Claim>();
+  for(var claim:required)byCanonical.putIfAbsent(CareerMatcher.canonical(claim.value()),claim);
+  var selected=new ArrayList<CareerMatcher.Claim>();
+  for(String name:focus){
+   if(name==null||name.isBlank()||name.length()>100)throw new BusinessException(400,"技术考察方向无效");
+   var claim=byCanonical.get(CareerMatcher.canonical(name));
+   if(claim==null)throw new BusinessException(400,"技术考察方向必须来自岗位已确认的必须技能");
+   if(!selected.contains(claim))selected.add(claim);
+  }
+  return selected.isEmpty()?required:List.copyOf(selected);
+ }
+
+ private Map<String,List<String>> skillIdsByRequirement(Map<String,Object> match){
+  var result=new LinkedHashMap<String,List<String>>();
+  Object raw=match.get("skillMappings");
+  if(raw instanceof List<?> rows){
+   for(Object item:rows){
+    if(item instanceof Map<?,?> row){
+     Object requirement=row.get("requirement"),ids=row.get("skillIds");
+     if(requirement instanceof String name&&ids instanceof List<?> values){
+      result.put(CareerMatcher.canonical(name),values.stream().map(String::valueOf).toList());
+     }
+    }
+   }
+  }
+  return result;
+ }
+
+ private List<String> followups(List<String> angles,int angleIndex,String depth){
+  int count="LOW".equals(depth)?1:2;
+  var result=new ArrayList<String>();
+  for(int step=1;step<=count;step++)result.add(angles.get((angleIndex+step)%angles.size()));
+  return List.copyOf(result);
+ }
+
+ /** 题目审核保存为新方案快照；原方案保留，正式面试只能从新快照开始。 */
+ public Map<String,Object> revise(Long user,long planId,ReviseRequest request){
+  if(request==null||request.questions()==null||request.questions().isEmpty()||request.questions().size()>8)
+   throw new BusinessException(400,"审核后的题目数量必须为1到8题");
+  var plan=get(user,planId,"PLAN");
+  var seen=new java.util.HashSet<String>();
+  var rows=new ArrayList<Map<String,Object>>();
+  for(PlanQuestionEdit edit:request.questions()){
+   if(edit==null||edit.questionId()==null||edit.questionId().isBlank()||edit.questionId().length()>100
+     ||!seen.add(edit.questionId()))throw new BusinessException(400,"题目标识无效或重复");
+   if(edit.title()==null||edit.title().isBlank()||edit.title().length()>500)throw new BusinessException(400,"题目内容无效");
+   if(edit.questionPurpose()==null||edit.questionPurpose().isBlank()||edit.questionPurpose().length()>60)throw new BusinessException(400,"题目目的无效");
+   if(edit.evidenceReference()==null||edit.evidenceReference().length()>2000)throw new BusinessException(400,"题目证据引用无效");
+   if(edit.targetSkill()!=null&&edit.targetSkill().length()>100)throw new BusinessException(400,"目标技能无效");
+   if(edit.source()!=null&&edit.source().length()>60)throw new BusinessException(400,"题目来源无效");
+   if(edit.scoringDimension()!=null&&edit.scoringDimension().length()>60)throw new BusinessException(400,"评分维度无效");
+   if(edit.expectedKnowledgePoints()!=null&&(edit.expectedKnowledgePoints().size()>10||edit.expectedKnowledgePoints().stream().anyMatch(v->v==null||v.length()>100)))
+    throw new BusinessException(400,"考察知识点无效");
+   if(edit.followupDirections()!=null&&(edit.followupDirections().size()>5||edit.followupDirections().stream().anyMatch(v->v==null||v.length()>100)))
+    throw new BusinessException(400,"追问方向无效");
+   if(edit.skillIds()!=null&&(edit.skillIds().size()>8||edit.skillIds().stream().anyMatch(v->v==null||v.length()>100)))
+    throw new BusinessException(400,"关联技能无效");
+   Map<String,Object> row=new LinkedHashMap<>();
+   row.put("questionId",edit.questionId());row.put("title",edit.title());
+   row.put("questionPurpose",edit.questionPurpose());row.put("evidenceReference",edit.evidenceReference());
+   row.put("expectedKnowledgePoints",edit.expectedKnowledgePoints()==null?List.of():List.copyOf(edit.expectedKnowledgePoints()));
+   row.put("targetSkill",edit.targetSkill()==null?"":edit.targetSkill());
+   row.put("source",edit.source()==null?"USER_EDITED":edit.source());
+   row.put("scoringDimension",edit.scoringDimension()==null?"":edit.scoringDimension());
+   row.put("followupDirections",edit.followupDirections()==null?List.of():List.copyOf(edit.followupDirections()));
+   row.put("skillIds",edit.skillIds()==null?List.of():List.copyOf(edit.skillIds()));
+   row.put("resumeEvidence",edit.evidenceReference()==null?"":edit.evidenceReference());
+   row.put("requirement","");
+   rows.add(row);
+  }
+  var payload=new LinkedHashMap<>(plan);
+  payload.remove("id");
+  payload.put("previousPlanId",planId);
+  payload.put("questions",rows);
+  payload.put("generationSource","USER_REVIEWED");
+  payload.put("editedAt",java.time.LocalDateTime.now().toString());
+  return save(user,"PLAN",request.requestId(),new java.util.AbstractMap.SimpleImmutableEntry<>(planId,request.questions()),payload);
+ }
+
+ /** 返回一个基于同一证据的替代题目，不直接改库；用户确认后再通过 revise 保存。 */
+ public Map<String,Object> regenerateQuestion(Long user,long planId,String questionId,String seed){
+  var plan=get(user,planId,"PLAN");
+  var questions=json.convertValue(plan.get("questions"),new TypeReference<List<Map<String,Object>>>(){});
+  Map<String,Object> target=null;
+  for(var question:questions)if(questionId!=null&&questionId.equals(String.valueOf(question.get("questionId")))){target=question;break;}
+  if(target==null)throw new BusinessException(404,"面试题目不存在");
+  var resume=read(write(plan.get("resume")));var job=read(write(plan.get("job")));
+  var angles=List.of("核心机制与适用条件","验证方法与失败边界","故障排查与恢复","性能容量取舍","安全与权限边界","一致性与幂等","观测指标与证据","扩展性和成本");
+  int angleIndex=Math.floorMod(Objects.hash(questionId,seed==null?"":seed),angles.size());
+  String source=String.valueOf(target.get("source"));
+  String evidence=String.valueOf(target.get("evidenceReference"));
+  Map<String,Object> replacement=new LinkedHashMap<>(target);
+  if("RESUME_PROJECT".equals(source)){
+   var projects=claims(resume,"projects");
+   if(projects.isEmpty())throw new BusinessException(409,"简历没有已确认项目证据，不能重新生成项目题");
+   replacement.put("title","简历原文写到“"+projects.get(angleIndex%projects.size()).quote()+"”。请从"+angles.get(angleIndex)+"角度补充你的实际职责、取舍和验证依据。");
+  }else if(Set.of("JD_REQUIRED_SKILL","JD_GAP").contains(source)){
+   var skills=claims(job,"requiredSkills");
+   var claim=skills.stream().filter(v->v.quote().equals(evidence)).findFirst().orElse(skills.isEmpty()?null:skills.get(angleIndex%skills.size()));
+   if(claim==null)throw new BusinessException(409,"岗位未确认必须技能，不能重新生成技能题");
+   replacement.put("title","岗位要求“"+claim.quote()+"”。请从"+angles.get(angleIndex)+"角度解释 "+claim.value()+"，并说明可验证依据。");
+   replacement.put("targetSkill",claim.value());
+   replacement.put("evidenceReference",claim.quote());
+  }else{
+   String title=String.valueOf(job.get("title"));
+   replacement.put("title","针对岗位“"+title+"”，请选择一个相关系统场景，从"+angles.get(angleIndex)+"角度说明设计与权衡。");
+  }
+  replacement.put("followupDirections",followups(angles,angleIndex,"HIGH"));
+  replacement.put("regeneratedFrom",questionId);
+  return Map.of("planId",planId,"question",replacement);
  }
  @Transactional public Map<String,Object> start(Long user,long planId,String requestId){
   var plan=get(user,planId,"PLAN");
@@ -155,7 +336,20 @@ public class CareerWorkflowService {
   records.detail(user,((Number)resume.get("id")).longValue(),((Number)resume.get("version")).intValue());
   records.detail(user,((Number)job.get("id")).longValue(),((Number)job.get("version")).intValue());
   var questions=json.convertValue(plan.get("questions"),new TypeReference<List<Map<String,Object>>>(){});
-  var seeds=questions.stream().map(q->new InterviewQuestionBank.SeedQuestion(String.valueOf(q.get("questionId")),String.valueOf(q.get("title")),List.of(String.valueOf(q.get("evidenceReference")),"技术原理与工程边界"),List.of("你会如何验证上述判断的适用边界？"),new InterviewQuestionBank.Rubric("证据不足，需明确未知","能够说明原理及边界","能够以真实依据解释取舍和验证方法"))).toList();
+  if(questions.isEmpty())throw new BusinessException(409,"面试方案没有已确认题目");
+  var seeds=questions.stream().map(q->{
+   var reference=new ArrayList<String>();
+   for(String key:List.of("evidenceReference","targetSkill","requirement")){
+    String value=q.get(key)==null?"":String.valueOf(q.get(key));
+    if(!value.isBlank()&&!reference.contains(value))reference.add(value);
+   }
+   Object points=q.get("expectedKnowledgePoints");
+   if(points instanceof List<?> list)for(Object point:list){String value=String.valueOf(point);if(!value.isBlank()&&!reference.contains(value))reference.add(value);}
+   if(reference.isEmpty())reference.add("技术原理与工程边界");
+   Object directions=q.get("followupDirections");
+   var followups=directions instanceof List<?> list?list.stream().map(String::valueOf).toList():List.of("你会如何验证上述判断的适用边界？");
+   return new InterviewQuestionBank.SeedQuestion(String.valueOf(q.get("questionId")),String.valueOf(q.get("title")),List.copyOf(reference),followups,new InterviewQuestionBank.Rubric("证据不足，需明确未知","能够说明原理及边界","能够以真实依据解释取舍和验证方法"));
+  }).toList();
   var session=interviews.startPersonalized(user,requestId,String.valueOf(job.get("title")),((Number)plan.get("durationMinutes")).intValue(),String.valueOf(plan.get("difficulty")),seeds);long sid=((Number)session.get("sessionId")).longValue();
   if(jdbc.queryForObject("SELECT COUNT(*) FROM interview_career_session WHERE user_id=? AND session_id=?",Integer.class,user,sid)==0)jdbc.update("INSERT INTO interview_career_session(user_id,plan_id,session_id) VALUES(?,?,?)",user,planId,sid);
   return session;

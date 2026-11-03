@@ -69,8 +69,8 @@ request.interceptors.response.use(
 )
 
 // 类型安全的请求助手（response 已被拦截器解包为 ApiResult<T>）
-export async function apiGet<T>(url: string, params?: object): Promise<T> {
-  const res = await request.get(url, { params })
+export async function apiGet<T>(url: string, params?: object, config?: AxiosRequestConfig): Promise<T> {
+  const res = await request.get(url, { params, ...(config ?? {}) })
   return (res as unknown as ApiResult<T>).data
 }
 

@@ -84,6 +84,50 @@ public class DocumentTextExtractor {
         }
     }
 
+    /** 私人导入独立限流；饱和时返回待补正文，不在请求线程运行解析器。 */
+    private final ExecutorService careerExtractPool = new ThreadPoolExecutor(
+            0, 2, 60L, TimeUnit.SECONDS, new SynchronousQueue<>(),
+            new ThreadPoolExecutor.AbortPolicy());
+
+    /** 简历导入专用：禁用 OCR 和嵌入附件解析，仅抽取文档本身的正文。其他上传保持原合同。 */
+    public String extractCareerText(MultipartFile file) {
+        Future<String> future;
+        try {
+        future = careerExtractPool.submit(() -> {
+            var context = new org.apache.tika.parser.ParseContext();
+            var config = new org.apache.tika.parser.pdf.PDFParserConfig();
+            config.setOcrStrategy(org.apache.tika.parser.pdf.PDFParserConfig.OCR_STRATEGY.NO_OCR);
+            context.set(org.apache.tika.parser.pdf.PDFParserConfig.class, config);
+            context.set(org.apache.tika.extractor.EmbeddedDocumentExtractor.class,
+                new org.apache.tika.extractor.EmbeddedDocumentExtractor() {
+                    public boolean shouldParseEmbedded(Metadata metadata) { return false; }
+                    public void parseEmbedded(java.io.InputStream stream, org.xml.sax.ContentHandler handler,
+                                              Metadata metadata, boolean outputHtml) { }
+                });
+            var handler = new org.apache.tika.sax.BodyContentHandler(50_001);
+            try (var stream = file.getInputStream()) {
+                new org.apache.tika.parser.AutoDetectParser().parse(stream, handler, new Metadata(), context);
+                return handler.toString().trim();
+            }
+        });
+        } catch (RejectedExecutionException busy) {
+            log.warn("私人简历解析繁忙，保留原文件待手动补全");
+            return "";
+        }
+        try {
+            return future.get(EXTRACT_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS);
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            future.cancel(true);
+            return "";
+        } catch (ExecutionException | TimeoutException failed) {
+            future.cancel(true);
+            // 不记录私人正文、原文件名或解析器携带的元数据。
+            log.warn("私人简历正文未能提取：{}", failed.getClass().getSimpleName());
+            return "";
+        }
+    }
+
     /** 核心抽取逻辑：Tika 解析，异常兜底空串。 */
     private String doExtract(MultipartFile file) {
         try (var in = file.getInputStream()) {
@@ -107,5 +151,6 @@ public class DocumentTextExtractor {
     @PreDestroy
     public void shutdown() {
         extractPool.shutdownNow();
+        careerExtractPool.shutdownNow();
     }
 }

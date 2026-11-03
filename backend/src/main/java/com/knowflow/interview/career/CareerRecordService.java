@@ -16,7 +16,9 @@ import java.util.*;
 public class CareerRecordService {
  private final JdbcTemplate jdbc;
  private final ObjectMapper json;
- private static final Set<String> SECTIONS=Set.of("basics","education","experience","projects","skills","requiredSkills","preferredSkills","responsibilities","domain");
+ private static final Set<String> SECTIONS=Set.of(
+  "basics","intention","education","experience","projects","skills","certificates","selfIntro",
+  "custom","requiredSkills","preferredSkills","responsibilities","experienceRequirement","educationRequirement","domain","other");
  public record Edit(Integer expectedVersion,String title,String source,Map<String,List<CareerMatcher.Claim>> sections){}
  private Map<String,Object> own(Long user,long id){
   if(user==null)throw new BusinessException(401,"请先登录");
@@ -60,6 +62,7 @@ public class CareerRecordService {
  }
  public List<Map<String,Object>> versions(Long user,long id){own(user,id);return jdbc.queryForList("SELECT version_no,confirmed,create_time FROM interview_career_version WHERE record_id=? ORDER BY version_no DESC",id).stream().map(row->Map.<String,Object>of("version",row.get("version_no"),"confirmed",((Number)row.get("confirmed")).intValue()==1,"createdAt",String.valueOf(row.get("create_time")))).toList();}
  @Transactional public Map<String,Object> confirm(Long user,long id,int version){own(user,id);
+  if(CareerUploadService.NEEDS_TEXT_SOURCE.equals(detail(user,id,version).get("source")))throw new BusinessException(422,"原文件未提取正文，请先手动粘贴并校对");
   if(jdbc.update("UPDATE interview_career_version SET confirmed=1,update_time=CURRENT_TIMESTAMP WHERE record_id=? AND version_no=?",id,version)!=1)throw new BusinessException(404,"资料版本不存在");return detail(user,id,version);}
  @Transactional public Map<String,Object> setDefault(Long user,long id){
   jdbc.queryForList("SELECT id FROM sys_user WHERE id=? FOR UPDATE",user);

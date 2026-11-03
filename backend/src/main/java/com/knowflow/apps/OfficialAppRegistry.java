@@ -50,7 +50,32 @@ public class OfficialAppRegistry {
         APP_STATUS.put("habits", "ACTIVE");
         APP_STATUS.put("calendar", "ACTIVE");
         APP_STATUS.put("today-plan", "ACTIVE");
+        // Career Workbench：个人求职工作台（与前端 registry.ts 保持同步；默认不安装）
+        APP_STATUS.put("career-workbench", "ACTIVE");
+        // Career Apps V2.0：求职能力拆分为独立应用，共用同一套简历/JD/匹配/面试数据。
+        APP_STATUS.put("career-overview", "ACTIVE");
+        APP_STATUS.put("career-discover", "ACTIVE");
+        APP_STATUS.put("career-resume", "ACTIVE");
+        APP_STATUS.put("career-jobs", "ACTIVE");
+        APP_STATUS.put("career-matching", "ACTIVE");
+        APP_STATUS.put("career-interviews", "ACTIVE");
+        APP_STATUS.put("career-resume-toolbox", "ACTIVE");
+        APP_STATUS.put("career-resume-templates", "ACTIVE");
     }
+
+    /**
+     * Career V1.0 → V2.0 兼容迁移：原 career-workbench 用户的五个业务中心对应应用。
+     *
+     * <p>只补偿「从未存在过记录」的应用，不覆盖用户显式停用；顺序与产品菜单一致。</p>
+     */
+    public static final List<String> CAREER_COMPANION_KEYS = List.of(
+            "career-overview", "career-resume", "career-jobs", "career-matching", "career-interviews");
+
+    /**
+     * 两个新增应用不参与自动补偿，必须由用户主动获取（避免代用户做决定）。
+     */
+    public static final List<String> CAREER_OPT_IN_KEYS = List.of(
+            "career-resume-toolbox", "career-resume-templates");
 
     /** appKey 是否属于官方注册表（白名单，§34/§124） */
     public boolean isValid(String appKey) {

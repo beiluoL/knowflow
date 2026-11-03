@@ -4,7 +4,7 @@
 
 > **现行规范 · 2026-10-25**：输入、字体、菜单、弹窗、图标等专项开发规范以 [UI_DESIGN_SYSTEM_V2.md 第0节](UI_DESIGN_SYSTEM_V2.md#0-当前有效开发规范2026-10-24) 及正文为准。本文维护产品哲学、导航与通用原则；旧报告/审计不覆盖现行条款。Token以源码为准，不把未迁移页面描述为已完成。
 >
-> **普通输入的强制基线**：文本、数字、搜索、Textarea、普通Select统一浅灰表面；默认无明显边框，鼠标/键盘聚焦均不出现蓝色或中性灰border/outline/ring/外圈阴影。组合输入外壳承载表面，内部透明；图标/文字间隔通常8–12px（顶部搜索12px），同排字段复用FormField/kb-form-row对齐。按钮/菜单/Checkbox/Radio保留各自键盘反馈，forced-colors保留系统指示，禁止全局取消焦点。
+> **普通输入的强制基线**：文本、数字、搜索、Textarea、普通Select统一浅灰表面；默认无明显边框，鼠标/键盘聚焦均不出现蓝色或中性灰border/outline/ring/外圈阴影。组合输入外壳承载表面，内部透明；图标/文字间隔通常8–12px（顶部搜索12px），同排字段复用FormField/kf-form-row对齐。按钮/菜单/Checkbox/Radio保留各自键盘反馈，forced-colors保留系统指示，禁止全局取消焦点。
 
 ---
 
@@ -27,38 +27,38 @@
 
 ---
 
-## 二、设计令牌（`--kb-*` CSS 变量）
+## 二、设计令牌（`--kf-*` CSS 变量）
 
-所有颜色、字号、间距、圆角**必须使用 `--kb-*` CSS 变量**，禁止写死十六进制色值或像素值。
+所有颜色、字号、间距、圆角**必须使用 `--kf-*` CSS 变量**，禁止写死十六进制色值或像素值。
 
 ### 2.1 颜色系统
 
 | 变量 | 值 | 用途 |
 |-----|-----|------|
-| `--kb-primary` | `#3B6FE0` | 品牌主蓝：按钮、链接、激活态、强调边框 |
-| `--kb-primary-foreground` | `#FFFFFF` | 主色背景上的文字 |
-| `--kb-highlight` | `#FF6B35` | 高光暖橘：成就解锁、连续打卡火焰、AI 推荐徽章（仅小面积强调） |
-| `--kb-highlight-soft` | `rgba(255,107,53,0.10)` | 高光软背景 |
-| `--kb-highlight-border` | `rgba(255,107,53,0.30)` | 高光边框 |
-| `--kb-accent` | `#10B981` | 成功/通过绿 |
-| `--kb-destructive` | `#EF4444` | 危险/错误红 |
-| `--kb-warning` | `#F59E0B` | 警告黄 |
-| `--kb-background` | `#F7F8FA` | 页面背景 |
-| `--kb-card` | `#FFFFFF` | 卡片/容器背景 |
-| `--kb-sidebar` | `#F0F2F5` | 侧边栏背景 |
-| `--kb-muted` | `#E8ECF1` | 禁用态/分隔条 |
-| `--kb-border` | `#E2E6EC` | 边框/分割线 |
-| `--kb-foreground` | `#1A1D23` | 主要文字 |
-| `--kb-muted-foreground` | `#6B7280` | 次要/辅助文字 |
+| `--kf-primary` | `#3B6FE0` | 品牌主蓝：按钮、链接、激活态、强调边框 |
+| `--kf-primary-foreground` | `#FFFFFF` | 主色背景上的文字 |
+| `--kf-highlight` | `#FF6B35` | 高光暖橘：成就解锁、连续打卡火焰、AI 推荐徽章（仅小面积强调） |
+| `--kf-highlight-soft` | `rgba(255,107,53,0.10)` | 高光软背景 |
+| `--kf-highlight-border` | `rgba(255,107,53,0.30)` | 高光边框 |
+| `--kf-accent` | `#10B981` | 成功/通过绿 |
+| `--kf-destructive` | `#EF4444` | 危险/错误红 |
+| `--kf-warning` | `#F59E0B` | 警告黄 |
+| `--kf-background` | `#F7F8FA` | 页面背景 |
+| `--kf-card` | `#FFFFFF` | 卡片/容器背景 |
+| `--kf-sidebar` | `#F0F2F5` | 侧边栏背景 |
+| `--kf-muted` | `#E8ECF1` | 禁用态/分隔条 |
+| `--kf-border` | `#E2E6EC` | 边框/分割线 |
+| `--kf-foreground` | `#1A1D23` | 主要文字 |
+| `--kf-muted-foreground` | `#6B7280` | 次要/辅助文字 |
 
 ### 2.2 语义状态色
 
 | 变量 | 用途 |
 |------|------|
-| `--kb-state-success` | 成功状态 |
-| `--kb-state-warning` | 警告状态 |
-| `--kb-state-error` | 错误状态 |
-| `--kb-state-info` | 信息状态 |
+| `--kf-state-success` | 成功状态 |
+| `--kf-state-warning` | 警告状态 |
+| `--kf-state-error` | 错误状态 |
+| `--kf-state-info` | 信息状态 |
 
 ### 2.3 下拉阴影与主色软背景
 
@@ -66,26 +66,26 @@
 |------|------|
 | `--shadow-dropdown-2` | 二级下拉阴影 |
 | `--shadow-dropdown-3` | 三级下拉阴影 |
-| `--kb-primary-soft` | 主色软背景 |
-| `--kb-dropdown-radius` | 下拉圆角 |
-| `--kb-dropdown-padding-y` | 下拉内边距 Y |
-| `--kb-dropdown-item-padding` | 下拉项内边距 |
-| `--kb-dropdown-group-padding` | 下拉分组内边距 |
+| `--kf-primary-soft` | 主色软背景 |
+| `--kf-dropdown-radius` | 下拉圆角 |
+| `--kf-dropdown-padding-y` | 下拉内边距 Y |
+| `--kf-dropdown-item-padding` | 下拉项内边距 |
+| `--kf-dropdown-group-padding` | 下拉分组内边距 |
 
 ### 2.4 圆角
 
 | 变量 | 用途 |
 |------|------|
-| `--kb-radius-xs` | 超小圆角 |
-| `--kb-radius-sm` | 小圆角 |
-| `--kb-radius-md` | 中圆角 |
-| `--kb-radius-lg` | 大圆角 |
+| `--kf-radius-xs` | 超小圆角 |
+| `--kf-radius-sm` | 小圆角 |
+| `--kf-radius-md` | 中圆角 |
+| `--kf-radius-lg` | 大圆角 |
 
 ### 2.5 历史命名别名
 
 以下变量是历史命名的别名，指向上述标准变量（确保旧代码兼容）：
 
-`--kb-text` → `--kb-foreground`、`--kb-muted-text` → `--kb-muted-foreground`、`--kb-primary-light` → `--kb-primary-soft` 等共 18 个。
+`--kf-text` → `--kf-foreground`、`--kf-muted-text` → `--kf-muted-foreground`、`--kf-primary-light` → `--kf-primary-soft` 等共 18 个。
 
 ---
 
@@ -166,12 +166,12 @@
 
 | 类 | 用途 |
 |----|------|
-| `.kb-stat-card` / `.kb-stat-icon` / `.kb-stat-value` / `.kb-stat-unit` / `.kb-stat-label` | 统计卡片 |
-| `.kb-state-*`（7个 + fade-in 动画） | 状态标识 |
-| `.kb-textarea` / `.kb-checkbox` / `.kb-select-*` | 表单元素 |
-| `.kb-select` / `.kb-select-sm` | 原生 select |
-| `.kb-filter-btn` / `.kb-filter-group` | 筛选按钮组 |
-| `.kb-dropdown` | 自定义弹出下拉 |
+| `.kf-stat-card` / `.kf-stat-icon` / `.kf-stat-value` / `.kf-stat-unit` / `.kf-stat-label` | 统计卡片 |
+| `.kf-state-*`（7个 + fade-in 动画） | 状态标识 |
+| `.kf-textarea` / `.kf-checkbox` / `.kf-select-*` | 表单元素 |
+| `.kf-select` / `.kf-select-sm` | 原生 select |
+| `.kf-filter-btn` / `.kf-filter-group` | 筛选按钮组 |
+| `.kf-dropdown` | 自定义弹出下拉 |
 
 ---
 
@@ -231,9 +231,9 @@
 
 | 场景 | 全局类 |
 |------|--------|
-| 原生 select | `.kb-select` / `.kb-select-sm` |
-| 筛选按钮组 | `.kb-filter-btn` / `.kb-filter-group` |
-| 自定义弹出下拉 | `.kb-dropdown` |
+| 原生 select | `.kf-select` / `.kf-select-sm` |
+| 筛选按钮组 | `.kf-filter-btn` / `.kf-filter-group` |
+| 自定义弹出下拉 | `.kf-dropdown` |
 
 下拉选项文本支持换行以避免截断。
 
@@ -274,7 +274,7 @@ App 导航分区元数据：[apps/registry.ts](../frontend/src/apps/registry.ts)
 
 - `markdown.ts` 中设置 `breaks: true` 以支持单行换行转 `<br>`
 - 需通过 `normalizeNewlines()` 函数将数据库存储的字面量 `\n` 还原为真实换行符
-- 文档详情页样式必须使用全局 `--kb-*` CSS 变量
+- 文档详情页样式必须使用全局 `--kf-*` CSS 变量
 - TOC 锚点匹配：采用 `heading-${seq}` 序号作为 h2/h3 元素 id
 
 ---
@@ -284,13 +284,13 @@ App 导航分区元数据：[apps/registry.ts](../frontend/src/apps/registry.ts)
 - Vue 的 `:class` 对象语法中，含连字符的 key（如 `send-error`）必须用引号包裹成字符串字面量
 - TypeScript 类型导入必须使用 `type` 前缀：Vue 类型（如 `InjectionKey`, `Ref`）需通过 `import type` 导入
 - 禁止 `catch(e: any)`，统一用 `catch(e: unknown)` + `getApiError`
-- Mermaid 的 `themeVariables` 不支持 CSS 变量（如 `var(--kb-muted)`），需使用实际十六进制颜色值
+- Mermaid 的 `themeVariables` 不支持 CSS 变量（如 `var(--kf-muted)`），需使用实际十六进制颜色值
 
 ---
 
 ## 章节阅读 V2（2026-10-11）
 
-普通用户 PC 章节复用 `ChapterLearn`。通过 `--kb-chapter-*` 语义令牌控制 50rem 阅读宽度、70rem 内容宽度、16rem 目录、2rem 栏间距；正文 1rem/1.8，H1/H2/H3 为 2/1.5/1.25rem，代码 .875rem。继承全局字体、前景/次级文字与蓝白颜色，不另外建立设计系统。
+普通用户 PC 章节复用 `ChapterLearn`。通过 `--kf-chapter-*` 语义令牌控制 50rem 阅读宽度、70rem 内容宽度、16rem 目录、2rem 栏间距；正文 1rem/1.8，H1/H2/H3 为 2/1.5/1.25rem，代码 .875rem。继承全局字体、前景/次级文字与蓝白颜色，不另外建立设计系统。
 
 标题、摘要、时长/难度/重要度/完成状态、学习目标各只表达一种信息；目标不打完成勾。正文 H2/H3 自动生成目录，点击定位与滚动高亮，长题名截断但保留 title；目录和工具有界滚动，1024 折叠到顶部。代码保留语言/高亮/复制反馈与局部横向滚动，禁止将任意源码在已登录同源页执行。
 
@@ -317,7 +317,7 @@ App 导航分区元数据：[apps/registry.ts](../frontend/src/apps/registry.ts)
 
 ## 文本输入视觉与聚焦（现行，2026-10-24）
 
-共享普通输入使用现有`--kb-field-*`浅灰表面与圆角，默认无明显边框；普通focus/focus-visible不画蓝色或灰色outline、ring、边框或外圈阴影。表单字段默认44px高，Textarea保留适当高度和滚动；label/control/help/error对齐，原生数字和验证语义不变。输入光标、选择、Tab与快捷键保持，菜单和按钮保留自身键盘反馈，forced-colors保留系统Highlight。错误有文字和ARIA，不用重新加聚焦环表达错误。
+共享普通输入使用现有`--kf-field-*`浅灰表面与圆角，默认无明显边框；普通focus/focus-visible不画蓝色或灰色outline、ring、边框或外圈阴影。表单字段默认44px高，Textarea保留适当高度和滚动；label/control/help/error对齐，原生数字和验证语义不变。输入光标、选择、Tab与快捷键保持，菜单和按钮保留自身键盘反馈，forced-colors保留系统Highlight。错误有文字和ARIA，不用重新加聚焦环表达错误。
 
 2026-10-11的“1px输入边框+2px外环”已失效；[原修复报告](reports/INPUT_FOCUS_FIX.md)仅为历史证据。当前事实见[最终输入报告](borderless-forms/no-focus-frame/REPORT.md)。
 
@@ -333,7 +333,7 @@ App 导航分区元数据：[apps/registry.ts](../frontend/src/apps/registry.ts)
 
 ## 2026-10-14 补充：全站右侧区域铺满
 
-用户要求以考试中心为参照，所有页面占满菜单右侧可用区域，不保留居中限宽造成的大块左右空白。CLayout统一使用一个width:100%/max-width:none/min-width:0内容区，PC统一使用--kb-space-6（24px）安全边距，小屏--kb-space-4；sidebar展开/收起继续由既有状态决定。
+用户要求以考试中心为参照，所有页面占满菜单右侧可用区域，不保留居中限宽造成的大块左右空白。CLayout统一使用一个width:100%/max-width:none/min-width:0内容区，PC统一使用--kf-space-6（24px）安全边距，小屏--kf-space-4；sidebar展开/收起继续由既有状态决定。
 
 页面外层、学习首页、个人工具和工作台取消二次max-width、margin:auto和重复水平padding。Notes阅读详情也跟随可用工作区宽度；弹窗、画布内部目录栏、正文阅读列、搜索输入与提示文字保留语义宽度，避免全局无差别拉伸控件。B端常规外壳取消1400px居中限制，现有fullscreen编辑布局继续保留。此补充优先于历史“全站最大内容宽度”条款，不改路由权限、Store、API、数据或学习算法。
 
@@ -364,8 +364,8 @@ Select 默认9项自动搜索，可由 searchable/searchThreshold 覆盖；可�
 **KnowFlow 不使用高饱和、粗线条、直角矩形的文本输入焦点框。带外部容器的输入区域只由外层绘制焦点反馈，禁止内部 textarea 再绘制独立蓝框。鼠标聚焦保持克制，键盘聚焦提供可见但柔和的单层反馈。**
 
 - 文本字段默认1px中性边界、原圆角和浅灰表面，无外发光；聊天容器保留其既有圆角。鼠标聚焦不绘制明显outline/ring，也不改变尺寸。
-- 使用`--kb-field-border`、`--kb-field-focus-width/color/shadow`，不使用业务页高饱和`--kb-ring`画文本焦点。现有按钮、链接、菜单项、Checkbox/Radio继续保留各自键盘规则。
-- `.kb-field`和`.kb-input-surface`是组合输入的焦点绘制所有者，内部输入不重复画outline/阴影。独立普通字段才自行绘制。`html[data-kb-input-modality=keyboard]`只负责视觉来源标记；监听不preventDefault、不更改按键/输入/IME/发送事件。文本输入鼠标点击也可能匹配focus-visible，所以不能单凭该伪类区分鼠标与Tab。
+- 使用`--kf-field-border`、`--kf-field-focus-width/color/shadow`，不使用业务页高饱和`--kf-ring`画文本焦点。现有按钮、链接、菜单项、Checkbox/Radio继续保留各自键盘规则。
+- `.kf-field`和`.kf-input-surface`是组合输入的焦点绘制所有者，内部输入不重复画outline/阴影。独立普通字段才自行绘制。`html[data-kb-input-modality=keyboard]`只负责视觉来源标记；监听不preventDefault、不更改按键/输入/IME/发送事件。文本输入鼠标点击也可能匹配focus-visible，所以不能单凭该伪类区分鼠标与Tab。
 - 错误先于普通焦点：错误边界/文字与ARIA保留，键盘用同一所有者的错误色反馈，不叠蓝环。disabled无活动环。
 - forced-colors使用系统Highlight轮廓，由同一个所有者绘制，内部不重复；不依赖浅阴影。不得全局清除所有交互控件焦点。
 - 现有代码编辑器等特殊控件不机械套用普通输入重置。`:has()`沿用项目已有现代浏览器能力，不新增UI库；本轮Chrome实测，其他浏览器仍需专项兼容验收。
@@ -377,3 +377,14 @@ Select 默认9项自动搜索，可由 searchable/searchThreshold 覆盖；可�
 产品哲学由本文维护，控件/字体/聚焦外观只执行[UI V2现行规则](UI_DESIGN_SYSTEM_V2.md#0-当前有效开发规范2026-10-24)。[前端规范旧UI设计系统](前端规范/UI设计系统.md)已SUPERSEDED，不再同时声明权威。架构/需求/状态/路线职责见[文档中心](README.md)，历史报告与源码实现/实际验证分开。
 
 2026-10-25：公共Button/Input及开发组件中心实施事实见[展示中心报告](component-playground/REPORT.md)；外观唯一规则仍为UI_DESIGN_SYSTEM_V2正文，不能由展示挂载成功推定全站合规。
+
+2026-10-28：品牌 UI 前缀统一 kf，历史 kb 业务缩写与存储键保留；详见 [专项规范](UI_DESIGN_SYSTEM_V2.md#ui_namespace_migration_v12026-10-28)。
+
+
+### 2026-10-29 UI V1.1 实施增量（部分完成）
+
+任务中心接入现有 PageHeader；Button 的默认文字插槽统一 Flex/gap，支持已有内嵌图标；PageHeader 默认颜色继承主题，避免无效 CSS 颜色值。今日计划完成度允许换行，Checkbox 标签通过 scoped deep 选择器保持长标题收缩，日期只在操作区显示。未更改任务 API、Store、计划收录或服务端统计。
+
+`kf` 为唯一 UI 品牌前缀，Token 使用 `--kf-*`，新增组件类使用 BEM（如 `.kf-button__icon`、`.kf-button--primary`），新组件命名 `KfButton` / `<kf-button>`；原文件路径及调用保持兼容。宿主负责主题及布局 Token，公共组件负责行为和视觉。Knowledge Base 业务 `kb` 不自动更名；旧 UI 命名仅允许明确历史或兼容记录。现有 `check:ui-prefix` 已接入 npm test；当前检查不声称覆盖全部 BEM 漂移。
+
+本次全量 Vitest 241文件/1768项通过，vue-tsc 与 build 退出0；构建有分包体积警告。浏览器自动审批因连接中断拒绝本地页面访问，双主题/四宽度/五页面及任务双向同步、刷新重登均 Not verified。V1.1 尚未完整验收。

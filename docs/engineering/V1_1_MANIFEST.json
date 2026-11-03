@@ -1,0 +1,398 @@
+[
+  {
+    "path": "AGENTS.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\tAGENTS.md",
+    "mustTrack": true,
+    "authority": "existing governance entry",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": "CLAUDE.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\tCLAUDE.md",
+    "mustTrack": true,
+    "authority": "existing governance entry",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": "GEMINI.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\tGEMINI.md",
+    "mustTrack": true,
+    "authority": "existing governance entry",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".agents/skills/alibaba-code-standard/.DS_Store",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\t.agents/skills/alibaba-code-standard/.DS_Store",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".agents/skills/alibaba-code-standard/SKILL.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\t.agents/skills/alibaba-code-standard/SKILL.md",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".agents/skills/alibaba-code-standard/references/alibaba_mandatory_rules.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\t.agents/skills/alibaba-code-standard/references/alibaba_mandatory_rules.md",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".agents/skills/frontend-code-standard/SKILL.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\t.agents/skills/frontend-code-standard/SKILL.md",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".agents/skills/frontend-code-standard/references/frontend_mandatory_rules.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\t.agents/skills/frontend-code-standard/references/frontend_mandatory_rules.md",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".agents/skills/knowflow-engineering/SKILL.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\t.agents/skills/knowflow-engineering/SKILL.md",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".trae/skills/alibaba-code-standard/SKILL.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".gitignore:18:.trae/\t.trae/skills/alibaba-code-standard/SKILL.md",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".trae/skills/alibaba-code-standard/references/alibaba_mandatory_rules.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".gitignore:18:.trae/\t.trae/skills/alibaba-code-standard/references/alibaba_mandatory_rules.md",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".trae/skills/frontend-code-standard/SKILL.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".gitignore:18:.trae/\t.trae/skills/frontend-code-standard/SKILL.md",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".trae/skills/frontend-code-standard/references/frontend_mandatory_rules.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".gitignore:18:.trae/\t.trae/skills/frontend-code-standard/references/frontend_mandatory_rules.md",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".trae/skills/knowflow-engineering/SKILL.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".gitignore:18:.trae/\t.trae/skills/knowflow-engineering/SKILL.md",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".workbuddy/skills/.DS_Store",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".gitignore:24:.workbuddy/\t.workbuddy/skills/.DS_Store",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".workbuddy/skills/alibaba-code-standard/.DS_Store",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".gitignore:24:.workbuddy/\t.workbuddy/skills/alibaba-code-standard/.DS_Store",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".workbuddy/skills/alibaba-code-standard/SKILL.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".gitignore:24:.workbuddy/\t.workbuddy/skills/alibaba-code-standard/SKILL.md",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".workbuddy/skills/alibaba-code-standard/references/alibaba_mandatory_rules.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".gitignore:24:.workbuddy/\t.workbuddy/skills/alibaba-code-standard/references/alibaba_mandatory_rules.md",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".workbuddy/skills/frontend-code-standard/.DS_Store",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".gitignore:24:.workbuddy/\t.workbuddy/skills/frontend-code-standard/.DS_Store",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".workbuddy/skills/frontend-code-standard/SKILL.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".gitignore:24:.workbuddy/\t.workbuddy/skills/frontend-code-standard/SKILL.md",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".workbuddy/skills/frontend-code-standard/references/frontend_mandatory_rules.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".gitignore:24:.workbuddy/\t.workbuddy/skills/frontend-code-standard/references/frontend_mandatory_rules.md",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".workbuddy/skills/knowflow-engineering/SKILL.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".gitignore:24:.workbuddy/\t.workbuddy/skills/knowflow-engineering/SKILL.md",
+    "mustTrack": true,
+    "authority": ".agents/skills",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".cursor/rules/knowflow-engineering.mdc",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\t.cursor/rules/knowflow-engineering.mdc",
+    "mustTrack": true,
+    "authority": "existing governance entry",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".github/copilot-instructions.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\t.github/copilot-instructions.md",
+    "mustTrack": true,
+    "authority": "existing governance entry",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": ".github/workflows/v1-release.yml",
+    "exists": true,
+    "status": "TRACKED",
+    "ignore": "",
+    "mustTrack": true,
+    "authority": "existing governance entry",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": "docs/engineering/AUDIT_2026-11-01.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\tdocs/engineering/AUDIT_2026-11-01.md",
+    "mustTrack": true,
+    "authority": "existing governance entry",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": "docs/engineering/BACKEND_JAVA_STANDARD.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\tdocs/engineering/BACKEND_JAVA_STANDARD.md",
+    "mustTrack": true,
+    "authority": "existing governance entry",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": "docs/engineering/ENGINEERING_STANDARDS.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\tdocs/engineering/ENGINEERING_STANDARDS.md",
+    "mustTrack": true,
+    "authority": "existing governance entry",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": "docs/engineering/FRONTEND_VUE_TS_STANDARD.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\tdocs/engineering/FRONTEND_VUE_TS_STANDARD.md",
+    "mustTrack": true,
+    "authority": "existing governance entry",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": "docs/engineering/SECURITY_AND_AI_STANDARD.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\tdocs/engineering/SECURITY_AND_AI_STANDARD.md",
+    "mustTrack": true,
+    "authority": "existing governance entry",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": "docs/engineering/TESTING_AND_AUTOMATION_GATES.md",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\tdocs/engineering/TESTING_AND_AUTOMATION_GATES.md",
+    "mustTrack": true,
+    "authority": "existing governance entry",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": "scripts/engineering/baseline.json",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\tscripts/engineering/baseline.json",
+    "mustTrack": true,
+    "authority": "existing governance entry",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": "scripts/engineering/check.mjs",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\tscripts/engineering/check.mjs",
+    "mustTrack": true,
+    "authority": "existing governance entry",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": "scripts/engineering/check.test.mjs",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\tscripts/engineering/check.test.mjs",
+    "mustTrack": true,
+    "authority": "existing governance entry",
+    "check": "check.mjs / Git portability"
+  },
+  {
+    "path": "scripts/engineering/approved-snapshot.json",
+    "mustTrack": true,
+    "authority": "existing governance / lint",
+    "check": "Git portability",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\tscripts/engineering/approved-snapshot.json"
+  },
+  {
+    "path": "scripts/engineering/snapshot.mjs",
+    "mustTrack": true,
+    "authority": "existing governance / lint",
+    "check": "Git portability",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\tscripts/engineering/snapshot.mjs"
+  },
+  {
+    "path": "docs/engineering/V1_1_MANIFEST.json",
+    "mustTrack": true,
+    "authority": "existing governance / lint",
+    "check": "Git portability",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\tdocs/engineering/V1_1_MANIFEST.json"
+  },
+  {
+    "path": "docs/engineering/GOVERNANCE_V1_1_REPORT.md",
+    "mustTrack": true,
+    "authority": "existing governance / lint",
+    "check": "Git portability",
+    "exists": true,
+    "status": "IGNORED",
+    "ignore": ".git/info/exclude:13:/*\tdocs/engineering/GOVERNANCE_V1_1_REPORT.md"
+  },
+  {
+    "path": "frontend/eslint.config.mjs",
+    "mustTrack": true,
+    "authority": "existing governance / lint",
+    "check": "Git portability",
+    "exists": true,
+    "status": "UNTRACKED",
+    "ignore": ""
+  },
+  {
+    "path": "frontend/eslint-baseline.json",
+    "mustTrack": true,
+    "authority": "existing governance / lint",
+    "check": "Git portability",
+    "exists": true,
+    "status": "UNTRACKED",
+    "ignore": ""
+  },
+  {
+    "path": "frontend/scripts/lint-check.mjs",
+    "mustTrack": true,
+    "authority": "existing governance / lint",
+    "check": "Git portability",
+    "exists": true,
+    "status": "UNTRACKED",
+    "ignore": ""
+  },
+  {
+    "path": "frontend/scripts/lint.test.mjs",
+    "mustTrack": true,
+    "authority": "existing governance / lint",
+    "check": "Git portability",
+    "exists": true,
+    "status": "UNTRACKED",
+    "ignore": ""
+  },
+  {
+    "path": "frontend/package.json",
+    "mustTrack": true,
+    "authority": "existing governance / lint",
+    "check": "Git portability",
+    "exists": true,
+    "status": "TRACKED",
+    "ignore": ""
+  },
+  {
+    "path": "frontend/package-lock.json",
+    "mustTrack": true,
+    "authority": "existing governance / lint",
+    "check": "Git portability",
+    "exists": true,
+    "status": "TRACKED",
+    "ignore": ""
+  }
+]

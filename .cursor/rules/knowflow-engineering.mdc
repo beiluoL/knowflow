@@ -1,0 +1,39 @@
+---
+description: KnowFlow 统一工程规范（后端 / 前端 / 安全 / 测试门禁）
+globs:
+  - "backend/**/*.java"
+  - "backend/src/main/resources/**/*.sql"
+  - "frontend/src/**/*.{ts,vue,css}"
+  - "scripts/**/*"
+  - "docs/engineering/**/*.md"
+alwaysApply: true
+---
+
+# KnowFlow 工程规范（Cursor 入口）
+
+规范正文唯一权威：`docs/engineering/`。本文件只给路由与硬约束。
+
+## 读取顺序
+
+1. `AGENTS.md`
+2. `docs/engineering/ENGINEERING_STANDARDS.md`
+3. `docs/engineering/BACKEND_JAVA_STANDARD.md`（后端/数据库）
+4. `docs/engineering/FRONTEND_VUE_TS_STANDARD.md`（Vue/TS/Pinia/API/UI 写法）
+5. `docs/engineering/SECURITY_AND_AI_STANDARD.md`（权限/AI/判题/隐私）
+6. `docs/engineering/TESTING_AND_AUTOMATION_GATES.md`（测试/CI/证据）
+
+## 硬约束
+
+- 禁止破坏性 Git（`reset --hard`、`clean -fd`、`checkout .`、`restore .`、擅自 stash）；不自动 commit/push。
+- 禁止复制第二套：学习状态 Store、Evidence 管线、NextAction、路由白名单、App Registry、UI 设计系统、API 请求封装。
+- 后端：身份来自服务端认证上下文；归属在 Service 校验；禁止 `SELECT *`、新增物理外键、`System.out.println`、`printStackTrace()`、`Executors.new`。
+- 前端：禁止 `any`（新增）、`window.alert/confirm/prompt`、写死色值；只用 `--kf-*`；异步视图必须覆盖 Loading/Success/Empty/Error/Retry。
+- 测试：不删除、不跳过、不改断言制造 PASS；无法验证标注 `⚠️ Not verified`。
+
+## 提交前
+
+```bash
+node scripts/engineering/check.mjs
+cd frontend && npm test && npx vue-tsc --noEmit && npx vue-tsc -p tsconfig.app.json --noEmit && npm run build
+cd backend && mvn -B test
+```

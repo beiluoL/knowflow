@@ -15,6 +15,7 @@ import java.util.zip.ZipInputStream;
 /** 内容探测与有界提取在事务外；成功的私人文件和版本原子保存。 */
 @Service @RequiredArgsConstructor
 public class CareerUploadService {
+ public static final String NEEDS_TEXT_SOURCE = "[原文件未提取到可用正文，请手动粘贴简历文本后再确认]";
  private static final long MAX_BYTES=5L*1024*1024;
  private final DocumentTextExtractor extractor;
  private final CareerRecordService records;
@@ -25,20 +26,38 @@ public class CareerUploadService {
   if(input==null||input.isEmpty()||input.getSize()>MAX_BYTES)throw new BusinessException(400,"文件必须为1字节到5MB");
   try{
    byte[] bytes=input.getBytes();if(bytes.length>MAX_BYTES)throw new BusinessException(400,"文件超过5MB");
-   String extension=detect(bytes);String type=switch(extension){case "pdf"->"application/pdf";case "docx"->"application/vnd.openxmlformats-officedocument.wordprocessingml.document";default->"text/plain";};
+   String extension=detect(bytes);
+   String filename=Objects.toString(input.getOriginalFilename(), "");
+   int dot=filename.lastIndexOf('.');
+   if(dot<0 || !extension.equals(filename.substring(dot+1).toLowerCase(Locale.ROOT)))throw new BusinessException(400,"文件扩展名与真实内容不符；只支持 PDF、DOC、DOCX、UTF-8 TXT");String type=switch(extension){case "pdf"->"application/pdf";case "doc"->"application/msword";case "docx"->"application/vnd.openxmlformats-officedocument.wordprocessingml.document";default->"text/plain";};
    var safe=new SafeFile(bytes,extension,type);
-   String source=extractor.extractText(safe);
-   if(source==null||source.isBlank()||source.length()>50000)throw new BusinessException(422,"提取失败或超过50000字；请使用可复制文本的PDF、DOCX或TXT重新上传");
+   String extracted=extractor.extractCareerText(safe);
+   boolean unavailable=extracted==null||extracted.isBlank()||extracted.length()>50000;
+   String warning=unavailable ? ("pdf".equals(extension)
+     ? "PDF 未提取到可用文字，可能为扫描件、加密或损坏文件；暂不提供 OCR。原文件已私人保存，请手动粘贴正文。"
+     : "未提取到可用正文或正文超过50000字；原文件已私人保存，请手动粘贴正文。")
+     : (extracted.indexOf('\uFFFD')>=0 || extracted.chars().anyMatch(c -> Character.isISOControl(c) && c!='\n' && c!='\r' && c!='\t')
+       ? "正文包含异常字符，请对照原文件人工检查并修正后确认。" : "");
+   String source=unavailable ? NEEDS_TEXT_SOURCE : extracted;
    return new TransactionTemplate(manager).execute(status->{
     var record=records.create(user,kind,new CareerRecordService.Edit(null,"RESUME".equals(kind)?"私人简历":"目标岗位",source,Map.of()));
     jdbc.update("INSERT INTO interview_career_file(record_id,user_id,content_type,content_bytes) VALUES(?,?,?,?)",record.get("id"),user,type,bytes);
-    return record;
+    var result=new LinkedHashMap<String,Object>(record);
+    result.put("importStatus",unavailable ? "NEEDS_TEXT" : warning.isEmpty() ? "EXTRACTED" : "REVIEW_REQUIRED");
+    result.put("importWarning",warning);
+    return result;
    });
   }catch(BusinessException invalid){throw invalid;}
   catch(IOException invalid){throw new BusinessException(400,"文件内容无法读取");}
  }
  private String detect(byte[] bytes)throws IOException{
   if(bytes.length>=5&&new String(bytes,0,5,StandardCharsets.US_ASCII).equals("%PDF-"))return "pdf";
+  if(bytes.length>=8 && java.util.Arrays.equals(java.util.Arrays.copyOf(bytes,8),new byte[]{(byte)0xD0,(byte)0xCF,0x11,(byte)0xE0,(byte)0xA1,(byte)0xB1,0x1A,(byte)0xE1})){
+   try(var fs=new org.apache.poi.poifs.filesystem.POIFSFileSystem(new ByteArrayInputStream(bytes))){
+    if(fs.getRoot().hasEntry("WordDocument"))return "doc";
+   }
+   throw new BusinessException(400,"不是受支持的 DOC 文档");
+  }
   if(bytes.length>=4&&bytes[0]=='P'&&bytes[1]=='K'){
    boolean document=false,types=false;long total=0;int entries=0;long deadline=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(3);
    try(var zip=new ZipInputStream(new ByteArrayInputStream(bytes))){
@@ -52,7 +71,7 @@ public class CareerUploadService {
    if(document&&types)return "docx";throw new BusinessException(400,"不是受支持的DOCX文档");
   }
   try{String text=StandardCharsets.UTF_8.newDecoder().onMalformedInput(java.nio.charset.CodingErrorAction.REPORT).decode(java.nio.ByteBuffer.wrap(bytes)).toString();if(text.indexOf('\0')>=0)throw new IllegalArgumentException();return "txt";}
-  catch(Exception invalid){throw new BusinessException(400,"只支持真实PDF、DOCX或UTF-8纯文本");}
+  catch(Exception invalid){throw new BusinessException(400,"只支持真实PDF、DOC、DOCX或UTF-8纯文本");}
  }
  public record Download(byte[] bytes,String contentType){}
  public Download download(Long user,long id){records.detail(user,id,null);var rows=jdbc.queryForList("SELECT content_bytes,content_type FROM interview_career_file WHERE record_id=? AND user_id=?",id,user);if(rows.isEmpty()||rows.get(0).get("content_bytes")==null)throw new BusinessException(404,"原始文件不存在");return new Download((byte[])rows.get(0).get("content_bytes"),String.valueOf(rows.get(0).get("content_type")));}

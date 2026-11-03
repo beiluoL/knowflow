@@ -47,6 +47,11 @@ export interface NavGroup {
   /** 移动端底部导航是否收录（底部空间有限，只放最高频） */
   mobilePrimary?: boolean
   /**
+   * 只为动态 App 提供容器的一级工作区：没有已启用子项时整组隐藏。
+   * 用于「工具」「求职」等不应在用户未启用任何 App 时占用导航入口的分区。
+   */
+  dynamicNav?: boolean
+  /**
    * UI/UX 3.2：工作区的「路由归属范围」——**只用于父级高亮 / 自动展开 / 面包屑，不渲染为菜单项**。
    *
    * 背景：Sidebar 收敛为「1 个核心入口 + enabled App」后，被下沉到首页卡片的功能
@@ -165,7 +170,18 @@ export const NAVIGATION: NavGroup[] = [
     icon: 'timer',
     auth: true,
     children: [],
+    dynamicNav: true,
     match: ['/learning/pomodoro'],
+  },
+  {
+    // Career Workbench：应用中心启用「个人求职工作台」后，由 Navigation Resolver 注入 /career。
+    // 未启用时不占用一级入口；route 本身仍可直接访问，但所有 API 继续执行登录与归属校验。
+    label: '求职',
+    icon: 'target',
+    auth: true,
+    children: [],
+    dynamicNav: true,
+    match: ['/career'],
   },
 ]
 

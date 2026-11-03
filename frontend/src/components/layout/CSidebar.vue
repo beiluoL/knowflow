@@ -59,8 +59,8 @@
               :key="child.path"
               :to="child.path"
               class="csidebar-item csidebar-child"
-              :class="{ 'is-active': isChildActive(child) }"
-              :aria-current="isChildActive(child) ? 'page' : undefined"
+              :class="{ 'is-active': isChildActive(child, group) }"
+              :aria-current="isChildActive(child, group) ? 'page' : undefined"
               @click="$emit('navigate')"
             >
               <Icon :name="child.icon" :size="18" class="csidebar-icon" />
@@ -75,10 +75,10 @@
               :key="child.path"
               :to="child.path"
               class="csidebar-item csidebar-child csidebar-subrail-item"
-              :class="{ 'is-active': isChildActive(child) }"
+              :class="{ 'is-active': isChildActive(child, group) }"
               :title="child.label"
               :aria-label="child.label"
-              :aria-current="isChildActive(child) ? 'page' : undefined"
+              :aria-current="isChildActive(child, group) ? 'page' : undefined"
               @click="$emit('navigate')"
             >
               <Icon :name="child.icon" :size="18" class="csidebar-icon" />
@@ -223,8 +223,12 @@ function isGroupCurrent(group: NavGroup): boolean {
   return !!group.path && route.path === group.path
 }
 
-function isChildActive(child: NavChild): boolean {
-  return pathMatches(route.path, child.path)
+function isChildActive(child: NavChild, siblings: NavGroup): boolean {
+  if (!pathMatches(route.path, child.path)) return false
+  // 同一分组内取「最具体」的匹配项：避免 /career 与 /career/overview 同时高亮（父项是子项的路径前缀）。
+  return !(siblings.children ?? []).some(
+    (other) => other.path !== child.path && other.path.length > child.path.length && pathMatches(route.path, other.path),
+  )
 }
 
 // 背景激活时侧边栏切换为毛玻璃（与既有 Sidebar.vue 行为保持一致）

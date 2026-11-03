@@ -30,11 +30,59 @@ public class UserAppService {
     @Transactional
     public List<UserAppVO> getUserApps(Long userId) {
         initializeDefaults(userId);
+        migrateCareerApps(userId);
         return userAppMapper.selectList(new LambdaQueryWrapper<UserApp>()
                         .eq(UserApp::getUserId, userId)
                         .orderByAsc(UserApp::getSortOrder)
                         .orderByAsc(UserApp::getId))
                 .stream().map(this::toVO).collect(Collectors.toList());
+    }
+
+    /**
+     * Career V1.0 → V2.0 幂等兼容迁移（Career Apps V2.0 §4.4）。
+     *
+     * <p>规则（不猜测用户意图）：
+     * <ul>
+     *   <li>只有「已安装 career-workbench」的用户才补偿五个业务中心应用；</li>
+     *   <li>只补齐**从未存在过记录**的应用，已有记录（含显式停用）一律不覆盖；</li>
+     *   <li>补偿应用继承工作台的 enabled 状态：工作台停用则子应用也停用，不擅自让菜单重新出现；</li>
+     *   <li>简历工具箱 / 简历模板不参与补偿，必须用户主动获取；</li>
+     *   <li>工作台 sortOrder 仅在仍为默认 0 时归一到第 6 位，保持产品菜单顺序，不覆盖用户自定义排序。</li>
+     * </ul>
+     * 重复执行无副作用；并发插入由 uk_user_app 兜底。
+     */
+    @Transactional
+    public void migrateCareerApps(Long userId) {
+        List<UserApp> existing = userAppMapper.selectList(new LambdaQueryWrapper<UserApp>()
+                .eq(UserApp::getUserId, userId));
+        UserApp workbench = existing.stream()
+                .filter(u -> "career-workbench".equals(u.getAppKey()))
+                .findFirst().orElse(null);
+        if (workbench == null || workbench.getInstalled() == null || workbench.getInstalled() != 1) return;
+
+        boolean enabled = workbench.getEnabled() != null && workbench.getEnabled() == 1;
+        boolean insertedAny = false;
+        for (int i = 0; i < OfficialAppRegistry.CAREER_COMPANION_KEYS.size(); i++) {
+            String key = OfficialAppRegistry.CAREER_COMPANION_KEYS.get(i);
+            if (existing.stream().anyMatch(u -> key.equals(u.getAppKey()))) continue;
+            UserApp app = new UserApp();
+            app.setUserId(userId);
+            app.setAppKey(key);
+            app.setInstalled(1);
+            app.setEnabled(enabled ? 1 : 0);
+            app.setSortOrder(i + 1);
+            try {
+                userAppMapper.insert(app);
+                existing.add(app);
+                insertedAny = true;
+            } catch (DuplicateKeyException concurrent) {
+                // 并发迁移：另一请求已插入，保持其状态
+            }
+        }
+        if (insertedAny && workbench.getSortOrder() != null && workbench.getSortOrder() == 0) {
+            workbench.setSortOrder(6);
+            userAppMapper.updateById(workbench);
+        }
     }
 
     /** 新用户默认安装（flashcard/quiz/mistake/focus，§39）；幂等：重复调用不产生重复记录（§40）。 */
