@@ -236,6 +236,17 @@ function syncSize() {
   cardSize.value = { width: rect.width, height: rect.height }
 }
 
+/**
+ * 窗口尺寸变化后重新测量浮层尺寸。
+ *
+ * <p>必须用具名函数：`addEventListener` 以 (type, listener, capture) 三元组判重，
+ * 传入匿名箭头函数时每次挂载都是新引用，`removeEventListener` 无法移除，
+ * 会在组件反复开关时累积监听器并持有已卸载实例。</p>
+ */
+function onWindowResize() {
+  void nextTick(syncSize)
+}
+
 function patchDetail(patch: Partial<TermDetail>) {
   if (!result.value || activeId.value == null) return
   result.value = {
@@ -318,12 +329,13 @@ watch(() => props.anchor, () => void nextTick(syncSize))
 onMounted(() => {
   document.addEventListener('mousedown', onDocumentMouseDown, true)
   window.addEventListener('keydown', onKeydown, true)
-  window.addEventListener('resize', () => void nextTick(syncSize))
+  window.addEventListener('resize', onWindowResize)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('mousedown', onDocumentMouseDown, true)
   window.removeEventListener('keydown', onKeydown, true)
+  window.removeEventListener('resize', onWindowResize)
 })
 </script>
 

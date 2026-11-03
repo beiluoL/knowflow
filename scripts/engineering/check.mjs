@@ -204,6 +204,114 @@ async function checkDocLinks() {
   }
 }
 
+// --- 5. 分层架构约束（文件级存量白名单 + 棘轮）---------------------------------
+// 与 baseline.json 的「计数棘轮」互补：计数棘轮存在「修一处、加一处」的漏洞，
+// 这里按「具体文件/方法」锁定存量，任何新位置出现违规即失败。
+const ARCH_JAVA_RULES = {
+  'backend.arch.controllerMapper': (text, rel) =>
+    /Controller\.java$/.test(rel) && /import\s+com\.knowflow\.[\w.]*mapper\./.test(text),
+  'backend.arch.controllerJdbc': (text, rel) =>
+    /Controller\.java$/.test(rel) && /\bJdbcTemplate\b/.test(text),
+  'backend.arch.serviceJdbc': (text, rel) =>
+    /\/service\//.test(rel) && /\bJdbcTemplate\b/.test(text),
+  'backend.arch.longFile': (text) => text.split('\n').length > 800,
+  'backend.arch.emptyCatch': (text) => /catch\s*\([^)]*\)\s*\{\s*\}/.test(text)
+}
+
+const ARCH_FE_RULES = {
+  'frontend.arch.longVue': (text) => text.split('\n').length > 800,
+  'frontend.arch.directHttp': (text, rel) =>
+    /\b(fetch|axios)\s*\(/.test(text) && !/\/api\//.test(rel),
+  'frontend.arch.apiOutsideApiDir': (text, rel) =>
+    /\b(fetch|axios)\s*\(\s*['"`]/.test(text) && !/\/api\//.test(rel),
+  'frontend.arch.listenerLeak': (text) =>
+    // 只统计 window/document 级监听：元素级监听随元素销毁，不构成跨组件泄漏。
+    (text.match(/(?:window|document)\.addEventListener\s*\(/g) || []).length >
+    (text.match(/(?:window|document)\.removeEventListener\s*\(/g) || []).length
+}
+
+/** 提取「文件#方法名」形式的超长方法标识（>100 行），与审计脚本口径一致。 */
+function longMethodKeys(text, rel) {
+  const arr = text.split('\n')
+  const signature = /^\s{2,}(?:public|private|protected)\s+(?:static\s+)?(?:final\s+)?[\w<>\[\],.?\s]+\s+(\w+)\s*\([^;]*$/
+  const keys = []
+  for (let i = 0; i < arr.length; i += 1) {
+    const m = arr[i].match(signature)
+    if (!m) continue
+    let depth = 0
+    let opened = false
+    let end = i
+    for (let j = i; j < arr.length; j += 1) {
+      for (const ch of arr[j]) {
+        if (ch === '{') { depth += 1; opened = true } else if (ch === '}') depth -= 1
+      }
+      if (opened && depth <= 0) { end = j; break }
+    }
+    if (opened && end - i + 1 > 100) keys.push(`${rel}#${m[1]}`)
+  }
+  return keys
+}
+
+async function checkArchitecture() {
+  let baseline
+  try {
+    baseline = JSON.parse(await readFile(path.join(root, 'scripts/engineering/architecture-baseline.json'), 'utf8'))
+  } catch {
+    record('architecture', false, '缺少 scripts/engineering/architecture-baseline.json', 'zero')
+    return
+  }
+  const rules = baseline.rules || {}
+  const toRel = (f) => path.relative(root, f).split(path.sep).join('/')
+  const javaFiles = (await walk(path.join(root, 'backend/src/main/java'))).filter((f) => f.endsWith('.java'))
+  const feFiles = (await walk(path.join(root, 'frontend/src'))).filter((f) => f.endsWith('.vue'))
+
+  // 1) 逐文件规则
+  const actual = {}
+  for (const [rule, predicate] of Object.entries({ ...ARCH_JAVA_RULES, ...ARCH_FE_RULES })) {
+    actual[rule] = []
+    for (const file of rule.startsWith('backend.') ? javaFiles : feFiles) {
+      const rel = toRel(file)
+      if (predicate(readFileSync(file, 'utf8'), rel)) actual[rule].push(rel)
+    }
+  }
+
+  // 2) 超长方法（标识为 文件#方法）
+  actual['backend.arch.longMethod'] = []
+  for (const file of javaFiles) {
+    actual['backend.arch.longMethod'].push(...longMethodKeys(readFileSync(file, 'utf8'), toRel(file)))
+  }
+
+  // 3) common 不得反向依赖任何业务模块
+  const featurePkgs = ['agent', 'ai', 'apps', 'catalog', 'flashcards', 'knowledge', 'mastery',
+    'reward', 'seed', 'store', 'voice', 'websocket', 'exam', 'interview', 'learning', 'coding']
+  actual['backend.arch.commonReverseDep'] = []
+  for (const file of javaFiles) {
+    const rel = toRel(file)
+    if (!rel.includes('/common/')) continue
+    const text = readFileSync(file, 'utf8')
+    if (featurePkgs.some((p) => new RegExp(`import\\s+com\\.knowflow\\.${p}\\.`).test(text))) {
+      actual['backend.arch.commonReverseDep'].push(rel)
+    }
+  }
+
+  // 4) 与白名单比对：新增 = 失败；白名单已失效 = 提示下调
+  for (const rule of Object.keys(actual).sort()) {
+    if (!Array.isArray(rules[rule])) {
+      record(`arch:${rule}`, false, 'architecture-baseline.json 缺少该规则', 'zero')
+      continue
+    }
+    const allowed = new Set(rules[rule])
+    const fresh = actual[rule].filter((item) => !allowed.has(item))
+    const stale = rules[rule].filter((item) => !actual[rule].includes(item))
+    record(`arch:${rule}`, fresh.length === 0,
+      fresh.length
+        ? `新增 ${fresh.length} 处违规：${fresh.slice(0, 5).join(', ')}${fresh.length > 5 ? ' …' : ''}`
+        : `存量 ${actual[rule].length} 处（白名单锁定，只减不增）`,
+      'ratchet')
+    if (stale.length) warnings.push(`arch:${rule} 白名单有 ${stale.length} 条已失效，请下调：${stale.slice(0, 3).join(', ')}`)
+  }
+}
+
 async function checkSnapshot() {
   const approved = JSON.parse(await readFile(path.join(root, 'scripts/engineering/approved-snapshot.json'), 'utf8'))
   const baseline = await readBaseline()
@@ -240,6 +348,7 @@ try {
   await checkEntryFiles()
   await checkPatterns()
   await checkDocLinks()
+  await checkArchitecture()
   await checkSnapshot()
 } catch (error) {
   record('checker-error', false, error.message, 'zero')

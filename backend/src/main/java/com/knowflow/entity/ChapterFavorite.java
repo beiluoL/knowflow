@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 章节收藏实体。用户与章节多对多关系，同一章节仅可收藏一次（唯一索引保证）。
+ * 章节收藏实体。用户与章节多对多关系，同一用户的收藏切换由服务事务串行化；存量数据库唯一索引仍待历史数据检查与迁移。
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

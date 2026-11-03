@@ -87,6 +87,7 @@ public class CodeAgentController {
      */
     private final Map<String, SynchronousQueue<Boolean>> pendingConfirms = new ConcurrentHashMap<>();
 
+    private final com.knowflow.service.CodeAgentPersistenceService persistenceService;
     private final AiService aiService;
     private final CodeExecutionService codeExecutionService;
     private final AiProviderRegistry providerRegistry;
@@ -173,43 +174,13 @@ public class CodeAgentController {
         // 取最后一条 user 消息作为当前问题
         CodeAgentChatDTO.ChatMessage lastMsg = dto.getMessages().get(dto.getMessages().size() - 1);
         String userContent = lastMsg.getContent();
-        Long sessionId = dto.getSessionId();
+        Long sessionId = persistenceService.startTurn(dto.getSessionId(), userId, dto.getConfigId(),
+                dto.getTitle(), userContent, dto.getFilePath(), false);
         if (sessionId == null) {
-            // 创建新会话
-            AgentSession session = new AgentSession();
-            session.setUserId(userId);
-            session.setConfigId(dto.getConfigId());
-            String title = (dto.getTitle() != null && !dto.getTitle().isBlank())
-                    ? dto.getTitle()
-                    : truncate(userContent, 30);
-            session.setTitle(title);
-            session.setMessageCount(0);
-            session.setLastMessage(truncate(userContent, 200));
-            agentSessionMapper.insert(session);
-            sessionId = session.getId();
-        } else {
-            // 校验会话归属
-            AgentSession existing = agentSessionMapper.selectById(sessionId);
-            if (existing == null || !existing.getUserId().equals(userId)) {
-                sendEvent(emitter, "error", Map.of("error", "会话不存在或无权访问"));
-                complete(emitter);
-                return emitter;
-            }
+            sendEvent(emitter, "error", Map.of("error", "会话不存在或无权访问"));
+            complete(emitter);
+            return emitter;
         }
-
-        // 保存 user 消息
-        AgentMessage userMsg = new AgentMessage();
-        userMsg.setSessionId(sessionId);
-        userMsg.setUserId(userId);
-        userMsg.setRole("user");
-        userMsg.setContent(userContent);
-        userMsg.setFilePath(dto.getFilePath());
-        userMsg.setIsError(0);
-        userMsg.setTokenCount(estimateTokens(userContent));
-        agentMessageMapper.insert(userMsg);
-
-        // 更新会话统计
-        updateSessionStats(sessionId, userContent);
 
         // 推送会话ID给前端（前端据此更新当前 sessionId）
         sendEvent(emitter, "session", Map.of("sessionId", sessionId));
@@ -244,10 +215,10 @@ public class CodeAgentController {
                             assistantMsg.setLatencyMs((int) latency);
                             assistantMsg.setIsError(success ? 0 : 1);
                             assistantMsg.setTokenCount(estimateTokens(content));
-                            agentMessageMapper.insert(assistantMsg);
+
 
                             // 更新会话统计
-                            updateSessionStats(finalSessionId, truncate(content, 200));
+
 
                             // 记录调用日志
                             AgentCallLog callLog = new AgentCallLog();
@@ -260,7 +231,7 @@ public class CodeAgentController {
                             callLog.setTokenIn(estimateTokens(userPrompt));
                             callLog.setTokenOut(estimateTokens(content));
                             if (!success) callLog.setErrorMsg(truncate(content, 1000));
-                            agentCallLogMapper.insert(callLog);
+                            persistenceService.completeTurn(assistantMsg, callLog, content);
                         },
                         dto.getTemperature(), dto.getMaxTokens(), dto.getTopP());
             } catch (Exception e) {
@@ -299,33 +270,8 @@ public class CodeAgentController {
         Long sessionId = body.get("sessionId") != null ? Long.valueOf(body.get("sessionId").toString()) : null;
         Long configId = body.get("configId") != null ? Long.valueOf(body.get("configId").toString()) : null;
 
-        // 会话获取/创建（复用既有逻辑）
-        if (sessionId == null) {
-            AgentSession session = new AgentSession();
-            session.setUserId(userId);
-            session.setConfigId(configId);
-            session.setTitle(truncate(userContent, 30));
-            session.setMessageCount(0);
-            session.setLastMessage(truncate(userContent, 200));
-            agentSessionMapper.insert(session);
-            sessionId = session.getId();
-        } else {
-            AgentSession existing = agentSessionMapper.selectById(sessionId);
-            if (existing == null || !existing.getUserId().equals(userId)) {
-                return Result.error("会话不存在或无权访问");
-            }
-        }
-
-        // 保存 user 消息
-        AgentMessage userMsg = new AgentMessage();
-        userMsg.setSessionId(sessionId);
-        userMsg.setUserId(userId);
-        userMsg.setRole("user");
-        userMsg.setContent(userContent);
-        userMsg.setMessageType("normal");
-        userMsg.setTokenCount(estimateTokens(userContent));
-        agentMessageMapper.insert(userMsg);
-        updateSessionStats(sessionId, userContent);
+        sessionId = persistenceService.startTurn(sessionId, userId, configId, null, userContent, null, false);
+        if (sessionId == null) return Result.error("会话不存在或无权访问");
 
         // 运行 ReAct 编排（含工具调用）
         String reply = agentRuntimeService.run(sessionId, userContent, userId, configId);
@@ -364,35 +310,12 @@ public class CodeAgentController {
         Long configId = body.get("configId") != null ? Long.valueOf(body.get("configId").toString()) : null;
         Long sessionId = body.get("sessionId") != null ? Long.valueOf(body.get("sessionId").toString()) : null;
 
-        // 主线程完成会话解析与 user 消息落库，避免异步线程中 SecurityContext 丢失
+        sessionId = persistenceService.startTurn(sessionId, userId, configId, null, userContent, null, true);
         if (sessionId == null) {
-            AgentSession session = new AgentSession();
-            session.setUserId(userId);
-            session.setConfigId(configId);
-            session.setTitle(truncate(userContent, 30));
-            session.setMessageCount(0);
-            session.setLastMessage(truncate(userContent, 200));
-            session.setAgentMode("agent");
-            agentSessionMapper.insert(session);
-            sessionId = session.getId();
-        } else {
-            AgentSession existing = agentSessionMapper.selectById(sessionId);
-            if (existing == null || !existing.getUserId().equals(userId)) {
-                sendEvent(emitter, "error", Map.of("error", "会话不存在或无权访问"));
-                complete(emitter);
-                return emitter;
-            }
+            sendEvent(emitter, "error", Map.of("error", "会话不存在或无权访问"));
+            complete(emitter);
+            return emitter;
         }
-
-        AgentMessage userMsg = new AgentMessage();
-        userMsg.setSessionId(sessionId);
-        userMsg.setUserId(userId);
-        userMsg.setRole("user");
-        userMsg.setContent(userContent);
-        userMsg.setMessageType("normal");
-        userMsg.setTokenCount(estimateTokens(userContent));
-        agentMessageMapper.insert(userMsg);
-        updateSessionStats(sessionId, userContent);
         sendEvent(emitter, "session", Map.of("sessionId", sessionId));
 
         final Long finalSessionId = sessionId;
@@ -451,7 +374,7 @@ public class CodeAgentController {
                         });
 
                 long latency = System.currentTimeMillis() - startMs;
-                updateSessionStats(finalSessionId, truncate(reply, 200));
+
 
                 AgentCallLog callLog = new AgentCallLog();
                 callLog.setUserId(userId);
@@ -462,7 +385,7 @@ public class CodeAgentController {
                 callLog.setLatencyMs((int) latency);
                 callLog.setTokenIn(estimateTokens(userContent));
                 callLog.setTokenOut(estimateTokens(reply));
-                agentCallLogMapper.insert(callLog);
+                persistenceService.completeTurn(null, callLog, reply);
 
                 Map<String, Object> done = new HashMap<>();
                 done.put("content", reply);
@@ -669,14 +592,9 @@ public class CodeAgentController {
     @DeleteMapping("/sessions/{id}")
     public Result<Void> deleteSession(@PathVariable Long id) {
         Long userId = SecurityUtils.getCurrentUserId();
-        AgentSession session = agentSessionMapper.selectById(id);
-        if (session == null || !session.getUserId().equals(userId)) {
+        if (!persistenceService.deleteSession(id, userId)) {
             return Result.error("会话不存在或无权访问");
         }
-        agentSessionMapper.deleteById(id);
-        // 逻辑删除该会话下的所有消息
-        agentMessageMapper.delete(new LambdaQueryWrapper<AgentMessage>()
-                .eq(AgentMessage::getSessionId, id));
         return Result.success(null);
     }
 
@@ -884,21 +802,6 @@ public class CodeAgentController {
         try {
             emitter.complete();
         } catch (Exception ignored) {
-        }
-    }
-
-    /** 更新会话的消息数与最后消息摘要。 */
-    private void updateSessionStats(Long sessionId, String lastMessage) {
-        try {
-            AgentSession session = agentSessionMapper.selectById(sessionId);
-            if (session == null) return;
-            Long count = agentMessageMapper.selectCount(
-                    new LambdaQueryWrapper<AgentMessage>().eq(AgentMessage::getSessionId, sessionId));
-            session.setMessageCount(count.intValue());
-            session.setLastMessage(truncate(lastMessage, 200));
-            agentSessionMapper.updateById(session);
-        } catch (Exception e) {
-            log.warn("更新会话统计失败: sessionId={}, err={}", sessionId, e.getMessage());
         }
     }
 

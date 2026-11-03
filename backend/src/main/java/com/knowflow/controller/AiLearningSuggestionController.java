@@ -43,6 +43,7 @@ import java.util.Map;
 public class AiLearningSuggestionController {
 
     private final AiLearningSuggestionMapper suggestionMapper;
+    private final com.knowflow.service.AiSuggestionCacheService cacheService;
     private final AiService aiService;
     private final UserCheckInMapper checkInMapper;
     private final LearningFlashcardMapper flashcardMapper;
@@ -76,16 +77,19 @@ public class AiLearningSuggestionController {
                                                      Authentication authentication) {
         Long userId = SecurityUtils.getCurrentUserId();
         String normalizedPeriod = normalizePeriod(period);
-        // 逻辑删除旧缓存
-        suggestionMapper.delete(new LambdaQueryWrapper<AiLearningSuggestion>()
-                .eq(AiLearningSuggestion::getUserId, userId)
-                .eq(AiLearningSuggestion::getPeriod, normalizedPeriod));
-        AiLearningSuggestion fresh = generateSuggestions(userId, normalizedPeriod);
+        AiLearningSuggestion fresh = buildSuggestions(userId, normalizedPeriod);
+        cacheService.replace(fresh);
         return Result.success(toVO(fresh));
     }
 
     /** 生成学习建议并缓存 */
     private AiLearningSuggestion generateSuggestions(Long userId, String period) {
+        AiLearningSuggestion entity = buildSuggestions(userId, period);
+        cacheService.insert(entity);
+        return entity;
+    }
+
+    private AiLearningSuggestion buildSuggestions(Long userId, String period) {
         List<SuggestionItem> items = callAiForSuggestions(userId, period);
         AiLearningSuggestion entity = new AiLearningSuggestion();
         entity.setUserId(userId);
@@ -96,7 +100,6 @@ public class AiLearningSuggestionController {
             log.warn("学习建议序列化失败: {}", e.getMessage());
             entity.setSuggestions("[]");
         }
-        suggestionMapper.insert(entity);
         return entity;
     }
 

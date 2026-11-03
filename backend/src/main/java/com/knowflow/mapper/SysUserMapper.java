@@ -25,6 +25,11 @@ import java.util.List;
 @Mapper
 public interface SysUserMapper extends BaseMapper<SysUser> {
 
+    /** Locks a live owner until transaction completion, including before pet creation. */
+    @Select("SELECT id FROM sys_user WHERE id = #{userId} AND deleted = 0 FOR UPDATE")
+    Long lockActiveUserId(@Param("userId") Long userId);
+
+
     /**
      * 查询占用某 username 的<b>已逻辑删除</b>历史行（不受 @TableLogic 过滤）。
      *

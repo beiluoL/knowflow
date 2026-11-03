@@ -306,3 +306,84 @@ AGENTS=工作规则；VIBE_CONTEXT=产品上下文；PROJECT_ARCHITECTURE=架构
 ### UI组件维护补充（2026-10-25）
 
 开发环境组件中心`/dev/ui-components`的注册表为`frontend/src/dev/registry.ts`，仅展示注册，不替代业务App Registry或设计Token。新公共组件同步真实Props/示例/源码路径/无障碍说明/测试；预览只用本地数据，禁止AI或学习记录写入。Button已校准32/38/44与稳定loading，ghost保留旧描边接口；页面自绘按钮仍逐步迁移。状态与验证见docs/component-playground/REPORT.md。
+
+---
+
+## 十一、企业级工程治理检查单（2026-11-03）
+
+> 本节是「开工前/收工前」的强制检查单，**不复制**规范正文。
+> Java 正文见 [docs/engineering/BACKEND_JAVA_STANDARD.md](docs/engineering/BACKEND_JAVA_STANDARD.md)，
+> Vue 正文见 [docs/engineering/FRONTEND_VUE_TS_STANDARD.md](docs/engineering/FRONTEND_VUE_TS_STANDARD.md)，
+> 安全见 [SECURITY_AND_AI_STANDARD.md](docs/engineering/SECURITY_AND_AI_STANDARD.md)，
+> 测试见 [TESTING_AND_AUTOMATION_GATES.md](docs/engineering/TESTING_AND_AUTOMATION_GATES.md)。
+> 审计基线与历史结论见 [docs/architecture/CODE_AUDIT_REPORT.md](docs/architecture/CODE_AUDIT_REPORT.md)。
+
+### 11.1 开工前必须完成（缺一不可）
+
+1. **读架构**：`AGENTS.md` → `docs/engineering/ENGINEERING_STANDARDS.md` → 任务相关分册。
+2. **读真实代码**：定位 Controller → Service → Mapper → 表/索引完整链路，禁止按文件名猜。
+3. **查重**：搜索是否已有同类 Service / Composable / `Kf` 组件 / 工具方法，**优先复用**。
+4. **确认归属**：`git status` 中不属于你的改动视为他人 WIP，**不覆盖、不格式化、不删除**。
+5. **先设计再写**：说明要新增/修改的类与职责；跨层改动先列影响范围。
+6. **先建测试**：修改既有业务行为前，先补一个能复现当前行为的测试。
+7. **确认边界**：纯业务/架构任务不改 UI 视觉；纯文档任务不改业务代码。
+
+### 11.2 分层与 SQL 硬约束（新代码零容忍）
+
+| 约束 | 规则 |
+|---|---|
+| Controller | **禁止** `import com.knowflow.*.mapper.*`；**禁止** `JdbcTemplate`；**禁止**事务编排与多步业务 |
+| Service | 负责业务编排与事务；**禁止**拼接用户输入构造 SQL |
+| SQL 位置 | 只允许出现在 Mapper 接口（注解）或明确的只读查询服务；**禁止**出现在 Controller |
+| 动态 SQL | 必须参数绑定（`#{}` / `?` / `.apply("... {0}", arg)`）；**禁止**字符串拼接用户输入 |
+| 归属校验 | userId 只来自 `SecurityUtils`；查询条件必须显式 `eq(owner)`，不能只靠 Controller |
+| 事务 | 只在 public 方法；`@Transactional` 不与自调用混用 |
+| 异常 | 需要 4xx 必须双参 `new BusinessException(404, "...")`；单参默认 code=500 → HTTP 200 假成功 |
+| 物理外键 | 禁止新增；用逻辑外键 + `idx_<表>_<列>` |
+| 唯一索引 × 逻辑删除 | 新增 `UNIQUE` 前必须确认不含 `deleted` 时软删行不会占死唯一键 |
+
+### 11.3 命名与注释最低要求
+
+- 类：`业务名 + 角色后缀`（Controller/Service/ServiceImpl/Mapper/DTO/VO/DO）。
+- 禁止新增 `Manager` / `Helper` / `Common` / `Utils` 这类大而空的类名；确实需要时放进既有 `util` 包并写明职责。
+- 方法用动词表达业务意图；禁止 `data` / `temp` / `obj` / `a` / `b` 作为业务变量名。
+- 以下必须有 JavaDoc：公共 Service 方法、事务方法、有副作用/状态变更的方法、有特殊参数约束或异常契约的方法。
+- 注释只解释**业务含义、约束、易误解点**；禁止复述方法名的空注释与过期 TODO。
+- 字段注释必须写清单位与取值（如「完成百分比，0–100」「时间戳，UTC 毫秒」）。
+
+### 11.4 收工前必须执行（未通过不得声称完成）
+
+```bash
+# 1. 架构与工程门禁（零依赖）
+node scripts/engineering/check.mjs
+
+# 2. 后端测试（涉及后端改动时）
+cd backend && mvn -B test
+
+# 3. 前端类型 + 测试 + 构建（涉及前端改动时）
+cd frontend && npx vue-tsc -b --force
+cd frontend && npx vitest run --maxWorkers=1
+cd frontend && npm run build
+```
+
+必须逐项汇报：**实际执行了哪些命令、真实结果是什么、哪些没跑、为什么没跑**。
+禁止用「应该没问题」「之前是绿的」替代真实执行。
+
+### 11.5 架构门禁与存量基线
+
+- 门禁脚本：`scripts/engineering/check.mjs`（计数棘轮 `baseline.json` + 文件级架构白名单 `architecture-baseline.json`）。
+- **新增违规 = 门禁失败**：新代码不得命中 `architecture-baseline.json` 之外的任何架构规则。
+- **只允许删除白名单条目**：修好一处即从白名单移除，视为净下降；**严禁**为提高数字而新增条目。
+- 白名单条目失效（已修复但未移除）会产生 WARN，应顺手下调。
+- 门禁红灯时，先判断归属：他人 WIP 引入的违规**不改别人的代码**，如实记录并交给作者；自己引入的必须修掉。
+
+### 11.6 汇报口径
+
+`DONE` / `VERIFIED` / `BLOCKED` / `SKIPPED` 必须严格区分：
+
+- `DONE`：代码已改且适用门禁真实通过。
+- `VERIFIED`：有可复现命令或真浏览器证据。
+- `BLOCKED`：被外部依赖/他人 WIP/环境阻断。
+- `SKIPPED`：本次未做。
+
+**禁止**把 `NOT_VERIFIED` / `SKIPPED` / `BLOCKED` 写成 `DONE`。

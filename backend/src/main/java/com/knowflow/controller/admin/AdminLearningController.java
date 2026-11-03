@@ -45,6 +45,7 @@ public class AdminLearningController {
     private final DocDocumentMapper docMapper;
     private final DocCategoryMapper categoryMapper;
     private final AiService aiService;
+    private final com.knowflow.service.AdminLearningWriteService learningWriteService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /** 从 SecurityContext 获取当前用户 ID；未登录或 principal 异常时抛出 401。 */
@@ -275,42 +276,7 @@ public class AdminLearningController {
 
             Map<String, Object> generated = objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {});
 
-            // 创建学习路径
-            LearningPath path = new LearningPath();
-            path.setTitle((String) generated.getOrDefault("title", topic + "学习路径"));
-            path.setDescription((String) generated.getOrDefault("description", ""));
-            path.setLevel((String) generated.getOrDefault("level", level));
-            path.setChapterCount(0);
-            path.setTotalDuration(0);
-            path.setEnrolledCount(0);
-            path.setSortOrder(0);
-            path.setStatus(0); // 默认草稿状态
-            pathMapper.insert(path);
-
-            // 创建章节
-            List<Map<String, Object>> chapters = (List<Map<String, Object>>) generated.get("chapters");
-            if (chapters != null) {
-                int totalDuration = 0;
-                int sortIdx = 1;
-                for (Map<String, Object> ch : chapters) {
-                    LearningChapter chapter = new LearningChapter();
-                    chapter.setPathId(path.getId());
-                    chapter.setTitle((String) ch.getOrDefault("title", "未命名章节"));
-                    chapter.setContent((String) ch.getOrDefault("content", ""));
-                    int sortOrder = ch.get("sortOrder") != null ? ((Number) ch.get("sortOrder")).intValue() : sortIdx;
-                    chapter.setSortOrder(sortOrder);
-                    chapter.setDuration(ch.get("duration") != null ? ((Number) ch.get("duration")).intValue() : 30);
-                    chapter.setDocIds("");
-                    chapter.setFlashcardIds("");
-                    chapterMapper.insert(chapter);
-                    totalDuration += chapter.getDuration() != null ? chapter.getDuration() : 0;
-                    sortIdx++;
-                }
-                // 更新路径统计
-                path.setChapterCount(chapters.size());
-                path.setTotalDuration(totalDuration);
-                pathMapper.updateById(path);
-            }
+            LearningPath path = learningWriteService.createGeneratedPath(generated, topic, level);
 
             return Result.success(path);
         } catch (Exception e) {
@@ -477,11 +443,10 @@ public class AdminLearningController {
                 flashcard.setSourceType("AI_DOC");
                 flashcard.setReviewCount(0);
                 flashcard.setReviewInterval(0);
-                flashcardMapper.insert(flashcard);
                 created.add(flashcard);
             }
 
-            return Result.success(created);
+            return Result.success(learningWriteService.createGeneratedCards(created));
         } catch (Exception e) {
             log.error("AI 生成闪卡失败: {}", e.getMessage(), e);
             return Result.error("AI 生成失败：" + e.getMessage());
@@ -570,11 +535,10 @@ public class AdminLearningController {
                 flashcard.setSourceType(docId != null ? "AI_DOC" : "AI_KB");
                 flashcard.setReviewCount(0);
                 flashcard.setReviewInterval(0);
-                flashcardMapper.insert(flashcard);
                 created.add(flashcard);
             }
 
-            return Result.success(created);
+            return Result.success(learningWriteService.createGeneratedCards(created));
         } catch (Exception e) {
             log.error("AI 生成知识卡片失败: {}", e.getMessage(), e);
             return Result.error("AI 生成失败：" + e.getMessage());
