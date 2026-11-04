@@ -86,6 +86,11 @@ class DbQueryToolSecurityTest {
         config.setAllowWrite(0);
         when(configMapper.selectOne(any())).thenReturn(config);
         assertFalse(registry.invoke("db_query", json.createObjectNode().put("sql", "select code from question_topic"), context).isSuccess());
+        config.setAllowWrite(1);
+        var unapproved = registry.invoke("db_query",
+                json.createObjectNode().put("sql", "select code from question_topic"), context);
+        assertFalse(unapproved.isSuccess());
+        assertTrue(unapproved.getError().contains("未获批准"));
         verifyNoInteractions(jdbc);
     }
 }

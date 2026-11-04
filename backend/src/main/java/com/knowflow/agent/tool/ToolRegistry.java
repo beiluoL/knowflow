@@ -8,7 +8,6 @@ import com.knowflow.entity.AgentToolCall;
 import com.knowflow.entity.AgentToolConfig;
 import com.knowflow.mapper.AgentToolCallMapper;
 import com.knowflow.mapper.AgentToolConfigMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -31,30 +30,35 @@ import java.util.Map;
  */
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class ToolRegistry {
 
-    private final List<AgentTool> tools;
+    private final Map<String, AgentTool> tools;
     private final AgentToolConfigMapper toolConfigMapper;
     private final AgentToolCallMapper toolCallMapper;
     private final ObjectMapper objectMapper;
 
-    private Map<String, AgentTool> index() {
-        Map<String, AgentTool> map = new LinkedHashMap<>();
-        for (AgentTool t : tools) {
-            map.put(t.name(), t);
+    public ToolRegistry(List<AgentTool> tools, AgentToolConfigMapper toolConfigMapper,
+                        AgentToolCallMapper toolCallMapper, ObjectMapper objectMapper) {
+        Map<String, AgentTool> registered = new LinkedHashMap<>();
+        for (AgentTool tool : tools) {
+            if (registered.putIfAbsent(tool.name(), tool) != null) {
+                throw new IllegalStateException("Duplicate Agent tool: " + tool.name());
+            }
         }
-        return map;
+        this.tools = java.util.Collections.unmodifiableMap(registered);
+        this.toolConfigMapper = toolConfigMapper;
+        this.toolCallMapper = toolCallMapper;
+        this.objectMapper = objectMapper;
     }
 
     /** 列出所有已注册工具（含名称/描述/权限）。 */
     public List<AgentTool> allTools() {
-        return new ArrayList<>(tools);
+        return new ArrayList<>(tools.values());
     }
 
     /** 返回某用户视角的工具清单（含启用状态）。 */
     public List<ToolMeta> listToolsForUser(Long userId) {
-        Map<String, AgentTool> all = index();
+        Map<String, AgentTool> all = tools;
         List<ToolMeta> result = new ArrayList<>();
         for (AgentTool t : all.values()) {
             boolean enabled = isEnabled(t, userId);
@@ -65,7 +69,7 @@ public class ToolRegistry {
 
     /** 查询工具的权限等级；工具不存在时按 DANGEROUS 处理（保守策略）。 */
     public ToolPermission permissionOf(String toolName) {
-        AgentTool tool = index().get(toolName);
+        AgentTool tool = tools.get(toolName);
         return tool != null ? tool.permission() : ToolPermission.DANGEROUS;
     }
 
@@ -91,7 +95,13 @@ public class ToolRegistry {
 
     /** 执行工具：校验 → 调用 → 落库，返回结构化结果。 */
     public ToolResult invoke(String toolName, JsonNode args, ToolContext ctx) {
-        AgentTool tool = index().get(toolName);
+        return invoke(toolName, args, ctx, () -> false);
+    }
+
+    /** 先验证工具和参数，再请求本次高危调用的审批。 */
+    public ToolResult invoke(String toolName, JsonNode args, ToolContext ctx,
+                             java.util.function.BooleanSupplier approval) {
+        AgentTool tool = tools.get(toolName);
         if (tool == null) {
             return ToolResult.fail("未知工具：" + toolName, 0);
         }
@@ -101,51 +111,51 @@ public class ToolRegistry {
         record.setMessageId(ctx.getMessageId());
         record.setToolName(toolName);
         record.setPermission(tool.permission().name());
+        record.setArgsJson(args == null ? "{}" : args.toString());
+        ToolResult result;
         try {
-            record.setArgsJson(args != null ? args.toString() : "{}");
-        } catch (Exception ignore) {
-            record.setArgsJson("{}");
+            result = executeAuthorized(tool, args, ctx, approval, record);
+        } catch (com.knowflow.exception.BusinessException | ToolException exception) {
+            result = ToolResult.fail(exception.getMessage(), System.currentTimeMillis() - start);
+        } catch (Exception exception) {
+            log.warn("工具 {} 执行异常: {}", toolName, exception.getClass().getSimpleName());
+            result = ToolResult.fail("工具执行异常", System.currentTimeMillis() - start);
         }
 
-        try {
-            if (!isEnabled(tool, ctx.getUserId())) {
-                String msg = switch (tool.permission()) {
-                    case WRITE -> "工具 " + toolName + " 需要写授权，请先在工具面板启用并授权写操作";
-                    case DANGEROUS -> "工具 " + toolName + " 为高危工具，当前未授权执行";
-                    default -> "工具 " + toolName + " 未启用";
-                };
-                record.setStatus("cancelled");
-                record.setResultJson("{\"error\":\"" + msg + "\"}");
-                record.setLatencyMs(System.currentTimeMillis() - start);
-                toolCallMapper.insert(record);
-                return ToolResult.fail(msg, record.getLatencyMs());
-            }
-            ToolResult result = tool.execute(args, ctx);
+        if (record.getStatus() == null) {
             record.setStatus(result.isSuccess() ? "success" : "failed");
-            record.setResultJson(result.isSuccess() ? result.getOutput() : result.getError());
-            record.setLatencyMs(System.currentTimeMillis() - start);
-            toolCallMapper.insert(record);
-            return result;
-        } catch (com.knowflow.exception.BusinessException e) {
-            record.setStatus("failed");
-            record.setResultJson(e.getMessage());
-            record.setLatencyMs(System.currentTimeMillis() - start);
-            toolCallMapper.insert(record);
-            return ToolResult.fail(e.getMessage(), record.getLatencyMs());
-        } catch (ToolException e) {
-            record.setStatus("failed");
-            record.setResultJson("{\"error\":\"" + e.getMessage() + "\"}");
-            record.setLatencyMs(System.currentTimeMillis() - start);
-            toolCallMapper.insert(record);
-            return ToolResult.fail(e.getMessage(), record.getLatencyMs());
-        } catch (Exception e) {
-            log.error("工具 {} 执行异常: {}", toolName, e.getMessage(), e);
-            record.setStatus("failed");
-            record.setResultJson("{\"error\":\"内部错误：" + e.getMessage() + "\"}");
-            record.setLatencyMs(System.currentTimeMillis() - start);
-            toolCallMapper.insert(record);
-            return ToolResult.fail("工具执行异常：" + e.getMessage(), record.getLatencyMs());
         }
+        record.setResultJson(result.isSuccess() ? result.getOutput()
+                : objectMapper.createObjectNode().put("error", result.getError()).toString());
+        record.setLatencyMs(System.currentTimeMillis() - start);
+        toolCallMapper.insert(record);
+        return result;
+    }
+
+    private ToolResult executeAuthorized(AgentTool tool, JsonNode args, ToolContext ctx,
+                                         java.util.function.BooleanSupplier approval,
+                                         AgentToolCall record) throws ToolException {
+        if (!isEnabled(tool, ctx.getUserId())) {
+            String message = switch (tool.permission()) {
+                case WRITE -> "工具 " + tool.name() + " 需要写授权，请先在工具面板启用并授权写操作";
+                case DANGEROUS -> "工具 " + tool.name() + " 为高危工具，当前未授权执行";
+                default -> "工具 " + tool.name() + " 未启用";
+            };
+            return cancel(record, message);
+        }
+        if (!ToolArguments.valid(tool.parameters(), args)) {
+            return cancel(record, "工具参数不符合声明");
+        }
+        if (tool.permission() == ToolPermission.DANGEROUS
+                && (!approval.getAsBoolean() || !isEnabled(tool, ctx.getUserId()))) {
+            return cancel(record, "高危工具未获批准");
+        }
+        return tool.execute(args, ctx);
+    }
+
+    private ToolResult cancel(AgentToolCall record, String message) {
+        record.setStatus("cancelled");
+        return ToolResult.fail(message, 0);
     }
 
     /** 设置工具启用/授权状态（工具管理面板调用）。 */

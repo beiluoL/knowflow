@@ -1,6 +1,8 @@
 package com.knowflow.controller;
 
 import com.knowflow.agent.AgentRuntimeService;
+import com.knowflow.agent.approval.ToolApprovalService;
+import java.time.Duration;
 import com.knowflow.agent.tool.ToolPermission;
 import com.knowflow.agent.tool.ToolResult;
 import com.knowflow.common.Result;
@@ -42,12 +44,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -81,11 +79,7 @@ public class CodeAgentController {
     /** 高危工具二次确认的等待超时（秒）：超时视为拒绝。 */
     private static final int TOOL_CONFIRM_TIMEOUT_SECONDS = 60;
 
-    /**
-     * 待确认的工具调用：callId → 确认结果队列。
-     * SSE 线程阻塞等待，前端通过 {@code POST /api/agent/tool-confirm} 投递结果。
-     */
-    private final Map<String, SynchronousQueue<Boolean>> pendingConfirms = new ConcurrentHashMap<>();
+    private final ToolApprovalService toolApprovals;
 
     private final com.knowflow.service.CodeAgentPersistenceService persistenceService;
     private final AiService aiService;
@@ -321,8 +315,13 @@ public class CodeAgentController {
         final Long finalSessionId = sessionId;
         final long startMs = System.currentTimeMillis();
         final String provider = resolveProviderName(userId, configId);
-        // 本次流关联的所有待确认 callId，用于流结束时清理，避免内存泄漏
-        final List<String> confirmKeys = new CopyOnWriteArrayList<>();
+        var approvals = toolApprovals.openScope(userId);
+        emitter.onCompletion(approvals::close);
+        emitter.onTimeout(() -> {
+            approvals.close();
+            complete(emitter);
+        });
+        emitter.onError(error -> approvals.close());
 
         agentExecutor.submit(hostGuard.wrapAuthenticated(() -> {
             try {
@@ -369,7 +368,7 @@ public class CodeAgentController {
                             @Override
                             public boolean confirmTool(String callId, String toolName, String argsJson,
                                                        ToolPermission permission) {
-                                return awaitToolConfirm(emitter, confirmKeys, callId, toolName, argsJson, permission);
+                                return awaitToolConfirm(emitter, approvals, toolName, argsJson, permission);
                             }
                         });
 
@@ -395,19 +394,11 @@ public class CodeAgentController {
                 log.error("Agent 工具流式对话异常: userId={}, err={}", userId, e.getMessage(), e);
                 sendEvent(emitter, "error", Map.of("error", "对话失败：" + e.getMessage()));
             } finally {
-                confirmKeys.forEach(pendingConfirms::remove);
+                approvals.close();
                 complete(emitter);
             }
         }));
 
-        emitter.onTimeout(() -> {
-            confirmKeys.forEach(pendingConfirms::remove);
-            complete(emitter);
-        });
-        emitter.onError(t -> {
-            confirmKeys.forEach(pendingConfirms::remove);
-            complete(emitter);
-        });
         return emitter;
     }
 
@@ -416,30 +407,23 @@ public class CodeAgentController {
      *
      * @return true 表示用户允许执行；超时或异常一律视为拒绝
      */
-    private boolean awaitToolConfirm(SseEmitter emitter, List<String> confirmKeys, String callId,
+    private boolean awaitToolConfirm(SseEmitter emitter, ToolApprovalService.Scope approvals,
                                      String toolName, String argsJson, ToolPermission permission) {
-        SynchronousQueue<Boolean> queue = new SynchronousQueue<>();
-        pendingConfirms.put(callId, queue);
-        confirmKeys.add(callId);
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("callId", callId);
-        data.put("tool", toolName);
-        data.put("args", argsJson);
-        data.put("permission", permission.name());
-        data.put("timeoutSeconds", TOOL_CONFIRM_TIMEOUT_SECONDS);
-        sendEvent(emitter, "tool-confirm", data);
-
-        try {
-            Boolean approved = queue.poll(TOOL_CONFIRM_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            return Boolean.TRUE.equals(approved);
-        } catch (InterruptedException e) {
-            // 恢复中断标记，交由上层结束流程
-            Thread.currentThread().interrupt();
+        String approvalId = approvals.request(Duration.ofSeconds(TOOL_CONFIRM_TIMEOUT_SECONDS));
+        if (approvalId == null) {
             return false;
-        } finally {
-            pendingConfirms.remove(callId);
         }
+        Map<String, Object> data = Map.of(
+                "callId", approvalId, "tool", toolName, "args", argsJson,
+                "permission", permission.name(), "timeoutSeconds", TOOL_CONFIRM_TIMEOUT_SECONDS);
+        try {
+            String payload = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(data);
+            emitter.send(SseEmitter.event().name("tool-confirm").data(payload));
+        } catch (Exception exception) {
+            approvals.close();
+            return false;
+        }
+        return approvals.await(approvalId);
     }
 
     /**
@@ -448,19 +432,13 @@ public class CodeAgentController {
     @Operation(summary = "确认/拒绝高危工具调用")
     @PostMapping("/tool-confirm")
     public Result<Void> toolConfirm(@RequestBody Map<String, Object> body) {
-        String callId = body.get("callId") != null ? body.get("callId").toString() : null;
-        boolean approved = Boolean.parseBoolean(String.valueOf(body.get("approved")));
-        if (callId == null || callId.isBlank()) {
-            throw new BusinessException("callId 不能为空");
+        long userId = SecurityUtils.getCurrentUserId();
+        if (!(body.get("callId") instanceof String callId) || callId.isBlank()
+                || !(body.get("approved") instanceof Boolean approved)) {
+            throw new BusinessException(400, "确认参数不正确");
         }
-        SynchronousQueue<Boolean> queue = pendingConfirms.get(callId);
-        if (queue == null) {
-            throw new BusinessException("该工具调用已超时或不存在");
-        }
-        // offer 而非 put：即便等待线程已退出也不会阻塞当前请求
-        boolean delivered = queue.offer(approved);
-        if (!delivered) {
-            throw new BusinessException("确认失败，请求已结束");
+        if (!toolApprovals.decide(userId, callId, approved)) {
+            throw new BusinessException(404, "该工具调用已结束或不存在");
         }
         return Result.success(null);
     }

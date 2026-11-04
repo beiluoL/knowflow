@@ -14,7 +14,7 @@ import java.util.List;
  * 选出最匹配的工作流并返回渲染后的 prompt 片段。
  * <p>匹配规则：
  * - triggerType=keyword：消息文本命中 triggerValue 中任一关键词（逗号分隔）即匹配；
- * - triggerType=intent：当前编排未做显式意图识别，暂按 keyword 同等方式兜底（关键词含意图词）；
+ * - triggerType=intent：当前编排未做显式意图识别，保留配置但不自动触发；
  * - triggerType=manual：仅由前端手动触发，不走自动注入；
  * 命中多个时取 sortOrder 最小者。
  */
@@ -37,7 +37,7 @@ public class AgentWorkflowService {
                         .eq(AgentWorkflow::getEnabled, 1)
                         .orderByAsc(AgentWorkflow::getSortOrder));
         for (AgentWorkflow wf : workflows) {
-            if (!"manual".equals(wf.getTriggerType()) && matches(wf, userInput)) {
+            if ("keyword".equals(wf.getTriggerType()) && matches(wf, userInput)) {
                 return render(wf.getPromptTemplate(), userInput);
             }
         }

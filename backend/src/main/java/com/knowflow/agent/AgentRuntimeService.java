@@ -169,9 +169,10 @@ public class AgentRuntimeService {
         String argsJson = call.arguments != null ? call.arguments : "{}";
         JsonNode argsNode;
         try {
-            argsNode = objectMapper.readTree(argsJson);
+            argsNode = objectMapper.reader().with(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+                    .readTree(argsJson);
         } catch (Exception e) {
-            argsNode = objectMapper.createObjectNode();
+            argsNode = null;
         }
 
         ToolPermission permission = toolRegistry.permissionOf(call.name);
@@ -180,19 +181,14 @@ public class AgentRuntimeService {
                 "tool_call", call.id, call.name);
         ln.onToolStart(call.id, call.name, argsJson, permission);
 
-        ToolResult toolRes;
-        // 高危工具需要调用方二次确认（前端 tool-confirm）
-        if (permission == ToolPermission.DANGEROUS && !ln.confirmTool(call.id, call.name, argsJson, permission)) {
-            toolRes = ToolResult.fail("用户拒绝执行高危工具 " + call.name, 0);
-        } else {
-            ToolContext ctx = ToolContext.builder()
-                    .userId(userId)
-                    .sessionId(sessionId)
-                    .workspaceDir(session.getProjectDir())
-                    .messageId(callMsgId)
-                    .build();
-            toolRes = toolRegistry.invoke(call.name, argsNode, ctx);
-        }
+        ToolContext ctx = ToolContext.builder()
+                .userId(userId)
+                .sessionId(sessionId)
+                .workspaceDir(session.getProjectDir())
+                .messageId(callMsgId)
+                .build();
+        ToolResult toolRes = toolRegistry.invoke(call.name, argsNode, ctx,
+                () -> ln.confirmTool(call.id, call.name, argsJson, permission));
 
         String toolText = toolRes.isSuccess() ? toolRes.getOutput() : ("错误：" + toolRes.getError());
         persistMessage(sessionId, userId, "tool", toolText, "tool_result", call.id, call.name);

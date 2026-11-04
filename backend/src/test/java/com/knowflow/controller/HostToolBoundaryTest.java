@@ -30,7 +30,7 @@ class HostToolBoundaryTest {
         }
     }
     @Test void registryReturnsCapabilityFailureNotSuccessfulToolResult() {
-        ToolResult result=registry.invoke("code_run",json.createObjectNode(),ToolContext.builder().userId(1L).sessionId(1L).build());
+        ToolResult result=registry.invoke("code_run",json.createObjectNode().put("code","print(1)").put("language","python"),ToolContext.builder().userId(1L).sessionId(1L).build());
         assertFalse(result.isSuccess());assertTrue(result.getError().contains("可信本地开发"));
     }
 }
