@@ -1,0 +1,64 @@
+package com.knowflow.framework.security;
+
+import com.knowflow.exception.BusinessException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+/** Spring Security 上下文工具类，统一提取当前登录用户 ID。 避免 Controller 中重复实现 getCurrentUserId() 方法。 */
+public final class SecurityUtils {
+
+  private SecurityUtils() {}
+
+  /**
+   * 获取当前登录用户 ID；未登录时抛出业务异常。
+   *
+   * @return 当前用户 ID（非 null）
+   */
+  public static Long getCurrentUserId() {
+    Long userId = getCurrentUserIdNullable();
+    if (userId == null) {
+      throw new BusinessException(401, "未登录");
+    }
+    return userId;
+  }
+
+  /**
+   * 获取当前登录用户 ID；未登录（匿名 / 未认证）时返回 {@code null} 而不抛异常。
+   *
+   * <p>用于「只读公开接口」中可选带出当前用户个性化数据（如我的进度），避免匿名访问 401。
+   *
+   * @return 当前用户 ID；未登录时返回 {@code null}
+   */
+  public static Long getCurrentUserIdNullable() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+      return null;
+    }
+    Object principal = authentication.getPrincipal();
+    if (principal == null) {
+      return null;
+    }
+    try {
+      return (Long) principal;
+    } catch (ClassCastException e) {
+      return null;
+    }
+  }
+
+  /** 获取当前用户角色（sys_user.role），若未设置则返回空字符串。 */
+  public static String getCurrentUserRole() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+      return "";
+    }
+    return authentication.getAuthorities().stream()
+        .map(a -> a.getAuthority().replace("ROLE_", ""))
+        .findFirst()
+        .orElse("");
+  }
+
+  /** 当前用户是否是 ADMIN（系统管理员，可访问所有知识库）。 */
+  public static boolean isAdmin() {
+    return "ADMIN".equalsIgnoreCase(getCurrentUserRole());
+  }
+}

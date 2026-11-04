@@ -1,5 +1,7 @@
 package com.knowflow.config;
 
+import com.knowflow.framework.websocket.WebSocketAuthInterceptor;
+
 import com.knowflow.websocket.GroupWebSocketHandler;
 import com.knowflow.websocket.ImWebSocketHandler;
 import org.springframework.context.annotation.Configuration;

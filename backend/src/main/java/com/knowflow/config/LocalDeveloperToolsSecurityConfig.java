@@ -5,7 +5,7 @@ import com.knowflow.entity.SysUser;
 import com.knowflow.mapper.SysUserMapper;
 import com.knowflow.security.JwtAccessDeniedHandler;
 import com.knowflow.security.JwtAuthenticationEntryPoint;
-import com.knowflow.security.JwtAuthenticationFilter;
+import com.knowflow.framework.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;

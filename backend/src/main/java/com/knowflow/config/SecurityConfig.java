@@ -1,7 +1,7 @@
 package com.knowflow.config;
 
 import com.knowflow.security.JwtAccessDeniedHandler;
-import com.knowflow.security.JwtAuthenticationFilter;
+import com.knowflow.framework.security.JwtAuthenticationFilter;
 import com.knowflow.security.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
