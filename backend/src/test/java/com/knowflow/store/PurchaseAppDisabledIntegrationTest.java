@@ -2,15 +2,15 @@ package com.knowflow.store;
 
 import com.knowflow.store.entity.Product;
 import com.knowflow.entity.SysUser;
-import com.knowflow.entity.Wallet;
+import com.knowflow.reward.entity.Wallet;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.store.mapper.EntitlementMapper;
 import com.knowflow.store.mapper.OrderMapper;
 import com.knowflow.store.mapper.ProductMapper;
-import com.knowflow.mapper.RewardLedgerMapper;
+import com.knowflow.reward.mapper.RewardLedgerMapper;
 import com.knowflow.mapper.SysUserMapper;
 import com.knowflow.apps.mapper.UserAppMapper;
-import com.knowflow.mapper.WalletMapper;
+import com.knowflow.reward.mapper.WalletMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -93,7 +93,7 @@ class PurchaseAppDisabledIntegrationTest {
         assertEquals(0, userAppMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.apps.entity.UserApp>()
                 .eq(com.knowflow.apps.entity.UserApp::getUserId, uid)
                 .eq(com.knowflow.apps.entity.UserApp::getAppKey, "unknown-app")));
-        assertEquals(0, ledgerMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.entity.RewardLedger>()
-                .eq(com.knowflow.entity.RewardLedger::getUserId, uid)));
+        assertEquals(0, ledgerMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.reward.entity.RewardLedger>()
+                .eq(com.knowflow.reward.entity.RewardLedger::getUserId, uid)));
     }
 }

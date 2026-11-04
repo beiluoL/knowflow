@@ -2,11 +2,11 @@ package com.knowflow.store;
 
 import com.knowflow.store.entity.Product;
 import com.knowflow.entity.SysUser;
-import com.knowflow.entity.Wallet;
+import com.knowflow.reward.entity.Wallet;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.store.mapper.ProductMapper;
 import com.knowflow.mapper.SysUserMapper;
-import com.knowflow.mapper.WalletMapper;
+import com.knowflow.reward.mapper.WalletMapper;
 import com.knowflow.utils.JwtUtils;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.jupiter.api.Test;

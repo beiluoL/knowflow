@@ -280,7 +280,7 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         }
 
         // Architecture-2：等级与经验统一读取 Wallet（Wallet = 当前状态；首次访问惰性初始化 xp=sys_user.exp，§7/§11）
-        com.knowflow.entity.Wallet wallet = walletService.getOrCreate(userId);
+        var wallet = walletService.getWalletVO(userId);
         int exp = wallet.getXp();
         int level = wallet.getLevel();
         // 精力值：待完成任务越多消耗越多，下限 0 上限 100（energy 不在经济闭环内，保持兼容，§9/§12）

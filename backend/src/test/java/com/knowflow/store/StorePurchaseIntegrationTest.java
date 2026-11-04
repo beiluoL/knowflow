@@ -7,15 +7,15 @@ import com.knowflow.store.entity.Entitlement;
 import com.knowflow.store.entity.Order;
 import com.knowflow.store.entity.Product;
 import com.knowflow.entity.SysUser;
-import com.knowflow.entity.Wallet;
+import com.knowflow.reward.entity.Wallet;
 import com.knowflow.exception.BusinessException;
 import com.knowflow.store.mapper.EntitlementMapper;
 import com.knowflow.store.mapper.OrderItemMapper;
 import com.knowflow.store.mapper.OrderMapper;
 import com.knowflow.store.mapper.ProductMapper;
-import com.knowflow.mapper.RewardLedgerMapper;
+import com.knowflow.reward.mapper.RewardLedgerMapper;
 import com.knowflow.mapper.SysUserMapper;
-import com.knowflow.mapper.WalletMapper;
+import com.knowflow.reward.mapper.WalletMapper;
 import com.knowflow.utils.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -132,8 +132,8 @@ class StorePurchaseIntegrationTest {
     }
 
     private long ledgersForUser() {
-        return ledgerMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.entity.RewardLedger>()
-                .eq(com.knowflow.entity.RewardLedger::getUserId, uid));
+        return ledgerMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.knowflow.reward.entity.RewardLedger>()
+                .eq(com.knowflow.reward.entity.RewardLedger::getUserId, uid));
     }
 
     private long orders() {
