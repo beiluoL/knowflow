@@ -183,6 +183,8 @@ public class DataSourceManager {
             com.knowflow.service.NoteSchema.migrate(conn);
             // 技术英语 P0：存量 H2/MySQL 库同样需要增量建表
             com.knowflow.service.TechVocabSchema.migrate(conn);
+            runScript(conn, "db/" + type.getCode() + "/migration/V20261104__identity_oauth_state.sql",
+                    type, "identity-oauth-state");
         } catch (SQLException e) {
             throw new IllegalStateException("执行数据库初始化脚本失败: " + rootMessage(e), e);
         }
